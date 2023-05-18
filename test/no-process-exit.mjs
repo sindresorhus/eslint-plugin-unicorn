@@ -30,11 +30,19 @@ test({
 			process.exit(1);
 		`,
 		outdent`
+			const {workerData, parentPort} = require('node:worker_threads');
+			process.exit(1);
+		`,
+		outdent`
 			import {workerData, parentPort} from 'worker_threads';
 			process.exit(1);
 		`,
 		outdent`
 			import foo from 'worker_threads';
+			process.exit(1);
+		`,
+		outdent`
+			import foo from 'node:worker_threads';
 			process.exit(1);
 		`,
 		// Not `CallExpression`

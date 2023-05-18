@@ -1,10 +1,14 @@
 'use strict';
-const {isStaticRequire, isMethodCall} = require('./ast/index.js');
+const {isStaticRequire, isMethodCall, isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
 	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.',
 };
+
+const isWorkerThreads = node =>
+	isLiteral(node, 'node:worker_threads')
+	|| isLiteral(node, 'worker_threads');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -24,8 +28,7 @@ const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (
 			isStaticRequire(callExpression)
-			// TODO: Support `node:worker_threads`
-			&& callExpression.arguments[0].value === 'worker_threads'
+			&& isWorkerThreads(callExpression.arguments[0])
 		) {
 			requiredWorkerThreadsModule = true;
 		}
@@ -35,8 +38,7 @@ const create = context => {
 	context.on('ImportDeclaration', importDeclaration => {
 		if (
 			importDeclaration.source.type === 'Literal'
-			// TODO: Support `node:worker_threads`
-			&& importDeclaration.source.value === 'worker_threads'
+			&& isWorkerThreads(importDeclaration.source)
 		) {
 			requiredWorkerThreadsModule = true;
 		}
@@ -54,6 +56,11 @@ const create = context => {
 			processEventHandler = node;
 		}
 	});
+	context.onExit('CallExpression', node => {
+		if (node === processEventHandler) {
+			processEventHandler = undefined;
+		}
+	});
 
 	// Check `process.exit` call
 	context.on('CallExpression', node => {
@@ -67,12 +74,6 @@ const create = context => {
 			})
 		) {
 			problemNodes.push(node);
-		}
-	});
-
-	context.onExit('CallExpression', node => {
-		if (node === processEventHandler) {
-			processEventHandler = undefined;
 		}
 	});
 
