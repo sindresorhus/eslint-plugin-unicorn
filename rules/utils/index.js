@@ -22,6 +22,7 @@ module.exports = {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getParenthesizedTimes,
+	getReferences: require('./get-references.js'),
 	getScopes: require('./get-scopes.js'),
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
 	isArrayPrototypeProperty,

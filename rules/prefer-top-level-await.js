@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression, isFunction} = require('./ast/index.js');
+const {isFunction, isMemberExpression} = require('./ast/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';

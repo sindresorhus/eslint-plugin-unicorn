@@ -171,7 +171,7 @@ const create = context => {
 		}
 	});
 
-	context.onExit(functionTypes, (node) => {
+	context.onExit(functionTypes, node => {
 		const currentFunctionHasJsx = functions.pop();
 		if (currentFunctionHasJsx) {
 			return;
