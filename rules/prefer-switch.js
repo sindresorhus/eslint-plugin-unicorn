@@ -262,11 +262,13 @@ const create = context => {
 	const checked = new Set();
 
 	return {
-		'IfStatement'(node) {
+		IfStatement(node) {
 			ifStatements.add(node);
 		},
-		'BreakStatement:not([label])'(node) {
-			breakStatements.push(node);
+		BreakStatement(node) {
+			if (!node.label) {
+				breakStatements.push(node);
+			}
 		},
 		* 'Program:exit'() {
 			for (const node of ifStatements) {

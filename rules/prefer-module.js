@@ -160,6 +160,15 @@ const isModuleExports = node =>
 	&& node.parent.object === node
 	&& node.parent.property.type === 'Identifier'
 	&& node.parent.property.name === 'exports';
+const isTopLevelReturnStatement = node => {
+	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
+		if (isFunction(ancestor)) {
+			return false;
+		}
+	}
+
+	return true;
+};
 
 function fixDefaultExport(node, sourceCode) {
 	return function * (fixer) {
@@ -214,109 +223,115 @@ function create(context) {
 
 	const {sourceCode} = context;
 
-	return {
-		'ExpressionStatement[directive="use strict"]'(node) {
-			const problem = {node, messageId: ERROR_USE_STRICT_DIRECTIVE};
-			const fix = function * (fixer) {
-				yield fixer.remove(node);
-				yield removeSpacesAfter(node, sourceCode, fixer);
-			};
+	context.on('ExpressionStatement', node => {
+		if (!node.directive === 'use strict') {
+			return;
+		}
 
-			if (filename.endsWith('.mjs')) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [{messageId: SUGGESTION_USE_STRICT_DIRECTIVE, fix}];
-			}
+		const problem = {node, messageId: ERROR_USE_STRICT_DIRECTIVE};
+		const fix = function * (fixer) {
+			yield fixer.remove(node);
+			yield removeSpacesAfter(node, sourceCode, fixer);
+		};
 
-			return problem;
-		},
-		'ReturnStatement:not(:function ReturnStatement)'(node) {
+		if (filename.endsWith('.mjs')) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [{messageId: SUGGESTION_USE_STRICT_DIRECTIVE, fix}];
+		}
+
+		return problem;
+	});
+
+	context.on('ReturnStatement', node => {
+		if (isTopLevelReturnStatement(node)) {
 			return {
 				node: sourceCode.getFirstToken(node),
 				messageId: ERROR_GLOBAL_RETURN,
 			};
-		},
-		Identifier(node) {
-			if (
-				!isReferenceIdentifier(node, [
-					'exports',
-					'require',
-					'module',
-					'__filename',
-					'__dirname',
-				])
-				|| isShadowed(sourceCode.getScope(node), node)
-			) {
-				return;
+		}
+	});
+
+	context.on('Identifier', node => {
+		if (
+			!isReferenceIdentifier(node, [
+				'exports',
+				'require',
+				'module',
+				'__filename',
+				'__dirname',
+			])
+			|| isShadowed(sourceCode.getScope(node), node)
+		) {
+			return;
+		}
+
+		const {name} = node;
+
+		const problem = {
+			node,
+			messageId: ERROR_IDENTIFIER,
+			data: {name},
+		};
+
+		switch (name) {
+			case '__filename':
+			case '__dirname': {
+				const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
+				const replacement = node.name === '__dirname'
+					? 'path.dirname(url.fileURLToPath(import.meta.url))'
+					: 'url.fileURLToPath(import.meta.url)';
+				problem.suggest = [{
+					messageId,
+					fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
+				}];
+				return problem;
 			}
 
-			const {name} = node;
-
-			const problem = {
-				node,
-				messageId: ERROR_IDENTIFIER,
-				data: {name},
-			};
-
-			switch (name) {
-				case '__filename':
-				case '__dirname': {
-					const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
-					const replacement = node.name === '__dirname'
-						? 'path.dirname(url.fileURLToPath(import.meta.url))'
-						: 'url.fileURLToPath(import.meta.url)';
+			case 'require': {
+				const fix = fixRequireCall(node, sourceCode);
+				if (fix) {
 					problem.suggest = [{
-						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
+						messageId: SUGGESTION_IMPORT,
+						fix,
 					}];
 					return problem;
 				}
 
-				case 'require': {
-					const fix = fixRequireCall(node, sourceCode);
-					if (fix) {
-						problem.suggest = [{
-							messageId: SUGGESTION_IMPORT,
-							fix,
-						}];
-						return problem;
-					}
-
-					break;
-				}
-
-				case 'exports': {
-					const fix = fixExports(node, sourceCode);
-					if (fix) {
-						problem.suggest = [{
-							messageId: SUGGESTION_EXPORT,
-							fix,
-						}];
-						return problem;
-					}
-
-					break;
-				}
-
-				case 'module': {
-					const fix = fixModuleExports(node, sourceCode);
-					if (fix) {
-						problem.suggest = [{
-							messageId: SUGGESTION_EXPORT,
-							fix,
-						}];
-						return problem;
-					}
-
-					break;
-				}
-
-				default:
+				break;
 			}
 
-			return problem;
-		},
-	};
+			case 'exports': {
+				const fix = fixExports(node, sourceCode);
+				if (fix) {
+					problem.suggest = [{
+						messageId: SUGGESTION_EXPORT,
+						fix,
+					}];
+					return problem;
+				}
+
+				break;
+			}
+
+			case 'module': {
+				const fix = fixModuleExports(node, sourceCode);
+				if (fix) {
+					problem.suggest = [{
+						messageId: SUGGESTION_EXPORT,
+						fix,
+					}];
+					return problem;
+				}
+
+				break;
+			}
+
+			default:
+		}
+
+		return problem;
+	});
 }
 
 /** @type {import('eslint').Rule.RuleModule} */

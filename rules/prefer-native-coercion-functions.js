@@ -116,11 +116,7 @@ function getCoercionFunctionProblem(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on([
-		'FunctionDeclaration',
-		'FunctionExpression',
-		'ArrowFunctionExpression',
-	], node => {
+	context.on(functionTypes, node => {
 		if (
 			node.async
 			|| node.generator

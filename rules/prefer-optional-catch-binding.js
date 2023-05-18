@@ -17,7 +17,12 @@ const selector = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
+	CatchClause(catchClause) {
+		const node = catchClause.param;
+		if (!node) {
+			return;
+		}
+
 		const {sourceCode} = context;
 		const variables = sourceCode.getDeclaredVariables(node.parent);
 

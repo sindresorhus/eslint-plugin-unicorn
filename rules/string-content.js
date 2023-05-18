@@ -73,63 +73,61 @@ const create = context => {
 		return;
 	}
 
-	return {
-		'Literal, TemplateElement'(node) {
-			const {type, value, raw} = node;
+	context.on(['Literal', 'TemplateElement'], node => {
+		const {type, value, raw} = node;
 
-			let string;
-			if (type === 'Literal') {
-				string = value;
-			} else if (!isIgnoredTag(node)) {
-				string = value.raw;
-			}
+		let string;
+		if (type === 'Literal') {
+			string = value;
+		} else if (!isIgnoredTag(node)) {
+			string = value.raw;
+		}
 
-			if (!string || typeof string !== 'string') {
-				return;
-			}
+		if (!string || typeof string !== 'string') {
+			return;
+		}
 
-			const replacement = replacements.find(({regex}) => regex.test(string));
+		const replacement = replacements.find(({regex}) => regex.test(string));
 
-			if (!replacement) {
-				return;
-			}
+		if (!replacement) {
+			return;
+		}
 
-			const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
-			const problem = {
+		const {fix: autoFix, message = defaultMessage, match, suggest, regex} = replacement;
+		const problem = {
+			node,
+			message,
+			data: {
+				match,
+				suggest,
+			},
+		};
+
+		const fixed = string.replace(regex, suggest);
+		const fix = type === 'Literal'
+			? fixer => fixer.replaceText(
 				node,
-				message,
-				data: {
-					match,
-					suggest,
+				escapeString(fixed, raw[0]),
+			)
+			: fixer => replaceTemplateElement(
+				fixer,
+				node,
+				escapeTemplateElementRaw(fixed),
+			);
+
+		if (autoFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_MESSAGE_ID,
+					fix,
 				},
-			};
+			];
+		}
 
-			const fixed = string.replace(regex, suggest);
-			const fix = type === 'Literal'
-				? fixer => fixer.replaceText(
-					node,
-					escapeString(fixed, raw[0]),
-				)
-				: fixer => replaceTemplateElement(
-					fixer,
-					node,
-					escapeTemplateElementRaw(fixed),
-				);
-
-			if (autoFix) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_MESSAGE_ID,
-						fix,
-					},
-				];
-			}
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 const schema = [

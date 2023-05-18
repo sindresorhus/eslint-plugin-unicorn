@@ -1,6 +1,7 @@
 'use strict';
 const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {isLiteral} = require('./ast/index.js');
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -11,23 +12,12 @@ const messages = {
 	[SUGGESTION_BITWISE]: 'Replace `{{operator}} {{value}}` with `Math.trunc`.',
 };
 
-const createBitwiseNotSelector = (level, isNegative) => {
-	const prefix = 'argument.'.repeat(level);
-	const selector = [
-		`[${prefix}type="UnaryExpression"]`,
-		`[${prefix}operator="~"]`,
-	].join('');
-	return isNegative ? `:not(${selector})` : selector;
-};
 
 // Bitwise operators
 const bitwiseOperators = new Set(['|', '>>', '<<', '^']);
-// Unary Expression Selector: Inner-most 2 bitwise NOT
-const bitwiseNotUnaryExpressionSelector = [
-	createBitwiseNotSelector(0),
-	createBitwiseNotSelector(1),
-	createBitwiseNotSelector(2, true),
-].join('');
+const isBitwiseNot = node =>
+	node.type === 'UnaryExpression'
+	&& node.operator === '~';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -39,62 +29,70 @@ const create = context => {
 		return `Math.trunc(${parenthesized})`;
 	};
 
-	return {
-		':matches(BinaryExpression, AssignmentExpression)[right.type="Literal"]'(node) {
-			const {type, operator, right, left} = node;
-			const isAssignment = type === 'AssignmentExpression';
-			if (
-				right.value !== 0
-				|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
-			) {
-				return;
-			}
+	context.on(['BinaryExpression', 'AssignmentExpression'], node => {
+		const {type, operator, right, left} = node;
+		const isAssignment = type === 'AssignmentExpression';
+		if (
+			!isLiteral(right, 0)
+			|| !bitwiseOperators.has(isAssignment ? operator.slice(0, -1) : operator)
+		) {
+			return;
+		}
 
-			const problem = {
-				node,
-				messageId: ERROR_BITWISE,
-				data: {
-					operator,
-					value: right.raw,
-				},
+		const problem = {
+			node,
+			messageId: ERROR_BITWISE,
+			data: {
+				operator,
+				value: right.raw,
+			},
+		};
+
+		if (!isAssignment || !hasSideEffect(left, sourceCode)) {
+			const fix = function * (fixer) {
+				const fixed = mathTruncFunctionCall(left);
+				if (isAssignment) {
+					const operatorToken = sourceCode.getTokenAfter(left, token => token.type === 'Punctuator' && token.value === operator);
+					yield fixer.replaceText(operatorToken, '=');
+					yield fixer.replaceText(right, fixed);
+				} else {
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+					yield fixer.replaceText(node, fixed);
+				}
 			};
 
-			if (!isAssignment || !hasSideEffect(left, sourceCode)) {
-				const fix = function * (fixer) {
-					const fixed = mathTruncFunctionCall(left);
-					if (isAssignment) {
-						const operatorToken = sourceCode.getTokenAfter(left, token => token.type === 'Punctuator' && token.value === operator);
-						yield fixer.replaceText(operatorToken, '=');
-						yield fixer.replaceText(right, fixed);
-					} else {
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-						yield fixer.replaceText(node, fixed);
-					}
-				};
-
-				if (operator === '|') {
-					problem.suggest = [
-						{
-							messageId: SUGGESTION_BITWISE,
-							fix,
-						},
-					];
-				} else {
-					problem.fix = fix;
-				}
+			if (operator === '|') {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_BITWISE,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
 			}
+		}
 
-			return problem;
-		},
-		[bitwiseNotUnaryExpressionSelector]: node => ({
-			node,
-			messageId: ERROR_BITWISE_NOT,
-			* fix(fixer) {
-				yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-			},
-		}),
-	};
+		return problem;
+	});
+
+	// Unary Expression Selector: Inner-most 2 bitwise NOT
+	context.on('UnaryExpression', node => {
+		if (
+			isBitwiseNot(node)
+			&& isBitwiseNot(node.argument)
+			&& !isBitwiseNot(node.argument.argument)
+		) {
+			return {
+				node,
+				messageId: ERROR_BITWISE_NOT,
+				* fix(fixer) {
+					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				},
+			};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
