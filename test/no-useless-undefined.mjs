@@ -478,7 +478,9 @@ test.snapshot({
 	},
 	valid: [],
 	invalid: [
-		'function A(type: foo = undefined) {}',
-		'function A(type?: foo = undefined) {}',
+		'function A(foo: type = undefined) {}',
+		'function A(foo?: type = undefined) {}',
+		'const A = function(foo: type = undefined) {}',
+		'const A = (foo: type = undefined) => {}',
 	]
 })
