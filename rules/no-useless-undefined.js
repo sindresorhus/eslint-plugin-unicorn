@@ -1,7 +1,7 @@
 'use strict';
 const {isCommaToken} = require('@eslint-community/eslint-utils');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
-const {isUndefined} = require('./ast/index.js');
+const {isUndefined, isFunction} = require('./ast/index.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -179,7 +179,21 @@ const create = context => {
 		) {
 			return getProblem(
 				node,
-				fixer => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
+				function * (fixer) {
+					const assignmentPattern = node.parent;
+					const left = assignmentPattern.left;
+
+					yield fixer.removeRange([left.range[1], node.range[1]]);
+
+					if (
+						left.typeAnnotation
+						&& !left.optional
+						&& isFunction(assignmentPattern.parent)
+						&& assignmentPattern.parent.params.includes(assignmentPattern)
+					) {
+						yield fixer.insertTextBefore(left.typeAnnotation, '?');
+					}
+				},
 				/* CheckFunctionReturnType */ true,
 			);
 		}
