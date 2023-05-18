@@ -196,7 +196,7 @@ const create = context => {
 	});
 
 	context.on('VariableDeclarator', node => {
-		if (node.parent.type === 'VariableDeclaration' && node.declarations[0] === node) {
+		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
 			const {id, init} = node;
 			return checkExpression(node, id, init, false);
 		}
