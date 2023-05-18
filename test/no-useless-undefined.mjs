@@ -492,13 +492,13 @@ test.snapshot({
 			'foo.MTs',
 			'foo.cts',
 			'foo.tsx',
-		].map(physicalFilename => ({
+		].map(filename => ({
 			code: 'function f(foo = undefined) {}',
-			physicalFilename,
+			filename,
 		})),
 		{
 			code: 'function a({} = undefined) {}',
-			physicalFilename: 'foo.ts',
+			filename: 'foo.ts',
 		},
 	],
 })

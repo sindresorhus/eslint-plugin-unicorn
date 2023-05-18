@@ -187,18 +187,17 @@ const create = context => {
 					const left = assignmentPattern.left;
 
 					yield fixer.removeRange([left.range[1], node.range[1]]);
-
 					if (
 						(left.typeAnnotation || isTypeScriptFile(context))
 						&& !left.optional
 						&& isFunction(assignmentPattern.parent)
 						&& assignmentPattern.parent.params.includes(assignmentPattern)
 					) {
-							yield (
-								left.typeAnnotation
-								? fixer.insertTextBefore(left.typeAnnotation, '?')
-								: fixer.insertTextAfter(left, '?')
-							);
+						yield (
+							left.typeAnnotation
+							? fixer.insertTextBefore(left.typeAnnotation, '?')
+							: fixer.insertTextAfter(left, '?')
+						);
 					}
 				},
 				/* CheckFunctionReturnType */ true,
