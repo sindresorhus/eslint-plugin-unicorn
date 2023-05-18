@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression} = require('./ast/index.js');
+const {isFunction, isMemberExpression, isMethodCall} = require('./ast/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -92,6 +92,23 @@ function create(context) {
 
 			// Identifier
 			if (node.callee.type !== 'Identifier') {
+				return;
+			}
+
+			// `await Promise.{all,allSettled,any,race}([foo()])`
+			if (
+				node.parent.type === 'ArrayExpression'
+				&& node.parent.elements.includes(node)
+				&& isMethodCall(node.parent.parent, {
+					object: 'Promise',
+					methods: ['all', 'allSettled', 'any', 'race'],
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.parent.parent.arguments[0] === node.parent
+				&& isAwaitArgument(node.parent.parent)
+			) {
 				return;
 			}
 
