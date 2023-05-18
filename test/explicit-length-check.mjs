@@ -109,8 +109,8 @@ test({
 	],
 	invalid: [
 		suggestionCase({
-			code: 'const x = foo.length && bar()',
-			output: 'const x = foo.length > 0 && bar()',
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length > 0 || bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
@@ -124,8 +124,8 @@ test({
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
-			code: 'const x = foo.length && bar()',
-			output: 'const x = foo.length !== 0 && bar()',
+			code: 'const x = foo.length || bar()',
+			output: 'const x = foo.length !== 0 || bar()',
 			desc: 'Replace `.length` with `.length !== 0`.',
 			options: [{'non-zero': 'not-equal'}],
 		}),
