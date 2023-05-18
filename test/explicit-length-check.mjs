@@ -105,12 +105,22 @@ test({
 		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
 		// Logical OR
 		'const x = foo.length || 2',
-		'const x = foo.length || bar()',
+		'const A_NUMBER = 2; const x = foo.length || A_NUMBER',
 	],
 	invalid: [
 		suggestionCase({
 			code: 'const x = foo.length && bar()',
 			output: 'const x = foo.length > 0 && bar()',
+			desc: 'Replace `.length` with `.length > 0`.',
+		}),
+		suggestionCase({
+			code: 'const x = foo.length || unknown',
+			output: 'const x = foo.length > 0 || unknown',
+			desc: 'Replace `.length` with `.length > 0`.',
+		}),
+		suggestionCase({
+			code: 'const NON_NUMBER = "2"; const x = foo.length || NON_NUMBER',
+			output: 'const NON_NUMBER = "2"; const x = foo.length > 0 || NON_NUMBER',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
