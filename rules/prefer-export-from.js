@@ -322,7 +322,7 @@ function create(context) {
 
 	return {
 		ImportDeclaration(node) {
-			if (node.specifier && node.specifier.length > 0) {
+			if (node.specifiers.length > 0) {
 				importDeclarations.add(node);
 			}
 		},
