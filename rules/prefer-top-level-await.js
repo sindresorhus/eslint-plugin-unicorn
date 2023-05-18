@@ -40,7 +40,7 @@ const isPromiseMethodCalleeObject = node =>
 	&& promisePrototypeMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
-const isAwaitArgument = node => {
+const isAwaitExpressionArgument = node => {
 	if (node.parent.type === 'ChainExpression') {
 		node = node.parent;
 	}
@@ -72,7 +72,7 @@ function create(context) {
 			if (
 				!isTopLevelCallExpression(node)
 				|| isPromiseMethodCalleeObject(node)
-				|| isAwaitArgument(node)
+				|| isAwaitExpressionArgument(node)
 				|| isInPromiseMethods(node)
 			) {
 				return;
