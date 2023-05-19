@@ -1,6 +1,6 @@
 'use strict';
 const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression} = require('./ast/index.js');
+const {isFunction, isMemberExpression, isMethodCall} = require('./ast/index.js');
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -13,7 +13,7 @@ const messages = {
 	[SUGGESTION_ADD_AWAIT]: 'Insert `await`.',
 };
 
-const promiseMethods = ['then', 'catch', 'finally'];
+const promisePrototypeMethods = ['then', 'catch', 'finally'];
 const isTopLevelCallExpression = node => {
 	if (node.type !== 'CallExpression') {
 		return false;
@@ -37,16 +37,27 @@ const isPromiseMethodCalleeObject = node =>
 	&& node.parent.object === node
 	&& !node.parent.computed
 	&& node.parent.property.type === 'Identifier'
-	&& promiseMethods.includes(node.parent.property.name)
+	&& promisePrototypeMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
-const isAwaitArgument = node => {
+const isAwaitExpressionArgument = node => {
 	if (node.parent.type === 'ChainExpression') {
 		node = node.parent;
 	}
 
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
+
+// `Promise.{all,allSettled,any,race}([foo()])`
+const isInPromiseMethods = node =>
+	node.parent.type === 'ArrayExpression'
+	&& node.parent.elements.includes(node)
+	&& isMethodCall(node.parent.parent, {
+		object: 'Promise',
+		methods: ['all', 'allSettled', 'any', 'race'],
+		argumentsLength: 1,
+	})
+	&& node.parent.parent.arguments[0] === node.parent;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
@@ -59,14 +70,15 @@ function create(context) {
 			if (
 				!isTopLevelCallExpression(node)
 				|| isPromiseMethodCalleeObject(node)
-				|| isAwaitArgument(node)
+				|| isAwaitExpressionArgument(node)
+				|| isInPromiseMethods(node)
 			) {
 				return;
 			}
 
 			// Promises
 			if (isMemberExpression(node.callee, {
-				properties: promiseMethods,
+				properties: promisePrototypeMethods,
 				computed: false,
 			})) {
 				return {

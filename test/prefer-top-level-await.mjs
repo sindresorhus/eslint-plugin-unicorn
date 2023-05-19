@@ -200,6 +200,36 @@ test.snapshot({
 	],
 });
 
+// In `Promise` methods
+test.snapshot({
+	valid: [
+		outdent`
+			const foo = async () => {};
+			await Promise.all([
+				(async () => {})(),
+				/* hole */,
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await Promise.allSettled([foo()]);
+			await Promise?.any([foo()]);
+			await Promise.race?.([foo()]);
+		`,
+		outdent`
+			const foo = async () => {};
+			const promise = Promise.all([
+				(async () => {})(),
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await promise;
+		`,
+	],
+	invalid: [],
+});
+
 test.babel({
 	valid: [
 		'await foo',
