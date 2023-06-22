@@ -52,6 +52,7 @@ test.snapshot({
 		'element.setAttribute("DATA--FOO", "🦄");',
 		'element.setAttribute("DATA- ", "🦄");',
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
+		'element?.setAttribute("data-optional-chaining", "foo");',
 	],
 });
 
@@ -81,6 +82,7 @@ test.snapshot({
 		// First Argument is not startsWith `data-`
 		'element.removeAttribute("foo-unicorn");',
 		'element.removeAttribute("data");',
+		'delete element?.dataset["unicorn"];',
 	],
 	invalid: [
 		outdent`
@@ -101,6 +103,7 @@ test.snapshot({
 		'element.removeAttribute("data-foo");',
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
+		'element?.removeAttribute("data-optional-chaining");',
 	],
 });
 
@@ -133,6 +136,7 @@ test.snapshot({
 		// First Argument is not startsWith `data-`
 		'element.hasAttribute("foo-unicorn");',
 		'element.hasAttribute("data");',
+		'element?.hasAttribute("optional-chaining");',
 	],
 	invalid: [
 		outdent`
@@ -152,6 +156,7 @@ test.snapshot({
 		'element.hasAttribute("data-foo-bar");',
 		'element.hasAttribute("data-foo");',
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
+		'element?.hasAttribute("data-optional-chaining");',
 	],
 });
 
@@ -180,6 +185,7 @@ test.snapshot({
 		// First Argument is not startsWith `data-`
 		'element.getAttribute("foo-unicorn");',
 		'element.getAttribute("data");',
+		'element?.getAttribute("optional-chaining");',
 	],
 	invalid: [
 		outdent`
@@ -199,5 +205,6 @@ test.snapshot({
 		'element.getAttribute("data-foo-bar");',
 		'element.getAttribute("data-foo");',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
+		'element?.getAttribute("data-optional-chaining");',
 	],
 });
