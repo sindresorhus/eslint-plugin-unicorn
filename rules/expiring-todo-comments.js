@@ -52,8 +52,16 @@ const messages = {
 function getPackageHelpers(dirname) {
 	// We don't need to normalize the package.json data, because we are only using 2 properties and those 2 properties
 	// aren't validated by the normalization. But when this plugin is used in a monorepo, the name field in the
-	// package.json is invalid and would make this plugin throw an error. See also #1871
-	const packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+	// package.json can be invalid and would make this plugin throw an error. See also #1871
+	/** @type {readPkgUp.ReadResult | undefined} */
+	let packageResult;
+	try {
+		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+	} catch {
+		// This can happen if package.json files have comments in them etc.
+		packageResult = undefined;
+	}
+
 	const hasPackage = Boolean(packageResult);
 	const packageJson = packageResult ? packageResult.packageJson : {};
 
