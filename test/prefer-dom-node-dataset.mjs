@@ -82,6 +82,7 @@ test.snapshot({
 		'element.removeAttribute(0);',
 		// First Argument is not startsWith `data-`
 		'element.removeAttribute("foo-unicorn");',
+		'element.removeAttribute("data");',
 	],
 	invalid: [
 		outdent`
