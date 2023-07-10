@@ -1,6 +1,6 @@
 'use strict';
 const {isIdentifierName} = require('@babel/helper-validator-identifier');
-const {escapeString} = require('./utils/index.js');
+const {escapeString, hasOptionalChainElement} = require('./utils/index.js');
 const {isMethodCall, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
@@ -10,12 +10,18 @@ const messages = {
 
 const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
 
-function getFix({context, callExpression}) {
+function getFix(callExpression, context) {
 	const method = callExpression.callee.property.name;
-	const [nameNode] = callExpression.arguments;
-	const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
 
-	return (fixer) => {
+	// `foo?.bar = ''` is invalid
+	// TODO: Remove this restriction if https://github.com/nicolo-ribaudo/ecma262/pull/4 get merged
+	if (method === 'setAttribute' && hasOptionalChainElement(callExpression.callee)) {
+		return;
+	}
+
+	return fixer => {
+		const [nameNode] = callExpression.arguments;
+		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
 		const {sourceCode} = context;
 		let text = '';
 		const datasetText = `${sourceCode.getText(callExpression.callee.object)}.dataset`;
@@ -45,7 +51,7 @@ function getFix({context, callExpression}) {
 			// No default
 		}
 
-		return fixer.replaceText(callExpression, text)
+		return fixer.replaceText(callExpression, text);
 	};
 }
 
@@ -82,7 +88,7 @@ const create = context => ({
 			node: callExpression,
 			messageId: MESSAGE_ID,
 			data: {method: callExpression.callee.property.name},
-			fix: getFix({context, callExpression}),
+			fix: getFix(callExpression, context),
 		};
 	},
 });
