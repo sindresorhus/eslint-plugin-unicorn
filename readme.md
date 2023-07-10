@@ -26,7 +26,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 	"name": "my-awesome-project",
 	"eslintConfig": {
 		"env": {
-			"es2022": true
+			"es2024": true
 		},
 		"parserOptions": {
 			"ecmaVersion": "latest",
