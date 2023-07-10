@@ -51,6 +51,11 @@ test.snapshot({
 		`,
 		// No `BlockStatement`
 		'if (a) if (b) foo();',
+		outdent`
+			if (a) {
+				if (b) foo()
+			}
+		`,
 		// `EmptyStatement`
 		'if (a) if (b);',
 		// Nested
