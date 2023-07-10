@@ -102,7 +102,6 @@ test.snapshot({
 		'element.removeAttribute("data-foo");',
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
-		'element.removeAttribute("data-");',
 		'optional?.element.removeAttribute("data-unicorn");',
 	],
 });
