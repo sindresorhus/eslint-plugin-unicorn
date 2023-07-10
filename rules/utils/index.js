@@ -25,6 +25,7 @@ module.exports = {
 	getReferences: require('./get-references.js'),
 	getScopes: require('./get-scopes.js'),
 	getVariableIdentifiers: require('./get-variable-identifiers.js'),
+	hasOptionalChainElement: require('./has-optional-chain-element.js'),
 	isArrayPrototypeProperty,
 	isBooleanNode,
 	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),

@@ -52,6 +52,8 @@ test.snapshot({
 		'element.setAttribute("DATA--FOO", "🦄");',
 		'element.setAttribute("DATA- ", "🦄");',
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
+		// Not fixable
+		'optional?.element.setAttribute("data-unicorn", "🦄");',
 	],
 });
 
@@ -101,6 +103,7 @@ test.snapshot({
 		'element.removeAttribute("data-foo");',
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
+		'optional?.element.removeAttribute("data-unicorn");',
 	],
 });
 
@@ -152,6 +155,7 @@ test.snapshot({
 		'element.hasAttribute("data-foo-bar");',
 		'element.hasAttribute("data-foo");',
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
+		'optional?.element.hasAttribute("data-unicorn");',
 	],
 });
 
@@ -199,5 +203,6 @@ test.snapshot({
 		'element.getAttribute("data-foo-bar");',
 		'element.getAttribute("data-foo");',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
+		'optional?.element.getAttribute("data-unicorn");',
 	],
 });
