@@ -54,6 +54,7 @@ test.snapshot({
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
 		// Not fixable
 		'optional?.element.setAttribute("data-unicorn", "🦄");',
+		'console.log(element.setAttribute("data-unicorn", "🦄"))',
 	],
 });
 
@@ -104,6 +105,7 @@ test.snapshot({
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
 		'optional?.element.removeAttribute("data-unicorn");',
+		'element.removeAttribute("data-unicorn")?.property',
 	],
 });
 
@@ -156,6 +158,7 @@ test.snapshot({
 		'element.hasAttribute("data-foo");',
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
 		'optional?.element.hasAttribute("data-unicorn");',
+		'element.hasAttribute("data-unicorn").toString()',
 	],
 });
 
@@ -204,5 +207,6 @@ test.snapshot({
 		'element.getAttribute("data-foo");',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
 		'optional?.element.getAttribute("data-unicorn");',
+		'element.getAttribute("data-unicorn").toString()',
 	],
 });
