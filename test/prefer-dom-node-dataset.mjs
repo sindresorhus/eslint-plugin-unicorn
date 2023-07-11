@@ -54,6 +54,7 @@ test.snapshot({
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
 		// Not fixable
 		'optional?.element.setAttribute("data-unicorn", "🦄");',
+		'console.log(element.setAttribute("data-unicorn", "🦄"))',
 	],
 });
 
@@ -104,6 +105,7 @@ test.snapshot({
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
 		'optional?.element.removeAttribute("data-unicorn");',
+		'element.removeAttribute("data-unicorn")?.property',
 	],
 });
 
