@@ -158,6 +158,7 @@ test.snapshot({
 		'element.hasAttribute("data-foo");',
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
 		'optional?.element.hasAttribute("data-unicorn");',
+		'element.hasAttribute("data-unicorn").toString()',
 	],
 });
 
@@ -206,5 +207,6 @@ test.snapshot({
 		'element.getAttribute("data-foo");',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
 		'optional?.element.getAttribute("data-unicorn");',
+		'element.getAttribute("data-unicorn").toString()',
 	],
 });
