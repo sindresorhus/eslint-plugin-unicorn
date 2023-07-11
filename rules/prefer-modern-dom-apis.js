@@ -59,8 +59,9 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	}
 
 	const preferredMethod = positionReplacers.get(position);
-	const content = context.getSource(contentNode);
-	const reference = context.getSource(node.callee.object);
+	const {sourceCode} = context;
+	const content = sourceCode.getText(contentNode);
+	const reference = sourceCode.getText(node.callee.object);
 
 	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node)
 		? undefined
@@ -77,7 +78,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			reference,
 			method,
 			preferredMethod,
-			position: context.getSource(positionNode),
+			position: sourceCode.getText(positionNode),
 			content,
 		},
 		fix,
