@@ -1,7 +1,11 @@
 'use strict';
 const {isIdentifierName} = require('@babel/helper-validator-identifier');
-const {escapeString, hasOptionalChainElement} = require('./utils/index.js');
-const {isMethodCall, isStringLiteral} = require('./ast/index.js');
+const {
+	escapeString,
+	hasOptionalChainElement,
+	isValueNotUsable,
+} = require('./utils/index.js');
+const {isMethodCall, isStringLiteral, isExpressionStatement} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
@@ -16,6 +20,15 @@ function getFix(callExpression, context) {
 	// `foo?.bar = ''` is invalid
 	// TODO: Remove this restriction if https://github.com/nicolo-ribaudo/ecma262/pull/4 get merged
 	if (method === 'setAttribute' && hasOptionalChainElement(callExpression.callee)) {
+		return;
+	}
+
+	// `element.setAttribute(…)` returns `undefined`, but `AssignmentExpression` returns value of RHS
+	if (method === 'setAttribute' && !isValueNotUsable(callExpression)) {
+		return;
+	}
+
+	if (method === 'removeAttribute' && !isExpressionStatement(callExpression.parent)) {
 		return;
 	}
 
