@@ -137,12 +137,13 @@ function checkVueTemplate(create, options) {
 
 	const wrapped = context => {
 		const listeners = create(context);
+		const {parserServices} = context.sourceCode;
 
 		// `vue-eslint-parser`
-		if (context.parserServices?.defineTemplateBodyVisitor) {
+		if (parserServices?.defineTemplateBodyVisitor) {
 			return visitScriptBlock
-				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
-				: context.parserServices.defineTemplateBodyVisitor(listeners);
+				? parserServices.defineTemplateBodyVisitor(listeners, listeners)
+				: parserServices.defineTemplateBodyVisitor(listeners);
 		}
 
 		return listeners;

@@ -17,7 +17,7 @@ const hasTripeSlashDirectives = comments =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const filename = context.getPhysicalFilename();
+	const filename = context.physicalFilename;
 
 	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
 		return;

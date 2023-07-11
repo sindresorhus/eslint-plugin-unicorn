@@ -61,7 +61,7 @@ const isInPromiseMethods = node =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	if (context.getFilename().toLowerCase().endsWith('.cjs')) {
+	if (context.filename.toLowerCase().endsWith('.cjs')) {
 		return;
 	}
 
