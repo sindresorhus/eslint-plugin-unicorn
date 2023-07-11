@@ -338,7 +338,7 @@ const isInternalImport = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
-	const filenameWithExtension = context.getPhysicalFilename();
+	const filenameWithExtension = context.physicalFilename;
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (wherever the class is declared).

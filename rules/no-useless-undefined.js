@@ -81,7 +81,7 @@ const isFunctionBindCall = node =>
 	&& node.callee.property.name === 'bind';
 
 const isTypeScriptFile = context =>
-	/\.(?:ts|mts|cts|tsx)$/i.test(context.getPhysicalFilename());
+	/\.(?:ts|mts|cts|tsx)$/i.test(context.physicalFilename);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

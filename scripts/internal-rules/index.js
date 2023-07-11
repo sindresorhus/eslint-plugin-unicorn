@@ -26,7 +26,7 @@ module.exports = {
 				{
 					...rule,
 					create(context) {
-						const filename = context.getPhysicalFilename();
+						const filename = context.physicalFilename;
 						if (directories.every(directory => !isFileInsideDirectory(filename, directory))) {
 							return {};
 						}

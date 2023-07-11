@@ -27,8 +27,8 @@ const create = context => {
 			const {left, right} = node;
 			let tokenStore = sourceCode;
 			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-			if (!instanceofToken && context.parserServices.getTemplateBodyTokenStore) {
-				tokenStore = context.parserServices.getTemplateBodyTokenStore();
+			if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
+				tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
 				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 			}
 
