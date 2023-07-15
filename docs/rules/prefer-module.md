@@ -24,8 +24,8 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 	Replacements:
 
 	```js
-	import {fileURLToPath} from 'url';
-	import path from 'path';
+	import {fileURLToPath} from 'node:url';
+	import path from 'node:path';
 
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +34,7 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 	However, in most cases, this is better:
 
 	```js
-	import {fileURLToPath} from 'url';
+	import {fileURLToPath} from 'node:url';
 
 	const foo = fileURLToPath(new URL('foo.js', import.meta.url));
 	```
