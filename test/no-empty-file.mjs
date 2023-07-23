@@ -77,3 +77,13 @@ test.snapshot({
 		].map(extension => ({code: '{}', filename: `example.${extension}`})),
 	],
 });
+
+// Test for https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2175
+test.typescript({
+	valid: [
+		{code: '(() => {})();', filename: 'example.ts'},
+	],
+	invalid: [
+		{code: '"";', filename: 'example.ts', errors: 1},
+	],
+});
