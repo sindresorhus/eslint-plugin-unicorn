@@ -85,5 +85,6 @@ test.typescript({
 	],
 	invalid: [
 		{code: '"";', filename: 'example.ts', errors: 1},
+		{code: '"use strict";', filename: 'example.ts', errors: 1},
 	],
 });
