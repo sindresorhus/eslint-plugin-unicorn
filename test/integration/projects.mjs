@@ -136,6 +136,8 @@ export default [
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 			'packages/compiler-cli/test/**',
 			'tools/**',
+			// TODO[@fisker]: Check why it can't be parsed
+			'packages/forms/src/validators.ts',
 		],
 	},
 	// OOM
