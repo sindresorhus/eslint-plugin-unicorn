@@ -1,5 +1,5 @@
 'use strict';
-const {defaultsDeep} = require('lodash');
+const {defaultsDeep} = require('./utils/lodash');
 const {getStringIfConstant} = require('@eslint-community/eslint-utils');
 const {isCallExpression} = require('./ast/index.js');
 
