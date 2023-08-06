@@ -1,5 +1,5 @@
 'use strict';
-const {upperFirst} = require('./utils/lodash');
+const {upperFirst} = require('./utils/lodash.js');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {

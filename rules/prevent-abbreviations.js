@@ -1,6 +1,6 @@
 'use strict';
 const path = require('node:path');
-const {defaultsDeep, upperFirst, lowerFirst} = require('./utils/lodash');
+const {defaultsDeep, upperFirst, lowerFirst} = require('./utils/lodash.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
