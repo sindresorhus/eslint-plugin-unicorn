@@ -107,7 +107,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 	const [firstPart, ...trailingParts] = filename.split('.');
 	return {
 		filename: firstPart,
-		extension: `.${trailingParts.join('.')}${extension}`,
+		extension: trailingParts.length > 0 ? `.${trailingParts.join('.')}${extension}` : extension,
 	};
 }
 

@@ -238,6 +238,8 @@ test({
 		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
 			filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase)),
 		),
+		testCaseWithOptions('index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: true}]),
+		testCaseWithOptions('src/index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: true}]),
 		testCaseWithOptions('src/foo/fooBar.test.js', undefined, [{case: 'camelCase', multipleFileExtensions: true}]),
 		testCaseWithOptions('src/foo/fooBar.testutils.js', undefined, [{case: 'camelCase', multipleFileExtensions: true}]),
 		testCaseWithOptions('src/foo/foo_bar.test_utils.js', undefined, [{case: 'snakeCase', multipleFileExtensions: true}]),
