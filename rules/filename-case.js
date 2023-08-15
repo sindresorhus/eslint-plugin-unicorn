@@ -96,6 +96,21 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension.toLowerCase()}`))];
 }
 
+function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
+	const extension = path.extname(filenameWithExtension);
+	const filename = path.basename(filenameWithExtension, extension);
+
+	if (!multipleFileExtensions) {
+		return {filename, extension};
+	}
+
+	const [firstPart, ...trailingParts] = filename.split('.');
+	return {
+		filename: firstPart,
+		extension: `.${trailingParts.join('.')}${extension}`,
+	};
+}
+
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
 function splitFilename(filename) {
 	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
@@ -143,6 +158,7 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
+	const multipleFileExtensions = options.multipleFileExtensions || false;
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.physicalFilename;
 
@@ -152,8 +168,7 @@ const create = context => {
 
 	return {
 		Program() {
-			const extension = path.extname(filenameWithExtension);
-			const filename = path.basename(filenameWithExtension, extension);
+			const {filename, extension} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
 			const base = filename + extension;
 
 			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(base))) {
@@ -211,6 +226,9 @@ const schema = [
 						type: 'array',
 						uniqueItems: true,
 					},
+					multipleFileExtensions: {
+						type: 'boolean',
+					},
 				},
 				additionalProperties: false,
 			},
@@ -236,6 +254,9 @@ const schema = [
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+					},
+					multipleFileExtensions: {
+						type: 'boolean',
 					},
 				},
 				additionalProperties: false,
