@@ -135,7 +135,7 @@ test('validate configuration', async t => {
 		const recommendedEnvironments = Object.keys(eslintPluginUnicorn.configs.recommended.env);
 		t.is(recommendedEnvironments.length, 1);
 		t.is(
-			availableEnvironments[availableEnvironments.length - 1],
+			availableEnvironments.at(-1),
 			recommendedEnvironments[0],
 			'env should be the latest es version',
 		);

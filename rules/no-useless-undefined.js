@@ -236,7 +236,7 @@ const create = context => {
 		}
 
 		const firstUndefined = undefinedArguments[0];
-		const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
+		const lastUndefined = undefinedArguments.at(-1);
 
 		return {
 			messageId,

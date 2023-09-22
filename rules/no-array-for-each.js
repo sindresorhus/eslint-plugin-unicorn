@@ -400,7 +400,7 @@ const create = context => {
 	});
 
 	context.on('ReturnStatement', node => {
-		const currentFunction = functionStack[functionStack.length - 1];
+		const currentFunction = functionStack.at(-1);
 		if (!currentFunction) {
 			return;
 		}

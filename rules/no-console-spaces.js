@@ -11,7 +11,7 @@ const messages = {
 const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && value.charAt(1) !== ' ';
 
 // Find exactly one trailing space, allow exactly one space
-const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length - 1) === ' ' && value.charAt(value.length - 2) !== ' ';
+const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

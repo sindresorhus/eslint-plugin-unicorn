@@ -41,7 +41,7 @@ function visualizeEslintMessage(text, result) {
 
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const INDENT = ' '.repeat(4);
-const indentCode = code => code.replace(/^/gm, INDENT);
+const indentCode = code => code.replaceAll(/^/gm, INDENT);
 const getAdditionalProperties = (object, properties) =>
 	Object.keys(object).filter(property => !properties.includes(property));
 

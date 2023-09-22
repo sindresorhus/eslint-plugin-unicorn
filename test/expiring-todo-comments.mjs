@@ -35,7 +35,7 @@ const avoidMultiplePackageVersionsError = (versions, message) => ({
 });
 
 const removeWhitespaceError = (argument, message) => ({
-	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replace(/ /g, '')}'. ${message}`,
+	message: `Avoid using whitespace on TODO argument. On '${argument}' use '${argument.replaceAll(' ', '')}'. ${message}`,
 });
 
 const missingAtSymbolError = (bad, good, message) => ({

@@ -25,7 +25,7 @@ const create = context => ({
 		const [defaultCase] = defaultCases;
 
 		// We only check cases where the last case is the `default` case
-		if (defaultCase !== cases[cases.length - 1]) {
+		if (defaultCase !== cases.at(-1)) {
 			return;
 		}
 

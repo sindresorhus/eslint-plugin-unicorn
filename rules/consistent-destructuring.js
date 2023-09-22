@@ -89,7 +89,7 @@ const create = context => {
 				&& property.key.type === 'Identifier'
 				&& property.value.type === 'Identifier',
 			);
-			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
+			const lastProperty = objectPattern.properties.at(-1);
 
 			const hasRest = lastProperty && lastProperty.type === 'RestElement';
 
@@ -134,7 +134,7 @@ const create = context => {
 					},
 					* fix(fixer) {
 						const {properties} = objectPattern;
-						const lastProperty = properties[properties.length - 1];
+						const lastProperty = properties.at(-1);
 
 						yield fixer.replaceText(node, newMember);
 
