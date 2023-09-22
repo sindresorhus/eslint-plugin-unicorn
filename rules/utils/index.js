@@ -48,5 +48,6 @@ module.exports = {
 	shouldAddParenthesesToSpreadElementArgument: require('./should-add-parentheses-to-spread-element-argument.js'),
 	singular: require('./singular.js'),
 	toLocation: require('./to-location.js'),
+	getAncestor: require('./get-ancestor.js'),
 };
 
