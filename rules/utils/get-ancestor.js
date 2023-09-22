@@ -17,4 +17,4 @@ function getAncestor(node, options) {
 	}
 }
 
-module.exports = getAncestor
+module.exports = getAncestor;

@@ -18,7 +18,7 @@ test.snapshot({
 		'new Foo(EventEmitter)',
 		'new foo.EventEmitter()',
 		...[
-      'import {EventEmitter} from "@angular/core";',
+			'import {EventEmitter} from "@angular/core";',
 			'const {EventEmitter} = require("@angular/core");',
 			'const EventEmitter = require("@angular/core").EventEmitter;',
 			'import {EventEmitter} from "eventemitter3";',

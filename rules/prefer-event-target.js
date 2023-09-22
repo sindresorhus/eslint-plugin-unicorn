@@ -11,25 +11,26 @@ const messages = {
 const packagesShouldBeIgnored = new Set([
 	'@angular/core',
 	'eventemitter3',
-])
+]);
 
 const isConstVariableDeclarationId = node =>
-		node.parent.type === 'VariableDeclarator'
-		&& node.parent.id === node
-		&& node.parent.parent.type === 'VariableDeclaration'
-		&& node.parent.parent.kind === 'const'
-		&& node.parent.parent.declarations.includes(node.parent)
+	node.parent.type === 'VariableDeclarator'
+	&& node.parent.id === node
+	&& node.parent.parent.type === 'VariableDeclaration'
+	&& node.parent.parent.kind === 'const'
+	&& node.parent.parent.declarations.includes(node.parent);
 
 function isAwaitImportOrRequireFromIgnoredPackages(node) {
 	if (!node) {
 		return false;
 	}
 
-	const source = isStaticRequire(node)
-		? node.arguments[0]
-		: node.type === 'AwaitExpression' && node.argument.type === 'ImportExpression'
-			? node.argument.source
-			: undefined;
+	let source;
+	if (isStaticRequire(node)) {
+		[source] = node.arguments;
+	} else if (node.type === 'AwaitExpression' && node.argument.type === 'ImportExpression') {
+		({source} = node.argument);
+	}
 
 	if (isStringLiteral(source) && packagesShouldBeIgnored.has(source.value)) {
 		return true;
@@ -45,7 +46,7 @@ function isFromIgnoredPackage(node) {
 
 	const importDeclaration = getAncestor(node, 'ImportDeclaration');
 	if (packagesShouldBeIgnored.has(importDeclaration?.source.value)) {
-		return true
+		return true;
 	}
 
 	// `const {EventEmitter} = ...`
@@ -75,7 +76,7 @@ function isFromIgnoredPackage(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => ({
+const create = context => ({
 	Identifier(node) {
 		if (!(
 			node.name === 'EventEmitter'
@@ -91,7 +92,7 @@ const create = (context) => ({
 		}
 
 		const scope = context.sourceCode.getScope(node);
-		const variableNode = findVariable(scope, node)?.defs[0]?.name
+		const variableNode = findVariable(scope, node)?.defs[0]?.name;
 		if (isFromIgnoredPackage(variableNode)) {
 			return;
 		}
