@@ -28,7 +28,6 @@ const create = context => {
 			}
 
 			const {raw: original, regex} = node;
-
 			// Regular Expressions with `u` and `v` flag are not well handled by `regexp-tree`
 			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
 			if (regex.flags.includes('u') || regex.flags.includes('v')) {

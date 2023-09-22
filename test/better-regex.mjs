@@ -40,7 +40,7 @@ test({
 		// Should not crash ESLint (#446 and #448)
 		'/\\{\\{verificationUrl\\}\\}/gu',
 		'/^test-(?<name>[a-zA-Z-\\d]+)$/u',
-		'/[\p{Script_Extensions=Greek}--π]/v',
+		String.raw`/[\p{Script_Extensions=Greek}--π]/v`,
 
 		// Should not suggest wrong regex (#447)
 		'/(\\s|\\.|@|_|-)/u',
