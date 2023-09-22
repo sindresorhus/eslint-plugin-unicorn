@@ -284,13 +284,18 @@ const create = context => {
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
 	// Since we have priority, we leave only the comments that we didn't use.
-	const fakeContext = {
-		...context,
-		sourceCode: {
-			...sourceCode,
-			getAllComments: () => options.allowWarningComments ? [] : unusedComments,
+	const fakeContext = new Proxy(context, {
+		get(target, property, receiver) {
+			if (property === 'sourceCode') {
+				return {
+					...sourceCode,
+					getAllComments: () => options.allowWarningComments ? [] : unusedComments,
+				};
+			}
+
+			return Reflect.get(target, property, receiver);
 		},
-	};
+	});
 	const rules = baseRule.create(fakeContext);
 
 	function processComment(comment) {
