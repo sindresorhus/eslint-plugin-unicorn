@@ -147,6 +147,10 @@ test.snapshot({
 			if (regex.exec(foo));
 		`,
 		outdent`
+			const regex = /weird/v;
+			if (regex.exec(foo));
+		`,
+		outdent`
 			let re = new RegExp('foo', 'g');
 			if(str.match(re));
 		`,

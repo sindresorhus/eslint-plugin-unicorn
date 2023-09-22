@@ -219,6 +219,8 @@ test.snapshot({
 		'/a$/.test(a ??= b)',
 		'/^a/.test(a || b)',
 		'/^a/.test(a && b)',
+		'/^a/u.test("string")',
+		'/^a/v.test("string")',
 		// eslint-disable-next-line no-template-curly-in-string
 		'/a$/.test(`${unknown}`)',
 		'/a$/.test(String(unknown))',
