@@ -12,7 +12,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
 };
 
-const dashToCamelCase = string => string.replace(/-[a-z]/g, s => s[1].toUpperCase());
+const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
 
 function getFix(callExpression, context) {
 	const method = callExpression.callee.property.name;

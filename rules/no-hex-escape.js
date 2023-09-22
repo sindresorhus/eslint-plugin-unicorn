@@ -8,7 +8,7 @@ const messages = {
 };
 
 function checkEscape(context, node, value) {
-	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
+	const fixedValue = value.replaceAll(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
 		return {

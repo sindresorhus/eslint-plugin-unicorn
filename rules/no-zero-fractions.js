@@ -28,7 +28,7 @@ const create = context => ({
 		}
 
 		const {before, dotAndFractions, after} = match.groups;
-		const fixedDotAndFractions = dotAndFractions.replace(/[.0_]+$/g, '');
+		const fixedDotAndFractions = dotAndFractions.replaceAll(/[.0_]+$/g, '');
 		const formatted = ((before + fixedDotAndFractions) || '0') + after;
 
 		if (formatted === raw) {

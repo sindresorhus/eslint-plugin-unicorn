@@ -148,7 +148,7 @@ function getFixFunction({
 			}
 
 			if (exportDeclaration) {
-				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
+				const lastSpecifier = exportDeclaration.specifiers.at(-1);
 
 				// `export {} from 'foo';`
 				if (lastSpecifier) {

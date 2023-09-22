@@ -9,8 +9,8 @@ import {getTester} from './utils/test.mjs';
  * @param {string} text
  */
 const fixInput = text => stripIndent(text)
-	.replace(/•/g, ' ')
-	.replace(/→→/g, '\t');
+	.replaceAll('•', ' ')
+	.replaceAll('→→', '\t');
 
 const {test} = getTester(import.meta);
 

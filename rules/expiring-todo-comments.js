@@ -485,7 +485,7 @@ const create = context => {
 				}
 			}
 
-			const withoutWhitespace = unknown.replace(/ /g, '');
+			const withoutWhitespace = unknown.replaceAll(' ', '');
 
 			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;

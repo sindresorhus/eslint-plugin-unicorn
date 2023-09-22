@@ -55,7 +55,7 @@ function updateRecommended(id) {
 	let insertIndex;
 	if (ruleContent.localeCompare(unicornRuleLines[0]) === -1) {
 		insertIndex = 0;
-	} else if (ruleContent.localeCompare(unicornRuleLines[unicornRuleLines.length - 1]) === 1) {
+	} else if (ruleContent.localeCompare(unicornRuleLines.at(-1)) === 1) {
 		insertIndex = lines.length;
 		lines[lines.length - 1] += ',';
 		ruleContent = ruleContent.slice(0, -1);
