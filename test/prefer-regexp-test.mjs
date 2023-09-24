@@ -147,13 +147,11 @@ test.snapshot({
 			if (regex.exec(foo));
 		`,
 		outdent`
-			const regex = /weird/v;
-			if (regex.exec(foo));
-		`,
-		outdent`
 			let re = new RegExp('foo', 'g');
 			if(str.match(re));
 		`,
+		'!/a/u.exec(foo)',
+		'!/a/v.exec(foo)',
 	],
 });
 
@@ -176,4 +174,41 @@ test.vue({
 			errors: 1,
 		},
 	],
+});
+
+const supportsUnicodeSets = (() => {
+	try {
+		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
+		return new RegExp('.', 'v').unicodeSets;
+	} catch {}
+
+	return false;
+})();
+// These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
+// But will use suggestions instead in environments doesn't support `v` flag.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const re = /a/v; !re.exec(foo)',
+			output: 'const re = /a/v; !re.test(foo)',
+		},
+		{
+			code: 'const re = new RegExp("a", "v"); !re.exec(foo)',
+			output: 'const re = new RegExp("a", "v"); !re.test(foo)',
+		},
+	].map(({code, output}) =>
+		supportsUnicodeSets
+			? {
+				code,
+				output,
+				errors: 1,
+			}
+			: {
+				code,
+				errors: [
+					{suggestions: [{output}]},
+				],
+			},
+	),
 });

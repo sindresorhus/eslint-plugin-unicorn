@@ -77,6 +77,10 @@ const cases = [
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
 const isRegExpWithoutGlobalFlag = (node, scope) => {
+	if (isRegexLiteral(node)) {
+		return !node.regex.flags.includes('g');
+	}
+
 	const staticResult = getStaticValue(node, scope);
 
 	// Don't know if there is `g` flag
