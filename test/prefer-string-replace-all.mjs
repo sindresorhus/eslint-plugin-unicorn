@@ -77,11 +77,13 @@ test.snapshot({
 		'foo.replace(/\\W/g, bar)',
 		'foo.replace(/\\u{61}/g, bar)',
 		'foo.replace(/\\u{61}/gu, bar)',
+		'foo.replace(/\\u{61}/gv, bar)',
 		'foo.replace(/]/g, "bar")',
 		// Extra flag
 		'foo.replace(/a/gi, bar)',
 		'foo.replace(/a/gui, bar)',
 		'foo.replace(/a/uig, bar)',
+		'foo.replace(/a/vig, bar)',
 		// Variables
 		'const pattern = new RegExp("foo", "g"); foo.replace(pattern, bar)',
 		'foo.replace(new RegExp("foo", "g"), bar)',
@@ -99,9 +101,11 @@ test.snapshot({
 		'foo.replace(/\\u{1f600}/gu, _)',
 		'foo.replace(/\\n/g, _)',
 		'foo.replace(/\\u{20}/gu, _)',
+		'foo.replace(/\\u{20}/gv, _)',
 
 		'foo.replaceAll(/a]/g, _)',
 		'foo.replaceAll(/\\r\\n\\u{1f600}/gu, _)',
+		'foo.replaceAll(/\\r\\n\\u{1f600}/gv, _)',
 		`foo.replaceAll(/a${' very'.repeat(30)} long string/g, _)`,
 
 		// Invalid RegExp #2010

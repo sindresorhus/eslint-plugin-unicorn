@@ -17,7 +17,7 @@ function getPatternReplacement(node) {
 	}
 
 	const {pattern, flags} = node.regex;
-	if (flags.replace('u', '') !== 'g') {
+	if (flags.replace('u', '').replace('v', '') !== 'g') {
 		return;
 	}
 
@@ -25,7 +25,8 @@ function getPatternReplacement(node) {
 
 	try {
 		tree = parseRegExp(pattern, flags, {
-			unicodePropertyEscape: true,
+			unicodePropertyEscape: flags.includes('u'),
+			unicodeSet: flags.includes('v'),
 			namedGroups: true,
 			lookbehind: true,
 		});
