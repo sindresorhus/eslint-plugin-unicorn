@@ -115,6 +115,10 @@ function isNotReference(node) {
 			return parent.id === node;
 		}
 
+		case 'TSIndexSignature': {
+			return parent.parameters.includes(node);
+		}
+
 		case 'TSPropertySignature': {
 			return parent.key === node;
 		}
