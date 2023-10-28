@@ -266,6 +266,13 @@ test.snapshot({
 	],
 });
 
+test.typescript({
+	valid: [
+		'type ModuleRegistry = { [module: string]: string };',
+	],
+	invalid: [],
+});
+
 // `.cjs` file
 test.snapshot({
 	valid: [
