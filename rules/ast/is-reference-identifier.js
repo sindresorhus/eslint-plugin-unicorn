@@ -115,6 +115,7 @@ function isNotReference(node) {
 			return parent.id === node;
 		}
 
+		// `type Foo = { [Identifier: string]: string }`
 		case 'TSIndexSignature': {
 			return parent.parameters.includes(node);
 		}
