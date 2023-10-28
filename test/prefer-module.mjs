@@ -269,6 +269,9 @@ test.snapshot({
 test.typescript({
 	valid: [
 		'type ModuleRegistry = { [module: string]: string };',
+		'const module = 1; type ModuleRegistry = { [module: string]: string };',
+		'type module = number[]; type ModuleRegistry = { [module: string]: string };',
+		'type ModuleRegistry = { [exports: string]: string };',
 	],
 	invalid: [],
 });
