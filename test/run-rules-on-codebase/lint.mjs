@@ -38,6 +38,7 @@ const configs = [
 			'test/integration/fixtures-local',
 			// Ignore this file self temporarily, disabling `n/file-extension-in-import` comment cause error
 			'test/run-rules-on-codebase/lint.mjs',
+			'rules/utils/lodash.js',
 		],
 	},
 	{
