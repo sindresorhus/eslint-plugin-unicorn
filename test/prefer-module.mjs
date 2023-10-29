@@ -266,6 +266,17 @@ test.snapshot({
 	],
 });
 
+test.typescript({
+	valid: [
+		'type module = number[];',
+		'type ModuleRegistry = { [module: string]: string };',
+		'const module = 1; type ModuleRegistry = { [module: string]: string };',
+		'type module = number[]; type ModuleRegistry = { [module: string]: string };',
+		'type ModuleRegistry = { [exports: string]: string };',
+	],
+	invalid: [],
+});
+
 // `.cjs` file
 test.snapshot({
 	valid: [
