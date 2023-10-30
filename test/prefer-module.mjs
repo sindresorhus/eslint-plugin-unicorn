@@ -272,6 +272,7 @@ test.typescript({
 		'type ModuleRegistry = { [module: string]: string };',
 		'const module = 1; type ModuleRegistry = { [module: string]: string };',
 		'type module = number[]; type ModuleRegistry = { [module: string]: string };',
+		'type Data = { [module in string]: number; };',
 		'type ModuleRegistry = { [exports: string]: string };',
 	],
 	invalid: [],
