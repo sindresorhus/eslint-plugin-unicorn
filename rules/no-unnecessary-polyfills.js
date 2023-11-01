@@ -61,18 +61,16 @@ function getTargets(options, dirname) {
 	/** @type {readPkgUp.ReadResult | undefined} */
 	let packageResult;
 	try {
+		// It can fail if, for example, the package.json file has comments.
 		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
-	} catch {
-		// This can happen if package.json files have comments in them etc.
-		packageResult = undefined;
-	}
+	} catch {}
 
 	if (!packageResult) {
 		return;
 	}
 
 	const {browserlist, engines} = packageResult.packageJson;
-	return browserlist || engines;
+	return browserlist ?? engines;
 }
 
 function create(context) {
