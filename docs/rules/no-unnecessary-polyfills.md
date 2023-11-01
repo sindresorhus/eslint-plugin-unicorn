@@ -53,9 +53,9 @@ Type: `object`
 
 Type: `string | string[] | object`
 
-The `targets` option allows to specify the target versions. This option could be a Browserlist query or a targets object, see [core-js-compat `targets` option](https://github.com/zloirock/core-js/tree/HEAD/packages/core-js-compat#targets-option) for more informations.
+Specify the target versions, which could be a Browserlist query or a targets object. See the [core-js-compat `targets` option](https://github.com/zloirock/core-js/tree/HEAD/packages/core-js-compat#targets-option) for more info.
 
-If the option is not specified, target versions are defined using the [`browserlist`](https://browsersl.ist) field, or as a last resort, the `engines` field in `package.json`.
+If the option is not specified, the target versions are defined using the [`browserlist`](https://browsersl.ist) field in package.json, or as a last resort, the `engines` field in package.json.
 
 ```js
 "unicorn/no-unnecessary-polyfills": [
