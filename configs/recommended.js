@@ -54,6 +54,7 @@ module.exports = {
 		'unicorn/no-this-assignment': 'error',
 		'unicorn/no-typeof-undefined': 'error',
 		'unicorn/no-unnecessary-await': 'error',
+		'unicorn/no-unnecessary-polyfills': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unreadable-iife': 'error',
 		'unicorn/no-unused-properties': 'off',
