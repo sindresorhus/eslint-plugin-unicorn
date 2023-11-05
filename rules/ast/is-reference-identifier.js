@@ -120,7 +120,7 @@ function isNotReference(node) {
 			return parent.parameters.includes(node);
 		}
 
-		// `type Data = { [module in keyof string]: number; };`
+		// `type Foo = { [Identifier in keyof string]: number; };`
 		case 'TSTypeParameter': {
 			return parent.name === node;
 		}
