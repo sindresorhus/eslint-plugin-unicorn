@@ -421,7 +421,7 @@ module.exports = {
 			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
 		},
 		fixable: 'code',
-		messages,
 		hasSuggestions: true,
+		messages,
 	},
 };
