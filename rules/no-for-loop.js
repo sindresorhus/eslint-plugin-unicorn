@@ -422,6 +422,6 @@ module.exports = {
 		},
 		fixable: 'code',
 		messages,
-		hasSuggestion: true,
+		hasSuggestions: true,
 	},
 };
