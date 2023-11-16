@@ -406,6 +406,81 @@ const create = context => {
 					}
 				};
 			}
+			// 1. Multiple Update Expressions
+            if (node.update && node.update.type === 'BinaryExpression' && node.update.operator !== '+') {
+                const start = node.update.range[0];
+                const end = node.update.range[1];
+                return {
+                    loc: toLocation([start, end], sourceCode),
+                    messageId: 'no-for-loop',
+                };
+            }
+
+            // 2. Non-Integer Step in For-Of Replacement
+            if (node.update && node.update.type === 'AssignmentExpression' && !isLiteralOnePlusIdentifierWithName(node.update.right, indexIdentifierName)) {
+                const start = node.update.range[0];
+                const end = node.update.range[1];
+                return {
+                    loc: toLocation([start, end], sourceCode),
+                    messageId: 'no-for-loop',
+                };
+            }
+
+            // 3. Array Length Check
+            if (node.test && node.test.type === 'BinaryExpression' && node.test.operator === '<' && node.test.right.type === 'MemberExpression' && node.test.right.property.name === 'length') {
+                const start = node.test.range[0];
+                const end = node.test.range[1];
+                return {
+                    loc: toLocation([start, end], sourceCode),
+                    messageId: 'no-for-loop',
+                };
+            }
+
+            // 4. Declaration Type Check
+            if (node.init && node.init.type === 'VariableDeclaration' && node.init.kind !== 'let') {
+                const start = node.init.range[0];
+                const end = node.init.range[1];
+                return {
+                    loc: toLocation([start, end], sourceCode),
+                    messageId: 'no-for-loop',
+                };
+            }
+
+            // 5. Array Modification Check
+            if (node.body && node.body.type === 'BlockStatement') {
+                const arrayModifications = node.body.body.filter(statement => statement.type === 'ExpressionStatement' && statement.expression.type === 'AssignmentExpression' && statement.expression.left.type === 'MemberExpression' && statement.expression.left.object.name === arrayIdentifierName);
+                if (arrayModifications.length > 0) {
+                    const start = arrayModifications[0].range[0];
+                    const end = arrayModifications[arrayModifications.length - 1].range[1];
+                    return {
+                        loc: toLocation([start, end], sourceCode),
+                        messageId: 'no-for-loop',
+                    };
+                }
+            }
+
+			// 6. Function Call within Loop Header
+            if (node.init && node.init.type === 'CallExpression') {
+                const start = node.init.range[0];
+                const end = node.init.range[1];
+                return {
+                    loc: toLocation([start, end], sourceCode),
+                    messageId: 'no-for-loop',
+                };
+            }
+
+            // 7. Use of `break` or `continue` Statements
+            if (node.body && node.body.type === 'BlockStatement') {
+                const hasBreakOrContinue = node.body.body.some(statement => statement.type === 'BreakStatement' || statement.type === 'ContinueStatement');
+                if (hasBreakOrContinue) {
+                    const start = node.body.range[0];
+                    const end = node.body.range[1];
+                    return {
+                        loc: toLocation([start, end], sourceCode),
+                        messageId: 'no-for-loop',
+                    };
+                }
+            }
 
 			return problem;
 		},
