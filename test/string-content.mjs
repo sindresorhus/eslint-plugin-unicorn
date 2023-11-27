@@ -45,6 +45,13 @@ const createSuggestionError = (match, suggest, output) => [
 ];
 
 test({
+	testerOptions: {
+		parserOptions: {
+			ecmaFeatures: {
+				jsx: true
+			}
+		}
+	},
 	valid: [
 		'const foo = "";',
 		...[
@@ -279,5 +286,19 @@ test({
 			errors: createError('no', 'yes'),
 		},
 		/* eslint-enable no-template-curly-in-string */
+		{
+			code: outdent`
+				const foo = <div className='
+					no
+				' />
+			`,
+			output: outdent`
+				const foo = <div className='
+					yes
+				' />
+			`,
+			options:[{patterns: noToYesPattern}],
+			errors: createError('no', 'yes')
+		}
 	],
 });
