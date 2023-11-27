@@ -120,6 +120,11 @@ function isNotReference(node) {
 			return parent.parameters.includes(node);
 		}
 
+		// `type Foo = { [Identifier in keyof string]: number; };`
+		case 'TSTypeParameter': {
+			return parent.name === node;
+		}
+
 		// `type Identifier = Foo`
 		case 'TSTypeAliasDeclaration': {
 			return parent.id === node;
