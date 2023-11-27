@@ -109,7 +109,7 @@ const create = context => {
 				const [quote] = raw;
 				return fixer.replaceText(
 					node,
-					node.parent.type == 'JSXAttribute' ? quote + fixed + quote : escapeString(fixed, quote),
+					node.parent.type === 'JSXAttribute' ? quote + fixed + quote : escapeString(fixed, quote),
 				);
 			}
 			: fixer => replaceTemplateElement(

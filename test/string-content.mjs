@@ -48,9 +48,9 @@ test({
 	testerOptions: {
 		parserOptions: {
 			ecmaFeatures: {
-				jsx: true
-			}
-		}
+				jsx: true,
+			},
+		},
 	},
 	valid: [
 		'const foo = "";',
@@ -297,8 +297,8 @@ test({
 					yes
 				' />
 			`,
-			options:[{patterns: noToYesPattern}],
-			errors: createError('no', 'yes')
-		}
+			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
 	],
 });
