@@ -60,6 +60,8 @@ const shouldIgnore = node => {
 
 		// `React.createContext(undefined)`
 		|| name === 'createContext'
+		// `setState(undefined)`
+		|| /^set[A-Z]/.test(name)
 
 		// https://vuejs.org/api/reactivity-core.html#ref
 		|| name === 'ref';
