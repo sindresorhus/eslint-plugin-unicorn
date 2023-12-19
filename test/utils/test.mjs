@@ -40,12 +40,12 @@ function normalizeParser(options) {
 	} = options;
 
 	if (parser) {
-		if (parser.name) {
-			parser = parser.name;
-		}
-
 		if (parser.mergeParserOptions) {
 			parserOptions = parser.mergeParserOptions(parserOptions);
+		}
+
+		if (parser.name) {
+			parser = parser.name;
 		}
 	}
 
@@ -57,14 +57,14 @@ const isTemplateObject = value => Array.isArray(value) && Array.isArray(value.ra
 // https://github.com/tc39/proposal-string-cooked
 const cooked = (raw, ...substitutions) => String.raw({raw}, ...substitutions);
 
-function only(testCase) {
+function only(...arguments_) {
 	/*
 	```js
 	only`code`;
 	```
 	 */
-	if (isTemplateObject(testCase)) {
-		return {code: cooked(...arguments), only: true};
+	if (isTemplateObject(arguments_[0])) {
+		return {code: cooked(...arguments_), only: true};
 	}
 
 	/*
@@ -72,7 +72,7 @@ function only(testCase) {
 	only('code');
 	only({code: 'code'});
 	*/
-	return {...normalizeTestCase(testCase), only: true};
+	return {...normalizeTestCase(arguments_[0]), only: true};
 }
 
 class Tester {
