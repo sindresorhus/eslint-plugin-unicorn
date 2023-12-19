@@ -53,7 +53,7 @@ function normalizeParser(options) {
 }
 
 // https://github.com/tc39/proposal-array-is-template-object
-const isTemplateObject = value => Array.isArray(value) && Array.isArray(value.raw);
+const isTemplateObject = value => Array.isArray(value?.raw);
 // https://github.com/tc39/proposal-string-cooked
 const cooked = (raw, ...substitutions) => String.raw({raw}, ...substitutions);
 
