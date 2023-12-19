@@ -74,7 +74,7 @@
 		"chalk": "^5.3.0",
 		"enquirer": "^2.4.1",
 		"eslint": "^8.52.0",
-		"eslint-ava-rule-tester": "^4.0.0",
+		"eslint-ava-rule-tester": "^4.2.0",
 		"eslint-doc-generator": "^1.5.2",
 		"eslint-plugin-eslint-plugin": "^5.1.1",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
