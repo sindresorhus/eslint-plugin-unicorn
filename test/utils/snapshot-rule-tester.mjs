@@ -163,7 +163,7 @@ class SnapshotRuleTester {
 			test(
 				outdent`
 					Valid #${index + 1}
-					${indentCode(printCode(code))}
+					${code}
 				`,
 				t => {
 					const messages = verify(linter, code, verifyConfig, {filename});
@@ -181,13 +181,15 @@ class SnapshotRuleTester {
 			test(
 				outdent`
 					Invalid #${index + 1}
-					${indentCode(printCode(code))}
+					${code}
 				`,
 				t => {
 					const messages = runVerify(code);
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
+
+					t.snapshot(`\n${printCode(output)}\n`, 'Input');
 
 					if (filename) {
 						t.snapshot(`\n${filename}\n`, 'Filename');
