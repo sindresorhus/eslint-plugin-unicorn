@@ -162,7 +162,7 @@ class SnapshotRuleTester {
 
 			test(
 				outdent`
-					Valid #${index + 1}
+					Valid(${index + 1})
 					${code}
 				`,
 				t => {
@@ -180,7 +180,7 @@ class SnapshotRuleTester {
 
 			test(
 				outdent`
-					Invalid #${index + 1}
+					Invalid(${index + 1})
 					${code}
 				`,
 				t => {
