@@ -8,7 +8,7 @@ import defaultOptions from './default-options.mjs';
 import parsers from './parsers.mjs';
 
 function normalizeTestCase(testCase) {
-	return typeof testCase === 'string' ? {code: testCase} : testCase;
+	return typeof testCase === 'string' ? {code: testCase} : {...testCase};
 }
 
 function normalizeInvalidTest(test, rule) {
@@ -33,25 +33,23 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
-function normalizeParser(testCase) {
-	testCase = normalizeTestCase(testCase);
-
-	const {
+function normalizeParser(options) {
+	let {
 		parser,
 		parserOptions,
-	} = testCase;
+	} = options;
 
 	if (parser) {
 		if (parser.name) {
-			testCase.parser = parser.name;
+			parser = parser.name;
 		}
 
 		if (parser.mergeParserOptions) {
-			testCase.parserOptions = parser.mergeParserOptions(parserOptions);
+			parserOptions = parser.mergeParserOptions(parserOptions);
 		}
 	}
 
-	return testCase;
+	return {...options, parser, parserOptions};
 }
 
 // https://github.com/tc39/proposal-array-is-template-object
@@ -123,8 +121,8 @@ class Tester {
 		} = tests;
 
 		testerOptions = normalizeParser(testerOptions);
-		valid = valid.map(testCase => normalizeParser(testCase));
-		invalid = invalid.map(testCase => normalizeParser(testCase));
+		valid = valid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
+		invalid = invalid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
 
 		const tester = new SnapshotRuleTester(test, {
 			...testerOptions,
