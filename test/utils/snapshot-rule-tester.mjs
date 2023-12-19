@@ -189,7 +189,7 @@ class SnapshotRuleTester {
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
-					t.snapshot(`\n${printCode(output)}\n`, 'Input');
+					t.snapshot(`\n${printCode(code)}\n`, 'Input');
 
 					if (filename) {
 						t.snapshot(`\n${filename}\n`, 'Filename');
