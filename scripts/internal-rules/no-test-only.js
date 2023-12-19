@@ -50,7 +50,7 @@ module.exports = {
 						yield fixer.remove(openingParenToken);
 						yield fixer.remove(closingParenToken);
 
-						// Trialing comma
+						// Trailing comma
 						const tokenBefore = sourceCode.getTokenBefore(closingParenToken);
 
 						if (tokenBefore.value !== ',') {
@@ -68,7 +68,7 @@ module.exports = {
 	meta: {
 		fixable: 'code',
 		messages: {
-			[messageId]: '`test.only` can not be used.',
+			[messageId]: '`test.only` cannot be used.',
 		},
 	},
 };
