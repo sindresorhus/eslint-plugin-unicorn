@@ -66,6 +66,7 @@ test({
 			'\n\n',
 			'\r\n',
 		].flatMap((spaces, index) => allCases.map(code => ({
+			// Add comment to avoid AVA to throw on "Duplicate test title"
 			code: code.replace(SPACES_PLACEHOLDER, spaces) + `/* ${index + 1} */`,
 			output: code.replace(SPACES_PLACEHOLDER, '') + `/* ${index + 1} */`,
 			errors: 1,
