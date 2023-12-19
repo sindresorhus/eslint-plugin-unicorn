@@ -95,8 +95,8 @@ test({
 			errors,
 		},
 		{
-			code: '/**/function foo() {return       undefined;}',
-			output: '/**/function foo() {return;}',
+			code: 'function foo() {return       undefined;}',
+			output: 'function foo() {return;}',
 			errors,
 		},
 		{
@@ -110,8 +110,8 @@ test({
 			errors,
 		},
 		{
-			code: '/**/function* foo() {yield                 undefined;}',
-			output: '/**/function* foo() {yield;}',
+			code: 'function* foo() {yield                 undefined;}',
+			output: 'function* foo() {yield;}',
 			errors,
 		},
 		{
