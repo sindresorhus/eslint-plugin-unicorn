@@ -13,6 +13,7 @@ const RULES_DIRECTORIES = [
 const rules = [
 	{id: 'fix-snapshot-test', directories: TEST_DIRECTORIES},
 	{id: 'prefer-negative-boolean-attribute', directories: RULES_DIRECTORIES},
+	{id: 'no-test-only', directories: TEST_DIRECTORIES},
 ];
 
 const isFileInsideDirectory = (filename, directory) => filename.startsWith(directory + path.sep);
