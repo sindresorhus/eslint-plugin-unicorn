@@ -161,10 +161,7 @@ class SnapshotRuleTester {
 			defineParser(linter, verifyConfig.parser);
 
 			test(
-				outdent`
-					Valid(${index + 1})
-					${code}
-				`,
+				`Valid(${index + 1}): ${code}`,
 				t => {
 					const messages = verify(linter, code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
@@ -179,10 +176,7 @@ class SnapshotRuleTester {
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
 			test(
-				outdent`
-					Invalid(${index + 1})
-					${code}
-				`,
+				`Invalid(${index + 1}): ${code}`,
 				t => {
 					const messages = runVerify(code);
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
