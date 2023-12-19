@@ -20,7 +20,7 @@ test({
 		'eval(); // eslint-disable-line no-eval',
 		'eval(); // eslint-disable-line no-eval, no-console',
 		'eval(); //eslint-disable-line no-eval',
-		'eval(); //     eslint-disable-line no-eval',
+		'/**/ eval(); //     eslint-disable-line no-eval',
 		'eval(); //\teslint-disable-line no-eval',
 		'eval(); /* eslint-disable-line no-eval */',
 		'eval(); // eslint-disable-line plugin/rule',
