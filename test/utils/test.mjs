@@ -7,8 +7,8 @@ import SnapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultOptions from './default-options.mjs';
 import parsers from './parsers.mjs';
 
-function normalizeTests(tests) {
-	return tests.map(test => typeof test === 'string' ? {code: test} : test);
+function normalizeTestCase(testCase) {
+	return typeof testCase === 'string' ? {code: testCase} : testCase;
 }
 
 function normalizeInvalidTest(test, rule) {
@@ -33,23 +33,48 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
-function normalizeParser(options) {
+function normalizeParser(testCase) {
+	testCase = normalizeTestCase(testCase);
+
 	const {
 		parser,
 		parserOptions,
-	} = options;
+	} = testCase;
 
 	if (parser) {
 		if (parser.name) {
-			options.parser = parser.name;
+			testCase.parser = parser.name;
 		}
 
 		if (parser.mergeParserOptions) {
-			options.parserOptions = parser.mergeParserOptions(parserOptions);
+			testCase.parserOptions = parser.mergeParserOptions(parserOptions);
 		}
 	}
 
-	return options;
+	return testCase;
+}
+
+// https://github.com/tc39/proposal-array-is-template-object
+const isTemplateObject = value => Array.isArray(value) && Array.isArray(value.raw);
+// https://github.com/tc39/proposal-string-cooked
+const cooked = (raw, ...substitutions) => String.raw({raw}, ...substitutions);
+
+function only(testCase) {
+	/*
+	```js
+	only`code`;
+	```
+	 */
+	if (isTemplateObject(testCase)) {
+		return {code: cooked(...arguments), only: true};
+	}
+
+	/*
+	```js
+	only('code');
+	only({code: 'code'});
+	*/
+	return {...normalizeTestCase(testCase), only: true};
 }
 
 class Tester {
@@ -98,8 +123,8 @@ class Tester {
 		} = tests;
 
 		testerOptions = normalizeParser(testerOptions);
-		valid = normalizeTests(valid).map(test => normalizeParser(test));
-		invalid = normalizeTests(invalid).map(test => normalizeParser(test));
+		valid = valid.map(testCase => normalizeParser(testCase));
+		invalid = invalid.map(testCase => normalizeParser(testCase));
 
 		const tester = new SnapshotRuleTester(test, {
 			...testerOptions,
@@ -126,6 +151,7 @@ function getTester(importMeta) {
 	const tester = new Tester(ruleId);
 	const runTest = Tester.prototype.runTest.bind(tester);
 	runTest.snapshot = Tester.prototype.snapshot.bind(tester);
+	runTest.only = only;
 
 	for (const [parserName, parserSettings] of Object.entries(parsers)) {
 		Reflect.defineProperty(runTest, parserName, {
@@ -152,10 +178,11 @@ function getTester(importMeta) {
 	};
 }
 
-const addComment = (test, comment) => {
-	const {code, output} = test;
+const addComment = (testCase, comment) => {
+	testCase = normalizeTestCase(testCase);
+	const {code, output} = testCase;
 	const fixedTest = {
-		...test,
+		...testCase,
 		code: `${code}\n/* ${comment} */`,
 	};
 	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
@@ -169,8 +196,8 @@ const avoidTestTitleConflict = (tests, comment) => {
 	const {valid, invalid} = tests;
 	return {
 		...tests,
-		valid: normalizeTests(valid).map(test => addComment(test, comment)),
-		invalid: normalizeTests(invalid).map(test => addComment(test, comment)),
+		valid: valid.map(testCase => addComment(testCase, comment)),
+		invalid: invalid.map(testCase => addComment(testCase, comment)),
 	};
 };
 
