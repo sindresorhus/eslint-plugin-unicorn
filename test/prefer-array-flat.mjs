@@ -236,8 +236,8 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: '[].concat.apply([], array)',
-			output: 'array.flat()',
+			code: '/**/[].concat.apply([], array)',
+			output: '/**/array.flat()',
 			errors: 1,
 		},
 		{
