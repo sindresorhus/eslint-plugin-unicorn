@@ -29,11 +29,11 @@ test({
 		'console.log("a", " ", "c");',
 		'console.log("a", "b", " ");',
 
-		'console.log(\'  \', "def");',
+		'/**/console.log(\'  \', "def");',
 		'console.log("abc  ", "def");',
 		'console.log("abc\\t", "def");',
 		'console.log("abc\\n", "def");',
-		'console.log("  abc", "def");',
+		'/**/console.log("  abc", "def");',
 
 		'console.log(" abc", "def");',
 		'console.log("abc", "def ");',
