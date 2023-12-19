@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
+import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -65,9 +65,9 @@ test({
 			' \t \t ',
 			'\n\n',
 			'\r\n',
-		].flatMap((spaces, index) => allCases.map(code => ({
-			code: code.replace(SPACES_PLACEHOLDER, spaces) + `/* ${index + 1} */`,
-			output: code.replace(SPACES_PLACEHOLDER, '') + `/* ${index + 1} */`,
+		].flatMap(spaces => allCases.map(code => ({
+			code: code.replace(SPACES_PLACEHOLDER, spaces),
+			output: code.replace(SPACES_PLACEHOLDER, ''),
 			errors: 1,
 		}))),
 		// `with`
