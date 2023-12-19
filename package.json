@@ -49,9 +49,9 @@
 	"dependencies": {
 		"@babel/helper-validator-identifier": "^7.22.20",
 		"@eslint-community/eslint-utils": "^4.4.0",
-		"ci-info": "^3.8.0",
+		"ci-info": "^4.0.0",
 		"clean-regexp": "^1.0.0",
-		"core-js-compat": "^3.33.2",
+		"core-js-compat": "^3.34.0",
 		"esquery": "^1.5.0",
 		"indent-string": "^4.0.0",
 		"is-builtin-module": "^3.2.1",
@@ -64,37 +64,37 @@
 		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
-		"@babel/code-frame": "^7.22.13",
-		"@babel/core": "^7.23.2",
-		"@babel/eslint-parser": "^7.22.15",
+		"@babel/code-frame": "^7.23.5",
+		"@babel/core": "^7.23.6",
+		"@babel/eslint-parser": "^7.23.3",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^6.9.0",
+		"@typescript-eslint/parser": "^6.15.0",
 		"ava": "^3.15.0",
 		"c8": "^8.0.1",
 		"chalk": "^5.3.0",
 		"enquirer": "^2.4.1",
-		"eslint": "^8.52.0",
-		"eslint-ava-rule-tester": "^4.0.0",
-		"eslint-doc-generator": "^1.5.2",
-		"eslint-plugin-eslint-plugin": "^5.1.1",
+		"eslint": "^8.56.0",
+		"eslint-ava-rule-tester": "^4.1.0",
+		"eslint-doc-generator": "^1.6.1",
+		"eslint-plugin-eslint-plugin": "^5.2.1",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
 		"eslint-remote-tester": "^3.0.1",
 		"eslint-remote-tester-repositories": "^1.0.1",
 		"execa": "^8.0.1",
 		"listr": "^0.14.3",
 		"lodash-es": "^4.17.21",
-		"markdownlint-cli": "^0.37.0",
-		"mem": "^9.0.2",
-		"npm-package-json-lint": "^7.0.0",
+		"markdownlint-cli": "^0.38.0",
+		"memoize": "^10.0.0",
+		"npm-package-json-lint": "^7.1.0",
 		"npm-run-all2": "^6.1.1",
 		"outdent": "^0.8.0",
-		"typescript": "^5.2.2",
+		"typescript": "^5.3.3",
 		"vue-eslint-parser": "^9.3.2",
 		"xo": "^0.56.0",
-		"yaml": "^2.3.3"
+		"yaml": "^2.3.4"
 	},
 	"peerDependencies": {
-		"eslint": ">=8.52.0"
+		"eslint": ">=8.56.0"
 	},
 	"ava": {
 		"files": [
