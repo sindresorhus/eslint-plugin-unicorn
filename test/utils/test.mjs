@@ -62,7 +62,7 @@ function only(...arguments_) {
 	```js
 	only`code`;
 	```
-	 */
+ 	*/
 	if (isTemplateObject(arguments_[0])) {
 		return {code: cooked(...arguments_), only: true};
 	}
