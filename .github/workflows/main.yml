@@ -42,7 +42,7 @@ jobs:
       - uses: actions/setup-node@v4
       - run: npm install
       - run: npm run lint
-      - run: rm -rf test/snapshots
+      - run: npx del-cli test/snapshots
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx c8 ava --update-snapshots
         env:
