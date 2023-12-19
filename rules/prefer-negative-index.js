@@ -28,6 +28,13 @@ const methods = new Map([
 		},
 	],
 	[
+		'subarray',
+		{
+			argumentsIndexes: [0, 1],
+			supportObjects: new Set(typedArray),
+		},
+	],
+	[
 		'splice',
 		{
 			argumentsIndexes: [0],
