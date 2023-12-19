@@ -25,7 +25,7 @@ test({
 	invalid: [
 		{
 			code: fixInput(`
-				foo = dedent\`
+				/*3*/foo = dedent\`
 				••••••••one
 				••••••••two
 				••••••••••three
@@ -33,7 +33,7 @@ test({
 			`),
 			errors,
 			output: fixInput(`
-				foo = dedent\`
+				/*3*/foo = dedent\`
 				••one
 				••two
 				••••three
@@ -352,7 +352,7 @@ test({
 				indent: '\t\t\t\t',
 			}],
 			code: fixInput(`
-				foo = dedent\`
+				/**/foo = dedent\`
 				••one
 				••two
 				••••three
@@ -360,7 +360,7 @@ test({
 			`),
 			errors,
 			output: fixInput(`
-				foo = dedent\`
+				/**/foo = dedent\`
 				→→→→→→→→one
 				→→→→→→→→two
 				→→→→→→→→••three
@@ -519,7 +519,7 @@ test({
 			}
 		`),
 		fixInput(`
-			function f() {
+			/**/function f() {
 			→→foo = dedent\`
 			→→→→one
 
@@ -530,7 +530,7 @@ test({
 			}
 		`),
 		fixInput(`
-			function f() {
+			/*2*/function f() {
 			••foo = dedent\`
 			••••one
 			••••two
@@ -564,7 +564,7 @@ test({
 			}],
 			// Bad selector; no template literal match
 			code: fixInput(`
-				foo = \`
+				/**/foo = \`
 				••••••one
 				••••••two
 				••••••••three
@@ -577,7 +577,7 @@ test({
 				comments: [],
 			}],
 			code: fixInput(`
-				foo = /* indent */ \`
+				/*2*/foo = /* indent */ \`
 				••••••one
 				••••••two
 				••••••••three
