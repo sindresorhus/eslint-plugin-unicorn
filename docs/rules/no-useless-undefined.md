@@ -111,6 +111,13 @@ Disallow the use of `undefined` at the end of function call arguments. Pass `che
 foo(bar, baz, undefined);
 ```
 
+#### Pass
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
+foo(bar, baz, undefined);
+```
+
 ### checkArrowFunctionBody
 
 Type: `boolean`\
