@@ -31,10 +31,9 @@ import * as eslintrc from '@eslint/eslintrc';
 
 export default [
 	{
-		files: ['**/*.{js,cjs,mjs}'],
 		languageOptions: {
-			ecmaVersion: latest,
-			sourceType: module,
+			ecmaVersion: 'latest',
+			sourceType: 'module',
 			globals: eslintrc.Legacy.environments.get('es2024'),
 		},
 		plugins: {
@@ -58,10 +57,9 @@ const eslintrc = require('@eslint/eslintrc');
 
 module.exports = [
 	{
-		files: ['**/*.{js,cjs,mjs}'],
 		languageOptions: {
-			ecmaVersion: latest,
-			sourceType: module,
+			ecmaVersion: 'latest',
+			sourceType: 'module',
 			globals: eslintrc.Legacy.environments.get('es2024'),
 		},
 		plugins: {
@@ -327,7 +325,10 @@ This plugin exports a [`recommended` config](configs-legacy/recommended.js) that
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"extends": "plugin:unicorn/recommended"
+		"extends": "plugin:unicorn/recommended",
+		"rules": {
+			"unicorn/better-regex": "warn"
+		}
 	}
 }
 ```
