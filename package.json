@@ -10,10 +10,10 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
+	"main": "index.js",
 	"engines": {
 		"node": ">=16"
 	},
-	"main": "index.js",
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run fix:eslint-docs",
 		"fix": "run-p --continue-on-error fix:*",
