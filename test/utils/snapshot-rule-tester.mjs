@@ -60,7 +60,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals'],
+				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals', 'only'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -154,11 +154,11 @@ class SnapshotRuleTester {
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {code, filename} = testCase;
+			const {code, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
 
-			test(
+			(only ? test.only : test)(
 				`valid(${index + 1}): ${code}`,
 				t => {
 					const messages = verify(linter, code, verifyConfig, {filename});
@@ -168,12 +168,12 @@ class SnapshotRuleTester {
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {code, options, filename} = testCase;
+			const {code, options, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
-			test(
+			(only ? test.only : test)(
 				`invalid(${index + 1}): ${code}`,
 				t => {
 					const messages = runVerify(code);
