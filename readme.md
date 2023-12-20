@@ -15,58 +15,68 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage (new: `eslint.config.js`)
+## Usage (`eslint.config.js`)
 
-From [ESLint `v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), there is a new config system. In the new system, `.eslintrc.*` is no longer used. `eslint.config.js` would be the default config file name.
+**Requires ESLint `>=8.23.0`.**
 
-And from [`v8.23.0`](https://github.com/eslint/eslint/releases/tag/v8.23.0), the ESLint CLI starts to look up `eslint.config.js`.
-**So, if you are using ESLint `>=8.23.0`, you are 100% ready to use the new config system.**
+Use a [preset config](#preset-configs) or configure each rule in `eslint.config.js`.
 
-You might want to check out the official blog posts,
+If you don't use the preset, ensure you use the same `languageOptions` config as below.
 
-- https://eslint.org/blog/2022/08/new-config-system-part-1/
-- https://eslint.org/blog/2022/08/new-config-system-part-2/
-- https://eslint.org/blog/2022/08/new-config-system-part-3/
-- https://eslint.org/blog/2023/10/flat-config-rollout-plans/
-
-and the [official docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new).
-
-The default export of `eslint-plugin-unicorn` is a plugin object.
-
-If your `eslint.config.js` is ESM, you can import and use the plugin like this:
+### ES Module
 
 ```js
-import unicorn from 'eslint-plugin-unicorn';
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import * as eslintrc from '@eslint/eslintrc';
 
 export default [
-	// …
 	{
-		files: ['**/*.{js,ts}'],
+		files: ['**/*.{js,cjs,mjs}'],
 		languageOptions: {
-			globals: {
-				...globals.node,
-				...globals.es2021,
-			},
+			ecmaVersion: latest,
+			sourceType: module,
+			globals: eslintrc.Legacy.environments.get('es2024'),
 		},
 		plugins: {
-			unicorn,
+			unicorn: eslintPluginUnicorn,
 		},
 		rules: {
 			'unicorn/better-regex': 'error',
-			'unicorn/catch-error-name': 'error',
+			'unicorn/…': 'error',
 		},
-		// ... others are omitted for brevity
 	},
 	// …
 ];
 ```
 
-If your `eslint.config.js` is CJS, please change it to ESM.
+### CommonJS
 
-Note that this plugin itself will transition to [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) in the future.
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+const eslintrc = require('@eslint/eslintrc');
 
+module.exports = [
+	{
+		files: ['**/*.{js,cjs,mjs}'],
+		languageOptions: {
+			ecmaVersion: latest,
+			sourceType: module,
+			globals: eslintrc.Legacy.environments.get('es2024'),
+		},
+		plugins: {
+			unicorn: eslintPluginUnicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+];
+```
 
-## Usage (legacy: `eslintrc*`)
+## Usage (legacy: `.eslintrc.*` or `package.json`)
 
 Use a [preset config](#preset-configs) or configure each rule in `package.json`.
 
@@ -223,7 +233,87 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## Preset configs (legacy: `eslintrc*`)
+## Preset configs (`eslint.config.js`)
+
+See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
+
+**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/configuration-files-new#configuring-language-options).
+
+### Recommended config
+
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicornConfigRecommended from 'eslint-plugin-unicorn/configs/recommended';
+
+export default [
+		// …
+		eslintPluginUnicornConfigRecommended,
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicornConfigRecommended = require('eslint-plugin-unicorn/configs/recommended');
+
+module.exports = [
+		// …
+		eslintPluginUnicornConfigRecommended,
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+### All config
+
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicornConfigAll from 'eslint-plugin-unicorn/configs/all';
+
+export default [
+		// …
+		eslintPluginUnicornConfigAll,
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicornConfigAll = require('eslint-plugin-unicorn/configs/all');
+
+module.exports = [
+		// …
+		eslintPluginUnicornConfigAll,
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+## Preset configs (`.eslintrc.*` or `package.json`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
@@ -253,50 +343,6 @@ This plugin exports an [`all` config](configs-legacy/all.js) that makes use of a
 		"extends": "plugin:unicorn/all"
 	}
 }
-```
-
-## Shareable configs (new: `eslint.config.js`)
-
-If you use the new config system (`eslint.config.js`), there are two shareable configs:
-
-- `eslint-plugin-unicorn/all`
-- `eslint-plugin-unicorn/recommended`
-
-**Note**: Shareable configs will enable the [`languageOptions.globals`](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#configuration-objects).
-
-In the new config system, the `plugin:` protocol (e.g. `plugin:react/recommended`) is no longer valid. As ESLint does not automatically import the preset config (shareable config), you explicitly do it by yourself.
-
-**Note**: The new plugin object does not have `configs` property as well.
-
-```js
-import unicorn from 'eslint-plugin-unicorn/all'; // <== trailing '/all'
-
-export default [
-    // …
-    unicorn, // This is not a plugin object, but a shareable config object
-    // …
-];
-```
-
-You can of course add/override some properties.
-
-```js
-import unicorn from 'eslint-plugin-unicorn/recommended';
-import globals from 'globals';
-
-export default [
-    // …
-    {
-        ...unicorn,
-        files: ['**/*.{js,jsx}'],
-        languageOptions: {
-            globals: {
-                ...globals.browser,
-            },
-  	    },
-    },
-    // …
-];
 ```
 
 ## Maintainers
