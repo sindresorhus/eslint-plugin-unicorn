@@ -36,20 +36,21 @@ function renderTemplate({source, target, data}) {
 }
 
 function updateRecommended(id) {
-	const RULE_START = '\n\trules: {\n';
-	const RULE_END = '\n\t}';
-	const RULE_INDENT = '\t'.repeat(2);
-	let ruleContent = `${RULE_INDENT}'unicorn/${id}': 'error',`;
-
+	const RULE_INDENT = '\t';
 	const file = path.join(ROOT, 'configs/recommended.js');
 	const content = fs.readFileSync(file, 'utf8');
-	const [before, rest] = content.split(RULE_START);
-	const [rules, after] = rest.split(RULE_END);
+	const {before, rules, after} = content.match(/(?<before>.*?{\n)(?<rules>.*?)(?<after>\n};\s*)/s)?.groups ?? {};
+	if (!rules) {
+		throw new Error('Unexpected content in “configs/recommended.js”.');
+	}
 
 	const lines = rules.split('\n');
+
 	if (!lines.every(line => line.startsWith(RULE_INDENT))) {
 		throw new Error('Unexpected content in “configs/recommended.js”.');
 	}
+
+	let ruleContent = `${RULE_INDENT}'unicorn/${id}': 'error',`;
 
 	const unicornRuleLines = lines.filter(line => line.startsWith(`${RULE_INDENT}'unicorn/`));
 	let insertIndex;
@@ -68,7 +69,7 @@ function updateRecommended(id) {
 
 	lines.splice(insertIndex, 0, ruleContent);
 
-	const updated = `${before}${RULE_START}${lines.join('\n')}${RULE_END}${after}`;
+	const updated = `${before}${lines.join('\n')}${after}`;
 	fs.writeFileSync(file, updated);
 }
 
@@ -154,12 +155,12 @@ renderTemplate({
 });
 updateRecommended(id);
 
-try {
-	await execa('code', [
-		'--new-window',
-		'.',
-		`docs/rules/${id}.md`,
-		`rules/${id}.js`,
-		`test/${id}.mjs`,
-	], {cwd: ROOT});
-} catch {}
+// try {
+// 	await execa('code', [
+// 		'--new-window',
+// 		'.',
+// 		`docs/rules/${id}.md`,
+// 		`rules/${id}.js`,
+// 		`test/${id}.mjs`,
+// 	], {cwd: ROOT});
+// } catch {}
