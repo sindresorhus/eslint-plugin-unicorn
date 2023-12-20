@@ -178,7 +178,7 @@ test({
 test.snapshot({
 	valid: [],
 	invalid: [
-		'function abc(foo = {a: 123}) {}',
+		'/**/function abc(foo = {a: 123}) {}',
 		'const abc = (foo = {a: false}) => {};',
 		'function abc({a} = {a: 123}) {}',
 		'function abc([a] = {a: 123}) {}',
