@@ -2,6 +2,7 @@
 	"line-length": false,
 	"no-duplicate-heading": false,
 	"no-hard-tabs": false,
+	"no-inline-html": false,
 	"ul-style": {
 		"style": "dash"
 	}
