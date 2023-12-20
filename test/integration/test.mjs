@@ -8,7 +8,7 @@ import {execa} from 'execa';
 import chalk from 'chalk';
 import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
-import mem from 'mem';
+import memoize from 'memoize';
 import YAML from 'yaml';
 import allProjects from './projects.mjs';
 import runEslint from './run-eslint.mjs';
@@ -61,7 +61,7 @@ if (projects.length === 0) {
 	process.exit(0);
 }
 
-const getBranch = mem(async dirname => {
+const getBranch = memoize(async dirname => {
 	const {stdout} = await execa('git', ['branch', '--show-current'], {cwd: dirname});
 	return stdout;
 });
