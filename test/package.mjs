@@ -1,11 +1,13 @@
 import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import * as eslintrc from '@eslint/eslintrc';
 import eslintPluginUnicorn from '../index.js';
 import flatConfigRecommended from '../configs/recommended.js';
 import allConfigRecommended from '../configs/all.js';
+
 const flatConfigs = {recommended: flatConfigRecommended, all: allConfigRecommended};
 
 let ruleFiles;
@@ -219,12 +221,24 @@ test('Plugin should have metadata', t => {
 	t.is(typeof eslintPluginUnicorn.meta.version, 'string');
 });
 
-test.only('flat configs', t => {
+function getCompactConfig(config) {
 	const compat = new eslintrc.FlatCompat({
 		baseDirectory: process.cwd(),
 		resolvePluginsRelativeTo: process.cwd(),
 	});
 
-	t.deepEqual(compat.config(eslintPluginUnicorn.configs.recommended)[1], flatConfigs.recommended)
-	t.deepEqual(compat.config(eslintPluginUnicorn.configs.all)[1], flatConfigs.all)
+	const result = {};
+
+	for (const part of compat.config(config)) {
+		for (const [key, value] of Object.entries(part)) {
+			result[key] = key === 'languageOptions' ? {...result[key], ...value} : value;
+		}
+	}
+
+	return result;
+}
+
+test('flat configs', t => {
+	t.deepEqual(getCompactConfig(eslintPluginUnicorn.configs.recommended), flatConfigs.recommended);
+	t.deepEqual(getCompactConfig(eslintPluginUnicorn.configs.all), flatConfigs.all);
 });
