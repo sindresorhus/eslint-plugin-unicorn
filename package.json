@@ -14,12 +14,6 @@
 		"node": ">=16"
 	},
 	"main": "index.js",
-	"exports": {
-		".": "./index.js",
-		"./configs/all": "./configs/all.js",
-		"./configs/recommended": "./configs/recommended.js",
-		"./package.json": "./package.json"
-	},
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run fix:eslint-docs",
 		"fix": "run-p --continue-on-error fix:*",
@@ -41,8 +35,7 @@
 	"files": [
 		"index.js",
 		"rules",
-		"configs",
-		"configs-legacy"
+		"configs"
 	],
 	"keywords": [
 		"eslint",

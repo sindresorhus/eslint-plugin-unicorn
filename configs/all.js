@@ -1,10 +1,6 @@
 'use strict';
-const eslintPluginUnicorn = require('../index.js');
 const recommended = require('./recommended.js');
 
-const all = {
-	...recommended,
-	rules: eslintPluginUnicorn.configs.all.rules,
-};
-
-module.exports = all;
+module.exports = Object.fromEntries(Object.entries(recommended).map(
+	([ruleId, severity]) => [ruleId, ruleId.startsWith('unicorn/') ? 'error' : severity],
+));

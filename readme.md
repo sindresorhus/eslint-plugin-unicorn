@@ -244,11 +244,11 @@ This plugin exports a [`recommended` config](configs/recommended.js) that enforc
 #### ES Module (Recommended)
 
 ```js
-import eslintPluginUnicornConfigRecommended from 'eslint-plugin-unicorn/configs/recommended';
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicornConfigRecommended,
+		eslintPluginUnicorn.config['flat/recommended'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -261,11 +261,11 @@ export default [
 
 ```js
 'use strict';
-const eslintPluginUnicornConfigRecommended = require('eslint-plugin-unicorn/configs/recommended');
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
 
 module.exports = [
 		// …
-		eslintPluginUnicornConfigRecommended,
+		eslintPluginUnicorn.config['flat/recommended'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -281,11 +281,11 @@ This plugin exports an [`all` config](configs/all.js) that makes use of all rule
 #### ES Module (Recommended)
 
 ```js
-import eslintPluginUnicornConfigAll from 'eslint-plugin-unicorn/configs/all';
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicornConfigAll,
+		eslintPluginUnicorn.config['flat/all'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -298,11 +298,11 @@ export default [
 
 ```js
 'use strict';
-const eslintPluginUnicornConfigAll = require('eslint-plugin-unicorn/configs/all');
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
 
 module.exports = [
 		// …
-		eslintPluginUnicornConfigAll,
+		eslintPluginUnicorn.config['flat/all'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -319,7 +319,7 @@ See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configurati
 
 ### Recommended config
 
-This plugin exports a [`recommended` config](configs-legacy/recommended.js) that enforces good practices.
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
 
 ```json
 {
@@ -335,7 +335,7 @@ This plugin exports a [`recommended` config](configs-legacy/recommended.js) that
 
 ### All config
 
-This plugin exports an [`all` config](configs-legacy/all.js) that makes use of all rules (except for deprecated ones).
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
 
 ```json
 {

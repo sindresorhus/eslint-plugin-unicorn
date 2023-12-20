@@ -2,7 +2,7 @@
 
 /** @type {import('eslint-doc-generator').GenerateOptions} */
 const config = {
-  ignoreConfig: ['all'],
+  ignoreConfig: ['all','flat/all','flat/recommended'],
   ignoreDeprecatedRules: true,
   ruleDocTitleFormat: 'desc',
   ruleListColumns: [
