@@ -155,12 +155,12 @@ renderTemplate({
 });
 updateRecommended(id);
 
-// try {
-// 	await execa('code', [
-// 		'--new-window',
-// 		'.',
-// 		`docs/rules/${id}.md`,
-// 		`rules/${id}.js`,
-// 		`test/${id}.mjs`,
-// 	], {cwd: ROOT});
-// } catch {}
+try {
+	await execa('code', [
+		'--new-window',
+		'.',
+		`docs/rules/${id}.md`,
+		`rules/${id}.js`,
+		`test/${id}.mjs`,
+	], {cwd: ROOT});
+} catch {}
