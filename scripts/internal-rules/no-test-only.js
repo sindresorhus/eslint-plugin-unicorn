@@ -68,7 +68,7 @@ module.exports = {
 	meta: {
 		fixable: 'code',
 		messages: {
-			[messageId]: '`test.only` cannot be used.',
+			[messageId]: '`test.only` should only be used for debugging purposes, please remove it before commit.',
 		},
 	},
 };
