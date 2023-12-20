@@ -7,4 +7,4 @@ const all = {
 	rules: eslintPluginUnicorn.configs.all.rules,
 };
 
-export default all;
+module.exports = all;

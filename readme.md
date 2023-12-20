@@ -15,37 +15,9 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage (legacy: `eslintrc*`)
-
-Use a [preset config](#preset-configs) or configure each rule in `package.json`.
-
-If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
-
-```json
-{
-	"name": "my-awesome-project",
-	"eslintConfig": {
-		"env": {
-			"es2024": true
-		},
-		"parserOptions": {
-			"ecmaVersion": "latest",
-			"sourceType": "module"
-		},
-		"plugins": [
-			"unicorn"
-		],
-		"rules": {
-			"unicorn/better-regex": "error",
-			"unicorn/…": "error"
-		}
-	}
-}
-```
-
 ## Usage (new: `eslint.config.js`)
 
-From [ESLint `v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), there is a new config system. In the new system, `.eslintrc*` is no longer used. `eslint.config.js` would be the default config file name.
+From [ESLint `v8.21.0`](https://github.com/eslint/eslint/releases/tag/v8.21.0), there is a new config system. In the new system, `.eslintrc.*` is no longer used. `eslint.config.js` would be the default config file name.
 
 And from [`v8.23.0`](https://github.com/eslint/eslint/releases/tag/v8.23.0), the ESLint CLI starts to look up `eslint.config.js`.
 **So, if you are using ESLint `>=8.23.0`, you are 100% ready to use the new config system.**
@@ -55,6 +27,7 @@ You might want to check out the official blog posts,
 - https://eslint.org/blog/2022/08/new-config-system-part-1/
 - https://eslint.org/blog/2022/08/new-config-system-part-2/
 - https://eslint.org/blog/2022/08/new-config-system-part-3/
+- https://eslint.org/blog/2023/10/flat-config-rollout-plans/
 
 and the [official docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new).
 
@@ -91,6 +64,35 @@ export default [
 If your `eslint.config.js` is CJS, please change it to ESM.
 
 Note that this plugin itself will transition to [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) in the future.
+
+
+## Usage (legacy: `eslintrc*`)
+
+Use a [preset config](#preset-configs) or configure each rule in `package.json`.
+
+If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
+
+```json
+{
+	"name": "my-awesome-project",
+	"eslintConfig": {
+		"env": {
+			"es2024": true
+		},
+		"parserOptions": {
+			"ecmaVersion": "latest",
+			"sourceType": "module"
+		},
+		"plugins": [
+			"unicorn"
+		],
+		"rules": {
+			"unicorn/better-regex": "error",
+			"unicorn/…": "error"
+		}
+	}
+}
+```
 
 ## Rules
 
