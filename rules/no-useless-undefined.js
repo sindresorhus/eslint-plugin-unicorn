@@ -106,6 +106,7 @@ const create = context => {
 
 	const options = {
 		checkArguments: true,
+		checkArrowFunctionBody: true,
 		...context.options[0],
 	};
 
@@ -143,19 +144,21 @@ const create = context => {
 	});
 
 	// `() => undefined`
-	context.on('Identifier', node => {
-		if (
-			isUndefined(node)
-			&& node.parent.type === 'ArrowFunctionExpression'
-			&& node.parent.body === node
-		) {
-			return getProblem(
-				node,
-				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-				/* CheckFunctionReturnType */ true,
-			);
-		}
-	});
+	if (options.checkArrowFunctionBody) {
+		context.on('Identifier', node => {
+			if (
+				isUndefined(node)
+				&& node.parent.type === 'ArrowFunctionExpression'
+				&& node.parent.body === node
+			) {
+				return getProblem(
+					node,
+					fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
+					/* CheckFunctionReturnType */ true,
+				);
+			}
+		});
+	}
 
 	// `let foo = undefined` / `var foo = undefined`
 	context.on('Identifier', node => {
@@ -274,6 +277,9 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			checkArguments: {
+				type: 'boolean',
+			},
+			checkArrowFunctionBody: {
 				type: 'boolean',
 			},
 		},
