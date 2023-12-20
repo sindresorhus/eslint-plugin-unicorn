@@ -11,7 +11,7 @@
 
 Where passing `undefined` as argument is required is due to bad TypeScript types in functions, in which case you can use `checkArguments: false` option.
 
-Use `undefined` as arrow function body sometimes make the purpose more explicit, in which case you can use `checkArrowFunctionBody: false` option.
+Using `undefined` as arrow function body sometimes make the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
 ## Fail
 
@@ -108,6 +108,13 @@ Disallow the use of `undefined` at the end of function call arguments. Pass `che
 
 ```js
 // eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}]
+foo(bar, baz, undefined);
+```
+
+#### Pass
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
 foo(bar, baz, undefined);
 ```
 
