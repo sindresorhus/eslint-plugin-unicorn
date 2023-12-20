@@ -40,6 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
+          node-version: 20
       - run: npm install
       - run: npm run lint
       - run: npx del-cli test/snapshots --verbose
