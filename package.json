@@ -57,7 +57,6 @@
 	"dependencies": {
 		"@babel/helper-validator-identifier": "^7.22.20",
 		"@eslint-community/eslint-utils": "^4.4.0",
-		"@eslint/eslintrc": "^2.1.4",
 		"ci-info": "^4.0.0",
 		"clean-regexp": "^1.0.0",
 		"eslint-utils": "^3.0.0",
@@ -77,6 +76,7 @@
 		"@babel/code-frame": "^7.23.5",
 		"@babel/core": "^7.23.6",
 		"@babel/eslint-parser": "^7.23.3",
+		"@eslint/eslintrc": "^2.1.4",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
 		"@typescript-eslint/parser": "^6.15.0",
 		"ava": "^6.0.1",

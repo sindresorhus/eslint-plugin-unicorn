@@ -4,6 +4,9 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import * as eslintrc from '@eslint/eslintrc';
 import eslintPluginUnicorn from '../index.js';
+import flatConfigRecommended from '../configs/recommended.js';
+import allConfigRecommended from '../configs/all.js';
+const flatConfigs = {recommended: flatConfigRecommended, all: allConfigRecommended};
 
 let ruleFiles;
 
@@ -214,4 +217,14 @@ test('Every rule has a doc with the appropriate content', t => {
 test('Plugin should have metadata', t => {
 	t.is(typeof eslintPluginUnicorn.meta.name, 'string');
 	t.is(typeof eslintPluginUnicorn.meta.version, 'string');
+});
+
+test.only('flat configs', t => {
+	const compat = new eslintrc.FlatCompat({
+		baseDirectory: process.cwd(),
+		resolvePluginsRelativeTo: process.cwd(),
+	});
+
+	t.deepEqual(compat.config(eslintPluginUnicorn.configs.recommended)[1], flatConfigs.recommended)
+	t.deepEqual(compat.config(eslintPluginUnicorn.configs.all)[1], flatConfigs.all)
 });
