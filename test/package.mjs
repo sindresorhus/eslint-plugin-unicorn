@@ -1,5 +1,6 @@
 import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import test from 'ava';
 import {ESLint} from 'eslint';
 import * as eslintrc from '@eslint/eslintrc';
@@ -75,7 +76,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 
 test('validate configuration', async t => {
 	const results = await Promise.all(
-		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
+		Object.entries(eslintPluginUnicorn.configs).filter(([name]) => !name.startsWith('flat/')).map(async ([name, config]) => {
 			const eslint = new ESLint({
 				baseConfig: config,
 				useEslintrc: false,
@@ -214,4 +215,38 @@ test('Every rule has a doc with the appropriate content', t => {
 test('Plugin should have metadata', t => {
 	t.is(typeof eslintPluginUnicorn.meta.name, 'string');
 	t.is(typeof eslintPluginUnicorn.meta.version, 'string');
+});
+
+function getCompactConfig(config) {
+	const compat = new eslintrc.FlatCompat({
+		baseDirectory: process.cwd(),
+		resolvePluginsRelativeTo: process.cwd(),
+	});
+
+	const result = {plugins: undefined};
+
+	for (const part of compat.config(config)) {
+		for (const [key, value] of Object.entries(part)) {
+			if (key === 'languageOptions') {
+				result[key] = {...result[key], ...value};
+			} else if (key === 'plugins') {
+				result[key] = undefined;
+			} else {
+				result[key] = value;
+			}
+		}
+	}
+
+	return result;
+}
+
+test('flat configs', t => {
+	t.deepEqual(
+		getCompactConfig(eslintPluginUnicorn.configs.recommended),
+		{...eslintPluginUnicorn.configs['flat/recommended'], plugins: undefined},
+	);
+	t.deepEqual(
+		getCompactConfig(eslintPluginUnicorn.configs.all),
+		{...eslintPluginUnicorn.configs['flat/all'], plugins: undefined},
+	);
 });

@@ -15,9 +15,68 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage
+## Usage (`eslint.config.js`)
 
-Use a [preset config](#preset-configs) or configure each rule in `package.json`.
+**Requires ESLint `>=8.23.0`.**
+
+Use a [preset config](#preset-configs-eslintconfigjs) or configure each rule in `eslint.config.js`.
+
+If you don't use the preset, ensure you use the same `languageOptions` config as below.
+
+### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import * as eslintrc from '@eslint/eslintrc';
+
+export default [
+	{
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+			globals: eslintrc.Legacy.environments.get('es2024'),
+		},
+		plugins: {
+			unicorn: eslintPluginUnicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+];
+```
+
+### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+const eslintrc = require('@eslint/eslintrc');
+
+module.exports = [
+	{
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+			globals: eslintrc.Legacy.environments.get('es2024'),
+		},
+		plugins: {
+			unicorn: eslintPluginUnicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+];
+```
+
+## Usage (legacy: `.eslintrc.*` or `package.json`)
+
+Use a [preset config](#preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
 
 If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
 
@@ -172,7 +231,87 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## Preset configs
+## Preset configs (`eslint.config.js`)
+
+See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
+
+**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/configuration-files-new#configuring-language-options).
+
+### Recommended config
+
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+
+export default [
+		// …
+		eslintPluginUnicorn.config['flat/recommended'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+
+module.exports = [
+		// …
+		eslintPluginUnicorn.config['flat/recommended'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+### All config
+
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+
+export default [
+		// …
+		eslintPluginUnicorn.config['flat/all'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+
+module.exports = [
+		// …
+		eslintPluginUnicorn.config['flat/all'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+## Preset configs (`.eslintrc.*` or `package.json`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
@@ -186,7 +325,10 @@ This plugin exports a [`recommended` config](configs/recommended.js) that enforc
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"extends": "plugin:unicorn/recommended"
+		"extends": "plugin:unicorn/recommended",
+		"rules": {
+			"unicorn/better-regex": "warn"
+		}
 	}
 }
 ```
