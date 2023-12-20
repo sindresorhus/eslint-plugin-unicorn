@@ -354,8 +354,8 @@ test.snapshot({
 		'Array.prototype.subarray.call(foo, foo.length - 1)',
 	],
 	invalid: [
-		'foo.slice(foo.length - 2, foo.length - 1)',
-		'foo.splice(foo.length - 1, 1)',
+		'/**/foo.slice(foo.length - 2, foo.length - 1)',
+		'/**/foo.splice(foo.length - 1, 1)',
 		// Foo.bar and foo["bar"]
 		'foo.bar.slice(foo["bar"].length - 1)',
 		// Foo[`bar`] and foo["bar"]
