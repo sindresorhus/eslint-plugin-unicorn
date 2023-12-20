@@ -1,9 +1,10 @@
-import {rules} from '../configs-legacy/all.js';
-import recommended from './recommended.mjs';
+'use strict';
+const eslintPluginUnicorn = require('../index.js');
+const recommended = require('./recommended.js');
 
 const all = {
 	...recommended,
-	rules,
+	rules: eslintPluginUnicorn.configs.all.rules,
 };
 
 export default all;
