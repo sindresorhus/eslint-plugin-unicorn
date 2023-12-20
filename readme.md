@@ -19,7 +19,7 @@ npm install --save-dev eslint eslint-plugin-unicorn
 
 **Requires ESLint `>=8.23.0`.**
 
-Use a [preset config](#preset-configs) or configure each rule in `eslint.config.js`.
+Use a [preset config](#preset-configs-eslintconfigjs) or configure each rule in `eslint.config.js`.
 
 If you don't use the preset, ensure you use the same `languageOptions` config as below.
 
@@ -76,7 +76,7 @@ module.exports = [
 
 ## Usage (legacy: `.eslintrc.*` or `package.json`)
 
-Use a [preset config](#preset-configs-legacy) or configure each rule in `package.json`.
+Use a [preset config](#preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
 
 If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
 
@@ -231,7 +231,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## <a id="preset-config"></a>Preset configs (`eslint.config.js`)
+## Preset configs (`eslint.config.js`)
 
 See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
 
@@ -311,7 +311,7 @@ module.exports = [
 ];
 ```
 
-## <a id="preset-config-legacy"></a>Preset configs (`.eslintrc.*` or `package.json`)
+## Preset configs (`.eslintrc.*` or `package.json`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
