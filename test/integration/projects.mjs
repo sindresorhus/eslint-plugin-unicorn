@@ -12,6 +12,7 @@ function normalizeProject(project) {
 		repository,
 		name = repository.split('/').pop(),
 		ignore = [],
+		babelPlugins = [],
 	} = project;
 
 	return {
@@ -20,6 +21,7 @@ function normalizeProject(project) {
 		name,
 		repository,
 		ignore,
+		babelPlugins,
 	};
 }
 
@@ -107,6 +109,9 @@ export default [
 				// Global return
 				'utils/fetch_devices.js',
 			],
+			babelPlugins: [
+				'importAssertions',
+			],
 		},
 		'https://github.com/ReactTraining/react-router',
 		// #902
@@ -131,15 +136,18 @@ export default [
 			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
 			'packages/compiler-cli/test/**',
 			'tools/**',
+			// TODO[@fisker]: Check why it can't be parsed
+			'packages/forms/src/validators.ts',
 		],
 	},
-	{
-		repository: 'https://github.com/microsoft/typescript',
-		ignore: [
-			// These file use `'\033'`
-			'build/**',
-		],
-	},
+	// OOM
+	// {
+	// 	repository: 'https://github.com/microsoft/typescript',
+	// 	ignore: [
+	// 		// These file use `'\033'`
+	// 		'build/**',
+	// 	],
+	// },
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
@@ -189,6 +197,23 @@ export default [
 	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 	// 'https://github.com/untitled-labs/metabase-custom',
 	// 'https://github.com/TheThingsNetwork/lorawan-stack',
+	[
+		'https://github.com/zloirock/core-js',
+		{
+			repository: 'https://github.com/rollup/rollup',
+			ignore: [
+				'test/**',
+				'scripts/perf.js',
+			],
+		},
+	],
+	{
+		repository: 'https://github.com/rust-lang/crates.io',
+		ignore: [],
+		babelPlugins: [
+			['decorators', {decoratorsBeforeExport: true}],
+		],
+	},
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))

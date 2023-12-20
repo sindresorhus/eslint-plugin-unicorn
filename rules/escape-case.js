@@ -1,5 +1,6 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
+const {isRegexLiteral, isStringLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {
@@ -21,32 +22,32 @@ const getProblem = ({node, original, regex = escapeWithLowercase, fix}) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	Literal(node) {
-		if (typeof node.value !== 'string') {
-			return;
+const create = context => {
+	context.on('Literal', node => {
+		if (isStringLiteral(node)) {
+			return getProblem({
+				node,
+				original: node.raw,
+			});
 		}
+	});
 
-		return getProblem({
-			node,
-			original: node.raw,
-		});
-	},
-	'Literal[regex]'(node) {
-		return getProblem({
-			node,
-			original: node.raw,
-			regex: escapePatternWithLowercase,
-		});
-	},
-	TemplateElement(node) {
-		return getProblem({
-			node,
-			original: node.value.raw,
-			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-		});
-	},
-});
+	context.on('Literal', node => {
+		if (isRegexLiteral(node)) {
+			return getProblem({
+				node,
+				original: node.raw,
+				regex: escapePatternWithLowercase,
+			});
+		}
+	});
+
+	context.on('TemplateElement', node => getProblem({
+		node,
+		original: node.value.raw,
+		fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+	}));
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

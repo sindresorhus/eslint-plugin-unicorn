@@ -15,7 +15,7 @@ const isLiteralZero = node => isLiteral(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const memberExpressionNode = target.parent;
 	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
@@ -43,8 +43,10 @@ const includesOverSomeRule = simpleArraySearchRule({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	BinaryExpression(node) {
+const create = context => {
+	includesOverSomeRule.listen(context);
+
+	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
 		if (!isMethodNamed(left, 'indexOf')) {
@@ -75,9 +77,8 @@ const create = context => ({
 				argumentsNodes,
 			);
 		}
-	},
-	...includesOverSomeRule.createListeners(context),
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

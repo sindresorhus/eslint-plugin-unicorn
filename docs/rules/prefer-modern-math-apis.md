@@ -1,11 +1,11 @@
 # Prefer modern `Math` APIs over legacy patterns
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
-✅ *This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config.*
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
 
-🔧 *This rule is [auto-fixable](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).*
-<!-- /RULE_NOTICE -->
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Math additions in ES2015:
 
@@ -57,6 +57,27 @@ Math.LOG2E * Math.log(x)
 
 ```js
 Math.log(x) / Math.LN2
+```
+
+## Prefer `Math.hypot(…)` over
+
+```js
+Math.sqrt(a * a + b * b)
+```
+
+```js
+Math.sqrt(a ** 2 + b ** 2)
+```
+
+```js
+Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
+```
+
+*This case requires [`prefer-exponentiation-operator`](https://eslint.org/docs/latest/rules/prefer-exponentiation-operator) rule to fix it first.*
+
+```js
+Math.sqrt(x ** 2)
+// This case fix to `Math.abs(x)`, since it should be better than `Math.hypot(x)`
 ```
 
 ## Separate rule for `Math.trunc()`

@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
-const isDirective = node => node.type === 'ExpressionStatement' && 'directive' in node;
+const isDirective = node => node.type === 'ExpressionStatement' && typeof node.directive === 'string';
 const isEmpty = node => isEmptyNode(node, isDirective);
 
 const isTripleSlashDirective = node =>
@@ -17,9 +17,9 @@ const hasTripeSlashDirectives = comments =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const filename = context.getPhysicalFilename().toLowerCase();
+	const filename = context.physicalFilename;
 
-	if (!/\.(?:js|mjs|cjs|ts|mts|cts)$/.test(filename)) {
+	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
 		return;
 	}
 
@@ -29,7 +29,7 @@ const create = context => {
 				return;
 			}
 
-			const sourceCode = context.getSourceCode();
+			const {sourceCode} = context;
 			const comments = sourceCode.getAllComments();
 
 			if (hasTripeSlashDirectives(comments)) {

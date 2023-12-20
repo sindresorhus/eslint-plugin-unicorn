@@ -9,7 +9,6 @@ test.snapshot({
 		'const array = [[]]',
 		'const array = [{}]',
 		'const object = ({...[]})',
-		'const array = [...[].map(x => x)]',
 		'foo([])',
 		'foo({})',
 		'new Foo([])',
@@ -238,6 +237,73 @@ test.snapshot({
 				yield * ${code};
 			}
 		`),
+	],
+});
+
+// Cloning an immediate array
+test.snapshot({
+	valid: [
+		'[...not.array]',
+		'[...not.array()]',
+		'[...array.unknown()]',
+		'[...Object.notReturningArray(foo)]',
+		'[...NotObject.keys(foo)]',
+		'[...Int8Array.from(foo)]',
+		'[...Int8Array.of()]',
+		'[...new Int8Array(3)]',
+		'[...Promise.all(foo)]',
+		'[...Promise.allSettled(foo)]',
+		'[...await Promise.all(foo, extraArgument)]',
+	],
+	invalid: [
+		'[...foo.concat(bar)]',
+		'[...foo.copyWithin(-2)]',
+		'[...foo.filter(bar)]',
+		'[...foo.flat()]',
+		'[...foo.flatMap(bar)]',
+		'[...foo.map(bar)]',
+		'[...foo.slice(1)]',
+		'[...foo.splice(1)]',
+		'[...foo.toReversed()]',
+		'[...foo.toSorted()]',
+		'[...foo.toSpliced(0, 1)]',
+		'[...foo.with(0, bar)]',
+		'[...foo.split("|")]',
+		'[...Object.keys(foo)]',
+		'[...Object.values(foo)]',
+		'[...Array.from(foo)]',
+		'[...Array.of()]',
+		'[...new Array(3)]',
+		'[...await Promise.all(foo)]',
+		'[...await Promise.allSettled(foo)]',
+		outdent`
+			function foo(bar) {
+				return[...Object.keys(bar)];
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				return[
+					...Object.keys(bar)
+				];
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				return[
+					...(
+						Object.keys(bar)
+					)
+				];
+			}
+		`,
+		outdent`
+			function foo(bar) {
+				return([
+					...Object.keys(bar)
+				]);
+			}
+		`,
 	],
 });
 

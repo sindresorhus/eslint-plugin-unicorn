@@ -1,8 +1,7 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const eventTypes = require('./shared/dom-events.js');
-const {STATIC_REQUIRE_SOURCE_SELECTOR} = require('./selectors/index.js');
-const {isUndefined, isNullLiteral} = require('./ast/index.js');
+const {isUndefined, isNullLiteral, isStaticRequire} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -73,14 +72,18 @@ const create = context => {
 			codePathInfo = codePathInfo.upper;
 		},
 
-		[STATIC_REQUIRE_SOURCE_SELECTOR](node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		CallExpression(node) {
+			if (!isStaticRequire(node)) {
+				return;
+			}
+
+			if (!isDisabled && excludedPackages.has(node.arguments[0].value)) {
 				isDisabled = true;
 			}
 		},
 
-		'ImportDeclaration > Literal'(node) {
-			if (!isDisabled && excludedPackages.has(node.value)) {
+		Literal(node) {
+			if (node.parent.type === 'ImportDeclaration' && !isDisabled && excludedPackages.has(node.value)) {
 				isDisabled = true;
 			}
 		},
@@ -94,7 +97,7 @@ const create = context => {
 				return;
 			}
 
-			const {left: memberExpression, right: assignedExpression} = node;
+			const {left: memberExpression, right: assignedExpression, operator} = node;
 
 			if (
 				memberExpression.type !== 'MemberExpression'
@@ -132,8 +135,12 @@ const create = context => {
 			} else if (eventTypeName === 'error') {
 				// Disable `onerror` fix, see #1493
 				extra = extraMessages.error;
-			} else {
-				fix = fixer => fixCode(fixer, context.getSourceCode(), node, memberExpression);
+			} else if (
+				operator === '='
+				&& node.parent.type === 'ExpressionStatement'
+				&& node.parent.expression === node
+			) {
+				fix = fixer => fixCode(fixer, context.sourceCode, node, memberExpression);
 			}
 
 			return {

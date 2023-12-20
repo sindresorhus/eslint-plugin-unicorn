@@ -1,5 +1,5 @@
 'use strict';
-const quoteString = require('./utils/quote-string.js');
+const escapeString = require('./utils/escape-string.js');
 const translateToKey = require('./shared/event-keys.js');
 const {isNumberLiteral} = require('./ast/index.js');
 
@@ -15,23 +15,20 @@ const keys = new Set([
 ]);
 
 const isPropertyNamedAddEventListener = node =>
-	node
-	&& node.type === 'CallExpression'
-	&& node.callee
+	node?.type === 'CallExpression'
 	&& node.callee.type === 'MemberExpression'
-	&& node.callee.property
 	&& node.callee.property.name === 'addEventListener';
 
 const getEventNodeAndReferences = (context, node) => {
 	const eventListener = getMatchingAncestorOfType(node, 'CallExpression', isPropertyNamedAddEventListener);
-	const callback = eventListener && eventListener.arguments && eventListener.arguments[1];
-	switch (callback && callback.type) {
+	const callback = eventListener?.arguments[1];
+	switch (callback?.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression': {
-			const eventVariable = context.getDeclaredVariables(callback)[0];
-			const references = eventVariable && eventVariable.references;
+			const eventVariable = context.sourceCode.getDeclaredVariables(callback)[0];
+			const references = eventVariable?.references;
 			return {
-				event: callback.params && callback.params[0],
+				event: callback.params[0],
 				references,
 			};
 		}
@@ -43,10 +40,7 @@ const getEventNodeAndReferences = (context, node) => {
 };
 
 const isPropertyOf = (node, eventNode) =>
-	node
-	&& node.parent
-	&& node.parent.type === 'MemberExpression'
-	&& node.parent.object
+	node?.parent?.type === 'MemberExpression'
 	&& node.parent.object === eventNode;
 
 // The third argument is a condition function, as one passed to `Array#filter()`
@@ -103,7 +97,7 @@ const fix = node => fixer => {
 	// Apply fixes
 	return [
 		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, quoteString(key)),
+		fixer.replaceText(right, escapeString(key)),
 	];
 };
 
@@ -116,7 +110,15 @@ const getProblem = node => ({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	'Identifier:matches([name="keyCode"], [name="charCode"], [name="which"])'(node) {
+	Identifier(node) {
+		if (
+			node.name !== 'keyCode'
+			&& node.name !== 'charCode'
+			&& node.name !== 'which'
+		) {
+			return;
+		}
+
 		// Normal case when usage is direct -> `event.keyCode`
 		const {event, references} = getEventNodeAndReferences(context, node);
 		if (!event) {
@@ -133,7 +135,7 @@ const create = context => ({
 
 	Property(node) {
 		// Destructured case
-		const propertyName = node.value && node.value.name;
+		const propertyName = node.value.name;
 		if (!keys.has(propertyName)) {
 			return;
 		}
@@ -147,10 +149,7 @@ const create = context => ({
 			node,
 			'VariableDeclarator',
 		);
-		const initObject
-			= nearestVariableDeclarator
-				&& nearestVariableDeclarator.init
-				&& nearestVariableDeclarator.init;
+		const initObject = nearestVariableDeclarator?.init;
 
 		// Make sure initObject is a reference of eventVariable
 		if (

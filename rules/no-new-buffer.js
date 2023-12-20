@@ -1,8 +1,8 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
-const {newExpressionSelector} = require('./selectors/index.js');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {switchNewExpressionToCallExpression} = require('./fix/index.js');
 const isNumber = require('./utils/is-number.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -10,7 +10,7 @@ const SUGGESTION = 'suggestion';
 const messages = {
 	[ERROR]: '`new Buffer()` is deprecated, use `Buffer.{{method}}()` instead.',
 	[ERROR_UNKNOWN]: '`new Buffer()` is deprecated, use `Buffer.alloc()` or `Buffer.from()` instead.',
-	[SUGGESTION]: 'Switch to `Buffer.{{method}}()`.',
+	[SUGGESTION]: 'Switch to `Buffer.{{replacement}}()`.',
 };
 
 const inferMethod = (bufferArguments, scope) => {
@@ -52,10 +52,14 @@ function fix(node, sourceCode, method) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	return {
-		[newExpressionSelector('Buffer')](node) {
-			const method = inferMethod(node.arguments, context.getScope());
+		NewExpression(node) {
+			if (!isNewExpression(node, {name: 'Buffer'})) {
+				return;
+			}
+
+			const method = inferMethod(node.arguments, sourceCode.getScope(node));
 
 			if (method) {
 				return {
@@ -69,10 +73,10 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_UNKNOWN,
-				suggest: ['from', 'alloc'].map(method => ({
+				suggest: ['from', 'alloc'].map(replacement => ({
 					messageId: SUGGESTION,
-					data: {method},
-					fix: fix(node, sourceCode, method),
+					data: {replacement},
+					fix: fix(node, sourceCode, replacement),
 				})),
 			};
 		},

@@ -1,5 +1,5 @@
 'use strict';
-const {upperFirst} = require('lodash');
+const {upperFirst} = require('./utils/lodash.js');
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
@@ -137,15 +137,15 @@ function * customErrorDefinition(context, node) {
 	if (!nameExpression) {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
 
-		if (!nameProperty || !nameProperty.value || nameProperty.value.value !== name) {
+		if (!nameProperty?.value || nameProperty.value.value !== name) {
 			yield {
-				node: nameProperty && nameProperty.value ? nameProperty.value : constructorBodyNode,
+				node: nameProperty?.value ?? constructorBodyNode,
 				message: `The \`name\` property should be set to \`${name}\`.`,
 			};
 		}
 	} else if (nameExpression.expression.right.value !== name) {
 		yield {
-			node: nameExpression ? nameExpression.expression.right : constructorBodyNode,
+			node: nameExpression?.expression.right ?? constructorBodyNode,
 			message: `The \`name\` property should be set to \`${name}\`.`,
 		};
 	}
@@ -183,11 +183,23 @@ const customErrorExport = (context, node) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ClassDeclaration: node => customErrorDefinition(context, node),
-	'AssignmentExpression[right.type="ClassExpression"]': node => customErrorDefinition(context, node.right),
-	'AssignmentExpression[left.type="MemberExpression"][left.object.type="Identifier"][left.object.name="exports"]': node => customErrorExport(context, node),
-});
+const create = context => {
+	context.on('ClassDeclaration', node => customErrorDefinition(context, node));
+	context.on('AssignmentExpression', node => {
+		if (node.right.type === 'ClassExpression') {
+			return customErrorDefinition(context, node.right);
+		}
+	});
+	context.on('AssignmentExpression', node => {
+		if (
+			node.left.type === 'MemberExpression'
+			&& node.left.object.type === 'Identifier'
+			&& node.left.object.name === 'exports'
+		) {
+			return customErrorExport(context, node);
+		}
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

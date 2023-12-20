@@ -39,6 +39,7 @@ test.snapshot({
 		`,
 		'element.setAttribute(\'data-unicorn\', \'🦄\');',
 		'element.setAttribute(\'data-🦄\', \'🦄\');',
+		'element.setAttribute(\'data-ゆ\', \'ゆ\');',
 		'element.setAttribute(\'data-foo2\', \'🦄\');',
 		'element.setAttribute(\'data-foo:bar\', \'zaz\');',
 		'element.setAttribute("data-foo:bar", "zaz");',
@@ -51,6 +52,9 @@ test.snapshot({
 		'element.setAttribute("DATA--FOO", "🦄");',
 		'element.setAttribute("DATA- ", "🦄");',
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
+		// Not fixable
+		'optional?.element.setAttribute("data-unicorn", "🦄");',
+		'console.log(element.setAttribute("data-unicorn", "🦄"))',
 	],
 });
 
@@ -91,6 +95,7 @@ test.snapshot({
 		'element.removeAttribute("data-unicorn");',
 		'element.removeAttribute("data-unicorn",);',
 		'element.removeAttribute("data-🦄");',
+		'element.removeAttribute("data-ゆ");',
 		'element.removeAttribute("data-foo2");',
 		'element.removeAttribute("data-foo:bar");',
 		'element.removeAttribute("data-foo:bar");',
@@ -99,6 +104,8 @@ test.snapshot({
 		'element.removeAttribute("data-foo");',
 		'element.querySelector("#selector").removeAttribute("data-AllowAccess");',
 		'element.removeAttribute("data-");',
+		'optional?.element.removeAttribute("data-unicorn");',
+		'element.removeAttribute("data-unicorn")?.property',
 	],
 });
 
@@ -142,6 +149,7 @@ test.snapshot({
 		'element.hasAttribute("data-unicorn");',
 		'element.hasAttribute("data-unicorn",);',
 		'element.hasAttribute("data-🦄");',
+		'element.hasAttribute("data-ゆ");',
 		'element.hasAttribute("data-foo2");',
 		'element.hasAttribute("data-foo:bar");',
 		'element.hasAttribute("data-foo:bar");',
@@ -149,6 +157,8 @@ test.snapshot({
 		'element.hasAttribute("data-foo-bar");',
 		'element.hasAttribute("data-foo");',
 		'element.querySelector("#selector").hasAttribute("data-AllowAccess");',
+		'optional?.element.hasAttribute("data-unicorn");',
+		'element.hasAttribute("data-unicorn").toString()',
 	],
 });
 
@@ -188,6 +198,7 @@ test.snapshot({
 		'element.getAttribute("data-unicorn");',
 		'element.getAttribute("data-unicorn",);',
 		'element.getAttribute("data-🦄");',
+		'element.getAttribute("data-ゆ");',
 		'element.getAttribute("data-foo2");',
 		'element.getAttribute("data-foo:bar");',
 		'element.getAttribute("data-foo:bar");',
@@ -195,5 +206,7 @@ test.snapshot({
 		'element.getAttribute("data-foo-bar");',
 		'element.getAttribute("data-foo");',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
+		'optional?.element.getAttribute("data-unicorn");',
+		'element.getAttribute("data-unicorn").toString()',
 	],
 });

@@ -1,10 +1,11 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
-const {methodCallSelector, notFunctionSelector} = require('./selectors/index.js');
+const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const {removeArgument} = require('./fix/index.js');
 const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
 const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {isNodeValueNotFunction} = require('./utils/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const ERROR = 'error';
 const SUGGESTION_BIND = 'suggestion-bind';
@@ -31,10 +32,20 @@ const ignored = [
 	'underscore.find',
 	'R.find',
 
+	'lodash.findLast',
+	'_.findLast',
+	'underscore.findLast',
+	'R.findLast',
+
 	'lodash.findIndex',
 	'_.findIndex',
 	'underscore.findIndex',
 	'R.findIndex',
+
+	'lodash.findLastIndex',
+	'_.findLastIndex',
+	'underscore.findLastIndex',
+	'R.findLastIndex',
 
 	'lodash.flatMap',
 	'_.flatMap',
@@ -59,25 +70,6 @@ const ignored = [
 	'underscore.some',
 ];
 
-const selector = [
-	methodCallSelector({
-		methods: [
-			'every',
-			'filter',
-			'find',
-			'findLast',
-			'findIndex',
-			'findLastIndex',
-			'flatMap',
-			'forEach',
-			'map',
-			'some',
-		],
-		argumentsLength: 2,
-	}),
-	notFunctionSelector('arguments.0'),
-].join('');
-
 function removeThisArgument(callExpression, sourceCode) {
 	return fixer => removeArgument(fixer, callExpression.arguments[1], sourceCode);
 }
@@ -91,7 +83,7 @@ function useBoundFunction(callExpression, sourceCode) {
 		const callbackParentheses = getParentheses(callback, sourceCode);
 		const isParenthesized = callbackParentheses.length > 0;
 		const callbackLastToken = isParenthesized
-			? callbackParentheses[callbackParentheses.length - 1]
+			? callbackParentheses.at(-1)
 			: callback;
 		if (
 			!isParenthesized
@@ -109,15 +101,35 @@ function useBoundFunction(callExpression, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
-		[selector](callExpression) {
-			const {callee} = callExpression;
-			if (isNodeMatches(callee, ignored)) {
+		CallExpression(callExpression) {
+			if (
+				!isMethodCall(callExpression, {
+					methods: [
+						'every',
+						'filter',
+						'find',
+						'findLast',
+						'findIndex',
+						'findLastIndex',
+						'flatMap',
+						'forEach',
+						'map',
+						'some',
+					],
+					argumentsLength: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| isNodeMatches(callExpression.callee, ignored)
+				|| isNodeValueNotFunction(callExpression.arguments[0])
+			) {
 				return;
 			}
 
+			const {callee} = callExpression;
 			const method = callee.property.name;
 			const [callback, thisArgument] = callExpression.arguments;
 

@@ -1,6 +1,6 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
-const {newExpressionSelector} = require('./selectors/index.js');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
+const {isNewExpression, isStringLiteral} = require('./ast/index.js');
 const {replaceStringLiteral} = require('./fix/index.js');
 
 const MESSAGE_ID_NEVER = 'never';
@@ -11,15 +11,6 @@ const messages = {
 	[MESSAGE_ID_ALWAYS]: 'Add a `./` prefix to the relative URL.',
 	[MESSAGE_ID_REMOVE]: 'Remove leading `./`.',
 };
-
-const templateLiteralSelector = [
-	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > TemplateLiteral.arguments:first-child',
-].join('');
-const literalSelector = [
-	newExpressionSelector({name: 'URL', argumentsLength: 2}),
-	' > Literal.arguments:first-child',
-].join('');
 
 const DOT_SLASH = './';
 const TEST_URL_BASES = [
@@ -37,18 +28,17 @@ const isSafeToAddDotSlashToUrl = (url, base) => {
 const isSafeToAddDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url, base));
 const isSafeToRemoveDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url.slice(DOT_SLASH.length), base));
 
-function canAddDotSlash(node, context) {
+function canAddDotSlash(node, sourceCode) {
 	const url = node.value;
 	if (url.startsWith(DOT_SLASH) || url.startsWith('.') || url.startsWith('/')) {
 		return false;
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, context.getScope());
+	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
 
 	if (
-		staticValueResult
-		&& typeof staticValueResult.value === 'string'
+		typeof staticValueResult?.value === 'string'
 		&& isSafeToAddDotSlash(url, [staticValueResult.value])
 	) {
 		return true;
@@ -57,18 +47,17 @@ function canAddDotSlash(node, context) {
 	return isSafeToAddDotSlash(url);
 }
 
-function canRemoveDotSlash(node, context) {
+function canRemoveDotSlash(node, sourceCode) {
 	const rawValue = node.raw.slice(1, -1);
 	if (!rawValue.startsWith(DOT_SLASH)) {
 		return false;
 	}
 
 	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValue(baseNode, context.getScope());
+	const staticValueResult = getStaticValue(baseNode, sourceCode.getScope(node));
 
 	if (
-		staticValueResult
-		&& typeof staticValueResult.value === 'string'
+		typeof staticValueResult?.value === 'string'
 		&& isSafeToRemoveDotSlash(node.value, [staticValueResult.value])
 	) {
 		return true;
@@ -77,16 +66,16 @@ function canRemoveDotSlash(node, context) {
 	return isSafeToRemoveDotSlash(node.value);
 }
 
-function addDotSlash(node, context) {
-	if (!canAddDotSlash(node, context)) {
+function addDotSlash(node, sourceCode) {
+	if (!canAddDotSlash(node, sourceCode)) {
 		return;
 	}
 
 	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0);
 }
 
-function removeDotSlash(node, context) {
-	if (!canRemoveDotSlash(node, context)) {
+function removeDotSlash(node, sourceCode) {
+	if (!canRemoveDotSlash(node, sourceCode)) {
 		return;
 	}
 
@@ -101,7 +90,14 @@ const create = context => {
 
 	// TemplateLiteral are not always safe to remove `./`, but if it's starts with `./` we'll report
 	if (style === 'never') {
-		listeners[templateLiteralSelector] = function (node) {
+		listeners.TemplateLiteral = function (node) {
+			if (!(
+				isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
+				&& node.parent.arguments[0] === node
+			)) {
+				return;
+			}
+
 			const firstPart = node.quasis[0];
 			if (!firstPart.value.raw.startsWith(DOT_SLASH)) {
 				return;
@@ -123,12 +119,17 @@ const create = context => {
 		};
 	}
 
-	listeners[literalSelector] = function (node) {
-		if (typeof node.value !== 'string') {
+	listeners.Literal = function (node) {
+		if (!(
+			isStringLiteral(node)
+			&& isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
+			&& node.parent.arguments[0] === node
+		)) {
 			return;
 		}
 
-		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, context);
+		const {sourceCode} = context;
+		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, sourceCode);
 
 		if (!fix) {
 			return;

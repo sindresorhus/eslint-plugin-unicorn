@@ -1,3 +1,5 @@
 'use strict';
 
-module.exports = ({parent}) => !parent || parent.type === 'ExpressionStatement';
+const {isExpressionStatement} = require('../ast/index.js');
+
+module.exports = node => isExpressionStatement(node.parent);

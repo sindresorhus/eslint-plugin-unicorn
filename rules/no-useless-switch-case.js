@@ -13,7 +13,7 @@ const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	* 'SwitchStatement[cases.length>1]'(switchStatement) {
+	* SwitchStatement(switchStatement) {
 		const {cases} = switchStatement;
 
 		// TypeScript allows multiple `default` cases
@@ -25,7 +25,7 @@ const create = context => ({
 		const [defaultCase] = defaultCases;
 
 		// We only check cases where the last case is the `default` case
-		if (defaultCase !== cases[cases.length - 1]) {
+		if (defaultCase !== cases.at(-1)) {
 			return;
 		}
 
@@ -43,7 +43,7 @@ const create = context => ({
 		for (const node of uselessCases) {
 			yield {
 				node,
-				loc: getSwitchCaseHeadLocation(node, context.getSourceCode()),
+				loc: getSwitchCaseHeadLocation(node, context.sourceCode),
 				messageId: MESSAGE_ID_ERROR,
 				suggest: [
 					{

@@ -47,6 +47,34 @@ test.snapshot({
 		'await foo.then?.(bar)',
 		'await foo.then(bar)?.catch(bar)',
 		'await foo.then(bar)?.catch?.(bar)',
+		outdent`
+			class Example {
+				property = promise.then(bar)
+			}
+		`,
+		outdent`
+			const Example = class Example {
+				property = promise.then(bar)
+			}
+		`,
+		outdent`
+			class Example {
+				static {
+					promise.then(bar)
+				}
+			}
+		`,
+		outdent`
+			const Example = class Example {
+				static {
+					promise.then(bar)
+				}
+			}
+		`,
+		{
+			code: 'foo.then(bar)',
+			filename: 'foo.cjS',
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -138,6 +166,7 @@ test.snapshot({
 			const foo = async () => {};
 			await foo();
 		`,
+		'for (const statement of statements) { statement() };',
 	],
 	invalid: [
 		outdent`
@@ -169,6 +198,36 @@ test.snapshot({
 			}
 		`,
 	],
+});
+
+// In `Promise` methods
+test.snapshot({
+	valid: [
+		outdent`
+			const foo = async () => {};
+			await Promise.all([
+				(async () => {})(),
+				/* hole */,
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await Promise.allSettled([foo()]);
+			await Promise?.any([foo()]);
+			await Promise.race?.([foo()]);
+		`,
+		outdent`
+			const foo = async () => {};
+			const promise = Promise.all([
+				(async () => {})(),
+				foo(),
+				foo.then(bar),
+				foo.catch(bar),
+			]);
+			await promise;
+		`,
+	],
+	invalid: [],
 });
 
 test.babel({

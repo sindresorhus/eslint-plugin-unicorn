@@ -1,16 +1,15 @@
 'use strict';
 const cleanRegexp = require('clean-regexp');
 const {optimize} = require('regexp-tree');
-const quoteString = require('./utils/quote-string.js');
-const {newExpressionSelector} = require('./selectors/index.js');
-const {isStringLiteral} = require('./ast/index.js');
+const escapeString = require('./utils/escape-string.js');
+const {isStringLiteral, isNewExpression, isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'better-regex';
+const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
 const messages = {
 	[MESSAGE_ID]: '{{original}} can be optimized to {{optimized}}.',
+	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}',
 };
-
-const newRegExp = newExpressionSelector({name: 'RegExp', minimumArguments: 1});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -23,12 +22,15 @@ const create = context => {
 	}
 
 	return {
-		'Literal[regex]'(node) {
-			const {raw: original, regex} = node;
+		Literal(node) {
+			if (!isRegexLiteral(node)) {
+				return;
+			}
 
-			// Regular Expressions with `u` flag are not well handled by `regexp-tree`
+			const {raw: original, regex} = node;
+			// Regular Expressions with `u` and `v` flag are not well handled by `regexp-tree`
 			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
-			if (regex.flags.includes('u')) {
+			if (regex.flags.includes('u') || regex.flags.includes('v')) {
 				return;
 			}
 
@@ -39,11 +41,11 @@ const create = context => {
 			} catch (error) {
 				return {
 					node,
+					messageId: MESSAGE_ID_PARSE_ERROR,
 					data: {
 						original,
 						error: error.message,
 					},
-					message: 'Problem parsing {{original}}: {{error}}',
 				};
 			}
 
@@ -78,7 +80,11 @@ const create = context => {
 				fix: fixer => fixer.replaceText(node, optimized),
 			});
 		},
-		[newRegExp](node) {
+		NewExpression(node) {
+			if (!isNewExpression(node, {name: 'RegExp', minimumArguments: 1})) {
+				return;
+			}
+
 			const [patternNode, flagsNode] = node.arguments;
 
 			if (!isStringLiteral(patternNode)) {
@@ -102,7 +108,7 @@ const create = context => {
 					},
 					fix: fixer => fixer.replaceText(
 						patternNode,
-						quoteString(newPattern, patternNode.raw.charAt(0)),
+						escapeString(newPattern, patternNode.raw.charAt(0)),
 					),
 				};
 			}

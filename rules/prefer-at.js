@@ -1,21 +1,20 @@
 'use strict';
-const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('eslint-utils');
+const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('@eslint-community/eslint-utils');
 const {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
-} = require('./utils/parentheses.js');
-const {isNodeMatchesNameOrPath} = require('./utils/is-node-matches.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const isLeftHandSide = require('./utils/is-left-hand-side.js');
+	isNodeMatchesNameOrPath,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
+	isLeftHandSide,
+} = require('./utils/index.js');
 const {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } = require('./shared/negative-index.js');
-const {methodCallSelector, callExpressionSelector, notLeftHandSideSelector} = require('./selectors/index.js');
 const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
-const {isLiteral} = require('./ast/index.js');
+const {isLiteral, isCallExpression, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -34,14 +33,6 @@ const messages = {
 	[SUGGESTION_ID]: 'Use `.at(…)`.',
 };
 
-const indexAccess = [
-	'MemberExpression',
-	'[optional!=true]',
-	'[computed!=false]',
-	notLeftHandSideSelector(),
-].join('');
-const sliceCall = methodCallSelector({method: 'slice', minimumArguments: 1, maximumArguments: 2});
-const stringCharAt = methodCallSelector({method: 'charAt', argumentsLength: 1});
 const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
 
 const isLiteralNegativeInteger = node =>
@@ -146,173 +137,208 @@ function create(context) {
 		...context.options[0],
 	};
 	const getLastFunctions = [...getLastElementFunctions, ...lodashLastFunctions];
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
-	return {
-		[indexAccess](node) {
-			const indexNode = node.property;
-			const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
+	// Index access
+	context.on('MemberExpression', node => {
+		if (
+			node.optional
+			|| !node.computed
+			|| isLeftHandSide(node)
+		) {
+			return;
+		}
 
-			if (!lengthNode) {
-				if (!checkAllIndexAccess) {
-					return;
-				}
+		const indexNode = node.property;
+		const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
 
-				// Only if we are sure it's an positive integer
-				const staticValue = getStaticValue(indexNode, context.getScope());
-				if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
-					return;
-				}
+		if (!lengthNode) {
+			if (!checkAllIndexAccess) {
+				return;
 			}
 
-			const problem = {
-				node: indexNode,
-				messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
-			};
+			// Only if we are sure it's an positive integer
+			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
+			if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
+				return;
+			}
+		}
 
-			if (isArguments(node.object)) {
-				return problem;
+		const problem = {
+			node: indexNode,
+			messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
+		};
+
+		if (isArguments(node.object)) {
+			return problem;
+		}
+
+		problem.fix = function * (fixer) {
+			if (lengthNode) {
+				yield removeLengthNode(lengthNode, fixer, sourceCode);
 			}
 
-			problem.fix = function * (fixer) {
-				if (lengthNode) {
-					yield removeLengthNode(lengthNode, fixer, sourceCode);
-				}
-
-				// Only remove space for `foo[foo.length - 1]`
+			// Only remove space for `foo[foo.length - 1]`
+			if (
+				indexNode.type === 'BinaryExpression'
+				&& indexNode.operator === '-'
+				&& indexNode.left === lengthNode
+				&& indexNode.right.type === 'Literal'
+				&& /^\d+$/.test(indexNode.right.raw)
+			) {
+				const numberNode = indexNode.right;
+				const tokenBefore = sourceCode.getTokenBefore(numberNode);
 				if (
-					indexNode.type === 'BinaryExpression'
-					&& indexNode.operator === '-'
-					&& indexNode.left === lengthNode
-					&& indexNode.right.type === 'Literal'
-					&& /^\d+$/.test(indexNode.right.raw)
+					tokenBefore.type === 'Punctuator'
+					&& tokenBefore.value === '-'
+					&& /^\s+$/.test(sourceCode.text.slice(tokenBefore.range[1], numberNode.range[0]))
 				) {
-					const numberNode = indexNode.right;
-					const tokenBefore = sourceCode.getTokenBefore(numberNode);
-					if (
-						tokenBefore.type === 'Punctuator'
-						&& tokenBefore.value === '-'
-						&& /^\s+$/.test(sourceCode.text.slice(tokenBefore.range[1], numberNode.range[0]))
-					) {
-						yield fixer.removeRange([tokenBefore.range[1], numberNode.range[0]]);
+					yield fixer.removeRange([tokenBefore.range[1], numberNode.range[0]]);
+				}
+			}
+
+			const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
+			yield fixer.replaceText(openingBracketToken, '.at(');
+
+			const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
+			yield fixer.replaceText(closingBracketToken, ')');
+		};
+
+		return problem;
+	});
+
+	// `string.charAt`
+	context.on('CallExpression', node => {
+		if (!isMethodCall(node, {
+			method: 'charAt',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		const [indexNode] = node.arguments;
+		const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
+
+		// `String#charAt` don't care about index value, we assume it's always number
+		if (!lengthNode && !checkAllIndexAccess) {
+			return;
+		}
+
+		return {
+			node: indexNode,
+			messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
+			suggest: [{
+				messageId: SUGGESTION_ID,
+				* fix(fixer) {
+					if (lengthNode) {
+						yield removeLengthNode(lengthNode, fixer, sourceCode);
 					}
-				}
 
-				const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
-				yield fixer.replaceText(openingBracketToken, '.at(');
+					yield fixer.replaceText(node.callee.property, 'at');
+				},
+			}],
+		};
+	});
 
-				const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
-				yield fixer.replaceText(closingBracketToken, ')');
-			};
+	// `.slice()`
+	context.on('CallExpression', sliceCall => {
+		if (!isMethodCall(sliceCall, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
 
-			return problem;
-		},
-		[stringCharAt](node) {
-			const [indexNode] = node.arguments;
-			const lengthNode = getNegativeIndexLengthNode(indexNode, node.callee.object);
+		const result = checkSliceCall(sliceCall);
+		if (!result) {
+			return;
+		}
 
-			// `String#charAt` don't care about index value, we assume it's always number
-			if (!lengthNode && !checkAllIndexAccess) {
-				return;
+		const {safeToFix, firstElementGetMethod} = result;
+
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		function * fix(fixer) {
+			// `.slice` to `.at`
+			yield fixer.replaceText(sliceCall.callee.property, 'at');
+
+			// Remove extra arguments
+			if (sliceCall.arguments.length !== 1) {
+				const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
+				const [end] = sourceCode.getLastToken(sliceCall).range;
+				yield fixer.removeRange([start, end]);
 			}
 
-			return {
-				node: indexNode,
-				messageId: lengthNode ? MESSAGE_ID_STRING_CHAR_AT_NEGATIVE : MESSAGE_ID_STRING_CHAR_AT,
-				suggest: [{
-					messageId: SUGGESTION_ID,
-					* fix(fixer) {
-						if (lengthNode) {
-							yield removeLengthNode(lengthNode, fixer, sourceCode);
-						}
-
-						yield fixer.replaceText(node.callee.property, 'at');
-					},
-				}],
-			};
-		},
-		[sliceCall](sliceCall) {
-			const result = checkSliceCall(sliceCall);
-			if (!result) {
-				return;
-			}
-
-			const {safeToFix, firstElementGetMethod} = result;
-
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			function * fix(fixer) {
-				// `.slice` to `.at`
-				yield fixer.replaceText(sliceCall.callee.property, 'at');
-
-				// Remove extra arguments
-				if (sliceCall.arguments.length !== 1) {
-					const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
-					const [end] = sourceCode.getLastToken(sliceCall).range;
-					yield fixer.removeRange([start, end]);
-				}
-
-				// Remove `[0]`, `.shift()`, or `.pop()`
-				if (firstElementGetMethod === 'zero-index') {
-					yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
-				} else {
-					yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
-				}
-			}
-
-			const problem = {
-				node: sliceCall.callee.property,
-				messageId: MESSAGE_ID_SLICE,
-			};
-
-			if (safeToFix) {
-				problem.fix = fix;
+			// Remove `[0]`, `.shift()`, or `.pop()`
+			if (firstElementGetMethod === 'zero-index') {
+				yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
 			} else {
-				problem.suggest = [{messageId: SUGGESTION_ID, fix}];
+				yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
 			}
+		}
 
+		const problem = {
+			node: sliceCall.callee.property,
+			messageId: MESSAGE_ID_SLICE,
+		};
+
+		if (safeToFix) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [{messageId: SUGGESTION_ID, fix}];
+		}
+
+		return problem;
+	});
+
+	context.on('CallExpression', node => {
+		if (!isCallExpression(node, {argumentsLength: 1, optional: false})) {
+			return;
+		}
+
+		const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
+		if (!matchedFunction) {
+			return;
+		}
+
+		const problem = {
+			node: node.callee,
+			messageId: MESSAGE_ID_GET_LAST_FUNCTION,
+			data: {description: matchedFunction.trim()},
+		};
+
+		const [array] = node.arguments;
+
+		if (isArguments(array)) {
 			return problem;
-		},
-		[callExpressionSelector({argumentsLength: 1})](node) {
-			const matchedFunction = getLastFunctions.find(nameOrPath => isNodeMatchesNameOrPath(node.callee, nameOrPath));
-			if (!matchedFunction) {
-				return;
+		}
+
+		problem.fix = function (fixer) {
+			let fixed = getParenthesizedText(array, sourceCode);
+
+			if (
+				!isParenthesized(array, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			) {
+				fixed = `(${fixed})`;
 			}
 
-			const problem = {
-				node: node.callee,
-				messageId: MESSAGE_ID_GET_LAST_FUNCTION,
-				data: {description: matchedFunction.trim()},
-			};
+			fixed = `${fixed}.at(-1)`;
 
-			const [array] = node.arguments;
-
-			if (isArguments(array)) {
-				return problem;
+			const tokenBefore = sourceCode.getTokenBefore(node);
+			if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+				fixed = `;${fixed}`;
 			}
 
-			problem.fix = function (fixer) {
-				let fixed = getParenthesizedText(array, sourceCode);
+			return fixer.replaceText(node, fixed);
+		};
 
-				if (
-					!isParenthesized(array, sourceCode)
-					&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
-				) {
-					fixed = `(${fixed})`;
-				}
-
-				fixed = `${fixed}.at(-1)`;
-
-				const tokenBefore = sourceCode.getTokenBefore(node);
-				if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
-					fixed = `;${fixed}`;
-				}
-
-				return fixer.replaceText(node, fixed);
-			};
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 }
 
 const schema = [

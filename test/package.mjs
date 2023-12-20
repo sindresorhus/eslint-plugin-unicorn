@@ -4,9 +4,6 @@ import test from 'ava';
 import {ESLint} from 'eslint';
 import * as eslintrc from '@eslint/eslintrc';
 import eslintPluginUnicorn from '../index.js';
-import {RULE_NOTICE_MARK, getRuleNoticesSectionBody} from '../scripts/rule-notices.mjs';
-import {RULES_TABLE_MARK, getRulesTable} from '../scripts/rules-table.mjs';
-import ruleDescriptionToDocumentTitle from './utils/rule-description-to-document-title.mjs';
 
 let ruleFiles;
 
@@ -17,6 +14,7 @@ test.before(async () => {
 
 const ignoredRules = [
 	'no-nested-ternary',
+	'no-negated-condition',
 ];
 
 const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
@@ -33,32 +31,6 @@ const testSorted = (t, actualOrder, sourceName) => {
 		t.is(actualIndex, wantedIndex, `${sourceName} should be alphabetically sorted, '${name}' should be placed at index ${wantedIndex}${whereMessage}`);
 	}
 };
-
-/**
-Get list of named options from a JSON schema (used for rule schemas).
-
-@param {object | Array} jsonSchema - The JSON schema to check.
-@returns {string[]} A list of named options.
-*/
-function getNamedOptions(jsonSchema) {
-	if (!jsonSchema) {
-		return [];
-	}
-
-	if (Array.isArray(jsonSchema)) {
-		return jsonSchema.flatMap(item => getNamedOptions(item));
-	}
-
-	if (jsonSchema.items) {
-		return getNamedOptions(jsonSchema.items);
-	}
-
-	if (jsonSchema.properties) {
-		return Object.keys(jsonSchema.properties);
-	}
-
-	return [];
-}
 
 const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
@@ -163,7 +135,7 @@ test('validate configuration', async t => {
 		const recommendedEnvironments = Object.keys(eslintPluginUnicorn.configs.recommended.env);
 		t.is(recommendedEnvironments.length, 1);
 		t.is(
-			availableEnvironments[availableEnvironments.length - 1],
+			availableEnvironments.at(-1),
 			recommendedEnvironments[0],
 			'env should be the latest es version',
 		);
@@ -187,60 +159,6 @@ test('validate configuration', async t => {
 		t.is(message, 'Parsing error: The keyword \'import\' is reserved');
 		t.deepEqual(await runEslint({baseConfig: eslintPluginUnicorn.configs.recommended}), []);
 	}
-});
-
-test('Every rule is defined in readme.md usage and list of rules in alphabetical order', async t => {
-	const readme = await fsAsync.readFile('readme.md', 'utf8');
-
-	const lines = readme.split('\n');
-	const startMarkLine = lines.indexOf(RULES_TABLE_MARK.start);
-	t.not(
-		startMarkLine,
-		-1,
-		'missing rules table start mark',
-	);
-	const endMarkLine = lines.indexOf(RULES_TABLE_MARK.end);
-	t.not(
-		endMarkLine,
-		-1,
-		'missing rules table end mark',
-	);
-	const table = lines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
-	t.is(
-		table,
-		[
-			RULES_TABLE_MARK.comment,
-			RULES_TABLE_MARK.start,
-			getRulesTable(),
-			RULES_TABLE_MARK.end,
-		].join('\n'),
-		'rules table should have correct content',
-	);
-
-	const re = /\| \[(?<id>.*?)]\((?<link>.*?)\) \| (?<description>.*) \| (?<recommended>.*?) \| (?<fixable>.*?) \| (?<hasSuggestions>.*?)\n/gm;
-	const rules = [];
-	let match;
-	do {
-		match = re.exec(table);
-		if (match) {
-			const {id, link, description} = match.groups;
-			t.is(link, `docs/rules/${id}.md`, `${id} link to docs should be correct`);
-			t.true(description.trim().length > 0, `${id} should have description in readme.md ## Rules`);
-			rules.push(id);
-		}
-	} while (match);
-
-	const availableRules = ruleFiles
-		.map(file => path.basename(file, '.js'))
-		.filter(name => !deprecatedRules.includes(name));
-
-	for (const name of availableRules) {
-		t.truthy(rules.includes(name), `'${name}' is not described in the readme.md ## Rules`);
-	}
-
-	t.is(Object.keys(rules).length, availableRules.length, 'There are more rules in readme.md ## Rules than rule files.');
-
-	testSorted(t, rules, 'readme.md ## Rules');
 });
 
 test('Every rule has valid meta.type', t => {
@@ -282,67 +200,18 @@ test('Every rule file has the appropriate contents', t => {
 test('Every rule has a doc with the appropriate content', t => {
 	for (const ruleFile of ruleFiles) {
 		const ruleName = path.basename(ruleFile, '.js');
-		const rule = eslintPluginUnicorn.rules[ruleName];
 		const documentPath = path.join('docs/rules', `${ruleName}.md`);
 		const documentContents = fs.readFileSync(documentPath, 'utf8');
-		const documentLines = documentContents.split('\n');
-
-		// Check title.
-		const expectedTitle = `# ${ruleDescriptionToDocumentTitle(rule.meta.docs.description)}`;
-		t.is(documentLines[0], expectedTitle, `${ruleName} includes the rule description in title`);
 
 		// Check for examples.
 		if (!RULES_WITHOUT_PASS_FAIL_SECTIONS.has(ruleName)) {
 			t.true(documentContents.includes('## Pass'), `${ruleName} includes '## Pass' examples section`);
 			t.true(documentContents.includes('## Fail'), `${ruleName} includes '## Fail' examples section`);
 		}
-
-		// Check if the rule has configuration options.
-		if (
-			(Array.isArray(rule.meta.schema) && rule.meta.schema.length > 0)
-			|| (typeof rule.meta.schema === 'object' && Object.keys(rule.meta.schema).length > 0)
-		) {
-			// Should have an options section header:
-			t.true(documentContents.includes('## Options'), `${ruleName} should have an "## Options" section`);
-
-			// Ensure all configuration options are mentioned.
-			for (const namedOption of getNamedOptions(rule.meta.schema)) {
-				t.true(documentContents.includes(namedOption), `${ruleName} should mention the \`${namedOption}\` option`);
-			}
-		} else {
-			// Should NOT have any options/config section headers:
-			t.false(documentContents.includes('# Options'), `${ruleName} should not have an "Options" section`);
-			t.false(documentContents.includes('# Config'), `${ruleName} should not have a "Config" section`);
-		}
-
-		// Ensure that expected notices are present in the correct order.
-		t.is(
-			documentLines[1],
-			'',
-			`${ruleName} should has blank line before notice`,
-		);
-		const startMarkLine = 3;
-		t.is(
-			documentLines[startMarkLine],
-			RULE_NOTICE_MARK.start,
-			`${ruleName} missing rule notice start mark`,
-		);
-		const endMarkLine = documentLines.indexOf(RULE_NOTICE_MARK.end);
-		t.not(
-			endMarkLine,
-			-1,
-			`${ruleName} missing rule notice end mark`,
-		);
-		const notices = documentLines.slice(startMarkLine - 1, endMarkLine + 1).join('\n');
-		t.is(
-			notices,
-			[
-				RULE_NOTICE_MARK.comment,
-				RULE_NOTICE_MARK.start,
-				getRuleNoticesSectionBody(ruleName),
-				RULE_NOTICE_MARK.end,
-			].filter(Boolean).join('\n'),
-			`${ruleName} should have expected notice(s)`,
-		);
 	}
+});
+
+test('Plugin should have metadata', t => {
+	t.is(typeof eslintPluginUnicorn.meta.name, 'string');
+	t.is(typeof eslintPluginUnicorn.meta.version, 'string');
 });

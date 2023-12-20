@@ -1,12 +1,7 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
-const {
-	matches,
-	not,
-	methodCallSelector,
-	callOrNewExpressionSelector,
-} = require('./selectors/index.js');
+const {findVariable} = require('@eslint-community/eslint-utils');
+const {getVariableIdentifiers} = require('./utils/index.js');
+const {isCallOrNewExpression, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -15,76 +10,29 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.',
 };
 
-// `[]`
-const arrayExpressionSelector = [
-	'[init.type="ArrayExpression"]',
-].join('');
-
-// `Array()` and `new Array()`
-const newArraySelector = callOrNewExpressionSelector({name: 'Array', path: 'init'});
-
-// `Array.from()` and `Array.of()`
-const arrayStaticMethodSelector = methodCallSelector({
-	object: 'Array',
-	methods: ['from', 'of'],
-	path: 'init',
-});
-
-// `array.concat()`
-// `array.copyWithin()`
-// `array.fill()`
-// `array.filter()`
-// `array.flat()`
-// `array.flatMap()`
-// `array.map()`
-// `array.reverse()`
-// `array.slice()`
-// `array.sort()`
-// `array.splice()`
-const arrayMethodSelector = methodCallSelector({
-	methods: [
-		'concat',
-		'copyWithin',
-		'fill',
-		'filter',
-		'flat',
-		'flatMap',
-		'map',
-		'reverse',
-		'slice',
-		'sort',
-		'splice',
-	],
-	path: 'init',
-});
-
-const selector = [
-	'VariableDeclaration',
-	// Exclude `export const foo = [];`
-	not('ExportNamedDeclaration > .declaration'),
-	' > ',
-	'VariableDeclarator.declarations',
-	matches([
-		arrayExpressionSelector,
-		newArraySelector,
-		arrayStaticMethodSelector,
-		arrayMethodSelector,
-	]),
-	' > ',
-	'Identifier.id',
-].join('');
+const arrayMethodsReturnsArray = [
+	'concat',
+	'copyWithin',
+	'fill',
+	'filter',
+	'flat',
+	'flatMap',
+	'map',
+	'reverse',
+	'slice',
+	'sort',
+	'splice',
+	'toReversed',
+	'toSorted',
+	'toSpliced',
+	'with',
+];
 
 const isIncludesCall = node => {
-	/* c8 ignore next 3 */
-	if (!node.parent || !node.parent.parent) {
-		return false;
-	}
-
-	const {type, optional, callee, arguments: includesArguments} = node.parent.parent;
+	const {type, optional, callee, arguments: includesArguments} = node.parent.parent ?? {};
 	return (
 		type === 'CallExpression'
 		&& !optional
-		&& callee
 		&& callee.type === 'MemberExpression'
 		&& !callee.computed
 		&& !callee.optional
@@ -126,8 +74,47 @@ const isMultipleCall = (identifier, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
-		const variable = findVariable(context.getScope(), node);
+	Identifier(node) {
+		const {parent} = node;
+
+		if (!(
+			parent.type === 'VariableDeclarator'
+			&& parent.id === node
+			&& Boolean(parent.init)
+			&& parent.parent.type === 'VariableDeclaration'
+			&& parent.parent.declarations.includes(parent)
+			// Exclude `export const foo = [];`
+			&& !(
+				parent.parent.parent.type === 'ExportNamedDeclaration'
+				&& parent.parent.parent.declaration === parent.parent
+			)
+			&& (
+				// `[]`
+				parent.init.type === 'ArrayExpression'
+				// `Array()` and `new Array()`
+				|| isCallOrNewExpression(parent.init, {
+					name: 'Array',
+					optional: false,
+				})
+				// `Array.from()` and `Array.of()`
+				|| isMethodCall(parent.init, {
+					object: 'Array',
+					methods: ['from', 'of'],
+					optionalCall: false,
+					optionalMember: false,
+				})
+				// Array methods that return an array
+				|| isMethodCall(parent.init, {
+					methods: arrayMethodsReturnsArray,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			)
+		)) {
+			return;
+		}
+
+		const variable = findVariable(context.sourceCode.getScope(node), node);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
 		// But can't reproduce, just ignore this case
@@ -173,9 +160,6 @@ const create = context => ({
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						name: node.name,
-					},
 					fix,
 				},
 			];

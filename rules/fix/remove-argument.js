@@ -1,5 +1,5 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
+const {isCommaToken} = require('@eslint-community/eslint-utils');
 const {getParentheses} = require('../utils/parentheses.js');
 
 function removeArgument(fixer, node, sourceCode) {
@@ -7,7 +7,7 @@ function removeArgument(fixer, node, sourceCode) {
 	const index = callExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, sourceCode);
 	const firstToken = parentheses[0] || node;
-	const lastToken = parentheses[parentheses.length - 1] || node;
+	const lastToken = parentheses.at(-1) || node;
 
 	let [start] = firstToken.range;
 	let [, end] = lastToken.range;

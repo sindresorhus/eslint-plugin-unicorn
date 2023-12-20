@@ -47,6 +47,7 @@ test({
 		'++ array.filter(foo)[0]',
 		'array.filter(foo)[0]--',
 		'delete array.filter(foo)[0]',
+		'[array.filter(foo)[0] = 1] = []',
 	],
 	invalid: [
 		{
@@ -149,6 +150,7 @@ test({
 		'const [] = array.filter(bar)',
 		'const [foo, another] = array.filter(bar)',
 		'const [, foo] = array.filter(bar)',
+		'const [,] = array.filter(bar)',
 		// `RestElement`
 		'const [...foo] = array.filter(bar)',
 
@@ -381,6 +383,7 @@ test({
 		'[] = array.filter(bar)',
 		'[foo, another] = array.filter(bar)',
 		'[, foo] = array.filter(bar)',
+		'[,] = array.filter(bar)',
 		// `RestElement`
 		'[...foo] = array.filter(bar)',
 
@@ -599,6 +602,8 @@ test({
 		'const foo = array.filter(bar); [first, another] = foo;',
 		'const foo = array.filter(bar); const [,first] = foo;',
 		'const foo = array.filter(bar); [,first] = foo;',
+		'const foo = array.filter(bar); const [,] = foo;',
+		'const foo = array.filter(bar); [,] = foo;',
 		'const foo = array.filter(bar); const [...first] = foo;',
 		'const foo = array.filter(bar); [...first] = foo;',
 		outdent`

@@ -78,6 +78,8 @@ test.snapshot({
 		'array.reduce((a, b) => [...a, ...b, c], [])',
 		'array.reduce((a, b) => [...a, ...b,,], [])',
 		'array.reduce((a, b) => [,...a, ...b], [])',
+		'array.reduce((a, b) => [, ], [])',
+		'array.reduce((a, b) => [, ,], [])',
 	],
 	invalid: [
 		'array.reduce((a, b) => [...a, ...b], [])',
@@ -234,8 +236,8 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: '[].concat.apply([], array)',
-			output: 'array.flat()',
+			code: '/**/[].concat.apply([], array)',
+			output: '/**/array.flat()',
 			errors: 1,
 		},
 		{

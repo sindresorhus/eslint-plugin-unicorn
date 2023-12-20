@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const getDocumentationUrl = require('./get-documentation-url.js');
 
-const isIterable = object => typeof object[Symbol.iterator] === 'function';
+const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
 class FixAbortError extends Error {}
 const fixOptions = {
@@ -16,7 +16,7 @@ function wrapFixFunction(fix) {
 	return fixer => {
 		const result = fix(fixer, fixOptions);
 
-		if (result && isIterable(result)) {
+		if (isIterable(result)) {
 			try {
 				return [...result];
 			} catch (error) {
@@ -33,35 +33,35 @@ function wrapFixFunction(fix) {
 	};
 }
 
-function reportListenerProblems(listener, context) {
-	// Listener arguments can be `codePath, node` or `node`
-	return function (...listenerArguments) {
-		let problems = listener(...listenerArguments);
+function reportListenerProblems(problems, context) {
+	if (!problems) {
+		return;
+	}
 
-		if (!problems) {
-			return;
+	if (!isIterable(problems)) {
+		problems = [problems];
+	}
+
+	for (const problem of problems) {
+		if (problem.fix) {
+			problem.fix = wrapFixFunction(problem.fix);
 		}
 
-		if (!isIterable(problems)) {
-			problems = [problems];
-		}
-
-		for (const problem of problems) {
-			if (problem.fix) {
-				problem.fix = wrapFixFunction(problem.fix);
-			}
-
-			if (Array.isArray(problem.suggest)) {
-				for (const suggest of problem.suggest) {
-					if (suggest.fix) {
-						suggest.fix = wrapFixFunction(suggest.fix);
-					}
+		if (Array.isArray(problem.suggest)) {
+			for (const suggest of problem.suggest) {
+				if (suggest.fix) {
+					suggest.fix = wrapFixFunction(suggest.fix);
 				}
-			}
 
-			context.report(problem);
+				suggest.data = {
+					...problem.data,
+					...suggest.data,
+				};
+			}
 		}
-	};
+
+		context.report(problem);
+	}
 }
 
 // `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice
@@ -72,15 +72,51 @@ function reportProblems(create) {
 	}
 
 	const wrapped = context => {
-		const listeners = create(context);
+		const listeners = {};
+		const addListener = (selector, listener) => {
+			listeners[selector] ??= [];
+			listeners[selector].push(listener);
+		};
 
-		if (!listeners) {
-			return {};
+		const contextProxy = new Proxy(context, {
+			get(target, property, receiver) {
+				if (property === 'on') {
+					return (selectorOrSelectors, listener) => {
+						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
+						for (const selector of selectors) {
+							addListener(selector, listener);
+						}
+					};
+				}
+
+				if (property === 'onExit') {
+					return (selectorOrSelectors, listener) => {
+						const selectors = Array.isArray(selectorOrSelectors) ? selectorOrSelectors : [selectorOrSelectors];
+						for (const selector of selectors) {
+							addListener(`${selector}:exit`, listener);
+						}
+					};
+				}
+
+				return Reflect.get(target, property, receiver);
+			},
+		});
+
+		for (const [selector, listener] of Object.entries(create(contextProxy) ?? {})) {
+			addListener(selector, listener);
 		}
 
 		return Object.fromEntries(
 			Object.entries(listeners)
-				.map(([selector, listener]) => [selector, reportListenerProblems(listener, context)]),
+				.map(([selector, listeners]) => [
+					selector,
+					// Listener arguments can be `codePath, node` or `node`
+					(...listenerArguments) => {
+						for (const listener of listeners) {
+							reportListenerProblems(listener(...listenerArguments), context);
+						}
+					},
+				]),
 		);
 	};
 
@@ -101,15 +137,13 @@ function checkVueTemplate(create, options) {
 
 	const wrapped = context => {
 		const listeners = create(context);
+		const {parserServices} = context.sourceCode;
 
 		// `vue-eslint-parser`
-		if (
-			context.parserServices
-			&& context.parserServices.defineTemplateBodyVisitor
-		) {
+		if (parserServices?.defineTemplateBodyVisitor) {
 			return visitScriptBlock
-				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
-				: context.parserServices.defineTemplateBodyVisitor(listeners);
+				? parserServices.defineTemplateBodyVisitor(listeners, listeners)
+				: parserServices.defineTemplateBodyVisitor(listeners);
 		}
 
 		return listeners;

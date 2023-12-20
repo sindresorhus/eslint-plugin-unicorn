@@ -1,5 +1,5 @@
 'use strict';
-const {isColonToken} = require('eslint-utils');
+const {isColonToken} = require('@eslint-community/eslint-utils');
 const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
 const getIndentString = require('./utils/get-indent-string.js');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
@@ -37,7 +37,7 @@ function * addBraces(fixer, node, sourceCode) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const isBracesRequired = context.options[0] !== 'avoid';
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
 		SwitchCase(node) {

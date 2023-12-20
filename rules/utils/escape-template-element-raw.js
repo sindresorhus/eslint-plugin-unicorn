@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = string => string.replace(
+module.exports = string => string.replaceAll(
 	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>(?:`|\$(?={)))/g,
 	'\\$<symbol>',
 );

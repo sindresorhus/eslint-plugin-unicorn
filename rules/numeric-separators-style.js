@@ -111,7 +111,7 @@ const create = context => {
 				suffix = 'n';
 			}
 
-			const strippedNumber = number.replace(/_/g, '');
+			const strippedNumber = number.replaceAll('_', '');
 			const {prefix, data} = numeric.getPrefix(strippedNumber);
 
 			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];

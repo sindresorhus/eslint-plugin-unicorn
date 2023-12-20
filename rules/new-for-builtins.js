@@ -49,7 +49,7 @@ function enforceCallExpression({node, path: [name]}, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const newExpressionTracker = new GlobalReferenceTracker({
 		objects: builtins.disallowNew,
 		type: GlobalReferenceTracker.CONSTRUCT,
@@ -62,8 +62,8 @@ const create = context => {
 	});
 
 	return {
-		* 'Program:exit'() {
-			const scope = context.getScope();
+		* 'Program:exit'(program) {
+			const scope = sourceCode.getScope(program);
 
 			yield * newExpressionTracker.track(scope);
 			yield * callExpressionTracker.track(scope);

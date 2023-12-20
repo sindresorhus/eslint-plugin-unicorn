@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const isSameReference = require('./utils/is-same-reference.js');
@@ -11,15 +11,7 @@ const getScopes = require('./utils/get-scopes.js');
 
 const messageId = 'prefer-ternary';
 
-const selector = [
-	'IfStatement',
-	':not(IfStatement > .alternate)',
-	'[test.type!="ConditionalExpression"]',
-	'[consequent]',
-	'[alternate]',
-].join('');
-
-const isTernary = node => node && node.type === 'ConditionalExpression';
+const isTernary = node => node?.type === 'ConditionalExpression';
 
 function getNodeBody(node) {
 	/* c8 ignore next 3 */
@@ -46,7 +38,7 @@ const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const onlySingleLine = context.options[0] === 'only-single-line';
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const scopeToNamesGeneratedByFixer = new WeakMap();
 	const isSafeName = (name, scopes) => scopes.every(scope => {
 		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
@@ -174,7 +166,16 @@ const create = context => {
 	}
 
 	return {
-		[selector](node) {
+		IfStatement(node) {
+			if (
+				(node.parent.type === 'IfStatement' && node.parent.alternate === node)
+				|| node.test.type === 'ConditionalExpression'
+				|| !node.consequent
+				|| !node.alternate
+			) {
+				return;
+			}
+
 			const consequent = getNodeBody(node.consequent);
 			const alternate = getNodeBody(node.alternate);
 
@@ -201,7 +202,7 @@ const create = context => {
 				return problem;
 			}
 
-			const scope = context.getScope();
+			const scope = sourceCode.getScope(node);
 			problem.fix = function * (fixer) {
 				const testText = getText(node.test);
 				const consequentText = typeof result.consequent === 'string'

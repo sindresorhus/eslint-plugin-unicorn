@@ -1,5 +1,5 @@
 'use strict';
-const {isClosingParenToken, getStaticValue} = require('eslint-utils');
+const {isClosingParenToken, getStaticValue} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const getScopes = require('./utils/get-scopes.js');
 const singular = require('./utils/singular.js');
@@ -16,7 +16,7 @@ const defaultElementName = 'element';
 const isLiteralZero = node => isLiteral(node, 0);
 const isLiteralOne = node => isLiteral(node, 1);
 
-const isIdentifierWithName = (node, name) => node && node.type === 'Identifier' && node.name === name;
+const isIdentifierWithName = (node, name) => node?.type === 'Identifier' && node.name === name;
 
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
@@ -103,7 +103,7 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
-	if (node && node.type === 'BinaryExpression' && node.operator === '+') {
+	if (node?.type === 'BinaryExpression' && node.operator === '+') {
 		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right))
 			|| (isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
 	}
@@ -262,7 +262,7 @@ const getReferencesInChildScopes = (scope, name) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const {scopeManager, text: sourceCodeText} = sourceCode;
 
 	return {
@@ -280,7 +280,7 @@ const create = context => {
 
 			const arrayIdentifierName = arrayIdentifier.name;
 
-			const scope = context.getScope();
+			const scope = sourceCode.getScope(node);
 			const staticResult = getStaticValue(arrayIdentifier, scope);
 			if (staticResult && !Array.isArray(staticResult.value)) {
 				// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
@@ -335,8 +335,8 @@ const create = context => {
 
 				return true;
 			});
-			const elementNode = elementReference && elementReference.identifier.parent.parent;
-			const elementIdentifierName = elementNode && elementNode.id.name;
+			const elementNode = elementReference?.identifier.parent.parent;
+			const elementIdentifierName = elementNode?.id.name;
 			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
 			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
@@ -421,7 +421,7 @@ module.exports = {
 			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
-		hasSuggestion: true,
 	},
 };

@@ -1,6 +1,6 @@
 'use strict';
-const {matches, methodCallSelector} = require('./selectors/index.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {getParenthesizedRange} = require('./utils/index.js');
+const {isFunction, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';
@@ -9,28 +9,11 @@ const messages = {
 	[MESSAGE_ID_REJECT]: 'Prefer `throw error` over `{{type}} Promise.reject(error)`.',
 };
 
-const selector = [
-	methodCallSelector({
-		object: 'Promise',
-		methods: ['resolve', 'reject'],
-	}),
-	matches([
-		'ArrowFunctionExpression > .body',
-		'ReturnStatement > .argument',
-		'YieldExpression[delegate!=true] > .argument',
-	]),
-].join('');
-
-const functionTypes = new Set([
-	'ArrowFunctionExpression',
-	'FunctionDeclaration',
-	'FunctionExpression',
-]);
 function getFunctionNode(node) {
 	let isInTryStatement = false;
 	let functionNode;
 	for (; node; node = node.parent) {
-		if (functionTypes.has(node.type)) {
+		if (isFunction(node)) {
 			functionNode = node;
 			break;
 		}
@@ -101,7 +84,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 	}
 
 	const {callee, parent, arguments: [errorOrValue]} = callExpression;
-	if (errorOrValue && errorOrValue.type === 'SpreadElement') {
+	if (errorOrValue?.type === 'SpreadElement') {
 		return;
 	}
 
@@ -122,7 +105,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 		let text = errorOrValue ? sourceCode.getText(errorOrValue) : '';
 
-		if (errorOrValue && errorOrValue.type === 'SequenceExpression') {
+		if (errorOrValue?.type === 'SequenceExpression') {
 			text = `(${text})`;
 		}
 
@@ -155,7 +138,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 			} else if (parent.type === 'ReturnStatement') {
 				text = `return${text ? ' ' : ''}${text};`;
 			} else {
-				if (errorOrValue && errorOrValue.type === 'ObjectExpression') {
+				if (errorOrValue?.type === 'ObjectExpression') {
 					text = `(${text})`;
 				}
 
@@ -173,10 +156,35 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	return {
-		[selector](callExpression) {
+		CallExpression(callExpression) {
+			if (!(
+				isMethodCall(callExpression, {
+					object: 'Promise',
+					methods: ['resolve', 'reject'],
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& (
+					(
+						callExpression.parent.type === 'ArrowFunctionExpression'
+						&& callExpression.parent.body === callExpression
+					)
+					|| (
+						callExpression.parent.type === 'ReturnStatement'
+						&& callExpression.parent.argument === callExpression
+					)
+					|| (
+						callExpression.parent.type === 'YieldExpression'
+						&& !callExpression.parent.delegate && callExpression.parent.argument === callExpression
+					)
+				)
+			)) {
+				return;
+			}
+
 			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
 			if (!functionNode || !(functionNode.async || isPromiseCallback(functionNode))) {
 				return;

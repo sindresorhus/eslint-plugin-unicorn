@@ -3,7 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-test({
+test.snapshot({
 	valid: [
 		'const bar = !re.test(foo)',
 		// Not `boolean`
@@ -41,38 +41,33 @@ test({
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
 	],
-	invalid: [],
-});
-
-test.snapshot({
-	valid: [],
 	invalid: [
 		// `String#match()`
-		'const bar = !foo.match(re)',
-		'const bar = Boolean(foo.match(re))',
-		'if (foo.match(re)) {}',
-		'const bar = foo.match(re) ? 1 : 2',
-		'while (foo.match(re)) foo = foo.slice(1);',
-		'do {foo = foo.slice(1)} while (foo.match(re));',
-		'for (; foo.match(re); ) foo = foo.slice(1);',
+		'const re = /a/; const bar = !foo.match(re)',
+		'const re = /a/; const bar = Boolean(foo.match(re))',
+		'const re = /a/; if (foo.match(re)) {}',
+		'const re = /a/; const bar = foo.match(re) ? 1 : 2',
+		'const re = /a/; while (foo.match(re)) foo = foo.slice(1);',
+		'const re = /a/; do {foo = foo.slice(1)} while (foo.match(re));',
+		'const re = /a/; for (; foo.match(re); ) foo = foo.slice(1);',
 
 		// `RegExp#exec()`
-		'const bar = !re.exec(foo)',
-		'const bar = Boolean(re.exec(foo))',
-		'if (re.exec(foo)) {}',
-		'const bar = re.exec(foo) ? 1 : 2',
-		'while (re.exec(foo)) foo = foo.slice(1);',
-		'do {foo = foo.slice(1)} while (re.exec(foo));',
-		'for (; re.exec(foo); ) foo = foo.slice(1);',
+		'const re = /a/; const bar = !re.exec(foo)',
+		'const re = /a/; const bar = Boolean(re.exec(foo))',
+		'const re = /a/; if (re.exec(foo)) {}',
+		'const re = /a/; const bar = re.exec(foo) ? 1 : 2',
+		'const re = /a/; while (re.exec(foo)) foo = foo.slice(1);',
+		'const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo));',
+		'const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1);',
 
 		// Parentheses
-		'if ((0, foo).match(re)) {}',
-		'if ((0, foo).match((re))) {}',
-		'if ((foo).match(re)) {}',
-		'if ((foo).match((re))) {}',
+		'const re = /a/; if ((0, foo).match(re)) {}',
+		'const re = /a/; if ((0, foo).match((re))) {}',
+		'const re = /a/; if ((foo).match(re)) {}',
+		'const re = /a/; if ((foo).match((re))) {}',
 		'if (foo.match(/re/)) {}',
-		'if (foo.match(bar)) {}',
-		'if (foo.match(bar.baz)) {}',
+		'const re = /a/; if (foo.match(re)) {}',
+		'const bar = {bar: /a/}; if (foo.match(bar.baz)) {}',
 		'if (foo.match(bar.baz())) {}',
 		'if (foo.match(new RegExp("re", "g"))) {}',
 		'if (foo.match(new SomeRegExp())) {}',
@@ -89,14 +84,14 @@ test.snapshot({
 		'if ((foo).match(new SomeRegExp)) {}',
 		'if ((foo).match(bar?.baz)) {}',
 		'if ((foo).match(bar?.baz())) {}',
-		'if ((foo).match(bar || baz)) {}',
+		'const bar = false; const baz = /a/; if ((foo).match(bar || baz)) {}',
 		outdent`
 			async function a() {
 				if ((foo).match(await bar())) {}
 			}
 		`,
 		// Should not need handle ASI problem
-		'if (foo.match([re][0])) {}',
+		'const re = [/a/]; if (foo.match([re][0])) {}',
 
 		// Comments
 		outdent`
@@ -151,6 +146,12 @@ test.snapshot({
 			const regex = /weird/gyi;
 			if (regex.exec(foo));
 		`,
+		outdent`
+			let re = new RegExp('foo', 'g');
+			if(str.match(re));
+		`,
+		'!/a/u.exec(foo)',
+		'!/a/v.exec(foo)',
 	],
 });
 
@@ -173,4 +174,41 @@ test.vue({
 			errors: 1,
 		},
 	],
+});
+
+const supportsUnicodeSets = (() => {
+	try {
+		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
+		return new RegExp('.', 'v').unicodeSets;
+	} catch {}
+
+	return false;
+})();
+// These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
+// But will use suggestions instead in environments doesn't support `v` flag.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const re = /a/v; !re.exec(foo)',
+			output: 'const re = /a/v; !re.test(foo)',
+		},
+		{
+			code: 'const re = new RegExp("a", "v"); !re.exec(foo)',
+			output: 'const re = new RegExp("a", "v"); !re.test(foo)',
+		},
+	].map(({code, output}) =>
+		supportsUnicodeSets
+			? {
+				code,
+				output,
+				errors: 1,
+			}
+			: {
+				code,
+				errors: [
+					{suggestions: [{output}]},
+				],
+			},
+	),
 });

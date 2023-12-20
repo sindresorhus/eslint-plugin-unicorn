@@ -37,12 +37,31 @@ const methods = new Map([
 		},
 	],
 	[
+		'toSpliced',
+		{
+			argumentsIndexes: [0],
+			supportObjects: new Set([
+				'Array',
+			]),
+		},
+	],
+	[
 		'at',
 		{
 			argumentsIndexes: [0],
 			supportObjects: new Set([
 				'Array',
 				'String',
+				...typedArray,
+			]),
+		},
+	],
+	[
+		'with',
+		{
+			argumentsIndexes: [0],
+			supportObjects: new Set([
+				'Array',
 				...typedArray,
 			]),
 		},
@@ -54,7 +73,6 @@ const getMemberName = node => {
 
 	if (
 		type === 'MemberExpression'
-		&& property
 		&& property.type === 'Identifier'
 	) {
 		return property.name;
@@ -93,12 +111,12 @@ function parse(node) {
 	const parentCallee = callee.object.object;
 
 	if (
-		// [].{slice,splice}
+		// `[].{slice,splice,toSpliced,at,with}`
 		(
 			parentCallee.type === 'ArrayExpression'
 			&& parentCallee.elements.length === 0
 		)
-		// ''.slice
+		// `''.slice`
 		|| (
 			method === 'slice'
 			&& isLiteral(parentCallee, '')
@@ -134,7 +152,11 @@ function parse(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	'CallExpression[callee.type="MemberExpression"]'(node) {
+	CallExpression(node) {
+		if (node.callee.type !== 'MemberExpression') {
+			return;
+		}
+
 		const parsed = parse(node);
 
 		if (!parsed) {
@@ -161,7 +183,7 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			data: {method},
 			* fix(fixer) {
-				const sourceCode = context.getSourceCode();
+				const {sourceCode} = context;
 				for (const node of removableNodes) {
 					yield removeLengthNode(node, fixer, sourceCode);
 				}
@@ -176,7 +198,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer negative index over `.length - index` for `{String,Array,TypedArray}#{slice,at}()` and `Array#splice()`.',
+			description: 'Prefer negative index over `.length - index` when possible.',
 		},
 		fixable: 'code',
 		messages,

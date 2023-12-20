@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {isParenthesized, isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
 
 /*
 Get how many times the node is parenthesized.
@@ -9,11 +9,6 @@ Get how many times the node is parenthesized.
 @returns {number}
 */
 function getParenthesizedTimes(node, sourceCode) {
-	// Workaround for https://github.com/mysticatea/eslint-utils/pull/25
-	if (!node.parent) {
-		return 0;
-	}
-
 	let times = 0;
 
 	while (isParenthesized(times + 1, node, sourceCode)) {
@@ -53,7 +48,7 @@ Get the parenthesized range of the node.
 function getParenthesizedRange(node, sourceCode) {
 	const parentheses = getParentheses(node, sourceCode);
 	const [start] = (parentheses[0] || node).range;
-	const [, end] = (parentheses[parentheses.length - 1] || node).range;
+	const [, end] = (parentheses.at(-1) || node).range;
 	return [start, end];
 }
 

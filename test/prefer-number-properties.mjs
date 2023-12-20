@@ -91,6 +91,24 @@ test({
 				return ${code}
 			}
 		`),
+
+		// Not read
+		'global.isFinite = Number.isFinite;',
+		'global.isFinite ??= 1;',
+		'isFinite ||= 1;',
+		'[global.isFinite] = [];',
+		'[global.isFinite = 1] = [];',
+		'[[global.isFinite = 1]] = [];',
+		'[isFinite] = [];',
+		'[isFinite = 1] = [];',
+		'[[isFinite = 1]] = [];',
+		'({foo: global.isFinite} = {});',
+		'({foo: global.isFinite = 1} = {});',
+		'({foo: {bar: global.isFinite = 1}} = {});',
+		'({foo: isFinite} = {});',
+		'({foo: isFinite = 1} = {});',
+		'({foo: {bar: isFinite = 1}} = {});',
+		'delete global.isFinite;',
 	],
 
 	invalid: [

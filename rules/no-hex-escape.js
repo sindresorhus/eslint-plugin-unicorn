@@ -1,5 +1,6 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
+const {isStringLiteral, isRegexLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
@@ -7,7 +8,7 @@ const messages = {
 };
 
 function checkEscape(context, node, value) {
-	const fixedValue = value.replace(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
+	const fixedValue = value.replaceAll(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
 		return {
@@ -24,7 +25,7 @@ function checkEscape(context, node, value) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal(node) {
-		if (node.regex || typeof node.value === 'string') {
+		if (isStringLiteral(node) || isRegexLiteral(node)) {
 			return checkEscape(context, node, node.raw);
 		}
 	},

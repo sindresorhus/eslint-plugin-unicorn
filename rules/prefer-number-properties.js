@@ -2,6 +2,7 @@
 const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 const {replaceReferenceIdentifier} = require('./fix/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const isLeftHandSide = require('./utils/is-left-hand-side.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -24,7 +25,7 @@ const globalObjects = {
 
 const isNegative = node => {
 	const {parent} = node;
-	return parent && parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
 function checkProperty({node, path: [name]}, sourceCode) {
@@ -64,7 +65,6 @@ function checkProperty({node, path: [name]}, sourceCode) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				data: problem.data,
 				fix,
 			},
 		];
@@ -81,7 +81,7 @@ const create = context => {
 		checkInfinity: true,
 		...context.options[0],
 	};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
 	let objects = Object.keys(globalObjects);
 	if (!checkInfinity) {
@@ -91,6 +91,7 @@ const create = context => {
 	const tracker = new GlobalReferenceTracker({
 		objects,
 		handle: reference => checkProperty(reference, sourceCode),
+		filter: ({node}) => !isLeftHandSide(node),
 	});
 
 	return tracker.createListeners(context);

@@ -6,8 +6,7 @@ const {
 	isClosingParenToken,
 	findVariable,
 	hasSideEffect,
-} = require('eslint-utils');
-const {methodCallSelector, referenceIdentifierSelector} = require('./selectors/index.js');
+} = require('@eslint-community/eslint-utils');
 const {extendFixRange} = require('./fix/index.js');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
@@ -17,7 +16,7 @@ const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.j
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const assertToken = require('./utils/assert-token.js');
 const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
-const {isArrowFunctionBody} = require('./ast/index.js');
+const {isArrowFunctionBody, isMethodCall, isReferenceIdentifier, functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -25,12 +24,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `.forEach(…)`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
 };
-
-const forEachMethodCallSelector = methodCallSelector({
-	method: 'forEach',
-	includeOptionalCall: true,
-	includeOptionalMember: true,
-});
 
 const continueAbleNodeTypes = new Set([
 	'WhileStatement',
@@ -80,7 +73,7 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 }
 
 function getFixFunction(callExpression, functionInfo, context) {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const [callback] = callExpression.arguments;
 	const parameters = callback.params;
 	const iterableObject = callExpression.callee.object;
@@ -94,7 +87,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const shouldUseEntries = parameters.length === 2;
 
 		let text = 'for (';
-		text += isFunctionParameterVariableReassigned(callback, context) ? 'let' : 'const';
+		text += isFunctionParameterVariableReassigned(callback, sourceCode) ? 'let' : 'const';
 		text += ' ';
 		text += shouldUseEntries ? `[${indexText}, ${elementText}]` : elementText;
 		text += ' of ';
@@ -276,8 +269,8 @@ const isChildScope = (child, parent) => {
 	return false;
 };
 
-function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callExpression, allIdentifiers}) {
-	const variables = context.getDeclaredVariables(callbackFunction);
+function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, callExpression, allIdentifiers}) {
+	const variables = sourceCode.getDeclaredVariables(callbackFunction);
 
 	for (const variable of variables) {
 		if (variable.defs.length !== 1) {
@@ -311,52 +304,15 @@ function isFunctionParametersSafeToFix(callbackFunction, {context, scope, callEx
 	return true;
 }
 
-// TODO[@fisker]: Improve `./utils/is-left-hand-side.js` with similar logic
-function isAssignmentLeftHandSide(node) {
-	const {parent} = node;
-
-	switch (parent.type) {
-		case 'AssignmentExpression':
-		case 'ForInStatement':
-		case 'ForOfStatement': {
-			return parent.left === node;
-		}
-
-		case 'UpdateExpression': {
-			return parent.argument === node;
-		}
-
-		case 'Property': {
-			return parent.value === node && isAssignmentLeftHandSide(parent);
-		}
-
-		case 'AssignmentPattern': {
-			return parent.left === node && isAssignmentLeftHandSide(parent);
-		}
-
-		case 'ArrayPattern': {
-			return parent.elements.includes(node) && isAssignmentLeftHandSide(parent);
-		}
-
-		case 'ObjectPattern': {
-			return parent.properties.includes(node) && isAssignmentLeftHandSide(parent);
-		}
-
-		default: {
-			return false;
-		}
-	}
-}
-
-function isFunctionParameterVariableReassigned(callbackFunction, context) {
-	return context.getDeclaredVariables(callbackFunction)
+function isFunctionParameterVariableReassigned(callbackFunction, sourceCode) {
+	return sourceCode.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
 		.some(variable =>
-			variable.references.some(reference => isAssignmentLeftHandSide(reference.identifier)),
+			variable.references.some(reference => !reference.init && reference.isWrite()),
 		);
 }
 
-function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context}) {
+function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceCode}) {
 	// Check `CallExpression`
 	if (callExpression.optional || callExpression.arguments.length !== 1) {
 		return false;
@@ -388,8 +344,10 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, context
 		!(parameters.length === 1 || parameters.length === 2)
 		// `array.forEach((element = defaultValue) => {})`
 		|| (parameters.length === 1 && parameters[0].type === 'AssignmentPattern')
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1814
+		|| (parameters.length === 2 && parameters[1].type !== 'Identifier')
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
-		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, context})
+		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, sourceCode})
 	) {
 		return false;
 	}
@@ -421,69 +379,83 @@ const create = context => {
 	const callExpressions = [];
 	const allIdentifiers = [];
 	const functionInfo = new Map();
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
-	return {
-		':function'(node) {
-			functionStack.push(node);
-			functionInfo.set(node, {
-				returnStatements: [],
-				scope: context.getScope(),
-			});
-		},
-		':function:exit'() {
-			functionStack.pop();
-		},
-		[referenceIdentifierSelector()](node) {
+	context.on(functionTypes, node => {
+		functionStack.push(node);
+		functionInfo.set(node, {
+			returnStatements: [],
+			scope: sourceCode.getScope(node),
+		});
+	});
+
+	context.onExit(functionTypes, () => {
+		functionStack.pop();
+	});
+
+	context.on('Identifier', node => {
+		if (isReferenceIdentifier(node)) {
 			allIdentifiers.push(node);
-		},
-		':function ReturnStatement'(node) {
-			const currentFunction = functionStack[functionStack.length - 1];
-			const {returnStatements} = functionInfo.get(currentFunction);
-			returnStatements.push(node);
-		},
-		[forEachMethodCallSelector](node) {
-			if (isNodeMatches(node.callee.object, ignoredObjects)) {
-				return;
-			}
+		}
+	});
 
-			callExpressions.push({
-				node,
-				scope: context.getScope(),
-			});
-		},
-		* 'Program:exit'() {
-			for (const {node, scope} of callExpressions) {
-				const iterable = node.callee;
+	context.on('ReturnStatement', node => {
+		const currentFunction = functionStack.at(-1);
+		if (!currentFunction) {
+			return;
+		}
 
-				const problem = {
-					node: iterable.property,
-					messageId: MESSAGE_ID_ERROR,
-				};
+		const {returnStatements} = functionInfo.get(currentFunction);
+		returnStatements.push(node);
+	});
 
-				if (!isFixable(node, {scope, allIdentifiers, functionInfo, context})) {
-					yield problem;
-					continue;
-				}
+	context.on('CallExpression', node => {
+		if (
+			!isMethodCall(node, {
+				method: 'forEach',
+			})
+			|| isNodeMatches(node.callee.object, ignoredObjects)
+		) {
+			return;
+		}
 
-				const shouldUseSuggestion = iterable.optional && hasSideEffect(iterable, sourceCode);
-				const fix = getFixFunction(node, functionInfo, context);
+		callExpressions.push({
+			node,
+			scope: sourceCode.getScope(node),
+		});
+	});
 
-				if (shouldUseSuggestion) {
-					problem.suggest = [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							fix,
-						},
-					];
-				} else {
-					problem.fix = fix;
-				}
+	context.onExit('Program', function * () {
+		for (const {node, scope} of callExpressions) {
+			const iterable = node.callee;
 
+			const problem = {
+				node: iterable.property,
+				messageId: MESSAGE_ID_ERROR,
+			};
+
+			if (!isFixable(node, {scope, allIdentifiers, functionInfo, sourceCode})) {
 				yield problem;
+				continue;
 			}
-		},
-	};
+
+			const shouldUseSuggestion = iterable.optional && hasSideEffect(iterable, sourceCode);
+			const fix = getFixFunction(node, functionInfo, context);
+
+			if (shouldUseSuggestion) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			yield problem;
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

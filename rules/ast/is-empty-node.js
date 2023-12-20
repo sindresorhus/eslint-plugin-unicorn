@@ -10,7 +10,7 @@ function isEmptyNode(node, additionalEmpty) {
 		return true;
 	}
 
-	if (additionalEmpty && additionalEmpty(node)) {
+	if (additionalEmpty?.(node)) {
 		return true;
 	}
 

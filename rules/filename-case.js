@@ -1,6 +1,6 @@
 'use strict';
 const path = require('node:path');
-const {camelCase, kebabCase, snakeCase, upperFirst} = require('lodash');
+const {camelCase, kebabCase, snakeCase, upperFirst} = require('./utils/lodash.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
 const MESSAGE_ID = 'filename-case';
@@ -107,7 +107,7 @@ function splitFilename(filename) {
 	for (const char of tailing) {
 		const isIgnored = isIgnoredChar(char);
 
-		if (lastWord && lastWord.ignored === isIgnored) {
+		if (lastWord?.ignored === isIgnored) {
 			lastWord.word += char;
 		} else {
 			lastWord = {
@@ -144,7 +144,7 @@ const create = context => {
 		return new RegExp(item, 'u');
 	});
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
-	const filenameWithExtension = context.getPhysicalFilename();
+	const filenameWithExtension = context.physicalFilename;
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
 		return;

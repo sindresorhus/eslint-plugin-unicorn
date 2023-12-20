@@ -1,5 +1,11 @@
 'use strict';
-const {getParenthesizedText} = require('./utils/parentheses.js');
+const {
+	getParenthesizedText,
+	getParenthesizedRange,
+	isSameReference,
+} = require('./utils/index.js');
+const {isLiteral, isMethodCall} = require('./ast/index.js');
+const {replaceNodeOrTokenAndSpacesBefore, removeParentheses} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
 const messages = {
@@ -57,7 +63,7 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement,
 				description,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
 		};
 	};
 }
@@ -90,7 +96,7 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		return {
 			...message,
 			node,
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.getSourceCode())})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
 		};
 	};
 }
@@ -102,11 +108,79 @@ const checkFunctions = [
 	createLogCallDivideConstantCheck({constantName: 'LN2', replacementMethod: 'log2'}),
 ];
 
+const isPlusExpression = node => node.type === 'BinaryExpression' && node.operator === '+';
+
+const isPow2Expression = node =>
+	node.type === 'BinaryExpression'
+	&& (
+		// `x * x`
+		(node.operator === '*' && isSameReference(node.left, node.right))
+		// `x ** 2`
+		|| (node.operator === '**' && isLiteral(node.right, 2))
+	);
+
+const flatPlusExpression = node =>
+	isPlusExpression(node)
+		? [node.left, node.right].flatMap(child => flatPlusExpression(child))
+		: [node];
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const nodes = [];
 
 	return {
+		CallExpression(callExpression) {
+			if (!isMethodCall(callExpression, {
+				object: 'Math',
+				method: 'sqrt',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})) {
+				return;
+			}
+
+			const expressions = flatPlusExpression(callExpression.arguments[0]);
+			if (expressions.some(expression => !isPow2Expression(expression))) {
+				return;
+			}
+
+			const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
+			const plusExpressions = new Set(expressions.length === 1 ? [] : expressions.map(expression => expression.parent));
+
+			return {
+				node: callExpression.callee.property,
+				messageId: MESSAGE_ID,
+				data: {
+					replacement: `Math.${replacementMethod}(…)`,
+					description: 'Math.sqrt(…)',
+				},
+				* fix(fixer) {
+					const {sourceCode} = context;
+
+					// `Math.sqrt` -> `Math.{hypot,abs}`
+					yield fixer.replaceText(callExpression.callee.property, replacementMethod);
+
+					// `a ** 2 + b ** 2` -> `a, b`
+					for (const expression of plusExpressions) {
+						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
+
+						yield * replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, sourceCode);
+						yield * removeParentheses(expression, fixer, sourceCode);
+					}
+
+					// `x ** 2` => `x`
+					// `x * a` => `x`
+					for (const expression of expressions) {
+						yield fixer.removeRange([
+							getParenthesizedRange(expression.left, sourceCode)[1],
+							expression.range[1],
+						]);
+					}
+				},
+			};
+		},
+
 		BinaryExpression(node) {
 			nodes.push(node);
 		},

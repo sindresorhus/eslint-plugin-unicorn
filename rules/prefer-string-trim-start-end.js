@@ -1,24 +1,23 @@
 'use strict';
-const {methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#{{replacement}}()` over `String#{{method}}()`.',
 };
 
-const selector = [
-	methodCallSelector({
-		methods: ['trimLeft', 'trimRight'],
-		argumentsLength: 0,
-		includeOptionalMember: true,
-	}),
-	' > .callee',
-	' > .property',
-].join(' ');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	CallExpression(callExpression) {
+		if (!isMethodCall(callExpression, {
+			methods: ['trimLeft', 'trimRight'],
+			argumentsLength: 0,
+			optionalCall: false,
+		})) {
+			return;
+		}
+
+		const node = callExpression.callee.property;
 		const method = node.name;
 		const replacement = method === 'trimLeft' ? 'trimStart' : 'trimEnd';
 

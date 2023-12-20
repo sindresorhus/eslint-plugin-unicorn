@@ -15,7 +15,7 @@ jobs:
           npm install
           npm link
           npm link eslint-plugin-unicorn
-      - uses: AriPerkkio/eslint-remote-tester-run-action@v2
+      - uses: AriPerkkio/eslint-remote-tester-run-action@v4
         with:
           issue-title: "Results of weekly scheduled smoke test"
           eslint-remote-tester-config: test/smoke/eslint-remote-tester.config.js

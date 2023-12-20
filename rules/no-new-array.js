@@ -1,8 +1,8 @@
 'use strict';
-const {isParenthesized, getStaticValue} = require('eslint-utils');
+const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
-const {newExpressionSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
+const {isNewExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -14,13 +14,18 @@ const messages = {
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
 };
-const newArraySelector = newExpressionSelector({
-	name: 'Array',
-	argumentsLength: 1,
-	allowSpreadElement: true,
-});
 
 function getProblem(context, node) {
+	if (
+		!isNewExpression(node, {
+			name: 'Array',
+			argumentsLength: 1,
+			allowSpreadElement: true,
+		})
+	) {
+		return;
+	}
+
 	const problem = {
 		node,
 		messageId: MESSAGE_ID_ERROR,
@@ -28,7 +33,7 @@ function getProblem(context, node) {
 
 	const [argumentNode] = node.arguments;
 
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	let text = sourceCode.getText(argumentNode);
 	if (isParenthesized(argumentNode, sourceCode)) {
 		text = `(${text})`;
@@ -50,13 +55,14 @@ function getProblem(context, node) {
 	}
 
 	const fromLengthText = `Array.from(${text === 'length' ? '{length}' : `{length: ${text}}`})`;
-	if (isNumber(argumentNode, context.getScope())) {
+	const scope = sourceCode.getScope(node);
+	if (isNumber(argumentNode, scope)) {
 		problem.fix = fixer => fixer.replaceText(node, fromLengthText);
 		return problem;
 	}
 
 	const onlyElementText = `${maybeSemiColon}[${text}]`;
-	const result = getStaticValue(argumentNode, context.getScope());
+	const result = getStaticValue(argumentNode, scope);
 	if (result !== null && typeof result.value !== 'number') {
 		problem.fix = fixer => fixer.replaceText(node, onlyElementText);
 		return problem;
@@ -78,7 +84,7 @@ function getProblem(context, node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[newArraySelector](node) {
+	NewExpression(node) {
 		return getProblem(context, node);
 	},
 });

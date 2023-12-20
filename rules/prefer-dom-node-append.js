@@ -1,23 +1,27 @@
 'use strict';
-const isValueNotUsable = require('./utils/is-value-not-usable.js');
-const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
+const {isNodeValueNotDomNode, isValueNotUsable} = require('./utils/index.js');
 
 const MESSAGE_ID = 'prefer-dom-node-append';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Node#append()` over `Node#appendChild()`.',
 };
-const selector = [
-	methodCallSelector({
-		method: 'appendChild',
-		argumentsLength: 1,
-	}),
-	notDomNodeSelector('callee.object'),
-	notDomNodeSelector('arguments.0'),
-].join('');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	CallExpression(node) {
+		if (
+			!isMethodCall(node, {
+				method: 'appendChild',
+				argumentsLength: 1,
+				optionalCall: false,
+			})
+			|| isNodeValueNotDomNode(node.callee.object)
+			|| isNodeValueNotDomNode(node.arguments[0])
+		) {
+			return;
+		}
+
 		const fix = isValueNotUsable(node)
 			? fixer => fixer.replaceText(node.callee.property, 'append')
 			: undefined;

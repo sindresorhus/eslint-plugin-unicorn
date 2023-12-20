@@ -1,5 +1,5 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
+const {isCommaToken} = require('@eslint-community/eslint-utils');
 
 function appendArgument(fixer, node, text, sourceCode) {
 	// This function should also work for `NewExpression`

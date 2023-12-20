@@ -1,47 +1,46 @@
 'use strict';
 
-const {hasSideEffect, isParenthesized, findVariable} = require('eslint-utils');
-const {matches, methodCallSelector} = require('../selectors/index.js');
-const isFunctionSelfUsedInside = require('../utils/is-function-self-used-inside.js');
+const {hasSideEffect, isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
+const {isMethodCall} = require('../ast/index.js');
+const {isSameIdentifier, isFunctionSelfUsedInside} = require('../utils/index.js');
 
-const getBinaryExpressionSelector = path => [
-	`[${path}.type="BinaryExpression"]`,
-	`[${path}.operator="==="]`,
-	`:matches([${path}.left.type="Identifier"], [${path}.right.type="Identifier"])`,
-].join('');
-const getFunctionSelector = path => [
-	`[${path}.generator!=true]`,
-	`[${path}.async!=true]`,
-	`[${path}.params.length=1]`,
-	`[${path}.params.0.type="Identifier"]`,
-].join('');
-const callbackFunctionSelector = path => matches([
+const isSimpleCompare = (node, compareNode) =>
+	node.type === 'BinaryExpression'
+	&& node.operator === '==='
+	&& (
+		isSameIdentifier(node.left, compareNode)
+		|| isSameIdentifier(node.right, compareNode)
+	);
+const isSimpleCompareCallbackFunction = node =>
 	// Matches `foo.findIndex(bar => bar === baz)`
-	[
-		`[${path}.type="ArrowFunctionExpression"]`,
-		getFunctionSelector(path),
-		getBinaryExpressionSelector(`${path}.body`),
-	].join(''),
+	(
+		node.type === 'ArrowFunctionExpression'
+		&& !node.async
+		&& node.params.length === 1
+		&& isSimpleCompare(node.body, node.params[0])
+	)
 	// Matches `foo.findIndex(bar => {return bar === baz})`
 	// Matches `foo.findIndex(function (bar) {return bar === baz})`
-	[
-		`:matches([${path}.type="ArrowFunctionExpression"], [${path}.type="FunctionExpression"])`,
-		getFunctionSelector(path),
-		`[${path}.body.type="BlockStatement"]`,
-		`[${path}.body.body.length=1]`,
-		`[${path}.body.body.0.type="ReturnStatement"]`,
-		getBinaryExpressionSelector(`${path}.body.body.0.argument`),
-	].join(''),
-]);
+	|| (
+		(node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression')
+		&& !node.async
+		&& !node.generator
+		&& node.params.length === 1
+		&& node.body.type === 'BlockStatement'
+		&& node.body.body.length === 1
+		&& node.body.body[0].type === 'ReturnStatement'
+		&& isSimpleCompare(node.body.body[0].argument, node.params[0])
+	);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
 function simpleArraySearchRule({method, replacement}) {
 	// Add prefix to avoid conflicts in `prefer-includes` rule
 	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`;
-	const ERROR = `${MESSAGE_ID_PREFIX}/error`;
-	const SUGGESTION = `${MESSAGE_ID_PREFIX}/suggestion`;
+	const ERROR = `${MESSAGE_ID_PREFIX}error`;
+	const SUGGESTION = `${MESSAGE_ID_PREFIX}suggestion`;
 	const ERROR_MESSAGES = {
 		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
+		findLastIndex: 'Use `.lastIndexOf()` instead of `findLastIndex() when looking for the index of an item.`',
 		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`,
 	};
 
@@ -50,78 +49,80 @@ function simpleArraySearchRule({method, replacement}) {
 		[SUGGESTION]: `Replace \`.${method}()\` with \`.${replacement}()\`.`,
 	};
 
-	const selector = [
-		methodCallSelector({
-			method,
-			argumentsLength: 1,
-		}),
-		callbackFunctionSelector('arguments.0'),
-	].join('');
-
-	function createListeners(context) {
-		const sourceCode = context.getSourceCode();
+	function listen(context) {
+		const {sourceCode} = context;
 		const {scopeManager} = sourceCode;
 
-		return {
-			[selector](node) {
-				const [callback] = node.arguments;
-				const binaryExpression = callback.body.type === 'BinaryExpression'
-					? callback.body
-					: callback.body.body[0].argument;
-				const [parameter] = callback.params;
-				const {left, right} = binaryExpression;
-				const {name} = parameter;
+		context.on('CallExpression', callExpression => {
+			if (
+				!isMethodCall(callExpression, {
+					method,
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
+			) {
+				return;
+			}
 
-				let searchValueNode;
-				let parameterInBinaryExpression;
-				if (isIdentifierNamed(left, name)) {
-					searchValueNode = right;
-					parameterInBinaryExpression = left;
-				} else if (isIdentifierNamed(right, name)) {
-					searchValueNode = left;
-					parameterInBinaryExpression = right;
-				} else {
-					return;
+			const [callback] = callExpression.arguments;
+			const binaryExpression = callback.body.type === 'BinaryExpression'
+				? callback.body
+				: callback.body.body[0].argument;
+			const [parameter] = callback.params;
+			const {left, right} = binaryExpression;
+			const {name} = parameter;
+
+			let searchValueNode;
+			let parameterInBinaryExpression;
+			if (isIdentifierNamed(left, name)) {
+				searchValueNode = right;
+				parameterInBinaryExpression = left;
+			} else if (isIdentifierNamed(right, name)) {
+				searchValueNode = left;
+				parameterInBinaryExpression = right;
+			} else {
+				return;
+			}
+
+			const callbackScope = scopeManager.acquire(callback);
+			if (
+				// `parameter` is used somewhere else
+				findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
+				|| isFunctionSelfUsedInside(callback, callbackScope)
+			) {
+				return;
+			}
+
+			const methodNode = callExpression.callee.property;
+			const problem = {
+				node: methodNode,
+				messageId: ERROR,
+				suggest: [],
+			};
+
+			const fix = function * (fixer) {
+				let text = sourceCode.getText(searchValueNode);
+				if (isParenthesized(searchValueNode, sourceCode) && !isParenthesized(callback, sourceCode)) {
+					text = `(${text})`;
 				}
 
-				const callbackScope = scopeManager.acquire(callback);
-				if (
-					// `parameter` is used somewhere else
-					findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
-					|| isFunctionSelfUsedInside(callback, callbackScope)
-				) {
-					return;
-				}
+				yield fixer.replaceText(methodNode, replacement);
+				yield fixer.replaceText(callback, text);
+			};
 
-				const method = node.callee.property;
-				const problem = {
-					node: method,
-					messageId: ERROR,
-					suggest: [],
-				};
+			if (hasSideEffect(searchValueNode, sourceCode)) {
+				problem.suggest.push({messageId: SUGGESTION, fix});
+			} else {
+				problem.fix = fix;
+			}
 
-				const fix = function * (fixer) {
-					let text = sourceCode.getText(searchValueNode);
-					if (isParenthesized(searchValueNode, sourceCode) && !isParenthesized(callback, sourceCode)) {
-						text = `(${text})`;
-					}
-
-					yield fixer.replaceText(method, replacement);
-					yield fixer.replaceText(callback, text);
-				};
-
-				if (hasSideEffect(searchValueNode, sourceCode)) {
-					problem.suggest.push({messageId: SUGGESTION, fix});
-				} else {
-					problem.fix = fix;
-				}
-
-				return problem;
-			},
-		};
+			return problem;
+		});
 	}
 
-	return {messages, createListeners};
+	return {messages, listen};
 }
 
 module.exports = simpleArraySearchRule;

@@ -25,10 +25,14 @@ function notPromise(node) {
 		case 'Literal':
 		case 'TemplateLiteral':
 		case 'UnaryExpression':
-		case 'UpdateExpression':
+		case 'UpdateExpression': {
 			return true;
-		case 'SequenceExpression':
-			return notPromise(node.expressions[node.expressions.length - 1]);
+		}
+
+		case 'SequenceExpression': {
+			return notPromise(node.expressions.at(-1));
+		}
+
 		// No default
 	}
 
@@ -42,7 +46,7 @@ const create = context => ({
 			return;
 		}
 
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		const awaitToken = sourceCode.getFirstToken(node);
 		const problem = {
 			node,

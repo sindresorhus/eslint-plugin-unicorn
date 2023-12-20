@@ -592,7 +592,7 @@ test({
 			errors: [{
 				messageId: 'importStyle',
 				data: {
-					allowedStyles: 'named, namespace or default',
+					allowedStyles: 'named, namespace, or default',
 					moduleName: 'no-unassigned',
 				},
 			}],
@@ -621,7 +621,9 @@ test.babel({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		'let a',
+	],
 	invalid: [
 		'import util from \'util\'',
 		'import * as util from \'util\'',

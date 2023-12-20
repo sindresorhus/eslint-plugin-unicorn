@@ -1,38 +1,12 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
+const {isCommaToken} = require('@eslint-community/eslint-utils');
 const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
-const {isUndefined} = require('./ast/index.js');
+const {isUndefined, isFunction} = require('./ast/index.js');
 
 const messageId = 'no-useless-undefined';
 const messages = {
 	[messageId]: 'Do not use useless `undefined`.',
 };
-
-const getSelector = (parent, property) =>
-	`${parent} > Identifier.${property}[name="undefined"]`;
-
-// `return undefined`
-const returnSelector = getSelector('ReturnStatement', 'argument');
-
-// `yield undefined`
-const yieldSelector = getSelector('YieldExpression[delegate!=true]', 'argument');
-
-// `() => undefined`
-const arrowFunctionSelector = getSelector('ArrowFunctionExpression', 'body');
-
-// `let foo = undefined` / `var foo = undefined`
-const variableInitSelector = getSelector(
-	[
-		'VariableDeclaration',
-		'[kind!="const"]',
-		'>',
-		'VariableDeclarator',
-	].join(''),
-	'init',
-);
-
-// `const {foo = undefined} = {}`
-const assignmentPatternSelector = getSelector('AssignmentPattern', 'right');
 
 const compareFunctionNames = new Set([
 	'is',
@@ -63,25 +37,34 @@ const shouldIgnore = node => {
 	} else if (
 		node.type === 'MemberExpression'
 		&& node.computed === false
-		&& node.property
 		&& node.property.type === 'Identifier'
 	) {
 		name = node.property.name;
 	}
 
 	return compareFunctionNames.has(name)
-		// https://vuejs.org/api/reactivity-core.html#ref
-		|| name === 'ref'
-		// `set.add(undefined)`
-		|| name === 'add'
-		// `map.set(foo, undefined)`
-		|| name === 'set'
 		// `array.push(undefined)`
 		|| name === 'push'
 		// `array.unshift(undefined)`
 		|| name === 'unshift'
+		// `array.includes(undefined)`
+		|| name === 'includes'
+
+		// `set.add(undefined)`
+		|| name === 'add'
+		// `set.has(undefined)`
+		|| name === 'has'
+
+		// `map.set(foo, undefined)`
+		|| name === 'set'
+
 		// `React.createContext(undefined)`
-		|| name === 'createContext';
+		|| name === 'createContext'
+		// `setState(undefined)`
+		|| /^set[A-Z]/.test(name)
+
+		// https://vuejs.org/api/reactivity-core.html#ref
+		|| name === 'ref';
 };
 
 const getFunction = scope => {
@@ -99,12 +82,17 @@ const isFunctionBindCall = node =>
 	&& node.callee.property.type === 'Identifier'
 	&& node.callee.property.name === 'bind';
 
+const isTypeScriptFile = context =>
+	/\.(?:ts|mts|cts|tsx)$/i.test(context.physicalFilename);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const listener = (fix, checkFunctionReturnType) => node => {
+	const {sourceCode} = context;
+
+	const getProblem = (node, fix, checkFunctionReturnType) => {
 		if (checkFunctionReturnType) {
-			const functionNode = getFunction(context.getScope());
-			if (functionNode && functionNode.returnType) {
+			const functionNode = getFunction(sourceCode.getScope(node));
+			if (functionNode?.returnType) {
 				return;
 			}
 		}
@@ -112,11 +100,10 @@ const create = context => {
 		return {
 			node,
 			messageId,
-			fix: fixer => fix(node, fixer),
+			fix,
 		};
 	};
 
-	const sourceCode = context.getSourceCode();
 	const options = {
 		checkArguments: true,
 		...context.options[0],
@@ -125,83 +112,160 @@ const create = context => {
 	const removeNodeAndLeadingSpace = (node, fixer) =>
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, sourceCode);
 
-	const listeners = {
-		[returnSelector]: listener(
-			removeNodeAndLeadingSpace,
-			/* CheckFunctionReturnType */ true,
-		),
-		[yieldSelector]: listener(removeNodeAndLeadingSpace),
-		[arrowFunctionSelector]: listener(
-			(node, fixer) => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-			/* CheckFunctionReturnType */ true,
-		),
-		[variableInitSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
-		),
-		[assignmentPatternSelector]: listener(
-			(node, fixer) => fixer.removeRange([node.parent.left.range[1], node.range[1]]),
-		),
-	};
+	// `return undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'ReturnStatement'
+			&& node.parent.argument === node
+		) {
+			return getProblem(
+				node,
+				fixer => removeNodeAndLeadingSpace(node, fixer),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-	if (options.checkArguments) {
-		listeners.CallExpression = node => {
-			if (shouldIgnore(node.callee)) {
-				return;
-			}
+	// `yield undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'YieldExpression'
+			&& !node.parent.delegate
+			&& node.parent.argument === node
+		) {
+			return getProblem(
+				node,
+				fixer => removeNodeAndLeadingSpace(node, fixer),
+			);
+		}
+	});
 
-			const argumentNodes = node.arguments;
+	// `() => undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'ArrowFunctionExpression'
+			&& node.parent.body === node
+		) {
+			return getProblem(
+				node,
+				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-			// Ignore arguments in `Function#bind()`, but not `this` argument
-			if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
-				return;
-			}
+	// `let foo = undefined` / `var foo = undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'VariableDeclarator'
+			&& node.parent.init === node
+			&& node.parent.parent.type === 'VariableDeclaration'
+			&& node.parent.parent.kind !== 'const'
+			&& node.parent.parent.declarations.includes(node.parent)
+		) {
+			return getProblem(
+				node,
+				fixer => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
 
-			const undefinedArguments = [];
-			for (let index = argumentNodes.length - 1; index >= 0; index--) {
-				const node = argumentNodes[index];
-				if (isUndefined(node)) {
-					undefinedArguments.unshift(node);
-				} else {
-					break;
-				}
-			}
+	// `const {foo = undefined} = {}`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'AssignmentPattern'
+			&& node.parent.right === node
+		) {
+			return getProblem(
+				node,
+				function * (fixer) {
+					const assignmentPattern = node.parent;
+					const {left} = assignmentPattern;
 
-			if (undefinedArguments.length === 0) {
-				return;
-			}
-
-			const firstUndefined = undefinedArguments[0];
-			const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
-
-			return {
-				messageId,
-				loc: {
-					start: firstUndefined.loc.start,
-					end: lastUndefined.loc.end,
-				},
-				fix(fixer) {
-					let start = firstUndefined.range[0];
-					let end = lastUndefined.range[1];
-
-					const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
-
-					if (previousArgument) {
-						start = previousArgument.range[1];
-					} else {
-						// If all arguments removed, and there is trailing comma, we need remove it.
-						const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
-						if (isCommaToken(tokenAfter)) {
-							end = tokenAfter.range[1];
-						}
+					yield fixer.removeRange([left.range[1], node.range[1]]);
+					if (
+						(left.typeAnnotation || isTypeScriptFile(context))
+						&& !left.optional
+						&& isFunction(assignmentPattern.parent)
+						&& assignmentPattern.parent.params.includes(assignmentPattern)
+					) {
+						yield (
+							left.typeAnnotation
+								? fixer.insertTextBefore(left.typeAnnotation, '?')
+								: fixer.insertTextAfter(left, '?')
+						);
 					}
-
-					return fixer.removeRange([start, end]);
 				},
-			};
-		};
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+	});
+
+	if (!options.checkArguments) {
+		return;
 	}
 
-	return listeners;
+	context.on('CallExpression', node => {
+		if (shouldIgnore(node.callee)) {
+			return;
+		}
+
+		const argumentNodes = node.arguments;
+
+		// Ignore arguments in `Function#bind()`, but not `this` argument
+		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+			return;
+		}
+
+		const undefinedArguments = [];
+		for (let index = argumentNodes.length - 1; index >= 0; index--) {
+			const node = argumentNodes[index];
+			if (isUndefined(node)) {
+				undefinedArguments.unshift(node);
+			} else {
+				break;
+			}
+		}
+
+		if (undefinedArguments.length === 0) {
+			return;
+		}
+
+		const firstUndefined = undefinedArguments[0];
+		const lastUndefined = undefinedArguments.at(-1);
+
+		return {
+			messageId,
+			loc: {
+				start: firstUndefined.loc.start,
+				end: lastUndefined.loc.end,
+			},
+			fix(fixer) {
+				let start = firstUndefined.range[0];
+				let end = lastUndefined.range[1];
+
+				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
+
+				if (previousArgument) {
+					start = previousArgument.range[1];
+				} else {
+					// If all arguments removed, and there is trailing comma, we need remove it.
+					const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
+					if (isCommaToken(tokenAfter)) {
+						end = tokenAfter.range[1];
+					}
+				}
+
+				return fixer.removeRange([start, end]);
+			},
+		};
+	});
 };
 
 const schema = [

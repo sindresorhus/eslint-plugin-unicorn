@@ -39,15 +39,15 @@ test.snapshot({
 		'Array.from();',
 		'Array.from(foo, mapFn, thisArg, extra);',
 		'Array.from(...argumentsArray);',
+		'Array.from(set, mapFn).reduce(() => {});',
+		'Array.from(set, mapFn, thisArg).reduce(() => {});',
+		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		// FirstArgument is `ObjectExpression`
 		'Array.from({length: 10});',
 	],
 	invalid: [
 		'const x = Array.from(set);',
 		'Array.from(set).map(() => {});',
-		'Array.from(set, mapFn).reduce(() => {});',
-		'Array.from(set, mapFn, thisArg).reduce(() => {});',
-		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		'Array.from(new Set([1, 2])).map(() => {});',
 		'Array.from(document.querySelectorAll("*")).map(() => {});',
 
@@ -140,24 +140,10 @@ test.snapshot({
 		'(Array).from((0, foo))',
 		'(Array.from)((0, foo))',
 		'((Array).from)((0, foo))',
-		'(Array).from(foo, bar)',
-		'(Array.from)(foo, bar)',
-		'((Array).from)(foo, bar)',
-		'(Array).from((0, foo), bar)',
-		'(Array.from)((0, foo), bar)',
-		'((Array).from)((0, foo), bar)',
-		'(Array).from(foo, bar, baz)',
-		'(Array.from)(foo, bar, baz)',
-		'((Array).from)(foo, bar, baz)',
-		'(Array).from((0, foo), bar, baz)',
-		'(Array.from)((0, foo), bar, baz)',
-		'((Array).from)((0, foo), bar, baz)',
-		'Array.from(a, (0, bar), (0, baz),)',
 		'Array.from(a ? b : c)',
-		'Array.from([...a, ...b], b, c)',
+		'Array.from([...a, ...b], )',
 		'Array.from([1])',
 		'Array.from([...a, ...b])',
-		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */, /* 6 */ b /* 7 */, /* 8 */ c /* 9 */,)',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
 	],
 });
@@ -344,6 +330,45 @@ test.snapshot({
 		'array.slice(0b0)',
 		'array.slice(0.00)',
 		'array.slice(0.00, )',
+	],
+});
+
+// `Array#toSpliced`
+test.snapshot({
+	valid: [
+		'new Array.toSpliced()',
+		'toSpliced()',
+		'array[toSpliced]()',
+		'array.toSpliced',
+		'array.toSpliced(0)',
+		'array.toSpliced(...[])',
+		'array.toSpliced(...[0])',
+		'array.toSpliced(0 + 0)',
+		'array.toSpliced("")',
+		'array.toSpliced(null)',
+		'const ZERO = 0;array.toSpliced(0, ZERO)',
+		'array.toSpliced(0, array.length)',
+		'array.toSpliced(0, 0)',
+		'array.notToSpliced()',
+		// Why would someone write these
+		'[...foo].toSpliced()',
+		'[foo].toSpliced()',
+		'array.toSpliced(100, 0)',
+		'array.toSpliced(-1, 0)',
+	],
+	invalid: [
+		'array.toSpliced()',
+		'array.toSpliced().toSpliced()',
+		'const copy = array.toSpliced()',
+		'(( (( (( array )).toSpliced ))() ))',
+		// Semicolon
+		outdent`
+			bar()
+			foo.toSpliced()
+		`,
+		// `{String,TypedArray}#toSpliced` are wrongly detected
+		'"".toSpliced()',
+		'new Uint8Array([10, 20, 30, 40, 50]).toSpliced()',
 	],
 });
 

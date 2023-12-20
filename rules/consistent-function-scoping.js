@@ -1,7 +1,12 @@
 'use strict';
-const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
-const getReferences = require('./utils/get-references.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
+const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const {
+	getReferences,
+	isNodeMatches,
+} = require('./utils/index.js');
+const {
+	functionTypes,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {
@@ -21,7 +26,7 @@ function checkReferences(scope, parent, scopeManager) {
 		const [definition] = resolved.defs;
 
 		// Skip recursive function name
-		if (definition && definition.type === 'FunctionName' && resolved.name === definition.name.name) {
+		if (definition?.type === 'FunctionName' && resolved.name === definition.name.name) {
 			return false;
 		}
 
@@ -92,23 +97,20 @@ const reactHooks = [
 ].flatMap(hookName => [hookName, `React.${hookName}`]);
 
 const isReactHook = scope =>
-	scope.block
-	&& scope.block.parent
-	&& scope.block.parent.callee
+	scope.block?.parent?.callee
 	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
 const isArrowFunctionWithThis = scope =>
 	scope.type === 'function'
-	&& scope.block
-	&& scope.block.type === 'ArrowFunctionExpression'
+	&& scope.block?.type === 'ArrowFunctionExpression'
 	&& (scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
 	'ArrowFunctionExpression',
 ]);
-const isIife = node => node
-	&& iifeFunctionTypes.has(node.type)
+const isIife = node =>
+	iifeFunctionTypes.has(node.type)
 	&& node.parent.type === 'CallExpression'
 	&& node.parent.callee === node;
 
@@ -152,46 +154,46 @@ function checkNode(node, scopeManager) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const {scopeManager} = sourceCode;
 
 	const functions = [];
 
-	return {
-		':function'() {
-			functions.push(false);
-		},
-		JSXElement() {
-			// Turn off this rule if we see a JSX element because scope
-			// references does not include JSXElement nodes.
-			if (functions.length > 0) {
-				functions[functions.length - 1] = true;
-			}
-		},
-		':function:exit'(node) {
-			const currentFunctionHasJsx = functions.pop();
-			if (currentFunctionHasJsx) {
-				return;
-			}
+	context.on(functionTypes, () => {
+		functions.push(false);
+	});
 
-			if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
-				return;
-			}
+	context.on('JSXElement', () => {
+		// Turn off this rule if we see a JSX element because scope
+		// references does not include JSXElement nodes.
+		if (functions.length > 0) {
+			functions[functions.length - 1] = true;
+		}
+	});
 
-			if (checkNode(node, scopeManager)) {
-				return;
-			}
+	context.onExit(functionTypes, node => {
+		const currentFunctionHasJsx = functions.pop();
+		if (currentFunctionHasJsx) {
+			return;
+		}
 
-			return {
-				node,
-				loc: getFunctionHeadLocation(node, sourceCode),
-				messageId: MESSAGE_ID,
-				data: {
-					functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
-				},
-			};
-		},
-	};
+		if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
+			return;
+		}
+
+		if (checkNode(node, scopeManager)) {
+			return;
+		}
+
+		return {
+			node,
+			loc: getFunctionHeadLocation(node, sourceCode),
+			messageId: MESSAGE_ID,
+			data: {
+				functionNameWithKind: getFunctionNameWithKind(node, sourceCode),
+			},
+		};
+	});
 };
 
 const schema = [

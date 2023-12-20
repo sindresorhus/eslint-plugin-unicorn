@@ -1,5 +1,5 @@
 'use strict';
-const {isOpeningParenToken, isClosingParenToken} = require('eslint-utils');
+const {isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
 const assertToken = require('./utils/assert-token.js');
 
 const MESSAGE_ID_WITH_NAME = 'with-name';
@@ -9,16 +9,16 @@ const messages = {
 	[MESSAGE_ID_WITHOUT_NAME]: 'Remove unused catch binding.',
 };
 
-const selector = [
-	'CatchClause',
-	' > ',
-	'.param',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
-		const variables = context.getDeclaredVariables(node.parent);
+	CatchClause(catchClause) {
+		const node = catchClause.param;
+		if (!node) {
+			return;
+		}
+
+		const {sourceCode} = context;
+		const variables = sourceCode.getDeclaredVariables(node.parent);
 
 		if (variables.some(variable => variable.references.length > 0)) {
 			return;
@@ -31,7 +31,6 @@ const create = context => ({
 			messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 			data: {name},
 			* fix(fixer) {
-				const sourceCode = context.getSourceCode();
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				assertToken(tokenBefore, {
 					test: isOpeningParenToken,

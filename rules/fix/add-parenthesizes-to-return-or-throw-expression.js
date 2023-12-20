@@ -1,5 +1,5 @@
 'use strict';
-const {isSemicolonToken} = require('eslint-utils');
+const {isSemicolonToken} = require('@eslint-community/eslint-utils');
 
 function * addParenthesizesToReturnOrThrowExpression(fixer, node, sourceCode) {
 	if (node.type !== 'ReturnStatement' && node.type !== 'ThrowStatement') {

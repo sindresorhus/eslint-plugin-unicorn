@@ -1,5 +1,5 @@
 'use strict';
-const {memberExpressionSelector} = require('./selectors/index.js');
+const {isMemberExpression} = require('./ast/index.js');
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -8,21 +8,19 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
-const memberExpressionPropertySelector = `${memberExpressionSelector('innerText')} > .property`;
-const destructuringSelector = [
-	'ObjectPattern',
-	' > ',
-	'Property.properties',
-	'[kind="init"]',
-	'[computed!=true]',
-	' > ',
-	'Identifier.key',
-	'[name="innerText"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[memberExpressionPropertySelector](node) {
+	MemberExpression(memberExpression) {
+		if (
+			!isMemberExpression(memberExpression, {
+				property: 'innerText',
+			})
+		) {
+			return;
+		}
+
+		const node = memberExpression.property;
+
 		return {
 			node,
 			messageId: ERROR,
@@ -34,7 +32,19 @@ const create = () => ({
 			],
 		};
 	},
-	[destructuringSelector](node) {
+	Identifier(node) {
+		if (!(
+			node.name === 'innerText'
+			&& node.parent.type === 'Property'
+			&& node.parent.key === node
+			&& !node.parent.computed
+			&& node.parent.kind === 'init'
+			&& node.parent.parent.type === 'ObjectPattern'
+			&& node.parent.parent.properties.includes(node.parent)
+		)) {
+			return;
+		}
+
 		return {
 			node,
 			messageId: ERROR,

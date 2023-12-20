@@ -3,6 +3,7 @@ const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js'
 const {loadRules} = require('./rules/utils/rule.js');
 const recommendedConfig = require('./configs-legacy/recommended.js');
 const allRulesEnabledConfig = require('./configs-legacy/all.js');
+const {name, version} = require('./package.json');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
@@ -10,6 +11,7 @@ const deprecatedRules = createDeprecatedRules({
 	'no-array-instanceof': 'unicorn/no-instanceof-array',
 	'no-fn-reference-in-iterator': 'unicorn/no-array-callback-reference',
 	'no-reduce': 'unicorn/no-array-reduce',
+	'no-unsafe-regex': [],
 	'prefer-dataset': 'unicorn/prefer-dom-node-dataset',
 	'prefer-event-key': 'unicorn/prefer-keyboard-event-key',
 	'prefer-exponentiation-operator': 'prefer-exponentiation-operator',
@@ -25,6 +27,10 @@ const deprecatedRules = createDeprecatedRules({
 });
 
 module.exports = {
+	meta: {
+		name,
+		version,
+	},
 	rules: {
 		...loadRules(),
 		...deprecatedRules,

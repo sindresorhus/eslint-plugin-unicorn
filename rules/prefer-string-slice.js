@@ -1,10 +1,9 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const {methodCallSelector} = require('./selectors/index.js');
 const isNumber = require('./utils/is-number.js');
 const {replaceArgument} = require('./fix/index.js');
-const {isNumberLiteral} = require('./ast/index.js');
+const {isNumberLiteral, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -12,12 +11,6 @@ const messages = {
 	[MESSAGE_ID_SUBSTR]: 'Prefer `String#slice()` over `String#substr()`.',
 	[MESSAGE_ID_SUBSTRING]: 'Prefer `String#slice()` over `String#substring()`.',
 };
-
-const selector = methodCallSelector({
-	methods: ['substr', 'substring'],
-	includeOptionalMember: true,
-	includeOptionalCall: true,
-});
 
 const getNumericValue = node => {
 	if (isNumberLiteral(node)) {
@@ -45,13 +38,13 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	const scope = context.getScope();
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
+	const scope = sourceCode.getScope(node);
 	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
 	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
-	if (firstArgumentStaticResult && firstArgumentStaticResult.value === 0) {
+	if (firstArgumentStaticResult?.value === 0) {
 		if (isNumberLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}
@@ -71,7 +64,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isNumber(node, context.getScope()))) {
+	if (argumentNodes.every(node => isNumber(node, scope))) {
 		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
 
 		yield fixer.insertTextBeforeRange(secondArgumentRange, `${firstArgumentText} + `);
@@ -82,7 +75,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 }
 
 function * fixSubstringArguments({node, fixer, context, abort}) {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
@@ -144,7 +137,11 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
+	CallExpression(node) {
+		if (!isMethodCall(node, {methods: ['substr', 'substring']})) {
+			return;
+		}
+
 		const method = node.callee.property.name;
 
 		return {

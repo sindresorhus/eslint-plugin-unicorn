@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect} = require('eslint-utils');
+const {hasSideEffect} = require('@eslint-community/eslint-utils');
 const isSameReference = require('./utils/is-same-reference.js');
 const getIndentString = require('./utils/get-indent-string.js');
 
@@ -191,7 +191,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 		const indent = getIndentString(firstStatement, sourceCode);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
-		const lastStatement = ifStatements[ifStatements.length - 1].statement;
+		const lastStatement = ifStatements.at(-1).statement;
 		if (lastStatement.alternate) {
 			const {alternate} = lastStatement;
 			yield fixer.insertTextBefore(alternate, `\n${indent}default: `);
@@ -256,17 +256,19 @@ const create = context => {
 		insertBreakInDefaultCase: false,
 		...context.options[0],
 	};
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const ifStatements = new Set();
 	const breakStatements = [];
 	const checked = new Set();
 
 	return {
-		'IfStatement'(node) {
+		IfStatement(node) {
 			ifStatements.add(node);
 		},
-		'BreakStatement:not([label])'(node) {
-			breakStatements.push(node);
+		BreakStatement(node) {
+			if (!node.label) {
+				breakStatements.push(node);
+			}
 		},
 		* 'Program:exit'() {
 			for (const node of ifStatements) {

@@ -35,7 +35,6 @@ test.snapshot({
 			'md',
 			'vue',
 			'svelte',
-			'tsx',
 		].map(extension => ({code: '', filename: `example.${extension}`})),
 		...[
 			'd.ts',
@@ -69,10 +68,23 @@ test.snapshot({
 		].map(code => ({code, filename: 'example.js'})),
 		...[
 			'mjs',
-			'cjs',
+			'cJs',
 			'ts',
-			'mts',
+			'tsx',
+			'jsx',
+			'MTS',
 			'cts',
 		].map(extension => ({code: '{}', filename: `example.${extension}`})),
+	],
+});
+
+// Test for https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2175
+test.typescript({
+	valid: [
+		{code: '(() => {})();', filename: 'example.ts'},
+	],
+	invalid: [
+		{code: '"";', filename: 'example.ts', errors: 1},
+		{code: '"use strict";', filename: 'example.ts', errors: 1},
 	],
 });

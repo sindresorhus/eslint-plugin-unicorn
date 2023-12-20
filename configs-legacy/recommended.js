@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
 	env: {
-		es2022: true,
+		es2024: true,
 	},
 	parserOptions: {
 		ecmaVersion: 'latest',
@@ -40,6 +40,8 @@ module.exports = {
 		'unicorn/no-invalid-remove-event-listener': 'error',
 		'unicorn/no-keyword-prefix': 'off',
 		'unicorn/no-lonely-if': 'error',
+		'no-negated-condition': 'off',
+		'unicorn/no-negated-condition': 'error',
 		'no-nested-ternary': 'off',
 		'unicorn/no-nested-ternary': 'error',
 		'unicorn/no-new-array': 'error',
@@ -50,10 +52,11 @@ module.exports = {
 		'unicorn/no-static-only-class': 'error',
 		'unicorn/no-thenable': 'error',
 		'unicorn/no-this-assignment': 'error',
+		'unicorn/no-typeof-undefined': 'error',
 		'unicorn/no-unnecessary-await': 'error',
+		'unicorn/no-unnecessary-polyfills': 'error',
 		'unicorn/no-unreadable-array-destructuring': 'error',
 		'unicorn/no-unreadable-iife': 'error',
-		'unicorn/no-unsafe-regex': 'off',
 		'unicorn/no-unused-properties': 'off',
 		'unicorn/no-useless-fallback-in-spread': 'error',
 		'unicorn/no-useless-length-check': 'error',
@@ -70,8 +73,8 @@ module.exports = {
 		'unicorn/prefer-array-flat-map': 'error',
 		'unicorn/prefer-array-index-of': 'error',
 		'unicorn/prefer-array-some': 'error',
-		// TODO: Enable this by default when targeting a Node.js version that supports `Array#at`.
-		'unicorn/prefer-at': 'off',
+		'unicorn/prefer-at': 'error',
+		'unicorn/prefer-blob-reading-methods': 'error',
 		'unicorn/prefer-code-point': 'error',
 		'unicorn/prefer-date-now': 'error',
 		'unicorn/prefer-default-parameters': 'error',
@@ -79,8 +82,7 @@ module.exports = {
 		'unicorn/prefer-dom-node-dataset': 'error',
 		'unicorn/prefer-dom-node-remove': 'error',
 		'unicorn/prefer-dom-node-text-content': 'error',
-		// TODO: Enable this by default when targeting Node.js 16.
-		'unicorn/prefer-event-target': 'off',
+		'unicorn/prefer-event-target': 'error',
 		'unicorn/prefer-export-from': 'error',
 		'unicorn/prefer-includes': 'error',
 		'unicorn/prefer-json-parse-buffer': 'off',
@@ -101,9 +103,9 @@ module.exports = {
 		'unicorn/prefer-reflect-apply': 'error',
 		'unicorn/prefer-regexp-test': 'error',
 		'unicorn/prefer-set-has': 'error',
+		'unicorn/prefer-set-size': 'error',
 		'unicorn/prefer-spread': 'error',
-		// TODO: Enable this by default when targeting Node.js 16.
-		'unicorn/prefer-string-replace-all': 'off',
+		'unicorn/prefer-string-replace-all': 'error',
 		'unicorn/prefer-string-slice': 'error',
 		'unicorn/prefer-string-starts-ends-with': 'error',
 		'unicorn/prefer-string-trim-start-end': 'error',

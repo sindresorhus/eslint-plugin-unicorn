@@ -1,4 +1,5 @@
 'use strict';
+const {isFunction} = require('./ast/index.js');
 
 const MESSAGE_ID_IDENTIFIER = 'identifier';
 const MESSAGE_ID_NON_IDENTIFIER = 'non-identifier';
@@ -7,15 +8,18 @@ const messages = {
 	[MESSAGE_ID_NON_IDENTIFIER]: 'Do not use an object literal as default.',
 };
 
-const objectParameterSelector = [
-	':function > AssignmentPattern.params',
-	'[right.type="ObjectExpression"]',
-	'[right.properties.length>0]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[objectParameterSelector](node) {
+	AssignmentPattern(node) {
+		if (!(
+			node.right.type === 'ObjectExpression'
+			&& node.right.properties.length > 0
+			&& isFunction(node.parent)
+			&& node.parent.params.includes(node)
+		)) {
+			return;
+		}
+
 		const {left, right} = node;
 
 		if (left.type === 'Identifier') {

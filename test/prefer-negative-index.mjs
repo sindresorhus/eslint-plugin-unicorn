@@ -344,10 +344,16 @@ test({
 });
 
 test.snapshot({
-	valid: [],
+	valid: [
+		// There is no `String#{toSpliced,with}`
+		'String.prototype.toSpliced.call(foo, foo.length - 1)',
+		'String.prototype.with.call(foo, foo.length - 1)',
+		// There is no `TypedArray#toSpliced`
+		'Uint8Array.prototype.toSpliced.call(foo, foo.length - 1)',
+	],
 	invalid: [
-		'foo.slice(foo.length - 2, foo.length - 1)',
-		'foo.splice(foo.length - 1, 1)',
+		'/**/foo.slice(foo.length - 2, foo.length - 1)',
+		'/**/foo.splice(foo.length - 1, 1)',
 		// Foo.bar and foo["bar"]
 		'foo.bar.slice(foo["bar"].length - 1)',
 		// Foo[`bar`] and foo["bar"]
@@ -361,5 +367,10 @@ test.snapshot({
 			Array.prototype.at.call(foo, foo.length - 2);
 			Array.prototype.at.apply(foo, [foo.length - 3]);
 		`,
+		'foo.toSpliced(foo.length - 3, foo.length - 6)',
+		'Array.prototype.toSpliced.call(foo, foo.length - 3, foo.length - 6)',
+		'[].toSpliced.call(foo, foo.length - 3, foo.length - 6)',
+		'foo.with(foo.length - 3, foo.length - 6)',
+		'Array.prototype.with.call(foo, foo.length - 3, foo.length - 6)',
 	],
 });

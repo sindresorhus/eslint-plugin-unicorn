@@ -19,6 +19,7 @@ test.snapshot({
 	],
 	invalid: [
 		'node.innerText;',
+		'node?.innerText;',
 		'node.innerText = \'foo\';',
 		'innerText.innerText;',
 		'const {innerText} = node;',

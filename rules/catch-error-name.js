@@ -1,36 +1,36 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const {renameVariable} = require('./fix/index.js');
-const {matches, methodCallSelector} = require('./selectors/index.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {
 	[MESSAGE_ID]: 'The catch parameter `{{originalName}}` should be named `{{fixedName}}`.',
 };
 
-const selector = matches([
-	// `try {} catch (foo) {}`
-	[
-		'CatchClause',
-		' > ',
-		'Identifier.param',
-	].join(''),
-	// - `promise.then(…, foo => {})`
-	// - `promise.then(…, function(foo) {})`
-	// - `promise.catch(foo => {})`
-	// - `promise.catch(function(foo) {})`
-	[
-		matches([
-			methodCallSelector({method: 'then', argumentsLength: 2}),
-			methodCallSelector({method: 'catch', argumentsLength: 1}),
-		]),
-		' > ',
-		':matches(FunctionExpression, ArrowFunctionExpression).arguments:last-child',
-		' > ',
-		'Identifier.params:first-child',
-	].join(''),
-]);
+// - `promise.then(…, foo => {})`
+// - `promise.then(…, function(foo) {})`
+// - `promise.catch(foo => {})`
+// - `promise.catch(function(foo) {})`
+const isPromiseCatchParameter = node =>
+	(node.parent.type === 'FunctionExpression' || node.parent.type === 'ArrowFunctionExpression')
+	&& node.parent.params[0] === node
+	&& (
+		isMethodCall(node.parent.parent, {
+			method: 'then',
+			argumentsLength: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| isMethodCall(node.parent.parent, {
+			method: 'catch',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+	)
+	&& node.parent.parent.arguments.at(-1) === node.parent;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -50,17 +50,24 @@ const create = context => {
 		|| name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
 
 	return {
-		[selector](node) {
-			const originalName = node.name;
-
+		Identifier(node) {
 			if (
-				isNameAllowed(originalName)
-				|| isNameAllowed(originalName.replace(/_+$/g, ''))
+				!(node.parent.type === 'CatchClause' && node.parent.param === node)
+				&& !isPromiseCatchParameter(node)
 			) {
 				return;
 			}
 
-			const scope = context.getScope();
+			const originalName = node.name;
+
+			if (
+				isNameAllowed(originalName)
+				|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
+			) {
+				return;
+			}
+
+			const scope = context.sourceCode.getScope(node);
 			const variable = findVariable(scope, node);
 
 			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967

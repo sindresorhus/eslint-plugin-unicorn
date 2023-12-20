@@ -13,10 +13,10 @@ const lastIndexOfOverFindLastIndexRule = simpleArraySearchRule({
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
-	create: context => ({
-		...indexOfOverFindIndexRule.createListeners(context),
-		...lastIndexOfOverFindLastIndexRule.createListeners(context),
-	}),
+	create(context) {
+		indexOfOverFindIndexRule.listen(context);
+		lastIndexOfOverFindLastIndexRule.listen(context);
+	},
 	meta: {
 		type: 'suggestion',
 		docs: {

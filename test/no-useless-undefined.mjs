@@ -53,6 +53,12 @@ test({
 		'array.unshift(undefined);',
 		'createContext(undefined);',
 		'React.createContext(undefined);',
+		'setState(undefined)',
+		'setState?.(undefined)',
+		'props.setState(undefined)',
+		'props.setState?.(undefined)',
+		'array.includes(undefined)',
+		'set.has(undefined)',
 
 		// `Function#bind()`
 		'foo.bind(bar, undefined)',
@@ -467,5 +473,36 @@ test.snapshot({
 			const foo = nextTick(undefined);
 			</script>
 		`,
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		parser: parsers.typescript,
+	},
+	valid: [],
+	invalid: [
+		'function f(foo: Type = undefined) {}',
+		'function f(foo?: Type = undefined) {}',
+		'const f = function(foo: Type = undefined) {}',
+		'const f = (foo: Type = undefined) => {}',
+		'const f = {method(foo: Type = undefined){}}',
+		'const f = class {method(foo: Type = undefined){}}',
+		'function f(foo = undefined) {}',
+		...[
+			undefined,
+			'foo.js',
+			'foo.ts',
+			'foo.MTs',
+			'foo.cts',
+			'foo.tsx',
+		].map(filename => ({
+			code: 'function f(foo = undefined) {}',
+			filename,
+		})),
+		{
+			code: 'function a({foo} = undefined) {}',
+			filename: 'foo.ts',
+		},
 	],
 });

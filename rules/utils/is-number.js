@@ -1,5 +1,5 @@
 'use strict';
-const {getStaticValue} = require('eslint-utils');
+const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {isNumberLiteral} = require('../ast/index.js');
 
 const isStaticProperties = (node, object, properties) =>
@@ -101,10 +101,8 @@ const isNumberMethodCall = node =>
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
-const isStaticNumber = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
-	return staticResult !== null && typeof staticResult.value === 'number';
-};
+const isStaticNumber = (node, scope) =>
+	typeof getStaticValue(node, scope)?.value === 'number';
 
 const isLengthProperty = node =>
 	node.type === 'MemberExpression'
@@ -211,7 +209,7 @@ function isNumber(node, scope) {
 		}
 
 		case 'SequenceExpression': {
-			if (isNumber(node.expressions[node.expressions.length - 1], scope)) {
+			if (isNumber(node.expressions.at(-1), scope)) {
 				return true;
 			}
 

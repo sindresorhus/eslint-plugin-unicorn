@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized} = require('eslint-utils');
+const {isParenthesized} = require('@eslint-community/eslint-utils');
 const needsSemicolon = require('./utils/needs-semicolon.js');
 const {isDecimalInteger} = require('./utils/numeric.js');
 const toLocation = require('./utils/to-location.js');
@@ -28,7 +28,7 @@ const create = context => ({
 		}
 
 		const {before, dotAndFractions, after} = match.groups;
-		const fixedDotAndFractions = dotAndFractions.replace(/[.0_]+$/g, '');
+		const fixedDotAndFractions = dotAndFractions.replaceAll(/[.0_]+$/g, '');
 		const formatted = ((before + fixedDotAndFractions) || '0') + after;
 
 		if (formatted === raw) {
@@ -39,7 +39,7 @@ const create = context => ({
 		// End of fractions
 		const end = node.range[0] + before.length + dotAndFractions.length;
 		const start = end - (raw.length - formatted.length);
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		return {
 			loc: toLocation([start, end], sourceCode),
 			messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,

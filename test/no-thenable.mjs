@@ -49,8 +49,17 @@ test.snapshot({
 
 		// `Object.fromEntries`
 		'Object.fromEntries([then, 1])',
-		'Object.fromEntries(["notThen", "then"])',
-		'const NOT_THEN = "not-then";Object.fromEntries([NOT_THEN, 1])',
+		'Object.fromEntries([,,])',
+		'Object.fromEntries([[,,],[]])',
+		'const NOT_THEN = "not-then";Object.fromEntries([[NOT_THEN, 1]])',
+		'Object.fromEntries([[["then", 1]]])',
+		'NotObject.fromEntries([["then", 1]])',
+		'Object.notFromEntries([["then", 1]])',
+		'Object.fromEntries?.([["then", 1]])',
+		'Object?.fromEntries([["then", 1]])',
+		'Object.fromEntries([[..."then", 1]])',
+		'Object.fromEntries([["then", 1]], extraArgument)',
+		'Object.fromEntries(...[["then", 1]])',
 
 		// `{Object,Reflect}.defineProperty`
 		'Object.defineProperty(foo, then, 1)',
@@ -143,9 +152,11 @@ test.snapshot({
 		'const THEN = "then";Reflect.defineProperty(foo, THEN, 1)',
 
 		// `Object.fromEntries`
-		'Object.fromEntries(["then", 1])',
-		'Object.fromEntries([`then`, 1])',
-		'const THEN = "then";Object.fromEntries([THEN, 1])',
+		'Object.fromEntries([["then", 1]])',
+		'Object.fromEntries([["then"]])',
+		'Object.fromEntries([[`then`, 1]])',
+		'const THEN = "then";Object.fromEntries([[THEN, 1]])',
+		'Object.fromEntries([foo, ["then", 1]])',
 
 		// `export`
 		'const then = 1; export {then}',
@@ -177,5 +188,6 @@ test.snapshot({
 		'export let {foo, ...then} = 1',
 		'export var {foo, ...then} = 1',
 		'export const {foo: {bar: [{baz: then}]}} = 1',
+		'export const notThen = 1, then = 1',
 	],
 });

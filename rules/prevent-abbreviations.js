@@ -1,7 +1,6 @@
 'use strict';
 const path = require('node:path');
-const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
-
+const {defaultsDeep, upperFirst, lowerFirst} = require('./utils/lodash.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
@@ -140,6 +139,16 @@ const getNameReplacements = (name, options, limit = 3) => {
 		total,
 		samples,
 	} = cartesianProductSamples(combinations, limit);
+
+	// `retVal` -> `['returnValue', 'Value']` -> `['returnValue']`
+	for (const parts of samples) {
+		for (let index = parts.length - 1; index > 0; index--) {
+			const word = parts[index];
+			if (/^[A-Za-z]+$/.test(word) && parts[index - 1].endsWith(parts[index])) {
+				parts.splice(index, 1);
+			}
+		}
+	}
 
 	return {
 		total,
@@ -329,7 +338,7 @@ const isInternalImport = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
-	const filenameWithExtension = context.getPhysicalFilename();
+	const filenameWithExtension = context.physicalFilename;
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (wherever the class is declared).
@@ -438,7 +447,12 @@ const create = context => {
 			node: definition.name,
 		};
 
-		if (variableReplacements.total === 1 && shouldFix(variable) && variableReplacements.samples[0]) {
+		if (
+			variableReplacements.total === 1
+			&& shouldFix(variable)
+			&& variableReplacements.samples[0]
+			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+		) {
 			const [replacement] = variableReplacements.samples;
 
 			for (const scope of scopes) {
@@ -525,12 +539,12 @@ const create = context => {
 			});
 		},
 
-		'Program:exit'() {
+		'Program:exit'(program) {
 			if (!options.checkVariables) {
 				return;
 			}
 
-			checkScope(context.getScope());
+			checkScope(context.sourceCode.getScope(program));
 		},
 	};
 };

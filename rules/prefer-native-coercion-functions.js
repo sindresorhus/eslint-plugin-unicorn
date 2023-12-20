@@ -1,6 +1,6 @@
 'use strict';
-const {getFunctionHeadLocation, getFunctionNameWithKind} = require('eslint-utils');
-const {not} = require('./selectors/index.js');
+const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const {functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {
@@ -11,13 +11,11 @@ const nativeCoercionFunctionNames = new Set(['String', 'Number', 'BigInt', 'Bool
 const arrayMethodsWithBooleanCallback = new Set(['every', 'filter', 'find', 'findLast', 'findIndex', 'findLastIndex', 'some']);
 
 const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
-	node
-	&& node.type === 'CallExpression'
+	node?.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
 	&& nativeCoercionFunctionNames.has(node.callee.name)
-	&& node.arguments[0]
-	&& node.arguments[0].type === 'Identifier'
+	&& node.arguments[0]?.type === 'Identifier'
 	&& node.arguments[0].name === firstArgumentName;
 
 const isIdentityFunction = node =>
@@ -33,8 +31,7 @@ const isIdentityFunction = node =>
 		node.body.type === 'BlockStatement'
 		&& node.body.body.length === 1
 		&& node.body.body[0].type === 'ReturnStatement'
-		&& node.body.body[0].argument
-		&& node.body.body[0].argument.type === 'Identifier'
+		&& node.body.body[0].argument?.type === 'Identifier'
 		&& node.body.body[0].argument.name === node.params[0].name
 	);
 
@@ -71,19 +68,6 @@ function getCallExpression(node) {
 		return node.body.body[0].argument;
 	}
 }
-
-const functionsSelector = [
-	':function',
-	'[async!=true]',
-	'[generator!=true]',
-	'[params.length>0]',
-	'[params.0.type="Identifier"]',
-	not([
-		'MethodDefinition[kind="constructor"] > .value',
-		'MethodDefinition[kind="set"] > .value',
-		'Property[kind="set"] > .value',
-	]),
-].join('');
 
 function getArrayCallbackProblem(node) {
 	if (!isArrayIdentityCallback(node)) {
@@ -132,15 +116,34 @@ function getCoercionFunctionProblem(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	[functionsSelector](node) {
+const create = context => {
+	context.on(functionTypes, node => {
+		if (
+			node.async
+			|| node.generator
+			|| node.params.length === 0
+			|| node.params[0].type !== 'Identifier'
+			|| (
+				(
+					(
+						node.parent.type === 'MethodDefinition'
+						&& (node.parent.kind === 'constructor' || node.parent.kind === 'set')
+					)
+					|| (node.parent.type === 'Property' && node.parent.kind === 'set')
+				)
+				&& node.parent.value === node
+			)
+		) {
+			return;
+		}
+
 		let problem = getArrayCallbackProblem(node) || getCoercionFunctionProblem(node);
 
 		if (!problem) {
 			return;
 		}
 
-		const sourceCode = context.getSourceCode();
+		const {sourceCode} = context;
 		const {replacementFunction, fix} = problem;
 
 		problem = {
@@ -165,8 +168,8 @@ const create = context => ({
 		problem.fix = fix;
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

@@ -7,7 +7,7 @@ const isLogicNotArgument = node => isLogicNot(node.parent) && node.parent.argume
 const isBooleanCallArgument = node => isBooleanCall(node.parent) && node.parent.arguments[0] === node;
 const isBooleanCall = node =>
 	node?.type === 'CallExpression'
-	&& node.callee?.type === 'Identifier'
+	&& node.callee.type === 'Identifier'
 	&& node.callee.name === 'Boolean'
 	&& node.arguments.length === 1;
 const isVueBooleanAttributeValue = node =>

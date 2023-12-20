@@ -1,59 +1,34 @@
 'use strict';
-const {isCommaToken} = require('eslint-utils');
-const {
-	matches,
-	newExpressionSelector,
-	methodCallSelector,
-} = require('./selectors/index.js');
+const {isCommaToken} = require('@eslint-community/eslint-utils');
 const typedArray = require('./shared/typed-array.js');
-const {removeParentheses, fixSpaceAroundKeyword} = require('./fix/index.js');
+const {
+	removeParentheses,
+	fixSpaceAroundKeyword,
+	addParenthesizesToReturnOrThrowExpression,
+} = require('./fix/index.js');
+const {
+	isParenthesized,
+	isOnSameLine,
+} = require('./utils/index.js');
+const {isNewExpression, isMethodCall, isCallOrNewExpression} = require('./ast/index.js');
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
+const CLONE_ARRAY = 'clone-array';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
+	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
 };
 
-const uselessSpreadInListSelector = matches([
-	'ArrayExpression > SpreadElement.elements > ArrayExpression.argument',
-	'ObjectExpression > SpreadElement.properties > ObjectExpression.argument',
-	'CallExpression > SpreadElement.arguments > ArrayExpression.argument',
-	'NewExpression > SpreadElement.arguments > ArrayExpression.argument',
-]);
-
-const iterableToArraySelector = [
-	'ArrayExpression',
-	'[elements.length=1]',
-	'[elements.0.type="SpreadElement"]',
-].join('');
-const uselessIterableToArraySelector = matches([
-	[
-		matches([
-			newExpressionSelector({names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1}),
-			newExpressionSelector({names: typedArray, minimumArguments: 1}),
-			methodCallSelector({
-				object: 'Promise',
-				methods: ['all', 'allSettled', 'any', 'race'],
-				argumentsLength: 1,
-			}),
-			methodCallSelector({
-				objects: ['Array', ...typedArray],
-				method: 'from',
-				argumentsLength: 1,
-			}),
-			methodCallSelector({object: 'Object', method: 'fromEntries', argumentsLength: 1}),
-		]),
-		' > ',
-		`${iterableToArraySelector}.arguments:first-child`,
-	].join(''),
-	`ForOfStatement > ${iterableToArraySelector}.right`,
-	`YieldExpression[delegate=true] > ${iterableToArraySelector}.argument`,
-]);
+const isSingleArraySpread = node =>
+	node.type === 'ArrayExpression'
+	&& node.elements.length === 1
+	&& node.elements[0]?.type === 'SpreadElement';
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -81,137 +56,315 @@ function getCommaTokens(arrayExpression, sourceCode) {
 	});
 }
 
+function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+	const [
+		openingBracketToken,
+		spreadToken,
+		thirdToken,
+	] = sourceCode.getFirstTokens(arrayExpression, 3);
+
+	// `[...value]`
+	//  ^
+	yield fixer.remove(openingBracketToken);
+
+	// `[...value]`
+	//   ^^^
+	yield fixer.remove(spreadToken);
+
+	const [
+		commaToken,
+		closingBracketToken,
+	] = sourceCode.getLastTokens(arrayExpression, 2);
+
+	// `[...value]`
+	//           ^
+	yield fixer.remove(closingBracketToken);
+
+	// `[...value,]`
+	//           ^
+	if (isCommaToken(commaToken)) {
+		yield fixer.remove(commaToken);
+	}
+
+	/*
+	```js
+	function foo() {
+		return [
+			...value,
+		];
+	}
+	```
+	*/
+	const {parent} = arrayExpression;
+	if (
+		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+		&& parent.argument === arrayExpression
+		&& !isOnSameLine(openingBracketToken, thirdToken)
+		&& !isParenthesized(arrayExpression, sourceCode)
+	) {
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+		return;
+	}
+
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 
-	return {
-		[uselessSpreadInListSelector](spreadObject) {
-			const spreadElement = spreadObject.parent;
-			const spreadToken = sourceCode.getFirstToken(spreadElement);
-			const parentType = spreadElement.parent.type;
+	// Useless spread in list
+	context.on(['ArrayExpression', 'ObjectExpression'], node => {
+		if (!(
+			node.parent.type === 'SpreadElement'
+			&& node.parent.argument === node
+			&& (
+				(
+					node.type === 'ObjectExpression'
+					&& node.parent.parent.type === 'ObjectExpression'
+					&& node.parent.parent.properties.includes(node.parent)
+				)
+				|| (
+					node.type === 'ArrayExpression'
+					&& (
+						(
+							node.parent.parent.type === 'ArrayExpression'
+							&& node.parent.parent.elements.includes(node.parent)
+						)
+						|| (
+							isCallOrNewExpression(node.parent.parent)
+							&& node.parent.parent.arguments.includes(node.parent)
+						)
+					)
+				)
+			)
+		)) {
+			return;
+		}
 
-			return {
-				node: spreadToken,
-				messageId: SPREAD_IN_LIST,
-				data: {
-					argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
-					parentDescription: parentDescriptions[parentType],
-				},
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				* fix(fixer) {
-					// `[...[foo]]`
-					//   ^^^
-					yield fixer.remove(spreadToken);
+		const spreadObject = node;
+		const spreadElement = spreadObject.parent;
+		const spreadToken = sourceCode.getFirstToken(spreadElement);
+		const parentType = spreadElement.parent.type;
 
-					// `[...(( [foo] ))]`
-					//      ^^       ^^
-					yield * removeParentheses(spreadObject, fixer, sourceCode);
+		return {
+			node: spreadToken,
+			messageId: SPREAD_IN_LIST,
+			data: {
+				argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
+				parentDescription: parentDescriptions[parentType],
+			},
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			* fix(fixer) {
+				// `[...[foo]]`
+				//   ^^^
+				yield fixer.remove(spreadToken);
 
-					// `[...[foo]]`
-					//      ^
-					const firstToken = sourceCode.getFirstToken(spreadObject);
-					yield fixer.remove(firstToken);
+				// `[...(( [foo] ))]`
+				//      ^^       ^^
+				yield * removeParentheses(spreadObject, fixer, sourceCode);
 
-					const [
-						penultimateToken,
-						lastToken,
-					] = sourceCode.getLastTokens(spreadObject, 2);
+				// `[...[foo]]`
+				//      ^
+				const firstToken = sourceCode.getFirstToken(spreadObject);
+				yield fixer.remove(firstToken);
 
-					// `[...[foo]]`
-					//          ^
-					yield fixer.remove(lastToken);
+				const [
+					penultimateToken,
+					lastToken,
+				] = sourceCode.getLastTokens(spreadObject, 2);
 
-					// `[...[foo,]]`
-					//          ^
-					if (isCommaToken(penultimateToken)) {
-						yield fixer.remove(penultimateToken);
+				// `[...[foo]]`
+				//          ^
+				yield fixer.remove(lastToken);
+
+				// `[...[foo,]]`
+				//          ^
+				if (isCommaToken(penultimateToken)) {
+					yield fixer.remove(penultimateToken);
+				}
+
+				if (parentType !== 'CallExpression' && parentType !== 'NewExpression') {
+					return;
+				}
+
+				const commaTokens = getCommaTokens(spreadObject, sourceCode);
+				for (const [index, commaToken] of commaTokens.entries()) {
+					if (spreadObject.elements[index]) {
+						continue;
 					}
 
-					if (parentType !== 'CallExpression' && parentType !== 'NewExpression') {
-						return;
-					}
-
-					const commaTokens = getCommaTokens(spreadObject, sourceCode);
-					for (const [index, commaToken] of commaTokens.entries()) {
-						if (spreadObject.elements[index]) {
-							continue;
-						}
-
-						// `call([foo, , bar])`
-						//             ^ Replace holes with `undefined`
-						yield fixer.insertTextBefore(commaToken, 'undefined');
-					}
-				},
-			};
-		},
-		[uselessIterableToArraySelector](array) {
-			const {parent} = array;
-			let parentDescription = '';
-			let messageId = ITERABLE_TO_ARRAY;
-			switch (parent.type) {
-				case 'ForOfStatement': {
-					messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
-					break;
+					// `call(...[foo, , bar])`
+					//               ^ Replace holes with `undefined`
+					yield fixer.insertTextBefore(commaToken, 'undefined');
 				}
+			},
+		};
+	});
 
-				case 'YieldExpression': {
-					messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
-					break;
-				}
+	// Useless iterable to array
+	context.on('ArrayExpression', arrayExpression => {
+		if (!isSingleArraySpread(arrayExpression)) {
+			return;
+		}
 
-				case 'NewExpression': {
-					parentDescription = `new ${parent.callee.name}(…)`;
-					break;
-				}
+		const {parent} = arrayExpression;
+		if (!(
+			(parent.type === 'ForOfStatement' && parent.right === arrayExpression)
+			|| (parent.type === 'YieldExpression' && parent.delegate && parent.argument === arrayExpression)
+			|| (
+				(
+					isNewExpression(parent, {names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1})
+					|| isNewExpression(parent, {names: typedArray, minimumArguments: 1})
+					|| isMethodCall(parent, {
+						object: 'Promise',
+						methods: ['all', 'allSettled', 'any', 'race'],
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					|| isMethodCall(parent, {
+						objects: ['Array', ...typedArray],
+						method: 'from',
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					|| isMethodCall(parent, {
+						object: 'Object',
+						method: 'fromEntries',
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+				)
+				&& parent.arguments[0] === arrayExpression
+			)
+		)) {
+			return;
+		}
 
-				case 'CallExpression': {
-					parentDescription = `${parent.callee.object.name}.${parent.callee.property.name}(…)`;
-					break;
-				}
-				// No default
+		let parentDescription = '';
+		let messageId = ITERABLE_TO_ARRAY;
+		switch (parent.type) {
+			case 'ForOfStatement': {
+				messageId = ITERABLE_TO_ARRAY_IN_FOR_OF;
+				break;
 			}
 
-			return {
-				node: array,
-				messageId,
-				data: {parentDescription},
-				* fix(fixer) {
-					if (parent.type === 'ForOfStatement') {
-						yield * fixSpaceAroundKeyword(fixer, array, sourceCode);
-					}
+			case 'YieldExpression': {
+				messageId = ITERABLE_TO_ARRAY_IN_YIELD_STAR;
+				break;
+			}
 
-					const [
-						openingBracketToken,
-						spreadToken,
-					] = sourceCode.getFirstTokens(array, 2);
+			case 'NewExpression': {
+				parentDescription = `new ${parent.callee.name}(…)`;
+				break;
+			}
 
-					// `[...iterable]`
-					//  ^
-					yield fixer.remove(openingBracketToken);
+			case 'CallExpression': {
+				parentDescription = `${parent.callee.object.name}.${parent.callee.property.name}(…)`;
+				break;
+			}
+			// No default
+		}
 
-					// `[...iterable]`
-					//   ^^^
-					yield fixer.remove(spreadToken);
+		return {
+			node: arrayExpression,
+			messageId,
+			data: {parentDescription},
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+		};
+	});
 
-					const [
-						commaToken,
-						closingBracketToken,
-					] = sourceCode.getLastTokens(array, 2);
+	// Useless array clone
+	context.on('ArrayExpression', arrayExpression => {
+		if (!isSingleArraySpread(arrayExpression)) {
+			return;
+		}
 
-					// `[...iterable]`
-					//              ^
-					yield fixer.remove(closingBracketToken);
+		const node = arrayExpression.elements[0].argument;
+		if (!(
+			// Array methods returns a new array
+			isMethodCall(node, {
+				methods: [
+					'concat',
+					'copyWithin',
+					'filter',
+					'flat',
+					'flatMap',
+					'map',
+					'slice',
+					'splice',
+					'toReversed',
+					'toSorted',
+					'toSpliced',
+					'with',
+				],
+				optionalCall: false,
+				optionalMember: false,
+			})
+			// `String#split()`
+			|| isMethodCall(node, {
+				method: 'split',
+				optionalCall: false,
+				optionalMember: false,
+			})
+			// `Object.keys()` and `Object.values()`
+			|| isMethodCall(node, {
+				object: 'Object',
+				methods: ['keys', 'values'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			// `await Promise.all()` and `await Promise.allSettled`
+			|| (
+				node.type === 'AwaitExpression'
+				&& isMethodCall(node.argument, {
+					object: 'Promise',
+					methods: ['all', 'allSettled'],
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			)
+			// `Array.from()`, `Array.of()`
+			|| isMethodCall(node, {
+				object: 'Array',
+				methods: ['from', 'of'],
+				optionalCall: false,
+				optionalMember: false,
+			})
+			// `new Array()`
+			|| isNewExpression(node, {name: 'Array'})
+		)) {
+			return;
+		}
 
-					// `[...iterable,]`
-					//              ^
-					if (isCommaToken(commaToken)) {
-						yield fixer.remove(commaToken);
-					}
-				},
-			};
-		},
-	};
+		const problem = {
+			node: arrayExpression,
+			messageId: CLONE_ARRAY,
+		};
+
+		if (
+			// `[...new Array(1)]` -> `new Array(1)` is not safe to fix since there are holes
+			isNewExpression(node, {name: 'Array'})
+			// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix since `foo` can be a string
+			|| (
+				node.type === 'CallExpression'
+				&& node.callee.type === 'MemberExpression'
+				&& node.callee.property.type === 'Identifier'
+				&& node.callee.property.name === 'slice'
+			)
+		) {
+			return problem;
+		}
+
+		return Object.assign(problem, {
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+		});
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

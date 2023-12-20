@@ -1,17 +1,11 @@
 'use strict';
-const {getPropertyName} = require('eslint-utils');
-const {not, methodCallSelector} = require('./selectors/index.js');
-const {isNullLiteral} = require('./ast/index.js');
+const {getPropertyName} = require('@eslint-community/eslint-utils');
+const {isNullLiteral, isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.',
 };
-
-const selector = [
-	methodCallSelector({allowComputed: true}),
-	not(['Literal', 'ArrayExpression', 'ObjectExpression'].map(type => `[callee.object.type=${type}]`)),
-].join('');
 
 const isApplySignature = (argument1, argument2) => (
 	(
@@ -64,8 +58,20 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[selector](node) {
-		const sourceCode = context.getSourceCode();
+	CallExpression(node) {
+		if (
+			!isMethodCall(node, {
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| node.callee.object.type === 'Literal'
+			|| node.callee.object.type === 'ArrayExpression'
+			|| node.callee.object.type === 'ObjectExpression'
+		) {
+			return;
+		}
+
+		const {sourceCode} = context;
 		const fix = fixDirectApplyCall(node, sourceCode) || fixFunctionPrototypeCall(node, sourceCode);
 		if (fix) {
 			return {

@@ -2,6 +2,11 @@ name: CI
 on:
   - push
   - pull_request
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
@@ -10,42 +15,51 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - 18
+          - 20
           - 16
-          - 14
         os:
           - ubuntu-latest
           - windows-latest
-        exclude:
+        include:
           - os: ubuntu-latest
-            node-version: 16
+            node-version: 18
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npx ava
   lint-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
+          node-version: 20
       - run: npm install
       - run: npm run lint
+      - run: npx del-cli test/snapshots --verbose
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx c8 ava --update-snapshots
         env:
           AVA_FORCE_CI: not-ci
       - run: git diff --exit-code
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
+          files: coverage/lcov.info
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
@@ -66,11 +80,12 @@ jobs:
           - "10"
           - "11"
           - "12"
+          - "13"
     env:
       TIMING: 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm install
       - run: npm run integration -- --group ${{ matrix.group }}

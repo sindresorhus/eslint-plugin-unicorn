@@ -1,18 +1,9 @@
 'use strict';
-const {findVariable} = require('eslint-utils');
+const {findVariable} = require('@eslint-community/eslint-utils');
+const {functionTypes} = require('./ast/index.js');
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
-
-const assignmentSelector = [
-	'ExpressionStatement',
-	'[expression.type="AssignmentExpression"]',
-].join('');
-
-const declarationSelector = [
-	'VariableDeclaration',
-	'[declarations.0.type="VariableDeclarator"]',
-].join('');
 
 const isDefaultExpression = (left, right) =>
 	left
@@ -81,7 +72,7 @@ const hasExtraReferences = (assignment, references, left) => {
 };
 
 const isLastParameter = (parameters, parameter) => {
-	const lastParameter = parameters[parameters.length - 1];
+	const lastParameter = parameters.at(-1);
 
 	// See 'default-param-last' rule
 	return parameter && parameter === lastParameter;
@@ -127,11 +118,11 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const sourceCode = context.getSourceCode();
+	const {sourceCode} = context;
 	const functionStack = [];
 
 	const checkExpression = (node, left, right, assignment) => {
-		const currentFunction = functionStack[functionStack.length - 1];
+		const currentFunction = functionStack.at(-1);
 
 		if (!currentFunction || !isDefaultExpression(left, right)) {
 			return;
@@ -148,7 +139,7 @@ const create = context => {
 			return;
 		}
 
-		const variable = findVariable(context.getScope(), secondId);
+		const variable = findVariable(sourceCode.getScope(node), secondId);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
@@ -189,24 +180,25 @@ const create = context => {
 		};
 	};
 
-	return {
-		':function'(node) {
-			functionStack.push(node);
-		},
-		':function:exit'() {
-			functionStack.pop();
-		},
-		[assignmentSelector](node) {
-			const {left, right} = node.expression;
+	context.on(functionTypes, node => {
+		functionStack.push(node);
+	});
 
-			return checkExpression(node, left, right, true);
-		},
-		[declarationSelector](node) {
-			const {id, init} = node.declarations[0];
+	context.onExit(functionTypes, () => {
+		functionStack.pop();
+	});
 
-			return checkExpression(node, id, init, false);
-		},
-	};
+	context.on('AssignmentExpression', node => {
+		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
+			return checkExpression(node.parent, node.left, node.right, true);
+		}
+	});
+
+	context.on('VariableDeclarator', node => {
+		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
+			return checkExpression(node.parent, node.id, node.init, false);
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

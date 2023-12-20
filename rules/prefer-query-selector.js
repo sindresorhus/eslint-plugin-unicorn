@@ -1,19 +1,11 @@
 'use strict';
-const {methodCallSelector, notDomNodeSelector} = require('./selectors/index.js');
-const {isStringLiteral, isNullLiteral} = require('./ast/index.js');
+const {isNodeValueNotDomNode} = require('./utils/index.js');
+const {isMethodCall, isStringLiteral, isNullLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.',
 };
-
-const selector = [
-	methodCallSelector({
-		methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
-		argumentsLength: 1,
-	}),
-	notDomNodeSelector('callee.object'),
-].join('');
 
 const disallowedIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
@@ -26,7 +18,7 @@ const getReplacementForClass = value => value.match(/\S+/g).map(className => `.$
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
-	const rightQuote = node.raw.charAt(node.raw.length - 1);
+	const rightQuote = node.raw.at(-1);
 	return `${leftQuote}${value}${rightQuote}`;
 };
 
@@ -96,7 +88,19 @@ const fix = (node, identifierName, preferredSelector) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
-	[selector](node) {
+	CallExpression(node) {
+		if (
+			!isMethodCall(node, {
+				methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| isNodeValueNotDomNode(node.callee.object)
+		) {
+			return;
+		}
+
 		const method = node.callee.property.name;
 		const preferredSelector = disallowedIdentifierNames.get(method);
 

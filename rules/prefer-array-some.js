@@ -1,10 +1,12 @@
 'use strict';
-const {methodCallSelector, matches, memberExpressionSelector} = require('./selectors/index.js');
 const {checkVueTemplate} = require('./utils/rule.js');
-const {isBooleanNode} = require('./utils/boolean.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {
+	isBooleanNode,
+	getParenthesizedRange,
+	isNodeValueNotFunction,
+} = require('./utils/index.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
-const {isLiteral, isUndefined} = require('./ast/index.js');
+const {isLiteral, isUndefined, isMethodCall, isMemberExpression} = require('./ast/index.js');
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -14,12 +16,6 @@ const messages = {
 	[SUGGESTION_ID_ARRAY_SOME]: 'Replace `.{{method}}(…)` with `.some(…)`.',
 	[ERROR_ID_ARRAY_FILTER]: 'Prefer `.some(…)` over non-zero length check from `.filter(…)`.',
 };
-
-const arrayFindOrFindLastCallSelector = methodCallSelector({
-	methods: ['find', 'findLast'],
-	minimumArguments: 1,
-	maximumArguments: 2,
-});
 
 const isCheckingUndefined = node =>
 	node.parent.type === 'BinaryExpression'
@@ -45,21 +41,19 @@ const isCheckingUndefined = node =>
 		)
 	);
 
-const arrayFilterCallSelector = [
-	'BinaryExpression',
-	'[right.type="Literal"]',
-	'[right.raw="0"]',
-	// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
-	matches(['[operator=">"]', '[operator="!=="]']),
-	' > ',
-	`${memberExpressionSelector('length')}.left`,
-	' > ',
-	`${methodCallSelector('filter')}.object`,
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	[arrayFindOrFindLastCallSelector](callExpression) {
+	CallExpression(callExpression) {
+		if (!isMethodCall(callExpression, {
+			methods: ['find', 'findLast'],
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
 		const isCompare = isCheckingUndefined(callExpression);
 		if (!isCompare && !isBooleanNode(callExpression)) {
 			return;
@@ -73,7 +67,6 @@ const create = context => ({
 			suggest: [
 				{
 					messageId: SUGGESTION_ID_ARRAY_SOME,
-					data: {method: methodNode.name},
 					* fix(fixer) {
 						yield fixer.replaceText(methodNode, 'some');
 
@@ -81,7 +74,7 @@ const create = context => ({
 							return;
 						}
 
-						const parenthesizedRange = getParenthesizedRange(callExpression, context.getSourceCode());
+						const parenthesizedRange = getParenthesizedRange(callExpression, context.sourceCode);
 						yield fixer.replaceTextRange([parenthesizedRange[1], callExpression.parent.range[1]], '');
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
@@ -94,7 +87,28 @@ const create = context => ({
 			],
 		};
 	},
-	[arrayFilterCallSelector](filterCall) {
+	BinaryExpression(binaryExpression) {
+		if (!(
+			// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
+			(binaryExpression.operator === '>' || binaryExpression.operator === '!==')
+			&& binaryExpression.right.type === 'Literal'
+			&& binaryExpression.right.raw === '0'
+			&& isMemberExpression(binaryExpression.left, {property: 'length', optional: false})
+			&& isMethodCall(binaryExpression.left.object, {
+				method: 'filter',
+				optionalCall: false,
+				optionalMember: false,
+			})
+		)) {
+			return;
+		}
+
+		const filterCall = binaryExpression.left.object;
+		const [firstArgument] = filterCall.arguments;
+		if (!firstArgument || isNodeValueNotFunction(firstArgument)) {
+			return;
+		}
+
 		const filterProperty = filterCall.callee.property;
 		return {
 			node: filterProperty,
@@ -103,8 +117,8 @@ const create = context => ({
 				// `.filter` to `.some`
 				yield fixer.replaceText(filterProperty, 'some');
 
-				const sourceCode = context.getSourceCode();
-				const lengthNode = filterCall.parent;
+				const {sourceCode} = context;
+				const lengthNode = binaryExpression.left;
 				/*
 					Remove `.length`
 					`(( (( array.filter() )).length )) > (( 0 ))`
@@ -112,7 +126,6 @@ const create = context => ({
 				*/
 				yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
 
-				const compareNode = lengthNode.parent;
 				/*
 					Remove `> 0`
 					`(( (( array.filter() )).length )) > (( 0 ))`
@@ -120,7 +133,7 @@ const create = context => ({
 				*/
 				yield fixer.removeRange([
 					getParenthesizedRange(lengthNode, sourceCode)[1],
-					compareNode.range[1],
+					binaryExpression.range[1],
 				]);
 
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
