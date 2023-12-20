@@ -231,7 +231,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## <a name="preset-config"></a>Preset configs (`eslint.config.js`)
+## <a id="preset-config"></a>Preset configs (`eslint.config.js`)
 
 See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
 
@@ -311,7 +311,7 @@ module.exports = [
 ];
 ```
 
-## <a name="preset-config-legacy"></a>Preset configs (`.eslintrc.*` or `package.json`)
+## <a id="preset-config-legacy"></a>Preset configs (`.eslintrc.*` or `package.json`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
