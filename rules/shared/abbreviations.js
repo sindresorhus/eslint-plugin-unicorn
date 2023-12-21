@@ -180,9 +180,9 @@ module.exports.defaultReplacements = {
 		request: true,
 	},
 	res: {
+		resource: true,
 		response: true,
 		result: true,
-		resource: true,
 	},
 	ret: {
 		returnValue: true,
