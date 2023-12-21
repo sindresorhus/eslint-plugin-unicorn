@@ -181,8 +181,8 @@ module.exports.defaultReplacements = {
 	},
 	res: {
 		response: true,
-		result: true,
 		resource: true,
+		result: true,
 	},
 	ret: {
 		returnValue: true,

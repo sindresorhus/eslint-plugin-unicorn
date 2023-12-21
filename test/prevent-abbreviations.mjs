@@ -271,7 +271,7 @@ const tests = {
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResponseDirection`, `errorResponseDirectory`, `errorResultDirection`, ... (5 more omitted). A more descriptive name will do too.'),
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.'),
 		},
 
 		// All suggested names should avoid capture
@@ -767,7 +767,7 @@ const tests = {
 		},
 		{
 			code: 'class Res {}',
-			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Response_`, `Result`. A more descriptive name will do too.'),
+			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Resource`, `Response_`, `Result`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'const Err = 1;',
@@ -787,7 +787,7 @@ const tests = {
 		{
 			code: '({Res: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `Res`. Suggested names are: `Response`, `Result`. A more descriptive name will do too.'),
+			errors: createErrors('Please rename the property `Res`. Suggested names are: `Resource`, `Response`, `Result`. A more descriptive name will do too.'),
 		},
 
 		{
