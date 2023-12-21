@@ -40,6 +40,14 @@ test.snapshot({
 });
 ```
 
+## Focus one rule
+
+We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus a rule tests, you can:
+
+```console
+npx ava test/rule-name.mjs
+```
+
 ## Focus one test case
 
 To focus a single test case, you can:
