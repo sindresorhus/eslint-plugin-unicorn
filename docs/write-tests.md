@@ -48,6 +48,12 @@ We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus a rule tests
 npx ava test/rule-name.mjs
 ```
 
+To update snapshots, run the command above with [`--update-snapshots` or `-u`](https://github.com/avajs/ava/blob/main/docs/05-command-line.md#cli).
+
+```console
+npx ava test/rule-name.mjs -u
+```
+
 ## Focus one test case
 
 To focus a single test case, you can:
