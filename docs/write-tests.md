@@ -100,11 +100,11 @@ test({
 		'valid.code',
 	],
 	invalid: [
-    {
-      code: 'invalid.code',
-      errors: [{ message: 'invalid.code is not allowed', column: 1, line: 1 }],
-      output: 'fixed.code',
-    }
+		{
+			code: 'invalid.code',
+			errors: [{ message: 'invalid.code is not allowed', column: 1, line: 1 }],
+			output: 'fixed.code',
+		}
 	]，
 });
 ```
