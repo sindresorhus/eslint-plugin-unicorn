@@ -2,7 +2,7 @@
 const path = require('node:path');
 const readPkgUp = require('read-pkg-up');
 const coreJsCompat = require('core-js-compat');
-const {camelCase} = require('lodash');
+const {camelCase} = require('./utils/lodash.js');
 const isStaticRequire = require('./ast/is-static-require.js');
 
 const {data: compatData, entries: coreJsEntries} = coreJsCompat;
