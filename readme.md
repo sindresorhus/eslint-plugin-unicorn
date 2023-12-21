@@ -244,7 +244,7 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.config['flat/recommended'],
+		eslintPluginUnicorn.configs['flat/recommended'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -261,7 +261,7 @@ const eslintPluginUnicorn = require('eslint-plugin-unicorn');
 
 module.exports = [
 		// …
-		eslintPluginUnicorn.config['flat/recommended'],
+		eslintPluginUnicorn.configs['flat/recommended'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -281,7 +281,7 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.config['flat/all'],
+		eslintPluginUnicorn.configs['flat/all'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -298,7 +298,7 @@ const eslintPluginUnicorn = require('eslint-plugin-unicorn');
 
 module.exports = [
 		// …
-		eslintPluginUnicorn.config['flat/all'],
+		eslintPluginUnicorn.configs['flat/all'],
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
