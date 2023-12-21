@@ -28,7 +28,7 @@ process.on('SIGINT', () => {
 ```
 
 ```js
-import workerThreads from 'worker_threads';
+import workerThreads from 'node:worker_threads';
 
 try {
 	// Do something…

@@ -182,6 +182,7 @@ module.exports.defaultReplacements = {
 	res: {
 		response: true,
 		result: true,
+		resource: true,
 	},
 	ret: {
 		returnValue: true,

@@ -17,19 +17,19 @@ This rule defines 4 import styles:
 ## Fail
 
 ```js
-const util = require('util');
+const util = require('node:util');
 
-import util from 'util';
+import util from 'node:util';
 
-import * as util from 'util';
+import * as util from 'node:util';
 ```
 
 ## Pass
 
 ```js
-const {promisify} = require('util');
+const {promisify} = require('node:util');
 
-import {promisify} from 'util';
+import {promisify} from 'node:util';
 ```
 
 ## Options
