@@ -32,8 +32,6 @@ import * as eslintrc from '@eslint/eslintrc';
 export default [
 	{
 		languageOptions: {
-			ecmaVersion: 'latest',
-			sourceType: 'module',
 			globals: eslintrc.Legacy.environments.get('es2024'),
 		},
 		plugins: {
@@ -58,8 +56,6 @@ const eslintrc = require('@eslint/eslintrc');
 module.exports = [
 	{
 		languageOptions: {
-			ecmaVersion: 'latest',
-			sourceType: 'module',
 			globals: eslintrc.Legacy.environments.get('es2024'),
 		},
 		plugins: {

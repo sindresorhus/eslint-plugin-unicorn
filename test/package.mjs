@@ -228,7 +228,12 @@ function getCompactConfig(config) {
 	for (const part of compat.config(config)) {
 		for (const [key, value] of Object.entries(part)) {
 			if (key === 'languageOptions') {
-				result[key] = {...result[key], ...value};
+				const languageOptions = {...result[key], ...value};
+				// ESLint uses same `ecmaVersion` and `sourceType` as we recommended in the new configuration system
+				// https://eslint.org/docs/latest/use/configure/configuration-files-new#configuration-objects
+				delete languageOptions.ecmaVersion;
+				delete languageOptions.sourceType;
+				result[key] = languageOptions;
 			} else if (key === 'plugins') {
 				result[key] = undefined;
 			} else {
