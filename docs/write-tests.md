@@ -1,8 +1,8 @@
 # Writing tests
 
-Tests are in `/test` directory.
+Tests are in the `/test` directory.
 
-A rule test file should code like following:
+A rule test file should look like this:
 
 ```js
 import {getTester} from './utils/test.mjs';
@@ -21,9 +21,9 @@ test.snapshot({
 
 ## `test.snapshot()`
 
-This runs [`SnapshotRuleTester`](../test/utils/snapshot-rule-tester.mjs) which auto generates the snapshot for test results including error messages, error locations, autofix result, suggestions. All you have to do is check the snapshot and make sure the results are expected before commit.
+This runs [`SnapshotRuleTester`](../test/utils/snapshot-rule-tester.mjs), which auto-generates the snapshot for test results, including error messages, error locations, autofix result, and suggestions. All you have to do is check the snapshot and make sure the results are expected before committing.
 
-This is recommended to use, since it's much easier to write tests.
+This is recommended to use, since it makes it much easier to write tests.
 
 ```js
 import {getTester} from './utils/test.mjs';
@@ -40,9 +40,9 @@ test.snapshot({
 });
 ```
 
-## Focus one rule
+## Focus on one rule
 
-We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus a rule tests, you can:
+We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus on a specific rule test, you can:
 
 ```console
 npx ava test/rule-name.mjs
@@ -54,9 +54,9 @@ To update snapshots, run the command above with [`--update-snapshots` or `-u`](h
 npx ava test/rule-name.mjs -u
 ```
 
-## Focus one test case
+## Focus on one test case
 
-To focus a single test case, you can:
+To focus on a single test case, you can:
 
 ```js
 test.snapshot({
@@ -84,11 +84,11 @@ test.snapshot({
 })
 ```
 
-**Please remove `test.only` and `only: true` before commit.**
+**Please remove `test.only` and `only: true` before committing.**
 
 ## `test()`
 
-This runs [`eslint-ava-rule-tester`](https://github.com/jfmengels/eslint-ava-rule-tester), example:
+This runs [`eslint-ava-rule-tester`](https://github.com/jfmengels/eslint-ava-rule-tester):
 
 ```js
 import {getTester} from './utils/test.mjs';
@@ -111,19 +111,19 @@ test({
 
 ## `test.babel()`
 
-This is same as `test()`, but use [`@babel/eslint-parser`](https://www.npmjs.com/package/@babel/eslint-parser) as parser.
+Same as `test()`, but uses [`@babel/eslint-parser`](https://www.npmjs.com/package/@babel/eslint-parser) as parser.
 
 ## `test.typescript()`
 
-This is same as `test()`, but use [`@typescript-eslint/parser`](https://www.npmjs.com/package/@typescript-eslint/parser) as parser.
+Same as `test()`, but uses [`@typescript-eslint/parser`](https://www.npmjs.com/package/@typescript-eslint/parser) as parser.
 
 ## `test.vue()`
 
-This is same as `test()`, but use [`vue-eslint-parser`](https://www.npmjs.com/package/vue-eslint-parser) as parser.
+Same as `test()`, but uses [`vue-eslint-parser`](https://www.npmjs.com/package/vue-eslint-parser) as parser.
 
 ## `testerOptions`
 
-`test` and `test.*()` accepts `testerOptions`, which can supply common parseOptions to all test cases.
+`test` and `test.*()` accepts `testerOptions`, which lets you specify common `parseOptions` to all test cases.
 
 ```js
 test.snapshot({
@@ -141,7 +141,7 @@ test.snapshot({
 
 ## `parsers`
 
-[`utils/test.mjs`](../test/utils/test.mjs) also expose a `parsers` object which can be use in `testerOptions` or `parser` for single test case.
+[`utils/test.mjs`](../test/utils/test.mjs) also exposes a `parsers` object, which can be used in `testerOptions` or `parser` for a single test case.
 
 ```js
 import {getTester, parsers} from './utils/test.mjs';
@@ -175,4 +175,4 @@ test.snapshot({
 
 Why use `parser: parsers.babel` instead of `parser: '@babel/eslint-parser'`?
 
-Use `parsers.babel` will make the `parserOptions` merge with useful default options, see [`parser.mjs`](../test/utils/parsers.mjs) for details.
+Using `parsers.babel` will make the `parserOptions` merge with useful default options. See [`parser.mjs`](../test/utils/parsers.mjs) for details.
