@@ -23,7 +23,7 @@ test.snapshot({
 
 This runs [`SnapshotRuleTester`](../test/utils/snapshot-rule-tester.mjs), which auto-generates the snapshot for test results, including error messages, error locations, autofix result, and suggestions. All you have to do is check the snapshot and make sure the results are expected before committing.
 
-This is recommended to use, since it makes it much easier to write tests.
+It's recommended to use this approach as it simplifies test writing.
 
 ```js
 import {getTester} from './utils/test.mjs';
