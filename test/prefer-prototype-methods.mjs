@@ -33,6 +33,9 @@ test.snapshot({
 		'foo.bar.bind(bar)',
 		'foo[{}].call(bar)',
 		'Object.hasOwn(bar)',
+		'const foo = [].push.notApply(bar, elements);',
+		'const push = [].push.notBind(foo)',
+		'[].forEach.notCall(foo, () => {})',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
