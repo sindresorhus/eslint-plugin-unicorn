@@ -30,7 +30,7 @@ function create(context) {
 				// `[].foo.{apply,bind,call}(…)`
 				// `({}).foo.{apply,bind,call}(…)`
 				isMethodCall(callExpression, {
-					names: ['apply', 'bind', 'call'],
+					methods: ['apply', 'bind', 'call'],
 					optionalCall: false,
 					optionalMember: false,
 				})
