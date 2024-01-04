@@ -59,7 +59,7 @@ const basicConfigs = [
 		},
 	},
 	{
-		files: ['*.ts', '*.mts', '*.cts', '*.tsx'],
+		files: ['**/*.ts', '**/*.mts', '**/*.cts', '**/*.tsx'],
 		languageOptions: {
 			parser: typescriptParser,
 			parserOptions: {
@@ -68,7 +68,7 @@ const basicConfigs = [
 		},
 	},
 	{
-		files: ['*.vue'],
+		files: ['**/*.vue'],
 		languageOptions: {
 			parser: vueParser,
 			parserOptions: {
