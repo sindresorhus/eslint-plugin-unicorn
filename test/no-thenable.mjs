@@ -13,6 +13,7 @@ test.snapshot({
 		'const foo = {[then]: 1}',
 		'const NOT_THEN = "no-then";const foo = {[NOT_THEN]: 1}',
 		'function foo({then}) {}',
+		'({[Symbol.prototype]: 1})',
 
 		// `class`
 		'class then {}',
@@ -35,6 +36,11 @@ test.snapshot({
 		'class Foo {static get #then() {}}',
 		'class Foo {static get [then]() {}}',
 		'class Foo {notThen = then}',
+		'class Foo {[Symbol.property]}',
+		'class Foo {static [Symbol.property]}',
+		'class Foo {get [Symbol.property]() {}}',
+		'class Foo {[Symbol.property]() {}}',
+		'class Foo {static get [Symbol.property]() {}}',
 
 		// Assign
 		'foo[then] = 1',
@@ -46,6 +52,7 @@ test.snapshot({
 		'delete foo.then',
 		'typeof foo.then',
 		'foo.then != 1',
+		'foo[Symbol.property] = 1',
 
 		// `Object.fromEntries`
 		'Object.fromEntries([then, 1])',
@@ -60,6 +67,7 @@ test.snapshot({
 		'Object.fromEntries([[..."then", 1]])',
 		'Object.fromEntries([["then", 1]], extraArgument)',
 		'Object.fromEntries(...[["then", 1]])',
+		'Object.fromEntries([[Symbol.property, 1]])',
 
 		// `{Object,Reflect}.defineProperty`
 		'Object.defineProperty(foo, then, 1)',
@@ -71,6 +79,8 @@ test.snapshot({
 		'Object.defineProperty(foo, "then", )',
 		'Object.defineProperty(...foo, "then", 1)',
 		'Object.defineProperty(foo, ...["then", 1])',
+		'Object.defineProperty(foo, Symbol.property, 1)',
+		'Reflect.defineProperty(foo, Symbol.property, 1)',
 
 		// `export`
 		'export {default} from "then"',
