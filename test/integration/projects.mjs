@@ -137,7 +137,10 @@ export default [
 			],
 		},
 		'https://github.com/mozilla/pdf.js',
-		'https://github.com/TheThingsNetwork/lorawan-stack',
+		{
+			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
+			babelPlugins: ['decorators'],
+		}
 		'https://github.com/zloirock/core-js',
 		{
 			repository: 'https://github.com/rollup/rollup',
@@ -200,7 +203,7 @@ export default [
 	{
 		repository: 'https://github.com/microsoft/typescript',
 		ignore: [
-			// These file use `'\033'`
+			// Cannot parse `'\033'`
 			'build/**',
 			'tests/**',
 		],
@@ -208,7 +211,7 @@ export default [
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
-			// This file use `'\033'`
+			// Cannot parse `'\033'`
 			'build/**',
 		],
 	},
