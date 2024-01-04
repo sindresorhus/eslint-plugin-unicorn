@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import {codeFrameColumns} from '@babel/code-frame';
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
