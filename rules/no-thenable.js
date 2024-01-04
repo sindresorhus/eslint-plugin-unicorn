@@ -13,6 +13,15 @@ const messages = {
 
 const isStringThen = (node, context) =>
 	getStaticValue(node, context.sourceCode.getScope(node))?.value === 'then';
+const isPropertyThen = (node, context) => {
+	// `getPropertyName` throws on `({[Symbol.prototype]: 0})`
+	// https://github.com/eslint-community/eslint-utils/pull/182
+	try {
+		return getPropertyName(node, context.sourceCode.getScope(node)) === 'then';
+	} catch {}
+
+	return false;
+};
 
 const cases = [
 	// `{then() {}}`,
@@ -23,10 +32,7 @@ const cases = [
 		selector: 'ObjectExpression',
 		* getNodes(node, context) {
 			for (const property of node.properties) {
-				if (
-					property.type === 'Property'
-					&& getPropertyName(property, context.sourceCode.getScope(property)) === 'then'
-				) {
+				if (property.type === 'Property' && isPropertyThen(property, context)) {
 					yield property.key;
 				}
 			}
