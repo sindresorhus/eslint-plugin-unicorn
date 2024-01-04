@@ -126,37 +126,43 @@ export default [
 		// #1075
 		'https://github.com/jaredLunde/masonic',
 	],
-	// 'https://github.com/eslint/eslint',
-	{
-		repository: 'https://github.com/angular/angular',
-		ignore: [
-			'aio/content/examples/animations/src/app/open-close.component.3.ts',
-			'aio/content/examples/router/src/app/app-routing.module.9.ts',
-			'aio/tools/transforms/templates/data-module.template.js',
-			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
-			'packages/compiler-cli/test/**',
-			'tools/**',
-			// TODO[@fisker]: Check why it can't be parsed
-			'packages/forms/src/validators.ts',
-		],
-	},
-	// OOM
-	// {
-	// 	repository: 'https://github.com/microsoft/typescript',
-	// 	ignore: [
-	// 		// These file use `'\033'`
-	// 		'build/**',
-	// 	],
-	// },
-	{
-		repository: 'https://github.com/microsoft/vscode',
-		ignore: [
-			// This file use `'\033'`
-			'build/**',
-		],
-	},
-	'https://github.com/element-plus/element-plus',
-	'https://github.com/tusen-ai/naive-ui',
+	[
+		{
+			repository: 'https://github.com/eslint/eslint',
+			ignore: [
+				'tests/fixtures',
+				'tests/performance',
+			],
+		},
+		'https://github.com/element-plus/element-plus',
+		'https://github.com/tusen-ai/naive-ui',
+		{
+			repository: 'https://github.com/chakra-ui/chakra-ui',
+			ignore: [
+				'scripts/create-package.js', // This file use `package` keyword as variable
+			],
+		},
+		'https://github.com/mozilla/pdf.js',
+		{
+			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
+			babelPlugins: ['decorators'],
+		},
+		'https://github.com/zloirock/core-js',
+		{
+			repository: 'https://github.com/rollup/rollup',
+			ignore: [
+				'test/**',
+				'scripts/perf.js',
+			],
+		},
+		{
+			repository: 'https://github.com/rust-lang/crates.io',
+			ignore: [],
+			babelPlugins: [
+				['decorators', {decoratorsBeforeExport: true}],
+			],
+		},
+	],
 	{
 		repository: 'https://github.com/gatsbyjs/gatsby',
 		ignore: [
@@ -173,13 +179,8 @@ export default [
 			'test/integration/**',
 		],
 	},
-	{
-		repository: 'https://github.com/chakra-ui/chakra-ui',
-		ignore: [
-			'scripts/create-package.js', // This file use `package` keyword as variable
-		],
-	},
-	'https://github.com/mozilla/pdf.js',
+	// #903
+	'https://github.com/mattermost/mattermost-webapp',
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
@@ -192,26 +193,32 @@ export default [
 			'scripts/cypress.js',
 		],
 	},
-	// #903
-	'https://github.com/mattermost/mattermost-webapp',
-	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
-	// 'https://github.com/untitled-labs/metabase-custom',
-	// 'https://github.com/TheThingsNetwork/lorawan-stack',
-	[
-		'https://github.com/zloirock/core-js',
-		{
-			repository: 'https://github.com/rollup/rollup',
-			ignore: [
-				'test/**',
-				'scripts/perf.js',
-			],
-		},
-	],
 	{
-		repository: 'https://github.com/rust-lang/crates.io',
-		ignore: [],
-		babelPlugins: [
-			['decorators', {decoratorsBeforeExport: true}],
+		repository: 'https://github.com/angular/angular',
+		ignore: [
+			'aio/content/examples/animations/src/app/open-close.component.3.ts',
+			'aio/content/examples/router/src/app/app-routing.module.9.ts',
+			'aio/tools/transforms/templates/data-module.template.js',
+			'aio/tools/transforms/authors-package/index.js', // This file use `package` keyword as variable
+			'packages/compiler-cli/test/**',
+			'tools/**',
+			// TODO[@fisker]: Check why it can't be parsed
+			'packages/forms/src/validators.ts',
+		],
+	},
+	{
+		repository: 'https://github.com/microsoft/typescript',
+		ignore: [
+			// Cannot parse `'\033'`
+			'build/**',
+			'tests/**',
+		],
+	},
+	{
+		repository: 'https://github.com/microsoft/vscode',
+		ignore: [
+			// Cannot parse `'\033'`
+			'build/**',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>

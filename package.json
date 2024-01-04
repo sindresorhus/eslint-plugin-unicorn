@@ -91,6 +91,7 @@
 		"npm-package-json-lint": "^7.1.0",
 		"npm-run-all2": "^6.1.1",
 		"outdent": "^0.8.0",
+		"pretty-ms": "^8.0.0",
 		"typescript": "^5.3.3",
 		"vue-eslint-parser": "^9.3.2",
 		"xo": "^0.56.0",
