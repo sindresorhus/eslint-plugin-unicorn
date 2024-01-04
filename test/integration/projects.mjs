@@ -158,16 +158,14 @@ export default [
 		// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 		// 'https://github.com/untitled-labs/metabase-custom',
 		// 'https://github.com/TheThingsNetwork/lorawan-stack',
-		[
-			'https://github.com/zloirock/core-js',
-			{
-				repository: 'https://github.com/rollup/rollup',
-				ignore: [
-					'test/**',
-					'scripts/perf.js',
-				],
-			},
-		],
+		'https://github.com/zloirock/core-js',
+		{
+			repository: 'https://github.com/rollup/rollup',
+			ignore: [
+				'test/**',
+				'scripts/perf.js',
+			],
+		},
 		{
 			repository: 'https://github.com/rust-lang/crates.io',
 			ignore: [],
