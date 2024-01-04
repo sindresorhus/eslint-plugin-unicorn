@@ -126,32 +126,56 @@ export default [
 		// #1075
 		'https://github.com/jaredLunde/masonic',
 	],
-	// 'https://github.com/eslint/eslint',
-	'https://github.com/element-plus/element-plus',
-	'https://github.com/tusen-ai/naive-ui',
-	{
-		repository: 'https://github.com/gatsbyjs/gatsby',
-		ignore: [
-			// These files use `flow`
-			'**/*.js',
-		],
-	},
-	{
-		repository: 'https://github.com/vercel/next.js',
-		ignore: [
-			'examples/**',
+	[
+		// 'https://github.com/eslint/eslint',
+		'https://github.com/element-plus/element-plus',
+		'https://github.com/tusen-ai/naive-ui',
+		{
+			repository: 'https://github.com/gatsbyjs/gatsby',
+			ignore: [
+				// These files use `flow`
+				'**/*.js',
+			],
+		},
+		{
+			repository: 'https://github.com/vercel/next.js',
+			ignore: [
+				'examples/**',
 
-			// These files use `>` in jsx
-			'test/integration/**',
+				// These files use `>` in jsx
+				'test/integration/**',
+			],
+		},
+		{
+			repository: 'https://github.com/chakra-ui/chakra-ui',
+			ignore: [
+				'scripts/create-package.js', // This file use `package` keyword as variable
+			],
+		},
+		'https://github.com/mozilla/pdf.js',
+		// #903
+		'https://github.com/mattermost/mattermost-webapp',
+		// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
+		// 'https://github.com/untitled-labs/metabase-custom',
+		// 'https://github.com/TheThingsNetwork/lorawan-stack',
+		[
+			'https://github.com/zloirock/core-js',
+			{
+				repository: 'https://github.com/rollup/rollup',
+				ignore: [
+					'test/**',
+					'scripts/perf.js',
+				],
+			},
 		],
-	},
-	{
-		repository: 'https://github.com/chakra-ui/chakra-ui',
-		ignore: [
-			'scripts/create-package.js', // This file use `package` keyword as variable
-		],
-	},
-	'https://github.com/mozilla/pdf.js',
+		{
+			repository: 'https://github.com/rust-lang/crates.io',
+			ignore: [],
+			babelPlugins: [
+				['decorators', {decoratorsBeforeExport: true}],
+			],
+		},
+	],
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
@@ -162,28 +186,6 @@ export default [
 
 			// Global return
 			'scripts/cypress.js',
-		],
-	},
-	// #903
-	'https://github.com/mattermost/mattermost-webapp',
-	// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
-	// 'https://github.com/untitled-labs/metabase-custom',
-	// 'https://github.com/TheThingsNetwork/lorawan-stack',
-	[
-		'https://github.com/zloirock/core-js',
-		{
-			repository: 'https://github.com/rollup/rollup',
-			ignore: [
-				'test/**',
-				'scripts/perf.js',
-			],
-		},
-	],
-	{
-		repository: 'https://github.com/rust-lang/crates.io',
-		ignore: [],
-		babelPlugins: [
-			['decorators', {decoratorsBeforeExport: true}],
 		],
 	},
 	{
