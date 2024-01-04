@@ -137,7 +137,6 @@ export default [
 			],
 		},
 		'https://github.com/mozilla/pdf.js',
-		'https://github.com/untitled-labs/metabase-custom',
 		'https://github.com/TheThingsNetwork/lorawan-stack',
 		'https://github.com/zloirock/core-js',
 		{
