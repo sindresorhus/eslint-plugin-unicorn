@@ -152,7 +152,7 @@ async function runEslint(project) {
 		- warning: ${chalk.gray(warningCount)}
 		- fixable error: ${chalk.gray(fixableErrorCount)}
 		- fixable warning: ${chalk.gray(fixableWarningCount)}
-		- duration: ${chalk.green(prettyMilliseconds(Number((process.hrtime.bigint() - startTime) / 1_000_000n)))}
+		- duration: ${chalk.gray(prettyMilliseconds(Number((process.hrtime.bigint() - startTime) / 1_000_000n)))}
 	`);
 }
 
