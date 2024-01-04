@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {codeFrameColumns} from '@babel/code-frame';
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
@@ -105,6 +107,8 @@ function getBabelParserConfig(project) {
 }
 
 async function runEslint(project) {
+	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
+
 	const eslint = new FlatESLint({
 		cwd: project.location,
 		overrideConfigFile: true,
@@ -115,6 +119,7 @@ async function runEslint(project) {
 		],
 		fix: true,
 		errorOnUnmatchedPattern: false,
+		ignorePath: fs.existsSync(eslintIgnoreFile) ? eslintIgnoreFile : undefined,
 	});
 
 	const results = await eslint.lintFiles(patterns);
