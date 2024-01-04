@@ -204,6 +204,8 @@ export default [
 		ignore: [
 			// These file use `'\033'`
 			'build/**',
+			// Invalid syntax https://github.com/typescript-eslint/typescript-eslint/issues/8182
+			'tests/cases/compiler/catchClauseWithInitializer1.ts',
 		],
 	},
 	{

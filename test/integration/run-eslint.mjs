@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import {codeFrameColumns} from '@babel/code-frame';
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
@@ -7,6 +8,7 @@ import {outdent} from 'outdent';
 import babelParser from '@babel/eslint-parser';
 import typescriptParser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
+import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
 
 const {FlatESLint} = eslintExperimentalApis;
@@ -124,6 +126,7 @@ async function runEslint(project) {
 		errorOnUnmatchedPattern: false,
 	});
 
+	const startTime = process.hrtime.bigint();
 	const results = await eslint.lintFiles(patterns);
 
 	const errors = results
@@ -149,6 +152,7 @@ async function runEslint(project) {
 		- warning: ${chalk.gray(warningCount)}
 		- fixable error: ${chalk.gray(fixableErrorCount)}
 		- fixable warning: ${chalk.gray(fixableWarningCount)}
+		- duration: ${chalk.green(prettyMilliseconds(Number((process.hrtime.bigint() - startTime) / 1000n)))}
 	`);
 }
 
