@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {codeFrameColumns} from '@babel/code-frame';
-// eslint-disable-next-line n/file-extension-in-import -- https://github.com/eslint-community/eslint-plugin-n/issues/50
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
 import {outdent} from 'outdent';
@@ -51,35 +50,8 @@ const sum = (collection, fieldName) =>
 	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
 
 const patterns = ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `**/*.${extension}`);
-const configs = [
-	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
-	{
-		plugins: {
-			unicorn: eslintPluginUnicorn,
-		},
-		rules: eslintPluginUnicorn.configs.all.rules,
-	},
-	{
-		languageOptions: {
-			sourceType: 'module',
-			parser: babelParser,
-			parserOptions: {
-				requireConfigFile: false,
-				babelOptions: {
-					babelrc: false,
-					configFile: false,
-					parserOpts: {
-						allowReturnOutsideFunction: true,
-						plugins: [
-							'jsx',
-							'exportDefaultFrom',
-							...project.babelPlugins,
-						],
-					},
-				},
-			},
-		},
-	},
+const basicConfigs = [
+	eslintPluginUnicorn.configs['flat/all'],
 	{
 		rules: {
 			// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
@@ -110,33 +82,44 @@ const configs = [
 	},
 ];
 
+function getBabelConfig(project) {
+	return {
+		languageOptions: {
+			sourceType: 'module',
+			parser: babelParser,
+			parserOptions: {
+				requireConfigFile: false,
+				babelOptions: {
+					babelrc: false,
+					configFile: false,
+					parserOpts: {
+						allowReturnOutsideFunction: true,
+						plugins: [
+							'jsx',
+							'exportDefaultFrom',
+							...project.babelPlugins,
+						],
+					},
+				},
+			},
+		},
+	};
+}
+
 async function runEslint(project) {
-	// TRY to use the this when ESLint fixes https://github.com/eslint/eslint/issues/16340
-	// const eslint = new FlatESLint({
-	// 	cwd: project.location,
-	// 	overrideConfigFile: true,
-	// 	overrideConfig: [
-	// 		...configs,
-	// 		{ignores: project.ignore},
-	// 	],
-	// 	fix: true,
-	// });
-
-	// const results = await eslint.lintFiles(patterns);
-
-	const patternPrefix = project.location.slice(process.cwd().length + 1).replaceAll('\\', '/') + '/';
-	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
-
 	const eslint = new FlatESLint({
+		cwd: project.location,
 		overrideConfigFile: true,
 		overrideConfig: [
-			...configs,
+			getBabelConfig(project),
+			...basicConfigs,
 			{ignores: project.ignore},
 		],
-		ignorePath: fs.existsSync(eslintIgnoreFile) ? eslintIgnoreFile : null,
 		fix: true,
+		errorOnUnmatchedPattern: false,
 	});
-	const results = await eslint.lintFiles(patterns.map(pattern => `${patternPrefix}${pattern}`));
+
+	const results = await eslint.lintFiles(patterns);
 
 	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
