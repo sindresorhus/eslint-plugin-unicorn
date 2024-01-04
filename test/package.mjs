@@ -2,9 +2,11 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import test from 'ava';
-import {ESLint} from 'eslint';
+import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import * as eslintrc from '@eslint/eslintrc';
 import eslintPluginUnicorn from '../index.js';
+
+const {FlatESLint} = eslintExperimentalApis;
 
 let ruleFiles;
 
@@ -76,13 +78,10 @@ test('Every rule is defined in index file in alphabetical order', t => {
 
 test('validate configuration', async t => {
 	const results = await Promise.all(
-		Object.entries(eslintPluginUnicorn.configs).filter(([name]) => !name.startsWith('flat/')).map(async ([name, config]) => {
-			const eslint = new ESLint({
+		Object.entries(eslintPluginUnicorn.configs).filter(([name]) => name.startsWith('flat/')).map(async ([name, config]) => {
+			const eslint = new FlatESLint({
 				baseConfig: config,
-				useEslintrc: false,
-				plugins: {
-					unicorn: eslintPluginUnicorn,
-				},
+				overrideConfigFile: true,
 			});
 
 			const result = await eslint.calculateConfigForFile('dummy.js');
@@ -97,68 +96,6 @@ test('validate configuration', async t => {
 			Object.keys(config.rules),
 			`Configuration for "${name}" is invalid.`,
 		);
-	}
-
-	// `env`
-	{
-		// https://github.com/eslint/eslint/blob/32ac37a76b2e009a8f106229bc7732671d358189/conf/globals.js#L19
-		const testObjects = [
-			'undefinedGlobalObject',
-			// `es3`
-			'Array',
-			// `es5`
-			'JSON',
-			// `es2015`(`es6`)
-			'Promise',
-			// `es2021`
-			'WeakRef',
-		];
-		const baseOptions = {
-			useEslintrc: false,
-			plugins: {
-				unicorn: eslintPluginUnicorn,
-			},
-			overrideConfig: {
-				rules: {
-					'no-undef': 'error',
-				},
-			},
-		};
-		const getUndefinedGlobals = async options => {
-			const [{messages}] = await new ESLint({...baseOptions, ...options}).lintText(testObjects.join(';\n'));
-			return messages.map(({message}) => message.match(/^'(?<object>.*)' is not defined\.$/).groups.object);
-		};
-
-		t.deepEqual(await getUndefinedGlobals(), ['undefinedGlobalObject', 'Promise', 'WeakRef']);
-		t.deepEqual(await getUndefinedGlobals({baseConfig: eslintPluginUnicorn.configs.recommended}), ['undefinedGlobalObject']);
-
-		const availableEnvironments = [...eslintrc.Legacy.environments.keys()].filter(name => /^es\d+$/.test(name));
-		const recommendedEnvironments = Object.keys(eslintPluginUnicorn.configs.recommended.env);
-		t.is(recommendedEnvironments.length, 1);
-		t.is(
-			availableEnvironments.at(-1),
-			recommendedEnvironments[0],
-			'env should be the latest es version',
-		);
-	}
-
-	// `sourceType`
-	{
-		const text = 'import fs from "node:fs";';
-		const baseOptions = {
-			useEslintrc: false,
-			plugins: {
-				unicorn: eslintPluginUnicorn,
-			},
-		};
-		const runEslint = async options => {
-			const [{messages}] = await new ESLint({...baseOptions, ...options}).lintText(text);
-			return messages;
-		};
-
-		const [{message}] = await runEslint();
-		t.is(message, 'Parsing error: The keyword \'import\' is reserved');
-		t.deepEqual(await runEslint({baseConfig: eslintPluginUnicorn.configs.recommended}), []);
 	}
 });
 
