@@ -201,14 +201,13 @@ export default [
 			'packages/forms/src/validators.ts',
 		],
 	},
-	// OOM
-	// {
-	// 	repository: 'https://github.com/microsoft/typescript',
-	// 	ignore: [
-	// 		// These file use `'\033'`
-	// 		'build/**',
-	// 	],
-	// },
+	{
+		repository: 'https://github.com/microsoft/typescript',
+		ignore: [
+			// These file use `'\033'`
+			'build/**',
+		],
+	},
 	{
 		repository: 'https://github.com/microsoft/vscode',
 		ignore: [
