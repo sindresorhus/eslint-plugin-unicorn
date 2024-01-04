@@ -131,6 +131,7 @@ export default [
 			repository: 'https://github.com/eslint/eslint',
 			ignore: [
 				'tests/fixtures',
+				'tests/performance',
 			],
 		},
 		'https://github.com/element-plus/element-plus',
