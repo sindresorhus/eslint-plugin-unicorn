@@ -19,6 +19,7 @@ const isPropertyThen = (node, context) => {
 	try {
 		return getPropertyName(node, context.sourceCode.getScope(node)) === 'then';
 	} catch {}
+
 	return false;
 };
 
