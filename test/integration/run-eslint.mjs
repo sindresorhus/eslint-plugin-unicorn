@@ -80,7 +80,7 @@ const basicConfigs = [
 	},
 ];
 
-function getBabelConfig(project) {
+function getBabelParserConfig(project) {
 	return {
 		languageOptions: {
 			sourceType: 'module',
@@ -109,7 +109,7 @@ async function runEslint(project) {
 		cwd: project.location,
 		overrideConfigFile: true,
 		overrideConfig: [
-			getBabelConfig(project),
+			getBabelParserConfig(project),
 			...basicConfigs,
 			{ignores: project.ignore},
 		],
