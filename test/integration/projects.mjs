@@ -140,7 +140,7 @@ export default [
 		{
 			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
 			babelPlugins: ['decorators'],
-		}
+		},
 		'https://github.com/zloirock/core-js',
 		{
 			repository: 'https://github.com/rollup/rollup',
