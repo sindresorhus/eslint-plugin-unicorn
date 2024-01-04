@@ -131,30 +131,12 @@ export default [
 		'https://github.com/element-plus/element-plus',
 		'https://github.com/tusen-ai/naive-ui',
 		{
-			repository: 'https://github.com/gatsbyjs/gatsby',
-			ignore: [
-				// These files use `flow`
-				'**/*.js',
-			],
-		},
-		{
-			repository: 'https://github.com/vercel/next.js',
-			ignore: [
-				'examples/**',
-
-				// These files use `>` in jsx
-				'test/integration/**',
-			],
-		},
-		{
 			repository: 'https://github.com/chakra-ui/chakra-ui',
 			ignore: [
 				'scripts/create-package.js', // This file use `package` keyword as variable
 			],
 		},
 		'https://github.com/mozilla/pdf.js',
-		// #903
-		'https://github.com/mattermost/mattermost-webapp',
 		// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
 		// 'https://github.com/untitled-labs/metabase-custom',
 		// 'https://github.com/TheThingsNetwork/lorawan-stack',
@@ -174,6 +156,24 @@ export default [
 			],
 		},
 	],
+	{
+		repository: 'https://github.com/gatsbyjs/gatsby',
+		ignore: [
+			// These files use `flow`
+			'**/*.js',
+		],
+	},
+	{
+		repository: 'https://github.com/vercel/next.js',
+		ignore: [
+			'examples/**',
+
+			// These files use `>` in jsx
+			'test/integration/**',
+		],
+	},
+	// #903
+	'https://github.com/mattermost/mattermost-webapp',
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
@@ -204,8 +204,7 @@ export default [
 		ignore: [
 			// These file use `'\033'`
 			'build/**',
-			// Invalid syntax https://github.com/typescript-eslint/typescript-eslint/issues/8182
-			'tests/cases/compiler/catchClauseWithInitializer1.ts',
+			'tests/**',
 		],
 	},
 	{
