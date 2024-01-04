@@ -137,9 +137,8 @@ export default [
 			],
 		},
 		'https://github.com/mozilla/pdf.js',
-		// These two project use `decorator`, try to enable when we use `@babel/eslint-parser`
-		// 'https://github.com/untitled-labs/metabase-custom',
-		// 'https://github.com/TheThingsNetwork/lorawan-stack',
+		'https://github.com/untitled-labs/metabase-custom',
+		'https://github.com/TheThingsNetwork/lorawan-stack',
 		'https://github.com/zloirock/core-js',
 		{
 			repository: 'https://github.com/rollup/rollup',
