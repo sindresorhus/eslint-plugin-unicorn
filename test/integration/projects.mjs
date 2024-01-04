@@ -127,7 +127,7 @@ export default [
 		'https://github.com/jaredLunde/masonic',
 	],
 	[
-		// 'https://github.com/eslint/eslint',
+		'https://github.com/eslint/eslint',
 		'https://github.com/element-plus/element-plus',
 		'https://github.com/tusen-ai/naive-ui',
 		{
