@@ -33,23 +33,31 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
-function normalizeParser(options) {
-	let {
-		parser,
-		parserOptions,
-	} = options;
+function normalizeLanguageOptions(testerOptionsOrTestCase) {
+	const {
+		languageOptions = {},
+	} = testerOptionsOrTestCase;
+
+	let {parser, parserOptions} = languageOptions;
 
 	if (parser) {
 		if (parser.mergeParserOptions) {
 			parserOptions = parser.mergeParserOptions(parserOptions);
 		}
 
-		if (parser.name) {
-			parser = parser.name;
+		if (parser.__todo_fix_this_parser) {
+			parser = parser.__todo_fix_this_parser;
 		}
 	}
 
-	return {...options, parser, parserOptions};
+	return {
+		...testerOptionsOrTestCase,
+		languageOptions: {
+			...languageOptions,
+			parser,
+			parserOptions,
+		}
+	};
 }
 
 // https://github.com/tc39/proposal-array-is-template-object
@@ -116,23 +124,24 @@ class Tester {
 			invalid,
 		} = tests;
 
-		testerOptions = normalizeParser(testerOptions);
-		valid = valid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
-		invalid = invalid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
+		testerOptions = normalizeLanguageOptions(testerOptions);
+		valid = valid.map(testCase => normalizeLanguageOptions(normalizeTestCase(testCase)));
+		invalid = invalid.map(testCase => normalizeLanguageOptions(normalizeTestCase(testCase)));
 
 		const tester = new SnapshotRuleTester(test, {
 			...testerOptions,
-			parserOptions: {
-				...defaultOptions.parserOptions,
-				...testerOptions.parserOptions,
-			},
-			env: {
-				...defaultOptions.env,
-				...testerOptions.env,
-			},
-			globals: {
-				...defaultOptions.globals,
-				...testerOptions.globals,
+			languageOptions: {
+				...defaultOptions.languageOptions,
+				...testerOptions.languageOptions,
+				parser: testerOptions.languageOptions.parser ?? defaultOptions.languageOptions.parser,
+				globals: {
+					...defaultOptions.globals,
+					...testerOptions.globals,
+				},
+				parserOptions: {
+					...defaultOptions.parserOptions,
+					...testerOptions.parserOptions,
+				},
 			},
 		});
 		return tester.run(this.ruleId, this.rule, {valid, invalid});
@@ -157,8 +166,8 @@ function getTester(importMeta) {
 					...tests,
 					testerOptions: {
 						...testerOptions,
-						parser,
-						parserOptions: mergeParserOptions(testerOptions.parserOptions),
+						parser: parserSettings.__todo_fix_this_parser,
+						languageOptions: mergeParserOptions(testerOptions.languageOptions),
 					},
 				});
 			},

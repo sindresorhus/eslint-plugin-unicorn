@@ -60,7 +60,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals', 'only'],
+				['code', 'options', 'filename', 'languageOptions', 'only'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -72,32 +72,36 @@ function normalizeTests(tests) {
 	return tests;
 }
 
-function getVerifyConfig(ruleId, testerConfig, testCase) {
+function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 	const {
-		options,
-		parserOptions,
-		parser = testerConfig.parser,
-		env,
-		globals,
+		languageOptions = {},
+		options = [],
 	} = testCase;
 
 	return {
 		...testerConfig,
-		parser,
-		parserOptions: {
-			...testerConfig.parserOptions,
-			...parserOptions,
-		},
-		env: {
-			...testerConfig.env,
-			...env,
-		},
-		globals: {
-			...testerConfig.globals,
-			...globals,
+		languageOptions: {
+			...testerConfig.languageOptions,
+			...languageOptions,
+			parser: languageOptions.parser ?? testerConfig.languageOptions.parser,
+			globals: {
+				...testerConfig.languageOptions.globals,
+				...languageOptions.globals,
+			},
+			parserOptions: {
+				...testerConfig.languageOptions.parserOptions,
+				...languageOptions.parserOptions,
+			},
 		},
 		rules: {
-			[ruleId]: ['error', ...(Array.isArray(options) ? options : [])],
+			[`unicorn/${ruleId}`]: ['error', ...options],
+		},
+		plugins: {
+			'unicorn': {
+				rules: {
+					[ruleId]: rule,
+				},
+			},
 		},
 	};
 }
@@ -140,22 +144,21 @@ function verify(linter, code, verifyConfig, {filename}) {
 }
 
 class SnapshotRuleTester {
-	constructor(test, config) {
+	constructor(test, testerConfig) {
 		this.test = test;
-		this.config = config;
+		this.testerConfig = testerConfig;
 	}
 
 	run(ruleId, rule, tests) {
-		const {test, config} = this;
+		const {test, testerConfig} = this;
 		const fixable = rule.meta && rule.meta.fixable;
 		const linter = new Linter();
-		linter.defineRule(ruleId, rule);
 
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename, only} = testCase;
-			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
+			const verifyConfig = getVerifyConfig(ruleId, testerConfig, testCase);
 			defineParser(linter, verifyConfig.parser);
 
 			(only ? test.only : test)(
@@ -169,8 +172,7 @@ class SnapshotRuleTester {
 
 		for (const [index, testCase] of invalid.entries()) {
 			const {code, options, filename, only} = testCase;
-			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
-			defineParser(linter, verifyConfig.parser);
+			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
 			(only ? test.only : test)(
