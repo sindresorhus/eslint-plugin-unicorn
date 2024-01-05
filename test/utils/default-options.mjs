@@ -1,14 +1,7 @@
-import eslintPluginUnicorn from '../../index.js';
-
-const {env, parserOptions} = eslintPluginUnicorn.configs.recommended;
-
 const defaultOptions = {
-	env: {
-		node: true,
-		browser: true,
-		...env,
+	languageOptions: {
+		sourceType: 'module',
 	},
-	parserOptions,
 };
 
 export default defaultOptions;

@@ -1,5 +1,7 @@
 import {createRequire} from 'node:module';
 import defaultOptions from './default-options.mjs';
+import babelEslintParser from '@babel/eslint-parser';
+import typescriptEslintParser from '@typescript-eslint/parser';
 
 const require = createRequire(import.meta.url);
 
@@ -38,6 +40,7 @@ const babel = {
 			},
 		};
 	},
+	__todo_fix_this_parser: babelEslintParser
 };
 
 const typescript = {
@@ -52,6 +55,7 @@ const typescript = {
 			...options,
 		};
 	},
+	__todo_fix_this_parser: typescriptEslintParser
 };
 
 const vue = {

@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 const require = createRequire(import.meta.url);
@@ -310,7 +310,9 @@ test({
 					message: 'Problem parsing /(/: \n\n/(/\n  ^\nUnexpected token: "/" at 1:2.',
 				},
 			],
-			parser: require.resolve('@typescript-eslint/parser'),
+			languageOptions: {
+				parser: parsers.typescript.__todo_fix_this_parser,
+			},
 		},
 
 		// Not fixable

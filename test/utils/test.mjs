@@ -85,17 +85,13 @@ class Tester {
 		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
 		const tester = new AvaRuleTester(test, {
 			...testerOptions,
-			parserOptions: {
-				...defaultOptions.parserOptions,
-				...testerOptions.parserOptions,
-			},
-			env: {
-				...defaultOptions.env,
-				...testerOptions.env,
-			},
-			globals: {
-				...defaultOptions.globals,
-				...testerOptions.globals,
+			languageOptions: {
+				...defaultOptions.languageOptions,
+				...testerOptions.languageOptions,
+				globals: {
+					...defaultOptions.globals,
+					...testerOptions.globals,
+				},
 			},
 		});
 
