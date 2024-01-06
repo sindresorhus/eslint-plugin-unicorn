@@ -7,7 +7,7 @@ const error = {
 	messageId: 'numeric-separators-style',
 };
 
-const legacyOctalLanguageOptions = {parserOptions: {ecmaVersion: 6, sourceType: 'script'}};
+const legacyOctalLanguageOptions = {ecmaVersion: 6, sourceType: 'script'};
 
 // Most of these test cases copied from:
 // https://github.com/eslint/eslint/blob/master/tests/lib/rules/camelcase.js
