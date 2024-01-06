@@ -1984,18 +1984,7 @@ test({
 		},
 		{
 			code: 'foo();',
-			/*
-			There should be a bug in `RuleTester`, if we use `/path/to/doc/__prev-Attr$1Err__.conf.js`,
-			There will be an error
-
-			```
-			No matching configuration found for /path/to/doc/__prev-Attr$1Err__.conf.js.
-			```
-
-			TODO[@fisker]: investigate the root cause
-			*/
-			// filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
-			filename: 'path/to/doc/__prev-Attr$1Err__.conf.js',
+			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
 			errors: createErrors('The filename `__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.'),
 		},
 		{
