@@ -1,6 +1,11 @@
-import eslintPluginUnicorn from '../../index.js';
+import {Legacy} from '@eslint/eslintrc';
 
-const DEFAULT_LANGUAGE_OPTIONS = eslintPluginUnicorn.configs['flat/recommended'].languageOptions;
+const DEFAULT_LANGUAGE_OPTIONS = {
+	globals: Object.fromEntries(
+		['builtin', 'es2024', 'node', 'browser']
+			.flatMap(environment => Object.entries(Legacy.environments.get(environment).globals))
+	),
+};
 
 function cleanLanguageOptions(languageOptions) {
 	if (!languageOptions.parser) {
