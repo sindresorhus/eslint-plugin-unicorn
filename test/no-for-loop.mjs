@@ -731,10 +731,8 @@ test({
 test(avoidTestTitleConflict({
 	testerOptions: {
 		languageOptions: {
-			parserOptions: {
-				sourceType: 'script',
-				ecmaVersion: 5,
-			},
+			sourceType: 'script',
+			ecmaVersion: 5,
 		},
 	},
 	valid: [
