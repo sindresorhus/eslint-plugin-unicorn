@@ -311,7 +311,7 @@ test({
 				},
 			],
 			languageOptions: {
-				parser: parsers.typescript.__todo_fix_this_parser,
+				parser: parsers.typescript,
 			},
 		},
 

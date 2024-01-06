@@ -2,6 +2,7 @@ import {createRequire} from 'node:module';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
+import {mergeLanguageOptions} from './language-options.mjs';
 
 const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
@@ -80,19 +81,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 
 	return {
 		...testerConfig,
-		languageOptions: {
-			...testerConfig.languageOptions,
-			...languageOptions,
-			parser: languageOptions.parser ?? testerConfig.languageOptions.parser,
-			globals: {
-				...testerConfig.languageOptions.globals,
-				...languageOptions.globals,
-			},
-			parserOptions: {
-				...testerConfig.languageOptions.parserOptions,
-				...languageOptions.parserOptions,
-			},
-		},
+		languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
 		rules: {
 			[`unicorn/${ruleId}`]: ['error', ...options],
 		},
@@ -158,7 +147,7 @@ class SnapshotRuleTester {
 
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename, only} = testCase;
-			const verifyConfig = getVerifyConfig(ruleId, testerConfig, testCase);
+			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 			defineParser(linter, verifyConfig.parser);
 
 			(only ? test.only : test)(

@@ -4,11 +4,19 @@ import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
 import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.mjs';
-import defaultOptions from './default-options.mjs';
 import parsers from './parsers.mjs';
+import {normalizeLanguageOptions} from './language-options.mjs';
 
-function normalizeTestCase(testCase) {
-	return typeof testCase === 'string' ? {code: testCase} : {...testCase};
+function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
+	if (typeof testCase === 'string') {
+		testCase = {code: testCase};
+	}
+
+	if (shouldNormalizeLanguageOptions && testCase.languageOptions) {
+		testCase = {...testCase, languageOptions: normalizeLanguageOptions(testCase.languageOptions)};
+	}
+
+	return testCase;
 }
 
 function normalizeInvalidTest(test, rule) {
@@ -33,33 +41,6 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
-function normalizeLanguageOptions(testerOptionsOrTestCase) {
-	const {
-		languageOptions = {},
-	} = testerOptionsOrTestCase;
-
-	let {parser, parserOptions} = languageOptions;
-
-	if (parser) {
-		if (parser.mergeParserOptions) {
-			parserOptions = parser.mergeParserOptions(parserOptions);
-		}
-
-		if (parser.__todo_fix_this_parser) {
-			parser = parser.__todo_fix_this_parser;
-		}
-	}
-
-	return {
-		...testerOptionsOrTestCase,
-		languageOptions: {
-			...languageOptions,
-			parser,
-			parserOptions,
-		}
-	};
-}
-
 // https://github.com/tc39/proposal-array-is-template-object
 const isTemplateObject = value => Array.isArray(value?.raw);
 // https://github.com/tc39/proposal-string-cooked
@@ -80,7 +61,7 @@ function only(...arguments_) {
 	only('code');
 	only({code: 'code'});
 	*/
-	return {...normalizeTestCase(arguments_[0]), only: true};
+	return {...normalizeTestCase(arguments_[0], /* shouldNormalizeLanguageOptions */ false), only: true};
 }
 
 class Tester {
@@ -90,19 +71,16 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
+		const {ruleId, rule} = this;
+
+		let {beforeAll, testerOptions = {}, valid, invalid} = tests;
+
+		valid = valid.map(testCase => normalizeTestCase(testCase));
+		invalid = invalid.map(testCase => normalizeInvalidTest(normalizeTestCase(testCase), rule));
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: {
-				...defaultOptions.languageOptions,
-				...testerOptions.languageOptions,
-				parser: testerOptions.languageOptions?.parser ?? defaultOptions.languageOptions.parser,
-				globals: {
-					...defaultOptions.globals,
-					...testerOptions.languageOptions?.globals,
-				},
-			},
+			languageOptions: normalizeLanguageOptions(testerOptions.languageOptions),
 		};
 
 		const tester = new AvaRuleTester(test, testConfig);
@@ -112,43 +90,26 @@ class Tester {
 		}
 
 		return tester.run(
-			this.ruleId,
-			this.rule,
-			{
-				valid,
-				invalid: invalid.map(test => normalizeInvalidTest(test, this.rule)),
-			},
+			ruleId,
+			rule,
+			{valid, invalid},
 		);
 	}
 
 	snapshot(tests) {
-		let {
-			testerOptions = {},
-			valid,
-			invalid,
-		} = tests;
+		let {beforeAll, testerOptions = {}, valid, invalid} = tests;
 
-		testerOptions = normalizeLanguageOptions(testerOptions);
-		valid = valid.map(testCase => normalizeLanguageOptions(normalizeTestCase(testCase)));
-		invalid = invalid.map(testCase => normalizeLanguageOptions(normalizeTestCase(testCase)));
+		valid = valid.map(testCase => normalizeTestCase(testCase));
+		invalid = invalid.map(testCase => normalizeTestCase(testCase));
 
-		const tester = new SnapshotRuleTester(test, {
+		const testConfig = {
 			...testerOptions,
-			languageOptions: {
-				...defaultOptions.languageOptions,
-				...testerOptions.languageOptions,
-				parser: testerOptions.languageOptions.parser ?? defaultOptions.languageOptions.parser,
-				globals: {
-					...defaultOptions.globals,
-					...testerOptions.languageOptions.globals,
-				},
-				parserOptions: {
-					...defaultOptions.parserOptions,
-					...testerOptions.parserOptions,
-				},
-			},
-		});
-		return tester.run(this.ruleId, this.rule, {valid, invalid});
+			languageOptions: normalizeLanguageOptions(testerOptions.languageOptions),
+		};
+
+		const tester = new SnapshotRuleTester(test, testConfig);
+		const {ruleId, rule} = this;
+		return tester.run(ruleId, rule, {valid, invalid});
 	}
 }
 
@@ -156,28 +117,22 @@ function getTester(importMeta) {
 	const filename = url.fileURLToPath(importMeta.url);
 	const ruleId = path.basename(filename, '.mjs');
 	const tester = new Tester(ruleId);
+
 	const runTest = Tester.prototype.runTest.bind(tester);
 	runTest.snapshot = Tester.prototype.snapshot.bind(tester);
 	runTest.only = only;
 
-	for (const [parserName, parserSettings] of Object.entries(parsers)) {
-		Reflect.defineProperty(runTest, parserName, {
+	for (const parser of Object.values(parsers)) {
+		Reflect.defineProperty(runTest, parser.name, {
 			value(tests) {
-				const testerOptions = tests.testerOptions || {};
-				const {parser, mergeParserOptions} = parserSettings;
-
 				return runTest({
 					...tests,
 					testerOptions: {
-						...testerOptions,
+						...tests.testerOptions,
 						languageOptions: {
-							parserOptions: mergeParserOptions(testerOptions.languageOptions?.parserOptions),
-							globals: {
-								...defaultOptions.globals,
-								...testerOptions.languageOptions?.globals,
-							},
-							parser: parserSettings.__todo_fix_this_parser,
-						},
+							...tests.testerOptions?.languageOptions,
+							parser,
+						}
 					},
 				});
 			},
@@ -192,7 +147,7 @@ function getTester(importMeta) {
 }
 
 const addComment = (testCase, comment) => {
-	testCase = normalizeTestCase(testCase);
+	testCase = normalizeTestCase(testCase, /* shouldNormalizeLanguageOptions */ false);
 	const {code, output} = testCase;
 	const fixedTest = {
 		...testCase,
