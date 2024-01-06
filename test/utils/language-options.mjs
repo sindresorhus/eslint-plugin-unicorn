@@ -35,7 +35,7 @@ function mergeLanguageOptions(languageOptionsA, languageOptionsB) {
 	languageOptionsA ??= {};
 	languageOptionsB ??= {};
 
-	return cleanLanguageOptions({
+	return normalizeLanguageOptions({
 		...languageOptionsA,
 		...languageOptionsB,
 		parser: languageOptionsB.parser ?? languageOptionsA.parser,

@@ -80,10 +80,7 @@ class Tester {
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: mergeLanguageOptions(
-				DEFAULT_LANGUAGE_OPTIONS,
-				normalizeLanguageOptions(testerOptions.languageOptions),
-			),
+			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
 		const tester = new AvaRuleTester(test, testConfig);
@@ -107,10 +104,7 @@ class Tester {
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: mergeLanguageOptions(
-				DEFAULT_LANGUAGE_OPTIONS,
-				normalizeLanguageOptions(testerOptions.languageOptions),
-			),
+			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
 		const tester = new SnapshotRuleTester(test, testConfig);
