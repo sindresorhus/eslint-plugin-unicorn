@@ -5,7 +5,7 @@ import AvaRuleTester from 'eslint-ava-rule-tester';
 import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.mjs';
 import parsers from './parsers.mjs';
-import {normalizeLanguageOptions} from './language-options.mjs';
+import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.mjs';
 
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {
@@ -80,7 +80,10 @@ class Tester {
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: normalizeLanguageOptions(testerOptions.languageOptions),
+			languageOptions: mergeLanguageOptions(
+				DEFAULT_LANGUAGE_OPTIONS,
+				normalizeLanguageOptions(testerOptions.languageOptions),
+			),
 		};
 
 		const tester = new AvaRuleTester(test, testConfig);
@@ -104,7 +107,10 @@ class Tester {
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: normalizeLanguageOptions(testerOptions.languageOptions),
+			languageOptions: mergeLanguageOptions(
+				DEFAULT_LANGUAGE_OPTIONS,
+				normalizeLanguageOptions(testerOptions.languageOptions),
+			),
 		};
 
 		const tester = new SnapshotRuleTester(test, testConfig);

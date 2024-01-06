@@ -1,4 +1,3 @@
-import defaultOptions from './default-options.mjs';
 import babelEslintParser from '@babel/eslint-parser';
 import typescriptEslintParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
@@ -20,9 +19,7 @@ const babelParser = {
 		];
 
 		return {
-			...defaultOptions.parserOptions,
 			requireConfigFile: false,
-			sourceType: 'module',
 			allowImportExportEverywhere: true,
 			...options,
 			babelOptions: {
@@ -43,7 +40,6 @@ const typescriptParser = {
 	implementation: typescriptEslintParser,
 	mergeParserOptions(options) {
 		return {
-			...defaultOptions.parserOptions,
 			project: [],
 			...options,
 		};
@@ -53,12 +49,6 @@ const typescriptParser = {
 const vueParser = {
 	name: 'vue',
 	implementation: vueEslintParser,
-	mergeParserOptions(options) {
-		return {
-			...defaultOptions.parserOptions,
-			...options,
-		};
-	},
 };
 
 const parsers = Object.fromEntries(

@@ -1,3 +1,7 @@
+import eslintPluginUnicorn from '../../index.js';
+
+const DEFAULT_LANGUAGE_OPTIONS = eslintPluginUnicorn.configs['flat/recommended'].languageOptions;
+
 function cleanLanguageOptions(languageOptions) {
 	if (!languageOptions.parser) {
 		delete languageOptions.parser;
@@ -46,4 +50,4 @@ function mergeLanguageOptions(languageOptionsA, languageOptionsB) {
 	});
 }
 
-export {normalizeLanguageOptions, mergeLanguageOptions}
+export {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions};

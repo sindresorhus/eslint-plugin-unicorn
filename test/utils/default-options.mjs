@@ -1,7 +1,5 @@
+import eslintPluginUnicorn from '../../index.js';
 
-import * as espree from 'espree';
-
-// TODO: Use espree
 const defaultOptions = {
 	languageOptions: {
 		sourceType: 'module',
