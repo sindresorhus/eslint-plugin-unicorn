@@ -1,4 +1,3 @@
-
 function cleanLanguageOptions(languageOptions) {
 	if (!languageOptions.parser) {
 		delete languageOptions.parser;

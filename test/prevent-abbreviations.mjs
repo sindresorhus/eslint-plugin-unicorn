@@ -1313,10 +1313,8 @@ test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 test({
 	testerOptions: {
 		languageOptions: {
-			parserOptions: {
-				sourceType: 'script',
-				ecmaVersion: 5,
-			},
+			sourceType: 'script',
+			ecmaVersion: 5,
 			globals: {
 				document: 'readonly',
 				event: 'readonly',
