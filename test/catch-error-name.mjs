@@ -900,12 +900,14 @@ test.typescript({
 
 test.babel({
 	testerOptions: {
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						['decorators', {decoratorsBeforeExport: true}],
-					],
+		languageOptions: {
+			parserOptions: {
+				babelOptions: {
+					parserOpts: {
+						plugins: [
+							['decorators', {decoratorsBeforeExport: true}],
+						],
+					},
 				},
 			},
 		},

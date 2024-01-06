@@ -91,17 +91,21 @@ class Tester {
 
 	runTest(tests) {
 		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
-		const tester = new AvaRuleTester(test, {
+
+		const testConfig = {
 			...testerOptions,
 			languageOptions: {
 				...defaultOptions.languageOptions,
 				...testerOptions.languageOptions,
+				parser: testerOptions.languageOptions?.parser ?? defaultOptions.languageOptions.parser,
 				globals: {
 					...defaultOptions.globals,
 					...testerOptions.globals,
 				},
 			},
-		});
+		};
+
+		const tester = new AvaRuleTester(test, testConfig);
 
 		if (beforeAll) {
 			beforeAll(tester);
@@ -166,8 +170,10 @@ function getTester(importMeta) {
 					...tests,
 					testerOptions: {
 						...testerOptions,
-						parser: parserSettings.__todo_fix_this_parser,
-						languageOptions: mergeParserOptions(testerOptions.languageOptions),
+						languageOptions: {
+							parserOptions: mergeParserOptions(testerOptions.languageOptions?.parserOptions),
+							parser: parserSettings.__todo_fix_this_parser,
+						},
 					},
 				});
 			},
