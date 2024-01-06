@@ -100,7 +100,7 @@ class Tester {
 				parser: testerOptions.languageOptions?.parser ?? defaultOptions.languageOptions.parser,
 				globals: {
 					...defaultOptions.globals,
-					...testerOptions.globals,
+					...testerOptions.languageOptions?.globals,
 				},
 			},
 		};
@@ -140,7 +140,7 @@ class Tester {
 				parser: testerOptions.languageOptions.parser ?? defaultOptions.languageOptions.parser,
 				globals: {
 					...defaultOptions.globals,
-					...testerOptions.globals,
+					...testerOptions.languageOptions.globals,
 				},
 				parserOptions: {
 					...defaultOptions.parserOptions,
@@ -172,6 +172,10 @@ function getTester(importMeta) {
 						...testerOptions,
 						languageOptions: {
 							parserOptions: mergeParserOptions(testerOptions.languageOptions?.parserOptions),
+							globals: {
+								...defaultOptions.globals,
+								...testerOptions.languageOptions?.globals,
+							},
 							parser: parserSettings.__todo_fix_this_parser,
 						},
 					},

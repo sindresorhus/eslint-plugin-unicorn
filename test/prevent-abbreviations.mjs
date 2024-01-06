@@ -105,6 +105,15 @@ const noExtendDefaultAllowListOptions = [
 ];
 
 const tests = {
+	testerOptions: {
+		languageOptions: {
+			globals: {
+				document: 'readonly',
+				event: 'readonly',
+				Response: 'readonly',
+			},
+		},
+	},
 	valid: [
 		'let x',
 		'({x: 1})',
@@ -1303,12 +1312,15 @@ test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
 test({
 	testerOptions: {
-		parserOptions: {
-			sourceType: 'script',
-			ecmaVersion: 5,
-		},
-		env: {
-			browser: true,
+		languageOptions: {
+			parserOptions: {
+				sourceType: 'script',
+				ecmaVersion: 5,
+			},
+			globals: {
+				document: 'readonly',
+				event: 'readonly',
+			},
 		},
 	},
 	valid: [],
@@ -1785,6 +1797,15 @@ test.babel({
 });
 
 test.typescript({
+	testerOptions: {
+		languageOptions: {
+			globals: {
+				document: 'readonly',
+				event: 'readonly',
+				Response: 'readonly',
+			},
+		},
+	},
 	valid: [],
 	invalid: [
 		// Types
@@ -1894,9 +1915,11 @@ test.typescript({
 // JSX
 test.typescript({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},
@@ -1963,7 +1986,18 @@ test({
 		},
 		{
 			code: 'foo();',
-			filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			/*
+			There should be a bug in `RuleTester`, if we use `/path/to/doc/__prev-Attr$1Err__.conf.js`,
+			There will be an error
+
+			```
+			No matching configuration found for /path/to/doc/__prev-Attr$1Err__.conf.js.
+			```
+
+			TODO[@fisker]: investigate the root cause
+			*/
+			// filename: '/path/to/doc/__prev-Attr$1Err__.conf.js',
+			filename: 'path/to/doc/__prev-Attr$1Err__.conf.js',
 			errors: createErrors('The filename `__prev-Attr$1Err__.conf.js` should be named `__previous-Attribute$1Error__.config.js`. A more descriptive name will do too.'),
 		},
 		{
