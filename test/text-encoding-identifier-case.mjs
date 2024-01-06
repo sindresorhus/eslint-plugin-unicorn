@@ -39,9 +39,11 @@ test.snapshot({
 // JSX
 test.snapshot({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},
