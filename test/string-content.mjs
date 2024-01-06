@@ -46,11 +46,13 @@ const createSuggestionError = (match, suggest, output) => [
 
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
-		},
+		}
 	},
 	valid: [
 		'const foo = "";',
