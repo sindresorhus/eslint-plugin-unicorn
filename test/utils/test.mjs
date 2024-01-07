@@ -1,7 +1,7 @@
 import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
-import avaRuleTester from 'eslint-ava-rule-tester';
+import AvaRuleTester from 'eslint-ava-rule-tester/index.js';
 import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.mjs';
 import defaultOptions from './default-options.mjs';
@@ -83,7 +83,7 @@ class Tester {
 
 	runTest(tests) {
 		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
-		const tester = avaRuleTester(test, {
+		const tester = new AvaRuleTester(test, {
 			...testerOptions,
 			parserOptions: {
 				...defaultOptions.parserOptions,
