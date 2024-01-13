@@ -21,7 +21,7 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 	They are [not available in JavaScript modules](https://nodejs.org/api/esm.html#esm_no_filename_or_dirname).
 
-	Starting with Node 20.11, `import.meta.dirname` and `import.meta.filename` have been introduced in ES modules, providing identical functionality to __dirname and __filename in CommonJS (CJS).
+	Starting with Node 20.11, `import.meta.dirname` and `import.meta.filename` have been introduced in ES modules, providing identical functionality to `__dirname` and `__filename` in CommonJS (CJS).
 
 	For most cases in Node 20.11 and later:
 
