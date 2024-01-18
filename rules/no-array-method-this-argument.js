@@ -152,27 +152,25 @@ const create = context => {
 	// Prototype methods
 	context.on('CallExpression', callExpression => {
 		if (
-			!(
-				isMethodCall(callExpression, {
-					methods: [
-						'every',
-						'filter',
-						'find',
-						'findLast',
-						'findIndex',
-						'findLastIndex',
-						'flatMap',
-						'forEach',
-						'map',
-						'some',
-					],
-					argumentsLength: 2,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& !isNodeMatches(callExpression.callee, ignored)
-				&& !isNodeValueNotFunction(callExpression.arguments[0])
-			)
+			!isMethodCall(callExpression, {
+				methods: [
+					'every',
+					'filter',
+					'find',
+					'findLast',
+					'findIndex',
+					'findLastIndex',
+					'flatMap',
+					'forEach',
+					'map',
+					'some',
+				],
+				argumentsLength: 2,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| isNodeMatches(callExpression.callee, ignored)
+			|| isNodeValueNotFunction(callExpression.arguments[0])
 		) {
 			return;
 		}
@@ -189,16 +187,14 @@ const create = context => {
 	// `Array.from`
 	context.on('CallExpression', callExpression => {
 		if (
-			!(
-				isMethodCall(callExpression, {
-					object: 'Array',
-					method: 'from',
-					argumentsLength: 3,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& !isNodeValueNotFunction(callExpression.arguments[1])
-			)
+			!isMethodCall(callExpression, {
+				object: 'Array',
+				method: 'from',
+				argumentsLength: 3,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| isNodeValueNotFunction(callExpression.arguments[1])
 		) {
 			return;
 		}
