@@ -7,11 +7,13 @@ const {isNodeMatches} = require('./utils/is-node-matches.js');
 const {isNodeValueNotFunction} = require('./utils/index.js');
 const {isMethodCall} = require('./ast/index.js');
 
-const ERROR = 'error';
+const ERROR_PROTOTYPE_METHOD = 'error-prototype-method';
+const ERROR_STATIC_METHOD = 'error-static-method';
 const SUGGESTION_BIND = 'suggestion-bind';
 const SUGGESTION_REMOVE = 'suggestion-remove';
 const messages = {
-	[ERROR]: 'Do not use the `this` argument in `Array#{{method}}()`.',
+	[ERROR_PROTOTYPE_METHOD]: 'Do not use the `this` argument in `Array#{{method}}()`.',
+	[ERROR_STATIC_METHOD]: 'Do not use the `this` argument in `Array.from()`.',
 	[SUGGESTION_REMOVE]: 'Remove the second argument.',
 	[SUGGESTION_BIND]: 'Use a bound function.',
 };
@@ -99,14 +101,63 @@ function useBoundFunction(callExpression, sourceCode) {
 	};
 }
 
+function getProblem({
+	sourceCode,
+	callExpression,
+	callbackNode,
+	thisArgumentNode,
+	messageId,
+}) {
+	const {callee} = callExpression;
+	const method = callee.property.name;
+
+	const problem = {
+		node: thisArgumentNode,
+		messageId,
+		data: {method},
+	};
+
+	const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
+	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
+
+	if (isArrowCallback) {
+		if (thisArgumentHasSideEffect) {
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_REMOVE,
+					fix: removeThisArgument(callExpression, sourceCode),
+				},
+			];
+		} else {
+			problem.fix = removeThisArgument(callExpression, sourceCode);
+		}
+
+		return problem;
+	}
+
+	problem.suggest = [
+		{
+			messageId: SUGGESTION_REMOVE,
+			fix: removeThisArgument(callExpression, sourceCode),
+		},
+		{
+			messageId: SUGGESTION_BIND,
+			fix: useBoundFunction(callExpression, sourceCode),
+		},
+	];
+
+	return problem;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		CallExpression(callExpression) {
-			if (
-				!isMethodCall(callExpression, {
+	// Prototype methods
+	context.on('CallExpression', (callExpression) => {
+		if (
+			!(
+				isMethodCall(callExpression, {
 					methods: [
 						'every',
 						'filter',
@@ -123,54 +174,39 @@ const create = context => {
 					optionalCall: false,
 					optionalMember: false,
 				})
-				|| isNodeMatches(callExpression.callee, ignored)
-				|| isNodeValueNotFunction(callExpression.arguments[0])
-			) {
-				return;
-			}
+				&& !isNodeMatches(callExpression.callee, ignored)
+				&& !isNodeValueNotFunction(callExpression.arguments[0])
+			)
+		) {
+			return;
+		}
 
-			const {callee} = callExpression;
-			const method = callee.property.name;
-			const [callback, thisArgument] = callExpression.arguments;
+		return getProblem({
+			sourceCode,
+			callExpression,
+			callbackNode: callExpression.arguments[0],
+			thisArgumentNode: callExpression.arguments[1],
+			messageId: ERROR_PROTOTYPE_METHOD,
+		});
+	});
 
-			const problem = {
-				node: thisArgument,
-				messageId: ERROR,
-				data: {method},
-			};
-
-			const thisArgumentHasSideEffect = hasSideEffect(thisArgument, sourceCode);
-			const isArrowCallback = callback.type === 'ArrowFunctionExpression';
-
-			if (isArrowCallback) {
-				if (thisArgumentHasSideEffect) {
-					problem.suggest = [
-						{
-							messageId: SUGGESTION_REMOVE,
-							fix: removeThisArgument(callExpression, sourceCode),
-						},
-					];
-				} else {
-					problem.fix = removeThisArgument(callExpression, sourceCode);
-				}
-
-				return problem;
-			}
-
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(callExpression, sourceCode),
-				},
-				{
-					messageId: SUGGESTION_BIND,
-					fix: useBoundFunction(callExpression, sourceCode),
-				},
-			];
-
-			return problem;
-		},
-	};
+	// `Array.from`
+	context.on('CallExpression', callExpression => {
+		if (
+			!(
+				isMethodCall(callExpression, {
+					object: 'Array',
+					method: 'from',
+					argumentsLength: 3,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& !isNodeValueNotFunction(callExpression.arguments[0])
+			)
+		) {
+			return;
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
