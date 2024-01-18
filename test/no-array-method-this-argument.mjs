@@ -27,7 +27,7 @@ test.snapshot({
 		'Array.from(iterableOrArrayLike, () => {}, ...thisArgument)',
 		'Array.from(iterableOrArrayLike, ...() => {}, thisArgument)',
 		'Array.from(...iterableOrArrayLike, () => {}, thisArgument)',
-		'Array.from(iterableOrArrayLike, () => {}, thisArgument，extraArgument)',
+		'Array.from(iterableOrArrayLike, () => {}, thisArgument, extraArgument)',
 
 		// Ignored
 		'lodash.every(array, () => {})',

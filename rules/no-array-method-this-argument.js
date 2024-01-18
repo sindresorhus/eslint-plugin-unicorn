@@ -13,7 +13,7 @@ const SUGGESTION_BIND = 'suggestion-bind';
 const SUGGESTION_REMOVE = 'suggestion-remove';
 const messages = {
 	[ERROR_PROTOTYPE_METHOD]: 'Do not use the `this` argument in `Array#{{method}}()`.',
-	[ERROR_STATIC_METHOD]: 'Do not use the `this` argument in `Array.from()`.',
+	[ERROR_STATIC_METHOD]: 'Do not use the `this` argument in `Array.{{method}}()`.',
 	[SUGGESTION_REMOVE]: 'Remove the second argument.',
 	[SUGGESTION_BIND]: 'Use a bound function.',
 };
@@ -72,30 +72,28 @@ const ignored = [
 	'underscore.some',
 ];
 
-function removeThisArgument(callExpression, sourceCode) {
-	return fixer => removeArgument(fixer, callExpression.arguments[1], sourceCode);
+function removeThisArgument(thisArgumentNode, sourceCode) {
+	return fixer => removeArgument(fixer, thisArgumentNode, sourceCode);
 }
 
-function useBoundFunction(callExpression, sourceCode) {
+function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
 	return function * (fixer) {
-		yield removeThisArgument(callExpression, sourceCode)(fixer);
+		yield removeThisArgument(thisArgumentNode, sourceCode)(fixer);
 
-		const [callback, thisArgument] = callExpression.arguments;
-
-		const callbackParentheses = getParentheses(callback, sourceCode);
+		const callbackParentheses = getParentheses(callbackNode, sourceCode);
 		const isParenthesized = callbackParentheses.length > 0;
 		const callbackLastToken = isParenthesized
 			? callbackParentheses.at(-1)
-			: callback;
+			: callbackNode;
 		if (
 			!isParenthesized
-			&& shouldAddParenthesesToMemberExpressionObject(callback, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(callbackNode, sourceCode)
 		) {
 			yield fixer.insertTextBefore(callbackLastToken, '(');
 			yield fixer.insertTextAfter(callbackLastToken, ')');
 		}
 
-		const thisArgumentText = getParenthesizedText(thisArgument, sourceCode);
+		const thisArgumentText = getParenthesizedText(thisArgumentNode, sourceCode);
 		// `thisArgument` was a argument, no need add extra parentheses
 		yield fixer.insertTextAfter(callbackLastToken, `.bind(${thisArgumentText})`);
 	};
@@ -108,28 +106,26 @@ function getProblem({
 	thisArgumentNode,
 	messageId,
 }) {
-	const {callee} = callExpression;
-	const method = callee.property.name;
-
 	const problem = {
 		node: thisArgumentNode,
 		messageId,
-		data: {method},
+		data: {
+			method: callExpression.callee.property.name,
+		},
 	};
 
-	const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
-
 	if (isArrowCallback) {
+		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
 		if (thisArgumentHasSideEffect) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(callExpression, sourceCode),
+					fix: removeThisArgument(thisArgumentNode, sourceCode),
 				},
 			];
 		} else {
-			problem.fix = removeThisArgument(callExpression, sourceCode);
+			problem.fix = removeThisArgument(thisArgumentNode, sourceCode);
 		}
 
 		return problem;
@@ -138,11 +134,11 @@ function getProblem({
 	problem.suggest = [
 		{
 			messageId: SUGGESTION_REMOVE,
-			fix: removeThisArgument(callExpression, sourceCode),
+			fix: removeThisArgument(thisArgumentNode, sourceCode),
 		},
 		{
 			messageId: SUGGESTION_BIND,
-			fix: useBoundFunction(callExpression, sourceCode),
+			fix: useBoundFunction(callbackNode, thisArgumentNode, sourceCode),
 		},
 	];
 
@@ -154,7 +150,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	// Prototype methods
-	context.on('CallExpression', (callExpression) => {
+	context.on('CallExpression', callExpression => {
 		if (
 			!(
 				isMethodCall(callExpression, {
@@ -201,11 +197,19 @@ const create = context => {
 					optionalCall: false,
 					optionalMember: false,
 				})
-				&& !isNodeValueNotFunction(callExpression.arguments[0])
+				&& !isNodeValueNotFunction(callExpression.arguments[1])
 			)
 		) {
 			return;
 		}
+
+		return getProblem({
+			sourceCode,
+			callExpression,
+			callbackNode: callExpression.arguments[1],
+			thisArgumentNode: callExpression.arguments[2],
+			messageId: ERROR_STATIC_METHOD,
+		});
 	});
 };
 
