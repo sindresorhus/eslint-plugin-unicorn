@@ -13,8 +13,10 @@ const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
 const ERROR_IDENTIFIER = 'error/identifier';
 const SUGGESTION_USE_STRICT_DIRECTIVE = 'suggestion/use-strict-directive';
-const SUGGESTION_DIRNAME = 'suggestion/dirname';
-const SUGGESTION_FILENAME = 'suggestion/filename';
+const SUGGESTION_IMPORT_META_DIRNAME = 'suggestion/import-meta-dirname';
+const SUGGESTION_IMPORT_META_URL_TO_DIRNAME = 'suggestion/import-meta-url-to-dirname';
+const SUGGESTION_IMPORT_META_FILENAME = 'suggestion/import-meta-filename';
+const SUGGESTION_IMPORT_META_URL_TO_FILENAME = 'suggestion/import-meta-url-to-filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
 const SUGGESTION_EXPORT = 'suggestion/export';
 const messages = {
@@ -22,11 +24,42 @@ const messages = {
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
 	[ERROR_IDENTIFIER]: 'Do not use "{{name}}".',
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
-	[SUGGESTION_DIRNAME]: 'Replace "__dirname" with `"…(import.meta.url)"`.',
-	[SUGGESTION_FILENAME]: 'Replace "__filename" with `"…(import.meta.url)"`.',
+	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
+	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
+	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__dirname` with `import.meta.filename`.',
+	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
 };
+
+const suggestions = new Map([
+	[
+		'__dirname',
+		[
+			{
+				messageId: SUGGESTION_IMPORT_META_DIRNAME,
+				replacement: 'import.meta.dirname'
+			},
+			{
+				messageId: SUGGESTION_IMPORT_META_URL_TO_DIRNAME,
+				replacement: 'path.dirname(url.fileURLToPath(import.meta.url))'
+			},
+		]
+	],
+	[
+		'__filename',
+		[
+			{
+				messageId: SUGGESTION_IMPORT_META_FILENAME,
+				replacement: 'import.meta.filename'
+			},
+			{
+				messageId: SUGGESTION_IMPORT_META_URL_TO_FILENAME,
+				replacement: 'url.fileURLToPath(import.meta.url)'
+			},
+		]
+	],
+]);
 
 function fixRequireCall(node, sourceCode) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
@@ -274,17 +307,16 @@ function create(context) {
 			data: {name},
 		};
 
+
 		switch (name) {
 			case '__filename':
 			case '__dirname': {
-				const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
-				const replacement = node.name === '__dirname'
-					? 'path.dirname(url.fileURLToPath(import.meta.url))'
-					: 'url.fileURLToPath(import.meta.url)';
-				problem.suggest = [{
-					messageId,
-					fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
-				}];
+				problem.suggest = suggestions.get(node.name)
+					.map(({messageId, replacement}) => ({
+						messageId,
+						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer)
+					}));
+
 				return problem;
 			}
 
