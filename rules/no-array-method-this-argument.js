@@ -184,7 +184,7 @@ const create = context => {
 		});
 	});
 
-	// `Array.from`
+	// `Array.from()`
 	context.on('CallExpression', callExpression => {
 		if (
 			!isMethodCall(callExpression, {
