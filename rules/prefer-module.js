@@ -38,26 +38,26 @@ const suggestions = new Map([
 		[
 			{
 				messageId: SUGGESTION_IMPORT_META_DIRNAME,
-				replacement: 'import.meta.dirname'
+				replacement: 'import.meta.dirname',
 			},
 			{
 				messageId: SUGGESTION_IMPORT_META_URL_TO_DIRNAME,
-				replacement: 'path.dirname(url.fileURLToPath(import.meta.url))'
+				replacement: 'path.dirname(url.fileURLToPath(import.meta.url))',
 			},
-		]
+		],
 	],
 	[
 		'__filename',
 		[
 			{
 				messageId: SUGGESTION_IMPORT_META_FILENAME,
-				replacement: 'import.meta.filename'
+				replacement: 'import.meta.filename',
 			},
 			{
 				messageId: SUGGESTION_IMPORT_META_URL_TO_FILENAME,
-				replacement: 'url.fileURLToPath(import.meta.url)'
+				replacement: 'url.fileURLToPath(import.meta.url)',
 			},
-		]
+		],
 	],
 ]);
 
@@ -307,14 +307,13 @@ function create(context) {
 			data: {name},
 		};
 
-
 		switch (name) {
 			case '__filename':
 			case '__dirname': {
 				problem.suggest = suggestions.get(node.name)
 					.map(({messageId, replacement}) => ({
 						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer)
+						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
 					}));
 
 				return problem;
