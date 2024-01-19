@@ -14,7 +14,7 @@ const SUGGESTION_REMOVE = 'suggestion-remove';
 const messages = {
 	[ERROR_PROTOTYPE_METHOD]: 'Do not use the `this` argument in `Array#{{method}}()`.',
 	[ERROR_STATIC_METHOD]: 'Do not use the `this` argument in `Array.{{method}}()`.',
-	[SUGGESTION_REMOVE]: 'Remove the second argument.',
+	[SUGGESTION_REMOVE]: 'Remove this argument.',
 	[SUGGESTION_BIND]: 'Use a bound function.',
 };
 
