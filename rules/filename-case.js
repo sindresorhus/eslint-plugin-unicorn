@@ -158,7 +158,7 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
-	const multipleFileExtensions = options.multipleFileExtensions || false;
+	const multipleFileExtensions = options.multipleFileExtensions !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.physicalFilename;
 

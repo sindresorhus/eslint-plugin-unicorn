@@ -109,7 +109,7 @@ Don't forget that you must escape special characters that you don't want to be i
 ### multipleFileExtensions
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
 Whether to treat additional, `.`-separated parts of a filename as parts of the extension rather than parts of the filename.
 
@@ -124,12 +124,12 @@ For example:
 ]
 
 // Results
-✅ FooBar.Test.js
-✅ FooBar.TestUtils.js
+❌ FooBar.Test.js
+❌ FooBar.TestUtils.js
 ❌ FooBar.testUtils.js
-❌ FooBar.test.js
-❌ FooBar.testutils.js
-❌ FooBar.test-utils.js
+✅ FooBar.test.js
+✅ FooBar.testutils.js
+✅ FooBar.test-utils.js
 ```
 
 ```js
@@ -137,15 +137,15 @@ For example:
 	"error",
 	{
 		"case": "pascalCase",
-		"multipleFileExtensions": true
+		"multipleFileExtensions": false
 	}
 ]
 
 // Results
-❌ FooBar.Test.js
-❌ FooBar.TestUtils.js
+✅ FooBar.Test.js
+✅ FooBar.TestUtils.js
 ❌ FooBar.testUtils.js
-✅ FooBar.test.js
-✅ FooBar.testutils.js
-✅ FooBar.test-utils.js
+❌ FooBar.test.js
+❌ FooBar.testutils.js
+❌ FooBar.test-utils.js
 ```
