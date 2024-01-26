@@ -61,7 +61,7 @@ Example:
 
 ```js
 // eslint unicorn/no-array-push-push: ["error", {"ignore": ["readable"]}]
-const {Readable} = require('stream');
+import {Readable} from 'node:stream';
 
 const readable = new Readable();
 readable.push('one');

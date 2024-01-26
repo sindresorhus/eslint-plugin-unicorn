@@ -350,10 +350,12 @@ test.snapshot({
 		'String.prototype.with.call(foo, foo.length - 1)',
 		// There is no `TypedArray#toSpliced`
 		'Uint8Array.prototype.toSpliced.call(foo, foo.length - 1)',
+		// There is no `Array#subarray`
+		'Array.prototype.subarray.call(foo, foo.length - 1)',
 	],
 	invalid: [
-		'foo.slice(foo.length - 2, foo.length - 1)',
-		'foo.splice(foo.length - 1, 1)',
+		'/**/foo.slice(foo.length - 2, foo.length - 1)',
+		'/**/foo.splice(foo.length - 1, 1)',
 		// Foo.bar and foo["bar"]
 		'foo.bar.slice(foo["bar"].length - 1)',
 		// Foo[`bar`] and foo["bar"]
@@ -372,5 +374,8 @@ test.snapshot({
 		'[].toSpliced.call(foo, foo.length - 3, foo.length - 6)',
 		'foo.with(foo.length - 3, foo.length - 6)',
 		'Array.prototype.with.call(foo, foo.length - 3, foo.length - 6)',
+		'foo.subarray(foo.length - 3, foo.length - 6)',
+		'Uint8Array.prototype.subarray.call(foo, foo.length - 3, foo.length - 6)',
+		'Uint8Array.prototype.subarray.apply(foo, [foo.length - 3, foo.length - 6])',
 	],
 });

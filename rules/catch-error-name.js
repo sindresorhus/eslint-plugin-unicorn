@@ -62,7 +62,7 @@ const create = context => {
 
 			if (
 				isNameAllowed(originalName)
-				|| isNameAllowed(originalName.replace(/_+$/g, ''))
+				|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
 			) {
 				return;
 			}

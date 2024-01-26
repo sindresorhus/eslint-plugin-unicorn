@@ -18,7 +18,7 @@ const getReplacementForClass = value => value.match(/\S+/g).map(className => `.$
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
-	const rightQuote = node.raw.charAt(node.raw.length - 1);
+	const rightQuote = node.raw.at(-1);
 	return `${leftQuote}${value}${rightQuote}`;
 };
 

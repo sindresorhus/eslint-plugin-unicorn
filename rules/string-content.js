@@ -105,10 +105,13 @@ const create = context => {
 
 		const fixed = string.replace(regex, suggest);
 		const fix = type === 'Literal'
-			? fixer => fixer.replaceText(
-				node,
-				escapeString(fixed, raw[0]),
-			)
+			? fixer => {
+				const [quote] = raw;
+				return fixer.replaceText(
+					node,
+					node.parent.type === 'JSXAttribute' ? quote + fixed + quote : escapeString(fixed, quote),
+				);
+			}
 			: fixer => replaceTemplateElement(
 				fixer,
 				node,

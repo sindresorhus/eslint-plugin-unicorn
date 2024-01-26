@@ -60,6 +60,8 @@ const shouldIgnore = node => {
 
 		// `React.createContext(undefined)`
 		|| name === 'createContext'
+		// `setState(undefined)`
+		|| /^set[A-Z]/.test(name)
 
 		// https://vuejs.org/api/reactivity-core.html#ref
 		|| name === 'ref';
@@ -104,6 +106,7 @@ const create = context => {
 
 	const options = {
 		checkArguments: true,
+		checkArrowFunctionBody: true,
 		...context.options[0],
 	};
 
@@ -141,19 +144,21 @@ const create = context => {
 	});
 
 	// `() => undefined`
-	context.on('Identifier', node => {
-		if (
-			isUndefined(node)
-			&& node.parent.type === 'ArrowFunctionExpression'
-			&& node.parent.body === node
-		) {
-			return getProblem(
-				node,
-				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
-				/* CheckFunctionReturnType */ true,
-			);
-		}
-	});
+	if (options.checkArrowFunctionBody) {
+		context.on('Identifier', node => {
+			if (
+				isUndefined(node)
+				&& node.parent.type === 'ArrowFunctionExpression'
+				&& node.parent.body === node
+			) {
+				return getProblem(
+					node,
+					fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
+					/* CheckFunctionReturnType */ true,
+				);
+			}
+		});
+	}
 
 	// `let foo = undefined` / `var foo = undefined`
 	context.on('Identifier', node => {
@@ -236,7 +241,7 @@ const create = context => {
 		}
 
 		const firstUndefined = undefinedArguments[0];
-		const lastUndefined = undefinedArguments[undefinedArguments.length - 1];
+		const lastUndefined = undefinedArguments.at(-1);
 
 		return {
 			messageId,
@@ -272,6 +277,9 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			checkArguments: {
+				type: 'boolean',
+			},
+			checkArrowFunctionBody: {
 				type: 'boolean',
 			},
 		},

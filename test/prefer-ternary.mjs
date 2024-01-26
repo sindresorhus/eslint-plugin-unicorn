@@ -523,13 +523,13 @@ test({
 															throw new TypeError('a');
 														}
 				}
-			`.replace(/\t/g, '  '),
+			`.replaceAll('\t', '  '),
 			output: outdent`
 				function unicorn() {
 														const error = test ? new Error('a') : new TypeError('a');
 														throw error;
 				}
-			`.replace(/\t/g, '  '),
+			`.replaceAll('\t', '  '),
 			errors,
 		},
 		{

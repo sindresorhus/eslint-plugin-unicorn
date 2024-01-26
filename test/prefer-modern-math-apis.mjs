@@ -7,7 +7,7 @@ const {test} = getTester(import.meta);
 const duplicateLog10Test = code => [
 	code,
 	// `Math.log2()` test
-	code.replace(/Math\.LOG10E/g, 'Math.LOG2E').replace(/Math\.LN10/g, 'Math.LN2'),
+	code.replaceAll('Math.LOG10E', 'Math.LOG2E').replaceAll('Math.LN10', 'Math.LN2'),
 ];
 test.snapshot({
 	valid: [

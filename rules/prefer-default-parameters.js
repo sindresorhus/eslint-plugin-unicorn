@@ -72,7 +72,7 @@ const hasExtraReferences = (assignment, references, left) => {
 };
 
 const isLastParameter = (parameters, parameter) => {
-	const lastParameter = parameters[parameters.length - 1];
+	const lastParameter = parameters.at(-1);
 
 	// See 'default-param-last' rule
 	return parameter && parameter === lastParameter;
@@ -122,7 +122,7 @@ const create = context => {
 	const functionStack = [];
 
 	const checkExpression = (node, left, right, assignment) => {
-		const currentFunction = functionStack[functionStack.length - 1];
+		const currentFunction = functionStack.at(-1);
 
 		if (!currentFunction || !isDefaultExpression(left, right)) {
 			return;

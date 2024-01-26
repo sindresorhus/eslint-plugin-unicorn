@@ -40,8 +40,6 @@ function visualizeEslintMessage(text, result) {
 }
 
 const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
-const INDENT = ' '.repeat(4);
-const indentCode = code => code.replace(/^/gm, INDENT);
 const getAdditionalProperties = (object, properties) =>
 	Object.keys(object).filter(property => !properties.includes(property));
 
@@ -62,7 +60,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals'],
+				['code', 'options', 'filename', 'parserOptions', 'parser', 'globals', 'only'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -156,15 +154,12 @@ class SnapshotRuleTester {
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {code, filename} = testCase;
+			const {code, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
 
-			test(
-				outdent`
-					Valid #${index + 1}
-					${indentCode(printCode(code))}
-				`,
+			(only ? test.only : test)(
+				`valid(${index + 1}): ${code}`,
 				t => {
 					const messages = verify(linter, code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
@@ -173,21 +168,20 @@ class SnapshotRuleTester {
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {code, options, filename} = testCase;
+			const {code, options, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, config, testCase);
 			defineParser(linter, verifyConfig.parser);
 			const runVerify = code => verify(linter, code, verifyConfig, {filename});
 
-			test(
-				outdent`
-					Invalid #${index + 1}
-					${indentCode(printCode(code))}
-				`,
+			(only ? test.only : test)(
+				`invalid(${index + 1}): ${code}`,
 				t => {
 					const messages = runVerify(code);
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
+
+					t.snapshot(`\n${printCode(code)}\n`, 'Input');
 
 					if (filename) {
 						t.snapshot(`\n${filename}\n`, 'Filename');

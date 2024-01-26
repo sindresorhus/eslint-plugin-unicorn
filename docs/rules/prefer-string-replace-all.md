@@ -46,7 +46,7 @@ string.replaceAll('string', '');
 ```
 
 ```js
-string.replaceAll(/\s/, '');
+string.replaceAll(/\s/g, '');
 ```
 
 ```js

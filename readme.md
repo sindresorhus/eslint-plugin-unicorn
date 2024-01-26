@@ -1,7 +1,7 @@
 # eslint-plugin-unicorn [![Coverage Status](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main/graph/badge.svg)](https://codecov.io/gh/sindresorhus/eslint-plugin-unicorn/branch/main) [![npm version](https://img.shields.io/npm/v/eslint-plugin-unicorn.svg?style=flat)](https://npmjs.com/package/eslint-plugin-unicorn)
 
 <!-- markdownlint-disable-next-line no-inline-html -->
-<img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right">
+<img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right" alt="Unicorn">
 
 > More than 100 powerful ESLint rules
 
@@ -15,9 +15,64 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage
+## Usage (`eslint.config.js`)
 
-Use a [preset config](#preset-configs) or configure each rule in `package.json`.
+**Requires ESLint `>=8.23.0`.**
+
+Use a [preset config](#preset-configs-eslintconfigjs) or configure each rule in `eslint.config.js`.
+
+If you don't use the preset, ensure you use the same `languageOptions` config as below.
+
+### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import * as eslintrc from '@eslint/eslintrc';
+
+export default [
+	{
+		languageOptions: {
+			globals: eslintrc.Legacy.environments.get('es2024'),
+		},
+		plugins: {
+			unicorn: eslintPluginUnicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+];
+```
+
+### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+const eslintrc = require('@eslint/eslintrc');
+
+module.exports = [
+	{
+		languageOptions: {
+			globals: eslintrc.Legacy.environments.get('es2024'),
+		},
+		plugins: {
+			unicorn: eslintPluginUnicorn,
+		},
+		rules: {
+			'unicorn/better-regex': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+];
+```
+
+## Usage (legacy: `.eslintrc.*` or `package.json`)
+
+Use a [preset config](#preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
 
 If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
 
@@ -57,7 +112,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :- | :- | :- |
 | [better-regex](docs/rules/better-regex.md)                                                       | Improve regexes by making them shorter, consistent, and safer.                                                                                                                                                    | ✅  | 🔧 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                               | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅  | 🔧 |    |
-| [consistent-destructuring](docs/rules/consistent-destructuring.md)                               | Use destructured variables over properties.                                                                                                                                                                       | ✅  | 🔧 | 💡 |
+| [consistent-destructuring](docs/rules/consistent-destructuring.md)                               | Use destructured variables over properties.                                                                                                                                                                       |    | 🔧 | 💡 |
 | [consistent-function-scoping](docs/rules/consistent-function-scoping.md)                         | Move function definitions to the highest possible scope.                                                                                                                                                          | ✅  |    |    |
 | [custom-error-definition](docs/rules/custom-error-definition.md)                                 | Enforce correct `Error` subclassing.                                                                                                                                                                              |    | 🔧 |    |
 | [empty-brace-spaces](docs/rules/empty-brace-spaces.md)                                           | Enforce no spaces between braces.                                                                                                                                                                                 | ✅  | 🔧 |    |
@@ -78,7 +133,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 | [no-console-spaces](docs/rules/no-console-spaces.md)                                             | Do not use leading/trailing space between `console.log` parameters.                                                                                                                                               | ✅  | 🔧 |    |
 | [no-document-cookie](docs/rules/no-document-cookie.md)                                           | Do not use `document.cookie` directly.                                                                                                                                                                            | ✅  |    |    |
 | [no-empty-file](docs/rules/no-empty-file.md)                                                     | Disallow empty files.                                                                                                                                                                                             | ✅  |    |    |
-| [no-for-loop](docs/rules/no-for-loop.md)                                                         | Do not use a `for` loop that can be replaced with a `for-of` loop.                                                                                                                                                | ✅  | 🔧 |    |
+| [no-for-loop](docs/rules/no-for-loop.md)                                                         | Do not use a `for` loop that can be replaced with a `for-of` loop.                                                                                                                                                | ✅  | 🔧 | 💡 |
 | [no-hex-escape](docs/rules/no-hex-escape.md)                                                     | Enforce the use of Unicode escapes instead of hexadecimal escapes.                                                                                                                                                | ✅  | 🔧 |    |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md)                                         | Require `Array.isArray()` instead of `instanceof Array`.                                                                                                                                                          | ✅  | 🔧 |    |
 | [no-invalid-remove-event-listener](docs/rules/no-invalid-remove-event-listener.md)               | Prevent calling `EventTarget#removeEventListener()` with the result of an expression.                                                                                                                             | ✅  |    |    |
@@ -96,6 +151,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 | [no-this-assignment](docs/rules/no-this-assignment.md)                                           | Disallow assigning `this` to a variable.                                                                                                                                                                          | ✅  |    |    |
 | [no-typeof-undefined](docs/rules/no-typeof-undefined.md)                                         | Disallow comparing `undefined` using `typeof`.                                                                                                                                                                    | ✅  | 🔧 | 💡 |
 | [no-unnecessary-await](docs/rules/no-unnecessary-await.md)                                       | Disallow awaiting non-promise values.                                                                                                                                                                             | ✅  | 🔧 |    |
+| [no-unnecessary-polyfills](docs/rules/no-unnecessary-polyfills.md)                               | Enforce the use of built-in methods instead of unnecessary polyfills.                                                                                                                                             | ✅  |    |    |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md)             | Disallow unreadable array destructuring.                                                                                                                                                                          | ✅  | 🔧 |    |
 | [no-unreadable-iife](docs/rules/no-unreadable-iife.md)                                           | Disallow unreadable IIFEs.                                                                                                                                                                                        | ✅  |    |    |
 | [no-unused-properties](docs/rules/no-unused-properties.md)                                       | Disallow unused object properties.                                                                                                                                                                                |    |    |    |
@@ -171,7 +227,87 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## Preset configs
+## Preset configs (`eslint.config.js`)
+
+See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
+
+**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/configuration-files-new#configuring-language-options).
+
+### Recommended config
+
+This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+
+export default [
+		// …
+		eslintPluginUnicorn.configs['flat/recommended'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+
+module.exports = [
+		// …
+		eslintPluginUnicorn.configs['flat/recommended'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+### All config
+
+This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+
+#### ES Module (Recommended)
+
+```js
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+
+export default [
+		// …
+		eslintPluginUnicorn.configs['flat/all'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+#### CommonJS
+
+```js
+'use strict';
+const eslintPluginUnicorn = require('eslint-plugin-unicorn');
+
+module.exports = [
+		// …
+		eslintPluginUnicorn.configs['flat/all'],
+		{
+			rules: {
+				'unicorn/better-regex': 'warn',
+			},
+		},
+];
+```
+
+## Preset configs (`.eslintrc.*` or `package.json`)
 
 See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
 
@@ -185,7 +321,10 @@ This plugin exports a [`recommended` config](configs/recommended.js) that enforc
 {
 	"name": "my-awesome-project",
 	"eslintConfig": {
-		"extends": "plugin:unicorn/recommended"
+		"extends": "plugin:unicorn/recommended",
+		"rules": {
+			"unicorn/better-regex": "warn"
+		}
 	}
 }
 ```

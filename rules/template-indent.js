@@ -79,7 +79,7 @@ const create = context => {
 		}
 
 		const dedented = stripIndent(joined);
-		const trimmed = dedented.replace(new RegExp(`^${eol}|${eol}[ \t]*$`, 'g'), '');
+		const trimmed = dedented.replaceAll(new RegExp(`^${eol}|${eol}[ \t]*$`, 'g'), '');
 
 		const fixed
 			= eol

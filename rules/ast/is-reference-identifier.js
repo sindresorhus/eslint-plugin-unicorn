@@ -115,6 +115,21 @@ function isNotReference(node) {
 			return parent.id === node;
 		}
 
+		// `type Foo = { [Identifier: string]: string }`
+		case 'TSIndexSignature': {
+			return parent.parameters.includes(node);
+		}
+
+		// `type Foo = { [Identifier in keyof string]: number; };`
+		case 'TSTypeParameter': {
+			return parent.name === node;
+		}
+
+		// `type Identifier = Foo`
+		case 'TSTypeAliasDeclaration': {
+			return parent.id === node;
+		}
+
 		case 'TSPropertySignature': {
 			return parent.key === node;
 		}

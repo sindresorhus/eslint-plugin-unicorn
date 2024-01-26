@@ -74,7 +74,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const getFixedText = () => {
 		const nonEmptyArguments = fixableArguments
 			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0));
-		const lastArgument = nonEmptyArguments[nonEmptyArguments.length - 1];
+		const lastArgument = nonEmptyArguments.at(-1);
 
 		let text = nonEmptyArguments
 			.map(({node, isArrayLiteral, isSpreadable, testArgument}) => {

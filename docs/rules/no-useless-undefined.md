@@ -9,7 +9,9 @@
 
 `undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
 
-The only case where passing `undefined` is required is due to bad TypeScript types in functions, in which case you can use `checkArguments: false` option.
+Where passing `undefined` as argument is required is due to bad TypeScript types in functions, in which case you can use `checkArguments: false` option.
+
+Using `undefined` as arrow function body sometimes make the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
 ## Fail
 
@@ -114,6 +116,27 @@ foo(bar, baz, undefined);
 ```js
 // eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
 foo(bar, baz, undefined);
+```
+
+### checkArrowFunctionBody
+
+Type: `boolean`\
+Default: `true`
+
+Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunctionBody: false` to disable checking them.
+
+#### Fail
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}]
+const foo = () => undefined;
+```
+
+#### Pass
+
+```js
+// eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}]
+const foo = () => undefined;
 ```
 
 ## Conflict with ESLint `array-callback-return` rule

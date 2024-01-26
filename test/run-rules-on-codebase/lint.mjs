@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import process from 'node:process';
 import {parseArgs} from 'node:util';
-// eslint-disable-next-line n/file-extension-in-import -- https://github.com/eslint-community/eslint-plugin-n/issues/50
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import chalk from 'chalk';
 import {outdent} from 'outdent';
@@ -38,6 +37,7 @@ const configs = [
 			'test/integration/fixtures-local',
 			// Ignore this file self temporarily, disabling `n/file-extension-in-import` comment cause error
 			'test/run-rules-on-codebase/lint.mjs',
+			'rules/utils/lodash.js',
 		],
 	},
 	{

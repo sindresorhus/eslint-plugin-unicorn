@@ -209,7 +209,7 @@ function isNumber(node, scope) {
 		}
 
 		case 'SequenceExpression': {
-			if (isNumber(node.expressions[node.expressions.length - 1], scope)) {
+			if (isNumber(node.expressions.at(-1), scope)) {
 				return true;
 			}
 

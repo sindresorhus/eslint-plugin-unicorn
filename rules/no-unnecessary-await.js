@@ -30,7 +30,7 @@ function notPromise(node) {
 		}
 
 		case 'SequenceExpression': {
-			return notPromise(node.expressions[node.expressions.length - 1]);
+			return notPromise(node.expressions.at(-1));
 		}
 
 		// No default

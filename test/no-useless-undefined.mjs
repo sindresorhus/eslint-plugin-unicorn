@@ -7,6 +7,7 @@ const messageId = 'no-useless-undefined';
 
 const errors = [{messageId}];
 const optionsIgnoreArguments = [{checkArguments: false}];
+const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
 
 test({
 	valid: [
@@ -53,6 +54,10 @@ test({
 		'array.unshift(undefined);',
 		'createContext(undefined);',
 		'React.createContext(undefined);',
+		'setState(undefined)',
+		'setState?.(undefined)',
+		'props.setState(undefined)',
+		'props.setState?.(undefined)',
 		'array.includes(undefined)',
 		'set.has(undefined)',
 
@@ -72,6 +77,12 @@ test({
 		{
 			code: 'foo.bind(undefined);',
 			options: optionsIgnoreArguments,
+		},
+
+		// `checkArrowFunctionBody: false`
+		{
+			code: 'const foo = () => undefined',
+			options: optionsIgnoreArrowFunctionBody,
 		},
 	],
 	invalid: [

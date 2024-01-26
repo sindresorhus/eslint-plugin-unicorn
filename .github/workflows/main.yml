@@ -24,20 +24,28 @@ jobs:
           - os: ubuntu-latest
             node-version: 18
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npx ava
   lint-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
+          node-version: 20
       - run: npm install
       - run: npm run lint
-      - run: rm -rf test/snapshots
+      - run: npx del-cli test/snapshots --verbose
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
       - run: npx c8 ava --update-snapshots
         env:
@@ -50,8 +58,8 @@ jobs:
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
@@ -69,15 +77,11 @@ jobs:
           - "7"
           - "8"
           - "9"
-          - "10"
-          - "11"
-          - "12"
-          - "13"
     env:
       TIMING: 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - run: npm install
       - run: npm run integration -- --group ${{ matrix.group }}
