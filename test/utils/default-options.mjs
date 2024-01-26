@@ -1,9 +1,6 @@
-import eslintPluginUnicorn from '../../index.js';
-
 const defaultOptions = {
 	languageOptions: {
 		sourceType: 'module',
-		parser: espree,
 	},
 };
 

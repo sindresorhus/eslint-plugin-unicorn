@@ -86,7 +86,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 			[`unicorn/${ruleId}`]: ['error', ...options],
 		},
 		plugins: {
-			'unicorn': {
+			unicorn: {
 				rules: {
 					[ruleId]: rule,
 				},

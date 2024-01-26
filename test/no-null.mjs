@@ -110,7 +110,7 @@ test({
 			parserOptions: {
 				ecmaVersion: 2019,
 			},
-		}
+		},
 	},
 	valid: [
 		'foo = Object.create(null)',

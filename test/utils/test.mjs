@@ -97,7 +97,7 @@ class Tester {
 	}
 
 	snapshot(tests) {
-		let {beforeAll, testerOptions = {}, valid, invalid} = tests;
+		let {testerOptions = {}, valid, invalid} = tests;
 
 		valid = valid.map(testCase => normalizeTestCase(testCase));
 		invalid = invalid.map(testCase => normalizeTestCase(testCase));
@@ -132,7 +132,7 @@ function getTester(importMeta) {
 						languageOptions: {
 							...tests.testerOptions?.languageOptions,
 							parser,
-						}
+						},
 					},
 				});
 			},

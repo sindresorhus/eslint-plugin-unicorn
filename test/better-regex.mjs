@@ -1,8 +1,6 @@
-import {createRequire} from 'node:module';
 import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
-const require = createRequire(import.meta.url);
 
 const MESSAGE_ID = 'better-regex';
 

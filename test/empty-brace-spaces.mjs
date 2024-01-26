@@ -75,7 +75,7 @@ test({
 			code: 'with (foo) {     }',
 			output: 'with (foo) {}',
 			errors: 1,
-			languageOptions: { ecmaVersion: 5, sourceType: 'script' },
+			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 	],
 });

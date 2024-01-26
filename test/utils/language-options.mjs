@@ -3,7 +3,7 @@ import {Legacy} from '@eslint/eslintrc';
 const DEFAULT_LANGUAGE_OPTIONS = {
 	globals: Object.fromEntries(
 		['builtin', 'es2024', 'node', 'browser']
-			.flatMap(environment => Object.entries(Legacy.environments.get(environment).globals))
+			.flatMap(environment => Object.entries(Legacy.environments.get(environment).globals)),
 	),
 };
 
@@ -16,7 +16,7 @@ function cleanLanguageOptions(languageOptions) {
 		delete languageOptions.parserOptions;
 	}
 
-	return languageOptions
+	return languageOptions;
 }
 
 function normalizeLanguageOptions(languageOptions) {
@@ -27,7 +27,7 @@ function normalizeLanguageOptions(languageOptions) {
 	const {
 		implementation: parserImplementation,
 		mergeParserOptions,
-	} = parser ?? {}
+	} = parser ?? {};
 
 	return cleanLanguageOptions({
 		...languageOptions,
@@ -51,7 +51,7 @@ function mergeLanguageOptions(languageOptionsA, languageOptionsB) {
 		parserOptions: {
 			...languageOptionsA.parserOptions,
 			...languageOptionsB.parserOptions,
-		}
+		},
 	});
 }
 

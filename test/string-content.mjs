@@ -52,7 +52,7 @@ test({
 					jsx: true,
 				},
 			},
-		}
+		},
 	},
 	valid: [
 		'const foo = "";',
