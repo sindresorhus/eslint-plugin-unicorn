@@ -113,6 +113,8 @@ Default: `true`
 
 Whether to treat additional, `.`-separated parts of a filename as parts of the extension rather than parts of the filename.
 
+Note that the parts of the filename treated as the extension will not have the filename case enforced.
+
 For example:
 
 ```js
@@ -130,6 +132,7 @@ For example:
 ✅ FooBar.test.js
 ✅ FooBar.testutils.js
 ✅ FooBar.test-utils.js
+✅ FooBar.test_utils.js
 ```
 
 ```js
@@ -148,4 +151,5 @@ For example:
 ❌ FooBar.test.js
 ❌ FooBar.testutils.js
 ❌ FooBar.test-utils.js
+❌ FooBar.test_utils.js
 ```
