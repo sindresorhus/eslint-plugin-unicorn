@@ -1,5 +1,5 @@
 'use strict';
-const isPromiseMethodWithArray = require('./utils/is-promise-method-with-array.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION = 'no-await-in-promise-methods/suggestion';
@@ -9,14 +9,24 @@ const messages = {
 };
 const METHODS = ['all', 'allSettled', 'any', 'race'];
 
+const isPromiseMethodCallWithArrayExpression = (node) =>
+	isMethodCall(node, {
+		object: 'Promise',
+		methods: METHODS,
+		optionalMember: false,
+		optionalCall: false,
+		argumentsLength: 1,
+	})
+	&& node.arguments[0].type === 'ArrayExpression';
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	* CallExpression(node) {
-		if (!isPromiseMethodWithArray(node, METHODS)) {
+	* CallExpression(callExpression) {
+		if (!isPromiseMethodCallWithArrayExpression(callExpression)) {
 			return;
 		}
 
-		for (const element of node.arguments[0].elements) {
+		for (const element of callExpression.arguments[0].elements) {
 			if (element?.type !== 'AwaitExpression') {
 				continue;
 			}
@@ -25,7 +35,7 @@ const create = context => ({
 				node: element,
 				messageId: MESSAGE_ID_ERROR,
 				data: {
-					method: node.callee.property.name,
+					method: callExpression.callee.property.name,
 				},
 				suggest: [
 					{
