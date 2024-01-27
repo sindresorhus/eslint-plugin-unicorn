@@ -90,19 +90,19 @@ test.snapshot({
 		'Array.from(iterableOrArrayLike, function callback () {}, thisArgument)',
 		{
 			code: 'array.map( foo as bar, (( thisArgument )),)',
-			parser: parsers.typescript,
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'Array.from(iterableOrArrayLike, foo as bar, (( thisArgument )),)',
-			parser: parsers.typescript,
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'array.map( (( foo as bar )), (( thisArgument )),)',
-			parser: parsers.typescript,
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'Array.from(iterableOrArrayLike, (( foo as bar )), (( thisArgument )),)',
-			parser: parsers.typescript,
+			languageOptions: {parser: parsers.typescript},
 		},
 		'array.map( (( 0, callback )), (( thisArgument )),)',
 		'Array.from(iterableOrArrayLike, (( 0, callback )), (( thisArgument )),)',

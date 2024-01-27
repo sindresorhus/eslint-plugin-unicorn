@@ -452,7 +452,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {parser: parsers.vue},
 	},
 	valid: [
 		outdent`
@@ -485,7 +485,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.typescript,
+		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [],
 	invalid: [

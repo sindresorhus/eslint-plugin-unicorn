@@ -320,7 +320,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.typescript,
+		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [
 		// #1579

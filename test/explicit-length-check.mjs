@@ -223,7 +223,9 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {
+			parser: parsers.vue,
+		},
 	},
 	valid: [
 		'<not-template><div v-if="foo.length"></div></not-template>',

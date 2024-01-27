@@ -169,7 +169,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {parser: parsers.vue},
 	},
 	valid: [
 		'<template><input value="0XdeEd_Beef"></div></template>',
