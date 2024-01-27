@@ -1,5 +1,5 @@
 import {Legacy} from '@eslint/eslintrc';
-import * as espree from 'espree'
+import * as espree from 'espree';
 
 const DEFAULT_LANGUAGE_OPTIONS = {
 	// When `parser` in `undefined`, `languageOptions` seems has no effect
