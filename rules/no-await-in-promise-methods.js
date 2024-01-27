@@ -9,7 +9,7 @@ const messages = {
 };
 const METHODS = ['all', 'allSettled', 'any', 'race'];
 
-const isPromiseMethodCallWithArrayExpression = (node) =>
+const isPromiseMethodCallWithArrayExpression = node =>
 	isMethodCall(node, {
 		object: 'Promise',
 		methods: METHODS,
