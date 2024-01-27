@@ -12,9 +12,11 @@ const error = {
 // Legacy octal literals
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaVersion: 5,
-			sourceType: 'script',
+		languageOptions: {
+			parserOptions: {
+				ecmaVersion: 5,
+				sourceType: 'script',
+			},
 		},
 	},
 	valid: [

@@ -263,10 +263,12 @@ test({
 			code: 'return undefined;',
 			output: 'return;',
 			errors,
-			parserOptions: {
-				sourceType: 'script',
-				ecmaFeatures: {
-					globalReturn: true,
+			languageOptions: {
+				parserOptions: {
+					sourceType: 'script',
+					ecmaFeatures: {
+						globalReturn: true,
+					},
 				},
 			},
 		},
