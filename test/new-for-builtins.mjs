@@ -101,7 +101,7 @@ test.snapshot({
 
 		{
 			code: 'new Symbol("")',
-			globals: {Symbol: 'off'},
+			languageOptions: {globals: {Symbol: 'off'}},
 		},
 	],
 	invalid: [
@@ -190,7 +190,7 @@ test.snapshot({
 		`,
 		{
 			code: 'globalThis.Array()',
-			globals: {Array: 'off'},
+			languageOptions: {globals: {Array: 'off'}},
 		},
 		{
 			code: outdent`
