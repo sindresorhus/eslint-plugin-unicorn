@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -30,6 +31,22 @@ test.snapshot({
 		'await Promise.race([promise])',
 		'Promise.all([somethingMaybeNotPromise])',
 		'await Promise.all([new Promise(() => {})])',
-		'await Promise.all([(0, promise)])',
+		'+await Promise.all([+1])',
+		outdent`
+			foo
+			await Promise.all([(0, promise)])
+		`,
+		outdent`
+			foo
+			Promise.all([(0, promise)])
+		`,
+		outdent`
+			foo
+			await Promise.all([[array][0]])
+		`,
+		outdent`
+			foo
+			Promise.all([[array][0]])
+		`,
 	],
 });
