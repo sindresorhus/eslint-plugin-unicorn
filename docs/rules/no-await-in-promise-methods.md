@@ -12,23 +12,23 @@ Awaited promises in `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or
 ## Fail
 
 ```js
-Promise.all([await promise1, promise2]);
+Promise.all([await promise, anotherPromise]);
 
-Promise.allSettled([await promise1, promise2]);
+Promise.allSettled([await promise, anotherPromise]);
 
-Promise.any([await promise1, promise2]);
+Promise.any([await promise, anotherPromise]);
 
-Promise.race([await promise1, promise2]);
+Promise.race([await promise, anotherPromise]);
 ```
 
 ## Pass
 
 ```js
-Promise.all([promise1, promise2]);
+Promise.all([promise, anotherPromise]);
 
-Promise.allSettled([promise1, promise2]);
+Promise.allSettled([promise, anotherPromise]);
 
-Promise.any([promise1, promise2]);
+Promise.any([promise, anotherPromise]);
 
-Promise.race([promise1, promise2]);
+Promise.race([promise, anotherPromise]);
 ```
