@@ -2,17 +2,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const createSuggestionError = output => [{
-	messageId: 'no-await-in-promise-methods/error',
-	suggestions: [
-		{
-			messageId: 'no-await-in-promise-methods/suggestion',
-			output,
-		},
-	],
-}];
-
-test({
+test.snapshot({
 	valid: [
 		'Promise.all([promise, promise, promise, promise])',
 		'Promise.allSettled([promise, promise, promise, promise])',
@@ -24,25 +14,10 @@ test({
 	],
 
 	invalid: [
-		{
-			code: 'Promise.all([promise, await promise, await promise, promise])',
-			suggestion: 'Promise.all([promise, promise, promise, promise])',
-		},
-		{
-			code: 'Promise.all([, await promise])',
-			suggestion: 'Promise.all([, promise])',
-		},
-		{
-			code: 'Promise.allSettled([promise, await promise, await promise, promise])',
-			suggestion: 'Promise.allSettled([promise, promise, promise, promise])',
-		},
-		{
-			code: 'Promise.any([promise, await promise, await promise, promise])',
-			suggestion: 'Promise.any([promise, promise, promise, promise])',
-		},
-		{
-			code: 'Promise.race([promise, await promise, await promise, promise])',
-			suggestion: 'Promise.race([promise, promise, promise, promise])',
-		},
-	].map(({code, suggestion}) => ({code, errors: createSuggestionError(suggestion)})),
+		'Promise.all([promise, await promise, await promise, promise])',
+		'Promise.all([, await promise])',
+		'Promise.allSettled([promise, await promise, await promise, promise])',
+		'Promise.any([promise, await promise, await promise, promise])',
+		'Promise.race([promise, await promise, await promise, promise])',
+	],
 });
