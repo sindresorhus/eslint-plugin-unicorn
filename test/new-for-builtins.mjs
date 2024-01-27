@@ -197,7 +197,7 @@ test.snapshot({
 				const {Array} = globalThis;
 				Array();
 			`,
-			globals: {Array: 'off'},
+			languageOptions: {globals: {Symbol: 'off'}},
 		},
 		'const foo = Object()',
 		'const foo = Array()',
