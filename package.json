@@ -76,7 +76,7 @@
 		"c8": "^8.0.1",
 		"chalk": "^5.3.0",
 		"enquirer": "^2.4.1",
-		"eslint": "^9.0.0-alpha.1",
+		"eslint": "^9.0.0-alpha.2",
 		"eslint-ava-rule-tester": "^5.0.1",
 		"eslint-doc-generator": "^1.6.1",
 		"eslint-plugin-eslint-plugin": "^5.2.1",
