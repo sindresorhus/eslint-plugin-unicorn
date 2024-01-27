@@ -8,7 +8,6 @@ test.snapshot({
 		'Promise.allSettled([promise1, promise2, promise3, promise4])',
 		'Promise.any([promise1, promise2, promise3, promise4])',
 		'Promise.race([promise1, promise2, promise3, promise4])',
-		'Promise.resolve([await promise])',
 		'Promise.all([,])',
 		'Promise[all]([await promise])',
 		'Promise.all?.([await promise])',
@@ -16,6 +15,11 @@ test.snapshot({
 		'Promise.notListedMethod([await promise])',
 		'NotPromise.all([await promise])',
 		'Promise.all([(await promise, 0)])',
+		'new Promise.all([await promise])',
+
+		// We are not checking these cases
+		'globalThis.Promise.all([await promise])',
+		'Promise["all"]([await promise])',
 	],
 	invalid: [
 		'Promise.all([await promise])',
