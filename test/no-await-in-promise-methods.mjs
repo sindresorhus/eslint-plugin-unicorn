@@ -9,8 +9,12 @@ test.snapshot({
 		'Promise.any([promise1, promise2, promise3, promise4])',
 		'Promise.race([promise1, promise2, promise3, promise4])',
 		'Promise.resolve([await promise])',
-		'Promise[all]([await promise])',
 		'Promise.all([,])',
+		'Promise[all]([await promise])',
+		'Promise.all?.([await promise])',
+		'Promise?.all([await promise])',
+		'Promise.notListedMethod([await promise])',
+		'NotPromise.all([await promise])',
 	],
 
 	invalid: [
