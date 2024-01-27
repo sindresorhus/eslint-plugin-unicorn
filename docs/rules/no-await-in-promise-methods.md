@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Awaited parameters in `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is probably a mistake.
+Awaited promises in `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is probably a mistake.
 
 ## Fail
 
