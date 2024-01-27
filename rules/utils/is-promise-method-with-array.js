@@ -7,7 +7,6 @@ const isPromiseMethodWithArray = (node, methods) =>
 	&& node.callee.object.name === 'Promise'
 	&& isMethodCall(node, methods)
 	&& node.arguments.length === 1
-	&& node.arguments[0].type === 'ArrayExpression'
-	&& node.arguments[0].elements.some(element => element !== null);
+	&& node.arguments[0].type === 'ArrayExpression';
 
 module.exports = isPromiseMethodWithArray;
