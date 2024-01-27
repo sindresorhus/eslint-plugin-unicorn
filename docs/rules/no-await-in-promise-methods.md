@@ -7,30 +7,28 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Awaited parameters in a Promise.all(), Promise.allSettled(), Promise.any() or Promise.race() method is probably a mistake.
+Awaited parameters in `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is probably a mistake.
 
 ## Fail
 
 ```js
-Promise.all([promise, await promise, await promise, promise])
+Promise.all([await promise1, promise2]);
 
-Promise.allSettled([promise, await promise, await promise, promise])
+Promise.allSettled([await promise1, promise2]);
 
-Promise.any([promise, await promise, await promise, promise])
+Promise.any([await promise1, promise2]);
 
-Promise.race([promise, await promise, await promise, promise])
+Promise.race([await promise1, promise2]);
 ```
 
 ## Pass
 
 ```js
-Promise.all([promise, promise, promise, promise])
+Promise.all([promise1, promise2]);
 
-Promise.allSettled([promise, promise, promise, promise])
+Promise.allSettled([promise1, promise2]);
 
-Promise.any([promise, promise, promise, promise])
+Promise.any([promise1, promise2]);
 
-Promise.race([promise, promise, promise, promise])
-
-Promise.resolve([await promise])
+Promise.race([promise1, promise2]);
 ```
