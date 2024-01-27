@@ -16,12 +16,14 @@ test.snapshot({
 		'Promise.notListedMethod([await promise])',
 		'NotPromise.all([await promise])',
 	],
-
 	invalid: [
-		'Promise.all([promise1, await promise2, await promise3, promise4])',
+		'Promise.all([await promise])',
+		'Promise.allSettled([await promise])',
+		'Promise.any([await promise])',
+		'Promise.race([await promise])',
 		'Promise.all([, await promise])',
-		'Promise.allSettled([promise1, await promise2, await promise3, promise4])',
-		'Promise.any([promise1, await promise2, await promise3, promise4])',
-		'Promise.race([promise1, await promise2, await promise4, promise4])',
+		'Promise.all([, await promise,])',
+		'Promise.all([, await promise],)',
+		'Promise.all([, await (0, promise)],)',
 	],
 });
