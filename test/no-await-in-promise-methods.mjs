@@ -15,6 +15,7 @@ test.snapshot({
 		'Promise?.all([await promise])',
 		'Promise.notListedMethod([await promise])',
 		'NotPromise.all([await promise])',
+		'Promise.all([(await promise, 0)])',
 	],
 	invalid: [
 		'Promise.all([await promise])',
@@ -22,8 +23,10 @@ test.snapshot({
 		'Promise.any([await promise])',
 		'Promise.race([await promise])',
 		'Promise.all([, await promise])',
-		'Promise.all([, await promise,])',
-		'Promise.all([, await promise],)',
-		'Promise.all([, await (0, promise)],)',
+		'Promise.all([await promise,])',
+		'Promise.all([await promise],)',
+		'Promise.all([await (0, promise)],)',
+		'Promise.all([await await promise])',
+		'Promise.all([...foo, await promise1, await promise2])',
 	],
 });

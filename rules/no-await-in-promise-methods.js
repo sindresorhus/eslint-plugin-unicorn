@@ -4,7 +4,7 @@ const isPromiseMethodWithArray = require('./utils/is-promise-method-with-array.j
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION = 'no-await-in-promise-methods/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Parameters in `Promise.{{method}}` should not be awaited.',
+	[MESSAGE_ID_ERROR]: 'Promise in `Promise.{{method}}()` should not be awaited.',
 	[MESSAGE_ID_SUGGESTION]: 'Remove `await`.',
 };
 const METHODS = ['all', 'allSettled', 'any', 'race'];
@@ -30,11 +30,10 @@ const create = context => ({
 				suggest: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						* fix(fixer) {
-							const firstToken = context.sourceCode.getFirstToken(element);
-							const secondToken = context.sourceCode.getTokenAfter(firstToken);
-
-							yield fixer.removeRange([firstToken.range[0], secondToken.range[0]]);
+						fix(fixer) {
+							const awaitToken = context.sourceCode.getFirstToken(element);
+							const secondToken = context.sourceCode.getTokenAfter(awaitToken);
+							return fixer.removeRange([awaitToken.range[0], secondToken.range[0]]);
 						},
 					},
 				],
