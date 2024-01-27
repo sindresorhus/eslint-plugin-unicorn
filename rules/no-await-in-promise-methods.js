@@ -1,5 +1,6 @@
 'use strict';
 const {isMethodCall} = require('./ast/index.js');
+const {removeSpacesAfter} = require('./fix/index.js');
 
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION = 'no-await-in-promise-methods/suggestion';
@@ -40,10 +41,11 @@ const create = context => ({
 				suggest: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						fix(fixer) {
+						* fix(fixer) {
+							const {sourceCode} = context;
 							const awaitToken = context.sourceCode.getFirstToken(element);
-							const secondToken = context.sourceCode.getTokenAfter(awaitToken);
-							return fixer.removeRange([awaitToken.range[0], secondToken.range[0]]);
+							yield fixer.remove(awaitToken);
+							yield removeSpacesAfter(awaitToken, sourceCode, fixer);
 						},
 					},
 				],
