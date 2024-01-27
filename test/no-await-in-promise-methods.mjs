@@ -36,5 +36,6 @@ test.snapshot({
 		'Promise.all([await (0, promise)],)',
 		'Promise.all([await await promise])',
 		'Promise.all([...foo, await promise1, await promise2])',
+		'Promise.all([await /* comment*/ promise])',
 	],
 });
