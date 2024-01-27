@@ -24,8 +24,6 @@ const isPromiseMethodWithSinglePromise = (node, methods) => {
 	|| (element.type === 'AwaitExpression' && types.has(element.argument.type));
 };
 
-const getMethodName = node => node.callee.property.name;
-
 const getAutoFixer = ({sourceCode}, node) => fixer => {
 	const [element] = node.arguments[0].elements;
 	const elementWithoutAwait = element.type === 'AwaitExpression' ? element.argument : element;
@@ -49,34 +47,31 @@ const create = context => ({
 			return;
 		}
 
-		const descriptor = {
+		const problem = {
 			node,
 			messageId: MESSAGE_ID_ERROR,
 			data: {
-				method: getMethodName(node),
+				method: node.callee.property.name,
 			},
 		};
 
 		if (node.parent.type === 'AwaitExpression') {
-			context.report({
-				...descriptor,
-				fix: getAutoFixer(context, node),
-			});
-		} else {
-			context.report({
-				...descriptor,
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION_1,
-						fix: getSuggestion1Fixer(context, node),
-					},
-					{
-						messageId: MESSAGE_ID_SUGGESTION_2,
-						fix: getSuggestion2Fixer(context, node),
-					},
-				],
-			});
+			problem.fix = getAutoFixer(context, node);
+			return problem;
 		}
+
+		problem.suggest = [
+			{
+				messageId: MESSAGE_ID_SUGGESTION_1,
+				fix: getSuggestion1Fixer(context, node),
+			},
+			{
+				messageId: MESSAGE_ID_SUGGESTION_2,
+				fix: getSuggestion2Fixer(context, node),
+			},
+		];
+
+		return problem;
 	},
 });
 

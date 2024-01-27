@@ -29,5 +29,7 @@ test.snapshot({
 		'await Promise.any([promise])',
 		'await Promise.race([promise])',
 		'Promise.all([somethingMaybeNotPromise])',
+		'await Promise.all([new Promise(() => {})])',
+		'await Promise.all([(0, promise)])',
 	],
 });
