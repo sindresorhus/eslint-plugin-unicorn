@@ -17,6 +17,9 @@ test.snapshot({
 		'Promise.allSettled([promise])',
 		'Promise[all]([promise])',
 		'Promise.all([,])',
+		'NotPromise.all([promise])',
+		'Promise?.all([promise])',
+		'Promise.all?.([promise])',
 	],
 	invalid: [
 		'await Promise.all([promise])',
