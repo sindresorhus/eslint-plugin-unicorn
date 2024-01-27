@@ -79,20 +79,24 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 		options = [],
 	} = testCase;
 
-	return {
-		...testerConfig,
-		languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
-		rules: {
-			[`unicorn/${ruleId}`]: ['error', ...options],
-		},
-		plugins: {
-			unicorn: {
-				rules: {
-					[ruleId]: rule,
+	return [
+		// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L524
+		{files: ['**']},
+		{
+			...testerConfig,
+			languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
+			rules: {
+				[`unicorn/${ruleId}`]: ['error', ...options],
+			},
+			plugins: {
+				unicorn: {
+					rules: {
+						[ruleId]: rule,
+					},
 				},
 			},
 		},
-	};
+	];
 }
 
 const parsers = new WeakMap();
