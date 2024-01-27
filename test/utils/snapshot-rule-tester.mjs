@@ -99,25 +99,6 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 	];
 }
 
-const parsers = new WeakMap();
-function defineParser(linter, parser) {
-	if (!parser) {
-		return;
-	}
-
-	if (!parsers.has(linter)) {
-		parsers.set(linter, new Set());
-	}
-
-	const defined = parsers.get(linter);
-	if (defined.has(parser)) {
-		return;
-	}
-
-	defined.add(parser);
-	linter.defineParser(parser, require(parser));
-}
-
 function verify(linter, code, verifyConfig, {filename}) {
 	const messages = linter.verify(code, verifyConfig, {filename});
 
@@ -152,7 +133,6 @@ class SnapshotRuleTester {
 		for (const [index, testCase] of valid.entries()) {
 			const {code, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
-			defineParser(linter, verifyConfig.parser);
 
 			(only ? test.only : test)(
 				`valid(${index + 1}): ${code}`,
