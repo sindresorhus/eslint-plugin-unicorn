@@ -6,7 +6,7 @@ const error = {
 	messageId: 'no-single-promise-in-promise-methods/error',
 };
 
-test({
+test.snapshot({
 	valid: [
 		'Promise.all([promise, anotherPromise])',
 		'Promise.all(notArrayLiteral)',
@@ -18,55 +18,13 @@ test({
 		'Promise[all]([promise])',
 		'Promise.all([,])',
 	],
-
 	invalid: [
-		{
-			code: 'await Promise.all([promise])',
-			errors: [error],
-			output: 'await promise',
-		},
-		{
-			code: 'await Promise.all([func()])',
-			errors: [error],
-			output: 'await func()',
-		},
-		{
-			code: 'await Promise.all([promises[0]])',
-			errors: [error],
-			output: 'await promises[0]',
-		},
-		{
-			code: 'await Promise.all([await promise])',
-			errors: [error],
-			output: 'await promise',
-		},
-		{
-			code: 'await Promise.any([promise])',
-			errors: [error],
-			output: 'await promise',
-		},
-		{
-			code: 'await Promise.race([promise])',
-			errors: [error],
-			output: 'await promise',
-		},
-		{
-			code: 'Promise.all([somethingMaybeNotPromise])',
-			errors: [
-				{
-					...error,
-					suggestions: [
-						{
-							messageId: 'no-single-promise-in-promise-methods/suggestion-1',
-							output: 'somethingMaybeNotPromise',
-						},
-						{
-							messageId: 'no-single-promise-in-promise-methods/suggestion-2',
-							output: 'Promise.resolve(somethingMaybeNotPromise)',
-						},
-					],
-				},
-			],
-		},
+		'await Promise.all([promise])',
+		'await Promise.all([func()])',
+		'await Promise.all([promises[0]])',
+		'await Promise.all([await promise])',
+		'await Promise.any([promise])',
+		'await Promise.race([promise])',
+		'Promise.all([somethingMaybeNotPromise])',
 	],
 });
