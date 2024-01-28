@@ -567,7 +567,7 @@ test({
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `1.js`.',
 		),
-		// Multiple file extensions
+		// Multiple filename parts - multiple file extensions
 		testCaseWithOptions(
 			'src/foo/fooBar.Test.js',
 			'File extension `.Test.js` is not in lowercase. Rename it to `fooBar.test.js`.',
@@ -628,7 +628,7 @@ test({
 			'File extension `.TestUtils.js` is not in lowercase. Rename it to `.testutils.js`.',
 			[{case: 'pascalCase'}],
 		),
-		// Single file extension
+		// Multiple filename parts - single file extension
 		testCaseWithOptions(
 			'src/foo/foo_bar.test.js',
 			'Filename is not in camel case. Rename it to `fooBar.test.js`.',
