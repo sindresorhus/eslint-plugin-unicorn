@@ -1,5 +1,5 @@
 'use strict';
-const isPromiseMethodWithArray = require('./utils/is-promise-method-with-array.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
@@ -11,63 +11,69 @@ const messages = {
 };
 const METHODS = ['all', 'any', 'race'];
 
-const isPromiseMethodWithSinglePromise = (node, methods) => {
-	const types = new Set(['CallExpression', 'Identifier', 'MemberExpression']);
+const isPromiseMethodCallWithSingleElementArray = node =>
+	isMethodCall(node, {
+		object: 'Promise',
+		methods: METHODS,
+		optionalMember: false,
+		optionalCall: false,
+		argumentsLength: 1,
+	})
+	&& node.arguments[0].type === 'ArrayExpression'
+	&& node.arguments[0].elements.length === 1
+	&& node.arguments[0].elements[0] !== null
+	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
-	if (!isPromiseMethodWithArray(node, methods) || node.arguments[0].elements.length !== 1) {
-		return false;
-	}
+const getText = ({sourceCode}, element) => {
+	const text = sourceCode.getText(element);
 
-	const [element] = node.arguments[0].elements;
-
-	return types.has(element.type)
-	|| (element.type === 'AwaitExpression' && types.has(element.argument.type));
+	return element.type === 'SequenceExpression' ? `(${text})` : text;
 };
 
-const getAutoFixer = ({sourceCode}, node) => fixer => {
+const getAutoFixer = (context, node) => fixer => {
 	const [element] = node.arguments[0].elements;
 	const elementWithoutAwait = element.type === 'AwaitExpression' ? element.argument : element;
 
-	return fixer.replaceText(node, sourceCode.getText(elementWithoutAwait));
+	return fixer.replaceText(node, getText(context, elementWithoutAwait));
 };
 
-const getSuggestion1Fixer = ({sourceCode}, node) => fixer =>
-	fixer.replaceText(node, sourceCode.getText(node.arguments[0].elements[0]));
+const getSuggestion1Fixer = (context, node) => fixer =>
+	fixer.replaceText(node, getText(context, node.arguments[0].elements[0]));
 
-const getSuggestion2Fixer = ({sourceCode}, node) => fixer => {
-	const text = sourceCode.getText(node.arguments[0].elements[0]);
+const getSuggestion2Fixer = (context, node) => fixer => {
+	const text = getText(context, node.arguments[0].elements[0]);
 
 	return fixer.replaceText(node, `Promise.resolve(${text})`);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	CallExpression(node) {
-		if (!isPromiseMethodWithSinglePromise(node, METHODS)) {
+	CallExpression(callExpression) {
+		if (!isPromiseMethodCallWithSingleElementArray(callExpression)) {
 			return;
 		}
 
 		const problem = {
-			node,
+			node: callExpression,
 			messageId: MESSAGE_ID_ERROR,
 			data: {
-				method: node.callee.property.name,
+				method: callExpression.callee.property.name,
 			},
 		};
 
-		if (node.parent.type === 'AwaitExpression') {
-			problem.fix = getAutoFixer(context, node);
+		if (callExpression.parent.type === 'AwaitExpression') {
+			problem.fix = getAutoFixer(context, callExpression);
 			return problem;
 		}
 
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION_1,
-				fix: getSuggestion1Fixer(context, node),
+				fix: getSuggestion1Fixer(context, callExpression),
 			},
 			{
 				messageId: MESSAGE_ID_SUGGESTION_2,
-				fix: getSuggestion2Fixer(context, node),
+				fix: getSuggestion2Fixer(context, callExpression),
 			},
 		];
 

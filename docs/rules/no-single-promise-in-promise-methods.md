@@ -12,23 +12,23 @@ Single element array parameter in a Promise.all(), Promise.any() or Promise.race
 ## Fail
 
 ```js
-Promise.all([promise])
+Promise.all([promise]);
 
-Promise.any([promise])
+Promise.any([promise]);
 
-Promise.race([promise])
+Promise.race([promise]);
 ```
 
 ## Pass
 
 ```js
-Promise.all([promise, anotherPromise])
-Promise.all(notArrayLiteral)
-Promise.all([...promises])
+Promise.all([promise, anotherPromise]);
+Promise.all(notArrayLiteral);
+Promise.all([...promises]);
 
-Promise.any([promise, anotherPromise])
+Promise.any([promise, anotherPromise]);
 
-Promise.race([promise, anotherPromise])
+Promise.race([promise, anotherPromise]);
 
-Promise.allSettled([promise])
+Promise.allSettled([promise]);
 ```
