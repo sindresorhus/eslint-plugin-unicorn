@@ -677,6 +677,7 @@ test.snapshot({
 		undefined,
 		'src/foo.JS/bar.js',
 		'src/foo.JS/bar.spec.js',
+		'src/foo.JS/.spec.js',
 		'src/foo.JS/bar',
 	].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	invalid: [
@@ -699,6 +700,7 @@ test.snapshot({
 			'index.JS',
 			'foo..JS',
 			'foo.SPEC.js',
+			'.SPEC.js',
 		].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	],
 });
