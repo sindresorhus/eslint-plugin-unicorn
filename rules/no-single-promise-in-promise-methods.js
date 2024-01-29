@@ -1,5 +1,6 @@
 'use strict';
 const {isMethodCall} = require('./ast/index.js');
+const needsSemicolon = require('./utils/needs-semicolon.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
@@ -24,27 +25,27 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0] !== null
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
-const getText = ({sourceCode}, element) => {
+const getText = ({sourceCode}, node, element, prefix = '', suffix = '') => {
+	const previousToken = sourceCode.getTokenBefore(node);
 	const text = sourceCode.getText(element);
+	const parenthesizedText = element.type === 'SequenceExpression' ? `(${text})` : text;
+	const wrappedText = `${prefix}${parenthesizedText}${suffix}`;
 
-	return element.type === 'SequenceExpression' ? `(${text})` : text;
+	return needsSemicolon(previousToken, sourceCode, wrappedText) ? `;${wrappedText}` : wrappedText;
 };
 
 const getAutoFixer = (context, node) => fixer => {
 	const [element] = node.arguments[0].elements;
 	const elementWithoutAwait = element.type === 'AwaitExpression' ? element.argument : element;
 
-	return fixer.replaceText(node, getText(context, elementWithoutAwait));
+	return fixer.replaceText(node, getText(context, node, elementWithoutAwait));
 };
 
 const getSuggestion1Fixer = (context, node) => fixer =>
-	fixer.replaceText(node, getText(context, node.arguments[0].elements[0]));
+	fixer.replaceText(node, getText(context, node, node.arguments[0].elements[0]));
 
-const getSuggestion2Fixer = (context, node) => fixer => {
-	const text = getText(context, node.arguments[0].elements[0]);
-
-	return fixer.replaceText(node, `Promise.resolve(${text})`);
-};
+const getSuggestion2Fixer = (context, node) => fixer =>
+	fixer.replaceText(node, getText(context, node, node.arguments[0].elements[0], 'Promise.resolve(', ')'));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
