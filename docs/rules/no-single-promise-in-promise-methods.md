@@ -23,7 +23,7 @@ Promise.race([promise]);
 
 ```js
 Promise.all([promise, anotherPromise]);
-Promise.all(notArrayLiteral);
+Promise.all(notArrayExpression);
 Promise.all([...promises]);
 
 Promise.any([promise, anotherPromise]);
