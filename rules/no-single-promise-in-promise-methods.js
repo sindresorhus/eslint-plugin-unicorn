@@ -6,7 +6,7 @@ const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
 const MESSAGE_ID_SUGGESTION_2 = 'no-single-promise-in-promise-methods/suggestion-2';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Parameter in `Promise.{{method}}` should not be a single element array.',
+	[MESSAGE_ID_ERROR]: 'Parameter in `Promise.{{method}}()` should not be a single element array.',
 	[MESSAGE_ID_SUGGESTION_1]: 'Use the value directly.',
 	[MESSAGE_ID_SUGGESTION_2]: 'Wrap the value in a `Promise.resolve`.',
 };

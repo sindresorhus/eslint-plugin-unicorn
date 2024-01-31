@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Single element array parameter in a Promise.all(), Promise.any() or Promise.race() method is probably a mistake.
+Single element array parameter in `Promise.all()`, `Promise.any()` or `Promise.race()` is probably a mistake.
 
 ## Fail
 
