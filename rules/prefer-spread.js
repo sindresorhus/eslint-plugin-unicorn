@@ -4,7 +4,6 @@ const {
 	getParenthesizedRange,
 	getParenthesizedText,
 	needsSemicolon,
-	shouldAddParenthesesToSpreadElementArgument,
 	isNodeMatches,
 	isMethodNamed,
 } = require('./utils/index.js');
@@ -89,13 +88,6 @@ function fixConcat(node, sourceCode, fixableArguments) {
 				}
 
 				if (isSpreadable) {
-					if (
-						!isParenthesized(node, sourceCode)
-						&& shouldAddParenthesesToSpreadElementArgument(node)
-					) {
-						text = `(${text})`;
-					}
-
 					text = `...${text}`;
 				}
 
@@ -218,13 +210,6 @@ function fixArrayFrom(node, sourceCode) {
 
 		const [start, end] = getParenthesizedRange(object, sourceCode);
 		let text = sourceCode.text.slice(start, end);
-
-		if (
-			!isParenthesized(object, sourceCode)
-			&& shouldAddParenthesesToSpreadElementArgument(object)
-		) {
-			text = `(${text})`;
-		}
 
 		return `[...${text}]`;
 	}

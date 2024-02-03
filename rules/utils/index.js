@@ -45,7 +45,6 @@ module.exports = {
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
-	shouldAddParenthesesToSpreadElementArgument: require('./should-add-parentheses-to-spread-element-argument.js'),
 	singular: require('./singular.js'),
 	toLocation: require('./to-location.js'),
 	getAncestor: require('./get-ancestor.js'),

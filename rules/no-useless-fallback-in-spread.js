@@ -4,7 +4,6 @@ const {
 	getParenthesizedRange,
 } = require('./utils/parentheses.js');
 const {removeParentheses} = require('./fix/index.js');
-const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
 const messages = {
@@ -31,7 +30,7 @@ const create = context => ({
 			node,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
+			fix(fixer) {
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
 				const {left} = logicalExpression;
@@ -41,14 +40,7 @@ const create = context => ({
 					: left.range;
 				const [, end] = logicalExpression.range;
 
-				yield fixer.removeRange([start, end]);
-
-				if (
-					isLeftObjectParenthesized
-					|| !shouldAddParenthesesToSpreadElementArgument(left)
-				) {
-					yield * removeParentheses(logicalExpression, fixer, sourceCode);
-				}
+				return fixer.removeRange([start, end]);
 			},
 		};
 	},
