@@ -1,6 +1,11 @@
 'use strict';
 const {isMethodCall} = require('./ast/index.js');
-const {getParenthesizedText, needsSemicolon} = require('./utils/index.js');
+const {
+	getParenthesizedText,
+	isParenthesized,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
+} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
@@ -25,10 +30,24 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0] !== null
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
+const wrapText = (sourceCode, node, element, text, prefix, suffix) => {
+	if (prefix || suffix) {
+		return `${prefix}${text}${suffix}`;
+	}
+
+	if (node.parent.type === 'MemberExpression'
+	&& !isParenthesized(element, sourceCode)
+	&& shouldAddParenthesesToMemberExpressionObject(element, sourceCode)) {
+		return `(${text})`;
+	}
+
+	return text;
+};
+
 const getText = ({sourceCode}, node, element, prefix = '', suffix = '') => {
 	const previousToken = sourceCode.getTokenBefore(node);
 	const parenthesizedText = getParenthesizedText(element, sourceCode);
-	const wrappedText = `${prefix}${parenthesizedText}${suffix}`;
+	const wrappedText = wrapText(sourceCode, node, element, parenthesizedText, prefix, suffix);
 
 	return needsSemicolon(previousToken, sourceCode, wrappedText) ? `;${wrappedText}` : wrappedText;
 };

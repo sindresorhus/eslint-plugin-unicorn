@@ -51,5 +51,8 @@ test.snapshot({
 			foo
 			Promise.all([[array][0]])
 		`,
+		'Promise.all([promise]).then()',
+		'Promise.all([1]).then()',
+		'Promise.all([(0, promise)]).then()',
 	],
 });
