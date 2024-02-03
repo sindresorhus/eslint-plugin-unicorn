@@ -1,6 +1,6 @@
 'use strict';
 const {isMethodCall} = require('./ast/index.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
+const {getParenthesizedText, needsSemicolon} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
@@ -27,24 +27,23 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 
 const getText = ({sourceCode}, node, element, prefix = '', suffix = '') => {
 	const previousToken = sourceCode.getTokenBefore(node);
-	const text = sourceCode.getText(element);
-	const parenthesizedText = element.type === 'SequenceExpression' ? `(${text})` : text;
+	const parenthesizedText = getParenthesizedText(element, sourceCode);
 	const wrappedText = `${prefix}${parenthesizedText}${suffix}`;
 
 	return needsSemicolon(previousToken, sourceCode, wrappedText) ? `;${wrappedText}` : wrappedText;
 };
 
-const getAutoFixer = (context, node) => fixer => {
+const unwrapValue = (context, node) => fixer => {
 	const [element] = node.arguments[0].elements;
 	const elementWithoutAwait = element.type === 'AwaitExpression' ? element.argument : element;
 
 	return fixer.replaceText(node, getText(context, node, elementWithoutAwait));
 };
 
-const getSuggestion1Fixer = (context, node) => fixer =>
+const useValueDirectly = (context, node) => fixer =>
 	fixer.replaceText(node, getText(context, node, node.arguments[0].elements[0]));
 
-const getSuggestion2Fixer = (context, node) => fixer =>
+const wrapWithPromiseResolve = (context, node) => fixer =>
 	fixer.replaceText(node, getText(context, node, node.arguments[0].elements[0], 'Promise.resolve(', ')'));
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -63,18 +62,18 @@ const create = context => ({
 		};
 
 		if (callExpression.parent.type === 'AwaitExpression') {
-			problem.fix = getAutoFixer(context, callExpression);
+			problem.fix = unwrapValue(context, callExpression);
 			return problem;
 		}
 
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION_1,
-				fix: getSuggestion1Fixer(context, callExpression),
+				fix: useValueDirectly(context, callExpression),
 			},
 			{
 				messageId: MESSAGE_ID_SUGGESTION_2,
-				fix: getSuggestion2Fixer(context, callExpression),
+				fix: wrapWithPromiseResolve(context, callExpression),
 			},
 		];
 
