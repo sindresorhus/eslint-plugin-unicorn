@@ -1,15 +1,5 @@
 'use strict';
 
-const nodeTypesDoNotNeedParentheses = new Set([
-	'CallExpression',
-	'Identifier',
-	'Literal',
-	'MemberExpression',
-	'NewExpression',
-	'TemplateLiteral',
-	'ThisExpression',
-]);
-
 /**
 Check if parentheses should be added to a `node` when it's used as `argument` of `SpreadElement`.
 
@@ -17,6 +7,8 @@ Check if parentheses should be added to a `node` when it's used as `argument` of
 @returns {boolean}
 */
 const shouldAddParenthesesToSpreadElementArgument = node =>
-	!nodeTypesDoNotNeedParentheses.has(node.type);
+	// The only node type need to add parentheses
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
+	node.type === 'SequenceExpression';
 
 module.exports = shouldAddParenthesesToSpreadElementArgument;
