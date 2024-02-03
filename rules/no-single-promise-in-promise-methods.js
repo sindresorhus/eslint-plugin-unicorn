@@ -6,9 +6,9 @@ const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
 const MESSAGE_ID_SUGGESTION_2 = 'no-single-promise-in-promise-methods/suggestion-2';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Parameter in `Promise.{{method}}()` should not be a single element array.',
+	[MESSAGE_ID_ERROR]: 'Wrapping a single element array with `Promise.{{method}}()` is unnecessary.',
 	[MESSAGE_ID_SUGGESTION_1]: 'Use the value directly.',
-	[MESSAGE_ID_SUGGESTION_2]: 'Wrap the value in a `Promise.resolve`.',
+	[MESSAGE_ID_SUGGESTION_2]: 'Wrap the value with `Promise.resolve()`.',
 };
 const METHODS = ['all', 'any', 'race'];
 
@@ -55,7 +55,7 @@ const create = context => ({
 		}
 
 		const problem = {
-			node: callExpression,
+			node: callExpression.arguments[0],
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				method: callExpression.callee.property.name,
