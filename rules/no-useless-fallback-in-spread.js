@@ -30,7 +30,7 @@ const create = context => ({
 			node,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix(fixer) {
+			* fix(fixer) {
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
 				const {left} = logicalExpression;
@@ -40,7 +40,14 @@ const create = context => ({
 					: left.range;
 				const [, end] = logicalExpression.range;
 
-				return fixer.removeRange([start, end]);
+				yield fixer.removeRange([start, end]);
+
+				if (
+					isLeftObjectParenthesized
+					|| left.type !== 'SequenceExpression'
+				) {
+					yield * removeParentheses(logicalExpression, fixer, sourceCode);
+				}
 			},
 		};
 	},

@@ -1,5 +1,5 @@
 'use strict';
-const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('@eslint-community/eslint-utils');
+const {getStaticValue, isCommaToken, hasSideEffect} = require('@eslint-community/eslint-utils');
 const {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -209,7 +209,7 @@ function fixArrayFrom(node, sourceCode) {
 		}
 
 		const [start, end] = getParenthesizedRange(object, sourceCode);
-		let text = sourceCode.text.slice(start, end);
+		const text = sourceCode.text.slice(start, end);
 
 		return `[...${text}]`;
 	}
