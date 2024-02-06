@@ -12,8 +12,7 @@ const {
 const getClassHeadLocation = require('./utils/get-class-head-location.js');
 const {upperFirst, camelCase} = require('./utils/lodash.js');
 const assertToken = require('./utils/assert-token.js');
-const {} = require('./ast/index.js');
-const {} = require('./fix/index.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
 const {
 	getScopes,
 	avoidCapture,
@@ -47,7 +46,7 @@ function getSuggestionName(node, filename, sourceCode) {
 	return name;
 }
 
-function * addName(fixer, node, name, sourceCode) {
+function addName(fixer, node, name, sourceCode) {
 	switch (node.type) {
 		case 'ClassDeclaration': {
 			const classToken = sourceCode.getFirstToken(node);
@@ -55,19 +54,38 @@ function * addName(fixer, node, name, sourceCode) {
 				expected: {type: 'Keyword', value: 'class'},
 				ruleId: 'no-anonymous-default-export',
 			})
-			yield fixer.insertTextAfter(classToken, ` ${name}`);
-			return;
+			return fixer.insertTextAfter(classToken, ` ${name}`);
 		}
 		case 'FunctionDeclaration': {
 			const openingParenthesisToken = sourceCode.getFirstToken(
 				node,
 				isOpeningParenToken,
 			);
-			yield fixer.insertTextBefore(
+			return fixer.insertTextBefore(
 				openingParenthesisToken,
 				`${sourceCode.text.charAt(openingParenthesisToken.range[0] - 1) === ' ' ? '' : ' '}${name} `
 			);
-			return;
+		}
+		case 'ArrowFunctionExpression': {
+			const [exportDeclarationStart] = node.parent.range;
+			const [arrowFunctionStart] = getParenthesizedRange(node, sourceCode);
+
+			const originalExportDefaultText = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart)
+			const shouldInsertSpaceAfterDefault =
+				!originalExportDefaultText.endsWith(' ')
+				&& !originalExportDefaultText.endsWith('\n')
+				&& !originalExportDefaultText.endsWith('\t')
+
+			return [
+				fixer.replaceTextRange(
+					[exportDeclarationStart, arrowFunctionStart],
+					`const ${name} = `,
+				),
+				fixer.insertTextAfter(
+					node.parent,
+					`\n${originalExportDefaultText}${shouldInsertSpaceAfterDefault ? ' ' : ''}${name};`
+				),
+			]
 		}
 	}
 }

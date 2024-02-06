@@ -24,6 +24,8 @@ test.snapshot({
 		'export default async function () {}',
 		'export default async function * () {}',
 		'export default async () => {}',
+
+		// `ClassDeclaration`
 		{
 			code: 'export default class {}',
 			filename: '/path/to/foo.js',
@@ -57,12 +59,19 @@ test.snapshot({
 			filename: '/path/to/[foo].js',
 		},
 		{
+			code: 'export default class {}',
+			filename: '/path/to/class.js',
+		},
+		{
 			code: outdent`
 				let Foo, Foo_, foo, foo_
 				export default class {}
 			`,
 			filename: '/path/to/foo.js',
 		},
+
+
+		// `FunctionDeclaration`
 		{
 			code: 'export default function () {}',
 			filename: '/path/to/foo.js',
@@ -98,31 +107,59 @@ test.snapshot({
 			`,
 			filename: '/path/to/foo.js',
 		},
+		{
+			code: outdent`
+				let Foo, Foo_, foo, foo_
+				export default async function * () {}
+			`,
+			filename: '/path/to/foo.js',
+		},
 
-
-		// {
-		// 	code: 'export default () => {}',
-		// 	filename: '/path/to/foo.js',
-		// },
-		// {
-		// 	code: 'export default function () {}',
-		// 	filename: '123.js',
-		// },
-		// {
-		// 	code: 'export default function () {}',
-		// 	filename: '$foo.js',
-		// },
-		// {
-		// 	code: 'export default function () {}',
-		// 	filename: '_foo.js',
-		// },
-		// {
-		// 	code: 'export default class {}',
-		// 	filename: '/path/to/foo.js',
-		// },
-		// {
-		// 	code: 'export default function () {}',
-		// 	filename: '/path/to/foo.test.js',
-		// },
+		// `ArrowFunctionExpression`
+		{
+			code: 'export default () => {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async () => {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default () => {};',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default() => {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default foo => {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default (( () => {} ))',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: '/* comment 1 */ export /* comment 2 */ default /* comment 3 */  () => {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: outdent`
+				// comment 1
+				export
+				// comment 2
+				default
+				// comment 3
+				() => {}`,
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: outdent`
+				let Foo, Foo_, foo, foo_
+				export default async () => {}
+			`,
+			filename: '/path/to/foo.js',
+		},
 	],
 });
