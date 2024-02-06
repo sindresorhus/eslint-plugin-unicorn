@@ -23,6 +23,18 @@ export default function () {}
 export default () => {};
 ```
 
+```js
+module.exports = class {};
+```
+
+```js
+module.exports = function () {};
+```
+
+```js
+module.exports = () => {};
+```
+
 ## Pass
 
 ```js
@@ -36,4 +48,17 @@ export default function foo () {}
 ```js
 const foo = () => {};
 export default foo;
+```
+
+```js
+module.exports = class Foo {};
+```
+
+```js
+module.exports = function foo () {};
+```
+
+```js
+const foo = () => {};
+module.exports = foo;
 ```

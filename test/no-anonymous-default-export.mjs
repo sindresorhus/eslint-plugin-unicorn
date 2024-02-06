@@ -12,6 +12,10 @@ test.snapshot({
 		'export default 1',
 		'export default false',
 		'export default 0n',
+		'notExports = class {}',
+		'notModule.exports = class {}',
+		'module.notExports = class {}',
+		'module.exports.foo = class {}',
 	],
 	invalid: [
 		'export default function () {}',
@@ -99,6 +103,17 @@ test.snapshot({
 			code: 'export default (class extends class {} {})',
 			filename: '/path/to/foo.js',
 		},
+		{
+			code: outdent`
+				let Exports, Exports_, exports, exports_
+				exports = class {}
+			`,
+			filename: '/path/to/exports.js',
+		},
+		{
+			code: 'module.exports = class {}',
+			filename: '/path/to/module.js',
+		},
 
 		// `FunctionDeclaration`
 		{
@@ -152,6 +167,17 @@ test.snapshot({
 			`,
 			filename: '/path/to/foo.js',
 		},
+		{
+			code: outdent`
+				let Exports, Exports_, exports, exports_
+				exports = function() {}
+			`,
+			filename: '/path/to/exports.js',
+		},
+		{
+			code: 'module.exports = function() {}',
+			filename: '/path/to/module.js',
+		},
 
 		// `ArrowFunctionExpression`
 		{
@@ -200,6 +226,26 @@ test.snapshot({
 			`,
 			filename: '/path/to/foo.js',
 		},
+		{
+			code: outdent`
+				let Exports, Exports_, exports, exports_
+				exports = (( () => {} ))
+			`,
+			filename: '/path/to/exports.js',
+		},
+		{
+			code: outdent`
+				// comment 1
+				module
+				// comment 2
+				.exports
+				// comment 3
+				=
+				// comment 4
+				() => {}
+			`,
+			filename: '/path/to/module.js',
+		},
 	],
 });
 
@@ -238,6 +284,11 @@ test.snapshot({
 		},
 		{
 			code: 'export default @decorator(class {}) class extends class {} {}',
+			filename: '/path/to/foo.js',
+			...decoratorsAfterExportOptions,
+		},
+		{
+			code: 'module.exports = @decorator(class {}) class extends class {} {}',
 			filename: '/path/to/foo.js',
 			...decoratorsAfterExportOptions,
 		},

@@ -162,7 +162,7 @@ const create = context => {
 		return getProblem(node.declaration, context)
 	});
 
-	context.on('AssignmentExpression', (assignment) => {
+	context.on('AssignmentExpression', (node) => {
 		if (
 			!isAnonymousClassOrFunction(node.right)
 			|| !(
