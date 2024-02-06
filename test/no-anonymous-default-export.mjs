@@ -244,7 +244,7 @@ test.snapshot({
 				// comment 3
 				=
 				// comment 4
-				() => {}
+				() => {};
 			`,
 			filename: '/path/to/module.js',
 		},
@@ -254,6 +254,14 @@ test.snapshot({
 		},
 		{
 			code: '(( module.exports = (( () => {} )) ))',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: '(( exports = (( () => {} )) ));',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: '(( module.exports = (( () => {} )) ));',
 			filename: '/path/to/foo.js',
 		},
 	],
