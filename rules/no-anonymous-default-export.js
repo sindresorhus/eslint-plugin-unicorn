@@ -16,6 +16,7 @@ const {
 	getScopes,
 	avoidCapture,
 } = require('./utils/index.js');
+const {isMemberExpression} = require('./ast/index.js');
 
 const MESSAGE_ID_ERROR = 'no-anonymous-default-export/error';
 const MESSAGE_ID_SUGGESTION = 'no-anonymous-default-export/suggestion';
@@ -26,6 +27,15 @@ const messages = {
 
 const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\'';
 const isClassKeywordToken = token => token.type === 'Keyword' && token.value === 'class';
+const isAnonymousClassOrFunction = node =>
+	(
+		(
+			node.type === 'FunctionDeclaration'
+			|| node.type === 'ClassDeclaration'
+		)
+		&& !node.id
+	)
+	|| node.type === 'ArrowFunctionExpression';
 
 function getSuggestionName(node, filename, sourceCode) {
 	if (filename === '<input>' || filename === '<text>') {
@@ -92,68 +102,83 @@ function addName(fixer, node, name, sourceCode) {
 	}
 }
 
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
+function getProblem(node, context) {
 	const {sourceCode, physicalFilename} = context;
 
-	return {
-		ExportDefaultDeclaration({declaration: node}) {
-			if (!(
-				(
-					(
-						node.type === 'FunctionDeclaration'
-						|| node.type === 'ClassDeclaration'
-					)
-					&& !node.id
-				)
-				||				node.type === 'ArrowFunctionExpression'
-			)) {
-				return;
-			}
+	const suggestionName = getSuggestionName(node, physicalFilename, sourceCode);
 
-			const suggestionName = getSuggestionName(node, physicalFilename, sourceCode);
+	let loc;
+	let description;
+	if (node.type === 'ClassDeclaration') {
+		loc = getClassHeadLocation(node, sourceCode);
+		description = 'class';
+	} else {
+		loc = getFunctionHeadLocation(node, sourceCode);
+		// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
+		const nameWithKind = getFunctionNameWithKind(node);
+		description
+			= nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
+				? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
+				: nameWithKind;
+	}
 
-			let loc;
-			let description;
-			if (node.type === 'ClassDeclaration') {
-				loc = getClassHeadLocation(node, sourceCode);
-				description = 'class';
-			} else {
-				loc = getFunctionHeadLocation(node, sourceCode);
-				// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
-				const nameWithKind = getFunctionNameWithKind(node);
-				description
-					= nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
-						? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
-						: nameWithKind;
-			}
-
-			const problem = {
-				node,
-				loc,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					description,
-				},
-			};
-
-			if (!suggestionName) {
-				return problem;
-			}
-
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						name: suggestionName,
-					},
-					fix: fixer => addName(fixer, node, suggestionName, sourceCode),
-				},
-			];
-
-			return problem;
+	const problem = {
+		node,
+		loc,
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description,
 		},
 	};
+
+	if (!suggestionName) {
+		return problem;
+	}
+
+	problem.suggest = [
+		{
+			messageId: MESSAGE_ID_SUGGESTION,
+			data: {
+				name: suggestionName,
+			},
+			fix: fixer => addName(fixer, node, suggestionName, sourceCode),
+		},
+	];
+
+	return problem;
+}
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	context.on('ExportDefaultDeclaration', (node) => {
+		if (!isAnonymousClassOrFunction(node.declaration)) {
+			return;
+		}
+
+		return getProblem(node.declaration, context)
+	});
+
+	context.on('AssignmentExpression', (assignment) => {
+		if (
+			!isAnonymousClassOrFunction(node.right)
+			|| !(
+				isMemberExpression(node.left, {
+					object: 'module',
+					property: 'exports',
+					computed: false,
+					optional: false
+				})
+				|| (
+					node.left.type === 'Identifier',
+					node.left.name === 'exports'
+				)
+			)
+		) {
+			return
+		}
+
+		return getProblem(node.right, context);
+	})
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
