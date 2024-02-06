@@ -63,6 +63,22 @@ test.snapshot({
 			filename: '/path/to/class.js',
 		},
 		{
+			code: 'export default class {}',
+			filename: '/path/to/foo.helper.js',
+		},
+		{
+			code: 'export default class {}',
+			filename: '/path/to/foo.bar.js',
+		},
+		{
+			code: 'export default class {}',
+			filename: '/path/to/foo.test.js',
+		},
+		{
+			code: 'export default class {}',
+			filename: '/path/to/.foo.js',
+		},
+		{
 			code: outdent`
 				let Foo, Foo_, foo, foo_
 				export default class {}
