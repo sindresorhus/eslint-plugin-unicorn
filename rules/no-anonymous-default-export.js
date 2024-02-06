@@ -90,14 +90,10 @@ function addName(fixer, node, name, sourceCode) {
 			if (!/\s$/.test(textBefore)) {
 				textBefore = `${textBefore} `;
 			}
-			if (!textAfter.endsWith(';')) {
-				textAfter = `${textAfter};`
-			}
 
-			const shouldInsertSpaceAfterDefault
-				= !textBefore.endsWith(' ')
-				&& !textBefore.endsWith('\n')
-				&& !textBefore.endsWith('\t');
+			if (!textAfter.endsWith(';')) {
+				textAfter = `${textAfter};`;
+			}
 
 			return [
 				fixer.replaceTextRange(
@@ -106,7 +102,7 @@ function addName(fixer, node, name, sourceCode) {
 				),
 				fixer.replaceTextRange(
 					[arrowFunctionEnd, exportDeclarationEnd],
-					`;`,
+					';',
 				),
 				fixer.insertTextAfterRange(
 					[exportDeclarationEnd, exportDeclarationEnd],
@@ -164,15 +160,15 @@ function getProblem(node, context) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('ExportDefaultDeclaration', (node) => {
+	context.on('ExportDefaultDeclaration', node => {
 		if (!isAnonymousClassOrFunction(node.declaration)) {
 			return;
 		}
 
-		return getProblem(node.declaration, context)
+		return getProblem(node.declaration, context);
 	});
 
-	context.on('AssignmentExpression', (node) => {
+	context.on('AssignmentExpression', node => {
 		if (
 			!isAnonymousClassOrFunction(node.right)
 			|| !(
@@ -184,7 +180,7 @@ const create = context => {
 					object: 'module',
 					property: 'exports',
 					computed: false,
-					optional: false
+					optional: false,
 				})
 				|| (
 					node.left.type === 'Identifier',
@@ -192,11 +188,11 @@ const create = context => {
 				)
 			)
 		) {
-			return
+			return;
 		}
 
 		return getProblem(node.right, context);
-	})
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

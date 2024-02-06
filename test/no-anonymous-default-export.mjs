@@ -256,6 +256,7 @@ test.snapshot({
 			code: '(( module.exports = (( () => {} )) ))',
 			filename: '/path/to/foo.js',
 		},
+	],
 });
 
 // Decorators
