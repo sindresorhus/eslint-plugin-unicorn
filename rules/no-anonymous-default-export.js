@@ -31,7 +31,9 @@ const isAnonymousClassOrFunction = node =>
 	(
 		(
 			node.type === 'FunctionDeclaration'
+			|| node.type === 'FunctionExpression'
 			|| node.type === 'ClassDeclaration'
+			|| node.type === 'ClassExpression'
 		)
 		&& !node.id
 	)
@@ -57,7 +59,8 @@ function getSuggestionName(node, filename, sourceCode) {
 
 function addName(fixer, node, name, sourceCode) {
 	switch (node.type) {
-		case 'ClassDeclaration': {
+		case 'ClassDeclaration':
+		case 'ClassExpression': {
 			const lastDecorator = node.decorators?.at(-1);
 			const classToken = lastDecorator
 				? sourceCode.getTokenAfter(lastDecorator, isClassKeywordToken)
@@ -65,7 +68,8 @@ function addName(fixer, node, name, sourceCode) {
 			return fixer.insertTextAfter(classToken, ` ${name}`);
 		}
 
-		case 'FunctionDeclaration': {
+		case 'FunctionDeclaration':
+		case 'FunctionExpression': {
 			const openingParenthesisToken = sourceCode.getFirstToken(
 				node,
 				isOpeningParenToken,
@@ -109,7 +113,7 @@ function getProblem(node, context) {
 
 	let loc;
 	let description;
-	if (node.type === 'ClassDeclaration') {
+	if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
 		loc = getClassHeadLocation(node, sourceCode);
 		description = 'class';
 	} else {

@@ -12,9 +12,6 @@ test.snapshot({
 		'export default 1',
 		'export default false',
 		'export default 0n',
-		// `ClassExpression`s and `FunctionExpression`s are ignored
-		'export default (class {})',
-		'export default (function () {})',
 	],
 	invalid: [
 		'export default function () {}',
@@ -90,6 +87,19 @@ test.snapshot({
 			filename: '/path/to/foo.js',
 		},
 
+		// `ClassExpression`
+		{
+			code: outdent`
+				let Foo, Foo_, foo, foo_
+				export default (class{})
+			`,
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default (class extends class {} {})',
+			filename: '/path/to/foo.js',
+		},
+
 		// `FunctionDeclaration`
 		{
 			code: 'export default function () {}',
@@ -130,6 +140,15 @@ test.snapshot({
 			code: outdent`
 				let Foo, Foo_, foo, foo_
 				export default async function * () {}
+			`,
+			filename: '/path/to/foo.js',
+		},
+
+		// `FunctionExpression`
+		{
+			code: outdent`
+				let Foo, Foo_, foo, foo_
+				export default (async function * () {})
 			`,
 			filename: '/path/to/foo.js',
 		},
