@@ -14,6 +14,7 @@ module.exports = {
 	'unicorn/import-style': 'error',
 	'unicorn/new-for-builtins': 'error',
 	'unicorn/no-abusive-eslint-disable': 'error',
+	'unicorn/no-anonymous-default-export': 'error',
 	'unicorn/no-array-callback-reference': 'error',
 	'unicorn/no-array-for-each': 'error',
 	'unicorn/no-array-method-this-argument': 'error',
