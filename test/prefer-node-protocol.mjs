@@ -25,6 +25,10 @@ test.snapshot({
 			}
 		`,
 		'import "punycode/";',
+		// https://bun.sh/docs/runtime/bun-apis
+		'import "bun";',
+		'import "bun:jsc";',
+		'import "bun:sqlite";',
 	],
 	invalid: [
 		'import fs from "fs";',
