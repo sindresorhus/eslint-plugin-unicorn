@@ -1,6 +1,7 @@
 'use strict';
 
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const getClassHeadLocation = require('./utils/get-class-head-location.js');
 const {} = require('./ast/index.js');
 const {} = require('./fix/index.js');
 const {} = require('./utils/index.js');
@@ -13,48 +14,52 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Name it as {{name}}.',
 };
 
-function getNodeDescription(node) {
-	if (node.type === 'ClassDeclaration') {
-		return 'class'
-	}
-
-	const nameWithKind = getFunctionNameWithKind(node)
-	if (nameWithKind.endsWith(' \'default\'')) {
-		return nameWithKind.slice(0, -' \'default\''.length)
-	}
-
-	return nameWithKind
+const EXPECTED_FUNCTION_DESCRIPTION = ' \'default\''
+function getNodeDescription(node, sourceCode) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	return {
-		ExportDefaultDeclaration(exportDefaultDeclaration) {
-			const {declaration} = exportDefaultDeclaration;
+	const {sourceCode} = context;
 
+	return {
+		ExportDefaultDeclaration({declaration: node}) {
 			if (!(
 				(
 					(
-						declaration.type === 'FunctionDeclaration' ||
-						declaration.type === 'ClassDeclaration'
+						node.type === 'FunctionDeclaration' ||
+						node.type === 'ClassDeclaration'
 					)
-					&& !declaration.id
+					&& !node.id
 				)
 				||
-				declaration.type === 'ArrowFunctionExpression'
+				node.type === 'ArrowFunctionExpression'
 			)) {
 				return;
 			}
 
 			const problem = {
-				node: declaration,
+				node,
 				messageId: MESSAGE_ID_ERROR,
-				data: {
-					description: getNodeDescription(declaration),
-				},
-			};
+				data: {}
+			}
+
+			if (node.type === 'ClassDeclaration') {
+				problem.loc = getClassHeadLocation(node, sourceCode);
+				problem.data.description = 'class';
+				return problem;
+			}
+
+			problem.loc = getFunctionHeadLocation(node, sourceCode);
+			// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
+			const nameWithKind = getFunctionNameWithKind(node)
+			problem.data.description =
+				nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION)
+				? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION.length)
+				: nameWithKind
 
 			return problem;
+
 
 			return {
 				node,
