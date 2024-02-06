@@ -1,7 +1,11 @@
 'use strict';
 
 const path = require('node:path')
-const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const {
+	getFunctionHeadLocation,
+	getFunctionNameWithKind,
+	isOpeningParenToken,
+} = require('@eslint-community/eslint-utils');
 const {
 	isIdentifierName,
 } = require('@babel/helper-validator-identifier');
@@ -43,7 +47,7 @@ function getSuggestionName(node, filename, sourceCode) {
 	return name;
 }
 
-function addName(fixer, node, name, sourceCode) {
+function * addName(fixer, node, name, sourceCode) {
 	switch (node.type) {
 		case 'ClassDeclaration': {
 			const classToken = sourceCode.getFirstToken(node);
@@ -51,7 +55,19 @@ function addName(fixer, node, name, sourceCode) {
 				expected: {type: 'Keyword', value: 'class'},
 				ruleId: 'no-anonymous-default-export',
 			})
-			return fixer.insertTextAfter(classToken, ` ${name}`);
+			yield fixer.insertTextAfter(classToken, ` ${name}`);
+			return;
+		}
+		case 'FunctionDeclaration': {
+			const openingParenthesisToken = sourceCode.getFirstToken(
+				node,
+				isOpeningParenToken,
+			);
+			yield fixer.insertTextBefore(
+				openingParenthesisToken,
+				`${sourceCode.text.charAt(openingParenthesisToken.range[0] - 1) === ' ' ? '' : ' '}${name} `
+			);
+			return;
 		}
 	}
 }

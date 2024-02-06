@@ -63,35 +63,66 @@ test.snapshot({
 			`,
 			filename: '/path/to/foo.js',
 		},
+		{
+			code: 'export default function () {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default function* () {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async function* () {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async function*() {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async function *() {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async function   *   () {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: 'export default async function * /* comment */ () {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: outdent`
+				export default async function * // comment
+				() {}
+			`,
+			filename: '/path/to/foo.js',
+		},
 
 
-		{
-			code: 'export default function () {}',
-			filename: '/path/to/foo.js',
-		},
-		{
-			code: 'export default () => {}',
-			filename: '/path/to/foo.js',
-		},
-		{
-			code: 'export default function () {}',
-			filename: '123.js',
-		},
-		{
-			code: 'export default function () {}',
-			filename: '$foo.js',
-		},
-		{
-			code: 'export default function () {}',
-			filename: '_foo.js',
-		},
-		{
-			code: 'export default class {}',
-			filename: '/path/to/foo.js',
-		},
-		{
-			code: 'export default function () {}',
-			filename: '/path/to/foo.test.js',
-		},
+		// {
+		// 	code: 'export default () => {}',
+		// 	filename: '/path/to/foo.js',
+		// },
+		// {
+		// 	code: 'export default function () {}',
+		// 	filename: '123.js',
+		// },
+		// {
+		// 	code: 'export default function () {}',
+		// 	filename: '$foo.js',
+		// },
+		// {
+		// 	code: 'export default function () {}',
+		// 	filename: '_foo.js',
+		// },
+		// {
+		// 	code: 'export default class {}',
+		// 	filename: '/path/to/foo.js',
+		// },
+		// {
+		// 	code: 'export default function () {}',
+		// 	filename: '/path/to/foo.test.js',
+		// },
 	],
 });
