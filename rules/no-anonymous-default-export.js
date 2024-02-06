@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require('node:path')
+const path = require('node:path');
 const {
 	getFunctionHeadLocation,
 	getFunctionNameWithKind,
@@ -17,7 +17,6 @@ const {
 	avoidCapture,
 } = require('./utils/index.js');
 
-
 const MESSAGE_ID_ERROR = 'no-anonymous-default-export/error';
 const MESSAGE_ID_SUGGESTION = 'no-anonymous-default-export/suggestion';
 const messages = {
@@ -25,7 +24,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Name it as `{{name}}`.',
 };
 
-const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\''
+const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\'';
 const isClassKeywordToken = token => token.type === 'Keyword' && token.value === 'class';
 
 function getSuggestionName(node, filename, sourceCode) {
@@ -33,14 +32,14 @@ function getSuggestionName(node, filename, sourceCode) {
 		return;
 	}
 
-	let [name] = path.basename(filename).split('.')
-	name = camelCase(name)
+	let [name] = path.basename(filename).split('.');
+	name = camelCase(name);
 
 	if (!isIdentifierName(name)) {
-		return
+		return;
 	}
 
-	name = node.type === 'ClassDeclaration' ? upperFirst(name) : name
+	name = node.type === 'ClassDeclaration' ? upperFirst(name) : name;
 	name = avoidCapture(name, getScopes(sourceCode.getScope(node)));
 
 	return name;
@@ -49,12 +48,13 @@ function getSuggestionName(node, filename, sourceCode) {
 function addName(fixer, node, name, sourceCode) {
 	switch (node.type) {
 		case 'ClassDeclaration': {
-			const lastDecorator = node.decorators?.at(-1)
+			const lastDecorator = node.decorators?.at(-1);
 			const classToken = lastDecorator
 				? sourceCode.getTokenAfter(lastDecorator, isClassKeywordToken)
 				: sourceCode.getFirstToken(node, isClassKeywordToken);
 			return fixer.insertTextAfter(classToken, ` ${name}`);
 		}
+
 		case 'FunctionDeclaration': {
 			const openingParenthesisToken = sourceCode.getFirstToken(
 				node,
@@ -62,18 +62,19 @@ function addName(fixer, node, name, sourceCode) {
 			);
 			return fixer.insertTextBefore(
 				openingParenthesisToken,
-				`${sourceCode.text.charAt(openingParenthesisToken.range[0] - 1) === ' ' ? '' : ' '}${name} `
+				`${sourceCode.text.charAt(openingParenthesisToken.range[0] - 1) === ' ' ? '' : ' '}${name} `,
 			);
 		}
+
 		case 'ArrowFunctionExpression': {
 			const [exportDeclarationStart] = node.parent.range;
 			const [arrowFunctionStart] = getParenthesizedRange(node, sourceCode);
 
-			const originalExportDefaultText = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart)
-			const shouldInsertSpaceAfterDefault =
-				!originalExportDefaultText.endsWith(' ')
+			const originalExportDefaultText = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
+			const shouldInsertSpaceAfterDefault
+				= !originalExportDefaultText.endsWith(' ')
 				&& !originalExportDefaultText.endsWith('\n')
-				&& !originalExportDefaultText.endsWith('\t')
+				&& !originalExportDefaultText.endsWith('\t');
 
 			return [
 				fixer.replaceTextRange(
@@ -82,10 +83,12 @@ function addName(fixer, node, name, sourceCode) {
 				),
 				fixer.insertTextAfter(
 					node.parent,
-					`\n${originalExportDefaultText}${shouldInsertSpaceAfterDefault ? ' ' : ''}${name};`
+					`\n${originalExportDefaultText}${shouldInsertSpaceAfterDefault ? ' ' : ''}${name};`,
 				),
-			]
+			];
 		}
+
+		// No default
 	}
 }
 
@@ -98,32 +101,31 @@ const create = context => {
 			if (!(
 				(
 					(
-						node.type === 'FunctionDeclaration' ||
-						node.type === 'ClassDeclaration'
+						node.type === 'FunctionDeclaration'
+						|| node.type === 'ClassDeclaration'
 					)
 					&& !node.id
 				)
-				||
-				node.type === 'ArrowFunctionExpression'
+				||				node.type === 'ArrowFunctionExpression'
 			)) {
 				return;
 			}
 
-			const suggestionName = getSuggestionName(node, physicalFilename, sourceCode)
+			const suggestionName = getSuggestionName(node, physicalFilename, sourceCode);
 
-			let loc
-			let description
+			let loc;
+			let description;
 			if (node.type === 'ClassDeclaration') {
 				loc = getClassHeadLocation(node, sourceCode);
 				description = 'class';
 			} else {
 				loc = getFunctionHeadLocation(node, sourceCode);
 				// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
-				const nameWithKind = getFunctionNameWithKind(node)
-				description =
-					nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
-					? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
-					: nameWithKind
+				const nameWithKind = getFunctionNameWithKind(node);
+				description
+					= nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
+						? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
+						: nameWithKind;
 			}
 
 			const problem = {
@@ -133,7 +135,7 @@ const create = context => {
 				data: {
 					description,
 				},
-			}
+			};
 
 			if (!suggestionName) {
 				return problem;
@@ -145,7 +147,7 @@ const create = context => {
 					data: {
 						name: suggestionName,
 					},
-					fix: fixer => addName(fixer, node, suggestionName, sourceCode)
+					fix: fixer => addName(fixer, node, suggestionName, sourceCode),
 				},
 			];
 

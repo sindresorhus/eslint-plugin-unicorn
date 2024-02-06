@@ -86,7 +86,6 @@ test.snapshot({
 			filename: '/path/to/foo.js',
 		},
 
-
 		// `FunctionDeclaration`
 		{
 			code: 'export default function () {}',
@@ -167,7 +166,8 @@ test.snapshot({
 				// comment 2
 				default
 				// comment 3
-				() => {}`,
+				() => {}
+			`,
 			filename: '/path/to/foo.js',
 		},
 		{
@@ -192,7 +192,7 @@ const decoratorsBeforeExportOptions = {
 			},
 		},
 	},
-}
+};
 const decoratorsAfterExportOptions = {
 	parser: parsers.babel,
 	parserOptions: {
@@ -204,7 +204,7 @@ const decoratorsAfterExportOptions = {
 			},
 		},
 	},
-}
+};
 test.snapshot({
 	valid: [],
 	invalid: [
@@ -224,5 +224,5 @@ test.snapshot({
 			...decoratorsBeforeExportOptions,
 		},
 	],
-})
+});
 
