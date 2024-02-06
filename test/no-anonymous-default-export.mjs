@@ -14,11 +14,15 @@ test.snapshot({
 		'export default 0n',
 		// `ClassExpression`s and `FunctionExpression`s are ignored
 		'export default (class {})',
-		'export default (function {})',
+		'export default (function () {})',
 	],
 	invalid: [
 		'export default function () {}',
-		'export default class () {}',
+		'export default class {}',
 		'export default () => {}',
+		'export default function * () {}',
+		'export default async function () {}',
+		'export default async function * () {}',
+		'export default async () => {}',
 	],
 });
