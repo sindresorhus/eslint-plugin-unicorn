@@ -14,6 +14,7 @@ The rule disallows using the `thisArg` argument in array methods:
 
 This rule checks following array methods accepts `thisArg`:
 
+- [`Array.from()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/from)
 - [`Array#every()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/every)
 - [`Array#filter()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/filter)
 - [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/find)
