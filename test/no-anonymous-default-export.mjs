@@ -16,6 +16,8 @@ test.snapshot({
 		'notModule.exports = class {}',
 		'module.notExports = class {}',
 		'module.exports.foo = class {}',
+		'alert(exports = class {})',
+		'foo = module.exports = class {}',
 	],
 	invalid: [
 		'export default function () {}',
@@ -254,7 +256,6 @@ test.snapshot({
 			code: '(( module.exports = (( () => {} )) ))',
 			filename: '/path/to/foo.js',
 		},
-	],
 });
 
 // Decorators

@@ -176,6 +176,10 @@ const create = context => {
 		if (
 			!isAnonymousClassOrFunction(node.right)
 			|| !(
+				node.parent.type === 'ExpressionStatement'
+				&& node.parent.expression === node
+			)
+			|| !(
 				isMemberExpression(node.left, {
 					object: 'module',
 					property: 'exports',
