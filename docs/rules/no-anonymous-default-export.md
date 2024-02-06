@@ -20,7 +20,7 @@ export default function () {}
 ```
 
 ```js
-export default () => {}
+export default () => {};
 ```
 
 ## Pass
