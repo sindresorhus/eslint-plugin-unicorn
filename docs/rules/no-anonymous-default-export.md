@@ -7,16 +7,33 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Ensuring that default exports are named helps improve the grepability of the codebase by encouraging the re-use of the same identifier for the module's default export at its declaration site and at its import sites.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+export default class {}
+```
+
+```js
+export default function () {}
+```
+
+```js
+export default () => {}
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+export default class Foo {}
+```
+
+```js
+export default function foo () {}
+```
+
+```js
+const foo = () => {};
+export default foo;
 ```

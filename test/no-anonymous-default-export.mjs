@@ -165,51 +165,48 @@ test.snapshot({
 });
 
 // Decorators
-test.snapshot({
-	testerOptions: {
-		parser: parsers.babel,
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						['decorators', {decoratorsBeforeExport: true}],
-					],
-				},
+const decoratorsBeforeExportOptions = {
+	parser: parsers.babel,
+	parserOptions: {
+		babelOptions: {
+			parserOpts: {
+				plugins: [
+					['decorators', {decoratorsBeforeExport: true}],
+				],
 			},
 		},
 	},
+}
+const decoratorsAfterExportOptions = {
+	parser: parsers.babel,
+	parserOptions: {
+		babelOptions: {
+			parserOpts: {
+				plugins: [
+					['decorators', {decoratorsBeforeExport: false}],
+				],
+			},
+		},
+	},
+}
+test.snapshot({
 	valid: [],
 	invalid: [
 		{
 			code: '@decorator export default class {}',
 			filename: '/path/to/foo.js',
+			...decoratorsBeforeExportOptions,
+		},
+		{
+			code: 'export default @decorator(class {}) class {}',
+			filename: '/path/to/foo.js',
+			...decoratorsAfterExportOptions,
 		},
 		{
 			code: '@decorator @decorator(class {}) export default class {}',
 			filename: '/path/to/foo.js',
+			...decoratorsBeforeExportOptions,
 		},
 	],
 })
 
-// Decorators
-test.snapshot({
-	testerOptions: {
-		parser: parsers.babel,
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						['decorators', {decoratorsBeforeExport: false}],
-					],
-				},
-			},
-		},
-	},
-	valid: [],
-	invalid: [
-		{
-			code: 'export default @decorator(class {}) class {}',
-			filename: '/path/to/foo.js',
-		},
-	]
-});
