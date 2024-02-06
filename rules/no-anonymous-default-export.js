@@ -25,7 +25,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Name it as `{{name}}`.',
 };
 
-const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\'';
 const isClassKeywordToken = token => token.type === 'Keyword' && token.value === 'class';
 const isAnonymousClassOrFunction = node =>
 	(
@@ -120,10 +119,7 @@ function getProblem(node, context) {
 		loc = getFunctionHeadLocation(node, sourceCode);
 		// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
 		const nameWithKind = getFunctionNameWithKind(node);
-		description
-			= nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
-				? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
-				: nameWithKind;
+		description = nameWithKind.replace(/ '.*?'$/, '');
 	}
 
 	const problem = {
