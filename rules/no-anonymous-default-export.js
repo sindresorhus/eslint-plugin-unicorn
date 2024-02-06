@@ -11,7 +11,6 @@ const {
 } = require('@babel/helper-validator-identifier');
 const getClassHeadLocation = require('./utils/get-class-head-location.js');
 const {upperFirst, camelCase} = require('./utils/lodash.js');
-const assertToken = require('./utils/assert-token.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 const {
 	getScopes,
@@ -27,6 +26,7 @@ const messages = {
 };
 
 const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\''
+const isClassKeywordToken = token => token.type === 'Keyword' && token.value === 'class';
 
 function getSuggestionName(node, filename, sourceCode) {
 	if (filename === '<input>' || filename === '<text>') {
@@ -49,11 +49,10 @@ function getSuggestionName(node, filename, sourceCode) {
 function addName(fixer, node, name, sourceCode) {
 	switch (node.type) {
 		case 'ClassDeclaration': {
-			const classToken = sourceCode.getFirstToken(node);
-			assertToken(classToken, {
-				expected: {type: 'Keyword', value: 'class'},
-				ruleId: 'no-anonymous-default-export',
-			})
+			const lastDecorator = node.decorators?.at(-1)
+			const classToken = lastDecorator
+				? sourceCode.getTokenAfter(lastDecorator, isClassKeywordToken)
+				: sourceCode.getFirstToken(node, isClassKeywordToken);
 			return fixer.insertTextAfter(classToken, ` ${name}`);
 		}
 		case 'FunctionDeclaration': {

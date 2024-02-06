@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -162,4 +162,54 @@ test.snapshot({
 			filename: '/path/to/foo.js',
 		},
 	],
+});
+
+// Decorators
+test.snapshot({
+	testerOptions: {
+		parser: parsers.babel,
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: [
+						['decorators', {decoratorsBeforeExport: true}],
+					],
+				},
+			},
+		},
+	},
+	valid: [],
+	invalid: [
+		{
+			code: '@decorator export default class {}',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: '@decorator @decorator(class {}) export default class {}',
+			filename: '/path/to/foo.js',
+		},
+	],
+})
+
+// Decorators
+test.snapshot({
+	testerOptions: {
+		parser: parsers.babel,
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: [
+						['decorators', {decoratorsBeforeExport: false}],
+					],
+				},
+			},
+		},
+	},
+	valid: [],
+	invalid: [
+		{
+			code: 'export default @decorator(class {}) class {}',
+			filename: '/path/to/foo.js',
+		},
+	]
 });
