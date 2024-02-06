@@ -2,4 +2,5 @@
 
 const {isExpressionStatement} = require('../ast/index.js');
 
-module.exports = node => isExpressionStatement(node.parent);
+const isValueNotUsable = node => isExpressionStatement(node.parent);
+module.exports = isValueNotUsable;

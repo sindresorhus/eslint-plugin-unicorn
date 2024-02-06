@@ -203,7 +203,6 @@ module.exports = {
 		docs: {
 			description: 'Disallow anonymous functions and classes as the default export.',
 		},
-
 		hasSuggestions: true,
 		messages,
 	},
