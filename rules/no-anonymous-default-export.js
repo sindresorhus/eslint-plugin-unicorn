@@ -80,23 +80,37 @@ function addName(fixer, node, name, sourceCode) {
 		}
 
 		case 'ArrowFunctionExpression': {
-			const [exportDeclarationStart] = node.parent.range;
-			const [arrowFunctionStart] = getParenthesizedRange(node, sourceCode);
+			const [exportDeclarationStart, exportDeclarationEnd] = getParenthesizedRange(node.parent, sourceCode);
+			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, sourceCode);
 
-			const originalExportDefaultText = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
+			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
+			let textAfter = sourceCode.text.slice(arrowFunctionEnd, exportDeclarationEnd);
+
+			textBefore = `\n${textBefore}`;
+			if (!/\s$/.test(textBefore)) {
+				textBefore = `${textBefore} `;
+			}
+			if (!textAfter.endsWith(';')) {
+				textAfter = `${textAfter};`
+			}
+
 			const shouldInsertSpaceAfterDefault
-				= !originalExportDefaultText.endsWith(' ')
-				&& !originalExportDefaultText.endsWith('\n')
-				&& !originalExportDefaultText.endsWith('\t');
+				= !textBefore.endsWith(' ')
+				&& !textBefore.endsWith('\n')
+				&& !textBefore.endsWith('\t');
 
 			return [
 				fixer.replaceTextRange(
 					[exportDeclarationStart, arrowFunctionStart],
 					`const ${name} = `,
 				),
-				fixer.insertTextAfter(
-					node.parent,
-					`\n${originalExportDefaultText}${shouldInsertSpaceAfterDefault ? ' ' : ''}${name};`,
+				fixer.replaceTextRange(
+					[arrowFunctionEnd, exportDeclarationEnd],
+					`;`,
+				),
+				fixer.insertTextAfterRange(
+					[exportDeclarationEnd, exportDeclarationEnd],
+					`${textBefore}${name}${textAfter}`,
 				),
 			];
 		}

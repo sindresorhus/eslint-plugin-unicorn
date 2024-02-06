@@ -246,6 +246,14 @@ test.snapshot({
 			`,
 			filename: '/path/to/module.js',
 		},
+		{
+			code: '(( exports = (( () => {} )) ))',
+			filename: '/path/to/foo.js',
+		},
+		{
+			code: '(( module.exports = (( () => {} )) ))',
+			filename: '/path/to/foo.js',
+		},
 	],
 });
 
