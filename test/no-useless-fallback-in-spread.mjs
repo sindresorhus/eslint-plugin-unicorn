@@ -46,6 +46,7 @@ test.snapshot({
 		'const object = {...((foo && {}) || {})}',
 		'const object = {...(foo && {} || {})}',
 		'const object = {...({...(foo || {})})}',
+		'const object = {...({...((0, foo) || {})})}',
 		'function foo(a = {...(bar || {})}){}',
 		// The only case we'll break, but we should not care about it.
 		'const object = {...(document.all || {})}',

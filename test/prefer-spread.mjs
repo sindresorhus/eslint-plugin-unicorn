@@ -141,6 +141,7 @@ test.snapshot({
 		'(Array.from)((0, foo))',
 		'((Array).from)((0, foo))',
 		'Array.from(a ? b : c)',
+		'Array.from((0, a))',
 		'Array.from([...a, ...b], )',
 		'Array.from([1])',
 		'Array.from([...a, ...b])',
@@ -220,6 +221,7 @@ test.snapshot({
 		'foo.concat(bar, 2, 3, baz)',
 		// Parentheses
 		'async function a() {return [].concat(await bar)}',
+		'async function a() {return [].concat((0, bar))}',
 		'async function a() {return [].concat(((await bar)))}',
 		'foo.concat((0, 1))',
 		'async function a() {return (await bar).concat(1)}',
