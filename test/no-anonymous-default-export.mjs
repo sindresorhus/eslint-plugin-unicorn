@@ -31,6 +31,10 @@ test.snapshot({
 			filename: '/path/to/foo.js',
 		},
 		{
+			code: 'export default class extends class {} {}',
+			filename: '/path/to/foo.js',
+		},
+		{
 			code: 'export default class{}',
 			filename: '/path/to/foo.js',
 		},
@@ -214,7 +218,7 @@ test.snapshot({
 			...decoratorsBeforeExportOptions,
 		},
 		{
-			code: 'export default @decorator(class {}) class {}',
+			code: 'export default @decorator(class {}) class extends class {} {}',
 			filename: '/path/to/foo.js',
 			...decoratorsAfterExportOptions,
 		},
