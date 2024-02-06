@@ -1,26 +1,64 @@
 'use strict';
 
+const path = require('node:path')
 const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
+const {
+	isIdentifierName,
+} = require('@babel/helper-validator-identifier');
 const getClassHeadLocation = require('./utils/get-class-head-location.js');
+const {upperFirst, camelCase} = require('./utils/lodash.js');
+const assertToken = require('./utils/assert-token.js');
 const {} = require('./ast/index.js');
 const {} = require('./fix/index.js');
-const {} = require('./utils/index.js');
+const {
+	getScopes,
+	avoidCapture,
+} = require('./utils/index.js');
 
 
 const MESSAGE_ID_ERROR = 'no-anonymous-default-export/error';
 const MESSAGE_ID_SUGGESTION = 'no-anonymous-default-export/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'The {{description}} should be named.',
-	[MESSAGE_ID_SUGGESTION]: 'Name it as {{name}}.',
+	[MESSAGE_ID_SUGGESTION]: 'Name it as `{{name}}`.',
 };
 
-const EXPECTED_FUNCTION_DESCRIPTION = ' \'default\''
-function getNodeDescription(node, sourceCode) {
+const EXPECTED_FUNCTION_DESCRIPTION_SUFFIX = ' \'default\''
+
+function getSuggestionName(node, filename, sourceCode) {
+	if (filename === '<input>' || filename === '<text>') {
+		return;
+	}
+
+	let [name] = path.basename(filename).split('.')
+	name = camelCase(name)
+
+	if (!isIdentifierName(name)) {
+		return
+	}
+
+	name = node.type === 'ClassDeclaration' ? upperFirst(name) : name
+	name = avoidCapture(name, getScopes(sourceCode.getScope(node)));
+
+	return name;
+}
+
+function addName(fixer, node, name, sourceCode) {
+	switch (node.type) {
+		case 'ClassDeclaration': {
+			const classToken = sourceCode.getFirstToken(node);
+			assertToken(classToken, {
+				expected: {type: 'Keyword', value: 'class'},
+				ruleId: 'no-anonymous-default-export',
+			})
+			return fixer.insertTextAfter(classToken, ` ${name}`);
+		}
+	}
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
+	const {sourceCode, physicalFilename} = context;
 
 	return {
 		ExportDefaultDeclaration({declaration: node}) {
@@ -38,52 +76,47 @@ const create = context => {
 				return;
 			}
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {}
+			const suggestionName = getSuggestionName(node, physicalFilename, sourceCode)
+
+			let loc
+			let description
+			if (node.type === 'ClassDeclaration') {
+				loc = getClassHeadLocation(node, sourceCode);
+				description = 'class';
+			} else {
+				loc = getFunctionHeadLocation(node, sourceCode);
+				// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
+				const nameWithKind = getFunctionNameWithKind(node)
+				description =
+					nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION_SUFFIX)
+					? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION_SUFFIX.length)
+					: nameWithKind
 			}
 
-			if (node.type === 'ClassDeclaration') {
-				problem.loc = getClassHeadLocation(node, sourceCode);
-				problem.data.description = 'class';
+			const problem = {
+				node,
+				loc,
+				messageId: MESSAGE_ID_ERROR,
+				data: {
+					description,
+				},
+			}
+
+			if (!suggestionName) {
 				return problem;
 			}
 
-			problem.loc = getFunctionHeadLocation(node, sourceCode);
-			// [TODO: @fisker]: Ask `@eslint-community/eslint-utils` to expose `getFunctionKind`
-			const nameWithKind = getFunctionNameWithKind(node)
-			problem.data.description =
-				nameWithKind.endsWith(EXPECTED_FUNCTION_DESCRIPTION)
-				? nameWithKind.slice(0, -EXPECTED_FUNCTION_DESCRIPTION.length)
-				: nameWithKind
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {
+						name: suggestionName,
+					},
+					fix: fixer => addName(fixer, node, suggestionName, sourceCode)
+				},
+			];
 
 			return problem;
-
-
-			return {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
-				},
-
-
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							value: 'unicorn',
-							replacement: '🦄',
-						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.replaceText(node, '\'🦄\''),
-					}
-				],
-
-			};
 		},
 	};
 };
