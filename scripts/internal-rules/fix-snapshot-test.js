@@ -101,7 +101,7 @@ function checkInvalidCases(node, context) {
 		}
 
 		for (const propertyNode of testCaseNode.properties) {
-			if (propertyNode.computed || propertyNode.key.type !== 'Identifier') {
+			if (propertyNode.type !== 'Property' || propertyNode.computed || propertyNode.key.type !== 'Identifier') {
 				continue;
 			}
 

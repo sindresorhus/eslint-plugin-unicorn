@@ -1,5 +1,5 @@
 'use strict';
-module.exports = (node, object, method) => {
+module.exports = function isObjectMethod(node, object, method) {
 	const {callee} = node;
 	return (
 		callee.type === 'MemberExpression'

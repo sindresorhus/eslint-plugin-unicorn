@@ -7,7 +7,7 @@ Finds a variable named `name` in the scope `scope` (or it's parents).
 @param {Scope} scope - The scope to look for the variable in.
 @returns {Variable?} - The found variable, if any.
 */
-module.exports = (name, scope) => {
+module.exports = function resolveVariableName(name, scope) {
 	while (scope) {
 		const variable = scope.set.get(name);
 

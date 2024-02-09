@@ -134,7 +134,8 @@
 					]
 				}
 			],
-			"import/order": "off"
+			"import/order": "off",
+			"func-names": "off"
 		},
 		"overrides": [
 			{

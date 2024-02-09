@@ -9,7 +9,7 @@ Escape string and wrap the result in quotes.
 @param {string} [quote] - The quote character.
 @returns {string} - The quoted and escaped string.
 */
-module.exports = (string, quote = '\'') => {
+module.exports = function escapeString(string, quote = '\'') {
 	/* c8 ignore start */
 	if (typeof string !== 'string') {
 		throw new TypeError('Unexpected string.');
