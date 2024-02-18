@@ -9,7 +9,6 @@ test({
 			['plugin-name', 'rule-name'],
 			['@scope/plugin', 'rule-name'],
 			['@scope', 'rule-name'],
-			// ['', '@scopewithoutplugin'],
 		].map(([pluginName, ruleName]) => [pluginName, {rules: {[ruleName]: {}}}])),
 	},
 	valid: [
@@ -49,16 +48,7 @@ test({
 			eval();
 		`,
 	],
-	invalid: [
-		// TODO[@fisker]: Figure out how to test this
-		// {
-		// 	code: outdent`
-		// 		// eslint-disable-next-line @scopewithoutplugin
-		// 		eval();
-		// 	`,
-		// 	errors: 1,
-		// },
-	],
+	invalid: [],
 });
 
 test.snapshot({
