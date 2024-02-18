@@ -269,25 +269,29 @@ test.snapshot({
 
 // Decorators
 const decoratorsBeforeExportOptions = {
-	parser: parsers.babel,
-	parserOptions: {
-		babelOptions: {
-			parserOpts: {
-				plugins: [
-					['decorators', {decoratorsBeforeExport: true}],
-				],
+	languageOptions:{
+		parser: parsers.babel,
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: [
+						['decorators', {decoratorsBeforeExport: true}],
+					],
+				},
 			},
 		},
 	},
 };
 const decoratorsAfterExportOptions = {
-	parser: parsers.babel,
-	parserOptions: {
-		babelOptions: {
-			parserOpts: {
-				plugins: [
-					['decorators', {decoratorsBeforeExport: false}],
-				],
+	languageOptions:{
+		parser: parsers.babel,
+		parserOptions: {
+			babelOptions: {
+				parserOpts: {
+					plugins: [
+						['decorators', {decoratorsBeforeExport: false}],
+					],
+				},
 			},
 		},
 	},
