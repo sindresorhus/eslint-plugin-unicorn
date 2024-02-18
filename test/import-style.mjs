@@ -536,37 +536,37 @@ test({
 		{
 			code: 'import util from \'util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import * as util from \'util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'const util = require(\'util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'ut\' + \'il\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import {red} from \'chalk\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import {red as green} from \'chalk\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -575,7 +575,7 @@ test({
 				}
 			`,
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 
 		{
