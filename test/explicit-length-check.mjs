@@ -3,20 +3,18 @@ import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const suggestionCase = ({code, output, desc, options = []}) => {
-	const suggestion = {output};
-	if (desc) {
-		suggestion.desc = desc;
-	}
+const TYPE_NON_ZERO = 'non-zero';
 
-	return {
-		code,
-		options,
-		errors: [
-			{suggestions: [suggestion]},
-		],
-	};
-};
+const suggestionCase = ({code, messageId, output, desc, options = []}) => ({
+	code,
+	options,
+	errors: [
+		{
+			messageId,
+			suggestions: [{desc, output}],
+		},
+	],
+});
 
 const nonZeroCases = [
 	'foo.length',
@@ -110,37 +108,46 @@ test({
 	invalid: [
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
+			messageId: TYPE_NON_ZERO,
 			output: 'const x = foo.length > 0 || bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
 			code: 'const x = foo.length || unknown',
+			messageId: TYPE_NON_ZERO,
 			output: 'const x = foo.length > 0 || unknown',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
 			code: 'const NON_NUMBER = "2"; const x = foo.length || NON_NUMBER',
+			messageId: TYPE_NON_ZERO,
 			output: 'const NON_NUMBER = "2"; const x = foo.length > 0 || NON_NUMBER',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
+			messageId: TYPE_NON_ZERO,
 			output: 'const x = foo.length !== 0 || bar()',
 			desc: 'Replace `.length` with `.length !== 0`.',
 			options: [{'non-zero': 'not-equal'}],
 		}),
 		suggestionCase({
 			code: 'const x = foo.length || bar()',
+			messageId: TYPE_NON_ZERO,
 			output: 'const x = foo.length > 0 || bar()',
 			desc: 'Replace `.length` with `.length > 0`.',
 			options: [{'non-zero': 'greater-than'}],
 		}),
 		suggestionCase({
 			code: '() => foo.length && bar()',
+			messageId: TYPE_NON_ZERO,
+			desc: 'Replace `.length` with `.length > 0`.',
 			output: '() => foo.length > 0 && bar()',
 		}),
 		suggestionCase({
 			code: 'alert(foo.length && bar())',
+			messageId: TYPE_NON_ZERO,
+			desc: 'Replace `.length` with `.length > 0`.',
 			output: 'alert(foo.length > 0 && bar())',
 		}),
 	],
