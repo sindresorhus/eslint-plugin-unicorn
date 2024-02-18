@@ -38,7 +38,7 @@ const generateError = (method, name) => ({
 
 // Only test output is good enough
 const suggestionOutput = (output, name) => ({
-	messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID: REPLACE_WITHOUT_NAME_MESSAGE_ID,
+	messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 	output,
 });
 

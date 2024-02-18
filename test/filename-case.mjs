@@ -30,10 +30,10 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 	};
 
 	if (filename !== undefined) {
-		testCase.filename = filename
+		testCase.filename = filename;
 	}
 
-	return testCase
+	return testCase;
 }
 
 test({

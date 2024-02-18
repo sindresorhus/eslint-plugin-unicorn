@@ -1,10 +1,8 @@
-import {createRequire} from 'node:module';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
 import {mergeLanguageOptions} from './language-options.mjs';
 
-const require = createRequire(import.meta.url);
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 // A simple version of `SourceCodeFixer.applyFixes`
 // https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
