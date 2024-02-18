@@ -107,6 +107,7 @@ function verify(code, verifyConfig, {filename}) {
 	if (filename) {
 		linterOptions.cwd = path.parse(filename).root;
 	}
+
 	const linter = new Linter(linterOptions);
 	const messages = linter.verify(code, verifyConfig, {filename});
 
@@ -122,7 +123,10 @@ function verify(code, verifyConfig, {filename}) {
 		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
 	}
 
-	return messages;
+	return {
+		linter,
+		messages,
+	};
 }
 
 class SnapshotRuleTester {
@@ -144,7 +148,7 @@ class SnapshotRuleTester {
 			(only ? test.only : test)(
 				`valid(${index + 1}): ${code}`,
 				t => {
-					const messages = verify(code, verifyConfig, {filename});
+					const {messages} = verify(code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
@@ -158,7 +162,7 @@ class SnapshotRuleTester {
 			(only ? test.only : test)(
 				`invalid(${index + 1}): ${code}`,
 				t => {
-					const messages = runVerify(code);
+					const {linter, messages} = runVerify(code);
 
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};

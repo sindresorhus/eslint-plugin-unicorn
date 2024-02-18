@@ -269,7 +269,7 @@ test.snapshot({
 
 // Decorators
 const decoratorsBeforeExportOptions = {
-	languageOptions:{
+	languageOptions: {
 		parser: parsers.babel,
 		parserOptions: {
 			babelOptions: {
@@ -283,7 +283,7 @@ const decoratorsBeforeExportOptions = {
 	},
 };
 const decoratorsAfterExportOptions = {
-	languageOptions:{
+	languageOptions: {
 		parser: parsers.babel,
 		parserOptions: {
 			babelOptions: {
