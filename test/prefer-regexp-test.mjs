@@ -213,7 +213,7 @@ test({
 							{
 								desc: 'Switch to `RegExp#test(…)`.',
 								output,
-							}
+							},
 						],
 					},
 				],
