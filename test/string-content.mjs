@@ -37,8 +37,8 @@ const createSuggestionError = (match, suggest, output) => [
 				data: {
 					match,
 					suggest,
-					output,
 				},
+				output,
 			},
 		],
 	},
