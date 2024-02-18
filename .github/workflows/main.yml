@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
-    name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}${{matrix.eslint-version && format(' (eslint@{0})', matrix.eslint-version) || ''}}
+    name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -20,9 +20,6 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-        eslint-version:
-          - ""
-          - "8"
         # Even numbers of node-version
         # include:
         #   - os: ubuntu-latest
@@ -33,10 +30,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install --legacy-peer-deps
-      - run: |
-          npm install eslint@${{ matrix.eslint-version }}
-          npx eslint --version
-        if: ${{ matrix.eslint-version }}
       - run: npx ava
   lint-test:
     runs-on: ${{ matrix.os }}
