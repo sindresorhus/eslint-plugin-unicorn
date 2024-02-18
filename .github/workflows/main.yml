@@ -20,6 +20,9 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
+        eslint-version:
+          - ""
+          - "8"
         include:
           - os: ubuntu-latest
             node-version: 18
@@ -29,6 +32,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install --legacy-peer-deps
+      - run: >
+          npm install eslint@${{ matrix.eslint-version }}
+          npx eslint --version
+        if: ${{ matrix.eslint-version }}
       - run: npx ava
   lint-test:
     runs-on: ${{ matrix.os }}
@@ -37,9 +44,6 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-        eslint-version:
-          - ""
-          - "8"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -47,10 +51,6 @@ jobs:
           # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
           node-version: 20
       - run: npm install --legacy-peer-deps
-      - run: >
-          npm install eslint@${{ matrix.eslint-version }}
-          npx eslint --version
-        if: ${{ matrix.eslint-version }}
       - run: npm run lint
       - run: npx del-cli test/snapshots --verbose
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
