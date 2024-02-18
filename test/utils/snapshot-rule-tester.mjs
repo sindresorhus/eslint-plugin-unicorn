@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
@@ -77,6 +78,9 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 		options = [],
 	} = testCase;
 
+	// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L501
+	const pluginName = 'rule-to-test';
+
 	return [
 		// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L524
 		{files: ['**']},
@@ -84,10 +88,10 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 			...testerConfig,
 			languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
 			rules: {
-				[`unicorn/${ruleId}`]: ['error', ...options],
+				[`${pluginName}/${ruleId}`]: ['error', ...options],
 			},
 			plugins: {
-				unicorn: {
+				[pluginName]: {
 					rules: {
 						[ruleId]: rule,
 					},
@@ -97,7 +101,13 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 	];
 }
 
-function verify(linter, code, verifyConfig, {filename}) {
+function verify(code, verifyConfig, {filename}) {
+	// https://github.com/eslint/eslint/pull/17989
+	const linterOptions = {};
+	if (filename) {
+		linterOptions.cwd = path.parse(filename).root;
+	}
+	const linter = new Linter(linterOptions);
 	const messages = linter.verify(code, verifyConfig, {filename});
 
 	// Missed `message`, #1923
@@ -124,7 +134,6 @@ class SnapshotRuleTester {
 	run(ruleId, rule, tests) {
 		const {test, testerConfig} = this;
 		const fixable = rule.meta && rule.meta.fixable;
-		const linter = new Linter();
 
 		const {valid, invalid} = normalizeTests(tests);
 
@@ -135,7 +144,7 @@ class SnapshotRuleTester {
 			(only ? test.only : test)(
 				`valid(${index + 1}): ${code}`,
 				t => {
-					const messages = verify(linter, code, verifyConfig, {filename});
+					const messages = verify(code, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
@@ -144,14 +153,14 @@ class SnapshotRuleTester {
 		for (const [index, testCase] of invalid.entries()) {
 			const {code, options, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
-			const runVerify = code => verify(linter, code, verifyConfig, {filename});
+			const runVerify = code => verify(code, verifyConfig, {filename});
 
 			(only ? test.only : test)(
 				`invalid(${index + 1}): ${code}`,
 				t => {
 					const messages = runVerify(code);
-					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
+					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
 					t.snapshot(`\n${printCode(code)}\n`, 'Input');
