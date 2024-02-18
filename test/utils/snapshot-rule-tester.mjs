@@ -97,6 +97,10 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 					},
 				},
 			},
+			// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/config/default-config.js#L46-L48
+			linterOptions: {
+				reportUnusedDisableDirectives: 'off',
+			},
 		},
 	];
 }
