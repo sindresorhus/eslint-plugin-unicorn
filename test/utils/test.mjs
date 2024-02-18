@@ -73,7 +73,7 @@ class Tester {
 	runTest(tests) {
 		const {ruleId, rule} = this;
 
-		let {beforeAll, testerOptions = {}, valid, invalid} = tests;
+		let {testerOptions = {}, valid, invalid} = tests;
 
 		valid = valid.map(testCase => normalizeTestCase(testCase));
 		invalid = invalid.map(testCase => normalizeInvalidTest(normalizeTestCase(testCase), rule));
@@ -84,10 +84,6 @@ class Tester {
 		};
 
 		const tester = new AvaRuleTester(test, testConfig);
-
-		if (beforeAll) {
-			beforeAll(tester);
-		}
 
 		return tester.run(
 			ruleId,
