@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npx ava
   lint-test:
     runs-on: ${{ matrix.os }}
@@ -44,7 +44,7 @@ jobs:
         with:
           # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
           node-version: 20
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run lint
       - run: npx del-cli test/snapshots --verbose
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
     name: Integration test (${{ matrix.group }})
@@ -84,5 +84,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install --legacy-peer-deps
+      - run: npm install
       - run: npm run integration -- --group ${{ matrix.group }}
