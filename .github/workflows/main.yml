@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
-    name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+    name: Node.js ${{ matrix.node-version }} on ${{ matrix.os }}${{matrix.eslint-version && ' (eslint@${{matrix.eslint-version}})' || ''}}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
