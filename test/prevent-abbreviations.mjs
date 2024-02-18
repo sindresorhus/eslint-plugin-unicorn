@@ -3,15 +3,7 @@ import {getTester, avoidTestTitleConflict} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const createErrors = message => {
-	const error = {};
-
-	if (message) {
-		error.message = message;
-	}
-
-	return [error];
-};
+const createErrors = message => [{message}];
 
 const extendedOptions = [
 	{
@@ -350,30 +342,30 @@ const tests = {
 		{
 			code: 'let successCb',
 			output: 'let successCallback',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let btnColor',
 			output: 'let buttonColor',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'this.successCb = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'this.btnColor = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// This tests that the rule does not hang up on combinatoric explosion of possible replacements
 		{
 			code: 'let ' + 'CbE'.repeat(1024),
 			output: 'let ' + 'CallbackE'.repeat(1024),
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -396,113 +388,113 @@ const tests = {
 		{
 			code: 'let args',
 			output: 'let arguments_',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let args',
 			output: 'let arguments_',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let args',
 			output: 'let arguments_',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'let c',
 			output: 'let custom',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'function cb() {}',
 			output: 'function callback() {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'class cb {}',
 			output: 'class circuitBreacker {}',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'let e',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let e',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'let err',
 			output: 'let error',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let err',
 			output: 'let error',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let err',
 			output: 'let error',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'let errCb',
 			output: 'let errorCallback',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let errCb',
 			output: 'let errorCircuitBreacker',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let errCb',
 			output: 'let handleError',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let HandleError',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let ErrorCallback',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let ErrorCircuitBreacker',
 			options: extendedOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let ErrCb',
 			output: 'let HandleError',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// `errCb` should not match this
@@ -510,19 +502,19 @@ const tests = {
 			code: 'let fooErrCb',
 			output: 'let fooErrorCb',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let errCbFoo',
 			output: 'let errorCbFoo',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'class Err {}',
 			output: 'class Error_ {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -530,7 +522,7 @@ const tests = {
 				let e;
 				console.log(e);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -542,7 +534,7 @@ const tests = {
 				let error;
 				console.log(error);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -558,7 +550,7 @@ const tests = {
 					let error_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -575,7 +567,7 @@ const tests = {
 					let error__;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -592,7 +584,7 @@ const tests = {
 					console.log(error);
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -609,13 +601,13 @@ const tests = {
 					console.log(error, error_);
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'err => err',
 			output: 'error => error',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -627,7 +619,7 @@ const tests = {
 				const options = {};
 				console.log(options);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -640,7 +632,7 @@ const tests = {
 				var options = 2;
 				console.log(options);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -652,7 +644,7 @@ const tests = {
 				const error = {};
 				const foo = {err: error};
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -671,32 +663,32 @@ const tests = {
 					b: 2
 				};
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: '({err}) => err',
 			output: '({err: error}) => error',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'err => ({err})',
 			output: 'error => ({err: error})',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const {err} = foo;',
 			output: 'const {err: error} = foo;',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'const foo = {err: 1}',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -705,22 +697,22 @@ const tests = {
 				};
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'foo.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'foo.bar.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'this.err = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -730,7 +722,7 @@ const tests = {
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -752,12 +744,12 @@ const tests = {
 		{
 			code: 'let err_',
 			output: 'let error_',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let __err__',
 			output: 'let __error__',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'let _e',
@@ -781,12 +773,12 @@ const tests = {
 		{
 			code: 'const Err = 1;',
 			output: 'const Error_ = 1;',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const _Err_ = 1;',
 			output: 'const _Error_ = 1;',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: '({Err: 1})',
@@ -802,7 +794,7 @@ const tests = {
 		{
 			code: 'let doc',
 			output: 'let document_',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// This test need run eslint 3 times to get the correct result
@@ -889,7 +881,7 @@ const tests = {
 		{
 			code: 'let pkg',
 			output: 'let package_',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -940,7 +932,7 @@ const tests = {
 			code: 'let y',
 			output: 'let yield_',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -972,7 +964,7 @@ const tests = {
 					console.log(errorCallback, errorCallback_);
 				}
 			`,
-			errors: createErrors().concat(createErrors())
+			errors: 1.concat(1)
 		},
 		*/
 		{
@@ -1002,7 +994,7 @@ const tests = {
 				let error;
 				({a: error = 1} = 2);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// Renaming to `arguments` would result in a `SyntaxError`, so it should rename to `arguments_`
@@ -1015,7 +1007,7 @@ const tests = {
 				'use strict';
 				let arguments_;
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1032,7 +1024,7 @@ const tests = {
 					}
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1049,7 +1041,7 @@ const tests = {
 					}
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1063,7 +1055,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1078,7 +1070,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// Renaming to `arguments` whould result in `f` returning it's arguments instead of the outer variable
@@ -1095,7 +1087,7 @@ const tests = {
 					return arguments_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1110,7 +1102,7 @@ const tests = {
 					return arguments + arguments_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1125,7 +1117,7 @@ const tests = {
 					return g.apply(this, arguments) + arguments_;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1140,7 +1132,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1190,7 +1182,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1209,7 +1201,7 @@ const tests = {
 					};
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1226,7 +1218,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1243,7 +1235,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1260,7 +1252,7 @@ const tests = {
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// `extendDefaultAllowList` option
@@ -1268,40 +1260,40 @@ const tests = {
 			code: 'const propTypes = 2;const err = 2;',
 			output: 'const propertyTypes = 2;const err = 2;',
 			options: noExtendDefaultAllowListOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// #1937
 		{
 			code: 'const expectedRetVal = "that should be ok";',
 			output: 'const expectedReturnValue = "that should be ok";',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const retVal = "that should be ok";',
 			output: 'const returnValue = "that should be ok";',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const retValue = "that should be ok";',
 			output: 'const returnValue = "that should be ok";',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const returnVal = "that should be ok";',
 			output: 'const returnValue = "that should be ok";',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const sendDmMessage = () => {};',
 			output: 'const sendDirectMessage = () => {};',
 			options: [{replacements: {dm: {directMessage: true}}}],
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const ret_val = "that should be ok";',
 			output: 'const returnValue_value = "that should be ok";',
-			errors: createErrors(),
+			errors: 1,
 		},
 	],
 };
@@ -1326,7 +1318,7 @@ test({
 		{
 			code: 'var doc',
 			output: 'var document_',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1337,14 +1329,14 @@ test({
 				var document_;
 				document.querySelector(document_);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'var y',
 			output: 'var yield_',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1356,23 +1348,23 @@ test({
 				var yield_;
 			`,
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'function a() {try {} catch(args) {}}',
 			output: 'function a() {try {} catch(arguments_) {}}',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'var one',
 			options: [{replacements: {one: {1: true}}}],
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'var one_two',
 			options: [{replacements: {one: {first: true, 1: true}}}],
-			errors: createErrors(),
+			errors: 1,
 		},
 	],
 });
@@ -1488,7 +1480,7 @@ const importExportTests = {
 				import error from 'err';
 			`,
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1498,13 +1490,13 @@ const importExportTests = {
 				import {err as error} from 'err';
 			`,
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import {err as err} from "err";',
 			output: 'import {err as error} from "err";',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1522,7 +1514,7 @@ const importExportTests = {
 				} from 'foo';
 			`,
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1532,7 +1524,7 @@ const importExportTests = {
 			output: outdent`
 				import {err as callback} from 'err';
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1541,54 +1533,54 @@ const importExportTests = {
 			output: outdent`
 				const {err: callback} = foo;
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// Internal import
 		{
 			code: 'const err = require("../err")',
 			output: 'const error = require("../err")',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const err = require("/err")',
 			output: 'const error = require("/err")',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import err from "./err"',
 			output: 'import error from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import err, {foo as bar} from "./err"',
 			output: 'import error, {foo as bar} from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import {default as err, foo as bar} from "./err"',
 			output: 'import {default as error, foo as bar} from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import * as err from "./err"',
 			output: 'import * as error from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import foo, * as err from "./err"',
 			output: 'import foo, * as error from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import {err} from "./err"',
 			output: 'import {err as error} from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'import {default as foo, err} from "./err"',
 			output: 'import {default as foo, err as error} from "./err"',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1600,7 +1592,7 @@ const importExportTests = {
 				let error;
 				export {error as err};
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1612,28 +1604,28 @@ const importExportTests = {
 				let error;
 				export {error as err};
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
 			code: 'export const err = {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'export let err',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'export var err',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'export function err() {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'export class err {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1645,7 +1637,7 @@ const importExportTests = {
 				const error_ = {};
 				export const error = error_;
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1657,7 +1649,7 @@ const importExportTests = {
 				class error {};
 				console.log(error);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1677,7 +1669,7 @@ const importExportTests = {
 				};
 				console.log(error);
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1686,7 +1678,7 @@ const importExportTests = {
 				export {foo as err};
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 	],
@@ -1734,24 +1726,24 @@ test.babel({
 					return property;
 				}
 			`,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: '({err}) => err;',
 			output: '({err: error}) => error;',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'err => ({err});',
 			output: 'error => ({err: error});',
 			options: customOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'Foo.customProps = {}',
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1760,7 +1752,7 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -1769,7 +1761,7 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		{
@@ -1789,7 +1781,7 @@ test.babel({
 				}
 			`,
 			options: checkPropertiesOptions,
-			errors: createErrors(),
+			errors: 1,
 		},
 	],
 });
@@ -1817,14 +1809,14 @@ test.typescript({
 		].map(code => ({
 			code,
 			output: code.replace('prop', 'property'),
-			errors: createErrors(),
+			errors: 1,
 		})),
 
 		// #763
 		{
 			code: 'const foo = (extraParams?: string) => {}',
 			output: 'const foo = (extraParameters?: string) => {}',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
@@ -1858,7 +1850,7 @@ test.typescript({
 		// #1102
 		{
 			code: 'export type Props = string',
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// #347
@@ -1883,7 +1875,7 @@ test.typescript({
 					},
 				},
 			],
-			errors: createErrors(),
+			errors: 1,
 		},
 
 		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
@@ -1894,7 +1886,7 @@ test.typescript({
 			output: outdent`
 				export type PreloadProps<TExtraProperties = null> = {}
 			`,
-			errors: [...createErrors(), ...createErrors()],
+			errors: 2,
 		},
 
 		// https://github.com/facebook/relay/blob/597d2a17aa29d401830407b6814a5f8d148f632d/packages/relay-experimental/EntryPointTypes.flow.js#L138
@@ -1905,7 +1897,7 @@ test.typescript({
 			output: outdent`
 				export type PreloadProps<TExtraProperties = null> = {};
 			`,
-			errors: [...createErrors(), ...createErrors()],
+			errors: 2,
 		},
 	],
 });
@@ -1975,12 +1967,12 @@ test({
 		{
 			code: 'foo();',
 			filename: 'err/http-err.js',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'foo();',
 			filename: 'http-err.js',
-			errors: createErrors(),
+			errors: 1,
 		},
 		{
 			code: 'foo();',
