@@ -20,7 +20,7 @@ function testManyCases(filename, chosenCases, errorMessage) {
 
 function testCaseWithOptions(filename, errorMessage, options = []) {
 	return {
-		code: 'foo()',
+		code: `/* Filename ${filename} */`,
 		filename,
 		options,
 		errors: errorMessage && [
@@ -258,6 +258,19 @@ test({
 		testCaseWithOptions('src/foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('spec/Iss47.100Spec.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		// Multiple filename parts - multiple file extensions
+		testCaseWithOptions('src/foo/fooBar.Test.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/fooBar.testUtils.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/.testUtils.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/foo_bar.Test.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/foo_bar.Test_Utils.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/.Test_Utils.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/foo-bar.Test.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/foo-bar.Test-Utils.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/.Test-Utils.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/FooBar.Test.js', undefined, [{case: 'pascalCase'}]),
+		testCaseWithOptions('test/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase'}]),
+		testCaseWithOptions('test/foo/.TestUtils.js', undefined, [{case: 'pascalCase'}]),
 	],
 	invalid: [
 		testCase(
@@ -293,7 +306,7 @@ test({
 		testCase(
 			'test/foo/fooBar.testUtils.js',
 			'snakeCase',
-			'Filename is not in snake case. Rename it to `foo_bar.testutils.js`.',
+			'Filename is not in snake case. Rename it to `foo_bar.testUtils.js`.',
 		),
 		testCase(
 			'test/foo/fooBar.js',
@@ -308,7 +321,7 @@ test({
 		testCase(
 			'test/foo/fooBar.testUtils.js',
 			'kebabCase',
-			'Filename is not in kebab case. Rename it to `foo-bar.testutils.js`.',
+			'Filename is not in kebab case. Rename it to `foo-bar.testUtils.js`.',
 		),
 		testCase(
 			'test/foo/fooBar.js',
@@ -567,67 +580,6 @@ test({
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `1.js`.',
 		),
-		// Multiple filename parts - multiple file extensions
-		testCaseWithOptions(
-			'src/foo/fooBar.Test.js',
-			'File extension `.Test.js` is not in lowercase. Rename it to `fooBar.test.js`.',
-			[{case: 'camelCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/fooBar.testUtils.js',
-			'File extension `.testUtils.js` is not in lowercase. Rename it to `fooBar.testutils.js`.',
-			[{case: 'camelCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/.testUtils.js',
-			'File extension `.testUtils.js` is not in lowercase. Rename it to `.testutils.js`.',
-			[{case: 'camelCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/foo_bar.Test.js',
-			'File extension `.Test.js` is not in lowercase. Rename it to `foo_bar.test.js`.',
-			[{case: 'snakeCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/foo_bar.Test_Utils.js',
-			'File extension `.Test_Utils.js` is not in lowercase. Rename it to `foo_bar.test_utils.js`.',
-			[{case: 'snakeCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/.Test_Utils.js',
-			'File extension `.Test_Utils.js` is not in lowercase. Rename it to `.test_utils.js`.',
-			[{case: 'snakeCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/foo-bar.Test.js',
-			'File extension `.Test.js` is not in lowercase. Rename it to `foo-bar.test.js`.',
-			[{case: 'kebabCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/foo-bar.Test-Utils.js',
-			'File extension `.Test-Utils.js` is not in lowercase. Rename it to `foo-bar.test-utils.js`.',
-			[{case: 'kebabCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/.Test-Utils.js',
-			'File extension `.Test-Utils.js` is not in lowercase. Rename it to `.test-utils.js`.',
-			[{case: 'kebabCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/FooBar.Test.js',
-			'File extension `.Test.js` is not in lowercase. Rename it to `FooBar.test.js`.',
-			[{case: 'pascalCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/FooBar.TestUtils.js',
-			'File extension `.TestUtils.js` is not in lowercase. Rename it to `FooBar.testutils.js`.',
-			[{case: 'pascalCase'}],
-		),
-		testCaseWithOptions(
-			'test/foo/.TestUtils.js',
-			'File extension `.TestUtils.js` is not in lowercase. Rename it to `.testutils.js`.',
-			[{case: 'pascalCase'}],
-		),
 		// Multiple filename parts - single file extension
 		testCaseWithOptions(
 			'src/foo/foo_bar.test.js',
@@ -679,6 +631,8 @@ test.snapshot({
 		'src/foo.JS/bar.spec.js',
 		'src/foo.JS/.spec.js',
 		'src/foo.JS/bar',
+		'foo.SPEC.js',
+		'.SPEC.js',
 	].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	invalid: [
 		{
@@ -699,8 +653,6 @@ test.snapshot({
 			'foo.jS',
 			'index.JS',
 			'foo..JS',
-			'foo.SPEC.js',
-			'.SPEC.js',
-		].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
+		].map(filename => ({code: `/* Filename ${filename} */`, filename})),
 	],
 });
