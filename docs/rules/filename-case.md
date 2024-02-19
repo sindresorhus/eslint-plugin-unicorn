@@ -126,11 +126,10 @@ For example:
 ]
 
 // Results
-❌ FooBar.Test.js
-❌ FooBar.TestUtils.js
-❌ FooBar.testUtils.js
+✅ FooBar.Test.js
+✅ FooBar.TestUtils.js
+✅ FooBar.testUtils.js
 ✅ FooBar.test.js
-✅ FooBar.testutils.js
 ✅ FooBar.test-utils.js
 ✅ FooBar.test_utils.js
 ```
@@ -149,7 +148,6 @@ For example:
 ✅ FooBar.TestUtils.js
 ❌ FooBar.testUtils.js
 ❌ FooBar.test.js
-❌ FooBar.testutils.js
 ❌ FooBar.test-utils.js
 ❌ FooBar.test_utils.js
 ```
