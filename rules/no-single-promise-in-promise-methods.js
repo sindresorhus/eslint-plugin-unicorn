@@ -106,7 +106,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow using `Promise` method with a single element array as parameter.',
+			description: 'Disallow passing single-element arrays to `Promise` methods.',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
