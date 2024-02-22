@@ -35,8 +35,7 @@ const wrapText = (sourceCode, node, element, text, prefix, suffix) => {
 		return `${prefix}${text}${suffix}`;
 	}
 
-	if (node.parent.type === 'MemberExpression'
-	&& !isParenthesized(element, sourceCode)
+	if (!isParenthesized(element, sourceCode)
 	&& shouldAddParenthesesToMemberExpressionObject(element, sourceCode)) {
 		return `(${text})`;
 	}
