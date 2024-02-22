@@ -17,7 +17,7 @@ const OBJECT_PROTOTYPE_METHODS = [
 	'valueOf',
 ];
 
-function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
+function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) {
 	if (!methodNode) {
 		return;
 	}
@@ -85,7 +85,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 		isGlobalReference,
 		constructorName,
 		methodName,
-	} = getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) ?? {};
+	} = getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) ?? {};
 
 	if (!constructorName) {
 		return;
