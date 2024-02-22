@@ -66,7 +66,7 @@ test.snapshot({
 		'/* globals hasOwnProperty: readonly */ hasOwnProperty.call(bar)',
 		'/* globals toString: readonly */ toString.apply(bar, [])',
 		'/* globals toString: readonly */ Reflect.apply(toString, baz, [])',
-		'/* globals toString: readonly */ Reflect.apply(globalThis., baz, [])',
+		'Reflect.apply(globalThis.toString, baz, [])',
 		'globalThis.toString.call(bar)',
 	],
 });

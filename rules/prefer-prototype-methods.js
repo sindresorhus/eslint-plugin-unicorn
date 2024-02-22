@@ -1,6 +1,5 @@
 'use strict';
-const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
-const {getPropertyName} = require('@eslint-community/eslint-utils');
+const {getPropertyName, ReferenceTracker} = require('@eslint-community/eslint-utils');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 const {isMemberExpression, isMethodCall} = require('./ast/index.js');
 
@@ -18,7 +17,42 @@ const OBJECT_PROTOTYPE_METHODS = [
 	'valueOf',
 ];
 
-function getProblem(callExpression, {sourceCode}) {
+function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
+	if (!methodNode) {
+		return
+	}
+
+	if (globalReferences.has(methodNode)) {
+		const path = globalReferences.get(methodNode);
+		return {
+			constructorName: 'Object',
+			methodName: path.at(-1),
+		}
+	}
+
+	if (!isMemberExpression(methodNode, {optional: false})) {
+		return
+	}
+
+	const objectNode = methodNode.object;
+
+	if (!(
+		(objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0)
+		|| (objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0)
+	)) {
+		return;
+	}
+
+	const constructorName = objectNode.type === 'ArrayExpression' ? 'Array' : 'Object';
+	const methodName = getPropertyName(methodNode, sourceCode.getScope(methodNode));
+
+	return {
+		constructorName,
+		methodName,
+	}
+}
+
+function getProblem(callExpression, {sourceCode, globalReferences}) {
 	let methodNode;
 
 	if (
@@ -45,34 +79,31 @@ function getProblem(callExpression, {sourceCode}) {
 		methodNode = callExpression.callee.object;
 	}
 
-	if (!methodNode || !isMemberExpression(methodNode, {optional: false})) {
+	const {
+		constructorName,
+		methodName,
+	} = getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) ?? {};
+
+	if (!constructorName) {
 		return;
 	}
-
-	const objectNode = methodNode.object;
-
-	if (!(
-		(objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0)
-		|| (objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0)
-	)) {
-		return;
-	}
-
-	const constructorName = objectNode.type === 'ArrayExpression' ? 'Array' : 'Object';
-	const methodName = getPropertyName(methodNode, sourceCode.getScope(methodNode));
 
 	return {
 		node: methodNode,
 		messageId: methodName ? 'known-method' : 'unknown-method',
 		data: {constructorName, methodName},
 		* fix(fixer) {
-			yield fixer.replaceText(objectNode, `${constructorName}.prototype`);
+			if (isMemberExpression(methodNode)) {
+				const objectNode = methodNode.object;
 
-			if (
-				objectNode.type === 'ArrayExpression'
-				|| objectNode.type === 'ObjectExpression'
-			) {
-				yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
+				yield fixer.replaceText(objectNode, `${constructorName}.prototype`);
+
+				if (
+					objectNode.type === 'ArrayExpression'
+					|| objectNode.type === 'ObjectExpression'
+				) {
+					yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
+				}
 			}
 		},
 	};
@@ -88,19 +119,21 @@ function create(context) {
 	});
 
 	context.on('Program:exit', function * (program) {
-		const globalReferences = [];
-		const scope = sourceCode.getScope(program);
+		const globalReferences = new WeakMap();
 
-		new GlobalReferenceTracker({
-			objects: OBJECT_PROTOTYPE_METHODS,
-			type: GlobalReferenceTracker.READ,
-			handle(reference) {
-				globalReferences.push(reference)
-			},
-		}).track(scope);
+		const tracker = new ReferenceTracker(sourceCode.getScope(program));
+
+		for (const {node, path} of tracker.iterateGlobalReferences(
+			Object.fromEntries(OBJECT_PROTOTYPE_METHODS.map(method => [method, {[ReferenceTracker.READ]: true}]))
+		)) {
+			globalReferences.set(node, path);
+		}
 
 		for (const callExpression of callExpressions) {
-			yield getProblem(callExpression, {sourceCode});
+			yield getProblem(callExpression, {
+				sourceCode,
+				globalReferences,
+			});
 		}
 	});
 }
