@@ -6,7 +6,7 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'Promise.all([promise, anotherPromise])',
-		'Promise.all(notArrayExpression)',
+		'Promise.all(arrayVariable)',
 		'Promise.all([...promises])',
 		'Promise.any([promise, anotherPromise])',
 		'Promise.race([promise, anotherPromise])',
