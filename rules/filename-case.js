@@ -85,7 +85,7 @@ function validateFilename(words, caseFunctions) {
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
 }
 
-function fixFilename(words, caseFunctions, {leading, extension}) {
+function fixFilename(words, caseFunctions, {leading, trailing}) {
 	const replacements = words
 		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
 
@@ -93,7 +93,30 @@ function fixFilename(words, caseFunctions, {leading, extension}) {
 		samples: combinations,
 	} = cartesianProductSamples(replacements);
 
-	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${extension.toLowerCase()}`))];
+	return [...new Set(combinations.map(parts => `${leading}${parts.join('')}${trailing}`))];
+}
+
+function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
+	const extension = path.extname(filenameWithExtension);
+	const filename = path.basename(filenameWithExtension, extension);
+	const basename = filename + extension;
+
+	const parts = {
+		basename,
+		filename,
+		middle: '',
+		extension,
+	};
+
+	if (multipleFileExtensions) {
+		const [firstPart] = filename.split('.');
+		Object.assign(parts, {
+			filename: firstPart,
+			middle: filename.slice(firstPart.length),
+		});
+	}
+
+	return parts;
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
@@ -143,6 +166,7 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
+	const multipleFileExtensions = options.multipleFileExtensions !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.physicalFilename;
 
@@ -152,11 +176,14 @@ const create = context => {
 
 	return {
 		Program() {
-			const extension = path.extname(filenameWithExtension);
-			const filename = path.basename(filenameWithExtension, extension);
-			const base = filename + extension;
+			const {
+				basename,
+				filename,
+				middle,
+				extension,
+			} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
 
-			if (ignoredByDefault.has(base) || ignore.some(regexp => regexp.test(base))) {
+			if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
 				return;
 			}
 
@@ -168,7 +195,7 @@ const create = context => {
 					return {
 						loc: {column: 0, line: 1},
 						messageId: MESSAGE_ID_EXTENSION,
-						data: {filename: filename + extension.toLowerCase(), extension},
+						data: {filename: filename + middle + extension.toLowerCase(), extension},
 					};
 				}
 
@@ -177,7 +204,7 @@ const create = context => {
 
 			const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
 				leading,
-				extension,
+				trailing: middle + extension.toLowerCase(),
 			});
 
 			return {
@@ -211,6 +238,9 @@ const schema = [
 						type: 'array',
 						uniqueItems: true,
 					},
+					multipleFileExtensions: {
+						type: 'boolean',
+					},
 				},
 				additionalProperties: false,
 			},
@@ -236,6 +266,9 @@ const schema = [
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+					},
+					multipleFileExtensions: {
+						type: 'boolean',
 					},
 				},
 				additionalProperties: false,
