@@ -43,6 +43,7 @@ test.snapshot({
 		'const _hasOwnProperty = globalThis.hasOwnProperty; _hasOwnProperty.call(bar)',
 		'const _globalThis = globalThis; globalThis[hasOwnProperty].call(bar)',
 		'const _ = globalThis, TO_STRING = "toString"; _[TO_STRING].call(bar)',
+		'const _ = [globalThis.toString]; _[0].call(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
