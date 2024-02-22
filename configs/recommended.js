@@ -21,6 +21,7 @@ module.exports = {
 	'unicorn/no-array-push-push': 'error',
 	'unicorn/no-array-reduce': 'error',
 	'unicorn/no-await-expression-member': 'error',
+	'unicorn/no-await-in-promise-methods': 'error',
 	'unicorn/no-console-spaces': 'error',
 	'unicorn/no-document-cookie': 'error',
 	'unicorn/no-empty-file': 'error',
