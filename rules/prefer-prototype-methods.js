@@ -19,7 +19,7 @@ const OBJECT_PROTOTYPE_METHODS = [
 
 function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
 	if (!methodNode) {
-		return
+		return;
 	}
 
 	if (globalReferences.has(methodNode)) {
@@ -28,11 +28,11 @@ function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
 			isGlobalReference: true,
 			constructorName: 'Object',
 			methodName: path.at(-1),
-		}
+		};
 	}
 
 	if (!isMemberExpression(methodNode, {optional: false})) {
-		return
+		return;
 	}
 
 	const objectNode = methodNode.object;
@@ -50,7 +50,7 @@ function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
 	return {
 		constructorName,
 		methodName,
-	}
+	};
 }
 
 function getProblem(callExpression, {sourceCode, globalReferences}) {
@@ -95,9 +95,9 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 		messageId: methodName ? 'known-method' : 'unknown-method',
 		data: {constructorName, methodName},
 		* fix(fixer) {
-			if (isGlobalReference && methodNode.type === 'Identifier') {
-				yield fixer.insertTextBefore(methodNode, `${constructorName}.prototype.`);
-				return
+			if (isGlobalReference) {
+				yield fixer.replaceText(methodNode, `${constructorName}.prototype.${methodName}`);
+				return;
 			}
 
 			if (isMemberExpression(methodNode)) {
@@ -131,7 +131,7 @@ function create(context) {
 		const tracker = new ReferenceTracker(sourceCode.getScope(program));
 
 		for (const {node, path} of tracker.iterateGlobalReferences(
-			Object.fromEntries(OBJECT_PROTOTYPE_METHODS.map(method => [method, {[ReferenceTracker.READ]: true}]))
+			Object.fromEntries(OBJECT_PROTOTYPE_METHODS.map(method => [method, {[ReferenceTracker.READ]: true}])),
 		)) {
 			globalReferences.set(node, path);
 		}

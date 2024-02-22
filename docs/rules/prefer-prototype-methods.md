@@ -23,6 +23,10 @@ const type = {}.toString.call(foo);
 Reflect.apply([].forEach, arrayLike, [callback]);
 ```
 
+```js
+const type = globalThis.toString.call(foo);
+```
+
 ## Pass
 
 ```js
