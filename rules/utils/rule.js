@@ -43,6 +43,10 @@ function reportListenerProblems(problems, context) {
 	}
 
 	for (const problem of problems) {
+		if (!problem) {
+			continue;
+		}
+
 		if (problem.fix) {
 			problem.fix = wrapFixFunction(problem.fix);
 		}
