@@ -36,6 +36,7 @@ test.snapshot({
 		'const foo = [].push.notApply(bar, elements);',
 		'const push = [].push.notBind(foo)',
 		'[].forEach.notCall(foo, () => {})',
+		'/* globals foo: readonly */ foo.call(bar)',
 	],
 	invalid: [
 		'const foo = [].push.apply(bar, elements);',
@@ -61,5 +62,7 @@ test.snapshot({
 		'[][Symbol.iterator].call(foo)',
 		'const foo = [].at.call(bar)',
 		'const foo = [].findLast.call(bar)',
+		'/* globals hasOwnProperty: readonly */ hasOwnProperty.call(bar)',
+		'/* globals toString: readonly */ toString.call(bar)',
 	],
 });
