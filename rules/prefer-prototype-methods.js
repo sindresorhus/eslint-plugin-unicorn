@@ -22,7 +22,8 @@ function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
 		return;
 	}
 
-	if (globalReferences.has(methodNode)) {
+	const isGlobalReference = globalReferences.has(methodNode);
+	if (isGlobalReference) {
 		const path = globalReferences.get(methodNode);
 		return {
 			isGlobalReference: true,
