@@ -25,6 +25,7 @@ function getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) {
 	if (globalReferences.has(methodNode)) {
 		const path = globalReferences.get(methodNode);
 		return {
+			isGlobalReference: true,
 			constructorName: 'Object',
 			methodName: path.at(-1),
 		}
@@ -80,6 +81,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 	}
 
 	const {
+		isGlobalReference,
 		constructorName,
 		methodName,
 	} = getConstructorAndMethod(methodNode, {sourceCode, globalReferences}) ?? {};
@@ -93,6 +95,11 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 		messageId: methodName ? 'known-method' : 'unknown-method',
 		data: {constructorName, methodName},
 		* fix(fixer) {
+			if (isGlobalReference && methodNode.type === 'Identifier') {
+				yield fixer.insertTextBefore(methodNode, `${constructorName}.prototype.`);
+				return
+			}
+
 			if (isMemberExpression(methodNode)) {
 				const objectNode = methodNode.object;
 

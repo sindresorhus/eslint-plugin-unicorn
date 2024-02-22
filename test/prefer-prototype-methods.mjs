@@ -64,6 +64,7 @@ test.snapshot({
 		'const foo = [].at.call(bar)',
 		'const foo = [].findLast.call(bar)',
 		'/* globals hasOwnProperty: readonly */ hasOwnProperty.call(bar)',
+		// '/* globals hasOwnProperty: readonly */ const _hasOwnProperty = _hasOwnProperty; _hasOwnProperty.call(bar)',
 		'/* globals toString: readonly */ toString.apply(bar, [])',
 		'/* globals toString: readonly */ Reflect.apply(toString, baz, [])',
 		'Reflect.apply(globalThis.toString, baz, [])',
