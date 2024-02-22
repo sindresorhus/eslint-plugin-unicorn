@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Awaited promises in `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is probably a mistake.
+Using `await` on promises passed as arguments to `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is likely a mistake.
 
 ## Fail
 
