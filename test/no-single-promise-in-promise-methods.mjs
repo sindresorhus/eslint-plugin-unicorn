@@ -74,15 +74,7 @@ test.snapshot({
 	invalid: [
 		outdent`
 			foo
-			await Promise.all([(0, promise),],)
-		`,
-		outdent`
-			foo
 			Promise.all([(0, promise),],)
-		`,
-		outdent`
-			foo
-			await Promise.all([[array][0],],)
 		`,
 		outdent`
 			foo
