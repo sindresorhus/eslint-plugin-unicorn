@@ -63,6 +63,8 @@ const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 		text = `(${text})`;
 	}
 
+	// TODO: Check ASI
+
 	return fixer.replaceText(callExpression, text);
 };
 
