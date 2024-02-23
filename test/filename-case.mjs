@@ -21,6 +21,7 @@ function testManyCases(filename, chosenCases, errorMessage) {
 function testCaseWithOptions(filename, errorMessage, options = []) {
 	const testCase = {
 		code: `/* Filename: ${filename} */`,
+		filename,
 		options,
 		errors: errorMessage && [
 			{
@@ -42,22 +43,30 @@ test({
 		testCase('src/foo/fooBar.js', 'camelCase'),
 		testCase('src/foo/bar.test.js', 'camelCase'),
 		testCase('src/foo/fooBar.test.js', 'camelCase'),
-		testCase('src/foo/fooBar.testUtils.js', 'camelCase'),
+		testCase('src/foo/fooBar.test-utils.js', 'camelCase'),
+		testCase('src/foo/fooBar.test_utils.js', 'camelCase'),
+		testCase('src/foo/.test_utils.js', 'camelCase'),
 		testCase('src/foo/foo.js', 'snakeCase'),
 		testCase('src/foo/foo_bar.js', 'snakeCase'),
 		testCase('src/foo/foo.test.js', 'snakeCase'),
 		testCase('src/foo/foo_bar.test.js', 'snakeCase'),
 		testCase('src/foo/foo_bar.test_utils.js', 'snakeCase'),
+		testCase('src/foo/foo_bar.test-utils.js', 'snakeCase'),
+		testCase('src/foo/.test-utils.js', 'snakeCase'),
 		testCase('src/foo/foo.js', 'kebabCase'),
 		testCase('src/foo/foo-bar.js', 'kebabCase'),
 		testCase('src/foo/foo.test.js', 'kebabCase'),
 		testCase('src/foo/foo-bar.test.js', 'kebabCase'),
 		testCase('src/foo/foo-bar.test-utils.js', 'kebabCase'),
+		testCase('src/foo/foo-bar.test_utils.js', 'kebabCase'),
+		testCase('src/foo/.test_utils.js', 'kebabCase'),
 		testCase('src/foo/Foo.js', 'pascalCase'),
 		testCase('src/foo/FooBar.js', 'pascalCase'),
-		testCase('src/foo/Foo.Test.js', 'pascalCase'),
-		testCase('src/foo/FooBar.Test.js', 'pascalCase'),
-		testCase('src/foo/FooBar.TestUtils.js', 'pascalCase'),
+		testCase('src/foo/Foo.test.js', 'pascalCase'),
+		testCase('src/foo/FooBar.test.js', 'pascalCase'),
+		testCase('src/foo/FooBar.test-utils.js', 'pascalCase'),
+		testCase('src/foo/FooBar.test_utils.js', 'pascalCase'),
+		testCase('src/foo/.test_utils.js', 'pascalCase'),
 		testCase('spec/iss47Spec.js', 'camelCase'),
 		testCase('spec/iss47Spec100.js', 'camelCase'),
 		testCase('spec/i18n.js', 'camelCase'),
@@ -70,7 +79,7 @@ test({
 		testCase('spec/iss47_100spec.js', 'snakeCase'),
 		testCase('spec/i18n.js', 'snakeCase'),
 		testCase('spec/Iss47Spec.js', 'pascalCase'),
-		testCase('spec/Iss47.100Spec.js', 'pascalCase'),
+		testCase('spec/Iss47.100spec.js', 'pascalCase'),
 		testCase('spec/I18n.js', 'pascalCase'),
 		testCase(undefined, 'camelCase'),
 		testCase(undefined, 'snakeCase'),
@@ -243,6 +252,31 @@ test({
 		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
 			filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase)),
 		),
+		testCaseWithOptions('index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/fooBar.test.js', undefined, [{case: 'camelCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/fooBar.testUtils.js', undefined, [{case: 'camelCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/foo_bar.test_utils.js', undefined, [{case: 'snakeCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/foo.test.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/foo-bar.test.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/foo-bar.test-utils.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/Foo.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('spec/Iss47.100Spec.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		// Multiple filename parts - multiple file extensions
+		testCaseWithOptions('src/foo/fooBar.Test.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/fooBar.testUtils.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/.testUtils.js', undefined, [{case: 'camelCase'}]),
+		testCaseWithOptions('test/foo/foo_bar.Test.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/foo_bar.Test_Utils.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/.Test_Utils.js', undefined, [{case: 'snakeCase'}]),
+		testCaseWithOptions('test/foo/foo-bar.Test.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/foo-bar.Test-Utils.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/.Test-Utils.js', undefined, [{case: 'kebabCase'}]),
+		testCaseWithOptions('test/foo/FooBar.Test.js', undefined, [{case: 'pascalCase'}]),
+		testCaseWithOptions('test/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase'}]),
+		testCaseWithOptions('test/foo/.TestUtils.js', undefined, [{case: 'pascalCase'}]),
 	],
 	invalid: [
 		testCase(
@@ -263,7 +297,7 @@ test({
 		testCase(
 			'test/foo/foo_bar.test_utils.js',
 			'camelCase',
-			'Filename is not in camel case. Rename it to `fooBar.testUtils.js`.',
+			'Filename is not in camel case. Rename it to `fooBar.test_utils.js`.',
 		),
 		testCase(
 			'test/foo/fooBar.js',
@@ -278,7 +312,7 @@ test({
 		testCase(
 			'test/foo/fooBar.testUtils.js',
 			'snakeCase',
-			'Filename is not in snake case. Rename it to `foo_bar.test_utils.js`.',
+			'Filename is not in snake case. Rename it to `foo_bar.testUtils.js`.',
 		),
 		testCase(
 			'test/foo/fooBar.js',
@@ -293,7 +327,7 @@ test({
 		testCase(
 			'test/foo/fooBar.testUtils.js',
 			'kebabCase',
-			'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.',
+			'Filename is not in kebab case. Rename it to `foo-bar.testUtils.js`.',
 		),
 		testCase(
 			'test/foo/fooBar.js',
@@ -303,12 +337,12 @@ test({
 		testCase(
 			'test/foo/foo_bar.test.js',
 			'pascalCase',
-			'Filename is not in pascal case. Rename it to `FooBar.Test.js`.',
+			'Filename is not in pascal case. Rename it to `FooBar.test.js`.',
 		),
 		testCase(
 			'test/foo/foo-bar.test-utils.js',
 			'pascalCase',
-			'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.',
+			'Filename is not in pascal case. Rename it to `FooBar.test-utils.js`.',
 		),
 		testCase(
 			'src/foo/_FOO-BAR.js',
@@ -552,6 +586,47 @@ test({
 			},
 			'Filename is not in camel case, pascal case, or kebab case. Rename it to `1.js`.',
 		),
+		// Multiple filename parts - single file extension
+		testCaseWithOptions(
+			'src/foo/foo_bar.test.js',
+			'Filename is not in camel case. Rename it to `fooBar.test.js`.',
+			[{case: 'camelCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/foo_bar.test_utils.js',
+			'Filename is not in camel case. Rename it to `fooBar.testUtils.js`.',
+			[{case: 'camelCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/fooBar.test.js',
+			'Filename is not in snake case. Rename it to `foo_bar.test.js`.',
+			[{case: 'snakeCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/fooBar.testUtils.js',
+			'Filename is not in snake case. Rename it to `foo_bar.test_utils.js`.',
+			[{case: 'snakeCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/fooBar.test.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.test.js`.',
+			[{case: 'kebabCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/fooBar.testUtils.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.',
+			[{case: 'kebabCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/foo_bar.test.js',
+			'Filename is not in pascal case. Rename it to `FooBar.Test.js`.',
+			[{case: 'pascalCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/foo-bar.test-utils.js',
+			'Filename is not in pascal case. Rename it to `FooBar.TestUtils.js`.',
+			[{case: 'pascalCase', multipleFileExtensions: false}],
+		),
 	],
 });
 
@@ -559,7 +634,11 @@ test.snapshot({
 	valid: [
 		undefined,
 		'src/foo.JS/bar.js',
+		'src/foo.JS/bar.spec.js',
+		'src/foo.JS/.spec.js',
 		'src/foo.JS/bar',
+		'foo.SPEC.js',
+		'.SPEC.js',
 	].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
 	invalid: [
 		{
@@ -580,6 +659,6 @@ test.snapshot({
 			'foo.jS',
 			'index.JS',
 			'foo..JS',
-		].map(filename => ({code: `const filename = ${JSON.stringify(filename)};`, filename})),
+		].map(filename => ({code: `/* Filename ${filename} */`, filename})),
 	],
 });

@@ -18,6 +18,7 @@ const {isMethodCall} = require('./ast/index.js');
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
+const ERROR_AT_ZERO = 'error-at-zero';
 const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
@@ -27,6 +28,7 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 const messages = {
 	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
+	[ERROR_AT_ZERO]: 'Prefer `.find(…)` over `.filter(…).at(0)`.',
 	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 	[ERROR_POP]: 'Prefer `.findLast(…)` over `.filter(…).pop()`.',
 	[ERROR_AT_MINUS_ONE]: 'Prefer `.findLast(…)` over `.filter(…).at(-1)`.',
@@ -333,6 +335,32 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	// `array.filter().at(0)`
+	context.on('CallExpression', node => {
+		if (!(
+			isMethodCall(node, {
+				method: 'at',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& node.arguments[0].type === 'Literal'
+			&& node.arguments[0].raw === '0'
+			&& isArrayFilterCall(node.callee.object)
+		)) {
+			return;
+		}
+
+		return {
+			node: node.callee.object.callee.property,
+			messageId: ERROR_AT_ZERO,
+			fix: fixer => [
+				fixer.replaceText(node.callee.object.callee.property, 'find'),
+				...removeMethodCall(fixer, node, sourceCode),
+			],
+		};
 	});
 
 	if (!checkFromLast) {
