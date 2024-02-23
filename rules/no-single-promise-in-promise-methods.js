@@ -9,12 +9,12 @@ const {
 } = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
-const MESSAGE_ID_SUGGESTION_1 = 'no-single-promise-in-promise-methods/suggestion-1';
-const MESSAGE_ID_SUGGESTION_2 = 'no-single-promise-in-promise-methods/suggestion-2';
+const MESSAGE_ID_SUGGESTION_UNWRAP = 'no-single-promise-in-promise-methods/unwrap';
+const MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE = 'no-single-promise-in-promise-methods/use-promise-resolve';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Wrapping a single element array with `Promise.{{method}}()` is unnecessary.',
-	[MESSAGE_ID_SUGGESTION_1]: 'Use the value directly.',
-	[MESSAGE_ID_SUGGESTION_2]: 'Wrap the value with `Promise.resolve()`.',
+	[MESSAGE_ID_SUGGESTION_UNWRAP]: 'Use the value directly.',
+	[MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE]: 'Wrap the value with `Promise.resolve()`.',
 };
 const METHODS = ['all', 'any', 'race'];
 
@@ -96,11 +96,11 @@ const create = context => ({
 
 		problem.suggest = [
 			{
-				messageId: MESSAGE_ID_SUGGESTION_1,
+				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
 				fix: useValueDirectly(context, callExpression),
 			},
 			{
-				messageId: MESSAGE_ID_SUGGESTION_2,
+				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
 				fix: wrapWithPromiseResolve(context, callExpression),
 			},
 		];
