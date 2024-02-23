@@ -70,8 +70,12 @@ test.snapshot({
 		// We are not checking these cases
 		'globalThis.Promise.all([promise])',
 		'Promise["all"]([promise])',
+
+		// This can't be checked
+		'Promise.allSettled([promise])',
 	],
 	invalid: [
+		'Promise.all([promise,],)',
 		outdent`
 			foo
 			Promise.all([(0, promise),],)
