@@ -23,18 +23,22 @@ const foo = await Promise.any([promise]);
 const foo = await Promise.race([promise]);
 ```
 
+```js
+const promise = Promise.all([nonPromise]);
+```
+
 ## Pass
 
 ```js
-const foo = await Promise.all([promise, anotherPromise]);
+const foo = await promise;
 ```
 
 ```js
-const foo = await Promise.all(notArrayLiteral);
+const promise = Promise.resolve(nonPromise);
 ```
 
 ```js
-const foo = await Promise.all([...promises]);
+const foo = await Promise.all(promises);
 ```
 
 ```js
@@ -42,13 +46,5 @@ const foo = await Promise.any([promise, anotherPromise]);
 ```
 
 ```js
-const foo = await Promise.race([promise, anotherPromise]);
-```
-
-```js
 const [{value: foo, reason: error}] = await Promise.allSettled([promise]);
-```
-
-```js
-const foo = await Promise.resolve(promise);
 ```
