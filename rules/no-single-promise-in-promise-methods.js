@@ -30,7 +30,7 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	})
 	&& node.arguments[0].type === 'ArrayExpression'
 	&& node.arguments[0].elements.length === 1
-	&& node.arguments[0].elements[0] !== null
+	&& node.arguments[0].elements[0]
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
 const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
