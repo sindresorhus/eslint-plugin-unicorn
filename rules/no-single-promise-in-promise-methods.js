@@ -14,9 +14,9 @@ const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_UNWRAP = 'no-single-promise-in-promise-methods/unwrap';
 const MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE = 'no-single-promise-in-promise-methods/use-promise-resolve';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Wrapping a single element array with `Promise.{{method}}()` is unnecessary.',
+	[MESSAGE_ID_ERROR]: 'Wrapping a single element in array with `Promise.{{method}}()` is unnecessary.',
 	[MESSAGE_ID_SUGGESTION_UNWRAP]: 'Use the value directly.',
-	[MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE]: 'Wrap the value with `Promise.resolve()`.',
+	[MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE]: 'Switch to `Promise.resolve(…)`.',
 };
 const METHODS = ['all', 'any', 'race'];
 
@@ -114,7 +114,6 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-
 	CallExpression(callExpression) {
 		if (!isPromiseMethodCallWithSingleElementArray(callExpression)) {
 			return;
