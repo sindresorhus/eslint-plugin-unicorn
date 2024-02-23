@@ -74,19 +74,19 @@ test.snapshot({
 	invalid: [
 		outdent`
 			foo
-			await Promise.all([(0, promise)])
+			await Promise.all([(0, promise),],)
 		`,
 		outdent`
 			foo
-			Promise.all([(0, promise)])
+			Promise.all([(0, promise),],)
 		`,
 		outdent`
 			foo
-			await Promise.all([[array][0]])
+			await Promise.all([[array][0],],)
 		`,
 		outdent`
 			foo
-			Promise.all([[array][0]])
+			Promise.all([[array][0],],)
 		`,
 		'Promise.all([promise]).then()',
 		'Promise.all([1]).then()',
