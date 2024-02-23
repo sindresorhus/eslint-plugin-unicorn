@@ -27,9 +27,9 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 ## Implementation note
 
 1. Try your best to provide an autofix if possible.
-1. Try to provide suggestions if autofix is not possible.
-1. Make sure autofix doesn't change the runtime result.
-1. Make sure suggestions don't cause syntax errors.
+1. Try to provide a suggestion if an autofix is not possible.
+1. Make sure the autofix doesn't change the runtime result.
+1. Make sure the suggestion doesn't cause a syntax error.
 1. Make sure that edge cases needing parentheses are considered in the fix function.
 
 	```js
