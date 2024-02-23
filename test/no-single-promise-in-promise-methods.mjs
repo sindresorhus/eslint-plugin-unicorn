@@ -3,6 +3,47 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
+// `await`ed
+test.snapshot({
+	valid: [
+	],
+	invalid: [
+		'await Promise.all([(0, promise)])',
+		'async function * foo() {await Promise.all([yield promise])}',
+		'async function * foo() {await Promise.all([yield* promise])}',
+		'await Promise.all([() => promise])',
+		'await Promise.all([a ? b : c])',
+		'await Promise.all([x ??= y])',
+		'await Promise.all([x ||= y])',
+		'await Promise.all([x &&= y])',
+		'await Promise.all([x |= y])',
+		'await Promise.all([x ^= y])',
+		'await Promise.all([x ??= y])',
+		'await Promise.all([x ||= y])',
+		'await Promise.all([x &&= y])',
+		'await Promise.all([x | y])',
+		'await Promise.all([x ^ y])',
+		'await Promise.all([x & y])',
+		'await Promise.all([x !== y])',
+		'await Promise.all([x == y])',
+		'await Promise.all([x in y])',
+		'await Promise.all([x >>> y])',
+		'await Promise.all([x + y])',
+		'await Promise.all([x / y])',
+		'await Promise.all([x ** y])',
+
+		'await Promise.all([promise])',
+		'await Promise.all([getPromise()])',
+		'await Promise.all([promises[0]])',
+		'await Promise.all([await promise])',
+		'await Promise.any([promise])',
+		'await Promise.race([promise])',
+		'await Promise.all([new Promise(() => {})])',
+		'+await Promise.all([+1])',
+	],
+});
+
+// Not `await`ed
 test.snapshot({
 	valid: [
 		'Promise.all([promise, anotherPromise])',
@@ -26,15 +67,6 @@ test.snapshot({
 		'Promise["all"]([promise])',
 	],
 	invalid: [
-		'await Promise.all([promise])',
-		'await Promise.all([func()])',
-		'await Promise.all([promises[0]])',
-		'await Promise.all([await promise])',
-		'await Promise.any([promise])',
-		'await Promise.race([promise])',
-		'Promise.all([somethingMaybeNotPromise])',
-		'await Promise.all([new Promise(() => {})])',
-		'+await Promise.all([+1])',
 		outdent`
 			foo
 			await Promise.all([(0, promise)])
@@ -54,6 +86,5 @@ test.snapshot({
 		'Promise.all([promise]).then()',
 		'Promise.all([1]).then()',
 		'Promise.all([(0, promise)]).then()',
-		'await Promise.all([x ** y])',
 	],
 });

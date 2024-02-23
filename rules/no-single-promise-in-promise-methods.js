@@ -4,6 +4,7 @@ const {
 	getParenthesizedText,
 	isParenthesized,
 	needsSemicolon,
+	shouldAddParenthesesToAwaitExpressionArgument,
 	shouldAddParenthesesToMemberExpressionObject,
 } = require('./utils/index.js');
 
@@ -51,11 +52,18 @@ const getText = ({sourceCode}, node, element, prefix = '', suffix = '') => {
 	return needsSemicolon(previousToken, sourceCode, wrappedText) ? `;${wrappedText}` : wrappedText;
 };
 
-const unwrapValue = (context, node) => fixer => {
-	const [element] = node.arguments[0].elements;
-	const elementWithoutAwait = element.type === 'AwaitExpression' ? element.argument : element;
+const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
+	const [promiseNode] = callExpression.arguments[0].elements;
+	let text = getParenthesizedText(promiseNode, sourceCode);
 
-	return fixer.replaceText(node, getText(context, node, elementWithoutAwait));
+	if (
+		!isParenthesized(promiseNode, sourceCode)
+		&& shouldAddParenthesesToAwaitExpressionArgument(promiseNode)
+	) {
+		text = `(${text})`;
+	}
+
+	return fixer.replaceText(callExpression, text);
 };
 
 const useValueDirectly = (context, node) => fixer =>
@@ -80,7 +88,7 @@ const create = context => ({
 		};
 
 		if (callExpression.parent.type === 'AwaitExpression') {
-			problem.fix = unwrapValue(context, callExpression);
+			problem.fix = unwrapAwaitedCallExpression(callExpression, context.sourceCode);
 			return problem;
 		}
 
