@@ -63,7 +63,7 @@ const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 		text = `(${text})`;
 	}
 
-	// TODO: Check ASI
+	// The next node is already behind a `CallExpression`, there should be no ASI problem
 
 	return fixer.replaceText(callExpression, text);
 };
