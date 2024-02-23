@@ -23,3 +23,72 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 - Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
 - The pull request description should include the issue it fixes, for example, `Fixes #123`.
 - Run `npm run run-rules-on-codebase` to run the rules against codebase to ensure code in the repository are following your rule, _you can ignore this step until your PR is reviewed_.
+
+## Implementation note
+
+1. Try your best to provide an autofix if possible.
+1. Try to provide suggestions if autofix is not possible.
+1. Make sure autofix doesn't change the runtime result.
+1. Make sure suggestions doesn't cause syntax error.
+1. Make sure that edge cases need add parentheses are considered in the fix function.
+
+	```js
+	const foo = 1;
+	foo.toString()
+	```
+
+	When changing `foo` to something else, make sure it works without `()`
+
+	```js
+	// Good
+	(1).toString()
+
+	// Bad, will cause syntax error
+	1.toString()
+	```
+
+1. Make sure that edge cases needs leading semicolons are considered in the fix function.
+
+	```js
+	foo
+	const bar = [1]
+	bar.forEach(number => {
+		console.log(number)
+	})
+	```
+
+	When changing `bar` to something starts with `[` or `(`
+
+	```js
+	// Good
+	foo
+	;[1].forEach(number => {
+		console.log(number)
+	})
+
+	// Bad
+	foo
+	[1].forEach(number => {
+		console.log(number)
+	})
+	```
+
+1. If replacing node can starts or ends with a symbol like `{` make sure to add space before if the replacement starts with a letter.
+
+	The following is valid JavaScript code:
+
+	```js
+	for(const{foo}of[]);
+	```
+
+	When replacing `{foo}` with something starts with letter, space around is needed
+
+	```js
+	// Good
+	for(const foo of[]);
+
+	// Bad
+	for(constfooof[]);
+	```
+
+1. Try not to remove comments in the fix function.
