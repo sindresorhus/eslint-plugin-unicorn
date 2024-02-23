@@ -91,5 +91,6 @@ test.snapshot({
 		'Promise.all([promise]).then()',
 		'Promise.all([1]).then()',
 		'Promise.all([(0, promise)]).then()',
+		'const _ = () => Promise.all([ a ?? b ,],)',
 	],
 });

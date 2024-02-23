@@ -1,7 +1,5 @@
 'use strict';
 const {
-	isOpeningBracketToken,
-	isClosingBracketToken,
 	isCommaToken,
 } = require('@eslint-community/eslint-utils');
 const {isMethodCall} = require('./ast/index.js');
@@ -10,9 +8,6 @@ const {
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
-	shouldAddParenthesesToMemberExpressionObject,
-	isOpeningParenToken,
-	isClosingParenToken,
 } = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
@@ -38,27 +33,6 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0] !== null
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
-const wrapText = (sourceCode, node, element, text, prefix, suffix) => {
-	if (prefix || suffix) {
-		return `${prefix}${text}${suffix}`;
-	}
-
-	if (!isParenthesized(element, sourceCode)
-	&& shouldAddParenthesesToMemberExpressionObject(element, sourceCode)) {
-		return `(${text})`;
-	}
-
-	return text;
-};
-
-const getText = (sourceCode, node, element, prefix = '', suffix = '') => {
-	const previousToken = sourceCode.getTokenBefore(node);
-	const parenthesizedText = getParenthesizedText(element, sourceCode);
-	const wrappedText = wrapText(sourceCode, node, element, parenthesizedText, prefix, suffix);
-
-	return needsSemicolon(previousToken, sourceCode, wrappedText) ? `;${wrappedText}` : wrappedText;
-};
-
 const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, sourceCode);
@@ -75,32 +49,54 @@ const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 	return fixer.replaceText(callExpression, text);
 };
 
-const unwrapNonAwaitedCallExpression = (node, sourceCode) => fixer =>
-	fixer.replaceText(node, getText(sourceCode, node, node.arguments[0].elements[0]));
+const unwrapNonAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
+	const [promiseNode] = callExpression.arguments[0].elements;
+	let text = getParenthesizedText(promiseNode, sourceCode);
+
+	if (
+		!isParenthesized(promiseNode, sourceCode)
+		// Since the original call expression can be anywhere, it's hard to tell if the promise
+		// need to be parenthesized, but it's safe to add parentheses
+		&& !(
+			// Known cases that not need parentheses
+			promiseNode.type === 'Identifier'
+			|| promiseNode.type === 'MemberExpression'
+		)
+	) {
+		text = `(${text})`;
+	}
+
+	const previousToken = sourceCode.getTokenBefore(callExpression);
+	if (needsSemicolon(previousToken, sourceCode, text)) {
+		text = `;${text}`;
+	}
+
+	return fixer.replaceText(callExpression, text);
+};
 
 const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer) {
-	const methodNameNode = callExpression.callee.property;
 	/*
 	```
 	Promise.all([promise,])
-	//      ^^^
+	//      ^^^ methodNameNode
 	```
 	*/
+	const methodNameNode = callExpression.callee.property;
 	yield fixer.replaceText(methodNameNode, 'resolve');
 
 	const [arrayExpression] = callExpression.arguments;
 	/*
 	```
 	Promise.all([promise,])
-	//          ^
+	//          ^ openingBracketToken
 	```
 	*/
 	const openingBracketToken = sourceCode.getFirstToken(arrayExpression);
 	/*
 	```
 	Promise.all([promise,])
-	//                  ^
-	//                   ^
+	//                  ^ penultimateToken
+	//                   ^ closingBracketToken
 	```
 	*/
 	const [
