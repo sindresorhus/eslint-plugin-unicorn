@@ -29,15 +29,15 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 1. Try your best to provide an autofix if possible.
 1. Try to provide suggestions if autofix is not possible.
 1. Make sure autofix doesn't change the runtime result.
-1. Make sure suggestions doesn't cause syntax error.
-1. Make sure that edge cases need add parentheses are considered in the fix function.
+1. Make sure suggestions don't cause syntax errors.
+1. Make sure that edge cases needing parentheses are considered in the fix function.
 
 	```js
 	const foo = 1;
 	foo.toString()
 	```
 
-	When changing `foo` to something else, make sure it works without `()`
+	When changing `foo` to something else, make sure it works without `()`.
 
 	```js
 	// Good
@@ -47,7 +47,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	1.toString()
 	```
 
-1. Make sure that edge cases needs leading semicolons are considered in the fix function.
+1. Make sure that edge cases needing leading semicolons are considered in the fix function.
 
 	```js
 	foo
@@ -57,7 +57,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	})
 	```
 
-	When changing `bar` to something starts with `[` or `(`
+	When changing `bar` to something that starts with `[` or `(`.
 
 	```js
 	// Good
@@ -73,7 +73,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	})
 	```
 
-1. If replacing node can starts or ends with a symbol like `{` make sure to add space before if the replacement starts with a letter.
+1. If replacing a node that starts or ends with a symbol like `{`, make sure to add space before if the replacement starts with a letter.
 
 	The following is valid JavaScript code:
 
@@ -81,7 +81,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	for(const{foo}of[]);
 	```
 
-	When replacing `{foo}` with something starts with letter, space around is needed
+	When replacing `{foo}` with something that starts with a letter, space around is needed.
 
 	```js
 	// Good
