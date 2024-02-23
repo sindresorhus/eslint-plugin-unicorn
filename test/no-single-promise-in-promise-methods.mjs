@@ -96,5 +96,7 @@ test.snapshot({
 		'foo(Promise.all([promise]))',
 		'Promise.all([promise]).foo = 1',
 		'Promise.all([promise])[0] ||= 1',
+		'Promise.all([undefined]).then()',
+		'Promise.all([null]).then()',
 	],
 });
