@@ -12,23 +12,43 @@ Passing a single-element array to `Promise.all()`, `Promise.any()`, or `Promise.
 ## Fail
 
 ```js
-Promise.all([promise]);
+const foo = await Promise.all([promise]);
+```
 
-Promise.any([promise]);
+```js
+const foo = await Promise.any([promise]);
+```
 
-Promise.race([promise]);
+```js
+const foo = await Promise.race([promise]);
 ```
 
 ## Pass
 
 ```js
-Promise.all([promise, anotherPromise]);
-Promise.all(notArrayLiteral);
-Promise.all([...promises]);
+const foo = await Promise.all([promise, anotherPromise]);
+```
 
-Promise.any([promise, anotherPromise]);
+```js
+const foo = await Promise.all(notArrayLiteral);
+```
 
-Promise.race([promise, anotherPromise]);
+```js
+const foo = await Promise.all([...promises]);
+```
 
-Promise.allSettled([promise]);
+```js
+const foo = await Promise.any([promise, anotherPromise]);
+```
+
+```js
+const foo = await Promise.race([promise, anotherPromise]);
+```
+
+```js
+const [{value: foo, reason: error}] = await Promise.allSettled([promise]);
+```
+
+```js
+const foo = await Promise.resolve(promise);
 ```
