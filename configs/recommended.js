@@ -40,6 +40,7 @@ module.exports = {
 	'unicorn/no-null': 'error',
 	'unicorn/no-object-as-default-parameter': 'error',
 	'unicorn/no-process-exit': 'error',
+	'unicorn/no-single-promise-in-promise-methods': 'error',
 	'unicorn/no-static-only-class': 'error',
 	'unicorn/no-thenable': 'error',
 	'unicorn/no-this-assignment': 'error',
