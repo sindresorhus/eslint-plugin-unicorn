@@ -129,7 +129,10 @@ const create = context => ({
 
 		const {sourceCode} = context;
 
-		if (callExpression.parent.type === 'AwaitExpression') {
+		if (
+			callExpression.parent.type === 'AwaitExpression'
+			&& callExpression.parent.argument === callExpression
+		) {
 			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
 			return problem;
 		}
