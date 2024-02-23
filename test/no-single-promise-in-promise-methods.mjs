@@ -88,5 +88,13 @@ test.snapshot({
 		'Promise.all([1]).then()',
 		'Promise.all([(0, promise)]).then()',
 		'const _ = () => Promise.all([ a ?? b ,],)',
+		'Promise.all([ {a} = 1 ,],)',
+		'Promise.all([ function () {} ,],)',
+		'Promise.all([ class {} ,],)',
+		'Promise.all([ new Foo ,],).then()',
+		'Promise.all([ new Foo ,],).toString',
+		'foo(Promise.all([promise]))',
+		'Promise.all([promise]).foo = 1',
+		'Promise.all([promise])[0] ||= 1',
 	],
 });
