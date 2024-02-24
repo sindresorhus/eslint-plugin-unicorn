@@ -444,3 +444,32 @@ test({
 		}),
 	],
 });
+
+// Ternaries
+test.snapshot({
+	valid: [
+		'foo.map(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.reduce(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.every(_ ? Boolean : _ ? Boolean : Boolean)',
+		'foo.every(_ ? Boolean : _ ? Boolean : Boolean)',
+		'foo.map(_ ? String : _ ? Number : Boolean)',
+	],
+	invalid: [
+		outdent`
+			foo.map(
+				_
+					? String // This one should be ignored
+					: callback
+			);
+		`,
+		outdent`
+			foo.forEach(
+				_
+					? callbackA
+					: _
+							? callbackB
+							: callbackC
+			);
+		`,
+	],
+});

@@ -190,16 +190,11 @@ function getProblem(context, node, method, options) {
 				const {sourceCode} = context;
 				let text = getParenthesizedText(node, sourceCode);
 
-				let nodeText = sourceCode.getText(node);
-				if (isParenthesized(node, sourceCode)) {
-					nodeText = `(${nodeText})`;
-				}
-
 				return fixer.replaceTextRange(
 					getParenthesizedRange(node, sourceCode),
 					returnsUndefined
-						? `(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }`
-						: `(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
+						? `(${suggestionParameters}) => { ${text}(${suggestionParameters}); }`
+						: `(${suggestionParameters}) => ${text}(${suggestionParameters})`,
 				);
 			},
 		};
