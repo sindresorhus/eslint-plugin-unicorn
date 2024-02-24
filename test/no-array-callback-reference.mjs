@@ -469,7 +469,6 @@ test.snapshot({
 				foo.map(yield bar);
 				foo.map(yield* bar);
 				foo.map(() => bar);
-				foo.map(() => bar);
 				foo.map(bar &&= baz);
 				foo.map(bar || baz);
 				foo.map(bar + bar);
