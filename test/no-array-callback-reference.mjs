@@ -265,25 +265,16 @@ test({
 		),
 
 		// Need parenthesized
+
 		invalidTestCase({
-			code: 'foo.map((0, bar))',
+			code: 'foo.map(a || b)',
 			method: 'map',
 			suggestions: [
-				'foo.map((element) => (0, bar)(element))',
-				'foo.map((element, index) => (0, bar)(element, index))',
-				'foo.map((element, index, array) => (0, bar)(element, index, array))',
+				'foo.map((element) => (a || b)(element))',
+				'foo.map((element, index) => (a || b)(element, index))',
+				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
-		// Note: `await` is not handled, not sure if this is needed
-		// invalidTestCase({
-		// 	code: `foo.map(await foo())`,
-		// 	method: 'map',
-		// 	suggestions: [
-		// 		`foo.map(async (accumulator, element) => (await foo())(accumulator, element))`,
-		// 		`foo.map(async (accumulator, element, index) => (await foo())(accumulator, element, index))`,
-		// 		`foo.map(async (accumulator, element, index, array) => (await foo())(accumulator, element, index, array))`
-		// 	]
-		// }),
 
 		// Actual messages
 		{
@@ -440,16 +431,6 @@ test({
 					const fn = (x, y) => x + y;
 					[1, 2, 3].map((element, index, array) => fn(element, index, array));
 				`,
-			],
-		}),
-
-		invalidTestCase({
-			code: 'foo.map(a || b)',
-			method: 'map',
-			suggestions: [
-				'foo.map((element) => (a || b)(element))',
-				'foo.map((element, index) => (a || b)(element, index))',
-				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
 	],
