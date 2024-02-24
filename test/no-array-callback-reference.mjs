@@ -266,12 +266,12 @@ test({
 
 		// Need parenthesized
 		invalidTestCase({
-			code: 'foo.map(a ? b : c)',
+			code: 'foo.map((0, bar))',
 			method: 'map',
 			suggestions: [
-				'foo.map((element) => (a ? b : c)(element))',
-				'foo.map((element, index) => (a ? b : c)(element, index))',
-				'foo.map((element, index, array) => (a ? b : c)(element, index, array))',
+				'foo.map((element) => (0, bar)(element))',
+				'foo.map((element, index) => (0, bar)(element, index))',
+				'foo.map((element, index, array) => (0, bar)(element, index, array))',
 			],
 		}),
 		// Note: `await` is not handled, not sure if this is needed
