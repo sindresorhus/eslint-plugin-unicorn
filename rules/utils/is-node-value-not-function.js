@@ -19,7 +19,6 @@ const impossibleNodeTypes = new Set([
 const mostLikelyNotNodeTypes = new Set([
 	'AssignmentExpression',
 	'AwaitExpression',
-	'LogicalExpression',
 	'NewExpression',
 	'TaggedTemplateExpression',
 	'ThisExpression',

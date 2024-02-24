@@ -6,7 +6,7 @@ const {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
-	shouldAddParenthesesToConditionalExpressionChild,
+	shouldAddParenthesesToCallExpressionCallee,
 } = require('./utils/index.js');
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
@@ -129,8 +129,8 @@ const iteratorMethods = new Map([
 		}
 
 		if (
-			callExpression.callee.object.type === 'CallExpression' &&
-			isNodeMatches(callExpression.callee.object.callee, ignoredCallee)
+			callExpression.callee.object.type === 'CallExpression'
+			&& isNodeMatches(callExpression.callee.object.callee, ignoredCallee)
 		) {
 			return true;
 		}
@@ -173,8 +173,13 @@ function getProblem(context, node, method, options) {
 			name,
 			method,
 		},
-		suggest: [],
 	};
+
+	if (node.type === 'YieldExpression' || node.type === 'AwaitExpression') {
+		return problem;
+	}
+
+	problem.suggest = [];
 
 	const {parameters, minParameters, returnsUndefined} = options;
 	for (let parameterLength = minParameters; parameterLength <= parameters.length; parameterLength++) {
@@ -189,6 +194,13 @@ function getProblem(context, node, method, options) {
 			fix(fixer) {
 				const {sourceCode} = context;
 				let text = getParenthesizedText(node, sourceCode);
+
+				if (
+					!isParenthesized(node, sourceCode)
+					&& shouldAddParenthesesToCallExpressionCallee(node)
+				) {
+					text = `(${text})`;
+				}
 
 				return fixer.replaceTextRange(
 					getParenthesizedRange(node, sourceCode),
@@ -207,8 +219,8 @@ function getProblem(context, node, method, options) {
 
 function * getTernaryConsequentAndALternate(node) {
 	if (node.type === 'ConditionalExpression') {
-		yield* getTernaryConsequentAndALternate(node.consequent);
-		yield* getTernaryConsequentAndALternate(node.alternate);
+		yield * getTernaryConsequentAndALternate(node.consequent);
+		yield * getTernaryConsequentAndALternate(node.alternate);
 		return;
 	}
 
