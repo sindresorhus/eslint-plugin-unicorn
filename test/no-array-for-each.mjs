@@ -547,21 +547,21 @@ test({
 				}
 			`,
 			errors: 1,
-			parserOptions: {
+			languageOptions: {
 				sourceType: 'script',
 			},
 		},
 		{
 			code: 'foo.forEach(function(element, element) {})',
 			errors: 1,
-			parserOptions: {
+			languageOptions: {
 				sourceType: 'script',
 			},
 		},
 		{
 			code: 'foo.forEach(function element(element, element) {})',
 			errors: 1,
-			parserOptions: {
+			languageOptions: {
 				sourceType: 'script',
 			},
 		},
@@ -622,21 +622,22 @@ test.typescript({
 	],
 });
 
-const globalReturnOptions = {
-	sourceType: 'script',
-	ecmaFeatures: {
-		globalReturn: true,
-	},
-};
 test({
-	valid: [
-		{
-			code: outdent`
-				foo.notForEach(element => bar(element));
-				while (true) return;
-			`,
-			parserOptions: globalReturnOptions,
+	testerOptions: {
+		languageOptions: {
+			sourceType: 'script',
+			parserOptions: {
+				ecmaFeatures: {
+					globalReturn: true,
+				},
+			},
 		},
+	},
+	valid: [
+		outdent`
+			foo.notForEach(element => bar(element));
+			while (true) return;
+		`,
 	],
 	invalid: [
 		{
@@ -649,7 +650,6 @@ test({
 				for (const element of foo) bar(element);
 			`,
 			errors: 1,
-			parserOptions: globalReturnOptions,
 		},
 		{
 			code: outdent`
@@ -660,12 +660,10 @@ test({
 				while (true) return;
 			`,
 			errors: 1,
-			parserOptions: globalReturnOptions,
 		},
 		{
 			code: 'return foo.forEach(element => {bar(element)});',
 			errors: 1,
-			parserOptions: globalReturnOptions,
 		},
 		{
 			code: outdent`
@@ -679,7 +677,6 @@ test({
 				}
 			`,
 			errors: 1,
-			parserOptions: globalReturnOptions,
 		},
 	],
 });

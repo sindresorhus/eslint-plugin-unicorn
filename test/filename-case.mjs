@@ -19,8 +19,8 @@ function testManyCases(filename, chosenCases, errorMessage) {
 }
 
 function testCaseWithOptions(filename, errorMessage, options = []) {
-	return {
-		code: `/* Filename ${filename} */`,
+	const testCase = {
+		code: `/* Filename: ${filename} */`,
 		filename,
 		options,
 		errors: errorMessage && [
@@ -29,6 +29,12 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 			},
 		],
 	};
+
+	if (filename !== undefined) {
+		testCase.filename = filename;
+	}
+
+	return testCase;
 }
 
 test({

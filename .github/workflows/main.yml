@@ -16,13 +16,14 @@ jobs:
       matrix:
         node-version:
           - 20
-          - 16
+          - 18
         os:
           - ubuntu-latest
           - windows-latest
-        include:
-          - os: ubuntu-latest
-            node-version: 18
+        # Even numbers of node-version
+        # include:
+        #   - os: ubuntu-latest
+        #     node-version: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

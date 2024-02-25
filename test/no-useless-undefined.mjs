@@ -263,10 +263,12 @@ test({
 			code: 'return undefined;',
 			output: 'return;',
 			errors,
-			parserOptions: {
-				sourceType: 'script',
-				ecmaFeatures: {
-					globalReturn: true,
+			languageOptions: {
+				parserOptions: {
+					sourceType: 'script',
+					ecmaFeatures: {
+						globalReturn: true,
+					},
 				},
 			},
 		},
@@ -452,7 +454,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {parser: parsers.vue},
 	},
 	valid: [
 		outdent`
@@ -485,7 +487,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.typescript,
+		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [],
 	invalid: [

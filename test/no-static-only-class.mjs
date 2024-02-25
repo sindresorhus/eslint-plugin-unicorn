@@ -211,10 +211,12 @@ test.typescript({
 
 test.babel({
 	testerOptions: {
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: ['classStaticBlock'],
+		languageOptions: {
+			parserOptions: {
+				babelOptions: {
+					parserOpts: {
+						plugins: ['classStaticBlock'],
+					},
 				},
 			},
 		},

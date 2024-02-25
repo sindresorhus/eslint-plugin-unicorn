@@ -624,13 +624,15 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.babel,
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						['decorators', {decoratorsBeforeExport: true}],
-					],
+		languageOptions: {
+			parser: parsers.babel,
+			parserOptions: {
+				babelOptions: {
+					parserOpts: {
+						plugins: [
+							['decorators', {decoratorsBeforeExport: true}],
+						],
+					},
 				},
 			},
 		},
@@ -659,7 +661,9 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.typescript,
+		languageOptions: {
+			parser: parsers.typescript,
+		},
 	},
 	valid: [
 		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74

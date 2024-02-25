@@ -229,7 +229,7 @@ test.snapshot({
 // #1146
 test({
 	testerOptions: {
-		parserOptions: {
+		languageOptions: {
 			ecmaVersion: 2019,
 		},
 	},
