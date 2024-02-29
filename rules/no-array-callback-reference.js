@@ -235,7 +235,6 @@ const create = context => ({
 				minimumArguments: 1,
 				maximumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 				computed: false,
 			})
 			|| callExpression.callee.property.type !== 'Identifier'
