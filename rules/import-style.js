@@ -117,7 +117,13 @@ const defaultStyles = {
 	path: {
 		default: true,
 	},
+	'node:path': {
+		default: true,
+	},
 	util: {
+		named: true,
+	},
+	'node:util': {
 		named: true,
 	},
 };
