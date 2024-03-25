@@ -30,6 +30,22 @@ test.snapshot({
 			'[]',
 			'(() => {})()',
 		].map(code => ({code, filename: 'example.js'})),
+		...[
+			'// comment',
+			'/* comment */',
+			'/// comment',
+			outdent`
+			/*
+				comment
+			*/
+			`,
+			outdent`
+			/*
+				comment
+			*/
+			console.log('done');
+			`,
+		].map(code => ({code, filename: 'example.js', options: [{ allow: ['comments'] }]})),
 		'',
 		...[
 			'md',

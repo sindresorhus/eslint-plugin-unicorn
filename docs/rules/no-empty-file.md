@@ -68,3 +68,26 @@ const x = 0;
 	const x = 0;
 }
 ```
+
+## Options
+
+### allow
+
+Type: `Array<string>`\
+Default: `[]`
+
+You can set the `allow` option like this:
+
+```js
+"unicorn/no-empty-file": {
+    "allow": [
+        "comments"
+	]
+}
+```
+
+If you set it to `comments`, you can only store files with comments
+
+```js
+// Comment
+```
