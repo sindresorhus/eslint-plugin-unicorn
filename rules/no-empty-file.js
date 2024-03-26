@@ -79,7 +79,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow empty files.',
 		},
-		messages,
 		schema,
+		messages,
 	},
 };
