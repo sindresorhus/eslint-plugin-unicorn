@@ -56,6 +56,21 @@ const create = context => {
 	};
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allow: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -65,5 +80,6 @@ module.exports = {
 			description: 'Disallow empty files.',
 		},
 		messages,
+		schema,
 	},
 };
