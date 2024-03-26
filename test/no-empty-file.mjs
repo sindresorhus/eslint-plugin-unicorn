@@ -35,17 +35,17 @@ test.snapshot({
 			'/* comment */',
 			'/// comment',
 			outdent`
-			/*
-				comment
-			*/
+				/*
+					comment
+				*/
 			`,
 			outdent`
-			/*
-				comment
-			*/
-			console.log('done');
+				/*
+					comment
+				*/
+				console.log('done');
 			`,
-		].map(code => ({code, filename: 'example.js', options: [{ allow: ['comments'] }]})),
+		].map(code => ({code, filename: 'example.js', options: [{allow: ['comments']}]})),
 		'',
 		...[
 			'md',
