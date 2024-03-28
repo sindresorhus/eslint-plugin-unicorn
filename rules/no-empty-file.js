@@ -15,9 +15,17 @@ const isTripleSlashDirective = node =>
 const hasTripeSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
+const isProgramFileEmpty = node => node.type === 'Program' && node.body.length === 0;
+
+const isAllowOnlyCommentsFile = (option, node) => option.allow.includes('comments') && isProgramFileEmpty(node);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const filename = context.physicalFilename;
+	const options = {
+		allow: [],
+		...context.options[0],
+	};
 
 	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
 		return;
@@ -36,6 +44,10 @@ const create = context => {
 				return;
 			}
 
+			if (isAllowOnlyCommentsFile(options, node)) {
+				return;
+			}
+
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -43,6 +55,21 @@ const create = context => {
 		},
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allow: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+		},
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -52,6 +79,7 @@ module.exports = {
 		docs: {
 			description: 'Disallow empty files.',
 		},
+		schema,
 		messages,
 	},
 };

@@ -106,7 +106,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 💼 [Configurations](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs) enabled in.\
 ✅ Set in the `recommended` [configuration](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).\
-💡 Manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+💡 Manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 | Name                                                                                             | Description                                                                                                                                                                                                       | 💼 | 🔧 | 💡 |
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :- | :- | :- |
