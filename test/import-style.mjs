@@ -122,7 +122,15 @@ test({
 			options: [],
 		},
 		{
+			code: 'import {inspect} from \'node:util\'',
+			options: [],
+		},
+		{
 			code: 'const {inspect} = require(\'util\')',
+			options: [],
+		},
+		{
+			code: 'const {inspect} = require(\'node:util\')',
 			options: [],
 		},
 		{
@@ -138,7 +146,15 @@ test({
 			options: [],
 		},
 		{
+			code: 'const {inspect} = require(\'node:util\')',
+			options: [],
+		},
+		{
 			code: 'export {promisify, callbackify} from \'util\'',
+			options: [],
+		},
+		{
+			code: 'export {promisify, callbackify} from \'node:util\'',
 			options: [],
 		},
 
@@ -539,7 +555,17 @@ test({
 			errors: [{}],
 		},
 		{
+			code: 'import util from \'node:util\'',
+			options: [],
+			errors: [{}],
+		},
+		{
 			code: 'import * as util from \'util\'',
+			options: [],
+			errors: [{}],
+		},
+		{
+			code: 'import * as util from \'node:util\'',
 			options: [],
 			errors: [{}],
 		},
@@ -549,12 +575,27 @@ test({
 			errors: [{}],
 		},
 		{
+			code: 'const util = require(\'node:util\')',
+			options: [],
+			errors: [{}],
+		},
+		{
 			code: 'require(\'util\')',
 			options: [],
 			errors: [{}],
 		},
 		{
+			code: 'require(\'node:util\')',
+			options: [],
+			errors: [{}],
+		},
+		{
 			code: 'require(\'ut\' + \'il\')',
+			options: [],
+			errors: [{}],
+		},
+		{
+			code: 'require(\'node:\' + \'util\')',
 			options: [],
 			errors: [{}],
 		},
@@ -626,9 +667,13 @@ test.snapshot({
 	],
 	invalid: [
 		'import util from \'util\'',
+		'import util from \'node:util\'',
 		'import * as util from \'util\'',
+		'import * as util from \'node:util\'',
 		'const util = require(\'util\')',
+		'const util = require(\'node:util\')',
 		'require(\'util\')',
+		'require(\'node:util\')',
 		'import {red} from \'chalk\'',
 		'import {red as green} from \'chalk\'',
 		outdent`
