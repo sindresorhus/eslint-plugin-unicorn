@@ -168,7 +168,7 @@ export default [
 		ignore: [
 			// These files use `flow`
 			'**/*.js',
-			'packages/gatsby-cli/src/reporter/__tests__'
+			'packages/gatsby-cli/src/reporter/__tests__',
 		],
 	},
 	{
