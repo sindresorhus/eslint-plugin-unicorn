@@ -116,7 +116,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	}
 
 	// Split words
-	const words = name.split(/(?=[^a-z])|(?<=[^A-Za-z])/).filter(Boolean);
+	const words = name.split(/(?=\P{Lowercase_Letter})|(?<=\P{Letter})/u).filter(Boolean);
 
 	let hasReplacements = false;
 	const combinations = words.map(word => {
