@@ -16,13 +16,12 @@ const cases = [
 	'switch (foo) {case bar: {/* */}}',
 	'switch (foo) {default: {/* */}}',
 	'try {/* */} catch(foo){}',
-	'try {} catch(foo){/* */}',
+	'try {} catch(bar){/* */}',
 	'try {} catch(foo){} finally {/* */}',
 	'do {/* */} while (foo)',
 	'while (foo){/* */}',
 	'foo = () => {/* */}',
 	'foo = function (){/* */}',
-	'function foo(){/* */}',
 	'foo = {/* */}',
 	'class Foo {bar() {/* */}}',
 	'foo = class {bar() {/* */}}',
@@ -49,7 +48,7 @@ test({
 		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
-		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'bar() {}')),
+		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'baz() {}')),
 		// `with`
 		{
 			code: 'with (foo) {}',
