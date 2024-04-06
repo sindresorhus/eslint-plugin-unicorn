@@ -21,7 +21,6 @@ function testManyCases(filename, chosenCases, errorMessage) {
 function testCaseWithOptions(filename, errorMessage, options = []) {
 	const testCase = {
 		code: `/* Filename: ${filename} */`,
-		filename,
 		options,
 		errors: errorMessage && [
 			{
