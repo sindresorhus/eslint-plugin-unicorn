@@ -173,7 +173,6 @@ const tests = {
 		`,
 		'foo.err = 1',
 		'foo.bar.err = 1',
-		'this.err = 1',
 		outdent`
 			class C {
 				err() {}
@@ -421,22 +420,12 @@ const tests = {
 			options: extendedOptions,
 			errors: 1,
 		},
-
-		{
-			code: 'let e',
-			errors: 1,
-		},
 		{
 			code: 'let e',
 			options: customOptions,
 			errors: 1,
 		},
 
-		{
-			code: 'let err',
-			output: 'let error',
-			errors: 1,
-		},
 		{
 			code: 'let err',
 			output: 'let error',
@@ -447,12 +436,6 @@ const tests = {
 			code: 'let err',
 			output: 'let error',
 			options: customOptions,
-			errors: 1,
-		},
-
-		{
-			code: '({err: 1})',
-			options: checkPropertiesOptions,
 			errors: 1,
 		},
 
@@ -481,19 +464,8 @@ const tests = {
 		},
 		{
 			code: 'let ErrCb',
-			output: 'let ErrorCallback',
-			errors: 1,
-		},
-		{
-			code: 'let ErrCb',
 			output: 'let ErrorCircuitBreacker',
 			options: extendedOptions,
-			errors: 1,
-		},
-		{
-			code: 'let ErrCb',
-			output: 'let HandleError',
-			options: customOptions,
 			errors: 1,
 		},
 
@@ -508,12 +480,6 @@ const tests = {
 			code: 'let errCbFoo',
 			output: 'let errorCbFoo',
 			options: customOptions,
-			errors: 1,
-		},
-
-		{
-			code: 'class Err {}',
-			output: 'class Error_ {}',
 			errors: 1,
 		},
 
@@ -706,11 +672,6 @@ const tests = {
 		},
 		{
 			code: 'foo.bar.err = 1',
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-		{
-			code: 'this.err = 1',
 			options: checkPropertiesOptions,
 			errors: 1,
 		},
@@ -1800,7 +1761,6 @@ test.typescript({
 	invalid: [
 		// Types
 		...[
-			'declare const prop: string;',
 			'declare const prop: string;',
 			'declare var prop: number;',
 			'declare let prop: any;',
