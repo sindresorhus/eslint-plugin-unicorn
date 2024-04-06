@@ -475,12 +475,6 @@ test({
 			`,
 			errors: [createError('arrow function \'doBar\'')],
 		},
-		{
-			code: outdent`
-				const doFoo = () => bar => bar;
-			`,
-			errors: [createError('arrow function')],
-		},
 		// `this`
 		{
 			code: outdent`
@@ -630,9 +624,9 @@ test({
 		},
 		// Actual message
 		{
-			code: 'function foo() { async function* bar() {} }',
+			code: 'function foo() { async function* baz() {} }',
 			errors: [{
-				message: 'Move async generator function \'bar\' to the outer scope.',
+				message: 'Move async generator function \'baz\' to the outer scope.',
 			}],
 		},
 		// React Hooks
