@@ -17,6 +17,7 @@ const create = context => ({
 		const {cases} = switchStatement;
 
 		// TypeScript allows multiple `default` cases
+		// TODO[@fisker]: Typescript fixed it now
 		const defaultCases = cases.filter(switchCase => switchCase.test === null);
 		if (defaultCases.length !== 1) {
 			return;
