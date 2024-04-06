@@ -78,7 +78,7 @@ const create = context => {
 	const {
 		checkInfinity,
 	} = {
-		checkInfinity: true,
+		checkInfinity: false,
 		...context.options[0],
 	};
 	const {sourceCode} = context;

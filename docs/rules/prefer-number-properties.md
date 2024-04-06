@@ -89,9 +89,9 @@ Type: `object`
 ### checkInfinity
 
 Type: `boolean`\
-Default: `true`
+Default: `false`
 
-Pass `checkInfinity: false` to disable check on `Infinity`.
+Pass `checkInfinity: true` to enable check on `Infinity`.
 
 #### Fail
 

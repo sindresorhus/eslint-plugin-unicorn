@@ -252,14 +252,8 @@ test({
 		'function Infinity() {}',
 		'class Infinity {}',
 		'class Foo { Infinity(){}}',
-		{
-			code: 'const foo = Infinity;',
-			options: [{checkInfinity: false}],
-		},
-		{
-			code: 'const foo = -Infinity;',
-			options: [{checkInfinity: false}],
-		},
+		'const foo = Infinity;',
+		'const foo = -Infinity;',
 	],
 	invalid: [
 		{
@@ -306,6 +300,14 @@ test({
 			code: 'class Foo3 {[NaN] = 1}',
 			output: 'class Foo3 {[Number.NaN] = 1}',
 			errors: errorNaN,
+		},
+		{
+			code: 'const foo = Infinity;',
+			options: [{checkInfinity: true}],
+		},
+		{
+			code: 'const foo = -Infinity;',
+			options: [{checkInfinity: true}],
 		},
 	],
 });
