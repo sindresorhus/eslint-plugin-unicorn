@@ -567,7 +567,7 @@ test({
 		'const foo = array.find(bar), first = foo[0];',
 		'const foo = array.filter(bar), first = notFoo[0];',
 		'const foo = array.filter(bar), first = foo[+0];',
-		'const foo = array.filter(bar); first = foo;',
+		'const foo2 = array.filter(bar); first = foo;',
 		'const foo = array.filter(bar), first = a[foo][0];',
 		'const foo = array.filter(bar), first = foo[-0];',
 		'const foo = array.filter(bar), first = foo[1-1];',
