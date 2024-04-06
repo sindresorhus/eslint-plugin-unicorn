@@ -36,7 +36,6 @@ test({
 		'assert.notPropertyVal(foo, "bar", undefined, message)',
 		'expect(foo).not(undefined)',
 		'expect(foo).to.have.property("bar", undefined)',
-		'expect(foo).to.have.property("bar", undefined)',
 		'expect(foo).toBe(undefined)',
 		'expect(foo).toContain(undefined)',
 		'expect(foo).toContainEqual(undefined)',
@@ -305,8 +304,6 @@ test.typescript({
 		'const foo = (): string => undefined;',
 		'const foo = function (): undefined {return undefined}',
 		'export function foo(): undefined {return undefined}',
-		'createContext<T>(undefined);',
-		'React.createContext<T>(undefined);',
 		outdent`
 			const object = {
 				method(): undefined {
