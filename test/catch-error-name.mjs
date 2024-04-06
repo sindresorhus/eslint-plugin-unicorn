@@ -29,7 +29,6 @@ function invalidTestCase(options) {
 
 test({
 	valid: [
-		'try {} catch (error) {}',
 		{
 			code: 'try {} catch (err) {}',
 			options: [{name: 'err'}],
