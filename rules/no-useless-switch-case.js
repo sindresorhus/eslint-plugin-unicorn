@@ -21,7 +21,6 @@ const create = context => ({
 			return;
 		}
 
-
 		for (let index = cases.length - 2; index >= 0; index--) {
 			const node = cases[index];
 			if (!isEmptySwitchCase(node)) {
