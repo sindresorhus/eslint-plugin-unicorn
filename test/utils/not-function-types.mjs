@@ -42,7 +42,6 @@ const notFunctionTypes = [
 	'a = fn', // Could be a function
 	// 'await fn', // This requires async function to test, ignore for now
 	'fn()', // Could be a factory returns a function
-	'fn1 || fn2', // Could be a function
 	'new ClassReturnsFunction()', // `class` constructor could return a function
 	'new Function()', // `function`
 	'fn``', // Same as `CallExpression`

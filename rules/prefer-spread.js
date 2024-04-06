@@ -6,6 +6,7 @@ const {
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
+	hasOptionalChainElement,
 } = require('./utils/index.js');
 const {removeMethodCall} = require('./fix/index.js');
 const {isLiteral, isMethodCall} = require('./ast/index.js');
@@ -403,7 +404,8 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& node.callee.object.type !== 'ArrayExpression'
+			&& !isArrayLiteral(node.callee.object)
+			&& !hasOptionalChainElement(node.callee.object)
 		)) {
 			return;
 		}
@@ -476,7 +478,7 @@ const create = context => {
 			const resultBySpread = [...value];
 
 			hasSameResult = resultBySplit.length === resultBySpread.length
-					&& resultBySplit.every((character, index) => character === resultBySpread[index]);
+				&& resultBySplit.every((character, index) => character === resultBySpread[index]);
 		}
 
 		const problem = {

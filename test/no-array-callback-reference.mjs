@@ -268,25 +268,16 @@ test({
 		),
 
 		// Need parenthesized
+
 		invalidTestCase({
-			code: 'foo.map(a ? b : c)',
+			code: 'foo.map(a || b)',
 			method: 'map',
 			suggestions: [
-				'foo.map((element) => (a ? b : c)(element))',
-				'foo.map((element, index) => (a ? b : c)(element, index))',
-				'foo.map((element, index, array) => (a ? b : c)(element, index, array))',
+				'foo.map((element) => (a || b)(element))',
+				'foo.map((element, index) => (a || b)(element, index))',
+				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
-		// Note: `await` is not handled, not sure if this is needed
-		// invalidTestCase({
-		// 	code: `foo.map(await foo())`,
-		// 	method: 'map',
-		// 	suggestions: [
-		// 		`foo.map(async (accumulator, element) => (await foo())(accumulator, element))`,
-		// 		`foo.map(async (accumulator, element, index) => (await foo())(accumulator, element, index))`,
-		// 		`foo.map(async (accumulator, element, index, array) => (await foo())(accumulator, element, index, array))`
-		// 	]
-		// }),
 
 		// Actual messages
 		{
@@ -481,5 +472,49 @@ test({
 				`,
 			],
 		}),
+	],
+});
+
+// Ternaries
+test.snapshot({
+	valid: [
+		'foo.map(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.reduce(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.every(_ ? Boolean : _ ? Boolean : Boolean)',
+		'foo.map(_ ? String : _ ? Number : Boolean)',
+	],
+	invalid: [
+		outdent`
+			foo.map(
+				_
+					? String // This one should be ignored
+					: callback
+			);
+		`,
+		outdent`
+			foo.forEach(
+				_
+					? callbackA
+					: _
+							? callbackB
+							: callbackC
+			);
+		`,
+		// Needs parentheses
+		// Some of them was ignored since we know they are not callback function
+		outdent`
+			async function * foo () {
+				foo.map((0, bar));
+				foo.map(yield bar);
+				foo.map(yield* bar);
+				foo.map(() => bar);
+				foo.map(bar &&= baz);
+				foo.map(bar || baz);
+				foo.map(bar + bar);
+				foo.map(+ bar);
+				foo.map(++ bar);
+				foo.map(new Function(''));
+			}
+		`,
 	],
 });
