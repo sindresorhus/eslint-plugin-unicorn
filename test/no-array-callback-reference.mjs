@@ -281,44 +281,44 @@ test({
 
 		// Actual messages
 		{
-			code: 'foo.map(fn)',
+			code: 'bar.map(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.map(…)`.',
 					suggestions: [
 						{
 							desc: 'Replace function `fn` with `… => fn(element)`.',
-							output: 'foo.map((element) => fn(element))',
+							output: 'bar.map((element) => fn(element))',
 						},
 						{
 							desc: 'Replace function `fn` with `… => fn(element, index)`.',
-							output: 'foo.map((element, index) => fn(element, index))',
+							output: 'bar.map((element, index) => fn(element, index))',
 						},
 						{
 							desc: 'Replace function `fn` with `… => fn(element, index, array)`.',
-							output: 'foo.map((element, index, array) => fn(element, index, array))',
+							output: 'bar.map((element, index, array) => fn(element, index, array))',
 						},
 					],
 				},
 			],
 		},
 		{
-			code: 'foo.reduce(fn)',
+			code: 'bar.reduce(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.reduce(…)`.',
 					suggestions: [
 						{
 							desc: 'Replace function `fn` with `… => fn(accumulator, element)`.',
-							output: 'foo.reduce((accumulator, element) => fn(accumulator, element))',
+							output: 'bar.reduce((accumulator, element) => fn(accumulator, element))',
 						},
 						{
 							desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.',
-							output: 'foo.reduce((accumulator, element, index) => fn(accumulator, element, index))',
+							output: 'bar.reduce((accumulator, element, index) => fn(accumulator, element, index))',
 						},
 						{
 							desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.',
-							output: 'foo.reduce((accumulator, element, index, array) => fn(accumulator, element, index, array))',
+							output: 'bar.reduce((accumulator, element, index, array) => fn(accumulator, element, index, array))',
 						},
 					],
 				},
