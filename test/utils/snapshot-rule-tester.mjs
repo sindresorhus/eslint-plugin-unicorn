@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import path from 'node:path';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
