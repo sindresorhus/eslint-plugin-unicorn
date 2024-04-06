@@ -219,21 +219,6 @@ test({
 			output: 'const foo = new RegExp(\'\\\\d\', \'ig\')',
 		},
 		{
-			code: 'const foo = new RegExp(/[0-9]/)',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/)',
-		},
-		{
-			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/, \'ig\')',
-		},
-		{
-			code: 'const foo = new RegExp(/[0-9]/)',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/)',
-		},
-		{
 			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
 			errors: createError('/[0-9]/', '/\\d/'),
 			output: 'const foo = new RegExp(/\\d/, \'ig\')',
