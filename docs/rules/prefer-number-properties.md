@@ -93,6 +93,13 @@ Default: `true`
 
 Pass `checkInfinity: false` to disable check on `Infinity`.
 
+### checkNaN
+
+Type: `boolean`\
+Default: `true`
+
+Pass `checkNaN: false` to disable check on `NaN`.
+
 #### Fail
 
 ```js
