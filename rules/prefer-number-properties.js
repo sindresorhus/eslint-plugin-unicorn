@@ -85,7 +85,7 @@ const create = context => {
     };
     const {sourceCode} = context;
 
-    let objects = Object.keys(globalObjects).filter(name => {
+    const objects = Object.keys(globalObjects).filter(name => {
         if (!checkInfinity && name === 'Infinity') {
             return false;
         }
