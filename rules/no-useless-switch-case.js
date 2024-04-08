@@ -16,32 +16,17 @@ const create = context => ({
 	* SwitchStatement(switchStatement) {
 		const {cases} = switchStatement;
 
-		// TypeScript allows multiple `default` cases
-		// TODO[@fisker]: Typescript fixed it now
-		const defaultCases = cases.filter(switchCase => switchCase.test === null);
-		if (defaultCases.length !== 1) {
-			return;
-		}
-
-		const [defaultCase] = defaultCases;
-
 		// We only check cases where the last case is the `default` case
-		if (defaultCase !== cases.at(-1)) {
+		if (cases.length < 2 || cases.at(-1).test !== null) {
 			return;
 		}
-
-		const uselessCases = [];
 
 		for (let index = cases.length - 2; index >= 0; index--) {
 			const node = cases[index];
-			if (isEmptySwitchCase(node)) {
-				uselessCases.unshift(node);
-			} else {
+			if (!isEmptySwitchCase(node)) {
 				break;
 			}
-		}
 
-		for (const node of uselessCases) {
 			yield {
 				node,
 				loc: getSwitchCaseHeadLocation(node, context.sourceCode),
