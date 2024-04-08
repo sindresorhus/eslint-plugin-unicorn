@@ -260,6 +260,10 @@ test({
 			code: 'const foo = -Infinity;',
 			options: [{checkInfinity: false}],
 		},
+		{
+			code: 'const foo = NaN;',
+			options: [{checkNaN: false}],
+		},
 	],
 	invalid: [
 		{

@@ -75,26 +75,33 @@ function checkProperty({node, path: [name]}, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {
-		checkInfinity,
-	} = {
-		checkInfinity: true,
-		...context.options[0],
-	};
-	const {sourceCode} = context;
+    const {
+        checkInfinity,
+        checkNaN,
+    } = {
+        checkInfinity: true,
+        checkNaN: true,
+        ...context.options[0],
+    };
+    const {sourceCode} = context;
 
-	let objects = Object.keys(globalObjects);
-	if (!checkInfinity) {
-		objects = objects.filter(name => name !== 'Infinity');
-	}
+    let objects = Object.keys(globalObjects).filter(name => {
+        if (!checkInfinity && name === 'Infinity') {
+            return false;
+        }
+        if (!checkNaN && name === 'NaN') {
+            return false;
+        }
+        return true;
+    });
 
-	const tracker = new GlobalReferenceTracker({
-		objects,
-		handle: reference => checkProperty(reference, sourceCode),
-		filter: ({node}) => !isLeftHandSide(node),
-	});
+    const tracker = new GlobalReferenceTracker({
+        objects,
+        handle: reference => checkProperty(reference, sourceCode),
+        filter: ({node}) => !isLeftHandSide(node),
+    });
 
-	return tracker.createListeners(context);
+    return tracker.createListeners(context);
 };
 
 const schema = [
@@ -106,6 +113,10 @@ const schema = [
 				type: 'boolean',
 				default: true,
 			},
+			checkNaN: {
+                type: 'boolean',
+                default: true,
+            },
 		},
 	},
 ];
