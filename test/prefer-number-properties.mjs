@@ -182,6 +182,26 @@ const errorNaN = [
 	},
 ];
 
+const errorPositiveInfinity = [
+	{
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description: 'Infinity',
+			property: 'POSITIVE_INFINITY',
+		},
+	},
+];
+
+const errorNegativeInfinity = [
+	{
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description: '-Infinity',
+			property: 'NEGATIVE_INFINITY',
+		},
+	},
+];
+
 function withCheckInfinity(code) {
 	return {
 		code,
@@ -308,8 +328,16 @@ test({
 			output: 'class Foo3 {[Number.NaN] = 1}',
 			errors: errorNaN,
 		},
-		withCheckInfinity('const foo = Infinity;'),
-		withCheckInfinity('const foo = -Infinity;'),
+		{
+			...withCheckInfinity('const foo = Infinity;'),
+			output: 'const foo = Number.POSITIVE_INFINITY;',
+			errors: errorPositiveInfinity,
+		},
+		{
+			...withCheckInfinity('const foo = -Infinity;'),
+			output: 'const foo = Number.NEGATIVE_INFINITY;',
+			errors: errorNegativeInfinity,
+		},
 	],
 });
 
