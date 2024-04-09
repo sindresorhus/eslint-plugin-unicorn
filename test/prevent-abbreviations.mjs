@@ -1931,6 +1931,10 @@ test({
 			code: 'foo();',
 			filename: 'err/http-error.js',
 		},
+		{
+			code: 'foo();',
+			filename: 'Мiръ.html',
+		},
 		// `ignore` option
 		{
 			code: outdent`
