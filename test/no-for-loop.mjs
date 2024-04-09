@@ -730,7 +730,7 @@ test({
 
 test(avoidTestTitleConflict({
 	testerOptions: {
-		parserOptions: {
+		languageOptions: {
 			sourceType: 'script',
 			ecmaVersion: 5,
 		},

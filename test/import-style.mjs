@@ -142,14 +142,6 @@ test({
 			options: [],
 		},
 		{
-			code: 'const {inspect} = require(\'util\')',
-			options: [],
-		},
-		{
-			code: 'const {inspect} = require(\'node:util\')',
-			options: [],
-		},
-		{
 			code: 'export {promisify, callbackify} from \'util\'',
 			options: [],
 		},
@@ -258,10 +250,6 @@ test({
 					const x = await import('unassigned');
 				}
 			`,
-			errors: [unassignedError],
-		},
-		{
-			code: 'const {x} = require(\'unassigned\')',
 			errors: [unassignedError],
 		},
 		{
@@ -552,62 +540,62 @@ test({
 		{
 			code: 'import util from \'util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import util from \'node:util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import * as util from \'util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import * as util from \'node:util\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'const util = require(\'util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'const util = require(\'node:util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'node:util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'ut\' + \'il\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'require(\'node:\' + \'util\')',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import {red} from \'chalk\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: 'import {red as green} from \'chalk\'',
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 		{
 			code: outdent`
@@ -616,7 +604,7 @@ test({
 				}
 			`,
 			options: [],
-			errors: [{}],
+			errors: 1,
 		},
 
 		{

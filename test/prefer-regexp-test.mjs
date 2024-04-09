@@ -207,7 +207,15 @@ test({
 			: {
 				code,
 				errors: [
-					{suggestions: [{output}]},
+					{
+						message: 'Prefer `.test(…)` over `.exec(…)`.',
+						suggestions: [
+							{
+								desc: 'Switch to `RegExp#test(…)`.',
+								output,
+							},
+						],
+					},
 				],
 			},
 	),

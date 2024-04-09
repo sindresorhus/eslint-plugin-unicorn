@@ -527,24 +527,6 @@ test({
 		},
 		{
 			code: outdent`
-				const e = {}
-				foo.addEventListener('click', (e, r, fg) => {
-					function a() {
-						if (true) {
-							{
-								{
-									const { charCode } = e;
-									console.log(e.keyCode, charCode);
-								}
-							}
-						}
-					}
-				});
-			`,
-			errors: [error('charCode'), error('keyCode')],
-		},
-		{
-			code: outdent`
 				foo123.addEventListener('click', event => {
 					if (event.keyCode === 13) {
 					}

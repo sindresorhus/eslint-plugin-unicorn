@@ -16,7 +16,6 @@ test({
 		'console.log("abc", "def");',
 		'console.log(\'abc\', "def");',
 		'console.log(`abc`, "def");',
-		'console.log("abc", "def");',
 		'console.log(`\nabc\ndef\n`);',
 
 		'console.log(\' \', "def");',

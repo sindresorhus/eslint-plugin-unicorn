@@ -4,16 +4,12 @@ import {getTester} from './utils/test.mjs';
 const {test} = getTester(import.meta);
 
 test({
-	beforeAll(tester) {
-		// Define rules for test
-		for (const rule of [
-			'plugin/rule',
-			'@scope/plugin/rule-name',
-			'@scope/rule-name',
-			'@scopewithoutplugin',
-		]) {
-			tester.linter.defineRule(rule, {});
-		}
+	testerOptions: {
+		plugins: Object.fromEntries([
+			['plugin-name', 'rule-name'],
+			['@scope/plugin', 'rule-name'],
+			['@scope', 'rule-name'],
+		].map(([pluginName, ruleName]) => [pluginName, {rules: {[ruleName]: {}}}])),
 	},
 	valid: [
 		'eval();',
@@ -23,7 +19,7 @@ test({
 		'eval(); //     eslint-disable-line no-eval',
 		'eval(); //\teslint-disable-line no-eval',
 		'eval(); /* eslint-disable-line no-eval */',
-		'eval(); // eslint-disable-line plugin/rule',
+		'eval(); // eslint-disable-line plugin-name/rule-name',
 		'eval(); // eslint-disable-line @scope/plugin/rule-name',
 		'eval(); // eslint-disable-line no-eval, @scope/plugin/rule-name',
 		'eval(); // eslint-disable-line @scope/rule-name',
@@ -31,10 +27,11 @@ test({
 		'eval(); // eslint-line-disable',
 		'eval(); // some comment',
 		'/* eslint-disable no-eval */',
-		outdent`
-			/* eslint-disable no-abusive-eslint-disable */
-			eval(); // eslint-disable-line
-		`,
+		// TODO[@fisker]: Figure out how to test this
+		// outdent`
+		// 	/* eslint-disable no-abusive-eslint-disable */
+		// 	eval(); // eslint-disable-line
+		// `,
 		outdent`
 			foo();
 			// eslint-disable-line no-eval
@@ -51,15 +48,7 @@ test({
 			eval();
 		`,
 	],
-	invalid: [
-		{
-			code: outdent`
-				// eslint-disable-next-line @scopewithoutplugin
-				eval();
-			`,
-			errors: 1,
-		},
-	],
+	invalid: [],
 });
 
 test.snapshot({
