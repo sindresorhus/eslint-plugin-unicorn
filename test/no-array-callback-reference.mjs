@@ -6,6 +6,8 @@ const {test} = getTester(import.meta);
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
+const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
+const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
 
 const simpleMethods = [
 	'every',
@@ -35,7 +37,8 @@ const generateError = (method, name) => ({
 });
 
 // Only test output is good enough
-const suggestionOutput = output => ({
+const suggestionOutput = (output, name) => ({
+	messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 	output,
 });
 
@@ -44,7 +47,7 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 	errors: [
 		{
 			...generateError(method, name),
-			suggestions: suggestions.map(output => suggestionOutput(output)),
+			suggestions: suggestions.map(output => suggestionOutput(output, name)),
 		},
 	],
 }));
@@ -278,27 +281,45 @@ test({
 
 		// Actual messages
 		{
-			code: 'foo.map(fn)',
+			code: 'bar.map(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.map(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `… => fn(element)`.'},
-						{desc: 'Replace function `fn` with `… => fn(element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(element, index, array)`.'},
+						{
+							desc: 'Replace function `fn` with `… => fn(element)`.',
+							output: 'bar.map((element) => fn(element))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(element, index)`.',
+							output: 'bar.map((element, index) => fn(element, index))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(element, index, array)`.',
+							output: 'bar.map((element, index, array) => fn(element, index, array))',
+						},
 					],
 				},
 			],
 		},
 		{
-			code: 'foo.reduce(fn)',
+			code: 'bar.reduce(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.reduce(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element)`.'},
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.'},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element)`.',
+							output: 'bar.reduce((accumulator, element) => fn(accumulator, element))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.',
+							output: 'bar.reduce((accumulator, element, index) => fn(accumulator, element, index))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.',
+							output: 'bar.reduce((accumulator, element, index, array) => fn(accumulator, element, index, array))',
+						},
 					],
 				},
 			],
@@ -309,9 +330,18 @@ test({
 				{
 					message: 'Do not pass function directly to `.map(…)`.',
 					suggestions: [
-						{desc: 'Replace function with `… => …(element)`.'},
-						{desc: 'Replace function with `… => …(element, index)`.'},
-						{desc: 'Replace function with `… => …(element, index, array)`.'},
+						{
+							desc: 'Replace function with `… => …(element)`.',
+							output: 'foo.map((element) => lib.fn(element))',
+						},
+						{
+							desc: 'Replace function with `… => …(element, index)`.',
+							output: 'foo.map((element, index) => lib.fn(element, index))',
+						},
+						{
+							desc: 'Replace function with `… => …(element, index, array)`.',
+							output: 'foo.map((element, index, array) => lib.fn(element, index, array))',
+						},
 					],
 				},
 			],
@@ -322,9 +352,18 @@ test({
 				{
 					message: 'Do not pass function directly to `.reduce(…)`.',
 					suggestions: [
-						{desc: 'Replace function with `… => …(accumulator, element)`.'},
-						{desc: 'Replace function with `… => …(accumulator, element, index)`.'},
-						{desc: 'Replace function with `… => …(accumulator, element, index, array)`.'},
+						{
+							desc: 'Replace function with `… => …(accumulator, element)`.',
+							output: 'foo.reduce((accumulator, element) => lib.fn(accumulator, element))',
+						},
+						{
+							desc: 'Replace function with `… => …(accumulator, element, index)`.',
+							output: 'foo.reduce((accumulator, element, index) => lib.fn(accumulator, element, index))',
+						},
+						{
+							desc: 'Replace function with `… => …(accumulator, element, index, array)`.',
+							output: 'foo.reduce((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))',
+						},
 					],
 				},
 			],

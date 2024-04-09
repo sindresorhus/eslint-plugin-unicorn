@@ -84,10 +84,6 @@ test({
 			errors: [error],
 		},
 		{
-			code: 'node.appendChild(child) + 0;',
-			errors: [error],
-		},
-		{
 			code: '+node.appendChild(child);',
 			errors: [error],
 		},

@@ -57,10 +57,12 @@ test({
 				}
 			`,
 			errors: 1,
-			parserOptions: {
+			languageOptions: {
 				sourceType: 'script',
-				ecmaFeatures: {
-					globalReturn: true,
+				parserOptions: {
+					ecmaFeatures: {
+						globalReturn: true,
+					},
 				},
 			},
 		},

@@ -1,8 +1,6 @@
-import {createRequire} from 'node:module';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
-const require = createRequire(import.meta.url);
 
 const MESSAGE_ID = 'better-regex';
 
@@ -221,21 +219,6 @@ test({
 			output: 'const foo = new RegExp(\'\\\\d\', \'ig\')',
 		},
 		{
-			code: 'const foo = new RegExp(/[0-9]/)',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/)',
-		},
-		{
-			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/, \'ig\')',
-		},
-		{
-			code: 'const foo = new RegExp(/[0-9]/)',
-			errors: createError('/[0-9]/', '/\\d/'),
-			output: 'const foo = new RegExp(/\\d/)',
-		},
-		{
 			code: 'const foo = new RegExp(/[0-9]/, \'ig\')',
 			errors: createError('/[0-9]/', '/\\d/'),
 			output: 'const foo = new RegExp(/\\d/, \'ig\')',
@@ -310,7 +293,9 @@ test({
 					message: 'Problem parsing /(/: \n\n/(/\n  ^\nUnexpected token: "/" at 1:2.',
 				},
 			],
-			parser: require.resolve('@typescript-eslint/parser'),
+			languageOptions: {
+				parser: parsers.typescript,
+			},
 		},
 
 		// Not fixable
