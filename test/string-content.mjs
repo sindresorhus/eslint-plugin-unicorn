@@ -37,8 +37,8 @@ const createSuggestionError = (match, suggest, output) => [
 				data: {
 					match,
 					suggest,
-					output,
 				},
+				output,
 			},
 		],
 	},
@@ -46,9 +46,11 @@ const createSuggestionError = (match, suggest, output) => [
 
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},

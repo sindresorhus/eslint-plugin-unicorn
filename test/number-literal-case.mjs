@@ -12,9 +12,11 @@ const error = {
 // Legacy octal literals
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaVersion: 5,
-			sourceType: 'script',
+		languageOptions: {
+			parserOptions: {
+				ecmaVersion: 5,
+				sourceType: 'script',
+			},
 		},
 	},
 	valid: [
@@ -169,7 +171,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {parser: parsers.vue},
 	},
 	valid: [
 		'<template><input value="0XdeEd_Beef"></div></template>',

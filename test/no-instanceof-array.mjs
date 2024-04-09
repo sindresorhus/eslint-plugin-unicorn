@@ -64,7 +64,7 @@ test.snapshot({
 			'<template><div>{{(( (( array )) instanceof (( Array )) )) ? array.join(" | ") : array}}</div></template>',
 			'<script>const foo = array instanceof Array</script>',
 			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>',
-		].map(code => ({code, parser: parsers.vue})),
+		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
 	],
 });
 

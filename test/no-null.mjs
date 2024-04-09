@@ -106,8 +106,10 @@ test.snapshot({
 // #1146
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaVersion: 2019,
+		languageOptions: {
+			parserOptions: {
+				ecmaVersion: 2019,
+			},
 		},
 	},
 	valid: [

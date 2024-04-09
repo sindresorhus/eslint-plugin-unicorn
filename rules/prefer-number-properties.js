@@ -79,7 +79,7 @@ const create = context => {
 		checkInfinity,
 		checkNaN,
 	} = {
-		checkInfinity: true,
+		checkInfinity: false,
 		checkNaN: true,
 		...context.options[0],
 	};

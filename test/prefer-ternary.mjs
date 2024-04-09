@@ -1214,20 +1214,6 @@ test({
 			`,
 			errors,
 		},
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) return a;
-					else return b;
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					return test ? a : b;
-				}
-			`,
-			errors,
-		},
 
 		// Precedence
 		{

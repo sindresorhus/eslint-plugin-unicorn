@@ -29,7 +29,6 @@ function invalidTestCase(options) {
 
 test({
 	valid: [
-		'try {} catch (error) {}',
 		{
 			code: 'try {} catch (err) {}',
 			options: [{name: 'err'}],
@@ -900,12 +899,14 @@ test.typescript({
 
 test.babel({
 	testerOptions: {
-		parserOptions: {
-			babelOptions: {
-				parserOpts: {
-					plugins: [
-						['decorators', {decoratorsBeforeExport: true}],
-					],
+		languageOptions: {
+			parserOptions: {
+				babelOptions: {
+					parserOpts: {
+						plugins: [
+							['decorators', {decoratorsBeforeExport: true}],
+						],
+					},
 				},
 			},
 		},

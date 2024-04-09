@@ -40,14 +40,6 @@ if (Object.is(foo, NaN)) {}
 ```
 
 ```js
-const isPositiveZero = value => value === 0 && 1 / value === Infinity;
-```
-
-```js
-const isNegativeZero = value => value === 0 && 1 / value === -Infinity;
-```
-
-```js
 const {parseInt} = Number;
 const foo = parseInt('10', 2);
 ```
@@ -82,6 +74,14 @@ const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INF
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
 ```
 
+```js
+const isPositiveZero = value => value === 0 && 1 / value === Infinity;
+```
+
+```js
+const isNegativeZero = value => value === 0 && 1 / value === -Infinity;
+```
+
 ## Options
 
 Type: `object`
@@ -89,9 +89,9 @@ Type: `object`
 ### checkInfinity
 
 Type: `boolean`\
-Default: `true`
+Default: `false`
 
-Pass `checkInfinity: false` to disable check on `Infinity`.
+Pass `checkInfinity: true` to enable check on `Infinity`.
 
 ### checkNaN
 
@@ -122,4 +122,14 @@ const foo = Infinity;
 ```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
 const foo = -Infinity;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INFINITY;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
 ```
