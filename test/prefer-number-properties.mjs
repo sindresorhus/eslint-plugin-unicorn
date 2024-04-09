@@ -182,6 +182,33 @@ const errorNaN = [
 	},
 ];
 
+const errorPositiveInfinity = [
+	{
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description: 'Infinity',
+			property: 'POSITIVE_INFINITY',
+		},
+	},
+];
+
+const errorNegativeInfinity = [
+	{
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			description: '-Infinity',
+			property: 'NEGATIVE_INFINITY',
+		},
+	},
+];
+
+function withCheckInfinity(code) {
+	return {
+		code,
+		options: [{checkInfinity: true}],
+	};
+}
+
 test({
 	valid: [
 		'const foo = Number.NaN;',
@@ -252,14 +279,8 @@ test({
 		'function Infinity() {}',
 		'class Infinity {}',
 		'class Foo { Infinity(){}}',
-		{
-			code: 'const foo = Infinity;',
-			options: [{checkInfinity: false}],
-		},
-		{
-			code: 'const foo = -Infinity;',
-			options: [{checkInfinity: false}],
-		},
+		'const foo = Infinity;',
+		'const foo = -Infinity;',
 	],
 	invalid: [
 		{
@@ -306,6 +327,16 @@ test({
 			code: 'class Foo3 {[NaN] = 1}',
 			output: 'class Foo3 {[Number.NaN] = 1}',
 			errors: errorNaN,
+		},
+		{
+			...withCheckInfinity('const foo = Infinity;'),
+			output: 'const foo = Number.POSITIVE_INFINITY;',
+			errors: errorPositiveInfinity,
+		},
+		{
+			...withCheckInfinity('const foo = -Infinity;'),
+			output: 'const foo = Number.NEGATIVE_INFINITY;',
+			errors: errorNegativeInfinity,
 		},
 	],
 });
@@ -370,30 +401,28 @@ test.snapshot({
 		'foo[NaN] = 1;',
 		'class A {[NaN](){}}',
 		'foo = {[NaN]: 1}',
-
-		'const foo = Infinity;',
-		'if (Number.isNaN(Infinity)) {}',
-		'if (Object.is(foo, Infinity)) {}',
-		'const foo = bar[Infinity];',
-		'const foo = {Infinity};',
-		'const foo = {Infinity: Infinity};',
-		'const foo = {[Infinity]: -Infinity};',
-		'const foo = {[-Infinity]: Infinity};',
-		'const foo = {Infinity: -Infinity};',
-		'const {foo = Infinity} = {};',
-		'const {foo = -Infinity} = {};',
-		'const foo = Infinity.toString();',
-		'const foo = -Infinity.toString();',
-		'const foo = (-Infinity).toString();',
-		'const foo = +Infinity;',
-		'const foo = +-Infinity;',
-		'const foo = -Infinity;',
-		'const foo = -(-Infinity);',
-		'const foo = 1 - Infinity;',
-		'const foo = 1 - -Infinity;',
-		'const isPositiveZero = value => value === 0 && 1 / value === Infinity;',
-		'const isNegativeZero = value => value === 0 && 1 / value === -Infinity;',
-
+		withCheckInfinity('const foo = Infinity;'),
+		withCheckInfinity('if (Number.isNaN(Infinity)) {}'),
+		withCheckInfinity('if (Object.is(foo, Infinity)) {}'),
+		withCheckInfinity('const foo = bar[Infinity];'),
+		withCheckInfinity('const foo = {Infinity};'),
+		withCheckInfinity('const foo = {Infinity: Infinity};'),
+		withCheckInfinity('const foo = {[Infinity]: -Infinity};'),
+		withCheckInfinity('const foo = {[-Infinity]: Infinity};'),
+		withCheckInfinity('const foo = {Infinity: -Infinity};'),
+		withCheckInfinity('const {foo = Infinity} = {};'),
+		withCheckInfinity('const {foo = -Infinity} = {};'),
+		withCheckInfinity('const foo = Infinity.toString();'),
+		withCheckInfinity('const foo = -Infinity.toString();'),
+		withCheckInfinity('const foo = (-Infinity).toString();'),
+		withCheckInfinity('const foo = +Infinity;'),
+		withCheckInfinity('const foo = +-Infinity;'),
+		withCheckInfinity('const foo = -Infinity;'),
+		withCheckInfinity('const foo = -(-Infinity);'),
+		withCheckInfinity('const foo = 1 - Infinity;'),
+		withCheckInfinity('const foo = 1 - -Infinity;'),
+		withCheckInfinity('const isPositiveZero = value => value === 0 && 1 / value === Infinity;'),
+		withCheckInfinity('const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'),
 		'const {a = NaN} = {};',
 		'const {[NaN]: a = NaN} = {};',
 		'const [a = NaN] = [];',
@@ -402,7 +431,7 @@ test.snapshot({
 		'function foo([a = NaN]) {}',
 
 		// Space after keywords
-		'function foo() {return-Infinity}',
+		withCheckInfinity('function foo() {return-Infinity}'),
 
 		'globalThis.isNaN(foo);',
 		'global.isNaN(foo);',
@@ -413,7 +442,7 @@ test.snapshot({
 		'window.parseFloat(foo);',
 		'self.parseFloat(foo);',
 		'globalThis.NaN',
-		'-globalThis.Infinity',
+		withCheckInfinity('-globalThis.Infinity'),
 
 		// Not a call
 		outdent`
