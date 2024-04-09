@@ -51,10 +51,11 @@ jobs:
         env:
           AVA_FORCE_CI: not-ci
       - run: git diff --exit-code
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
