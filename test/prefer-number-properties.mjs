@@ -298,7 +298,7 @@ test({
 			errors: errorNaN,
 		},
 		{
-			...withCheckNaN('if (Number.isNan(NaN)) {}'),
+			...withCheckNaN('if (Number.isNaN(NaN)) {}'),
 			output: 'if (Number.isNaN(Number.NaN)) {}',
 			errors: errorNaN,
 		},
