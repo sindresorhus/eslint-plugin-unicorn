@@ -80,7 +80,7 @@ const create = context => {
 		checkNaN,
 	} = {
 		checkInfinity: false,
-		checkNaN: false,
+		checkNaN: true,
 		...context.options[0],
 	};
 	const {sourceCode} = context;
