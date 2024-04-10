@@ -209,6 +209,13 @@ function withCheckInfinity(code) {
 	};
 }
 
+function withCheckNaN(code) {
+	return {
+		code,
+		options: [{checkNaN: true}],
+	};
+}
+
 test({
 	valid: [
 		'const foo = Number.NaN;',
@@ -282,50 +289,51 @@ test({
 		'const foo = Infinity;',
 		'const foo = -Infinity;',
 		'const foo = NaN;',
+		'const foo = -NaN;',
 	],
 	invalid: [
 		{
-			code: 'const foo = NaN;',
+			...withCheckNaN('const foo = NaN;'),
 			output: 'const foo = Number.NaN;',
 			errors: errorNaN,
 		},
 		{
-			code: 'if (Number.isNaN(NaN)) {}',
+			...withCheckNaN('if (Number.isNan(NaN)) {}'),
 			output: 'if (Number.isNaN(Number.NaN)) {}',
 			errors: errorNaN,
 		},
 		{
-			code: 'if (Object.is(foo, NaN)) {}',
+			...withCheckNaN('if (Object.is(foo, NaN)) {}'),
 			output: 'if (Object.is(foo, Number.NaN)) {}',
 			errors: errorNaN,
 		},
 		{
-			code: 'const foo = bar[NaN];',
+			...withCheckNaN('const foo = bar[NaN];'),
 			output: 'const foo = bar[Number.NaN];',
 			errors: errorNaN,
 		},
 		{
-			code: 'const foo = {NaN};',
+			...withCheckNaN('const foo = {NaN};'),
 			output: 'const foo = {NaN: Number.NaN};',
 			errors: errorNaN,
 		},
 		{
-			code: 'const foo = {NaN: NaN};',
+			...withCheckNaN('const foo = {NaN: NaN};'),
 			output: 'const foo = {NaN: Number.NaN};',
 			errors: errorNaN,
 		},
 		{
-			code: 'const {foo = NaN} = {};',
+			...withCheckNaN('const {foo = NaN} = {};'),
 			output: 'const {foo = Number.NaN} = {};',
 			errors: errorNaN,
 		},
 		{
-			code: 'const foo = NaN.toString();',
+			...withCheckNaN('const foo = NaN.toString();'),
 			output: 'const foo = Number.NaN.toString();',
 			errors: errorNaN,
 		},
 		{
-			code: 'class Foo3 {[NaN] = 1}',
+			...withCheckNaN('class Foo3 {[NaN] = 1}'),
 			output: 'class Foo3 {[Number.NaN] = 1}',
 			errors: errorNaN,
 		},
@@ -348,7 +356,7 @@ test.babel({
 	],
 	invalid: [
 		{
-			code: 'class Foo2 {[NaN] = 1}',
+			...withCheckNaN('class Foo2 {[NaN] = 1}'),
 			output: 'class Foo2 {[Number.NaN] = 1}',
 			errors: 1,
 		},
@@ -383,7 +391,7 @@ test.typescript({
 	],
 	invalid: [
 		{
-			code: 'class Foo {[NaN] = 1}',
+			...withCheckNaN('class Foo {[NaN] = 1}'),
 			output: 'class Foo {[Number.NaN] = 1}',
 			errors: 1,
 		},
@@ -397,11 +405,11 @@ test.snapshot({
 		'const foo = -(--Infinity);',
 	],
 	invalid: [
-		'const foo = {[NaN]: 1}',
-		'const foo = {[NaN]() {}}',
-		'foo[NaN] = 1;',
-		'class A {[NaN](){}}',
-		'foo = {[NaN]: 1}',
+		withCheckNaN('const foo = {[NaN]: 1}'),
+		withCheckNaN('const foo = {[NaN]() {}}'),
+		withCheckNaN('foo[NaN] = 1;'),
+		withCheckNaN('class A {[NaN](){}}'),
+		withCheckNaN('foo = {[NaN]: 1}'),
 		withCheckInfinity('const foo = Infinity;'),
 		withCheckInfinity('if (Number.isNaN(Infinity)) {}'),
 		withCheckInfinity('if (Object.is(foo, Infinity)) {}'),
@@ -424,12 +432,12 @@ test.snapshot({
 		withCheckInfinity('const foo = 1 - -Infinity;'),
 		withCheckInfinity('const isPositiveZero = value => value === 0 && 1 / value === Infinity;'),
 		withCheckInfinity('const isNegativeZero = value => value === 0 && 1 / value === -Infinity;'),
-		'const {a = NaN} = {};',
-		'const {[NaN]: a = NaN} = {};',
-		'const [a = NaN] = [];',
-		'function foo({a = NaN}) {}',
-		'function foo({[NaN]: a = NaN}) {}',
-		'function foo([a = NaN]) {}',
+		withCheckNaN('const {a = NaN} = {};'),
+		withCheckNaN('const {[NaN]: a = NaN} = {};'),
+		withCheckNaN('const [a = NaN] = [];'),
+		withCheckNaN('function foo({a = NaN}) {}'),
+		withCheckNaN('function foo({[NaN]: a = NaN}) {}'),
+		withCheckNaN('function foo([a = NaN]) {}'),
 
 		// Space after keywords
 		withCheckInfinity('function foo() {return-Infinity}'),
@@ -442,7 +450,7 @@ test.snapshot({
 		'global.parseFloat(foo);',
 		'window.parseFloat(foo);',
 		'self.parseFloat(foo);',
-		'globalThis.NaN',
+		withCheckNaN('globalThis.NaN'),
 		withCheckInfinity('-globalThis.Infinity'),
 
 		// Not a call

@@ -80,7 +80,7 @@ const create = context => {
 		checkNaN,
 	} = {
 		checkInfinity: false,
-		checkNaN: true,
+		checkNaN: false,
 		...context.options[0],
 	};
 	const {sourceCode} = context;
@@ -117,7 +117,7 @@ const schema = [
 			},
 			checkNaN: {
 				type: 'boolean',
-				default: true,
+				default: false,
 			},
 		},
 	},
