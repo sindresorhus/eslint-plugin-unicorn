@@ -113,7 +113,7 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
-				default: true,
+				default: false,
 			},
 			checkNaN: {
 				type: 'boolean',
