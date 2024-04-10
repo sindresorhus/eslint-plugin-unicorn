@@ -93,13 +93,6 @@ Default: `false`
 
 Pass `checkInfinity: true` to enable check on `Infinity`.
 
-### checkNaN
-
-Type: `boolean`\
-Default: `false`
-
-Pass `checkNaN: true` to enable check on `NaN`.
-
 #### Fail
 
 ```js
@@ -132,4 +125,35 @@ const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INF
 ```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
+```
+
+### checkNaN
+
+Type: `boolean`\
+Default: `false`
+
+Pass `checkNaN: false` to disable check on `NaN`.
+
+#### Fail
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = -NaN;
+```
+
+#### Pass
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+const foo = NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+const foo = -NaN;
 ```
