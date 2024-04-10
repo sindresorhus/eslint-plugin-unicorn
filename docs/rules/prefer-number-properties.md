@@ -96,9 +96,9 @@ Pass `checkInfinity: true` to enable check on `Infinity`.
 ### checkNaN
 
 Type: `boolean`\
-Default: `true`
+Default: `false`
 
-Pass `checkNaN: false` to disable check on `NaN`.
+Pass `checkNaN: true` to enable check on `NaN`.
 
 #### Fail
 
