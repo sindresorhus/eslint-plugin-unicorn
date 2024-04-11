@@ -157,3 +157,8 @@ const foo = NaN;
 // eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
 const foo = -NaN;
 ```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const isNaNFn = value => value !== value
+```
