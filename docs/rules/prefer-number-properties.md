@@ -130,7 +130,7 @@ const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INF
 ### checkNaN
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
 Pass `checkNaN: false` to disable check on `NaN`.
 
