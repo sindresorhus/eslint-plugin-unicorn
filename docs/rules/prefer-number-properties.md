@@ -108,6 +108,16 @@ const foo = -Infinity;
 #### Pass
 
 ```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const foo = Number.POSITIVE_INFINITY;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const foo = Number.NEGATIVE_INFINITY;
+```
+
+```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
 const foo = Infinity;
 ```
@@ -149,6 +159,16 @@ const foo = -NaN;
 #### Pass
 
 ```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = Number.NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = -Number.NaN;
+```
+
+```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
 const foo = NaN;
 ```
@@ -156,9 +176,4 @@ const foo = NaN;
 ```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
 const foo = -NaN;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
-const isNaNFn = value => value !== value
 ```
