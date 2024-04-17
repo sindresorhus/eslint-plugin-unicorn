@@ -36,7 +36,6 @@ test({
 		'assert.notPropertyVal(foo, "bar", undefined, message)',
 		'expect(foo).not(undefined)',
 		'expect(foo).to.have.property("bar", undefined)',
-		'expect(foo).to.have.property("bar", undefined)',
 		'expect(foo).toBe(undefined)',
 		'expect(foo).toContain(undefined)',
 		'expect(foo).toContainEqual(undefined)',
@@ -263,10 +262,12 @@ test({
 			code: 'return undefined;',
 			output: 'return;',
 			errors,
-			parserOptions: {
-				sourceType: 'script',
-				ecmaFeatures: {
-					globalReturn: true,
+			languageOptions: {
+				parserOptions: {
+					sourceType: 'script',
+					ecmaFeatures: {
+						globalReturn: true,
+					},
 				},
 			},
 		},
@@ -303,8 +304,6 @@ test.typescript({
 		'const foo = (): string => undefined;',
 		'const foo = function (): undefined {return undefined}',
 		'export function foo(): undefined {return undefined}',
-		'createContext<T>(undefined);',
-		'React.createContext<T>(undefined);',
 		outdent`
 			const object = {
 				method(): undefined {
@@ -452,7 +451,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.vue,
+		languageOptions: {parser: parsers.vue},
 	},
 	valid: [
 		outdent`
@@ -485,7 +484,7 @@ test.snapshot({
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.typescript,
+		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [],
 	invalid: [

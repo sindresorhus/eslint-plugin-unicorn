@@ -16,19 +16,20 @@ jobs:
       matrix:
         node-version:
           - 20
-          - 16
+          - 18
         os:
           - ubuntu-latest
           - windows-latest
-        include:
-          - os: ubuntu-latest
-            node-version: 18
+        # Even numbers of node-version
+        # include:
+        #   - os: ubuntu-latest
+        #     node-version: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npx ava
   lint-test:
     runs-on: ${{ matrix.os }}
@@ -43,7 +44,7 @@ jobs:
         with:
           # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
           node-version: 20
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run lint
       - run: npx del-cli test/snapshots --verbose
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
@@ -51,16 +52,17 @@ jobs:
         env:
           AVA_FORCE_CI: not-ci
       - run: git diff --exit-code
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run run-rules-on-codebase
   integration:
     name: Integration test (${{ matrix.group }})
@@ -83,5 +85,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run integration -- --group ${{ matrix.group }}

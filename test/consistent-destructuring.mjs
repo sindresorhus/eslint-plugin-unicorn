@@ -444,7 +444,7 @@ test({
 						b
 					}
 				} = foo;
-				console.log(foo.a.c);
+				console.log(foo.a.c); // 2
 			`,
 			errors: [{
 				message: 'Use destructured variables over properties.',
@@ -453,7 +453,7 @@ test({
 		{
 			code: outdent`
 				const {a} = foo;
-				console.log(foo.a);
+				console.log(foo.a); // 2
 			`,
 			errors: [{
 				message: 'Use destructured variables over properties.',
@@ -461,7 +461,7 @@ test({
 					desc: 'Replace `foo.a` with destructured property `a`.',
 					output: outdent`
 						const {a} = foo;
-						console.log(a);
+						console.log(a); // 2
 					`,
 				}],
 			}],

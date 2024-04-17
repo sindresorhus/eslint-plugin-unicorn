@@ -16,13 +16,12 @@ const cases = [
 	'switch (foo) {case bar: {/* */}}',
 	'switch (foo) {default: {/* */}}',
 	'try {/* */} catch(foo){}',
-	'try {} catch(foo){/* */}',
+	'try {} catch(bar){/* */}',
 	'try {} catch(foo){} finally {/* */}',
 	'do {/* */} while (foo)',
 	'while (foo){/* */}',
 	'foo = () => {/* */}',
 	'foo = function (){/* */}',
-	'function foo(){/* */}',
 	'foo = {/* */}',
 	'class Foo {bar() {/* */}}',
 	'foo = class {bar() {/* */}}',
@@ -49,11 +48,11 @@ test({
 		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
-		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'bar() {}')),
+		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'baz() {}')),
 		// `with`
 		{
 			code: 'with (foo) {}',
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
+			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 		// We don't check these cases
 		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   ')),
@@ -75,7 +74,7 @@ test({
 			code: 'with (foo) {     }',
 			output: 'with (foo) {}',
 			errors: 1,
-			parserOptions: {ecmaVersion: 5, sourceType: 'script'},
+			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
 		},
 	],
 });
@@ -94,9 +93,11 @@ test.snapshot({
 });
 
 const enableBabelPlugins = plugins => ({
-	babelOptions: {
-		parserOpts: {
-			plugins,
+	parserOptions: {
+		babelOptions: {
+			parserOpts: {
+				plugins,
+			},
 		},
 	},
 });
@@ -110,19 +111,19 @@ test.babel({
 				};
 			`,
 			output: 'const foo = do     {};',
-			parserOptions: enableBabelPlugin('doExpressions'),
+			languageOptions: enableBabelPlugin('doExpressions'),
 			errors: 1,
 		},
 		{
 			code: 'const record = #{    };',
 			output: 'const record = #{};',
-			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'hash'}]),
+			languageOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'hash'}]),
 			errors: 1,
 		},
 		{
 			code: 'const record = {|    |};',
 			output: 'const record = {||};',
-			parserOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'bar'}]),
+			languageOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'bar'}]),
 			errors: 1,
 		},
 		{
@@ -137,14 +138,14 @@ test.babel({
 					static    {}
 				}
 			`,
-			parserOptions: enableBabelPlugin('classStaticBlock'),
+			languageOptions: enableBabelPlugin('classStaticBlock'),
 			errors: 1,
 		},
 		// ESLint can't parse this now
 		// {
 		// 	code: 'const foo = module     {    };',
 		// 	output: 'const foo = module     {};',
-		// 	parserOptions: enableBabelPlugin('moduleBlocks'),
+		// 	languageOptions: enableBabelPlugin('moduleBlocks'),
 		// 	errors: 1
 		// },
 		{
@@ -153,7 +154,7 @@ test.babel({
 				};
 			`,
 			output: 'const foo = async    do    {};',
-			parserOptions: enableBabelPlugins(['doExpressions', 'asyncDoExpressions']),
+			languageOptions: enableBabelPlugins(['doExpressions', 'asyncDoExpressions']),
 			errors: 1,
 		},
 	],

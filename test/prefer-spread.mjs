@@ -274,7 +274,7 @@ test.snapshot({
 		'do foo.concat(1); while (test)',
 		{
 			code: 'with (foo) foo.concat(1)',
-			parserOptions: {ecmaVersion: 6, sourceType: 'script'},
+			languageOptions: {parserOptions: {ecmaVersion: 6, sourceType: 'script'}},
 		},
 		// Code from example in docs
 		outdent`
@@ -312,6 +312,7 @@ test.snapshot({
 		'buffer.slice()',
 		'file.slice()',
 		'class A {foo() {this.slice()}}',
+		'scopeManager?.scopes.slice()',
 	],
 	invalid: [
 		'array.slice()',
@@ -320,6 +321,7 @@ test.snapshot({
 		'array.slice().slice(1)',
 		'const copy = array.slice()',
 		'(( (( (( array )).slice ))() ))',
+		'(scopeManager?.scopes).slice()',
 		// Semicolon
 		outdent`
 			bar()

@@ -30,7 +30,7 @@ test({
 		// Computed
 		'foo[reduce](fn);',
 		// Not listed method or property
-		'foo.notListed(fn);',
+		'foo.notListed(fn);// reduce',
 		// More or less argument(s)
 		'foo.reduce();',
 		'foo.reduce(fn, extraArgument1, extraArgument2);',
@@ -40,7 +40,7 @@ test({
 		// Not `CallExpression`
 		'new [].reduce.call(foo, fn);',
 		// Not `MemberExpression`
-		'call(foo, fn);',
+		'call(foo, fn);// reduce',
 		'reduce.call(foo, fn);',
 		// `callee.property` is not a `Identifier`
 		'[].reduce["call"](foo, fn);',
@@ -50,7 +50,7 @@ test({
 		'[][reduce].call(foo, fn);',
 		// Not listed method or property
 		'[].reduce.notListed(foo, fn);',
-		'[].notListed.call(foo, fn);',
+		'[].notListed.call(foo, fn);// reduce',
 		// Not empty
 		'[1].reduce.call(foo, fn)',
 		// Not ArrayExpression
@@ -61,9 +61,6 @@ test({
 		// Test `Array.prototype.{call,apply}`
 		// Not `CallExpression`
 		'new Array.prototype.reduce.call(foo, fn);',
-		// Not `MemberExpression`
-		'call(foo, fn);',
-		'reduce.call(foo, fn);',
 		// `callee.property` is not a `Identifier`
 		'Array.prototype.reduce["call"](foo, fn);',
 		'Array.prototype["reduce"].call(foo, fn);',
@@ -75,7 +72,7 @@ test({
 		'Array[prototype].reduce.call(foo, fn);',
 		// Not listed method
 		'Array.prototype.reduce.notListed(foo, fn);',
-		'Array.prototype.notListed.call(foo, fn);',
+		'Array.prototype.notListed.call(foo, fn);// reduce',
 		'Array.notListed.reduce.call(foo, fn);',
 		// Not `Array`
 		'NotArray.prototype.reduce.call(foo, fn);',

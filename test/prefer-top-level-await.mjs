@@ -143,7 +143,7 @@ test.snapshot({
 				async function foo() {}
 				foo();
 			`,
-			parserOptions: {sourceType: 'script'},
+			languageOptions: {parserOptions: {sourceType: 'script'}},
 		},
 		{
 			code: outdent`
@@ -151,7 +151,7 @@ test.snapshot({
 				async function foo() {}
 				async function foo() {}
 			`,
-			parserOptions: {sourceType: 'script'},
+			languageOptions: {parserOptions: {sourceType: 'script'}},
 		},
 		outdent`
 			const program = {async run () {}};
