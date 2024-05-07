@@ -80,7 +80,7 @@ const create = context => {
 						const [
 							penultimateToken,
 							closingParenthesisToken,
-						] = sourceCode.getLastTokens(callExpression, 2);
+						] = sourceCode.getLastTokens(jsonStringify, 2);
 
 						if (isCommaToken(penultimateToken)) {
 							yield fixer.remove(penultimateToken);

@@ -32,6 +32,17 @@ test.snapshot({
 		'JSON.parse( ((JSON.stringify)) (foo))',
 		'(( JSON.parse)) (JSON.stringify(foo))',
 		'JSON.parse(JSON.stringify( ((foo)) ))',
+		outdent`
+			function foo() {
+				return JSON
+					.parse(
+						JSON.
+							stringify(
+								bar,
+							),
+					);
+			}
+		`
 	],
 });
 
