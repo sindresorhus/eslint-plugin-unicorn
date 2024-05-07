@@ -190,7 +190,7 @@ function getPackageHelpers(dirname) {
 		packageResult,
 		hasPackage,
 		packageJson,
-		packageDependencies, 
+		packageDependencies,
 		parseArgument,
 		parseTodoMessage,
 		parseTodoWithArguments,
