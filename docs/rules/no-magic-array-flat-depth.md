@@ -1,4 +1,4 @@
-# Disallow magic number as the `depth` argument in `Array#flat(…).`
+# Disallow a magic number as the `depth` argument in `Array#flat(…).`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

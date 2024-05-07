@@ -45,6 +45,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow a magic number as the `depth` argument in `Array#flat(…).`',
+			recommended: true,
 		},
 		messages,
 	},
