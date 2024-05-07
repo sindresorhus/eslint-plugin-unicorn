@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`structuredClone`](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone) is a modern way to create deep clone.
+[`structuredClone`](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone) is the modern way to create a deep clone of a value.
 
 ## Fail
 
