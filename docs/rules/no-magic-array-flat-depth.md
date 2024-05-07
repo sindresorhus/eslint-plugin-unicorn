@@ -5,7 +5,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When calling [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) with depth, normally the depth argument should be `1` or `Infinity`(`Number.POSITIVE_INFINITY`), otherwise it should be meaningful variable name or explained with a comment.
+When calling [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) with depth, normally the depth argument should be `1` or `Infinity`(`Number.POSITIVE_INFINITY`), otherwise it should be a meaningful variable name or explained with a comment.
 
 ## Fail
 
