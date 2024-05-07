@@ -55,6 +55,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

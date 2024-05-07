@@ -50,6 +50,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless case in switch statements.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

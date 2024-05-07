@@ -372,6 +372,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

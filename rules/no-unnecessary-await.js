@@ -99,6 +99,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow awaiting non-promise values.',
+			recommended: true,
 		},
 		fixable: 'code',
 

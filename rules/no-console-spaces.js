@@ -79,6 +79,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use leading/trailing space between `console.log` parameters.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

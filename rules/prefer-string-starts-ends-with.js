@@ -191,6 +191,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

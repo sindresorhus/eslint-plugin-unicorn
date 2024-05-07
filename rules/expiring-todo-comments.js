@@ -581,6 +581,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Add expiration conditions to TODO comments.',
+			recommended: true,
 		},
 		schema,
 		messages,

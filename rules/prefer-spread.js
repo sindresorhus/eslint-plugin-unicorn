@@ -508,6 +508,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split(\'\')`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

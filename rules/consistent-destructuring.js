@@ -157,6 +157,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

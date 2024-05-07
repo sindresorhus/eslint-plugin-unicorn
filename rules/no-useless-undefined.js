@@ -293,6 +293,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless `undefined`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

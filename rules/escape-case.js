@@ -56,6 +56,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require escape sequences to use uppercase values.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

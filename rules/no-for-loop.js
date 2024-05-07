@@ -419,6 +419,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

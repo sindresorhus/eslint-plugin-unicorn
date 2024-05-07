@@ -180,6 +180,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

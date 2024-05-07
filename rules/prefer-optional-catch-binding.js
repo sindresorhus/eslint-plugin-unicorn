@@ -68,6 +68,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer omitting the `catch` binding parameter.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

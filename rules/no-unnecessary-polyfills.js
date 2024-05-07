@@ -169,6 +169,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of built-in methods instead of unnecessary polyfills.',
+			recommended: true,
 		},
 		schema,
 		messages,

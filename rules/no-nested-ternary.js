@@ -51,6 +51,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow nested ternary expressions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

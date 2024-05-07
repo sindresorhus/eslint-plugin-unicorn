@@ -192,6 +192,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow identifiers starting with `new` or `class`.',
+			recommended: false,
 		},
 		schema,
 		messages,

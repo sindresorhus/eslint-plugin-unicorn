@@ -145,6 +145,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

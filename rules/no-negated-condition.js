@@ -137,6 +137,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow negated conditions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

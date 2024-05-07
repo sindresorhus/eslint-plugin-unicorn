@@ -211,6 +211,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Fix whitespace-insensitive template indentation.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

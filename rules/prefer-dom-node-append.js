@@ -41,6 +41,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

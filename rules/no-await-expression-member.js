@@ -83,6 +83,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow member access from await expression.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

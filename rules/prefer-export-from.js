@@ -402,6 +402,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `export…from` when re-exporting.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
