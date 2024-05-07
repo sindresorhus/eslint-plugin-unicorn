@@ -154,7 +154,7 @@ const create = context => {
 				data: {
 					replacement: `Math.${replacementMethod}(…)`,
 					description: 'Math.sqrt(…)',
-			recommended: true,
+					recommended: true,
 				},
 				* fix(fixer) {
 					const {sourceCode} = context;

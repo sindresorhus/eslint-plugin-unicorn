@@ -193,20 +193,20 @@ test('flat configs', t => {
 	);
 });
 
-test('rule.meta.docs.recommended should be synchronized with presets', (t) => {
+test('rule.meta.docs.recommended should be synchronized with presets', t => {
 	for (const [name, rule] of Object.entries(eslintPluginUnicorn.rules)) {
 		if (deprecatedRules.includes(name)) {
 			continue;
 		}
 
-		const recommended = rule.meta.docs.recommended;
+		const {recommended} = rule.meta.docs;
 		t.is(typeof recommended, 'boolean', `meta.docs.recommended in '${name}' rule should be a boolean.`);
 
 		const severity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
 		if (recommended) {
-			t.is(severity, 'error', `'${name}' rule should set to 'error'.`)
+			t.is(severity, 'error', `'${name}' rule should set to 'error'.`);
 		} else {
-			t.is(severity, 'off', `'${name}' rule should set to 'off'.`)
+			t.is(severity, 'off', `'${name}' rule should set to 'off'.`);
 		}
 	}
 });
