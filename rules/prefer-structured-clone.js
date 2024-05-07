@@ -1,8 +1,11 @@
 'use strict';
+const {
+	isCommaToken,
+	isOpeningParenToken,
+} = require('@eslint-community/eslint-utils');
 const {isCallExpression, isMethodCall} = require('./ast/index.js');
-const {} = require('./fix/index.js');
+const {removeParentheses} = require('./fix/index.js');
 const {isNodeMatchesNameOrPath} = require('./utils/index.js');
-
 
 const MESSAGE_ID_ERROR = 'prefer-structured-clone/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-structured-clone/suggestion';
@@ -63,7 +66,28 @@ const create = context => {
 			suggest: [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
-					fix(fixer) {},
+					* fix(fixer) {
+						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
+
+						const {sourceCode} = context;
+
+						yield fixer.remove(jsonStringify.callee);
+						yield * removeParentheses(jsonStringify.callee, fixer, sourceCode);
+
+						const openingParenthesisToken = sourceCode.getTokenAfter(jsonStringify.callee, isOpeningParenToken);
+						yield fixer.remove(openingParenthesisToken);
+
+						const [
+							penultimateToken,
+							closingParenthesisToken,
+						] = sourceCode.getLastTokens(callExpression, 2);
+
+						if (isCommaToken(penultimateToken)) {
+							yield fixer.remove(penultimateToken);
+						}
+
+						yield fixer.remove(closingParenthesisToken);
+					},
 				}
 			],
 		}

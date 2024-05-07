@@ -29,6 +29,9 @@ test.snapshot({
 		'JSON.parse(JSON.stringify(foo))',
 		'JSON.parse(JSON.stringify(foo),)',
 		'JSON.parse(JSON.stringify(foo,))',
+		'JSON.parse( ((JSON.stringify)) (foo))',
+		'(( JSON.parse)) (JSON.stringify(foo))',
+		'JSON.parse(JSON.stringify( ((foo)) ))',
 	],
 });
 
