@@ -281,6 +281,10 @@ test({
 		'class Foo { Infinity(){}}',
 		'const foo = Infinity;',
 		'const foo = -Infinity;',
+		{
+			code: 'const foo = NaN',
+			options: [{checkNaN: false}],
+		},
 	],
 	invalid: [
 		{
