@@ -179,6 +179,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce better string content.',
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

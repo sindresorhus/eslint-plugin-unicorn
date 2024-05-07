@@ -144,6 +144,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

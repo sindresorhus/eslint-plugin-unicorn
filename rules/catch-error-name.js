@@ -128,6 +128,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce a specific parameter name in catch clauses.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

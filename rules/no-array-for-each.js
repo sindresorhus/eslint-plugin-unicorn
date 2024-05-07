@@ -475,6 +475,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `for…of` over the `forEach` method.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

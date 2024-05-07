@@ -272,6 +272,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

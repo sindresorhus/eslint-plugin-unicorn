@@ -100,6 +100,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent case for text encoding identifiers.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

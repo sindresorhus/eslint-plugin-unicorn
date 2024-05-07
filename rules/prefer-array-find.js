@@ -442,6 +442,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -154,6 +154,7 @@ const create = context => {
 				data: {
 					replacement: `Math.${replacementMethod}(…)`,
 					description: 'Math.sqrt(…)',
+					recommended: true,
 				},
 				* fix(fixer) {
 					const {sourceCode} = context;
@@ -205,6 +206,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer modern `Math` APIs over legacy patterns.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

@@ -206,6 +206,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer negative index over `.length - index` when possible.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

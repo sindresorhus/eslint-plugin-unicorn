@@ -60,6 +60,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

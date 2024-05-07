@@ -205,6 +205,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow anonymous functions and classes as the default export.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

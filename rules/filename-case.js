@@ -284,6 +284,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce a case style for filenames.',
+			recommended: true,
 		},
 		schema,
 		messages,

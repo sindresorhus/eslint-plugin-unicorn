@@ -152,6 +152,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer reading a JSON file as a buffer.',
+			recommended: false,
 		},
 		fixable: 'code',
 		messages,

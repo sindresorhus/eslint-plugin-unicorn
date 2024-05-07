@@ -216,6 +216,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using the `this` argument in array methods.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

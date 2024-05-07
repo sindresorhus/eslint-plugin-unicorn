@@ -124,6 +124,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

@@ -39,6 +39,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require `new` when creating an error.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

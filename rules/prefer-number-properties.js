@@ -130,6 +130,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

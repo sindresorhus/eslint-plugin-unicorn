@@ -208,6 +208,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

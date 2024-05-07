@@ -159,6 +159,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent relative URL style.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

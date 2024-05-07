@@ -149,6 +149,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

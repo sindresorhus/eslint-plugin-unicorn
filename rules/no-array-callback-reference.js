@@ -278,6 +278,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

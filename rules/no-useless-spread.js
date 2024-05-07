@@ -374,6 +374,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary spread.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

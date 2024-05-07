@@ -153,6 +153,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer borrowing methods from the prototype instead of the instance.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

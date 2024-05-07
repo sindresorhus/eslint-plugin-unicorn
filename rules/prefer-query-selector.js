@@ -128,6 +128,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
