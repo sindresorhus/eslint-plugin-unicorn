@@ -59,6 +59,6 @@ test.snapshot({
 			new Promise((resolve, reject) => {
 				reject(Error('message'));
 			});
-		`
+		`,
 	],
 });
