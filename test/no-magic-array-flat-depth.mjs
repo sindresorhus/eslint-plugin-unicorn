@@ -13,7 +13,12 @@ test.snapshot({
 		'array.flat(Infinity)',
 		'array.flat(/* explanation */2)',
 		'array.flat(2/* explanation */)',
+		'array.flat()',
+		'array.flat(2, extraArgument)',
+		'new array.flat(2)',
 		'array.flat?.(2)',
+		'array.notFlat(2)',
+		'flat(2)',
 	],
 	invalid: [
 		'array.flat(2)',
