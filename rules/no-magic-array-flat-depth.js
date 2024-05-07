@@ -20,10 +20,7 @@ const create = context => ({
 
 		const [depth] = callExpression.arguments;
 
-		if (
-			!isNumberLiteral(depth)
-				|| depth.value === 1
-		) {
+		if (!isNumberLiteral(depth) || depth.value === 1) {
 			return;
 		}
 
