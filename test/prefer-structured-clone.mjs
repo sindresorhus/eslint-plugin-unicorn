@@ -6,6 +6,7 @@ const {test} = getTester(import.meta);
 // `JSON.parse(JSON.stringify(…))`
 test.snapshot({
 	valid: [
+		'structuredClone(foo)',
 		'JSON.parse(new JSON.stringify(foo))',
 		'new JSON.parse(JSON.stringify(foo))',
 		'JSON.parse(JSON.stringify())',
