@@ -17,7 +17,7 @@ npm install --save-dev eslint eslint-plugin-unicorn
 
 ## Usage (`eslint.config.js`)
 
-**Requires ESLint `>=8.23.0`.**
+**Requires ESLint `>=8.56.0`.**
 
 Use a [preset config](#preset-configs-eslintconfigjs) or configure each rule in `eslint.config.js`.
 

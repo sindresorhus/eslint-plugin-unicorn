@@ -13,7 +13,7 @@
 	"main": "index.js",
 	"sideEffects": false,
 	"engines": {
-		"node": ">=16"
+		"node": ">=18.18"
 	},
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.mjs && npm run fix:eslint-docs",
