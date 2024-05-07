@@ -184,12 +184,12 @@ const create = context => {
 		});
 	});
 
-	// `Array.from()`
+	// `Array.from()` and `Array.fromAsync()`
 	context.on('CallExpression', callExpression => {
 		if (
 			!isMethodCall(callExpression, {
 				object: 'Array',
-				method: 'from',
+				methods: ['from', 'fromAsync'],
 				argumentsLength: 3,
 				optionalCall: false,
 				optionalMember: false,
