@@ -119,6 +119,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
+			recommended: true,
 		},
 		schema,
 		messages,

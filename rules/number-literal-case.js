@@ -45,6 +45,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce proper case for numeric literals.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

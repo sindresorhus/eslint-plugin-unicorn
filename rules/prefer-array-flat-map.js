@@ -75,6 +75,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

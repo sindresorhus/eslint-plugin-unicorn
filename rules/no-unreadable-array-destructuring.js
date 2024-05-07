@@ -76,6 +76,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable array destructuring.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

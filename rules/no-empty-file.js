@@ -51,6 +51,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow empty files.',
+			recommended: true,
 		},
 		messages,
 	},

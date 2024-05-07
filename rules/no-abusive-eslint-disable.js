@@ -42,6 +42,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce specifying rules to disable in `eslint-disable` comments.',
+			recommended: true,
 		},
 		messages,
 	},

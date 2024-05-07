@@ -192,6 +192,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `then` property.',
+			recommended: true,
 		},
 		messages,
 	},

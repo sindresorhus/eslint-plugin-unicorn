@@ -232,6 +232,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unused object properties.',
+			recommended: false,
 		},
 		messages,
 	},

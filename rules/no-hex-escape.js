@@ -39,6 +39,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

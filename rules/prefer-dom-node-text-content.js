@@ -68,6 +68,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

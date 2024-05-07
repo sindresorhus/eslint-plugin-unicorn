@@ -62,6 +62,7 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				description: 'JSON.parse(JSON.stringify(…))',
+				recommended: true,
 			},
 			suggest: [
 				{
@@ -145,6 +146,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `structuredClone` to create a deep clone.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		schema,

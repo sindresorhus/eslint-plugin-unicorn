@@ -134,6 +134,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow comparing `undefined` using `typeof`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

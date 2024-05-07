@@ -180,6 +180,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

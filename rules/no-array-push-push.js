@@ -135,6 +135,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce combining multiple `Array#push()` into one call.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

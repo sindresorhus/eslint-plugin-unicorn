@@ -363,6 +363,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
+			recommended: true,
 		},
 		schema,
 		messages,

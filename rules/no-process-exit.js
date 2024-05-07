@@ -98,6 +98,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `process.exit()`.',
+			recommended: true,
 		},
 		messages,
 	},

@@ -637,6 +637,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prevent abbreviations.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

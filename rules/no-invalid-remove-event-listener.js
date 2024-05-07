@@ -54,6 +54,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
+			recommended: true,
 		},
 		messages,
 	},

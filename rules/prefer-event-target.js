@@ -111,6 +111,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `EventTarget` over `EventEmitter`.',
+			recommended: true,
 		},
 		messages,
 	},

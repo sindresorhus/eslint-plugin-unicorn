@@ -159,6 +159,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow passing single-element arrays to `Promise` methods.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
