@@ -6,11 +6,13 @@ const {test} = getTester(import.meta);
 // `JSON.parse(JSON.stringify(…))`
 test.snapshot({
 	valid: [
-		'JSON.parse(JSON.stringify(foo))',
+		'JSON.parse(new JSON.stringify(foo))',
+		'new JSON.parse(JSON.stringify(foo))',
 		'JSON.parse(JSON.stringify())',
 		'JSON.parse(JSON.stringify(...foo))',
 		'JSON.parse(JSON.stringify(foo, extraArgument))',
-		'JSON.parse(JSON.stringify(foo))',
+		'JSON.parse(...JSON.stringify(foo))',
+		'JSON.parse(JSON.stringify(foo), extraArgument)',
 		'JSON.parse(JSON.stringify?.(foo))',
 		'JSON.parse(JSON?.stringify(foo))',
 		'JSON.parse?.(JSON.stringify(foo))',
@@ -20,6 +22,8 @@ test.snapshot({
 		'JSON.not_parse(JSON.stringify(foo))',
 		'not_JSON.parse(JSON.stringify(foo))',
 		'JSON.stringify(JSON.parse(foo))',
+		// Not checking
+		'JSON.parse(JSON.stringify(foo, undefined, 2))',
 	],
 	invalid: [
 		'JSON.parse(JSON.stringify(foo))',
