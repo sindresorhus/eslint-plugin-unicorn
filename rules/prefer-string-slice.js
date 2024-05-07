@@ -162,7 +162,12 @@ const create = context => ({
 				}
 
 				const fixArguments = method === 'substr' ? fixSubstrArguments : fixSubstringArguments;
-				yield * fixArguments({node, fixer, context, abort});
+				yield * fixArguments({
+					node,
+					fixer,
+					context,
+					abort,
+				});
 			},
 		};
 	},

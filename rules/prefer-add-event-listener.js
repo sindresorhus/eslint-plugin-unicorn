@@ -89,7 +89,7 @@ const create = context => {
 		},
 
 		ReturnStatement(node) {
-			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+			codePathInfo.returnsSomething ||= Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {

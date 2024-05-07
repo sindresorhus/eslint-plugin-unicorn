@@ -31,7 +31,12 @@ function parseNumber(text) {
 		power = '',
 	} = text.match(/^(?<number>[\d._]*?)(?:(?<mark>[Ee])(?<sign>[+-])?(?<power>[\d_]+))?$/).groups;
 
-	return {number, mark, sign, power};
+	return {
+		number,
+		mark,
+		sign,
+		power,
+	};
 }
 
 function parseFloatNumber(text) {

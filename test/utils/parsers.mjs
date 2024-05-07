@@ -6,9 +6,9 @@ const babelParser = {
 	name: 'babel',
 	implementation: babelEslintParser,
 	mergeParserOptions(options) {
-		options = options || {};
-		options.babelOptions = options.babelOptions || {};
-		options.babelOptions.parserOpts = options.babelOptions.parserOpts || {};
+		options ??= {};
+		options.babelOptions ??= {};
+		options.babelOptions.parserOpts ??= {};
 
 		let babelPlugins = options.babelOptions.parserOpts.plugins || [];
 		babelPlugins = [
