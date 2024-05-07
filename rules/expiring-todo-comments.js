@@ -186,7 +186,15 @@ function getPackageHelpers(dirname) {
 		return afterArguments;
 	}
 
-	return {packageResult, hasPackage, packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments};
+	return {
+		packageResult,
+		hasPackage,
+		packageJson,
+		packageDependencies,
+		parseArgument,
+		parseTodoMessage,
+		parseTodoWithArguments,
+	};
 }
 
 const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
@@ -197,7 +205,7 @@ const ISO8601_DATE = /\d{4}-\d{2}-\d{2}/;
 function createArgumentGroup(arguments_) {
 	const groups = {};
 	for (const {value, type} of arguments_) {
-		groups[type] = groups[type] || [];
+		groups[type] ??= [];
 		groups[type].push(value);
 	}
 

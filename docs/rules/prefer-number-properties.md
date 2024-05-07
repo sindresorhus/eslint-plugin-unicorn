@@ -1,6 +1,6 @@
 # Prefer `Number` static properties over global ones
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -108,6 +108,16 @@ const foo = -Infinity;
 #### Pass
 
 ```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const foo = Number.POSITIVE_INFINITY;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+const foo = Number.NEGATIVE_INFINITY;
+```
+
+```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
 const foo = Infinity;
 ```
@@ -125,4 +135,45 @@ const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INF
 ```js
 // eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
+```
+
+### checkNaN
+
+Type: `boolean`\
+Default: `true`
+
+Pass `checkNaN: false` to disable check on `NaN`.
+
+#### Fail
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = -NaN;
+```
+
+#### Pass
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = Number.NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+const foo = -Number.NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+const foo = NaN;
+```
+
+```js
+// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+const foo = -NaN;
 ```

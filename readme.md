@@ -103,8 +103,8 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 <!-- Do not manually modify this list. Run: `npm run fix:eslint-docs` -->
 <!-- begin auto-generated rules list -->
 
-💼 [Configurations](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs) enabled in.\
-✅ Set in the `recommended` [configuration](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).\
+💼 [Configurations](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs) enabled in.\
+✅ Set in the `recommended` [configuration](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).\
 💡 Manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 

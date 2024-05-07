@@ -347,7 +347,12 @@ function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceC
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1814
 		|| (parameters.length === 2 && parameters[1].type !== 'Identifier')
 		|| parameters.some(({type, typeAnnotation}) => type === 'RestElement' || typeAnnotation)
-		|| !isFunctionParametersSafeToFix(callback, {scope, callExpression, allIdentifiers, sourceCode})
+		|| !isFunctionParametersSafeToFix(callback, {
+			scope,
+			callExpression,
+			allIdentifiers,
+			sourceCode,
+		})
 	) {
 		return false;
 	}
@@ -434,7 +439,12 @@ const create = context => {
 				messageId: MESSAGE_ID_ERROR,
 			};
 
-			if (!isFixable(node, {scope, allIdentifiers, functionInfo, sourceCode})) {
+			if (!isFixable(node, {
+				scope,
+				allIdentifiers,
+				functionInfo,
+				sourceCode,
+			})) {
 				yield problem;
 				continue;
 			}

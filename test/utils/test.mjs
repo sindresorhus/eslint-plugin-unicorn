@@ -149,7 +149,7 @@ const addComment = (testCase, comment) => {
 		...testCase,
 		code: `${code}\n/* ${comment} */`,
 	};
-	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
+	if (Object.hasOwn(fixedTest, 'output') && typeof output === 'string') {
 		fixedTest.output = `${output}\n/* ${comment} */`;
 	}
 

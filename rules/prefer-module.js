@@ -26,7 +26,7 @@ const messages = {
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
 	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
 	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
-	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__dirname` with `import.meta.filename`.',
+	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__filename` with `import.meta.filename`.',
 	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',

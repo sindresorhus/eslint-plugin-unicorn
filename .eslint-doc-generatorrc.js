@@ -15,7 +15,7 @@ const config = {
     'hasSuggestions',
     'requiresTypeChecking',
   ],
-  urlConfigs: 'https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs',
+  urlConfigs: 'https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs',
 };
 
 module.exports = config;

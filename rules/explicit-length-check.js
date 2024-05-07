@@ -194,7 +194,12 @@ function create(context) {
 			}
 
 			if (node) {
-				return getProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+				return getProblem({
+					node,
+					isZeroLengthCheck,
+					lengthNode,
+					autoFix,
+				});
 			}
 		},
 	};

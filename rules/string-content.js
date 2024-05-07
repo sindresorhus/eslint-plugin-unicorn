@@ -166,7 +166,8 @@ const schema = [
 							additionalProperties: false,
 						},
 					],
-				}},
+				},
+			},
 		},
 	},
 ];
