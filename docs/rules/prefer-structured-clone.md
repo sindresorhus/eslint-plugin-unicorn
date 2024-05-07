@@ -1,6 +1,6 @@
 # Prefer using `structuredClone` to create a deep clone
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -23,4 +23,37 @@ const clone = _.cloneDeep(foo);
 
 ```js
 const clone = structuredClone(foo);
+```
+
+## Options
+
+Type: `object`
+
+### functions
+
+Type: `string[]`
+
+You can also check custom functions that creates a deep clone.
+
+`_.cloneDeep()` and `lodash.cloneDeep()` are always checked.
+
+Example:
+
+```js
+{
+	'unicorn/prefer-structured-clone': [
+		'error',
+		{
+			functions: [
+				'cloneDeep',
+				'utils.clone'
+			]
+		}
+	]
+}
+```
+
+```js
+// eslint unicorn/prefer-structured-clone: ["error", {"functions": ["utils.clone"]}]
+const clone = utils.clone(foo); // Fails
 ```

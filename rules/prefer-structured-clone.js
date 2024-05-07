@@ -27,7 +27,7 @@ const create = context => {
 	};
 	const functions = [...configFunctions, ...lodashCloneDeepFunctions];
 
-// `JSON.parse(JSON.stringify(…))`
+	// `JSON.parse(JSON.stringify(…))`
 	context.on('CallExpression', callExpression => {
 		if (!(
 			// `JSON.stringify()`
@@ -88,9 +88,9 @@ const create = context => {
 
 						yield fixer.remove(closingParenthesisToken);
 					},
-				}
+				},
 			],
-		}
+		};
 	});
 
 	// `_.cloneDeep(foo)`
@@ -119,9 +119,9 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					fix: fixer => fixer.replaceText(callee, 'structuredClone'),
-				}
+				},
 			],
-		}
+		};
 	});
 };
 

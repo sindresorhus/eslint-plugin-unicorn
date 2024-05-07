@@ -44,10 +44,9 @@ test.snapshot({
 							),
 					);
 			}
-		`
+		`,
 	],
 });
-
 
 // Custom functions
 test.snapshot({
