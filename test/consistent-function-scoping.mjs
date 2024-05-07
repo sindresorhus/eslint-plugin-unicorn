@@ -598,7 +598,10 @@ test({
 			code: 'function foo() { function bar() {} }',
 			errors: [
 				createError('function \'bar\'', {
-					line: 1, column: 18, endLine: 1, endColumn: 30,
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 30,
 				}),
 			],
 		},
@@ -606,7 +609,10 @@ test({
 			code: 'function foo() { async function bar() {} }',
 			errors: [
 				createError('async function \'bar\'', {
-					line: 1, column: 18, endLine: 1, endColumn: 36,
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 36,
 				}),
 			],
 		},
@@ -614,7 +620,10 @@ test({
 			code: 'function foo() { function* bar() {} }',
 			errors: [
 				createError('generator function \'bar\'', {
-					line: 1, column: 18, endLine: 1, endColumn: 31,
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 31,
 				}),
 			],
 		},
@@ -622,7 +631,10 @@ test({
 			code: 'function foo() { async function* bar() {} }',
 			errors: [
 				createError('async generator function \'bar\'', {
-					line: 1, column: 18, endLine: 1, endColumn: 37,
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 37,
 				}),
 			],
 		},
@@ -630,7 +642,10 @@ test({
 			code: 'function foo() { const bar = () => {} }',
 			errors: [
 				createError('arrow function \'bar\'', {
-					line: 1, column: 33, endLine: 1, endColumn: 35,
+					line: 1,
+					column: 33,
+					endLine: 1,
+					endColumn: 35,
 				}),
 			],
 		},
@@ -638,7 +653,10 @@ test({
 			code: 'const doFoo = () => bar => bar;',
 			errors: [
 				createError('arrow function', {
-					line: 1, column: 25, endLine: 1, endColumn: 27,
+					line: 1,
+					column: 25,
+					endLine: 1,
+					endColumn: 27,
 				}),
 			],
 		},
@@ -646,7 +664,10 @@ test({
 			code: 'function foo() { const bar = async () => {} }',
 			errors: [
 				createError('async arrow function \'bar\'', {
-					line: 1, column: 39, endLine: 1, endColumn: 41,
+					line: 1,
+					column: 39,
+					endLine: 1,
+					endColumn: 41,
 				}),
 			],
 		},
