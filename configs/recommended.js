@@ -31,6 +31,7 @@ module.exports = {
 	'unicorn/no-invalid-remove-event-listener': 'error',
 	'unicorn/no-keyword-prefix': 'off',
 	'unicorn/no-lonely-if': 'error',
+	'unicorn/no-magic-array-flat-depth': 'error',
 	'no-negated-condition': 'off',
 	'unicorn/no-negated-condition': 'error',
 	'no-nested-ternary': 'off',
