@@ -101,6 +101,7 @@ module.exports = {
 	'unicorn/prefer-string-slice': 'error',
 	'unicorn/prefer-string-starts-ends-with': 'error',
 	'unicorn/prefer-string-trim-start-end': 'error',
+	'unicorn/prefer-structured-clone': 'error',
 	'unicorn/prefer-switch': 'error',
 	'unicorn/prefer-ternary': 'error',
 	'unicorn/prefer-top-level-await': 'error',
