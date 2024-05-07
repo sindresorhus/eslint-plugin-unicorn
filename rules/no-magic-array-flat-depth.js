@@ -44,7 +44,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow magic number as the `depth` argument in `Array#flat(…).`',
+			description: 'Disallow a magic number as the `depth` argument in `Array#flat(…).`',
 		},
 		messages,
 	},
