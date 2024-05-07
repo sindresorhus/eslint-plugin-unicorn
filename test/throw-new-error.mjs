@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -52,5 +53,12 @@ test.snapshot({
 		'throw getGlobalThis().Error()',
 		'throw utils.getGlobalThis().Error()',
 		'throw (( getGlobalThis().Error ))()',
+		'const error = Error()',
+		'throw Object.assign(Error(), {foo})',
+		outdent`
+			new Promise((resolve, reject) => {
+				reject(Error('message'));
+			});
+		`
 	],
 });

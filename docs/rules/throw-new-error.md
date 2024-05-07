@@ -1,4 +1,4 @@
-# Require `new` when throwing an error
+# Require `new` when creating an error
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
@@ -12,7 +12,7 @@ While it's possible to create a new error without using the `new` keyword, it's 
 ## Fail
 
 ```js
-throw Error();
+const error = Error('unicorn');
 ```
 
 ```js
@@ -20,13 +20,13 @@ throw TypeError('unicorn');
 ```
 
 ```js
-throw lib.TypeError();
+throw lib.TypeError('unicorn');
 ```
 
 ## Pass
 
 ```js
-throw new Error();
+const error = new Error('unicorn');
 ```
 
 ```js
@@ -34,5 +34,5 @@ throw new TypeError('unicorn');
 ```
 
 ```js
-throw new lib.TypeError();
+throw new lib.TypeError('unicorn');
 ```
