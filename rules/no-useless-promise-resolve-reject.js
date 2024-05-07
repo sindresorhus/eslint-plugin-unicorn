@@ -111,7 +111,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 		if (isReject) {
 			// `return Promise.reject()` -> `throw undefined`
-			text = text || 'undefined';
+			text ||= 'undefined';
 			text = `throw ${text}`;
 
 			if (isYieldExpression) {
@@ -143,7 +143,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 				}
 
 				// `=> Promise.resolve()` -> `=> {}`
-				text = text || '{}';
+				text ||= '{}';
 			}
 		}
 

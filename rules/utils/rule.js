@@ -47,15 +47,11 @@ function reportListenerProblems(problems, context) {
 			continue;
 		}
 
-		if (problem.fix) {
-			problem.fix = wrapFixFunction(problem.fix);
-		}
+		problem.fix &&= wrapFixFunction(problem.fix);
 
 		if (Array.isArray(problem.suggest)) {
 			for (const suggest of problem.suggest) {
-				if (suggest.fix) {
-					suggest.fix = wrapFixFunction(suggest.fix);
-				}
+				suggest.fix &&= wrapFixFunction(suggest.fix);
 
 				suggest.data = {
 					...problem.data,
