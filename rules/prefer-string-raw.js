@@ -21,10 +21,16 @@ function unescapeBackslash(raw) {
 		const character = raw[position];
 		if (character === BACKSLASH) {
 			const nextCharacter = raw[position + 1];
-			if (nextCharacter === BACKSLASH || nextCharacter === '\n' || nextCharacter === quote) {
-				result += nextCharacter
-				position ++
-				continue;
+			switch (nextCharacter) {
+				case BACKSLASH: {
+					result += nextCharacter
+					position++
+					continue;
+				}
+				case '\n':
+				case quote:
+					continue;
+				// No default
 			}
 		}
 
@@ -48,7 +54,11 @@ const create = context => {
 
 
 		const {raw} = node;
-		if (!raw.includes(BACKSLASH + BACKSLASH) || raw.includes('`')) {
+		if (
+			!raw.includes(BACKSLASH + BACKSLASH)
+			|| raw.includes('`')
+			|| node.loc.start.line !== node.loc.end.line
+		) {
 			return;
 		}
 

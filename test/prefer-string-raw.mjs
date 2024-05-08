@@ -11,10 +11,14 @@ test.snapshot({
 		String.raw`import foo from "./foo\\bar.js";`,
 		String.raw`export {foo} from "./foo\\bar.js";`,
 		String.raw`a = {'a\\b': ''}`,
+		outdent`
+			a = "\\\\a \\
+				b"
+		`,
 	],
 	invalid: [
 		String.raw`a = 'a\\b'`,
 		String.raw`a = {['a\\b']: b}`,
-		String.raw`function a() {return'a\\b'}`
+		String.raw`function a() {return'a\\b'}`,
 	],
 });
