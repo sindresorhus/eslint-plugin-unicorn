@@ -7,12 +7,14 @@ test.snapshot({
 	valid: [
 		String.raw`a = '\''`,
 		// Cannot use `String.raw`
-		String.raw`'\\'`,
+		String.raw`'a\\b'`,
 		String.raw`import foo from "./foo\\bar.js";`,
 		String.raw`export {foo} from "./foo\\bar.js";`,
-		String.raw`{'\\': ''}`,
+		String.raw`a = {'a\\b': ''}`,
 	],
 	invalid: [
-		String.raw`a = '\\'`,
+		String.raw`a = 'a\\b'`,
+		String.raw`a = {['a\\b']: b}`,
+		String.raw`function a() {return'a\\b'}`
 	],
 });
