@@ -29,6 +29,9 @@ const configs = [
 			unicorn: eslintPluginUnicorn,
 		},
 		rules: eslintPluginUnicorn.configs.all.rules,
+		linterOptions: {
+			reportUnusedDisableDirectives: false,
+		},
 	},
 	{
 		ignores: [
