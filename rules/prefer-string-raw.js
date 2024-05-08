@@ -3,13 +3,12 @@ const {isStringLiteral, isDirective} = require('./ast/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 const {} = require('./utils/index.js');
 
-
-const MESSAGE_ID= 'prefer-string-raw';
+const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String.raw` tag to avoid escaping `\\`.',
 };
 
-const BACKSLASH = '\\'
+const BACKSLASH = '\\';
 
 function unescapeBackslash(raw) {
 	const quote = raw.charAt(0);
@@ -17,24 +16,26 @@ function unescapeBackslash(raw) {
 	raw = raw.slice(1, -1);
 
 	let result = '';
-	for (let position = 0; position < raw.length; position ++) {
+	for (let position = 0; position < raw.length; position++) {
 		const character = raw[position];
 		if (character === BACKSLASH) {
 			const nextCharacter = raw[position + 1];
 			switch (nextCharacter) {
 				case BACKSLASH: {
-					result += nextCharacter
-					position++
+					result += nextCharacter;
+					position++;
 					continue;
 				}
+
 				case '\n':
-				case quote:
+				case quote: {
 					continue;
+				}
 				// No default
 			}
 		}
 
-		result += character
+		result += character;
 	}
 
 	return result;
@@ -52,7 +53,6 @@ const create = context => {
 			return;
 		}
 
-
 		const {raw} = node;
 		if (
 			!raw.includes(BACKSLASH + BACKSLASH)
@@ -64,7 +64,7 @@ const create = context => {
 
 		const unescaped = unescapeBackslash(raw);
 		if (unescaped.endsWith(BACKSLASH) || unescaped !== node.value) {
-			return
+			return;
 		}
 
 		return {
@@ -73,8 +73,8 @@ const create = context => {
 			* fix(fixer) {
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
-			}
-		}
+			},
+		};
 	});
 };
 
