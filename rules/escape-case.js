@@ -47,7 +47,7 @@ const create = context => {
 		const templateLiteral = node.parent;
 		if (
 			templateLiteral.parent.type === 'TaggedTemplateExpression'
-			&& templateLiteral.parent.quasi == templateLiteral
+			&& templateLiteral.parent.quasi === templateLiteral
 		) {
 			const {tag} = templateLiteral.parent;
 			if (isNodeMatches(tag, ['String.raw'])) {
@@ -59,7 +59,7 @@ const create = context => {
 			node,
 			original: node.value.raw,
 			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-		})
+		});
 	});
 };
 
