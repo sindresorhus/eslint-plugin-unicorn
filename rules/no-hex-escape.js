@@ -40,7 +40,7 @@ const create = context => ({
 			return;
 		}
 
-		return checkEscape(context, node, node.value.raw)
+		return checkEscape(context, node, node.value.raw);
 	},
 });
 
