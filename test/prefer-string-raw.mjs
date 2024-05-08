@@ -17,6 +17,8 @@ test.snapshot({
 				b"
 		`,
 		String.raw`a = 'a\\b\u{51}c'`,
+		'a = "a\\\\b`"',
+		'a = "a\\\\b${foo}"',
 		{
 			code: String.raw`<Component attribute="a\\b" />`,
 			languageOptions: {

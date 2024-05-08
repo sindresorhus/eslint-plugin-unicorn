@@ -63,6 +63,7 @@ const create = context => {
 		if (
 			!raw.includes(BACKSLASH + BACKSLASH)
 			|| raw.includes('`')
+			|| raw.includes('${')
 			|| node.loc.start.line !== node.loc.end.line
 		) {
 			return;
