@@ -25,7 +25,7 @@ function checkFetchOptions(context, node) {
 
 	const {properties} = node;
 
-	const bodyProperty = properties.find(property => isObjectPropertyWithName(property, 'body'));
+	const bodyProperty = properties.findLast(property => isObjectPropertyWithName(property, 'body'));
 
 	if (!bodyProperty) {
 		return;
@@ -36,7 +36,7 @@ function checkFetchOptions(context, node) {
 		return;
 	}
 
-	const methodProperty = properties.find(property => isObjectPropertyWithName(property, 'method'));
+	const methodProperty = properties.findLast(property => isObjectPropertyWithName(property, 'method'));
 	// If `method` is omitted but there is an `SpreadElement`, we just ignore the case
 	if (!methodProperty) {
 		if (properties.some(node => node.type === 'SpreadElement')) {
@@ -53,19 +53,13 @@ function checkFetchOptions(context, node) {
 	const methodValue = methodProperty.value;
 
 	const scope = context.sourceCode.getScope(methodValue);
-	const staticResult = getStaticValue(methodValue, scope);
+	let method = getStaticValue(methodValue, scope)?.value;
 
-	// We don't know the method
-	if (!staticResult) {
+	if (typeof method !== 'string') {
 		return;
 	}
 
-	const {value} = staticResult;
-	if (typeof value !== 'string') {
-		return;
-	}
-
-	const method = value.toUpperCase();
+	method = method.toUpperCase();
 	if (method !== 'GET' && method !== 'HEAD') {
 		return
 	}
