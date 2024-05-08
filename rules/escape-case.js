@@ -1,6 +1,7 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
 const {isRegexLiteral, isStringLiteral} = require('./ast/index.js');
+const {isNodeMatches} = require('./utils/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {
@@ -42,11 +43,24 @@ const create = context => {
 		}
 	});
 
-	context.on('TemplateElement', node => getProblem({
-		node,
-		original: node.value.raw,
-		fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-	}));
+	context.on('TemplateElement', node => {
+		const templateLiteral = node.parent;
+		if (
+			templateLiteral.parent.type === 'TaggedTemplateExpression'
+			&& templateLiteral.parent.quasi == templateLiteral
+		) {
+			const {tag} = templateLiteral.parent;
+			if (isNodeMatches(tag, ['String.raw'])) {
+				return;
+			}
+		}
+
+		return getProblem({
+			node,
+			original: node.value.raw,
+			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+		})
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
