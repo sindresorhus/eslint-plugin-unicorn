@@ -41,6 +41,7 @@ test({
 		'const foo = `foo\\\\\\\\xbar`;',
 		'const foo = `foo\\\\\\\\ubarbaz`;',
 		'const foo = `\\ca`;',
+		'const foo = String.raw`\\uAaAa`;',
 
 		// Literal regex
 		'const foo = /foo\\xA9/',
@@ -189,6 +190,18 @@ test({
 			code: 'const foo = `foo \\\\\\ud834`;',
 			errors,
 			output: 'const foo = `foo \\\\\\uD834`;',
+		},
+		// TODO: This is not safe, it will be broken if `tagged` uses `arguments[0].raw`
+		// #2341
+		{
+			code: 'const foo = tagged`\\uAaAa`;',
+			errors,
+			output: 'const foo = tagged`\\uAAAA`;',
+		},
+		{
+			code: 'const foo = `\\uAaAa```;',
+			errors,
+			output: 'const foo = `\\uAAAA```;',
 		},
 
 		// Mixed cases
