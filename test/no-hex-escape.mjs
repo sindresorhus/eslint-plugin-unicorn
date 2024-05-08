@@ -38,6 +38,7 @@ const tests = {
 		'const foo = `foo\\\\x12foo\\\\x34`',
 		'const foo = `\\\\\\\\xd8\\\\\\\\x3d\\\\\\\\xdc\\\\\\\\xa9`',
 		'const foo = `foo\\\\\\\\x12foo\\\\\\\\x34`',
+		'const foo = String.raw`\\\\xb1`',
 	],
 	invalid: [
 		{
@@ -192,6 +193,17 @@ const tests = {
 			errors: [error, error],
 			// eslint-disable-next-line no-template-curly-in-string
 			output: 'const foo = `\\u00b1${foo}\\u00b1${foo}`',
+		},
+		{
+			code: 'const foo = `\\xb1```',
+			errors: [error],
+			output: 'const foo = `\\u00b1```',
+		},
+		// TODO: Not safe #2341
+		{
+			code: 'const foo = tagged`\\xb1`',
+			errors: [error],
+			output: 'const foo = tagged`\\u00b1`',
 		},
 	],
 };
