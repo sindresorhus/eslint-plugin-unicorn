@@ -19,18 +19,10 @@ function unescapeBackslash(raw) {
 		const character = raw[position];
 		if (character === BACKSLASH) {
 			const nextCharacter = raw[position + 1];
-			switch (nextCharacter) {
-				case BACKSLASH: {
-					result += nextCharacter;
-					position++;
-					continue;
-				}
-
-				case '\n':
-				case quote: {
-					continue;
-				}
-				// No default
+			if (nextCharacter === BACKSLASH || nextCharacter === quote) {
+				result += nextCharacter;
+				position++;
+				continue;
 			}
 		}
 
