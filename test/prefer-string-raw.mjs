@@ -15,6 +15,7 @@ test.snapshot({
 			a = "\\\\a \\
 				b"
 		`,
+		String.raw`a = 'a\\b\u{51}c'`,
 	],
 	invalid: [
 		String.raw`a = 'a\\b'`,
