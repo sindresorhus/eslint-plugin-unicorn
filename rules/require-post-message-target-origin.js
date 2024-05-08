@@ -64,7 +64,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
-			// Turned off because we can't distinguish `widow.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
+			// Turned off because we can't distinguish `window.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
 			// See #1396
 			recommended: false,
 		},
