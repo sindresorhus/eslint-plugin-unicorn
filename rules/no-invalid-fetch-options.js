@@ -16,7 +16,7 @@ const isObjectPropertyWithName = (node, name) =>
 	node.type === 'Property'
 	&& !node.computed
 	&& node.key.type === 'Identifier'
-	&& node.key.name == name;
+	&& node.key.name === name;
 
 function checkFetchOptions(context, node) {
 	if (node.type !== 'ObjectExpression') {
@@ -47,7 +47,7 @@ function checkFetchOptions(context, node) {
 			node: bodyProperty.key,
 			messageId: MESSAGE_ID_ERROR,
 			data: {method: 'GET'},
-		}
+		};
 	}
 
 	const methodValue = methodProperty.value;
@@ -61,14 +61,14 @@ function checkFetchOptions(context, node) {
 
 	method = method.toUpperCase();
 	if (method !== 'GET' && method !== 'HEAD') {
-		return
+		return;
 	}
 
 	return {
 		node: bodyProperty.key,
 		messageId: MESSAGE_ID_ERROR,
 		data: {method},
-	}
+	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -83,7 +83,7 @@ const create = context => {
 		}
 
 		return checkFetchOptions(context, callExpression.arguments[1]);
-	})
+	});
 
 	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {
@@ -94,7 +94,7 @@ const create = context => {
 		}
 
 		return checkFetchOptions(context, newExpression.arguments[1]);
-	})
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
