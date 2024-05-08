@@ -35,5 +35,6 @@ test.snapshot({
 		String.raw`a = 'a\\b'`,
 		String.raw`a = {['a\\b']: b}`,
 		String.raw`function a() {return'a\\b'}`,
+		String.raw`const foo = "foo \\x46";`,
 	],
 });
