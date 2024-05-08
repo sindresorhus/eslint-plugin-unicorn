@@ -46,8 +46,15 @@ const create = context => {
 		if (
 			!isStringLiteral(node)
 			|| isDirective(node.parent)
-			|| ((node.parent.type === 'ImportDeclaration' || node.parent.type === 'ExportNamedDeclaration') && node.parent.source === node)
+			|| (
+				(
+					node.parent.type === 'ImportDeclaration'
+						|| node.parent.type === 'ExportNamedDeclaration'
+						|| node.parent.type === 'ExportAllDeclaration'
+				) && node.parent.source === node
+			)
 			|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
+			|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
 		) {
 			return;
 		}
