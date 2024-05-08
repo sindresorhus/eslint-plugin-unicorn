@@ -23,13 +23,13 @@ const additionalPolyfillPatterns = {
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
-const delimiter = String.raw`(\.|-|\.prototype\.|/)?`;
+const delimiter = '(\\.|-|\\.prototype\\.|/)?';
 
 const polyfills = Object.keys(compatData).map(feature => {
 	let [ecmaVersion, constructorName, methodName = ''] = feature.split('.');
 
 	if (ecmaVersion === 'es') {
-		ecmaVersion = String.raw`(es\d*)`;
+		ecmaVersion = '(es\\d*)';
 	}
 
 	constructorName = `(${constructorName}|${camelCase(constructorName)})`;

@@ -28,8 +28,8 @@ test.snapshot({
 		// We don't check cooked value
 		'new URL(`\\u002E/${foo}`, base)',
 		// We don't check escaped string
-		String.raw`new URL("\u002E/foo", base)`,
-		String.raw`new URL('\u002E/foo', base)`,
+		'new URL("\\u002E/foo", base)',
+		'new URL(\'\\u002E/foo\', base)',
 	],
 	invalid: [
 		'new URL("./foo", base)',
@@ -67,9 +67,9 @@ test.snapshot({
 		'new URL("/foo", base)',
 		'new URL("../foo", base)',
 		'new URL(".././foo", base)',
-		String.raw`new URL("C:\foo", base)`,
-		String.raw`new URL("\u002E/foo", base)`,
-		String.raw`new URL("\u002Ffoo", base)`,
+		'new URL("C:\\foo", base)',
+		'new URL("\\u002E/foo", base)',
+		'new URL("\\u002Ffoo", base)',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
 	invalid: [
 		'new URL("foo", base)',

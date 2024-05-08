@@ -30,8 +30,8 @@ test({
 
 		'console.log(\'  \', "def");',
 		'console.log("abc  ", "def");',
-		String.raw`console.log("abc\t", "def");`,
-		String.raw`console.log("abc\n", "def");`,
+		'console.log("abc\\t", "def");',
+		'console.log("abc\\n", "def");',
 		'console.log("  abc", "def");',
 
 		'console.log(" abc", "def");',

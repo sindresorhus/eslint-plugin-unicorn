@@ -9,7 +9,7 @@ test.snapshot({
 		'"utf+8"',
 		'"   utf8   "',
 		'\'utf8\'',
-		String.raw`"\u0055tf8"`,
+		'"\\u0055tf8"',
 		'const ASCII = 1',
 		'const UTF8 = 1',
 	],

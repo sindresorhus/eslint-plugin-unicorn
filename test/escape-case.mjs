@@ -1,4 +1,4 @@
-/* eslint-disable no-template-curly-in-string */
+/* eslint-disable no-template-curly-in-string, unicorn/escape-case */
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -12,19 +12,19 @@ const errors = [
 test({
 	valid: [
 		// Literal string
-		String.raw`const foo = "\xA9";`,
-		String.raw`const foo = "\uD834";`,
-		String.raw`const foo = "\u{1D306}";`,
-		String.raw`const foo = "\uD834foo";`,
-		String.raw`const foo = "foo\uD834";`,
-		String.raw`const foo = "foo \uD834";`,
-		String.raw`const foo = "foo \u2500";`,
-		String.raw`const foo = "foo \x46";`,
-		String.raw`const foo = "foo\\xbar";`,
-		String.raw`const foo = "foo\\ubarbaz";`,
-		String.raw`const foo = "foo\\\\xbar";`,
-		String.raw`const foo = "foo\\\\ubarbaz";`,
-		String.raw`const foo = "\ca";`,
+		'const foo = "\\xA9";',
+		'const foo = "\\uD834";',
+		'const foo = "\\u{1D306}";',
+		'const foo = "\\uD834foo";',
+		'const foo = "foo\\uD834";',
+		'const foo = "foo \\uD834";',
+		'const foo = "foo \\u2500";',
+		'const foo = "foo \\x46";',
+		'const foo = "foo\\\\xbar";',
+		'const foo = "foo\\\\ubarbaz";',
+		'const foo = "foo\\\\\\\\xbar";',
+		'const foo = "foo\\\\\\\\ubarbaz";',
+		'const foo = "\\ca";',
 
 		// TemplateLiteral
 		'const foo = `\\xA9`;',
@@ -43,95 +43,95 @@ test({
 		'const foo = `\\ca`;',
 
 		// Literal regex
-		String.raw`const foo = /foo\xA9/`,
-		String.raw`const foo = /foo\uD834/`,
-		String.raw`const foo = /foo\u{1D306}/u`,
-		String.raw`const foo = /foo\cA/`,
+		'const foo = /foo\\xA9/',
+		'const foo = /foo\\uD834/',
+		'const foo = /foo\\u{1D306}/u',
+		'const foo = /foo\\cA/',
 		// Escape
-		String.raw`const foo = /foo\\xa9/;`,
-		String.raw`const foo = /foo\\\\xa9/;`,
-		String.raw`const foo = /foo\\uD834/`,
-		String.raw`const foo = /foo\\u{1}/u`,
-		String.raw`const foo = /foo\\cA/`,
+		'const foo = /foo\\\\xa9/;',
+		'const foo = /foo\\\\\\\\xa9/;',
+		'const foo = /foo\\\\uD834/',
+		'const foo = /foo\\\\u{1}/u',
+		'const foo = /foo\\\\cA/',
 
 		// RegExp
-		String.raw`const foo = new RegExp("/\xA9")`,
-		String.raw`const foo = new RegExp("/\uD834/")`,
-		String.raw`const foo = new RegExp("/\u{1D306}/", "u")`,
-		String.raw`const foo = new RegExp("/\ca/")`,
-		String.raw`const foo = new RegExp("/\cA/")`,
+		'const foo = new RegExp("/\\xA9")',
+		'const foo = new RegExp("/\\uD834/")',
+		'const foo = new RegExp("/\\u{1D306}/", "u")',
+		'const foo = new RegExp("/\\ca/")',
+		'const foo = new RegExp("/\\cA/")',
 	],
 	invalid: [
 		// Literal string
 		{
-			code: String.raw`const foo = "\xa9";`,
+			code: 'const foo = "\\xa9";',
 			errors,
-			output: String.raw`const foo = "\xA9";`,
+			output: 'const foo = "\\xA9";',
 		},
 
 		// Mixed cases
 		{
-			code: String.raw`const foo = "\xAa";`,
+			code: 'const foo = "\\xAa";',
 			errors,
-			output: String.raw`const foo = "\xAA";`,
+			output: 'const foo = "\\xAA";',
 		},
 		{
-			code: String.raw`const foo = "\uAaAa";`,
+			code: 'const foo = "\\uAaAa";',
 			errors,
-			output: String.raw`const foo = "\uAAAA";`,
+			output: 'const foo = "\\uAAAA";',
 		},
 		{
-			code: String.raw`const foo = "\u{AaAa}";`,
+			code: 'const foo = "\\u{AaAa}";',
 			errors,
-			output: String.raw`const foo = "\u{AAAA}";`,
+			output: 'const foo = "\\u{AAAA}";',
 		},
 
 		// Many
 		{
-			code: String.raw`const foo = "\xAab\xaab\xAAb\uAaAab\uaaaab\uAAAAb\u{AaAa}b\u{aaaa}b\u{AAAA}";`,
+			code: 'const foo = "\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}";',
 			errors,
-			output: String.raw`const foo = "\xAAb\xAAb\xAAb\uAAAAb\uAAAAb\uAAAAb\u{AAAA}b\u{AAAA}b\u{AAAA}";`,
+			output: 'const foo = "\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}";',
 		},
 
 		{
-			code: String.raw`const foo = "\ud834";`,
+			code: 'const foo = "\\ud834";',
 			errors,
-			output: String.raw`const foo = "\uD834";`,
+			output: 'const foo = "\\uD834";',
 		},
 		{
-			code: String.raw`const foo = "\u{1d306}";`,
+			code: 'const foo = "\\u{1d306}";',
 			errors,
-			output: String.raw`const foo = "\u{1D306}";`,
+			output: 'const foo = "\\u{1D306}";',
 		},
 		{
-			code: String.raw`const foo = "\ud834foo";`,
+			code: 'const foo = "\\ud834foo";',
 			errors,
-			output: String.raw`const foo = "\uD834foo";`,
+			output: 'const foo = "\\uD834foo";',
 		},
 		{
-			code: String.raw`const foo = "foo\ud834";`,
+			code: 'const foo = "foo\\ud834";',
 			errors,
-			output: String.raw`const foo = "foo\uD834";`,
+			output: 'const foo = "foo\\uD834";',
 		},
 		{
-			code: String.raw`const foo = "foo \ud834";`,
+			code: 'const foo = "foo \\ud834";',
 			errors,
-			output: String.raw`const foo = "foo \uD834";`,
+			output: 'const foo = "foo \\uD834";',
 		},
 		{
-			code: String.raw`const foo = "\\\ud834foo";`,
+			code: 'const foo = "\\\\\\ud834foo";',
 			errors,
-			output: String.raw`const foo = "\\\uD834foo";`,
+			output: 'const foo = "\\\\\\uD834foo";',
 		},
 		{
-			code: String.raw`const foo = "foo\\\ud834";`,
+			code: 'const foo = "foo\\\\\\ud834";',
 			errors,
-			output: String.raw`const foo = "foo\\\uD834";`,
+			output: 'const foo = "foo\\\\\\uD834";',
 		},
 		{
-			code: String.raw`const foo = "foo \\\ud834";`,
+			code: 'const foo = "foo \\\\\\ud834";',
 			errors,
-			output: String.raw`const foo = "foo \\\uD834";`,
+			output: 'const foo = "foo \\\\\\uD834";',
 		},
 
 		// TemplateLiteral
@@ -217,75 +217,75 @@ test({
 
 		// Literal regex
 		{
-			code: String.raw`const foo = /\xa9/;`,
+			code: 'const foo = /\\xa9/;',
 			errors,
-			output: String.raw`const foo = /\xA9/;`,
+			output: 'const foo = /\\xA9/;',
 		},
 		{
-			code: String.raw`const foo = /\ud834/`,
+			code: 'const foo = /\\ud834/',
 			errors,
-			output: String.raw`const foo = /\uD834/`,
+			output: 'const foo = /\\uD834/',
 		},
 		{
-			code: String.raw`const foo = /\u{1d306}/u`,
+			code: 'const foo = /\\u{1d306}/u',
 			errors,
-			output: String.raw`const foo = /\u{1D306}/u`,
+			output: 'const foo = /\\u{1D306}/u',
 		},
 		{
-			code: String.raw`const foo = /\ca/`,
+			code: 'const foo = /\\ca/',
 			errors,
-			output: String.raw`const foo = /\cA/`,
+			output: 'const foo = /\\cA/',
 		},
 		{
-			code: String.raw`const foo = /foo\\\xa9/;`,
+			code: 'const foo = /foo\\\\\\xa9/;',
 			errors,
-			output: String.raw`const foo = /foo\\\xA9/;`,
+			output: 'const foo = /foo\\\\\\xA9/;',
 		},
 		{
-			code: String.raw`const foo = /foo\\\\\xa9/;`,
+			code: 'const foo = /foo\\\\\\\\\\xa9/;',
 			errors,
-			output: String.raw`const foo = /foo\\\\\xA9/;`,
+			output: 'const foo = /foo\\\\\\\\\\xA9/;',
 		},
 
 		// Mixed cases
 		{
-			code: String.raw`const foo = /\xAa/;`,
+			code: 'const foo = /\\xAa/;',
 			errors,
-			output: String.raw`const foo = /\xAA/;`,
+			output: 'const foo = /\\xAA/;',
 		},
 		{
-			code: String.raw`const foo = /\uAaAa/;`,
+			code: 'const foo = /\\uAaAa/;',
 			errors,
-			output: String.raw`const foo = /\uAAAA/;`,
+			output: 'const foo = /\\uAAAA/;',
 		},
 		{
-			code: String.raw`const foo = /\u{AaAa}/;`,
+			code: 'const foo = /\\u{AaAa}/;',
 			errors,
-			output: String.raw`const foo = /\u{AAAA}/;`,
+			output: 'const foo = /\\u{AAAA}/;',
 		},
 
 		// Many
 		{
-			code: String.raw`const foo = /\xAab\xaab\xAAb\uAaAab\uaaaab\uAAAAb\u{AaAa}b\u{aaaa}b\u{AAAA}b\ca/;`,
+			code: 'const foo = /\\xAab\\xaab\\xAAb\\uAaAab\\uaaaab\\uAAAAb\\u{AaAa}b\\u{aaaa}b\\u{AAAA}b\\ca/;',
 			errors,
-			output: String.raw`const foo = /\xAAb\xAAb\xAAb\uAAAAb\uAAAAb\uAAAAb\u{AAAA}b\u{AAAA}b\u{AAAA}b\cA/;`,
+			output: 'const foo = /\\xAAb\\xAAb\\xAAb\\uAAAAb\\uAAAAb\\uAAAAb\\u{AAAA}b\\u{AAAA}b\\u{AAAA}b\\cA/;',
 		},
 
 		// RegExp
 		{
-			code: String.raw`const foo = new RegExp("/\xa9")`,
+			code: 'const foo = new RegExp("/\\xa9")',
 			errors,
-			output: String.raw`const foo = new RegExp("/\xA9")`,
+			output: 'const foo = new RegExp("/\\xA9")',
 		},
 		{
-			code: String.raw`const foo = new RegExp("/\ud834/")`,
+			code: 'const foo = new RegExp("/\\ud834/")',
 			errors,
-			output: String.raw`const foo = new RegExp("/\uD834/")`,
+			output: 'const foo = new RegExp("/\\uD834/")',
 		},
 		{
-			code: String.raw`const foo = new RegExp("/\u{1d306}/", "u")`,
+			code: 'const foo = new RegExp("/\\u{1d306}/", "u")',
 			errors,
-			output: String.raw`const foo = new RegExp("/\u{1D306}/", "u")`,
+			output: 'const foo = new RegExp("/\\u{1D306}/", "u")',
 		},
 	],
 });
