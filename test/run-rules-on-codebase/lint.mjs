@@ -44,6 +44,8 @@ const configs = [
 		rules: {
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
+			'unicorn/escape-case': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
