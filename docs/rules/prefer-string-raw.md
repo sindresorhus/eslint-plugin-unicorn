@@ -1,4 +1,4 @@
-# Prefer `String.raw` tag to avoid escaping `\`
+# Prefer using `String.raw` tag to avoid escaping `\`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

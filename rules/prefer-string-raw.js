@@ -1,11 +1,10 @@
 'use strict';
 const {isStringLiteral, isDirective} = require('./ast/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {} = require('./utils/index.js');
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `String.raw` tag to avoid escaping `\\`.',
+	[MESSAGE_ID]: '`String.raw` should be used to avoid escaping `\\`.',
 };
 
 const BACKSLASH = '\\';
@@ -69,7 +68,7 @@ const create = context => {
 
 		return {
 			node,
-			message: MESSAGE_ID,
+			messageId: MESSAGE_ID,
 			* fix(fixer) {
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
@@ -84,7 +83,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String.raw` tag to avoid escaping `\\`.',
+			description: 'Prefer using `String.raw` tag to avoid escaping `\\`.',
 			recommended: true,
 		},
 		fixable: 'code',
