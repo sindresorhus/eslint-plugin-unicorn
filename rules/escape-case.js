@@ -48,11 +48,9 @@ const create = context => {
 		if (
 			templateLiteral.parent.type === 'TaggedTemplateExpression'
 			&& templateLiteral.parent.quasi === templateLiteral
+			&& isNodeMatches(templateLiteral.parent.tag, ['String.raw'])
 		) {
-			const {tag} = templateLiteral.parent;
-			if (isNodeMatches(tag, ['String.raw'])) {
-				return;
-			}
+			return;
 		}
 
 		return getProblem({
