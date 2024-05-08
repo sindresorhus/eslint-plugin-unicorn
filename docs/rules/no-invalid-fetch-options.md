@@ -5,7 +5,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) throws a `TypeError` when the method is `GET` or `HEAD` and body exists.
+[`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) throws a `TypeError` when the method is `GET` or `HEAD` and a body is provided.
 
 ## Fail
 
