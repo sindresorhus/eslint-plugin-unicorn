@@ -18,6 +18,7 @@ test.snapshot({
 		`,
 		String.raw`a = 'a\\b\u{51}c'`,
 		'a = "a\\\\b`"',
+		// eslint-disable-next-line no-template-curly-in-string
 		'a = "a\\\\b${foo}"',
 		{
 			code: String.raw`<Component attribute="a\\b" />`,
