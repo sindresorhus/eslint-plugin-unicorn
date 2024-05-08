@@ -6,9 +6,6 @@ const {
 	isUndefined,
 	isNullLiteral,
 } = require('./ast/index.js');
-const {} = require('./fix/index.js');
-const {} = require('./utils/index.js');
-
 
 const MESSAGE_ID_ERROR = 'no-invalid-fetch-options';
 const messages = {
@@ -16,7 +13,7 @@ const messages = {
 };
 
 const isObjectPropertyWithName = (node, name) =>
-	node.type === 'ObjectProperty'
+	node.type === 'Property'
 	&& !node.computed
 	&& node.key.type === 'Identifier'
 	&& node.key.name == name;
@@ -54,6 +51,7 @@ function checkFetchOptions(context, node) {
 	}
 
 	const methodValue = methodProperty.value;
+
 	const scope = context.sourceCode.getScope(methodValue);
 	const staticResult = getStaticValue(methodValue, scope);
 
@@ -68,7 +66,7 @@ function checkFetchOptions(context, node) {
 	}
 
 	const method = value.toUpperCase();
-	if (method !== 'POST' && method !== 'HEAD') {
+	if (method !== 'GET' && method !== 'HEAD') {
 		return
 	}
 
@@ -85,6 +83,7 @@ const create = context => {
 		if (!isCallExpression(callExpression, {
 			name: 'fetch',
 			minimumArguments: 2,
+			optional: false,
 		})) {
 			return;
 		}

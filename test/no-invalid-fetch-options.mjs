@@ -23,7 +23,9 @@ test.snapshot({
 		'new Request(url, {method: "GET", body})',
 		'fetch(url, {method: "HEAD", body})',
 		'new Request(url, {method: "HEAD", body})',
-		'fetch(url, {method: "HeAD", body})',
-		'new Request(url, {method: "HeAD", body})',
+		'fetch(url, {method: "head", body})',
+		'new Request(url, {method: "head", body})',
+		'const method = "head"; new Request(url, {method, body: "foo=bar"})',
+		'const method = "head"; fetch(url, {method, body, body: "foo=bar"})',
 	],
 });
