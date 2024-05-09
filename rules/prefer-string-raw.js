@@ -53,7 +53,7 @@ const create = context => {
 
 		const {raw} = node;
 		if (
-			raw.endsWith(BACKSLASH)
+			raw.at(-2) === BACKSLASH
 			|| !raw.includes(BACKSLASH + BACKSLASH)
 			|| raw.includes('`')
 			|| raw.includes('${')
