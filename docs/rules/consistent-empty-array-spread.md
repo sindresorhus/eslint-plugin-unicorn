@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When spreading a ternary in array, we can use both `[]` and `''` as fallback, but it's nicer to have consistent type in "consequent" and "alternate".
+When spreading a ternary in an array, we can use both `[]` and `''` as fallbacks, but it's better to have consistent types in both branches.
 
 ## Fail
 
