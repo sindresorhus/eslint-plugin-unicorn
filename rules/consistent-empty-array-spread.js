@@ -100,14 +100,12 @@ const create = context => ({
 		for (const element of arrayExpression.elements) {
 			if (
 				element?.type !== 'SpreadElement'
-					|| element.argument.type !== 'ConditionalExpression'
+				|| element.argument.type !== 'ConditionalExpression'
 			) {
 				continue;
 			}
 
-			const conditionalExpression = element.argument;
-
-			yield getProblem(conditionalExpression, context);
+			yield getProblem(element.argument, context);
 		}
 	},
 });
