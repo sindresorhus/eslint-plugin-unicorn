@@ -3,7 +3,11 @@ const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const esquery = require('esquery');
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isMethodCall, isCallExpression} = require('./ast/index.js');
+const {
+	isMethodCall,
+	isCallExpression,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -114,10 +118,7 @@ const create = context => {
 
 		if (
 			options.tags.length > 0
-			&& node.parent.type === 'TaggedTemplateExpression'
-			&& node.parent.quasi === node
-			&& node.parent.tag.type === 'Identifier'
-			&& options.tags.includes(node.parent.tag.name)
+			&& isTaggedTemplateLiteral(node, options.tags)
 		) {
 			return true;
 		}

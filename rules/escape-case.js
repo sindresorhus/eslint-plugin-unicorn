@@ -1,7 +1,10 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isRegexLiteral, isStringLiteral} = require('./ast/index.js');
-const {isNodeMatches} = require('./utils/index.js');
+const {
+	isRegexLiteral,
+	isStringLiteral,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {
@@ -44,13 +47,8 @@ const create = context => {
 	});
 
 	context.on('TemplateElement', node => {
-		const templateLiteral = node.parent;
-		if (
-			templateLiteral.parent.type === 'TaggedTemplateExpression'
-			&& templateLiteral.parent.quasi === templateLiteral
-			&& isNodeMatches(templateLiteral.parent.tag, ['String.raw'])
-		) {
-			return;
+		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+			return
 		}
 
 		return getProblem({

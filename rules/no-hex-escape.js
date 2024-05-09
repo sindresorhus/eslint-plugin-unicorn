@@ -1,7 +1,10 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isStringLiteral, isRegexLiteral} = require('./ast/index.js');
-const {isNodeMatches} = require('./utils/index.js');
+const {
+	isStringLiteral,
+	isRegexLiteral,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
@@ -31,13 +34,8 @@ const create = context => ({
 		}
 	},
 	TemplateElement(node) {
-		const templateLiteral = node.parent;
-		if (
-			templateLiteral.parent.type === 'TaggedTemplateExpression'
-			&& templateLiteral.parent.quasi === templateLiteral
-			&& isNodeMatches(templateLiteral.parent.tag, ['String.raw'])
-		) {
-			return;
+		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+			return
 		}
 
 		return checkEscape(context, node, node.value.raw);

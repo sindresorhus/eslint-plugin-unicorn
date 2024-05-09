@@ -87,6 +87,26 @@ test({
 		},
 		{
 			options: [{
+				tags: ['utils.dedent'],
+			}],
+			code: fixInput(`
+				foo = utils.dedent\`
+				••••••••one
+				••••••••two
+				••••••••••three
+				••••••••\`
+			`),
+			errors,
+			output: fixInput(`
+				foo = utils.dedent\`
+				••one
+				••two
+				••••three
+				\`
+			`),
+		},
+		{
+			options: [{
 				tags: ['customIndentableTag'],
 				selectors: [':not(TaggedTemplateExpression) > TemplateLiteral'],
 			}],
