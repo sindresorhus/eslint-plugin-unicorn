@@ -3,7 +3,7 @@ const {getStaticValue} = require('@eslint-community/eslint-utils');
 
 const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
-	[MESSAGE_ID]: 'Prefer using empty {{replacementDescription}} since the {{anotherNodePosition}} is {{problemNodeDescription}}.',
+	[MESSAGE_ID]: 'Prefer using empty {{replacementDescription}} since the {{anotherNodePosition}} is {{anotherNodeDescription}}.',
 };
 
 const isEmptyArrayExpression = node =>
@@ -32,14 +32,14 @@ const cases = [
 	{
 		oneSidePredicate: isEmptyStringLiteral,
 		anotherSidePredicate: isArray,
-		problemNodeDescription: 'a string',
+		anotherNodeDescription: 'an array',
 		replacementDescription: 'array',
 		replacementCode: '[]',
 	},
 	{
 		oneSidePredicate: isEmptyArrayExpression,
 		anotherSidePredicate: isString,
-		problemNodeDescription: 'an array',
+		anotherNodeDescription: 'a string',
 		replacementDescription: 'string',
 		replacementCode: '\'\'',
 	},
@@ -48,7 +48,7 @@ const cases = [
 function createProblem({
 	problemNode,
 	anotherNodePosition,
-	problemNodeDescription,
+	anotherNodeDescription,
 	replacementDescription,
 	replacementCode,
 }) {
@@ -58,7 +58,7 @@ function createProblem({
 		data: {
 			replacementDescription,
 			anotherNodePosition,
-			problemNodeDescription,
+			anotherNodeDescription,
 		},
 		fix: fixer => fixer.replaceText(problemNode, replacementCode),
 	};
