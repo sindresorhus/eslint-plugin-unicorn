@@ -7,15 +7,16 @@
 		"prefer-alphabetical-optionalDependencies": "error",
 		"prefer-alphabetical-bundledDependencies": "error",
 		"prefer-alphabetical-scripts": "error",
-		"prefer-caret-version-dependencies": [
+		"prefer-caret-version-dependencies": "error",
+		"prefer-caret-version-devDependencies": [
 			"error",
 			{
 				"exceptions": [
-					"eslint-plugin-unicorn"
+					"eslint-plugin-internal-rules",
+					"eslint-doc-generator"
 				]
 			}
 		],
-		"prefer-caret-version-devDependencies": "error",
 		"prefer-scripts": [
 			"error",
 			[
