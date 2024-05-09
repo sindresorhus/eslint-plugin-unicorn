@@ -1,5 +1,5 @@
 'use strict';
-const {hasSideEffect, isCommaToken, isSemicolonToken} = require('@eslint-community/eslint-utils');
+const {hasSideEffect, isSemicolonToken} = require('@eslint-community/eslint-utils');
 const {
 	getCallExpressionTokens,
 	getCallExpressionArgumentsText,

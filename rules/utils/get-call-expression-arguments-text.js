@@ -1,6 +1,5 @@
 'use strict';
 const getCallExpressionTokens = require('./get-call-expression-tokens.js');
-const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 
 /** @typedef {import('estree').CallExpression} CallExpression */
 
@@ -15,13 +14,13 @@ Get the text of the arguments list of `CallExpression`.
 function getCallExpressionArgumentsText(sourceCode, callExpression) {
 	const {
 		openingParenthesisToken,
-		closingParenthesisToken
+		closingParenthesisToken,
 	} = getCallExpressionTokens(sourceCode, callExpression);
 
 	return sourceCode.text.slice(
 		openingParenthesisToken.range[1],
 		closingParenthesisToken.range[0],
 	);
-};
+}
 
 module.exports = getCallExpressionArgumentsText;

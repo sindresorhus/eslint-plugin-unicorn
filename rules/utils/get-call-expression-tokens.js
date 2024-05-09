@@ -31,7 +31,7 @@ function getCallExpressionTokens(sourceCode, callExpression) {
 		openingParenthesisToken,
 		closingParenthesisToken,
 		trailingCommaToken,
-	}
+	};
 }
 
 module.exports = getCallExpressionTokens;

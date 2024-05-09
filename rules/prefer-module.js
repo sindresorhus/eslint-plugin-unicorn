@@ -140,7 +140,7 @@ function fixRequireCall(node, sourceCode) {
 
 			const {
 				openingParenthesisToken,
-				closingParenthesisToken
+				closingParenthesisToken,
 			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.remove(openingParenthesisToken);
 			yield fixer.remove(closingParenthesisToken);
