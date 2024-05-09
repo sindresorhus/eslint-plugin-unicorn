@@ -83,7 +83,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `String.raw` tag to avoid escaping `\\`.',
+			description: 'Prefer using the `String.raw` tag to avoid escaping `\\`.',
 			recommended: true,
 		},
 		fixable: 'code',
