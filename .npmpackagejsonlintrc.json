@@ -11,7 +11,8 @@
 			"error",
 			{
 				"exceptions": [
-					"eslint-plugin-unicorn"
+					"eslint-plugin-unicorn",
+					"eslint-doc-generator"
 				]
 			}
 		],
