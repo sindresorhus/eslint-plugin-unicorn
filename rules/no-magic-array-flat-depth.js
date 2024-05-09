@@ -1,6 +1,6 @@
 'use strict';
-const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const {isMethodCall, isNumberLiteral} = require('./ast/index.js');
+const {getCallExpressionTokens} = require('./utils/index.js');
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
 const messages = {
@@ -25,8 +25,10 @@ const create = context => ({
 		}
 
 		const {sourceCode} = context;
-		const openingParenthesisToken = sourceCode.getTokenAfter(callExpression.callee, isOpeningParenToken);
-		const closingParenthesisToken = sourceCode.getLastToken(callExpression);
+		const {
+			openingParenthesisToken,
+			closingParenthesisToken,
+		} = getCallExpressionTokens(sourceCode, callExpression);
 		if (sourceCode.commentsExistBetween(openingParenthesisToken, closingParenthesisToken)) {
 			return;
 		}

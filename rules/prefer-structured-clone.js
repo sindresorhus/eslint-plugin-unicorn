@@ -1,11 +1,10 @@
 'use strict';
-const {
-	isCommaToken,
-	isOpeningParenToken,
-} = require('@eslint-community/eslint-utils');
 const {isCallExpression, isMethodCall} = require('./ast/index.js');
 const {removeParentheses} = require('./fix/index.js');
-const {isNodeMatchesNameOrPath} = require('./utils/index.js');
+const {
+	isNodeMatchesNameOrPath,
+	getCallExpressionTokens,
+} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'prefer-structured-clone/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-structured-clone/suggestion';
@@ -75,19 +74,17 @@ const create = context => {
 						yield fixer.remove(jsonStringify.callee);
 						yield * removeParentheses(jsonStringify.callee, fixer, sourceCode);
 
-						const openingParenthesisToken = sourceCode.getTokenAfter(jsonStringify.callee, isOpeningParenToken);
-						yield fixer.remove(openingParenthesisToken);
-
-						const [
-							penultimateToken,
+						const {
+							openingParenthesisToken,
 							closingParenthesisToken,
-						] = sourceCode.getLastTokens(jsonStringify, 2);
+							trailingCommaToken,
+						} = getCallExpressionTokens(sourceCode, jsonStringify);
 
-						if (isCommaToken(penultimateToken)) {
-							yield fixer.remove(penultimateToken);
-						}
-
+						yield fixer.remove(openingParenthesisToken);
 						yield fixer.remove(closingParenthesisToken);
+						if (trailingCommaToken) {
+							yield fixer.remove(trailingCommaToken);
+						}
 					},
 				},
 			],

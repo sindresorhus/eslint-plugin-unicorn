@@ -1,6 +1,9 @@
 'use strict';
-const {hasSideEffect, isCommaToken, isSemicolonToken} = require('@eslint-community/eslint-utils');
-const getCallExpressionArgumentsText = require('./utils/get-call-expression-arguments-text.js');
+const {hasSideEffect, isSemicolonToken} = require('@eslint-community/eslint-utils');
+const {
+	getCallExpressionTokens,
+	getCallExpressionArgumentsText,
+} = require('./utils/index.js');
 const isSameReference = require('./utils/is-same-reference.js');
 const {isNodeMatches} = require('./utils/is-node-matches.js');
 const getPreviousNode = require('./utils/get-previous-node.js');
@@ -78,13 +81,17 @@ function create(context) {
 
 			const fix = function * (fixer) {
 				if (secondCallArguments.length > 0) {
-					const text = getCallExpressionArgumentsText(secondCall, sourceCode);
+					const text = getCallExpressionArgumentsText(sourceCode, secondCall);
 
-					const [penultimateToken, lastToken] = sourceCode.getLastTokens(firstCall, 2);
+					const {
+						trailingCommaToken,
+						closingParenthesisToken,
+					} = getCallExpressionTokens(sourceCode, firstCall);
+
 					yield (
-						isCommaToken(penultimateToken)
-							? fixer.insertTextAfter(penultimateToken, ` ${text}`)
-							: fixer.insertTextBefore(lastToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
+						trailingCommaToken
+							? fixer.insertTextAfter(trailingCommaToken, ` ${text}`)
+							: fixer.insertTextBefore(closingParenthesisToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
 					);
 				}
 
