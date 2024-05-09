@@ -14,7 +14,7 @@ jobs:
       - run: |
           npm install --legacy-peer-deps
           npm link
-          npm link eslint-plugin-unicorn
+          npm link eslint-plugin-unicorn --legacy-peer-deps
       - uses: AriPerkkio/eslint-remote-tester-run-action@v4
         with:
           issue-title: "Results of weekly scheduled smoke test"
