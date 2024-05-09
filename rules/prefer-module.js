@@ -1,7 +1,7 @@
 'use strict';
-const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const assertToken = require('./utils/assert-token.js');
+const {getCallExpressionTokens} = require('./utils/index.js');
 const {isStaticRequire, isReferenceIdentifier, isFunction} = require('./ast/index.js');
 const {
 	removeParentheses,
@@ -77,12 +77,12 @@ function fixRequireCall(node, sourceCode) {
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
 		return function * (fixer) {
 			yield fixer.replaceText(callee, 'import');
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken,
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
@@ -137,12 +137,12 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(equalToken, ' from ');
 
 			yield fixer.remove(callee);
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.remove(openingParenthesisToken);
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {

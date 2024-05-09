@@ -18,6 +18,8 @@ module.exports = {
 	avoidCapture: require('./avoid-capture.js'),
 	escapeString: require('./escape-string.js'),
 	getBooleanAncestor,
+	getCallExpressionArgumentsText: require('./get-call-expression-arguments-text.js'),
+	getCallExpressionTokens: require('./get-call-expression-tokens.js'),
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
