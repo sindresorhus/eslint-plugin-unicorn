@@ -28,31 +28,6 @@ const isArray = (node, context) => {
 	return Array.isArray(staticValueResult?.value);
 };
 
-function getMatchedConditionalExpressionInformation({
-	conditionalExpression,
-	oneSidePredicate,
-	anotherSidePredicate,
-	context,
-}) {
-	const {
-		consequent,
-		alternate,
-	} = conditionalExpression;
-
-	if (oneSidePredicate(alternate, context) && anotherSidePredicate(consequent, context)) {
-		return {
-			problemNode: alternate,
-			anotherNodePosition: 'consequent',
-		};
-	}
-
-	if (oneSidePredicate(consequent, context) && anotherSidePredicate(alternate, context)) {
-		return {
-			problemNode: consequent,
-			anotherNodePosition: 'alternate',
-		};
-	}
-}
 
 const cases = [
 	{
@@ -71,9 +46,58 @@ const cases = [
 	},
 ];
 
+function createProblem({
+	problemNode,
+	anotherNodePosition,
+	problemNodeDescription,
+	replacementDescription,
+	replacementCode,
+}) {
+	return {
+		node: problemNode,
+		messageId: MESSAGE_ID,
+		data: {
+			replacementDescription,
+			anotherNodePosition,
+			problemNodeDescription,
+		},
+		fix: fixer => fixer.replaceText(problemNode, replacementCode),
+	};
+}
+
+function getProblem(conditionalExpression, context) {
+	const {
+		consequent,
+		alternate,
+	} = conditionalExpression;
+
+	for (const problemCase of cases) {
+		const {
+			oneSidePredicate,
+			anotherSidePredicate,
+		} = problemCase;
+
+
+		if (oneSidePredicate(consequent, context) && anotherSidePredicate(alternate, context)) {
+			return createProblem({
+				...problemCase,
+				problemNode: consequent,
+				anotherNodePosition: 'alternate',
+			});
+		}
+
+		if (oneSidePredicate(alternate, context) && anotherSidePredicate(consequent, context)) {
+			return createProblem({
+				...problemCase,
+				problemNode: alternate,
+				anotherNodePosition: 'consequent',
+			});
+		}
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-
 	return {
 		* ArrayExpression(arrayExpression) {
 			for (const element of arrayExpression.elements) {
@@ -86,42 +110,7 @@ const create = context => {
 
 				const conditionalExpression = element.argument;
 
-				for (const {
-					oneSidePredicate,
-					anotherSidePredicate,
-					problemNodeDescription,
-					replacementDescription,
-					replacementCode,
-				} of cases) {
-					const information = getMatchedConditionalExpressionInformation({
-						conditionalExpression,
-						oneSidePredicate,
-						anotherSidePredicate,
-						context,
-					});
-
-					if (!information) {
-						continue;
-					}
-
-					const {
-						problemNode,
-						anotherNodePosition,
-					} = information;
-
-					yield {
-						node: problemNode,
-						messageId: MESSAGE_ID,
-						data: {
-							replacementDescription,
-							anotherNodePosition,
-							problemNodeDescription,
-						},
-						fix: fixer => fixer.replaceText(problemNode, replacementCode),
-					};
-
-					break;
-				}
+				yield getProblem(conditionalExpression, context);
 			}
 		},
 	};
