@@ -8,7 +8,7 @@ const {
 	isCallExpression,
 	isTaggedTemplateLiteral,
 } = require('./ast/index.js');
-const {isNodeMatches} = require('./utils/index.js')
+const {isNodeMatches} = require('./utils/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {

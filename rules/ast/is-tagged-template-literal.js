@@ -1,6 +1,6 @@
 'use strict';
 
-const {isNodeMatches} = require('../utils/is-node-matches.js')
+const {isNodeMatches} = require('../utils/is-node-matches.js');
 
 /**
 Check if node is tagged template literal.
@@ -15,7 +15,7 @@ function isTaggedTemplateLiteral(node, tags) {
 		|| node.parent.type !== 'TaggedTemplateExpression'
 		|| node.parent.quasi !== node
 	) {
-		return false
+		return false;
 	}
 
 	if (tags) {

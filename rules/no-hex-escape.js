@@ -35,7 +35,7 @@ const create = context => ({
 	},
 	TemplateElement(node) {
 		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
-			return
+			return;
 		}
 
 		return checkEscape(context, node, node.value.raw);
