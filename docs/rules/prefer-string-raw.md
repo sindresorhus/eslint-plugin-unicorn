@@ -7,16 +7,24 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+[String.raw](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw) can be used to avoid escaping `\\`.
 
 ## Fail
 
 ```js
-const foo = 'unicorn';
+const file = "C:\\windows\\style\\path\\to\\file.js";
+```
+
+```js
+const regexp = new RegExp('foo\\.bar');
 ```
 
 ## Pass
 
 ```js
-const foo = '🦄';
+const file = String.raw`C:\windows\style\path\to\file.js`;
+```
+
+```js
+const regexp = new RegExp(String.raw`foo\.bar`);
 ```
