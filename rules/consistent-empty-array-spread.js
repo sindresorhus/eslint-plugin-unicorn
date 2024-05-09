@@ -1,7 +1,7 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
 
-const MESSAGE_ID= 'consistent-empty-array-spread';
+const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using empty {{replacementDescription}} since the {{anotherNodePosition}} is {{problemNodeDescription}}.',
 };
@@ -28,21 +28,20 @@ const isArray = (node, context) => {
 	return Array.isArray(staticValueResult?.value);
 };
 
-
 const cases = [
 	{
 		oneSidePredicate: isEmptyStringLiteral,
 		anotherSidePredicate: isArray,
 		problemNodeDescription: 'a string',
 		replacementDescription: 'array',
-		replacementCode: "[]",
+		replacementCode: '[]',
 	},
 	{
 		oneSidePredicate: isEmptyArrayExpression,
 		anotherSidePredicate: isString,
 		problemNodeDescription: 'an array',
 		replacementDescription: 'string',
-		replacementCode: "''",
+		replacementCode: '\'\'',
 	},
 ];
 
@@ -77,7 +76,6 @@ function getProblem(conditionalExpression, context) {
 			anotherSidePredicate,
 		} = problemCase;
 
-
 		if (oneSidePredicate(consequent, context) && anotherSidePredicate(alternate, context)) {
 			return createProblem({
 				...problemCase,
@@ -97,24 +95,22 @@ function getProblem(conditionalExpression, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		* ArrayExpression(arrayExpression) {
-			for (const element of arrayExpression.elements) {
-				if (
-					element?.type !== 'SpreadElement'
+const create = context => ({
+	* ArrayExpression(arrayExpression) {
+		for (const element of arrayExpression.elements) {
+			if (
+				element?.type !== 'SpreadElement'
 					|| element.argument.type !== 'ConditionalExpression'
-				) {
-					continue;
-				}
-
-				const conditionalExpression = element.argument;
-
-				yield getProblem(conditionalExpression, context);
+			) {
+				continue;
 			}
-		},
-	};
-};
+
+			const conditionalExpression = element.argument;
+
+			yield getProblem(conditionalExpression, context);
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
