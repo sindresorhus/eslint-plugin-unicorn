@@ -124,7 +124,9 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
+			"unicorn/escape-case": "off",
 			"unicorn/expiring-todo-comments": "off",
+			"unicorn/no-hex-escape": "off",
 			"unicorn/no-null": "error",
 			"unicorn/prefer-array-flat": [
 				"error",

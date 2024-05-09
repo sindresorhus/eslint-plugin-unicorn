@@ -25,6 +25,7 @@ module.exports = {
 	isArrowFunctionBody: require('./is-arrow-function-body.js'),
 	isCallExpression,
 	isCallOrNewExpression,
+	isDirective: require('./is-directive.js'),
 	isEmptyNode: require('./is-empty-node.js'),
 	isExpressionStatement: require('./is-expression-statement.js'),
 	isFunction: require('./is-function.js'),

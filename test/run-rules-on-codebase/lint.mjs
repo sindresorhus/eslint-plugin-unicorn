@@ -29,6 +29,9 @@ const configs = [
 			unicorn: eslintPluginUnicorn,
 		},
 		rules: eslintPluginUnicorn.configs.all.rules,
+		linterOptions: {
+			reportUnusedDisableDirectives: false,
+		},
 	},
 	{
 		ignores: [
@@ -44,6 +47,9 @@ const configs = [
 		rules: {
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1109#issuecomment-782689255
 			'unicorn/consistent-destructuring': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
+			'unicorn/escape-case': 'off',
+			'unicorn/no-hex-escape': 'off',
 			// Buggy
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
