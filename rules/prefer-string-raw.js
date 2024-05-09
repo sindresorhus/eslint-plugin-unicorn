@@ -53,7 +53,8 @@ const create = context => {
 
 		const {raw} = node;
 		if (
-			!raw.includes(BACKSLASH + BACKSLASH)
+			raw.endsWith(BACKSLASH)
+			|| !raw.includes(BACKSLASH + BACKSLASH)
 			|| raw.includes('`')
 			|| raw.includes('${')
 			|| node.loc.start.line !== node.loc.end.line
@@ -62,7 +63,7 @@ const create = context => {
 		}
 
 		const unescaped = unescapeBackslash(raw);
-		if (unescaped.endsWith(BACKSLASH) || unescaped !== node.value) {
+		if (unescaped !== node.value) {
 			return;
 		}
 
