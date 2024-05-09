@@ -432,15 +432,15 @@ test({
 		},
 		{
 			options: [{
-				functions: ['customDedentFunction'],
+				functions: ['customDedentFunction1', 'utils.customDedentFunction2'],
 			}],
 			code: fixInput(`
-				foo = customDedentFunction(\`
+				foo = customDedentFunction1(\`
 				••••••••one
 				••••••••two
 				••••••••••three
 				••••••••\`)
-				foo = customDedentFunction('some-other-arg', \`
+				foo = utils.customDedentFunction2('some-other-arg', \`
 				••••••••one
 				••••••••two
 				••••••••••three
@@ -448,12 +448,12 @@ test({
 			`),
 			errors: [...errors, ...errors],
 			output: fixInput(`
-				foo = customDedentFunction(\`
+				foo = customDedentFunction1(\`
 				••one
 				••two
 				••••three
 				\`)
-				foo = customDedentFunction('some-other-arg', \`
+				foo = utils.customDedentFunction2('some-other-arg', \`
 				••one
 				••two
 				••••three

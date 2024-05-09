@@ -8,6 +8,7 @@ const {
 	isCallExpression,
 	isTaggedTemplateLiteral,
 } = require('./ast/index.js');
+const {isNodeMatches} = require('./utils/index.js')
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -127,8 +128,7 @@ const create = context => {
 			options.functions.length > 0
 			&& node.parent.type === 'CallExpression'
 			&& node.parent.arguments.includes(node)
-			&& node.parent.callee.type === 'Identifier'
-			&& options.functions.includes(node.parent.callee.name)
+			&& isNodeMatches(node.parent.callee, options.functions)
 		) {
 			return true;
 		}
