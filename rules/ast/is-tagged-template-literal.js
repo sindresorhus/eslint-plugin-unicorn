@@ -3,7 +3,7 @@
 const {isNodeMatches} = require('../utils/is-node-matches.js');
 
 /**
-Check if node is tagged template literal.
+Check if the given node is a tagged template literal.
 
 @param {Node} node - The AST node to check.
 @param {string[]} tags - The object name or key paths.
