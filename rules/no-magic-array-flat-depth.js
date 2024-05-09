@@ -1,6 +1,6 @@
 'use strict';
 const {isMethodCall, isNumberLiteral} = require('./ast/index.js');
-const {getCallExpressionTokens} = require('./ast/index.js');
+const {getCallExpressionTokens} = require('./utils/index.js');
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
 const messages = {
