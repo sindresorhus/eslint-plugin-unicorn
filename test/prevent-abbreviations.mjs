@@ -1921,7 +1921,7 @@ test({
 						/^e_/,
 						// eslint-disable-next-line prefer-regex-literals
 						new RegExp('_e$', 'i'),
-						'\\.e2e\\.',
+						String.raw`\.e2e\.`,
 					],
 				},
 			],

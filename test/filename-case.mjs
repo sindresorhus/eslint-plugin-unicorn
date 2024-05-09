@@ -102,52 +102,52 @@ test({
 		testCase('src/foo/[fooBar].js', 'camelCase'),
 		testCase('src/foo/{foo_bar}.js', 'snakeCase'),
 		testCaseWithOptions(undefined, undefined, [
-			{case: 'kebabCase', ignore: ['FOOBAR\\.js']},
+			{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions(undefined, undefined, [
 			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/index.js', undefined, [
-			{case: 'kebabCase', ignore: ['FOOBAR\\.js']},
+			{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions('src/foo/index.js', undefined, [
 			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
-			{case: 'kebabCase', ignore: ['FOOBAR\\.js']},
+			{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'kebabCase', ignore: [/FOOBAR\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
-			{case: 'camelCase', ignore: ['FOOBAR\\.js']},
+			{case: 'camelCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'camelCase', ignore: [/FOOBAR\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
-			{case: 'snakeCase', ignore: ['FOOBAR\\.js']},
+			{case: 'snakeCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
-			{case: 'pascalCase', ignore: ['FOOBAR\\.js']},
+			{case: 'pascalCase', ignore: [String.raw`FOOBAR\.js`]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'pascalCase', ignore: [/FOOBAR\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
-			{case: 'kebabCase', ignore: ['FOOBAR\\.js', 'BARBAZ\\.js']},
+			{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`, String.raw`BARBAZ\.js`]},
 		]),
 		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
-			{case: 'kebabCase', ignore: ['FOOBAR\\.js', /BARBAZ\.js/u]},
+			{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`, /BARBAZ\.js/u]},
 		]),
 		testCaseWithOptions('src/foo/[FOOBAR].js', undefined, [
-			{case: 'camelCase', ignore: ['\\[FOOBAR\\]\\.js']},
+			{case: 'camelCase', ignore: [String.raw`\[FOOBAR\]\.js`]},
 		]),
 		testCaseWithOptions('src/foo/[FOOBAR].js', undefined, [
 			{case: 'camelCase', ignore: [/\[FOOBAR]\.js/]},
 		]),
 		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
-			{case: 'snakeCase', ignore: ['\\{FOOBAR\\}\\.js']},
+			{case: 'snakeCase', ignore: [String.raw`\{FOOBAR\}\.js`]},
 		]),
 		testCaseWithOptions('src/foo/{FOOBAR}.js', undefined, [
 			{case: 'snakeCase', ignore: [/{FOOBAR}\.js/]},
@@ -171,16 +171,16 @@ test({
 			{case: 'kebabCase', ignore: [/foo/iu]},
 		]),
 		testCaseWithOptions('src/foo/foo-bar.js', undefined, [
-			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']},
+			{case: 'kebabCase', ignore: [String.raw`\.(web|android|ios)\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/FooBar.web.js', undefined, [
-			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']},
+			{case: 'kebabCase', ignore: [String.raw`\.(web|android|ios)\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/FooBar.android.js', undefined, [
-			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']},
+			{case: 'kebabCase', ignore: [String.raw`\.(web|android|ios)\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/FooBar.ios.js', undefined, [
-			{case: 'kebabCase', ignore: ['\\.(web|android|ios)\\.js$']},
+			{case: 'kebabCase', ignore: [String.raw`\.(web|android|ios)\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/FooBar.something.js', undefined, [
 			{case: 'kebabCase', ignore: [/\.(?:web|android|ios|something)\.js$/u]},
@@ -192,13 +192,13 @@ test({
 			{case: 'kebabCase', ignore: [/^[Ff]oo/u]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
-			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']},
+			{case: 'kebabCase', ignore: ['^FOO', String.raw`BAZ\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
 			{case: 'kebabCase', ignore: [/^FOO/, /BAZ\.js$/u]},
 		]),
 		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
-			{case: 'kebabCase', ignore: ['^FOO', 'BAZ\\.js$']},
+			{case: 'kebabCase', ignore: ['^FOO', String.raw`BAZ\.js$`]},
 		]),
 		testCaseWithOptions('src/foo/BARBAZ.js', undefined, [
 			{case: 'kebabCase', ignore: [/^FOO/, /BAZ\.js$/]},
@@ -211,7 +211,7 @@ test({
 					snakeCase: true,
 					pascalCase: true,
 				},
-				ignore: ['FOOBAR\\.js'],
+				ignore: [String.raw`FOOBAR\.js`],
 			},
 		]),
 		testCaseWithOptions('src/foo/FOOBAR.js', undefined, [
@@ -233,7 +233,7 @@ test({
 					snakeCase: true,
 					pascalCase: true,
 				},
-				ignore: ['FOOBAR\\.js', 'BaRbAz\\.js'],
+				ignore: [String.raw`FOOBAR\.js`, String.raw`BaRbAz\.js`],
 			},
 		]),
 		testCaseWithOptions('src/foo/BaRbAz.js', undefined, [
@@ -439,12 +439,12 @@ test({
 		testCaseWithOptions(
 			'src/foo/barBaz.js',
 			'Filename is not in kebab case. Rename it to `bar-baz.js`.',
-			[{case: 'kebabCase', ignore: ['FOOBAR\\.js']}],
+			[{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`]}],
 		),
 		testCaseWithOptions(
 			'src/foo/barBaz.js',
 			'Filename is not in kebab case. Rename it to `bar-baz.js`.',
-			[{case: 'kebabCase', ignore: ['/FOOBAR\\.js/']}],
+			[{case: 'kebabCase', ignore: [String.raw`/FOOBAR\.js/`]}],
 		),
 		testCaseWithOptions(
 			'src/foo/barBaz.js',
@@ -454,7 +454,7 @@ test({
 		testCaseWithOptions(
 			'src/foo/fooBar.js',
 			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
-			[{case: 'kebabCase', ignore: ['FOOBAR\\.js']}],
+			[{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`]}],
 		),
 		testCaseWithOptions(
 			'src/foo/fooBar.js',
@@ -464,7 +464,7 @@ test({
 		testCaseWithOptions(
 			'src/foo/fooBar.js',
 			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
-			[{case: 'kebabCase', ignore: ['FOOBAR\\.js', 'foobar\\.js']}],
+			[{case: 'kebabCase', ignore: [String.raw`FOOBAR\.js`, String.raw`foobar\.js`]}],
 		),
 		testCaseWithOptions(
 			'src/foo/fooBar.js',
@@ -480,7 +480,7 @@ test({
 						camelCase: true,
 						snakeCase: true,
 					},
-					ignore: ['FOOBAR\\.js'],
+					ignore: [String.raw`FOOBAR\.js`],
 				},
 			],
 		),
@@ -506,7 +506,7 @@ test({
 						camelCase: true,
 						snakeCase: true,
 					},
-					ignore: ['BaRbAz\\.js'],
+					ignore: [String.raw`BaRbAz\.js`],
 				},
 			],
 		),
