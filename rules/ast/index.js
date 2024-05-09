@@ -34,6 +34,7 @@ module.exports = {
 	isNewExpression,
 	isReferenceIdentifier: require('./is-reference-identifier.js'),
 	isStaticRequire: require('./is-static-require.js'),
+	isTaggedTemplateLiteral: require('./is-tagged-template-literal.js'),
 	isUndefined: require('./is-undefined.js'),
 
 	functionTypes: require('./function-types.js'),
