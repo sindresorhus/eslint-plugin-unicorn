@@ -24,7 +24,7 @@ const isArray = (node, context) => {
 		return true;
 	}
 
-	const staticValueResult = getStaticValue(baseNode, context.sourceCode.getScope(node));
+	const staticValueResult = getStaticValue(node, context.sourceCode.getScope(node));
 	return Array.isArray(staticValueResult?.value);
 };
 
@@ -56,19 +56,19 @@ function getMatchedConditionalExpressionInformation({
 
 const cases = [
 	{
+		oneSidePredicate: isEmptyStringLiteral,
+		anotherSidePredicate: isArray,
+		problemNodeDescription: 'a string',
+		replacementDescription: 'array',
+		replacementCode: "[]",
+	},
+	{
 		oneSidePredicate: isEmptyArrayExpression,
 		anotherSidePredicate: isString,
 		problemNodeDescription: 'an array',
 		replacementDescription: 'string',
 		replacementCode: "''",
 	},
-	{
-		oneSidePredicate: isEmptyStringLiteral,
-		anotherSidePredicate: isArray,
-		problemNodeDescription: 'a string',
-		replacementDescription: 'array',
-		replacementCode: "[]",
-	}
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
