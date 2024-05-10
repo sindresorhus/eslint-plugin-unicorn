@@ -2,7 +2,7 @@ name: Rule change
 description: As rule could be improved or extended?
 title: "`rule-name` should do xyz"
 labels:
-  - enhacement
+  - change request
   - evaluating
 body:
   - type: markdown
