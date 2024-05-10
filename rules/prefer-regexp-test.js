@@ -148,6 +148,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

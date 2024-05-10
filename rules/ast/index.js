@@ -25,6 +25,7 @@ module.exports = {
 	isArrowFunctionBody: require('./is-arrow-function-body.js'),
 	isCallExpression,
 	isCallOrNewExpression,
+	isDirective: require('./is-directive.js'),
 	isEmptyNode: require('./is-empty-node.js'),
 	isExpressionStatement: require('./is-expression-statement.js'),
 	isFunction: require('./is-function.js'),
@@ -33,6 +34,7 @@ module.exports = {
 	isNewExpression,
 	isReferenceIdentifier: require('./is-reference-identifier.js'),
 	isStaticRequire: require('./is-static-require.js'),
+	isTaggedTemplateLiteral: require('./is-tagged-template-literal.js'),
 	isUndefined: require('./is-undefined.js'),
 
 	functionTypes: require('./function-types.js'),

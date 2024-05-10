@@ -23,13 +23,13 @@ const additionalPolyfillPatterns = {
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
-const delimiter = '(\\.|-|\\.prototype\\.|/)?';
+const delimiter = String.raw`(\.|-|\.prototype\.|/)?`;
 
 const polyfills = Object.keys(compatData).map(feature => {
 	let [ecmaVersion, constructorName, methodName = ''] = feature.split('.');
 
 	if (ecmaVersion === 'es') {
-		ecmaVersion = '(es\\d*)';
+		ecmaVersion = String.raw`(es\d*)`;
 	}
 
 	constructorName = `(${constructorName}|${camelCase(constructorName)})`;
@@ -169,6 +169,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of built-in methods instead of unnecessary polyfills.',
+			recommended: true,
 		},
 		schema,
 		messages,

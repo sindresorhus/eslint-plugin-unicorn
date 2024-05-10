@@ -56,6 +56,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the separator argument with `Array#join()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

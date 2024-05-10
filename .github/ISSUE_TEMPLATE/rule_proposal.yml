@@ -49,6 +49,12 @@ body:
           return 'me';
         }
         ```
+  - type: input
+    validations:
+      required: true
+    attributes:
+      label: Proposed rule name
+      placeholder: no-invalid-rule-name
   - type: textarea
     attributes:
       label: Additional Info

@@ -91,6 +91,17 @@ const create = context => ({
 			return;
 		}
 
+		const method = callExpression.callee.property.name;
+		// Playwright's `Locator#getAttribute()` returns a promise.
+		// https://playwright.dev/docs/api/class-locator#locator-get-attribute
+		if (
+			callExpression.parent.type === 'AwaitExpression'
+			&& callExpression.parent.argument === callExpression
+			&& method === 'getAttribute'
+		) {
+			return;
+		}
+
 		const attributeName = callExpression.arguments[0].value.toLowerCase();
 
 		if (!attributeName.startsWith('data-')) {
@@ -113,6 +124,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

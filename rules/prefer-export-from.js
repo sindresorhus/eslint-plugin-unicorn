@@ -126,9 +126,7 @@ function getFixFunction({
 		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
 	}
 
-	if (!exportDeclaration) {
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
-	}
+	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -404,6 +402,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `export…from` when re-exporting.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

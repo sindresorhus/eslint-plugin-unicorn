@@ -1,6 +1,10 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isRegexLiteral, isStringLiteral} = require('./ast/index.js');
+const {
+	isRegexLiteral,
+	isStringLiteral,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'escape-case';
 const messages = {
@@ -42,11 +46,17 @@ const create = context => {
 		}
 	});
 
-	context.on('TemplateElement', node => getProblem({
-		node,
-		original: node.value.raw,
-		fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
-	}));
+	context.on('TemplateElement', node => {
+		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+			return;
+		}
+
+		return getProblem({
+			node,
+			original: node.value.raw,
+			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+		});
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -56,6 +66,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require escape sequences to use uppercase values.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

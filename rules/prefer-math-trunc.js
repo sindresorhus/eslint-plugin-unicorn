@@ -101,6 +101,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

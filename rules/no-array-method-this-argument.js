@@ -184,12 +184,12 @@ const create = context => {
 		});
 	});
 
-	// `Array.from()`
+	// `Array.from()` and `Array.fromAsync()`
 	context.on('CallExpression', callExpression => {
 		if (
 			!isMethodCall(callExpression, {
 				object: 'Array',
-				method: 'from',
+				methods: ['from', 'fromAsync'],
 				argumentsLength: 3,
 				optionalCall: false,
 				optionalMember: false,
@@ -216,6 +216,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using the `this` argument in array methods.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

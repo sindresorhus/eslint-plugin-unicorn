@@ -96,15 +96,15 @@ test({
 		},
 		{
 			code: '// TODO ISSUE-123 fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
+			options: [{allowWarningComments: false, ignore: [String.raw`ISSUE-\d+`]}],
 		},
 		{
 			code: '// TODO [ISSUE-123] fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
+			options: [{allowWarningComments: false, ignore: [String.raw`ISSUE-\d+`]}],
 		},
 		{
 			code: '// TODO [1999-01-01, ISSUE-123] fix later',
-			options: [{allowWarningComments: false, ignore: ['ISSUE-\\d+']}],
+			options: [{allowWarningComments: false, ignore: [String.raw`ISSUE-\d+`]}],
 		},
 		{
 			code: '// TODO [Issue-123] fix later',

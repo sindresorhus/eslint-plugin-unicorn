@@ -194,7 +194,12 @@ function create(context) {
 			}
 
 			if (node) {
-				return getProblem({node, isZeroLengthCheck, lengthNode, autoFix});
+				return getProblem({
+					node,
+					isZeroLengthCheck,
+					lengthNode,
+					autoFix,
+				});
 			}
 		},
 	};
@@ -220,6 +225,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce explicitly comparing the `length` or `size` property of a value.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

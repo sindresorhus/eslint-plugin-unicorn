@@ -173,6 +173,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the style of numeric separators by correctly grouping digits.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

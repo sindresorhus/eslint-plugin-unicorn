@@ -3,7 +3,12 @@ const stripIndent = require('strip-indent');
 const indentString = require('indent-string');
 const esquery = require('esquery');
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isMethodCall, isCallExpression} = require('./ast/index.js');
+const {
+	isMethodCall,
+	isCallExpression,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
+const {isNodeMatches} = require('./utils/index.js');
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -114,10 +119,7 @@ const create = context => {
 
 		if (
 			options.tags.length > 0
-			&& node.parent.type === 'TaggedTemplateExpression'
-			&& node.parent.quasi === node
-			&& node.parent.tag.type === 'Identifier'
-			&& options.tags.includes(node.parent.tag.name)
+			&& isTaggedTemplateLiteral(node, options.tags)
 		) {
 			return true;
 		}
@@ -126,8 +128,7 @@ const create = context => {
 			options.functions.length > 0
 			&& node.parent.type === 'CallExpression'
 			&& node.parent.arguments.includes(node)
-			&& node.parent.callee.type === 'Identifier'
-			&& options.functions.includes(node.parent.callee.name)
+			&& isNodeMatches(node.parent.callee, options.functions)
 		) {
 			return true;
 		}
@@ -211,6 +212,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Fix whitespace-insensitive template indentation.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

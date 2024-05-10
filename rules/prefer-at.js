@@ -365,6 +365,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

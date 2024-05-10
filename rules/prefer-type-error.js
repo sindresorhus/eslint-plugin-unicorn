@@ -144,6 +144,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce throwing `TypeError` in type checking conditions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

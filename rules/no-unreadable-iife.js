@@ -38,6 +38,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable IIFEs.',
+			recommended: true,
 		},
 		hasSuggestions: false,
 		messages,

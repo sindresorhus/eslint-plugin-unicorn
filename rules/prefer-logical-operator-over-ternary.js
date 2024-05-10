@@ -151,6 +151,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using a logical operator over a ternary.',
+			recommended: true,
 		},
 
 		hasSuggestions: true,

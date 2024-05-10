@@ -187,6 +187,8 @@ test.snapshot({
 		// First Argument is not startsWith `data-`
 		'element.getAttribute("foo-unicorn");',
 		'element.getAttribute("data");',
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2307
+		'await page.locator("text=Hello").getAttribute("data-foo")',
 	],
 	invalid: [
 		outdent`

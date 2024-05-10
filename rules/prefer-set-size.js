@@ -96,6 +96,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Set#size` instead of `Array#length`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

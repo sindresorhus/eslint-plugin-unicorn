@@ -3,8 +3,6 @@ const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js'
 const {loadRules} = require('./rules/utils/rule.js');
 const legacyConfigBase = require('./configs/legacy-config-base.js');
 const flatConfigBase = require('./configs/flat-config-base.js');
-const recommendedRules = require('./configs/recommended.js');
-const allRules = require('./configs/all.js');
 const {name, version} = require('./package.json');
 
 const deprecatedRules = createDeprecatedRules({
@@ -28,10 +26,31 @@ const deprecatedRules = createDeprecatedRules({
 	'regex-shorthand': 'unicorn/better-regex',
 });
 
+const externalRules = {
+	// Covered by `unicorn/no-negated-condition`
+	'no-negated-condition': 'off',
+	// Covered by `unicorn/no-nested-ternary`
+	'no-nested-ternary': 'off',
+};
+
+const rules = loadRules();
+const recommendedRules = Object.fromEntries(
+	Object.entries(rules).map(([id, rule]) => [
+		`unicorn/${id}`,
+		rule.meta.docs.recommended ? 'error' : 'off',
+	]),
+);
+const allRules = Object.fromEntries(
+	Object.keys(rules).map(id => [
+		`unicorn/${id}`,
+		'error',
+	]),
+);
+
 const createConfig = (rules, isLegacyConfig = false) => ({
 	...(isLegacyConfig ? legacyConfigBase : flatConfigBase),
 	plugins: isLegacyConfig ? ['unicorn'] : {unicorn},
-	rules,
+	rules: {...externalRules, ...rules},
 });
 
 const unicorn = {
@@ -40,7 +59,7 @@ const unicorn = {
 		version,
 	},
 	rules: {
-		...loadRules(),
+		...rules,
 		...deprecatedRules,
 	},
 };

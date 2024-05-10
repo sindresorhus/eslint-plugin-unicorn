@@ -1,12 +1,11 @@
 'use strict';
-const {isEmptyNode} = require('./ast/index.js');
+const {isEmptyNode, isDirective} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
-const isDirective = node => node.type === 'ExpressionStatement' && typeof node.directive === 'string';
 const isEmpty = node => isEmptyNode(node, isDirective);
 
 const isTripleSlashDirective = node =>
@@ -78,6 +77,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow empty files.',
+			recommended: true,
 		},
 		schema,
 		messages,

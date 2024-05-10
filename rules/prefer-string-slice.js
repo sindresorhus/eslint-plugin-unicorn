@@ -162,7 +162,12 @@ const create = context => ({
 				}
 
 				const fixArguments = method === 'substr' ? fixSubstrArguments : fixSubstringArguments;
-				yield * fixArguments({node, fixer, context, abort});
+				yield * fixArguments({
+					node,
+					fixer,
+					context,
+					abort,
+				});
 			},
 		};
 	},
@@ -175,6 +180,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
