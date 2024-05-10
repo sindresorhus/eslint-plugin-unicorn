@@ -64,6 +64,6 @@ test.snapshot({
 			function foo() {
 				return[globalThis][0].Error('message');
 			}
-		`
+		`,
 	],
 });
