@@ -16,7 +16,7 @@ body:
       required: true
     attributes:
       label: Description
-      description: Explain here what change or improvement you'd like.
+      description: Explain the improvement you would like to see.
   - type: textarea
     validations:
       required: true
