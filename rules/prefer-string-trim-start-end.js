@@ -37,6 +37,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

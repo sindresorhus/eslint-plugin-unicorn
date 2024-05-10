@@ -83,22 +83,8 @@ test({
 			errors: errorsSubstr,
 		},
 		{
-			code: '"foo".substr(1)',
-			output: '"foo".slice(1)',
-			errors: errorsSubstr,
-		},
-		{
-			code: '"foo".substr(1, 2)',
-			output: '"foo".slice(1, 3)',
-			errors: errorsSubstr,
-		},
-		{
 			code: '"foo".substr(bar.length, Math.min(baz, 100))',
 			output: '"foo".slice(bar.length, bar.length + Math.min(baz, 100))',
-			errors: errorsSubstr,
-		},
-		{
-			code: '"foo".substr(1, length)',
 			errors: errorsSubstr,
 		},
 		{
@@ -266,11 +252,6 @@ test({
 		{
 			code: 'foo.substring(start)',
 			output: 'foo.slice(Math.max(0, start))',
-			errors: errorsSubstring,
-		},
-		{
-			code: '"foo".substring(1)',
-			output: '"foo".slice(1)',
 			errors: errorsSubstring,
 		},
 		{

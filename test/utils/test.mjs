@@ -4,11 +4,19 @@ import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
 import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.mjs';
-import defaultOptions from './default-options.mjs';
 import parsers from './parsers.mjs';
+import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.mjs';
 
-function normalizeTestCase(testCase) {
-	return typeof testCase === 'string' ? {code: testCase} : {...testCase};
+function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
+	if (typeof testCase === 'string') {
+		testCase = {code: testCase};
+	}
+
+	if (shouldNormalizeLanguageOptions && testCase.languageOptions) {
+		testCase = {...testCase, languageOptions: normalizeLanguageOptions(testCase.languageOptions)};
+	}
+
+	return testCase;
 }
 
 function normalizeInvalidTest(test, rule) {
@@ -33,25 +41,6 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
-function normalizeParser(options) {
-	let {
-		parser,
-		parserOptions,
-	} = options;
-
-	if (parser) {
-		if (parser.mergeParserOptions) {
-			parserOptions = parser.mergeParserOptions(parserOptions);
-		}
-
-		if (parser.name) {
-			parser = parser.name;
-		}
-	}
-
-	return {...options, parser, parserOptions};
-}
-
 // https://github.com/tc39/proposal-array-is-template-object
 const isTemplateObject = value => Array.isArray(value?.raw);
 // https://github.com/tc39/proposal-string-cooked
@@ -72,7 +61,7 @@ function only(...arguments_) {
 	only('code');
 	only({code: 'code'});
 	*/
-	return {...normalizeTestCase(arguments_[0]), only: true};
+	return {...normalizeTestCase(arguments_[0], /* shouldNormalizeLanguageOptions */ false), only: true};
 }
 
 class Tester {
@@ -82,64 +71,41 @@ class Tester {
 	}
 
 	runTest(tests) {
-		const {beforeAll, testerOptions = {}, valid, invalid} = tests;
-		const tester = new AvaRuleTester(test, {
-			...testerOptions,
-			parserOptions: {
-				...defaultOptions.parserOptions,
-				...testerOptions.parserOptions,
-			},
-			env: {
-				...defaultOptions.env,
-				...testerOptions.env,
-			},
-			globals: {
-				...defaultOptions.globals,
-				...testerOptions.globals,
-			},
-		});
+		const {ruleId, rule} = this;
 
-		if (beforeAll) {
-			beforeAll(tester);
-		}
+		let {testerOptions = {}, valid, invalid} = tests;
+
+		valid = valid.map(testCase => normalizeTestCase(testCase));
+		invalid = invalid.map(testCase => normalizeInvalidTest(normalizeTestCase(testCase), rule));
+
+		const testConfig = {
+			...testerOptions,
+			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
+		};
+
+		const tester = new AvaRuleTester(test, testConfig);
 
 		return tester.run(
-			this.ruleId,
-			this.rule,
-			{
-				valid,
-				invalid: invalid.map(test => normalizeInvalidTest(test, this.rule)),
-			},
+			ruleId,
+			rule,
+			{valid, invalid},
 		);
 	}
 
 	snapshot(tests) {
-		let {
-			testerOptions = {},
-			valid,
-			invalid,
-		} = tests;
+		let {testerOptions = {}, valid, invalid} = tests;
 
-		testerOptions = normalizeParser(testerOptions);
-		valid = valid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
-		invalid = invalid.map(testCase => normalizeParser(normalizeTestCase(testCase)));
+		valid = valid.map(testCase => normalizeTestCase(testCase));
+		invalid = invalid.map(testCase => normalizeTestCase(testCase));
 
-		const tester = new SnapshotRuleTester(test, {
+		const testConfig = {
 			...testerOptions,
-			parserOptions: {
-				...defaultOptions.parserOptions,
-				...testerOptions.parserOptions,
-			},
-			env: {
-				...defaultOptions.env,
-				...testerOptions.env,
-			},
-			globals: {
-				...defaultOptions.globals,
-				...testerOptions.globals,
-			},
-		});
-		return tester.run(this.ruleId, this.rule, {valid, invalid});
+			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
+		};
+
+		const tester = new SnapshotRuleTester(test, testConfig);
+		const {ruleId, rule} = this;
+		return tester.run(ruleId, rule, {valid, invalid});
 	}
 }
 
@@ -147,22 +113,22 @@ function getTester(importMeta) {
 	const filename = url.fileURLToPath(importMeta.url);
 	const ruleId = path.basename(filename, '.mjs');
 	const tester = new Tester(ruleId);
+
 	const runTest = Tester.prototype.runTest.bind(tester);
 	runTest.snapshot = Tester.prototype.snapshot.bind(tester);
 	runTest.only = only;
 
-	for (const [parserName, parserSettings] of Object.entries(parsers)) {
-		Reflect.defineProperty(runTest, parserName, {
+	for (const parser of Object.values(parsers)) {
+		Reflect.defineProperty(runTest, parser.name, {
 			value(tests) {
-				const testerOptions = tests.testerOptions || {};
-				const {parser, mergeParserOptions} = parserSettings;
-
 				return runTest({
 					...tests,
 					testerOptions: {
-						...testerOptions,
-						parser,
-						parserOptions: mergeParserOptions(testerOptions.parserOptions),
+						...tests.testerOptions,
+						languageOptions: {
+							...tests.testerOptions?.languageOptions,
+							parser,
+						},
 					},
 				});
 			},
@@ -177,13 +143,13 @@ function getTester(importMeta) {
 }
 
 const addComment = (testCase, comment) => {
-	testCase = normalizeTestCase(testCase);
+	testCase = normalizeTestCase(testCase, /* shouldNormalizeLanguageOptions */ false);
 	const {code, output} = testCase;
 	const fixedTest = {
 		...testCase,
 		code: `${code}\n/* ${comment} */`,
 	};
-	if (Object.prototype.hasOwnProperty.call(fixedTest, 'output') && typeof output === 'string') {
+	if (Object.hasOwn(fixedTest, 'output') && typeof output === 'string') {
 		fixedTest.output = `${output}\n/* ${comment} */`;
 	}
 

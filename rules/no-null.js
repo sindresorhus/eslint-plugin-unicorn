@@ -144,6 +144,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow the use of the `null` literal.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

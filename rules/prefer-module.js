@@ -1,7 +1,7 @@
 'use strict';
-const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
 const isShadowed = require('./utils/is-shadowed.js');
 const assertToken = require('./utils/assert-token.js');
+const {getCallExpressionTokens} = require('./utils/index.js');
 const {isStaticRequire, isReferenceIdentifier, isFunction} = require('./ast/index.js');
 const {
 	removeParentheses,
@@ -26,7 +26,7 @@ const messages = {
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
 	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
 	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
-	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__dirname` with `import.meta.filename`.',
+	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__filename` with `import.meta.filename`.',
 	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
@@ -77,12 +77,12 @@ function fixRequireCall(node, sourceCode) {
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
 		return function * (fixer) {
 			yield fixer.replaceText(callee, 'import');
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken,
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
@@ -137,12 +137,12 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(equalToken, ' from ');
 
 			yield fixer.remove(callee);
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken,
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.remove(openingParenthesisToken);
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
@@ -372,6 +372,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

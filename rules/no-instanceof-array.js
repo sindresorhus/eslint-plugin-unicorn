@@ -58,6 +58,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require `Array.isArray()` instead of `instanceof Array`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

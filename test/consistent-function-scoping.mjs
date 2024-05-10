@@ -15,9 +15,11 @@ const createError = (functionNameWithKind, loc) => ({
 
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},
@@ -473,12 +475,6 @@ test({
 			`,
 			errors: [createError('arrow function \'doBar\'')],
 		},
-		{
-			code: outdent`
-				const doFoo = () => bar => bar;
-			`,
-			errors: [createError('arrow function')],
-		},
 		// `this`
 		{
 			code: outdent`
@@ -600,37 +596,86 @@ test({
 		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
-			errors: [createError('function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 30})],
+			errors: [
+				createError('function \'bar\'', {
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 30,
+				}),
+			],
 		},
 		{
 			code: 'function foo() { async function bar() {} }',
-			errors: [createError('async function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 36})],
+			errors: [
+				createError('async function \'bar\'', {
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 36,
+				}),
+			],
 		},
 		{
 			code: 'function foo() { function* bar() {} }',
-			errors: [createError('generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 31})],
+			errors: [
+				createError('generator function \'bar\'', {
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 31,
+				}),
+			],
 		},
 		{
 			code: 'function foo() { async function* bar() {} }',
-			errors: [createError('async generator function \'bar\'', {line: 1, column: 18, endLine: 1, endColumn: 37})],
+			errors: [
+				createError('async generator function \'bar\'', {
+					line: 1,
+					column: 18,
+					endLine: 1,
+					endColumn: 37,
+				}),
+			],
 		},
 		{
 			code: 'function foo() { const bar = () => {} }',
-			errors: [createError('arrow function \'bar\'', {line: 1, column: 33, endLine: 1, endColumn: 35})],
+			errors: [
+				createError('arrow function \'bar\'', {
+					line: 1,
+					column: 33,
+					endLine: 1,
+					endColumn: 35,
+				}),
+			],
 		},
 		{
 			code: 'const doFoo = () => bar => bar;',
-			errors: [createError('arrow function', {line: 1, column: 25, endLine: 1, endColumn: 27})],
+			errors: [
+				createError('arrow function', {
+					line: 1,
+					column: 25,
+					endLine: 1,
+					endColumn: 27,
+				}),
+			],
 		},
 		{
 			code: 'function foo() { const bar = async () => {} }',
-			errors: [createError('async arrow function \'bar\'', {line: 1, column: 39, endLine: 1, endColumn: 41})],
+			errors: [
+				createError('async arrow function \'bar\'', {
+					line: 1,
+					column: 39,
+					endLine: 1,
+					endColumn: 41,
+				}),
+			],
 		},
 		// Actual message
 		{
-			code: 'function foo() { async function* bar() {} }',
+			code: 'function foo() { async function* baz() {} }',
 			errors: [{
-				message: 'Move async generator function \'bar\' to the outer scope.',
+				message: 'Move async generator function \'baz\' to the outer scope.',
 			}],
 		},
 		// React Hooks

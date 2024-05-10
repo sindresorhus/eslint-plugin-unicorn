@@ -19,6 +19,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Do not use `document.cookie` directly.',
+			recommended: true,
 		},
 		messages,
 	},

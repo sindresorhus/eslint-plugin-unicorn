@@ -96,6 +96,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `new Array()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

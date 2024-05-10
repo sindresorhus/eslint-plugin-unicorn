@@ -37,12 +37,12 @@ test({
 			'find(fn)',
 			// `callee.property` is not a `Identifier`
 			'foo["find"](fn)',
-			'foo["fi" + "nd"](fn)',
+			'foo["fi" + "nd"](fn) /* find */',
 			'foo[`find`](fn)',
 			// Computed
 			'foo[find](fn)',
 			// Not `.find`
-			'foo.notFind(fn)',
+			'foo.notFind(fn) /* find */',
 			// More or less argument(s)
 			'foo.find()',
 			'foo.find(fn, thisArgument, extraArgument)',
@@ -88,28 +88,28 @@ test({
 		}),
 		// Actual messages
 		{
-			code: 'if (foo.find(fn)) {}',
+			code: 'if (bar.find(fn)) {}',
 			errors: [
 				{
 					message: 'Prefer `.some(…)` over `.find(…)`.',
 					suggestions: [
 						{
 							desc: 'Replace `.find(…)` with `.some(…)`.',
-							output: 'if (foo.some(fn)) {}',
+							output: 'if (bar.some(fn)) {}',
 						},
 					],
 				},
 			],
 		},
 		{
-			code: 'if (foo.findLast(fn)) {}',
+			code: 'if (bar.findLast(fn)) {}',
 			errors: [
 				{
 					message: 'Prefer `.some(…)` over `.findLast(…)`.',
 					suggestions: [
 						{
 							desc: 'Replace `.findLast(…)` with `.some(…)`.',
-							output: 'if (foo.some(fn)) {}',
+							output: 'if (bar.some(fn)) {}',
 						},
 					],
 				},

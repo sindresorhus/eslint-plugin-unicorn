@@ -114,6 +114,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

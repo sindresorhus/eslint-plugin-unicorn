@@ -117,7 +117,13 @@ const defaultStyles = {
 	path: {
 		default: true,
 	},
+	'node:path': {
+		default: true,
+	},
 	util: {
+		named: true,
+	},
+	'node:util': {
 		named: true,
 	},
 };
@@ -357,6 +363,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
+			recommended: true,
 		},
 		schema,
 		messages,

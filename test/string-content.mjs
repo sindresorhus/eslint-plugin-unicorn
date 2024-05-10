@@ -37,8 +37,8 @@ const createSuggestionError = (match, suggest, output) => [
 				data: {
 					match,
 					suggest,
-					output,
 				},
+				output,
 			},
 		],
 	},
@@ -46,9 +46,11 @@ const createSuggestionError = (match, suggest, output) => [
 
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},
@@ -111,26 +113,26 @@ test({
 		// Escape single quote
 		{
 			code: 'const foo = \'quote\'',
-			output: 'const foo = \'\\\'"\'',
+			output: String.raw`const foo = '\'"'`,
 			options: [{patterns}],
 			errors: createError('quote', '\'"'),
 		},
 		{
-			code: 'const foo = \'\\\\quote\\\\\'',
-			output: 'const foo = \'\\\\\\\'"\\\\\'',
+			code: String.raw`const foo = '\\quote\\'`,
+			output: String.raw`const foo = '\\\'"\\'`,
 			options: [{patterns}],
 			errors: createError('quote', '\'"'),
 		},
 		// Escape double quote
 		{
 			code: 'const foo = "quote"',
-			output: 'const foo = "\'\\""',
+			output: String.raw`const foo = "'\""`,
 			options: [{patterns}],
 			errors: createError('quote', '\'"'),
 		},
 		{
-			code: 'const foo = "\\\\quote\\\\"',
-			output: 'const foo = "\\\\\'\\"\\\\"',
+			code: String.raw`const foo = "\\quote\\"`,
+			output: String.raw`const foo = "\\'\"\\"`,
 			options: [{patterns}],
 			errors: createError('quote', '\'"'),
 		},
@@ -181,7 +183,7 @@ test({
 			code: 'const foo = "foo.bar"',
 			output: 'const foo = "foo_bar"',
 			options: [{patterns: {'\\.': '_'}}], // <- escaped
-			errors: createError('\\.', '_'),
+			errors: createError(String.raw`\.`, '_'),
 		},
 
 		// Custom message
@@ -195,15 +197,15 @@ test({
 		// Should not crash on multiline string
 		// https://github.com/avajs/ava/blob/7f99aef61f3aed2389ca9407115ad4c9aecada92/test/assert.js#L1477
 		{
-			code: 'const foo = "no\\n"',
-			output: 'const foo = "yes\\n"',
+			code: String.raw`const foo = "no\n"`,
+			output: String.raw`const foo = "yes\n"`,
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},
 		// https://github.com/sindresorhus/execa/blob/df08cfb2d849adb31dc764ca3ab5f29e5b191d50/test/error.js#L20
 		{
-			code: 'const foo = "no\\r"',
-			output: 'const foo = "yes\\r"',
+			code: String.raw`const foo = "no\r"`,
+			output: String.raw`const foo = "yes\r"`,
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},

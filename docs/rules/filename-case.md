@@ -1,6 +1,6 @@
 # Enforce a case style for filenames
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -104,4 +104,50 @@ Don't forget that you must escape special characters that you don't want to be i
 		]
 	}
 ]
+```
+
+### multipleFileExtensions
+
+Type: `boolean`\
+Default: `true`
+
+Whether to treat additional, `.`-separated parts of a filename as parts of the extension rather than parts of the filename.
+
+Note that the parts of the filename treated as the extension will not have the filename case enforced.
+
+For example:
+
+```js
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "pascalCase"
+	}
+]
+
+// Results
+✅ FooBar.Test.js
+✅ FooBar.TestUtils.js
+✅ FooBar.testUtils.js
+✅ FooBar.test.js
+✅ FooBar.test-utils.js
+✅ FooBar.test_utils.js
+```
+
+```js
+"unicorn/filename-case": [
+	"error",
+	{
+		"case": "pascalCase",
+		"multipleFileExtensions": false
+	}
+]
+
+// Results
+✅ FooBar.Test.js
+✅ FooBar.TestUtils.js
+❌ FooBar.testUtils.js
+❌ FooBar.test.js
+❌ FooBar.test-utils.js
+❌ FooBar.test_utils.js
 ```

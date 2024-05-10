@@ -128,6 +128,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

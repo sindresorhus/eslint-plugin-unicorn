@@ -6,6 +6,7 @@ const {test} = getTester(import.meta);
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
+const ERROR_AT_ZERO = 'error-at-zero';
 const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
@@ -566,7 +567,7 @@ test({
 		'const foo = array.find(bar), first = foo[0];',
 		'const foo = array.filter(bar), first = notFoo[0];',
 		'const foo = array.filter(bar), first = foo[+0];',
-		'const foo = array.filter(bar); first = foo;',
+		'const foo2 = array.filter(bar); first = foo;',
 		'const foo = array.filter(bar), first = a[foo][0];',
 		'const foo = array.filter(bar), first = foo[-0];',
 		'const foo = array.filter(bar), first = foo[1-1];',
@@ -1030,7 +1031,7 @@ test({
 		'array.filter(foo).at(1)',
 		'array.filter(foo).at(+1)',
 		'const ONE = 1; array.filter(foo).at(-ONE)',
-		'const MINUS_ONE = 1; array.filter(foo).at(MINUS_ONE)',
+		'const MINUS_ONE = -1; array.filter(foo).at(MINUS_ONE)',
 		'const a = {b: 1}; array.filter(foo).at(-a.b)',
 		'const a = {b: -1}; array.filter(foo).at(a.b)',
 		'array.filter(foo).at(-2)',
@@ -1099,4 +1100,90 @@ test({
 			errors: [{messageId: ERROR_AT_MINUS_ONE}],
 		},
 	].map(test => ({...test, options: checkFromLastOptions})),
+});
+
+// `.at(0)`
+test({
+	valid: [
+		// Test `.at()`
+		// Not `CallExpression`
+		'array2.filter(foo).at',
+		// Not `MemberExpression`
+		'at(array.filter(foo), 0)',
+		// `callee.property` is not a `Identifier`
+		'array.filter(foo)["at"](0)',
+		// Computed
+		'array.filter(foo)[at](0)',
+		// Not `at`
+		'array.filter(foo).notAt(0)',
+		// More or less argument(s)
+		'array2.filter(foo).at()',
+		'array.filter(foo).at(0, extraArgument)',
+		'array.filter(foo).at(...[0])',
+
+		// Test `0`
+		'array.filter(foo).at(100)',
+		'array.filter(foo).at(+0)',
+		'const ZERO = 0; array.filter(foo).at(ZERO)',
+		'const a = {b: 0}; array.filter(foo).at(a.b)',
+		'array.filter(foo).at(0b0)',
+		'array.filter(foo).at("0")',
+
+		// Test `.filter()`
+		// Not `CallExpression`
+		'array.filter.at(0)',
+		// Not `MemberExpression`
+		'filter(foo).at(0)',
+		// `callee.property` is not a `Identifier`
+		'array["filter"](foo).at(0)',
+		// Computed
+		'array[filter](foo).at(0)',
+		// Not `filter`
+		'array.notFilter(foo).at(0)',
+		// More or less argument(s)
+		'array.filter().at(0)',
+		'array.filter(foo, thisArgument, extraArgument).at(0)',
+		'array.filter(...foo).at(0)',
+	],
+	invalid: [
+		{
+			code: 'array.filter(foo).at(0)',
+			output: 'array.find(foo)',
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+		{
+			code: 'array.filter(foo, thisArgument).at(0)',
+			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.at(
+						// comment 4
+						0
+						// comment 5
+					)
+					// comment 6
+					;
+			`,
+			output: outdent`
+				const item = array
+					// comment 1
+					.find(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 6
+					;
+			`,
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+	],
 });

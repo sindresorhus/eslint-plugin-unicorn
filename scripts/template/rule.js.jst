@@ -17,15 +17,14 @@ const messages = {
 };
 <% } %>
 
-const selector = [
-	'Literal',
-	'[value="unicorn"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
-		[selector](node) {
+		Literal(node) {
+			if (node.value !== 'unicorn') {
+				return;
+			}
+
 			return {
 				node,
 				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
@@ -63,6 +62,7 @@ module.exports = {
 		type: '<%= type %>',
 		docs: {
 			description: '<%= description %>',
+			recommended: true,
 		},
 		<% if (fixableType) { %>fixable: '<%= fixableType %>',<% } %>
 		<% if (hasSuggestions) { %>hasSuggestions: true,<% } %>

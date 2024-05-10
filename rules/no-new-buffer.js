@@ -90,6 +90,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -65,6 +65,7 @@ module.exports = {
 		type: 'layout',
 		docs: {
 			description: 'Enforce no spaces between braces.',
+			recommended: true,
 		},
 		fixable: 'whitespace',
 		messages,

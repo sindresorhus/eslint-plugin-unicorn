@@ -87,6 +87,26 @@ test({
 		},
 		{
 			options: [{
+				tags: ['utils.dedent'],
+			}],
+			code: fixInput(`
+				foo = utils.dedent\`
+				••••••••one
+				••••••••two
+				••••••••••three
+				••••••••\`
+			`),
+			errors,
+			output: fixInput(`
+				foo = utils.dedent\`
+				••one
+				••two
+				••••three
+				\`
+			`),
+		},
+		{
+			options: [{
 				tags: ['customIndentableTag'],
 				selectors: [':not(TaggedTemplateExpression) > TemplateLiteral'],
 			}],
@@ -412,15 +432,15 @@ test({
 		},
 		{
 			options: [{
-				functions: ['customDedentFunction'],
+				functions: ['customDedentFunction1', 'utils.customDedentFunction2'],
 			}],
 			code: fixInput(`
-				foo = customDedentFunction(\`
+				foo = customDedentFunction1(\`
 				••••••••one
 				••••••••two
 				••••••••••three
 				••••••••\`)
-				foo = customDedentFunction('some-other-arg', \`
+				foo = utils.customDedentFunction2('some-other-arg', \`
 				••••••••one
 				••••••••two
 				••••••••••three
@@ -428,12 +448,12 @@ test({
 			`),
 			errors: [...errors, ...errors],
 			output: fixInput(`
-				foo = customDedentFunction(\`
+				foo = customDedentFunction1(\`
 				••one
 				••two
 				••••three
 				\`)
-				foo = customDedentFunction('some-other-arg', \`
+				foo = utils.customDedentFunction2('some-other-arg', \`
 				••one
 				••two
 				••••three

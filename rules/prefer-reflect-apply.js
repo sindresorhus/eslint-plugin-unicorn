@@ -90,6 +90,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

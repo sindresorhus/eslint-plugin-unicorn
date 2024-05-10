@@ -32,6 +32,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow assigning `this` to a variable.',
+			recommended: true,
 		},
 		messages,
 	},

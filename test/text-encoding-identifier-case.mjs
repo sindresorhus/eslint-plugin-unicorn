@@ -9,7 +9,7 @@ test.snapshot({
 		'"utf+8"',
 		'"   utf8   "',
 		'\'utf8\'',
-		'"\\u0055tf8"',
+		String.raw`"\u0055tf8"`,
 		'const ASCII = 1',
 		'const UTF8 = 1',
 	],
@@ -39,9 +39,11 @@ test.snapshot({
 // JSX
 test.snapshot({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},

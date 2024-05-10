@@ -1,6 +1,6 @@
 {
 	"name": "eslint-plugin-unicorn",
-	"version": "51.0.1",
+	"version": "53.0.0",
 	"description": "More than 100 powerful ESLint rules",
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
@@ -13,9 +13,10 @@
 	"main": "index.js",
 	"sideEffects": false,
 	"engines": {
-		"node": ">=16"
+		"node": ">=18.18"
 	},
 	"scripts": {
+		"bundle-lodash": "echo \"export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es';\" | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=cjs",
 		"create-rule": "node ./scripts/create-rule.mjs && npm run fix:eslint-docs",
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:eslint-docs": "eslint-doc-generator",
@@ -28,7 +29,6 @@
 		"lint:markdown": "markdownlint \"**/*.md\"",
 		"lint:package-json": "npmPkgJsonLint .",
 		"run-rules-on-codebase": "node ./test/run-rules-on-codebase/lint.mjs",
-		"bundle-lodash": "echo \"export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es';\" | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=cjs",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
 		"test": "npm-run-all --continue-on-error lint test:*",
 		"test:js": "c8 ava"
@@ -49,12 +49,12 @@
 		"xo"
 	],
 	"dependencies": {
-		"@babel/helper-validator-identifier": "^7.22.20",
+		"@babel/helper-validator-identifier": "^7.24.5",
 		"@eslint-community/eslint-utils": "^4.4.0",
-		"@eslint/eslintrc": "^2.1.4",
+		"@eslint/eslintrc": "^3.0.2",
 		"ci-info": "^4.0.0",
 		"clean-regexp": "^1.0.0",
-		"core-js-compat": "^3.34.0",
+		"core-js-compat": "^3.37.0",
 		"esquery": "^1.5.0",
 		"indent-string": "^4.0.0",
 		"is-builtin-module": "^3.2.1",
@@ -63,39 +63,40 @@
 		"read-pkg-up": "^7.0.1",
 		"regexp-tree": "^0.1.27",
 		"regjsparser": "^0.10.0",
-		"semver": "^7.5.4",
+		"semver": "^7.6.1",
 		"strip-indent": "^3.0.0"
 	},
 	"devDependencies": {
-		"@babel/code-frame": "^7.23.5",
-		"@babel/core": "^7.23.6",
-		"@babel/eslint-parser": "^7.23.3",
+		"@babel/code-frame": "^7.24.2",
+		"@babel/core": "^7.24.5",
+		"@babel/eslint-parser": "^7.24.5",
 		"@lubien/fixture-beta-package": "^1.0.0-beta.1",
-		"@typescript-eslint/parser": "^6.15.0",
-		"ava": "^6.0.1",
-		"c8": "^8.0.1",
+		"@typescript-eslint/parser": "^7.8.0",
+		"ava": "^6.1.3",
+		"c8": "^9.1.0",
 		"chalk": "^5.3.0",
 		"enquirer": "^2.4.1",
-		"eslint": "^8.56.0",
+		"eslint": "^9.2.0",
 		"eslint-ava-rule-tester": "^5.0.1",
-		"eslint-doc-generator": "^1.6.1",
-		"eslint-plugin-eslint-plugin": "^5.2.1",
+		"eslint-doc-generator": "1.7.0",
+		"eslint-plugin-eslint-plugin": "^6.1.0",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
 		"eslint-remote-tester": "^3.0.1",
 		"eslint-remote-tester-repositories": "^1.0.1",
+		"espree": "^10.0.1",
 		"execa": "^8.0.1",
 		"listr": "^0.14.3",
 		"lodash-es": "^4.17.21",
-		"markdownlint-cli": "^0.38.0",
+		"markdownlint-cli": "^0.40.0",
 		"memoize": "^10.0.0",
 		"npm-package-json-lint": "^7.1.0",
-		"npm-run-all2": "^6.1.1",
+		"npm-run-all2": "^6.1.2",
 		"outdent": "^0.8.0",
-		"pretty-ms": "^8.0.0",
-		"typescript": "^5.3.3",
-		"vue-eslint-parser": "^9.3.2",
-		"xo": "^0.56.0",
-		"yaml": "^2.3.4"
+		"pretty-ms": "^9.0.0",
+		"typescript": "^5.4.5",
+		"vue-eslint-parser": "^9.4.2",
+		"xo": "^0.58.0",
+		"yaml": "^2.4.2"
 	},
 	"peerDependencies": {
 		"eslint": ">=8.56.0"
@@ -123,7 +124,9 @@
 			"test/integration/{fixtures,fixtures-local}/**"
 		],
 		"rules": {
+			"unicorn/escape-case": "off",
 			"unicorn/expiring-todo-comments": "off",
+			"unicorn/no-hex-escape": "off",
 			"unicorn/no-null": "error",
 			"unicorn/prefer-array-flat": [
 				"error",
@@ -173,17 +176,5 @@
 				}
 			}
 		]
-	},
-	"npmpackagejsonlint": {
-		"rules": {
-			"prefer-caret-version-devDependencies": [
-				"error",
-				{
-					"exceptions": [
-						"eslint-plugin-internal-rules"
-					]
-				}
-			]
-		}
 	}
 }

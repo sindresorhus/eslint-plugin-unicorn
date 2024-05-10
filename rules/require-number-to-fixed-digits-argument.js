@@ -47,6 +47,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the digits argument with `Number#toFixed()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

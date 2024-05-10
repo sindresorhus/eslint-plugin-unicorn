@@ -336,6 +336,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `switch` over multiple `else-if`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

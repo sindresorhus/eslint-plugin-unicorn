@@ -3,59 +3,7 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const ERROR_MESSAGE_ID = 'error';
-const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
-const SUGGESTION_REMOVE_MESSAGE_ID = 'remove';
-
-const invalidTestCase = testCase => {
-	const {
-		code,
-		output,
-		suggestions,
-		checkStrictEquality,
-	} = typeof testCase === 'string' ? {code: testCase} : testCase;
-
-	const options = typeof checkStrictEquality === 'boolean' ? [{checkStrictEquality}] : [];
-
-	if (suggestions) {
-		return {
-			code,
-			options,
-			errors: [
-				{
-					messageId: ERROR_MESSAGE_ID,
-					suggestions,
-				},
-			],
-		};
-	}
-
-	if (output) {
-		return {
-			code,
-			output,
-			options,
-			errors: [
-				{
-					messageId: ERROR_MESSAGE_ID,
-					suggestions: undefined,
-				},
-			],
-		};
-	}
-
-	return {
-		code,
-		options,
-		errors: [
-			{
-				messageId: ERROR_MESSAGE_ID,
-			},
-		],
-	};
-};
-
-test({
+test.snapshot({
 	valid: [
 		'let foo',
 		'Object.create(null)',
@@ -90,103 +38,27 @@ test({
 		})),
 	],
 	invalid: [
-		invalidTestCase('const foo = null'),
-		invalidTestCase('foo(null)'),
+		'const foo = null',
+		'foo(null)',
 
 		// Auto fix
-		invalidTestCase({
-			code: 'if (foo == null) {}',
-			output: 'if (foo == undefined) {}',
-		}),
-		invalidTestCase({
-			code: 'if (foo != null) {}',
-			output: 'if (foo != undefined) {}',
-		}),
-		invalidTestCase({
-			code: 'if (null == foo) {}',
-			output: 'if (undefined == foo) {}',
-		}),
-		invalidTestCase({
-			code: 'if (null != foo) {}',
-			output: 'if (undefined != foo) {}',
-		}),
+		'if (foo == null) {}',
+		'if (foo != null) {}',
+		'if (null == foo) {}',
+		'if (null != foo) {}',
 
 		// Suggestion `ReturnStatement`
-		invalidTestCase({
-			code: outdent`
-				function foo() {
-					return null;
-				}
-			`,
-			suggestions: [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: outdent`
-						function foo() {
-							return ;
-						}
-					`,
-				},
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: outdent`
-						function foo() {
-							return undefined;
-						}
-					`,
-				},
-			],
-		}),
+		outdent`
+			function foo() {
+				return null;
+			}
+		`,
 
 		// Suggestion `VariableDeclaration`
-		invalidTestCase({
-			code: 'let foo = null;',
-			suggestions: [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'let foo;',
-				},
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'let foo = undefined;',
-				},
-			],
-		}),
-		invalidTestCase({
-			code: 'var foo = null;',
-			suggestions: [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'var foo;',
-				},
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'var foo = undefined;',
-				},
-			],
-		}),
-		invalidTestCase({
-			code: 'var foo = 1, bar = null, baz = 2;',
-			suggestions: [
-				{
-					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-					output: 'var foo = 1, bar, baz = 2;',
-				},
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'var foo = 1, bar = undefined, baz = 2;',
-				},
-			],
-		}),
-		invalidTestCase({
-			code: 'const foo = null;',
-			suggestions: [
-				{
-					messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-					output: 'const foo = undefined;',
-				},
-			],
-		}),
+		'let foo = null;',
+		'var foo = null;',
+		'var foo = 1, bar = null, baz = 2;',
+		'const foo = null;',
 
 		// `checkStrictEquality`
 		...[
@@ -194,51 +66,50 @@ test({
 			'if (null === foo) {}',
 			'if (foo !== null) {}',
 			'if (null !== foo) {}',
-		].map(code => invalidTestCase({
+		].map(code => ({
 			code,
-			checkStrictEquality: true,
+			options: [{checkStrictEquality: true}],
 		})),
 
 		// Not `CallExpression`
-		invalidTestCase('new Object.create(null)'),
-		invalidTestCase('new foo.insertBefore(bar, null)'),
+		'new Object.create(null)',
+		'new foo.insertBefore(bar, null)',
 		// Not `MemberExpression`
-		invalidTestCase('create(null)'),
-		invalidTestCase('insertBefore(bar, null)'),
+		'create(null)',
+		'insertBefore(bar, null)',
 		// `callee.property` is not a `Identifier`
-		invalidTestCase('Object["create"](null)'),
-		invalidTestCase('foo["insertBefore"](bar, null)'),
+		'Object["create"](null)',
+		'foo["insertBefore"](bar, null)',
 		// Computed
-		invalidTestCase('Object[create](null)'),
-		invalidTestCase('foo[insertBefore](bar, null)'),
-		{
-			code: 'Object[null](null)',
-			errors: [{}, {}],
-		},
+		'Object[create](null)',
+		'foo[insertBefore](bar, null)',
+		'Object[null](null)',
 		// Not matching method
-		invalidTestCase('Object.notCreate(null)'),
-		invalidTestCase('foo.notInsertBefore(foo, null)'),
+		'Object.notCreate(null)',
+		'foo.notInsertBefore(foo, null)',
 		// Not `Object`
-		invalidTestCase('NotObject.create(null)'),
+		'NotObject.create(null)',
 		// `callee.object.type` is not a `Identifier`
-		invalidTestCase('lib.Object.create(null)'),
+		'lib.Object.create(null)',
 		// More/Less arguments
-		invalidTestCase('Object.create(...[null])'),
-		invalidTestCase('Object.create(null, bar, extraArgument)'),
-		invalidTestCase('foo.insertBefore(null)'),
-		invalidTestCase('foo.insertBefore(foo, null, bar)'),
-		invalidTestCase('foo.insertBefore(...[foo], null)'),
+		'Object.create(...[null])',
+		'Object.create(null, bar, extraArgument)',
+		'foo.insertBefore(null)',
+		'foo.insertBefore(foo, null, bar)',
+		'foo.insertBefore(...[foo], null)',
 		// Not in right position
-		invalidTestCase('foo.insertBefore(null, bar)'),
-		invalidTestCase('Object.create(bar, null)'),
+		'foo.insertBefore(null, bar)',
+		'Object.create(bar, null)',
 	],
 });
 
 // #1146
 test({
 	testerOptions: {
-		parserOptions: {
-			ecmaVersion: 2019,
+		languageOptions: {
+			parserOptions: {
+				ecmaVersion: 2019,
+			},
 		},
 	},
 	valid: [

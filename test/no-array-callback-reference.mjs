@@ -6,6 +6,8 @@ const {test} = getTester(import.meta);
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
+const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
+const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
 
 const simpleMethods = [
 	'every',
@@ -35,7 +37,8 @@ const generateError = (method, name) => ({
 });
 
 // Only test output is good enough
-const suggestionOutput = output => ({
+const suggestionOutput = (output, name) => ({
+	messageId: name ? REPLACE_WITH_NAME_MESSAGE_ID : REPLACE_WITHOUT_NAME_MESSAGE_ID,
 	output,
 });
 
@@ -44,7 +47,7 @@ const invalidTestCase = (({code, method, name, suggestions}) => ({
 	errors: [
 		{
 			...generateError(method, name),
-			suggestions: suggestions.map(output => suggestionOutput(output)),
+			suggestions: suggestions.map(output => suggestionOutput(output, name)),
 		},
 	],
 }));
@@ -265,49 +268,58 @@ test({
 		),
 
 		// Need parenthesized
+
 		invalidTestCase({
-			code: 'foo.map(a ? b : c)',
+			code: 'foo.map(a || b)',
 			method: 'map',
 			suggestions: [
-				'foo.map((element) => (a ? b : c)(element))',
-				'foo.map((element, index) => (a ? b : c)(element, index))',
-				'foo.map((element, index, array) => (a ? b : c)(element, index, array))',
+				'foo.map((element) => (a || b)(element))',
+				'foo.map((element, index) => (a || b)(element, index))',
+				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
-		// Note: `await` is not handled, not sure if this is needed
-		// invalidTestCase({
-		// 	code: `foo.map(await foo())`,
-		// 	method: 'map',
-		// 	suggestions: [
-		// 		`foo.map(async (accumulator, element) => (await foo())(accumulator, element))`,
-		// 		`foo.map(async (accumulator, element, index) => (await foo())(accumulator, element, index))`,
-		// 		`foo.map(async (accumulator, element, index, array) => (await foo())(accumulator, element, index, array))`
-		// 	]
-		// }),
 
 		// Actual messages
 		{
-			code: 'foo.map(fn)',
+			code: 'bar.map(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.map(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `… => fn(element)`.'},
-						{desc: 'Replace function `fn` with `… => fn(element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(element, index, array)`.'},
+						{
+							desc: 'Replace function `fn` with `… => fn(element)`.',
+							output: 'bar.map((element) => fn(element))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(element, index)`.',
+							output: 'bar.map((element, index) => fn(element, index))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(element, index, array)`.',
+							output: 'bar.map((element, index, array) => fn(element, index, array))',
+						},
 					],
 				},
 			],
 		},
 		{
-			code: 'foo.reduce(fn)',
+			code: 'bar.reduce(fn)',
 			errors: [
 				{
 					message: 'Do not pass function `fn` directly to `.reduce(…)`.',
 					suggestions: [
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element)`.'},
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.'},
-						{desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.'},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element)`.',
+							output: 'bar.reduce((accumulator, element) => fn(accumulator, element))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element, index)`.',
+							output: 'bar.reduce((accumulator, element, index) => fn(accumulator, element, index))',
+						},
+						{
+							desc: 'Replace function `fn` with `… => fn(accumulator, element, index, array)`.',
+							output: 'bar.reduce((accumulator, element, index, array) => fn(accumulator, element, index, array))',
+						},
 					],
 				},
 			],
@@ -318,9 +330,18 @@ test({
 				{
 					message: 'Do not pass function directly to `.map(…)`.',
 					suggestions: [
-						{desc: 'Replace function with `… => …(element)`.'},
-						{desc: 'Replace function with `… => …(element, index)`.'},
-						{desc: 'Replace function with `… => …(element, index, array)`.'},
+						{
+							desc: 'Replace function with `… => …(element)`.',
+							output: 'foo.map((element) => lib.fn(element))',
+						},
+						{
+							desc: 'Replace function with `… => …(element, index)`.',
+							output: 'foo.map((element, index) => lib.fn(element, index))',
+						},
+						{
+							desc: 'Replace function with `… => …(element, index, array)`.',
+							output: 'foo.map((element, index, array) => lib.fn(element, index, array))',
+						},
 					],
 				},
 			],
@@ -331,9 +352,18 @@ test({
 				{
 					message: 'Do not pass function directly to `.reduce(…)`.',
 					suggestions: [
-						{desc: 'Replace function with `… => …(accumulator, element)`.'},
-						{desc: 'Replace function with `… => …(accumulator, element, index)`.'},
-						{desc: 'Replace function with `… => …(accumulator, element, index, array)`.'},
+						{
+							desc: 'Replace function with `… => …(accumulator, element)`.',
+							output: 'foo.reduce((accumulator, element) => lib.fn(accumulator, element))',
+						},
+						{
+							desc: 'Replace function with `… => …(accumulator, element, index)`.',
+							output: 'foo.reduce((accumulator, element, index) => lib.fn(accumulator, element, index))',
+						},
+						{
+							desc: 'Replace function with `… => …(accumulator, element, index, array)`.',
+							output: 'foo.reduce((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))',
+						},
 					],
 				},
 			],
@@ -442,5 +472,49 @@ test({
 				`,
 			],
 		}),
+	],
+});
+
+// Ternaries
+test.snapshot({
+	valid: [
+		'foo.map(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.reduce(_ ? () => {} : _ ? () => {} : () => {})',
+		'foo.every(_ ? Boolean : _ ? Boolean : Boolean)',
+		'foo.map(_ ? String : _ ? Number : Boolean)',
+	],
+	invalid: [
+		outdent`
+			foo.map(
+				_
+					? String // This one should be ignored
+					: callback
+			);
+		`,
+		outdent`
+			foo.forEach(
+				_
+					? callbackA
+					: _
+							? callbackB
+							: callbackC
+			);
+		`,
+		// Needs parentheses
+		// Some of them was ignored since we know they are not callback function
+		outdent`
+			async function * foo () {
+				foo.map((0, bar));
+				foo.map(yield bar);
+				foo.map(yield* bar);
+				foo.map(() => bar);
+				foo.map(bar &&= baz);
+				foo.map(bar || baz);
+				foo.map(bar + bar);
+				foo.map(+ bar);
+				foo.map(++ bar);
+				foo.map(new Function(''));
+			}
+		`,
 	],
 });

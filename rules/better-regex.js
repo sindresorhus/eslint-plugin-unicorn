@@ -136,6 +136,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Improve regexes by making them shorter, consistent, and safer.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

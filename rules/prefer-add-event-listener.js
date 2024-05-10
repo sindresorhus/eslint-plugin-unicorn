@@ -89,7 +89,7 @@ const create = context => {
 		},
 
 		ReturnStatement(node) {
-			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+			codePathInfo.returnsSomething ||= Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
@@ -180,6 +180,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,

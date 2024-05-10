@@ -1,6 +1,10 @@
 'use strict';
 const {replaceTemplateElement} = require('./fix/index.js');
-const {isStringLiteral, isRegexLiteral} = require('./ast/index.js');
+const {
+	isStringLiteral,
+	isRegexLiteral,
+	isTaggedTemplateLiteral,
+} = require('./ast/index.js');
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
@@ -29,7 +33,13 @@ const create = context => ({
 			return checkEscape(context, node, node.raw);
 		}
 	},
-	TemplateElement: node => checkEscape(context, node, node.value.raw),
+	TemplateElement(node) {
+		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+			return;
+		}
+
+		return checkEscape(context, node, node.value.raw);
+	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -39,6 +49,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

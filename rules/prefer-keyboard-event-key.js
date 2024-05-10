@@ -179,6 +179,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

@@ -101,6 +101,7 @@ module.exports = {
 		type: 'layout',
 		docs: {
 			description: 'Enforce consistent brace style for `case` clauses.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [{enum: ['always', 'avoid']}],

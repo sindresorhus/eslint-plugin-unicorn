@@ -1,17 +1,14 @@
-import {createRequire} from 'node:module';
-import defaultOptions from './default-options.mjs';
+import babelEslintParser from '@babel/eslint-parser';
+import typescriptEslintParser from '@typescript-eslint/parser';
+import vueEslintParser from 'vue-eslint-parser';
 
-const require = createRequire(import.meta.url);
-
-const babel = {
-	name: '@babel/eslint-parser',
-	get parser() {
-		return require.resolve(this.name);
-	},
+const babelParser = {
+	name: 'babel',
+	implementation: babelEslintParser,
 	mergeParserOptions(options) {
-		options = options || {};
-		options.babelOptions = options.babelOptions || {};
-		options.babelOptions.parserOpts = options.babelOptions.parserOpts || {};
+		options ??= {};
+		options.babelOptions ??= {};
+		options.babelOptions.parserOpts ??= {};
 
 		let babelPlugins = options.babelOptions.parserOpts.plugins || [];
 		babelPlugins = [
@@ -22,9 +19,7 @@ const babel = {
 		];
 
 		return {
-			...defaultOptions.parserOptions,
 			requireConfigFile: false,
-			sourceType: 'module',
 			allowImportExportEverywhere: true,
 			...options,
 			babelOptions: {
@@ -40,37 +35,28 @@ const babel = {
 	},
 };
 
-const typescript = {
-	name: '@typescript-eslint/parser',
-	get parser() {
-		return require.resolve(this.name);
-	},
+const typescriptParser = {
+	name: 'typescript',
+	implementation: typescriptEslintParser,
 	mergeParserOptions(options) {
 		return {
-			...defaultOptions.parserOptions,
 			project: [],
 			...options,
 		};
 	},
 };
 
-const vue = {
-	name: 'vue-eslint-parser',
-	get parser() {
-		return require.resolve(this.name);
-	},
-	mergeParserOptions(options) {
-		return {
-			...defaultOptions.parserOptions,
-			...options,
-		};
-	},
+const vueParser = {
+	name: 'vue',
+	implementation: vueEslintParser,
 };
 
-const parsers = {
-	babel,
-	typescript,
-	vue,
-};
+const parsers = Object.fromEntries(
+	[
+		babelParser,
+		typescriptParser,
+		vueParser,
+	].map(parser => [parser.name, parser]),
+);
 
 export default parsers;

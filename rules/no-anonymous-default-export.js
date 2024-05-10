@@ -50,7 +50,7 @@ function getSuggestionName(node, filename, sourceCode) {
 		return;
 	}
 
-	name = node.type === 'ClassDeclaration' ? upperFirst(name) : name;
+	name = node.type === 'ClassDeclaration' || node.type === 'ClassExpression' ? upperFirst(name) : name;
 	name = avoidCapture(name, getScopes(sourceCode.getScope(node)));
 
 	return name;
@@ -205,6 +205,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow anonymous functions and classes as the default export.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,

@@ -77,16 +77,25 @@ function checkProperty({node, path: [name]}, sourceCode) {
 const create = context => {
 	const {
 		checkInfinity,
+		checkNaN,
 	} = {
-		checkInfinity: true,
+		checkInfinity: false,
+		checkNaN: true,
 		...context.options[0],
 	};
 	const {sourceCode} = context;
 
-	let objects = Object.keys(globalObjects);
-	if (!checkInfinity) {
-		objects = objects.filter(name => name !== 'Infinity');
-	}
+	const objects = Object.keys(globalObjects).filter(name => {
+		if (!checkInfinity && name === 'Infinity') {
+			return false;
+		}
+
+		if (!checkNaN && name === 'NaN') {
+			return false;
+		}
+
+		return true;
+	});
 
 	const tracker = new GlobalReferenceTracker({
 		objects,
@@ -104,6 +113,10 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
+				default: false,
+			},
+			checkNaN: {
+				type: 'boolean',
 				default: true,
 			},
 		},
@@ -117,6 +130,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -208,6 +208,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce correct `Error` subclassing.',
+			recommended: false,
 		},
 		fixable: 'code',
 		messages,

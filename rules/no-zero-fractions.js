@@ -72,6 +72,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow number literals with zero fractions or dangling dots.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

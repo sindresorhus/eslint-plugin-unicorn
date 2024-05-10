@@ -145,6 +145,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless array length check.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

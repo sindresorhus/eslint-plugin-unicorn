@@ -24,17 +24,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.filter(([, {meta: {deprecated}}]) => deprecated)
 	.map(([ruleId]) => ruleId);
 
-const testSorted = (t, actualOrder, sourceName) => {
-	actualOrder = actualOrder.filter(x => !ignoredRules.includes(x));
-	const sortedOrder = [...actualOrder].sort();
-
-	for (const [wantedIndex, name] of sortedOrder.entries()) {
-		const actualIndex = actualOrder.indexOf(name);
-		const whereMessage = (wantedIndex === 0) ? '' : `, after '${sortedOrder[wantedIndex - 1]}'`;
-		t.is(actualIndex, wantedIndex, `${sourceName} should be alphabetically sorted, '${name}' should be placed at index ${wantedIndex}${whereMessage}`);
-	}
-};
-
 const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
 	'filename-case',
@@ -72,8 +61,6 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		ruleFiles.length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
 	);
-
-	testSorted(t, Object.keys(eslintPluginUnicorn.configs.recommended.rules), 'configs.recommended.rules');
 });
 
 test('validate configuration', async t => {
@@ -191,4 +178,22 @@ test('flat configs', t => {
 		getCompactConfig(eslintPluginUnicorn.configs.all),
 		{...eslintPluginUnicorn.configs['flat/all'], plugins: undefined},
 	);
+});
+
+test('rule.meta.docs.recommended should be synchronized with presets', t => {
+	for (const [name, rule] of Object.entries(eslintPluginUnicorn.rules)) {
+		if (deprecatedRules.includes(name)) {
+			continue;
+		}
+
+		const {recommended} = rule.meta.docs;
+		t.is(typeof recommended, 'boolean', `meta.docs.recommended in '${name}' rule should be a boolean.`);
+
+		const severity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
+		if (recommended) {
+			t.is(severity, 'error', `'${name}' rule should set to 'error'.`);
+		} else {
+			t.is(severity, 'off', `'${name}' rule should set to 'off'.`);
+		}
+	}
 });
