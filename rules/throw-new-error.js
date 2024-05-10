@@ -1,8 +1,5 @@
 'use strict';
-const {
-	switchCallExpressionToNewExpression,
-	fixSpaceAroundKeyword,
-} = require('./fix/index.js');
+const {switchCallExpressionToNewExpression} = require('./fix/index.js');
 
 const messageId = 'throw-new-error';
 const messages = {
@@ -30,10 +27,7 @@ const create = context => ({
 		return {
 			node,
 			messageId,
-			* fix(fixer) {
-				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
-				yield * switchCallExpressionToNewExpression(node, context.sourceCode, fixer);
-			}
+			fix: fixer => switchCallExpressionToNewExpression(node, context.sourceCode, fixer),
 		};
 	},
 });
