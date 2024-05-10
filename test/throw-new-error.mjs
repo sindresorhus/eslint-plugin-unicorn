@@ -60,5 +60,10 @@ test.snapshot({
 				reject(Error('message'));
 			});
 		`,
+		outdent`
+			function foo() {
+				return[globalThis][0].Error('message');
+			}
+		`
 	],
 });
