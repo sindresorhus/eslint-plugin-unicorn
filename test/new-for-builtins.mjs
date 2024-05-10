@@ -231,26 +231,31 @@ test.snapshot({
 		'const foo = new Number(\'123\')',
 		'const foo = new String()',
 		'const foo = new Symbol()',
-		`
-				function varCheck() {
-					{
-						var WeakMap = function() {};
-					}
-					// This should not reported
-					return WeakMap()
+		outdent`
+			function varCheck() {
+				{
+					var WeakMap = function() {};
 				}
-				function constCheck() {
-					{
-						const Array = function() {};
-					}
-					return Array()
+				// This should not reported
+				return WeakMap()
+			}
+			function constCheck() {
+				{
+					const Array = function() {};
 				}
-				function letCheck() {
-					{
-						let Map = function() {};
-					}
-					return Map()
+				return Array()
+			}
+			function letCheck() {
+				{
+					let Map = function() {};
 				}
-			`,
+				return Map()
+			}
+		`,
+		outdent`
+			function foo() {
+				return(globalThis).Map()
+			}
+		`,
 	],
 });
