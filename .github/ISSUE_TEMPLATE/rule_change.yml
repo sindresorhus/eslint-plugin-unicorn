@@ -1,0 +1,55 @@
+name: Rule change
+description: A rule could be improved or extended?
+title: "`rule-name`: "
+labels:
+  - change request
+  - evaluating
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a new issue:
+        - Look for existing [open or closed rule proposals](https://github.com/sindresorhus/eslint-plugin-unicorn/issues?q=is:issue+label%25enhancement)
+        - [Report a bug](https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?assignees=&labels=&projects=&template=bug_report.md) instead if it's a false positive
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Description
+      description: Explain the improvement you would like to see.
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Fail
+      description: Specify examples of code that should be detected.
+      value: |
+        ```js
+        var replace = 'me';
+        ```
+
+        ```js
+        function foo() {
+        	var replace = 'me';
+        	return replace;
+        }
+        ```
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Pass
+      description: Specify examples of code that would be accepted in its place.
+      value: |
+        ```js
+        const replace = 'me';
+        ```
+
+        ```js
+        function foo() {
+        	return 'me';
+        }
+        ```
+  - type: textarea
+    attributes:
+      label: Additional Info
