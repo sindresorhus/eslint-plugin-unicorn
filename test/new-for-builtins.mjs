@@ -231,7 +231,7 @@ test.snapshot({
 		'const foo = new Number(\'123\')',
 		'const foo = new String()',
 		'const foo = new Symbol()',
-		`
+		outdent`
 				function varCheck() {
 					{
 						var WeakMap = function() {};
@@ -252,5 +252,10 @@ test.snapshot({
 					return Map()
 				}
 			`,
+			outdent`
+				function foo() {
+					return(globalThis).Map()
+				}
+			`
 	],
 });
