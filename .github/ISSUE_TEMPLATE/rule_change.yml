@@ -1,6 +1,6 @@
 name: Rule change
 description: A rule could be improved or extended?
-title: "`rule-name` should do xyz"
+title: "`rule-name`: "
 labels:
   - change request
   - evaluating
