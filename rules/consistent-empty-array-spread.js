@@ -116,7 +116,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer consistent type when spreading a ternary in array literal.',
+			description: 'Prefer consistent types when spreading a ternary in an array literal.',
 			recommended: true,
 		},
 		fixable: 'code',

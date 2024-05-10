@@ -1,4 +1,4 @@
-# Prefer consistent type when spreading a ternary in array literal
+# Prefer consistent types when spreading a ternary in an array literal
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
