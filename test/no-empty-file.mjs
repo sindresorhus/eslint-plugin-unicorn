@@ -34,6 +34,7 @@ test.snapshot({
 			'// comment',
 			'/* comment */',
 			'/// comment',
+			'/* comment */ {}',
 			outdent`
 				/*
 					comment

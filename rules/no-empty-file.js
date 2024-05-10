@@ -14,9 +14,7 @@ const isTripleSlashDirective = node =>
 const hasTripeSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
-const isProgramFileEmpty = node => node.type === 'Program' && node.body.length === 0;
-
-const isAllowOnlyCommentsFile = (option, node) => option.allow.includes('comments') && isProgramFileEmpty(node);
+const isAllowComments = (option) => option.allow.includes('comments');
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -38,12 +36,13 @@ const create = context => {
 
 			const {sourceCode} = context;
 			const comments = sourceCode.getAllComments();
+			const hasComments = comments.length !== 0;
 
 			if (hasTripeSlashDirectives(comments)) {
 				return;
 			}
 
-			if (isAllowOnlyCommentsFile(options, node)) {
+			if (isAllowComments(options) && hasComments) {
 				return;
 			}
 
