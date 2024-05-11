@@ -1,7 +1,6 @@
 'use strict';
-const {} = require('./ast/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {} = require('./utils/index.js');
+const {needsSemicolon} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
@@ -52,6 +51,12 @@ const create = context => {
 						* fix (fixer) {
 							yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode)
 							yield fixer.remove(bangToken);
+
+							const previousToken = sourceCode.getTokenBefore(bangToken);
+							const textAfter = sourceCode.getTokenAfter(bangToken).value;
+							if (needsSemicolon(previousToken, sourceCode, textAfter)) {
+								yield fixer.insertTextAfter(bangToken, ';');
+							}
 
 							const operatorToken = sourceCode.getTokenAfter(
 								left,

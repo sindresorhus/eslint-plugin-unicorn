@@ -16,5 +16,13 @@ test.snapshot({
 				return!foo === bar;
 			}
 		`,
+		outdent`
+			foo
+			!(a) === b
+		`,
+		outdent`
+			foo
+			![a].toString() === b
+		`,
 	],
 });
