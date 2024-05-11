@@ -47,6 +47,7 @@ const create = context => {
 			)
 			|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
 			|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
+			|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
 		) {
 			return;
 		}

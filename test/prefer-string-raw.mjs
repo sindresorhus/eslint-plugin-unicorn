@@ -38,3 +38,19 @@ test.snapshot({
 		String.raw`const foo = "foo \\x46";`,
 	],
 });
+
+test.typescript({
+	valid: [
+		outdent`
+			enum Files {
+				Foo = "C:\\\\path\\\\to\\\\foo.js",
+			}
+		`,
+		outdent`
+			enum Foo {
+				"\\\\a\\\\b" = "baz",
+			}
+		`,
+	],
+	invalid: [],
+});
