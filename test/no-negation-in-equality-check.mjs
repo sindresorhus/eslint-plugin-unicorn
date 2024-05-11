@@ -11,5 +11,10 @@ test.snapshot({
 		'!foo !== bar',
 		'!foo == bar',
 		'!foo != bar',
+		outdent`
+			function x() {
+				return!foo === bar;
+			}
+		`,
 	],
 });
