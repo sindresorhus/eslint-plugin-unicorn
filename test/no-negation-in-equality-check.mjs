@@ -22,12 +22,28 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function x() {
+				return!
+					foo === bar;
+				throw!
+					foo === bar;
+			}
+		`,
+		outdent`
 			foo
 			!(a) === b
 		`,
 		outdent`
 			foo
-			![a].toString() === b
+			![a, b].join('') === c
+		`,
+		outdent`
+			foo
+			! [a, b].join('') === c
+		`,
+		outdent`
+			foo
+			!/* comment */[a, b].join('') === c
 		`,
 		'!!foo === bar',
 	],

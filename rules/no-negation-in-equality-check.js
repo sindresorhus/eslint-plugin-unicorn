@@ -1,5 +1,8 @@
 'use strict';
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const {
+	fixSpaceAroundKeyword,
+	addParenthesizesToReturnOrThrowExpression,
+} = require('./fix/index.js');
 const {needsSemicolon} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
@@ -48,17 +51,30 @@ const create = context => ({
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					* fix(fixer) {
 						yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode);
+
+						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
+
+						const {parent} = node;
+						if (
+							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+							&& !isParenthesized(binaryExpression, sourceCode)
+						) {
+							const returnToken = sourceCode.getFirstToken(parent);
+							if (!isOnSameLine(returnToken, tokenAfterBang)) {
+								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+							}
+						}
+
 						yield fixer.remove(bangToken);
 
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						const textAfter = sourceCode.getTokenAfter(bangToken).value;
-						if (needsSemicolon(previousToken, sourceCode, textAfter)) {
+						if (needsSemicolon(previousToken, sourceCode, tokenAfterBang.value)) {
 							yield fixer.insertTextAfter(bangToken, ';');
 						}
 
 						const operatorToken = sourceCode.getTokenAfter(
 							left,
-							token => token.type == 'Punctuator' && token.value === operator,
+							token => token.type === 'Punctuator' && token.value === operator,
 						);
 						yield fixer.replaceText(operatorToken, negatedOperator);
 					},
