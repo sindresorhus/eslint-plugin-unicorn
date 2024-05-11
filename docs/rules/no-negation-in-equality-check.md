@@ -1,4 +1,4 @@
-# Disallow negated expreesion in equality check
+# Disallow negated expression in equality check
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Using a negated expression in equality check is most likely a mistake.
 
 ## Fail
 

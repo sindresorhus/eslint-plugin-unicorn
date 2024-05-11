@@ -7,6 +7,7 @@ test.snapshot({
 	valid: [
 		'!foo instanceof bar',
 		'+foo === bar',
+		'!(foo === bar)',
 		// We are not checking right side
 		'foo === !bar',
 	],

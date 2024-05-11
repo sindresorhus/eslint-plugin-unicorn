@@ -20,56 +20,53 @@ const isEqualityCheck = node => node.type === 'BinaryExpression' && EQUALITY_OPE
 const isNegatedExpression = node => node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	return {
-		BinaryExpression(binaryExpression) {
-			const {operator, left} = binaryExpression;
+const create = context => ({
+	BinaryExpression(binaryExpression) {
+		const {operator, left} = binaryExpression;
 
-			if (
-				!isEqualityCheck(binaryExpression)
-				|| !isNegatedExpression(left)
-			) {
-				return;
-			}
+		if (
+			!isEqualityCheck(binaryExpression)
+			|| !isNegatedExpression(left)
+		) {
+			return;
+		}
 
+		const {sourceCode} = context;
+		const bangToken = sourceCode.getFirstToken(left);
+		const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`;
 
-			const {sourceCode} = context;
-			const bangToken = sourceCode.getFirstToken(left);
-			const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`
+		return {
+			node: bangToken,
+			messageId: MESSAGE_ID_ERROR,
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {
+						operator: negatedOperator,
+					},
+					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					* fix(fixer) {
+						yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode);
+						yield fixer.remove(bangToken);
 
-			return {
-				node: bangToken,
-				messageId: MESSAGE_ID_ERROR,
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							operator: negatedOperator,
-						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						* fix (fixer) {
-							yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode)
-							yield fixer.remove(bangToken);
+						const previousToken = sourceCode.getTokenBefore(bangToken);
+						const textAfter = sourceCode.getTokenAfter(bangToken).value;
+						if (needsSemicolon(previousToken, sourceCode, textAfter)) {
+							yield fixer.insertTextAfter(bangToken, ';');
+						}
 
-							const previousToken = sourceCode.getTokenBefore(bangToken);
-							const textAfter = sourceCode.getTokenAfter(bangToken).value;
-							if (needsSemicolon(previousToken, sourceCode, textAfter)) {
-								yield fixer.insertTextAfter(bangToken, ';');
-							}
-
-							const operatorToken = sourceCode.getTokenAfter(
-								left,
-								token => token.type == 'Punctuator' && token.value === operator,
-							);
-							yield fixer.replaceText(operatorToken, negatedOperator);
-						},
-					}
-				],
-			};
-		},
-	};
-};
+						const operatorToken = sourceCode.getTokenAfter(
+							left,
+							token => token.type == 'Punctuator' && token.value === operator,
+						);
+						yield fixer.replaceText(operatorToken, negatedOperator);
+					},
+				},
+			],
+		};
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
