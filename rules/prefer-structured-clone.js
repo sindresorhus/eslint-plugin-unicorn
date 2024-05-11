@@ -61,7 +61,6 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				description: 'JSON.parse(JSON.stringify(…))',
-				recommended: true,
 			},
 			suggest: [
 				{

@@ -46,7 +46,6 @@ const arrayFlatMap = {
 	},
 	getArrayNode: node => node.callee.object,
 	description: 'Array#flatMap()',
-	recommended: true,
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
@@ -100,7 +99,6 @@ const arrayReduce = {
 	},
 	getArrayNode: node => node.callee.object,
 	description: 'Array#reduce()',
-	recommended: true,
 };
 
 // `[].concat(maybeArray)`
@@ -121,7 +119,6 @@ const emptyArrayConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: '[].concat()',
-	recommended: true,
 	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement',
 };
 
@@ -157,7 +154,6 @@ const arrayPrototypeConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: 'Array.prototype.concat()',
-	recommended: true,
 	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call',
 };
 
