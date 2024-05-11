@@ -12,7 +12,7 @@ const {
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Negated expression in not allowed here.',
+	[MESSAGE_ID_ERROR]: 'Negated expression in not allowed in equality check.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to \'{{operator}}\' check.',
 };
 
