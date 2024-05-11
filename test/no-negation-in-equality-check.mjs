@@ -5,6 +5,10 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'!foo instanceof bar',
+		'+foo === bar',
+		// We are not checking right side
+		'foo === !bar',
 	],
 	invalid: [
 		'!foo === bar',
@@ -24,5 +28,6 @@ test.snapshot({
 			foo
 			![a].toString() === b
 		`,
+		'!!foo === bar',
 	],
 });
