@@ -3,7 +3,11 @@ const {
 	fixSpaceAroundKeyword,
 	addParenthesizesToReturnOrThrowExpression,
 } = require('./fix/index.js');
-const {needsSemicolon} = require('./utils/index.js');
+const {
+	needsSemicolon,
+	isParenthesized,
+	isOnSameLine,
+} = require('./utils/index.js');
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
@@ -54,7 +58,7 @@ const create = context => ({
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
-						const {parent} = node;
+						const {parent} = binaryExpression;
 						if (
 							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 							&& !isParenthesized(binaryExpression, sourceCode)
