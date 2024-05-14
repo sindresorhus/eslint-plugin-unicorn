@@ -39,7 +39,7 @@ const create = context => {
 				return;
 			}
 
-			if (option.allow.includes('comments') && comments.length > 0) {
+			if (options.allow.includes('comments') && comments.length > 0) {
 				return;
 			}
 
