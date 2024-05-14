@@ -73,7 +73,7 @@ const x = 0;
 
 ### allow
 
-Type: `Array<string>`\
+Type: `string[]`\
 Default: `[]`
 
 You can set the `allow` option like this:
