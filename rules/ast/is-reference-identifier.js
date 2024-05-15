@@ -120,9 +120,16 @@ function isNotReference(node) {
 			return parent.parameters.includes(node);
 		}
 
+		// `@typescript-eslint/parse` v7
 		// `type Foo = { [Identifier in keyof string]: number; };`
 		case 'TSTypeParameter': {
 			return parent.name === node;
+		}
+
+		// `@typescript-eslint/parse` v8
+		// `type Foo = { [Identifier in keyof string]: number; };`
+		case 'TSMappedType': {
+			return parent.key === node;
 		}
 
 		// `type Identifier = Foo`
