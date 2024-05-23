@@ -1,6 +1,7 @@
 ---
 name: Bug report
 about: A rule isn't working as it should?
+labels: bug
 ---
 
 <!-- ✨ Thanks for reporting a bug! ➡️ Please don't ignore this template -->
