@@ -180,7 +180,7 @@ const create = context => {
 	const {
 		checkFromLast,
 	} = {
-		checkFromLast: false,
+		checkFromLast: true,
 		...context.options[0],
 	};
 
@@ -428,8 +428,8 @@ const schema = [
 		properties: {
 			checkFromLast: {
 				type: 'boolean',
-				// TODO: Change default value to `true`, or remove the option when targeting Node.js 18.
-				default: false,
+				// TODO: Remove the option at some point.
+				default: true,
 			},
 		},
 	},

@@ -18,7 +18,15 @@ const item = array.filter(x => isUnicorn(x))[0];
 ```
 
 ```js
+const item = array.filter(x => isUnicorn(x)).at(-1);
+```
+
+```js
 const item = array.filter(x => isUnicorn(x)).shift();
+```
+
+```js
+const item = array.filter(x => isUnicorn(x)).pop();
 ```
 
 ```js
@@ -50,25 +58,18 @@ Type: `object`
 ### checkFromLast
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
-Pass `checkFromLast: true` to check cases searching from last.
-
-#### Fail
-
-```js
-// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
-const item = array.filter(x => isUnicorn(x)).at(-1);
-```
-
-```js
-// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
-const item = array.filter(x => isUnicorn(x)).pop();
-```
+Pass `checkFromLast: false` to disable check cases searching from last.
 
 #### Pass
 
 ```js
-// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": true}]
-const item = array.findLast(x => isUnicorn(x));
+// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}]
+const item = array.filter(x => isUnicorn(x)).at(-1);
+```
+
+```js
+// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}]
+const item = array.filter(x => isUnicorn(x)).pop();
 ```

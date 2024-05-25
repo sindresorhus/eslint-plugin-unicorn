@@ -923,15 +923,12 @@ test({
 	],
 });
 
-// Check from last
-const checkFromLastOptions = [{checkFromLast: true}];
-
-// Default to false
+// `checkFromLast` default to true
 test({
 	valid: [
 		'array.filter(foo).pop()',
 		'array.filter(foo).at(-1)',
-	],
+	].map(code => ({code, options: [{checkFromLast: false}]})),
 	invalid: [],
 });
 
@@ -968,7 +965,7 @@ test({
 		'array.filter().pop()',
 		'array.filter(foo, thisArgument, extraArgument).pop()',
 		'array.filter(...foo).pop()',
-	].map(code => ({code, options: checkFromLastOptions})),
+	],
 	invalid: [
 		{
 			code: 'array.filter(foo).pop()',
@@ -1005,7 +1002,7 @@ test({
 			`,
 			errors: [{messageId: ERROR_POP}],
 		},
-	].map(test => ({...test, options: checkFromLastOptions})),
+	],
 });
 
 // `.at(-1)`
@@ -1058,7 +1055,7 @@ test({
 		'array.filter().at(-1)',
 		'array.filter(foo, thisArgument, extraArgument).at(-1)',
 		'array.filter(...foo).at(-1)',
-	].map(code => ({code, options: checkFromLastOptions})),
+	],
 	invalid: [
 		{
 			code: 'array.filter(foo).at(-1)',
@@ -1099,7 +1096,7 @@ test({
 			`,
 			errors: [{messageId: ERROR_AT_MINUS_ONE}],
 		},
-	].map(test => ({...test, options: checkFromLastOptions})),
+	],
 });
 
 // `.at(0)`
