@@ -1,4 +1,4 @@
-# Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence
+# Prefer `.includes()` over `.indexOf()`, `.lastIndexOf()`, and `Array#some()` when checking for existence or non-existence
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-All built-ins have `.includes()` in addition to `.indexOf()`. Prefer `.includes()` over comparing the value of `.indexOf()`.
+All built-ins have `.includes()` in addition to `.indexOf()` and `.lastIndexOf()`. Prefer `.includes()` over comparing the value of `.indexOf()` and `.lastIndexOf()`.
 
 [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) is intended for more complex needs. If you are just looking for the index where the given item is present, the code can be simplified to use [`Array#includes()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes). This applies to any search with a literal, a variable, or any expression that doesn't have any explicit side effects. However, if the expression you are looking for relies on an item related to the function (its arguments, the function self, etc.), the case is still valid.
 
@@ -16,35 +16,47 @@ This rule is fixable, unless the search expression in `Array#some()` has side ef
 ## Fail
 
 ```js
-[].indexOf('foo') !== -1;
+array.indexOf('foo') !== -1;
 ```
 
 ```js
-x.indexOf('foo') != -1;
+array.indexOf('foo') !== -1;
 ```
 
 ```js
-str.indexOf('foo') > -1;
+string.lastIndexOf('foo') !== -1;
 ```
 
 ```js
-'foobar'.indexOf('foo') >= 0;
+array.lastIndexOf('foo') !== -1;
 ```
 
 ```js
-x.indexOf('foo') === -1
+foo.indexOf('foo') != -1;
 ```
 
 ```js
-const isFound = foo.some(x => x === 'foo');
+foo.indexOf('foo') >= 0;
 ```
 
 ```js
-const isFound = foo.some(x => 'foo' === x);
+foo.indexOf('foo') > -1;
 ```
 
 ```js
-const isFound = foo.some(x => {
+foo.indexOf('foo') === -1
+```
+
+```js
+foo.some(x => x === 'foo');
+```
+
+```js
+foo.some(x => 'foo' === x);
+```
+
+```js
+foo.some(x => {
 	return x === 'foo';
 });
 ```
@@ -52,63 +64,55 @@ const isFound = foo.some(x => {
 ## Pass
 
 ```js
-const str = 'foobar';
+foo.indexOf('foo') !== -n;
 ```
 
 ```js
-str.indexOf('foo') !== -n;
+foo.indexOf('foo') !== 1;
 ```
 
 ```js
-str.indexOf('foo') !== 1;
+foo.indexOf('foo') === 1;
 ```
 
 ```js
-!str.indexOf('foo') === 1;
+foo.includes('foo');
 ```
 
 ```js
-!str.indexOf('foo') === -n;
+foo.includes(4);
 ```
 
 ```js
-str.includes('foo');
+foo.includes('foo');
 ```
 
 ```js
-[1,2,3].includes(4);
+foo.some(x => x == undefined);
 ```
 
 ```js
-const isFound = foo.includes('foo');
+foo.some(x => x !== 'foo');
 ```
 
 ```js
-const isFound = foo.some(x => x == undefined);
+foo.some((x, index) => x === index);
 ```
 
 ```js
-const isFound = foo.some(x => x !== 'foo');
+foo.some(x => (x === 'foo') && isValid());
 ```
 
 ```js
-const isFound = foo.some((x, index) => x === index);
+foo.some(x => y === 'foo');
 ```
 
 ```js
-const isFound = foo.some(x => (x === 'foo') && isValid());
+foo.some(x => y.x === 'foo');
 ```
 
 ```js
-const isFound = foo.some(x => y === 'foo');
-```
-
-```js
-const isFound = foo.some(x => y.x === 'foo');
-```
-
-```js
-const isFound = foo.some(x => {
+foo.some(x => {
 	const bar = getBar();
 	return x === bar;
 });
