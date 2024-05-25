@@ -5,9 +5,9 @@ const {isLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
-	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
+	[MESSAGE_ID]: 'Use `.includes()`, rather than `.{{method}}()`, when checking for existence.',
 };
-// Ignore {_,lodash,underscore}.indexOf
+// Ignore `{_,lodash,underscore}.{indexOf,lastIndexOf}`
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
 const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
@@ -30,6 +30,9 @@ const getProblem = (context, node, target, argumentsNodes) => {
 	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
+		data: {
+			method: node.left.callee.property.name,
+		},
 		fix(fixer) {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
@@ -49,7 +52,7 @@ const create = context => {
 	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
-		if (!isMethodNamed(left, 'indexOf')) {
+		if (!isMethodNamed(left, 'indexOf') && !isMethodNamed(left, 'lastIndexOf')) {
 			return;
 		}
 
@@ -86,7 +89,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
+			description: 'Prefer `.includes()` over `.indexOf()`, `.lastIndexOf()`, and `Array#some()` when checking for existence or non-existence.',
 			recommended: true,
 		},
 		fixable: 'code',
