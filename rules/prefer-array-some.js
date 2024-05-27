@@ -45,10 +45,9 @@ const isLiteralZero = node => isLiteral(node, 0);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-
 	// `.find(…)`
 	// `.findLast(…)`
-	context.on('CallExpression', (callExpression) => {
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: ['find', 'findLast'],
 			minimumArguments: 1,
@@ -101,7 +100,7 @@ const create = context => {
 	// `.{findIndex,findLastIndex}(…) == -1`
 	// `.{findIndex,findLastIndex}(…) >= 0`
 	// `.{findIndex,findLastIndex}(…) < 0`
-	context.on('BinaryExpression', (binaryExpression) => {
+	context.on('BinaryExpression', binaryExpression => {
 		const {left, right, operator} = binaryExpression;
 
 		if (!(
@@ -139,13 +138,13 @@ const create = context => {
 				const [, end] = binaryExpression.range;
 
 				yield fixer.removeRange([start, end]);
-			}
+			},
 		};
 	});
 
 	// `.filter(…).length > 0`
 	// `.filter(…).length !== 0`
-	context.on('BinaryExpression', (binaryExpression) => {
+	context.on('BinaryExpression', binaryExpression => {
 		if (!(
 			// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 			(binaryExpression.operator === '>' || binaryExpression.operator === '!==')
@@ -198,7 +197,7 @@ const create = context => {
 			},
 		};
 	});
-}
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -206,7 +205,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`.',
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast,findIndex,findLastIndex}(…)`.',
 			recommended: true,
 		},
 		fixable: 'code',

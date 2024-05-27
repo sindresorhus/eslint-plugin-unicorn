@@ -241,7 +241,7 @@ test.snapshot({
 		].flatMap(code => [code, code.replace('findIndex', 'findLastIndex')]),
 		'foo.findIndex(bar) !== (( - 1 ))',
 		'foo.findIndex(element => element.bar === 1) !== (( - 1 ))',
-	]
+	],
 });
 
 test.vue({
