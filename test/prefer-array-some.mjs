@@ -210,6 +210,40 @@ test.snapshot({
 	],
 });
 
+// `.{findIndex,findLastIndex}(…) !== -1`
+// `.{findIndex,findLastIndex}(…) != -1`
+// `.{findIndex,findLastIndex}(…) > -1`
+// `.{findIndex,findLastIndex}(…) === -1`
+// `.{findIndex,findLastIndex}(…) == -1`
+// `.{findIndex,findLastIndex}(…) >= 0`
+// `.{findIndex,findLastIndex}(…) < 0`
+test.snapshot({
+	valid: [
+		'foo.notMatchedMethod(bar) !== -1',
+		'new foo.findIndex(bar) !== -1',
+		'foo.findIndex(bar, extraArgument) !== -1',
+		'foo.findIndex(bar) instanceof -1',
+		'foo.findIndex(...bar) !== -1',
+		// We are not ignoring ``{_,lodash,underscore}.{findIndex,findLastIndex}`
+		// but it doesn't make sense to use them with one argument
+		'_.findIndex(bar)',
+		'_.findIndex(foo, bar)',
+	],
+	invalid: [
+		...[
+			'foo.findIndex(bar) !== -1',
+			'foo.findIndex(bar) != -1',
+			'foo.findIndex(bar) > - 1',
+			'foo.findIndex(bar) === -1',
+			'foo.findIndex(bar) == - 1',
+			'foo.findIndex(bar) >= 0',
+			'foo.findIndex(bar) < 0',
+		].flatMap(code => [code, code.replace('findIndex', 'findLastIndex')]),
+		'foo.findIndex(bar) !== (( - 1 ))',
+		'foo.findIndex(element => element.bar === 1) !== (( - 1 ))',
+	]
+});
+
 test.vue({
 	valid: [],
 	invalid: [

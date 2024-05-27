@@ -4,7 +4,6 @@ const {
 	isBooleanNode,
 	getParenthesizedRange,
 	isNodeValueNotFunction,
-	isNodeMatches,
 } = require('./utils/index.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
 const {isLiteral, isUndefined, isMethodCall, isMemberExpression} = require('./ast/index.js');
@@ -103,7 +102,7 @@ const create = context => {
 	// `.{findIndex,findLastIndex}(…) >= 0`
 	// `.{findIndex,findLastIndex}(…) < 0`
 	context.on('BinaryExpression', (binaryExpression) => {
-		const {left, right, operator} = node;
+		const {left, right, operator} = binaryExpression;
 
 		if (!(
 			isMethodCall(left, {
@@ -111,9 +110,7 @@ const create = context => {
 				argumentsLength: 1,
 				optionalCall: false,
 				optionalMember: false,
-			}) &&
-			// Ignore `{_,lodash,underscore}.{findIndex,findLastIndex}`
-			!isNodeMatches(left.callee.object, ['_', 'lodash', 'underscore'])
+			})
 			&& (
 				(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
 				|| (['>=', '<'].includes(operator) && isLiteralZero(right))
@@ -134,7 +131,7 @@ const create = context => {
 
 				yield fixer.replaceText(methodNode, 'some');
 
-				const operatorToken = sourceCode.getTokenAfter(
+				const operatorToken = context.sourceCode.getTokenAfter(
 					left,
 					token => token.type === 'Punctuator' && token.value === operator,
 				);
