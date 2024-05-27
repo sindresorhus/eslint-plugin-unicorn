@@ -1,6 +1,6 @@
 'use strict';
 const path = require('node:path');
-const readPkgUp = require('read-pkg-up');
+const {readPackageUpSync} = require('read-package-up');
 const coreJsCompat = require('core-js-compat');
 const {camelCase} = require('./utils/lodash.js');
 const isStaticRequire = require('./ast/is-static-require.js');
@@ -62,7 +62,7 @@ function getTargets(options, dirname) {
 	let packageResult;
 	try {
 		// It can fail if, for example, the package.json file has comments.
-		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
 	} catch {}
 
 	if (!packageResult) {

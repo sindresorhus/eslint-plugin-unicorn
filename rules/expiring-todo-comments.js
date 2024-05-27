@@ -1,6 +1,6 @@
 'use strict';
 const path = require('node:path');
-const readPkgUp = require('read-pkg-up');
+const {readPackageUpSync} = require('read-package-up');
 const semver = require('semver');
 const ci = require('ci-info');
 const getBuiltinRule = require('./utils/get-builtin-rule.js');
@@ -56,7 +56,7 @@ function getPackageHelpers(dirname) {
 	/** @type {readPkgUp.ReadResult | undefined} */
 	let packageResult;
 	try {
-		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
 	} catch {
 		// This can happen if package.json files have comments in them etc.
 		packageResult = undefined;
