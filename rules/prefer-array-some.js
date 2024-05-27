@@ -4,6 +4,7 @@ const {
 	isBooleanNode,
 	getParenthesizedRange,
 	isNodeValueNotFunction,
+	isNodeMatches,
 } = require('./utils/index.js');
 const {removeMemberExpressionProperty} = require('./fix/index.js');
 const {isLiteral, isUndefined, isMethodCall, isMemberExpression} = require('./ast/index.js');
@@ -40,6 +41,8 @@ const isCheckingUndefined = node =>
 			&& isLiteral(node.parent.right, null)
 		)
 	);
+const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isLiteralZero = node => isLiteral(node, 0);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -89,7 +92,59 @@ const create = context => {
 				},
 			],
 		};
-	})
+	});
+
+	// These operators also used in `prefer-includes`, try to reuse the code in future
+	// `.{findIndex,findLastIndex}(…) !== -1`
+	// `.{findIndex,findLastIndex}(…) != -1`
+	// `.{findIndex,findLastIndex}(…) > -1`
+	// `.{findIndex,findLastIndex}(…) === -1`
+	// `.{findIndex,findLastIndex}(…) == -1`
+	// `.{findIndex,findLastIndex}(…) >= 0`
+	// `.{findIndex,findLastIndex}(…) < 0`
+	context.on('BinaryExpression', (binaryExpression) => {
+		const {left, right, operator} = node;
+
+		if (!(
+			isMethodCall(left, {
+				methods: ['findIndex', 'findLastIndex'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			}) &&
+			// Ignore `{_,lodash,underscore}.{findIndex,findLastIndex}`
+			!isNodeMatches(left.callee.object, ['_', 'lodash', 'underscore'])
+			&& (
+				(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+				|| (['>=', '<'].includes(operator) && isLiteralZero(right))
+			)
+		)) {
+			return;
+		}
+
+		const methodNode = left.callee.property;
+		return {
+			node: methodNode,
+			messageId: ERROR_ID_ARRAY_SOME,
+			data: {method: methodNode.name},
+			* fix(fixer) {
+				if (['===', '==', '<'].includes(operator)) {
+					yield fixer.insertTextBefore(binaryExpression, '!');
+				}
+
+				yield fixer.replaceText(methodNode, 'some');
+
+				const operatorToken = sourceCode.getTokenAfter(
+					left,
+					token => token.type === 'Punctuator' && token.value === operator,
+				);
+				const [start] = operatorToken.range;
+				const [, end] = binaryExpression.range;
+
+				yield fixer.removeRange([start, end]);
+			}
+		};
+	});
 
 	// `.filter(…).length > 0`
 	// `.filter(…).length !== 0`
@@ -145,7 +200,7 @@ const create = context => {
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 			},
 		};
-	})
+	});
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
