@@ -42,8 +42,11 @@ const isCheckingUndefined = node =>
 	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+
+	// `.find(…)`
+	// `.findLast(…)`
+	context.on('CallExpression', (callExpression) => {
 		if (!isMethodCall(callExpression, {
 			methods: ['find', 'findLast'],
 			minimumArguments: 1,
@@ -86,8 +89,11 @@ const create = context => ({
 				},
 			],
 		};
-	},
-	BinaryExpression(binaryExpression) {
+	})
+
+	// `.filter(…).length > 0`
+	// `.filter(…).length !== 0`
+	context.on('BinaryExpression', (binaryExpression) => {
 		if (!(
 			// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 			(binaryExpression.operator === '>' || binaryExpression.operator === '!==')
@@ -139,8 +145,8 @@ const create = context => ({
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 			},
 		};
-	},
-});
+	})
+}
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
