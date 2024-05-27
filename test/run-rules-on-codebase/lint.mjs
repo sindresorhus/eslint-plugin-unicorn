@@ -23,12 +23,8 @@ const {
 });
 
 const configs = [
-	// TODO: Use `eslintPluginUnicorn.configs.all` instead when we change preset to flat config
+	eslintPluginUnicorn.configs['flat/all'],
 	{
-		plugins: {
-			unicorn: eslintPluginUnicorn,
-		},
-		rules: eslintPluginUnicorn.configs.all.rules,
 		linterOptions: {
 			reportUnusedDisableDirectives: false,
 		},
@@ -38,8 +34,6 @@ const configs = [
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
-			// Ignore this file self temporarily, disabling `n/file-extension-in-import` comment cause error
-			'test/run-rules-on-codebase/lint.mjs',
 			'rules/utils/lodash.js',
 		],
 	},
@@ -55,10 +49,6 @@ const configs = [
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
-			'unicorn/no-unsafe-regex': 'off',
-			// Not ready yet
-			'unicorn/prefer-string-replace-all': 'off',
-			'unicorn/prefer-at': 'off',
 		},
 	},
 	{
