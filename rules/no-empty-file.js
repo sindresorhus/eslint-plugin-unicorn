@@ -18,7 +18,7 @@ const hasTripeSlashDirectives = comments =>
 const create = context => {
 	const filename = context.physicalFilename;
 	const options = {
-		allow: [],
+		allowComments: false,
 		...context.options[0],
 	};
 
@@ -39,7 +39,7 @@ const create = context => {
 				return;
 			}
 
-			if (options.allow.includes('comments') && comments.length > 0) {
+			if (options.allowComments && comments.length > 0) {
 				return;
 			}
 
@@ -56,11 +56,8 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			allow: {
-				type: 'array',
-				items: {
-					type: 'string',
-				},
+			allowComments: {
+				type: 'boolean',
 			},
 		},
 	},

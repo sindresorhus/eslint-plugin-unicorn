@@ -46,7 +46,7 @@ test.snapshot({
 				*/
 				console.log('done');
 			`,
-		].map(code => ({code, filename: 'example.js', options: [{allow: ['comments']}]})),
+		].map(code => ({code, filename: 'example.js', options: [{allowComments: true}]})),
 		'',
 		...[
 			'md',
