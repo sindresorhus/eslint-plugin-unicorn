@@ -71,7 +71,7 @@ const x = 0;
 
 ## Options
 
-### allowComments
+### allow
 
 Type: `boolean`\
 Default: `false`
