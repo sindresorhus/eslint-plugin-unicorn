@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a20b3700-c877-4287-a663-b2c3f12e8919" name="Changes" comment="Fix allowComments" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "node.js.selected.package.tslint": "(autodetect)"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="additionalRoots">
+      <list>
+        <option value="$PROJECT_DIR$/test/integration/fixtures/next.js/test/integration/typescript-paths/components/alias-to-d-ts.d.ts" />
+        <option value="$PROJECT_DIR$/test/integration/fixtures/next.js/test/integration/typescript-workspaces-paths/packages/www/components/alias-to-d-ts.d.ts" />
+      </list>
+    </option>
+  </component>
+</project>
