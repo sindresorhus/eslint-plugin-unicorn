@@ -11,11 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: |
-          npm install
-          npm link
-          npm link eslint-plugin-unicorn
-      - uses: AriPerkkio/eslint-remote-tester-run-action@v4
+      - run: npm install
+      - uses: AriPerkkio/eslint-remote-tester-run-action@v5
         with:
           issue-title: "Results of weekly scheduled smoke test"
-          eslint-remote-tester-config: test/smoke/eslint-remote-tester.config.js
+          eslint-remote-tester-config: test/smoke/eslint-remote-tester.config.mjs
