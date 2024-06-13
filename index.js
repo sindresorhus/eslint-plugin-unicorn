@@ -50,8 +50,8 @@ const allRules = Object.fromEntries(
 const createConfig = (rules, flatConfigName = false) => ({
 	...(
 		flatConfigName
-		? {...flatConfigBase, name: flatConfigName, plugins: {unicorn}}
-		: {...legacyConfigBase, plugins: ['unicorn']}
+			? {...flatConfigBase, name: flatConfigName, plugins: {unicorn}}
+			: {...legacyConfigBase, plugins: ['unicorn']}
 	),
 	rules: {...externalRules, ...rules},
 });
