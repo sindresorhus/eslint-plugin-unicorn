@@ -1,4 +1,4 @@
-# Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`
+# Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast,findIndex,findLastIndex}(…)`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
@@ -17,7 +17,11 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Comparing the result of [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)  or [`Array#findLast()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLast) with `undefined`.
 
-This rule is fixable for `.filter(…).length` check and has a suggestion for `.{find,findLast}(…)`.
+- Using [`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) or [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) to ensure at least one element in the array passes a given check.
+
+This rule is fixable for `.filter(…).length` checks and `.{findIndex,findLastIndex}(…)`.
+
+This rule provides a suggestion for `.{find,findLast}(…)`.
 
 ## Fail
 
@@ -44,11 +48,11 @@ const foo = array.find(element => isUnicorn(element)) ? bar : baz;
 ```
 
 ```js
-const hasUnicorn = array.find(element => isUnicorn(element) !== undefined;
+const hasUnicorn = array.find(element => isUnicorn(element)) !== undefined;
 ```
 
 ```js
-const hasUnicorn = array.find(element => isUnicorn(element) != null;
+const hasUnicorn = array.find(element => isUnicorn(element)) != null;
 ```
 
 ```js
@@ -62,11 +66,19 @@ const foo = array.findLast(element => isUnicorn(element)) ? bar : baz;
 ```
 
 ```js
-const hasUnicorn = array.findLast(element => isUnicorn(element) !== undefined;
+const hasUnicorn = array.findLast(element => isUnicorn(element)) !== undefined;
 ```
 
 ```js
-const hasUnicorn = array.findLast(element => isUnicorn(element) != null;
+const hasUnicorn = array.findLast(element => isUnicorn(element)) != null;
+```
+
+```js
+const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
+```
+
+```js
+const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
 ```
 
 ```vue

@@ -40,10 +40,14 @@ const isCheckingUndefined = node =>
 			&& isLiteral(node.parent.right, null)
 		)
 	);
+const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isLiteralZero = node => isLiteral(node, 0);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	// `.find(…)`
+	// `.findLast(…)`
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: ['find', 'findLast'],
 			minimumArguments: 1,
@@ -86,8 +90,61 @@ const create = context => ({
 				},
 			],
 		};
-	},
-	BinaryExpression(binaryExpression) {
+	});
+
+	// These operators also used in `prefer-includes`, try to reuse the code in future
+	// `.{findIndex,findLastIndex}(…) !== -1`
+	// `.{findIndex,findLastIndex}(…) != -1`
+	// `.{findIndex,findLastIndex}(…) > -1`
+	// `.{findIndex,findLastIndex}(…) === -1`
+	// `.{findIndex,findLastIndex}(…) == -1`
+	// `.{findIndex,findLastIndex}(…) >= 0`
+	// `.{findIndex,findLastIndex}(…) < 0`
+	context.on('BinaryExpression', binaryExpression => {
+		const {left, right, operator} = binaryExpression;
+
+		if (!(
+			isMethodCall(left, {
+				methods: ['findIndex', 'findLastIndex'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& (
+				(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+				|| (['>=', '<'].includes(operator) && isLiteralZero(right))
+			)
+		)) {
+			return;
+		}
+
+		const methodNode = left.callee.property;
+		return {
+			node: methodNode,
+			messageId: ERROR_ID_ARRAY_SOME,
+			data: {method: methodNode.name},
+			* fix(fixer) {
+				if (['===', '==', '<'].includes(operator)) {
+					yield fixer.insertTextBefore(binaryExpression, '!');
+				}
+
+				yield fixer.replaceText(methodNode, 'some');
+
+				const operatorToken = context.sourceCode.getTokenAfter(
+					left,
+					token => token.type === 'Punctuator' && token.value === operator,
+				);
+				const [start] = operatorToken.range;
+				const [, end] = binaryExpression.range;
+
+				yield fixer.removeRange([start, end]);
+			},
+		};
+	});
+
+	// `.filter(…).length > 0`
+	// `.filter(…).length !== 0`
+	context.on('BinaryExpression', binaryExpression => {
 		if (!(
 			// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 			(binaryExpression.operator === '>' || binaryExpression.operator === '!==')
@@ -139,8 +196,8 @@ const create = context => ({
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -148,7 +205,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`.',
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast,findIndex,findLastIndex}(…)`.',
 			recommended: true,
 		},
 		fixable: 'code',
