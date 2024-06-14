@@ -8,6 +8,8 @@ test.snapshot({
 		'!foo instanceof bar',
 		'+foo === bar',
 		'!(foo === bar)',
+		'!!foo === bar',
+		'!!!foo === bar',
 		// We are not checking right side
 		'foo === !bar',
 	],
@@ -45,6 +47,5 @@ test.snapshot({
 			foo
 			!/* comment */[a, b].join('') === c
 		`,
-		'!!foo === bar',
 	],
 });

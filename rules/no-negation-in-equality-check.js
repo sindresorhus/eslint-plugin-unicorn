@@ -31,10 +31,11 @@ const create = context => ({
 	BinaryExpression(binaryExpression) {
 		const {operator, left} = binaryExpression;
 
-		if (
-			!isEqualityCheck(binaryExpression)
-			|| !isNegatedExpression(left)
-		) {
+		if (!(
+			isEqualityCheck(binaryExpression)
+			&& isNegatedExpression(left)
+			&& !isNegatedExpression(left.argument)
+		)) {
 			return;
 		}
 
