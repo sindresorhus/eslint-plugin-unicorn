@@ -171,11 +171,11 @@ function getCompactConfig(config) {
 
 test('flat configs', t => {
 	t.deepEqual(
-		getCompactConfig(eslintPluginUnicorn.configs.recommended),
+		{...getCompactConfig(eslintPluginUnicorn.configs.recommended), name: 'unicorn/flat/recommended'},
 		{...eslintPluginUnicorn.configs['flat/recommended'], plugins: undefined},
 	);
 	t.deepEqual(
-		getCompactConfig(eslintPluginUnicorn.configs.all),
+		{...getCompactConfig(eslintPluginUnicorn.configs.all), name: 'unicorn/flat/all'},
 		{...eslintPluginUnicorn.configs['flat/all'], plugins: undefined},
 	);
 });

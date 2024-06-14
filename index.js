@@ -47,9 +47,12 @@ const allRules = Object.fromEntries(
 	]),
 );
 
-const createConfig = (rules, isLegacyConfig = false) => ({
-	...(isLegacyConfig ? legacyConfigBase : flatConfigBase),
-	plugins: isLegacyConfig ? ['unicorn'] : {unicorn},
+const createConfig = (rules, flatConfigName = false) => ({
+	...(
+		flatConfigName
+			? {...flatConfigBase, name: flatConfigName, plugins: {unicorn}}
+			: {...legacyConfigBase, plugins: ['unicorn']}
+	),
 	rules: {...externalRules, ...rules},
 });
 
@@ -65,10 +68,10 @@ const unicorn = {
 };
 
 const configs = {
-	recommended: createConfig(recommendedRules, /* isLegacyConfig */ true),
-	all: createConfig(allRules, /* isLegacyConfig */ true),
-	'flat/recommended': createConfig(recommendedRules),
-	'flat/all': createConfig(allRules),
+	recommended: createConfig(recommendedRules),
+	all: createConfig(allRules),
+	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
+	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
 
 module.exports = {...unicorn, configs};
