@@ -47,7 +47,7 @@ const allRules = Object.fromEntries(
 	]),
 );
 
-const createLegacyConfig = (rules) => ({
+const createLegacyConfig = rules => ({
 	...legacyConfigBase,
 	plugins: ['unicorn'],
 	rules: {...externalRules, ...rules},
@@ -58,7 +58,7 @@ const createFlatConfig = (rules, flatConfigName) => ({
 	name: flatConfigName,
 	plugins: {unicorn},
 	rules: {...externalRules, ...rules},
-})
+});
 
 const unicorn = {
 	meta: {
