@@ -33,6 +33,9 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0]
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
+const isStoredInArray = node => isMethodCall(node, {methods: ['all']})
+	&& ['VariableDeclarator', 'AssignmentExpression'].includes(node.parent.parent.type);
+
 const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, sourceCode);
@@ -133,7 +136,15 @@ const create = context => ({
 			callExpression.parent.type === 'AwaitExpression'
 			&& callExpression.parent.argument === callExpression
 		) {
-			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
+			if (isStoredInArray(callExpression)) {
+				problem.suggest = [{
+					messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
+					fix: unwrapAwaitedCallExpression(callExpression, sourceCode),
+				}];
+			} else {
+				problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
+			}
+
 			return problem;
 		}
 

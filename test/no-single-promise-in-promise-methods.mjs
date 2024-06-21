@@ -39,6 +39,10 @@ test.snapshot({
 		'await Promise.race([promise])',
 		'await Promise.all([new Promise(() => {})])',
 		'+await Promise.all([+1])',
+		'const results = await Promise.all([promise])',
+		'results = await Promise.all([promise])',
+		'const results = await Promise.any([promise])',
+		'const results = await Promise.race([promise])',
 
 		// ASI, `Promise.all()` is not really `await`ed
 		outdent`
