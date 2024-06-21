@@ -32,8 +32,8 @@ const create = () => ({
 		if (
 			typeof value !== 'string'
 			|| value.startsWith('node:')
+			|| /^bun(?::|$)/.test(value)
 			|| !isBuiltinModule(value)
-			|| !isBuiltinModule(`node:${value}`)
 		) {
 			return;
 		}
