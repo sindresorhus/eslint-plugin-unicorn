@@ -32,7 +32,7 @@ const create = () => ({
 		if (
 			typeof value !== 'string'
 			|| value.startsWith('node:')
-			|| /^bun(:\w+|$)/.test(value)
+			|| /^bun(?::|$)/.test(value)
 			|| !isBuiltinModule(value)
 		) {
 			return;
