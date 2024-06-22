@@ -123,6 +123,7 @@ test.snapshot({
 		'const results = await Promise.race([promise])',
 
 		// Fixable, but not provide at this point
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2388
 		'const [foo] = await Promise.all([promise])',
 	],
 });
