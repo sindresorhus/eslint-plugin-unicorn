@@ -8,49 +8,46 @@ test.snapshot({
 	valid: [
 	],
 	invalid: [
-		'await Promise.all([(0, promise)])',
-		'async function * foo() {await Promise.all([yield promise])}',
-		'async function * foo() {await Promise.all([yield* promise])}',
-		'await Promise.all([() => promise,],)',
-		'await Promise.all([a ? b : c,],)',
-		'await Promise.all([x ??= y,],)',
-		'await Promise.all([x ||= y,],)',
-		'await Promise.all([x &&= y,],)',
-		'await Promise.all([x |= y,],)',
-		'await Promise.all([x ^= y,],)',
-		'await Promise.all([x ??= y,],)',
-		'await Promise.all([x ||= y,],)',
-		'await Promise.all([x &&= y,],)',
-		'await Promise.all([x | y,],)',
-		'await Promise.all([x ^ y,],)',
-		'await Promise.all([x & y,],)',
-		'await Promise.all([x !== y,],)',
-		'await Promise.all([x == y,],)',
-		'await Promise.all([x in y,],)',
-		'await Promise.all([x >>> y,],)',
-		'await Promise.all([x + y,],)',
-		'await Promise.all([x / y,],)',
-		'await Promise.all([x ** y,],)',
-		'await Promise.all([promise,],)',
-		'await Promise.all([getPromise(),],)',
-		'await Promise.all([promises[0],],)',
-		'await Promise.all([await promise])',
+		'await Promise.race([(0, promise)])',
+		'async function * foo() {await Promise.race([yield promise])}',
+		'async function * foo() {await Promise.race([yield* promise])}',
+		'await Promise.race([() => promise,],)',
+		'await Promise.race([a ? b : c,],)',
+		'await Promise.race([x ??= y,],)',
+		'await Promise.race([x ||= y,],)',
+		'await Promise.race([x &&= y,],)',
+		'await Promise.race([x |= y,],)',
+		'await Promise.race([x ^= y,],)',
+		'await Promise.race([x ??= y,],)',
+		'await Promise.race([x ||= y,],)',
+		'await Promise.race([x &&= y,],)',
+		'await Promise.race([x | y,],)',
+		'await Promise.race([x ^ y,],)',
+		'await Promise.race([x & y,],)',
+		'await Promise.race([x !== y,],)',
+		'await Promise.race([x == y,],)',
+		'await Promise.race([x in y,],)',
+		'await Promise.race([x >>> y,],)',
+		'await Promise.race([x + y,],)',
+		'await Promise.race([x / y,],)',
+		'await Promise.race([x ** y,],)',
+		'await Promise.race([promise,],)',
+		'await Promise.race([getPromise(),],)',
+		'await Promise.race([promises[0],],)',
+		'await Promise.race([await promise])',
 		'await Promise.any([promise])',
 		'await Promise.race([promise])',
-		'await Promise.all([new Promise(() => {})])',
-		'+await Promise.all([+1])',
-		'const results = await Promise.all([promise])',
-		'const foo = () => Promise.all([promise])',
-		'results = await Promise.all([promise])',
+		'await Promise.race([new Promise(() => {})])',
+		'+await Promise.race([+1])',
+		'const foo = await Promise.race([promise])',
+		'const foo = () => Promise.race([promise])',
+		'foo = await Promise.race([promise])',
 		'const results = await Promise.any([promise])',
 		'const results = await Promise.race([promise])',
 
-		// Fixable, but not provide at this point
-		'const [foo] = await Promise.all([promise])',
-
-		// ASI, `Promise.all()` is not really `await`ed
+		// ASI, `Promise.race()` is not really `await`ed
 		outdent`
-			await Promise.all([(x,y)])
+			await Promise.race([(x,y)])
 			[0].toString()
 		`,
 	],
@@ -59,54 +56,69 @@ test.snapshot({
 // Not `await`ed
 test.snapshot({
 	valid: [
-		'Promise.all([promise, anotherPromise])',
-		'Promise.all(notArrayLiteral)',
-		'Promise.all([...promises])',
+		'Promise.race([promise, anotherPromise])',
+		'Promise.race(notArrayLiteral)',
+		'Promise.race([...promises])',
 		'Promise.any([promise, anotherPromise])',
 		'Promise.race([promise, anotherPromise])',
 		'Promise.notListedMethod([promise])',
 		'Promise[all]([promise])',
-		'Promise.all([,])',
-		'NotPromise.all([promise])',
-		'Promise?.all([promise])',
-		'Promise.all?.([promise])',
-		'Promise.all(...[promise])',
-		'Promise.all([promise], extraArguments)',
-		'Promise.all()',
-		'new Promise.all([promise])',
+		'Promise.race([,])',
+		'NotPromise.race([promise])',
+		'Promise?.race([promise])',
+		'Promise.race?.([promise])',
+		'Promise.race(...[promise])',
+		'Promise.race([promise], extraArguments)',
+		'Promise.race()',
+		'new Promise.race([promise])',
 
 		// We are not checking these cases
-		'globalThis.Promise.all([promise])',
-		'Promise["all"]([promise])',
+		'globalThis.Promise.race([promise])',
+		'Promise["race"]([promise])',
 
 		// This can't be checked
 		'Promise.allSettled([promise])',
 	],
 	invalid: [
-		'Promise.all([promise,],)',
+		'Promise.race([promise,],)',
 		outdent`
 			foo
-			Promise.all([(0, promise),],)
+			Promise.race([(0, promise),],)
 		`,
 		outdent`
 			foo
-			Promise.all([[array][0],],)
+			Promise.race([[array][0],],)
 		`,
-		'Promise.all([promise]).then()',
-		'Promise.all([1]).then()',
-		'Promise.all([1.]).then()',
-		'Promise.all([.1]).then()',
-		'Promise.all([(0, promise)]).then()',
-		'const _ = () => Promise.all([ a ?? b ,],)',
-		'Promise.all([ {a} = 1 ,],)',
-		'Promise.all([ function () {} ,],)',
-		'Promise.all([ class {} ,],)',
-		'Promise.all([ new Foo ,],).then()',
-		'Promise.all([ new Foo ,],).toString',
-		'foo(Promise.all([promise]))',
-		'Promise.all([promise]).foo = 1',
-		'Promise.all([promise])[0] ||= 1',
-		'Promise.all([undefined]).then()',
-		'Promise.all([null]).then()',
+		'Promise.race([promise]).then()',
+		'Promise.race([1]).then()',
+		'Promise.race([1.]).then()',
+		'Promise.race([.1]).then()',
+		'Promise.race([(0, promise)]).then()',
+		'const _ = () => Promise.race([ a ?? b ,],)',
+		'Promise.race([ {a} = 1 ,],)',
+		'Promise.race([ function () {} ,],)',
+		'Promise.race([ class {} ,],)',
+		'Promise.race([ new Foo ,],).then()',
+		'Promise.race([ new Foo ,],).toString',
+		'foo(Promise.race([promise]))',
+		'Promise.race([promise]).foo = 1',
+		'Promise.race([promise])[0] ||= 1',
+		'Promise.race([undefined]).then()',
+		'Promise.race([null]).then()',
 	],
 });
+
+// `Promise.all`
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = () => Promise.race([promise])',
+		'const foo = await Promise.all([promise])',
+		'foo = await Promise.all([promise])',
+
+		// Fixable, but not provide at this point
+		'const [foo] = await Promise.all([promise])',
+	],
+});
+
+
