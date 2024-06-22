@@ -81,7 +81,7 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	/*
 	```
 	Promise.race([promise,])
-	//      ^^^ methodNameNode
+	//      ^^^^ methodNameNode
 	```
 	*/
 	const methodNameNode = callExpression.callee.property;
@@ -91,15 +91,15 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	/*
 	```
 	Promise.race([promise,])
-	//          ^ openingBracketToken
+	//           ^ openingBracketToken
 	```
 	*/
 	const openingBracketToken = sourceCode.getFirstToken(arrayExpression);
 	/*
 	```
 	Promise.race([promise,])
-	//                  ^ penultimateToken
-	//                   ^ closingBracketToken
+	//                   ^ penultimateToken
+	//                    ^ closingBracketToken
 	```
 	*/
 	const [
