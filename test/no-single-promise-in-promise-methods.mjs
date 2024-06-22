@@ -45,6 +45,9 @@ test.snapshot({
 		'const results = await Promise.any([promise])',
 		'const results = await Promise.race([promise])',
 
+		// Fixable, but not provide at this point
+		'const [foo] = await Promise.all([promise])',
+
 		// ASI, `Promise.all()` is not really `await`ed
 		outdent`
 			await Promise.all([(x,y)])
