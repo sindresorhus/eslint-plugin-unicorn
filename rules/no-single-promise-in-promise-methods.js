@@ -146,7 +146,7 @@ const create = context => ({
 			return problem;
 		}
 
-		if (methodName !== 'all') {
+		if (methodName === 'all') {
 			return problem;
 		}
 
