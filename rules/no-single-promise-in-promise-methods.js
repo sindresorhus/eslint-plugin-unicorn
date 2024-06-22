@@ -133,11 +133,10 @@ const create = context => ({
 		};
 
 		const {sourceCode} = context;
-		const isAwaited = callExpression.parent.type === 'AwaitExpression'
-			&& callExpression.parent.argument === callExpression;
 
 		if (
-			isAwaited
+			callExpression.parent.type === 'AwaitExpression'
+			&& callExpression.parent.argument === callExpression
 			&& (
 				methodName !== 'all'
 				|| isExpressionStatement(callExpression.parent.parent)
@@ -147,19 +146,20 @@ const create = context => ({
 			return problem;
 		}
 
+		if (methodName !== 'all') {
+			return problem;
+		}
+
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
 				fix: unwrapNonAwaitedCallExpression(callExpression, sourceCode),
 			},
-		];
-
-		if (!isAwaited) {
-			problem.suggest.push({
+			{
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
 				fix: switchToPromiseResolve(callExpression, sourceCode),
-			});
-		}
+			},
+		];
 
 		return problem;
 	},
