@@ -39,11 +39,6 @@ test.snapshot({
 		'await Promise.race([promise])',
 		'await Promise.race([new Promise(() => {})])',
 		'+await Promise.race([+1])',
-		'const foo = await Promise.race([promise])',
-		'const foo = () => Promise.race([promise])',
-		'foo = await Promise.race([promise])',
-		'const results = await Promise.any([promise])',
-		'const results = await Promise.race([promise])',
 
 		// ASI, `Promise.race()` is not really `await`ed
 		outdent`
@@ -112,13 +107,22 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		'const foo = () => Promise.race([promise])',
+		// Only fixable if it's in `ExpressionStatement`
+		'Promise.all([promise])',
+		'await Promise.all([promise])',
+
+		'const foo = () => Promise.all([promise])',
 		'const foo = await Promise.all([promise])',
 		'foo = await Promise.all([promise])',
+
+		// `Promise.{all, race}()` should not care if the result is used
+		'const foo = await Promise.race([promise])',
+		'const foo = () => Promise.race([promise])',
+		'foo = await Promise.race([promise])',
+		'const results = await Promise.any([promise])',
+		'const results = await Promise.race([promise])',
 
 		// Fixable, but not provide at this point
 		'const [foo] = await Promise.all([promise])',
 	],
 });
-
-
