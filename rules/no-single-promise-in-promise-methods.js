@@ -2,7 +2,10 @@
 const {
 	isCommaToken,
 } = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
+const {
+	isMethodCall,
+	isExpressionStatement,
+} = require('./ast/index.js');
 const {
 	getParenthesizedText,
 	isParenthesized,
@@ -32,9 +35,6 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements.length === 1
 	&& node.arguments[0].elements[0]
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
-
-const isStoredInArray = node => isMethodCall(node, {methods: ['all']})
-	&& ['VariableDeclarator', 'AssignmentExpression'].includes(node.parent.parent.type);
 
 const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
 	const [promiseNode] = callExpression.arguments[0].elements;
@@ -122,28 +122,28 @@ const create = context => ({
 			return;
 		}
 
+		const methodName = callExpression.callee.property.name;
+
 		const problem = {
 			node: callExpression.arguments[0],
 			messageId: MESSAGE_ID_ERROR,
 			data: {
-				method: callExpression.callee.property.name,
+				method: methodName,
 			},
 		};
 
 		const {sourceCode} = context;
+		const isAwaited = callExpression.parent.type === 'AwaitExpression'
+			&& callExpression.parent.argument === callExpression
 
 		if (
-			callExpression.parent.type === 'AwaitExpression'
-			&& callExpression.parent.argument === callExpression
+			isAwaited
+			&& (
+				methodName !== 'all'
+				|| isExpressionStatement(callExpression.parent.parent)
+			)
 		) {
-			if (isStoredInArray(callExpression)) {
-				problem.suggest = [{
-					messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
-					fix: unwrapAwaitedCallExpression(callExpression, sourceCode),
-				}];
-			} else {
-				problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
-			}
+			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
 
 			return problem;
 		}
@@ -153,11 +153,14 @@ const create = context => ({
 				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
 				fix: unwrapNonAwaitedCallExpression(callExpression, sourceCode),
 			},
-			{
+		];
+
+		if (!isAwaited) {
+			problem.suggest.push({
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
 				fix: switchToPromiseResolve(callExpression, sourceCode),
-			},
-		];
+			})
+		}
 
 		return problem;
 	},
