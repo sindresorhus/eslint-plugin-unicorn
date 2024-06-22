@@ -80,7 +80,7 @@ const unwrapNonAwaitedCallExpression = (callExpression, sourceCode) => fixer => 
 const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer) {
 	/*
 	```
-	Promise.all([promise,])
+	Promise.race([promise,])
 	//      ^^^ methodNameNode
 	```
 	*/
@@ -90,14 +90,14 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	const [arrayExpression] = callExpression.arguments;
 	/*
 	```
-	Promise.all([promise,])
+	Promise.race([promise,])
 	//          ^ openingBracketToken
 	```
 	*/
 	const openingBracketToken = sourceCode.getFirstToken(arrayExpression);
 	/*
 	```
-	Promise.all([promise,])
+	Promise.race([promise,])
 	//                  ^ penultimateToken
 	//                   ^ closingBracketToken
 	```
