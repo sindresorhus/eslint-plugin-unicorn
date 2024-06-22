@@ -57,7 +57,7 @@ test.snapshot({
 		'Promise.any([promise, anotherPromise])',
 		'Promise.race([promise, anotherPromise])',
 		'Promise.notListedMethod([promise])',
-		'Promise[all]([promise])',
+		'Promise[race]([promise])',
 		'Promise.race([,])',
 		'NotPromise.race([promise])',
 		'Promise?.race([promise])',
