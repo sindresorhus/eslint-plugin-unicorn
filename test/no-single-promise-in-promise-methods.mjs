@@ -40,6 +40,7 @@ test.snapshot({
 		'await Promise.all([new Promise(() => {})])',
 		'+await Promise.all([+1])',
 		'const results = await Promise.all([promise])',
+		'const foo = () => Promise.all([promise])',
 		'results = await Promise.all([promise])',
 		'const results = await Promise.any([promise])',
 		'const results = await Promise.race([promise])',

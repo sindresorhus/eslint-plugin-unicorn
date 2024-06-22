@@ -134,7 +134,7 @@ const create = context => ({
 
 		const {sourceCode} = context;
 		const isAwaited = callExpression.parent.type === 'AwaitExpression'
-			&& callExpression.parent.argument === callExpression
+			&& callExpression.parent.argument === callExpression;
 
 		if (
 			isAwaited
@@ -144,7 +144,6 @@ const create = context => ({
 			)
 		) {
 			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
-
 			return problem;
 		}
 
@@ -159,7 +158,7 @@ const create = context => ({
 			problem.suggest.push({
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
 				fix: switchToPromiseResolve(callExpression, sourceCode),
-			})
+			});
 		}
 
 		return problem;
