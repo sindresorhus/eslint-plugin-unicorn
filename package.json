@@ -11,6 +11,7 @@
 		"url": "https://sindresorhus.com"
 	},
 	"main": "index.js",
+	"types": "index.d.ts",
 	"sideEffects": false,
 	"engines": {
 		"node": ">=18.18"
@@ -35,6 +36,7 @@
 	},
 	"files": [
 		"index.js",
+		"index.d.ts",
 		"rules",
 		"configs"
 	],
