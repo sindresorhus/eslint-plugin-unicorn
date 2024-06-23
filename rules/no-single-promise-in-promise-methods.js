@@ -2,7 +2,10 @@
 const {
 	isCommaToken,
 } = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
+const {
+	isMethodCall,
+	isExpressionStatement,
+} = require('./ast/index.js');
 const {
 	getParenthesizedText,
 	isParenthesized,
@@ -77,8 +80,8 @@ const unwrapNonAwaitedCallExpression = (callExpression, sourceCode) => fixer => 
 const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer) {
 	/*
 	```
-	Promise.all([promise,])
-	//      ^^^ methodNameNode
+	Promise.race([promise,])
+	//      ^^^^ methodNameNode
 	```
 	*/
 	const methodNameNode = callExpression.callee.property;
@@ -87,16 +90,16 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	const [arrayExpression] = callExpression.arguments;
 	/*
 	```
-	Promise.all([promise,])
-	//          ^ openingBracketToken
+	Promise.race([promise,])
+	//           ^ openingBracketToken
 	```
 	*/
 	const openingBracketToken = sourceCode.getFirstToken(arrayExpression);
 	/*
 	```
-	Promise.all([promise,])
-	//                  ^ penultimateToken
-	//                   ^ closingBracketToken
+	Promise.race([promise,])
+	//                   ^ penultimateToken
+	//                    ^ closingBracketToken
 	```
 	*/
 	const [
@@ -119,11 +122,13 @@ const create = context => ({
 			return;
 		}
 
+		const methodName = callExpression.callee.property.name;
+
 		const problem = {
 			node: callExpression.arguments[0],
 			messageId: MESSAGE_ID_ERROR,
 			data: {
-				method: callExpression.callee.property.name,
+				method: methodName,
 			},
 		};
 
@@ -132,8 +137,16 @@ const create = context => ({
 		if (
 			callExpression.parent.type === 'AwaitExpression'
 			&& callExpression.parent.argument === callExpression
+			&& (
+				methodName !== 'all'
+				|| isExpressionStatement(callExpression.parent.parent)
+			)
 		) {
 			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
+			return problem;
+		}
+
+		if (methodName === 'all') {
 			return problem;
 		}
 
