@@ -62,7 +62,7 @@
 		"is-builtin-module": "^3.2.1",
 		"jsesc": "^3.0.2",
 		"pluralize": "^8.0.0",
-		"read-pkg-up": "^7.0.1",
+		"read-package-up": "^11.0.0",
 		"regexp-tree": "^0.1.27",
 		"regjsparser": "^0.10.0",
 		"semver": "^7.6.1",
