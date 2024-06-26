@@ -30,6 +30,10 @@ import fs from 'fs/promises';
 ```
 
 ```js
+const fs = require('fs');
+```
+
+```js
 const fs = require('fs/promises');
 ```
 
@@ -45,10 +49,6 @@ export {strict as default} from 'node:assert';
 
 ```js
 import fs from 'node:fs/promises';
-```
-
-```js
-const fs = require('fs');
 ```
 
 ```js
