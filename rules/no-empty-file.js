@@ -17,6 +17,10 @@ const hasTripeSlashDirectives = comments =>
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const filename = context.physicalFilename;
+	const options = {
+		allowComments: false,
+		...context.options[0],
+	};
 
 	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
 		return;
@@ -35,6 +39,10 @@ const create = context => {
 				return;
 			}
 
+			if (options.allowComments && comments.length > 0) {
+				return;
+			}
+
 			return {
 				node,
 				messageId: MESSAGE_ID,
@@ -42,6 +50,18 @@ const create = context => {
 		},
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allowComments: {
+				type: 'boolean',
+			},
+		},
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -52,6 +72,7 @@ module.exports = {
 			description: 'Disallow empty files.',
 			recommended: true,
 		},
+		schema,
 		messages,
 	},
 };
