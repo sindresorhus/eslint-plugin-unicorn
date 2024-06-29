@@ -39,6 +39,7 @@ module.exports.defaultReplacements = {
 	},
 	db: {
 		database: true,
+		decibel: true,
 	},
 	def: {
 		defer: true,
