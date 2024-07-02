@@ -1,13 +1,14 @@
-import {Legacy} from '@eslint/eslintrc';
 import * as espree from 'espree';
+import globals from 'globals';
 
 const DEFAULT_LANGUAGE_OPTIONS = {
 	// When `parser` in `undefined`, `languageOptions` seems has no effect
 	parser: espree,
-	globals: Object.fromEntries(
-		['es2024', 'node', 'browser']
-			.flatMap(environment => Object.entries(Legacy.environments.get(environment).globals)),
-	),
+	globals: {
+		...globals.builtin,
+		...globals.node,
+		...globals.browser,
+	},
 };
 
 function cleanLanguageOptions(languageOptions) {

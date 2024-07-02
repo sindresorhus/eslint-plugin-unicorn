@@ -27,12 +27,12 @@ If you don't use the preset, ensure you use the same `languageOptions` config as
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import * as eslintrc from '@eslint/eslintrc';
+import globals from 'globals';
 
 export default [
 	{
 		languageOptions: {
-			globals: eslintrc.Legacy.environments.get('es2024'),
+			globals: globals.builtin,
 		},
 		plugins: {
 			unicorn: eslintPluginUnicorn,
@@ -51,12 +51,12 @@ export default [
 ```js
 'use strict';
 const eslintPluginUnicorn = require('eslint-plugin-unicorn');
-const eslintrc = require('@eslint/eslintrc');
+const globals = require('globals');
 
 module.exports = [
 	{
 		languageOptions: {
-			globals: eslintrc.Legacy.environments.get('es2024'),
+			globals: globals.builtin,
 		},
 		plugins: {
 			unicorn: eslintPluginUnicorn,
