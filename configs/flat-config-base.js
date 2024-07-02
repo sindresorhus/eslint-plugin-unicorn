@@ -1,10 +1,8 @@
 'use strict';
-const eslintrc = require('@eslint/eslintrc');
-
-const {globals} = eslintrc.Legacy.environments.get('es2024');
+const globals = require('globals');
 
 module.exports = {
 	languageOptions: {
-		globals,
+		globals: globals.builtin,
 	},
 };
