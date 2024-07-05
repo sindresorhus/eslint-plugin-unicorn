@@ -61,5 +61,12 @@ test.snapshot({
 		`,
 		// #1030
 		'e.getElementById(3)',
+		'document.getElementsByName("foo");',
+		'document.getElementsByName(\'foo\');',
+		'document.getElementsByName(`foo`);',
+		'document.getElementsByName(`${\'foo\'}`);', // eslint-disable-line no-template-curly-in-string
+		'document.getElementsByName(null);',
+		'document.getElementsByName("");',
+		'document.getElementsByName(foo + "bar");',
 	],
 });
