@@ -11,32 +11,29 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', callExpression => {
+		if (!isMethodCall(callExpression, {
+			method: 'slice',
+			argumentsLength: 2,
+			optionalCall: false,
+		})) {
+			return;
+		}
+
+		const secondArgument = callExpression.arguments[1];
+		const node = secondArgument.type === 'ChainExpression' ? secondArgument.expression : secondArgument;
+
 		if (
-			!isMethodCall(callExpression, {
-				method: 'slice',
-				argumentsLength: 2,
-				optionalCall: false,
-			})
-			|| !isMemberExpression(callExpression.arguments[1], {
-				property: 'length',
-				optional: false,
-				computed: false,
-			})
-			|| !isSameReference(
-				callExpression.callee.object,
-				callExpression.arguments[1].object,
-			)
+			!isMemberExpression(node, {property: 'length', computed: false})
+			|| !isSameReference(callExpression.callee.object, node.object)
 		) {
 			return;
 		}
 
-		const lengthNode = callExpression.arguments[1];
-
 		return {
-			node: lengthNode,
+			node,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => removeArgument(fixer, lengthNode, context.sourceCode),
+			fix: fixer => removeArgument(fixer, secondArgument, context.sourceCode),
 		};
 	});
 };

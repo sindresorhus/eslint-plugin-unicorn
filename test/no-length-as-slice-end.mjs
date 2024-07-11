@@ -5,8 +5,6 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'foo.slice?.(1, foo.length)',
-		'foo.slice(1, foo?.length)',
-		'foo?.slice(1, foo?.length)',
 		'foo.slice(foo.length, 1)',
 		'foo.slice()',
 		'foo.slice(1)',
@@ -29,5 +27,7 @@ test.snapshot({
 		'foo?.slice(1, foo.length)',
 		'foo.slice(1, foo.length,)',
 		'foo.slice(1, (( foo.length )))',
+		'foo.slice(1, foo?.length)',
+		'foo?.slice(1, foo?.length)',
 	],
 });
