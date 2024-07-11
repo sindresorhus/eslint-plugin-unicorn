@@ -18,6 +18,7 @@ test.snapshot({
 		'slice(1, foo.length)',
 		'foo.slice(1, foo.notLength)',
 		'foo.slice(1, length)',
+		'foo[slice](1, foo.length)',
 		'foo.slice(1, foo[length])',
 		'foo.slice(1, bar.length)',
 		// `isSameReference` consider they are not the same reference
