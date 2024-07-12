@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When calling `{String,Array,TypedArray}#slice(start, end)`, omitting the `end` argument defaults it to the object's `length`. Passing it explicitly is unnecessary.
+When calling `{String,Array,TypedArray}#slice(start, end)`, omitting the `end` argument defaults it to the object's `.length`. Passing it explicitly is unnecessary.
 
 ## Fail
 
