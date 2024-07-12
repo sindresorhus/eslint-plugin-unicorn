@@ -5,7 +5,7 @@ const {isSameReference} = require('./utils/index.js');
 
 const MESSAGE_ID = 'no-length-as-slice-end';
 const messages = {
-	[MESSAGE_ID]: 'Pass `….length` as the `end` argument is unnecessary',
+	[MESSAGE_ID]: 'Passing `….length` as the `end` argument is unnecessary.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
