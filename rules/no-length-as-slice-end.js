@@ -44,7 +44,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Forbid use `.length` as the `end` argument of `{Array,String,TypedArray}#slice()`.',
+			description: 'Disallow using `.length` as the `end` argument of `{Array,String,TypedArray}#slice()`.',
 			recommended: true,
 		},
 		fixable: 'code',
