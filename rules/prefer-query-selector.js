@@ -24,8 +24,8 @@ const getQuotedReplacement = (node, value) => {
 	return `${leftQuote}${value}${rightQuote}`;
 };
 
-const wrapQuoted = (value, originQuote) => {
-	switch (originQuote) {
+const wrapQuoted = (value, originalQuote) => {
+	switch (originalQuote) {
 		case '\'': {
 			return `"${value}"`;
 		}
@@ -38,9 +38,7 @@ const wrapQuoted = (value, originQuote) => {
 			return `'${value}'`;
 		}
 
-		default: {
-			throw new Error('Unexpected quote');
-		}
+		// No default
 	}
 };
 
