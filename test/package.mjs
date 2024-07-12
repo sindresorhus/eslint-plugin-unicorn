@@ -4,6 +4,7 @@ import process from 'node:process';
 import test from 'ava';
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
 import * as eslintrc from '@eslint/eslintrc';
+import globals from 'globals';
 import eslintPluginUnicorn from '../index.js';
 
 const {FlatESLint} = eslintExperimentalApis;
@@ -157,6 +158,14 @@ function getCompactConfig(config) {
 				// https://eslint.org/docs/latest/use/configure/configuration-files-new#configuration-objects
 				delete languageOptions.ecmaVersion;
 				delete languageOptions.sourceType;
+				languageOptions.globals = {
+					...languageOptions.globals,
+					// When use `env.es*: true` in legacy config, `es5` globals are not included
+					...globals.es5,
+					// `Intl` was added to ESLint https://github.com/eslint/eslint/pull/18318
+					// But `@eslint/eslintrc` choose not to update `globals` https://github.com/eslint/eslintrc/pull/164
+					Intl: false,
+				};
 				result[key] = languageOptions;
 			} else if (key === 'plugins') {
 				result[key] = undefined;
