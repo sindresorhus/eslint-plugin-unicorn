@@ -30,6 +30,7 @@ test.snapshot({
 		'document.querySelectorAll(".foo .bar");',
 		'document.querySelectorAll("li a");',
 		'document.querySelector("li").querySelectorAll("a");',
+		'document.getElementsByName();',
 	],
 	invalid: [
 		'document.getElementById("foo");',
@@ -68,5 +69,6 @@ test.snapshot({
 		'document.getElementsByName(null);',
 		'document.getElementsByName("");',
 		'document.getElementsByName(foo + "bar");',
+		'document.getElementsByName("multiple name should be fixable");',
 	],
 });

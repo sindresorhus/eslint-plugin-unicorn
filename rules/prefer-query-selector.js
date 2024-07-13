@@ -16,7 +16,7 @@ const disallowedIdentifierNames = new Map([
 
 const getReplacementForId = value => `#${value}`;
 const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
-const getReplacementForName = (value, originQuote) => value.match(/\S+/g).map(name => `[name=${wrapQuoted(name, originQuote)}]`).join('');
+const getReplacementForName = (value, originQuote) => `[name=${wrapQuoted(value, originQuote)}]`
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
