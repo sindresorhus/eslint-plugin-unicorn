@@ -11,15 +11,35 @@ const disallowedIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
 	['getElementsByTagName', 'querySelectorAll'],
+	['getElementsByName', 'querySelectorAll'],
 ]);
 
 const getReplacementForId = value => `#${value}`;
 const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
+const getReplacementForName = (value, originQuote) => `[name=${wrapQuoted(value, originQuote)}]`;
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
 	const rightQuote = node.raw.at(-1);
 	return `${leftQuote}${value}${rightQuote}`;
+};
+
+const wrapQuoted = (value, originalQuote) => {
+	switch (originalQuote) {
+		case '\'': {
+			return `"${value}"`;
+		}
+
+		case '"': {
+			return `'${value}'`;
+		}
+
+		case '`': {
+			return `'${value}'`;
+		}
+
+		// No default
+	}
 };
 
 function * getLiteralFix(fixer, node, identifierName) {
@@ -30,6 +50,11 @@ function * getLiteralFix(fixer, node, identifierName) {
 
 	if (identifierName === 'getElementsByClassName') {
 		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));
+	}
+
+	if (identifierName === 'getElementsByName') {
+		const quoted = node.raw.charAt(0);
+		replacement = getQuotedReplacement(node, getReplacementForName(node.value, quoted));
 	}
 
 	yield fixer.replaceText(node, replacement);
@@ -51,6 +76,14 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 			yield fixer.replaceText(
 				templateElement,
 				getReplacementForClass(templateElement.value.cooked),
+			);
+		}
+
+		if (identifierName === 'getElementsByName') {
+			const quoted = node.raw ? node.raw.charAt(0) : '"';
+			yield fixer.replaceText(
+				templateElement,
+				getReplacementForName(templateElement.value.cooked, quoted),
 			);
 		}
 	}
@@ -91,7 +124,7 @@ const create = () => ({
 	CallExpression(node) {
 		if (
 			!isMethodCall(node, {
-				methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName'],
+				methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName', 'getElementsByName'],
 				argumentsLength: 1,
 				optionalCall: false,
 				optionalMember: false,
@@ -127,7 +160,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()`.',
+			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`.',
 			recommended: true,
 		},
 		fixable: 'code',
