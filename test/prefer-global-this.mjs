@@ -44,9 +44,9 @@ test.snapshot({
 		'const { foo } = global',
 		'function foo() { window.foo() }',
 		'foo(window)',
-		"window.window",
-		"global.global",
-		"window.global",
-		"global.window",
+		'window.window',
+		'global.global',
+		'window.global',
+		'global.window',
 	],
 });
