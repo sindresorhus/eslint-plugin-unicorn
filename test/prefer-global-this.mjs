@@ -89,6 +89,57 @@ test.snapshot({
 		'delete window.foo',
 		'++window',
 		'++window.foo',
+		outdent`
+			for (var attr in window) {
+
+			}
+		`,
+		outdent`
+			for (window.foo = 0; i < 10; window.foo++) {
+
+			}
+		`,
+		outdent`
+			for (const item of window.foo) {
+			}
+		`,
+		outdent`
+			for (const item of window) {
+			}
+		`,
+		outdent`
+			switch (window) {}
+		`,
+		outdent`
+			switch (true) {
+				case window:
+					break;
+			}
+		`,
+		outdent`
+			switch (true) {
+				case window.foo:
+					break;
+			}
+		`,
+		outdent`
+			while (window) {
+			}
+		`,
+		'do {} while (window) {}',
+		'if (window) {}',
+		'throw window',
+		// Outdent`
+		// 	try {
+
+		// 	} catch (window) {}
+		// `,
+		'var foo = window',
+		outdent`
+			function foo (name = window) {
+
+			}
+		`,
 	],
 });
 
