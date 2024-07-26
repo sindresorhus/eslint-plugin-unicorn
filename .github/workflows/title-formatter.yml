@@ -1,0 +1,22 @@
+name: Titles formatter
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+  issues:
+    types: [opened, edited]
+
+jobs:
+  Rule:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Auto-format rule names in titles
+        uses: fregante/title-replacer-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pattern-path: docs/rules
+          replacement: '`$0`'
