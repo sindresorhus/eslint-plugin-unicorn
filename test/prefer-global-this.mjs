@@ -31,6 +31,10 @@ test.snapshot({
 		'foo.window',
 		'foo.global',
 		'import window from "xxx"',
+		'import * as window from "xxx"',
+		'import window, {foo} from "xxx"',
+		'export { window }  from "xxx"',
+		'export * as window from "xxx";',
 	],
 	invalid: [
 		'window',

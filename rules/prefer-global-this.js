@@ -75,6 +75,26 @@ const create = context => ({
 			if (parent.type === 'ImportSpecifier' && parent.local === node) {
 				return;
 			}
+
+			// Skip `import * as window from "xxx"`
+			if (parent.type === 'ImportNamespaceSpecifier' && parent.local === node) {
+				return;
+			}
+
+			// Skip `import window, {foo} from "xxx"`
+			if (parent.type === 'ImportDefaultSpecifier' && parent.local === node) {
+				return;
+			}
+
+			// Skip `export { window }  from "xxx"`
+			if (parent.type === 'ExportSpecifier' && parent.local === node) {
+				return;
+			}
+
+			// Skip `export * as window from "xxx"`
+			if (parent.type === 'ExportAllDeclaration' && parent.exported === node) {
+				return;
+			}
 		}
 
 		const variable = findVariableInScope(
