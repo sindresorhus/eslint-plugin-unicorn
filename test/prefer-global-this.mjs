@@ -28,6 +28,8 @@ test.snapshot({
 				window.foo();
 			}
 		`,
+		'foo.window',
+		'foo.global',
 	],
 	invalid: [
 		'window',
@@ -41,5 +43,10 @@ test.snapshot({
 		'const { foo } = window',
 		'const { foo } = global',
 		'function foo() { window.foo() }',
+		'foo(window)',
+		"window.window",
+		"global.global",
+		"window.global",
+		"global.window",
 	],
 });
