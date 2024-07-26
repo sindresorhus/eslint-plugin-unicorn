@@ -70,6 +70,11 @@ const create = context => ({
 			) {
 				return;
 			}
+
+			// Skip `import window from "xxx"`
+			if (parent.type === 'ImportSpecifier' && parent.local === node) {
+				return;
+			}
 		}
 
 		const variable = findVariableInScope(
