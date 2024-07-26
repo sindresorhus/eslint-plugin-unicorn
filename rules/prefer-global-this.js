@@ -15,7 +15,7 @@ const messages = {
  */
 function findVariableInScope(scope, variableName) {
 	if (!scope || scope.type === 'global') {
-		return undefined;
+		return;
 	}
 
 	const variable = scope.variables.find(v => v.name === variableName);
