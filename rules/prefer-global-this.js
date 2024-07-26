@@ -29,108 +29,150 @@ function findVariableInScope(scope, variableName) {
 
 const globalIdentifier = new Set(['window', 'self', 'global']);
 
+/**
+ *
+ * @param {import('eslint').Rule.RuleContext} context
+ * @param {import('estree').Node} node
+ * @param {string} value
+ */
+function report(context, node, value) {
+	context.report({
+		node,
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			value,
+			replacement: 'globalThis',
+		},
+		fix: fixer => fixer.replaceText(node, 'globalThis'),
+		suggest: [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				data: {
+					value,
+					replacement: 'globalThis',
+				},
+				fix: fixer => fixer.replaceText(node, 'globalThis'),
+			},
+		],
+	});
+}
+
+/**
+ *
+ * @param {import('eslint').Rule.RuleContext} context
+ * @param {import('estree').Node | Array<import('estree').Node>} nodes
+ * @returns
+ */
+function handleNodes(context, nodes) {
+	if (!Array.isArray(nodes)) {
+		nodes = [nodes];
+	}
+
+	for (const node of nodes) {
+		if (node && node.type === 'Identifier' && globalIdentifier.has(node.name)) {
+			const variable = findVariableInScope(
+				context.sourceCode.getScope(node),
+				node.name,
+			);
+
+			if (variable) {
+				return;
+			}
+
+			return report(context, node, node.name);
+		}
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	Identifier(node) {
-		if (!globalIdentifier.has(node.name)) {
-			return;
-		}
-
-		const ancestors = context.sourceCode.getAncestors(node);
-
-		const parent = ancestors.length > 0 ? ancestors.at(-1) : undefined;
-
-		// Skip `window` and `global` in function declarations and variable declarations.
-		if (parent) {
-			if (['FunctionDeclaration', 'FunctionExpression'].includes(parent.type)) {
-				// Skip `function window() {}` and `function global() {}`
-				if (parent.id === node) {
-					return;
-				}
-
-				// Skip `function foo(window) {}` and `function foo(global) {}`
-				if (parent.params.includes(node)) {
-					return;
-				}
-
-				return;
+	/** @param {import('estree').MemberExpression} node */
+	MemberExpression(node) {
+		handleNodes(context, [node.object]);
+	},
+	/** @param {import('estree').CallExpression} node */
+	CallExpression(node) {
+		handleNodes(context, [node.object]);
+	},
+	/** @param {import('estree').BinaryExpression} node */
+	BinaryExpression(node) {
+		handleNodes(context, [node.left, node.right]);
+	},
+	/** @param {import('estree').LogicalExpression} node */
+	LogicalExpression(node) {
+		handleNodes(context, [node.left, node.right]);
+	},
+	/** @param {import('estree').ArrayExpression} node */
+	ArrayExpression(node) {
+		handleNodes(context, node.elements);
+	},
+	/** @param {import('estree').AssignmentExpression} node */
+	AssignmentExpression(node) {
+		handleNodes(context, [node.left, node.right]);
+	},
+	/** @param {import('estree').YieldExpression} node */
+	YieldExpression(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').AwaitExpression} node */
+	AwaitExpression(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').ConditionalExpression} node */
+	ConditionalExpression(node) {
+		handleNodes(context, [node.test, node.consequent, node.alternate]);
+	},
+	/** @param {import('estree').ExpressionStatement} node */
+	ExpressionStatement(node) {
+		switch (node.expression.type) {
+			case 'Identifier': {
+				handleNodes(context, node.expression);
+				break;
 			}
 
-			// Skip `var window = 1;` and `var global = 1;`
-			if (parent.type === 'VariableDeclarator' && parent.id === node) {
-				return;
-			}
-
-			// Skip `foo.window` and `foo.global`, but not allow `window.window` and `global.global
-			if (
-				parent.type === 'MemberExpression'
-				&& parent.property === node
-				&& parent.object.type === 'Identifier'
-				&& parent.object.name !== node.name
-			) {
-				return;
-			}
-
-			// Skip `import window from "xxx"`
-			if (parent.type === 'ImportSpecifier' && parent.local === node) {
-				return;
-			}
-
-			// Skip `import * as window from "xxx"`
-			if (parent.type === 'ImportNamespaceSpecifier' && parent.local === node) {
-				return;
-			}
-
-			// Skip `import window, {foo} from "xxx"`
-			if (parent.type === 'ImportDefaultSpecifier' && parent.local === node) {
-				return;
-			}
-
-			// Skip `export { window }  from "xxx"`
-			if (parent.type === 'ExportSpecifier' && parent.local === node) {
-				return;
-			}
-
-			// Skip `export * as window from "xxx"`
-			if (parent.type === 'ExportAllDeclaration' && parent.exported === node) {
-				return;
+			default: {
+				break;
 			}
 		}
-
-		const variable = findVariableInScope(
-			context.sourceCode.getScope(node),
-			node.name,
-		);
-
-		// Skip that has been declared in the scope
-		if (variable) {
-			return;
+	},
+	/** @param {import('estree').ImportExpression} node */
+	ImportExpression(node) {
+		handleNodes(context, node.source);
+	},
+	/** @param {import('estree').ReturnStatement} node */
+	ReturnStatement(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').NewExpression} node */
+	NewExpression(node) {
+		handleNodes(context, node.callee);
+	},
+	/** @param {import('estree').ObjectExpression} node */
+	ObjectExpression(node) {
+		for (const property of node.properties) {
+			handleNodes(context, property.value);
 		}
-
-		return {
-			node,
-			messageId: MESSAGE_ID_ERROR,
-			data: {
-				value: node.name,
-				replacement: 'globalThis',
-			},
-
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => fixer.replaceText(node, 'globalThis'),
-
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						value: node.name,
-						replacement: 'globalThis',
-					},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => fixer.replaceText(node, 'globalThis'),
-				},
-			],
-		};
+	},
+	/** @param {import('estree').SequenceExpression} node */
+	SequenceExpression(node) {
+		handleNodes(context, node.expressions);
+	},
+	/** @param {import('estree').TaggedTemplateExpression} node */
+	TaggedTemplateExpression(node) {
+		handleNodes(context, node.tag);
+		handleNodes(context, node.quasi.expressions);
+	},
+	/** @param {import('estree').TemplateLiteral} node */
+	TemplateLiteral(node) {
+		handleNodes(context, node.expressions);
+	},
+	/** @param {import('estree').UnaryExpression} node */
+	UnaryExpression(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').UnaryExpression} node */
+	UpdateExpression(node) {
+		handleNodes(context, node.argument);
 	},
 });
 
