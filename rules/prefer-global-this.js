@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-const MESSAGE_ID_ERROR = "prefer-global-this/error";
-const MESSAGE_ID_SUGGESTION = "prefer-global-this/suggestion";
+const MESSAGE_ID_ERROR = 'prefer-global-this/error';
+const MESSAGE_ID_SUGGESTION = 'prefer-global-this/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: "Prefer `{{replacement}}` over `{{value}}`.",
-	[MESSAGE_ID_SUGGESTION]: "Replace `{{value}}` with `{{replacement}}`.",
+	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
 
 /**
@@ -14,11 +14,11 @@ const messages = {
  * @returns
  */
 function findVariableInScope(scope, variableName) {
-	if (!scope || scope.type === "global") {
+	if (!scope || scope.type === 'global') {
 		return undefined;
 	}
 
-	const variable = scope.variables.find((v) => v.name === variableName);
+	const variable = scope.variables.find(v => v.name === variableName);
 
 	if (variable) {
 		return variable;
@@ -28,9 +28,9 @@ function findVariableInScope(scope, variableName) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = (context) => ({
+const create = context => ({
 	Identifier(node) {
-		if (node.name !== "window" && node.name !== "global") {
+		if (node.name !== 'window' && node.name !== 'global') {
 			return;
 		}
 
@@ -40,7 +40,7 @@ const create = (context) => ({
 
 		// Skip `window` and `global` in function declarations and variable declarations.
 		if (parent) {
-			if (["FunctionDeclaration", "FunctionExpression"].includes(parent.type)) {
+			if (['FunctionDeclaration', 'FunctionExpression'].includes(parent.type)) {
 				// Skip `function window() {}` and `function global() {}`
 				if (parent.id === node) {
 					return;
@@ -55,16 +55,16 @@ const create = (context) => ({
 			}
 
 			// Skip `var window = 1;` and `var global = 1;`
-			if (parent.type === "VariableDeclarator" && parent.id === node) {
+			if (parent.type === 'VariableDeclarator' && parent.id === node) {
 				return;
 			}
 
 			// Skip `foo.window` and `foo.global`, but not allow `window.window` and `global.global
 			if (
-				parent.type === "MemberExpression" &&
-				parent.property === node &&
-				parent.object.type === "Identifier" &&
-				parent.object.name !== node.name
+				parent.type === 'MemberExpression'
+				&& parent.property === node
+				&& parent.object.type === 'Identifier'
+				&& parent.object.name !== node.name
 			) {
 				return;
 			}
@@ -85,11 +85,11 @@ const create = (context) => ({
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				value: node.name,
-				replacement: "globalThis",
+				replacement: 'globalThis',
 			},
 
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: (fixer) => fixer.replaceText(node, "globalThis"),
+			fix: fixer => fixer.replaceText(node, 'globalThis'),
 
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			suggest: [
@@ -97,10 +97,10 @@ const create = (context) => ({
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {
 						value: node.name,
-						replacement: "globalThis",
+						replacement: 'globalThis',
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: (fixer) => fixer.replaceText(node, "globalThis"),
+					fix: fixer => fixer.replaceText(node, 'globalThis'),
 				},
 			],
 		};
@@ -111,12 +111,12 @@ const create = (context) => ({
 module.exports = {
 	create,
 	meta: {
-		type: "suggestion",
+		type: 'suggestion',
 		docs: {
-			description: "Prefer `globalThis` instead of `window` and `global`.",
+			description: 'Prefer `globalThis` instead of `window` and `global`.',
 			recommended: true,
 		},
-		fixable: "code",
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
