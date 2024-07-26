@@ -1,4 +1,4 @@
-import {getTester, parsers} from './utils/test.mjs';
+import {getTester} from './utils/test.mjs';
 import outdent from 'outdent';
 
 const {test} = getTester(import.meta);
@@ -37,40 +37,58 @@ test.snapshot({
 		'export * as window from "xxx";',
 	],
 	invalid: [
+		'global',
+		'self',
 		'window',
 		'window.foo',
 		'window[foo]',
 		'window.foo()',
-		'global',
-		'global.foo',
-		'global[foo]',
-		'global.foo()',
-		'self',
-		'self.foo',
-		'self[foo]',
-		'self.foo()',
-		'const { foo } = window',
-		'const { foo } = global',
-		'function foo() { window.foo() }',
-		'foo(window)',
-		'window.window',
-		'window.global',
-		'global.global',
-		'global.window',
-		'self.window',
-		'window.self',
+		'window > 10',
+		'10 > window',
+		'window ?? 10',
+		'10 ?? window',
+		'window.foo = 123',
+		'window = 123',
+		'obj.a = window',
+		outdent`
+			function* gen() {
+			  yield window
+			}
+		`,
+		outdent`
+			async function gen() {
+			  await window
+			}
+		`,
+		'window ? foo : bar',
+		'foo ? window : bar',
+		'foo ? bar : window',
+		outdent`
+			function foo() {
+			  return window
+			}
+		`,
+		'new window()',
+		outdent`
+			const obj = {
+				foo: window.foo,
+				bar: window.bar,
+				window: window
+			}
+		`,
+		outdent`
+			function sequenceTest() {
+				let x, y;
+				x = (y = 10, y + 5, window);
+				console.log(x, y);
+			}
+		`,
+		'window`Hello ${42} World`', // eslint-disable-line no-template-curly-in-string
+		'tag`Hello ${window.foo} World`', // eslint-disable-line no-template-curly-in-string
+		'var str = `hello ${window.foo} world!`', // eslint-disable-line no-template-curly-in-string
+		'delete window.foo',
+		'++window',
+		'++window.foo',
 	],
 });
 
-test.snapshot({
-	testerOptions: {
-		languageOptions: {parser: parsers.typescript},
-	},
-	valid: [
-		'declare function window(): void;',
-		'declare var window: any;',
-	],
-	invalid: [
-
-	],
-});
