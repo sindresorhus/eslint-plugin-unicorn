@@ -86,6 +86,8 @@ function handleNodes(context, nodes) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
+	// ===== Expression =====
+
 	/** @param {import('estree').MemberExpression} node */
 	MemberExpression(node) {
 		handleNodes(context, [node.object]);
@@ -122,26 +124,9 @@ const create = context => ({
 	ConditionalExpression(node) {
 		handleNodes(context, [node.test, node.consequent, node.alternate]);
 	},
-	/** @param {import('estree').ExpressionStatement} node */
-	ExpressionStatement(node) {
-		switch (node.expression.type) {
-			case 'Identifier': {
-				handleNodes(context, node.expression);
-				break;
-			}
-
-			default: {
-				break;
-			}
-		}
-	},
 	/** @param {import('estree').ImportExpression} node */
 	ImportExpression(node) {
 		handleNodes(context, node.source);
-	},
-	/** @param {import('estree').ReturnStatement} node */
-	ReturnStatement(node) {
-		handleNodes(context, node.argument);
 	},
 	/** @param {import('estree').NewExpression} node */
 	NewExpression(node) {
@@ -173,6 +158,79 @@ const create = context => ({
 	/** @param {import('estree').UpdateExpression} node */
 	UpdateExpression(node) {
 		handleNodes(context, node.argument);
+	},
+
+	// ===== Statements =====
+
+	/** @param {import('estree').ExpressionStatement} node */
+	ExpressionStatement(node) {
+		switch (node.expression.type) {
+			case 'Identifier': {
+				handleNodes(context, node.expression);
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	},
+	/** @param {import('estree').ForStatement} node  */
+	ForStatement(node) {
+		handleNodes(context, [node.init, node.test, node.update]);
+	},
+	/** @param {import('estree').ForInStatement} node  */
+	ForInStatement(node) {
+		handleNodes(context, [node.left, node.right]);
+	},
+	/** @param {import('estree').ForOfStatement} node  */
+	ForOfStatement(node) {
+		handleNodes(context, [node.left, node.right]);
+	},
+	/** @param {import('estree').ReturnStatement} node */
+	ReturnStatement(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').SwitchStatement} node */
+	SwitchStatement(node) {
+		handleNodes(context, node.discriminant);
+
+		for (const caseNode of node.cases) {
+			handleNodes(context, caseNode.test);
+		}
+	},
+	/** @param {import('estree').WhileStatement} node */
+	WhileStatement(node) {
+		handleNodes(context, node.test);
+	},
+	/** @param {import('estree').DoWhileStatement} node */
+	DoWhileStatement(node) {
+		handleNodes(context, node.test);
+	},
+	/** @param {import('estree').IfStatement} node */
+	IfStatement(node) {
+		handleNodes(context, node.test);
+	},
+	/** @param {import('estree').ThrowStatement} node */
+	ThrowStatement(node) {
+		handleNodes(context, node.argument);
+	},
+	/** @param {import('estree').TryStatement} node */
+	TryStatement(_node) {},
+	/** @param {import('estree').CatchClause} node */
+	CatchClause(node) {
+		handleNodes(context, node.param);
+	},
+
+	// ===== Declarations =====
+
+	/** @param {import('estree').VariableDeclarator} node */
+	VariableDeclarator(node) {
+		handleNodes(context, node.init);
+	},
+	/** @param {import('estree').AssignmentPattern} node */
+	AssignmentPattern(node) {
+		handleNodes(context, node.right);
 	},
 });
 
