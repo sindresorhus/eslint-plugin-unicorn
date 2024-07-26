@@ -27,10 +27,12 @@ function findVariableInScope(scope, variableName) {
 	return findVariableInScope(scope.upper, variableName);
 }
 
+const globalIdentifier = new Set(['window', 'self', 'global']);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Identifier(node) {
-		if (node.name !== 'window' && node.name !== 'global') {
+		if (!globalIdentifier.has(node.name)) {
 			return;
 		}
 
