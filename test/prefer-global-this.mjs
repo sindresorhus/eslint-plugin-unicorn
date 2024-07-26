@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 import outdent from 'outdent';
 
 const {test} = getTester(import.meta);
@@ -30,6 +30,7 @@ test.snapshot({
 		`,
 		'foo.window',
 		'foo.global',
+		'import window from "xxx"',
 	],
 	invalid: [
 		'window',
@@ -54,5 +55,18 @@ test.snapshot({
 		'global.window',
 		'self.window',
 		'window.self',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {parser: parsers.typescript},
+	},
+	valid: [
+		'declare function window(): void;',
+		'declare var window: any;',
+	],
+	invalid: [
+
 	],
 });
