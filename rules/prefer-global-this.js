@@ -79,7 +79,7 @@ function handleNodes(context, nodes) {
 				return;
 			}
 
-			return report(context, node, node.name);
+			report(context, node, node.name);
 		}
 	}
 }
@@ -170,7 +170,7 @@ const create = context => ({
 	UnaryExpression(node) {
 		handleNodes(context, node.argument);
 	},
-	/** @param {import('estree').UnaryExpression} node */
+	/** @param {import('estree').UpdateExpression} node */
 	UpdateExpression(node) {
 		handleNodes(context, node.argument);
 	},
