@@ -1,4 +1,4 @@
-name: Titles formatter
+name: Title formatter
 
 on:
   pull_request_target:
