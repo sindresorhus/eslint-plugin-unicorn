@@ -20,3 +20,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern-path: docs/rules
           replacement: '`$0`'
+          trim-punctuation: true
