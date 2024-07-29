@@ -35,6 +35,16 @@ test.snapshot({
 		'import window, {foo} from "xxx"',
 		'export { window }  from "xxx"',
 		'export * as window from "xxx";',
+
+		// Use window specify apis
+		'window.name = "foo"',
+		'window.alert()',
+		'var doc = window.document',
+		'window.addEventListener',
+		'window.innerWidth',
+		'window.innerHeight',
+		'self.location',
+		'self.navigator',
 	],
 	invalid: [
 		'global',
@@ -140,6 +150,8 @@ test.snapshot({
 
 			}
 		`,
+		'self.innerWidth',
+		'self.innerHeight',
 	],
 });
 
