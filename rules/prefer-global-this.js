@@ -462,9 +462,7 @@ const create = context => ({
 	/** @param {import('estree').TryStatement} node */
 	TryStatement(_node) {},
 	/** @param {import('estree').CatchClause} node */
-	CatchClause(node) {
-		handleNodes(context, node.param);
-	},
+	CatchClause(_node) {},
 
 	// ===== Declarations =====
 

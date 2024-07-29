@@ -35,6 +35,11 @@ test.snapshot({
 		'import window, {foo} from "xxx"',
 		'export { window }  from "xxx"',
 		'export * as window from "xxx";',
+		outdent`
+			try {
+
+			} catch (window) {}
+		`,
 
 		// Use window specify apis
 		'window.name = "foo"',
@@ -139,11 +144,6 @@ test.snapshot({
 		'do {} while (window) {}',
 		'if (window) {}',
 		'throw window',
-		// Outdent`
-		// 	try {
-
-		// 	} catch (window) {}
-		// `,
 		'var foo = window',
 		outdent`
 			function foo (name = window) {
