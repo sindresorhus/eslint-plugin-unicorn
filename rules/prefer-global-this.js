@@ -18,7 +18,7 @@ function findVariableInScope(scope, variableName) {
 		return;
 	}
 
-	const variable = scope.variables.find(v => v.name === variableName);
+	const variable = scope.variables.find(variable => variable.name === variableName);
 
 	if (variable) {
 		return variable;
