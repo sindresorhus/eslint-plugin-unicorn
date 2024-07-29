@@ -8,11 +8,11 @@ const messages = {
 };
 
 /**
- * Find the variable in the scope
- * @param {import('eslint').Scope.Scope} scope
- * @param {string} variableName
- * @returns
- */
+Find the variable in the scope.
+
+@param {import('eslint').Scope.Scope} scope
+@param {string} variableName
+*/
 function findVariableInScope(scope, variableName) {
 	if (!scope || scope.type === 'global') {
 		return;
@@ -30,8 +30,8 @@ function findVariableInScope(scope, variableName) {
 const globalIdentifier = new Set(['window', 'self', 'global']);
 
 const windowSpecificAPIs = new Set([
-	// Refs: https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
 	// Properties and methods
+	// https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
 	'window',
 	'self',
 	'document',
@@ -166,12 +166,12 @@ const windowSpecificAPIs = new Set([
 	'onunhandledrejection',
 	'onunload',
 
-	// Refs: https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-flow
+	// https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-flow
 	'addEventListener',
 	'removeEventListener',
 	'dispatchEvent',
 
-	// Refs: https://dom.spec.whatwg.org/#idl-index
+	// https://dom.spec.whatwg.org/#idl-index
 	'Event',
 	'event',
 	'CustomEvent',
@@ -209,7 +209,7 @@ const windowSpecificAPIs = new Set([
 	'XPathEvaluator',
 	'XSLTProcessor',
 
-	// Refs: https://drafts.csswg.org/cssom-view/#idl-index
+	// https://drafts.csswg.org/cssom-view/#idl-index
 	'matchMedia',
 	'screen',
 	'visualViewport',
@@ -241,7 +241,7 @@ const windowSpecificAPIs = new Set([
 ]);
 
 const webWorkerSpecificAPIs = new Set([
-	// Refs: https://html.spec.whatwg.org/multipage/workers.html#the-workerglobalscope-common-interface
+	// https://html.spec.whatwg.org/multipage/workers.html#the-workerglobalscope-common-interface
 	'addEventListener',
 	'removeEventListener',
 	'dispatchEvent',
@@ -256,18 +256,17 @@ const webWorkerSpecificAPIs = new Set([
 	'onrejectionhandled',
 	'onunhandledrejection',
 
-	// Refs: https://html.spec.whatwg.org/multipage/workers.html#dedicated-workers-and-the-dedicatedworkerglobalscope-interface
+	// https://html.spec.whatwg.org/multipage/workers.html#dedicated-workers-and-the-dedicatedworkerglobalscope-interface
 	'name',
 	'postMessage',
 	'onconnect',
 ]);
 
 /**
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {import('estree').Node} node
- * @param {string} value
- */
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Node} node
+@param {string} value
+*/
 function report(context, node, value) {
 	context.report({
 		node,
@@ -291,11 +290,9 @@ function report(context, node, value) {
 }
 
 /**
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {import('estree').Node | Array<import('estree').Node>} nodes
- * @returns
- */
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Node | Array<import('estree').Node>} nodes
+*/
 function handleNodes(context, nodes) {
 	if (!Array.isArray(nodes)) {
 		nodes = [nodes];
