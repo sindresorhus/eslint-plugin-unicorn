@@ -209,12 +209,9 @@ const windowSpecificAPIs = new Set([
 	'XPathEvaluator',
 	'XSLTProcessor',
 
-	// Refs: https://www.w3.org/TR/window-management/#usage-overview
-	'screen',
-	'getScreenDetails',
-
-	// Refs: https://drafts.csswg.org/cssom-view/#extensions-to-the-window-interface
+	// Refs: https://drafts.csswg.org/cssom-view/#idl-index
 	'matchMedia',
+	'screen',
 	'visualViewport',
 	'moveTo',
 	'moveBy',
@@ -236,6 +233,11 @@ const windowSpecificAPIs = new Set([
 	'screenWidth',
 	'screenHeight',
 	'devicePixelRatio',
+	'MediaQueryList',
+	'MediaQueryListEvent',
+	'Screen',
+	'CaretPosition',
+	'VisualViewport',
 ]);
 
 const webWorkerSpecificAPIs = new Set([
