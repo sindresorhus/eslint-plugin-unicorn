@@ -152,6 +152,7 @@ test.snapshot({
 		`,
 		'self.innerWidth',
 		'self.innerHeight',
+		'window.crypto',
 	],
 });
 
