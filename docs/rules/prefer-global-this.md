@@ -9,7 +9,7 @@
 
 This rule will enforce the use of `globalThis` over `window`, `self`, and `global`.
 
-But some platform-specific APIs still be allowed (e.g. `window.innerWidth`, `window.innerHeight`, `window.navigator`). You can find the list of APIs in the source code of this rule.
+However, some window-specific APIs are still allowed (e.g. `window.innerWidth`, `window.innerHeight`, `window.navigator`). You can find the list of APIs in the source code of this rule.
 
 ## Fail
 
@@ -22,8 +22,8 @@ global
 global.foo
 global[foo]
 global.foo()
-const { foo } = window
-const { foo } = global
+const {foo} = window
+const {foo} = global
 ```
 
 ## Pass
@@ -44,5 +44,5 @@ globalThis
 globalThis.foo
 globalThis[foo]
 globalThis.foo()
-const { foo } = globalThis
+const {foo} = globalThis
 ```
