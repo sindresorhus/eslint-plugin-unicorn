@@ -68,3 +68,24 @@ const x = 0;
 	const x = 0;
 }
 ```
+
+## Options
+
+### allow
+
+Type: `boolean`\
+Default: `false`
+
+You can set the `allow` option like this:
+
+```js
+"unicorn/no-empty-file": {
+	"allowComments": true
+}
+```
+
+If you set it to `true`, you can store files that contain only comments
+
+```js
+// Comment
+```
