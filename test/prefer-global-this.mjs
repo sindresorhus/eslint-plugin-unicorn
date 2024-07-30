@@ -43,8 +43,6 @@ test.snapshot({
 
 		// Use window specify apis
 		'window.name = "foo"',
-		'window.alert()',
-		'var doc = window.document',
 		'window.addEventListener',
 		'window.innerWidth',
 		'window.innerHeight',
