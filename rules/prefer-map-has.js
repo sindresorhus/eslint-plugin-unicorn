@@ -57,20 +57,6 @@ const create = context => ({
 			}
 		}
 	},
-	// /** @param {import('estree').LogicalExpression} node */
-	// LogicalExpression(node) {
-	// 	/** @type {import('estree').Node} */
-	// 	const parent = node.parent
-
-	// 	if (parent.type === 'IfStatement') {
-
-	// 		if (node.left.type === 'CallExpression') {
-	// 			processNode(context, node.left, parent);
-	// 		} else if (node.right.type === 'CallExpression') {
-	// 			processNode(context, node.right, parent);
-	// 		}
-	// 	}
-	// },
 	/** @param {import('estree').ConditionalExpression} node */
 	ConditionalExpression(node) {
 		if (node.test.type === 'CallExpression') {
