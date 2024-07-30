@@ -12,7 +12,18 @@
 ## Fail
 
 ```js
-const foo = 'unicorn';
+a < 0 ? -a : a
+a <= 0 ? -a : a
+a > 0 ? a : -a
+a >= 0 ? a : -a
+
+window.a < 0 ? -window.a : window.a
+window.a <= 0 ? -window.a : window.a
+window.a > 0 ? window.a : -window.a
+window.a >= 0 ? window.a : -window.a
+
+a < 0 ? -a : +a
+a < 0 ? -a : +(a)
 ```
 
 ## Pass

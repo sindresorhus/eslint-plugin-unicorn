@@ -1,13 +1,24 @@
-import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'const foo = "🦄";',
+		'a < 0 ? -b : b',
+		'window.a < 0 ? -window.b : window.b',
 	],
 	invalid: [
-		'const foo = "unicorn";',
+		'a < 0 ? -a : a',
+		'a <= 0 ? -a : a',
+		'a > 0 ? a : -a',
+		'a >= 0 ? a : -a',
+
+		'window.a < 0 ? -window.a : window.a',
+		'window.a <= 0 ? -window.a : window.a',
+		'window.a > 0 ? window.a : -window.a',
+		'window.a >= 0 ? window.a : -window.a',
+
+		'a < 0 ? -a : +a',
+		'a < 0 ? -a : +(a)',
 	],
 });

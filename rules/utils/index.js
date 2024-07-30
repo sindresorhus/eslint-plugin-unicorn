@@ -45,6 +45,7 @@ module.exports = {
 	isSameReference: require('./is-same-reference.js'),
 	isShadowed: require('./is-shadowed.js'),
 	isValueNotUsable: require('./is-value-not-usable.js'),
+	isNodesEqual: require('./is-nodes-equal.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
 	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
 	shouldAddParenthesesToCallExpressionCallee: require('./should-add-parentheses-to-call-expression-callee.js'),
