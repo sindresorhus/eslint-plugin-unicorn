@@ -9,7 +9,7 @@
 
 This rule will enforce the use of `globalThis` over `window`, `self`, and `global`.
 
-However, some window-specific APIs are still allowed (e.g. `window.innerWidth`, `window.innerHeight`, `window.navigator`). You can find the list of APIs in the source code of this rule.
+However, some window-specific APIs are still allowed (e.g. `window.innerWidth`, `window.innerHeight`, `window.navigator`). You can find the list of APIs in the [source code](../../rules/prefer-global-this.js) of this rule.
 
 ## Fail
 
