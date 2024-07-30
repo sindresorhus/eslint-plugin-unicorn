@@ -50,6 +50,10 @@ test.snapshot({
 		'self.navigator',
 		'window.addEventListener("resize", () => {})',
 		'window.onresize = function () {}',
+		outdent`
+			const {window} = jsdom()
+			window.jQuery = jQuery;
+		`,
 	],
 	invalid: [
 		'global',
