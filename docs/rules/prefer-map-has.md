@@ -30,6 +30,8 @@ do {} while (map.get(foo));
 do {} while (map.get(foo) || otherCondition);
 
 for (;map.get(foo);) {}
+
+function foo(isBoolean = !!map.get("key")) { }
 ```
 
 ## Pass
@@ -49,4 +51,6 @@ do {} while (map.has(foo));
 do {} while (map.has(foo) || otherCondition);
 
 for (;map.has(foo);) {}
+
+function foo(isBoolean = map.has("key")) { }
 ```
