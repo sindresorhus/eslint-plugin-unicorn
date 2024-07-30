@@ -29,5 +29,7 @@ a < 0 ? -a : +(a)
 ## Pass
 
 ```js
-const foo = '🦄';
+const a = Math.abs(b);
+
+if (Math.abs(number) > POSITIVE_CONSTANT) {}
 ```
