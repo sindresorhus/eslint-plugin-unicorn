@@ -41,7 +41,7 @@ test.snapshot({
 			} catch (window) {}
 		`,
 
-		// Use window specify apis
+		// Use window specific APIs
 		'window.name = "foo"',
 		'window.addEventListener',
 		'window.innerWidth',
