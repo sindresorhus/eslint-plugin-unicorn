@@ -47,6 +47,14 @@ const windowSpecificEvents = new Set([
 	'unload',
 ]);
 
+/**
+ * Note: What kind of API should be a windows-specific interfaces?
+ * it's directly related to window (✅ window.close())
+ * it does NOT work well as globalThis.x or x (✅ window.frames, window.top)
+ * some constructors are occasionally related to window (like Element !== iframe.contentWindow.Element), but they don't need to mention window anyway.
+ *
+ * Please use this criterion to decide whether an API should be added here. refs: https://github.com/sindresorhus/eslint-plugin-unicorn/pull/2410#discussion_r1695312427
+ */
 const windowSpecificAPIs = new Set([
 	// Properties and methods
 	// https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
