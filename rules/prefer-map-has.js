@@ -13,34 +13,46 @@ const messages = {
  * @param {import('estree').Node} [replacement]
  */
 function processNode(context, node, replacement = node) {
-	if (node.callee.type === 'MemberExpression' && node.callee.object.type === 'Identifier'
-		&& node.callee.property.name === 'get'
-		&& node.arguments.length === 1) {
-		const objectName = context.sourceCode.getText(node.callee.object);
-
-		const newCode = `${objectName}.has(${context.sourceCode.getText(node.arguments[0])})`;
-
-		context.report({
-			node: replacement,
-			messageId: MESSAGE_ID_ERROR,
-			data: {
-				value: 'Map#get',
-				replacement: 'Map#has',
-			},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					data: {
-						value: context.sourceCode.getText(replacement),
-						replacement: newCode,
-					},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => fixer.replaceText(replacement, newCode),
-				},
-			],
-		});
+	if (node.callee.type !== 'MemberExpression') {
+		return;
 	}
+
+	if (node.callee.object.type !== 'Identifier') {
+		return;
+	}
+
+	if (node.callee.property.name !== 'get') {
+		return;
+	}
+
+	if (node.arguments.length !== 1) {
+		return;
+	}
+
+	const objectName = context.sourceCode.getText(node.callee.object);
+
+	const newCode = `${objectName}.has(${context.sourceCode.getText(node.arguments[0])})`;
+
+	context.report({
+		node: replacement,
+		messageId: MESSAGE_ID_ERROR,
+		data: {
+			value: 'Map#get',
+			replacement: 'Map#has',
+		},
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		suggest: [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				data: {
+					value: context.sourceCode.getText(replacement),
+					replacement: newCode,
+				},
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix: fixer => fixer.replaceText(replacement, newCode),
+			},
+		],
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
