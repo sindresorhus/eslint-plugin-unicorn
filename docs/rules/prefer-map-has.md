@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+In some places where Boolean value judgment is required, it is more reasonable to prefer `Map#has` over `Math#get`.
 
 ## Fail
 
