@@ -347,7 +347,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `globalThis` instead of `window`, `self` and `global`.',
+			description: 'Prefer `globalThis` over `window`, `self`, and `global`.',
 			recommended: true,
 		},
 		fixable: 'code',
