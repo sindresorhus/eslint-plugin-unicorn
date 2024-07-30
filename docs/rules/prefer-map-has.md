@@ -28,6 +28,8 @@ while (map.get(foo)) {}
 do {} while (map.get(foo));
 
 do {} while (map.get(foo) || otherCondition);
+
+for (;map.get(foo);) {}
 ```
 
 ## Pass
@@ -45,4 +47,6 @@ while (map.has(foo)) {}
 do {} while (map.has(foo));
 
 do {} while (map.has(foo) || otherCondition);
+
+for (;map.has(foo);) {}
 ```
