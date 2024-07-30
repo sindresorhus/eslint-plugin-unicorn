@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -23,6 +24,16 @@ test.snapshot({
 
 		'!map.get(foo)',
 		'!!map.get(foo)',
+
 		'while (map.get(foo)) {}',
+		'while (map.get(foo) || otherCondition) {}',
+		'do {} while (map.get(foo))',
+		'do {} while (map.get(foo) || otherCondition)',
+
+		outdent`
+			for (;map.get(foo);) {
+
+			}
+		`,
 	],
 });

@@ -26,6 +26,10 @@ new Boolean(map.get(foo));
 while (map.get(foo)) {
   // do staff
 }
+
+do {} while (map.get(foo));
+
+do {} while (map.get(foo) || otherCondition);
 ```
 
 ## Pass
@@ -41,4 +45,8 @@ map.has(foo);
 while (map.has(foo)) {
   // do staff
 }
+
+do {} while (map.has(foo));
+
+do {} while (map.has(foo) || otherCondition);
 ```

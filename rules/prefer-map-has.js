@@ -57,6 +57,20 @@ const create = context => ({
 			}
 		}
 	},
+	// /** @param {import('estree').LogicalExpression} node */
+	// LogicalExpression(node) {
+	// 	/** @type {import('estree').Node} */
+	// 	const parent = node.parent
+
+	// 	if (parent.type === 'IfStatement') {
+
+	// 		if (node.left.type === 'CallExpression') {
+	// 			processNode(context, node.left, parent);
+	// 		} else if (node.right.type === 'CallExpression') {
+	// 			processNode(context, node.right, parent);
+	// 		}
+	// 	}
+	// },
 	/** @param {import('estree').ConditionalExpression} node */
 	ConditionalExpression(node) {
 		if (node.test.type === 'CallExpression') {
@@ -97,6 +111,36 @@ const create = context => ({
 	WhileStatement(node) {
 		if (node.test.type === 'CallExpression') {
 			processNode(context, node.test);
+		} else if (node.test.type === 'LogicalExpression') {
+			if (node.test.left.type === 'CallExpression') {
+				processNode(context, node.test.left);
+			} else if (node.test.right.type === 'CallExpression') {
+				processNode(context, node.test.right);
+			}
+		}
+	},
+	/** @param {import('estree').DoWhileStatement} node */
+	DoWhileStatement(node) {
+		if (node.test.type === 'CallExpression') {
+			processNode(context, node.test);
+		} else if (node.test.type === 'LogicalExpression') {
+			if (node.test.left.type === 'CallExpression') {
+				processNode(context, node.test.left);
+			} else if (node.test.right.type === 'CallExpression') {
+				processNode(context, node.test.right);
+			}
+		}
+	},
+	/** @param {import('estree').ForStatement} node */
+	ForStatement(node) {
+		if (node.test && node.test.type === 'CallExpression') {
+			processNode(context, node.test);
+		} else if (node.test && node.test.type === 'LogicalExpression') {
+			if (node.test.left.type === 'CallExpression') {
+				processNode(context, node.test.left);
+			} else if (node.test.right.type === 'CallExpression') {
+				processNode(context, node.test.right);
+			}
 		}
 	},
 });
