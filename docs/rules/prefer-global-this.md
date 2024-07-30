@@ -24,6 +24,10 @@ global[foo]
 global.foo()
 const {foo} = window
 const {foo} = global
+
+window.addEventListener('click', () => {})
+window.location
+window.navigator
 ```
 
 ## Pass
@@ -32,9 +36,6 @@ const {foo} = global
 // Window specific APIs
 window.innerWidth
 window.innerHeight
-window.addEventListener('click', () => {})
-window.location
-window.navigator
 
 // Worker specific APIs
 self.postMessage('Hello')
