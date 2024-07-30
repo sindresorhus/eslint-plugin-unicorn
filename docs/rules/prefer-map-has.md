@@ -23,9 +23,7 @@ new Boolean(map.get(foo));
 !map.get(foo);
 !!map.get(foo);
 
-while (map.get(foo)) {
-  // do staff
-}
+while (map.get(foo)) {}
 
 do {} while (map.get(foo));
 
@@ -42,9 +40,7 @@ map.has(foo) ? 1 : 2;
 
 map.has(foo);
 
-while (map.has(foo)) {
-  // do staff
-}
+while (map.has(foo)) {}
 
 do {} while (map.has(foo));
 
