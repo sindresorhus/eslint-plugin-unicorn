@@ -35,5 +35,6 @@ test.snapshot({
 
 			}
 		`,
+		`function foo(isBoolean = !!map.get("key")) { }`,
 	],
 });
