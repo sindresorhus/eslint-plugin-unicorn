@@ -29,6 +29,24 @@ function findVariableInScope(scope, variableName) {
 
 const globalIdentifier = new Set(['window', 'self', 'global']);
 
+const windowSpecificEvents = new Set([
+	'resize',
+	'blur',
+	'focus',
+	'load',
+	'scroll',
+	'scrollend',
+	'wheel',
+	'beforeunload', // Browsers might have specific behaviors on exactly `window.onbeforeunload =`
+	'message',
+	'messageerror',
+	'pagehide',
+	'pagereveal',
+	'pageshow',
+	'pageswap',
+	'unload',
+]);
+
 const windowSpecificAPIs = new Set([
 	// Properties and methods
 	// https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
@@ -56,21 +74,7 @@ const windowSpecificAPIs = new Set([
 	'postMessage',
 
 	// Events commonly associated with "window"
-	'onresize',
-	'onblur',
-	'onfocus',
-	'onload',
-	'onscroll',
-	'onscrollend',
-	'onwheel',
-	'onbeforeunload', // Browsers might have specific behaviors on exactly `window.onbeforeunload =`
-	'onmessage',
-	'onmessageerror',
-	'onpagehide',
-	'onpagereveal',
-	'onpageshow',
-	'onpageswap',
-	'onunload',
+	...[...windowSpecificEvents].map(event => `on${event}`),
 
 	// To add/remove/dispatch events that are commonly associated with "window"
 	// https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-flow
@@ -190,7 +194,18 @@ const create = context => ({
 		if (node.object.type === 'Identifier') {
 			// Check if the identifier is a window specific API
 			if (node.object.name === 'window' && node.property.type === 'Identifier' && windowSpecificAPIs.has(node.property.name)) {
-				return;
+				// Allow to use window.addEventListener/removeEventListener/dispatchEvent with windowSpecificEvents
+				if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name)) {
+					if (node.parent && node.parent.type === 'CallExpression') {
+						if (node.parent.arguments.length > 0 && node.parent.arguments[0].type === 'Literal' && windowSpecificEvents.has(node.parent.arguments[0].value)) {
+							return;
+						}
+					} else {
+						return;
+					}
+				} else {
+					return;
+				}
 			}
 
 			// Check if the identifier is a web worker specific API

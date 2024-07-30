@@ -48,6 +48,8 @@ test.snapshot({
 		'window.innerHeight',
 		'self.location',
 		'self.navigator',
+		'window.addEventListener("resize", () => {})',
+		'window.onresize = function () {}',
 	],
 	invalid: [
 		'global',
@@ -151,6 +153,8 @@ test.snapshot({
 		'self.innerWidth',
 		'self.innerHeight',
 		'window.crypto',
+		'window.addEventListener("play", () => {})',
+		'window.onplay = function () {}',
 	],
 });
 
