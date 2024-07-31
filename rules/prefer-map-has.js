@@ -55,6 +55,25 @@ function processNode(context, node, replacement = node) {
 	});
 }
 
+/**
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Node} node
+@returns {void}
+*/
+function processTest(context, node) {
+	if (node.type === 'CallExpression') {
+		processNode(context, node);
+	} else if (node.type === 'LogicalExpression') {
+		if (node.left.type === 'CallExpression') {
+			processNode(context, node.left);
+		}
+
+		if (node.right.type === 'CallExpression') {
+			processNode(context, node.right);
+		}
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').IfStatement} node */
@@ -99,39 +118,15 @@ const create = context => ({
 	},
 	/** @param {import('estree').WhileStatement} node */
 	WhileStatement(node) {
-		if (node.test.type === 'CallExpression') {
-			processNode(context, node.test);
-		} else if (node.test.type === 'LogicalExpression') {
-			if (node.test.left.type === 'CallExpression') {
-				processNode(context, node.test.left);
-			} else if (node.test.right.type === 'CallExpression') {
-				processNode(context, node.test.right);
-			}
-		}
+		processTest(context, node.test);
 	},
 	/** @param {import('estree').DoWhileStatement} node */
 	DoWhileStatement(node) {
-		if (node.test.type === 'CallExpression') {
-			processNode(context, node.test);
-		} else if (node.test.type === 'LogicalExpression') {
-			if (node.test.left.type === 'CallExpression') {
-				processNode(context, node.test.left);
-			} else if (node.test.right.type === 'CallExpression') {
-				processNode(context, node.test.right);
-			}
-		}
+		processTest(context, node.test);
 	},
 	/** @param {import('estree').ForStatement} node */
 	ForStatement(node) {
-		if (node.test && node.test.type === 'CallExpression') {
-			processNode(context, node.test);
-		} else if (node.test && node.test.type === 'LogicalExpression') {
-			if (node.test.left.type === 'CallExpression') {
-				processNode(context, node.test.left);
-			} else if (node.test.right.type === 'CallExpression') {
-				processNode(context, node.test.right);
-			}
-		}
+		processTest(context, node.test);
 	},
 });
 
