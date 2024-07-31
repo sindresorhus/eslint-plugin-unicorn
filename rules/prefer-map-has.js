@@ -57,10 +57,14 @@ function processNode(context, node, replacement = node) {
 
 /**
 @param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Node} node
+@param {import('estree').Node} [node]
 @returns {void}
 */
 function processTest(context, node) {
+	if (!node) {
+		return;
+	}
+
 	if (node.type === 'CallExpression') {
 		processNode(context, node);
 	} else if (node.type === 'LogicalExpression') {
