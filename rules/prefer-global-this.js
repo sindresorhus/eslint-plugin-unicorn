@@ -9,6 +9,7 @@ const messages = {
 
 /**
 Find the variable in the scope.
+
 @param {import('eslint').Scope.Scope} scope
 @param {string} variableName
 */
@@ -42,13 +43,15 @@ const windowSpecificEvents = new Set([
 ]);
 
 /**
- * Note: What kind of API should be a windows-specific interfaces?
- * it's directly related to window (✅ window.close())
- * it does NOT work well as globalThis.x or x (✅ window.frames, window.top)
- * some constructors are occasionally related to window (like Element !== iframe.contentWindow.Element), but they don't need to mention window anyway.
- *
- * Please use this criterion to decide whether an API should be added here. refs: https://github.com/sindresorhus/eslint-plugin-unicorn/pull/2410#discussion_r1695312427
- */
+Note: What kind of API should be a windows-specific interface?
+
+1. It's directly related to window (✅ window.close())
+2. It does NOT work well as globalThis.x or x (✅ window.frames, window.top)
+
+Some constructors are occasionally related to window (like Element !== iframe.contentWindow.Element), but they don't need to mention window anyway.
+
+Please use these criteria to decide whether an API should be added here. Context: https://github.com/sindresorhus/eslint-plugin-unicorn/pull/2410#discussion_r1695312427
+*/
 const windowSpecificAPIs = new Set([
 	// Properties and methods
 	// https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
@@ -136,6 +139,7 @@ const webWorkerSpecificAPIs = new Set([
 
 /**
 Report the node with a message.
+
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node} node
 @param {string} value
@@ -153,6 +157,7 @@ function report(context, node, value) {
 
 /**
 Handle nodes and check if they should be reported.
+
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node | Array<import('estree').Node>} nodes
 */
@@ -172,7 +177,8 @@ function handleNodes(context, nodes) {
 }
 
 /**
-Check if the node is a window specific API
+Check if the node is a window-specific API.
+
 @param {import('estree').MemberExpression} node
 @returns {boolean}
 */
@@ -194,7 +200,8 @@ const isWindowSpecificAPI = node => {
 };
 
 /**
-Check if the node is a web worker specific API
+Check if the node is a web worker specific API.
+
 @param {import('estree').MemberExpression} node
 @returns {boolean}
 */
