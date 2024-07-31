@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-In some places where Boolean value judgment is required, it is more reasonable to prefer `Map#has` over `Math#get`.
+In Boolean expressions, prefer `Map#has` over `Map#get`. For example, in IfStatements, WhileStatements, DoWhileStatements, ForStatements, and ConditionalExpressions.
 
 ## Fail
 
