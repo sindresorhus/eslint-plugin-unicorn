@@ -171,34 +171,43 @@ function handleNodes(context, nodes) {
 	}
 }
 
+/**
+Check if the node is a window specific API
+@param {import('estree').MemberExpression} node
+@returns {boolean}
+*/
+const isWindowSpecificAPI = node => {
+	if (node.object.name !== 'window' || node.property.type !== 'Identifier') {
+		return false;
+	}
+
+	if (windowSpecificAPIs.has(node.property.name)) {
+		if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name) && node.parent && node.parent.type === 'CallExpression') {
+			const argument = node.parent.arguments[0];
+			return argument && argument.type === 'Literal' && windowSpecificEvents.has(argument.value);
+		}
+
+		return true;
+	}
+
+	return false;
+};
+
+/**
+Check if the node is a web worker specific API
+@param {import('estree').MemberExpression} node
+@returns {boolean}
+*/
+const isWebWorkerSpecificAPI = node => node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	// ===== Expression =====
 
 	/** @param {import('estree').MemberExpression} node */
 	MemberExpression(node) {
-		// Allow to use window specify APIs
-		if (node.object.type === 'Identifier') {
-			// Check if the identifier is a window specific API
-			if (node.object.name === 'window' && node.property.type === 'Identifier' && windowSpecificAPIs.has(node.property.name)) {
-				// Allow to use window.addEventListener/removeEventListener/dispatchEvent with windowSpecificEvents
-				if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name)) {
-					if (node.parent && node.parent.type === 'CallExpression') {
-						if (node.parent.arguments.length > 0 && node.parent.arguments[0].type === 'Literal' && windowSpecificEvents.has(node.parent.arguments[0].value)) {
-							return;
-						}
-					} else {
-						return;
-					}
-				} else {
-					return;
-				}
-			}
-
-			// Check if the identifier is a web worker specific API
-			if (node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name)) {
-				return;
-			}
+		if (node.object.type === 'Identifier' && (isWindowSpecificAPI(node) || isWebWorkerSpecificAPI(node))) {
+			return;
 		}
 
 		handleNodes(context, [node.object]);
