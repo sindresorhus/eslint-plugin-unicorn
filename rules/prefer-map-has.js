@@ -8,10 +8,10 @@ const messages = {
 };
 
 /**
- * @param {import('eslint').Rule.RuleContext} context
- * @param {import('estree').SimpleCallExpression} node
- * @param {import('estree').Node} [replacement]
- */
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').SimpleCallExpression} node
+@param {import('estree').Node} [replacement]
+*/
 function processNode(context, node, replacement = node) {
 	if (node.callee.type !== 'MemberExpression') {
 		return;
