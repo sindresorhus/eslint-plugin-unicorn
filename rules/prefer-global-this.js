@@ -9,23 +9,17 @@ const messages = {
 
 /**
 Find the variable in the scope.
-
 @param {import('eslint').Scope.Scope} scope
 @param {string} variableName
 */
-function findVariableInScope(scope, variableName) {
+const findVariableInScope = (scope, variableName) => {
 	if (!scope || scope.type === 'global') {
 		return;
 	}
 
 	const variable = scope.variables.find(variable => variable.name === variableName);
-
-	if (variable) {
-		return variable;
-	}
-
-	return findVariableInScope(scope.upper, variableName);
-}
+	return variable || findVariableInScope(scope.upper, variableName);
+};
 
 const globalIdentifier = new Set(['window', 'self', 'global']);
 
@@ -141,33 +135,24 @@ const webWorkerSpecificAPIs = new Set([
 ]);
 
 /**
+Report the node with a message.
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node} node
 @param {string} value
 */
 function report(context, node, value) {
+	const fix = (/** @type {import('eslint').Rule.RuleFixer} fixer */ fixer) => fixer.replaceText(node, 'globalThis');
 	context.report({
 		node,
 		messageId: MESSAGE_ID_ERROR,
-		data: {
-			value,
-			replacement: 'globalThis',
-		},
-		fix: fixer => fixer.replaceText(node, 'globalThis'),
-		suggest: [
-			{
-				messageId: MESSAGE_ID_SUGGESTION,
-				data: {
-					value,
-					replacement: 'globalThis',
-				},
-				fix: fixer => fixer.replaceText(node, 'globalThis'),
-			},
-		],
+		data: {value, replacement: 'globalThis'},
+		fix,
+		suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {value, replacement: 'globalThis'}, fix}],
 	});
 }
 
 /**
+Handle nodes and check if they should be reported.
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node | Array<import('estree').Node>} nodes
 */
@@ -178,16 +163,10 @@ function handleNodes(context, nodes) {
 
 	for (const node of nodes) {
 		if (node && node.type === 'Identifier' && globalIdentifier.has(node.name)) {
-			const variable = findVariableInScope(
-				context.sourceCode.getScope(node),
-				node.name,
-			);
-
-			if (variable) {
-				return;
+			const variable = findVariableInScope(context.sourceCode.getScope(node), node.name);
+			if (!variable) {
+				report(context, node, node.name);
 			}
-
-			report(context, node, node.name);
 		}
 	}
 }
