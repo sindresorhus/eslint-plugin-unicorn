@@ -70,39 +70,31 @@ const create = context => ({
 		}
 	},
 	/** @param {import('estree').ConditionalExpression} node */
-	ConditionalExpression(node) {
-		if (node.test.type === 'CallExpression') {
-			processNode(context, node.test);
-		}
+	'ConditionalExpression[test.type="CallExpression"]'(node) {
+		processNode(context, node.test);
 	},
 	/** @param {import('estree').CallExpression} node */
-	CallExpression(node) {
-		if (node.callee.type === 'Identifier' && node.callee.name === 'Boolean') {
-			for (const argument of node.arguments) {
-				if (argument.type === 'CallExpression') {
-					processNode(context, argument, node);
-				}
+	'CallExpression[callee.type="Identifier"][callee.name="Boolean"]'(node) {
+		for (const argument of node.arguments) {
+			if (argument.type === 'CallExpression') {
+				processNode(context, argument, node);
 			}
 		}
 	},
 	/** @param {import('estree').NewExpression} node */
-	NewExpression(node) {
-		if (node.callee.type === 'Identifier' && node.callee.name === 'Boolean') {
-			for (const argument of node.arguments) {
-				if (argument.type === 'CallExpression') {
-					processNode(context, argument, node);
-				}
+	'NewExpression[callee.type="Identifier"][callee.name="Boolean"]'(node) {
+		for (const argument of node.arguments) {
+			if (argument.type === 'CallExpression') {
+				processNode(context, argument, node);
 			}
 		}
 	},
 	/** @param {import('estree').UnaryExpression} node */
-	UnaryExpression(node) {
-		if (node.operator === '!') {
-			if (node.argument.type === 'UnaryExpression' && node.argument.operator === node.operator && node.argument.argument.type === 'CallExpression') {
-				processNode(context, node.argument.argument, node);
-			} else if (node.parent && node.parent.type !== 'UnaryExpression' && node.argument.type === 'CallExpression') {
-				processNode(context, node.argument);
-			}
+	'UnaryExpression[operator="!"]'(node) {
+		if (node.argument.type === 'UnaryExpression' && node.argument.operator === node.operator && node.argument.argument.type === 'CallExpression') {
+			processNode(context, node.argument.argument, node);
+		} else if (node.parent && node.parent.type !== 'UnaryExpression' && node.argument.type === 'CallExpression') {
+			processNode(context, node.argument);
 		}
 	},
 	/** @param {import('estree').WhileStatement} node */
