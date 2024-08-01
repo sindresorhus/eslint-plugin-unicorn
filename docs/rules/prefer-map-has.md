@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-In Boolean expressions, prefer `Map#has` over `Map#get`. For example, in IfStatements, WhileStatements, DoWhileStatements, ForStatements, and ConditionalExpressions.
+Use `Map#has` instead of `Map#get` to check for the presence of a key in a Map. `Map#has` is more semantically correct for existence checks and avoids unnecessary retrieval of values.
 
 ## Fail
 
