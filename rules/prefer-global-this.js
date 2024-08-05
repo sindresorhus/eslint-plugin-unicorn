@@ -216,7 +216,7 @@ const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const tracker = new GlobalReferenceTracker({
-		objects: [...globalIdentifier],
+		objects: globalIdentifier,
 		handle(reference) {
 			const {node} = reference;
 
