@@ -220,19 +220,12 @@ const create = context => {
 		handle(reference) {
 			const {node} = reference;
 
-			switch (node.type) {
-				case 'Identifier': {
-					if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent)) {
-						return;
-					}
-
-					report(context, node, node.name);
-					break;
+			if (node.type === 'Identifier') {
+				if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent)) {
+					return;
 				}
 
-				default: {
-					break;
-				}
+				report(context, node, node.name);
 			}
 		},
 	});
