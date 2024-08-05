@@ -1,5 +1,7 @@
 'use strict';
 
+const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
+
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-global-this/suggestion';
 const messages = {
@@ -183,6 +185,10 @@ Check if the node is a window-specific API.
 @returns {boolean}
 */
 const isWindowSpecificAPI = node => {
+	if (node.type !== 'MemberExpression') {
+		return false;
+	}
+
 	if (node.object.name !== 'window' || node.property.type !== 'Identifier') {
 		return false;
 	}
@@ -205,159 +211,44 @@ Check if the node is a web worker specific API.
 @param {import('estree').MemberExpression} node
 @returns {boolean}
 */
-const isWebWorkerSpecificAPI = node => node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
+const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	// ===== Expression =====
+const create = context => {
+	const tracker = new GlobalReferenceTracker({
+		objects: [...globalIdentifier],
+		handle(reference) {
+			const {node} = reference;
 
-	/** @param {import('estree').MemberExpression} node */
-	MemberExpression(node) {
-		if (node.object.type === 'Identifier' && (isWindowSpecificAPI(node) || isWebWorkerSpecificAPI(node))) {
-			return;
-		}
+			switch (node.type) {
+				case 'Identifier': {
+					if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent)) {
+						return;
+					}
 
-		handleNodes(context, [node.object]);
-	},
-	/** @param {import('estree').CallExpression} node */
-	CallExpression(node) {
-		handleNodes(context, [node.object]);
-	},
-	/** @param {import('estree').BinaryExpression} node */
-	BinaryExpression(node) {
-		handleNodes(context, [node.left, node.right]);
-	},
-	/** @param {import('estree').LogicalExpression} node */
-	LogicalExpression(node) {
-		handleNodes(context, [node.left, node.right]);
-	},
-	/** @param {import('estree').ArrayExpression} node */
-	ArrayExpression(node) {
-		handleNodes(context, node.elements);
-	},
-	/** @param {import('estree').AssignmentExpression} node */
-	AssignmentExpression(node) {
-		handleNodes(context, [node.left, node.right]);
-	},
-	/** @param {import('estree').YieldExpression} node */
-	YieldExpression(node) {
-		handleNodes(context, node.argument);
-	},
-	/** @param {import('estree').AwaitExpression} node */
-	AwaitExpression(node) {
-		handleNodes(context, node.argument);
-	},
-	/** @param {import('estree').ConditionalExpression} node */
-	ConditionalExpression(node) {
-		handleNodes(context, [node.test, node.consequent, node.alternate]);
-	},
-	/** @param {import('estree').ImportExpression} node */
-	ImportExpression(node) {
-		handleNodes(context, node.source);
-	},
-	/** @param {import('estree').NewExpression} node */
-	NewExpression(node) {
-		handleNodes(context, node.callee);
-	},
-	/** @param {import('estree').ObjectExpression} node */
-	ObjectExpression(node) {
-		for (const property of node.properties) {
-			handleNodes(context, property.value);
-		}
-	},
-	/** @param {import('estree').SequenceExpression} node */
-	SequenceExpression(node) {
-		handleNodes(context, node.expressions);
-	},
-	/** @param {import('estree').TaggedTemplateExpression} node */
-	TaggedTemplateExpression(node) {
-		handleNodes(context, node.tag);
-		handleNodes(context, node.quasi.expressions);
-	},
-	/** @param {import('estree').TemplateLiteral} node */
-	TemplateLiteral(node) {
-		handleNodes(context, node.expressions);
-	},
-	/** @param {import('estree').UnaryExpression} node */
-	UnaryExpression(node) {
-		handleNodes(context, node.argument);
-	},
-	/** @param {import('estree').UpdateExpression} node */
-	UpdateExpression(node) {
-		handleNodes(context, node.argument);
-	},
+					report(context, node, node.name);
+					break;
+				}
 
-	// ===== Statements =====
-
-	/** @param {import('estree').ExpressionStatement} node */
-	ExpressionStatement(node) {
-		switch (node.expression.type) {
-			case 'Identifier': {
-				handleNodes(context, node.expression);
-				break;
+				default: {
+					break;
+				}
 			}
+		},
+	});
 
-			default: {
-				break;
-			}
-		}
-	},
-	/** @param {import('estree').ForStatement} node  */
-	ForStatement(node) {
-		handleNodes(context, [node.init, node.test, node.update]);
-	},
-	/** @param {import('estree').ForInStatement} node  */
-	ForInStatement(node) {
-		handleNodes(context, [node.left, node.right]);
-	},
-	/** @param {import('estree').ForOfStatement} node  */
-	ForOfStatement(node) {
-		handleNodes(context, [node.left, node.right]);
-	},
-	/** @param {import('estree').ReturnStatement} node */
-	ReturnStatement(node) {
-		handleNodes(context, node.argument);
-	},
-	/** @param {import('estree').SwitchStatement} node */
-	SwitchStatement(node) {
-		handleNodes(context, node.discriminant);
-
-		for (const caseNode of node.cases) {
-			handleNodes(context, caseNode.test);
-		}
-	},
-	/** @param {import('estree').WhileStatement} node */
-	WhileStatement(node) {
-		handleNodes(context, node.test);
-	},
-	/** @param {import('estree').DoWhileStatement} node */
-	DoWhileStatement(node) {
-		handleNodes(context, node.test);
-	},
-	/** @param {import('estree').IfStatement} node */
-	IfStatement(node) {
-		handleNodes(context, node.test);
-	},
-	/** @param {import('estree').ThrowStatement} node */
-	ThrowStatement(node) {
-		handleNodes(context, node.argument);
-	},
-	/** @param {import('estree').TryStatement} node */
-	TryStatement(_node) {},
-	/** @param {import('estree').CatchClause} node */
-	CatchClause(_node) {},
-
-	// ===== Declarations =====
-
-	/** @param {import('estree').VariableDeclarator} node */
-	VariableDeclarator(node) {
-		handleNodes(context, node.init);
-	},
-	/** @param {import('estree').AssignmentPattern} node */
-	AssignmentPattern(node) {
-		handleNodes(context, node.right);
-	},
-});
+	return {
+		...tracker.createListeners(context),
+		/** @param {import('estree').AssignmentExpression} node */
+		AssignmentExpression(node) {
+			handleNodes(context, [node.left]);
+		},
+		/** @param {import('estree').UpdateExpression} node */
+		UpdateExpression(node) {
+			handleNodes(context, node.argument);
+		},
+	};
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
