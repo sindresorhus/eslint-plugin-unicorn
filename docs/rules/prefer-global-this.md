@@ -44,8 +44,8 @@ globalThis[foo]; // ✅
 ```
 
 ```js
-const { foo } = window; // ❌
-const { foo } = globalThis; // ✅
+const {foo} = window; // ❌
+const {foo} = globalThis; // ✅
 ```
 
 ```js
@@ -62,15 +62,15 @@ globalThis.navigator; // ✅
 ```
 
 ```js
-self.postMessage('Hello') // ✅ (Web Worker specific API)
-self.onmessage = () => {} // ✅ (Web Worker specific API)
+self.postMessage('Hello'); // ✅ (Web Worker specific API)
+self.onmessage = () => {}; // ✅ (Web Worker specific API)
 ```
 
 ```js
-window.addEventListener("click", () => {}); // ❌
-globalThis.addEventListener("click", () => {}); // ✅
+window.addEventListener('click', () => {}); // ❌
+globalThis.addEventListener('click', () => {}); // ✅
 
-window.addEventListener("resize", () => {}); // ✅ (Window specific event)
-window.addEventListener("load", () => {}); // ✅ (Window specific event)
-window.addEventListener("unload", () => {}); // ✅ (Window specific event)
+window.addEventListener('resize', () => {}); // ✅ (Window specific event)
+window.addEventListener('load', () => {}); // ✅ (Window specific event)
+window.addEventListener('unload', () => {}); // ✅ (Window specific event)
 ```
