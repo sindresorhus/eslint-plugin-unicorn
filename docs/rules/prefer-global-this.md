@@ -11,39 +11,66 @@ This rule will enforce the use of `globalThis` over `window`, `self`, and `globa
 
 However, some window-specific APIs are still allowed (e.g. `window.innerWidth`, `window.innerHeight`). You can find the list of APIs in the [source code](../../rules/prefer-global-this.js) of this rule.
 
-## Fail
+## Examples
 
 ```js
-window
-window.foo
-window[foo]
-window.foo()
-global
-global.foo
-global[foo]
-global.foo()
-const {foo} = window
-const {foo} = global
-
-window.addEventListener('click', () => {})
-window.location
-window.navigator
+window; // ❌
+globalThis; // ✅
 ```
 
-## Pass
+```js
+window.foo; // ❌
+globalThis.foo; // ✅
+```
 
 ```js
-// Window specific APIs
-window.innerWidth
-window.innerHeight
+window[foo]; // ❌
+globalThis[foo]; // ✅
+```
 
-// Worker specific APIs
-self.postMessage('Hello')
-self.onmessage = () => {}
+```js
+global; // ❌
+globalThis; // ✅
+```
 
-globalThis
-globalThis.foo
-globalThis[foo]
-globalThis.foo()
-const {foo} = globalThis
+```js
+global.foo; // ❌
+globalThis.foo; // ✅
+```
+
+```js
+global[foo]; // ❌
+globalThis[foo]; // ✅
+```
+
+```js
+const { foo } = window; // ❌
+const { foo } = globalThis; // ✅
+```
+
+```js
+window.location; // ❌
+globalThis.location; // ✅
+
+window.innerWidth; // ✅ (Window specific API)
+window.innerHeight; // ✅ (Window specific API)
+```
+
+```js
+window.navigator; // ❌
+globalThis.navigator; // ✅
+```
+
+```js
+self.postMessage('Hello') // ✅ (Web Worker specific API)
+self.onmessage = () => {} // ✅ (Web Worker specific API)
+```
+
+```js
+window.addEventListener("click", () => {}); // ❌
+globalThis.addEventListener("click", () => {}); // ✅
+
+window.addEventListener("resize", () => {}); // ✅ (Window specific event)
+window.addEventListener("load", () => {}); // ✅ (Window specific event)
+window.addEventListener("unload", () => {}); // ✅ (Window specific event)
 ```
