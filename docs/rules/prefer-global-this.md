@@ -9,7 +9,12 @@
 
 This rule will enforce the use of `globalThis` over `window`, `self`, and `global`.
 
-However, some window-specific APIs are still allowed (e.g. `window.innerWidth`, `window.innerHeight`). You can find the list of APIs in the [source code](../../rules/prefer-global-this.js) of this rule.
+However, there are several exceptions that remain permitted:
+
+1. Certain window/WebWorker-specific APIs, such as `window.innerHeight` and `self.postMessage`
+2. Window-specific events, such as `window.addEventListener('resize')`
+
+The complete list of permitted APIs can be found in the rule's [source code](../../rules/prefer-global-this.js).
 
 ## Examples
 
