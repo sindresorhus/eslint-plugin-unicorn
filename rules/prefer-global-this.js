@@ -194,7 +194,7 @@ const isWindowSpecificAPI = node => {
 	}
 
 	if (windowSpecificAPIs.has(node.property.name)) {
-		if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name) && node.parent && node.parent.type === 'CallExpression') {
+		if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name) && node.parent.type === 'CallExpression' && node.parent.callee === node) {
 			const argument = node.parent.arguments[0];
 			return argument && argument.type === 'Literal' && windowSpecificEvents.has(argument.value);
 		}
