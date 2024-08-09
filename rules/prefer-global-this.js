@@ -3,10 +3,8 @@
 const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
-const MESSAGE_ID_SUGGESTION = 'prefer-global-this/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `globalThis`.',
 };
 
 /**
@@ -153,7 +151,6 @@ function report(context, node, value) {
 		messageId: MESSAGE_ID_ERROR,
 		data: {value},
 		fix,
-		suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {value}, fix}],
 	});
 }
 
@@ -253,7 +250,7 @@ module.exports = {
 			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: true,
+		hasSuggestions: false,
 		messages,
 	},
 };
