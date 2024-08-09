@@ -5,8 +5,8 @@ const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-global-this/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `globalThis`.',
 };
 
 /**
@@ -151,9 +151,9 @@ function report(context, node, value) {
 	context.report({
 		node,
 		messageId: MESSAGE_ID_ERROR,
-		data: {value, replacement: 'globalThis'},
+		data: {value},
 		fix,
-		suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {value, replacement: 'globalThis'}, fix}],
+		suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {value}, fix}],
 	});
 }
 
