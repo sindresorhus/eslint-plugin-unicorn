@@ -169,7 +169,7 @@ function handleNodes(context, nodes) {
 	}
 
 	for (const node of nodes) {
-		if (node && node.type === 'Identifier' && globalIdentifier.has(node.name)) {
+		if (node.type === 'Identifier' && globalIdentifier.has(node.name)) {
 			const variable = findVariableInScope(context.sourceCode.getScope(node), node.name);
 			if (!variable) {
 				report(context, node, node.name);
