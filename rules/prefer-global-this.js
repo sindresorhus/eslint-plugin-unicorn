@@ -1,25 +1,11 @@
 'use strict';
 
 const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
+const isShadowed = require('./utils/is-shadowed.js');
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
-};
-
-/**
-Find the variable in the scope.
-
-@param {import('eslint').Scope.Scope} scope
-@param {string} variableName
-*/
-const findVariableInScope = (scope, variableName) => {
-	if (!scope || scope.type === 'global') {
-		return;
-	}
-
-	const variable = scope.variables.find(variable => variable.name === variableName);
-	return variable || findVariableInScope(scope.upper, variableName);
 };
 
 const globalIdentifier = new Set(['window', 'self', 'global']);
@@ -166,11 +152,8 @@ function handleNodes(context, nodes) {
 	}
 
 	for (const node of nodes) {
-		if (node.type === 'Identifier' && globalIdentifier.has(node.name)) {
-			const variable = findVariableInScope(context.sourceCode.getScope(node), node.name);
-			if (!variable) {
-				report(context, node, node.name);
-			}
+		if (node.type === 'Identifier' && globalIdentifier.has(node.name) && !isShadowed(context.sourceCode.getScope(node), node)) {
+			report(context, node, node.name);
 		}
 	}
 }
