@@ -160,6 +160,7 @@ test.snapshot({
 		'window.crypto',
 		'window.addEventListener("play", () => {})',
 		'window.onplay = function () {}',
+		'function greet({ name = window.foo }) {}',
 	],
 });
 
