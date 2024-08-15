@@ -161,6 +161,8 @@ test.snapshot({
 		'window.addEventListener("play", () => {})',
 		'window.onplay = function () {}',
 		'function greet({ name = window.foo }) {}',
+		'({ foo: window.foo } =  {})',
+		'[window.foo] = []',
 	],
 });
 
