@@ -128,14 +128,13 @@ Report the node with a message.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node} node
-@param {string} value
 */
-function report(context, node, value) {
+function report(context, node) {
 	const fix = (/** @type {import('eslint').Rule.RuleFixer} fixer */ fixer) => fixer.replaceText(node, 'globalThis');
 	context.report({
 		node,
 		messageId: MESSAGE_ID_ERROR,
-		data: {value},
+		data: {value: node.name},
 		fix,
 	});
 }
@@ -153,7 +152,7 @@ function handleNode(context, nodes) {
 
 	for (const node of nodes) {
 		if (node.type === 'Identifier' && globalIdentifier.has(node.name) && !isShadowed(context.sourceCode.getScope(node), node)) {
-			report(context, node, node.name);
+			report(context, node);
 		}
 	}
 }
@@ -207,7 +206,7 @@ const create = context => {
 				return
 			}
 
-			report(context, node, node.name);
+			report(context, node);
 		},
 	});
 
