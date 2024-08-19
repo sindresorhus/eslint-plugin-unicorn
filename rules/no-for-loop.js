@@ -263,7 +263,7 @@ const getReferencesInChildScopes = (scope, name) =>
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const {scopeManager, text: sourceCodeText} = sourceCode;
+	const {scopeManager} = sourceCode;
 
 	return {
 		ForStatement(node) {
@@ -353,7 +353,6 @@ const create = context => {
 					let declarationElement = element;
 					let declarationType = 'const';
 					let removeDeclaration = true;
-					let typeAnnotation;
 
 					if (elementNode) {
 						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
