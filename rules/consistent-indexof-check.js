@@ -87,7 +87,7 @@ Check if the node is a number literal.
 @returns {node is import('estree').UnaryExpression | import('estree').Literal}
 */
 function isNumberLiteral(node) {
-	if (node.type === 'UnaryExpression') {
+	if (node.type === 'UnaryExpression' && ['-', '+'].includes(node.operator)) {
 		return isNumberLiteral(node.argument);
 	}
 
