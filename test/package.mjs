@@ -31,6 +31,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	// Intended to not use `pass`/`fail` section in this rule.
 	'prefer-modern-math-apis',
 	'prefer-math-min-max',
+	'consistent-indexof-check',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
