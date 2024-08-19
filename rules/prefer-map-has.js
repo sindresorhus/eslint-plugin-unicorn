@@ -67,6 +67,8 @@ function processTest(context, node) {
 
 	if (node.type === 'CallExpression') {
 		processNode(context, node);
+	} else if (node.type === 'UnaryExpression') {
+		processTest(context, node.argument);
 	} else if (node.type === 'LogicalExpression') {
 		if (node.left.type === 'LogicalExpression') {
 			processTest(context, node.left);
@@ -106,14 +108,6 @@ const create = context => ({
 			if (argument.type === 'CallExpression') {
 				processNode(context, argument, node);
 			}
-		}
-	},
-	/** @param {import('estree').UnaryExpression} node */
-	'UnaryExpression[operator="!"]'(node) {
-		if (node.argument.type === 'UnaryExpression' && node.argument.operator === node.operator && node.argument.argument.type === 'CallExpression') {
-			processNode(context, node.argument.argument, node);
-		} else if (node.parent && node.parent.type !== 'UnaryExpression' && node.argument.type === 'CallExpression') {
-			processNode(context, node.argument);
 		}
 	},
 	/** @param {import('estree').WhileStatement} node */

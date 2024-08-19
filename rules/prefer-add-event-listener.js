@@ -44,7 +44,7 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 		return false;
 	}
 
-	return !Reflect.apply(nodeReturnsSomething.get, nodeReturnsSomething, [assignedExpression]);
+	return !nodeReturnsSomething.get(assignedExpression);
 };
 
 const isClearing = node => isUndefined(node) || isNullLiteral(node);

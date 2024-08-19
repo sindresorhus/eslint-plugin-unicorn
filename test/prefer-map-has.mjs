@@ -8,6 +8,8 @@ test.snapshot({
 		'map.get("key")',
 		'map.get(foo)',
 		'var name = map.get("key1") || map.get("key2")',
+		'var isValid = !map.get("key1")',
+		'var isValid = !!map.get("key1")',
 	],
 	invalid: [
 		'if (map.get("key")) {}',
@@ -22,8 +24,8 @@ test.snapshot({
 		'Boolean(map.get(foo))',
 		'new Boolean(map.get(foo))',
 
-		'!map.get(foo)',
-		'!!map.get(foo)',
+		'if (!map.get(foo)) {}',
+		'if (!!map.get(foo)) {}',
 
 		'while (map.get(foo)) {}',
 		'while (map.get(foo) || otherCondition) {}',
@@ -35,7 +37,6 @@ test.snapshot({
 
 			}
 		`,
-		'function foo(isBoolean = !!map.get("key")) { }',
 
 		outdent`
 			if (a || map.get(foo) || b || c) {
