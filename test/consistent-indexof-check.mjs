@@ -45,6 +45,12 @@ test.snapshot({
 				if (index < 0) {}
 			}
 		`,
+		// Skip checking if indexOf() method has zero arguments
+		outdent`
+			const index = foo.indexOf();
+
+			if (index < 0) {}
+		`,
 	],
 	invalid: [
 		outdent`
