@@ -9,48 +9,42 @@
 
 Use `Map#has` instead of `Map#get` to check for the presence of a key in a Map. `Map#has` is more semantically correct for existence checks and avoids unnecessary retrieval of values.
 
-## Fail
+## Examples
 
 ```js
-if (map.get(foo));
-if (map.get(foo) || otherCondition);
-if (condition) else if (map.get(foo)) {};
-map.get(foo) ? 1 : 2;
+if (map.get(foo)); // ❌
+if (map.has(foo)); // ✅
 
-Boolean(map.get(foo));
-new Boolean(map.get(foo));
+if (map.get(foo) || otherCondition); // ❌
+if (map.has(foo) || otherCondition); // ✅
 
-!map.get(foo);
-!!map.get(foo);
+if (condition) else if (map.get(foo)) {}; // ❌
+if (condition) else if (map.has(foo)) {}; // ✅
 
-while (map.get(foo)) {}
+map.get(foo) ? 1 : 2; // ❌
+map.has(foo) ? 1 : 2; // ✅
 
-do {} while (map.get(foo));
+Boolean(map.get(foo)); // ❌
+map.has(foo); // ✅
 
-do {} while (map.get(foo) || otherCondition);
+new Boolean(map.get(foo)); // ❌
+map.has(foo); // ✅
 
-for (;map.get(foo);) {}
+!!map.get(foo); // ❌
+map.has(foo); // ✅
 
-function foo(isBoolean = !!map.get("key")) { }
-```
+while (map.get(foo)) {}; // ❌
+while (map.has(foo)) {}; // ✅
 
-## Pass
+do {} while (map.get(foo)); // ❌
+do {} while (map.has(foo)); // ✅
 
-```js
-if (map.has(foo));
-if (map.has(foo) || otherCondition);
-if (condition) else if (map.has(foo)) {};
-map.has(foo) ? 1 : 2;
+do {} while (map.get(foo) || otherCondition); // ❌
+do {} while (map.has(foo) || otherCondition); // ✅
 
-map.has(foo);
+for (;map.get(foo);) {} // ❌
+for (;map.has(foo);) {} // ✅
 
-while (map.has(foo)) {}
-
-do {} while (map.has(foo));
-
-do {} while (map.has(foo) || otherCondition);
-
-for (;map.has(foo);) {}
-
-function foo(isBoolean = map.has("key")) { }
+function foo(isBoolean = !!map.get("key")) { } // ❌
+function foo(isBoolean = map.has("key")) { } // ✅
 ```
