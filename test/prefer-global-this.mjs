@@ -54,6 +54,8 @@ test.snapshot({
 			const {window} = jsdom()
 			window.jQuery = jQuery;
 		`,
+		'({ foo: window.name } =  {})',
+		'[window.name] = []',
 	],
 	invalid: [
 		'global',
