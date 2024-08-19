@@ -126,34 +126,26 @@ const webWorkerSpecificAPIs = new Set([
 /**
 Report the node with a message.
 
-@param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Node} node
 */
-function report(context, node) {
-	const fix = (/** @type {import('eslint').Rule.RuleFixer} fixer */ fixer) => fixer.replaceText(node, 'globalThis');
-	context.report({
+function getProblem(node) {
+	return {
 		node,
 		messageId: MESSAGE_ID_ERROR,
 		data: {value: node.name},
-		fix,
-	});
+		fix: (/** @type {import('eslint').Rule.RuleFixer} fixer */ fixer) => fixer.replaceText(node, 'globalThis'),
+	};
 }
 
 /**
 Handle nodes and check if they should be reported.
 
 @param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Node} nodes
+@param {import('estree').Node} node
 */
-function handleNode(context, nodes) {
-	if (!Array.isArray(nodes)) {
-		nodes = [nodes];
-	}
-
-	for (const node of nodes) {
-		if (node.type === 'Identifier' && globalIdentifier.has(node.name) && !isShadowed(context.sourceCode.getScope(node), node)) {
-			report(context, node);
-		}
+function handleNode(context, node) {
+	if (node.type === 'Identifier' && globalIdentifier.has(node.name) && !isShadowed(context.sourceCode.getScope(node), node)) {
+		return getProblem(node);
 	}
 }
 
@@ -206,7 +198,7 @@ const create = context => {
 				return
 			}
 
-			report(context, node);
+			return getProblem(node);
 		},
 	});
 
