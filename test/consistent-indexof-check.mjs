@@ -30,6 +30,12 @@ test.snapshot({
 
 			if (index < 0) {}
 		`,
+		outdent`
+			function foo (index) {
+				// If index is not declared via VariableDeclarator, it will not be check.
+				if (index < 0) {}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
