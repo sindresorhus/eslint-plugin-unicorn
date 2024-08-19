@@ -80,6 +80,20 @@ function reverseOperator(operator) {
 	}
 }
 
+/**
+Check if the node is a number literal.
+
+@param {import('estree').Node} node
+@returns {node is import('estree').UnaryExpression | import('estree').Literal}
+*/
+function isNumberLiteral(node) {
+	if (node.type === 'UnaryExpression') {
+		return isNumberLiteral(node.argument);
+	}
+
+	return node.type === 'Literal' && typeof node.value === 'number';
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').IfStatement} node */
@@ -90,33 +104,36 @@ const create = context => ({
 
 		/** @type {import('estree').BinaryExpression | undefined} */
 		let testNode;
-		let variableName = '';
+		/** @type {import('estree').Node | undefined} */
+		let variableNode;
 		let literalValue = 0;
 		let operator = '';
 
 		if (
-			// Match case: index === -1
-			node.test.left.type === 'Identifier'
-			&& node.test.right.type === 'Literal'
+			// Match case: `index === -1` and `foo.indexOf('bar') === -1`
+			(node.test.left.type === 'Identifier' || isIndexOfCallExpression(node.test.left))
+			&& isNumberLiteral(node.test.right)
 		) {
 			testNode = node.test;
-			variableName = testNode.left.name;
-			literalValue = testNode.right.value;
+			variableNode = testNode.left;
+			literalValue = Number.parseInt(context.sourceCode.getText(testNode.right), 10);
 			operator = testNode.operator;
 		} else if (
-			// Match case: -1 === index
-			node.test.right.type === 'Identifier'
-			&& node.test.left.type === 'Literal'
+			// Match case: `-1 === index` and `-1 === foo.indexOf('bar')`
+			(node.test.right.type === 'Identifier' || isIndexOfCallExpression(node.test.right))
+			&& isNumberLiteral(node.test.left)
 		) {
 			testNode = node.test;
-			variableName = testNode.right.name;
-			literalValue = testNode.left.value;
+			variableNode = testNode.right;
+			literalValue = Number.parseInt(context.sourceCode.getText(testNode.left), 10);
 			operator = reverseOperator(testNode.operator);
 		}
 
 		if (!testNode) {
 			return;
 		}
+
+		const variableName = context.sourceCode.getText(variableNode);
 
 		let replacement = '';
 
@@ -131,27 +148,39 @@ const create = context => ({
 			return;
 		}
 
-		const variable = resolveVariableName(
-			variableName,
-			context.sourceCode.getScope(node),
-		);
+		if (variableNode.type === 'Identifier') {
+			const variableFound = resolveVariableName(
+				variableName,
+				context.sourceCode.getScope(node),
+			);
 
-		if (!variable) {
-			return;
-		}
-
-		for (const definition of variable.defs) {
-			if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
-				context.report({
-					node: testNode,
-					messageId: MESSAGE_ID,
-					data: {
-						value: context.sourceCode.getText(testNode),
-						replacement,
-					},
-					fix: fixer => fixer.replaceText(testNode, replacement),
-				});
+			if (!variableFound) {
+				return;
 			}
+
+			for (const definition of variableFound.defs) {
+				if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
+					context.report({
+						node: testNode,
+						messageId: MESSAGE_ID,
+						data: {
+							value: context.sourceCode.getText(testNode),
+							replacement,
+						},
+						fix: fixer => fixer.replaceText(testNode, replacement),
+					});
+				}
+			}
+		} else if (isIndexOfCallExpression(variableNode)) {
+			context.report({
+				node: testNode,
+				messageId: MESSAGE_ID,
+				data: {
+					value: context.sourceCode.getText(testNode),
+					replacement,
+				},
+				fix: fixer => fixer.replaceText(testNode, replacement),
+			});
 		}
 	},
 });

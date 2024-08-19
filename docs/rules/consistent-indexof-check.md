@@ -34,3 +34,11 @@ if (index >= 0) {}
 const index = foo.indexOf('bar');
 if (index !== -1) {}
 ```
+
+```js
+// ❌
+if (foo.indexOf('bar') >= 0) {}
+
+// ✅
+if (foo.indexOf('bar') !== -1) {}
+```

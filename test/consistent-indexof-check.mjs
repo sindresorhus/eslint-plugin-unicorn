@@ -75,5 +75,9 @@ test.snapshot({
 				if (index < 0) {}
 			}
 		`,
+		'if (foo.indexOf(\'bar\') < 0) {}',
+		'if (foo.indexOf(\'bar\') > -1) {}',
+		'if (0 > foo.indexOf(\'bar\')) {}',
+		'if (-1 < foo.indexOf(\'bar\')) {}',
 	],
 });
