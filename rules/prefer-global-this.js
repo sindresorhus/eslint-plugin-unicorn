@@ -200,13 +200,14 @@ const create = context => {
 		handle(reference) {
 			const {node} = reference;
 
-			if (node.type === 'Identifier') {
-				if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent)) {
-					return;
-				}
-
-				report(context, node, node.name);
+			if (node.type !== 'Identifier'
+				|| isWindowSpecificAPI(node.parent)
+				|| isWebWorkerSpecificAPI(node.parent)
+			) {
+				return
 			}
+
+			report(context, node, node.name);
 		},
 	});
 
