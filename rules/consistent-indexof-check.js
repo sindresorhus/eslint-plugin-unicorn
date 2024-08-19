@@ -52,12 +52,12 @@ function isCheckExists(operator, value) {
 }
 
 /**
-Reverse the operator.
+Reverse the comparison operator.
 
 @param {string} operator
 @returns {string}
 */
-function reverseOperator(operator) {
+function reverseComparisonOperator(operator) {
 	switch (operator) {
 		case '<': {
 			return '>';
@@ -127,7 +127,7 @@ const create = context => ({
 			testNode = node.test;
 			variableNode = testNode.right;
 			literalValue = evaluateLiteralUnaryExpression(testNode.left);
-			operator = reverseOperator(testNode.operator);
+			operator = reverseComparisonOperator(testNode.operator);
 		}
 
 		if (!testNode) {
