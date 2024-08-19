@@ -25,14 +25,23 @@ test.snapshot({
 
 			if (-1 !== index) {}
 		`,
+		// Variable index is not from indexOf
 		outdent`
-			const index = 0; // index not from indexOf
+			const index = 0;
 
 			if (index < 0) {}
 		`,
+		// If index is not declared via VariableDeclarator, it will not be check here.
 		outdent`
 			function foo (index) {
-				// If index is not declared via VariableDeclarator, it will not be check.
+				if (index < 0) {}
+			}
+		`,
+		// Since the variable is references from function parameter, it will not be checked here
+		outdent`
+			const index = foo.indexOf('bar');
+
+			function foo (index) {
 				if (index < 0) {}
 			}
 		`,
@@ -58,11 +67,11 @@ test.snapshot({
 
 			if (0 <= index) {}
 		`,
+		// It will search the scope chain for 'index' and find the 'index' variable declared above.
 		outdent`
 			const index = foo.indexOf('bar');
 
 			function foo () {
-				// It will search the scope chain for 'index' and find the 'index' variable declared above.
 				if (index < 0) {}
 			}
 		`,

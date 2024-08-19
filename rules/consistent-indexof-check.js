@@ -141,11 +141,7 @@ const create = context => ({
 		}
 
 		for (const definition of variable.defs) {
-			if (definition.type === 'Variable') {
-				if (!isIndexOfCallExpression(definition.node.init)) {
-					break;
-				}
-
+			if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
 				context.report({
 					node: testNode,
 					messageId: MESSAGE_ID,
