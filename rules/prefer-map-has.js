@@ -65,22 +65,35 @@ function processTest(context, node) {
 		return;
 	}
 
-	if (node.type === 'CallExpression') {
-		processNode(context, node);
-	} else if (node.type === 'UnaryExpression') {
-		processTest(context, node.argument);
-	} else if (node.type === 'LogicalExpression') {
-		if (node.left.type === 'LogicalExpression') {
-			processTest(context, node.left);
-		} else if (node.left.type === 'CallExpression') {
-			processNode(context, node.left);
+	switch (node.type) {
+		case 'CallExpression': {
+			processNode(context, node);
+
+			break;
 		}
 
-		if (node.right.type === 'LogicalExpression') {
-			processTest(context, node.right);
-		} else if (node.right.type === 'CallExpression') {
-			processNode(context, node.right);
+		case 'UnaryExpression': {
+			processTest(context, node.argument);
+
+			break;
 		}
+
+		case 'LogicalExpression': {
+			if (node.left.type === 'LogicalExpression') {
+				processTest(context, node.left);
+			} else if (node.left.type === 'CallExpression') {
+				processNode(context, node.left);
+			}
+
+			if (node.right.type === 'LogicalExpression') {
+				processTest(context, node.right);
+			} else if (node.right.type === 'CallExpression') {
+				processNode(context, node.right);
+			}
+
+			break;
+		}
+	// No default
 	}
 }
 
