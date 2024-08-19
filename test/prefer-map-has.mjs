@@ -36,5 +36,11 @@ test.snapshot({
 			}
 		`,
 		'function foo(isBoolean = !!map.get("key")) { }',
+
+		outdent`
+			if (a || map.get(foo) || b || c) {
+
+			}
+		`,
 	],
 });

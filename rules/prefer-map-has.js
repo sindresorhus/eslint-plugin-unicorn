@@ -68,11 +68,15 @@ function processTest(context, node) {
 	if (node.type === 'CallExpression') {
 		processNode(context, node);
 	} else if (node.type === 'LogicalExpression') {
-		if (node.left.type === 'CallExpression') {
+		if (node.left.type === 'LogicalExpression') {
+			processTest(context, node.left);
+		} else if (node.left.type === 'CallExpression') {
 			processNode(context, node.left);
 		}
 
-		if (node.right.type === 'CallExpression') {
+		if (node.right.type === 'LogicalExpression') {
+			processTest(context, node.right);
+		} else if (node.right.type === 'CallExpression') {
 			processNode(context, node.right);
 		}
 	}

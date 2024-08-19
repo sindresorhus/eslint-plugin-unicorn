@@ -78,7 +78,7 @@ const prepareOptions = ({
 
 const getWordReplacements = (word, {replacements, allowList}) => {
 	// Skip constants and allowList
-	if (isUpperCase(word) || allowList.get(word)) {
+	if (isUpperCase(word) || allowList.has(word)) {
 		return [];
 	}
 
@@ -101,7 +101,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	const {allowList, ignore} = options;
 
 	// Skip constants and allowList
-	if (isUpperCase(name) || allowList.get(name) || ignore.some(regexp => regexp.test(name))) {
+	if (isUpperCase(name) || allowList.has(name) || ignore.some(regexp => regexp.test(name))) {
 		return {total: 0};
 	}
 
