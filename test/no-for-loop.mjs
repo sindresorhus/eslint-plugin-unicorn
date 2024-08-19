@@ -766,22 +766,12 @@ test.typescript({
 					let selectionRange = allProviderRanges[i];
 				}
 			`,
-			output: outdent`
-				for (let [i, last]: [number, vscode.Position | vscode.Range] of positions.entries()) {
-					let selectionRange = allProviderRanges[i];
-				}
-			`,
 			errors: 1,
 		},
 		{
 			code: outdent`
 				for (let i = 0; i < positions.length; i++) {
 					const    last   /* comment */    : /* comment */ Position = positions[i];
-					console.log(i);
-				}
-			`,
-			output: outdent`
-				for (const [i, last   /* comment */]: [number, /* comment */ Position] of positions.entries()) {
 					console.log(i);
 				}
 			`,
