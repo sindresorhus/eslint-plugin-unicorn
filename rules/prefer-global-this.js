@@ -144,9 +144,9 @@ function report(context, node, value) {
 Handle nodes and check if they should be reported.
 
 @param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Node | Array<import('estree').Node>} nodes
+@param {import('estree').Node} nodes
 */
-function handleNodes(context, nodes) {
+function handleNode(context, nodes) {
 	if (!Array.isArray(nodes)) {
 		nodes = [nodes];
 	}
@@ -214,11 +214,11 @@ const create = context => {
 		...tracker.createListeners(context),
 		/** @param {import('estree').AssignmentExpression} node */
 		AssignmentExpression(node) {
-			handleNodes(context, [node.left]);
+			return handleNode(context, node.left);
 		},
 		/** @param {import('estree').UpdateExpression} node */
 		UpdateExpression(node) {
-			handleNodes(context, node.argument);
+			return handleNode(context, node.argument);
 		},
 	};
 };
