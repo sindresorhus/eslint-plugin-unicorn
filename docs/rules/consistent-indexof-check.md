@@ -1,4 +1,4 @@
-# Enforce consistent styling when checking for element existence using `indexOf()`
+# Enforce consistent style when checking for element existence with `indexOf()`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

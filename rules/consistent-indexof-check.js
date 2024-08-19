@@ -191,7 +191,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent styling when checking for element existence using `indexOf()`',
+			description: 'Enforce consistent style when checking for element existence with `indexOf()`',
 			recommended: true,
 		},
 		fixable: 'code',
