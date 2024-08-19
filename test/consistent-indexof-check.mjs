@@ -89,5 +89,15 @@ test.snapshot({
 
 			if (index >= +0) {}
 		`,
+		outdent`
+			const index = foo.indexOf('bar');
+
+			if (index > ~0) {}
+		`,
+		outdent`
+			const index = foo.indexOf('bar');
+
+			if (index > -(+1)) {}
+		`,
 	],
 });

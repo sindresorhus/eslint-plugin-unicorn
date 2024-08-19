@@ -1,4 +1,5 @@
 'use strict';
+const evaluateLiteralUnaryExpression = require('./utils/evaluate-literal-unaryexpression.js');
 const resolveVariableName = require('./utils/resolve-variable-name.js');
 
 const MESSAGE_ID = 'consistent-indexof-check';
@@ -87,7 +88,7 @@ Check if the node is a number literal.
 @returns {node is import('estree').UnaryExpression | import('estree').Literal}
 */
 function isNumberLiteral(node) {
-	if (node.type === 'UnaryExpression' && ['-', '+'].includes(node.operator)) {
+	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
 		return isNumberLiteral(node.argument);
 	}
 
@@ -116,7 +117,7 @@ const create = context => ({
 		) {
 			testNode = node.test;
 			variableNode = testNode.left;
-			literalValue = Number.parseInt(context.sourceCode.getText(testNode.right), 10);
+			literalValue = evaluateLiteralUnaryExpression(testNode.right);
 			operator = testNode.operator;
 		} else if (
 			// Match case: `-1 === index` and `-1 === foo.indexOf('bar')`
@@ -125,7 +126,7 @@ const create = context => ({
 		) {
 			testNode = node.test;
 			variableNode = testNode.right;
-			literalValue = Number.parseInt(context.sourceCode.getText(testNode.left), 10);
+			literalValue = evaluateLiteralUnaryExpression(testNode.left);
 			operator = reverseOperator(testNode.operator);
 		}
 
