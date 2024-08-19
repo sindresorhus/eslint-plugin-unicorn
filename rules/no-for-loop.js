@@ -338,13 +338,13 @@ const create = context => {
 			const elementNode = elementReference?.identifier.parent.parent;
 			const elementIdentifierName = elementNode?.id.name;
 			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
-			const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
-				&& !(shouldGenerateIndex && elementNode?.id.typeAnnotation);
+				&& !elementNode?.id.typeAnnotation;
 
 			if (shouldFix) {
 				problem.fix = function * (fixer) {
+					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 					const index = indexIdentifierName;
 					const element = elementIdentifierName
 						|| avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));

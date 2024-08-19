@@ -783,10 +783,6 @@ test.typescript({
 					let last: vscode.Position | vscode.Range = positions[i];
 				}
 			`,
-			output: outdent`
-				for (let last: vscode.Position | vscode.Range of positions) {
-				}
-			`,
 			errors: 1,
 		},
 	],
