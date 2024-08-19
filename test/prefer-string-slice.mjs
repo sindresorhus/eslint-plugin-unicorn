@@ -329,6 +329,6 @@ test.snapshot({
 		outdent`
 			const string = "::";
 			const output = string.substr(-2, 2);
-		`
+		`,
 	],
 });

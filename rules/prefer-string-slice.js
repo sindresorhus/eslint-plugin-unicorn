@@ -68,7 +68,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
 
 		yield fixer.insertTextBeforeRange(secondArgumentRange, `(${firstArgumentText} + `);
-		yield fixer.insertTextAfterRange(secondArgumentRange, `) || undefined`);
+		yield fixer.insertTextAfterRange(secondArgumentRange, ') || undefined');
 		return;
 	}
 
