@@ -61,6 +61,7 @@ test.snapshot({
 		'window',
 		'window.foo',
 		'window[foo]',
+		'window[title]',
 		'window["foo"]',
 		'window.foo()',
 		'window > 10',
