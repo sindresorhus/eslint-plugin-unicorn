@@ -82,15 +82,7 @@ function processTest(context, node) {
 const create = context => ({
 	/** @param {import('estree').IfStatement} node */
 	IfStatement(node) {
-		if (node.test.type === 'CallExpression') {
-			processNode(context, node.test);
-		} else if (node.test.type === 'LogicalExpression') {
-			if (node.test.left.type === 'CallExpression') {
-				processNode(context, node.test.left);
-			} else if (node.test.right.type === 'CallExpression') {
-				processNode(context, node.test.right);
-			}
-		}
+		processTest(context, node.test);
 	},
 	/** @param {import('estree').ConditionalExpression} node */
 	'ConditionalExpression[test.type="CallExpression"]'(node) {
