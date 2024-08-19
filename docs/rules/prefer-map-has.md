@@ -30,9 +30,6 @@ map.has(foo); // ✅
 new Boolean(map.get(foo)); // ❌
 map.has(foo); // ✅
 
-!!map.get(foo); // ❌
-map.has(foo); // ✅
-
 while (map.get(foo)) {}; // ❌
 while (map.has(foo)) {}; // ✅
 
@@ -44,7 +41,4 @@ do {} while (map.has(foo) || otherCondition); // ✅
 
 for (;map.get(foo);) {} // ❌
 for (;map.has(foo);) {} // ✅
-
-function foo(isBoolean = !!map.get("key")) { } // ❌
-function foo(isBoolean = map.has("key")) { } // ✅
 ```
