@@ -35,11 +35,3 @@ const newArray = array.toSpliced(start, deleteCount); // ✅
 array[0] = 'changed'; // ❌
 const newArray = array.with(0, 'changed'); // ✅
 ```
-
-```js
-// When the number of parameters does not match, these methods will be treated as user-defined methods instead of array methods.
-// For example, the following are not reported by this rule
-array.sort('There', 'is', 'more', 'than', 'one', 'parameter'); // ✅
-array.reverse('This should not have parameter'); // ✅
-array.splice(0, 1, "This have more then three parameter"); // ✅
-```
