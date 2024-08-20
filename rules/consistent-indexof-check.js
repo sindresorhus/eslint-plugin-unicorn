@@ -103,19 +103,13 @@ const create = context => ({
 		let literalValue = 0;
 		let operator = '';
 
-		if (
+		if (node.left.type === 'Identifier' && isNumberLiteral(node.right)) {
 			// Match case: `index === -1`
-			(node.left.type === 'Identifier')
-			&& isNumberLiteral(node.right)
-		) {
 			variableName = node.left.name;
 			literalValue = evaluateLiteralUnaryExpression(node.right);
 			operator = node.operator;
-		} else if (
+		} else if (node.right.type === 'Identifier' && isNumberLiteral(node.left)) {
 			// Match case: `-1 === index`
-			(node.right.type === 'Identifier')
-			&& isNumberLiteral(node.left)
-		) {
 			variableName = node.right.name;
 			literalValue = evaluateLiteralUnaryExpression(node.left);
 			operator = reverseComparisonOperator(node.operator);
@@ -132,9 +126,7 @@ const create = context => ({
 			replacement = `${variableName} === -1`;
 		} else if (isCheckExists(operator, literalValue)) {
 			replacement = `${variableName} !== -1`;
-		}
-
-		if (!replacement) {
+		} else {
 			return;
 		}
 
