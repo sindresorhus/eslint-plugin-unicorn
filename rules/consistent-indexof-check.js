@@ -50,7 +50,7 @@ function getReplacement(operator, value, variableName) {
 /**
 Check if the node is a number literal or a unary expression resolving to a number.
 
-@param {import('estree').Node} node 
+@param {import('estree').Node} node
 @returns {node is import('estree').Literal}
 */
 function isNumberLiteral(node) {
