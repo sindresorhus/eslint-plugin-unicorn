@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`Array#sort()`, `Array#reverse()`, `Array#splice()`, and `Array#[index]` modify the original array, which can lead to unexpected behavior and bugs. To avoid these issues, prefer using immutable methods like `Array#toSorted()`, `Array#toReversed()`, `Array#toSpliced()`, and `Array#with()` to generate new arrays without altering the original one.
+Methods like `Array#sort()`, `Array#reverse()`, `Array#splice()`, and direct assignment (`Array#[index]`) modify the original array, potentially causing unexpected behavior. To avoid these issues, prefer using immutable methods like `Array#toSorted()`, `Array#toReversed()`, `Array#toSpliced()`, and `Array#with()` to generate new arrays without altering the original.
 
 ## Examples
 
