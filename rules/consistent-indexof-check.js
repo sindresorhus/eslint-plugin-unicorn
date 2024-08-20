@@ -30,8 +30,13 @@ function isIndexOfCallExpression(node) {
 }
 
 /**
- * Determine the appropriate replacement based on the operator and value.
- */
+Determine the appropriate replacement based on the operator and value.
+
+@param {string} operator
+@param {number} value
+@param {string} variableName
+@returns {string | undefined}
+*/
 function getReplacement(operator, value, variableName) {
 	if ((operator === '<' && value <= 0) || (operator === '<=' && value <= -1)) {
 		return `${variableName} === -1`;
@@ -43,8 +48,11 @@ function getReplacement(operator, value, variableName) {
 }
 
 /**
- * Check if the node is a number literal or a unary expression resolving to a number.
- */
+Check if the node is a number literal or a unary expression resolving to a number.
+
+@param {import('estree').Node} node 
+@returns {node is import('estree').Literal}
+*/
 function isNumberLiteral(node) {
 	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
 		return isNumberLiteral(node.argument);
