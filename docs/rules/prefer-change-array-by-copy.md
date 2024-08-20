@@ -12,15 +12,18 @@
 ## Examples
 
 ```js
-const newArray = [3,2,1].sort() // ❌
-const newArray = [3,2,1].toSorted() // ✅
+const newArray = [3,2,1].sort(); // ❌
+const newArray = [3,2,1].toSorted(); // ✅
 
-const newArray = array.reverse() // ❌
-const newArray = array.toReversed() // ✅
+const newArray = new Array({file: 10}).splice(0, 2); // ❌
+const newArray = new Array({file: 10}).toSpliced(0, 2); // ✅
 
-const newArray = array.splice(start, deleteCount) // ❌
-const newArray = array.toSpliced(start, deleteCount) // ✅
+const newArray = array.reverse(); // ❌
+const newArray = array.toReversed(); // ✅
 
-array[0] = 'changed' // ❌
-array.with(0, 'changed') // ✅
+const newArray = array.splice(start, deleteCount); // ❌
+const newArray = array.toSpliced(start, deleteCount); // ✅
+
+array[0] = 'changed'; // ❌
+const newArray = array.with(0, 'changed'); // ✅
 ```
