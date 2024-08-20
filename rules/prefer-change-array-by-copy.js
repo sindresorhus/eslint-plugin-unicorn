@@ -15,7 +15,8 @@ Check if the given node is a new array expression.
 */
 function isNewArrayExpression(node) {
 	return (
-		node.type === 'NewExpression'
+		node
+		&& node.type === 'NewExpression'
 		&& node.callee.type === 'Identifier'
 		&& [
 			'Array',
@@ -51,11 +52,11 @@ function isArrayLikeVariable(scope, variable) {
 	}
 
 	for (const definition of variableScope.defs) {
-		if (
-			definition.type === 'Variable'
-			&& (definition.node.init.type === 'ArrayExpression'
-				|| isNewArrayExpression(definition.node.init))
-		) {
+		if (definition.type !== 'Variable') {
+			continue;
+		}
+
+		if (definition.node.init?.type === 'ArrayExpression' || isNewArrayExpression(definition.node.init)) {
 			return true;
 		}
 	}
