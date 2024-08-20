@@ -107,7 +107,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent style when checking for element existence with `indexOf()` and `lastIndexOf()`.',
+			description: 'Enforce consistent style for element existence checks with `indexOf()` and `lastIndexOf()`.',
 			recommended: true,
 		},
 		fixable: 'code',
