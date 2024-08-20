@@ -143,8 +143,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description:
-				'Prefer `Map#has` over `Map#get`.',
+			description: 'Prefer `Map#has` over `Map#get`.',
 			recommended: true,
 		},
 		hasSuggestions: true,
