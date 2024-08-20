@@ -212,8 +212,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description:
-				'Prefer immutable array methods to generate new arrays over modifying original array objects.',
+			description: 'Prefer immutable array methods over modifying original arrays',
 			recommended: true,
 		},
 		hasSuggestions: true,

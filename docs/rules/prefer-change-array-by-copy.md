@@ -1,4 +1,4 @@
-# Prefer immutable array methods to generate new arrays over modifying original array objects
+# Prefer immutable array methods over modifying original arrays
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
