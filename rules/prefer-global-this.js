@@ -195,7 +195,7 @@ const create = context => {
 				|| isWindowSpecificAPI(node.parent)
 				|| isWebWorkerSpecificAPI(node.parent)
 			) {
-				return
+				return;
 			}
 
 			return getProblem(node);
