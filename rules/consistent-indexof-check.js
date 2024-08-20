@@ -8,7 +8,7 @@ const messages = {
 };
 
 /**
-Check if the node is a call expression of `indexOf` method.
+Check if the node is a call expression of `indexOf` or `lastIndexOf` method.
 
 @param {import('estree').Node} node
 @returns {node is import('estree').CallExpression}
@@ -18,7 +18,7 @@ function isIndexOfCallExpression(node) {
 		node
 		&& node.type === 'CallExpression'
 		&& node.callee.type === 'MemberExpression'
-		&& node.callee.property.name === 'indexOf'
+		&& ['indexOf', 'lastIndexOf'].includes(node.callee.property.name)
 		&& node.arguments.length === 1
 	);
 }
@@ -111,8 +111,8 @@ const create = context => ({
 		let operator = '';
 
 		if (
-			// Match case: `index === -1` and `foo.indexOf('bar') === -1`
-			(node.test.left.type === 'Identifier' || isIndexOfCallExpression(node.test.left))
+			// Match case: `index === -1`
+			(node.test.left.type === 'Identifier')
 			&& isNumberLiteral(node.test.right)
 		) {
 			testNode = node.test;
@@ -120,8 +120,8 @@ const create = context => ({
 			literalValue = evaluateLiteralUnaryExpression(testNode.right);
 			operator = testNode.operator;
 		} else if (
-			// Match case: `-1 === index` and `-1 === foo.indexOf('bar')`
-			(node.test.right.type === 'Identifier' || isIndexOfCallExpression(node.test.right))
+			// Match case: `-1 === index`
+			(node.test.right.type === 'Identifier')
 			&& isNumberLiteral(node.test.left)
 		) {
 			testNode = node.test;
@@ -192,7 +192,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent style when checking for element existence with `indexOf()`',
+			description: 'Enforce consistent style when checking for element existence with `indexOf()` and `lastIndexOf()`.',
 			recommended: true,
 		},
 		fixable: 'code',

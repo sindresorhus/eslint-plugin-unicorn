@@ -81,10 +81,6 @@ test.snapshot({
 				if (index < 0) {}
 			}
 		`,
-		'if (foo.indexOf(\'bar\') < 0) {}',
-		'if (foo.indexOf(\'bar\') > -1) {}',
-		'if (0 > foo.indexOf(\'bar\')) {}',
-		'if (-1 < foo.indexOf(\'bar\')) {}',
 		outdent`
 			const index = foo.indexOf('bar');
 
@@ -104,6 +100,11 @@ test.snapshot({
 			const index = foo.indexOf('bar');
 
 			if (index > -(+1)) {}
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			if (index > -1) {}
 		`,
 	],
 });
