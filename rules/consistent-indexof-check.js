@@ -95,89 +95,71 @@ function isNumberLiteral(node) {
 	return node.type === 'Literal' && typeof node.value === 'number';
 }
 
-/**
-Process the binary expression node.
-
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').BinaryExpression} node
-*/
-function processBinaryExpression(context, node) {
-	if (node.type !== 'BinaryExpression') {
-		return;
-	}
-
-	let variableName = '';
-	let literalValue = 0;
-	let operator = '';
-
-	if (
-		// Match case: `index === -1`
-		(node.left.type === 'Identifier')
-		&& isNumberLiteral(node.right)
-	) {
-		variableName = node.left.name;
-		literalValue = evaluateLiteralUnaryExpression(node.right);
-		operator = node.operator;
-	} else if (
-		// Match case: `-1 === index`
-		(node.right.type === 'Identifier')
-		&& isNumberLiteral(node.left)
-	) {
-		variableName = node.right.name;
-		literalValue = evaluateLiteralUnaryExpression(node.left);
-		operator = reverseComparisonOperator(node.operator);
-	}
-
-	if (!variableName) {
-		return;
-	}
-
-	let replacement = '';
-
-	// For better performance, early checking of operators can avoid looking up variables in scope.
-	if (isCheckNotExists(operator, literalValue)) {
-		replacement = `${variableName} === -1`;
-	} else if (isCheckExists(operator, literalValue)) {
-		replacement = `${variableName} !== -1`;
-	}
-
-	if (!replacement) {
-		return;
-	}
-
-	const variableFound = resolveVariableName(
-		variableName,
-		context.sourceCode.getScope(node),
-	);
-
-	if (!variableFound) {
-		return;
-	}
-
-	for (const definition of variableFound.defs) {
-		if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
-			context.report({
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					value: context.sourceCode.getText(node),
-					replacement,
-				},
-				fix: fixer => fixer.replaceText(node, replacement),
-			});
-		}
-	}
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/** @param {import('estree').IfStatement} node */
-	IfStatement(node) {
-		processBinaryExpression(context, node.test);
-	},
-	/** @param {import('estree').ConditionalExpression} node */
-	ConditionalExpression(node) {
-		processBinaryExpression(context, node.test);
+	/** @param {import('estree').BinaryExpression} node */
+	BinaryExpression(node) {
+		let variableName = '';
+		let literalValue = 0;
+		let operator = '';
+
+		if (
+			// Match case: `index === -1`
+			(node.left.type === 'Identifier')
+			&& isNumberLiteral(node.right)
+		) {
+			variableName = node.left.name;
+			literalValue = evaluateLiteralUnaryExpression(node.right);
+			operator = node.operator;
+		} else if (
+			// Match case: `-1 === index`
+			(node.right.type === 'Identifier')
+			&& isNumberLiteral(node.left)
+		) {
+			variableName = node.right.name;
+			literalValue = evaluateLiteralUnaryExpression(node.left);
+			operator = reverseComparisonOperator(node.operator);
+		}
+
+		if (!variableName) {
+			return;
+		}
+
+		let replacement = '';
+
+		// For better performance, early checking of operators can avoid looking up variables in scope.
+		if (isCheckNotExists(operator, literalValue)) {
+			replacement = `${variableName} === -1`;
+		} else if (isCheckExists(operator, literalValue)) {
+			replacement = `${variableName} !== -1`;
+		}
+
+		if (!replacement) {
+			return;
+		}
+
+		const variableFound = resolveVariableName(
+			variableName,
+			context.sourceCode.getScope(node),
+		);
+
+		if (!variableFound) {
+			return;
+		}
+
+		for (const definition of variableFound.defs) {
+			if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID,
+					data: {
+						value: context.sourceCode.getText(node),
+						replacement,
+					},
+					fix: fixer => fixer.replaceText(node, replacement),
+				});
+			}
+		}
 	},
 });
 

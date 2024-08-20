@@ -111,5 +111,46 @@ test.snapshot({
 
 			index > -1 ? 'exists' : 'not exists';
 		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			conditionLeft && index > -1 ? 'exists' : 'not exists';
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			index > -1 && conditionRight ? 'exists' : 'not exists';
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			(conditionLeft || index > -1) ? 'exists' : 'not exists';
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			(conditionLeft ?? index > -1) ? 'exists' : 'not exists';
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			while (index > -1) {
+				// Do something
+			}
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			for (;index > -1;) {
+				// Do something
+			}
+		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			do {
+
+			} while (index > -1);
+		`,
 	],
 });
