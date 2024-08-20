@@ -766,11 +766,6 @@ test.typescript({
 					let selectionRange = allProviderRanges[i];
 				}
 			`,
-			output: outdent`
-				for (let [i, last]: [number, vscode.Position | vscode.Range] of positions.entries()) {
-					let selectionRange = allProviderRanges[i];
-				}
-			`,
 			errors: 1,
 		},
 		{
@@ -780,21 +775,12 @@ test.typescript({
 					console.log(i);
 				}
 			`,
-			output: outdent`
-				for (const [i, last   /* comment */]: [number, /* comment */ Position] of positions.entries()) {
-					console.log(i);
-				}
-			`,
 			errors: 1,
 		},
 		{
 			code: outdent`
 				for (let i = 0; i < positions.length; i++) {
 					let last: vscode.Position | vscode.Range = positions[i];
-				}
-			`,
-			output: outdent`
-				for (let last: vscode.Position | vscode.Range of positions) {
 				}
 			`,
 			errors: 1,

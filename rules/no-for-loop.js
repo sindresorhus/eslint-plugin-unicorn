@@ -263,7 +263,7 @@ const getReferencesInChildScopes = (scope, name) =>
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const {scopeManager, text: sourceCodeText} = sourceCode;
+	const {scopeManager} = sourceCode;
 
 	return {
 		ForStatement(node) {
@@ -339,12 +339,12 @@ const create = context => {
 			const elementIdentifierName = elementNode?.id.name;
 			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
+			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+				&& !elementNode?.id.typeAnnotation;
 
 			if (shouldFix) {
 				problem.fix = function * (fixer) {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
-
 					const index = indexIdentifierName;
 					const element = elementIdentifierName
 						|| avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
@@ -353,7 +353,6 @@ const create = context => {
 					let declarationElement = element;
 					let declarationType = 'const';
 					let removeDeclaration = true;
-					let typeAnnotation;
 
 					if (elementNode) {
 						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
@@ -362,26 +361,13 @@ const create = context => {
 
 						if (removeDeclaration) {
 							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
-							if (elementNode.id.typeAnnotation && shouldGenerateIndex) {
-								declarationElement = sourceCodeText.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
-								typeAnnotation = sourceCode.getText(
-									elementNode.id.typeAnnotation,
-									-1, // Skip leading `:`
-								).trim();
-							} else {
-								declarationElement = sourceCode.getText(elementNode.id);
-							}
+							declarationElement = sourceCode.getText(elementNode.id);
 						}
 					}
 
 					const parts = [declarationType];
 					if (shouldGenerateIndex) {
-						parts.push(` [${index}, ${declarationElement}]`);
-						if (typeAnnotation) {
-							parts.push(`: [number, ${typeAnnotation}]`);
-						}
-
-						parts.push(` of ${array}.entries()`);
+						parts.push(` [${index}, ${declarationElement}] of ${array}.entries()`);
 					} else {
 						parts.push(` ${declarationElement} of ${array}`);
 					}
