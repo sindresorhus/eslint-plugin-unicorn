@@ -7,6 +7,13 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
 };
 
+const comparisonMap = {
+	'<': '>',
+	'<=': '>=',
+	'>': '<',
+	'>=': '<=',
+};
+
 /**
 Check if the node is a call expression of `indexOf` or `lastIndexOf` method.
 
@@ -15,78 +22,29 @@ Check if the node is a call expression of `indexOf` or `lastIndexOf` method.
 */
 function isIndexOfCallExpression(node) {
 	return (
-		node
-		&& node.type === 'CallExpression'
-		&& node.callee.type === 'MemberExpression'
+		node?.type === 'CallExpression'
+		&& node.callee?.type === 'MemberExpression'
 		&& ['indexOf', 'lastIndexOf'].includes(node.callee.property.name)
 		&& node.arguments.length === 1
 	);
 }
 
 /**
-Check if the operator is `<` or `<=` and the value is `0` or `-1`.
+ * Determine the appropriate replacement based on the operator and value.
+ */
+function getReplacement(operator, value, variableName) {
+	if ((operator === '<' && value <= 0) || (operator === '<=' && value <= -1)) {
+		return `${variableName} === -1`;
+	}
 
-@param {string} operator
-@param {string} value
-@returns {boolean}
-*/
-function isCheckNotExists(operator, value) {
-	return (
-		(operator === '<' && value <= 0)
-		|| (operator === '<=' && value <= -1)
-	);
-}
-
-/**
-Check if the operator is `>` or `>=` and the value is `-1` or `0`.
-
-@param {string} operator
-@param {number} value
-@returns {boolean}
-*/
-function isCheckExists(operator, value) {
-	return (
-		(operator === '>' && value === -1)
-		|| (operator === '>=' && value === 0)
-	);
-}
-
-/**
-Reverse the comparison operator.
-
-@param {string} operator
-@returns {string}
-*/
-function reverseComparisonOperator(operator) {
-	switch (operator) {
-		case '<': {
-			return '>';
-		}
-
-		case '<=': {
-			return '>=';
-		}
-
-		case '>': {
-			return '<';
-		}
-
-		case '>=': {
-			return '<=';
-		}
-
-		default: {
-			return operator;
-		}
+	if ((operator === '>' && value === -1) || (operator === '>=' && value === 0)) {
+		return `${variableName} !== -1`;
 	}
 }
 
 /**
-Check if the node is a number literal.
-
-@param {import('estree').Node} node
-@returns {node is import('estree').UnaryExpression | import('estree').Literal}
-*/
+ * Check if the node is a number literal or a unary expression resolving to a number.
+ */
 function isNumberLiteral(node) {
 	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
 		return isNumberLiteral(node.argument);
@@ -99,55 +57,35 @@ function isNumberLiteral(node) {
 const create = context => ({
 	/** @param {import('estree').BinaryExpression} node */
 	BinaryExpression(node) {
-		let variableName = '';
-		let literalValue = 0;
-		let operator = '';
+		const [identifier, literal, operator]
+			= [node.left, node.right].some(n => isNumberLiteral(n)) && [node.left, node.right].some(n => n.type === 'Identifier')
+				? (node.left.type === 'Identifier'
+					? [node.left.name, evaluateLiteralUnaryExpression(node.right), node.operator] // Index === -1
+					: [node.right.name, evaluateLiteralUnaryExpression(node.left), comparisonMap[node.operator]]) // -1 === index
+				: [];
 
-		if (node.left.type === 'Identifier' && isNumberLiteral(node.right)) {
-			// Match case: `index === -1`
-			variableName = node.left.name;
-			literalValue = evaluateLiteralUnaryExpression(node.right);
-			operator = node.operator;
-		} else if (node.right.type === 'Identifier' && isNumberLiteral(node.left)) {
-			// Match case: `-1 === index`
-			variableName = node.right.name;
-			literalValue = evaluateLiteralUnaryExpression(node.left);
-			operator = reverseComparisonOperator(node.operator);
-		}
-
-		if (!variableName) {
+		if (!identifier) {
 			return;
 		}
 
-		let replacement = '';
+		const replacement = getReplacement(operator, literal, identifier);
 
-		// For better performance, early checking of operators can avoid looking up variables in scope.
-		if (isCheckNotExists(operator, literalValue)) {
-			replacement = `${variableName} === -1`;
-		} else if (isCheckExists(operator, literalValue)) {
-			replacement = `${variableName} !== -1`;
-		} else {
+		if (!replacement) {
 			return;
 		}
 
-		const variableFound = resolveVariableName(
-			variableName,
-			context.sourceCode.getScope(node),
-		);
+		const variableFound = resolveVariableName(identifier, context.sourceCode.getScope(node));
 
 		if (!variableFound) {
 			return;
 		}
 
-		for (const definition of variableFound.defs) {
-			if (definition.type === 'Variable' && isIndexOfCallExpression(definition.node.init)) {
+		for (const {type, node: initNode} of variableFound.defs) {
+			if (type === 'Variable' && isIndexOfCallExpression(initNode.init)) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
-					data: {
-						value: context.sourceCode.getText(node),
-						replacement,
-					},
+					data: {value: context.sourceCode.getText(node), replacement},
 					fix: fixer => fixer.replaceText(node, replacement),
 				});
 			}
