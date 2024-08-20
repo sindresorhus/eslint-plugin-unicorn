@@ -106,5 +106,10 @@ test.snapshot({
 
 			if (index > -1) {}
 		`,
+		outdent`
+			const index = foo.lastIndexOf('bar');
+
+			index > -1 ? 'exists' : 'not exists';
+		`,
 	],
 });
