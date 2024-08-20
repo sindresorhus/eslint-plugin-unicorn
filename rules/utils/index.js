@@ -13,6 +13,7 @@ const {
 } = require('./array-or-object-prototype-property.js');
 const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js');
 const {isBooleanNode, getBooleanAncestor} = require('./boolean.js');
+const {findIndexOfQuestionMarkInConditionalExpression} = require('./conditional-expression.js');
 
 module.exports = {
 	avoidCapture: require('./avoid-capture.js'),
@@ -43,6 +44,7 @@ module.exports = {
 	isParenthesized,
 	isSameIdentifier: require('./is-same-identifier.js'),
 	isSameReference: require('./is-same-reference.js'),
+	isNodesEqual: require('./is-node-equals.js'),
 	isShadowed: require('./is-shadowed.js'),
 	isValueNotUsable: require('./is-value-not-usable.js'),
 	needsSemicolon: require('./needs-semicolon.js'),
@@ -52,5 +54,6 @@ module.exports = {
 	singular: require('./singular.js'),
 	toLocation: require('./to-location.js'),
 	getAncestor: require('./get-ancestor.js'),
+	findIndexOfQuestionMarkInConditionalExpression,
 };
 
