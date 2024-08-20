@@ -34,3 +34,23 @@ if (index >= 0) {}
 const index = foo.indexOf('bar');
 if (index !== -1) {}
 ```
+
+```js
+// ❌
+const index = foo.lastIndexOf('bar');
+if (index >= 0) {}
+
+// ✅
+const index = foo.lastIndexOf('bar');
+if (index !== -1) {}
+```
+
+```js
+// ❌
+const index = foo.lastIndexOf('bar');
+index >= 0 ? 'exist' : 'not exist';
+
+// ✅
+const index = foo.lastIndexOf('bar');
+index !== -1 ? 'exist' : 'not exist';
+```
