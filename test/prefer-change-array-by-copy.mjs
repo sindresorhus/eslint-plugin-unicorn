@@ -40,5 +40,6 @@ test.snapshot({
 			const array = [1, 2, 3];
 			array[foo.bar] = 'changed';
 		`,
+		'sourceCode.getAncestors(node).reverse()',
 	],
 });

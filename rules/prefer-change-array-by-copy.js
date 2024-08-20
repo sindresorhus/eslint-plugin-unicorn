@@ -75,10 +75,7 @@ const isMutableArrayMethodCall = node => {
 	}
 
 	return (
-		(node.callee.object.type === 'ArrayExpression' // [].sort()
-			|| isArrayConstructor(node.callee.object) // New Array().sort()
-			|| node.callee.object.type === 'Identifier') // Array.sort()
-		&& node.callee.property.type === 'Identifier'
+		node.callee.property.type === 'Identifier'
 		&& Object.hasOwn(mutableMethodsMap, node.callee.property.name)
 	);
 };
