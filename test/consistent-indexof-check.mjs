@@ -163,6 +163,6 @@ test.snapshot({
 			const index = arr.findLastIndex(element => element > 10);
 
 			if (index > -1) {}
-		`
+		`,
 	],
 });

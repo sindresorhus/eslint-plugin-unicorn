@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce consistent style for element existence checks with `indexOf()` and `lastIndexOf()`.
+Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.
 
 Prefer using `index === -1` to check if an element does not exist and `index !== -1` to check if an element does exist.
 
