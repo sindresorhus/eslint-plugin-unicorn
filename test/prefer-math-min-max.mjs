@@ -46,5 +46,14 @@ test.snapshot({
 		`,
 
 		'(0,foo) > 10 ? 10 : (0,foo)',
+
+		'foo.bar() > 10 ? 10 : foo.bar()',
+		outdent`
+			async function foo() {
+				return await foo.bar() > 10 ? 10 : await foo.bar()
+			}
+		`,
+
+		'foo.length > bar.length ? bar.length : foo.length',
 	],
 });
