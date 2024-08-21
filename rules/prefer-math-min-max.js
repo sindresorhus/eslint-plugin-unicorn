@@ -38,56 +38,58 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	/** @param {import('estree').ConditionalExpression} node */
-	ConditionalExpression(node) {
-		const {test, consequent, alternate} = node;
+const create = context => {
+	const allowNodeTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression', 'UnaryExpression']);
 
-		if (test.type !== 'BinaryExpression') {
-			return;
-		}
+	return {
+		/** @param {import('estree').ConditionalExpression} node */
+		ConditionalExpression(node) {
+			const {test, consequent, alternate} = node;
 
-		const {sourceCode} = context;
-		const {operator, left, right} = test;
-
-		const checkTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression', 'UnaryExpression']);
-
-		if ([left, right, alternate, consequent].some(n => !checkTypes.has(n.type))) {
-			return;
-		}
-
-		const leftCode = sourceCode.getText(left);
-		const rightCode = sourceCode.getText(right);
-		const alternateCode = sourceCode.getText(alternate);
-		const consequentCode = sourceCode.getText(consequent);
-
-		if (['>', '>='].includes(operator)) {
-			if (leftCode === alternateCode && rightCode === consequentCode) {
-				// Example `height > 50 ? 50 : height`
-				// Prefer `Math.min()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			if (test.type !== 'BinaryExpression') {
+				return;
 			}
 
-			if (leftCode === consequentCode && rightCode === alternateCode) {
-				// Example `height > 50 ? height : 50`
-				// Prefer `Math.max()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
-			}
-		} else if (['<', '<='].includes(operator)) {
-			if (leftCode === consequentCode && rightCode === alternateCode) {
-				// Example `height < 50 ? height : 50`
-				// Prefer `Math.min()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			const {sourceCode} = context;
+			const {operator, left, right} = test;
+
+			if ([left, right, alternate, consequent].some(n => !allowNodeTypes.has(n.type))) {
+				return;
 			}
 
-			if (leftCode === alternateCode && rightCode === consequentCode) {
-				// Example `height < 50 ? 50 : height`
-				// Prefer `Math.max()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+			const leftCode = sourceCode.getText(left);
+			const rightCode = sourceCode.getText(right);
+			const alternateCode = sourceCode.getText(alternate);
+			const consequentCode = sourceCode.getText(consequent);
+
+			if (['>', '>='].includes(operator)) {
+				if (leftCode === alternateCode && rightCode === consequentCode) {
+					// Example `height > 50 ? 50 : height`
+					// Prefer `Math.min()`
+					return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+				}
+
+				if (leftCode === consequentCode && rightCode === alternateCode) {
+					// Example `height > 50 ? height : 50`
+					// Prefer `Math.max()`
+					return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				}
+			} else if (['<', '<='].includes(operator)) {
+				if (leftCode === consequentCode && rightCode === alternateCode) {
+					// Example `height < 50 ? height : 50`
+					// Prefer `Math.min()`
+					return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+				}
+
+				if (leftCode === alternateCode && rightCode === consequentCode) {
+					// Example `height < 50 ? 50 : height`
+					// Prefer `Math.max()`
+					return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				}
 			}
-		}
-	},
-});
+		},
+	};
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
