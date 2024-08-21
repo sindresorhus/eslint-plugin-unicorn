@@ -13,7 +13,7 @@ const messages = {
 function reportPreferMathMinOrMax(context, node, left, right, method) {
 	const {sourceCode} = context;
 
-	context.report({
+	return {
 		node,
 		messageId: MESSAGE_ID,
 		data: {
@@ -34,7 +34,7 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 
 			yield fixer.replaceText(node, `${method}(${sourceCode.getText(left)}, ${sourceCode.getText(right)})`);
 		},
-	});
+	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -65,21 +65,25 @@ const create = context => ({
 			if (leftCode === alternateCode && rightCode === consequentCode) {
 				// Example `height > 50 ? 50 : height`
 				// Prefer `Math.min()`
-				reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-			} else if (leftCode === consequentCode && rightCode === alternateCode) {
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			}
+
+			if (leftCode === consequentCode && rightCode === alternateCode) {
 				// Example `height > 50 ? height : 50`
 				// Prefer `Math.max()`
-				reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
 			}
 		} else if (['<', '<='].includes(operator)) {
 			if (leftCode === consequentCode && rightCode === alternateCode) {
 				// Example `height < 50 ? height : 50`
 				// Prefer `Math.min()`
-				reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-			} else if (leftCode === alternateCode && rightCode === consequentCode) {
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			}
+
+			if (leftCode === alternateCode && rightCode === consequentCode) {
 				// Example `height < 50 ? 50 : height`
 				// Prefer `Math.max()`
-				reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
 			}
 		}
 	},
