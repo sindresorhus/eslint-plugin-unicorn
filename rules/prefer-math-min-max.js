@@ -36,6 +36,12 @@ const create = context => ({
 		const {sourceCode} = context;
 		const {operator, left, right} = test;
 
+		const checkTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression']);
+
+		if ([left, right, alternate, consequent].some(n => !checkTypes.has(n.type))) {
+			return;
+		}
+
 		const leftCode = sourceCode.getText(left);
 		const rightCode = sourceCode.getText(right);
 		const alternateCode = sourceCode.getText(alternate);
