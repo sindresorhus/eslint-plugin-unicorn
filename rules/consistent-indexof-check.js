@@ -47,6 +47,57 @@ function isNumberLiteral(node) {
 	return node.type === 'Literal' && typeof node.value === 'number';
 }
 
+/**
+Find and process references to a given identifier.
+
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Identifier} identifierNode
+@returns
+*/
+function findAndProcessReferences(context, identifierNode) {
+	const variable = resolveVariableName(identifierNode.name, context.sourceCode.getScope(identifierNode));
+
+	if (!variable) {
+		return;
+	}
+
+	for (const reference of variable.references) {
+		if (reference.identifier === identifierNode) {
+			continue;
+		}
+
+		const {identifier} = reference;
+		/** @type {{parent: import('estree').Node}} */
+		const {parent} = identifier;
+
+		// Check if the identifier is used in a binary expression
+		if (parent.type === 'BinaryExpression' && [parent.left, parent.right].includes(identifier)) {
+			const [literal, operator] = [parent.left, parent.right].some(n => isNumberLiteral(n))
+				? (parent.left === identifier
+					? [evaluateLiteralUnaryExpression(parent.right), parent.operator] // Index === -1
+					: [evaluateLiteralUnaryExpression(parent.left), comparisonMap[parent.operator]]) // -1 === index
+				: [];
+
+			const replacement = getReplacement(
+				operator,
+				literal,
+				identifier.name,
+			);
+
+			if (!replacement) {
+				continue;
+			}
+
+			context.report({
+				node: parent,
+				messageId: MESSAGE_ID,
+				data: {value: context.sourceCode.getText(parent), replacement},
+				fix: fixer => fixer.replaceText(parent, replacement),
+			});
+		}
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').VariableDeclarator} node */
@@ -59,47 +110,19 @@ const create = context => ({
 			return;
 		}
 
-		const variable = resolveVariableName(node.id.name, context.sourceCode.getScope(node));
-
-		if (!variable) {
+		findAndProcessReferences(context, node.id);
+	},
+	/** @param {import('estree').AssignmentExpression} node */
+	AssignmentExpression(node) {
+		if (!isMethodCall(node.right, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
 			return;
 		}
 
-		for (const reference of variable.references) {
-			if (reference.identifier === node.id) {
-				continue;
-			}
-
-			const {identifier} = reference;
-			/** @type {{parent: import('estree').Node}} */
-			const {parent} = identifier;
-
-			// Check if the identifier is used in a binary expression
-			if (parent.type === 'BinaryExpression' && [parent.left, parent.right].includes(identifier)) {
-				const [literal, operator] = [parent.left, parent.right].some(n => isNumberLiteral(n))
-					? (parent.left === identifier
-						? [evaluateLiteralUnaryExpression(parent.right), parent.operator] // Index === -1
-						: [evaluateLiteralUnaryExpression(parent.left), comparisonMap[parent.operator]]) // -1 === index
-					: [];
-
-				const replacement = getReplacement(
-					operator,
-					literal,
-					identifier.name,
-				);
-
-				if (!replacement) {
-					continue;
-				}
-
-				context.report({
-					node: parent,
-					messageId: MESSAGE_ID,
-					data: {value: context.sourceCode.getText(parent), replacement},
-					fix: fixer => fixer.replaceText(parent, replacement),
-				});
-			}
+		if (node.left.type !== 'Identifier') {
+			return;
 		}
+
+		findAndProcessReferences(context, node.left);
 	},
 });
 

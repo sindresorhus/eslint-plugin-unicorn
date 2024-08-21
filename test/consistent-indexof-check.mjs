@@ -180,5 +180,18 @@ test.snapshot({
 				if (index > -1) {}
 			}
 		`,
+		outdent`
+			let index;
+
+			// do stuff
+
+			index = arr.findLastIndex(element => element > 10);
+
+			if (index > -1) {}
+
+			function test () {
+				if (index > -1) {}
+			}
+		`,
 	],
 });
