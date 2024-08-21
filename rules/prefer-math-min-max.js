@@ -34,16 +34,14 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 				yield fixer.insertTextBefore(node, ' ');
 			}
 
-			let leftText = sourceCode.getText(left);
-			let rightText = sourceCode.getText(right);
-
-			if (left.type === 'SequenceExpression') {
-				leftText = `(${leftText})`;
-			}
-
-			if (right.type === 'SequenceExpression') {
-				rightText = `(${rightText})`;
-			}
+			/**
+			 * Fix edge case:
+			 * ```js
+			 * (0,foo) > 10 ? 10 : (0,foo)
+			 * ```
+			 */
+			const leftText = left.type === 'SequenceExpression' ? `(${sourceCode.getText(left)})` : sourceCode.getText(left);
+			const rightText = right.type === 'SequenceExpression' ? `(${sourceCode.getText(right)})` : sourceCode.getText(right);
 
 			yield fixer.replaceText(node, `${method}(${leftText}, ${rightText})`);
 		},
