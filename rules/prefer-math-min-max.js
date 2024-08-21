@@ -8,6 +8,8 @@ const messages = {
 /**
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').ConditionalExpression} node
+@param {import('estree').Node} left
+@param {import('estree').Node} right
 @param {string} method
 */
 function reportPreferMathMinOrMax(context, node, left, right, method) {
@@ -32,64 +34,67 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 				yield fixer.insertTextBefore(node, ' ');
 			}
 
-			yield fixer.replaceText(node, `${method}(${sourceCode.getText(left)}, ${sourceCode.getText(right)})`);
+			let leftText = sourceCode.getText(left);
+			let rightText = sourceCode.getText(right);
+
+			if (left.type === 'SequenceExpression') {
+				leftText = `(${leftText})`;
+			}
+
+			if (right.type === 'SequenceExpression') {
+				rightText = `(${rightText})`;
+			}
+
+			yield fixer.replaceText(node, `${method}(${leftText}, ${rightText})`);
 		},
 	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const allowNodeTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression', 'UnaryExpression']);
+const create = context => ({
+	/** @param {import('estree').ConditionalExpression} node */
+	ConditionalExpression(node) {
+		const {test, consequent, alternate} = node;
 
-	return {
-		/** @param {import('estree').ConditionalExpression} node */
-		ConditionalExpression(node) {
-			const {test, consequent, alternate} = node;
+		if (test.type !== 'BinaryExpression') {
+			return;
+		}
 
-			if (test.type !== 'BinaryExpression') {
-				return;
+		const {sourceCode} = context;
+		const {operator, left, right} = test;
+
+		const leftCode = sourceCode.getText(left);
+		const rightCode = sourceCode.getText(right);
+		const alternateCode = sourceCode.getText(alternate);
+		const consequentCode = sourceCode.getText(consequent);
+
+		if (['>', '>='].includes(operator)) {
+			if (leftCode === alternateCode && rightCode === consequentCode) {
+				// Example `height > 50 ? 50 : height`
+				// Prefer `Math.min()`
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
 			}
 
-			const {sourceCode} = context;
-			const {operator, left, right} = test;
-
-			if ([left, right, alternate, consequent].some(n => !allowNodeTypes.has(n.type))) {
-				return;
+			if (leftCode === consequentCode && rightCode === alternateCode) {
+				// Example `height > 50 ? height : 50`
+				// Prefer `Math.max()`
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+			}
+		} else if (['<', '<='].includes(operator)) {
+			if (leftCode === consequentCode && rightCode === alternateCode) {
+				// Example `height < 50 ? height : 50`
+				// Prefer `Math.min()`
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
 			}
 
-			const leftCode = sourceCode.getText(left);
-			const rightCode = sourceCode.getText(right);
-			const alternateCode = sourceCode.getText(alternate);
-			const consequentCode = sourceCode.getText(consequent);
-
-			if (['>', '>='].includes(operator)) {
-				if (leftCode === alternateCode && rightCode === consequentCode) {
-					// Example `height > 50 ? 50 : height`
-					// Prefer `Math.min()`
-					return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-				}
-
-				if (leftCode === consequentCode && rightCode === alternateCode) {
-					// Example `height > 50 ? height : 50`
-					// Prefer `Math.max()`
-					return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
-				}
-			} else if (['<', '<='].includes(operator)) {
-				if (leftCode === consequentCode && rightCode === alternateCode) {
-					// Example `height < 50 ? height : 50`
-					// Prefer `Math.min()`
-					return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-				}
-
-				if (leftCode === alternateCode && rightCode === consequentCode) {
-					// Example `height < 50 ? 50 : height`
-					// Prefer `Math.max()`
-					return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
-				}
+			if (leftCode === alternateCode && rightCode === consequentCode) {
+				// Example `height < 50 ? 50 : height`
+				// Prefer `Math.max()`
+				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
 			}
-		},
-	};
-};
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
