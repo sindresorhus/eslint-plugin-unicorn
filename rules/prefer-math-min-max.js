@@ -18,7 +18,6 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 		messageId: MESSAGE_ID,
 		data: {
 			replacement: `${method}()`,
-			value: sourceCode.getText(node),
 		},
 		fix: fixer => fixer.replaceText(node, `${method}(${sourceCode.getText(left)}, ${sourceCode.getText(right)})`),
 	});
