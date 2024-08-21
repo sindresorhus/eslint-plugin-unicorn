@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of `Math.min()` and `Math.max()` functions instead of ternary expressions when performing simple comparisons, such as selecting the minimum or maximum value between two or more options. 
+This rule enforces the use of `Math.min()` and `Math.max()` functions instead of ternary expressions when performing simple comparisons, such as selecting the minimum or maximum value between two or more options.
 
 By replacing ternary expressions with these functions, the code becomes more concise, easier to understand, and less prone to errors. It also enhances consistency across the codebase, ensuring that the same approach is used for similar operations, ultimately improving the overall readability and maintainability of the code.
 
