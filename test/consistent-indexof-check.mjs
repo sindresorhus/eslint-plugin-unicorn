@@ -6,6 +6,11 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		outdent`
+			const index = indexOf('bar');
+
+			if (index === -1) {}
+		`,
+		outdent`
 			const index = foo.indexOf('bar');
 
 			if (index === -1) {}
