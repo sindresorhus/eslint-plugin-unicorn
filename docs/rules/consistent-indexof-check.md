@@ -54,3 +54,27 @@ index >= 0 ? 'exist' : 'not exist';
 const index = foo.lastIndexOf('bar');
 index !== -1 ? 'exist' : 'not exist';
 ```
+
+```js
+// ❌
+const arr = [5, 12, 8, 130, 44];
+const index = arr.findIndex(element => element > 10);
+if (index < 0) {}
+
+// ✅
+const arr = [5, 12, 8, 130, 44];
+const index = arr.findIndex(element => element > 10);
+if (index === -1) {}
+```
+
+```js
+// ❌
+const arr = [5, 12, 8, 130, 44];
+const index = arr.findLastIndex(element => element > 10);
+if (index < 0) {}
+
+// ✅
+const arr = [5, 12, 8, 130, 44];
+const index = arr.findLastIndex(element => element > 10);
+if (index === -1) {}
+```
