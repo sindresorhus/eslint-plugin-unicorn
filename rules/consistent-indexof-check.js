@@ -1,6 +1,5 @@
 'use strict';
 const evaluateLiteralUnaryExpression = require('./utils/evaluate-literal-unaryexpression.js');
-const resolveVariableName = require('./utils/resolve-variable-name.js');
 const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistent-indexof-check';
@@ -55,7 +54,7 @@ Find and process references to a given identifier.
 @returns
 */
 function findAndProcessReferences(context, identifierNode) {
-	const variable = resolveVariableName(identifierNode.name, context.sourceCode.getScope(identifierNode));
+	const variable = context.sourceCode.getDeclaredVariables(identifierNode.parent).find(variable => variable.name === identifierNode.name);
 
 	if (!variable) {
 		return;
@@ -109,10 +108,8 @@ const create = context => ({
 		/** @type {{parent: import('estree').Node}} */
 		const {parent} = node;
 
-		if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+		if (parent.type === 'VariableDeclarator' && parent.parent.kind === 'const' && parent.id.type === 'Identifier') {
 			findAndProcessReferences(context, parent.id);
-		} else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
-			findAndProcessReferences(context, parent.left);
 		}
 	},
 });

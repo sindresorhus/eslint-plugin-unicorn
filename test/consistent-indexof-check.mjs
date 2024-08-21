@@ -57,6 +57,32 @@ test.snapshot({
 
 			if (index < 0) {}
 		`,
+		// To prevent false positives, it will not check if the index is not declared via const
+		outdent`
+			let index = foo.indexOf("bar");
+
+			if (index < 0) {}
+		`,
+		// To prevent false positives, it will not check if the index is not declared via const
+		outdent`
+			var index = foo.indexOf("bar");
+
+			if (index < 0) {}
+		`,
+		// To prevent false positives, it will not check if the index is not declared via const
+		outdent`
+			let index;
+
+			// do stuff
+
+			index = arr.findLastIndex(element => element > 10);
+
+			if (index > -1) {}
+
+			function test () {
+				if (index > -1) {}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -173,19 +199,6 @@ test.snapshot({
 		outdent`
 			const arr = [5, 12, 8, 130, 44];
 			const index = arr.findLastIndex(element => element > 10);
-
-			if (index > -1) {}
-
-			function test () {
-				if (index > -1) {}
-			}
-		`,
-		outdent`
-			let index;
-
-			// do stuff
-
-			index = arr.findLastIndex(element => element > 10);
 
 			if (index > -1) {}
 
