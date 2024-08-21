@@ -6,7 +6,6 @@ const messages = {
 };
 
 /**
-
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').ConditionalExpression} node
 @param {string} method
