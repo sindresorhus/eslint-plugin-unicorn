@@ -1,4 +1,4 @@
-# Prefer `Math.min()` and `Math.max()` over ternary expressions for simple comparisons
+# Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

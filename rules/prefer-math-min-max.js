@@ -71,7 +71,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Prefer `Math.min()` and `Math.max()` over ternary expressions for simple comparisons.',
+			description: 'Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons.',
 			recommended: true,
 		},
 		fixable: 'code',
