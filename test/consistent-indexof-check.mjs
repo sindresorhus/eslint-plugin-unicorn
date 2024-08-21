@@ -5,10 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Skip checking if indexOf() method is not a method call from a object
 		outdent`
 			const index = indexOf('bar');
 
-			if (index === -1) {}
+			if (index > -1) {}
 		`,
 		outdent`
 			const index = foo.indexOf('bar');
