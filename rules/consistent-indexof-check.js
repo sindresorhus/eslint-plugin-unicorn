@@ -100,29 +100,20 @@ function findAndProcessReferences(context, identifierNode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/** @param {import('estree').VariableDeclarator} node */
-	VariableDeclarator(node) {
-		if (!isMethodCall(node.init, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
+	/** @param {import('estree').CallExpression} node */
+	CallExpression(node) {
+		if (!isMethodCall(node, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
 			return;
 		}
 
-		if (node.id.type !== 'Identifier') {
-			return;
-		}
+		/** @type {{parent: import('estree').Node}} */
+		const {parent} = node;
 
-		findAndProcessReferences(context, node.id);
-	},
-	/** @param {import('estree').AssignmentExpression} node */
-	AssignmentExpression(node) {
-		if (!isMethodCall(node.right, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
-			return;
+		if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+			findAndProcessReferences(context, parent.id);
+		} else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
+			findAndProcessReferences(context, parent.left);
 		}
-
-		if (node.left.type !== 'Identifier') {
-			return;
-		}
-
-		findAndProcessReferences(context, node.left);
 	},
 });
 
