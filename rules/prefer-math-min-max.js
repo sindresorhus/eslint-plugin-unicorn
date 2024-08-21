@@ -42,39 +42,25 @@ const create = context => ({
 		const alternateCode = sourceCode.getText(alternate);
 		const consequentCode = sourceCode.getText(consequent);
 
-		switch (operator) {
-			case '>':
-			case '>=': {
-				if (leftCode === alternateCode && rightCode === consequentCode) {
-					// Example `height > 50 ? 50 : height`
-					// Prefer `Math.min()`
-					reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-				} else if (leftCode === consequentCode && rightCode === alternateCode) {
-					// Example `height > 50 ? height : 50`
-					// Prefer `Math.max()`
-					reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
-				}
-
-				break;
+		if (['>', '>='].includes(operator)) {
+			if (leftCode === alternateCode && rightCode === consequentCode) {
+				// Example `height > 50 ? 50 : height`
+				// Prefer `Math.min()`
+				reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			} else if (leftCode === consequentCode && rightCode === alternateCode) {
+				// Example `height > 50 ? height : 50`
+				// Prefer `Math.max()`
+				reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
 			}
-
-			case '<':
-			case '<=': {
-				if (leftCode === consequentCode && rightCode === alternateCode) {
-					// Example `height < 50 ? height : 50`
-					// Prefer `Math.min()`
-					reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
-				} else if (leftCode === alternateCode && rightCode === consequentCode) {
-					// Example `height < 50 ? 50 : height`
-					// Prefer `Math.max()`
-					reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
-				}
-
-				break;
-			}
-
-			default: {
-				break;
+		} else if (['<', '<='].includes(operator)) {
+			if (leftCode === consequentCode && rightCode === alternateCode) {
+				// Example `height < 50 ? height : 50`
+				// Prefer `Math.min()`
+				reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+			} else if (leftCode === alternateCode && rightCode === consequentCode) {
+				// Example `height < 50 ? 50 : height`
+				// Prefer `Math.max()`
+				reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
 			}
 		}
 	},
