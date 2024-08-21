@@ -10,6 +10,8 @@ test.snapshot({
 		'var name = map.get("key1") || map.get("key2")',
 		'var isValid = !map.get("key1")',
 		'var isValid = !!map.get("key1")',
+		'if (map.get("key1", "key2")) {}',
+		'if (map.get()) {}',
 	],
 	invalid: [
 		'if (map.get("key")) {}',
