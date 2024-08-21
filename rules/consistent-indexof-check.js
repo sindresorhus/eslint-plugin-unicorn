@@ -1,6 +1,7 @@
 'use strict';
 const evaluateLiteralUnaryExpression = require('./utils/evaluate-literal-unaryexpression.js');
 const resolveVariableName = require('./utils/resolve-variable-name.js');
+const {isMethodCall} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistent-indexof-check';
 const messages = {
@@ -13,21 +14,6 @@ const comparisonMap = {
 	'>': '<',
 	'>=': '<=',
 };
-
-/**
-Check if the node is a call expression of `indexOf` or `lastIndexOf` method.
-
-@param {import('estree').Node} node
-@returns {node is import('estree').CallExpression}
-*/
-function isIndexOfCallExpression(node) {
-	return (
-		node?.type === 'CallExpression'
-		&& node.callee?.type === 'MemberExpression'
-		&& ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'].includes(node.callee.property.name)
-		&& node.arguments.length === 1
-	);
-}
 
 /**
 Determine the appropriate replacement based on the operator and value.
@@ -89,7 +75,7 @@ const create = context => ({
 		}
 
 		for (const {type, node: initNode} of variableFound.defs) {
-			if (type === 'Variable' && isIndexOfCallExpression(initNode.init)) {
+			if (type === 'Variable' && isMethodCall(initNode.init, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
