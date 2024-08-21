@@ -18,17 +18,17 @@ const comparisonMap = {
 /**
 Determine the appropriate replacement based on the operator and value.
 
-@param {string} op - operator
+@param {string} operator
 @param {number} value
 @param {string} variableName
 @returns {string | undefined}
 */
-function getReplacement(op, value, variableName) {
-	if ((op === '<' && value <= 0) || (op === '<=' && value <= -1)) {
+function getReplacement(operator, value, variableName) {
+	if ((operator === '<' && value <= 0) || (operator === '<=' && value <= -1)) {
 		return `${variableName} === -1`;
 	}
 
-	if ((op === '>' && value === -1) || (op === '>=' && value === 0)) {
+	if ((operator === '>' && value === -1) || (operator === '>=' && value === 0)) {
 		return `${variableName} !== -1`;
 	}
 }
@@ -40,10 +40,7 @@ Check if the node is a number literal or a unary expression resolving to a numbe
 @returns {node is import('estree').Literal}
 */
 function isNumberLiteral(node) {
-	if (
-		node.type === 'UnaryExpression'
-		&& ['-', '+', '~'].includes(node.operator)
-	) {
+	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
 		return isNumberLiteral(node.argument);
 	}
 
@@ -54,12 +51,7 @@ function isNumberLiteral(node) {
 const create = context => ({
 	/** @param {import('estree').VariableDeclarator} node */
 	VariableDeclarator(node) {
-		if (
-			!isMethodCall(node.init, {
-				methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'],
-				argumentsLength: 1,
-			})
-		) {
+		if (!isMethodCall(node.init, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
 			return;
 		}
 
@@ -67,10 +59,7 @@ const create = context => ({
 			return;
 		}
 
-		const variable = resolveVariableName(
-			node.id.name,
-			context.sourceCode.getScope(node),
-		);
+		const variable = resolveVariableName(node.id.name, context.sourceCode.getScope(node));
 
 		if (!variable) {
 			return;
