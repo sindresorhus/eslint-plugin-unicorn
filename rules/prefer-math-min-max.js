@@ -19,7 +19,21 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 		data: {
 			replacement: `${method}()`,
 		},
-		fix: fixer => fixer.replaceText(node, `${method}(${sourceCode.getText(left)}, ${sourceCode.getText(right)})`),
+		* fix(fixer) {
+			/**
+			 * ```js
+			 * function a() {
+			 *   return+foo > 10 ? 10 : +foo
+			 * }
+			 * ```
+			 */
+			if (node.parent.type === 'ReturnStatement' && node.parent.argument === node && node.parent.start + 'return'.length === node.start) {
+				// If there is no space between ReturnStatement and ConditionalExpression, add a space.
+				yield fixer.insertTextBefore(node, ' ');
+			}
+
+			yield fixer.replaceText(node, `${method}(${sourceCode.getText(left)}, ${sourceCode.getText(right)})`);
+		},
 	});
 }
 
@@ -36,7 +50,7 @@ const create = context => ({
 		const {sourceCode} = context;
 		const {operator, left, right} = test;
 
-		const checkTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression']);
+		const checkTypes = new Set(['Literal', 'Identifier', 'MemberExpression', 'CallExpression', 'UnaryExpression']);
 
 		if ([left, right, alternate, consequent].some(n => !checkTypes.has(n.type))) {
 			return;

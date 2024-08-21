@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
@@ -32,5 +33,17 @@ test.snapshot({
 		// Prefer `Math.max()`
 		'height > maxHeight ? height : maxHeight',
 		'height < maxHeight ? maxHeight : height',
+
+		// Edge test when there is no space between ReturnStatement and ConditionalExpression
+		outdent`
+			function a() {
+				return +foo > 10 ? 10 : +foo
+			}
+		`,
+		outdent`
+			function a() {
+				return+foo > 10 ? 10 : +foo
+			}
+		`,
 	],
 });
