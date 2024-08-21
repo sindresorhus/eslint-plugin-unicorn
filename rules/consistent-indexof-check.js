@@ -18,17 +18,17 @@ const comparisonMap = {
 /**
 Determine the appropriate replacement based on the operator and value.
 
-@param {string} operator
+@param {string} op - operator
 @param {number} value
 @param {string} variableName
 @returns {string | undefined}
 */
-function getReplacement(operator, value, variableName) {
-	if ((operator === '<' && value <= 0) || (operator === '<=' && value <= -1)) {
+function getReplacement(op, value, variableName) {
+	if ((op === '<' && value <= 0) || (op === '<=' && value <= -1)) {
 		return `${variableName} === -1`;
 	}
 
-	if ((operator === '>' && value === -1) || (operator === '>=' && value === 0)) {
+	if ((op === '>' && value === -1) || (op === '>=' && value === 0)) {
 		return `${variableName} !== -1`;
 	}
 }
@@ -40,7 +40,10 @@ Check if the node is a number literal or a unary expression resolving to a numbe
 @returns {node is import('estree').Literal}
 */
 function isNumberLiteral(node) {
-	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
+	if (
+		node.type === 'UnaryExpression'
+		&& ['-', '+', '~'].includes(node.operator)
+	) {
 		return isNumberLiteral(node.argument);
 	}
 
@@ -49,38 +52,62 @@ function isNumberLiteral(node) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/** @param {import('estree').BinaryExpression} node */
-	BinaryExpression(node) {
-		const [identifier, literal, operator]
-			= [node.left, node.right].some(n => isNumberLiteral(n)) && [node.left, node.right].some(n => n.type === 'Identifier')
-				? (node.left.type === 'Identifier'
-					? [node.left.name, evaluateLiteralUnaryExpression(node.right), node.operator] // Index === -1
-					: [node.right.name, evaluateLiteralUnaryExpression(node.left), comparisonMap[node.operator]]) // -1 === index
-				: [];
-
-		if (!identifier) {
+	/** @param {import('estree').VariableDeclarator} node */
+	VariableDeclarator(node) {
+		if (
+			!isMethodCall(node.init, {
+				methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'],
+				argumentsLength: 1,
+			})
+		) {
 			return;
 		}
 
-		const replacement = getReplacement(operator, literal, identifier);
-
-		if (!replacement) {
+		if (node.id.type !== 'Identifier') {
 			return;
 		}
 
-		const variableFound = resolveVariableName(identifier, context.sourceCode.getScope(node));
+		const variable = resolveVariableName(
+			node.id.name,
+			context.sourceCode.getScope(node),
+		);
 
-		if (!variableFound) {
+		if (!variable) {
 			return;
 		}
 
-		for (const {type, node: initNode} of variableFound.defs) {
-			if (type === 'Variable' && isMethodCall(initNode.init, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
+		for (const reference of variable.references) {
+			if (reference.identifier === node.id) {
+				continue;
+			}
+
+			const {identifier} = reference;
+			/** @type {{parent: import('estree').Node}} */
+			const {parent} = identifier;
+
+			// Check if the identifier is used in a binary expression
+			if (parent.type === 'BinaryExpression' && [parent.left, parent.right].includes(identifier)) {
+				const [literal, operator] = [parent.left, parent.right].some(n => isNumberLiteral(n))
+					? (parent.left === identifier
+						? [evaluateLiteralUnaryExpression(parent.right), parent.operator] // Index === -1
+						: [evaluateLiteralUnaryExpression(parent.left), comparisonMap[parent.operator]]) // -1 === index
+					: [];
+
+				const replacement = getReplacement(
+					operator,
+					literal,
+					identifier.name,
+				);
+
+				if (!replacement) {
+					continue;
+				}
+
 				context.report({
-					node,
+					node: parent,
 					messageId: MESSAGE_ID,
-					data: {value: context.sourceCode.getText(node), replacement},
-					fix: fixer => fixer.replaceText(node, replacement),
+					data: {value: context.sourceCode.getText(parent), replacement},
+					fix: fixer => fixer.replaceText(parent, replacement),
 				});
 			}
 		}
@@ -93,7 +120,8 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.',
+			description:
+				'Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.',
 			recommended: true,
 		},
 		fixable: 'code',
