@@ -24,7 +24,7 @@ function isIndexOfCallExpression(node) {
 	return (
 		node?.type === 'CallExpression'
 		&& node.callee?.type === 'MemberExpression'
-		&& ['indexOf', 'lastIndexOf'].includes(node.callee.property.name)
+		&& ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'].includes(node.callee.property.name)
 		&& node.arguments.length === 1
 	);
 }
@@ -107,7 +107,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent style for element existence checks with `indexOf()` and `lastIndexOf()`.',
+			description: 'Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.',
 			recommended: true,
 		},
 		fixable: 'code',

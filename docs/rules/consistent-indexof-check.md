@@ -1,4 +1,4 @@
-# Enforce consistent style for element existence checks with `indexOf()` and `lastIndexOf()`
+# Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

@@ -152,5 +152,17 @@ test.snapshot({
 
 			} while (index > -1);
 		`,
+		outdent`
+			const arr = [5, 12, 8, 130, 44];
+			const index = arr.findIndex(element => element > 10);
+
+			if (index > -1) {}
+		`,
+		outdent`
+			const arr = [5, 12, 8, 130, 44];
+			const index = arr.findLastIndex(element => element > 10);
+
+			if (index > -1) {}
+		`
 	],
 });
