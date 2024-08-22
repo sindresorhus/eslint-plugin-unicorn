@@ -7,6 +7,7 @@ test.snapshot({
 	valid: [
 		'height > 10 ? height : 20',
 		'height > 50 ? Math.min(50, height) : height',
+		'foo ? foo : bar',
 	],
 	invalid: [
 		// Prefer `Math.min()`
