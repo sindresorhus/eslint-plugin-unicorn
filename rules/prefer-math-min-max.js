@@ -54,30 +54,23 @@ const create = context => ({
 		const {operator, left, right} = test;
 		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(n => context.sourceCode.getText(n));
 
-		if (['>', '>='].includes(operator)) {
-			if (leftCode === alternateCode && rightCode === consequentCode) {
-				// Example `height > 50 ? 50 : height`
-				// Prefer `Math.min()`
-				return getProblem(context, node, left, right, 'Math.min');
-			}
+		const isGreaterOrEqual = ['>', '>='].includes(operator);
+		const isLessOrEqual = ['<', '<='].includes(operator);
 
-			if (leftCode === consequentCode && rightCode === alternateCode) {
-				// Example `height > 50 ? height : 50`
-				// Prefer `Math.max()`
-				return getProblem(context, node, left, right, 'Math.max');
-			}
-		} else if (['<', '<='].includes(operator)) {
-			if (leftCode === consequentCode && rightCode === alternateCode) {
-				// Example `height < 50 ? height : 50`
-				// Prefer `Math.min()`
-				return getProblem(context, node, left, right, 'Math.min');
-			}
+		// Prefer `Math.min()`
+		if (
+			(isGreaterOrEqual && leftCode === alternateCode && rightCode === consequentCode) // Example `height > 50 ? 50 : height`
+			|| (isLessOrEqual && leftCode === consequentCode && rightCode === alternateCode) // Example `height < 50 ? height : 50`
+		) {
+			return getProblem(context, node, left, right, 'Math.min');
+		}
 
-			if (leftCode === alternateCode && rightCode === consequentCode) {
-				// Example `height < 50 ? 50 : height`
-				// Prefer `Math.max()`
-				return getProblem(context, node, left, right, 'Math.max');
-			}
+		// Prefer `Math.max()`
+		if (
+			(isGreaterOrEqual && leftCode === consequentCode && rightCode === alternateCode) // Example `height > 50 ? height : 50`
+			|| (isLessOrEqual && leftCode === alternateCode && rightCode === consequentCode) // Example `height < 50 ? 50 : height`
+		) {
+			return getProblem(context, node, left, right, 'Math.max');
 		}
 	},
 });
