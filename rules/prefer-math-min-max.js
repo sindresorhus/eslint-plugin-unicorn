@@ -1,4 +1,5 @@
 'use strict';
+const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
@@ -31,7 +32,7 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 				|| (parent.type === 'YieldExpression' && parent.argument === node && parent.start + 'yield'.length === node.start)
 			) {
 				// If there is no space between ReturnStatement and ConditionalExpression, add a space.
-				yield fixer.insertTextBefore(node, ' ');
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 			}
 
 			/**
