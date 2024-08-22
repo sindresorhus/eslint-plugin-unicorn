@@ -16,36 +16,27 @@ const messages = {
 function getProblem(context, node, left, right, method) {
 	const {sourceCode} = context;
 
+	// Catch edge case: `(0,foo) > 10 ? 10 : (0,foo)`
+	const getText = n => n.type === 'SequenceExpression' ? `(${sourceCode.getText(n)})` : sourceCode.getText(n);
+
 	return {
 		node,
 		messageId: MESSAGE_ID,
-		data: {
-			replacement: `${method}()`,
-		},
+		data: {replacement: `${method}()`},
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		* fix(fixer) {
 			/** @type {{parent: import('estree'.Node)}} */
 			const {parent} = node;
 			if (
-				// Edge case: `return+foo > 10 ? 10 : +foo`
+			// Catch edge case: `return+foo > 10 ? 10 : +foo`
 				(parent.type === 'ReturnStatement' && parent.argument === node && parent.start + 'return'.length === node.start)
-				// Edge case:  `yield+foo > 10 ? 10 : foo`
+				// Catch edge case:  `yield+foo > 10 ? 10 : foo`
 				|| (parent.type === 'YieldExpression' && parent.argument === node && parent.start + 'yield'.length === node.start)
 			) {
-				// If there is no space between ReturnStatement and ConditionalExpression, add a space.
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 			}
 
-			/**
-			 * Fix edge case:
-			 * ```js
-			 * (0,foo) > 10 ? 10 : (0,foo)
-			 * ```
-			 */
-			const leftText = left.type === 'SequenceExpression' ? `(${sourceCode.getText(left)})` : sourceCode.getText(left);
-			const rightText = right.type === 'SequenceExpression' ? `(${sourceCode.getText(right)})` : sourceCode.getText(right);
-
-			yield fixer.replaceText(node, `${method}(${leftText}, ${rightText})`);
+			yield fixer.replaceText(node, `${method}(${getText(left)}, ${getText(right)})`);
 		},
 	};
 }
@@ -60,9 +51,8 @@ const create = context => ({
 			return;
 		}
 
-		const {sourceCode} = context;
 		const {operator, left, right} = test;
-		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(n => sourceCode.getText(n));
+		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(n => context.sourceCode.getText(n));
 
 		if (['>', '>='].includes(operator)) {
 			if (leftCode === alternateCode && rightCode === consequentCode) {
