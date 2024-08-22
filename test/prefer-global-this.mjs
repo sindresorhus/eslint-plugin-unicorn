@@ -166,6 +166,8 @@ test.snapshot({
 		'function greet({ name = window.foo }) {}',
 		'({ foo: window.foo } =  {})',
 		'[window.foo] = []',
+		'foo[window]',
+		'foo[window.foo]',
 	],
 });
 
