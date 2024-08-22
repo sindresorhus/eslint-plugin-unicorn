@@ -53,6 +53,16 @@ test.snapshot({
 				return await foo.bar() > 10 ? 10 : await foo.bar()
 			}
 		`,
+		outdent`
+			function foo() {
+				return(foo.bar() > 10) ? 10 : foo.bar()
+			}
+		`,
+		outdent`
+			function* foo() {
+				yield+foo > 10 ? 10 : +foo
+			}
+		`,
 
 		'foo.length > bar.length ? bar.length : foo.length',
 	],

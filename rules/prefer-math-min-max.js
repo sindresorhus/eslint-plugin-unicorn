@@ -22,14 +22,23 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 			replacement: `${method}()`,
 		},
 		* fix(fixer) {
+			/** @type {{parent: import('estree'.Node)}} */
+			const {parent} = node;
 			/**
 			 * ```js
 			 * function a() {
 			 *   return+foo > 10 ? 10 : +foo
 			 * }
+			 *
+			 * function* foo() {
+			 *   yield+foo > 10 ? 10 : foo
+			 * }
 			 * ```
 			 */
-			if (node.parent.type === 'ReturnStatement' && node.parent.argument === node && node.parent.start + 'return'.length === node.start) {
+			if (
+				(parent.type === 'ReturnStatement' && parent.argument === node && parent.start + 'return'.length === node.start)
+				|| (parent.type === 'YieldExpression' && parent.argument === node && parent.start + 'yield'.length === node.start)
+			) {
 				// If there is no space between ReturnStatement and ConditionalExpression, add a space.
 				yield fixer.insertTextBefore(node, ' ');
 			}
