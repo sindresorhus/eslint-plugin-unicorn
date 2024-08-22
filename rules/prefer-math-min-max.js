@@ -61,11 +61,7 @@ const create = context => ({
 
 		const {sourceCode} = context;
 		const {operator, left, right} = test;
-
-		const leftCode = sourceCode.getText(left);
-		const rightCode = sourceCode.getText(right);
-		const alternateCode = sourceCode.getText(alternate);
-		const consequentCode = sourceCode.getText(consequent);
+		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(n => sourceCode.getText(n));
 
 		if (['>', '>='].includes(operator)) {
 			if (leftCode === alternateCode && rightCode === consequentCode) {
