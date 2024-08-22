@@ -28,7 +28,7 @@ function getProblem(context, node, left, right, method) {
 			/** @type {{parent: import('estree'.Node)}} */
 			const {parent} = node;
 			if (
-			// Catch edge case: `return+foo > 10 ? 10 : +foo`
+				// Catch edge case: `return+foo > 10 ? 10 : +foo`
 				(parent.type === 'ReturnStatement' && parent.argument === node && parent.start + 'return'.length === node.start)
 				// Catch edge case:  `yield+foo > 10 ? 10 : foo`
 				|| (parent.type === 'YieldExpression' && parent.argument === node && parent.start + 'yield'.length === node.start)
