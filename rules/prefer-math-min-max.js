@@ -13,7 +13,7 @@ const messages = {
 @param {import('estree').Node} right
 @param {string} method
 */
-function reportPreferMathMinOrMax(context, node, left, right, method) {
+function getProblem(context, node, left, right, method) {
 	const {sourceCode} = context;
 
 	return {
@@ -22,6 +22,7 @@ function reportPreferMathMinOrMax(context, node, left, right, method) {
 		data: {
 			replacement: `${method}()`,
 		},
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		* fix(fixer) {
 			/** @type {{parent: import('estree'.Node)}} */
 			const {parent} = node;
@@ -67,25 +68,25 @@ const create = context => ({
 			if (leftCode === alternateCode && rightCode === consequentCode) {
 				// Example `height > 50 ? 50 : height`
 				// Prefer `Math.min()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+				return getProblem(context, node, left, right, 'Math.min');
 			}
 
 			if (leftCode === consequentCode && rightCode === alternateCode) {
 				// Example `height > 50 ? height : 50`
 				// Prefer `Math.max()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				return getProblem(context, node, left, right, 'Math.max');
 			}
 		} else if (['<', '<='].includes(operator)) {
 			if (leftCode === consequentCode && rightCode === alternateCode) {
 				// Example `height < 50 ? height : 50`
 				// Prefer `Math.min()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.min');
+				return getProblem(context, node, left, right, 'Math.min');
 			}
 
 			if (leftCode === alternateCode && rightCode === consequentCode) {
 				// Example `height < 50 ? 50 : height`
 				// Prefer `Math.max()`
-				return reportPreferMathMinOrMax(context, node, left, right, 'Math.max');
+				return getProblem(context, node, left, right, 'Math.max');
 			}
 		}
 	},
