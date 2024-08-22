@@ -54,6 +54,11 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			async function foo() {
+				await(+foo > 10 ? 10 : +foo)
+			}
+		`,
+		outdent`
 			function foo() {
 				return(foo.bar() > 10) ? 10 : foo.bar()
 			}
