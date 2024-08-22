@@ -32,6 +32,9 @@ const config = [
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
+			// Removed when node 18.x is deprecated
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/pull/2428#issuecomment-2303599691
+			'unicorn/prefer-change-array-by-copy': 'off',
 		},
 	},
 	{
