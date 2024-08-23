@@ -20,6 +20,7 @@ const index = foo.indexOf('bar');
 
 // ❌
 if (index < 0) {}
+
 // ✅
 if (index === -1) {}
 ```
@@ -29,6 +30,7 @@ const index = foo.indexOf('bar');
 
 // ❌
 if (index >= 0) {}
+
 // ✅
 if (index !== -1) {}
 ```
@@ -38,6 +40,7 @@ const index = foo.indexOf('bar');
 
 // ❌
 if (index > -1) {}
+
 // ✅
 if (index !== -1) {}
 ```
@@ -47,6 +50,7 @@ const index = foo.lastIndexOf('bar');
 
 // ❌
 if (index >= 0) {}
+
 // ✅
 if (index !== -1) {}
 ```
