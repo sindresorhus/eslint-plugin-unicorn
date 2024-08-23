@@ -84,12 +84,10 @@ test({
 		},
 		{
 			code: '"foo".substr(bar.length, Math.min(baz, 100))',
-			output: '"foo".slice(bar.length, (bar.length + Math.min(baz, 100)) || undefined)',
 			errors: errorsSubstr,
 		},
 		{
 			code: '"foo".substr(1, "abc".length)',
-			output: '"foo".slice(1, (1 + "abc".length) || undefined)',
 			errors: errorsSubstr,
 		},
 		{
@@ -100,10 +98,6 @@ test({
 			code: outdent`
 				const length = 123;
 				"foo".substr(1, length)
-			`,
-			output: outdent`
-				const length = 123;
-				"foo".slice(1, (1 + length) || undefined)
 			`,
 			errors: errorsSubstr,
 		},
@@ -139,10 +133,6 @@ test({
 			code: outdent`
 				const length = 123;
 				"foo".substr(1, length - 4)
-			`,
-			output: outdent`
-				const length = 123;
-				"foo".slice(1, (1 + length - 4) || undefined)
 			`,
 			errors: errorsSubstr,
 		},
