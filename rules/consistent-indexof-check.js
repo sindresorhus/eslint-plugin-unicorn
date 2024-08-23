@@ -103,7 +103,7 @@ const create = context => ({
 				messageId: MESSAGE_ID,
 				data: {
 					...replacement,
-					existenceOrNonExistence: `${replacement.replacementOperator === '===' ? 'non-': ''}existence`,
+					existenceOrNonExistence: `${replacement.replacementOperator === '===' ? 'non-' : ''}existence`,
 				},
 				* fix(fixer) {
 					yield fixer.replaceText(operatorToken, replacement.replacementOperator);
