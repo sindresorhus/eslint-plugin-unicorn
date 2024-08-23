@@ -6,19 +6,9 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
 };
 
-/**
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').ConditionalExpression} node
-@param {import('estree').Node} left
-@param {import('estree').Node} right
-@param {string} method
-*/
-function getProblem(context, node, left, right, method) {
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/** @param {import('estree').ConditionalExpression} node */
+	/** @param {import('estree').ConditionalExpression} conditionalExpression */
 	ConditionalExpression(conditionalExpression) {
 		const {test, consequent, alternate} = conditionalExpression;
 
@@ -27,7 +17,7 @@ const create = context => ({
 		}
 
 		const {operator, left, right} = test;
-		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
+		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
 		const isLessOrEqual = operator === '<' || operator === '<=';
@@ -37,16 +27,16 @@ const create = context => ({
 		// Prefer `Math.min()`
 		if (
 			// `height > 50 ? 50 : height`
-			(isGreaterOrEqual && leftCode === alternateCode && rightCode === consequentCode)
+			(isGreaterOrEqual && leftText === alternateText && rightText === consequentText)
 			// `height < 50 ? height : 50`
-			|| (isLessOrEqual && leftCode === consequentCode && rightCode === alternateCode)
+			|| (isLessOrEqual && leftText === consequentText && rightText === alternateText)
 		) {
 			method = 'min';
 		} else if (
 			// `height > 50 ? height : 50`
-			(isGreaterOrEqual && leftCode === consequentCode && rightCode === alternateCode)
+			(isGreaterOrEqual && leftText === consequentText && rightText === alternateText)
 			// `height < 50 ? 50 : height`
-			|| (isLessOrEqual && leftCode === alternateCode && rightCode === consequentCode)
+			|| (isLessOrEqual && leftText === alternateText && rightText === consequentText)
 		) {
 			method = 'max';
 		}
@@ -65,9 +55,11 @@ const create = context => ({
 
 				yield * fixSpaceAroundKeyword(fixer, conditionalExpression, sourceCode);
 
-				const argumentsText = [left, right].map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node));
+				const argumentsText = [left, right]
+					.map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node))
+					.join(', ');
 
-				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText.join(', ')})`);
+				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);
 			},
 		};
 	},
