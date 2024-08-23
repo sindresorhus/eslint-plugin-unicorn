@@ -4,7 +4,7 @@ const {isMethodCall, isNegativeOne, isNumberLiteral} = require('./ast/index.js')
 
 const MESSAGE_ID = 'consistent-indexof-check';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}`.',
+	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}` to check {{existenceOrNonExistence}}.',
 };
 
 const isZero = node => isNumberLiteral(node) && node.value === 0;
@@ -69,7 +69,7 @@ const create = context => ({
 		// Just for safety
 		if (
 			variables.length !== 1
-			|| variable.identifiers.length === 1
+			|| variable.identifiers.length !== 1
 			|| variable.identifiers[0] !== variableIdentifier
 		) {
 			return;
@@ -101,7 +101,10 @@ const create = context => ({
 				node: binaryExpression,
 				loc: toLocation([operatorToken.range[0], right.range[1]], sourceCode),
 				messageId: MESSAGE_ID,
-				data: replacement,
+				data: {
+					...replacement,
+					existenceOrNonExistence: `${replacement.replacementOperator === '===' ? 'non-': ''}existence`,
+				},
 				* fix(fixer) {
 					yield fixer.replaceText(operatorToken, replacement.replacementOperator);
 
