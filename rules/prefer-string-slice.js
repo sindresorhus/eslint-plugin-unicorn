@@ -1,7 +1,6 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const isNumber = require('./utils/is-number.js');
 const {replaceArgument} = require('./fix/index.js');
 const {isNumberLiteral, isMethodCall} = require('./ast/index.js');
 
