@@ -16,65 +16,57 @@ Similar to the [`explicit-length-check`](explicit-length-check.md) rule.
 ## Examples
 
 ```js
-// ❌
 const index = foo.indexOf('bar');
-if (index < 0) {}
 
+// ❌
+if (index < 0) {}
 // ✅
-const index = foo.indexOf('bar');
 if (index === -1) {}
 ```
 
 ```js
-// ❌
 const index = foo.indexOf('bar');
-if (index >= 0) {}
 
+// ❌
+if (index >= 0) {}
 // ✅
-const index = foo.indexOf('bar');
 if (index !== -1) {}
 ```
 
 ```js
-// ❌
-const index = foo.lastIndexOf('bar');
-if (index >= 0) {}
+const index = foo.indexOf('bar');
 
+// ❌
+if (index > -1) {}
 // ✅
-const index = foo.lastIndexOf('bar');
 if (index !== -1) {}
 ```
 
 ```js
-// ❌
 const index = foo.lastIndexOf('bar');
-index >= 0 ? 'exist' : 'not exist';
 
+// ❌
+if (index >= 0) {}
 // ✅
-const index = foo.lastIndexOf('bar');
-index !== -1 ? 'exist' : 'not exist';
+if (index !== -1) {}
 ```
 
 ```js
+const index = array.findIndex(element => element > 10);
+
 // ❌
-const arr = [5, 12, 8, 130, 44];
-const index = arr.findIndex(element => element > 10);
 if (index < 0) {}
 
 // ✅
-const arr = [5, 12, 8, 130, 44];
-const index = arr.findIndex(element => element > 10);
 if (index === -1) {}
 ```
 
 ```js
+const index = array.findLastIndex(element => element > 10);
+
 // ❌
-const arr = [5, 12, 8, 130, 44];
-const index = arr.findLastIndex(element => element > 10);
 if (index < 0) {}
 
 // ✅
-const arr = [5, 12, 8, 130, 44];
-const index = arr.findLastIndex(element => element > 10);
 if (index === -1) {}
 ```

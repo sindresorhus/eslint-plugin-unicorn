@@ -93,7 +93,7 @@ const create = context => ({
 				loc: toLocation([operatorToken.range[0], right.range[1]], sourceCode),
 				messageId: MESSAGE_ID,
 				data: replacement,
-				*fix(fixer) {
+				* fix(fixer) {
 					yield fixer.replaceText(operatorToken, replacement.replacementOperator);
 
 					if (replacement.replacementValue !== replacement.originalValue) {

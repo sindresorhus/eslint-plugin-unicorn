@@ -1,4 +1,4 @@
-const {isNumberLiteral} = require('./literal.js')
+const {isNumberLiteral} = require('./literal.js');
 
 function isNegativeOne(node) {
 	return node?.type === 'UnaryExpression'
