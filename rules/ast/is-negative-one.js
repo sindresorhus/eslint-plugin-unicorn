@@ -1,3 +1,5 @@
+'use strict';
+
 const {isNumberLiteral} = require('./literal.js');
 
 function isNegativeOne(node) {

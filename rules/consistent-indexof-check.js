@@ -11,7 +11,12 @@ const isZero = node => isNumberLiteral(node) && node.value === 0;
 
 /**
 @param {parent: import('estree').BinaryExpression} binaryExpression
-@returns {{operator, value} | undefined}
+@returns {{
+	replacementOperator: string,
+	replacementValue: string,
+	originalOperator: string,
+	originalValue: string,
+} | undefined}
 */
 function getReplacement(binaryExpression) {
 	const {operator, right} = binaryExpression;
@@ -62,7 +67,11 @@ const create = context => ({
 		const [variable] = variables;
 
 		// Just for safety
-		if (variables.length !== 1 || variable.identifiers.length === 1 && variable.identifiers[0] !== variableIdentifier) {
+		if (
+			variables.length !== 1
+			|| variable.identifiers.length === 1
+			|| variable.identifiers[0] !== variableIdentifier
+		) {
 			return;
 		}
 
