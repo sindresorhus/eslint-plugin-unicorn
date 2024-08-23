@@ -69,6 +69,7 @@ test.snapshot({
 				yield+foo > 10 ? 10 : +foo
 			}
 		`,
+		'export default+foo > 10 ? 10 : +foo',
 
 		'foo.length > bar.length ? bar.length : foo.length',
 	],
