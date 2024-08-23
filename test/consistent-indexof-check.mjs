@@ -198,5 +198,11 @@ test.snapshot({
 				if (index > -1) {}
 			}
 		`,
+		outdent`
+			const index1 = foo.indexOf("1"),
+				index2 = foo.indexOf("2");
+			index1 < 0;
+			index2 > -1;
+		`
 	],
 });
