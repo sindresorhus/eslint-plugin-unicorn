@@ -128,19 +128,20 @@ function * findAndProcessReferences(context, identifierNode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/** @param {import('estree').CallExpression} node */
-	* CallExpression(callExpression) {
-		if (!isMethodCall(callExpression, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex']})) {
+	/** @param {import('estree').VariableDeclarator} variableDeclarator */
+	* VariableDeclarator(variableDeclarator) {
+		if (!(
+			variableDeclarator.parent.type === 'VariableDeclaration'
+			&& variableDeclarator.parent.kind === 'const'
+			&& variableDeclarator.id.type === 'Identifier'
+			&& isMethodCall(variableDeclarator.init, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex']})
+		)) {
 			return;
 		}
 
-		/** @type {{parent: import('estree').Node}} */
-		const {parent} = callExpression;
-		if (!(parent.type === 'VariableDeclarator' && parent.parent.kind === 'const' && parent.id.type === 'Identifier')) {
-			return;
-		}
+		const identifier = variableDeclarator.id;
 
-		yield * findAndProcessReferences(context, parent.id);
+		yield * findAndProcessReferences(context, identifier);
 	},
 });
 
