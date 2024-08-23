@@ -141,5 +141,6 @@ test.snapshot({
 				))
 			));
 		`,
+		'const index = _.indexOf([1, 2, 1, 2], 2); index < 0;',
 	],
 });

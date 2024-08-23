@@ -109,7 +109,7 @@ const create = context => ({
 					yield fixer.replaceText(operatorToken, replacement.replacementOperator);
 
 					if (replacement.replacementValue !== replacement.originalValue) {
-						yield fixer.replaceText(right, replacement.value);
+						yield fixer.replaceText(right, replacement.replacementValue);
 					}
 				},
 			};
