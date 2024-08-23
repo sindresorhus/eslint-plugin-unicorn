@@ -82,29 +82,15 @@ test.snapshot({
 		'const index = foo?.indexOf(foo); index < 0;',
 	],
 	invalid: [
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index < 0) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (0 > index) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index >= 0) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (0 <= index) {}
-		`,
+		...[
+			'index < 0',
+			'0 > index',
+			'index >= 0',
+			'0 <= index',
+		].map(code => `const index = foo.indexOf(bar); ${code}`),
 		// It will search the scope chain for 'index' and find the 'index' variable declared above.
 		outdent`
-			const index = foo.indexOf('bar');
+			const index = foo.indexOf(bar);
 
 			function foo () {
 				if (index < 0) {}
