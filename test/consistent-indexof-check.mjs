@@ -77,6 +77,9 @@ test.snapshot({
 				if (index > -1) {}
 			}
 		`,
+		'const indexOf = "indexOf"; const index = foo[indexOf](foo); index < 0;',
+		'const index = foo.indexOf?.(foo); index < 0;',
+		'const index = foo?.indexOf(foo); index < 0;',
 	],
 	invalid: [
 		outdent`
