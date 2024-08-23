@@ -131,7 +131,7 @@ function findAndProcessReferences(context, identifierNode) {
 const create = context => ({
 	/** @param {import('estree').CallExpression} node */
 	CallExpression(node) {
-		if (!isMethodCall(node, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex'], argumentsLength: 1})) {
+		if (!isMethodCall(node, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex']})) {
 			return;
 		}
 

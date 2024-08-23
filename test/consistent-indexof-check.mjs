@@ -51,12 +51,6 @@ test.snapshot({
 				if (index < 0) {}
 			}
 		`,
-		// Skip checking if indexOf() method has zero arguments
-		outdent`
-			const index = foo.indexOf();
-
-			if (index < 0) {}
-		`,
 		// To prevent false positives, it will not check if the index is not declared via const
 		outdent`
 			let index = foo.indexOf("bar");
@@ -177,13 +171,8 @@ test.snapshot({
 				// Do something
 			}
 		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			do {
-
-			} while (index > -1);
-		`,
+		'const index = foo.lastIndexOf("bar", 1); index > -1',
+		'const index = foo.lastIndexOf(...bar); index > -1',
 		outdent`
 			const arr = [5, 12, 8, 130, 44];
 			const index = arr.findIndex(element => element > 10);
