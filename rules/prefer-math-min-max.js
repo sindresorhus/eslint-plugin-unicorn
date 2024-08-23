@@ -3,7 +3,7 @@ const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` to simplify ternary expressions.',
+	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
 };
 
 /**
@@ -14,64 +14,62 @@ const messages = {
 @param {string} method
 */
 function getProblem(context, node, left, right, method) {
-	const {sourceCode} = context;
-
-	// Catch edge case: `(0,foo) > 10 ? 10 : (0,foo)`
-	const getText = n => n.type === 'SequenceExpression' ? `(${sourceCode.getText(n)})` : sourceCode.getText(n);
-
-	return {
-		node,
-		messageId: MESSAGE_ID,
-		data: {replacement: `${method}()`},
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		* fix(fixer) {
-			/** @type {{parent: import('estree'.Node)}} */
-			const {parent} = node;
-			if (
-				// Catch edge case: `return+foo > 10 ? 10 : +foo`
-				(parent.type === 'ReturnStatement' && parent.argument === node && parent.start + 'return'.length === node.start)
-				// Catch edge case:  `yield+foo > 10 ? 10 : foo`
-				|| (parent.type === 'YieldExpression' && parent.argument === node && parent.start + 'yield'.length === node.start)
-			) {
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-			}
-
-			yield fixer.replaceText(node, `${method}(${getText(left)}, ${getText(right)})`);
-		},
-	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').ConditionalExpression} node */
-	ConditionalExpression(node) {
-		const {test, consequent, alternate} = node;
+	ConditionalExpression(conditionalExpression) {
+		const {test, consequent, alternate} = conditionalExpression;
 
 		if (test.type !== 'BinaryExpression') {
 			return;
 		}
 
 		const {operator, left, right} = test;
-		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(n => context.sourceCode.getText(n));
+		const [leftCode, rightCode, alternateCode, consequentCode] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
 
-		const isGreaterOrEqual = ['>', '>='].includes(operator);
-		const isLessOrEqual = ['<', '<='].includes(operator);
+		const isGreaterOrEqual = operator === '>' || operator === '>=';
+		const isLessOrEqual = operator === '<' || operator === '<=';
+
+		let method;
 
 		// Prefer `Math.min()`
 		if (
-			(isGreaterOrEqual && leftCode === alternateCode && rightCode === consequentCode) // Example `height > 50 ? 50 : height`
-			|| (isLessOrEqual && leftCode === consequentCode && rightCode === alternateCode) // Example `height < 50 ? height : 50`
+			// `height > 50 ? 50 : height`
+			(isGreaterOrEqual && leftCode === alternateCode && rightCode === consequentCode)
+			// `height < 50 ? height : 50`
+			|| (isLessOrEqual && leftCode === consequentCode && rightCode === alternateCode)
 		) {
-			return getProblem(context, node, left, right, 'Math.min');
+			method = 'min';
+		} else if (
+			// `height > 50 ? height : 50`
+			(isGreaterOrEqual && leftCode === consequentCode && rightCode === alternateCode)
+			// `height < 50 ? 50 : height`
+			|| (isLessOrEqual && leftCode === alternateCode && rightCode === consequentCode)
+		) {
+			method = 'max';
 		}
 
-		// Prefer `Math.max()`
-		if (
-			(isGreaterOrEqual && leftCode === consequentCode && rightCode === alternateCode) // Example `height > 50 ? height : 50`
-			|| (isLessOrEqual && leftCode === alternateCode && rightCode === consequentCode) // Example `height < 50 ? 50 : height`
-		) {
-			return getProblem(context, node, left, right, 'Math.max');
+		if (!method) {
+			return;
 		}
+
+		return {
+			node: conditionalExpression,
+			messageId: MESSAGE_ID,
+			data: {method},
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			* fix(fixer) {
+				const {sourceCode} = context;
+
+				yield * fixSpaceAroundKeyword(fixer, conditionalExpression, sourceCode);
+
+				const argumentsText = [left, right].map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node));
+
+				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText.join(', ')})`);
+			},
+		};
 	},
 });
 
