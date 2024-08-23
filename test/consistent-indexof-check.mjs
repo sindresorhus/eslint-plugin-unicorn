@@ -203,6 +203,6 @@ test.snapshot({
 				index2 = foo.indexOf("2");
 			index1 < 0;
 			index2 > -1;
-		`
+		`,
 	],
 });

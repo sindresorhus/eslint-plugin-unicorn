@@ -85,9 +85,8 @@ Find and process references to a given identifier.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Identifier} identifierNode
-@returns
 */
-function findAndProcessReferences(context, identifierNode) {
+function * findAndProcessReferences(context, identifierNode) {
 	const variable = context.sourceCode.getDeclaredVariables(identifierNode.parent).find(variable => variable.name === identifierNode.name);
 
 	for (const reference of variable.references) {
@@ -117,12 +116,12 @@ function findAndProcessReferences(context, identifierNode) {
 				continue;
 			}
 
-			context.report({
+			yield {
 				node: parent,
 				messageId: MESSAGE_ID,
 				data: {value: context.sourceCode.getText(parent), replacement},
 				fix: fixer => fixer.replaceText(parent, replacement),
-			});
+			};
 		}
 	}
 }
@@ -130,17 +129,18 @@ function findAndProcessReferences(context, identifierNode) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').CallExpression} node */
-	CallExpression(node) {
-		if (!isMethodCall(node, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex']})) {
+	* CallExpression(callExpression) {
+		if (!isMethodCall(callExpression, {methods: ['indexOf', 'lastIndexOf', 'findIndex', 'findLastIndex']})) {
 			return;
 		}
 
 		/** @type {{parent: import('estree').Node}} */
-		const {parent} = node;
-
-		if (parent.type === 'VariableDeclarator' && parent.parent.kind === 'const' && parent.id.type === 'Identifier') {
-			findAndProcessReferences(context, parent.id);
+		const {parent} = callExpression;
+		if (!(parent.type === 'VariableDeclarator' && parent.parent.kind === 'const' && parent.id.type === 'Identifier')) {
+			return;
 		}
+
+		yield * findAndProcessReferences(context, parent.id);
 	},
 });
 
