@@ -1,83 +1,47 @@
 'use strict';
-const {isMethodCall} = require('./ast/index.js');
+const toLocation = require('./utils/to-location.js');
+const {isMethodCall, isNegativeOne, isNumberLiteral} = require('./ast/index.js');
 
 const MESSAGE_ID = 'consistent-indexof-check';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}`.',
 };
 
-const comparisonMap = {
-	'<': '>',
-	'<=': '>=',
-	'>': '<',
-	'>=': '<=',
-};
+const isZero = node => isNumberLiteral(node) && node.value === 0;
 
 /**
-Evaluate the value of a UnaryExpression node which contain a Literal node.
-Make sure to call this function only when you are sure that the node is a UnaryExpression node or Literal node.
-
-@param {import('estree').Node} node
-@returns
+@param {parent: import('estree').BinaryExpression} binaryExpression
+@returns {{operator, value} | undefined}
 */
-function evaluateLiteralUnaryExpression(node) {
-	// Base case: if the argument is a numeric literal, return its value directly
-	if (node.type === 'Literal') {
-		return node.value;
+function getReplacement(binaryExpression) {
+	const {operator, right} = binaryExpression;
+
+	if (operator === '<' && isZero(right)) {
+		return {
+			replacementOperator: '===',
+			replacementValue: '-1',
+			originalOperator: operator,
+			originalValue: '0',
+		};
 	}
 
-	// If the argument is another UnaryExpression, recursively evaluate its value
-	if (node.type === 'UnaryExpression') {
-		const argumentValue = evaluateLiteralUnaryExpression(node.argument);
-
-		switch (node.operator) {
-			case '-': {
-				return -argumentValue;
-			}
-
-			case '+': {
-				return Number(argumentValue);
-			}
-
-			case '~': {
-				return ~argumentValue; // eslint-disable-line no-bitwise
-			}
-
-			default:
-		}
-	}
-}
-
-/**
-Determine the appropriate replacement based on the operator and value.
-
-@param {string} operator
-@param {number} value
-@param {string} variableName
-@returns {string | undefined}
-*/
-function getReplacement(operator, value, variableName) {
-	if ((operator === '<' && value <= 0) || (operator === '<=' && value <= -1)) {
-		return `${variableName} === -1`;
+	if (operator === '>' && isNegativeOne(right)) {
+		return {
+			replacementOperator: '!==',
+			replacementValue: '-1',
+			originalOperator: operator,
+			originalValue: '-1',
+		};
 	}
 
-	if ((operator === '>' && value === -1) || (operator === '>=' && value === 0)) {
-		return `${variableName} !== -1`;
+	if (operator === '>=' && isZero(right)) {
+		return {
+			replacementOperator: '!==',
+			replacementValue: '-1',
+			originalOperator: operator,
+			originalValue: '0',
+		};
 	}
-}
-
-/**
-Check if the node is a number literal or a unary expression resolving to a number.
-
-@param {import('estree').Node} node
-@returns {node is import('estree').Literal}
-*/
-function isNumberLiteral(node) {
-	if (node.type === 'UnaryExpression' && ['-', '+', '~'].includes(node.operator)) {
-		return isNumberLiteral(node.argument);
-	}
-
-	return node.type === 'Literal' && typeof node.value === 'number';
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -103,34 +67,40 @@ const create = context => ({
 		}
 
 		for (const {identifier} of variable.references) {
-			/** @type {{parent: import('estree').Node}} */
-			const {parent} = identifier;
+			/** @type {{parent: import('estree').BinaryExpression}} */
+			const binaryExpression = identifier.parent;
 
-			// Check if the identifier is used in a binary expression
-			if (parent.type === 'BinaryExpression' && [parent.left, parent.right].includes(identifier)) {
-				const [literal, operator] = [parent.left, parent.right].some(n => isNumberLiteral(n))
-					? (parent.left === identifier
-						? [evaluateLiteralUnaryExpression(parent.right), parent.operator] // Index === -1
-						: [evaluateLiteralUnaryExpression(parent.left), comparisonMap[parent.operator]]) // -1 === index
-					: [];
-
-				const replacement = getReplacement(
-					operator,
-					literal,
-					identifier.name,
-				);
-
-				if (!replacement) {
-					continue;
-				}
-
-				yield {
-					node: parent,
-					messageId: MESSAGE_ID,
-					data: {value: context.sourceCode.getText(parent), replacement},
-					fix: fixer => fixer.replaceText(parent, replacement),
-				};
+			if (binaryExpression.type !== 'BinaryExpression' || binaryExpression.left !== identifier) {
+				continue;
 			}
+
+			const replacement = getReplacement(binaryExpression);
+
+			if (!replacement) {
+				return;
+			}
+
+			const {left, operator, right} = binaryExpression;
+			const {sourceCode} = context;
+
+			const operatorToken = sourceCode.getTokenAfter(
+				left,
+				token => token.type === 'Punctuator' && token.value === operator,
+			);
+
+			yield {
+				node: binaryExpression,
+				loc: toLocation([operatorToken.range[0], right.range[1]], sourceCode),
+				messageId: MESSAGE_ID,
+				data: replacement,
+				*fix(fixer) {
+					yield fixer.replaceText(operatorToken, replacement.replacementOperator);
+
+					if (replacement.replacementValue !== replacement.originalValue) {
+						yield fixer.replaceText(right, replacement.value);
+					}
+				},
+			};
 		}
 	},
 });

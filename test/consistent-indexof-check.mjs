@@ -55,13 +55,13 @@ test.snapshot({
 		outdent`
 			let index = foo.indexOf("bar");
 
-			if (index < 0) {}
+			index < 0
 		`,
 		// To prevent false positives, it will not check if the index is not declared via const
 		outdent`
 			var index = foo.indexOf("bar");
 
-			if (index < 0) {}
+			index < 0
 		`,
 		// To prevent false positives, it will not check if the index is not declared via const
 		outdent`
@@ -71,11 +71,7 @@ test.snapshot({
 
 			index = arr.findLastIndex(element => element > 10);
 
-			if (index > -1) {}
-
-			function test () {
-				if (index > -1) {}
-			}
+			index < 0;
 		`,
 		'const indexOf = "indexOf"; const index = foo[indexOf](foo); index < 0;',
 		'const index = foo.indexOf?.(foo); index < 0;',
@@ -84,10 +80,15 @@ test.snapshot({
 	invalid: [
 		...[
 			'index < 0',
-			'0 > index',
 			'index >= 0',
-			'0 <= index',
+			'index > -1',
 		].map(code => `const index = foo.indexOf(bar); ${code}`),
+		...[
+			'foo.indexOf(bar)',
+			'foo.lastIndexOf(bar)',
+			'foo.findIndex(bar)',
+			'foo.findLastIndex(bar)',
+		].map(code => `const index = ${code}; index < 0`),
 		// It will search the scope chain for 'index' and find the 'index' variable declared above.
 		outdent`
 			const index = foo.indexOf(bar);
@@ -97,98 +98,48 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index < -1) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index >= +0) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index > ~0) {}
-		`,
-		outdent`
-			const index = foo.indexOf('bar');
-
-			if (index > -(+1)) {}
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			if (index > -1) {}
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			index > -1 ? 'exists' : 'not exists';
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			conditionLeft && index > -1 ? 'exists' : 'not exists';
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			index > -1 && conditionRight ? 'exists' : 'not exists';
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			(conditionLeft || index > -1) ? 'exists' : 'not exists';
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			(conditionLeft ?? index > -1) ? 'exists' : 'not exists';
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			while (index > -1) {
-				// Do something
-			}
-		`,
-		outdent`
-			const index = foo.lastIndexOf('bar');
-
-			for (;index > -1;) {
-				// Do something
-			}
-		`,
-		'const index = foo.lastIndexOf("bar", 1); index > -1',
-		'const index = foo.lastIndexOf(...bar); index > -1',
-		outdent`
-			const arr = [5, 12, 8, 130, 44];
-			const index = arr.findIndex(element => element > 10);
-
-			if (index > -1) {}
-		`,
-		outdent`
-			const arr = [5, 12, 8, 130, 44];
-			const index = arr.findLastIndex(element => element > 10);
-
-			if (index > -1) {}
-		`,
-		outdent`
-			const arr = [5, 12, 8, 130, 44];
-			const index = arr.findLastIndex(element => element > 10);
-
-			if (index > -1) {}
-
-			function test () {
-				if (index > -1) {}
-			}
-		`,
-		outdent`
 			const index1 = foo.indexOf("1"),
 				index2 = foo.indexOf("2");
 			index1 < 0;
-			index2 > -1;
+			index2 >= 0;
+		`,
+		outdent`
+			const index = foo.indexOf('1');
+			((
+				/* comment 1 */
+				((
+					/* comment 2 */
+					index
+					/* comment 3 */
+				))
+				/* comment 4 */
+				<
+				/* comment 5 */
+				((
+					/* comment 6 */
+					0
+					/* comment 7 */
+				))
+				/* comment 8 */
+			));
+		`,
+		outdent`
+			const index = foo.indexOf('1');
+			((
+				/* comment 1 */
+				((
+					/* comment 2 */
+					index
+					/* comment 3 */
+				))
+				/* comment 4 */
+				>
+				((
+					/* comment 5 */
+					- /* comment 6 */ (( /* comment 7 */ 1 /* comment 8 */ ))
+					/* comment 9 */
+				))
+			));
 		`,
 	],
 });
