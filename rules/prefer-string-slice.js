@@ -1,7 +1,6 @@
 'use strict';
 const {getStaticValue} = require('@eslint-community/eslint-utils');
 const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const isNumber = require('./utils/is-number.js');
 const {replaceArgument} = require('./fix/index.js');
 const {isNumberLiteral, isMethodCall} = require('./ast/index.js');
 
@@ -61,13 +60,6 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 
 	if (argumentNodes.every(node => isNumberLiteral(node))) {
 		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
-		return;
-	}
-
-	if (argumentNodes.every(node => isNumber(node, scope))) {
-		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
-
-		yield fixer.insertTextBeforeRange(secondArgumentRange, `${firstArgumentText} + `);
 		return;
 	}
 

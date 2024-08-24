@@ -84,12 +84,10 @@ test({
 		},
 		{
 			code: '"foo".substr(bar.length, Math.min(baz, 100))',
-			output: '"foo".slice(bar.length, bar.length + Math.min(baz, 100))',
 			errors: errorsSubstr,
 		},
 		{
 			code: '"foo".substr(1, "abc".length)',
-			output: '"foo".slice(1, 1 + "abc".length)',
 			errors: errorsSubstr,
 		},
 		{
@@ -100,10 +98,6 @@ test({
 			code: outdent`
 				const length = 123;
 				"foo".substr(1, length)
-			`,
-			output: outdent`
-				const length = 123;
-				"foo".slice(1, 1 + length)
 			`,
 			errors: errorsSubstr,
 		},
@@ -139,10 +133,6 @@ test({
 			code: outdent`
 				const length = 123;
 				"foo".substr(1, length - 4)
-			`,
-			output: outdent`
-				const length = 123;
-				"foo".slice(1, 1 + length - 4)
 			`,
 			errors: errorsSubstr,
 		},
@@ -326,5 +316,9 @@ test.snapshot({
 		'foo.substring(0, (10, 1))',
 		'foo.substring(0, await 1)',
 		'foo.substring((10, bar))',
+		outdent`
+			const string = "::";
+			const output = string.substr(-2, 2);
+		`,
 	],
 });
