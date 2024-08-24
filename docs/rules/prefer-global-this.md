@@ -44,11 +44,6 @@ globalThis.foo; // ✅
 ```
 
 ```js
-global[foo]; // ❌
-globalThis[foo]; // ✅
-```
-
-```js
 const {foo} = window; // ❌
 const {foo} = globalThis; // ✅
 ```
