@@ -177,6 +177,15 @@ const isWindowSpecificAPI = node => {
 };
 
 /**
+@param {import('estree').Node} node
+@param {import('estree').Identifier} identifier
+@returns
+*/
+function isComputedMemberExpression(node, identifier) {
+	return node.type === 'MemberExpression' && node.computed && node.object === identifier;
+}
+
+/**
 Check if the node is a web worker specific API.
 
 @param {import('estree').MemberExpression} node
@@ -194,6 +203,7 @@ const create = context => {
 			if (node.type !== 'Identifier'
 				|| isWindowSpecificAPI(node.parent)
 				|| isWebWorkerSpecificAPI(node.parent)
+				|| isComputedMemberExpression(node.parent, node)
 			) {
 				return;
 			}
