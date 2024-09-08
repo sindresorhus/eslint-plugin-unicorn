@@ -143,3 +143,20 @@ function download(url: string, showProgress: boolean) {} // ❌
 
 function download(url: string, shouldShowProgress: boolean) {} // ✅
 ```
+
+## Options
+
+You can specify which words can start with the string. The default is `['is', 'was', 'has', 'can', 'should']`.
+
+If specified, it will be merged with the default value.
+
+```js
+{
+  'unicorn/prefer-readable-boolean-variable-names': [
+    'error',
+    {
+      prefixes: ['will', 'allows']
+    }
+  ]
+}
+```

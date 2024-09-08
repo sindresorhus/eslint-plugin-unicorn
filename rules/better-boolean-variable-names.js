@@ -166,6 +166,22 @@ module.exports = {
 			recommended: true,
 		},
 		hasSuggestions: true,
+		schema: [
+			{
+				type: 'object',
+				properties: {
+					prefixes: {
+						type: 'array',
+						items: {
+							type: 'string',
+						},
+						minItems: 1,
+						uniqueItems: true,
+					},
+				},
+				additionalProperties: false,
+			},
+		],
 		messages,
 	},
 };

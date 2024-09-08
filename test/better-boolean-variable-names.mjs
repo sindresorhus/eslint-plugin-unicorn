@@ -11,10 +11,10 @@ test.snapshot({
 		'var isCompleted = Boolean(0)',
 		'var isCompleted = !0',
 		'var isCompleted = !!0',
-		// {
-		// 		code: 'var willUpdate = true; var allowsUpdate = true',
-		// 		options: [{ prefixes: ['will', 'allows'] }]
-		// }
+		{
+			code: 'var willUpdate = true; var allowsUpdate = true',
+			options: [{prefixes: ['will', 'allows']}],
+		},
 	],
 	invalid: [
 		'const completed = true',
