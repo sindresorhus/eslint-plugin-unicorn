@@ -5,9 +5,16 @@ Determines whether a node is a Boolean Expression.
 
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Expression} node
+@param {number} [deep] - The current recursion depth. Users do not need to pass this parameter.
 */
-function isBooleanExpression(context, node) {
+function isBooleanExpression(context, node, deep = 0) {
 	if (!node) {
+		return false;
+	}
+
+	// Prevent infinite recursion
+	// This value should not be too large, otherwise there may be performance issues
+	if (deep > 3) {
 		return false;
 	}
 
@@ -31,7 +38,7 @@ function isBooleanExpression(context, node) {
 				switch (definition.type) {
 					case 'Variable': {
 						if (
-							isBooleanExpression(context, definition.node.init)
+							isBooleanExpression(context, definition.node.init, deep + 1)
 							|| isBooleanTypeAnnotation(definition.node.id.typeAnnotation)
 						) {
 							return true;
@@ -74,19 +81,19 @@ function isBooleanExpression(context, node) {
 		// Const isAdult = age >= 18 ? true : false;
 		case 'ConditionalExpression': {
 			return (
-				isBooleanExpression(context, node.consequent)
-				&& isBooleanExpression(context, node.alternate)
+				isBooleanExpression(context, node.consequent, deep + 1)
+				&& isBooleanExpression(context, node.alternate, deep + 1)
 			);
 		}
 
 		// Await true
 		case 'AwaitExpression': {
-			return isBooleanExpression(context, node.argument);
+			return isBooleanExpression(context, node.argument, deep + 1);
 		}
 
 		// Yield true
 		case 'YieldExpression': {
-			return isBooleanExpression(context, node.argument);
+			return isBooleanExpression(context, node.argument, deep + 1);
 		}
 
 		// New Boolean(true)
@@ -143,12 +150,12 @@ function isBooleanExpression(context, node) {
 
 		// (0, true)
 		case 'SequenceExpression': {
-			return isBooleanExpression(context, node.expressions.at(-1));
+			return isBooleanExpression(context, node.expressions.at(-1), deep + 1);
 		}
 
 		// (foo = true)
 		case 'AssignmentExpression': {
-			return isBooleanExpression(context, node.right);
+			return isBooleanExpression(context, node.right, deep + 1);
 		}
 
 		// @typescript-eslint/parser
