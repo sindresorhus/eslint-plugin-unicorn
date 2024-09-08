@@ -75,6 +75,10 @@ test.snapshot({
 	valid: [],
 	invalid: [
 		{
+			code: 'var completed: boolean',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'const completed = isCompleted as  boolean',
 			languageOptions: {parser: parsers.typescript},
 		},
