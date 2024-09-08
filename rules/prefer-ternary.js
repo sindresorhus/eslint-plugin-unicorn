@@ -37,7 +37,7 @@ const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const onlySingleLine = context.options[0] === 'only-single-line';
+	const isOnlySingleLine = context.options[0] === 'only-single-line';
 	const {sourceCode} = context;
 	const scopeToNamesGeneratedByFixer = new WeakMap();
 	const isSafeName = (name, scopes) => scopes.every(scope => {
@@ -134,11 +134,11 @@ const create = context => {
 
 			// If `IfStatement` is not a `BlockStatement`, need add `{}`
 			const {parent} = node;
-			const needBraces = parent && parent.type !== 'BlockStatement';
+			const isNeedBraces = parent && parent.type !== 'BlockStatement';
 			return {
 				type,
-				before: `${before}${needBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
-				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${needBraces ? '\n}' : ''}`,
+				before: `${before}${isNeedBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
+				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${isNeedBraces ? '\n}' : ''}`,
 				consequent: argument,
 				alternate: alternate.argument,
 			};
@@ -180,7 +180,7 @@ const create = context => {
 			const alternate = getNodeBody(node.alternate);
 
 			if (
-				onlySingleLine
+				isOnlySingleLine
 				&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node))
 			) {
 				return;
@@ -214,7 +214,7 @@ const create = context => {
 
 				let {type, before, after} = result;
 
-				let generateNewVariables = false;
+				let shouldGenerateNewVariables = false;
 				if (type === 'ThrowStatement') {
 					const scopes = getScopes(scope);
 					const errorName = avoidCapture('error', scopes, isSafeName);
@@ -236,7 +236,7 @@ const create = context => {
 					before = before
 						.replace('{{INDENT_STRING}}', indentString)
 						.replace('{{ERROR_NAME}}', errorName);
-					generateNewVariables = true;
+					shouldGenerateNewVariables = true;
 				}
 
 				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
@@ -248,7 +248,7 @@ const create = context => {
 
 				yield fixer.replaceText(node, fixed);
 
-				if (generateNewVariables) {
+				if (shouldGenerateNewVariables) {
 					yield * extendFixRange(fixer, sourceCode.ast.range);
 				}
 			};

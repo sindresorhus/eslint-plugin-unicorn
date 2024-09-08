@@ -124,7 +124,7 @@ function isBooleanExpression(context, node, deep = 0) {
 					switch (definition.type) {
 						case 'Variable': {
 							if (
-								['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isBooleanReturnTypeFunction(definition.node.init)
+								['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isFunctionReturnBoolean(context, definition.node.init)
 							) {
 								return true;
 							}
@@ -133,7 +133,7 @@ function isBooleanExpression(context, node, deep = 0) {
 						}
 
 						case 'FunctionName': {
-							if (isBooleanReturnTypeFunction(definition.node)) {
+							if (isFunctionReturnBoolean(context, definition.node)) {
 								return true;
 							}
 
@@ -199,13 +199,16 @@ function isBooleanTypeAnnotation(annotation) {
 
 /**
 Determine whether it is a Boolean return
+
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Function} node
 */
-function isBooleanReturnTypeFunction(node) {
-	return isBooleanTypeAnnotation(node.returnType);
+function isFunctionReturnBoolean(context, node) {
+	return isBooleanTypeAnnotation(node.returnType) || isBooleanExpression(context, node.body);
 }
 
 module.exports = {
 	isBooleanExpression,
 	isBooleanTypeAnnotation,
-	isBooleanReturnTypeFunction,
+	isFunctionReturnBoolean,
 };

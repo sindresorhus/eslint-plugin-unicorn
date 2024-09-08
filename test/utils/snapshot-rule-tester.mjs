@@ -141,7 +141,7 @@ class SnapshotRuleTester {
 
 	run(ruleId, rule, tests) {
 		const {test, testerConfig} = this;
-		const fixable = rule.meta && rule.meta.fixable;
+		const isFixable = rule.meta && rule.meta.fixable;
 
 		const {valid, invalid} = normalizeTests(tests);
 
@@ -169,7 +169,7 @@ class SnapshotRuleTester {
 					const {linter, messages} = runVerify(code);
 
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
-					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
+					const {fixed, output} = isFixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
 					t.snapshot(`\n${printCode(code)}\n`, 'Input');
 
@@ -181,7 +181,7 @@ class SnapshotRuleTester {
 						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
 					}
 
-					if (fixable && fixed) {
+					if (isFixable && fixed) {
 						runVerify(output);
 						t.snapshot(`\n${printCode(output)}\n`, 'Output');
 					}

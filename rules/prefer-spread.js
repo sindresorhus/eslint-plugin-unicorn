@@ -56,7 +56,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const concatCallArguments = node.arguments;
 	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
 	const arrayIsArrayLiteral = isArrayLiteral(array);
-	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
+	const isArrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
 
 	const getArrayLiteralElementsText = (node, keepTrailingComma) => {
 		if (
@@ -104,12 +104,12 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			if (array.elements.length > 0) {
 				text = ` ${text}`;
 
-				if (!arrayHasTrailingComma) {
+				if (!isArrayHasTrailingComma) {
 					text = `,${text}`;
 				}
 
 				if (
-					arrayHasTrailingComma
+					isArrayHasTrailingComma
 					&& (!lastArgument.isArrayLiteral || !isArrayLiteralHasTrailingComma(lastArgument.node, sourceCode))
 				) {
 					text = `${text},`;

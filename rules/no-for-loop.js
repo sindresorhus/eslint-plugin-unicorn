@@ -337,9 +337,9 @@ const create = context => {
 			});
 			const elementNode = elementReference?.identifier.parent.parent;
 			const elementIdentifierName = elementNode?.id.name;
-			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
+			const isElementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, isElementVariable].filter(Boolean), forScope)
 				&& !elementNode?.id.typeAnnotation;
 
 			if (shouldFix) {
@@ -352,14 +352,14 @@ const create = context => {
 
 					let declarationElement = element;
 					let declarationType = 'const';
-					let removeDeclaration = true;
+					let shouldRemoveDeclaration = true;
 
 					if (elementNode) {
 						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
-							removeDeclaration = arrayReferences.length === 1;
+							shouldRemoveDeclaration = arrayReferences.length === 1;
 						}
 
-						if (removeDeclaration) {
+						if (shouldRemoveDeclaration) {
 							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
 							declarationElement = sourceCode.getText(elementNode.id);
 						}
@@ -386,7 +386,7 @@ const create = context => {
 					}
 
 					if (elementNode) {
-						yield removeDeclaration
+						yield shouldRemoveDeclaration
 							? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
 							: fixer.replaceText(elementNode.init, element);
 					}

@@ -41,6 +41,11 @@ test.snapshot({
 			const isCompleted = true
 			const downloaded = isCompleted
 		`,
+		outdent`
+			const isCompleted = () => progress === 100
+
+			const downloaded = isCompleted()
+		`,
 	],
 });
 

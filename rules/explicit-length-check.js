@@ -167,7 +167,7 @@ function create(context) {
 			}
 
 			let node;
-			let autoFix = true;
+			let hasAutoFix = true;
 			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 			if (lengthCheckNode) {
 				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
@@ -189,7 +189,7 @@ function create(context) {
 				) {
 					isZeroLengthCheck = isNegative;
 					node = lengthNode;
-					autoFix = false;
+					hasAutoFix = false;
 				}
 			}
 
@@ -198,7 +198,7 @@ function create(context) {
 					node,
 					isZeroLengthCheck,
 					lengthNode,
-					autoFix,
+					autoFix: hasAutoFix,
 				});
 			}
 		},

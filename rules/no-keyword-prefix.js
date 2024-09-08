@@ -57,7 +57,7 @@ function checkObjectPattern(report, node, options) {
 		report(node, keyword);
 	}
 
-	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
+	const isAssignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
 	if (Boolean(keyword) && parent.computed) {
 		report(node, keyword);
@@ -68,10 +68,10 @@ function checkObjectPattern(report, node, options) {
 		return true;
 	}
 
-	const valueIsInvalid = parent.value.name && Boolean(keyword);
+	const isInvalidValue = parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !assignmentKeyEqualsValue) {
+	if (isInvalidValue && !isAssignmentKeyEqualsValue) {
 		report(node, keyword);
 	}
 

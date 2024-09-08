@@ -12,16 +12,16 @@ const isWorkerThreads = node =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const startsWithHashBang = context.sourceCode.lines[0].indexOf('#!') === 0;
+	const isStartsWithHashBang = context.sourceCode.lines[0].indexOf('#!') === 0;
 
-	if (startsWithHashBang) {
+	if (isStartsWithHashBang) {
 		return {};
 	}
 
 	let processEventHandler;
 
 	// Only report if it's outside an worker thread context. See #328.
-	let requiredWorkerThreadsModule = false;
+	let isRequiredWorkerThreadsModule = false;
 	const problemNodes = [];
 
 	// `require('worker_threads')`
@@ -30,7 +30,7 @@ const create = context => {
 			isStaticRequire(callExpression)
 			&& isWorkerThreads(callExpression.arguments[0])
 		) {
-			requiredWorkerThreadsModule = true;
+			isRequiredWorkerThreadsModule = true;
 		}
 	});
 
@@ -40,7 +40,7 @@ const create = context => {
 			importDeclaration.source.type === 'Literal'
 			&& isWorkerThreads(importDeclaration.source)
 		) {
-			requiredWorkerThreadsModule = true;
+			isRequiredWorkerThreadsModule = true;
 		}
 	});
 
@@ -78,7 +78,7 @@ const create = context => {
 	});
 
 	context.onExit('Program', function * () {
-		if (requiredWorkerThreadsModule) {
+		if (isRequiredWorkerThreadsModule) {
 			return;
 		}
 

@@ -87,7 +87,7 @@ function create(context) {
 		return {};
 	}
 
-	const checkFeatures = features => !features.every(feature => unavailableFeatures.includes(feature));
+	const isCheckFeatures = features => !features.every(feature => unavailableFeatures.includes(feature));
 
 	return {
 		Literal(node) {
@@ -109,7 +109,7 @@ function create(context) {
 
 			if (coreJsModuleFeatures) {
 				if (coreJsModuleFeatures.length > 1) {
-					if (checkFeatures(coreJsModuleFeatures)) {
+					if (isCheckFeatures(coreJsModuleFeatures)) {
 						return {
 							node,
 							messageId: MESSAGE_ID_CORE_JS,
@@ -131,7 +131,7 @@ function create(context) {
 				const [, features] = Object.entries(coreJsEntries).find(
 					entry => entry[0] === `core-js/full/${namespace}${method && '/'}${method}`,
 				);
-				if (checkFeatures(features)) {
+				if (isCheckFeatures(features)) {
 					return {node, messageId: MESSAGE_ID_POLYFILL};
 				}
 			}

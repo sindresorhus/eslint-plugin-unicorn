@@ -166,7 +166,7 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
-	const multipleFileExtensions = options.multipleFileExtensions !== false;
+	const isMultipleFileExtensions = options.multipleFileExtensions !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
 	const filenameWithExtension = context.physicalFilename;
 
@@ -181,7 +181,7 @@ const create = context => {
 				filename,
 				middle,
 				extension,
-			} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
+			} = getFilenameParts(filenameWithExtension, {isMultipleFileExtensions});
 
 			if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
 				return;

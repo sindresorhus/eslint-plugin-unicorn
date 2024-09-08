@@ -104,7 +104,7 @@ const isUnresolvedName = (name, scope) =>
 const isSafeName = (name, scopes) =>
 	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
 
-const alwaysTrue = () => true;
+const shouldAlwaysTrue = () => true;
 
 /**
 Rule-specific name check function.
@@ -129,7 +129,7 @@ Useful when you want to rename a variable (or create a new variable) while being
 @param {isSafe} [isSafe] - Rule-specific name check function.
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
-module.exports = function avoidCapture(name, scopes, isSafe = alwaysTrue) {
+module.exports = function avoidCapture(name, scopes, isSafe = shouldAlwaysTrue) {
 	if (!isValidIdentifier(name)) {
 		name += '_';
 

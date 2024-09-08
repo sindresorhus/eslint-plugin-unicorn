@@ -1,7 +1,7 @@
 'use strict';
 
 const renameVariable = require('./utils/rename-variable.js');
-const {isBooleanExpression, isBooleanTypeAnnotation, isBooleanReturnTypeFunction} = require('./utils/is-boolean.js');
+const {isBooleanExpression, isBooleanTypeAnnotation, isFunctionReturnBoolean} = require('./utils/is-boolean.js');
 
 const MESSAGE_ID_ERROR = 'better-boolean-variable-names/error';
 const MESSAGE_ID_SUGGESTION = 'better-boolean-variable-names/suggestion';
@@ -115,7 +115,7 @@ const create = context => {
 				// const foo = function () {}
 				if (
 					['FunctionExpression', 'ArrowFunctionExpression'].includes(node.init?.type)
-									&& isBooleanReturnTypeFunction(node.init)
+									&& isFunctionReturnBoolean(context, node.init)
 									&& !isValidBooleanVariableName(variableName)
 				) {
 					report(context, node.id, variableName);
@@ -138,7 +138,7 @@ const create = context => {
 			if (node.id?.type === 'Identifier') {
 				const variableName = node.id.name;
 
-				if (isBooleanReturnTypeFunction(node) && !isValidBooleanVariableName(variableName)) {
+				if (isFunctionReturnBoolean(context, node) && !isValidBooleanVariableName(variableName)) {
 					report(context, node.id, variableName);
 				}
 			}
