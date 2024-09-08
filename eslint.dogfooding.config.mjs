@@ -11,6 +11,12 @@ const config = [
 		linterOptions: {
 			reportUnusedDisableDirectives: false,
 		},
+		// Fake rule to allow inline config to disable
+		plugins: {
+			n: {
+				rules: {'no-unsupported-features/es-syntax': {}},
+			},
+		},
 	},
 	{
 		ignores: [
