@@ -178,7 +178,7 @@ test.vue({
 
 const supportsUnicodeSets = (() => {
 	try {
-		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
+		// eslint-disable-next-line prefer-regex-literals, n/no-unsupported-features/es-syntax -- Can't test with regex literal
 		return new RegExp('.', 'v').unicodeSets;
 	} catch {}
 
