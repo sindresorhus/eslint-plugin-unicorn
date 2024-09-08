@@ -111,6 +111,7 @@
 		]
 	},
 	"c8": {
+		"workerThreads": false,
 		"reporter": [
 			"text",
 			"lcov"
