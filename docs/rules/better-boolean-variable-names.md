@@ -111,13 +111,13 @@ const isDownloaded = isCompleted
 ## Type Annotation
 
 ```js
-const completed = isCompleted as  boolean; // ❌
-const isCompleted = isCompleted as  boolean; // ✅
+const completed = isCompleted as boolean; // ❌
+const isCompleted = isCompleted as boolean; // ✅
 ```
 
 ```js
-const completed = isCompleted() as  boolean; // ❌
-const isCompleted = isCompleted() as  boolean; // ✅
+const completed = isCompleted() as boolean; // ❌
+const isCompleted = isCompleted() as boolean; // ✅
 ```
 
 ```js
@@ -169,4 +169,8 @@ You can specify which words can start with the string, and it will be merged wit
 		}
 	]
 }
+```
+
+```js
+const displaysName = getBooleanFromSomeWhere() // ✅
 ```
