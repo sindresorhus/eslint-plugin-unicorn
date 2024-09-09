@@ -106,46 +106,37 @@ function isBooleanExpression(context, node, depth = 0) {
 		// Boolean('true')
 		case 'CallExpression': {
 			const {callee} = node;
-			if (callee.type === 'Identifier') {
-				// Var foo = Boolean()
-				if (callee.name === 'Boolean') {
-					return true;
-				}
 
-				const scope = context.sourceCode.getScope(node.callee);
-
-				const variable = scope.variables.find(variable => variable.name === callee.name);
-
-				if (!variable) {
-					return false;
-				}
-
-				for (const definition of variable.defs) {
-					switch (definition.type) {
-						case 'Variable': {
-							if (
-								['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isFunctionReturnBoolean(context, definition.node.init)
-							) {
-								return true;
-							}
-
-							continue;
-						}
-
-						case 'FunctionName': {
-							if (isFunctionReturnBoolean(context, definition.node)) {
-								return true;
-							}
-
-							continue;
-						}
-
-						default:
-					}
-				}
+			// Return early if the callee is not an Identifier
+			if (callee.type !== 'Identifier') {
+				return false;
 			}
 
-			return false;
+			// Var foo = Boolean()
+			if (callee.name === 'Boolean') {
+				return true;
+			}
+
+			const scope = context.sourceCode.getScope(node.callee);
+
+			const variable = scope.variables.find(variable => variable.name === callee.name);
+
+			if (!variable) {
+				return false;
+			}
+
+			// Determine whether the currently called function returns a Boolean type.
+			return variable.defs.some(definition => {
+				if (definition.type === 'Variable') {
+					return ['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isFunctionReturnBoolean(context, definition.node.init);
+				}
+
+				if (definition.type === 'FunctionName') {
+					return isFunctionReturnBoolean(context, definition.node);
+				}
+
+				return false;
+			});
 		}
 
 		// (0, true)
