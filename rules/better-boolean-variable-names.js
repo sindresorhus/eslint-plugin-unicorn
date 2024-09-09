@@ -90,7 +90,7 @@ const create = context => {
 	 * @param {import('estree').Identifier} node
 	 * @param {string} variableName
 	 */
-	function report(context, node, variableName) {
+	function reportProblem(context, node, variableName) {
 		context.report({
 			node,
 			messageId: MESSAGE_ID_ERROR,
@@ -135,7 +135,7 @@ const create = context => {
 				const isBooleanDeclarator = isBooleanTypeAnnotation(node.id.typeAnnotation) || isBooleanExpression(context, node.init);
 
 				if (isBooleanDeclarator && !isValidBooleanVariableName(variableName)) {
-					report(context, node.id, variableName);
+					reportProblem(context, node.id, variableName);
 				}
 			}
 		},
@@ -148,7 +148,7 @@ const create = context => {
 				if (parameter.type === 'Identifier') {
 					const variableName = parameter.name;
 					if (isBooleanTypeAnnotation(parameter.typeAnnotation) && !isValidBooleanVariableName(variableName)) {
-						report(context, parameter, variableName);
+						reportProblem(context, parameter, variableName);
 					}
 				}
 			}
