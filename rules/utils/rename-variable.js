@@ -59,14 +59,14 @@ function getNonConflictingVariableName(scope, variableName, ignores) {
 /**
 Replace the string between start and end with replacement.
 
-@param {string} str
+@param {string} string
 @param {number} start
 @param {number} end
 @param {string} replacement
 @returns {string}
 */
-function replaceStringWithSlice(string_, start, end, replacement) {
-	return string_.slice(0, start) + replacement + string_.slice(end);
+function replaceStringWithSlice(string, start, end, replacement) {
+	return string.slice(0, start) + replacement + string.slice(end);
 }
 
 /**
