@@ -78,9 +78,9 @@ Determine if the identifier is exported.
 function isExportedVariable(identifier) {
 	return (
 		identifier
-        && identifier.parent?.type === 'VariableDeclarator'
-        && identifier.parent.parent?.type === 'VariableDeclaration'
-        && identifier.parent.parent.parent?.type === 'ExportNamedDeclaration'
+		&& identifier.parent?.type === 'VariableDeclarator'
+		&& identifier.parent.parent?.type === 'VariableDeclaration'
+		&& identifier.parent.parent.parent?.type === 'ExportNamedDeclaration'
 	);
 }
 
