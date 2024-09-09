@@ -1,6 +1,6 @@
 'use strict';
 
-const isGlobalIdentifier = require('./is-global-identifier.js')
+const isGlobalIdentifier = require('./is-global-identifier.js');
 
 /**
 Determines whether a node is a Boolean Expression.
