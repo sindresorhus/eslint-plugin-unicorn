@@ -1,14 +1,16 @@
 'use strict';
 
+const isGlobalIdentifier = require('./is-global-identifier.js')
+
 /**
 Determines whether a node is a Boolean Expression.
 
-@param {import('eslint').Rule.RuleContext} context
+@param {import('eslint').SourceCode} sourceCode
 @param {import('estree').Expression} node
 @param {number} [depth] - The current recursion depth. Users do not need to pass this parameter.
 @returns {boolean}
 */
-function isBooleanExpression(context, node, depth = 0) {
+function isBooleanExpression(node, sourceCode, depth = 0) {
 	if (!node) {
 		return false;
 	}
@@ -25,7 +27,7 @@ function isBooleanExpression(context, node, depth = 0) {
 		}
 
 		case 'Identifier': {
-			const scope = context.sourceCode.getScope(node);
+			const scope = sourceCode.getScope(node);
 
 			const variable = scope.variables.find(
 				variable => variable.name === node.name,
@@ -38,7 +40,7 @@ function isBooleanExpression(context, node, depth = 0) {
 			// Determine whether the currently referenced variable is a Boolean type.
 			return variable.defs.some(definition => {
 				if (definition.type === 'Variable') {
-					return isBooleanExpression(context, definition.node.init, depth + 1) || isBooleanTypeAnnotation(definition.node.id.typeAnnotation);
+					return isBooleanExpression(definition.node.init, sourceCode, depth + 1) || isBooleanTypeAnnotation(definition.node.id.typeAnnotation);
 				}
 
 				return false;
@@ -72,28 +74,28 @@ function isBooleanExpression(context, node, depth = 0) {
 		// Const isAdult = age >= 18 ? true : false;
 		case 'ConditionalExpression': {
 			return (
-				isBooleanExpression(context, node.consequent, depth + 1) && isBooleanExpression(context, node.alternate, depth + 1)
+				isBooleanExpression(node.consequent, sourceCode, depth + 1) && isBooleanExpression(node.alternate, sourceCode, depth + 1)
 			);
 		}
 
 		// Await true
 		case 'AwaitExpression': {
-			return isBooleanExpression(context, node.argument, depth + 1);
+			return isBooleanExpression(node.argument, sourceCode, depth + 1);
 		}
 
 		// Yield true
 		case 'YieldExpression': {
-			return isBooleanExpression(context, node.argument, depth + 1);
+			return isBooleanExpression(node.argument, sourceCode, depth + 1);
 		}
 
 		// New Boolean(true)
 		case 'NewExpression': {
 			return (
-				node.callee.type === 'Identifier' && node.callee.name === 'Boolean'
+				node.callee.type === 'Identifier' && node.callee.name === 'Boolean' && isGlobalIdentifier(node.callee, sourceCode)
 			);
 		}
 
-		// Boolean('true')
+		// Function Call
 		case 'CallExpression': {
 			const {callee} = node;
 
@@ -104,10 +106,10 @@ function isBooleanExpression(context, node, depth = 0) {
 
 			// Var foo = Boolean()
 			if (callee.name === 'Boolean') {
-				return true;
+				return isGlobalIdentifier(node, sourceCode);
 			}
 
-			const scope = context.sourceCode.getScope(node.callee);
+			const scope = sourceCode.getScope(node.callee);
 
 			const variable = scope.variables.find(variable => variable.name === callee.name);
 
@@ -118,11 +120,11 @@ function isBooleanExpression(context, node, depth = 0) {
 			// Determine whether the currently called function returns a Boolean type.
 			return variable.defs.some(definition => {
 				if (definition.type === 'Variable') {
-					return ['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isFunctionReturnBoolean(context, definition.node.init);
+					return ['FunctionExpression', 'ArrowFunctionExpression'].includes(definition.node.init?.type) && isFunctionReturnBoolean(sourceCode, definition.node.init);
 				}
 
 				if (definition.type === 'FunctionName') {
-					return isFunctionReturnBoolean(context, definition.node);
+					return isFunctionReturnBoolean(sourceCode, definition.node);
 				}
 
 				return false;
@@ -131,12 +133,12 @@ function isBooleanExpression(context, node, depth = 0) {
 
 		// (0, true)
 		case 'SequenceExpression': {
-			return isBooleanExpression(context, node.expressions.at(-1), depth + 1);
+			return isBooleanExpression(node.expressions.at(-1), sourceCode, depth + 1);
 		}
 
 		// (foo = true)
 		case 'AssignmentExpression': {
-			return isBooleanExpression(context, node.right, depth + 1);
+			return isBooleanExpression(node.right, sourceCode, depth + 1);
 		}
 
 		// @typescript-eslint/parser
@@ -181,11 +183,11 @@ function isBooleanTypeAnnotation(annotation) {
 /**
 Determine whether it is a Boolean return
 
-@param {import('eslint').Rule.RuleContext} context
+@param {import('eslint').SourceCode} sourceCode
 @param {import('estree').Function} node
 */
-function isFunctionReturnBoolean(context, node) {
-	return isBooleanTypeAnnotation(node.returnType) || isBooleanExpression(context, node.body);
+function isFunctionReturnBoolean(sourceCode, node) {
+	return isBooleanTypeAnnotation(node.returnType) || isBooleanExpression(node.body, sourceCode);
 }
 
 module.exports = {
