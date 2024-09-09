@@ -95,17 +95,16 @@ Replace the variable name.
 */
 function * replace(sourceCode, fixer, identifier, newVariableName) {
 	/**
-	 * Before:
-	 * ```js
-	 * export const foo = 1
-	 * ```
-	 *
-	 * After:
-	 * ```js
-	 * const foo1 = 1
-	 *
-	 * export { foo as foo1 }
-	 * ```
+	Before:
+		```js
+		export const foo = 1
+		```
+
+	After:
+		```js
+		const bar = 1
+		export { bar as foo }
+		```
 	 */
 	if (isExportedVariable(identifier)) {
 		/** @type {import('estree').VariableDeclaration} */
