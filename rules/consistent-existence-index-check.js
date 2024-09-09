@@ -2,7 +2,7 @@
 const toLocation = require('./utils/to-location.js');
 const {isMethodCall, isNegativeOne, isNumberLiteral} = require('./ast/index.js');
 
-const MESSAGE_ID = 'consistent-indexof-check';
+const MESSAGE_ID = 'consistent-existence-index-check';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}` to check {{existenceOrNonExistence}}.',
 };
