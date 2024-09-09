@@ -73,6 +73,12 @@ test.snapshot({
 
 			const task =  { completed }
 		`,
+		// Should rename to a non-conflicting name
+		outdent`
+			const completed = true
+
+			const isCompleted = () => completed
+		`,
 	],
 });
 

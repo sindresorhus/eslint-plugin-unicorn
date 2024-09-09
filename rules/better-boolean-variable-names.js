@@ -133,10 +133,9 @@ const create = context => {
 			if (node.id.type === 'Identifier') {
 				const variableName = node.id.name;
 
-				if (
-					(isBooleanExpression(context, node.init) || isBooleanTypeAnnotation(node.id.typeAnnotation))
-									&& !isValidBooleanVariableName(variableName)
-				) {
+				const isBooleanDeclarator = isBooleanTypeAnnotation(node.id.typeAnnotation) || isBooleanExpression(context, node.init);
+
+				if (isBooleanDeclarator && !isValidBooleanVariableName(variableName)) {
 					report(context, node.id, variableName);
 				}
 			}
