@@ -106,14 +106,6 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function completed(): boolean {}',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const completed = (): boolean => {}',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'function download(url: string, showProgress: boolean) {}',
 			languageOptions: {parser: parsers.typescript},
 		},

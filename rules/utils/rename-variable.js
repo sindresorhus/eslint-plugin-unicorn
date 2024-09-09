@@ -200,7 +200,7 @@ function * renameVariable(sourceCode, scope, fixer, identifier, variableName) {
 
 					export { foo }
 					```
-				
+
 				After:
 					```js
 					const bar = 1

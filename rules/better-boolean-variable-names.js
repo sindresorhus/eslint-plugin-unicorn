@@ -6,7 +6,7 @@ const {isBooleanExpression, isBooleanTypeAnnotation, isFunctionReturnBoolean} = 
 const MESSAGE_ID_ERROR = 'better-boolean-variable-names/error';
 const MESSAGE_ID_SUGGESTION = 'better-boolean-variable-names/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer readable Boolean variable names.',
+	[MESSAGE_ID_ERROR]: 'Prefer readable boolean variable names.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
 
@@ -111,17 +111,6 @@ const create = context => {
 			if (node.id.type === 'Identifier') {
 				const variableName = node.id.name;
 
-				// Const foo = (): boolean => {}
-				// const foo = function () {}
-				if (
-					['FunctionExpression', 'ArrowFunctionExpression'].includes(node.init?.type)
-									&& isFunctionReturnBoolean(context, node.init)
-									&& !isValidBooleanVariableName(variableName)
-				) {
-					report(context, node.id, variableName);
-					return;
-				}
-
 				if (
 					(isBooleanExpression(context, node.init) || isBooleanTypeAnnotation(node.id.typeAnnotation))
 									&& !isValidBooleanVariableName(variableName)
@@ -134,15 +123,6 @@ const create = context => {
 		@param {import('estree').Function} node
 		*/
 		'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node) {
-			// Validate function name
-			if (node.id?.type === 'Identifier') {
-				const variableName = node.id.name;
-
-				if (isFunctionReturnBoolean(context, node) && !isValidBooleanVariableName(variableName)) {
-					report(context, node.id, variableName);
-				}
-			}
-
 			// Validate params
 			for (const parameter of node.params) {
 				if (parameter.type === 'Identifier') {

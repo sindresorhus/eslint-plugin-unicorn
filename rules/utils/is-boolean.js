@@ -6,6 +6,7 @@ Determines whether a node is a Boolean Expression.
 @param {import('eslint').Rule.RuleContext} context
 @param {import('estree').Expression} node
 @param {number} [depth] - The current recursion depth. Users do not need to pass this parameter.
+@returns {boolean}
 */
 function isBooleanExpression(context, node, depth = 0) {
 	if (!node) {
@@ -81,8 +82,7 @@ function isBooleanExpression(context, node, depth = 0) {
 		// Const isAdult = age >= 18 ? true : false;
 		case 'ConditionalExpression': {
 			return (
-				isBooleanExpression(context, node.consequent, depth + 1)
-				&& isBooleanExpression(context, node.alternate, depth + 1)
+				isBooleanExpression(context, node.consequent, depth + 1) && isBooleanExpression(context, node.alternate, depth + 1)
 			);
 		}
 
