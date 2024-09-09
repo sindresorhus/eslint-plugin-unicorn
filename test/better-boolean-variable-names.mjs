@@ -5,12 +5,12 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'var isCompleted = true',
+		'var hasCompleted = true',
 		'var _isCompleted = true',
 		'var __isCompleted = true',
-		'var isCompleted = Boolean(0)',
-		'var isCompleted = !0',
-		'var isCompleted = !!0',
+		'var hasCompleted = Boolean(0)',
+		'var hasCompleted = !0',
+		'var hasCompleted = !!0',
 		{
 			code: 'var willUpdate = true; var allowsUpdate = true',
 			options: [{prefixes: ['will', 'allows']}],
@@ -38,13 +38,13 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const isCompleted = true
-			const downloaded = isCompleted
+			const hasCompleted = true
+			const downloaded = hasCompleted
 		`,
 		outdent`
-			const isCompleted = () => progress === 100
+			const hasCompleted = () => progress === 100
 
-			const downloaded = isCompleted()
+			const downloaded = hasCompleted()
 		`,
 	],
 });
@@ -77,7 +77,7 @@ test.snapshot({
 		outdent`
 			const completed = true
 
-			const isCompleted = () => completed
+			const hasCompleted = () => completed
 		`,
 	],
 });
@@ -85,35 +85,20 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		{
-			code: 'var completed: boolean',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const completed = isCompleted as  boolean',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const completed = isCompleted() as  boolean',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				var isCompleted: boolean
-				const downloaded = isCompleted
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				function isCompleted(): boolean {}
-				const downloaded = isCompleted()
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function download(url: string, showProgress: boolean) {}',
-			languageOptions: {parser: parsers.typescript},
-		},
-	],
+		'var completed: boolean',
+		'const completed = hasCompleted as  boolean',
+		'const completed = hasCompleted() as  boolean',
+		outdent`
+			var hasCompleted: boolean
+			const downloaded = hasCompleted
+		`,
+		outdent`
+			function hasCompleted(): boolean {}
+			const downloaded = hasCompleted()
+		`,
+		'function download(url: string, showProgress: boolean) {}',
+	].map(code => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+	})),
 });

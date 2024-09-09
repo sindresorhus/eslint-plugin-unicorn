@@ -35,12 +35,12 @@ The following prefixes are allows:
 
 ```js
 const completed = true; // ❌
-const isCompleted = true; // ✅
+const hasCompleted = true; // ✅
 ```
 
 ```js
 const completed = progress === 100; // ❌
-const isCompleted = progress === 100; // ✅
+const hasCompleted = progress === 100; // ✅
 ```
 
 ```js
@@ -81,7 +81,7 @@ async function foo() {
 
 // ✅
 async function foo() {
-  const isCompleted = await progress === 100;
+  const hasCompleted = await progress === 100;
 }
 ```
 
@@ -93,61 +93,61 @@ function* foo() {
 
 // ✅
 function* foo() {
-  const isCompleted = yield progress === 100;
+  const hasCompleted = yield progress === 100;
 }
 ```
 
 ```js
 // ❌
-const isCompleted = true
-const downloaded = isCompleted
+const hasCompleted = true
+const downloaded = hasCompleted
 
 // ✅
-const isCompleted = true
-const isDownloaded = isCompleted
+const hasCompleted = true
+const isDownloaded = hasCompleted
 ```
 
 <!-- Type Annotation -->
 ## Type Annotation
 
 ```js
-const completed = isCompleted as boolean; // ❌
-const isCompleted = isCompleted as boolean; // ✅
+const completed = hasCompleted as boolean; // ❌
+const hasCompleted = hasCompleted as boolean; // ✅
 ```
 
 ```js
-const completed = isCompleted() as boolean; // ❌
-const isCompleted = isCompleted() as boolean; // ✅
-```
-
-```js
-// ❌
-var isCompleted: boolean
-const downloaded = isCompleted
-
-// ✅
-var isCompleted: boolean
-const isDownloaded = isCompleted
+const completed = isDownloadDone() as boolean; // ❌
+const hasCompleted = isDownloadDone() as boolean; // ✅
 ```
 
 ```js
 // ❌
-function isCompleted(): boolean {}
-const downloaded = isCompleted()
+var hasCompleted: boolean
+const downloaded = hasCompleted
 
 // ✅
-function isCompleted(): boolean {}
-const isDownloaded = isCompleted()
+var hasCompleted: boolean
+const isDownloaded = hasCompleted
+```
+
+```js
+// ❌
+function hasCompleted(): boolean {}
+const downloaded = hasCompleted()
+
+// ✅
+function hasCompleted(): boolean {}
+const isDownloaded = hasCompleted()
 ```
 
 ```js
 function completed(): boolean {} // ❌
-function isCompleted(): boolean {} // ✅
+function hasCompleted(): boolean {} // ✅
 ```
 
 ```js
 const completed = (): boolean => {} // ❌
-const isCompleted = (): boolean => {} // ✅
+const hasCompleted = (): boolean => {} // ✅
 ```
 
 ```js
