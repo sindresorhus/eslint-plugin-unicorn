@@ -1,6 +1,6 @@
 'use strict';
 
-const renameVariable = require('./utils/rename-variable.js');
+const renameVariable = require('./fix/rename-variable.js');
 const {isBooleanExpression, isBooleanTypeAnnotation} = require('./utils/is-boolean.js');
 
 const MESSAGE_ID_ERROR = 'better-boolean-variable-names/error';
@@ -96,7 +96,7 @@ const create = context => {
 	/**
 	 *
 	 * @param {import('eslint').Rule.RuleContext} context
-	 * @param {import('estree').Node} node
+	 * @param {import('estree').Identifier} node
 	 * @param {string} variableName
 	 */
 	function report(context, node, variableName) {
@@ -120,8 +120,16 @@ const create = context => {
 						value: variableName,
 						replacement: expectedVariableName,
 					},
-					* fix(fixer) {
-						yield * renameVariable(context.sourceCode, context.sourceCode.getScope(node), fixer, node, expectedVariableName);
+					fix(fixer) {
+						const scope = context.sourceCode.getScope(node);
+
+						const variable = scope.variables.find(variable => variable.name === node.name);
+
+						if (!variable) {
+							return;
+						}
+
+						return renameVariable(variable, expectedVariableName, fixer);
 					},
 				};
 			}),
