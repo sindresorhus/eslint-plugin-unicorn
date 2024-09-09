@@ -2,6 +2,7 @@
 
 const renameVariable = require('./fix/rename-variable.js');
 const {isBooleanExpression, isBooleanTypeAnnotation} = require('./utils/is-boolean.js');
+const capitalizeFirstLetter = require('./utils/capitalize-first-letter.js');
 
 const MESSAGE_ID_ERROR = 'better-boolean-variable-names/error';
 const MESSAGE_ID_SUGGESTION = 'better-boolean-variable-names/suggestion';
@@ -9,16 +10,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer readable boolean variable names.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
-
-/**
-Capitalize the first letter of a string
-
-@param {string} str
-@returns {string}
-*/
-function capitalize(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 /**
 Extract underscores from the variable name
@@ -112,7 +103,7 @@ const create = context => {
 
 				const isUpperCase = nameWithoutUnderscores.toUpperCase() === nameWithoutUnderscores;
 
-				const expectedVariableName = `${underscores}${isUpperCase ? prefix.toUpperCase() + '_' : prefix}${capitalize(nameWithoutUnderscores)}`;
+				const expectedVariableName = `${underscores}${isUpperCase ? prefix.toUpperCase() + '_' : prefix}${capitalizeFirstLetter(nameWithoutUnderscores)}`;
 
 				return {
 					messageId: MESSAGE_ID_SUGGESTION,
