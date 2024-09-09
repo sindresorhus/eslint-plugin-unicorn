@@ -1,7 +1,7 @@
 'use strict';
 
 const renameVariable = require('./utils/rename-variable.js');
-const {isBooleanExpression, isBooleanTypeAnnotation, isFunctionReturnBoolean} = require('./utils/is-boolean.js');
+const {isBooleanExpression, isBooleanTypeAnnotation} = require('./utils/is-boolean.js');
 
 const MESSAGE_ID_ERROR = 'better-boolean-variable-names/error';
 const MESSAGE_ID_SUGGESTION = 'better-boolean-variable-names/suggestion';
@@ -16,8 +16,8 @@ Capitalize the first letter of a string
 @param {string} str
 @returns {string}
 */
-function capitalize(string_) {
-	return string_.charAt(0).toUpperCase() + string_.slice(1);
+function capitalize(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 /**
@@ -42,7 +42,29 @@ function extractUnderscores(variableName) {
 */
 const create = context => {
 	const configuration = context.options[0] || {};
-	const BOOLEAN_PREFIXED = new Set(['is', 'was', 'has', 'can', 'should', ...(configuration.prefixes ?? [])]);
+
+	const BOOLEAN_PREFIXED = new Set([
+		'is',
+		'was',
+		'has',
+		'can',
+		'should',
+		'had',
+		'will',
+		'would',
+		'could',
+		'shall',
+		'does',
+		'needs',
+		'must',
+		'includes',
+		'enables',
+		'disables',
+		'supports',
+		'allows',
+		'requires',
+		...(configuration.prefixes ?? []),
+	]);
 
 	const replacement
 			= [...BOOLEAN_PREFIXED]
@@ -85,7 +107,7 @@ const create = context => {
 				name: variableName,
 				prefixes: replacement,
 			},
-			suggest: [...BOOLEAN_PREFIXED].map(prefix => {
+			suggest: [...BOOLEAN_PREFIXED].slice(0, 5).map(prefix => {
 				const [underscores, nameWithoutUnderscores] = extractUnderscores(variableName);
 
 				const isUpperCase = nameWithoutUnderscores.toUpperCase() === nameWithoutUnderscores;

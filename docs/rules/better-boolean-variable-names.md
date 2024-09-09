@@ -7,7 +7,29 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Boolean variable names should start with `is`/`was`/`has`/`can`/`should` for clarity and readability.
+For better clarity and readability, Boolean variable names should start with a verb or adverb that clearly expresses the Boolean value.
+
+The following prefixes are allows:
+
+- `is`: isUserLoggedIn, isEmailVerified, isAdmin
+- `was`: wasDataFetched, wasPaymentSuccessful, wasUserNotified
+- `has`: hasAdminPrivileges, hasUserAgreed, hasPendingTasks
+- `can`: canEditProfile, canUserVote, canAccessResource
+- `should`: shouldDisplayNotification, shouldSendReminder, shouldUpdateProfile
+- `had`: hadPreviousSession, hadErrorOccurred, hadUserLoggedOut
+- `will`: willSendEmail, willUserAttend, willProcessOrder
+- `would`: wouldApproveRequest, wouldUserRecommend, wouldLikeToSubscribe
+- `could`: couldGenerateReport, couldUserParticipate, couldCauseError
+- `shall`: shallProceedWithAction, shallUserContinue, shallWeStart
+- `does`: doesUserExist, doesEmailMatch, doesSupportFeature
+- `needs`: needsPasswordReset, needsUserAttention, needsApproval
+- `must`: mustCompleteForm, mustVerifyIdentity, mustChangePassword
+- `includes`: includesSensitiveData, includesAttachments, includesKeywords
+- `enables`: enablesDarkMode, enablesNotifications, enablesFeatureX
+- `disables`: disablesAutoPlay, disablesPopups, disablesFeatureY
+- `supports`: supportsMultipleLanguages, supportsFileUpload, supportsUserRoles
+- `allows`: allowsUserLogin, allowsFileUpload, allowsMultipleSessions
+- `requires`: requiresAdminApproval, requiresUserConsent, requiresVerification
 
 ## Examples
 
@@ -136,16 +158,14 @@ function download(url: string, shouldShowProgress: boolean) {} // ✅
 
 ## Options
 
-You can specify which words can start with the string. The default is `['is', 'was', 'has', 'can', 'should']`.
-
-If specified, it will be merged with the default value.
+You can specify which words can start with the string, and it will be merged with the default value.
 
 ```js
 {
 	'unicorn/better-boolean-variable-names': [
 		'error',
 		{
-			prefixes: ['will', 'allows']
+			prefixes: ['tracks', 'displays']
 		}
 	]
 }
