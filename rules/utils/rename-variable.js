@@ -169,44 +169,44 @@ function * renameVariable(sourceCode, scope, fixer, identifier, variableName) {
 
 			if (parent && parent.type === 'Property' && parent.value === reference.identifier && parent.shorthand) {
 				/**
-				 * Replace shorthand property
-				 *
-				 * Before:
-				 * ```js
-				 * const foo = 1
-				 *
-				 * const obj = {
-				 *   foo
-				 * }
-				 * ```
-				 *
-				 * After:
-				 * ```js
-				 * const bar = 1
-				 *
-				 * const obj = {
-				 *   foo: bar
-				 * }
-				 * ```
+				Replace shorthand property
+
+				Before:
+					```js
+					const foo = 1
+
+					const obj = {
+						foo
+					}
+					```
+
+				After:
+					```js
+					const bar = 1
+
+					const obj = {
+						foo: bar
+					}
+					```
 				 */
 				yield fixer.insertTextAfter(reference.identifier, `: ${newVariableName}`);
 			} else if (parent && parent.type === 'ExportSpecifier' && parent.local === reference.identifier) {
 				/**
-				 * Replace export specifier
-				 *
-				 * Before:
-				 * ```js
-				 * const foo = 1
-				 *
-				 * export { foo }
-				 * ```
-				 *
-				 * After:
-				 * ```js
-				 * const bar = 1
-				 *
-				 * export { foo as bar }
-				 * ```
+				Replace export specifier
+
+				Before:
+					```js
+					const foo = 1
+
+					export { foo }
+					```
+				
+				After:
+					```js
+					const bar = 1
+
+					export { foo as bar }
+					```
 				 */
 				yield fixer.insertTextBefore(reference.identifier, `${newVariableName} as `);
 			} else {
