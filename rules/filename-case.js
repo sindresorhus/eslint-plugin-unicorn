@@ -181,7 +181,7 @@ const create = context => {
 				filename,
 				middle,
 				extension,
-			} = getFilenameParts(filenameWithExtension, {isMultipleFileExtensions});
+			} = getFilenameParts(filenameWithExtension, {multipleFileExtensions: isMultipleFileExtensions});
 
 			if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
 				return;
