@@ -35,24 +35,14 @@ function isBooleanExpression(context, node, depth = 0) {
 				return false;
 			}
 
-			for (const definition of variable.defs) {
-				switch (definition.type) {
-					case 'Variable': {
-						if (
-							isBooleanExpression(context, definition.node.init, depth + 1)
-							|| isBooleanTypeAnnotation(definition.node.id.typeAnnotation)
-						) {
-							return true;
-						}
-
-						continue;
-					}
-
-					default:
+			// Determine whether the currently referenced variable is a Boolean type.
+			return variable.defs.some(definition => {
+				if (definition.type === 'Variable') {
+					return isBooleanExpression(context, definition.node.init, depth + 1) || isBooleanTypeAnnotation(definition.node.id.typeAnnotation);
 				}
-			}
 
-			return false;
+				return false;
+			});
 		}
 
 		case 'UnaryExpression': {
