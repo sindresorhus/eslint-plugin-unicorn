@@ -162,7 +162,7 @@ module.exports = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer readable Boolean variable names',
+			description: 'Prefer readable boolean variable names.',
 			recommended: true,
 		},
 		hasSuggestions: true,
