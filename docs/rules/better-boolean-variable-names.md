@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When it is clear that an expression is a Boolean value, the variable name should start with `is`/`was`/`has`/`can`/`should` to improve readability.
+Boolean variable names should start with `is`/`was`/`has`/`can`/`should` for clarity and readability.
 
 ## Examples
 
