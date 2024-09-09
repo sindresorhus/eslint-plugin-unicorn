@@ -22,16 +22,6 @@ const isCompleted = progress === 100; // ✅
 ```
 
 ```js
-const completed = Boolean('true'); // ❌
-const isCompleted = Boolean('true'); // ✅
-```
-
-```js
-const completed = new Boolean('true'); // ❌
-const isCompleted = new Boolean('true'); // ✅
-```
-
-```js
 const adult = age >= 18; // ❌
 const isAdult = age >= 18; // ✅
 ```
@@ -152,11 +142,11 @@ If specified, it will be merged with the default value.
 
 ```js
 {
-  'unicorn/prefer-readable-boolean-variable-names': [
-    'error',
-    {
-      prefixes: ['will', 'allows']
-    }
-  ]
+	'unicorn/better-boolean-variable-names': [
+		'error',
+		{
+			prefixes: ['will', 'allows']
+		}
+	]
 }
 ```
