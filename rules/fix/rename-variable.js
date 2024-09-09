@@ -16,7 +16,7 @@ function incrementVariableName(variableName) {
 		return variableName.replace(/\d+$/, number + 1);
 	}
 
-	return `${variableName}1`;
+	return `${variableName}2`;
 }
 
 /**

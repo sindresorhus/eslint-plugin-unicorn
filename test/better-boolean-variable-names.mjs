@@ -79,6 +79,14 @@ test.snapshot({
 
 			const hasCompleted = () => completed
 		`,
+		outdent`
+			const completed = true
+
+			const hasCompleted = () => completed
+			const hasCompleted2 = () => completed
+			const hasCompleted3 = () => completed
+			const hasCompleted4 = () => completed
+		`,
 	],
 });
 
