@@ -43,6 +43,10 @@ function isBooleanExpression(node, sourceCode, depth = 0) {
 					return isBooleanExpression(definition.node.init, sourceCode, depth + 1) || isBooleanTypeAnnotation(definition.node.id.typeAnnotation);
 				}
 
+				if (definition.type === 'Parameter') {
+					return isBooleanTypeAnnotation(definition.node.typeAnnotation);
+				}
+
 				return false;
 			});
 		}
@@ -124,6 +128,10 @@ function isBooleanExpression(node, sourceCode, depth = 0) {
 				}
 
 				if (definition.type === 'FunctionName') {
+					return isFunctionReturnBoolean(sourceCode, definition.node);
+				}
+
+				if (definition.type === 'Parameter') {
 					return isFunctionReturnBoolean(sourceCode, definition.node);
 				}
 
