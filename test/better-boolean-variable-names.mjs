@@ -105,6 +105,11 @@ test.snapshot({
 			const downloaded = hasCompleted()
 		`,
 		'function download(url: string, showProgress: boolean) {}',
+		outdent`
+			function foo(bar: boolean) {
+			  console.log(bar)
+			}
+		`,
 	].map(code => ({
 		code,
 		languageOptions: {parser: parsers.typescript},
