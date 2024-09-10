@@ -1,8 +1,5 @@
 'use strict';
 
-const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
-const isShadowed = require('./utils/is-shadowed.js');
-
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
@@ -124,32 +121,6 @@ const webWorkerSpecificAPIs = new Set([
 ]);
 
 /**
-Report the node with a message.
-
-@param {import('estree').Node} node
-*/
-function getProblem(node) {
-	return {
-		node,
-		messageId: MESSAGE_ID_ERROR,
-		data: {value: node.name},
-		fix: (/** @type {import('eslint').Rule.RuleFixer} fixer */ fixer) => fixer.replaceText(node, 'globalThis'),
-	};
-}
-
-/**
-Handle nodes and check if they should be reported.
-
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Node} node
-*/
-function handleNode(context, node) {
-	if (node.type === 'Identifier' && globalIdentifier.has(node.name) && !isShadowed(context.sourceCode.getScope(node), node)) {
-		return getProblem(node);
-	}
-}
-
-/**
 Check if the node is a window-specific API.
 
 @param {import('estree').MemberExpression} node
@@ -194,36 +165,29 @@ Check if the node is a web worker specific API.
 const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const tracker = new GlobalReferenceTracker({
-		objects: globalIdentifier,
-		handle(reference) {
-			const {node} = reference;
+const create = context => ({
+	Program(programNode) {
+		const scope = context.sourceCode.getScope(programNode);
+		for (const variable of scope.variables) {
+			if (globalIdentifier.has(variable.name)) {
+				for (const reference of variable.references) {
+					const node = reference.identifier;
 
-			if (node.type !== 'Identifier'
-				|| isWindowSpecificAPI(node.parent)
-				|| isWebWorkerSpecificAPI(node.parent)
-				|| isComputedMemberExpression(node.parent, node)
-			) {
-				return;
+					if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent) || isComputedMemberExpression(node.parent, node)) {
+						continue;
+					}
+
+					context.report({
+						node,
+						messageId: MESSAGE_ID_ERROR,
+						data: {value: node.name},
+						fix: fixer => fixer.replaceText(node, 'globalThis'),
+					});
+				}
 			}
-
-			return getProblem(node);
-		},
-	});
-
-	return {
-		...tracker.createListeners(context),
-		/** @param {import('estree').AssignmentExpression} node */
-		AssignmentExpression(node) {
-			return handleNode(context, node.left);
-		},
-		/** @param {import('estree').UpdateExpression} node */
-		UpdateExpression(node) {
-			return handleNode(context, node.argument);
-		},
-	};
-};
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
