@@ -1,5 +1,7 @@
 'use strict';
 
+const {getParenthesizedRange} = require('./parentheses.js');
+
 /**
 Find the index of the question mark in a ConditionalExpression node
 
@@ -11,8 +13,8 @@ function findIndexOfQuestionMarkInConditionalExpression(node, sourceCode) {
 	const testAfterComments = sourceCode.getCommentsAfter(node.test);
 	const consequentBeforeComments = sourceCode.getCommentsBefore(node.consequent);
 
-	let start = node.test.range[1];
-	let end = node.consequent.range[0];
+	let start = getParenthesizedRange(node.test, sourceCode)[1];
+	let end = getParenthesizedRange(node.consequent, sourceCode)[0];
 
 	if (testAfterComments.length > 0) {
 		const lastComment = testAfterComments.at(-1);

@@ -14,7 +14,7 @@ const create = context => ({
 	ConditionalExpression(node) {
 		// Check if the alternate is a ConditionalExpression
 		if (node.alternate && node.consequent.type === 'ConditionalExpression') {
-			const {test: _outerTest, consequent: _outerConsequent, alternate: outerAlternate} = node;
+			const {test: _outerTest, consequent: outerConsequent, alternate: outerAlternate} = node;
 			const {test: _innerTest, consequent: _innerConsequent, alternate: innerAlternate} = node.consequent;
 
 			const {sourceCode} = context;
@@ -31,7 +31,9 @@ const create = context => ({
 						yield fixer.replaceTextRange([questionMarkIndex, questionMarkIndex + 1], '&&');
 
 						// Remove the repeated alternative
-						const [alternativeStart, alternativeEnd] = getParenthesizedRange(innerAlternate, sourceCode);
+						const [alternativeStart] = getParenthesizedRange(innerAlternate, sourceCode);
+						const alternativeEnd = getParenthesizedRange(outerConsequent, sourceCode)[1];
+
 						yield fixer.replaceTextRange([alternativeStart, node.range[1]], sourceCode.getText().slice(alternativeStart, alternativeEnd));
 					},
 				});
