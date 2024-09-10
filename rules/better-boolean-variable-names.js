@@ -57,14 +57,6 @@ const create = context => {
 		...(configuration.prefixes ?? []),
 	]);
 
-	const replacement
-			= [...BOOLEAN_PREFIXED]
-				.slice(0, -1)
-				.map(v => `\`${v}\``)
-				.join(', ')
-			+ ', or '
-			+ [...BOOLEAN_PREFIXED].slice(-1).map(v => `\`${v}\``);
-
 	/**
 	Checks whether it is a readable Boolean identifier name
 
@@ -94,10 +86,6 @@ const create = context => {
 		context.report({
 			node,
 			messageId: MESSAGE_ID_ERROR,
-			data: {
-				name: variableName,
-				prefixes: replacement,
-			},
 			suggest: [...BOOLEAN_PREFIXED].slice(0, 5).map(prefix => {
 				const [underscores, nameWithoutUnderscores] = extractUnderscores(variableName);
 
