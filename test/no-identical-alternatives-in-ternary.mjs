@@ -55,8 +55,10 @@ test.snapshot({
 		`,
 
 		// Edge cases
+		'(a ? b ? c : 1 : 1)',
 		'a ? b ? c : (1, 2) : (1, 2)',
 		'a ? (b ? c : 1) : 1',
+		'(a ? (b ? c : 1) : 1)',
 		'a ? b ? c : a === 100 : a === 100',
 		outdent`
 			async function foo() {
