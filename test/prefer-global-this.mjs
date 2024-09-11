@@ -1,5 +1,6 @@
 import {getTester} from './utils/test.mjs';
 import outdent from 'outdent';
+import {normalizeLanguageOptions} from './utils/language-options.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -171,3 +172,35 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			globals: {}, // Without defined window/global/self, the rule should be able to detect them
+		},
+	},
+	// Define a custom languageOptionsMerger to test overriding the default languageOptionsMerger
+	languageOptionsMerger(languageOptionsA, languageOptionsB) {
+		languageOptionsA ??= {};
+		languageOptionsB ??= {};
+
+		return normalizeLanguageOptions({
+			...languageOptionsA,
+			...languageOptionsB,
+			parser: languageOptionsB.parser ?? languageOptionsA.parser,
+			globals: {
+				// Only use the globals from languageOptionsB
+				...languageOptionsB.globals,
+			},
+			parserOptions: {
+				...languageOptionsA.parserOptions,
+				...languageOptionsB.parserOptions,
+			},
+		});
+	},
+	valid: [],
+	invalid: [
+		'global.global_did_not_declare_in_language_options',
+		'window.window_did_not_declare_in_language_options',
+		'self.self_did_not_declare_in_language_options',
+	],
+});

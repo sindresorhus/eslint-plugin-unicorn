@@ -164,26 +164,42 @@ Check if the node is a web worker specific API.
 */
 const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
+/**
+ *
+ * @param {import('eslint').Rule.RuleContext} context
+ * @param {import('estree').Identifier} node
+ */
+function reportProblem(context, node) {
+	if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent) || isComputedMemberExpression(node.parent, node)) {
+		return;
+	}
+
+	context.report({
+		node,
+		messageId: MESSAGE_ID_ERROR,
+		data: {value: node.name},
+		fix: fixer => fixer.replaceText(node, 'globalThis'),
+	});
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Program(programNode) {
 		const scope = context.sourceCode.getScope(programNode);
+
+		// Report variables declared at globals options
 		for (const variable of scope.variables) {
 			if (globalIdentifier.has(variable.name)) {
 				for (const reference of variable.references) {
-					const node = reference.identifier;
-
-					if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent) || isComputedMemberExpression(node.parent, node)) {
-						continue;
-					}
-
-					context.report({
-						node,
-						messageId: MESSAGE_ID_ERROR,
-						data: {value: node.name},
-						fix: fixer => fixer.replaceText(node, 'globalThis'),
-					});
+					reportProblem(context, reference.identifier);
 				}
+			}
+		}
+
+		// Report variables not declared at globals options
+		for (const reference of scope.through) {
+			if (globalIdentifier.has(reference.identifier.name)) {
+				reportProblem(context, reference.identifier);
 			}
 		}
 	},
