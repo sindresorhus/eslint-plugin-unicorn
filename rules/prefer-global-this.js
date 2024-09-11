@@ -165,10 +165,9 @@ Check if the node is a web worker specific API.
 const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
 /**
- *
- * @param {import('eslint').Rule.RuleContext} context
- * @param {import('estree').Identifier} node
- */
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Identifier} node
+*/
 function reportProblem(context, node) {
 	if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent) || isComputedMemberExpression(node.parent, node)) {
 		return;
