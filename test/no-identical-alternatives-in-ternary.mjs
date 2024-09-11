@@ -33,25 +33,25 @@ test.snapshot({
 
 		// Don't use outdent for the following cases, outdent will causes eslint parsing errors
 		`
-		   a ?
-			 b ?
-			 c :
-			 1 :
-			 1
+			a ?
+			b ?
+			c :
+			1 :
+			1
 		`,
 		`
-		   a ? // comment a
-			 b ? // comment b
-			 c : // comment c
-			 1 : // comment 1
-			 1   // comment repeat 1
+			a ? // comment a
+			b ? // comment b
+			c : // comment c
+			1 : // comment 1
+			1   // comment repeat 1
 		`,
 		`
-		   /** comment before a */ a ? // comment a
-			 /** comment before b */ b ? // comment b
-			 /** comment before c */ c : // comment c
-			 /** comment before 1 */ 1 : // comment 1
-			 /** comment before repeat 1 */ 1   // comment repeat 1
+			/** comment before a */ a ? // comment a
+			/** comment before b */ b ? // comment b
+			/** comment before c */ c : // comment c
+			/** comment before 1 */ 1 : // comment 1
+			/** comment before repeat 1 */ 1   // comment repeat 1
 		`,
 
 		// Edge cases
