@@ -9,6 +9,7 @@ test.snapshot({
 		'a && b ? c : 1',
 	],
 	invalid: [
+		'a?b?c:1:1',
 		'a ? b ? c : 1 : 1',
 		'a ? b ? c : "str" : "str"',
 		'a ? b ? c : sameReference : sameReference',
