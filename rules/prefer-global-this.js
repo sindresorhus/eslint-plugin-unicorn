@@ -164,42 +164,33 @@ Check if the node is a web worker specific API.
 */
 const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
-/**
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Identifier} node
-*/
-function reportProblem(context, node) {
-	if (isWindowSpecificAPI(node.parent) || isWebWorkerSpecificAPI(node.parent) || isComputedMemberExpression(node.parent, node)) {
-		return;
-	}
-
-	context.report({
-		node,
-		messageId: MESSAGE_ID_ERROR,
-		data: {value: node.name},
-		fix: fixer => fixer.replaceText(node, 'globalThis'),
-	});
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	Program(programNode) {
-		const scope = context.sourceCode.getScope(programNode);
+	* Program(program) {
+		const scope = context.sourceCode.getScope(program);
 
-		// Report variables declared at globals options
-		for (const variable of scope.variables) {
-			if (globalIdentifier.has(variable.name)) {
-				for (const reference of variable.references) {
-					reportProblem(context, reference.identifier);
-				}
-			}
-		}
+		const references = [
+			// Variables declared at globals options
+			...scope.variables.flatMap(variable => globalIdentifier.has(variable.name) ? variable.references : []),
+			// Variables not declared at globals options
+			...scope.through.filter(reference => globalIdentifier.has(reference.identifier.name)),
+		];
 
-		// Report variables not declared at globals options
-		for (const reference of scope.through) {
-			if (globalIdentifier.has(reference.identifier.name)) {
-				reportProblem(context, reference.identifier);
+		for (const {identifier} of references) {
+			if (
+				isComputedMemberExpression(identifier.parent, identifier)
+				|| isWindowSpecificAPI(identifier.parent)
+				|| isWebWorkerSpecificAPI(identifier.parent)
+			) {
+				continue;
 			}
+
+			yield {
+				node: identifier,
+				messageId: MESSAGE_ID_ERROR,
+				data: {value: identifier.name},
+				fix: fixer => fixer.replaceText(identifier, 'globalThis'),
+			};
 		}
 	},
 });
