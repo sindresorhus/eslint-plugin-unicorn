@@ -1,6 +1,5 @@
 import {getTester} from './utils/test.mjs';
 import outdent from 'outdent';
-import {normalizeLanguageOptions} from './utils/language-options.mjs';
 
 const {test} = getTester(import.meta);
 
