@@ -93,14 +93,14 @@ class Tester {
 	}
 
 	snapshot(tests) {
-		let {testerOptions = {}, languageOptionsMerger = mergeLanguageOptions, valid, invalid} = tests;
+		let {testerOptions = {}, valid, invalid} = tests;
 
 		valid = valid.map(testCase => normalizeTestCase(testCase));
 		invalid = invalid.map(testCase => normalizeTestCase(testCase));
 
 		const testConfig = {
 			...testerOptions,
-			languageOptions: languageOptionsMerger(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
+			languageOptions: mergeLanguageOptions(DEFAULT_LANGUAGE_OPTIONS, testerOptions.languageOptions),
 		};
 
 		const tester = new SnapshotRuleTester(test, testConfig);

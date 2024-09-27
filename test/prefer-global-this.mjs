@@ -175,27 +175,8 @@ test.snapshot({
 test.snapshot({
 	testerOptions: {
 		languageOptions: {
-			globals: {}, // Without defined window/global/self, the rule should be able to detect them
+			globals: {global: 'off', window: 'off', self: 'off'},
 		},
-	},
-	// Define a custom languageOptionsMerger to test overriding the default languageOptionsMerger
-	languageOptionsMerger(languageOptionsA, languageOptionsB) {
-		languageOptionsA ??= {};
-		languageOptionsB ??= {};
-
-		return normalizeLanguageOptions({
-			...languageOptionsA,
-			...languageOptionsB,
-			parser: languageOptionsB.parser ?? languageOptionsA.parser,
-			globals: {
-				// Only use the globals from languageOptionsB
-				...languageOptionsB.globals,
-			},
-			parserOptions: {
-				...languageOptionsA.parserOptions,
-				...languageOptionsB.parserOptions,
-			},
-		});
 	},
 	valid: [],
 	invalid: [
