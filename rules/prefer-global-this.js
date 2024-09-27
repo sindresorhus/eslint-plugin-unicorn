@@ -148,12 +148,11 @@ const isWindowSpecificAPI = node => {
 };
 
 /**
-@param {import('estree').Node} node
 @param {import('estree').Identifier} identifier
-@returns
+@returns {boolean}
 */
-function isComputedMemberExpression(node, identifier) {
-	return node.type === 'MemberExpression' && node.computed && node.object === identifier;
+function isComputedMemberExpressionObject(identifier) {
+	return identifier.parent.type === 'MemberExpression' && identifier.parent.computed && identifier.parent.object === identifier;
 }
 
 /**
@@ -178,7 +177,7 @@ const create = context => ({
 
 		for (const {identifier} of references) {
 			if (
-				isComputedMemberExpression(identifier.parent, identifier)
+				isComputedMemberExpressionObject(identifier)
 				|| isWindowSpecificAPI(identifier.parent)
 				|| isWebWorkerSpecificAPI(identifier.parent)
 			) {
