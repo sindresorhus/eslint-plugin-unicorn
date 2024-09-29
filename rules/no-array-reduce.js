@@ -4,7 +4,7 @@ const {isNodeValueNotFunction, isArrayPrototypeProperty} = require('./utils/inde
 
 const MESSAGE_ID = 'no-reduce';
 const messages = {
-	[MESSAGE_ID]: '`Array#{{method}}()` is not allowed',
+	[MESSAGE_ID]: '`Array#{{method}}()` is not allowed. Prefer other types of loop for readability.',
 };
 
 const cases = [
