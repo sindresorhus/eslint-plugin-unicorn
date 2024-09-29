@@ -58,6 +58,14 @@ for (const element of array) {
 }
 ```
 
+```js
+let result = initialValue;
+
+for (const element of array.toReversed()) { // Equivalent to .reduceRight()
+	result += element;
+}
+```
+
 ## Options
 
 ### allowSimpleOperations
