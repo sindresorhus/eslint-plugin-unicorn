@@ -2,9 +2,11 @@
 const {isMethodCall} = require('./ast/index.js');
 const {isNodeValueNotFunction, isArrayPrototypeProperty} = require('./utils/index.js');
 
-const MESSAGE_ID = 'no-reduce';
+const MESSAGE_ID_REDUCE = 'reduce';
+const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
 const messages = {
-	[MESSAGE_ID]: '`Array#{{method}}()` is not allowed',
+	[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed. Prefer other types of loop for readability.',
+	[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed. Prefer other types of loop for readability. You may want to call `Array#toReversed()` before looping it.',
 };
 
 const cases = [
@@ -104,8 +106,7 @@ const create = context => {
 				const methodNode = getMethodNode(callExpression);
 				yield {
 					node: methodNode,
-					messageId: MESSAGE_ID,
-					data: {method: methodNode.name},
+					messageId: methodNode.name,
 				};
 			}
 		},

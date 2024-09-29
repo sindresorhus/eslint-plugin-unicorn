@@ -4,8 +4,8 @@ import {getTester} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
-const errorsReduce = [{messageId: 'no-reduce', data: {method: 'reduce'}}];
-const errorsReduceRight = [{messageId: 'no-reduce', data: {method: 'reduceRight'}}];
+const errorsReduce = [{messageId: 'reduce'}];
+const errorsReduceRight = [{messageId: 'reduceRight'}];
 
 test({
 	valid: [
