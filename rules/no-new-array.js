@@ -9,7 +9,7 @@ const MESSAGE_ID_LENGTH = 'array-length';
 const MESSAGE_ID_ONLY_ELEMENT = 'only-element';
 const MESSAGE_ID_SPREAD = 'spread';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Do not use `new Array()`.',
+	[MESSAGE_ID_ERROR]: '`new Array()` is unclear in intent; use either `[x]` or `Array.from({length: x})`',
 	[MESSAGE_ID_LENGTH]: 'The argument is the length of array.',
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
