@@ -53,6 +53,8 @@ test({
 		'array.unshift(undefined);',
 		'createContext(undefined);',
 		'React.createContext(undefined);',
+		'useRef(undefined);',
+		'React.useRef(undefined);',
 		'setState(undefined)',
 		'setState?.(undefined)',
 		'props.setState(undefined)',
