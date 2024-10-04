@@ -8,6 +8,12 @@ test.snapshot({
 		'height > 10 ? height : 20',
 		'height > 50 ? Math.min(50, height) : height',
 		'foo ? foo : bar',
+
+		// BigInt
+		'10n > 5n ? 10n : 5n;',
+		'10n > 5 ? 10n : 5;',
+		'bigN > 50n ? bigN : 50n;',
+		'BigInt(10) > BigInt(5) ? BigInt(10) : BigInt(5);',
 	],
 	invalid: [
 		// Prefer `Math.min()`

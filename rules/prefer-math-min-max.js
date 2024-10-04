@@ -1,4 +1,5 @@
 'use strict';
+const {isBigIntLiteral, isCallExpression} = require('./ast/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
 
 const MESSAGE_ID = 'prefer-math-min-max';
@@ -17,6 +18,21 @@ const create = context => ({
 		}
 
 		const {operator, left, right} = test;
+
+		const hasBigInt = [left, right, alternate, consequent].some(
+			node =>
+				isBigIntLiteral(node)
+				|| isCallExpression(node, {
+					name: 'BigInt',
+					argumentsLength: 1,
+					optional: false,
+				}),
+		);
+
+		if (hasBigInt) {
+			return;
+		}
+
 		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
