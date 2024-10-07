@@ -5,6 +5,7 @@
 	"license": "MIT",
 	"repository": "sindresorhus/eslint-plugin-unicorn",
 	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
+	"homepage": "https://github.com/sindresorhus/eslint-plugin-unicorn",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
