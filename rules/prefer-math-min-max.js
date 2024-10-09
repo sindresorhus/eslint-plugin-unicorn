@@ -1,5 +1,6 @@
 'use strict';
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const isNumber = require('./utils/is-number.js');
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
@@ -17,6 +18,14 @@ const create = context => ({
 		}
 
 		const {operator, left, right} = test;
+		const {sourceCode} = context;
+		const scope = sourceCode.getScope(conditionalExpression);
+		const isInvalidExpression = [left, right].some(node => !isNumber(node, scope));
+
+		if (isInvalidExpression) {
+			return;
+		}
+
 		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
