@@ -1,6 +1,6 @@
 'use strict';
-const {isBigIntLiteral, isCallExpression} = require('./ast/index.js');
 const {fixSpaceAroundKeyword} = require('./fix/index.js');
+const isNumber = require('./utils/is-number.js');
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
@@ -18,18 +18,11 @@ const create = context => ({
 		}
 
 		const {operator, left, right} = test;
+		const {sourceCode} = context;
+		const scope = sourceCode.getScope(conditionalExpression);
+		const isInvalidExpression = [left, right].some(node => !isNumber(node, scope));
 
-		const hasBigInt = [left, right, alternate, consequent].some(
-			node =>
-				isBigIntLiteral(node)
-				|| isCallExpression(node, {
-					name: 'BigInt',
-					argumentsLength: 1,
-					optional: false,
-				}),
-		);
-
-		if (hasBigInt) {
+		if (isInvalidExpression) {
 			return;
 		}
 
