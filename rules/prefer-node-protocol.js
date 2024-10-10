@@ -1,5 +1,5 @@
 'use strict';
-const isBuiltinModule = require('is-builtin-module');
+const {isBuiltin} = require('node:module');
 const {replaceStringLiteral} = require('./fix/index.js');
 const isStaticRequire = require('./ast/is-static-require.js');
 
@@ -33,7 +33,7 @@ const create = () => ({
 			typeof value !== 'string'
 			|| value.startsWith('node:')
 			|| /^bun(?::|$)/.test(value)
-			|| !isBuiltinModule(value)
+			|| !isBuiltin(value)
 		) {
 			return;
 		}
