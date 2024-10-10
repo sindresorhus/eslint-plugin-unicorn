@@ -59,7 +59,6 @@
 		"esquery": "^1.6.0",
 		"globals": "^15.9.0",
 		"indent-string": "^4.0.0",
-		"is-builtin-module": "^3.2.1",
 		"jsesc": "^3.0.2",
 		"pluralize": "^8.0.0",
 		"read-pkg-up": "^7.0.1",
