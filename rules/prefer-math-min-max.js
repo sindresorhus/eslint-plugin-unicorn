@@ -19,7 +19,7 @@ const create = context => ({
 
 		const {operator, left, right} = test;
 
-		const hasBigInt = [left, right, alternate, consequent].some(
+		const hasBigInt = [left, right].some(
 			node =>
 				isBigIntLiteral(node)
 				|| isCallExpression(node, {
