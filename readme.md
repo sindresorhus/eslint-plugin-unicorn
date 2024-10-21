@@ -72,7 +72,7 @@ module.exports = [
 
 ## Usage (legacy: `.eslintrc.*` or `package.json`)
 
-Use a [preset config](#preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
+Use a [preset config](#legacy-preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
 
 If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
 
@@ -242,13 +242,13 @@ See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
 ## Preset configs (`eslint.config.js`)
 
-See the [ESLint docs](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new) for more information about extending config files.
+See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files) for more information about extending config files.
 
-**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/configuration-files-new#configuring-language-options).
+**Note**: Preset configs will also enable the correct [language options](https://eslint.org/docs/latest/use/configure/language-options).
 
 ### Recommended config
 
-This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+This plugin exports a `recommended` config that enforces good practices.
 
 #### ES Module (Recommended)
 
@@ -285,7 +285,7 @@ module.exports = [
 
 ### All config
 
-This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+This plugin exports an `all` that makes use of all rules (except for deprecated ones).
 
 #### ES Module (Recommended)
 
@@ -320,15 +320,15 @@ module.exports = [
 ];
 ```
 
-## Preset configs (`.eslintrc.*` or `package.json`)
+## Legacy preset configs (`.eslintrc.*` or `package.json`)
 
-See the [ESLint docs](https://eslint.org/docs/user-guide/configuring/configuration-files#extending-configuration-files) for more information about extending config files.
+See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated) for more information about extending deprecated legacy config files.
 
-**Note**: Preset configs will also enable the correct [parser options](https://eslint.org/docs/user-guide/configuring/language-options#specifying-parser-options) and [environment](https://eslint.org/docs/user-guide/configuring/language-options#specifying-environments).
+**Note**: Preset configs will also enable the correct [parser options](https://eslint.org/docs/latest/use/configure/parser-deprecated) and [environment](https://eslint.org/docs/latest/use/configure/language-options-deprecated).
 
-### Recommended config
+### Recommended legacy config
 
-This plugin exports a [`recommended` config](configs/recommended.js) that enforces good practices.
+This plugin exports a `recommended` legacy config that enforces good practices.
 
 ```json
 {
@@ -342,9 +342,9 @@ This plugin exports a [`recommended` config](configs/recommended.js) that enforc
 }
 ```
 
-### All config
+### All legacy config
 
-This plugin exports an [`all` config](configs/all.js) that makes use of all rules (except for deprecated ones).
+This plugin exports an `all` legacy config that makes use of all rules (except for deprecated ones).
 
 ```json
 {
