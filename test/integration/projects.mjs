@@ -220,6 +220,9 @@ export default [
 		ignore: [
 			// Cannot parse `'\033'`
 			'build/**',
+			// Invalid syntax
+			'src/vs/platform/files/test/node/fixtures/**',
+			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>
