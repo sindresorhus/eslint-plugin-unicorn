@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Auto-format rule names in titles
-        uses: fregante/title-replacer-action@v1
+        uses: fregante/title-replacer-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern-path: docs/rules
           replacement: '`$0`'
-          trim-punctuation: true
+          trim-wrappers: true
