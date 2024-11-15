@@ -680,3 +680,30 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [
+		{
+			code: `foo.forEach(bar)`,
+			options: [
+				{
+					ignoreNamedIdentifier: true,
+				},
+			],
+		},
+	],
+	invalid: [
+		{
+			code: `foo.forEach(element => bar(element))`,
+			options: [
+				{
+					ignoreNamedIdentifier: true,
+				},
+			],
+			output: outdent`
+				for (const element of foo) bar(element)
+			`,
+			errors: 1,
+		},
+	],
+})

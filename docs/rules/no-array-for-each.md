@@ -61,3 +61,17 @@ for (const [index, element] of array.entries()) {
 	bar(element, index, array);
 }
 ```
+
+## Options
+
+### ignoreNamedIdentifier
+
+Type: `boolean`\
+Default: `false`
+
+Ignores the rule when the callback is function identifier.
+
+```js
+// Pass
+array.forEach(bar);
+```

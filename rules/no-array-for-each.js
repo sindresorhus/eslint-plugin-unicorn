@@ -385,6 +385,7 @@ const create = context => {
 	const allIdentifiers = [];
 	const functionInfo = new Map();
 	const {sourceCode} = context;
+	const {ignoreNamedIdentifier} = context.options[0] || {};
 
 	context.on(functionTypes, node => {
 		functionStack.push(node);
@@ -420,6 +421,13 @@ const create = context => {
 				method: 'forEach',
 			})
 			|| isNodeMatches(node.callee.object, ignoredObjects)
+			|| (
+				isMethodCall(node, {
+					method: 'forEach',
+				})
+				&& ignoreNamedIdentifier
+				&& node.arguments[0].type === 'Identifier'
+			)
 		) {
 			return;
 		}
@@ -468,6 +476,19 @@ const create = context => {
 	});
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			ignoreNamedIdentifier: {
+				type: 'boolean',
+				default: false,
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -479,6 +500,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
 		messages,
 	},
 };
