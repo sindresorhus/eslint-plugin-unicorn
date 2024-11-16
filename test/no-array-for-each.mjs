@@ -531,7 +531,10 @@ test.snapshot({
 });
 
 test({
-	valid: [],
+	valid: [{
+		code: "foo.forEach((element, index) => {})",
+		options: [{ allowIndexParameter: true }],
+	}],
 	invalid: [
 		{
 			code: outdent`

@@ -386,6 +386,11 @@ const create = context => {
 	const functionInfo = new Map();
 	const {sourceCode} = context;
 
+	const {allowIndexParameter} = {
+		allowIndexParameter: false,
+		...context.options[0],
+	};
+
 	context.on(functionTypes, node => {
 		functionStack.push(node);
 		functionInfo.set(node, {
@@ -423,6 +428,8 @@ const create = context => {
 		) {
 			return;
 		}
+
+		if (allowIndexParameter && node.arguments[0].params.length > 1) return
 
 		callExpressions.push({
 			node,
@@ -468,6 +475,19 @@ const create = context => {
 	});
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allowIndexParameter: {
+				type: 'boolean',
+				default: false,
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
@@ -479,6 +499,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
 		messages,
 	},
 };

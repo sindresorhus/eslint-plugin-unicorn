@@ -61,3 +61,21 @@ for (const [index, element] of array.entries()) {
 	bar(element, index, array);
 }
 ```
+
+## Options
+
+### allowIndexParameter
+
+Type: `boolean`\
+Default: `false`
+
+You can set the `allowIndexParameter` option like this:
+
+```js
+"unicorn/no-array-for-each": [
+	"error",
+	{
+		"allowIndexParameter": true
+	}
+]
+```
