@@ -223,6 +223,7 @@ export default [
 			// Invalid syntax
 			'src/vs/platform/files/test/node/fixtures/**',
 			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
+			'extensions/vscode-colorize-perf-tests/test/**',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>

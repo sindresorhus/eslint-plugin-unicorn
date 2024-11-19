@@ -168,6 +168,7 @@ function getCompactConfig(config) {
 					// `Intl` was added to ESLint https://github.com/eslint/eslint/pull/18318
 					// But `@eslint/eslintrc` choose not to update `globals` https://github.com/eslint/eslintrc/pull/164
 					Intl: false,
+					Iterator: false,
 				};
 				result[key] = languageOptions;
 			} else if (key === 'plugins') {
