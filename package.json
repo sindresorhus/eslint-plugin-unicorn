@@ -23,6 +23,7 @@
 		"fix:eslint-docs": "eslint-doc-generator",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:markdown": "npm run lint:markdown -- --fix",
+		"fix:snapshots": "ava --update-snapshots",
 		"integration": "node ./test/integration/test.mjs",
 		"lint": "run-p --continue-on-error lint:*",
 		"lint:eslint-docs": "npm run fix:eslint-docs -- --check",
