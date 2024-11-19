@@ -271,13 +271,17 @@ function semverComparisonForOperator(operator) {
 	}[operator];
 }
 
+const DEFAULT_OPTIONS = {
+	terms: ['todo', 'fixme', 'xxx'],
+	ignore: [],
+	ignoreDatesOnPullRequests: true,
+	allowWarningComments: true,
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
-		terms: ['todo', 'fixme', 'xxx'],
-		ignore: [],
-		ignoreDatesOnPullRequests: true,
-		allowWarningComments: true,
+		...DEFAULT_OPTIONS,
 		date: new Date().toISOString().slice(0, 10),
 		...context.options[0],
 	};
@@ -564,7 +568,7 @@ const schema = [
 			},
 			allowWarningComments: {
 				type: 'boolean',
-				default: false,
+				default: true,
 			},
 			date: {
 				type: 'string',
@@ -584,6 +588,7 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{...DEFAULT_OPTIONS}],
 		messages,
 	},
 };
