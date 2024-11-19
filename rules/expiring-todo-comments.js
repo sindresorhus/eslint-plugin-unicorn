@@ -276,7 +276,7 @@ const DEFAULT_OPTIONS = {
 	ignore: [],
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
-}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -588,7 +588,7 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
-		defaultOptions: [{ ...DEFAULT_OPTIONS }],
+		defaultOptions: [{...DEFAULT_OPTIONS}],
 		messages,
 	},
 };
