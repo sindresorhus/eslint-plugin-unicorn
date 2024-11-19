@@ -28,7 +28,7 @@ const foo = array.slice(-1).pop();
 ```
 
 ```js
-const foo = array.slice(-5).shift();
+const foo = array.slice(-1).shift();
 ```
 
 ```js
