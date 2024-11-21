@@ -186,7 +186,7 @@ const create = context => ({
 
 			// ignore `typeof window` and `typeof self`
 			if (identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof') {
-				return
+				continue;
 			}
 
 			yield {
