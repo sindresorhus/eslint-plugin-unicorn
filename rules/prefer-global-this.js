@@ -184,6 +184,11 @@ const create = context => ({
 				continue;
 			}
 
+			// ignore `typeof window` and `typeof self`
+			if (identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof') {
+				return
+			}
+
 			yield {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,

@@ -59,6 +59,8 @@ test.snapshot({
 		'window[foo]',
 		'window[title]',
 		'window["foo"]',
+		'typeof window !== "undefined"',
+		'typeof self !== "undefined"',
 	],
 	invalid: [
 		'global',
@@ -168,6 +170,8 @@ test.snapshot({
 		'[window.foo] = []',
 		'foo[window]',
 		'foo[window.foo]',
+		'typeof window.something === "function"',
+		'typeof self.something === "function"',
 	],
 });
 
