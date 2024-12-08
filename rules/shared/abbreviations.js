@@ -214,6 +214,12 @@ module.exports.defaultReplacements = {
 	tmp: {
 		temporary: true,
 	},
+	util: {
+		utility: true,
+	},
+	utils: {
+		utilities: true,
+	},
 	val: {
 		value: true,
 	},
