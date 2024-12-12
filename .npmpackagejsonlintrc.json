@@ -12,8 +12,7 @@
 			"error",
 			{
 				"exceptions": [
-					"eslint-plugin-internal-rules",
-					"eslint-doc-generator"
+					"eslint-plugin-internal-rules"
 				]
 			}
 		],
