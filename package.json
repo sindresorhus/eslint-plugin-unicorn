@@ -82,7 +82,7 @@
 		"enquirer": "^2.4.1",
 		"eslint": "^9.10.0",
 		"eslint-ava-rule-tester": "^5.0.1",
-		"eslint-doc-generator": "1.7.0",
+		"eslint-doc-generator": "^2.0.1",
 		"eslint-plugin-eslint-plugin": "^6.2.0",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
 		"eslint-remote-tester": "^4.0.1",
