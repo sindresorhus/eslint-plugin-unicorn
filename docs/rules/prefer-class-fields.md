@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule will enforce the use of field declarations over `this` assignments in contructors for static values.
+This rule will enforce the use of field declarations over `this` assignments in constructors for static values.
 
-> To avoid leaving empty constructors after autofix use [`no-useless-contructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
+> To avoid leaving empty constructors after autofix use [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
 ## Fail
 
