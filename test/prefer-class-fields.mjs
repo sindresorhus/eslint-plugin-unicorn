@@ -61,6 +61,11 @@ test.typescript({
 				foo: string = 'foo';
 			}
 		`,
+		outdent`
+			declare class Foo {
+				constructor(foo?: string);
+			}
+		`,
 	],
 	invalid: [
 		{

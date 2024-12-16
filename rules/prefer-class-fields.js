@@ -66,7 +66,12 @@ const create = context => {
 				return;
 			}
 
-			const constructorBody = constructor.value.body.body;
+			const constructorBody = constructor.value.body?.body;
+
+			if (!constructorBody) {
+				return;
+			}
+
 			const classBodyStartRange = [node.range[0], node.range[0] + 1];
 			const indent = getIndentString(constructor, sourceCode);
 
