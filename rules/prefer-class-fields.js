@@ -3,14 +3,13 @@ const getIndentString = require('./utils/get-indent-string.js');
 
 const MESSAGE_ID = 'prefer-class-fields/error';
 const messages = {
-	[MESSAGE_ID]:
-		'Prefer class field declaration over `this` assignment in constructor for static values.',
+	[MESSAGE_ID]: 'Prefer class field declaration over `this` assignment in constructor for static values.',
 };
 
 /**
- * @param {import('eslint').Rule.Node} node
- * @returns {node is import('estree').ExpressionStatement & {expression: import('estree').AssignmentExpression & {left: import('estree').MemberExpression & {object: import('estree').ThisExpression}}}}
- */
+@param {import('eslint').Rule.Node} node
+@returns {node is import('estree').ExpressionStatement & {expression: import('estree').AssignmentExpression & {left: import('estree').MemberExpression & {object: import('estree').ThisExpression}}}}
+*/
 const isThisAssignmentExpression = node => {
 	if (
 		node.type !== 'ExpressionStatement'
@@ -29,17 +28,17 @@ const isThisAssignmentExpression = node => {
 };
 
 /**
- * @template Array
- * @param {Array} array
- * @returns {Array}
- */
+@template Array
+@param {Array} array
+@returns {Array}
+*/
 const reverseArray = array => [...array].reverse();
 
 /**
- * @param {import('eslint').Rule.Node} node
- * @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
- * @param {import('eslint').Rule.RuleFixer} fixer
- */
+@param {import('eslint').Rule.Node} node
+@param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
+@param {import('eslint').Rule.RuleFixer} fixer
+*/
 const removeThisFieldAssignment = (node, sourceCode, fixer) => {
 	const {line} = node.loc.start;
 	const nodeText = sourceCode.getText(node);
@@ -54,7 +53,9 @@ const removeThisFieldAssignment = (node, sourceCode, fixer) => {
 		: fixer.remove(node);
 };
 
-/** @type {import('eslint').Rule.RuleModule['create']} */
+/**
+@type {import('eslint').Rule.RuleModule['create']}
+*/
 const create = context => {
 	const {sourceCode} = context;
 
@@ -84,7 +85,9 @@ const create = context => {
 						node,
 						messageId: MESSAGE_ID,
 
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
+						/**
+      						@param {import('eslint').Rule.RuleFixer} fixer
+	    					*/
 						* fix(fixer) {
 							yield removeThisFieldAssignment(node, sourceCode, fixer);
 							yield fixer.insertTextAfterRange(
@@ -99,14 +102,15 @@ const create = context => {
 	};
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+@type {import('eslint').Rule.RuleModule}
+*/
 module.exports = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description:
-				'Prefer class field declarations over assigning static values in constructor using `this`.',
+			description: 'Prefer class field declarations over assigning static values in constructor using `this`.',
 			recommended: true,
 		},
 		fixable: 'code',
