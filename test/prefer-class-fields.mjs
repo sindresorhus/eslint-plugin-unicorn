@@ -17,6 +17,20 @@ test.snapshot({
 				name = "MyError";
 			}
 		`,
+		outdent`
+			class Foo {
+				constructor() {
+					this.foo += 'foo';
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				constructor() {
+					this.foo ??= 'foo';
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`

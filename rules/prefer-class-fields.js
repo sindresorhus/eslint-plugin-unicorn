@@ -75,6 +75,7 @@ const create = context => {
 				if (
 					isThisAssignmentExpression(node)
 					&& node.expression.right?.type === 'Literal'
+					&& node.expression.operator === '='
 				) {
 					return {
 						node,
