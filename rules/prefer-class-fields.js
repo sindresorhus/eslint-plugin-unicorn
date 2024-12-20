@@ -27,12 +27,6 @@ const isThisAssignmentExpression = node => {
 	return true;
 };
 
-/**
-@template Array
-@param {Array} array
-@returns {Array}
-*/
-const reverseArray = array => [...array].reverse();
 
 /**
 @param {import('eslint').Rule.Node} node
@@ -60,8 +54,8 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		ClassBody(node) {
-			const constructor = node.body.find(x => x.kind === 'constructor');
+		ClassBody(classBody) {
+			const constructor = classBody.body.find(x => x.kind === 'constructor');
 
 			if (!constructor || constructor.type !== 'MethodDefinition') {
 				return;
@@ -73,10 +67,11 @@ const create = context => {
 				return;
 			}
 
-			const classBodyStartRange = [node.range[0], node.range[0] + 1];
+			const classBodyStartRange = [classBody.range[0], classBody.range[0] + 1];
 			const indent = getIndentString(constructor, sourceCode);
 
-			for (const node of reverseArray(constructorBody)) {
+			for (let i = constructorBody.length - 1; i >= 0; i--) {
+				const node = constructorBody[i];
 				if (
 					isThisAssignmentExpression(node)
 					&& node.expression.right?.type === 'Literal'
