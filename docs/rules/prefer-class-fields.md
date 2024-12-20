@@ -15,16 +15,16 @@ This rule enforces the use of class field declarations for static values, instea
 
 ```js
 class Foo {
-  constructor() {
-    this.foo = 'foo';
-  }
+	constructor() {
+		this.foo = 'foo';
+	}
 }
 
 class MyError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "MyError";
-  }
+	constructor(message: string) {
+		super(message);
+		this.name = "MyError";
+	}
 }
 ```
 
@@ -32,10 +32,10 @@ class MyError extends Error {
 
 ```js
 class Foo {
-  foo = 'foo';
+	foo = 'foo';
 }
 
 class MyError extends Error {
-  name = "MyError"
+	name = "MyError"
 }
 ```
