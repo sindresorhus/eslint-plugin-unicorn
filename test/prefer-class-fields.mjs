@@ -75,15 +75,9 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
+				foo = 'test';
 				constructor() {
-					this['foo'] = 'foo';
-				}
-			}
-		`,
-		outdent`
-			class Foo {
-				constructor() {
-					this[\`foo\`] = 'foo';
+					this.foo = 'foo';
 				}
 			}
 		`,

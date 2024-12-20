@@ -28,27 +28,6 @@ const isThisAssignmentExpression = node => {
 };
 
 /**
-@param {import('estree').Expression | import('estree').PrivateIdentifier} node
-*/
-const getPropertyName = node => {
-	if (node.type === 'Identifier') {
-		return node.name;
-	}
-
-	if (node.type === 'Literal') {
-		return `[${node.raw}]`;
-	}
-
-	if (
-		node.type === 'TemplateLiteral'
-		&& node.expressions.length === 0
-		&& node.quasis.length === 1
-	) {
-		return `[\`${node.quasis[0].value.raw}\`]`;
-	}
-};
-
-/**
 @param {import('eslint').Rule.Node} node
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
 @param {import('eslint').Rule.RuleFixer} fixer
@@ -65,6 +44,58 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 		])
 		: fixer.remove(node);
+};
+
+/**
+@param {string} propertyName
+@param {import('estree').ClassBody} classBody
+*/
+const findClassFieldNamed = (propertyName, classBody) => {
+	for (const classBodyChild of classBody.body) {
+		if (
+			classBodyChild.type === 'PropertyDefinition'
+			&& classBodyChild.key.type === 'Identifier'
+			&& classBodyChild.key.name === propertyName
+		) {
+			return classBodyChild;
+		}
+	}
+};
+
+/**
+@param {string} propertyName
+@param {string} propertyValue
+@param {import('estree').ClassBody} classBody
+@param {import('estree').MethodDefinition} constructor
+@param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
+@param {import('eslint').Rule.RuleFixer} fixer
+*/
+const addOrReplaceClassFieldDeclaration = (
+	propertyName,
+	propertyValue,
+	classBody,
+	constructor,
+	sourceCode,
+	fixer,
+) => {
+	const alreadyExistingDeclaration = findClassFieldNamed(
+		propertyName,
+		classBody,
+	);
+
+	if (alreadyExistingDeclaration) {
+		return fixer.replaceText(
+			alreadyExistingDeclaration,
+			`${propertyName} = ${propertyValue}`,
+		);
+	}
+
+	const classBodyStartRange = [classBody.range[0], classBody.range[0] + 1];
+	const indent = getIndentString(constructor, sourceCode);
+	return fixer.insertTextAfterRange(
+		classBodyStartRange,
+		`\n${indent}${propertyName} = ${propertyValue};`,
+	);
 };
 
 /**
@@ -87,39 +118,34 @@ const create = context => {
 				return;
 			}
 
-			const classBodyStartRange = [classBody.range[0], classBody.range[0] + 1];
-			const indent = getIndentString(constructor, sourceCode);
-
 			for (let i = constructorBody.length - 1; i >= 0; i--) {
 				const node = constructorBody[i];
 				if (
-					!isThisAssignmentExpression(node)
-					|| node.expression.right?.type !== 'Literal'
-					|| node.expression.operator !== '='
+					isThisAssignmentExpression(node)
+					&& node.expression.right?.type === 'Literal'
+					&& node.expression.operator === '='
+					&& node.expression.left.property.type === 'Identifier'
 				) {
-					continue;
+					return {
+						node,
+						messageId: MESSAGE_ID,
+
+						/**
+						@param {import('eslint').Rule.RuleFixer} fixer
+						*/
+						* fix(fixer) {
+							yield removeFieldAssignment(node, sourceCode, fixer);
+							yield addOrReplaceClassFieldDeclaration(
+								node.expression.left.property.name,
+								node.expression.right.raw,
+								classBody,
+								constructor,
+								sourceCode,
+								fixer,
+							);
+						},
+					};
 				}
-
-				const propertyName = getPropertyName(node.expression.left.property);
-				if (!propertyName) {
-					continue;
-				}
-
-				return {
-					node,
-					messageId: MESSAGE_ID,
-
-					/**
-      				@param {import('eslint').Rule.RuleFixer} fixer
-	    			*/
-					* fix(fixer) {
-						yield removeFieldAssignment(node, sourceCode, fixer);
-						yield fixer.insertTextAfterRange(
-							classBodyStartRange,
-							`\n${indent}${propertyName} = ${node.expression.right.raw};`,
-						);
-					},
-				};
 			}
 		},
 	};
