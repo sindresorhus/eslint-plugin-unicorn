@@ -28,11 +28,32 @@ const isThisAssignmentExpression = node => {
 };
 
 /**
+@param {import('estree').Expression | import('estree').PrivateIdentifier} node
+*/
+const getPropertyName = node => {
+	if (node.type === 'Identifier') {
+		return node.name;
+	}
+
+	if (node.type === 'Literal') {
+		return `[${node.raw}]`;
+	}
+
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+		&& node.quasis.length === 1
+	) {
+		return `[\`${node.quasis[0].value.raw}\`]`;
+	}
+};
+
+/**
 @param {import('eslint').Rule.Node} node
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
 @param {import('eslint').Rule.RuleFixer} fixer
 */
-const removeThisFieldAssignment = (node, sourceCode, fixer) => {
+const removeFieldAssignment = (node, sourceCode, fixer) => {
 	const {line} = node.loc.start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
@@ -72,26 +93,33 @@ const create = context => {
 			for (let i = constructorBody.length - 1; i >= 0; i--) {
 				const node = constructorBody[i];
 				if (
-					isThisAssignmentExpression(node)
-					&& node.expression.right?.type === 'Literal'
-					&& node.expression.operator === '='
+					!isThisAssignmentExpression(node)
+					|| node.expression.right?.type !== 'Literal'
+					|| node.expression.operator !== '='
 				) {
-					return {
-						node,
-						messageId: MESSAGE_ID,
-
-						/**
-      						@param {import('eslint').Rule.RuleFixer} fixer
-	    					*/
-						* fix(fixer) {
-							yield removeThisFieldAssignment(node, sourceCode, fixer);
-							yield fixer.insertTextAfterRange(
-								classBodyStartRange,
-								`\n${indent}${node.expression.left.property.name} = ${node.expression.right.raw};`,
-							);
-						},
-					};
+					continue;
 				}
+
+				const propertyName = getPropertyName(node.expression.left.property);
+				if (!propertyName) {
+					continue;
+				}
+
+				return {
+					node,
+					messageId: MESSAGE_ID,
+
+					/**
+      				@param {import('eslint').Rule.RuleFixer} fixer
+	    			*/
+					* fix(fixer) {
+						yield removeFieldAssignment(node, sourceCode, fixer);
+						yield fixer.insertTextAfterRange(
+							classBodyStartRange,
+							`\n${indent}${propertyName} = ${node.expression.right.raw};`,
+						);
+					},
+				};
 			}
 		},
 	};
