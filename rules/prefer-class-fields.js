@@ -118,8 +118,8 @@ const create = context => {
 				return;
 			}
 
-			for (let i = constructorBody.length - 1; i >= 0; i--) {
-				const node = constructorBody[i];
+			for (let index = constructorBody.length - 1; index >= 0; index--) {
+				const node = constructorBody[index];
 				if (
 					isThisAssignmentExpression(node)
 					&& node.expression.right?.type === 'Literal'
