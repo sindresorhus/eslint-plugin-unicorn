@@ -31,6 +31,14 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class Foo {
+				something = 'a';
+				constructor() {
+					this[this.something] = 'foo';
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
