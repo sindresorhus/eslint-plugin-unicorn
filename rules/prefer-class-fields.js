@@ -27,7 +27,6 @@ const isThisAssignmentExpression = node => {
 	return true;
 };
 
-
 /**
 @param {import('eslint').Rule.Node} node
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
@@ -98,9 +97,7 @@ const create = context => {
 	};
 };
 
-/**
-@type {import('eslint').Rule.RuleModule}
-*/
+/** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
 	create,
 	meta: {
