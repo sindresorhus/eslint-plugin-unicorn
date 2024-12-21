@@ -1,26 +1,27 @@
-'use strict';
-const getIndentString = require('./utils/get-indent-string.js');
+"use strict";
+const getIndentString = require("./utils/get-indent-string.js");
 
-const MESSAGE_ID = 'prefer-class-fields/error';
+const MESSAGE_ID = "prefer-class-fields/error";
 const messages = {
-	[MESSAGE_ID]: 'Prefer class field declaration over `this` assignment in constructor for static values.',
+	[MESSAGE_ID]:
+		"Prefer class field declaration over `this` assignment in constructor for static values.",
 };
 
 /**
 @param {import('eslint').Rule.Node} node
 @returns {node is import('estree').ExpressionStatement & {expression: import('estree').AssignmentExpression & {left: import('estree').MemberExpression & {object: import('estree').ThisExpression}}}}
 */
-const isThisAssignmentExpression = node => {
+const isThisAssignmentExpression = (node) => {
 	if (
-		node.type !== 'ExpressionStatement'
-		|| node.expression.type !== 'AssignmentExpression'
+		node.type !== "ExpressionStatement" ||
+		node.expression.type !== "AssignmentExpression"
 	) {
 		return false;
 	}
 
 	const lhs = node.expression.left;
 
-	if (!lhs.object || lhs.object.type !== 'ThisExpression') {
+	if (!lhs.object || lhs.object.type !== "ThisExpression") {
 		return false;
 	}
 
@@ -33,16 +34,16 @@ const isThisAssignmentExpression = node => {
 @param {import('eslint').Rule.RuleFixer} fixer
 */
 const removeFieldAssignment = (node, sourceCode, fixer) => {
-	const {line} = node.loc.start;
+	const { line } = node.loc.start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
 
 	return isOnlyNodeOnLine
 		? fixer.removeRange([
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
-		])
+				sourceCode.getIndexFromLoc({ line, column: 0 }),
+				sourceCode.getIndexFromLoc({ line: line + 1, column: 0 }),
+			])
 		: fixer.remove(node);
 };
 
@@ -53,9 +54,9 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 const findClassFieldNamed = (propertyName, classBody) => {
 	for (const classBodyChild of classBody.body) {
 		if (
-			classBodyChild.type === 'PropertyDefinition'
-			&& classBodyChild.key.type === 'Identifier'
-			&& classBodyChild.key.name === propertyName
+			classBodyChild.type === "PropertyDefinition" &&
+			classBodyChild.key.type === "Identifier" &&
+			classBodyChild.key.name === propertyName
 		) {
 			return classBodyChild;
 		}
@@ -101,14 +102,14 @@ const addOrReplaceClassFieldDeclaration = (
 /**
 @type {import('eslint').Rule.RuleModule['create']}
 */
-const create = context => {
-	const {sourceCode} = context;
+const create = (context) => {
+	const { sourceCode } = context;
 
 	return {
 		ClassBody(classBody) {
-			const constructor = classBody.body.find(x => x.kind === 'constructor');
+			const constructor = classBody.body.find((x) => x.kind === "constructor");
 
-			if (!constructor || constructor.type !== 'MethodDefinition') {
+			if (!constructor || constructor.type !== "MethodDefinition") {
 				return;
 			}
 
@@ -121,10 +122,11 @@ const create = context => {
 			for (let index = constructorBody.length - 1; index >= 0; index--) {
 				const node = constructorBody[index];
 				if (
-					isThisAssignmentExpression(node)
-					&& node.expression.right?.type === 'Literal'
-					&& node.expression.operator === '='
-					&& node.expression.left.property.type === 'Identifier'
+					isThisAssignmentExpression(node) &&
+					node.expression.right?.type === "Literal" &&
+					node.expression.operator === "=" &&
+					node.expression.left.property.type === "Identifier" &&
+					!node.expression.left.computed
 				) {
 					return {
 						node,
@@ -133,7 +135,7 @@ const create = context => {
 						/**
 						@param {import('eslint').Rule.RuleFixer} fixer
 						*/
-						* fix(fixer) {
+						*fix(fixer) {
 							yield removeFieldAssignment(node, sourceCode, fixer);
 							yield addOrReplaceClassFieldDeclaration(
 								node.expression.left.property.name,
@@ -155,12 +157,13 @@ const create = context => {
 module.exports = {
 	create,
 	meta: {
-		type: 'suggestion',
+		type: "suggestion",
 		docs: {
-			description: 'Prefer class field declarations over assigning static values in constructor using `this`.',
+			description:
+				"Prefer class field declarations over assigning static values in constructor using `this`.",
 			recommended: true,
 		},
-		fixable: 'code',
+		fixable: "code",
 		hasSuggestions: false,
 		messages,
 	},
