@@ -1,9 +1,9 @@
-import outdent from "outdent";
-import { getTester } from "./utils/test.mjs";
+import outdent from 'outdent';
+import {getTester} from './utils/test.mjs';
 
-const { test } = getTester(import.meta);
+const {test} = getTester(import.meta);
 
-const MESSAGE_ID = "prefer-class-fields/error";
+const MESSAGE_ID = 'prefer-class-fields/error';
 
 test.snapshot({
 	valid: [
@@ -43,6 +43,14 @@ test.snapshot({
 				something = 'a';
 				constructor() {
 					this[this.something] = 'foo';
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				constructor() {
+					if (something) { return; }
+					this.elo = 'foo';
 				}
 			}
 		`,
@@ -114,7 +122,7 @@ test.typescript({
 					}
 				}
 			`,
-			errors: [{ messageId: MESSAGE_ID }],
+			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
 				class MyError extends Error {
 					name = "MyError";
