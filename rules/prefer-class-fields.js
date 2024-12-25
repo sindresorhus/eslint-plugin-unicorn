@@ -87,7 +87,7 @@ const addOrReplaceClassFieldDeclaration = (
 	if (alreadyExistingDeclaration) {
 		return fixer.replaceText(
 			alreadyExistingDeclaration,
-			`${propertyName} = ${propertyValue}`,
+			`${propertyName} = ${propertyValue};`,
 		);
 	}
 
