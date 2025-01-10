@@ -51,7 +51,7 @@ const prepareOptions = ({
 	ignore = [...defaultIgnore, ...ignore];
 
 	ignore = ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => RegExp.prototype.isPrototypeOf(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	return {

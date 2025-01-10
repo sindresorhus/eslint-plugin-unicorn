@@ -41,7 +41,7 @@ const create = context => {
 	};
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => RegExp.prototype.isPrototypeOf(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
 		name === expectedName
