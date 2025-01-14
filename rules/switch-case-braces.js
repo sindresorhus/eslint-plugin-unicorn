@@ -105,7 +105,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema: [{enum: ['always', 'avoid']}],
-		defaultOptions: [{}],
+		defaultOptions: ['always'],
 		messages,
 	},
 };
