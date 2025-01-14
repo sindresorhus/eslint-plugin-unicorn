@@ -148,7 +148,6 @@ const create = context => {
 const schema = [
 	{
 		enum: ['never', 'always'],
-		default: 'never',
 	},
 ];
 
@@ -164,6 +163,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: ['never'],
 		messages,
 	},
 };

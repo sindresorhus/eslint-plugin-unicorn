@@ -203,7 +203,6 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -219,6 +218,7 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{checkArrowFunctions: true}],
 		messages,
 	},
 };

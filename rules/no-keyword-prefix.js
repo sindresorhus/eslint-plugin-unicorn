@@ -195,6 +195,7 @@ module.exports = {
 			recommended: false,
 		},
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };

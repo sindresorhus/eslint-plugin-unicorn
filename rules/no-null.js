@@ -131,7 +131,6 @@ const schema = [
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -149,6 +148,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkStrictEquality: false}],
 		messages,
 	},
 };

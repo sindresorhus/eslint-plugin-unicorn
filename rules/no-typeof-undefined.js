@@ -121,7 +121,6 @@ const schema = [
 		properties: {
 			checkGlobalVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -139,6 +138,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkGlobalVariables: false}],
 		messages,
 	},
 };

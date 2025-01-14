@@ -305,7 +305,6 @@ const schema = [
 		properties: {
 			ignoreUsedVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -407,6 +406,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{ignoreUsedVariables: false}],
 		messages,
 	},
 };

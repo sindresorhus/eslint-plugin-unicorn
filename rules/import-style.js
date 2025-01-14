@@ -366,6 +366,7 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };

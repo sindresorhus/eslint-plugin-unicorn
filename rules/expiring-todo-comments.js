@@ -564,11 +564,9 @@ const schema = [
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
-				default: true,
 			},
 			allowWarningComments: {
 				type: 'boolean',
-				default: true,
 			},
 			date: {
 				type: 'string',

@@ -82,7 +82,6 @@ const schema = [
 		properties: {
 			allowSimpleOperations: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -123,6 +122,7 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{allowSimpleOperations: true}],
 		messages,
 	},
 };
