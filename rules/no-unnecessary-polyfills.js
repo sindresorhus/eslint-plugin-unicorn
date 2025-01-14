@@ -172,7 +172,8 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
-		defaultOptions: [{}],
+		// eslint-disable-next-line eslint-plugin/require-meta-default-options
+		defaultOptions: [],
 		messages,
 	},
 };
