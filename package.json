@@ -177,8 +177,7 @@
 					"eslint-plugin/require-meta-docs-url": "off",
 					"eslint-plugin/require-meta-has-suggestions": "off",
 					"eslint-plugin/require-meta-schema": "off",
-					"eslint-plugin/require-meta-schema-description": "off",
-					"eslint-plugin/require-meta-default-options": "off"
+					"eslint-plugin/require-meta-schema-description": "off"
 				}
 			}
 		]
