@@ -64,10 +64,7 @@ const builtinConstructors = new Set([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	/**
-		 *
-		 * @param {import('estree').BinaryExpression} node
-		 */
+	/** @param {import('estree').BinaryExpression} node */
 	'BinaryExpression[operator="instanceof"]'(node) {
 		if (node.right.type !== 'Identifier') {
 			return;
