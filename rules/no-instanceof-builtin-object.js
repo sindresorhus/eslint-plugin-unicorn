@@ -1,5 +1,9 @@
 'use strict';
 const {checkVueTemplate} = require('./utils/rule.js');
+const {getParenthesizedRange} = require('./utils/parentheses.js');
+const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
+
+const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
 const MESSAGE_ID = 'no-instanceof-builtin-object';
 const messages = {
@@ -63,28 +67,48 @@ const builtinConstructors = new Set([
 ]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	/** @param {import('estree').BinaryExpression} node */
-	'BinaryExpression[operator="instanceof"]'(node) {
-		if (node.right.type !== 'Identifier') {
-			return;
-		}
+const create = context => {
+	const {sourceCode} = context;
 
-		const {name} = node.right;
-
-		if (builtinConstructors.has(name)) {
-			if (name === 'Array') {
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, `Array.isArray(${context.sourceCode.getText(node.left)})`),
-				});
-			} else {
-				context.report({node, messageId: MESSAGE_ID});
+	return {
+		/** @param {import('estree').BinaryExpression} node */
+		'BinaryExpression[operator="instanceof"]'(node) {
+			if (node.right.type !== 'Identifier') {
+				return;
 			}
-		}
-	},
-});
+	
+			const {left, right} = node;
+	
+			if (builtinConstructors.has(right.name)) {
+				let tokenStore = sourceCode;
+				let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+				if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
+					tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
+					instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+				}
+	
+				if (right.name === 'Array') {
+					context.report({
+						node,
+						messageId: MESSAGE_ID,
+						*fix(fixer) {
+							yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+							const range = getParenthesizedRange(left, tokenStore);
+							yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
+							yield fixer.insertTextAfterRange(range, ')');
+		
+							yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+						},
+					});
+				} else {
+					context.report({node, messageId: MESSAGE_ID});
+				}
+			}
+		},
+	}
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
