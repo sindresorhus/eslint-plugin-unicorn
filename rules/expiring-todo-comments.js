@@ -287,7 +287,7 @@ const create = context => {
 	};
 
 	const ignoreRegexes = options.ignore.map(
-		pattern => RegExp.prototype.isPrototypeOf(pattern) ? pattern : new RegExp(pattern, 'u'),
+		pattern => Object.prototype.toString.call(pattern) === '[object RegExp]' ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	const dirname = path.dirname(context.filename);

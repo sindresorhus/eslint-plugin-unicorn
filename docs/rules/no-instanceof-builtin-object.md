@@ -11,18 +11,13 @@ Using instanceof to determine the type of an object has [limitations](https://de
 
 Therefore, it is recommended to use a safer method, like `Object.prototype.toString.call(foo)` or npm package [@sindresorhus/is](https://www.npmjs.com/package/@sindresorhus/is) to determine the type of object.
 
-Note that this rule does provide safe automatic fixes except for `primitive type`.
+Note that this rule does not provide automatic fixes except for `foo instanceof Array`.
 
 ## Examples
 
 ```js
 foo instanceof String; // ❌
 Object.prototype.toString.call(foo) === '[object String]'; // ✅
-```
-
-```js
-foo instanceof Boolean; // ❌
-Object.prototype.toString.call(foo) === '[object Boolean]'; // ✅
 ```
 
 ```js
@@ -39,11 +34,6 @@ Object.prototype.toString.call(foo) === '[object Date]'; // ✅
 import is from '@sindresorhus/is';
 foo instanceof Map; // ❌
 is(foo) === 'Map'; // ✅
-```
-
-```js
-foo instanceof Map; // ❌
-Map.prototype.isPrototypeOf(foo); // ✅
 ```
 
 ```js

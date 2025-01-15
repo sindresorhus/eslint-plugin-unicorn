@@ -160,7 +160,7 @@ const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
-		if (RegExp.prototype.isPrototypeOf(item)) {
+		if (Object.prototype.toString.call(item) === '[object RegExp]') {
 			return item;
 		}
 

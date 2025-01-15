@@ -15,7 +15,7 @@ test.snapshot({
 		'Array.isArray([1,2,3]) === true',
 		'"arr instanceof Array"',
 		// The global object that not define in ECMAScript
-		"foo instanceof Worker",
+		'foo instanceof Worker',
 	],
 	invalid: [
 	// Primitive types

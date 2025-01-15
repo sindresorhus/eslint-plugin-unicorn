@@ -6,9 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Unsafe instanceof should not be used to check type.',
 };
 
-const primitiveConstructors = new Set(['Boolean', 'Number', 'String', 'Symbol', 'BigInt']);
-
-const referenceConstructors = new Set([
+const builtinConstructors = new Set([
 	// Error types
 	'AggregateError',
 	'Error',
@@ -42,6 +40,11 @@ const referenceConstructors = new Set([
 	'Uint8ClampedArray',
 
 	// Data types
+	'Boolean',
+	'Number',
+	'String',
+	'Symbol',
+	'BigInt',
 	'Object',
 
 	// Regular Expressions
@@ -72,9 +75,7 @@ const create = context => ({
 
 		const {name} = node.right;
 
-		if (primitiveConstructors.has(name)) {
-			context.report({node, messageId: MESSAGE_ID});
-		} else if (referenceConstructors.has(name)) {
+		if (builtinConstructors.has(name)) {
 			if (name === 'Array') {
 				context.report({
 					node,
@@ -82,11 +83,7 @@ const create = context => ({
 					fix: fixer => fixer.replaceText(node, `Array.isArray(${context.sourceCode.getText(node.left)})`),
 				});
 			} else {
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, `${name}.prototype.isPrototypeOf(${context.sourceCode.getText(node.left)})`),
-				});
+				context.report({node, messageId: MESSAGE_ID});
 			}
 		}
 	},
