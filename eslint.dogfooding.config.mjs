@@ -4,14 +4,9 @@
 */
 
 import eslintPluginUnicorn from './index.js';
-import eslintPlugin from 'eslint-plugin-eslint-plugin';
 
 const config = [
 	eslintPluginUnicorn.configs['flat/all'],
-	{
-		files: ['rules/*.js'],
-		...eslintPlugin.configs['flat/recommended'],
-	},
 	{
 		linterOptions: {
 			reportUnusedDisableDirectives: false,
