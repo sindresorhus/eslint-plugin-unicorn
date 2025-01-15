@@ -18,7 +18,7 @@ test.snapshot({
 		'foo instanceof Worker',
 	],
 	invalid: [
-	// Primitive types
+		// Primitive types
 		'foo instanceof String',
 		'foo instanceof Number',
 		'foo instanceof Boolean',
