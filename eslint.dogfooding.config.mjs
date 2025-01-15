@@ -16,6 +16,9 @@ const config = [
 			n: {
 				rules: {'no-unsupported-features/es-syntax': {}},
 			},
+			'eslint-plugin': {
+				rules: {'require-meta-default-options': {}}
+			}
 		},
 	},
 	{
