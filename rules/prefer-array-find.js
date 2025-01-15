@@ -428,8 +428,6 @@ const schema = [
 		properties: {
 			checkFromLast: {
 				type: 'boolean',
-				// TODO: Remove the option at some point.
-				default: true,
 			},
 		},
 	},
@@ -447,6 +445,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkFromLast: true}],
 		messages,
 	},
 };

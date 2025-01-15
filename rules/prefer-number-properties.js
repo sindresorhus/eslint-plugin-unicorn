@@ -113,11 +113,9 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
-				default: false,
 			},
 			checkNaN: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -135,6 +133,12 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [
+			{
+				checkInfinity: false,
+				checkNaN: true,
+			},
+		],
 		messages,
 	},
 };

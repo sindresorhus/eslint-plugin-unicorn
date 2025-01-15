@@ -352,7 +352,6 @@ const schema = [
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -370,6 +369,7 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{getLastElementFunctions: [], checkAllIndexAccess: false}],
 		messages,
 	},
 };

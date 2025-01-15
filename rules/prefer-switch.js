@@ -315,7 +315,6 @@ const schema = [
 			minimumCases: {
 				type: 'integer',
 				minimum: 2,
-				default: 3,
 			},
 			emptyDefaultCase: {
 				enum: [
@@ -323,7 +322,6 @@ const schema = [
 					'do-nothing-comment',
 					'no-default-case',
 				],
-				default: 'no-default-comment',
 			},
 		},
 	},
@@ -340,6 +338,12 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [
+			{
+				minimumCases: 3,
+				emptyDefaultCase: 'no-default-comment',
+			},
+		],
 		messages,
 	},
 };

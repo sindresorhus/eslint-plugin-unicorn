@@ -123,7 +123,6 @@ const schema = [
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -140,6 +139,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{sortCharacterClasses: true}],
 		messages,
 	},
 };

@@ -261,7 +261,6 @@ const create = context => {
 const schema = [
 	{
 		enum: ['always', 'only-single-line'],
-		default: 'always',
 	},
 ];
 
@@ -276,6 +275,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: ['always'],
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 		},

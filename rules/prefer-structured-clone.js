@@ -146,6 +146,7 @@ module.exports = {
 		},
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };

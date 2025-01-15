@@ -275,6 +275,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
