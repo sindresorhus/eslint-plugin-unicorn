@@ -35,6 +35,16 @@ test.snapshot({
 
 		// Test comments
 		'foo /** before */ instanceof /** after */ String',
+
+		...[
+			'<template><div v-if="foo instanceof String"></div></template>',
+			'<template><div v-if=\'foo instanceof String\'></div></template>',
+			'<template><div v-if="(( (( foo )) instanceof (( String )) ))"></div></template>',
+			'<template><div>{{(( (( foo )) instanceof (( String )) )) ? foo : bar}}</div></template>',
+			'<script>const bar = foo instanceof String</script>',
+			'<script>const bar = (( (( foo )) instanceof (( String )) ))</script>',
+			'<script>foo instanceof Boolean</script>',
+		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
 	],
 });
 
