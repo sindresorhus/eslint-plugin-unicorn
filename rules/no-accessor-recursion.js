@@ -2,7 +2,7 @@
 
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Avoid recursive access to `this`',
+	[MESSAGE_ID_ERROR]: 'Disallow recursive access to this within getter and setter',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -80,10 +80,9 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow recursive access to this itself',
+			description: 'Disallow recursive access to this within getter and setter',
 			recommended: true,
 		},
-		fixable: 'code',
 		defaultOptions: [],
 		messages,
 	},
