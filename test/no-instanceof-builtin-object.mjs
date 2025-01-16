@@ -48,6 +48,14 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	valid: [],
+	invalid: [
+		'foo instanceof Error',
+		'(foo) instanceof (Error)',
+	].map(code => ({code, options: [{shippedProposals: true}]})),
+});
+
 // Port from no-instanceof-array
 test.snapshot({
 	valid: [

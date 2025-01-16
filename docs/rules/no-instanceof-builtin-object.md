@@ -11,8 +11,6 @@ Using instanceof to determine the type of an object has [limitations](https://de
 
 Therefore, it is recommended to use a safer method, like `Object.prototype.toString.call(foo)` or npm package [@sindresorhus/is](https://www.npmjs.com/package/@sindresorhus/is) to determine the type of object.
 
-Note that this rule does not provide automatic fixes except for `foo instanceof Array`.
-
 ## Examples
 
 ```js
@@ -39,4 +37,29 @@ is(foo) === 'Map'; // ✅
 ```js
 foo instanceof Array; // ❌
 Array.isArray(foo); // ✅
+```
+
+## Options
+
+### shippedProposals
+
+Type: `boolean`\
+Default: `false`
+
+You can specify a fix using a proposal that is still at stage 3, but is already implemented in some environments.
+
+eg.
+
+```diff
+- foo instanceof Error
++ Error.isError(foo)
+```
+
+```js
+"unicorn/no-instanceof-builtin-object": [
+	"error",
+	{
+		"shippedProposals": true
+	}
+]
 ```

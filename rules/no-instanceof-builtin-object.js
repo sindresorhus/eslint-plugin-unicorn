@@ -65,6 +65,7 @@ const referenceConstructors = new Set([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {shippedProposals = false} = context.options[0] ?? {};
 	const {sourceCode} = context;
 
 	return {
@@ -122,6 +123,21 @@ const create = context => {
 							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 						},
 					});
+				} else if (right.name === 'Error' && shippedProposals) {
+					context.report({
+						node,
+						messageId: MESSAGE_ID,
+						* fix(fixer) {
+							yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+							const range = getParenthesizedRange(left, tokenStore);
+							yield fixer.insertTextBeforeRange(range, 'Error.isError(');
+							yield fixer.insertTextAfterRange(range, ')');
+
+							yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+						},
+					});
 				} else {
 					context.report({node, messageId: MESSAGE_ID});
 				}
@@ -129,6 +145,18 @@ const create = context => {
 		},
 	};
 };
+
+const schema = [
+	{
+		type: 'object',
+		properties: {
+			shippedProposals: {
+				type: 'boolean',
+			},
+		},
+		additionalProperties: false,
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
@@ -140,7 +168,8 @@ module.exports = {
 			recommended: true,
 		},
 		fixable: 'code',
-		defaultOptions: [],
+		schema,
+		defaultOptions: [{shippedProposals: false}],
 		messages,
 	},
 };
