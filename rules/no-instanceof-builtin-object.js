@@ -52,7 +52,6 @@ const referenceConstructors = new Set([
 	'RegExp',
 
 	// Async and functions
-	'Function',
 	'Promise',
 	'Proxy',
 
@@ -84,7 +83,7 @@ const create = context => {
 				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 			}
 
-			if (primitiveConstructors.has(right.name)) {
+			if (primitiveConstructors.has(right.name) || right.name === 'Function') {
 				// Check if the node is in a Vue template expression
 				const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
 
