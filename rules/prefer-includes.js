@@ -16,7 +16,7 @@ const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
-	const tokenStore = sourceCode?.parserServices?.getTemplateBodyTokenStore?.() ?? sourceCode;
+	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
 
 	const memberExpressionNode = target.parent;
 	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
