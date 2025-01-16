@@ -31,6 +31,30 @@ test.snapshot({
 				}
 			}
 		`,
+		// define this to alias
+		outdent`
+			class Foo {
+				get bar() {
+					const self = this;
+					return self.bar;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				set bar(value) {
+					const self = this;
+					return self.bar = value;
+				}
+			}
+		`,
+		outdent`
+			const foo = {
+				get bar() {
+					return this._bar;
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
