@@ -23,7 +23,7 @@ test.snapshot({
 				}
 			}
 		`,
-		// deep property setter
+		// Deep property setter
 		outdent`
 			class Foo {
 				set bar(value) {
@@ -31,7 +31,7 @@ test.snapshot({
 				}
 			}
 		`,
-		// define this to alias
+		// Define this to alias
 		outdent`
 			class Foo {
 				get bar() {
@@ -55,7 +55,7 @@ test.snapshot({
 				}
 			};
 		`,
-		// access this in function scope
+		// Access this in function scope
 		outdent`
 			const foo = {
 				get bar() {
@@ -97,7 +97,7 @@ test.snapshot({
 				}
 			}
 		`,
-		// deep property getter
+		// Deep property getter
 		outdent`
 			const foo = {
 				get bar() {
@@ -105,12 +105,33 @@ test.snapshot({
 				}
 			};
 		`,
-		// access this in nest block
+		// Access this in nest block
 		outdent`
 			const foo = {
 				get bar() {
 					if (true) {
 						return this.bar;
+					}
+				}
+			};
+		`,
+		// Access this in arrow function scope
+		outdent`
+			const foo = {
+				get bar() {
+					const baz = () => {
+						return this.bar;
+					}
+				}
+			};
+		`,
+		outdent`
+			const foo = {
+				get bar() {
+					const baz = () => {
+						return () => {
+							return this.bar;
+						}
 					}
 				}
 			};

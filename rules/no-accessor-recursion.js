@@ -5,6 +5,13 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to this within getter and setter',
 };
 
+/**
+ *
+ * @param {import('eslint').Scope.Scope} scope
+ * @returns
+ */
+const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const functionExpressionStack = [];
@@ -42,8 +49,15 @@ const create = context => {
 			if (functionExpressionStack.length > 0) {
 				/** @type {import('estree').Property | import('estree').MethodDefinition} */
 				const property = functionExpressionStack.at(-1);
+
+				let scope = context.sourceCode.getScope(node);
+
+				while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
+					scope = scope.upper;
+				}
+
 				// Check if This is in the current function expression scope
-				if (context.sourceCode.getScope(node).variableScope.block === property.value) {
+				if (scope.block === property.value) {
 					/** @type {import('estree').MemberExpression} */
 					const {parent} = node;
 
