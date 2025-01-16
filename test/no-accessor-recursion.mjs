@@ -23,6 +23,14 @@ test.snapshot({
 				}
 			}
 		`,
+		// deep property setter
+		outdent`
+			class Foo {
+				set bar(value) {
+					this.bar.baz = value;
+				}
+			}
+		`,
 	],
 	invalid: [
 		// Getter
@@ -54,6 +62,14 @@ test.snapshot({
 					this.bar = value;
 				}
 			}
+		`,
+		// deep property getter
+		outdent`
+			const foo = {
+				get bar() {
+					return this.bar.baz;
+				}
+			};
 		`,
 	],
 });
