@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 import tests from './shared/simple-array-search-rule-tests.mjs';
 
 const {test} = getTester(import.meta);
@@ -16,7 +16,7 @@ test.snapshot({
 			'_.indexOf(foo, bar) !== -1',
 			'lodash.indexOf(foo, bar) !== -1',
 			'underscore.indexOf(foo, bar) !== -1',
-		].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf')]),
+		].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
@@ -34,7 +34,7 @@ test.snapshot({
 		'(a || b).indexOf(\'foo\') === -1',
 		'foo.indexOf(bar, 0) !== -1',
 		'foo.indexOf(bar, 1) !== -1',
-	].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf')]),
+	].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
 });
 
 const {snapshot, typescript} = tests({

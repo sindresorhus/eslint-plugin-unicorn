@@ -1,4 +1,5 @@
 'use strict';
+const {checkVueTemplate} = require('./utils/rule.js');
 const isMethodNamed = require('./utils/is-method-named.js');
 const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
 const {isLiteral, isNegativeOne} = require('./ast/index.js');
@@ -15,8 +16,10 @@ const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
+	const tokenStore = sourceCode?.parserServices?.getTemplateBodyTokenStore?.() ?? sourceCode;
+
 	const memberExpressionNode = target.parent;
-	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
+	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 
 	// Strip default `fromIndex`
@@ -84,7 +87,7 @@ const create = context => {
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
