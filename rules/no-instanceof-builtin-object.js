@@ -10,7 +10,9 @@ const messages = {
 	[MESSAGE_ID]: 'Unsafe instanceof should not be used to check type.',
 };
 
-const builtinConstructors = new Set([
+const primitiveConstructors = new Set(['String', 'Number', 'Boolean', 'BigInt', 'Symbol']);
+
+const referenceConstructors = new Set([
 	// Error types
 	'AggregateError',
 	'Error',
@@ -44,11 +46,6 @@ const builtinConstructors = new Set([
 	'Uint8ClampedArray',
 
 	// Data types
-	'Boolean',
-	'Number',
-	'String',
-	'Symbol',
-	'BigInt',
 	'Object',
 
 	// Regular Expressions
@@ -76,28 +73,51 @@ const create = context => {
 			if (node.right.type !== 'Identifier') {
 				return;
 			}
-	
+
 			const {left, right} = node;
-	
-			if (builtinConstructors.has(right.name)) {
-				let tokenStore = sourceCode;
-				let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-				if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
-					tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
-					instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-				}
-	
+
+			let tokenStore = sourceCode;
+			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+			if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
+				tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
+				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+			}
+
+			if (primitiveConstructors.has(right.name)) {
+				// Check if the node is in a Vue template expression
+				const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
+
+				// Get safe quote
+				const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
+
+				context.report({
+					node,
+					messageId: MESSAGE_ID,
+					* fix(fixer) {
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+						const leftRange = getParenthesizedRange(left, tokenStore);
+						yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+
+						yield fixer.replaceText(instanceofToken, '===');
+
+						const rightRange = getParenthesizedRange(right, tokenStore);
+
+						yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
+					},
+				});
+			} else if (referenceConstructors.has(right.name)) {
 				if (right.name === 'Array') {
 					context.report({
 						node,
 						messageId: MESSAGE_ID,
-						*fix(fixer) {
+						* fix(fixer) {
 							yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
 							const range = getParenthesizedRange(left, tokenStore);
 							yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
 							yield fixer.insertTextAfterRange(range, ')');
-		
+
 							yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
 							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 						},
@@ -107,7 +127,7 @@ const create = context => {
 				}
 			}
 		},
-	}
+	};
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
