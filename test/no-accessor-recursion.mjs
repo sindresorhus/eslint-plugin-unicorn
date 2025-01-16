@@ -5,51 +5,53 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'function foo () { this.foo }',
-		'function foo () { this.foo = bar }',
+		'function foo () { this.bar }',
+		'function foo (value) { this.bar = value }',
 		outdent`
-			const obj = {
-				foo() {
-					return this.foo;
+			const foo = {
+				bar() {
+					this.bar = void 0;
+					return this.bar;
 				}
 			};
 		`,
 		outdent`
-			const obj = {
-				foo(value) {
-					this.foo = value;
+			class Foo {
+				foo() {
+					this.foo = void 0;
+					return this.foo;
 				}
-			};
+			}
 		`,
 	],
 	invalid: [
 		// Getter
 		outdent`
-			const obj = {
-				get foo() {
-					return this.foo;
+			const foo = {
+				get bar() {
+					return this.bar;
 				}
 			};
 		`,
 		outdent`
 			class Foo {
-				get foo() {
-					return this.foo;
+				get bar() {
+					return this.bar;
 				}
 			}
 		`,
 		// Setter
 		outdent`
-			const obj = {
-				set foo(value) {
-					this.foo = value;
+			const foo = {
+				set bar(value) {
+					this.bar = value;
 				}
 			};
 		`,
 		outdent`
 			class Foo {
-				set foo(value) {
-					this.foo = value;
+				set bar(value) {
+					this.bar = value;
 				}
 			}
 		`,
