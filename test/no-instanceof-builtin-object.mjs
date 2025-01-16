@@ -6,14 +6,6 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		// Port from no-instanceof-array
-		'Array.isArray(arr)',
-		'arr instanceof array',
-		'a instanceof \'array\'',
-		'a instanceof ArrayA',
-		'a.x[2] instanceof foo()',
-		'Array.isArray([1,2,3]) === true',
-		'"arr instanceof Array"',
 		// The global object that not define in ECMAScript
 		'foo instanceof Worker',
 	],
@@ -43,7 +35,21 @@ test.snapshot({
 
 		// Test comments
 		'foo /** before */ instanceof /** after */ String',
+	],
+});
 
+// Port from no-instanceof-array
+test.snapshot({
+	valid: [
+		'Array.isArray(arr)',
+		'arr instanceof array',
+		'a instanceof \'array\'',
+		'a instanceof ArrayA',
+		'a.x[2] instanceof foo()',
+		'Array.isArray([1,2,3]) === true',
+		'"arr instanceof Array"',
+	],
+	invalid: [
 		// Port from no-instanceof-array
 		'arr instanceof Array',
 		'[] instanceof Array',
@@ -96,6 +102,5 @@ test.snapshot({
 			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>',
 			'<script>foo instanceof Function</script>',
 		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
-	]
-	,
+	],
 });
