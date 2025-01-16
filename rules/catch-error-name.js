@@ -1,4 +1,5 @@
 'use strict';
+const {isRegExp} = require('node:util/types');
 const {findVariable} = require('@eslint-community/eslint-utils');
 const avoidCapture = require('./utils/avoid-capture.js');
 const {renameVariable} = require('./fix/index.js');
@@ -41,7 +42,7 @@ const create = context => {
 	};
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
-		pattern => Object.prototype.toString.call(pattern) === '[object RegExp]' ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
 		name === expectedName

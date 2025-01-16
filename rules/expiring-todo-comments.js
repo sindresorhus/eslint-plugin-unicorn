@@ -1,5 +1,6 @@
 'use strict';
 const path = require('node:path');
+const {isRegExp} = require('node:util/types');
 const readPkgUp = require('read-pkg-up');
 const semver = require('semver');
 const ci = require('ci-info');
@@ -287,7 +288,7 @@ const create = context => {
 	};
 
 	const ignoreRegexes = options.ignore.map(
-		pattern => Object.prototype.toString.call(pattern) === '[object RegExp]' ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	const dirname = path.dirname(context.filename);

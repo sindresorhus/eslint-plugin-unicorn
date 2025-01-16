@@ -1,5 +1,6 @@
 'use strict';
 const path = require('node:path');
+const {isRegExp} = require('node:util/types');
 const {defaultsDeep, upperFirst, lowerFirst} = require('./utils/lodash.js');
 const avoidCapture = require('./utils/avoid-capture.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
@@ -51,7 +52,7 @@ const prepareOptions = ({
 	ignore = [...defaultIgnore, ...ignore];
 
 	ignore = ignore.map(
-		pattern => Object.prototype.toString.call(pattern) === '[object RegExp]' ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	return {

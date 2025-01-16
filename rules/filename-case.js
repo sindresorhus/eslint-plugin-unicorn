@@ -1,5 +1,6 @@
 'use strict';
 const path = require('node:path');
+const {isRegExp} = require('node:util/types');
 const {camelCase, kebabCase, snakeCase, upperFirst} = require('./utils/lodash.js');
 const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
 
@@ -160,7 +161,7 @@ const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
-		if (Object.prototype.toString.call(item) === '[object RegExp]') {
+		if (isRegExp(item)) {
 			return item;
 		}
 
