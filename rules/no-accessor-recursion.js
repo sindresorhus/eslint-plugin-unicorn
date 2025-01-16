@@ -42,8 +42,8 @@ const create = context => {
 			if (functionExpressionStack.length > 0) {
 				/** @type {import('estree').Property | import('estree').MethodDefinition} */
 				const property = functionExpressionStack.at(-1);
-				// Check if This is in the current scope
-				if (context.sourceCode.getScope(node).block === property.value) {
+				// Check if This is in the current function expression scope
+				if (context.sourceCode.getScope(node).variableScope.block === property.value) {
 					/** @type {import('estree').MemberExpression} */
 					const {parent} = node;
 

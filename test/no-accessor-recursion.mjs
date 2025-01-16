@@ -95,5 +95,14 @@ test.snapshot({
 				}
 			};
 		`,
+		outdent`
+			const foo = {
+				get bar() {
+					if (true) {
+						return this.bar;
+					}
+				}
+			};
+		`,
 	],
 });
