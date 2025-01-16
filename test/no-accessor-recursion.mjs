@@ -55,6 +55,16 @@ test.snapshot({
 				}
 			};
 		`,
+		// access this in function scope
+		outdent`
+			const foo = {
+				get bar() {
+					function baz() {
+						return this.bar;
+					}
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
@@ -95,6 +105,7 @@ test.snapshot({
 				}
 			};
 		`,
+		// access this in nest block
 		outdent`
 			const foo = {
 				get bar() {
