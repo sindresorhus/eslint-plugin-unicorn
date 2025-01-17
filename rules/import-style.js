@@ -137,6 +137,7 @@ const create = context => {
 			checkDynamicImport = true,
 			checkExportFrom = false,
 			checkRequire = true,
+			autoFix = false,
 		} = {},
 	] = context.options;
 
@@ -182,6 +183,25 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data,
+			fix(fixer) {
+				if (!autoFix) {
+					return;
+				}
+
+				if (node.type === 'ImportDeclaration' && allowedImportStyles.has('namespace')) {
+					const importedNames = node.specifiers
+						.filter(s => s.type === 'ImportSpecifier' || s.type === 'ImportDefaultSpecifier')
+						.map(s => s.local.name);
+
+					if (importedNames.length > 0) {
+						const namespaceIdentifier = moduleName === 'react' ? 'React' : importedNames[0];
+						return fixer.replaceText(
+							node,
+							`import * as ${namespaceIdentifier} from "${moduleName}"`,
+						);
+					}
+				}
+			},
 		});
 	};
 
@@ -321,6 +341,9 @@ const schema = {
 				extendDefaultStyles: {
 					type: 'boolean',
 				},
+				autoFix: {
+					type: 'boolean',
+				},
 				styles: {
 					$ref: '#/definitions/moduleStyles',
 				},
@@ -364,6 +387,7 @@ const config = {
 			description: 'Enforce specific import styles per module.',
 			recommended: true,
 		},
+		fixable: 'code',
 		schema,
 		defaultOptions: [{}],
 		messages,

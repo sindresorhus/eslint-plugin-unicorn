@@ -626,6 +626,82 @@ test({
 				},
 			}],
 		},
+
+		{
+			code: 'import {x} from "namespace"',
+			output: 'import * as x from "namespace"',
+			options: [{
+				styles: {
+					namespace: {
+						namespace: true,
+						named: false,
+					},
+				},
+				autoFix: true,
+			}],
+			errors: [namespaceError],
+		},
+		{
+			code: 'import {x, y} from "namespace"',
+			output: 'import * as x from "namespace"',
+			options: [{
+				styles: {
+					namespace: {
+						namespace: true,
+						named: false,
+					},
+				},
+				autoFix: true,
+			}],
+			errors: [namespaceError],
+		},
+		{
+			code: 'import {x as y} from "namespace"',
+			output: 'import * as y from "namespace"',
+			options: [{
+				styles: {
+					namespace: {
+						namespace: true,
+						named: false,
+					},
+				},
+				autoFix: true,
+			}],
+			errors: [namespaceError],
+		},
+		{
+			code: 'import {x} from "react"',
+			output: 'import * as React from "react"',
+			options: [{
+				styles: {
+					react: {
+						namespace: true,
+						named: false,
+					},
+				},
+				autoFix: true,
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react',
+				},
+			}],
+		},
+		{
+			code: 'import {x} from "namespace"',
+			options: [{
+				styles: {
+					namespace: {
+						namespace: true,
+						named: false,
+					},
+				},
+				autoFix: false,
+			}],
+			errors: [namespaceError],
+		},
 	].map(test => addDefaultOptions(test)),
 });
 

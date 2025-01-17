@@ -2,6 +2,8 @@
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -99,3 +101,19 @@ Type: `boolean`\
 Default: `true`
 
 Pass `"checkRequire": false` to disable linting of `require` calls completely.
+
+### autoFix
+
+Type: `boolean`\
+Default: `true`
+
+Pass `"autoFix": false` to disable automatic fixing of import styles. When disabled, the rule will only report violations without attempting to fix them.
+
+```js
+"unicorn/import-style": [
+	"error",
+	{
+		"autoFix": false
+	}
+]
+```
