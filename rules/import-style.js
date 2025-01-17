@@ -183,20 +183,58 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data,
 			fix(fixer) {
-
-				if (node.type === 'ImportDeclaration' && allowedImportStyles.has('namespace')) {
-					const importedNames = node.specifiers
-						.filter(s => s.type === 'ImportSpecifier' || s.type === 'ImportDefaultSpecifier')
-						.map(s => s.local.name);
-
-					if (importedNames.length > 0) {
-						const namespaceIdentifier = moduleName === 'react' ? 'React' : importedNames[0];
-						return fixer.replaceText(
-							node,
-							`import * as ${namespaceIdentifier} from "${moduleName}"`,
-						);
-					}
+				if (!allowedImportStyles.has('namespace') || allowedImportStyles.has('named')) {
+					return;
 				}
+
+				if ((node.type !== 'ImportDeclaration' && !isCallExpression(node, {name: 'require'})) || node.parent.type !== 'VariableDeclarator') {
+					return;
+				}
+
+				const importedNames = node.specifiers
+					.filter(s => s.type === 'ImportSpecifier' || s.type === 'ImportDefaultSpecifier')
+					.map(s => s.local.name);
+
+				if (importedNames.length === 0 && node.parent.id.type !== 'ObjectPattern') {
+					return;
+				}
+
+				const specialCases = {
+					react: 'React',
+					'react-dom': 'ReactDOM',
+					'react-router': 'Router',
+					'react-router-dom': 'RouterDOM',
+					'prop-types': 'PropTypes',
+					lodash: '_',
+					'lodash-es': '_',
+					jquery: '$',
+					'styled-components': 'styled',
+					redux: 'Redux',
+					'react-redux': 'ReactRedux',
+					axios: 'Axios',
+					moment: 'moment',
+					'date-fns': 'dateFns',
+					ramda: 'R',
+					rxjs: 'Rx',
+					vue: 'Vue',
+					angular: 'Angular',
+				};
+
+				const namespaceIdentifier = specialCases[moduleName]
+					|| importedNames[0]
+					|| moduleName.replaceAll(/-./g, x => x[1].toUpperCase());
+
+				if (node.type === 'ImportDeclaration') {
+					return fixer.replaceText(
+						node,
+						`import * as ${namespaceIdentifier} from "${moduleName}"`,
+					);
+				}
+
+				return fixer.replaceText(
+					node.parent,
+					`const ${namespaceIdentifier} = require("${moduleName}")`,
+				);
 			},
 		});
 	};

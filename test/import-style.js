@@ -213,7 +213,162 @@ test({
 				const {red} = await import(variable);
 			}
 		`,
-	].map(test => addDefaultOptions(test)),
+
+		{
+			code: 'import * as React from \'react\'',
+			options: [{
+				styles: {
+					react: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as ReactDOM from \'react-dom\'',
+			options: [{
+				styles: {
+					'react-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as Router from \'react-router\'',
+			options: [{
+				styles: {
+					'react-router': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as RouterDOM from \'react-router-dom\'',
+			options: [{
+				styles: {
+					'react-router-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as PropTypes from \'prop-types\'',
+			options: [{
+				styles: {
+					'prop-types': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as _ from \'lodash\'',
+			options: [{
+				styles: {
+					lodash: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import * as _ from \'lodash-es\'',
+			options: [{
+				styles: {
+					'lodash-es': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const React = require(\'react\')',
+			options: [{
+				styles: {
+					react: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const ReactDOM = require(\'react-dom\')',
+			options: [{
+				styles: {
+					'react-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const Router = require(\'react-router\')',
+			options: [{
+				styles: {
+					'react-router': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const RouterDOM = require(\'react-router-dom\')',
+			options: [{
+				styles: {
+					'react-router-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const PropTypes = require(\'prop-types\')',
+			options: [{
+				styles: {
+					'prop-types': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const _ = require(\'lodash\')',
+			options: [{
+				styles: {
+					lodash: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+		{
+			code: 'const _ = require(\'lodash-es\')',
+			options: [{
+				styles: {
+					'lodash-es': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+		},
+	],
 
 	invalid: [
 		{
@@ -428,12 +583,10 @@ test({
 		},
 		{
 			code: 'import {x} from \'namespace\'',
-			output: 'import * as x from "namespace"',
 			errors: [namespaceError],
 		},
 		{
 			code: 'import {x as y} from \'namespace\'',
-			output: 'import * as y from "namespace"',
 			errors: [namespaceError],
 		},
 		{
@@ -631,7 +784,6 @@ test({
 
 		{
 			code: 'import {x} from "namespace"',
-			output: 'import * as x from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -644,7 +796,6 @@ test({
 		},
 		{
 			code: 'import {x, y} from "namespace"',
-			output: 'import * as x from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -657,7 +808,6 @@ test({
 		},
 		{
 			code: 'import {x as y} from "namespace"',
-			output: 'import * as y from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -670,7 +820,6 @@ test({
 		},
 		{
 			code: 'import {x} from "react"',
-			output: 'import * as React from "react"',
 			options: [{
 				styles: {
 					react: {
@@ -684,6 +833,618 @@ test({
 				data: {
 					allowedStyles: 'namespace',
 					moduleName: 'react',
+				},
+			}],
+		},
+		{
+			code: 'import {useState, useEffect} from "react"',
+			options: [{
+				styles: {
+					react: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react',
+				},
+			}],
+		},
+		{
+			code: 'import {render} from "react-dom"',
+			options: [{
+				styles: {
+					'react-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-dom',
+				},
+			}],
+		},
+		{
+			code: 'import {Route, Switch} from "react-router"',
+			options: [{
+				styles: {
+					'react-router': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-router',
+				},
+			}],
+		},
+		{
+			code: 'import {BrowserRouter} from "react-router-dom"',
+			options: [{
+				styles: {
+					'react-router-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-router-dom',
+				},
+			}],
+		},
+		{
+			code: 'import {string, number} from "prop-types"',
+			options: [{
+				styles: {
+					'prop-types': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'prop-types',
+				},
+			}],
+		},
+		{
+			code: 'const {useState, useEffect} = require("react")',
+			options: [{
+				styles: {
+					react: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react',
+				},
+			}],
+		},
+		{
+			code: 'const {render} = require("react-dom")',
+			options: [{
+				styles: {
+					'react-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-dom',
+				},
+			}],
+		},
+		{
+			code: 'const {Route, Switch} = require("react-router")',
+			options: [{
+				styles: {
+					'react-router': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-router',
+				},
+			}],
+		},
+		{
+			code: 'const {BrowserRouter} = require("react-router-dom")',
+			options: [{
+				styles: {
+					'react-router-dom': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-router-dom',
+				},
+			}],
+		},
+		{
+			code: 'const {string, number} = require("prop-types")',
+			options: [{
+				styles: {
+					'prop-types': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'prop-types',
+				},
+			}],
+		},
+		{
+			code: 'import {map} from "lodash"',
+			options: [{
+				styles: {
+					lodash: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'lodash',
+				},
+			}],
+		},
+		{
+			code: 'const {map} = require("lodash")',
+			options: [{
+				styles: {
+					lodash: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'lodash',
+				},
+			}],
+		},
+		{
+			code: 'import {map} from "lodash-es"',
+			options: [{
+				styles: {
+					'lodash-es': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'lodash-es',
+				},
+			}],
+		},
+		{
+			code: 'const {map} = require("lodash-es")',
+			options: [{
+				styles: {
+					'lodash-es': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'lodash-es',
+				},
+			}],
+		},
+		{
+			code: 'import {$} from "jquery"',
+			options: [{
+				styles: {
+					jquery: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'jquery',
+				},
+			}],
+		},
+		{
+			code: 'const {$} = require("jquery")',
+			options: [{
+				styles: {
+					jquery: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'jquery',
+				},
+			}],
+		},
+		{
+			code: 'import {css} from "styled-components"',
+			options: [{
+				styles: {
+					'styled-components': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'styled-components',
+				},
+			}],
+		},
+		{
+			code: 'const {css} = require("styled-components")',
+			options: [{
+				styles: {
+					'styled-components': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'styled-components',
+				},
+			}],
+		},
+		{
+			code: 'import {createStore} from "redux"',
+			options: [{
+				styles: {
+					redux: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'redux',
+				},
+			}],
+		},
+		{
+			code: 'const {createStore} = require("redux")',
+			options: [{
+				styles: {
+					redux: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'redux',
+				},
+			}],
+		},
+		{
+			code: 'import {connect} from "react-redux"',
+			options: [{
+				styles: {
+					'react-redux': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-redux',
+				},
+			}],
+		},
+		{
+			code: 'const {connect} = require("react-redux")',
+			options: [{
+				styles: {
+					'react-redux': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'react-redux',
+				},
+			}],
+		},
+		{
+			code: 'import {get} from "axios"',
+			options: [{
+				styles: {
+					axios: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'axios',
+				},
+			}],
+		},
+		{
+			code: 'const {get} = require("axios")',
+			options: [{
+				styles: {
+					axios: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'axios',
+				},
+			}],
+		},
+		{
+			code: 'import {format} from "date-fns"',
+			options: [{
+				styles: {
+					'date-fns': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'date-fns',
+				},
+			}],
+		},
+		{
+			code: 'const {format} = require("date-fns")',
+			options: [{
+				styles: {
+					'date-fns': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'date-fns',
+				},
+			}],
+		},
+		{
+			code: 'import {map} from "ramda"',
+			options: [{
+				styles: {
+					ramda: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'ramda',
+				},
+			}],
+		},
+		{
+			code: 'const {map} = require("ramda")',
+			options: [{
+				styles: {
+					ramda: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'ramda',
+				},
+			}],
+		},
+		{
+			code: 'import {Observable} from "rxjs"',
+			options: [{
+				styles: {
+					rxjs: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'rxjs',
+				},
+			}],
+		},
+		{
+			code: 'const {Observable} = require("rxjs")',
+			options: [{
+				styles: {
+					rxjs: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'rxjs',
+				},
+			}],
+		},
+		{
+			code: 'import {ref} from "vue"',
+			options: [{
+				styles: {
+					vue: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'vue',
+				},
+			}],
+		},
+		{
+			code: 'const {ref} = require("vue")',
+			options: [{
+				styles: {
+					vue: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'vue',
+				},
+			}],
+		},
+		{
+			code: 'import {Component} from "angular"',
+			options: [{
+				styles: {
+					angular: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'angular',
+				},
+			}],
+		},
+		{
+			code: 'const {Component} = require("angular")',
+			options: [{
+				styles: {
+					angular: {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'angular',
 				},
 			}],
 		},
