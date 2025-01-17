@@ -106,7 +106,11 @@ const create = context => {
 						yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
 					},
 				});
-			} else if (referenceConstructors.has(right.name)) {
+
+				return;
+			}
+
+			if (referenceConstructors.has(right.name)) {
 				if (right.name === 'Array') {
 					context.report({
 						node,
@@ -122,7 +126,11 @@ const create = context => {
 							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 						},
 					});
-				} else if (right.name === 'Error' && shippedProposals) {
+
+					return;
+				}
+
+				if (right.name === 'Error' && shippedProposals) {
 					context.report({
 						node,
 						messageId: MESSAGE_ID,
@@ -137,9 +145,11 @@ const create = context => {
 							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 						},
 					});
-				} else {
-					context.report({node, messageId: MESSAGE_ID});
+
+					return;
 				}
+
+				context.report({node, messageId: MESSAGE_ID});
 			}
 		},
 	};
