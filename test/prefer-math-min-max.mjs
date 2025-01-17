@@ -12,6 +12,13 @@ test.snapshot({
 		// Ignore bigint
 		'foo > 10n ? 10n : foo',
 		'foo > BigInt(10) ? BigInt(10) : foo',
+
+		// Ignore when you know it is a string
+		outdent`
+			function foo(a = 'string', b) {
+			  return a > b ? a : b;
+			}
+		`,
 	],
 	invalid: [
 		// Prefer `Math.min()`

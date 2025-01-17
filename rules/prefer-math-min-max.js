@@ -104,9 +104,10 @@ const create = context => ({
 				const variable = context.sourceCode.getScope(expressionNode).variables.find(variable => variable.name === expressionNode.name);
 
 				for (const definition of variable?.defs ?? []) {
-					const identifier = definition.name;
 					switch (definition.type) {
 						case 'Parameter': {
+							const identifier = definition.name;
+
 							/**
 							* Capture the following statement
 							* ```js
@@ -114,6 +115,16 @@ const create = context => ({
 							* ```
 							*/
 							if (identifier.typeAnnotation?.type === 'TSTypeAnnotation' && !isNumberTypeAnnotation(identifier.typeAnnotation)) {
+								return;
+							}
+
+							/**
+							* Capture the following statement
+							* ```js
+							* function foo(a = 10) {}
+							* ```
+							*/
+							if (identifier.parent.type === 'AssignmentPattern' && identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number') {
 								return;
 							}
 
