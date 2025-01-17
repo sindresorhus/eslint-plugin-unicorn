@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {getTester} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
@@ -76,5 +76,87 @@ test.snapshot({
 		'export default+foo > 10 ? 10 : +foo',
 
 		'foo.length > bar.length ? bar.length : foo.length',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		outdent`
+			function foo(a, b) {
+				return (a as bigint) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as string) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a: string, b) {
+				return a > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b: string) {
+				return a > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a: bigint, b: bigint) {
+				return a > b ? a : b;
+			}
+		`,
+		outdent`
+			var foo = 10;
+			var bar = '20';
+
+			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			var foo = 10;
+			var bar: string;
+
+			var value = foo > bar ? bar : foo;
+		`,
+	],
+	invalid: [
+		outdent`
+			function foo(a, b) {
+				return (a as number) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as number) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as unknown as number) > b ? a : b;
+			}
+		`,
+
+		outdent`
+			var foo = 10;
+
+			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			var foo = 10;
+			var bar = 20;
+
+			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			var foo: number;
+			var bar: number;
+
+			var value = foo > bar ? bar : foo;
+		`,
 	],
 });

@@ -7,6 +7,32 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
 };
 
+const isNumberTypeAnnotation = typeAnnotation => {
+	if (typeAnnotation.type === 'TSNumberKeyword') {
+		return true;
+	}
+
+	if (typeAnnotation.type === 'TSTypeAnnotation' && typeAnnotation.typeAnnotation.type === 'TSNumberKeyword') {
+		return true;
+	}
+
+	if (typeAnnotation.type === 'TSTypeReference' && typeAnnotation.typeName.name === 'Number') {
+		return true;
+	}
+
+	return false;
+};
+
+const getExpressionText = (node, sourceCode) => {
+	const expressionNode = node.type === 'TSAsExpression' ? node.expression : node;
+
+	if (node.type === 'TSAsExpression') {
+		return getExpressionText(expressionNode, sourceCode);
+	}
+
+	return sourceCode.getText(expressionNode);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	/** @param {import('estree').ConditionalExpression} conditionalExpression */
@@ -33,7 +59,7 @@ const create = context => ({
 			return;
 		}
 
-		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(node));
+		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => getExpressionText(node, context.sourceCode));
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
 		const isLessOrEqual = operator === '<' || operator === '<=';
@@ -59,6 +85,74 @@ const create = context => ({
 
 		if (!method) {
 			return;
+		}
+
+		for (const node of [left, right]) {
+			let expressionNode = node;
+
+			if (expressionNode.typeAnnotation && expressionNode.type === 'TSAsExpression') {
+				// Ignore if the test is not a number comparison operator
+				if (!isNumberTypeAnnotation(expressionNode.typeAnnotation)) {
+					return;
+				}
+
+				expressionNode = expressionNode.expression;
+			}
+
+			// Find variable declaration
+			if (expressionNode.type === 'Identifier') {
+				const variable = context.sourceCode.getScope(expressionNode).variables.find(variable => variable.name === expressionNode.name);
+
+				for (const definition of variable?.defs ?? []) {
+					const identifier = definition.name;
+					switch (definition.type) {
+						case 'Parameter': {
+							/**
+							* Capture the following statement
+							* ```js
+							* function foo(a: number) {}
+							* ```
+							*/
+							if (identifier.typeAnnotation?.type === 'TSTypeAnnotation' && !isNumberTypeAnnotation(identifier.typeAnnotation)) {
+								return;
+							}
+
+							break;
+						}
+
+						case 'Variable': {
+							/**
+							* @type {import('estree').VariableDeclarator}
+							*/
+							const variableDeclarator = definition.node;
+
+							/**
+							* Capture the following statement
+							* ```js
+							* var foo: number
+							* ```
+							*/
+							if (variableDeclarator.id.typeAnnotation?.type === 'TSTypeAnnotation' && !isNumberTypeAnnotation(variableDeclarator.id.typeAnnotation)) {
+								return;
+							}
+
+							/**
+							* Capture the following statement
+							* ```js
+							* var foo = 10
+							* ```
+							*/
+							if (variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number') {
+								return;
+							}
+
+							break;
+						}
+
+						default:
+					}
+				}
+			}
 		}
 
 		return {
