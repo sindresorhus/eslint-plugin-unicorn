@@ -52,6 +52,7 @@ const referenceConstructors = new Set([
 	'RegExp',
 
 	// Async and functions
+	'Function',
 	'Promise',
 	'Proxy',
 
@@ -83,6 +84,10 @@ const create = context => {
 				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 			}
 
+			if (!primitiveConstructors.has(right.name) && !referenceConstructors.has(right.name)) {
+				return;
+			}
+
 			if (primitiveConstructors.has(right.name) || right.name === 'Function') {
 				// Check if the node is in a Vue template expression
 				const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
@@ -110,47 +115,45 @@ const create = context => {
 				return;
 			}
 
-			if (referenceConstructors.has(right.name)) {
-				if (right.name === 'Array') {
-					context.report({
-						node,
-						messageId: MESSAGE_ID,
-						* fix(fixer) {
-							yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			if (right.name === 'Array') {
+				context.report({
+					node,
+					messageId: MESSAGE_ID,
+					* fix(fixer) {
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
-							const range = getParenthesizedRange(left, tokenStore);
-							yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
-							yield fixer.insertTextAfterRange(range, ')');
+						const range = getParenthesizedRange(left, tokenStore);
+						yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
+						yield fixer.insertTextAfterRange(range, ')');
 
-							yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-						},
-					});
+						yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+						yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+					},
+				});
 
-					return;
-				}
-
-				if (right.name === 'Error' && shippedProposals) {
-					context.report({
-						node,
-						messageId: MESSAGE_ID,
-						* fix(fixer) {
-							yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-
-							const range = getParenthesizedRange(left, tokenStore);
-							yield fixer.insertTextBeforeRange(range, 'Error.isError(');
-							yield fixer.insertTextAfterRange(range, ')');
-
-							yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-							yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-						},
-					});
-
-					return;
-				}
-
-				context.report({node, messageId: MESSAGE_ID});
+				return;
 			}
+
+			if (right.name === 'Error' && shippedProposals) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID,
+					* fix(fixer) {
+						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+						const range = getParenthesizedRange(left, tokenStore);
+						yield fixer.insertTextBeforeRange(range, 'Error.isError(');
+						yield fixer.insertTextAfterRange(range, ')');
+
+						yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+						yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+					},
+				});
+
+				return;
+			}
+
+			context.report({node, messageId: MESSAGE_ID});
 		},
 	};
 };
