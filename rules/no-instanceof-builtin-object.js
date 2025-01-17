@@ -71,15 +71,15 @@ const create = context => {
 	return {
 		/** @param {import('estree').BinaryExpression} node */
 		'BinaryExpression[operator="instanceof"]'(node) {
-			if (node.right.type !== 'Identifier') {
+			const {left, right} = node;
+
+			if (right.type !== 'Identifier') {
 				return;
 			}
 
 			if (!primitiveConstructors.has(right.name) && !referenceConstructors.has(right.name)) {
 				return;
 			}
-
-			const {left, right} = node;
 
 			let tokenStore = sourceCode;
 			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
