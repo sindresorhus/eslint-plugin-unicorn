@@ -172,7 +172,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description:
-				'Prefer class field declarations over assigning static values in constructor using `this`.',
+				'Prefer class field declarations over `this` assignments in constructor',
 			recommended: true,
 		},
 		fixable: 'code',
