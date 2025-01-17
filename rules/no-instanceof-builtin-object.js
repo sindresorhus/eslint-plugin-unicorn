@@ -75,6 +75,10 @@ const create = context => {
 				return;
 			}
 
+			if (!primitiveConstructors.has(right.name) && !referenceConstructors.has(right.name)) {
+				return;
+			}
+
 			const {left, right} = node;
 
 			let tokenStore = sourceCode;
@@ -82,10 +86,6 @@ const create = context => {
 			if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
 				tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
 				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-			}
-
-			if (!primitiveConstructors.has(right.name) && !referenceConstructors.has(right.name)) {
-				return;
 			}
 
 			if (primitiveConstructors.has(right.name) || right.name === 'Function') {
