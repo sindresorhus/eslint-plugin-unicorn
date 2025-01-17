@@ -428,10 +428,12 @@ test({
 		},
 		{
 			code: 'import {x} from \'namespace\'',
+			output: 'import * as x from "namespace"',
 			errors: [namespaceError],
 		},
 		{
 			code: 'import {x as y} from \'namespace\'',
+			output: 'import * as y from "namespace"',
 			errors: [namespaceError],
 		},
 		{
@@ -637,7 +639,6 @@ test({
 						named: false,
 					},
 				},
-				autoFix: true,
 			}],
 			errors: [namespaceError],
 		},
@@ -651,7 +652,6 @@ test({
 						named: false,
 					},
 				},
-				autoFix: true,
 			}],
 			errors: [namespaceError],
 		},
@@ -665,7 +665,6 @@ test({
 						named: false,
 					},
 				},
-				autoFix: true,
 			}],
 			errors: [namespaceError],
 		},
@@ -679,7 +678,6 @@ test({
 						named: false,
 					},
 				},
-				autoFix: true,
 			}],
 			errors: [{
 				messageId: 'importStyle',
@@ -688,19 +686,6 @@ test({
 					moduleName: 'react',
 				},
 			}],
-		},
-		{
-			code: 'import {x} from "namespace"',
-			options: [{
-				styles: {
-					namespace: {
-						namespace: true,
-						named: false,
-					},
-				},
-				autoFix: false,
-			}],
-			errors: [namespaceError],
 		},
 	].map(test => addDefaultOptions(test)),
 });

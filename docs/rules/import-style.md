@@ -101,19 +101,3 @@ Type: `boolean`\
 Default: `true`
 
 Pass `"checkRequire": false` to disable linting of `require` calls completely.
-
-### autoFix
-
-Type: `boolean`\
-Default: `true`
-
-Pass `"autoFix": false` to disable automatic fixing of import styles. When disabled, the rule will only report violations without attempting to fix them.
-
-```js
-"unicorn/import-style": [
-	"error",
-	{
-		"autoFix": false
-	}
-]
-```

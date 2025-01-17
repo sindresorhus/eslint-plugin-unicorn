@@ -137,7 +137,6 @@ const create = context => {
 			checkDynamicImport = true,
 			checkExportFrom = false,
 			checkRequire = true,
-			autoFix = false,
 		} = {},
 	] = context.options;
 
@@ -184,9 +183,6 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			data,
 			fix(fixer) {
-				if (!autoFix) {
-					return;
-				}
 
 				if (node.type === 'ImportDeclaration' && allowedImportStyles.has('namespace')) {
 					const importedNames = node.specifiers
@@ -339,9 +335,6 @@ const schema = {
 					type: 'boolean',
 				},
 				extendDefaultStyles: {
-					type: 'boolean',
-				},
-				autoFix: {
 					type: 'boolean',
 				},
 				styles: {
