@@ -23,7 +23,7 @@ class Foo {
 class MyError extends Error {
 	constructor(message: string) {
 		super(message);
-		this.name = "MyError";
+		this.name = 'MyError';
 	}
 }
 ```
@@ -36,6 +36,6 @@ class Foo {
 }
 
 class MyError extends Error {
-	name = "MyError"
+	name = 'MyError'
 }
 ```
