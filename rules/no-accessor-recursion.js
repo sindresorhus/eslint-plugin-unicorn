@@ -6,10 +6,8 @@ const messages = {
 };
 
 /**
- *
- * @param {import('eslint').Scope.Scope} scope
- * @returns
- */
+@param {import('eslint').Scope.Scope} scope
+*/
 const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
 
 /** @param {import('eslint').Rule.RuleContext} context */
