@@ -7,9 +7,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Using instanceof to determine the type of an object has [limitations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof#instanceof_and_multiple_realms).
+Using `instanceof` to determine the type of an object has [limitations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof#instanceof_and_multiple_realms).
 
-Therefore, it is recommended to use a safer method, like `Object.prototype.toString.call(foo)` or npm package [@sindresorhus/is](https://www.npmjs.com/package/@sindresorhus/is) to determine the type of object.
+Therefore, it is recommended to use a safer method, like `Object.prototype.toString.call(foo)` or the npm package [@sindresorhus/is](https://www.npmjs.com/package/@sindresorhus/is) to determine the type of an object.
 
 ## Examples
 
@@ -46,7 +46,7 @@ Array.isArray(foo); // ✅
 Type: `boolean`\
 Default: `false`
 
-You can specify to use [Error.isError](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
+You can specify to use [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
