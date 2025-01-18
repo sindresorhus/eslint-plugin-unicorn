@@ -74,6 +74,18 @@ test.snapshot({
 				}
 			};
 		`,
+		// Nest getter
+		outdent`
+			const foo = {
+				get bar() {
+					const qux = {
+						get quux () {
+							return this.bar;
+						}
+					}
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
