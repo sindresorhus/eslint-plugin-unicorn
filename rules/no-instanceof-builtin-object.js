@@ -73,6 +73,12 @@ const create = context => {
 				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 			}
 
+			/** @type {import('eslint').Rule.ReportDescriptor} */
+			const problem = {
+				node,
+				messageId: MESSAGE_ID,
+			};
+
 			if (primitiveConstructors.has(right.name) || right.name === 'Function') {
 				// Check if the node is in a Vue template expression
 				const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
@@ -80,49 +86,41 @@ const create = context => {
 				// Get safe quote
 				const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
 
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				problem.fix = function * (fixer) {
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
-						const leftRange = getParenthesizedRange(left, tokenStore);
-						yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+					const leftRange = getParenthesizedRange(left, tokenStore);
+					yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
 
-						yield fixer.replaceText(instanceofToken, '===');
+					yield fixer.replaceText(instanceofToken, '===');
 
-						const rightRange = getParenthesizedRange(right, tokenStore);
+					const rightRange = getParenthesizedRange(right, tokenStore);
 
-						yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
-					},
-				});
+					yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
+				};
 
-				return;
+				return problem;
 			}
 
 			const isArray = right.name === 'Array';
 			const isError = right.name === 'Error';
 
 			if (isArray || (isError && useErrorIsError)) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				problem.fix = function * (fixer) {
+					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
-						const range = getParenthesizedRange(left, tokenStore);
-						yield fixer.insertTextBeforeRange(range, isArray ? 'Array.isArray(' : 'Error.isError(');
-						yield fixer.insertTextAfterRange(range, ')');
+					const range = getParenthesizedRange(left, tokenStore);
+					yield fixer.insertTextBeforeRange(range, isArray ? 'Array.isArray(' : 'Error.isError(');
+					yield fixer.insertTextAfterRange(range, ')');
 
-						yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-						yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-					},
-				});
+					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+				};
 
-				return;
+				return problem;
 			}
 
-			context.report({node, messageId: MESSAGE_ID});
+			return problem;
 		},
 	};
 };
