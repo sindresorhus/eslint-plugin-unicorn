@@ -109,20 +109,22 @@ const create = context => ({
 							const identifier = definition.name;
 
 							/**
-							* Capture the following statement
-							* ```js
-							* function foo(a: number) {}
-							* ```
+							Capture the following statement
+
+							```js
+							function foo(a: number) {}
+							```
 							*/
 							if (identifier.typeAnnotation?.type === 'TSTypeAnnotation' && !isNumberTypeAnnotation(identifier.typeAnnotation)) {
 								return;
 							}
 
 							/**
-							* Capture the following statement
-							* ```js
-							* function foo(a = 10) {}
-							* ```
+							Capture the following statement
+
+							```js
+							function foo(a = 10) {}
+							```
 							*/
 							if (identifier.parent.type === 'AssignmentPattern' && identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number') {
 								return;
@@ -132,26 +134,26 @@ const create = context => ({
 						}
 
 						case 'Variable': {
-							/**
-							* @type {import('estree').VariableDeclarator}
-							*/
+							/** @type {import('estree').VariableDeclarator}  */
 							const variableDeclarator = definition.node;
 
 							/**
-							* Capture the following statement
-							* ```js
-							* var foo: number
-							* ```
+							Capture the following statement
+
+							```js
+							var foo: number
+							```
 							*/
 							if (variableDeclarator.id.typeAnnotation?.type === 'TSTypeAnnotation' && !isNumberTypeAnnotation(variableDeclarator.id.typeAnnotation)) {
 								return;
 							}
 
 							/**
-							* Capture the following statement
-							* ```js
-							* var foo = 10
-							* ```
+							Capture the following statement
+
+							```js
+							var foo = 10
+							```
 							*/
 							if (variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number') {
 								return;
