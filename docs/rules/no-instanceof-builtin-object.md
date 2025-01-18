@@ -41,25 +41,18 @@ Array.isArray(foo); // ✅
 
 ## Options
 
-### shippedProposals
+### useErrorIsError
 
 Type: `boolean`\
 Default: `false`
 
-You can specify a fix using a proposal that is still at stage 3, but is already implemented in some environments.
-
-eg.
-
-```diff
-- foo instanceof Error
-+ Error.isError(foo)
-```
+You can specify to use [Error.isError](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
 	"error",
 	{
-		"shippedProposals": true
+		"useErrorIsError": true
 	}
 ]
 ```
