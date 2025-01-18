@@ -100,7 +100,10 @@ const create = context => {
 				return;
 			}
 
-			if (right.name === 'Array') {
+			const isArray = right.name === 'Array';
+			const isError = right.name === 'Error';
+
+			if (isArray || (isError && useErrorIsError)) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
@@ -108,26 +111,7 @@ const create = context => {
 						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
 						const range = getParenthesizedRange(left, tokenStore);
-						yield fixer.insertTextBeforeRange(range, 'Array.isArray(');
-						yield fixer.insertTextAfterRange(range, ')');
-
-						yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-						yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-					},
-				});
-
-				return;
-			}
-
-			if (right.name === 'Error' && useErrorIsError) {
-				context.report({
-					node,
-					messageId: MESSAGE_ID,
-					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-
-						const range = getParenthesizedRange(left, tokenStore);
-						yield fixer.insertTextBeforeRange(range, 'Error.isError(');
+						yield fixer.insertTextBeforeRange(range, isArray ? 'Array.isArray(' : 'Error.isError(');
 						yield fixer.insertTextAfterRange(range, ')');
 
 						yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
