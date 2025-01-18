@@ -53,7 +53,7 @@ test.snapshot({
 	invalid: [
 		'foo instanceof Error',
 		'(foo) instanceof (Error)',
-	].map(code => ({code, options: [{shippedProposals: true}]})),
+	].map(code => ({code, options: [{useErrorIsError: true}]})),
 });
 
 // Port from no-instanceof-array

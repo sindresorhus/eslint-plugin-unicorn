@@ -65,7 +65,7 @@ const referenceConstructors = new Set([
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {shippedProposals = false} = context.options[0] ?? {};
+	const {useErrorIsError = false} = context.options[0] ?? {};
 	const {sourceCode} = context;
 
 	return {
@@ -134,7 +134,7 @@ const create = context => {
 				return;
 			}
 
-			if (right.name === 'Error' && shippedProposals) {
+			if (right.name === 'Error' && useErrorIsError) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID,
@@ -162,7 +162,7 @@ const schema = [
 	{
 		type: 'object',
 		properties: {
-			shippedProposals: {
+			useErrorIsError: {
 				type: 'boolean',
 			},
 		},
@@ -181,7 +181,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{shippedProposals: false}],
+		defaultOptions: [{useErrorIsError: false}],
 		messages,
 	},
 };
