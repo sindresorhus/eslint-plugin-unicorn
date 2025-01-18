@@ -34,13 +34,13 @@ body:
         ```js
         // ❌
         function foo() {
-          var replace = 'me';
-          return replace;
+        	var replace = 'me';
+        	return replace;
         }
 
         // ✅
         function foo() {
-          return 'me';
+        	return 'me';
         }
         ```
   - type: input
