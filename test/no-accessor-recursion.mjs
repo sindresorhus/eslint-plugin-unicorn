@@ -6,7 +6,16 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'function foo () { this.bar }',
+		'function foo () { this.foo }',
 		'function foo (value) { this.bar = value }',
+		'this.foo = foo',
+		outdent`
+			{
+				this.foo = foo;		
+			}
+		`,
+		'this.foo = function () { this.foo }',
+		'const foo = () => this.foo',
 		outdent`
 			const foo = {
 				bar() {
