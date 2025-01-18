@@ -2,7 +2,7 @@
 
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Disallow recursive access to this within getter and setter',
+	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within getters and setters.',
 };
 
 /**
@@ -92,7 +92,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow recursive access to this within getter and setter',
+			description: 'Disallow recursive access to `this` within getters and setters.',
 			recommended: true,
 		},
 		defaultOptions: [],
