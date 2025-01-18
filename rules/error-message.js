@@ -103,3 +103,5 @@ module.exports = {
 		messages,
 	},
 };
+
+module.exports.builtinErrors = builtinErrors;

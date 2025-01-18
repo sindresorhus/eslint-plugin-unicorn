@@ -2,6 +2,8 @@
 const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
+const {builtinErrors} = require('./error-message.js');
+const typedArray = require('./shared/typed-array.js');
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -14,14 +16,7 @@ const primitiveConstructors = new Set(['String', 'Number', 'Boolean', 'BigInt', 
 
 const referenceConstructors = new Set([
 	// Error types
-	'AggregateError',
-	'Error',
-	'EvalError',
-	'RangeError',
-	'ReferenceError',
-	'SyntaxError',
-	'TypeError',
-	'URIError',
+	...builtinErrors,
 
 	// Collection types
 	'Map',
@@ -33,17 +28,7 @@ const referenceConstructors = new Set([
 	// Arrays and Typed Arrays
 	'Array',
 	'ArrayBuffer',
-	'BigInt64Array',
-	'BigUint64Array',
-	'Float32Array',
-	'Float64Array',
-	'Int16Array',
-	'Int32Array',
-	'Int8Array',
-	'Uint16Array',
-	'Uint32Array',
-	'Uint8Array',
-	'Uint8ClampedArray',
+	...typedArray,
 
 	// Data types
 	'Object',
