@@ -1,4 +1,3 @@
-'use strict';
 const {checkVueTemplate} = require('./utils/rule.js');
 const {getParenthesizedRange} = require('./utils/parentheses.js');
 const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
@@ -197,7 +196,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'problem',
@@ -216,3 +215,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
