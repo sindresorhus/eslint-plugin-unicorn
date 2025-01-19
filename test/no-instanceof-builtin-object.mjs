@@ -107,6 +107,35 @@ test.snapshot({
 	].map(code => ({code, options: [{useErrorIsError: true, strategy: 'strict'}]})),
 });
 
+test.snapshot({
+	valid: [
+		// Exclude the specified constructors
+		{
+			code: 'fooExclude instanceof Function',
+			options: [{exclude: ['Function']}],
+		},
+		{
+			code: 'fooExclude instanceof Array',
+			options: [{exclude: ['Array']}],
+		},
+		{
+			code: 'fooExclude instanceof String',
+			options: [{exclude: ['String']}],
+		},
+	],
+	invalid: [
+		// Include the specified constructors
+		{
+			code: 'fooInclude instanceof WebWorker',
+			options: [{include: ['WebWorker']}],
+		},
+		{
+			code: 'fooInclude instanceof HTMLElement',
+			options: [{include: ['HTMLElement']}],
+		},
+	],
+});
+
 // Port from no-instanceof-array
 test.snapshot({
 	valid: [

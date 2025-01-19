@@ -51,6 +51,47 @@ Set the matching strategy.
 - `'loose'` - Matches the primitive(`string`/`number`/`boolean`/`bigint`/`symbol`) constructor and `Function` and `Array`.
 - `'strict'` - Matches the all built-in constructor.
 
+```js
+"unicorn/no-instanceof-builtin-object": [
+	"error",
+	{
+		"strategy": 'strict'
+	}
+]
+```
+
+### include
+
+type: `string[]`\
+Default: `[]`
+
+You can specify the built-in constructor to include.
+
+```js
+"unicorn/no-instanceof-builtin-object": [
+	"error",
+	{
+		"include": ["WebWorker", "HTMLElement"]
+	}
+]
+```
+
+### exclude
+
+type: `string[]`\
+Default: `[]`
+
+You can specify the built-in constructor to exclude.
+
+```js
+"unicorn/no-instanceof-builtin-object": [
+	"error",
+	{
+		"exclude": ["String", "Number"]
+	}
+]
+```
+
 ### useErrorIsError
 
 Type: `boolean`\
@@ -69,3 +110,5 @@ This option requires `strategy: 'strict'`.
 	}
 ]
 ```
+
+This option will be removed at some point in the future.

@@ -95,7 +95,7 @@ const getInstanceOfToken = (sourceCode, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {useErrorIsError = false, strategy = 'loose'} = context.options[0] ?? {};
+	const {useErrorIsError = false, strategy = 'loose', include = [], exclude = []} = context.options[0] ?? {};
 	const {sourceCode} = context;
 
 	return {
@@ -103,11 +103,11 @@ const create = context => {
 		'BinaryExpression[operator="instanceof"]'(node) {
 			const {right} = node;
 
-			if (right.type !== 'Identifier') {
+			if (right.type !== 'Identifier' || exclude.includes(right.name)) {
 				return;
 			}
 
-			if (!looseStrategyConstructors.has(right.name) && !strictStrategyConstructors.has(right.name)) {
+			if (!looseStrategyConstructors.has(right.name) && !strictStrategyConstructors.has(right.name) && !include.includes(right.name)) {
 				return;
 			}
 
@@ -136,7 +136,7 @@ const create = context => {
 				return problem;
 			}
 
-			if (strategy !== 'strict') {
+			if (strategy !== 'strict' && include.length === 0) {
 				return;
 			}
 
@@ -165,6 +165,18 @@ const schema = [
 					'strict',
 				],
 			},
+			include: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+			exclude: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
 		},
 		additionalProperties: false,
 	},
@@ -181,7 +193,9 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{useErrorIsError: false, strategy: 'loose'}],
+		defaultOptions: [{
+			useErrorIsError: false, strategy: 'loose', include: [], exclude: [],
+		}],
 		messages,
 	},
 };
