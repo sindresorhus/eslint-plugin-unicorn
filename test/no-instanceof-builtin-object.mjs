@@ -17,12 +17,15 @@ const looseStrategyInvalid = [
 
 const strictStrategyInvalid = [
 	// Error types
+	'foo instanceof Error',
 	'foo instanceof EvalError',
 	'foo instanceof RangeError',
 	'foo instanceof ReferenceError',
 	'foo instanceof SyntaxError',
 	'foo instanceof TypeError',
 	'foo instanceof URIError',
+	'foo instanceof InternalError',
+	'foo instanceof AggregateError',
 
 	// Collection types
 	'foo instanceof Map',
@@ -96,14 +99,15 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		outdent`
-			/** useErrorIsError option without strict strategy */
-			foo instanceof Error
-		`,
-		outdent`
-			/** useErrorIsError option without strict strategy */
-			(foo) instanceof (Error)
-		`,
+		'err instanceof Error',
+		'err instanceof EvalError',
+		'err instanceof RangeError',
+		'err instanceof ReferenceError',
+		'err instanceof SyntaxError',
+		'err instanceof TypeError',
+		'err instanceof URIError',
+		'err instanceof InternalError',
+		'err instanceof AggregateError',
 	].map(code => ({code, options: [{useErrorIsError: true, strategy: 'strict'}]})),
 });
 
