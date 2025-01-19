@@ -20,33 +20,27 @@ body:
     validations:
       required: true
     attributes:
-      label: Fail
-      description: Specify examples of code that should be detected
+      label: Examples
+      description: Provide examples of code to detect and the acceptable alternatives.
       value: |
         ```js
+        // ❌
         var replace = 'me';
-        ```
 
-        ```js
-        function foo() {
-          var replace = 'me';
-          return replace;
-        }
-        ```
-  - type: textarea
-    validations:
-      required: true
-    attributes:
-      label: Pass
-      description: Specify examples of code that would be accepted in its place
-      value: |
-        ```js
+        // ✅
         const replace = 'me';
         ```
 
         ```js
+        // ❌
         function foo() {
-          return 'me';
+        	var replace = 'me';
+        	return replace;
+        }
+
+        // ✅
+        function foo() {
+        	return 'me';
         }
         ```
   - type: input
