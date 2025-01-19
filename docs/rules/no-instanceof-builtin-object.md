@@ -41,6 +41,16 @@ Array.isArray(foo); // ✅
 
 ## Options
 
+### strategy
+
+type: `'loose' | 'strict'`\
+Default: `'loose'`
+
+Set the matching strategy.
+
+- `'loose'` - Matches the primitive(`string`/`number`/`boolean`/`bigint`/`symbol`) constructor and `Function` and `Array`.
+- `'strict'` - Matches the all built-in constructor.
+
 ### useErrorIsError
 
 Type: `boolean`\
@@ -48,10 +58,13 @@ Default: `false`
 
 You can specify to use [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
+This option requires `strategy: 'strict'`.
+
 ```js
 "unicorn/no-instanceof-builtin-object": [
 	"error",
 	{
+		"strategy": "strict",
 		"useErrorIsError": true
 	}
 ]

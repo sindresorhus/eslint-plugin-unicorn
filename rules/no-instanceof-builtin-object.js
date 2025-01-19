@@ -12,9 +12,9 @@ const messages = {
 	[MESSAGE_ID]: 'Unsafe instanceof should not be used to check type.',
 };
 
-const primitiveConstructors = new Set(['String', 'Number', 'Boolean', 'BigInt', 'Symbol']);
+const looseStrategyConstructors = new Set(['String', 'Number', 'Boolean', 'BigInt', 'Symbol', 'Array', 'Function']);
 
-const referenceConstructors = new Set([
+const strictStrategyConstructors = new Set([
 	// Error types
 	...builtinErrors,
 
@@ -26,7 +26,6 @@ const referenceConstructors = new Set([
 	'WeakSet',
 
 	// Arrays and Typed Arrays
-	'Array',
 	'ArrayBuffer',
 	...typedArray,
 
@@ -37,7 +36,6 @@ const referenceConstructors = new Set([
 	'RegExp',
 
 	// Async and functions
-	'Function',
 	'Promise',
 	'Proxy',
 
@@ -48,30 +46,72 @@ const referenceConstructors = new Set([
 	'FinalizationRegistry',
 ]);
 
+const fixByReplaceMethod = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}, method) {
+	const {left, right} = node;
+
+	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+	const range = getParenthesizedRange(left, tokenStore);
+	yield fixer.insertTextBeforeRange(range, method + '(');
+	yield fixer.insertTextAfterRange(range, ')');
+
+	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+};
+
+const fixByTypeof = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
+	const {left, right} = node;
+
+	// Check if the node is in a Vue template expression
+	const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
+
+	// Get safe quote
+	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
+
+	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+
+	const leftRange = getParenthesizedRange(left, tokenStore);
+	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+
+	yield fixer.replaceText(instanceofToken, '===');
+
+	const rightRange = getParenthesizedRange(right, tokenStore);
+
+	yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
+};
+
+const getInstanceOfToken = (sourceCode, node) => {
+	const {left} = node;
+
+	let tokenStore = sourceCode;
+	let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+	if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
+		tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
+		instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+	}
+
+	return {tokenStore, instanceofToken};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {useErrorIsError = false} = context.options[0] ?? {};
+	const {useErrorIsError = false, strategy = 'loose'} = context.options[0] ?? {};
 	const {sourceCode} = context;
 
 	return {
 		/** @param {import('estree').BinaryExpression} node */
 		'BinaryExpression[operator="instanceof"]'(node) {
-			const {left, right} = node;
+			const {right} = node;
 
 			if (right.type !== 'Identifier') {
 				return;
 			}
 
-			if (!primitiveConstructors.has(right.name) && !referenceConstructors.has(right.name)) {
+			if (!looseStrategyConstructors.has(right.name) && !strictStrategyConstructors.has(right.name)) {
 				return;
 			}
 
-			let tokenStore = sourceCode;
-			let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-			if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
-				tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
-				instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-			}
+			const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
 
 			/** @type {import('eslint').Rule.ReportDescriptor} */
 			const problem = {
@@ -79,45 +119,32 @@ const create = context => {
 				messageId: MESSAGE_ID,
 			};
 
-			if (primitiveConstructors.has(right.name) || right.name === 'Function') {
-				// Check if the node is in a Vue template expression
-				const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
+			// Loose strategy by default
+			if (looseStrategyConstructors.has(right.name)) {
+				if (right.name === 'Array') {
+					problem.fix = fixer => fixByReplaceMethod({
+						fixer, node, sourceCode, tokenStore, instanceofToken,
+					}, 'Array.isArray');
 
-				// Get safe quote
-				const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
+					return problem;
+				}
 
-				problem.fix = function * (fixer) {
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-
-					const leftRange = getParenthesizedRange(left, tokenStore);
-					yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
-
-					yield fixer.replaceText(instanceofToken, '===');
-
-					const rightRange = getParenthesizedRange(right, tokenStore);
-
-					yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
-				};
+				problem.fix = fixer => fixByTypeof({
+					fixer, node, sourceCode, tokenStore, instanceofToken,
+				});
 
 				return problem;
 			}
 
-			const isArray = right.name === 'Array';
-			const isError = right.name === 'Error';
+			if (strategy !== 'strict') {
+				return;
+			}
 
-			if (isArray || (isError && useErrorIsError)) {
-				problem.fix = function * (fixer) {
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
-
-					const range = getParenthesizedRange(left, tokenStore);
-					yield fixer.insertTextBeforeRange(range, isArray ? 'Array.isArray(' : 'Error.isError(');
-					yield fixer.insertTextAfterRange(range, ')');
-
-					yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-					yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
-				};
-
-				return problem;
+			// Strict strategy
+			if (right.name === 'Error' && useErrorIsError) {
+				problem.fix = fixer => fixByReplaceMethod({
+					fixer, node, sourceCode, tokenStore, instanceofToken,
+				}, 'Error.isError');
 			}
 
 			return problem;
@@ -131,6 +158,12 @@ const schema = [
 		properties: {
 			useErrorIsError: {
 				type: 'boolean',
+			},
+			strategy: {
+				enum: [
+					'loose',
+					'strict',
+				],
 			},
 		},
 		additionalProperties: false,
@@ -148,7 +181,7 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{useErrorIsError: false}],
+		defaultOptions: [{useErrorIsError: false, strategy: 'loose'}],
 		messages,
 	},
 };

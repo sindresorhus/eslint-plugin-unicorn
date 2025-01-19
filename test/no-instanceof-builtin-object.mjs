@@ -4,56 +4,107 @@ import {getTester, parsers} from './utils/test.mjs';
 
 const {test} = getTester(import.meta);
 
+const looseStrategyInvalid = [
+	// Primitive types
+	'foo instanceof String',
+	'foo instanceof Number',
+	'foo instanceof Boolean',
+	'foo instanceof BigInt',
+	'foo instanceof Symbol',
+	'foo instanceof Function',
+	'foo instanceof Array',
+];
+
+const strictStrategyInvalid = [
+	// Error types
+	'foo instanceof EvalError',
+	'foo instanceof RangeError',
+	'foo instanceof ReferenceError',
+	'foo instanceof SyntaxError',
+	'foo instanceof TypeError',
+	'foo instanceof URIError',
+
+	// Collection types
+	'foo instanceof Map',
+	'foo instanceof Set',
+	'foo instanceof WeakMap',
+	'foo instanceof WeakRef',
+	'foo instanceof WeakSet',
+
+	// Arrays and Typed Arrays
+	'foo instanceof ArrayBuffer',
+	'foo instanceof Int8Array',
+	'foo instanceof Uint8Array',
+	'foo instanceof Uint8ClampedArray',
+	'foo instanceof Int16Array',
+	'foo instanceof Uint16Array',
+	'foo instanceof Int32Array',
+	'foo instanceof Uint32Array',
+	'foo instanceof Float32Array',
+	'foo instanceof Float64Array',
+	'foo instanceof BigInt64Array',
+	'foo instanceof BigUint64Array',
+
+	// Data types
+	'foo instanceof Object',
+
+	// Regular Expressions
+	'foo instanceof RegExp',
+
+	// Async and functions
+	'foo instanceof Promise',
+	'foo instanceof Proxy',
+
+	// Other
+	'foo instanceof DataView',
+	'foo instanceof Date',
+	'foo instanceof SharedArrayBuffer',
+	'foo instanceof FinalizationRegistry',
+];
+
+// Loose strategy
 test.snapshot({
 	valid: [
-		// The global object that not define in ECMAScript
-		'foo instanceof Worker',
-	],
-	invalid: [
-		// Primitive types
-		'foo instanceof String',
-		'foo instanceof Number',
-		'foo instanceof Boolean',
-		'foo instanceof BigInt',
-		'foo instanceof Symbol',
-
-		// Reference types
-		'foo instanceof Object',
-		'foo instanceof Function',
-		'foo instanceof RegExp',
-		'foo instanceof Date',
-		'foo instanceof Error',
-		'foo instanceof Promise',
-		'foo instanceof Map',
-		'foo instanceof Set',
-		'foo instanceof WeakMap',
-		'foo instanceof WeakSet',
-		'foo instanceof ArrayBuffer',
-		'foo instanceof SharedArrayBuffer',
-		'foo instanceof DataView',
-		'foo instanceof Array',
-
-		// Test comments
-		'foo /** before */ instanceof /** after */ String',
-
-		...[
-			'<template><div v-if="foo instanceof String"></div></template>',
-			'<template><div v-if=\'foo instanceof String\'></div></template>',
-			'<template><div v-if="(( (( foo )) instanceof (( String )) ))"></div></template>',
-			'<template><div>{{(( (( foo )) instanceof (( String )) )) ? foo : bar}}</div></template>',
-			'<script>const bar = foo instanceof String</script>',
-			'<script>const bar = (( (( foo )) instanceof (( String )) ))</script>',
-			'<script>foo instanceof Boolean</script>',
-		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
-	],
+		'foo instanceof WebWorker',
+		...strictStrategyInvalid,
+	].map(code => code.replace('foo', 'fooLoose')),
+	invalid: looseStrategyInvalid,
 });
 
+// Strict strategy
+test.snapshot({
+	valid: [],
+	invalid: [...looseStrategyInvalid, ...strictStrategyInvalid].map(code => ({code: code.replace('foo', 'fooStrict'), options: [{strategy: 'strict'}]})),
+});
+
+// UseErrorIsError option with loose strategy
+test.snapshot({
+	valid: [
+		outdent`
+			/** useErrorIsError option without loose strategy */
+			'foo instanceof Error'
+		`,
+		outdent`
+			/** useErrorIsError option without loose strategy */
+			'(foo) instanceof (Error)'
+		`,
+	].map(code => ({code, options: [{useErrorIsError: true, strategy: 'loose'}]})),
+	invalid: [],
+}, {options: [{useErrorIsError: true}]});
+
+// UseErrorIsError option with strict strategy
 test.snapshot({
 	valid: [],
 	invalid: [
-		'foo instanceof Error',
-		'(foo) instanceof (Error)',
-	].map(code => ({code, options: [{useErrorIsError: true}]})),
+		outdent`
+			/** useErrorIsError option without strict strategy */
+			foo instanceof Error
+		`,
+		outdent`
+			/** useErrorIsError option without strict strategy */
+			(foo) instanceof (Error)
+		`,
+	].map(code => ({code, options: [{useErrorIsError: true, strategy: 'strict'}]})),
 });
 
 // Port from no-instanceof-array
