@@ -102,7 +102,7 @@ Specify the constructors that should be validated.
 
 ### exclude
 
-type: `string[]`\
+Type: `string[]`\
 Default: `[]`
 
 Specifies the constructors that should be excluded, with this rule taking precedence over others.
@@ -124,7 +124,7 @@ Specifies the constructors that should be excluded, with this rule taking preced
 Type: `boolean`\
 Default: `false`
 
-You can specify to use [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
+Specifies using [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
 This option requires `strategy: 'strict'`.
 
