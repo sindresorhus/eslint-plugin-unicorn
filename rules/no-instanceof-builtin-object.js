@@ -12,7 +12,15 @@ const messages = {
 	[MESSAGE_ID]: 'Unsafe instanceof should not be used to check type.',
 };
 
-const looseStrategyConstructors = new Set(['String', 'Number', 'Boolean', 'BigInt', 'Symbol', 'Array', 'Function']);
+const looseStrategyConstructors = new Set([
+	'String',
+	'Number',
+	'Boolean',
+	'BigInt',
+	'Symbol',
+	'Array',
+	'Function'
+]);
 
 const strictStrategyConstructors = new Set([
 	// Error types
@@ -95,7 +103,13 @@ const getInstanceOfToken = (sourceCode, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {useErrorIsError = false, strategy = 'loose', include = [], exclude = []} = context.options[0] ?? {};
+	const {
+		useErrorIsError = false,
+		strategy = 'loose',
+		include = [],
+		exclude = []
+	} = context.options[0] ?? {};
+
 	const {sourceCode} = context;
 
 	return {
@@ -194,7 +208,10 @@ module.exports = {
 		fixable: 'code',
 		schema,
 		defaultOptions: [{
-			useErrorIsError: false, strategy: 'loose', include: [], exclude: [],
+			useErrorIsError: false,
+			strategy: 'loose',
+			include: [],
+			exclude: [],
 		}],
 		messages,
 	},
