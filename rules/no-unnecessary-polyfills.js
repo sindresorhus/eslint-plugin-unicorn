@@ -1,5 +1,5 @@
 import path from 'node:path';
-import readPkgUp from 'read-pkg-up';
+import {readPackageUpSync} from 'read-package-up';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from './utils/lodash.js';
 import isStaticRequire from './ast/is-static-require.js';
@@ -61,7 +61,7 @@ function getTargets(options, dirname) {
 	let packageResult;
 	try {
 		// It can fail if, for example, the package.json file has comments.
-		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
 	} catch {}
 
 	if (!packageResult) {

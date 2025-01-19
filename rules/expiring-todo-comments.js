@@ -1,5 +1,5 @@
 import path from 'node:path';
-import readPkgUp from 'read-pkg-up';
+import {readPackageUpSync} from 'read-package-up';
 import semver from 'semver';
 import * as ci from 'ci-info';
 import getBuiltinRule from './utils/get-builtin-rule.js';
@@ -55,7 +55,7 @@ function getPackageHelpers(dirname) {
 	/** @type {readPkgUp.ReadResult | undefined} */
 	let packageResult;
 	try {
-		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
 	} catch {
 		// This can happen if package.json files have comments in them etc.
 		packageResult = undefined;

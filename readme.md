@@ -201,7 +201,7 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.configs['flat/recommended'],
+		eslintPluginUnicorn.configs.recommended,
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -219,7 +219,7 @@ import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.configs['flat/all'],
+		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',

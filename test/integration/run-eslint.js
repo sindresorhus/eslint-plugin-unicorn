@@ -53,7 +53,7 @@ const sum = (collection, fieldName) =>
 
 const patterns = ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `**/*.${extension}`);
 const basicConfigs = [
-	eslintPluginUnicorn.configs['flat/all'],
+	eslintPluginUnicorn.configs.all,
 	{
 		rules: {
 			// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`

@@ -69,7 +69,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 
 test('validate configuration', async t => {
 	const results = await Promise.all(
-		Object.entries(eslintPluginUnicorn.configs).filter(([name]) => name.startsWith('flat/')).map(async ([name, config]) => {
+		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
 			const eslint = new FlatESLint({
 				baseConfig: config,
 				overrideConfigFile: true,

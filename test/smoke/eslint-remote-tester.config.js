@@ -38,7 +38,7 @@ const config = {
 
 	/** ESLint configuration */
 	eslintConfig: [
-		eslintPluginUnicorn.configs['flat/all'],
+		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
 				// This rule crashing on replace string inside `jsx` or `Unicode escape sequence`
