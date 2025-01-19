@@ -1,5 +1,4 @@
-'use strict';
-const getIndentString = require('./utils/get-indent-string.js');
+import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID = 'prefer-class-fields/error';
 const messages = {
@@ -166,7 +165,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -180,3 +179,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
