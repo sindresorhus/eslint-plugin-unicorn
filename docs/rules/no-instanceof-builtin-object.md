@@ -15,7 +15,37 @@ Therefore, it is recommended to use a safer method, like `Object.prototype.toStr
 
 ```js
 foo instanceof String; // ❌
-Object.prototype.toString.call(foo) === '[object String]'; // ✅
+typeof foo === 'string'; // ✅
+```
+
+```js
+foo instanceof Number; // ❌
+typeof foo === 'number'; // ✅
+```
+
+```js
+foo instanceof Boolean; // ❌
+typeof foo === 'boolean'; // ✅
+```
+
+```js
+foo instanceof BigInt; // ❌
+typeof foo === 'bigint'; // ✅
+```
+
+```js
+foo instanceof Symbol; // ❌
+typeof foo === 'symbol'; // ✅
+```
+
+```js
+foo instanceof Array; // ❌
+Array.isArray(foo); // ✅
+```
+
+```js
+foo instanceof Function; // ❌
+typeof foo === 'function'; // ✅
 ```
 
 ```js
@@ -24,19 +54,9 @@ Object.prototype.toString.call(foo) === '[object Object]'; // ✅
 ```
 
 ```js
-foo instanceof Date; // ❌
-Object.prototype.toString.call(foo) === '[object Date]'; // ✅
-```
-
-```js
 import is from '@sindresorhus/is';
 foo instanceof Map; // ❌
 is(foo) === 'Map'; // ✅
-```
-
-```js
-foo instanceof Array; // ❌
-Array.isArray(foo); // ✅
 ```
 
 ## Options
@@ -48,8 +68,8 @@ Default: `'loose'`
 
 Set the matching strategy.
 
-- `'loose'` - Matches the primitive(`string`/`number`/`boolean`/`bigint`/`symbol`) constructor and `Function` and `Array`.
-- `'strict'` - Matches the all built-in constructor.
+- `'loose'` - Matches the primitive type(`string`/`number`/`boolean`/`bigint`/`symbol`) constructor and `Function` and `Array`.
+- `'strict'` - Matches the all builtin constructor.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
