@@ -1,6 +1,5 @@
-'use strict';
-const {appendArgument} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {appendArgument} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
@@ -41,7 +40,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -53,3 +52,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

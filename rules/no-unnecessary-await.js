@@ -1,11 +1,7 @@
-'use strict';
-const {
-	addParenthesizesToReturnOrThrowExpression,
-	removeSpacesAfter,
-} = require('./fix/index.js');
-const {isParenthesized} = require('./utils/parentheses.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isOnSameLine = require('./utils/is-on-same-line.js');
+import {addParenthesizesToReturnOrThrowExpression, removeSpacesAfter} from './fix/index.js';
+import {isParenthesized} from './utils/parentheses.js';
+import needsSemicolon from './utils/needs-semicolon.js';
+import isOnSameLine from './utils/is-on-same-line.js';
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -93,7 +89,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -106,3 +102,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

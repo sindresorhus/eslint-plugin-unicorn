@@ -1,5 +1,3 @@
-'use strict';
-
 // https://github.com/eslint/espree/blob/6b7d0b8100537dcd5c84a7fb17bbe28edcabe05d/lib/token-translator.js#L20
 const tokenTypesNeedsSemicolon = new Set([
 	'String',
@@ -29,8 +27,7 @@ Determines if a semicolon needs to be inserted before `code`, in order to avoid 
 @param {String} [code] Code text to determine.
 @returns {boolean} `true` if a semicolon needs to be inserted before `code`.
 */
-
-function needsSemicolon(tokenBefore, sourceCode, code) {
+export default function needsSemicolon(tokenBefore, sourceCode, code) {
 	if (
 		code === ''
 		|| (code && !charactersMightNeedsSemicolon.has(code.charAt(0)))
@@ -110,5 +107,3 @@ function needsSemicolon(tokenBefore, sourceCode, code) {
 
 	return false;
 }
-
-module.exports = needsSemicolon;

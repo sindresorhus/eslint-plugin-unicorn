@@ -1,5 +1,3 @@
-'use strict';
-
 const getVendorPrefixedName = eventName => [
 	`webkit${eventName}`,
 	`o${eventName.toLowerCase()}`,
@@ -7,7 +5,7 @@ const getVendorPrefixedName = eventName => [
 ];
 
 // https://github.com/google/closure-library/blob/8782d8ba16ef2dd4a508d2081a6938f054fc60e8/closure/goog/events/eventtype.js#L44
-module.exports = new Set([
+const domEvents = new Set([
 	// Mouse events
 	'click',
 	'rightclick',
@@ -273,3 +271,5 @@ module.exports = new Set([
 	'open',
 	'show',
 ]);
+
+export default domEvents;

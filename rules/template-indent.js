@@ -1,14 +1,9 @@
-'use strict';
-const stripIndent = require('strip-indent');
-const indentString = require('indent-string');
-const esquery = require('esquery');
-const {replaceTemplateElement} = require('./fix/index.js');
-const {
-	isMethodCall,
-	isCallExpression,
-	isTaggedTemplateLiteral,
-} = require('./ast/index.js');
-const {isNodeMatches} = require('./utils/index.js');
+import stripIndent from 'strip-indent';
+import indentString from 'indent-string';
+import esquery from 'esquery';
+import {replaceTemplateElement} from './fix/index.js';
+import {isMethodCall, isCallExpression, isTaggedTemplateLiteral} from './ast/index.js';
+import {isNodeMatches} from './utils/index.js';
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -88,9 +83,9 @@ const create = context => {
 
 		const fixed
 			= eol
-			+ indentString(trimmed, 1, {indent: parentMargin + indent})
-			+ eol
-			+ parentMargin;
+				+ indentString(trimmed, 1, {indent: parentMargin + indent})
+				+ eol
+				+ parentMargin;
 
 		if (fixed === joined) {
 			return;
@@ -206,7 +201,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -220,3 +215,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

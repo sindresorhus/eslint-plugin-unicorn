@@ -1,5 +1,4 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
+import {getStaticValue} from '@eslint-community/eslint-utils';
 
 // Copied from https://github.com/eslint/eslint/blob/94ba68d76a6940f68ff82eea7332c6505f93df76/lib/rules/utils/ast-utils.js#L392
 
@@ -108,7 +107,7 @@ Check if two expressions reference the same value. For example:
 @param {ASTNode} right The right side of the comparison.
 @returns {boolean} `true` if both sides match and reference the same value.
 */
-function isSameReference(left, right) {
+export default function isSameReference(left, right) {
 	if (left.type !== right.type) {
 		// Handle `a.b` and `a?.b` are samely.
 		if (left.type === 'ChainExpression') {
@@ -169,5 +168,3 @@ function isSameReference(left, right) {
 		}
 	}
 }
-
-module.exports = isSameReference;

@@ -1,6 +1,4 @@
-'use strict';
-
-const {isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
+import {isOpeningParenToken, isClosingParenToken} from '@eslint-community/eslint-utils';
 
 /**
 Determine if a constructor function is newed-up with parens.
@@ -11,7 +9,7 @@ Determine if a constructor function is newed-up with parens.
 
 Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/no-extra-parens.js#L252
 */
-function isNewExpressionWithParentheses(node, sourceCode) {
+export default function isNewExpressionWithParentheses(node, sourceCode) {
 	if (node.arguments.length > 0) {
 		return true;
 	}
@@ -22,5 +20,3 @@ function isNewExpressionWithParentheses(node, sourceCode) {
 		&& isClosingParenToken(lastToken)
 		&& node.callee.range[1] < node.range[1];
 }
-
-module.exports = isNewExpressionWithParentheses;

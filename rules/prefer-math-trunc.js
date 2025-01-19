@@ -1,7 +1,6 @@
-'use strict';
-const {hasSideEffect} = require('@eslint-community/eslint-utils');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isLiteral} = require('./ast/index.js');
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isLiteral} from './ast/index.js';
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -95,7 +94,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -108,3 +107,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

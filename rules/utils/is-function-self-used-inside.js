@@ -1,5 +1,4 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
+import {findVariable} from '@eslint-community/eslint-utils';
 
 const getReferences = (scope, nodeOrName) => {
 	const {references = []} = findVariable(scope, nodeOrName) || {};
@@ -13,14 +12,13 @@ Check if `this`, `arguments`, or the function name is used inside of itself.
 @param {Scope} functionScope - The scope of the function node.
 @returns {boolean}
 */
-function isFunctionSelfUsedInside(functionNode, functionScope) {
+export default function isFunctionSelfUsedInside(functionNode, functionScope) {
 	/* c8 ignore next 3 */
 	if (functionScope.block !== functionNode) {
 		throw new Error('"functionScope" should be the scope of "functionNode".');
 	}
 
 	const {type, id} = functionNode;
-
 	if (type === 'ArrowFunctionExpression') {
 		return false;
 	}
@@ -39,5 +37,3 @@ function isFunctionSelfUsedInside(functionNode, functionScope) {
 
 	return false;
 }
-
-module.exports = isFunctionSelfUsedInside;

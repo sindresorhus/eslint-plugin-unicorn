@@ -1,6 +1,4 @@
-'use strict';
-
-function getPreviousNode(node, sourceCode) {
+export default function getPreviousNode(node, sourceCode) {
 	const {parent} = node;
 	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
 
@@ -20,5 +18,3 @@ function getPreviousNode(node, sourceCode) {
 		}
 	}
 }
-
-module.exports = getPreviousNode;

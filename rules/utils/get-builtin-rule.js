@@ -1,7 +1,5 @@
-'use strict';
+import {builtinRules} from 'eslint/use-at-your-own-risk';
 
-function getBuiltinRule(id) {
-	return require('eslint/use-at-your-own-risk').builtinRules.get(id);
+export default function getBuiltinRule(id) {
+	return builtinRules.get(id);
 }
-
-module.exports = getBuiltinRule;

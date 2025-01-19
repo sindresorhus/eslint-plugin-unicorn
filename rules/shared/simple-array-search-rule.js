@@ -1,8 +1,6 @@
-'use strict';
-
-const {hasSideEffect, isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('../ast/index.js');
-const {isSameIdentifier, isFunctionSelfUsedInside} = require('../utils/index.js');
+import {hasSideEffect, isParenthesized, findVariable} from '@eslint-community/eslint-utils';
+import {isMethodCall} from '../ast/index.js';
+import {isSameIdentifier, isFunctionSelfUsedInside} from '../utils/index.js';
 
 const isSimpleCompare = (node, compareNode) =>
 	node.type === 'BinaryExpression'
@@ -33,7 +31,7 @@ const isSimpleCompareCallbackFunction = node =>
 	);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
-function simpleArraySearchRule({method, replacement}) {
+export default function simpleArraySearchRule({method, replacement}) {
 	// Add prefix to avoid conflicts in `prefer-includes` rule
 	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`;
 	const ERROR = `${MESSAGE_ID_PREFIX}error`;
@@ -124,5 +122,3 @@ function simpleArraySearchRule({method, replacement}) {
 
 	return {messages, listen};
 }
-
-module.exports = simpleArraySearchRule;

@@ -1,11 +1,7 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const {checkVueTemplate} = require('./utils/rule.js');
-const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
-const {
-	isBooleanNode,
-	shouldAddParenthesesToMemberExpressionObject,
-} = require('./utils/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {checkVueTemplate} from './utils/rule.js';
+import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
+import {isBooleanNode, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
@@ -142,7 +138,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
@@ -155,3 +151,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

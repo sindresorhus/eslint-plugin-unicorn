@@ -1,6 +1,5 @@
-'use strict';
-const {isStringLiteral, isDirective} = require('./ast/index.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+import {isStringLiteral, isDirective} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
@@ -41,8 +40,8 @@ const create = context => {
 			|| (
 				(
 					node.parent.type === 'ImportDeclaration'
-						|| node.parent.type === 'ExportNamedDeclaration'
-						|| node.parent.type === 'ExportAllDeclaration'
+					|| node.parent.type === 'ExportNamedDeclaration'
+					|| node.parent.type === 'ExportAllDeclaration'
 				) && node.parent.source === node
 			)
 			|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
@@ -80,7 +79,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -92,3 +91,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

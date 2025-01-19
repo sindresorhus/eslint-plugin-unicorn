@@ -1,6 +1,4 @@
-'use strict';
-
-function isLiteral(node, value) {
+export function isLiteral(node, value) {
 	if (node?.type !== 'Literal') {
 		return false;
 	}
@@ -12,18 +10,14 @@ function isLiteral(node, value) {
 	return node.value === value;
 }
 
-const isStringLiteral = node => node?.type === 'Literal' && typeof node.value === 'string';
-const isNumberLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
-const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
-// eslint-disable-next-line unicorn/no-null
-const isNullLiteral = node => isLiteral(node, null);
-const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
+export const isStringLiteral = node => node?.type === 'Literal' && typeof node.value === 'string';
 
-module.exports = {
-	isLiteral,
-	isStringLiteral,
-	isNumberLiteral,
-	isBigIntLiteral,
-	isNullLiteral,
-	isRegexLiteral,
-};
+export const isNumberLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
+
+export const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
+
+// eslint-disable-next-line unicorn/no-null
+export const isNullLiteral = node => isLiteral(node, null);
+
+export const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
+

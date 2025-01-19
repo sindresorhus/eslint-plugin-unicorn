@@ -1,6 +1,5 @@
-'use strict';
-const {isBigIntLiteral, isCallExpression} = require('./ast/index.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+import {isBigIntLiteral, isCallExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
@@ -189,7 +188,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -201,3 +200,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

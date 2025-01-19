@@ -1,8 +1,7 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const isMethodNamed = require('./utils/is-method-named.js');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
-const {isLiteral, isNegativeOne} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import isMethodNamed from './utils/is-method-named.js';
+import simpleArraySearchRule from './shared/simple-array-search-rule.js';
+import {isLiteral, isNegativeOne} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -86,7 +85,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
@@ -102,3 +101,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

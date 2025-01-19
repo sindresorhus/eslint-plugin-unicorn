@@ -1,8 +1,7 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isNumber = require('./utils/is-number.js');
-const {isNewExpression} = require('./ast/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import needsSemicolon from './utils/needs-semicolon.js';
+import isNumber from './utils/is-number.js';
+import {isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
@@ -90,7 +89,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -103,3 +102,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

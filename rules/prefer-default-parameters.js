@@ -1,6 +1,5 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const {functionTypes} = require('./ast/index.js');
+import {findVariable} from '@eslint-community/eslint-utils';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -202,7 +201,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -218,3 +217,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

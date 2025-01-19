@@ -5,7 +5,7 @@ Tests are in the `/test` directory.
 A rule test file should look like this:
 
 ```js
-import {getTester} from './utils/test.mjs';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -21,12 +21,12 @@ test.snapshot({
 
 ## `test.snapshot()`
 
-This runs [`SnapshotRuleTester`](../test/utils/snapshot-rule-tester.mjs), which auto-generates the snapshot for test results, including error messages, error locations, autofix result, and suggestions. All you have to do is check the snapshot and make sure the results are expected before committing.
+This runs [`SnapshotRuleTester`](../test/utils/snapshot-rule-tester.js), which auto-generates the snapshot for test results, including error messages, error locations, autofix result, and suggestions. All you have to do is check the snapshot and make sure the results are expected before committing.
 
 It's recommended to use this approach as it simplifies test writing.
 
 ```js
-import {getTester} from './utils/test.mjs';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -45,13 +45,13 @@ test.snapshot({
 We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus on a specific rule test, you can:
 
 ```console
-npx ava test/rule-name.mjs
+npx ava test/rule-name.js
 ```
 
 To update snapshots, run the command above with [`--update-snapshots` or `-u`](https://github.com/avajs/ava/blob/main/docs/05-command-line.md#cli).
 
 ```console
-npx ava test/rule-name.mjs -u
+npx ava test/rule-name.js -u
 ```
 
 ## Focus on one test case
@@ -91,7 +91,7 @@ test.snapshot({
 This runs [`eslint-ava-rule-tester`](https://github.com/jfmengels/eslint-ava-rule-tester):
 
 ```js
-import {getTester} from './utils/test.mjs';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -141,10 +141,10 @@ test.snapshot({
 
 ## `parsers`
 
-[`utils/test.mjs`](../test/utils/test.mjs) also exposes a `parsers` object, which can be used in `testerOptions` or `parser` for a single test case.
+[`utils/test.js`](../test/utils/test.js) also exposes a `parsers` object, which can be used in `testerOptions` or `parser` for a single test case.
 
 ```js
-import {getTester, parsers} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -158,7 +158,7 @@ test.snapshot({
 ```
 
 ```js
-import {getTester, parsers} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -175,4 +175,4 @@ test.snapshot({
 
 Why use `parser: parsers.babel` instead of `parser: '@babel/eslint-parser'`?
 
-Using `parsers.babel` will make the `parserOptions` merge with useful default options. See [`parser.mjs`](../test/utils/parsers.mjs) for details.
+Using `parsers.babel` will make the `parserOptions` merge with useful default options. See [`parser.js`](../test/utils/parsers.js) for details.

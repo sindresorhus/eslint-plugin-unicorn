@@ -1,6 +1,4 @@
-'use strict';
-
-const {singular: pluralizeSingular} = require('pluralize');
+import pluralize_ from 'pluralize';
 
 /**
 Singularizes a word/name, i.e. `items` to `item`.
@@ -9,10 +7,10 @@ Singularizes a word/name, i.e. `items` to `item`.
 @returns {string|undefined} - The singularized result, or `undefined` if attempting singularization resulted in no change.
 */
 const singular = original => {
-	const singularized = pluralizeSingular(original);
+	const singularized = pluralize_.singular(original);
 	if (singularized !== original) {
 		return singularized;
 	}
 };
 
-module.exports = singular;
+export default singular;

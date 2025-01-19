@@ -1,7 +1,6 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const isShadowed = require('./utils/is-shadowed.js');
-const {isCallOrNewExpression} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import isShadowed from './utils/is-shadowed.js';
+import {isCallOrNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -92,7 +91,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -103,3 +102,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,8 +1,5 @@
-'use strict';
-const functionTypes = require('./function-types.js');
+import functionTypes from './function-types.js';
 
-function isFunction(node) {
+export default function isFunction(node) {
 	return functionTypes.includes(node.type);
 }
-
-module.exports = isFunction;

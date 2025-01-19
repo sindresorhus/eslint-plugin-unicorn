@@ -1,5 +1,4 @@
-'use strict';
-const {getParenthesizedRange} = require('../utils/parentheses.js');
+import {getParenthesizedRange} from '../utils/parentheses.js';
 
 const isProblematicToken = ({type, value}) => (
 	(type === 'Keyword' && /^[a-z]*$/.test(value))
@@ -9,7 +8,7 @@ const isProblematicToken = ({type, value}) => (
 	|| (type === 'Identifier' && value === 'await')
 );
 
-function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
+export default function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 	const range = getParenthesizedRange(node, sourceCode);
 	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
 
@@ -31,5 +30,3 @@ function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 		yield fixer.insertTextBefore(tokenAfter, ' ');
 	}
 }
-
-module.exports = fixSpaceAroundKeyword;

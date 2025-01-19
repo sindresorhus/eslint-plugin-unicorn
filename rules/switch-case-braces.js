@@ -1,8 +1,7 @@
-'use strict';
-const {isColonToken} = require('@eslint-community/eslint-utils');
-const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
-const getIndentString = require('./utils/get-indent-string.js');
-const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
+import {isColonToken} from '@eslint-community/eslint-utils';
+import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
+import getIndentString from './utils/get-indent-string.js';
+import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 
 const MESSAGE_ID_EMPTY_CLAUSE = 'switch-case-braces/empty';
 const MESSAGE_ID_MISSING_BRACES = 'switch-case-braces/missing';
@@ -95,7 +94,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'layout',
@@ -109,3 +108,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

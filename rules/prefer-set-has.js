@@ -1,7 +1,6 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const {getVariableIdentifiers} = require('./utils/index.js');
-const {isCallOrNewExpression, isMethodCall} = require('./ast/index.js');
+import {findVariable} from '@eslint-community/eslint-utils';
+import {getVariableIdentifiers} from './utils/index.js';
+import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -172,7 +171,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -185,3 +184,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

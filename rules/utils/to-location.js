@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Get location info for the given node or range.
 
@@ -18,4 +16,4 @@ function toLocation(nodeOrRange, sourceCode, startOffset = 0, endOffset = 0) {
 	};
 }
 
-module.exports = toLocation;
+export default toLocation;

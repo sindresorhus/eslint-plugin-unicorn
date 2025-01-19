@@ -1,5 +1,3 @@
-'use strict';
-
 const isLeftHandSide = node =>
 	(
 		(node.parent.type === 'AssignmentExpression' || node.parent.type === 'AssignmentPattern')
@@ -19,4 +17,4 @@ const isLeftHandSide = node =>
 		&& node.parent.argument === node
 	);
 
-module.exports = isLeftHandSide;
+export default isLeftHandSide;

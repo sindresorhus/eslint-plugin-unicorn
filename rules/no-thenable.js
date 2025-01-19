@@ -1,6 +1,5 @@
-'use strict';
-const {getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
+import {getStaticValue, getPropertyName} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -13,6 +12,7 @@ const messages = {
 
 const isStringThen = (node, context) =>
 	getStaticValue(node, context.sourceCode.getScope(node))?.value === 'then';
+
 const isPropertyThen = (node, context) => {
 	// `getPropertyName` throws on `({[Symbol.prototype]: 0})`
 	// https://github.com/eslint-community/eslint-utils/pull/182
@@ -186,7 +186,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -197,3 +197,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,7 +1,6 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
-const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {getParenthesizedRange} from './utils/parentheses.js';
+import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -52,7 +51,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
@@ -64,3 +63,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

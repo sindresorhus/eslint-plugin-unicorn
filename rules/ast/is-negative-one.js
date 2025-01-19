@@ -1,12 +1,8 @@
-'use strict';
+import {isNumberLiteral} from './literal.js';
 
-const {isNumberLiteral} = require('./literal.js');
-
-function isNegativeOne(node) {
+export default function isNegativeOne(node) {
 	return node?.type === 'UnaryExpression'
 		&& node.operator === '-'
 		&& isNumberLiteral(node.argument)
 		&& node.argument.value === 1;
 }
-
-module.exports = isNegativeOne;

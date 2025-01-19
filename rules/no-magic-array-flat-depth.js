@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall, isNumberLiteral} = require('./ast/index.js');
-const {getCallExpressionTokens} = require('./utils/index.js');
+import {isMethodCall, isNumberLiteral} from './ast/index.js';
+import {getCallExpressionTokens} from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
 const messages = {
@@ -41,7 +40,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -52,3 +51,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

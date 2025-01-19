@@ -1,6 +1,5 @@
-'use strict';
-
-const {isExpressionStatement} = require('../ast/index.js');
+import {isExpressionStatement} from '../ast/index.js';
 
 const isValueNotUsable = node => isExpressionStatement(node.parent);
-module.exports = isValueNotUsable;
+
+export default isValueNotUsable;

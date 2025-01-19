@@ -1,13 +1,12 @@
-'use strict';
-const {isParenthesized, hasSideEffect} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
-const {
+import {isParenthesized, hasSideEffect} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
+import {
 	getParenthesizedText,
 	isNodeValueNotDomNode,
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
-} = require('./utils/index.js');
+} from './utils/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
@@ -108,7 +107,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -121,3 +120,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

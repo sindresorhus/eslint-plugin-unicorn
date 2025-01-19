@@ -1,6 +1,4 @@
-'use strict';
-
-const isLogicalExpression = require('./is-logical-expression.js');
+import isLogicalExpression from './is-logical-expression.js';
 
 const isLogicNot = node => node?.type === 'UnaryExpression' && node.operator === '!';
 const isLogicNotArgument = node => isLogicNot(node.parent) && node.parent.argument === node;
@@ -29,7 +27,7 @@ Check if the value of node is a `boolean`.
 @param {Node} node
 @returns {boolean}
 */
-function isBooleanNode(node) {
+export function isBooleanNode(node) {
 	if (
 		isLogicNot(node)
 		|| isLogicNotArgument(node)
@@ -72,9 +70,9 @@ Get the boolean type-casting ancestor.
 @param {Node} node
 @returns {Result}
 */
-function getBooleanAncestor(node) {
+export function getBooleanAncestor(node) {
 	let isNegative = false;
-	// eslint-disable-next-line no-constant-condition
+
 	while (true) {
 		if (isLogicNotArgument(node)) {
 			isNegative = !isNegative;
@@ -88,5 +86,3 @@ function getBooleanAncestor(node) {
 
 	return {node, isNegative};
 }
-
-module.exports = {isBooleanNode, getBooleanAncestor};

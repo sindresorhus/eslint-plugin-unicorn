@@ -1,6 +1,5 @@
-'use strict';
-const {isNodeValueNotDomNode} = require('./utils/index.js');
-const {isMethodCall, isStringLiteral, isNullLiteral} = require('./ast/index.js');
+import {isNodeValueNotDomNode} from './utils/index.js';
+import {isMethodCall, isStringLiteral, isNullLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
@@ -155,7 +154,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -167,3 +166,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,5 +1,4 @@
-'use strict';
-const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
+import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 
 const MESSAGE_ID = 'no-document-cookie';
 const messages = {
@@ -13,7 +12,7 @@ const tracker = new GlobalReferenceTracker({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: context => tracker.createListeners(context),
 	meta: {
 		type: 'problem',
@@ -24,3 +23,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

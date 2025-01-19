@@ -1,6 +1,5 @@
-'use strict';
-const numeric = require('./utils/numeric.js');
-const {isBigIntLiteral} = require('./ast/index.js');
+import * as numeric from './utils/numeric.js';
+import {isBigIntLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {
@@ -164,7 +163,7 @@ const schema = [{
 }];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -186,3 +185,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,5 +1,3 @@
-'use strict';
-
 // eslint-disable-next-line complexity
 function isNotReference(node) {
 	const {parent} = node;
@@ -147,7 +145,7 @@ function isNotReference(node) {
 	return false;
 }
 
-function isReferenceIdentifier(node, nameOrNames = []) {
+export default function isReferenceIdentifier(node, nameOrNames = []) {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -159,5 +157,3 @@ function isReferenceIdentifier(node, nameOrNames = []) {
 
 	return !isNotReference(node);
 }
-
-module.exports = isReferenceIdentifier;

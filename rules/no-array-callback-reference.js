@@ -1,13 +1,12 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {
+import {isMethodCall} from './ast/index.js';
+import {
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
 	shouldAddParenthesesToCallExpressionCallee,
-} = require('./utils/index.js');
+} from './utils/index.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -272,7 +271,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -284,3 +283,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

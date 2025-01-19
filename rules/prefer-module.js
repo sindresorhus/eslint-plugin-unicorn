@@ -1,13 +1,8 @@
-'use strict';
-const isShadowed = require('./utils/is-shadowed.js');
-const assertToken = require('./utils/assert-token.js');
-const {getCallExpressionTokens} = require('./utils/index.js');
-const {isStaticRequire, isReferenceIdentifier, isFunction} = require('./ast/index.js');
-const {
-	removeParentheses,
-	replaceReferenceIdentifier,
-	removeSpacesAfter,
-} = require('./fix/index.js');
+import isShadowed from './utils/is-shadowed.js';
+import assertToken from './utils/assert-token.js';
+import {getCallExpressionTokens} from './utils/index.js';
+import {isStaticRequire, isReferenceIdentifier, isFunction} from './ast/index.js';
+import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
@@ -366,7 +361,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -379,3 +374,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

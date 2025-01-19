@@ -1,9 +1,7 @@
-'use strict';
-const createDeprecatedRules = require('./rules/utils/create-deprecated-rules.js');
-const {loadRules} = require('./rules/utils/rule.js');
-const legacyConfigBase = require('./configs/legacy-config-base.js');
-const flatConfigBase = require('./configs/flat-config-base.js');
-const {name, version} = require('./package.json');
+import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
+import {loadRules} from './rules/utils/rule.js';
+import flatConfigBase from './configs/flat-config-base.js';
+import packageJson from './package.json' with {type: 'json'};
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
@@ -34,12 +32,14 @@ const externalRules = {
 };
 
 const rules = loadRules();
+
 const recommendedRules = Object.fromEntries(
 	Object.entries(rules).map(([id, rule]) => [
 		`unicorn/${id}`,
 		rule.meta.docs.recommended ? 'error' : 'off',
 	]),
 );
+
 const allRules = Object.fromEntries(
 	Object.keys(rules).map(id => [
 		`unicorn/${id}`,
@@ -47,19 +47,22 @@ const allRules = Object.fromEntries(
 	]),
 );
 
-const createConfig = (rules, flatConfigName = false) => ({
-	...(
-		flatConfigName
-			? {...flatConfigBase, name: flatConfigName, plugins: {unicorn}}
-			: {...legacyConfigBase, plugins: ['unicorn']}
-	),
-	rules: {...externalRules, ...rules},
+const createConfig = (rules, flatConfigName) => ({
+	...flatConfigBase,
+	name: flatConfigName,
+	plugins: {
+		unicorn,
+	},
+	rules: {
+		...externalRules,
+		...rules,
+	},
 });
 
 const unicorn = {
 	meta: {
-		name,
-		version,
+		name: packageJson.name,
+		version: packageJson.version,
 	},
 	rules: {
 		...rules,
@@ -68,10 +71,17 @@ const unicorn = {
 };
 
 const configs = {
-	recommended: createConfig(recommendedRules),
-	all: createConfig(allRules),
+	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
+	all: createConfig(allRules, 'unicorn/all'),
+
+	// TODO: Remove this at some point. Kept for now to avoid breaking users.
 	'flat/recommended': createConfig(recommendedRules, 'unicorn/flat/recommended'),
 	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
 
-module.exports = {...unicorn, configs};
+const allConfigs = {
+	...unicorn,
+	configs,
+};
+
+export default allConfigs;

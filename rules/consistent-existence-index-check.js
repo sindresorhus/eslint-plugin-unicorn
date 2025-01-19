@@ -1,6 +1,5 @@
-'use strict';
-const toLocation = require('./utils/to-location.js');
-const {isMethodCall, isNegativeOne, isNumberLiteral} = require('./ast/index.js');
+import toLocation from './utils/to-location.js';
+import {isMethodCall, isNegativeOne, isNumberLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-existence-index-check';
 const messages = {
@@ -118,7 +117,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -131,3 +130,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

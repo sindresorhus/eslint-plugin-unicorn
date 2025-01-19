@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 @typedef {
 	{
@@ -100,13 +98,13 @@ function create(node, options, types) {
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-const isCallExpression = (node, options) => create(node, options, ['CallExpression']);
+export const isCallExpression = (node, options) => create(node, options, ['CallExpression']);
 
 /**
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-const isNewExpression = (node, options) => {
+export const isNewExpression = (node, options) => {
 	if (typeof options?.optional === 'boolean') {
 		throw new TypeError('Cannot check node.optional in `isNewExpression`.');
 	}
@@ -118,10 +116,4 @@ const isNewExpression = (node, options) => {
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-const isCallOrNewExpression = (node, options) => create(node, options, ['CallExpression', 'NewExpression']);
-
-module.exports = {
-	isCallExpression,
-	isNewExpression,
-	isCallOrNewExpression,
-};
+export const isCallOrNewExpression = (node, options) => create(node, options, ['CallExpression', 'NewExpression']);

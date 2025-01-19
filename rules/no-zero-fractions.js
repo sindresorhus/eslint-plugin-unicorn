@@ -1,10 +1,9 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const {isDecimalInteger} = require('./utils/numeric.js');
-const toLocation = require('./utils/to-location.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isNumberLiteral} = require('./ast/index.js');
+import {isParenthesized} from '@eslint-community/eslint-utils';
+import needsSemicolon from './utils/needs-semicolon.js';
+import {isDecimalInteger} from './utils/numeric.js';
+import toLocation from './utils/to-location.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isNumberLiteral} from './ast/index.js';
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -66,7 +65,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -78,3 +77,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

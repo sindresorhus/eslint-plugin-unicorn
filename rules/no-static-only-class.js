@@ -1,8 +1,7 @@
-'use strict';
-const {isSemicolonToken} = require('@eslint-community/eslint-utils');
-const getClassHeadLocation = require('./utils/get-class-head-location.js');
-const assertToken = require('./utils/assert-token.js');
-const {removeSpacesAfter} = require('./fix/index.js');
+import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import getClassHeadLocation from './utils/get-class-head-location.js';
+import assertToken from './utils/assert-token.js';
+import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
@@ -211,7 +210,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -223,3 +222,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

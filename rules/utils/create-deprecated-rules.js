@@ -1,10 +1,9 @@
-'use strict';
-const packageJson = require('../../package.json');
+import packageJson from '../../package.json' with {type: 'json'};
 
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 
 /** @returns {{ [ruleName: string]: import('eslint').Rule.RuleModule }} */
-function createDeprecatedRules(data) {
+export default function createDeprecatedRules(data) {
 	return Object.fromEntries(
 		Object.entries(data).map(([ruleId, replacedBy = []]) => [
 			ruleId,
@@ -21,5 +20,3 @@ function createDeprecatedRules(data) {
 		]),
 	);
 }
-
-module.exports = createDeprecatedRules;

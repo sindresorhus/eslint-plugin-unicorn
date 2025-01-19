@@ -1,6 +1,5 @@
-'use strict';
-const {isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
-const assertToken = require('./utils/assert-token.js');
+import {isOpeningParenToken, isClosingParenToken} from '@eslint-community/eslint-utils';
+import assertToken from './utils/assert-token.js';
 
 const MESSAGE_ID_WITH_NAME = 'with-name';
 const MESSAGE_ID_WITHOUT_NAME = 'without-name';
@@ -62,7 +61,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -74,3 +73,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

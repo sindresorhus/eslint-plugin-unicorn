@@ -1,11 +1,10 @@
-'use strict';
-const {hasSideEffect} = require('@eslint-community/eslint-utils');
-const {removeArgument} = require('./fix/index.js');
-const {getParentheses, getParenthesizedText} = require('./utils/parentheses.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
-const {isNodeValueNotFunction} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {removeArgument} from './fix/index.js';
+import {getParentheses, getParenthesizedText} from './utils/parentheses.js';
+import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import {isNodeMatches} from './utils/is-node-matches.js';
+import {isNodeValueNotFunction} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const ERROR_PROTOTYPE_METHOD = 'error-prototype-method';
 const ERROR_STATIC_METHOD = 'error-static-method';
@@ -210,7 +209,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -223,3 +222,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

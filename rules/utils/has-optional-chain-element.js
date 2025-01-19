@@ -1,8 +1,6 @@
-'use strict';
-
 const isChainElement = node => node.type === 'MemberExpression' || node.type === 'CallExpression';
 
-function hasOptionalChainElement(node) {
+export default function hasOptionalChainElement(node) {
 	if (!isChainElement(node)) {
 		return false;
 	}
@@ -17,5 +15,3 @@ function hasOptionalChainElement(node) {
 
 	return false;
 }
-
-module.exports = hasOptionalChainElement;

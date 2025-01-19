@@ -9,4 +9,4 @@ declare const eslintPluginUnicorn: ESLint.Plugin & {
 	};
 };
 
-export = eslintPluginUnicorn;
+export default eslintPluginUnicorn;

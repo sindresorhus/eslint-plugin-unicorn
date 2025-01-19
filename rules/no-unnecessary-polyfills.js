@@ -1,9 +1,8 @@
-'use strict';
-const path = require('node:path');
-const readPkgUp = require('read-pkg-up');
-const coreJsCompat = require('core-js-compat');
-const {camelCase} = require('./utils/lodash.js');
-const isStaticRequire = require('./ast/is-static-require.js');
+import path from 'node:path';
+import readPkgUp from 'read-pkg-up';
+import coreJsCompat from 'core-js-compat';
+import {camelCase} from './utils/lodash.js';
+import isStaticRequire from './ast/is-static-require.js';
 
 const {data: compatData, entries: coreJsEntries} = coreJsCompat;
 
@@ -163,7 +162,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -177,3 +176,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

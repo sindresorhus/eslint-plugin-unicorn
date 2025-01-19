@@ -1,6 +1,5 @@
-'use strict';
-const {isValueNotUsable} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {isValueNotUsable} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
@@ -128,7 +127,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -140,3 +139,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
