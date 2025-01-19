@@ -55,6 +55,7 @@ Object.prototype.toString.call(foo) === '[object Object]'; // ✅
 
 ```js
 import is from '@sindresorhus/is';
+
 foo instanceof Map; // ❌
 is(foo) === 'Map'; // ✅
 ```
@@ -63,26 +64,26 @@ is(foo) === 'Map'; // ✅
 
 ### strategy
 
-type: `'loose' | 'strict'`\
+Type: `'loose' | 'strict'`\
 Default: `'loose'`
 
-Set the matching strategy.
+The matching strategy:
 
-- `'loose'` - Matches the primitive type(`string`/`number`/`boolean`/`bigint`/`symbol`) constructor and `Function` and `Array`.
-- `'strict'` - Matches the all builtin constructor.
+- `'loose'` - Matches the primitive type (`string`, `number`, `boolean`, `bigint`, `symbol`) constructors, `Function`, and `Array`.
+- `'strict'` - Matches all built-in constructors.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
 	"error",
 	{
-		"strategy": 'strict'
+		"strategy": "strict"
 	}
 ]
 ```
 
 ### include
 
-type: `string[]`\
+Type: `string[]`\
 Default: `[]`
 
 Specify the constructors that should be validated.
@@ -91,7 +92,10 @@ Specify the constructors that should be validated.
 "unicorn/no-instanceof-builtin-object": [
 	"error",
 	{
-		"include": ["WebWorker", "HTMLElement"]
+		"include": [
+			"WebWorker",
+			"HTMLElement"
+		]
 	}
 ]
 ```
@@ -107,7 +111,10 @@ Specifies the constructors that should be excluded, with this rule taking preced
 "unicorn/no-instanceof-builtin-object": [
 	"error",
 	{
-		"exclude": ["String", "Number"]
+		"exclude": [
+			"String",
+			"Number"
+		]
 	}
 ]
 ```
