@@ -188,7 +188,7 @@ module.exports = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow instanceof on built-in objects',
+			description: 'Disallow `instanceof` on built-in objects',
 			recommended: true,
 		},
 		fixable: 'code',
