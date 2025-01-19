@@ -65,7 +65,7 @@ Set the matching strategy.
 type: `string[]`\
 Default: `[]`
 
-You can specify the constructor to include.
+Specify the constructors that should be validated.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
@@ -81,7 +81,7 @@ You can specify the constructor to include.
 type: `string[]`\
 Default: `[]`
 
-You can specify the constructor to exclude.
+Specifies the constructors that should be excluded, with this rule taking precedence over others.
 
 ```js
 "unicorn/no-instanceof-builtin-object": [
