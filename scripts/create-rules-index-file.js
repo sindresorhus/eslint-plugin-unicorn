@@ -12,7 +12,7 @@ const rules = fs.readdirSync(DIRECTORY, {withFileTypes: true})
 		const id = path.basename(filename, '.js');
 		const specifier = camelCase(id);
 
-		return {filename, id, specifier};
+		return {id, specifier, filename};
 	});
 
 const toObjectKey = name => name.includes('-') ? `'${name}'` : name;
