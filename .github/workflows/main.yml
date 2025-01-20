@@ -16,7 +16,7 @@ jobs:
       matrix:
         node-version:
           - 23
-          - 18
+          - 20
         os:
           - ubuntu-latest
           - windows-latest
@@ -62,6 +62,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
