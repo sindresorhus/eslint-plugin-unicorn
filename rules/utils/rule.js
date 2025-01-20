@@ -160,7 +160,7 @@ export function checkVueTemplate(create, options) {
 }
 
 /** @returns {import('eslint').Rule.RuleModule} */
-export function createRule(rule) {
+export function createRule(rule, ruleId) {
 	return {
 		meta: {
 			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.

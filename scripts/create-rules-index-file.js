@@ -19,12 +19,13 @@ const rules = fs.readdirSync(DIRECTORY, {withFileTypes: true})
 fs.writeFileSync(
 	new URL('index.js', DIRECTORY),
 	outdent`
+		// Generated file, DO NOT edit
 		import {createRule} from './utils/rule.js';
 
 		${rules.map(({filename, specifier}) => `import ${specifier} from './${filename}';`).join('\n')}
 
 		const rules = {
-		${rules.map(({id, specifier}) => `\t'${id}': createRule(${specifier})`).join(',\n')}
+		${rules.map(({id, specifier}) => `\t'${id}': createRule(${specifier}, '${id}')`).join(',\n')}
 		};
 
 		export default rules;
