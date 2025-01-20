@@ -201,7 +201,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow `instanceof` on built-in objects',
+			description: 'Disallow `instanceof` with built-in objects',
 			recommended: true,
 		},
 		fixable: 'code',
