@@ -24,7 +24,7 @@
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error fix:*",
-		"fix:eslint-docs": "eslint-doc-generator",
+		"fix:eslint-docs": "eslint-doc-generator workaround-for-eslint-doc-generator",
 		"fix:js": "npm run lint:js -- --fix",
 		"fix:markdown": "npm run lint:markdown -- --fix",
 		"fix:snapshots": "ava --update-snapshots",
