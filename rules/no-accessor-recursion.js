@@ -3,9 +3,7 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within getters and setters.',
 };
 
-/**
-@param {import('eslint').Scope.Scope} scope
-*/
+/** @param {import('eslint').Scope.Scope} scope */
 const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
 
 /** @param {import('eslint').Rule.RuleContext} context */
