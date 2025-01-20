@@ -248,7 +248,7 @@ const rules = {
 	'switch-case-braces': createRule(switchCaseBraces, 'switch-case-braces'),
 	'template-indent': createRule(templateIndent, 'template-indent'),
 	'text-encoding-identifier-case': createRule(textEncodingIdentifierCase, 'text-encoding-identifier-case'),
-	'throw-new-error': createRule(throwNewError, 'throw-new-error')
+	'throw-new-error': createRule(throwNewError, 'throw-new-error'),
 };
 
 export default rules;

@@ -16,19 +16,20 @@ const rules = fs.readdirSync(DIRECTORY, {withFileTypes: true})
 	});
 
 const toObjectKey = name => name.includes('-') ? `'${name}'` : name;
+const content = outdent`
+  // Generated file, DO NOT edit
+  import {createRule} from './utils/rule.js';
+
+  ${rules.map(({filename, specifier}) => `import ${specifier} from './${filename}';`).join('\n')}
+
+  const rules = {
+  ${rules.map(({id, specifier}) => `\t${toObjectKey(id)}: createRule(${specifier}, '${id}'),`).join('\n')}
+  };
+
+  export default rules;
+`;
 
 fs.writeFileSync(
 	new URL('index.js', DIRECTORY),
-	outdent`
-		// Generated file, DO NOT edit
-		import {createRule} from './utils/rule.js';
-
-		${rules.map(({filename, specifier}) => `import ${specifier} from './${filename}';`).join('\n')}
-
-		const rules = {
-		${rules.map(({id, specifier}) => `\t${toObjectKey(id)}: createRule(${specifier}, '${id}')`).join(',\n')}
-		};
-
-		export default rules;
-	` + '\n',
+	content + '\n',
 );
