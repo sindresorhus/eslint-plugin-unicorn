@@ -1,9 +1,4 @@
-import path from 'node:path';
-import fs from 'node:fs';
-import {createRequire} from 'node:module';
 import getDocumentationUrl from './get-documentation-url.js';
-
-const require = createRequire(import.meta.url);
 
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
@@ -161,9 +156,7 @@ export function checkVueTemplate(create, options) {
 }
 
 /** @returns {import('eslint').Rule.RuleModule} */
-export function loadRule(ruleId) {
-	const {default: rule} = require(`../${ruleId}.js`);
-
+export function createRule(rule, ruleId) {
 	return {
 		meta: {
 			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
@@ -177,15 +170,4 @@ export function loadRule(ruleId) {
 		},
 		create: reportProblems(rule.create),
 	};
-}
-
-export function loadRules() {
-	return Object.fromEntries(
-		fs.readdirSync(new URL('..', import.meta.url), {withFileTypes: true})
-			.filter(file => file.isFile() && file.name !== '.DS_Store')
-			.map(file => {
-				const ruleId = path.basename(file.name, '.js');
-				return [ruleId, loadRule(ruleId)];
-			}),
-	);
 }

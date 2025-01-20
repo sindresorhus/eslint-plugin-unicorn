@@ -13,7 +13,7 @@ let ruleFiles;
 
 test.before(async () => {
 	const files = await fsAsync.readdir('rules');
-	ruleFiles = files.filter(file => path.extname(file) === '.js');
+	ruleFiles = files.filter(file => path.extname(file) === '.js' && path.basename(file) !== 'index.js');
 });
 
 const ignoredRules = [
