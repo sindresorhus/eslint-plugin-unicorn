@@ -1,9 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import {createRequire} from 'node:module';
-import getDocumentationUrl from './get-documentation-url.js';
-
-const require = createRequire(import.meta.url);
+ import getDocumentationUrl from './get-documentation-url.js';
 
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
@@ -160,9 +157,9 @@ export function checkVueTemplate(create, options) {
 	return wrapped;
 }
 
-/** @returns {import('eslint').Rule.RuleModule} */
+/** @returns {Promise<import('eslint').Rule.RuleModule>} */
 export function loadRule(ruleId) {
-	const {default: rule} = require(`../${ruleId}.js`);
+	const {default: rule} = import(`../${ruleId}.js`);
 
 	return {
 		meta: {
@@ -181,11 +178,11 @@ export function loadRule(ruleId) {
 
 export function loadRules() {
 	return Object.fromEntries(
-		fs.readdirSync(new URL('..', import.meta.url), {withFileTypes: true})
+		Promise.all(fs.readdirSync(new URL('..', import.meta.url), {withFileTypes: true})
 			.filter(file => file.isFile() && file.name !== '.DS_Store')
-			.map(file => {
+			.map(async file => {
 				const ruleId = path.basename(file.name, '.js');
-				return [ruleId, loadRule(ruleId)];
-			}),
+				return [ruleId, await loadRule(ruleId)];
+			})),
 	);
 }

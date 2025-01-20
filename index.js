@@ -31,7 +31,7 @@ const externalRules = {
 	'no-nested-ternary': 'off',
 };
 
-const rules = loadRules();
+const rules = await loadRules();
 
 const recommendedRules = Object.fromEntries(
 	Object.entries(rules).map(([id, rule]) => [
