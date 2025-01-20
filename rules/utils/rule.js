@@ -1,8 +1,4 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import getDocumentationUrl from './get-documentation-url.js';
-import {camelCase, kebabCase} from './lodash.js';
-import * as rules from '../index.js';
 
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
