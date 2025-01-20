@@ -2,7 +2,7 @@
 /*
 ! If you're making a new rule, you can ignore this before review.
 */
-
+import jsdoc from 'eslint-plugin-jsdoc';
 import eslintPluginUnicorn from './index.js';
 
 const config = [
@@ -53,6 +53,14 @@ const config = [
 		],
 		rules: {
 			'unicorn/prefer-module': 'off',
+		},
+	},
+	{
+		plugins: {
+			jsdoc,
+		},
+		rules: {
+			'jsdoc/require-asterisk-prefix': ['error', 'never', {}],
 		},
 	},
 ];
