@@ -85,7 +85,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config =  {
 	create,
 	meta: {
 		type: 'problem',
@@ -97,3 +97,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
