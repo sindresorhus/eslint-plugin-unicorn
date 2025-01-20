@@ -1,17 +1,11 @@
-'use strict';
-const {
-	isCommaToken,
-} = require('@eslint-community/eslint-utils');
-const {
-	isMethodCall,
-	isExpressionStatement,
-} = require('./ast/index.js');
-const {
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import {isMethodCall, isExpressionStatement} from './ast/index.js';
+import {
 	getParenthesizedText,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
-} = require('./utils/index.js');
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION_UNWRAP = 'no-single-promise-in-promise-methods/unwrap';
@@ -166,7 +160,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -179,3 +173,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

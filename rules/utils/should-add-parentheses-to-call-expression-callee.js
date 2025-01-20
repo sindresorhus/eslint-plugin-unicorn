@@ -1,12 +1,10 @@
-'use strict';
-
 /**
 Check if parentheses should be added to a `node` when it's used as `callee` of `CallExpression`.
 
 @param {Node} node - The AST node to check.
 @returns {boolean}
 */
-function shouldAddParenthesesToCallExpressionCallee(node) {
+export default function shouldAddParenthesesToCallExpressionCallee(node) {
 	return node.type === 'SequenceExpression'
 		|| node.type === 'YieldExpression'
 		|| node.type === 'ArrowFunctionExpression'
@@ -18,5 +16,3 @@ function shouldAddParenthesesToCallExpressionCallee(node) {
 		|| node.type === 'UpdateExpression'
 		|| node.type === 'NewExpression';
 }
-
-module.exports = shouldAddParenthesesToCallExpressionCallee;

@@ -1,6 +1,5 @@
-'use strict';
-const {getParenthesizedRange} = require('./utils/index.js');
-const {isFunction, isMethodCall} = require('./ast/index.js');
+import {getParenthesizedRange} from './utils/index.js';
+import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';
@@ -199,7 +198,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -211,3 +210,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

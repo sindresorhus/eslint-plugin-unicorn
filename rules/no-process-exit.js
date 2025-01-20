@@ -1,5 +1,4 @@
-'use strict';
-const {isStaticRequire, isMethodCall, isLiteral} = require('./ast/index.js');
+import {isStaticRequire, isMethodCall, isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
@@ -92,7 +91,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -103,3 +102,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

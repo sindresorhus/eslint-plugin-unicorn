@@ -1,5 +1,3 @@
-'use strict';
-
 // Replace `StringLiteral` or `TemplateLiteral` node with raw text
 const replaceStringRaw = (fixer, node, raw) =>
 	fixer.replaceTextRange(
@@ -11,4 +9,4 @@ const replaceStringRaw = (fixer, node, raw) =>
 		raw,
 	);
 
-module.exports = replaceStringRaw;
+export default replaceStringRaw;

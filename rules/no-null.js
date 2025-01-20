@@ -1,9 +1,4 @@
-'use strict';
-const {
-	isMethodCall,
-	isCallExpression,
-	isLiteral,
-} = require('./ast/index.js');
+import {isMethodCall, isCallExpression, isLiteral} from './ast/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -137,7 +132,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -152,3 +147,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

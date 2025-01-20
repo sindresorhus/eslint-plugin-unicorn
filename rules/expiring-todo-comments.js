@@ -1,10 +1,9 @@
-'use strict';
-const path = require('node:path');
-const {isRegExp} = require('node:util/types');
-const readPkgUp = require('read-pkg-up');
-const semver = require('semver');
-const ci = require('ci-info');
-const getBuiltinRule = require('./utils/get-builtin-rule.js');
+import path from 'node:path';
+import { isRegExp } from 'node:util/types';
+import {readPackageUpSync} from 'read-package-up';
+import semver from 'semver';
+import * as ci from 'ci-info';
+import getBuiltinRule from './utils/get-builtin-rule.js';
 
 const baseRule = getBuiltinRule('no-warning-comments');
 
@@ -57,7 +56,7 @@ function getPackageHelpers(dirname) {
 	/** @type {readPkgUp.ReadResult | undefined} */
 	let packageResult;
 	try {
-		packageResult = readPkgUp.sync({normalize: false, cwd: dirname});
+		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
 	} catch {
 		// This can happen if package.json files have comments in them etc.
 		packageResult = undefined;
@@ -578,7 +577,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -591,3 +590,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

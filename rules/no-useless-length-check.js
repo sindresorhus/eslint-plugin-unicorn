@@ -1,10 +1,5 @@
-'use strict';
-const {isMethodCall, isMemberExpression} = require('./ast/index.js');
-const {
-	getParenthesizedRange,
-	isSameReference,
-	isLogicalExpression,
-} = require('./utils/index.js');
+import {isMethodCall, isMemberExpression} from './ast/index.js';
+import {getParenthesizedRange, isSameReference, isLogicalExpression} from './utils/index.js';
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
@@ -139,7 +134,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -151,3 +146,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

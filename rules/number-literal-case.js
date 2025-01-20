@@ -1,6 +1,5 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const {isNumberLiteral, isBigIntLiteral} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {isNumberLiteral, isBigIntLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
@@ -39,7 +38,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
@@ -51,3 +50,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

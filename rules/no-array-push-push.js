@@ -1,13 +1,9 @@
-'use strict';
-const {hasSideEffect, isSemicolonToken} = require('@eslint-community/eslint-utils');
-const {
-	getCallExpressionTokens,
-	getCallExpressionArgumentsText,
-} = require('./utils/index.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
-const getPreviousNode = require('./utils/get-previous-node.js');
-const {isMethodCall} = require('./ast/index.js');
+import {hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
+import {getCallExpressionTokens, getCallExpressionArgumentsText} from './utils/index.js';
+import isSameReference from './utils/is-same-reference.js';
+import {isNodeMatches} from './utils/is-node-matches.js';
+import getPreviousNode from './utils/get-previous-node.js';
+import {isMethodCall} from './ast/index.js';
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -136,7 +132,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -151,3 +147,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

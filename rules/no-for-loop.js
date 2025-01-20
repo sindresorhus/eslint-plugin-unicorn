@@ -1,11 +1,10 @@
-'use strict';
-const {isClosingParenToken, getStaticValue} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const getScopes = require('./utils/get-scopes.js');
-const singular = require('./utils/singular.js');
-const toLocation = require('./utils/to-location.js');
-const getReferences = require('./utils/get-references.js');
-const {isLiteral} = require('./ast/index.js');
+import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-utils';
+import avoidCapture from './utils/avoid-capture.js';
+import getScopes from './utils/get-scopes.js';
+import singular from './utils/singular.js';
+import toLocation from './utils/to-location.js';
+import getReferences from './utils/get-references.js';
+import {isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -168,10 +167,12 @@ const getRemovalRange = (node, sourceCode) => {
 
 		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);
 
-		return isOnlyNodeOnLine ? [
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
-		] : declarationNode.range;
+		return isOnlyNodeOnLine
+			? [
+				sourceCode.getIndexFromLoc({line, column: 0}),
+				sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
+			]
+			: declarationNode.range;
 	}
 
 	const index = declarationNode.declarations.indexOf(node);
@@ -399,7 +400,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -412,3 +413,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

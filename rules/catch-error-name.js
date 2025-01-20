@@ -1,9 +1,8 @@
-'use strict';
-const {isRegExp} = require('node:util/types');
-const {findVariable} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const {renameVariable} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {isRegExp} from 'node:util/types';
+import {findVariable} from '@eslint-community/eslint-utils';
+import avoidCapture from './utils/avoid-capture.js';
+import {renameVariable} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {
@@ -123,7 +122,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -137,3 +136,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

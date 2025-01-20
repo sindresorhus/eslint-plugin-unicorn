@@ -1,17 +1,18 @@
-'use strict';
-
-const {isNumberLiteral, isBigIntLiteral} = require('../ast/index.js');
+import {isNumberLiteral, isBigIntLiteral} from '../ast/index.js';
 
 // Determine whether this node is a decimal integer literal.
 // Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
 const DECIMAL_INTEGER_PATTERN = /^(?:0|0[0-7]*[89]\d*|[1-9](?:_?\d)*)$/u;
-const isDecimalInteger = text => DECIMAL_INTEGER_PATTERN.test(text);
-const isDecimalIntegerNode = node => isNumberLiteral(node) && isDecimalInteger(node.raw);
 
-const isNumeric = node => isNumberLiteral(node) || isBigIntLiteral(node);
-const isLegacyOctal = node => isNumberLiteral(node) && /^0\d+$/.test(node.raw);
+export const isDecimalInteger = text => DECIMAL_INTEGER_PATTERN.test(text);
 
-function getPrefix(text) {
+export const isDecimalIntegerNode = node => isNumberLiteral(node) && isDecimalInteger(node.raw);
+
+export const isNumeric = node => isNumberLiteral(node) || isBigIntLiteral(node);
+
+export const isLegacyOctal = node => isNumberLiteral(node) && /^0\d+$/.test(node.raw);
+
+export function getPrefix(text) {
 	let prefix = '';
 	let data = text;
 
@@ -23,7 +24,7 @@ function getPrefix(text) {
 	return {prefix, data};
 }
 
-function parseNumber(text) {
+export function parseNumber(text) {
 	const {
 		number,
 		mark = '',
@@ -39,20 +40,10 @@ function parseNumber(text) {
 	};
 }
 
-function parseFloatNumber(text) {
+export function parseFloatNumber(text) {
 	const parts = text.split('.');
 	const [integer, fractional = ''] = parts;
 	const dot = parts.length === 2 ? '.' : '';
 
 	return {integer, dot, fractional};
 }
-
-module.exports = {
-	isDecimalIntegerNode,
-	isDecimalInteger,
-	isNumeric,
-	isLegacyOctal,
-	getPrefix,
-	parseNumber,
-	parseFloatNumber,
-};

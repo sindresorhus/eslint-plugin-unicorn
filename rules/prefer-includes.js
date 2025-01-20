@@ -1,7 +1,7 @@
-'use strict';
-const isMethodNamed = require('./utils/is-method-named.js');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
-const {isLiteral, isNegativeOne} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import isMethodNamed from './utils/is-method-named.js';
+import simpleArraySearchRule from './shared/simple-array-search-rule.js';
+import {isLiteral, isNegativeOne} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -15,8 +15,10 @@ const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
+	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
+
 	const memberExpressionNode = target.parent;
-	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
+	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
 	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
 
 	// Strip default `fromIndex`
@@ -83,8 +85,8 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
-	create,
+const config = {
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
@@ -99,3 +101,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

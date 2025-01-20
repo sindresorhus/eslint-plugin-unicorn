@@ -1,5 +1,4 @@
-'use strict';
-const {isMemberExpression} = require('../ast/index.js');
+import {isMemberExpression} from '../ast/index.js';
 
 /**
 @param {
@@ -54,10 +53,5 @@ function isPrototypeProperty(node, options) {
 	);
 }
 
-const isArrayPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Array'});
-const isObjectPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Object'});
-
-module.exports = {
-	isArrayPrototypeProperty,
-	isObjectPrototypeProperty,
-};
+export const isArrayPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Array'});
+export const isObjectPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Object'});

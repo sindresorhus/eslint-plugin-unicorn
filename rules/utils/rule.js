@@ -1,11 +1,18 @@
-'use strict';
-const path = require('node:path');
-const fs = require('node:fs');
-const getDocumentationUrl = require('./get-documentation-url.js');
+import path from 'node:path';
+import fs from 'node:fs';
+import {createRequire} from 'node:module';
+import getDocumentationUrl from './get-documentation-url.js';
+
+const require = createRequire(import.meta.url);
 
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
-class FixAbortError extends Error {}
+class FixAbortError extends Error {
+	constructor() {
+		super();
+		this.name = 'FixAbortError';
+	}
+}
 const fixOptions = {
 	abort() {
 		throw new FixAbortError('Fix aborted.');
@@ -125,7 +132,7 @@ function reportProblems(create) {
 	return wrapped;
 }
 
-function checkVueTemplate(create, options) {
+export function checkVueTemplate(create, options) {
 	const {
 		visitScriptBlock,
 	} = {
@@ -154,8 +161,8 @@ function checkVueTemplate(create, options) {
 }
 
 /** @returns {import('eslint').Rule.RuleModule} */
-function loadRule(ruleId) {
-	const rule = require(`../${ruleId}`);
+export function loadRule(ruleId) {
+	const {default: rule} = require(`../${ruleId}.js`);
 
 	return {
 		meta: {
@@ -172,19 +179,13 @@ function loadRule(ruleId) {
 	};
 }
 
-function loadRules() {
+export function loadRules() {
 	return Object.fromEntries(
-		fs.readdirSync(path.join(__dirname, '..'), {withFileTypes: true})
-			.filter(file => file.isFile())
+		fs.readdirSync(new URL('..', import.meta.url), {withFileTypes: true})
+			.filter(file => file.isFile() && file.name !== '.DS_Store')
 			.map(file => {
 				const ruleId = path.basename(file.name, '.js');
 				return [ruleId, loadRule(ruleId)];
 			}),
 	);
 }
-
-module.exports = {
-	loadRule,
-	loadRules,
-	checkVueTemplate,
-};

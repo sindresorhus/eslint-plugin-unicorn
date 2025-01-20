@@ -1,7 +1,6 @@
-'use strict';
-const {hasSideEffect} = require('@eslint-community/eslint-utils');
-const isSameReference = require('./utils/is-same-reference.js');
-const getIndentString = require('./utils/get-indent-string.js');
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import isSameReference from './utils/is-same-reference.js';
+import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -328,7 +327,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -347,3 +346,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,10 +1,9 @@
-'use strict';
-const path = require('node:path');
-const packageJson = require('../../package.json');
+import path from 'node:path';
+import packageJson from '../../package.json' with {type: 'json'};
 
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 
-module.exports = function getDocumentationUrl(filename) {
+export default function getDocumentationUrl(filename) {
 	const ruleName = path.basename(filename, '.js');
 	return `${repoUrl}/blob/v${packageJson.version}/docs/rules/${ruleName}.md`;
-};
+}

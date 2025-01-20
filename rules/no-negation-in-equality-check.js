@@ -1,13 +1,5 @@
-'use strict';
-const {
-	fixSpaceAroundKeyword,
-	addParenthesizesToReturnOrThrowExpression,
-} = require('./fix/index.js');
-const {
-	needsSemicolon,
-	isParenthesized,
-	isOnSameLine,
-} = require('./utils/index.js');
+import {fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
+import {needsSemicolon, isParenthesized, isOnSameLine} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
@@ -90,7 +82,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -103,3 +95,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

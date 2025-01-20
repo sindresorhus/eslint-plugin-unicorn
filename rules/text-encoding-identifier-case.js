@@ -1,5 +1,4 @@
-'use strict';
-const {replaceStringLiteral} = require('./fix/index.js');
+import {replaceStringLiteral} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -94,7 +93,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -107,3 +106,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

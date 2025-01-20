@@ -1,15 +1,14 @@
-'use strict';
-const {getStaticValue, isCommaToken, hasSideEffect} = require('@eslint-community/eslint-utils');
-const {
+import {getStaticValue, isCommaToken, hasSideEffect} from '@eslint-community/eslint-utils';
+import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
 	hasOptionalChainElement,
-} = require('./utils/index.js');
-const {removeMethodCall} = require('./fix/index.js');
-const {isLiteral, isMethodCall} = require('./ast/index.js');
+} from './utils/index.js';
+import {removeMethodCall} from './fix/index.js';
+import {isLiteral, isMethodCall} from './ast/index.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -502,7 +501,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -515,3 +514,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

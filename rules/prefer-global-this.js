@@ -1,11 +1,13 @@
-'use strict';
-
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
 };
 
-const globalIdentifier = new Set(['window', 'self', 'global']);
+const globalIdentifier = new Set([
+	'window',
+	'self',
+	'global',
+]);
 
 const windowSpecificEvents = new Set([
 	'resize',
@@ -195,7 +197,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -208,3 +210,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

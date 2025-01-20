@@ -1,5 +1,4 @@
-'use strict';
-const getCallExpressionTokens = require('./get-call-expression-tokens.js');
+import getCallExpressionTokens from './get-call-expression-tokens.js';
 
 /** @typedef {import('estree').CallExpression} CallExpression */
 
@@ -11,7 +10,7 @@ Get the text of the arguments list of `CallExpression`.
 @param {SourceCode} sourceCode - The source code object.
 @returns {string}
 */
-function getCallExpressionArgumentsText(sourceCode, callExpression) {
+export default function getCallExpressionArgumentsText(sourceCode, callExpression) {
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
@@ -22,5 +21,3 @@ function getCallExpressionArgumentsText(sourceCode, callExpression) {
 		closingParenthesisToken.range[0],
 	);
 }
-
-module.exports = getCallExpressionArgumentsText;

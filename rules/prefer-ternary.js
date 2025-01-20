@@ -1,13 +1,12 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const getIndentString = require('./utils/get-indent-string.js');
-const {getParenthesizedText} = require('./utils/parentheses.js');
-const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
-const {extendFixRange} = require('./fix/index.js');
-const getScopes = require('./utils/get-scopes.js');
+import {isParenthesized} from '@eslint-community/eslint-utils';
+import avoidCapture from './utils/avoid-capture.js';
+import needsSemicolon from './utils/needs-semicolon.js';
+import isSameReference from './utils/is-same-reference.js';
+import getIndentString from './utils/get-indent-string.js';
+import {getParenthesizedText} from './utils/parentheses.js';
+import shouldAddParenthesesToConditionalExpressionChild from './utils/should-add-parentheses-to-conditional-expression-child.js';
+import {extendFixRange} from './fix/index.js';
+import getScopes from './utils/get-scopes.js';
 
 const messageId = 'prefer-ternary';
 
@@ -265,7 +264,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -281,3 +280,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

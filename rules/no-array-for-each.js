@@ -1,22 +1,29 @@
-'use strict';
-const {
+import {
 	isParenthesized,
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
 	findVariable,
 	hasSideEffect,
-} = require('@eslint-community/eslint-utils');
-const {extendFixRange} = require('./fix/index.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const shouldAddParenthesesToExpressionStatementExpression = require('./utils/should-add-parentheses-to-expression-statement-expression.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const {getParentheses, getParenthesizedRange} = require('./utils/parentheses.js');
-const isFunctionSelfUsedInside = require('./utils/is-function-self-used-inside.js');
-const {isNodeMatches} = require('./utils/is-node-matches.js');
-const assertToken = require('./utils/assert-token.js');
-const {fixSpaceAroundKeyword, removeParentheses} = require('./fix/index.js');
-const {isArrowFunctionBody, isMethodCall, isReferenceIdentifier, functionTypes} = require('./ast/index.js');
+} from '@eslint-community/eslint-utils';
+import {
+	extendFixRange,
+	fixSpaceAroundKeyword,
+	removeParentheses,
+} from './fix/index.js';
+import needsSemicolon from './utils/needs-semicolon.js';
+import shouldAddParenthesesToExpressionStatementExpression from './utils/should-add-parentheses-to-expression-statement-expression.js';
+import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import {getParentheses, getParenthesizedRange} from './utils/parentheses.js';
+import isFunctionSelfUsedInside from './utils/is-function-self-used-inside.js';
+import {isNodeMatches} from './utils/is-node-matches.js';
+import assertToken from './utils/assert-token.js';
+import {
+	isArrowFunctionBody,
+	isMethodCall,
+	isReferenceIdentifier,
+	functionTypes,
+} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -94,12 +101,12 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 		const shouldAddParenthesesToObject
 			= isParenthesized(iterableObject, sourceCode)
-			|| (
+				|| (
 				// `1?.forEach()` -> `(1).entries()`
-				isOptionalObject
-				&& shouldUseEntries
-				&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
-			);
+					isOptionalObject
+					&& shouldUseEntries
+					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
+				);
 
 		text += shouldAddParenthesesToObject ? `(${objectText})` : objectText;
 
@@ -469,7 +476,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -482,3 +489,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

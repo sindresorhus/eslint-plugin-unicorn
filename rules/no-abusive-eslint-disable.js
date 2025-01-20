@@ -1,5 +1,3 @@
-'use strict';
-
 const MESSAGE_ID = 'no-abusive-eslint-disable';
 const messages = {
 	[MESSAGE_ID]: 'Specify the rules you want to disable.',
@@ -36,7 +34,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -47,3 +45,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

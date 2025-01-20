@@ -1,5 +1,4 @@
-'use strict';
-function isEmptyNode(node, additionalEmpty) {
+export default function isEmptyNode(node, additionalEmpty) {
 	const {type} = node;
 
 	if (type === 'BlockStatement') {
@@ -16,5 +15,3 @@ function isEmptyNode(node, additionalEmpty) {
 
 	return false;
 }
-
-module.exports = isEmptyNode;

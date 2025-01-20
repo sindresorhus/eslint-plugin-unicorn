@@ -1,5 +1,4 @@
-'use strict';
-const {switchCallExpressionToNewExpression} = require('./fix/index.js');
+import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
 const messages = {
@@ -33,7 +32,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -45,3 +44,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

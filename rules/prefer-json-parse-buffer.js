@@ -1,7 +1,6 @@
-'use strict';
-const {findVariable, getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
-const {removeArgument} = require('./fix/index.js');
+import {findVariable, getStaticValue, getPropertyName} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
+import {removeArgument} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-json-parse-buffer';
 const messages = {
@@ -146,7 +145,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -158,3 +157,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

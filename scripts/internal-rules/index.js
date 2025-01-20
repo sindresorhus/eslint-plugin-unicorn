@@ -1,11 +1,18 @@
-'use strict';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+import packageJson from './package.json' with {type: 'json'};
 
-const path = require('node:path');
+const require = createRequire(import.meta.url);
 
-const pluginName = 'internal-rules';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const pluginName = 'internal';
+
 const TEST_DIRECTORIES = [
 	path.join(__dirname, '../../test'),
 ];
+
 const RULES_DIRECTORIES = [
 	path.join(__dirname, '../../rules'),
 ];
@@ -18,10 +25,15 @@ const rules = [
 
 const isFileInsideDirectory = (filename, directory) => filename.startsWith(directory + path.sep);
 
-module.exports = {
+const internal = {
+	meta: {
+		name: packageJson.name,
+		version: packageJson.version,
+	},
 	rules: Object.fromEntries(
 		rules.map(({id, directories}) => {
-			const rule = require(`./${id}.js`);
+			const {default: rule} = require(`./${id}.js`);
+
 			return [
 				id,
 				{
@@ -38,10 +50,20 @@ module.exports = {
 			];
 		}),
 	),
-	configs: {
-		all: {
-			plugins: [pluginName],
-			rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
+};
+
+const configs = {
+	all: {
+		plugins: {
+			internal,
 		},
+		rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
 	},
 };
+
+const allConfigs = {
+	...internal,
+	configs,
+};
+
+export default allConfigs;

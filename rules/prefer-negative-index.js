@@ -1,10 +1,6 @@
-'use strict';
-const {
-	getNegativeIndexLengthNode,
-	removeLengthNode,
-} = require('./shared/negative-index.js');
-const typedArray = require('./shared/typed-array.js');
-const {isLiteral} = require('./ast/index.js');
+import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-index.js';
+import typedArray from './shared/typed-array.js';
+import {isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -200,7 +196,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -212,3 +208,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

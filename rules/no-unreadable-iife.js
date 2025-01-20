@@ -1,9 +1,4 @@
-'use strict';
-const {
-	isParenthesized,
-	getParenthesizedRange,
-	toLocation,
-} = require('./utils/index.js');
+import {isParenthesized, getParenthesizedRange, toLocation} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-unreadable-iife';
 const messages = {
@@ -32,7 +27,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -44,3 +39,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

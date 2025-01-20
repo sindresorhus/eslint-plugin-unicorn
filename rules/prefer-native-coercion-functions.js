@@ -1,6 +1,5 @@
-'use strict';
-const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
-const {functionTypes} = require('./ast/index.js');
+import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const messages = {
@@ -172,7 +171,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -184,3 +183,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

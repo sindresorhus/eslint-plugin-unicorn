@@ -1,7 +1,7 @@
-'use strict';
-const path = require('node:path');
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const messageId = path.basename(__filename, '.js');
+const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 const shouldReport = (string, value) => {
 	const index = string.indexOf(`=${value}]`);
@@ -13,7 +13,7 @@ const shouldReport = (string, value) => {
 	return string[index - 1] !== '!';
 };
 
-module.exports = {
+const config = {
 	create(context) {
 		return {
 			'TemplateElement, Literal'(node) {
@@ -42,3 +42,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

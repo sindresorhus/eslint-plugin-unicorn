@@ -1,10 +1,5 @@
-'use strict';
-const {replaceTemplateElement} = require('./fix/index.js');
-const {
-	isStringLiteral,
-	isRegexLiteral,
-	isTaggedTemplateLiteral,
-} = require('./ast/index.js');
+import {replaceTemplateElement} from './fix/index.js';
+import {isStringLiteral, isRegexLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-hex-escape';
 const messages = {
@@ -43,7 +38,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -55,3 +50,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

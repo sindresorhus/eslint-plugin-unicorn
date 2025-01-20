@@ -1,8 +1,8 @@
 /* eslint sort-keys: ["error", "asc", {natural: true}] */
-'use strict';
+
 // https://github.com/facebook/react/blob/b87aabd/packages/react-dom/src/events/getEventKey.js#L36
 // Only meta characters which can't be deciphered from `String.fromCharCode()`
-module.exports = {
+const eventKeys = {
 	8: 'Backspace',
 	9: 'Tab',
 	12: 'Clear',
@@ -50,3 +50,5 @@ module.exports = {
 	222: '\'',
 	224: 'Meta',
 };
+
+export default eventKeys;

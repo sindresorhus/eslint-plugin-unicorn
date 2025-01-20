@@ -1,9 +1,9 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {parse: parseRegExp} = require('regjsparser');
-const escapeString = require('./utils/escape-string.js');
-const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import regjsparser from 'regjsparser';
+import escapeString from './utils/escape-string.js';
+import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
 
+const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
 const MESSAGE_ID_USE_STRING = 'pattern';
 const messages = {
@@ -132,7 +132,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -144,3 +144,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

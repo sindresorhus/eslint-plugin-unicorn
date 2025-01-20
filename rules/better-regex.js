@@ -1,8 +1,7 @@
-'use strict';
-const cleanRegexp = require('clean-regexp');
-const {optimize} = require('regexp-tree');
-const escapeString = require('./utils/escape-string.js');
-const {isStringLiteral, isNewExpression, isRegexLiteral} = require('./ast/index.js');
+import cleanRegexp from 'clean-regexp';
+import regexpTree from 'regexp-tree';
+import escapeString from './utils/escape-string.js';
+import {isStringLiteral, isNewExpression, isRegexLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'better-regex';
 const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
@@ -37,7 +36,7 @@ const create = context => {
 			let optimized = original;
 
 			try {
-				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
+				optimized = regexpTree.optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch (error) {
 				return {
 					node,
@@ -129,7 +128,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -143,3 +142,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

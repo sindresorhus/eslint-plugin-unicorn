@@ -1,11 +1,10 @@
-'use strict';
-
 /**
- * Finds the eslint-scope reference in the given scope.
- * @param {Object} scope The scope to search.
- * @param {ASTNode} node The identifier node.
- * @returns {Reference|undefined} Returns the found reference or null if none were found.
- */
+Finds the eslint-scope reference in the given scope.
+
+@param {Object} scope The scope to search.
+@param {ASTNode} node The identifier node.
+@returns {Reference|undefined} Returns the found reference or null if none were found.
+*/
 function findReference(scope, node) {
 	const references = scope.references
 		.filter(reference => reference.identifier === node);
@@ -16,12 +15,13 @@ function findReference(scope, node) {
 }
 
 /**
- * Checks if the given identifier node is shadowed in the given scope.
- * @param {Object} scope The current scope.
- * @param {string} node The identifier node to check
- * @returns {boolean} Whether or not the name is shadowed.
- */
-function isShadowed(scope, node) {
+Checks if the given identifier node is shadowed in the given scope.
+
+@param {Object} scope The current scope.
+@param {string} node The identifier node to check
+@returns {boolean} Whether or not the name is shadowed.
+*/
+export default function isShadowed(scope, node) {
 	const reference = findReference(scope, node);
 
 	return (
@@ -29,5 +29,3 @@ function isShadowed(scope, node) {
 		&& reference.resolved.defs.length > 0
 	);
 }
-
-module.exports = isShadowed;

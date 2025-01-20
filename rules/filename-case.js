@@ -1,8 +1,12 @@
-'use strict';
-const path = require('node:path');
-const {isRegExp} = require('node:util/types');
-const {camelCase, kebabCase, snakeCase, upperFirst} = require('./utils/lodash.js');
-const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
+import path from 'node:path';
+import { isRegExp } from 'node:util/types';
+import {
+	camelCase,
+	kebabCase,
+	snakeCase,
+	upperFirst,
+} from './utils/lodash.js';
+import cartesianProductSamples from './utils/cartesian-product-samples.js';
 
 const MESSAGE_ID = 'filename-case';
 const MESSAGE_ID_EXTENSION = 'filename-extension';
@@ -279,7 +283,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -293,3 +297,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

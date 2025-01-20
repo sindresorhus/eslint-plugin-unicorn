@@ -1,5 +1,4 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
+import {isParenthesized} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID_TOO_DEEP = 'too-deep';
 const MESSAGE_ID_SHOULD_PARENTHESIZED = 'should-parenthesized';
@@ -45,7 +44,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -57,3 +56,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

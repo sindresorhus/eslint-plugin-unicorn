@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Gather a list of all Scopes starting recursively from the input Scope.
 
@@ -11,4 +9,4 @@ const getScopes = scope => [
 	...scope.childScopes.flatMap(scope => getScopes(scope)),
 ];
 
-module.exports = getScopes;
+export default getScopes;

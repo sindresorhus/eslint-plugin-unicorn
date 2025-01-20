@@ -1,6 +1,5 @@
-'use strict';
-const {isEmptyNode} = require('./ast/index.js');
-const getSwitchCaseHeadLocation = require('./utils/get-switch-case-head-location.js');
+import {isEmptyNode} from './ast/index.js';
+import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
 
 const MESSAGE_ID_ERROR = 'no-useless-switch-case/error';
 const MESSAGE_ID_SUGGESTION = 'no-useless-switch-case/suggestion';
@@ -44,7 +43,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -56,3 +55,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

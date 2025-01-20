@@ -1,7 +1,6 @@
-'use strict';
-const {isMethodCall, isMemberExpression} = require('./ast/index.js');
-const {removeArgument} = require('./fix/index.js');
-const {isSameReference} = require('./utils/index.js');
+import {isMethodCall, isMemberExpression} from './ast/index.js';
+import {removeArgument} from './fix/index.js';
+import {isSameReference} from './utils/index.js';
 
 const MESSAGE_ID = 'no-length-as-slice-end';
 const messages = {
@@ -39,7 +38,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -51,3 +50,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

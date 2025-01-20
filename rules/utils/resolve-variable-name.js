@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Finds a variable named `name` in the scope `scope` (or it's parents).
 
@@ -7,7 +5,7 @@ Finds a variable named `name` in the scope `scope` (or it's parents).
 @param {import('eslint').Scope.Scope} scope - The scope to look for the variable in.
 @returns {import('eslint').Scope.Variable | void} - The found variable, if any.
 */
-module.exports = function resolveVariableName(name, scope) {
+export default function resolveVariableName(name, scope) {
 	while (scope) {
 		const variable = scope.set.get(name);
 
@@ -17,4 +15,4 @@ module.exports = function resolveVariableName(name, scope) {
 
 		scope = scope.upper;
 	}
-};
+}

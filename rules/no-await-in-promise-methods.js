@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {removeSpacesAfter} = require('./fix/index.js');
+import {isMethodCall} from './ast/index.js';
+import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION = 'no-await-in-promise-methods/suggestion';
@@ -55,7 +54,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -67,3 +66,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

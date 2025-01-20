@@ -1,5 +1,4 @@
-'use strict';
-const {upperFirst} = require('./utils/lodash.js');
+import {upperFirst} from './utils/lodash.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
@@ -202,7 +201,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -214,3 +213,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

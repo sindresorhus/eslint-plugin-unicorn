@@ -1,9 +1,5 @@
-'use strict';
-const {
-	isParenthesized,
-	getParenthesizedRange,
-} = require('./utils/parentheses.js');
-const {removeParentheses} = require('./fix/index.js');
+import {isParenthesized, getParenthesizedRange} from './utils/parentheses.js';
+import {removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
 const messages = {
@@ -54,7 +50,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -66,3 +62,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,9 +1,8 @@
-'use strict';
-const {isParenthesized} = require('../utils/parentheses.js');
-const shouldAddParenthesesToNewExpressionCallee = require('../utils/should-add-parentheses-to-new-expression-callee.js');
-const fixSpaceAroundKeyword = require('./fix-space-around-keywords.js');
+import {isParenthesized} from '../utils/parentheses.js';
+import shouldAddParenthesesToNewExpressionCallee from '../utils/should-add-parentheses-to-new-expression-callee.js';
+import fixSpaceAroundKeyword from './fix-space-around-keywords.js';
 
-function * switchCallExpressionToNewExpression(node, sourceCode, fixer) {
+export default function * switchCallExpressionToNewExpression(node, sourceCode, fixer) {
 	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 	yield fixer.insertTextBefore(node, 'new ');
 
@@ -16,5 +15,3 @@ function * switchCallExpressionToNewExpression(node, sourceCode, fixer) {
 		yield fixer.insertTextAfter(callee, ')');
 	}
 }
-
-module.exports = switchCallExpressionToNewExpression;

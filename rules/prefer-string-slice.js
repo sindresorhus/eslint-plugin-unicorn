@@ -1,8 +1,7 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const {replaceArgument} = require('./fix/index.js');
-const {isNumberLiteral, isMethodCall} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {replaceArgument} from './fix/index.js';
+import {isNumberLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -166,7 +165,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -178,3 +177,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

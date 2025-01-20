@@ -1,8 +1,9 @@
-'use strict';
-const globals = require('globals');
+import globals from 'globals';
 
-module.exports = {
+const config = {
 	languageOptions: {
 		globals: globals.builtin,
 	},
 };
+
+export default config;

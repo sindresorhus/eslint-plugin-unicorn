@@ -1,7 +1,6 @@
-'use strict';
-const escapeString = require('./utils/escape-string.js');
-const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
-const {replaceTemplateElement} = require('./fix/index.js');
+import escapeString from './utils/escape-string.js';
+import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
+import {replaceTemplateElement} from './fix/index.js';
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
@@ -173,7 +172,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -188,3 +187,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
