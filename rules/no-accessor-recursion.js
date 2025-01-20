@@ -85,7 +85,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-const config =  {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
