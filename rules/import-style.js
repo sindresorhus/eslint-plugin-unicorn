@@ -1,7 +1,7 @@
-import { getStringIfConstant } from '@eslint-community/eslint-utils';
-import { isCallExpression } from './ast/index.js';
+import {getStringIfConstant} from '@eslint-community/eslint-utils';
+import {isCallExpression} from './ast/index.js';
 import avoidCapture from './utils/avoid-capture.js';
-import { defaultsDeep } from './utils/lodash.js';
+import {defaultsDeep} from './utils/lodash.js';
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
@@ -130,7 +130,7 @@ const defaultStyles = {
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => {
+	create(context) {
 		let [
 			{
 				styles = {},
@@ -155,17 +155,19 @@ const config = {
 
 		const {sourceCode} = context;
 
-		const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
+		const report = (
+			node,
+			moduleName,
+			actualImportStyles,
+			allowedImportStyles,
+			isRequire = false,
+		) => {
 			if (!allowedImportStyles || allowedImportStyles.size === 0) {
 				return;
 			}
 
 			let effectiveAllowedImportStyles = allowedImportStyles;
 
-			// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
-			// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
-			// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
-			// does not provide any automatic interop for this, so the user may have to use either of these.
 			if (isRequire && allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
 				effectiveAllowedImportStyles = new Set(allowedImportStyles);
 				effectiveAllowedImportStyles.add('namespace');
@@ -295,10 +297,10 @@ const config = {
 						const getAllReferences = scope => {
 							let references = scope.references.filter(
 								reference => reference.identifier.name === localName
-								// Skip the original declaration
-								&& !(node.type === 'VariableDeclarator' && reference.identifier === node.id)
-								&& !(node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern'
-									&& node.id.properties.some(p => p.value === reference.identifier)),
+									// Skip the original declaration
+									&& !(node.type === 'VariableDeclarator' && reference.identifier === node.id)
+									&& !(node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern'
+										&& node.id.properties.some(p => p.value === reference.identifier)),
 							);
 
 							for (const childScope of scope.childScopes) {
@@ -341,13 +343,11 @@ const config = {
 				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 				const allowedImportStyles = styles.get(moduleName);
 
-				// Handle unassigned dynamic imports
 				if (!isAssignedDynamicImport(node)) {
 					report(node, moduleName, ['unassigned'], allowedImportStyles);
 					return;
 				}
 
-				// Handle assigned dynamic imports
 				const variableDeclarator = node.parent.parent;
 				const assignmentTargetNode = variableDeclarator.id;
 				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
@@ -379,74 +379,78 @@ const config = {
 
 				report(node, moduleName, actualImportStyles, allowedImportStyles);
 			},
-			...(checkExportFrom ? {
-				ExportAllDeclaration(node) {
-					if (!checkExportFrom) {
-						return;
-					}
+			...(checkExportFrom
+				? {
+					ExportAllDeclaration(node) {
+						if (!checkExportFrom) {
+							return;
+						}
 
-					const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
+						const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = ['namespace'];
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = ['namespace'];
 
-					report(node, moduleName, actualImportStyles, allowedImportStyles);
-				},
-				ExportNamedDeclaration(node) {
-					const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = getActualExportDeclarationStyles(node);
+						report(node, moduleName, actualImportStyles, allowedImportStyles);
+					},
+					ExportNamedDeclaration(node) {
+						const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = getActualExportDeclarationStyles(node);
 
-					report(node, moduleName, actualImportStyles, allowedImportStyles);
-				},
-			} : {}),
-			...(checkRequire ? {
-				CallExpression(node) {
-					if (!checkRequire) {
-						return;
-					}
+						report(node, moduleName, actualImportStyles, allowedImportStyles);
+					},
+				}
+				: {}),
+			...(checkRequire
+				? {
+					CallExpression(node) {
+						if (!checkRequire) {
+							return;
+						}
 
-					if (!(
-						isCallExpression(node, {
-							name: 'require',
-							argumentsLength: 1,
-							optionalCall: false,
-							optionalMember: false,
-						})
-						&& (node.parent.type === 'ExpressionStatement' && node.parent.expression === node)
-					)) {
-						return;
-					}
+						if (!(
+							isCallExpression(node, {
+								name: 'require',
+								argumentsLength: 1,
+								optionalCall: false,
+								optionalMember: false,
+							})
+							&& (node.parent.type === 'ExpressionStatement' && node.parent.expression === node)
+						)) {
+							return;
+						}
 
-					const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
-					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = ['unassigned'];
+						const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = ['unassigned'];
 
-					report(node, moduleName, actualImportStyles, allowedImportStyles, true);
-				},
-				VariableDeclarator(node) {
-					if (!(
-						node.init?.type === 'CallExpression'
-						&& node.init.callee.type === 'Identifier'
-						&& node.init.callee.name === 'require'
-					)) {
-						return;
-					}
+						report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+					},
+					VariableDeclarator(node) {
+						if (!(
+							node.init?.type === 'CallExpression'
+							&& node.init.callee.type === 'Identifier'
+							&& node.init.callee.name === 'require'
+						)) {
+							return;
+						}
 
-					const assignmentTargetNode = node.id;
-					const moduleNameNode = node.init.arguments[0];
-					const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
+						const assignmentTargetNode = node.id;
+						const moduleNameNode = node.init.arguments[0];
+						const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
-					if (!moduleName) {
-						return;
-					}
+						if (!moduleName) {
+							return;
+						}
 
-					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
-					report(node, moduleName, actualImportStyles, allowedImportStyles, true);
-				},
-			} : {}),
+						report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+					},
+				}
+				: {}),
 		};
 	},
 	meta: {

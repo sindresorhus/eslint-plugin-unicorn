@@ -47,7 +47,7 @@ function getNamespaceError(moduleName) {
 			allowedStyles: 'namespace',
 			moduleName,
 		},
-	}
+	};
 }
 
 const namedError = {
@@ -414,7 +414,7 @@ test({
 			options: [
 				{
 					styles: {
-						"react-dom": {
+						'react-dom': {
 							namespace: true,
 							named: false,
 						},
@@ -434,7 +434,7 @@ test({
 			options: [
 				{
 					styles: {
-						"prop-types": {
+						'prop-types': {
 							namespace: true,
 							named: false,
 						},
@@ -457,7 +457,7 @@ test({
 			options: [
 				{
 					styles: {
-						"react-router": {
+						'react-router': {
 							namespace: true,
 							named: false,
 						},
@@ -1074,7 +1074,7 @@ test({
 		},
 		{
 			code: 'const {string, number} = require("prop-types")',
-		 output: 'const PropTypes = require("prop-types")',
+			output: 'const PropTypes = require("prop-types")',
 			options: [{
 				styles: {
 					'prop-types': {
@@ -1178,7 +1178,7 @@ test({
 		},
 		{
 			code: 'const {css} = require("styled-components")',
-		 	output: 'const styled = require("styled-components")',
+			output: 'const styled = require("styled-components")',
 			options: [{
 				styles: {
 					'styled-components': {
@@ -1458,7 +1458,7 @@ test({
 			options: [
 				{
 					styles: {
-						"react-dom": {
+						'react-dom': {
 							namespace: true,
 							named: false,
 						},
@@ -1487,7 +1487,7 @@ test({
 			options: [
 				{
 					styles: {
-						"prop-types": {
+						'prop-types': {
 							namespace: true,
 							named: false,
 						},
@@ -1522,7 +1522,7 @@ test({
 			options: [
 				{
 					styles: {
-						"react-router": {
+						'react-router': {
 							namespace: true,
 							named: false,
 						},
