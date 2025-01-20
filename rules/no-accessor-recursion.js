@@ -1,5 +1,3 @@
-'use strict';
-
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within getters and setters.',
@@ -54,7 +52,7 @@ const create = context => {
 					scope = scope.upper;
 				}
 
-				// Check if This is in the current function expression scope
+				// Check if `this` is in the current function expression scope
 				if (scope.block === property.value) {
 					/** @type {import('estree').MemberExpression} */
 					const {parent} = node;
