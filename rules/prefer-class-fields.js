@@ -170,8 +170,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description:
-				'Prefer class field declarations over `this` assignments in constructor',
+			description: 'Prefer class field declarations over `this` assignments in constructors.',
 			recommended: true,
 		},
 		fixable: 'code',
