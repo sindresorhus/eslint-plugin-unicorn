@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.mjs';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
