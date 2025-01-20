@@ -2,10 +2,10 @@ import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
-import {loadRule} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
+import rules from '../../rules/index.js';
 
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {
@@ -67,7 +67,7 @@ function only(...arguments_) {
 class Tester {
 	constructor(ruleId) {
 		this.ruleId = ruleId;
-		this.rule = loadRule(ruleId);
+		this.rule = rules[ruleId];
 	}
 
 	runTest(tests) {
