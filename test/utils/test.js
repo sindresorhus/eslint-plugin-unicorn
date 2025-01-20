@@ -2,12 +2,10 @@ import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
-import {loadRules} from '../../rules/utils/rule.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
-
-const rules = await loadRules()
+import rules from '../../rules/index.js';
 
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {

@@ -1,6 +1,6 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
-import {loadRules} from './rules/utils/rule.js';
 import flatConfigBase from './configs/flat-config-base.js';
+import rules from './rules/index.js';
 import packageJson from './package.json' with {type: 'json'};
 
 const deprecatedRules = createDeprecatedRules({
@@ -30,8 +30,6 @@ const externalRules = {
 	// Covered by `unicorn/no-nested-ternary`
 	'no-nested-ternary': 'off',
 };
-
-const rules = await loadRules();
 
 const recommendedRules = Object.fromEntries(
 	Object.entries(rules).map(([id, rule]) => [
