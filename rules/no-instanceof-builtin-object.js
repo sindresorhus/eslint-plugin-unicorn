@@ -1,8 +1,8 @@
-const {checkVueTemplate} = require('./utils/rule.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
-const {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} = require('./fix/index.js');
-const {builtinErrors} = require('./error-message.js');
-const typedArray = require('./shared/typed-array.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {getParenthesizedRange} from './utils/parentheses.js';
+import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
+import {builtinErrors} from './error-message.js';
+import typedArray from './shared/typed-array.js';
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
@@ -18,7 +18,7 @@ const looseStrategyConstructors = new Set([
 	'BigInt',
 	'Symbol',
 	'Array',
-	'Function'
+	'Function',
 ]);
 
 const strictStrategyConstructors = new Set([
@@ -106,7 +106,7 @@ const create = context => {
 		useErrorIsError = false,
 		strategy = 'loose',
 		include = [],
-		exclude = []
+		exclude = [],
 	} = context.options[0] ?? {};
 
 	const {sourceCode} = context;

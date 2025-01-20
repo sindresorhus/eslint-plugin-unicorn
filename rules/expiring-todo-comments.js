@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isRegExp } from 'node:util/types';
+import {isRegExp} from 'node:util/types';
 import {readPackageUpSync} from 'read-package-up';
 import semver from 'semver';
 import * as ci from 'ci-info';

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { isRegExp } from 'node:util/types';
+import {isRegExp} from 'node:util/types';
 import {
 	camelCase,
 	kebabCase,
