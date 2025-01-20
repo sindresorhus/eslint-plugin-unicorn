@@ -323,69 +323,61 @@ const config = {
 		};
 
 		return {
-			ImportDeclaration(node) {
-				if (!checkImport) {
-					return;
-				}
-
-				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-
-				const allowedImportStyles = styles.get(moduleName);
-				const actualImportStyles = getActualImportDeclarationStyles(node);
-
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			},
-			ImportExpression(node) {
-				if (!checkDynamicImport) {
-					return;
-				}
-
-				const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-				const allowedImportStyles = styles.get(moduleName);
-
-				if (!isAssignedDynamicImport(node)) {
-					report(node, moduleName, ['unassigned'], allowedImportStyles);
-					return;
-				}
-
-				const variableDeclarator = node.parent.parent;
-				const assignmentTargetNode = variableDeclarator.id;
-				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
-
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			},
-			VariableDeclarator(node) {
-				if (!checkDynamicImport) {
-					return;
-				}
-
-				if (!(
-					node.init?.type === 'AwaitExpression'
-					&& node.init.argument.type === 'ImportExpression'
-				)) {
-					return;
-				}
-
-				const assignmentTargetNode = node.id;
-				const moduleNameNode = node.init.argument.source;
-				const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
-
-				if (!moduleName) {
-					return;
-				}
-
-				const allowedImportStyles = styles.get(moduleName);
-				const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
-
-				report(node, moduleName, actualImportStyles, allowedImportStyles);
-			},
-			...(checkExportFrom
+			...(checkImport
 				? {
-					ExportAllDeclaration(node) {
-						if (!checkExportFrom) {
+					ImportDeclaration(node) {
+						const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
+
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = getActualImportDeclarationStyles(node);
+
+						report(node, moduleName, actualImportStyles, allowedImportStyles);
+					},
+				}
+				: {}),
+			...(checkDynamicImport
+				? {
+					ImportExpression(node) {
+						const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
+						const allowedImportStyles = styles.get(moduleName);
+
+						if (!isAssignedDynamicImport(node)) {
+							report(node, moduleName, ['unassigned'], allowedImportStyles);
 							return;
 						}
 
+						const variableDeclarator = node.parent.parent;
+						const assignmentTargetNode = variableDeclarator.id;
+						const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+						report(variableDeclarator, moduleName, actualImportStyles, allowedImportStyles);
+					},
+					VariableDeclarator(node) {
+						if (!(
+							node.init?.type === 'AwaitExpression'
+							&& node.init.argument.type === 'ImportExpression'
+						)) {
+							return;
+						}
+
+						const assignmentTargetNode = node.id;
+						const moduleNameNode = node.init.argument.source;
+						const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
+
+						if (!moduleName) {
+							return;
+						}
+
+						const allowedImportStyles = styles.get(moduleName);
+						const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
+
+						report(node, moduleName, actualImportStyles, allowedImportStyles);
+					},
+				}
+				: {}),
+			...(checkExportFrom
+				? {
+					ExportAllDeclaration(node) {
 						const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 						const allowedImportStyles = styles.get(moduleName);
@@ -405,10 +397,6 @@ const config = {
 			...(checkRequire
 				? {
 					CallExpression(node) {
-						if (!checkRequire) {
-							return;
-						}
-
 						if (!(
 							isCallExpression(node, {
 								name: 'require',
