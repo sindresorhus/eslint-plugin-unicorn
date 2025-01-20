@@ -3,7 +3,7 @@ import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {parseArgs} from 'node:util';
-import Listr from 'listr';
+import Listr from 'listr2';
 import {execa} from 'execa';
 import chalk from 'chalk';
 import {outdent} from 'outdent';

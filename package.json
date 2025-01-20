@@ -94,7 +94,7 @@
 		"eslint-remote-tester-repositories": "^2.0.0",
 		"espree": "^10.3.0",
 		"execa": "^9.5.2",
-		"listr": "^0.14.3",
+		"listr2": "^8.2.5",
 		"lodash-es": "^4.17.21",
 		"markdownlint-cli": "^0.43.0",
 		"memoize": "^10.0.0",
