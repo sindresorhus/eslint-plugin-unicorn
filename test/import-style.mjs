@@ -40,13 +40,15 @@ const defaultError = {
 	},
 };
 
-const namespaceError = {
-	messageId: 'importStyle',
-	data: {
-		allowedStyles: 'namespace',
-		moduleName: 'namespace',
-	},
-};
+function getNamespaceError(moduleName) {
+	return {
+		messageId: 'importStyle',
+		data: {
+			allowedStyles: 'namespace',
+			moduleName,
+		},
+	}
+}
 
 const namedError = {
 	messageId: 'importStyle',
@@ -368,6 +370,118 @@ test({
 				},
 			}],
 		},
+
+		{
+			code: outdent`
+				import * as React from 'react';
+				React.useState(0);
+				React.useEffect(() => {});
+			`,
+			options: [
+				{
+					styles: {
+						react: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
+		{
+			code: outdent`
+				const _ = require('lodash');
+				_.map([1, 2, 3], x => x * 2);
+				_.filter([1, 2, 3], x => x > 2);
+			`,
+			options: [
+				{
+					styles: {
+						lodash: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
+		{
+			code: outdent`
+				import * as ReactDOM from 'react-dom';
+				ReactDOM.render(App(), document.body);
+				ReactDOM.hydrate(App(), document.body);
+			`,
+			options: [
+				{
+					styles: {
+						"react-dom": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
+		{
+			code: outdent`
+				const PropTypes = require('prop-types');
+				Component.propTypes = {
+					name: PropTypes.string,
+					age: PropTypes.number,
+					isActive: PropTypes.bool,
+				};
+			`,
+			options: [
+				{
+					styles: {
+						"prop-types": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
+		{
+			code: outdent`
+				import * as Router from 'react-router';
+				function App() {
+					const params = Router.useParams();
+					return Router.createElement('div', null,
+						Router.createElement(Router.Switch, null,
+							Router.createElement(Router.Route, { path: "/" })
+						)
+					);
+				}
+			`,
+			options: [
+				{
+					styles: {
+						"react-router": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
+		{
+			code: outdent`
+				const React = "not the real React";
+				import * as React_ from "react";
+				React_.useState(0);
+			`,
+			options: [
+				{
+					styles: {
+						react: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+		},
 	],
 
 	invalid: [
@@ -543,51 +657,58 @@ test({
 
 		{
 			code: 'require(\'namespace\')',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'const {} = require(\'namespace\')',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import \'namespace\'',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import {} from \'namespace\'',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import(\'namespace\')',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'const {default: x} = require(\'namespace\')',
-			errors: [namespaceError],
+			output: 'const namespace = require(\'namespace\')',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'const {...rest} = require("namespace")',
-			errors: [namespaceError],
+			output: 'const namespace = require("namespace")',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import x from \'namespace\'',
-			errors: [namespaceError],
+			output: 'import * as namespace from \'namespace\'',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'const {x} = require(\'namespace\')',
-			errors: [namespaceError],
+			output: 'const namespace = require(\'namespace\')',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'const {x: y} = require(\'namespace\')',
-			errors: [namespaceError],
+			output: 'const namespace = require(\'namespace\')',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import {x} from \'namespace\'',
-			errors: [namespaceError],
+			output: 'import * as namespace from \'namespace\'',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import {x as y} from \'namespace\'',
-			errors: [namespaceError],
+			output: 'import * as namespace from \'namespace\'',
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: outdent`
@@ -595,7 +716,7 @@ test({
 					const {x} = await import('namespace');
 				}
 			`,
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: outdent`
@@ -603,19 +724,19 @@ test({
 					const {x: y} = await import('namespace');
 				}
 			`,
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'export {x} from \'namespace\'',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'export {x as y} from \'namespace\'',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'export {default} from \'namespace\'',
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 
 		{
@@ -784,6 +905,7 @@ test({
 
 		{
 			code: 'import {x} from "namespace"',
+			output: 'import * as namespace from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -792,10 +914,11 @@ test({
 					},
 				},
 			}],
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import {x, y} from "namespace"',
+			output: 'import * as namespace from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -804,10 +927,11 @@ test({
 					},
 				},
 			}],
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
 			code: 'import {x as y} from "namespace"',
+			output: 'import * as namespace from "namespace"',
 			options: [{
 				styles: {
 					namespace: {
@@ -816,10 +940,11 @@ test({
 					},
 				},
 			}],
-			errors: [namespaceError],
+			errors: [getNamespaceError('namespace')],
 		},
 		{
-			code: 'import {x} from "react"',
+			code: 'import {useState} from "react"',
+			output: 'import * as React from "react"',
 			options: [{
 				styles: {
 					react: {
@@ -828,16 +953,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react',
-				},
-			}],
+			errors: [getNamespaceError('react')],
 		},
 		{
 			code: 'import {useState, useEffect} from "react"',
+			output: 'import * as React from "react"',
 			options: [{
 				styles: {
 					react: {
@@ -846,16 +966,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react',
-				},
-			}],
+			errors: [getNamespaceError('react')],
 		},
 		{
 			code: 'import {render} from "react-dom"',
+			output: 'import * as ReactDOM from "react-dom"',
 			options: [{
 				styles: {
 					'react-dom': {
@@ -864,16 +979,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-dom',
-				},
-			}],
+			errors: [getNamespaceError('react-dom')],
 		},
 		{
 			code: 'import {Route, Switch} from "react-router"',
+			output: 'import * as ReactRouter from "react-router"',
 			options: [{
 				styles: {
 					'react-router': {
@@ -882,16 +992,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-router',
-				},
-			}],
+			errors: [getNamespaceError('react-router')],
 		},
 		{
 			code: 'import {BrowserRouter} from "react-router-dom"',
+			output: 'import * as ReactRouterDOM from "react-router-dom"',
 			options: [{
 				styles: {
 					'react-router-dom': {
@@ -900,16 +1005,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-router-dom',
-				},
-			}],
+			errors: [getNamespaceError('react-router-dom')],
 		},
 		{
 			code: 'import {string, number} from "prop-types"',
+			output: 'import * as PropTypes from "prop-types"',
 			options: [{
 				styles: {
 					'prop-types': {
@@ -918,16 +1018,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'prop-types',
-				},
-			}],
+			errors: [getNamespaceError('prop-types')],
 		},
 		{
 			code: 'const {useState, useEffect} = require("react")',
+			output: 'const React = require("react")',
 			options: [{
 				styles: {
 					react: {
@@ -936,16 +1031,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react',
-				},
-			}],
+			errors: [getNamespaceError('react')],
 		},
 		{
 			code: 'const {render} = require("react-dom")',
+			output: 'const ReactDOM = require("react-dom")',
 			options: [{
 				styles: {
 					'react-dom': {
@@ -954,16 +1044,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-dom',
-				},
-			}],
+			errors: [getNamespaceError('react-dom')],
 		},
 		{
 			code: 'const {Route, Switch} = require("react-router")',
+			output: 'const ReactRouter = require("react-router")',
 			options: [{
 				styles: {
 					'react-router': {
@@ -972,16 +1057,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-router',
-				},
-			}],
+			errors: [getNamespaceError('react-router')],
 		},
 		{
 			code: 'const {BrowserRouter} = require("react-router-dom")',
+			output: 'const ReactRouterDOM = require("react-router-dom")',
 			options: [{
 				styles: {
 					'react-router-dom': {
@@ -990,16 +1070,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-router-dom',
-				},
-			}],
+			errors: [getNamespaceError('react-router-dom')],
 		},
 		{
 			code: 'const {string, number} = require("prop-types")',
+		 output: 'const PropTypes = require("prop-types")',
 			options: [{
 				styles: {
 					'prop-types': {
@@ -1008,16 +1083,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'prop-types',
-				},
-			}],
+			errors: [getNamespaceError('prop-types')],
 		},
 		{
 			code: 'import {map} from "lodash"',
+			output: 'import * as _ from "lodash"',
 			options: [{
 				styles: {
 					lodash: {
@@ -1026,16 +1096,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'lodash',
-				},
-			}],
+			errors: [getNamespaceError('lodash')],
 		},
 		{
 			code: 'const {map} = require("lodash")',
+			output: 'const _ = require("lodash")',
 			options: [{
 				styles: {
 					lodash: {
@@ -1044,16 +1109,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'lodash',
-				},
-			}],
+			errors: [getNamespaceError('lodash')],
 		},
 		{
 			code: 'import {map} from "lodash-es"',
+			output: 'import * as _ from "lodash-es"',
 			options: [{
 				styles: {
 					'lodash-es': {
@@ -1062,16 +1122,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'lodash-es',
-				},
-			}],
+			errors: [getNamespaceError('lodash-es')],
 		},
 		{
 			code: 'const {map} = require("lodash-es")',
+			output: 'const _ = require("lodash-es")',
 			options: [{
 				styles: {
 					'lodash-es': {
@@ -1080,16 +1135,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'lodash-es',
-				},
-			}],
+			errors: [getNamespaceError('lodash-es')],
 		},
 		{
 			code: 'import {$} from "jquery"',
+			output: 'import * as $ from "jquery"',
 			options: [{
 				styles: {
 					jquery: {
@@ -1098,16 +1148,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'jquery',
-				},
-			}],
+			errors: [getNamespaceError('jquery')],
 		},
 		{
 			code: 'const {$} = require("jquery")',
+			output: 'const $ = require("jquery")',
 			options: [{
 				styles: {
 					jquery: {
@@ -1116,16 +1161,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'jquery',
-				},
-			}],
+			errors: [getNamespaceError('jquery')],
 		},
 		{
 			code: 'import {css} from "styled-components"',
+			output: 'import * as styled from "styled-components"',
 			options: [{
 				styles: {
 					'styled-components': {
@@ -1134,16 +1174,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'styled-components',
-				},
-			}],
+			errors: [getNamespaceError('styled-components')],
 		},
 		{
 			code: 'const {css} = require("styled-components")',
+		 	output: 'const styled = require("styled-components")',
 			options: [{
 				styles: {
 					'styled-components': {
@@ -1152,16 +1187,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'styled-components',
-				},
-			}],
+			errors: [getNamespaceError('styled-components')],
 		},
 		{
 			code: 'import {createStore} from "redux"',
+			output: 'import * as Redux from "redux"',
 			options: [{
 				styles: {
 					redux: {
@@ -1170,16 +1200,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'redux',
-				},
-			}],
+			errors: [getNamespaceError('redux')],
 		},
 		{
 			code: 'const {createStore} = require("redux")',
+			output: 'const Redux = require("redux")',
 			options: [{
 				styles: {
 					redux: {
@@ -1188,16 +1213,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'redux',
-				},
-			}],
+			errors: [getNamespaceError('redux')],
 		},
 		{
 			code: 'import {connect} from "react-redux"',
+			output: 'import * as ReactRedux from "react-redux"',
 			options: [{
 				styles: {
 					'react-redux': {
@@ -1206,16 +1226,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-redux',
-				},
-			}],
+			errors: [getNamespaceError('react-redux')],
 		},
 		{
 			code: 'const {connect} = require("react-redux")',
+			output: 'const ReactRedux = require("react-redux")',
 			options: [{
 				styles: {
 					'react-redux': {
@@ -1224,16 +1239,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'react-redux',
-				},
-			}],
+			errors: [getNamespaceError('react-redux')],
 		},
 		{
 			code: 'import {get} from "axios"',
+			output: 'import * as Axios from "axios"',
 			options: [{
 				styles: {
 					axios: {
@@ -1242,16 +1252,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'axios',
-				},
-			}],
+			errors: [getNamespaceError('axios')],
 		},
 		{
 			code: 'const {get} = require("axios")',
+			output: 'const Axios = require("axios")',
 			options: [{
 				styles: {
 					axios: {
@@ -1260,16 +1265,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'axios',
-				},
-			}],
+			errors: [getNamespaceError('axios')],
 		},
 		{
 			code: 'import {format} from "date-fns"',
+			output: 'import * as dateFns from "date-fns"',
 			options: [{
 				styles: {
 					'date-fns': {
@@ -1278,16 +1278,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'date-fns',
-				},
-			}],
+			errors: [getNamespaceError('date-fns')],
 		},
 		{
 			code: 'const {format} = require("date-fns")',
+			output: 'const dateFns = require("date-fns")',
 			options: [{
 				styles: {
 					'date-fns': {
@@ -1296,16 +1291,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'date-fns',
-				},
-			}],
+			errors: [getNamespaceError('date-fns')],
 		},
 		{
 			code: 'import {map} from "ramda"',
+			output: 'import * as R from "ramda"',
 			options: [{
 				styles: {
 					ramda: {
@@ -1314,16 +1304,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'ramda',
-				},
-			}],
+			errors: [getNamespaceError('ramda')],
 		},
 		{
 			code: 'const {map} = require("ramda")',
+			output: 'const R = require("ramda")',
 			options: [{
 				styles: {
 					ramda: {
@@ -1332,16 +1317,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'ramda',
-				},
-			}],
+			errors: [getNamespaceError('ramda')],
 		},
 		{
 			code: 'import {Observable} from "rxjs"',
+			output: 'import * as Rx from "rxjs"',
 			options: [{
 				styles: {
 					rxjs: {
@@ -1350,16 +1330,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'rxjs',
-				},
-			}],
+			errors: [getNamespaceError('rxjs')],
 		},
 		{
 			code: 'const {Observable} = require("rxjs")',
+			output: 'const Rx = require("rxjs")',
 			options: [{
 				styles: {
 					rxjs: {
@@ -1368,16 +1343,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'rxjs',
-				},
-			}],
+			errors: [getNamespaceError('rxjs')],
 		},
 		{
 			code: 'import {ref} from "vue"',
+			output: 'import * as Vue from "vue"',
 			options: [{
 				styles: {
 					vue: {
@@ -1386,16 +1356,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'vue',
-				},
-			}],
+			errors: [getNamespaceError('vue')],
 		},
 		{
 			code: 'const {ref} = require("vue")',
+			output: 'const Vue = require("vue")',
 			options: [{
 				styles: {
 					vue: {
@@ -1404,16 +1369,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'vue',
-				},
-			}],
+			errors: [getNamespaceError('vue')],
 		},
 		{
 			code: 'import {Component} from "angular"',
+			output: 'import * as Angular from "angular"',
 			options: [{
 				styles: {
 					angular: {
@@ -1422,16 +1382,11 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'angular',
-				},
-			}],
+			errors: [getNamespaceError('angular')],
 		},
 		{
 			code: 'const {Component} = require("angular")',
+			output: 'const Angular = require("angular")',
 			options: [{
 				styles: {
 					angular: {
@@ -1440,13 +1395,185 @@ test({
 					},
 				},
 			}],
-			errors: [{
-				messageId: 'importStyle',
-				data: {
-					allowedStyles: 'namespace',
-					moduleName: 'angular',
+			errors: [getNamespaceError('angular')],
+		},
+
+		{
+			code: outdent`
+				import {useState, useEffect} from 'react';
+				useState(0);
+				useEffect(() => {});
+			`,
+			output: outdent`
+				import * as React from 'react';
+				React.useState(0);
+				React.useEffect(() => {});
+			`,
+			options: [
+				{
+					styles: {
+						react: {
+							namespace: true,
+							named: false,
+						},
+					},
 				},
-			}],
+			],
+			errors: [getNamespaceError('react')],
+		},
+		{
+			code: outdent`
+				const {map, filter} = require('lodash');
+				map([1, 2, 3], x => x * 2);
+				filter([1, 2, 3], x => x > 2);
+			`,
+			output: outdent`
+				const _ = require('lodash');
+				_.map([1, 2, 3], x => x * 2);
+				_.filter([1, 2, 3], x => x > 2);
+			`,
+			options: [
+				{
+					styles: {
+						lodash: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('lodash')],
+		},
+		{
+			code: outdent`
+				import {render, hydrate} from 'react-dom';
+				render(App(), document.body);
+				hydrate(App(), document.body);
+			`,
+			output: outdent`
+				import * as ReactDOM from 'react-dom';
+				ReactDOM.render(App(), document.body);
+				ReactDOM.hydrate(App(), document.body);
+			`,
+			options: [
+				{
+					styles: {
+						"react-dom": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('react-dom')],
+		},
+		{
+			code: outdent`
+				const {string, number, bool} = require('prop-types');
+				Component.propTypes = {
+					name: string,
+					age: number,
+					isActive: bool,
+				};
+			`,
+			output: outdent`
+				const PropTypes = require('prop-types');
+				Component.propTypes = {
+					name: PropTypes.string,
+					age: PropTypes.number,
+					isActive: PropTypes.bool,
+				};
+			`,
+			options: [
+				{
+					styles: {
+						"prop-types": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('prop-types')],
+		},
+		{
+			code: outdent`
+				import {Route, Switch, useParams} from 'react-router';
+				function App() {
+					const params = useParams();
+					return createElement('div', null,
+						createElement(Switch, null,
+							createElement(Route, { path: "/" })
+						)
+					);
+				}
+			`,
+			output: outdent`
+				import * as ReactRouter from 'react-router';
+				function App() {
+					const params = ReactRouter.useParams();
+					return createElement('div', null,
+						createElement(ReactRouter.Switch, null,
+							createElement(ReactRouter.Route, { path: "/" })
+						)
+					);
+				}
+			`,
+			options: [
+				{
+					styles: {
+						"react-router": {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('react-router')],
+		},
+		{
+			code: outdent`
+				const React = 'not the real React';
+				import {useState} from 'react';
+				useState(0);
+			`,
+			output: outdent`
+				const React = 'not the real React';
+				import * as React_ from 'react';
+				React_.useState(0);
+			`,
+			options: [
+				{
+					styles: {
+						react: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('react')],
+		},
+		{
+			code: outdent`
+				import {useState} from 'react';
+				useState(0);
+			`,
+			output: outdent`
+				import * as React from 'react';
+				React.useState(0);
+			`,
+			options: [
+				{
+					styles: {
+						react: {
+							namespace: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [getNamespaceError('react')],
 		},
 	].map(test => addDefaultOptions(test)),
 });
@@ -1466,7 +1593,8 @@ test.babel({
 		},
 		{
 			code: 'const {...rest2} = require("namespace")',
-			errors: [namespaceError],
+			output: 'const namespace = require("namespace")',
+			errors: [getNamespaceError('namespace')],
 		},
 	].map(test => addDefaultOptions(test)),
 });
