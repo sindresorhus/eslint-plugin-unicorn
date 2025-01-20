@@ -22,7 +22,8 @@
 	"scripts": {
 		"// https://github.com/bmish/eslint-doc-generator/issues/615 lint:eslint-docs": "npm run fix:eslint-docs -- --check",
 		"bundle-lodash": "echo export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
-		"create-rule": "node ./scripts/create-rule.js && npm run fix:eslint-docs",
+		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
+		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:eslint-docs": "eslint-doc-generator",
 		"fix:js": "npm run lint:js -- --fix",
