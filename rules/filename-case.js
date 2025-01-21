@@ -1,4 +1,5 @@
 import path from 'node:path';
+import {isRegExp} from 'node:util/types';
 import {
 	camelCase,
 	kebabCase,
@@ -164,7 +165,7 @@ const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
-		if (item instanceof RegExp) {
+		if (isRegExp(item)) {
 			return item;
 		}
 

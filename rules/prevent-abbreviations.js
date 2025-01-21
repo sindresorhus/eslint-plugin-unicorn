@@ -1,4 +1,5 @@
 import path from 'node:path';
+import {isRegExp} from 'node:util/types';
 import {defaultsDeep, upperFirst, lowerFirst} from './utils/lodash.js';
 import avoidCapture from './utils/avoid-capture.js';
 import cartesianProductSamples from './utils/cartesian-product-samples.js';
@@ -50,7 +51,7 @@ const prepareOptions = ({
 	ignore = [...defaultIgnore, ...ignore];
 
 	ignore = ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	return {

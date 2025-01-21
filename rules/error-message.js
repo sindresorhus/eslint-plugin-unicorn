@@ -1,6 +1,7 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import isShadowed from './utils/is-shadowed.js';
 import {isCallOrNewExpression} from './ast/index.js';
+import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -10,19 +11,6 @@ const messages = {
 	[MESSAGE_ID_EMPTY_MESSAGE]: 'Error message should not be an empty string.',
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
-
-const builtinErrors = [
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-	'Error',
-	'EvalError',
-	'RangeError',
-	'ReferenceError',
-	'SyntaxError',
-	'TypeError',
-	'URIError',
-	'InternalError',
-	'AggregateError',
-];
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
