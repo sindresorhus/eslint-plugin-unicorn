@@ -3,8 +3,7 @@ import stripIndent from 'strip-indent';
 import {getTester} from './utils/test.js';
 
 /**
-The interesting things to test for this rule are whitespace and multiline templates. Both of those are _very_ hard to see in a
-normal text editor, so replace spaces with •, and tabs with →→.
+The interesting things to test for this rule are whitespace and multiline templates. Both of those are _very_ hard to see in a normal text editor, so replace spaces with •, and tabs with →→.
 
 @param {string} text
 */
