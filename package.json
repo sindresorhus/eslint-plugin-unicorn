@@ -20,7 +20,7 @@
 		"node": ">=18.18"
 	},
 	"scripts": {
- 		"bundle-lodash": "echo export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
+		"bundle-lodash": "echo export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error fix:*",
@@ -31,7 +31,7 @@
 		"integration": "node ./test/integration/test.js",
 		"lint": "run-p --continue-on-error lint:*",
 		"lint:eslint-docs": "npm run fix:eslint-docs -- --check",
- 		"lint:js": "eslint",
+		"lint:js": "eslint",
 		"lint:markdown": "markdownlint \"**/*.md\"",
 		"lint:package-json": "npmPkgJsonLint .",
 		"run-rules-on-codebase": "eslint --config=./eslint.dogfooding.config.js",
@@ -90,6 +90,7 @@
 		"eslint-doc-generator": "^2.0.2",
 		"eslint-plugin-eslint-plugin": "^6.4.0",
 		"eslint-plugin-internal-rules": "file:./scripts/internal-rules/",
+		"eslint-plugin-jsdoc": "^50.6.2",
 		"eslint-remote-tester": "^4.0.1",
 		"eslint-remote-tester-repositories": "^2.0.0",
 		"espree": "^10.3.0",

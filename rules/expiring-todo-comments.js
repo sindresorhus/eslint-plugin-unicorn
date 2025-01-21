@@ -1,4 +1,5 @@
 import path from 'node:path';
+import {isRegExp} from 'node:util/types';
 import {readPackageUpSync} from 'read-package-up';
 import semver from 'semver';
 import * as ci from 'ci-info';
@@ -286,7 +287,7 @@ const create = context => {
 	};
 
 	const ignoreRegexes = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	const dirname = path.dirname(context.filename);

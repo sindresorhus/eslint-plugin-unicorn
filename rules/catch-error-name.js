@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {findVariable} from '@eslint-community/eslint-utils';
 import avoidCapture from './utils/avoid-capture.js';
 import {renameVariable} from './fix/index.js';
@@ -40,7 +41,7 @@ const create = context => {
 	};
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
 		name === expectedName
