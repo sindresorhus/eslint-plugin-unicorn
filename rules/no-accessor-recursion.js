@@ -60,7 +60,7 @@ const create = context => {
 					switch (property.kind) {
 						case 'get': {
 							if (isThisAccessed()) {
-								context.report({node: parent, messageId: MESSAGE_ID_ERROR});
+								return {node: parent, messageId: MESSAGE_ID_ERROR};
 							}
 
 							break;
@@ -68,7 +68,7 @@ const create = context => {
 
 						case 'set': {
 							if (isThisAccessed() && parent.parent.type === 'AssignmentExpression') {
-								context.report({node: parent.parent, messageId: MESSAGE_ID_ERROR});
+								return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
 							}
 
 							break;
