@@ -27,7 +27,7 @@ Check if a property is a valid getter or setter.
 @param {import('estree').Node} property
 */
 const isValidProperty = property =>
-	['Property', 'MethodDefinition'].includes(property.type) && !property.computed
+	['Property', 'MethodDefinition'].includes(property.type) && !property.computed && !property.static
 	&& (property.key.type === 'Identifier' || property.key.type === 'PrivateIdentifier');
 
 /**
