@@ -109,14 +109,6 @@ test.snapshot({
 				}
 			};
 		`,
-		// Static getter
-		outdent`
-			class Foo{
-				static get bar() {
-					return this.bar;
-				} 
-			}
-		`,
 	],
 	invalid: [
 		// Getter
@@ -206,6 +198,14 @@ test.snapshot({
 				get #bar() {
 					return this.#bar
 				}
+			}
+		`,
+		// Static getter
+		outdent`
+			class Foo{
+				static get bar() {
+					return this.bar;
+				} 
 			}
 		`,
 	],
