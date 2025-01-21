@@ -165,5 +165,13 @@ test.snapshot({
 				}
 			};
 		`,
+		// Access this in the right of MemberExpression
+		outdent`
+			const foo = {
+				get bar() {
+					a = this.bar;
+				}
+			};
+		`,
 	],
 });
