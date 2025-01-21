@@ -66,7 +66,7 @@ const replaceWithFunctionCall = function * ({fixer, node, sourceCode, tokenStore
 	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 };
 
-const replaceWithTypeOfStatement = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
+const replaceWithTypeOfExpression = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
 	const {left, right} = node;
 
 	// Check if the node is in a Vue template expression
@@ -142,7 +142,7 @@ const create = context => {
 					return problem;
 				}
 
-				problem.fix = fixer => replaceWithTypeOfStatement({
+				problem.fix = fixer => replaceWithTypeOfExpression({
 					fixer, node, sourceCode, tokenStore, instanceofToken,
 				});
 
