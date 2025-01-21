@@ -52,7 +52,10 @@ Check if `this` is accessed recursively within a destructuring assignment.
 @param {import('estree').VariableDeclarator} parent
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveDestructuringAccess = (parent, property) => parent.type === 'VariableDeclarator' && parent.id.type === 'ObjectPattern' && parent.id.properties.some(declaratorProperty => declaratorProperty.type === 'Property' && isSameKey(declaratorProperty.key, property.key));
+const isRecursiveDestructuringAccess = (parent, property) =>
+	parent.type === 'VariableDeclarator'
+	&& parent.id.type === 'ObjectPattern'
+	&& parent.id.properties.some(declaratorProperty => declaratorProperty.type === 'Property' && !declaratorProperty.computed && isSameKey(declaratorProperty.key, property.key));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

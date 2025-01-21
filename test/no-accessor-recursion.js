@@ -121,6 +121,14 @@ test.snapshot({
 				}
 			}
 		`,
+		// Destructuring assignment with computed property
+		outdent`
+			class Foo{
+				get bar() {
+					const {[bar]: bar} = this;
+				}
+			}
+		`,
 	],
 	invalid: [
 		// Getter
