@@ -43,7 +43,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		/** @param {import('estree').ThisExpression} node */
+		/** @param {import('estree').ThisExpression} thisExpression */
 		ThisExpression(thisExpression) {
 			/** @type {import('estree').MemberExpression} */
 			const {parent} = thisExpression;
