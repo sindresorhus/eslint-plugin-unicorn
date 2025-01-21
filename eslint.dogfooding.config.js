@@ -2,7 +2,6 @@
 /*
 ! If you're making a new rule, you can ignore this before review.
 */
-
 import eslintPluginUnicorn from './index.js';
 
 const config = [
