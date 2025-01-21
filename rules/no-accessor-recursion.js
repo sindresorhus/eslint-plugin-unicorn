@@ -18,15 +18,25 @@ const getClosestFunctionScope = (sourceCode, node) => {
 	}
 };
 
-const isDotNotationAccess = node =>
-	node.type === 'MemberExpression'
-	&& !node.computed
-	&& node.property.type === 'Identifier';
-const isAccessor = node =>
-	['Property', 'MethodDefinition'].includes(node.type)
-	&& ['set', 'get'].includes(node.kind)
-	&& !node.computed
-	&& node.key.type === 'Identifier';
+/** @param {import('estree').MemberExpression} node */
+const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && (node.property.type === 'Identifier' || node.property.type === 'PrivateIdentifier');
+
+/**
+Check if a property is a valid getter or setter.
+
+@param {import('estree').Node} property
+*/
+const isValidProperty = property =>
+	['Property', 'MethodDefinition'].includes(property.type) && !property.computed
+	&& (property.key.type === 'Identifier' || property.key.type === 'PrivateIdentifier');
+
+/**
+Check if `this` is accessed recursively within a getter or setter.
+
+@param {import('estree').MemberExpression} parent
+@param {import('estree').Property | import('estree').MethodDefinition} property
+*/
+const isRecursiveAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.name === property.key.name;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -38,11 +48,6 @@ const create = context => {
 			/** @type {import('estree').MemberExpression} */
 			const {parent} = thisExpression;
 
-			// Check if `this` is accessed via dot notation
-			if (!isDotNotationAccess(parent)) {
-				return;
-			}
-
 			const scope = getClosestFunctionScope(sourceCode, thisExpression);
 
 			if (!scope) {
@@ -52,7 +57,11 @@ const create = context => {
 			/** @type {import('estree').Property | import('estree').MethodDefinition} */
 			const property = scope.block.parent;
 
-			if (!isAccessor(property) || parent.property.name !== property.key.name) {
+			if (!isValidProperty(property)) {
+				return;
+			}
+
+			if (!isRecursiveAccess(parent, property)) {
 				return;
 			}
 

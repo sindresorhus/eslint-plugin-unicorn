@@ -188,5 +188,17 @@ test.snapshot({
 				}
 			};
 		`,
+		// Private field
+		outdent`
+			class Foo{
+				get bar() {
+					return this.#bar;
+				}
+
+				get #bar() {
+					return this.#bar
+				}
+			}
+		`,
 	],
 });
