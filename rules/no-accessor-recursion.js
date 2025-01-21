@@ -31,12 +31,20 @@ const isValidProperty = property =>
 	&& (property.key.type === 'Identifier' || property.key.type === 'PrivateIdentifier');
 
 /**
+Check if two property keys are the same.
+
+@param {import('estree').Property['key']} KeyLeft
+@param {import('estree').Property['key']} KeyRight
+*/
+const isSameKey = (KeyLeft, KeyRight) => ['type', 'name'].every(key => KeyLeft[key] === KeyRight[key]);
+
+/**
 Check if `this` is accessed recursively within a getter or setter.
 
 @param {import('estree').MemberExpression} parent
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveMemberAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.type === property.key.type && parent.property.name === property.key.name;
+const isRecursiveMemberAccess = (parent, property) => isDotNotationAccess(parent) && isSameKey(parent.property, property.key);
 
 /**
 Check if `this` is accessed recursively within a destructuring assignment.
@@ -44,7 +52,7 @@ Check if `this` is accessed recursively within a destructuring assignment.
 @param {import('estree').VariableDeclarator} parent
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveDestructuringAccess = (parent, property) => parent.type === 'VariableDeclarator' && parent.id.type === 'ObjectPattern' && parent.id.properties.some(declaratorProperty => declaratorProperty.key.type === property.key.type && declaratorProperty.key.name === property.key.name);
+const isRecursiveDestructuringAccess = (parent, property) => parent.type === 'VariableDeclarator' && parent.id.type === 'ObjectPattern' && parent.id.properties.some(declaratorProperty => declaratorProperty.type === 'Property' && isSameKey(declaratorProperty.key, property.key));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
