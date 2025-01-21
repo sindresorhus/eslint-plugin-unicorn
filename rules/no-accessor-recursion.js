@@ -18,6 +18,7 @@ const getClosestFunctionScope = (context, node) => {
 		if (scope.upper === null) {
 			return scope;
 		}
+
 		scope = scope.upper;
 	}
 
@@ -43,6 +44,7 @@ const create = context => {
 				]),
 			),
 		),
+		/** @param {import('estree').ThisExpression} node */
 		ThisExpression(node) {
 			/** @type {import('estree').Property | import('estree').MethodDefinition} */
 			const property = functionExpressionStack.at(-1);
@@ -61,26 +63,17 @@ const create = context => {
 			/** @type {import('estree').MemberExpression} */
 			const {parent} = node;
 
-			const isThisAccess = () => isDotNotationAccess(parent) && parent.property.name === property.key.name;
-
-			if (!isThisAccess(parent, property)) {
+			// Check if `this` is accessed via dot notation
+			if (!isDotNotationAccess(parent) || parent.property.name !== property.key.name) {
 				return;
 			}
 
-			switch (property.kind) {
-				case 'get': {
-					return {node: parent, messageId: MESSAGE_ID_ERROR};
-				}
+			if (property.kind === 'get') {
+				return {node: parent, messageId: MESSAGE_ID_ERROR};
+			}
 
-				case 'set': {
-					if (parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
-						return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
-					}
-
-					break;
-				}
-
-				default:
+			if (property.kind === 'set' && parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
+				return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
 			}
 		},
 	};
