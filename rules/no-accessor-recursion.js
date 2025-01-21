@@ -6,6 +6,8 @@ const messages = {
 /** @param {import('eslint').Scope.Scope} scope */
 const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
 
+const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const functionExpressionStack = [];
@@ -58,7 +60,7 @@ const create = context => {
 				/** @type {import('estree').MemberExpression} */
 				const {parent} = node;
 
-				const isThisAccessed = () => parent.type === 'MemberExpression' && !parent.computed && parent.property.type === 'Identifier' && parent.property.name === property.key.name;
+				const isThisAccessed = () => isDotNotationAccess(parent) && parent.property.name === property.key.name;
 
 				switch (property.kind) {
 					case 'get': {
