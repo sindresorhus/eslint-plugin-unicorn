@@ -40,42 +40,44 @@ const create = context => {
 			functionExpressionStack.pop();
 		},
 		ThisExpression(node) {
-			if (functionExpressionStack.length > 0) {
-				/** @type {import('estree').Property | import('estree').MethodDefinition} */
-				const property = functionExpressionStack.at(-1);
+			/** @type {import('estree').Property | import('estree').MethodDefinition} */
+			const property = functionExpressionStack.at(-1);
 
-				let scope = context.sourceCode.getScope(node);
+			if (!property) {
+				return;
+			}
 
-				while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
-					scope = scope.upper;
-				}
+			let scope = context.sourceCode.getScope(node);
 
-				// Check if `this` is in the current function expression scope
-				if (scope.block === property.value) {
-					/** @type {import('estree').MemberExpression} */
-					const {parent} = node;
+			while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
+				scope = scope.upper;
+			}
 
-					const isThisAccessed = () => parent.type === 'MemberExpression' && !parent.computed && parent.property.type === 'Identifier' && parent.property.name === property.key.name;
+			// Check if `this` is in the current function expression scope
+			if (scope.block === property.value) {
+				/** @type {import('estree').MemberExpression} */
+				const {parent} = node;
 
-					switch (property.kind) {
-						case 'get': {
-							if (isThisAccessed()) {
-								return {node: parent, messageId: MESSAGE_ID_ERROR};
-							}
+				const isThisAccessed = () => parent.type === 'MemberExpression' && !parent.computed && parent.property.type === 'Identifier' && parent.property.name === property.key.name;
 
-							break;
+				switch (property.kind) {
+					case 'get': {
+						if (isThisAccessed()) {
+							return {node: parent, messageId: MESSAGE_ID_ERROR};
 						}
 
-						case 'set': {
-							if (isThisAccessed() && parent.parent.type === 'AssignmentExpression') {
-								return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
-							}
-
-							break;
-						}
-
-						default:
+						break;
 					}
+
+					case 'set': {
+						if (isThisAccessed() && parent.parent.type === 'AssignmentExpression') {
+							return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
+						}
+
+						break;
+					}
+
+					default:
 				}
 			}
 		},
