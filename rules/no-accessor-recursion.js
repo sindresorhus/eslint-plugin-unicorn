@@ -3,26 +3,19 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within getters and setters.',
 };
 
-/** @param {import('eslint').Scope.Scope} scope */
-const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
-
 /**
 Get the closest non-arrow function scope.
 
 @param {import('eslint').SourceCode} sourceCode
 @param {import('estree').Node} node
+@return {import('eslint').Scope.Scope | undefined}
 */
 const getClosestFunctionScope = (sourceCode, node) => {
-	let scope = sourceCode.getScope(node);
-	while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
-		if (scope.upper === null) {
-			return;
+	for (let scope = sourceCode.getScope(node); scope; scope = scope.upper) {
+		if (scope.type === 'function' && scope.block.type !== 'ArrowFunctionExpression') {
+			return scope;
 		}
-
-		scope = scope.upper;
 	}
-
-	return scope;
 };
 
 const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
