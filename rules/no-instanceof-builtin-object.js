@@ -8,7 +8,7 @@ const isInstanceofToken = token => token.value === 'instanceof' && token.type ==
 
 const MESSAGE_ID = 'no-instanceof-builtin-object';
 const messages = {
-	[MESSAGE_ID]: 'Unsafe instanceof should not be used to check type.',
+	[MESSAGE_ID]: 'Avoid using `instanceof` for type checking as it can lead to unreliable results.',
 };
 
 const looseStrategyConstructors = new Set([
