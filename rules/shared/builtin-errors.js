@@ -1,4 +1,4 @@
- const builtinErrors = [
+const builtinErrors = [
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
 	'Error',
 	'EvalError',
@@ -11,4 +11,4 @@
 	'AggregateError',
 ];
 
-export default builtinErrors
+export default builtinErrors;
