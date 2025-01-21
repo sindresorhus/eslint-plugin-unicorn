@@ -86,6 +86,14 @@ test.snapshot({
 				}
 			};
 		`,
+		// Test computed property
+		outdent`
+			const foo = {
+				get bar() {
+					return this[bar];
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter

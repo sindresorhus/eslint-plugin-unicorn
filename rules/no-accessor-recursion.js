@@ -55,7 +55,7 @@ const create = context => {
 					/** @type {import('estree').MemberExpression} */
 					const {parent} = node;
 
-					const isThisAccessed = () => parent.type === 'MemberExpression' && parent.property.type === 'Identifier' && parent.property.name === property.key.name;
+					const isThisAccessed = () => parent.type === 'MemberExpression' && !parent.computed && parent.property.type === 'Identifier' && parent.property.name === property.key.name;
 
 					switch (property.kind) {
 						case 'get': {
