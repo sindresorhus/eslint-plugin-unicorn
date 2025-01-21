@@ -53,20 +53,22 @@ const strictStrategyConstructors = new Set([
 	'FinalizationRegistry',
 ]);
 
-const replaceWithFunctionCall = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}, functionCall) {
+const replaceWithFunctionCall = (node, sourceCode, functionName) => function * (fixer) {
+	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
 	const {left, right} = node;
 
 	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
 	const range = getParenthesizedRange(left, tokenStore);
-	yield fixer.insertTextBeforeRange(range, functionCall + '(');
+	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
 	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
 	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 };
 
-const replaceWithTypeOfExpression = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
+const replaceWithTypeOfExpression = (node, sourceCode) => function * (fixer) {
+	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
 	const {left, right} = node;
 
 	// Check if the node is in a Vue template expression
@@ -124,36 +126,25 @@ const create = context => {
 				return;
 			}
 
-			const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
-
 			/** @type {import('eslint').Rule.ReportDescriptor} */
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
 			};
 
-			if (right.name === 'Error' && useErrorIsError) {
-				problem.fix = fixer => replaceWithFunctionCall({
-					fixer, node, sourceCode, tokenStore, instanceofToken,
-				}, 'Error.isError');
+			if (
+				right.name === 'Array'
+				|| (right.name === 'Error' && useErrorIsError)
+			) {
+				const functionName = right.name === 'Array' ? 'Array.isArray' : 'Error.isError';
+				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
 
 				return problem;
 			}
 
 			// Loose strategy by default
 			if (looseStrategyConstructors.has(right.name)) {
-				if (right.name === 'Array') {
-					problem.fix = fixer => replaceWithFunctionCall({
-						fixer, node, sourceCode, tokenStore, instanceofToken,
-					}, 'Array.isArray');
-
-					return problem;
-				}
-
-				problem.fix = fixer => replaceWithTypeOfExpression({
-					fixer, node, sourceCode, tokenStore, instanceofToken,
-				});
-
+				problem.fix = replaceWithTypeOfExpression(node, sourceCode);
 				return problem;
 			}
 
