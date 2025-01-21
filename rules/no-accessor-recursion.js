@@ -6,6 +6,21 @@ const messages = {
 /** @param {import('eslint').Scope.Scope} scope */
 const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.type === 'ArrowFunctionExpression';
 
+/**
+Get the closest non-arrow function scope.
+
+@param {import('eslint').Rule.RuleContext} context
+@param {import('estree').Node} node
+*/
+const getClosestFunctionScope = (context, node) => {
+	let scope = context.sourceCode.getScope(node);
+	while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
+		scope = scope.upper;
+	}
+
+	return scope;
+};
+
 const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -33,38 +48,36 @@ const create = context => {
 				return;
 			}
 
-			let scope = context.sourceCode.getScope(node);
-
-			while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
-				scope = scope.upper;
-			}
+			const scope = getClosestFunctionScope(context, node);
 
 			// Check if `this` is in the current function expression scope
-			if (scope.block === property.value) {
-				/** @type {import('estree').MemberExpression} */
-				const {parent} = node;
+			if (scope.block !== property.value) {
+				return;
+			}
 
-				const isThisAccessed = () => isDotNotationAccess(parent) && parent.property.name === property.key.name;
+			/** @type {import('estree').MemberExpression} */
+			const {parent} = node;
 
-				switch (property.kind) {
-					case 'get': {
-						if (isThisAccessed()) {
-							return {node: parent, messageId: MESSAGE_ID_ERROR};
-						}
+			const isThisAccess = () => isDotNotationAccess(parent) && parent.property.name === property.key.name;
 
-						break;
-					}
+			if (!isThisAccess(parent, property)) {
+				return;
+			}
 
-					case 'set': {
-						if (isThisAccessed() && parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
-							return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
-						}
-
-						break;
-					}
-
-					default:
+			switch (property.kind) {
+				case 'get': {
+					return {node: parent, messageId: MESSAGE_ID_ERROR};
 				}
+
+				case 'set': {
+					if (parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
+						return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
+					}
+
+					break;
+				}
+
+				default:
 			}
 		},
 	};
