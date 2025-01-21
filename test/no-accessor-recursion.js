@@ -94,6 +94,14 @@ test.snapshot({
 				}
 			};
 		`,
+		// Setter access in the right of AssignmentExpression
+		outdent`
+			const foo = {
+				set bar(value) {
+					a = this.bar;
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
@@ -165,7 +173,7 @@ test.snapshot({
 				}
 			};
 		`,
-		// Access this in the right of MemberExpression
+		// Getter access in the right of AssignmentExpression
 		outdent`
 			const foo = {
 				get bar() {

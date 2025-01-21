@@ -72,7 +72,7 @@ const create = context => {
 					}
 
 					case 'set': {
-						if (isThisAccessed() && parent.parent.type === 'AssignmentExpression') {
+						if (isThisAccessed() && parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
 							return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
 						}
 
