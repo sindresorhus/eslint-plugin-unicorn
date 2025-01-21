@@ -90,5 +90,10 @@ test.snapshot({
 			assert(foo)
 			assertStrict(foo)
 		`,
+		outdent`
+			import assert from 'assert';
+
+			assert(/** before comment */ typeof foo === 'string', 'foo must be a string' /** after comment */);
+		`,
 	],
 });
