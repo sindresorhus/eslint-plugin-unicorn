@@ -16,7 +16,7 @@ const getClosestFunctionScope = (sourceCode, node) => {
 	let scope = sourceCode.getScope(node);
 	while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
 		if (scope.upper === null) {
-			return scope;
+			return;
 		}
 
 		scope = scope.upper;
@@ -30,34 +30,20 @@ const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.co
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const functionExpressionStack = [];
 
 	return {
-		...Object.fromEntries(
-			['Property', 'MethodDefinition'].flatMap(nodeName =>
-				['get', 'set'].flatMap(kind => [
-					[`${nodeName}[kind="${kind}"]`, node => {
-						functionExpressionStack.push(node);
-					}],
-					[`${nodeName}[kind="${kind}"]:exit`, () => {
-						functionExpressionStack.pop();
-					}],
-				]),
-			),
-		),
 		/** @param {import('estree').ThisExpression} node */
 		ThisExpression(node) {
-			/** @type {import('estree').Property | import('estree').MethodDefinition} */
-			const property = functionExpressionStack.at(-1);
+			const scope = getClosestFunctionScope(sourceCode, node);
 
-			if (!property) {
+			if (!scope) {
 				return;
 			}
 
-			const scope = getClosestFunctionScope(sourceCode, node);
+			/** @type {import('estree').Property | import('estree').MethodDefinition} */
+			const property = scope.block.parent;
 
-			// Check if `this` is in the current function expression scope
-			if (scope.block !== property.value) {
+			if (!['Property', 'MethodDefinition'].includes(property.type) || property.key.type !== 'Identifier') {
 				return;
 			}
 
