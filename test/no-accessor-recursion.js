@@ -109,6 +109,18 @@ test.snapshot({
 				}
 			};
 		`,
+		// Private field without recursion access
+		outdent`
+			class Foo{
+				get bar() {
+					return this.#bar;
+				}
+
+				get #bar() {
+					return 0;
+				}
+			}
+		`,
 	],
 	invalid: [
 		// Getter
