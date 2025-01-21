@@ -11,7 +11,7 @@ test.snapshot({
 		'this.foo = foo',
 		outdent`
 			{
-				this.foo = foo;		
+				this.foo = foo;
 			}
 		`,
 		'this.foo = function () { this.foo }',
@@ -91,6 +91,13 @@ test.snapshot({
 			const foo = {
 				get bar() {
 					return this[bar];
+				}
+			};
+		`,
+		outdent`
+			const foo = {
+				get [bar]() {
+					return this.bar;
 				}
 			};
 		`,

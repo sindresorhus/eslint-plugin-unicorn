@@ -18,7 +18,15 @@ const getClosestFunctionScope = (sourceCode, node) => {
 	}
 };
 
-const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier';
+const isDotNotationAccess = node =>
+	node.type === 'MemberExpression'
+	&& !node.computed
+	&& node.property.type === 'Identifier';
+const isAccessor = node =>
+	['Property', 'MethodDefinition'].includes(node.type)
+	&& ['set', 'get'].includes(node.kind)
+	&& !node.computed
+	&& node.key.type === 'Identifier';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -26,8 +34,16 @@ const create = context => {
 
 	return {
 		/** @param {import('estree').ThisExpression} node */
-		ThisExpression(node) {
-			const scope = getClosestFunctionScope(sourceCode, node);
+		ThisExpression(thisExpression) {
+			/** @type {import('estree').MemberExpression} */
+			const {parent} = thisExpression;
+
+			// Check if `this` is accessed via dot notation
+			if (!isDotNotationAccess(parent)) {
+				return;
+			}
+
+			const scope = getClosestFunctionScope(sourceCode, thisExpression);
 
 			if (!scope) {
 				return;
@@ -36,15 +52,7 @@ const create = context => {
 			/** @type {import('estree').Property | import('estree').MethodDefinition} */
 			const property = scope.block.parent;
 
-			if (!['Property', 'MethodDefinition'].includes(property.type) || property.key.type !== 'Identifier') {
-				return;
-			}
-
-			/** @type {import('estree').MemberExpression} */
-			const {parent} = node;
-
-			// Check if `this` is accessed via dot notation
-			if (!isDotNotationAccess(parent) || parent.property.name !== property.key.name) {
+			if (!isAccessor(property) || parent.property.name !== property.key.name) {
 				return;
 			}
 
