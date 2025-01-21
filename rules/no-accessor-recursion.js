@@ -9,11 +9,11 @@ const isArrowFunctionScope = scope => scope.type === 'function' && scope.block.t
 /**
 Get the closest non-arrow function scope.
 
-@param {import('eslint').Rule.RuleContext} context
+@param {import('eslint').SourceCode} sourceCode
 @param {import('estree').Node} node
 */
-const getClosestFunctionScope = (context, node) => {
-	let scope = context.sourceCode.getScope(node);
+const getClosestFunctionScope = (sourceCode, node) => {
+	let scope = sourceCode.getScope(node);
 	while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
 		if (scope.upper === null) {
 			return scope;
@@ -29,6 +29,7 @@ const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.co
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const functionExpressionStack = [];
 
 	return {
@@ -53,7 +54,7 @@ const create = context => {
 				return;
 			}
 
-			const scope = getClosestFunctionScope(context, node);
+			const scope = getClosestFunctionScope(sourceCode, node);
 
 			// Check if `this` is in the current function expression scope
 			if (scope.block !== property.value) {
