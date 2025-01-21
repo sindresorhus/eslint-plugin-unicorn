@@ -13,34 +13,18 @@ const create = context => {
 	const functionExpressionStack = [];
 
 	return {
-		// Getter for object literal
-		'Property[kind="get"]'(node) {
-			functionExpressionStack.push(node);
-		},
-		'Property[kind="get"]:exit'() {
-			functionExpressionStack.pop();
-		},
-		// Setter for object literal
-		'Property[kind="set"]'(node) {
-			functionExpressionStack.push(node);
-		},
-		'Property[kind="set"]:exit'() {
-			functionExpressionStack.pop();
-		},
-		// Getter for class
-		'MethodDefinition[kind="get"]'(node) {
-			functionExpressionStack.push(node);
-		},
-		'MethodDefinition[kind="get"]:exit'() {
-			functionExpressionStack.pop();
-		},
-		// Setter for class
-		'MethodDefinition[kind="set"]'(node) {
-			functionExpressionStack.push(node);
-		},
-		'MethodDefinition[kind="set"]:exit'() {
-			functionExpressionStack.pop();
-		},
+		...Object.fromEntries(
+			['Property', 'MethodDefinition'].flatMap(nodeName =>
+				['get', 'set'].flatMap(kind => [
+					[`${nodeName}[kind="${kind}"]`, node => {
+						functionExpressionStack.push(node);
+					}],
+					[`${nodeName}[kind="${kind}"]:exit`, () => {
+						functionExpressionStack.pop();
+					}],
+				]),
+			),
+		),
 		ThisExpression(node) {
 			/** @type {import('estree').Property | import('estree').MethodDefinition} */
 			const property = functionExpressionStack.at(-1);
