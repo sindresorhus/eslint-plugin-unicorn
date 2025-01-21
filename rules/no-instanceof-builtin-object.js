@@ -53,20 +53,20 @@ const strictStrategyConstructors = new Set([
 	'FinalizationRegistry',
 ]);
 
-const fixByReplaceMethod = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}, method) {
+const replaceWithFunctionCall = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}, functionCall) {
 	const {left, right} = node;
 
 	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 
 	const range = getParenthesizedRange(left, tokenStore);
-	yield fixer.insertTextBeforeRange(range, method + '(');
+	yield fixer.insertTextBeforeRange(range, functionCall + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
 	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
 	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 };
 
-const fixByTypeof = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
+const replaceWithTypeOfStatement = function * ({fixer, node, sourceCode, tokenStore, instanceofToken}) {
 	const {left, right} = node;
 
 	// Check if the node is in a Vue template expression
@@ -135,14 +135,14 @@ const create = context => {
 			// Loose strategy by default
 			if (looseStrategyConstructors.has(right.name)) {
 				if (right.name === 'Array') {
-					problem.fix = fixer => fixByReplaceMethod({
+					problem.fix = fixer => replaceWithFunctionCall({
 						fixer, node, sourceCode, tokenStore, instanceofToken,
 					}, 'Array.isArray');
 
 					return problem;
 				}
 
-				problem.fix = fixer => fixByTypeof({
+				problem.fix = fixer => replaceWithTypeOfStatement({
 					fixer, node, sourceCode, tokenStore, instanceofToken,
 				});
 
@@ -155,7 +155,7 @@ const create = context => {
 
 			// Strict strategy
 			if (right.name === 'Error' && useErrorIsError) {
-				problem.fix = fixer => fixByReplaceMethod({
+				problem.fix = fixer => replaceWithFunctionCall({
 					fixer, node, sourceCode, tokenStore, instanceofToken,
 				}, 'Error.isError');
 			}
