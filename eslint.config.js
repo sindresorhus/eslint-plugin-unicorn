@@ -1,6 +1,7 @@
 import globals from 'globals';
 import xo from 'eslint-config-xo';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
+import jsdoc from 'eslint-plugin-jsdoc';
 import internal from './scripts/internal-rules/index.js';
 import unicorn from './index.js';
 
@@ -62,6 +63,14 @@ const config = [
 			'eslint-plugin/require-meta-has-suggestions': 'off',
 			'eslint-plugin/require-meta-schema': 'off',
 			'eslint-plugin/require-meta-schema-description': 'off',
+		},
+	},
+	{
+		plugins: {
+			jsdoc,
+		},
+		rules: {
+			'jsdoc/require-asterisk-prefix': ['error', 'never', {}],
 		},
 	},
 ];
