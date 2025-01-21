@@ -214,6 +214,10 @@ test.snapshot({
 				get bar() {
 					const {bar} = this;
 				}
+
+				get baz() {
+					const {baz: baz1} = this;
+				}
 			}
 		`,
 	],
