@@ -115,10 +115,10 @@ const create = context => {
 
 	return {
 		/** @param {import('estree').BinaryExpression} node */
-		'BinaryExpression[operator="instanceof"]'(node) {
-			const {right} = node;
+		BinaryExpression(node) {
+			const {right, operator} = node;
 
-			if (right.type !== 'Identifier' || exclude.includes(right.name)) {
+			if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
 				return;
 			}
 
@@ -138,7 +138,6 @@ const create = context => {
 			) {
 				const functionName = right.name === 'Array' ? 'Array.isArray' : 'Error.isError';
 				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
-
 				return problem;
 			}
 
