@@ -15,6 +15,9 @@ Get the closest non-arrow function scope.
 const getClosestFunctionScope = (context, node) => {
 	let scope = context.sourceCode.getScope(node);
 	while (scope.type !== 'function' || isArrowFunctionScope(scope)) {
+		if (scope.upper === null) {
+			return scope;
+		}
 		scope = scope.upper;
 	}
 
