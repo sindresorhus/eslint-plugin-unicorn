@@ -126,8 +126,6 @@ Default: `false`
 
 Specifies using [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
-This option requires `strategy: 'strict'`.
-
 ```js
 "unicorn/no-instanceof-builtin-object": [
 	"error",

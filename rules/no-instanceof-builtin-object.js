@@ -132,6 +132,14 @@ const create = context => {
 				messageId: MESSAGE_ID,
 			};
 
+			if (right.name === 'Error' && useErrorIsError) {
+				problem.fix = fixer => replaceWithFunctionCall({
+					fixer, node, sourceCode, tokenStore, instanceofToken,
+				}, 'Error.isError');
+
+				return problem;
+			}
+
 			// Loose strategy by default
 			if (looseStrategyConstructors.has(right.name)) {
 				if (right.name === 'Array') {
@@ -149,15 +157,9 @@ const create = context => {
 				return problem;
 			}
 
+			// Strict strategy
 			if (strategy !== 'strict' && include.length === 0) {
 				return;
-			}
-
-			// Strict strategy
-			if (right.name === 'Error' && useErrorIsError) {
-				problem.fix = fixer => replaceWithFunctionCall({
-					fixer, node, sourceCode, tokenStore, instanceofToken,
-				}, 'Error.isError');
 			}
 
 			return problem;

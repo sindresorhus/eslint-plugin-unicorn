@@ -81,18 +81,12 @@ test.snapshot({
 
 // UseErrorIsError option with loose strategy
 test.snapshot({
-	valid: [
-		outdent`
-			/** useErrorIsError option without loose strategy */
-			'foo instanceof Error'
-		`,
-		outdent`
-			/** useErrorIsError option without loose strategy */
-			'(foo) instanceof (Error)'
-		`,
+	valid: [],
+	invalid: [
+		'fooErr instanceof Error',
+		'(fooErr) instanceof (Error)',
 	].map(code => ({code, options: [{useErrorIsError: true, strategy: 'loose'}]})),
-	invalid: [],
-}, {options: [{useErrorIsError: true}]});
+});
 
 // UseErrorIsError option with strict strategy
 test.snapshot({
