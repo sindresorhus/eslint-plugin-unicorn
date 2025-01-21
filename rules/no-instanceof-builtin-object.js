@@ -1,7 +1,7 @@
 import {checkVueTemplate} from './utils/rule.js';
 import {getParenthesizedRange} from './utils/parentheses.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
-import {builtinErrors} from './error-message.js';
+import builtinErrors from './shared/builtin-errors.js';
 import typedArray from './shared/typed-array.js';
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
