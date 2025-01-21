@@ -12,17 +12,17 @@ const create = context => {
 
 	return {
 		// Getter for object literal
-		'Property[value.type="FunctionExpression"], [kind="get"]'(node) {
+		'Property[kind="get"]'(node) {
 			functionExpressionStack.push(node);
 		},
-		'Property[value.type="FunctionExpression"], [kind="get"]:exit'() {
+		'Property[kind="get"]:exit'() {
 			functionExpressionStack.pop();
 		},
 		// Setter for object literal
-		'Property[value.type="FunctionExpression"], [kind="set"]'(node) {
+		'Property[kind="set"]'(node) {
 			functionExpressionStack.push(node);
 		},
-		'Property[value.type="FunctionExpression"], [kind="set"]:exit'() {
+		'Property[kind="set"]:exit'() {
 			functionExpressionStack.pop();
 		},
 		// Getter for class
