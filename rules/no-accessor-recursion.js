@@ -36,7 +36,7 @@ Check if `this` is accessed recursively within a getter or setter.
 @param {import('estree').MemberExpression} parent
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.name === property.key.name;
+const isRecursiveAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.type === property.key.type && parent.property.name === property.key.name;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
