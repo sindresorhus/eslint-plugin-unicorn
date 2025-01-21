@@ -14,28 +14,45 @@ This rule enforces the use of class field declarations for static values, instea
 ## Fail
 
 ```js
+// ❌
 class Foo {
 	constructor() {
 		this.foo = 'foo';
 	}
 }
 
+// ✅
+class Foo {
+	foo = 'foo';
+}
+```
+
+```js
+// ❌
 class MyError extends Error {
 	constructor(message: string) {
 		super(message);
 		this.name = 'MyError';
 	}
 }
-```
 
-## Pass
-
-```js
-class Foo {
-	foo = 'foo';
-}
-
+// ✅
 class MyError extends Error {
 	name = 'MyError'
+}
+```
+
+```js
+// ❌
+class Foo {
+	foo = 'foo';
+	constructor() {
+		this.foo = 'bar';
+	}
+}
+
+// ✅
+class Foo {
+	foo = 'bar';
 }
 ```
