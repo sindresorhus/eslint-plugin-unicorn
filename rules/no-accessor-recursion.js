@@ -36,7 +36,15 @@ Check if `this` is accessed recursively within a getter or setter.
 @param {import('estree').MemberExpression} parent
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.type === property.key.type && parent.property.name === property.key.name;
+const isRecursiveMemberAccess = (parent, property) => isDotNotationAccess(parent) && parent.property.type === property.key.type && parent.property.name === property.key.name;
+
+/**
+Check if `this` is accessed recursively within a destructuring assignment.
+
+@param {import('estree').VariableDeclarator} parent
+@param {import('estree').Property | import('estree').MethodDefinition} property
+*/
+const isRecursiveDestructuringAccess = (parent, property) => parent.type === 'VariableDeclarator' && parent.id.type === 'ObjectPattern' && parent.id.properties.some(declaratorProperty => declaratorProperty.key.type === property.key.type && declaratorProperty.key.name === property.key.name);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -61,7 +69,7 @@ const create = context => {
 				return;
 			}
 
-			if (!isRecursiveAccess(parent, property)) {
+			if (!isRecursiveMemberAccess(parent, property) && !isRecursiveDestructuringAccess(parent, property)) {
 				return;
 			}
 

@@ -205,7 +205,15 @@ test.snapshot({
 			class Foo{
 				static get bar() {
 					return this.bar;
-				} 
+				}
+			}
+		`,
+		// Destructuring assignment within getter
+		outdent`
+			class Foo{
+				get bar() {
+					const {bar} = this;
+				}
 			}
 		`,
 	],
