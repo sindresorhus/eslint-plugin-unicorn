@@ -61,11 +61,9 @@ const create = context => ({
 				const {parent} = identifier;
 
 				const isFunctionCall = () => parent.type === 'CallExpression' && parent.callee === identifier;
-				const isMemberExpression = () => parent.type === 'MemberExpression' && parent.object === identifier;
 
 				// Skip if the identifier is not part of a call expression
-				// Skip if the identifier is the object of a member expression
-				if (!isFunctionCall() || isMemberExpression()) {
+				if (!isFunctionCall()) {
 					continue;
 				}
 
