@@ -13,8 +13,9 @@ Check if a specifier is a valid import for the rule.
 @param {string} moduleName
 */
 const isValidSpecifier = (specifier, moduleName) =>
-	specifier.type === 'ImportDefaultSpecifier' // Default import
-	|| (specifier.type === 'ImportSpecifier' && specifier.imported.name === 'strict' && exportStrictAssertModules.has(moduleName)); // Named import
+	specifier.parent.importKind !== 'type' // Not a type import
+	&& ((specifier.type === 'ImportDefaultSpecifier') // Default import
+		|| (specifier.type === 'ImportSpecifier' && specifier.importKind !== 'type' && specifier.imported.name === 'strict' && exportStrictAssertModules.has(moduleName))); // Named import
 
 /**
 Report an error for an invalid assertion usage.

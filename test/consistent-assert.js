@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -34,6 +34,11 @@ test.snapshot({
 		
 			strict(foo)
 		`,
+		...[
+			'import type assert from "assert";',
+			'import {type strict as assert} from "node:assert";',
+			'import type {strict as assert} from "node:assert";',
+		].flatMap(code => [code, `${code}\nassert();`]).map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 	invalid: [
 		// Default import
