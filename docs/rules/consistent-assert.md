@@ -14,29 +14,38 @@ Prefer `assert.ok` for its explicit intent and better readability. It aligns wit
 ```js
 import assert from 'node:assert';
 
+assert.strictEqual(actual, expected);
+assert.deepStrictEqual(actual, expected);
+
 // ❌
-assert(true);
+assert(divide(10, 2) === 5); // Inconsistent with other API styles
 
 // ✅
-assert.ok(true);
+assert.ok(divide(10, 2) === 5);
 ```
 
 ```js
 import {strict as assert} from 'node:assert';
 
+assert.strictEqual(actual, expected);
+assert.deepStrictEqual(actual, expected);
+
 // ❌
-assert(true);
+assert(divide(10, 2) === 5); // Inconsistent with other API styles
 
 // ✅
-assert.ok(true);
+assert.ok(divide(10, 2) === 5);
 ```
 
 ```js
 import assert from 'node:assert/strict';
 
+assert.strictEqual(actual, expected);
+assert.deepStrictEqual(actual, expected);
+
 // ❌
-assert(true);
+assert(divide(10, 2) === 5); // Inconsistent with other API styles
 
 // ✅
-assert.ok(true);
+assert.ok(divide(10, 2) === 5);
 ```
