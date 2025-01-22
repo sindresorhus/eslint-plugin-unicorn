@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -255,5 +255,32 @@ test.snapshot({
 				}
 			}
 		`),
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.babel,
+			parserOptions: {
+				babelOptions: {
+					parserOpts: {
+						plugins: [
+							['destructuringPrivate'],
+						],
+					},
+				},
+			},
+		},
+	},
+	valid: [],
+	invalid: [
+		outdent`
+			class Foo {
+				get #bar() {
+					const {#bar: bar} = this;
+				}
+			}
+		`,
 	],
 });
