@@ -13,10 +13,12 @@ const messages = {
 	[MESSAGE_ID_SWITCH_TO_TYPE_OF]: 'Switch to `typeof … === \'{{type}}\'`.',
 };
 
-const constructiblePrimitiveWrappers = new Set([
+const primitiveWrappers = new Set([
 	'String',
 	'Number',
 	'Boolean',
+	'BigInt',
+	'Symbol',
 ]);
 
 const strictStrategyConstructors = [
@@ -143,12 +145,12 @@ const create = context => {
 				return problem;
 			}
 
-			if (constructorName === 'Function' || constructorName === 'BigInt' || constructorName === 'Symbol') {
+			if (constructorName === 'Function') {
 				problem.fix = replaceWithTypeOfExpression(node, sourceCode);
 				return problem;
 			}
 
-			if (constructiblePrimitiveWrappers.has(constructorName)) {
+			if (primitiveWrappers.has(constructorName)) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
