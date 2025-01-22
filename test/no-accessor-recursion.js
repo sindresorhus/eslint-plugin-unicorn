@@ -243,7 +243,7 @@ test.snapshot({
 		//
 		...[
 			'++ this.bar;',
-			'-- this.bar;',
+			'this.bar --;',
 			'[this.bar] = array;',
 			'[this.bar = defaultValue] = array;',
 			'({property: this.bar} = object);',
