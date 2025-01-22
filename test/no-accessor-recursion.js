@@ -141,6 +141,17 @@ test.snapshot({
 				}
 			};
 		`,
+		// Static property
+		outdent`
+			const foo = {
+				get bar() {
+					class Foo {
+						bar = 1;
+						baz = this.bar;
+					}
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
@@ -252,7 +263,7 @@ test.snapshot({
 				}
 			}
 		`,
-		//
+		// Property write
 		...[
 			'++ this.bar;',
 			'this.bar --;',

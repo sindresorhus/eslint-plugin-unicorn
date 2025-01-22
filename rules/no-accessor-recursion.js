@@ -12,7 +12,11 @@ Get the closest non-arrow function scope.
 */
 const getClosestFunctionScope = (sourceCode, node) => {
 	for (let scope = sourceCode.getScope(node); scope; scope = scope.upper) {
-		if (['class-static-block', 'function'].includes(scope.type) && scope.block.type !== 'ArrowFunctionExpression') {
+		if (scope.type === 'class') {
+			return;
+		}
+
+		if (scope.type === 'function' && scope.block.type !== 'ArrowFunctionExpression') {
 			return scope;
 		}
 	}
