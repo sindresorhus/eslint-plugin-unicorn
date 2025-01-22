@@ -149,6 +149,28 @@ const specialCases = {
 	angular: 'Angular',
 };
 
+const getNamespaceIdentifier = moduleName => {
+	// Handle special cases first
+	if (specialCases[moduleName]) {
+		return specialCases[moduleName];
+	}
+
+	// Get the last part of the path and remove extension
+	const lastPart = moduleName.split('/').pop().split('.')[0];
+
+	// For scoped packages, we want the package name, not the scope
+	// @scope/package -> package
+	// @scope/foo.bar -> foo
+	const packageName = lastPart.startsWith('@') 
+		? moduleName.split('/').pop().split('.')[0]
+		: lastPart;
+
+	// Replace invalid identifier characters and convert to camelCase
+	return packageName
+		.replaceAll(/[^a-zA-Z0-9-]/g, '-') // Replace invalid chars with hyphen
+		.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
+};
+
 /** @type {import('eslint').Rule.RuleModule} */
 const create = context => {
 	let [
@@ -252,27 +274,6 @@ const create = context => {
 				}
 
 				const scope = sourceCode.getScope(node);
-				const getNamespaceIdentifier = moduleName => {
-					// Handle special cases first
-					if (specialCases[moduleName]) {
-						return specialCases[moduleName];
-					}
-
-					// Get the last part of the path and remove extension
-					const lastPart = moduleName.split('/').pop().split('.')[0];
-
-					// For scoped packages, we want the package name, not the scope
-					// @scope/package -> package
-					// @scope/foo.bar -> foo
-					const packageName = lastPart.startsWith('@') 
-						? moduleName.split('/').pop().split('.')[0]
-						: lastPart;
-
-					// Replace invalid identifier characters and convert to camelCase
-					return packageName
-						.replaceAll(/[^a-zA-Z0-9-]/g, '-') // Replace invalid chars with hyphen
-						.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
-				};
 
 				const namespaceIdentifier = getNamespaceIdentifier(moduleName);
 
