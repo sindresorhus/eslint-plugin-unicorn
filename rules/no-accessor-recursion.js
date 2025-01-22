@@ -1,6 +1,6 @@
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within getters and setters.',
+	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within {{kind}}ters.',
 };
 
 /**
@@ -132,11 +132,11 @@ const create = context => {
 			}
 
 			if (property.kind === 'get' && isPropertyRead(thisExpression, property)) {
-				return {node: parent, messageId: MESSAGE_ID_ERROR};
+				return {node: parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
 			}
 
 			if (property.kind === 'set' && isPropertyWrite(thisExpression, property)) {
-				return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
+				return {node: parent.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
 			}
 		},
 	};
