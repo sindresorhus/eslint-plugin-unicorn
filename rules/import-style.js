@@ -128,6 +128,27 @@ const defaultStyles = {
 	},
 };
 
+const specialCases = {
+	react: 'React',
+	'react-dom': 'ReactDOM',
+	'react-router': 'ReactRouter',
+	'react-router-dom': 'ReactRouterDOM',
+	'prop-types': 'PropTypes',
+	lodash: '_',
+	'lodash-es': '_',
+	jquery: '$',
+	'styled-components': 'styled',
+	redux: 'Redux',
+	'react-redux': 'ReactRedux',
+	axios: 'Axios',
+	moment: 'moment',
+	'date-fns': 'dateFns',
+	ramda: 'R',
+	rxjs: 'Rx',
+	vue: 'Vue',
+	angular: 'Angular',
+};
+
 /** @type {import('eslint').Rule.RuleModule} */
 const create = context => {
 	let [
@@ -229,27 +250,6 @@ const create = context => {
 				if (importedNames.length === 0) {
 					return;
 				}
-
-				const specialCases = {
-					react: 'React',
-					'react-dom': 'ReactDOM',
-					'react-router': 'ReactRouter',
-					'react-router-dom': 'ReactRouterDOM',
-					'prop-types': 'PropTypes',
-					lodash: '_',
-					'lodash-es': '_',
-					jquery: '$',
-					'styled-components': 'styled',
-					redux: 'Redux',
-					'react-redux': 'ReactRedux',
-					axios: 'Axios',
-					moment: 'moment',
-					'date-fns': 'dateFns',
-					ramda: 'R',
-					rxjs: 'Rx',
-					vue: 'Vue',
-					angular: 'Angular',
-				};
 
 				const scope = sourceCode.getScope(node);
 				const namespaceIdentifier = specialCases[ moduleName ]
