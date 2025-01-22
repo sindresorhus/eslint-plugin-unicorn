@@ -1,6 +1,5 @@
-'use strict';
-const isMemberExpression = require('./is-member-expression.js');
-const {isCallExpression} = require('./call-or-new-expression.js');
+import isMemberExpression from './is-member-expression.js';
+import {isCallExpression} from './call-or-new-expression.js';
 
 /**
 @param {
@@ -23,7 +22,7 @@ const {isCallExpression} = require('./call-or-new-expression.js');
 } [options]
 @returns {string}
 */
-function isMethodCall(node, options) {
+export default function isMethodCall(node, options) {
 	if (typeof options === 'string') {
 		options = {methods: [options]};
 	}
@@ -61,5 +60,3 @@ function isMethodCall(node, options) {
 		})
 	);
 }
-
-module.exports = isMethodCall;

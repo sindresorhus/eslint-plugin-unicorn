@@ -1,6 +1,5 @@
-'use strict';
-const numeric = require('./utils/numeric.js');
-const {isBigIntLiteral} = require('./ast/index.js');
+import * as numeric from './utils/numeric.js';
+import {isBigIntLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'numeric-separators-style';
 const messages = {
@@ -132,7 +131,7 @@ const create = context => {
 	};
 };
 
-const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
+const formatOptionsSchema = () => ({
 	type: 'object',
 	additionalProperties: false,
 	properties: {
@@ -142,12 +141,10 @@ const formatOptionsSchema = ({minimumDigits, groupLength}) => ({
 		minimumDigits: {
 			type: 'integer',
 			minimum: 0,
-			default: minimumDigits,
 		},
 		groupLength: {
 			type: 'integer',
 			minimum: 1,
-			default: groupLength,
 		},
 	},
 });
@@ -157,17 +154,16 @@ const schema = [{
 	additionalProperties: false,
 	properties: {
 		...Object.fromEntries(
-			Object.entries(defaultOptions).map(([type, options]) => [type, formatOptionsSchema(options)]),
+			Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()]),
 		),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
-			default: false,
 		},
 	},
 }];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -177,6 +173,17 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [
+			{
+				onlyIfContainsSeparator: false,
+				binary: defaultOptions.binary,
+				octal: defaultOptions.octal,
+				hexadecimal: defaultOptions.hexadecimal,
+				number: defaultOptions.number,
+			},
+		],
 		messages,
 	},
 };
+
+export default config;

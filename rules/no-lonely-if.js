@@ -1,7 +1,6 @@
-'use strict';
-const {isParenthesized, isNotSemicolonToken} = require('@eslint-community/eslint-utils');
-const {needsSemicolon} = require('./utils/index.js');
-const {removeSpacesAfter} = require('./fix/index.js');
+import {isParenthesized, isNotSemicolonToken} from '@eslint-community/eslint-utils';
+import {needsSemicolon} from './utils/index.js';
+import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
@@ -138,7 +137,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -150,3 +149,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

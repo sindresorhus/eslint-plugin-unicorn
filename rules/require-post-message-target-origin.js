@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {appendArgument} = require('./fix/index.js');
+import {isMethodCall} from './ast/index.js';
+import {appendArgument} from './fix/index.js';
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -58,7 +57,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -72,3 +71,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

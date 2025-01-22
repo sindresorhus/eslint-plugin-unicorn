@@ -2,18 +2,14 @@
 Based on ESLint builtin `no-negated-condition` rule
 https://github.com/eslint/eslint/blob/5c39425fc55ecc0b97bbd07ac22654c0eb4f789c/lib/rules/no-negated-condition.js
 */
-'use strict';
-const {
+import {
 	removeParentheses,
 	fixSpaceAroundKeyword,
 	addParenthesizesToReturnOrThrowExpression,
-} = require('./fix/index.js');
-const {
-	getParenthesizedRange,
-	isParenthesized,
-} = require('./utils/parentheses.js');
-const isOnSameLine = require('./utils/is-on-same-line.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
+} from './fix/index.js';
+import {getParenthesizedRange, isParenthesized} from './utils/parentheses.js';
+import isOnSameLine from './utils/is-on-same-line.js';
+import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'no-negated-condition';
 const messages = {
@@ -131,7 +127,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -143,3 +139,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

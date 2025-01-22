@@ -1,5 +1,4 @@
-'use strict';
-const {isEmptyNode, isDirective} = require('./ast/index.js');
+import {isEmptyNode, isDirective} from './ast/index.js';
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
@@ -44,7 +43,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -55,3 +54,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,5 +1,4 @@
-'use strict';
-const {isOpeningBraceToken} = require('@eslint-community/eslint-utils');
+import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
@@ -59,7 +58,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'layout',
@@ -71,3 +70,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

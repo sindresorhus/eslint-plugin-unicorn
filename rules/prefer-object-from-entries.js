@@ -1,14 +1,13 @@
-'use strict';
-const {isCommaToken, isArrowToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
-const {isMethodCall, isLiteral} = require('./ast/index.js');
-const {removeParentheses} = require('./fix/index.js');
-const {
+import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
+import {isMethodCall, isLiteral} from './ast/index.js';
+import {removeParentheses} from './fix/index.js';
+import {
 	getParentheses,
 	getParenthesizedText,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
-} = require('./utils/index.js');
-const {isCallExpression} = require('./ast/call-or-new-expression.js');
+} from './utils/index.js';
+import {isCallExpression} from './ast/call-or-new-expression.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
@@ -238,7 +237,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -248,6 +247,9 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

@@ -1,7 +1,6 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {isNewExpression, isStringLiteral} = require('./ast/index.js');
-const {replaceStringLiteral} = require('./fix/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {isNewExpression, isStringLiteral} from './ast/index.js';
+import {replaceStringLiteral} from './fix/index.js';
 
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
@@ -148,12 +147,11 @@ const create = context => {
 const schema = [
 	{
 		enum: ['never', 'always'],
-		default: 'never',
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -164,6 +162,9 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: ['never'],
 		messages,
 	},
 };
+
+export default config;

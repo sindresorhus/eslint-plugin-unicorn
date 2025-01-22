@@ -1,10 +1,6 @@
-'use strict';
-const {isCallExpression, isMethodCall} = require('./ast/index.js');
-const {removeParentheses} = require('./fix/index.js');
-const {
-	isNodeMatchesNameOrPath,
-	getCallExpressionTokens,
-} = require('./utils/index.js');
+import {isCallExpression, isMethodCall} from './ast/index.js';
+import {removeParentheses} from './fix/index.js';
+import {isNodeMatchesNameOrPath, getCallExpressionTokens} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-structured-clone/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-structured-clone/suggestion';
@@ -136,7 +132,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -146,6 +142,9 @@ module.exports = {
 		},
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

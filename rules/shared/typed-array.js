@@ -1,7 +1,5 @@
-'use strict';
-
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray#description
-module.exports = [
+const typedArrayTypes = [
 	'Int8Array',
 	'Uint8Array',
 	'Uint8ClampedArray',
@@ -14,3 +12,5 @@ module.exports = [
 	'BigInt64Array',
 	'BigUint64Array',
 ];
+
+export default typedArrayTypes;

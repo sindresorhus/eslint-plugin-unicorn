@@ -1,12 +1,12 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const {
-	isBooleanNode,
-	getParenthesizedRange,
-	isNodeValueNotFunction,
-} = require('./utils/index.js');
-const {removeMemberExpressionProperty} = require('./fix/index.js');
-const {isLiteral, isUndefined, isMethodCall, isMemberExpression} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {isBooleanNode, getParenthesizedRange, isNodeValueNotFunction} from './utils/index.js';
+import {removeMemberExpressionProperty} from './fix/index.js';
+import {
+	isLiteral,
+	isUndefined,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -200,7 +200,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
@@ -213,3 +213,5 @@ module.exports = {
 		hasSuggestions: true,
 	},
 };
+
+export default config;

@@ -1,7 +1,6 @@
-'use strict';
-
 const ISSUE_LINK_PREFIX = 'https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?';
-function assertToken(token, {test, expected, ruleId}) {
+
+export default function assertToken(token, {test, expected, ruleId}) {
 	if (test?.(token)) {
 		return;
 	}
@@ -28,5 +27,3 @@ function assertToken(token, {test, expected, ruleId}) {
 
 	throw new Error(message);
 }
-
-module.exports = assertToken;

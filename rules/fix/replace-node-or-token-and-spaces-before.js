@@ -1,7 +1,6 @@
-'use strict';
-const {getParentheses} = require('../utils/parentheses.js');
+import {getParentheses} from '../utils/parentheses.js';
 
-function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode, tokenStore = sourceCode) {
+export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode, tokenStore = sourceCode) {
 	const tokens = getParentheses(nodeOrToken, tokenStore);
 
 	for (const token of tokens) {
@@ -17,5 +16,3 @@ function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, so
 
 	yield fixer.replaceTextRange([start, end], `${lineBreak}${replacement}`);
 }
-
-module.exports = replaceNodeOrTokenAndSpacesBefore;

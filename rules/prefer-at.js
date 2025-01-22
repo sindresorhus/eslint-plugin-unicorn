@@ -1,6 +1,9 @@
-'use strict';
-const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('@eslint-community/eslint-utils');
-const {
+import {
+	isOpeningBracketToken,
+	isClosingBracketToken,
+	getStaticValue,
+} from '@eslint-community/eslint-utils';
+import {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -8,13 +11,13 @@ const {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
-} = require('./utils/index.js');
-const {
+} from './utils/index.js';
+import {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
-} = require('./shared/negative-index.js');
-const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
-const {isLiteral, isCallExpression, isMethodCall} = require('./ast/index.js');
+} from './shared/negative-index.js';
+import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
+import {isLiteral, isCallExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -352,14 +355,13 @@ const schema = [
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -370,6 +372,9 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{getLastElementFunctions: [], checkAllIndexAccess: false}],
 		messages,
 	},
 };
+
+export default config;

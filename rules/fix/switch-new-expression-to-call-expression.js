@@ -1,11 +1,10 @@
-'use strict';
-const isNewExpressionWithParentheses = require('../utils/is-new-expression-with-parentheses.js');
-const {isParenthesized} = require('../utils/parentheses.js');
-const isOnSameLine = require('../utils/is-on-same-line.js');
-const addParenthesizesToReturnOrThrowExpression = require('./add-parenthesizes-to-return-or-throw-expression.js');
-const removeSpaceAfter = require('./remove-spaces-after.js');
+import isNewExpressionWithParentheses from '../utils/is-new-expression-with-parentheses.js';
+import {isParenthesized} from '../utils/parentheses.js';
+import isOnSameLine from '../utils/is-on-same-line.js';
+import addParenthesizesToReturnOrThrowExpression from './add-parenthesizes-to-return-or-throw-expression.js';
+import removeSpaceAfter from './remove-spaces-after.js';
 
-function * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer) {
+export default function * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer) {
 	const newToken = sourceCode.getFirstToken(newExpression);
 	yield fixer.remove(newToken);
 	yield removeSpaceAfter(newToken, sourceCode, fixer);
@@ -30,5 +29,3 @@ function * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer)
 		yield * addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, sourceCode);
 	}
 }
-
-module.exports = switchNewExpressionToCallExpression;

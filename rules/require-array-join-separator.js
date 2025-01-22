@@ -1,7 +1,6 @@
-'use strict';
-const {appendArgument} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
-const {isArrayPrototypeProperty} = require('./utils/index.js');
+import {appendArgument} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
+import {isArrayPrototypeProperty} from './utils/index.js';
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -50,7 +49,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -62,3 +61,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

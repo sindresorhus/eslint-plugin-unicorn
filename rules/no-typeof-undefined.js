@@ -1,15 +1,14 @@
-'use strict';
-const {isLiteral} = require('./ast/index.js');
-const {
+import {isLiteral} from './ast/index.js';
+import {
 	addParenthesizesToReturnOrThrowExpression,
 	removeSpacesAfter,
-} = require('./fix/index.js');
-const {
+} from './fix/index.js';
+import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
 	isShadowed,
-} = require('./utils/index.js');
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
 const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
@@ -26,6 +25,7 @@ const create = context => {
 		checkGlobalVariables: false,
 		...context.options[0],
 	};
+
 	const {sourceCode} = context;
 
 	return {
@@ -121,14 +121,13 @@ const schema = [
 		properties: {
 			checkGlobalVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -139,6 +138,9 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkGlobalVariables: false}],
 		messages,
 	},
 };
+
+export default config;

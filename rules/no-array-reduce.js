@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {isNodeValueNotFunction, isArrayPrototypeProperty} = require('./utils/index.js');
+import {isMethodCall} from './ast/index.js';
+import {isNodeValueNotFunction, isArrayPrototypeProperty} from './utils/index.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
@@ -82,7 +81,6 @@ const schema = [
 		properties: {
 			allowSimpleOperations: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -114,7 +112,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -123,6 +121,9 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{allowSimpleOperations: true}],
 		messages,
 	},
 };
+
+export default config;

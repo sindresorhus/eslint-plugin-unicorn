@@ -12,13 +12,15 @@ Passing functions to iterator methods can cause issues when the function is chan
 Suppose you have a `unicorn` module:
 
 ```js
-module.exports = x => x + 1;
+const unicorn = x => x + 1;
+
+export default unicorn;
 ```
 
 You can then use it like this:
 
 ```js
-const unicorn = require('unicorn');
+import unicorn from 'unicorn';
 
 [1, 2, 3].map(unicorn);
 //=> [2, 3, 4]
@@ -27,13 +29,15 @@ const unicorn = require('unicorn');
 The `unicorn` module now does a minor version that adds another argument:
 
 ```js
-module.exports = (x, y) => x + (y ? y : 1);
+const unicorn = (x, y) => x + (y ? y : 1);
+
+export default unicorn;
 ```
 
 Your code will now return something different and probably break for users because it is now passing the index of the item as second argument.
 
 ```js
-const unicorn = require('unicorn');
+import unicorn from 'unicorn';
 
 [1, 2, 3].map(unicorn);
 //=> [2, 3, 5]
@@ -42,7 +46,7 @@ const unicorn = require('unicorn');
 This rule helps safely call the function with the expected number of parameters:
 
 ```js
-const unicorn = require('unicorn');
+import unicorn from 'unicorn';
 
 [1, 2, 3].map(x => unicorn(x));
 //=> [2, 3, 4]

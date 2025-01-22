@@ -15,15 +15,13 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-## Usage (`eslint.config.js`)
+**Requires ESLint `>=9.18.0`, [flat config](https://eslint.org/docs/latest/use/configure/configuration-files), and [ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-make-my-typescript-project-output-esm).**
 
-**Requires ESLint `>=8.56.0`.**
+## Usage
 
-Use a [preset config](#preset-configs-eslintconfigjs) or configure each rule in `eslint.config.js`.
+Use a [preset config](#preset-configs) or configure each rule in `eslint.config.js`.
 
 If you don't use the preset, ensure you use the same `languageOptions` config as below.
-
-### ES Module (Recommended)
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
@@ -44,58 +42,6 @@ export default [
 	},
 	// …
 ];
-```
-
-### CommonJS
-
-```js
-'use strict';
-const eslintPluginUnicorn = require('eslint-plugin-unicorn');
-const globals = require('globals');
-
-module.exports = [
-	{
-		languageOptions: {
-			globals: globals.builtin,
-		},
-		plugins: {
-			unicorn: eslintPluginUnicorn,
-		},
-		rules: {
-			'unicorn/better-regex': 'error',
-			'unicorn/…': 'error',
-		},
-	},
-	// …
-];
-```
-
-## Usage (legacy: `.eslintrc.*` or `package.json`)
-
-Use a [preset config](#legacy-preset-configs-eslintrc-or-packagejson) or configure each rule in `package.json`.
-
-If you don't use the preset, ensure you use the same `env` and `parserOptions` config as below.
-
-```json
-{
-	"name": "my-awesome-project",
-	"eslintConfig": {
-		"env": {
-			"es2024": true
-		},
-		"parserOptions": {
-			"ecmaVersion": "latest",
-			"sourceType": "module"
-		},
-		"plugins": [
-			"unicorn"
-		],
-		"rules": {
-			"unicorn/better-regex": "error",
-			"unicorn/…": "error"
-		}
-	}
-}
 ```
 
 ## Rules
@@ -140,6 +86,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 | [no-for-loop](docs/rules/no-for-loop.md)                                                         | Do not use a `for` loop that can be replaced with a `for-of` loop.                                                                                                                                                | ✅  | 🔧 | 💡 |
 | [no-hex-escape](docs/rules/no-hex-escape.md)                                                     | Enforce the use of Unicode escapes instead of hexadecimal escapes.                                                                                                                                                | ✅  | 🔧 |    |
 | [no-instanceof-array](docs/rules/no-instanceof-array.md)                                         | Require `Array.isArray()` instead of `instanceof Array`.                                                                                                                                                          | ✅  | 🔧 |    |
+| [no-instanceof-builtin-object](docs/rules/no-instanceof-builtin-object.md)                       | Disallow `instanceof` with built-in objects                                                                                                                                                                       | ✅  | 🔧 |    |
 | [no-invalid-fetch-options](docs/rules/no-invalid-fetch-options.md)                               | Disallow invalid options in `fetch()` and `new Request()`.                                                                                                                                                        | ✅  |    |    |
 | [no-invalid-remove-event-listener](docs/rules/no-invalid-remove-event-listener.md)               | Prevent calling `EventTarget#removeEventListener()` with the result of an expression.                                                                                                                             | ✅  |    |    |
 | [no-keyword-prefix](docs/rules/no-keyword-prefix.md)                                             | Disallow identifiers starting with `new` or `class`.                                                                                                                                                              |    |    |    |
@@ -240,7 +187,7 @@ If you don't use the preset, ensure you use the same `env` and `parserOptions` c
 
 See [docs/deprecated-rules.md](docs/deprecated-rules.md)
 
-## Preset configs (`eslint.config.js`)
+## Preset configs
 
 See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files) for more information about extending config files.
 
@@ -250,31 +197,12 @@ See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration
 
 This plugin exports a `recommended` config that enforces good practices.
 
-#### ES Module (Recommended)
-
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.configs['flat/recommended'],
-		{
-			rules: {
-				'unicorn/better-regex': 'warn',
-			},
-		},
-];
-```
-
-#### CommonJS
-
-```js
-'use strict';
-const eslintPluginUnicorn = require('eslint-plugin-unicorn');
-
-module.exports = [
-		// …
-		eslintPluginUnicorn.configs['flat/recommended'],
+		eslintPluginUnicorn.configs.recommended,
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
@@ -287,72 +215,18 @@ module.exports = [
 
 This plugin exports an `all` that makes use of all rules (except for deprecated ones).
 
-#### ES Module (Recommended)
-
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
 		// …
-		eslintPluginUnicorn.configs['flat/all'],
+		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
 				'unicorn/better-regex': 'warn',
 			},
 		},
 ];
-```
-
-#### CommonJS
-
-```js
-'use strict';
-const eslintPluginUnicorn = require('eslint-plugin-unicorn');
-
-module.exports = [
-		// …
-		eslintPluginUnicorn.configs['flat/all'],
-		{
-			rules: {
-				'unicorn/better-regex': 'warn',
-			},
-		},
-];
-```
-
-## Legacy preset configs (`.eslintrc.*` or `package.json`)
-
-See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated) for more information about extending deprecated legacy config files.
-
-**Note**: Preset configs will also enable the correct [parser options](https://eslint.org/docs/latest/use/configure/parser-deprecated) and [environment](https://eslint.org/docs/latest/use/configure/language-options-deprecated).
-
-### Recommended legacy config
-
-This plugin exports a `recommended` legacy config that enforces good practices.
-
-```json
-{
-	"name": "my-awesome-project",
-	"eslintConfig": {
-		"extends": "plugin:unicorn/recommended",
-		"rules": {
-			"unicorn/better-regex": "warn"
-		}
-	}
-}
-```
-
-### All legacy config
-
-This plugin exports an `all` legacy config that makes use of all rules (except for deprecated ones).
-
-```json
-{
-	"name": "my-awesome-project",
-	"eslintConfig": {
-		"extends": "plugin:unicorn/all"
-	}
-}
 ```
 
 ## Maintainers

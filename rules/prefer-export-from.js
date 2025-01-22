@@ -1,12 +1,5 @@
-'use strict';
-const {
-	isCommaToken,
-	isOpeningBraceToken,
-	isClosingBraceToken,
-} = require('@eslint-community/eslint-utils');
-const {
-	isStringLiteral,
-} = require('./ast/index.js');
+import {isCommaToken, isOpeningBraceToken, isClosingBraceToken} from '@eslint-community/eslint-utils';
+import {isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -305,7 +298,6 @@ const schema = [
 		properties: {
 			ignoreUsedVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -396,7 +388,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -407,6 +399,9 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{ignoreUsedVariables: false}],
 		messages,
 	},
 };
+
+export default config;

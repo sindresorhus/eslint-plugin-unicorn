@@ -1,5 +1,4 @@
-'use strict';
-const isShorthandPropertyAssignmentPatternLeft = require('./utils/is-shorthand-property-assignment-pattern-left.js');
+import isShorthandPropertyAssignmentPatternLeft from './utils/is-shorthand-property-assignment-pattern-left.js';
 
 const MESSAGE_ID = 'noKeywordPrefix';
 const messages = {
@@ -186,7 +185,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -195,6 +194,9 @@ module.exports = {
 			recommended: false,
 		},
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

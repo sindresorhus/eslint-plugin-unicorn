@@ -26,7 +26,7 @@ package.json
 ```
 
 ```js
-const assign = require('object-assign');
+import assign from 'object-assign';
 ```
 
 ## Pass
@@ -42,7 +42,7 @@ package.json
 ```
 
 ```js
-const assign = require('object-assign'); // Passes as Object.assign is not supported
+import assign from 'object-assign'; // Passes as Object.assign is not supported
 ```
 
 ## Options

@@ -1,19 +1,18 @@
-'use strict';
-const {isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
-const {
+import {isParenthesized, findVariable} from '@eslint-community/eslint-utils';
+import {
 	extendFixRange,
 	removeMemberExpressionProperty,
 	removeMethodCall,
 	renameVariable,
-} = require('./fix/index.js');
-const {
+} from './fix/index.js';
+import {
 	isLeftHandSide,
 	singular,
 	getScopes,
 	avoidCapture,
 	getVariableIdentifiers,
-} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js');
+} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -428,15 +427,13 @@ const schema = [
 		properties: {
 			checkFromLast: {
 				type: 'boolean',
-				// TODO: Remove the option at some point.
-				default: true,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -447,6 +444,9 @@ module.exports = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkFromLast: true}],
 		messages,
 	},
 };
+
+export default config;

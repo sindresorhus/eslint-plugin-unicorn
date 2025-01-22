@@ -1,22 +1,13 @@
-'use strict';
+import path from 'node:path';
+import {getFunctionHeadLocation, getFunctionNameWithKind, isOpeningParenToken} from '@eslint-community/eslint-utils';
+import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import getClassHeadLocation from './utils/get-class-head-location.js';
+import {upperFirst, camelCase} from './utils/lodash.js';
+import {getParenthesizedRange} from './utils/parentheses.js';
+import {getScopes, avoidCapture} from './utils/index.js';
+import {isMemberExpression} from './ast/index.js';
 
-const path = require('node:path');
-const {
-	getFunctionHeadLocation,
-	getFunctionNameWithKind,
-	isOpeningParenToken,
-} = require('@eslint-community/eslint-utils');
-const {
-	isIdentifierName,
-} = require('@babel/helper-validator-identifier');
-const getClassHeadLocation = require('./utils/get-class-head-location.js');
-const {upperFirst, camelCase} = require('./utils/lodash.js');
-const {getParenthesizedRange} = require('./utils/parentheses.js');
-const {
-	getScopes,
-	avoidCapture,
-} = require('./utils/index.js');
-const {isMemberExpression} = require('./ast/index.js');
+const {isIdentifierName} = helperValidatorIdentifier;
 
 const MESSAGE_ID_ERROR = 'no-anonymous-default-export/error';
 const MESSAGE_ID_SUGGESTION = 'no-anonymous-default-export/suggestion';
@@ -199,7 +190,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -211,3 +202,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

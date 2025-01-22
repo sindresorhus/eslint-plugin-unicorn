@@ -1,11 +1,12 @@
-'use strict';
+import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import resolveVariableName from './resolve-variable-name.js';
+import getReferences from './get-references.js';
+
 const {
 	isIdentifierName,
 	isStrictReservedWord,
 	isKeyword,
-} = require('@babel/helper-validator-identifier');
-const resolveVariableName = require('./resolve-variable-name.js');
-const getReferences = require('./get-references.js');
+} = helperValidatorIdentifier;
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -129,7 +130,7 @@ Useful when you want to rename a variable (or create a new variable) while being
 @param {isSafe} [isSafe] - Rule-specific name check function.
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
-module.exports = function avoidCapture(name, scopes, isSafe = alwaysTrue) {
+export default function avoidCapture(name, scopes, isSafe = alwaysTrue) {
 	if (!isValidIdentifier(name)) {
 		name += '_';
 
@@ -143,5 +144,4 @@ module.exports = function avoidCapture(name, scopes, isSafe = alwaysTrue) {
 	}
 
 	return name;
-};
-
+}

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Check if the given node is a true logical expression or not.
 
@@ -13,4 +11,4 @@ const isLogicalExpression = node =>
 	node?.type === 'LogicalExpression'
 	&& (node.operator === '&&' || node.operator === '||');
 
-module.exports = isLogicalExpression;
+export default isLogicalExpression;

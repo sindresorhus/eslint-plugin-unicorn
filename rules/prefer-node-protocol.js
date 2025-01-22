@@ -1,7 +1,6 @@
-'use strict';
-const isBuiltinModule = require('is-builtin-module');
-const {replaceStringLiteral} = require('./fix/index.js');
-const isStaticRequire = require('./ast/is-static-require.js');
+import isBuiltinModule from 'is-builtin-module';
+import {replaceStringLiteral} from './fix/index.js';
+import isStaticRequire from './ast/is-static-require.js';
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
@@ -49,7 +48,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -61,3 +60,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

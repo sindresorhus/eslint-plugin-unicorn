@@ -69,7 +69,8 @@ This option lets you specify a list of packages that disable the rule when impor
 With `koa`, this would still pass:
 
 ```js
-const Koa = require('koa');
+import Koa from 'koa';
+
 const app = new Koa();
 
 app.onerror = () => {};

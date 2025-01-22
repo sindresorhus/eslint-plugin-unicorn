@@ -1,7 +1,6 @@
-'use strict';
-const avoidCapture = require('./utils/avoid-capture.js');
-const isLeftHandSide = require('./utils/is-left-hand-side.js');
-const {isCallOrNewExpression} = require('./ast/index.js');
+import avoidCapture from './utils/avoid-capture.js';
+import isLeftHandSide from './utils/is-left-hand-side.js';
+import {isCallOrNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -151,7 +150,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -167,3 +166,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

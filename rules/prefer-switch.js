@@ -1,7 +1,6 @@
-'use strict';
-const {hasSideEffect} = require('@eslint-community/eslint-utils');
-const isSameReference = require('./utils/is-same-reference.js');
-const getIndentString = require('./utils/get-indent-string.js');
+import {hasSideEffect} from '@eslint-community/eslint-utils';
+import isSameReference from './utils/is-same-reference.js';
+import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -315,7 +314,6 @@ const schema = [
 			minimumCases: {
 				type: 'integer',
 				minimum: 2,
-				default: 3,
 			},
 			emptyDefaultCase: {
 				enum: [
@@ -323,14 +321,13 @@ const schema = [
 					'do-nothing-comment',
 					'no-default-case',
 				],
-				default: 'no-default-comment',
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -340,6 +337,14 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [
+			{
+				minimumCases: 3,
+				emptyDefaultCase: 'no-default-comment',
+			},
+		],
 		messages,
 	},
 };
+
+export default config;

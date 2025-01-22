@@ -1,6 +1,4 @@
-'use strict';
-
-const {isNodeMatches} = require('../utils/is-node-matches.js');
+import {isNodeMatches} from '../utils/is-node-matches.js';
 
 /**
 Check if the given node is a tagged template literal.
@@ -9,7 +7,7 @@ Check if the given node is a tagged template literal.
 @param {string[]} tags - The object name or key paths.
 @returns {boolean}
 */
-function isTaggedTemplateLiteral(node, tags) {
+export default function isTaggedTemplateLiteral(node, tags) {
 	if (
 		node.type !== 'TemplateLiteral'
 		|| node.parent.type !== 'TaggedTemplateExpression'
@@ -24,5 +22,3 @@ function isTaggedTemplateLiteral(node, tags) {
 
 	return true;
 }
-
-module.exports = isTaggedTemplateLiteral;

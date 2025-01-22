@@ -1,6 +1,5 @@
-'use strict';
-const toLocation = require('./utils/to-location.js');
-const {isStringLiteral, isMethodCall} = require('./ast/index.js');
+import toLocation from './utils/to-location.js';
+import {isStringLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
@@ -73,7 +72,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -85,3 +84,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

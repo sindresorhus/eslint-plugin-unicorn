@@ -1,7 +1,12 @@
-'use strict';
-const path = require('node:path');
-const {camelCase, kebabCase, snakeCase, upperFirst} = require('./utils/lodash.js');
-const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
+import path from 'node:path';
+import {isRegExp} from 'node:util/types';
+import {
+	camelCase,
+	kebabCase,
+	snakeCase,
+	upperFirst,
+} from './utils/lodash.js';
+import cartesianProductSamples from './utils/cartesian-product-samples.js';
 
 const MESSAGE_ID = 'filename-case';
 const MESSAGE_ID_EXTENSION = 'filename-extension';
@@ -160,7 +165,7 @@ const create = context => {
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
-		if (item instanceof RegExp) {
+		if (isRegExp(item)) {
 			return item;
 		}
 
@@ -278,7 +283,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -287,6 +292,10 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		// eslint-disable-next-line eslint-plugin/require-meta-default-options
+		defaultOptions: [],
 		messages,
 	},
 };
+
+export default config;

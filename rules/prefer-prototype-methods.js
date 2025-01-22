@@ -1,7 +1,6 @@
-'use strict';
-const {getPropertyName, ReferenceTracker} = require('@eslint-community/eslint-utils');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isMemberExpression, isMethodCall} = require('./ast/index.js');
+import {getPropertyName, ReferenceTracker} from '@eslint-community/eslint-utils';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isMemberExpression, isMethodCall} from './ast/index.js';
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
@@ -147,7 +146,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -159,3 +158,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

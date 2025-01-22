@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - 20
+          - 23
           - 18
         os:
           - ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
-          node-version: 20
+          node-version: 22
       - run: npm install
       - run: npm run lint
       - run: npx del-cli test/snapshots --verbose
@@ -62,6 +62,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm install
       - run: npm run run-rules-on-codebase
   integration:
@@ -85,5 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm install
       - run: npm run integration -- --group ${{ matrix.group }}

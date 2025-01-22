@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Check if node matches object name or key path.
 
@@ -7,7 +5,7 @@ Check if node matches object name or key path.
 @param {string} nameOrPath - The object name or key path.
 @returns {boolean}
 */
-function isNodeMatchesNameOrPath(node, nameOrPath) {
+export function isNodeMatchesNameOrPath(node, nameOrPath) {
 	const names = nameOrPath.trim().split('.');
 	for (let index = names.length - 1; index >= 0; index--) {
 		const name = names[index];
@@ -43,11 +41,6 @@ Check if node matches any object name or key path.
 @param {string[]} nameOrPaths - The object name or key paths.
 @returns {boolean}
 */
-function isNodeMatches(node, nameOrPaths) {
+export function isNodeMatches(node, nameOrPaths) {
 	return nameOrPaths.some(nameOrPath => isNodeMatchesNameOrPath(node, nameOrPath));
 }
-
-module.exports = {
-	isNodeMatchesNameOrPath,
-	isNodeMatches,
-};

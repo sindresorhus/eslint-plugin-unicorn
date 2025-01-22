@@ -1,7 +1,6 @@
-'use strict';
-const {defaultsDeep} = require('./utils/lodash.js');
-const {getStringIfConstant} = require('@eslint-community/eslint-utils');
-const {isCallExpression} = require('./ast/index.js');
+import {getStringIfConstant} from '@eslint-community/eslint-utils';
+import {defaultsDeep} from './utils/lodash.js';
+import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
@@ -357,7 +356,7 @@ const schema = {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -366,6 +365,9 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

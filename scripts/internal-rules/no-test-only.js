@@ -1,11 +1,11 @@
-'use strict';
-const path = require('node:path');
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const messageId = path.basename(__filename, '.js');
+const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
-module.exports = {
+const config = {
 	create(context) {
-		if (path.basename(context.physicalFilename) === 'snapshot-rule-tester.mjs') {
+		if (path.basename(context.physicalFilename) === 'snapshot-rule-tester.js') {
 			return {};
 		}
 
@@ -72,3 +72,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

@@ -1,5 +1,4 @@
-'use strict';
-const {isUndefined} = require('../ast/index.js');
+import {isUndefined} from '../ast/index.js';
 
 // AST Types:
 // https://github.com/eslint/espree/blob/master/lib/ast-node-types.js#L18
@@ -18,4 +17,4 @@ const isNodeValueNotDomNode = node =>
 	impossibleNodeTypes.has(node.type)
 	|| isUndefined(node);
 
-module.exports = isNodeValueNotDomNode;
+export default isNodeValueNotDomNode;

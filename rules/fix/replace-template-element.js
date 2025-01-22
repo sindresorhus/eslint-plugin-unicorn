@@ -1,5 +1,3 @@
-'use strict';
-
 const replaceTemplateElement = (fixer, node, replacement) => {
 	const {range: [start, end], tail} = node;
 	return fixer.replaceTextRange(
@@ -8,4 +6,4 @@ const replaceTemplateElement = (fixer, node, replacement) => {
 	);
 };
 
-module.exports = replaceTemplateElement;
+export default replaceTemplateElement;

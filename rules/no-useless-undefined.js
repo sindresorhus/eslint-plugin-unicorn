@@ -1,7 +1,6 @@
-'use strict';
-const {isCommaToken} = require('@eslint-community/eslint-utils');
-const {replaceNodeOrTokenAndSpacesBefore} = require('./fix/index.js');
-const {isUndefined, isFunction} = require('./ast/index.js');
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
+import {isUndefined, isFunction} from './ast/index.js';
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -289,7 +288,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -299,6 +298,9 @@ module.exports = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

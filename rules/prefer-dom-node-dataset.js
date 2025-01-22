@@ -1,12 +1,8 @@
-'use strict';
-const {isIdentifierName} = require('@babel/helper-validator-identifier');
-const {
-	escapeString,
-	hasOptionalChainElement,
-	isValueNotUsable,
-} = require('./utils/index.js');
-const {isMethodCall, isStringLiteral, isExpressionStatement} = require('./ast/index.js');
+import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import {escapeString, hasOptionalChainElement, isValueNotUsable} from './utils/index.js';
+import {isMethodCall, isStringLiteral, isExpressionStatement} from './ast/index.js';
 
+const {isIdentifierName} = helperValidatorIdentifier;
 const MESSAGE_ID = 'prefer-dom-node-dataset';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
@@ -118,7 +114,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -130,3 +126,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,12 +1,6 @@
-'use strict';
-const {getFunctionHeadLocation, getFunctionNameWithKind} = require('@eslint-community/eslint-utils');
-const {
-	getReferences,
-	isNodeMatches,
-} = require('./utils/index.js');
-const {
-	functionTypes,
-} = require('./ast/index.js');
+import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
+import {getReferences, isNodeMatches} from './utils/index.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-function-scoping';
 const messages = {
@@ -203,14 +197,13 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -219,6 +212,9 @@ module.exports = {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [{checkArrowFunctions: true}],
 		messages,
 	},
 };
+
+export default config;

@@ -1,47 +1,62 @@
-'use strict';
+import {fileURLToPath} from 'node:url';
+import packageJson from './package.json' with {type: 'json'};
+import fixSnapshotTest from './fix-snapshot-test.js';
+import noTestOnly from './no-test-only.js';
+import preferNegativeBooleanAttribute from './prefer-negative-boolean-attribute.js';
 
-const path = require('node:path');
+const pluginName = 'internal';
 
-const pluginName = 'internal-rules';
 const TEST_DIRECTORIES = [
-	path.join(__dirname, '../../test'),
-];
+	new URL('../../test/', import.meta.url),
+].map(url => fileURLToPath(url));
+
 const RULES_DIRECTORIES = [
-	path.join(__dirname, '../../rules'),
-];
+	new URL('../../rules/', import.meta.url),
+].map(url => fileURLToPath(url));
 
 const rules = [
-	{id: 'fix-snapshot-test', directories: TEST_DIRECTORIES},
-	{id: 'prefer-negative-boolean-attribute', directories: RULES_DIRECTORIES},
-	{id: 'no-test-only', directories: TEST_DIRECTORIES},
+	{id: 'fix-snapshot-test', directories: TEST_DIRECTORIES, rule: fixSnapshotTest},
+	{id: 'prefer-negative-boolean-attribute', directories: RULES_DIRECTORIES, rule: preferNegativeBooleanAttribute},
+	{id: 'no-test-only', directories: TEST_DIRECTORIES, rule: noTestOnly},
 ];
 
-const isFileInsideDirectory = (filename, directory) => filename.startsWith(directory + path.sep);
+const isFileInsideDirectory = (filename, directory) => filename.startsWith(directory);
 
-module.exports = {
+const internal = {
+	meta: {
+		name: packageJson.name,
+		version: packageJson.version,
+	},
 	rules: Object.fromEntries(
-		rules.map(({id, directories}) => {
-			const rule = require(`./${id}.js`);
-			return [
-				id,
-				{
-					...rule,
-					create(context) {
-						const filename = context.physicalFilename;
-						if (directories.every(directory => !isFileInsideDirectory(filename, directory))) {
-							return {};
-						}
+		rules.map(({id, directories, rule}) => [
+			id,
+			{
+				...rule,
+				create(context) {
+					const filename = context.physicalFilename;
+					if (directories.every(directory => !isFileInsideDirectory(filename, directory))) {
+						return {};
+					}
 
-						return rule.create(context);
-					},
+					return rule.create(context);
 				},
-			];
-		}),
+			},
+		]),
 	),
-	configs: {
-		all: {
-			plugins: [pluginName],
-			rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
+};
+
+const configs = {
+	all: {
+		plugins: {
+			internal,
 		},
+		rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
 	},
 };
+
+const allConfigs = {
+	...internal,
+	configs,
+};
+
+export default allConfigs;

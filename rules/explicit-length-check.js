@@ -1,10 +1,9 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const {checkVueTemplate} = require('./utils/rule.js');
-const isLogicalExpression = require('./utils/is-logical-expression.js');
-const {isBooleanNode, getBooleanAncestor} = require('./utils/boolean.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isLiteral, isMemberExpression, isNumberLiteral} = require('./ast/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {checkVueTemplate} from './utils/rule.js';
+import isLogicalExpression from './utils/is-logical-expression.js';
+import {isBooleanNode, getBooleanAncestor} from './utils/boolean.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isLiteral, isMemberExpression, isNumberLiteral} from './ast/index.js';
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -219,7 +218,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'problem',
@@ -233,3 +232,5 @@ module.exports = {
 		hasSuggestions: true,
 	},
 };
+
+export default config;

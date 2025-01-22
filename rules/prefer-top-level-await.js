@@ -1,6 +1,5 @@
-'use strict';
-const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression, isMethodCall} = require('./ast/index.js');
+import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
+import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -139,7 +138,7 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -151,3 +150,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

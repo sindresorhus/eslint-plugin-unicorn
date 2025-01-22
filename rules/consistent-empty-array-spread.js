@@ -1,5 +1,4 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
+import {getStaticValue} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
@@ -111,7 +110,7 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -124,3 +123,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,11 +1,10 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
 	isCallExpression,
 	isNewExpression,
 	isUndefined,
 	isNullLiteral,
-} = require('./ast/index.js');
+} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'no-invalid-fetch-options';
 const messages = {
@@ -98,7 +97,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
@@ -109,3 +108,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {isNodeValueNotDomNode, isValueNotUsable} = require('./utils/index.js');
+import {isMethodCall} from './ast/index.js';
+import {isNodeValueNotDomNode, isValueNotUsable} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-dom-node-append';
 const messages = {
@@ -35,7 +34,7 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -47,3 +46,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

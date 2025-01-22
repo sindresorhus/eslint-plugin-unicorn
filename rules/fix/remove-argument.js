@@ -1,8 +1,7 @@
-'use strict';
-const {isCommaToken} = require('@eslint-community/eslint-utils');
-const {getParentheses} = require('../utils/parentheses.js');
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import {getParentheses} from '../utils/parentheses.js';
 
-function removeArgument(fixer, node, sourceCode) {
+export default function removeArgument(fixer, node, sourceCode) {
 	const callExpression = node.parent;
 	const index = callExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, sourceCode);
@@ -28,5 +27,3 @@ function removeArgument(fixer, node, sourceCode) {
 
 	return fixer.replaceTextRange([start, end], '');
 }
-
-module.exports = removeArgument;

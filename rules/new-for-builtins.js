@@ -1,10 +1,6 @@
-'use strict';
-const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
-const builtins = require('./utils/builtins.js');
-const {
-	switchCallExpressionToNewExpression,
-	switchNewExpressionToCallExpression,
-} = require('./fix/index.js');
+import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import * as builtins from './utils/builtins.js';
+import {switchCallExpressionToNewExpression, switchNewExpressionToCallExpression} from './fix/index.js';
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
@@ -72,7 +68,7 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
@@ -84,3 +80,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;
