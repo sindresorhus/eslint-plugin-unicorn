@@ -109,10 +109,11 @@ const create = context => {
 		exclude = [],
 	} = context.options[0] ?? {};
 
-	const constructors = new Set([
-		...(strategy === 'strict' ? strictStrategyConstructors : []),
-		...include,
-	]);
+	const forbiddenConstructors = new Set(
+		strategy === 'strict'
+			? [...strictStrategyConstructors, ...include]
+			: include,
+	);
 
 	const {sourceCode} = context;
 
@@ -158,7 +159,7 @@ const create = context => {
 				return problem;
 			}
 
-			if (!constructors.has(constructorName)) {
+			if (!forbiddenConstructors.has(constructorName)) {
 				return;
 			}
 
