@@ -24,10 +24,10 @@ const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.co
 /**
 Check if a property is a valid getter or setter.
 
-@param {import('estree').Node} property
+@param {import('estree').Property | import('estree').MethodDefinition} property
 */
 const isValidProperty = property =>
-	['Property', 'MethodDefinition'].includes(property.type) && !property.computed
+	['Property', 'MethodDefinition'].includes(property.type) && !property.computed && ['set', 'get'].includes(property.kind)
 	&& (property.key.type === 'Identifier' || property.key.type === 'PrivateIdentifier');
 
 /**
