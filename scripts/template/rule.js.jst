@@ -16,7 +16,7 @@ const messages = {
 };
 <% } %>
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/** @type {import('eslint').Rule.RuleModule["create"]} */
 const create = context => {
 	return {
 		Literal(node) {
