@@ -1575,6 +1575,74 @@ test({
 			],
 			errors: [getNamespaceError('react')],
 		},
+
+		{
+			code: 'import {foo} from "@scope/package"',
+			output: 'import * as package_ from "@scope/package"',
+			options: [{
+				styles: {
+					'@scope/package': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('@scope/package')],
+		},
+		{
+			code: 'import {foo} from "@scope/foo.bar"',
+			output: 'import * as foo from "@scope/foo.bar"',
+			options: [{
+				styles: {
+					'@scope/foo.bar': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('@scope/foo.bar')],
+		},
+		{
+			code: 'import {foo} from "./utils/foo.bar#something"',
+			output: 'import * as foo from "./utils/foo.bar#something"',
+			options: [{
+				styles: {
+					'./utils/foo.bar#something': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('./utils/foo.bar#something')],
+		},
+
+		// Test local path imports
+		{
+			code: 'import {foo} from "./deep/path/to/my-util.js"',
+			output: 'import * as myUtil from "./deep/path/to/my-util.js"',
+			options: [{
+				styles: {
+					'./deep/path/to/my-util.js': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('./deep/path/to/my-util.js')],
+		},
+		{
+			code: 'const {foo} = require("./deep/path/to/my-util.js")',
+			output: 'const myUtil = require("./deep/path/to/my-util.js")',
+			options: [{
+				styles: {
+					'./deep/path/to/my-util.js': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('./deep/path/to/my-util.js')],
+		},
 	].map(test => addDefaultOptions(test)),
 });
 
