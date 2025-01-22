@@ -186,16 +186,16 @@ const create = context => ({
 				continue;
 			}
 
-			// ignore `typeof window` and `typeof self`
-			if (identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof' && identifier.parent.argument === identifier) {
-				continue;
-			}
-
 			yield {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,
 				data: {value: identifier.name},
-				fix: fixer => fixer.replaceText(identifier, 'globalThis'),
+				fix(fixer) {
+				// Skip the fix for `typeof window` and `typeof self`
+					const isTypeofLegacyGlobal = identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof' && identifier.parent.argument === identifier;
+
+					return fixer.replaceText(identifier, isTypeofLegacyGlobal ? 'globalThis.' + identifier.name : 'globalThis');
+				},
 			};
 		}
 	},
