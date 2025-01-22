@@ -247,24 +247,24 @@ const create = context => {
 				let importedNames = [];
 				if (node.type === 'ImportDeclaration') {
 					importedNames = node.specifiers
-						.filter(s => s.type === 'ImportSpecifier' || s.type === 'ImportDefaultSpecifier')
-						.map(s => ({
-							localName: s.local.name,
-							importedName: s.type === 'ImportDefaultSpecifier' ? 'default' : s.imported.name,
+						.filter(specifier => specifier.type === 'ImportSpecifier' || specifier.type === 'ImportDefaultSpecifier')
+						.map(specifier => ({
+							localName: specifier.local.name,
+							importedName: specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name,
 						}));
 				} else if (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') {
 					importedNames = node.id.properties
-						.map(p => {
-							if (p.type === 'RestElement') {
+						.map(property => {
+							if (property.type === 'RestElement') {
 								return {
-									localName: p.argument.name,
+									localName: property.argument.name,
 									importedName: undefined,
 								};
 							}
 
 							return {
-								localName: p.value.name,
-								importedName: p.key.name,
+								localName: property.value.name,
+								importedName: property.key.name,
 							};
 						});
 				}
