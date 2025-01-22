@@ -37,7 +37,7 @@ const reportProblem = (context, identifier) => {
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule["create"]} */
+/** @type {import('eslint').Rule.RuleModule['create']} */
 const create = context => {
 	const {sourceCode} = context;
 
