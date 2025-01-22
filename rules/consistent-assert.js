@@ -47,12 +47,10 @@ const create = context => {
 				return;
 			}
 
-			const scope = sourceCode.getScope(node);
-
 			const specifiers = node.specifiers.filter(specifier => isValidSpecifier(specifier, node.source.value));
 
 			for (const specifier of specifiers) {
-				const variable = scope.variables.find(variable => variable.name === specifier.local.name);
+				const variable = sourceCode.getDeclaredVariables(specifier).find(variable => variable.name === specifier.local.name);
 				if (!variable) {
 					continue;
 				}
