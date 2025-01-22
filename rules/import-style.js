@@ -224,14 +224,14 @@ const create = context => {
 
 				let importedNames = [];
 				if (node.type === 'ImportDeclaration') {
-					importedNames = node.specifier
+					importedNames = node.specifiers
 						.filter(s => s.type === 'ImportSpecifier' || s.type === 'ImportDefaultSpecifier')
 						.map(s => ({
 							localName: s.local.name,
 							importedName: s.type === 'ImportDefaultSpecifier' ? 'default' : s.imported.name,
 						}));
 				} else if (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') {
-					importedNames = node.id.property
+					importedNames = node.id.properties
 						.map(p => {
 							if (p.type === 'RestElement') {
 								return {
