@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce consistent assertion styles with `node:assert`.
+Prefer `assert.ok` for its explicit intent and better readability. It aligns with other assert methods, ensuring consistency and making code easier to maintain and understand.
 
 ## Examples
 
