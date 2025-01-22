@@ -7,21 +7,19 @@ import typedArray from './shared/typed-array.js';
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
 const MESSAGE_ID = 'no-instanceof-builtin-object';
+const MESSAGE_ID_SWITCH_TO_TYPE_OF = 'switch-to-type-of';
 const messages = {
 	[MESSAGE_ID]: 'Avoid using `instanceof` for type checking as it can lead to unreliable results.',
+	[MESSAGE_ID_SWITCH_TO_TYPE_OF]: 'Switch to `typeof … === \'{{type}}\'`.',
 };
 
-const looseStrategyConstructors = new Set([
+const constructiblePrimitiveWrappers = new Set([
 	'String',
 	'Number',
 	'Boolean',
-	'BigInt',
-	'Symbol',
-	'Array',
-	'Function',
 ]);
 
-const strictStrategyConstructors = new Set([
+const strictStrategyConstructors = [
 	// Error types
 	...builtinErrors,
 
@@ -51,7 +49,7 @@ const strictStrategyConstructors = new Set([
 	'Date',
 	'SharedArrayBuffer',
 	'FinalizationRegistry',
-]);
+];
 
 const replaceWithFunctionCall = (node, sourceCode, functionName) => function * (fixer) {
 	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
@@ -111,6 +109,11 @@ const create = context => {
 		exclude = [],
 	} = context.options[0] ?? {};
 
+	const constructors = new Set([
+		...(strategy === 'strict' ? strictStrategyConstructors : []),
+		...include,
+	]);
+
 	const {sourceCode} = context;
 
 	return {
@@ -122,9 +125,7 @@ const create = context => {
 				return;
 			}
 
-			if (!looseStrategyConstructors.has(right.name) && !strictStrategyConstructors.has(right.name) && !include.includes(right.name)) {
-				return;
-			}
+			const constructorName = right.name;
 
 			/** @type {import('eslint').Rule.ReportDescriptor} */
 			const problem = {
@@ -133,22 +134,31 @@ const create = context => {
 			};
 
 			if (
-				right.name === 'Array'
-				|| (right.name === 'Error' && useErrorIsError)
+				constructorName === 'Array'
+				|| (constructorName === 'Error' && useErrorIsError)
 			) {
-				const functionName = right.name === 'Array' ? 'Array.isArray' : 'Error.isError';
+				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
 				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
 				return problem;
 			}
 
-			// Loose strategy by default
-			if (looseStrategyConstructors.has(right.name)) {
+			if (constructorName === 'Function' || constructorName === 'BigInt' || constructorName === 'Symbol') {
 				problem.fix = replaceWithTypeOfExpression(node, sourceCode);
 				return problem;
 			}
 
-			// Strict strategy
-			if (strategy !== 'strict' && include.length === 0) {
+			if (constructiblePrimitiveWrappers.has(constructorName)) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+						data: {type: constructorName.toLowerCase()},
+						fix: replaceWithTypeOfExpression(node, sourceCode),
+					},
+				];
+				return problem;
+			}
+
+			if (!constructors.has(constructorName)) {
 				return;
 			}
 
@@ -204,6 +214,7 @@ const config = {
 			include: [],
 			exclude: [],
 		}],
+		hasSuggestions: true,
 		messages,
 	},
 };
