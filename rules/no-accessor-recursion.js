@@ -33,10 +33,10 @@ const isValidProperty = property =>
 /**
 Check if two property keys are the same.
 
-@param {import('estree').Property['key']} KeyLeft
-@param {import('estree').Property['key']} KeyRight
+@param {import('estree').Property['key']} keyLeft
+@param {import('estree').Property['key']} keyRight
 */
-const isSameKey = (KeyLeft, KeyRight) => ['type', 'name'].every(key => KeyLeft[key] === KeyRight[key]);
+const isSameKey = (keyLeft, keyRight) => ['type', 'name'].every(key => keyLeft[key] === keyRight[key]);
 
 /**
 Check if `this` is accessed recursively within a getter or setter.
