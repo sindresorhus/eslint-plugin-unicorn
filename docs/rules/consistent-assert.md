@@ -12,31 +12,31 @@ Enforce consistent assertion styles with `node:assert`.
 ## Examples
 
 ```js
-// ❌
 import assert from 'node:assert';
+
+// ❌
 assert(true);
 
 // ✅
-import assert from 'node:assert';
 assert.ok(true);
 ```
 
 ```js
-// ❌
 import {strict as assert} from 'node:assert';
+
+// ❌
 assert(true);
 
 // ✅
-import {strict as assert} from 'node:assert';
 assert.ok(true);
 ```
 
 ```js
-// ❌
 import assert from 'node:assert/strict';
+
+// ❌
 assert(true);
 
 // ✅
-import assert from 'node:assert/strict';
 assert.ok(true);
 ```
