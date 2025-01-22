@@ -38,40 +38,43 @@ const reportProblem = (context, identifier) => {
 };
 
 /** @type {import('eslint').Rule.RuleModule["create"]} */
-const create = context => ({
-	ImportDeclaration(node) {
-		if (!assertModules.has(node.source.value)) {
-			return;
-		}
+const create = context => {
+	const {sourceCode} = context;
 
-		const {sourceCode} = context;
-		const scope = sourceCode.getScope(node);
-
-		const specifiers = node.specifiers.filter(specifier => isValidSpecifier(specifier, node.source.value));
-
-		for (const specifier of specifiers) {
-			const variable = scope.variables.find(variable => variable.name === specifier.local.name);
-			if (!variable) {
-				continue;
+	return {
+		ImportDeclaration(node) {
+			if (!assertModules.has(node.source.value)) {
+				return;
 			}
 
-			for (const reference of variable.references) {
-				const {identifier} = reference;
+			const scope = sourceCode.getScope(node);
 
-				const {parent} = identifier;
+			const specifiers = node.specifiers.filter(specifier => isValidSpecifier(specifier, node.source.value));
 
-				const isFunctionCall = () => parent.type === 'CallExpression' && parent.callee === identifier;
-
-				// Skip if the identifier is not part of a call expression
-				if (!isFunctionCall()) {
+			for (const specifier of specifiers) {
+				const variable = scope.variables.find(variable => variable.name === specifier.local.name);
+				if (!variable) {
 					continue;
 				}
 
-				reportProblem(context, identifier);
+				for (const reference of variable.references) {
+					const {identifier} = reference;
+
+					const {parent} = identifier;
+
+					const isFunctionCall = () => parent.type === 'CallExpression' && parent.callee === identifier;
+
+					// Skip if the identifier is not part of a call expression
+					if (!isFunctionCall()) {
+						continue;
+					}
+
+					reportProblem(context, identifier);
+				}
 			}
-		}
-	},
-});
+		},
+	};
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
