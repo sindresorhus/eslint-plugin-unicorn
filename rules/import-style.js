@@ -168,8 +168,8 @@ const create = context => {
 
 	styles = new Map(
 		Object.entries(styles).map(
-			([ moduleName, styles ]) =>
-				[ moduleName, new Set(Object.entries(styles).filter(([ , isAllowed ]) => isAllowed).map(([ style ]) => style)) ],
+			([moduleName, styles]) =>
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
 		),
 	);
 
@@ -252,18 +252,39 @@ const create = context => {
 				}
 
 				const scope = sourceCode.getScope(node);
-				const namespaceIdentifier = specialCases[ moduleName ]
-					|| moduleName.replaceAll(/-./g, x => x[ 1 ].toUpperCase());
+				const getNamespaceIdentifier = moduleName => {
+					// Handle special cases first
+					if (specialCases[moduleName]) {
+						return specialCases[moduleName];
+					}
+
+					// Get the last part of the path and remove extension
+					const lastPart = moduleName.split('/').pop().split('.')[0];
+
+					// For scoped packages, we want the package name, not the scope
+					// @scope/package -> package
+					// @scope/foo.bar -> foo
+					const packageName = lastPart.startsWith('@') 
+						? moduleName.split('/').pop().split('.')[0]
+						: lastPart;
+
+					// Replace invalid identifier characters and convert to camelCase
+					return packageName
+						.replaceAll(/[^a-zA-Z0-9-]/g, '-') // Replace invalid chars with hyphen
+						.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
+				};
+
+				const namespaceIdentifier = getNamespaceIdentifier(moduleName);
 
 				// Check if any of the named imports match our desired namespace identifier
 				const hasMatchingNamedImport = importedNames.some(
-					({ localName }) => localName === namespaceIdentifier,
+					({localName}) => localName === namespaceIdentifier,
 				);
 
 				// Only avoid capture if there's no matching named import
 				const uniqueNamespaceIdentifier = hasMatchingNamedImport
 					? namespaceIdentifier
-					: avoidCapture(namespaceIdentifier, [ scope ]);
+					: avoidCapture(namespaceIdentifier, [scope]);
 
 				// For VariableDeclarator, we need to handle the parent VariableDeclaration
 				const hasSemicolon = sourceCode.getText(
@@ -272,13 +293,13 @@ const create = context => {
 
 				const importFix = fixer.replaceTextRange(
 					node.type === 'VariableDeclarator'
-						? [ node.parent.range[ 0 ], node.parent.range[ 1 ] ]
-						: [ node.range[ 0 ], node.range[ 1 ] ],
+						? [node.parent.range[0], node.parent.range[1]]
+						: [node.range[0], node.range[1]],
 					node.type === 'ImportDeclaration'
-						? `import * as ${ uniqueNamespaceIdentifier } from ${ sourceCode.getText(node.source) }${ hasSemicolon ? ';' : '' }`
-						: `const ${ uniqueNamespaceIdentifier } = require(${ sourceCode.getText(
-							node.type === 'VariableDeclarator' ? node.init.arguments[ 0 ] : node.arguments[ 0 ],
-						) })${ hasSemicolon ? ';' : '' }`,
+						? `import * as ${uniqueNamespaceIdentifier} from ${sourceCode.getText(node.source)}${hasSemicolon ? ';' : ''}`
+						: `const ${uniqueNamespaceIdentifier} = require(${sourceCode.getText(
+							node.type === 'VariableDeclarator' ? node.init.arguments[0] : node.arguments[0],
+						)})${hasSemicolon ? ';' : ''}`,
 				);
 
 				if (hasMatchingNamedImport) {
