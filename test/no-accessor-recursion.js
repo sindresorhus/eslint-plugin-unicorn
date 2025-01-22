@@ -240,5 +240,20 @@ test.snapshot({
 				}
 			}
 		`,
+		//
+		...[
+			'++ this.bar;',
+			'-- this.bar;',
+			'[this.bar] = array;',
+			'[this.bar = defaultValue] = array;',
+			'({property: this.bar} = object);',
+			'({property: this.bar = defaultValue} = object);',
+		].map(code => outdent`
+			class Foo {
+				set bar(v) {
+					${code}
+				}
+			}
+		`),
 	],
 });

@@ -18,8 +18,15 @@ const getClosestFunctionScope = (sourceCode, node) => {
 	}
 };
 
-/** @param {import('estree').MemberExpression} node */
-const isDotNotationAccess = node => node.type === 'MemberExpression' && !node.computed && (node.property.type === 'Identifier' || node.property.type === 'PrivateIdentifier');
+/** @param {import('estree').Identifier | import('estree').PrivateIdentifier} node */
+const isIdentifier = node => node.type === 'Identifier' || node.type === 'PrivateIdentifier';
+
+/** @param {import('estree').ThisExpression} node */
+const isDotNotationAccess = node =>
+	node.parent.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& !node.parent.computed
+	&& isIdentifier(node.parent.property);
 
 /**
 Check if a property is a valid getter or setter.
@@ -27,8 +34,10 @@ Check if a property is a valid getter or setter.
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
 const isValidProperty = property =>
-	['Property', 'MethodDefinition'].includes(property.type) && !property.computed && ['set', 'get'].includes(property.kind)
-	&& (property.key.type === 'Identifier' || property.key.type === 'PrivateIdentifier');
+	['Property', 'MethodDefinition'].includes(property.type)
+	&& !property.computed
+	&& ['set', 'get'].includes(property.kind)
+	&& isIdentifier(property.key);
 
 /**
 Check if two property keys are the same.
@@ -41,21 +50,63 @@ const isSameKey = (keyLeft, keyRight) => ['type', 'name'].every(key => keyLeft[k
 /**
 Check if `this` is accessed recursively within a getter or setter.
 
-@param {import('estree').MemberExpression} parent
+@param {import('estree').ThisExpression} node
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveMemberAccess = (parent, property) => isDotNotationAccess(parent) && isSameKey(parent.property, property.key);
+const isMemberAccess = (node, property) =>
+	isDotNotationAccess(node)
+	&& isSameKey(node.parent.property, property.key);
 
 /**
 Check if `this` is accessed recursively within a destructuring assignment.
 
-@param {import('estree').VariableDeclarator} parent
+@param {import('estree').ThisExpression} node
 @param {import('estree').Property | import('estree').MethodDefinition} property
 */
-const isRecursiveDestructuringAccess = (parent, property) =>
-	parent.type === 'VariableDeclarator'
-	&& parent.id.type === 'ObjectPattern'
-	&& parent.id.properties.some(declaratorProperty => declaratorProperty.type === 'Property' && !declaratorProperty.computed && isSameKey(declaratorProperty.key, property.key));
+const isRecursiveDestructuringAccess = (node, property) =>
+	node.parent.type === 'VariableDeclarator'
+	&& node.parent.init === node
+	&& node.parent.id.type === 'ObjectPattern'
+	&& node.parent.id.properties.some(declaratorProperty =>
+		declaratorProperty.type === 'Property'
+		&& !declaratorProperty.computed
+		&& isSameKey(declaratorProperty.key, property.key),
+	);
+
+const isPropertyRead = (thisExpression, property) =>
+	isMemberAccess(thisExpression, property)
+	|| isRecursiveDestructuringAccess(thisExpression, property);
+
+const isPropertyWrite = (thisExpression, property) => {
+	if (!isMemberAccess(thisExpression, property)) {
+		return false;
+	}
+
+	const memberExpression = thisExpression.parent;
+	const {parent} = memberExpression;
+
+	// This part is similar to `isLeftHandSide`, try to DRY in future
+	return (
+		// `this.foo = …`
+		// `[this.foo = …] = …`
+		// `({property: this.foo = …] = …)`
+		(
+			(parent.type === 'AssignmentExpression' || parent.type === 'AssignmentPattern')
+			&& parent.left === memberExpression
+		)
+		// `++ this.foo`
+		|| (parent.type === 'UpdateExpression' && parent.argument === memberExpression)
+		// `[this.foo] = …`
+		|| (parent.type === 'ArrayPattern' && parent.elements.includes(memberExpression))
+		// `({property: this.foo} = …)`
+		|| (
+			parent.type === 'Property'
+			&& parent.value === memberExpression
+			&& parent.parent.type === 'ObjectPattern'
+			&& parent.parent.properties.includes(memberExpression.parent)
+		)
+	);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -80,15 +131,11 @@ const create = context => {
 				return;
 			}
 
-			if (!isRecursiveMemberAccess(parent, property) && !isRecursiveDestructuringAccess(parent, property)) {
-				return;
-			}
-
-			if (property.kind === 'get') {
+			if (property.kind === 'get' && isPropertyRead(thisExpression, property)) {
 				return {node: parent, messageId: MESSAGE_ID_ERROR};
 			}
 
-			if (property.kind === 'set' && parent.parent.type === 'AssignmentExpression' && parent.parent.left === parent) {
+			if (property.kind === 'set' && isPropertyWrite(thisExpression, property)) {
 				return {node: parent.parent, messageId: MESSAGE_ID_ERROR};
 			}
 		},
