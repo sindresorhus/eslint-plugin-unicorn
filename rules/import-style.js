@@ -165,7 +165,7 @@ const getNamespaceIdentifier = moduleName => {
 
 	// Replace invalid identifier characters and convert to camelCase
 	return packageName
-		.replaceAll(/[^a-zA-Z0-9-]/g, '-') // Replace invalid chars with hyphen
+		.replaceAll(/[^\dA-Za-z-]/g, '-') // Replace invalid chars with hyphen
 		.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
 };
 
