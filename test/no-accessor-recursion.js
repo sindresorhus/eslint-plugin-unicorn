@@ -129,6 +129,18 @@ test.snapshot({
 				}
 			}
 		`,
+		// Static block
+		outdent`
+			const foo = {
+				get bar() {
+					class Foo {
+						static {
+							this.bar
+						}
+					}
+				}
+			};
+		`,
 	],
 	invalid: [
 		// Getter
