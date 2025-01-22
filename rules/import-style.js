@@ -161,9 +161,7 @@ const getNamespaceIdentifier = moduleName => {
 	// For scoped packages, we want the package name, not the scope
 	// @scope/package -> package
 	// @scope/foo.bar -> foo
-	const packageName = lastPart.startsWith('@') 
-		? moduleName.split('/').pop().split('.')[0]
-		: lastPart;
+	const packageName = lastPart.startsWith('@') ? moduleName.split('/').pop().split('.')[0] : lastPart;
 
 	// Replace invalid identifier characters and convert to camelCase
 	return packageName
@@ -195,7 +193,7 @@ const create = context => {
 		),
 	);
 
-	const { sourceCode } = context;
+	const {sourceCode} = context;
 
 	const report = (
 		node,
@@ -220,7 +218,7 @@ const create = context => {
 		}
 
 		const data = {
-			allowedStyles: new Intl.ListFormat('en-US', { type: 'disjunction' }).format([ ...allowedImportStyles.keys() ]),
+			allowedStyles: new Intl.ListFormat('en-US', {type: 'disjunction'}).format([...allowedImportStyles.keys()]),
 			moduleName,
 		};
 
@@ -235,7 +233,7 @@ const create = context => {
 
 				const isImportDeclaration = node.type === 'ImportDeclaration';
 				const isVariableDeclarator = node.type === 'VariableDeclarator';
-				const isRequireCall = isCallExpression(node.init, { name: 'require' });
+				const isRequireCall = isCallExpression(node.init, {name: 'require'});
 				const isImportExpression = node.init?.type === 'ImportExpression';
 				const isVariableDeclaratorWithRequireCall = isVariableDeclarator && (isRequireCall || isImportExpression);
 				const isValidNode = isImportDeclaration || isVariableDeclaratorWithRequireCall;
@@ -304,10 +302,10 @@ const create = context => {
 				);
 
 				if (hasMatchingNamedImport) {
-					return [ importFix ];
+					return [importFix];
 				}
 
-				const referenceFixes = importedNames.flatMap(({ localName, importedName }) => {
+				const referenceFixes = importedNames.flatMap(({localName, importedName}) => {
 					// Skip rest patterns since they should be kept as is
 					if (importedName === undefined) {
 						return [];
@@ -325,7 +323,7 @@ const create = context => {
 						);
 
 						for (const childScope of scope.childScopes) {
-							references = [ ...references, ...getAllReferences(childScope) ];
+							references = [...references, ...getAllReferences(childScope)];
 						}
 
 						return references;
@@ -334,11 +332,11 @@ const create = context => {
 					const references = getAllReferences(programScope);
 
 					return references.map(reference =>
-						fixer.replaceText(reference.identifier, `${ uniqueNamespaceIdentifier }.${ importedName }`),
+						fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`),
 					);
 				});
 
-				return [ importFix, ...referenceFixes ];
+				return [importFix, ...referenceFixes];
 			},
 		});
 	};
@@ -363,7 +361,7 @@ const create = context => {
 					const allowedImportStyles = styles.get(moduleName);
 
 					if (!isAssignedDynamicImport(node)) {
-						report(node, moduleName, [ 'unassigned' ], allowedImportStyles);
+						report(node, moduleName, ['unassigned'], allowedImportStyles);
 						return;
 					}
 
@@ -402,7 +400,7 @@ const create = context => {
 					const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = [ 'namespace' ];
+					const actualImportStyles = ['namespace'];
 
 					report(node, moduleName, actualImportStyles, allowedImportStyles);
 				},
@@ -430,9 +428,9 @@ const create = context => {
 						return;
 					}
 
-					const moduleName = getStringIfConstant(node.arguments[ 0 ], sourceCode.getScope(node.arguments[ 0 ]));
+					const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
 					const allowedImportStyles = styles.get(moduleName);
-					const actualImportStyles = [ 'unassigned' ];
+					const actualImportStyles = ['unassigned'];
 
 					report(node, moduleName, actualImportStyles, allowedImportStyles, true);
 				},
@@ -446,7 +444,7 @@ const create = context => {
 					}
 
 					const assignmentTargetNode = node.id;
-					const moduleNameNode = node.init.arguments[ 0 ];
+					const moduleNameNode = node.init.arguments[0];
 					const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
 					if (!moduleName) {
