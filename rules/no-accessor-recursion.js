@@ -115,9 +115,6 @@ const create = context => {
 	return {
 		/** @param {import('estree').ThisExpression} thisExpression */
 		ThisExpression(thisExpression) {
-			/** @type {import('estree').MemberExpression} */
-			const {parent} = thisExpression;
-
 			const scope = getClosestFunctionScope(sourceCode, thisExpression);
 
 			if (!scope) {
@@ -132,11 +129,11 @@ const create = context => {
 			}
 
 			if (property.kind === 'get' && isPropertyRead(thisExpression, property)) {
-				return {node: parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
+				return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
 			}
 
 			if (property.kind === 'set' && isPropertyWrite(thisExpression, property)) {
-				return {node: parent.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
+				return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
 			}
 		},
 	};
