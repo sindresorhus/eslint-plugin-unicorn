@@ -29,6 +29,7 @@ test.snapshot({
 		'import/*comment*/{default as named}from"foo";',
 		'import /*comment*/{default as named}from"foo";',
 		'import{default as named}/*comment*/from"foo";',
+		'import defaultExport,{default as named}from "foo";',
 		'import defaultExport, {default as named} from "foo" with {type: "json"};',
 		'import defaultExport, {default as named} from "foo" with {type: "json"}',
 		'import {default as named1, default as named2,} from "foo";',
