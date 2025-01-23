@@ -100,5 +100,9 @@ test.snapshot({
 
 			assert(/** before comment */ typeof foo === 'string', 'foo must be a string' /** after comment */);
 		`,
+		outdent`
+			import {default as foo} from 'node:assert';
+			foo(1);
+		`,
 	],
 });
