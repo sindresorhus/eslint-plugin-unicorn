@@ -176,6 +176,127 @@ const getNamespaceIdentifier = moduleName => {
 	return identifier;
 };
 
+/**
+ Creates a fix function to convert imports to namespace imports.
+ @param {Object} options - The options object.
+ @param {import('estree').Node} options.node - The AST node representing the import/require statement.
+ @param {import('eslint').SourceCode} options.sourceCode - The ESLint source code object.
+ @param {string} options.moduleName - The name of the module being imported.
+ @param {Set<string>} options.allowedImportStyles - Set of allowed import styles for the module.
+ @returns {(fixer: import('eslint').Rule.RuleFixer) => Array<import('eslint').Rule.Fix>|void} A function that takes a fixer and returns an array of fixes or void.
+ */
+const createFix = ({node, sourceCode, moduleName, allowedImportStyles}) => fixer => {
+	if (!allowedImportStyles.has('namespace') || allowedImportStyles.has('named')) {
+		return;
+	}
+
+	const isImportDeclaration = node.type === 'ImportDeclaration';
+	const isVariableDeclarator = node.type === 'VariableDeclarator';
+	const isRequireCall = isCallExpression(node.init, {name: 'require'});
+	const isImportExpression = node.init?.type === 'ImportExpression';
+	const isVariableDeclaratorWithRequireCall = isVariableDeclarator && (isRequireCall || isImportExpression);
+	const isValidNode = isImportDeclaration || isVariableDeclaratorWithRequireCall;
+
+	if (!isValidNode) {
+		return;
+	}
+
+	let importedNames = [];
+	if (node.type === 'ImportDeclaration') {
+		importedNames = node.specifiers
+			.filter(specifier => specifier.type === 'ImportSpecifier' || specifier.type === 'ImportDefaultSpecifier')
+			.map(specifier => ({
+				localName: specifier.local.name,
+				importedName: specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name,
+			}));
+	} else if (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') {
+		importedNames = node.id.properties
+			.map(property => {
+				if (property.type === 'RestElement') {
+					return {
+						localName: property.argument.name,
+						importedName: undefined,
+					};
+				}
+
+				return {
+					localName: property.value.name,
+					importedName: property.key.name,
+				};
+			});
+	}
+
+	if (importedNames.length === 0) {
+		return;
+	}
+
+	const scope = sourceCode.getScope(node);
+
+	const namespaceIdentifier = getNamespaceIdentifier(moduleName);
+
+	// Check if any of the named imports match our desired namespace identifier
+	const hasMatchingNamedImport = importedNames.some(
+		({localName}) => localName === namespaceIdentifier,
+	);
+
+	// Only avoid capture if there's no matching named import
+	const uniqueNamespaceIdentifier = hasMatchingNamedImport
+		? namespaceIdentifier
+		: avoidCapture(namespaceIdentifier, [scope]);
+
+	// For VariableDeclarator, we need to handle the parent VariableDeclaration
+	const hasSemicolon = sourceCode.getText(
+		node.type === 'VariableDeclarator' ? node.parent : node,
+	).endsWith(';');
+
+	const importFix = fixer.replaceTextRange(
+		node.type === 'VariableDeclarator'
+			? [node.parent.range[0], node.parent.range[1]]
+			: [node.range[0], node.range[1]],
+		node.type === 'ImportDeclaration'
+			? `import * as ${uniqueNamespaceIdentifier} from ${sourceCode.getText(node.source)}${hasSemicolon ? ';' : ''}`
+			: `const ${uniqueNamespaceIdentifier} = require(${sourceCode.getText(
+				node.type === 'VariableDeclarator' ? node.init.arguments[0] : node.arguments[0],
+			)})${hasSemicolon ? ';' : ''}`,
+	);
+
+	if (hasMatchingNamedImport) {
+		return [importFix];
+	}
+
+	const referenceFixes = importedNames.flatMap(({localName, importedName}) => {
+		// Skip rest patterns since they should be kept as is
+		if (importedName === undefined) {
+			return [];
+		}
+
+		const programScope = sourceCode.getScope(sourceCode.ast);
+
+		const getAllReferences = scope => {
+			let references = scope.references.filter(
+				reference => reference.identifier.name === localName
+				// Skip the original declaration
+					&& !(node.type === 'VariableDeclarator' && reference.identifier === node.id)
+					&& !(node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern'
+						&& node.id.properties.some(p => p.value === reference.identifier)),
+			);
+
+			for (const childScope of scope.childScopes) {
+				references = [...references, ...getAllReferences(childScope)];
+			}
+
+			return references;
+		};
+
+		const references = getAllReferences(programScope);
+
+		return references.map(reference => fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`),
+		);
+	});
+
+	return [importFix, ...referenceFixes];
+};
+
 /** @type {import('eslint').Rule.RuleModule} */
 const create = context => {
 	let [
@@ -215,6 +336,10 @@ const create = context => {
 
 		let effectiveAllowedImportStyles = allowedImportStyles;
 
+		// For `require`, `'default'` style allows both `x = require('x')` (`'namespace'` style) and
+		// `{default: x} = require('x')` (`'default'` style) since we don't know in advance
+		// whether `'x'` is a compiled ES6 module (with `default` key) or a CommonJS module and `require`
+		// does not provide any automatic interop for this, so the user may have to use either of these.
 		if (isRequire && allowedImportStyles.has('default') && !allowedImportStyles.has('namespace')) {
 			effectiveAllowedImportStyles = new Set(allowedImportStyles);
 			effectiveAllowedImportStyles.add('namespace');
@@ -233,118 +358,9 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data,
-			fix(fixer) {
-				if (!allowedImportStyles.has('namespace') || allowedImportStyles.has('named')) {
-					return;
-				}
-
-				const isImportDeclaration = node.type === 'ImportDeclaration';
-				const isVariableDeclarator = node.type === 'VariableDeclarator';
-				const isRequireCall = isCallExpression(node.init, {name: 'require'});
-				const isImportExpression = node.init?.type === 'ImportExpression';
-				const isVariableDeclaratorWithRequireCall = isVariableDeclarator && (isRequireCall || isImportExpression);
-				const isValidNode = isImportDeclaration || isVariableDeclaratorWithRequireCall;
-
-				if (!isValidNode) {
-					return;
-				}
-
-				let importedNames = [];
-				if (node.type === 'ImportDeclaration') {
-					importedNames = node.specifiers
-						.filter(specifier => specifier.type === 'ImportSpecifier' || specifier.type === 'ImportDefaultSpecifier')
-						.map(specifier => ({
-							localName: specifier.local.name,
-							importedName: specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name,
-						}));
-				} else if (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') {
-					importedNames = node.id.properties
-						.map(property => {
-							if (property.type === 'RestElement') {
-								return {
-									localName: property.argument.name,
-									importedName: undefined,
-								};
-							}
-
-							return {
-								localName: property.value.name,
-								importedName: property.key.name,
-							};
-						});
-				}
-
-				if (importedNames.length === 0) {
-					return;
-				}
-
-				const scope = sourceCode.getScope(node);
-
-				const namespaceIdentifier = getNamespaceIdentifier(moduleName);
-
-				// Check if any of the named imports match our desired namespace identifier
-				const hasMatchingNamedImport = importedNames.some(
-					({localName}) => localName === namespaceIdentifier,
-				);
-
-				// Only avoid capture if there's no matching named import
-				const uniqueNamespaceIdentifier = hasMatchingNamedImport
-					? namespaceIdentifier
-					: avoidCapture(namespaceIdentifier, [scope]);
-
-				// For VariableDeclarator, we need to handle the parent VariableDeclaration
-				const hasSemicolon = sourceCode.getText(
-					node.type === 'VariableDeclarator' ? node.parent : node,
-				).endsWith(';');
-
-				const importFix = fixer.replaceTextRange(
-					node.type === 'VariableDeclarator'
-						? [node.parent.range[0], node.parent.range[1]]
-						: [node.range[0], node.range[1]],
-					node.type === 'ImportDeclaration'
-						? `import * as ${uniqueNamespaceIdentifier} from ${sourceCode.getText(node.source)}${hasSemicolon ? ';' : ''}`
-						: `const ${uniqueNamespaceIdentifier} = require(${sourceCode.getText(
-							node.type === 'VariableDeclarator' ? node.init.arguments[0] : node.arguments[0],
-						)})${hasSemicolon ? ';' : ''}`,
-				);
-
-				if (hasMatchingNamedImport) {
-					return [importFix];
-				}
-
-				const referenceFixes = importedNames.flatMap(({localName, importedName}) => {
-					// Skip rest patterns since they should be kept as is
-					if (importedName === undefined) {
-						return [];
-					}
-
-					const programScope = sourceCode.getScope(sourceCode.ast);
-
-					const getAllReferences = scope => {
-						let references = scope.references.filter(
-							reference => reference.identifier.name === localName
-								// Skip the original declaration
-								&& !(node.type === 'VariableDeclarator' && reference.identifier === node.id)
-								&& !(node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern'
-									&& node.id.properties.some(p => p.value === reference.identifier)),
-						);
-
-						for (const childScope of scope.childScopes) {
-							references = [...references, ...getAllReferences(childScope)];
-						}
-
-						return references;
-					};
-
-					const references = getAllReferences(programScope);
-
-					return references.map(reference =>
-						fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`),
-					);
-				});
-
-				return [importFix, ...referenceFixes];
-			},
+			fix: createFix({
+				node, sourceCode, moduleName, allowedImportStyles,
+			}),
 		});
 	};
 
