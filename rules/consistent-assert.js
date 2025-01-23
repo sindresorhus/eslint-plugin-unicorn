@@ -1,74 +1,70 @@
 const MESSAGE_ID_ERROR = 'consistent-assert/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `{{name}}.ok` over `{{name}}`.',
 };
 
-const exportStrictAssertModules = new Set(['assert', 'node:assert']);
-const assertModules = new Set([...exportStrictAssertModules, 'assert/strict', 'node:assert/strict']);
-
 /**
-Check if a specifier is a valid import for the rule.
+Check if a specifier is `assert` function.
 
 @param {import('estree').ImportSpecifier | import('estree').ImportDefaultSpecifier} specifier
 @param {string} moduleName
 */
-const isValidSpecifier = (specifier, moduleName) =>
-	specifier.parent.importKind !== 'type' // Not a type import
-	&& ((specifier.type === 'ImportDefaultSpecifier') // Default import
-		|| (specifier.type === 'ImportSpecifier' && specifier.importKind !== 'type' && specifier.imported.name === 'strict' && exportStrictAssertModules.has(moduleName))); // Named import
-
-/**
-Report an error for an invalid assertion usage.
-
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Identifier} identifier
-*/
-const reportProblem = (context, identifier) => {
-	const replacement = identifier.name + '.ok';
-
-	context.report({
-		node: identifier,
-		messageId: MESSAGE_ID_ERROR,
-		data: {
-			value: identifier.name,
-			replacement,
-		},
-		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		fix: fixer => fixer.replaceText(identifier, replacement),
-	});
-};
+const isAssertFunction = (specifier, isNodeAssertModule) =>
+	// `import assert from 'node:assert';`
+	// `import assert from 'node:assert/strict';`
+	specifier.type === 'ImportDefaultSpecifier'
+	// `import {assert} from 'node:assert';`
+	|| (
+		isNodeAssertModule
+		&& specifier.type === 'ImportSpecifier'
+		&& specifier.imported.name === 'strict'
+	);
 
 /** @type {import('eslint').Rule.RuleModule['create']} */
 const create = context => {
 	const {sourceCode} = context;
 
 	return {
-		ImportDeclaration(node) {
-			if (!assertModules.has(node.source.value)) {
+		* ImportDeclaration(importDeclaration) {
+			const moduleName = importDeclaration.source.value;
+
+			if (importDeclaration.importKind === 'type') {
 				return;
 			}
 
-			const specifiers = node.specifiers.filter(specifier => isValidSpecifier(specifier, node.source.value));
+			const isNodeAssertModule = moduleName === 'assert' || moduleName === 'node:assert';
+			const isNodeAssertStrictModule = moduleName === 'assert/strict' || moduleName === 'node:assert/strict';
 
-			for (const specifier of specifiers) {
-				const variable = sourceCode.getDeclaredVariables(specifier).find(variable => variable.name === specifier.local.name);
-				if (!variable) {
+			if (!isNodeAssertModule && !isNodeAssertStrictModule) {
+				return;
+			}
+
+			for (const specifier of importDeclaration.specifiers) {
+				if (specifier.importKind === 'type' || !isAssertFunction(specifier, isNodeAssertModule)) {
 					continue;
 				}
 
-				for (const reference of variable.references) {
-					const {identifier} = reference;
+				const variables = sourceCode.getDeclaredVariables(specifier);
 
-					const {parent} = identifier;
+				/* c8 ignore next 3 */
+				if (!Array.isArray(variables) && variables.length === 1) {
+					continue;
+				}
 
-					const isFunctionCall = () => parent.type === 'CallExpression' && parent.callee === identifier;
+				const [variable] = variables;
 
-					// Skip if the identifier is not part of a call expression
-					if (!isFunctionCall()) {
+				for (const {identifier} of variable.references) {
+					if (!(identifier.parent.type === 'CallExpression' && identifier.parent.callee === identifier)) {
 						continue;
 					}
 
-					reportProblem(context, identifier);
+					yield {
+						node: identifier,
+						messageId: MESSAGE_ID_ERROR,
+						data: {name: identifier.name},
+						/** @param {import('eslint').Rule.RuleFixer} fixer */
+						fix: fixer => fixer.insertTextAfter(identifier, '.ok'),
+					};
 				}
 			}
 		},

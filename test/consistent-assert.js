@@ -23,7 +23,7 @@ test.snapshot({
 		`,
 		outdent`
 			import assert from 'assert';
-		
+
 			function foo (assert) {
 				assert(bar);
 			}
@@ -31,7 +31,7 @@ test.snapshot({
 		// Invalid named import
 		outdent`
 			import {strict} from 'assert/strict';
-		
+
 			strict(foo)
 		`,
 		...[
