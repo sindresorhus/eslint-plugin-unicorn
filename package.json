@@ -23,6 +23,7 @@
 		"bundle-lodash": "echo export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
+		"rename-rule": "node ./scripts/rename-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"fix": "run-p --continue-on-error fix:*",
 		"fix:eslint-docs": "eslint-doc-generator workaround-for-eslint-doc-generator",
 		"fix:js": "npm run lint:js -- --fix",

@@ -14,7 +14,7 @@ This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback
 
 ## no-instanceof-array
 
-Replaced by [`no-instanceof-builtin-object`](rules/no-instanceof-builtin-object) which covers more cases.
+Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins) which covers more cases.
 
 ## no-reduce
 

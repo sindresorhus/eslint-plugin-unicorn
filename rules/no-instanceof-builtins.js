@@ -6,7 +6,7 @@ import typedArray from './shared/typed-array.js';
 
 const isInstanceofToken = token => token.value === 'instanceof' && token.type === 'Keyword';
 
-const MESSAGE_ID = 'no-instanceof-builtin-object';
+const MESSAGE_ID = 'no-instanceof-builtins';
 const MESSAGE_ID_SWITCH_TO_TYPE_OF = 'switch-to-type-of';
 const messages = {
 	[MESSAGE_ID]: 'Avoid using `instanceof` for type checking as it can lead to unreliable results.',
