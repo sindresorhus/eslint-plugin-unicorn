@@ -26,6 +26,7 @@ test.snapshot({
 		'import{default as named,}from"foo";',
 		'import defaultExport, {default as named} from "foo" with {type: "json"};',
 		'import defaultExport, {default as named} from "foo" with {type: "json"}',
+		'import {default as named1, default as named2,} from "foo";',
 	],
 });
 
@@ -39,13 +40,30 @@ test.snapshot({
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 	invalid: [
-		'export {foo as default};',
-		'export {foo as default,};',
-		'export {foo as default, bar};',
-		'export {foo as default, bar,};',
-		'export{foo as default};',
-	].map(code => outdent`
-		const foo = 1, bar = 2;
-		${code}
-	`),
+		...[
+			'export {foo as default};',
+			'export {foo as default,};',
+			'export {foo as default, bar};',
+			'export {foo as default, bar,};',
+			'export{foo as default};',
+		].map(code => outdent`
+			const foo = 1, bar = 2;
+			${code}
+		`),
+		// Invalid, but typescript allow
+		...[
+			'export{foo as default, bar as default};',
+			outdent`
+				export default foo;
+				export {foo as default};
+			`,
+			outdent`
+				export default bar;
+				export {foo as default};
+			`,
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+		})),
+	],
 });
