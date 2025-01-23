@@ -297,7 +297,7 @@ const createFix = ({node, sourceCode, moduleName, allowedImportStyles}) => fixer
 	return [importFix, ...referenceFixes];
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
 		{
