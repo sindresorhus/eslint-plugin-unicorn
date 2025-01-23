@@ -4,6 +4,11 @@ const messages = {
 };
 
 /**
+@param {import('estree').ImportSpecifier | import('estree').ImportDefaultSpecifier | import('estree').ImportSpecifier | import('estree').ImportDeclaration} node
+*/
+const isValueImport = node => !node.importKind || node.importKind === 'value';
+
+/**
 Check if a specifier is `assert` function.
 
 @param {import('estree').ImportSpecifier | import('estree').ImportDefaultSpecifier} specifier
@@ -31,7 +36,7 @@ const NODE_PROTOCOL = 'node:';
 /** @type {import('eslint').Rule.RuleModule['create']} */
 const create = context => ({
 	* ImportDeclaration(importDeclaration) {
-		if (importDeclaration.importKind === 'type') {
+		if (!isValueImport(importDeclaration)) {
 			return;
 		}
 
@@ -46,7 +51,7 @@ const create = context => ({
 		}
 
 		for (const specifier of importDeclaration.specifiers) {
-			if (specifier.importKind === 'type' || !isAssertFunction(specifier, moduleName)) {
+			if (isValueImport(specifier) || !isAssertFunction(specifier, moduleName)) {
 				continue;
 			}
 
