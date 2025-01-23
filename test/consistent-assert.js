@@ -39,6 +39,15 @@ test.snapshot({
 			assert(foo);
 		`,
 		outdent`
+			export * as assert from 'node:assert';
+			assert(foo);
+		`,
+		outdent`
+			export {default as assert} from 'node:assert';
+			export {assert as strict} from 'node:assert';
+			assert(foo);
+		`,
+		outdent`
 			import assert from 'node:assert/strict';
 			console.log(assert)
 		`,
