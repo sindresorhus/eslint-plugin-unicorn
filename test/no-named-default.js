@@ -24,6 +24,8 @@ test.snapshot({
 		'import defaultExport, {default as named, bar,} from "foo";',
 		'import{default as named}from"foo";',
 		'import{default as named,}from"foo";',
+		'import defaultExport, {default as named} from "foo" with {type: "json"};',
+		'import defaultExport, {default as named} from "foo" with {type: "json"}',
 	],
 });
 

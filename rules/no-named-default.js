@@ -21,7 +21,8 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 
 	// Insert a new `ImportDeclaration`
 	if (hasDefaultImport) {
-		const text = `import ${nameText} from ${sourceCode.getText(declaration.source)};`;
+		const fromToken = sourceCode.getTokenBefore(declaration.source, token => token.type === 'Identifier' && token.value === 'from');
+		const text = `import ${nameText} ${sourceCode.text.slice(fromToken.range[0], declaration.range[1])}`;
 		yield fixer.insertTextBefore(declaration, `${text}\n`);
 
 		return;
