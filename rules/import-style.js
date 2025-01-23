@@ -175,14 +175,9 @@ const getNamespaceIdentifier = moduleName => {
  @param {import('estree').Node} options.node - The AST node representing the import/require statement.
  @param {import('eslint').SourceCode} options.sourceCode - The ESLint source code object.
  @param {string} options.moduleName - The name of the module being imported.
- @param {Set<string>} options.allowedImportStyles - Set of allowed import styles for the module.
  @returns {(fixer: import('eslint').Rule.RuleFixer) => Array<import('eslint').Rule.Fix>|void} A function that takes a fixer and returns an array of fixes or void.
  */
-const createFix = ({node, sourceCode, moduleName, allowedImportStyles}) => fixer => {
-	if (!allowedImportStyles.has('namespace') || allowedImportStyles.has('named')) {
-		return;
-	}
-
+const createFix = ({node, sourceCode, moduleName}) => fixer => {
 	const isImportDeclaration = node.type === 'ImportDeclaration';
 	const isVariableDeclarator = node.type === 'VariableDeclarator';
 	const isRequireCall = isCallExpression(node.init, {name: 'require'});
@@ -351,9 +346,11 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data,
-			fix: createFix({
-				node, sourceCode, moduleName, allowedImportStyles,
-			}),
+			fix: allowedImportStyles.has('namespace') && !allowedImportStyles.has('named')
+				? createFix({
+					node, sourceCode, moduleName, allowedImportStyles,
+				})
+				: undefined,
 		});
 	};
 
