@@ -170,14 +170,14 @@ const getNamespaceIdentifier = moduleName => {
 };
 
 /**
- Creates a fix function to convert imports to namespace imports.
+ Creates a fix generator function to convert imports to namespace imports.
  @param {Object} options - The options object.
  @param {import('estree').Node} options.node - The AST node representing the import/require statement.
  @param {import('eslint').SourceCode} options.sourceCode - The ESLint source code object.
  @param {string} options.moduleName - The name of the module being imported.
- @returns {(fixer: import('eslint').Rule.RuleFixer) => Array<import('eslint').Rule.Fix>|void} A function that takes a fixer and returns an array of fixes or void.
+ @returns {(fixer: import('eslint').Rule.RuleFixer) => Generator<import('eslint').Rule.Fix, void, undefined>} A function that takes a fixer and returns a generator of fixes.
  */
-const createFix = ({node, sourceCode, moduleName}) => fixer => {
+const createFix = ({node, sourceCode, moduleName}) => function * (fixer) {
 	const isImportDeclaration = node.type === 'ImportDeclaration';
 	const isVariableDeclarator = node.type === 'VariableDeclarator';
 	const isRequireCall = isCallExpression(node.init, {name: 'require'});
@@ -237,7 +237,7 @@ const createFix = ({node, sourceCode, moduleName}) => fixer => {
 		node.type === 'VariableDeclarator' ? node.parent : node,
 	).endsWith(';');
 
-	const importFix = fixer.replaceTextRange(
+	yield fixer.replaceTextRange(
 		node.type === 'VariableDeclarator'
 			? [node.parent.range[0], node.parent.range[1]]
 			: [node.range[0], node.range[1]],
@@ -249,15 +249,14 @@ const createFix = ({node, sourceCode, moduleName}) => fixer => {
 	);
 
 	if (hasMatchingNamedImport) {
-		return [importFix];
+		return;
 	}
 
-	const referenceFixes = importedNames.flatMap(({localName, importedName}) => {
+	for (const {localName, importedName} of importedNames) {
 		// Skip rest patterns since they should be kept as is
 		if (importedName === undefined) {
-			return [];
+			continue;
 		}
-
 		const programScope = sourceCode.getScope(sourceCode.ast);
 
 		const getAllReferences = scope => {
@@ -278,11 +277,10 @@ const createFix = ({node, sourceCode, moduleName}) => fixer => {
 
 		const references = getAllReferences(programScope);
 
-		return references.map(reference => fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`),
-		);
-	});
-
-	return [importFix, ...referenceFixes];
+		for (const reference of references) {
+			yield fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`);
+		}
+	}
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
