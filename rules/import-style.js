@@ -141,8 +141,6 @@ const specialCases = {
 	redux: 'Redux',
 	'react-redux': 'ReactRedux',
 	axios: 'Axios',
-	moment: 'moment',
-	'date-fns': 'dateFns',
 	ramda: 'R',
 	rxjs: 'Rx',
 	vue: 'Vue',
