@@ -30,7 +30,7 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 
 	const importToken = sourceCode.getFirstToken(declaration);
 	assertToken(importToken, {
-		expected: 'import',
+		expected: {type: 'Keyword', value: 'import'},
 		ruleId: 'no-named-default',
 	});
 
