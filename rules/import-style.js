@@ -257,6 +257,7 @@ const createFix = ({node, sourceCode, moduleName}) => function * (fixer) {
 		if (importedName === undefined) {
 			continue;
 		}
+
 		const programScope = sourceCode.getScope(sourceCode.ast);
 
 		const getAllReferences = scope => {
