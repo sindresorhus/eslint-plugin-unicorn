@@ -4,7 +4,7 @@ import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import getClassHeadLocation from './utils/get-class-head-location.js';
 import {upperFirst, camelCase} from './utils/lodash.js';
 import {getParenthesizedRange} from './utils/parentheses.js';
-import {getScopes, avoidCapture} from './utils/index.js';
+import {getScopes, getAvailableVariableName} from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
@@ -42,7 +42,7 @@ function getSuggestionName(node, filename, sourceCode) {
 	}
 
 	name = node.type === 'ClassDeclaration' || node.type === 'ClassExpression' ? upperFirst(name) : name;
-	name = avoidCapture(name, getScopes(sourceCode.getScope(node)));
+	name = getAvailableVariableName(name, getScopes(sourceCode.getScope(node)));
 
 	return name;
 }
