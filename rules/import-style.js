@@ -1,6 +1,6 @@
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
 import {isCallExpression} from './ast/index.js';
-import avoidCapture from './utils/avoid-capture.js';
+import getAvailableVariableName from './utils/get-available-variable-name.js';
 import {defaultsDeep} from './utils/lodash.js';
 
 const MESSAGE_ID = 'importStyle';
@@ -230,7 +230,7 @@ const createFix = ({node, sourceCode, moduleName}) => function * (fixer) {
 	// Only avoid capture if there's no matching named import
 	const uniqueNamespaceIdentifier = hasMatchingNamedImport
 		? namespaceIdentifier
-		: avoidCapture(namespaceIdentifier, [scope]);
+		: getAvailableVariableName(namespaceIdentifier, [scope]);
 
 	// For VariableDeclarator, we need to handle the parent VariableDeclaration
 	const hasSemicolon = sourceCode.getText(
