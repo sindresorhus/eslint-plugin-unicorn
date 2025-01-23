@@ -51,7 +51,7 @@ const create = context => ({
 		}
 
 		for (const specifier of importDeclaration.specifiers) {
-			if (isValueImport(specifier) || !isAssertFunction(specifier, moduleName)) {
+			if (!isValueImport(specifier) || !isAssertFunction(specifier, moduleName)) {
 				continue;
 			}
 
