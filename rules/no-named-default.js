@@ -35,7 +35,9 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 	});
 
 	const shouldAddComma = declaration.specifiers.some(specifier => specifier !== importSpecifier && specifier.type === importSpecifier.type);
-	yield fixer.insertTextAfter(importToken, ` ${nameText}${shouldAddComma ? ',' : ''} `);
+	const tokenAfterImport = sourceCode.getTokenAfter(importToken);
+	const trailingSpace = tokenAfterImport.range[0] === importToken.range[1] ? ' ' : '';
+	yield fixer.insertTextAfter(importToken, ` ${nameText}${shouldAddComma ? ',' : ''}${trailingSpace}`);
 };
 
 const fixExportSpecifier = (exportSpecifier, {sourceCode}) => function * (fixer) {
