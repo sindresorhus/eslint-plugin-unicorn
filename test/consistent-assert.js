@@ -117,6 +117,11 @@ test.snapshot({
 			i(foo);
 			j(foo);
 		`,
+		// Optional call, not really matters
+		outdent`
+			import assert from 'node:assert';
+			assert?.(foo)
+		`,
 		outdent`
 			import assert from 'assert';
 
