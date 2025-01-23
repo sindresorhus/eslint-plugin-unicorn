@@ -164,9 +164,16 @@ const getNamespaceIdentifier = moduleName => {
 	const packageName = lastPart.startsWith('@') ? moduleName.split('/').pop().split('.')[0] : lastPart;
 
 	// Replace invalid identifier characters and convert to camelCase
-	return packageName
+	let identifier = packageName
 		.replaceAll(/[^\dA-Za-z-]/g, '-') // Replace invalid chars with hyphen
 		.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
+
+	// Prefix with underscore if starts with a number
+	if (/^\d/.test(identifier)) {
+		identifier = '_' + identifier;
+	}
+
+	return identifier;
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -21,6 +21,10 @@ const options = {
 		named: {
 			named: true,
 		},
+		'3d-utils': {
+			namespace: true,
+			named: false,
+		},
 	},
 };
 
@@ -1642,6 +1646,55 @@ test({
 				},
 			}],
 			errors: [getNamespaceError('./deep/path/to/my-util.js')],
+		},
+
+		// Add test cases for numeric module names
+		{
+			code: 'import {rotate} from "3d-utils"',
+			output: 'import * as _3dUtils from "3d-utils"',
+			options: [{
+				styles: {
+					'3d-utils': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('3d-utils')],
+		},
+		{
+			code: 'const {rotate} = require("3d-utils")',
+			output: 'const _3dUtils = require("3d-utils")',
+			options: [{
+				styles: {
+					'3d-utils': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('3d-utils')],
+		},
+		{
+			code: outdent`
+				import {rotate, scale} from '3d-utils';
+				rotate(object, 45);
+				scale(object, 2);
+			`,
+			output: outdent`
+				import * as _3dUtils from '3d-utils';
+				_3dUtils.rotate(object, 45);
+				_3dUtils.scale(object, 2);
+			`,
+			options: [{
+				styles: {
+					'3d-utils': {
+						namespace: true,
+						named: false,
+					},
+				},
+			}],
+			errors: [getNamespaceError('3d-utils')],
 		},
 	].map(test => addDefaultOptions(test)),
 });
