@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-TBD
+The [`default import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`default export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#using_the_default_export) syntax exists for the default exports.
 
 ## Examples
 
@@ -20,11 +20,51 @@ import foo from "foo";
 ```
 
 ```js
-const foo = "1";
+// ❌
+import {default as foo, bar} from "foo";
 
+// ✅
+import foo, {bar} from "foo";
+```
+
+```js
 // ❌
 export {foo as default};
 
 // ✅
 export default foo;
+```
+
+```js
+// ❌
+export {foo as default, bar};
+
+// ✅
+export default foo;
+export {bar};
+```
+
+```js
+// ❌
+import foo, {default as anotherFoo} from "foo";
+
+function bar(foo) {
+	doSomeThing(anotherFoo, foo);
+}
+
+// ✅
+import foo from "foo";
+import anotherFoo from "foo";
+
+function bar(foo) {
+	doSomeThing(anotherFoo, foo);
+}
+
+// ✅
+import foo from "foo";
+const anotherFoo = foo;
+
+function bar(foo) {
+	doSomeThing(anotherFoo, foo);
+}
 ```

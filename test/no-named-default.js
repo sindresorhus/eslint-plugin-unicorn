@@ -8,6 +8,7 @@ test.snapshot({
 	valid: [
 		'import named from "foo";',
 		'import "foo";',
+		'import * as named from "foo";',
 		...[
 			'import type {default as named} from "foo";',
 			'import {type default as named} from "foo";',
@@ -40,6 +41,7 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'export {foo as default} from "foo";',
+		'export * as default from "foo";',
 		...[
 			'export type {foo as default};',
 			'export {type foo as default};',

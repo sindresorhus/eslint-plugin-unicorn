@@ -16,7 +16,7 @@ export default function * removeSpecifier(specifier, fixer, sourceCode, keepDecl
 				const fromToken = sourceCode.getTokenAfter(specifier, token => token.type === 'Identifier' && token.value === 'from');
 
 				const hasDefaultImport = specifiers.some(node => node.type === 'ImportDefaultSpecifier');
-				const startToken = sourceCode.getTokenBefore(specifier, hasDefaultImport ? isCommaToken : isOpeningBraceToken)
+				const startToken = sourceCode.getTokenBefore(specifier, hasDefaultImport ? isCommaToken : isOpeningBraceToken);
 				const tokenBefore = sourceCode.getTokenBefore(startToken);
 
 				yield fixer.replaceTextRange(
