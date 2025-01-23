@@ -153,8 +153,8 @@ const getNamespaceIdentifier = moduleName => {
 		return specialCases[moduleName];
 	}
 
-	// Get the last part of the path and remove extension
-	const lastPart = moduleName.split('/').pop().split('.')[0];
+	// Trim trailing slashes and get the last part of the path and remove extension
+	const lastPart = moduleName.replace(/\/+$/, '').split('/').pop().split('.')[0];
 
 	// For scoped packages, we want the package name, not the scope
 	// @scope/package -> package
