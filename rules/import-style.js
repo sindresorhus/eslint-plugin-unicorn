@@ -156,13 +156,8 @@ const getNamespaceIdentifier = moduleName => {
 	// Trim trailing slashes and get the last part of the path and remove extension
 	const lastPart = moduleName.replace(/\/+$/, '').split('/').pop().split('.')[0];
 
-	// For scoped packages, we want the package name, not the scope
-	// @scope/package -> package
-	// @scope/foo.bar -> foo
-	const packageName = lastPart.startsWith('@') ? moduleName.split('/').pop().split('.')[0] : lastPart;
-
 	// Replace invalid identifier characters and convert to camelCase
-	let identifier = packageName
+	let identifier = lastPart
 		.replaceAll(/[^\dA-Za-z-]/g, '-') // Replace invalid chars with hyphen
 		.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
 
