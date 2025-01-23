@@ -1,4 +1,4 @@
-# Enforce consistent assertion styles with `node:assert`
+# Enforce consistent assertion style with `node:assert`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 

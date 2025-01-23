@@ -87,7 +87,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Enforce consistent assertion styles with `node:assert`',
+			description: 'Enforce consistent assertion style with `node:assert`.',
 			recommended: true,
 		},
 		fixable: 'code',
