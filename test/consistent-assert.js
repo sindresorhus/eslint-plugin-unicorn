@@ -9,12 +9,12 @@ test.snapshot({
 		'import assert from "assert";',
 		// Import but not invoke
 		outdent`
-			import assert from 'assert';
-			assert
+			import assert from 'node:assert';
+			assert;
 		`,
 		outdent`
-			import customAssert from 'assert';
-			assert(foo)
+			import customAssert from 'node:assert';
+			assert(foo);
 		`,
 		outdent`
 			function foo (assert) {
@@ -22,7 +22,7 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			import assert from 'assert';
+			import assert from 'node:assert';
 
 			function foo (assert) {
 				assert(bar);
@@ -30,14 +30,22 @@ test.snapshot({
 		`,
 		// Invalid named import
 		outdent`
-			import {strict} from 'assert/strict';
+			import {strict} from 'node:assert/strict';
 
-			strict(foo)
+			strict(foo);
+		`,
+		outdent`
+			import * as assert from 'node:assert';
+			assert(foo);
+		`,
+		outdent`
+			import assert from 'node:assert/strict';
+			console.log(assert)
 		`,
 		...[
-			'import type assert from "assert";',
-			'import {type strict as assert} from "node:assert";',
-			'import type {strict as assert} from "node:assert";',
+			'import type assert from "node:assert/strict";',
+			'import {type strict as assert} from "node:assert/strict";',
+			'import type {strict as assert} from "node:assert/strict";',
 		].flatMap(code => [code, `${code}\nassert();`]).map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 	invalid: [
@@ -83,26 +91,34 @@ test.snapshot({
 			import {strict as assert} from 'assert';
 			assert(foo)
 		`,
-		// Mixed import
+		// All cases
 		outdent`
-			import assert, {strict} from 'assert';
-			assert(foo)
-			strict(foo)
-		`,
-		// Mixed import with alias
-		outdent`
-			import assert, {strict as assertStrict} from 'assert';
-			assert(foo)
-			assertStrict(foo)
+			import a, {strict as b, default as c} from 'node:assert';
+			import d, {strict as e, default as f} from 'assert';
+			import g, {default as h} from 'node:assert/strict';
+			import i, {default as j} from 'assert/strict';
+			a(foo);
+			b(foo);
+			c(foo);
+			d(foo);
+			e(foo);
+			f(foo);
+			g(foo);
+			h(foo);
+			i(foo);
+			j(foo);
 		`,
 		outdent`
 			import assert from 'assert';
 
-			assert(/** before comment */ typeof foo === 'string', 'foo must be a string' /** after comment */);
-		`,
-		outdent`
-			import {default as foo} from 'node:assert';
-			foo(1);
+			((
+				/* comment */ ((
+					/* comment */
+					assert
+					/* comment */
+					)) /* comment */
+					(/* comment */ typeof foo === 'string', 'foo must be a string' /** after comment */)
+			));
 		`,
 	],
 });

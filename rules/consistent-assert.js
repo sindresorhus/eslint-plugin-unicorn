@@ -1,6 +1,6 @@
 const MESSAGE_ID_ERROR = 'consistent-assert/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `{{name}}.ok` over `{{name}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `{{name}}.ok(…)` over `{{name}}(…)`.',
 };
 
 /**
@@ -9,7 +9,7 @@ Check if a specifier is `assert` function.
 @param {import('estree').ImportSpecifier | import('estree').ImportDefaultSpecifier} specifier
 @param {string} moduleName
 */
-const isAssertFunction = (specifier, isNodeAssertModule) =>
+const isAssertFunction = (specifier, moduleName) =>
 	// `import assert from 'node:assert';`
 	// `import assert from 'node:assert/strict';`
 	specifier.type === 'ImportDefaultSpecifier'
@@ -21,61 +21,60 @@ const isAssertFunction = (specifier, isNodeAssertModule) =>
 	)
 	// `import {assert} from 'node:assert';`
 	|| (
-		isNodeAssertModule
+		moduleName === 'assert'
 		&& specifier.type === 'ImportSpecifier'
 		&& specifier.imported.name === 'strict'
 	);
 
+const NODE_PROTOCOL = 'node:';
+
 /** @type {import('eslint').Rule.RuleModule['create']} */
-const create = context => {
-	const {sourceCode} = context;
+const create = context => ({
+	* ImportDeclaration(importDeclaration) {
+		if (importDeclaration.importKind === 'type') {
+			return;
+		}
 
-	return {
-		* ImportDeclaration(importDeclaration) {
-			const moduleName = importDeclaration.source.value;
+		let moduleName = importDeclaration.source.value;
 
-			if (importDeclaration.importKind === 'type') {
-				return;
+		if (moduleName.startsWith(NODE_PROTOCOL)) {
+			moduleName = moduleName.slice(NODE_PROTOCOL.length);
+		}
+
+		if (moduleName !== 'assert' && moduleName !== 'assert/strict') {
+			return;
+		}
+
+		for (const specifier of importDeclaration.specifiers) {
+			if (specifier.importKind === 'type' || !isAssertFunction(specifier, moduleName)) {
+				continue;
 			}
 
-			const isNodeAssertModule = moduleName === 'assert' || moduleName === 'node:assert';
-			const isNodeAssertStrictModule = moduleName === 'assert/strict' || moduleName === 'node:assert/strict';
+			const variables = context.sourceCode.getDeclaredVariables(specifier);
 
-			if (!isNodeAssertModule && !isNodeAssertStrictModule) {
-				return;
+			/* c8 ignore next 3 */
+			if (!Array.isArray(variables) && variables.length === 1) {
+				continue;
 			}
 
-			for (const specifier of importDeclaration.specifiers) {
-				if (specifier.importKind === 'type' || !isAssertFunction(specifier, isNodeAssertModule)) {
+			const [variable] = variables;
+
+			for (const {identifier} of variable.references) {
+				if (!(identifier.parent.type === 'CallExpression' && identifier.parent.callee === identifier)) {
 					continue;
 				}
 
-				const variables = sourceCode.getDeclaredVariables(specifier);
-
-				/* c8 ignore next 3 */
-				if (!Array.isArray(variables) && variables.length === 1) {
-					continue;
-				}
-
-				const [variable] = variables;
-
-				for (const {identifier} of variable.references) {
-					if (!(identifier.parent.type === 'CallExpression' && identifier.parent.callee === identifier)) {
-						continue;
-					}
-
-					yield {
-						node: identifier,
-						messageId: MESSAGE_ID_ERROR,
-						data: {name: identifier.name},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.insertTextAfter(identifier, '.ok'),
-					};
-				}
+				yield {
+					node: identifier,
+					messageId: MESSAGE_ID_ERROR,
+					data: {name: identifier.name},
+					/** @param {import('eslint').Rule.RuleFixer} fixer */
+					fix: fixer => fixer.insertTextAfter(identifier, '.ok'),
+				};
 			}
-		},
-	};
-};
+		}
+	},
+});
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
