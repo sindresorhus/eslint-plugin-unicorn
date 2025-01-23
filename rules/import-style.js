@@ -383,7 +383,7 @@ const create = context => {
 
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = [ 'unassigned' ];
+			const actualImportStyles = ['unassigned'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
 		});
@@ -416,7 +416,7 @@ const create = context => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = [ 'namespace' ];
+			const actualImportStyles = ['namespace'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
 		});
@@ -445,9 +445,9 @@ const create = context => {
 				return;
 			}
 
-			const moduleName = getStringIfConstant(node.arguments[ 0 ], sourceCode.getScope(node.arguments[ 0 ]));
+			const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
 			const allowedImportStyles = styles.get(moduleName);
-			const actualImportStyles = [ 'unassigned' ];
+			const actualImportStyles = ['unassigned'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
 		});
@@ -462,7 +462,7 @@ const create = context => {
 			}
 
 			const assignmentTargetNode = node.id;
-			const moduleNameNode = node.init.arguments[ 0 ];
+			const moduleNameNode = node.init.arguments[0];
 			const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
 			if (!moduleName) {
@@ -477,6 +477,63 @@ const create = context => {
 	}
 };
 
+const schema = {
+	type: 'array',
+	additionalItems: false,
+	items: [
+		{
+			type: 'object',
+			additionalProperties: false,
+			properties: {
+				checkImport: {
+					type: 'boolean',
+				},
+				checkDynamicImport: {
+					type: 'boolean',
+				},
+				checkExportFrom: {
+					type: 'boolean',
+				},
+				checkRequire: {
+					type: 'boolean',
+				},
+				extendDefaultStyles: {
+					type: 'boolean',
+				},
+				styles: {
+					$ref: '#/definitions/moduleStyles',
+				},
+			},
+		},
+	],
+	definitions: {
+		moduleStyles: {
+			type: 'object',
+			additionalProperties: {
+				$ref: '#/definitions/styles',
+			},
+		},
+		styles: {
+			anyOf: [
+				{
+					enum: [
+						false,
+					],
+				},
+				{
+					$ref: '#/definitions/booleanObject',
+				},
+			],
+		},
+		booleanObject: {
+			type: 'object',
+			additionalProperties: {
+				type: 'boolean',
+			},
+		},
+	},
+};
+
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
 	create,
@@ -487,62 +544,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		schema: {
-			type: 'array',
-			additionalItems: false,
-			items: [
-				{
-					type: 'object',
-					additionalProperties: false,
-					properties: {
-						checkImport: {
-							type: 'boolean',
-						},
-						checkDynamicImport: {
-							type: 'boolean',
-						},
-						checkExportFrom: {
-							type: 'boolean',
-						},
-						checkRequire: {
-							type: 'boolean',
-						},
-						extendDefaultStyles: {
-							type: 'boolean',
-						},
-						styles: {
-							$ref: '#/definitions/moduleStyles',
-						},
-					},
-				},
-			],
-			definitions: {
-				moduleStyles: {
-					type: 'object',
-					additionalProperties: {
-						$ref: '#/definitions/styles',
-					},
-				},
-				styles: {
-					anyOf: [
-						{
-							enum: [
-								false,
-							],
-						},
-						{
-							$ref: '#/definitions/booleanObject',
-						},
-					],
-				},
-				booleanObject: {
-					type: 'object',
-					additionalProperties: {
-						type: 'boolean',
-					},
-				},
-			},
-		},
+		schema,
 		defaultOptions: [{}],
 		messages,
 	},
