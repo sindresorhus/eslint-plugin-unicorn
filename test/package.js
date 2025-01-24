@@ -37,6 +37,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	'no-named-default',
 	'consistent-assert',
 	'no-accessor-recursion',
+	'consistent-date-clone',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
