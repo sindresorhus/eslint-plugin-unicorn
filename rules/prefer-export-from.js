@@ -1,5 +1,6 @@
-import {isCommaToken, isOpeningBraceToken, isClosingBraceToken} from '@eslint-community/eslint-utils';
+import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
+import {removeSpecifier} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -28,48 +29,6 @@ const getSpecifierName = node => {
 const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.parent.exportKind === 'type';
 
 const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
-
-function * removeSpecifier(node, fixer, sourceCode) {
-	const {parent} = node;
-	const {specifiers} = parent;
-
-	if (specifiers.length === 1) {
-		yield * removeImportOrExport(parent, fixer, sourceCode);
-		return;
-	}
-
-	switch (node.type) {
-		case 'ImportSpecifier': {
-			const hasOtherSpecifiers = specifiers.some(specifier => specifier !== node && specifier.type === node.type);
-			if (!hasOtherSpecifiers) {
-				const closingBraceToken = sourceCode.getTokenAfter(node, isClosingBraceToken);
-
-				// If there are other specifiers, they have to be the default import specifier
-				// And the default import has to write before the named import specifiers
-				// So there must be a comma before
-				const commaToken = sourceCode.getTokenBefore(node, isCommaToken);
-				yield fixer.replaceTextRange([commaToken.range[0], closingBraceToken.range[1]], '');
-				return;
-			}
-			// Fallthrough
-		}
-
-		case 'ExportSpecifier':
-		case 'ImportNamespaceSpecifier':
-		case 'ImportDefaultSpecifier': {
-			yield fixer.remove(node);
-
-			const tokenAfter = sourceCode.getTokenAfter(node);
-			if (isCommaToken(tokenAfter)) {
-				yield fixer.remove(tokenAfter);
-			}
-
-			break;
-		}
-
-		// No default
-	}
-}
 
 function * removeImportOrExport(node, fixer, sourceCode) {
 	switch (node.type) {

@@ -34,6 +34,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	'consistent-existence-index-check',
 	'prefer-global-this',
 	'no-instanceof-builtin-object',
+	'no-named-default',
 	'consistent-assert',
 	'no-accessor-recursion',
 ]);

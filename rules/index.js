@@ -39,6 +39,7 @@ import noKeywordPrefix from './no-keyword-prefix.js';
 import noLengthAsSliceEnd from './no-length-as-slice-end.js';
 import noLonelyIf from './no-lonely-if.js';
 import noMagicArrayFlatDepth from './no-magic-array-flat-depth.js';
+import noNamedDefault from './no-named-default.js';
 import noNegatedCondition from './no-negated-condition.js';
 import noNegationInEqualityCheck from './no-negation-in-equality-check.js';
 import noNestedTernary from './no-nested-ternary.js';
@@ -166,6 +167,7 @@ const rules = {
 	'no-length-as-slice-end': createRule(noLengthAsSliceEnd, 'no-length-as-slice-end'),
 	'no-lonely-if': createRule(noLonelyIf, 'no-lonely-if'),
 	'no-magic-array-flat-depth': createRule(noMagicArrayFlatDepth, 'no-magic-array-flat-depth'),
+	'no-named-default': createRule(noNamedDefault, 'no-named-default'),
 	'no-negated-condition': createRule(noNegatedCondition, 'no-negated-condition'),
 	'no-negation-in-equality-check': createRule(noNegationInEqualityCheck, 'no-negation-in-equality-check'),
 	'no-nested-ternary': createRule(noNestedTernary, 'no-nested-ternary'),
