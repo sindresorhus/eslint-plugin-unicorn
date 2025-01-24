@@ -79,7 +79,7 @@ const create = context => {
 						}
 
 						const parenthesizedRange = getParenthesizedRange(callExpression, context.sourceCode);
-						yield fixer.replaceTextRange([parenthesizedRange[1], callExpression.parent.range[1]], '');
+						yield fixer.removeRange([parenthesizedRange[1], callExpression.parent.range[1]]);
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
 							return;

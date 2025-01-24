@@ -132,7 +132,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const [leadingSpaces] = textAfter.match(/^\s*/);
 		end += leadingSpaces.length;
 
-		return fixer.replaceTextRange([start, end], '');
+		return fixer.removeRange([start, end]);
 	}
 
 	return function * (fixer) {

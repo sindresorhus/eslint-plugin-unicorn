@@ -102,7 +102,7 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 		const startToken = sourceCode.getTokenBefore(firstToken);
 		const [start] = startToken.range;
 		const [, end] = lastToken.range;
-		return fixer.replaceTextRange([start, end], '');
+		return fixer.removeRange([start, end]);
 	};
 
 	function * removeFirstParameter(fixer) {

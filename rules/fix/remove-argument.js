@@ -25,5 +25,5 @@ export default function removeArgument(fixer, node, sourceCode) {
 	}
 	/* c8 ignore end */
 
-	return fixer.replaceTextRange([start, end], '');
+	return fixer.removeRange([start, end]);
 }

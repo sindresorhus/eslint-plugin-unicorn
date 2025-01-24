@@ -229,10 +229,10 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 			if (alternate) {
 				const [, start] = consequent.range;
 				const [end] = alternate.range;
-				yield fixer.replaceTextRange([start, end], '');
+				yield fixer.removeRange([start, end]);
 			}
 
-			yield fixer.replaceTextRange(headRange, '');
+			yield fixer.removeRange(headRange);
 			for (const {left, right} of compareExpressions) {
 				const node = isSame(left, discriminant) ? right : left;
 				const text = sourceCode.getText(node);
