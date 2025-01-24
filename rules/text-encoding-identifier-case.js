@@ -1,4 +1,4 @@
-import {replaceStringLiteral} from './fix/index.js';
+import {replaceStringRaw} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -65,7 +65,7 @@ const create = () => ({
 		}
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => replaceStringLiteral(fixer, node, replacement);
+		const fix = fixer => replaceStringRaw(fixer, node, replacement);
 
 		const problem = {
 			node,
@@ -84,7 +84,7 @@ const create = () => ({
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				fix: fixer => replaceStringLiteral(fixer, node, replacement),
+				fix: fixer => replaceStringRaw(fixer, node, replacement),
 			},
 		];
 

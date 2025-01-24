@@ -1,12 +1,14 @@
 import {isParenthesized} from '@eslint-community/eslint-utils';
-import avoidCapture from './utils/avoid-capture.js';
-import needsSemicolon from './utils/needs-semicolon.js';
-import isSameReference from './utils/is-same-reference.js';
-import getIndentString from './utils/get-indent-string.js';
-import {getParenthesizedText} from './utils/parentheses.js';
-import shouldAddParenthesesToConditionalExpressionChild from './utils/should-add-parentheses-to-conditional-expression-child.js';
+import {
+	getAvailableVariableName,
+	needsSemicolon,
+	isSameReference,
+	getIndentString,
+	getParenthesizedText,
+	shouldAddParenthesesToConditionalExpressionChild,
+	getScopes,
+} from './utils/index.js';
 import {extendFixRange} from './fix/index.js';
-import getScopes from './utils/get-scopes.js';
 
 const messageId = 'prefer-ternary';
 
@@ -216,7 +218,7 @@ const create = context => {
 				let generateNewVariables = false;
 				if (type === 'ThrowStatement') {
 					const scopes = getScopes(scope);
-					const errorName = avoidCapture('error', scopes, isSafeName);
+					const errorName = getAvailableVariableName('error', scopes, isSafeName);
 
 					for (const scope of scopes) {
 						if (!scopeToNamesGeneratedByFixer.has(scope)) {

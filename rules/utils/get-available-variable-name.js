@@ -112,7 +112,7 @@ Rule-specific name check function.
 
 @callback isSafe
 @param {string} name - The generated candidate name.
-@param {Scope[]} scopes - The same list of scopes you pass to `avoidCapture`.
+@param {Scope[]} scopes - The same list of scopes you pass to `getAvailableVariableName`.
 @returns {boolean} - `true` if the `name` is ok.
 */
 
@@ -130,7 +130,7 @@ Useful when you want to rename a variable (or create a new variable) while being
 @param {isSafe} [isSafe] - Rule-specific name check function.
 @returns {string} - Either `name` as is, or a string like `${name}_` suffixed with underscores to make the name unique.
 */
-export default function avoidCapture(name, scopes, isSafe = alwaysTrue) {
+export default function getAvailableVariableName(name, scopes, isSafe = alwaysTrue) {
 	if (!isValidIdentifier(name)) {
 		name += '_';
 

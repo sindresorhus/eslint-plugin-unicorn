@@ -99,9 +99,12 @@ function checkSliceCall(node) {
 	const startIndex = -startIndexNode.argument.value;
 	if (sliceArgumentsLength === 1) {
 		if (
-			firstElementGetMethod === 'zero-index'
-			|| firstElementGetMethod === 'shift'
-			|| (startIndex === -1 && firstElementGetMethod === 'pop')
+			startIndexNode.argument.value === 1
+			&& (
+				firstElementGetMethod === 'zero-index'
+				|| firstElementGetMethod === 'shift'
+				|| (startIndex === -1 && firstElementGetMethod === 'pop')
+			)
 		) {
 			return {safeToFix: true, firstElementGetMethod};
 		}

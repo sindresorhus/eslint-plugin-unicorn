@@ -1,5 +1,4 @@
-import avoidCapture from './utils/avoid-capture.js';
-import isLeftHandSide from './utils/is-left-hand-side.js';
+import {getAvailableVariableName, isLeftHandSide} from './utils/index.js';
 import {isCallOrNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
@@ -107,7 +106,7 @@ const create = context => {
 				}
 
 				// Destructured member collides with an existing identifier
-				if (avoidCapture(member, [memberScope]) !== member) {
+				if (getAvailableVariableName(member, [memberScope]) !== member) {
 					return;
 				}
 			}

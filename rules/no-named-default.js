@@ -1,11 +1,9 @@
 import {removeSpecifier} from './fix/index.js';
 import assertToken from './utils/assert-token.js';
 
-const MESSAGE_ID_IMPORT = 'no-named-default/import';
-const MESSAGE_ID_EXPORT = 'no-named-default/export';
+const MESSAGE_ID = 'no-named-default';
 const messages = {
-	[MESSAGE_ID_IMPORT]: 'Prefer using the default import over named import.',
-	[MESSAGE_ID_EXPORT]: 'Prefer using the default export over named export.',
+	[MESSAGE_ID]: 'Prefer using the default {{type}} over named {{type}}.',
 };
 
 const isValueImport = node => !node.importKind || node.importKind === 'value';
@@ -59,7 +57,8 @@ const create = context => ({
 
 		return {
 			node: specifier,
-			messageId: MESSAGE_ID_IMPORT,
+			messageId: MESSAGE_ID,
+			data: {type: 'import'},
 			fix: fixImportSpecifier(specifier, context),
 		};
 	},
@@ -75,7 +74,8 @@ const create = context => ({
 
 		return {
 			node: specifier,
-			messageId: MESSAGE_ID_EXPORT,
+			messageId: MESSAGE_ID,
+			data: {type: 'export'},
 			fix: fixExportSpecifier(specifier, context),
 		};
 	},
@@ -87,7 +87,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow default export as named.',
+			description: 'Disallow named usage of default import and export.',
 			recommended: true,
 		},
 		fixable: 'code',
