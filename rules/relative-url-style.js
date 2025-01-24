@@ -1,6 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isNewExpression, isStringLiteral} from './ast/index.js';
-import {replaceStringLiteral} from './fix/index.js';
 
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
@@ -70,7 +69,8 @@ function addDotSlash(node, sourceCode) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0);
+	const insertPosition = node.range[0] + 1; // After quote
+	return fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], DOT_SLASH);
 }
 
 function removeDotSlash(node, sourceCode) {
@@ -78,7 +78,8 @@ function removeDotSlash(node, sourceCode) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, '', 0, 2);
+	const start = node.range[0] + 1; // After quote
+	return fixer => fixer.removeRange([start, start + 2]);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -110,7 +111,7 @@ const create = context => {
 						messageId: MESSAGE_ID_REMOVE,
 						fix(fixer) {
 							const start = firstPart.range[0] + 1;
-							return fixer.removeRange([start, start + 2]);
+							return fixer.removeRange([start, start + DOT_SLASH.length]);
 						},
 					},
 				],
