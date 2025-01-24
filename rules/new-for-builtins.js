@@ -59,7 +59,7 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 		node,
 		messageId: 'enforce',
 		data: {name},
-		fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer)
+		fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
 	};
 }
 
