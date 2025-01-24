@@ -5,7 +5,7 @@ import path from 'node:path';
 import {parseArgs} from 'node:util';
 import {Listr} from 'listr2';
 import spawn from 'nano-spawn';
-import chalk from 'chalk';
+import styleText from 'node-style-text';
 import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
 import memoize from 'memoize';
@@ -97,7 +97,7 @@ async function printEslintError(eslintError) {
 
 	console.log();
 	console.error(
-		chalk.red.bold.underline(`[${project.name}]`),
+		styleText.red.bold.underline(`[${project.name}]`),
 		message,
 	);
 
@@ -113,7 +113,7 @@ async function printEslintError(eslintError) {
 		}
 
 		console.log();
-		console.error(chalk.blue.bold.underline(file));
+		console.error(styleText.blue.bold.underline(file));
 		console.log();
 		console.error(error.codeFrame);
 	}
