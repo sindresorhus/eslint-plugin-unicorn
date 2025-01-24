@@ -3,7 +3,7 @@ import path from 'node:path';
 import process from 'node:process';
 import {codeFrameColumns} from '@babel/code-frame';
 import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
-import chalk from 'chalk';
+import styleText from 'node-style-text';
 import {outdent} from 'outdent';
 import babelParser from '@babel/eslint-parser';
 import typescriptParser from '@typescript-eslint/parser';
@@ -147,12 +147,12 @@ async function runEslint(project) {
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
 	console.log();
 	console.log(outdent`
-		${chalk.green.bold.underline(`[${project.name}]`)} ${results.length} files linted:
-		- error: ${chalk.gray(errorCount)}
-		- warning: ${chalk.gray(warningCount)}
-		- fixable error: ${chalk.gray(fixableErrorCount)}
-		- fixable warning: ${chalk.gray(fixableWarningCount)}
-		- duration: ${chalk.gray(prettyMilliseconds((process.hrtime.bigint() - startTime) / 1_000_000n))}
+		${styleText.green.bold.underline(`[${project.name}]`)} ${results.length} files linted:
+		- error: ${styleText.gray(String(errorCount))}
+		- warning: ${styleText.gray(String(warningCount))}
+		- fixable error: ${styleText.gray(String(fixableErrorCount))}
+		- fixable warning: ${styleText.gray(String(fixableWarningCount))}
+		- duration: ${styleText.gray(prettyMilliseconds((process.hrtime.bigint() - startTime) / 1_000_000n))}
 	`);
 }
 
