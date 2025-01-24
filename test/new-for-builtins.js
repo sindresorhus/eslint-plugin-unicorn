@@ -13,7 +13,6 @@ test.snapshot({
 		'const foo = new BigInt64Array()',
 		'const foo = new BigUint64Array()',
 		'const foo = new DataView()',
-		'const foo = new Date()',
 		'const foo = new Error()',
 		'const foo = new Float32Array()',
 		'const foo = new Float64Array()',
@@ -205,7 +204,6 @@ test.snapshot({
 		'const foo = BigInt64Array()',
 		'const foo = BigUint64Array()',
 		'const foo = DataView()',
-		'const foo = Date()',
 		'const foo = Error()',
 		'const foo = Error(\'Foo bar\')',
 		'const foo = Float32Array()',
@@ -257,5 +255,24 @@ test.snapshot({
 				return(globalThis).Map()
 			}
 		`,
+	],
+});
+
+// `Date`
+test.snapshot({
+	valid: [
+		'const foo = new Date();',
+	],
+	invalid: [
+		'const foo = Date();',
+		'const foo = globalThis.Date();',
+		outdent`
+			function foo() {
+				return(globalThis).Date();
+			}
+		`,
+		'const foo = Date(/*comment*/);',
+		'const foo = globalThis/*comment*/.Date();',
+		'const foo = Date(bar);',
 	],
 });
