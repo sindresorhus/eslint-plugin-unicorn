@@ -1,6 +1,7 @@
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
-import {defaultsDeep} from './utils/lodash.js';
 import {isCallExpression} from './ast/index.js';
+import getAvailableVariableName from './utils/get-available-variable-name.js';
+import {defaultsDeep} from './utils/lodash.js';
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
@@ -127,6 +128,169 @@ const defaultStyles = {
 	},
 };
 
+const specialCases = {
+	react: 'React',
+	'react-dom': 'ReactDOM',
+	'react-router': 'ReactRouter',
+	'react-router-dom': 'ReactRouterDOM',
+	'prop-types': 'PropTypes',
+	lodash: '_',
+	'lodash-es': '_',
+	jquery: '$',
+	'styled-components': 'styled',
+	redux: 'Redux',
+	'react-redux': 'ReactRedux',
+	axios: 'Axios',
+	ramda: 'R',
+	rxjs: 'Rx',
+	vue: 'Vue',
+	angular: 'Angular',
+};
+
+const getNamespaceIdentifier = moduleName => {
+	// Handle special cases first
+	if (specialCases[moduleName]) {
+		return specialCases[moduleName];
+	}
+
+	// Trim trailing slashes and get the last part of the path and remove extension
+	const lastPart = moduleName.replace(/\/+$/, '').split('/').pop().split('.')[0];
+
+	// Replace invalid identifier characters and convert to camelCase
+	let identifier = lastPart
+		.replaceAll(/[^\dA-Za-z-]/g, '-') // Replace invalid chars with hyphen
+		.replaceAll(/-./g, x => x[1].toUpperCase()); // Convert to camelCase
+
+	// Prefix with underscore if starts with a number
+	if (/^\d/.test(identifier)) {
+		identifier = '_' + identifier;
+	}
+
+	return identifier;
+};
+
+/**
+ Creates a fix generator function to convert imports to namespace imports.
+ @param {Object} options - The options object.
+ @param {import('estree').Node} options.node - The AST node representing the import/require statement.
+ @param {import('eslint').SourceCode} options.sourceCode - The ESLint source code object.
+ @param {string} options.moduleName - The name of the module being imported.
+ @returns {(fixer: import('eslint').Rule.RuleFixer) => Generator<import('eslint').Rule.Fix, void, undefined> | undefined} A function that takes a fixer and returns a generator of fixes.
+ */
+const fix = ({node, sourceCode, moduleName, allowedImportStyles}) => {
+	// Currently we only fix named to namespace
+	if (!allowedImportStyles.has('namespace') || allowedImportStyles.has('named')) {
+		return;
+	}
+
+	const isImportDeclaration = node.type === 'ImportDeclaration';
+	const isVariableDeclarator = node.type === 'VariableDeclarator';
+	const isRequireCall = isCallExpression(node.init, {name: 'require'});
+	const isImportExpression = node.init?.type === 'ImportExpression';
+	const isVariableDeclaratorWithRequireCall = isVariableDeclarator && (isRequireCall || isImportExpression);
+	const isValidNode = isImportDeclaration || isVariableDeclaratorWithRequireCall;
+
+	if (!isValidNode) {
+		return;
+	}
+
+	let importedNames = [];
+	if (node.type === 'ImportDeclaration') {
+		importedNames = node.specifiers
+			.filter(specifier => specifier.type === 'ImportSpecifier' || specifier.type === 'ImportDefaultSpecifier')
+			.map(specifier => ({
+				localName: specifier.local.name,
+				importedName: specifier.type === 'ImportDefaultSpecifier' ? 'default' : specifier.imported.name,
+			}));
+	} else if (node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern') {
+		importedNames = node.id.properties
+			.map(property => {
+				if (property.type === 'RestElement') {
+					return {
+						localName: property.argument.name,
+						importedName: undefined,
+					};
+				}
+
+				return {
+					localName: property.value.name,
+					importedName: property.key.name,
+				};
+			});
+	}
+
+	if (importedNames.length === 0) {
+		return;
+	}
+
+	return function * (fixer) {
+		const scope = sourceCode.getScope(node);
+
+		const namespaceIdentifier = getNamespaceIdentifier(moduleName);
+
+		// Check if any of the named imports match our desired namespace identifier
+		const hasMatchingNamedImport = importedNames.some(
+			({localName}) => localName === namespaceIdentifier,
+		);
+
+		// Only avoid capture if there's no matching named import
+		const uniqueNamespaceIdentifier = hasMatchingNamedImport
+			? namespaceIdentifier
+			: getAvailableVariableName(namespaceIdentifier, [scope]);
+
+		// For VariableDeclarator, we need to handle the parent VariableDeclaration
+		const hasSemicolon = sourceCode.getText(
+			node.type === 'VariableDeclarator' ? node.parent : node,
+		).endsWith(';');
+
+		yield fixer.replaceTextRange(
+			node.type === 'VariableDeclarator'
+				? [node.parent.range[0], node.parent.range[1]]
+				: [node.range[0], node.range[1]],
+			node.type === 'ImportDeclaration'
+				? `import * as ${uniqueNamespaceIdentifier} from ${sourceCode.getText(node.source)}${hasSemicolon ? ';' : ''}`
+				: `const ${uniqueNamespaceIdentifier} = require(${sourceCode.getText(
+					node.type === 'VariableDeclarator' ? node.init.arguments[0] : node.arguments[0],
+				)})${hasSemicolon ? ';' : ''}`,
+		);
+
+		if (hasMatchingNamedImport) {
+			return;
+		}
+
+		for (const {localName, importedName} of importedNames) {
+			// Skip rest patterns since they should be kept as is
+			if (importedName === undefined) {
+				continue;
+			}
+
+			const programScope = sourceCode.getScope(sourceCode.ast);
+
+			const getAllReferences = scope => {
+				let references = scope.references.filter(
+					reference => reference.identifier.name === localName
+					// Skip the original declaration
+						&& !(node.type === 'VariableDeclarator' && reference.identifier === node.id)
+						&& !(node.type === 'VariableDeclarator' && node.id.type === 'ObjectPattern'
+							&& node.id.properties.some(p => p.value === reference.identifier)),
+				);
+
+				for (const childScope of scope.childScopes) {
+					references = [...references, ...getAllReferences(childScope)];
+				}
+
+				return references;
+			};
+
+			const references = getAllReferences(programScope);
+
+			for (const reference of references) {
+				yield fixer.replaceText(reference.identifier, `${uniqueNamespaceIdentifier}.${importedName}`);
+			}
+		}
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
@@ -153,7 +317,13 @@ const create = context => {
 
 	const {sourceCode} = context;
 
-	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
+	const report = (
+		node,
+		moduleName,
+		actualImportStyles,
+		allowedImportStyles,
+		isRequire = false,
+	) => {
 		if (!allowedImportStyles || allowedImportStyles.size === 0) {
 			return;
 		}
@@ -182,6 +352,9 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data,
+			fix: fix({
+				node, sourceCode, moduleName, allowedImportStyles,
+			}),
 		});
 	};
 
@@ -364,6 +537,7 @@ const config = {
 			description: 'Enforce specific import styles per module.',
 			recommended: true,
 		},
+		fixable: 'code',
 		schema,
 		defaultOptions: [{}],
 		messages,
