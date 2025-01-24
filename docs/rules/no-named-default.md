@@ -13,18 +13,18 @@ The [`default import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/R
 
 ```js
 // ❌
-import {default as foo} from "foo";
+import {default as foo} from 'foo';
 
 // ✅
-import foo from "foo";
+import foo from 'foo';
 ```
 
 ```js
 // ❌
-import {default as foo, bar} from "foo";
+import {default as foo, bar} from 'foo';
 
 // ✅
-import foo, {bar} from "foo";
+import foo, {bar} from 'foo';
 ```
 
 ```js
@@ -46,22 +46,23 @@ export {bar};
 
 ```js
 // ❌
-import foo, {default as anotherFoo} from "foo";
+import foo, {default as anotherFoo} from 'foo';
 
 function bar(foo) {
 	doSomeThing(anotherFoo, foo);
 }
 
 // ✅
-import foo from "foo";
-import anotherFoo from "foo";
+import foo from 'foo';
+import anotherFoo from 'foo';
 
 function bar(foo) {
 	doSomeThing(anotherFoo, foo);
 }
 
 // ✅
-import foo from "foo";
+import foo from 'foo';
+
 const anotherFoo = foo;
 
 function bar(foo) {
