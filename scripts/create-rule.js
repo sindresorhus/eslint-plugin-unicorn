@@ -4,7 +4,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import enquirer from 'enquirer';
 import {template} from 'lodash-es';
-import {execa} from 'execa';
+import openEditor from 'open-editor';
+import spawn from 'nano-spawn';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(dirname, '..');
@@ -116,12 +117,20 @@ renderTemplate({
 	data,
 });
 
+const filesToOpen = [
+	`docs/rules/${id}.md`,
+	`rules/${id}.js`,
+	`test/${id}.js`,
+];
 try {
-	await execa('code', [
-		'--new-window',
-		'.',
-		`docs/rules/${id}.md`,
-		`rules/${id}.js`,
-		`test/${id}.js`,
-	], {cwd: ROOT});
-} catch {}
+	await openEditor(filesToOpen);
+} catch {
+	// https://github.com/sindresorhus/open-editor/issues/15
+	try {
+		await spawn('code', [
+			'--new-window',
+			'.',
+			...filesToOpen,
+		], {cwd: ROOT});
+	} catch {}
+}
