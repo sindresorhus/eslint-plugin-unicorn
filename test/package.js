@@ -35,6 +35,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	'prefer-global-this',
 	'no-instanceof-builtin-object',
 	'consistent-assert',
+	'no-accessor-recursion',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {

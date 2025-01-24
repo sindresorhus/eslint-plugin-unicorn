@@ -18,6 +18,7 @@ import filenameCase from './filename-case.js';
 import importStyle from './import-style.js';
 import newForBuiltins from './new-for-builtins.js';
 import noAbusiveEslintDisable from './no-abusive-eslint-disable.js';
+import noAccessorRecursion from './no-accessor-recursion.js';
 import noAnonymousDefaultExport from './no-anonymous-default-export.js';
 import noArrayCallbackReference from './no-array-callback-reference.js';
 import noArrayForEach from './no-array-for-each.js';
@@ -144,6 +145,7 @@ const rules = {
 	'import-style': createRule(importStyle, 'import-style'),
 	'new-for-builtins': createRule(newForBuiltins, 'new-for-builtins'),
 	'no-abusive-eslint-disable': createRule(noAbusiveEslintDisable, 'no-abusive-eslint-disable'),
+	'no-accessor-recursion': createRule(noAccessorRecursion, 'no-accessor-recursion'),
 	'no-anonymous-default-export': createRule(noAnonymousDefaultExport, 'no-anonymous-default-export'),
 	'no-array-callback-reference': createRule(noArrayCallbackReference, 'no-array-callback-reference'),
 	'no-array-for-each': createRule(noArrayForEach, 'no-array-for-each'),
