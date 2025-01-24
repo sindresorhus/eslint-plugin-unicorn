@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The [`default import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`default export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#using_the_default_export) syntax exists for the default exports.
+Enforces the use of the [`default import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`default export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#using_the_default_export) syntax instead of named syntax.
 
 ## Examples
 
