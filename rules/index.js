@@ -4,6 +4,7 @@ import {createRule} from './utils/rule.js';
 import betterRegex from './better-regex.js';
 import catchErrorName from './catch-error-name.js';
 import consistentAssert from './consistent-assert.js';
+import consistentDateClone from './consistent-date-clone.js';
 import consistentDestructuring from './consistent-destructuring.js';
 import consistentEmptyArraySpread from './consistent-empty-array-spread.js';
 import consistentExistenceIndexCheck from './consistent-existence-index-check.js';
@@ -132,6 +133,7 @@ const rules = {
 	'better-regex': createRule(betterRegex, 'better-regex'),
 	'catch-error-name': createRule(catchErrorName, 'catch-error-name'),
 	'consistent-assert': createRule(consistentAssert, 'consistent-assert'),
+	'consistent-date-clone': createRule(consistentDateClone, 'consistent-date-clone'),
 	'consistent-destructuring': createRule(consistentDestructuring, 'consistent-destructuring'),
 	'consistent-empty-array-spread': createRule(consistentEmptyArraySpread, 'consistent-empty-array-spread'),
 	'consistent-existence-index-check': createRule(consistentExistenceIndexCheck, 'consistent-existence-index-check'),
