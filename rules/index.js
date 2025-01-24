@@ -3,6 +3,7 @@ import {createRule} from './utils/rule.js';
 
 import betterRegex from './better-regex.js';
 import catchErrorName from './catch-error-name.js';
+import consistentAssert from './consistent-assert.js';
 import consistentDestructuring from './consistent-destructuring.js';
 import consistentEmptyArraySpread from './consistent-empty-array-spread.js';
 import consistentExistenceIndexCheck from './consistent-existence-index-check.js';
@@ -17,6 +18,7 @@ import filenameCase from './filename-case.js';
 import importStyle from './import-style.js';
 import newForBuiltins from './new-for-builtins.js';
 import noAbusiveEslintDisable from './no-abusive-eslint-disable.js';
+import noAccessorRecursion from './no-accessor-recursion.js';
 import noAnonymousDefaultExport from './no-anonymous-default-export.js';
 import noArrayCallbackReference from './no-array-callback-reference.js';
 import noArrayForEach from './no-array-for-each.js';
@@ -37,6 +39,7 @@ import noKeywordPrefix from './no-keyword-prefix.js';
 import noLengthAsSliceEnd from './no-length-as-slice-end.js';
 import noLonelyIf from './no-lonely-if.js';
 import noMagicArrayFlatDepth from './no-magic-array-flat-depth.js';
+import noNamedDefault from './no-named-default.js';
 import noNegatedCondition from './no-negated-condition.js';
 import noNegationInEqualityCheck from './no-negation-in-equality-check.js';
 import noNestedTernary from './no-nested-ternary.js';
@@ -128,6 +131,7 @@ import throwNewError from './throw-new-error.js';
 const rules = {
 	'better-regex': createRule(betterRegex, 'better-regex'),
 	'catch-error-name': createRule(catchErrorName, 'catch-error-name'),
+	'consistent-assert': createRule(consistentAssert, 'consistent-assert'),
 	'consistent-destructuring': createRule(consistentDestructuring, 'consistent-destructuring'),
 	'consistent-empty-array-spread': createRule(consistentEmptyArraySpread, 'consistent-empty-array-spread'),
 	'consistent-existence-index-check': createRule(consistentExistenceIndexCheck, 'consistent-existence-index-check'),
@@ -142,6 +146,7 @@ const rules = {
 	'import-style': createRule(importStyle, 'import-style'),
 	'new-for-builtins': createRule(newForBuiltins, 'new-for-builtins'),
 	'no-abusive-eslint-disable': createRule(noAbusiveEslintDisable, 'no-abusive-eslint-disable'),
+	'no-accessor-recursion': createRule(noAccessorRecursion, 'no-accessor-recursion'),
 	'no-anonymous-default-export': createRule(noAnonymousDefaultExport, 'no-anonymous-default-export'),
 	'no-array-callback-reference': createRule(noArrayCallbackReference, 'no-array-callback-reference'),
 	'no-array-for-each': createRule(noArrayForEach, 'no-array-for-each'),
@@ -162,6 +167,7 @@ const rules = {
 	'no-length-as-slice-end': createRule(noLengthAsSliceEnd, 'no-length-as-slice-end'),
 	'no-lonely-if': createRule(noLonelyIf, 'no-lonely-if'),
 	'no-magic-array-flat-depth': createRule(noMagicArrayFlatDepth, 'no-magic-array-flat-depth'),
+	'no-named-default': createRule(noNamedDefault, 'no-named-default'),
 	'no-negated-condition': createRule(noNegatedCondition, 'no-negated-condition'),
 	'no-negation-in-equality-check': createRule(noNegationInEqualityCheck, 'no-negation-in-equality-check'),
 	'no-nested-ternary': createRule(noNestedTernary, 'no-nested-ternary'),

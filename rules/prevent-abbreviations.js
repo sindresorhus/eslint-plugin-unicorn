@@ -1,14 +1,16 @@
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import {defaultsDeep, upperFirst, lowerFirst} from './utils/lodash.js';
-import avoidCapture from './utils/avoid-capture.js';
-import cartesianProductSamples from './utils/cartesian-product-samples.js';
-import isShorthandPropertyValue from './utils/is-shorthand-property-value.js';
-import isShorthandImportLocal from './utils/is-shorthand-import-local.js';
-import getVariableIdentifiers from './utils/get-variable-identifiers.js';
+import {
+	getAvailableVariableName,
+	cartesianProductSamples,
+	isShorthandPropertyValue,
+	isShorthandImportLocal,
+	getVariableIdentifiers,
+	getScopes,
+} from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
 import {renameVariable} from './fix/index.js';
-import getScopes from './utils/get-scopes.js';
 import {isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
@@ -439,7 +441,7 @@ const create = context => {
 			variable.scope,
 		];
 		variableReplacements.samples = variableReplacements.samples.map(
-			name => avoidCapture(name, scopes, isSafeName),
+			name => getAvailableVariableName(name, scopes, isSafeName),
 		);
 
 		const problem = {

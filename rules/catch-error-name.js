@@ -1,6 +1,6 @@
 import {isRegExp} from 'node:util/types';
 import {findVariable} from '@eslint-community/eslint-utils';
-import avoidCapture from './utils/avoid-capture.js';
+import {getAvailableVariableName} from './utils/index.js';
 import {renameVariable} from './fix/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -85,7 +85,7 @@ const create = context => {
 				variable.scope,
 				...variable.references.map(({from}) => from),
 			];
-			const fixedName = avoidCapture(expectedName, scopes);
+			const fixedName = getAvailableVariableName(expectedName, scopes);
 
 			const problem = {
 				node,

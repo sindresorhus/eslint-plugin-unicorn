@@ -12,6 +12,7 @@ export {default as replaceReferenceIdentifier} from './replace-reference-identif
 export {default as renameVariable} from './rename-variable.js';
 export {default as replaceNodeOrTokenAndSpacesBefore} from './replace-node-or-token-and-spaces-before.js';
 export {default as removeSpacesAfter} from './remove-spaces-after.js';
+export {default as removeSpecifier} from './remove-specifier.js';
 export {default as fixSpaceAroundKeyword} from './fix-space-around-keywords.js';
-export {default as replaceStringLiteral} from './replace-string-literal.js';
+export {default as replaceStringRaw} from './replace-string-raw.js';
 export {default as addParenthesizesToReturnOrThrowExpression} from './add-parenthesizes-to-return-or-throw-expression.js';
