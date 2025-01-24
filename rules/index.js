@@ -32,7 +32,7 @@ import noDocumentCookie from './no-document-cookie.js';
 import noEmptyFile from './no-empty-file.js';
 import noForLoop from './no-for-loop.js';
 import noHexEscape from './no-hex-escape.js';
-import noInstanceofBuiltinObject from './no-instanceof-builtin-object.js';
+import noInstanceofBuiltins from './no-instanceof-builtins.js';
 import noInvalidFetchOptions from './no-invalid-fetch-options.js';
 import noInvalidRemoveEventListener from './no-invalid-remove-event-listener.js';
 import noKeywordPrefix from './no-keyword-prefix.js';
@@ -160,7 +160,7 @@ const rules = {
 	'no-empty-file': createRule(noEmptyFile, 'no-empty-file'),
 	'no-for-loop': createRule(noForLoop, 'no-for-loop'),
 	'no-hex-escape': createRule(noHexEscape, 'no-hex-escape'),
-	'no-instanceof-builtin-object': createRule(noInstanceofBuiltinObject, 'no-instanceof-builtin-object'),
+	'no-instanceof-builtins': createRule(noInstanceofBuiltins, 'no-instanceof-builtins'),
 	'no-invalid-fetch-options': createRule(noInvalidFetchOptions, 'no-invalid-fetch-options'),
 	'no-invalid-remove-event-listener': createRule(noInvalidRemoveEventListener, 'no-invalid-remove-event-listener'),
 	'no-keyword-prefix': createRule(noKeywordPrefix, 'no-keyword-prefix'),

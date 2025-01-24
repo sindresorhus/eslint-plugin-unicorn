@@ -75,7 +75,7 @@ const run = async () => {
 		return;
 	}
 
-	if (Reflect.has(rules, ruleId)) {
+	if (rules.includes(ruleId)) {
 		console.log(`${ruleId} already exists.`);
 		return;
 	}
