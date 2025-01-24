@@ -11,7 +11,7 @@ const MESSAGE_ID_SWITCH_TO_NEW_DATE = 'switch-to-new-date';
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
-	[MESSAGE_ID_SWITCH_TO_NEW_DATE]: 'Switch to `String(new Date())`.'
+	[MESSAGE_ID_SWITCH_TO_NEW_DATE]: 'Switch to `String(new Date())`.',
 };
 
 function enforceNewExpression({node, path: [name]}, sourceCode) {
@@ -37,7 +37,6 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 	if (name === 'Date') {
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
-
 			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 		}
 
