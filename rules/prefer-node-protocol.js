@@ -1,5 +1,4 @@
 import isBuiltinModule from 'is-builtin-module';
-import {replaceStringLiteral} from './fix/index.js';
 import isStaticRequire from './ast/is-static-require.js';
 
 const MESSAGE_ID = 'prefer-node-protocol';
@@ -37,12 +36,13 @@ const create = () => ({
 			return;
 		}
 
+		const insertPosition = node.range[0] + 1; // After quote
 		return {
 			node,
 			messageId: MESSAGE_ID,
 			data: {moduleName: value},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => replaceStringLiteral(fixer, node, 'node:', 0, 0),
+			fix: fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], 'node:'),
 		};
 	},
 });
