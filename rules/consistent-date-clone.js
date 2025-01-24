@@ -1,7 +1,5 @@
 import {isMethodCall, isNewExpression} from './ast/index.js';
-import {
-	removeMethodCall,
-} from './fix/index.js';
+import {removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'consistent-date-clone/error';
 const messages = {
