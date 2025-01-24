@@ -1,9 +1,11 @@
 import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-utils';
-import avoidCapture from './utils/avoid-capture.js';
-import getScopes from './utils/get-scopes.js';
-import singular from './utils/singular.js';
-import toLocation from './utils/to-location.js';
-import getReferences from './utils/get-references.js';
+import {
+	getAvailableVariableName,
+	getScopes,
+	singular,
+	toLocation,
+	getReferences,
+} from './utils/index.js';
 import {isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-for-loop';
@@ -348,7 +350,7 @@ const create = context => {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 					const index = indexIdentifierName;
 					const element = elementIdentifierName
-						|| avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
+						|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;

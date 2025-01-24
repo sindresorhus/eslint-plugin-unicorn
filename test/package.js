@@ -34,6 +34,7 @@ const RULES_WITHOUT_PASS_FAIL_SECTIONS = new Set([
 	'consistent-existence-index-check',
 	'prefer-global-this',
 	'no-instanceof-builtin-object',
+	'consistent-assert',
 	'no-accessor-recursion',
 ]);
 
@@ -107,14 +108,14 @@ test('Every rule has valid meta.type', t => {
 
 test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 	const content = await fsAsync.readFile('docs/deprecated-rules.md', 'utf8');
-	const rulesInMarkdown = content.match(/(?<=^## ).*?$/gm);
-	t.deepEqual(deprecatedRules, rulesInMarkdown);
+	const rulesInMarkdown = new Set(content.match(/(?<=^## ).*?$/gm));
 
 	for (const name of deprecatedRules) {
 		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+		t.true(rulesInMarkdown.has(name));
 	}
 });
 

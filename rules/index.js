@@ -3,6 +3,7 @@ import {createRule} from './utils/rule.js';
 
 import betterRegex from './better-regex.js';
 import catchErrorName from './catch-error-name.js';
+import consistentAssert from './consistent-assert.js';
 import consistentDestructuring from './consistent-destructuring.js';
 import consistentEmptyArraySpread from './consistent-empty-array-spread.js';
 import consistentExistenceIndexCheck from './consistent-existence-index-check.js';
@@ -31,7 +32,6 @@ import noDocumentCookie from './no-document-cookie.js';
 import noEmptyFile from './no-empty-file.js';
 import noForLoop from './no-for-loop.js';
 import noHexEscape from './no-hex-escape.js';
-import noInstanceofArray from './no-instanceof-array.js';
 import noInstanceofBuiltinObject from './no-instanceof-builtin-object.js';
 import noInvalidFetchOptions from './no-invalid-fetch-options.js';
 import noInvalidRemoveEventListener from './no-invalid-remove-event-listener.js';
@@ -130,6 +130,7 @@ import throwNewError from './throw-new-error.js';
 const rules = {
 	'better-regex': createRule(betterRegex, 'better-regex'),
 	'catch-error-name': createRule(catchErrorName, 'catch-error-name'),
+	'consistent-assert': createRule(consistentAssert, 'consistent-assert'),
 	'consistent-destructuring': createRule(consistentDestructuring, 'consistent-destructuring'),
 	'consistent-empty-array-spread': createRule(consistentEmptyArraySpread, 'consistent-empty-array-spread'),
 	'consistent-existence-index-check': createRule(consistentExistenceIndexCheck, 'consistent-existence-index-check'),
@@ -158,7 +159,6 @@ const rules = {
 	'no-empty-file': createRule(noEmptyFile, 'no-empty-file'),
 	'no-for-loop': createRule(noForLoop, 'no-for-loop'),
 	'no-hex-escape': createRule(noHexEscape, 'no-hex-escape'),
-	'no-instanceof-array': createRule(noInstanceofArray, 'no-instanceof-array'),
 	'no-instanceof-builtin-object': createRule(noInstanceofBuiltinObject, 'no-instanceof-builtin-object'),
 	'no-invalid-fetch-options': createRule(noInvalidFetchOptions, 'no-invalid-fetch-options'),
 	'no-invalid-remove-event-listener': createRule(noInvalidRemoveEventListener, 'no-invalid-remove-event-listener'),

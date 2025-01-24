@@ -12,6 +12,10 @@ This rule was renamed to [`no-instanceof-array`](rules/no-instanceof-array.md) t
 
 This rule was renamed to [`no-array-callback-reference`](rules/no-array-callback-reference.md) to avoid using the abbreviation `fn` in the name.
 
+## no-instanceof-array
+
+Replaced by [`no-instanceof-builtin-object`](rules/no-instanceof-builtin-object) which covers more cases.
+
 ## no-reduce
 
 This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md) to be more specific.
