@@ -1,10 +1,19 @@
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import * as builtins from './utils/builtins.js';
-import {switchCallExpressionToNewExpression, switchNewExpressionToCallExpression} from './fix/index.js';
+import {
+	switchCallExpressionToNewExpression,
+	switchNewExpressionToCallExpression,
+	fixSpaceAroundKeyword,
+} from './fix/index.js';
+
+const MESSAGE_ID_ERROR_DATE = 'error-date';
+const MESSAGE_ID_SUGGESTION_DATE = 'suggestion-date';
 
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
+	[MESSAGE_ID_ERROR_DATE]: 'Use `String(new Date())` instead of `Date()`.',
+	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
 function enforceNewExpression({node, path: [name]}, sourceCode) {
@@ -17,6 +26,33 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 		) {
 			return;
 		}
+	}
+
+	// `Date()` returns a string representation of the current date and time, exactly as `new Date().toString()` does.
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#return_value
+	if (name === 'Date') {
+		function * fix(fixer) {
+			yield fixer.replaceText(node, 'String(new Date())');
+			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID_ERROR_DATE,
+		};
+
+		if (sourceCode.getCommentsInside(node).length === 0 && node.arguments.length === 0) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION_DATE,
+					fix,
+				},
+			];
+		}
+
+		return problem;
 	}
 
 	return {
@@ -77,6 +113,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };
