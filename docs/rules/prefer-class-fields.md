@@ -11,7 +11,7 @@ This rule enforces the use of class field declarations for static values, instea
 
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
-## Fail
+## Examples
 
 ```js
 // ❌
