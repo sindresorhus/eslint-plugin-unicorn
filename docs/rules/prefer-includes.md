@@ -20,10 +20,6 @@ array.indexOf('foo') !== -1;
 ```
 
 ```js
-array.indexOf('foo') !== -1;
-```
-
-```js
 string.lastIndexOf('foo') !== -1;
 ```
 
