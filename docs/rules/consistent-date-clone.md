@@ -1,4 +1,4 @@
-# Prefer pass `Date` directly to the constructor when cloning a `Date`
+# Prefer passing `⁠Date` objects to the constructor when cloning
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
