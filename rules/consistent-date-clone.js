@@ -39,7 +39,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer pass `Date` directly to the constructor when cloning a `Date`.',
+			description: 'Prefer passing `Date` directly to the constructor when cloning.',
 			recommended: true,
 		},
 		fixable: 'code',
