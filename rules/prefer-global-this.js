@@ -84,6 +84,8 @@ const windowSpecificAPIs = new Set([
 	'resizeBy',
 	'innerWidth',
 	'innerHeight',
+	'outerWidth',
+	'outerHeight',
 	'scrollX',
 	'pageXOffset',
 	'scrollY',
