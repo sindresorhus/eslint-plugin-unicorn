@@ -30,6 +30,10 @@ test.snapshot({
 				},
 			},
 		},
+		String.raw`import {} from "foo" with {key: "value\\value"}`,
+		String.raw`import {} from "foo" with {"key\\key": "value"}`,
+		String.raw`export {} from "foo" with {key: "value\\value"}`,
+		String.raw`export {} from "foo" with {"key\\key": "value"}`,
 	],
 	invalid: [
 		String.raw`a = 'a\\b'`,
