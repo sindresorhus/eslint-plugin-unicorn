@@ -46,8 +46,8 @@ Get the parenthesized range of the node.
 */
 export function getParenthesizedRange(node, sourceCode) {
 	const parentheses = getParentheses(node, sourceCode);
-	const [start] = sourceCode.getRange(parentheses[0] || node);
-	const [, end] = sourceCode.getRange(parentheses.at(-1) || node);
+	const [start] = (parentheses[0] || node).range;
+	const [, end] = (parentheses.at(-1) || node).range;
 	return [start, end];
 }
 
