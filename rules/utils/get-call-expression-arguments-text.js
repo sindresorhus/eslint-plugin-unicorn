@@ -16,8 +16,8 @@ export default function getCallExpressionArgumentsText(sourceCode, callExpressio
 		closingParenthesisToken,
 	} = getCallExpressionTokens(sourceCode, callExpression);
 
-	return sourceCode.text.slice(
-		openingParenthesisToken.range[1],
-		closingParenthesisToken.range[0],
-	);
+	const [, start] = sourceCode.getRange(openingParenthesisToken);
+	const [end] = sourceCode.getRange(closingParenthesisToken);
+
+	return sourceCode.text.slice(start, end);
 }

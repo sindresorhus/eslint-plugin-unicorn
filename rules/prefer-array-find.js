@@ -320,7 +320,7 @@ const create = context => {
 					yield * renameVariable(variable, singularizedName, fixer);
 
 					// Prevent possible variable conflicts
-					yield * extendFixRange(fixer, sourceCode.ast.range);
+					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
 				}
 
 				for (const node of zeroIndexNodes) {

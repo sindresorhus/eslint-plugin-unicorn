@@ -106,10 +106,8 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	}
 
 	if (endsWithWhitespace) {
-		return fixer.removeRange([
-			node.range[0],
-			node.range[1] + 1,
-		]);
+		const [start, end] = sourceCode.getRange(node);
+		return fixer.removeRange([start, end + 1]);
 	}
 
 	return fixer.remove(node);

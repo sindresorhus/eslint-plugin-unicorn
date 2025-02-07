@@ -69,7 +69,7 @@ function addDotSlash(node, sourceCode) {
 		return;
 	}
 
-	const insertPosition = node.range[0] + 1; // After quote
+	const insertPosition = sourceCode.getRange(node)[0] + 1; // After quote
 	return fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], DOT_SLASH);
 }
 
@@ -78,7 +78,7 @@ function removeDotSlash(node, sourceCode) {
 		return;
 	}
 
-	const start = node.range[0] + 1; // After quote
+	const start = sourceCode.getRange(node)[0] + 1; // After quote
 	return fixer => fixer.removeRange([start, start + 2]);
 }
 
@@ -110,7 +110,7 @@ const create = context => {
 					{
 						messageId: MESSAGE_ID_REMOVE,
 						fix(fixer) {
-							const start = firstPart.range[0] + 1;
+							const start = context.sourceCode.getRange(firstPart)[0] + 1;
 							return fixer.removeRange([start, start + DOT_SLASH.length]);
 						},
 					},

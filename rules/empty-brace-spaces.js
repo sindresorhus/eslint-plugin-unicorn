@@ -12,8 +12,8 @@ const getProblem = (node, context) => {
 		: isOpeningBraceToken;
 	const openingBrace = sourceCode.getFirstToken(node, {filter});
 	const closingBrace = sourceCode.getLastToken(node);
-	const [, start] = openingBrace.range;
-	const [end] = closingBrace.range;
+	const [, start] = sourceCode.getRange(openingBrace);
+	const [end] = sourceCode.getRange(closingBrace);
 	const textBetween = sourceCode.text.slice(start, end);
 
 	if (!/^\s+$/.test(textBetween)) {

@@ -8,11 +8,12 @@ export default function removeArgument(fixer, node, sourceCode) {
 	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
 
-	let [start] = firstToken.range;
-	let [, end] = lastToken.range;
+	let [start] = sourceCode.getRange(firstToken);
+	let [, end] = sourceCode.getRange(lastToken);
 
 	if (index !== 0) {
-		start = sourceCode.getTokenBefore(firstToken).range[0];
+		const commaToken = sourceCode.getTokenBefore(firstToken);
+		[start] = sourceCode.getRange(commaToken);
 	}
 
 	// If the removed argument is the only argument, the trailing comma must be removed too
@@ -20,7 +21,7 @@ export default function removeArgument(fixer, node, sourceCode) {
 	if (callExpression.arguments.length === 1) {
 		const tokenAfter = sourceCode.getTokenBefore(lastToken);
 		if (isCommaToken(tokenAfter)) {
-			end = tokenAfter[1];
+			[, end] = sourceCode.getRange(tokenAfter);
 		}
 	}
 	/* c8 ignore end */

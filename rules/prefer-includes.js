@@ -19,7 +19,10 @@ const getProblem = (context, node, target, argumentsNodes) => {
 
 	const memberExpressionNode = target.parent;
 	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
-	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
+	const targetSource = sourceCode.getText().slice(
+		sourceCode.getRange(memberExpressionNode)[0],
+		sourceCode.getRange(dotToken)[0],
+	);
 
 	// Strip default `fromIndex`
 	if (isLiteralZero(argumentsNodes[1])) {

@@ -7,7 +7,7 @@ export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replace
 		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, sourceCode, tokenStore);
 	}
 
-	let [start, end] = nodeOrToken.range;
+	let [start, end] = sourceCode.getRange(nodeOrToken);
 
 	const textBefore = sourceCode.text.slice(0, start);
 	const [trailingSpaces] = textBefore.match(/\s*$/);
