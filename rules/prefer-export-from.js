@@ -55,8 +55,8 @@ function getSourceAndAssertionsText(declaration, sourceCode) {
 		declaration.source,
 		token => token.type === 'Identifier' && token.value === 'from',
 	);
-	const [start] = keywordFromToken.range;
-	const [, end] = declaration.range;
+	const [start] = sourceCode.getRange(keywordFromToken);
+	const [, end] = sourceCode.getRange(declaration);
 	return sourceCode.text.slice(start, end);
 }
 

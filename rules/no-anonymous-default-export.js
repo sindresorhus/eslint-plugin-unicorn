@@ -64,17 +64,20 @@ function addName(fixer, node, name, sourceCode) {
 				node,
 				isOpeningParenToken,
 			);
+			const characterBefore = sourceCode.text.charAt(sourceCode.getRange(openingParenthesisToken)[0] - 1);
 			return fixer.insertTextBefore(
 				openingParenthesisToken,
-				`${sourceCode.text.charAt(openingParenthesisToken.range[0] - 1) === ' ' ? '' : ' '}${name} `,
+				`${characterBefore === ' ' ? '' : ' '}${name} `,
 			);
 		}
 
 		case 'ArrowFunctionExpression': {
 			const [exportDeclarationStart, exportDeclarationEnd]
-				= node.parent.type === 'ExportDefaultDeclaration'
-					? node.parent.range
-					: node.parent.parent.range;
+				= sourceCode.getRange(
+					node.parent.type === 'ExportDefaultDeclaration'
+						? node.parent
+						: node.parent.parent,
+				);
 			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, sourceCode);
 
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);

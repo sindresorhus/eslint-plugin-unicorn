@@ -169,7 +169,7 @@ const create = context => {
 					for (const expression of expressions) {
 						yield fixer.removeRange([
 							getParenthesizedRange(expression.left, sourceCode)[1],
-							expression.range[1],
+							sourceCode.getRange(expression)[1],
 						]);
 					}
 				},

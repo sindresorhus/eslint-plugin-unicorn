@@ -171,9 +171,11 @@ const create = context => {
 			&& node.parent.parent.kind !== 'const'
 			&& node.parent.parent.declarations.includes(node.parent)
 		) {
+			const [, start] = sourceCode.getRange(node.parent.id);
+			const [, end] = sourceCode.getRange(node);
 			return getProblem(
 				node,
-				fixer => fixer.removeRange([node.parent.id.range[1], node.range[1]]),
+				fixer => fixer.removeRange([start, end]),
 				/* CheckFunctionReturnType */ true,
 			);
 		}
@@ -191,8 +193,10 @@ const create = context => {
 				function * (fixer) {
 					const assignmentPattern = node.parent;
 					const {left} = assignmentPattern;
+					const [, start] = sourceCode.getRange(left);
+					const [, end] = sourceCode.getRange(node);
 
-					yield fixer.removeRange([left.range[1], node.range[1]]);
+					yield fixer.removeRange([start, end]);
 					if (
 						(left.typeAnnotation || isTypeScriptFile(context))
 						&& !left.optional
@@ -251,18 +255,18 @@ const create = context => {
 				end: lastUndefined.loc.end,
 			},
 			fix(fixer) {
-				let start = firstUndefined.range[0];
-				let end = lastUndefined.range[1];
+				let [start] = sourceCode.getRange(firstUndefined);
+				let [, end] = sourceCode.getRange(lastUndefined);
 
 				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
 
 				if (previousArgument) {
-					start = previousArgument.range[1];
+					[, start] = sourceCode.getRange(previousArgument);
 				} else {
 					// If all arguments removed, and there is trailing comma, we need remove it.
 					const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
 					if (isCommaToken(tokenAfter)) {
-						end = tokenAfter.range[1];
+						[, end] = sourceCode.getRange(tokenAfter);
 					}
 				}
 

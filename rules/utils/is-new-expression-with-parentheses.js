@@ -18,5 +18,5 @@ export default function isNewExpressionWithParentheses(node, sourceCode) {
 	// The expression should end with its own parens, for example, `new new Foo()` is not a new expression with parens.
 	return isOpeningParenToken(penultimateToken)
 		&& isClosingParenToken(lastToken)
-		&& node.callee.range[1] < node.range[1];
+		&& sourceCode.getRange(node.callee)[1] < sourceCode.getRange(node)[1];
 }

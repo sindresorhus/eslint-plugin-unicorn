@@ -103,10 +103,13 @@ const create = context => {
 			}
 
 			if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
+				const {sourceCode} = context;
+				const [, start] = sourceCode.getRange(parent.id);
+				const [, end] = sourceCode.getRange(node);
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]]),
+						fix: fixer => fixer.removeRange([start, end]),
 					},
 					useUndefinedSuggestion,
 				];

@@ -48,8 +48,8 @@ const create = context => ({
 				yield fixer.remove(node);
 				yield fixer.remove(tokenAfter);
 
-				const [, endOfClosingParenthesis] = tokenAfter.range;
-				const [startOfCatchClauseBody] = parent.body.range;
+				const [, endOfClosingParenthesis] = sourceCode.getRange(tokenAfter);
+				const [startOfCatchClauseBody] = sourceCode.getRange(parent.body);
 				const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
 				const leadingSpacesLength = text.length - text.trimStart().length;
 				if (leadingSpacesLength !== 0) {

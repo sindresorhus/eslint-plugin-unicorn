@@ -60,8 +60,8 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 		return;
 	}
 
-	yield fixer.replaceTextRange(consequent.range, alternate.text);
-	yield fixer.replaceTextRange(alternate.range, consequent.text);
+	yield fixer.replaceTextRange(sourceCode.getRange(consequent), alternate.text);
+	yield fixer.replaceTextRange(sourceCode.getRange(alternate), consequent.text);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

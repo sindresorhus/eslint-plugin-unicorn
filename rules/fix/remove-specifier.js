@@ -17,12 +17,12 @@ export default function * removeSpecifier(specifier, fixer, sourceCode, keepDecl
 
 				const hasDefaultImport = specifiers.some(node => node.type === 'ImportDefaultSpecifier');
 				const startToken = sourceCode.getTokenBefore(specifier, hasDefaultImport ? isCommaToken : isOpeningBraceToken);
+				const [start] = sourceCode.getRange(startToken);
+				const [end] = sourceCode.getRange(fromToken);
 				const tokenBefore = sourceCode.getTokenBefore(startToken);
+				const shouldInsertSpace = sourceCode.getRange(tokenBefore)[1] === start;
 
-				yield fixer.replaceTextRange(
-					[startToken.range[0], fromToken.range[0]],
-					tokenBefore.range[1] === startToken.range[0] ? ' ' : '',
-				);
+				yield fixer.replaceTextRange([start, end], shouldInsertSpace ? ' ' : '');
 				return;
 			}
 			// Fallthrough

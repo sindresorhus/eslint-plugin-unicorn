@@ -8,7 +8,7 @@ Get location info for the given node or range.
 @returns {import('estree').SourceLocation}
 */
 function toLocation(nodeOrRange, sourceCode, startOffset = 0, endOffset = 0) {
-	const [start, end] = Array.isArray(nodeOrRange) ? nodeOrRange : nodeOrRange.range;
+	const [start, end] = Array.isArray(nodeOrRange) ? nodeOrRange : sourceCode.getRange(nodeOrRange);
 
 	return {
 		start: sourceCode.getLocFromIndex(start + startOffset),

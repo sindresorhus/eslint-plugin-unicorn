@@ -174,21 +174,21 @@ const getRemovalRange = (node, sourceCode) => {
 				sourceCode.getIndexFromLoc({line, column: 0}),
 				sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 			]
-			: declarationNode.range;
+			: sourceCode.getRange(declarationNode);
 	}
 
 	const index = declarationNode.declarations.indexOf(node);
 
 	if (index === 0) {
 		return [
-			node.range[0],
-			declarationNode.declarations[1].range[0],
+			sourceCode.getRange(node)[0],
+			sourceCode.getRange(declarationNode.declarations[1])[0],
 		];
 	}
 
 	return [
-		declarationNode.declarations[index - 1].range[1],
-		node.range[1],
+		sourceCode.getRange(declarationNode.declarations[index - 1])[1],
+		sourceCode.getRange(node)[1],
 	];
 };
 
@@ -321,8 +321,9 @@ const create = context => {
 				return;
 			}
 
-			const [start] = node.range;
-			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
+			const [start] = sourceCode.getRange(node);
+			const closingParenthesisToken = sourceCode.getTokenBefore(node.body, isClosingParenToken);
+			const [, end] = sourceCode.getRange(closingParenthesisToken);
 
 			const problem = {
 				loc: toLocation([start, end], sourceCode),
@@ -376,11 +377,10 @@ const create = context => {
 					}
 
 					const replacement = parts.join('');
+					const [start] = sourceCode.getRange(node.init);
+					const [, end] = sourceCode.getRange(node.update);
 
-					yield fixer.replaceTextRange([
-						node.init.range[0],
-						node.update.range[1],
-					], replacement);
+					yield fixer.replaceTextRange([start, end], replacement);
 
 					for (const reference of arrayReferences) {
 						if (reference !== elementReference) {

@@ -62,8 +62,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			!keepTrailingComma
 			&& isArrayLiteralHasTrailingComma(node, sourceCode)
 		) {
-			const start = node.range[0] + 1;
-			const end = sourceCode.getLastToken(node, 1).range[0];
+			const start = sourceCode.getRange(node)[0] + 1;
+			const [end] = sourceCode.getRange(sourceCode.getLastToken(node, 1));
 			return sourceCode.text.slice(start, end);
 		}
 
@@ -126,7 +126,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const lastArgument = concatCallArguments[fixableArguments.length - 1];
 
 		const [start] = getParenthesizedRange(firstArgument, sourceCode);
-		let [, end] = sourceCode.getTokenAfter(lastArgument, isCommaToken).range;
+		let [, end] = sourceCode.getRange(sourceCode.getTokenAfter(lastArgument, isCommaToken));
 
 		const textAfter = sourceCode.text.slice(end);
 		const [leadingSpaces] = textAfter.match(/^\s*/);

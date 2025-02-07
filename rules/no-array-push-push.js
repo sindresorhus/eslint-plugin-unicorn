@@ -95,11 +95,10 @@ function create(context) {
 				const secondExpression = secondCall.parent;
 				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression))
 					&& isSemicolonToken(sourceCode.getLastToken(secondExpression));
+				const [, start] = sourceCode.getRange(firstExpression);
+				const [, end] = sourceCode.getRange(secondExpression);
 
-				yield fixer.replaceTextRange(
-					[firstExpression.range[1], secondExpression.range[1]],
-					shouldKeepSemicolon ? ';' : '',
-				);
+				yield fixer.replaceTextRange([start, end], shouldKeepSemicolon ? ';' : '');
 			};
 
 			if (secondCallArguments.some(element => hasSideEffect(element, sourceCode))) {

@@ -120,7 +120,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 	};
 
 	const getForOfLoopHeadRange = () => {
-		const [start] = callExpression.range;
+		const [start] = sourceCode.getRange(callExpression);
 		const [end] = getParenthesizedRange(callback.body, sourceCode);
 		return [start, end];
 	};
@@ -262,7 +262,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		}
 
 		// Prevent possible variable conflicts
-		yield * extendFixRange(fixer, callExpression.parent.range);
+		yield * extendFixRange(fixer, sourceCode.getRange(callExpression.parent));
 	};
 }
 
@@ -290,9 +290,10 @@ function isFunctionParametersSafeToFix(callbackFunction, {sourceCode, scope, cal
 		}
 
 		const variableName = definition.name.name;
-		const [callExpressionStart, callExpressionEnd] = callExpression.range;
+		const [callExpressionStart, callExpressionEnd] = sourceCode.getRange(callExpression);
 		for (const identifier of allIdentifiers) {
-			const {name, range: [start, end]} = identifier;
+			const {name} = identifier;
+			const [start, end] = sourceCode.getRange(identifier);
 			if (
 				name !== variableName
 				|| start < callExpressionStart

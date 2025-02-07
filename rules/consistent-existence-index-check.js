@@ -96,9 +96,12 @@ const create = context => ({
 				token => token.type === 'Punctuator' && token.value === operator,
 			);
 
+			const [start] = sourceCode.getRange(operatorToken);
+			const [, end] = sourceCode.getRange(right);
+
 			yield {
 				node: binaryExpression,
-				loc: toLocation([operatorToken.range[0], right.range[1]], sourceCode),
+				loc: toLocation([start, end], sourceCode),
 				messageId: MESSAGE_ID,
 				data: {
 					...replacement,

@@ -39,7 +39,8 @@ export default function needsSemicolon(tokenBefore, sourceCode, code) {
 		return false;
 	}
 
-	const {type, value, range} = tokenBefore;
+	const {type, value} = tokenBefore;
+	const range = sourceCode.getRange(tokenBefore);
 	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
 	if (type === 'Punctuator') {
 		if (value === ';') {

@@ -78,8 +78,9 @@ const create = context => {
 							return;
 						}
 
-						const parenthesizedRange = getParenthesizedRange(callExpression, context.sourceCode);
-						yield fixer.removeRange([parenthesizedRange[1], callExpression.parent.range[1]]);
+						const {sourceCode} = context;
+						const parenthesizedRange = getParenthesizedRange(callExpression, sourceCode);
+						yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
 							return;
@@ -130,12 +131,13 @@ const create = context => {
 
 				yield fixer.replaceText(methodNode, 'some');
 
-				const operatorToken = context.sourceCode.getTokenAfter(
+				const {sourceCode} = context;
+				const operatorToken = sourceCode.getTokenAfter(
 					left,
 					token => token.type === 'Punctuator' && token.value === operator,
 				);
-				const [start] = operatorToken.range;
-				const [, end] = binaryExpression.range;
+				const [start] = sourceCode.getRange(operatorToken);
+				const [, end] = sourceCode.getRange(binaryExpression);
 
 				yield fixer.removeRange([start, end]);
 			},
@@ -190,7 +192,7 @@ const create = context => {
 				*/
 				yield fixer.removeRange([
 					getParenthesizedRange(lengthNode, sourceCode)[1],
-					binaryExpression.range[1],
+					sourceCode.getRange(binaryExpression)[1],
 				]);
 
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI

@@ -100,8 +100,8 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 		const firstToken = parentheses[0] || initObject;
 		const lastToken = parentheses.at(-1) || initObject;
 		const startToken = sourceCode.getTokenBefore(firstToken);
-		const [start] = startToken.range;
-		const [, end] = lastToken.range;
+		const [start] = sourceCode.getRange(startToken);
+		const [, end] = sourceCode.getRange(lastToken);
 		return fixer.removeRange([start, end]);
 	};
 

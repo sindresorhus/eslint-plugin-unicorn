@@ -11,7 +11,7 @@ export default function * removeMethodCall(fixer, callExpression, sourceCode) {
 	// `(( (( foo )).bar ))()`
 	//                     ^^
 	const [, start] = getParenthesizedRange(memberExpression, sourceCode);
-	const [, end] = callExpression.range;
+	const [, end] = sourceCode.getRange(callExpression);
 
 	yield fixer.removeRange([start, end]);
 }
