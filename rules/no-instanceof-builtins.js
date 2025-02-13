@@ -13,15 +13,18 @@ const messages = {
 	[MESSAGE_ID_SWITCH_TO_TYPE_OF]: 'Switch to `typeof … === \'{{type}}\'`.',
 };
 
-const primitiveWrappers = new Set([
+const looseStrategyConstructors = [
 	'String',
 	'Number',
 	'Boolean',
 	'BigInt',
 	'Symbol',
-]);
 
-const strictStrategyConstructors = [
+	'Array',
+	'Function',
+];
+
+const additionalConstructors = [
 	// Error types
 	...builtinErrors,
 
@@ -104,6 +107,7 @@ const getInstanceOfToken = (sourceCode, node) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	/** @type {{useErrorIsError?: boolean, strategy?: 'loose'|'strict', include?: string[], exclude?: string[]}} */
 	const {
 		useErrorIsError = false,
 		strategy = 'loose',
@@ -111,24 +115,29 @@ const create = context => {
 		exclude = [],
 	} = context.options[0] ?? {};
 
+	const excludedConstructors = new Set(exclude);
 	const forbiddenConstructors = new Set(
-		strategy === 'strict'
-			? [...strictStrategyConstructors, ...include]
-			: include,
+		[
+			...looseStrategyConstructors,
+			...include,
+			...(strategy === 'strict' ? additionalConstructors : []),
+			...(useErrorIsError ? ['Error'] : []),
+		].filter(constructorName => !excludedConstructors.has(constructorName)),
 	);
-
 	const {sourceCode} = context;
 
 	return {
-		/** @param {import('estree').BinaryExpression} node */
+		/**
+		 @param {import('estree').BinaryExpression} node
+		 @returns {import('eslint').Rule.ReportDescriptor|undefined}
+		 */
 		BinaryExpression(node) {
 			const {right, operator} = node;
+			const {name: constructorName} = right;
 
-			if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
+			if (right.type !== 'Identifier' || operator !== 'instanceof' || !forbiddenConstructors.has(constructorName)) {
 				return;
 			}
-
-			const constructorName = right.name;
 
 			/** @type {import('eslint').Rule.ReportDescriptor} */
 			const problem = {
@@ -136,36 +145,49 @@ const create = context => {
 				messageId: MESSAGE_ID,
 			};
 
-			if (
-				constructorName === 'Array'
-				|| (constructorName === 'Error' && useErrorIsError)
-			) {
-				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
-				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
-				return problem;
-			}
+			switch (constructorName) {
+				case 'Array': {
+					return {
+						...problem,
+						fix: replaceWithFunctionCall(node, sourceCode, 'Array.isArray'),
+					};
+				}
 
-			if (constructorName === 'Function') {
-				problem.fix = replaceWithTypeOfExpression(node, sourceCode);
-				return problem;
-			}
+				case 'Error': {
+					return {
+						...problem,
+						...(useErrorIsError && {fix: replaceWithFunctionCall(node, sourceCode, 'Error.isError')}),
+					};
+				}
 
-			if (primitiveWrappers.has(constructorName)) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
-						data: {type: constructorName.toLowerCase()},
+				case 'Function': {
+					return {
+						...problem,
 						fix: replaceWithTypeOfExpression(node, sourceCode),
-					},
-				];
-				return problem;
-			}
+					};
+				}
 
-			if (!forbiddenConstructors.has(constructorName)) {
-				return;
-			}
+				case 'String':
+				case 'Number':
+				case 'Boolean':
+				case 'BigInt':
+				case 'Symbol': {
+					return {
+						...problem,
+						suggest: [
+							{
+								messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+								data: {type: constructorName.toLowerCase()},
+								fix: replaceWithTypeOfExpression(node, sourceCode),
+							},
+						],
+					};
+				}
 
-			return problem;
+				default: {
+					return problem;
+				}
+			}
 		},
 	};
 };
