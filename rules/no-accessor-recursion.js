@@ -1,25 +1,8 @@
+import {getClosestFunctionScope} from './utils/index.js';
+
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Disallow recursive access to `this` within {{kind}}ters.',
-};
-
-/**
-Get the closest non-arrow function scope.
-
-@param {import('eslint').SourceCode} sourceCode
-@param {import('estree').Node} node
-@return {import('eslint').Scope.Scope | undefined}
-*/
-const getClosestFunctionScope = (sourceCode, node) => {
-	for (let scope = sourceCode.getScope(node); scope; scope = scope.upper) {
-		if (scope.type === 'class') {
-			return;
-		}
-
-		if (scope.type === 'function' && scope.block.type !== 'ArrowFunctionExpression') {
-			return scope;
-		}
-	}
 };
 
 /** @param {import('estree').Identifier | import('estree').PrivateIdentifier} node */
@@ -119,7 +102,7 @@ const create = context => {
 	return {
 		/** @param {import('estree').ThisExpression} thisExpression */
 		ThisExpression(thisExpression) {
-			const scope = getClosestFunctionScope(sourceCode, thisExpression);
+			const scope = getClosestFunctionScope(sourceCode.getScope(thisExpression));
 
 			if (!scope) {
 				return;

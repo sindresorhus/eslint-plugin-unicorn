@@ -1,3 +1,5 @@
+import {getClosestFunctionScope} from './utils/index.js';
+
 const MESSAGE_ID = 'no-this-outside-of-class';
 const messages = {
 	[MESSAGE_ID]: 'Disallow `this` outside of class scope.',
@@ -11,15 +13,43 @@ const create = context => {
 
 	return {
 		ThisExpression(node) {
-			const scope = sourceCode.getScope(node);
+			const functionScope = getClosestFunctionScope(sourceCode.getScope(node));
 
-			if (allowedScopes.has(scope.type)) {
+			if (!functionScope) {
 				return;
 			}
 
-			// The constructor/method of a class
-			if (scope.type === 'function' && scope.upper?.type === 'class' && scope.block.parent.type === 'MethodDefinition') {
+			if (allowedScopes.has(functionScope.type)) {
 				return;
+			}
+
+			if (functionScope.type === 'function') {
+				/** @type {import('estree').Function & {parent: import('estree').Node} */
+				const functionNode = functionScope.block;
+
+				if (functionScope.upper?.type === 'class' && functionNode.parent.type === 'MethodDefinition') {
+					// The constructor/method of a class
+					return;
+				}
+
+				if (functionNode.type === 'FunctionExpression' || functionNode.type === 'FunctionDeclaration') {
+					// Allow function expressions that start with a capital letter
+					if (/^[A-Z]/.test(functionNode.id?.name)) {
+						return;
+					}
+
+					const {parent} = functionNode;
+
+					// Allow prototype methods
+					if (parent.type === 'AssignmentExpression'
+						&& parent.right === functionNode
+						&& parent.left.type === 'MemberExpression'
+						&& parent.left.object.type === 'MemberExpression'
+						&& parent.left.object.property.type === 'Identifier'
+						&& parent.left.object.property.name === 'prototype') {
+						return;
+					}
+				}
 			}
 
 			/** @type {import('eslint').Rule.ReportDescriptor} */

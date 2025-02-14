@@ -7,6 +7,7 @@ test.snapshot({
 	valid: [
 		// Global scope
 		'this',
+		'const getFoo = () => this.foo',
 		// UMD module
 		outdent`
 			(function (root, factory) {
@@ -48,6 +49,12 @@ test.snapshot({
 				static bar() {
 					return this.name;
 				}
+			}
+		`,
+		// Prototype method
+		outdent`
+			function Foo() {
+				this.name = "foo";
 			}
 		`,
 	],

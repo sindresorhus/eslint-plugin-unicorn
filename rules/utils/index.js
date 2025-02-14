@@ -52,3 +52,4 @@ export {default as shouldAddParenthesesToMemberExpressionObject} from './should-
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as getAncestor} from './get-ancestor.js';
+export {default as getClosestFunctionScope} from './get-closest-function-scope.js';
