@@ -53,6 +53,7 @@ import noSinglePromiseInPromiseMethods from './no-single-promise-in-promise-meth
 import noStaticOnlyClass from './no-static-only-class.js';
 import noThenable from './no-thenable.js';
 import noThisAssignment from './no-this-assignment.js';
+import noThisOutsideOfClass from './no-this-outside-of-class.js';
 import noTypeofUndefined from './no-typeof-undefined.js';
 import noUnnecessaryAwait from './no-unnecessary-await.js';
 import noUnnecessaryPolyfills from './no-unnecessary-polyfills.js';
@@ -182,6 +183,7 @@ const rules = {
 	'no-static-only-class': createRule(noStaticOnlyClass, 'no-static-only-class'),
 	'no-thenable': createRule(noThenable, 'no-thenable'),
 	'no-this-assignment': createRule(noThisAssignment, 'no-this-assignment'),
+	'no-this-outside-of-class': createRule(noThisOutsideOfClass, 'no-this-outside-of-class'),
 	'no-typeof-undefined': createRule(noTypeofUndefined, 'no-typeof-undefined'),
 	'no-unnecessary-await': createRule(noUnnecessaryAwait, 'no-unnecessary-await'),
 	'no-unnecessary-polyfills': createRule(noUnnecessaryPolyfills, 'no-unnecessary-polyfills'),
