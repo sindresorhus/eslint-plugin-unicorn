@@ -1,9 +1,12 @@
 import getIndentString from './utils/get-indent-string.js';
 
-const MESSAGE_ID = 'prefer-class-fields/error';
+const MESSAGE_ID_ERROR = 'prefer-class-fields/error';
+const MESSAGE_ID_SUGGESTION = 'prefer-class-fields/suggestion';
 const messages = {
-	[MESSAGE_ID]:
+	[MESSAGE_ID_ERROR]:
 		'Prefer class field declaration over `this` assignment in constructor for static values.',
+	[MESSAGE_ID_SUGGESTION]:
+		'Encountered same-named class field declaration and `this` assignment in constructor. Replace the class field declaration with the value from `this` assignment.',
 };
 
 /**
@@ -70,7 +73,7 @@ const findClassFieldNamed = (propertyName, classBody) => {
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
 @param {import('eslint').Rule.RuleFixer} fixer
 */
-const addOrReplaceClassFieldDeclaration = (
+const addClassFieldDeclaration = (
 	propertyName,
 	propertyValue,
 	classBody,
@@ -78,18 +81,6 @@ const addOrReplaceClassFieldDeclaration = (
 	sourceCode,
 	fixer,
 ) => {
-	const alreadyExistingDeclaration = findClassFieldNamed(
-		propertyName,
-		classBody,
-	);
-
-	if (alreadyExistingDeclaration) {
-		return fixer.replaceText(
-			alreadyExistingDeclaration,
-			`${propertyName} = ${propertyValue};`,
-		);
-	}
-
 	const classBodyStartRange = [classBody.range[0], classBody.range[0] + 1];
 	const indent = getIndentString(constructor, sourceCode);
 	return fixer.insertTextAfterRange(
@@ -139,18 +130,46 @@ const create = context => {
 					&& node.expression.left.property.type === 'Identifier'
 					&& !node.expression.left.computed
 				) {
+					const propertyName = node.expression.left.property.name;
+					const propertyValue = node.expression.right.raw;
+					const alreadyExistingClassFieldDeclaration = findClassFieldNamed(
+						propertyName,
+						classBody,
+					);
+
+					if (alreadyExistingClassFieldDeclaration) {
+						return {
+							node,
+							messageId: MESSAGE_ID_SUGGESTION,
+							data: {
+								propertyName: node.expression.left.property.name,
+								className: classBody.parent.id.name,
+							},
+							/**
+							@param {import('eslint').Rule.RuleFixer} fixer
+							*/
+							* suggest(fixer) {
+								yield removeFieldAssignment(node, sourceCode, fixer);
+								yield fixer.replaceText(
+									alreadyExistingClassFieldDeclaration,
+									`${propertyName} = ${propertyValue};`,
+								);
+							},
+						};
+					}
+
 					return {
 						node,
-						messageId: MESSAGE_ID,
+						messageId: MESSAGE_ID_ERROR,
 
 						/**
 						@param {import('eslint').Rule.RuleFixer} fixer
 						*/
 						* fix(fixer) {
 							yield removeFieldAssignment(node, sourceCode, fixer);
-							yield addOrReplaceClassFieldDeclaration(
-								node.expression.left.property.name,
-								node.expression.right.raw,
+							yield addClassFieldDeclaration(
+								propertyName,
+								propertyValue,
 								classBody,
 								constructor,
 								sourceCode,
@@ -174,7 +193,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: false,
+		hasSuggestions: true,
 		messages,
 	},
 };
