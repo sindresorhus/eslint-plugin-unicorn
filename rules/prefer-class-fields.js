@@ -144,8 +144,9 @@ const create = context => {
 							node,
 							messageId: MESSAGE_ID_SUGGESTION,
 							data: {
-								propertyName: node.expression.left.property.name,
-								className: classBody.parent.id.name,
+								propertyName,
+								// Class expression does not have name, e.g. const a = class {}
+								className: classBody.parent?.id?.name ?? '',
 							},
 							/**
 							@param {import('eslint').Rule.RuleFixer} fixer
