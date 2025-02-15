@@ -9,6 +9,8 @@ const messages = {
 		'Encountered same-named class field declaration and `this` assignment in constructor. Replace the class field declaration with the value from `this` assignment.',
 };
 
+const WHITELIST_NODES_PRECEDING_THIS_ASSIGNMENT = new Set(['EmptyStatement', 'ExpressionStatement']);
+
 /**
 @param {import('eslint').Rule.Node} node
 @returns {node is import('estree').ExpressionStatement & {expression: import('estree').AssignmentExpression & {left: import('estree').MemberExpression & {object: import('estree').ThisExpression}}}}
@@ -110,7 +112,7 @@ const create = context => {
 			}
 
 			const firstInvalidProperty = constructorBody.findIndex(
-				node => node.type !== 'ExpressionStatement',
+				node => !WHITELIST_NODES_PRECEDING_THIS_ASSIGNMENT.has(node.type),
 			);
 			const validConstructorProperties
 				= firstInvalidProperty === -1

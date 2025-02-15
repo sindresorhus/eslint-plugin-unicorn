@@ -81,6 +81,15 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			class Foo {
+				constructor() {
+					;
+					this.foo = 'foo';
+					this.foo2 = 'foo2';
+				}
+			}
+		`,
+		outdent`
 			class MyError extends Error {
 				constructor(message) {
 					super(message);
