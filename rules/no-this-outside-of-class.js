@@ -9,7 +9,12 @@ const messages = {
 const create = context => {
 	const {sourceCode} = context;
 
-	const allowedScopes = new Set(['global', 'module', 'class', 'class-field-initializer']);
+	const allowedScopes = new Set([
+		'global',
+		'module',
+		'class',
+		'class-field-initializer'
+	]);
 
 	return {
 		ThisExpression(node) {
@@ -41,12 +46,14 @@ const create = context => {
 					const {parent} = functionNode;
 
 					// Allow prototype methods
-					if (parent.type === 'AssignmentExpression'
+					if (
+						parent.type === 'AssignmentExpression'
 						&& parent.right === functionNode
 						&& parent.left.type === 'MemberExpression'
 						&& parent.left.object.type === 'MemberExpression'
 						&& parent.left.object.property.type === 'Identifier'
-						&& parent.left.object.property.name === 'prototype') {
+						&& parent.left.object.property.name === 'prototype'
+					) {
 						return;
 					}
 				}
@@ -69,11 +76,10 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow `this` in non-class scope',
+			description: 'Disallow `this` in non-class scope.',
 			recommended: true,
 		},
 		fixable: 'code',
-
 		messages,
 	},
 };
