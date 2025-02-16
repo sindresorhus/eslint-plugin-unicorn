@@ -1,5 +1,5 @@
 export default function getIndentString(node, sourceCode) {
-	const {line, column} = sourceCode.getLocFromIndex(node.range[0]);
+	const {start: {line, column}} = sourceCode.getLoc(node);
 	const lines = sourceCode.getLines();
 	const before = lines[line - 1].slice(0, column);
 

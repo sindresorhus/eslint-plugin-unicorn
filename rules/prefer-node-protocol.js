@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
 
-const create = () => ({
+const create = context => ({
 	Literal(node) {
 		if (!(
 			(
@@ -36,7 +36,7 @@ const create = () => ({
 			return;
 		}
 
-		const insertPosition = node.range[0] + 1; // After quote
+		const insertPosition = context.sourceCode.getRange(node)[0] + 1; // After quote
 		return {
 			node,
 			messageId: MESSAGE_ID,

@@ -33,8 +33,8 @@ const create = context => ({
 				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 				const [, start] = isLeftObjectParenthesized
 					? getParenthesizedRange(left, sourceCode)
-					: left.range;
-				const [, end] = logicalExpression.range;
+					: sourceCode.getRange(left);
+				const [, end] = sourceCode.getRange(logicalExpression);
 
 				yield fixer.removeRange([start, end]);
 

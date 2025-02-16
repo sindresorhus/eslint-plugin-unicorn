@@ -16,9 +16,10 @@ const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && va
 const create = context => {
 	const {sourceCode} = context;
 	const getProblem = (node, method, position) => {
+		const [start, end] = sourceCode.getRange(node);
 		const index = position === 'leading'
-			? node.range[0] + 1
-			: node.range[1] - 2;
+			? start + 1
+			: end - 2;
 		const range = [index, index + 1];
 
 		return {
