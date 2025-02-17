@@ -29,7 +29,7 @@ const convertCase = (raw, option) => {
 const fix = (raw, options) => {
 	let fixed = raw;
 	let isSpecialBase = false; // Indicates that the number is hexadecimal, octal, or binary.
-	fixed = fixed.replace(/^(0[xob])(.*)/i, (_, radix, value) => {
+	fixed = fixed.replace(/^(0[box])(.*)/i, (_, radix, value) => {
 		isSpecialBase = true;
 		radix = convertCase(radix, options.radixIdentifier);
 		if (radix.toLowerCase() === '0x') {
@@ -40,7 +40,7 @@ const fix = (raw, options) => {
 	});
 
 	if (!isSpecialBase) {
-		fixed = fixed.replaceAll(/e/ig, expo => convertCase(expo, options.exponentialNotation));
+		fixed = fixed.replaceAll(/e/gi, expo => convertCase(expo, options.exponentialNotation));
 	}
 
 	return fixed;
