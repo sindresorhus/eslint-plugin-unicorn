@@ -63,72 +63,66 @@ const tests = {
 		'const foo = 0b10_10n',
 		'const foo = 0o1_234_567n',
 		'const foo = 0xDEED_BEEFn',
+
+		// Negative number
+		'const foo = -1234',
+		'const foo = -0b10',
+		'const foo = -0o1234567',
+		'const foo = -0xABCDEF',
 	],
 	invalid: [
 		// Number
 		{
 			code: 'const foo = 0B10',
-			errors: [error],
 			output: 'const foo = 0b10',
 		},
 		{
 			code: 'const foo = 0O1234567',
-			errors: [error],
 			output: 'const foo = 0o1234567',
 		},
 		{
 			code: 'const foo = 0XaBcDeF',
-			errors: [error],
 			output: 'const foo = 0xABCDEF',
 		},
 
 		// BigInt
 		{
 			code: 'const foo = 0B10n',
-			errors: [error],
 			output: 'const foo = 0b10n',
 		},
 		{
 			code: 'const foo = 0O1234567n',
-			errors: [error],
 			output: 'const foo = 0o1234567n',
 		},
 		{
 			code: 'const foo = 0XaBcDeFn',
-			errors: [error],
 			output: 'const foo = 0xABCDEFn',
 		},
 		// `0n`
 		{
 			code: 'const foo = 0B0n',
-			errors: [error],
 			output: 'const foo = 0b0n',
 		},
 		{
 			code: 'const foo = 0O0n',
-			errors: [error],
 			output: 'const foo = 0o0n',
 		},
 		{
 			code: 'const foo = 0X0n',
-			errors: [error],
 			output: 'const foo = 0x0n',
 		},
 
 		// Exponential notation
 		{
 			code: 'const foo = 1.2E3',
-			errors: [error],
 			output: 'const foo = 1.2e3',
 		},
 		{
 			code: 'const foo = 1.2E-3',
-			errors: [error],
 			output: 'const foo = 1.2e-3',
 		},
 		{
 			code: 'const foo = 1.2E+3',
-			errors: [error],
 			output: 'const foo = 1.2e+3',
 		},
 		{
@@ -139,7 +133,6 @@ const tests = {
 					console.log('invalid');
 				}
 			`,
-			errors: [error],
 			output: outdent`
 				const foo = 255;
 
@@ -152,10 +145,94 @@ const tests = {
 		// Numeric separator
 		{
 			code: 'const foo = 0XdeEd_Beefn',
-			errors: [error],
 			output: 'const foo = 0xDEED_BEEFn',
 		},
-	],
+
+		// Negative number
+		{
+			code: 'const foo = -0B10',
+			output: 'const foo = -0b10',
+		},
+		{
+			code: 'const foo = -0O1234567',
+			output: 'const foo = -0o1234567',
+		},
+		{
+			code: 'const foo = -0XaBcDeF',
+			output: 'const foo = -0xABCDEF',
+		},
+
+		// Lowercase hexadecimal number value
+		...[
+			{
+				code: 'const foo = 0XaBcDeF',
+				output: 'const foo = 0xabcdef',
+			},
+			{
+				code: 'const foo = 0XaBcDeFn',
+				output: 'const foo = 0xabcdefn',
+			},
+		].map(item => ({...item, options: [{hexadecimalValue: 'lowercase'}]})),
+
+		// Uppercase radix indentifer
+		...[
+			{
+				code: 'const foo = 0b10',
+				output: 'const foo = 0B10',
+			},
+			{
+				code: 'const foo = 0o1234567',
+				output: 'const foo = 0O1234567',
+			},
+			{
+				code: 'const foo = 0xaBcDeF',
+				output: 'const foo = 0XABCDEF',
+			},
+		].map(item => ({...item, options: [{radixIdentifier: 'uppercase'}]})),
+
+		// Uppercase exponential notation
+		...[
+			{
+				code: 'const foo = 1.2e3',
+				output: 'const foo = 1.2E3',
+			},
+			{
+				code: 'const foo = 1.2e-3',
+				output: 'const foo = 1.2E-3',
+			},
+			{
+				code: 'const foo = 1.2e+3',
+				output: 'const foo = 1.2E+3',
+			},
+		].map(item => ({...item, options: [{exponentialNotation: 'uppercase'}]})),
+
+		// Mixed options
+		{
+			code: 'const foo = 0xaBcDeF',
+			output: 'const foo = 0Xabcdef',
+			options: [{hexadecimalValue: 'lowercase', radixIdentifier: 'uppercase'}],
+		},
+		{
+			code: 'const foo = 0XaBcDeF',
+			output: 'const foo = 0xaBcDeF',
+			options: [{hexadecimalValue: 'ignore', radixIdentifier: 'lowercase'}],
+		},
+		{
+			code: 'const foo = 0xaBcDeF',
+			output: 'const foo = 0XaBcDeF',
+			options: [{hexadecimalValue: 'ignore', radixIdentifier: 'uppercase'}],
+		},
+		{
+			code: 'const foo = 0XaBcDeF',
+			output: 'const foo = 0XABCDEF',
+			options: [{hexadecimalValue: 'uppercase', radixIdentifier: 'ignore'}],
+		},
+		{
+			code: 'const foo = 1.2E+3',
+			output: 'const foo = 1.2e+3',
+			options: [{hexadecimalValue: 'ignore', radixIdentifier: 'ignore'}],
+		},
+	].map(item => ({...item, errors: [error]})),
 };
 
 test(tests);

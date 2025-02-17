@@ -76,9 +76,9 @@ Default options:
 	'unicorn/number-literal-case': [
 		'error',
 		{
-			hexadecimalValue: true,
-			radixIdentifier: false,
-			exponentialNotation: false
+			hexadecimalValue: 'uppercase',
+			radixIdentifier: 'lowercase',
+			exponentialNotation: 'lowercase'
 		}
 	]
 }

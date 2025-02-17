@@ -6,25 +6,62 @@ const messages = {
 	[MESSAGE_ID]: 'Invalid number literal casing.',
 };
 
-const fix = raw => {
-	let fixed = raw.toLowerCase();
-	if (fixed.startsWith('0x')) {
-		fixed = '0x' + fixed.slice(2).toUpperCase();
+/**
+ @param {string} raw
+ @param {Options[keyof Options]} option
+ */
+const convertCase = (raw, option) => {
+	if (option === 'uppercase') {
+		return raw.toUpperCase();
+	}
+
+	if (option === 'lowercase') {
+		return raw.toLowerCase();
+	}
+
+	return raw;
+};
+
+/**
+ @param {string} raw
+ @param {Options} options
+ */
+const fix = (raw, options) => {
+	let fixed = raw;
+	let isSpecialBase = false; // Indicates that the number is hexadecimal, octal, or binary.
+	fixed = fixed.replace(/^(0[xob])(.*)/i, (_, radix, value) => {
+		isSpecialBase = true;
+		radix = convertCase(radix, options.radixIdentifier);
+		if (radix.toLowerCase() === '0x') {
+			value = convertCase(value, options.hexadecimalValue);
+		}
+
+		return radix + value;
+	});
+
+	if (!isSpecialBase) {
+		fixed = fixed.replaceAll(/e/ig, expo => convertCase(expo, options.exponentialNotation));
 	}
 
 	return fixed;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
+const create = context => ({
 	Literal(node) {
 		const {raw} = node;
 
+		/** @type {Options} */
+		const options = context.options[0] ?? {};
+		options.hexadecimalValue ??= 'uppercase';
+		options.radixIdentifier ??= 'lowercase';
+		options.exponentialNotation ??= 'lowercase';
+
 		let fixed = raw;
 		if (isNumberLiteral(node)) {
-			fixed = fix(raw);
+			fixed = fix(raw, options);
 		} else if (isBigIntLiteral(node)) {
-			fixed = fix(raw.slice(0, -1)) + 'n';
+			fixed = fix(raw.slice(0, -1), options) + 'n';
 		}
 
 		if (raw !== fixed) {
@@ -37,6 +74,28 @@ const create = () => ({
 	},
 });
 
+/** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
+
+const caseEnum = /** @type {const} */ ({
+	enum: [
+		'uppercase',
+		'lowercase',
+		'ignore',
+	],
+});
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			hexadecimalValue: caseEnum,
+			radixIdentifier: caseEnum,
+			exponentialNotation: caseEnum,
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
 	create: checkVueTemplate(create),
@@ -47,6 +106,12 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{
+			hexadecimalValue: 'uppercase',
+			radixIdentifier: 'lowercase',
+			exponentialNotation: 'lowercase',
+		}],
 		messages,
 	},
 };
