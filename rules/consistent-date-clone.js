@@ -24,11 +24,15 @@ const create = context => ({
 			return;
 		}
 
+		const {sourceCode} = context;
 		return {
 			node: callExpression,
-			loc: {start: sourceCode.getLoc(callExpression.callee.property).start, end: sourceCode.getLoc(callExpression).end},
+			loc: {
+				start: sourceCode.getLoc(callExpression.callee.property).start,
+				end: sourceCode.getLoc(callExpression).end,
+			},
 			messageId: MESSAGE_ID_ERROR,
-			fix: fixer => removeMethodCall(fixer, callExpression, context.sourceCode),
+			fix: fixer => removeMethodCall(fixer, callExpression, sourceCode),
 		};
 	},
 });

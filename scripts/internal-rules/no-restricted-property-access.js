@@ -71,7 +71,7 @@ const config = {
 	meta: {
 		fixable: 'code',
 		messages: {
-			[messageId]: 'Use `{{replacementFunction}}(node)` instead of accessing `node.${name}`.',
+			[messageId]: 'Use `{{replacementFunction}}(node)` instead of accessing `node.{{name}}`.',
 		},
 	},
 };

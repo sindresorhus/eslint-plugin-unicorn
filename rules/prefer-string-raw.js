@@ -52,6 +52,7 @@ const create = context => {
 			return;
 		}
 
+		const {sourceCode} = context;
 		const {raw} = node;
 		if (
 			raw.at(-2) === BACKSLASH
@@ -73,7 +74,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
-				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
 			},
 		};
 	});

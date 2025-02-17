@@ -6,7 +6,7 @@ const messages = {
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
+const create = context => ({
 	* Program(node) {
 		for (const comment of node.comments) {
 			const value = comment.value.trim();
@@ -16,6 +16,8 @@ const create = () => ({
 				result // It's a eslint-disable comment
 				&& !result.groups.ruleId // But it did not specify any rules
 			) {
+				const {sourceCode} = context;
+
 				yield {
 					// Can't set it at the given location as the warning
 					// will be ignored due to the disable comment
