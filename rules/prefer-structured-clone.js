@@ -47,12 +47,13 @@ const create = context => {
 
 		const jsonParse = callExpression;
 		const jsonStringify = callExpression.arguments[0];
+		const {sourceCode} = context;
 
 		return {
 			node: jsonParse,
 			loc: {
-				start: jsonParse.loc.start,
-				end: jsonStringify.callee.loc.end,
+				start: sourceCode.getLoc(jsonParse).start,
+				end: sourceCode.getLoc(jsonStringify.callee).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
 			data: {
@@ -63,8 +64,6 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGESTION,
 					* fix(fixer) {
 						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
-
-						const {sourceCode} = context;
 
 						yield fixer.remove(jsonStringify.callee);
 						yield * removeParentheses(jsonStringify.callee, fixer, sourceCode);

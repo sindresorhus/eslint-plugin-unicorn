@@ -38,8 +38,8 @@ const create = context => ({
 		const isPrototypeMethod = node.arguments.length === 1;
 		return {
 			loc: {
-				start: penultimateToken.loc[isPrototypeMethod ? 'end' : 'start'],
-				end: lastToken.loc.end,
+				start: sourceCode.getLoc(penultimateToken)[isPrototypeMethod ? 'end' : 'start'],
+				end: sourceCode.getLoc(lastToken).end,
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */

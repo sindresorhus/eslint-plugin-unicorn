@@ -1,6 +1,6 @@
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `globalThis` over `{{value}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
 };
 
 const globalIdentifier = new Set([
@@ -188,11 +188,16 @@ const create = context => ({
 				continue;
 			}
 
+			// Skip the fix for `typeof window` and `typeof self`
+			const isTypeofLegacyGlobal = identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof' && identifier.parent.argument === identifier;
+
+			const replacement = isTypeofLegacyGlobal ? 'globalThis.' + identifier.name : 'globalThis';
+
 			yield {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,
-				data: {value: identifier.name},
-				fix: fixer => fixer.replaceText(identifier, 'globalThis'),
+				data: {replacement, value: identifier.name},
+				fix: fixer => fixer.replaceText(identifier, replacement),
 			};
 		}
 	},

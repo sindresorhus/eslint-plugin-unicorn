@@ -290,8 +290,8 @@ const create = context => {
 
 				const problem = {
 					loc: {
-						start: node.loc.start,
-						end: node.consequent.loc.start,
+						start: sourceCode.getLoc(node).start,
+						end: sourceCode.getLoc(node.consequent).start,
 					},
 					messageId: MESSAGE_ID,
 				};
