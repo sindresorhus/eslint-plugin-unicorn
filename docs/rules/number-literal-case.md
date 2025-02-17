@@ -94,7 +94,7 @@ Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase`, 
 
 Example:
 ```js
-// eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase"}]
+// eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase", "radixIdentifier": "ignore"}]
 
 // ❌
 const foo = 0XFF;
@@ -118,7 +118,7 @@ Specify whether the radix indentifer (`0x`, `0o`, `0b`) should be in `uppercase`
 
 Example:
 ```js
-// eslint unicorn/number-literal-case: ["error", {"radixIdentifier": "uppercase"}]
+// eslint unicorn/number-literal-case: ["error", {"radixIdentifier": "uppercase", "hexadecimalValue": "ignore"}]
 
 // ❌
 const foo = 0xFF;
