@@ -7,6 +7,7 @@ const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 const properties = new Map([
 	// Todo: forbid `.range`
+	// ['range', 'sourceCode.getRange'],
 	['loc', 'sourceCode.getLoc'],
 ]);
 
