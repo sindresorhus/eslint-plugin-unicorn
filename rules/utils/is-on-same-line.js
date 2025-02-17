@@ -1,3 +1,3 @@
 export default function isOnSameLine(nodeOrTokenA, nodeOrTokenB) {
-	return nodeOrTokenA.loc.start.line === nodeOrTokenB.loc.start.line;
+	return sourceCode.getLoc(nodeOrTokenA).start.line === sourceCode.getLoc(nodeOrTokenB).start.line;
 }

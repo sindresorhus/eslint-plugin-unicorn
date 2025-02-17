@@ -106,8 +106,8 @@ const create = context => {
 			for (const node of nodes) {
 				yield {
 					loc: {
-						start: node.left.property.loc.start,
-						end: node.loc.end,
+						start: sourceCode.getLoc(node.left.property).start,
+						end: sourceCode.getLoc(node).end,
 					},
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */

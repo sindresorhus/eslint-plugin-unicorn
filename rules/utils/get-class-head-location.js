@@ -12,7 +12,7 @@ export default function getClassHeadLocation(node, sourceCode) {
 	const tokenBeforeBody = sourceCode.getTokenBefore(body);
 
 	const {start} = loc;
-	const {end} = tokenBeforeBody.loc;
+	const {end} = sourceCode.getLoc(tokenBeforeBody);
 
 	return {start, end};
 }

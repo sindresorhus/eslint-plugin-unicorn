@@ -52,7 +52,7 @@ const create = context => {
 			) {
 				return {
 					node,
-					loc: sourceCode.getFirstToken(consequent[0]).loc,
+					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
 					messageId: MESSAGE_ID_EMPTY_CLAUSE,
 					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};
@@ -84,7 +84,7 @@ const create = context => {
 			) {
 				return {
 					node,
-					loc: sourceCode.getFirstToken(consequent[0]).loc,
+					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
 					messageId: MESSAGE_ID_UNNECESSARY_BRACES,
 					fix: fixer => removeBraces(fixer, node, sourceCode),
 				};

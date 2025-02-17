@@ -21,10 +21,10 @@ const create = () => ({
 					// will be ignored due to the disable comment
 					loc: {
 						start: {
-							...comment.loc.start,
+							...sourceCode.getLoc(comment).start,
 							column: -1,
 						},
-						end: comment.loc.end,
+						end: sourceCode.getLoc(comment).end,
 					},
 					messageId: MESSAGE_ID,
 				};

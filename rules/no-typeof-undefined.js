@@ -93,7 +93,7 @@ const create = context => {
 
 			const problem = {
 				node: binaryExpression,
-				loc: typeofToken.loc,
+				loc: sourceCode.getLoc(typeofToken),
 				messageId: MESSAGE_ID_ERROR,
 			};
 

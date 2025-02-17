@@ -64,7 +64,7 @@ const create = context => {
 
 		const eol = eolMatch[0];
 
-		const startLine = sourceCode.lines[node.loc.start.line - 1];
+		const startLine = sourceCode.lines[sourceCode.getLoc(node).start.line - 1];
 		const marginMatch = startLine.match(/^(\s*)\S/);
 		const parentMargin = marginMatch ? marginMatch[1] : '';
 

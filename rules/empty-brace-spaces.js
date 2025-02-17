@@ -22,8 +22,8 @@ const getProblem = (node, context) => {
 
 	return {
 		loc: {
-			start: openingBrace.loc.end,
-			end: closingBrace.loc.start,
+			start: sourceCode.getLoc(openingBrace).end,
+			end: sourceCode.getLoc(closingBrace).start,
 		},
 		messageId: MESSAGE_ID,
 		fix: fixer => fixer.removeRange([start, end]),

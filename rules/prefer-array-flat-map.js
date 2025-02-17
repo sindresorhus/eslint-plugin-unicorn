@@ -46,7 +46,7 @@ const create = context => ({
 
 		return {
 			node: flatCallExpression,
-			loc: {start: mapProperty.loc.start, end: flatCallExpression.loc.end},
+			loc: {start: sourceCode.getLoc(mapProperty).start, end: sourceCode.getLoc(flatCallExpression).end},
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
 				// Removes:

@@ -354,7 +354,7 @@ const create = context => {
 		if (dates.length > 1) {
 			uses++;
 			context.report({
-				loc: comment.loc,
+				loc: sourceCode.getLoc(comment),
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
 				data: {
 					expirationDates: dates.join(', '),
@@ -368,7 +368,7 @@ const create = context => {
 			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
 			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
 				context.report({
-					loc: comment.loc,
+					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_EXPIRED_TODO,
 					data: {
 						expirationDate,
@@ -381,7 +381,7 @@ const create = context => {
 		if (packageVersions.length > 1) {
 			uses++;
 			context.report({
-				loc: comment.loc,
+				loc: sourceCode.getLoc(comment),
 				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
 				data: {
 					versions: packageVersions
@@ -400,7 +400,7 @@ const create = context => {
 			const compare = semverComparisonForOperator(condition);
 			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
 				context.report({
-					loc: comment.loc,
+					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
 					data: {
 						comparison: `${condition}${version}`,
@@ -426,7 +426,7 @@ const create = context => {
 
 				if (trigger) {
 					context.report({
-						loc: comment.loc,
+						loc: sourceCode.getLoc(comment),
 						messageId,
 						data: {
 							package: dependency.name,
@@ -452,7 +452,7 @@ const create = context => {
 
 			if (compare(targetPackageVersion, todoVersion)) {
 				context.report({
-					loc: comment.loc,
+					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_VERSION_MATCHES,
 					data: {
 						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
@@ -484,7 +484,7 @@ const create = context => {
 
 			if (compare(targetPackageEngineVersion, todoEngine)) {
 				context.report({
-					loc: comment.loc,
+					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
 					data: {
 						comparison: `node${engine.condition}${engine.version}`,
@@ -508,7 +508,7 @@ const create = context => {
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
 					context.report({
-						loc: comment.loc,
+						loc: sourceCode.getLoc(comment),
 						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
 						data: {
 							original: unknown,
@@ -525,7 +525,7 @@ const create = context => {
 			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;
 				context.report({
-					loc: comment.loc,
+					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_REMOVE_WHITESPACE,
 					data: {
 						original: unknown,

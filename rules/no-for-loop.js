@@ -164,7 +164,7 @@ const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
 
 	if (declarationNode.declarations.length === 1) {
-		const {line} = declarationNode.loc.start;
+		const {line} = sourceCode.getLoc(declarationNode).start;
 		const lineText = sourceCode.lines[line - 1];
 
 		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);

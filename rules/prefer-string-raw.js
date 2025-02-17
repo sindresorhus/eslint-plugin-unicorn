@@ -58,7 +58,7 @@ const create = context => {
 			|| !raw.includes(BACKSLASH + BACKSLASH)
 			|| raw.includes('`')
 			|| raw.includes('${')
-			|| node.loc.start.line !== node.loc.end.line
+			|| sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line
 		) {
 			return;
 		}

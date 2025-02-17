@@ -51,8 +51,8 @@ const create = context => {
 		return {
 			node: jsonParse,
 			loc: {
-				start: jsonParse.loc.start,
-				end: jsonStringify.callee.loc.end,
+				start: sourceCode.getLoc(jsonParse).start,
+				end: sourceCode.getLoc(jsonStringify.callee).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
 			data: {

@@ -26,7 +26,7 @@ const create = context => ({
 
 		return {
 			node: callExpression,
-			loc: {start: callExpression.callee.property.loc.start, end: callExpression.loc.end},
+			loc: {start: sourceCode.getLoc(callExpression.callee.property).start, end: sourceCode.getLoc(callExpression).end},
 			messageId: MESSAGE_ID_ERROR,
 			fix: fixer => removeMethodCall(fixer, callExpression, context.sourceCode),
 		};
