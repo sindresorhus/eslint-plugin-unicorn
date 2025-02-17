@@ -168,6 +168,12 @@ test.snapshot({
 		'[window.foo] = []',
 		'foo[window]',
 		'foo[window.foo]',
+		'typeof window !== "undefined"',
+		'typeof self !== "undefined"',
+		'typeof global !== "undefined"',
+		'typeof window.something === "function"',
+		'typeof self.something === "function"',
+		'typeof global.something === "function"',
 	],
 });
 
