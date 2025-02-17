@@ -6,7 +6,7 @@ import eslintPluginUnicorn from './index.js';
 
 const config = [
 	eslintPluginUnicorn.configs.all,
-	disableRules([
+	disableExternalRules([
 		// If external rules needs to be disabled, add the rule name here.
 		'n/no-unsupported-features/es-syntax',
 		'eslint-plugin/require-meta-default-options',
@@ -50,7 +50,7 @@ const config = [
 ];
 
 // Create rule to allow inline config to disable
-function disableRules(rules) {
+function disableExternalRules(rules) {
 	const plugins = {};
 	for (const rule of rules) {
 		const [pluginName, ...rest] = rule.split('/');
