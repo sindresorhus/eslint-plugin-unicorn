@@ -41,8 +41,8 @@ function create(context) {
 
 			return {
 				loc: {
-					start: penultimateToken.loc.end,
-					end: lastToken.loc.end,
+					start: sourceCode.getLoc(penultimateToken).end,
+					end: sourceCode.getLoc(lastToken).end,
 				},
 				messageId: ERROR,
 				suggest: replacements.map(code => ({

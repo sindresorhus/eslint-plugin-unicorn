@@ -102,17 +102,17 @@ const create = context => {
 					getUselessLengthCheckNode(logicalExpression),
 				),
 			);
+			const {sourceCode} = context;
 
 			for (const node of nodes) {
 				yield {
 					loc: {
-						start: node.left.property.loc.start,
-						end: node.loc.end,
+						start: sourceCode.getLoc(node.left.property).start,
+						end: sourceCode.getLoc(node).end,
 					},
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix(fixer) {
-						const {sourceCode} = context;
 						const {left, right} = node.parent;
 						const leftRange = getParenthesizedRange(left, sourceCode);
 						const rightRange = getParenthesizedRange(right, sourceCode);

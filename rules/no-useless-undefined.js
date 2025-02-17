@@ -251,8 +251,8 @@ const create = context => {
 		return {
 			messageId,
 			loc: {
-				start: firstUndefined.loc.start,
-				end: lastUndefined.loc.end,
+				start: sourceCode.getLoc(firstUndefined).start,
+				end: sourceCode.getLoc(lastUndefined).end,
 			},
 			fix(fixer) {
 				let [start] = sourceCode.getRange(firstUndefined);

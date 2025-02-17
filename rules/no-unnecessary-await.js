@@ -46,7 +46,7 @@ const create = context => ({
 		const awaitToken = sourceCode.getFirstToken(node);
 		const problem = {
 			node,
-			loc: awaitToken.loc,
+			loc: sourceCode.getLoc(awaitToken),
 			messageId: MESSAGE_ID,
 		};
 

@@ -12,5 +12,5 @@ Get the location of the given `SwitchCase` node for reporting.
 export default function getSwitchCaseHeadLocation(node, sourceCode) {
 	const startToken = node.test || sourceCode.getFirstToken(node);
 	const colonToken = sourceCode.getTokenAfter(startToken, isColonToken);
-	return {start: node.loc.start, end: colonToken.loc.end};
+	return {start: sourceCode.getLoc(node).start, end: sourceCode.getLoc(colonToken).end};
 }

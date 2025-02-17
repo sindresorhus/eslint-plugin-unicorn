@@ -29,8 +29,8 @@ const create = context => ({
 
 		return {
 			loc: {
-				start: openingParenthesis.loc.start,
-				end: closingParenthesis.loc.end,
+				start: sourceCode.getLoc(openingParenthesis).start,
+				end: sourceCode.getLoc(closingParenthesis).end,
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
