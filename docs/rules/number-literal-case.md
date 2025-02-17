@@ -17,52 +17,53 @@ Differentiating the casing of the identifier and value clearly separates them an
 [Hexadecimal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal)
 
 ```js
+// ❌
 const foo = 0XFF;
 const foo = 0xff;
 const foo = 0Xff;
 const foo = 0Xffn;
+
+// ✅
+const foo = 0xFF;
+const foo = 0xFFn;
 ```
 
 [Binary](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary)
 
 ```js
+// ❌
 const foo = 0B10;
 const foo = 0B10n;
+
+// ✅
+const foo = 0b10;
+const foo = 0b10n;
 ```
 
 [Octal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal)
 
 ```js
+// ❌
 const foo = 0O76;
 const foo = 0O76n;
-```
 
-Exponential notation
-
-```js
-const foo = 2E-5;
-```
-
-## Pass
-
-```js
-const foo = 0xFF;
-```
-
-```js
-const foo = 0b10;
-```
-
-```js
+// ✅
 const foo = 0o76;
+const foo = 0o76n;
 ```
 
-```js
-const foo = 0xFFn;
-```
+[Exponential notation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Exponential)
 
 ```js
+// ❌
+const foo = 2E-5;
+const foo = 2E+5;
+const foo = 2E5;
+
+// ✅
+const foo = 2e-5;
 const foo = 2e+5;
+const foo = 2e5;
 ```
 
 ## Options
@@ -95,13 +96,13 @@ Example:
 ```js
 // eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase"}]
 
-// Fail
+// ❌
 const foo = 0XFF;
 const foo = 0xFF;
 const foo = 0XFFn;
 const foo = 0xFFn;
 
-// Pass
+// ✅
 const foo = 0Xff;
 const foo = 0xff;
 const foo = 0Xffn;
@@ -119,7 +120,7 @@ Example:
 ```js
 // eslint unicorn/number-literal-case: ["error", {"radixIdentifier": "uppercase"}]
 
-// Fail
+// ❌
 const foo = 0xFF;
 const foo = 0o76;
 const foo = 0b10;
@@ -127,7 +128,7 @@ const foo = 0xFFn;
 const foo = 0o76n;
 const foo = 0b10n;
 
-// Pass
+// ✅
 const foo = 0XFF;
 const foo = 0O76;
 const foo = 0B10;
@@ -147,12 +148,12 @@ Example:
 ```js
 // eslint unicorn/number-literal-case: ["error", {"exponentialNotation": "uppercase"}]
 
-// Fail
+// ❌
 const foo = 2e-5;
 const foo = 2e+5;
 const foo = 2e99;
 
-// Pass
+// ✅
 const foo = 2E-5;
 const foo = 2E+5;
 const foo = 2E99;
