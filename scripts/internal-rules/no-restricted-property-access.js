@@ -24,7 +24,7 @@ const config = {
 					return;
 				}
 
-				const name = memberExpression.property.name;
+				const {name} = memberExpression.property;
 				const replacementFunction = properties.get(name);
 
 				context.report({
@@ -37,9 +37,9 @@ const config = {
 					* fix(fixer) {
 						const {sourceCode} = context;
 						yield removeMemberExpressionProperty(fixer, memberExpression, sourceCode);
-						yield fixer.insertTextBefore(`${replacementFunction}(`, memberExpression);
-						yield fixer.insertTextAfter(`)`, memberExpression);
-					}
+						yield fixer.insertTextBefore(memberExpression, `${replacementFunction}(`);
+						yield fixer.insertTextAfter(memberExpression, ')');
+					},
 				});
 			},
 			ObjectPattern(objectPattern) {
@@ -53,7 +53,7 @@ const config = {
 						continue;
 					}
 
-					const name = property.key.name;
+					const {name} = property.key;
 					const replacementFunction = properties.get(name);
 
 					context.report({
