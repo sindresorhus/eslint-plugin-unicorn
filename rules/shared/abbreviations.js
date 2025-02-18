@@ -252,6 +252,8 @@ export const defaultAllowList = {
 	getInitialProps: true,
 	getServerSideProps: true,
 	getStaticProps: true,
+	// The name iOS is a standard name for an OS
+	iOS: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,

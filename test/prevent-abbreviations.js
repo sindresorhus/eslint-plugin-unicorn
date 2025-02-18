@@ -129,6 +129,7 @@ const tests = {
 		'const i18n = new I18n({ locales: ["en", "fr"] })',
 		'const i18nData = {}',
 		'const l10n = new L10n()',
+		'const iOS = true',
 		outdent`
 			(class {
 				error() {}
