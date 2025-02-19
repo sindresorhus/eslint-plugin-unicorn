@@ -116,6 +116,8 @@ Default: `'lowercase'`
 
 Specify whether the radix indentifer (`0x`, `0o`, `0b`) should be in `uppercase`, `lowercase`, or `ignore` the check. Defaults to `'lowercase'`.
 
+**Note: Adjusting this option to values other than `'lowercase'` may make your code unreadable, please use caution.**
+
 Example:
 ```js
 // eslint unicorn/number-literal-case: ["error", {"radixIdentifier": "uppercase", "hexadecimalValue": "ignore"}]
@@ -143,6 +145,8 @@ Type: `'uppercase' | 'lowercase' | 'ignore'`\
 Default: `'lowercase'`
 
 Specify whether the exponential notation (`e`) should be in `uppercase`, `lowercase`, or `ignore` the check. Defaults to `'lowercase'`.
+
+**Note: Adjusting this option to values other than `'lowercase'` may make your code unreadable, please use caution.**
 
 Example:
 ```js
