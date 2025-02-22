@@ -116,7 +116,8 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
-		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
+		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
 		t.true(rulesInMarkdown.has(name));
 	}
 });
