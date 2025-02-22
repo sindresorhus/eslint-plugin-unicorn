@@ -21,7 +21,6 @@ export default function createDeprecatedRules(rules) {
 							url,
 							replacedBy: deprecatedInfo.replacedBy,
 						},
-						replacedBy: deprecatedInfo.replacedBy,
 					},
 				},
 			];
