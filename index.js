@@ -4,8 +4,11 @@ import rules from './rules/index.js';
 import packageJson from './package.json' with {type: 'json'};
 
 const deprecatedRules = createDeprecatedRules({
-	// {ruleId: ReplacementRuleId | ReplacementRuleId[]}, if no replacement, use `{ruleId: []}`
-	'no-instanceof-array': 'unicorn/no-instanceof-builtins',
+	// {ruleId: {message: string, replacedBy: string[]}}
+	'no-instanceof-array': {
+		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
+		replacedBy: ['unicorn/no-instanceof-builtins'],
+	},
 });
 
 const externalRules = {

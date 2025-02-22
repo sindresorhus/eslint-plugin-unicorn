@@ -3,20 +3,28 @@ import packageJson from '../../package.json' with {type: 'json'};
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
 
 /** @returns {{ [ruleName: string]: import('eslint').Rule.RuleModule }} */
-export default function createDeprecatedRules(data) {
+export default function createDeprecatedRules(rules) {
 	return Object.fromEntries(
-		Object.entries(data).map(([ruleId, replacedBy = []]) => [
-			ruleId,
-			{
-				create: () => ({}),
-				meta: {
-					docs: {
-						url: `${repoUrl}/blob/v${packageJson.version}/docs/deprecated-rules.md#${ruleId}`,
+		Object.entries(rules).map(([ruleId, deprecatedInfo]) => {
+			const url = `${repoUrl}/blob/v${packageJson.version}/docs/deprecated-rules.md#${ruleId}`;
+			return [
+				ruleId,
+				{
+					create: () => ({}),
+					meta: {
+						docs: {
+							description: deprecatedInfo.message,
+							url,
+						},
+						deprecated: {
+							message: deprecatedInfo.message,
+							url,
+							replacedBy: deprecatedInfo.replacedBy,
+						},
+						replacedBy: deprecatedInfo.replacedBy,
 					},
-					deprecated: true,
-					replacedBy: Array.isArray(replacedBy) ? replacedBy : [replacedBy],
 				},
-			},
-		]),
+			];
+		}),
 	);
 }
