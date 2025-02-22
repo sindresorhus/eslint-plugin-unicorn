@@ -6,7 +6,7 @@ This rule is outdated. JavaScript modules (ESM) do not support importing a direc
 
 ## no-array-instanceof
 
-Replaced by [no-instanceof-builtins](rules/no-instanceof-builtins.md) which covers more cases.
+Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which covers more cases.
 
 ## no-fn-reference-in-iterator
 
