@@ -1,36 +1,48 @@
+import {ConfigCommentParser} from '@eslint/plugin-kit';
+
 const MESSAGE_ID = 'no-abusive-eslint-disable';
 const messages = {
 	[MESSAGE_ID]: 'Specify the rules you want to disable.',
 };
 
-const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
+// https://github.com/eslint/eslint/blob/ecd0ede7fd2ccbb4c0daf0e4732e97ea0f49db1b/lib/linter/linter.js#L509-L512
+const eslintDisableDirectives = new Set([
+	'eslint-disable',
+	'eslint-disable-line',
+	'eslint-disable-next-line',
+]);
 
+let commentParser;
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	* Program(node) {
 		for (const comment of node.comments) {
-			const value = comment.value.trim();
-			const result = disableRegex.exec(value);
+			commentParser ??= new ConfigCommentParser();
+			const result = commentParser.parseDirective(comment.value);
 
-			if (
-				result // It's a eslint-disable comment
-				&& !result.groups.ruleId // But it did not specify any rules
-			) {
-				const {sourceCode} = context;
-
-				yield {
-					// Can't set it at the given location as the warning
-					// will be ignored due to the disable comment
-					loc: {
-						start: {
-							...sourceCode.getLoc(comment).start,
-							column: -1,
-						},
-						end: sourceCode.getLoc(comment).end,
-					},
-					messageId: MESSAGE_ID,
-				};
+			if (!(
+				// It's a eslint-disable comment
+				eslintDisableDirectives.has(result?.label)
+				// But it did not specify any rules
+				&& !result?.value
+			)) {
+				return;
 			}
+
+			const {sourceCode} = context;
+
+			yield {
+				// Can't set it at the given location as the warning
+				// will be ignored due to the disable comment
+				loc: {
+					start: {
+						...sourceCode.getLoc(comment).start,
+						column: -1,
+					},
+					end: sourceCode.getLoc(comment).end,
+				},
+				messageId: MESSAGE_ID,
+			};
 		}
 	},
 });
