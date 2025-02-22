@@ -2,12 +2,10 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
-import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
+import {ESLint} from 'eslint';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
 import eslintPluginUnicorn from '../index.js';
-
-const {FlatESLint} = eslintExperimentalApis;
 
 let ruleFiles;
 
@@ -75,7 +73,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 test('validate configuration', async t => {
 	const results = await Promise.all(
 		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-			const eslint = new FlatESLint({
+			const eslint = new ESLint({
 				baseConfig: config,
 				overrideConfigFile: true,
 			});
