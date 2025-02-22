@@ -103,11 +103,14 @@ const create = context => ({
 					optionalMember: false,
 				})
 				// Array methods that return an array
-				|| isMethodCall(parent.init, {
-					methods: arrayMethodsReturnsArray,
-					optionalCall: false,
-					optionalMember: false,
-				})
+				|| (
+					isMethodCall(parent.init, {
+						methods: arrayMethodsReturnsArray,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					&& parent.init.callee.object?.type === 'Identifier'
+				)
 			)
 		)) {
 			return;

@@ -384,6 +384,12 @@ test.snapshot({
 				return _.includes(foo, 1);
 			}
 		`,
+
+		// String.prototype.slice() is called (Not Array.prototype.slice())
+		outdent`
+			const foo = 'abc'.slice();
+			foo.includes('ab') || foo.includes('bc');
+		`,
 	],
 	invalid: [
 		outdent`
