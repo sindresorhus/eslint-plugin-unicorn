@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.js';
+import {getTester, parsers, avoidTestTitleConflict} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -312,23 +312,19 @@ test.snapshot({
 });
 
 test.snapshot({
+	...avoidTestTitleConflict({valid: validCases, invalid: []}, 'commonjs'),
 	testerOptions: {
 		languageOptions: {
 			sourceType: 'commonjs',
 		},
 	},
-	valid: validCases.map(code => `/** commonjs */\n${code}`),
-	invalid: [
-	],
 });
 
 test.snapshot({
+	...avoidTestTitleConflict({valid: validCases, invalid: []}, 'script'),
 	testerOptions: {
 		languageOptions: {
 			sourceType: 'script',
 		},
 	},
-	valid: validCases.map(code => `/** script */\n${code}`),
-	invalid: [
-	],
 });
