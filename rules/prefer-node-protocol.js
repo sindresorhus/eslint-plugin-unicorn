@@ -5,6 +5,7 @@ const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
+const NODE_PROTOCOL = 'node:';
 
 const create = context => ({
 	Literal(node) {
@@ -27,12 +28,12 @@ const create = context => ({
 
 		const {value} = node;
 
-		if (
-			typeof value !== 'string'
-			|| value.startsWith('node:')
-			|| /^bun(?::|$)/.test(value)
-			|| !isBuiltinModule(value)
-		) {
+		if (!(
+			typeof value === 'string'
+			&& !value.startsWith(NODE_PROTOCOL)
+			&& isBuiltinModule(value)
+			&& isBuiltinModule(`${NODE_PROTOCOL}${value}`)
+		)) {
 			return;
 		}
 
@@ -42,7 +43,7 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			data: {moduleName: value},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], 'node:'),
+			fix: fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], NODE_PROTOCOL),
 		};
 	},
 });
