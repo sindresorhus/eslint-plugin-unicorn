@@ -477,6 +477,32 @@ test.snapshot({
 	],
 });
 
+// Import attributes
+test.snapshot({
+	valid: [
+	],
+	invalid: [
+		outdent`
+			import json from './foo.json' with { type: 'json' };
+			export default json;
+		`,
+		outdent`
+			import * as json from './foo.json' with { type: 'json' };
+			export {json};
+		`,
+		outdent`
+			import {foo} from './foo.json' with { type: 'unknown' };
+			export {foo};
+			export {bar} from './foo.json';
+		`,
+		outdent`
+			import {foo} from './foo.json';
+			export {foo};
+			export {bar} from './foo.json' with { type: 'unknown' };
+		`,
+	],
+});
+
 // `ignoreUsedVariables`
 test.snapshot({
 	valid: [
