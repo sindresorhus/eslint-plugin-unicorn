@@ -311,20 +311,22 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
-	...avoidTestTitleConflict({valid: validCases, invalid: []}, 'commonjs'),
+test.snapshot(avoidTestTitleConflict({
 	testerOptions: {
 		languageOptions: {
 			sourceType: 'commonjs',
 		},
 	},
-});
+	valid: validCases,
+	invalid: [],
+}, 'commonjs'));
 
-test.snapshot({
-	...avoidTestTitleConflict({valid: validCases, invalid: []}, 'script'),
+test.snapshot(avoidTestTitleConflict({
 	testerOptions: {
 		languageOptions: {
 			sourceType: 'script',
 		},
 	},
-});
+	valid: validCases,
+	invalid: [],
+}, 'script'));
