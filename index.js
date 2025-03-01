@@ -1,7 +1,9 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
 import flatConfigBase from './configs/flat-config-base.js';
 import rules from './rules/index.js';
-import packageJson from './package.json' with {type: 'json'};
+import {createRequire} from 'node:module';
+
+const packageJson = createRequire(import.meta.url)('./package.json');
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: {message: string, replacedBy: string[]}}
