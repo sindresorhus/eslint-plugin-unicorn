@@ -127,10 +127,11 @@ function create(context) {
 			const polyfill = polyfills.find(({pattern}) => pattern.test(importedModule));
 			if (polyfill) {
 				const [, namespace, method = ''] = polyfill.feature.split('.');
-				const [, features] = Object.entries(coreJsEntries).find(
+				const features = Object.entries(coreJsEntries).find(
 					entry => entry[0] === `core-js/full/${namespace}${method && '/'}${method}`,
-				);
-				if (checkFeatures(features)) {
+				)?.[1];
+
+				if (features && checkFeatures(features)) {
 					return {node, messageId: MESSAGE_ID_POLYFILL};
 				}
 			}
