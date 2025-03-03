@@ -7,9 +7,10 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Differentiating the casing of the identifier and value clearly separates them and makes your code more readable. The default style is:
+Differentiating the casing of the identifier and value clearly separates them and makes your code more readable.
 
-- Lowercase identifier and uppercase value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
+- Lowercase radix identifier `0x` `0o` `0b` for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
+- Uppercase or lowercase hexadecimal value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
 - Lowercase `e` for exponential notation.
 
 ## Fail
@@ -70,31 +71,18 @@ const foo = 2e5;
 
 Type: `object`
 
-Default options:
-
-```js
-{
-	'unicorn/number-literal-case': [
-		'error',
-		{
-			hexadecimalValue: 'uppercase',
-			radixIdentifier: 'lowercase',
-			exponentialNotation: 'lowercase'
-		}
-	]
-}
-```
-
 ### hexadecimalValue
 
-Type: `'uppercase' | 'lowercase' | 'ignore'`\
+Type: `'uppercase' | 'lowercase'`\
 Default: `'uppercase'`
 
-Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase`, `lowercase`, or `ignore` the check. Defaults to `'uppercase'`.
+Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase` or `lowercase`. Defaults to `'uppercase'`.
+
+Note: `0x` is always lowercase and not controlled by this option to maintain readable code.
 
 Example:
 ```js
-// eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase", "radixIdentifier": "ignore"}]
+// eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase"}]
 
 // ❌
 const foo = 0XFF;
@@ -103,62 +91,6 @@ const foo = 0XFFn;
 const foo = 0xFFn;
 
 // ✅
-const foo = 0Xff;
 const foo = 0xff;
-const foo = 0Xffn;
 const foo = 0xffn;
-```
-
-### radixIdentifier
-
-Type: `'uppercase' | 'lowercase' | 'ignore'`\
-Default: `'lowercase'`
-
-Specify whether the radix indentifer (`0x`, `0o`, `0b`) should be in `uppercase`, `lowercase`, or `ignore` the check. Defaults to `'lowercase'`.
-
-**Note: Adjusting this option to values other than `'lowercase'` may make your code unreadable, please use caution.**
-
-Example:
-```js
-// eslint unicorn/number-literal-case: ["error", {"radixIdentifier": "uppercase", "hexadecimalValue": "ignore"}]
-
-// ❌
-const foo = 0xFF;
-const foo = 0o76;
-const foo = 0b10;
-const foo = 0xFFn;
-const foo = 0o76n;
-const foo = 0b10n;
-
-// ✅
-const foo = 0XFF;
-const foo = 0O76;
-const foo = 0B10;
-const foo = 0XFFn;
-const foo = 0O76n;
-const foo = 0B10n;
-```
-
-### exponentialNotation
-
-Type: `'uppercase' | 'lowercase' | 'ignore'`\
-Default: `'lowercase'`
-
-Specify whether the exponential notation (`e`) should be in `uppercase`, `lowercase`, or `ignore` the check. Defaults to `'lowercase'`.
-
-**Note: Adjusting this option to values other than `'lowercase'` may make your code unreadable, please use caution.**
-
-Example:
-```js
-// eslint unicorn/number-literal-case: ["error", {"exponentialNotation": "uppercase"}]
-
-// ❌
-const foo = 2e-5;
-const foo = 2e+5;
-const foo = 2e99;
-
-// ✅
-const foo = 2E-5;
-const foo = 2E+5;
-const foo = 2E99;
 ```

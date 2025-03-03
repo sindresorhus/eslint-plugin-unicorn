@@ -8,39 +8,12 @@ const messages = {
 
 /**
  @param {string} raw
- @param {Options[keyof Options]} option
- */
-const convertCase = (raw, option) => {
-	if (option === 'uppercase') {
-		return raw.toUpperCase();
-	}
-
-	if (option === 'lowercase') {
-		return raw.toLowerCase();
-	}
-
-	return raw;
-};
-
-/**
- @param {string} raw
  @param {Options} options
  */
-const fix = (raw, options) => {
-	let fixed = raw;
-	let isSpecialBase = false; // Indicates that the number is hexadecimal, octal, or binary.
-	fixed = fixed.replace(/^(0[box])(.*)/i, (_, radix, value) => {
-		isSpecialBase = true;
-		radix = convertCase(radix, options.radixIdentifier);
-		if (radix.toLowerCase() === '0x') {
-			value = convertCase(value, options.hexadecimalValue);
-		}
-
-		return radix + value;
-	});
-
-	if (!isSpecialBase) {
-		fixed = fixed.replaceAll(/e/gi, expo => convertCase(expo, options.exponentialNotation));
+const fix = (raw, {hexadecimalValue}) => {
+	let fixed = raw.toLowerCase();
+	if (fixed.startsWith('0x')) {
+		fixed = '0x' + fixed.slice(2)[hexadecimalValue === 'lowercase' ? 'toLowerCase' : 'toUpperCase']();
 	}
 
 	return fixed;
@@ -54,8 +27,6 @@ const create = context => ({
 		/** @type {Options} */
 		const options = context.options[0] ?? {};
 		options.hexadecimalValue ??= 'uppercase';
-		options.radixIdentifier ??= 'lowercase';
-		options.exponentialNotation ??= 'lowercase';
 
 		let fixed = raw;
 		if (isNumberLiteral(node)) {
@@ -77,11 +48,7 @@ const create = context => ({
 /** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
 
 const caseEnum = /** @type {const} */ ({
-	enum: [
-		'uppercase',
-		'lowercase',
-		'ignore',
-	],
+	enum: ['uppercase', 'lowercase'],
 });
 
 const schema = [
@@ -90,8 +57,6 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			hexadecimalValue: caseEnum,
-			radixIdentifier: caseEnum,
-			exponentialNotation: caseEnum,
 		},
 	},
 ];
@@ -109,8 +74,6 @@ const config = {
 		schema,
 		defaultOptions: [{
 			hexadecimalValue: 'uppercase',
-			radixIdentifier: 'lowercase',
-			exponentialNotation: 'lowercase',
 		}],
 		messages,
 	},
