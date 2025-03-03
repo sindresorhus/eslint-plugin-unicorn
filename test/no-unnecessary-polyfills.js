@@ -48,6 +48,7 @@ test({
 			code: 'require("" )',
 			options: [{targets: 'node >3'}],
 		},
+		'import ExtendableError from "es6-error"',
 	],
 	invalid: [
 		{
