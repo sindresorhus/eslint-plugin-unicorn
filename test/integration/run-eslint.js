@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import {codeFrameColumns} from '@babel/code-frame';
-import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
+import {ESLint} from 'eslint';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
 import babelParser from '@babel/eslint-parser';
@@ -10,8 +10,6 @@ import typescriptParser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
 import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
-
-const {FlatESLint} = eslintExperimentalApis;
 
 class UnicornIntegrationTestError extends AggregateError {
 	name = 'UnicornIntegrationTestError';
@@ -114,7 +112,7 @@ async function runEslint(project) {
 		? fs.readFileSync(eslintIgnoreFile, 'utf8').split('\n').filter(line => line && !line.startsWith('#'))
 		: [];
 
-	const eslint = new FlatESLint({
+	const eslint = new ESLint({
 		cwd: project.location,
 		overrideConfigFile: true,
 		overrideConfig: [

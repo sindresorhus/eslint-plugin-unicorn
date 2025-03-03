@@ -1,158 +1,161 @@
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.js';
+import {getTester, parsers, avoidTestTitleConflict} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-test.snapshot({
-	valid: [
-		'function foo () { this.bar }',
-		'function foo () { this.foo }',
-		'function foo (value) { this.bar = value }',
-		'this.foo = foo',
-		outdent`
-			{
-				this.foo = foo;
+const validCases = [
+	'console.log(this)',
+	'function foo () { this.bar }',
+	'function foo () { this.foo }',
+	'function foo (value) { this.bar = value }',
+	'this.foo = foo',
+	outdent`
+		{
+			this.foo = foo;
+		}
+	`,
+	'this.foo = function () { this.foo }',
+	'const foo = () => this.foo',
+	outdent`
+		const foo = {
+			bar() {
+				this.bar = void 0;
+				return this.bar;
 			}
-		`,
-		'this.foo = function () { this.foo }',
-		'const foo = () => this.foo',
-		outdent`
-			const foo = {
-				bar() {
-					this.bar = void 0;
+		};
+	`,
+	outdent`
+		class Foo {
+			foo() {
+				this.foo = void 0;
+				return this.foo;
+			}
+		}
+	`,
+	// Deep property setter
+	outdent`
+		class Foo {
+			set bar(value) {
+				this.bar.baz = value;
+			}
+		}
+	`,
+	// Define this to alias
+	outdent`
+		class Foo {
+			get bar() {
+				const self = this;
+				return self.bar;
+			}
+		}
+	`,
+	outdent`
+		class Foo {
+			set bar(value) {
+				const self = this;
+				return self.bar = value;
+			}
+		}
+	`,
+	outdent`
+		const foo = {
+			get bar() {
+				return this._bar;
+			}
+		};
+	`,
+	// Access this in function scope
+	outdent`
+		const foo = {
+			get bar() {
+				function baz() {
 					return this.bar;
 				}
-			};
-		`,
-		outdent`
-			class Foo {
-				foo() {
-					this.foo = void 0;
-					return this.foo;
-				}
 			}
-		`,
-		// Deep property setter
-		outdent`
-			class Foo {
-				set bar(value) {
-					this.bar.baz = value;
-				}
-			}
-		`,
-		// Define this to alias
-		outdent`
-			class Foo {
-				get bar() {
-					const self = this;
-					return self.bar;
-				}
-			}
-		`,
-		outdent`
-			class Foo {
-				set bar(value) {
-					const self = this;
-					return self.bar = value;
-				}
-			}
-		`,
-		outdent`
-			const foo = {
-				get bar() {
-					return this._bar;
-				}
-			};
-		`,
-		// Access this in function scope
-		outdent`
-			const foo = {
-				get bar() {
-					function baz() {
+		};
+	`,
+	// Nest getter
+	outdent`
+		const foo = {
+			get bar() {
+				const qux = {
+					get quux () {
 						return this.bar;
 					}
 				}
-			};
-		`,
-		// Nest getter
-		outdent`
-			const foo = {
-				get bar() {
-					const qux = {
-						get quux () {
-							return this.bar;
-						}
-					}
-				}
-			};
-		`,
-		// Test computed property
-		outdent`
-			const foo = {
-				get bar() {
-					return this[bar];
-				}
-			};
-		`,
-		outdent`
-			const foo = {
-				get [bar]() {
-					return this.bar;
-				}
-			};
-		`,
-		// Setter access in the right of AssignmentExpression
-		outdent`
-			const foo = {
-				set bar(value) {
-					a = this.bar;
-				}
-			};
-		`,
-		// Private field without recursion access
-		outdent`
-			class Foo{
-				get bar() {
-					return this.#bar;
-				}
+			}
+		};
+	`,
+	// Test computed property
+	outdent`
+		const foo = {
+			get bar() {
+				return this[bar];
+			}
+		};
+	`,
+	outdent`
+		const foo = {
+			get [bar]() {
+				return this.bar;
+			}
+		};
+	`,
+	// Setter access in the right of AssignmentExpression
+	outdent`
+		const foo = {
+			set bar(value) {
+				a = this.bar;
+			}
+		};
+	`,
+	// Private field without recursion access
+	outdent`
+		class Foo{
+			get bar() {
+				return this.#bar;
+			}
 
-				get #bar() {
-					return 0;
-				}
+			get #bar() {
+				return 0;
 			}
-		`,
-		// Destructuring assignment with computed property
-		outdent`
-			class Foo{
-				get bar() {
-					const {[bar]: bar} = this;
-				}
+		}
+	`,
+	// Destructuring assignment with computed property
+	outdent`
+		class Foo{
+			get bar() {
+				const {[bar]: bar} = this;
 			}
-		`,
-		// Static block
-		outdent`
-			const foo = {
-				get bar() {
-					class Foo {
-						static {
-							this.bar
-						}
+		}
+	`,
+	// Static block
+	outdent`
+		const foo = {
+			get bar() {
+				class Foo {
+					static {
+						this.bar
 					}
 				}
-			};
-		`,
-		// Static property
-		outdent`
-			const foo = {
-				get bar() {
-					class Foo {
-						bar = 1;
-						baz = this.bar;
-					}
+			}
+		};
+	`,
+	// Static property
+	outdent`
+		const foo = {
+			get bar() {
+				class Foo {
+					bar = 1;
+					baz = this.bar;
 				}
-			};
-		`,
-	],
+			}
+		};
+	`,
+];
+
+test.snapshot({
+	valid: validCases,
 	invalid: [
 		// Getter
 		outdent`
@@ -307,3 +310,23 @@ test.snapshot({
 		`,
 	],
 });
+
+test.snapshot(avoidTestTitleConflict({
+	testerOptions: {
+		languageOptions: {
+			sourceType: 'commonjs',
+		},
+	},
+	valid: validCases,
+	invalid: [],
+}, 'commonjs'));
+
+test.snapshot(avoidTestTitleConflict({
+	testerOptions: {
+		languageOptions: {
+			sourceType: 'script',
+		},
+	},
+	valid: validCases,
+	invalid: [],
+}, 'script'));

@@ -24,7 +24,13 @@ test.snapshot({
 				const fs = await import(\`fs\`);
 			}
 		`,
+		'import "punycode";', // Deprecated
+		'import "node:punycode";', // Deprecated
 		'import "punycode/";',
+		'import "fs/";',
+		// `test` is not a builtin module, `node:test` is
+		'import "test";',
+		'import "node:test";',
 		// https://bun.sh/docs/runtime/bun-apis
 		'import "bun";',
 		'import "bun:jsc";',

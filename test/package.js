@@ -2,12 +2,10 @@ import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
-import eslintExperimentalApis from 'eslint/use-at-your-own-risk';
+import {ESLint} from 'eslint';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
 import eslintPluginUnicorn from '../index.js';
-
-const {FlatESLint} = eslintExperimentalApis;
 
 let ruleFiles;
 
@@ -75,7 +73,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 test('validate configuration', async t => {
 	const results = await Promise.all(
 		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-			const eslint = new FlatESLint({
+			const eslint = new ESLint({
 				baseConfig: config,
 				overrideConfigFile: true,
 			});
@@ -116,7 +114,8 @@ test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
 		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
-		t.true(rule.meta.deprecated, `${name} meta.deprecated should be true`);
+		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
+		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
 		t.true(rulesInMarkdown.has(name));
 	}
 });
