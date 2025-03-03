@@ -81,9 +81,19 @@ Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase` o
 Note: `0x` is always lowercase and not controlled by this option to maintain readable code.
 
 Example:
-```js
-// eslint unicorn/number-literal-case: ["error", {"hexadecimalValue": "lowercase"}]
 
+```js
+{
+	'unicorn/number-literal-case': [
+		'error',
+		{
+			hexadecimalValue: 'lowercase',
+		}
+	]
+}
+```
+
+```js
 // ❌
 const foo = 0XFF;
 const foo = 0xFF;
