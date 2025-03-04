@@ -49,9 +49,9 @@ Type: `string`\
 Default: `'uppercase'`
 
 - `'uppercase'` (default)
-	- Always use escape sequence values with uppercase characters.
+  - Always use escape sequence values with uppercase characters.
 - `'lowercase'`
-	- Always use escape sequence values with lowercase characters.
+  - Always use escape sequence values with lowercase characters.
 
 Example:
 
