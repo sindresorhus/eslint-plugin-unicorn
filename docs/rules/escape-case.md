@@ -1,4 +1,4 @@
-# Require escape sequences to use uppercase values
+# Require escape sequences to use uppercase or lowercase values
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).
 
