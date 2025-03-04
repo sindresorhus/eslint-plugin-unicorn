@@ -76,7 +76,7 @@ Type: `object`
 Type: `'uppercase' | 'lowercase'`\
 Default: `'uppercase'`
 
-Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase` or `lowercase`. Defaults to `'uppercase'`.
+Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase` or `lowercase`.
 
 Note: `0x` is always lowercase and not controlled by this option to maintain readable code.
 
