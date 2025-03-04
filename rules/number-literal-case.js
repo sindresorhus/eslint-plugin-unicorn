@@ -7,9 +7,9 @@ const messages = {
 };
 
 /**
- @param {string} raw
- @param {Options} options
- */
+@param {string} raw
+@param {Options} options
+*/
 const fix = (raw, {hexadecimalValue}) => {
 	let fixed = raw.toLowerCase();
 	if (fixed.startsWith('0x')) {
