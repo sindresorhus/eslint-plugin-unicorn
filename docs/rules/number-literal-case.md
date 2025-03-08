@@ -9,7 +9,8 @@
 
 Differentiating the casing of the identifier and value clearly separates them and makes your code more readable.
 
-- Lowercase identifier and uppercase value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
+- Lowercase radix identifier `0x` `0o` `0b` for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
+- Uppercase or lowercase hexadecimal value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
 - Lowercase `e` for exponential notation.
 
 ## Fail
@@ -17,50 +18,89 @@ Differentiating the casing of the identifier and value clearly separates them an
 [Hexadecimal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal)
 
 ```js
+// ❌
 const foo = 0XFF;
 const foo = 0xff;
 const foo = 0Xff;
 const foo = 0Xffn;
+
+// ✅
+const foo = 0xFF;
+const foo = 0xFFn;
 ```
 
 [Binary](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Binary)
 
 ```js
+// ❌
 const foo = 0B10;
 const foo = 0B10n;
+
+// ✅
+const foo = 0b10;
+const foo = 0b10n;
 ```
 
 [Octal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Octal)
 
 ```js
+// ❌
 const foo = 0O76;
 const foo = 0O76n;
-```
 
-Exponential notation
-
-```js
-const foo = 2E-5;
-```
-
-## Pass
-
-```js
-const foo = 0xFF;
-```
-
-```js
-const foo = 0b10;
-```
-
-```js
+// ✅
 const foo = 0o76;
+const foo = 0o76n;
 ```
 
-```js
-const foo = 0xFFn;
-```
+[Exponential notation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Exponential)
 
 ```js
+// ❌
+const foo = 2E-5;
+const foo = 2E+5;
+const foo = 2E5;
+
+// ✅
+const foo = 2e-5;
 const foo = 2e+5;
+const foo = 2e5;
+```
+
+## Options
+
+Type: `object`
+
+### hexadecimalValue
+
+Type: `'uppercase' | 'lowercase'`\
+Default: `'uppercase'`
+
+Specify whether the hexadecimal number value (ABCDEF) should be in `uppercase` or `lowercase`.
+
+Note: `0x` is always lowercase and not controlled by this option to maintain readable code.
+
+Example:
+
+```js
+{
+	'unicorn/number-literal-case': [
+		'error',
+		{
+			hexadecimalValue: 'lowercase',
+		}
+	]
+}
+```
+
+```js
+// ❌
+const foo = 0XFF;
+const foo = 0xFF;
+const foo = 0XFFn;
+const foo = 0xFFn;
+
+// ✅
+const foo = 0xff;
+const foo = 0xffn;
 ```
