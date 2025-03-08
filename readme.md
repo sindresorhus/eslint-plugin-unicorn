@@ -49,8 +49,8 @@ export default [
 <!-- Do not manually modify this list. Run: `npm run fix:eslint-docs` -->
 <!-- begin auto-generated rules list -->
 
-💼 [Configurations](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs) enabled in.\
-✅ Set in the `recommended` [configuration](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs-eslintconfigjs).\
+💼 [Configurations](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) enabled in.\
+✅ Set in the `recommended` [configuration](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).\
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).\
 💡 Manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
