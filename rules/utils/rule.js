@@ -3,10 +3,7 @@ import getDocumentationUrl from './get-documentation-url.js';
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
 class FixAbortError extends Error {
-	constructor() {
-		super();
-		this.name = 'FixAbortError';
-	}
+	name = 'FixAbortError';
 }
 const fixOptions = {
 	abort() {
