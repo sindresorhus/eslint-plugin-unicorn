@@ -98,6 +98,7 @@ const getBreakTarget = node => {
 };
 
 const isNodeInsideNode = (inner, outer) =>
+	// eslint-disable-next-line internal/no-restricted-property-access
 	inner.range[0] >= outer.range[0] && inner.range[1] <= outer.range[1];
 function hasBreakInside(breakStatements, node) {
 	for (const breakStatement of breakStatements) {

@@ -14,7 +14,7 @@ export default function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 
 	if (
 		tokenBefore
-		&& range[0] === tokenBefore.range[1]
+		&& range[0] === sourceCode.getRange(tokenBefore)[1]
 		&& isProblematicToken(tokenBefore)
 	) {
 		yield fixer.insertTextAfter(tokenBefore, ' ');
@@ -24,7 +24,7 @@ export default function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
 
 	if (
 		tokenAfter
-		&& range[1] === tokenAfter.range[0]
+		&& range[1] === sourceCode.getRange(tokenAfter)[0]
 		&& isProblematicToken(tokenAfter)
 	) {
 		yield fixer.insertTextBefore(tokenAfter, ' ');

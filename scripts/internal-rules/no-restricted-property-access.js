@@ -6,8 +6,7 @@ import {removeMemberExpressionProperty} from '../../rules/fix/index.js';
 const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 const properties = new Map([
-	// Todo: forbid `.range`
-	// ['range', 'sourceCode.getRange'],
+	['range', 'sourceCode.getRange'],
 	['loc', 'sourceCode.getLoc'],
 ]);
 
