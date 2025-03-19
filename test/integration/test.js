@@ -15,7 +15,7 @@ import runEslint from './run-eslint.js';
 
 if (isCI) {
 	const CI_CONFIG_FILE = new URL('../../.github/workflows/main.yml', import.meta.url);
-	const content = fs.readFileSync(CI_CONFIG_FILE, 'utf8');
+	const content = fs.readFileSync(CI_CONFIG_FILE, 'utf-8');
 	const config = YAML.parse(content).jobs.integration.strategy.matrix.group;
 
 	const expected = [...new Set(allProjects.map(project => String(project.group + 1)))];

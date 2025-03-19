@@ -179,7 +179,7 @@ array.forEach(function (element) {
 
 ```js
 function readFile(filename) {
-	return fs.readFile(filename, 'utf8');
+	return fs.readFile(filename, 'utf-8');
 }
 
 Promise.map(filenames, readFile);

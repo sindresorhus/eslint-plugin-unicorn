@@ -109,7 +109,7 @@ function getBabelParserConfig(project) {
 async function runEslint(project) {
 	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
 	const ignore = fs.existsSync(eslintIgnoreFile)
-		? fs.readFileSync(eslintIgnoreFile, 'utf8').split('\n').filter(line => line && !line.startsWith('#'))
+		? fs.readFileSync(eslintIgnoreFile, 'utf-8').split('\n').filter(line => line && !line.startsWith('#'))
 		: [];
 
 	const eslint = new ESLint({

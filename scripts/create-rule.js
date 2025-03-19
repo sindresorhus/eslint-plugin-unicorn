@@ -29,7 +29,7 @@ function checkFiles(ruleId) {
 function renderTemplate({source, target, data}) {
 	const templateFile = path.join(dirname, `template/${source}`);
 	const targetFile = path.join(ROOT, target);
-	const templateContent = fs.readFileSync(templateFile, 'utf8');
+	const templateContent = fs.readFileSync(templateFile, 'utf-8');
 
 	const compiled = template(templateContent);
 	const content = compiled(data);
