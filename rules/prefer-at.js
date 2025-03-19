@@ -197,9 +197,9 @@ function create(context) {
 				if (
 					tokenBefore.type === 'Punctuator'
 					&& tokenBefore.value === '-'
-					&& /^\s+$/.test(sourceCode.text.slice(tokenBefore.range[1], numberNode.range[0]))
+					&& /^\s+$/.test(sourceCode.text.slice(sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]))
 				) {
-					yield fixer.removeRange([tokenBefore.range[1], numberNode.range[0]]);
+					yield fixer.removeRange([sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]]);
 				}
 			}
 
@@ -275,7 +275,7 @@ function create(context) {
 			// Remove extra arguments
 			if (sliceCall.arguments.length !== 1) {
 				const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
-				const [end] = sourceCode.getLastToken(sliceCall).range;
+				const [end] = sourceCode.getRange(sourceCode.getLastToken(sliceCall));
 				yield fixer.removeRange([start, end]);
 			}
 

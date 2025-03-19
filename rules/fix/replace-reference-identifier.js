@@ -22,6 +22,7 @@ export default function replaceReferenceIdentifier(identifier, replacement, fixe
 	// `typeAnnotation`
 	if (identifier.typeAnnotation) {
 		return fixer.replaceTextRange(
+			// eslint-disable-next-line internal/no-restricted-property-access
 			[identifier.range[0], identifier.typeAnnotation.range[0]],
 			`${replacement}${identifier.optional ? '?' : ''}`,
 		);

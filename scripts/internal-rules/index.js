@@ -1,5 +1,4 @@
 import {fileURLToPath} from 'node:url';
-import packageJson from './package.json' with {type: 'json'};
 import fixSnapshotTest from './fix-snapshot-test.js';
 import noTestOnly from './no-test-only.js';
 import preferNegativeBooleanAttribute from './prefer-negative-boolean-attribute.js';
@@ -26,10 +25,10 @@ const rules = [
 
 const isFileInsideDirectory = (filename, directory) => filename.startsWith(directory);
 
-const internal = {
+const plugin = {
 	meta: {
-		name: packageJson.name,
-		version: packageJson.version,
+		name: pluginName,
+		version: '1.0.0',
 	},
 	rules: Object.fromEntries(
 		rules.map(({id, directories, rule}) => [
@@ -49,18 +48,9 @@ const internal = {
 	),
 };
 
-const configs = {
-	all: {
-		plugins: {
-			internal,
-		},
-		rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
-	},
+const config = {
+	plugins: {[pluginName]: plugin},
+	rules: Object.fromEntries(rules.map(({id}) => [`${pluginName}/${id}`, 'error'])),
 };
 
-const allConfigs = {
-	...internal,
-	configs,
-};
-
-export default allConfigs;
+export default config;
