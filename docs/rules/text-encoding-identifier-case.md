@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-- Enforce `'utf8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
+- Enforce `'utf-8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
 - Enforce `'ascii'` for [ASCII](https://en.wikipedia.org/wiki/ASCII) encoding.
 
 This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
@@ -23,13 +23,17 @@ await fs.readFile(file, 'ASCII');
 ```
 
 ```js
-const string = buffer.toString('utf-8');
+const string = buffer.toString('utf8');
+```
+
+```js
+const string = buffer.toString('UTF8');
 ```
 
 ## Pass
 
 ```js
-await fs.readFile(file, 'utf8');
+await fs.readFile(file, 'utf-8');
 ```
 
 ```js
@@ -37,5 +41,5 @@ await fs.readFile(file, 'ascii');
 ```
 
 ```js
-const string = buffer.toString('utf8');
+const string = buffer.toString('utf-8');
 ```

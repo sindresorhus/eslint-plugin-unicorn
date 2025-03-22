@@ -85,7 +85,7 @@ const file = path.join(__dirname, 'foo.js');
 ```
 
 ```js
-const content = fs.readFileSync(__filename, 'utf8');
+const content = fs.readFileSync(__filename, 'utf-8');
 ```
 
 ```js

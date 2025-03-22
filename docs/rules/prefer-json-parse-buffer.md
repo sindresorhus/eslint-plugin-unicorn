@@ -14,11 +14,11 @@ Passing in a buffer may not be performant and is not compatible with TypeScript.
 ## Fail
 
 ```js
-const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf8'));
+const packageJson = JSON.parse(await fs.readFile('./package.json', 'utf-8'));
 ```
 
 ```js
-const promise = fs.readFile('./package.json', {encoding: 'utf8'});
+const promise = fs.readFile('./package.json', {encoding: 'utf-8'});
 const packageJson = JSON.parse(await promise);
 ```
 
@@ -29,7 +29,7 @@ const packageJson = JSON.parse(await fs.readFile('./package.json'));
 ```
 
 ```js
-const promise = fs.readFile('./package.json', {encoding: 'utf8', signal});
+const promise = fs.readFile('./package.json', {encoding: 'utf-8', signal});
 const packageJson = JSON.parse(await promise);
 ```
 
