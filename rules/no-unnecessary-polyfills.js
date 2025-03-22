@@ -68,8 +68,8 @@ function getTargets(options, dirname) {
 		return;
 	}
 
-	const {browserlist, engines} = packageResult.packageJson;
-	return browserlist ?? engines;
+	const {browserslist, engines} = packageResult.packageJson;
+	return browserslist ?? engines;
 }
 
 function create(context) {
