@@ -353,5 +353,21 @@ test.snapshot({
 			import url from "node:url";
 			const filename = url.fileURLToPath(import.meta.url);
 		`,
+		outdent`
+			import path from "node:path";
+			import { fileURLToPath } from "node:url";
+			const __filename = fileURLToPath(import.meta.url);
+			const __dirname = path.dirname(__filename);
+		`,
+		outdent`
+			import path from "node:path";
+			const __filename = new URL(import.meta.url).pathname;
+			const __dirname = path.dirname(__filename);
+		`,
+		outdent`
+			import path from "node:path";
+			const __filename = import.meta.filename;
+			const __dirname = path.dirname(__filename);
+		`,
 	],
 });

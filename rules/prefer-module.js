@@ -448,7 +448,7 @@ function create(context) {
 		return problem;
 	});
 
-	context.on('MetaProperty', node => {
+	context.on('MetaProperty', function * (node) {
 		if (!isImportMeta(node)) {
 			return;
 		}
@@ -471,55 +471,95 @@ function create(context) {
 				isCallFileURLToPath(targetNode, sourceCode)
 				&& targetNode.arguments[0] === parent
 			) {
+				yield * processFilenameExpression(targetNode);
 				// Report `fileURLToPath(import.meta.url)`
-				return buildProblemForFilename(targetNode);
+				yield buildProblemForFilename(targetNode);
+				return;
 			}
 
 			if (isNewURL(targetNode, sourceCode)) {
-				const verifyURLUsage = problemBuilder => {
-					const urlParent = targetNode.parent;
-					if (
-						(
-							// `fileURLToPath(new URL(...))`
-							isCallFileURLToPath(urlParent, sourceCode)
-							&& urlParent.arguments[0] === targetNode
-						)
-						// `new URL(...).pathname`
-						|| isAccessPathname(urlParent)
-					) {
-						return problemBuilder(urlParent);
-					}
-				};
+				const urlParent = targetNode.parent;
+				const isURLToPath = () => (
+					(
+						// `fileURLToPath(new URL(...))`
+						isCallFileURLToPath(urlParent, sourceCode)
+						&& urlParent.arguments[0] === targetNode
+					)
+					// `new URL(...).pathname`
+					|| isAccessPathname(urlParent)
+				);
 
 				if (targetNode.arguments[0] === parent) {
-					// Verify `new URL(import.meta.url)`
-					return verifyURLUsage(buildProblemForFilename);
+					if (isURLToPath()) {
+						yield * processFilenameExpression(urlParent);
+						// Report `new URL(import.meta.url).pathname` or `fileURLToPath(new URL(import.meta.url))`
+						yield buildProblemForFilename(urlParent);
+					}
+
+					return;
 				}
 
 				if (
 					isLiteral(targetNode.arguments[0], '.')
 					&& targetNode.arguments[1] === parent
-				) {
-					// Verify `new URL('.', import.meta.url)`
-					return verifyURLUsage(urlParent => buildProblem(urlParent, 'dirname'));
+					&& isURLToPath()) {
+					// Report `new URL(".", import.meta.url).pathname` or `fileURLToPath(new URL(".", import.meta.url))`
+					yield buildProblem(urlParent, 'dirname');
 				}
+			}
+
+			return;
+		}
+
+		if (propertyName === 'filename') {
+			yield * processFilenameExpression(parent);
+			if (
+				isCallPathDirname(targetNode, sourceCode)
+				&& targetNode.arguments[0] === parent
+			) {
+				// Report `path.dirname(import.meta.filename)`
+				yield buildProblem(targetNode, 'dirname');
 			}
 		}
 
-		if (
-			propertyName === 'filename'
-			&& isCallPathDirname(targetNode, sourceCode)
-			&& targetNode.arguments[0] === parent
-		) {
-			// Report `path.dirname(import.meta.filename)`
-			return buildProblem(targetNode, 'dirname');
+		/**
+		 @param { import('estree').Expression} node
+		 */
+		function * processFilenameExpression(node) {
+			/** @type {{parent: import('estree').Node}} */
+			const {parent} = node;
+			if (parent.type !== 'VariableDeclarator' || parent.init !== node || parent.id.type !== 'Identifier') {
+				return;
+			}
+
+			/** @type {import('eslint').Scope.Variable|null} */
+			const variable = findVariable(sourceCode.getScope(parent.id), parent.id);
+			if (!variable) {
+				return;
+			}
+
+			for (const reference of variable.references) {
+				if (!reference.isReadOnly()) {
+					continue;
+				}
+
+				/** @type {{parent: import('estree').Node}} */
+				const {parent} = reference.identifier;
+				if (
+					isCallPathDirname(parent, sourceCode)
+					&& parent.arguments[0] === reference.identifier
+				) {
+					// Report `path.dirname(identifier)`
+					yield buildProblem(parent, 'dirname');
+				}
+			}
 		}
 
 		/**
 		 @param { import('estree').Node} node
 		 */
 		function buildProblemForFilename(node) {
-			/** @type {import('estree').Node} */
+			/** @type {{parent: import('estree').Node}} */
 			const {parent} = node;
 			if (
 				isCallPathDirname(parent, sourceCode)
