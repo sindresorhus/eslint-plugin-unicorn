@@ -308,7 +308,7 @@ test.snapshot({
 	],
 });
 
-// `exports` and `module`
+// `import.meta.dirname` and `import.meta.filename`
 test.snapshot({
 	valid: [
 		'const __dirname = import.meta.dirname;',
