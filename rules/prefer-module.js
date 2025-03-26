@@ -471,29 +471,28 @@ function create(context) {
 				isCallFileURLToPath(targetNode, sourceCode)
 				&& targetNode.arguments[0] === parent
 			) {
-				yield * processFilenameExpression(targetNode);
 				// Report `fileURLToPath(import.meta.url)`
-				yield buildProblemForFilename(targetNode);
+				yield * iterateProblemsFromFilename(targetNode, {
+					reportFilenameNode: true,
+				});
 				return;
 			}
 
 			if (isNewURL(targetNode, sourceCode)) {
 				const urlParent = targetNode.parent;
-				const isURLToPath = () => (
-					(
-						// `fileURLToPath(new URL(...))`
-						isCallFileURLToPath(urlParent, sourceCode)
-						&& urlParent.arguments[0] === targetNode
-					)
-					// `new URL(...).pathname`
-					|| isAccessPathname(urlParent)
-				);
 
 				if (targetNode.arguments[0] === parent) {
-					if (isURLToPath()) {
-						yield * processFilenameExpression(urlParent);
-						// Report `new URL(import.meta.url).pathname` or `fileURLToPath(new URL(import.meta.url))`
-						yield buildProblemForFilename(urlParent);
+					if (
+						isCallFileURLToPath(urlParent, sourceCode)
+						&& urlParent.arguments[0] === targetNode
+					) {
+						// Report `fileURLToPath(new URL(import.meta.url))`
+						yield * iterateProblemsFromFilename(urlParent, {
+							reportFilenameNode: true,
+						});
+					} else if (isAccessPathname(urlParent)) {
+						// Process for `new URL(import.meta.url).pathname`
+						yield * iterateProblemsFromFilename(urlParent);
 					}
 
 					return;
@@ -502,8 +501,10 @@ function create(context) {
 				if (
 					isLiteral(targetNode.arguments[0], '.')
 					&& targetNode.arguments[1] === parent
-					&& isURLToPath()) {
-					// Report `new URL(".", import.meta.url).pathname` or `fileURLToPath(new URL(".", import.meta.url))`
+					&& isCallFileURLToPath(urlParent, sourceCode)
+					&& urlParent.arguments[0] === targetNode
+				) {
+					// Report `fileURLToPath(new URL(".", import.meta.url))`
 					yield buildProblem(urlParent, 'dirname');
 				}
 			}
@@ -512,22 +513,31 @@ function create(context) {
 		}
 
 		if (propertyName === 'filename') {
-			yield * processFilenameExpression(parent);
-			if (
-				isCallPathDirname(targetNode, sourceCode)
-				&& targetNode.arguments[0] === parent
-			) {
-				// Report `path.dirname(import.meta.filename)`
-				yield buildProblem(targetNode, 'dirname');
-			}
+			yield * iterateProblemsFromFilename(parent);
 		}
 
 		/**
+		 Iterates over reports where a given filename expression node
+		 would be used to convert it to a dirname.
 		 @param { import('estree').Expression} node
 		 */
-		function * processFilenameExpression(node) {
+		function * iterateProblemsFromFilename(node, {reportFilenameNode = false} = {}) {
 			/** @type {{parent: import('estree').Node}} */
 			const {parent} = node;
+
+			if (
+				isCallPathDirname(parent, sourceCode)
+				&& parent.arguments[0] === node
+			) {
+				// Report `path.dirname(filename)`
+				yield buildProblem(parent, 'dirname');
+				return;
+			}
+
+			if (reportFilenameNode) {
+				yield buildProblem(node, 'filename');
+			}
+
 			if (parent.type !== 'VariableDeclarator' || parent.init !== node || parent.id.type !== 'Identifier') {
 				return;
 			}
@@ -553,23 +563,6 @@ function create(context) {
 					yield buildProblem(parent, 'dirname');
 				}
 			}
-		}
-
-		/**
-		 @param { import('estree').Node} node
-		 */
-		function buildProblemForFilename(node) {
-			/** @type {{parent: import('estree').Node}} */
-			const {parent} = node;
-			if (
-				isCallPathDirname(parent, sourceCode)
-				&& parent.arguments[0] === node
-			) {
-				// Report `path.dirname(node)`
-				return buildProblem(parent, 'dirname');
-			}
-
-			return buildProblem(node, 'filename');
 		}
 
 		/**

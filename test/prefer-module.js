@@ -318,6 +318,8 @@ test.snapshot({
 			const dirUrl = path.dirname(import.meta.url);
 		`,
 		'const url = import.meta.url;',
+		'const dirname = new URL(".", import.meta.url).pathname;',
+		'const filename = new URL(import.meta.url).pathname;',
 	],
 	invalid: [
 		outdent`
@@ -326,14 +328,12 @@ test.snapshot({
 			const dirname1 = path.dirname(fileURLToPath(import.meta.url));
 			const dirname2 = path.dirname(import.meta.filename);
 			const dirname3 = path.dirname(new URL(import.meta.url).pathname);
-			const dirname4 = new URL(".", import.meta.url).pathname;
-			const dirname5 = fileURLToPath(new URL(".", import.meta.url));
+			const dirname4 = fileURLToPath(new URL(".", import.meta.url));
 		`,
 		outdent`
 			import { fileURLToPath } from "url";
 			const filename1 = fileURLToPath(import.meta.url);
 			const filename2 = fileURLToPath(new URL(import.meta.url));
-			const filename3 = new URL(import.meta.url).pathname;
 		`,
 		outdent`
 			import path from "node:path";
