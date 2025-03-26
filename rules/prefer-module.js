@@ -1,7 +1,10 @@
+import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
-import {isStaticRequire, isReferenceIdentifier, isFunction} from './ast/index.js';
+import {
+	isStaticRequire, isReferenceIdentifier, isFunction, isLiteral,
+} from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
@@ -14,6 +17,9 @@ const SUGGESTION_IMPORT_META_FILENAME = 'suggestion/import-meta-filename';
 const SUGGESTION_IMPORT_META_URL_TO_FILENAME = 'suggestion/import-meta-url-to-filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
 const SUGGESTION_EXPORT = 'suggestion/export';
+const SUGGESTION_IMPORT_META = 'suggestion/import.meta';
+const SUGGESTION_IMPORT_META_DIRNAME_FROM_URL = 'suggestion/import-meta-dirname-from-url';
+const SUGGESTION_IMPORT_META_FILENAME_FROM_URL = 'suggestion/import-meta-filename-from-url';
 const messages = {
 	[ERROR_USE_STRICT_DIRECTIVE]: 'Do not use "use strict" directive.',
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
@@ -25,6 +31,9 @@ const messages = {
 	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
+	[SUGGESTION_IMPORT_META]: 'Switch to `import.meta.{{name}}`.',
+	[SUGGESTION_IMPORT_META_DIRNAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.dirname`.',
+	[SUGGESTION_IMPORT_META_FILENAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.filename`.',
 };
 
 const suggestions = new Map([
@@ -198,6 +207,86 @@ const isTopLevelReturnStatement = node => {
 	return true;
 };
 
+const isImportMeta = node =>
+	node.type === 'MetaProperty'
+	&& node.meta.name === 'import'
+	&& node.property.name === 'meta';
+
+/** @returns {node is import('estree').NewExpression} */
+const isNewURL = node =>
+	node.type === 'NewExpression'
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name === 'URL';
+
+/** @returns {node is import('estree').MemberExpression} */
+const isAccessPathname = node =>
+	node.type === 'MemberExpression'
+	&& getPropertyName(node) === 'pathname';
+
+function isCallNodeBuiltinModule(node, propertyName, nodeModuleName, sourceCode) {
+	if (node.type !== 'CallExpression') {
+		return false;
+	}
+
+	/** @type {{callee: import('estree').Expression}} */
+	const {callee} = node;
+	if (callee.type === 'MemberExpression') {
+		// Check for nodeModuleName.propertyName(...);
+		if (callee.object.type !== 'Identifier') {
+			return false;
+		}
+
+		if (getPropertyName(callee) !== propertyName) {
+			return false;
+		}
+
+		const specifier = getImportSpecifier(callee.object);
+		return specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier';
+	}
+
+	if (callee.type === 'Identifier') {
+		// Check for propertyName(...);
+		const specifier = getImportSpecifier(callee);
+
+		return specifier?.type === 'ImportSpecifier' && specifier.imported.name === propertyName;
+	}
+
+	return false;
+
+	function getImportSpecifier(node) {
+		const scope = sourceCode.getScope(node);
+		const variable = findVariable(scope, node);
+		if (!variable || variable.defs.length !== 1) {
+			return;
+		}
+
+		/** @type {import('eslint').Scope.Definition} */
+		const define = variable.defs[0];
+		if (
+			define.type !== 'ImportBinding'
+			|| (define.parent.source.value !== nodeModuleName && define.parent.source.value !== 'node:' + nodeModuleName)
+		) {
+			return;
+		}
+
+		return define.node;
+	}
+}
+
+/**
+ @returns {node is import('estree').SimpleCallExpression}
+ */
+function isCallFileURLToPath(node, sourceCode) {
+	return isCallNodeBuiltinModule(node, 'fileURLToPath', 'url', sourceCode);
+}
+
+/**
+ @returns {node is import('estree').SimpleCallExpression}
+ */
+function isCallPathDirname(node, sourceCode) {
+	return isCallNodeBuiltinModule(node, 'dirname', 'path', sourceCode);
+}
+
 function fixDefaultExport(node, sourceCode) {
 	return function * (fixer) {
 		yield fixer.replaceText(node, 'export default ');
@@ -357,6 +446,119 @@ function create(context) {
 		}
 
 		return problem;
+	});
+
+	context.on('MetaProperty', node => {
+		if (!isImportMeta(node)) {
+			return;
+		}
+
+		/** @type {{parent?: import('estree').Node}} */
+		const {parent} = node;
+		if (
+			parent.type !== 'MemberExpression'
+			|| parent.object !== node
+		) {
+			return;
+		}
+
+		/** @type {import('estree').Node} */
+		const targetNode = parent.parent;
+
+		const propertyName = getPropertyName(parent);
+		if (propertyName === 'url') {
+			if (
+				isCallFileURLToPath(targetNode, sourceCode)
+				&& targetNode.arguments[0] === parent
+			) {
+				// Report `fileURLToPath(import.meta.url)`
+				return buildProblemForFilename(targetNode);
+			}
+
+			if (isNewURL(targetNode, sourceCode)) {
+				const verifyURLUsage = problemBuilder => {
+					const urlParent = targetNode.parent;
+					if (
+						(
+							// `fileURLToPath(new URL(...))`
+							isCallFileURLToPath(urlParent, sourceCode)
+							&& urlParent.arguments[0] === targetNode
+						)
+						// `new URL(...).pathname`
+						|| isAccessPathname(urlParent)
+					) {
+						return problemBuilder(urlParent);
+					}
+				};
+
+				if (targetNode.arguments[0] === parent) {
+					// Verify `new URL(import.meta.url)`
+					return verifyURLUsage(buildProblemForFilename);
+				}
+
+				if (
+					isLiteral(targetNode.arguments[0], '.')
+					&& targetNode.arguments[1] === parent
+				) {
+					// Verify `new URL('.', import.meta.url)`
+					return verifyURLUsage(urlParent => buildProblem(urlParent, 'dirname'));
+				}
+			}
+		}
+
+		if (
+			propertyName === 'filename'
+			&& isCallPathDirname(targetNode, sourceCode)
+			&& targetNode.arguments[0] === parent
+		) {
+			// Report `path.dirname(import.meta.filename)`
+			return buildProblem(targetNode, 'dirname');
+		}
+
+		/**
+		 @param { import('estree').Node} node
+		 */
+		function buildProblemForFilename(node) {
+			/** @type {import('estree').Node} */
+			const {parent} = node;
+			if (
+				isCallPathDirname(parent, sourceCode)
+				&& parent.arguments[0] === node
+			) {
+				// Report `path.dirname(node)`
+				return buildProblem(parent, 'dirname');
+			}
+
+			return buildProblem(node, 'filename');
+		}
+
+		/**
+		 @param { import('estree').Node} node
+		 @param {'dirname' | 'filename'} name
+		 */
+		function buildProblem(node, name) {
+			const problem = {
+				node,
+				messageId: SUGGESTION_IMPORT_META,
+				data: {name},
+			};
+			const fix = fixer =>
+				fixer.replaceText(node, `import.meta.${name}`);
+
+			if (filename.endsWith('.mjs')) {
+				problem.fix = fix;
+			} else {
+				problem.suggest = [{
+					messageId:
+						name === 'dirname'
+							? SUGGESTION_IMPORT_META_DIRNAME_FROM_URL
+							: SUGGESTION_IMPORT_META_FILENAME_FROM_URL,
+					fix,
+				}];
+			}
+
+			return problem;
+		}
 	});
 }
 

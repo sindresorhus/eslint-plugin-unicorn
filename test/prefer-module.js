@@ -307,3 +307,51 @@ test.snapshot({
 		},
 	],
 });
+
+// `exports` and `module`
+test.snapshot({
+	valid: [
+		'const __dirname = import.meta.dirname;',
+		'const __filename = import.meta.filename;',
+		outdent`
+			import path from "path";
+			const dirUrl = path.dirname(import.meta.url);
+		`,
+		'const url = import.meta.url;',
+	],
+	invalid: [
+		outdent`
+			import path from "path";
+			import { fileURLToPath } from "url";
+			const dirname1 = path.dirname(fileURLToPath(import.meta.url));
+			const dirname2 = path.dirname(import.meta.filename);
+			const dirname3 = path.dirname(new URL(import.meta.url).pathname);
+			const dirname4 = new URL(".", import.meta.url).pathname;
+			const dirname5 = fileURLToPath(new URL(".", import.meta.url));
+		`,
+		outdent`
+			import { fileURLToPath } from "url";
+			const filename1 = fileURLToPath(import.meta.url);
+			const filename2 = fileURLToPath(new URL(import.meta.url));
+			const filename3 = new URL(import.meta.url).pathname;
+		`,
+		outdent`
+			import path from "node:path";
+			import { fileURLToPath } from "node:url";
+			const dirname = path.dirname(fileURLToPath(import.meta.url));
+		`,
+		outdent`
+			import { fileURLToPath } from "node:url";
+			const filename = fileURLToPath(import.meta.url);
+		`,
+		outdent`
+			import * as path from "node:path";
+			import url from "node:url";
+			const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+		`,
+		outdent`
+			import url from "node:url";
+			const filename = url.fileURLToPath(import.meta.url);
+		`,
+	],
+});
