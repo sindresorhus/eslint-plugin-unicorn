@@ -3,7 +3,7 @@ import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
 import {
-	isStaticRequire, isReferenceIdentifier, isFunction, isLiteral,
+	isStaticRequire, isReferenceIdentifier, isFunction,
 } from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
@@ -205,6 +205,14 @@ const isTopLevelReturnStatement = node => {
 	}
 
 	return true;
+};
+
+const isParentLiteral = node => {
+	if (node?.type !== 'Literal') {
+		return false;
+	}
+
+	return node.value === '.' || node.value === './';
 };
 
 const isImportMeta = node =>
@@ -499,7 +507,7 @@ function create(context) {
 				}
 
 				if (
-					isLiteral(targetNode.arguments[0], '.')
+					isParentLiteral(targetNode.arguments[0])
 					&& targetNode.arguments[1] === parent
 					&& isCallFileURLToPath(urlParent, sourceCode)
 					&& urlParent.arguments[0] === targetNode
