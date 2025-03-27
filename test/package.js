@@ -108,7 +108,7 @@ test('Every rule has valid meta.type', t => {
 });
 
 test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
-	const content = await fsAsync.readFile('docs/deprecated-rules.md', 'utf8');
+	const content = await fsAsync.readFile('docs/deprecated-rules.md', 'utf-8');
 	const rulesInMarkdown = new Set(content.match(/(?<=^## ).*?$/gm));
 
 	for (const name of deprecatedRules) {
@@ -125,7 +125,7 @@ test('Every rule file has the appropriate contents', t => {
 	for (const ruleFile of ruleFiles) {
 		const ruleName = path.basename(ruleFile, '.js');
 		const rulePath = path.join('rules', `${ruleName}.js`);
-		const ruleContents = fs.readFileSync(rulePath, 'utf8');
+		const ruleContents = fs.readFileSync(rulePath, 'utf-8');
 
 		t.true(ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */'), `${ruleName} includes jsdoc comment for rule type`);
 	}
@@ -140,7 +140,7 @@ test('Every rule has a doc with the appropriate content', t => {
 		}
 
 		/// const documentPath = path.join('docs/rules', `${ruleName}.md`);
-		/// const documentContents = fs.readFileSync(documentPath, 'utf8');
+		/// const documentContents = fs.readFileSync(documentPath, 'utf-8');
 
 		// TODO: Disabled until https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2530 is done.
 		// Check for examples.

@@ -52,7 +52,7 @@ async function renameRule(from, to) {
 		}
 
 		// eslint-disable-next-line no-await-in-loop
-		let text = await fsAsync.readFile(file, 'utf8');
+		let text = await fsAsync.readFile(file, 'utf-8');
 		text = text.replaceAll(from, to);
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
