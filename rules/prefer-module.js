@@ -3,7 +3,7 @@ import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
 import {
-	isStaticRequire, isReferenceIdentifier, isFunction,
+	isStaticRequire, isReferenceIdentifier, isFunction, isMemberExpression,
 } from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
@@ -229,53 +229,97 @@ const isAccessPathname = node =>
 	node.type === 'MemberExpression'
 	&& getPropertyName(node) === 'pathname';
 
-function isCallNodeBuiltinModule(node, propertyName, nodeModuleName, sourceCode) {
+function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode) {
 	if (node.type !== 'CallExpression') {
 		return false;
 	}
 
-	/** @type {{callee: import('estree').Expression}} */
-	const {callee} = node;
-	if (callee.type === 'MemberExpression') {
-		// Check for nodeModuleName.propertyName(...);
-		if (callee.object.type !== 'Identifier') {
+	const visited = new Set();
+
+	return checkExpression(node.callee, 'property');
+
+	/** @param {import('estree').Expression} node */
+	function checkExpression(node, checkKind) {
+		if (node.type === 'MemberExpression') {
+			if (checkKind !== 'property' || getPropertyName(node) !== propertyName) {
+				return false;
+			}
+
+			return checkExpression(node.object, 'module');
+		}
+
+		if (node.type === 'CallExpression') {
+			if (checkKind !== 'module') {
+				return false;
+			}
+
+			// Check process.getBuiltinModule('x')
+			return (
+				isMemberExpression(node.callee, {property: 'getBuiltinModule', object: 'process'})
+				&& isModuleLiteral(node.arguments[0])
+			);
+		}
+
+		if (node.type !== 'Identifier') {
 			return false;
 		}
 
-		if (getPropertyName(callee) !== propertyName) {
+		if (visited.has(node)) {
 			return false;
 		}
 
-		const specifier = getImportSpecifier(callee.object);
-		return specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier';
-	}
+		visited.add(node);
 
-	if (callee.type === 'Identifier') {
-		// Check for propertyName(...);
-		const specifier = getImportSpecifier(callee);
-
-		return specifier?.type === 'ImportSpecifier' && specifier.imported.name === propertyName;
-	}
-
-	return false;
-
-	function getImportSpecifier(node) {
-		const scope = sourceCode.getScope(node);
-		const variable = findVariable(scope, node);
+		const variable = findVariable(sourceCode.getScope(node), node);
 		if (!variable || variable.defs.length !== 1) {
 			return;
 		}
 
-		/** @type {import('eslint').Scope.Definition} */
-		const define = variable.defs[0];
-		if (
-			define.type !== 'ImportBinding'
-			|| (define.parent.source.value !== nodeModuleName && define.parent.source.value !== 'node:' + nodeModuleName)
-		) {
-			return;
+		return checkDefinition(variable.defs[0], checkKind);
+	}
+
+	/** @param {import('eslint').Scope.Definition} define */
+	function checkDefinition(define, checkKind) {
+		if (define.type === 'ImportBinding') {
+			if (!isModuleLiteral(define.parent.source)) {
+				return false;
+			}
+
+			const specifier = define.node;
+			return checkKind === 'module'
+				? (specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier')
+				: (specifier?.type === 'ImportSpecifier' && specifier.imported.name === propertyName);
 		}
 
-		return define.node;
+		return define.type === 'Variable' && checkPattern(define.name, checkKind);
+	}
+
+	/** @param {import('estree').Identifier | import('estree').ObjectPattern} node */
+	function checkPattern(node, checkKind) {
+		/** @type {{parent?: import('estree').Node}} */
+		const {parent} = node;
+		if (parent.type === 'VariableDeclarator') {
+			if (!parent.init || parent.id !== node) {
+				return false;
+			}
+
+			return checkExpression(parent.init, checkKind);
+		}
+
+		if (parent.type === 'Property') {
+			if (checkKind !== 'property' || parent.value !== node || getPropertyName(parent) !== propertyName) {
+				return false;
+			}
+
+			// Check for ObjectPattern
+			return checkPattern(parent.parent, 'module');
+		}
+
+		return false;
+	}
+
+	function isModuleLiteral(node) {
+		return node?.type === 'Literal' && nodeModuleNames.includes(node.value);
 	}
 }
 
@@ -283,14 +327,14 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleName, sourceCode)
  @returns {node is import('estree').SimpleCallExpression}
  */
 function isCallFileURLToPath(node, sourceCode) {
-	return isCallNodeBuiltinModule(node, 'fileURLToPath', 'url', sourceCode);
+	return isCallNodeBuiltinModule(node, 'fileURLToPath', ['url', 'node:url'], sourceCode);
 }
 
 /**
  @returns {node is import('estree').SimpleCallExpression}
  */
 function isCallPathDirname(node, sourceCode) {
-	return isCallNodeBuiltinModule(node, 'dirname', 'path', sourceCode);
+	return isCallNodeBuiltinModule(node, 'dirname', ['path', 'node:path'], sourceCode);
 }
 
 function fixDefaultExport(node, sourceCode) {

@@ -321,6 +321,37 @@ test.snapshot({
 		'const dirname = new URL(".", import.meta.url).pathname;',
 		'const filename = new URL(import.meta.url).pathname;',
 		'const filename = fileURLToPath(import.meta.url);', // `fileURLToPath` is not imported
+		'const dirname = path.dirname(import.meta.filename);', // `path` is not imported
+		outdent`
+			// path is not initialized
+			let path;
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
+			// path is unknown property
+			const { path } = process.getBuiltinModule("node:path");
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
+			const { dirname } = process.getBuiltinModule("node:path");
+			// dirname()() is unknown
+			const x = dirname(x)(import.meta.filename);
+		`,
+		outdent`
+			// path is unknown
+			const path = new X();
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
+			// path is unknown
+			const path = path;
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
+			// path is unknown
+			const [path] = process.getBuiltinModule("node:path");
+			const dirname = path.dirname(import.meta.filename);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -387,9 +418,20 @@ test.snapshot({
 			const __dirname = path.dirname(__filename);
 		`,
 		outdent`
-			// path is not imported
-			import { fileURLToPath } from "node:url";
-			const dirname = path.dirname(fileURLToPath(import.meta.url));
+			const path = process.getBuiltinModule("node:path");
+			const { fileURLToPath } = process.getBuiltinModule("node:url");
+			const filename = fileURLToPath(import.meta.url);
+			const dirname = path.dirname(filename);
+		`,
+		outdent`
+			const path = process.getBuiltinModule("path");
+			const { fileURLToPath } = process.getBuiltinModule("url");
+			const filename = fileURLToPath(import.meta.url);
+			const dirname = path.dirname(filename);
+		`,
+		outdent`
+			const filename = process.getBuiltinModule("node:url").fileURLToPath(import.meta.url);
+			const dirname = process.getBuiltinModule("node:path").dirname(filename);
 		`,
 	],
 });
