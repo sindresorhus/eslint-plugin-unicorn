@@ -326,16 +326,31 @@ test.snapshot({
 		outdent`
 			import path from "path";
 			import { fileURLToPath } from "url";
-			const dirname1 = path.dirname(fileURLToPath(import.meta.url));
-			const dirname2 = path.dirname(import.meta.filename);
-			const dirname3 = path.dirname(new URL(import.meta.url).pathname);
-			const dirname4 = fileURLToPath(new URL(".", import.meta.url));
-			const dirname5 = fileURLToPath(new URL("./", import.meta.url));
+			const dirname = path.dirname(fileURLToPath(import.meta.url));
+		`,
+		outdent`
+			import path from "path";
+			const dirname = path.dirname(import.meta.filename);
+		`,
+		outdent`
+			import path from "path";
+			const dirname = path.dirname(new URL(import.meta.url).pathname);
 		`,
 		outdent`
 			import { fileURLToPath } from "url";
-			const filename1 = fileURLToPath(import.meta.url);
-			const filename2 = fileURLToPath(new URL(import.meta.url));
+			const dirname = fileURLToPath(new URL(".", import.meta.url));
+		`,
+		outdent`
+			import { fileURLToPath } from "url";
+			const dirname = fileURLToPath(new URL("./", import.meta.url));
+		`,
+		outdent`
+			import { fileURLToPath } from "url";
+			const filename = fileURLToPath(import.meta.url);
+		`,
+		outdent`
+			import { fileURLToPath } from "url";
+			const filename = fileURLToPath(new URL(import.meta.url));
 		`,
 		outdent`
 			import path from "node:path";
@@ -371,16 +386,6 @@ test.snapshot({
 			const __filename = import.meta.filename;
 			const __dirname = path.dirname(__filename);
 		`,
-		{
-			// .mjs file will be auto-fixed
-			code: outdent`
-				import path from "node:path";
-				import { fileURLToPath } from "node:url";
-				const __filename = fileURLToPath(import.meta.url);
-				const __dirname = path.dirname(__filename);
-			`,
-			filename: 'foo.mjs',
-		},
 		outdent`
 			// path is not imported
 			import { fileURLToPath } from "node:url";
