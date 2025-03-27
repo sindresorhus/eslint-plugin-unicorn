@@ -19,8 +19,6 @@ const SUGGESTION_IMPORT_META_FILENAME = 'suggestion/import-meta-filename';
 const SUGGESTION_IMPORT_META_URL_TO_FILENAME = 'suggestion/import-meta-url-to-filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
 const SUGGESTION_EXPORT = 'suggestion/export';
-const SUGGESTION_IMPORT_META_DIRNAME_FROM_URL = 'suggestion/import-meta-dirname-from-url';
-const SUGGESTION_IMPORT_META_FILENAME_FROM_URL = 'suggestion/import-meta-filename-from-url';
 const messages = {
 	[ERROR_USE_STRICT_DIRECTIVE]: 'Do not use "use strict" directive.',
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
@@ -34,8 +32,6 @@ const messages = {
 	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
-	[SUGGESTION_IMPORT_META_DIRNAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.dirname`.',
-	[SUGGESTION_IMPORT_META_FILENAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.filename`.',
 };
 
 const suggestions = new Map([
@@ -580,27 +576,13 @@ function create(context) {
 		 @param {'dirname' | 'filename'} name
 		 */
 		function buildProblem(node, name) {
-			const problem = {
+			return {
 				node,
 				messageId: name === 'dirname' ? ERROR_CALC_DIRNAME : ERROR_CALC_FILENAME,
 				data: {name},
+				fix: fixer =>
+					fixer.replaceText(node, `import.meta.${name}`),
 			};
-			const fix = fixer =>
-				fixer.replaceText(node, `import.meta.${name}`);
-
-			if (filename.endsWith('.mjs')) {
-				problem.fix = fix;
-			} else {
-				problem.suggest = [{
-					messageId:
-						name === 'dirname'
-							? SUGGESTION_IMPORT_META_DIRNAME_FROM_URL
-							: SUGGESTION_IMPORT_META_FILENAME_FROM_URL,
-					fix,
-				}];
-			}
-
-			return problem;
 		}
 	});
 }
