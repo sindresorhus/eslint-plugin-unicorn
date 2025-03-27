@@ -7,40 +7,46 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When importing builtin modules, it's better to use the [`node:` protocol](https://nodejs.org/api/esm.html#node-imports) as it makes it perfectly clear that the package is a Node.js builtin module.
+When getting builtin modules, it's better to use the [`node:` protocol](https://nodejs.org/api/esm.html#node-imports) as it makes it perfectly clear that the package is a Node.js builtin module.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 import dgram from 'dgram';
-```
 
-```js
-export {strict as default} from 'assert';
-```
-
-```js
-import fs from 'fs/promises';
-```
-
-## Pass
-
-```js
+// ✅
 import dgram from 'node:dgram';
 ```
 
 ```js
+// ❌
+export {strict as default} from 'assert';
+
+// ✅
 export {strict as default} from 'node:assert';
 ```
 
 ```js
+// ❌
+import fs from 'fs/promises';
+
+// ✅
 import fs from 'node:fs/promises';
 ```
 
 ```js
-import _ from 'lodash';
+// ❌
+const fs = require('fs/promises');
+
+// ✅
+const fs = require('node:fs/promises');
 ```
 
 ```js
-import fs from './fs.js';
+// ❌
+const fs = process.getBuiltinModule('fs/promises');
+
+// ✅
+const fs = process.getBuiltinModule('node:fs/promises');
 ```
