@@ -14,10 +14,12 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/rules
       - name: Auto-format rule names in titles
-        uses: fregante/title-replacer-action@v2
+        uses: fregante/keyword-formatter-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          pattern-path: docs/rules
-          replacement: '`$0`'
-          trim-wrappers: true
+          keywords-path: docs/rules
+          prefix: unicorn/
+
