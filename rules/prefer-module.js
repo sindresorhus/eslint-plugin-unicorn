@@ -10,6 +10,8 @@ import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from '
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
 const ERROR_IDENTIFIER = 'error/identifier';
+const ERROR_CALC_DIRNAME = 'error/calc-dirname';
+const ERROR_CALC_FILENAME = 'error/calc-filename';
 const SUGGESTION_USE_STRICT_DIRECTIVE = 'suggestion/use-strict-directive';
 const SUGGESTION_IMPORT_META_DIRNAME = 'suggestion/import-meta-dirname';
 const SUGGESTION_IMPORT_META_URL_TO_DIRNAME = 'suggestion/import-meta-url-to-dirname';
@@ -17,13 +19,14 @@ const SUGGESTION_IMPORT_META_FILENAME = 'suggestion/import-meta-filename';
 const SUGGESTION_IMPORT_META_URL_TO_FILENAME = 'suggestion/import-meta-url-to-filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
 const SUGGESTION_EXPORT = 'suggestion/export';
-const SUGGESTION_IMPORT_META = 'suggestion/import.meta';
 const SUGGESTION_IMPORT_META_DIRNAME_FROM_URL = 'suggestion/import-meta-dirname-from-url';
 const SUGGESTION_IMPORT_META_FILENAME_FROM_URL = 'suggestion/import-meta-filename-from-url';
 const messages = {
 	[ERROR_USE_STRICT_DIRECTIVE]: 'Do not use "use strict" directive.',
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
 	[ERROR_IDENTIFIER]: 'Do not use "{{name}}".',
+	[ERROR_CALC_DIRNAME]: 'Do not construct dirname.',
+	[ERROR_CALC_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
 	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
 	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
@@ -31,7 +34,6 @@ const messages = {
 	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
-	[SUGGESTION_IMPORT_META]: 'Switch to `import.meta.{{name}}`.',
 	[SUGGESTION_IMPORT_META_DIRNAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.dirname`.',
 	[SUGGESTION_IMPORT_META_FILENAME_FROM_URL]: 'Replace `…(import.meta.url)` with `import.meta.filename`.',
 };
@@ -580,7 +582,7 @@ function create(context) {
 		function buildProblem(node, name) {
 			const problem = {
 				node,
-				messageId: SUGGESTION_IMPORT_META,
+				messageId: name === 'dirname' ? ERROR_CALC_DIRNAME : ERROR_CALC_FILENAME,
 				data: {name},
 			};
 			const fix = fixer =>
