@@ -2,7 +2,7 @@ import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
 import {isSameReference} from './utils/index.js';
 
-const MESSAGE_ID = 'no-length-as-slice-end';
+const MESSAGE_ID = 'no-useless-slice-end';
 const messages = {
 	[MESSAGE_ID]: 'Passing `….length` as the `end` argument is unnecessary.',
 };
