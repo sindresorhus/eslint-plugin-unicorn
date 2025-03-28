@@ -29,7 +29,7 @@ function getObjectLengthOrInfinityDescription(node, object) {
 		isMemberExpression(node, {property: 'length', computed: false})
 		&& isSameReference(object, node.object)
 	)) {
-		return false;
+		return;
 	}
 
 	return `${object.type === 'Identifier' ? object.name : '…'}${isOptional ? '?.' : '.'}length`;
