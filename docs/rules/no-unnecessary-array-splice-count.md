@@ -9,7 +9,7 @@
 
 <!-- Remove this comment, add more detailed description. -->
 
-When calling `Array#splice(start, deleteCount)` and `Array#toSpliced(start, skipCount)`, omitting the `deleteCount` and `skipCount` argument will delete or skip all elements after `start`. Passing `.length` explicitly or using `Infinity` is unnecessary.
+When calling `Array#splice(start, deleteCount)` and `Array#toSpliced(start, skipCount)`, omitting the `deleteCount` and `skipCount` argument will delete or skip all elements after `start`. Using `.length` or `Infinity` is unnecessary.
 
 ## Examples
 
