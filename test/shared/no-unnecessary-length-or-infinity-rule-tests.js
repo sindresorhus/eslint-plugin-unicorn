@@ -32,6 +32,7 @@ function createFixtures(method) {
 			`foo?.${method}(1, foo?.length)`,
 			`foo?.${method}(1, Infinity)`,
 			`foo?.${method}(1, Number.POSITIVE_INFINITY)`,
+			`foo.bar.${method}(1, foo.bar.length)`,
 		],
 	};
 }
