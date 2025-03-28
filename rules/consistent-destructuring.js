@@ -157,7 +157,6 @@ const config = {
 			description: 'Use destructured variables over properties.',
 			recommended: false,
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
