@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs, {promises as fsAsync} from 'node:fs';
 import enquirer from 'enquirer';
-import spawn from 'nano-spawn';
 import unicorn from '../index.js';
 
 const rules = Object.keys(unicorn.rules);
@@ -57,10 +56,6 @@ async function renameRule(from, to) {
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
 	}
-
-	await spawn('node', ['./create-rules-index-file.js'], {
-		cwd: import.meta.dirname,
-	});
 }
 
 const run = async () => {

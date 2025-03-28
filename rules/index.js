@@ -53,6 +53,7 @@ import noStaticOnlyClass from './no-static-only-class.js';
 import noThenable from './no-thenable.js';
 import noThisAssignment from './no-this-assignment.js';
 import noTypeofUndefined from './no-typeof-undefined.js';
+import noUnnecessaryArraySpliceCount from './no-unnecessary-array-splice-count.js';
 import noUnnecessaryAwait from './no-unnecessary-await.js';
 import noUnnecessaryPolyfills from './no-unnecessary-polyfills.js';
 import noUnnecessarySliceEnd from './no-unnecessary-slice-end.js';
@@ -182,6 +183,7 @@ const rules = {
 	'no-thenable': createRule(noThenable, 'no-thenable'),
 	'no-this-assignment': createRule(noThisAssignment, 'no-this-assignment'),
 	'no-typeof-undefined': createRule(noTypeofUndefined, 'no-typeof-undefined'),
+	'no-unnecessary-array-splice-count': createRule(noUnnecessaryArraySpliceCount, 'no-unnecessary-array-splice-count'),
 	'no-unnecessary-await': createRule(noUnnecessaryAwait, 'no-unnecessary-await'),
 	'no-unnecessary-polyfills': createRule(noUnnecessaryPolyfills, 'no-unnecessary-polyfills'),
 	'no-unnecessary-slice-end': createRule(noUnnecessarySliceEnd, 'no-unnecessary-slice-end'),

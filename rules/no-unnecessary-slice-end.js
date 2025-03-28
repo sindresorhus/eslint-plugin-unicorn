@@ -7,7 +7,7 @@ const messages = {
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => listen(context, {method: 'slice', messageId: MESSAGE_ID}),
+	create: context => listen(context, {methods: ['slice'], messageId: MESSAGE_ID}),
 	meta: {
 		type: 'suggestion',
 		docs: {

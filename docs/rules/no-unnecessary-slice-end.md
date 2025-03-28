@@ -1,4 +1,4 @@
-# Disallow using `.length` as the `end` argument of `{Array,String,TypedArray}#slice()`
+# Disallow using `.length` or `Infinity` as the `end` argument of `{Array,String,TypedArray}#slice()`
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

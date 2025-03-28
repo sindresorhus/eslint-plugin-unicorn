@@ -36,10 +36,10 @@ function getObjectLengthOrInfinityDescription(node, object) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-function listen(context, {method, messageId}) {
+function listen(context, {methods, messageId}) {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
-			method,
+			methods,
 			argumentsLength: 2,
 			optionalCall: false,
 		})) {
@@ -56,12 +56,21 @@ function listen(context, {method, messageId}) {
 			return;
 		}
 
+		const methodName = callExpression.callee.property.name;
+		const messageData = {
+			description,
+		};
+
+		if (methodName === 'splice') {
+			messageData.argumentName = 'deleteCount';
+		} else if (methodName === 'toSpliced') {
+			messageData.argumentName = 'skipCount';
+		}
+
 		return {
 			node: secondArgument,
 			messageId,
-			data: {
-				description,
-			},
+			data: messageData,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			fix: fixer => removeArgument(fixer, secondArgument, context.sourceCode),
 		};
