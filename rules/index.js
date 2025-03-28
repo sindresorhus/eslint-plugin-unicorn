@@ -37,7 +37,6 @@ import noInstanceofBuiltins from './no-instanceof-builtins.js';
 import noInvalidFetchOptions from './no-invalid-fetch-options.js';
 import noInvalidRemoveEventListener from './no-invalid-remove-event-listener.js';
 import noKeywordPrefix from './no-keyword-prefix.js';
-import noLengthAsSliceEnd from './no-length-as-slice-end.js';
 import noLonelyIf from './no-lonely-if.js';
 import noMagicArrayFlatDepth from './no-magic-array-flat-depth.js';
 import noNamedDefault from './no-named-default.js';
@@ -56,6 +55,7 @@ import noThisAssignment from './no-this-assignment.js';
 import noTypeofUndefined from './no-typeof-undefined.js';
 import noUnnecessaryAwait from './no-unnecessary-await.js';
 import noUnnecessaryPolyfills from './no-unnecessary-polyfills.js';
+import noUnnecessarySliceEnd from './no-unnecessary-slice-end.js';
 import noUnreadableArrayDestructuring from './no-unreadable-array-destructuring.js';
 import noUnreadableIife from './no-unreadable-iife.js';
 import noUnusedProperties from './no-unused-properties.js';
@@ -166,7 +166,6 @@ const rules = {
 	'no-invalid-fetch-options': createRule(noInvalidFetchOptions, 'no-invalid-fetch-options'),
 	'no-invalid-remove-event-listener': createRule(noInvalidRemoveEventListener, 'no-invalid-remove-event-listener'),
 	'no-keyword-prefix': createRule(noKeywordPrefix, 'no-keyword-prefix'),
-	'no-length-as-slice-end': createRule(noLengthAsSliceEnd, 'no-length-as-slice-end'),
 	'no-lonely-if': createRule(noLonelyIf, 'no-lonely-if'),
 	'no-magic-array-flat-depth': createRule(noMagicArrayFlatDepth, 'no-magic-array-flat-depth'),
 	'no-named-default': createRule(noNamedDefault, 'no-named-default'),
@@ -185,6 +184,7 @@ const rules = {
 	'no-typeof-undefined': createRule(noTypeofUndefined, 'no-typeof-undefined'),
 	'no-unnecessary-await': createRule(noUnnecessaryAwait, 'no-unnecessary-await'),
 	'no-unnecessary-polyfills': createRule(noUnnecessaryPolyfills, 'no-unnecessary-polyfills'),
+	'no-unnecessary-slice-end': createRule(noUnnecessarySliceEnd, 'no-unnecessary-slice-end'),
 	'no-unreadable-array-destructuring': createRule(noUnreadableArrayDestructuring, 'no-unreadable-array-destructuring'),
 	'no-unreadable-iife': createRule(noUnreadableIife, 'no-unreadable-iife'),
 	'no-unused-properties': createRule(noUnusedProperties, 'no-unused-properties'),

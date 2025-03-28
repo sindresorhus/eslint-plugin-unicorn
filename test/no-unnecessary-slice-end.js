@@ -19,6 +19,10 @@ test.snapshot({
 		'foo[slice](1, foo.length)',
 		'foo.slice(1, foo[length])',
 		'foo.slice(1, bar.length)',
+		'foo?.slice(1, NotInfinity)',
+		'foo?.slice(1, Number.NOT_POSITIVE_INFINITY)',
+		'foo?.slice(1, Not_Number.POSITIVE_INFINITY)',
+		'foo?.slice(1, Number?.POSITIVE_INFINITY)',
 		// `isSameReference` consider they are not the same reference
 		'foo().slice(1, foo().length)',
 	],
@@ -29,5 +33,7 @@ test.snapshot({
 		'foo.slice(1, (( foo.length )))',
 		'foo.slice(1, foo?.length)',
 		'foo?.slice(1, foo?.length)',
+		'foo?.slice(1, Infinity)',
+		'foo?.slice(1, Number.POSITIVE_INFINITY)',
 	],
 });
