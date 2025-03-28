@@ -32,7 +32,7 @@ function getObjectLengthOrInfinityDescription(node, object) {
 		return false;
 	}
 
-	return `${object.type === 'Identifier' ? object.name : '…'}${isOptional ? '?.' : '.'}length`
+	return `${object.type === 'Identifier' ? object.name : '…'}${isOptional ? '?.' : '.'}length`;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
