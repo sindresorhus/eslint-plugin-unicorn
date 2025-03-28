@@ -24,6 +24,10 @@ This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md) to be mor
 
 Removed due to bugs.
 
+## no-length-as-slice-end
+
+Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) which covers more cases..
+
 ## prefer-dataset
 
 This rule was renamed to [`prefer-dom-node-dataset`](rules/prefer-dom-node-dataset.md) to be more specific.
