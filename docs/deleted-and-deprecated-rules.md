@@ -6,8 +6,6 @@
 
 Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which covers more cases.
 
-[a](#import-index)
-
 ## Deleted rules
 
 ### ~import-index~
