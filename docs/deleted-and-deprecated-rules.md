@@ -6,7 +6,7 @@
 
 Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which covers more cases.
 
-## no-length-as-slice-end
+### no-length-as-slice-end
 
 Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) which covers more cases..
 
