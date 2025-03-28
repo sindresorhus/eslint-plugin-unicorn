@@ -1,0 +1,62 @@
+# Disallow using `.length` or `Infinity` as the `deleteCount` or `skipCount` argument of `Array#{splice,toSpliced}()`
+
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
+
+<!-- Remove this comment, add more detailed description. -->
+
+When calling `Array#splice(start, deleteCount)` and `Array#toSpliced(start, skipCount)`, omitting the `deleteCount` and `skipCount` argument will delete or skip all elements after `start`. Using `.length` or `Infinity` is unnecessary.
+
+## Examples
+
+```js
+// ❌
+const foo = array.toSpliced(1, string.length);
+
+// ✅
+const foo = array.toSpliced(1);
+```
+
+```js
+// ❌
+const foo = array.toSpliced(1, Infinity);
+
+// ✅
+const foo = array.toSpliced(1);
+```
+
+```js
+// ❌
+const foo = array.toSpliced(1, Number.POSITIVE_INFINITY);
+
+// ✅
+const foo = array.toSpliced(1);
+```
+
+```js
+// ❌
+array.splice(1, string.length);
+
+// ✅
+array.splice(1);
+```
+
+```js
+// ❌
+array.splice(1, Infinity);
+
+// ✅
+array.splice(1);
+```
+
+```js
+// ❌
+array.splice(1, Number.POSITIVE_INFINITY);
+
+// ✅
+array.splice(1);
+```
