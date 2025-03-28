@@ -106,17 +106,16 @@ test('Every rule has valid meta.type', t => {
 	}
 });
 
-test('Every deprecated rules listed in docs/deprecated-rules.md', async t => {
-	const content = await fsAsync.readFile('docs/deprecated-rules.md', 'utf8');
-	const rulesInMarkdown = new Set(content.match(/(?<=^## ).*?$/gm));
-
+test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', async t => {
+	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
 	for (const name of deprecatedRules) {
 		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
 		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
-		t.true(rulesInMarkdown.has(name));
+		t.true(content.includes(`\n### ${name}\n`));
+		t.false(content.includes(`\n### ~${name}~\n`));
 	}
 });
 

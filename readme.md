@@ -186,9 +186,9 @@ export default [
 
 <!-- end auto-generated rules list -->
 
-### Deprecated Rules
+### Deleted and deprecated Rules
 
-See [docs/deprecated-rules.md](docs/deprecated-rules.md)
+See [docs/deleted-and-deprecated-rules.md](docs/deleted-and-deprecated-rules.md)
 
 ## Preset configs
 
