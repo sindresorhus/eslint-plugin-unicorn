@@ -15,21 +15,48 @@ When calling `Array#splice(start, deleteCount)` and `Array#toSpliced(start, skip
 
 ```js
 // ❌
-const foo = 'unicorn';
+const foo = array.toSpliced(1, string.length);
 
 // ✅
-const foo = '🦄';
+const foo = array.toSpliced(1);
 ```
 
 ```js
 // ❌
-function foo() {
-	var replace = 'me';
-	return replace;
-}
+const foo = array.toSpliced(1, Infinity);
 
 // ✅
-function foo() {
-	return 'me';
-}
+const foo = array.toSpliced(1);
+```
+
+```js
+// ❌
+const foo = array.toSpliced(1, Number.POSITIVE_INFINITY);
+
+// ✅
+const foo = array.toSpliced(1);
+```
+
+```js
+// ❌
+array.splice(1, string.length);
+
+// ✅
+array.splice(1);
+```
+
+```js
+// ❌
+array.splice(1, Infinity);
+
+// ✅
+array.splice(1);
+```
+
+```js
+// ❌
+array.splice(1, Number.POSITIVE_INFINITY);
+
+// ✅
+array.splice(1);
 ```
