@@ -539,10 +539,10 @@ function create(context) {
 				return;
 			}
 
-			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1})) {
+			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
 				const urlParent = targetNode.parent;
 
-				if (targetNode.arguments[0] === memberExpression) {
+				if (targetNode.arguments.length === 1 && targetNode.arguments[0] === memberExpression) {
 					if (
 						isCallFileURLToPath(urlParent, sourceCode)
 						&& urlParent.arguments[0] === targetNode
@@ -560,7 +560,8 @@ function create(context) {
 				}
 
 				if (
-					isParentLiteral(targetNode.arguments[0])
+					targetNode.arguments.length === 2
+					&& isParentLiteral(targetNode.arguments[0])
 					&& targetNode.arguments[1] === memberExpression
 					&& isCallFileURLToPath(urlParent, sourceCode)
 					&& urlParent.arguments[0] === targetNode
