@@ -8,7 +8,7 @@ Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which co
 
 ### no-length-as-slice-end
 
-Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) which covers more cases..
+Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) which covers more cases.
 
 ## Deleted rules
 
