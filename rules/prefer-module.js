@@ -522,11 +522,11 @@ function create(context) {
 			return;
 		}
 
-		/** @type {import('estree').Node} */
-		const targetNode = memberExpression.parent;
-
 		const propertyName = memberExpression.property.name;
 		if (propertyName === 'url') {
+			/** @type {import('estree').Node} */
+			const targetNode = memberExpression.parent;
+
 			// `fileURLToPath(import.meta.url)`
 			if (
 				isCallFileURLToPath(targetNode, sourceCode)
