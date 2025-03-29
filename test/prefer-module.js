@@ -468,6 +468,10 @@ test.snapshot({
 			const filename = renamed(import.meta.url);
 		`,
 		outdent`
+			import { fileURLToPath as renamed } from "node:url";
+			const filename = renamed(import.meta.url);
+		`,
+		outdent`
 			const path = process.getBuiltinModule("path");
 			const { fileURLToPath } = process.getBuiltinModule("url");
 			const filename = fileURLToPath(import.meta.url);
