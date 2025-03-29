@@ -1,4 +1,4 @@
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
@@ -512,23 +512,25 @@ function create(context) {
 			return;
 		}
 
-		/** @type {{parent?: import('estree').Node}} */
-		const {parent} = node;
-		if (
-			parent.type !== 'MemberExpression'
-			|| parent.object !== node
-		) {
+		/** @type {import('estree').Node} */
+		const memberExpression = node.parent;
+		if (!isMemberExpression(memberExpression, {
+			properties: ['url', 'filename'],
+			computed: false,
+			optional: false,
+		})) {
 			return;
 		}
 
 		/** @type {import('estree').Node} */
-		const targetNode = parent.parent;
+		const targetNode = memberExpression.parent;
 
-		const propertyName = getPropertyName(parent);
+		const propertyName = memberExpression.property.name;
 		if (propertyName === 'url') {
+			// `fileURLToPath(import.meta.url)`
 			if (
 				isCallFileURLToPath(targetNode, sourceCode)
-				&& targetNode.arguments[0] === parent
+				&& targetNode.arguments[0] === memberExpression
 			) {
 				// Report `fileURLToPath(import.meta.url)`
 				yield * iterateProblemsFromFilename(targetNode, {
@@ -540,7 +542,7 @@ function create(context) {
 			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1})) {
 				const urlParent = targetNode.parent;
 
-				if (targetNode.arguments[0] === parent) {
+				if (targetNode.arguments[0] === memberExpression) {
 					if (
 						isCallFileURLToPath(urlParent, sourceCode)
 						&& urlParent.arguments[0] === targetNode
@@ -559,7 +561,7 @@ function create(context) {
 
 				if (
 					isParentLiteral(targetNode.arguments[0])
-					&& targetNode.arguments[1] === parent
+					&& targetNode.arguments[1] === memberExpression
 					&& isCallFileURLToPath(urlParent, sourceCode)
 					&& urlParent.arguments[0] === targetNode
 				) {
@@ -572,7 +574,7 @@ function create(context) {
 		}
 
 		if (propertyName === 'filename') {
-			yield * iterateProblemsFromFilename(parent);
+			yield * iterateProblemsFromFilename(memberExpression);
 		}
 
 		/**

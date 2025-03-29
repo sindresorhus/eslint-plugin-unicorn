@@ -384,6 +384,14 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			import {fileURLToPath} from "node:url";
+			const filename = fileURLToPath(import.meta?.url)
+		`,
+		outdent`
+			import {fileURLToPath} from "node:url";
+			const filename = fileURLToPath(import.meta['url'])
+		`,
 	],
 	invalid: [
 		outdent`
