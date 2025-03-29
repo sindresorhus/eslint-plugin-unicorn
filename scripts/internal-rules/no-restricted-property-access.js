@@ -1,9 +1,8 @@
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {isMemberExpression} from '../../rules/ast/index.js';
 import {removeMemberExpressionProperty} from '../../rules/fix/index.js';
 
-const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
+const messageId = path.basename(import.meta.filename, '.js');
 
 const properties = new Map([
 	['range', 'sourceCode.getRange'],

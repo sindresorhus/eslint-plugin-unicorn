@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import enquirer from 'enquirer';
 import {template} from 'lodash-es';
 import openEditor from 'open-editor';
 import spawn from 'nano-spawn';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
+const {dirname} = import.meta;
 const ROOT = path.join(dirname, '..');
 
 function checkFiles(ruleId) {
