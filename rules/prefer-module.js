@@ -3,7 +3,13 @@ import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
 import {
-	isStaticRequire, isReferenceIdentifier, isFunction, isMemberExpression,	isNewExpression, isMethodCall,
+	isStaticRequire,
+	isReferenceIdentifier,
+	isFunction,
+	isMemberExpression,
+	isCallExpression,
+	isNewExpression,
+	isMethodCall,
 } from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
@@ -219,7 +225,7 @@ const isImportMeta = node =>
 	&& node.property.name === 'meta';
 
 function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode) {
-	if (!(node.type === 'CallExpression' && !node.optional)) {
+	if (!isCallExpression(node, {optional: false, argumentsLength: 1})) {
 		return false;
 	}
 
@@ -532,13 +538,15 @@ function create(context) {
 				isCallFileURLToPath(targetNode, sourceCode)
 				&& targetNode.arguments[0] === memberExpression
 			) {
-				// Report `fileURLToPath(import.meta.url)`
 				yield * iterateProblemsFromFilename(targetNode, {
 					reportFilenameNode: true,
 				});
 				return;
 			}
 
+			// `new URL(import.meta.url)`
+			// `new URL('.', import.meta.url)`
+			// `new URL('./', import.meta.url)`
 			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
 				const urlParent = targetNode.parent;
 
