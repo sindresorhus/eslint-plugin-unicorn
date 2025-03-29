@@ -368,6 +368,14 @@ test.snapshot({
 			import path from "path";
 			const dirname = path.dirname?.(import.meta.filename);
 		`,
+		outdent`
+			const { [fileURLToPath]: fileURLToPath } = process.getBuiltinModule("node:url");
+			const filename = fileURLToPath(import.meta.url);
+		`,
+		outdent`
+			const { ["fileURLToPath"]: fileURLToPath } = process.getBuiltinModule("node:url");
+			const filename = fileURLToPath(import.meta.url);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -438,6 +446,10 @@ test.snapshot({
 			const { fileURLToPath } = process.getBuiltinModule("node:url");
 			const filename = fileURLToPath(import.meta.url);
 			const dirname = path.dirname(filename);
+		`,
+		outdent`
+			const { fileURLToPath: renamed } = process.getBuiltinModule("node:url");
+			const filename = renamed(import.meta.url);
 		`,
 		outdent`
 			const path = process.getBuiltinModule("path");

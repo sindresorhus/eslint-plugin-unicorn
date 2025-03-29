@@ -310,7 +310,13 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 		}
 
 		if (parent.type === 'Property') {
-			if (checkKind !== 'property' || parent.value !== node || getPropertyName(parent) !== propertyName) {
+			if (!(
+				checkKind === 'property'
+				&& parent.value === node
+				&& !parent.computed
+				&& parent.key.type === 'Identifier'
+				&& parent.key.name === propertyName
+			)) {
 				return false;
 			}
 
