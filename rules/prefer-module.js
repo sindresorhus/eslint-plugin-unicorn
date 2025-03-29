@@ -567,10 +567,10 @@ function create(context) {
 		}
 
 		/**
-		 Iterates over reports where a given filename expression node
-		 would be used to convert it to a dirname.
-		 @param { import('estree').Expression} node
-		 */
+		Iterates over reports where a given filename expression node
+		would be used to convert it to a dirname.
+		@param { import('estree').Expression} node
+		*/
 		function * iterateProblemsFromFilename(node, {reportFilenameNode = false} = {}) {
 			/** @type {{parent: import('estree').Node}} */
 			const {parent} = node;
@@ -622,9 +622,9 @@ function create(context) {
 		}
 
 		/**
-		 @param { import('estree').Node} node
-		 @param {'dirname' | 'filename'} name
-		 */
+		@param { import('estree').Node} node
+		@param {'dirname' | 'filename'} name
+		*/
 		function getProblem(node, name) {
 			return {
 				node,
