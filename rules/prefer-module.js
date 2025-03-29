@@ -527,7 +527,7 @@ function create(context) {
 			/** @type {import('estree').Node} */
 			const targetNode = memberExpression.parent;
 
-			// `fileURLToPath(import.meta.url)`
+			// `url.fileURLToPath(import.meta.url)`
 			if (
 				isCallFileURLToPath(targetNode, sourceCode)
 				&& targetNode.arguments[0] === memberExpression
@@ -551,7 +551,7 @@ function create(context) {
 						yield * iterateProblemsFromFilename(urlParent, {
 							reportFilenameNode: true,
 						});
-					} else if (isMemberExpression(urlParent, {property: 'pathname'})) {
+					} else if (isMemberExpression(urlParent, {property: 'pathname', computed: false, optional: false})) {
 						// Process for `new URL(import.meta.url).pathname`
 						yield * iterateProblemsFromFilename(urlParent);
 					}
