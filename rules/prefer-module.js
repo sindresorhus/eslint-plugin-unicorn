@@ -538,15 +538,12 @@ function create(context) {
 
 		const propertyName = memberExpression.property.name;
 		if (propertyName === 'url') {
-			/** @type {import('estree').Node} */
-			const targetNode = memberExpression.parent;
-
 			// `url.fileURLToPath(import.meta.url)`
 			if (
-				isUrlFileURLToPathCall(targetNode, sourceCode)
-				&& targetNode.arguments[0] === memberExpression
+				isUrlFileURLToPathCall(memberExpression.parent, sourceCode)
+				&& memberExpression.parent.arguments[0] === memberExpression
 			) {
-				yield * iterateProblemsFromFilename(targetNode, {
+				yield * iterateProblemsFromFilename(memberExpression.parent, {
 					reportFilenameNode: true,
 				});
 				return;
@@ -555,15 +552,16 @@ function create(context) {
 			// `new URL(import.meta.url)`
 			// `new URL('.', import.meta.url)`
 			// `new URL('./', import.meta.url)`
-			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
-				const urlParent = targetNode.parent;
+			if (isNewExpression(memberExpression.parent, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
+				const newUrl = memberExpression.parent;
+				const urlParent = newUrl.parent;
 
 				// `new URL(import.meta.url)`
-				if (targetNode.arguments.length === 1 && targetNode.arguments[0] === memberExpression) {
+				if (newUrl.arguments.length === 1 && newUrl.arguments[0] === memberExpression) {
 					// `url.fileURLToPath(new URL(import.meta.url))`
 					if (
 						isUrlFileURLToPathCall(urlParent, sourceCode)
-						&& urlParent.arguments[0] === targetNode
+						&& urlParent.arguments[0] === newUrl
 					) {
 						yield * iterateProblemsFromFilename(urlParent, {
 							reportFilenameNode: true,
@@ -582,11 +580,11 @@ function create(context) {
 				// `url.fileURLToPath(new URL(".", import.meta.url))`
 				// `url.fileURLToPath(new URL("./", import.meta.url))`
 				if (
-					targetNode.arguments.length === 2
-					&& isParentLiteral(targetNode.arguments[0])
-					&& targetNode.arguments[1] === memberExpression
+					newUrl.arguments.length === 2
+					&& isParentLiteral(newUrl.arguments[0])
+					&& newUrl.arguments[1] === memberExpression
 					&& isUrlFileURLToPathCall(urlParent, sourceCode)
-					&& urlParent.arguments[0] === targetNode
+					&& urlParent.arguments[0] === newUrl
 				) {
 					yield getProblem(urlParent, 'dirname');
 				}
