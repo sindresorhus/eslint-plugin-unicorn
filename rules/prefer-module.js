@@ -10,8 +10,8 @@ import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from '
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
 const ERROR_IDENTIFIER = 'error/identifier';
-const ERROR_CALC_DIRNAME = 'error/calc-dirname';
-const ERROR_CALC_FILENAME = 'error/calc-filename';
+const ERROR_CALCULATE_DIRNAME = 'error/calculate-dirname';
+const ERROR_CALCULATE_FILENAME = 'error/calculate-filename';
 const SUGGESTION_USE_STRICT_DIRECTIVE = 'suggestion/use-strict-directive';
 const SUGGESTION_IMPORT_META_DIRNAME = 'suggestion/import-meta-dirname';
 const SUGGESTION_IMPORT_META_URL_TO_DIRNAME = 'suggestion/import-meta-url-to-dirname';
@@ -23,8 +23,8 @@ const messages = {
 	[ERROR_USE_STRICT_DIRECTIVE]: 'Do not use "use strict" directive.',
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
 	[ERROR_IDENTIFIER]: 'Do not use "{{name}}".',
-	[ERROR_CALC_DIRNAME]: 'Do not construct dirname.',
-	[ERROR_CALC_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
+	[ERROR_CALCULATE_DIRNAME]: 'Do not construct dirname.',
+	[ERROR_CALCULATE_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
 	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
 	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
@@ -639,9 +639,8 @@ function create(context) {
 		function getProblem(node, name) {
 			return {
 				node,
-				messageId: name === 'dirname' ? ERROR_CALC_DIRNAME : ERROR_CALC_FILENAME,
-				fix: fixer =>
-					fixer.replaceText(node, `import.meta.${name}`),
+				messageId: name === 'dirname' ? ERROR_CALCULATE_DIRNAME : ERROR_CALCULATE_FILENAME,
+				fix: fixer => fixer.replaceText(node, `import.meta.${name}`),
 			};
 		}
 	});
