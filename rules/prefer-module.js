@@ -224,7 +224,7 @@ const isImportMeta = node =>
 	&& node.meta.name === 'import'
 	&& node.property.name === 'meta';
 
-function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode) {
+function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCode}) {
 	if (!isCallExpression(node, {optional: false, argumentsLength: 1})) {
 		return false;
 	}
@@ -238,7 +238,7 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 		if (node.type === 'MemberExpression') {
 			if (!(
 				checkKind === 'property'
-				&& isMemberExpression(node, {property: propertyName, computed: false, optional: false})
+				&& isMemberExpression(node, {property: functionName, computed: false, optional: false})
 			)) {
 				return false;
 			}
@@ -292,7 +292,7 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 			const specifier = define.node;
 			return checkKind === 'module'
 				? (specifier?.type === 'ImportDefaultSpecifier' || specifier?.type === 'ImportNamespaceSpecifier')
-				: (specifier?.type === 'ImportSpecifier' && specifier.imported.name === propertyName);
+				: (specifier?.type === 'ImportSpecifier' && specifier.imported.name === functionName);
 		}
 
 		return define.type === 'Variable' && checkPattern(define.name, checkKind);
@@ -321,7 +321,7 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 				&& parent.value === node
 				&& !parent.computed
 				&& parent.key.type === 'Identifier'
-				&& parent.key.name === propertyName
+				&& parent.key.name === functionName
 			)) {
 				return false;
 			}
@@ -334,22 +334,30 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 	}
 
 	function isModuleLiteral(node) {
-		return node?.type === 'Literal' && nodeModuleNames.includes(node.value);
+		return node?.type === 'Literal' && modules.has(node.value);
 	}
 }
 
 /**
 @returns {node is import('estree').SimpleCallExpression}
 */
-function isCallFileURLToPath(node, sourceCode) {
-	return isCallNodeBuiltinModule(node, 'fileURLToPath', ['url', 'node:url'], sourceCode);
+function isUrlFileURLToPathCall(node, sourceCode) {
+	return isNodeBuiltinModuleFunctionCall(node, {
+		modules: new Set(['url', 'node:url']),
+		functionName: 'fileURLToPath',
+		sourceCode,
+	});
 }
 
 /**
 @returns {node is import('estree').SimpleCallExpression}
 */
-function isCallPathDirname(node, sourceCode) {
-	return isCallNodeBuiltinModule(node, 'dirname', ['path', 'node:path'], sourceCode);
+function isPathDirnameCall(node, sourceCode) {
+	return isNodeBuiltinModuleFunctionCall(node, {
+		modules: new Set(['path', 'node:path']),
+		functionName: 'dirname',
+		sourceCode,
+	});
 }
 
 function fixDefaultExport(node, sourceCode) {
@@ -535,7 +543,7 @@ function create(context) {
 
 			// `url.fileURLToPath(import.meta.url)`
 			if (
-				isCallFileURLToPath(targetNode, sourceCode)
+				isUrlFileURLToPathCall(targetNode, sourceCode)
 				&& targetNode.arguments[0] === memberExpression
 			) {
 				yield * iterateProblemsFromFilename(targetNode, {
@@ -552,7 +560,7 @@ function create(context) {
 
 				if (targetNode.arguments.length === 1 && targetNode.arguments[0] === memberExpression) {
 					if (
-						isCallFileURLToPath(urlParent, sourceCode)
+						isUrlFileURLToPathCall(urlParent, sourceCode)
 						&& urlParent.arguments[0] === targetNode
 					) {
 						// Report `fileURLToPath(new URL(import.meta.url))`
@@ -571,7 +579,7 @@ function create(context) {
 					targetNode.arguments.length === 2
 					&& isParentLiteral(targetNode.arguments[0])
 					&& targetNode.arguments[1] === memberExpression
-					&& isCallFileURLToPath(urlParent, sourceCode)
+					&& isUrlFileURLToPathCall(urlParent, sourceCode)
 					&& urlParent.arguments[0] === targetNode
 				) {
 					// Report `fileURLToPath(new URL(".", import.meta.url))`
@@ -596,7 +604,7 @@ function create(context) {
 			const {parent} = node;
 
 			if (
-				isCallPathDirname(parent, sourceCode)
+				isPathDirnameCall(parent, sourceCode)
 				&& parent.arguments[0] === node
 			) {
 				// Report `path.dirname(filename)`
@@ -632,7 +640,7 @@ function create(context) {
 				/** @type {{parent: import('estree').Node}} */
 				const {parent} = reference.identifier;
 				if (
-					isCallPathDirname(parent, sourceCode)
+					isPathDirnameCall(parent, sourceCode)
 					&& parent.arguments[0] === reference.identifier
 				) {
 					// Report `path.dirname(identifier)`
