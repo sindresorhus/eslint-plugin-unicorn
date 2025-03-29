@@ -556,25 +556,25 @@ function create(context) {
 			// `new URL('.', import.meta.url)`
 			// `new URL('./', import.meta.url)`
 			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
-				const newUrl = targetNode.parent;
+				const urlParent = targetNode.parent;
 
 				// `new URL(import.meta.url)`
 				if (targetNode.arguments.length === 1 && targetNode.arguments[0] === memberExpression) {
 					// `url.fileURLToPath(new URL(import.meta.url))`
 					if (
-						isUrlFileURLToPathCall(newUrl, sourceCode)
-						&& newUrl.arguments[0] === targetNode
+						isUrlFileURLToPathCall(urlParent, sourceCode)
+						&& urlParent.arguments[0] === targetNode
 					) {
-						yield * iterateProblemsFromFilename(newUrl, {
+						yield * iterateProblemsFromFilename(urlParent, {
 							reportFilenameNode: true,
 						});
 						return;
 					}
 
 					// `new URL(import.meta.url).pathname`
-					if (isMemberExpression(newUrl, {property: 'pathname', computed: false, optional: false})) {
+					if (isMemberExpression(urlParent, {property: 'pathname', computed: false, optional: false})) {
 						// Process for `new URL(import.meta.url).pathname`
-						yield * iterateProblemsFromFilename(newUrl);
+						yield * iterateProblemsFromFilename(urlParent);
 						return;
 					}
 				}
@@ -585,10 +585,10 @@ function create(context) {
 					targetNode.arguments.length === 2
 					&& isParentLiteral(targetNode.arguments[0])
 					&& targetNode.arguments[1] === memberExpression
-					&& isUrlFileURLToPathCall(newUrl, sourceCode)
-					&& newUrl.arguments[0] === targetNode
+					&& isUrlFileURLToPathCall(urlParent, sourceCode)
+					&& urlParent.arguments[0] === targetNode
 				) {
-					yield getProblem(newUrl, 'dirname');
+					yield getProblem(urlParent, 'dirname');
 				}
 			}
 
