@@ -556,34 +556,39 @@ function create(context) {
 			// `new URL('.', import.meta.url)`
 			// `new URL('./', import.meta.url)`
 			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1, maximumArguments: 2})) {
-				const urlParent = targetNode.parent;
+				const newUrl = targetNode.parent;
 
+				// `new URL(import.meta.url)`
 				if (targetNode.arguments.length === 1 && targetNode.arguments[0] === memberExpression) {
+					// `url.fileURLToPath(new URL(import.meta.url))`
 					if (
-						isUrlFileURLToPathCall(urlParent, sourceCode)
-						&& urlParent.arguments[0] === targetNode
+						isUrlFileURLToPathCall(newUrl, sourceCode)
+						&& newUrl.arguments[0] === targetNode
 					) {
-						// Report `fileURLToPath(new URL(import.meta.url))`
-						yield * iterateProblemsFromFilename(urlParent, {
+						yield * iterateProblemsFromFilename(newUrl, {
 							reportFilenameNode: true,
 						});
-					} else if (isMemberExpression(urlParent, {property: 'pathname', computed: false, optional: false})) {
-						// Process for `new URL(import.meta.url).pathname`
-						yield * iterateProblemsFromFilename(urlParent);
+						return;
 					}
 
-					return;
+					// `new URL(import.meta.url).pathname`
+					if (isMemberExpression(newUrl, {property: 'pathname', computed: false, optional: false})) {
+						// Process for `new URL(import.meta.url).pathname`
+						yield * iterateProblemsFromFilename(newUrl);
+						return;
+					}
 				}
 
+				// `url.fileURLToPath(new URL(".", import.meta.url))`
+				// `url.fileURLToPath(new URL("./", import.meta.url))`
 				if (
 					targetNode.arguments.length === 2
 					&& isParentLiteral(targetNode.arguments[0])
 					&& targetNode.arguments[1] === memberExpression
-					&& isUrlFileURLToPathCall(urlParent, sourceCode)
-					&& urlParent.arguments[0] === targetNode
+					&& isUrlFileURLToPathCall(newUrl, sourceCode)
+					&& newUrl.arguments[0] === targetNode
 				) {
-					// Report `fileURLToPath(new URL(".", import.meta.url))`
-					yield getProblem(urlParent, 'dirname');
+					yield getProblem(newUrl, 'dirname');
 				}
 			}
 
