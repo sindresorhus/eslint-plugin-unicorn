@@ -606,11 +606,11 @@ function create(context) {
 			/** @type {{parent: import('estree').Node}} */
 			const {parent} = node;
 
+			// `path.dirname(filename)`
 			if (
 				isPathDirnameCall(parent, sourceCode)
 				&& parent.arguments[0] === node
 			) {
-				// Report `path.dirname(filename)`
 				yield getProblem(parent, 'dirname');
 				return;
 			}
