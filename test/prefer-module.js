@@ -376,6 +376,14 @@ test.snapshot({
 			const { ["fileURLToPath"]: fileURLToPath } = process.getBuiltinModule("node:url");
 			const filename = fileURLToPath(import.meta.url);
 		`,
+		outdent`
+			import {fileURLToPath} from "node:url";
+			class Foo {
+				constructor() {
+					const filename = fileURLToPath(new.target.url)
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
