@@ -333,15 +333,15 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 }
 
 /**
- @returns {node is import('estree').SimpleCallExpression}
- */
+@returns {node is import('estree').SimpleCallExpression}
+*/
 function isCallFileURLToPath(node, sourceCode) {
 	return isCallNodeBuiltinModule(node, 'fileURLToPath', ['url', 'node:url'], sourceCode);
 }
 
 /**
- @returns {node is import('estree').SimpleCallExpression}
- */
+@returns {node is import('estree').SimpleCallExpression}
+*/
 function isCallPathDirname(node, sourceCode) {
 	return isCallNodeBuiltinModule(node, 'dirname', ['path', 'node:path'], sourceCode);
 }
