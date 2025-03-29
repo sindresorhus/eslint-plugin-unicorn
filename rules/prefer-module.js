@@ -3,7 +3,7 @@ import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
 import {
-	isStaticRequire, isReferenceIdentifier, isFunction, isMemberExpression,
+	isStaticRequire, isReferenceIdentifier, isFunction, isMemberExpression,	isNewExpression, isMethodCall,
 } from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
@@ -218,17 +218,6 @@ const isImportMeta = node =>
 	&& node.meta.name === 'import'
 	&& node.property.name === 'meta';
 
-/** @returns {node is import('estree').NewExpression} */
-const isNewURL = node =>
-	node.type === 'NewExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'URL';
-
-/** @returns {node is import('estree').MemberExpression} */
-const isAccessPathname = node =>
-	node.type === 'MemberExpression'
-	&& getPropertyName(node) === 'pathname';
-
 function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode) {
 	if (node.type !== 'CallExpression') {
 		return false;
@@ -255,7 +244,13 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 
 			// Check process.getBuiltinModule('x')
 			return (
-				isMemberExpression(node.callee, {property: 'getBuiltinModule', object: 'process'})
+				isMethodCall(node, {
+					object: 'process',
+					method: 'getBuiltinModule',
+					argumentsLength: 1,
+					optionalMember: false,
+					optionalCall: false,
+				})
 				&& isModuleLiteral(node.arguments[0])
 			);
 		}
@@ -299,7 +294,12 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 		/** @type {{parent?: import('estree').Node}} */
 		const {parent} = node;
 		if (parent.type === 'VariableDeclarator') {
-			if (!parent.init || parent.id !== node) {
+			if (
+				!parent.init
+				|| parent.id !== node
+				|| parent.parent.type !== 'VariableDeclaration'
+				|| parent.parent.kind !== 'const'
+			) {
 				return false;
 			}
 
@@ -528,7 +528,7 @@ function create(context) {
 				return;
 			}
 
-			if (isNewURL(targetNode, sourceCode)) {
+			if (isNewExpression(targetNode, {name: 'URL', minimumArguments: 1})) {
 				const urlParent = targetNode.parent;
 
 				if (targetNode.arguments[0] === parent) {
@@ -540,7 +540,7 @@ function create(context) {
 						yield * iterateProblemsFromFilename(urlParent, {
 							reportFilenameNode: true,
 						});
-					} else if (isAccessPathname(urlParent)) {
+					} else if (isMemberExpression(urlParent, {property: 'pathname'})) {
 						// Process for `new URL(import.meta.url).pathname`
 						yield * iterateProblemsFromFilename(urlParent);
 					}
@@ -555,7 +555,7 @@ function create(context) {
 					&& urlParent.arguments[0] === targetNode
 				) {
 					// Report `fileURLToPath(new URL(".", import.meta.url))`
-					yield buildProblem(urlParent, 'dirname');
+					yield getProblem(urlParent, 'dirname');
 				}
 			}
 
@@ -580,15 +580,21 @@ function create(context) {
 				&& parent.arguments[0] === node
 			) {
 				// Report `path.dirname(filename)`
-				yield buildProblem(parent, 'dirname');
+				yield getProblem(parent, 'dirname');
 				return;
 			}
 
 			if (reportFilenameNode) {
-				yield buildProblem(node, 'filename');
+				yield getProblem(node, 'filename');
 			}
 
-			if (parent.type !== 'VariableDeclarator' || parent.init !== node || parent.id.type !== 'Identifier') {
+			if (
+				parent.type !== 'VariableDeclarator'
+				|| parent.init !== node
+				|| parent.id.type !== 'Identifier'
+				|| parent.parent.type !== 'VariableDeclaration'
+				|| parent.parent.kind !== 'const'
+			) {
 				return;
 			}
 
@@ -610,7 +616,7 @@ function create(context) {
 					&& parent.arguments[0] === reference.identifier
 				) {
 					// Report `path.dirname(identifier)`
-					yield buildProblem(parent, 'dirname');
+					yield getProblem(parent, 'dirname');
 				}
 			}
 		}
@@ -619,11 +625,10 @@ function create(context) {
 		 @param { import('estree').Node} node
 		 @param {'dirname' | 'filename'} name
 		 */
-		function buildProblem(node, name) {
+		function getProblem(node, name) {
 			return {
 				node,
 				messageId: name === 'dirname' ? ERROR_CALC_DIRNAME : ERROR_CALC_FILENAME,
-				data: {name},
 				fix: fixer =>
 					fixer.replaceText(node, `import.meta.${name}`),
 			};
