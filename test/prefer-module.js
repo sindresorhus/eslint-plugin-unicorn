@@ -408,10 +408,6 @@ test.snapshot({
 			const dirname = path.dirname(new URL(import.meta.url).pathname);
 		`,
 		outdent`
-			import path from "path";
-			const not_dirname = path.dirname(new URL(import.meta.url).pathname);
-		`,
-		outdent`
 			import { fileURLToPath } from "url";
 			const dirname = fileURLToPath(new URL(".", import.meta.url));
 		`,

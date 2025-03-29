@@ -251,7 +251,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 				return false;
 			}
 
-			// Check process.getBuiltinModule('x')
+			// `process.getBuiltinModule('x')`
 			return (
 				isMethodCall(node, {
 					object: 'process',
