@@ -219,7 +219,7 @@ const isImportMeta = node =>
 	&& node.property.name === 'meta';
 
 function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode) {
-	if (node.type !== 'CallExpression') {
+	if (!(node.type === 'CallExpression' && !node.optional)) {
 		return false;
 	}
 
@@ -230,7 +230,10 @@ function isCallNodeBuiltinModule(node, propertyName, nodeModuleNames, sourceCode
 	/** @param {import('estree').Expression} node */
 	function checkExpression(node, checkKind) {
 		if (node.type === 'MemberExpression') {
-			if (checkKind !== 'property' || getPropertyName(node) !== propertyName) {
+			if (!(
+				checkKind === 'property'
+				&& isMemberExpression(node, {property: propertyName, computed: false, optional: false})
+			)) {
 				return false;
 			}
 

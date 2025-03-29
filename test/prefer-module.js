@@ -352,6 +352,22 @@ test.snapshot({
 			const [path] = process.getBuiltinModule("node:path");
 			const dirname = path.dirname(import.meta.filename);
 		`,
+		outdent`
+			import path from "path";
+			const dirname = path?.dirname(import.meta.filename);
+		`,
+		outdent`
+			import path from "path";
+			const dirname = path[dirname](import.meta.filename);
+		`,
+		outdent`
+			import path from "path";
+			const dirname = path["dirname"](import.meta.filename);
+		`,
+		outdent`
+			import path from "path";
+			const dirname = path.dirname?.(import.meta.filename);
+		`,
 	],
 	invalid: [
 		outdent`
