@@ -323,6 +323,10 @@ test.snapshot({
 		'const filename = fileURLToPath(import.meta.url);', // `fileURLToPath` is not imported
 		'const dirname = path.dirname(import.meta.filename);', // `path` is not imported
 		outdent`
+			import path from "path";
+			const not_dirname = path.dirname(new URL(import.meta.url).pathname); // It is the same as dirname on macOS but returns different results on Windows.
+		`,
+		outdent`
 			// path is not initialized
 			let path;
 			const dirname = path.dirname(import.meta.filename);
@@ -404,10 +408,6 @@ test.snapshot({
 			const dirname = path.dirname(import.meta.filename);
 		`,
 		outdent`
-			import path from "path";
-			const dirname = path.dirname(new URL(import.meta.url).pathname);
-		`,
-		outdent`
 			import { fileURLToPath } from "url";
 			const dirname = fileURLToPath(new URL(".", import.meta.url));
 		`,
@@ -445,11 +445,6 @@ test.snapshot({
 			import path from "node:path";
 			import { fileURLToPath } from "node:url";
 			const __filename = fileURLToPath(import.meta.url);
-			const __dirname = path.dirname(__filename);
-		`,
-		outdent`
-			import path from "node:path";
-			const __filename = new URL(import.meta.url).pathname;
 			const __dirname = path.dirname(__filename);
 		`,
 		outdent`

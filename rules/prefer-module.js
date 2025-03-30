@@ -557,24 +557,15 @@ function create(context) {
 				const urlParent = newUrl.parent;
 
 				// `new URL(import.meta.url)`
-				if (newUrl.arguments.length === 1 && newUrl.arguments[0] === memberExpression) {
-					// `url.fileURLToPath(new URL(import.meta.url))`
-					if (
-						isUrlFileURLToPathCall(urlParent, sourceCode)
-						&& urlParent.arguments[0] === newUrl
-					) {
-						yield * iterateProblemsFromFilename(urlParent, {
-							reportFilenameNode: true,
-						});
-						return;
-					}
+				if (newUrl.arguments.length === 1 && newUrl.arguments[0] === memberExpression // `url.fileURLToPath(new URL(import.meta.url))`
 
-					// `new URL(import.meta.url).pathname`
-					if (isMemberExpression(urlParent, {property: 'pathname', computed: false, optional: false})) {
-						// Process for `new URL(import.meta.url).pathname`
-						yield * iterateProblemsFromFilename(urlParent);
-						return;
-					}
+					&& isUrlFileURLToPathCall(urlParent, sourceCode)
+					&& urlParent.arguments[0] === newUrl
+				) {
+					yield * iterateProblemsFromFilename(urlParent, {
+						reportFilenameNode: true,
+					});
+					return;
 				}
 
 				// `url.fileURLToPath(new URL(".", import.meta.url))`
