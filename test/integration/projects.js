@@ -1,6 +1,7 @@
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const {dirname} = import.meta;
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function normalizeProject(project) {
 	if (typeof project === 'string') {

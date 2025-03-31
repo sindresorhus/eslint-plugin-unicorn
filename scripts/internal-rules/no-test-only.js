@@ -1,6 +1,7 @@
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const messageId = path.basename(import.meta.filename, '.js');
+const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 const config = {
 	create(context) {

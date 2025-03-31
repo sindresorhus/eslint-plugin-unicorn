@@ -3,7 +3,6 @@ import test from 'ava';
 import getDocumentationUrl from '../../rules/utils/get-documentation-url.js';
 import packageJson from '../../package.json' with {type: 'json'};
 
-// eslint-disable-next-line unicorn/prefer-module -- We still use Node.js v18 for CI.
 const filename = url.fileURLToPath(import.meta.url).replace(/\.js$/, '.js');
 
 test('returns the URL of the a named rule\'s documentation', t => {

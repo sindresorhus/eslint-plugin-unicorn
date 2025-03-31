@@ -1,8 +1,9 @@
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {isMethodCall, isLiteral} from '../../rules/ast/index.js';
 import {removeArgument} from '../../rules/fix/index.js';
 
-const messageId = path.basename(import.meta.filename, '.js');
+const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 const config = {
 	create(context) {

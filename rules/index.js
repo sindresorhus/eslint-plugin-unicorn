@@ -86,6 +86,7 @@ import preferDomNodeTextContent from './prefer-dom-node-text-content.js';
 import preferEventTarget from './prefer-event-target.js';
 import preferExportFrom from './prefer-export-from.js';
 import preferGlobalThis from './prefer-global-this.js';
+import preferImportMetaProperties from './prefer-import-meta-properties.js';
 import preferIncludes from './prefer-includes.js';
 import preferJsonParseBuffer from './prefer-json-parse-buffer.js';
 import preferKeyboardEventKey from './prefer-keyboard-event-key.js';
@@ -215,6 +216,7 @@ const rules = {
 	'prefer-event-target': createRule(preferEventTarget, 'prefer-event-target'),
 	'prefer-export-from': createRule(preferExportFrom, 'prefer-export-from'),
 	'prefer-global-this': createRule(preferGlobalThis, 'prefer-global-this'),
+	'prefer-import-meta-properties': createRule(preferImportMetaProperties, 'prefer-import-meta-properties'),
 	'prefer-includes': createRule(preferIncludes, 'prefer-includes'),
 	'prefer-json-parse-buffer': createRule(preferJsonParseBuffer, 'prefer-json-parse-buffer'),
 	'prefer-keyboard-event-key': createRule(preferKeyboardEventKey, 'prefer-keyboard-event-key'),
