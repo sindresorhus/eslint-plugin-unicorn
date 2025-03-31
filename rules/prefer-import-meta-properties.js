@@ -6,11 +6,11 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 
-const ERROR_CALCULATE_DIRNAME = 'error/calculate-dirname';
-const ERROR_CALCULATE_FILENAME = 'error/calculate-filename';
+const ERROR_DIRNAME = 'error/calculate-dirname';
+const ERROR_FILENAME = 'error/calculate-filename';
 const messages = {
-	[ERROR_CALCULATE_DIRNAME]: 'Do not construct dirname.',
-	[ERROR_CALCULATE_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
+	[ERROR_DIRNAME]: 'Do not construct dirname.',
+	[ERROR_FILENAME]: 'Do not construct filename using `fileURLToPath()`.',
 };
 
 const isParentLiteral = node => {
@@ -201,8 +201,10 @@ function create(context) {
 				const urlParent = newUrl.parent;
 
 				// `new URL(import.meta.url)`
-				if (newUrl.arguments.length === 1 && newUrl.arguments[0] === memberExpression // `url.fileURLToPath(new URL(import.meta.url))`
-
+				if (
+					newUrl.arguments.length === 1
+					&& newUrl.arguments[0] === memberExpression
+					// `url.fileURLToPath(new URL(import.meta.url))`
 					&& isUrlFileURLToPathCall(urlParent, sourceCode)
 					&& urlParent.arguments[0] === newUrl
 				) {
@@ -294,7 +296,7 @@ function create(context) {
 		function getProblem(node, name) {
 			return {
 				node,
-				messageId: name === 'dirname' ? ERROR_CALCULATE_DIRNAME : ERROR_CALCULATE_FILENAME,
+				messageId: name === 'dirname' ? ERROR_DIRNAME : ERROR_FILENAME,
 				fix: fixer => fixer.replaceText(node, `import.meta.${name}`),
 			};
 		}

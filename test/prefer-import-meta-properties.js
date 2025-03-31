@@ -14,11 +14,14 @@ test.snapshot({
 		'const url = import.meta.url;',
 		'const dirname = new URL(".", import.meta.url).pathname;',
 		'const filename = new URL(import.meta.url).pathname;',
-		'const filename = fileURLToPath(import.meta.url);', // `fileURLToPath` is not imported
-		'const dirname = path.dirname(import.meta.filename);', // `path` is not imported
+		// `fileURLToPath` is not imported
+		'const filename = fileURLToPath(import.meta.url);',
+		// `path` is not imported
+		'const dirname = path.dirname(import.meta.filename);',
 		outdent`
 			import path from "path";
-			const not_dirname = path.dirname(new URL(import.meta.url).pathname); // It is the same as dirname on macOS but returns different results on Windows.
+			// It is the same as dirname on macOS but returns different results on Windows.
+			const notDirname = path.dirname(new URL(import.meta.url).pathname);
 		`,
 		outdent`
 			// path is not initialized
