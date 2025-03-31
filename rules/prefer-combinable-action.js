@@ -91,13 +91,8 @@ function create(context) {
 					continue;
 				}
 
-				const previousNode = getPreviousNode(secondCall.parent, sourceCode);
-				if (!previousNode || !test(previousNode.expression)) {
-					continue;
-				}
-
-				const firstCall = previousNode.expression;
-				if (!isSameReference(firstCall.callee, secondCall.callee)) {
+				const firstCall = getPreviousNode(secondCall.parent, sourceCode)?.expression;
+				if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
 					continue;
 				}
 
