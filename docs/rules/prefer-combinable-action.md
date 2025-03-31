@@ -7,7 +7,6 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-
 [`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accepts multiple arguments. Multiple calls should be combined into one.
 
 ## Examples
@@ -50,7 +49,7 @@ Type: `object`
 
 Type: `string[]`
 
-Ignore objects, `stream.push`, `this.push`, `this.stream.push` are ignored by default.
+Ignore functions, `stream.push`, `this.push`, `this.stream.push` are ignored by default.
 
 Example:
 
