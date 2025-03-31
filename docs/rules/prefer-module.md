@@ -62,14 +62,6 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 	`export …` should be used in JavaScript modules.
 
-1. Disallows `fileURLToPath(import.meta.url)` and similar operations.
-
-	Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) and [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename) have been introduced in ES modules.
-
-	`fileURLToPath(import.meta.url)` can be replaced by `import.meta.filename`.
-
-	`path.dirname(import.meta.filename)` can be replaced by `import.meta.dirname`.
-
 *`.cjs` files are ignored.*
 
 ## Fail

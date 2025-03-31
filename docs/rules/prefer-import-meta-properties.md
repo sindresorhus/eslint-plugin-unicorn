@@ -14,8 +14,6 @@ Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.
 
 This rule replaces those codes written in the legacy way with `import.meta.{dirname,filename}`.
 
-<!-- Remove this comment, add more detailed description. -->
-
 ## Examples
 
 ```js
