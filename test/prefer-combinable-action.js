@@ -253,6 +253,14 @@ test.snapshot({
 			foo.classList.add("foo");
 			foo?.classList.add("bar");
 		`,
+		outdent`
+			foo.notClassList.add("foo");
+			foo.notClassList.add("bar");
+		`,
+		outdent`
+			classList.add("foo");
+			classList.add("bar");
+		`,
 		// Not `ExpressionStatement`
 		outdent`
 			const _ = foo.classList.add("foo");
