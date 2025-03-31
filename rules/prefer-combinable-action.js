@@ -97,7 +97,7 @@ function create(context) {
 				}
 
 				const firstCall = previousNode.expression;
-				if (!isSameReference(secondCall.callee, secondCall.callee)) {
+				if (!isSameReference(firstCall.callee, secondCall.callee)) {
 					continue;
 				}
 
