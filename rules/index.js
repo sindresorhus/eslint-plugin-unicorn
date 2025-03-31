@@ -24,7 +24,6 @@ import noAnonymousDefaultExport from './no-anonymous-default-export.js';
 import noArrayCallbackReference from './no-array-callback-reference.js';
 import noArrayForEach from './no-array-for-each.js';
 import noArrayMethodThisArgument from './no-array-method-this-argument.js';
-import noArrayPushPush from './no-array-push-push.js';
 import noArrayReduce from './no-array-reduce.js';
 import noAwaitExpressionMember from './no-await-expression-member.js';
 import noAwaitInPromiseMethods from './no-await-in-promise-methods.js';
@@ -79,6 +78,7 @@ import preferArraySome from './prefer-array-some.js';
 import preferAt from './prefer-at.js';
 import preferBlobReadingMethods from './prefer-blob-reading-methods.js';
 import preferCodePoint from './prefer-code-point.js';
+import preferCombinableAction from './prefer-combinable-action.js';
 import preferDateNow from './prefer-date-now.js';
 import preferDefaultParameters from './prefer-default-parameters.js';
 import preferDomNodeAppend from './prefer-dom-node-append.js';
@@ -156,7 +156,6 @@ const rules = {
 	'no-array-callback-reference': createRule(noArrayCallbackReference, 'no-array-callback-reference'),
 	'no-array-for-each': createRule(noArrayForEach, 'no-array-for-each'),
 	'no-array-method-this-argument': createRule(noArrayMethodThisArgument, 'no-array-method-this-argument'),
-	'no-array-push-push': createRule(noArrayPushPush, 'no-array-push-push'),
 	'no-array-reduce': createRule(noArrayReduce, 'no-array-reduce'),
 	'no-await-expression-member': createRule(noAwaitExpressionMember, 'no-await-expression-member'),
 	'no-await-in-promise-methods': createRule(noAwaitInPromiseMethods, 'no-await-in-promise-methods'),
@@ -211,6 +210,7 @@ const rules = {
 	'prefer-at': createRule(preferAt, 'prefer-at'),
 	'prefer-blob-reading-methods': createRule(preferBlobReadingMethods, 'prefer-blob-reading-methods'),
 	'prefer-code-point': createRule(preferCodePoint, 'prefer-code-point'),
+	'prefer-combinable-action': createRule(preferCombinableAction, 'prefer-combinable-action'),
 	'prefer-date-now': createRule(preferDateNow, 'prefer-date-now'),
 	'prefer-default-parameters': createRule(preferDefaultParameters, 'prefer-default-parameters'),
 	'prefer-dom-node-append': createRule(preferDomNodeAppend, 'prefer-dom-node-append'),
