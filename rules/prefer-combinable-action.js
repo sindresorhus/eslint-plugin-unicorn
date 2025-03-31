@@ -8,7 +8,7 @@ import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js
 const ERROR = 'error/array-push';
 const SUGGESTION = 'suggestion';
 const messages = {
-	[ERROR]: 'Do not call `` multiple times.',
+	[ERROR]: 'Do not call `{{description}}` multiple times.',
 	[SUGGESTION]: 'Merge with previous one.',
 };
 
@@ -60,14 +60,14 @@ const cases = [
 	},
 	{
 		description: 'importScripts()',
-		test: node => isCallExpression(node, {
+		test: callExpression => isCallExpression(callExpression, {
 			name: 'importScripts',
 			optional: false,
 		}),
 	},
 ].map(problematicalCase => ({
 	...problematicalCase,
-	test: callExpression => isExpressionStatement(callExpression.parent) && problematicalCase.test(callExpression)
+	test: callExpression => isExpressionStatement(callExpression) && problematicalCase.test(callExpression),
 }));
 
 function create(context) {
@@ -81,7 +81,7 @@ function create(context) {
 
 	return {
 		* CallExpression(secondCall) {
-			for (const {test, ignore = []} of cases) {
+			for (const {description, test, ignore = []} of cases) {
 				if (!test(secondCall)) {
 					continue;
 				}
@@ -103,8 +103,9 @@ function create(context) {
 
 				const secondCallArguments = secondCall.arguments;
 				const problem = {
-					node: secondCall.callee.property,
+					node: secondCall.callee.type === 'Identifier' ? secondCall.callee : secondCall.callee.property,
 					messageId: ERROR,
+					data: {description},
 				};
 
 				const fix = function * (fixer) {
