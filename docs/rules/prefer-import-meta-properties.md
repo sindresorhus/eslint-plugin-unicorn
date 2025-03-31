@@ -12,13 +12,13 @@ Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.
 > `import.meta.filename` is the same as the `url.fileURLToPath()` of the `import.meta.url`.\
 > `import.meta.dirname` is the same as the `path.dirname()` of the `import.meta.filename`.
 
-This rule replaces those codes written in the legacy way with `import.meta.{dirname,filename}`.
+This rule replaces legacy patterns with `import.meta.{dirname,filename}`.
 
 ## Examples
 
 ```js
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import path from 'node:path';
+import {fileURLToPath} from "node:url";
 
 // ❌
 const filename = fileURLToPath(import.meta.url);
@@ -28,13 +28,13 @@ const filename = import.meta.filename;
 ```
 
 ```js
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 // ❌
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const dirname = path.dirname(import.meta.filename);
-const dirname = fileURLToPath(new URL(".", import.meta.url));
+const dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // ✅
 const dirname = import.meta.dirname;
