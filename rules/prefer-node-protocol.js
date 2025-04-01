@@ -1,5 +1,8 @@
 import isBuiltinModule from 'is-builtin-module';
-import isStaticRequire from './ast/is-static-require.js';
+import {
+	isStaticRequire,
+	isMethodCall,
+} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-node-protocol';
 const messages = {
@@ -19,7 +22,16 @@ const create = context => ({
 				&& node.parent.source === node
 			)
 			|| (
-				isStaticRequire(node.parent)
+				(
+					isMethodCall(node.parent, {
+						object: 'process',
+						method: 'getBuiltinModule',
+						argumentsLength: 1,
+						optionalCall: false,
+						optionalMember: false,
+					})
+					|| isStaticRequire(node.parent)
+				)
 				&& node.parent.arguments[0] === node
 			)
 		)) {

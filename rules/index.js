@@ -37,7 +37,6 @@ import noInstanceofBuiltins from './no-instanceof-builtins.js';
 import noInvalidFetchOptions from './no-invalid-fetch-options.js';
 import noInvalidRemoveEventListener from './no-invalid-remove-event-listener.js';
 import noKeywordPrefix from './no-keyword-prefix.js';
-import noLengthAsSliceEnd from './no-length-as-slice-end.js';
 import noLonelyIf from './no-lonely-if.js';
 import noMagicArrayFlatDepth from './no-magic-array-flat-depth.js';
 import noNamedDefault from './no-named-default.js';
@@ -54,8 +53,11 @@ import noStaticOnlyClass from './no-static-only-class.js';
 import noThenable from './no-thenable.js';
 import noThisAssignment from './no-this-assignment.js';
 import noTypeofUndefined from './no-typeof-undefined.js';
+import noUnnecessaryArrayFlatDepth from './no-unnecessary-array-flat-depth.js';
+import noUnnecessaryArraySpliceCount from './no-unnecessary-array-splice-count.js';
 import noUnnecessaryAwait from './no-unnecessary-await.js';
 import noUnnecessaryPolyfills from './no-unnecessary-polyfills.js';
+import noUnnecessarySliceEnd from './no-unnecessary-slice-end.js';
 import noUnreadableArrayDestructuring from './no-unreadable-array-destructuring.js';
 import noUnreadableIife from './no-unreadable-iife.js';
 import noUnusedProperties from './no-unused-properties.js';
@@ -86,6 +88,7 @@ import preferDomNodeTextContent from './prefer-dom-node-text-content.js';
 import preferEventTarget from './prefer-event-target.js';
 import preferExportFrom from './prefer-export-from.js';
 import preferGlobalThis from './prefer-global-this.js';
+import preferImportMetaProperties from './prefer-import-meta-properties.js';
 import preferIncludes from './prefer-includes.js';
 import preferJsonParseBuffer from './prefer-json-parse-buffer.js';
 import preferKeyboardEventKey from './prefer-keyboard-event-key.js';
@@ -166,7 +169,6 @@ const rules = {
 	'no-invalid-fetch-options': createRule(noInvalidFetchOptions, 'no-invalid-fetch-options'),
 	'no-invalid-remove-event-listener': createRule(noInvalidRemoveEventListener, 'no-invalid-remove-event-listener'),
 	'no-keyword-prefix': createRule(noKeywordPrefix, 'no-keyword-prefix'),
-	'no-length-as-slice-end': createRule(noLengthAsSliceEnd, 'no-length-as-slice-end'),
 	'no-lonely-if': createRule(noLonelyIf, 'no-lonely-if'),
 	'no-magic-array-flat-depth': createRule(noMagicArrayFlatDepth, 'no-magic-array-flat-depth'),
 	'no-named-default': createRule(noNamedDefault, 'no-named-default'),
@@ -183,8 +185,11 @@ const rules = {
 	'no-thenable': createRule(noThenable, 'no-thenable'),
 	'no-this-assignment': createRule(noThisAssignment, 'no-this-assignment'),
 	'no-typeof-undefined': createRule(noTypeofUndefined, 'no-typeof-undefined'),
+	'no-unnecessary-array-flat-depth': createRule(noUnnecessaryArrayFlatDepth, 'no-unnecessary-array-flat-depth'),
+	'no-unnecessary-array-splice-count': createRule(noUnnecessaryArraySpliceCount, 'no-unnecessary-array-splice-count'),
 	'no-unnecessary-await': createRule(noUnnecessaryAwait, 'no-unnecessary-await'),
 	'no-unnecessary-polyfills': createRule(noUnnecessaryPolyfills, 'no-unnecessary-polyfills'),
+	'no-unnecessary-slice-end': createRule(noUnnecessarySliceEnd, 'no-unnecessary-slice-end'),
 	'no-unreadable-array-destructuring': createRule(noUnreadableArrayDestructuring, 'no-unreadable-array-destructuring'),
 	'no-unreadable-iife': createRule(noUnreadableIife, 'no-unreadable-iife'),
 	'no-unused-properties': createRule(noUnusedProperties, 'no-unused-properties'),
@@ -215,6 +220,7 @@ const rules = {
 	'prefer-event-target': createRule(preferEventTarget, 'prefer-event-target'),
 	'prefer-export-from': createRule(preferExportFrom, 'prefer-export-from'),
 	'prefer-global-this': createRule(preferGlobalThis, 'prefer-global-this'),
+	'prefer-import-meta-properties': createRule(preferImportMetaProperties, 'prefer-import-meta-properties'),
 	'prefer-includes': createRule(preferIncludes, 'prefer-includes'),
 	'prefer-json-parse-buffer': createRule(preferJsonParseBuffer, 'prefer-json-parse-buffer'),
 	'prefer-keyboard-event-key': createRule(preferKeyboardEventKey, 'prefer-keyboard-event-key'),

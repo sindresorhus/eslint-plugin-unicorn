@@ -45,6 +45,7 @@ const config = [
 		],
 		rules: {
 			'unicorn/prefer-module': 'off',
+			'unicorn/prefer-import-meta-properties': 'off', // We can enable this rule when we drop support for Node.js v18.
 		},
 	},
 ];

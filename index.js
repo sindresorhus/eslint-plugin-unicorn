@@ -9,6 +9,10 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
 		replacedBy: ['unicorn/no-instanceof-builtins'],
 	},
+	'no-length-as-slice-end': {
+		message: 'Replaced by `unicorn/no-unnecessary-slice-end` which covers more cases.',
+		replacedBy: ['unicorn/no-unnecessary-slice-end'],
+	},
 });
 
 const externalRules = {

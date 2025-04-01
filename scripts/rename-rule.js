@@ -45,8 +45,7 @@ async function renameRule(from, to) {
 		`rules/${to}.js`,
 		`test/${to}.js`,
 		`test/snapshots/${to}.js.md`,
-	].map(file => resolveFile(file))
-	) {
+	].map(file => resolveFile(file))) {
 		if (!fs.existsSync(file)) {
 			continue;
 		}

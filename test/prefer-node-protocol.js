@@ -92,6 +92,29 @@ test.snapshot({
 	],
 });
 
+// `process.getBuiltinModule`
+test.snapshot({
+	valid: [
+		'const fs = process.getBuiltinModule("node:fs")',
+		'const fs = process.getBuiltinModule?.("fs")',
+		'const fs = process?.getBuiltinModule("fs")',
+		'const fs = process.notGetBuiltinModule("fs")',
+		'const fs = notProcess.getBuiltinModule("fs")',
+		'const fs = process.getBuiltinModule("fs", extra)',
+		'const fs = process.getBuiltinModule(...["fs"])',
+		'const fs = process.getBuiltinModule()',
+		'const fs = process.getBuiltinModule("unicorn")',
+		// Not checking this to avoid false positive
+		outdent`
+			import {getBuiltinModule} from 'node:process';
+			const fs = getBuiltinModule("fs");
+		`,
+	],
+	invalid: [
+		'const fs = process.getBuiltinModule("fs")',
+	],
+});
+
 test.babel({
 	valid: [
 		'export fs from "node:fs";',
