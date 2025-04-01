@@ -5,12 +5,13 @@ const directoryCache = new Map();
 const dataCache = new Map();
 
 /**
- Finds the closest package.json file to the given directory and returns its path and contents.
- Caches the result for future lookups.
+Finds the closest package.json file to the given directory and returns its path and contents.
 
- @param dirname {string}
- @return {{ path: string, packageJson: Record<string, unknown> } | undefined}
- */
+Caches the result for future lookups.
+
+@param dirname {string}
+@return {{ path: string, packageJson: Record<string, unknown> } | undefined}
+*/
 export function readPackageJson(dirname) {
 	if (directoryCache.has(dirname)) {
 		const packageJsonPath = directoryCache.get(dirname);
