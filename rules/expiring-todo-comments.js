@@ -1,6 +1,7 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
-import {readPackageUpSync} from 'read-package-up';
+import * as pkg from 'empathic/package';
 import semver from 'semver';
 import * as ci from 'ci-info';
 import getBuiltinRule from './utils/get-builtin-rule.js';
@@ -50,20 +51,20 @@ const messages = {
 
 /** @param {string} dirname */
 function getPackageHelpers(dirname) {
-	// We don't need to normalize the package.json data, because we are only using 2 properties and those 2 properties
-	// aren't validated by the normalization. But when this plugin is used in a monorepo, the name field in the
-	// package.json can be invalid and would make this plugin throw an error. See also #1871
-	/** @type {readPkgUp.ReadResult | undefined} */
-	let packageResult;
-	try {
-		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
-	} catch {
-		// This can happen if package.json files have comments in them etc.
-		packageResult = undefined;
-	}
+	let hasPackage = false;
+	let packageJson = {};
 
-	const hasPackage = Boolean(packageResult);
-	const packageJson = packageResult ? packageResult.packageJson : {};
+	/** @type {string | undefined} */
+	const packageJsonPath = pkg.up({cwd: dirname});
+	if (packageJsonPath) {
+		try {
+			const contents = fs.readFileSync(packageJsonPath, 'utf8');
+			packageJson = JSON.parse(contents);
+			hasPackage = true;
+		} catch {
+			// This can happen if package.json files have comments in them etc.
+		}
+	}
 
 	const packageDependencies = {
 		...packageJson.dependencies,
@@ -187,7 +188,10 @@ function getPackageHelpers(dirname) {
 	}
 
 	return {
-		packageResult,
+		packageResult: {
+			packageJson,
+			path: packageJsonPath,
+		},
 		hasPackage,
 		packageJson,
 		packageDependencies,

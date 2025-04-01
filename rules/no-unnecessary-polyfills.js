@@ -1,5 +1,6 @@
+import fs from 'node:fs';
 import path from 'node:path';
-import {readPackageUpSync} from 'read-package-up';
+import * as pkg from 'empathic/package';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from './utils/lodash.js';
 import isStaticRequire from './ast/is-static-require.js';
@@ -57,18 +58,25 @@ function getTargets(options, dirname) {
 		return options.targets;
 	}
 
-	/** @type {readPkgUp.ReadResult | undefined} */
-	let packageResult;
-	try {
-		// It can fail if, for example, the package.json file has comments.
-		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
-	} catch {}
+	/** @type {string | undefined} */
+	const packageJsonPath = pkg.up({cwd: dirname});
+	/** @type {PackageJson | undefined} */
+	let packageJson;
 
-	if (!packageResult) {
+	if (packageJsonPath) {
+		try {
+			const contents = fs.readFileSync(packageJsonPath, 'utf8');
+			packageJson = JSON.parse(contents);
+		} catch {
+			// This can happen if package.json files have comments in them etc.
+		}
+	}
+
+	if (!packageJson) {
 		return;
 	}
 
-	const {browserslist, engines} = packageResult.packageJson;
+	const {browserslist, engines} = packageJson;
 	return browserslist ?? engines;
 }
 
