@@ -175,7 +175,7 @@ function getPackageHelpers(dirname) {
 	}
 
 	return {
-		packageJsonResult,
+		packageResult: packageJsonResult,
 		hasPackage,
 		packageJson: packageJsonResult?.packageJson ?? {},
 		packageDependencies,
