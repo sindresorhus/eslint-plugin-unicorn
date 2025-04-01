@@ -1,10 +1,9 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
-import * as pkg from 'empathic/package';
 import semver from 'semver';
 import * as ci from 'ci-info';
 import getBuiltinRule from './utils/get-builtin-rule.js';
+import {readPackageJson} from './shared/package-json.js';
 
 const baseRule = getBuiltinRule('no-warning-comments');
 
@@ -51,24 +50,12 @@ const messages = {
 
 /** @param {string} dirname */
 function getPackageHelpers(dirname) {
-	let hasPackage = false;
-	let packageJson = {};
-
-	/** @type {string | undefined} */
-	const packageJsonPath = pkg.up({cwd: dirname});
-	if (packageJsonPath) {
-		try {
-			const contents = fs.readFileSync(packageJsonPath, 'utf8');
-			packageJson = JSON.parse(contents);
-			hasPackage = true;
-		} catch {
-			// This can happen if package.json files have comments in them etc.
-		}
-	}
+	const packageJsonResult = readPackageJson(dirname);
+	const hasPackage = Boolean(packageJsonResult);
 
 	const packageDependencies = {
-		...packageJson.dependencies,
-		...packageJson.devDependencies,
+		...packageJsonResult.packageJson.dependencies,
+		...packageJsonResult.packageJson.devDependencies,
 	};
 
 	function parseTodoWithArguments(string, {terms}) {
@@ -188,12 +175,9 @@ function getPackageHelpers(dirname) {
 	}
 
 	return {
-		packageResult: {
-			packageJson,
-			path: packageJsonPath,
-		},
+		packageJsonResult,
 		hasPackage,
-		packageJson,
+		packageJson: packageJsonResult?.packageJson ?? {},
 		packageDependencies,
 		parseArgument,
 		parseTodoMessage,

@@ -1,9 +1,8 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import * as pkg from 'empathic/package';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from './utils/lodash.js';
 import isStaticRequire from './ast/is-static-require.js';
+import {readPackageJson} from './shared/package-json.js';
 
 const {data: compatData, entries: coreJsEntries} = coreJsCompat;
 
@@ -58,25 +57,13 @@ function getTargets(options, dirname) {
 		return options.targets;
 	}
 
-	/** @type {string | undefined} */
-	const packageJsonPath = pkg.up({cwd: dirname});
-	/** @type {PackageJson | undefined} */
-	let packageJson;
+	const packageJsonResult = readPackageJson(dirname);
 
-	if (packageJsonPath) {
-		try {
-			const contents = fs.readFileSync(packageJsonPath, 'utf8');
-			packageJson = JSON.parse(contents);
-		} catch {
-			// This can happen if package.json files have comments in them etc.
-		}
-	}
-
-	if (!packageJson) {
+	if (!packageJsonResult) {
 		return;
 	}
 
-	const {browserslist, engines} = packageJson;
+	const {browserslist, engines} = packageJsonResult.packageJson;
 	return browserslist ?? engines;
 }
 
