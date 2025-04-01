@@ -37,7 +37,7 @@ export function readPackageJson(dirname) {
 
 	let packageJson;
 	try {
-		const contents = fs.readFileSync(packageJsonPath, 'utf8');
+		const contents = fs.readFileSync(packageJsonPath);
 		packageJson = JSON.parse(contents);
 	} catch {
 		// This can happen if package.json files have comments in them etc.
