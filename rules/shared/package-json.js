@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import * as pkg from 'empathic/package';
+import {findUpSync} from 'find-up-simple';
 
 const directoryCache = new Map();
 const dataCache = new Map();
@@ -23,7 +23,7 @@ export function readPackageJson(dirname) {
 		}
 	}
 
-	const packageJsonPath = pkg.up({cwd: dirname});
+	const packageJsonPath = findUpSync('package.json', {cwd: dirname, type: 'file'});
 	if (!packageJsonPath) {
 		return;
 	}
