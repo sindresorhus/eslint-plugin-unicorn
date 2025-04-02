@@ -78,7 +78,6 @@ import preferArraySome from './prefer-array-some.js';
 import preferAt from './prefer-at.js';
 import preferBlobReadingMethods from './prefer-blob-reading-methods.js';
 import preferCodePoint from './prefer-code-point.js';
-import preferCombinableAction from './prefer-combinable-action.js';
 import preferDateNow from './prefer-date-now.js';
 import preferDefaultParameters from './prefer-default-parameters.js';
 import preferDomNodeAppend from './prefer-dom-node-append.js';
@@ -110,6 +109,7 @@ import preferReflectApply from './prefer-reflect-apply.js';
 import preferRegexpTest from './prefer-regexp-test.js';
 import preferSetHas from './prefer-set-has.js';
 import preferSetSize from './prefer-set-size.js';
+import preferSingleCall from './prefer-single-call.js';
 import preferSpread from './prefer-spread.js';
 import preferStringRaw from './prefer-string-raw.js';
 import preferStringReplaceAll from './prefer-string-replace-all.js';
@@ -210,7 +210,6 @@ const rules = {
 	'prefer-at': createRule(preferAt, 'prefer-at'),
 	'prefer-blob-reading-methods': createRule(preferBlobReadingMethods, 'prefer-blob-reading-methods'),
 	'prefer-code-point': createRule(preferCodePoint, 'prefer-code-point'),
-	'prefer-combinable-action': createRule(preferCombinableAction, 'prefer-combinable-action'),
 	'prefer-date-now': createRule(preferDateNow, 'prefer-date-now'),
 	'prefer-default-parameters': createRule(preferDefaultParameters, 'prefer-default-parameters'),
 	'prefer-dom-node-append': createRule(preferDomNodeAppend, 'prefer-dom-node-append'),
@@ -242,6 +241,7 @@ const rules = {
 	'prefer-regexp-test': createRule(preferRegexpTest, 'prefer-regexp-test'),
 	'prefer-set-has': createRule(preferSetHas, 'prefer-set-has'),
 	'prefer-set-size': createRule(preferSetSize, 'prefer-set-size'),
+	'prefer-single-call': createRule(preferSingleCall, 'prefer-single-call'),
 	'prefer-spread': createRule(preferSpread, 'prefer-spread'),
 	'prefer-string-raw': createRule(preferStringRaw, 'prefer-string-raw'),
 	'prefer-string-replace-all': createRule(preferStringReplaceAll, 'prefer-string-replace-all'),
