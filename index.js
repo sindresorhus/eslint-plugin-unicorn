@@ -14,8 +14,8 @@ const deprecatedRules = createDeprecatedRules({
 		replacedBy: ['unicorn/no-unnecessary-slice-end'],
 	},
 	'no-array-push-push': {
-		message: 'Replaced by `unicorn/prefer-combinable-action` which covers more cases.',
-		replacedBy: ['unicorn/prefer-combinable-action'],
+		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
+		replacedBy: ['unicorn/prefer-single-call'],
 	},
 });
 

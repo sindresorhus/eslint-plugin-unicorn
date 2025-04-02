@@ -55,7 +55,7 @@ Example:
 
 ```js
 {
-	'unicorn/prefer-combinable-action': [
+	'unicorn/prefer-single-call': [
 		'error',
 		{
 			ignore: [
@@ -68,7 +68,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-combinable-action: ["error", {"ignore": ["readable"]}]
+// eslint unicorn/prefer-single-call: ["error", {"ignore": ["readable"]}]
 import {Readable} from 'node:stream';
 
 const readable = new Readable();

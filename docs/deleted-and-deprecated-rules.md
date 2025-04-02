@@ -8,7 +8,7 @@ Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which co
 
 ### no-array-push-push
 
-Replaced by [`prefer-combinable-action`](rules/prefer-combinable-action.md) which covers more cases.
+Replaced by [`prefer-single-call`](rules/prefer-single-call.md) which covers more cases.
 
 ### no-length-as-slice-end
 
