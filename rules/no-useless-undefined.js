@@ -106,6 +106,61 @@ const includesUndefined = (typeAnnotation) => {
 	}
 };
 
+const hasMixedReturns = (functionNode) => {
+	let hasNonUndefined = false;
+	let hasExplicitUndefined = false;
+	const stack = [];
+
+	if (
+		functionNode.type === "ArrowFunctionExpression" &&
+		functionNode.body &&
+		functionNode.body.type !== "BlockStatement"
+	) {
+		if (
+			functionNode.body.type === "Identifier" &&
+			functionNode.body.name === "undefined"
+		) {
+			hasExplicitUndefined = true;
+		} else {
+			hasNonUndefined = true;
+		}
+	} else {
+		stack.push(functionNode.body);
+		while (stack.length) {
+			const node = stack.pop();
+			if (!node || typeof node !== "object") continue;
+			if (node.type === "ReturnStatement") {
+				if (node.argument) {
+					if (
+						node.argument.type === "Identifier" &&
+						node.argument.name === "undefined"
+					) {
+						hasExplicitUndefined = true;
+					} else {
+						hasNonUndefined = true;
+					}
+				}
+			}
+			for (const key in node) {
+				if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+				// Skip the parent property to avoid cycles.
+				if (key === "parent") continue;
+				const child = node[key];
+				if (Array.isArray(child)) {
+					for (let i = child.length - 1; i >= 0; i--) {
+						stack.push(child[i]);
+					}
+				} else if (child && typeof child.type === "string") {
+					stack.push(child);
+				}
+			}
+			if (hasExplicitUndefined && hasNonUndefined) break;
+		}
+	}
+
+	return hasExplicitUndefined && hasNonUndefined;
+};
+
 const isFunctionBindCall = node =>
 	!node.optional
 	&& node.callee.type === 'MemberExpression'
