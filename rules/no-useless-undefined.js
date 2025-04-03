@@ -175,11 +175,24 @@ const isTypeScriptFile = context =>
 const create = context => {
 	const {sourceCode} = context;
 
+	const options = {
+		checkArguments: true,
+		checkArrowFunctionBody: true,
+		allowMixedReturns: false,
+		...context.options[0],
+	};
+
 	const getProblem = (node, fix, checkFunctionReturnType) => {
 		if (checkFunctionReturnType) {
-			const functionNode = getFunction(sourceCode.getScope(node));
-			if (functionNode?.returnType) {
-				return;
+			const functionNode = getFunctionNode(node);
+			if (functionNode) {
+				const returnType = functionNode.returnType || (functionNode.value && functionNode.value.returnType);
+				if (returnType && includesUndefined(returnType.typeAnnotation)) {
+					return;
+				}
+				if (options.allowMixedReturns && hasMixedReturns(functionNode, sourceCode)) {
+					return;
+				}
 			}
 		}
 
@@ -188,12 +201,6 @@ const create = context => {
 			messageId,
 			fix,
 		};
-	};
-
-	const options = {
-		checkArguments: true,
-		checkArrowFunctionBody: true,
-		...context.options[0],
 	};
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
@@ -370,6 +377,9 @@ const schema = [
 				type: 'boolean',
 			},
 			checkArrowFunctionBody: {
+				type: 'boolean',
+			},
+			allowMixedReturns: {
 				type: 'boolean',
 			},
 		},
