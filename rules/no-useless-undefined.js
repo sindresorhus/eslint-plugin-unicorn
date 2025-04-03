@@ -94,6 +94,18 @@ const getFunctionNode = (node) => {
 	return null;
 };
 
+const includesUndefined = (typeAnnotation) => {
+	if (!typeAnnotation) return false;
+	switch (typeAnnotation.type) {
+		case "TSUnionType":
+			return typeAnnotation.types.some((t) => includesUndefined(t));
+		case "TSUndefinedKeyword":
+			return true;
+		default:
+			return false;
+	}
+};
+
 const isFunctionBindCall = node =>
 	!node.optional
 	&& node.callee.type === 'MemberExpression'
