@@ -76,6 +76,24 @@ const getFunction = scope => {
 	}
 };
 
+const getFunctionNode = (node) => {
+	let current = node.parent;
+	while (current) {
+		if (
+			current.type === "FunctionDeclaration" ||
+			current.type === "FunctionExpression" ||
+			current.type === "ArrowFunctionExpression"
+		) {
+			return current;
+		}
+		if (current.type === "MethodDefinition") {
+			return current.value;
+		}
+		current = current.parent;
+	}
+	return null;
+};
+
 const isFunctionBindCall = node =>
 	!node.optional
 	&& node.callee.type === 'MemberExpression'
