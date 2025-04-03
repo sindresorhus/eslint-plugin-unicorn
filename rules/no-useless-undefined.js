@@ -68,14 +68,6 @@ const shouldIgnore = node => {
 		|| name === 'ref';
 };
 
-const getFunction = scope => {
-	for (; scope; scope = scope.upper) {
-		if (scope.type === 'function') {
-			return scope.block;
-		}
-	}
-};
-
 const getFunctionNode = (node) => {
 	let current = node.parent;
 	while (current) {
