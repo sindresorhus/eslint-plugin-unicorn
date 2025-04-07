@@ -26,6 +26,8 @@ export function readPackageJson(dirname) {
 
 	const packageJsonPath = findUpSync('package.json', {cwd: dirname, type: 'file'});
 	if (!packageJsonPath) {
+		directoryCache.set(dirname, undefined);
+
 		return;
 	}
 
