@@ -35,7 +35,7 @@ export function readPackageJson(dirname) {
 		} catch {
 			// This can happen if package.json files have comments in them etc.
 			return;
-		}	
+		}
 	}
 
 	return {path: packageJsonPath, packageJson};
