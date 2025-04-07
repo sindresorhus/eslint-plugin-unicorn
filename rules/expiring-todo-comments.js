@@ -51,11 +51,12 @@ const messages = {
 /** @param {string} dirname */
 function getPackageHelpers(dirname) {
 	const packageJsonResult = readPackageJson(dirname);
+	const packageJson = packageJsonResult?.packageJson ?? {};
 	const hasPackage = Boolean(packageJsonResult);
 
 	const packageDependencies = {
-		...packageJsonResult.packageJson.dependencies,
-		...packageJsonResult.packageJson.devDependencies,
+		...packageJson.dependencies,
+		...packageJson.devDependencies,
 	};
 
 	function parseTodoWithArguments(string, {terms}) {
@@ -177,7 +178,7 @@ function getPackageHelpers(dirname) {
 	return {
 		packageResult: packageJsonResult,
 		hasPackage,
-		packageJson: packageJsonResult?.packageJson ?? {},
+		packageJson,
 		packageDependencies,
 		parseArgument,
 		parseTodoMessage,
