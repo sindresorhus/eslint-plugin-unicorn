@@ -13,42 +13,30 @@ Caches the result for future lookups.
 @return {{ path: string, packageJson: Record<string, unknown> } | undefined}
 */
 export function readPackageJson(dirname) {
+	let packageJsonPath;
 	if (directoryCache.has(dirname)) {
-		const packageJsonPath = directoryCache.get(dirname);
-
-		if (dataCache.has(packageJsonPath)) {
-			return {
-				path: packageJsonPath,
-				packageJson: dataCache.get(packageJsonPath),
-			};
-		}
+		packageJsonPath = directoryCache.get(dirname);
+	} else {
+		packageJsonPath = findUpSync('package.json', {cwd: dirname, type: 'file'});
+		directoryCache.set(dirname, packageJsonPath);
 	}
 
-	const packageJsonPath = findUpSync('package.json', {cwd: dirname, type: 'file'});
 	if (!packageJsonPath) {
-		directoryCache.set(dirname, undefined);
-
 		return;
-	}
-
-	if (dataCache.has(packageJsonPath)) {
-		return {
-			path: packageJsonPath,
-			packageJson: dataCache.get(packageJsonPath),
-		};
 	}
 
 	let packageJson;
-	try {
-		const contents = fs.readFileSync(packageJsonPath);
-		packageJson = JSON.parse(contents);
-	} catch {
-		// This can happen if package.json files have comments in them etc.
-		return;
+	if (dataCache.has(packageJsonPath)) {
+		packageJson = dataCache.get(packageJsonPath);
+	} else {
+		try {
+			packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
+			dataCache.set(packageJsonPath, packageJson);
+		} catch {
+			// This can happen if package.json files have comments in them etc.
+			return;
+		}	
 	}
-
-	directoryCache.set(dirname, packageJsonPath);
-	dataCache.set(packageJsonPath, packageJson);
 
 	return {path: packageJsonPath, packageJson};
 }
