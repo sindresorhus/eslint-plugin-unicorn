@@ -78,6 +78,7 @@ import preferArrayIndexOf from './prefer-array-index-of.js';
 import preferArraySome from './prefer-array-some.js';
 import preferAt from './prefer-at.js';
 import preferBlobReadingMethods from './prefer-blob-reading-methods.js';
+import preferClassFields from './prefer-class-fields.js';
 import preferCodePoint from './prefer-code-point.js';
 import preferDateNow from './prefer-date-now.js';
 import preferDefaultParameters from './prefer-default-parameters.js';
@@ -210,6 +211,7 @@ const rules = {
 	'prefer-array-some': createRule(preferArraySome, 'prefer-array-some'),
 	'prefer-at': createRule(preferAt, 'prefer-at'),
 	'prefer-blob-reading-methods': createRule(preferBlobReadingMethods, 'prefer-blob-reading-methods'),
+	'prefer-class-fields': createRule(preferClassFields, 'prefer-class-fields'),
 	'prefer-code-point': createRule(preferCodePoint, 'prefer-code-point'),
 	'prefer-date-now': createRule(preferDateNow, 'prefer-date-now'),
 	'prefer-default-parameters': createRule(preferDefaultParameters, 'prefer-default-parameters'),
