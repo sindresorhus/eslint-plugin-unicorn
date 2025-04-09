@@ -42,6 +42,7 @@ const strictStrategyInvalid = [
 	'foo instanceof Uint16Array',
 	'foo instanceof Int32Array',
 	'foo instanceof Uint32Array',
+	'foo instanceof Float16Array',
 	'foo instanceof Float32Array',
 	'foo instanceof Float64Array',
 	'foo instanceof BigInt64Array',
