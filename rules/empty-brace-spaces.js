@@ -7,10 +7,7 @@ const messages = {
 
 const getProblem = (node, context) => {
 	const {sourceCode} = context;
-	const filter = node.type === 'RecordExpression'
-		? token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|')
-		: isOpeningBraceToken;
-	const openingBrace = sourceCode.getFirstToken(node, {filter});
+	const openingBrace = sourceCode.getFirstToken(node, {filter: isOpeningBraceToken});
 	const closingBrace = sourceCode.getLastToken(node);
 	const [, start] = sourceCode.getRange(openingBrace);
 	const [end] = sourceCode.getRange(closingBrace);
@@ -36,20 +33,11 @@ const create = context => {
 		'BlockStatement',
 		'ClassBody',
 		'StaticBlock',
-	], node => {
-		if (node.body.length > 0) {
-			return;
-		}
-
-		return getProblem(node, context);
-	});
-
-	context.on([
 		'ObjectExpression',
-		// Experimental https://github.com/tc39/proposal-record-tuple
-		'RecordExpression',
 	], node => {
-		if (node.properties.length > 0) {
+		const children = node.type === 'ObjectExpression' ? node.properties : node.body;
+
+		if (children.length > 0) {
 			return;
 		}
 
