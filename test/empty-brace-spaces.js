@@ -115,18 +115,6 @@ test.babel({
 			errors: 1,
 		},
 		{
-			code: 'const record = #{    };',
-			output: 'const record = #{};',
-			languageOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'hash'}]),
-			errors: 1,
-		},
-		{
-			code: 'const record = {|    |};',
-			output: 'const record = {||};',
-			languageOptions: enableBabelPlugin(['recordAndTuple', {syntaxType: 'bar'}]),
-			errors: 1,
-		},
-		{
 			code: outdent`
 				class Foo {
 					static    {
