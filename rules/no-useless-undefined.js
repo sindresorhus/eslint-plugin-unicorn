@@ -68,12 +68,89 @@ const shouldIgnore = node => {
 		|| name === 'ref';
 };
 
-const getFunction = scope => {
-	for (; scope; scope = scope.upper) {
-		if (scope.type === 'function') {
-			return scope.block;
+const getFunctionNode = (node) => {
+	let current = node.parent;
+	while (current) {
+		if (
+			current.type === "FunctionDeclaration" ||
+			current.type === "FunctionExpression" ||
+			current.type === "ArrowFunctionExpression"
+		) {
+			return current;
+		}
+		if (current.type === "MethodDefinition") {
+			return current.value;
+		}
+		current = current.parent;
+	}
+	return null;
+};
+
+const includesUndefined = (typeAnnotation) => {
+	if (!typeAnnotation) return false;
+	switch (typeAnnotation.type) {
+		case "TSUnionType":
+			return typeAnnotation.types.some((t) => includesUndefined(t));
+		case "TSUndefinedKeyword":
+			return true;
+		default:
+			return false;
+	}
+};
+
+const hasMixedReturns = (functionNode) => {
+	let hasNonUndefined = false;
+	let hasExplicitUndefined = false;
+	const stack = [];
+
+	if (
+		functionNode.type === "ArrowFunctionExpression" &&
+		functionNode.body &&
+		functionNode.body.type !== "BlockStatement"
+	) {
+		if (
+			functionNode.body.type === "Identifier" &&
+			functionNode.body.name === "undefined"
+		) {
+			hasExplicitUndefined = true;
+		} else {
+			hasNonUndefined = true;
+		}
+	} else {
+		stack.push(functionNode.body);
+		while (stack.length) {
+			const node = stack.pop();
+			if (!node || typeof node !== "object") continue;
+			if (node.type === "ReturnStatement") {
+				if (node.argument) {
+					if (
+						node.argument.type === "Identifier" &&
+						node.argument.name === "undefined"
+					) {
+						hasExplicitUndefined = true;
+					} else {
+						hasNonUndefined = true;
+					}
+				}
+			}
+			for (const key in node) {
+				if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+				// Skip the parent property to avoid cycles.
+				if (key === "parent") continue;
+				const child = node[key];
+				if (Array.isArray(child)) {
+					for (let i = child.length - 1; i >= 0; i--) {
+						stack.push(child[i]);
+					}
+				} else if (child && typeof child.type === "string") {
+					stack.push(child);
+				}
+			}
+			if (hasExplicitUndefined && hasNonUndefined) break;
 		}
 	}
+
+	return hasExplicitUndefined && hasNonUndefined;
 };
 
 const isFunctionBindCall = node =>
@@ -90,11 +167,24 @@ const isTypeScriptFile = context =>
 const create = context => {
 	const {sourceCode} = context;
 
+	const options = {
+		checkArguments: true,
+		checkArrowFunctionBody: true,
+		allowMixedReturns: false,
+		...context.options[0],
+	};
+
 	const getProblem = (node, fix, checkFunctionReturnType) => {
 		if (checkFunctionReturnType) {
-			const functionNode = getFunction(sourceCode.getScope(node));
-			if (functionNode?.returnType) {
-				return;
+			const functionNode = getFunctionNode(node);
+			if (functionNode) {
+				const returnType = functionNode.returnType || (functionNode.value && functionNode.value.returnType);
+				if (returnType && includesUndefined(returnType.typeAnnotation)) {
+					return;
+				}
+				if (options.allowMixedReturns && hasMixedReturns(functionNode, sourceCode)) {
+					return;
+				}
 			}
 		}
 
@@ -103,12 +193,6 @@ const create = context => {
 			messageId,
 			fix,
 		};
-	};
-
-	const options = {
-		checkArguments: true,
-		checkArrowFunctionBody: true,
-		...context.options[0],
 	};
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
@@ -285,6 +369,9 @@ const schema = [
 				type: 'boolean',
 			},
 			checkArrowFunctionBody: {
+				type: 'boolean',
+			},
+			allowMixedReturns: {
 				type: 'boolean',
 			},
 		},
