@@ -24,7 +24,6 @@ import noAnonymousDefaultExport from './no-anonymous-default-export.js';
 import noArrayCallbackReference from './no-array-callback-reference.js';
 import noArrayForEach from './no-array-for-each.js';
 import noArrayMethodThisArgument from './no-array-method-this-argument.js';
-import noArrayPushPush from './no-array-push-push.js';
 import noArrayReduce from './no-array-reduce.js';
 import noAwaitExpressionMember from './no-await-expression-member.js';
 import noAwaitInPromiseMethods from './no-await-in-promise-methods.js';
@@ -110,6 +109,7 @@ import preferReflectApply from './prefer-reflect-apply.js';
 import preferRegexpTest from './prefer-regexp-test.js';
 import preferSetHas from './prefer-set-has.js';
 import preferSetSize from './prefer-set-size.js';
+import preferSingleCall from './prefer-single-call.js';
 import preferSpread from './prefer-spread.js';
 import preferStringRaw from './prefer-string-raw.js';
 import preferStringReplaceAll from './prefer-string-replace-all.js';
@@ -156,7 +156,6 @@ const rules = {
 	'no-array-callback-reference': createRule(noArrayCallbackReference, 'no-array-callback-reference'),
 	'no-array-for-each': createRule(noArrayForEach, 'no-array-for-each'),
 	'no-array-method-this-argument': createRule(noArrayMethodThisArgument, 'no-array-method-this-argument'),
-	'no-array-push-push': createRule(noArrayPushPush, 'no-array-push-push'),
 	'no-array-reduce': createRule(noArrayReduce, 'no-array-reduce'),
 	'no-await-expression-member': createRule(noAwaitExpressionMember, 'no-await-expression-member'),
 	'no-await-in-promise-methods': createRule(noAwaitInPromiseMethods, 'no-await-in-promise-methods'),
@@ -242,6 +241,7 @@ const rules = {
 	'prefer-regexp-test': createRule(preferRegexpTest, 'prefer-regexp-test'),
 	'prefer-set-has': createRule(preferSetHas, 'prefer-set-has'),
 	'prefer-set-size': createRule(preferSetSize, 'prefer-set-size'),
+	'prefer-single-call': createRule(preferSingleCall, 'prefer-single-call'),
 	'prefer-spread': createRule(preferSpread, 'prefer-spread'),
 	'prefer-string-raw': createRule(preferStringRaw, 'prefer-string-raw'),
 	'prefer-string-replace-all': createRule(preferStringReplaceAll, 'prefer-string-replace-all'),
