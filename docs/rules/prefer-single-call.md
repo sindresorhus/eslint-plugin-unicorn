@@ -49,7 +49,9 @@ Type: `object`
 
 Type: `string[]`
 
-Ignore functions, `stream.push`, `this.push`, `this.stream.push` are ignored by default.
+Functions to ignore.
+
+`stream.push`, `this.push`, and `this.stream.push` are ignored by default.
 
 Example:
 
