@@ -67,7 +67,7 @@ const cases = [
 	},
 ].map(problematicalCase => ({
 	...problematicalCase,
-	test: callExpression => isExpressionStatement(callExpression) && problematicalCase.test(callExpression),
+	test: callExpression => problematicalCase.test(callExpression) && isExpressionStatement(callExpression),
 }));
 
 function create(context) {

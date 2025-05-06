@@ -86,6 +86,10 @@ test.snapshot({
 			],
 		},
 		'for (const _ of []) foo.push(bar);',
+		outdent`
+			function bar() {}
+			foo.push(bindEvents);
+		`,
 	],
 	invalid: [
 		outdent`
