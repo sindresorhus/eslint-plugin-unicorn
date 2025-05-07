@@ -21,9 +21,11 @@ jobs:
           - ubuntu-latest
           - windows-latest
         # Even numbers of node-version
-        # include:
-        #   - os: ubuntu-latest
-        #     node-version: 18
+        include:
+          - os: ubuntu-latest
+            node-version: 22
+          - os: ubuntu-latest
+            node-version: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
