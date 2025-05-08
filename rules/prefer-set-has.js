@@ -27,21 +27,14 @@ const arrayMethodsReturnsArray = [
 	'with',
 ];
 
-const isIncludesCall = node => {
-	const {type, optional, callee, arguments: includesArguments} = node.parent.parent ?? {};
-	return (
-		type === 'CallExpression'
-		&& !optional
-		&& callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& !callee.optional
-		&& callee.object === node
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'includes'
-		&& includesArguments.length === 1
-		&& includesArguments[0].type !== 'SpreadElement'
-	);
-};
+const isIncludesCall = node =>
+	isMethodCall(node.parent.parent, {
+		method: 'includes',
+		optionalCall: false,
+		optionalMember: false,
+		argumentsLength: 1,
+	})
+	&& node.parent.object === node;
 
 const multipleCallNodeTypes = new Set([
 	'ForOfStatement',

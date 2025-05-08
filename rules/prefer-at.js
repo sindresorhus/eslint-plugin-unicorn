@@ -17,7 +17,12 @@ import {
 	removeLengthNode,
 } from './shared/negative-index.js';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
-import {isLiteral, isCallExpression, isMethodCall} from './ast/index.js';
+import {
+	isLiteral,
+	isCallExpression,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -45,28 +50,22 @@ const isLiteralNegativeInteger = node =>
 	&& node.argument.type === 'Literal'
 	&& Number.isInteger(node.argument.value)
 	&& node.argument.value > 0;
-const isZeroIndexAccess = node => {
-	const {parent} = node;
-	return parent.type === 'MemberExpression'
-		&& !parent.optional
-		&& parent.computed
-		&& parent.object === node
-		&& isLiteral(parent.property, 0);
-};
+const isZeroIndexAccess = node =>
+	isMemberExpression(node.parent, {
+		optional: false,
+		computed: true,
+	})
+	&& node.parent.object === node
+	&& isLiteral(node.parent.property, 0);
 
-const isArrayPopOrShiftCall = (node, method) => {
-	const {parent} = node;
-	return parent.type === 'MemberExpression'
-		&& !parent.optional
-		&& !parent.computed
-		&& parent.object === node
-		&& parent.property.type === 'Identifier'
-		&& parent.property.name === method
-		&& parent.parent.type === 'CallExpression'
-		&& parent.parent.callee === parent
-		&& !parent.parent.optional
-		&& parent.parent.arguments.length === 0;
-};
+const isArrayPopOrShiftCall = (node, method) =>
+	isMethodCall(node.parent.parent, {
+		method,
+		argumentsLength: 0,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& node.parent.object === node;
 
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
