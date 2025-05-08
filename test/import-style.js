@@ -215,7 +215,7 @@ test({
 		`,
 		// `node:util` only allow `named`, set to `false` should allow any style
 		{
-			code: outdent`
+			code: `
 				import util from "node:util";
 				import * as util2 from "node:util";
 				import {foo} from "node:util";
@@ -638,6 +638,51 @@ test({
 				data: {
 					allowedStyles: 'named, namespace, or default',
 					moduleName: 'no-unassigned',
+				},
+			}],
+		},
+		// `node:util` only allow `named`, add `default` should keep `named` allowed ... (see next test)
+		{
+			code: `
+				import * as util from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': {
+							default: true,
+						},
+					},
+				},
+			],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'named or default',
+					moduleName: 'node:util',
+				},
+			}],
+		},
+		// ...(See previous test), Unless we disable `named` explicitly
+		{
+			code: `
+				import * as util from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': {
+							default: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'node:util',
 				},
 			}],
 		},
