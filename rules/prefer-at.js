@@ -21,7 +21,7 @@ import {
 	isLiteral,
 	isCallExpression,
 	isMethodCall,
-	isMemberExpressio,
+	isMemberExpression,
 } from './ast/index.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
