@@ -17,7 +17,12 @@ import {
 	removeLengthNode,
 } from './shared/negative-index.js';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
-import {isLiteral, isCallExpression, isMethodCall, isMemberExpression} from './ast/index.js';
+import {
+	isLiteral,
+	isCallExpression,
+	isMethodCall,
+	isMemberExpressio,
+} from './ast/index.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
