@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
-import {defaultsDeep, upperFirst, lowerFirst} from './utils/lodash.js';
+import {upperFirst, lowerFirst} from './utils/lodash.js';
 import {
 	getAvailableVariableName,
 	cartesianProductSamples,
@@ -43,11 +43,14 @@ const prepareOptions = ({
 	ignore = [],
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements
-		? defaultsDeep({}, replacements, defaultReplacements)
+		? Object.fromEntries(
+			[...Object.keys(defaultReplacements), ...Object.keys(replacements)]
+				.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]),
+		)
 		: replacements;
 
 	const mergedAllowList = extendDefaultAllowList
-		? defaultsDeep({}, allowList, defaultAllowList)
+		? {...defaultAllowList, ...allowList}
 		: allowList;
 
 	ignore = [...defaultIgnore, ...ignore];

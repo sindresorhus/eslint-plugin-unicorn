@@ -213,6 +213,21 @@ test({
 				const {red} = await import(variable);
 			}
 		`,
+		// `node:util` only allow `named`, set to `false` should allow any style
+		{
+			code: `
+				import util from "node:util";
+				import * as util2 from "node:util";
+				import {foo} from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': false,
+					},
+				},
+			],
+		},
 	].map(test => addDefaultOptions(test)),
 
 	invalid: [
@@ -623,6 +638,51 @@ test({
 				data: {
 					allowedStyles: 'named, namespace, or default',
 					moduleName: 'no-unassigned',
+				},
+			}],
+		},
+		// `node:util` only allow `named`, add `default` should keep `named` allowed ... (see next test)
+		{
+			code: `
+				import * as util from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': {
+							default: true,
+						},
+					},
+				},
+			],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'named or default',
+					moduleName: 'node:util',
+				},
+			}],
+		},
+		// ...(see previous test), unless we disable `named` explicitly
+		{
+			code: `
+				import * as util from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': {
+							default: true,
+							named: false,
+						},
+					},
+				},
+			],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'node:util',
 				},
 			}],
 		},

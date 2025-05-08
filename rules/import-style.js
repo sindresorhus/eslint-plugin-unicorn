@@ -1,5 +1,4 @@
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
-import {defaultsDeep} from './utils/lodash.js';
 import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
@@ -141,7 +140,10 @@ const create = context => {
 	] = context.options;
 
 	styles = extendDefaultStyles
-		? defaultsDeep({}, styles, defaultStyles)
+		? Object.fromEntries(
+			[...Object.keys(defaultStyles), ...Object.keys(styles)]
+				.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]),
+		)
 		: styles;
 
 	styles = new Map(

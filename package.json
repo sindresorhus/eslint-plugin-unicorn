@@ -20,7 +20,7 @@
 		"node": "^18.20.0 || ^20.10.0 || >=21.0.0"
 	},
 	"scripts": {
-		"bundle-lodash": "echo export {defaultsDeep, camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
+		"bundle-lodash": "echo export {camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error fix:*",
