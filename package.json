@@ -20,7 +20,6 @@
 		"node": "^18.20.0 || ^20.10.0 || >=21.0.0"
 	},
 	"scripts": {
-		"bundle-lodash": "echo export {camelCase, kebabCase, snakeCase, upperFirst, lowerFirst} from 'lodash-es'; | npx esbuild --bundle --outfile=rules/utils/lodash.js --format=esm",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error fix:*",
@@ -60,6 +59,7 @@
 		"@babel/helper-validator-identifier": "^7.27.1",
 		"@eslint-community/eslint-utils": "^4.7.0",
 		"@eslint/plugin-kit": "^0.3.1",
+		"change-case": "^5.4.4",
 		"ci-info": "^4.2.0",
 		"clean-regexp": "^1.0.0",
 		"core-js-compat": "^3.42.0",
@@ -95,7 +95,6 @@
 		"eslint-remote-tester-repositories": "^2.0.1",
 		"espree": "^10.3.0",
 		"listr2": "^8.3.3",
-		"lodash-es": "^4.17.21",
 		"markdownlint-cli": "^0.44.0",
 		"memoize": "^10.1.0",
 		"nano-spawn": "^0.2.0",

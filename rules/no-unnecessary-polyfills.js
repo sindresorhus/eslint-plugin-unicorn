@@ -1,6 +1,6 @@
 import path from 'node:path';
 import coreJsCompat from 'core-js-compat';
-import {camelCase} from './utils/lodash.js';
+import {camelCase} from 'change-case';
 import isStaticRequire from './ast/is-static-require.js';
 import {readPackageJson} from './shared/package-json.js';
 

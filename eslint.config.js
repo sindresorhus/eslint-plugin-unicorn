@@ -21,7 +21,6 @@ const config = [
 			'coverage',
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
-			'rules/utils/lodash.js',
 			'test/integration/{fixtures,fixtures-local}/**',
 			'workaround-for-eslint-doc-generator',
 			'**/*.ts',
