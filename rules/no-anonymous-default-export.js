@@ -1,10 +1,10 @@
 import path from 'node:path';
 import {getFunctionHeadLocation, getFunctionNameWithKind, isOpeningParenToken} from '@eslint-community/eslint-utils';
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import {camelCase} from 'change-case';
 import getClassHeadLocation from './utils/get-class-head-location.js';
-import {upperFirst, camelCase} from './utils/lodash.js';
 import {getParenthesizedRange} from './utils/parentheses.js';
-import {getScopes, getAvailableVariableName} from './utils/index.js';
+import {getScopes, getAvailableVariableName, upperFirst} from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;

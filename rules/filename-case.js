@@ -4,8 +4,8 @@ import {
 	camelCase,
 	kebabCase,
 	snakeCase,
-	upperFirst,
-} from './utils/lodash.js';
+	pascalCase,
+} from 'change-case';
 import cartesianProductSamples from './utils/cartesian-product-samples.js';
 
 const MESSAGE_ID = 'filename-case';
@@ -15,34 +15,9 @@ const messages = {
 	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.',
 };
 
-const pascalCase = string => upperFirst(camelCase(string));
-const numberRegex = /\d+/;
-const PLACEHOLDER = '\uFFFF\uFFFF\uFFFF';
-const PLACEHOLDER_REGEX = new RegExp(PLACEHOLDER, 'i');
 const isIgnoredChar = char => !/^[a-z\d-_]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
-
-function ignoreNumbers(caseFunction) {
-	return string => {
-		const stack = [];
-		let execResult = numberRegex.exec(string);
-
-		while (execResult) {
-			stack.push(execResult[0]);
-			string = string.replace(execResult[0], PLACEHOLDER);
-			execResult = numberRegex.exec(string);
-		}
-
-		let withCase = caseFunction(string);
-
-		while (stack.length > 0) {
-			withCase = withCase.replace(PLACEHOLDER_REGEX, stack.shift());
-		}
-
-		return withCase;
-	};
-}
 
 const cases = {
 	camelCase: {
@@ -172,7 +147,7 @@ const create = context => {
 		return new RegExp(item, 'u');
 	});
 	const multipleFileExtensions = options.multipleFileExtensions !== false;
-	const chosenCasesFunctions = chosenCases.map(case_ => ignoreNumbers(cases[case_].fn));
+	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
 	const filenameWithExtension = context.physicalFilename;
 
 	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {

@@ -22,7 +22,6 @@ const config = [
 			'coverage',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
-			'rules/utils/lodash.js',
 		],
 	},
 	{

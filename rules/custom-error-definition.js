@@ -1,4 +1,4 @@
-import {upperFirst} from './utils/lodash.js';
+import {upperFirst} from './utils/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
