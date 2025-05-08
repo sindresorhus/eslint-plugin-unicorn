@@ -1,5 +1,5 @@
 import {replaceStringRaw} from './fix/index.js';
-import {isMethodCall} from './ast/index.js'
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
