@@ -663,7 +663,7 @@ test({
 				},
 			}],
 		},
-		// ...(See previous test), Unless we disable `named` explicitly
+		// ...(see previous test), unless we disable `named` explicitly
 		{
 			code: `
 				import * as util from "node:util";
