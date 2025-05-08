@@ -213,6 +213,21 @@ test({
 				const {red} = await import(variable);
 			}
 		`,
+		// `node:util` only allow `named`, set to `false` should allow any style
+		{
+			code: `
+				import util from "node:util";
+				import * as util2 from "node:util";
+				import {foo} from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': false,
+					},
+				},
+			],
+		},
 	].map(test => addDefaultOptions(test)),
 
 	invalid: [

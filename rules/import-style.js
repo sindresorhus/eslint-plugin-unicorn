@@ -107,56 +107,51 @@ const isAssignedDynamicImport = node =>
 	&& node.parent.parent.type === 'VariableDeclarator'
 	&& node.parent.parent.init === node.parent;
 
-const NODE_PROTOCOL = 'node:';
-function createDefaultStyles() {
-	return new Map([
-		['chalk', ['default']],
-		['node:path', ['default']],
-		['node:util', ['named']],
-	].flatMap(([moduleName, allowedStyles]) => {
-		allowedStyles = new Set(allowedStyles);
-		return (
-			moduleName.startsWith(NODE_PROTOCOL)
-				? [moduleName, moduleName.slice(NODE_PROTOCOL.length)]
-				: [moduleName]
-		).map(moduleName => [moduleName, allowedStyles]);
-	}));
-}
-
-const defaultStyles = createDefaultStyles();
-function getStyles({styles: customStyles = {}, extendDefaultStyles = true}) {
-	const customModules = Object.entries(customStyles);
-	if (customModules.length === 0) {
-		return extendDefaultStyles ? defaultStyles : undefined;
-	}
-
-	const styles = extendDefaultStyles ? createDefaultStyles() : new Map();
-	for (const [moduleName, settings] of customModules) {
-		if (!styles.has(moduleName)) {
-			styles.set(moduleName, new Set());
-		}
-
-		const existing = styles.get(moduleName);
-		for (const [style, isAllowed] of Object.entries(settings)) {
-			if (isAllowed) {
-				existing.add(style);
-			} else {
-				existing.delete(style);
-			}
-		}
-	}
-
-	return styles;
-}
+// Keep this alphabetically sorted for easier maintenance
+const defaultStyles = {
+	chalk: {
+		default: true,
+	},
+	path: {
+		default: true,
+	},
+	'node:path': {
+		default: true,
+	},
+	util: {
+		named: true,
+	},
+	'node:util': {
+		named: true,
+	},
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const [options = {}] = context.options;
-	const styles = getStyles(options);
+	let [
+		{
+			styles = {},
+			extendDefaultStyles = true,
+			checkImport = true,
+			checkDynamicImport = true,
+			checkExportFrom = false,
+			checkRequire = true,
+		} = {},
+	] = context.options;
 
-	if (!styles || styles.size === 0) {
-		return;
-	}
+	styles = extendDefaultStyles
+		? Object.fromEntries(
+			[...Object.keys(defaultStyles), ...Object.keys(styles)]
+				.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]),
+		)
+		: styles;
+
+	styles = new Map(
+		Object.entries(styles).map(
+			([moduleName, styles]) =>
+				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
+		),
+	);
 
 	const {sourceCode} = context;
 
@@ -191,13 +186,6 @@ const create = context => {
 			data,
 		});
 	};
-
-	const {
-		checkImport = true,
-		checkDynamicImport = true,
-		checkExportFrom = false,
-		checkRequire = true,
-	} = options;
 
 	if (checkImport) {
 		context.on('ImportDeclaration', node => {
