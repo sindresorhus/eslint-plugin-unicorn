@@ -1,4 +1,5 @@
 import {replaceStringRaw} from './fix/index.js';
+import {isMethodCall} from './ast/index.js'
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -24,15 +25,13 @@ const getReplacement = encoding => {
 
 // `fs.{readFile,readFileSync}()`
 const isFsReadFileEncoding = node =>
-	node.parent.type === 'CallExpression'
-	&& !node.parent.optional
+	isMethodCall(node.parent, {
+		methods: ['readFile', 'readFileSync'],
+		optionalCall: false,
+		optionalMember: false,
+	})
 	&& node.parent.arguments[1] === node
-	&& node.parent.arguments[0].type !== 'SpreadElement'
-	&& node.parent.callee.type === 'MemberExpression'
-	&& !node.parent.callee.optional
-	&& !node.parent.callee.computed
-	&& node.parent.callee.property.type === 'Identifier'
-	&& (node.parent.callee.property.name === 'readFile' || node.parent.callee.property.name === 'readFileSync');
+	&& node.parent.arguments[0].type !== 'SpreadElement';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
