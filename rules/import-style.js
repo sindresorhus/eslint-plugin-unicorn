@@ -1,5 +1,4 @@
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
-import {defaultsDeep} from './utils/lodash.js';
 import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
@@ -108,48 +107,56 @@ const isAssignedDynamicImport = node =>
 	&& node.parent.parent.type === 'VariableDeclarator'
 	&& node.parent.parent.init === node.parent;
 
-// Keep this alphabetically sorted for easier maintenance
-const defaultStyles = {
-	chalk: {
-		default: true,
-	},
-	path: {
-		default: true,
-	},
-	'node:path': {
-		default: true,
-	},
-	util: {
-		named: true,
-	},
-	'node:util': {
-		named: true,
-	},
-};
+const NODE_PROTOCOL = 'node:';
+function createDefaultStyles() {
+	return new Map([
+		['chalk', ['default']],
+		['node:path', ['default']],
+		['node:util', ['named']],
+	].flatMap(([moduleName, allowedStyles]) => {
+		allowedStyles = new Set(allowedStyles);
+		return (
+			moduleName.startsWith(NODE_PROTOCOL)
+				? [moduleName, moduleName.slice(NODE_PROTOCOL.length)]
+				: [moduleName]
+		).map(moduleName => [moduleName, allowedStyles]);
+	}));
+}
+
+const defaultStyles = createDefaultStyles();
+function getStyles({styles: customStyles = {}, extendDefaultStyles = true}) {
+	const customModules = Object.entries(customStyles);
+	if (customModules.length === 0) {
+		return extendDefaultStyles ? defaultStyles : undefined;
+	}
+
+	const styles = extendDefaultStyles ? createDefaultStyles() : new Map();
+	for (const [moduleName, settings] of customModules) {
+		if (!styles.has(moduleName)) {
+			styles.set(moduleName, new Set());
+		}
+
+		const existing = styles.get(moduleName);
+		for (const [style, isAllowed] of Object.entries(settings)) {
+			if (isAllowed) {
+				existing.add(style);
+			} else {
+				existing.delete(style);
+			}
+		}
+	}
+
+	return styles;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	let [
-		{
-			styles = {},
-			extendDefaultStyles = true,
-			checkImport = true,
-			checkDynamicImport = true,
-			checkExportFrom = false,
-			checkRequire = true,
-		} = {},
-	] = context.options;
+	const [options = {}] = context.options;
+	const styles = getStyles(options);
 
-	styles = extendDefaultStyles
-		? defaultsDeep({}, styles, defaultStyles)
-		: styles;
-
-	styles = new Map(
-		Object.entries(styles).map(
-			([moduleName, styles]) =>
-				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
-		),
-	);
+	if (!styles || styles.size === 0) {
+		return;
+	}
 
 	const {sourceCode} = context;
 
@@ -184,6 +191,13 @@ const create = context => {
 			data,
 		});
 	};
+
+	const {
+		checkImport = true,
+		checkDynamicImport = true,
+		checkExportFrom = false,
+		checkRequire = true,
+	} = options;
 
 	if (checkImport) {
 		context.on('ImportDeclaration', node => {

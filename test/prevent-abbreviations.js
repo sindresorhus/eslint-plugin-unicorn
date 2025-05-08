@@ -238,6 +238,20 @@ const tests = {
 			code: 'const propTypes = 2;const err = 2;',
 			options: extendDefaultAllowListOptions,
 		},
+
+		// `arr` has only one replacement, disable it makes `arr` valid
+		{
+			code: 'let arr',
+			options: [
+				{
+					replacements: {
+						arr: {
+							array: false,
+						},
+					},
+				},
+			],
+		},
 	],
 
 	invalid: [
@@ -1255,6 +1269,21 @@ const tests = {
 		{
 			code: 'const ret_val = "that should be ok";',
 			output: 'const returnValue_value = "that should be ok";',
+			errors: 1,
+		},
+		// `docs` has two replacements, disable one should autofixable
+		{
+			code: 'let docs',
+			output: 'let documents',
+			options: [
+				{
+					replacements: {
+						docs: {
+							documentation: false,
+						},
+					},
+				},
+			],
 			errors: 1,
 		},
 	],
