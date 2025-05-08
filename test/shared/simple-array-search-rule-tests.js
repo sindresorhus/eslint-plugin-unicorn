@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {parsers} from '../utils/test.js';
 
 function snapshotTests({method, replacement}) {
 	return {
@@ -123,6 +124,10 @@ function snapshotTests({method, replacement}) {
 					}).call(thisObject, anotherFunctionNamedA, secondArgument)
 				})
 			`,
+			{
+				code: `<template><div v-if="values.${method}(x => x === 'foo')"></div></template>`,
+				languageOptions: {parser: parsers.vue},
+			},
 		],
 	};
 }
