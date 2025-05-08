@@ -226,6 +226,8 @@ test({
 				Int32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Uint32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Uint32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+				Float16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+				Float16Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Float32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Float32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Float64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
@@ -237,7 +239,7 @@ test({
 				NOT_SUPPORTED.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 			`,
-			errors: Array.from({length: 15}, () => error),
+			errors: Array.from({length: 16}, () => error),
 			output: outdent`
 				Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
 				Array.prototype.splice.call(foo, - 1, foo.length - 2, foo.length - 3);
@@ -259,6 +261,8 @@ test({
 				Int32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Uint32Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
 				Uint32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+				Float16Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
+				Float16Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Float32Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
 				Float32Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				Float64Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
@@ -295,6 +299,8 @@ test({
 				Int32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Uint32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Uint32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+				Float16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+				Float16Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Float32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Float32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Float64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
@@ -306,7 +312,7 @@ test({
 				NOT_SUPPORTED.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 			`,
-			errors: Array.from({length: 15}, () => error),
+			errors: Array.from({length: 16}, () => error),
 			output: outdent`
 				Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
 				Array.prototype.splice.apply(foo, [- 1, foo.length - 2, foo.length - 3]);
@@ -328,6 +334,8 @@ test({
 				Int32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Uint32Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
 				Uint32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+				Float16Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
+				Float16Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Float32Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
 				Float32Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				Float64Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);

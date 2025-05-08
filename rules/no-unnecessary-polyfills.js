@@ -1,8 +1,8 @@
 import path from 'node:path';
-import {readPackageUpSync} from 'read-package-up';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from './utils/lodash.js';
 import isStaticRequire from './ast/is-static-require.js';
+import {readPackageJson} from './shared/package-json.js';
 
 const {data: compatData, entries: coreJsEntries} = coreJsCompat;
 
@@ -57,18 +57,13 @@ function getTargets(options, dirname) {
 		return options.targets;
 	}
 
-	/** @type {readPkgUp.ReadResult | undefined} */
-	let packageResult;
-	try {
-		// It can fail if, for example, the package.json file has comments.
-		packageResult = readPackageUpSync({normalize: false, cwd: dirname});
-	} catch {}
+	const packageJsonResult = readPackageJson(dirname);
 
-	if (!packageResult) {
+	if (!packageJsonResult) {
 		return;
 	}
 
-	const {browserslist, engines} = packageResult.packageJson;
+	const {browserslist, engines} = packageJsonResult.packageJson;
 	return browserslist ?? engines;
 }
 

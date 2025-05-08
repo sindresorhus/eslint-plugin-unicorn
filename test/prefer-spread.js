@@ -16,6 +16,7 @@ test.snapshot({
 		'Uint16Array.from(set);',
 		'Int32Array.from(set);',
 		'Uint32Array.from(set);',
+		'Float16Array.from(set);',
 		'Float32Array.from(set);',
 		'Float64Array.from(set);',
 		'BigInt64Array.from(set);',
