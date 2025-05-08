@@ -215,7 +215,7 @@ test({
 		`,
 		// `node:util` only allow `named`, set to `false` should allow any style
 		{
-			code: `
+			code: outdent`
 				import util from "node:util";
 				import * as util2 from "node:util";
 				import {foo} from "node:util";
