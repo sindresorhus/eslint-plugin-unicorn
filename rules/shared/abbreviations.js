@@ -254,6 +254,9 @@ export const defaultAllowList = {
 	getStaticProps: true,
 	// The name iOS is a standard name for an OS
 	iOS: true,
+	// Node.js global environment interface
+	// https://nodejs.org/api/process.html#processenv
+	ProcessEnv: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
