@@ -38,15 +38,15 @@ const isThisAssignmentExpression = node => {
 @param {import('eslint').Rule.RuleFixer} fixer
 */
 const removeFieldAssignment = (node, sourceCode, fixer) => {
-	const {line} = node.loc.start;
+	const { line } = node.loc.start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
 
 	return isOnlyNodeOnLine
 		? fixer.removeRange([
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
+			sourceCode.getIndexFromLoc({ line, column: 0 }),
+			sourceCode.getIndexFromLoc({ line: line + 1, column: 0 }),
 		])
 		: fixer.remove(node);
 };
@@ -95,13 +95,13 @@ const addClassFieldDeclaration = (
 @type {import('eslint').Rule.RuleModule['create']}
 */
 const create = context => {
-	const {sourceCode} = context;
+	const { sourceCode } = context;
 
 	return {
 		ClassBody(classBody) {
-			const constructor = classBody.body.find(x => x.kind === 'constructor');
+			const constructor = classBody.body.find(node => node.kind === 'constructor' && node.type === 'MethodDefinition');
 
-			if (!constructor || constructor.type !== 'MethodDefinition') {
+			if (!constructor) {
 				return;
 			}
 
@@ -114,17 +114,17 @@ const create = context => {
 			const firstInvalidProperty = constructorBody.findIndex(
 				node => !WHITELIST_NODES_PRECEDING_THIS_ASSIGNMENT.has(node.type),
 			);
-			const validConstructorProperties
+			const lastValidPropertyIndex
 				= firstInvalidProperty === -1
-					? constructorBody
-					: constructorBody.slice(0, firstInvalidProperty);
+					? constructorBody.length - 1
+					: firstInvalidProperty - 1;
 
 			for (
-				let index = validConstructorProperties.length - 1;
+				let index = lastValidPropertyIndex;
 				index >= 0;
 				index--
 			) {
-				const node = validConstructorProperties[index];
+				const node = constructorBody[index];
 				if (
 					isThisAssignmentExpression(node)
 					&& node.expression.right?.type === 'Literal'
@@ -142,22 +142,25 @@ const create = context => {
 					if (alreadyExistingClassFieldDeclaration) {
 						return {
 							node,
-							messageId: MESSAGE_ID_SUGGESTION,
-							data: {
-								propertyName,
-								// Class expression does not have name, e.g. const a = class {}
-								className: classBody.parent?.id?.name ?? '',
-							},
-							/**
-							@param {import('eslint').Rule.RuleFixer} fixer
-							*/
-							* suggest(fixer) {
-								yield removeFieldAssignment(node, sourceCode, fixer);
-								yield fixer.replaceText(
-									alreadyExistingClassFieldDeclaration,
-									`${propertyName} = ${propertyValue};`,
-								);
-							},
+							messageId: MESSAGE_ID_ERROR,
+							suggest: [{
+								messageId: MESSAGE_ID_SUGGESTION,
+								data: {
+									propertyName,
+									// Class expression does not have name, e.g. const a = class {}
+									className: classBody.parent?.id?.name ?? '',
+								},
+								/**
+								@param {import('eslint').Rule.RuleFixer} fixer
+								*/
+								* fix(fixer) {
+									yield removeFieldAssignment(node, sourceCode, fixer);
+									yield fixer.replaceText(
+										alreadyExistingClassFieldDeclaration,
+										`${propertyName} = ${propertyValue};`,
+									);
+								},
+							}],
 						};
 					}
 
