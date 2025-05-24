@@ -38,7 +38,7 @@ function notPromise(node) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	AwaitExpression(node) {
-		if (!node.argument) { // Pipeline operator F#-style
+		if (!node.argument) { // F#-style pipeline operator
 			return;
 		}
 		if (!notPromise(node.argument)) {
