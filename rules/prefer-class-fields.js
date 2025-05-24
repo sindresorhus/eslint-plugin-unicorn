@@ -38,15 +38,15 @@ const isThisAssignmentExpression = node => {
 @param {import('eslint').Rule.RuleFixer} fixer
 */
 const removeFieldAssignment = (node, sourceCode, fixer) => {
-	const { line } = node.loc.start;
+	const {line} = node.loc.start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
 
 	return isOnlyNodeOnLine
 		? fixer.removeRange([
-			sourceCode.getIndexFromLoc({ line, column: 0 }),
-			sourceCode.getIndexFromLoc({ line: line + 1, column: 0 }),
+			sourceCode.getIndexFromLoc({line, column: 0}),
+			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
 		])
 		: fixer.remove(node);
 };
@@ -83,7 +83,8 @@ const addClassFieldDeclaration = (
 	sourceCode,
 	fixer,
 ) => {
-	const classBodyStartRange = [classBody.range[0], classBody.range[0] + 1];
+	const classBodyRange = sourceCode.getRange(classBody);
+	const classBodyStartRange = [classBodyRange[0], classBodyRange[0] + 1];
 	const indent = getIndentString(constructor, sourceCode);
 	return fixer.insertTextAfterRange(
 		classBodyStartRange,
