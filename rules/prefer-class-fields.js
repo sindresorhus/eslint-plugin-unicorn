@@ -38,7 +38,7 @@ const isThisAssignmentExpression = node => {
 @param {import('eslint').Rule.RuleFixer} fixer
 */
 const removeFieldAssignment = (node, sourceCode, fixer) => {
-	const {line} = node.loc.start;
+	const {line} = sourceCode.getLoc(node).start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
@@ -96,7 +96,7 @@ const addClassFieldDeclaration = (
 @type {import('eslint').Rule.RuleModule['create']}
 */
 const create = context => {
-	const { sourceCode } = context;
+	const {sourceCode} = context;
 
 	return {
 		ClassBody(classBody) {
