@@ -41,6 +41,7 @@ const create = context => ({
 		if (!node.argument) { // F#-style pipeline operator
 			return;
 		}
+
 		if (!notPromise(node.argument)) {
 			return;
 		}

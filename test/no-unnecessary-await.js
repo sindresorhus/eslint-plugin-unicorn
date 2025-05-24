@@ -122,7 +122,7 @@ test.babel({
 			languageOptions: {
 				parserOptions: {
 					babelOptions: {
-						plugins: [['@babel/plugin-proposal-pipeline-operator', { proposal: 'fsharp' }]],
+						plugins: [['@babel/plugin-proposal-pipeline-operator', {proposal: 'fsharp'}]],
 					},
 				},
 			},
@@ -132,7 +132,7 @@ test.babel({
 			languageOptions: {
 				parserOptions: {
 					babelOptions: {
-						plugins: [['@babel/plugin-proposal-pipeline-operator', { proposal: 'hack', topicToken: '%' }]],
+						plugins: [['@babel/plugin-proposal-pipeline-operator', {proposal: 'hack', topicToken: '%'}]],
 					},
 				},
 			},
