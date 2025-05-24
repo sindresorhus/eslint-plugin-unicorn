@@ -113,3 +113,30 @@ test.snapshot({
 		'async function foo() {+await -1}',
 	],
 });
+
+test.babel({
+	valid: [
+		{
+			only: true,
+			code: 'Promise.resolve() |> await',
+			languageOptions: {
+				parserOptions: {
+					babelOptions: {
+						plugins: [['@babel/plugin-proposal-pipeline-operator', { proposal: 'fsharp' }]],
+					},
+				},
+			},
+		},
+		{
+			code: 'Promise.resolve() |> await %',
+			languageOptions: {
+				parserOptions: {
+					babelOptions: {
+						plugins: [['@babel/plugin-proposal-pipeline-operator', { proposal: 'hack', topicToken: '%' }]],
+					},
+				},
+			},
+		},
+	],
+	invalid: [],
+});
