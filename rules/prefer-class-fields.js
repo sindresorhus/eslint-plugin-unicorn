@@ -77,7 +77,7 @@ const create = context => {
 			const node = constructor.value.body.body.find((node) => node.type !== 'EmptyStatement');
 
 			if (!(
-				node.type === 'ExpressionStatement'
+				node?.type === 'ExpressionStatement'
 				&& node.expression.type === 'AssignmentExpression'
 				&& node.expression.operator === '='
 				&& node.expression.left.type === 'MemberExpression'
@@ -104,49 +104,45 @@ const create = context => {
 				messageId: MESSAGE_ID_ERROR,
 			};
 
-			if (existingProperty) {
-				if (existingProperty.value) {
-					problem.suggest = [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							data: {
-								propertyName,
-								// Class expression does not have name, e.g. const a = class {}
-								className: classBody.parent?.id?.name ?? '',
-							},
-							/**
-							@param {import('eslint').Rule.RuleFixer} fixer
-							*/
-							* fix(fixer) {
-								yield removeFieldAssignment(node, sourceCode, fixer);
-								fixer.replaceText(existingProperty.value, propertyValue);
-							}
+			if (existingProperty?.value) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						data: {
+							propertyName,
+							// Class expression does not have name, e.g. const a = class {}
+							className: classBody.parent?.id?.name ?? '',
+						},
+						/**
+						@param {import('eslint').Rule.RuleFixer} fixer
+						*/
+						* fix(fixer) {
+							yield removeFieldAssignment(node, sourceCode, fixer);
+							yield fixer.replaceText(existingProperty.value, propertyValue);
 						}
-					]
-				} else {
-					/**
-					@param {import('eslint').Rule.RuleFixer} fixer
-					*/
-					problem.fix = function * (fixer) {
-						yield removeFieldAssignment(node, sourceCode, fixer);
-						yield fixer.insertTextAfter(existingProperty.key, ` = ${propertyValue}`);
 					}
+				];
+				return problem;
+			}
+
+			/**
+			@param {import('eslint').Rule.RuleFixer} fixer
+			*/
+			problem.fix = function * (fixer) {
+				yield removeFieldAssignment(node, sourceCode, fixer);
+				if (existingProperty) {
+					yield fixer.insertTextAfter(existingProperty.key, ` = ${propertyValue}`);
+					return;
 				}
-			} else {
-				/**
-				@param {import('eslint').Rule.RuleFixer} fixer
-				*/
-				problem.fix = function * (fixer) {
-					yield removeFieldAssignment(node, sourceCode, fixer);
-					yield addClassFieldDeclaration(
-						propertyName,
-						propertyValue,
-						classBody,
-						constructor,
-						sourceCode,
-						fixer,
-					);
-				}
+
+				yield addClassFieldDeclaration(
+					propertyName,
+					propertyValue,
+					classBody,
+					constructor,
+					sourceCode,
+					fixer,
+				);
 			}
 
 			return problem;
