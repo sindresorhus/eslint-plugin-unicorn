@@ -33,6 +33,12 @@ const isThisAssignmentExpression = node => {
 };
 
 /**
+@param {import('estree').MethodDefinition | import('estree').PropertyDefinition | import('estree').StaticBlock} node
+@returns {node is import('estree').MethodDefinition}
+*/
+const isMethodDefinitionConstructor = node => node.kind === 'constructor' && node.type === 'MethodDefinition';
+
+/**
 @param {import('eslint').Rule.Node} node
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
 @param {import('eslint').Rule.RuleFixer} fixer
@@ -100,15 +106,11 @@ const create = context => {
 
 	return {
 		ClassBody(classBody) {
-			const constructor = classBody.body.find(node => node.kind === 'constructor' && node.type === 'MethodDefinition');
+			// eslint-disable-next-line unicorn/no-array-callback-reference
+			const constructor = classBody.body.find(isMethodDefinitionConstructor);
+			const constructorBody = constructor?.value?.body?.body;
 
-			if (!constructor) {
-				return;
-			}
-
-			const constructorBody = constructor.value.body?.body;
-
-			if (!constructorBody) {
+			if (!constructor || !constructorBody) {
 				return;
 			}
 
