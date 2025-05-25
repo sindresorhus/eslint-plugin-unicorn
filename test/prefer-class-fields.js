@@ -9,13 +9,13 @@ test.snapshot({
 	valid: [
 		'class Foo {bar = 1}',
 		'class Foo {static bar = 1}',
-			// Not `=` assign
+		// Not `=` assign
 		'class Foo {constructor() {this.bar += 1}}',
-			// Computed
+		// Computed
 		'class Foo {constructor() {this[bar] = 1}}',
-			// Not `this`
+		// Not `this`
 		'class Foo {constructor() {notThis.bar = 1}}',
-			// Not `Literal`
+		// Not `Literal`
 		'class Foo {constructor() {notThis.bar = 1 + 2}}',
 		outdent`
 			class Foo {
