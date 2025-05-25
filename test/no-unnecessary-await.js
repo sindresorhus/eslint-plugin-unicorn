@@ -117,12 +117,13 @@ test.snapshot({
 test.babel({
 	valid: [
 		{
-			only: true,
 			code: 'Promise.resolve() |> await',
 			languageOptions: {
 				parserOptions: {
 					babelOptions: {
-						plugins: [['@babel/plugin-proposal-pipeline-operator', {proposal: 'fsharp'}]],
+						parserOpts: {
+							plugins: [['pipelineOperator', {proposal: 'fsharp'}]],
+						},
 					},
 				},
 			},
@@ -132,7 +133,9 @@ test.babel({
 			languageOptions: {
 				parserOptions: {
 					babelOptions: {
-						plugins: [['@babel/plugin-proposal-pipeline-operator', {proposal: 'hack', topicToken: '%'}]],
+						parserOpts: {
+							plugins: [['pipelineOperator', {proposal: 'hack', topicToken: '%'}]],
+						},
 					},
 				},
 			},
