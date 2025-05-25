@@ -52,6 +52,14 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
+				constructor() {
+					this.bar = 1;
+					this.bar = 2;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
 				bar;
 				constructor() {
 					this.bar = 1;
@@ -135,7 +143,6 @@ test.typescript({
 			code: outdent`
 				class MyError extends Error {
 					constructor(message: string) {
-						super(message);
 						this.name = "MyError";
 					}
 				}
@@ -143,10 +150,9 @@ test.typescript({
 			errors: [{messageId: MESSAGE_ID}],
 			output: outdent`
 				class MyError extends Error {
-					name = "MyError";
 					constructor(message: string) {
-						super(message);
 					}
+					name = "MyError";
 				}
 			`,
 		},
