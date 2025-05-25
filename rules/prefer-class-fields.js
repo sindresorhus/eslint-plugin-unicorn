@@ -9,8 +9,6 @@ const messages = {
 		'Encountered same-named class field declaration and `this` assignment in constructor. Replace the class field declaration with the value from `this` assignment.',
 };
 
-const WHITELIST_NODES_PRECEDING_THIS_ASSIGNMENT = new Set(['EmptyStatement', 'ExpressionStatement']);
-
 /**
 @param {import('eslint').Rule.Node} node
 @param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
@@ -67,14 +65,14 @@ const create = context => {
 				&& !node.computed
 				&& !node.static
 				&& node.type === 'MethodDefinition'
-				&& node.value.type === 'FunctionExpression'
+				&& node.value.type === 'FunctionExpression',
 			);
 
 			if (!constructor) {
 				return;
 			}
 
-			const node = constructor.value.body.body.find((node) => node.type !== 'EmptyStatement');
+			const node = constructor.value.body.body.find(node => node.type !== 'EmptyStatement');
 
 			if (!(
 				node?.type === 'ExpressionStatement'
@@ -86,7 +84,7 @@ const create = context => {
 				&& node.expression.left.property.type === 'Identifier'
 				&& node.expression.right.type === 'Literal'
 			)) {
-				return
+				return;
 			}
 
 			const propertyName = node.expression.left.property.name;
@@ -96,7 +94,7 @@ const create = context => {
 				&& !node.computed
 				&& !node.static
 				&& node.key.type === 'Identifier'
-				&& node.key.name === propertyName
+				&& node.key.name === propertyName,
 			);
 
 			const problem = {
@@ -119,8 +117,8 @@ const create = context => {
 						* fix(fixer) {
 							yield removeFieldAssignment(node, sourceCode, fixer);
 							yield fixer.replaceText(existingProperty.value, propertyValue);
-						}
-					}
+						},
+					},
 				];
 				return problem;
 			}
@@ -143,7 +141,7 @@ const create = context => {
 					sourceCode,
 					fixer,
 				);
-			}
+			};
 
 			return problem;
 		},
