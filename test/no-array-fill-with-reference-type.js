@@ -22,6 +22,17 @@ test.snapshot({
 		'Array(3).fill(0);        // ✓ number (primitive)',
 		'new Foo(3).fill({});       // ✓ Not Array',
 		'Foo(3).fill({});       // ✓ Not Array',
+
+		'const map = new Map(); Array.from({ length: 3 }, () => map); // Due to the rule name it will not check other than `Array.fill`, even if `Array.from` also fills in reference variable (map).',
+
+		`
+		// Due to the rule name it will not check other than \`Array.fill\`.,
+		const map = new Map();
+		const list = [];
+		for (let i = 0; i < 3; i++) {
+		  list.push(map);
+		}
+		`,
 	],
 	invalid: [
 		'new Array(3).fill({});       // ✗ Object  ',
@@ -39,6 +50,5 @@ test.snapshot({
 		'const map = new Map(); new Array(3).fill(map);      // ✗ Variable (map)',
 
 		'Array(3).fill({});       // ✗ Object  ',
-		// 'const map = new Map(); Array.from({ length: 3 }, () => map); // Array.from is also checked when filled with referenced variable (map)',
 	],
 });
