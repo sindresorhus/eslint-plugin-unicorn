@@ -2,6 +2,7 @@
 
 ## Prerequisite
 
+- Use npm to install.
 - Ensure ESLint doesn't already have the [rule built-in](https://eslint.org/docs/rules/).
 - [Read the ESLint docs on creating a new rule.](https://eslint.org/docs/developer-guide/working-with-rules)
 - Look at the commit for how previous rules were added as inspiration. For example, the [`no-unused-properties` rule](https://github.com/sindresorhus/eslint-plugin-unicorn/commit/0179443f24326fb01342a0bf799f7ac66e0e2c23).
