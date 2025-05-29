@@ -71,7 +71,7 @@ Array.from({ length: 3 }, () => new BarClass());
 ```
 
 ```js
-// ❌
+// ❌ Function
 new Array(3).fill(function () {})
 Array(3).fill(function () {})
 Array.from({ length: 3 }).fill(function () {});
@@ -93,7 +93,7 @@ Array.from({ length: 3 }, () => /pattern/);
 ```js
 const box = []
 
-// ❌ RegExp literal
+// ❌ Shared reference
 new Array(3).fill(box);
 Array(3).fill(box);
 Array.from({ length: 3 }).fill(box);
