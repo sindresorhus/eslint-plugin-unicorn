@@ -19,9 +19,9 @@ test.snapshot({
 		'Array.from({ length: 3 }, () => { return new Map }); // ✓ Safe alternative',
 		'Array.from({ length: 3 }, () => { return new Map() }); // ✓ Safe alternative',
 
-		// 'Array(3).fill(0);        // ✓ number (primitive)  ',
-		// 'new Foo(3).fill({});       // ✓ Not Array  ',
-		// 'Foo(3).fill({});       // ✓ Not Array  ',
+		'Array(3).fill(0);        // ✓ number (primitive)',
+		'new Foo(3).fill({});       // ✓ Not Array',
+		'Foo(3).fill({});       // ✓ Not Array',
 	],
 	invalid: [
 		'new Array(3).fill({});       // ✗ Object  ',
@@ -38,7 +38,7 @@ test.snapshot({
 		'new Array(3).fill(function () {});       // ✗ normal function',
 		'const map = new Map(); new Array(3).fill(map);      // ✗ Variable (map)',
 
-		// 'Array(3).fill({});       // ✗ Object  ',
+		'Array(3).fill({});       // ✗ Object  ',
 		// 'const map = new Map(); Array.from({ length: 3 }, () => map); // Array.from is also checked when filled with referenced variable (map)',
 	],
 });
