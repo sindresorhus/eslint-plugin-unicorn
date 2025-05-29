@@ -1,7 +1,7 @@
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Avoid using Array.fill() with reference types ({{type}}). Use Array.from() instead to ensure independent instances.',
+	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference types ({{type}}). Use `Array.from({ ... }, () => { ... })` instead to ensure independent instances.',
 };
 
 const debugging = false;
@@ -10,14 +10,14 @@ const log = (...arguments_) => debugging && console.log(...arguments_);
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(node) {
-		const isArrayDotFill = node.callee.type === 'MemberExpression'
-			&& node.callee.object.callee?.name === 'Array'
+		const isArrayFill = node.callee.type === 'MemberExpression'
+			&& ((node.callee.object.callee?.name === 'Array') || (context.sourceCode.getText(node.callee.object.callee) === 'Array.from'))
 			&& node.callee.property.name === 'fill'
 			&& node.arguments.length > 0;
 
-		log('isArrayDotFill:', isArrayDotFill);
+		log('isArrayFill:', isArrayFill);
 
-		if (!isArrayDotFill) {
+		if (!isArrayFill) {
 			return;
 		}
 
@@ -60,10 +60,13 @@ const create = context => ({
 			}
 		}
 
+		const actual = context.sourceCode.getText(node.callee.object.callee) === 'Array.from' ? 'Array.from().fill()' : 'Array.fill()';
+
 		return {
 			node,
 			messageId: MESSAGE_ID_ERROR,
 			data: {
+				actual,
 				type,
 			},
 		};
@@ -128,7 +131,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallows using `Array.fill()` with **reference types** to prevent unintended shared references across array elements.',
+			description: 'Disallows using `Array.fill()` or `Array.from().fill()` with **reference types** to prevent unintended shared references across array elements.',
 			recommended: true,
 		},
 		messages,

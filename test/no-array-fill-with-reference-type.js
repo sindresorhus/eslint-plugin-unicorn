@@ -23,14 +23,15 @@ test.snapshot({
 		'new Foo(3).fill({});       // ✓ Not Array',
 		'Foo(3).fill({});       // ✓ Not Array',
 
-		'const map = new Map(); Array.from({ length: 3 }, () => map); // Due to the rule name it will not check other than `Array.fill`, even if `Array.from` also fills in reference variable (map).',
-
+		// Below are the cases though have the same reference problem but are not covered by the rule.
+		// Due to the rule name it will not check other than `Array.fill`, even if `Array.from` also fills in reference variable.
+		// It cannot be exhaustively checked, we only check `Array.fill`.
+		'const map = new Map(); Array.from({ length: 3 }, () => map);',
 		`
-		// Due to the rule name it will not check other than \`Array.fill\`.,
 		const map = new Map();
 		const list = [];
 		for (let i = 0; i < 3; i++) {
-		  list.push(map);
+			list.push(map);
 		}
 		`,
 	],
@@ -46,9 +47,17 @@ test.snapshot({
 		'class BarClass {}; new Array(3).fill(new BarClass());       // ✗ Class instance',
 		'new Array(3).fill(() => 1);       // ✗ arrow function',
 		'new Array(3).fill(() => {});       // ✗ arrow function',
+		`new Array(3).fill(() => {
+			return {}
+		});`,
 		'new Array(3).fill(function () {});       // ✗ normal function',
 		'const map = new Map(); new Array(3).fill(map);      // ✗ Variable (map)',
 
 		'Array(3).fill({});       // ✗ Object  ',
+		// ✗ Object
+		'Array.from({ length: 3 }).fill({});',
+
+		'new Array(3).fill(new Date())',
+		'Array.from({ length: 3 }).fill(new Date())',
 	],
 });
