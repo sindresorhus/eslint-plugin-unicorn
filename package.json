@@ -95,6 +95,7 @@
 		"eslint-remote-tester-repositories": "^2.0.1",
 		"espree": "^10.3.0",
 		"listr2": "^8.3.3",
+		"lodash-es": "^4.17.21",
 		"markdownlint-cli": "^0.44.0",
 		"memoize": "^10.1.0",
 		"nano-spawn": "^0.2.0",
