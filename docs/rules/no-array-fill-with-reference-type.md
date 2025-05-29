@@ -1,4 +1,4 @@
-# Disallows using `Array.fill()` with **reference types** to prevent unintended shared references across array elements
+# Disallows using `Array.fill()` or `Array.from().fill()` with **reference types** to prevent unintended shared references across array elements
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
