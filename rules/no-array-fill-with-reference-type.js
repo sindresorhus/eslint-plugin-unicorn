@@ -65,7 +65,6 @@ const create = context => ({
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				type,
-				replacement: '🦄',
 			},
 		};
 	},
@@ -96,9 +95,11 @@ function isReferenceType(node, context) {
 	if (node.type === 'Identifier') {
 		const {variables} = context.sourceCode.getScope(node);
 		const variable = variables.find(v => v.name === node.name);
+
 		log('variables:', variables);
 		log('variable:', variable);
 		log('variable.defs[0].node:', variable?.defs[0].node);
+
 		if (!variable || !variable.defs[0]?.node) {
 			return false;
 		}
@@ -106,18 +107,18 @@ function isReferenceType(node, context) {
 		return isReferenceType(variable.defs[0].node, context);
 	}
 
-	// Symbol（如 Symbol('name')）
+	// Symbol (such as `Symbol('name')`)
 	if (node.type === 'CallExpression' && node.callee.name === 'Symbol') {
 		const {variables} = context.sourceCode.getScope(node);
 
 		log('variables 2:', variables);
 		if (!variables || variables.length === 0) {
-			// 未找到变量声明，可能是全局变量
+			// Variable declaration not found; it might be a global variable.
 			return false;
 		}
 	}
 
-	// 其他情况：对象、数组、函数、new表达式、正则表达式等
+	// Other cases: objects, arrays, functions, new expressions, regular expressions, etc.
 	return true;
 }
 
@@ -130,8 +131,6 @@ const config = {
 			description: 'Disallows using `Array.fill()` with **reference types** to prevent unintended shared references across array elements.',
 			recommended: true,
 		},
-		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 	},
 };
