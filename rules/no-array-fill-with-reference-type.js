@@ -1,8 +1,4 @@
 // @ts-check
-import {} from './ast/index.js';
-import {} from './fix/index.js';
-import {} from './utils/index.js';
-
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Avoid using Array.fill() with reference types ({{type}}). Use Array.from() instead to ensure independent instances.',
@@ -131,8 +127,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			// eslint-disable-next-line @stylistic/max-len
-			description: 'Disallows using `Array.fill()` with **reference types** (objects, arrays, functions, Maps, Sets, RegExp literals, etc.) to prevent unintended shared references across array elements. Encourages `Array.from()` or explicit iteration for creating independent instances.',
+			description: 'Disallows using `Array.fill()` with **reference types** to prevent unintended shared references across array elements.',
 			recommended: true,
 		},
 		fixable: 'code',
