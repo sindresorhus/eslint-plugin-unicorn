@@ -8,6 +8,9 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Avoid using Array.fill() with reference types ({{type}}). Use Array.from() instead to ensure independent instances.',
 };
 
+const debugging = false;
+const log = (...arguments_) => debugging && console.log(...arguments_);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(node) {
@@ -16,14 +19,14 @@ const create = context => ({
 			&& node.callee.property.name === 'fill'
 			&& node.arguments.length > 0;
 
-		// Console.log('isArrayDotFill:', isArrayDotFill);
+		log('isArrayDotFill:', isArrayDotFill);
 
 		if (!isArrayDotFill) {
 			return;
 		}
 
 		const fillArgument = node.arguments[0];
-		// Console.log('fillArgument:', fillArgument);
+		log('fillArgument:', fillArgument);
 
 		if (!isReferenceType(fillArgument, context)) {
 			return;
@@ -53,7 +56,6 @@ const create = context => ({
 			}
 
 			default: {
-				// 正则表达式字面量
 				if (fillArgument.type === 'Literal' && fillArgument.regex) {
 					type = 'RegExp';
 				} else if (fillArgument.type === 'Identifier') {
@@ -69,20 +71,6 @@ const create = context => ({
 				type,
 				replacement: '🦄',
 			},
-
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			// fix: fixer => fixer.replaceText(node, '\'🦄\''),
-
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			// suggest: [
-			// 	{
-			// 		messageId: MESSAGE_ID_SUGGESTION,
-			// 		data: {
-			// 			type,
-			// 		},
-			// 	},
-			// ],
-
 		};
 	},
 });
@@ -97,24 +85,24 @@ function isReferenceType(node, context) {
 		return false;
 	}
 
-	// 原始类型：字面量（null, number, string, boolean）
+	// For null, number, string, boolean.
 	if (node.type === 'Literal') {
-		// 排除正则表达式字面量（如 /pattern/，虽然属于 Literal，但实际是对象）
+		// Exclude regular expression literals (e.g., `/pattern/`, which are objects despite being literals).
 		return node.regex !== undefined;
 	}
 
-	// 特殊处理：模板字符串（`hello`）属于原始类型
+	// For template literals.
 	if (node.type === 'TemplateLiteral') {
 		return false;
 	}
 
-	// 变量标识符（递归检查其声明）
+	// For variable identifiers (recursively check its declaration).
 	if (node.type === 'Identifier') {
 		const {variables} = context.sourceCode.getScope(node);
 		const variable = variables.find(v => v.name === node.name);
-		// Console.log('variables:', variables);
-		// console.log('variable:', variable);
-		// console.log('variable.defs[0].node:', variable.defs[0].node);
+		log('variables:', variables);
+		log('variable:', variable);
+		log('variable.defs[0].node:', variable?.defs[0].node);
 		if (!variable || !variable.defs[0]?.node) {
 			return false;
 		}
@@ -126,7 +114,7 @@ function isReferenceType(node, context) {
 	if (node.type === 'CallExpression' && node.callee.name === 'Symbol') {
 		const {variables} = context.sourceCode.getScope(node);
 
-		// Console.log('variables 2:', variables);
+		log('variables 2:', variables);
 		if (!variables || variables.length === 0) {
 			// 未找到变量声明，可能是全局变量
 			return false;
@@ -143,6 +131,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
+			// eslint-disable-next-line @stylistic/max-len
 			description: 'Disallows using `Array.fill()` with **reference types** (objects, arrays, functions, Maps, Sets, RegExp literals, etc.) to prevent unintended shared references across array elements. Encourages `Array.from()` or explicit iteration for creating independent instances.',
 			recommended: true,
 		},
