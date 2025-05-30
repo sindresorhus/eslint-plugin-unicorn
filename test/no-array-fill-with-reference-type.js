@@ -59,5 +59,7 @@ test.snapshot({
 
 		'new Array(3).fill(new Date())',
 		'Array.from({ length: 3 }).fill(new Date())',
+
+		'Array.from({length: 3}).fill(createError(\'no\', \'yes\')[0])',
 	],
 });
