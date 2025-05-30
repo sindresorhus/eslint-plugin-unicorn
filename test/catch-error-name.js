@@ -496,6 +496,9 @@ test({
 				obj.then(err => {}, error => {});
 				obj.then(err => {}, error => {});
 			`,
+
+			// It's safe due to no mutation to `errors`
+			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 4}).fill(generateError('err', 'error')),
 		},
 
