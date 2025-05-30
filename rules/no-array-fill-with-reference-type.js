@@ -1,7 +1,7 @@
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference types ({{type}}). Use `Array.from({ ... }, () => { ... })` instead to ensure independent instances.',
+	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { ... })` instead to ensure independent instances.',
 };
 
 const debugging = false;
@@ -28,7 +28,7 @@ const create = context => ({
 			return;
 		}
 
-		let type = 'unknown';
+		let type = '';
 		switch (fillArgument.type) {
 			case 'ObjectExpression': {
 				type = 'Object';
@@ -67,7 +67,7 @@ const create = context => ({
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				actual,
-				type,
+				type: type ? ` (${type})` : '',
 			},
 		};
 	},
