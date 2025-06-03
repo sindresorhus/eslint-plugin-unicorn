@@ -78,6 +78,8 @@ test.snapshot({
 		String.raw`foo.replace(/\u{61}/g, bar)`,
 		String.raw`foo.replace(/\u{61}/gu, bar)`,
 		String.raw`foo.replace(/\u{61}/gv, bar)`,
+		String.raw`str.replace(/\u200B/g, '')`,
+		String.raw`str.replace(/\x20/g, '')`,
 		'foo.replace(/]/g, "bar")',
 		// Extra flag
 		'foo.replace(/a/gi, bar)',

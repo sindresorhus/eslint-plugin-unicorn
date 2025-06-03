@@ -1,6 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
-import escapeString from './utils/escape-string.js';
 import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
 
 const {parse: parseRegExp} = regjsparser;
@@ -39,10 +38,24 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	// TODO: Preserve escape
-	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
+	return `'${parts.map(part => {
+		const {kind, codePoint, raw} = part;
 
-	return escapeString(string);
+		if (kind === 'controlLetter' || kind === 'hexadecimalEscape') {
+			return `\\u{${codePoint.toString(16)}}`;
+		}
+
+		let character = raw;
+		if (kind === 'identifier') {
+			character = character.slice(1);
+		}
+
+		if (character === '\'' || character === '\\') {
+			return `\\${character}`;
+		}
+
+		return character;
+	}).join('')}'`;
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {
