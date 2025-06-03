@@ -96,7 +96,12 @@ test.snapshot({
 		'foo.replace(/a{1}/g, _)',
 		String.raw`foo.replace(/\u0022/g, _)`,
 		String.raw`foo.replace(/\u0027/g, _)`,
-		String.raw`foo.replace(/\cM\cj/g, _)`,
+
+		// `\r\n\t`
+		String.raw`foo.replace(/\cM\cj\cI/g, _)`,
+		String.raw`foo.replace(/\x0d\x0a\x09/g, _)`,
+		String.raw`foo.replace(/\u000d\u000a\u0009/g, _)`,
+
 		String.raw`foo.replace(/\x22/g, _)`,
 		String.raw`foo.replace(/\x27/g, _)`,
 		String.raw`foo.replace(/\uD83D\ude00/g, _)`,
