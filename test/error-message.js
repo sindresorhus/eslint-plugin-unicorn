@@ -104,3 +104,39 @@ test.snapshot({
 		'const error = new AggregateError;',
 	],
 });
+
+// `SuppressedError`
+test.snapshot({
+	valid: [
+		'new SuppressedError(error, suppressed, "message")',
+		'new NotSuppressedError(error, suppressed)',
+		'new SuppressedError(...foo)',
+		'new SuppressedError(...foo, "")',
+		'new SuppressedError(error, suppressed, ...foo)',
+		'new SuppressedError(error, suppressed, message, "")',
+		'new SuppressedError("", "", message, "")',
+	],
+	invalid: [
+		'new SuppressedError(error, suppressed,)',
+		'new SuppressedError(error,)',
+		'new SuppressedError()',
+		'SuppressedError(error, suppressed,)',
+		'SuppressedError(error,)',
+		'SuppressedError()',
+		'new SuppressedError(error, suppressed, "")',
+		'new SuppressedError(error, suppressed, ``)',
+		'new SuppressedError(error, suppressed, "", options)',
+		outdent`
+			const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+			throw new SuppressedError(error, suppressed, errorMessage)
+		`,
+		'new SuppressedError(error, suppressed, [])',
+		'new SuppressedError(error, suppressed, [foo])',
+		'new SuppressedError(error, suppressed, [0][0])',
+		'new SuppressedError(error, suppressed, {})',
+		'new SuppressedError(error, suppressed, {foo})',
+		'new SuppressedError(error, suppressed, {foo: 0}.foo)',
+		'new SuppressedError(error, suppressed, lineNumber=2)',
+		'const error = new SuppressedError;',
+	],
+});

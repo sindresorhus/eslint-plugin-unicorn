@@ -9,6 +9,7 @@ const builtinErrors = [
 	'URIError',
 	'InternalError',
 	'AggregateError',
+	'SuppressedError',
 ];
 
 export default builtinErrors;
