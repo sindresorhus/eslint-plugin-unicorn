@@ -41,7 +41,7 @@ function getPatternReplacement(node) {
 	return `'${parts.map(part => {
 		const {kind, codePoint, raw} = part;
 
-		if (kind === 'controlLetter' || kind === 'hexadecimalEscape') {
+		if (kind === 'controlLetter') {
 			if (codePoint === 13) {
 				return String.raw`\r`;
 			}
