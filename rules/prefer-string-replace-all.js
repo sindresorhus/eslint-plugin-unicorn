@@ -10,6 +10,7 @@ const messages = {
 	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
 };
 
+const QUOTE = '\''
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
@@ -38,36 +39,38 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	return `'${parts.map(part => {
-		const {kind, codePoint, raw} = part;
+	return QUOTE
+		+ parts.map(part => {
+			const {kind, codePoint, raw} = part;
 
-		if (kind === 'controlLetter') {
-			if (codePoint === 13) {
-				return String.raw`\r`;
+			if (kind === 'controlLetter') {
+				if (codePoint === 13) {
+					return String.raw`\r`;
+				}
+
+				if (codePoint === 10) {
+					return String.raw`\n`;
+				}
+
+				if (codePoint === 9) {
+					return String.raw`\t`;
+				}
+
+				return `\\u{${codePoint.toString(16)}}`;
 			}
 
-			if (codePoint === 10) {
-				return String.raw`\n`;
+			let character = raw;
+			if (kind === 'identifier') {
+				character = character.slice(1);
 			}
 
-			if (codePoint === 9) {
-				return String.raw`\t`;
+			if (character === QUOTE || character === '\\') {
+				return `\\${character}`;
 			}
 
-			return `\\u{${codePoint.toString(16)}}`;
-		}
-
-		let character = raw;
-		if (kind === 'identifier') {
-			character = character.slice(1);
-		}
-
-		if (character === '\'' || character === '\\') {
-			return `\\${character}`;
-		}
-
-		return character;
-	}).join('')}'`;
+			return character;
+		}).join('')
+		+ QUOTE;
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {
