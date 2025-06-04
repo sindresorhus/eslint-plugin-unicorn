@@ -317,6 +317,7 @@ const create = context => {
 	});
 	const rules = baseRule.create(fakeContext);
 
+	// eslint-disable-next-line complexity
 	function processComment(comment) {
 		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
 			return;

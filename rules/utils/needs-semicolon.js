@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 // https://github.com/eslint/espree/blob/6b7d0b8100537dcd5c84a7fb17bbe28edcabe05d/lib/token-translator.js#L20
 const tokenTypesNeedsSemicolon = new Set([
 	'String',

@@ -12,10 +12,11 @@ const messages = {
 	[MESSAGE_ID_UNNECESSARY_BRACES]: 'Unnecessary braces in case clause.',
 };
 
-function * removeBraces(fixer, node, sourceCode) {
+function * removeBraces(fixer, node, context) {
+	const {sourceCode} = context;
 	const [blockStatement] = node.consequent;
 	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, sourceCode);
+	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	yield fixer.remove(closingBraceToken);
@@ -54,7 +55,7 @@ const create = context => {
 					node,
 					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
 					messageId: MESSAGE_ID_EMPTY_CLAUSE,
-					fix: fixer => removeBraces(fixer, node, sourceCode),
+					fix: fixer => removeBraces(fixer, node, context),
 				};
 			}
 
@@ -86,7 +87,7 @@ const create = context => {
 					node,
 					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
 					messageId: MESSAGE_ID_UNNECESSARY_BRACES,
-					fix: fixer => removeBraces(fixer, node, sourceCode),
+					fix: fixer => removeBraces(fixer, node, context),
 				};
 			}
 		},

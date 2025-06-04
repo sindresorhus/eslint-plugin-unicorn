@@ -1,3 +1,4 @@
+/* eslint complexity: 'off' */
 /**
 @param {
 	{

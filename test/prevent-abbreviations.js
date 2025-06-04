@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/max-len, max-lines */
 import outdent from 'outdent';
 import {getTester, avoidTestTitleConflict} from './utils/test.js';
 
@@ -286,7 +287,9 @@ const tests = {
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.'),
+			errors: createErrors(
+				'Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.',
+			),
 		},
 
 		// All suggested names should avoid capture
