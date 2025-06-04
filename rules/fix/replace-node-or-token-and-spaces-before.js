@@ -1,12 +1,11 @@
 import {getParentheses} from '../utils/parentheses.js';
 
-export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, context) {
-	const {sourceCode} = context;
-	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
+// eslint-disable-next-line max-params
+export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode, tokenStore = sourceCode) {
 	const tokens = getParentheses(nodeOrToken, tokenStore);
 
 	for (const token of tokens) {
-		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, context);
+		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, sourceCode, tokenStore);
 	}
 
 	let [start, end] = sourceCode.getRange(nodeOrToken);

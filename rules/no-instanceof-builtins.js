@@ -53,8 +53,7 @@ const strictStrategyConstructors = [
 	'FinalizationRegistry',
 ];
 
-const replaceWithFunctionCall = (node, functionName, context) => function * (fixer) {
-	const {sourceCode} = context;
+const replaceWithFunctionCall = (node, sourceCode, functionName) => function * (fixer) {
 	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
 	const {left, right} = node;
 
@@ -64,8 +63,8 @@ const replaceWithFunctionCall = (node, functionName, context) => function * (fix
 	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
-	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, context);
-	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context);
+	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
+	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
 };
 
 const replaceWithTypeOfExpression = (node, sourceCode) => function * (fixer) {
@@ -142,7 +141,7 @@ const create = context => {
 				|| (constructorName === 'Error' && useErrorIsError)
 			) {
 				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
-				problem.fix = replaceWithFunctionCall(node, functionName, context);
+				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
 				return problem;
 			}
 
