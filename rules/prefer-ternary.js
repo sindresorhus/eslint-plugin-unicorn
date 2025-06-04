@@ -59,6 +59,7 @@ const create = context => {
 		return text;
 	};
 
+	// eslint-disable-next-line complexity
 	function merge(options, mergeOptions) {
 		const {
 			before = '',

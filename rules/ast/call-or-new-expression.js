@@ -11,6 +11,7 @@
 	} | string | string[]
 } CallOrNewExpressionCheckOptions
 */
+// eslint-disable-next-line complexity
 function create(node, options, types) {
 	if (!types.includes(node?.type)) {
 		return false;
