@@ -10,6 +10,11 @@ test.snapshot({
 		'new Array(3).fill(null);     // ✓ null (primitive)  ',
 		'new Array(3).fill(undefined);     // ✓ undefined(primitive)  ',
 		'new Array(3).fill(\'foo\');        // ✓ string (primitive)  ',
+		'new Array(3).fill(``);        // ✓ TemplateLiteral (primitive)  ',
+		// eslint-disable-next-line no-template-curly-in-string
+		'new Array(3).fill(`${10}`);        // ✓ TemplateLiteral (primitive)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'const foo = "foo"; new Array(3).fill(`Hi ${foo}`);        // ✓ TemplateLiteral (primitive)',
 		'new Array(3).fill(false);     // ✓ boolean (primitive)  ',
 		'new Array(3).fill(Symbol(\'foo\'));        // ✓ Symbol(primitive)  ',
 
@@ -36,6 +41,9 @@ test.snapshot({
 		`,
 	],
 	invalid: [
+		'new Array(3).fill([]);', // ✗ Array
+		'new Array(3).fill(Array());', // ✗ Array
+		'new Array(3).fill(new Array());', // ✗ Array
 		'new Array(3).fill({});       // ✗ Object  ',
 		'new Array(3).fill(new Map());       // ✗ Map',
 		'new Array(3).fill(new Set());       // ✗ Set',
