@@ -10,7 +10,8 @@ const messages = {
 	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
 };
 
-const QUOTE = '\''
+const QUOTE = '\'';
+
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
