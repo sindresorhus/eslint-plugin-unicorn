@@ -63,7 +63,7 @@ const create = context => ({
 		const actual = context.sourceCode.getText(node.callee.object.callee) === 'Array.from' ? 'Array.from().fill()' : 'Array.fill()';
 
 		return {
-			node,
+			node: fillArgument,
 			messageId: MESSAGE_ID_ERROR,
 			data: {
 				actual,
