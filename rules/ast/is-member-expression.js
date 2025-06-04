@@ -1,4 +1,4 @@
-/* eslint complexity: 'off' */
+/* eslint-disable complexity */
 /**
 @param {
 	{

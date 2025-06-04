@@ -1,4 +1,4 @@
-/* eslint complexity: 'off' */
+/* eslint-disable complexity */
 import {isBigIntLiteral, isCallExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
