@@ -101,3 +101,33 @@ Array.from({ length: 3 }).fill(box);
 // ✅
 Array.from({ length: 3 }, () => []);
 ```
+
+## Options
+
+### canFillWithFunction
+
+Type: `boolean`\
+Default: `true`
+
+Should check function when filling an array?
+
+This would pass by default:
+
+```js
+new Array(3).fill(function () {})
+```
+
+```js
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"canFillWithFunction": false
+	}
+]
+```
+
+with `canFillWithFunction: false`, this would fail:
+
+```js
+new Array(3).fill(function () {})
+```
