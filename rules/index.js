@@ -22,6 +22,7 @@ import noAbusiveEslintDisable from './no-abusive-eslint-disable.js';
 import noAccessorRecursion from './no-accessor-recursion.js';
 import noAnonymousDefaultExport from './no-anonymous-default-export.js';
 import noArrayCallbackReference from './no-array-callback-reference.js';
+import noArrayFillWithReferenceType from './no-array-fill-with-reference-type.js';
 import noArrayForEach from './no-array-for-each.js';
 import noArrayMethodThisArgument from './no-array-method-this-argument.js';
 import noArrayReduce from './no-array-reduce.js';
@@ -154,6 +155,7 @@ const rules = {
 	'no-accessor-recursion': createRule(noAccessorRecursion, 'no-accessor-recursion'),
 	'no-anonymous-default-export': createRule(noAnonymousDefaultExport, 'no-anonymous-default-export'),
 	'no-array-callback-reference': createRule(noArrayCallbackReference, 'no-array-callback-reference'),
+	'no-array-fill-with-reference-type': createRule(noArrayFillWithReferenceType, 'no-array-fill-with-reference-type'),
 	'no-array-for-each': createRule(noArrayForEach, 'no-array-for-each'),
 	'no-array-method-this-argument': createRule(noArrayMethodThisArgument, 'no-array-method-this-argument'),
 	'no-array-reduce': createRule(noArrayReduce, 'no-array-reduce'),
