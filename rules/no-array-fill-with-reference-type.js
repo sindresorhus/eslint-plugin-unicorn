@@ -1,3 +1,5 @@
+import {isFunction} from './ast/index.js';
+
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
@@ -28,39 +30,8 @@ const create = context => ({
 			return;
 		}
 
-		let type = '';
-		switch (fillArgument.type) {
-			case 'ObjectExpression': {
-				type = 'Object';
-				break;
-			}
-
-			case 'ArrayExpression': {
-				type = 'Array';
-				break;
-			}
-
-			case 'NewExpression': {
-				type = `new ${fillArgument.callee.name}()`;
-				break;
-			}
-
-			case 'FunctionExpression':
-			case 'ArrowFunctionExpression': {
-				type = 'Function';
-				break;
-			}
-
-			default: {
-				if (fillArgument.type === 'Literal' && fillArgument.regex) {
-					type = 'RegExp';
-				} else if (fillArgument.type === 'Identifier') {
-					type = `variable (${fillArgument.name})`;
-				}
-			}
-		}
-
 		const actual = context.sourceCode.getText(node.callee.object.callee) === 'Array.from' ? 'Array.from().fill()' : 'Array.fill()';
+		const type = getType(fillArgument);
 
 		return {
 			node: fillArgument,
@@ -72,6 +43,48 @@ const create = context => ({
 		};
 	},
 });
+
+/**
+
+ @param {*} fillArgument
+ @returns {string}
+ */
+function getType(fillArgument) {
+	let type = '';
+
+	switch (fillArgument.type) {
+		case 'ObjectExpression': {
+			type = 'Object';
+			break;
+		}
+
+		case 'ArrayExpression': {
+			type = 'Array';
+			break;
+		}
+
+		case 'NewExpression': {
+			type = `new ${fillArgument.callee.name}()`;
+			break;
+		}
+
+		case 'FunctionExpression':
+		case 'ArrowFunctionExpression': {
+			type = 'Function';
+			break;
+		}
+
+		default: {
+			if (fillArgument.type === 'Literal' && fillArgument.regex) {
+				type = 'RegExp';
+			} else if (fillArgument.type === 'Identifier') {
+				type = `variable (${fillArgument.name})`;
+			}
+		}
+	}
+
+	return type;
+}
 
 /**
  @param {*} node
@@ -98,16 +111,22 @@ function isReferenceType(node, context) {
 	if (node.type === 'Identifier') {
 		const {variables} = context.sourceCode.getScope(node);
 		const variable = variables.find(v => v.name === node.name);
+		const definitionNode = variable?.defs[0].node;
 
 		log('variables:', variables);
 		log('variable:', variable);
-		log('variable.defs[0].node:', variable?.defs[0].node);
+		log('variable.defs[0].node:', definitionNode);
 
-		if (!variable || !variable.defs[0]?.node) {
+		if (!variable || !definitionNode) {
 			return false;
 		}
 
-		return isReferenceType(variable.defs[0].node, context);
+		// Check `const foo = []; Array(3).fill(foo);`
+		if (definitionNode.type === 'VariableDeclarator') {
+			return isReferenceType(definitionNode.init, context);
+		}
+
+		return isReferenceType(definitionNode, context);
 	}
 
 	// Symbol (such as `Symbol('name')`)
@@ -121,9 +140,31 @@ function isReferenceType(node, context) {
 		}
 	}
 
-	// Other cases: objects, arrays, functions, new expressions, regular expressions, etc.
+	const options = {
+		// Not check for function expressions by default because it is rare to fill an array with a function and add properties to it.
+		canFillWithFunction: true,
+		...context.options[0],
+	};
+
+	if (options.canFillWithFunction && isFunction(node)) {
+		return false;
+	}
+
+	// Other cases: objects, arrays, new expressions, regular expressions, etc.
 	return true;
 }
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			canFillWithFunction: {
+				type: 'boolean',
+			},
+		},
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -134,6 +175,8 @@ const config = {
 			description: 'Disallows using `Array.fill()` or `Array.from().fill()` with **reference types** to prevent unintended shared references across array elements.',
 			recommended: true,
 		},
+		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };

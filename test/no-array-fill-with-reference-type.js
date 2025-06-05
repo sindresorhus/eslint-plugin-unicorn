@@ -39,6 +39,30 @@ test.snapshot({
 			list.push(map);
 		}
 		`,
+
+		'const foo = 0; new Array(8).fill(foo);',
+
+		// Not check functions
+		// function expression
+		'new Array(1).fill(() => 1);',
+		'new Array(2).fill(() => {});',
+		`new Array(3).fill(() => {
+			return {}
+		});`,
+		'new Array(4).fill(function () {});',
+
+		// Set canFillWithFunction explicitly to true
+		{
+			code: 'new Array(41).fill(function () {});',
+			options: [{
+				canFillWithFunction: true,
+			}],
+		},
+
+		// Function declaration
+		'const foo = () => 0; new Array(5).fill(foo);',
+		'const foo = function () {}; new Array(6).fill(foo);',
+		'function foo() {}; new Array(7).fill(foo);',
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -53,12 +77,7 @@ test.snapshot({
 		'new Array(3).fill(new Foo(\'fff\'));       // ✗ new Class',
 		'class BarClass {}; new Array(3).fill(BarClass);       // ✗ Class',
 		'class BarClass {}; new Array(3).fill(new BarClass());       // ✗ Class instance',
-		'new Array(3).fill(() => 1);       // ✗ arrow function',
-		'new Array(3).fill(() => {});       // ✗ arrow function',
-		`new Array(3).fill(() => {
-			return {}
-		});`,
-		'new Array(3).fill(function () {});       // ✗ normal function',
+
 		'const map = new Map(); new Array(3).fill(map);      // ✗ Variable (map)',
 
 		'Array(3).fill({});       // ✗ Object  ',
@@ -69,5 +88,32 @@ test.snapshot({
 		'Array.from({ length: 3 }).fill(new Date())',
 
 		'Array.from({length: 3}).fill(createError(\'no\', \'yes\')[0])',
+		'const initialArray = []; new Array(3).fill(initialArray); // ✗ Variable (array)',
+
+		// Should not fill with function
+		{
+			code: 'new Array(3).fill(() => 1);',
+			options: [{
+				canFillWithFunction: false,
+			}],
+		},
+		{
+			code: 'new Array(3).fill(() => {});',
+			options: [{
+				canFillWithFunction: false,
+			}],
+		},
+		{
+			code: 'new Array(3).fill(() => { return {} });',
+			options: [{
+				canFillWithFunction: false,
+			}],
+		},
+		{
+			code: 'new Array(3).fill(function () {});',
+			options: [{
+				canFillWithFunction: false,
+			}],
+		},
 	],
 });
