@@ -31,6 +31,7 @@ const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	'prefer-modern-math-apis',
 	'prefer-math-min-max',
 	'consistent-existence-index-check',
+	'prefer-class-fields',
 	'prefer-global-this',
 	'no-instanceof-builtins',
 	'no-named-default',
