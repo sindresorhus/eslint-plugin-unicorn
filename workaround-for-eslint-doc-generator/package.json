@@ -1,5 +1,0 @@
-{
-	"// Remove this once https://github.com/bmish/eslint-doc-generator/issues/615 get fixed": "",
-	"name":"eslint-plugin-unicorn",
-	"type": "commonjs"
-}

@@ -22,7 +22,6 @@ const config = [
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
 			'test/integration/{fixtures,fixtures-local}/**',
-			'workaround-for-eslint-doc-generator',
 			'**/*.ts',
 		],
 	},
