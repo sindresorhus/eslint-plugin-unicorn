@@ -155,19 +155,24 @@ export function checkVueTemplate(create, options) {
 	return wrapped;
 }
 
-/** @returns {import('eslint').Rule.RuleModule} */
-export function createRule(rule, ruleId) {
-	return {
-		meta: {
-			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
-			// https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/blob/master/docs/rules/require-meta-schema.md
-			schema: [],
-			...rule.meta,
-			docs: {
-				...rule.meta.docs,
-				url: getDocumentationUrl(ruleId),
+/** @returns {Record<string, import('eslint').Rule.RuleModule>} */
+export function createRules(rules) {
+	return Object.fromEntries(
+		Object.entries(rules).map(([ruleId, rule]) => [
+			ruleId,
+			{
+				meta: {
+					// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
+					// https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/blob/master/docs/rules/require-meta-schema.md
+					schema: [],
+					...rule.meta,
+					docs: {
+						...rule.meta.docs,
+						url: getDocumentationUrl(ruleId),
+					},
+				},
+				create: reportProblems(rule.create),
 			},
-		},
-		create: reportProblems(rule.create),
-	};
+		]),
+	);
 }

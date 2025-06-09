@@ -1,7 +1,10 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
 import flatConfigBase from './configs/flat-config-base.js';
-import rules from './rules/index.js';
+import * as rawRules from './rules/index.js';
+import {createRules} from './rules/utils/rule.js';
 import packageJson from './package.json' with {type: 'json'};
+
+const rules = createRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
 	// {ruleId: {message: string, replacedBy: string[]}}
@@ -58,7 +61,7 @@ const unicorn = {
 		version: packageJson.version,
 	},
 	rules: {
-		...rules,
+		...createRules(rules),
 		...deprecatedRules,
 	},
 };
