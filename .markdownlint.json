@@ -4,5 +4,6 @@
 	"no-hard-tabs": false,
 	"ul-style": {
 		"style": "dash"
-	}
+	},
+	"descriptive-link-text": false
 }
