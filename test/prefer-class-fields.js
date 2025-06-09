@@ -9,6 +9,8 @@ test.snapshot({
 	valid: [
 		'class Foo {bar = 1}',
 		'class Foo {static bar = 1}',
+		'class Foo {#bar = 1}',
+		'class Foo {static #bar = 1}',
 		// Not `=` assign
 		'class Foo {constructor() {this.bar += 1}}',
 		// Computed
@@ -68,9 +70,25 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
+				#bar;
+				constructor() {
+					this.#bar = 1;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
 				bar = 0;
 				constructor() {
 					this.bar = 1;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				#bar = 0;
+				constructor() {
+					this.#bar = 1;
 				}
 			}
 		`,

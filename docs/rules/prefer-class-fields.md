@@ -56,3 +56,18 @@ class Foo {
 	foo = 'bar';
 }
 ```
+
+```js
+// ❌
+class Foo {
+	#foo = 'foo';
+	constructor() {
+		this.#foo = 'bar';
+	}
+}
+
+// ✅
+class Foo {
+	#foo = 'bar';
+}
+```

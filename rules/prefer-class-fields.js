@@ -81,7 +81,7 @@ const create = context => {
 				&& node.expression.left.type === 'MemberExpression'
 				&& node.expression.left.object.type === 'ThisExpression'
 				&& !node.expression.left.computed
-				&& node.expression.left.property.type === 'Identifier'
+				&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
 				&& node.expression.right.type === 'Literal'
 			)) {
 				return;
@@ -89,11 +89,12 @@ const create = context => {
 
 			const propertyName = node.expression.left.property.name;
 			const propertyValue = node.expression.right.raw;
+			const propertyType = node.expression.left.property.type;
 			const existingProperty = classBody.body.find(node =>
 				node.type === 'PropertyDefinition'
 				&& !node.computed
 				&& !node.static
-				&& node.key.type === 'Identifier'
+				&& node.key.type === propertyType
 				&& node.key.name === propertyName,
 			);
 
