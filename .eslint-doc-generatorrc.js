@@ -20,9 +20,6 @@ const config = {
 		'requiresTypeChecking',
 	],
 	urlConfigs: 'https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config',
-	// Workaround for https://github.com/bmish/eslint-doc-generator/issues/615
-	pathRuleDoc: '../docs/rules/{name}.md',
-	pathRuleList: '../readme.md',
 };
 
 export default config;
