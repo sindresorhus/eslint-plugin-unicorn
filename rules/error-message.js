@@ -12,6 +12,11 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
 
+const messageArgumentIndexes = new Map([
+	['AggregateError', 1],
+	['SuppressedError', 2],
+]);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on(['CallExpression', 'NewExpression'], expression => {
@@ -28,7 +33,9 @@ const create = context => {
 		}
 
 		const constructorName = expression.callee.name;
-		const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
+		const messageArgumentIndex = messageArgumentIndexes.has(constructorName)
+			? messageArgumentIndexes.get(constructorName)
+			: 0;
 		const callArguments = expression.arguments;
 
 		// If message is `SpreadElement` or there is `SpreadElement` before message

@@ -1,5 +1,6 @@
 import {getParentheses} from '../utils/parentheses.js';
 
+// eslint-disable-next-line max-params
 export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replacement, fixer, sourceCode, tokenStore = sourceCode) {
 	const tokens = getParentheses(nodeOrToken, tokenStore);
 

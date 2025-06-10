@@ -54,7 +54,7 @@ jobs:
         env:
           AVA_FORCE_CI: not-ci
       - run: git diff --exit-code
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           disable_search: true

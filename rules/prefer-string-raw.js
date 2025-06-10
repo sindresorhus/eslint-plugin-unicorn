@@ -33,6 +33,7 @@ function unescapeBackslash(raw) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	// eslint-disable-next-line complexity
 	context.on('Literal', node => {
 		if (
 			!isStringLiteral(node)

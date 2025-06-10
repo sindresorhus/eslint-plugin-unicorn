@@ -114,6 +114,7 @@ const isLengthProperty = node =>
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
 
+// eslint-disable-next-line complexity
 export default function isNumber(node, scope) {
 	if (
 		isNumberLiteral(node)
