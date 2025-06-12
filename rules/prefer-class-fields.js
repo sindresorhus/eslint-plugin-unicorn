@@ -29,30 +29,6 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 };
 
 /**
-@param {string} propertyName
-@param {string} propertyValue
-@param {import('estree').ClassBody} classBody
-@param {import('estree').MethodDefinition} constructor
-@param {import('eslint').Rule.RuleContext['sourceCode']} sourceCode
-@param {import('eslint').Rule.RuleFixer} fixer
-*/
-const addClassFieldDeclaration = (
-	propertyName,
-	propertyValue,
-	classBody,
-	constructor,
-	sourceCode,
-	fixer,
-) => {
-	const closingBrace = sourceCode.getLastToken(classBody);
-	const indent = getIndentString(constructor, sourceCode);
-	return fixer.insertTextBefore(
-		closingBrace,
-		`${indent}${propertyName} = ${propertyValue};\n`,
-	);
-};
-
-/**
 @type {import('eslint').Rule.RuleModule['create']}
 */
 const create = context => {
@@ -129,14 +105,9 @@ const create = context => {
 					return;
 				}
 
-				yield addClassFieldDeclaration(
-					propertyName,
-					propertyValue,
-					classBody,
-					constructor,
-					sourceCode,
-					fixer,
-				);
+				const closingBrace = sourceCode.getLastToken(classBody);
+				const indent = getIndentString(constructor, sourceCode);
+				yield fixer.insertTextBefore(closingBrace, `${indent}${propertyName} = ${propertyValue};\n`);
 			};
 
 			return problem;
