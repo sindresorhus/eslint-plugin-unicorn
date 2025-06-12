@@ -107,11 +107,6 @@ const create = context => {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							propertyName,
-							// Class expression does not have name, e.g. const a = class {}
-							className: classBody.parent?.id?.name ?? '',
-						},
 						/**
 						@param {import('eslint').Rule.RuleFixer} fixer
 						*/
