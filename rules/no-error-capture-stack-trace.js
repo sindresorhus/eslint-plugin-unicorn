@@ -8,10 +8,8 @@ import {} from './utils/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_ERROR = 'no-error-capture-stack-trace/error';
-const MESSAGE_ID_SUGGESTION = 'no-error-capture-stack-trace/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Unnecessary `Error.captureStackTrace(…)` call.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `Error.captureStackTrace(…)`.',
 };
 
 // TODO: Make sure the super class is global
