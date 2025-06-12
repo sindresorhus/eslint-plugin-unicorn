@@ -153,6 +153,14 @@ test.snapshot({
 			}
 			static}
 		`,
+		outdent`
+			class Foo {
+			constructor() {
+				this.bar = 1;
+			}
+			static// comment
+			}
+		`,
 	],
 });
 
