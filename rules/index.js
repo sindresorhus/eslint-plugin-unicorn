@@ -24,6 +24,7 @@ export {default as 'no-array-callback-reference'} from './no-array-callback-refe
 export {default as 'no-array-for-each'} from './no-array-for-each.js';
 export {default as 'no-array-method-this-argument'} from './no-array-method-this-argument.js';
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
+export {default as 'no-array-reverse'} from './no-array-reverse.js';
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
