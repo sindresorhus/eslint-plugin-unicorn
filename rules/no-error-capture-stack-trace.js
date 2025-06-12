@@ -67,12 +67,10 @@ const isClassConstructor = (node, classNode) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
+	const classStack = [];
+	const thisScopeStack = [];
 
-	let classStack = [];
-	let thisScopeStack = [];
-
-	context.on(['ClassDeclaration', 'ClassExpression'], (classNode) => {
+	context.on(['ClassDeclaration', 'ClassExpression'], classNode => {
 		classStack.push(classNode);
 		thisScopeStack.push(classNode);
 	});
@@ -82,7 +80,7 @@ const create = context => {
 		thisScopeStack.pop();
 	});
 
-	context.on(['FunctionDeclaration', 'FunctionExpression'], (functionNode) => {
+	context.on(['FunctionDeclaration', 'FunctionExpression'], functionNode => {
 		thisScopeStack.push(functionNode);
 	});
 
@@ -90,7 +88,7 @@ const create = context => {
 		thisScopeStack.pop();
 	});
 
-	context.on('CallExpression', (callExpression) => {
+	context.on('CallExpression', callExpression => {
 		const errorClass = classStack.at(-1);
 
 		if (!(
@@ -134,7 +132,7 @@ const create = context => {
 		}
 
 		return problem;
-	})
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

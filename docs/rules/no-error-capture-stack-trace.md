@@ -7,27 +7,26 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+It's unnecessary to call `Error.captureStackTrace(…)` inside subclass of builtin errors in constructor, since `Error` constructor will call it automatically.
 
 ## Examples
 
 ```js
-// ❌
-const foo = 'unicorn';
-
-// ✅
-const foo = '🦄';
-```
-
-```js
-// ❌
-function foo() {
-	var replace = 'me';
-	return replace;
-}
-
-// ✅
-function foo() {
-	return 'me';
+class MyError extends Error {
+	constructor() {
+		// ❌
+		Error.captureStackTrace(this, MyError);
+		// ❌
+		Error.captureStackTrace?.(this, MyError);
+		// ❌
+		Error.captureStackTrace(this, this.constructor);
+		// ❌
+		Error.captureStackTrace?.(this, this.constructor);
+		// ❌
+		Error.captureStackTrace(this, new.target);
+		// ❌
+		Error.captureStackTrace?.(this, new.target);
+	}
 }
 ```
+
