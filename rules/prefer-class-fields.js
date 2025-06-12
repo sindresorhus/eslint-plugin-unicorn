@@ -94,7 +94,11 @@ const create = context => {
 
 				const closingBrace = sourceCode.getLastToken(classBody);
 				const indent = getIndentString(constructor, sourceCode);
-				yield fixer.insertTextBefore(closingBrace, `${indent}${propertyName} = ${propertyValue};\n`);
+				const characterBefore = sourceCode.getText()[sourceCode.getRange(closingBrace)[0] - 1];
+				yield fixer.insertTextBefore(
+					closingBrace,
+					`${characterBefore === '\n' ? '' : '\n'}${indent}${propertyName} = ${propertyValue};\n`,
+				);
 			}
 
 			if (existingProperty?.value) {
