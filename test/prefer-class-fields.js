@@ -158,7 +158,7 @@ test.snapshot({
 			constructor() {
 				this.bar = 1;
 			}
-			static// comment
+			static// comment;
 			}
 		`,
 	],
