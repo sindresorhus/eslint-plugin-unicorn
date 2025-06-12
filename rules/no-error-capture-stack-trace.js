@@ -122,7 +122,10 @@ const create = context => {
 			? callExpression.parent.parent
 			: callExpression.parent;
 
-		if (maybeExpressionStatement.type === 'ExpressionStatement') {
+		if (
+			maybeExpressionStatement.type === 'ExpressionStatement'
+			&& maybeExpressionStatement.parent.type === 'BlockStatement'
+		) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

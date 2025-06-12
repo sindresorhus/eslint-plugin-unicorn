@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 import builtinErrors from '../rules/shared/builtin-errors.js';
 
 const {test} = getTester(import.meta);
@@ -61,6 +61,28 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class MyError extends Error {
+				static {
+					Error.captureStackTrace(this, MyError)
+
+					function foo() {
+						Error.captureStackTrace(this, MyError)
+					}
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					class NotAErrorSubclass {
+						constructor() {
+							Error.captureStackTrace(this, new.target)
+						}
+					}
+				}
+			}
+		`,
 	],
 	invalid: [
 		...[
@@ -94,5 +116,64 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					if (a) Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					const x = () => Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					void Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			export default class extends Error {
+				constructor() {
+					Error.captureStackTrace(this, new.target)
+				}
+			}
+		`,
+		// ClassExpression
+		outdent`
+			export default (
+				class extends Error {
+					constructor() {
+						Error.captureStackTrace(this, new.target)
+					}
+				}
+			)
+		`,
 	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {parser: parsers.typescript},
+	},
+	valid: [
+		outdent`
+			class MyError extends Error {
+				constructor(): void;
+				static {
+					Error.captureStackTrace(this, MyError)
+
+					function foo() {
+						Error.captureStackTrace(this, MyError)
+					}
+				}
+			}
+		`,
+	],
+	invalid: [],
 });
