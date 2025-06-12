@@ -7,27 +7,33 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Prefer using [`Array#toReversed()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse) over [`Array#reverse()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse).
 
 ## Examples
 
 ```js
 // ❌
-const foo = 'unicorn';
+const reversed = [...array].reverse();
 
 // ✅
-const foo = '🦄';
+const reversed = [...array].toReversed();
 ```
 
-```js
-// ❌
-function foo() {
-	var replace = 'me';
-	return replace;
-}
+## Options
 
-// ✅
-function foo() {
-	return 'me';
-}
+Type: `object`
+
+### allowExpressionStatement
+
+Type: `boolean`\
+Default: `true`
+
+This rule allow `array.reverse()` as an expression statement by default.
+Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even it's an expression statement.
+
+#### Fail
+
+```js
+// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": true}]
+array.reverse();
 ```
