@@ -29,6 +29,7 @@ export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-me
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
+export {default as 'no-error-capture-stack-trace'} from './no-error-capture-stack-trace.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-hex-escape'} from './no-hex-escape.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
