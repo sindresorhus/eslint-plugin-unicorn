@@ -1,52 +1,121 @@
-import {} from './ast/index.js';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 import {} from './fix/index.js';
 import {} from './utils/index.js';
-
+import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_ERROR = 'no-error-capture-stack-trace/error';
 const MESSAGE_ID_SUGGESTION = 'no-error-capture-stack-trace/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
+	[MESSAGE_ID_ERROR]: 'Unnecessary `Error.captureStackTrace(…)` call.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace `Error.captureStackTrace(…)`.',
+};
+
+// TODO: Make sure the super class is global
+// https://github.com/eslint/eslint/pull/19695
+const isSubclassOfBuiltinErrors = node =>
+	node?.superClass
+	&& node.superClass.type === 'Identifier'
+	&& builtinErrors.includes(node.superClass.name);
+
+const isClassReference = (node, classNode, context) => {
+	// `new.target`
+	if (
+		node.type === 'MetaProperty'
+		&& node.meta.type === 'Identifier'
+		&& node.meta.name === 'new'
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'target'
+	) {
+		return true;
+	}
+
+	// `this.constructor`
+	if (
+		isMemberExpression(node, {
+			property: 'constructor',
+			computed: false,
+			optional: false,
+		})
+		&& node.object.type === 'ThisExpression'
+	) {
+		return true;
+	}
+
+	if (node.type !== 'Identifier' || !classNode.id) {
+		return false;
+	}
+
+	const scope = context.sourceCode.getScope(node);
+	const variable = findVariable(scope, node);
+
+	return variable
+		&& variable.defs.length === 1
+		&& variable.defs[0].type === 'ClassName'
+		&& variable.defs[0].node === classNode;
 };
 
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	return {
-		Literal(node) {
-			if (node.value !== 'unicorn') {
-				return;
-			}
+	const {sourceCode} = context;
 
-			return {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
-				},
-				
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\''),
-				
-				
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							value: 'unicorn',
-							replacement: '🦄',
-						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.replaceText(node, '\'🦄\''),
-					}
-				],
-				
-			};
-		},
-	};
+	let classStack = [];
+	let thisScopeStack = [];
+
+	context.on(['ClassDeclaration', 'ClassExpression'], (classNode) => {
+		classStack.push(classNode);
+		thisScopeStack.push(classNode);
+	})
+
+	context.onExit(['ClassDeclaration', 'ClassExpression'], () => {
+		classStack.pop();
+		thisScopeStack.pop();
+	})
+
+	context.on(['FunctionDeclaration', 'FunctionExpression'], (functionNode) => {
+		thisScopeStack.push(functionNode);
+	});
+
+	context.onExit(['FunctionDeclaration', 'FunctionExpression'], () => {
+		thisScopeStack.pop();
+	});
+
+	context.on('CallExpression', (callExpression) => {
+
+		const currentClass = classStack.at(-1);
+		if (!currentClass || !isSubclassOfBuiltinErrors(currentClass)) {
+			return;
+		}
+
+		if (!isMethodCall(callExpression, {
+			object: 'Error',
+			method: 'captureStackTrace',
+			argumentsLength: 2,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		const [firstArgument, secondArgument] = callExpression.arguments;
+
+		if (
+			firstArgument.type !== 'ThisExpression' ||
+			!isClassReference(secondArgument, currentClass, context)
+		) {
+			return;
+		}
+
+		const problem = {
+			node: callExpression,
+			messageId: MESSAGE_ID_ERROR,
+		};
+
+		return problem;
+	})
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

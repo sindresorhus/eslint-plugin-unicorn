@@ -22,6 +22,10 @@ test.snapshot({
 			'Error.captureStackTrace',
 			'new Error.captureStackTrace(this, MyError)',
 			'Error?.captureStackTrace(this, MyError)',
+			'Error.captureStackTrace(this, this?.constructor)',
+			'Error.captureStackTrace(this, this.notConstructor)',
+			// `MetaProperty`, but not `new.target`
+			'Error.captureStackTrace(this, import.meta)',
 		].map(code => outdent`
 			class MyError extends Error {
 				constructor() {
