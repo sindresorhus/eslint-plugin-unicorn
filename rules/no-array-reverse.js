@@ -99,7 +99,6 @@ const config = {
 			description: 'Prefer `Array#toReversed()` over `Array#reverse()`.',
 			recommended: true,
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		schema,
 		defaultOptions: [{allowExpressionStatement: true}],
