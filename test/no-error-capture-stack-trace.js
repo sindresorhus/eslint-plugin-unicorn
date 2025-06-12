@@ -26,6 +26,11 @@ test.snapshot({
 			'Error.captureStackTrace(this, this.notConstructor)',
 			// `MetaProperty`, but not `new.target`
 			'Error.captureStackTrace(this, import.meta)',
+			outdent`
+				function foo() {
+					Error.captureStackTrace(this, MyError)
+				}
+			`,
 		].map(code => outdent`
 			class MyError extends Error {
 				constructor() {
@@ -33,6 +38,29 @@ test.snapshot({
 				}
 			}
 		`),
+		outdent`
+			class MyError extends Error {
+				notConstructor() {
+					Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					function foo() {
+						Error.captureStackTrace(this, MyError)
+					}
+				}
+			}
+		`,
+		outdent`
+			class MyError extends Error {
+				constructor(MyError) {
+					Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
 	],
 	invalid: [
 		...[
@@ -57,5 +85,14 @@ test.snapshot({
 				}
 			}
 		`),
+		outdent`
+			class MyError extends Error {
+				constructor() {
+					const foo = () => {
+						Error.captureStackTrace(this, MyError)
+					}
+				}
+			}
+		`,
 	],
 });

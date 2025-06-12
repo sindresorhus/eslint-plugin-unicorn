@@ -58,6 +58,12 @@ const isClassReference = (node, classNode, context) => {
 		&& variable.defs[0].node === classNode;
 };
 
+const isClassConstructor = (node, classNode) =>
+	node
+	&& node.parent.type === 'MethodDefinition'
+	&& node.parent.kind === 'constructor'
+	&& node.parent.value === node
+	&& classNode.body.body.includes(node.parent);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -69,12 +75,12 @@ const create = context => {
 	context.on(['ClassDeclaration', 'ClassExpression'], (classNode) => {
 		classStack.push(classNode);
 		thisScopeStack.push(classNode);
-	})
+	});
 
 	context.onExit(['ClassDeclaration', 'ClassExpression'], () => {
 		classStack.pop();
 		thisScopeStack.pop();
-	})
+	});
 
 	context.on(['FunctionDeclaration', 'FunctionExpression'], (functionNode) => {
 		thisScopeStack.push(functionNode);
@@ -85,26 +91,26 @@ const create = context => {
 	});
 
 	context.on('CallExpression', (callExpression) => {
+		const errorClass = classStack.at(-1);
 
-		const currentClass = classStack.at(-1);
-		if (!currentClass || !isSubclassOfBuiltinErrors(currentClass)) {
-			return;
-		}
-
-		if (!isMethodCall(callExpression, {
-			object: 'Error',
-			method: 'captureStackTrace',
-			argumentsLength: 2,
-			optionalMember: false,
-		})) {
+		if (!(
+			isSubclassOfBuiltinErrors(errorClass)
+			&& isClassConstructor(thisScopeStack.at(-1), errorClass)
+			&& isMethodCall(callExpression, {
+				object: 'Error',
+				method: 'captureStackTrace',
+				argumentsLength: 2,
+				optionalMember: false,
+			})
+		)) {
 			return;
 		}
 
 		const [firstArgument, secondArgument] = callExpression.arguments;
 
 		if (
-			firstArgument.type !== 'ThisExpression' ||
-			!isClassReference(secondArgument, currentClass, context)
+			firstArgument.type !== 'ThisExpression'
+			|| !isClassReference(secondArgument, errorClass, context)
 		) {
 			return;
 		}
