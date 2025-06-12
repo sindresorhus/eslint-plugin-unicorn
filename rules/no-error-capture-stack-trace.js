@@ -100,6 +100,7 @@ const create = context => {
 				argumentsLength: 2,
 				optionalMember: false,
 			})
+			// TODO: Make sure the `object` is global
 		)) {
 			return;
 		}
