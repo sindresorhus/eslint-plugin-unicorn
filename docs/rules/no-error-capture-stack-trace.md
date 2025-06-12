@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-It's unnecessary to call [`Error.captureStackTrace(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/captureStackTrace) inside subclass of builtin errors in constructor, since `Error` constructor will call it automatically.
+Calling [`Error.captureStackTrace(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/captureStackTrace) inside the constructor of a built-in `Error` subclass is unnecessary, since the `Error` constructor calls it automatically.
 
 ## Examples
 
