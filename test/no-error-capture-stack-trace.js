@@ -7,7 +7,7 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'class MyError {constructor() {Error.captureStackTrace(this, MyError)}}',
-		'class MyError extends UnknownError {constructor() {Error.captureStackTrace(this, MyError)}}',
+		'class MyError extends NotABuiltinError {constructor() {Error.captureStackTrace(this, MyError)}}',
 		...[
 			'',
 			'Error.captureStackTrace(not_this, MyError)',
