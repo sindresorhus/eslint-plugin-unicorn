@@ -140,6 +140,19 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class Foo {
+			constructor() {
+				this.bar = 1;
+			}}
+		`,
+		outdent`
+			class Foo {
+			constructor() {
+				this.bar = 1;
+			}
+			static}
+		`,
 	],
 });
 
