@@ -79,37 +79,35 @@ const create = context => {
 				messageId: MESSAGE_ID_ERROR,
 			};
 
-			if (existingProperty?.value) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						/**
-						@param {import('eslint').Rule.RuleFixer} fixer
-						*/
-						* fix(fixer) {
-							yield removeFieldAssignment(node, sourceCode, fixer);
-							yield fixer.replaceText(existingProperty.value, propertyValue);
-						},
-					},
-				];
-				return problem;
-			}
-
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			problem.fix = function * (fixer) {
+			function * fix(fixer) {
 				yield removeFieldAssignment(node, sourceCode, fixer);
+
 				if (existingProperty) {
-					yield fixer.insertTextAfter(existingProperty.key, ` = ${propertyValue}`);
+					yield existingProperty.value
+						? fixer.replaceText(existingProperty.value, propertyValue)
+						: fixer.insertTextAfter(existingProperty.key, ` = ${propertyValue}`);
 					return;
 				}
 
 				const closingBrace = sourceCode.getLastToken(classBody);
 				const indent = getIndentString(constructor, sourceCode);
 				yield fixer.insertTextBefore(closingBrace, `${indent}${propertyName} = ${propertyValue};\n`);
-			};
+			}
 
+			if (existingProperty?.value) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						fix,
+					},
+				];
+				return problem;
+			}
+
+			problem.fix = fix;
 			return problem;
 		},
 	};
