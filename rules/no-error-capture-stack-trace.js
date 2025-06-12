@@ -120,6 +120,19 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
+		const maybeExpressionStatement = callExpression.parent === 'ChainExpression'
+			? callExpression.parent.parent
+			: callExpression.parent;
+
+		if (maybeExpressionStatement.type === 'ExpressionStatement') {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix: fixer => fixer.remove(maybeExpressionStatement),
+				},
+			];
+		}
+
 		return problem;
 	})
 };

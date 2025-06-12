@@ -74,7 +74,7 @@ test.snapshot({
 		].map(code => outdent`
 			class MyError extends Error {
 				constructor() {
-					${code}
+					${code};
 				}
 			}
 		`),
