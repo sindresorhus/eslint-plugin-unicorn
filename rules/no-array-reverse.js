@@ -48,7 +48,7 @@ const create = context => {
 			const fixMethodName = fixer => fixer.replaceText(reverseProperty, 'toReversed');
 
 			/*
-			For `[...array].reverse()`, provide two suggestion, let user choose if the spread can be unwrapped,
+			For `[...array].reverse()`, provide two suggestion, let user choose if the object can be unwrapped,
 			otherwise only change `.reverse()` to `.toReversed()`
 			*/
 			if (isSpreadAndReverse) {
