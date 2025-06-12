@@ -127,12 +127,7 @@ const create = context => {
 			maybeExpressionStatement.type === 'ExpressionStatement'
 			&& maybeExpressionStatement.parent.type === 'BlockStatement'
 		) {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix: fixer => fixer.remove(maybeExpressionStatement),
-				},
-			];
+			problem.fix = fixer => fixer.remove(maybeExpressionStatement);
 		}
 
 		return problem;
@@ -149,7 +144,6 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 	},
 };
