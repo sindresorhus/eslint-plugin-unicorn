@@ -31,9 +31,8 @@ Default: `true`
 This rule allow `array.reverse()` as an expression statement by default.
 Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even it's an expression statement.
 
-#### Fail
-
 ```js
-// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": true}]
+// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": false}]
+// ❌
 array.reverse();
 ```
