@@ -19,7 +19,7 @@ const create = context => ({
 		}
 
 		const {sourceCode} = context;
-		const ancestors = sourceCode.getAncestors(node).reverse();
+		const ancestors = sourceCode.getAncestors(node).toReversed();
 		const nestLevel = ancestors.findIndex(node => node.type !== 'ConditionalExpression');
 
 		if (nestLevel === 1 && !isParenthesized(node, sourceCode)) {
