@@ -129,7 +129,7 @@ const create = context => {
 		}
 
 		if (options.selectors.length > 0) {
-			const ancestors = sourceCode.getAncestors(node).reverse();
+			const ancestors = sourceCode.getAncestors(node).toReversed();
 			if (options.selectors.some(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors))) {
 				return true;
 			}

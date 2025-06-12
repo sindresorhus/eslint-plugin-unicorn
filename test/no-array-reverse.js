@@ -13,6 +13,7 @@ test.snapshot({
 		'array.reverse()',
 		'array.reverse?.()',
 		'array?.reverse()',
+		'if (true) array.reverse()',
 		'reversed = array.reverse(extraArgument)',
 	],
 	invalid: [
