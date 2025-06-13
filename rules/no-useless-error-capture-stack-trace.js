@@ -3,8 +3,6 @@ import {
 	isMethodCall,
 	isMemberExpression,
 } from './ast/index.js';
-import {} from './fix/index.js';
-import {} from './utils/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_ERROR = 'no-useless-error-capture-stack-trace/error';
