@@ -10,12 +10,11 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Unnecessary `Error.captureStackTrace(…)` call.',
 };
 
-// TODO: Make sure the super class is global
-// https://github.com/eslint/eslint/pull/19695
-const isSubclassOfBuiltinErrors = node =>
+const isSubclassOfBuiltinErrors = (node, context) =>
 	node?.superClass
 	&& node.superClass.type === 'Identifier'
-	&& builtinErrors.includes(node.superClass.name);
+	&& builtinErrors.includes(node.superClass.name)
+	&& context.sourceCode.isGlobalReference(node.superClass);
 
 const isClassReference = (node, classNode, context) => {
 	// `new.target`
@@ -88,7 +87,7 @@ const create = context => {
 		const errorClass = classStack.at(-1);
 
 		if (!(
-			isSubclassOfBuiltinErrors(errorClass)
+			isSubclassOfBuiltinErrors(errorClass, context)
 			&& isClassConstructor(thisScopeStack.at(-1), errorClass)
 			&& isMethodCall(callExpression, {
 				object: 'Error',
@@ -96,7 +95,7 @@ const create = context => {
 				argumentsLength: 2,
 				optionalMember: false,
 			})
-			// TODO: Make sure the `object` is global
+			&& context.sourceCode.isGlobalReference(callExpression.callee.object)
 		)) {
 			return;
 		}
