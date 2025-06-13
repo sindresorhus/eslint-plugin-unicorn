@@ -131,3 +131,31 @@ with `canFillWithFunction: false`, this would fail:
 ```js
 new Array(3).fill(function () {})
 ```
+
+### canFillWithRegexp
+
+Type: `boolean`\
+Default: `true`
+
+Should check function when filling an array?
+
+This would pass by default:
+
+```js
+new Array(3).fill(/pattern/)
+```
+
+```js
+"unicorn/catch-error-name": [
+	"error",
+	{
+		"canFillWithRegexp": false
+	}
+]
+```
+
+with `canFillWithRegexp: false`, this would fail:
+
+```js
+new Array(3).fill(/pattern/)
+```
