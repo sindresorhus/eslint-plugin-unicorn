@@ -3,7 +3,7 @@ import {isFunction, isRegexLiteral} from './ast/index.js';
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { ... })` instead to ensure independent instances.',
+	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { return independent instance })` instead to ensure no reference shared.',
 };
 
 const DEFAULTS = {
