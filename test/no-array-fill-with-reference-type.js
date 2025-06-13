@@ -63,6 +63,12 @@ test.snapshot({
 		'const foo = () => 0; new Array(5).fill(foo);',
 		'const foo = function () {}; new Array(6).fill(foo);',
 		'function foo() {}; new Array(7).fill(foo);',
+
+		// RegExp is not check by default
+		'new Array(3).fill(/pattern/);',
+		'new Array(3).fill(new RegExp("pattern"));',
+		'const p = /pattern/; new Array(3).fill(p);',
+		'const p = new RegExp("pattern"); new Array(3).fill(p);',
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -71,7 +77,32 @@ test.snapshot({
 		'new Array(3).fill({});       // ✗ Object  ',
 		'new Array(3).fill(new Map());       // ✗ Map',
 		'new Array(3).fill(new Set());       // ✗ Set',
-		'new Array(3).fill(/pattern/); // ✗ RegExp ',
+
+		{
+			code: 'new Array(3).fill(/pattern/); // ✗ RegExp',
+			options: [{
+				canFillWithRegexp: false,
+			}],
+		},
+		{
+			code: 'new Array(3).fill(new RegExp("pattern")); // ✗ RegExp',
+			options: [{
+				canFillWithRegexp: false,
+			}],
+		},
+		{
+			code: 'const p = /pattern/; new Array(3).fill(p); // ✗ RegExp',
+			options: [{
+				canFillWithRegexp: false,
+			}],
+		},
+		{
+			code: 'const p = new RegExp("pattern"); new Array(3).fill(p); // ✗ RegExp',
+			options: [{
+				canFillWithRegexp: false,
+			}],
+		},
+
 		'new Array(3).fill(new String(\'fff\'));       // ✗ new String',
 
 		'new Array(3).fill(new Foo(\'fff\'));       // ✗ new Class',
@@ -89,6 +120,11 @@ test.snapshot({
 
 		'Array.from({length: 3}).fill(createError(\'no\', \'yes\')[0])',
 		'const initialArray = []; new Array(3).fill(initialArray); // ✗ Variable (array)',
+
+		// `
+		// const object = {}
+		// Array.from({length: 3}, () => object)
+		// `,
 
 		// Should not fill with function
 		{

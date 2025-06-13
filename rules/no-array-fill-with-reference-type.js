@@ -1,9 +1,16 @@
-import {isFunction} from './ast/index.js';
+import {isFunction, isRegexLiteral} from './ast/index.js';
 
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { ... })` instead to ensure independent instances.',
+};
+
+const DEFAULTS = {
+	// Not check for function expressions by default because it is rare to fill an array with a function and add properties to it.
+	canFillWithFunction: true,
+	// The same reason as above.
+	canFillWithRegexp: true,
 };
 
 const debugging = false;
@@ -96,10 +103,22 @@ function isReferenceType(node, context) {
 		return false;
 	}
 
+	/**
+	 @type {typeof DEFAULTS}
+	 */
+	const options = {
+		...DEFAULTS,
+		...context.options[0],
+	};
+
 	// For null, number, string, boolean.
 	if (node.type === 'Literal') {
 		// Exclude regular expression literals (e.g., `/pattern/`, which are objects despite being literals).
-		return node.regex !== undefined;
+		if (!options.canFillWithRegexp && isRegexLiteral(node)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	// For template literals.
@@ -140,13 +159,12 @@ function isReferenceType(node, context) {
 		}
 	}
 
-	const options = {
-		// Not check for function expressions by default because it is rare to fill an array with a function and add properties to it.
-		canFillWithFunction: true,
-		...context.options[0],
-	};
-
 	if (options.canFillWithFunction && isFunction(node)) {
+		return false;
+	}
+
+	const isNewRegexp = node.type === 'NewExpression' && node.callee.name === 'RegExp';
+	if (options.canFillWithRegexp && isNewRegexp) {
 		return false;
 	}
 
@@ -160,6 +178,9 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			canFillWithFunction: {
+				type: 'boolean',
+			},
+			canFillWithRegexp: {
 				type: 'boolean',
 			},
 		},
