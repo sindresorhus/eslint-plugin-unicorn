@@ -29,7 +29,6 @@ export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-me
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
-export {default as 'no-error-capture-stack-trace'} from './no-error-capture-stack-trace.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-hex-escape'} from './no-hex-escape.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
@@ -60,6 +59,7 @@ export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
+export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
 export {default as 'no-useless-length-check'} from './no-useless-length-check.js';
 export {default as 'no-useless-promise-resolve-reject'} from './no-useless-promise-resolve-reject.js';

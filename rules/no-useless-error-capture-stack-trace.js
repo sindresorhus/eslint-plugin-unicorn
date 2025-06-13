@@ -7,7 +7,7 @@ import {} from './fix/index.js';
 import {} from './utils/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 
-const MESSAGE_ID_ERROR = 'no-error-capture-stack-trace/error';
+const MESSAGE_ID_ERROR = 'no-useless-error-capture-stack-trace/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Unnecessary `Error.captureStackTrace(…)` call.',
 };
