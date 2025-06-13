@@ -38,7 +38,7 @@ const create = context => ({
 		}
 
 		const actual = context.sourceCode.getText(node.callee.object.callee) === 'Array.from' ? 'Array.from().fill()' : 'Array.fill()';
-		const type = getType(fillArgument);
+		const type = getType(fillArgument, context);
 
 		return {
 			node: fillArgument,
@@ -54,9 +54,10 @@ const create = context => ({
 /**
 
  @param {*} fillArgument
+ @param {import('eslint').Rule.RuleContext} context
  @returns {string}
  */
-function getType(fillArgument) {
+function getType(fillArgument, context) {
 	let type = '';
 
 	switch (fillArgument.type) {
@@ -71,7 +72,8 @@ function getType(fillArgument) {
 		}
 
 		case 'NewExpression': {
-			type = `new ${fillArgument.callee.name}()`;
+			type = getNewExpressionType(fillArgument, context);
+
 			break;
 		}
 
@@ -91,6 +93,30 @@ function getType(fillArgument) {
 	}
 
 	return type;
+}
+
+/**
+
+ @param {*} fillArgument
+ @param {import('eslint').Rule.RuleContext} context
+ @returns {string}
+ */
+function getNewExpressionType(fillArgument, context) {
+	if (fillArgument.callee.name) {
+		return `new ${fillArgument.callee.name}()`;
+	}
+
+	// NewExpression.callee not always have a name.
+	// new A.B() and new class {}
+	// Try the best to get the type from source code
+	const matches = context.sourceCode.getText(fillArgument.callee).split('\n')[0].match(/\S+/);
+
+	if (matches) {
+		// Limit the length to avoid too long tips
+		return 'new ' + matches[0].slice(0, 32);
+	}
+
+	return 'new ()';
 }
 
 /**

@@ -151,5 +151,9 @@ test.snapshot({
 				canFillWithFunction: false,
 			}],
 		},
+
+		'new Array(3).fill(new Class {});',
+		'new Array(3).fill(new A.B());',
+		'const cls = new Class {}; new Array(3).fill(cls);',
 	],
 });
