@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of class field declarations for static values, instead of assigning them in constructors using `this`.
+Enforces declaring property defaults with class fields instead of setting them inside the constructor.
 
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
