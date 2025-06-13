@@ -32,6 +32,12 @@ test.snapshot({
 		// Due to the rule name it will not check other than `Array.fill`, even if `Array.from` also fills in reference variable.
 		// It cannot be exhaustively checked, we only check `Array.fill`.
 		'const map = new Map(); Array.from({ length: 3 }, () => map);',
+
+		`
+		const object = {}
+		Array.from({length: 3}, () => object)
+		`,
+
 		`
 		const map = new Map();
 		const list = [];
@@ -69,6 +75,10 @@ test.snapshot({
 		'new Array(3).fill(new RegExp("pattern"));',
 		'const p = /pattern/; new Array(3).fill(p);',
 		'const p = new RegExp("pattern"); new Array(3).fill(p);',
+
+		`let a = []
+		a = 2
+		new Array(3).fill(a)`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -120,11 +130,6 @@ test.snapshot({
 
 		'Array.from({length: 3}).fill(createError(\'no\', \'yes\')[0])',
 		'const initialArray = []; new Array(3).fill(initialArray); // ✗ Variable (array)',
-
-		// `
-		// const object = {}
-		// Array.from({length: 3}, () => object)
-		// `,
 
 		// Should not fill with function
 		{

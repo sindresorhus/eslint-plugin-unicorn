@@ -154,24 +154,7 @@ function isReferenceType(node, context) {
 
 	// For variable identifiers (recursively check its declaration).
 	if (node.type === 'Identifier') {
-		const {variables} = context.sourceCode.getScope(node);
-		const variable = variables.find(v => v.name === node.name);
-		const definitionNode = variable?.defs[0].node;
-
-		log('variables:', variables);
-		log('variable:', variable);
-		log('variable.defs[0].node:', definitionNode);
-
-		if (!variable || !definitionNode) {
-			return false;
-		}
-
-		// Check `const foo = []; Array(3).fill(foo);`
-		if (definitionNode.type === 'VariableDeclarator') {
-			return isReferenceType(definitionNode.init, context);
-		}
-
-		return isReferenceType(definitionNode, context);
+		return isIdentifierReferenceType(node, context);
 	}
 
 	// Symbol (such as `Symbol('name')`)
@@ -196,6 +179,38 @@ function isReferenceType(node, context) {
 
 	// Other cases: objects, arrays, new expressions, regular expressions, etc.
 	return true;
+}
+
+/**
+
+ @param {*} node
+ @param {import('eslint').Rule.RuleContext} context
+ @returns {boolean}
+ */
+function isIdentifierReferenceType(node, context) {
+	const {variables} = context.sourceCode.getScope(node);
+	const variable = variables.find(v => v.name === node.name);
+	const definitionNode = variable?.defs[0].node;
+
+	log('variables:', variables);
+	log('variable:', variable);
+	log('variable.defs[0].node:', definitionNode);
+
+	if (!variable || !definitionNode) {
+		return false;
+	}
+
+	// Check `const foo = []; Array(3).fill(foo);`
+	if (definitionNode.type === 'VariableDeclarator') {
+		// Not check `let`
+		if (definitionNode.parent.kind === 'let') {
+			return false;
+		}
+
+		return isReferenceType(definitionNode.init, context);
+	}
+
+	return isReferenceType(definitionNode, context);
 }
 
 const schema = [
