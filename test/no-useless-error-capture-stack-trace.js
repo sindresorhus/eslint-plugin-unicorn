@@ -83,6 +83,22 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class Error {}
+			class MyError extends Error {
+				constructor() {
+					Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
+		outdent`
+			class Error {}
+			class MyError extends RangeError {
+				constructor() {
+					Error.captureStackTrace(this, MyError)
+				}
+			}
+		`,
 	],
 	invalid: [
 		...[
@@ -153,24 +169,6 @@ test.snapshot({
 					}
 				}
 			)
-		`,
-		// This will be fixed when we add global reference check
-		outdent`
-			const Error = () => {}
-			class MyError extends Error {
-				constructor() {
-					Error.captureStackTrace(this, MyError)
-				}
-			}
-		`,
-		// This will be fixed when we add global reference check
-		outdent`
-			const Error = () => {}
-			class MyError extends RangeError {
-				constructor() {
-					Error.captureStackTrace(this, MyError)
-				}
-			}
 		`,
 	],
 });
