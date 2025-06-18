@@ -93,6 +93,15 @@ test.snapshot({
 			return map
 		});
 		`,
+
+		`
+		const error = {
+			messageId: 'prefer-negative-index',
+		};
+		Array.from({length: 4}, () => {
+			return { ...error  }
+		});
+		`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
