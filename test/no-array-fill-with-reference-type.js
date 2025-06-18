@@ -22,22 +22,15 @@ test.snapshot({
 		'Array.from({ length: 3 }, () => { return {} }); // ✓ Safe alternative',
 		'Array.from({ length: 3 }, () => (new Map)); // ✓ Safe alternative',
 		'Array.from({ length: 3 }, () => { return new Map }); // ✓ Safe alternative',
-		'Array.from({ length: 3 }, () => { return new Map() }); // ✓ Safe alternative',
+		'Array.from({ length: 33 }, () => { return new Map() }); // ✓ Safe alternative',
 
 		'Array(3).fill(0);        // ✓ number (primitive)',
 		'new Foo(3).fill({});       // ✓ Not Array',
 		'Foo(3).fill({});       // ✓ Not Array',
 
-		// Below are the cases though have the same reference problem but are not covered by the rule.
-		// Due to the rule name it will not check other than `Array.fill`, even if `Array.from` also fills in reference variable.
-		// It cannot be exhaustively checked, we only check `Array.fill`.
-		'const map = new Map(); Array.from({ length: 3 }, () => map);',
-
-		`
-		const object = {}
-		Array.from({length: 3}, () => object)
-		`,
-
+		// Should be invalid but will pass.
+		// Due to the rule name it will not check other than `Array.fill` or `Array.from`.
+		// Too hard to implement exhaustive check.
 		`
 		const map = new Map();
 		const list = [];
@@ -76,9 +69,30 @@ test.snapshot({
 		'const p = /pattern/; new Array(3).fill(p);',
 		'const p = new RegExp("pattern"); new Array(3).fill(p);',
 
+		// [undefined, undefined, undefined]
+		'Array.from({ length: 3 }, () => {});',
+
 		`let a = []
 		a = 2
 		new Array(3).fill(a)`,
+
+		// Valid because it returns a new map every time
+		`
+		const map = new Map();
+		const list = Array.from({ length: 3 }, () => {
+			const map = new Map();
+			return map
+		});
+		`,
+
+		// It should be invalid because it return reference to the same map `outerMap`, but we cannot check every corner case
+		`
+		const outerMap = new Map();
+		const list = Array.from({ length: 3 }, () => {
+			const map = outerMap;
+			return map
+		});
+		`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -160,5 +174,25 @@ test.snapshot({
 		'new Array(3).fill(new class {});',
 		'new Array(3).fill(new A.B());',
 		'const cls = new class {}; new Array(3).fill(cls);',
+
+		'const obj = {}; Array.from({ length: 3 }).fill(obj);',
+
+		// Variable declared in parent scope
+		'const map = new Map({ foo: "bar" }); Array.from({ length: 3 }, () => map);',
+
+		// Variable declared in its grand parent scope
+		'const map = new Map({ foo: "bar" }); if (true) { const initialArray = Array.from({ length: 3 }, () => map); }',
+		'function getMap() { return new Map({ foo: "bar" }); } const map = getMap(); if (true) { const initialArray = Array.from({ length: 3 }, () => map); }',
+
+		// `initialArray` is filled with no reference type (literal string) but will be treated as such because it is a function calling
+		// we will not dive deep into the function body to check if it returns a reference type
+		'function getMap() { return "literal string" } const map = getMap(); if (true) { const initialArray = Array.from({ length: 3 }, () => map); }',
+
+		`
+		const object = {}
+		Array.from({length: 3}, () => object)
+		`,
+
+		'const object = {}; Array.from({length: 31}).map(() => object);',
 	],
 });

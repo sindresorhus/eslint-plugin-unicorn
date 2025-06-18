@@ -1,4 +1,9 @@
+// @ts-check
 import {isFunction, isRegexLiteral} from './ast/index.js';
+
+/**
+ @typedef {any} Node
+ */
 
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
@@ -19,18 +24,22 @@ const log = (...arguments_) => debugging && console.log(...arguments_);
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(node) {
+		// Array.fill or Array.from().fill
 		const isArrayFill = node.callee.type === 'MemberExpression'
 			&& ((node.callee.object.callee?.name === 'Array') || (context.sourceCode.getText(node.callee.object.callee) === 'Array.from'))
 			&& node.callee.property.name === 'fill'
 			&& node.arguments.length > 0;
 
-		log('isArrayFill:', isArrayFill);
+		// Array.from().map Array.from(arrayLike, mapper)
+		const isArrayFrom = node.callee.type === 'MemberExpression' && node.callee.object?.name === 'Array' && node.callee.property.name === 'from';
+		log('isArrayFill:', {isArrayFill, isArrayFrom});
 
-		if (!isArrayFill) {
+		if (!isArrayFill && !isArrayFrom) {
 			return;
 		}
 
-		const fillArgument = node.arguments[0];
+		const fillArgument = isArrayFill ? node.arguments[0] : getArrayFromReturnNode(node);
+
 		log('fillArgument:', fillArgument);
 
 		if (!isReferenceType(fillArgument, context)) {
@@ -50,6 +59,57 @@ const create = context => ({
 		};
 	},
 });
+
+function getArrayFromReturnNode(node) {
+	const secondArgument = node.arguments[1];
+	log('secondArgument:', secondArgument);
+
+	// Array.from({ length: 10 }, () => { return sharedObject; });
+	let result;
+	if (secondArgument && isFunction(secondArgument)) {
+		result = getReturnIdentifier(secondArgument);
+	} else if (node.parent.type === 'MemberExpression' && node.parent.property.name === 'map') {
+		// Array.from({ length: 10 }).map(() => { return sharedObject; });
+		result = getReturnIdentifier(node.parent.parent.arguments[0]);
+	}
+
+	// Should not check reference type if the identifier is declared in the current function
+	if (result?.declaredInCurrentFunction) {
+		return;
+	}
+
+	const fillArgument = result?.returnNode;
+
+	return fillArgument;
+}
+
+/**
+
+ @param {Node} node
+ @returns {{ returnNode: Node, declaredInCurrentFunction: boolean }}
+ */
+function getReturnIdentifier(node) {
+	if (node.body.type === 'Identifier') {
+		return {returnNode: node.body, declaredInCurrentFunction: false};
+	}
+
+	// Array.from({ length: 3 }, () => (new Map))
+	// Array.from({ length: 3 }, () => ({}))
+	// Array.from({ length: 3 }, () => {})
+	if (!node.body.body) {
+		return {returnNode: node.body, declaredInCurrentFunction: true};
+	}
+
+	const returnStatement = node.body.body.find(node => node.type === 'ReturnStatement');
+	const name = returnStatement?.argument?.name;
+	if (!name) {
+		return {returnNode: returnStatement?.argument, declaredInCurrentFunction: true};
+	}
+
+	const declaredInCurrentFunction = node.body.body.some(node => node.type === 'VariableDeclaration' && node.declarations.some(declaration => declaration.id.name === name));
+
+	return {returnNode: returnStatement?.argument, declaredInCurrentFunction};
+}
 
 /**
 
@@ -182,19 +242,37 @@ function isReferenceType(node, context) {
 }
 
 /**
+ Variable can be declared in its parent or grandparent scope so we need to check all the scopes up to the global scope.
+ @param {{variableName: string; node: any; context: import('eslint').Rule.RuleContext}} params
+ @returns
+ */
+function findVariableDefinition({variableName, node, context}) {
+	if (!node) {
+		return;
+	}
+
+	const scope = context.sourceCode.getScope(node);
+	const {variables} = scope;
+	const variable = variables.find(v => v.name === variableName);
+
+	if (variable) {
+		return variable;
+	}
+
+	return findVariableDefinition({variableName, node: node.parent, context});
+}
+
+/**
 
  @param {*} node
  @param {import('eslint').Rule.RuleContext} context
  @returns {boolean}
  */
 function isIdentifierReferenceType(node, context) {
-	const {variables} = context.sourceCode.getScope(node);
-	const variable = variables.find(v => v.name === node.name);
-	const definitionNode = variable?.defs[0].node;
+	const variable = findVariableDefinition({variableName: node.name, node, context});
+	const definitionNode = variable?.defs[0]?.node;
 
-	log('variables:', variables);
-	log('variable:', variable);
-	log('variable.defs[0].node:', definitionNode);
+	log({definitionNode});
 
 	if (!variable || !definitionNode) {
 		return false;
