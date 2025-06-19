@@ -93,9 +93,9 @@ const create = context => {
 	});
 
 	context.on('ExportNamedDeclaration', exportDeclaration => {
-		const {specifiers} = exportDeclaration;
+		const {specifiers, declaration} = exportDeclaration;
 
-		if (specifiers.length > 0) {
+		if (declaration || specifiers.length > 0) {
 			return;
 		}
 
