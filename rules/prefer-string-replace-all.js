@@ -60,6 +60,10 @@ function getPatternReplacement(node) {
 				return `\\u{${codePoint.toString(16)}}`;
 			}
 
+			if (kind === 'octal') {
+				return `\\u{${codePoint.toString(16)}}`;
+			}
+
 			let character = raw;
 			if (kind === 'identifier') {
 				character = character.slice(1);
