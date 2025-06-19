@@ -102,7 +102,7 @@ function printEslintError(error) {
 }
 
 async function printTestError(error) {
-	process.exitCode ??= 1;
+	process.exitCode ||= 1;
 
 	if (!(error instanceof UnicornIntegrationTestError)) {
 		console.error(error);
