@@ -109,6 +109,7 @@ test.snapshot({
 		String.raw`foo.replace(/\n/g, _)`,
 		String.raw`foo.replace(/\u{20}/gu, _)`,
 		String.raw`foo.replace(/\u{20}/gv, _)`,
+    String.raw`foo.replace(/\1/g, _)`,
 
 		'foo.replaceAll(/a]/g, _)',
 		String.raw`foo.replaceAll(/\r\n\u{1f600}/gu, _)`,
