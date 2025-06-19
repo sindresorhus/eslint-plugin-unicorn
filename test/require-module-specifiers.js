@@ -24,8 +24,16 @@ test.snapshot({
 	invalid: [
 		'import {} from "foo";',
 		'import{}from"foo";',
+		outdent`
+			import {
+			} from "foo";
+		`,
 		'import foo, {} from "foo";',
 		'import foo,{}from "foo";',
+		outdent`
+			import foo, {
+			} from "foo";
+		`,
 		'import foo,{}/* comment */from "foo";',
 		typescriptCode('import type {} from "foo";'),
 		typescriptCode('import type{}from"foo";'),
@@ -59,6 +67,10 @@ test.snapshot({
 		typescriptCode('declare export type {} from "foo";'),
 		'export {} from "foo";',
 		'export{}from"foo";',
+		outdent`
+			export {
+			} from "foo";
+		`,
 		'export {} from "foo" with {type: "json"};',
 	],
 });
