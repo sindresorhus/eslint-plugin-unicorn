@@ -46,6 +46,11 @@ test.snapshot({
 		typescriptCode('export type {Foo}'),
 		typescriptCode('export type {foo} from "foo"'),
 		typescriptCode('export type * as foo from "foo"'),
+		'export const foo = 1',
+		'export function foo() {}',
+		typescriptCode('export type foo = Foo'),
+		'export const {} = foo',
+		'export const [] = foo',
 	],
 	invalid: [
 		'export {}',
