@@ -21,18 +21,18 @@ import "foo";
 
 ```js
 // ❌
-export {} from "foo";
-
-// ✅
-import "foo";
-```
-
-```js
-// ❌
 import foo, {} from "foo";
 
 // ✅
 import foo from "foo";
+```
+
+```js
+// ❌
+export {} from "foo";
+
+// ✅
+import "foo";
 ```
 
 ```js
