@@ -3,7 +3,7 @@ import {ReferenceTracker} from '@eslint-community/eslint-utils';
 const createTraceMap = (object, type) => {
 	let map = {[type]: true};
 
-	const path = object.split('.').reverse();
+	const path = object.split('.').toReversed();
 	for (const name of path) {
 		map = {[name]: map};
 	}
