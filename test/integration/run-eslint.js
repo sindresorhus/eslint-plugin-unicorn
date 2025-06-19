@@ -24,12 +24,11 @@ class UnicornIntegrationTestError extends AggregateError {
 class UnicornEslintFatalError extends SyntaxError {
 	name = 'UnicornEslintFatalError';
 
-	constructor(message, file, project) {
+	constructor(message, file) {
 		super(message.message);
 
 		this.eslintMessage = message;
 		this.eslintFile = file;
-		this.project = project;
 	}
 
 	get codeFrame() {
