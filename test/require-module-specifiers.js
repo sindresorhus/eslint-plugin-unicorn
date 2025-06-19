@@ -56,6 +56,7 @@ test.snapshot({
 		typescriptCode('export type * as foo from "foo"'),
 		'export const foo = 1',
 		'export function foo() {}',
+		'export class foo {}',
 		typescriptCode('export type foo = Foo'),
 		'export const {} = foo',
 		'export const [] = foo',
