@@ -147,7 +147,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow empty specifiers in import and export declaration.',
+			description: 'Disallow empty specifier list in import and export declaration.',
 			recommended: true,
 		},
 		fixable: 'code',
