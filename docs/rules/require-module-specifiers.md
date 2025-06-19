@@ -13,26 +13,26 @@ Disallow empty specifier list, use ["side effect import"](https://developer.mozi
 
 ```js
 // ❌
-import {} from "foo";
+import {} from 'foo';
 
 // ✅
-import "foo";
+import 'foo';
 ```
 
 ```js
 // ❌
-import foo, {} from "foo";
+import foo, {} from 'foo';
 
 // ✅
-import foo from "foo";
+import foo from 'foo';
 ```
 
 ```js
 // ❌
-export {} from "foo";
+export {} from 'foo';
 
 // ✅
-import "foo";
+import 'foo';
 ```
 
 ```js
