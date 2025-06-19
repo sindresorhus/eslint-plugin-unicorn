@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -164,7 +164,12 @@ test.snapshot({
 	],
 });
 
-test.typescript({
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
 	valid: [
 		outdent`
 			class Foo {
@@ -178,22 +183,12 @@ test.typescript({
 		`,
 	],
 	invalid: [
-		{
-			code: outdent`
-				class MyError extends Error {
-					constructor(message: string) {
-						this.name = "MyError";
-					}
+		outdent`
+			class MyError extends Error {
+				constructor(message: string) {
+					this.name = "MyError";
 				}
-			`,
-			errors: [{messageId: MESSAGE_ID}],
-			output: outdent`
-				class MyError extends Error {
-					constructor(message: string) {
-					}
-					name = "MyError";
-				}
-			`,
-		},
+			}
+		`,
 	],
 });
