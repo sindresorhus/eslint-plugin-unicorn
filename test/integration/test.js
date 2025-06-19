@@ -92,7 +92,7 @@ async function printEslintError(error) {
 
 	project.branch ??= await getBranch(project.location);
 	for (const error of errors) {
-		let file = path.relative(project.location, error.eslintFile.filePath);
+		let file = path.relative(project.location, error.eslintFile.filePath).replaceAll('\\', '/');
 		if (project.repository) {
 			file = `${project.repository}/blob/${project.branch}/${file}`;
 		}
