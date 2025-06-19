@@ -42,8 +42,8 @@ const create = context => {
 		const problem = {
 			node: importDeclaration,
 			loc: {
-				start: sourceCode.getLoc(openingBraceToken).end,
-				end: sourceCode.getLoc(closingBraceToken).start,
+				start: sourceCode.getLoc(openingBraceToken).start,
+				end: sourceCode.getLoc(closingBraceToken).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
 			data: {
@@ -109,8 +109,8 @@ const create = context => {
 		const problem = {
 			node: exportDeclaration,
 			loc: {
-				start: sourceCode.getLoc(openingBraceToken).end,
-				end: sourceCode.getLoc(closingBraceToken).start,
+				start: sourceCode.getLoc(openingBraceToken).start,
+				end: sourceCode.getLoc(closingBraceToken).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
 			data: {
