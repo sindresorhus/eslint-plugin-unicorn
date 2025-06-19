@@ -89,7 +89,6 @@ const execute = project => new Listr(
 		skip,
 		task,
 	})),
-	{exitOnError: false},
 );
 
 async function printEslintError(eslintError) {
