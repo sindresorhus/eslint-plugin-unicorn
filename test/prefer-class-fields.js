@@ -3,8 +3,6 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-const MESSAGE_ID = 'prefer-class-fields/error';
-
 test.snapshot({
 	valid: [
 		'class Foo {bar = 1}',
@@ -190,13 +188,13 @@ test.snapshot({
 				}
 			}
 		`,
-		test.only(outdent`
+		outdent`
 			class MyError extends Error {
 				name: string;
 				constructor(message: string) {
 					this.name = "MyError";
 				}
 			}
-		`),
+		`,
 	],
 });
