@@ -8,7 +8,6 @@ import spawn from 'nano-spawn';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
-import memoize from 'memoize';
 import YAML from 'yaml';
 import allProjects from './projects.js';
 import runEslint, {UnicornIntegrationTestError} from './run-eslint.js';
@@ -61,11 +60,6 @@ if (projects.length === 0) {
 	process.exit(0);
 }
 
-const getBranch = memoize(async dirname => {
-	const {stdout} = await spawn('git', ['branch', '--show-current'], {cwd: dirname});
-	return stdout;
-});
-
 const execute = async project => {
 	if (!fs.existsSync(project.location)) {
 		await spawn('git', [
@@ -107,7 +101,7 @@ function printEslintError(error) {
 	}
 }
 
-function printTestError(error) {
+async function printTestError(error) {
 	process.exitCode ??= 1;
 
 	if (!(error instanceof UnicornIntegrationTestError)) {
@@ -125,7 +119,7 @@ await new Listr(
 			try {
 				await execute(project);
 			} catch (error) {
-				printTestError(error);
+				await printTestError(error);
 			}
 		},
 	})),
