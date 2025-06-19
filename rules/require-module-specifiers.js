@@ -1,7 +1,4 @@
-import {isClosingBraceToken, isOpeningBraceToken} from '@eslint-community/eslint-utils';
-import {} from './ast/index.js';
-import {fixSpaceAroundKeyword} from './fix/index.js';
-import {} from './utils/index.js';
+import {isClosingBraceToken} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID_ERROR = 'require-module-specifiers/error';
 const MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION = 'suggestion-remove-declaration';
