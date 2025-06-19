@@ -1,3 +1,4 @@
+import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID_ERROR = 'prefer-class-fields/error';
@@ -86,9 +87,19 @@ const create = context => {
 				yield removeFieldAssignment(node, sourceCode, fixer);
 
 				if (existingProperty) {
-					yield existingProperty.value
-						? fixer.replaceText(existingProperty.value, propertyValue)
-						: fixer.insertTextAfter(existingProperty.key, ` = ${propertyValue}`);
+					if (existingProperty.value) {
+						yield fixer.replaceText(existingProperty.value, propertyValue);
+						return;
+					}
+
+					const text = ` = ${propertyValue}`;
+					const lastToken = sourceCode.getLastToken(existingProperty);
+					if (isSemicolonToken(lastToken)) {
+						yield fixer.insertTextBefore(lastToken, text);
+						return;
+					}
+
+					yield fixer.insertTextAfter(existingProperty, `${text};`);
 					return;
 				}
 

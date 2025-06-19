@@ -190,5 +190,13 @@ test.snapshot({
 				}
 			}
 		`,
+		test.only(outdent`
+			class MyError extends Error {
+				name: string;
+				constructor(message: string) {
+					this.name = "MyError";
+				}
+			}
+		`),
 	],
 });
