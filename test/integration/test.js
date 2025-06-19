@@ -81,7 +81,7 @@ const execute = async project => {
 	await runEslint(project);
 };
 
-async function printEslintError(error) {
+function printEslintError(error) {
 	const {message, project, errors} = error;
 
 	console.log();
@@ -90,11 +90,10 @@ async function printEslintError(error) {
 		message,
 	);
 
-	project.branch ??= await getBranch(project.location);
 	for (const error of errors) {
 		let file = path.relative(project.location, error.eslintFile.filePath).replaceAll('\\', '/');
 		if (project.repository) {
-			file = `${project.repository}/blob/${project.branch}/${file}`;
+			file = `${project.repository}/blob/HEAD/${file}`;
 		}
 
 		if (typeof error.eslintMessage.line === 'number') {
@@ -108,7 +107,7 @@ async function printEslintError(error) {
 	}
 }
 
-async function printTestError(error) {
+function printTestError(error) {
 	process.exitCode ??= 1;
 
 	if (!(error instanceof UnicornIntegrationTestError)) {
@@ -116,7 +115,7 @@ async function printTestError(error) {
 		return;
 	}
 
-	await printEslintError(error);
+	printEslintError(error);
 }
 
 await new Listr(
@@ -126,7 +125,7 @@ await new Listr(
 			try {
 				await execute(project);
 			} catch (error) {
-				await printTestError(error);
+				printTestError(error);
 			}
 		},
 	})),
