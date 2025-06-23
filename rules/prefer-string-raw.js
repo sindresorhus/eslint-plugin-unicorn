@@ -8,27 +8,9 @@ const messages = {
 
 const BACKSLASH = '\\';
 
-function unescapeBackslash(raw) {
-	const quote = raw.charAt(0);
-
-	raw = raw.slice(1, -1);
-
-	let result = '';
-	for (let position = 0; position < raw.length; position++) {
-		const character = raw[position];
-		if (character === BACKSLASH) {
-			const nextCharacter = raw[position + 1];
-			if (nextCharacter === BACKSLASH || nextCharacter === quote) {
-				result += nextCharacter;
-				position++;
-				continue;
-			}
-		}
-
-		result += character;
-	}
-
-	return result;
+function unescapeBackslash(value, quote = '') {
+	return value
+		.replaceAll(new RegExp(String.raw`\\([\\${quote}])`, 'g'), '$1');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -65,7 +47,7 @@ const create = context => {
 			return;
 		}
 
-		const unescaped = unescapeBackslash(raw);
+		const unescaped = unescapeBackslash(raw.slice(1, -1), raw.charAt(0));
 		if (unescaped !== node.value) {
 			return;
 		}
@@ -76,6 +58,52 @@ const create = context => {
 			* fix(fixer) {
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			},
+		};
+	});
+
+	context.on('TemplateLiteral', node => {
+		if (node.parent.type === 'TaggedTemplateExpression') {
+			return;
+		}
+
+		let suggestedValue = '';
+		let hasBackslash = false;
+
+		for (let index = 0; index < node.quasis.length; index++) {
+			const quasi = node.quasis[index];
+			const {raw, cooked} = quasi.value;
+
+			if (cooked.at(-1) === BACKSLASH) {
+				return;
+			}
+
+			const unescaped = unescapeBackslash(raw);
+			if (unescaped !== cooked) {
+				return;
+			}
+
+			if (cooked.includes(BACKSLASH)) {
+				hasBackslash = true;
+			}
+
+			if (index > 0) {
+				suggestedValue += '${' + context.sourceCode.getText(node.expressions[index - 1]) + '}';
+			}
+
+			suggestedValue += unescaped;
+		}
+
+		if (!hasBackslash) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			* fix(fixer) {
+				yield fixer.replaceText(node, `String.raw\`${suggestedValue}\``);
+				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
 			},
 		};
 	});
