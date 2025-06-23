@@ -1,6 +1,5 @@
 import {isMethodCall, isLiteral} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
-import {} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-array-flat-depth';
 const messages = {

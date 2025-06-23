@@ -59,6 +59,7 @@ export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
+export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
 export {default as 'no-useless-length-check'} from './no-useless-length-check.js';
 export {default as 'no-useless-promise-resolve-reject'} from './no-useless-promise-resolve-reject.js';
@@ -76,6 +77,7 @@ export {default as 'prefer-array-index-of'} from './prefer-array-index-of.js';
 export {default as 'prefer-array-some'} from './prefer-array-some.js';
 export {default as 'prefer-at'} from './prefer-at.js';
 export {default as 'prefer-blob-reading-methods'} from './prefer-blob-reading-methods.js';
+export {default as 'prefer-class-fields'} from './prefer-class-fields.js';
 export {default as 'prefer-code-point'} from './prefer-code-point.js';
 export {default as 'prefer-date-now'} from './prefer-date-now.js';
 export {default as 'prefer-default-parameters'} from './prefer-default-parameters.js';
