@@ -34,12 +34,16 @@ test.snapshot({
 		String.raw`import {} from "foo" with {"key\\key": "value"}`,
 		String.raw`export {} from "foo" with {key: "value\\value"}`,
 		String.raw`export {} from "foo" with {"key\\key": "value"}`,
+		String.raw`a = '\\'`,
+		String.raw`a = 'a\\b\"'`,
 	],
 	invalid: [
 		String.raw`a = 'a\\b'`,
 		String.raw`a = {['a\\b']: b}`,
 		String.raw`function a() {return'a\\b'}`,
 		String.raw`const foo = "foo \\x46";`,
+		String.raw`a = 'a\\b\''`,
+		String.raw`a = "a\\b\""`,
 	],
 });
 
