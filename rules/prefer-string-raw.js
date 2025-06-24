@@ -10,7 +10,7 @@ const BACKSLASH = '\\';
 
 function unescapeBackslash(value, quote = '') {
 	return value
-		.replaceAll(new RegExp(String.raw`\\([\\${quote}])`, 'g'), '$1');
+		.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
