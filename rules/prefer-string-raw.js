@@ -67,7 +67,7 @@ const create = context => {
 			return;
 		}
 
-		let suggestedValue = '';
+		let unescaped = '';
 		let hasBackslash = false;
 
 		for (let index = 0; index < node.quasis.length; index++) {
@@ -78,8 +78,8 @@ const create = context => {
 				return;
 			}
 
-			const unescaped = unescapeBackslash(raw);
-			if (unescaped !== cooked) {
+			const unescapedQuasi = unescapeBackslash(raw);
+			if (unescapedQuasi !== cooked) {
 				return;
 			}
 
@@ -88,10 +88,10 @@ const create = context => {
 			}
 
 			if (index > 0) {
-				suggestedValue += '${' + context.sourceCode.getText(node.expressions[index - 1]) + '}';
+				unescaped += '${' + context.sourceCode.getText(node.expressions[index - 1]) + '}';
 			}
 
-			suggestedValue += unescaped;
+			unescaped += unescapedQuasi;
 		}
 
 		if (!hasBackslash) {
@@ -102,7 +102,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield fixer.replaceText(node, `String.raw\`${suggestedValue}\``);
+				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
 			},
 		};
