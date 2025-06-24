@@ -60,6 +60,9 @@ test.snapshot({
 		// Ending with backslash
 		'a = `\\\\a${foo}b\\\\${foo}`',
 
+		// Tagged template expression
+		'a = String.raw`a\\\\b`',
+
 		// Multiline
 		outdent`
 			a = \`\\\\a \\
