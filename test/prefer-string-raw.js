@@ -71,8 +71,8 @@ test.snapshot({
 	],
 	invalid: [
 		'a = `a\\\\b`',
-		'a = `a\\\\b${foo}cd`',
-		'a = `a\\\\b${foo}cd${foo.bar}e\\\\f`',
+		'function a() {return `a\\\\b${foo}cd`}',
+		'a = {[`a\\\\b${foo}cd${foo.bar}e\\\\f`]: b}',
 		'a = `a${foo}${foo.bar}b\\\\c`',
 		'a = `a\\\\b${"c\\\\d"}e`',
 	],
