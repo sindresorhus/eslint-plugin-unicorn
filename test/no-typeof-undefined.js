@@ -18,6 +18,17 @@ test.snapshot({
 		'foo = 2; typeof foo === "undefined"',
 		'/* globals foo: readonly */ typeof foo === "undefined"',
 		'/* globals globalThis: readonly */ typeof globalThis === "undefined"',
+		outdent`
+			function parse() {
+				switch (typeof value === 'undefined') {}
+			}
+		`,
+		outdent`
+			/* globals value: readonly */
+			function parse() {
+				switch (typeof value === 'undefined') {}
+			}
+		`,
 		// Cases we are not checking
 		'"undefined" === typeof a.b',
 		'const UNDEFINED = "undefined"; typeof a.b === UNDEFINED',
@@ -76,6 +87,11 @@ test.snapshot({
 					a.b) === 'undefined';
 			}
 		`,
+		outdent`
+			function parse(value) {
+				switch (typeof value === 'undefined') {}
+			}
+		`,
 	],
 });
 
@@ -86,5 +102,16 @@ test.snapshot({
 	invalid: [
 		'typeof undefinedVariableIdentifier === "undefined"',
 		'typeof Array !== "undefined"',
+		outdent`
+			function parse() {
+				switch (typeof value === 'undefined') {}
+			}
+		`,
+		outdent`
+			/* globals value: readonly */
+			function parse() {
+				switch (typeof value === 'undefined') {}
+			}
+		`,
 	].map(code => ({code, options: [{checkGlobalVariables: true}]})),
 });
