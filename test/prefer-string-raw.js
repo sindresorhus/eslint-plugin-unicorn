@@ -79,6 +79,15 @@ test.snapshot({
 		'a = {[`a\\\\b${foo}cd${foo.bar}e\\\\f`]: b}',
 		'a = `a${foo}${foo.bar}b\\\\c`',
 		'a = `a\\\\b${"c\\\\d"}e`',
+		outdent`
+			a = \`\\\\a
+			b\`
+		`,
+		outdent`
+			a = \`\\\\a\${foo}
+			b\${bar}c
+			d\\\\\\\\e\`
+		`,
 	],
 });
 
