@@ -67,7 +67,7 @@ test.snapshot({
 		// Tagged template expression
 		'a = String.raw`a\\\\b`',
 
-		// Multiline
+		// Slash before newline (spread into multiple lines)
 		outdent`
 			a = \`\\\\a \\
 			b\`
