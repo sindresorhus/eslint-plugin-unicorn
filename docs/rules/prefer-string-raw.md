@@ -28,3 +28,17 @@ const file = String.raw`C:\windows\style\path\to\file.js`;
 ```js
 const regexp = new RegExp(String.raw`foo\.bar`);
 ```
+
+[`String.raw`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw) should not be used if the string does not contain any `\`.
+
+## Fail
+
+```js
+const noBackslash = String.raw`foobar`
+```
+
+## Pass
+
+```js
+const noBackslash = 'foobar'
+```
