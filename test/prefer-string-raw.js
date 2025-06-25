@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
@@ -18,7 +19,6 @@ test.snapshot({
 		`,
 		String.raw`a = 'a\\b\u{51}c'`,
 		'a = "a\\\\b`"',
-		// eslint-disable-next-line no-template-curly-in-string
 		'a = "a\\\\b${foo}"',
 		{
 			code: String.raw`<Component attribute="a\\b" />`,
@@ -44,6 +44,37 @@ test.snapshot({
 		String.raw`const foo = "foo \\x46";`,
 		String.raw`a = 'a\\b\''`,
 		String.raw`a = "a\\b\""`,
+	],
+});
+
+test.snapshot({
+	valid: [
+		'a = String.raw`a\\b`',
+		'a = String.raw`a\\b${foo}cd`',
+		'a = String.raw`ab${foo}c\\nd`',
+		outdent`
+			a = String.raw\`a
+				b\\c
+				de\`
+		`,
+	],
+	invalid: [
+		'a = String.raw`abc`',
+		'a = String.raw`ab${foo}cd`',
+		'a = String.raw`ab"c`',
+		'a = String.raw`ab\'c`',
+		'a = String.raw`ab\'"c`',
+		'a = String.raw`ab\r\nc`',
+		outdent`
+			a = String.raw\`a
+				bc
+				de\`
+		`,
+		outdent`
+			a = String.raw\`
+			a\${foo}b
+			\${bar}cd\`
+		`,
 	],
 });
 
