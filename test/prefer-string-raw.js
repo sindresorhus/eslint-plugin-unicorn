@@ -49,6 +49,13 @@ test.snapshot({
 
 test.snapshot({
 	valid: [
+		'a = foo`ab`',
+		'a = foo().bar`ab`',
+		'a = foo.bar()`ab`',
+		'a = String["raw"]`ab`',
+		'a = foo.raw`ab`',
+		'a = String.foo`ab`',
+		'a = String.raw`a\\b`',
 		'a = String.raw`a\\b`',
 		'a = String.raw`a\\b${foo}cd`',
 		'a = String.raw`ab${foo}c\\nd`',
