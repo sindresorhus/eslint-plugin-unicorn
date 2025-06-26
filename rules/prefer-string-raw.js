@@ -1,4 +1,4 @@
-import {isStringLiteral, isDirective} from './ast/index.js';
+import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
@@ -70,12 +70,7 @@ const create = context => {
 	context.on('TaggedTemplateExpression', node => {
 		const {quasi, tag} = node;
 
-		if (tag.type !== 'MemberExpression'
-			|| tag.object.type !== 'Identifier'
-			|| tag.property.type !== 'Identifier'
-			|| tag.object.name !== 'String'
-			|| tag.property.name !== 'raw'
-		) {
+		if (!isMemberExpression(tag, {object: 'String', property: 'raw'})) {
 			return;
 		}
 
