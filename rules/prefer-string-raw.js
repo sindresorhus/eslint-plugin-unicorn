@@ -1,5 +1,5 @@
 import {isStringLiteral, isDirective} from './ast/index.js';
-import {fixSpaceAroundKeyword} from './fix/index.js';
+import {fixSpaceAroundKeyword, replaceTemplateElement} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
@@ -67,11 +67,9 @@ const create = context => {
 			return;
 		}
 
-		let unescaped = '';
 		let hasBackslash = false;
 
-		for (let index = 0; index < node.quasis.length; index++) {
-			const quasi = node.quasis[index];
+		for (const quasi of node.quasis) {
 			const {raw, cooked} = quasi.value;
 
 			if (cooked.at(-1) === BACKSLASH) {
@@ -86,12 +84,6 @@ const create = context => {
 			if (cooked.includes(BACKSLASH)) {
 				hasBackslash = true;
 			}
-
-			if (index > 0) {
-				unescaped += '${' + context.sourceCode.getText(node.expressions[index - 1]) + '}';
-			}
-
-			unescaped += unescapedQuasi;
 		}
 
 		if (!hasBackslash) {
@@ -102,8 +94,9 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+				yield * node.quasis.map(quasi => replaceTemplateElement(fixer, quasi, quasi.value.cooked));
+				yield fixer.insertTextBefore(node, 'String.raw');
 			},
 		};
 	});

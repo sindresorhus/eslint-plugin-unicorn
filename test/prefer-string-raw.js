@@ -88,6 +88,9 @@ test.snapshot({
 			b\${bar}c
 			d\\\\\\\\e\`
 		`,
+		'a = `a\\\\b${ foo /* bar */}c\\\\d`',
+		'a = `a\\\\b${ foo + bar }`',
+		'a = `${ foo .bar }a\\\\b`',
 	],
 });
 
