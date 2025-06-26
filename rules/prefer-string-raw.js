@@ -1,5 +1,6 @@
 import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const MESSAGE_ID_UNNECESSARY_STRING_RAW = 'unnecessary-string-raw';
@@ -69,6 +70,7 @@ const create = context => {
 
 	context.on('TaggedTemplateExpression', node => {
 		const {quasi, tag} = node;
+		const {sourceCode} = context;
 
 		if (!isMemberExpression(tag, {object: 'String', property: 'raw'})) {
 			return;
@@ -82,7 +84,7 @@ const create = context => {
 			return;
 		}
 
-		const rawQuasi = context.sourceCode.getText(quasi);
+		const rawQuasi = sourceCode.getText(quasi);
 		const suggestion = quasi.expressions.length > 0 || /\r?\n/.test(rawQuasi)
 			? rawQuasi
 			: `'${rawQuasi.slice(1, -1).replaceAll('\'', String.raw`\'`)}'`;
@@ -91,6 +93,11 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID_UNNECESSARY_STRING_RAW,
 			* fix(fixer) {
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				if (needsSemicolon(tokenBefore, sourceCode, suggestion)) {
+					yield fixer.insertTextAfter(tokenBefore, ';');
+				}
+
 				yield fixer.replaceText(node, suggestion);
 			},
 		};

@@ -82,6 +82,15 @@ test.snapshot({
 			a\${foo}b
 			\${bar}cd\`
 		`,
+		outdent`
+			a
+			String.raw\`abc\`
+		`,
+		// ASI
+		outdent`
+			a
+			String.raw\`a\${b}\`
+		`,
 	],
 });
 
