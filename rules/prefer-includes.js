@@ -15,14 +15,9 @@ const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
-	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
 
 	const memberExpressionNode = target.parent;
-	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
-	const targetSource = sourceCode.getText().slice(
-		sourceCode.getRange(memberExpressionNode)[0],
-		sourceCode.getRange(dotToken)[0],
-	);
+	const targetSource = sourceCode.getText(target);
 
 	// Strip default `fromIndex`
 	if (isLiteralZero(argumentsNodes[1])) {
