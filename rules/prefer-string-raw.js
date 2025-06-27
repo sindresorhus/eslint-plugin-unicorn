@@ -90,7 +90,7 @@ const create = context => {
 			: `'${rawQuasi.slice(1, -1).replaceAll('\'', String.raw`\'`)}'`;
 
 		return {
-			node,
+			node: tag,
 			messageId: MESSAGE_ID_UNNECESSARY_STRING_RAW,
 			* fix(fixer) {
 				const tokenBefore = sourceCode.getTokenBefore(node);
