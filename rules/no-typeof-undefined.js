@@ -7,7 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isShadowed,
+	isUnresolvedVariable,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -49,7 +49,7 @@ const create = context => {
 
 			const valueNode = typeofNode.argument;
 			const isGlobalVariable = valueNode.type === 'Identifier'
-				&& !isShadowed(sourceCode.getScope(valueNode), valueNode);
+				&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
 
 			if (!checkGlobalVariables && isGlobalVariable) {
 				return;

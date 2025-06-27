@@ -8,10 +8,9 @@ import spawn from 'nano-spawn';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
 import {isCI} from 'ci-info';
-import memoize from 'memoize';
 import YAML from 'yaml';
 import allProjects from './projects.js';
-import runEslint from './run-eslint.js';
+import runEslint, {UnicornIntegrationTestError} from './run-eslint.js';
 
 if (isCI) {
 	const CI_CONFIG_FILE = new URL('../../.github/workflows/main.yml', import.meta.url);
@@ -61,39 +60,23 @@ if (projects.length === 0) {
 	process.exit(0);
 }
 
-const getBranch = memoize(async dirname => {
-	const {stdout} = await spawn('git', ['branch', '--show-current'], {cwd: dirname});
-	return stdout;
-});
+const execute = async project => {
+	if (!fs.existsSync(project.location)) {
+		await spawn('git', [
+			'clone',
+			project.repository,
+			'--single-branch',
+			'--depth',
+			'1',
+			project.location,
+		], {stdout: 'inherit', stderr: 'inherit'});
+	}
 
-const execute = project => new Listr(
-	[
-		{
-			title: 'Cloning',
-			skip: () => fs.existsSync(project.location) ? 'Project already downloaded.' : false,
-			task: () => spawn('git', [
-				'clone',
-				project.repository,
-				'--single-branch',
-				'--depth',
-				'1',
-				project.location,
-			], {stdout: 'inherit', stderr: 'inherit'}),
-		},
-		{
-			title: 'Running eslint',
-			task: () => runEslint(project),
-		},
-	].map(({title, task, skip}) => ({
-		title: `${project.name} / ${title}`,
-		skip,
-		task,
-	})),
-	{exitOnError: false},
-);
+	await runEslint(project);
+};
 
-async function printEslintError(eslintError) {
-	const {message, project} = eslintError;
+function printEslintError(error) {
+	const {message, project, errors} = error;
 
 	console.log();
 	console.error(
@@ -101,11 +84,10 @@ async function printEslintError(eslintError) {
 		message,
 	);
 
-	project.branch ??= await getBranch(project.location);
-	for (const error of eslintError.errors) {
-		let file = path.relative(project.location, error.eslintFile.filePath);
+	for (const error of errors) {
+		let file = path.relative(project.location, error.eslintFile.filePath).replaceAll('\\', '/');
 		if (project.repository) {
-			file = `${project.repository}/blob/${project.branch}/${file}`;
+			file = `${project.repository}/blob/HEAD/${file}`;
 		}
 
 		if (typeof error.eslintMessage.line === 'number') {
@@ -119,33 +101,30 @@ async function printEslintError(eslintError) {
 	}
 }
 
-async function printListrError(listrError) {
-	process.exitCode = 1;
+async function printTestError(error) {
+	process.exitCode ||= 1;
 
-	if (!listrError.errors) {
-		console.error(listrError);
+	if (!(error instanceof UnicornIntegrationTestError)) {
+		console.error(error);
 		return;
 	}
 
-	for (const error of listrError.errors) {
-		if (error.name !== 'UnicornIntegrationTestError') {
-			console.error(error);
-			continue;
-		}
-
-		// eslint-disable-next-line no-await-in-loop
-		await printEslintError(error);
-	}
+	printEslintError(error);
 }
 
-try {
-	await new Listr(
-		projects.map(project => ({title: project.name, task: () => execute(project)})),
-		{
-			renderer: isCI ? 'verbose' : 'default',
-			concurrent: true,
+await new Listr(
+	projects.map(project => ({
+		title: project.name,
+		async task() {
+			try {
+				await execute(project);
+			} catch (error) {
+				await printTestError(error);
+			}
 		},
-	).run();
-} catch (error) {
-	await printListrError(error);
-}
+	})),
+	{
+		renderer: isCI ? 'verbose' : 'default',
+		concurrent: true,
+	},
+).run();

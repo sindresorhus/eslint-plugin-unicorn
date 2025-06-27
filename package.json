@@ -97,7 +97,6 @@
 		"listr2": "^8.3.3",
 		"lodash-es": "^4.17.21",
 		"markdownlint-cli": "^0.45.0",
-		"memoize": "^10.1.0",
 		"nano-spawn": "^1.0.2",
 		"node-style-text": "^0.0.8",
 		"npm-package-json-lint": "^8.0.0",
