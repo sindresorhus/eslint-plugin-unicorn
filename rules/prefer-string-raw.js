@@ -98,7 +98,8 @@ const create = context => {
 					yield fixer.insertTextBefore(node, ';');
 				}
 
-				yield fixer.replaceText(node, suggestion);
+				yield fixer.replaceText(node.quasi, suggestion);
+				yield fixer.remove(node.tag);
 			},
 		};
 	});

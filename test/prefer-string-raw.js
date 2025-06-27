@@ -64,6 +64,11 @@ test.snapshot({
 				b\\c
 				de\`
 		`,
+		outdent`
+			a = String.raw
+				// Comment
+				\`ab\\c\`
+		`,
 	],
 	invalid: [
 		'a = String.raw`abc`',
@@ -90,6 +95,16 @@ test.snapshot({
 		outdent`
 			a
 			String.raw\`a\${b}\`
+		`,
+		outdent`
+			a = String.raw
+			// Comment
+			\`ab
+			c\`
+		`,
+		outdent`
+			a = String.raw  /* comment */  \`ab
+			c\`
 		`,
 	],
 });
