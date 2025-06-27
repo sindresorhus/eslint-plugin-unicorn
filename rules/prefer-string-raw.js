@@ -55,8 +55,8 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 			},
 		};
 	});
