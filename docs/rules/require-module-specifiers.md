@@ -1,4 +1,4 @@
-# Disallow empty specifier list in import and export declaration
+# Require non-empty specifier list in import and export declaration
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
