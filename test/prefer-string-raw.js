@@ -4,6 +4,7 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// String literal to `String.raw`
 test.snapshot({
 	valid: [
 		String.raw`a = '\''`,
@@ -47,6 +48,7 @@ test.snapshot({
 	],
 });
 
+// `TemplateLiteral` to `String.raw`
 test.snapshot({
 	valid: [
 		// No backslash
