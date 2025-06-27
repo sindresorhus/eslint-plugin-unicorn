@@ -95,7 +95,7 @@ const create = context => {
 			* fix(fixer) {
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, sourceCode, suggestion)) {
-					yield fixer.insertTextAfter(tokenBefore, ';');
+					yield fixer.insertTextBefore(node, ';');
 				}
 
 				yield fixer.replaceText(node, suggestion);
