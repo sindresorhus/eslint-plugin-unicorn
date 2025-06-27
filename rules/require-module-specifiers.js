@@ -4,8 +4,8 @@ const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION = 'suggestion/remove-declaration';
 const MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT = 'suggestion/to-side-effect-import';
 const messages = {
-	[MESSAGE_ID_ERROR]: '{{type}} declaration without specifiers is not allowed.',
-	[MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION]: 'Remove this {{type}} declaration.',
+	[MESSAGE_ID_ERROR]: '{{type}} statement without specifiers is not allowed.',
+	[MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION]: 'Remove this {{type}} statement.',
 	[MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT]: 'Switch to side effect import.',
 };
 
