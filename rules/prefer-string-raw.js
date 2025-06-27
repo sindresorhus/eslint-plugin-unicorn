@@ -72,7 +72,7 @@ const create = context => {
 		const {quasi, tag} = node;
 		const {sourceCode} = context;
 
-		if (!isMemberExpression(tag, {object: 'String', property: 'raw'})) {
+		if (!isMemberExpression(tag, {object: 'String', property: 'raw', optional: false})) {
 			return;
 		}
 
