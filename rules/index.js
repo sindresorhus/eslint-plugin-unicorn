@@ -125,6 +125,7 @@ export {default as 'prefer-type-error'} from './prefer-type-error.js';
 export {default as 'prevent-abbreviations'} from './prevent-abbreviations.js';
 export {default as 'relative-url-style'} from './relative-url-style.js';
 export {default as 'require-array-join-separator'} from './require-array-join-separator.js';
+export {default as 'require-module-specifiers'} from './require-module-specifiers.js';
 export {default as 'require-number-to-fixed-digits-argument'} from './require-number-to-fixed-digits-argument.js';
 export {default as 'require-post-message-target-origin'} from './require-post-message-target-origin.js';
 export {default as 'string-content'} from './string-content.js';
