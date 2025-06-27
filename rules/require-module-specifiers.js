@@ -29,7 +29,6 @@ const create = context => {
 		}
 
 		const closingBraceToken = sourceCode.getTokenBefore(fromToken);
-
 		if (!isClosingBraceToken(closingBraceToken)) {
 			return;
 		}
