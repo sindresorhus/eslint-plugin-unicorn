@@ -17,7 +17,7 @@
 	},
 	"sideEffects": false,
 	"engines": {
-		"node": "^18.20.0 || ^20.10.0 || >=21.0.0"
+		"node": "^20.10.0 || >=21.0.0"
 	},
 	"scripts": {
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
