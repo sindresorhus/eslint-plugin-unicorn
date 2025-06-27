@@ -8,9 +8,8 @@ const messages = {
 
 const BACKSLASH = '\\';
 
-function unescapeBackslash(value, quote = '') {
-	return value
-		.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
+function unescapeBackslash(text, quote = '') {
+	return text.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -63,30 +62,11 @@ const create = context => {
 	});
 
 	context.on('TemplateLiteral', node => {
-		if (node.parent.type === 'TaggedTemplateExpression') {
-			return;
-		}
-
-		let hasBackslash = false;
-
-		for (const quasi of node.quasis) {
-			const {raw, cooked} = quasi.value;
-
-			if (cooked.at(-1) === BACKSLASH) {
-				return;
-			}
-
-			const unescapedQuasi = unescapeBackslash(raw);
-			if (unescapedQuasi !== cooked) {
-				return;
-			}
-
-			if (cooked.includes(BACKSLASH)) {
-				hasBackslash = true;
-			}
-		}
-
-		if (!hasBackslash) {
+		if (
+			(node.parent.type === 'TaggedTemplateExpression' && node.parent.quasi === node)
+			|| node.quasis.every(({value: {cooked, raw}}) => cooked === raw)
+			|| node.quasis.some(({value: {cooked, raw}}) => cooked.at(-1) === BACKSLASH || unescapeBackslash(raw) !== cooked)
+		) {
 			return;
 		}
 
@@ -96,11 +76,14 @@ const create = context => {
 			* fix(fixer) {
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
 				yield fixer.insertTextBefore(node, 'String.raw');
+
 				for (const quasis of node.quasis) {
-					const {cooked} = quasis.value;
-					if (cooked.includes(BACKSLASH)) {
-						yield replaceTemplateElement(fixer, quasis, cooked);
+					const {cooked, raw} = quasis.value;
+					if (cooked === raw) {
+						continue;
 					}
+
+					yield replaceTemplateElement(fixer, quasis, cooked);
 				}
 			},
 		};
