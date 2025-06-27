@@ -1,3 +1,5 @@
+import {findVariable} from '@eslint-community/eslint-utils';
+
 /**
 Checks if the given identifier node is shadowed in the given scope.
 
@@ -7,7 +9,6 @@ Checks if the given identifier node is shadowed in the given scope.
 */
 export default function isUnresolvedVariable(node, context) {
 	const scope = context.sourceCode.getScope(node);
-	const reference = scope.references
-		.find(reference => reference.identifier === node);
-	return !reference.resolved;
+	const variable = findVariable(scope, node);
+	return !variable;
 }

@@ -11,24 +11,9 @@ const BACKSLASH = '\\';
 function unescapeBackslash(raw) {
 	const quote = raw.charAt(0);
 
-	raw = raw.slice(1, -1);
-
-	let result = '';
-	for (let position = 0; position < raw.length; position++) {
-		const character = raw[position];
-		if (character === BACKSLASH) {
-			const nextCharacter = raw[position + 1];
-			if (nextCharacter === BACKSLASH || nextCharacter === quote) {
-				result += nextCharacter;
-				position++;
-				continue;
-			}
-		}
-
-		result += character;
-	}
-
-	return result;
+	return raw
+		.slice(1, -1)
+		.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
