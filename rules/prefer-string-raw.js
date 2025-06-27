@@ -95,8 +95,13 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
 				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
-				yield * node.quasis.map(quasi => replaceTemplateElement(fixer, quasi, quasi.value.cooked));
 				yield fixer.insertTextBefore(node, 'String.raw');
+				for (const quasis of node.quasis) {
+					const {cooked} = quasis.value;
+					if (cooked.includes(BACKSLASH)) {
+						yield replaceTemplateElement(fixer, quasis, cooked);
+					}
+				}
 			},
 		};
 	});
