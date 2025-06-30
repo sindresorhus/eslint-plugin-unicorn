@@ -102,6 +102,51 @@ test.snapshot({
 			return { ...error  }
 		});
 		`,
+
+		// Case from integration failed test
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/actions/runs/15963375449/job/45019476320?pr=2661#step:5:139
+		`
+		import { ref } from 'vue'
+
+		let id = 0
+
+		const dataGenerator = () => ({
+			id: \`random-id-$\{++id}\`,
+			name: 'Tom',
+			date: '2020-10-1',
+		})
+
+		const data = ref(Array.from({ length: 200 }).map(dataGenerator))
+		`,
+
+		// Not crash for variable `dataGenerator404` not found
+		(`
+		import { ref } from 'vue'
+
+		let id = 0
+
+		const dataGenerator = () => ({
+			id: \`random-id-$\{++id}\`,
+			name: 'Tom',
+			date: '2020-10-1',
+		})
+
+		const data = ref(Array.from({ length: 200 }).map(dataGenerator404))
+		`),
+
+		(`
+		import { ref } from 'vue'
+
+		let id = 0
+
+		const dataGenerator = {
+			id: \`random-id-$\{++id}\`,
+			name: 'Tom',
+			date: '2020-10-1',
+		}
+
+		const data = ref(Array.from({ length: 200 }).map(dataGenerator))
+		`),
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -203,5 +248,23 @@ test.snapshot({
 		`,
 
 		'const object = {}; Array.from({length: 31}).map(() => object);',
+
+		// Case from integration failed test
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/actions/runs/15963375449/job/45019476320?pr=2661#step:5:139
+		`
+		import { ref } from 'vue'
+
+		let id = 0
+
+		const sharedObj = {
+			id: \`random-id-$\{++id}\`,
+			name: 'Tom',
+			date: '2020-10-1',
+		}
+
+		const dataGenerator = () => (sharedObj)
+
+		const data = ref(Array.from({ length: 200 }).map(dataGenerator))
+		`,
 	],
 });

@@ -1,4 +1,5 @@
 // @ts-check
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isRegexLiteral} from './ast/index.js';
 
 /**
@@ -38,7 +39,7 @@ const create = context => ({
 			return;
 		}
 
-		const fillArgument = isArrayFill ? node.arguments[0] : getArrayFromReturnNode(node);
+		const fillArgument = isArrayFill ? node.arguments[0] : getArrayFromReturnNode(node, context);
 
 		log('fillArgument:', fillArgument);
 
@@ -60,17 +61,17 @@ const create = context => ({
 	},
 });
 
-function getArrayFromReturnNode(node) {
+function getArrayFromReturnNode(node, context) {
 	const secondArgument = node.arguments[1];
 	log('secondArgument:', secondArgument);
 
 	// Array.from({ length: 10 }, () => { return sharedObject; });
 	let result;
 	if (secondArgument && isFunction(secondArgument)) {
-		result = getReturnIdentifier(secondArgument);
+		result = getReturnIdentifier(secondArgument, context);
 	} else if (node.parent.type === 'MemberExpression' && node.parent.property.name === 'map') {
 		// Array.from({ length: 10 }).map(() => { return sharedObject; });
-		result = getReturnIdentifier(node.parent.parent.arguments[0]);
+		result = getReturnIdentifier(node.parent.parent.arguments[0], context);
 	}
 
 	// Should not check reference type if the identifier is declared in the current function
@@ -85,10 +86,31 @@ function getArrayFromReturnNode(node) {
 
 /**
 
- @param {Node} node
+ @param {Node} node - callback for map
  @returns {{ returnNode: Node, declaredInCurrentFunction: boolean }}
  */
-function getReturnIdentifier(node) {
+function getReturnIdentifier(node, context) {
+	if (node.type === 'Identifier') {
+		const scope = context.sourceCode.getScope(node);
+
+		const variable = findVariable(scope, node);
+
+		if (!variable) {
+			// Not check if the identifier is not declared
+			return {returnNode: node, declaredInCurrentFunction: true};
+		}
+
+		// Must be ArrowFunctionExpression or FunctionExpression
+		const {init} = variable.defs[0].node;
+
+		if (!isFunction(init)) {
+			// Not check if the identifier is not a function
+			return {returnNode: node, declaredInCurrentFunction: true};
+		}
+
+		return getReturnIdentifier(init, context);
+	}
+
 	if (node.body.type === 'Identifier') {
 		return {returnNode: node.body, declaredInCurrentFunction: false};
 	}
