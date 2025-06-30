@@ -1,5 +1,5 @@
 // @ts-check
-import {isFunction, isRegexLiteral} from './ast/index.js';
+import {isFunction, isMemberExpression, isRegexLiteral} from './ast/index.js';
 
 /**
  @typedef {any} Node
@@ -24,14 +24,14 @@ const log = (...arguments_) => debugging && console.log(...arguments_);
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(node) {
-		// Array.fill or Array.from().fill
-		const isArrayFill = node.callee.type === 'MemberExpression'
+		// `arr.fill` or `new Array().fill` or `Array.from().fill`
+		const isArrayFill = isMemberExpression(node.callee)
 			&& ((node.callee.object.callee?.name === 'Array') || (context.sourceCode.getText(node.callee.object.callee) === 'Array.from'))
 			&& node.callee.property.name === 'fill'
 			&& node.arguments.length > 0;
 
-		// Array.from().map Array.from(arrayLike, mapper)
-		const isArrayFrom = node.callee.type === 'MemberExpression' && node.callee.object?.name === 'Array' && node.callee.property.name === 'from';
+		// `Array.from().map` or `Array.from(arrayLike, mapper)`
+		const isArrayFrom = isMemberExpression(node.callee) && node.callee.object?.name === 'Array' && node.callee.property.name === 'from';
 		log('isArrayFill:', {isArrayFill, isArrayFrom});
 
 		if (!isArrayFill && !isArrayFrom) {
