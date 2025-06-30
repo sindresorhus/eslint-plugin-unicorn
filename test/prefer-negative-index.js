@@ -166,6 +166,8 @@ test({
 				[NOT_EMPTY].slice.call(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				[NOT_EMPTY].splice.call(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 			`,
+			// It's safe due to no mutation to `errors`
+			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 4}, () => error),
 			output: outdent`
 				[].slice.call(foo, - 1, - 2, foo.length - 3);
@@ -190,6 +192,7 @@ test({
 				'NOT_EMPTY'.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				'NOT_EMPTY'.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 			`,
+			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 2}, () => error),
 			output: outdent`
 				''.slice.call(foo, - 1, - 2, foo.length - 3);
@@ -239,6 +242,7 @@ test({
 				NOT_SUPPORTED.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 				NOT_SUPPORTED.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
 			`,
+			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 16}, () => error),
 			output: outdent`
 				Array.prototype.slice.call(foo, - 1, - 2, foo.length - 3);
@@ -312,6 +316,7 @@ test({
 				NOT_SUPPORTED.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 				NOT_SUPPORTED.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
 			`,
+			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 16}, () => error),
 			output: outdent`
 				Array.prototype.slice.apply(foo, [- 1, - 2, foo.length - 3]);
