@@ -50,11 +50,11 @@ test.snapshot({
 		});`,
 		'new Array(4).fill(function () {});',
 
-		// Set canFillWithFunction explicitly to true
+		// Set allowFunctions explicitly to true
 		{
 			code: 'new Array(41).fill(function () {});',
 			options: [{
-				canFillWithFunction: true,
+				allowFunctions: true,
 			}],
 		},
 
@@ -114,25 +114,25 @@ test.snapshot({
 		{
 			code: 'new Array(3).fill(/pattern/); // ✗ RegExp',
 			options: [{
-				canFillWithRegexp: false,
+				allowRegularExpressions: false,
 			}],
 		},
 		{
 			code: 'new Array(3).fill(new RegExp("pattern")); // ✗ RegExp',
 			options: [{
-				canFillWithRegexp: false,
+				allowRegularExpressions: false,
 			}],
 		},
 		{
 			code: 'const p = /pattern/; new Array(3).fill(p); // ✗ RegExp',
 			options: [{
-				canFillWithRegexp: false,
+				allowRegularExpressions: false,
 			}],
 		},
 		{
 			code: 'const p = new RegExp("pattern"); new Array(3).fill(p); // ✗ RegExp',
 			options: [{
-				canFillWithRegexp: false,
+				allowRegularExpressions: false,
 			}],
 		},
 
@@ -158,25 +158,25 @@ test.snapshot({
 		{
 			code: 'new Array(3).fill(() => 1);',
 			options: [{
-				canFillWithFunction: false,
+				allowFunctions: false,
 			}],
 		},
 		{
 			code: 'new Array(3).fill(() => {});',
 			options: [{
-				canFillWithFunction: false,
+				allowFunctions: false,
 			}],
 		},
 		{
 			code: 'new Array(3).fill(() => { return {} });',
 			options: [{
-				canFillWithFunction: false,
+				allowFunctions: false,
 			}],
 		},
 		{
 			code: 'new Array(3).fill(function () {});',
 			options: [{
-				canFillWithFunction: false,
+				allowFunctions: false,
 			}],
 		},
 

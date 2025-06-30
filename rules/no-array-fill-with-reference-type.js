@@ -13,9 +13,9 @@ const messages = {
 
 const DEFAULTS = {
 	// Not check for function expressions by default because it is rare to fill an array with a function and add properties to it.
-	canFillWithFunction: true,
+	allowFunctions: true,
 	// The same reason as above.
-	canFillWithRegexp: true,
+	allowRegularExpressions: true,
 };
 
 const debugging = false;
@@ -200,7 +200,7 @@ function isReferenceType(node, context) {
 	// For null, number, string, boolean.
 	if (node.type === 'Literal') {
 		// Exclude regular expression literals (e.g., `/pattern/`, which are objects despite being literals).
-		if (!options.canFillWithRegexp && isRegexLiteral(node)) {
+		if (!options.allowRegularExpressions && isRegexLiteral(node)) {
 			return true;
 		}
 
@@ -228,12 +228,12 @@ function isReferenceType(node, context) {
 		}
 	}
 
-	if (options.canFillWithFunction && isFunction(node)) {
+	if (options.allowFunctions && isFunction(node)) {
 		return false;
 	}
 
 	const isNewRegexp = node.type === 'NewExpression' && node.callee.name === 'RegExp';
-	if (options.canFillWithRegexp && isNewRegexp) {
+	if (options.allowRegularExpressions && isNewRegexp) {
 		return false;
 	}
 
@@ -296,10 +296,10 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			canFillWithFunction: {
+			allowFunctions: {
 				type: 'boolean',
 			},
-			canFillWithRegexp: {
+			allowRegularExpressions: {
 				type: 'boolean',
 			},
 		},

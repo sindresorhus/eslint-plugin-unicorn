@@ -104,7 +104,7 @@ Array.from({ length: 3 }, () => []);
 
 ## Options
 
-### canFillWithFunction
+### allowFunctions
 
 Type: `boolean`\
 Default: `true`
@@ -121,18 +121,18 @@ new Array(3).fill(function () {})
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"canFillWithFunction": false
+		"allowFunctions": false
 	}
 ]
 ```
 
-with `canFillWithFunction: false`, this would fail:
+with `allowFunctions: false`, this would fail:
 
 ```js
 new Array(3).fill(function () {})
 ```
 
-### canFillWithRegexp
+### allowRegularExpressions
 
 Type: `boolean`\
 Default: `true`
@@ -149,12 +149,12 @@ new Array(3).fill(/pattern/)
 "unicorn/catch-error-name": [
 	"error",
 	{
-		"canFillWithRegexp": false
+		"allowRegularExpressions": false
 	}
 ]
 ```
 
-with `canFillWithRegexp: false`, this would fail:
+with `allowRegularExpressions: false`, this would fail:
 
 ```js
 new Array(3).fill(/pattern/)
