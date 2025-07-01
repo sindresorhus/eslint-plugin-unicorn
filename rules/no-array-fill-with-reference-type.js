@@ -101,9 +101,10 @@ function getReturnIdentifier(node, context) {
 		}
 
 		// Must be ArrowFunctionExpression or FunctionExpression
-		const {init} = variable.defs[0].node;
+		const init = variable.defs[0]?.node?.init;
 
-		if (!isFunction(init)) {
+		// `init` will be undefined if the identifier is builtin globals like String
+		if (!init || !isFunction(init)) {
 			// Not check if the identifier is not a function
 			return {returnNode: node, declaredInCurrentFunction: true};
 		}
@@ -302,7 +303,7 @@ function isIdentifierReferenceType(node, context) {
 
 	// Check `const foo = []; Array(3).fill(foo);`
 	if (definitionNode.type === 'VariableDeclarator') {
-		// Not check `let`
+		// Not check `let` `let foo = []; Array(3).fill(foo);`
 		if (definitionNode.parent.kind === 'let') {
 			return false;
 		}

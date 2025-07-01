@@ -76,6 +76,9 @@ test.snapshot({
 		a = 2
 		new Array(3).fill(a)`,
 
+		// Not check `let` variables even if it is reference value but it can be reassigned
+		'let foo = []; Array(3).fill(foo);',
+
 		// Valid because it returns a new map every time
 		`
 		const map = new Map();
@@ -147,6 +150,66 @@ test.snapshot({
 
 		const data = ref(Array.from({ length: 200 }).map(dataGenerator))
 		`),
+
+		// https://github.com/vercel/next.js/blob/canary/packages/next/src/build/turborepo-access-trace/result.ts#L33C11-L33C47
+		'Array.from(this.fsPaths).map(String)',
+		// https://github.com/angular/angular/blob/main/devtools/projects/ng-devtools-backend/src/lib/component-tree/component-tree.ts#L553
+		`
+		import {
+			buildDirectiveTree,
+			getLViewFromDirectiveOrElementInstance,
+		} from '../directive-forest/index';
+
+		export const buildDirectiveForest = () => {
+			const roots = getRoots();
+			return Array.prototype.concat.apply([], Array.from(roots).map(buildDirectiveTree));
+		};`,
+
+		// https://github.com/microsoft/vscode/blob/main/src/vs/base/test/common/map.test.ts#L527
+		'assert.deepStrictEqual(Array.from(map.keys()).map(String), [fileA].map(String));',
+
+		// Will not check this even if sharedObj is a reference type
+		`
+		const foo = 1, sharedObj = {
+			name: 'Tom',
+			date: '2020-10-1',
+		};
+
+		let dataGenerator = () => 1; // because findVariable only find the first variable
+
+		dataGenerator = () => (sharedObj);
+
+		const data = Array.from({ length: 200 }).map(dataGenerator)
+		`,
+
+		// This is valid since sharedObj is overwritten to a primitive value.
+		`
+		let sharedObj = {
+			name: 'Tom',
+			date: '2020-10-1',
+		};
+
+		sharedObj = 1;
+
+		let dataGenerator = () => sharedObj;
+
+		const data = Array.from({ length: 200 }).map(dataGenerator)
+		`,
+
+		// This should be invalid since sharedObj is overwritten to a reference value.
+		// but we will not check this corner case.
+		`
+		let sharedObj = 1;
+
+		sharedObj = {
+			name: 'Tom',
+			date: '2020-10-1',
+		};
+
+		// let dataGenerator = () => sharedObj;
+
+		const data = Array.from({ length: 200 }).map(() => sharedObj);
+		`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
