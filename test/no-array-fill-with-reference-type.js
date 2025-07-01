@@ -210,6 +210,12 @@ test.snapshot({
 
 		const data = Array.from({ length: 200 }).map(() => sharedObj);
 		`,
+
+		// https://github.com/angular/angular/blob/main/packages/upgrade/src/dynamic/test/upgrade_spec.ts#L800
+		`
+		const ng2Descendants = Array.from(element.querySelectorAll('ng2 li')).map(
+			angular.element,
+		);`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array

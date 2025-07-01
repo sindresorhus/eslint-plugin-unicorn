@@ -112,6 +112,13 @@ function getReturnIdentifier(node, context) {
 		return getReturnIdentifier(init, context);
 	}
 
+	// Console.log('node:', node);
+
+	// No check member expression as callback `Array.from(element.querySelectorAll('ng2 li')).map(angular.element);`
+	if (!node.body) {
+		return {returnNode: node, declaredInCurrentFunction: true};
+	}
+
 	if (node.body.type === 'Identifier') {
 		return {returnNode: node.body, declaredInCurrentFunction: false};
 	}
