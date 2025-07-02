@@ -1,7 +1,6 @@
-'use strict';
-const isSameReference = require('../utils/is-same-reference.js');
-const {getParenthesizedRange} = require('../utils/parentheses.js');
-const {isNumberLiteral} = require('../ast/index.js');
+import isSameReference from '../utils/is-same-reference.js';
+import {getParenthesizedRange} from '../utils/parentheses.js';
+import {isNumberLiteral} from '../ast/index.js';
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -9,11 +8,12 @@ const isLengthMemberExpression = node =>
 	&& !node.optional
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length';
+
 const isLiteralPositiveNumber = node =>
 	isNumberLiteral(node)
 	&& node.value > 0;
 
-function getNegativeIndexLengthNode(node, objectNode) {
+export function getNegativeIndexLengthNode(node, objectNode) {
 	if (!node) {
 		return;
 	}
@@ -32,7 +32,7 @@ function getNegativeIndexLengthNode(node, objectNode) {
 	return getNegativeIndexLengthNode(left, objectNode);
 }
 
-function removeLengthNode(node, fixer, sourceCode) {
+export function removeLengthNode(node, fixer, sourceCode) {
 	const [start, end] = getParenthesizedRange(node, sourceCode);
 	return fixer.removeRange([
 		start,
@@ -40,7 +40,3 @@ function removeLengthNode(node, fixer, sourceCode) {
 	]);
 }
 
-module.exports = {
-	getNegativeIndexLengthNode,
-	removeLengthNode,
-};

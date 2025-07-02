@@ -1,5 +1,4 @@
-'use strict';
-const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
+import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 
 const indexOfOverFindIndexRule = simpleArraySearchRule({
 	method: 'findIndex',
@@ -12,7 +11,7 @@ const lastIndexOfOverFindLastIndexRule = simpleArraySearchRule({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create(context) {
 		indexOfOverFindIndexRule.listen(context);
 		lastIndexOfOverFindLastIndexRule.listen(context);
@@ -21,6 +20,7 @@ module.exports = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#{indexOf,lastIndexOf}()` over `Array#{findIndex,findLastIndex}()` when looking for the index of an item.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
@@ -30,3 +30,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

@@ -1,5 +1,4 @@
-'use strict';
-const {isMemberExpression} = require('./ast/index.js');
+import {isMemberExpression} from './ast/index.js';
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -62,14 +61,17 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

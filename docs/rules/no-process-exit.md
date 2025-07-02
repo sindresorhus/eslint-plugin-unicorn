@@ -1,6 +1,6 @@
 # Disallow `process.exit()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -28,7 +28,7 @@ process.on('SIGINT', () => {
 ```
 
 ```js
-import workerThreads from 'worker_threads';
+import workerThreads from 'node:worker_threads';
 
 try {
 	// Do something…

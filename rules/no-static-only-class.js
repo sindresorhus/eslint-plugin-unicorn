@@ -1,8 +1,7 @@
-'use strict';
-const {isSemicolonToken} = require('@eslint-community/eslint-utils');
-const getClassHeadLocation = require('./utils/get-class-head-location.js');
-const assertToken = require('./utils/assert-token.js');
-const {removeSpacesAfter} = require('./fix/index.js');
+import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import getClassHeadLocation from './utils/get-class-head-location.js';
+import assertToken from './utils/assert-token.js';
+import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
@@ -153,8 +152,8 @@ function switchClassToObject(node, sourceCode) {
 			if (
 				type === 'ClassExpression'
 				&& parent.type === 'ReturnStatement'
-				&& body.loc.start.line !== parent.loc.start.line
-				&& sourceCode.text.slice(classToken.range[1], body.range[0]).trim()
+				&& sourceCode.getLoc(body).start.line !== sourceCode.getLoc(parent).start.line
+				&& sourceCode.text.slice(sourceCode.getRange(classToken)[1], sourceCode.getRange(body)[0]).trim()
 			) {
 				yield fixer.replaceText(classToken, '{');
 
@@ -211,14 +210,17 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow classes that only have static members.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

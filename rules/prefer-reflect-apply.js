@@ -1,6 +1,5 @@
-'use strict';
-const {getPropertyName} = require('@eslint-community/eslint-utils');
-const {isNullLiteral, isMethodCall} = require('./ast/index.js');
+import {getPropertyName} from '@eslint-community/eslint-utils';
+import {isNullLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -84,14 +83,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

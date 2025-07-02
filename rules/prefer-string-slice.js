@@ -1,9 +1,7 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const isNumber = require('./utils/is-number.js');
-const {replaceArgument} = require('./fix/index.js');
-const {isNumberLiteral, isMethodCall} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {replaceArgument} from './fix/index.js';
+import {isNumberLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -61,13 +59,6 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 
 	if (argumentNodes.every(node => isNumberLiteral(node))) {
 		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
-		return;
-	}
-
-	if (argumentNodes.every(node => isNumber(node, scope))) {
-		const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
-
-		yield fixer.insertTextBeforeRange(secondArgumentRange, `${firstArgumentText} + `);
 		return;
 	}
 
@@ -162,21 +153,29 @@ const create = context => ({
 				}
 
 				const fixArguments = method === 'substr' ? fixSubstrArguments : fixSubstringArguments;
-				yield * fixArguments({node, fixer, context, abort});
+				yield * fixArguments({
+					node,
+					fixer,
+					context,
+					abort,
+				});
 			},
 		};
 	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

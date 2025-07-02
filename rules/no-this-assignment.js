@@ -1,4 +1,3 @@
-'use strict';
 const MESSAGE_ID = 'no-this-assignment';
 const messages = {
 	[MESSAGE_ID]: 'Do not assign `this` to `{{name}}`.',
@@ -26,13 +25,16 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow assigning `this` to a variable.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

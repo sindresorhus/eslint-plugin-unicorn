@@ -1,11 +1,6 @@
-'use strict';
-const {
-	getParenthesizedText,
-	getParenthesizedRange,
-	isSameReference,
-} = require('./utils/index.js');
-const {isLiteral, isMethodCall} = require('./ast/index.js');
-const {replaceNodeOrTokenAndSpacesBefore, removeParentheses} = require('./fix/index.js');
+import {getParenthesizedText, getParenthesizedRange, isSameReference} from './utils/index.js';
+import {isLiteral, isMethodCall} from './ast/index.js';
+import {replaceNodeOrTokenAndSpacesBefore, removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
 const messages = {
@@ -174,7 +169,7 @@ const create = context => {
 					for (const expression of expressions) {
 						yield fixer.removeRange([
 							getParenthesizedRange(expression.left, sourceCode)[1],
-							expression.range[1],
+							sourceCode.getRange(expression)[1],
 						]);
 					}
 				},
@@ -199,14 +194,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer modern `Math` APIs over legacy patterns.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

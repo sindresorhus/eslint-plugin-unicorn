@@ -1,5 +1,4 @@
-'use strict';
-const {isOpeningBraceToken} = require('@eslint-community/eslint-utils');
+import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 
 const MESSAGE_ID = 'empty-brace-spaces';
 const messages = {
@@ -8,13 +7,10 @@ const messages = {
 
 const getProblem = (node, context) => {
 	const {sourceCode} = context;
-	const filter = node.type === 'RecordExpression'
-		? token => token.type === 'Punctuator' && (token.value === '#{' || token.value === '{|')
-		: isOpeningBraceToken;
-	const openingBrace = sourceCode.getFirstToken(node, {filter});
+	const openingBrace = sourceCode.getFirstToken(node, {filter: isOpeningBraceToken});
 	const closingBrace = sourceCode.getLastToken(node);
-	const [, start] = openingBrace.range;
-	const [end] = closingBrace.range;
+	const [, start] = sourceCode.getRange(openingBrace);
+	const [end] = sourceCode.getRange(closingBrace);
 	const textBetween = sourceCode.text.slice(start, end);
 
 	if (!/^\s+$/.test(textBetween)) {
@@ -23,8 +19,8 @@ const getProblem = (node, context) => {
 
 	return {
 		loc: {
-			start: openingBrace.loc.end,
-			end: closingBrace.loc.start,
+			start: sourceCode.getLoc(openingBrace).end,
+			end: sourceCode.getLoc(closingBrace).start,
 		},
 		messageId: MESSAGE_ID,
 		fix: fixer => fixer.removeRange([start, end]),
@@ -37,20 +33,11 @@ const create = context => {
 		'BlockStatement',
 		'ClassBody',
 		'StaticBlock',
-	], node => {
-		if (node.body.length > 0) {
-			return;
-		}
-
-		return getProblem(node, context);
-	});
-
-	context.on([
 		'ObjectExpression',
-		// Experimental https://github.com/tc39/proposal-record-tuple
-		'RecordExpression',
 	], node => {
-		if (node.properties.length > 0) {
+		const children = node.type === 'ObjectExpression' ? node.properties : node.body;
+
+		if (children.length > 0) {
 			return;
 		}
 
@@ -59,14 +46,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'layout',
 		docs: {
 			description: 'Enforce no spaces between braces.',
+			recommended: true,
 		},
 		fixable: 'whitespace',
 		messages,
 	},
 };
+
+export default config;

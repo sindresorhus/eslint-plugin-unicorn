@@ -1,9 +1,8 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {parse: parseRegExp} = require('regjsparser');
-const escapeString = require('./utils/escape-string.js');
-const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import regjsparser from 'regjsparser';
+import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
 
+const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
 const MESSAGE_ID_USE_STRING = 'pattern';
 const messages = {
@@ -11,13 +10,15 @@ const messages = {
 	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
 };
 
+const QUOTE = '\'';
+
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
 	}
 
 	const {pattern, flags} = node.regex;
-	if (flags.replace('u', '') !== 'g') {
+	if (flags.replace('u', '').replace('v', '') !== 'g') {
 		return;
 	}
 
@@ -25,7 +26,8 @@ function getPatternReplacement(node) {
 
 	try {
 		tree = parseRegExp(pattern, flags, {
-			unicodePropertyEscape: true,
+			unicodePropertyEscape: flags.includes('u'),
+			unicodeSet: flags.includes('v'),
 			namedGroups: true,
 			lookbehind: true,
 		});
@@ -38,10 +40,42 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	// TODO: Preserve escape
-	const string = String.fromCodePoint(...parts.map(part => part.codePoint));
+	return QUOTE
+		+ parts.map(part => {
+			const {kind, codePoint, raw} = part;
 
-	return escapeString(string);
+			if (kind === 'controlLetter') {
+				if (codePoint === 13) {
+					return String.raw`\r`;
+				}
+
+				if (codePoint === 10) {
+					return String.raw`\n`;
+				}
+
+				if (codePoint === 9) {
+					return String.raw`\t`;
+				}
+
+				return `\\u{${codePoint.toString(16)}}`;
+			}
+
+			if (kind === 'octal') {
+				return `\\u{${codePoint.toString(16)}}`;
+			}
+
+			let character = raw;
+			if (kind === 'identifier') {
+				character = character.slice(1);
+			}
+
+			if (character === QUOTE || character === '\\') {
+				return `\\${character}`;
+			}
+
+			return character;
+		}).join('')
+		+ QUOTE;
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {
@@ -131,14 +165,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

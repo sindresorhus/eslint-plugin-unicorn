@@ -1,6 +1,5 @@
-'use strict';
-const {isOpeningParenToken, isClosingParenToken} = require('@eslint-community/eslint-utils');
-const assertToken = require('./utils/assert-token.js');
+import {isOpeningParenToken, isClosingParenToken} from '@eslint-community/eslint-utils';
+import assertToken from './utils/assert-token.js';
 
 const MESSAGE_ID_WITH_NAME = 'with-name';
 const MESSAGE_ID_WITHOUT_NAME = 'without-name';
@@ -49,8 +48,8 @@ const create = context => ({
 				yield fixer.remove(node);
 				yield fixer.remove(tokenAfter);
 
-				const [, endOfClosingParenthesis] = tokenAfter.range;
-				const [startOfCatchClauseBody] = parent.body.range;
+				const [, endOfClosingParenthesis] = sourceCode.getRange(tokenAfter);
+				const [startOfCatchClauseBody] = sourceCode.getRange(parent.body);
 				const text = sourceCode.text.slice(endOfClosingParenthesis, startOfCatchClauseBody);
 				const leadingSpacesLength = text.length - text.trimStart().length;
 				if (leadingSpacesLength !== 0) {
@@ -62,14 +61,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer omitting the `catch` binding parameter.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

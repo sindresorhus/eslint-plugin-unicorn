@@ -1,6 +1,9 @@
-'use strict';
-const {isOpeningBracketToken, isClosingBracketToken, getStaticValue} = require('@eslint-community/eslint-utils');
-const {
+import {
+	isOpeningBracketToken,
+	isClosingBracketToken,
+	getStaticValue,
+} from '@eslint-community/eslint-utils';
+import {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -8,13 +11,18 @@ const {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
-} = require('./utils/index.js');
-const {
+} from './utils/index.js';
+import {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
-} = require('./shared/negative-index.js');
-const {removeMemberExpressionProperty, removeMethodCall} = require('./fix/index.js');
-const {isLiteral, isCallExpression, isMethodCall} = require('./ast/index.js');
+} from './shared/negative-index.js';
+import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
+import {
+	isLiteral,
+	isCallExpression,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
@@ -42,28 +50,22 @@ const isLiteralNegativeInteger = node =>
 	&& node.argument.type === 'Literal'
 	&& Number.isInteger(node.argument.value)
 	&& node.argument.value > 0;
-const isZeroIndexAccess = node => {
-	const {parent} = node;
-	return parent.type === 'MemberExpression'
-		&& !parent.optional
-		&& parent.computed
-		&& parent.object === node
-		&& isLiteral(parent.property, 0);
-};
+const isZeroIndexAccess = node =>
+	isMemberExpression(node.parent, {
+		optional: false,
+		computed: true,
+	})
+	&& node.parent.object === node
+	&& isLiteral(node.parent.property, 0);
 
-const isArrayPopOrShiftCall = (node, method) => {
-	const {parent} = node;
-	return parent.type === 'MemberExpression'
-		&& !parent.optional
-		&& !parent.computed
-		&& parent.object === node
-		&& parent.property.type === 'Identifier'
-		&& parent.property.name === method
-		&& parent.parent.type === 'CallExpression'
-		&& parent.parent.callee === parent
-		&& !parent.parent.optional
-		&& parent.parent.arguments.length === 0;
-};
+const isArrayPopOrShiftCall = (node, method) =>
+	isMethodCall(node.parent.parent, {
+		method,
+		argumentsLength: 0,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& node.parent.object === node;
 
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
@@ -96,9 +98,12 @@ function checkSliceCall(node) {
 	const startIndex = -startIndexNode.argument.value;
 	if (sliceArgumentsLength === 1) {
 		if (
-			firstElementGetMethod === 'zero-index'
-			|| firstElementGetMethod === 'shift'
-			|| (startIndex === -1 && firstElementGetMethod === 'pop')
+			startIndexNode.argument.value === 1
+			&& (
+				firstElementGetMethod === 'zero-index'
+				|| firstElementGetMethod === 'shift'
+				|| (startIndex === -1 && firstElementGetMethod === 'pop')
+			)
 		) {
 			return {safeToFix: true, firstElementGetMethod};
 		}
@@ -191,9 +196,9 @@ function create(context) {
 				if (
 					tokenBefore.type === 'Punctuator'
 					&& tokenBefore.value === '-'
-					&& /^\s+$/.test(sourceCode.text.slice(tokenBefore.range[1], numberNode.range[0]))
+					&& /^\s+$/.test(sourceCode.text.slice(sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]))
 				) {
-					yield fixer.removeRange([tokenBefore.range[1], numberNode.range[0]]);
+					yield fixer.removeRange([sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]]);
 				}
 			}
 
@@ -269,7 +274,7 @@ function create(context) {
 			// Remove extra arguments
 			if (sliceCall.arguments.length !== 1) {
 				const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
-				const [end] = sourceCode.getLastToken(sliceCall).range;
+				const [end] = sourceCode.getRange(sourceCode.getLastToken(sliceCall));
 				yield fixer.removeRange([start, end]);
 			}
 
@@ -352,23 +357,26 @@ const schema = [
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{getLastElementFunctions: [], checkAllIndexAccess: false}],
 		messages,
 	},
 };
+
+export default config;

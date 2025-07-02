@@ -1,23 +1,23 @@
-'use strict';
-const {isParenthesized, findVariable} = require('@eslint-community/eslint-utils');
-const {
+import {isParenthesized, findVariable} from '@eslint-community/eslint-utils';
+import {
 	extendFixRange,
 	removeMemberExpressionProperty,
 	removeMethodCall,
 	renameVariable,
-} = require('./fix/index.js');
-const {
+} from './fix/index.js';
+import {
 	isLeftHandSide,
 	singular,
 	getScopes,
-	avoidCapture,
+	getAvailableVariableName,
 	getVariableIdentifiers,
-} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js');
+} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
+const ERROR_AT_ZERO = 'error-at-zero';
 const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
@@ -27,6 +27,7 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 const messages = {
 	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
+	[ERROR_AT_ZERO]: 'Prefer `.find(…)` over `.filter(…).at(0)`.',
 	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 	[ERROR_POP]: 'Prefer `.findLast(…)` over `.filter(…).pop()`.',
 	[ERROR_AT_MINUS_ONE]: 'Prefer `.findLast(…)` over `.filter(…).at(-1)`.',
@@ -178,7 +179,7 @@ const create = context => {
 	const {
 		checkFromLast,
 	} = {
-		checkFromLast: false,
+		checkFromLast: true,
 		...context.options[0],
 	};
 
@@ -315,11 +316,11 @@ const create = context => {
 				const singularName = singular(node.id.name);
 				if (singularName) {
 					// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
-					const singularizedName = avoidCapture(singularName, getScopes(scope));
+					const singularizedName = getAvailableVariableName(singularName, getScopes(scope));
 					yield * renameVariable(variable, singularizedName, fixer);
 
 					// Prevent possible variable conflicts
-					yield * extendFixRange(fixer, sourceCode.ast.range);
+					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
 				}
 
 				for (const node of zeroIndexNodes) {
@@ -333,6 +334,32 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	// `array.filter().at(0)`
+	context.on('CallExpression', node => {
+		if (!(
+			isMethodCall(node, {
+				method: 'at',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& node.arguments[0].type === 'Literal'
+			&& node.arguments[0].raw === '0'
+			&& isArrayFilterCall(node.callee.object)
+		)) {
+			return;
+		}
+
+		return {
+			node: node.callee.object.callee.property,
+			messageId: ERROR_AT_ZERO,
+			fix: fixer => [
+				fixer.replaceText(node.callee.object.callee.property, 'find'),
+				...removeMethodCall(fixer, node, sourceCode),
+			],
+		};
 	});
 
 	if (!checkFromLast) {
@@ -400,24 +427,26 @@ const schema = [
 		properties: {
 			checkFromLast: {
 				type: 'boolean',
-				// TODO: Change default value to `true`, or remove the option when targeting Node.js 18.
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkFromLast: true}],
 		messages,
 	},
 };
+
+export default config;

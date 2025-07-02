@@ -1,6 +1,6 @@
 # Prevent abbreviations
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -188,10 +188,6 @@ import tempWrite from 'temp-write';
 import * as err from 'err';
 ```
 
-```js
-const err = require('err');
-```
-
 ### checkShorthandImports
 
 Type: `'internal'` | `boolean`\
@@ -221,10 +217,6 @@ Default: `false`
 Pass `"checkShorthandProperties": true` to check variables declared as shorthand properties in object destructuring.
 
 With this set to `true` the following code will be reported.
-
-```js
-const {prop} = require('ramda');
-```
 
 ```js
 const {err} = foo;

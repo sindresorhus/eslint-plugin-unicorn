@@ -1,7 +1,6 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {isNewExpression, isMemberExpression} = require('./ast/index.js');
+import {findVariable} from '@eslint-community/eslint-utils';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isNewExpression, isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -90,14 +89,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Set#size` instead of `Array#length`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

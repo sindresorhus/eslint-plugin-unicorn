@@ -1,15 +1,18 @@
-'use strict';
-const path = require('node:path');
-const {defaultsDeep, upperFirst, lowerFirst} = require('lodash');
-const avoidCapture = require('./utils/avoid-capture.js');
-const cartesianProductSamples = require('./utils/cartesian-product-samples.js');
-const isShorthandPropertyValue = require('./utils/is-shorthand-property-value.js');
-const isShorthandImportLocal = require('./utils/is-shorthand-import-local.js');
-const getVariableIdentifiers = require('./utils/get-variable-identifiers.js');
-const {defaultReplacements, defaultAllowList, defaultIgnore} = require('./shared/abbreviations.js');
-const {renameVariable} = require('./fix/index.js');
-const getScopes = require('./utils/get-scopes.js');
-const {isStaticRequire} = require('./ast/index.js');
+import path from 'node:path';
+import {isRegExp} from 'node:util/types';
+import {
+	getAvailableVariableName,
+	cartesianProductSamples,
+	isShorthandPropertyValue,
+	isShorthandImportLocal,
+	getVariableIdentifiers,
+	getScopes,
+	upperFirst,
+	lowerFirst,
+} from './utils/index.js';
+import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
+import {renameVariable} from './fix/index.js';
+import {isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -41,17 +44,20 @@ const prepareOptions = ({
 	ignore = [],
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements
-		? defaultsDeep({}, replacements, defaultReplacements)
+		? Object.fromEntries(
+			[...Object.keys(defaultReplacements), ...Object.keys(replacements)]
+				.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]),
+		)
 		: replacements;
 
 	const mergedAllowList = extendDefaultAllowList
-		? defaultsDeep({}, allowList, defaultAllowList)
+		? {...defaultAllowList, ...allowList}
 		: allowList;
 
 	ignore = [...defaultIgnore, ...ignore];
 
 	ignore = ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 
 	return {
@@ -116,7 +122,7 @@ const getNameReplacements = (name, options, limit = 3) => {
 	}
 
 	// Split words
-	const words = name.split(/(?=[^a-z])|(?<=[^A-Za-z])/).filter(Boolean);
+	const words = name.split(/(?=\P{Lowercase_Letter})|(?<=\P{Letter})/u).filter(Boolean);
 
 	let hasReplacements = false;
 	const combinations = words.map(word => {
@@ -338,7 +344,7 @@ const isInternalImport = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
-	const filenameWithExtension = context.getPhysicalFilename();
+	const filenameWithExtension = context.physicalFilename;
 
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (wherever the class is declared).
@@ -439,7 +445,7 @@ const create = context => {
 			variable.scope,
 		];
 		variableReplacements.samples = variableReplacements.samples.map(
-			name => avoidCapture(name, scopes, isSafeName),
+			name => getAvailableVariableName(name, scopes, isSafeName),
 		);
 
 		const problem = {
@@ -631,15 +637,19 @@ const schema = {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prevent abbreviations.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

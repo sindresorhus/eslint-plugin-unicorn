@@ -1,8 +1,6 @@
-'use strict';
-const {GlobalReferenceTracker} = require('./utils/global-reference-tracker.js');
-const {replaceReferenceIdentifier} = require('./fix/index.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const isLeftHandSide = require('./utils/is-left-hand-side.js');
+import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import {replaceReferenceIdentifier, fixSpaceAroundKeyword} from './fix/index.js';
+import isLeftHandSide from './utils/is-left-hand-side.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -77,16 +75,25 @@ function checkProperty({node, path: [name]}, sourceCode) {
 const create = context => {
 	const {
 		checkInfinity,
+		checkNaN,
 	} = {
-		checkInfinity: true,
+		checkInfinity: false,
+		checkNaN: true,
 		...context.options[0],
 	};
 	const {sourceCode} = context;
 
-	let objects = Object.keys(globalObjects);
-	if (!checkInfinity) {
-		objects = objects.filter(name => name !== 'Infinity');
-	}
+	const objects = Object.keys(globalObjects).filter(name => {
+		if (!checkInfinity && name === 'Infinity') {
+			return false;
+		}
+
+		if (!checkNaN && name === 'NaN') {
+			return false;
+		}
+
+		return true;
+	});
 
 	const tracker = new GlobalReferenceTracker({
 		objects,
@@ -104,23 +111,34 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
-				default: true,
+			},
+			checkNaN: {
+				type: 'boolean',
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [
+			{
+				checkInfinity: false,
+				checkNaN: true,
+			},
+		],
 		messages,
 	},
 };
+
+export default config;

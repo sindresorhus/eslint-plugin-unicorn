@@ -1,7 +1,6 @@
-'use strict';
-const escapeString = require('./utils/escape-string.js');
-const escapeTemplateElementRaw = require('./utils/escape-template-element-raw.js');
-const {replaceTemplateElement} = require('./fix/index.js');
+import escapeString from './utils/escape-string.js';
+import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
+import {replaceTemplateElement} from './fix/index.js';
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
 const SUGGESTION_MESSAGE_ID = 'replace';
@@ -105,10 +104,13 @@ const create = context => {
 
 		const fixed = string.replace(regex, suggest);
 		const fix = type === 'Literal'
-			? fixer => fixer.replaceText(
-				node,
-				escapeString(fixed, raw[0]),
-			)
+			? fixer => {
+				const [quote] = raw;
+				return fixer.replaceText(
+					node,
+					node.parent.type === 'JSXAttribute' ? quote + fixed + quote : escapeString(fixed, quote),
+				);
+			}
 			: fixer => replaceTemplateElement(
 				fixer,
 				node,
@@ -163,22 +165,27 @@ const schema = [
 							additionalProperties: false,
 						},
 					],
-				}},
+				},
+			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce better string content.',
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

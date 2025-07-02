@@ -1,6 +1,5 @@
-'use strict';
-const {getStaticValue, getPropertyName} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
+import {getStaticValue, getPropertyName} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_OBJECT = 'no-thenable-object';
 const MESSAGE_ID_EXPORT = 'no-thenable-export';
@@ -14,6 +13,9 @@ const messages = {
 const isStringThen = (node, context) =>
 	getStaticValue(node, context.sourceCode.getScope(node))?.value === 'then';
 
+const isPropertyThen = (node, context) =>
+	getPropertyName(node, context.sourceCode.getScope(node)) === 'then';
+
 const cases = [
 	// `{then() {}}`,
 	// `{get then() {}}`,
@@ -23,10 +25,7 @@ const cases = [
 		selector: 'ObjectExpression',
 		* getNodes(node, context) {
 			for (const property of node.properties) {
-				if (
-					property.type === 'Property'
-					&& getPropertyName(property, context.sourceCode.getScope(property)) === 'then'
-				) {
+				if (property.type === 'Property' && isPropertyThen(property, context)) {
 					yield property.key;
 				}
 			}
@@ -180,13 +179,16 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `then` property.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

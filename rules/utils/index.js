@@ -1,51 +1,55 @@
-'use strict';
-
-const {
+export {
 	isParenthesized,
 	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
-} = require('./parentheses.js');
-const {
+} from './parentheses.js';
+
+export {
 	isArrayPrototypeProperty,
 	isObjectPrototypeProperty,
-} = require('./array-or-object-prototype-property.js');
-const {isNodeMatches, isNodeMatchesNameOrPath} = require('./is-node-matches.js');
-const {isBooleanNode, getBooleanAncestor} = require('./boolean.js');
+} from './array-or-object-prototype-property.js';
 
-module.exports = {
-	avoidCapture: require('./avoid-capture.js'),
-	escapeString: require('./escape-string.js'),
-	getBooleanAncestor,
-	getParentheses,
-	getParenthesizedRange,
-	getParenthesizedText,
-	getParenthesizedTimes,
-	getReferences: require('./get-references.js'),
-	getScopes: require('./get-scopes.js'),
-	getVariableIdentifiers: require('./get-variable-identifiers.js'),
-	isArrayPrototypeProperty,
-	isBooleanNode,
-	isFunctionSelfUsedInside: require('./is-function-self-used-inside.js'),
-	isLeftHandSide: require('./is-left-hand-side.js'),
-	isLogicalExpression: require('./is-logical-expression.js'),
-	isMethodNamed: require('./is-method-named.js'),
+export {
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
-	isNodeValueNotDomNode: require('./is-node-value-not-dom-node.js'),
-	isNodeValueNotFunction: require('./is-node-value-not-function.js'),
-	isObjectPrototypeProperty,
-	isOnSameLine: require('./is-on-same-line.js'),
-	isParenthesized,
-	isSameIdentifier: require('./is-same-identifier.js'),
-	isSameReference: require('./is-same-reference.js'),
-	isShadowed: require('./is-shadowed.js'),
-	isValueNotUsable: require('./is-value-not-usable.js'),
-	needsSemicolon: require('./needs-semicolon.js'),
-	shouldAddParenthesesToMemberExpressionObject: require('./should-add-parentheses-to-member-expression-object.js'),
-	shouldAddParenthesesToSpreadElementArgument: require('./should-add-parentheses-to-spread-element-argument.js'),
-	singular: require('./singular.js'),
-	toLocation: require('./to-location.js'),
-};
+} from './is-node-matches.js';
 
+export {
+	isBooleanNode,
+	getBooleanAncestor,
+} from './boolean.js';
+
+export {default as cartesianProductSamples} from './cartesian-product-samples.js';
+export {default as escapeString} from './escape-string.js';
+export {default as getAvailableVariableName} from './get-available-variable-name.js';
+export {default as getCallExpressionArgumentsText} from './get-call-expression-arguments-text.js';
+export {default as getCallExpressionTokens} from './get-call-expression-tokens.js';
+export {default as getIndentString} from './get-indent-string.js';
+export {default as getReferences} from './get-references.js';
+export {default as getScopes} from './get-scopes.js';
+export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
+export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
+export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
+export {default as isLeftHandSide} from './is-left-hand-side.js';
+export {default as isLogicalExpression} from './is-logical-expression.js';
+export {default as isMethodNamed} from './is-method-named.js';
+export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
+export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
+export {default as isOnSameLine} from './is-on-same-line.js';
+export {default as isSameIdentifier} from './is-same-identifier.js';
+export {default as isSameReference} from './is-same-reference.js';
+export {default as isUnresolvedVariable} from './is-unresolved-variable.js';
+export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
+export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
+export {default as isValueNotUsable} from './is-value-not-usable.js';
+export {default as needsSemicolon} from './needs-semicolon.js';
+export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
+export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
+export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
+export {default as shouldAddParenthesesToMemberExpressionObject} from './should-add-parentheses-to-member-expression-object.js';
+export {default as singular} from './singular.js';
+export {default as toLocation} from './to-location.js';
+export {default as getAncestor} from './get-ancestor.js';
+export * from './string-cases.js';

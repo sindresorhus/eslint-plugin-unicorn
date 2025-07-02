@@ -1,6 +1,6 @@
 # Prefer `String#replaceAll()` over regex searches with the global flag
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -46,7 +46,7 @@ string.replaceAll('string', '');
 ```
 
 ```js
-string.replaceAll(/\s/, '');
+string.replaceAll(/\s/g, '');
 ```
 
 ```js

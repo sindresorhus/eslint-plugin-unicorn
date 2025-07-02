@@ -1,12 +1,12 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const {
-	isBooleanNode,
-	getParenthesizedRange,
-	isNodeValueNotFunction,
-} = require('./utils/index.js');
-const {removeMemberExpressionProperty} = require('./fix/index.js');
-const {isLiteral, isUndefined, isMethodCall, isMemberExpression} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {isBooleanNode, getParenthesizedRange, isNodeValueNotFunction} from './utils/index.js';
+import {removeMemberExpressionProperty} from './fix/index.js';
+import {
+	isLiteral,
+	isUndefined,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
@@ -40,10 +40,14 @@ const isCheckingUndefined = node =>
 			&& isLiteral(node.parent.right, null)
 		)
 	);
+const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
+const isLiteralZero = node => isLiteral(node, 0);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	// `.find(…)`
+	// `.findLast(…)`
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: ['find', 'findLast'],
 			minimumArguments: 1,
@@ -74,8 +78,9 @@ const create = context => ({
 							return;
 						}
 
-						const parenthesizedRange = getParenthesizedRange(callExpression, context.sourceCode);
-						yield fixer.replaceTextRange([parenthesizedRange[1], callExpression.parent.range[1]], '');
+						const {sourceCode} = context;
+						const parenthesizedRange = getParenthesizedRange(callExpression, sourceCode);
+						yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
 							return;
@@ -86,8 +91,62 @@ const create = context => ({
 				},
 			],
 		};
-	},
-	BinaryExpression(binaryExpression) {
+	});
+
+	// These operators also used in `prefer-includes`, try to reuse the code in future
+	// `.{findIndex,findLastIndex}(…) !== -1`
+	// `.{findIndex,findLastIndex}(…) != -1`
+	// `.{findIndex,findLastIndex}(…) > -1`
+	// `.{findIndex,findLastIndex}(…) === -1`
+	// `.{findIndex,findLastIndex}(…) == -1`
+	// `.{findIndex,findLastIndex}(…) >= 0`
+	// `.{findIndex,findLastIndex}(…) < 0`
+	context.on('BinaryExpression', binaryExpression => {
+		const {left, right, operator} = binaryExpression;
+
+		if (!(
+			isMethodCall(left, {
+				methods: ['findIndex', 'findLastIndex'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& (
+				(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
+				|| (['>=', '<'].includes(operator) && isLiteralZero(right))
+			)
+		)) {
+			return;
+		}
+
+		const methodNode = left.callee.property;
+		return {
+			node: methodNode,
+			messageId: ERROR_ID_ARRAY_SOME,
+			data: {method: methodNode.name},
+			* fix(fixer) {
+				if (['===', '==', '<'].includes(operator)) {
+					yield fixer.insertTextBefore(binaryExpression, '!');
+				}
+
+				yield fixer.replaceText(methodNode, 'some');
+
+				const {sourceCode} = context;
+				const operatorToken = sourceCode.getTokenAfter(
+					left,
+					token => token.type === 'Punctuator' && token.value === operator,
+				);
+				const [start] = sourceCode.getRange(operatorToken);
+				const [, end] = sourceCode.getRange(binaryExpression);
+
+				yield fixer.removeRange([start, end]);
+			},
+		};
+	});
+
+	// `.filter(…).length > 0`
+	// `.filter(…).length !== 0`
+	context.on('BinaryExpression', binaryExpression => {
 		if (!(
 			// We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
 			(binaryExpression.operator === '>' || binaryExpression.operator === '!==')
@@ -133,25 +192,28 @@ const create = context => ({
 				*/
 				yield fixer.removeRange([
 					getParenthesizedRange(lengthNode, sourceCode)[1],
-					binaryExpression.range[1],
+					sourceCode.getRange(binaryExpression)[1],
 				]);
 
 				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast}(…)`.',
+			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast,findIndex,findLastIndex}(…)`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 		hasSuggestions: true,
 	},
 };
+
+export default config;

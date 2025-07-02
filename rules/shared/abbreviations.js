@@ -1,6 +1,6 @@
 /* eslint sort-keys: ["error", "asc", {"caseSensitive": false}] */
-'use strict';
-module.exports.defaultReplacements = {
+
+export const defaultReplacements = {
 	acc: {
 		accumulator: true,
 	},
@@ -180,6 +180,7 @@ module.exports.defaultReplacements = {
 		request: true,
 	},
 	res: {
+		resource: true,
 		response: true,
 		result: true,
 	},
@@ -213,6 +214,12 @@ module.exports.defaultReplacements = {
 	tmp: {
 		temporary: true,
 	},
+	util: {
+		utility: true,
+	},
+	utils: {
+		utilities: true,
+	},
 	val: {
 		value: true,
 	},
@@ -227,7 +234,7 @@ module.exports.defaultReplacements = {
 	},
 };
 
-module.exports.defaultAllowList = {
+export const defaultAllowList = {
 	// React.Component Class property
 	// https://reactjs.org/docs/react-component.html#defaultprops
 	defaultProps: true,
@@ -245,6 +252,8 @@ module.exports.defaultAllowList = {
 	getInitialProps: true,
 	getServerSideProps: true,
 	getStaticProps: true,
+	// The name iOS is a standard name for an OS
+	iOS: true,
 	// React PropTypes
 	// https://reactjs.org/docs/typechecking-with-proptypes.html
 	propTypes: true,
@@ -253,7 +262,7 @@ module.exports.defaultAllowList = {
 	setupFilesAfterEnv: true,
 };
 
-module.exports.defaultIgnore = [
+export const defaultIgnore = [
 	// Internationalization and localization
 	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
 	'i18n',

@@ -1,8 +1,7 @@
-'use strict';
-const cleanRegexp = require('clean-regexp');
-const {optimize} = require('regexp-tree');
-const escapeString = require('./utils/escape-string.js');
-const {isStringLiteral, isNewExpression, isRegexLiteral} = require('./ast/index.js');
+import cleanRegexp from 'clean-regexp';
+import regexpTree from 'regexp-tree';
+import escapeString from './utils/escape-string.js';
+import {isStringLiteral, isNewExpression, isRegexLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'better-regex';
 const MESSAGE_ID_PARSE_ERROR = 'better-regex/parse-error';
@@ -28,17 +27,16 @@ const create = context => {
 			}
 
 			const {raw: original, regex} = node;
-
-			// Regular Expressions with `u` flag are not well handled by `regexp-tree`
+			// Regular Expressions with `u` and `v` flag are not well handled by `regexp-tree`
 			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
-			if (regex.flags.includes('u')) {
+			if (regex.flags.includes('u') || regex.flags.includes('v')) {
 				return;
 			}
 
 			let optimized = original;
 
 			try {
-				optimized = optimize(original, undefined, {blacklist: ignoreList}).toString();
+				optimized = regexpTree.optimize(original, undefined, {blacklist: ignoreList}).toString();
 			} catch (error) {
 				return {
 					node,
@@ -124,22 +122,25 @@ const schema = [
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Improve regexes by making them shorter, consistent, and safer.',
+			recommended: false,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{sortCharacterClasses: true}],
 		messages,
 	},
 };
+
+export default config;

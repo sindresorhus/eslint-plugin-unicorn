@@ -1,9 +1,4 @@
-'use strict';
-const {
-	isMethodCall,
-	isCallExpression,
-	isLiteral,
-} = require('./ast/index.js');
+import {isMethodCall, isCallExpression, isLiteral} from './ast/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -108,10 +103,13 @@ const create = context => {
 			}
 
 			if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
+				const {sourceCode} = context;
+				const [, start] = sourceCode.getRange(parent.id);
+				const [, end] = sourceCode.getRange(node);
 				problem.suggest = [
 					{
 						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([parent.id.range[1], node.range[1]]),
+						fix: fixer => fixer.removeRange([start, end]),
 					},
 					useUndefinedSuggestion,
 				];
@@ -131,23 +129,26 @@ const schema = [
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow the use of the `null` literal.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkStrictEquality: false}],
 		messages,
 	},
 };
+
+export default config;

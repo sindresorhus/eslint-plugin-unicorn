@@ -1,5 +1,4 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'error';
 const messages = {
@@ -33,13 +32,16 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(…)` and `Blob#text()` over `FileReader#readAsText(…)`.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

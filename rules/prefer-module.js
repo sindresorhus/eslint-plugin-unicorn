@@ -1,20 +1,16 @@
-'use strict';
-const {isOpeningParenToken} = require('@eslint-community/eslint-utils');
-const isShadowed = require('./utils/is-shadowed.js');
-const assertToken = require('./utils/assert-token.js');
-const {isStaticRequire, isReferenceIdentifier, isFunction} = require('./ast/index.js');
-const {
-	removeParentheses,
-	replaceReferenceIdentifier,
-	removeSpacesAfter,
-} = require('./fix/index.js');
+import assertToken from './utils/assert-token.js';
+import {getCallExpressionTokens} from './utils/index.js';
+import {isStaticRequire, isFunction} from './ast/index.js';
+import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
 const ERROR_GLOBAL_RETURN = 'error/global-return';
 const ERROR_IDENTIFIER = 'error/identifier';
 const SUGGESTION_USE_STRICT_DIRECTIVE = 'suggestion/use-strict-directive';
-const SUGGESTION_DIRNAME = 'suggestion/dirname';
-const SUGGESTION_FILENAME = 'suggestion/filename';
+const SUGGESTION_IMPORT_META_DIRNAME = 'suggestion/import-meta-dirname';
+const SUGGESTION_IMPORT_META_URL_TO_DIRNAME = 'suggestion/import-meta-url-to-dirname';
+const SUGGESTION_IMPORT_META_FILENAME = 'suggestion/import-meta-filename';
+const SUGGESTION_IMPORT_META_URL_TO_FILENAME = 'suggestion/import-meta-url-to-filename';
 const SUGGESTION_IMPORT = 'suggestion/import';
 const SUGGESTION_EXPORT = 'suggestion/export';
 const messages = {
@@ -22,11 +18,50 @@ const messages = {
 	[ERROR_GLOBAL_RETURN]: '"return" should be used inside a function.',
 	[ERROR_IDENTIFIER]: 'Do not use "{{name}}".',
 	[SUGGESTION_USE_STRICT_DIRECTIVE]: 'Remove "use strict" directive.',
-	[SUGGESTION_DIRNAME]: 'Replace "__dirname" with `"…(import.meta.url)"`.',
-	[SUGGESTION_FILENAME]: 'Replace "__filename" with `"…(import.meta.url)"`.',
+	[SUGGESTION_IMPORT_META_DIRNAME]: 'Replace `__dirname` with `import.meta.dirname`.',
+	[SUGGESTION_IMPORT_META_URL_TO_DIRNAME]: 'Replace `__dirname` with `…(import.meta.url)`.',
+	[SUGGESTION_IMPORT_META_FILENAME]: 'Replace `__filename` with `import.meta.filename`.',
+	[SUGGESTION_IMPORT_META_URL_TO_FILENAME]: 'Replace `__filename` with `…(import.meta.url)`.',
 	[SUGGESTION_IMPORT]: 'Switch to `import`.',
 	[SUGGESTION_EXPORT]: 'Switch to `export`.',
 };
+
+const suggestions = new Map([
+	[
+		'__dirname',
+		[
+			{
+				messageId: SUGGESTION_IMPORT_META_DIRNAME,
+				replacement: 'import.meta.dirname',
+			},
+			{
+				messageId: SUGGESTION_IMPORT_META_URL_TO_DIRNAME,
+				replacement: 'path.dirname(url.fileURLToPath(import.meta.url))',
+			},
+		],
+	],
+	[
+		'__filename',
+		[
+			{
+				messageId: SUGGESTION_IMPORT_META_FILENAME,
+				replacement: 'import.meta.filename',
+			},
+			{
+				messageId: SUGGESTION_IMPORT_META_URL_TO_FILENAME,
+				replacement: 'url.fileURLToPath(import.meta.url)',
+			},
+		],
+	],
+]);
+
+const commonJsGlobals = new Set([
+	'exports',
+	'require',
+	'module',
+	'__filename',
+	'__dirname',
+]);
 
 function fixRequireCall(node, sourceCode) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
@@ -44,12 +79,12 @@ function fixRequireCall(node, sourceCode) {
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
 		return function * (fixer) {
 			yield fixer.replaceText(callee, 'import');
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken,
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
@@ -104,12 +139,12 @@ function fixRequireCall(node, sourceCode) {
 			yield fixer.replaceText(equalToken, ' from ');
 
 			yield fixer.remove(callee);
-			const openingParenthesisToken = sourceCode.getTokenAfter(
-				callee,
-				isOpeningParenToken,
-			);
+
+			const {
+				openingParenthesisToken,
+				closingParenthesisToken,
+			} = getCallExpressionTokens(sourceCode, requireCall);
 			yield fixer.remove(openingParenthesisToken);
-			const closingParenthesisToken = sourceCode.getLastToken(requireCall);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
@@ -215,7 +250,7 @@ function fixModuleExports(node, sourceCode) {
 }
 
 function create(context) {
-	const filename = context.getFilename().toLowerCase();
+	const filename = context.filename.toLowerCase();
 
 	if (filename.endsWith('.cjs')) {
 		return;
@@ -253,16 +288,7 @@ function create(context) {
 	});
 
 	context.on('Identifier', node => {
-		if (
-			!isReferenceIdentifier(node, [
-				'exports',
-				'require',
-				'module',
-				'__filename',
-				'__dirname',
-			])
-			|| isShadowed(sourceCode.getScope(node), node)
-		) {
+		if (!commonJsGlobals.has(node.name) || !context.sourceCode.isGlobalReference(node)) {
 			return;
 		}
 
@@ -277,14 +303,12 @@ function create(context) {
 		switch (name) {
 			case '__filename':
 			case '__dirname': {
-				const messageId = node.name === '__dirname' ? SUGGESTION_DIRNAME : SUGGESTION_FILENAME;
-				const replacement = node.name === '__dirname'
-					? 'path.dirname(url.fileURLToPath(import.meta.url))'
-					: 'url.fileURLToPath(import.meta.url)';
-				problem.suggest = [{
-					messageId,
-					fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
-				}];
+				problem.suggest = suggestions.get(node.name)
+					.map(({messageId, replacement}) => ({
+						messageId,
+						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
+					}));
+
 				return problem;
 			}
 
@@ -335,15 +359,18 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

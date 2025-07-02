@@ -1,6 +1,5 @@
-'use strict';
-const {appendArgument} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {appendArgument} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'require-number-to-fixed-digits-argument';
 const messages = {
@@ -30,8 +29,8 @@ const create = context => ({
 
 		return {
 			loc: {
-				start: openingParenthesis.loc.start,
-				end: closingParenthesis.loc.end,
+				start: sourceCode.getLoc(openingParenthesis).start,
+				end: sourceCode.getLoc(closingParenthesis).end,
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -41,14 +40,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the digits argument with `Number#toFixed()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

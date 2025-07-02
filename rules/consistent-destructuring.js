@@ -1,7 +1,5 @@
-'use strict';
-const avoidCapture = require('./utils/avoid-capture.js');
-const isLeftHandSide = require('./utils/is-left-hand-side.js');
-const {isCallOrNewExpression} = require('./ast/index.js');
+import {getAvailableVariableName, isLeftHandSide} from './utils/index.js';
+import {isCallOrNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -89,7 +87,7 @@ const create = context => {
 				&& property.key.type === 'Identifier'
 				&& property.value.type === 'Identifier',
 			);
-			const lastProperty = objectPattern.properties[objectPattern.properties.length - 1];
+			const lastProperty = objectPattern.properties.at(-1);
 
 			const hasRest = lastProperty && lastProperty.type === 'RestElement';
 
@@ -108,7 +106,7 @@ const create = context => {
 				}
 
 				// Destructured member collides with an existing identifier
-				if (avoidCapture(member, [memberScope]) !== member) {
+				if (getAvailableVariableName(member, [memberScope]) !== member) {
 					return;
 				}
 			}
@@ -134,7 +132,7 @@ const create = context => {
 					},
 					* fix(fixer) {
 						const {properties} = objectPattern;
-						const lastProperty = properties[properties.length - 1];
+						const lastProperty = properties.at(-1);
 
 						yield fixer.replaceText(node, newMember);
 
@@ -151,14 +149,14 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Use destructured variables over properties.',
+			recommended: false,
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
@@ -166,3 +164,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

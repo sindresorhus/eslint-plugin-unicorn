@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = (combinations, length = Number.POSITIVE_INFINITY) => {
+export default function cartesianProductSamples(combinations, length = Number.POSITIVE_INFINITY) {
 	const total = combinations.reduce((total, {length}) => total * length, 1);
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {
@@ -21,4 +19,4 @@ module.exports = (combinations, length = Number.POSITIVE_INFINITY) => {
 		total,
 		samples,
 	};
-};
+}

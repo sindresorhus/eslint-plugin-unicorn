@@ -1,7 +1,5 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {isNewExpression, isStringLiteral} = require('./ast/index.js');
-const {replaceStringLiteral} = require('./fix/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {isNewExpression, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID_NEVER = 'never';
 const MESSAGE_ID_ALWAYS = 'always';
@@ -71,7 +69,8 @@ function addDotSlash(node, sourceCode) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, DOT_SLASH, 0, 0);
+	const insertPosition = sourceCode.getRange(node)[0] + 1; // After quote
+	return fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], DOT_SLASH);
 }
 
 function removeDotSlash(node, sourceCode) {
@@ -79,7 +78,8 @@ function removeDotSlash(node, sourceCode) {
 		return;
 	}
 
-	return fixer => replaceStringLiteral(fixer, node, '', 0, 2);
+	const start = sourceCode.getRange(node)[0] + 1; // After quote
+	return fixer => fixer.removeRange([start, start + 2]);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -110,8 +110,8 @@ const create = context => {
 					{
 						messageId: MESSAGE_ID_REMOVE,
 						fix(fixer) {
-							const start = firstPart.range[0] + 1;
-							return fixer.removeRange([start, start + 2]);
+							const start = context.sourceCode.getRange(firstPart)[0] + 1;
+							return fixer.removeRange([start, start + DOT_SLASH.length]);
 						},
 					},
 				],
@@ -148,21 +148,24 @@ const create = context => {
 const schema = [
 	{
 		enum: ['never', 'always'],
-		default: 'never',
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent relative URL style.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: ['never'],
 		messages,
 	},
 };
+
+export default config;

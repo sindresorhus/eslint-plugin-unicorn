@@ -1,7 +1,5 @@
-'use strict';
-
-const isNewExpressionWithParentheses = require('./is-new-expression-with-parentheses.js');
-const {isDecimalIntegerNode} = require('./numeric.js');
+import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
+import {isDecimalIntegerNode} from './numeric.js';
 
 /**
 Check if parentheses should to be added to a `node` when it's used as an `object` of `MemberExpression`.
@@ -10,7 +8,7 @@ Check if parentheses should to be added to a `node` when it's used as an `object
 @param {SourceCode} sourceCode - The source code object.
 @returns {boolean}
 */
-function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
+export default function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 	switch (node.type) {
 		// This is not a full list. Some other nodes like `FunctionDeclaration` don't need parentheses,
 		// but it's not possible to be in the place we are checking at this point.
@@ -43,5 +41,3 @@ function shouldAddParenthesesToMemberExpressionObject(node, sourceCode) {
 		}
 	}
 }
-
-module.exports = shouldAddParenthesesToMemberExpressionObject;

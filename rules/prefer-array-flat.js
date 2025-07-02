@@ -1,5 +1,4 @@
-'use strict';
-const {
+import {
 	getParenthesizedText,
 	isArrayPrototypeProperty,
 	isNodeMatches,
@@ -8,12 +7,9 @@ const {
 	isSameIdentifier,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
-} = require('./utils/index.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
-const {
-	isMethodCall,
-	isCallExpression,
-} = require('./ast/index.js');
+} from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {isMethodCall, isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
@@ -265,15 +261,19 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

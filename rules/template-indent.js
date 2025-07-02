@@ -1,9 +1,9 @@
-'use strict';
-const stripIndent = require('strip-indent');
-const indentString = require('indent-string');
-const esquery = require('esquery');
-const {replaceTemplateElement} = require('./fix/index.js');
-const {isMethodCall, isCallExpression} = require('./ast/index.js');
+import stripIndent from 'strip-indent';
+import indentString from 'indent-string';
+import esquery from 'esquery';
+import {replaceTemplateElement} from './fix/index.js';
+import {isMethodCall, isCallExpression, isTaggedTemplateLiteral} from './ast/index.js';
+import {isNodeMatches} from './utils/index.js';
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
@@ -64,7 +64,7 @@ const create = context => {
 
 		const eol = eolMatch[0];
 
-		const startLine = sourceCode.lines[node.loc.start.line - 1];
+		const startLine = sourceCode.lines[sourceCode.getLoc(node).start.line - 1];
 		const marginMatch = startLine.match(/^(\s*)\S/);
 		const parentMargin = marginMatch ? marginMatch[1] : '';
 
@@ -79,13 +79,13 @@ const create = context => {
 		}
 
 		const dedented = stripIndent(joined);
-		const trimmed = dedented.replace(new RegExp(`^${eol}|${eol}[ \t]*$`, 'g'), '');
+		const trimmed = dedented.replaceAll(new RegExp(`^${eol}|${eol}[ \t]*$`, 'g'), '');
 
 		const fixed
 			= eol
-			+ indentString(trimmed, 1, {indent: parentMargin + indent})
-			+ eol
-			+ parentMargin;
+				+ indentString(trimmed, 1, {indent: parentMargin + indent})
+				+ eol
+				+ parentMargin;
 
 		if (fixed === joined) {
 			return;
@@ -114,10 +114,7 @@ const create = context => {
 
 		if (
 			options.tags.length > 0
-			&& node.parent.type === 'TaggedTemplateExpression'
-			&& node.parent.quasi === node
-			&& node.parent.tag.type === 'Identifier'
-			&& options.tags.includes(node.parent.tag.name)
+			&& isTaggedTemplateLiteral(node, options.tags)
 		) {
 			return true;
 		}
@@ -126,8 +123,7 @@ const create = context => {
 			options.functions.length > 0
 			&& node.parent.type === 'CallExpression'
 			&& node.parent.arguments.includes(node)
-			&& node.parent.callee.type === 'Identifier'
-			&& options.functions.includes(node.parent.callee.name)
+			&& isNodeMatches(node.parent.callee, options.functions)
 		) {
 			return true;
 		}
@@ -205,15 +201,19 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Fix whitespace-insensitive template indentation.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

@@ -1,12 +1,10 @@
-'use strict';
-const {isEmptyNode} = require('./ast/index.js');
+import {isEmptyNode, isDirective} from './ast/index.js';
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
-const isDirective = node => node.type === 'ExpressionStatement' && 'directive' in node;
 const isEmpty = node => isEmptyNode(node, isDirective);
 
 const isTripleSlashDirective = node =>
@@ -17,7 +15,7 @@ const hasTripeSlashDirectives = comments =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const filename = context.getPhysicalFilename();
+	const filename = context.physicalFilename;
 
 	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
 		return;
@@ -45,13 +43,16 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow empty files.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

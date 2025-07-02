@@ -1,5 +1,4 @@
-'use strict';
-const {upperFirst} = require('lodash');
+import {upperFirst} from './utils/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
@@ -78,7 +77,9 @@ function * customErrorDefinition(context, node) {
 		};
 	}
 
-	const {body, range} = node.body;
+	const {sourceCode} = context;
+	const {body} = node.body;
+	const range = sourceCode.getRange(node.body);
 	const constructor = body.find(x => x.kind === 'constructor');
 
 	if (!constructor) {
@@ -119,16 +120,15 @@ function * customErrorDefinition(context, node) {
 			* fix(fixer) {
 				if (superExpression.expression.arguments.length === 0) {
 					const rhs = expression.expression.right;
-					yield fixer.insertTextAfterRange([
-						superExpression.range[0],
-						superExpression.range[0] + 6,
-					], rhs.raw || rhs.name);
+					const [start] = sourceCode.getRange(superExpression);
+					yield fixer.insertTextAfterRange([start, start + 6], rhs.raw || rhs.name);
 				}
 
-				yield fixer.removeRange([
-					messageExpressionIndex === 0 ? constructorBodyNode.range[0] : constructorBody[messageExpressionIndex - 1].range[1],
-					expression.range[1],
-				]);
+				const start = messageExpressionIndex === 0
+					? sourceCode.getRange(constructorBodyNode)[0]
+					: sourceCode.getRange(constructorBody[messageExpressionIndex - 1])[1];
+				const [, end] = sourceCode.getRange(expression);
+				yield fixer.removeRange([start, end]);
 			},
 		};
 	}
@@ -202,14 +202,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce correct `Error` subclassing.',
+			recommended: false,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

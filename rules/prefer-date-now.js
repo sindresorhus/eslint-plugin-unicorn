@@ -1,10 +1,5 @@
-'use strict';
-const {
-	isMethodCall,
-	isCallExpression,
-	isNewExpression,
-} = require('./ast/index.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+import {isMethodCall, isCallExpression, isNewExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID_DEFAULT = 'prefer-date';
 const MESSAGE_ID_METHOD = 'prefer-date-now-over-methods';
@@ -122,14 +117,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

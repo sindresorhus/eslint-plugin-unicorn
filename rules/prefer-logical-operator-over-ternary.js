@@ -1,8 +1,7 @@
-'use strict';
-const {isParenthesized, getParenthesizedText} = require('./utils/parentheses.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
+import {isParenthesized, getParenthesizedText} from './utils/parentheses.js';
+import isSameReference from './utils/is-same-reference.js';
+import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
+import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';
@@ -145,15 +144,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using a logical operator over a ternary.',
+			recommended: true,
 		},
 
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

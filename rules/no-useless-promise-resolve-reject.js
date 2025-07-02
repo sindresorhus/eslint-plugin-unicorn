@@ -1,6 +1,5 @@
-'use strict';
-const {getParenthesizedRange} = require('./utils/index.js');
-const {isFunction, isMethodCall} = require('./ast/index.js');
+import {getParenthesizedRange} from './utils/index.js';
+import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_RESOLVE = 'resolve';
 const MESSAGE_ID_REJECT = 'reject';
@@ -111,7 +110,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 		if (isReject) {
 			// `return Promise.reject()` -> `throw undefined`
-			text = text || 'undefined';
+			text ||= 'undefined';
 			text = `throw ${text}`;
 
 			if (isYieldExpression) {
@@ -143,7 +142,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 				}
 
 				// `=> Promise.resolve()` -> `=> {}`
-				text = text || '{}';
+				text ||= '{}';
 			}
 		}
 
@@ -199,14 +198,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

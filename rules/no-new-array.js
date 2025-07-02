@@ -1,15 +1,14 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isNumber = require('./utils/is-number.js');
-const {isNewExpression} = require('./ast/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import needsSemicolon from './utils/needs-semicolon.js';
+import isNumber from './utils/is-number.js';
+import {isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_LENGTH = 'array-length';
 const MESSAGE_ID_ONLY_ELEMENT = 'only-element';
 const MESSAGE_ID_SPREAD = 'spread';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Do not use `new Array()`.',
+	[MESSAGE_ID_ERROR]: '`new Array()` is unclear in intent; use either `[x]` or `Array.from({length: x})`',
 	[MESSAGE_ID_LENGTH]: 'The argument is the length of array.',
 	[MESSAGE_ID_ONLY_ELEMENT]: 'The argument is the only element of array.',
 	[MESSAGE_ID_SPREAD]: 'Spread the argument.',
@@ -90,15 +89,18 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `new Array()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

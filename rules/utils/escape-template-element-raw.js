@@ -1,6 +1,6 @@
-'use strict';
-
-module.exports = string => string.replace(
+const escapeTemplateElementRaw = string => string.replaceAll(
 	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>(?:`|\$(?={)))/g,
-	'\\$<symbol>',
+	String.raw`\$<symbol>`,
 );
+
+export default escapeTemplateElementRaw;

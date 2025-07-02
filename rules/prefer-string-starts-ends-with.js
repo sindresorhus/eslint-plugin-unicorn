@@ -1,10 +1,9 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const escapeString = require('./utils/escape-string.js');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const shouldAddParenthesesToLogicalExpressionChild = require('./utils/should-add-parentheses-to-logical-expression-child.js');
-const {getParenthesizedText, getParenthesizedRange} = require('./utils/parentheses.js');
-const {isMethodCall, isRegexLiteral} = require('./ast/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import escapeString from './utils/escape-string.js';
+import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
+import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {isMethodCall, isRegexLiteral} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -185,15 +184,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

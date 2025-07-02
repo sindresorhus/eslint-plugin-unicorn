@@ -1,11 +1,10 @@
-'use strict';
-const path = require('node:path');
-const fs = require('node:fs');
-const getDocumentationUrl = require('./get-documentation-url.js');
+import getDocumentationUrl from './get-documentation-url.js';
 
 const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 
-class FixAbortError extends Error {}
+class FixAbortError extends Error {
+	name = 'FixAbortError';
+}
 const fixOptions = {
 	abort() {
 		throw new FixAbortError('Fix aborted.');
@@ -43,15 +42,15 @@ function reportListenerProblems(problems, context) {
 	}
 
 	for (const problem of problems) {
-		if (problem.fix) {
-			problem.fix = wrapFixFunction(problem.fix);
+		if (!problem) {
+			continue;
 		}
+
+		problem.fix &&= wrapFixFunction(problem.fix);
 
 		if (Array.isArray(problem.suggest)) {
 			for (const suggest of problem.suggest) {
-				if (suggest.fix) {
-					suggest.fix = wrapFixFunction(suggest.fix);
-				}
+				suggest.fix &&= wrapFixFunction(suggest.fix);
 
 				suggest.data = {
 					...problem.data,
@@ -125,7 +124,7 @@ function reportProblems(create) {
 	return wrapped;
 }
 
-function checkVueTemplate(create, options) {
+export function checkVueTemplate(create, options) {
 	const {
 		visitScriptBlock,
 	} = {
@@ -137,12 +136,13 @@ function checkVueTemplate(create, options) {
 
 	const wrapped = context => {
 		const listeners = create(context);
+		const {parserServices} = context.sourceCode;
 
 		// `vue-eslint-parser`
-		if (context.parserServices?.defineTemplateBodyVisitor) {
+		if (parserServices?.defineTemplateBodyVisitor) {
 			return visitScriptBlock
-				? context.parserServices.defineTemplateBodyVisitor(listeners, listeners)
-				: context.parserServices.defineTemplateBodyVisitor(listeners);
+				? parserServices.defineTemplateBodyVisitor(listeners, listeners)
+				: parserServices.defineTemplateBodyVisitor(listeners);
 		}
 
 		return listeners;
@@ -152,38 +152,24 @@ function checkVueTemplate(create, options) {
 	return wrapped;
 }
 
-/** @returns {import('eslint').Rule.RuleModule} */
-function loadRule(ruleId) {
-	const rule = require(`../${ruleId}`);
-
-	return {
-		meta: {
-			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
-			// https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/blob/master/docs/rules/require-meta-schema.md
-			schema: [],
-			...rule.meta,
-			docs: {
-				...rule.meta.docs,
-				url: getDocumentationUrl(ruleId),
-			},
-		},
-		create: reportProblems(rule.create),
-	};
-}
-
-function loadRules() {
+/** @returns {Record<string, import('eslint').Rule.RuleModule>} */
+export function createRules(rules) {
 	return Object.fromEntries(
-		fs.readdirSync(path.join(__dirname, '..'), {withFileTypes: true})
-			.filter(file => file.isFile())
-			.map(file => {
-				const ruleId = path.basename(file.name, '.js');
-				return [ruleId, loadRule(ruleId)];
-			}),
+		Object.entries(rules).map(([ruleId, rule]) => [
+			ruleId,
+			{
+				meta: {
+					// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
+					// https://github.com/not-an-aardvark/eslint-plugin-eslint-plugin/blob/master/docs/rules/require-meta-schema.md
+					schema: [],
+					...rule.meta,
+					docs: {
+						...rule.meta.docs,
+						url: getDocumentationUrl(ruleId),
+					},
+				},
+				create: reportProblems(rule.create),
+			},
+		]),
 	);
 }
-
-module.exports = {
-	loadRule,
-	loadRules,
-	checkVueTemplate,
-};

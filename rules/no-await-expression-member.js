@@ -1,9 +1,5 @@
-'use strict';
-const {
-	removeParentheses,
-	removeMemberExpressionProperty,
-} = require('./fix/index.js');
-const {isLiteral} = require('./ast/index.js');
+import {removeParentheses, removeMemberExpressionProperty} from './fix/index.js';
+import {isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-await-expression-member';
 const messages = {
@@ -77,14 +73,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow member access from await expression.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

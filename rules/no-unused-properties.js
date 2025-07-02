@@ -1,5 +1,4 @@
-'use strict';
-const getScopes = require('./utils/get-scopes.js');
+import getScopes from './utils/get-scopes.js';
 
 const MESSAGE_ID = 'no-unused-properties';
 const messages = {
@@ -226,13 +225,16 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unused object properties.',
+			recommended: false,
 		},
 		messages,
 	},
 };
+
+export default config;

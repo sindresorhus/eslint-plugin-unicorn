@@ -1,8 +1,7 @@
-'use strict';
-const {getParenthesizedRange} = require('../utils/parentheses.js');
-const removeMemberExpressionProperty = require('./remove-member-expression-property.js');
+import {getParenthesizedRange} from '../utils/parentheses.js';
+import removeMemberExpressionProperty from './remove-member-expression-property.js';
 
-function * removeMethodCall(fixer, callExpression, sourceCode) {
+export default function * removeMethodCall(fixer, callExpression, sourceCode) {
 	const memberExpression = callExpression.callee;
 
 	// `(( (( foo )).bar ))()`
@@ -12,9 +11,7 @@ function * removeMethodCall(fixer, callExpression, sourceCode) {
 	// `(( (( foo )).bar ))()`
 	//                     ^^
 	const [, start] = getParenthesizedRange(memberExpression, sourceCode);
-	const [, end] = callExpression.range;
+	const [, end] = sourceCode.getRange(callExpression);
 
 	yield fixer.removeRange([start, end]);
 }
-
-module.exports = removeMethodCall;

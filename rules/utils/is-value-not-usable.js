@@ -1,8 +1,5 @@
-'use strict';
+import {isExpressionStatement} from '../ast/index.js';
 
-module.exports = node =>
-	node.parent.type === 'ExpressionStatement'
-	|| (
-		node.parent.type === 'ChainExpression'
-		&& node.parent.parent.type === 'ExpressionStatement'
-	);
+const isValueNotUsable = node => isExpressionStatement(node.parent);
+
+export default isValueNotUsable;

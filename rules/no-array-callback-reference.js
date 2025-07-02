@@ -1,7 +1,12 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
-const {isNodeMatches, isNodeValueNotFunction} = require('./utils/index.js');
+import {isMethodCall} from './ast/index.js';
+import {
+	isNodeMatches,
+	isNodeValueNotFunction,
+	isParenthesized,
+	getParenthesizedRange,
+	getParenthesizedText,
+	shouldAddParenthesesToCallExpressionCallee,
+} from './utils/index.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
@@ -25,7 +30,7 @@ const iteratorMethods = new Map([
 	},
 	{
 		method: 'filter',
-		test: node => !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Vue'),
+		shouldIgnoreCallExpression: node => (node.callee.object.type === 'Identifier' && node.callee.object.name === 'Vue'),
 		ignore: [
 			'Boolean',
 		],
@@ -63,7 +68,7 @@ const iteratorMethods = new Map([
 	},
 	{
 		method: 'map',
-		test: node => !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'types'),
+		shouldIgnoreCallExpression: node => (node.callee.object.type === 'Identifier' && node.callee.object.name === 'types'),
 		ignore: [
 			'String',
 			'Number',
@@ -104,35 +109,39 @@ const iteratorMethods = new Map([
 	ignore = [],
 	minParameters = 1,
 	returnsUndefined = false,
-	test,
+	shouldIgnoreCallExpression,
 }) => [method, {
 	minParameters,
 	parameters,
 	returnsUndefined,
-	test(node) {
+	shouldIgnoreCallExpression(callExpression) {
 		if (
 			method !== 'reduce'
 			&& method !== 'reduceRight'
-			&& isAwaitExpressionArgument(node)
+			&& isAwaitExpressionArgument(callExpression)
 		) {
-			return false;
+			return true;
 		}
 
-		if (isNodeMatches(node.callee.object, ignoredCallee)) {
-			return false;
+		if (isNodeMatches(callExpression.callee.object, ignoredCallee)) {
+			return true;
 		}
 
-		if (node.callee.object.type === 'CallExpression' && isNodeMatches(node.callee.object.callee, ignoredCallee)) {
-			return false;
+		if (
+			callExpression.callee.object.type === 'CallExpression'
+			&& isNodeMatches(callExpression.callee.object.callee, ignoredCallee)
+		) {
+			return true;
 		}
 
-		const [callback] = node.arguments;
-
+		return shouldIgnoreCallExpression?.(callExpression) ?? false;
+	},
+	shouldIgnoreCallback(callback) {
 		if (callback.type === 'Identifier' && ignore.includes(callback.name)) {
-			return false;
+			return true;
 		}
 
-		return !test || test(node);
+		return false;
 	},
 }]));
 
@@ -163,8 +172,13 @@ function getProblem(context, node, method, options) {
 			name,
 			method,
 		},
-		suggest: [],
 	};
+
+	if (node.type === 'YieldExpression' || node.type === 'AwaitExpression') {
+		return problem;
+	}
+
+	problem.suggest = [];
 
 	const {parameters, minParameters, returnsUndefined} = options;
 	for (let parameterLength = minParameters; parameterLength <= parameters.length; parameterLength++) {
@@ -178,16 +192,20 @@ function getProblem(context, node, method, options) {
 			},
 			fix(fixer) {
 				const {sourceCode} = context;
-				let nodeText = sourceCode.getText(node);
-				if (isParenthesized(node, sourceCode) || type === 'ConditionalExpression') {
-					nodeText = `(${nodeText})`;
+				let text = getParenthesizedText(node, sourceCode);
+
+				if (
+					!isParenthesized(node, sourceCode)
+					&& shouldAddParenthesesToCallExpressionCallee(node)
+				) {
+					text = `(${text})`;
 				}
 
-				return fixer.replaceText(
-					node,
+				return fixer.replaceTextRange(
+					getParenthesizedRange(node, sourceCode),
 					returnsUndefined
-						? `(${suggestionParameters}) => { ${nodeText}(${suggestionParameters}); }`
-						: `(${suggestionParameters}) => ${nodeText}(${suggestionParameters})`,
+						? `(${suggestionParameters}) => { ${text}(${suggestionParameters}); }`
+						: `(${suggestionParameters}) => ${text}(${suggestionParameters})`,
 				);
 			},
 		};
@@ -198,59 +216,71 @@ function getProblem(context, node, method, options) {
 	return problem;
 }
 
+function * getTernaryConsequentAndALternate(node) {
+	if (node.type === 'ConditionalExpression') {
+		yield * getTernaryConsequentAndALternate(node.consequent);
+		yield * getTernaryConsequentAndALternate(node.alternate);
+		return;
+	}
+
+	yield node;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
-	CallExpression(node) {
+	* CallExpression(callExpression) {
 		if (
-			!isMethodCall(node, {
+			!isMethodCall(callExpression, {
 				minimumArguments: 1,
 				maximumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 				computed: false,
 			})
-			|| node.callee.property.type !== 'Identifier'
+			|| callExpression.callee.property.type !== 'Identifier'
 		) {
 			return;
 		}
 
-		const methodNode = node.callee.property;
+		const methodNode = callExpression.callee.property;
 		const methodName = methodNode.name;
 		if (!iteratorMethods.has(methodName)) {
 			return;
 		}
 
-		const [callback] = node.arguments;
-
-		if (
-			callback.type === 'FunctionExpression'
-			|| callback.type === 'ArrowFunctionExpression'
-			// Ignore all `CallExpression`s include `function.bind()`
-			|| callback.type === 'CallExpression'
-			|| isNodeValueNotFunction(callback)
-		) {
-			return;
-		}
-
 		const options = iteratorMethods.get(methodName);
-
-		if (!options.test(node)) {
+		if (options.shouldIgnoreCallExpression(callExpression)) {
 			return;
 		}
 
-		return getProblem(context, callback, methodName, options);
+		for (const callback of getTernaryConsequentAndALternate(callExpression.arguments[0])) {
+			if (
+				callback.type === 'FunctionExpression'
+				|| callback.type === 'ArrowFunctionExpression'
+				// Ignore all `CallExpression`s include `function.bind()`
+				|| callback.type === 'CallExpression'
+				|| options.shouldIgnoreCallback(callback)
+				|| isNodeValueNotFunction(callback)
+			) {
+				continue;
+			}
+
+			yield getProblem(context, callback, methodName, options);
+		}
 	},
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Prevent passing a function reference directly to iterator methods.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

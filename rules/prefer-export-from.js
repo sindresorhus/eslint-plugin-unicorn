@@ -1,12 +1,6 @@
-'use strict';
-const {
-	isCommaToken,
-	isOpeningBraceToken,
-	isClosingBraceToken,
-} = require('@eslint-community/eslint-utils');
-const {
-	isStringLiteral,
-} = require('./ast/index.js');
+import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
+import {isStringLiteral} from './ast/index.js';
+import {removeSpecifier} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -36,48 +30,6 @@ const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.p
 
 const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
 
-function * removeSpecifier(node, fixer, sourceCode) {
-	const {parent} = node;
-	const {specifiers} = parent;
-
-	if (specifiers.length === 1) {
-		yield * removeImportOrExport(parent, fixer, sourceCode);
-		return;
-	}
-
-	switch (node.type) {
-		case 'ImportSpecifier': {
-			const hasOtherSpecifiers = specifiers.some(specifier => specifier !== node && specifier.type === node.type);
-			if (!hasOtherSpecifiers) {
-				const closingBraceToken = sourceCode.getTokenAfter(node, isClosingBraceToken);
-
-				// If there are other specifiers, they have to be the default import specifier
-				// And the default import has to write before the named import specifiers
-				// So there must be a comma before
-				const commaToken = sourceCode.getTokenBefore(node, isCommaToken);
-				yield fixer.replaceTextRange([commaToken.range[0], closingBraceToken.range[1]], '');
-				return;
-			}
-			// Fallthrough
-		}
-
-		case 'ExportSpecifier':
-		case 'ImportNamespaceSpecifier':
-		case 'ImportDefaultSpecifier': {
-			yield fixer.remove(node);
-
-			const tokenAfter = sourceCode.getTokenAfter(node);
-			if (isCommaToken(tokenAfter)) {
-				yield fixer.remove(tokenAfter);
-			}
-
-			break;
-		}
-
-		// No default
-	}
-}
-
 function * removeImportOrExport(node, fixer, sourceCode) {
 	switch (node.type) {
 		case 'ImportSpecifier':
@@ -103,8 +55,8 @@ function getSourceAndAssertionsText(declaration, sourceCode) {
 		declaration.source,
 		token => token.type === 'Identifier' && token.value === 'from',
 	);
-	const [start] = keywordFromToken.range;
-	const [, end] = declaration.range;
+	const [start] = sourceCode.getRange(keywordFromToken);
+	const [, end] = sourceCode.getRange(declaration);
 	return sourceCode.text.slice(start, end);
 }
 
@@ -126,9 +78,7 @@ function getFixFunction({
 		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
 	}
 
-	if (!exportDeclaration) {
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
-	}
+	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
@@ -148,7 +98,7 @@ function getFixFunction({
 			}
 
 			if (exportDeclaration) {
-				const lastSpecifier = exportDeclaration.specifiers[exportDeclaration.specifiers.length - 1];
+				const lastSpecifier = exportDeclaration.specifiers.at(-1);
 
 				// `export {} from 'foo';`
 				if (lastSpecifier) {
@@ -307,7 +257,6 @@ const schema = [
 		properties: {
 			ignoreUsedVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -398,16 +347,20 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `export…from` when re-exporting.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{ignoreUsedVariables: false}],
 		messages,
 	},
 };
+
+export default config;

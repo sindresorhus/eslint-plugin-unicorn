@@ -1,6 +1,5 @@
-'use strict';
-const {isValueNotUsable} = require('./utils/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {isValueNotUsable} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
@@ -59,8 +58,9 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	}
 
 	const preferredMethod = positionReplacers.get(position);
-	const content = context.getSource(contentNode);
-	const reference = context.getSource(node.callee.object);
+	const {sourceCode} = context;
+	const content = sourceCode.getText(contentNode);
+	const reference = sourceCode.getText(node.callee.object);
 
 	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node)
 		? undefined
@@ -77,7 +77,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 			reference,
 			method,
 			preferredMethod,
-			position: context.getSource(positionNode),
+			position: sourceCode.getText(positionNode),
 			content,
 		},
 		fix,
@@ -127,14 +127,19 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.',
+			description:
+				// eslint-disable-next-line @stylistic/max-len
+				'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

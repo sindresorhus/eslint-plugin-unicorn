@@ -1,9 +1,6 @@
-'use strict';
-const assert = require('node:assert');
-const {
-	isCommaToken,
-} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('../../rules/ast/index.js');
+import assert from 'node:assert';
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import {isMethodCall} from '../../rules/ast/index.js';
 
 const MESSAGE_ID_DISALLOWED_PROPERTY = 'disallow-property';
 const MESSAGE_ID_NO_SINGLE_CODE_OBJECT = 'use-string';
@@ -101,7 +98,7 @@ function checkInvalidCases(node, context) {
 		}
 
 		for (const propertyNode of testCaseNode.properties) {
-			if (propertyNode.computed || propertyNode.key.type !== 'Identifier') {
+			if (propertyNode.type !== 'Property' || propertyNode.computed || propertyNode.key.type !== 'Identifier') {
 				continue;
 			}
 
@@ -134,8 +131,7 @@ function checkTestCaseProperty(propertyNode, context) {
 				},
 				fix: hasFixMark && canFix
 					? fixer => removeObjectProperty(propertyNode, fixer, sourceCode)
-					: undefined
-				,
+					: undefined,
 			});
 			break;
 		}
@@ -161,7 +157,7 @@ function checkTestCaseProperty(propertyNode, context) {
 	}
 }
 
-module.exports = {
+const config = {
 	create(context) {
 		return {
 			CallExpression(snapshotTestCall) {
@@ -179,3 +175,5 @@ module.exports = {
 		messages,
 	},
 };
+
+export default config;

@@ -1,5 +1,3 @@
-'use strict';
-
 // Copied from https://github.com/eslint/eslint/blob/aa87329d919f569404ca573b439934552006572f/lib/rules/no-extra-parens.js#L448
 /**
 Check if a member expression contains a call expression.
@@ -25,8 +23,6 @@ Check if parentheses should be added to a `node` when it's used as `callee` of `
 @param {Node} node - The AST node to check.
 @returns {boolean}
 */
-function shouldAddParenthesesToNewExpressionCallee(node) {
+export default function shouldAddParenthesesToNewExpressionCallee(node) {
 	return node.type === 'MemberExpression' && doesMemberExpressionContainCallExpression(node);
 }
-
-module.exports = shouldAddParenthesesToNewExpressionCallee;

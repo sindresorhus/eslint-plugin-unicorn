@@ -1,10 +1,5 @@
-'use strict';
-const {
-	isParenthesized,
-	getParenthesizedRange,
-} = require('./utils/parentheses.js');
-const {removeParentheses} = require('./fix/index.js');
-const shouldAddParenthesesToSpreadElementArgument = require('./utils/should-add-parentheses-to-spread-element-argument.js');
+import {isParenthesized, getParenthesizedRange} from './utils/parentheses.js';
+import {removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
 const messages = {
@@ -38,14 +33,14 @@ const create = context => ({
 				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 				const [, start] = isLeftObjectParenthesized
 					? getParenthesizedRange(left, sourceCode)
-					: left.range;
-				const [, end] = logicalExpression.range;
+					: sourceCode.getRange(left);
+				const [, end] = sourceCode.getRange(logicalExpression);
 
 				yield fixer.removeRange([start, end]);
 
 				if (
 					isLeftObjectParenthesized
-					|| !shouldAddParenthesesToSpreadElementArgument(left)
+					|| left.type !== 'SequenceExpression'
 				) {
 					yield * removeParentheses(logicalExpression, fixer, sourceCode);
 				}
@@ -55,14 +50,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless fallback when spreading in object literals.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

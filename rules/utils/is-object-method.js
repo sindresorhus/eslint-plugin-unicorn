@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (node, object, method) => {
+export default function isObjectMethod(node, object, method) {
 	const {callee} = node;
 	return (
 		callee.type === 'MemberExpression'
@@ -8,4 +7,4 @@ module.exports = (node, object, method) => {
 		&& callee.property.type === 'Identifier'
 		&& callee.property.name === method
 	);
-};
+}

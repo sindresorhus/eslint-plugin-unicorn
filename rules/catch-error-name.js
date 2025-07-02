@@ -1,8 +1,8 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const {renameVariable} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
+import {isRegExp} from 'node:util/types';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {getAvailableVariableName, upperFirst} from './utils/index.js';
+import {renameVariable} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'catch-error-name';
 const messages = {
@@ -41,13 +41,13 @@ const create = context => {
 	};
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
-		pattern => pattern instanceof RegExp ? pattern : new RegExp(pattern, 'u'),
+		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
 	);
 	const isNameAllowed = name =>
 		name === expectedName
 		|| ignore.some(regexp => regexp.test(name))
 		|| name.endsWith(expectedName)
-		|| name.endsWith(expectedName.charAt(0).toUpperCase() + expectedName.slice(1));
+		|| name.endsWith(upperFirst(expectedName));
 
 	return {
 		Identifier(node) {
@@ -62,7 +62,7 @@ const create = context => {
 
 			if (
 				isNameAllowed(originalName)
-				|| isNameAllowed(originalName.replace(/_+$/g, ''))
+				|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
 			) {
 				return;
 			}
@@ -85,7 +85,7 @@ const create = context => {
 				variable.scope,
 				...variable.references.map(({from}) => from),
 			];
-			const fixedName = avoidCapture(expectedName, scopes);
+			const fixedName = getAvailableVariableName(expectedName, scopes);
 
 			const problem = {
 				node,
@@ -122,15 +122,19 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce a specific parameter name in catch clauses.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

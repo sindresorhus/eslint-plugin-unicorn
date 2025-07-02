@@ -1,5 +1,4 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {
@@ -31,14 +30,17 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#trimStart()` / `String#trimEnd()` over `String#trimLeft()` / `String#trimRight()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

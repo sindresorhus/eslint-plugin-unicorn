@@ -1,15 +1,14 @@
-'use strict';
-const {isParenthesized, getStaticValue, isCommaToken, hasSideEffect} = require('@eslint-community/eslint-utils');
-const {
+import {getStaticValue, isCommaToken, hasSideEffect} from '@eslint-community/eslint-utils';
+import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	needsSemicolon,
-	shouldAddParenthesesToSpreadElementArgument,
 	isNodeMatches,
 	isMethodNamed,
-} = require('./utils/index.js');
-const {removeMethodCall} = require('./fix/index.js');
-const {isLiteral, isMethodCall} = require('./ast/index.js');
+	hasOptionalChainElement,
+} from './utils/index.js';
+import {removeMethodCall} from './fix/index.js';
+import {isLiteral, isMethodCall} from './ast/index.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -63,8 +62,8 @@ function fixConcat(node, sourceCode, fixableArguments) {
 			!keepTrailingComma
 			&& isArrayLiteralHasTrailingComma(node, sourceCode)
 		) {
-			const start = node.range[0] + 1;
-			const end = sourceCode.getLastToken(node, 1).range[0];
+			const start = sourceCode.getRange(node)[0] + 1;
+			const [end] = sourceCode.getRange(sourceCode.getLastToken(node, 1));
 			return sourceCode.text.slice(start, end);
 		}
 
@@ -74,7 +73,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 	const getFixedText = () => {
 		const nonEmptyArguments = fixableArguments
 			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0));
-		const lastArgument = nonEmptyArguments[nonEmptyArguments.length - 1];
+		const lastArgument = nonEmptyArguments.at(-1);
 
 		let text = nonEmptyArguments
 			.map(({node, isArrayLiteral, isSpreadable, testArgument}) => {
@@ -89,13 +88,6 @@ function fixConcat(node, sourceCode, fixableArguments) {
 				}
 
 				if (isSpreadable) {
-					if (
-						!isParenthesized(node, sourceCode)
-						&& shouldAddParenthesesToSpreadElementArgument(node)
-					) {
-						text = `(${text})`;
-					}
-
 					text = `...${text}`;
 				}
 
@@ -134,13 +126,13 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const lastArgument = concatCallArguments[fixableArguments.length - 1];
 
 		const [start] = getParenthesizedRange(firstArgument, sourceCode);
-		let [, end] = sourceCode.getTokenAfter(lastArgument, isCommaToken).range;
+		let [, end] = sourceCode.getRange(sourceCode.getTokenAfter(lastArgument, isCommaToken));
 
 		const textAfter = sourceCode.text.slice(end);
 		const [leadingSpaces] = textAfter.match(/^\s*/);
 		end += leadingSpaces.length;
 
-		return fixer.replaceTextRange([start, end], '');
+		return fixer.removeRange([start, end]);
 	}
 
 	return function * (fixer) {
@@ -217,14 +209,7 @@ function fixArrayFrom(node, sourceCode) {
 		}
 
 		const [start, end] = getParenthesizedRange(object, sourceCode);
-		let text = sourceCode.text.slice(start, end);
-
-		if (
-			!isParenthesized(object, sourceCode)
-			&& shouldAddParenthesesToSpreadElementArgument(object)
-		) {
-			text = `(${text})`;
-		}
+		const text = sourceCode.text.slice(start, end);
 
 		return `[...${text}]`;
 	}
@@ -418,7 +403,8 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& node.callee.object.type !== 'ArrayExpression'
+			&& !isArrayLiteral(node.callee.object)
+			&& !hasOptionalChainElement(node.callee.object)
 		)) {
 			return;
 		}
@@ -491,7 +477,7 @@ const create = context => {
 			const resultBySpread = [...value];
 
 			hasSameResult = resultBySplit.length === resultBySpread.length
-					&& resultBySplit.every((character, index) => character === resultBySpread[index]);
+				&& resultBySplit.every((character, index) => character === resultBySpread[index]);
 		}
 
 		const problem = {
@@ -515,15 +501,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split(\'\')`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

@@ -1,7 +1,6 @@
-'use strict';
-const {appendArgument} = require('./fix/index.js');
-const {isMethodCall} = require('./ast/index.js');
-const {isArrayPrototypeProperty} = require('./utils/index.js');
+import {appendArgument} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
+import {isArrayPrototypeProperty} from './utils/index.js';
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -39,8 +38,8 @@ const create = context => ({
 		const isPrototypeMethod = node.arguments.length === 1;
 		return {
 			loc: {
-				start: penultimateToken.loc[isPrototypeMethod ? 'end' : 'start'],
-				end: lastToken.loc.end,
+				start: sourceCode.getLoc(penultimateToken)[isPrototypeMethod ? 'end' : 'start'],
+				end: sourceCode.getLoc(lastToken).end,
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
@@ -50,14 +49,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the separator argument with `Array#join()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

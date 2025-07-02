@@ -1,5 +1,4 @@
-'use strict';
-
+/* eslint-disable complexity */
 /**
 @param {
 	{
@@ -13,7 +12,7 @@
 } [options]
 @returns {string}
 */
-function isMemberExpression(node, options) {
+export default function isMemberExpression(node, options) {
 	if (node?.type !== 'MemberExpression') {
 		return false;
 	}
@@ -97,5 +96,3 @@ function isMemberExpression(node, options) {
 
 	return true;
 }
-
-module.exports = isMemberExpression;

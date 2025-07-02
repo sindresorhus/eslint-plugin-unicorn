@@ -1,6 +1,6 @@
 # Prefer borrowing methods from the prototype instead of the instance
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -21,6 +21,10 @@ const type = {}.toString.call(foo);
 
 ```js
 Reflect.apply([].forEach, arrayLike, [callback]);
+```
+
+```js
+const type = globalThis.toString.call(foo);
 ```
 
 ## Pass

@@ -1,5 +1,4 @@
-'use strict';
-const {isNewExpression} = require('./ast/index.js');
+import {isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
@@ -138,14 +137,17 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce throwing `TypeError` in type checking conditions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

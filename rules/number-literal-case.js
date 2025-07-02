@@ -1,31 +1,38 @@
-'use strict';
-const {checkVueTemplate} = require('./utils/rule.js');
-const {isNumberLiteral, isBigIntLiteral} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import {isNumberLiteral, isBigIntLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
 	[MESSAGE_ID]: 'Invalid number literal casing.',
 };
 
-const fix = raw => {
+/**
+@param {string} raw
+@param {Options} options
+*/
+const fix = (raw, {hexadecimalValue}) => {
 	let fixed = raw.toLowerCase();
 	if (fixed.startsWith('0x')) {
-		fixed = '0x' + fixed.slice(2).toUpperCase();
+		fixed = '0x' + fixed.slice(2)[hexadecimalValue === 'lowercase' ? 'toLowerCase' : 'toUpperCase']();
 	}
 
 	return fixed;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
+const create = context => ({
 	Literal(node) {
 		const {raw} = node;
 
+		/** @type {Options} */
+		const options = context.options[0] ?? {};
+		options.hexadecimalValue ??= 'uppercase';
+
 		let fixed = raw;
 		if (isNumberLiteral(node)) {
-			fixed = fix(raw);
+			fixed = fix(raw, options);
 		} else if (isBigIntLiteral(node)) {
-			fixed = fix(raw.slice(0, -1)) + 'n';
+			fixed = fix(raw.slice(0, -1), options) + 'n';
 		}
 
 		if (raw !== fixed) {
@@ -38,15 +45,38 @@ const create = () => ({
 	},
 });
 
+/** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
+
+const caseEnum = /** @type {const} */ ({
+	enum: ['uppercase', 'lowercase'],
+});
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			hexadecimalValue: caseEnum,
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce proper case for numeric literals.',
+			recommended: true,
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{
+			hexadecimalValue: 'uppercase',
+		}],
 		messages,
 	},
 };
+
+export default config;

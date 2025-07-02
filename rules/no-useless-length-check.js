@@ -1,10 +1,5 @@
-'use strict';
-const {isMethodCall, isMemberExpression} = require('./ast/index.js');
-const {
-	getParenthesizedRange,
-	isSameReference,
-	isLogicalExpression,
-} = require('./utils/index.js');
+import {isMethodCall, isMemberExpression} from './ast/index.js';
+import {getParenthesizedRange, isSameReference, isLogicalExpression} from './utils/index.js';
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
@@ -107,17 +102,17 @@ const create = context => {
 					getUselessLengthCheckNode(logicalExpression),
 				),
 			);
+			const {sourceCode} = context;
 
 			for (const node of nodes) {
 				yield {
 					loc: {
-						start: node.left.property.loc.start,
-						end: node.loc.end,
+						start: sourceCode.getLoc(node.left.property).start,
+						end: sourceCode.getLoc(node).end,
 					},
 					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix(fixer) {
-						const {sourceCode} = context;
 						const {left, right} = node.parent;
 						const leftRange = getParenthesizedRange(left, sourceCode);
 						const rightRange = getParenthesizedRange(right, sourceCode);
@@ -139,14 +134,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless array length check.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

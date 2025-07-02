@@ -1,8 +1,7 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {switchNewExpressionToCallExpression} = require('./fix/index.js');
-const isNumber = require('./utils/is-number.js');
-const {isNewExpression} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {switchNewExpressionToCallExpression} from './fix/index.js';
+import isNumber from './utils/is-number.js';
+import {isNewExpression} from './ast/index.js';
 
 const ERROR = 'error';
 const ERROR_UNKNOWN = 'error-unknown';
@@ -84,15 +83,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

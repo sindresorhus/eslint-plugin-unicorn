@@ -1,6 +1,5 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const {isNumberLiteral} = require('../ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {isNumberLiteral} from '../ast/index.js';
 
 const isStaticProperties = (node, object, properties) =>
 	node.type === 'MemberExpression'
@@ -10,6 +9,7 @@ const isStaticProperties = (node, object, properties) =>
 	&& node.object.name === object
 	&& node.property.type === 'Identifier'
 	&& properties.has(node.property.name);
+
 const isFunctionCall = (node, functionName) => node.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
@@ -113,7 +113,9 @@ const isLengthProperty = node =>
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
-function isNumber(node, scope) {
+
+// eslint-disable-next-line complexity
+export default function isNumber(node, scope) {
 	if (
 		isNumberLiteral(node)
 		|| isMathProperty(node)
@@ -209,7 +211,7 @@ function isNumber(node, scope) {
 		}
 
 		case 'SequenceExpression': {
-			if (isNumber(node.expressions[node.expressions.length - 1], scope)) {
+			if (isNumber(node.expressions.at(-1), scope)) {
 				return true;
 			}
 
@@ -220,5 +222,3 @@ function isNumber(node, scope) {
 
 	return isStaticNumber(node, scope);
 }
-
-module.exports = isNumber;

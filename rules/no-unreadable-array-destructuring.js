@@ -1,7 +1,6 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const shouldAddParenthesesToMemberExpressionObject = require('./utils/should-add-parentheses-to-member-expression-object.js');
-const {fixSpaceAroundKeyword} = require('./fix/index.js');
+import {isParenthesized} from '@eslint-community/eslint-utils';
+import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
 const messages = {
@@ -70,14 +69,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable array destructuring.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

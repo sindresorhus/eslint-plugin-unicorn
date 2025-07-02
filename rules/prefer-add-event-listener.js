@@ -1,7 +1,6 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const eventTypes = require('./shared/dom-events.js');
-const {isUndefined, isNullLiteral, isStaticRequire} = require('./ast/index.js');
+import {isParenthesized} from '@eslint-community/eslint-utils';
+import eventTypes from './shared/dom-events.js';
+import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -89,7 +88,7 @@ const create = context => {
 		},
 
 		ReturnStatement(node) {
-			codePathInfo.returnsSomething = codePathInfo.returnsSomething || Boolean(node.argument);
+			codePathInfo.returnsSomething ||= Boolean(node.argument);
 		},
 
 		'AssignmentExpression:exit'(node) {
@@ -174,15 +173,19 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

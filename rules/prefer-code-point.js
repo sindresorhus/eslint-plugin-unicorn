@@ -1,5 +1,4 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
+import {isMethodCall} from './ast/index.js';
 
 const messages = {
 	'error/charCodeAt': 'Prefer `String#codePointAt()` over `String#charCodeAt()`.',
@@ -54,14 +53,17 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#codePointAt(…)` over `String#charCodeAt(…)` and `String.fromCodePoint(…)` over `String.fromCharCode(…)`.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

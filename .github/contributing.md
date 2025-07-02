@@ -11,3 +11,7 @@ First open an issue with your proposal. When the rule is accepted, see the [docs
 ## I want to implement a rule from an open issue
 
 See the [docs on creating and submitting a new rule](../docs/new-rule.md).
+
+## How to write tests
+
+See the [docs on writing tests](../docs/write-tests.md).

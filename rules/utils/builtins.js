@@ -1,7 +1,6 @@
-'use strict';
-const typedArray = require('../shared/typed-array.js');
+import typedArray from '../shared/typed-array.js';
 
-const enforceNew = [
+export const enforceNew = [
 	'Object',
 	'Array',
 	'ArrayBuffer',
@@ -22,15 +21,10 @@ const enforceNew = [
 	...typedArray,
 ];
 
-const disallowNew = [
+export const disallowNew = [
 	'BigInt',
 	'Boolean',
 	'Number',
 	'String',
 	'Symbol',
 ];
-
-module.exports = {
-	enforceNew,
-	disallowNew,
-};

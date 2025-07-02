@@ -1,7 +1,6 @@
-'use strict';
-const {} = require('./ast/index.js');
-const {} = require('./fix/index.js');
-const {} = require('./utils/index.js');
+import {} from './ast/index.js';
+import {} from './fix/index.js';
+import {} from './utils/index.js';
 
 <% if (hasSuggestions) { %>
 const MESSAGE_ID_ERROR = '<%= id %>/error';
@@ -17,15 +16,14 @@ const messages = {
 };
 <% } %>
 
-const selector = [
-	'Literal',
-	'[value="unicorn"]',
-].join('');
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	return {
-		[selector](node) {
+		Literal(node) {
+			if (node.value !== 'unicorn') {
+				return;
+			}
+
 			return {
 				node,
 				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
@@ -57,15 +55,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: '<%= type %>',
 		docs: {
 			description: '<%= description %>',
+			recommended: true,
 		},
 		<% if (fixableType) { %>fixable: '<%= fixableType %>',<% } %>
 		<% if (hasSuggestions) { %>hasSuggestions: true,<% } %>
 		messages,
 	},
 };
+
+export default config;

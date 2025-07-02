@@ -1,8 +1,8 @@
 # Prefer JavaScript modules (ESM) over CommonJS
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/developer-guide/working-with-rules#providing-suggestions).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -21,11 +21,20 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 	They are [not available in JavaScript modules](https://nodejs.org/api/esm.html#esm_no_filename_or_dirname).
 
-	Replacements:
+	Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) and [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename) have been introduced in ES modules, providing identical functionality to `__dirname` and `__filename` in CommonJS (CJS).
+
+	For most cases in Node.js 20.11 and later:
 
 	```js
-	import {fileURLToPath} from 'url';
-	import path from 'path';
+	const __dirname = import.meta.dirname;
+	const __filename = import.meta.filename;
+	```
+
+	Replacements for older versions:
+
+	```js
+	import {fileURLToPath} from 'node:url';
+	import path from 'node:path';
 
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,7 +43,7 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 	However, in most cases, this is better:
 
 	```js
-	import {fileURLToPath} from 'url';
+	import {fileURLToPath} from 'node:url';
 
 	const foo = fileURLToPath(new URL('foo.js', import.meta.url));
 	```

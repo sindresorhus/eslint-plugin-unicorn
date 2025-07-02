@@ -1,10 +1,11 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {isNodeValueNotFunction, isArrayPrototypeProperty} = require('./utils/index.js');
+import {isMethodCall} from './ast/index.js';
+import {isNodeValueNotFunction, isArrayPrototypeProperty} from './utils/index.js';
 
-const MESSAGE_ID = 'no-reduce';
+const MESSAGE_ID_REDUCE = 'reduce';
+const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
 const messages = {
-	[MESSAGE_ID]: '`Array#{{method}}()` is not allowed',
+	[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed. Prefer other types of loop for readability.',
+	[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed. Prefer other types of loop for readability. You may want to call `Array#toReversed()` before looping it.',
 };
 
 const cases = [
@@ -80,7 +81,6 @@ const schema = [
 		properties: {
 			allowSimpleOperations: {
 				type: 'boolean',
-				default: true,
 			},
 		},
 	},
@@ -104,8 +104,7 @@ const create = context => {
 				const methodNode = getMethodNode(callExpression);
 				yield {
 					node: methodNode,
-					messageId: MESSAGE_ID,
-					data: {method: methodNode.name},
+					messageId: methodNode.name,
 				};
 			}
 		},
@@ -113,14 +112,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `Array#reduce()` and `Array#reduceRight()`.',
+			recommended: true,
 		},
 		schema,
+		defaultOptions: [{allowSimpleOperations: true}],
 		messages,
 	},
 };
+
+export default config;

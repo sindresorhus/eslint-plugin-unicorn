@@ -1,7 +1,6 @@
-'use strict';
-const {getStaticValue} = require('@eslint-community/eslint-utils');
-const isShadowed = require('./utils/is-shadowed.js');
-const {isCallOrNewExpression} = require('./ast/index.js');
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {isCallOrNewExpression} from './ast/index.js';
+import builtinErrors from './shared/builtin-errors.js';
 
 const MESSAGE_ID_MISSING_MESSAGE = 'missing-message';
 const MESSAGE_ID_EMPTY_MESSAGE = 'message-is-empty-string';
@@ -12,36 +11,28 @@ const messages = {
 	[MESSAGE_ID_NOT_STRING]: 'Error message should be a string.',
 };
 
-const builtinErrors = [
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-	'Error',
-	'EvalError',
-	'RangeError',
-	'ReferenceError',
-	'SyntaxError',
-	'TypeError',
-	'URIError',
-	'InternalError',
-	'AggregateError',
-];
+const messageArgumentIndexes = new Map([
+	['AggregateError', 1],
+	['SuppressedError', 2],
+]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on(['CallExpression', 'NewExpression'], expression => {
-		if (!isCallOrNewExpression(expression, {
-			names: builtinErrors,
-			optional: false,
-		})) {
-			return;
-		}
-
-		const scope = context.sourceCode.getScope(expression);
-		if (isShadowed(scope, expression.callee)) {
+		if (!(
+			isCallOrNewExpression(expression, {
+				names: builtinErrors,
+				optional: false,
+			})
+			&& context.sourceCode.isGlobalReference(expression.callee)
+		)) {
 			return;
 		}
 
 		const constructorName = expression.callee.name;
-		const messageArgumentIndex = constructorName === 'AggregateError' ? 1 : 0;
+		const messageArgumentIndex = messageArgumentIndexes.has(constructorName)
+			? messageArgumentIndexes.get(constructorName)
+			: 0;
 		const callArguments = expression.arguments;
 
 		// If message is `SpreadElement` or there is `SpreadElement` before message
@@ -67,7 +58,7 @@ const create = context => {
 			};
 		}
 
-		const staticResult = getStaticValue(node, scope);
+		const staticResult = getStaticValue(node, context.sourceCode.getScope(node));
 
 		// We don't know the value of `message`
 		if (!staticResult) {
@@ -92,13 +83,16 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce passing a `message` value when creating a built-in error.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

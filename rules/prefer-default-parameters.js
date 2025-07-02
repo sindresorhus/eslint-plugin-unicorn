@@ -1,6 +1,5 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const {functionTypes} = require('./ast/index.js');
+import {findVariable} from '@eslint-community/eslint-utils';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -72,7 +71,7 @@ const hasExtraReferences = (assignment, references, left) => {
 };
 
 const isLastParameter = (parameters, parameter) => {
-	const lastParameter = parameters[parameters.length - 1];
+	const lastParameter = parameters.at(-1);
 
 	// See 'default-param-last' rule
 	return parameter && parameter === lastParameter;
@@ -92,8 +91,8 @@ const needsParentheses = (sourceCode, function_) => {
 
 /** @param {import('eslint').Rule.RuleFixer} fixer */
 const fixDefaultExpression = (fixer, sourceCode, node) => {
-	const {line} = node.loc.start;
-	const {column} = node.loc.end;
+	const {line} = sourceCode.getLoc(node).start;
+	const {column} = sourceCode.getLoc(node).end;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
@@ -107,10 +106,8 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	}
 
 	if (endsWithWhitespace) {
-		return fixer.removeRange([
-			node.range[0],
-			node.range[1] + 1,
-		]);
+		const [start, end] = sourceCode.getRange(node);
+		return fixer.removeRange([start, end + 1]);
 	}
 
 	return fixer.remove(node);
@@ -122,7 +119,7 @@ const create = context => {
 	const functionStack = [];
 
 	const checkExpression = (node, left, right, assignment) => {
-		const currentFunction = functionStack[functionStack.length - 1];
+		const currentFunction = functionStack.at(-1);
 
 		if (!currentFunction || !isDefaultExpression(left, right)) {
 			return;
@@ -202,14 +199,14 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
+			recommended: true,
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
@@ -217,3 +214,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

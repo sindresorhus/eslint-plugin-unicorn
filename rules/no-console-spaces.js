@@ -1,6 +1,5 @@
-'use strict';
-const toLocation = require('./utils/to-location.js');
-const {isStringLiteral, isMethodCall} = require('./ast/index.js');
+import toLocation from './utils/to-location.js';
+import {isStringLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-console-spaces';
 const messages = {
@@ -11,15 +10,16 @@ const messages = {
 const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && value.charAt(1) !== ' ';
 
 // Find exactly one trailing space, allow exactly one space
-const hasTrailingSpace = value => value.length > 1 && value.charAt(value.length - 1) === ' ' && value.charAt(value.length - 2) !== ' ';
+const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 	const getProblem = (node, method, position) => {
+		const [start, end] = sourceCode.getRange(node);
 		const index = position === 'leading'
-			? node.range[0] + 1
-			: node.range[1] - 2;
+			? start + 1
+			: end - 2;
 		const range = [index, index + 1];
 
 		return {
@@ -73,14 +73,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use leading/trailing space between `console.log` parameters.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

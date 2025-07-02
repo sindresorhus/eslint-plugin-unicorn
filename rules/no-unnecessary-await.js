@@ -1,11 +1,7 @@
-'use strict';
-const {
-	addParenthesizesToReturnOrThrowExpression,
-	removeSpacesAfter,
-} = require('./fix/index.js');
-const {isParenthesized} = require('./utils/parentheses.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isOnSameLine = require('./utils/is-on-same-line.js');
+import {addParenthesizesToReturnOrThrowExpression, removeSpacesAfter} from './fix/index.js';
+import {isParenthesized} from './utils/parentheses.js';
+import needsSemicolon from './utils/needs-semicolon.js';
+import isOnSameLine from './utils/is-on-same-line.js';
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -30,7 +26,7 @@ function notPromise(node) {
 		}
 
 		case 'SequenceExpression': {
-			return notPromise(node.expressions[node.expressions.length - 1]);
+			return notPromise(node.expressions.at(-1));
 		}
 
 		// No default
@@ -42,7 +38,11 @@ function notPromise(node) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	AwaitExpression(node) {
-		if (!notPromise(node.argument)) {
+		if (
+			// F#-style pipeline operator, `Promise.resolve() |> await`
+			!node.argument
+			|| !notPromise(node.argument)
+		) {
 			return;
 		}
 
@@ -50,7 +50,7 @@ const create = context => ({
 		const awaitToken = sourceCode.getFirstToken(node);
 		const problem = {
 			node,
-			loc: awaitToken.loc,
+			loc: sourceCode.getLoc(awaitToken),
 			messageId: MESSAGE_ID,
 		};
 
@@ -93,15 +93,18 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow awaiting non-promise values.',
+			recommended: true,
 		},
 		fixable: 'code',
 
 		messages,
 	},
 };
+
+export default config;

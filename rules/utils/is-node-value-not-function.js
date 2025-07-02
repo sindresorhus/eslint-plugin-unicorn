@@ -1,5 +1,4 @@
-'use strict';
-const {isUndefined, isCallExpression, isMethodCall} = require('../ast/index.js');
+import {isUndefined, isCallExpression, isMethodCall} from '../ast/index.js';
 
 // AST Types:
 // https://github.com/eslint/espree/blob/master/lib/ast-node-types.js#L18
@@ -19,7 +18,6 @@ const impossibleNodeTypes = new Set([
 const mostLikelyNotNodeTypes = new Set([
 	'AssignmentExpression',
 	'AwaitExpression',
-	'LogicalExpression',
 	'NewExpression',
 	'TaggedTemplateExpression',
 	'ThisExpression',
@@ -39,4 +37,4 @@ const isNodeValueNotFunction = node => (
 	)
 );
 
-module.exports = isNodeValueNotFunction;
+export default isNodeValueNotFunction;

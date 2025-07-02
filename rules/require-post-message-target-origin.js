@@ -1,6 +1,5 @@
-'use strict';
-const {isMethodCall} = require('./ast/index.js');
-const {appendArgument} = require('./fix/index.js');
+import {isMethodCall} from './ast/index.js';
+import {appendArgument} from './fix/index.js';
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -42,8 +41,8 @@ function create(context) {
 
 			return {
 				loc: {
-					start: penultimateToken.loc.end,
-					end: lastToken.loc.end,
+					start: sourceCode.getLoc(penultimateToken).end,
+					end: sourceCode.getLoc(lastToken).end,
 				},
 				messageId: ERROR,
 				suggest: replacements.map(code => ({
@@ -58,14 +57,19 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
+			// Turned off because we can't distinguish `window.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
+			// See #1396
+			recommended: false,
 		},
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

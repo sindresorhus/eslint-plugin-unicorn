@@ -1,5 +1,5 @@
-'use strict';
-const {replaceStringLiteral} = require('./fix/index.js');
+import {replaceStringRaw} from './fix/index.js';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -25,15 +25,13 @@ const getReplacement = encoding => {
 
 // `fs.{readFile,readFileSync}()`
 const isFsReadFileEncoding = node =>
-	node.parent.type === 'CallExpression'
-	&& !node.parent.optional
+	isMethodCall(node.parent, {
+		methods: ['readFile', 'readFileSync'],
+		optionalCall: false,
+		optionalMember: false,
+	})
 	&& node.parent.arguments[1] === node
-	&& node.parent.arguments[0].type !== 'SpreadElement'
-	&& node.parent.callee.type === 'MemberExpression'
-	&& !node.parent.callee.optional
-	&& !node.parent.callee.computed
-	&& node.parent.callee.property.type === 'Identifier'
-	&& (node.parent.callee.property.name === 'readFile' || node.parent.callee.property.name === 'readFileSync');
+	&& node.parent.arguments[0].type !== 'SpreadElement';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = () => ({
@@ -66,7 +64,7 @@ const create = () => ({
 		}
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => replaceStringLiteral(fixer, node, replacement);
+		const fix = fixer => replaceStringRaw(fixer, node, replacement);
 
 		const problem = {
 			node,
@@ -85,7 +83,7 @@ const create = () => ({
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				fix: fixer => replaceStringLiteral(fixer, node, replacement),
+				fix: fixer => replaceStringRaw(fixer, node, replacement),
 			},
 		];
 
@@ -94,15 +92,18 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent case for text encoding identifiers.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

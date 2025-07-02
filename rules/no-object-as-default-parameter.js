@@ -1,5 +1,4 @@
-'use strict';
-const {isFunction} = require('./ast/index.js');
+import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID_IDENTIFIER = 'identifier';
 const MESSAGE_ID_NON_IDENTIFIER = 'non-identifier';
@@ -38,13 +37,16 @@ const create = () => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Disallow the use of objects as default parameters.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

@@ -1,6 +1,6 @@
 # Enforce specific import styles per module
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#preset-configs).
+💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -17,19 +17,19 @@ This rule defines 4 import styles:
 ## Fail
 
 ```js
-const util = require('util');
+const util = require('node:util');
 
-import util from 'util';
+import util from 'node:util';
 
-import * as util from 'util';
+import * as util from 'node:util';
 ```
 
 ## Pass
 
 ```js
-const {promisify} = require('util');
+const {promisify} = require('node:util');
 
-import {promisify} from 'util';
+import {promisify} from 'node:util';
 ```
 
 ## Options

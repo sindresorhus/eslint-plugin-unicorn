@@ -165,6 +165,7 @@ module.exports = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent usage of variables from outside the scope of isolated functions.',
+			recommended: true,
 		},
 		schema,
 		messages,

@@ -1,7 +1,6 @@
-'use strict';
-const {findVariable} = require('@eslint-community/eslint-utils');
-const {getVariableIdentifiers} = require('./utils/index.js');
-const {isCallOrNewExpression, isMethodCall} = require('./ast/index.js');
+import {findVariable} from '@eslint-community/eslint-utils';
+import {getVariableIdentifiers} from './utils/index.js';
+import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -28,21 +27,14 @@ const arrayMethodsReturnsArray = [
 	'with',
 ];
 
-const isIncludesCall = node => {
-	const {type, optional, callee, arguments: includesArguments} = node.parent.parent ?? {};
-	return (
-		type === 'CallExpression'
-		&& !optional
-		&& callee.type === 'MemberExpression'
-		&& !callee.computed
-		&& !callee.optional
-		&& callee.object === node
-		&& callee.property.type === 'Identifier'
-		&& callee.property.name === 'includes'
-		&& includesArguments.length === 1
-		&& includesArguments[0].type !== 'SpreadElement'
-	);
-};
+const isIncludesCall = node =>
+	isMethodCall(node.parent.parent, {
+		method: 'includes',
+		optionalCall: false,
+		optionalMember: false,
+		argumentsLength: 1,
+	})
+	&& node.parent.object === node;
 
 const multipleCallNodeTypes = new Set([
 	'ForOfStatement',
@@ -172,15 +164,18 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

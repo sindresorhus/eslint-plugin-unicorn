@@ -1,24 +1,28 @@
-'use strict';
-const isMethodNamed = require('./utils/is-method-named.js');
-const simpleArraySearchRule = require('./shared/simple-array-search-rule.js');
-const {isLiteral} = require('./ast/index.js');
+import {checkVueTemplate} from './utils/rule.js';
+import isMethodNamed from './utils/is-method-named.js';
+import simpleArraySearchRule from './shared/simple-array-search-rule.js';
+import {isLiteral, isNegativeOne} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
-	[MESSAGE_ID]: 'Use `.includes()`, rather than `.indexOf()`, when checking for existence.',
+	[MESSAGE_ID]: 'Use `.includes()`, rather than `.{{method}}()`, when checking for existence.',
 };
-// Ignore {_,lodash,underscore}.indexOf
+// Ignore `{_,lodash,underscore}.{indexOf,lastIndexOf}`
 const ignoredVariables = new Set(['_', 'lodash', 'underscore']);
 const isIgnoredTarget = node => node.type === 'Identifier' && ignoredVariables.has(node.name);
-const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
 const isLiteralZero = node => isLiteral(node, 0);
 const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
+	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
+
 	const memberExpressionNode = target.parent;
-	const dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
-	const targetSource = sourceCode.getText().slice(memberExpressionNode.range[0], dotToken.range[0]);
+	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
+	const targetSource = sourceCode.getText().slice(
+		sourceCode.getRange(memberExpressionNode)[0],
+		sourceCode.getRange(dotToken)[0],
+	);
 
 	// Strip default `fromIndex`
 	if (isLiteralZero(argumentsNodes[1])) {
@@ -30,6 +34,9 @@ const getProblem = (context, node, target, argumentsNodes) => {
 	return {
 		node: memberExpressionNode.property,
 		messageId: MESSAGE_ID,
+		data: {
+			method: node.left.callee.property.name,
+		},
 		fix(fixer) {
 			const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 			return fixer.replaceText(node, replacement);
@@ -49,7 +56,7 @@ const create = context => {
 	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
-		if (!isMethodNamed(left, 'indexOf')) {
+		if (!isMethodNamed(left, 'indexOf') && !isMethodNamed(left, 'lastIndexOf')) {
 			return;
 		}
 
@@ -81,12 +88,13 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
-	create,
+const config = {
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.includes()` over `.indexOf()` and `Array#some()` when checking for existence or non-existence.',
+			description: 'Prefer `.includes()` over `.indexOf()`, `.lastIndexOf()`, and `Array#some()` when checking for existence or non-existence.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
@@ -96,3 +104,5 @@ module.exports = {
 		},
 	},
 };
+
+export default config;

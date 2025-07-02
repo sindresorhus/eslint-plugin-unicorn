@@ -1,7 +1,5 @@
-'use strict';
-const {defaultsDeep} = require('lodash');
-const {getStringIfConstant} = require('@eslint-community/eslint-utils');
-const {isCallExpression} = require('./ast/index.js');
+import {getStringIfConstant} from '@eslint-community/eslint-utils';
+import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
 const messages = {
@@ -117,7 +115,13 @@ const defaultStyles = {
 	path: {
 		default: true,
 	},
+	'node:path': {
+		default: true,
+	},
 	util: {
+		named: true,
+	},
+	'node:util': {
 		named: true,
 	},
 };
@@ -136,7 +140,10 @@ const create = context => {
 	] = context.options;
 
 	styles = extendDefaultStyles
-		? defaultsDeep({}, styles, defaultStyles)
+		? Object.fromEntries(
+			[...Object.keys(defaultStyles), ...Object.keys(styles)]
+				.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]),
+		)
 		: styles;
 
 	styles = new Map(
@@ -148,6 +155,7 @@ const create = context => {
 
 	const {sourceCode} = context;
 
+	// eslint-disable-next-line max-params
 	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
 		if (!allowedImportStyles || allowedImportStyles.size === 0) {
 			return;
@@ -351,14 +359,18 @@ const schema = {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
+			recommended: true,
 		},
 		schema,
+		defaultOptions: [{}],
 		messages,
 	},
 };
+
+export default config;

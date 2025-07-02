@@ -1,16 +1,8 @@
-'use strict';
-const {isCommaToken} = require('@eslint-community/eslint-utils');
-const typedArray = require('./shared/typed-array.js');
-const {
-	removeParentheses,
-	fixSpaceAroundKeyword,
-	addParenthesizesToReturnOrThrowExpression,
-} = require('./fix/index.js');
-const {
-	isParenthesized,
-	isOnSameLine,
-} = require('./utils/index.js');
-const {isNewExpression, isMethodCall, isCallOrNewExpression} = require('./ast/index.js');
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import typedArray from './shared/typed-array.js';
+import {removeParentheses, fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
+import {isParenthesized, isOnSameLine} from './utils/index.js';
+import {isNewExpression, isMethodCall, isCallOrNewExpression} from './ast/index.js';
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -368,14 +360,17 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary spread.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

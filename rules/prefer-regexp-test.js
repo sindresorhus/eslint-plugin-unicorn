@@ -1,11 +1,7 @@
-'use strict';
-const {isParenthesized, getStaticValue} = require('@eslint-community/eslint-utils');
-const {checkVueTemplate} = require('./utils/rule.js');
-const {isRegexLiteral, isNewExpression, isMethodCall} = require('./ast/index.js');
-const {
-	isBooleanNode,
-	shouldAddParenthesesToMemberExpressionObject,
-} = require('./utils/index.js');
+import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {checkVueTemplate} from './utils/rule.js';
+import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
+import {isBooleanNode, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
@@ -77,6 +73,10 @@ const cases = [
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
 const isRegExpWithoutGlobalFlag = (node, scope) => {
+	if (isRegexLiteral(node)) {
+		return !node.regex.flags.includes('g');
+	}
+
 	const staticResult = getStaticValue(node, scope);
 
 	// Don't know if there is `g` flag
@@ -138,15 +138,18 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

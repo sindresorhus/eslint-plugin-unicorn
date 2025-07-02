@@ -1,0 +1,25 @@
+name: Title formatter
+
+on:
+  pull_request_target:
+    types: [opened, edited]
+  issues:
+    types: [opened, edited]
+
+jobs:
+  Rule:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/rules
+      - name: Auto-format rule names in titles
+        uses: fregante/keyword-formatter-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          keywords-path: docs/rules
+          prefix: unicorn/
+

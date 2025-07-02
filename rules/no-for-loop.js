@@ -1,11 +1,12 @@
-'use strict';
-const {isClosingParenToken, getStaticValue} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const getScopes = require('./utils/get-scopes.js');
-const singular = require('./utils/singular.js');
-const toLocation = require('./utils/to-location.js');
-const getReferences = require('./utils/get-references.js');
-const {isLiteral} = require('./ast/index.js');
+import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	getAvailableVariableName,
+	getScopes,
+	singular,
+	toLocation,
+	getReferences,
+} from './utils/index.js';
+import {isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -163,29 +164,31 @@ const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
 
 	if (declarationNode.declarations.length === 1) {
-		const {line} = declarationNode.loc.start;
+		const {line} = sourceCode.getLoc(declarationNode).start;
 		const lineText = sourceCode.lines[line - 1];
 
 		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);
 
-		return isOnlyNodeOnLine ? [
-			sourceCode.getIndexFromLoc({line, column: 0}),
-			sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
-		] : declarationNode.range;
+		return isOnlyNodeOnLine
+			? [
+				sourceCode.getIndexFromLoc({line, column: 0}),
+				sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
+			]
+			: sourceCode.getRange(declarationNode);
 	}
 
 	const index = declarationNode.declarations.indexOf(node);
 
 	if (index === 0) {
 		return [
-			node.range[0],
-			declarationNode.declarations[1].range[0],
+			sourceCode.getRange(node)[0],
+			sourceCode.getRange(declarationNode.declarations[1])[0],
 		];
 	}
 
 	return [
-		declarationNode.declarations[index - 1].range[1],
-		node.range[1],
+		sourceCode.getRange(declarationNode.declarations[index - 1])[1],
+		sourceCode.getRange(node)[1],
 	];
 };
 
@@ -263,7 +266,7 @@ const getReferencesInChildScopes = (scope, name) =>
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const {scopeManager, text: sourceCodeText} = sourceCode;
+	const {scopeManager} = sourceCode;
 
 	return {
 		ForStatement(node) {
@@ -318,8 +321,9 @@ const create = context => {
 				return;
 			}
 
-			const [start] = node.range;
-			const [, end] = sourceCode.getTokenBefore(node.body, isClosingParenToken).range;
+			const [start] = sourceCode.getRange(node);
+			const closingParenthesisToken = sourceCode.getTokenBefore(node.body, isClosingParenToken);
+			const [, end] = sourceCode.getRange(closingParenthesisToken);
 
 			const problem = {
 				loc: toLocation([start, end], sourceCode),
@@ -339,21 +343,20 @@ const create = context => {
 			const elementIdentifierName = elementNode?.id.name;
 			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope);
+			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+				&& !elementNode?.id.typeAnnotation;
 
 			if (shouldFix) {
 				problem.fix = function * (fixer) {
 					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
-
 					const index = indexIdentifierName;
 					const element = elementIdentifierName
-						|| avoidCapture(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
+						|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
 					const array = arrayIdentifierName;
 
 					let declarationElement = element;
 					let declarationType = 'const';
 					let removeDeclaration = true;
-					let typeAnnotation;
 
 					if (elementNode) {
 						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
@@ -362,36 +365,22 @@ const create = context => {
 
 						if (removeDeclaration) {
 							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
-							if (elementNode.id.typeAnnotation && shouldGenerateIndex) {
-								declarationElement = sourceCodeText.slice(elementNode.id.range[0], elementNode.id.typeAnnotation.range[0]).trim();
-								typeAnnotation = sourceCode.getText(
-									elementNode.id.typeAnnotation,
-									-1, // Skip leading `:`
-								).trim();
-							} else {
-								declarationElement = sourceCode.getText(elementNode.id);
-							}
+							declarationElement = sourceCode.getText(elementNode.id);
 						}
 					}
 
 					const parts = [declarationType];
 					if (shouldGenerateIndex) {
-						parts.push(` [${index}, ${declarationElement}]`);
-						if (typeAnnotation) {
-							parts.push(`: [number, ${typeAnnotation}]`);
-						}
-
-						parts.push(` of ${array}.entries()`);
+						parts.push(` [${index}, ${declarationElement}] of ${array}.entries()`);
 					} else {
 						parts.push(` ${declarationElement} of ${array}`);
 					}
 
 					const replacement = parts.join('');
+					const [start] = sourceCode.getRange(node.init);
+					const [, end] = sourceCode.getRange(node.update);
 
-					yield fixer.replaceTextRange([
-						node.init.range[0],
-						node.update.range[1],
-					], replacement);
+					yield fixer.replaceTextRange([start, end], replacement);
 
 					for (const reference of arrayReferences) {
 						if (reference !== elementReference) {
@@ -413,15 +402,18 @@ const create = context => {
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use a `for` loop that can be replaced with a `for-of` loop.',
+			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
-		hasSuggestion: true,
 	},
 };
+
+export default config;

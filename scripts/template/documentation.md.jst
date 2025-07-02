@@ -3,14 +3,25 @@
 
 <!-- Remove this comment, add more detailed description. -->
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = 'unicorn';
+
+// ✅
+const foo = '🦄';
 ```
 
-## Pass
-
 ```js
-const foo = '🦄';
+// ❌
+function foo() {
+	var replace = 'me';
+	return replace;
+}
+
+// ✅
+function foo() {
+	return 'me';
+}
 ```

@@ -1,6 +1,5 @@
-'use strict';
-const {getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isMethodCall} = require('./ast/index.js');
+import {getFunctionHeadLocation} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-invalid-remove-event-listener';
 const messages = {
@@ -48,13 +47,16 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
+			recommended: true,
 		},
 		messages,
 	},
 };
+
+export default config;

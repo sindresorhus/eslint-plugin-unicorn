@@ -1,6 +1,5 @@
-'use strict';
-const {findVariable, getFunctionHeadLocation} = require('@eslint-community/eslint-utils');
-const {isFunction, isMemberExpression, isMethodCall} = require('./ast/index.js');
+import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
+import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -61,7 +60,7 @@ const isInPromiseMethods = node =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	if (context.getFilename().toLowerCase().endsWith('.cjs')) {
+	if (context.filename.toLowerCase().endsWith('.cjs')) {
 		return;
 	}
 
@@ -139,14 +138,17 @@ function create(context) {
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,
 	},
 };
+
+export default config;

@@ -1,15 +1,14 @@
-'use strict';
-const {isLiteral} = require('./ast/index.js');
-const {
+import {isLiteral} from './ast/index.js';
+import {
 	addParenthesizesToReturnOrThrowExpression,
 	removeSpacesAfter,
-} = require('./fix/index.js');
-const {
+} from './fix/index.js';
+import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isShadowed,
-} = require('./utils/index.js');
+	isUnresolvedVariable,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
 const MESSAGE_ID_SUGGESTION = 'no-typeof-undefined/suggestion';
@@ -26,6 +25,7 @@ const create = context => {
 		checkGlobalVariables: false,
 		...context.options[0],
 	};
+
 	const {sourceCode} = context;
 
 	return {
@@ -49,7 +49,7 @@ const create = context => {
 
 			const valueNode = typeofNode.argument;
 			const isGlobalVariable = valueNode.type === 'Identifier'
-				&& !isShadowed(sourceCode.getScope(valueNode), valueNode);
+				&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
 
 			if (!checkGlobalVariables && isGlobalVariable) {
 				return;
@@ -93,7 +93,7 @@ const create = context => {
 
 			const problem = {
 				node: binaryExpression,
-				loc: typeofToken.loc,
+				loc: sourceCode.getLoc(typeofToken),
 				messageId: MESSAGE_ID_ERROR,
 			};
 
@@ -121,23 +121,26 @@ const schema = [
 		properties: {
 			checkGlobalVariables: {
 				type: 'boolean',
-				default: false,
 			},
 		},
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow comparing `undefined` using `typeof`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
+		defaultOptions: [{checkGlobalVariables: false}],
 		messages,
 	},
 };
+
+export default config;

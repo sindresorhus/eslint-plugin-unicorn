@@ -1,13 +1,14 @@
-'use strict';
-const {isParenthesized} = require('@eslint-community/eslint-utils');
-const avoidCapture = require('./utils/avoid-capture.js');
-const needsSemicolon = require('./utils/needs-semicolon.js');
-const isSameReference = require('./utils/is-same-reference.js');
-const getIndentString = require('./utils/get-indent-string.js');
-const {getParenthesizedText} = require('./utils/parentheses.js');
-const shouldAddParenthesesToConditionalExpressionChild = require('./utils/should-add-parentheses-to-conditional-expression-child.js');
-const {extendFixRange} = require('./fix/index.js');
-const getScopes = require('./utils/get-scopes.js');
+import {isParenthesized} from '@eslint-community/eslint-utils';
+import {
+	getAvailableVariableName,
+	needsSemicolon,
+	isSameReference,
+	getIndentString,
+	getParenthesizedText,
+	shouldAddParenthesesToConditionalExpressionChild,
+	getScopes,
+} from './utils/index.js';
+import {extendFixRange} from './fix/index.js';
 
 const messageId = 'prefer-ternary';
 
@@ -33,6 +34,7 @@ function getNodeBody(node) {
 	return node;
 }
 
+// eslint-disable-next-line internal/no-restricted-property-access -- Need fix
 const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -57,6 +59,7 @@ const create = context => {
 		return text;
 	};
 
+	// eslint-disable-next-line complexity
 	function merge(options, mergeOptions) {
 		const {
 			before = '',
@@ -217,7 +220,7 @@ const create = context => {
 				let generateNewVariables = false;
 				if (type === 'ThrowStatement') {
 					const scopes = getScopes(scope);
-					const errorName = avoidCapture('error', scopes, isSafeName);
+					const errorName = getAvailableVariableName('error', scopes, isSafeName);
 
 					for (const scope of scopes) {
 						if (!scopeToNamesGeneratedByFixer.has(scope)) {
@@ -249,7 +252,7 @@ const create = context => {
 				yield fixer.replaceText(node, fixed);
 
 				if (generateNewVariables) {
-					yield * extendFixRange(fixer, sourceCode.ast.range);
+					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
 				}
 			};
 
@@ -261,22 +264,25 @@ const create = context => {
 const schema = [
 	{
 		enum: ['always', 'only-single-line'],
-		default: 'always',
 	},
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: ['always'],
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 		},
 	},
 };
+
+export default config;

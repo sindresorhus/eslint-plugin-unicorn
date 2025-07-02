@@ -1,11 +1,7 @@
-'use strict';
-const {getParenthesizedRange} = require('../utils/parentheses.js');
+import {getParenthesizedRange} from '../utils/parentheses.js';
 
-function removeMemberExpressionProperty(fixer, memberExpression, sourceCode) {
+export default function removeMemberExpressionProperty(fixer, memberExpression, sourceCode) {
 	const [, start] = getParenthesizedRange(memberExpression.object, sourceCode);
-	const [, end] = memberExpression.range;
-
+	const [, end] = sourceCode.getRange(memberExpression);
 	return fixer.removeRange([start, end]);
 }
-
-module.exports = removeMemberExpressionProperty;

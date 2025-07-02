@@ -1,5 +1,3 @@
-'use strict';
-
 // eslint-disable-next-line complexity
 function isNotReference(node) {
 	const {parent} = node;
@@ -115,6 +113,28 @@ function isNotReference(node) {
 			return parent.id === node;
 		}
 
+		// `type Foo = { [Identifier: string]: string }`
+		case 'TSIndexSignature': {
+			return parent.parameters.includes(node);
+		}
+
+		// `@typescript-eslint/parse` v7
+		// `type Foo = { [Identifier in keyof string]: number; };`
+		case 'TSTypeParameter': {
+			return parent.name === node;
+		}
+
+		// `@typescript-eslint/parse` v8
+		// `type Foo = { [Identifier in keyof string]: number; };`
+		case 'TSMappedType': {
+			return parent.key === node;
+		}
+
+		// `type Identifier = Foo`
+		case 'TSTypeAliasDeclaration': {
+			return parent.id === node;
+		}
+
 		case 'TSPropertySignature': {
 			return parent.key === node;
 		}
@@ -125,7 +145,7 @@ function isNotReference(node) {
 	return false;
 }
 
-function isReferenceIdentifier(node, nameOrNames = []) {
+export default function isReferenceIdentifier(node, nameOrNames = []) {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
@@ -137,5 +157,3 @@ function isReferenceIdentifier(node, nameOrNames = []) {
 
 	return !isNotReference(node);
 }
-
-module.exports = isReferenceIdentifier;

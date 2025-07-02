@@ -1,5 +1,4 @@
-'use strict';
-const {ReferenceTracker} = require('@eslint-community/eslint-utils');
+import {ReferenceTracker} from '@eslint-community/eslint-utils';
 
 const createTraceMap = (object, type) => {
 	let map = {[type]: true};
@@ -12,7 +11,7 @@ const createTraceMap = (object, type) => {
 	return map;
 };
 
-class GlobalReferenceTracker {
+export class GlobalReferenceTracker {
 	#traceMap = {};
 	#filter;
 	#handle;
@@ -66,7 +65,3 @@ Object.assign(GlobalReferenceTracker, {
 	CALL: ReferenceTracker.CALL,
 	CONSTRUCT: ReferenceTracker.CONSTRUCT,
 });
-
-module.exports = {
-	GlobalReferenceTracker,
-};

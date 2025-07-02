@@ -1,7 +1,6 @@
-'use strict';
-const {isParenthesized, isNotSemicolonToken} = require('@eslint-community/eslint-utils');
-const {needsSemicolon} = require('./utils/index.js');
-const {removeSpacesAfter} = require('./fix/index.js');
+import {isParenthesized, isNotSemicolonToken} from '@eslint-community/eslint-utils';
+import {needsSemicolon} from './utils/index.js';
+import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-lonely-if';
 const messages = {
@@ -97,7 +96,7 @@ function fix(innerIfStatement, sourceCode) {
 			const lastToken = sourceCode.getLastToken(inner.consequent);
 			if (isNotSemicolonToken(lastToken)) {
 				const nextToken = sourceCode.getTokenAfter(outer);
-				if (needsSemicolon(lastToken, sourceCode, nextToken.value)) {
+				if (nextToken && needsSemicolon(lastToken, sourceCode, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			}
@@ -138,14 +137,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `if` statements as the only statement in `if` blocks without `else`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

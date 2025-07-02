@@ -1,7 +1,6 @@
-'use strict';
-const escapeString = require('./utils/escape-string.js');
-const translateToKey = require('./shared/event-keys.js');
-const {isNumberLiteral} = require('./ast/index.js');
+import escapeString from './utils/escape-string.js';
+import translateToKey from './shared/event-keys.js';
+import {isNumberLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
@@ -173,14 +172,17 @@ const create = context => ({
 });
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+const config = {
 	create,
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
 	},
 };
+
+export default config;

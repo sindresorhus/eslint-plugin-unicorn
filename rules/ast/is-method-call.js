@@ -1,7 +1,5 @@
-'use strict';
-const {pick} = require('lodash');
-const isMemberExpression = require('./is-member-expression.js');
-const {isCallExpression} = require('./call-or-new-expression.js');
+import isMemberExpression from './is-member-expression.js';
+import {isCallExpression} from './call-or-new-expression.js';
 
 /**
 @param {
@@ -24,7 +22,7 @@ const {isCallExpression} = require('./call-or-new-expression.js');
 } [options]
 @returns {string}
 */
-function isMethodCall(node, options) {
+export default function isMethodCall(node, options) {
 	if (typeof options === 'string') {
 		options = {methods: [options]};
 	}
@@ -46,16 +44,19 @@ function isMethodCall(node, options) {
 
 	return (
 		isCallExpression(node, {
-			...pick(options, ['argumentsLength', 'minimumArguments', 'maximumArguments', 'allowSpreadElement']),
+			argumentsLength: options.argumentsLength,
+			minimumArguments: options.minimumArguments,
+			maximumArguments: options.maximumArguments,
+			allowSpreadElement: options.allowSpreadElement,
 			optional: optionalCall,
 		})
 		&& isMemberExpression(node.callee, {
-			...pick(options, ['object', 'objects', 'computed']),
+			object: options.object,
+			objects: options.objects,
+			computed: options.computed,
 			property: method,
 			properties: methods,
 			optional: optionalMember,
 		})
 	);
 }
-
-module.exports = isMethodCall;
