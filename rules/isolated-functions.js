@@ -1,6 +1,6 @@
 'use strict';
-const esquery = require('esquery');
-const functionTypes = require('./ast/function-types.js');
+import esquery from 'esquery';
+import functionTypes from './ast/function-types.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const messages = {
@@ -123,13 +123,6 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			tags: {
-				type: 'array',
-				uniqueItems: true,
-				items: {
-					type: 'string',
-				},
-			},
 			globals: {
 				oneOf: [{type: 'boolean'}, {type: 'array', items: {type: 'string'}}],
 			},
@@ -159,7 +152,7 @@ const schema = [
 ];
 
 /** @type {import('eslint').Rule.RuleModule} */
-module.exports = {
+export default {
 	create,
 	meta: {
 		type: 'problem',
