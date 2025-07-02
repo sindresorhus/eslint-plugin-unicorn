@@ -50,21 +50,18 @@ const create = context => {
 
 		const nodeScope = sourceCode.getScope(node);
 
-		for (const ref of nodeScope.through) {
-			const {identifier} = ref;
+		for (const reference of nodeScope.through) {
+			const {identifier} = reference;
 
 			if (allowedGlobals.includes(identifier.name)) {
 				continue;
 			}
 
-			// If (!options.considerTypeOf && hasTypeOfOperator(identifier)) {
-			// 	return;
-			// }
+			// Could consider checking for typeof operator here, like in no-undef?
 
 			context.report({
 				node: identifier,
 				messageId: MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE,
-				// Message: `Variable ${identifier.name} is used from outside the scope of an isolated function. Function is isolated because: ${reason}.`,
 				data: {name: identifier.name, reason},
 			});
 		}
@@ -108,7 +105,7 @@ const create = context => {
 			}
 		}
 
-		return undefined;
+		
 	};
 
 	return Object.fromEntries(functionTypes.map(type => [
