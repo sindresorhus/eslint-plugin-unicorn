@@ -95,16 +95,6 @@ test({
 			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
 		},
 		{
-			name: 'global variables not allowed by default',
-			languageOptions: {globals: {foo: true}},
-			code: stripIndent(`
-				makeSynchronous(function () {
-					return foo.slice();
-				});
-			`),
-			errors: [fooInMakeSynchronousError],
-		},
-		{
 			name: 'global variables can be explicitly disallowed',
 			languageOptions: {globals: {foo: true}},
 			options: [{globals: false}],
@@ -179,7 +169,16 @@ test({
 			`),
 		},
 		{
-			name: 'can allow global variables from language options',
+			name: 'can implicitly allow global variables from language options',
+			languageOptions: {globals: {foo: true}},
+			code: stripIndent(`
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`),
+		},
+		{
+			name: 'can explicitly allow global variables from language options',
 			languageOptions: {globals: {foo: true}},
 			options: [{globals: true}],
 			code: stripIndent(`

@@ -1,4 +1,3 @@
-'use strict';
 import esquery from 'esquery';
 import functionTypes from './ast/function-types.js';
 
@@ -16,26 +15,31 @@ const parseEsquerySelector = selector => {
 	return parsedEsquerySelectors.get(selector);
 };
 
+/** @type {{functions: string[], selectors: string[], comments: string[], globals: boolean | string[]}} */
+const defaultOptions = {
+	functions: ['makeSynchronous'],
+	selectors: [],
+	comments: ['@isolated'],
+	globals: true,
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	/** @type {{functions: string[], selectors: string[], comments: string[], globals: boolean | string[]}} */
-	const userOptions = context.options[0];
-	/** @type {typeof userOptions} */
+	/** @type {typeof defaultOptions} */
 	const options = {
-		functions: ['makeSynchronous'],
-		selectors: [],
-		comments: ['@isolated'],
-		globals: false,
-		...userOptions,
+		...defaultOptions,
+		...context.options[0],
 	};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
-	const allowedGlobals = options.globals === true
-		? Object.keys(context.languageOptions.globals)
-		: (Array.isArray(options.globals)
-			? options.globals
-			: []);
+	/** @type {string[]} */
+	let allowedGlobals = [];
+	if (options.globals === true) {
+		allowedGlobals = Object.keys(context.languageOptions.globals);
+	} else if (Array.isArray(options.globals)) {
+		allowedGlobals = options.globals;
+	}
 
 	/** @param {import('estree').Node} node */
 	const checkForExternallyScopedVariables = node => {
@@ -155,6 +159,7 @@ export default {
 			recommended: true,
 		},
 		schema,
+		defaultOptions: [defaultOptions],
 		messages,
 	},
 };

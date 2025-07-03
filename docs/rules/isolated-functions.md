@@ -14,6 +14,8 @@ Common scenarios where functions must be isolated:
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
 
+By default, this rule allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
+
 ## Fail
 
 ```js
@@ -80,6 +82,19 @@ function abc() {
 }
 ```
 
+```js
+import makeSynchronous from 'make-synchronous';
+
+export const fetchSync = () => {
+	const getText = makeSynchronous(async () => {
+		console.log('Starting...'); // ✅ Global variables are allowed by default
+		const res = await fetch('https://example.com'); // ✅ Global variables are allowed by default
+		return res.text();
+	});
+	console.log(getText());
+};
+```
+
 ## Options
 
 Type: `object`
@@ -130,12 +145,12 @@ Array of comment strings that mark functions as isolated. Functions with JSDoc c
 ### globals
 
 Type: `boolean | string[]`\
-Default: `false`
+Default: `true`
 
 Controls how global variables are handled:
 
-- `false` (default): Global variables are not allowed in isolated functions
-- `true`: All globals from ESLint's language options are allowed
+- `false`: Global variables are not allowed in isolated functions
+- `true` (default): All globals from ESLint's language options are allowed
 - `string[]`: Only the specified global variable names are allowed
 
 ```js
