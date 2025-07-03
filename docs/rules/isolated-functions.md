@@ -8,6 +8,7 @@
 Some functions need to be isolated from their surrounding scope due to execution context constraints. For example, functions passed to `makeSynchronous()` are executed in a subprocess and cannot access variables from outside their scope. This rule helps identify when functions are using external variables that may cause runtime errors.
 
 Common scenarios where functions must be isolated:
+
 - Functions passed to `makeSynchronous()` (executed in subprocess)
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts
@@ -213,4 +214,4 @@ makeSynchronous(async () => {
 	const url = new URL(response.url); // ✅ Allowed global
 	return response.text();
 });
-``` 
+```

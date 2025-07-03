@@ -16,21 +16,17 @@ const parseEsquerySelector = selector => {
 	return parsedEsquerySelectors.get(selector);
 };
 
-/** @type {{functions: string[], selectors: string[], comments: string[], globals: boolean | string[]}} */
-const defaultOptions = {
-	functions: ['makeSynchronous'],
-	selectors: [],
-	comments: ['@isolated'],
-	globals: false,
-};
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	/** @type {typeof defaultOptions} */
+	/** @type {{functions: string[], selectors: string[], comments: string[], globals: boolean | string[]}} */
 	const userOptions = context.options[0];
+	/** @type {typeof userOptions} */
 	const options = {
-		...defaultOptions,
+		functions: ['makeSynchronous'],
+		selectors: [],
+		comments: ['@isolated'],
+		globals: false,
 		...userOptions,
 	};
 
@@ -43,7 +39,7 @@ const create = context => {
 
 	/** @param {import('estree').Node} node */
 	const checkForExternallyScopedVariables = node => {
-		const reason = reasaonForBeingIsolatedFunction(node);
+		const reason = reasonForBeingIsolatedFunction(node);
 		if (!reason) {
 			return;
 		}
@@ -68,17 +64,20 @@ const create = context => {
 	};
 
 	/** @param {import('estree').Node & {parent?: import('estree').Node}} node */
-	const reasaonForBeingIsolatedFunction = node => {
+	const reasonForBeingIsolatedFunction = node => {
 		if (options.comments.length > 0) {
 			let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 			let commentableNode = node;
-			while (previousToken?.type !== 'Block' && (commentableNode.parent.type === 'VariableDeclarator' || commentableNode.parent.type === 'VariableDeclaration')) {
+			while (
+				(previousToken?.type !== 'Block' && previousToken?.type !== 'Line')
+				&& (commentableNode.parent.type === 'VariableDeclarator' || commentableNode.parent.type === 'VariableDeclaration')
+			) {
 				// Search up to find jsdoc comments on the parent declaration `/** @isolated */ const foo = () => abc`
 				commentableNode = commentableNode.parent;
 				previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
 			}
 
-			if (previousToken?.type === 'Block') {
+			if (previousToken?.type === 'Block' || previousToken?.type === 'Line') {
 				const previousComment = previousToken.value.trim().toLowerCase();
 				const match = options.comments.find(comment => previousComment.includes(comment));
 				if (match) {
@@ -104,8 +103,6 @@ const create = context => {
 				return `matches selector ${JSON.stringify(matchedSelector)}`;
 			}
 		}
-
-		
 	};
 
 	return Object.fromEntries(functionTypes.map(type => [

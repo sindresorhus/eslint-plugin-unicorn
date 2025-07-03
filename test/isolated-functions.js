@@ -1,5 +1,5 @@
 import stripIndent from 'strip-indent';
-import {getTester} from './utils/test.mjs';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -86,8 +86,17 @@ test({
 			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
 		},
 		{
+			name: '@isolated inline comment',
+			code: stripIndent(`
+				const foo = 'hi';
+				// @isolated
+				const abc = () => foo.slice();
+			`),
+			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
+		},
+		{
 			name: 'global variables not allowed by default',
-			globals: {foo: true},
+			languageOptions: {globals: {foo: true}},
 			code: stripIndent(`
 				makeSynchronous(function () {
 					return foo.slice();
@@ -97,7 +106,7 @@ test({
 		},
 		{
 			name: 'global variables can be explicitly disallowed',
-			globals: {foo: true},
+			languageOptions: {globals: {foo: true}},
 			options: [{globals: false}],
 			code: stripIndent(`
 				makeSynchronous(function () {
@@ -171,7 +180,7 @@ test({
 		},
 		{
 			name: 'can allow global variables from language options',
-			globals: {foo: true},
+			languageOptions: {globals: {foo: true}},
 			options: [{globals: true}],
 			code: stripIndent(`
 				makeSynchronous(function () {
@@ -181,7 +190,7 @@ test({
 		},
 		{
 			name: 'allow global variables separate from language options',
-			globals: {abc: true},
+			languageOptions: {globals: {abc: true}},
 			options: [{globals: ['foo']}],
 			code: stripIndent(`
 				makeSynchronous(function () {
