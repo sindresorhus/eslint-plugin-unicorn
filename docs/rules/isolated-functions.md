@@ -32,7 +32,7 @@ export const fetchSync = () => {
 	console.log(getText());
 };
 
-// ✅
+// ✅ Define all variables within isolated function's scope
 export const fetchSync = () => {
 	const getText = makeSynchronous(async () => {
 		const url = 'https://example.com'; // Variable defined within function scope
@@ -42,23 +42,8 @@ export const fetchSync = () => {
 
 	console.log(getText());
 };
-```
 
-```js
-import makeSynchronous from 'make-synchronous';
-
-export const fetchSync = () => {
-	const url = 'https://example.com';
-
-	const getText = makeSynchronous(async () => {
-		const res = await fetch(url); // ❌ 'url' is not defined in isolated function scope
-		return res.text();
-	});
-
-	console.log(getText());
-};
-
-// ✅
+// ✅ Alternative: Pass as parameter
 export const fetchSync = () => {
 	const getText = makeSynchronous(async (url) => { // Variable passed as parameter
 		const res = await fetch(url);
@@ -68,6 +53,7 @@ export const fetchSync = () => {
 	console.log(getText('https://example.com'));
 };
 ```
+```
 
 ```js
 const foo = 'hi';
@@ -83,36 +69,6 @@ function abc() {
 	const foo = 'hi'; // Variable defined within function scope
 	return foo.slice();
 }
-```
-
-```js
-const foo = 'hi';
-
-/** @isolated */
-const abc = () => {
-	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
-};
-
-// ✅
-/** @isolated */
-const abc = () => {
-	const foo = 'hi'; // Variable defined within function scope
-	return foo.slice();
-};
-```
-
-```js
-import makeSynchronous from 'make-synchronous';
-
-export const fetchSync = () => {
-	const getText = makeSynchronous(async () => {
-		console.log('Starting...'); // ✅ Global variables are allowed by default
-		const res = await fetch('https://example.com'); // ✅ Global variables are allowed by default
-		return res.text();
-	});
-
-	console.log(getText());
-};
 ```
 
 ## Options
@@ -258,10 +214,21 @@ createLambda({
 ```
 
 ```js
+// ✅ All globals used are explicitly allowed
 makeSynchronous(async () => {
 	console.log('Starting...'); // ✅ Allowed global
 	const response = await fetch('https://api.example.com'); // ✅ Allowed global
 	const url = new URL(response.url); // ✅ Allowed global
+	return response.text();
+});
+
+makeSynchronous(async () => {
+	const response = await fetch('https://api.example.com', {
+		headers: {
+			'Authorization': `Bearer ${process.env.API_TOKEN}` // ❌ 'process' is not in allowed globals
+		}
+	});
+	const url = new URL(response.url);
 	return response.text();
 });
 ```
