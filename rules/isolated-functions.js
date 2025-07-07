@@ -33,13 +33,9 @@ const create = context => {
 	};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
-	/** @type {string[]} */
-	let allowedGlobals = [];
-	if (options.globals === true) {
-		allowedGlobals = Object.keys(context.languageOptions.globals);
-	} else if (Array.isArray(options.globals)) {
-		allowedGlobals = options.globals;
-	}
+	const allowedGlobals = options.globals === true
+		? new Set(Object.keys(context.languageOptions.globals))
+		: new Set(options.globals || []);
 
 	/** @param {import('estree').Node} node */
 	const checkForExternallyScopedVariables = node => {
@@ -53,7 +49,7 @@ const create = context => {
 		for (const reference of nodeScope.through) {
 			const {identifier} = reference;
 
-			if (allowedGlobals.includes(identifier.name)) {
+			if (allowedGlobals.has(identifier.name)) {
 				continue;
 			}
 
