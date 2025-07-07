@@ -16,7 +16,7 @@ Common scenarios where functions must be isolated:
 
 By default, this rule allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
 
-## Fail
+## Examples
 
 ```js
 import makeSynchronous from 'make-synchronous';
@@ -31,32 +31,11 @@ export const fetchSync = () => {
 
 	console.log(getText());
 };
-```
 
-```js
-const foo = 'hi';
-
-/** @isolated */
-function abc() {
-	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
-}
-```
-
-```js
-const foo = 'hi';
-
-/** @isolated */
-const abc = () => foo.slice(); // ❌ 'foo' is not defined in isolated function scope
-```
-
-## Pass
-
-```js
-import makeSynchronous from 'make-synchronous';
-
+// ✅
 export const fetchSync = () => {
 	const getText = makeSynchronous(async () => {
-		const url = 'https://example.com'; // ✅ Variable defined within function scope
+		const url = 'https://example.com'; // Variable defined within function scope
 		const res = await fetch(url);
 		return res.text();
 	});
@@ -69,7 +48,19 @@ export const fetchSync = () => {
 import makeSynchronous from 'make-synchronous';
 
 export const fetchSync = () => {
-	const getText = makeSynchronous(async (url) => { // ✅ Variable passed as parameter
+	const url = 'https://example.com';
+
+	const getText = makeSynchronous(async () => {
+		const res = await fetch(url); // ❌ 'url' is not defined in isolated function scope
+		return res.text();
+	});
+
+	console.log(getText());
+};
+
+// ✅
+export const fetchSync = () => {
+	const getText = makeSynchronous(async (url) => { // Variable passed as parameter
 		const res = await fetch(url);
 		return res.text();
 	});
@@ -79,11 +70,33 @@ export const fetchSync = () => {
 ```
 
 ```js
+const foo = 'hi';
+
 /** @isolated */
 function abc() {
-	const foo = 'hi'; // ✅ Variable defined within function scope
+	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
+}
+
+// ✅
+/** @isolated */
+function abc() {
+	const foo = 'hi'; // Variable defined within function scope
 	return foo.slice();
 }
+```
+
+```js
+const foo = 'hi';
+
+/** @isolated */
+const abc = () => foo.slice(); // ❌ 'foo' is not defined in isolated function scope
+
+// ✅
+/** @isolated */
+const abc = () => {
+	const foo = 'hi'; // Variable defined within function scope
+	return foo.slice();
+};
 ```
 
 ```js
