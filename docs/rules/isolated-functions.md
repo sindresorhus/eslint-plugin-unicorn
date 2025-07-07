@@ -275,3 +275,28 @@ makeSynchronous(async () => {
 	console.log('Starting...');
 });
 ```
+
+### Predefined global variables
+
+To enable a predefined set of globals, use the [`globals` package](https://npmjs.com/package/globals) similarly to how you would use it in `languageOptions` (see [ESLint docs on globals](https://eslint.org/docs/latest/use/configure/language-options#predefined-global-variables)):
+
+```js
+import globals from 'globals'
+
+export default [
+	{
+		rules: {
+			'unicorn/isolated-functions': [
+				'error',
+				{
+					globals: {
+						...globals.builtin,
+						...globals.applescript,
+						...globals.greasemonkey,
+					},
+				},
+			],
+		},
+	},
+]
+```
