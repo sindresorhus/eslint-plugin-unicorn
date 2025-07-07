@@ -5,11 +5,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Some functions need to be isolated from their surrounding scope due to execution context constraints. For example, functions passed to `makeSynchronous()` are executed in a subprocess and cannot access variables from outside their scope. This rule helps identify when functions are using external variables that may cause runtime errors.
+Some functions need to be isolated from their surrounding scope due to execution context constraints. For example, functions passed to [`makeSynchronous()`](https://github.com/sindresorhus/make-synchronous) are executed in a worker or subprocess and cannot access variables from outside their scope. This rule helps identify when functions are using external variables that may cause runtime errors.
 
 Common scenarios where functions must be isolated:
 
-- Functions passed to `makeSynchronous()` (executed in subprocess)
+- Functions passed to `makeSynchronous()` (executed in worker)
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
@@ -23,10 +23,12 @@ import makeSynchronous from 'make-synchronous';
 
 export const fetchSync = () => {
 	const url = 'https://example.com';
+
 	const getText = makeSynchronous(async () => {
 		const res = await fetch(url); // ❌ 'url' is not defined in isolated function scope
 		return res.text();
 	});
+
 	console.log(getText());
 };
 ```
@@ -58,6 +60,7 @@ export const fetchSync = () => {
 		const res = await fetch(url);
 		return res.text();
 	});
+
 	console.log(getText());
 };
 ```
@@ -70,6 +73,7 @@ export const fetchSync = () => {
 		const res = await fetch(url);
 		return res.text();
 	});
+
 	console.log(getText('https://example.com'));
 };
 ```
@@ -91,6 +95,7 @@ export const fetchSync = () => {
 		const res = await fetch('https://example.com'); // ✅ Global variables are allowed by default
 		return res.text();
 	});
+
 	console.log(getText());
 };
 ```
@@ -118,7 +123,9 @@ Array of [ESLint selectors](https://eslint.org/docs/developer-guide/selectors) t
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			selectors: ['FunctionDeclaration[id.name=/lambdaHandler.*/]']
+			selectors: [
+				'FunctionDeclaration[id.name=/lambdaHandler.*/]'
+			]
 		}
 	]
 }
@@ -136,7 +143,10 @@ Array of comment strings that mark functions as isolated. Functions with JSDoc c
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			comments: ['@isolated', '@remote']
+			comments: [
+				'@isolated',
+				'@remote'
+			]
 		}
 	]
 }
@@ -173,7 +183,11 @@ Controls how global variables are handled:
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			functions: ['makeSynchronous', 'createWorker', 'serializeFunction']
+			functions: [
+				'makeSynchronous',
+				'createWorker',
+				'serializeFunction'
+			]
 		}
 	]
 }
@@ -186,7 +200,9 @@ Controls how global variables are handled:
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			selectors: ['FunctionDeclaration[id.name=/lambdaHandler.*/]']
+			selectors: [
+				'FunctionDeclaration[id.name=/lambdaHandler.*/]'
+			]
 		}
 	]
 }
@@ -216,7 +232,11 @@ createLambda({
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: ['console', 'fetch', 'URL']
+			globals: [
+				'console',
+				'fetch',
+				'URL'
+			]
 		}
 	]
 }
