@@ -89,7 +89,9 @@ function abc() {
 const foo = 'hi';
 
 /** @isolated */
-const abc = () => foo.slice(); // ❌ 'foo' is not defined in isolated function scope
+const abc = () => {
+	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
+};
 
 // ✅
 /** @isolated */
