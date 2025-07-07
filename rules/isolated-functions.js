@@ -97,7 +97,7 @@ const create = context => {
 		}
 
 		if (options.selectors.length > 0) {
-			const ancestors = sourceCode.getAncestors(node).reverse();
+			const ancestors = sourceCode.getAncestors(node);
 			const matchedSelector = options.selectors.find(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors));
 			if (matchedSelector) {
 				return `matches selector ${JSON.stringify(matchedSelector)}`;
