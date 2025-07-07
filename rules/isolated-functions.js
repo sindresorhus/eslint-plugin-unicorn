@@ -33,6 +33,7 @@ const create = context => {
 	};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
+
 	const allowedGlobals = options.globals === true
 		? new Set(Object.keys(context.languageOptions.globals))
 		: new Set(options.globals || []);
@@ -118,7 +119,17 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			globals: {
-				oneOf: [{type: 'boolean'}, {type: 'array', items: {type: 'string'}}],
+				oneOf: [
+					{
+						type: 'boolean',
+					},
+					{
+						type: 'array',
+						items: {
+							type: 'string',
+						},
+					},
+				],
 			},
 			functions: {
 				type: 'array',
