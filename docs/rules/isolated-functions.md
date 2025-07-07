@@ -14,7 +14,7 @@ Common scenarios where functions must be isolated:
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
 
-By default, this rule allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
+By default, this rule uses ESLint's language options globals and allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
 
 ## Examples
 
@@ -125,21 +125,25 @@ Array of comment strings that mark functions as isolated. Functions with JSDoc c
 
 ### globals
 
-Type: `boolean | string[]`\
-Default: `true`
+Type: `object`\
+Default: `undefined` (uses ESLint's language options globals)
 
-Controls how global variables are handled:
+Controls how global variables are handled. When not specified, uses ESLint's language options globals. When specified as an object, each key is a global variable name and the value controls its behavior:
 
-- `false`: Global variables are not allowed in isolated functions
-- `true` (default): All globals from ESLint's language options are allowed
-- `string[]`: Only the specified global variable names are allowed
+- `'readonly'`: Global variable is allowed but cannot be written to (depreacted form `false` also accepted)
+- `'writable'`: Global variable is allowed and can be read/written (deprecated forms `true` and `'writeable'` also accepted)
+- `'off'`: Global variable is not allowed
 
 ```js
 {
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: ['console', 'fetch'] // Only allow these globals
+			globals: {
+				console: 'writable',     // Allowed and writable
+				fetch: 'readonly',       // Allowed but readonly
+				process: 'off'           // Not allowed
+			}
 		}
 	]
 }
@@ -196,6 +200,39 @@ createLambda({
 });
 ```
 
+### Default behavior (using ESLint's language options)
+
+```js
+// Uses ESLint's language options globals by default
+makeSynchronous(async () => {
+	console.log('Starting...'); // ✅ Allowed if console is in language options
+	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is in language options
+	return response.text();
+});
+```
+
+### Disallowing all globals
+
+```js
+{
+	'unicorn/isolated-functions': [
+		'error',
+		{
+			globals: {} // Empty object disallows all globals
+		}
+	]
+}
+```
+
+```js
+// ❌ All globals are disallowed
+makeSynchronous(async () => {
+	console.log('Starting...'); // ❌ 'console' is not allowed
+	const response = await fetch('https://api.example.com'); // ❌ 'fetch' is not allowed
+	return response.text();
+});
+```
+
 ### Allowing specific globals
 
 ```js
@@ -203,11 +240,11 @@ createLambda({
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: [
-				'console',
-				'fetch',
-				'URL'
-			]
+			globals: {
+				console: 'writable',     // Allowed and writable
+				fetch: 'readonly',       // Allowed but readonly
+				URL: 'readonly'          // Allowed but readonly
+			}
 		}
 	]
 }
@@ -230,5 +267,11 @@ makeSynchronous(async () => {
 	});
 	const url = new URL(response.url);
 	return response.text();
+});
+
+// ❌ Attempting to write to readonly global
+makeSynchronous(async () => {
+	fetch = null; // ❌ 'fetch' is readonly
+	console.log('Starting...');
 });
 ```

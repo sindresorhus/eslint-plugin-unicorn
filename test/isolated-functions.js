@@ -95,15 +95,42 @@ test({
 			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
 		},
 		{
-			name: 'global variables can be explicitly disallowed',
+			name: 'all global variables can be explicitly disallowed',
 			languageOptions: {globals: {foo: true}},
-			options: [{globals: false}],
+			options: [{globals: {}}],
 			code: stripIndent(`
 				makeSynchronous(function () {
 					return foo.slice();
 				});
 			`),
 			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'individual global variables can be explicitly disallowed',
+			options: [{globals: {URLSearchParams: 'readonly', URL: 'off'}}],
+			code: stripIndent(`
+				makeSynchronous(function () {
+					return new URL('https://example.com?') + new URLSearchParams({a: 'b'}).toString();
+				});
+			`),
+			errors: [error({name: 'URL', reason: 'callee of function named "makeSynchronous"'})],
+		},
+		{
+			name: 'check globals writability',
+			code: stripIndent(`
+				makeSynchronous(function () {
+					location = new URL('https://example.com');
+					process = {env: {}};
+					process.env.FOO = 'bar';
+				});
+			`),
+			errors: [
+				// Only one error, `location = new URL('https://example.com')` and `process.env.FOO = 'bar'` are fine, the problem is `process = {...}`.
+				error({
+					name: 'process',
+					reason: 'callee of function named "makeSynchronous" (global variable is not writable)',
+				}),
+			],
 		},
 		{
 			name: 'make a function isolated by a selector',
@@ -178,19 +205,9 @@ test({
 			`),
 		},
 		{
-			name: 'can explicitly allow global variables from language options',
-			languageOptions: {globals: {foo: true}},
-			options: [{globals: true}],
-			code: stripIndent(`
-				makeSynchronous(function () {
-					return foo.slice();
-				});
-			`),
-		},
-		{
 			name: 'allow global variables separate from language options',
 			languageOptions: {globals: {abc: true}},
-			options: [{globals: ['foo']}],
+			options: [{globals: {foo: true}}],
 			code: stripIndent(`
 				makeSynchronous(function () {
 					return foo.slice();

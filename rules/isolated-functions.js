@@ -15,12 +15,11 @@ const parseEsquerySelector = selector => {
 	return parsedEsquerySelectors.get(selector);
 };
 
-/** @type {{functions: string[], selectors: string[], comments: string[], globals: boolean | string[]}} */
+/** @type {{functions: string[], selectors: string[], comments: string[], globals?: import('eslint').Linter.Globals}} */
 const defaultOptions = {
 	functions: ['makeSynchronous'],
 	selectors: [],
 	comments: ['@isolated'],
-	globals: true,
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -34,24 +33,32 @@ const create = context => {
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
-	const allowedGlobals = options.globals === true
-		? new Set(Object.keys(context.languageOptions.globals))
-		: new Set(options.globals || []);
+	const allowedGlobals = options.globals ?? context.languageOptions.globals;
 
 	/** @param {import('estree').Node} node */
 	const checkForExternallyScopedVariables = node => {
-		const reason = reasonForBeingIsolatedFunction(node);
+		let reason = reasonForBeingIsolatedFunction(node);
 		if (!reason) {
 			return;
 		}
 
 		const nodeScope = sourceCode.getScope(node);
 
+		// `through`: "The array of references which could not be resolved in this scope" https://eslint.org/docs/latest/extend/scope-manager-interface#scope-interface
 		for (const reference of nodeScope.through) {
 			const {identifier} = reference;
+			if (identifier.name in allowedGlobals && allowedGlobals[identifier.name] !== 'off') {
+				if (reference.isReadOnly()) {
+					continue;
+				}
 
-			if (allowedGlobals.has(identifier.name)) {
-				continue;
+				const globalsValue = allowedGlobals[identifier.name];
+				const isGlobalWritable = globalsValue === true || globalsValue === 'writable' || globalsValue === 'writeable';
+				if (isGlobalWritable) {
+					continue;
+				}
+
+				reason += ' (global variable is not writable)';
 			}
 
 			// Could consider checking for typeof operator here, like in no-undef?
@@ -119,17 +126,9 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			globals: {
-				oneOf: [
-					{
-						type: 'boolean',
-					},
-					{
-						type: 'array',
-						items: {
-							type: 'string',
-						},
-					},
-				],
+				additionalProperties: {
+					anyOf: [{type: 'boolean'}, {type: 'string', enum: ['readonly', 'writable', 'writeable', 'off']}],
+				},
 			},
 			functions: {
 				type: 'array',
