@@ -53,7 +53,6 @@ export const fetchSync = () => {
 	console.log(getText('https://example.com'));
 };
 ```
-```
 
 ```js
 const foo = 'hi';
