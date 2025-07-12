@@ -2,6 +2,7 @@
 
 ## Prerequisite
 
+- Use npm to install.
 - Ensure ESLint doesn't already have the [rule built-in](https://eslint.org/docs/rules/).
 - [Read the ESLint docs on creating a new rule.](https://eslint.org/docs/developer-guide/working-with-rules)
 - Look at the commit for how previous rules were added as inspiration. For example, the [`no-unused-properties` rule](https://github.com/sindresorhus/eslint-plugin-unicorn/commit/0179443f24326fb01342a0bf799f7ac66e0e2c23).
@@ -17,7 +18,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 - Open “rules/{RULE_ID}.js” and implement the rule logic.
 - Add the correct [`meta.type`](https://eslint.org/docs/developer-guide/working-with-rules#rule-basics) to the rule.
 - Open “docs/rules/{RULE_ID}.js” and write some documentation.
-- Double check `configs/recommended.js` and `readme.md`, make sure the new rule is correctly added.
+- Double check `readme.md`, make sure the new rule is correctly added.
 - Run `npm test` to ensure the tests pass.
 - Run `npm run integration` to run the rules against real projects to ensure your rule does not fail on real-world code.
 - Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
