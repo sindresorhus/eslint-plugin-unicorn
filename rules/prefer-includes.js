@@ -18,7 +18,11 @@ const getProblem = (context, node, target, argumentsNodes) => {
 	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
 
 	const memberExpressionNode = target.parent;
-	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
+	let dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
+	if (dotToken.value !== '.') {
+		dotToken = sourceCode.getTokenBefore(memberExpressionNode.property);
+	}
+
 	const targetSource = sourceCode.getText().slice(
 		sourceCode.getRange(memberExpressionNode)[0],
 		sourceCode.getRange(dotToken)[0],
