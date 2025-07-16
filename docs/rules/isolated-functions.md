@@ -25,8 +25,8 @@ export const fetchSync = () => {
 	const url = 'https://example.com';
 
 	const getText = makeSynchronous(async () => {
-		const res = await fetch(url); // ❌ 'url' is not defined in isolated function scope
-		return res.text();
+		const response = await fetch(url); // ❌ 'url' is not defined in isolated function scope
+		return response.text();
 	});
 
 	console.log(getText());
@@ -36,8 +36,8 @@ export const fetchSync = () => {
 export const fetchSync = () => {
 	const getText = makeSynchronous(async () => {
 		const url = 'https://example.com'; // Variable defined within function scope
-		const res = await fetch(url);
-		return res.text();
+		const response = await fetch(url);
+		return response.text();
 	});
 
 	console.log(getText());
@@ -46,8 +46,8 @@ export const fetchSync = () => {
 // ✅ Alternative: Pass as parameter
 export const fetchSync = () => {
 	const getText = makeSynchronous(async (url) => { // Variable passed as parameter
-		const res = await fetch(url);
-		return res.text();
+		const response = await fetch(url);
+		return response.text();
 	});
 
 	console.log(getText('https://example.com'));
@@ -129,7 +129,7 @@ Default: `undefined` (uses ESLint's language options globals)
 
 Controls how global variables are handled. When not specified, uses ESLint's language options globals. When specified as an object, each key is a global variable name and the value controls its behavior:
 
-- `'readonly'`: Global variable is allowed but cannot be written to (depreacted form `false` also accepted)
+- `'readonly'`: Global variable is allowed but cannot be written to (deprecated form `false` also accepted)
 - `'writable'`: Global variable is allowed and can be read/written (deprecated forms `true` and `'writeable'` also accepted)
 - `'off'`: Global variable is not allowed
 
@@ -264,7 +264,9 @@ makeSynchronous(async () => {
 			'Authorization': `Bearer ${process.env.API_TOKEN}` // ❌ 'process' is not in allowed globals
 		}
 	});
+
 	const url = new URL(response.url);
+
 	return response.text();
 });
 
