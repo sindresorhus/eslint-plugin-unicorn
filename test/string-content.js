@@ -224,8 +224,6 @@ test({
 			output: 'const foo = `yes${foo}yes${foo}yes`',
 			options: [{patterns: noToYesPattern}],
 
-			// It's safe due to no mutation to `errors`
-			// eslint-disable-next-line unicorn/no-array-fill-with-reference-type
 			errors: Array.from({length: 3}).fill(createError('no', 'yes')[0]),
 		},
 		// Escape

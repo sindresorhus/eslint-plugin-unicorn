@@ -1,10 +1,11 @@
 // @ts-check
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction, isMemberExpression, isRegexLiteral} from './ast/index.js';
+import {
+	isCallExpression,
+	isFunction, isMemberExpression, isMethodCall, isNewExpression, isRegexLiteral,
+} from './ast/index.js';
 
-/**
- @typedef {any} Node
- */
+const debugging = false;
 
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
@@ -19,20 +20,20 @@ const DEFAULTS = {
 	allowRegularExpressions: true,
 };
 
-const debugging = false;
 const log = (...arguments_) => debugging && console.log(...arguments_);
+
+const RECURSION_LIMIT = 5;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	CallExpression(node) {
-		// `arr.fill` or `new Array().fill` or `Array.from().fill`
-		const isArrayFill = isMemberExpression(node.callee)
-			&& ((node.callee.object.callee?.name === 'Array') || (context.sourceCode.getText(node.callee.object.callee) === 'Array.from'))
-			&& node.callee.property.name === 'fill'
-			&& node.arguments.length > 0;
+		// Check all `fill` method call even if the object is not Array because we don't know if its runtime type is array
+		// `arr.fill()` or `new Array().fill()` or `Array.from().fill()`
+		const isArrayFill = isMethodCall(node, {method: 'fill', argumentsLength: 1});
 
 		// `Array.from().map` or `Array.from(arrayLike, mapper)`
-		const isArrayFrom = isMemberExpression(node.callee) && node.callee.object?.name === 'Array' && node.callee.property.name === 'from';
+		const isArrayFrom = isMethodCall(node, {object: 'Array', method: 'from'});
+
 		log('isArrayFill:', {isArrayFill, isArrayFrom});
 
 		if (!isArrayFill && !isArrayFrom) {
@@ -43,12 +44,14 @@ const create = context => ({
 
 		log('fillArgument:', fillArgument);
 
-		if (!isReferenceType(fillArgument, context)) {
+		const [is, resolvedNode] = isReferenceType(fillArgument, context);
+
+		if (!is) {
 			return;
 		}
 
-		const actual = context.sourceCode.getText(node.callee.object.callee) === 'Array.from' ? 'Array.from().fill()' : 'Array.fill()';
-		const type = getType(fillArgument, context);
+		const actual = isMethodCall(node.callee.object, {object: 'Array', method: 'from'}) ? 'Array.from().fill()' : 'Array.fill()';
+		const type = getType(resolvedNode, context);
 
 		return {
 			node: fillArgument,
@@ -61,6 +64,12 @@ const create = context => ({
 	},
 });
 
+/**
+
+ @param {import('estree').CallExpression} node
+ @param {RuleContext} context
+ @returns
+ */
 function getArrayFromReturnNode(node, context) {
 	const secondArgument = node.arguments[1];
 	log('secondArgument:', secondArgument);
@@ -69,8 +78,10 @@ function getArrayFromReturnNode(node, context) {
 	let result;
 	if (secondArgument && isFunction(secondArgument)) {
 		result = getReturnIdentifier(secondArgument, context);
-	} else if (node.parent.type === 'MemberExpression' && node.parent.property.name === 'map') {
+		// @ts-expect-error node always has a parent
+	} else if (isMemberExpression(node.parent, 'map')) {
 		// Array.from({ length: 10 }).map(() => { return sharedObject; });
+		// @ts-expect-error node always has a parent
 		result = getReturnIdentifier(node.parent.parent.arguments[0], context);
 	}
 
@@ -86,7 +97,7 @@ function getArrayFromReturnNode(node, context) {
 
 /**
 
- @param {Node} node - callback for map
+ @param {import('estree').FunctionExpression | Node} node - callback for map
  @returns {{ returnNode: Node, declaredInCurrentFunction: boolean }}
  */
 function getReturnIdentifier(node, context) {
@@ -114,75 +125,72 @@ function getReturnIdentifier(node, context) {
 
 	// Console.log('node:', node);
 
+	// @ts-expect-error node is FunctionExpression
+	const {body: nodeBody} = node;
+
 	// No check member expression as callback `Array.from(element.querySelectorAll('ng2 li')).map(angular.element);`
-	if (!node.body) {
+	if (!nodeBody) {
 		return {returnNode: node, declaredInCurrentFunction: true};
 	}
 
-	if (node.body.type === 'Identifier') {
-		return {returnNode: node.body, declaredInCurrentFunction: false};
+	if (nodeBody.type === 'Identifier') {
+		return {returnNode: nodeBody, declaredInCurrentFunction: false};
 	}
 
 	// Array.from({ length: 3 }, () => (new Map))
 	// Array.from({ length: 3 }, () => ({}))
 	// Array.from({ length: 3 }, () => {})
-	if (!node.body.body) {
-		return {returnNode: node.body, declaredInCurrentFunction: true};
+	if (!nodeBody.body) {
+		return {returnNode: nodeBody, declaredInCurrentFunction: true};
 	}
 
-	const returnStatement = node.body.body.find(node => node.type === 'ReturnStatement');
+	const returnStatement = nodeBody.body.find(node => node.type === 'ReturnStatement');
 	const name = returnStatement?.argument?.name;
 	if (!name) {
 		return {returnNode: returnStatement?.argument, declaredInCurrentFunction: true};
 	}
 
-	const declaredInCurrentFunction = node.body.body.some(node => node.type === 'VariableDeclaration' && node.declarations.some(declaration => declaration.id.name === name));
+	const declaredInCurrentFunction = nodeBody.body.some(node => node.type === 'VariableDeclaration' && node.declarations.some(declaration => declaration.id.name === name));
 
 	return {returnNode: returnStatement?.argument, declaredInCurrentFunction};
 }
 
 /**
-
  @param {*} fillArgument
  @param {import('eslint').Rule.RuleContext} context
  @returns {string}
  */
 function getType(fillArgument, context) {
-	let type = '';
-
 	switch (fillArgument.type) {
 		case 'ObjectExpression': {
-			type = 'Object';
-			break;
+			return 'Object';
 		}
 
 		case 'ArrayExpression': {
-			type = 'Array';
-			break;
+			return 'Array';
 		}
 
 		case 'NewExpression': {
-			type = getNewExpressionType(fillArgument, context);
-
-			break;
+			return getNewExpressionType(fillArgument, context);
 		}
 
 		case 'FunctionExpression':
 		case 'ArrowFunctionExpression': {
-			type = 'Function';
-			break;
+			return 'Function';
 		}
 
 		default: {
 			if (fillArgument.type === 'Literal' && fillArgument.regex) {
-				type = 'RegExp';
-			} else if (fillArgument.type === 'Identifier') {
-				type = `variable (${fillArgument.name})`;
+				return 'RegExp';
+			}
+
+			if (fillArgument.type === 'Identifier') {
+				return `variable (${fillArgument.name})`;
 			}
 		}
 	}
 
-	return type;
+	return '';
 }
 
 /**
@@ -210,18 +218,17 @@ function getNewExpressionType(fillArgument, context) {
 }
 
 /**
- @param {*} node
+ @param {Node} node
  @param {import('eslint').Rule.RuleContext} context
- @returns
+ @returns {[is: false] | [is: true, node: Node]}
  */
 function isReferenceType(node, context) {
+	log('[isReferenceType]: ', node);
 	if (!node) {
-		return false;
+		return [false];
 	}
 
-	/**
-	 @type {typeof DEFAULTS}
-	 */
+	/** @type {typeof DEFAULTS} */
 	const options = {
 		...DEFAULTS,
 		...context.options[0],
@@ -231,15 +238,15 @@ function isReferenceType(node, context) {
 	if (node.type === 'Literal') {
 		// Exclude regular expression literals (e.g., `/pattern/`, which are objects despite being literals).
 		if (!options.allowRegularExpressions && isRegexLiteral(node)) {
-			return true;
+			return [true, node];
 		}
 
-		return false;
+		return [false];
 	}
 
 	// For template literals.
 	if (node.type === 'TemplateLiteral') {
-		return false;
+		return [false];
 	}
 
 	// For variable identifiers (recursively check its declaration).
@@ -247,28 +254,161 @@ function isReferenceType(node, context) {
 		return isIdentifierReferenceType(node, context);
 	}
 
-	// Symbol (such as `Symbol('name')`)
-	if (node.type === 'CallExpression' && node.callee.name === 'Symbol') {
-		const {variables} = context.sourceCode.getScope(node);
-
-		log('variables 2:', variables);
-		if (!variables || variables.length === 0) {
-			// Variable declaration not found; it might be a global variable.
-			return false;
-		}
+	if (isSymbol(node)) {
+		return [false];
 	}
 
 	if (options.allowFunctions && isFunction(node)) {
-		return false;
+		return [false];
 	}
 
-	const isNewRegexp = node.type === 'NewExpression' && node.callee.name === 'RegExp';
-	if (options.allowRegularExpressions && isNewRegexp) {
-		return false;
+	if (options.allowRegularExpressions && isNewExpression(node, 'RegExp')) {
+		return [false];
+	}
+
+	if (isMemberExpression(node)) {
+		const propertyNode = getMemberExpressionLeafNode(node, context);
+		if (!propertyNode) {
+			return [false];
+		}
+
+		return isReferenceType(propertyNode, context);
 	}
 
 	// Other cases: objects, arrays, new expressions, regular expressions, etc.
-	return true;
+	return [true, node];
+}
+
+/**
+ Get member expression leaf node
+ like get nested object property in plain object but in ESLint AST Node
+ @param {MemberExpression} node - The whole member expression node
+ @param {RuleContext} context - ESLint rule context
+ @returns {undefined | ESTreeNode} - The leaf node
+ @example
+ // pseudo code
+ const obj = { a: { b: { c: { list: [] } } } };
+ obj.a.b.c.list // => []
+ */
+function getMemberExpressionLeafNode(node, context) {
+	const chain = getPropertyAccessChain(node);
+
+	if (!chain || chain.length === 0) {
+		return;
+	}
+
+	// The chain names: [ 'obj', 'a', 'b', 'c', 'list' ]
+	// if the MemberExpression is `obj.a.b.c.list`
+	// @ts-ignore
+	log('chain names:', chain.map(node => node.name ?? node.property?.name));
+
+	// @ts-expect-error `chain[0].name` cannot be undefined because the previous check ensures
+	const variable = findVariableDefinition({node, variableName: chain[0].name, context});
+	if (!variable || !variable.defs[0]?.node) {
+		return;
+	}
+
+	/** @type {ESTreeNode | undefined} */
+	let currentObject = variable.defs[0].node.init;
+
+	for (let index = 1; index < chain.length; index++) {
+		const currentPropertyInChain = chain[index].property;
+		// .log(`#${index}`, 'currentPropertyInChain:', currentPropertyInChain?.type, currentPropertyInChain);
+		// .log(`#${index}`, 'currentObject:', currentObject);
+		if (!currentObject || currentObject.type !== 'ObjectExpression') {
+			return;
+		}
+
+		const property = currentObject.properties.find(
+			// @ts-expect-error
+			p => p.key.type === 'Identifier'
+				// @ts-expect-error
+				&& p.key.name === (currentPropertyInChain.type === 'Identifier' ? currentPropertyInChain.name : currentPropertyInChain.value),
+		);
+		// .log(`#${index}`, 'property:', property);
+
+		if (!property) {
+			return;
+		}
+
+		// @ts-expect-error
+		currentObject = property.value;
+	}
+
+	return currentObject;
+}
+
+/**
+ Extracts the property access chain from a MemberExpression
+ @param {MemberExpression | Identifier} node - The node to analyze
+ @returns {PropertyAccessNode[] | undefined} - Array of access nodes or undefined if invalid
+ @example
+ return [ Node('obj'), Property('a'), Property('b'), Property('c'), Property('list') ] if node is MemberExpress `obj.a.b.c.list`
+ */
+function getPropertyAccessChain(node) {
+	/** @type {PropertyAccessNode[]} */
+	const chain = [];
+	/** @type {MemberExpression | Identifier | null} */
+	let current = node;
+	let times = 0;
+
+	// We use `unshift` because `obj.a.b.c.list` loop order is `list` -> `c` -> `b` -> `a` -> `obj`
+	while (current) {
+		times += 1;
+		if (times > RECURSION_LIMIT) {
+			log('Skip deep-nested member checks for performance and to prevent potential infinite loops.');
+			return;
+		}
+
+		if (current.type === 'Identifier') {
+			chain.unshift({name: current.name});
+			// `break` at end of chain.
+			break;
+		}
+
+		if (current.type === 'MemberExpression') {
+			if (current.property.type === 'Identifier') {
+				chain.unshift({property: current.property});
+			} else if (current.property.type === 'Literal') {
+				chain.unshift({property: current.property});
+			} else {
+				// Unsupported property type
+				return;
+			}
+
+			// @ts-expect-error
+			current = current.object;
+		} else {
+			// Unsupported node type
+			return;
+		}
+	}
+
+	return chain.length > 0 ? chain : undefined;
+}
+
+/**
+ @param {any} node
+ @returns {boolean}
+ */
+function isSymbol(node) {
+	const SYMBOL = 'Symbol';
+	// Symbol (such as `Symbol('description')`) will not check
+	if (node.type === 'CallExpression' && node.callee.name === SYMBOL) {
+		return true;
+	}
+
+	// Symbol (such as `Symbol.for('description')`) will not check
+	if (isCallExpression(node) && node.callee.object?.name === SYMBOL) {
+		return true;
+	}
+
+	// Symbol (such as `Symbol.iterator`) will not check
+	if (isMemberExpression(node, {object: SYMBOL})) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -283,6 +423,7 @@ function findVariableDefinition({variableName, node, context}) {
 
 	const scope = context.sourceCode.getScope(node);
 	const {variables} = scope;
+	log('[findVariableDefinition] variables', variables);
 	const variable = variables.find(v => v.name === variableName);
 
 	if (variable) {
@@ -296,7 +437,7 @@ function findVariableDefinition({variableName, node, context}) {
 
  @param {*} node
  @param {import('eslint').Rule.RuleContext} context
- @returns {boolean}
+ @returns {[is: false] | [is: true, node: Node]}
  */
 function isIdentifierReferenceType(node, context) {
 	const variable = findVariableDefinition({variableName: node.name, node, context});
@@ -305,14 +446,14 @@ function isIdentifierReferenceType(node, context) {
 	log({definitionNode});
 
 	if (!variable || !definitionNode) {
-		return false;
+		return [false];
 	}
 
 	// Check `const foo = []; Array(3).fill(foo);`
 	if (definitionNode.type === 'VariableDeclarator') {
 		// Not check `let` `let foo = []; Array(3).fill(foo);`
 		if (definitionNode.parent.kind === 'let') {
-			return false;
+			return [false];
 		}
 
 		return isReferenceType(definitionNode.init, context);
@@ -352,3 +493,25 @@ const config = {
 };
 
 export default config;
+
+/**
+ @typedef {ESTreeNode} Node
+ */
+
+/**
+ @typedef {Object} PropertyAccessNode
+ @property {string} [name] - For identifiers (root object)
+ @property {import('estree').Identifier | import('estree').Literal} [property] - For property access
+ */
+
+/**
+ @typedef {import('eslint').Rule.RuleContext} RuleContext
+ @typedef {import('estree').Node} ESTreeNode
+ @typedef {import('estree').MemberExpression} MemberExpression
+ @typedef {import('estree').Identifier} Identifier
+ @typedef {import('estree').Literal} Literal
+ @typedef {import('estree').VariableDeclarator} VariableDeclarator
+ @typedef {import('estree').ObjectExpression} ObjectExpression
+ @typedef {import('estree').Property} Property
+ @typedef {import('eslint-scope').Variable} ESLintVariable
+ */

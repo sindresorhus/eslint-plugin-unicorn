@@ -25,8 +25,6 @@ test.snapshot({
 		'Array.from({ length: 33 }, () => { return new Map() }); // ✓ Safe alternative',
 
 		'Array(3).fill(0);        // ✓ number (primitive)',
-		'new Foo(3).fill({});       // ✓ Not Array',
-		'Foo(3).fill({});       // ✓ Not Array',
 
 		// Should be invalid but will pass.
 		// Due to the rule name it will not check other than `Array.fill` or `Array.from`.
@@ -216,6 +214,52 @@ test.snapshot({
 		const ng2Descendants = Array.from(element.querySelectorAll('ng2 li')).map(
 			angular.element,
 		);`,
+
+		'const arr = new Array(3); arr.fill(1)',
+		'const arr = new Array(3).fill(Symbol.for("description"))',
+		'const arr = new Array(3).fill(Symbol.iterator)',
+
+		'const obj = { primitive: 1 }; const arr = new Array(3).fill(obj.primitive)',
+		'const obj = { a: { b: { c: { primitive: 1 } } } }; const arr = new Array(3).fill(obj.a.b.c.primitive)',
+		// `undefined` is not a reference type
+		'const obj = { primitive: 1 }; const arr = new Array(3).fill(obj.list)',
+		// `undefined` is not a reference type
+		'const obj = { a: { b: { c: {  } } } }; const arr = new Array(3).fill(obj.a.b.c.list)',
+		// `undefined` is not a reference type
+		'const obj = {}; const arr = new Array(3).fill(obj.a.b.c.list)',
+		// Will not check too deep (> 5) even if `list` is a reference type.
+		'const obj = { a: { b: { c: { d: { list: [] } } } } }; const arr = new Array(3).fill(obj.a.b.c.d.list)',
+		'const obj = { a: { b: { c: { d: { e: { list: [] } } } } } }; const arr = new Array(3).fill(obj.a.b.c.d.e.list)',
+
+		`
+		const obj2 = { a: { b: { c: { list: [] } } } };
+		const obj = { a: { b1: { c: { list: [] } } , b: {  c1: { list: 0 }, c: {  list1: [], list: [] } } } };
+
+		const arr = new Array(3).fill(obj.a.b.c1.list);
+		`,
+		`
+		const obj2 = { a: { b: { c: { list: 0 } } } };
+		const obj = { a: { b1: { c: { list: [] } } , b: {  c1: { list: 0 }, c: {  list1: [], list: [] } } } };
+
+		const arr = new Array(3).fill(obj2.a.b.c.list);
+		`,
+
+		// Not check computed property for simplicity.
+		'const prop = "list"; const obj = { list: [] }; const arr = new Array(3).fill(obj[prop])',
+
+		// Will not check too deep even if its return value is a reference type.
+		`
+		const createError = (match, suggest) => [
+			{
+				message: 'temp',
+				suggestions: undefined,
+			},
+		];
+
+		const obj = {
+			errors: Array.from({length: 3}).fill(createError("no", "yes")[0]),
+		};
+		`,
 	],
 	invalid: [
 		'new Array(3).fill([]);', // ✗ Array
@@ -265,7 +309,6 @@ test.snapshot({
 		'new Array(3).fill(new Date())',
 		'Array.from({ length: 3 }).fill(new Date())',
 
-		'Array.from({length: 3}).fill(createError(\'no\', \'yes\')[0])',
 		'const initialArray = []; new Array(3).fill(initialArray); // ✗ Variable (array)',
 
 		// Should not fill with function
@@ -305,6 +348,7 @@ test.snapshot({
 
 		// Variable declared in its grand parent scope
 		'const map = new Map({ foo: "bar" }); if (true) { const initialArray = Array.from({ length: 3 }, () => map); }',
+
 		'function getMap() { return new Map({ foo: "bar" }); } const map = getMap(); if (true) { const initialArray = Array.from({ length: 3 }, () => map); }',
 
 		// `initialArray` is filled with no reference type (literal string) but will be treated as such because it is a function calling
@@ -334,6 +378,32 @@ test.snapshot({
 		const dataGenerator = () => (sharedObj)
 
 		const data = ref(Array.from({ length: 200 }).map(dataGenerator))
+		`,
+
+		'const arr = new Array(3); arr.fill([])',
+		'new Foo(3).fill({});', // Check all fill method call even if the object is not Array
+		'Foo(3).fill({});', // Check all fill method call even if the object is not Array
+
+		'const obj = { arr: [] }; const arr = new Array(3).fill(obj.arr)',
+		`
+		const obj = { a: { b: { c: { list: [] } } } };
+		const arr = new Array(3).fill(obj.a.b.c.list);
+		`,
+		`
+		const obj2 = { a: { b: { c: { list: [] } } } };
+		const obj = { a: { b: { c: { list: [] } } } };
+		const arr = new Array(3).fill(obj.a.b.c.list);
+		`,
+		`
+		const obj2 = { a: { b: { c: { list: [] } } } };
+		const obj = { a: { b1: { c: { list: [] } } , b: {  c1: { list: [] }, c: {  list1: [], list: [] } } } };
+		const arr = new Array(3).fill(obj.a.b.c.list);
+		`,
+
+		'const obj = { list: [] }; const arr = new Array(3).fill(obj["list"])',
+		`
+		const obj = { a: { b: { c: { list: [] } } } };
+		const arr = new Array(3).fill(obj['a']['b']['c']['list']);
 		`,
 	],
 });
