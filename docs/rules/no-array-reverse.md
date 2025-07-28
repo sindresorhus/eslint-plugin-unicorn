@@ -9,7 +9,7 @@
 
 Prefer using [`Array#toReversed()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toReversed) over [`Array#reverse()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse).
 
-`Array#reverse()` will also modify the original array, while `Array#toReversed()` returns a new reversed array.
+`Array#reverse()` modifies the original array, while `Array#toReversed()` returns a new reversed array.
 
 ## Examples
 
@@ -30,7 +30,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-This rule allows `array.reverse()` to be used as an expression statement by default.  
+This rule allows `array.reverse()` to be used as an expression statement by default.\
 Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even if it's an expression statement.
 
 #### Fail
