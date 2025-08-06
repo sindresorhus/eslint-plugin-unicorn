@@ -44,7 +44,7 @@ Pass `allowExpressionStatement: false` to forbid `Array#sort()` even if it's an 
 #### Fail
 
 ```js
-// eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": true}]
+// eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": false}]
 array.sort();
 ```
 

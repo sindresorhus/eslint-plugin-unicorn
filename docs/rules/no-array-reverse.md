@@ -36,7 +36,7 @@ Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even if it's 
 #### Fail
 
 ```js
-// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": true}]
+// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": false}]
 array.reverse();
 ```
 
