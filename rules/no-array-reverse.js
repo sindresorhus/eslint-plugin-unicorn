@@ -1,3 +1,6 @@
 import noArrayMutateRule from './shared/no-array-mutate-rule.js';
 
-export default noArrayMutateRule('reverse');
+/** @type {import('eslint').Rule.RuleModule} */
+const config = noArrayMutateRule('reverse');
+
+export default config;
