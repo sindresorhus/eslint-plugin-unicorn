@@ -41,8 +41,8 @@ function noArrayMutateRule(methodName) {
 	const messages = {
 		[MESSAGE_ID_ERROR]: `Use \`Array#${replacement}()\` instead of \`Array#${methodName}()\`.`,
 		[MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT]: `Switch to \`.${replacement}()\`.`,
-		[MESSAGE_ID_SUGGESTION_SPREADING_ARRAY]: 'The spreading object is an array',
-		[MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY]: 'The spreading object is NOT an array',
+		[MESSAGE_ID_SUGGESTION_SPREADING_ARRAY]: 'The spreading object is an array.',
+		[MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY]: 'The spreading object is NOT an array.',
 	};
 
 	/** @param {import('eslint').Rule.RuleContext} context */
