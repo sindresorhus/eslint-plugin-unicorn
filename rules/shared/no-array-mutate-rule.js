@@ -1,18 +1,6 @@
 import {isMethodCall} from '../ast/index.js';
 import {getParenthesizedText} from '../utils/index.js';
 
-const schema = [
-	{
-		type: 'object',
-		additionalProperties: false,
-		properties: {
-			allowExpressionStatement: {
-				type: 'boolean',
-			},
-		},
-	},
-];
-
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT = 'suggestion-apply-replacement';
 const MESSAGE_ID_SUGGESTION_SPREADING_ARRAY = 'suggestion-spreading-array';
@@ -30,7 +18,30 @@ const methods = new Map([
 			}),
 		},
 	],
+	[
+		'sort',
+		{
+			replacement: 'toSorted',
+			predicate: callExpression => isMethodCall(callExpression, {
+				method: 'sort',
+				maximumArguments: 1,
+				optionalCall: false,
+			}),
+		},
+	],
 ]);
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allowExpressionStatement: {
+				type: 'boolean',
+			},
+		},
+	},
+];
 
 function noArrayMutateRule(methodName) {
 	const {

@@ -39,3 +39,7 @@ Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even if it's 
 // eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": true}]
 array.reverse();
 ```
+
+## Related rules
+
+- [unicorn/no-array-sort](./no-array-sort.md)
