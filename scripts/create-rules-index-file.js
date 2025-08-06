@@ -6,7 +6,7 @@ const DIRECTORY = new URL('../rules/', import.meta.url);
 const files = fs.readdirSync(DIRECTORY, {withFileTypes: true})
 	.filter(file => file.isFile() && file.name.endsWith('.js') && file.name !== 'index.js')
 	.map(file => file.name)
-	.sort();
+	.toSorted();
 
 const content = files
 	.map(file => `export {default as '${path.basename(file, '.js')}'} from './${file}';`)
