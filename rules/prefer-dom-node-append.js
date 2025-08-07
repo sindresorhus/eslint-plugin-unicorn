@@ -40,7 +40,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

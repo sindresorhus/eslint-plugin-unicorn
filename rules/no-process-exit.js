@@ -97,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `process.exit()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

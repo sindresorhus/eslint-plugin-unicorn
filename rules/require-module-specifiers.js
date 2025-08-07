@@ -147,7 +147,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require non-empty specifier list in import and export statements.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

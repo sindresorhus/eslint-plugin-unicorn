@@ -36,6 +36,13 @@ const recommendedRules = Object.fromEntries(
 	]),
 );
 
+const unopinionatedRules = Object.fromEntries(
+	Object.entries(rules).map(([id, rule]) => [
+		`unicorn/${id}`,
+		rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+	]),
+);
+
 const allRules = Object.fromEntries(
 	Object.keys(rules).map(id => [
 		`unicorn/${id}`,
@@ -68,6 +75,7 @@ const unicorn = {
 
 const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
+	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
 
 	// TODO: Remove this at some point. Kept for now to avoid breaking users.

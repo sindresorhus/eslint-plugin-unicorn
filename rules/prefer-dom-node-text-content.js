@@ -67,7 +67,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

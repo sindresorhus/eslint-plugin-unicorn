@@ -207,7 +207,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `instanceof` with built-in objects',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

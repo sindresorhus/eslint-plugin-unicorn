@@ -88,7 +88,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce consistent assertion style with `node:assert`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

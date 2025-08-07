@@ -439,7 +439,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

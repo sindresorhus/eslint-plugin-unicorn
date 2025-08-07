@@ -99,7 +99,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow awaiting non-promise values.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

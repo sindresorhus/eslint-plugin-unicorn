@@ -133,7 +133,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow comparing `undefined` using `typeof`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

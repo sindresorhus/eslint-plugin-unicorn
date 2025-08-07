@@ -573,7 +573,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Add expiration conditions to TODO comments.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		schema,
 		defaultOptions: [{...DEFAULT_OPTIONS}],

@@ -97,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#toReversed()` over `Array#reverse()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		schema,

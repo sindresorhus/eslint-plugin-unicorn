@@ -38,7 +38,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require `new` when creating an error.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,
