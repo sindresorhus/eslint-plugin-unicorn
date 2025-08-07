@@ -298,7 +298,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless `undefined`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

@@ -116,7 +116,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer consistent types when spreading a ternary in an array literal.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
 
