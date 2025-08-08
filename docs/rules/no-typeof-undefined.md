@@ -29,7 +29,7 @@ if (typeof foo.bar !== 'undefined') {}
 
 ```js
 function foo(bar) {
-	if (foo === undefined) {}
+	if (bar === undefined) {}
 }
 ```
 
