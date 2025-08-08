@@ -71,7 +71,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow number literals with zero fractions or dangling dots.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

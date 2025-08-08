@@ -162,7 +162,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of built-in methods instead of unnecessary polyfills.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		schema,
 		// eslint-disable-next-line eslint-plugin/require-meta-default-options

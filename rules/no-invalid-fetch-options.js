@@ -103,7 +103,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow invalid options in `fetch()` and `new Request()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

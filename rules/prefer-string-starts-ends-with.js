@@ -190,7 +190,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

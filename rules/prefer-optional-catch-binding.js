@@ -67,7 +67,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer omitting the `catch` binding parameter.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

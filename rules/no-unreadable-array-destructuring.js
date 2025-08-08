@@ -75,7 +75,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable array destructuring.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

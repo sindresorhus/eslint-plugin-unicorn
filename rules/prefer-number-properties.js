@@ -126,7 +126,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

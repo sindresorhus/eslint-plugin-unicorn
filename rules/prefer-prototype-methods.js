@@ -152,7 +152,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer borrowing methods from the prototype instead of the instance.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

@@ -199,7 +199,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow anonymous functions and classes as the default export.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

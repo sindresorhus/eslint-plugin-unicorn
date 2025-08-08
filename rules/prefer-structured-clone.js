@@ -137,7 +137,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `structuredClone` to create a deep clone.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		schema,

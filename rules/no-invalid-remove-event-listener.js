@@ -53,7 +53,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

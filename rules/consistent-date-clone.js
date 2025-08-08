@@ -44,7 +44,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer passing `Date` directly to the constructor when cloning.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

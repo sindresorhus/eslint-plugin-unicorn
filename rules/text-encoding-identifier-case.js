@@ -98,7 +98,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent case for text encoding identifiers.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

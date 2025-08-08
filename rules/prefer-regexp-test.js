@@ -144,7 +144,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

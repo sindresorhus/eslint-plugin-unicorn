@@ -31,7 +31,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow assigning `this` to a variable.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

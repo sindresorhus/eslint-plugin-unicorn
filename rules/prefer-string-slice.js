@@ -171,7 +171,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

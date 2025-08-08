@@ -274,7 +274,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

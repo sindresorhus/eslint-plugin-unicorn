@@ -88,7 +88,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow negated expression in equality check.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 
 		hasSuggestions: true,

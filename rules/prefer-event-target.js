@@ -110,7 +110,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `EventTarget` over `EventEmitter`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

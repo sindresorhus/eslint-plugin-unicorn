@@ -12,7 +12,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `.length` or `Infinity` as the `deleteCount` or `skipCount` argument of `Array#{splice,toSpliced}()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

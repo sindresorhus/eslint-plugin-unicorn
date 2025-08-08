@@ -166,7 +166,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow passing single-element arrays to `Promise` methods.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -202,7 +202,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer negative index over `.length - index` when possible.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

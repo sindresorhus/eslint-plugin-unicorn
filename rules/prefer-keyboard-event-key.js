@@ -178,7 +178,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

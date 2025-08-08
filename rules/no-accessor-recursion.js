@@ -150,7 +150,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow recursive access to `this` within getters and setters.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		defaultOptions: [],
 		messages,

@@ -113,7 +113,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

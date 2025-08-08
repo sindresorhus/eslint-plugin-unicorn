@@ -56,7 +56,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless fallback when spreading in object literals.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

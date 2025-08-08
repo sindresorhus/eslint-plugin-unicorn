@@ -177,7 +177,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

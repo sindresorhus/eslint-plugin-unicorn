@@ -38,7 +38,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `1` as the `depth` argument of `Array#flat()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

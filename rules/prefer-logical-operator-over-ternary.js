@@ -150,7 +150,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using a logical operator over a ternary.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 
 		hasSuggestions: true,

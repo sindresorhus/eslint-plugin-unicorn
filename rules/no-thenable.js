@@ -185,7 +185,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `then` property.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

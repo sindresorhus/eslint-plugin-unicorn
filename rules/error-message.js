@@ -89,7 +89,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce passing a `message` value when creating a built-in error.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

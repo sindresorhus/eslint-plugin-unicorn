@@ -1,6 +1,6 @@
 # Fix whitespace-insensitive template indentation
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -65,7 +65,7 @@ function foo() {
 }
 ```
 
-Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started at. This rule will *not* alter the relative whitespace between significant lines, it will only shift the content right or left so that it aligns sensibly with the surrounding code.
+Under the hood, [strip-indent](https://npmjs.com/package/strip-indent) is used to determine how the template "should" look. Then a common indent is added to each line based on the margin of the line the template started at. This rule will _not_ alter the relative whitespace between significant lines, it will only shift the content right or left so that it aligns sensibly with the surrounding code.
 
 ## Options
 
@@ -100,7 +100,7 @@ Default configuration:
 }
 ```
 
-You can use a selector for custom use-cases, like indenting *all* template literals, even those without template tags or function callers:
+You can use a selector for custom use-cases, like indenting _all_ template literals, even those without template tags or function callers:
 
 ```js
 {

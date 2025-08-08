@@ -267,7 +267,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

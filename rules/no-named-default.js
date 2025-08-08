@@ -90,7 +90,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow named usage of default import and export.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

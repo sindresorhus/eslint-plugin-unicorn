@@ -120,7 +120,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

@@ -68,7 +68,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce proper case for numeric literals.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

@@ -483,7 +483,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `for…of` over the `forEach` method.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

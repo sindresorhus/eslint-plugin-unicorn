@@ -33,7 +33,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable IIFEs.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: false,
 		messages,
