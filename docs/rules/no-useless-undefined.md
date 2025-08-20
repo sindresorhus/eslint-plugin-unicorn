@@ -141,7 +141,7 @@ const foo = () => undefined;
 
 ## Conflict with ESLint `array-callback-return` and `getter-return` rules
 
-We recommend setting `allowImplicit` options to `true` for these ESLint rules:
+We recommend setting `allowImplicit` option to `true` for these ESLint rules:
 - [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options)
 - [`getter-return`](https://eslint.org/docs/rules/getter-return#options)
 
