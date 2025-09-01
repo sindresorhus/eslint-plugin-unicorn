@@ -1,8 +1,8 @@
-import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Statements
 test.snapshot({
 	valid: [
 		'import foo from "foo"',
