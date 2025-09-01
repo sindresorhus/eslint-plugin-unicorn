@@ -51,7 +51,6 @@ const create = context => {
 			return;
 		}
 
-
 		const nodeToRemove = optionsNode.properties.length === 0
 			? optionsNode
 			: optionsNode.properties.find(
