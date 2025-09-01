@@ -1,0 +1,46 @@
+import {getTester} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'1n',
+		'BigInt()',
+		'BigInt(true)',
+		'BigInt(null)',
+		'new BigInt(1)',
+		'Not_BigInt(1)',
+		'BigInt(`1`)',
+		'BigInt("1" + "2")',
+		'BigInt?.(1)',
+		'BigInt(1.1)',
+		'typeof BigInt',
+		'BigInt(1n)',
+		'BigInt("not-number")',
+		'BigInt("1_2")',
+		// Legacy octal literals
+		...[
+			'BigInt(0777)',
+			'BigInt(0888)',
+		].map(code => ({code, languageOptions: {ecmaVersion: 6, sourceType: 'script'}})),
+	],
+	invalid: [
+		'BigInt("1")',
+		'BigInt("9007199254740993")',
+		'BigInt("0B11")',
+		'BigInt("0O777")',
+		'BigInt("0XFe")',
+		'BigInt(1)',
+		'BigInt(0B11_11)',
+		'BigInt(0O777_777)',
+		'BigInt(0XFe_fE)',
+		// Not fixable
+		'BigInt(9007199254740993)',
+		'BigInt(0x20000000000001)',
+		'BigInt(9_007_199_254_740_993)',
+		'BigInt(0x20_00_00_00_00_00_01)',
+		'BigInt(1.0)',
+		'BigInt(1e2)',
+		'BigInt(/* comment */1)',
+	],
+});
