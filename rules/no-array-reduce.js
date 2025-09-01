@@ -17,7 +17,6 @@ const cases = [
 				minimumArguments: 1,
 				maximumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			&& !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
