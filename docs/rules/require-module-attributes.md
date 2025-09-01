@@ -34,3 +34,11 @@ const foo = await import('foo', {});
 // ✅
 const foo = await import('foo');
 ```
+
+```js
+// ❌
+const foo = await import('foo', {with: {}});
+
+// ✅
+const foo = await import('foo');
+```

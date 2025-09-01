@@ -25,11 +25,16 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'import("foo")',
-		'import("foo", {type: "json"})',
+		'import("foo", {unknown: "unknown"})',
+		'import("foo", {with: {type: "json"}})',
 	],
 	invalid: [
 		'import("foo", {})',
 		'import("foo", {},)',
+		'import("foo", {with:{},},)',
+		'import("foo", {with:{}, unknown:"unknown"},)',
+		'import("foo", {"with":{}, unknown:"unknown"},)',
 		'import("foo"/* comment 1 */, /* comment 2 */{/* comment 3 */}/* comment 4 */,/* comment 5 */)',
+		'import("foo", {/* comment 1 */"with"/* comment 2 */:/* comment 3 */{/* comment 4 */}, }/* comment 5 */,)',
 	],
 });

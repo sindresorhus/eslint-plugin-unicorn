@@ -1,3 +1,5 @@
+import {removeObjectProperty} from './fix/index.js';
+
 const MESSAGE_ID = 'require-module-attributes';
 const messages = {
 	[MESSAGE_ID]: '{{type}} with empty attribute list is not allowed.',
@@ -43,27 +45,59 @@ const create = context => {
 	});
 
 	context.on('ImportExpression', importExpression => {
-		const {options: node} = importExpression;
+		const {options: optionsNode} = importExpression;
 
-		if (!(node?.type === 'ObjectExpression' && node.properties.length === 0)) {
+		if (optionsNode?.type !== 'ObjectExpression') {
 			return;
 		}
 
+
+		const nodeToRemove = optionsNode.properties.length === 0
+			? optionsNode
+			: optionsNode.properties.find(
+				property =>
+					property.type === 'Property'
+					&& !property.method
+					&& !property.shorthand
+					&& !property.computed
+					&& property.kind === 'init'
+					&& (
+						(
+							property.key.type === 'Identifier'
+							&& property.key.name === 'with'
+						)
+						|| (
+							property.key.type === 'Literal'
+							&& property.key.value === 'with'
+						)
+					)
+					&& property.value.type === 'ObjectExpression'
+					&& property.value.properties.length === 0,
+			);
+
+		if (!nodeToRemove) {
+			return;
+		}
+
+		const isProperty = nodeToRemove.type === 'Property';
+
 		return {
-			node,
+			node: isProperty ? nodeToRemove.value : nodeToRemove,
 			messageId: MESSAGE_ID,
 			data: {
 				type: 'import expression',
 			},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => [
-				// Comma token before
-				sourceCode.getTokenBefore(node),
-				// Opening brace token
-				sourceCode.getFirstToken(node),
-				// Closing brace token
-				sourceCode.getLastToken(node),
-			].map(token => fixer.remove(token)),
+			fix: fixer => isProperty
+				? removeObjectProperty(fixer, nodeToRemove, context)
+				: [
+					// Comma token before
+					sourceCode.getTokenBefore(nodeToRemove),
+					// Opening brace token
+					sourceCode.getFirstToken(nodeToRemove),
+					// Closing brace token
+					sourceCode.getLastToken(nodeToRemove),
+				].map(token => fixer.remove(token)),
 		};
 	});
 };
