@@ -81,6 +81,9 @@ test({
 		// More or less argument(s)
 		// We are not checking arguments length
 
+		// Ignore optional call to avoid false positive on non-array objects
+		'array.reduce?.((str, item) => str += item, "")',
+
 		// `reduce-like`
 		'array.reducex(foo)',
 		'array.xreduce(foo)',
@@ -109,7 +112,6 @@ test({
 	invalid: [
 		'array.reduce((str, item) => str += item, "")',
 		'array?.reduce((str, item) => str += item, "")',
-		'array.reduce?.((str, item) => str += item, "")',
 		outdent`
 			array.reduce((obj, item) => {
 				obj[item] = null;
