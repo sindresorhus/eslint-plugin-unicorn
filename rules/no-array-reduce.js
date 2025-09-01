@@ -45,6 +45,8 @@ const cases = [
 		test: callExpression =>
 			isMethodCall(callExpression, {
 				method: 'call',
+				optionalCall: false,
+				optionalMember: false,
 			})
 			&& isArrayPrototypeProperty(callExpression.callee.object, {
 				properties: ['reduce', 'reduceRight'],
@@ -60,6 +62,8 @@ const cases = [
 		test: callExpression =>
 			isMethodCall(callExpression, {
 				method: 'apply',
+				optionalCall: false,
+				optionalMember: false,
 			})
 			&& isArrayPrototypeProperty(callExpression.callee.object, {
 				properties: ['reduce', 'reduceRight'],
