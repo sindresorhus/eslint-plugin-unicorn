@@ -30,6 +30,7 @@ test.snapshot({
 		'BigInt("0B11")',
 		'BigInt("0O777")',
 		'BigInt("0XFe")',
+		`BigInt("${'9'.repeat(100)}")`,
 		'BigInt(1)',
 		'BigInt(0B11_11)',
 		'BigInt(0O777_777)',
@@ -42,5 +43,6 @@ test.snapshot({
 		'BigInt(1.0)',
 		'BigInt(1e2)',
 		'BigInt(/* comment */1)',
+		`BigInt(${'9'.repeat(100)})`,
 	],
 });

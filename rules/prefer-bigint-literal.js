@@ -8,7 +8,7 @@ const MESSAGE_ID_ERROR = 'prefer-bigint-literal/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-bigint-literal/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using bigint literal over `BigInt(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{replacement}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace with {{replacement}}.',
 };
 
 const canUseNumericLiteralRaw = numericLiteral => {
@@ -106,7 +106,7 @@ const create = context => ({
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					data: {
-						replacement: text,
+						replacement: text.length < 20 ? `\`${text}\`` : 'a bigint literal',
 					},
 					fix,
 				},
