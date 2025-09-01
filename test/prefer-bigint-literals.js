@@ -26,11 +26,6 @@ test.snapshot({
 		'BigInt("1\\\n2")',
 		'BigInt("1\\\n2")',
 		String.raw`BigInt("\u{31}")`,
-		// Legacy octal literals
-		...[
-			'BigInt(0777)',
-			'BigInt(0888)',
-		].map(code => ({code, languageOptions: {ecmaVersion: 6, sourceType: 'script'}})),
 	],
 	invalid: [
 		'BigInt("0")',
@@ -44,6 +39,11 @@ test.snapshot({
 		'BigInt(0B11_11)',
 		'BigInt(0O777_777)',
 		'BigInt(0XFe_fE)',
+		// Legacy octal literals
+		...[
+			'BigInt(0777)',
+			'BigInt(0888)',
+		].map(code => ({code, languageOptions: {sourceType: 'script'}})),
 		// Not fixable
 		'BigInt(9007199254740993)',
 		'BigInt(0x20000000000001)',

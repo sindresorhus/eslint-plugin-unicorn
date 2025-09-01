@@ -50,11 +50,7 @@ function getReplacement(valueNode) {
 
 	const {value, raw} = valueNode;
 
-	if (
-		!Number.isInteger(value)
-		// Ignore legacy octal literals
-		|| /^0\d/.test(raw)
-	) {
+	if (!Number.isInteger(value)) {
 		return;
 	}
 
