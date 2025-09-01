@@ -30,6 +30,7 @@ test.snapshot({
 	],
 	invalid: [
 		'BigInt("0")',
+		'BigInt("  0  ")',
 		'BigInt("9007199254740993")',
 		'BigInt("0B11")',
 		'BigInt("0O777")',

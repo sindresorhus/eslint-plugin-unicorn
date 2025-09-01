@@ -46,7 +46,7 @@ function getReplacement(valueNode) {
 			return;
 		}
 
-		return {shouldUseSuggestion: false, text: `${raw}n`};
+		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
 	}
 
 	if (!isNumberLiteral(valueNode)) {
