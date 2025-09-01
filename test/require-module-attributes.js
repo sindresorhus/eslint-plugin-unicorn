@@ -11,8 +11,10 @@ test.snapshot({
 		'import foo from "foo" with {type: "json"}',
 		'export {foo} from "foo" with {type: "json"}',
 		'export * from "foo" with {type: "json"}',
+		'export {}',
 	],
 	invalid: [
+		'import "foo" with {}',
 		'import foo from "foo" with {}',
 		'export {foo} from "foo" with {}',
 		'export * from "foo" with {}',
