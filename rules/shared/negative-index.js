@@ -1,6 +1,6 @@
 import isSameReference from '../utils/is-same-reference.js';
 import {getParenthesizedRange} from '../utils/parentheses.js';
-import {isNumberLiteral} from '../ast/index.js';
+import {isNumericLiteral} from '../ast/index.js';
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -10,7 +10,7 @@ const isLengthMemberExpression = node =>
 	&& node.property.name === 'length';
 
 const isLiteralPositiveNumber = node =>
-	isNumberLiteral(node)
+	isNumericLiteral(node)
 	&& node.value > 0;
 
 export function getNegativeIndexLengthNode(node, objectNode) {

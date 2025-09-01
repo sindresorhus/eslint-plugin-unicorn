@@ -1,12 +1,12 @@
 import toLocation from './utils/to-location.js';
-import {isMethodCall, isNegativeOne, isNumberLiteral} from './ast/index.js';
+import {isMethodCall, isNegativeOne, isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-existence-index-check';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}` to check {{existenceOrNonExistence}}.',
 };
 
-const isZero = node => isNumberLiteral(node) && node.value === 0;
+const isZero = node => isNumericLiteral(node) && node.value === 0;
 
 /**
 @param {parent: import('estree').BinaryExpression} binaryExpression

@@ -1,7 +1,7 @@
 export {
 	isLiteral,
 	isStringLiteral,
-	isNumberLiteral,
+	isNumericLiteral,
 	isBigIntLiteral,
 	isNullLiteral,
 	isRegexLiteral,
