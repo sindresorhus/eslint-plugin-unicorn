@@ -7,6 +7,7 @@ test.snapshot({
 		'1n',
 		'BigInt()',
 		'BigInt(1, 1)',
+		'BigInt(...[1])',
 		'BigInt(true)',
 		'BigInt(null)',
 		'new BigInt(1)',
