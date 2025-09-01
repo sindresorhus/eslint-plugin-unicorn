@@ -22,6 +22,9 @@ test.snapshot({
 		'BigInt(1n)',
 		'BigInt("not-number")',
 		'BigInt("1_2")',
+		'BigInt("1\\\n2")',
+		'BigInt("1\\\n2")',
+		String.raw`BigInt("\u{31}")`,
 		// Legacy octal literals
 		...[
 			'BigInt(0777)',
