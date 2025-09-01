@@ -1,7 +1,6 @@
 import {
 	isCallExpression,
 	isStringLiteral,
-	isNumberLiteral,
 } from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-bigint-literal/error';
@@ -49,28 +48,25 @@ function getReplacement(valueNode) {
 		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
 	}
 
-	if (!isNumberLiteral(valueNode)) {
-		return;
-	}
+	const {value, raw} = valueNode;
 
-	if (!Number.isInteger(valueNode.value)) {
-		return;
-	}
-
-	// Ignore legacy octal literals
-	if (/^0\d/.test(valueNode.raw)) {
+	if (
+		!Number.isInteger(value)
+		// Ignore legacy octal literals
+		|| /^0\d/.test(raw)
+	) {
 		return;
 	}
 
 	let bigint;
 	try {
-		bigint = BigInt(valueNode.value);
+		bigint = BigInt(value);
 	} catch {
 		return;
 	}
 
 	const shouldUseSuggestion = !canUseNumericLiteralRaw(valueNode);
-	const text = shouldUseSuggestion ? `${bigint}n` : `${valueNode.raw}n`;
+	const text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
 	return {shouldUseSuggestion, text};
 }
 
