@@ -20,3 +20,16 @@ test.snapshot({
 		'export * from "foo"/* comment 1 */with/* comment 2 */{/* comment 3 */}/* comment 4 */',
 	],
 });
+
+// `ImportExpression`
+test.snapshot({
+	valid: [
+		'import("foo")',
+		'import("foo", {type: "json"})',
+	],
+	invalid: [
+		'import("foo", {})',
+		'import("foo", {},)',
+		'import("foo"/* comment 1 */, /* comment 2 */{/* comment 3 */}/* comment 4 */,/* comment 5 */)',
+	],
+});

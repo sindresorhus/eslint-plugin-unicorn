@@ -26,3 +26,11 @@ export {foo} from 'foo' with {};
 // ✅
 export {foo} from 'foo';
 ```
+
+```js
+// ❌
+const foo = await import('foo', {});
+
+// ✅
+const foo = await import('foo');
+```

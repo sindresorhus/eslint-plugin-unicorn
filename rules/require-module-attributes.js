@@ -1,6 +1,6 @@
 const MESSAGE_ID = 'require-module-attributes';
 const messages = {
-	[MESSAGE_ID]: '{{type}} statement with empty attribute list is not allowed.',
+	[MESSAGE_ID]: '{{type}} with empty attribute list is not allowed.',
 };
 
 const isWithToken = token => token?.type === 'Keyword' && token.value === 'with';
@@ -35,10 +35,35 @@ const create = context => {
 			},
 			messageId: MESSAGE_ID,
 			data: {
-				type: declaration.type === 'ImportDeclaration' ? 'import' : 'export',
+				type: declaration.type === 'ImportDeclaration' ? 'import statement' : 'export statement',
 			},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			fix: fixer => [withToken, closingBraceToken, openingBraceToken].map(token => fixer.remove(token)),
+		};
+	});
+
+	context.on('ImportExpression', importExpression => {
+		const {options: node} = importExpression;
+
+		if (!(node?.type === 'ObjectExpression' && node.properties.length === 0)) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				type: 'import expression',
+			},
+			/** @param {import('eslint').Rule.RuleFixer} fixer */
+			fix: fixer => [
+				// Comma token before
+				sourceCode.getTokenBefore(node),
+				// Opening brace token
+				sourceCode.getFirstToken(node),
+				// Closing brace token
+				sourceCode.getLastToken(node),
+			].map(token => fixer.remove(token)),
 		};
 	});
 };
@@ -53,7 +78,6 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-
 		messages,
 	},
 };
