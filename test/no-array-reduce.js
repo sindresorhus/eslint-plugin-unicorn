@@ -13,6 +13,7 @@ test({
 		'a(b.reduce)',
 		'a.reduce()',
 		'a?.reduce()',
+		'a.reduce?.()',
 		'a.reduce(1, 2, 3)',
 		'a.reduce(b, c, d)',
 		'[][reduce].call()',
@@ -108,6 +109,7 @@ test({
 	invalid: [
 		'array.reduce((str, item) => str += item, "")',
 		'array?.reduce((str, item) => str += item, "")',
+		'array.reduce?.((str, item) => str += item, "")',
 		outdent`
 			array.reduce((obj, item) => {
 				obj[item] = null;

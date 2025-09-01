@@ -16,7 +16,6 @@ const cases = [
 				methods: ['reduce', 'reduceRight'],
 				minimumArguments: 1,
 				maximumArguments: 2,
-				optionalCall: false,
 			})
 			&& !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
@@ -46,7 +45,6 @@ const cases = [
 		test: callExpression =>
 			isMethodCall(callExpression, {
 				method: 'call',
-				optionalCall: false,
 			})
 			&& isArrayPrototypeProperty(callExpression.callee.object, {
 				properties: ['reduce', 'reduceRight'],
@@ -62,7 +60,6 @@ const cases = [
 		test: callExpression =>
 			isMethodCall(callExpression, {
 				method: 'apply',
-				optionalCall: false,
 			})
 			&& isArrayPrototypeProperty(callExpression.callee.object, {
 				properties: ['reduce', 'reduceRight'],
