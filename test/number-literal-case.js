@@ -9,6 +9,22 @@ const error = {
 	messageId: MESSAGE_ID,
 };
 
+// Legacy octal literals
+test({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				sourceType: 'script',
+			},
+		},
+	},
+	valid: [
+		'var foo = 0777',
+		'var foo = 0888',
+	],
+	invalid: [],
+});
+
 const tests = {
 	valid: [
 		// Number
@@ -52,12 +68,6 @@ const tests = {
 		'const foo = -0b10',
 		'const foo = -0o1234567',
 		'const foo = -0xABCDEF',
-
-		// Legacy octal literals
-		...[
-			'var foo = 0777',
-			'var foo = 0888',
-		].map(code => ({code, languageOptions: {sourceType: 'script'}})),
 	],
 	invalid: [
 		// Number
