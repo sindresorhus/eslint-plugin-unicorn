@@ -121,7 +121,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer bigint literal over `BigInt` wrapper.',
+			description: 'Prefer `BigInt` literals over the constructor.',
 			recommended: true,
 		},
 		fixable: 'code',
