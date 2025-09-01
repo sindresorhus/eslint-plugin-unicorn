@@ -3,8 +3,8 @@ import {
 	isStringLiteral,
 } from './ast/index.js';
 
-const MESSAGE_ID_ERROR = 'prefer-bigint-literal/error';
-const MESSAGE_ID_SUGGESTION = 'prefer-bigint-literal/suggestion';
+const MESSAGE_ID_ERROR = 'prefer-bigint-literals/error';
+const MESSAGE_ID_SUGGESTION = 'prefer-bigint-literals/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using bigint literal over `BigInt(…)`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with {{replacement}}.',
