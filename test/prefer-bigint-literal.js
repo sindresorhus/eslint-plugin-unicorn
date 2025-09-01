@@ -6,6 +6,7 @@ test.snapshot({
 	valid: [
 		'1n',
 		'BigInt()',
+		'BigInt(1, 1)',
 		'BigInt(true)',
 		'BigInt(null)',
 		'new BigInt(1)',
@@ -25,13 +26,13 @@ test.snapshot({
 		].map(code => ({code, languageOptions: {ecmaVersion: 6, sourceType: 'script'}})),
 	],
 	invalid: [
-		'BigInt("1")',
+		'BigInt("0")',
 		'BigInt("9007199254740993")',
 		'BigInt("0B11")',
 		'BigInt("0O777")',
 		'BigInt("0XFe")',
 		`BigInt("${'9'.repeat(100)}")`,
-		'BigInt(1)',
+		'BigInt(0)',
 		'BigInt(0B11_11)',
 		'BigInt(0O777_777)',
 		'BigInt(0XFe_fE)',
