@@ -1,4 +1,4 @@
-# Prefer bigint literal over `BigInt` wrapper
+# Prefer `BigInt` literals over the constructor
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer using bigint literal over `BigInt(…)` where possible.
+Use `1n` instead of `BigInt(1)`.
 
 ## Examples
 
@@ -21,7 +21,7 @@ const bigint = 1n;
 
 ```js
 // ❌
-const bigint = BigInt("1");
+const bigint = BigInt('1');
 
 // ✅
 const bigint = 1n;
