@@ -1,4 +1,4 @@
-import {isNumberLiteral, isBigIntLiteral} from '../ast/index.js';
+import {isNumericLiteral, isBigIntLiteral} from '../ast/index.js';
 
 // Determine whether this node is a decimal integer literal.
 // Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
@@ -6,11 +6,11 @@ const DECIMAL_INTEGER_PATTERN = /^(?:0|0[0-7]*[89]\d*|[1-9](?:_?\d)*)$/u;
 
 export const isDecimalInteger = text => DECIMAL_INTEGER_PATTERN.test(text);
 
-export const isDecimalIntegerNode = node => isNumberLiteral(node) && isDecimalInteger(node.raw);
+export const isDecimalIntegerNode = node => isNumericLiteral(node) && isDecimalInteger(node.raw);
 
-export const isNumeric = node => isNumberLiteral(node) || isBigIntLiteral(node);
+export const isNumeric = node => isNumericLiteral(node) || isBigIntLiteral(node);
 
-export const isLegacyOctal = node => isNumberLiteral(node) && /^0\d+$/.test(node.raw);
+export const isLegacyOctal = node => isNumericLiteral(node) && /^0\d+$/.test(node.raw);
 
 export function getPrefix(text) {
 	let prefix = '';
