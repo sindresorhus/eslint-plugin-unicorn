@@ -27,6 +27,8 @@ test.snapshot({
 		'import("foo")',
 		'import("foo", {unknown: "unknown"})',
 		'import("foo", {with: {type: "json"}})',
+		'not_import("foo", {})',
+		'not_import("foo", {with:{}})',
 	],
 	invalid: [
 		'import("foo", {})',
