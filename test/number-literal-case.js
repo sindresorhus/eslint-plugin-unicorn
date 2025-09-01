@@ -55,8 +55,8 @@ const tests = {
 
 		// Legacy octal literals
 		...[
-			'BigInt(0777)',
-			'BigInt(0888)',
+			'var foo = 0777',
+			'var foo = 0888',
 		].map(code => ({code, languageOptions: {sourceType: 'script'}})),
 	],
 	invalid: [
