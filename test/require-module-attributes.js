@@ -34,6 +34,7 @@ test.snapshot({
 	],
 	invalid: [
 		'import("foo", {})',
+		'import("foo", (( {} )))',
 		'import("foo", {},)',
 		'import("foo", {with:{},},)',
 		'import("foo", {with:{}, unknown:"unknown"},)',

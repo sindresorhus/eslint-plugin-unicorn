@@ -1,4 +1,6 @@
+import {isCommaToken} from '@eslint-community/eslint-utils';
 import {removeObjectProperty} from './fix/index.js';
+import {getParentheses} from './utils/index.js';
 
 const MESSAGE_ID = 'require-module-attributes';
 const messages = {
@@ -93,8 +95,9 @@ const create = context => {
 				? removeObjectProperty(fixer, nodeToRemove, context)
 				: [
 					// Comma token before
-					sourceCode.getTokenBefore(nodeToRemove),
+					sourceCode.getTokenBefore(nodeToRemove, isCommaToken),
 					...sourceCode.getTokens(nodeToRemove),
+					...getParentheses(nodeToRemove, sourceCode),
 				].map(token => fixer.remove(token)),
 		};
 	});
