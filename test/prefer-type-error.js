@@ -276,6 +276,11 @@ test({
 					throw new Error('Unknown');
 			}
 		`,
+		// Ignore error type check
+		'if (foo instanceof Error) throw new Error("message")',
+		'if (foo instanceof CustomError) throw new Error("message")',
+		'if (foo instanceof lib.Error) throw new Error("message")',
+		'if (foo instanceof lib.CustomError) throw new Error("message")',
 	],
 	invalid: [
 		{
