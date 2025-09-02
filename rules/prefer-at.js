@@ -147,8 +147,7 @@ function create(context) {
 	// Index access
 	context.on('MemberExpression', node => {
 		if (
-			node.optional
-			|| !node.computed
+			!node.computed
 			|| isLeftHandSide(node)
 		) {
 			return;
@@ -202,8 +201,9 @@ function create(context) {
 				}
 			}
 
+			const isOptional = node.optional;
 			const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
-			yield fixer.replaceText(openingBracketToken, '.at(');
+			yield fixer.replaceText(openingBracketToken, `${isOptional ? '' : '.'}at(`);
 
 			const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
 			yield fixer.replaceText(closingBracketToken, ')');
@@ -218,7 +218,6 @@ function create(context) {
 			method: 'charAt',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}
