@@ -71,14 +71,15 @@ const ignored = [
 	'underscore.some',
 ];
 
-function removeThisArgument(thisArgumentNode, sourceCode) {
-	return fixer => removeArgument(fixer, thisArgumentNode, sourceCode);
+function removeThisArgument(thisArgumentNode, context) {
+	return fixer => removeArgument(fixer, thisArgumentNode, context);
 }
 
-function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
+function useBoundFunction(callbackNode, thisArgumentNode, context) {
 	return function * (fixer) {
-		yield removeThisArgument(thisArgumentNode, sourceCode)(fixer);
+		yield * removeThisArgument(thisArgumentNode, context)(fixer);
 
+		const {sourceCode} = context;
 		const callbackParentheses = getParentheses(callbackNode, sourceCode);
 		const isParenthesized = callbackParentheses.length > 0;
 		const callbackLastToken = isParenthesized
@@ -99,7 +100,7 @@ function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
 }
 
 function getProblem({
-	sourceCode,
+	context,
 	callExpression,
 	callbackNode,
 	thisArgumentNode,
@@ -115,16 +116,16 @@ function getProblem({
 
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
-		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
+		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, context.sourceCode);
 		if (thisArgumentHasSideEffect) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(thisArgumentNode, sourceCode),
+					fix: removeThisArgument(thisArgumentNode, context),
 				},
 			];
 		} else {
-			problem.fix = removeThisArgument(thisArgumentNode, sourceCode);
+			problem.fix = removeThisArgument(thisArgumentNode, context);
 		}
 
 		return problem;
@@ -133,11 +134,11 @@ function getProblem({
 	problem.suggest = [
 		{
 			messageId: SUGGESTION_REMOVE,
-			fix: removeThisArgument(thisArgumentNode, sourceCode),
+			fix: removeThisArgument(thisArgumentNode, context),
 		},
 		{
 			messageId: SUGGESTION_BIND,
-			fix: useBoundFunction(callbackNode, thisArgumentNode, sourceCode),
+			fix: useBoundFunction(callbackNode, thisArgumentNode, context),
 		},
 	];
 
@@ -146,8 +147,6 @@ function getProblem({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	// Prototype methods
 	context.on('CallExpression', callExpression => {
 		if (
@@ -175,7 +174,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[0],
 			thisArgumentNode: callExpression.arguments[1],
@@ -199,7 +198,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[1],
 			thisArgumentNode: callExpression.arguments[2],
