@@ -1,30 +1,35 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {getParentheses} from '../utils/parentheses.js';
 
-export default function removeArgument(fixer, node, sourceCode) {
+export default function * removeObjectProperty(fixer, node, context) {
+	const {sourceCode} = context;
+	for (const token of sourceCode.getTokens(node)) {
+		yield fixer.remove(token);
+	}
+
+	const parentheses = getParentheses(node, sourceCode);
+	for (const token of parentheses) {
+		yield fixer.remove(token);
+	}
+
+	const firstToken = parentheses[0] ?? node;
+	const lastToken = parentheses.at(-1) ?? node;
+
 	const callExpression = node.parent;
 	const index = callExpression.arguments.indexOf(node);
-	const parentheses = getParentheses(node, sourceCode);
-	const firstToken = parentheses[0] || node;
-	const lastToken = parentheses.at(-1) || node;
-
-	let [start] = sourceCode.getRange(firstToken);
-	let [, end] = sourceCode.getRange(lastToken);
 
 	if (index !== 0) {
 		const commaToken = sourceCode.getTokenBefore(firstToken);
-		[start] = sourceCode.getRange(commaToken);
+		yield fixer.remove(commaToken);
 	}
 
 	// If the removed argument is the only argument, the trailing comma must be removed too
 	/* c8 ignore start */
 	if (callExpression.arguments.length === 1) {
-		const tokenAfter = sourceCode.getTokenBefore(lastToken);
+		const tokenAfter = sourceCode.getTokenAfter(lastToken);
 		if (isCommaToken(tokenAfter)) {
-			[, end] = sourceCode.getRange(tokenAfter);
+			yield fixer.remove(tokenAfter);
 		}
 	}
 	/* c8 ignore end */
-
-	return fixer.removeRange([start, end]);
 }
