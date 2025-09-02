@@ -253,7 +253,6 @@ function create(context) {
 			minimumArguments: 1,
 			maximumArguments: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}

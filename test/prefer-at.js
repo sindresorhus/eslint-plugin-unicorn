@@ -80,7 +80,6 @@ test.snapshot({
 		'array.slice(-1.1)[0]',
 		'array.slice(-1)?.[0]',
 		'array.slice?.(-1)[0]',
-		'array?.slice(-1)[0]',
 		'array.notSlice(-1)[0]',
 		'array.slice()[0]',
 		'array.slice(...[-1])[0]',
@@ -100,6 +99,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.slice(-1)[0]',
+		'array?.slice(-1)[0]',
 		'array.slice(-1).pop()',
 		'array.slice(-1.0).shift()',
 		'array.slice(-1)[(( 0 ))];',
