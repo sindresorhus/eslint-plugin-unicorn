@@ -29,7 +29,6 @@ const create = context => ({
 			&& isMethodCall(callExpression.callee.object, {
 				method: 'map',
 				optionalCall: false,
-				optionalMember: false,
 			})
 		)) {
 			return;
