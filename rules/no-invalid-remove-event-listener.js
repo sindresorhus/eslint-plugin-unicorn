@@ -14,7 +14,6 @@ const create = context => ({
 				method: 'removeEventListener',
 				minimumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			&& callExpression.arguments[0].type !== 'SpreadElement'
 			&& (
