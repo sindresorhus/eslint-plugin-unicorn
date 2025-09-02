@@ -73,8 +73,11 @@ test({
 			}
 		`,
 		'obj.catch(error => {})',
+		'obj.catch?.(error => {})',
 		'obj.then(undefined, error => {})',
 		'obj.then(result => {}, error => {})',
+		'obj.then?.(undefined, error => {})',
+		'obj.then?.(result => {}, error => {})',
 		outdent`
 			const handleError = error => {
 				obj.catch(error_ => { });
@@ -322,6 +325,11 @@ test({
 			errors: [generateError('err', 'error')],
 		}),
 		invalidTestCase({
+			code: 'obj?.catch(err => err)',
+			output: 'obj?.catch(error => error)',
+			errors: [generateError('err', 'error')],
+		}),
+		invalidTestCase({
 			code: 'obj.then(undefined, err => err)',
 			output: 'obj.then(undefined, error => error)',
 			errors: [generateError('err', 'error')],
@@ -335,6 +343,12 @@ test({
 		invalidTestCase({
 			code: 'obj.then(undefined, error => error.stack)',
 			output: 'obj.then(undefined, err => err.stack)',
+			name: 'err',
+			errors: [generateError('error', 'err')],
+		}),
+		invalidTestCase({
+			code: 'obj?.then(undefined, error => error.stack)',
+			output: 'obj?.then(undefined, err => err.stack)',
 			name: 'err',
 			errors: [generateError('error', 'err')],
 		}),
