@@ -57,7 +57,6 @@ export default function simpleArraySearchRule({method, replacement}) {
 					method,
 					argumentsLength: 1,
 					optionalCall: false,
-					optionalMember: false,
 				})
 				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
 			) {
