@@ -1,7 +1,7 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {getParentheses} from '../utils/parentheses.js';
 
-export default function * removeObjectProperty(fixer, node, context) {
+export default function * removeArgument(fixer, node, context) {
 	const {sourceCode} = context;
 	for (const token of sourceCode.getTokens(node)) {
 		yield fixer.remove(token);
