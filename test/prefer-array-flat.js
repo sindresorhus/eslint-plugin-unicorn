@@ -23,6 +23,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.flatMap(x => x)',
+		'array?.flatMap(x => x)',
 		'function foo(){return[].flatMap(x => x)}',
 		'foo.flatMap(x => x)instanceof Array',
 	],
@@ -51,7 +52,9 @@ test.snapshot({
 	],
 	invalid: [
 		'array.reduce((a, b) => a.concat(b), [])',
+		'array?.reduce((a, b) => a.concat(b), [])',
 		'function foo(){return[].reduce((a, b) => a.concat(b), [])}',
+		'function foo(){return[]?.reduce((a, b) => a.concat(b), [])}',
 	],
 });
 
