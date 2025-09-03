@@ -228,5 +228,7 @@ test.snapshot({
 		'const toggle = (element) => element.classList[condition ? "add" : "remove"](className)',
 		'element.classList[condition ? "add" : "remove"](((className)))',
 		'element.classList[index % 2 ? "remove" : "add"](className)',
+		'element.classList[(index % 2) ? "remove" : "add"](className)',
+		'element.classList[(0, condition) ? "add" : "remove"](className)',
 	],
 });

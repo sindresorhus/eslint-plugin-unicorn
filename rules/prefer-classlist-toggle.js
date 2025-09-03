@@ -19,8 +19,8 @@ import {
 const MESSAGE_ID_ERROR = 'prefer-classlist-toggle/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-classlist-toggle/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
-	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
+	[MESSAGE_ID_ERROR]: 'Prefer using `Element#classList.toggle()` to toggle class names.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace with `Element#classList.toggle()`.',
 };
 
 const isClassList = node => isMemberExpression(node, {
