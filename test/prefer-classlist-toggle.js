@@ -164,6 +164,13 @@ test.snapshot({
 				element.classList.add('className');
 			}
 		`,
+		outdent`
+			if (condition) {
+				element.classList.remove(((className)));
+			} else {
+				element.classList.add(((className)));
+			}
+		`,
 		// ASI
 		outdent`
 			foo
