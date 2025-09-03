@@ -209,7 +209,18 @@ test.snapshot({
 	],
 });
 
-// `ConditionalExpression`
+// `ConditionalExpression` (call)
+test.snapshot({
+	valid: [
+	],
+	invalid: [
+		'condition ? element.classList.add(className) : element.classList.remove(className)',
+		'condition ? element?.classList.add(className) : element.classList.remove(className)',
+		'condition ? element.classList.add(className) : element?.classList.remove(className)',
+	],
+});
+
+// `ConditionalExpression` (method name)
 test.snapshot({
 	valid: [
 		'element.classList[condition ? "add" : "remove"]',

@@ -28,6 +28,30 @@ const isClassList = node => isMemberExpression(node, {
 	computed: false,
 });
 
+const getProblem = (valueNode, fix, reportNode) => {
+	const problem = {
+		node: reportNode ?? valueNode,
+		messageId: MESSAGE_ID_ERROR,
+	};
+
+	const shouldUseSuggestion = valueNode.type === 'IfStatement'
+		? false
+		: !(isExpressionStatement(valueNode) || isExpressionStatement(valueNode.parent));
+
+	if (shouldUseSuggestion) {
+		problem.suggest = [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				fix,
+			},
+		];
+	} else {
+		problem.fix = fix;
+	}
+
+	return problem;
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -40,8 +64,14 @@ const create = context => {
 		element.classList.remove('className');
 	}
 	```
+
+	```js
+	condition
+		? element.classList.add('className');
+		: element.classList.remove('className');
+	```
 	*/
-	context.on('IfStatement', ifStatement => {
+	context.on(['IfStatement', 'ConditionalExpression'], ifStatement => {
 		const clauses = [ifStatement.consequent, ifStatement.alternate]
 			.map(node => {
 				if (node.type === 'BlockStatement' && node.body.length === 1) {
@@ -82,42 +112,40 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: ifStatement,
-			messageId: MESSAGE_ID_ERROR,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix(fixer) {
-				const isOptional = consequent.callee.object.optional || alternate.callee.object.optional;
-				const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
-				const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
-				let conditionText = getParenthesizedText(ifStatement.test, sourceCode);
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		const fix = fixer => {
+			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional;
+			const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
+			const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
+			let conditionText = getParenthesizedText(ifStatement.test, sourceCode);
 
-				const isNegative = consequent.callee.property.name === 'remove';
-				if (isNegative) {
-					if (
-						!isParenthesized(ifStatement.test, sourceCode)
-						&& shouldAddParenthesesToUnaryExpressionArgument(ifStatement.test, '!')
-					) {
-						conditionText = `(${conditionText})`;
-					}
-
-					conditionText = `!${conditionText}`;
-				} else if (
+			const isNegative = consequent.callee.property.name === 'remove';
+			if (isNegative) {
+				if (
 					!isParenthesized(ifStatement.test, sourceCode)
-					&& ifStatement.test.type === 'SequenceExpression'
+					&& shouldAddParenthesesToUnaryExpressionArgument(ifStatement.test, '!')
 				) {
 					conditionText = `(${conditionText})`;
 				}
 
-				let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText});`;
+				conditionText = `!${conditionText}`;
+			} else if (
+				!isParenthesized(ifStatement.test, sourceCode)
+				&& ifStatement.test.type === 'SequenceExpression'
+			) {
+				conditionText = `(${conditionText})`;
+			}
 
-				if (needsSemicolon(sourceCode.getTokenBefore(ifStatement), sourceCode, text)) {
-					text = `;${text}`;
-				}
+			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText});`;
 
-				return fixer.replaceText(ifStatement, text);
-			},
+			if (needsSemicolon(sourceCode.getTokenBefore(ifStatement), sourceCode, text)) {
+				text = `;${text}`;
+			}
+
+			return fixer.replaceText(ifStatement, text);
 		};
+
+		return getProblem(ifStatement, fix);
 	});
 
 	// `element.classList[condition ? 'add' : 'remove']('className')`
@@ -166,23 +194,7 @@ const create = context => {
 			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
 		}
 
-		const problem = {
-			node: conditionalExpression,
-			messageId: MESSAGE_ID_ERROR,
-		};
-
-		if (isExpressionStatement(callExpression) || isExpressionStatement(callExpression.parent)) {
-			problem.fix = fix;
-		} else {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix,
-				},
-			];
-		}
-
-		return problem;
+		return getProblem(callExpression, fix, conditionalExpression);
 	});
 };
 
