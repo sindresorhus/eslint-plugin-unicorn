@@ -1,8 +1,13 @@
 import {
 	isMethodCall,
 	isMemberExpression,
+	isStringLiteral,
+	isCallExpression,
+	isExpressionStatement,
 } from './ast/index.js';
-import {} from './fix/index.js';
+import {
+	replaceMemberExpressionProperty,
+} from './fix/index.js';
 import {
 	isSameReference,
 	isParenthesized,
@@ -28,11 +33,11 @@ const create = context => {
 	const {sourceCode} = context;
 
 	/*
-	```
+	```js
 	if (condition) {
-		foo.classList.add('bar');
+		element.classList.add('className');
 	} else {
-		foo.classList.remove('bar');
+		element.classList.remove('className');
 	}
 	```
 	*/
@@ -54,8 +59,8 @@ const create = context => {
 				return node;
 			});
 
-		// `foo.classList.add('bar')`
-		// `foo.classList.remove('bar')`
+		// `element.classList.add('className');`
+		// `element.classList.remove('className');`
 		if (!clauses.every(node =>
 			isMethodCall(node, {
 				methods: ['add', 'remove'],
@@ -115,40 +120,70 @@ const create = context => {
 		};
 	});
 
-	return {
-		Literal(node) {
-			if (node.value !== 'unicorn') {
-				return;
+	// `element.classList[condition ? 'add' : 'remove']('className')`
+	context.on('ConditionalExpression', conditionalExpression => {
+		const clauses = [conditionalExpression.consequent, conditionalExpression.alternate];
+
+		if (!(
+			clauses.every(node => isStringLiteral(node) && (node.value === 'add' || node.value === 'remove'))
+			&& clauses[0].value !== clauses[1].value
+			&& conditionalExpression.parent.type === 'MemberExpression'
+			&& conditionalExpression.parent.computed
+			&& !conditionalExpression.parent.optional
+			&& conditionalExpression.parent.property === conditionalExpression
+			&& isClassList(conditionalExpression.parent.object)
+			&& isCallExpression(conditionalExpression.parent.parent, {optional: false, argumentsLength: 1})
+			&& conditionalExpression.parent.parent.callee === conditionalExpression.parent
+		)) {
+			return;
+		}
+
+		const classListMethod = conditionalExpression.parent;
+		const callExpression = classListMethod.parent;
+
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		function * fix(fixer) {
+			let conditionText = getParenthesizedText(conditionalExpression.test, sourceCode);
+
+			const isNegative = conditionalExpression.consequent.value === 'remove';
+			if (isNegative) {
+				if (
+					!isParenthesized(conditionalExpression.test, sourceCode)
+					&& shouldAddParenthesesToUnaryExpressionArgument(conditionalExpression.test, '!')
+				) {
+					conditionText = `(${conditionText})`;
+				}
+
+				conditionText = `!${conditionText}`;
+			} else if (
+				!isParenthesized(conditionalExpression.test, sourceCode)
+				&& conditionalExpression.test.type === 'SequenceExpression'
+			) {
+				conditionText = `(${conditionText})`;
 			}
 
-			return {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
+			yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
+		}
+
+		const problem = {
+			node: conditionalExpression,
+			messageId: MESSAGE_ID_ERROR,
+		};
+
+		if (isExpressionStatement(callExpression) || isExpressionStatement(callExpression.parent)) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix,
 				},
+			];
+		}
 
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\''),
-
-
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							value: 'unicorn',
-							replacement: '🦄',
-						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
-						fix: fixer => fixer.replaceText(node, '\'🦄\''),
-					}
-				],
-
-			};
-		},
-	};
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

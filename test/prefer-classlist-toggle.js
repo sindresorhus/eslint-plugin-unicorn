@@ -6,6 +6,8 @@ const {test} = getTester(import.meta);
 // `IfStatement`
 test.snapshot({
 	valid: [
+		'element.classList.toggle("className", condition)',
+		'element.classList.toggle("className")',
 		outdent`
 			if (condition) {
 				element.classList.notAdd('className');
@@ -88,6 +90,20 @@ test.snapshot({
 				element1.classList.add('className');
 			} else {
 				element2.classList.remove('className');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.classList.add('className', extraArgument);
+			} else {
+				element.classList.remove('className', extraArgument);
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.classList.add();
+			} else {
+				element.classList.remove();
 			}
 		`,
 	],
@@ -190,5 +206,27 @@ test.snapshot({
 
 			[].forEach(foo);
 		`,
+	],
+});
+
+// `ConditionalExpression`
+test.snapshot({
+	valid: [
+		'element.classList[condition ? "add" : "remove"]',
+		'element.classList[condition ? "add" : "remove"](className, extraArgument)',
+		'element.classList[condition ? "add" : "remove"]()',
+		'element.classList[condition ? "add" : "remove"]?.(className)',
+		'element.classList[condition ? add : "remove"](className)',
+		'element.classList[condition ? "add" : "add"](className)',
+		'element.classList[condition ? "remove" : "remove"](className)',
+		'(condition ? "add" : "remove").classList(className)',
+	],
+	invalid: [
+		'element.classList[condition ? "add" : "remove"](className)',
+		'element.classList[condition ? "remove": "add"](className)',
+		'element?.classList[condition ? "add" : "remove"](className)',
+		'const toggle = (element) => element.classList[condition ? "add" : "remove"](className)',
+		'element.classList[condition ? "add" : "remove"](((className)))',
+		'element.classList[index % 2 ? "remove" : "add"](className)',
 	],
 });

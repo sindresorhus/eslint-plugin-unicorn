@@ -5,7 +5,10 @@ export {default as removeArgument} from './remove-argument.js';
 export {default as replaceArgument} from './replace-argument.js';
 export {default as switchNewExpressionToCallExpression} from './switch-new-expression-to-call-expression.js';
 export {default as switchCallExpressionToNewExpression} from './switch-call-expression-to-new-expression.js';
-export {default as removeMemberExpressionProperty} from './remove-member-expression-property.js';
+export {
+	replaceMemberExpressionProperty,
+	removeMemberExpressionProperty,
+} from './replace-member-expression-property.js';
 export {default as removeMethodCall} from './remove-method-call.js';
 export {default as replaceTemplateElement} from './replace-template-element.js';
 export {default as replaceReferenceIdentifier} from './replace-reference-identifier.js';
