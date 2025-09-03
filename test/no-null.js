@@ -36,6 +36,11 @@ test.snapshot({
 			code,
 			options: [{checkStrictEquality: false}],
 		})),
+		// #1146
+		{
+			code: 'foo = Object.create(null)',
+			languageOptions: {ecmaVersion: 2019},
+		},
 	],
 	invalid: [
 		'const foo = null',
@@ -101,19 +106,4 @@ test.snapshot({
 		'foo.insertBefore(null, bar)',
 		'Object.create(bar, null)',
 	],
-});
-
-// #1146
-test({
-	testerOptions: {
-		languageOptions: {
-			parserOptions: {
-				ecmaVersion: 2019,
-			},
-		},
-	},
-	valid: [
-		'foo = Object.create(null)',
-	],
-	invalid: [],
 });

@@ -1,4 +1,4 @@
-import {isMethodCall, isNumberLiteral} from './ast/index.js';
+import {isMethodCall, isNumericLiteral} from './ast/index.js';
 import {getCallExpressionTokens} from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
@@ -19,7 +19,7 @@ const create = context => ({
 
 		const [depth] = callExpression.arguments;
 
-		if (!isNumberLiteral(depth) || depth.value === 1) {
+		if (!isNumericLiteral(depth) || depth.value === 1) {
 			return;
 		}
 

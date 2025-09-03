@@ -139,14 +139,23 @@ const foo = () => undefined;
 const foo = () => undefined;
 ```
 
-## Conflict with ESLint `array-callback-return` rule
+## Conflict with ESLint `array-callback-return` and `getter-return` rules
 
-We recommend setting the ESLint [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#top) rule option [`allowImplicit`](https://eslint.org/docs/rules/array-callback-return#options) to `true`:
+We recommend setting `allowImplicit` option to `true` for these ESLint rules:
+
+- [`array-callback-return`](https://eslint.org/docs/rules/array-callback-return#options)
+- [`getter-return`](https://eslint.org/docs/rules/getter-return#options)
 
 ```json
 {
 	"rules": {
 		"array-callback-return": [
+			"error",
+			{
+				"allowImplicit": true
+			}
+		],
+		"getter-return": [
 			"error",
 			{
 				"allowImplicit": true
