@@ -106,6 +106,12 @@ test.snapshot({
 				element.classList.remove();
 			}
 		`,
+		outdent`
+			if (condition) {
+				element.classList.remove('className');
+				element.classList.add('className');
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -217,6 +223,18 @@ test.snapshot({
 		'condition ? element.classList.add(className) : element.classList.remove(className)',
 		'condition ? element?.classList.add(className) : element.classList.remove(className)',
 		'condition ? element.classList.add(className) : element?.classList.remove(className)',
+		'if (condition ? element.classList.add(className) : element.classList.remove(className));',
+		outdent`
+			function foo() {
+				return!foo ? element.classList.add(className) : element.classList.remove(className)
+			}
+		`,
+		// ASI
+		outdent`
+			foo
+
+			condition ? (( element )).classList.add(className) : element.classList.remove(className);
+		`,
 	],
 });
 
