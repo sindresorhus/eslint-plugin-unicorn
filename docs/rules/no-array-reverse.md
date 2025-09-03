@@ -15,10 +15,10 @@ Prefer using [`Array#toReversed()`](https://developer.mozilla.org/en-US/docs/Web
 
 ```js
 // ❌
-const reversed = [...array].reverse();
+const reversed = array.reverse();
 
 // ✅
-const reversed = [...array].toReversed();
+const reversed = array.toReversed();
 ```
 
 ## Options
