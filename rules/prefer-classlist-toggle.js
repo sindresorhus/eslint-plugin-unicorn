@@ -7,6 +7,7 @@ import {
 } from './ast/index.js';
 import {
 	replaceMemberExpressionProperty,
+	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
 	isSameReference,
@@ -71,9 +72,13 @@ const create = context => {
 		: element.classList.remove('className');
 	```
 	*/
-	context.on(['IfStatement', 'ConditionalExpression'], ifStatement => {
-		const clauses = [ifStatement.consequent, ifStatement.alternate]
+	context.on(['IfStatement', 'ConditionalExpression'], node => {
+		const clauses = [node.consequent, node.alternate]
 			.map(node => {
+				if (!node) {
+					return;
+				}
+
 				if (node.type === 'BlockStatement' && node.body.length === 1) {
 					node = node.body[0];
 				}
@@ -113,39 +118,48 @@ const create = context => {
 		}
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => {
+		function * fix(fixer) {
 			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional;
 			const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
 			const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
-			let conditionText = getParenthesizedText(ifStatement.test, sourceCode);
+			let conditionText = getParenthesizedText(node.test, sourceCode);
+			const isExpression = node.type === 'ConditionalExpression';
 
 			const isNegative = consequent.callee.property.name === 'remove';
 			if (isNegative) {
 				if (
-					!isParenthesized(ifStatement.test, sourceCode)
-					&& shouldAddParenthesesToUnaryExpressionArgument(ifStatement.test, '!')
+					!isParenthesized(node.test, sourceCode)
+					&& shouldAddParenthesesToUnaryExpressionArgument(node.test, '!')
 				) {
 					conditionText = `(${conditionText})`;
 				}
 
 				conditionText = `!${conditionText}`;
 			} else if (
-				!isParenthesized(ifStatement.test, sourceCode)
-				&& ifStatement.test.type === 'SequenceExpression'
+				!isParenthesized(node.test, sourceCode)
+				&& node.test.type === 'SequenceExpression'
 			) {
 				conditionText = `(${conditionText})`;
 			}
 
-			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText});`;
+			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText})`;
 
-			if (needsSemicolon(sourceCode.getTokenBefore(ifStatement), sourceCode, text)) {
+			if (!isExpression) {
+				text = `${text};`;
+			}
+
+			if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, text)) {
 				text = `;${text}`;
 			}
 
-			return fixer.replaceText(ifStatement, text);
-		};
+			yield fixer.replaceText(node, text);
 
-		return getProblem(ifStatement, fix);
+			if (isExpression) {
+				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			}
+		}
+
+		return getProblem(node, fix);
 	});
 
 	// `element.classList[condition ? 'add' : 'remove']('className')`
