@@ -118,7 +118,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `BigInt` literals over the constructor.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
