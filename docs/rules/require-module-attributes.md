@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce non-empty attribute list in `import` and `export` statements.
+Enforce non-empty attribute list in `import`/`export` statements and `import()` expressions.
 
 ## Examples
 
