@@ -7,27 +7,26 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Prefer using [`Element#classList.toggle()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList) to toggle class names instead of calling `Element#classList.add()` and `Element#classList.remove()` in `if-else` statements or ternary expressions.
 
 ## Examples
 
 ```js
 // ❌
-const foo = 'unicorn';
+if (condition) {
+	element.classList.add('className');
+} else {
+	element.classList.remove('className');
+}
 
-// ✅
-const foo = '🦄';
-```
-
-```js
 // ❌
-function foo() {
-	var replace = 'me';
-	return replace;
-}
+condition
+	? element.classList.add('className')
+	: element.classList.remove('className');
+
+// ❌
+element.classList[condition ? 'add' : 'remove']('className')
 
 // ✅
-function foo() {
-	return 'me';
-}
+element.classList.toggle('className', condition);
 ```
