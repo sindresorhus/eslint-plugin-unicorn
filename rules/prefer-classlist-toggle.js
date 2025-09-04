@@ -53,6 +53,31 @@ const getProblem = (valueNode, fix, reportNode) => {
 	return problem;
 };
 
+const getConditionText = (node, sourceCode, isNegative) => {
+	let text = getParenthesizedText(node, sourceCode);
+
+	if (isNegative) {
+		if (
+			!isParenthesized(node, sourceCode)
+			&& shouldAddParenthesesToUnaryExpressionArgument(node, '!')
+		) {
+			text = `(${text})`;
+		}
+
+		text = `!${text}`;
+		return text;
+	}
+
+	if (
+		!isParenthesized(node, sourceCode)
+		&& node.type === 'SequenceExpression'
+	) {
+		text = `(${text})`;
+	}
+
+	return text;
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -122,25 +147,9 @@ const create = context => {
 			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional;
 			const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
 			const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
-			let conditionText = getParenthesizedText(node.test, sourceCode);
 			const isExpression = node.type === 'ConditionalExpression';
-
 			const isNegative = consequent.callee.property.name === 'remove';
-			if (isNegative) {
-				if (
-					!isParenthesized(node.test, sourceCode)
-					&& shouldAddParenthesesToUnaryExpressionArgument(node.test, '!')
-				) {
-					conditionText = `(${conditionText})`;
-				}
-
-				conditionText = `!${conditionText}`;
-			} else if (
-				!isParenthesized(node.test, sourceCode)
-				&& node.test.type === 'SequenceExpression'
-			) {
-				conditionText = `(${conditionText})`;
-			}
+			const conditionText = getConditionText(node.test, sourceCode, isNegative);
 
 			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText})`;
 
@@ -185,24 +194,8 @@ const create = context => {
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		function * fix(fixer) {
-			let conditionText = getParenthesizedText(conditionalExpression.test, sourceCode);
-
 			const isNegative = conditionalExpression.consequent.value === 'remove';
-			if (isNegative) {
-				if (
-					!isParenthesized(conditionalExpression.test, sourceCode)
-					&& shouldAddParenthesesToUnaryExpressionArgument(conditionalExpression.test, '!')
-				) {
-					conditionText = `(${conditionText})`;
-				}
-
-				conditionText = `!${conditionText}`;
-			} else if (
-				!isParenthesized(conditionalExpression.test, sourceCode)
-				&& conditionalExpression.test.type === 'SequenceExpression'
-			) {
-				conditionText = `(${conditionText})`;
-			}
+			const conditionText = getConditionText(conditionalExpression.test, sourceCode, isNegative);
 
 			yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
 			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
