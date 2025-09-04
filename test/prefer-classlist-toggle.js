@@ -256,6 +256,8 @@ test.snapshot({
 		'element.classList[condition ? "add" : "add"](className)',
 		'element.classList[condition ? "remove" : "remove"](className)',
 		'(condition ? "add" : "remove").classList(className)',
+		'element.classList.add(condition ? "add" : "remove")',
+		'foo(element.classList[condition ? "add" : "remove"])',
 	],
 	invalid: [
 		'element.classList[condition ? "add" : "remove"](className)',
