@@ -218,11 +218,18 @@ test.snapshot({
 // `ConditionalExpression` (call)
 test.snapshot({
 	valid: [
+		'condition ? element.classList.add(className1) : element.classList.remove(className2)',
+		'condition ? element.classList.add?.(className) : element.classList.remove(className)',
+		'condition ? element.classList?.add(className) : element.classList.remove(className)',
+		'condition ? element.classList.add(className) : element.classList.add(className)',
+		'condition ? element.classList.notAdd(className) : element.classList.remove(className)',
+		'condition ? element.notClassList.add(className) : element.notClassList.remove(className)',
 	],
 	invalid: [
 		'condition ? element.classList.add(className) : element.classList.remove(className)',
 		'condition ? element?.classList.add(className) : element.classList.remove(className)',
 		'condition ? element.classList.add(className) : element?.classList.remove(className)',
+		'condition ? element.classList.remove(className) : element.classList.add(className)',
 		'if (condition ? element.classList.add(className) : element.classList.remove(className));',
 		outdent`
 			function foo() {
