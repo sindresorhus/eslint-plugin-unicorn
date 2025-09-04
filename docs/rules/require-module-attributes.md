@@ -1,4 +1,4 @@
-# Require non-empty attribute list in import and export statements
+# Require non-empty module attributes for imports and exports
 
 💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
