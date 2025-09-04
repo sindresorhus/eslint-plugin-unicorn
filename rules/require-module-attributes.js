@@ -109,7 +109,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require non-empty attribute list in import and export statements',
+			description: 'Require non-empty module attributes for imports and exports',
 			recommended: true,
 		},
 		fixable: 'code',
