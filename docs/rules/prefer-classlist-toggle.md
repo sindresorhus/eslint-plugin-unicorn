@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer using [`Element#classList.toggle()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList) to toggle class names instead of calling `Element#classList.add()` and `Element#classList.remove()` in `if-else` statements or ternary expressions.
+Prefer using [`Element#classList.toggle()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList) instead of conditionally calling `classList.add()` and `classList.remove()`.
 
 ## Examples
 
