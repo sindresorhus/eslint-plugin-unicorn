@@ -159,7 +159,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce throwing `TypeError` in type checking conditions.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

@@ -179,7 +179,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

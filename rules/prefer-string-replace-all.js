@@ -170,7 +170,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

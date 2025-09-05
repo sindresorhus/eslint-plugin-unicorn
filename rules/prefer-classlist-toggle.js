@@ -212,7 +212,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Element#classList.toggle()` to toggle class names.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

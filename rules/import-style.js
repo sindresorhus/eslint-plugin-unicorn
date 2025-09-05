@@ -364,7 +364,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		schema,
 		defaultOptions: [{}],

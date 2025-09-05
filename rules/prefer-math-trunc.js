@@ -100,7 +100,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -110,7 +110,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require non-empty module attributes for imports and exports',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

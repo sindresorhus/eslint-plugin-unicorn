@@ -90,7 +90,7 @@ const breakAbleNodeTypes = new Set([
 	'SwitchStatement',
 ]);
 const getBreakTarget = node => {
-	for (;node.parent; node = node.parent) {
+	for (; node.parent; node = node.parent) {
 		if (breakAbleNodeTypes.has(node.type)) {
 			return node;
 		}
@@ -337,7 +337,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `switch` over multiple `else-if`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

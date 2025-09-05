@@ -89,7 +89,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Reflect.apply()` over `Function#apply()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

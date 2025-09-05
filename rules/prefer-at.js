@@ -367,7 +367,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.at()` method for index access and `String#charAt()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

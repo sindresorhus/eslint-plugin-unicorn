@@ -125,7 +125,7 @@ function noArrayMutateRule(methodName) {
 			type: 'suggestion',
 			docs: {
 				description: `Prefer \`Array#${replacement}()\` over \`Array#${methodName}()\`.`,
-				recommended: true,
+				recommended: 'unopinionated',
 			},
 			hasSuggestions: true,
 			schema,

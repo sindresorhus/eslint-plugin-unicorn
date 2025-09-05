@@ -214,7 +214,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using the `this` argument in array methods.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

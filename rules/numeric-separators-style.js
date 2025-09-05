@@ -169,7 +169,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the style of numeric separators by correctly grouping digits.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

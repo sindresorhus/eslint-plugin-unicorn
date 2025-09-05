@@ -76,7 +76,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

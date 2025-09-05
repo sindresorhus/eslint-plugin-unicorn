@@ -366,7 +366,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary spread.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

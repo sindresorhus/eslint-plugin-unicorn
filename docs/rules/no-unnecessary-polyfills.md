@@ -1,6 +1,6 @@
 # Enforce the use of built-in methods instead of unnecessary polyfills
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 

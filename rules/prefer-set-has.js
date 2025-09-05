@@ -170,7 +170,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

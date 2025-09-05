@@ -59,6 +59,12 @@ const config = [
 					pattern: '.+',
 				},
 			],
+			'eslint-plugin/require-meta-docs-recommended': [
+				'error',
+				{
+					allowNonBoolean: true,
+				},
+			],
 			'eslint-plugin/require-meta-docs-url': 'off',
 			'eslint-plugin/require-meta-has-suggestions': 'off',
 			'eslint-plugin/require-meta-schema': 'off',
