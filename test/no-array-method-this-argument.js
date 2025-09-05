@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -90,6 +91,24 @@ test.snapshot({
 		'array.map(() => {}, thisArgumentHasSideEffect())',
 		'Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
+		outdent`
+			array.map(
+				() => {} /* comment 1 */ ,
+				/* comment 2 */
+				(
+				/* comment 3 */
+					(
+						/* comment 4 */
+						there.are/* comment 5 */.many.comments
+						/* comment 6 */
+					)
+					/* comment 7 */
+				)
+				/* comment 8 */
+				,
+				/* comment 9 */
+			)
+		`,
 	],
 });
 
