@@ -7,7 +7,6 @@ test.snapshot({
 	valid: [
 		// CallExpression
 		'new el.removeEventListener("click", () => {})',
-		'el?.removeEventListener("click", () => {})',
 		'el.removeEventListener?.("click", () => {})',
 		'el.notRemoveEventListener("click", () => {})',
 		'el[removeEventListener]("click", () => {})',
@@ -47,7 +46,9 @@ test.snapshot({
 		'window.removeEventListener("keydown", function () {})',
 		'el.removeEventListener("click", (e) => { e.preventDefault(); })',
 		'el.removeEventListener("mouseover", fn.bind(abc))',
+		'el?.removeEventListener("mouseover", fn.bind(abc))',
 		'el.removeEventListener("mouseout", function (e) {})',
+		'el?.removeEventListener("mouseout", function (e) {})',
 		'el.removeEventListener("mouseout", function (e) {}, true)',
 		'el.removeEventListener("click", function (e) {}, ...moreArguments)',
 		'el.removeEventListener(() => {}, () => {}, () => {})',

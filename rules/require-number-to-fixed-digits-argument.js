@@ -14,7 +14,6 @@ const create = context => ({
 				method: 'toFixed',
 				argumentsLength: 0,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			|| node.callee.object.type === 'NewExpression'
 		) {

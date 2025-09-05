@@ -11,7 +11,6 @@ const getReplacement = node => {
 	if (isMethodCall(node, {
 		method: 'charCodeAt',
 		optionalCall: false,
-		optionalMember: false,
 	})) {
 		return 'codePointAt';
 	}

@@ -10,6 +10,9 @@ test.snapshot({
 		'const bar = [1,2,3].map((i) => i)',
 		'const bar = [1,2,3].map((i) => { return i; })',
 		'const bar = foo.map(i => i)',
+		'const bar = foo.map?.(i => [i]).flat()',
+		'const bar = foo.map(i => [i])?.flat()',
+		'const bar = foo.map(i => [i]).flat?.()',
 		'const bar = [[1],[2],[3]].flat()',
 		'const bar = [1,2,3].map(i => [i]).sort().flat()',
 		outdent`
@@ -41,6 +44,7 @@ test.snapshot({
 		'const bar = [1,2,3].map((i) => { return [i]; }).flat()',
 		'const bar = [1,2,3].map(foo).flat()',
 		'const bar = foo.map(i => [i]).flat()',
+		'const bar = foo?.map(i => [i]).flat()',
 		'const bar = { map: () => {} }.map(i => [i]).flat()',
 		'const bar = [1,2,3].map(i => i).map(i => [i]).flat()',
 		'const bar = [1,2,3].sort().map(i => [i]).flat()',

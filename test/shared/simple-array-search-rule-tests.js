@@ -84,6 +84,7 @@ function snapshotTests({method, replacement}) {
 
 		invalid: [
 			`values.${method}(x => x === "foo")`,
+			`values?.${method}(x => x === "foo")`,
 			`values.${method}(x => "foo" === x)`,
 			`values.${method}(x => {return x === "foo";})`,
 			`values.${method}(function (x) {return x === "foo";})`,

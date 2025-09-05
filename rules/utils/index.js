@@ -51,6 +51,7 @@ export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject} from './should-add-parentheses-to-member-expression-object.js';
+export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as getAncestor} from './get-ancestor.js';

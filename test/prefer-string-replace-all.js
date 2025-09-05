@@ -22,9 +22,13 @@ test.snapshot({
 		// Not `MemberExpression`
 		'replace(/a/g, bar)',
 		'replaceAll(/a/g, bar)',
+		// Optional call
+		'foo.replaceAll?.(/a/g, _)',
 		// Computed
 		'foo[replace](/a/g, bar);',
 		'foo[replaceAll](/a/g, bar);',
+		// Optional call
+		'foo.replace?.(/a/g, bar)',
 		// Not replace
 		'foo.methodNotReplace(/a/g, bar);',
 		// `callee.property` is not a `Identifier`
@@ -50,6 +54,7 @@ test.snapshot({
 	],
 	invalid: [
 		'foo.replace(/a/g, bar)',
+		'foo?.replace(/a/g, bar)',
 		// Comments
 		outdent`
 			foo/* comment 1 */
@@ -112,6 +117,7 @@ test.snapshot({
 		String.raw`foo.replace(/\1/g, _)`,
 
 		'foo.replaceAll(/a]/g, _)',
+		'foo?.replaceAll(/a/g, _)',
 		String.raw`foo.replaceAll(/\r\n\u{1f600}/gu, _)`,
 		String.raw`foo.replaceAll(/\r\n\u{1f600}/gv, _)`,
 		`foo.replaceAll(/a${' very'.repeat(30)} long string/g, _)`,

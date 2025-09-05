@@ -113,7 +113,6 @@ const create = context => ({
 			methods: ['replace', 'replaceAll'],
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}
