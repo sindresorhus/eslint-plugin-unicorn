@@ -9,6 +9,7 @@ test.snapshot({
 		'Object.create(null)',
 		'Object.create(null, {foo: {value:1}})',
 		'let insertedNode = parentNode.insertBefore(newNode, null)',
+		'let insertedNode = parentNode?.insertBefore(newNode, null)',
 		// Not `null`
 		'const foo = "null";',
 		// More/Less arguments

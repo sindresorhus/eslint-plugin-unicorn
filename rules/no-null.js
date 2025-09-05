@@ -64,7 +64,6 @@ const create = context => {
 						method: 'insertBefore',
 						argumentsLength: 2,
 						optionalCall: false,
-						optionalMember: false,
 					})
 					&& node.parent.arguments[1] === node
 				)

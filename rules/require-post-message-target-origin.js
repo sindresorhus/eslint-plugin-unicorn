@@ -17,7 +17,6 @@ function create(context) {
 				method: 'postMessage',
 				argumentsLength: 1,
 				optionalCall: false,
-				optionalMember: false,
 			})) {
 				return;
 			}
