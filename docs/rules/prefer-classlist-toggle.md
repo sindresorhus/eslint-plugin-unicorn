@@ -24,6 +24,9 @@ element.classList.contains('className')
 	? element.classList.remove('className')
 	: element.classList.add('className');
 
+// ❌
+element.classList[element.classList.contains('className') ? 'remove' : 'add']('className')
+
 // ✅
 element.classList.toggle('className');
 ```
