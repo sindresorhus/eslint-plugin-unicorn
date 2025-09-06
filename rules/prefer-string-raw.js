@@ -1,5 +1,5 @@
 import {isStringLiteral, isDirective} from './ast/index.js';
-import {fixSpaceAroundKeyword} from './fix/index.js';
+import {fixSpaceAroundKeyword, replaceTemplateElement} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
@@ -8,12 +8,8 @@ const messages = {
 
 const BACKSLASH = '\\';
 
-function unescapeBackslash(raw) {
-	const quote = raw.charAt(0);
-
-	return raw
-		.slice(1, -1)
-		.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
+function unescapeBackslash(text, quote = '') {
+	return text.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -50,7 +46,7 @@ const create = context => {
 			return;
 		}
 
-		const unescaped = unescapeBackslash(raw);
+		const unescaped = unescapeBackslash(raw.slice(1, -1), raw.charAt(0));
 		if (unescaped !== node.value) {
 			return;
 		}
@@ -59,8 +55,36 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
+			},
+		};
+	});
+
+	context.on('TemplateLiteral', node => {
+		if (
+			(node.parent.type === 'TaggedTemplateExpression' && node.parent.quasi === node)
+			|| node.quasis.every(({value: {cooked, raw}}) => cooked === raw)
+			|| node.quasis.some(({value: {cooked, raw}}) => cooked.at(-1) === BACKSLASH || unescapeBackslash(raw) !== cooked)
+		) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+			* fix(fixer) {
+				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+				yield fixer.insertTextBefore(node, 'String.raw');
+
+				for (const quasis of node.quasis) {
+					const {cooked, raw} = quasis.value;
+					if (cooked === raw) {
+						continue;
+					}
+
+					yield replaceTemplateElement(fixer, quasis, cooked);
+				}
 			},
 		};
 	});
