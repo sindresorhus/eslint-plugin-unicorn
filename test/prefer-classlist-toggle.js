@@ -212,6 +212,84 @@ test.snapshot({
 
 			[].forEach(foo);
 		`,
+		// Checking class name existence
+		outdent`
+			if (element.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element?.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains?.('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList?.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.notContains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains('not-same-class-name')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.notClassList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (notSameElement.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains('className')) {
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
+		outdent`
+			if (!element.classList.contains('className')) {
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
 	],
 });
 
@@ -241,6 +319,62 @@ test.snapshot({
 			foo
 
 			condition ? (( element )).classList.add(className) : element.classList.remove(className);
+		`,
+		// Checking class name existence
+		outdent`
+			element.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element?.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains?.('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList?.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.notContains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains('not-same-class-name')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.notClassList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			notSameElement.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains('className')
+				? element.classList.add('className')
+				: element.classList.remove('className')
+		`,
+		outdent`
+			!element.classList.contains('className')
+				? element.classList.add('className')
+				: element.classList.remove('className')
 		`,
 	],
 });
