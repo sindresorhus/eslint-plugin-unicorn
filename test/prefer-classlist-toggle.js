@@ -402,5 +402,19 @@ test.snapshot({
 		'element.classList[index % 2 ? "remove" : "add"](className)',
 		'element.classList[(index % 2) ? "remove" : "add"](className)',
 		'element.classList[(0, condition) ? "add" : "remove"](className)',
+		// Checking class name existence
+		...[
+			'element.classList.contains("className") ? "remove" : "add"',
+			'element?.classList.contains("className") ? "remove" : "add"',
+			'element.classList.contains?.("className") ? "remove" : "add"',
+			'element.classList?.contains("className") ? "remove" : "add"',
+			'element.classList.notContains("className") ? "remove" : "add"',
+			'element.classList.contains("not-same-class-name") ? "remove" : "add"',
+			'element.notClassList.contains("className") ? "remove" : "add"',
+			'contains("className") ? "remove" : "add"',
+			'notSameElement.classList.contains("className") ? "remove" : "add"',
+			'element.classList.contains("className") ? "add": "remove"',
+			'!element.classList.contains("className") ? "add": "remove"',
+		].map(condition => `element.classList[${condition}]("className")`),
 	],
 });
