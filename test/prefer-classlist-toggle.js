@@ -212,6 +212,84 @@ test.snapshot({
 
 			[].forEach(foo);
 		`,
+		// Checking class name existence
+		outdent`
+			if (element.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element?.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains?.('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList?.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.notContains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains('not-same-class-name')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.notClassList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (notSameElement.classList.contains('className')) {
+				element.classList.remove('className');
+			} else {
+				element.classList.add('className');
+			}
+		`,
+		outdent`
+			if (element.classList.contains('className')) {
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
+		outdent`
+			if (!element.classList.contains('className')) {
+				element.classList.add('className');
+			} else {
+				element.classList.remove('className');
+			}
+		`,
 	],
 });
 
@@ -242,6 +320,62 @@ test.snapshot({
 
 			condition ? (( element )).classList.add(className) : element.classList.remove(className);
 		`,
+		// Checking class name existence
+		outdent`
+			element.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element?.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains?.('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList?.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.notContains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains('not-same-class-name')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.notClassList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			notSameElement.classList.contains('className')
+				? element.classList.remove('className')
+				: element.classList.add('className')
+		`,
+		outdent`
+			element.classList.contains('className')
+				? element.classList.add('className')
+				: element.classList.remove('className')
+		`,
+		outdent`
+			!element.classList.contains('className')
+				? element.classList.add('className')
+				: element.classList.remove('className')
+		`,
 	],
 });
 
@@ -268,5 +402,19 @@ test.snapshot({
 		'element.classList[index % 2 ? "remove" : "add"](className)',
 		'element.classList[(index % 2) ? "remove" : "add"](className)',
 		'element.classList[(0, condition) ? "add" : "remove"](className)',
+		// Checking class name existence
+		...[
+			'element.classList.contains("className") ? "remove" : "add"',
+			'element?.classList.contains("className") ? "remove" : "add"',
+			'element.classList.contains?.("className") ? "remove" : "add"',
+			'element.classList?.contains("className") ? "remove" : "add"',
+			'element.classList.notContains("className") ? "remove" : "add"',
+			'element.classList.contains("not-same-class-name") ? "remove" : "add"',
+			'element.notClassList.contains("className") ? "remove" : "add"',
+			'contains("className") ? "remove" : "add"',
+			'notSameElement.classList.contains("className") ? "remove" : "add"',
+			'element.classList.contains("className") ? "add": "remove"',
+			'!element.classList.contains("className") ? "add": "remove"',
+		].map(condition => `element.classList[${condition}]("className")`),
 	],
 });

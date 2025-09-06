@@ -78,6 +78,40 @@ const getConditionText = (node, sourceCode, isNegative) => {
 	return text;
 };
 
+const isClassListMethodCall = (node, methods) =>
+	isMethodCall(node, {
+		methods,
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isClassList(node.callee.object);
+
+const isSameElementAndClassName = (callExpressionA, callExpressionB) =>
+	isSameReference(callExpressionA.callee.object, callExpressionB.callee.object)
+	&& isSameReference(callExpressionA.arguments[0], callExpressionB.arguments[0]);
+
+const getClassListContainsCall = (conditionNode, isNegative, addOrRemoveCall) => {
+	if (!isNegative) {
+		if (!(conditionNode.type === 'UnaryExpression' && conditionNode.operator === '!' && conditionNode.prefix)) {
+			return;
+		}
+
+		return getClassListContainsCall(conditionNode.argument, !isNegative, addOrRemoveCall);
+	}
+
+	if (conditionNode.type === 'ChainExpression') {
+		conditionNode = conditionNode.expression;
+	}
+
+	if (
+		isClassListMethodCall(conditionNode, ['contains'])
+		&& isSameElementAndClassName(conditionNode, addOrRemoveCall)
+	) {
+		return conditionNode;
+	}
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -121,37 +155,30 @@ const create = context => {
 
 		// `element.classList.add('className');`
 		// `element.classList.remove('className');`
-		if (!clauses.every(node =>
-			isMethodCall(node, {
-				methods: ['add', 'remove'],
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			&& isClassList(node.callee.object),
-		)) {
+		if (!clauses.every(node => isClassListMethodCall(node, ['add', 'remove']))) {
 			return;
 		}
 
 		const [consequent, alternate] = clauses;
 		if (
 			(consequent.callee.property.name === alternate.callee.property.name)
-			|| !isSameReference(consequent.callee.object, alternate.callee.object)
-			|| !isSameReference(consequent.arguments[0], alternate.arguments[0])
+			|| !isSameElementAndClassName(consequent, alternate)
 		) {
 			return;
 		}
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		function * fix(fixer) {
-			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional;
 			const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
 			const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
 			const isExpression = node.type === 'ConditionalExpression';
 			const isNegative = consequent.callee.property.name === 'remove';
-			const conditionText = getConditionText(node.test, sourceCode, isNegative);
+			const conditionNode = node.test;
+			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, consequent);
+			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
+			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional || classListContainsCall?.callee.object.optional;
 
-			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}, ${conditionText})`;
+			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}${conditionText ? `, ${conditionText}` : ''})`;
 
 			if (!isExpression) {
 				text = `${text};`;
@@ -195,9 +222,14 @@ const create = context => {
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		function * fix(fixer) {
 			const isNegative = conditionalExpression.consequent.value === 'remove';
-			const conditionText = getConditionText(conditionalExpression.test, sourceCode, isNegative);
+			const conditionNode = conditionalExpression.test;
+			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
+			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
 
-			yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+			if (conditionText) {
+				yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+			}
+
 			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
 		}
 

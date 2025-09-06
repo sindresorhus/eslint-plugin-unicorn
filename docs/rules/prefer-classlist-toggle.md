@@ -13,6 +13,26 @@ Prefer using [`Element#classList.toggle()`](https://developer.mozilla.org/en-US/
 
 ```js
 // ❌
+if (element.classList.contains('className')) {
+	element.classList.remove('className');
+} else {
+	element.classList.add('className');
+}
+
+// ❌
+element.classList.contains('className')
+	? element.classList.remove('className')
+	: element.classList.add('className');
+
+// ❌
+element.classList[element.classList.contains('className') ? 'remove' : 'add']('className')
+
+// ✅
+element.classList.toggle('className');
+```
+
+```js
+// ❌
 if (condition) {
 	element.classList.add('className');
 } else {
