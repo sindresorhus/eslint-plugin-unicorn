@@ -1,9 +1,12 @@
-import {isStringLiteral, isDirective} from './ast/index.js';
+import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
+import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
+const MESSAGE_ID_UNNECESSARY_STRING_RAW = 'unnecessary-string-raw';
 const messages = {
 	[MESSAGE_ID]: '`String.raw` should be used to avoid escaping `\\`.',
+	[MESSAGE_ID_UNNECESSARY_STRING_RAW]: 'Using `String.raw` is unnecessary as the string does not contain any `\\`.',
 };
 
 const BACKSLASH = '\\';
@@ -61,6 +64,42 @@ const create = context => {
 			* fix(fixer) {
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			},
+		};
+	});
+
+	context.on('TaggedTemplateExpression', node => {
+		const {quasi, tag} = node;
+		const {sourceCode} = context;
+
+		if (!isMemberExpression(tag, {object: 'String', property: 'raw', optional: false})) {
+			return;
+		}
+
+		const hasBackslash = quasi.quasis.some(
+			quasi => quasi.value.raw.includes(BACKSLASH),
+		);
+
+		if (hasBackslash) {
+			return;
+		}
+
+		const rawQuasi = sourceCode.getText(quasi);
+		const suggestion = quasi.expressions.length > 0 || /\r?\n/.test(rawQuasi)
+			? rawQuasi
+			: `'${rawQuasi.slice(1, -1).replaceAll('\'', String.raw`\'`)}'`;
+
+		return {
+			node: tag,
+			messageId: MESSAGE_ID_UNNECESSARY_STRING_RAW,
+			* fix(fixer) {
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				if (needsSemicolon(tokenBefore, sourceCode, suggestion)) {
+					yield fixer.insertTextBefore(node, ';');
+				}
+
+				yield fixer.replaceText(node.quasi, suggestion);
+				yield fixer.remove(node.tag);
 			},
 		};
 	});
