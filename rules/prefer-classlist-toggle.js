@@ -222,7 +222,9 @@ const create = context => {
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		function * fix(fixer) {
 			const isNegative = conditionalExpression.consequent.value === 'remove';
-			const conditionText = getConditionText(conditionalExpression.test, sourceCode, isNegative);
+			const conditionNode = conditionalExpression.test;
+			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
+			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
 
 			yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
 			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
