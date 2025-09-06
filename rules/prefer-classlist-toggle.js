@@ -226,7 +226,10 @@ const create = context => {
 			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
 			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
 
-			yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+			if (conditionText) {
+				yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
+			}
+
 			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
 		}
 
