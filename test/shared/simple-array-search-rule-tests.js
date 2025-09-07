@@ -82,7 +82,6 @@ function snapshotTests({method, replacement}) {
 			// Already valid case
 			`foo.${replacement}(0)`,
 
-
 			// Can't use scopeManager in vue template
 			// https://github.com/vuejs/vue-eslint-parser/issues/263
 			{
