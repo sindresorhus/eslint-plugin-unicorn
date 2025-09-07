@@ -35,9 +35,8 @@ const getProblem = (valueNode, fix, reportNode) => {
 		messageId: MESSAGE_ID_ERROR,
 	};
 
-	const shouldUseSuggestion = valueNode.type === 'IfStatement'
-		? false
-		: !(isExpressionStatement(valueNode) || isExpressionStatement(valueNode.parent));
+	const shouldUseSuggestion = valueNode.type !== 'IfStatement'
+		&& !(isExpressionStatement(valueNode) || isExpressionStatement(valueNode.parent));
 
 	if (shouldUseSuggestion) {
 		problem.suggest = [
@@ -93,11 +92,11 @@ const isSameElementAndClassName = (callExpressionA, callExpressionB) =>
 
 const getClassListContainsCall = (conditionNode, isNegative, addOrRemoveCall) => {
 	if (!isNegative) {
-		if (!(conditionNode.type === 'UnaryExpression' && conditionNode.operator === '!' && conditionNode.prefix)) {
-			return;
+		if (conditionNode.type === 'UnaryExpression' && conditionNode.operator === '!' && conditionNode.prefix) {
+			return getClassListContainsCall(conditionNode.argument, !isNegative, addOrRemoveCall);
 		}
 
-		return getClassListContainsCall(conditionNode.argument, !isNegative, addOrRemoveCall);
+		return;
 	}
 
 	if (conditionNode.type === 'ChainExpression') {
