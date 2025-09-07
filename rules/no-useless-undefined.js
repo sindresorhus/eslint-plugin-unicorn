@@ -53,6 +53,8 @@ const shouldIgnore = node => {
 		|| name === 'add'
 		// `set.has(undefined)`
 		|| name === 'has'
+		// `set.delete(undefined)`
+		|| name === 'delete'
 
 		// `map.set(foo, undefined)`
 		|| name === 'set'
