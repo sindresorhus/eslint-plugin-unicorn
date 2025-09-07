@@ -85,8 +85,11 @@ export default function simpleArraySearchRule({method, replacement}) {
 
 			const callbackScope = scopeManager.acquire(callback);
 			if (
+				// Can't use scopeManager in vue template
+				// https://github.com/vuejs/vue-eslint-parser/issues/263
+				!callbackScope
 				// `parameter` is used somewhere else
-				findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
+				|| findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
 				|| isFunctionSelfUsedInside(callback, callbackScope)
 			) {
 				return;

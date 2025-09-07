@@ -81,6 +81,14 @@ function snapshotTests({method, replacement}) {
 
 			// Already valid case
 			`foo.${replacement}(0)`,
+
+
+			// Can't use scopeManager in vue template
+			// https://github.com/vuejs/vue-eslint-parser/issues/263
+			{
+				code: `<template><div v-if="values.${method}(x => x === 'foo')"></div></template>`,
+				languageOptions: {parser: parsers.vue},
+			},
 		],
 
 		invalid: [
@@ -124,10 +132,6 @@ function snapshotTests({method, replacement}) {
 					}).call(thisObject, anotherFunctionNamedA, secondArgument)
 				})
 			`,
-			{
-				code: `<template><div v-if="values.${method}(x => x === 'foo')"></div></template>`,
-				languageOptions: {parser: parsers.vue},
-			},
 		],
 	};
 }
