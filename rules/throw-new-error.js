@@ -1,3 +1,4 @@
+import {isMemberExpression} from './ast/index.js';
 import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
@@ -20,6 +21,17 @@ const create = context => ({
 				&& customError.test(callee.property.name)
 			)
 		)) {
+			return;
+		}
+
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)
+		if (
+			isMemberExpression(callee, {
+				object: 'Data',
+				property: 'TaggedError',
+				computed: false,
+			})
+		) {
 			return;
 		}
 
