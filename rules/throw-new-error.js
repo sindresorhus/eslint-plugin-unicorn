@@ -1,4 +1,4 @@
-import isMemberExpression from './ast/is-member-expression.js';
+import {isMemberExpression} from './ast/index.js';
 import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
