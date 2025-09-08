@@ -23,6 +23,17 @@ const create = context => ({
 			return;
 		}
 
+		if (
+			callee.type === 'MemberExpression'
+			&& !callee.computed
+			&& callee.object.type === 'Identifier'
+			&& callee.object.name === 'Data'
+			&& callee.property.type === 'Identifier'
+			&& callee.property.name === 'TaggedError'
+		) {
+			return;
+		}
+
 		return {
 			node,
 			messageId,
