@@ -23,6 +23,7 @@ const create = context => ({
 			return;
 		}
 
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)
 		if (
 			callee.type === 'MemberExpression'
 			&& !callee.computed
