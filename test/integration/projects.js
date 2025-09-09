@@ -181,7 +181,13 @@ export default [
 		],
 	},
 	// #903
-	'https://github.com/mattermost/mattermost-webapp',
+	{
+		repository: 'https://github.com/mattermost/mattermost-webapp',
+		ignore: [
+			// Empty type argument lists
+			'e2e/cypress/tests/support/api/bots.d.ts',
+		],
+	},
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
