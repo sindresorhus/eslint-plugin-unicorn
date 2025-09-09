@@ -19,6 +19,10 @@ const file = "C:\\windows\\style\\path\\to\\file.js";
 const regexp = new RegExp('foo\\.bar');
 ```
 
+```js
+const file = `C:\\windows\\temp\\myapp-${process.pid}.log`;
+```
+
 ## Pass
 
 ```js
@@ -27,4 +31,8 @@ const file = String.raw`C:\windows\style\path\to\file.js`;
 
 ```js
 const regexp = new RegExp(String.raw`foo\.bar`);
+```
+
+```js
+const file = String.raw`C:\windows\temp\myapp-${process.pid}.log`;
 ```
