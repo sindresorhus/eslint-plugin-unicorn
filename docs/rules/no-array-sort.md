@@ -9,7 +9,7 @@
 
 Prefer using [`Array#toSorted()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted) over [`Array#sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
 
-`Array#sort()` modifies the original array, while `Array#toSorted()` returns a new reversed array.
+`Array#sort()` modifies the original array, while `Array#toSorted()` returns a new sorted array.
 
 ## Examples
 
