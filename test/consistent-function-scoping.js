@@ -874,6 +874,35 @@ test({
 			`,
 			errors: [createError('arrow function')],
 		},
+		// Additional test cases for edge cases
+		{
+			code: outdent`
+				class TestClass {
+					method() {
+						return x => x * 2;
+					}
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				const obj = {
+					method() {
+						return y => y + 1;
+					}
+				};
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				export default function() {
+					return z => z.toString();
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
 	],
 });
 

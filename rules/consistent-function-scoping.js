@@ -128,11 +128,13 @@ function checkNode(node, scopeManager) {
 		parentNode = parentNode.parent;
 	}
 
-	if (parentNode.type === 'ReturnStatement') {
+	// Only skip ReturnStatement for arrow functions
+	// Regular function expressions have different semantics and shouldn't be moved
+	if (parentNode?.type === 'ReturnStatement' && node.type === 'ArrowFunctionExpression') {
 		parentNode = parentNode.parent;
 	}
 
-	if (parentNode.type === 'BlockStatement') {
+	if (parentNode?.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
 	}
 
