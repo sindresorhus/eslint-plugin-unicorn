@@ -24,6 +24,11 @@ function doFoo(foo) {
 		return bar === 'bar';
 	};
 }
+
+function doFoo() {
+	// Does not capture anything from the scope, can be moved to the outer scope
+	return bar => bar === 'bar';
+}
 ```
 
 ## Pass
@@ -42,6 +47,12 @@ export function doFoo(foo) {
 		return bar === 'bar' && foo.doBar(bar);
 	}
 
+	return doBar;
+}
+
+const doBar = bar => bar === 'bar';
+
+export function doFoo() {
 	return doBar;
 }
 ```

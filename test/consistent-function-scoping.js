@@ -138,16 +138,6 @@ test({
 				foo + bar;
 		`,
 		outdent`
-			const doFoo = () => {
-				return bar => bar;
-			}
-		`,
-		outdent`
-			function doFoo() {
-				return bar => bar;
-			}
-		`,
-		outdent`
 			const doFoo = foo => {
 				const doBar = bar => {
 					return foo + bar;
@@ -378,6 +368,27 @@ test({
 				}
 
 				inner();
+			}
+		`,
+		// #931 - valid cases: arrow functions that capture variables from outer scope
+		outdent`
+			function createHandler(config) {
+				return (event) => {
+					return config.handle(event);
+				};
+			}
+		`,
+		outdent`
+			export function middleware(store) {
+				return next => action => {
+					store.dispatch(action);
+					return next(action);
+				};
+			}
+		`,
+		outdent`
+			function createThunk(type) {
+				return (dispatch) => dispatch({ type });
 			}
 		`,
 		// Should ignore functions inside arrow functions
@@ -806,6 +817,91 @@ test({
 			`,
 			errors: [createError('function \'inner\'')],
 			options: [{checkArrowFunctions: false}],
+		},
+		// #931 - arrow functions returned from function declarations should be flagged
+		{
+			code: outdent`
+				export function someAction() {
+					return (dispatch) => dispatch({ type: 'SOME_TYPE' });
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				function outer() {
+					return bar => bar;
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				const outer = function() {
+					return bar => bar;
+				};
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				export function thunk() {
+					return async (dispatch, getState) => {
+						return dispatch({ type: 'ACTION' });
+					};
+				}
+			`,
+			errors: [createError('async arrow function')],
+		},
+		{
+			code: outdent`
+				function middleware() {
+					return next => action => {
+						return next(action);
+					};
+				}
+			`,
+			errors: [
+				createError('arrow function'),
+				createError('arrow function'),
+			],
+		},
+		{
+			code: outdent`
+				const doFoo = () => {
+					return bar => bar;
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
+		// Additional test cases for edge cases
+		{
+			code: outdent`
+				class TestClass {
+					method() {
+						return x => x * 2;
+					}
+				}
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				const obj = {
+					method() {
+						return y => y + 1;
+					}
+				};
+			`,
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				export default function() {
+					return z => z.toString();
+				}
+			`,
+			errors: [createError('arrow function')],
 		},
 	],
 });
