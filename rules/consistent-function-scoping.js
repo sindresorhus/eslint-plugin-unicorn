@@ -128,6 +128,10 @@ function checkNode(node, scopeManager) {
 		parentNode = parentNode.parent;
 	}
 
+	if (parentNode.type === 'ReturnStatement') {
+		parentNode = parentNode.parent;
+	}
+
 	if (parentNode.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
 	}
