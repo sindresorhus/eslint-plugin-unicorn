@@ -108,6 +108,32 @@ const isIife = node =>
 	&& node.parent.type === 'CallExpression'
 	&& node.parent.callee === node;
 
+function handleNestedArrowFunctions(parentNode, node) {
+	// Skip over arrow function expressions when they are parents and we came from a ReturnStatement
+	// This handles nested arrow functions: return next => action => { ... }
+	// But only when we're in a return statement context
+	if (parentNode.type === 'ArrowFunctionExpression' && node.type === 'ArrowFunctionExpression') {
+		// Walk up the chain to find if we're ultimately in a ReturnStatement
+		let ancestor = parentNode;
+		while (ancestor && ancestor.type === 'ArrowFunctionExpression') {
+			ancestor = ancestor.parent;
+		}
+
+		if (ancestor && ancestor.type === 'ReturnStatement') {
+			// We're in a return statement, so traverse through the arrow function chain
+			while (parentNode.type === 'ArrowFunctionExpression') {
+				parentNode = parentNode.parent;
+			}
+
+			if (parentNode.type === 'ReturnStatement') {
+				parentNode = parentNode.parent;
+			}
+		}
+	}
+
+	return parentNode;
+}
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
 
@@ -134,25 +160,7 @@ function checkNode(node, scopeManager) {
 		parentNode = parentNode.parent;
 	}
 
-	// Skip over arrow function expressions when they are parents and we came from a ReturnStatement
-	// This handles nested arrow functions: return next => action => { ... }
-	// But only when we're in a return statement context
-	if (parentNode.type === 'ArrowFunctionExpression' && node.type === 'ArrowFunctionExpression') {
-		// Walk up the chain to find if we're ultimately in a ReturnStatement
-		let ancestor = parentNode;
-		while (ancestor && ancestor.type === 'ArrowFunctionExpression') {
-			ancestor = ancestor.parent;
-		}
-		if (ancestor && ancestor.type === 'ReturnStatement') {
-			// We're in a return statement, so traverse through the arrow function chain
-			while (parentNode.type === 'ArrowFunctionExpression') {
-				parentNode = parentNode.parent;
-			}
-			if (parentNode.type === 'ReturnStatement') {
-				parentNode = parentNode.parent;
-			}
-		}
-	}
+	parentNode = handleNestedArrowFunctions(parentNode, node);
 
 	if (parentNode?.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
