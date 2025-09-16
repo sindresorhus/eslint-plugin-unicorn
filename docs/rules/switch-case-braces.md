@@ -10,9 +10,10 @@
 1. Forbid braces for empty clauses.
 1. Enforce braces for non-empty clauses.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 switch (foo) {
 	case 1: {
 	}
@@ -21,19 +22,26 @@ switch (foo) {
 		break;
 	}
 }
+
+// ✅
+switch (foo) {
+	case 1:
+	case 2: {
+		doSomething();
+		break;
+	}
+}
 ```
 
 ```js
+// ❌
 switch (foo) {
 	case 1:
 		doSomething();
 		break;
 }
-```
 
-## Pass
-
-```js
+// ✅
 switch (foo) {
 	case 1: {
 		doSomething();

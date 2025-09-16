@@ -11,9 +11,10 @@
 
 This rule will automatically fix the indentation of multiline string templates, to keep them in alignment with the code they are found in. A configurable whitelist is used to ensure no whitespace-sensitive strings are edited.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 function foo() {
 	const sqlQuery = sql`
 select *
@@ -37,11 +38,10 @@ and last_name = ${y}
 }
 ```
 
-## Pass
-
 The above will auto-fix to:
 
 ```js
+// ✅
 function foo() {
 	const sqlQuery = sql`
 		select *

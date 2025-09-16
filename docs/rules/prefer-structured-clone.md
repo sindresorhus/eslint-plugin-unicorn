@@ -9,19 +9,16 @@
 
 [`structuredClone`](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone) is the modern way to create a deep clone of a value.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const clone = JSON.parse(JSON.stringify(foo));
-```
 
-```js
+// ❌
 const clone = _.cloneDeep(foo);
-```
 
-## Pass
-
-```js
+// ✅
 const clone = structuredClone(foo);
 ```
 
@@ -55,5 +52,6 @@ Example:
 
 ```js
 // eslint unicorn/prefer-structured-clone: ["error", {"functions": ["utils.clone"]}]
-const clone = utils.clone(foo); // Fails
+// ❌
+const clone = utils.clone(foo);
 ```

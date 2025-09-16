@@ -15,45 +15,34 @@ You can find the default replacements [here](https://github.com/sindresorhus/esl
 
 This rule is fixable only for variable names with exactly one replacement defined.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const e = new Error();
-```
 
-```js
-const e = document.createEvent('Event');
-```
-
-```js
-class Btn {}
-```
-
-## Pass
-
-```js
+// ✅
 const error = new Error();
 ```
 
 ```js
+// ❌
+const e = document.createEvent('Event');
+
+// ✅
 const event = document.createEvent('Event');
 ```
 
 ```js
-const levels = {
-	error: 0
-};
-```
+// ❌
+class Btn {}
 
-```js
-this.event = 'click';
-```
-
-```js
+// ✅
 class Button {}
 ```
 
 ```js
+// ✅
 // Property is not checked by default
 const levels = {
 	err: 0
@@ -61,6 +50,7 @@ const levels = {
 ```
 
 ```js
+// ✅
 // Property is not checked by default
 this.evt = 'click';
 ```
