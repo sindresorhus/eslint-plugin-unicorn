@@ -9,22 +9,41 @@
 
 It's better to use the same method to query DOM elements. This helps keep consistency and it lends itself to future improvements (e.g. more specific selectors).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 document.getElementById('foo');
-document.getElementsByClassName('foo bar');
-document.getElementsByTagName('main');
-document.getElementsByClassName(fn());
+
+// ✅
+document.querySelector('#foo');
 ```
 
-## Pass
+```js
+// ❌
+document.getElementsByClassName('foo');
+
+// ✅
+document.querySelectorAll('.foo');
+```
 
 ```js
-document.querySelector('#foo');
-document.querySelector('.bar');
-document.querySelector('main #foo .bar');
-document.querySelectorAll('.foo .bar');
-document.querySelectorAll('li a');
-document.querySelector('li').querySelectorAll('a');
+// ❌
+document.getElementsByClassName('foo bar');
+
+// ✅
+document.querySelectorAll('.foo.bar');
+```
+
+```js
+// ❌
+document.getElementsByTagName('main');
+
+// ✅
+document.querySelectorAll('main');
+```
+
+```js
+// ❌
+document.getElementsByClassName(fn());
 ```

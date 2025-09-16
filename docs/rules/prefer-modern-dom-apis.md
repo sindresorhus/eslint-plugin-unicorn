@@ -20,38 +20,84 @@ There are some advantages of using the newer DOM APIs, like:
 - Appending multiple nodes at once.
 - Both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
 
-## Fail
+## Examples
 
 ```js
-foo.replaceChild(baz, bar);
+// ❌
+parentNode.replaceChild(newNode, oldNode);
 
-foo.insertBefore(baz, bar);
-
-foo.insertAdjacentText('position', bar);
-
-foo.insertAdjacentElement('position', bar);
+// ✅
+oldNode.replaceWith(newNode);
 ```
 
-## Pass
+```js
+// ❌
+parentNode.insertBefore(newNode, oldNode);
+
+// ✅
+oldNode.before(newNode);
+```
 
 ```js
-foo.replaceWith(bar);
-foo.replaceWith('bar');
-foo.replaceWith(bar, 'baz'));
+// ❌
+referenceNode.insertAdjacentText('beforebegin', 'text');
 
-foo.before(bar)
-foo.before('bar')
-foo.before(bar, 'baz')
+// ✅
+referenceNode.before('text');
+```
 
-foo.prepend(bar)
-foo.prepend('bar')
-foo.prepend(bar, 'baz')
+```js
+// ❌
+referenceNode.insertAdjacentText('afterbegin', 'text');
 
-foo.append(bar)
-foo.append('bar')
-foo.append(bar, 'baz')
+// ✅
+referenceNode.prepend('text');
+```
 
-foo.after(bar)
-foo.after('bar')
-foo.after(bar, 'baz')
+```js
+// ❌
+referenceNode.insertAdjacentText('beforeend', 'text');
+
+// ✅
+referenceNode.append('text');
+```
+
+```js
+// ❌
+referenceNode.insertAdjacentText('afterend', 'text');
+
+// ✅
+referenceNode.after('text');
+```
+
+```js
+// ❌
+referenceNode.insertAdjacentElement('beforebegin', newNode);
+
+// ✅
+referenceNode.before(newNode);
+```
+
+```js
+// ❌
+referenceNode.insertAdjacentElement('afterbegin', newNode);
+
+// ✅
+referenceNode.prepend(newNode);
+```
+
+```js
+// ❌
+referenceNode.insertAdjacentElement('beforeend', newNode);
+
+// ✅
+referenceNode.append(newNode);
+```
+
+```js
+// ❌
+referenceNode.insertAdjacentElement('afterend', newNode);
+
+// ✅
+referenceNode.after(newNode);
 ```

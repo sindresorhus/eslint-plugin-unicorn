@@ -11,34 +11,34 @@ Enforces the use of [`KeyboardEvent#key`](https://developer.mozilla.org/en-US/do
 
 This rule is partly fixable. It can only fix direct property access.
 
-## Fail
+## Examples
 
 ```js
+// ❌
+window.addEventListener('keydown', event => {
+	if (event.keyCode === 8) {
+		console.log('Backspace was pressed');
+	}
+});
+
+// ✅
+window.addEventListener('keydown', event => {
+	if (event.key === 'Backspace') {
+		console.log('Backspace was pressed');
+	}
+});
+```
+
+```js
+// ❌
 window.addEventListener('keydown', event => {
 	console.log(event.keyCode);
 });
 ```
 
 ```js
-window.addEventListener('keydown', event => {
-	if (event.keyCode === 8) {
-		console.log('Backspace was pressed');
-	}
-});
-```
-
-## Pass
-
-```js
+// ✅
 window.addEventListener('click', event => {
 	console.log(event.key);
-});
-```
-
-```js
-window.addEventListener('keydown', event => {
-	if (event.key === 'Backspace') {
-		console.log('Backspace was pressed');
-	}
 });
 ```

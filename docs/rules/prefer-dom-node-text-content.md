@@ -13,30 +13,28 @@ There are [some advantages of using `.textContent`](https://developer.mozilla.or
 
 Note that there are [differences](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innertext) between them.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const text = foo.innerText;
-```
 
-```js
-const {innerText} = foo;
-```
-
-```js
-foo.innerText = '🦄';
-```
-
-## Pass
-
-```js
+// ✅
 const text = foo.textContent;
 ```
 
 ```js
+// ❌
+const {innerText} = foo;
+
+// ✅
 const {textContent} = foo;
 ```
 
 ```js
+// ❌
+foo.innerText = '🦄';
+
+// ✅
 foo.textContent = '🦄';
 ```
