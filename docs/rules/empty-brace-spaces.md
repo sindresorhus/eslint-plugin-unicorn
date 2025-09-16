@@ -7,26 +7,24 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-## Fail
+## Examples
 
 ```js
+// ❌
 class Unicorn {
 }
-```
 
-```js
-try {
-	foo();
-} catch { }
-```
-
-## Pass
-
-```js
+// ✅
 class Unicorn {}
 ```
 
 ```js
+// ❌
+try {
+	foo();
+} catch { }
+
+// ✅
 try {
 	foo();
 } catch {}

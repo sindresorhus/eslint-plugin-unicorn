@@ -9,26 +9,36 @@
 
 Using `await` on promises passed as arguments to `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, or `Promise.race()` is likely a mistake.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 Promise.all([await promise, anotherPromise]);
 
-Promise.allSettled([await promise, anotherPromise]);
-
-Promise.any([await promise, anotherPromise]);
-
-Promise.race([await promise, anotherPromise]);
+// ✅
+Promise.all([promise, anotherPromise]);
 ```
 
-## Pass
+```js
+// ❌
+Promise.allSettled([await promise, anotherPromise]);
+
+// ✅
+Promise.allSettled([promise, anotherPromise]);
+```
 
 ```js
-Promise.all([promise, anotherPromise]);
+// ❌
+Promise.any([await promise, anotherPromise]);
 
-Promise.allSettled([promise, anotherPromise]);
-
+// ✅
 Promise.any([promise, anotherPromise]);
+```
 
+```js
+// ❌
+Promise.race([await promise, anotherPromise]);
+
+// ✅
 Promise.race([promise, anotherPromise]);
 ```
