@@ -9,9 +9,10 @@
 
 An empty case before the last default case is useless.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 switch (foo) {
 	case 1:
 	default:
@@ -20,9 +21,8 @@ switch (foo) {
 }
 ```
 
-## Pass
-
 ```js
+// ✅
 switch (foo) {
 	case 1:
 	case 2:
@@ -32,6 +32,7 @@ switch (foo) {
 ```
 
 ```js
+// ✅
 switch (foo) {
 	case 1:
 		handleCase1();
@@ -43,6 +44,7 @@ switch (foo) {
 ```
 
 ```js
+// ✅
 switch (foo) {
 	case 1:
 		handleCase1();
@@ -54,6 +56,7 @@ switch (foo) {
 ```
 
 ```js
+// ✅
 switch (foo) {
 	// This is actually useless, but we only check cases where the last case is the `default` case
 	case 1:

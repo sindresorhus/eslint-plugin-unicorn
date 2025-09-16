@@ -23,104 +23,88 @@ This rule is fixable for `.filter(…).length` checks and `.{findIndex,findLastI
 
 This rule provides a suggestion for `.{find,findLast}(…)`.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const hasUnicorn = array.filter(element => isUnicorn(element)).length > 0;
-```
 
-```js
+// ❌
 const hasUnicorn = array.filter(element => isUnicorn(element)).length !== 0;
-```
 
-```js
+// ❌
 const hasUnicorn = array.filter(element => isUnicorn(element)).length >= 1;
-```
 
-```js
-if (array.find(element => isUnicorn(element))) {
-	// …
-}
-```
-
-```js
-const foo = array.find(element => isUnicorn(element)) ? bar : baz;
-```
-
-```js
+// ❌
 const hasUnicorn = array.find(element => isUnicorn(element)) !== undefined;
-```
 
-```js
+// ❌
 const hasUnicorn = array.find(element => isUnicorn(element)) != null;
-```
 
-```js
-if (array.find(element => isUnicorn(element))) {
-	// …
-}
-```
-
-```js
-const foo = array.findLast(element => isUnicorn(element)) ? bar : baz;
-```
-
-```js
-const hasUnicorn = array.findLast(element => isUnicorn(element)) !== undefined;
-```
-
-```js
-const hasUnicorn = array.findLast(element => isUnicorn(element)) != null;
-```
-
-```js
-const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
-```
-
-```js
-const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
-```
-
-```vue
-<template>
-	<div v-if="array.find(element => isUnicorn(element))">Vue</div>
-</template>
-```
-
-```vue
-<template>
-	<div v-if="array.findLast(element => isUnicorn(element))">Vue</div>
-</template>
-```
-
-```vue
-<template>
-	<div v-if="array.filter(element => isUnicorn(element)).length > 0">Vue</div>
-</template>
-```
-
-## Pass
-
-```js
+// ✅
 const hasUnicorn = array.some(element => isUnicorn(element));
 ```
 
 ```js
+// ❌
+if (array.find(element => isUnicorn(element))) {
+	// …
+}
+
+// ✅
 if (array.some(element => isUnicorn(element))) {
 	// …
 }
 ```
 
 ```js
+// ❌
+const foo = array.find(element => isUnicorn(element)) ? bar : baz;
+
+// ✅
 const foo = array.find(element => isUnicorn(element)) || bar;
 ```
 
 ```js
+// ❌
+const hasUnicorn = array.findLast(element => isUnicorn(element)) !== undefined;
+
+// ❌
+const hasUnicorn = array.findLast(element => isUnicorn(element)) != null;
+
+// ❌
+const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
+
+// ❌
+const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
+```
+
+```js
+// ❌
+const foo = array.findLast(element => isUnicorn(element)) ? bar : baz;
+```
+
+```js
+// ✅
 const foo = array.findLast(element => isUnicorn(element)) || bar;
 ```
 
 ```vue
 <template>
+	<!-- ❌ -->
+	<div v-if="array.find(element => isUnicorn(element))">Vue</div>
+
+	<!-- ❌ -->
+	<div v-if="array.filter(element => isUnicorn(element)).length > 0">Vue</div>
+
+	<!-- ✅ -->
 	<div v-if="array.some(element => isUnicorn(element))">Vue</div>
+</template>
+```
+
+```vue
+<template>
+	<!-- ❌ -->
+	<div v-if="array.findLast(element => isUnicorn(element))">Vue</div>
 </template>
 ```

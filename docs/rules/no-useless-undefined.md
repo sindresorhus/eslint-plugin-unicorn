@@ -13,83 +13,81 @@ Where passing `undefined` as argument is required is due to bad TypeScript types
 
 Using `undefined` as arrow function body sometimes make the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 let foo = undefined;
-```
 
-```js
-const {foo = undefined} = bar;
-```
-
-```js
-const noop = () => undefined;
-```
-
-```js
-function foo() {
-	return undefined;
-}
-```
-
-```js
-function* foo() {
-	yield undefined;
-}
-```
-
-```js
-function foo(bar = undefined) {
-}
-```
-
-```js
-function foo({bar = undefined}) {
-}
-```
-
-```js
-foo(undefined);
-```
-
-## Pass
-
-```js
+// ✅
 let foo;
 ```
 
 ```js
+// ❌
+const {foo = undefined} = bar;
+
+// ✅
 const {foo} = bar;
 ```
 
 ```js
+// ❌
+const noop = () => undefined;
+
+// ✅
 const noop = () => {};
 ```
 
 ```js
+// ❌
+function foo() {
+	return undefined;
+}
+
+// ✅
 function foo() {
 	return;
 }
 ```
 
 ```js
+// ❌
+function* foo() {
+	yield undefined;
+}
+
+// ✅
 function* foo() {
 	yield;
 }
 ```
 
 ```js
+// ❌
+function foo(bar = undefined) {
+}
+
+// ✅
 function foo(bar) {
 }
 ```
 
 ```js
+// ❌
+function foo({bar = undefined}) {
+}
+
+// ✅
 function foo({bar}) {
 }
 ```
 
 ```js
+// ❌
+foo(undefined);
+
+// ✅
 foo();
 ```
 
@@ -104,16 +102,14 @@ Default: `true`
 
 Disallow the use of `undefined` at the end of function call arguments. Pass `checkArguments: false` to disable checking them.
 
-#### Fail
-
 ```js
+// ❌
 // eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}]
 foo(bar, baz, undefined);
 ```
 
-#### Pass
-
 ```js
+// ✅
 // eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
 foo(bar, baz, undefined);
 ```
@@ -125,17 +121,15 @@ Default: `true`
 
 Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunctionBody: false` to disable checking them.
 
-#### Fail
-
 ```js
 // eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}]
+// ❌
 const foo = () => undefined;
 ```
 
-#### Pass
-
 ```js
 // eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}]
+// ✅
 const foo = () => undefined;
 ```
 
