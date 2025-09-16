@@ -9,22 +9,20 @@
 
 The [`await` operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) should only be used on [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) values.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 await await promise;
-```
 
-```js
-await [promise1, promise2];
-```
-
-## Pass
-
-```js
+// ✅
 await promise;
 ```
 
 ```js
+// ❌
+await [promise1, promise2];
+
+// ✅
 await Promise.allSettled([promise1, promise2]);
 ```

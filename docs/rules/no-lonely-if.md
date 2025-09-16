@@ -9,17 +9,24 @@
 
 This rule adds onto the built-in [`no-lonely-if`](https://eslint.org/docs/rules/no-lonely-if) rule, which only disallows `if` statements in `else`, not in `if`. It is recommended to use `unicorn/no-lonely-if` together with the core ESLint `no-lonely-if` rule.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (foo) {
 	if (bar) {
 		// …
 	}
 }
+
+// ✅
+if (foo && bar) {
+	// …
+}
 ```
 
 ```js
+// ❌
 if (foo) {
 	// …
 } else if (bar) {
@@ -27,17 +34,8 @@ if (foo) {
 		// …
 	}
 }
-```
 
-## Pass
-
-```js
-if (foo && bar) {
-	// …
-}
-```
-
-```js
+// ✅
 if (foo) {
 	// …
 } else if (bar && baz) {
@@ -46,6 +44,7 @@ if (foo) {
 ```
 
 ```js
+// ✅
 if (foo) {
 	// …
 } else if (bar) {
@@ -58,6 +57,7 @@ if (foo) {
 ```
 
 ```js
+// ✅
 // Built-in rule `no-lonely-if` case https://eslint.org/docs/rules/no-lonely-if
 if (foo) {
 	// …

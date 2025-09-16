@@ -9,17 +9,23 @@
 
 Improved version of the [`no-nested-ternary`](https://eslint.org/docs/latest/rules/no-nested-ternary) ESLint rule. This rule allows cases where the nested ternary is only one level and wrapped in parens.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = i > 5 ? i < 100 ? true : false : true;
+
+// ✅
+const foo = i > 5 ? (i < 100 ? true : false) : true;
+```
+
+```js
+// ❌
 const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));
 ```
 
-## Pass
-
 ```js
-const foo = i > 5 ? (i < 100 ? true : false) : true;
+// ✅
 const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);
 ```
 

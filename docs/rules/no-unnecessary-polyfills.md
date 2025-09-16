@@ -4,44 +4,33 @@
 
 <!-- end auto-generated rule header -->
 
-<!-- Do not manually modify RULE_NOTICE part. Run: `npm run generate-rule-notices` -->
-<!-- RULE_NOTICE -->
+This rule helps to use existing methods instead of using extra polyfills.
 
-✅ _This rule is part of the [recommended](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config) config._
-
-<!-- /RULE_NOTICE -->
-
-This rules helps to use existing methods instead of using extra polyfills.
-
-## Fail
+## Examples
 
 package.json
 
-```json
+```js
+// package.json
 {
 	"engines": {
 		"node": ">=8"
 	}
 }
-```
 
-```js
+// ❌
 import assign from 'object-assign';
 ```
 
-## Pass
-
-package.json
-
-```json
+```js
+// package.json
 {
 	"engines": {
 		"node": "4"
 	}
 }
-```
 
-```js
+// ✅
 import assign from 'object-assign'; // Passes as Object.assign is not supported
 ```
 

@@ -9,42 +9,41 @@
 
 Passing a single-element array to `Promise.all()`, `Promise.any()`, or `Promise.race()` is likely a mistake.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = await Promise.all([promise]);
-```
 
-```js
+// ❌
 const foo = await Promise.any([promise]);
-```
 
-```js
+// ❌
 const foo = await Promise.race([promise]);
-```
 
-```js
-const promise = Promise.all([nonPromise]);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = await promise;
 ```
 
 ```js
+// ❌
+const promise = Promise.all([nonPromise]);
+
+// ✅
 const promise = Promise.resolve(nonPromise);
 ```
 
 ```js
+// ✅
 const foo = await Promise.all(promises);
 ```
 
 ```js
+// ✅
 const foo = await Promise.any([promise, anotherPromise]);
 ```
 
 ```js
+// ✅
 const [{value: foo, reason: error}] = await Promise.allSettled([promise]);
 ```
