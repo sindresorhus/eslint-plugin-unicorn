@@ -183,9 +183,10 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
   `TODO [...]: message` or `TODO [...] message`.
 - If no proper argument is found, you'll be notified that the TODO is useless (See [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments)).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 // TODO [2000-01-01]: I'll fix this next week.
 // TODO [2000-01-01, 2001-01-01]: Multiple dates won't work.
 
@@ -204,9 +205,8 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 // TODO: Add unicorns.
 ```
 
-## Pass
-
 ```js
+// ✅
 // TODO [2200-12-25]: Too long... Can you feel it?
 // FIXME [2200-12-25]: Too long... Can you feel it?
 

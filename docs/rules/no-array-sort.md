@@ -18,7 +18,15 @@ Prefer using [`Array#toSorted()`](https://developer.mozilla.org/en-US/docs/Web/J
 const sorted = [...array].sort();
 
 // ✅
-const sorted = [...array].toSorted();
+const sorted = array.toSorted();
+```
+
+```js
+// ❌
+const sorted = [...iterable].sort();
+
+// ✅
+const sorted = [...iterable].toSorted();
 ```
 
 ```js
@@ -26,7 +34,7 @@ const sorted = [...array].toSorted();
 const sorted = [...array].sort((a, b) => a - b);
 
 // ✅
-const sorted = [...array].toSorted((a, b) => a - b);
+const sorted = array.toSorted((a, b) => a - b);
 ```
 
 ## Options
@@ -41,10 +49,9 @@ Default: `true`
 This rule allows `array.sort()` to be used as an expression statement by default.\
 Pass `allowExpressionStatement: false` to forbid `Array#sort()` even if it's an expression statement.
 
-#### Fail
-
 ```js
 // eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": false}]
+// ❌
 array.sort();
 ```
 

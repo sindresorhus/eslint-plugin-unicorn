@@ -52,97 +52,81 @@ import unicorn from 'unicorn';
 //=> [2, 3, 4]
 ```
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = array.map(callback);
-```
 
-```js
-array.forEach(callback);
-```
-
-```js
-const foo = array.every(callback);
-```
-
-```js
-const foo = array.filter(callback);
-```
-
-```js
-const foo = array.find(callback);
-```
-
-```js
-const index = array.findIndex(callback);
-```
-
-```js
-const foo = array.some(callback);
-```
-
-```js
-const foo = array.reduce(callback, 0);
-```
-
-```js
-const foo = array.reduceRight(callback, []);
-```
-
-```js
-const foo = array.flatMap(callback);
-```
-
-```js
-array.forEach(someFunction({foo: 'bar'}));
-```
-
-```js
-array.forEach(callback, thisArgument);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = array.map(element => callback(element));
 ```
 
 ```js
+// ✅
 const foo = array.map(Boolean);
 ```
 
 ```js
+// ❌
+array.forEach(callback);
+
+// ✅
 array.forEach(element => {
 	callback(element);
 });
 ```
 
 ```js
+// ❌
+const foo = array.every(callback);
+
+// ✅
 const foo = array.every(element => callback(element));
 ```
 
 ```js
+// ❌
+const foo = array.filter(callback);
+
+// ✅
 const foo = array.filter(element => callback(element));
 ```
 
 ```js
+// ✅
 const foo = array.filter(Boolean);
 ```
 
 ```js
+// ❌
+const foo = array.find(callback);
+
+// ✅
 const foo = array.find(element => callback(element));
 ```
 
 ```js
+// ❌
+const index = array.findIndex(callback);
+
+// ✅
 const index = array.findIndex(element => callback(element));
 ```
 
 ```js
+// ❌
+const foo = array.some(callback);
+
+// ✅
 const foo = array.some(element => callback(element));
 ```
 
 ```js
+// ❌
+const foo = array.reduce(callback, 0);
+
+// ✅
 const foo = array.reduce(
 	(accumulator, element) => accumulator + callback(element),
 	0
@@ -150,6 +134,10 @@ const foo = array.reduce(
 ```
 
 ```js
+// ❌
+const foo = array.reduceRight(callback, []);
+
+// ✅
 const foo = array.reduceRight(
 	(accumulator, element) => [
 		...accumulator,
@@ -160,10 +148,18 @@ const foo = array.reduceRight(
 ```
 
 ```js
+// ❌
+const foo = array.flatMap(callback);
+
+// ✅
 const foo = array.flatMap(element => callback(element));
 ```
 
 ```js
+// ❌
+array.forEach(someFunction({foo: 'bar'}));
+
+// ✅
 const callback = someFunction({foo: 'bar'});
 
 array.forEach(element => {
@@ -172,12 +168,17 @@ array.forEach(element => {
 ```
 
 ```js
+// ❌
+array.forEach(callback, thisArgument);
+
+// ✅
 array.forEach(function (element) {
 	callback(element, this);
 }, thisArgument);
 ```
 
 ```js
+// ✅
 function readFile(filename) {
 	return fs.readFile(filename, 'utf8');
 }

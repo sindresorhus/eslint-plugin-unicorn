@@ -9,32 +9,28 @@
 
 When spreading a ternary in an array, we can use both `[]` and `''` as fallbacks, but it's better to have consistent types in both branches.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const array = [
 	a,
 	...(foo ? [b, c] : ''),
 ];
-```
 
-```js
+// ❌
 const array = [
 	a,
 	...(foo ? 'bc' : []),
 ];
-```
 
-## Pass
-
-```js
+// ✅
 const array = [
 	a,
 	...(foo ? [b, c] : []),
 ];
-```
 
-```js
+// ✅
 const array = [
 	a,
 	...(foo ? 'bc' : ''),

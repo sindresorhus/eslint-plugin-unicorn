@@ -18,7 +18,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);
@@ -31,7 +31,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);
@@ -44,7 +44,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);
