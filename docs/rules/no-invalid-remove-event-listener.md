@@ -7,21 +7,33 @@
 
 The [`removeEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener) function must be called with a reference to the same function that was passed to [`addEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener). Calling `removeEventListener` with an inline function or the result of an inline `.bind()` call is indicative of an error, and won't actually remove the listener.
 
-## Fail
+## Examples
 
 ```js
-window.removeEventListener('click', fn.bind(window));
+// ❌
+window.removeEventListener('click', listener.bind(window));
+
+// ✅
+window.removeEventListener('click', listener);
 ```
 
 ```js
+// ✅
+window.removeEventListener('click', getListener());
+```
+
+```js
+// ❌
 window.removeEventListener('click', () => {});
 ```
 
 ```js
+// ❌
 window.removeEventListener('click', function () {});
 ```
 
 ```js
+// ❌
 class MyElement extends HTMLElement {
 	handler() {}
 
@@ -29,19 +41,8 @@ class MyElement extends HTMLElement {
 		this.removeEventListener('click', this.handler.bind(this));
 	}
 }
-```
 
-## Pass
-
-```js
-window.removeEventListener('click', listener);
-```
-
-```js
-window.removeEventListener('click', getListener());
-```
-
-```js
+// ✅
 class MyElement extends HTMLElement {
 	constructor() {
 		super();

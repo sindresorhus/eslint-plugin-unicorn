@@ -9,44 +9,45 @@
 
 Destructuring is very useful, but it can also make some code harder to read. This rule prevents ignoring consecutive values when destructuring from an array.
 
-## Fail
+## Examples
 
 ```js
-const [,, foo] = parts;
-```
-
-```js
-const [,,, foo] = parts;
-```
-
-```js
-const [,,,, foo] = parts;
-```
-
-```js
-const [,,...rest] = parts;
-```
-
-## Pass
-
-```js
-const [, foo] = parts;
-```
-
-```js
+// ✅
 const [foo] = parts;
 ```
 
 ```js
+// ✅
+const [, foo] = parts;
+```
+
+```js
+// ❌
+const [,, foo] = parts;
+
+// ✅
+const foo = parts[2];
+```
+
+```js
+// ❌
+const [,,, foo] = parts;
+
+// ✅
 const foo = parts[3];
 ```
 
 ```js
+// ✅
 const [,...rest] = parts;
 ```
 
 ```js
-const foo = parts.slice(3);
+// ❌
+const [,,...rest] = parts;
+
+// ✅
+const rest = parts.slice(2);
 ```
 
 ## Note
