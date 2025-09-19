@@ -11,41 +11,32 @@ When transforming a list of key-value pairs into an object, [`Object.fromEntries
 
 This rule is fixable for simple cases.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => ({...object, [key]: value}),
 	{}
 );
-```
 
-```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => ({...object, [key]: value}),
 	Object.create(null)
 );
-```
 
-```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => Object.assign(object, {[key]: value}),
 	{}
 );
-```
 
-```js
+// ❌
 const object = _.fromPairs(pairs);
-```
 
-## Pass
-
-```js
+// ✅
 const object = Object.fromEntries(pairs);
-```
-
-```js
-const object = new Map(pairs);
 ```
 
 ## Options
@@ -78,5 +69,6 @@ Example:
 
 ```js
 // eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}]
-const object = utils.fromPairs(pairs); // Fails
+// ❌
+const object = utils.fromPairs(pairs);
 ```

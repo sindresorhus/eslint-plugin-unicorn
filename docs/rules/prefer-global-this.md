@@ -19,58 +19,98 @@ The complete list of permitted APIs can be found in the rule's [source code](../
 ## Examples
 
 ```js
-window; // ❌
-globalThis; // ✅
+// ❌
+window;
+
+// ✅
+globalThis;
 ```
 
 ```js
-window.foo; // ❌
-globalThis.foo; // ✅
+// ❌
+window.foo;
+
+// ✅
+globalThis.foo;
 ```
 
 ```js
-window[foo]; // ❌
-globalThis[foo]; // ✅
+// ❌
+window[foo];
+
+// ✅
+globalThis[foo];
 ```
 
 ```js
-global; // ❌
-globalThis; // ✅
+// ❌
+global;
+
+// ✅
+globalThis;
 ```
 
 ```js
-global.foo; // ❌
-globalThis.foo; // ✅
+// ❌
+global.foo;
+
+// ✅
+globalThis.foo;
 ```
 
 ```js
-const {foo} = window; // ❌
-const {foo} = globalThis; // ✅
+// ❌
+const {foo} = window;
+
+// ✅
+const {foo} = globalThis;
 ```
 
 ```js
-window.location; // ❌
-globalThis.location; // ✅
+// ❌
+window.navigator;
 
-window.innerWidth; // ✅ (Window specific API)
-window.innerHeight; // ✅ (Window specific API)
+// ✅
+globalThis.navigator;
 ```
 
 ```js
-window.navigator; // ❌
-globalThis.navigator; // ✅
+// ❌
+window.location;
+
+// ✅
+globalThis.location;
 ```
 
 ```js
-self.postMessage('Hello'); // ✅ (Web Worker specific API)
-self.onmessage = () => {}; // ✅ (Web Worker specific API)
+// ✅
+window.innerWidth;
+
+// ✅
+window.innerHeight;
 ```
 
 ```js
-window.addEventListener('click', () => {}); // ❌
-globalThis.addEventListener('click', () => {}); // ✅
+// ✅
+self.postMessage('Hello');
 
-window.addEventListener('resize', () => {}); // ✅ (Window specific event)
-window.addEventListener('load', () => {}); // ✅ (Window specific event)
-window.addEventListener('unload', () => {}); // ✅ (Window specific event)
+// ✅
+self.onmessage = () => {};
+```
+
+```js
+// ❌
+window.addEventListener('click', () => {});
+
+// ✅
+globalThis.addEventListener('click', () => {});
+
+// ✅
+window.addEventListener('resize', () => {});
+
+// ✅
+window.addEventListener('load', () => {});
+
+// ✅
+window.addEventListener('unload', () => {});
 ```

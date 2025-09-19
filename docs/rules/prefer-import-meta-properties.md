@@ -18,7 +18,7 @@ This rule replaces legacy patterns with `import.meta.{dirname,filename}`.
 
 ```js
 import path from 'node:path';
-import {fileURLToPath} from "node:url";
+import {fileURLToPath} from 'node:url';
 
 // ❌
 const filename = fileURLToPath(import.meta.url);
