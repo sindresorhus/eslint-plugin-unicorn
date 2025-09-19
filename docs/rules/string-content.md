@@ -20,17 +20,15 @@ This rule ignores the following tagged template literals as they're known to con
 
 **This rule has no effect by default. You need set [`patterns`](#patterns) to check string content.**
 
-## Fail
+## Examples
 
 ```js
 /*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
+
+// ❌
 const foo = 'Someone\'s coming!';
-```
 
-## Pass
-
-```js
-/*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
+// ✅
 const foo = 'Someone’s coming!';
 ```
 

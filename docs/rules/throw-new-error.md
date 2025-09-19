@@ -9,30 +9,28 @@
 
 While it's possible to create a new error without using the `new` keyword, it's better to be explicit.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const error = Error('unicorn');
-```
 
-```js
-throw TypeError('unicorn');
-```
-
-```js
-throw lib.TypeError('unicorn');
-```
-
-## Pass
-
-```js
+// ✅
 const error = new Error('unicorn');
 ```
 
 ```js
+// ❌
+throw TypeError('unicorn');
+
+// ✅
 throw new TypeError('unicorn');
 ```
 
 ```js
+// ❌
+throw lib.TypeError('unicorn');
+
+// ✅
 throw new lib.TypeError('unicorn');
 ```

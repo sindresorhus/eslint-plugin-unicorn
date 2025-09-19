@@ -9,17 +9,15 @@
 
 Prefer using `Set#size` directly instead of first converting it to an array and then using its `.length` property.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 function isUnique(array) {
 	return [...new Set(array)].length === array.length;
 }
-```
 
-## Pass
-
-```js
+// ✅
 function isUnique(array) {
 	return new Set(array).size === array.length;
 }

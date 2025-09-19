@@ -9,9 +9,10 @@
 
 A switch statement is easier to read than multiple if statements with simple equality comparisons.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (foo === 1) {
 	// 1
 } else if (foo === 2) {
@@ -23,9 +24,8 @@ if (foo === 1) {
 }
 ```
 
-## Pass
-
 ```js
+// ✅
 if (foo === 1) {
 	// 1
 } else if (foo === 2) {
@@ -34,6 +34,7 @@ if (foo === 1) {
 ```
 
 ```js
+// ✅
 switch (foo) {
 	case 1: {
 		// 1
@@ -71,38 +72,30 @@ Examples:
 
 ```js
 // eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+
+// ✅
 if (foo === 1) {}
 else if (foo === 2) {}
 else if (foo === 3) {}
 
-// Passes, only 3 cases.
-```
-
-```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+// ✅
 if (foo === 1) {}
 else if (foo === 2) {}
 else if (foo === 3) {}
 else {}
 
-// Passes, only 3 cases.
-```
-
-```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+// ✅
 if (foo === 1) {}
 else if (foo === 2 || foo === 3) {}
 else if (foo === 4) {}
-
-// Passes, only 3 cases.
 ```
 
 ```js
 // eslint unicorn/prefer-switch: ["error", {"minimumCases": 2}]
+
+// ❌
 if (foo === 1) {}
 else if (foo === 2) {}
-
-// Fails
 ```
 
 ### `emptyDefaultCase`

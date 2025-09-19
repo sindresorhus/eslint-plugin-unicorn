@@ -9,30 +9,25 @@
 
 When you want to know whether a pattern is found in a string, use [`RegExp#test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) instead of [`String#match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match) and [`RegExp#exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec), as it exclusively returns a boolean and therefore is more efficient.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (string.match(/unicorn/)) {}
-```
 
-```js
+// ❌
 if (/unicorn/.exec(string)) {}
-```
 
-```vue
-<template>
-	<div v-if="/unicorn/.exec(string)">Vue</div>
-</template>
-```
-
-## Pass
-
-```js
+// ✅
 if (/unicorn/.test(string)) {}
 ```
 
 ```vue
 <template>
+	<!-- ❌ -->
+	<div v-if="/unicorn/.exec(string)">Vue</div>
+
+	<!-- ✅ -->
 	<div v-if="/unicorn/.test(string)">Vue</div>
 </template>
 ```
