@@ -12,19 +12,54 @@ Calling [`Error.captureStackTrace(…)`](https://developer.mozilla.org/en-US/doc
 ## Examples
 
 ```js
+// ❌
 class MyError extends Error {
 	constructor() {
-		// ❌
 		Error.captureStackTrace(this, MyError);
-		// ❌
+	}
+}
+```
+
+```js
+// ❌
+class MyError extends Error {
+	constructor() {
 		Error.captureStackTrace?.(this, MyError);
-		// ❌
+	}
+}
+```
+
+```js
+// ❌
+class MyError extends Error {
+	constructor() {
 		Error.captureStackTrace(this, this.constructor);
-		// ❌
+	}
+}
+```
+
+```js
+// ❌
+class MyError extends Error {
+	constructor() {
 		Error.captureStackTrace?.(this, this.constructor);
-		// ❌
+	}
+}
+```
+
+```js
+// ❌
+class MyError extends Error {
+	constructor() {
 		Error.captureStackTrace(this, new.target);
-		// ❌
+	}
+}
+```
+
+```js
+// ❌
+class MyError extends Error {
+	constructor() {
 		Error.captureStackTrace?.(this, new.target);
 	}
 }

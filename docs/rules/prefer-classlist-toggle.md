@@ -25,7 +25,7 @@ element.classList.contains('className')
 	: element.classList.add('className');
 
 // ❌
-element.classList[element.classList.contains('className') ? 'remove' : 'add']('className')
+element.classList[element.classList.contains('className') ? 'remove' : 'add']('className');
 
 // ✅
 element.classList.toggle('className');
@@ -45,7 +45,7 @@ condition
 	: element.classList.remove('className');
 
 // ❌
-element.classList[condition ? 'add' : 'remove']('className')
+element.classList[condition ? 'add' : 'remove']('className');
 
 // ✅
 element.classList.toggle('className', condition);

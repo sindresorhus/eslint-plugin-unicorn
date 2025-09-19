@@ -7,9 +7,10 @@
 
 `FileReader` predates promises, and the newer [`Blob#arrayBuffer()`](https://developer.mozilla.org/en-US/docs/Web/API/Blob/arrayBuffer) and [`Blob#text()`](https://developer.mozilla.org/en-US/docs/Web/API/Blob/text) methods are much cleaner and easier to use.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const arrayBuffer = await new Promise((resolve, reject) => {
 	const fileReader = new FileReader();
 	fileReader.addEventListener('load', () => {
@@ -20,26 +21,25 @@ const arrayBuffer = await new Promise((resolve, reject) => {
 	});
 	fileReader.readAsArrayBuffer(blob);
 });
-```
 
-```js
-fileReader.readAsText(blob);
-```
-
-## Pass
-
-```js
+// ✅
 const arrayBuffer = await blob.arrayBuffer();
 ```
 
 ```js
+// ❌
+fileReader.readAsText(blob);
+
+// ✅
 const text = await blob.text();
 ```
 
 ```js
+// ✅
 fileReader.readAsText(blob, 'ascii');
 ```
 
 ```js
+// ✅
 fileReader.readAsDataURL(blob);
 ```

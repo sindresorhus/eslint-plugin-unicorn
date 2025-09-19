@@ -13,39 +13,37 @@ In most cases, it is safe to replace the `on`-function with the corresponding `a
 
 However, __if you are assigning a listener in a dynamic context, then this rule's auto-fixer will make your code bugged__. This is because the `on` assignment replaces the current listener, but the `addEventListener` adds an additional listener in addition to the ones that are already assigned. For example, if you are dynamically updating the functionality of a button as new data comes in, then using `addEventListener` would not work, since it would cause N functions to be invoked for every previous data state. In this context, you should probably disable this lint rule and use the `on` form, since [removing existing event listeners is not possible](https://stackoverflow.com/questions/9251837/how-to-remove-all-listeners-in-an-element).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 foo.onclick = () => {};
-```
 
-```js
-foo.onkeydown = () => {};
-```
-
-```js
-foo.bar.onclick = onClick;
-```
-
-```js
-foo.onclick = null;
-```
-
-## Pass
-
-```js
+// ✅
 foo.addEventListener('click', () => {});
 ```
 
 ```js
+// ❌
+foo.onkeydown = () => {};
+
+// ✅
 foo.addEventListener('keydown', () => {});
 ```
 
 ```js
+// ❌
+foo.bar.onclick = onClick;
+
+// ✅
 foo.bar.addEventListener('click', onClick);
 ```
 
 ```js
+// ❌
+foo.onclick = null;
+
+// ✅
 foo.removeEventListener('click', onClick);
 ```
 
