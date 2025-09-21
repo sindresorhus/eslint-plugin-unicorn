@@ -50,7 +50,7 @@ This rule allows `array.sort()` to be used as an expression statement by default
 Pass `allowExpressionStatement: false` to forbid `Array#sort()` even if it's an expression statement.
 
 ```js
-// eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": false}]
+/* eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": false}] */
 // ❌
 array.sort();
 ```

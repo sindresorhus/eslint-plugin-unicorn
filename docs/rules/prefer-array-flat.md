@@ -86,7 +86,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}]
+/* eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}] */
 // ❌
 const foo = utils.flat(bar);
 ```

@@ -71,7 +71,7 @@ The `default` branch doesn't count. Multiple comparisons on the same `if` block 
 Examples:
 
 ```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+/* eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}] */
 
 // ✅
 if (foo === 1) {}
@@ -91,7 +91,7 @@ else if (foo === 4) {}
 ```
 
 ```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 2}]
+/* eslint unicorn/prefer-switch: ["error", {"minimumCases": 2}] */
 
 // ❌
 if (foo === 1) {}

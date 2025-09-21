@@ -68,7 +68,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}]
+/* eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}] */
 // ❌
 const object = utils.fromPairs(pairs);
 ```

@@ -50,7 +50,7 @@ Default: `true`
 Pass `checkFromLast: false` to disable check cases searching from last.
 
 ```js
-// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}]
+/* eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}] */
 
 // ✅
 const item = array.filter(x => isUnicorn(x)).at(-1);

@@ -70,7 +70,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-single-call: ["error", {"ignore": ["readable"]}]
+/* eslint unicorn/prefer-single-call: ["error", {"ignore": ["readable"]}] */
 import {Readable} from 'node:stream';
 
 const readable = new Readable();

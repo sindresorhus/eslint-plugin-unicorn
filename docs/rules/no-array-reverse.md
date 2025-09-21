@@ -34,7 +34,7 @@ This rule allows `array.reverse()` to be used as an expression statement by defa
 Pass `allowExpressionStatement: false` to forbid `Array#reverse()` even if it's an expression statement.
 
 ```js
-// eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": false}]
+/* eslint unicorn/no-array-reverse: ["error", {"allowExpressionStatement": false}] */
 // ❌
 array.reverse();
 ```

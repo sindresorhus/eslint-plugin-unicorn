@@ -49,7 +49,7 @@ Default: `false`
 Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
 
 ```js
-// eslint unicorn/no-null: ["error", {"checkStrictEquality": true}]
+/* eslint unicorn/no-null: ["error", {"checkStrictEquality": true}] */
 // ❌
 if (foo === null) {}
 ```
