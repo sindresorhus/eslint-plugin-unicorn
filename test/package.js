@@ -26,18 +26,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
 	'filename-case',
-
-	// Intended to not use `Examples` section in this rule.
-	'prefer-modern-math-apis',
-	'prefer-math-min-max',
-	'consistent-existence-index-check',
-	'prefer-class-fields',
-	'prefer-global-this',
-	'no-instanceof-builtins',
-	'no-named-default',
-	'consistent-assert',
-	'no-accessor-recursion',
-	'consistent-date-clone',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
@@ -139,12 +127,11 @@ test('Every rule has a doc with the appropriate content', t => {
 			continue;
 		}
 
-		/// const documentPath = path.join('docs/rules', `${ruleName}.md`);
-		/// const documentContents = fs.readFileSync(documentPath, 'utf8');
+		const documentPath = path.join('docs/rules', `${ruleName}.md`);
+		const documentContents = fs.readFileSync(documentPath, 'utf8');
 
-		// TODO: Disabled until https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2530 is done.
 		// Check for examples.
-		// t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
+		t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
 		t.pass();
 	}
 });
