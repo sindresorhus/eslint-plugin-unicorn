@@ -132,7 +132,6 @@ test('Every rule has a doc with the appropriate content', t => {
 
 		// Check for examples.
 		t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
-		t.pass();
 	}
 });
 
