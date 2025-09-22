@@ -178,6 +178,9 @@ export default [
 
 			// These files use `>` in jsx
 			'test/integration/**',
+
+			// Contains Flow syntax
+			'test/e2e/babel/fixture/**',
 		],
 	},
 	// #903
