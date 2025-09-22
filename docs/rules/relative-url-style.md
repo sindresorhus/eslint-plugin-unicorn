@@ -30,7 +30,7 @@ Default: `'never'`
   - Always add a `./` prefix to the relative URL when possible.
 
 ```js
-// eslint unicorn/relative-url-style: ["error", "always"]
+/* eslint unicorn/relative-url-style: ["error", "always"] */
 
 // ❌
 const url = new URL('foo', base);

@@ -88,7 +88,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}]
+/* eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}] */
 const foo = bar[10]; // Fails, will fix to `bar.at(10)`
 const foo = bar[unknownProperty]; // Passes
 const foo = string.charAt(unknownIndex); // Fails
@@ -119,7 +119,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}]
+/* eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}] */
 // ❌
 const foo = utils.lastElement(bar);
 ```

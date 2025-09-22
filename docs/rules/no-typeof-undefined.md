@@ -47,7 +47,7 @@ The rule ignores variables not defined in the file by default.
 Set it to `true` to check all variables.
 
 ```js
-// eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}]
+/* eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}] */
 
 // ❌
 if (typeof undefinedVariable === 'undefined') {}

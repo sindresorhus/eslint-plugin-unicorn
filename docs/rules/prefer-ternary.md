@@ -138,7 +138,7 @@ Default: `'always'`
   - Only check if the content of the `if` and/or `else` block is less than one line long.
 
 ```js
-// eslint unicorn/prefer-ternary: ["error", "only-single-line"]
+/* eslint unicorn/prefer-ternary: ["error", "only-single-line"] */
 // ✅
 if (test) {
 	foo = [

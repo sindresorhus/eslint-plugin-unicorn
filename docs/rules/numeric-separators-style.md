@@ -79,7 +79,7 @@ You can set it at top-level, or override for each specific number type.
 Example:
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}]
+/* eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}] */
 const number = 100000; // Pass, this number does not contain separators
 const binary = 0b101010001; // Fail, `binary` type don't require separators
 const hexadecimal = 0xD_EED_BEE_F; // Fail, it contain separators and it's incorrectly grouped
@@ -112,7 +112,7 @@ Numbers are split into 3 distinct parts:
 ### Examples
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}] */
 
 // ❌
 const foo = 12345;
@@ -125,7 +125,7 @@ const foo = 123.1_000_001;
 ```
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"binary": {"minimumDigits": 0, "groupLength": 4}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"binary": {"minimumDigits": 0, "groupLength": 4}}] */
 
 // ❌
 const foo = 0b101010;
@@ -135,13 +135,13 @@ const foo = 0b1010_10001;
 ```
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"hexadecimal": {"minimumDigits": 0, "groupLength": 2}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"hexadecimal": {"minimumDigits": 0, "groupLength": 2}}] */
 // ❌
 const foo = 0xA_B_CD_EF;
 ```
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}] */
 
 // ✅
 const foo = 100;
@@ -154,14 +154,14 @@ const foo = 1_000_000;
 ```
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 5, "groupLength": 3}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 5, "groupLength": 3}}] */
 
 // ✅
 const foo = 1000;
 ```
 
 ```js
-// eslint unicorn/numeric-separators-style: ["error", {"octal": {"minimumDigits": 0, "groupLength": 4}}]
+/* eslint unicorn/numeric-separators-style: ["error", {"octal": {"minimumDigits": 0, "groupLength": 4}}] */
 
 // ✅
 const foo = 0o7777;

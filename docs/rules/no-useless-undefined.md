@@ -104,13 +104,13 @@ Disallow the use of `undefined` at the end of function call arguments. Pass `che
 
 ```js
 // ❌
-// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}]
+/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": true}] */
 foo(bar, baz, undefined);
 ```
 
 ```js
 // ✅
-// eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}]
+/* eslint unicorn/no-useless-undefined: ["error", {"checkArguments": false}] */
 foo(bar, baz, undefined);
 ```
 
@@ -122,13 +122,13 @@ Default: `true`
 Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunctionBody: false` to disable checking them.
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}]
+/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
 // ❌
 const foo = () => undefined;
 ```
 
 ```js
-// eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}]
+/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": false}] */
 // ✅
 const foo = () => undefined;
 ```

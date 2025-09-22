@@ -63,7 +63,7 @@ Default: `'always'`
 The following cases are considered valid:
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1:
 		doSomething();
@@ -72,7 +72,7 @@ switch (foo) {
 ```
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1: {
 		const bar = 2;
@@ -85,7 +85,7 @@ switch (foo) {
 The following case is considered invalid:
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1: {
 		doSomething();

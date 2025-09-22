@@ -102,7 +102,7 @@ Default: `false`
 Pass `checkInfinity: true` to enable check on `Infinity`.
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+/* eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}] */
 
 // ❌
 const foo = Infinity;
@@ -127,7 +127,7 @@ Default: `true`
 Pass `checkNaN: false` to disable check on `NaN`.
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+/* eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}] */
 
 // ✅
 const foo = NaN;

@@ -36,7 +36,7 @@ const fooNew = 'foo';
 If you want a custom list of disallowed prefixes you can set them with `disallowedPrefixes`:
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"disallowedPrefixes": ["new", "for"]}]
+/* eslint unicorn/no-keyword-prefix: ["error", {"disallowedPrefixes": ["new", "for"]}] */
 // ✅
 const classFoo = "a";
 
@@ -51,13 +51,13 @@ The default is `["new", "class"]`.
 If you want to disable this rule for properties, set `checkProperties` to `false`:
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": true}]
+/* eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": true}] */
 // ❌
 foo.newFoo = 2;
 ```
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": false}]
+/* eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": false}] */
 // ✅
 var foo = {newFoo: 1}; // pass
 
@@ -70,13 +70,13 @@ foo.newFoo = 2; // pass
 The default behavior is to check for camel case usage. If you want to disallow the prefix entirely, set `onlyCamelCase` to `false`:
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": true}]
+/* eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": true}] */
 // ✅
 const new_foo = "foo";
 ```
 
 ```js
-// eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": false}]
+/* eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": false}] */
 // ❌
 const new_foo = "foo";
 ```

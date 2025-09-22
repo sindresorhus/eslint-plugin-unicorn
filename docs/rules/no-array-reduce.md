@@ -80,13 +80,13 @@ Allow simple operations (like addition, subtraction, etc.) in a `reduce` call.
 Set it to `false` to disable reduce completely.
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}]
+/* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}] */
 // ✅
 array.reduce((total, item) => total + item)
 ```
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}]
+/* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}] */
 // ❌
 array.reduce((total, item) => total + item)
 ```
