@@ -9,43 +9,44 @@
 
 A class with only static members could just be an object instead.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 class X {
 	static foo = false;
 	static bar() {};
 }
-```
 
-## Pass
-
-```js
+// ✅
 const X = {
 	foo: false,
-	bar() {}
+	bar() {},
 };
 ```
 
 ```js
+// ✅
 class X {
 	static foo = false;
-	static bar() {};
+	static bar() {}
 
 	constructor() {}
 }
 ```
 
 ```js
+// ✅
 class X {
 	static foo = false;
-	static bar() {};
+	static bar() {}
 
 	unicorn() {}
 }
 ```
 
 ```js
+// ✅
 class X {
 	static #foo = false;
 	static bar() {}

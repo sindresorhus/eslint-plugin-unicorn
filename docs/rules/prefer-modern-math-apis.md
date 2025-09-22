@@ -31,53 +31,53 @@ Currently, we only check a few known cases, but we are open to add more patterns
 
 If you find a suitable case for this rule, please [open an issue](https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%20%60prefer-modern-math-apis%60%20%20change%20request&labels=evaluating).
 
-## Prefer `Math.log10(x)` over
+## Examples
 
 ```js
+// ❌
 Math.log(x) * Math.LOG10E
-```
 
-```js
+// ❌
 Math.LOG10E * Math.log(x)
-```
 
-```js
+// ❌
 Math.log(x) / Math.LN10
+
+// ✅
+Math.log10(x)
 ```
 
-## Prefer `Math.log2(x)` over
-
 ```js
+// ❌
 Math.log(x) * Math.LOG2E
-```
 
-```js
+// ❌
 Math.LOG2E * Math.log(x)
-```
 
-```js
+// ❌
 Math.log(x) / Math.LN2
+
+// ✅
+Math.log2(x)
 ```
 
-## Prefer `Math.hypot(…)` over
-
 ```js
+// ❌
 Math.sqrt(a * a + b * b)
-```
 
-```js
+// ❌
 Math.sqrt(a ** 2 + b ** 2)
+
+// ✅
+Math.hypot(a, b)
 ```
 
 ```js
-Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
-```
-
-*This case requires [`prefer-exponentiation-operator`](https://eslint.org/docs/latest/rules/prefer-exponentiation-operator) rule to fix it first.*
-
-```js
+// ❌
 Math.sqrt(x ** 2)
-// This case fix to `Math.abs(x)`, since it should be better than `Math.hypot(x)`
+
+// ✅
+Math.abs(x)
 ```
 
 ## Separate rule for `Math.trunc()`

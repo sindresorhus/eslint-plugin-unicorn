@@ -64,15 +64,17 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 
 *`.cjs` files are ignored.*
 
-## Fail
+## Examples
 
 ```js
+// ❌
 'use strict';
 
 // …
 ```
 
 ```js
+// ❌
 if (foo) {
 	return;
 }
@@ -81,28 +83,7 @@ if (foo) {
 ```
 
 ```js
-const file = path.join(__dirname, 'foo.js');
-```
-
-```js
-const content = fs.readFileSync(__filename, 'utf8');
-```
-
-```js
-const {fromPairs} = require('lodash');
-```
-
-```js
-module.exports = foo;
-```
-
-```js
-exports.foo = foo;
-```
-
-## Pass
-
-```js
+// ✅
 function run() {
 	if (foo) {
 		return;
@@ -115,18 +96,45 @@ run();
 ```
 
 ```js
-const file = fileURLToPath(new URL('foo.js', import.meta.url));
+// ❌
+const file = path.join(__dirname, 'foo.js');
+
+// ✅
+const file = path.join(import.meta.dirname, 'foo.js');
+
+// ✅
+const file = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'foo.js');
 ```
 
 ```js
+// ❌
+const content = fs.readFileSync(__filename, 'utf8');
+
+// ✅
+const content = fs.readFileSync(import.meta.filename, 'utf8');
+```
+
+```js
+// ❌
+const {fromPairs} = require('lodash');
+
+// ✅
 import {fromPairs} from 'lodash-es';
 ```
 
 ```js
+// ❌
+module.exports = foo;
+
+// ✅
 export default foo;
 ```
 
 ```js
+// ❌
+exports.foo = foo;
+
+// ✅
 export {foo};
 ```
 

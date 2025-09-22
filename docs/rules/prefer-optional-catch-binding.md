@@ -9,24 +9,15 @@
 
 If the `catch` binding parameter is not used, it should be omitted.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 try {} catch (notUsedError) {}
-```
 
-```js
+// ❌
 try {} catch ({message}) {}
-```
 
-## Pass
-
-```js
+// ✅
 try {} catch {}
-```
-
-```js
-try {} catch (error) {
-	console.error(error);
-}
 ```

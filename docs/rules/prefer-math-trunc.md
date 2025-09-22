@@ -20,71 +20,66 @@ These hacks help truncate numbers but they are not clear and do not work in [som
 
 This rule is fixable, unless the left-hand side in assignment has side effect.
 
-## Fail
+## Examples
 
 ```js
 const foo = 37.4;
+
+// ❌
 console.log(foo | 0);
-```
 
-```js
-const foo = 37.4;
-console.log(~~bar);
-```
+// ❌
+console.log(~~foo);
 
-```js
-let foo = 37.4;
-foo |= 0;
-```
-
-```js
-const foo = 37.4;
+// ❌
 console.log(foo << 0);
-```
 
-```js
-const foo = 37.4;
+// ❌
 console.log(foo >> 0);
-```
 
-```js
-const foo = {bar: 37.4};
+// ❌
 console.log(foo.bar ^ 0);
-```
 
-## Pass
-
-```js
-const foo = 37.4;
+// ✅
 console.log(Math.trunc(foo));
 ```
 
 ```js
+let foo = 37.4;
+
+// ❌
+foo |= 0;
+
+// ✅
+foo = Math.trunc(foo);
+```
+
+```js
+// ✅
 const foo = 37.4;
 console.log(foo | 3);
 ```
 
 ```js
-let foo = 37.4;
-foo = Math.trunc(foo);
-```
-
-```js
+// ✅
 const foo = 37.4;
 console.log(~foo);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo >> 3);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo << 3);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo ^ 3);
 ```

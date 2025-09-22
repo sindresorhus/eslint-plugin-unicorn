@@ -7,29 +7,28 @@
 
 [IIFE](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) with parenthesized arrow function body is considered unreadable.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = (bar => (bar ? bar.baz : baz))(getBar());
-```
 
-```js
-const foo = ((bar, baz) => ({bar, baz}))(bar, baz);
-```
-
-## Pass
-
-```js
+// ✅
 const bar = getBar();
 const foo = bar ? bar.baz : baz;
-```
 
-```js
+// ✅
 const getBaz = bar => (bar ? bar.baz : baz);
 const foo = getBaz(getBar());
 ```
 
 ```js
+// ❌
+const foo = ((bar, baz) => ({bar, baz}))(bar, baz);
+```
+
+```js
+// ✅
 const foo = (bar => {
 	return bar ? bar.baz : baz;
 })(getBar());

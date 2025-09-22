@@ -28,31 +28,28 @@ This rule checks following array methods accepts `thisArg`:
 
 This rule is fixable when the callback is an arrow function and the `thisArg` argument has no side effect.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = bar.find(element => isUnicorn(element), baz);
-```
 
-```js
-const foo = bar.map(function (element) => {
-	return this.unicorn(element);
-}, baz);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = bar.find(element => isUnicorn(element));
 ```
 
 ```js
+// ❌
+const foo = bar.map(function (element) {
+	return this.unicorn(element);
+}, baz);
+
+// ✅
 const foo = bar.map(function (element) => {
 	return baz.unicorn(element);
 });
-```
 
-```js
+// ✅
 const foo = bar.map(function (element) => {
 	return this.unicorn(element);
 }.bind(baz));

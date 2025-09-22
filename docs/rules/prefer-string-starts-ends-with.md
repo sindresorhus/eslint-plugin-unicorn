@@ -11,38 +11,25 @@ Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScr
 
 This rule is fixable, unless the matching object is known not a string.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = /^bar/.test(baz);
-```
 
-```js
-const foo = /bar$/.test(baz);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = baz.startsWith('bar');
 ```
 
 ```js
+// ❌
+const foo = /bar$/.test(baz);
+
+// ✅
 const foo = baz.endsWith('bar');
 ```
 
 ```js
-const foo = baz?.startsWith('bar');
-```
-
-```js
-const foo = (baz ?? '').startsWith('bar');
-```
-
-```js
-const foo = String(baz).startsWith('bar');
-```
-
-```js
+// ✅
 const foo = /^bar/i.test(baz);
 ```

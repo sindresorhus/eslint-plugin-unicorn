@@ -14,21 +14,24 @@ This rule defines 4 import styles:
 - `namespace` - `import * as path from 'path'` or `const path = require('path')`
 - `named` - `import {inspect} from 'util'` or `const {inspect} = require('util')`
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const util = require('node:util');
 
-import util from 'node:util';
-
-import * as util from 'node:util';
+// ✅
+const {promisify} = require('node:util');
 ```
 
-## Pass
-
 ```js
-const {promisify} = require('node:util');
+// ❌
+import util from 'node:util';
 
+// ❌
+import * as util from 'node:util';
+
+// ✅
 import {promisify} from 'node:util';
 ```
 

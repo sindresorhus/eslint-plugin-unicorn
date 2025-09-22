@@ -9,22 +9,24 @@
 
 Using a negated expression in equality check is most likely a mistake.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (!foo === bar) {}
 ```
 
 ```js
+// ❌
 if (!foo !== bar) {}
 ```
 
-## Pass
-
 ```js
+// ✅
 if (foo !== bar) {}
 ```
 
 ```js
+// ✅
 if (!(foo === bar)) {}
 ```

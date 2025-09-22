@@ -21,47 +21,45 @@ Prefer negative index over calculating from `.length` for:
 - [`TypedArray#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/with)
 - [`TypedArray#subarray()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/subarray)
 
-## Fail
+## Examples
 
 ```js
+// ❌
 foo.slice(foo.length - 2, foo.length - 1);
-```
 
-```js
-foo.splice(foo.length - 1, 1);
-```
-
-```js
-foo.at(foo.length - 1);
-```
-
-```js
-Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1);
-```
-
-```js
-Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1]);
-```
-
-## Pass
-
-```js
+// ✅
 foo.slice(-2, -1);
 ```
 
 ```js
+// ❌
+foo.splice(foo.length - 1, 1);
+
+// ✅
 foo.splice(-1, 1);
 ```
 
 ```js
+// ❌
+foo.at(foo.length - 1);
+
+// ✅
 foo.at(-1);
 ```
 
 ```js
+// ❌
+Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1);
+
+// ✅
 Array.prototype.slice.call(foo, -2, -1);
 ```
 
 ```js
+// ❌
+Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1]);
+
+// ✅
 Array.prototype.slice.apply(foo, [-2, -1]);
 ```
 

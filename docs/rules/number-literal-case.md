@@ -13,19 +13,29 @@ Differentiating the casing of the identifier and value clearly separates them an
 - Uppercase or lowercase hexadecimal value for [`Number`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) and [`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#BigInt_type).
 - Lowercase `e` for exponential notation.
 
-## Fail
+## Examples
 
 [Hexadecimal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Hexadecimal)
 
 ```js
 // ❌
 const foo = 0XFF;
+
+// ❌
 const foo = 0xff;
+
+// ❌
 const foo = 0Xff;
-const foo = 0Xffn;
 
 // ✅
 const foo = 0xFF;
+```
+
+```js
+// ❌
+const foo = 0Xffn;
+
+// ✅
 const foo = 0xFFn;
 ```
 
@@ -34,10 +44,16 @@ const foo = 0xFFn;
 ```js
 // ❌
 const foo = 0B10;
-const foo = 0B10n;
 
 // ✅
 const foo = 0b10;
+```
+
+```js
+// ❌
+const foo = 0B10n;
+
+// ✅
 const foo = 0b10n;
 ```
 
@@ -46,10 +62,16 @@ const foo = 0b10n;
 ```js
 // ❌
 const foo = 0O76;
-const foo = 0O76n;
 
 // ✅
 const foo = 0o76;
+```
+
+```js
+// ❌
+const foo = 0O76n;
+
+// ✅
 const foo = 0o76n;
 ```
 
@@ -58,12 +80,24 @@ const foo = 0o76n;
 ```js
 // ❌
 const foo = 2E-5;
-const foo = 2E+5;
-const foo = 2E5;
 
 // ✅
 const foo = 2e-5;
+```
+
+```js
+// ❌
+const foo = 2E+5;
+
+// ✅
 const foo = 2e+5;
+```
+
+```js
+// ❌
+const foo = 2E5;
+
+// ✅
 const foo = 2e5;
 ```
 

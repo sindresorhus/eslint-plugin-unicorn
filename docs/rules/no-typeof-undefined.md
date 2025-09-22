@@ -11,23 +11,15 @@ Checking if a value is `undefined` by using `typeof value === 'undefined'` is ne
 
 Historical note: Comparing against `undefined` without `typeof` was frowned upon until ES5. This is no longer a problem since all engines currently in use no longer allow reassigning the `undefined` global.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 function foo(bar) {
 	if (typeof bar === 'undefined') {}
 }
-```
 
-```js
-import foo from './foo.js';
-
-if (typeof foo.bar !== 'undefined') {}
-```
-
-## Pass
-
-```js
+// ✅
 function foo(bar) {
 	if (bar === undefined) {}
 }
@@ -36,6 +28,10 @@ function foo(bar) {
 ```js
 import foo from './foo.js';
 
+// ❌
+if (typeof foo.bar !== 'undefined') {}
+
+// ✅
 if (foo.bar !== undefined) {}
 ```
 
@@ -52,10 +48,10 @@ Set it to `true` to check all variables.
 
 ```js
 // eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}]
-if (typeof undefinedVariable === 'undefined') {} // Fails
-```
 
-```js
-// eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}]
-if (typeof Array === 'undefined') {}  // Fails
+// ❌
+if (typeof undefinedVariable === 'undefined') {}
+
+// ❌
+if (typeof Array === 'undefined') {}
 ```

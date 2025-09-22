@@ -16,7 +16,9 @@ Disallow any files only containing the following:
 - Empty block statements
 - Hashbang
 
-## Fail
+## Examples
+
+These files fail:
 
 ```js
 
@@ -47,7 +49,7 @@ Disallow any files only containing the following:
 #!/usr/bin/env node
 ```
 
-## Pass
+These files pass:
 
 ```js
 const x = 0;

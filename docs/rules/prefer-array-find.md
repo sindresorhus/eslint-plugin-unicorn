@@ -11,43 +11,30 @@
 
 This rule is fixable unless default values are used in declaration or assignment.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const item = array.filter(x => isUnicorn(x))[0];
-```
 
-```js
-const item = array.filter(x => isUnicorn(x)).at(-1);
-```
-
-```js
+// ❌
 const item = array.filter(x => isUnicorn(x)).shift();
-```
 
-```js
-const item = array.filter(x => isUnicorn(x)).pop();
-```
-
-```js
+// ❌
 const [item] = array.filter(x => isUnicorn(x));
-```
 
-```js
-[item] = array.filter(x => isUnicorn(x));
-```
-
-## Pass
-
-```js
+// ✅
 const item = array.find(x => isUnicorn(x));
 ```
 
 ```js
-item = array.find(x => isUnicorn(x));
-```
+// ❌
+const item = array.filter(x => isUnicorn(x)).at(-1);
 
-```js
+// ❌
+const item = array.filter(x => isUnicorn(x)).pop();
+
+// ✅
 const item = array.findLast(x => isUnicorn(x));
 ```
 
@@ -62,14 +49,12 @@ Default: `true`
 
 Pass `checkFromLast: false` to disable check cases searching from last.
 
-#### Pass
-
 ```js
 // eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}]
+
+// ✅
 const item = array.filter(x => isUnicorn(x)).at(-1);
-```
 
-```js
-// eslint unicorn/prefer-array-find: ["error", {"checkFromLast": false}]
+// ✅
 const item = array.filter(x => isUnicorn(x)).pop();
 ```

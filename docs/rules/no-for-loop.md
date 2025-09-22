@@ -13,22 +13,29 @@ Off-by-one errors are one of the most common bugs in software. [Swift actually r
 
 This rule is fixable unless index or element variables were used outside of the loop.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 for (let index = 0; index < array.length; index++) {
 	const element = array[index];
 	console.log(index, element);
 }
-```
 
-## Pass
-
-```js
+// ✅
 for (const [index, element] of array.entries()) {
 	console.log(index, element);
 }
+```
 
+```js
+// ❌
+for (let index = 0; index < array.length; index++) {
+	const element = array[index];
+	console.log(element);
+}
+
+// ✅
 for (const element of array) {
 	console.log(element);
 }

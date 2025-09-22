@@ -13,101 +13,112 @@ All built-ins have `.includes()` in addition to `.indexOf()` and `.lastIndexOf()
 
 This rule is fixable, unless the search expression in `Array#some()` has side effects.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 array.indexOf('foo') !== -1;
-```
 
-```js
-string.lastIndexOf('foo') !== -1;
-```
+// ❌
+array.indexOf('foo') != -1;
 
-```js
+// ❌
+array.indexOf('foo') >= 0;
+
+// ❌
+array.indexOf('foo') > -1;
+
+// ❌
 array.lastIndexOf('foo') !== -1;
+
+// ❌
+array.some(x => x === 'foo');
+
+// ❌
+array.some(x => 'foo' === x);
+
+// ❌
+array.some(x => {
+	return x === 'foo';
+});
+
+// ✅
+array.includes('foo');
 ```
 
 ```js
-foo.indexOf('foo') != -1;
+// ❌
+string.indexOf('foo') !== -1;
+
+// ❌
+string.lastIndexOf('foo') !== -1;
+
+// ✅
+string.includes('foo');
 ```
 
 ```js
-foo.indexOf('foo') >= 0;
-```
-
-```js
-foo.indexOf('foo') > -1;
-```
-
-```js
+// ❌
 foo.indexOf('foo') === -1
+
+// ✅
+!foo.includes('foo');
 ```
 
 ```js
-foo.some(x => x === 'foo');
-```
-
-```js
-foo.some(x => 'foo' === x);
-```
-
-```js
+// ❌
 foo.some(x => {
 	return x === 'foo';
 });
 ```
 
-## Pass
-
 ```js
+// ✅
 foo.indexOf('foo') !== -n;
 ```
 
 ```js
+// ✅
 foo.indexOf('foo') !== 1;
 ```
 
 ```js
+// ✅
 foo.indexOf('foo') === 1;
 ```
 
 ```js
-foo.includes('foo');
-```
-
-```js
-foo.includes(4);
-```
-
-```js
-foo.includes('foo');
-```
-
-```js
+// ✅
 foo.some(x => x == undefined);
 ```
 
 ```js
+// ✅
 foo.some(x => x !== 'foo');
 ```
 
 ```js
+// ✅
 foo.some((x, index) => x === index);
 ```
 
 ```js
+// ✅
 foo.some(x => (x === 'foo') && isValid());
 ```
 
 ```js
+// ✅
 foo.some(x => y === 'foo');
 ```
 
 ```js
+// ✅
 foo.some(x => y.x === 'foo');
 ```
 
 ```js
+// ✅
 foo.some(x => {
 	const bar = getBar();
 	return x === bar;

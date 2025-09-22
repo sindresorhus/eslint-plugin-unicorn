@@ -7,19 +7,25 @@
 
 `new Foo` and `newFoo` look very similar. Use alternatives that do not look like keyword usage.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const newFoo = 'foo';
+
+// ❌
 const classFoo = 'foo';
-```
 
-## Pass
-
-```js
+// ✅
 const foo = 'foo';
+
+// ✅
 const _newFoo = 'foo';
+
+// ✅
 const new_foo = 'foo';
+
+// ✅
 const fooNew = 'foo';
 ```
 
@@ -31,10 +37,11 @@ If you want a custom list of disallowed prefixes you can set them with `disallow
 
 ```js
 // eslint unicorn/no-keyword-prefix: ["error", {"disallowedPrefixes": ["new", "for"]}]
-const classFoo = "a"; // pass
+// ✅
+const classFoo = "a";
 
-// eslint unicorn/no-keyword-prefix: ["error", {"disallowedPrefixes": ["new", "for"]}]
-const forFoo = "a"; // fail
+// ❌
+const forFoo = "a";
 ```
 
 The default is `["new", "class"]`.
@@ -45,12 +52,16 @@ If you want to disable this rule for properties, set `checkProperties` to `false
 
 ```js
 // eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": true}]
-foo.newFoo = 2; // fail
+// ❌
+foo.newFoo = 2;
+```
 
+```js
 // eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": false}]
+// ✅
 var foo = {newFoo: 1}; // pass
 
-// eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": false}]
+// ✅
 foo.newFoo = 2; // pass
 ```
 
@@ -60,8 +71,12 @@ The default behavior is to check for camel case usage. If you want to disallow t
 
 ```js
 // eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": true}]
-const new_foo = "foo"; // pass
+// ✅
+const new_foo = "foo";
+```
 
+```js
 // eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": false}]
-const new_foo = "foo"; // fail
+// ❌
+const new_foo = "foo";
 ```

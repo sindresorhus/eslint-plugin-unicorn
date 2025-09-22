@@ -12,30 +12,28 @@
 
 This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 await fs.readFile(file, 'UTF-8');
-```
 
-```js
-await fs.readFile(file, 'ASCII');
-```
-
-```js
-const string = buffer.toString('utf-8');
-```
-
-## Pass
-
-```js
+// ✅
 await fs.readFile(file, 'utf8');
 ```
 
 ```js
+// ❌
+await fs.readFile(file, 'ASCII');
+
+// ✅
 await fs.readFile(file, 'ascii');
 ```
 
 ```js
+// ❌
+const string = buffer.toString('utf-8');
+
+// ✅
 const string = buffer.toString('utf8');
 ```

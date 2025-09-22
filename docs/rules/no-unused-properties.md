@@ -32,32 +32,32 @@ const ClassName = {
 };
 ```
 
-## Fail
+## Examples
 
 ```js
-const enum = {
+// ❌
+const myEnum = {
 	used: 1,
-	unused: 2 // <- Property `unused` is defined but never used.
+	unused: 2, // <- Property `unused` is defined but never used.
 };
 
-console.log(enum.used);
+console.log(myEnum.used);
 
-const {used} = enum;
+const {used} = myEnum;
 ```
 
-## Pass
-
 ```js
-const enum = {
+// ✅
+const myEnum = {
 	used: 1,
-	usedToo: 2
+	usedToo: 2,
 };
 
-console.log(enum); // The whole object is used
+console.log(myEnum); // The whole object is used
 
-console.log(enum.used, enum.usedToo); // Every property is used individually
+console.log(myEnum.used, myEnum.usedToo); // Every property is used individually
 
-enum[x] // Unpredictable, all properties are considered to be used
+myEnum[x] // Unpredictable, all properties are considered to be used
 
 // Objects with methods are skipped too, all properties are considered used
 const foo = {

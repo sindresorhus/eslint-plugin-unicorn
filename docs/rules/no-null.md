@@ -9,27 +9,31 @@
 
 Disallow the use of the `null` literal, to encourage using `undefined` instead. You can learn why in <https://github.com/sindresorhus/meta/discussions/7>
 
-## Fail
+## Examples
 
 ```js
+// ❌
 let foo = null;
-```
 
-```js
-if (bar == null) {}
-```
-
-## Pass
-
-```js
+// ✅
 let foo;
 ```
 
 ```js
+// ❌
+if (bar == null) {}
+
+// ✅
+if (bar == undefined) {}
+```
+
+```js
+// ✅
 const foo = Object.create(null);
 ```
 
 ```js
+// ✅
 if (foo === null) {}
 ```
 
@@ -44,10 +48,9 @@ Default: `false`
 
 Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
 
-#### Fail
-
 ```js
 // eslint unicorn/no-null: ["error", {"checkStrictEquality": true}]
+// ❌
 if (foo === null) {}
 ```
 

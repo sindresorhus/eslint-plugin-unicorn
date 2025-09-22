@@ -13,32 +13,32 @@ When using the `Array` constructor with one argument, it's not clear whether the
 
 This rule is fixable if the value type of the argument is known.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const length = 10;
 const array = new Array(length);
-```
 
-```js
-const array = new Array(onlyElement);
-```
-
-```js
-const array = new Array(...unknownArgumentsList);
-```
-
-## Pass
-
-```js
+// ✅
 const length = 10;
 const array = Array.from({length});
 ```
 
 ```js
+// ❌
+const array = new Array(onlyElement);
+
+// ✅
 const array = [onlyElement];
 ```
 
 ```js
+// ❌
+const array = new Array(...unknownArgumentsList);
+```
+
+```js
+// ✅
 const array = [...items];
 ```
