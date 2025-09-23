@@ -17,20 +17,32 @@ export function isNodeMatchesNameOrPath(node, nameOrPath) {
 			return (
 				(node.type === 'Identifier' && node.name === name)
 				|| (name === 'this' && node.type === 'ThisExpression')
+				|| (name === 'super' && node.type === 'Super')
 			);
 		}
 
 		if (
-			node.type !== 'MemberExpression'
-			|| node.optional
-			|| node.computed
-			|| node.property.type !== 'Identifier'
-			|| node.property.name !== name
+			index === 1
+			&& node.type === 'MetaProperty'
+			&& node.property.type === 'Identifier'
+			&& node.property.name === name
 		) {
-			return false;
+			node = node.meta;
+			continue;
 		}
 
-		node = node.object;
+		if (
+			node.type === 'MemberExpression'
+			&& !node.optional
+			&& !node.computed
+			&& node.property.type === 'Identifier'
+			&& node.property.name === name
+		) {
+			node = node.object;
+			continue;
+		}
+
+		return false;
 	}
 }
 
