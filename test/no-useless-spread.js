@@ -77,6 +77,11 @@ test.snapshot({
 		'const object = {a, ...{a, b}, b,}',
 		'foo(a, ...[a, b], b,)',
 		'new Foo(a, ...[a, b], b,)',
+		'const array = [a, ...[], b]',
+		'const array = [a, ...(( [] )),]',
+		'const array = [a, ...(( [] ))]',
+		'const array = [a, ...[b], c]',
+		'const object = {a, ...(({})), b,}',
 
 		// Duplicated keys
 		'({a:1, ...{a: 2}})',
