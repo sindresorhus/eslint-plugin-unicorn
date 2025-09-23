@@ -311,6 +311,39 @@ test.babel({
 	valid: [],
 	invalid: [
 		{
+			code: '[1,...[],3]',
+			output: '[1,3]',
+			errors: 1,
+		},
+	],
+});
+
+test.babel({
+	valid: [],
+	invalid: [
+		{
+			code: '[1,...[1],3]',
+			output: '[1,1,3]',
+			errors: 1,
+		},
+	],
+});
+
+test.babel({
+	valid: [],
+	invalid: [
+		{
+			code: 'const a = { a: 1,...({}),b: 2 }',
+			output: 'const a = { a: 1,b: 2 }',
+			errors: 1,
+		},
+	],
+});
+
+test.babel({
+	valid: [],
+	invalid: [
+		{
 			code: 'for (const foo of[...iterable]);',
 			output: 'for (const foo of iterable);',
 			errors: 1,
