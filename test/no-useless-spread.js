@@ -77,6 +77,11 @@ test.snapshot({
 		'const object = {a, ...{a, b}, b,}',
 		'foo(a, ...[a, b], b,)',
 		'new Foo(a, ...[a, b], b,)',
+		'const array = [a, ...[], b]',
+		'const array = [a, ...(( [] )),]',
+		'const array = [a, ...(( [] ))]',
+		'const array = [a, ...[b], c]',
+		'const object = {a, ...(({})), b,}',
 
 		// Duplicated keys
 		'({a:1, ...{a: 2}})',
@@ -304,50 +309,6 @@ test.snapshot({
 				]);
 			}
 		`,
-	],
-});
-
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: '[1,...[],3]',
-			output: '[1,3]',
-			errors: 1,
-		},
-	],
-});
-
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: '[1,...[1],3]',
-			output: '[1,1,3]',
-			errors: 1,
-		},
-	],
-});
-
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: 'const a = { a: 1,...({}),b: 2 }',
-			output: 'const a = { a: 1,b: 2 }',
-			errors: 1,
-		},
-	],
-});
-
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: 'for (const foo of[...iterable]);',
-			output: 'for (const foo of iterable);',
-			errors: 1,
-		},
 	],
 });
 

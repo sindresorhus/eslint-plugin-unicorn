@@ -138,7 +138,6 @@ const create = context => {
 		const spreadElement = spreadObject.parent;
 		const spreadToken = sourceCode.getFirstToken(spreadElement);
 		const parentType = spreadElement.parent.type;
-		const isEmptySpread = node.type === 'ArrayExpression' ? node.elements.length === 0 : node.properties.length === 0;
 
 		return {
 			node: spreadToken,
@@ -179,7 +178,10 @@ const create = context => {
 
 				// `[...[], 1]`
 				//        ^
-				if (isEmptySpread) {
+				if (
+					(node.type === 'ArrayExpression' && node.elements.length === 0)
+					|| (node.type === 'ObjectExpression' && node.properties.length === 0)
+				) {
 					const nextToken = sourceCode.getTokenAfter(spreadElement);
 					if (isCommaToken(nextToken)) {
 						yield fixer.remove(nextToken);
