@@ -33,7 +33,7 @@ function doFoo() {
 
 // Arrow functions in return statements are now also flagged
 export function someAction() {
-	return (dispatch) => dispatch({ type: 'SOME_TYPE' });
+	return dispatch => dispatch({type: 'SOME_TYPE'});
 }
 ```
 
