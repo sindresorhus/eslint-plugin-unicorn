@@ -99,7 +99,7 @@ const create = context => {
 		context,
 		handle: checkProperty,
 		filter: ({node}) => !isLeftHandSide(node),
-	}).lister();
+	}).listen();
 };
 
 const schema = [
