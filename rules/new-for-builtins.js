@@ -63,7 +63,7 @@ function enforceNewExpression({node, path: [name]}, {sourceCode}) {
 	};
 }
 
-function enforceCallExpression({node, path: [name]}, context) {
+function enforceCallExpression({node, path: [name]}, {sourceCode}) {
 	const problem = {
 		node,
 		messageId: 'disallow',
@@ -72,7 +72,7 @@ function enforceCallExpression({node, path: [name]}, context) {
 
 	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 		problem.fix = function * (fixer) {
-			yield * switchNewExpressionToCallExpression(node, context.sourceCode, fixer);
+			yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
 		};
 	}
 
