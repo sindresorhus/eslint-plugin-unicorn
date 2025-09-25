@@ -50,7 +50,7 @@ export class GlobalReferenceTracker {
 
 			if (problems?.[Symbol.iterator]) {
 				yield * problems;
-			} else {
+			} else if (problems) {
 				yield problems;
 			}
 		}
@@ -58,8 +58,8 @@ export class GlobalReferenceTracker {
 
 	listen(options) {
 		const context = options?.context ?? this.#context;
-		context.on(
-			'Program:exit',
+		context.onExit(
+			'Program',
 			program => this.#track(context.sourceCode.getScope(program), options),
 		);
 	}
