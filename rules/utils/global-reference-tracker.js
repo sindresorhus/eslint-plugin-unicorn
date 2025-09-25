@@ -35,7 +35,7 @@ export class GlobalReferenceTracker {
 		this.#handle = handle;
 	}
 
-	* track(globalScope, options) {
+	* #track(globalScope, options) {
 		const filter = options?.filter ?? this.#filter;
 		const handle = options?.handle ?? this.#handle;
 		const tracker = new ReferenceTracker(globalScope);
@@ -59,7 +59,7 @@ export class GlobalReferenceTracker {
 		const context = options?.context ?? this.#context;
 		context.on(
 			'Program:exit',
-			program => this.track(context.sourceCode.getScope(program), options),
+			program => this.#track(context.sourceCode.getScope(program), options),
 		);
 	}
 }
