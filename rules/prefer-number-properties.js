@@ -95,13 +95,12 @@ const create = context => {
 		return true;
 	});
 
-	const tracker = new GlobalReferenceTracker({
+	new GlobalReferenceTracker({
 		objects,
+		context,
 		handle: reference => checkProperty(reference, sourceCode),
 		filter: ({node}) => !isLeftHandSide(node),
-	});
-
-	return tracker.createListeners(context);
+	}).lister();
 };
 
 const schema = [

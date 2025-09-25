@@ -16,7 +16,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
-function enforceNewExpression({node, path: [name]}, sourceCode) {
+function enforceNewExpression({node, path: [name]}, {sourceCode}) {
 	if (name === 'Object') {
 		const {parent} = node;
 		if (
@@ -63,7 +63,7 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 	};
 }
 
-function enforceCallExpression({node, path: [name]}, sourceCode) {
+function enforceCallExpression({node, path: [name]}, context) {
 	const problem = {
 		node,
 		messageId: 'disallow',
@@ -72,35 +72,32 @@ function enforceCallExpression({node, path: [name]}, sourceCode) {
 
 	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 		problem.fix = function * (fixer) {
-			yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
+			yield * switchNewExpressionToCallExpression(node, context.sourceCode, fixer);
 		};
 	}
 
 	return problem;
 }
 
+const newExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.disallowNew,
+	type: GlobalReferenceTracker.CONSTRUCT,
+});
+const callExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.enforceNew,
+	type: GlobalReferenceTracker.CALL,
+});
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-	const newExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.disallowNew,
-		type: GlobalReferenceTracker.CONSTRUCT,
-		handle: reference => enforceCallExpression(reference, sourceCode),
+	newExpressionTracker.listen({
+		context,
+		handle: reference => enforceCallExpression(reference, context),
 	});
-	const callExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.enforceNew,
-		type: GlobalReferenceTracker.CALL,
-		handle: reference => enforceNewExpression(reference, sourceCode),
+	callExpressionTracker.listen(context, {
+		context,
+		handle: reference => enforceNewExpression(reference, context),
 	});
-
-	return {
-		* 'Program:exit'(program) {
-			const scope = sourceCode.getScope(program);
-
-			yield * newExpressionTracker.track(scope);
-			yield * callExpressionTracker.track(scope);
-		},
-	};
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
