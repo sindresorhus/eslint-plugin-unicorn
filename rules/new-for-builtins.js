@@ -82,22 +82,18 @@ function enforceCallExpression({node, path: [name]}, context) {
 const newExpressionTracker = new GlobalReferenceTracker({
 	objects: builtins.disallowNew,
 	type: GlobalReferenceTracker.CONSTRUCT,
+	handle: enforceCallExpression,
 });
 const callExpressionTracker = new GlobalReferenceTracker({
 	objects: builtins.enforceNew,
 	type: GlobalReferenceTracker.CALL,
+	handle: enforceNewExpression,
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	newExpressionTracker.listen({
-		context,
-		handle: reference => enforceCallExpression(reference, context),
-	});
-	callExpressionTracker.listen(context, {
-		context,
-		handle: reference => enforceNewExpression(reference, context),
-	});
+	newExpressionTracker.listen({context});
+	callExpressionTracker.listen({context});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

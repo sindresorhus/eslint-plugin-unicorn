@@ -36,6 +36,7 @@ export class GlobalReferenceTracker {
 	}
 
 	* #track(globalScope, options) {
+		const context = options?.context ?? this.#context;
 		const filter = options?.filter ?? this.#filter;
 		const handle = options?.handle ?? this.#handle;
 		const tracker = new ReferenceTracker(globalScope);
@@ -45,7 +46,7 @@ export class GlobalReferenceTracker {
 				continue;
 			}
 
-			const problems = handle(reference);
+			const problems = handle(reference, context);
 
 			if (problems?.[Symbol.iterator]) {
 				yield * problems;
