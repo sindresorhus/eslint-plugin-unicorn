@@ -125,7 +125,7 @@ function create(context) {
 		callExpressions.push(callExpression);
 	});
 
-	context.on('Program:exit', function * (program) {
+	context.onExit('Program', function * (program) {
 		const globalReferences = new WeakMap();
 
 		const tracker = new ReferenceTracker(sourceCode.getScope(program));

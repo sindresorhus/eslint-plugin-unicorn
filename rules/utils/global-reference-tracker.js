@@ -13,50 +13,55 @@ const createTraceMap = (object, type) => {
 
 export class GlobalReferenceTracker {
 	#traceMap = {};
+	#context;
 	#filter;
 	#handle;
 
 	constructor({
 		object,
 		objects = [object],
+		type = ReferenceTracker.READ,
+
+		context,
 		filter,
 		handle,
-		type = ReferenceTracker.READ,
 	}) {
 		for (const object of objects) {
 			Object.assign(this.#traceMap, createTraceMap(object, type));
 		}
 
+		this.#context = context;
 		this.#filter = filter;
 		this.#handle = handle;
 	}
 
-	* track(globalScope) {
+	* #track(globalScope, options) {
+		const context = options?.context ?? this.#context;
+		const filter = options?.filter ?? this.#filter;
+		const handle = options?.handle ?? this.#handle;
 		const tracker = new ReferenceTracker(globalScope);
 
 		for (const reference of tracker.iterateGlobalReferences(this.#traceMap)) {
-			if (this.#filter && !this.#filter(reference)) {
+			if (filter && !filter(reference)) {
 				continue;
 			}
 
-			const problems = this.#handle(reference);
+			const problems = handle(reference, context);
 
-			if (!problems) {
-				continue;
-			}
-
-			if (problems[Symbol.iterator]) {
+			if (problems?.[Symbol.iterator]) {
 				yield * problems;
-			} else {
+			} else if (problems) {
 				yield problems;
 			}
 		}
 	}
 
-	createListeners(context) {
-		return {
-			'Program:exit': program => this.track(context.sourceCode.getScope(program)),
-		};
+	listen(options) {
+		const context = options?.context ?? this.#context;
+		context.onExit(
+			'Program',
+			program => this.#track(context.sourceCode.getScope(program), options),
+		);
 	}
 }
 

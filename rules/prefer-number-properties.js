@@ -26,7 +26,7 @@ const isNegative = node => {
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-function checkProperty({node, path: [name]}, sourceCode) {
+function checkProperty({node, path: [name]}, {sourceCode}) {
 	const {parent} = node;
 
 	let property = name;
@@ -81,7 +81,6 @@ const create = context => {
 		checkNaN: true,
 		...context.options[0],
 	};
-	const {sourceCode} = context;
 
 	const objects = Object.keys(globalObjects).filter(name => {
 		if (!checkInfinity && name === 'Infinity') {
@@ -95,13 +94,12 @@ const create = context => {
 		return true;
 	});
 
-	const tracker = new GlobalReferenceTracker({
+	new GlobalReferenceTracker({
 		objects,
-		handle: reference => checkProperty(reference, sourceCode),
+		context,
+		handle: checkProperty,
 		filter: ({node}) => !isLeftHandSide(node),
-	});
-
-	return tracker.createListeners(context);
+	}).listen();
 };
 
 const schema = [
