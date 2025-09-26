@@ -31,5 +31,7 @@ test.snapshot({
 		'(( (( string )).charCodeAt( ((index)), )))',
 		'String.fromCharCode( code )',
 		'(( (( String )).fromCharCode( ((code)), ) ))',
+		'String.fromCharCode.bind(String)',
+		'const x = String.fromCharCode',
 	],
 });
