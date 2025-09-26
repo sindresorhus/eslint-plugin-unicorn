@@ -129,8 +129,8 @@ Default: `undefined` (uses ESLint's language options globals)
 
 Controls how global variables are handled. When not specified, uses ESLint's language options globals. When specified as an object, each key is a global variable name and the value controls its behavior:
 
-- `'readonly'`: Global variable is allowed but cannot be written to (deprecated form `false` also accepted)
-- `'writable'`: Global variable is allowed and can be read/written (deprecated forms `true` and `'writeable'` also accepted)
+- `'readonly'`: Global variable is allowed but cannot be written to
+- `'writable'`: Global variable is allowed and can be read/written
 - `'off'`: Global variable is not allowed
 
 ```js

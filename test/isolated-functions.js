@@ -74,7 +74,7 @@ test({
 					return foo.slice();
 				}
 			`),
-			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
+			errors: [error({name: 'foo', reason: 'follows comment containing "isolated"'})],
 		},
 		{
 			name: '@isolated comment on arrow function',
@@ -83,7 +83,7 @@ test({
 				/** @isolated */
 				const abc = () => foo.slice();
 			`),
-			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
+			errors: [error({name: 'foo', reason: 'follows comment containing "isolated"'})],
 		},
 		{
 			name: '@isolated inline comment',
@@ -92,7 +92,7 @@ test({
 				// @isolated
 				const abc = () => foo.slice();
 			`),
-			errors: [error({name: 'foo', reason: 'follows comment containing "@isolated"'})],
+			errors: [error({name: 'foo', reason: 'follows comment containing "isolated"'})],
 		},
 		{
 			name: 'all global variables can be explicitly disallowed',

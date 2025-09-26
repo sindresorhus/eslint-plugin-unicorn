@@ -19,7 +19,7 @@ const parseEsquerySelector = selector => {
 const defaultOptions = {
 	functions: ['makeSynchronous'],
 	selectors: [],
-	comments: ['@isolated'],
+	comments: ['isolated'],
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
