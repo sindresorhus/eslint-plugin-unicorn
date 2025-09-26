@@ -1,6 +1,6 @@
 # Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -53,33 +53,31 @@ Disallows the use of `new` for following builtins.
 
 This rule is fixable, except `new String()`, `new Number()`, and `new Boolean()`, [they return wrapped object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#String_primitives_and_String_objects).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const list = Array(10);
-```
 
-```js
-const now = Date();
-```
-
-```js
-const map = Map([
-	['foo', 'bar']
-]);
-```
-
-## Pass
-
-```js
+// ✅
 const list = new Array(10);
 ```
 
 ```js
+// ❌
+const now = Date();
+
+// ✅
 const now = new Date();
 ```
 
 ```js
+// ❌
+const map = Map([
+	['foo', 'bar']
+]);
+
+// ✅
 const map = new Map([
 	['foo', 'bar']
 ]);

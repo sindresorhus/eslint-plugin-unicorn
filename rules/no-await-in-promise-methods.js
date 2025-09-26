@@ -60,7 +60,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `await` in `Promise` method parameters.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

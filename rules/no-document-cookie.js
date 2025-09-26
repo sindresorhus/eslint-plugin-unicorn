@@ -13,12 +13,12 @@ const tracker = new GlobalReferenceTracker({
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => tracker.createListeners(context),
+	create: context => tracker.listen({context}),
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Do not use `document.cookie` directly.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

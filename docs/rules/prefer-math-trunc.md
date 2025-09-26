@@ -1,6 +1,6 @@
 # Enforce the use of `Math.trunc` instead of bitwise operators
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -20,71 +20,66 @@ These hacks help truncate numbers but they are not clear and do not work in [som
 
 This rule is fixable, unless the left-hand side in assignment has side effect.
 
-## Fail
+## Examples
 
 ```js
 const foo = 37.4;
+
+// ❌
 console.log(foo | 0);
-```
 
-```js
-const foo = 37.4;
-console.log(~~bar);
-```
+// ❌
+console.log(~~foo);
 
-```js
-let foo = 37.4;
-foo |= 0;
-```
-
-```js
-const foo = 37.4;
+// ❌
 console.log(foo << 0);
-```
 
-```js
-const foo = 37.4;
+// ❌
 console.log(foo >> 0);
-```
 
-```js
-const foo = {bar: 37.4};
+// ❌
 console.log(foo.bar ^ 0);
-```
 
-## Pass
-
-```js
-const foo = 37.4;
+// ✅
 console.log(Math.trunc(foo));
 ```
 
 ```js
+let foo = 37.4;
+
+// ❌
+foo |= 0;
+
+// ✅
+foo = Math.trunc(foo);
+```
+
+```js
+// ✅
 const foo = 37.4;
 console.log(foo | 3);
 ```
 
 ```js
-let foo = 37.4;
-foo = Math.trunc(foo);
-```
-
-```js
+// ✅
 const foo = 37.4;
 console.log(~foo);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo >> 3);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo << 3);
 ```
 
 ```js
+// ✅
 const foo = 37.4;
 console.log(foo ^ 3);
 ```

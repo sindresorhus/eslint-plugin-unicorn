@@ -365,7 +365,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

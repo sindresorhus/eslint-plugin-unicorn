@@ -144,7 +144,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer top-level await over top-level promises and async function calls.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

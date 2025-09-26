@@ -1,6 +1,6 @@
 # Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -11,41 +11,32 @@ When transforming a list of key-value pairs into an object, [`Object.fromEntries
 
 This rule is fixable for simple cases.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => ({...object, [key]: value}),
 	{}
 );
-```
 
-```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => ({...object, [key]: value}),
 	Object.create(null)
 );
-```
 
-```js
+// ❌
 const object = pairs.reduce(
 	(object, [key, value]) => Object.assign(object, {[key]: value}),
 	{}
 );
-```
 
-```js
+// ❌
 const object = _.fromPairs(pairs);
-```
 
-## Pass
-
-```js
+// ✅
 const object = Object.fromEntries(pairs);
-```
-
-```js
-const object = new Map(pairs);
 ```
 
 ## Options
@@ -77,6 +68,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}]
-const object = utils.fromPairs(pairs); // Fails
+/* eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}] */
+// ❌
+const object = utils.fromPairs(pairs);
 ```

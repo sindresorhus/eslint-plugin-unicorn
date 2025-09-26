@@ -176,6 +176,18 @@ const create = context => {
 					yield fixer.remove(penultimateToken);
 				}
 
+				// `[...[], 1]`
+				//        ^
+				if (
+					(node.type === 'ArrayExpression' && node.elements.length === 0)
+					|| (node.type === 'ObjectExpression' && node.properties.length === 0)
+				) {
+					const nextToken = sourceCode.getTokenAfter(spreadElement);
+					if (isCommaToken(nextToken)) {
+						yield fixer.remove(nextToken);
+					}
+				}
+
 				if (parentType !== 'CallExpression' && parentType !== 'NewExpression') {
 					return;
 				}
@@ -366,7 +378,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary spread.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

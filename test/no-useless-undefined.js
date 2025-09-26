@@ -61,6 +61,7 @@ test({
 		'props.setState?.(undefined)',
 		'array.includes(undefined)',
 		'set.has(undefined)',
+		'set.delete(undefined)',
 
 		// `Function#bind()`
 		'foo.bind(bar, undefined)',

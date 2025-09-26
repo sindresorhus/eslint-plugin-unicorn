@@ -49,7 +49,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless case in switch statements.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

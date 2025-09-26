@@ -210,7 +210,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `globalThis` over `window`, `self`, and `global`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: false,

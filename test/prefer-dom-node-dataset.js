@@ -198,6 +198,7 @@ test.snapshot({
 		`,
 		'element.getAttribute(\'data-unicorn\');',
 		'element.getAttribute("data-unicorn");',
+		'element?.getAttribute("data-unicorn");',
 		'element.getAttribute("data-unicorn",);',
 		'element.getAttribute("data-🦄");',
 		'element.getAttribute("data-ゆ");',

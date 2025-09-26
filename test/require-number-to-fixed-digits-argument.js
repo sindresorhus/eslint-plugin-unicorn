@@ -10,7 +10,6 @@ test.snapshot({
 		'number.toFixed(1,2,3)',
 		'number[toFixed]()',
 		'number["toFixed"]()',
-		'number?.toFixed()',
 		'number.toFixed?.()',
 		'number.notToFixed();',
 
@@ -20,6 +19,7 @@ test.snapshot({
 	],
 	invalid: [
 		'const string = number.toFixed();',
+		'const string = number?.toFixed() ?? "";',
 		'const string = number.toFixed( /* comment */ );',
 		'Number(1).toFixed()',
 

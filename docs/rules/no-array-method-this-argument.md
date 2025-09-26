@@ -1,6 +1,6 @@
 # Disallow using the `this` argument in array methods
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -28,31 +28,28 @@ This rule checks following array methods accepts `thisArg`:
 
 This rule is fixable when the callback is an arrow function and the `thisArg` argument has no side effect.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = bar.find(element => isUnicorn(element), baz);
-```
 
-```js
-const foo = bar.map(function (element) => {
-	return this.unicorn(element);
-}, baz);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = bar.find(element => isUnicorn(element));
 ```
 
 ```js
+// ❌
+const foo = bar.map(function (element) {
+	return this.unicorn(element);
+}, baz);
+
+// ✅
 const foo = bar.map(function (element) => {
 	return baz.unicorn(element);
 });
-```
 
-```js
+// ✅
 const foo = bar.map(function (element) => {
 	return this.unicorn(element);
 }.bind(baz));

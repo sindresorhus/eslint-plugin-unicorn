@@ -1,3 +1,4 @@
+import {isMemberExpression} from './ast/index.js';
 import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
@@ -23,6 +24,17 @@ const create = context => ({
 			return;
 		}
 
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)
+		if (
+			isMemberExpression(callee, {
+				object: 'Data',
+				property: 'TaggedError',
+				computed: false,
+			})
+		) {
+			return;
+		}
+
 		return {
 			node,
 			messageId,
@@ -38,7 +50,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require `new` when creating an error.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

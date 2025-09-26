@@ -1,6 +1,6 @@
 # Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -13,46 +13,36 @@ By replacing ternary expressions with these functions, the code becomes more con
 
 ## Examples
 
-<!-- Math.min() -->
-
 ```js
-height > 50 ? 50 : height; // ❌
-Math.min(height, 50); // ✅
+// ❌
+height > 50 ? 50 : height;
+
+// ❌
+height >= 50 ? 50 : height;
+
+// ❌
+height < 50 ? height : 50;
+
+// ❌
+height <= 50 ? height : 50;
+
+// ✅
+Math.min(height, 50);
 ```
 
 ```js
-height >= 50 ? 50 : height; // ❌
-Math.min(height, 50); // ✅
-```
+// ❌
+height > 50 ? height : 50;
 
-```js
-height < 50 ? height : 50; // ❌
-Math.min(height, 50); // ✅
-```
+// ❌
+height >= 50 ? height : 50;
 
-```js
-height <= 50 ? height : 50; // ❌
-Math.min(height, 50); // ✅
-```
+// ❌
+height < 50 ? 50 : height;
 
-<!-- Math.max() -->
+// ❌
+height <= 50 ? 50 : height;
 
-```js
-height > 50 ? height : 50; // ❌
-Math.max(height, 50); // ✅
-```
-
-```js
-height >= 50 ? height : 50; // ❌
-Math.max(height, 50); // ✅
-```
-
-```js
-height < 50 ? 50 : height; // ❌
-Math.max(height, 50); // ✅
-```
-
-```js
-height <= 50 ? 50 : height; // ❌
-Math.max(height, 50); // ✅
+// ✅
+Math.max(height, 50);
 ```

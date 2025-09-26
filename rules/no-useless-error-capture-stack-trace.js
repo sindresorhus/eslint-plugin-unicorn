@@ -136,7 +136,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary `Error.captureStackTrace(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

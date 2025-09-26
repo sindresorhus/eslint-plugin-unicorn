@@ -1,7 +1,7 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
 import {replaceArgument} from './fix/index.js';
-import {isNumberLiteral, isMethodCall} from './ast/index.js';
+import {isNumericLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -11,7 +11,7 @@ const messages = {
 };
 
 const getNumericValue = node => {
-	if (isNumberLiteral(node)) {
+	if (isNumericLiteral(node)) {
 		return node.value;
 	}
 
@@ -43,7 +43,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
 	if (firstArgumentStaticResult?.value === 0) {
-		if (isNumberLiteral(secondArgument) || isLengthProperty(secondArgument)) {
+		if (isNumericLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}
 
@@ -57,7 +57,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isNumberLiteral(node))) {
+	if (argumentNodes.every(node => isNumericLiteral(node))) {
 		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
 		return;
 	}
@@ -171,7 +171,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

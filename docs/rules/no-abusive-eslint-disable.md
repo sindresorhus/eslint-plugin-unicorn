@@ -1,6 +1,6 @@
 # Enforce specifying rules to disable in `eslint-disable` comments
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -36,26 +36,32 @@ console.log(message); // `message` is not defined, but it won't be reported
 
 This rule enforces specifying the rules to disable. If you want to disable ESLint on a file altogether, you should ignore it through [`.eslintignore`](https://eslint.org/docs/user-guide/configuring#ignoring-files-and-directories) for ESLint or through the [`ignores` property](https://github.com/xojs/xo#ignores) in `package.json` for `XO`.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 /* eslint-disable */
 console.log(message);
 
-console.log(message); // eslint-disable-line
-
-// eslint-disable-next-line
+// ✅
+/* eslint-disable no-console */
 console.log(message);
 ```
 
-## Pass
+```js
+// ❌
+console.log(message); // eslint-disable-line
+
+// ✅
+console.log(message); // eslint-disable-line no-console
+```
 
 ```js
-/* eslint-disable no-console */
+// ❌
+// eslint-disable-next-line
 console.log(message);
 
-console.log(message); // eslint-disable-line no-console
-
+// ✅
 // eslint-disable-next-line no-console
 console.log(message);
 ```

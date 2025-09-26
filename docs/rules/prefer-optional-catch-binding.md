@@ -1,6 +1,6 @@
 # Prefer omitting the `catch` binding parameter
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,24 +9,15 @@
 
 If the `catch` binding parameter is not used, it should be omitted.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 try {} catch (notUsedError) {}
-```
 
-```js
+// ❌
 try {} catch ({message}) {}
-```
 
-## Pass
-
-```js
+// ✅
 try {} catch {}
-```
-
-```js
-try {} catch (error) {
-	console.error(error);
-}
 ```

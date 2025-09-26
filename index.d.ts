@@ -3,6 +3,7 @@ import type {ESLint, Linter} from 'eslint';
 declare const eslintPluginUnicorn: ESLint.Plugin & {
 	configs: {
 		recommended: Linter.FlatConfig;
+		unopinionated: Linter.FlatConfig;
 		all: Linter.FlatConfig;
 
 		/** @deprecated Use `all` instead. The `flat/` prefix is no longer needed. */

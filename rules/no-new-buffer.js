@@ -89,7 +89,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce the use of `Buffer.from()` and `Buffer.alloc()` instead of the deprecated `new Buffer()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
