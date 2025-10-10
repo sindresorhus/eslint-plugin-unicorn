@@ -83,16 +83,17 @@ function getFixFunction({
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
+			const maybeType = imported.isTypeImport ? 'type ' : '';
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+				`\nexport ${maybeType}* as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
 			);
 		} else {
 			let specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
 
-			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
+			// Add an inline type specifier if the value is a type and the export declaration is a value declaration
 			if (shouldExportAsType && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
 				specifierText = `type ${specifierText}`;
 			}
