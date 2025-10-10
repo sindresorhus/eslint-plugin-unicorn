@@ -62,6 +62,7 @@ const windowSpecificAPIs = new Set([
 	'open',
 	'originAgentCluster',
 	'postMessage',
+	'navigation',
 
 	// Events commonly associated with "window"
 	...[...windowSpecificEvents].map(event => `on${event}`),
