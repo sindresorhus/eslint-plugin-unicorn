@@ -10,6 +10,9 @@ const messages = {
 };
 const NODE_PROTOCOL = 'node:';
 
+/**
+ @param {import('eslint').Rule.RuleContext} context
+ */
 const create = context => ({
 	Literal(node) {
 		if (!(
@@ -34,6 +37,7 @@ const create = context => ({
 				)
 				&& node.parent.arguments[0] === node
 			)
+			|| (node.type === 'Literal' && node.parent.type === 'TSLiteralType' && node.parent.parent.type === 'TSImportType')
 		)) {
 			return;
 		}
