@@ -1,6 +1,6 @@
 # Enforce better string content
 
-🚫 This rule is _disabled_ in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -20,17 +20,15 @@ This rule ignores the following tagged template literals as they're known to con
 
 **This rule has no effect by default. You need set [`patterns`](#patterns) to check string content.**
 
-## Fail
+## Examples
 
 ```js
-/*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
+/* eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }] */
+
+// ❌
 const foo = 'Someone\'s coming!';
-```
 
-## Pass
-
-```js
-/*eslint unicorn/string-content: ["error", { "patterns": { "'": "’" } }]*/
+// ✅
 const foo = 'Someone’s coming!';
 ```
 

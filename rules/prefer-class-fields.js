@@ -147,7 +147,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer class field declarations over `this` assignments in constructors.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

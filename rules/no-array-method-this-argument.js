@@ -166,7 +166,6 @@ const create = context => {
 				],
 				argumentsLength: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			|| isNodeMatches(callExpression.callee, ignored)
 			|| isNodeValueNotFunction(callExpression.arguments[0])
@@ -215,7 +214,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using the `this` argument in array methods.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

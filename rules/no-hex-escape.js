@@ -44,7 +44,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

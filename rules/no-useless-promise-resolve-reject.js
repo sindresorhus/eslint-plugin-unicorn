@@ -204,7 +204,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

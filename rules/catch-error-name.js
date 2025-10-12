@@ -21,13 +21,11 @@ const isPromiseCatchParameter = node =>
 			method: 'then',
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})
 		|| isMethodCall(node.parent.parent, {
 			method: 'catch',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false,
 		})
 	)
 	&& node.parent.parent.arguments.at(-1) === node.parent;

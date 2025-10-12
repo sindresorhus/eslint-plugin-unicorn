@@ -14,7 +14,6 @@ const create = context => ({
 				method: 'removeEventListener',
 				minimumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			&& callExpression.arguments[0].type !== 'SpreadElement'
 			&& (
@@ -53,7 +52,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

@@ -8,7 +8,6 @@ test.snapshot({
 		'array.unknownMethod(() => {}, thisArgument)',
 		'new array.map(() => {}, thisArgument)',
 		'array.map?.(() => {}, thisArgument)',
-		'array?.map(() => {}, thisArgument)',
 		'Array.unknownMethod(iterableOrArrayLike, () => {}, thisArgument)',
 		'new Array.from(iterableOrArrayLike, () => {}, thisArgument)',
 		'Array.from?.(iterableOrArrayLike, () => {}, thisArgument)',
@@ -25,6 +24,7 @@ test.snapshot({
 		'array.map(() => {}, ...thisArgument)',
 		'array.map(...() => {}, thisArgument)',
 		'array.map(() => {}, thisArgument, extraArgument)',
+		'Array?.from(iterableOrArrayLike, () => {}, thisArgument)',
 		'Array.from()',
 		'Array.from(iterableOrArrayLike)',
 		'Array.from(iterableOrArrayLike, () => {},)',
@@ -39,6 +39,7 @@ test.snapshot({
 		'Array.fromAsync(iterableOrArrayLike, ...() => {}, thisArgument)',
 		'Array.fromAsync(...iterableOrArrayLike, () => {}, thisArgument)',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument, extraArgument)',
+		'Array?.fromAsync(iterableOrArrayLike, () => {}, thisArgument)',
 
 		// Ignored
 		'lodash.every(array, () => {})',
@@ -79,6 +80,7 @@ test.snapshot({
 		'array.flatMap(() => {}, thisArgument)',
 		'array.forEach(() => {}, thisArgument)',
 		'array.map(() => {}, thisArgument)',
+		'array?.map(() => {}, thisArgument)',
 		'Array.from(iterableOrArrayLike, () => {}, thisArgument)',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument)',
 		// Comma
@@ -88,6 +90,7 @@ test.snapshot({
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument,)',
 		// Side effect
 		'array.map(() => {}, thisArgumentHasSideEffect())',
+		'array?.map(() => {}, thisArgumentHasSideEffect())',
 		'Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
 	],

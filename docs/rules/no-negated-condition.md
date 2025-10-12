@@ -1,6 +1,6 @@
 # Disallow negated conditions
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -11,39 +11,17 @@ Negated conditions are more difficult to understand. Code can be made more reada
 
 This is an improved version of the [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) ESLint rule that makes it automatically fixable. [ESLint did not want to make it fixable.](https://github.com/eslint/eslint/issues/14792)
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (!a) {
 	doSomethingC();
 } else {
 	doSomethingB();
 }
-```
 
-```js
-if (a !== b) {
-	doSomethingC();
-} else {
-	doSomethingB();
-}
-```
-
-```js
-!a ? c : b
-```
-
-```js
-if (a != b) {
-	doSomethingC();
-} else {
-	doSomethingB();
-}
-```
-
-## Pass
-
-```js
+// ✅
 if (a) {
 	doSomethingB();
 } else {
@@ -52,6 +30,14 @@ if (a) {
 ```
 
 ```js
+// ❌
+if (a !== b) {
+	doSomethingC();
+} else {
+	doSomethingB();
+}
+
+// ✅
 if (a === b) {
 	doSomethingB();
 } else {
@@ -60,10 +46,22 @@ if (a === b) {
 ```
 
 ```js
+// ❌
+!a ? c : b
+
+// ✅
 a ? b : c
 ```
 
 ```js
+// ❌
+if (a != b) {
+	doSomethingC();
+} else {
+	doSomethingB();
+}
+
+// ✅
 if (a == b) {
 	doSomethingB();
 } else {
@@ -72,12 +70,14 @@ if (a == b) {
 ```
 
 ```js
+// ✅
 if (!a) {
 	doSomething();
 }
 ```
 
 ```js
+// ✅
 if (!a) {
 	doSomething();
 } else if (b) {
@@ -86,6 +86,7 @@ if (!a) {
 ```
 
 ```js
+// ✅
 if (a != b) {
 	doSomething();
 }

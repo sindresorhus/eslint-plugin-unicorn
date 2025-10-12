@@ -97,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using the `String.raw` tag to avoid escaping `\\`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

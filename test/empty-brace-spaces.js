@@ -52,7 +52,7 @@ test({
 		// `with`
 		{
 			code: 'with (foo) {}',
-			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
+			languageOptions: {sourceType: 'script'},
 		},
 		// We don't check these cases
 		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   ')),
@@ -74,7 +74,7 @@ test({
 			code: 'with (foo) {     }',
 			output: 'with (foo) {}',
 			errors: 1,
-			languageOptions: {ecmaVersion: 5, sourceType: 'script'},
+			languageOptions: {sourceType: 'script'},
 		},
 	],
 });

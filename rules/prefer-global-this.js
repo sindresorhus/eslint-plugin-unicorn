@@ -62,6 +62,7 @@ const windowSpecificAPIs = new Set([
 	'open',
 	'originAgentCluster',
 	'postMessage',
+	'navigation',
 
 	// Events commonly associated with "window"
 	...[...windowSpecificEvents].map(event => `on${event}`),
@@ -210,7 +211,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `globalThis` over `window`, `self`, and `global`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: false,

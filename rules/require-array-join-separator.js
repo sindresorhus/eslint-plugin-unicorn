@@ -55,7 +55,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the separator argument with `Array#join()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

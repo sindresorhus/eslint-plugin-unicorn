@@ -216,7 +216,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow classes that only have static members.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

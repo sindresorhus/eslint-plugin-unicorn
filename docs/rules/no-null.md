@@ -1,6 +1,6 @@
 # Disallow the use of the `null` literal
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -9,27 +9,31 @@
 
 Disallow the use of the `null` literal, to encourage using `undefined` instead. You can learn why in <https://github.com/sindresorhus/meta/discussions/7>
 
-## Fail
+## Examples
 
 ```js
+// ❌
 let foo = null;
-```
 
-```js
-if (bar == null) {}
-```
-
-## Pass
-
-```js
+// ✅
 let foo;
 ```
 
 ```js
+// ❌
+if (bar == null) {}
+
+// ✅
+if (bar == undefined) {}
+```
+
+```js
+// ✅
 const foo = Object.create(null);
 ```
 
 ```js
+// ✅
 if (foo === null) {}
 ```
 
@@ -44,10 +48,9 @@ Default: `false`
 
 Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
 
-#### Fail
-
 ```js
-// eslint unicorn/no-null: ["error", {"checkStrictEquality": true}]
+/* eslint unicorn/no-null: ["error", {"checkStrictEquality": true}] */
+// ❌
 if (foo === null) {}
 ```
 

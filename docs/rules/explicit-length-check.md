@@ -1,6 +1,6 @@
 # Enforce explicitly comparing the `length` or `size` property of a value
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -15,56 +15,50 @@ This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
 Enforce comparison with `=== 0` when checking for zero length.
 
-### Fail
+### Examples
 
 ```js
+// ❌
 const isEmpty = !foo.length;
-```
 
-```js
+// ❌
 const isEmpty = foo.length == 0;
-```
 
-```js
+// ❌
 const isEmpty = foo.length < 1;
-```
 
-```js
+// ❌
 const isEmpty = 0 === foo.length;
-```
 
-```js
+// ❌
 const isEmpty = 0 == foo.length;
-```
 
-```js
+// ❌
 const isEmpty = 1 > foo.length;
-```
 
-```js
+// ❌
 // Negative style is disallowed too
 const isEmpty = !(foo.length > 0);
-```
 
-```js
-const isEmptySet = !foo.size;
-```
-
-```vue
-<template>
-	<div v-if="foo.length">Vue</div>
-</template>
-```
-
-### Pass
-
-```js
+// ✅
 const isEmpty = foo.length === 0;
 ```
 
+```js
+// ❌
+const isEmptySet = !foo.size;
+
+// ✅
+const isEmptySet = foo.size === 0;
+```
+
 ```vue
 <template>
-	<div v-if="foo.length > 0">Vue</div>
+	<!-- ❌ -->
+	<div v-if="!foo.length">Vue</div>
+
+	<!-- ✅ -->
+	<div v-if="foo.length === 0">Vue</div>
 </template>
 ```
 
@@ -72,73 +66,79 @@ const isEmpty = foo.length === 0;
 
 Enforce comparison with `> 0` when checking for non-zero length.
 
-### Fail
+### Examples
 
 ```js
+// ❌
 const isNotEmpty = foo.length !== 0;
-```
 
-```js
+// ❌
 const isNotEmpty = foo.length != 0;
-```
 
-```js
+// ❌
 const isNotEmpty = foo.length >= 1;
-```
 
-```js
+// ❌
 const isNotEmpty = 0 !== foo.length;
-```
 
-```js
+// ❌
 const isNotEmpty = 0 != foo.length;
-```
 
-```js
+// ❌
 const isNotEmpty = 0 < foo.length;
-```
 
-```js
+// ❌
 const isNotEmpty = 1 <= foo.length;
-```
 
-```js
+// ❌
 const isNotEmpty = Boolean(foo.length);
-```
 
-```js
+// ❌
 // Negative style is disallowed too
 const isNotEmpty = !(foo.length === 0);
-```
 
-```js
-if (foo.length || bar.length) {}
-```
-
-```js
-const unicorn = foo.length ? 1 : 2;
-```
-
-```js
-while (foo.length) {}
-```
-
-```js
-do {} while (foo.length);
-```
-
-```js
-for (; foo.length; ) {};
-```
-
-### Pass
-
-```js
+// ✅
 const isNotEmpty = foo.length > 0;
 ```
 
 ```js
+// ❌
+if (foo.length || bar.length) {}
+
+// ✅
 if (foo.length > 0 || bar.length > 0) {}
+```
+
+```js
+// ❌
+const unicorn = foo.length ? 1 : 2;
+
+// ✅
+const unicorn = foo.length > 0 ? 1 : 2;
+```
+
+```js
+// ❌
+while (foo.length) {}
+
+// ✅
+while (foo.length > 0) {}
+```
+
+```js
+// ❌
+do {} while (foo.length);
+
+// ✅
+do {} while (foo.length > 0);
+```
+
+```js
+// ❌
+for (; foo.length; ) {};
+
+// ✅
+for (; foo.length > 0; ) {};
 ```
 
 ### Options

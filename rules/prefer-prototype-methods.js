@@ -125,7 +125,7 @@ function create(context) {
 		callExpressions.push(callExpression);
 	});
 
-	context.on('Program:exit', function * (program) {
+	context.onExit('Program', function * (program) {
 		const globalReferences = new WeakMap();
 
 		const tracker = new ReferenceTracker(sourceCode.getScope(program));
@@ -152,7 +152,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer borrowing methods from the prototype instead of the instance.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

@@ -205,7 +205,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer default parameters over reassignment.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages: {

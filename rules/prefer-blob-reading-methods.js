@@ -38,7 +38,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Blob#arrayBuffer()` over `FileReader#readAsArrayBuffer(…)` and `Blob#text()` over `FileReader#readAsText(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

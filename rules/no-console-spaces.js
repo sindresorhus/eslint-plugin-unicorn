@@ -79,7 +79,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Do not use leading/trailing space between `console.log` parameters.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

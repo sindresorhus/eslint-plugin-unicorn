@@ -1,6 +1,6 @@
 # Disallow `then` property
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -47,58 +47,73 @@ const foo = await import('./foo.js');
 // Error: You shouldn’t have called me
 ```
 
-## Fail
+## Examples
 
 ```js
+// ❌
 export {then};
-```
 
-```js
-const foo = {
-	then() {}
-};
-```
-
-```js
-const foo = {
-	get then() {}
-};
-```
-
-```js
-foo.then = function () {}
-```
-
-```js
-class Foo {
-	then() {}
-}
-```
-
-```js
-class Foo {
-	static then() {}
-}
-```
-
-## Pass
-
-```js
+// ✅
 export {then as success};
 ```
 
 ```js
+// ❌
+const foo = {
+	then() {}
+};
+
+// ✅
 const foo = {
 	success() {}
 };
 ```
 
 ```js
+// ❌
+const foo = {
+	get then() {}
+};
+
+// ✅
+const foo = {
+	get success() {}
+};
+```
+
+```js
+// ❌
+foo.then = function () {}
+
+// ✅
+foo.success = function () {}
+```
+
+```js
+// ❌
+class Foo {
+	then() {}
+}
+
+// ✅
 class Foo {
 	success() {}
 }
 ```
 
 ```js
+// ❌
+class Foo {
+	static then() {}
+}
+
+// ✅
+class Foo {
+	static success() {}
+}
+```
+
+```js
+// ✅
 const foo = bar.then;
 ```

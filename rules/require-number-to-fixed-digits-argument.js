@@ -14,7 +14,6 @@ const create = context => ({
 				method: 'toFixed',
 				argumentsLength: 0,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			|| node.callee.object.type === 'NewExpression'
 		) {
@@ -46,7 +45,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce using the digits argument with `Number#toFixed()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

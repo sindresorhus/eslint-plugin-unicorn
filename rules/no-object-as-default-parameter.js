@@ -43,7 +43,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow the use of objects as default parameters.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},
