@@ -3,15 +3,11 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const TEST_STRING = String.raw`"a\\b"`;
+
 test.snapshot({
 	valid: [
 		String.raw`a = '\''`,
-		// Cannot use `String.raw`
-		String.raw`'a\\b'`,
-		String.raw`import foo from "./foo\\bar.js";`,
-		String.raw`export {foo} from "./foo\\bar.js";`,
-		String.raw`export * from "./foo\\bar.js";`,
-		String.raw`a = {'a\\b': ''}`,
 		outdent`
 			a = "\\\\a \\
 				b"
@@ -20,20 +16,6 @@ test.snapshot({
 		'a = "a\\\\b`"',
 		// eslint-disable-next-line no-template-curly-in-string
 		'a = "a\\\\b${foo}"',
-		{
-			code: String.raw`<Component attribute="a\\b" />`,
-			languageOptions: {
-				parserOptions: {
-					ecmaFeatures: {
-						jsx: true,
-					},
-				},
-			},
-		},
-		String.raw`import {} from "foo" with {key: "value\\value"}`,
-		String.raw`import {} from "foo" with {"key\\key": "value"}`,
-		String.raw`export {} from "foo" with {key: "value\\value"}`,
-		String.raw`export {} from "foo" with {"key\\key": "value"}`,
 		String.raw`a = '\\'`,
 		String.raw`a = 'a\\b\"'`,
 	],
@@ -47,18 +29,33 @@ test.snapshot({
 	],
 });
 
+// Restricted places
 test.typescript({
 	valid: [
-		outdent`
-			enum Files {
-				Foo = "C:\\\\path\\\\to\\\\foo.js",
-			}
-		`,
-		outdent`
-			enum Foo {
-				"\\\\a\\\\b" = "baz",
-			}
-		`,
+		// Directive
+		String.raw`${TEST_STRING};`,
+		// Module source
+		String.raw`import ${TEST_STRING};`,
+		String.raw`export {} from ${TEST_STRING};`,
+		String.raw`export * from ${TEST_STRING};`,
+		// Property key
+		String.raw`({${TEST_STRING}: 1})`,
+		// JSX attribute value
+		{
+			code: String.raw`<Component attribute=${TEST_STRING} />`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// Import attribute key and value
+		String.raw`import "m" with {${TEST_STRING}: ${TEST_STRING}}`,
+		String.raw`export {} from "m" with {${TEST_STRING}: ${TEST_STRING}}`,
+		// Enum member key and value
+		String.raw`enum E {${TEST_STRING} = ${TEST_STRING}}`,
 	],
 	invalid: [],
 });

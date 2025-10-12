@@ -21,7 +21,9 @@ Check if a string literal is restricted to replace with a `String.raw`
 */
 function isStringRawRestricted(node) {
 	return (
+		// Directive
 		isDirective(node.parent)
+		// Module source
 		|| (
 			(
 				node.parent.type === 'ImportDeclaration'
@@ -29,10 +31,14 @@ function isStringRawRestricted(node) {
 				|| node.parent.type === 'ExportAllDeclaration'
 			) && node.parent.source === node
 		)
+		// Property key
 		|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
+		// JSX attribute value
 		|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
-		|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
+		// Import attribute key and value
 		|| (node.parent.type === 'ImportAttribute' && (node.parent.key === node || node.parent.value === node))
+		// Enum member key and value
+		|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
 	);
 }
 
