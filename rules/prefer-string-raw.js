@@ -16,25 +16,30 @@ function unescapeBackslash(raw) {
 		.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
+/**
+Check if a string literal is restricted to replace with a `String.raw`
+*/
+function isStringRawRestricted(node) {
+	return (
+		isDirective(node.parent)
+		|| (
+			(
+				node.parent.type === 'ImportDeclaration'
+				|| node.parent.type === 'ExportNamedDeclaration'
+				|| node.parent.type === 'ExportAllDeclaration'
+			) && node.parent.source === node
+		)
+		|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
+		|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
+		|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
+		|| (node.parent.type === 'ImportAttribute' && (node.parent.key === node || node.parent.value === node))
+	);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	// eslint-disable-next-line complexity
 	context.on('Literal', node => {
-		if (
-			!isStringLiteral(node)
-			|| isDirective(node.parent)
-			|| (
-				(
-					node.parent.type === 'ImportDeclaration'
-					|| node.parent.type === 'ExportNamedDeclaration'
-					|| node.parent.type === 'ExportAllDeclaration'
-				) && node.parent.source === node
-			)
-			|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
-			|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
-			|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
-			|| (node.parent.type === 'ImportAttribute' && (node.parent.key === node || node.parent.value === node))
-		) {
+		if (!isStringLiteral(node) || isStringRawRestricted(node)) {
 			return;
 		}
 
