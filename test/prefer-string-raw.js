@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
@@ -5,6 +6,7 @@ const {test} = getTester(import.meta);
 
 const TEST_STRING = String.raw`a\\b`;
 
+// String literal to `String.raw`
 test.snapshot({
 	valid: [
 		String.raw`a = '\''`,
@@ -14,7 +16,6 @@ test.snapshot({
 		`,
 		String.raw`a = 'a\\b\u{51}c'`,
 		'a = "a\\\\b`"',
-		// eslint-disable-next-line no-template-curly-in-string
 		'a = "a\\\\b${foo}"',
 		String.raw`a = '\\'`,
 		String.raw`a = 'a\\b\"'`,
@@ -25,6 +26,55 @@ test.snapshot({
 		String.raw`const foo = "foo \\x46";`,
 		String.raw`a = 'a\\b\''`,
 		String.raw`a = "a\\b\""`,
+	],
+});
+
+// `TemplateLiteral` to `String.raw`
+test.snapshot({
+	valid: [
+		// No backslash
+		'a = `a`',
+		'a = `${foo}`',
+		'a = `a${100}b`',
+
+		// Escaped characters other than backslash
+		'a = `a\\t${foo.bar}b\\\\c`', // \t
+		'a = `${foo}\\\\a${bar}\\``', // \`
+		'a = `a\\${`', // \$
+		'a = `a$\\{`', // \{
+		'a = `${a}\\\'${b}\\\\`', // \'
+		'a = `\\"a\\\\b`', // \"
+
+		// Ending with backslash
+		'a = `\\\\a${foo}b\\\\${foo}`',
+
+		// Tagged template expression
+		'a = String.raw`a\\\\b`',
+
+		// Slash before newline (spread into multiple lines)
+		outdent`
+			a = \`\\\\a \\
+			b\`
+		`,
+	],
+	invalid: [
+		'a = `a\\\\b`',
+		'function a() {return`a\\\\b${foo}cd`}',
+		'a = {[`a\\\\b${foo}cd${foo.bar}e\\\\f`]: b}',
+		'a = `a${foo}${foo.bar}b\\\\c`',
+		'a = `a\\\\b${"c\\\\d"}e`',
+		outdent`
+			a = \`\\\\a
+			b\`
+		`,
+		outdent`
+			a = \`\\\\a\${foo}
+			b\${bar}c
+			d\\\\\\\\e\`
+		`,
+		'a = `a\\\\b${ foo /* bar */}c\\\\d`',
+		'a = `a\\\\b${ foo + bar }`',
+		'a = `${ foo .bar }a\\\\b`',
 	],
 });
 
@@ -94,3 +144,4 @@ test.snapshot({
 	],
 	invalid: keyTestsComputedIsInvalid.map(code => toComputed(code)),
 });
+

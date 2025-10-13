@@ -26,3 +26,11 @@ const regexp = new RegExp('foo\\.bar');
 // ✅
 const regexp = new RegExp(String.raw`foo\.bar`);
 ```
+
+```js
+// ❌
+const file = `C:\\windows\\temp\\myapp-${process.pid}.log`;
+
+// ✅
+const file = String.raw`C:\windows\temp\myapp-${process.pid}.log`;
+```

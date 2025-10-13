@@ -57,11 +57,11 @@ function getPatternReplacement(node) {
 					return String.raw`\t`;
 				}
 
-				return `\\u{${codePoint.toString(16)}}`;
+				return String.raw`\u{${codePoint.toString(16)}}`;
 			}
 
 			if (kind === 'octal') {
-				return `\\u{${codePoint.toString(16)}}`;
+				return String.raw`\u{${codePoint.toString(16)}}`;
 			}
 
 			let character = raw;
