@@ -1,4 +1,4 @@
-# Disallow useless fallback when creating a `Set`
+# Disallow useless values or fallbacks in `Set`, `Map`, `WeakSet`, or `WeakMap`
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -7,9 +7,21 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-It's unnecessary to provide empty array or string as fallback when creating a `Set` from an iterable object, since if [the `Set` constructor accepts nullish values](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/Set#iterable).
+It's unnecessary to pass empty array or string when constructing a `Set`, `Map`, `WeakSet`, or `WeakMap`, since they accepts nullish values.
+
+It's also unnecessary to provide a fallback for possible nullish values.
 
 ## Examples
+
+```js
+// ❌
+const set = new Set([]);
+// ❌
+const set = new Set("");
+
+// ✅
+const set = new Set();
+```
 
 ```js
 // ❌

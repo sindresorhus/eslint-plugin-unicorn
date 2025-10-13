@@ -90,7 +90,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless fallback when creating a `Set`.',
+			description: 'Disallow useless values or fallbacks in `Set`, `Map`, `WeakSet`, or `WeakMap`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
