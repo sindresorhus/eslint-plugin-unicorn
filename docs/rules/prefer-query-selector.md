@@ -1,6 +1,6 @@
 # Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,22 +9,41 @@
 
 It's better to use the same method to query DOM elements. This helps keep consistency and it lends itself to future improvements (e.g. more specific selectors).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 document.getElementById('foo');
-document.getElementsByClassName('foo bar');
-document.getElementsByTagName('main');
-document.getElementsByClassName(fn());
+
+// ✅
+document.querySelector('#foo');
 ```
 
-## Pass
+```js
+// ❌
+document.getElementsByClassName('foo');
+
+// ✅
+document.querySelectorAll('.foo');
+```
 
 ```js
-document.querySelector('#foo');
-document.querySelector('.bar');
-document.querySelector('main #foo .bar');
-document.querySelectorAll('.foo .bar');
-document.querySelectorAll('li a');
-document.querySelector('li').querySelectorAll('a');
+// ❌
+document.getElementsByClassName('foo bar');
+
+// ✅
+document.querySelectorAll('.foo.bar');
+```
+
+```js
+// ❌
+document.getElementsByTagName('main');
+
+// ✅
+document.querySelectorAll('main');
+```
+
+```js
+// ❌
+document.getElementsByClassName(fn());
 ```

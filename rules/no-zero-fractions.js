@@ -3,7 +3,7 @@ import needsSemicolon from './utils/needs-semicolon.js';
 import {isDecimalInteger} from './utils/numeric.js';
 import toLocation from './utils/to-location.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isNumberLiteral} from './ast/index.js';
+import {isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ZERO_FRACTION = 'zero-fraction';
 const MESSAGE_DANGLING_DOT = 'dangling-dot';
@@ -15,7 +15,7 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	Literal(node) {
-		if (!isNumberLiteral(node)) {
+		if (!isNumericLiteral(node)) {
 			return;
 		}
 
@@ -71,7 +71,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow number literals with zero fractions or dangling dots.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

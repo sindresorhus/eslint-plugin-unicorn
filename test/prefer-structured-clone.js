@@ -71,5 +71,27 @@ test.snapshot({
 			code: 'my.cloneDeep(foo,)',
 			options: [{functions: ['my.cloneDeep']}],
 		},
+		// Coverage for `isNodeMatchesNameOrPath`
+		{
+			code: outdent`
+				class A {
+					constructor() {
+						this.a = new.target.cloneDeep(foo);
+						this.b = import.meta.cloneDeep(foo);
+					}
+				}
+			`,
+			options: [{functions: ['new.target.cloneDeep']}],
+		},
+		{
+			code: outdent`
+				class A {
+					constructor() {
+						this.a = super.cloneDeep(foo);
+					}
+				}
+			`,
+			options: [{functions: ['super.cloneDeep']}],
+		},
 	],
 });

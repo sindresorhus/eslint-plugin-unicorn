@@ -57,7 +57,11 @@ function getPatternReplacement(node) {
 					return String.raw`\t`;
 				}
 
-				return `\\u{${codePoint.toString(16)}}`;
+				return String.raw`\u{${codePoint.toString(16)}}`;
+			}
+
+			if (kind === 'octal') {
+				return String.raw`\u{${codePoint.toString(16)}}`;
 			}
 
 			let character = raw;
@@ -109,7 +113,6 @@ const create = context => ({
 			methods: ['replace', 'replaceAll'],
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}
@@ -167,7 +170,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

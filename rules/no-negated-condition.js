@@ -133,7 +133,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow negated conditions.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

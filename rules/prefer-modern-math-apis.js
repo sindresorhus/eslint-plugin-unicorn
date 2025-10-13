@@ -200,7 +200,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer modern `Math` APIs over legacy patterns.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

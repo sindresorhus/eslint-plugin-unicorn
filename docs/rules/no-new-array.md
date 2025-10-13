@@ -1,6 +1,6 @@
 # Disallow `new Array()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -13,32 +13,32 @@ When using the `Array` constructor with one argument, it's not clear whether the
 
 This rule is fixable if the value type of the argument is known.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const length = 10;
 const array = new Array(length);
-```
 
-```js
-const array = new Array(onlyElement);
-```
-
-```js
-const array = new Array(...unknownArgumentsList);
-```
-
-## Pass
-
-```js
+// ✅
 const length = 10;
 const array = Array.from({length});
 ```
 
 ```js
+// ❌
+const array = new Array(onlyElement);
+
+// ✅
 const array = [onlyElement];
 ```
 
 ```js
+// ❌
+const array = new Array(...unknownArgumentsList);
+```
+
+```js
+// ✅
 const array = [...items];
 ```

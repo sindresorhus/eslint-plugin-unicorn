@@ -1,6 +1,6 @@
 # Enforce consistent relative URL style
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -9,15 +9,13 @@
 
 When using a relative URL in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), the URL should either never or always use the `./` prefix consistently.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const url = new URL('./foo', base);
-```
 
-## Pass
-
-```js
+// ✅
 const url = new URL('foo', base);
 ```
 
@@ -32,7 +30,11 @@ Default: `'never'`
   - Always add a `./` prefix to the relative URL when possible.
 
 ```js
-// eslint unicorn/relative-url-style: ["error", "always"]
-const url = new URL('foo', base); // Fail
-const url = new URL('./foo', base); // Pass
+/* eslint unicorn/relative-url-style: ["error", "always"] */
+
+// ❌
+const url = new URL('foo', base);
+
+// ✅
+const url = new URL('./foo', base);
 ```

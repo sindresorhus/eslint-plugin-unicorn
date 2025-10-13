@@ -2,6 +2,10 @@
 
 /** @type {import('eslint-doc-generator').GenerateOptions} */
 const config = {
+	configEmoji: [
+		['recommended', '✅'],
+		['unopinionated', '☑️'],
+	],
 	ignoreConfig: [
 		'all',
 		'flat/all',

@@ -57,6 +57,10 @@ test({
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),
 
+		// Optional chaining
+		...simpleMethods.map(method => `foo?.${method}(element => fn(element))`),
+		...reduceLikeMethods.map(method => `foo?.${method}((accumulator, element) => fn(element))`),
+
 		// `this.{map, filter, …}`
 		...simpleMethods.map(method => `this.${method}(fn)`),
 		...reduceLikeMethods.map(method => `this.${method}(fn)`),
@@ -157,6 +161,18 @@ test({
 					`foo.${method}((element) => fn(element))`,
 					`foo.${method}((element, index) => fn(element, index))`,
 					`foo.${method}((element, index, array) => fn(element, index, array))`,
+				],
+			}),
+		),
+		...simpleMethodsExceptForEach.map(
+			method => invalidTestCase({
+				code: `foo?.${method}(fn)`,
+				method,
+				name: 'fn',
+				suggestions: [
+					`foo?.${method}((element) => fn(element))`,
+					`foo?.${method}((element, index) => fn(element, index))`,
+					`foo?.${method}((element, index, array) => fn(element, index, array))`,
 				],
 			}),
 		),

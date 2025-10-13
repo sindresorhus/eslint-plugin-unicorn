@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {parsers} from '../utils/test.js';
 
 function snapshotTests({method, replacement}) {
 	return {
@@ -80,10 +81,18 @@ function snapshotTests({method, replacement}) {
 
 			// Already valid case
 			`foo.${replacement}(0)`,
+
+			// Can't use scopeManager in vue template
+			// https://github.com/vuejs/vue-eslint-parser/issues/263
+			{
+				code: `<template><div v-if="values.${method}(x => x === 'foo')"></div></template>`,
+				languageOptions: {parser: parsers.vue},
+			},
 		],
 
 		invalid: [
 			`values.${method}(x => x === "foo")`,
+			`values?.${method}(x => x === "foo")`,
 			`values.${method}(x => "foo" === x)`,
 			`values.${method}(x => {return x === "foo";})`,
 			`values.${method}(function (x) {return x === "foo";})`,

@@ -1,6 +1,6 @@
 # Disallow negated expression in equality check
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -9,22 +9,24 @@
 
 Using a negated expression in equality check is most likely a mistake.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (!foo === bar) {}
 ```
 
 ```js
+// ❌
 if (!foo !== bar) {}
 ```
 
-## Pass
-
 ```js
+// ✅
 if (foo !== bar) {}
 ```
 
 ```js
+// ✅
 if (!(foo === bar)) {}
 ```

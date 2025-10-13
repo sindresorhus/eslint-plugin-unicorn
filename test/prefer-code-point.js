@@ -9,7 +9,6 @@ test.snapshot({
 		'new foo.charCodeAt',
 		'charCodeAt(0)',
 		'foo.charCodeAt?.(0)',
-		'foo?.charCodeAt(0)',
 		'foo[charCodeAt](0)',
 		'foo["charCodeAt"](0)',
 		'foo.notCharCodeAt(0)',
@@ -28,8 +27,11 @@ test.snapshot({
 	],
 	invalid: [
 		'string.charCodeAt(index)',
+		'string?.charCodeAt(index)',
 		'(( (( string )).charCodeAt( ((index)), )))',
 		'String.fromCharCode( code )',
 		'(( (( String )).fromCharCode( ((code)), ) ))',
+		'String.fromCharCode.bind(String)',
+		'const x = String.fromCharCode',
 	],
 });

@@ -1,6 +1,6 @@
 # Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -9,16 +9,20 @@
 
 Enforces the use of, for example, `child.remove();` over `child.parentNode.removeChild(child);`. The DOM function [`Node#remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is preferred over the indirect removal of an object with [`Node#removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 parentNode.removeChild(foo);
-parentNode.removeChild(this);
+
+// ✅
+foo.remove();
 ```
 
-## Pass
-
 ```js
-foo.remove();
+// ❌
+parentNode.removeChild(this);
+
+// ✅
 this.remove();
 ```

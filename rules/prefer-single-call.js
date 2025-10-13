@@ -166,7 +166,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -1,6 +1,6 @@
 # Prefer borrowing methods from the prototype instead of the instance
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,38 +9,36 @@
 
 When “borrowing” a method from `Array` or `Object`, it's clearer to get it from the prototype than from an instance.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const array = [].slice.apply(bar);
-```
 
-```js
-const type = {}.toString.call(foo);
-```
-
-```js
-Reflect.apply([].forEach, arrayLike, [callback]);
-```
-
-```js
-const type = globalThis.toString.call(foo);
-```
-
-## Pass
-
-```js
+// ✅
 const array = Array.prototype.slice.apply(bar);
 ```
 
 ```js
+// ❌
+const type = {}.toString.call(foo);
+
+// ❌
+const type = globalThis.toString.call(foo);
+
+// ✅
 const type = Object.prototype.toString.call(foo);
 ```
 
 ```js
+// ❌
+Reflect.apply([].forEach, arrayLike, [callback]);
+
+// ✅
 Reflect.apply(Array.prototype.forEach, arrayLike, [callback]);
 ```
 
 ```js
+// ✅
 const maxValue = Math.max.apply(Math, numbers);
 ```

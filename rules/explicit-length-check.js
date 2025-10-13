@@ -3,7 +3,7 @@ import {checkVueTemplate} from './utils/rule.js';
 import isLogicalExpression from './utils/is-logical-expression.js';
 import {isBooleanNode, getBooleanAncestor} from './utils/boolean.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isLiteral, isMemberExpression, isNumberLiteral} from './ast/index.js';
+import {isLiteral, isMemberExpression, isNumericLiteral} from './ast/index.js';
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -90,7 +90,7 @@ function getLengthCheckNode(node) {
 }
 
 function isNodeValueNumber(node, context) {
-	if (isNumberLiteral(node)) {
+	if (isNumericLiteral(node)) {
 		return true;
 	}
 

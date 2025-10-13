@@ -1,7 +1,6 @@
-import isShadowed from './utils/is-shadowed.js';
 import assertToken from './utils/assert-token.js';
 import {getCallExpressionTokens} from './utils/index.js';
-import {isStaticRequire, isReferenceIdentifier, isFunction} from './ast/index.js';
+import {isStaticRequire, isFunction} from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
@@ -54,6 +53,14 @@ const suggestions = new Map([
 			},
 		],
 	],
+]);
+
+const commonJsGlobals = new Set([
+	'exports',
+	'require',
+	'module',
+	'__filename',
+	'__dirname',
 ]);
 
 function fixRequireCall(node, sourceCode) {
@@ -281,16 +288,7 @@ function create(context) {
 	});
 
 	context.on('Identifier', node => {
-		if (
-			!isReferenceIdentifier(node, [
-				'exports',
-				'require',
-				'module',
-				'__filename',
-				'__dirname',
-			])
-			|| isShadowed(sourceCode.getScope(node), node)
-		) {
+		if (!commonJsGlobals.has(node.name) || !context.sourceCode.isGlobalReference(node)) {
 			return;
 		}
 
@@ -367,7 +365,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

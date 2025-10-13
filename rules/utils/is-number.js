@@ -1,5 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isNumberLiteral} from '../ast/index.js';
+import {isNumericLiteral} from '../ast/index.js';
 
 const isStaticProperties = (node, object, properties) =>
 	node.type === 'MemberExpression'
@@ -117,7 +117,7 @@ const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '
 // eslint-disable-next-line complexity
 export default function isNumber(node, scope) {
 	if (
-		isNumberLiteral(node)
+		isNumericLiteral(node)
 		|| isMathProperty(node)
 		|| isMathMethodCall(node)
 		|| isNumberCall(node)

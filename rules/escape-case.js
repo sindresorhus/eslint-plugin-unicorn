@@ -74,7 +74,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require escape sequences to use uppercase or lowercase values.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

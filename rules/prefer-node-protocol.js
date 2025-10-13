@@ -67,7 +67,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

@@ -1,6 +1,6 @@
 # Prefer `.at()` method for index access and `String#charAt()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -9,56 +9,57 @@
 
 Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` for index access and `String#charAt()`.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = array[array.length - 1];
-```
 
-```js
-const foo = array[array.length - 5];
-```
-
-```js
+// ❌
 const foo = array.slice(-1)[0];
-```
 
-```js
+// ❌
 const foo = array.slice(-1).pop();
-```
 
-```js
+// ❌
 const foo = array.slice(-1).shift();
-```
 
-```js
-const foo = string.charAt(string.length - 5);
-```
-
-```js
+// ❌
 const foo = lodash.last(array);
-```
 
-## Pass
-
-```js
+// ✅
 const foo = array.at(-1);
 ```
 
 ```js
+// ❌
+const foo = array[array.length - 5];
+
+// ✅
 const foo = array.at(-5);
 ```
 
 ```js
+// ❌
+const foo = string.charAt(string.length - 5);
+
+// ✅
+const foo = string.at(-5);
+```
+
+```js
+// ✅
 const foo = array[100];
 ```
 
 ```js
+// ✅
 // This rule is not checking this case, but `unicorn/prefer-negative-index` rule will fix it.
 const foo = array.at(array.length - 1);
 ```
 
 ```js
+// ✅
 array[array.length - 1] = foo;
 ```
 
@@ -87,7 +88,7 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}]
+/* eslint unicorn/prefer-at: ["error", {"checkAllIndexAccess": true}] */
 const foo = bar[10]; // Fails, will fix to `bar.at(10)`
 const foo = bar[unknownProperty]; // Passes
 const foo = string.charAt(unknownIndex); // Fails
@@ -118,8 +119,9 @@ Example:
 ```
 
 ```js
-// eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}]
-const foo = utils.lastElement(bar); // Fails
+/* eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}] */
+// ❌
+const foo = utils.lastElement(bar);
 ```
 
 ## Related rules

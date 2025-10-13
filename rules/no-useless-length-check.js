@@ -140,7 +140,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless array length check.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

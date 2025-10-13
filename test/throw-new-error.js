@@ -29,6 +29,8 @@ test.snapshot({
 		'throw lib["Error"]()',
 		// Not `FooError` like
 		'throw lib.getError()',
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)
+		'class QueryError extends Data.TaggedError(\'QueryError\') {}',
 	],
 	invalid: [
 		'throw Error()',

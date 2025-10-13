@@ -158,7 +158,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent relative URL style.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

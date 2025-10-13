@@ -155,3 +155,4 @@ async function runEslint(project) {
 }
 
 export default runEslint;
+export {UnicornEslintFatalError, UnicornIntegrationTestError};

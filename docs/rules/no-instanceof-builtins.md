@@ -1,6 +1,6 @@
 # Disallow `instanceof` with built-in objects
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -14,50 +14,77 @@ Therefore, it is recommended to use a safer method, like `Object.prototype.toStr
 ## Examples
 
 ```js
-foo instanceof String; // ❌
-typeof foo === 'string'; // ✅
+// ❌
+foo instanceof String;
+
+// ✅
+typeof foo === 'string';
 ```
 
 ```js
-foo instanceof Number; // ❌
-typeof foo === 'number'; // ✅
+// ❌
+foo instanceof Number;
+
+// ✅
+typeof foo === 'number';
 ```
 
 ```js
-foo instanceof Boolean; // ❌
-typeof foo === 'boolean'; // ✅
+// ❌
+foo instanceof Boolean;
+
+// ✅
+typeof foo === 'boolean';
 ```
 
 ```js
-foo instanceof BigInt; // ❌
-typeof foo === 'bigint'; // ✅
+// ❌
+foo instanceof BigInt;
+
+// ✅
+typeof foo === 'bigint';
 ```
 
 ```js
-foo instanceof Symbol; // ❌
-typeof foo === 'symbol'; // ✅
+// ❌
+foo instanceof Symbol;
+
+// ✅
+typeof foo === 'symbol';
 ```
 
 ```js
-foo instanceof Array; // ❌
-Array.isArray(foo); // ✅
+// ❌
+foo instanceof Array;
+
+// ✅
+Array.isArray(foo);
 ```
 
 ```js
-foo instanceof Function; // ❌
-typeof foo === 'function'; // ✅
+// ❌
+foo instanceof Function;
+
+// ✅
+typeof foo === 'function';
 ```
 
 ```js
-foo instanceof Object; // ❌
-Object.prototype.toString.call(foo) === '[object Object]'; // ✅
+// ❌
+foo instanceof Object;
+
+// ✅
+Object.prototype.toString.call(foo) === '[object Object]';
 ```
 
 ```js
 import is from '@sindresorhus/is';
 
-foo instanceof Map; // ❌
-is(foo) === 'Map'; // ✅
+// ❌
+foo instanceof Map;
+
+// ✅
+is(foo) === 'Map';
 ```
 
 ## Options

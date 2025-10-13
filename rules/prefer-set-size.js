@@ -95,7 +95,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Set#size` instead of `Array#length`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,
