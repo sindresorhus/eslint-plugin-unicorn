@@ -31,6 +31,7 @@ test.snapshot({
 		'new Set( foo ?? (( [] )) )',
 		'new Set( (await foo) ?? [] )',
 		'new Set( (0, foo) ?? [] )',
+		'new Set( (( (0, foo) ?? [] )) )',
 		// Who care?
 		'new Set(document.all ?? [])',
 	],
