@@ -55,12 +55,7 @@ export default [
 🔧 Automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/user-guide/command-line-interface#--fix).\
 💡 Manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
-<<<<<<< HEAD
-| Name                                                                                             | Description                                                                                                                                                                                                       | 💼   | 🔧 | 💡 |
-=======
-
 | Name                                                                                             | Description                                                                                                                                                                                                       | 💼   | 🔧 | 💡 |
->>>>>>> fc803fcd31ee865853532eaf27c42b8ebffa485e
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--- | :- | :- |
 | [better-regex](docs/rules/better-regex.md)                                                       | Improve regexes by making them shorter, consistent, and safer.                                                                                                                                                    |      | 🔧 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                               | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅    | 🔧 |    |
