@@ -58,3 +58,47 @@ test.snapshot({
 		'<META CHARSET="ASCII" />',
 	],
 });
+
+// 'withDash'
+test.snapshot({
+	valid: [
+		'`Utf-8`;',
+		'"utf-8";',
+		'"   Utf8   ";',
+		'\'utf-8\';',
+		'const utf8 = 2;',
+	].map(code => ({code, options: [{withDash: true}]})),
+	invalid: [
+		'"UTF-8";',
+		'"UTF8";',
+		'"utf8";',
+		'\'utf8\';',
+		'"Utf8";',
+		'"ASCII";',
+
+		'whatever.readFile(file, "utf8",);',
+	].map(code => ({code, options: [{withDash: true}]})),
+});
+
+// 'withDash' JSX
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
+	},
+	valid: [
+		'<meta charset="utf-8" id="with-dash"/>',
+		'<META CHARSET="utf-8" id="with-dash"/>',
+	].map(code => ({code, options: [{withDash: true}]})),
+	invalid: [
+		'<meta charset="utf8" id="with-dash"/>',
+		'<META CHARSET="utf8" id="with-dash"/>',
+		'<not-meta charset="utf8" id="with-dash"/>',
+		'<meta not-charset="utf8" id="with-dash"/>',
+	].map(code => ({code, options: [{withDash: true}]})),
+});
