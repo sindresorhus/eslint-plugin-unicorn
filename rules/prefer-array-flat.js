@@ -9,16 +9,12 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isMethodCall, isCallExpression} from './ast/index.js';
+import {isMethodCall, isCallExpression, isEmptyArrayExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.',
 };
-
-const isEmptyArrayExpression = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.length === 0;
 
 // `array.flatMap(x => x)`
 const arrayFlatMap = {

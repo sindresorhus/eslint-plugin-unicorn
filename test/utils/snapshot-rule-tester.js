@@ -141,7 +141,7 @@ class SnapshotRuleTester {
 
 	run(ruleId, rule, tests) {
 		const {test, testerConfig} = this;
-		const fixable = rule.meta && rule.meta.fixable;
+		const {fixable} = rule.meta;
 
 		const {valid, invalid} = normalizeTests(tests);
 
