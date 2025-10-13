@@ -116,6 +116,7 @@ export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
+export {default as 'prefer-static-response-json'} from './prefer-static-response-json.js';
 export {default as 'prefer-string-raw'} from './prefer-string-raw.js';
 export {default as 'prefer-string-replace-all'} from './prefer-string-replace-all.js';
 export {default as 'prefer-string-slice'} from './prefer-string-slice.js';
