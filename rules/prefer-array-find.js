@@ -38,12 +38,12 @@ const messages = {
 	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
-const isArrayFilterCall = node => isMethodCall(node, {
+const isArrayFilterCall = (node, options) => isMethodCall(node, {
 	method: 'filter',
 	minimumArguments: 1,
 	maximumArguments: 2,
 	optionalCall: false,
-	optionalMember: false,
+	...options,
 });
 
 // Need add `()` to the `AssignmentExpression`
@@ -184,6 +184,8 @@ const create = context => {
 	};
 
 	// Zero index access
+	// `array.filter()[0]`
+	// `array?.filter()[0]`
 	context.on('MemberExpression', node => {
 		if (!(
 			node.computed
@@ -206,6 +208,7 @@ const create = context => {
 	});
 
 	// `array.filter().shift()`
+	// `array?.filter().shift()`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -236,7 +239,7 @@ const create = context => {
 			&& node.id.elements.length === 1
 			&& node.id.elements[0]
 			&& node.id.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.init)
+			&& isArrayFilterCall(node.init, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -255,7 +258,7 @@ const create = context => {
 			&& node.left.elements.length === 1
 			&& node.left.elements[0]
 			&& node.left.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.right)
+			&& isArrayFilterCall(node.right, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -271,7 +274,7 @@ const create = context => {
 	context.on('VariableDeclarator', node => {
 		if (!(
 			node.id.type === 'Identifier'
-			&& isArrayFilterCall(node.init)
+			&& isArrayFilterCall(node.init, {optionalMember: false})
 			&& node.parent.type === 'VariableDeclaration'
 			&& node.parent.declarations.includes(node)
 			// Exclude `export const foo = [];`
@@ -337,6 +340,7 @@ const create = context => {
 	});
 
 	// `array.filter().at(0)`
+	// `array?.filter().at(0)`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -367,6 +371,7 @@ const create = context => {
 	}
 
 	// `array.filter().pop()`
+	// `array?.filter().pop()`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -391,6 +396,7 @@ const create = context => {
 	});
 
 	// `array.filter().at(-1)`
+	// `array?.filter().at(-1)`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -439,7 +445,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

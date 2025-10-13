@@ -1,15 +1,16 @@
 # Move function definitions to the highest possible scope
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 A function definition should be placed as close to the top-level scope as possible without breaking its captured values. This improves readability, [directly improves performance](https://stackoverflow.com/a/81329/207247) and allows JavaScript engines to [better optimize performance](https://ponyfoo.com/articles/javascript-performance-pitfalls-v8#optimization-limit).
 
-## Fail
+## Examples
 
 ```js
+// ❌
 export function doFoo(foo) {
 	// Does not capture anything from the scope, can be moved to the outer scope
 	function doBar(bar) {
@@ -24,11 +25,20 @@ function doFoo(foo) {
 		return bar === 'bar';
 	};
 }
+
+function doFoo() {
+	// Does not capture anything from the scope, can be moved to the outer scope
+	return bar => bar === 'bar';
+}
+
+// Arrow functions in return statements are now also flagged
+export function someAction() {
+	return dispatch => dispatch({type: 'SOME_TYPE'});
+}
 ```
 
-## Pass
-
 ```js
+// ✅
 function doBar(bar) {
 	return bar === 'bar';
 }
@@ -36,12 +46,37 @@ function doBar(bar) {
 export function doFoo(foo) {
 	return doBar;
 }
+```
 
+```js
+// ❌
+function doFoo(foo) {
+	const doBar = bar => {
+		return bar === 'bar';
+	};
+}
+
+// ✅
+const doBar = bar => {
+	return bar === 'bar';
+};
+
+function doFoo(foo) {}
+```
+
+```js
+// ✅
 export function doFoo(foo) {
 	function doBar(bar) {
 		return bar === 'bar' && foo.doBar(bar);
 	}
 
+	return doBar;
+}
+
+const doBar = bar => bar === 'bar';
+
+export function doFoo() {
 	return doBar;
 }
 ```

@@ -11,7 +11,6 @@ test.snapshot({
 		'array[array.length + 1]',
 		'array[array.length + -1]',
 		'foo[bar.length - 1]',
-		'array?.[array.length - 1];',
 		// LHS
 		'array[array.length - 1] = 1',
 		'array[array.length - 1] %= 1',
@@ -24,6 +23,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array[array.length - 1];',
+		'array?.[array.length - 1];',
 		'array[array.length -1];',
 		'array[array.length - /* comment */ 1];',
 		'array[array.length - 1.];',
@@ -54,11 +54,11 @@ test.snapshot({
 		'string.charAt(string.length + -1)',
 		'foo.charAt(bar.length - 1)',
 		'string?.charAt?.(string.length - 1);',
-		'string?.charAt(string.length - 1);',
 		'string.charAt(9);',
 	],
 	invalid: [
 		'string.charAt(string.length - 1);',
+		'string?.charAt(string.length - 1);',
 		'string.charAt(string.length - 0o11);',
 		'some.string.charAt(some.string.length - 1);',
 		'string.charAt((( string.length )) - 0xFF);',
@@ -80,7 +80,6 @@ test.snapshot({
 		'array.slice(-1.1)[0]',
 		'array.slice(-1)?.[0]',
 		'array.slice?.(-1)[0]',
-		'array?.slice(-1)[0]',
 		'array.notSlice(-1)[0]',
 		'array.slice()[0]',
 		'array.slice(...[-1])[0]',
@@ -100,6 +99,7 @@ test.snapshot({
 	],
 	invalid: [
 		'array.slice(-1)[0]',
+		'array?.slice(-1)[0]',
 		'array.slice(-1).pop()',
 		'array.slice(-1.0).shift()',
 		'array.slice(-1)[(( 0 ))];',

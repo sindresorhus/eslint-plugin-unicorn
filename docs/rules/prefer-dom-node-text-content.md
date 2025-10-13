@@ -1,6 +1,6 @@
 # Prefer `.textContent` over `.innerText`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -13,30 +13,28 @@ There are [some advantages of using `.textContent`](https://developer.mozilla.or
 
 Note that there are [differences](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innertext) between them.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const text = foo.innerText;
-```
 
-```js
-const {innerText} = foo;
-```
-
-```js
-foo.innerText = '🦄';
-```
-
-## Pass
-
-```js
+// ✅
 const text = foo.textContent;
 ```
 
 ```js
+// ❌
+const {innerText} = foo;
+
+// ✅
 const {textContent} = foo;
 ```
 
 ```js
+// ❌
+foo.innerText = '🦄';
+
+// ✅
 foo.textContent = '🦄';
 ```

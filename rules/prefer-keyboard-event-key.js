@@ -1,6 +1,6 @@
 import escapeString from './utils/escape-string.js';
 import translateToKey from './shared/event-keys.js';
-import {isNumberLiteral} from './ast/index.js';
+import {isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
@@ -80,7 +80,7 @@ const fix = node => fixer => {
 		!(
 			type === 'BinaryExpression'
 			&& (operator === '==' || operator === '===')
-			&& isNumberLiteral(right)
+			&& isNumericLiteral(right)
 		)
 	) {
 		return;
@@ -178,7 +178,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

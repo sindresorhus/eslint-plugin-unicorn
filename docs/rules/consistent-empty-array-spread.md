@@ -1,6 +1,6 @@
 # Prefer consistent types when spreading a ternary in an array literal
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,32 +9,28 @@
 
 When spreading a ternary in an array, we can use both `[]` and `''` as fallbacks, but it's better to have consistent types in both branches.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const array = [
 	a,
 	...(foo ? [b, c] : ''),
 ];
-```
 
-```js
+// ❌
 const array = [
 	a,
 	...(foo ? 'bc' : []),
 ];
-```
 
-## Pass
-
-```js
+// ✅
 const array = [
 	a,
 	...(foo ? [b, c] : []),
 ];
-```
 
-```js
+// ✅
 const array = [
 	a,
 	...(foo ? 'bc' : ''),

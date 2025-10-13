@@ -1,6 +1,6 @@
 # Prefer `switch` over multiple `else-if`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,9 +9,10 @@
 
 A switch statement is easier to read than multiple if statements with simple equality comparisons.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 if (foo === 1) {
 	// 1
 } else if (foo === 2) {
@@ -23,9 +24,8 @@ if (foo === 1) {
 }
 ```
 
-## Pass
-
 ```js
+// ✅
 if (foo === 1) {
 	// 1
 } else if (foo === 2) {
@@ -34,6 +34,7 @@ if (foo === 1) {
 ```
 
 ```js
+// ✅
 switch (foo) {
 	case 1: {
 		// 1
@@ -70,39 +71,31 @@ The `default` branch doesn't count. Multiple comparisons on the same `if` block 
 Examples:
 
 ```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+/* eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}] */
+
+// ✅
 if (foo === 1) {}
 else if (foo === 2) {}
 else if (foo === 3) {}
 
-// Passes, only 3 cases.
-```
-
-```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+// ✅
 if (foo === 1) {}
 else if (foo === 2) {}
 else if (foo === 3) {}
 else {}
 
-// Passes, only 3 cases.
-```
-
-```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 4}]
+// ✅
 if (foo === 1) {}
 else if (foo === 2 || foo === 3) {}
 else if (foo === 4) {}
-
-// Passes, only 3 cases.
 ```
 
 ```js
-// eslint unicorn/prefer-switch: ["error", {"minimumCases": 2}]
+/* eslint unicorn/prefer-switch: ["error", {"minimumCases": 2}] */
+
+// ❌
 if (foo === 1) {}
 else if (foo === 2) {}
-
-// Fails
 ```
 
 ### `emptyDefaultCase`

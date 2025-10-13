@@ -1,6 +1,6 @@
 # Enforce consistent assertion style with `node:assert`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -18,7 +18,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);
@@ -31,7 +31,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);
@@ -44,7 +44,7 @@ assert.strictEqual(actual, expected);
 assert.deepStrictEqual(actual, expected);
 
 // ❌
-assert(divide(10, 2) === 5); // Inconsistent with other API styles
+assert(divide(10, 2) === 5);
 
 // ✅
 assert.ok(divide(10, 2) === 5);

@@ -1,5 +1,5 @@
 import {getParenthesizedRange} from '../utils/parentheses.js';
-import removeMemberExpressionProperty from './remove-member-expression-property.js';
+import {removeMemberExpressionProperty} from './replace-member-expression-property.js';
 
 export default function * removeMethodCall(fixer, callExpression, sourceCode) {
 	const memberExpression = callExpression.callee;

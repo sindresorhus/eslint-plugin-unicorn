@@ -261,8 +261,7 @@ const create = context => {
 				isCallExpression(node, {
 					name: 'require',
 					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
+					optional: false,
 				})
 				&& (node.parent.type === 'ExpressionStatement' && node.parent.expression === node)
 			)) {
@@ -365,7 +364,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce specific import styles per module.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		schema,
 		defaultOptions: [{}],

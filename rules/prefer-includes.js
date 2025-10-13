@@ -1,5 +1,8 @@
-import {checkVueTemplate} from './utils/rule.js';
-import isMethodNamed from './utils/is-method-named.js';
+import {
+	checkVueTemplate,
+	isMethodNamed,
+	getTokenStore,
+} from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
 
@@ -15,7 +18,7 @@ const isNegativeResult = node => ['===', '==', '<'].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
 	const {sourceCode} = context;
-	const tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore?.() ?? sourceCode;
+	const tokenStore = getTokenStore(context, target);
 
 	const memberExpressionNode = target.parent;
 	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
@@ -94,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.includes()` over `.indexOf()`, `.lastIndexOf()`, and `Array#some()` when checking for existence or non-existence.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

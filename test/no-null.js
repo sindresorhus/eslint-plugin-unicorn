@@ -9,6 +9,7 @@ test.snapshot({
 		'Object.create(null)',
 		'Object.create(null, {foo: {value:1}})',
 		'let insertedNode = parentNode.insertBefore(newNode, null)',
+		'let insertedNode = parentNode?.insertBefore(newNode, null)',
 		// Not `null`
 		'const foo = "null";',
 		// More/Less arguments
@@ -36,6 +37,11 @@ test.snapshot({
 			code,
 			options: [{checkStrictEquality: false}],
 		})),
+		// #1146
+		{
+			code: 'foo = Object.create(null)',
+			languageOptions: {ecmaVersion: 2019},
+		},
 	],
 	invalid: [
 		'const foo = null',
@@ -101,19 +107,4 @@ test.snapshot({
 		'foo.insertBefore(null, bar)',
 		'Object.create(bar, null)',
 	],
-});
-
-// #1146
-test({
-	testerOptions: {
-		languageOptions: {
-			parserOptions: {
-				ecmaVersion: 2019,
-			},
-		},
-	},
-	valid: [
-		'foo = Object.create(null)',
-	],
-	invalid: [],
 });

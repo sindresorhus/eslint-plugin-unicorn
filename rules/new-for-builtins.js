@@ -16,7 +16,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
-function enforceNewExpression({node, path: [name]}, sourceCode) {
+function enforceNewExpression({node, path: [name]}, {sourceCode}) {
 	if (name === 'Object') {
 		const {parent} = node;
 		if (
@@ -63,7 +63,7 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 	};
 }
 
-function enforceCallExpression({node, path: [name]}, sourceCode) {
+function enforceCallExpression({node, path: [name]}, {sourceCode}) {
 	const problem = {
 		node,
 		messageId: 'disallow',
@@ -79,28 +79,21 @@ function enforceCallExpression({node, path: [name]}, sourceCode) {
 	return problem;
 }
 
+const newExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.disallowNew,
+	type: GlobalReferenceTracker.CONSTRUCT,
+	handle: enforceCallExpression,
+});
+const callExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.enforceNew,
+	type: GlobalReferenceTracker.CALL,
+	handle: enforceNewExpression,
+});
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-	const newExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.disallowNew,
-		type: GlobalReferenceTracker.CONSTRUCT,
-		handle: reference => enforceCallExpression(reference, sourceCode),
-	});
-	const callExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.enforceNew,
-		type: GlobalReferenceTracker.CALL,
-		handle: reference => enforceNewExpression(reference, sourceCode),
-	});
-
-	return {
-		* 'Program:exit'(program) {
-			const scope = sourceCode.getScope(program);
-
-			yield * newExpressionTracker.track(scope);
-			yield * callExpressionTracker.track(scope);
-		},
-	};
+	newExpressionTracker.listen({context});
+	callExpressionTracker.listen({context});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -110,7 +103,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

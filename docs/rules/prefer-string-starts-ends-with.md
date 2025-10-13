@@ -1,6 +1,6 @@
 # Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -11,38 +11,25 @@ Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScr
 
 This rule is fixable, unless the matching object is known not a string.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = /^bar/.test(baz);
-```
 
-```js
-const foo = /bar$/.test(baz);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = baz.startsWith('bar');
 ```
 
 ```js
+// ❌
+const foo = /bar$/.test(baz);
+
+// ✅
 const foo = baz.endsWith('bar');
 ```
 
 ```js
-const foo = baz?.startsWith('bar');
-```
-
-```js
-const foo = (baz ?? '').startsWith('bar');
-```
-
-```js
-const foo = String(baz).startsWith('bar');
-```
-
-```js
+// ✅
 const foo = /^bar/i.test(baz);
 ```

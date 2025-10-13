@@ -95,7 +95,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `new Array()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

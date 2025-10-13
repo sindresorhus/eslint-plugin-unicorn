@@ -195,7 +195,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

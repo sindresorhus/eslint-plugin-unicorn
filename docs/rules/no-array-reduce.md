@@ -1,6 +1,6 @@
 # Disallow `Array#reduce()` and `Array#reduceRight()`
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,44 +13,22 @@ Use `eslint-disable` comment if you really need to use it or disable the rule en
 
 This rule is not fixable.
 
-## Fail
+## Examples
 
 ```js
-array.reduce(reducer, initialValue);
-```
+// ❌
+array.reduce(reducer);
 
-```js
-array.reduceRight(reducer, initialValue);
-```
-
-```js
+// ✅
+// eslint-disable-next-line unicorn/no-array-reduce
 array.reduce(reducer);
 ```
 
 ```js
-[].reduce.call(array, reducer);
-```
-
-```js
-[].reduce.apply(array, [reducer, initialValue]);
-```
-
-```js
-Array.prototype.reduce.call(array, reducer);
-```
-
-## Pass
-
-```js
-// eslint-disable-next-line unicorn/no-array-reduce
+// ❌
 array.reduce(reducer, initialValue);
-```
 
-```js
-array.reduce((total, value) => total + value);
-```
-
-```js
+// ✅
 let result = initialValue;
 
 for (const element of array) {
@@ -59,11 +37,35 @@ for (const element of array) {
 ```
 
 ```js
+// ✅
+array.reduce((total, value) => total + value);
+```
+
+```js
+// ❌
+array.reduceRight(reducer, initialValue);
+
+// ✅
 let result = initialValue;
 
 for (const element of array.toReversed()) { // Equivalent to .reduceRight()
 	result += element;
 }
+```
+
+```js
+// ❌
+[].reduce.call(array, reducer);
+```
+
+```js
+// ❌
+[].reduce.apply(array, [reducer, initialValue]);
+```
+
+```js
+// ❌
+Array.prototype.reduce.call(array, reducer);
 ```
 
 ## Options
@@ -78,11 +80,13 @@ Allow simple operations (like addition, subtraction, etc.) in a `reduce` call.
 Set it to `false` to disable reduce completely.
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}]
-array.reduce((total, item) => total + item) // Passes
+/* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": true}] */
+// ✅
+array.reduce((total, item) => total + item)
 ```
 
 ```js
-// eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}]
-array.reduce((total, item) => total + item) // Fails
+/* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}] */
+// ❌
+array.reduce((total, item) => total + item)
 ```

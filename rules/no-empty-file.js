@@ -49,7 +49,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow empty files.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

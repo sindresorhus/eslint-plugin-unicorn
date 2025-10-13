@@ -1,3 +1,4 @@
+import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 import tests from './shared/simple-array-search-rule-tests.js';
 
@@ -23,18 +24,28 @@ test.snapshot({
 		'f(0) < 0',
 	],
 	invalid: [
-		'\'foobar\'.indexOf(\'foo\') !== -1',
-		'str.indexOf(\'foo\') != -1',
-		'str.indexOf(\'foo\') > -1',
-		'str.indexOf(\'foo\') == -1',
-		'\'foobar\'.indexOf(\'foo\') >= 0',
-		'[1,2,3].indexOf(4) !== -1',
-		'str.indexOf(\'foo\') < 0',
-		'\'\'.indexOf(\'foo\') < 0',
-		'(a || b).indexOf(\'foo\') === -1',
-		'foo.indexOf(bar, 0) !== -1',
-		'foo.indexOf(bar, 1) !== -1',
-	].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
+		...[
+			'\'foobar\'.indexOf(\'foo\') !== -1',
+			'str.indexOf(\'foo\') != -1',
+			'str.indexOf(\'foo\') > -1',
+			'str.indexOf(\'foo\') == -1',
+			'\'foobar\'.indexOf(\'foo\') >= 0',
+			'[1,2,3].indexOf(4) !== -1',
+			'str.indexOf(\'foo\') < 0',
+			'\'\'.indexOf(\'foo\') < 0',
+			'(a || b).indexOf(\'foo\') === -1',
+			'foo.indexOf(bar, 0) !== -1',
+			'foo.indexOf(bar, 1) !== -1',
+		].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
+		{
+			code: outdent`
+				<script setup lang="ts">
+				console.log([].indexOf(1) != -1);
+				</script>
+			`,
+			languageOptions: {parser: parsers.vue},
+		},
+	],
 });
 
 const {snapshot, typescript} = tests({

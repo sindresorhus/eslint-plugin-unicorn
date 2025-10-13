@@ -29,7 +29,6 @@ const create = context => ({
 			&& isMethodCall(callExpression.callee.object, {
 				method: 'map',
 				optionalCall: false,
-				optionalMember: false,
 			})
 		)) {
 			return;
@@ -77,7 +76,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

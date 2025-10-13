@@ -14,7 +14,6 @@ test({
 	testerOptions: {
 		languageOptions: {
 			parserOptions: {
-				ecmaVersion: 5,
 				sourceType: 'script',
 			},
 		},

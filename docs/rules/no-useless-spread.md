@@ -1,6 +1,6 @@
 # Disallow unnecessary spread
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -30,104 +30,106 @@
 
 - `yield*` can delegate to another iterable, so it's unnecessary to convert the iterable to an array.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const array = [firstElement, ...[secondElement], thirdElement];
-```
 
-```js
-const object = {firstProperty, ...{secondProperty}, thirdProperty};
-```
-
-```js
-foo(firstArgument, ...[secondArgument], thirdArgument);
-```
-
-```js
-const object = new Foo(firstArgument, ...[secondArgument], thirdArgument);
-```
-
-```js
-const set = new Set([...iterable]);
-```
-
-```js
-const results = await Promise.all([...iterable]);
-```
-
-```js
-for (const foo of [...set]);
-```
-
-```js
-function * foo() {
-	yield * [...anotherGenerator()];
-}
-```
-
-```js
-function foo(bar) {
-	return [
-		...bar.map(x => x * 2),
-	];
-}
-```
-
-## Pass
-
-```js
+// ✅
 const array = [firstElement, secondElement, thirdElement];
 ```
 
 ```js
+// ❌
+const object = {firstProperty, ...{secondProperty}, thirdProperty};
+
+// ✅
 const object = {firstProperty, secondProperty, thirdProperty};
 ```
 
 ```js
+// ❌
+foo(firstArgument, ...[secondArgument], thirdArgument);
+
+// ✅
 foo(firstArgument, secondArgument, thirdArgument);
 ```
 
 ```js
+// ❌
+const object = new Foo(firstArgument, ...[secondArgument], thirdArgument);
+
+// ✅
 const object = new Foo(firstArgument, secondArgument, thirdArgument);
 ```
 
 ```js
-const array = [...foo, bar];
-```
+// ❌
+const set = new Set([...iterable]);
 
-```js
-const object = {...foo, bar};
-```
-
-```js
-foo(foo, ...bar);
-```
-
-```js
-const object = new Foo(...foo, bar);
-```
-
-```js
+// ✅
 const set = new Set(iterable);
 ```
 
 ```js
+// ❌
+const results = await Promise.all([...iterable]);
+
+// ✅
 const results = await Promise.all(iterable);
 ```
 
 ```js
+// ❌
+for (const foo of [...set]);
+
+// ✅
 for (const foo of set);
 ```
 
 ```js
+// ❌
+function * foo() {
+	yield * [...anotherGenerator()];
+}
+
+// ✅
 function * foo() {
 	yield * anotherGenerator();
 }
 ```
 
 ```js
+// ❌
+function foo(bar) {
+	return [
+		...bar.map(x => x * 2),
+	];
+}
+
+// ✅
 function foo(bar) {
 	return bar.map(x => x * 2);
 }
+```
+
+```js
+// ✅
+const array = [...foo, bar];
+```
+
+```js
+// ✅
+const object = {...foo, bar};
+```
+
+```js
+// ✅
+foo(foo, ...bar);
+```
+
+```js
+// ✅
+const object = new Foo(...foo, bar);
 ```

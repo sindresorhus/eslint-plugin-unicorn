@@ -1,6 +1,6 @@
 # Disallow classes that only have static members
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -9,43 +9,44 @@
 
 A class with only static members could just be an object instead.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 class X {
 	static foo = false;
 	static bar() {};
 }
-```
 
-## Pass
-
-```js
+// ✅
 const X = {
 	foo: false,
-	bar() {}
+	bar() {},
 };
 ```
 
 ```js
+// ✅
 class X {
 	static foo = false;
-	static bar() {};
+	static bar() {}
 
 	constructor() {}
 }
 ```
 
 ```js
+// ✅
 class X {
 	static foo = false;
-	static bar() {};
+	static bar() {}
 
 	unicorn() {}
 }
 ```
 
 ```js
+// ✅
 class X {
 	static #foo = false;
 	static bar() {}

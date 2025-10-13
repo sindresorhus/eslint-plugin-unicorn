@@ -27,7 +27,6 @@ const arrayFlatMap = {
 			method: 'flatMap',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return false;
 		}
@@ -41,18 +40,20 @@ const arrayFlatMap = {
 		);
 	},
 	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
 	description: 'Array#flatMap()',
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
+// `array?.reduce((a, b) => a.concat(b), [])`
 // `array.reduce((a, b) => [...a, ...b], [])`
+// `array?.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce = {
 	testFunction(node) {
 		if (!isMethodCall(node, {
 			method: 'reduce',
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return false;
 		}
@@ -94,6 +95,7 @@ const arrayReduce = {
 		);
 	},
 	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
 	description: 'Array#reduce()',
 };
 
@@ -159,7 +161,7 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
-function fix(node, array, sourceCode, shouldSwitchToArray) {
+function fix(node, array, sourceCode, shouldSwitchToArray, optional) {
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
@@ -177,7 +179,7 @@ function fix(node, array, sourceCode, shouldSwitchToArray) {
 			fixed = `(${fixed})`;
 		}
 
-		fixed = `${fixed}.flat()`;
+		fixed = `${fixed}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
 		if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
@@ -214,12 +216,13 @@ function create(context) {
 
 	return {
 		* CallExpression(node) {
-			for (const {testFunction, description, getArrayNode, shouldSwitchToArray} of cases) {
+			for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
 				if (!testFunction(node)) {
 					continue;
 				}
 
 				const array = getArrayNode(node);
+				const optional = isOptionalArray?.(node);
 
 				const data = {
 					description: typeof description === 'string' ? description : description(node),
@@ -238,7 +241,7 @@ function create(context) {
 					sourceCode.getCommentsInside(node).length
 					=== sourceCode.getCommentsInside(array).length
 				) {
-					problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
+					problem.fix = fix(node, array, sourceCode, shouldSwitchToArray, optional);
 				}
 
 				yield problem;
@@ -267,7 +270,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,
