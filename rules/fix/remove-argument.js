@@ -17,14 +17,12 @@ export default function removeArgument(fixer, node, sourceCode) {
 	}
 
 	// If the removed argument is the only argument, the trailing comma must be removed too
-	/* c8 ignore start */
 	if (callExpression.arguments.length === 1) {
-		const tokenAfter = sourceCode.getTokenBefore(lastToken);
+		const tokenAfter = sourceCode.getTokenAfter(lastToken);
 		if (isCommaToken(tokenAfter)) {
 			[, end] = sourceCode.getRange(tokenAfter);
 		}
 	}
-	/* c8 ignore end */
 
 	return fixer.removeRange([start, end]);
 }

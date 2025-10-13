@@ -1,62 +1,85 @@
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
-import {isNewExpression, isEmptyArrayExpression, isEmptyStringLiteral} from './ast/index.js';
-import {removeParentheses} from './fix/index.js';
+import {
+	isNewExpression,
+	isEmptyArrayExpression,
+	isEmptyStringLiteral,
+	isNullLiteral,
+	isUndefined,
+} from './ast/index.js';
+import {removeParentheses, removeArgument} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-set-constructor';
 const messages = {
 	[MESSAGE_ID]: 'The {{description}} is useless.',
 };
 
+const getDescription = node => {
+	if (isEmptyArrayExpression(node)) {
+		return 'empty array';
+	}
+
+	if (isEmptyStringLiteral(node)) {
+		return 'empty string';
+	}
+
+	if (isNullLiteral(node)) {
+		return '`null`';
+	}
+
+	if (isUndefined(node)) {
+		return '`undefined`';
+	}
+};
+
+const removeFallback = (node, context) =>
+	// Same code from rules/no-useless-fallback-in-spread.js
+	/** @param {import('eslint').Rule.RuleFixer} fixer */
+	function * fix(fixer) {
+		const {sourceCode} = context;
+		const logicalExpression = node.parent;
+		const {left} = logicalExpression;
+		const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
+		const [, start] = isLeftObjectParenthesized
+			? getParenthesizedRange(left, sourceCode)
+			: sourceCode.getRange(left);
+		const [, end] = sourceCode.getRange(logicalExpression);
+
+		yield fixer.removeRange([start, end]);
+
+		if (
+			isLeftObjectParenthesized
+			|| left.type !== 'SequenceExpression'
+		) {
+			yield * removeParentheses(logicalExpression, fixer, sourceCode);
+		}
+	};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
 	NewExpression(newExpression) {
-		if (!isNewExpression(newExpression, {name: 'Set', argumentsLength: 1})) {
+		if (!isNewExpression(newExpression, {
+			names: ['Set', 'Map', 'WeakSet', 'WeakMap'],
+			argumentsLength: 1,
+		})) {
 			return;
 		}
 
 		const [iterable] = newExpression.arguments;
+		const isCheckingFallback = iterable.type === 'LogicalExpression' && iterable.operator === '??';
+		const node = isCheckingFallback ? iterable.right : iterable;
+		const description = getDescription(node);
 
-		if (!(
-			iterable.type === 'LogicalExpression'
-			&& iterable.operator === '??'
-		)) {
-			return;
-		}
-
-		const {right: fallback} = iterable;
-
-		let description;
-		if (isEmptyArrayExpression(fallback)) {
-			description = 'empty array';
-		} else if (isEmptyStringLiteral(fallback)) {
-			description = 'empty string';
-		}	else {
+		if (!description) {
 			return;
 		}
 
 		return {
-			node: fallback,
+			node,
 			messageId: MESSAGE_ID,
 			data: {description},
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
-				const {sourceCode} = context;
-				const {left} = iterable;
-				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
-				const [, start] = isLeftObjectParenthesized
-					? getParenthesizedRange(left, sourceCode)
-					: sourceCode.getRange(left);
-				const [, end] = sourceCode.getRange(iterable);
-
-				yield fixer.removeRange([start, end]);
-
-				if (
-					isLeftObjectParenthesized
-					|| left.type !== 'SequenceExpression'
-				) {
-					yield * removeParentheses(iterable, fixer, sourceCode);
-				}
-			},
+			fix: isCheckingFallback
+				? removeFallback(node, context)
+				: fixer => removeArgument(fixer, node, context.sourceCode),
 		};
 	},
 });

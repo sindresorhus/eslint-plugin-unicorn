@@ -2,11 +2,44 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Useless value
 test.snapshot({
 	valid: [
+		'new Set()',
+		'new Set',
+		'new Set(foo)',
+		'new Set(foo || [])',
+		'new Set(foo && [])',
+		'new Not_Set([])',
+		'Set([])',
+		'new Set([], extraArgument)',
+		'new Set(...([]))',
+		'new Set([""])',
+		'new Set("not-empty")',
+		'new Set(0)',
+		'new ([])(Set)',
+		// Not checking
+		'new globalThis.Set([])',
+	],
+	invalid: [
 		'new Set([])',
 		'new Set("")',
-		'new Set()',
+		'new Set(undefined)',
+		'new Set(null)',
+		'new WeakSet([])',
+		'new Map([])',
+		'new WeakMap([])',
+		'new Set( (([])) )',
+		'new Set([],)',
+		'new Set( (([])), )',
+		// Who care?
+		'new Set(document.all ?? [])',
+	],
+});
+
+// Fallbacks
+test.snapshot({
+	valid: [
 		'new Set(foo || [])',
 		'new Set(foo && [])',
 		'new Not_Set(foo ?? [])',
@@ -23,9 +56,11 @@ test.snapshot({
 	invalid: [
 		'new Set(foo ?? [])',
 		'new Set(foo ?? "")',
-		'new Set([] ?? "")',
-		'new Set("" ?? [])',
-		'new Set(undefined ?? [])',
+		'new Set(foo ?? undefined)',
+		'new Set(foo ?? null)',
+		'new WeakSet(foo ?? [])',
+		'new Map(foo ?? [])',
+		'new WeakMap(foo ?? [])',
 		'new Set( ((foo ?? [])) )',
 		'new Set( (( foo )) ?? [] )',
 		'new Set( foo ?? (( [] )) )',
@@ -34,5 +69,8 @@ test.snapshot({
 		'new Set( (( (0, foo) ?? [] )) )',
 		// Who care?
 		'new Set(document.all ?? [])',
+		// Both side are useless
+		'new Set([] ?? "")',
+		'new Set( (( (( "" )) ?? (( [] )) )) )',
 	],
 });
