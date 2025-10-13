@@ -2,8 +2,8 @@ import {isCommaToken} from '@eslint-community/eslint-utils';
 import {getParentheses} from '../utils/parentheses.js';
 
 export default function removeArgument(fixer, node, sourceCode) {
-	const callExpression = node.parent;
-	const index = callExpression.arguments.indexOf(node);
+	const callOrNewExpression = node.parent;
+	const index = callOrNewExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, sourceCode);
 	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
@@ -17,7 +17,7 @@ export default function removeArgument(fixer, node, sourceCode) {
 	}
 
 	// If the removed argument is the only argument, the trailing comma must be removed too
-	if (callExpression.arguments.length === 1) {
+	if (callOrNewExpression.arguments.length === 1) {
 		const tokenAfter = sourceCode.getTokenAfter(lastToken);
 		if (isCommaToken(tokenAfter)) {
 			[, end] = sourceCode.getRange(tokenAfter);
