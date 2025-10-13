@@ -12,25 +12,67 @@ function unescapeBackslash(text, quote = '') {
 	return text.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
+/**
+Check if a string literal is restricted to replace with a `String.raw`
+*/
+// eslint-disable-next-line complexity
+function isStringRawRestricted(node) {
+	const {parent} = node;
+	const {type} = parent;
+	return (
+		// Directive
+		isDirective(parent)
+		// Property, method, or accessor key (only non-computed)
+		|| (
+			(
+				type === 'Property'
+				|| type === 'PropertyDefinition'
+				|| type === 'MethodDefinition'
+				|| type === 'AccessorProperty'
+			)
+			&& !parent.computed && parent.key === node
+		)
+		// Property, method, or accessor key (always)
+		|| (
+			(
+				type === 'TSAbstractPropertyDefinition'
+				|| type === 'TSAbstractMethodDefinition'
+				|| type === 'TSAbstractAccessorProperty'
+				|| type === 'TSPropertySignature'
+			)
+			&& parent.key === node
+		)
+		// Module source
+		|| (
+			(
+				type === 'ImportDeclaration'
+				|| type === 'ExportNamedDeclaration'
+				|| type === 'ExportAllDeclaration'
+			) && parent.source === node
+		)
+		// Import attribute key and value
+		|| (type === 'ImportAttribute' && (parent.key === node || parent.value === node))
+		// Module specifier
+		|| (type === 'ImportSpecifier' && parent.imported === node)
+		|| (type === 'ExportSpecifier' && (parent.local === node || parent.exported === node))
+		|| (type === 'ExportAllDeclaration' && parent.exported === node)
+		// JSX attribute value
+		|| (type === 'JSXAttribute' && parent.value === node)
+		// (TypeScript) Enum member key and value
+		|| (type === 'TSEnumMember' && (parent.initializer === node || parent.id === node))
+		// (TypeScript) Module declaration
+		|| (type === 'TSModuleDeclaration' && parent.id === node)
+		// (TypeScript) CommonJS module reference
+		|| (type === 'TSExternalModuleReference' && parent.expression === node)
+		// (TypeScript) Literal type
+		|| (type === 'TSLiteralType' && parent.literal === node)
+	);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	// eslint-disable-next-line complexity
 	context.on('Literal', node => {
-		if (
-			!isStringLiteral(node)
-			|| isDirective(node.parent)
-			|| (
-				(
-					node.parent.type === 'ImportDeclaration'
-					|| node.parent.type === 'ExportNamedDeclaration'
-					|| node.parent.type === 'ExportAllDeclaration'
-				) && node.parent.source === node
-			)
-			|| (node.parent.type === 'Property' && !node.parent.computed && node.parent.key === node)
-			|| (node.parent.type === 'JSXAttribute' && node.parent.value === node)
-			|| (node.parent.type === 'TSEnumMember' && (node.parent.initializer === node || node.parent.id === node))
-			|| (node.parent.type === 'ImportAttribute' && (node.parent.key === node || node.parent.value === node))
-		) {
+		if (!isStringLiteral(node) || isStringRawRestricted(node)) {
 			return;
 		}
 
