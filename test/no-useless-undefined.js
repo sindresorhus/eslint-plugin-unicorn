@@ -457,8 +457,8 @@ test.snapshot({
 						undefined
 					);
 			`,
-			'foo( ((a)), ((undefined)), ((undefined)), )',
-			'foo( ((undefined)), ((undefined)), )',
+		'foo( ((a)), ((undefined)), ((undefined)), )',
+		'foo( ((undefined)), ((undefined)), )',
 	],
 });
 
