@@ -1,6 +1,7 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {isUndefined, isFunction} from './ast/index.js';
+import {getParenthesizedRange} from './utils/index.js'
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -257,16 +258,16 @@ const create = context => {
 				end: sourceCode.getLoc(lastUndefined).end,
 			},
 			fix(fixer) {
-				let [start] = sourceCode.getRange(firstUndefined);
-				let [, end] = sourceCode.getRange(lastUndefined);
+				let [start] = getParenthesizedRange(firstUndefined, sourceCode);
+				let [, end] = getParenthesizedRange(lastUndefined, sourceCode);
 
 				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
 
 				if (previousArgument) {
-					[, start] = sourceCode.getRange(previousArgument);
+					[, start] = getParenthesizedRange(previousArgument, sourceCode);
 				} else {
 					// If all arguments removed, and there is trailing comma, we need remove it.
-					const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
+					const tokenAfter = sourceCode.getTokenBefore(sourceCode.getLastToken(node));
 					if (isCommaToken(tokenAfter)) {
 						[, end] = sourceCode.getRange(tokenAfter);
 					}
