@@ -172,7 +172,10 @@ export default [
 				'packages/gatsby-cli/src/reporter/__tests__',
 			],
 		},
-		'https://github.com/webpack/webpack'
+		{
+			repository: 'https://github.com/webpack/webpack',
+			ignore: ['test/**/*'],
+		},
 	],
 	{
 		repository: 'https://github.com/vercel/next.js',
