@@ -145,7 +145,7 @@ async function runEslint(project) {
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
 	console.log();
 	console.log(outdent`
-		${styleText.green.bold.underline(`[${project.name}]`)} ${results.length} files linted:
+		${styleText.green.bold.underline`[${project.name}]`} ${results.length} files linted:
 		- error: ${styleText.gray(String(errorCount))}
 		- warning: ${styleText.gray(String(warningCount))}
 		- fixable error: ${styleText.gray(String(fixableErrorCount))}
