@@ -1,7 +1,7 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {isUndefined, isFunction} from './ast/index.js';
-import {getParenthesizedRange} from './utils/index.js'
+import {getParenthesizedRange} from './utils/index.js';
 
 const messageId = 'no-useless-undefined';
 const messages = {
