@@ -183,6 +183,7 @@ export default [
 			'examples/**',
 			'test/**',
 			'**/tests/**',
+			'**/compiled/**',
 		],
 	},
 	// #903
