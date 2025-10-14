@@ -182,6 +182,7 @@ export default [
 		ignore: [
 			'examples/**',
 			'test/**',
+			'**/tests/**',
 		],
 	},
 	// #903
