@@ -122,6 +122,7 @@ async function runEslint(project) {
 		],
 		fix: true,
 		errorOnUnmatchedPattern: false,
+		concurrency: 'auto',
 	});
 
 	const startTime = process.hrtime.bigint();
