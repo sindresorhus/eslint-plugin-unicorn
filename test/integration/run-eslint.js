@@ -122,7 +122,11 @@ async function runEslint(project) {
 		],
 		fix: true,
 		errorOnUnmatchedPattern: false,
-		concurrency: 'auto',
+		/*
+		TODO: Try to figure out how to make it work, currently it throws error
+		"The option "overrideConfig" cannot be cloned. When concurrency is enabled, all options must be cloneable values (JSON values). Remove uncloneable options or use an options module."
+		*/
+		// concurrency: 'auto',
 	});
 
 	const startTime = process.hrtime.bigint();
