@@ -163,14 +163,17 @@ export default [
 			],
 		},
 	],
-	{
-		repository: 'https://github.com/gatsbyjs/gatsby',
-		ignore: [
-			// These files use `flow`
-			'**/*.js',
-			'packages/gatsby-cli/src/reporter/__tests__',
-		],
-	},
+	[
+		{
+			repository: 'https://github.com/gatsbyjs/gatsby',
+			ignore: [
+				// These files use `flow`
+				'**/*.js',
+				'packages/gatsby-cli/src/reporter/__tests__',
+			],
+		},
+		'https://github.com/webpack/webpack'
+	],
 	{
 		repository: 'https://github.com/vercel/next.js',
 		ignore: [
