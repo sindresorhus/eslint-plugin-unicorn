@@ -175,12 +175,7 @@ export default [
 		repository: 'https://github.com/vercel/next.js',
 		ignore: [
 			'examples/**',
-
-			// These files use `>` in jsx
-			'test/integration/**',
-
-			// Contains Flow syntax
-			'test/e2e/babel/fixture/**',
+			'test/**',
 		],
 	},
 	// #903
