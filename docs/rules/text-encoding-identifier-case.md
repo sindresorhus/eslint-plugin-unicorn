@@ -40,12 +40,23 @@ const string = buffer.toString('utf8');
 
 ## Options
 
+Type: `object`
+
 ### withDash
 
 Type: `boolean`\
 Default: `false`
 
-- `false` (default)
-  - Prefer `utf8` without a dash (Node.js style)
-- `true`
-  - Prefer `utf-8` with a dash (WHATWG standard, required for HTML)
+Prefer the WHATWG standard encoding notation. I.e. `utf-8` will be preferred over `utf8`. Pass `checkArguments: true` to prefer `utf-8`.
+
+```js
+// ❌
+/* eslint unicorn/text-encoding-identifier-case: ["error", {"withDash": true}] */
+await fs.readFile(file, 'utf8');
+```
+
+```js
+// ✅
+/* eslint unicorn/text-encoding-identifier-case: ["error", {"withDash": true}] */
+await fs.readFile(file, 'utf-8');
+```
