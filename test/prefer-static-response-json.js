@@ -31,5 +31,13 @@ test.snapshot({
 			}
 		`,
 		'new Response(JSON.stringify(data), {status: 200})',
+		outdent`
+			foo
+			new (( Response ))(JSON.stringify(data))
+		`,
+		outdent`
+			foo;
+			new (( Response ))(JSON.stringify(data))
+		`,
 	],
 });

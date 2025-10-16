@@ -7,6 +7,8 @@ import {
 } from './fix/index.js';
 import {
 	getParenthesizedRange,
+	isParenthesized,
+	needsSemicolon,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-static-response-json';
@@ -50,6 +52,16 @@ const create = context => ({
 				// `(( JSON.stringify( (( data )), ) ))`
 				//                               ^^^^^^
 				yield fixer.removeRange([dataNodeRange[1], callExpressionRange[1]]);
+
+				if (
+					!isParenthesized(newExpression, sourceCode)
+					&& isParenthesized(newExpression.callee, sourceCode)
+				) {
+					const tokenBefore = sourceCode.getTokenBefore(newExpression);
+					if (needsSemicolon(tokenBefore, sourceCode, '(')) {
+						yield fixer.insertTextBefore(newExpression, ';');
+					}
+				}
 			},
 		};
 	},
