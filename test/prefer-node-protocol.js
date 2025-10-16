@@ -140,6 +140,8 @@ test.typescript({
 		'const fs = require("node:fs") as typeof fs;',
 		'const fs = require("node:fs") as "fs";',
 		'const fs = require("node:fs") as any;',
+		'type fs = typeof import("node:fs");',
+		'type fs = SomeType<typeof import("node:fs")>;',
 	],
 	invalid: [
 		{
@@ -160,6 +162,16 @@ test.typescript({
 		{
 			code: 'const fs = someFunc() as SomeType<typeof import("fs")>;',
 			output: 'const fs = someFunc() as SomeType<typeof import("node:fs")>;',
+			errors: 1,
+		},
+		{
+			code: 'type fs = typeof import("fs");',
+			output: 'type fs = typeof import("node:fs");',
+			errors: 1,
+		},
+		{
+			code: 'type fs = SomeType<typeof import("fs")>;',
+			output: 'type fs = SomeType<typeof import("node:fs")>;',
 			errors: 1,
 		},
 	],

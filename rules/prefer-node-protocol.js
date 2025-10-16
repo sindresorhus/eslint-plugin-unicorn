@@ -37,7 +37,7 @@ const create = context => ({
 				)
 				&& node.parent.arguments[0] === node
 			)
-			|| (node.type === 'Literal' && node.parent.type === 'TSLiteralType' && node.parent.parent.type === 'TSImportType')
+			|| (node.parent.type === 'TSLiteralType' && node.parent.literal === node && node.parent.parent.type === 'TSImportType' && node.parent.parent.argument === node.parent)
 		)) {
 			return;
 		}
