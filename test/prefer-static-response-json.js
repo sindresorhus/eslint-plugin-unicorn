@@ -30,5 +30,6 @@ test.snapshot({
 					Response(JSON.stringify(data))
 			}
 		`,
+		'new Response(JSON.stringify(data), {status: 200})',
 	],
 });
