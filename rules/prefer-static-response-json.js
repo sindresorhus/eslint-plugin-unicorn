@@ -61,7 +61,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the static `Response.json()` method instead of `new Response(JSON.stringify())`.',
+			description: 'Prefer `Response.json()` over `new Response(JSON.stringify())`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
