@@ -38,6 +38,7 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				const {sourceCode} = context;
+				yield fixer.insertTextAfter(newExpression.callee, '.json');
 				yield * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer);
 
 				const [dataNode] = jsonStringifyNode.arguments;
