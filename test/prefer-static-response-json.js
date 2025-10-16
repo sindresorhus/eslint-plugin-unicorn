@@ -39,5 +39,13 @@ test.snapshot({
 			foo;
 			new (( Response ))(JSON.stringify(data))
 		`,
+		outdent`
+			foo;
+			(( new (( Response ))(JSON.stringify(data)) ))
+		`,
+		outdent`
+			foo
+			(( new (( Response ))(JSON.stringify(data)) ))
+		`,
 	],
 });
