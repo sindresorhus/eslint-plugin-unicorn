@@ -384,6 +384,8 @@ const ignoredObjects = [
 	'R',
 	// https://www.npmjs.com/package/p-iteration
 	'pIteration',
+	// https://www.npmjs.com/package/effect
+	'Effect',
 ];
 
 /** @param {import('eslint').Rule.RuleContext} context */
