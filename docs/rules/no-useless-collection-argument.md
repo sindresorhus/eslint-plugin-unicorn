@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-It's unnecessary to pass empty array or string when constructing a `Set`, `Map`, `WeakSet`, or `WeakMap`, since they accepts nullish values.
+It's unnecessary to pass an empty array or string when constructing a `Set`, `Map`, `WeakSet`, or `WeakMap`, since they accept nullish values.
 
 It's also unnecessary to provide a fallback for possible nullish values.
 
