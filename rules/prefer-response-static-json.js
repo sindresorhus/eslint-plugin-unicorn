@@ -11,7 +11,7 @@ import {
 	needsSemicolon,
 } from './utils/index.js';
 
-const MESSAGE_ID = 'prefer-static-response-json';
+const MESSAGE_ID = 'prefer-response-static-json';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using `Response.json(…)` over `JSON.stringify()`.',
 };
