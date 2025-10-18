@@ -80,7 +80,7 @@ function printEslintError(error) {
 
 	console.log();
 	console.error(
-		styleText.red.bold.underline(`[${project.name}]`),
+		styleText.red.bold.underline`[${project.name}]`,
 		message,
 	);
 

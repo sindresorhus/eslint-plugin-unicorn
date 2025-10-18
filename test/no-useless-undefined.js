@@ -449,6 +449,16 @@ test.snapshot({
 		'foo.bind?.(bar, undefined)',
 		'foo[bind](bar, undefined)',
 		'foo.notBind(bar, undefined)',
+		// https://github.com/webpack/webpack/blob/0f84d1e3bf69915dc060f23ced9dfa468a884a42/lib/wasm-sync/WasmFinalizeExportsPlugin.js#L49
+		outdent`
+			const referencedExports =
+				compilation.getDependencyReferencedExports(
+					/** @type {Dependency} */ (connection.dependency),
+					undefined
+				);
+		`,
+		'foo( ((a)), ((undefined)), ((undefined)), )',
+		'foo( ((undefined)), ((undefined)), )',
 	],
 });
 
