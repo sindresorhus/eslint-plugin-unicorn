@@ -72,5 +72,6 @@ test.snapshot({
 		// Both sides are useless
 		'new Set([] ?? "")',
 		'new Set( (( (( "" )) ?? (( [] )) )) )',
+		'new Set(foo ?? bar ?? [])',
 	],
 });
