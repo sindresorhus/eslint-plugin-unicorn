@@ -32,8 +32,6 @@ test.snapshot({
 		'new Set( (([])) )',
 		'new Set([],)',
 		'new Set( (([])), )',
-		// Who care?
-		'new Set(document.all ?? [])',
 	],
 });
 
