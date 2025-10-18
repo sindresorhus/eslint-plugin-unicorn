@@ -8,7 +8,7 @@ import {
 } from './ast/index.js';
 import {removeParentheses, removeArgument} from './fix/index.js';
 
-const MESSAGE_ID = 'no-useless-fallback-in-set-constructor';
+const MESSAGE_ID = 'no-useless-collection-argument';
 const messages = {
 	[MESSAGE_ID]: 'The {{description}} is useless.',
 };

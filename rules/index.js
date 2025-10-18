@@ -61,8 +61,8 @@ export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
+export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
 export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
-export {default as 'no-useless-fallback-in-set-constructor'} from './no-useless-fallback-in-set-constructor.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
 export {default as 'no-useless-length-check'} from './no-useless-length-check.js';
 export {default as 'no-useless-promise-resolve-reject'} from './no-useless-promise-resolve-reject.js';
