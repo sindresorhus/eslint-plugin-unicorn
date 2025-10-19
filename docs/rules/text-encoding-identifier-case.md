@@ -47,7 +47,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-Prefer the WHATWG standard encoding notation. I.e. `utf-8` will be preferred over `utf8`. Pass `withDash: true` to prefer `utf-8`.
+Use WHATWG standard encoding notation with dashes (e.g., ⁠`utf-8` instead of `⁠utf8`).
 
 ```js
 // ❌
