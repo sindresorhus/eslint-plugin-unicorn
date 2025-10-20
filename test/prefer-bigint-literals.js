@@ -25,6 +25,8 @@ test.snapshot({
 		'BigInt("1_2")',
 		'BigInt("1\\\n2")',
 		String.raw`BigInt("\u{31}")`,
+		'BigInt(!1)',
+		'BigInt(~1)',
 	],
 	invalid: [
 		'BigInt("0")',
@@ -52,5 +54,9 @@ test.snapshot({
 		'BigInt(1e2)',
 		'BigInt(/* comment */1)',
 		`BigInt(${'9'.repeat(100)})`,
+		'BigInt("-1")',
+		'BigInt("+1")',
+		'BigInt(-1)',
+		'BigInt(+1)',
 	],
 });

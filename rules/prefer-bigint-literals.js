@@ -10,14 +10,12 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with {{replacement}}.',
 };
 
-const canUseNumericLiteralRaw = numericLiteral => {
-	const raw = numericLiteral.raw.replaceAll('_', '').toLowerCase();
+const canUseNumericLiteralRaw = (value, nodeRaw) => {
+	const raw = nodeRaw.replaceAll('_', '').toLowerCase();
 
 	if (raw.includes('.')) {
 		return false;
 	}
-
-	const {value} = numericLiteral;
 
 	for (const {prefix, base} of [
 		{prefix: '0b', base: 2},
@@ -36,19 +34,32 @@ const canUseNumericLiteralRaw = numericLiteral => {
 	return raw === String(value);
 };
 
+function getValueOfNode(valueNode) {
+	if (valueNode.type === 'UnaryExpression' && (valueNode.operator === '+' || valueNode.operator === '-')) {
+		return valueNode.operator === '+' ? {value: valueNode.argument.value, raw: valueNode.argument.raw} : {value: -valueNode.argument.value, raw: `-${valueNode.argument.raw}`};
+	}
+
+	return {value: valueNode.value, raw: valueNode.raw};
+}
+
 function getReplacement(valueNode) {
 	if (isStringLiteral(valueNode)) {
-		const raw = valueNode.raw.slice(1, -1);
+		let raw = valueNode.raw.slice(1, -1);
 		try {
 			BigInt(raw);
 		} catch {
 			return;
 		}
 
+		// BigInt("+1") -> 1n
+		if (raw[0] === '+') {
+			raw = raw.slice(1);
+		}
+
 		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
 	}
 
-	const {value, raw} = valueNode;
+	const {value, raw} = getValueOfNode(valueNode);
 
 	if (!Number.isInteger(value)) {
 		return;
@@ -61,7 +72,7 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	const shouldUseSuggestion = !canUseNumericLiteralRaw(valueNode);
+	const shouldUseSuggestion = !canUseNumericLiteralRaw(value, raw);
 	const text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
 	return {shouldUseSuggestion, text};
 }
