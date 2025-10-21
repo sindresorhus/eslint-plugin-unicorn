@@ -2,10 +2,12 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
-	isFunction, isMemberExpression, isMethodCall, isNewExpression, isRegexLiteral,
+	isFunction,
+	isMemberExpression,
+	isMethodCall,
+	isNewExpression,
+	isRegexLiteral,
 } from './ast/index.js';
-
-const debugging = false;
 
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
@@ -19,8 +21,6 @@ const DEFAULTS = {
 	// The same reason as above.
 	allowRegularExpressions: true,
 };
-
-const log = (...arguments_) => debugging && console.log(...arguments_);
 
 const RECURSION_LIMIT = 5;
 
