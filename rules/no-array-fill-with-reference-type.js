@@ -26,6 +26,9 @@ const RECURSION_LIMIT = 5;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => ({
+	/**
+	  @param {import('estree').CallExpression} node
+	 */
 	CallExpression(node) {
 		// Check all `fill` method call even if the object is not Array because we don't know if its runtime type is array
 		// `arr.fill()` or `new Array().fill()` or `Array.from().fill()`
@@ -34,15 +37,11 @@ const create = context => ({
 		// `Array.from().map` or `Array.from(arrayLike, mapper)`
 		const isArrayFrom = isMethodCall(node, {object: 'Array', method: 'from'});
 
-		log('isArrayFill:', {isArrayFill, isArrayFrom});
-
 		if (!isArrayFill && !isArrayFrom) {
 			return;
 		}
 
 		const fillArgument = isArrayFill ? node.arguments[0] : getArrayFromReturnNode(node, context);
-
-		log('fillArgument:', fillArgument);
 
 		const [is, resolvedNode] = isReferenceType(fillArgument, context);
 
@@ -50,7 +49,14 @@ const create = context => ({
 			return;
 		}
 
-		const actual = isMethodCall(node.callee.object, {object: 'Array', method: 'from'}) ? 'Array.from().fill()' : 'Array.fill()';
+		const actual = isMethodCall(
+			// @ts-expect-error
+			node.callee.object,
+			{object: 'Array', method: 'from'},
+		)
+			? 'Array.from().fill()'
+			: 'Array.fill()';
+
 		const type = getType(resolvedNode, context);
 
 		return {
@@ -72,7 +78,6 @@ const create = context => ({
  */
 function getArrayFromReturnNode(node, context) {
 	const secondArgument = node.arguments[1];
-	log('secondArgument:', secondArgument);
 
 	// Array.from({ length: 10 }, () => { return sharedObject; });
 	let result;
@@ -98,6 +103,7 @@ function getArrayFromReturnNode(node, context) {
 /**
 
  @param {import('estree').FunctionExpression | Node} node - callback for map
+ @param {RuleContext} context
  @returns {{ returnNode: Node, declaredInCurrentFunction: boolean }}
  */
 function getReturnIdentifier(node, context) {
@@ -123,8 +129,6 @@ function getReturnIdentifier(node, context) {
 		return getReturnIdentifier(init, context);
 	}
 
-	// Console.log('node:', node);
-
 	// @ts-expect-error node is FunctionExpression
 	const {body: nodeBody} = node;
 
@@ -144,13 +148,19 @@ function getReturnIdentifier(node, context) {
 		return {returnNode: nodeBody, declaredInCurrentFunction: true};
 	}
 
+	// @ts-expect-error
 	const returnStatement = nodeBody.body.find(node => node.type === 'ReturnStatement');
 	const name = returnStatement?.argument?.name;
 	if (!name) {
 		return {returnNode: returnStatement?.argument, declaredInCurrentFunction: true};
 	}
 
-	const declaredInCurrentFunction = nodeBody.body.some(node => node.type === 'VariableDeclaration' && node.declarations.some(declaration => declaration.id.name === name));
+	const declaredInCurrentFunction = nodeBody.body.some(
+		// @ts-expect-error
+		node => node.type === 'VariableDeclaration'
+			// @ts-expect-error
+			&& node.declarations.some(declaration => declaration.id.name === name),
+	);
 
 	return {returnNode: returnStatement?.argument, declaredInCurrentFunction};
 }
@@ -218,12 +228,11 @@ function getNewExpressionType(fillArgument, context) {
 }
 
 /**
- @param {Node} node
+ @param {undefined | Node} node
  @param {import('eslint').Rule.RuleContext} context
  @returns {[is: false] | [is: true, node: Node]}
  */
 function isReferenceType(node, context) {
-	log('[isReferenceType]: ', node);
 	if (!node) {
 		return [false];
 	}
@@ -299,8 +308,6 @@ function getMemberExpressionLeafNode(node, context) {
 
 	// The chain names: [ 'obj', 'a', 'b', 'c', 'list' ]
 	// if the MemberExpression is `obj.a.b.c.list`
-	// @ts-ignore
-	log('chain names:', chain.map(node => node.name ?? node.property?.name));
 
 	// @ts-expect-error `chain[0].name` cannot be undefined because the previous check ensures
 	const variable = findVariableDefinition({node, variableName: chain[0].name, context});
@@ -313,19 +320,16 @@ function getMemberExpressionLeafNode(node, context) {
 
 	for (let index = 1; index < chain.length; index++) {
 		const currentPropertyInChain = chain[index].property;
-		// .log(`#${index}`, 'currentPropertyInChain:', currentPropertyInChain?.type, currentPropertyInChain);
-		// .log(`#${index}`, 'currentObject:', currentObject);
 		if (!currentObject || currentObject.type !== 'ObjectExpression') {
 			return;
 		}
 
 		const property = currentObject.properties.find(
 			// @ts-expect-error
-			p => p.key.type === 'Identifier'
+			property_ => property_.key.type === 'Identifier'
 				// @ts-expect-error
-				&& p.key.name === (currentPropertyInChain.type === 'Identifier' ? currentPropertyInChain.name : currentPropertyInChain.value),
+				&& property_.key.name === (currentPropertyInChain.type === 'Identifier' ? currentPropertyInChain.name : currentPropertyInChain.value),
 		);
-		// .log(`#${index}`, 'property:', property);
 
 		if (!property) {
 			return;
@@ -356,7 +360,6 @@ function getPropertyAccessChain(node) {
 	while (current) {
 		times += 1;
 		if (times > RECURSION_LIMIT) {
-			log('Skip deep-nested member checks for performance and to prevent potential infinite loops.');
 			return;
 		}
 
@@ -423,7 +426,6 @@ function findVariableDefinition({variableName, node, context}) {
 
 	const scope = context.sourceCode.getScope(node);
 	const {variables} = scope;
-	log('[findVariableDefinition] variables', variables);
 	const variable = variables.find(v => v.name === variableName);
 
 	if (variable) {
@@ -442,8 +444,6 @@ function findVariableDefinition({variableName, node, context}) {
 function isIdentifierReferenceType(node, context) {
 	const variable = findVariableDefinition({variableName: node.name, node, context});
 	const definitionNode = variable?.defs[0]?.node;
-
-	log({definitionNode});
 
 	if (!variable || !definitionNode) {
 		return [false];

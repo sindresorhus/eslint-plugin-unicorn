@@ -223,7 +223,6 @@ test({
 			code: 'const foo = `no${foo}no${foo}no`',
 			output: 'const foo = `yes${foo}yes${foo}yes`',
 			options: [{patterns: noToYesPattern}],
-
 			errors: Array.from({length: 3}).fill(createError('no', 'yes')[0]),
 		},
 		// Escape
