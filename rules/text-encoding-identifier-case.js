@@ -34,31 +34,27 @@ const isFsReadFileEncoding = node =>
 	&& node.parent.arguments[1] === node
 	&& node.parent.arguments[0].type !== 'SpreadElement';
 
+function shouldEnforceDash(node) {
+	return node.parent.type === 'JSXAttribute'
+		&& node.parent.value === node
+		&& node.parent.name.type === 'JSXIdentifier'
+		&& node.parent.name.name.toLowerCase() === 'charset'
+		&& node.parent.parent.type === 'JSXOpeningElement'
+		&& node.parent.parent.attributes.includes(node.parent)
+		&& node.parent.parent.name.type === 'JSXIdentifier'
+		&& node.parent.parent.name.name.toLowerCase() === 'meta'
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {
-		withDash,
-	} = context.options[0];
+	const options = context.options[0];
 
 	context.on('Literal', node => {
 		if (typeof node.value !== 'string') {
 			return;
 		}
 
-		if (
-			// eslint-disable-next-line unicorn/text-encoding-identifier-case
-			node.value === 'utf-8'
-			&& node.parent.type === 'JSXAttribute'
-			&& node.parent.value === node
-			&& node.parent.name.type === 'JSXIdentifier'
-			&& node.parent.name.name.toLowerCase() === 'charset'
-			&& node.parent.parent.type === 'JSXOpeningElement'
-			&& node.parent.parent.attributes.includes(node.parent)
-			&& node.parent.parent.name.type === 'JSXIdentifier'
-			&& node.parent.parent.name.name.toLowerCase() === 'meta'
-		) {
-			return;
-		}
+		const withDash = options.withDash || shouldEnforceDash(node);
 
 		const {raw} = node;
 		const value = raw.slice(1, -1);
