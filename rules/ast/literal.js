@@ -21,3 +21,4 @@ export const isNullLiteral = node => isLiteral(node, null);
 
 export const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
 
+export const isEmptyStringLiteral = node => isLiteral(node, '');
