@@ -7,27 +7,34 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-<!-- Remove this comment, add more detailed description. -->
+Immediate mutation of `Array` and `Object` after declaration is unnecessary, it should be done in variable initialization.
 
 ## Examples
 
 ```js
 // ❌
-const foo = 'unicorn';
+const array = [1, 2];
+array.push(3, 4);
 
 // ✅
-const foo = '🦄';
+const array = [1, 2, 3, 4];
+```
+
+```js
+
+// ❌
+const array = [3, 4];
+array.unshift(1, 2);
+
+// ✅
+const array = [1, 2, 3, 4];
 ```
 
 ```js
 // ❌
-function foo() {
-	var replace = 'me';
-	return replace;
-}
+const object = {foo: 'foo'};
+object.bar = 'bar';
 
 // ✅
-function foo() {
-	return 'me';
-}
+const obj = {foo: 'foo', bar: 'bar'};
 ```

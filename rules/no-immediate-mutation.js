@@ -10,7 +10,6 @@ import {
 	getParenthesizedText,
 	getVariableIdentifiers,
 } from './utils/index.js';
-import { property } from 'lodash-es';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_ARRAY_SUGGESTION = 'suggestion/array';
@@ -18,7 +17,7 @@ const MESSAGE_ID_OBJECT_SUGGESTION = 'suggestion/object';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
 	[MESSAGE_ID_ARRAY_SUGGESTION]: '{{operation}} elements to declaration.',
-	[MESSAGE_ID_OBJECT_SUGGESTION]: 'Move property to declaration.'
+	[MESSAGE_ID_OBJECT_SUGGESTION]: 'Move property to declaration.',
 };
 
 const getVariable = (variableDeclarator, context) =>
@@ -28,12 +27,32 @@ const hasVariableInNodes = (variable, nodes, context) => {
 	const {sourceCode} = context;
 	const identifiers = getVariableIdentifiers(variable);
 	return nodes.some(node => {
-		const range = context.sourceCode.getRange(node);
+		const range = sourceCode.getRange(node);
 		return identifiers.some(identifier => {
-			const [start, end] = context.sourceCode.getRange(identifier);
+			const [start, end] = sourceCode.getRange(identifier);
 			return start >= range[0] && end <= range[1];
-		})
+		});
 	});
+};
+
+const isVariableDeclaratorMatches = (variableDeclarator, predicate) => {
+	if (!(
+		variableDeclarator.id.type === 'Identifier'
+		&& predicate(variableDeclarator.init)
+	)) {
+		return false;
+	}
+
+	const variableDeclaration = variableDeclarator.parent;
+	if (!(
+		variableDeclaration.type === 'VariableDeclaration'
+		&& variableDeclaration.kind === 'const'
+		&& variableDeclaration.declarations.at(-1) === variableDeclarator
+	)) {
+		return false;
+	}
+
+	return true;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -42,25 +61,14 @@ const create = context => {
 
 	// Array
 	context.on('VariableDeclarator', variableDeclarator => {
-		if (!(
-			variableDeclarator.id.type === 'Identifier'
-			&& variableDeclarator.init?.type === 'ArrayExpression'
-		)) {
+		if (!isVariableDeclaratorMatches(variableDeclarator, init => init?.type === 'ArrayExpression')) {
 			return;
 		}
 
 		const variableDeclaration = variableDeclarator.parent;
-		if (!(
-			variableDeclaration.type === 'VariableDeclaration'
-			&& variableDeclaration.kind === 'const'
-			&& variableDeclaration.declarations.at(-1) === variableDeclarator
-		)) {
-			return ;
-		}
-
 		const expressionStatement = getNextNode(variableDeclaration, sourceCode);
 		if (expressionStatement?.type !== 'ExpressionStatement') {
-			return ;
+			return;
 		}
 
 		const variableName = variableDeclarator.id.name;
@@ -68,6 +76,7 @@ const create = context => {
 		if (callExpression.type === 'ChainExpression') {
 			callExpression = callExpression.expression;
 		}
+
 		if (!(
 			isMethodCall(callExpression, {object: variableName, methods: ['push', 'unshift']})
 			&& callExpression.arguments.length > 0
@@ -115,7 +124,7 @@ const create = context => {
 
 				yield fixer.insertTextBefore(
 					closingBracketToken,
-					`${shouldInsertComma ? ',': ''} ${text}`,
+					`${shouldInsertComma ? ',' : ''} ${text}`,
 				);
 			}
 
@@ -139,35 +148,22 @@ const create = context => {
 		}
 
 		return problem;
-
-
 	});
 
 	// Object
 	context.on('VariableDeclarator', variableDeclarator => {
-		if (!(
-			variableDeclarator.id.type === 'Identifier'
-			&& variableDeclarator.init?.type === 'ObjectExpression'
-		)) {
+		if (!isVariableDeclaratorMatches(variableDeclarator, init => init?.type === 'ObjectExpression')) {
 			return;
 		}
 
 		const variableDeclaration = variableDeclarator.parent;
-		if (!(
-			variableDeclaration.type === 'VariableDeclaration'
-			&& variableDeclaration.kind === 'const'
-			&& variableDeclaration.declarations.at(-1) === variableDeclarator
-		)) {
-			return ;
-		}
-
 		const expressionStatement = getNextNode(variableDeclaration, sourceCode);
 		if (expressionStatement?.type !== 'ExpressionStatement') {
-			return ;
+			return;
 		}
 
 		const variableName = variableDeclarator.id.name;
-		let assignmentExpression = expressionStatement.expression;
+		const assignmentExpression = expressionStatement.expression;
 		if (!(
 			assignmentExpression.type === 'AssignmentExpression'
 			&& assignmentExpression.operator === '='
@@ -178,8 +174,7 @@ const create = context => {
 
 		const value = assignmentExpression.right;
 		const memberExpression = assignmentExpression.left;
-		const property = memberExpression.property;
-
+		const {property} = memberExpression;
 		const variable = getVariable(variableDeclarator, context);
 
 		/* c8 ignore next */
@@ -222,7 +217,7 @@ const create = context => {
 
 			yield fixer.insertTextBefore(
 				closingBraceToken,
-				`${shouldInsertComma ? ',': ''} ${text}`,
+				`${shouldInsertComma ? ',' : ''} ${text}`,
 			);
 
 			yield removeExpressionStatement(expressionStatement, fixer, context);
