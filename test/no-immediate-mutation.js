@@ -185,6 +185,10 @@ test.snapshot({
 			const object = {foo: 1};
 			anotherObject.baz = object.bar = 2;
 		`,
+		outdent`
+			const object = {foo: 1};
+			object[object.foo] = 2;
+		`,
 	],
 	invalid: [
 		outdent`
@@ -237,6 +241,10 @@ test.snapshot({
 		outdent`
 			const object = {foo: 1};
 			object.bar = (object) => object.foo;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.object = 2;
 		`,
 	],
 });
