@@ -50,3 +50,11 @@ const fs = process.getBuiltinModule('fs/promises');
 // ✅
 const fs = process.getBuiltinModule('node:fs/promises');
 ```
+
+```ts
+// ❌
+type Fs = import('fs');
+
+// ✅
+type Fs = import('node:fs');
+```
