@@ -61,6 +61,8 @@ const setWithDashOption = (testCase, withDash) => ({
 	...normalizeTestCase(testCase, /* shouldNormalizeLanguageOptions */ false),
 	options: [{withDash}],
 });
+const withDash = testCase => setWithDashOption(testCase, true);
+const noDash = testCase => setWithDashOption(testCase, false)
 
 // Cases requires `utf-8`
 test.snapshot({
@@ -74,23 +76,54 @@ test.snapshot({
 		},
 	},
 	valid: [
-		setWithDashOption('<meta charset="utf-8" />', true),
-		setWithDashOption('<meta charset="utf-8" />', false),
-		setWithDashOption('<META CHARSET="utf-8" />', true),
-		setWithDashOption('<META CHARSET="utf-8" />', false),
-		setWithDashOption('<not-meta charset="utf-8" />', true),
-		setWithDashOption('<not-meta notCharset="utf-8" />', true),
-		setWithDashOption('<not-meta charset="utf8" />', false),
-		setWithDashOption('<not-meta notCharset="utf8" />', false),
+		withDash('<meta charset="utf-8" />'),
+		noDash('<meta charset="utf-8" />'),
+
+		withDash('<META CHARSET="utf-8" />'),
+		noDash('<META CHARSET="utf-8" />'),
+
+		withDash('<form acceptCharset="utf-8" />'),
+		noDash('<form acceptCharset="utf-8" />'),
+
+		withDash('<form accept-charset="utf-8" />'),
+		noDash('<form accept-charset="utf-8" />'),
+
+		withDash('new TextDecoder("utf-8")'),
+		noDash('new TextDecoder("utf-8")'),
+
+		withDash('<not-meta charset="utf-8" />'),
+		withDash('<not-meta notCharset="utf-8" />'),
+		noDash('<not-meta charset="utf8" />'),
+		noDash('<not-meta notCharset="utf8" />'),
 	],
 	invalid: [
-		setWithDashOption('<not-meta charset="utf-8" />', false),
-		setWithDashOption('<not-meta notCharset="utf-8" />', false),
-		setWithDashOption('<not-meta charset="utf8" />', true),
-		setWithDashOption('<not-meta notCharset="utf8" />', true),
-		setWithDashOption('<meta charset="ASCII" />', true),
-		setWithDashOption('<meta charset="ASCII" />', false),
-		setWithDashOption('<META CHARSET="ASCII" />', true),
-		setWithDashOption('<META CHARSET="ASCII" />', false),
+		withDash('<meta charset="ASCII" />'),
+		noDash('<meta charset="ASCII" />'),
+
+		withDash('<META CHARSET="ASCII" />'),
+		noDash('<META CHARSET="ASCII" />'),
+
+		withDash('<meta charset="utf8" />'),
+		noDash('<meta charset="utf8" />'),
+
+		withDash('<meta charset="UTF-8" />'),
+		noDash('<meta charset="UTF-8" />'),
+
+		withDash('<form acceptCharset="utf8" />'),
+		noDash('<form acceptCharset="utf8" />'),
+
+		withDash('<form accept-charset="UTF-8" />'),
+		noDash('<form accept-charset="UTF-8" />'),
+
+		withDash('new TextDecoder("UTF-8")'),
+		noDash('new TextDecoder("UTF-8")'),
+
+		withDash('new TextDecoder("utf8")'),
+		noDash('new TextDecoder("utf8")'),
+
+		withDash('<not-meta charset="utf8" />'),
+		withDash('<not-meta notCharset="utf8" />'),
+		noDash('<not-meta charset="utf-8" />'),
+		noDash('<not-meta notCharset="utf-8" />'),
 	],
 })
