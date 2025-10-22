@@ -15,5 +15,5 @@ function getSiblingNode(node, sourceCode, offset) {
 	}
 }
 
-export const getPreviousNode = (node, sourceCode) => getSiblingNode(node, sourceCode, -1); 
-export const getNextNode = (node, sourceCode) => getSiblingNode(node, sourceCode, 1); 
+export const getPreviousNode = (node, sourceCode) => getSiblingNode(node, sourceCode, -1);
+export const getNextNode = (node, sourceCode) => getSiblingNode(node, sourceCode, 1);

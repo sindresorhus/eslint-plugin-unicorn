@@ -14,7 +14,7 @@ Get the text of the arguments list of `CallExpression`.
 export default function getCallExpressionArgumentsText(
 	sourceCode,
 	callExpression,
-	includeTrailingComma = true
+	includeTrailingComma = true,
 ) {
 	const {
 		openingParenthesisToken,
@@ -25,8 +25,8 @@ export default function getCallExpressionArgumentsText(
 	const [, start] = sourceCode.getRange(openingParenthesisToken);
 	const [end] = sourceCode.getRange(
 		includeTrailingComma
-		? closingParenthesisToken
-		: (trailingCommaToken ?? closingParenthesisToken),
+			? closingParenthesisToken
+			: (trailingCommaToken ?? closingParenthesisToken),
 	);
 
 	return sourceCode.text.slice(start, end);
