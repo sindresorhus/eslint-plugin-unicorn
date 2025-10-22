@@ -126,4 +126,4 @@ test.snapshot({
 		noDash('<not-meta charset="utf-8" />'),
 		noDash('<not-meta notCharset="utf-8" />'),
 	],
-})
+});
