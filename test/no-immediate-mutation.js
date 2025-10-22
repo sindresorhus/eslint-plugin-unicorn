@@ -85,6 +85,15 @@ test.snapshot({
 		`,
 		outdent`
 			const array = [1, 2];
+			${' \t'.repeat(5)}array.push(3, 4);${' \t'.repeat(5)}
+			foo()
+		`,
+		outdent`
+			const array = [1, 2];
+			${' \t'.repeat(5)}array.push(3, 4);${' \t'.repeat(5)}
+		`,
+		outdent`
+			const array = [1, 2];
 			array.push(3, 4); // comment
 		`,
 		outdent`
@@ -175,6 +184,15 @@ test.snapshot({
 			const otherVariable = 1,
 				object = {foo: 1};
 			object.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			${' \t'.repeat(5)}object.bar = 2;${' \t'.repeat(5)}
+			foo()
+		`,
+		outdent`
+			const object = {foo: 1};
+			${' \t'.repeat(5)}object.bar = 2;${' \t'.repeat(5)}
 		`,
 		outdent`
 			const object = {foo: 1};

@@ -1,4 +1,4 @@
-const isWhitespaceOnly = text => /^\s$/.test(text);
+const isWhitespaceOnly = text => /^\s*$/.test(text);
 
 function removeExpressionStatement(node, fixer, context) {
   const {sourceCode} = context;
@@ -13,7 +13,7 @@ function removeExpressionStatement(node, fixer, context) {
   let [start, end] = sourceCode.getRange(node);
 
   if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {
-    start = Math.max(0, start + textBefore.length);
+    start = Math.max(0, start - textBefore.length - 1);
     end += textAfter.length;
   }
 
