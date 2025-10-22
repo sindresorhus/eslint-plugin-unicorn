@@ -61,6 +61,7 @@ export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
+export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
 export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
 export {default as 'no-useless-length-check'} from './no-useless-length-check.js';
@@ -112,6 +113,7 @@ export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.
 export {default as 'prefer-query-selector'} from './prefer-query-selector.js';
 export {default as 'prefer-reflect-apply'} from './prefer-reflect-apply.js';
 export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
+export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
 export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';

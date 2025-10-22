@@ -163,24 +163,27 @@ export default [
 			],
 		},
 	],
-	{
-		repository: 'https://github.com/gatsbyjs/gatsby',
-		ignore: [
-			// These files use `flow`
-			'**/*.js',
-			'packages/gatsby-cli/src/reporter/__tests__',
-		],
-	},
+	[
+		{
+			repository: 'https://github.com/gatsbyjs/gatsby',
+			ignore: [
+				// These files use `flow`
+				'**/*.js',
+				'packages/gatsby-cli/src/reporter/__tests__',
+			],
+		},
+		{
+			repository: 'https://github.com/webpack/webpack',
+			ignore: ['test/**/*'],
+		},
+	],
 	{
 		repository: 'https://github.com/vercel/next.js',
 		ignore: [
 			'examples/**',
-
-			// These files use `>` in jsx
-			'test/integration/**',
-
-			// Contains Flow syntax
-			'test/e2e/babel/fixture/**',
+			'test/**',
+			'**/tests/**',
+			'**/compiled/**',
 		],
 	},
 	// #903

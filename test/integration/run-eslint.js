@@ -122,6 +122,11 @@ async function runEslint(project) {
 		],
 		fix: true,
 		errorOnUnmatchedPattern: false,
+		/*
+		TODO: Try to figure out how to make it work, currently it throws error
+		"The option "overrideConfig" cannot be cloned. When concurrency is enabled, all options must be cloneable values (JSON values). Remove uncloneable options or use an options module."
+		*/
+		// concurrency: 'auto',
 	});
 
 	const startTime = process.hrtime.bigint();
@@ -145,7 +150,7 @@ async function runEslint(project) {
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
 	console.log();
 	console.log(outdent`
-		${styleText.green.bold.underline(`[${project.name}]`)} ${results.length} files linted:
+		${styleText.green.bold.underline`[${project.name}]`} ${results.length} files linted:
 		- error: ${styleText.gray(String(errorCount))}
 		- warning: ${styleText.gray(String(warningCount))}
 		- fixable error: ${styleText.gray(String(fixableErrorCount))}

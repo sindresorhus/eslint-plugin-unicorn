@@ -2,12 +2,14 @@ import globals from 'globals';
 import xo from 'eslint-config-xo';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
+import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
 import unicorn from './index.js';
 
 const config = [
 	...xo,
 	unicorn.configs.recommended,
+	nodeStyleTextConfig,
 	internalRules,
 	{
 		languageOptions: {

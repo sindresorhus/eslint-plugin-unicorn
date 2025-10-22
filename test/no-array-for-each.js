@@ -17,6 +17,8 @@ test.snapshot({
 				// My other code...
 			});
 		`,
+		// #2758
+		'Effect.forEach([1,2,3], (n) => Effect.succeed(n))',
 	],
 	invalid: [
 		'foo.forEach?.(element => bar(element))',
