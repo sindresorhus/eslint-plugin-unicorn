@@ -62,7 +62,7 @@ const setWithDashOption = (testCase, withDash) => ({
 	options: [{withDash}],
 });
 const withDash = testCase => setWithDashOption(testCase, true);
-const noDash = testCase => setWithDashOption(testCase, false)
+const noDash = testCase => setWithDashOption(testCase, false);
 
 // Cases requires `utf-8`
 test.snapshot({
