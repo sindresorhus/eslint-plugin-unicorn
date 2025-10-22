@@ -8,7 +8,9 @@ import {
 	getNextNode,
 	getCallExpressionArgumentsText,
 	getParenthesizedText,
+	getVariableIdentifiers,
 } from './utils/index.js';
+import { property } from 'lodash-es';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_ARRAY_SUGGESTION = 'suggestion/array';
@@ -17,6 +19,21 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
 	[MESSAGE_ID_ARRAY_SUGGESTION]: '{{operation}} elements to declaration.',
 	[MESSAGE_ID_OBJECT_SUGGESTION]: 'Move property to declaration.'
+};
+
+const getVariable = (variableDeclarator, context) =>
+	context.sourceCode.getDeclaredVariables(variableDeclarator)
+		.find(variable => variable.defs.length === 1 && variable.defs[0].name === variableDeclarator.id);
+const hasVariableInNodes = (variable, nodes, context) => {
+	const {sourceCode} = context;
+	const identifiers = getVariableIdentifiers(variable);
+	return nodes.some(node => {
+		const range = context.sourceCode.getRange(node);
+		return identifiers.some(identifier => {
+			const [start, end] = context.sourceCode.getRange(identifier);
+			return start >= range[0] && end <= range[1];
+		})
+	});
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -58,6 +75,16 @@ const create = context => {
 			return;
 		}
 
+		const variable = getVariable(variableDeclarator, context);
+
+		/* c8 ignore next */
+		if (!variable) {
+			return;
+		}
+
+		if (hasVariableInNodes(variable, callExpression.arguments, context)) {
+			return;
+		}
 
 		const method = callExpression.callee.property;
 		const problem = {
@@ -90,6 +117,10 @@ const create = context => {
 					closingBracketToken,
 					`${shouldInsertComma ? ',': ''} ${text}`,
 				);
+			}
+
+			if (sourceCode.text[sourceCode.getRange(variableDeclaration)[0]] !== ';') {
+				yield fixer.insertTextAfter(variableDeclaration, ';');
 			}
 
 			yield removeExpressionStatement(expressionStatement, fixer, context);
@@ -146,17 +177,26 @@ const create = context => {
 		}
 
 		const value = assignmentExpression.right;
+		const memberExpression = assignmentExpression.left;
+		const property = memberExpression.property;
+
+		const variable = getVariable(variableDeclarator, context);
+
+		/* c8 ignore next */
+		if (!variable) {
+			return;
+		}
 
 		if (
-			value.type === 'AssignmentExpression'
-			&& value.operator === '='
-			&& isMemberExpression(value.left, {object: variableName, optional: false})
+			hasVariableInNodes(
+				variable,
+				memberExpression.computed ? [property, value] : [value],
+				context,
+			)
 		) {
 			return;
 		}
 
-		const memberExpression = assignmentExpression.left;
-		const property = memberExpression.property;
 		const problem = {
 			node: property,
 			messageId: MESSAGE_ID_ERROR,

@@ -40,6 +40,14 @@ test.snapshot({
 			const foo = [1, 2];
 			bar.push(3, 4);
 		`,
+		outdent`
+			const array = [1, 2];
+			array.push(array[0]);
+		`,
+		outdent`
+			const array = [1, 2];
+			array.push(((foo) => foo(array.length))());
+		`,
 	],
 	invalid: [
 		outdent`
@@ -139,6 +147,10 @@ test.snapshot({
 			array.push(2);
 			notNeeded.map()
 		`,
+		outdent`
+			const array = [1, 2];
+			array.push(((array) => foo(array.length))());
+		`,
 	],
 });
 
@@ -168,6 +180,10 @@ test.snapshot({
 		outdent`
 			const foo = {};
 			bar.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			anotherObject.baz = object.bar = 2;
 		`,
 	],
 	invalid: [
@@ -217,6 +233,10 @@ test.snapshot({
 		outdent`
 			const object = {foo: 1};
 			object.bar = anotherObject.baz = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar = (object) => object.foo;
 		`,
 	],
 });
