@@ -24,6 +24,22 @@ test.snapshot({
 			const array = [1, 2];
 			array.push();
 		`,
+		outdent`
+			const {array} = [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			const [array] = [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			let [array] = [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			const foo = [1, 2];
+			bar.push(3, 4);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -95,6 +111,83 @@ test.snapshot({
 		outdent`
 			const array = [1, 2];
 			array.unshift([foo()]);
+		`,
+		outdent`
+			const array = [1, 2];
+			array.push(
+				3,
+				4,
+			);
+		`,
+	],
+});
+
+// Object
+test.snapshot({
+	valid: [
+		outdent`
+			const object = [];
+			object.bar = 2;
+		`,
+		outdent`
+			const [object] = {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			const {object} = {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar += 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar = object.baz = 2;
+		`,
+		outdent`
+			const foo = {};
+			bar.bar = 2;
+		`,
+	],
+	invalid: [
+		outdent`
+			const object = {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object[bar] = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object[(( 0, bar ))] = (( baz ));
+		`,
+		outdent`
+			const object = {};
+			object.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1,};
+			object.bar = 2;
+		`,
+		outdent`
+			const otherVariable = 1,
+				object = {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar = 2; // comment
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar = 2;
+			object.baz = 2;
+		`,
+		outdent`
+			const object = {foo: 1};
+			object.bar = anotherObject.baz = 2;
 		`,
 	],
 });
