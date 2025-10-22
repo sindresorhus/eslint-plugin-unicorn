@@ -118,8 +118,8 @@ test.snapshot({
 		withDash('new TextDecoder("UTF-8")'),
 		noDash('new TextDecoder("UTF-8")'),
 
-		withDash('new TextDecoder("utf8")'),
-		noDash('new TextDecoder("utf8")'),
+		withDash('new TextDecoder("UTF-8", options)'),
+		noDash('new TextDecoder("UTF-8", options)'),
 
 		withDash('<not-meta charset="utf8" />'),
 		withDash('<not-meta notCharset="utf8" />'),
