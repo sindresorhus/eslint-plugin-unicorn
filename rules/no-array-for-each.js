@@ -121,7 +121,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	const getForOfLoopHeadRange = () => {
 		const [start] = sourceCode.getRange(callExpression);
-		const [end] = getParenthesizedRange(callback.body, sourceCode);
+		const [end] = getParenthesizedRange(callback.body, context);
 		return [start, end];
 	};
 
