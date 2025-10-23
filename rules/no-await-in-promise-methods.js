@@ -41,10 +41,9 @@ const create = context => ({
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						* fix(fixer) {
-							const {sourceCode} = context;
 							const awaitToken = context.sourceCode.getFirstToken(element);
 							yield fixer.remove(awaitToken);
-							yield removeSpacesAfter(awaitToken, sourceCode, fixer);
+							yield removeSpacesAfter(awaitToken, context, fixer);
 						},
 					},
 				],
