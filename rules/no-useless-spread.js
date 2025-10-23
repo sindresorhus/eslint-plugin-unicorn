@@ -98,7 +98,7 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 		return;
 	}
 
-	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

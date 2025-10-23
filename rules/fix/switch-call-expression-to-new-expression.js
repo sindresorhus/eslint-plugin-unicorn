@@ -15,7 +15,7 @@ import fixSpaceAroundKeyword from './fix-space-around-keywords.js';
 @returns {ESLint.Rule.ReportFixer}
 */
 export default function * switchCallExpressionToNewExpression(node, context, fixer) {
-	yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+	yield * fixSpaceAroundKeyword(fixer, node, context);
 	yield fixer.insertTextBefore(node, 'new ');
 
 	const {callee} = node;

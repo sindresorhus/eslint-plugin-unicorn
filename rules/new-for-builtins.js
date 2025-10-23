@@ -33,7 +33,7 @@ function enforceNewExpression({node, path: [name]}, {sourceCode}) {
 	if (name === 'Date') {
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield * fixSpaceAroundKeyword(fixer, node, context);
 		}
 
 		const problem = {

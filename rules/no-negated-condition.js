@@ -102,7 +102,7 @@ const create = context => {
 					return;
 				}
 
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, context);
 
 				const {parent} = node;
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);

@@ -255,7 +255,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(callExpression, ' }');
 		}
 
-		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
+		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, context);
 
 		if (isOptionalObject) {
 			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);

@@ -19,7 +19,7 @@ const getProblem = (node, problem, sourceCode) => ({
 		yield fixer.replaceText(node, 'Date.now()');
 
 		if (node.type === 'UnaryExpression') {
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield * fixSpaceAroundKeyword(fixer, node, context);
 		}
 	},
 	...problem,

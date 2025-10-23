@@ -1,5 +1,10 @@
 import {getParenthesizedRange} from '../utils/parentheses.js';
 
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 const isProblematicToken = ({type, value}) => (
 	(type === 'Keyword' && /^[a-z]*$/.test(value))
 	// ForOfStatement
@@ -8,7 +13,13 @@ const isProblematicToken = ({type, value}) => (
 	|| (type === 'Identifier' && value === 'await')
 );
 
-export default function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
+/**
+@param {ESLint.Rule.RuleFixer} fixer
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+*/
+export default function * fixSpaceAroundKeyword(fixer, node, context) {
+	const {sourceCode} = context;
 	const range = getParenthesizedRange(node, context);
 	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
 

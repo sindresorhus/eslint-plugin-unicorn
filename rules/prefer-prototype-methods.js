@@ -109,7 +109,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 					objectNode.type === 'ArrayExpression'
 					|| objectNode.type === 'ObjectExpression'
 				) {
-					yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
+					yield * fixSpaceAroundKeyword(fixer, callExpression, context);
 				}
 			}
 		},

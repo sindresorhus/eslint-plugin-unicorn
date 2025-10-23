@@ -176,7 +176,7 @@ const create = context => ({
 			* fix(fixer) {
 				const {sourceCode} = context;
 
-				yield * fixSpaceAroundKeyword(fixer, conditionalExpression, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 
 				const argumentsText = [left, right]
 					.map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node))

@@ -47,7 +47,7 @@ const create = context => ({
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode);
+						yield * fixSpaceAroundKeyword(fixer, binaryExpression, context);
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 

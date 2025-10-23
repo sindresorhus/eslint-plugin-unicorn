@@ -191,7 +191,7 @@ const create = context => {
 			yield fixer.replaceText(node, text);
 
 			if (isExpression) {
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, context);
 			}
 		}
 
