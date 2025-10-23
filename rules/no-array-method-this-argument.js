@@ -71,14 +71,13 @@ const ignored = [
 	'underscore.some',
 ];
 
-function removeThisArgument(thisArgumentNode, sourceCode) {
+function removeThisArgument(thisArgumentNode, context) {
 	return fixer => removeArgument(fixer, thisArgumentNode, context);
 }
 
 function useBoundFunction(callbackNode, thisArgumentNode, context) {
-	const {sourceCode} = context;
 	return function * (fixer) {
-		yield removeThisArgument(thisArgumentNode, sourceCode)(fixer);
+		yield removeThisArgument(thisArgumentNode, context)(fixer);
 
 		const callbackParentheses = getParentheses(callbackNode, context);
 		const isParenthesized = callbackParentheses.length > 0;
@@ -148,8 +147,6 @@ function getProblem({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	// Prototype methods
 	context.on('CallExpression', callExpression => {
 		if (

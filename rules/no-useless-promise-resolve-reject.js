@@ -77,7 +77,7 @@ function createProblem(callExpression, fix) {
 	};
 }
 
-function fix(callExpression, isInTryStatement, sourceCode) {
+function fix(callExpression, isInTryStatement, context) {
 	if (callExpression.arguments.length > 1) {
 		return;
 	}
@@ -102,7 +102,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 	return function (fixer) {
 		const isArrowFunctionBody = parent.type === 'ArrowFunctionExpression';
 
-		let text = errorOrValue ? sourceCode.getText(errorOrValue) : '';
+		let text = errorOrValue ? context.sourceCode.getText(errorOrValue) : '';
 
 		if (errorOrValue?.type === 'SequenceExpression') {
 			text = `(${text})`;
@@ -155,46 +155,42 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
-	return {
-		CallExpression(callExpression) {
-			if (!(
-				isMethodCall(callExpression, {
-					object: 'Promise',
-					methods: ['resolve', 'reject'],
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& (
-					(
-						callExpression.parent.type === 'ArrowFunctionExpression'
-						&& callExpression.parent.body === callExpression
-					)
-					|| (
-						callExpression.parent.type === 'ReturnStatement'
-						&& callExpression.parent.argument === callExpression
-					)
-					|| (
-						callExpression.parent.type === 'YieldExpression'
-						&& !callExpression.parent.delegate && callExpression.parent.argument === callExpression
-					)
+	context.on('CallExpression', callExpression => {
+		if (!(
+			isMethodCall(callExpression, {
+				object: 'Promise',
+				methods: ['resolve', 'reject'],
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& (
+				(
+					callExpression.parent.type === 'ArrowFunctionExpression'
+					&& callExpression.parent.body === callExpression
 				)
-			)) {
-				return;
-			}
+				|| (
+					callExpression.parent.type === 'ReturnStatement'
+					&& callExpression.parent.argument === callExpression
+				)
+				|| (
+					callExpression.parent.type === 'YieldExpression'
+					&& !callExpression.parent.delegate && callExpression.parent.argument === callExpression
+				)
+			)
+		)) {
+			return;
+		}
 
-			const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
-			if (!functionNode || !(functionNode.async || isPromiseCallback(functionNode))) {
-				return;
-			}
+		const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
+		if (!functionNode || !(functionNode.async || isPromiseCallback(functionNode))) {
+			return;
+		}
 
-			return createProblem(
-				callExpression,
-				fix(callExpression, isInTryStatement, sourceCode),
-			);
-		},
-	};
+		return createProblem(
+			callExpression,
+			fix(callExpression, isInTryStatement, context),
+		);
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

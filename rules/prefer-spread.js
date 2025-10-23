@@ -201,7 +201,8 @@ function getConcatFixableArguments(argumentsList, scope) {
 	return fixableArguments;
 }
 
-function fixArrayFrom(node, sourceCode) {
+function fixArrayFrom(node, context) {
+	const {sourceCode} = context;
 	const [object] = node.arguments;
 
 	function getObjectText() {
@@ -227,8 +228,9 @@ function fixArrayFrom(node, sourceCode) {
 	};
 }
 
-function methodCallToSpread(node, sourceCode) {
+function methodCallToSpread(node, context) {
 	return function * (fixer) {
+		const {sourceCode} = context;
 		// Fixed code always starts with `[`
 		if (needsSemicolon(sourceCode.getTokenBefore(node), context, '[')) {
 			yield fixer.insertTextBefore(node, ';');
@@ -297,7 +299,7 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_ARRAY_FROM,
-				fix: fixArrayFrom(node, sourceCode),
+				fix: fixArrayFrom(node, context),
 			};
 		}
 	});
@@ -422,7 +424,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_SLICE,
-			fix: methodCallToSpread(node, sourceCode),
+			fix: methodCallToSpread(node, context),
 		};
 	});
 

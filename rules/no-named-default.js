@@ -9,7 +9,8 @@ const messages = {
 const isValueImport = node => !node.importKind || node.importKind === 'value';
 const isValueExport = node => !node.exportKind || node.exportKind === 'value';
 
-const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer) {
+const fixImportSpecifier = (importSpecifier, context) => function * (fixer) {
+	const {sourceCode} = context;
 	const declaration = importSpecifier.parent;
 
 	yield * removeSpecifier(importSpecifier, fixer, context, /* keepDeclaration */ true);
@@ -38,11 +39,11 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 	yield fixer.insertTextAfter(importToken, ` ${nameText}${shouldAddComma ? ',' : ''}`);
 };
 
-const fixExportSpecifier = (exportSpecifier, {sourceCode}) => function * (fixer) {
+const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 	const declaration = exportSpecifier.parent;
 	yield * removeSpecifier(exportSpecifier, fixer, context);
 
-	const text = `export default ${sourceCode.getText(exportSpecifier.local)};`;
+	const text = `export default ${context.sourceCode.getText(exportSpecifier.local)};`;
 	yield fixer.insertTextBefore(declaration, `${text}\n`);
 };
 

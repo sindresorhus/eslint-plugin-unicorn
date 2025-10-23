@@ -8,68 +8,64 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
+	context.on('MemberExpression', memberExpression => {
+		if (memberExpression.object.type !== 'AwaitExpression') {
+			return;
+		}
 
-	return {
-		MemberExpression(memberExpression) {
-			if (memberExpression.object.type !== 'AwaitExpression') {
-				return;
-			}
+		const {property} = memberExpression;
+		const problem = {
+			node: property,
+			messageId: MESSAGE_ID,
+		};
 
-			const {property} = memberExpression;
-			const problem = {
-				node: property,
-				messageId: MESSAGE_ID,
+		// `const foo = (await bar)[0]`
+		if (
+			memberExpression.computed
+			&& !memberExpression.optional
+			&& (isLiteral(property, 0) || isLiteral(property, 1))
+			&& memberExpression.parent.type === 'VariableDeclarator'
+			&& memberExpression.parent.init === memberExpression
+			&& memberExpression.parent.id.type === 'Identifier'
+			&& !memberExpression.parent.id.typeAnnotation
+		) {
+			problem.fix = function * (fixer) {
+				const variable = memberExpression.parent.id;
+				yield fixer.insertTextBefore(variable, property.value === 0 ? '[' : '[, ');
+				yield fixer.insertTextAfter(variable, ']');
+
+				yield removeMemberExpressionProperty(fixer, memberExpression, context);
+				yield * removeParentheses(memberExpression.object, fixer, context);
 			};
 
-			// `const foo = (await bar)[0]`
-			if (
-				memberExpression.computed
-				&& !memberExpression.optional
-				&& (isLiteral(property, 0) || isLiteral(property, 1))
-				&& memberExpression.parent.type === 'VariableDeclarator'
-				&& memberExpression.parent.init === memberExpression
-				&& memberExpression.parent.id.type === 'Identifier'
-				&& !memberExpression.parent.id.typeAnnotation
-			) {
-				problem.fix = function * (fixer) {
-					const variable = memberExpression.parent.id;
-					yield fixer.insertTextBefore(variable, property.value === 0 ? '[' : '[, ');
-					yield fixer.insertTextAfter(variable, ']');
+			return problem;
+		}
 
-					yield removeMemberExpressionProperty(fixer, memberExpression, context);
-					yield * removeParentheses(memberExpression.object, fixer, context);
-				};
+		// `const foo = (await bar).foo`
+		if (
+			!memberExpression.computed
+			&& !memberExpression.optional
+			&& property.type === 'Identifier'
+			&& memberExpression.parent.type === 'VariableDeclarator'
+			&& memberExpression.parent.init === memberExpression
+			&& memberExpression.parent.id.type === 'Identifier'
+			&& memberExpression.parent.id.name === property.name
+			&& !memberExpression.parent.id.typeAnnotation
+		) {
+			problem.fix = function * (fixer) {
+				const variable = memberExpression.parent.id;
+				yield fixer.insertTextBefore(variable, '{');
+				yield fixer.insertTextAfter(variable, '}');
 
-				return problem;
-			}
-
-			// `const foo = (await bar).foo`
-			if (
-				!memberExpression.computed
-				&& !memberExpression.optional
-				&& property.type === 'Identifier'
-				&& memberExpression.parent.type === 'VariableDeclarator'
-				&& memberExpression.parent.init === memberExpression
-				&& memberExpression.parent.id.type === 'Identifier'
-				&& memberExpression.parent.id.name === property.name
-				&& !memberExpression.parent.id.typeAnnotation
-			) {
-				problem.fix = function * (fixer) {
-					const variable = memberExpression.parent.id;
-					yield fixer.insertTextBefore(variable, '{');
-					yield fixer.insertTextAfter(variable, '}');
-
-					yield removeMemberExpressionProperty(fixer, memberExpression, context);
-					yield * removeParentheses(memberExpression.object, fixer, context);
-				};
-
-				return problem;
-			}
+				yield removeMemberExpressionProperty(fixer, memberExpression, context);
+				yield * removeParentheses(memberExpression.object, fixer, context);
+			};
 
 			return problem;
-		},
-	};
+		}
+
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -36,7 +36,9 @@ function getIfStatementTokens(node, sourceCode) {
 	return tokens;
 }
 
-function fix(innerIfStatement, sourceCode) {
+function fix(innerIfStatement, context) {
+	const {sourceCode} = context;
+
 	return function * (fixer) {
 		const outerIfStatement = (
 			innerIfStatement.parent.type === 'BlockStatement'
@@ -131,7 +133,7 @@ const create = context => ({
 		return {
 			node: ifStatement,
 			messageId: MESSAGE_ID,
-			fix: fix(ifStatement, context.sourceCode),
+			fix: fix(ifStatement, context),
 		};
 	},
 });

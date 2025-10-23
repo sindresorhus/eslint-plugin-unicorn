@@ -60,7 +60,6 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 	const {left, right} = node;
 	const tokenStore = getTokenStore(context, node);
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-	const {sourceCode} = context;
 
 	yield * fixSpaceAroundKeyword(fixer, node, context);
 

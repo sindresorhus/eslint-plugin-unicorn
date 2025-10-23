@@ -183,7 +183,8 @@ function shouldInsertBreakStatement(node) {
 	}
 }
 
-function fix({discriminant, ifStatements}, sourceCode, options) {
+function fix({discriminant, ifStatements}, context, options) {
+	const {sourceCode} = context;
 	const discriminantText = sourceCode.getText(discriminant);
 
 	return function * (fixer) {
@@ -301,7 +302,7 @@ const create = context => {
 					!hasSideEffect(discriminant, sourceCode)
 					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
 				) {
-					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
+					problem.fix = fix({discriminant, ifStatements}, context, options);
 				}
 
 				yield problem;

@@ -48,7 +48,8 @@ function getCommaTokens(arrayExpression, sourceCode) {
 	});
 }
 
-function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
+	const {sourceCode} = context;
 	const [
 		openingBracketToken,
 		spreadToken,
@@ -277,7 +278,7 @@ const create = context => {
 			node: arrayExpression,
 			messageId,
 			data: {parentDescription},
-			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, context),
 		};
 	});
 

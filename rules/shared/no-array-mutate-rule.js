@@ -58,7 +58,6 @@ function noArrayMutateRule(methodName) {
 
 	/** @param {import('eslint').Rule.RuleContext} context */
 	const create = context => {
-		const {sourceCode} = context;
 		const {allowExpressionStatement} = context.options[0];
 
 		return {

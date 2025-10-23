@@ -206,12 +206,12 @@ const isTopLevelReturnStatement = node => {
 	return true;
 };
 
-function fixDefaultExport(node, sourceCode) {
+function fixDefaultExport(node, context) {
 	return function * (fixer) {
 		yield fixer.replaceText(node, 'export default ');
 		yield removeSpacesAfter(node, context, fixer);
 
-		const equalToken = sourceCode.getTokenAfter(node, token => token.type === 'Punctuator' && token.value === '=');
+		const equalToken = context.sourceCode.getTokenAfter(node, token => token.type === 'Punctuator' && token.value === '=');
 		yield fixer.remove(equalToken);
 		yield removeSpacesAfter(equalToken, context, fixer);
 
@@ -221,7 +221,7 @@ function fixDefaultExport(node, sourceCode) {
 	};
 }
 
-function fixNamedExport(node, sourceCode) {
+function fixNamedExport(node, context) {
 	return function * (fixer) {
 		const assignmentExpression = node.parent.parent;
 		const exported = node.parent.property.name;
@@ -232,21 +232,21 @@ function fixNamedExport(node, sourceCode) {
 	};
 }
 
-function fixExports(node, sourceCode) {
+function fixExports(node, context) {
 	// `exports = bar`
 	if (isTopLevelAssignment(node)) {
-		return fixDefaultExport(node, sourceCode);
+		return fixDefaultExport(node, context);
 	}
 
 	// `exports.foo = bar`
 	if (isNamedExport(node)) {
-		return fixNamedExport(node, sourceCode);
+		return fixNamedExport(node, context);
 	}
 }
 
-function fixModuleExports(node, sourceCode) {
+function fixModuleExports(node, context) {
 	if (isModuleExports(node)) {
-		return fixExports(node.parent, sourceCode);
+		return fixExports(node.parent, context);
 	}
 }
 
@@ -340,7 +340,7 @@ function create(context) {
 			}
 
 			case 'module': {
-				const fix = fixModuleExports(node, sourceCode);
+				const fix = fixModuleExports(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_EXPORT,

@@ -26,7 +26,7 @@ const isNegative = node => {
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-function checkProperty({node, path: [name]}, {sourceCode}) {
+function checkProperty({node, path: [name]}, context) {
 	const {parent} = node;
 
 	let property = name;
@@ -54,7 +54,7 @@ function checkProperty({node, path: [name]}, {sourceCode}) {
 		return problem;
 	}
 
-	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer);
 	const isSafeToFix = globalObjects[name];
 
 	if (isSafeToFix) {

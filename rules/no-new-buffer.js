@@ -42,7 +42,7 @@ const inferMethod = (bufferArguments, scope) => {
 	}
 };
 
-function fix(node, sourceCode, method) {
+function fix(node, context, method) {
 	return function * (fixer) {
 		yield fixer.insertTextAfter(node.callee, `.${method}`);
 		yield * switchNewExpressionToCallExpression(node, context, fixer);
@@ -65,7 +65,7 @@ const create = context => {
 					node,
 					messageId: ERROR,
 					data: {method},
-					fix: fix(node, sourceCode, method),
+					fix: fix(node, context, method),
 				};
 			}
 
@@ -75,7 +75,7 @@ const create = context => {
 				suggest: ['from', 'alloc'].map(replacement => ({
 					messageId: SUGGESTION,
 					data: {replacement},
-					fix: fix(node, sourceCode, replacement),
+					fix: fix(node, context, replacement),
 				})),
 			};
 		},

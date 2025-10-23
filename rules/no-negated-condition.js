@@ -16,7 +16,8 @@ const messages = {
 	[MESSAGE_ID]: 'Unexpected negated condition.',
 };
 
-function * convertNegatedCondition(fixer, node, sourceCode) {
+function * convertNegatedCondition(fixer, node, context) {
+	const {sourceCode} = context;
 	const {test} = node;
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
@@ -37,14 +38,14 @@ function * convertNegatedCondition(fixer, node, sourceCode) {
 	yield fixer.replaceText(token, '=' + token.value.slice(1));
 }
 
-function * swapConsequentAndAlternate(fixer, node, sourceCode) {
+function * swapConsequentAndAlternate(fixer, node, context) {
 	const isIfStatement = node.type === 'IfStatement';
 	const [consequent, alternate] = [
 		node.consequent,
 		node.alternate,
 	].map(node => {
 		const range = getParenthesizedRange(node, context);
-		let text = sourceCode.text.slice(...range);
+		let text = context.sourceCode.text.slice(...range);
 		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
 		if (isIfStatement && node.type !== 'BlockStatement') {
 			text = `{${text}}`;
@@ -60,6 +61,7 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 		return;
 	}
 
+	const {sourceCode} = context;
 	yield fixer.replaceTextRange(sourceCode.getRange(consequent), alternate.text);
 	yield fixer.replaceTextRange(sourceCode.getRange(alternate), consequent.text);
 }
@@ -92,8 +94,8 @@ const create = context => {
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				const {sourceCode} = context;
-				yield * convertNegatedCondition(fixer, node, sourceCode);
-				yield * swapConsequentAndAlternate(fixer, node, sourceCode);
+				yield * convertNegatedCondition(fixer, node, context);
+				yield * swapConsequentAndAlternate(fixer, node, context);
 
 				if (
 					node.type !== 'ConditionalExpression'

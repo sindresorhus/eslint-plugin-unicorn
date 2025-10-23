@@ -37,7 +37,8 @@ function isSet(node, scope) {
 }
 
 // `[...set].length` -> `set.size`
-function fix(sourceCode, lengthAccessNodes) {
+function fix(context, lengthAccessNodes) {
+	const {sourceCode} = context;
 	const {
 		object: arrayExpression,
 		property,
@@ -82,7 +83,7 @@ const create = context => {
 			return {
 				node: node.property,
 				messageId: MESSAGE_ID,
-				fix: fix(sourceCode, node),
+				fix: fix(context, node),
 			};
 		},
 	};

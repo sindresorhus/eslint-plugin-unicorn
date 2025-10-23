@@ -47,9 +47,10 @@ const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
 	return fixer.replaceText(callExpression, text);
 };
 
-const unwrapNonAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
+const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
+	const {sourceCode} = context;
 	const [promiseNode] = callExpression.arguments[0].elements;
-	let text = getParenthesizedText(promiseNode, sourceCode);
+	let text = getParenthesizedText(promiseNode, context);
 
 	if (
 		!isParenthesized(promiseNode, sourceCode)
@@ -148,7 +149,7 @@ const create = context => ({
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
-				fix: unwrapNonAwaitedCallExpression(callExpression, sourceCode),
+				fix: unwrapNonAwaitedCallExpression(callExpression, context),
 			},
 			{
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,
