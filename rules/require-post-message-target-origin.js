@@ -48,7 +48,7 @@ function create(context) {
 					messageId: SUGGESTION,
 					data: {code},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => appendArgument(fixer, node, code, sourceCode),
+					fix: fixer => appendArgument(fixer, node, code, context),
 				})),
 			};
 		},
