@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -625,3 +625,27 @@ test.snapshot({
 		`,
 	],
 });
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [],
+	invalid: [
+		// https://github.com/microsoft/vscode/blob/edf4ea5879f5e15302ac4923cebd1d444ee35f7e/extensions/ipynb/src/deserializers.ts#L258C1-L259C67
+		outdent`
+			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>();
+			cellOutputMappers.set('display_data', translateDisplayDataOutput);
+		`,
+		outdent`
+			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>([]);
+			cellOutputMappers.set('display_data', translateDisplayDataOutput);
+		`,
+		outdent`
+			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>;
+			cellOutputMappers.set('display_data', translateDisplayDataOutput);
+		`,
+	],
+})

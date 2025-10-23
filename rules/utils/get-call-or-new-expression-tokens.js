@@ -8,19 +8,20 @@ import isNewExpressionWithParentheses from './is-new-expression-with-parentheses
 Get the `openingParenthesisToken`, `closingParenthesisToken`, and `trailingCommaToken` of `CallExpression`.
 
 @param {import('eslint').SourceCode} sourceCode - The source code object.
-@param {CallExpression} callExpression - The `CallExpression` node.
+@param {CallExpression} callOrNewExpression - The `CallExpression` or `newExpression` node.
 @returns {{
-	openingParenthesisToken: Token,
-	closingParenthesisToken: Token,
-	trailingCommaToken: Token | undefined,
+	openingParenthesisToken?: Token,
+	closingParenthesisToken?: Token,
+	trailingCommaToken?: Token,
 }}
 */
-function getCallOrNewExpressionTokens(sourceCode, callExpression) {
-	const openingParenthesisToken = sourceCode.getTokenAfter(callExpression.callee, isOpeningParenToken);
+function getCallOrNewExpressionTokens(sourceCode, callOrNewExpression) {
+	const startToken = callOrNewExpression.typeArguments ?? callOrNewExpression.callee;
+	const openingParenthesisToken = sourceCode.getTokenAfter(startToken, isOpeningParenToken);
 	const [
 		penultimateToken,
 		closingParenthesisToken,
-	] = sourceCode.getLastTokens(callExpression, 2);
+	] = sourceCode.getLastTokens(callOrNewExpression, 2);
 	const trailingCommaToken = isCommaToken(penultimateToken) ? penultimateToken : undefined;
 
 	return {
