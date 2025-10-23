@@ -367,7 +367,7 @@ const create = context => {
 		}
 
 		return Object.assign(problem, {
-			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, context),
 		});
 	});
 };
