@@ -202,7 +202,7 @@ const create = context => {
 			messageId: ERROR_ZERO_INDEX,
 			fix: fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
-				removeMemberExpressionProperty(fixer, node, sourceCode),
+				removeMemberExpressionProperty(fixer, node, context),
 			],
 		};
 	});
@@ -327,7 +327,7 @@ const create = context => {
 				}
 
 				for (const node of zeroIndexNodes) {
-					yield removeMemberExpressionProperty(fixer, node, sourceCode);
+					yield removeMemberExpressionProperty(fixer, node, context);
 				}
 
 				for (const node of destructuringNodes) {

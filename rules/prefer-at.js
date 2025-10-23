@@ -278,7 +278,7 @@ function create(context) {
 
 			// Remove `[0]`, `.shift()`, or `.pop()`
 			if (firstElementGetMethod === 'zero-index') {
-				yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
+				yield removeMemberExpressionProperty(fixer, sliceCall.parent, context);
 			} else {
 				yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
 			}

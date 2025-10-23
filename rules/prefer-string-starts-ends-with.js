@@ -147,7 +147,7 @@ const create = context => {
 						if (
 							!isRegexParenthesized
 							&& !isTargetParenthesized
-							&& shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
+							&& shouldAddParenthesesToMemberExpressionObject(target, context)
 						) {
 							targetText = addParentheses(targetText);
 						}

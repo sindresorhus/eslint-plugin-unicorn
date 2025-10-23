@@ -37,7 +37,7 @@ const create = context => {
 					yield fixer.insertTextBefore(variable, property.value === 0 ? '[' : '[, ');
 					yield fixer.insertTextAfter(variable, ']');
 
-					yield removeMemberExpressionProperty(fixer, memberExpression, sourceCode);
+					yield removeMemberExpressionProperty(fixer, memberExpression, context);
 					yield * removeParentheses(memberExpression.object, fixer, sourceCode);
 				};
 
@@ -60,7 +60,7 @@ const create = context => {
 					yield fixer.insertTextBefore(variable, '{');
 					yield fixer.insertTextAfter(variable, '}');
 
-					yield removeMemberExpressionProperty(fixer, memberExpression, sourceCode);
+					yield removeMemberExpressionProperty(fixer, memberExpression, context);
 					yield * removeParentheses(memberExpression.object, fixer, sourceCode);
 				};
 

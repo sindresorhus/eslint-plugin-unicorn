@@ -183,7 +183,7 @@ const create = context => {
 					`(( (( array.filter() )).length )) > (( 0 ))`
 					------------------------^^^^^^^
 				*/
-				yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
+				yield removeMemberExpressionProperty(fixer, lengthNode, context);
 
 				/*
 					Remove `> 0`

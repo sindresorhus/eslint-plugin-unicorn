@@ -230,7 +230,7 @@ const create = context => {
 				yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
 			}
 
-			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
+			yield replaceMemberExpressionProperty(fixer, classListMethod, context, '.toggle');
 		}
 
 		return getProblem(callExpression, fix, conditionalExpression);

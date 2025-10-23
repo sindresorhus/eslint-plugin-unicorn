@@ -4,7 +4,7 @@ import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
-import unicorn from './index.js';
+import unicorn from './node_modules/eslint-plugin-unicorn/index.js';
 
 /*
 Workaround for this error

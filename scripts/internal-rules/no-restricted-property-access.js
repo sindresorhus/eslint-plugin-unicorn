@@ -36,7 +36,7 @@ const config = {
 					},
 					* fix(fixer) {
 						const {sourceCode} = context;
-						yield removeMemberExpressionProperty(fixer, memberExpression, sourceCode);
+						yield removeMemberExpressionProperty(fixer, memberExpression, context);
 						yield fixer.insertTextBefore(memberExpression, `${replacementFunction}(`);
 						yield fixer.insertTextAfter(memberExpression, ')');
 					},
