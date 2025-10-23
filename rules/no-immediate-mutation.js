@@ -163,9 +163,10 @@ const arrayMutationSettings = {
 			getFix,
 		} = information;
 		const {sourceCode} = context;
-		const method = callExpression.callee.property;
+		const memberExpression = callExpression.callee
+		const method = memberExpression.property;
 		const problem = {
-			node: method,
+			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
 			data: {description: 'array'},
 		};
@@ -268,9 +269,14 @@ const objectMutationSettings = {
 		} = assignmentExpression;
 
 		const {property} = memberExpression;
+		const operatorToken = sourceCode.getTokenAfter(memberExpression, token => token.type === 'Punctuator' && token.value === assignmentExpression.operator)
 
 		const problem = {
-			node: property,
+			node: assignmentExpression,
+			loc: {
+				start: sourceCode.getLoc(assignmentExpression).start,
+				end: sourceCode.getLoc(operatorToken).end,
+			},
 			messageId: MESSAGE_ID_ERROR,
 			data: {description: 'object'},
 		};
@@ -372,10 +378,11 @@ const setMutationSettings = {
 			variableDeclarator,
 		} = information;
 		const {sourceCode} = context;
-		const method = callExpression.callee.property;
+		const memberExpression = callExpression.callee;
+		const method = memberExpression.property;
 		const newExpression = variableDeclarator.init;
 		const problem = {
-			node: method,
+			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
 			data: {description: `\`${newExpression.callee.name}\``},
 		};
@@ -456,10 +463,11 @@ const mapMutationSettings = {
 			variableDeclarator,
 		} = information;
 		const {sourceCode} = context;
-		const method = callExpression.callee.property;
+		const memberExpression = callExpression.callee;
+		const method = memberExpression.property;
 		const newExpression = variableDeclarator.init;
 		const problem = {
-			node: method,
+			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
 			data: {description: `\`${newExpression.callee.name}\``},
 		};
