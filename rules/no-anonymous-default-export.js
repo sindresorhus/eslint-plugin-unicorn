@@ -120,7 +120,7 @@ function getProblem(node, context) {
 	let loc;
 	let description;
 	if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-		loc = getClassHeadLocation(node, sourceCode);
+		loc = getClassHeadLocation(node, context);
 		description = 'class';
 	} else {
 		loc = getFunctionHeadLocation(node, sourceCode);

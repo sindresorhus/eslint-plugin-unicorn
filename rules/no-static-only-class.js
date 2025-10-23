@@ -202,7 +202,7 @@ function create(context) {
 
 		return {
 			node,
-			loc: getClassHeadLocation(node, sourceCode),
+			loc: getClassHeadLocation(node, context),
 			messageId: MESSAGE_ID,
 			fix: switchClassToObject(node, sourceCode),
 		};

@@ -1,13 +1,14 @@
 /**
-@typedef {line: number, column: number} Position
+@typedef {{line: number, column: number}} Position
 
 Get the location of the given class node for reporting.
 
 @param {Node} node - The class node to get.
-@param {SourceCode} sourceCode - The source code object to get tokens.
+@param {import('eslint').Rule.RuleContext} context - The ESLint rule context object.
 @returns {{start: Position, end: Position}} The location of the class node for reporting.
 */
-export default function getClassHeadLocation(node, sourceCode) {
+export default function getClassHeadLocation(node, context) {
+	const {sourceCode} = context;
 	const {body} = node;
 	const tokenBeforeBody = sourceCode.getTokenBefore(body);
 
