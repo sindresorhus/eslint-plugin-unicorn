@@ -67,7 +67,7 @@ const create = context => {
 			) {
 				return {
 					node,
-					loc: getSwitchCaseHeadLocation(node, sourceCode),
+					loc: getSwitchCaseHeadLocation(node, context),
 					messageId: MESSAGE_ID_MISSING_BRACES,
 					fix: fixer => addBraces(fixer, node, sourceCode),
 				};

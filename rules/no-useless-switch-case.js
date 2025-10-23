@@ -28,7 +28,7 @@ const create = context => ({
 
 			yield {
 				node,
-				loc: getSwitchCaseHeadLocation(node, context.sourceCode),
+				loc: getSwitchCaseHeadLocation(node, context),
 				messageId: MESSAGE_ID_ERROR,
 				suggest: [
 					{
