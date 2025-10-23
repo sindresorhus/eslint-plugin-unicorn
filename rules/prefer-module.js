@@ -135,8 +135,8 @@ function fixRequireCall(node, context) {
 				expected: {type: 'Punctuator', value: '='},
 				ruleId: 'prefer-module',
 			});
-			yield removeSpacesAfter(id, sourceCode, fixer);
-			yield removeSpacesAfter(equalToken, sourceCode, fixer);
+			yield removeSpacesAfter(id, context, fixer);
+			yield removeSpacesAfter(equalToken, context, fixer);
 			yield fixer.replaceText(equalToken, ' from ');
 
 			yield fixer.remove(callee);
@@ -166,8 +166,8 @@ function fixRequireCall(node, context) {
 						expected: {type: 'Punctuator', value: ':'},
 						ruleId: 'prefer-module',
 					});
-					yield removeSpacesAfter(key, sourceCode, fixer);
-					yield removeSpacesAfter(commaToken, sourceCode, fixer);
+					yield removeSpacesAfter(key, context, fixer);
+					yield removeSpacesAfter(commaToken, context, fixer);
 					yield fixer.replaceText(commaToken, ' as ');
 				}
 			}
@@ -209,11 +209,11 @@ const isTopLevelReturnStatement = node => {
 function fixDefaultExport(node, sourceCode) {
 	return function * (fixer) {
 		yield fixer.replaceText(node, 'export default ');
-		yield removeSpacesAfter(node, sourceCode, fixer);
+		yield removeSpacesAfter(node, context, fixer);
 
 		const equalToken = sourceCode.getTokenAfter(node, token => token.type === 'Punctuator' && token.value === '=');
 		yield fixer.remove(equalToken);
-		yield removeSpacesAfter(equalToken, sourceCode, fixer);
+		yield removeSpacesAfter(equalToken, context, fixer);
 
 		for (const currentNode of [node.parent, node]) {
 			yield * removeParentheses(currentNode, fixer, sourceCode);
@@ -267,7 +267,7 @@ function create(context) {
 		const problem = {node, messageId: ERROR_USE_STRICT_DIRECTIVE};
 		const fix = function * (fixer) {
 			yield fixer.remove(node);
-			yield removeSpacesAfter(node, sourceCode, fixer);
+			yield removeSpacesAfter(node, context, fixer);
 		};
 
 		if (filename.endsWith('.mjs')) {

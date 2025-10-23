@@ -58,7 +58,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	});
 
 	yield fixer.remove(staticToken);
-	yield removeSpacesAfter(staticToken, sourceCode, fixer);
+	yield removeSpacesAfter(staticToken, context, fixer);
 
 	const maybeSemicolonToken = isPropertyDefinition(node)
 		? sourceCode.getLastToken(node)
@@ -170,7 +170,7 @@ function switchClassToObject(node, sourceCode) {
 						{};
 						```
 				*/
-				yield removeSpacesAfter(classToken, sourceCode, fixer);
+				yield removeSpacesAfter(classToken, context, fixer);
 			}
 
 			// There should not be ASI problem

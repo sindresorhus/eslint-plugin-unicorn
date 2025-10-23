@@ -80,7 +80,7 @@ const create = context => ({
 				}
 
 				yield fixer.remove(awaitToken);
-				yield removeSpacesAfter(awaitToken, sourceCode, fixer);
+				yield removeSpacesAfter(awaitToken, context, fixer);
 
 				const nextToken = sourceCode.getTokenAfter(awaitToken);
 				const tokenBefore = sourceCode.getTokenBefore(awaitToken);
