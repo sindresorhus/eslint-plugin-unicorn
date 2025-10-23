@@ -2,7 +2,7 @@ import {hasSideEffect, isCommaToken, isSemicolonToken} from '@eslint-community/e
 import {
 	isMethodCall,
 	isMemberExpression,
-	isNewExpression
+	isNewExpression,
 } from './ast/index.js';
 import {removeExpressionStatement} from './fix/index.js';
 import {
@@ -12,18 +12,20 @@ import {
 	getVariableIdentifiers,
 	needsSemicolon,
 	getNewExpressionTokens,
-	isNewExpressionWithParentheses,	
+	isNewExpressionWithParentheses,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_ARRAY = 'suggestion/array';
 const MESSAGE_ID_SUGGESTION_OBJECT = 'suggestion/object';
 const MESSAGE_ID_SUGGESTION_SET = 'suggestion/set';
+const MESSAGE_ID_SUGGESTION_MAP = 'suggestion/map';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
-	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} elements to declaration.',
-	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move property to declaration.',
+	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to declaration.',
+	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to declaration.',
 	[MESSAGE_ID_SUGGESTION_SET]: 'Move the element to declaration.',
+	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to declaration.',
 };
 
 const getVariable = (variableDeclarator, context) =>
@@ -41,6 +43,19 @@ const hasVariableInNodes = (variable, nodes, context) => {
 	});
 };
 
+function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
+	if (!isNewExpression(
+		newExpression,
+		{names, maximumArguments: 1},
+	)) {
+		return false;
+	}
+
+	// `new Set();` and `new Set([]);`
+	const [iterable] = newExpression.arguments;
+	return (!iterable || iterable.type === 'ArrayExpression');
+}
+
 function * removeExpressionStatementAfterDeclaration(context, fixer, expressionStatement, variableDeclaration) {
 	yield removeExpressionStatement(expressionStatement, fixer, context);
 
@@ -52,9 +67,8 @@ function * removeExpressionStatementAfterDeclaration(context, fixer, expressionS
 	}
 }
 
-function appendCallArgumentsToArrayExpression(context, fixer, callExpression, arrayExpression) {
+function appendElementsTextToArrayExpression(context, fixer, arrayExpression, elementsText) {
 	const {sourceCode} = context;
-	const text = getCallExpressionArgumentsText(sourceCode, callExpression);
 	const [
 		penultimateToken,
 		closingBracketToken,
@@ -63,8 +77,55 @@ function appendCallArgumentsToArrayExpression(context, fixer, callExpression, ar
 
 	return fixer.insertTextBefore(
 		closingBracketToken,
-		`${shouldInsertComma ? ',' : ''} ${text}`,
+		`${shouldInsertComma ? ',' : ''} ${elementsText}`,
 	);
+}
+
+function * appendElementsTextToSetConstructor(context, fixer, {
+	newExpression,
+	elementsText,
+	expressionStatementAfterDeclaration,
+	variableDeclaration,
+}) {
+	const {sourceCode} = context;
+
+	if (isNewExpressionWithParentheses(newExpression, sourceCode)) {
+		const [setInitialValue] = newExpression.arguments;
+		if (setInitialValue) {
+			yield appendElementsTextToArrayExpression(context, fixer, setInitialValue, elementsText);
+		} else {
+			const {
+				openingParenthesisToken,
+			} = getNewExpressionTokens(sourceCode, newExpression);
+			yield fixer.insertTextAfter(openingParenthesisToken, `[${elementsText}]`);
+		}
+
+		yield * removeExpressionStatementAfterDeclaration(
+			context,
+			fixer,
+			expressionStatementAfterDeclaration,
+			variableDeclaration,
+		);
+
+		return;
+	}
+
+	/*
+	The new expression doesn't have parentheses
+	```
+	const set = (( new (( Set )) ));
+	set.add(1);
+	```
+	*/
+	yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
+	yield removeExpressionStatement(expressionStatementAfterDeclaration, fixer, context);
+
+	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utiltity
+	// We just simply check if the `variableDeclaration` ends with `;`
+	const lastTokenInDeclaration = sourceCode.getLastToken(variableDeclaration);
+	if (!isSemicolonToken(lastTokenInDeclaration)) {
+		yield fixer.insertTextAfter(lastTokenInDeclaration, ';');
+	}
 }
 
 // `Array`
@@ -141,17 +202,14 @@ const arrayMutationSettings = {
 	) => function * (fixer) {
 		const {sourceCode} = context;
 		const arrayExpression = variableDeclarator.init;
+		const text = getCallExpressionArgumentsText(sourceCode, callExpression, /* includeTrailingComma */ false);
 
-		if (isPrepend) {
-			const text = getCallExpressionArgumentsText(sourceCode, callExpression, /* includeTrailingComma */ false);
-
-			yield fixer.insertTextAfter(
+		yield (isPrepend
+			? fixer.insertTextAfter(
 				sourceCode.getFirstToken(arrayExpression),
 				`${text}, `,
-			);
-		} else {
-			yield appendCallArgumentsToArrayExpression(context, fixer, callExpression, arrayExpression);
-		}
+			)
+			: appendElementsTextToArrayExpression(context, fixer, arrayExpression, text));
 
 		yield * removeExpressionStatementAfterDeclaration(
 			context,
@@ -283,19 +341,7 @@ const objectMutationSettings = {
 
 // `Set` and `WeakSet`
 const setMutationSettings = {
-	testDeclarator(variableDeclarator) {
-		const newExpression = variableDeclarator.init;
-		if (!isNewExpression(
-			newExpression,
-			{names: ['Set', 'WeakSet'], maximumArguments: 1},
-		)) {
-			return false;
-		}
-
-		// `new Set();` and `new Set([]);`
-		const [iterable] = newExpression.arguments;
-		return (!iterable || iterable.type === 'ArrayExpression');
-	},
+	testDeclarator: variableDeclarator => isCallExpressionWithOptionalArrayExpression(variableDeclarator.init, ['Set', 'WeakSet']),
 	getProblematicNode({
 		context,
 		variableName,
@@ -353,6 +399,93 @@ const setMutationSettings = {
 	getFix: (
 		{
 			context,
+			variableDeclaration,
+			expressionStatementAfterDeclaration,
+		},
+		{
+			callExpression,
+			newExpression,
+		},
+	) => fixer => {
+		const elementsText = getCallExpressionArgumentsText(
+			context.sourceCode,
+			callExpression,
+			/* IncludeTrailingComma */ false,
+		);
+		return appendElementsTextToSetConstructor(
+			context,
+			fixer,
+			{
+				newExpression,
+				elementsText,
+				expressionStatementAfterDeclaration,
+				variableDeclaration,
+			},
+		);
+	},
+};
+
+// `Map` and `WeakMap`
+const mapMutationSettings = {
+	testDeclarator: variableDeclarator => isCallExpressionWithOptionalArrayExpression(variableDeclarator.init, ['Map', 'WeakMap']),
+	getProblematicNode({
+		context,
+		variableName,
+		variable,
+		expressionStatementAfterDeclaration,
+	}) {
+		let callExpression = expressionStatementAfterDeclaration.expression;
+		if (callExpression.type === 'ChainExpression') {
+			callExpression = callExpression.expression;
+		}
+
+		if (!isMethodCall(callExpression, {object: variableName, method: 'set', argumentsLength: 2})) {
+			return;
+		}
+
+		if (hasVariableInNodes(variable, callExpression.arguments, context)) {
+			return;
+		}
+
+		return callExpression;
+	},
+	getProblem(callExpression, information) {
+		const {
+			context,
+			getFix,
+			variableDeclarator,
+		} = information;
+		const {sourceCode} = context;
+		const method = callExpression.callee.property;
+		const newExpression = variableDeclarator.init;
+		const problem = {
+			node: method,
+			messageId: MESSAGE_ID_ERROR,
+			data: {description: `\`${newExpression.callee.name}\``},
+		};
+
+		const fix = getFix(information, {
+			callExpression,
+			newExpression,
+		});
+
+		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION_MAP,
+					fix,
+				},
+			];
+		} else {
+			problem.fix = fix;
+		}
+
+		return problem;
+	},
+
+	getFix: (
+		{
+			context,
 			variableDeclarator,
 			variableDeclaration,
 			expressionStatementAfterDeclaration,
@@ -361,50 +494,16 @@ const setMutationSettings = {
 			callExpression,
 			newExpression,
 		},
-	) => function * (fixer) {
+	) => fixer => {
 		const {sourceCode} = context;
-
-		if (isNewExpressionWithParentheses(newExpression, sourceCode)) {
-			const {
-				openingParenthesisToken,
-				closingParenthesisToken,
-			} = getNewExpressionTokens(sourceCode, newExpression);
-
-			const [setInitialValue] = newExpression.arguments;
-			if (!setInitialValue) {
-				const text = getCallExpressionArgumentsText(sourceCode, callExpression, /* includeTrailingComma */ false);
-				yield fixer.insertTextAfter(openingParenthesisToken, `[${text}]`);
-			} else {
-				yield appendCallArgumentsToArrayExpression(context, fixer, callExpression, setInitialValue);
-			}
-
-			yield * removeExpressionStatementAfterDeclaration(
-				context,
-				fixer,
-				expressionStatementAfterDeclaration,
-				variableDeclaration,
-			);
-
-			return;
-		}
-
-		/*
-		The new expression doesn't have parentheses
-		```
-		const set = (( new (( Set )) ));
-		set.add(1);
-		```
-		*/
-		const text = getCallExpressionArgumentsText(sourceCode, callExpression, /* includeTrailingComma */ false);
-		yield fixer.insertTextAfter(newExpression, `([${text}])`);
-		yield removeExpressionStatement(expressionStatementAfterDeclaration, fixer, context);
-
-		// Since the `)` token is inserted by us, we can't use `needsSemicolon` utiltity
-		// We just simply check if the `variableDeclaration` ends with `;`
-		const lastTokenInDeclaration = sourceCode.getLastToken(variableDeclaration);
-		if (!isSemicolonToken(lastTokenInDeclaration)) {
-			yield fixer.insertTextAfter(lastTokenInDeclaration, ';');
-		}
+		const [keyText, valueText] = callExpression.arguments.map(argument_ => getParenthesizedText(argument_, sourceCode));
+		const entryText = `[${keyText}, ${valueText}]`;
+		return appendElementsTextToSetConstructor(
+			context,
+			fixer,
+			newExpression,
+			entryText,
+		);
 	},
 };
 
