@@ -179,7 +179,7 @@ function create(context) {
 
 		problem.fix = function * (fixer) {
 			if (lengthNode) {
-				yield removeLengthNode(lengthNode, fixer, sourceCode);
+				yield removeLengthNode(lengthNode, fixer, context);
 			}
 
 			// Only remove space for `foo[foo.length - 1]`
@@ -237,7 +237,7 @@ function create(context) {
 				messageId: SUGGESTION_ID,
 				* fix(fixer) {
 					if (lengthNode) {
-						yield removeLengthNode(lengthNode, fixer, sourceCode);
+						yield removeLengthNode(lengthNode, fixer, context);
 					}
 
 					yield fixer.replaceText(node.callee.property, 'at');
