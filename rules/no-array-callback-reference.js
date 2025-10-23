@@ -191,18 +191,17 @@ function getProblem(context, node, method, options) {
 				parameters: suggestionParameters,
 			},
 			fix(fixer) {
-				const {sourceCode} = context;
 				let text = getParenthesizedText(node, context);
 
 				if (
-					!isParenthesized(node, sourceCode)
+					!isParenthesized(node, context.sourceCode)
 					&& shouldAddParenthesesToCallExpressionCallee(node)
 				) {
 					text = `(${text})`;
 				}
 
 				return fixer.replaceTextRange(
-					getParenthesizedRange(node, sourceCode),
+					getParenthesizedRange(node, context),
 					returnsUndefined
 						? `(${suggestionParameters}) => { ${text}(${suggestionParameters}); }`
 						: `(${suggestionParameters}) => ${text}(${suggestionParameters})`,
