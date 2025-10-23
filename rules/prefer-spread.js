@@ -445,7 +445,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_TO_SPLICED,
-			fix: methodCallToSpread(node, sourceCode),
+			fix: methodCallToSpread(node, context),
 		};
 	});
 
@@ -489,12 +489,12 @@ const create = context => {
 		};
 
 		if (hasSameResult) {
-			problem.fix = methodCallToSpread(node, sourceCode);
+			problem.fix = methodCallToSpread(node, context);
 		} else {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_USE_SPREAD,
-					fix: methodCallToSpread(node, sourceCode),
+					fix: methodCallToSpread(node, context),
 				},
 			];
 		}
