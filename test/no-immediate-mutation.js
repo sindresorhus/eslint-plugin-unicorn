@@ -411,3 +411,173 @@ test.snapshot({
 		`,
 	],
 });
+
+// `Map` and `WeakMap`
+test.snapshot({
+	valid: [
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.notSet("bar", 2);
+		`,
+		outdent`
+			const map = new NotMap([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			; // Not next to each other
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]),
+				otherVariable = 1;
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set();
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar");
+		`,
+
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", 2, extraArgument);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set(..."bar", ..."2");
+		`,
+		outdent`
+			const {map} = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			const [map] = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			let map = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			const foo = new Map([["foo", 1]]);
+			bar.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set(map.size, 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", map.size);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", ((foo) => foo(map.size))());
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set(((foo) => foo(map.size))(), 2);
+		`,
+	],
+	invalid: [
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			const weakMap = new WeakMap([[foo, 1]]);
+			weakMap.set(bar, 2);
+		`,
+		outdent`
+			const map = new Map([]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map();
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map;
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = (( new Map ));
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new (( Map ));
+			map.set("bar", 2);
+		`,
+		outdent`
+			const otherVariable = 1,
+				map = new Map;
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo",1]]);
+			map.set( ((0, "bar")), ((0, 2)), );
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set?.("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map?.set("bar", 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			${' \t'.repeat(5)}map.set("bar", 2);${' \t'.repeat(5)}
+			foo()
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			${' \t'.repeat(5)}map.set("bar", 2);${' \t'.repeat(5)}
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", 2); // comment
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set("bar", foo());
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map.set(bar(), 2);
+		`,
+		outdent`
+			const map = new Map([["foo", 1]]);
+			map
+				.set(
+					"bar",
+					2,
+			);
+		`,
+		// ASI
+		outdent`
+			const map = new Map([["foo", 1]])
+			map.set("bar", 2);
+			[0].map()
+		`,
+		outdent`
+			const map = new Map([["foo", 1]])
+			map.set("bar", 2);
+			notNeeded.map()
+		`,
+		outdent`
+			const map = new Map
+			map.set("bar", 2);
+			[0].map()
+		`,
+		outdent`
+			const map = new Map
+			map.set("bar", 2);
+			notNeeded.map()
+		`,
+	],
+});
