@@ -79,7 +79,7 @@ const create = context => ({
 			data: {description},
 			fix: isCheckingFallback
 				? removeFallback(node, context)
-				: fixer => removeArgument(fixer, node, context.sourceCode),
+				: fixer => removeArgument(fixer, node, context),
 		};
 	},
 });

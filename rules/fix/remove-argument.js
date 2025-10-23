@@ -1,7 +1,19 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {getParentheses} from '../utils/parentheses.js';
 
-export default function removeArgument(fixer, node, sourceCode) {
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
+/**
+@param {ESLint.Rule.RuleFixer} fixer
+@param {ESTree.NewExpression | ESTree.CallExpression} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {ESLint.Rule.ReportFixer}
+*/
+export default function removeArgument(fixer, node, context) {
+	const {sourceCode} = context;
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, context);
