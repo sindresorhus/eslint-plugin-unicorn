@@ -9,6 +9,7 @@ import {
 	getCallExpressionArgumentsText,
 	getParenthesizedText,
 	getVariableIdentifiers,
+	needsSemicolon,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
@@ -128,11 +129,13 @@ const create = context => {
 				);
 			}
 
-			if (sourceCode.text[sourceCode.getRange(variableDeclaration)[0]] !== ';') {
-				yield fixer.insertTextAfter(variableDeclaration, ';');
-			}
-
 			yield removeExpressionStatement(expressionStatement, fixer, context);
+
+			const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
+			const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
+			if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
+				yield fixer.insertTextBefore(tokenAfter, ';');
+			}
 		};
 
 		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
@@ -221,6 +224,12 @@ const create = context => {
 			);
 
 			yield removeExpressionStatement(expressionStatement, fixer, context);
+
+			const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
+			const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
+			if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
+				yield fixer.insertTextBefore(tokenAfter, ';');
+			}
 		};
 
 		if (

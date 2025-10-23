@@ -246,5 +246,16 @@ test.snapshot({
 			const object = {foo: 1};
 			object.object = 2;
 		`,
+		// ASI
+		outdent`
+			const object = {foo: 1}
+			object.bar = 2
+			;[0].map()
+		`,
+		outdent`
+			const array = [1]
+			array.push(2)
+			;notNeeded.map()
+		`,
 	],
 });
