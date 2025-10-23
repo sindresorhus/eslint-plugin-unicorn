@@ -18,7 +18,7 @@ import removeSpaceAfter from './remove-spaces-after.js';
 export default function * switchNewExpressionToCallExpression(newExpression, context, fixer) {
 	const newToken = context.sourceCode.getFirstToken(newExpression);
 	yield fixer.remove(newToken);
-	yield removeSpaceAfter(newToken, context.sourceCode, fixer);
+	yield removeSpaceAfter(newToken, context, fixer);
 
 	if (!isNewExpressionWithParentheses(newExpression, context)) {
 		yield fixer.insertTextAfter(newExpression, '()');

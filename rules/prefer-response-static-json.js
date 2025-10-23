@@ -39,12 +39,11 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				const {sourceCode} = context;
 				yield fixer.insertTextAfter(newExpression.callee, '.json');
 				yield * switchNewExpressionToCallExpression(newExpression, context, fixer);
 
 				const [dataNode] = jsonStringifyNode.arguments;
-				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, sourceCode);
+				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, context);
 				const dataNodeRange = getParenthesizedRange(dataNode, context);
 				// `(( JSON.stringify( (( data )), ) ))`
 				//  ^^^^^^^^^^^^^^^^^^^
@@ -53,6 +52,7 @@ const create = context => ({
 				//                               ^^^^^^
 				yield fixer.removeRange([dataNodeRange[1], callExpressionRange[1]]);
 
+				const {sourceCode} = context;
 				if (
 					!isParenthesized(newExpression, sourceCode)
 					&& isParenthesized(newExpression.callee, sourceCode)
