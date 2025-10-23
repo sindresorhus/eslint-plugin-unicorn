@@ -39,7 +39,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const {sourceCode} = context;
 	const scope = sourceCode.getScope(node);
 	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
-	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
+	const secondArgumentRange = getParenthesizedRange(secondArgument, context);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
 	if (firstArgumentStaticResult?.value === 0) {
@@ -70,7 +70,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
-	const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
+	const firstArgumentText = getParenthesizedText(firstArgument, context);
 	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, sourceCode);
 
 	if (!secondArgument) {
@@ -83,14 +83,14 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 			return;
 		}
 
-		const firstArgumentRange = getParenthesizedRange(firstArgument, sourceCode);
+		const firstArgumentRange = getParenthesizedRange(firstArgument, context);
 		yield fixer.insertTextBeforeRange(firstArgumentRange, 'Math.max(0, ');
 		yield fixer.insertTextAfterRange(firstArgumentRange, ')');
 		return;
 	}
 
 	const secondNumber = getNumericValue(secondArgument);
-	const secondArgumentText = getParenthesizedText(secondArgument, sourceCode);
+	const secondArgumentText = getParenthesizedText(secondArgument, context);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
 
 	if (firstNumber !== undefined && secondNumber !== undefined) {

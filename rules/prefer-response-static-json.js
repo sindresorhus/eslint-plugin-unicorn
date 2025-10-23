@@ -45,7 +45,7 @@ const create = context => ({
 
 				const [dataNode] = jsonStringifyNode.arguments;
 				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, sourceCode);
-				const dataNodeRange = getParenthesizedRange(dataNode, sourceCode);
+				const dataNodeRange = getParenthesizedRange(dataNode, context);
 				// `(( JSON.stringify( (( data )), ) ))`
 				//  ^^^^^^^^^^^^^^^^^^^
 				yield fixer.removeRange([callExpressionRange[0], dataNodeRange[0]]);

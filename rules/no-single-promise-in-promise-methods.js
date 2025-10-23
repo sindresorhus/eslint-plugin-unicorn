@@ -30,9 +30,10 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0]
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
-const unwrapAwaitedCallExpression = (callExpression, sourceCode) => fixer => {
+const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
+	const {sourceCode} = context;
 	const [promiseNode] = callExpression.arguments[0].elements;
-	let text = getParenthesizedText(promiseNode, sourceCode);
+	let text = getParenthesizedText(promiseNode, context);
 
 	if (
 		!isParenthesized(promiseNode, sourceCode)
@@ -136,7 +137,7 @@ const create = context => ({
 				|| isExpressionStatement(callExpression.parent.parent)
 			)
 		) {
-			problem.fix = unwrapAwaitedCallExpression(callExpression, sourceCode);
+			problem.fix = unwrapAwaitedCallExpression(callExpression, context);
 			return problem;
 		}
 

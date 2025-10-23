@@ -75,11 +75,12 @@ function removeThisArgument(thisArgumentNode, sourceCode) {
 	return fixer => removeArgument(fixer, thisArgumentNode, sourceCode);
 }
 
-function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
+function useBoundFunction(callbackNode, thisArgumentNode, context) {
+	const {sourceCode} = context;
 	return function * (fixer) {
 		yield removeThisArgument(thisArgumentNode, sourceCode)(fixer);
 
-		const callbackParentheses = getParentheses(callbackNode, sourceCode);
+		const callbackParentheses = getParentheses(callbackNode, context);
 		const isParenthesized = callbackParentheses.length > 0;
 		const callbackLastToken = isParenthesized
 			? callbackParentheses.at(-1)
@@ -92,14 +93,14 @@ function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
 			yield fixer.insertTextAfter(callbackLastToken, ')');
 		}
 
-		const thisArgumentText = getParenthesizedText(thisArgumentNode, sourceCode);
+		const thisArgumentText = getParenthesizedText(thisArgumentNode, context);
 		// `thisArgument` was a argument, no need add extra parentheses
 		yield fixer.insertTextAfter(callbackLastToken, `.bind(${thisArgumentText})`);
 	};
 }
 
 function getProblem({
-	sourceCode,
+	context,
 	callExpression,
 	callbackNode,
 	thisArgumentNode,
@@ -113,6 +114,7 @@ function getProblem({
 		},
 	};
 
+	const {sourceCode} = context;
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
 		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
@@ -137,7 +139,7 @@ function getProblem({
 		},
 		{
 			messageId: SUGGESTION_BIND,
-			fix: useBoundFunction(callbackNode, thisArgumentNode, sourceCode),
+			fix: useBoundFunction(callbackNode, thisArgumentNode, context),
 		},
 	];
 
@@ -174,7 +176,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[0],
 			thisArgumentNode: callExpression.arguments[1],
@@ -198,7 +200,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[1],
 			thisArgumentNode: callExpression.arguments[2],

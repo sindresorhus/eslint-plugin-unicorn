@@ -95,7 +95,7 @@ function noArrayMutateRule(methodName) {
 					suggestions.push({
 						messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
 						* fix(fixer) {
-							const text = getParenthesizedText(array.elements[0].argument, sourceCode);
+							const text = getParenthesizedText(array.elements[0].argument, context);
 							yield fixer.replaceText(array, text);
 							yield fixMethodName(fixer);
 						},

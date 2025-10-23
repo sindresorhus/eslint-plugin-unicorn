@@ -103,7 +103,7 @@ const create = context => {
 			};
 
 			function * fix(fixer, fixType) {
-				let targetText = getParenthesizedText(target, sourceCode);
+				let targetText = getParenthesizedText(target, context);
 				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
 				const isTargetParenthesized = isParenthesized(target, sourceCode);
 
@@ -163,7 +163,7 @@ const create = context => {
 				yield fixer.replaceText(node.callee.property, method);
 
 				// Replace argument with result.string
-				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), escapeString(result.string));
+				yield fixer.replaceTextRange(getParenthesizedRange(target, context), escapeString(result.string));
 			}
 
 			if (isString || !isNonString) {

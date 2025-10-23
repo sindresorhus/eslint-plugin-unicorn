@@ -4,7 +4,7 @@ import {getParentheses} from '../utils/parentheses.js';
 export default function removeArgument(fixer, node, sourceCode) {
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
-	const parentheses = getParentheses(node, sourceCode);
+	const parentheses = getParentheses(node, context);
 	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
 

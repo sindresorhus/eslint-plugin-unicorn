@@ -40,7 +40,7 @@ const removeFallback = (node, context) =>
 		const {left} = logicalExpression;
 		const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 		const [, start] = isLeftObjectParenthesized
-			? getParenthesizedRange(left, sourceCode)
+			? getParenthesizedRange(left, context)
 			: sourceCode.getRange(left);
 		const [, end] = sourceCode.getRange(logicalExpression);
 

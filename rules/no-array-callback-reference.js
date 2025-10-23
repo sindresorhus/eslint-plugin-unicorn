@@ -192,7 +192,7 @@ function getProblem(context, node, method, options) {
 			},
 			fix(fixer) {
 				const {sourceCode} = context;
-				let text = getParenthesizedText(node, sourceCode);
+				let text = getParenthesizedText(node, context);
 
 				if (
 					!isParenthesized(node, sourceCode)

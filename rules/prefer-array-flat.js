@@ -157,13 +157,14 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
-function fix(node, array, sourceCode, shouldSwitchToArray, optional) {
+function fix(node, array, context, shouldSwitchToArray, optional) {
+	const {sourceCode} = context;
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
 	return function * (fixer) {
-		let fixed = getParenthesizedText(array, sourceCode);
+		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
 			fixed = `[${fixed}]`;
@@ -237,7 +238,7 @@ function create(context) {
 					sourceCode.getCommentsInside(node).length
 					=== sourceCode.getCommentsInside(array).length
 				) {
-					problem.fix = fix(node, array, sourceCode, shouldSwitchToArray, optional);
+					problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
 				}
 
 				yield problem;

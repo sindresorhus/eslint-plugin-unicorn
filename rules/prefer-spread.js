@@ -50,10 +50,11 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	return isCommaToken(sourceCode.getLastToken(node, 1));
 };
 
-function fixConcat(node, sourceCode, fixableArguments) {
+function fixConcat(node, context, fixableArguments) {
+	const {sourceCode} = context;
 	const array = node.callee.object;
 	const concatCallArguments = node.arguments;
-	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
+	const arrayParenthesizedRange = getParenthesizedRange(array, context);
 	const arrayIsArrayLiteral = isArrayLiteral(array);
 	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
 
@@ -81,7 +82,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
-				let text = getParenthesizedText(node, sourceCode);
+				let text = getParenthesizedText(node, context);
 
 				if (testArgument) {
 					return `...(Array.isArray(${text}) ? ${text} : [${text}])`;
@@ -125,7 +126,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const [firstArgument] = concatCallArguments;
 		const lastArgument = concatCallArguments[fixableArguments.length - 1];
 
-		const [start] = getParenthesizedRange(firstArgument, sourceCode);
+		const [start] = getParenthesizedRange(firstArgument, context);
 		let [, end] = sourceCode.getRange(sourceCode.getTokenAfter(lastArgument, isCommaToken));
 
 		const textAfter = sourceCode.text.slice(end);
@@ -208,7 +209,7 @@ function fixArrayFrom(node, sourceCode) {
 			return sourceCode.getText(object);
 		}
 
-		const [start, end] = getParenthesizedRange(object, sourceCode);
+		const [start, end] = getParenthesizedRange(object, context);
 		const text = sourceCode.text.slice(start, end);
 
 		return `[...${text}]`;
@@ -331,7 +332,7 @@ const create = context => {
 		const fixableArguments = getConcatFixableArguments(node.arguments, scope);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
-			problem.fix = fixConcat(node, sourceCode, fixableArguments);
+			problem.fix = fixConcat(node, context, fixableArguments);
 			return problem;
 		}
 
@@ -363,7 +364,7 @@ const create = context => {
 			messageId,
 			fix: fixConcat(
 				node,
-				sourceCode,
+				context,
 				// When apply suggestion, we also merge fixable arguments after the first one
 				[
 					{
@@ -384,7 +385,7 @@ const create = context => {
 				messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
 				fix: fixConcat(
 					node,
-					sourceCode,
+					context,
 					node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true}),
 				),
 			});

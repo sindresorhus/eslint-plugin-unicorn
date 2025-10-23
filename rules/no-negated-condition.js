@@ -43,7 +43,7 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 		node.consequent,
 		node.alternate,
 	].map(node => {
-		const range = getParenthesizedRange(node, sourceCode);
+		const range = getParenthesizedRange(node, context);
 		let text = sourceCode.text.slice(...range);
 		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
 		if (isIfStatement && node.type !== 'BlockStatement') {

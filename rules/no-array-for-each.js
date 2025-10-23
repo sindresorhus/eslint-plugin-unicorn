@@ -193,7 +193,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
-		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+		const closingParenthesisTokens = getParentheses(callback, context)
 			.filter(token => isClosingParenToken(token));
 
 		for (const closingParenthesisToken of closingParenthesisTokens) {

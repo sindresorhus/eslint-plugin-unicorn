@@ -258,13 +258,13 @@ const create = context => {
 				end: sourceCode.getLoc(lastUndefined).end,
 			},
 			fix(fixer) {
-				let [start] = getParenthesizedRange(firstUndefined, sourceCode);
-				let [, end] = getParenthesizedRange(lastUndefined, sourceCode);
+				let [start] = getParenthesizedRange(firstUndefined, context);
+				let [, end] = getParenthesizedRange(lastUndefined, context);
 
 				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
 
 				if (previousArgument) {
-					[, start] = getParenthesizedRange(previousArgument, sourceCode);
+					[, start] = getParenthesizedRange(previousArgument, context);
 				} else {
 					// If all arguments removed, and there is trailing comma, we need remove it.
 					const tokenAfter = sourceCode.getTokenBefore(sourceCode.getLastToken(node));

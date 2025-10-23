@@ -114,8 +114,8 @@ const create = context => {
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					fix(fixer) {
 						const {left, right} = node.parent;
-						const leftRange = getParenthesizedRange(left, sourceCode);
-						const rightRange = getParenthesizedRange(right, sourceCode);
+						const leftRange = getParenthesizedRange(left, context);
+						const rightRange = getParenthesizedRange(right, context);
 						const range = [];
 						if (left === node) {
 							range[0] = leftRange[0];

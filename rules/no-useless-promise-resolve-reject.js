@@ -115,7 +115,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 
 			if (isYieldExpression) {
 				return fixer.replaceTextRange(
-					getParenthesizedRange(parent, sourceCode),
+					getParenthesizedRange(parent, context),
 					text,
 				);
 			}
@@ -126,7 +126,7 @@ function fix(callExpression, isInTryStatement, sourceCode) {
 			if (isArrowFunctionBody) {
 				text = `{ ${text} }`;
 				return fixer.replaceTextRange(
-					getParenthesizedRange(callExpression, sourceCode),
+					getParenthesizedRange(callExpression, context),
 					text,
 				);
 			}

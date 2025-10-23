@@ -48,7 +48,7 @@ const create = context => {
 	});
 
 	const getText = node => {
-		let text = getParenthesizedText(node, sourceCode);
+		let text = getParenthesizedText(node, context);
 		if (
 			!isParenthesized(node, sourceCode)
 			&& shouldAddParenthesesToConditionalExpressionChild(node)

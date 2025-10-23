@@ -9,7 +9,7 @@ const isProblematicToken = ({type, value}) => (
 );
 
 export default function * fixSpaceAroundKeyword(fixer, node, sourceCode) {
-	const range = getParenthesizedRange(node, sourceCode);
+	const range = getParenthesizedRange(node, context);
 	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
 
 	if (

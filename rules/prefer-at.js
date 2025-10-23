@@ -271,7 +271,7 @@ function create(context) {
 
 			// Remove extra arguments
 			if (sliceCall.arguments.length !== 1) {
-				const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
+				const [, start] = getParenthesizedRange(sliceCall.arguments[0], context);
 				const [end] = sourceCode.getRange(sourceCode.getLastToken(sliceCall));
 				yield fixer.removeRange([start, end]);
 			}
@@ -321,7 +321,7 @@ function create(context) {
 		}
 
 		problem.fix = function (fixer) {
-			let fixed = getParenthesizedText(array, sourceCode);
+			let fixed = getParenthesizedText(array, context);
 
 			if (
 				!isParenthesized(array, sourceCode)

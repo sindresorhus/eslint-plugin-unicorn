@@ -1,16 +1,21 @@
 import {isParenthesized, isOpeningParenToken, isClosingParenToken} from '@eslint-community/eslint-utils';
 
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 /*
 Get how many times the node is parenthesized.
 
-@param {Node} node - The node to be checked.
-@param {SourceCode} sourceCode - The source code object.
+@param {ESTree.Node} node - The node to be checked.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {number}
 */
-export function getParenthesizedTimes(node, sourceCode) {
+function getParenthesizedTimes(node, context) {
 	let times = 0;
 
-	while (isParenthesized(times + 1, node, sourceCode)) {
+	while (isParenthesized(times + 1, node, context.sourceCode)) {
 		times++;
 	}
 
@@ -20,47 +25,47 @@ export function getParenthesizedTimes(node, sourceCode) {
 /*
 Get all parentheses tokens around the node.
 
-@param {Node} node - The node to be checked.
-@param {SourceCode} sourceCode - The source code object.
+@param {ESTree.Node} node - The node to be checked.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {Token[]}
 */
-export function getParentheses(node, sourceCode) {
-	const count = getParenthesizedTimes(node, sourceCode);
+export function getParentheses(node, context) {
+	const count = getParenthesizedTimes(node, context);
 
 	if (count === 0) {
 		return [];
 	}
 
 	return [
-		...sourceCode.getTokensBefore(node, {count, filter: isOpeningParenToken}),
-		...sourceCode.getTokensAfter(node, {count, filter: isClosingParenToken}),
+		...context.sourceCode.getTokensBefore(node, {count, filter: isOpeningParenToken}),
+		...context.sourceCode.getTokensAfter(node, {count, filter: isClosingParenToken}),
 	];
 }
 
 /*
 Get the parenthesized range of the node.
 
-@param {Node} node - The node to be checked.
-@param {SourceCode} sourceCode - The source code object.
+@param {ESTree.Node} node - The node to be checked.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {number[]}
 */
-export function getParenthesizedRange(node, sourceCode) {
-	const parentheses = getParentheses(node, sourceCode);
-	const [start] = sourceCode.getRange(parentheses[0] ?? node);
-	const [, end] = sourceCode.getRange(parentheses.at(-1) ?? node);
+export function getParenthesizedRange(node, context) {
+	const parentheses = getParentheses(node, context);
+	const [start] = context.sourceCode.getRange(parentheses[0] ?? node);
+	const [, end] = context.sourceCode.getRange(parentheses.at(-1) ?? node);
 	return [start, end];
 }
 
 /*
 Get the parenthesized text of the node.
 
-@param {Node} node - The node to be checked.
-@param {SourceCode} sourceCode - The source code object.
+@param {ESTree.Node} node - The node to be checked.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {string}
 */
-export function getParenthesizedText(node, sourceCode) {
-	const [start, end] = getParenthesizedRange(node, sourceCode);
-	return sourceCode.text.slice(start, end);
+export function getParenthesizedText(node, context) {
+	const [start, end] = getParenthesizedRange(node, context);
+	return context.sourceCode.text.slice(start, end);
 }
 
 export {isParenthesized} from '@eslint-community/eslint-utils';

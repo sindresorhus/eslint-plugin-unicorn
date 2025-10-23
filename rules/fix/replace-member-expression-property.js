@@ -1,7 +1,7 @@
 import {getParenthesizedRange} from '../utils/parentheses.js';
 
 export function replaceMemberExpressionProperty(fixer, memberExpression, sourceCode, text) {
-	const [, start] = getParenthesizedRange(memberExpression.object, sourceCode);
+	const [, start] = getParenthesizedRange(memberExpression.object, context);
 	const [, end] = sourceCode.getRange(memberExpression);
 	return fixer.replaceTextRange([start, end], text);
 }

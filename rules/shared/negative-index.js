@@ -33,7 +33,7 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 }
 
 export function removeLengthNode(node, fixer, sourceCode) {
-	const [start, end] = getParenthesizedRange(node, sourceCode);
+	const [start, end] = getParenthesizedRange(node, context);
 	return fixer.removeRange([
 		start,
 		end + sourceCode.text.slice(end).match(/\S|$/).index,

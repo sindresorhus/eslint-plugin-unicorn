@@ -53,7 +53,7 @@ const create = context => {
 			const isOptionalParentNode = isMemberExpressionOptionalObject(parentNode);
 
 			const createFix = (optional = false) => fixer => {
-				let childNodeText = getParenthesizedText(childNode, sourceCode);
+				let childNodeText = getParenthesizedText(childNode, context);
 				if (
 					!isParenthesized(childNode, sourceCode)
 					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
