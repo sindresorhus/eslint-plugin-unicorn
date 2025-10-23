@@ -22,7 +22,7 @@ function * convertNegatedCondition(fixer, node, sourceCode) {
 		const token = sourceCode.getFirstToken(test);
 
 		if (node.type === 'IfStatement') {
-			yield * removeParentheses(test.argument, fixer, sourceCode);
+			yield * removeParentheses(test.argument, fixer, context);
 		}
 
 		yield fixer.remove(token);

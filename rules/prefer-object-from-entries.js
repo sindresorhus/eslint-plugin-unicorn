@@ -144,7 +144,7 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		const functionBody = callExpression.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
-		yield * removeParentheses(functionBody, fixer, sourceCode);
+		yield * removeParentheses(functionBody, fixer, context);
 	}
 
 	return function * (fixer) {

@@ -161,7 +161,7 @@ const create = context => {
 						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
 						yield * replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, sourceCode);
-						yield * removeParentheses(expression, fixer, sourceCode);
+						yield * removeParentheses(expression, fixer, context);
 					}
 
 					// `x ** 2` => `x`

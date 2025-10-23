@@ -203,7 +203,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	return function * (fixer) {
 		// `(( foo.forEach(bar => bar) ))`
-		yield * removeParentheses(callExpression, fixer, sourceCode);
+		yield * removeParentheses(callExpression, fixer, context);
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)

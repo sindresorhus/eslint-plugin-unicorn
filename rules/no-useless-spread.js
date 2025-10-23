@@ -154,7 +154,7 @@ const create = context => {
 
 				// `[...(( [foo] ))]`
 				//      ^^       ^^
-				yield * removeParentheses(spreadObject, fixer, sourceCode);
+				yield * removeParentheses(spreadObject, fixer, context);
 
 				// `[...[foo]]`
 				//      ^
