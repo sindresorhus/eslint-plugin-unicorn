@@ -333,7 +333,7 @@ function create(context) {
 			fixed = `${fixed}.at(-1)`;
 
 			const tokenBefore = sourceCode.getTokenBefore(node);
-			if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+			if (needsSemicolon(tokenBefore, context, fixed)) {
 				fixed = `;${fixed}`;
 			}
 
