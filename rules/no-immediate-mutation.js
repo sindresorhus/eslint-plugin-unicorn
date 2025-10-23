@@ -36,76 +36,91 @@ const hasVariableInNodes = (variable, nodes, context) => {
 	});
 };
 
-const isVariableDeclaratorMatches = (variableDeclarator, predicate) => {
-	if (!(
-		variableDeclarator.id.type === 'Identifier'
-		&& predicate(variableDeclarator.init)
-	)) {
-		return false;
-	}
+function * removeExpressionStatementAfterDeclaration(context, fixer, expressionStatement, variableDeclaration) {
+	yield removeExpressionStatement(expressionStatement, fixer, context);
 
-	const variableDeclaration = variableDeclarator.parent;
-	if (!(
-		variableDeclaration.type === 'VariableDeclaration'
-		&& variableDeclaration.kind === 'const'
-		&& variableDeclaration.declarations.at(-1) === variableDeclarator
-	)) {
-		return false;
-	}
-
-	return true;
-};
-
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
 	const {sourceCode} = context;
+	const tokenBefore = sourceCode.getTokenBefore(variableDeclaration);
+	const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
+	if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
+		yield fixer.insertTextBefore(tokenAfter, ';');
+	}
+}
 
+const cases = [
 	// Array
-	context.on('VariableDeclarator', variableDeclarator => {
-		if (!isVariableDeclaratorMatches(variableDeclarator, init => init?.type === 'ArrayExpression')) {
-			return;
-		}
+	{
+		testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ArrayExpression',
+		getProblematicNode({
+			context,
+			variableName,
+			variable,
+			expressionStatementAfterDeclaration,
+		}) {
+			let callExpression = expressionStatementAfterDeclaration.expression;
+			if (callExpression.type === 'ChainExpression') {
+				callExpression = callExpression.expression;
+			}
 
-		const variableDeclaration = variableDeclarator.parent;
-		const expressionStatement = getNextNode(variableDeclaration, sourceCode);
-		if (expressionStatement?.type !== 'ExpressionStatement') {
-			return;
-		}
+			if (!(
+				isMethodCall(callExpression, {object: variableName, methods: ['push', 'unshift']})
+				&& callExpression.arguments.length > 0
+			)) {
+				return;
+			}
 
-		const variableName = variableDeclarator.id.name;
-		let callExpression = expressionStatement.expression;
-		if (callExpression.type === 'ChainExpression') {
-			callExpression = callExpression.expression;
-		}
+			if (hasVariableInNodes(variable, callExpression.arguments, context)) {
+				return;
+			}
 
-		if (!(
-			isMethodCall(callExpression, {object: variableName, methods: ['push', 'unshift']})
-			&& callExpression.arguments.length > 0
-		)) {
-			return;
-		}
+			return callExpression;
+		},
+		getProblem(callExpression, information) {
+			const {
+				context,
+				getFix,
+			} = information;
+			const {sourceCode} = context;
+			const method = callExpression.callee.property;
+			const problem = {
+				node: method,
+				messageId: MESSAGE_ID_ERROR,
+				data: {description: 'array'},
+			};
 
-		const variable = getVariable(variableDeclarator, context);
+			const isPrepend = method.name === 'unshift';
+			const fix = getFix(information, {
+				callExpression,
+				isPrepend,
+			});
 
-		/* c8 ignore next */
-		if (!variable) {
-			return;
-		}
+			if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_ARRAY_SUGGESTION,
+						fix,
+						data: {operation: isPrepend ? 'Prepend' : 'Append'},
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
 
-		if (hasVariableInNodes(variable, callExpression.arguments, context)) {
-			return;
-		}
-
-		const method = callExpression.callee.property;
-		const problem = {
-			node: method,
-			messageId: MESSAGE_ID_ERROR,
-			data: {description: 'array'},
-		};
-
-		const isPrepend = method.name === 'unshift';
-
-		const fix = function * (fixer) {
+			return problem;
+		},
+		getFix: (
+			{
+				context,
+				variableDeclarator,
+				variableDeclaration,
+				expressionStatementAfterDeclaration,
+			},
+			{
+				callExpression,
+				isPrepend,
+			},
+		) => function * (fixer) {
+			const {sourceCode} = context;
 			const arrayExpression = variableDeclarator.init;
 
 			if (isPrepend) {
@@ -129,79 +144,103 @@ const create = context => {
 				);
 			}
 
-			yield removeExpressionStatement(expressionStatement, fixer, context);
-
-			const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
-			const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
-			if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
-				yield fixer.insertTextBefore(tokenAfter, ';');
-			}
-		};
-
-		if (callExpression.arguments.some(element => hasSideEffect(element, sourceCode))) {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_ARRAY_SUGGESTION,
-					fix,
-					data: {operation: isPrepend ? 'Prepend' : 'Append'},
-				},
-			];
-		} else {
-			problem.fix = fix;
-		}
-
-		return problem;
-	});
-
-	// Object
-	context.on('VariableDeclarator', variableDeclarator => {
-		if (!isVariableDeclaratorMatches(variableDeclarator, init => init?.type === 'ObjectExpression')) {
-			return;
-		}
-
-		const variableDeclaration = variableDeclarator.parent;
-		const expressionStatement = getNextNode(variableDeclaration, sourceCode);
-		if (expressionStatement?.type !== 'ExpressionStatement') {
-			return;
-		}
-
-		const variableName = variableDeclarator.id.name;
-		const assignmentExpression = expressionStatement.expression;
-		if (!(
-			assignmentExpression.type === 'AssignmentExpression'
-			&& assignmentExpression.operator === '='
-			&& isMemberExpression(assignmentExpression.left, {object: variableName, optional: false})
-		)) {
-			return;
-		}
-
-		const value = assignmentExpression.right;
-		const memberExpression = assignmentExpression.left;
-		const {property} = memberExpression;
-		const variable = getVariable(variableDeclarator, context);
-
-		/* c8 ignore next */
-		if (!variable) {
-			return;
-		}
-
-		if (
-			hasVariableInNodes(
-				variable,
-				memberExpression.computed ? [property, value] : [value],
+			yield * removeExpressionStatementAfterDeclaration(
 				context,
-			)
-		) {
-			return;
-		}
+				fixer,
+				expressionStatementAfterDeclaration,
+				variableDeclaration,
+			);
+		},
+	},
+	// Object
+	{
+		testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
+		getProblematicNode({
+			context,
+			variableName,
+			variable,
+			expressionStatementAfterDeclaration,
+		}) {
+			const assignmentExpression = expressionStatementAfterDeclaration.expression;
+			if (!(
+				assignmentExpression.type === 'AssignmentExpression'
+				&& assignmentExpression.operator === '='
+				&& isMemberExpression(assignmentExpression.left, {object: variableName, optional: false})
+			)) {
+				return;
+			}
 
-		const problem = {
-			node: property,
-			messageId: MESSAGE_ID_ERROR,
-			data: {description: 'object'},
-		};
+			const value = assignmentExpression.right;
+			const memberExpression = assignmentExpression.left;
+			const {property} = memberExpression;
 
-		const fix = function * (fixer) {
+			if (
+				hasVariableInNodes(
+					variable,
+					memberExpression.computed ? [property, value] : [value],
+					context,
+				)
+			) {
+				return;
+			}
+
+			return assignmentExpression;
+		},
+		getProblem(assignmentExpression, information) {
+			const {
+				context,
+				getFix,
+			} = information;
+			const {sourceCode} = context;
+			const {
+				left: memberExpression,
+				right: value,
+			} = assignmentExpression;
+
+			const {property} = memberExpression;
+
+			const problem = {
+				node: property,
+				messageId: MESSAGE_ID_ERROR,
+				data: {description: 'object'},
+			};
+			const fix = getFix(information, {
+				assignmentExpression,
+				memberExpression,
+				property,
+				value,
+			});
+
+			if (
+				(memberExpression.computed && hasSideEffect(property, sourceCode))
+				|| hasSideEffect(value, sourceCode)
+			) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_OBJECT_SUGGESTION,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			return problem;
+		},
+		getFix: (
+			{
+				context,
+				variableDeclarator,
+				variableDeclaration,
+				expressionStatementAfterDeclaration,
+			},
+			{
+				memberExpression,
+				property,
+				value,
+			},
+		) => function * (fixer) {
+			const {sourceCode} = context;
 			const objectExpression = variableDeclarator.init;
 
 			let propertyText = getParenthesizedText(property, sourceCode);
@@ -223,30 +262,80 @@ const create = context => {
 				`${shouldInsertComma ? ',' : ''} ${text}`,
 			);
 
-			yield removeExpressionStatement(expressionStatement, fixer, context);
+			yield * removeExpressionStatementAfterDeclaration(
+				context,
+				fixer,
+				expressionStatementAfterDeclaration,
+				variableDeclaration,
+			);
+		},
+	},
+];
 
-			const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
-			const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
-			if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
-				yield fixer.insertTextBefore(tokenAfter, ';');
-			}
-		};
+function getCaseProblem(
+	context,
+	variableDeclarator,
+	{
+		testDeclarator,
+		getProblematicNode,
+		getProblem,
+		getFix,
+	},
+) {
+	if (!(
+		variableDeclarator.id.type === 'Identifier'
+		&& testDeclarator(variableDeclarator)
+	)) {
+		return;
+	}
 
-		if (
-			(memberExpression.computed && hasSideEffect(property, sourceCode))
-			|| hasSideEffect(value, sourceCode)
-		) {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_OBJECT_SUGGESTION,
-					fix,
-				},
-			];
-		} else {
-			problem.fix = fix;
+	const variableDeclaration = variableDeclarator.parent;
+	if (!(
+		variableDeclaration.type === 'VariableDeclaration'
+		&& variableDeclaration.kind === 'const'
+		&& variableDeclaration.declarations.at(-1) === variableDeclarator
+	)) {
+		return;
+	}
+
+	const expressionStatementAfterDeclaration = getNextNode(variableDeclaration, context.sourceCode);
+	if (expressionStatementAfterDeclaration?.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const variableName = variableDeclarator.id.name;
+	const variable = getVariable(variableDeclarator, context);
+
+	/* c8 ignore next */
+	if (!variable) {
+		return;
+	}
+
+	const information = {
+		context,
+		variableName,
+		variable,
+		variableDeclarator,
+		variableDeclaration,
+		expressionStatementAfterDeclaration,
+		getFix,
+	};
+
+	const problemNode = getProblematicNode(information);
+
+	if (!problemNode) {
+		return;
+	}
+
+	return getProblem(problemNode, information);
+}
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	context.on('VariableDeclarator', function * (variableDeclarator) {
+		for (const caseSettings of cases) {
+			yield getCaseProblem(context, variableDeclarator, caseSettings);
 		}
-
-		return problem;
 	});
 };
 
