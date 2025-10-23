@@ -63,7 +63,7 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 
 	yield * fixSpaceAroundKeyword(fixer, node, context);
 
-	const range = getParenthesizedRange(left, tokenStore);
+	const range = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
@@ -85,12 +85,12 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 
 	yield * fixSpaceAroundKeyword(fixer, node, context);
 
-	const leftRange = getParenthesizedRange(left, tokenStore);
+	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
 
 	yield fixer.replaceText(instanceofToken, '===');
 
-	const rightRange = getParenthesizedRange(right, tokenStore);
+	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
 	yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
 };
