@@ -28,7 +28,7 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 		}
 
 		case 'NewExpression': {
-			return !isNewExpressionWithParentheses(node, context.sourceCode);
+			return !isNewExpressionWithParentheses(node, context);
 		}
 
 		case 'Literal': {

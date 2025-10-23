@@ -9,7 +9,7 @@ export default function * switchNewExpressionToCallExpression(newExpression, sou
 	yield fixer.remove(newToken);
 	yield removeSpaceAfter(newToken, sourceCode, fixer);
 
-	if (!isNewExpressionWithParentheses(newExpression, sourceCode)) {
+	if (!isNewExpressionWithParentheses(newExpression, context)) {
 		yield fixer.insertTextAfter(newExpression, '()');
 	}
 
