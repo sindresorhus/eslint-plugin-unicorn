@@ -21,3 +21,4 @@ export {default as replaceNodeOrTokenAndSpacesBefore} from './replace-node-or-to
 export {default as fixSpaceAroundKeyword} from './fix-space-around-keywords.js';
 export {default as replaceStringRaw} from './replace-string-raw.js';
 export {default as addParenthesizesToReturnOrThrowExpression} from './add-parenthesizes-to-return-or-throw-expression.js';
+import {default as isNewExpressionWithParentheses} from '../utils/is-new-expression-with-parentheses.js';

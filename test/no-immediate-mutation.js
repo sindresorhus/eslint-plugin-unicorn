@@ -340,6 +340,14 @@ test.snapshot({
 			set.add(3);
 		`,
 		outdent`
+			const set = (( new Set ));
+			set.add(3);
+		`,
+		outdent`
+			const set = new (( Set ));
+			set.add(3);
+		`,
+		outdent`
 			const otherVariable = 1,
 				set = new Set;
 			set.add(3);
@@ -388,6 +396,16 @@ test.snapshot({
 		`,
 		outdent`
 			const set = new Set([1, 2])
+			set.add(3);
+			notNeeded.map()
+		`,
+		outdent`
+			const set = new Set
+			set.add(3);
+			[0].map()
+		`,
+		outdent`
+			const set = new Set
 			set.add(3);
 			notNeeded.map()
 		`,

@@ -1,4 +1,4 @@
-import getCallExpressionTokens from './get-call-expression-tokens.js';
+import {getCallExpressionTokens} from './get-call-or-new-expression-tokens.js';
 
 /** @typedef {import('estree').CallExpression} CallExpression */
 

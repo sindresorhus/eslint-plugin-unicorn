@@ -1,4 +1,5 @@
 import {isOpeningParenToken, isCommaToken} from '@eslint-community/eslint-utils';
+import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
 
 /** @typedef {import('estree').CallExpression} CallExpression */
 /** @typedef {import('eslint').AST.Token} Token */
@@ -14,7 +15,7 @@ Get the `openingParenthesisToken`, `closingParenthesisToken`, and `trailingComma
 	trailingCommaToken: Token | undefined,
 }}
 */
-export default function getCallExpressionTokens(sourceCode, callExpression) {
+function getCallOrNewExpressionTokens(sourceCode, callExpression) {
 	const openingParenthesisToken = sourceCode.getTokenAfter(callExpression.callee, isOpeningParenToken);
 	const [
 		penultimateToken,
@@ -28,3 +29,13 @@ export default function getCallExpressionTokens(sourceCode, callExpression) {
 		trailingCommaToken,
 	};
 }
+
+function getNewExpressionTokens(souceCode, newExpression) {
+	if (!isNewExpressionWithParentheses(newExpression, souceCode)) {
+		return {}
+	}
+
+	return getCallOrNewExpressionTokens(souceCode, newExpression)
+}
+
+export {getCallOrNewExpressionTokens as getCallExpressionTokens, getNewExpressionTokens}
