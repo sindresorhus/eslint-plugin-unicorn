@@ -81,7 +81,9 @@ function appendElementsTextToArrayExpression(context, fixer, arrayExpression, el
 	);
 }
 
-function * appendElementsTextToSetConstructor(context, fixer, {
+function * appendElementsTextToSetConstructor({
+	context,
+	fixer,
 	newExpression,
 	elementsText,
 	expressionStatementAfterDeclaration,
@@ -412,16 +414,14 @@ const setMutationSettings = {
 			callExpression,
 			/* IncludeTrailingComma */ false,
 		);
-		return appendElementsTextToSetConstructor(
+		return appendElementsTextToSetConstructor({
 			context,
 			fixer,
-			{
-				newExpression,
-				elementsText,
-				expressionStatementAfterDeclaration,
-				variableDeclaration,
-			},
-		);
+			newExpression,
+			elementsText,
+			expressionStatementAfterDeclaration,
+			variableDeclaration,
+		});
 	},
 };
 
@@ -486,7 +486,6 @@ const mapMutationSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclarator,
 			variableDeclaration,
 			expressionStatementAfterDeclaration,
 		},
@@ -495,15 +494,20 @@ const mapMutationSettings = {
 			newExpression,
 		},
 	) => fixer => {
-		const {sourceCode} = context;
-		const [keyText, valueText] = callExpression.arguments.map(argument_ => getParenthesizedText(argument_, sourceCode));
-		const entryText = `[${keyText}, ${valueText}]`;
-		return appendElementsTextToSetConstructor(
+		const argumentsText = getCallExpressionArgumentsText(
+			context.sourceCode,
+			callExpression,
+			/* IncludeTrailingComma */ false,
+		);
+		const entryText = `[${argumentsText}]`;
+		return appendElementsTextToSetConstructor({
 			context,
 			fixer,
 			newExpression,
-			entryText,
-		);
+			elementsText: entryText,
+			expressionStatementAfterDeclaration,
+			variableDeclaration,
+		});
 	},
 };
 
@@ -511,6 +515,7 @@ const cases = [
 	arrayMutationSettings,
 	objectMutationSettings,
 	setMutationSettings,
+	mapMutationSettings,
 ];
 
 function getCaseProblem(
