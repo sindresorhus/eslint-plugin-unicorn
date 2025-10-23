@@ -113,19 +113,18 @@ function getProblem({
 		},
 	};
 
-	const {sourceCode} = context;
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
-		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
+		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, context.sourceCode);
 		if (thisArgumentHasSideEffect) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(thisArgumentNode, sourceCode),
+					fix: removeThisArgument(thisArgumentNode, context),
 				},
 			];
 		} else {
-			problem.fix = removeThisArgument(thisArgumentNode, sourceCode);
+			problem.fix = removeThisArgument(thisArgumentNode, context);
 		}
 
 		return problem;
@@ -134,7 +133,7 @@ function getProblem({
 	problem.suggest = [
 		{
 			messageId: SUGGESTION_REMOVE,
-			fix: removeThisArgument(thisArgumentNode, sourceCode),
+			fix: removeThisArgument(thisArgumentNode, context),
 		},
 		{
 			messageId: SUGGESTION_BIND,
