@@ -13,12 +13,12 @@ import {getParentheses} from '../utils/parentheses.js';
 @returns {ESLint.Rule.ReportFixer}
 */
 export default function removeArgument(fixer, node, context) {
-	const {sourceCode} = context;
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, context);
 	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
+	const {sourceCode} = context;
 
 	let [start] = sourceCode.getRange(firstToken);
 	let [, end] = sourceCode.getRange(lastToken);

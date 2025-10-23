@@ -17,7 +17,7 @@ export default function * removeMethodCall(fixer, callExpression, context) {
 
 	// `(( (( foo )).bar ))()`
 	//              ^^^^
-	yield removeMemberExpressionProperty(fixer, memberExpression, context.sourceCode);
+	yield removeMemberExpressionProperty(fixer, memberExpression, context);
 
 	// `(( (( foo )).bar ))()`
 	//                     ^^
