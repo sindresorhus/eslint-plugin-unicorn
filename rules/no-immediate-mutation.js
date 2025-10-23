@@ -163,7 +163,7 @@ const arrayMutationSettings = {
 			getFix,
 		} = information;
 		const {sourceCode} = context;
-		const memberExpression = callExpression.callee
+		const memberExpression = callExpression.callee;
 		const method = memberExpression.property;
 		const problem = {
 			node: memberExpression,
@@ -269,7 +269,7 @@ const objectMutationSettings = {
 		} = assignmentExpression;
 
 		const {property} = memberExpression;
-		const operatorToken = sourceCode.getTokenAfter(memberExpression, token => token.type === 'Punctuator' && token.value === assignmentExpression.operator)
+		const operatorToken = sourceCode.getTokenAfter(memberExpression, token => token.type === 'Punctuator' && token.value === assignmentExpression.operator);
 
 		const problem = {
 			node: assignmentExpression,
@@ -379,7 +379,6 @@ const setMutationSettings = {
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
-		const method = memberExpression.property;
 		const newExpression = variableDeclarator.init;
 		const problem = {
 			node: memberExpression,
@@ -464,7 +463,6 @@ const mapMutationSettings = {
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
-		const method = memberExpression.property;
 		const newExpression = variableDeclarator.init;
 		const problem = {
 			node: memberExpression,
