@@ -2,6 +2,11 @@ import {} from './ast/index.js';
 import {} from './fix/index.js';
 import {} from './utils/index.js';
 
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 <% if (hasSuggestions) { %>
 const MESSAGE_ID_ERROR = '<%= id %>/error';
 const MESSAGE_ID_SUGGESTION = '<%= id %>/suggestion';
@@ -16,7 +21,7 @@ const messages = {
 };
 <% } %>
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	return {
 		Literal(node) {
@@ -32,11 +37,10 @@ const create = context => {
 					replacement: '🦄',
 				},
 				<% if (fixableType) { %>
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				/** @param {ESLint.Rule.RuleFixer} fixer */
 				fix: fixer => fixer.replaceText(node, '\'🦄\''),
 				<% } %>
 				<% if (hasSuggestions) { %>
-				/** @param {import('eslint').Rule.RuleFixer} fixer */
 				suggest: [
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
@@ -44,7 +48,7 @@ const create = context => {
 							value: 'unicorn',
 							replacement: '🦄',
 						},
-						/** @param {import('eslint').Rule.RuleFixer} fixer */
+						/** @param {ESLint.Rule.RuleFixer} fixer */
 						fix: fixer => fixer.replaceText(node, '\'🦄\''),
 					}
 				],
