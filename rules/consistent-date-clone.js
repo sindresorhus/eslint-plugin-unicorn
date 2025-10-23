@@ -32,7 +32,7 @@ const create = context => ({
 				end: sourceCode.getLoc(callExpression).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
-			fix: fixer => removeMethodCall(fixer, callExpression, sourceCode),
+			fix: fixer => removeMethodCall(fixer, callExpression, context),
 		};
 	},
 });

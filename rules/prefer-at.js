@@ -280,7 +280,7 @@ function create(context) {
 			if (firstElementGetMethod === 'zero-index') {
 				yield removeMemberExpressionProperty(fixer, sliceCall.parent, context);
 			} else {
-				yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
+				yield * removeMethodCall(fixer, sliceCall.parent.parent, context);
 			}
 		}
 

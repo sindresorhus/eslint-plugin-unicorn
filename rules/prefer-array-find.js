@@ -227,7 +227,7 @@ const create = context => {
 			messageId: ERROR_SHIFT,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -361,7 +361,7 @@ const create = context => {
 			messageId: ERROR_AT_ZERO,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -390,7 +390,7 @@ const create = context => {
 			messageId: ERROR_POP,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -420,7 +420,7 @@ const create = context => {
 			messageId: ERROR_AT_MINUS_ONE,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
