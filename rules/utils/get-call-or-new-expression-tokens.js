@@ -32,10 +32,10 @@ function getCallOrNewExpressionTokens(sourceCode, callExpression) {
 
 function getNewExpressionTokens(souceCode, newExpression) {
 	if (!isNewExpressionWithParentheses(newExpression, souceCode)) {
-		return {}
+		return {};
 	}
 
-	return getCallOrNewExpressionTokens(souceCode, newExpression)
+	return getCallOrNewExpressionTokens(souceCode, newExpression);
 }
 
-export {getCallOrNewExpressionTokens as getCallExpressionTokens, getNewExpressionTokens}
+export {getCallOrNewExpressionTokens as getCallExpressionTokens, getNewExpressionTokens};
