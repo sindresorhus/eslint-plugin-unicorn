@@ -113,7 +113,7 @@ const create = context => {
 					&& !isParenthesized(node, sourceCode)
 					&& !isParenthesized(test, sourceCode)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 

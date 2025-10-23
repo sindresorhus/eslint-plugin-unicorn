@@ -58,7 +58,7 @@ const create = context => ({
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
 							if (!isOnSameLine(returnToken, tokenAfterBang)) {
-								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}
 

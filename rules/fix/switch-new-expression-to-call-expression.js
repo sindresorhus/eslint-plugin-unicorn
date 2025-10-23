@@ -26,6 +26,6 @@ export default function * switchNewExpressionToCallExpression(newExpression, sou
 	if (!isOnSameLine(newToken, newExpression.callee) && !isParenthesized(newExpression, sourceCode)) {
 		// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
 		// But adding extra parentheses is harmless, no need to be too complicated
-		yield * addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, sourceCode);
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, context);
 	}
 }

@@ -94,7 +94,7 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 		&& !isOnSameLine(openingBracketToken, thirdToken)
 		&& !isParenthesized(arrayExpression, sourceCode)
 	) {
-		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
