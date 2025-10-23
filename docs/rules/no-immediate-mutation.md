@@ -9,10 +9,10 @@
 
 Immediate mutation after declaration is not allowed when it can be done in the variable initialization step.
 
-1. Declare an array literal and immediately mutation with `Array#{push,unshift}(…)`.
-1. Declare an object literal and immediately assign another property.
-1. Declare a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
-1. Declare a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
+- Declare an array literal and immediately mutation with `Array#{push,unshift}(…)`.
+- Declare an object literal and immediately assign another property.
+- Declare a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
+- Declare a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples
 
