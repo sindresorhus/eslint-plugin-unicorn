@@ -231,7 +231,7 @@ const create = context => {
 						generatedNames.add(errorName);
 					}
 
-					const indentString = getIndentString(node, sourceCode);
+					const indentString = getIndentString(node, context);
 
 					after = after
 						.replace('{{INDENT_STRING}}', indentString)
