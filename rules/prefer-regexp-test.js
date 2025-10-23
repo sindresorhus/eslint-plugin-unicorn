@@ -58,7 +58,7 @@ const cases = [
 			let regexpText = sourceCode.getText(regexpNode);
 			if (
 				!isParenthesized(stringNode, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
 			) {
 				regexpText = `(${regexpText})`;
 			}

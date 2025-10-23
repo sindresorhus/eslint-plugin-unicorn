@@ -56,7 +56,7 @@ const create = context => {
 				let childNodeText = getParenthesizedText(childNode, context);
 				if (
 					!isParenthesized(childNode, sourceCode)
-					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(childNode, context)
 				) {
 					childNodeText = `(${childNodeText})`;
 				}

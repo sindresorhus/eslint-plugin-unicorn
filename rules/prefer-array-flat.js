@@ -171,7 +171,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
 			!isParenthesized(array, sourceCode)
-			&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(array, context)
 		) {
 			fixed = `(${fixed})`;
 		}

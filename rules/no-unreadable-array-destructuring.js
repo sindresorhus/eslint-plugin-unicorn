@@ -50,7 +50,7 @@ const create = context => {
 						const array = parent.init;
 						if (
 							!isParenthesized(array, sourceCode)
-							&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+							&& shouldAddParenthesesToMemberExpressionObject(array, context)
 						) {
 							yield fixer.insertTextBefore(array, '(');
 							yield fixer.insertTextAfter(parent, `)${code}`);

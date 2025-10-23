@@ -105,7 +105,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 				// `1?.forEach()` -> `(1).entries()`
 					isOptionalObject
 					&& shouldUseEntries
-					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, context)
 				);
 
 		text += shouldAddParenthesesToObject ? `(${objectText})` : objectText;

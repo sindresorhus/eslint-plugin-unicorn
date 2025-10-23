@@ -325,7 +325,7 @@ function create(context) {
 
 			if (
 				!isParenthesized(array, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(array, context)
 			) {
 				fixed = `(${fixed})`;
 			}

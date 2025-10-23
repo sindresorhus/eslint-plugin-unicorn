@@ -87,7 +87,7 @@ function useBoundFunction(callbackNode, thisArgumentNode, context) {
 			: callbackNode;
 		if (
 			!isParenthesized
-			&& shouldAddParenthesesToMemberExpressionObject(callbackNode, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(callbackNode, context)
 		) {
 			yield fixer.insertTextBefore(callbackLastToken, '(');
 			yield fixer.insertTextAfter(callbackLastToken, ')');
