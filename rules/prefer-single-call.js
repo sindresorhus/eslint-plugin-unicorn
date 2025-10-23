@@ -14,7 +14,6 @@ const messages = {
 
 const isClassList = node => isMemberExpression(node, {
 	property: 'classList',
-	optional: false,
 	computed: false,
 });
 
@@ -24,7 +23,6 @@ const cases = [
 		test: callExpression => isMethodCall(callExpression, {
 			method: 'push',
 			optionalCall: false,
-			optionalMember: false,
 		}),
 		ignore: [
 			'stream.push',
@@ -57,10 +55,7 @@ const cases = [
 	},
 	{
 		description: 'importScripts()',
-		test: callExpression => isCallExpression(callExpression, {
-			name: 'importScripts',
-			optional: false,
-		}),
+		test: callExpression => isCallExpression(callExpression, {name: 'importScripts'}),
 	},
 ];
 
@@ -76,7 +71,7 @@ function create(context) {
 	return {
 		* CallExpression(secondCall) {
 			for (const {description, test, ignore = []} of cases) {
-				if (!test(secondCall) || secondCall.parent.type !== 'ExpressionStatement') {
+				if (!test(secondCall)) {
 					continue;
 				}
 
@@ -85,12 +80,26 @@ function create(context) {
 					continue;
 				}
 
-				const previousNode = getPreviousNode(secondCall.parent, sourceCode);
-				if (previousNode?.type !== 'ExpressionStatement') {
+				let secondExpressionStatement = secondCall.parent;
+				if (secondExpressionStatement.type === 'ChainExpression' && secondCall === secondExpressionStatement.expression) {
+					secondExpressionStatement = secondExpressionStatement.parent;
+				}
+
+				if (secondExpressionStatement.type !== 'ExpressionStatement') {
 					continue;
 				}
 
-				const firstCall = previousNode.expression;
+				const firstExpressionStatement = getPreviousNode(secondExpressionStatement, sourceCode);
+				if (firstExpressionStatement?.type !== 'ExpressionStatement') {
+					continue;
+				}
+
+				let firstCall = firstExpressionStatement.expression;
+
+				if (firstCall.type === 'ChainExpression') {
+					firstCall = firstCall.expression;
+				}
+
 				if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
 					continue;
 				}
@@ -118,12 +127,10 @@ function create(context) {
 						);
 					}
 
-					const firstExpression = firstCall.parent;
-					const secondExpression = secondCall.parent;
-					const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpression))
-						&& isSemicolonToken(sourceCode.getLastToken(secondExpression));
-					const [, start] = sourceCode.getRange(firstExpression);
-					const [, end] = sourceCode.getRange(secondExpression);
+					const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpressionStatement))
+						&& isSemicolonToken(sourceCode.getLastToken(secondExpressionStatement));
+					const [, start] = sourceCode.getRange(firstExpressionStatement);
+					const [, end] = sourceCode.getRange(secondExpressionStatement);
 
 					yield fixer.replaceTextRange([start, end], shouldKeepSemicolon ? ';' : '');
 				};
