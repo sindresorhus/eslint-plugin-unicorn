@@ -184,7 +184,7 @@ const create = context => {
 				text = `${text};`;
 			}
 
-			if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, text)) {
+			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 				text = `;${text}`;
 			}
 

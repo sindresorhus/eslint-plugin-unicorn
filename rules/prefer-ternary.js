@@ -244,7 +244,7 @@ const create = context => {
 
 				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
 				const tokenBefore = sourceCode.getTokenBefore(node);
-				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
+				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
 				if (shouldAddSemicolonBefore) {
 					fixed = `;${fixed}`;
 				}

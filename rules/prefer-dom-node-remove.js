@@ -61,7 +61,7 @@ const create = context => {
 					childNodeText = `(${childNodeText})`;
 				}
 
-				if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, childNodeText)) {
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, childNodeText)) {
 					childNodeText = `;${childNodeText}`;
 				}
 

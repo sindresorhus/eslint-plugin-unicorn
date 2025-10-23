@@ -58,7 +58,7 @@ const create = context => ({
 					&& isParenthesized(newExpression.callee, sourceCode)
 				) {
 					const tokenBefore = sourceCode.getTokenBefore(newExpression);
-					if (needsSemicolon(tokenBefore, sourceCode, '(')) {
+					if (needsSemicolon(tokenBefore, context, '(')) {
 						yield fixer.insertTextBefore(newExpression, ';');
 					}
 				}

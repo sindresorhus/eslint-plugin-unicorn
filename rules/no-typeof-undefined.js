@@ -86,7 +86,7 @@ const create = context => {
 				}
 
 				const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
-				if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+				if (needsSemicolon(tokenBefore, context, secondToken.value)) {
 					yield fixer.insertTextBefore(binaryExpression, ';');
 				}
 			};

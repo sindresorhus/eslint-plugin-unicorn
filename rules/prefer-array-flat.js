@@ -179,7 +179,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 		fixed = `${fixed}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
-		if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+		if (needsSemicolon(tokenBefore, context, fixed)) {
 			fixed = `;${fixed}`;
 		}
 

@@ -65,7 +65,7 @@ const create = context => ({
 						yield fixer.remove(bangToken);
 
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						if (needsSemicolon(previousToken, sourceCode, tokenAfterBang.value)) {
+						if (needsSemicolon(previousToken, context, tokenAfterBang.value)) {
 							yield fixer.insertTextAfter(bangToken, ';');
 						}
 

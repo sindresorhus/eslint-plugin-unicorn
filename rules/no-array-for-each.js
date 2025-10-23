@@ -155,7 +155,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		if (insertBraces) {
 			textBefore = `{ ${textBefore}`;
-		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
+		} else if (needsSemicolon(previousToken, context, shouldAddParentheses ? '(' : nextToken.value)) {
 			textBefore = `;${textBefore}`;
 		}
 

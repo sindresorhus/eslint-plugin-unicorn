@@ -65,7 +65,7 @@ const unwrapNonAwaitedCallExpression = (callExpression, sourceCode) => fixer => 
 	}
 
 	const previousToken = sourceCode.getTokenBefore(callExpression);
-	if (needsSemicolon(previousToken, sourceCode, text)) {
+	if (needsSemicolon(previousToken, context, text)) {
 		text = `;${text}`;
 	}
 

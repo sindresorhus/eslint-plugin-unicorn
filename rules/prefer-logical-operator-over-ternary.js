@@ -77,7 +77,7 @@ function fix({
 	// There should be no cases need add parentheses when switching ternary to logical expression
 
 	// ASI
-	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), sourceCode, text)) {
+	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {
 		text = `;${text}`;
 	}
 

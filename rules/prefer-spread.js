@@ -140,7 +140,7 @@ function fixConcat(node, context, fixableArguments) {
 		// Fixed code always starts with `[`
 		if (
 			!arrayIsArrayLiteral
-			&& needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
+			&& needsSemicolon(sourceCode.getTokenBefore(node), context, '[')
 		) {
 			yield fixer.insertTextBefore(node, ';');
 		}
@@ -217,7 +217,7 @@ function fixArrayFrom(node, sourceCode) {
 
 	return function * (fixer) {
 		// Fixed code always starts with `[`
-		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+		if (needsSemicolon(sourceCode.getTokenBefore(node), context, '[')) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
@@ -230,7 +230,7 @@ function fixArrayFrom(node, sourceCode) {
 function methodCallToSpread(node, sourceCode) {
 	return function * (fixer) {
 		// Fixed code always starts with `[`
-		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+		if (needsSemicolon(sourceCode.getTokenBefore(node), context, '[')) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 

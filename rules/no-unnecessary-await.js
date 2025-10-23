@@ -84,7 +84,7 @@ const create = context => ({
 
 				const nextToken = sourceCode.getTokenAfter(awaitToken);
 				const tokenBefore = sourceCode.getTokenBefore(awaitToken);
-				if (needsSemicolon(tokenBefore, sourceCode, nextToken.value)) {
+				if (needsSemicolon(tokenBefore, context, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			},

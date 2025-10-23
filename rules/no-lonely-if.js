@@ -96,7 +96,7 @@ function fix(innerIfStatement, sourceCode) {
 			const lastToken = sourceCode.getLastToken(inner.consequent);
 			if (isNotSemicolonToken(lastToken)) {
 				const nextToken = sourceCode.getTokenAfter(outer);
-				if (nextToken && needsSemicolon(lastToken, sourceCode, nextToken.value)) {
+				if (nextToken && needsSemicolon(lastToken, context, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			}

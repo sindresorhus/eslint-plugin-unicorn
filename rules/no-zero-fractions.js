@@ -52,7 +52,7 @@ const create = context => ({
 				) {
 					fixed = `(${fixed})`;
 
-					if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
+					if (needsSemicolon(sourceCode.getTokenBefore(node), context, fixed)) {
 						fixed = `;${fixed}`;
 					}
 				}
