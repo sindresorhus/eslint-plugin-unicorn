@@ -35,7 +35,6 @@ Determines if a semicolon needs to be inserted before `code`, in order to avoid 
 @returns {boolean} `true` if a semicolon needs to be inserted before `code`.
 */
 export default function needsSemicolon(tokenBefore, context, code) {
-	const {sourceCode} = context;
 	if (
 		code === ''
 		|| (code && !charactersMightNeedsSemicolon.has(code.charAt(0)))
@@ -47,6 +46,7 @@ export default function needsSemicolon(tokenBefore, context, code) {
 		return false;
 	}
 
+	const {sourceCode} = context;
 	const {type, value} = tokenBefore;
 	const range = sourceCode.getRange(tokenBefore);
 	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
