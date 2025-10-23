@@ -158,12 +158,12 @@ const lodashFlattenFunctions = [
 ];
 
 function fix(node, array, context, shouldSwitchToArray, optional) {
-	const {sourceCode} = context;
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
 	return function * (fixer) {
+		const {sourceCode} = context;
 		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
