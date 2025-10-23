@@ -33,10 +33,6 @@ test.snapshot({
 			array.push(3, 4);
 		`,
 		outdent`
-			let [array] = [1, 2];
-			array.push(3, 4);
-		`,
-		outdent`
 			const foo = [1, 2];
 			bar.push(3, 4);
 		`,
@@ -47,6 +43,14 @@ test.snapshot({
 		outdent`
 			const array = [1, 2];
 			array.push(((foo) => foo(array.length))());
+		`,
+		outdent`
+			let array;
+			array.push(3, 4);
+		`,
+		outdent`
+			const array = foo;
+			array.push(3, 4);
 		`,
 	],
 	invalid: [
@@ -136,6 +140,18 @@ test.snapshot({
 				4,
 			);
 		`,
+		outdent`
+			const array = [1, 2];
+			array.push(((array) => foo(array.length))());
+		`,
+		outdent`
+			let array= [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			var array = [1, 2];
+			array.push(3, 4);
+		`,
 		// ASI
 		outdent`
 			const array = [1]
@@ -146,10 +162,6 @@ test.snapshot({
 			const array = [1]
 			array.push(2);
 			notNeeded.map()
-		`,
-		outdent`
-			const array = [1, 2];
-			array.push(((array) => foo(array.length))());
 		`,
 	],
 });
@@ -188,6 +200,14 @@ test.snapshot({
 		outdent`
 			const object = {foo: 1};
 			object[object.foo] = 2;
+		`,
+		outdent`
+			var object;
+			object.bar = 2;
+		`,
+		outdent`
+			const object = foo;
+			object.bar = 2;
 		`,
 	],
 	invalid: [
@@ -302,10 +322,6 @@ test.snapshot({
 			set.add(3);
 		`,
 		outdent`
-			let set = new Set([1, 2]);
-			set.add(3);
-		`,
-		outdent`
 			const foo = new Set([1, 2]);
 			bar.add(3);
 		`,
@@ -316,6 +332,14 @@ test.snapshot({
 		outdent`
 			const set = new Set([1, 2]);
 			set.add(((foo) => foo(set.size))());
+		`,
+		outdent`
+			let set;
+			set.add(3);
+		`,
+		outdent`
+			const set = foo;
+			set.add(3);
 		`,
 	],
 	invalid: [
@@ -388,6 +412,14 @@ test.snapshot({
 					3,
 			);
 		`,
+		outdent`
+			let set = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			var set = new Set([1, 2]);
+			set.add(3);
+		`,
 		// ASI
 		outdent`
 			const set = new Set([1, 2])
@@ -459,10 +491,6 @@ test.snapshot({
 			map.set("bar", 2);
 		`,
 		outdent`
-			let map = new Map([["foo", 1]]);
-			map.set("bar", 2);
-		`,
-		outdent`
 			const foo = new Map([["foo", 1]]);
 			bar.set("bar", 2);
 		`,
@@ -481,6 +509,14 @@ test.snapshot({
 		outdent`
 			const map = new Map([["foo", 1]]);
 			map.set(((foo) => foo(map.size))(), 2);
+		`,
+		outdent`
+			let map;
+			map.set("bar", 2);
+		`,
+		outdent`
+			const map = foo;
+			map.set("bar", 2);
 		`,
 	],
 	invalid: [
@@ -557,6 +593,14 @@ test.snapshot({
 					"bar",
 					2,
 			);
+		`,
+		outdent`
+			let map = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			var map = new Map([["foo", 1]]);
+			map.set("bar", 2);
 		`,
 		// ASI
 		outdent`

@@ -546,7 +546,6 @@ function getCaseProblem(
 	const variableDeclaration = variableDeclarator.parent;
 	if (!(
 		variableDeclaration.type === 'VariableDeclaration'
-		&& variableDeclaration.kind === 'const'
 		&& variableDeclaration.declarations.at(-1) === variableDeclarator
 	)) {
 		return;
