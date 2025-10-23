@@ -48,7 +48,7 @@ function * removeExpressionStatementAfterDeclaration(context, fixer, expressionS
 }
 
 const cases = [
-	// Array
+	// `Array`
 	{
 		testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ArrayExpression',
 		getProblematicNode({
@@ -152,7 +152,7 @@ const cases = [
 			);
 		},
 	},
-	// Object
+	// `Object`
 	{
 		testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
 		getProblematicNode({

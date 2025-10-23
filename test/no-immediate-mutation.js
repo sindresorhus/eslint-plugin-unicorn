@@ -3,7 +3,7 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-// Array
+// `Array`
 test.snapshot({
 	valid: [
 		outdent`
@@ -154,7 +154,7 @@ test.snapshot({
 	],
 });
 
-// Object
+// `Object`
 test.snapshot({
 	valid: [
 		outdent`
@@ -256,6 +256,140 @@ test.snapshot({
 			const array = [1]
 			array.push(2)
 			;notNeeded.map()
+		`,
+	],
+});
+
+// `Set` and `WeakSet`
+test.snapshot({
+	valid: [
+		outdent`
+			const set = new Set([1, 2]);
+			set.notAdd(3);
+		`,
+		outdent`
+			const set = new NotSet([1, 2]);
+			set.notAdd(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			; // Not next to each other
+			set.add(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]),
+				otherVariable = 1;
+			set.add(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add();
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(3, 4);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(...bar);
+		`,
+		outdent`
+			const {set} = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			const [set] = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			let set = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			const foo = new Set([1, 2]);
+			bar.add(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(set.size);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(((foo) => foo(set.size))());
+		`,
+	],
+	invalid: [
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			const weakSet = new WeakSet([a, b]);
+			weakSet.add(c);
+		`,
+		outdent`
+			const set = new Set([]);
+			set.add(3);
+		`,
+		outdent`
+			const set = new Set();
+			set.add(3);
+		`,
+		outdent`
+			const set = new Set;
+			set.add(3);
+		`,
+		outdent`
+			const otherVariable = 1,
+				set = new Set;
+			set.add(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add( ((0, 3)), );
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add?.(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set?.add(3);
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			${' \t'.repeat(5)}set.add(3);${' \t'.repeat(5)}
+			foo()
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			${' \t'.repeat(5)}set.add(3);${' \t'.repeat(5)}
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(3); // comment
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set.add(foo());
+		`,
+		outdent`
+			const set = new Set([1, 2]);
+			set
+				.add(
+					3,
+			);
+		`,
+		// ASI
+		outdent`
+			const set = new Set([1, 2])
+			set.add(3);
+			[0].map()
+		`,
+		outdent`
+			const set = new Set([1, 2])
+			set.add(3);
+			notNeeded.map()
 		`,
 	],
 });
