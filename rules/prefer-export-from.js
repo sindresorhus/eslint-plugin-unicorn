@@ -36,7 +36,7 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 		case 'ExportSpecifier':
 		case 'ImportDefaultSpecifier':
 		case 'ImportNamespaceSpecifier': {
-			yield * removeSpecifier(node, fixer, sourceCode);
+			yield * removeSpecifier(node, fixer, context);
 			return;
 		}
 

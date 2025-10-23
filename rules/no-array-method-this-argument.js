@@ -72,7 +72,7 @@ const ignored = [
 ];
 
 function removeThisArgument(thisArgumentNode, sourceCode) {
-	return fixer => removeArgument(fixer, thisArgumentNode, sourceCode);
+	return fixer => removeArgument(fixer, thisArgumentNode, context);
 }
 
 function useBoundFunction(callbackNode, thisArgumentNode, context) {

@@ -12,7 +12,7 @@ const isValueExport = node => !node.exportKind || node.exportKind === 'value';
 const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer) {
 	const declaration = importSpecifier.parent;
 
-	yield * removeSpecifier(importSpecifier, fixer, sourceCode, /* keepDeclaration */ true);
+	yield * removeSpecifier(importSpecifier, fixer, context, /* keepDeclaration */ true);
 
 	const nameText = sourceCode.getText(importSpecifier.local);
 	const hasDefaultImport = declaration.specifiers.some(({type}) => type === 'ImportDefaultSpecifier');
@@ -40,7 +40,7 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 
 const fixExportSpecifier = (exportSpecifier, {sourceCode}) => function * (fixer) {
 	const declaration = exportSpecifier.parent;
-	yield * removeSpecifier(exportSpecifier, fixer, sourceCode);
+	yield * removeSpecifier(exportSpecifier, fixer, context);
 
 	const text = `export default ${sourceCode.getText(exportSpecifier.local)};`;
 	yield fixer.insertTextBefore(declaration, `${text}\n`);

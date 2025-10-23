@@ -1,6 +1,19 @@
 import {isCommaToken, isOpeningBraceToken} from '@eslint-community/eslint-utils';
 
-export default function * removeSpecifier(specifier, fixer, sourceCode, keepDeclaration = false) {
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
+/**
+@param {ESTree.ImportSpecifier | ESTree.ExportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier} specifier
+@param {ESLint.Rule.RuleFixer} fixer
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {boolean} [keepDeclaration = false]
+@returns {ESLint.Rule.ReportFixer}
+*/
+export default function * removeSpecifier(specifier, fixer, context, keepDeclaration = false) {
+	const {sourceCode} = context;
 	const declaration = specifier.parent;
 	const {specifiers} = declaration;
 
