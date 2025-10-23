@@ -188,7 +188,7 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 
 	return function * (fixer) {
 		const firstStatement = ifStatements[0].statement;
-		const indent = getIndentString(firstStatement, sourceCode);
+		const indent = getIndentString(firstStatement, context);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
 		const lastStatement = ifStatements.at(-1).statement;

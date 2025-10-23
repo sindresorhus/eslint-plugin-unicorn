@@ -29,7 +29,7 @@ function * addBraces(fixer, node, sourceCode) {
 	yield fixer.insertTextAfter(colonToken, ' {');
 
 	const lastToken = sourceCode.getLastToken(node);
-	const indent = getIndentString(node, sourceCode);
+	const indent = getIndentString(node, context);
 	yield fixer.insertTextAfter(lastToken, `\n${indent}}`);
 }
 
