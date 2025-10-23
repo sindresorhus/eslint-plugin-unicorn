@@ -134,7 +134,7 @@ const create = context => {
 				&& isSameNode(test.argument, alternate, sourceCode)
 			) {
 				return getProblem({
-					sourceCode,
+					context,
 					conditionalExpression,
 					left: test.argument,
 					right: consequent,
