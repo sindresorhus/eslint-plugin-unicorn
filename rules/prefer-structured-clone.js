@@ -72,7 +72,7 @@ const create = context => {
 							openingParenthesisToken,
 							closingParenthesisToken,
 							trailingCommaToken,
-						} = getCallExpressionTokens(sourceCode, jsonStringify);
+						} = getCallExpressionTokens(jsonStringify, context);
 
 						yield fixer.remove(openingParenthesisToken);
 						yield fixer.remove(closingParenthesisToken);

@@ -63,7 +63,7 @@ const commonJsGlobals = new Set([
 	'__dirname',
 ]);
 
-function fixRequireCall(node, sourceCode) {
+function fixRequireCall(node, context) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
 		return;
 	}
@@ -83,12 +83,12 @@ function fixRequireCall(node, sourceCode) {
 			const {
 				openingParenthesisToken,
 				closingParenthesisToken,
-			} = getCallExpressionTokens(sourceCode, requireCall);
+			} = getCallExpressionTokens(requireCall, context);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
-				yield * removeParentheses(node, fixer, sourceCode);
+				yield * removeParentheses(node, fixer, context.sourceCode);
 			}
 		};
 	}
@@ -122,6 +122,7 @@ function fixRequireCall(node, sourceCode) {
 		const {id} = declarator;
 
 		return function * (fixer) {
+			const {sourceCode} = context;
 			const constToken = sourceCode.getFirstToken(declaration);
 			assertToken(constToken, {
 				expected: {type: 'Keyword', value: 'const'},
@@ -143,7 +144,7 @@ function fixRequireCall(node, sourceCode) {
 			const {
 				openingParenthesisToken,
 				closingParenthesisToken,
-			} = getCallExpressionTokens(sourceCode, requireCall);
+			} = getCallExpressionTokens(requireCall, context);
 			yield fixer.remove(openingParenthesisToken);
 			yield fixer.remove(closingParenthesisToken);
 
@@ -313,7 +314,7 @@ function create(context) {
 			}
 
 			case 'require': {
-				const fix = fixRequireCall(node, sourceCode);
+				const fix = fixRequireCall(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_IMPORT,
