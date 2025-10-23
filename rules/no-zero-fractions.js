@@ -40,7 +40,7 @@ const create = context => ({
 		const end = sourceCode.getRange(node)[0] + before.length + dotAndFractions.length;
 		const start = end - (raw.length - formatted.length);
 		return {
-			loc: toLocation([start, end], sourceCode),
+			loc: toLocation([start, end], context),
 			messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 			* fix(fixer) {
 				let fixed = formatted;

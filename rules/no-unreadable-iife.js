@@ -20,7 +20,7 @@ const create = context => ({
 
 		return {
 			node: callExpression,
-			loc: toLocation(getParenthesizedRange(callExpression.callee.body, context), sourceCode),
+			loc: toLocation(getParenthesizedRange(callExpression.callee.body, context), context),
 			messageId: MESSAGE_ID_ERROR,
 		};
 	},
