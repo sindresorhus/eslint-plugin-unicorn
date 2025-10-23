@@ -41,7 +41,7 @@ const create = context => ({
 			* fix(fixer) {
 				const {sourceCode} = context;
 				yield fixer.insertTextAfter(newExpression.callee, '.json');
-				yield * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer);
+				yield * switchNewExpressionToCallExpression(newExpression, context, fixer);
 
 				const [dataNode] = jsonStringifyNode.arguments;
 				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, sourceCode);

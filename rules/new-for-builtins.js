@@ -72,7 +72,7 @@ function enforceCallExpression({node, path: [name]}, {sourceCode}) {
 
 	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
 		problem.fix = function * (fixer) {
-			yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
+			yield * switchNewExpressionToCallExpression(node, context, fixer);
 		};
 	}
 
