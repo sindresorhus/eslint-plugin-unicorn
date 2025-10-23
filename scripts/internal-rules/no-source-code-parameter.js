@@ -63,16 +63,14 @@ const config = {
 						const variable = context.sourceCode.getDeclaredVariables(functionNode)
 							.find(variable => variable.defs.length === 1 && variable.defs[0].name === parameter);
 
-						const suggestions = [
-							suggestionDestructuringInBody,
-							suggestionMemberAccess,
-							suggestionDestructuringInParameter,
-						].filter(Boolean);
-
 						context.report({
 							node: parameter,
 							messageId: messageIdError,
-							suggest: suggestions.map(type => ({
+							suggest: [
+								suggestionDestructuringInBody,
+								suggestionMemberAccess,
+								suggestionDestructuringInParameter,
+							].map(type => ({
 								messageId: type,
 								fix: fix(context, variable, functionNode, type),
 							})),
