@@ -8,7 +8,7 @@ Get the text of the arguments list of `CallExpression`.
 @param {import('eslint').SourceCode} sourceCode - The source code object.
 @param {CallExpression} callExpression - The `CallExpression` node.
 @param {SourceCode} sourceCode - The source code object.
-@param {SourceCode} [includeTrailingComma = true] - Whether the trailing comma should be included.
+@param {boolean} [includeTrailingComma = true] - Whether the trailing comma should be included.
 @returns {string}
 */
 export default function getCallExpressionArgumentsText(
