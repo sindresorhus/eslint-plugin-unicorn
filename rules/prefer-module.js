@@ -327,7 +327,7 @@ function create(context) {
 			}
 
 			case 'exports': {
-				const fix = fixExports(node, sourceCode);
+				const fix = fixExports(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_EXPORT,
