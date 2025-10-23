@@ -15,7 +15,7 @@ const messages = {
 function * removeBraces(fixer, node, sourceCode) {
 	const [blockStatement] = node.consequent;
 	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, sourceCode);
+	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	yield fixer.remove(closingBraceToken);
