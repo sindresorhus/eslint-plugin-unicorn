@@ -600,7 +600,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow immediate mutation after declaration.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
