@@ -8,12 +8,13 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
 };
 
-const getReplacement = encoding => {
+const getReplacement = (encoding, withDash) => {
 	switch (encoding.toLowerCase()) {
 		// eslint-disable-next-line unicorn/text-encoding-identifier-case
 		case 'utf-8':
 		case 'utf8': {
-			return 'utf8';
+			// eslint-disable-next-line unicorn/text-encoding-identifier-case
+			return withDash ? 'utf-8' : 'utf8';
 		}
 
 		case 'ascii': {
@@ -34,8 +35,12 @@ const isFsReadFileEncoding = node =>
 	&& node.parent.arguments[0].type !== 'SpreadElement';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	Literal(node) {
+const create = context => {
+	const {
+		withDash,
+	} = context.options[0];
+
+	context.on('Literal', node => {
 		if (typeof node.value !== 'string') {
 			return;
 		}
@@ -58,7 +63,7 @@ const create = () => ({
 		const {raw} = node;
 		const value = raw.slice(1, -1);
 
-		const replacement = getReplacement(value);
+		const replacement = getReplacement(value, withDash);
 		if (!replacement || replacement === value) {
 			return;
 		}
@@ -88,8 +93,20 @@ const create = () => ({
 		];
 
 		return problem;
+	});
+};
+
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			withDash: {
+				type: 'boolean',
+			},
+		},
 	},
-});
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -102,6 +119,10 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
+		defaultOptions: [{
+			withDash: false,
+		}],
 		messages,
 	},
 };
