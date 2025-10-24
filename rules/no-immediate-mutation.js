@@ -56,13 +56,18 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 	return (!iterable || iterable.type === 'ArrayExpression');
 }
 
-function * removeExpressionStatementAfterDeclaration(context, fixer, expressionStatement, variableDeclaration) {
-	yield removeExpressionStatement(expressionStatement, fixer, context);
+function * removeExpressionStatementAfterDeclaration(expressionStatement, context, fixer) {
+	yield removeExpressionStatement(expressionStatement, context, fixer);
 
 	const {sourceCode} = context;
-	const tokenBefore = sourceCode.getTokenBefore(variableDeclaration);
+	const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
+
+	if (isSemicolonToken(tokenBefore)) {
+		return;
+	}
+
 	const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
-	if (tokenAfter && needsSemicolon(tokenBefore, sourceCode, tokenAfter.value)) {
+	if (tokenAfter && needsSemicolon(tokenBefore, context, tokenAfter.value)) {
 		yield fixer.insertTextBefore(tokenAfter, ';');
 	}
 }
@@ -101,10 +106,9 @@ function * appendElementsTextToSetConstructor({
 		}
 
 		yield * removeExpressionStatementAfterDeclaration(
+			expressionStatementAfterDeclaration,
 			context,
 			fixer,
-			expressionStatementAfterDeclaration,
-			variableDeclaration,
 		);
 
 		return;
@@ -118,7 +122,7 @@ function * appendElementsTextToSetConstructor({
 	```
 	*/
 	yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
-	yield removeExpressionStatement(expressionStatementAfterDeclaration, fixer, context);
+	yield removeExpressionStatement(expressionStatementAfterDeclaration, context, fixer);
 
 	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utility
 	// We just simply check if the `variableDeclaration` ends with `;`
@@ -193,7 +197,6 @@ const arrayMutationSettings = {
 		{
 			context,
 			variableDeclarator,
-			variableDeclaration,
 			expressionStatementAfterDeclaration,
 		},
 		{
@@ -212,10 +215,9 @@ const arrayMutationSettings = {
 			: appendElementsTextToArrayExpression(context, fixer, arrayExpression, text));
 
 		yield * removeExpressionStatementAfterDeclaration(
+			expressionStatementAfterDeclaration,
 			context,
 			fixer,
-			expressionStatementAfterDeclaration,
-			variableDeclaration,
 		);
 	},
 };
@@ -304,7 +306,6 @@ const objectMutationSettings = {
 		{
 			context,
 			variableDeclarator,
-			variableDeclaration,
 			expressionStatementAfterDeclaration,
 		},
 		{
@@ -335,10 +336,9 @@ const objectMutationSettings = {
 		);
 
 		yield * removeExpressionStatementAfterDeclaration(
+			expressionStatementAfterDeclaration,
 			context,
 			fixer,
-			expressionStatementAfterDeclaration,
-			variableDeclaration,
 		);
 	},
 };

@@ -163,6 +163,13 @@ test.snapshot({
 			array.push(2);
 			notNeeded.map()
 		`,
+		outdent`
+			if(1) {
+				const array = [1]
+				array.push(2);
+				[0].map()
+			}
+		`,
 	],
 });
 
@@ -648,4 +655,4 @@ test.snapshot({
 			cellOutputMappers.set('display_data', translateDisplayDataOutput);
 		`,
 	],
-})
+});
