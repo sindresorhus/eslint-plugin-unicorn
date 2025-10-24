@@ -3,14 +3,14 @@ import UnicornListeners from './unicorn-listeners.js';
 
 /**
 @import * as ESLint from 'eslint';
-@import {UnicornRuleContext} from './unicorn-context.js';
+@import {UnicornContext} from './unicorn-context.js';
 */
 
 /**
 @typedef {keyof ESLint.Rule.RuleListener} ListenerType
 @typedef {valueof ESLint.Rule.RuleListener} Listener
 @typedef {ESLint.Rule.RuleModule['create']} EslintCreate
-@typedef {(context: UnicornRuleContext) => (ReturnType<EslintCreate> | void)} UnicornCreate
+@typedef {(context: UnicornContext) => (ReturnType<EslintCreate> | void)} UnicornCreate
 @typedef {ESLint.Rule['RuleListener']} EslintListers
 */
 

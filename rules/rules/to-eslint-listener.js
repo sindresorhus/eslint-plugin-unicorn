@@ -13,7 +13,7 @@ import toEslintProblem from './to-eslint-problem.js';
 @typedef {ESLint & {
 	on: UnicornRuleListen
 	onExit: UnicornRuleListen
-}} UnicornRuleContext
+}} UnicornContext
 */
 
 function toEslintListener(context, listener) {

@@ -8,7 +8,7 @@
 @typedef {ESLint & {
 	on: UnicornRuleListen
 	onExit: UnicornRuleListen
-}} UnicornRuleContext
+}} UnicornContext
 */
 
 /**
@@ -16,7 +16,7 @@ Create a better `Context` object with `on` and `onExit` method to add listeners
 
 @param {ESLint.Rule.RuleContext} eslintContext
 @param {UnicornListeners} listeners
-@returns {UnicornRuleContext}
+@returns {UnicornContext}
 */
 function createUnicornContext(eslintContext, listeners) {
 	const context = new Proxy(eslintContext, {
