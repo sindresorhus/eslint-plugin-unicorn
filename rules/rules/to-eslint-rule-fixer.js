@@ -17,7 +17,7 @@ const fixOptions = {
 /**
 @typedef {ESLint.Rule.ReportFixer | undefined} EslintReportFixer
 @typedef {EslintReportFixer | IterableIterator<EslintReportFixer>} UnicornReportFixer
-@typedef {(fixer: ESLint.Rule.RuleFixer, options: typeof fixOptions) => } UnicornRuleFixer
+@typedef {(fixer: ESLint.Rule.RuleFixer, options: typeof fixOptions) => UnicornReportFixer} UnicornRuleFixer
 */
 
 /**

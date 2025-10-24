@@ -10,7 +10,7 @@ import UnicornListeners from './unicorn-listeners.js';
 @typedef {keyof ESLint.Rule.RuleListener} ListenerType
 @typedef {valueof ESLint.Rule.RuleListener} Listener
 @typedef {ESLint.Rule.RuleModule['create']} EslintCreate
-@typedef {(context: UnicornRuleContext) => ReturnType<EslintCreate> | void} UnicornCreate
+@typedef {(context: UnicornRuleContext) => (ReturnType<EslintCreate> | void)} UnicornCreate
 @typedef {ESLint.Rule['RuleListener']} EslintListers
 */
 

@@ -1,14 +1,22 @@
 import toEslintCreate from './to-eslint-create.js';
 import getDocumentationUrl from '../utils/get-documentation-url.js';
+
 /**
 @import * as ESLint from 'eslint';
+@import {UnicornCreate} from './to-eslint-create.js';
+*/
+
+/**
+@typedef {ESLint.Rule.RuleModule & {
+	create: UnicornCreate
+}} UnicornRule
 */
 
 /**
 Convert Unicorn rule to Eslint rule
 
 @param {string} ruleId
-@param {*} unicornRule
+@param {UnicornRule} unicornRule
 @returns {ESLint.Rule.RuleModule}
 */
 function toEslintRule(ruleId, unicornRule) {
