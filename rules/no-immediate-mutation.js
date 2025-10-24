@@ -127,8 +127,14 @@ function * appendElementsTextToSetConstructor({
 	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utility
 	// We just simply check if the `variableDeclaration` ends with `;`
 	const lastTokenInDeclaration = context.sourceCode.getLastToken(variableDeclaration);
-	if (!isSemicolonToken(lastTokenInDeclaration)) {
-		yield fixer.insertTextAfter(lastTokenInDeclaration, ';');
+	if (isSemicolonToken(lastTokenInDeclaration)) {
+		return;
+	}
+
+	const tokenAfter = context.sourceCode.getTokenAfter(expressionStatementAfterDeclaration);
+
+	if (tokenAfter) {
+		yield fixer.insertTextBefore(tokenAfter, ';');
 	}
 }
 
