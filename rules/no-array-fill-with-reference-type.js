@@ -94,7 +94,8 @@ function getReturnNodeOfArrayDotFrom(functionNode, context) {
 	}
 
 	// Should not check reference type if the identifier is declared in the current function
-	if (result?.declaredInCurrentFunction) {
+	// or is global
+	if (result?.declaredInCurrentFunction || result?.isGlobal) {
 		return;
 	}
 
@@ -107,7 +108,7 @@ function getReturnNodeOfArrayDotFrom(functionNode, context) {
 
  @param {import('estree').FunctionExpression | Node} node - callback for map
  @param {RuleContext} context
- @returns {{ returnNode: Node, declaredInCurrentFunction: boolean }}
+ @returns {{ returnNode: Node, declaredInCurrentFunction: boolean, isGlobal?: boolean }}
  */
 function getReturnIdentifier(node, context) {
 	if (node.type === 'Identifier') {
@@ -117,7 +118,7 @@ function getReturnIdentifier(node, context) {
 
 		if (!variable) {
 			// Not check if the identifier is not declared
-			return {returnNode: node, declaredInCurrentFunction: true};
+			return {returnNode: node, declaredInCurrentFunction: false, isGlobal: true};
 		}
 
 		// Must be ArrowFunctionExpression or FunctionExpression
