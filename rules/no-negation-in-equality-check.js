@@ -47,7 +47,7 @@ const create = context => ({
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode);
+						yield * fixSpaceAroundKeyword(fixer, binaryExpression, context);
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
@@ -58,14 +58,14 @@ const create = context => ({
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
 							if (!isOnSameLine(returnToken, tokenAfterBang)) {
-								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}
 
 						yield fixer.remove(bangToken);
 
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						if (needsSemicolon(previousToken, sourceCode, tokenAfterBang.value)) {
+						if (needsSemicolon(previousToken, context, tokenAfterBang.value)) {
 							yield fixer.insertTextAfter(bangToken, ';');
 						}
 

@@ -48,7 +48,8 @@ function getCommaTokens(arrayExpression, sourceCode) {
 	});
 }
 
-function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
+function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
+	const {sourceCode} = context;
 	const [
 		openingBracketToken,
 		spreadToken,
@@ -94,11 +95,11 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, sourceCode) {
 		&& !isOnSameLine(openingBracketToken, thirdToken)
 		&& !isParenthesized(arrayExpression, sourceCode)
 	) {
-		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
-	yield * fixSpaceAroundKeyword(fixer, arrayExpression, sourceCode);
+	yield * fixSpaceAroundKeyword(fixer, arrayExpression, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -154,7 +155,7 @@ const create = context => {
 
 				// `[...(( [foo] ))]`
 				//      ^^       ^^
-				yield * removeParentheses(spreadObject, fixer, sourceCode);
+				yield * removeParentheses(spreadObject, fixer, context);
 
 				// `[...[foo]]`
 				//      ^
@@ -277,7 +278,7 @@ const create = context => {
 			node: arrayExpression,
 			messageId,
 			data: {parentDescription},
-			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, context),
 		};
 	});
 
@@ -366,7 +367,7 @@ const create = context => {
 		}
 
 		return Object.assign(problem, {
-			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, sourceCode),
+			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, context),
 		});
 	});
 };

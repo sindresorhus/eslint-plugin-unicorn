@@ -105,7 +105,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 				// `1?.forEach()` -> `(1).entries()`
 					isOptionalObject
 					&& shouldUseEntries
-					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, context)
 				);
 
 		text += shouldAddParenthesesToObject ? `(${objectText})` : objectText;
@@ -121,7 +121,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	const getForOfLoopHeadRange = () => {
 		const [start] = sourceCode.getRange(callExpression);
-		const [end] = getParenthesizedRange(callback.body, sourceCode);
+		const [end] = getParenthesizedRange(callback.body, context);
 		return [start, end];
 	};
 
@@ -155,7 +155,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		if (insertBraces) {
 			textBefore = `{ ${textBefore}`;
-		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
+		} else if (needsSemicolon(previousToken, context, shouldAddParentheses ? '(' : nextToken.value)) {
 			textBefore = `;${textBefore}`;
 		}
 
@@ -193,7 +193,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
-		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+		const closingParenthesisTokens = getParentheses(callback, context)
 			.filter(token => isClosingParenToken(token));
 
 		for (const closingParenthesisToken of closingParenthesisTokens) {
@@ -203,7 +203,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	return function * (fixer) {
 		// `(( foo.forEach(bar => bar) ))`
-		yield * removeParentheses(callExpression, fixer, sourceCode);
+		yield * removeParentheses(callExpression, fixer, context);
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
@@ -255,7 +255,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(callExpression, ' }');
 		}
 
-		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
+		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, context);
 
 		if (isOptionalObject) {
 			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);

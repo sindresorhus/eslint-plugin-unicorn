@@ -1,4 +1,10 @@
 /* eslint-disable complexity */
+
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 // https://github.com/eslint/espree/blob/6b7d0b8100537dcd5c84a7fb17bbe28edcabe05d/lib/token-translator.js#L20
 const tokenTypesNeedsSemicolon = new Set([
 	'String',
@@ -23,12 +29,12 @@ const charactersMightNeedsSemicolon = new Set([
 /**
 Determines if a semicolon needs to be inserted before `code`, in order to avoid a SyntaxError.
 
-@param {Token} tokenBefore Token before `code`.
-@param {SourceCode} sourceCode
+@param {ESTree.Token} tokenBefore Token before `code`.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @param {String} [code] Code text to determine.
 @returns {boolean} `true` if a semicolon needs to be inserted before `code`.
 */
-export default function needsSemicolon(tokenBefore, sourceCode, code) {
+export default function needsSemicolon(tokenBefore, context, code) {
 	if (
 		code === ''
 		|| (code && !charactersMightNeedsSemicolon.has(code.charAt(0)))
@@ -40,6 +46,7 @@ export default function needsSemicolon(tokenBefore, sourceCode, code) {
 		return false;
 	}
 
+	const {sourceCode} = context;
 	const {type, value} = tokenBefore;
 	const range = sourceCode.getRange(tokenBefore);
 	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);

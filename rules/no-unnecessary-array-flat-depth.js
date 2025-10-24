@@ -26,7 +26,7 @@ const create = context => {
 			node: numberOne,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => removeArgument(fixer, numberOne, context.sourceCode),
+			fix: fixer => removeArgument(fixer, numberOne, context),
 		};
 	});
 };

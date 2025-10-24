@@ -52,15 +52,16 @@ function isSameNode(left, right, sourceCode) {
 
 function fix({
 	fixer,
-	sourceCode,
+	context,
 	conditionalExpression,
 	left,
 	right,
 	operator,
 }) {
+	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
 		const isNodeParenthesized = isParenthesized(node, sourceCode);
-		let text = isNodeParenthesized ? getParenthesizedText(node, sourceCode) : sourceCode.getText(node);
+		let text = isNodeParenthesized ? getParenthesizedText(node, context) : sourceCode.getText(node);
 
 		if (
 			!isNodeParenthesized
@@ -76,7 +77,7 @@ function fix({
 	// There should be no cases need add parentheses when switching ternary to logical expression
 
 	// ASI
-	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), sourceCode, text)) {
+	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {
 		text = `;${text}`;
 	}
 
@@ -84,7 +85,7 @@ function fix({
 }
 
 function getProblem({
-	sourceCode,
+	context,
 	conditionalExpression,
 	left,
 	right,
@@ -97,7 +98,7 @@ function getProblem({
 			data: {operator},
 			fix: fixer => fix({
 				fixer,
-				sourceCode,
+				context,
 				conditionalExpression,
 				left,
 				right,
@@ -118,7 +119,7 @@ const create = context => {
 			// `foo ? foo : bar`
 			if (isSameNode(test, consequent, sourceCode)) {
 				return getProblem({
-					sourceCode,
+					context,
 					conditionalExpression,
 					left: test,
 					right: alternate,
@@ -133,7 +134,7 @@ const create = context => {
 				&& isSameNode(test.argument, alternate, sourceCode)
 			) {
 				return getProblem({
-					sourceCode,
+					context,
 					conditionalExpression,
 					left: test.argument,
 					right: consequent,

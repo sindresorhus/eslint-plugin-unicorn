@@ -29,7 +29,7 @@ const config = {
 					node: property,
 					messageId,
 					* fix(fixer) {
-						yield removeArgument(fixer, emptyString, context.sourceCode);
+						yield removeArgument(fixer, emptyString, context);
 						yield fixer.replaceText(property, 'removeRange');
 					},
 				});

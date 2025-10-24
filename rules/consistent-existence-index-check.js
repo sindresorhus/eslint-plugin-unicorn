@@ -101,7 +101,7 @@ const create = context => ({
 
 			yield {
 				node: binaryExpression,
-				loc: toLocation([start, end], sourceCode),
+				loc: toLocation([start, end], context),
 				messageId: MESSAGE_ID,
 				data: {
 					...replacement,

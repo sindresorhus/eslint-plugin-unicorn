@@ -72,7 +72,7 @@ function listen(context, {methods, messageId}) {
 			messageId,
 			data: messageData,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => removeArgument(fixer, secondArgument, context.sourceCode),
+			fix: fixer => removeArgument(fixer, secondArgument, context),
 		};
 	});
 }

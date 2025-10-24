@@ -66,13 +66,13 @@ const create = context => {
 						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
 
 						yield fixer.remove(jsonStringify.callee);
-						yield * removeParentheses(jsonStringify.callee, fixer, sourceCode);
+						yield * removeParentheses(jsonStringify.callee, fixer, context);
 
 						const {
 							openingParenthesisToken,
 							closingParenthesisToken,
 							trailingCommaToken,
-						} = getCallExpressionTokens(sourceCode, jsonStringify);
+						} = getCallExpressionTokens(jsonStringify, context);
 
 						yield fixer.remove(openingParenthesisToken);
 						yield fixer.remove(closingParenthesisToken);

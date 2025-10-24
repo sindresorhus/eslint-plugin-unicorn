@@ -40,7 +40,7 @@ const removeFallback = (node, context) =>
 		const {left} = logicalExpression;
 		const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 		const [, start] = isLeftObjectParenthesized
-			? getParenthesizedRange(left, sourceCode)
+			? getParenthesizedRange(left, context)
 			: sourceCode.getRange(left);
 		const [, end] = sourceCode.getRange(logicalExpression);
 
@@ -50,7 +50,7 @@ const removeFallback = (node, context) =>
 			isLeftObjectParenthesized
 			|| left.type !== 'SequenceExpression'
 		) {
-			yield * removeParentheses(logicalExpression, fixer, sourceCode);
+			yield * removeParentheses(logicalExpression, fixer, context);
 		}
 	};
 
@@ -79,7 +79,7 @@ const create = context => ({
 			data: {description},
 			fix: isCheckingFallback
 				? removeFallback(node, context)
-				: fixer => removeArgument(fixer, node, context.sourceCode),
+				: fixer => removeArgument(fixer, node, context),
 		};
 	},
 });

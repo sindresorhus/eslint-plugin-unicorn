@@ -71,35 +71,35 @@ const ignored = [
 	'underscore.some',
 ];
 
-function removeThisArgument(thisArgumentNode, sourceCode) {
-	return fixer => removeArgument(fixer, thisArgumentNode, sourceCode);
+function removeThisArgument(thisArgumentNode, context) {
+	return fixer => removeArgument(fixer, thisArgumentNode, context);
 }
 
-function useBoundFunction(callbackNode, thisArgumentNode, sourceCode) {
+function useBoundFunction(callbackNode, thisArgumentNode, context) {
 	return function * (fixer) {
-		yield removeThisArgument(thisArgumentNode, sourceCode)(fixer);
+		yield removeThisArgument(thisArgumentNode, context)(fixer);
 
-		const callbackParentheses = getParentheses(callbackNode, sourceCode);
+		const callbackParentheses = getParentheses(callbackNode, context);
 		const isParenthesized = callbackParentheses.length > 0;
 		const callbackLastToken = isParenthesized
 			? callbackParentheses.at(-1)
 			: callbackNode;
 		if (
 			!isParenthesized
-			&& shouldAddParenthesesToMemberExpressionObject(callbackNode, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(callbackNode, context)
 		) {
 			yield fixer.insertTextBefore(callbackLastToken, '(');
 			yield fixer.insertTextAfter(callbackLastToken, ')');
 		}
 
-		const thisArgumentText = getParenthesizedText(thisArgumentNode, sourceCode);
+		const thisArgumentText = getParenthesizedText(thisArgumentNode, context);
 		// `thisArgument` was a argument, no need add extra parentheses
 		yield fixer.insertTextAfter(callbackLastToken, `.bind(${thisArgumentText})`);
 	};
 }
 
 function getProblem({
-	sourceCode,
+	context,
 	callExpression,
 	callbackNode,
 	thisArgumentNode,
@@ -115,16 +115,16 @@ function getProblem({
 
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
-		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, sourceCode);
+		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, context.sourceCode);
 		if (thisArgumentHasSideEffect) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(thisArgumentNode, sourceCode),
+					fix: removeThisArgument(thisArgumentNode, context),
 				},
 			];
 		} else {
-			problem.fix = removeThisArgument(thisArgumentNode, sourceCode);
+			problem.fix = removeThisArgument(thisArgumentNode, context);
 		}
 
 		return problem;
@@ -133,11 +133,11 @@ function getProblem({
 	problem.suggest = [
 		{
 			messageId: SUGGESTION_REMOVE,
-			fix: removeThisArgument(thisArgumentNode, sourceCode),
+			fix: removeThisArgument(thisArgumentNode, context),
 		},
 		{
 			messageId: SUGGESTION_BIND,
-			fix: useBoundFunction(callbackNode, thisArgumentNode, sourceCode),
+			fix: useBoundFunction(callbackNode, thisArgumentNode, context),
 		},
 	];
 
@@ -146,8 +146,6 @@ function getProblem({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	// Prototype methods
 	context.on('CallExpression', callExpression => {
 		if (
@@ -174,7 +172,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[0],
 			thisArgumentNode: callExpression.arguments[1],
@@ -198,7 +196,7 @@ const create = context => {
 		}
 
 		return getProblem({
-			sourceCode,
+			context,
 			callExpression,
 			callbackNode: callExpression.arguments[1],
 			thisArgumentNode: callExpression.arguments[2],

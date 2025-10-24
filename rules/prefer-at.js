@@ -179,7 +179,7 @@ function create(context) {
 
 		problem.fix = function * (fixer) {
 			if (lengthNode) {
-				yield removeLengthNode(lengthNode, fixer, sourceCode);
+				yield removeLengthNode(lengthNode, fixer, context);
 			}
 
 			// Only remove space for `foo[foo.length - 1]`
@@ -237,7 +237,7 @@ function create(context) {
 				messageId: SUGGESTION_ID,
 				* fix(fixer) {
 					if (lengthNode) {
-						yield removeLengthNode(lengthNode, fixer, sourceCode);
+						yield removeLengthNode(lengthNode, fixer, context);
 					}
 
 					yield fixer.replaceText(node.callee.property, 'at');
@@ -271,16 +271,16 @@ function create(context) {
 
 			// Remove extra arguments
 			if (sliceCall.arguments.length !== 1) {
-				const [, start] = getParenthesizedRange(sliceCall.arguments[0], sourceCode);
+				const [, start] = getParenthesizedRange(sliceCall.arguments[0], context);
 				const [end] = sourceCode.getRange(sourceCode.getLastToken(sliceCall));
 				yield fixer.removeRange([start, end]);
 			}
 
 			// Remove `[0]`, `.shift()`, or `.pop()`
 			if (firstElementGetMethod === 'zero-index') {
-				yield removeMemberExpressionProperty(fixer, sliceCall.parent, sourceCode);
+				yield removeMemberExpressionProperty(fixer, sliceCall.parent, context);
 			} else {
-				yield * removeMethodCall(fixer, sliceCall.parent.parent, sourceCode);
+				yield * removeMethodCall(fixer, sliceCall.parent.parent, context);
 			}
 		}
 
@@ -321,11 +321,11 @@ function create(context) {
 		}
 
 		problem.fix = function (fixer) {
-			let fixed = getParenthesizedText(array, sourceCode);
+			let fixed = getParenthesizedText(array, context);
 
 			if (
 				!isParenthesized(array, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(array, context)
 			) {
 				fixed = `(${fixed})`;
 			}
@@ -333,7 +333,7 @@ function create(context) {
 			fixed = `${fixed}.at(-1)`;
 
 			const tokenBefore = sourceCode.getTokenBefore(node);
-			if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+			if (needsSemicolon(tokenBefore, context, fixed)) {
 				fixed = `;${fixed}`;
 			}
 
