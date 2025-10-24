@@ -3,7 +3,7 @@ import isShorthandPropertyAssignmentPatternLeft from '../utils/is-shorthand-prop
 import isShorthandImportLocal from '../utils/is-shorthand-import-local.js';
 import isShorthandExportLocal from '../utils/is-shorthand-export-local.js';
 
-export default function replaceReferenceIdentifier(identifier, replacement, fixer) {
+export default function replaceReferenceIdentifier(identifier, replacement, context, fixer) {
 	if (
 		isShorthandPropertyValue(identifier)
 		|| isShorthandPropertyAssignmentPatternLeft(identifier)
@@ -11,19 +11,19 @@ export default function replaceReferenceIdentifier(identifier, replacement, fixe
 		return fixer.replaceText(identifier, `${identifier.name}: ${replacement}`);
 	}
 
-	if (isShorthandImportLocal(identifier)) {
+	if (isShorthandImportLocal(identifier, context)) {
 		return fixer.replaceText(identifier, `${identifier.name} as ${replacement}`);
 	}
 
-	if (isShorthandExportLocal(identifier)) {
+	if (isShorthandExportLocal(identifier, context)) {
 		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
 	}
 
 	// `typeAnnotation`
 	if (identifier.typeAnnotation) {
+		const {sourceCode} = context;
 		return fixer.replaceTextRange(
-			// eslint-disable-next-line internal/no-restricted-property-access
-			[identifier.range[0], identifier.typeAnnotation.range[0]],
+			[sourceCode.getRange(identifier)[0], sourceCode.getRange(identifier.typeAnnotation)[0]],
 			`${replacement}${identifier.optional ? '?' : ''}`,
 		);
 	}

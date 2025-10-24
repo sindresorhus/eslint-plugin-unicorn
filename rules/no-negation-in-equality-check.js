@@ -57,7 +57,7 @@ const create = context => ({
 							&& !isParenthesized(binaryExpression, sourceCode)
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
-							if (!isOnSameLine(returnToken, tokenAfterBang)) {
+							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
 								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}

@@ -10,7 +10,6 @@ const config = [
 		// If external rules needs to be disabled, add the rule name here.
 		'n/no-unsupported-features/es-syntax',
 		'eslint-plugin/require-meta-default-options',
-		'internal/no-restricted-property-access',
 		'@stylistic/max-len',
 	]),
 	{

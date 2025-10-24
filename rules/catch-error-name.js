@@ -95,7 +95,7 @@ const create = context => {
 			};
 
 			if (fixedName) {
-				problem.fix = fixer => renameVariable(variable, fixedName, fixer);
+				problem.fix = fixer => renameVariable(variable, fixedName, context, fixer);
 			}
 
 			return problem;

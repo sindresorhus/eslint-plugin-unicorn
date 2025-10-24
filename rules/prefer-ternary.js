@@ -34,8 +34,8 @@ function getNodeBody(node) {
 	return node;
 }
 
-// eslint-disable-next-line internal/no-restricted-property-access -- Need fix
-const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
+const isSingleLineNode = (node, context) =>
+	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -184,7 +184,7 @@ const create = context => {
 
 			if (
 				onlySingleLine
-				&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node))
+				&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node, context))
 			) {
 				return;
 			}

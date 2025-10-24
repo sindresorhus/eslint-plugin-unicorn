@@ -414,7 +414,7 @@ const create = context => {
 			}
 		}
 
-		if (isShorthandImportLocal(definition.name)) {
+		if (isShorthandImportLocal(definition.name, context)) {
 			if (!options.checkShorthandImports) {
 				return;
 			}
@@ -470,7 +470,7 @@ const create = context => {
 				generatedNames.add(replacement);
 			}
 
-			problem.fix = fixer => renameVariable(variable, replacement, fixer);
+			problem.fix = fixer => renameVariable(variable, replacement, context, fixer);
 		}
 
 		context.report(problem);

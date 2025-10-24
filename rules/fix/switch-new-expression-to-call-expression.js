@@ -34,7 +34,7 @@ export default function * switchNewExpressionToCallExpression(newExpression, con
 			}
 		```
 	*/
-	if (!isOnSameLine(newToken, newExpression.callee) && !isParenthesized(newExpression, context.sourceCode)) {
+	if (!isOnSameLine(newToken, newExpression.callee, context) && !isParenthesized(newExpression, context.sourceCode)) {
 		// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
 		// But adding extra parentheses is harmless, no need to be too complicated
 		yield * addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, context);

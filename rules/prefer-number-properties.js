@@ -54,7 +54,7 @@ function checkProperty({node, path: [name]}, context) {
 		return problem;
 	}
 
-	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer);
+	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, context, fixer);
 	const isSafeToFix = globalObjects[name];
 
 	if (isSafeToFix) {

@@ -56,7 +56,7 @@ const create = context => {
 			node,
 			original: node.value.raw,
 			lowercase,
-			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
 		});
 	});
 };
