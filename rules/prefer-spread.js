@@ -145,11 +145,11 @@ function fixConcat(node, context, fixableArguments) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
-		if (concatCallArguments.length - fixableArguments.length === 0) {
-			yield removeMethodCall(fixer, node, context);
-		} else {
-			yield removeArguments(fixer);
-		}
+		yield (
+			concatCallArguments.length - fixableArguments.length === 0
+				? removeMethodCall(fixer, node, context)
+				: removeArguments(fixer)
+		);
 
 		const text = getFixedText();
 
