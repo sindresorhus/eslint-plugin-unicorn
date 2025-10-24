@@ -1,4 +1,4 @@
-import {flatFixOrProblem} from './utilities.js';
+import {iterateFixOrProblems} from './utilities.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -42,7 +42,7 @@ function toEslintRuleFixer(fix) {
 		}
 
 		/** @type {IterableIterator<ESLint.Rule.Fix>} */
-		const eslintReport = flatFixOrProblem(unicornReport);
+		const eslintReport = iterateFixOrProblems(unicornReport);
 
 		return eslintReport;
 	};

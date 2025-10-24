@@ -1,4 +1,4 @@
-import {flatFixOrProblem} from './utilities.js';
+import {iterateFixOrProblems} from './utilities.js';
 import toEslintProblem from './to-eslint-problem.js';
 
 /**
@@ -25,9 +25,11 @@ function toEslintListener(context, listener) {
 	return (...listenerArguments) => {
 		const unicornProblems = listener(...listenerArguments);
 
-		for (const unicornProblem of flatFixOrProblem(unicornProblems)) {
-			const eslintProblem = toEslintProblem(unicornProblem);
-			context.report(eslintProblem);
+		for (const unicornProblem of iterateFixOrProblems(unicornProblems)) {
+			if (unicornProblem) {
+				const eslintProblem = toEslintProblem(unicornProblem);
+				context.report(eslintProblem);
+			}
 		}
 	};
 }

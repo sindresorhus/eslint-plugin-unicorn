@@ -14,18 +14,14 @@ Iterate ESLint fix or ESLint problem
 @param {ValueType} value
 @returns {ReturnType}
 */
-export function * flatFixOrProblem(value) {
-	if (!value) {
-		return;
-	}
-
+export function * iterateFixOrProblems(value) {
 	if (!isIterable(value)) {
 		yield value;
 		return;
 	}
 
 	for (const element of value) {
-		yield * flatFixOrProblem(element);
+		yield * iterateFixOrProblems(element);
 	}
 }
 
