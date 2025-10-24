@@ -12,7 +12,8 @@ import {
 // @ts-check
 const MESSAGE_ID_ERROR = 'no-array-fill-with-reference-type/error';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { return independent instance })` instead to ensure no reference shared.',
+	[MESSAGE_ID_ERROR]:
+		'Avoid using `{{actual}}` with reference type{{type}}. Use `Array.from({ ... }, () => { return independent instance })` instead to ensure no reference shared.',
 };
 
 const DEFAULTS = {
@@ -41,7 +42,9 @@ const create = context => ({
 			return;
 		}
 
-		const fillArgument = isArrayFill ? node.arguments[0] : getArrayFromReturnNode(node, context);
+		const fillArgument = isArrayFill
+			? node.arguments[0]
+			: getReturnNodeOfArrayDotFrom(node, context);
 
 		const [is, resolvedNode] = isReferenceType(fillArgument, context);
 
@@ -72,22 +75,22 @@ const create = context => ({
 
 /**
 
- @param {import('estree').CallExpression} node
+ @param {import('estree').CallExpression} functionNode
  @param {RuleContext} context
  @returns
  */
-function getArrayFromReturnNode(node, context) {
-	const secondArgument = node.arguments[1];
+function getReturnNodeOfArrayDotFrom(functionNode, context) {
+	const secondArgument = functionNode.arguments[1];
 
 	// Array.from({ length: 10 }, () => { return sharedObject; });
 	let result;
 	if (secondArgument && isFunction(secondArgument)) {
 		result = getReturnIdentifier(secondArgument, context);
 		// @ts-expect-error node always has a parent
-	} else if (isMemberExpression(node.parent, 'map')) {
+	} else if (isMemberExpression(functionNode.parent, 'map')) {
 		// Array.from({ length: 10 }).map(() => { return sharedObject; });
 		// @ts-expect-error node always has a parent
-		result = getReturnIdentifier(node.parent.parent.arguments[0], context);
+		result = getReturnIdentifier(functionNode.parent.parent.arguments[0], context);
 	}
 
 	// Should not check reference type if the identifier is declared in the current function
@@ -152,12 +155,16 @@ function getReturnIdentifier(node, context) {
 	const returnStatement = nodeBody.body.find(node => node.type === 'ReturnStatement');
 	const name = returnStatement?.argument?.name;
 	if (!name) {
-		return {returnNode: returnStatement?.argument, declaredInCurrentFunction: true};
+		return {
+			returnNode: returnStatement?.argument,
+			declaredInCurrentFunction: true,
+		};
 	}
 
 	const declaredInCurrentFunction = nodeBody.body.some(
 		// @ts-expect-error
-		node => node.type === 'VariableDeclaration'
+		node =>
+			node.type === 'VariableDeclaration'
 			// @ts-expect-error
 			&& node.declarations.some(declaration => declaration.id.name === name),
 	);
@@ -217,7 +224,10 @@ function getNewExpressionType(fillArgument, context) {
 	// NewExpression.callee not always have a name.
 	// new A.B() and new class {}
 	// Try the best to get the type from source code
-	const matches = context.sourceCode.getText(fillArgument.callee).split('\n')[0].match(/\S+/);
+	const matches = context.sourceCode
+		.getText(fillArgument.callee)
+		.split('\n')[0]
+		.match(/\S+/);
 
 	if (matches) {
 		// Limit the length to avoid too long tips
@@ -442,7 +452,11 @@ function findVariableDefinition({variableName, node, context}) {
  @returns {[is: false] | [is: true, node: Node]}
  */
 function isIdentifierReferenceType(node, context) {
-	const variable = findVariableDefinition({variableName: node.name, node, context});
+	const variable = findVariableDefinition({
+		variableName: node.name,
+		node,
+		context,
+	});
 	const definitionNode = variable?.defs[0]?.node;
 
 	if (!variable || !definitionNode) {
@@ -483,7 +497,8 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallows using `Array.fill()` or `Array.from().fill()` with **reference types** to prevent unintended shared references across array elements.',
+			description:
+				'Disallows using `Array.fill()` or `Array.from().fill()` with **reference types** to prevent unintended shared references across array elements.',
 			recommended: true,
 		},
 		schema,

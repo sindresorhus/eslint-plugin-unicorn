@@ -60,17 +60,6 @@ Array.from({ length: 3 }, () => new Date());
 ```
 
 ```js
-// ❌ Class
-class BarClass {};
-new Array(3).fill(new BarClass());
-Array(3).fill(new BarClass());
-Array.from({ length: 3 }).fill(new BarClass());
-
-// ✅
-Array.from({ length: 3 }, () => new BarClass());
-```
-
-```js
 // ❌ Function
 new Array(3).fill(function () {})
 Array(3).fill(function () {})
