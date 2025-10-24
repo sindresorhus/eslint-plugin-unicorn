@@ -30,13 +30,13 @@ const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.p
 
 const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
 
-function * removeImportOrExport(node, fixer, sourceCode) {
+function * removeImportOrExport(node, fixer, context) {
 	switch (node.type) {
 		case 'ImportSpecifier':
 		case 'ExportSpecifier':
 		case 'ImportDefaultSpecifier':
 		case 'ImportNamespaceSpecifier': {
-			yield * removeSpecifier(node, fixer, sourceCode);
+			yield * removeSpecifier(node, fixer, context);
 			return;
 		}
 
@@ -50,7 +50,8 @@ function * removeImportOrExport(node, fixer, sourceCode) {
 	}
 }
 
-function getSourceAndAssertionsText(declaration, sourceCode) {
+function getSourceAndAssertionsText(declaration, context) {
+	const {sourceCode} = context;
 	const keywordFromToken = sourceCode.getTokenBefore(
 		declaration.source,
 		token => token.type === 'Identifier' && token.value === 'from',
@@ -61,7 +62,7 @@ function getSourceAndAssertionsText(declaration, sourceCode) {
 }
 
 function getFixFunction({
-	sourceCode,
+	context,
 	imported,
 	exported,
 	exportDeclarations,
@@ -85,7 +86,7 @@ function getFixFunction({
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 			);
 		} else {
 			let specifierText = exported.name === imported.name
@@ -104,22 +105,22 @@ function getFixFunction({
 				if (lastSpecifier) {
 					yield fixer.insertTextAfter(lastSpecifier, `, ${specifierText}`);
 				} else {
-					const openingBraceToken = sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
+					const openingBraceToken = context.sourceCode.getFirstToken(exportDeclaration, isOpeningBraceToken);
 					yield fixer.insertTextAfter(openingBraceToken, specifierText);
 				}
 			} else {
 				yield fixer.insertTextAfter(
 					program,
-					`\nexport {${specifierText}} ${getSourceAndAssertionsText(importDeclaration, sourceCode)}`,
+					`\nexport {${specifierText}} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 				);
 			}
 		}
 
 		if (imported.variable.references.length === 1) {
-			yield * removeImportOrExport(imported.node, fixer, sourceCode);
+			yield * removeImportOrExport(imported.node, fixer, context);
 		}
 
-		yield * removeImportOrExport(exported.node, fixer, sourceCode);
+		yield * removeImportOrExport(exported.node, fixer, context);
 	};
 }
 
@@ -320,7 +321,7 @@ function create(context) {
 							},
 						};
 						const fix = getFixFunction({
-							sourceCode,
+							context,
 							imported,
 							exported,
 							exportDeclarations,

@@ -1,6 +1,16 @@
-function getSiblingNode(node, sourceCode, offset) {
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
+/**
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {1 | -1} offset
+*/
+function getSiblingNode(node, context, offset) {
 	const {parent} = node;
-	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
+	const visitorKeys = context.sourceCode.visitorKeys[parent.type] || Object.keys(parent);
 
 	for (const property of visitorKeys) {
 		const value = parent[property];
@@ -15,5 +25,14 @@ function getSiblingNode(node, sourceCode, offset) {
 	}
 }
 
-export const getPreviousNode = (node, sourceCode) => getSiblingNode(node, sourceCode, -1);
-export const getNextNode = (node, sourceCode) => getSiblingNode(node, sourceCode, 1);
+/**
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+*/
+export const getPreviousNode = (node, context) => getSiblingNode(node, context, -1);
+
+/**
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+*/
+export const getNextNode = (node, context) => getSiblingNode(node, context, 1);

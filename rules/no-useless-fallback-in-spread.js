@@ -32,7 +32,7 @@ const create = context => ({
 				const {left} = logicalExpression;
 				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
 				const [, start] = isLeftObjectParenthesized
-					? getParenthesizedRange(left, sourceCode)
+					? getParenthesizedRange(left, context)
 					: sourceCode.getRange(left);
 				const [, end] = sourceCode.getRange(logicalExpression);
 
@@ -42,7 +42,7 @@ const create = context => ({
 					isLeftObjectParenthesized
 					|| left.type !== 'SequenceExpression'
 				) {
-					yield * removeParentheses(logicalExpression, fixer, sourceCode);
+					yield * removeParentheses(logicalExpression, fixer, context);
 				}
 			},
 		};

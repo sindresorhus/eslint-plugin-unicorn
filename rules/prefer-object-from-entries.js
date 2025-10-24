@@ -93,10 +93,11 @@ const lodashFromPairsFunctions = [
 	'lodash.fromPairs',
 ];
 
-function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
+function fixReduceAssignOrSpread({context, callExpression, property}) {
+	const {sourceCode} = context;
 	const removeInitObject = fixer => {
 		const initObject = callExpression.arguments[1];
-		const parentheses = getParentheses(initObject, sourceCode);
+		const parentheses = getParentheses(initObject, context);
 		const firstToken = parentheses[0] || initObject;
 		const lastToken = parentheses.at(-1) || initObject;
 		const startToken = sourceCode.getTokenBefore(firstToken);
@@ -129,8 +130,8 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 
 	const getKeyValueText = () => {
 		const {key, value} = property;
-		let keyText = getParenthesizedText(key, sourceCode);
-		const valueText = getParenthesizedText(value, sourceCode);
+		let keyText = getParenthesizedText(key, context);
+		const valueText = getParenthesizedText(value, context);
 
 		if (!property.computed && key.type === 'Identifier') {
 			keyText = `'${keyText}'`;
@@ -143,7 +144,7 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 		const functionBody = callExpression.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
-		yield * removeParentheses(functionBody, fixer, sourceCode);
+		yield * removeParentheses(functionBody, fixer, context);
 	}
 
 	return function * (fixer) {
@@ -193,7 +194,7 @@ function create(context) {
 					node: callExpression.callee.property,
 					messageId: MESSAGE_ID_REDUCE,
 					fix: fixReduceAssignOrSpread({
-						sourceCode,
+						context,
 						callExpression,
 						property: getProperty(callbackFunction),
 					}),

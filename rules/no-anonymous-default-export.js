@@ -47,7 +47,8 @@ function getSuggestionName(node, filename, sourceCode) {
 	return name;
 }
 
-function addName(fixer, node, name, sourceCode) {
+function addName(fixer, node, name, context) {
+	const {sourceCode} = context;
 	switch (node.type) {
 		case 'ClassDeclaration':
 		case 'ClassExpression': {
@@ -78,7 +79,7 @@ function addName(fixer, node, name, sourceCode) {
 						? node.parent
 						: node.parent.parent,
 				);
-			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, sourceCode);
+			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, context);
 
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
 			let textAfter = sourceCode.text.slice(arrowFunctionEnd, exportDeclarationEnd);
@@ -120,7 +121,7 @@ function getProblem(node, context) {
 	let loc;
 	let description;
 	if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-		loc = getClassHeadLocation(node, sourceCode);
+		loc = getClassHeadLocation(node, context);
 		description = 'class';
 	} else {
 		loc = getFunctionHeadLocation(node, sourceCode);
@@ -148,7 +149,7 @@ function getProblem(node, context) {
 			data: {
 				name: suggestionName,
 			},
-			fix: fixer => addName(fixer, node, suggestionName, sourceCode),
+			fix: fixer => addName(fixer, node, suggestionName, context),
 		},
 	];
 

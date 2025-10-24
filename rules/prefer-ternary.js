@@ -48,7 +48,7 @@ const create = context => {
 	});
 
 	const getText = node => {
-		let text = getParenthesizedText(node, sourceCode);
+		let text = getParenthesizedText(node, context);
 		if (
 			!isParenthesized(node, sourceCode)
 			&& shouldAddParenthesesToConditionalExpressionChild(node)
@@ -231,7 +231,7 @@ const create = context => {
 						generatedNames.add(errorName);
 					}
 
-					const indentString = getIndentString(node, sourceCode);
+					const indentString = getIndentString(node, context);
 
 					after = after
 						.replace('{{INDENT_STRING}}', indentString)
@@ -244,7 +244,7 @@ const create = context => {
 
 				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
 				const tokenBefore = sourceCode.getTokenBefore(node);
-				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
+				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
 				if (shouldAddSemicolonBefore) {
 					fixed = `;${fixed}`;
 				}

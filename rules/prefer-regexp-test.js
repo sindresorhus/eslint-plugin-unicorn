@@ -41,7 +41,8 @@ const cases = [
 			methodNode: node.callee.property,
 			regexpNode: node.arguments[0],
 		}),
-		* fix(fixer, {stringNode, methodNode, regexpNode}, sourceCode) {
+		* fix(fixer, {stringNode, methodNode, regexpNode}, context) {
+			const {sourceCode} = context;
 			yield fixer.replaceText(methodNode, 'test');
 
 			let stringText = sourceCode.getText(stringNode);
@@ -58,7 +59,7 @@ const cases = [
 			let regexpText = sourceCode.getText(regexpNode);
 			if (
 				!isParenthesized(stringNode, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, sourceCode)
+				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
 			) {
 				regexpText = `(${regexpText})`;
 			}
@@ -115,12 +116,11 @@ const create = context => ({
 				messageId: type,
 			};
 
-			const {sourceCode} = context;
-			const fixFunction = fixer => fix(fixer, nodes, sourceCode);
+			const fixFunction = fixer => fix(fixer, nodes, context);
 
 			if (
 				isRegExpNode(regexpNode)
-				|| isRegExpWithoutGlobalFlag(regexpNode, sourceCode.getScope(regexpNode))
+				|| isRegExpWithoutGlobalFlag(regexpNode, context.sourceCode.getScope(regexpNode))
 			) {
 				problem.fix = fixFunction;
 			} else {

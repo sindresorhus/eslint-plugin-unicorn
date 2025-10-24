@@ -1,26 +1,29 @@
 import {getCallExpressionTokens} from './get-call-or-new-expression-tokens.js';
 
-/** @typedef {import('estree').CallExpression} CallExpression */
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
 
 /**
 Get the text of the arguments list of `CallExpression`.
 
-@param {import('eslint').SourceCode} sourceCode - The source code object.
-@param {CallExpression} callExpression - The `CallExpression` node.
-@param {SourceCode} sourceCode - The source code object.
+@param {ESTree.CallExpression} callExpression - The `CallExpression` node.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @param {boolean} [includeTrailingComma = true] - Whether the trailing comma should be included.
 @returns {string}
 */
 export default function getCallExpressionArgumentsText(
-	sourceCode,
+	context,
 	callExpression,
 	includeTrailingComma = true,
 ) {
+	const {sourceCode} = context;
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
 		trailingCommaToken,
-	} = getCallExpressionTokens(sourceCode, callExpression);
+	} = getCallExpressionTokens(callExpression, context);
 
 	const [, start] = sourceCode.getRange(openingParenthesisToken);
 	const [end] = sourceCode.getRange(

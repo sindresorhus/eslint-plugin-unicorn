@@ -1,5 +1,5 @@
 import {replaceStringRaw} from './fix/index.js';
-import {isMethodCall} from './ast/index.js';
+import {isMethodCall, isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
 const MESSAGE_ID_SUGGESTION = 'text-encoding-identifier/suggestion';
@@ -34,31 +34,31 @@ const isFsReadFileEncoding = node =>
 	&& node.parent.arguments[1] === node
 	&& node.parent.arguments[0].type !== 'SpreadElement';
 
+const isJsxElementAttributes = (node, {element, attributes}) =>
+	node.parent.type === 'JSXAttribute'
+	&& node.parent.value === node
+	&& node.parent.name.type === 'JSXIdentifier'
+	&& attributes.includes(node.parent.name.name.toLowerCase())
+	&& node.parent.parent.type === 'JSXOpeningElement'
+	&& node.parent.parent.attributes.includes(node.parent)
+	&& node.parent.parent.name.type === 'JSXIdentifier'
+	&& node.parent.parent.name.name.toLowerCase() === element;
+
+const shouldEnforceDash = node =>
+	isJsxElementAttributes(node, {element: 'meta', attributes: ['charset']})
+	|| isJsxElementAttributes(node, {element: 'form', attributes: ['acceptCharset', 'accept-charset'].map(attribute => attribute.toLowerCase())})
+	|| (isNewExpression(node.parent, {name: 'TextDecoder'}) && node.parent.arguments[0] === node);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {
-		withDash,
-	} = context.options[0];
+	const options = context.options[0];
 
 	context.on('Literal', node => {
 		if (typeof node.value !== 'string') {
 			return;
 		}
 
-		if (
-			// eslint-disable-next-line unicorn/text-encoding-identifier-case
-			node.value === 'utf-8'
-			&& node.parent.type === 'JSXAttribute'
-			&& node.parent.value === node
-			&& node.parent.name.type === 'JSXIdentifier'
-			&& node.parent.name.name.toLowerCase() === 'charset'
-			&& node.parent.parent.type === 'JSXOpeningElement'
-			&& node.parent.parent.attributes.includes(node.parent)
-			&& node.parent.parent.name.type === 'JSXIdentifier'
-			&& node.parent.parent.name.name.toLowerCase() === 'meta'
-		) {
-			return;
-		}
+		const withDash = options.withDash || shouldEnforceDash(node);
 
 		const {raw} = node;
 		const value = raw.slice(1, -1);

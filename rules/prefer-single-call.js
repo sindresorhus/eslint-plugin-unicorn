@@ -15,9 +15,6 @@ const messages = {
 	[SUGGESTION]: 'Merge with previous one.',
 };
 
-const isExpressionStatement = node =>
-	node?.parent.type === 'ExpressionStatement'
-	&& node.parent.expression === node;
 const isClassList = node => isMemberExpression(node, {
 	property: 'classList',
 	optional: false,
@@ -68,10 +65,7 @@ const cases = [
 			optional: false,
 		}),
 	},
-].map(problematicalCase => ({
-	...problematicalCase,
-	test: callExpression => problematicalCase.test(callExpression) && isExpressionStatement(callExpression),
-}));
+];
 
 function create(context) {
 	const {
@@ -85,7 +79,7 @@ function create(context) {
 	return {
 		* CallExpression(secondCall) {
 			for (const {description, test, ignore = []} of cases) {
-				if (!test(secondCall)) {
+				if (!test(secondCall) || secondCall.parent.type !== 'ExpressionStatement') {
 					continue;
 				}
 
@@ -94,7 +88,12 @@ function create(context) {
 					continue;
 				}
 
-				const firstCall = getPreviousNode(secondCall.parent, sourceCode)?.expression;
+				const previousNode = getPreviousNode(secondCall.parent, context);
+				if (previousNode?.type !== 'ExpressionStatement') {
+					continue;
+				}
+
+				const firstCall = previousNode.expression;
 				if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
 					continue;
 				}
@@ -108,12 +107,12 @@ function create(context) {
 
 				const fix = function * (fixer) {
 					if (secondCallArguments.length > 0) {
-						const text = getCallExpressionArgumentsText(sourceCode, secondCall);
+						const text = getCallExpressionArgumentsText(context, secondCall);
 
 						const {
 							trailingCommaToken,
 							closingParenthesisToken,
-						} = getCallExpressionTokens(sourceCode, firstCall);
+						} = getCallExpressionTokens(firstCall, context);
 
 						yield (
 							trailingCommaToken

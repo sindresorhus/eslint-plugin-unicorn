@@ -326,7 +326,7 @@ const create = context => {
 			const [, end] = sourceCode.getRange(closingParenthesisToken);
 
 			const problem = {
-				loc: toLocation([start, end], sourceCode),
+				loc: toLocation([start, end], context),
 				messageId: MESSAGE_ID,
 			};
 

@@ -166,6 +166,7 @@ const avoidTestTitleConflict = (tests, comment) => {
 };
 
 export {
+	normalizeTestCase,
 	getTester,
 	avoidTestTitleConflict,
 };

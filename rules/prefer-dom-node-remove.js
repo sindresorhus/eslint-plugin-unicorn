@@ -53,15 +53,15 @@ const create = context => {
 			const isOptionalParentNode = isMemberExpressionOptionalObject(parentNode);
 
 			const createFix = (optional = false) => fixer => {
-				let childNodeText = getParenthesizedText(childNode, sourceCode);
+				let childNodeText = getParenthesizedText(childNode, context);
 				if (
 					!isParenthesized(childNode, sourceCode)
-					&& shouldAddParenthesesToMemberExpressionObject(childNode, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(childNode, context)
 				) {
 					childNodeText = `(${childNodeText})`;
 				}
 
-				if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, childNodeText)) {
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, childNodeText)) {
 					childNodeText = `;${childNodeText}`;
 				}
 

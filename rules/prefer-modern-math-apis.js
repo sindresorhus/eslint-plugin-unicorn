@@ -58,7 +58,7 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement,
 				description,
 			},
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
 		};
 	};
 }
@@ -91,7 +91,7 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		return {
 			...message,
 			node,
-			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context.sourceCode)})`),
+			fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
 		};
 	};
 }
@@ -160,15 +160,15 @@ const create = context => {
 					for (const expression of plusExpressions) {
 						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
-						yield * replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, sourceCode);
-						yield * removeParentheses(expression, fixer, sourceCode);
+						yield * replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
+						yield * removeParentheses(expression, fixer, context);
 					}
 
 					// `x ** 2` => `x`
 					// `x * a` => `x`
 					for (const expression of expressions) {
 						yield fixer.removeRange([
-							getParenthesizedRange(expression.left, sourceCode)[1],
+							getParenthesizedRange(expression.left, context)[1],
 							sourceCode.getRange(expression)[1],
 						]);
 					}

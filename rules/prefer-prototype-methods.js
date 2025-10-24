@@ -16,7 +16,7 @@ const OBJECT_PROTOTYPE_METHODS = [
 	'valueOf',
 ];
 
-function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) {
+function getConstructorAndMethodName(methodNode, {context, globalReferences}) {
 	if (!methodNode) {
 		return;
 	}
@@ -45,7 +45,7 @@ function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences})
 	}
 
 	const constructorName = objectNode.type === 'ArrayExpression' ? 'Array' : 'Object';
-	const methodName = getPropertyName(methodNode, sourceCode.getScope(methodNode));
+	const methodName = getPropertyName(methodNode, context.sourceCode.getScope(methodNode));
 
 	return {
 		constructorName,
@@ -53,7 +53,7 @@ function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences})
 	};
 }
 
-function getProblem(callExpression, {sourceCode, globalReferences}) {
+function getProblem(callExpression, {context, globalReferences}) {
 	let methodNode;
 
 	if (
@@ -84,7 +84,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 		isGlobalReference,
 		constructorName,
 		methodName,
-	} = getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) ?? {};
+	} = getConstructorAndMethodName(methodNode, {context, globalReferences}) ?? {};
 
 	if (!constructorName) {
 		return;
@@ -109,7 +109,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 					objectNode.type === 'ArrayExpression'
 					|| objectNode.type === 'ObjectExpression'
 				) {
-					yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
+					yield * fixSpaceAroundKeyword(fixer, callExpression, context);
 				}
 			}
 		},
@@ -138,7 +138,7 @@ function create(context) {
 
 		for (const callExpression of callExpressions) {
 			yield getProblem(callExpression, {
-				sourceCode,
+				context,
 				globalReferences,
 			});
 		}

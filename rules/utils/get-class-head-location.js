@@ -1,13 +1,17 @@
 /**
-@typedef {line: number, column: number} Position
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
 
+/**
 Get the location of the given class node for reporting.
 
-@param {Node} node - The class node to get.
-@param {SourceCode} sourceCode - The source code object to get tokens.
-@returns {{start: Position, end: Position}} The location of the class node for reporting.
+@param {ESTree.ClassDeclaration | ESTree.ClassExpression} node - The class node to get.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {ESTree.SourceLocation} The location of the class node for reporting.
 */
-export default function getClassHeadLocation(node, sourceCode) {
+export default function getClassHeadLocation(node, context) {
+	const {sourceCode} = context;
 	const {body} = node;
 	const tokenBeforeBody = sourceCode.getTokenBefore(body);
 

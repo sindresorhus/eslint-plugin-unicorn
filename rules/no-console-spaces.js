@@ -23,7 +23,7 @@ const create = context => {
 		const range = [index, index + 1];
 
 		return {
-			loc: toLocation(range, sourceCode),
+			loc: toLocation(range, context),
 			messageId: MESSAGE_ID,
 			data: {method, position},
 			fix: fixer => fixer.removeRange(range),

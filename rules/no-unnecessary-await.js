@@ -76,15 +76,15 @@ const create = context => ({
 					!isOnSameLine(awaitToken, valueNode)
 					&& !isParenthesized(node, sourceCode)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, sourceCode);
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
 				}
 
 				yield fixer.remove(awaitToken);
-				yield removeSpacesAfter(awaitToken, sourceCode, fixer);
+				yield removeSpacesAfter(awaitToken, context, fixer);
 
 				const nextToken = sourceCode.getTokenAfter(awaitToken);
 				const tokenBefore = sourceCode.getTokenBefore(awaitToken);
-				if (needsSemicolon(tokenBefore, sourceCode, nextToken.value)) {
+				if (needsSemicolon(tokenBefore, context, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			},

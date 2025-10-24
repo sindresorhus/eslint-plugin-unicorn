@@ -132,3 +132,34 @@ test.babel({
 		},
 	],
 });
+
+test.typescript({
+	valid: [
+		'const fs = require("node:fs") as "fs";',
+		'type fs = typeof import("node:fs");',
+		'type fs = typeof SomeType<"fs">;',
+		'type fs = typeof fs;',
+	],
+	invalid: [
+		{
+			code: 'const fs = require("fs") as typeof import("fs");',
+			output: 'const fs = require("node:fs") as typeof import("node:fs");',
+			errors: 2,
+		},
+		{
+			code: 'type fs = import("fs");',
+			output: 'type fs = import("node:fs");',
+			errors: 1,
+		},
+		{
+			code: 'type fs = import("fs").fs<"fs">',
+			output: 'type fs = import("node:fs").fs<"fs">',
+			errors: 1,
+		},
+		{
+			code: 'const fs = someFunc() as SomeType<typeof import("fs")>;',
+			output: 'const fs = someFunc() as SomeType<typeof import("node:fs")>;',
+			errors: 1,
+		},
+	],
+});

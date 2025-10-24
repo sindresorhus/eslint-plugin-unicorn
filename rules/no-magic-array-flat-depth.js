@@ -27,7 +27,7 @@ const create = context => ({
 		const {
 			openingParenthesisToken,
 			closingParenthesisToken,
-		} = getCallExpressionTokens(sourceCode, callExpression);
+		} = getCallExpressionTokens(callExpression, context);
 		if (sourceCode.commentsExistBetween(openingParenthesisToken, closingParenthesisToken)) {
 			return;
 		}

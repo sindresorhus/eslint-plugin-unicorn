@@ -97,7 +97,7 @@ const create = context => {
 					// Comma token before
 					sourceCode.getTokenBefore(nodeToRemove, isCommaToken),
 					...sourceCode.getTokens(nodeToRemove),
-					...getParentheses(nodeToRemove, sourceCode),
+					...getParentheses(nodeToRemove, context),
 				].map(token => fixer.remove(token)),
 		};
 	});
