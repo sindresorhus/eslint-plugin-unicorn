@@ -153,8 +153,11 @@ function getReturnIdentifier(node, context) {
 
 	// @ts-expect-error
 	const returnStatement = nodeBody.body.find(node => node.type === 'ReturnStatement');
-	const name = returnStatement?.argument?.name;
-	if (!name) {
+
+	// const list = Array.from({ length: 3 }, () => {
+	//   return {} // <= the returnStatement  has no name or type !== 'Identifier' we can return here
+	// });
+	if (returnStatement?.argument?.type !== 'Identifier') {
 		return {
 			returnNode: returnStatement?.argument,
 			declaredInCurrentFunction: true,
@@ -166,7 +169,7 @@ function getReturnIdentifier(node, context) {
 		node =>
 			node.type === 'VariableDeclaration'
 			// @ts-expect-error
-			&& node.declarations.some(declaration => declaration.id.name === name),
+			&& node.declarations.some(declaration => declaration.id.name === returnStatement?.argument?.name),
 	);
 
 	return {returnNode: returnStatement?.argument, declaredInCurrentFunction};
