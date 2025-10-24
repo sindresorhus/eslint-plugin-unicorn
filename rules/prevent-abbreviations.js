@@ -414,7 +414,7 @@ const create = context => {
 			}
 		}
 
-		if (isShorthandImportLocal(definition.name)) {
+		if (isShorthandImportLocal(definition.name, context)) {
 			if (!options.checkShorthandImports) {
 				return;
 			}
