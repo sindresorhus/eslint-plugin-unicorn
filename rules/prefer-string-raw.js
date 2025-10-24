@@ -125,7 +125,7 @@ const create = context => {
 						continue;
 					}
 
-					yield replaceTemplateElement(fixer, quasis, cooked);
+					yield replaceTemplateElement(quasis, cooked, context, fixer);
 				}
 			},
 		};

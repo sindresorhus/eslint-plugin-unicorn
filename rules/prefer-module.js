@@ -307,7 +307,7 @@ function create(context) {
 				problem.suggest = suggestions.get(node.name)
 					.map(({messageId, replacement}) => ({
 						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
+						fix: fixer => replaceReferenceIdentifier(node, replacement, context, fixer),
 					}));
 
 				return problem;

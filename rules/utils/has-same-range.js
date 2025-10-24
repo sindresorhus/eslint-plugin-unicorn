@@ -1,9 +1,7 @@
-const hasSameRange = (node1, node2) =>
+const hasSameRange = (node1, node2, context) =>
 	node1
 	&& node2
-	// eslint-disable-next-line internal/no-restricted-property-access
-	&& node1.range[0] === node2.range[0]
-	// eslint-disable-next-line internal/no-restricted-property-access
-	&& node1.range[1] === node2.range[1];
+	&& context.sourceCode.getRange(node1)[0] === context.sourceCode.getRange(node2)[0]
+	&& context.sourceCode.getRange(node1)[1] === context.sourceCode.getRange(node2)[1];
 
 export default hasSameRange;

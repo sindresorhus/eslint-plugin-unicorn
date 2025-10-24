@@ -77,7 +77,7 @@ const create = context => {
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === binaryExpression
-					&& !isOnSameLine(typeofToken, secondToken)
+					&& !isOnSameLine(typeofToken, secondToken, context)
 					&& !isParenthesized(binaryExpression, sourceCode)
 					&& !isParenthesized(typeofNode, sourceCode)
 				) {

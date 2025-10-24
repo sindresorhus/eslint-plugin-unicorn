@@ -69,7 +69,7 @@ const create = context => {
 		}
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => replaceStringRaw(fixer, node, replacement);
+		const fix = fixer => replaceStringRaw(node, replacement, context, fixer);
 
 		const problem = {
 			node,
@@ -88,7 +88,7 @@ const create = context => {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
-				fix: fixer => replaceStringRaw(fixer, node, replacement),
+				fix: fixer => replaceStringRaw(node, replacement, context, fixer),
 			},
 		];
 

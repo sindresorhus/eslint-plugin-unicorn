@@ -1,12 +1,10 @@
 // Replace `StringLiteral` or `TemplateLiteral` node with raw text
-const replaceStringRaw = (fixer, node, raw) =>
+const replaceStringRaw = (node, raw, context, fixer) =>
 	fixer.replaceTextRange(
 		// Ignore quotes and backticks
 		[
-			// eslint-disable-next-line internal/no-restricted-property-access
-			node.range[0] + 1,
-			// eslint-disable-next-line internal/no-restricted-property-access
-			node.range[1] - 1,
+			context.sourceCode.getRange(node)[0] + 1,
+			context.sourceCode.getRange(node)[1] - 1,
 		],
 		raw,
 	);
