@@ -139,7 +139,7 @@ const create = context => ({
 		return {
 			node: charsetNode,
 			messageId: MESSAGE_ID,
-			fix: fixer => removeArgument(fixer, charsetNode, sourceCode),
+			fix: fixer => removeArgument(fixer, charsetNode, context),
 		};
 	},
 });

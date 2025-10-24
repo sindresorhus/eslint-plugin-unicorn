@@ -71,7 +71,7 @@ const create = context => {
 				yield fixer.replaceText(undefinedString, 'undefined');
 
 				yield fixer.remove(typeofToken);
-				yield removeSpacesAfter(typeofToken, sourceCode, fixer);
+				yield removeSpacesAfter(typeofToken, context, fixer);
 
 				const {parent} = binaryExpression;
 				if (
@@ -81,12 +81,12 @@ const create = context => {
 					&& !isParenthesized(binaryExpression, sourceCode)
 					&& !isParenthesized(typeofNode, sourceCode)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 
 				const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
-				if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+				if (needsSemicolon(tokenBefore, context, secondToken.value)) {
 					yield fixer.insertTextBefore(binaryExpression, ';');
 				}
 			};

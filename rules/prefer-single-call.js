@@ -85,7 +85,7 @@ function create(context) {
 					continue;
 				}
 
-				const previousNode = getPreviousNode(secondCall.parent, sourceCode);
+				const previousNode = getPreviousNode(secondCall.parent, context);
 				if (previousNode?.type !== 'ExpressionStatement') {
 					continue;
 				}
@@ -104,12 +104,12 @@ function create(context) {
 
 				const fix = function * (fixer) {
 					if (secondCallArguments.length > 0) {
-						const text = getCallExpressionArgumentsText(sourceCode, secondCall);
+						const text = getCallExpressionArgumentsText(context, secondCall);
 
 						const {
 							trailingCommaToken,
 							closingParenthesisToken,
-						} = getCallExpressionTokens(sourceCode, firstCall);
+						} = getCallExpressionTokens(firstCall, context);
 
 						yield (
 							trailingCommaToken

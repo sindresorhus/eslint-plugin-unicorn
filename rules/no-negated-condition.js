@@ -16,13 +16,14 @@ const messages = {
 	[MESSAGE_ID]: 'Unexpected negated condition.',
 };
 
-function * convertNegatedCondition(fixer, node, sourceCode) {
+function * convertNegatedCondition(fixer, node, context) {
+	const {sourceCode} = context;
 	const {test} = node;
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
 
 		if (node.type === 'IfStatement') {
-			yield * removeParentheses(test.argument, fixer, sourceCode);
+			yield * removeParentheses(test.argument, fixer, context);
 		}
 
 		yield fixer.remove(token);
@@ -37,14 +38,14 @@ function * convertNegatedCondition(fixer, node, sourceCode) {
 	yield fixer.replaceText(token, '=' + token.value.slice(1));
 }
 
-function * swapConsequentAndAlternate(fixer, node, sourceCode) {
+function * swapConsequentAndAlternate(fixer, node, context) {
 	const isIfStatement = node.type === 'IfStatement';
 	const [consequent, alternate] = [
 		node.consequent,
 		node.alternate,
 	].map(node => {
-		const range = getParenthesizedRange(node, sourceCode);
-		let text = sourceCode.text.slice(...range);
+		const range = getParenthesizedRange(node, context);
+		let text = context.sourceCode.text.slice(...range);
 		// `if (!a) b(); else c()` can't fix to `if (!a) c() else b();`
 		if (isIfStatement && node.type !== 'BlockStatement') {
 			text = `{${text}}`;
@@ -60,6 +61,7 @@ function * swapConsequentAndAlternate(fixer, node, sourceCode) {
 		return;
 	}
 
+	const {sourceCode} = context;
 	yield fixer.replaceTextRange(sourceCode.getRange(consequent), alternate.text);
 	yield fixer.replaceTextRange(sourceCode.getRange(alternate), consequent.text);
 }
@@ -92,8 +94,8 @@ const create = context => {
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				const {sourceCode} = context;
-				yield * convertNegatedCondition(fixer, node, sourceCode);
-				yield * swapConsequentAndAlternate(fixer, node, sourceCode);
+				yield * convertNegatedCondition(fixer, node, context);
+				yield * swapConsequentAndAlternate(fixer, node, context);
 
 				if (
 					node.type !== 'ConditionalExpression'
@@ -102,7 +104,7 @@ const create = context => {
 					return;
 				}
 
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, context);
 
 				const {parent} = node;
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
@@ -113,12 +115,12 @@ const create = context => {
 					&& !isParenthesized(node, sourceCode)
 					&& !isParenthesized(test, sourceCode)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
-				if (needsSemicolon(tokenBefore, sourceCode, secondToken.value)) {
+				if (needsSemicolon(tokenBefore, context, secondToken.value)) {
 					yield fixer.insertTextBefore(node, ';');
 				}
 			},

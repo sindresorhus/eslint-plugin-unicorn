@@ -12,14 +12,14 @@ const messages = {
 
 const isNewDate = node => isNewExpression(node, {name: 'Date', argumentsLength: 0});
 
-const getProblem = (node, problem, sourceCode) => ({
+const getProblem = (node, problem, context) => ({
 	node,
 	messageId: MESSAGE_ID_DEFAULT,
 	* fix(fixer) {
 		yield fixer.replaceText(node, 'Date.now()');
 
 		if (node.type === 'UnaryExpression') {
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield * fixSpaceAroundKeyword(fixer, node, context);
 		}
 	},
 	...problem,
@@ -78,7 +78,7 @@ const create = context => ({
 			return getProblem(
 				unaryExpression.operator === '-' ? unaryExpression.argument : unaryExpression,
 				{},
-				context.sourceCode,
+				context,
 			);
 		}
 	},

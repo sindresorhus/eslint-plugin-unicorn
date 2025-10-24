@@ -104,7 +104,7 @@ const create = context => {
 				}
 
 				const closingBrace = sourceCode.getLastToken(classBody);
-				const indent = getIndentString(constructor, sourceCode);
+				const indent = getIndentString(constructor, context);
 
 				let text = `${indent}${propertyName} = ${propertyValue};\n`;
 

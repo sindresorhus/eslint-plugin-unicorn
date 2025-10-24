@@ -183,12 +183,13 @@ function shouldInsertBreakStatement(node) {
 	}
 }
 
-function fix({discriminant, ifStatements}, sourceCode, options) {
+function fix({discriminant, ifStatements}, context, options) {
+	const {sourceCode} = context;
 	const discriminantText = sourceCode.getText(discriminant);
 
 	return function * (fixer) {
 		const firstStatement = ifStatements[0].statement;
-		const indent = getIndentString(firstStatement, sourceCode);
+		const indent = getIndentString(firstStatement, context);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
 		const lastStatement = ifStatements.at(-1).statement;
@@ -301,7 +302,7 @@ const create = context => {
 					!hasSideEffect(discriminant, sourceCode)
 					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
 				) {
-					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
+					problem.fix = fix({discriminant, ifStatements}, context, options);
 				}
 
 				yield problem;

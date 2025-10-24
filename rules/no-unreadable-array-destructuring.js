@@ -50,7 +50,7 @@ const create = context => {
 						const array = parent.init;
 						if (
 							!isParenthesized(array, sourceCode)
-							&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+							&& shouldAddParenthesesToMemberExpressionObject(array, context)
 						) {
 							yield fixer.insertTextBefore(array, '(');
 							yield fixer.insertTextAfter(parent, `)${code}`);
@@ -58,7 +58,7 @@ const create = context => {
 							yield fixer.insertTextAfter(parent, code);
 						}
 
-						yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+						yield * fixSpaceAroundKeyword(fixer, node, context);
 					};
 				}
 			}

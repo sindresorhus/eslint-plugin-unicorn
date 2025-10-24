@@ -1,6 +1,5 @@
 export {
 	isParenthesized,
-	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,

@@ -97,7 +97,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, context);
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 			},
 		};
@@ -116,7 +116,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+				yield * fixSpaceAroundKeyword(fixer, node, context);
 				yield fixer.insertTextBefore(node, 'String.raw');
 
 				for (const quasis of node.quasis) {

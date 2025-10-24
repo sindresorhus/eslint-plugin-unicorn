@@ -202,7 +202,7 @@ const create = context => {
 			messageId: ERROR_ZERO_INDEX,
 			fix: fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
-				removeMemberExpressionProperty(fixer, node, sourceCode),
+				removeMemberExpressionProperty(fixer, node, context),
 			],
 		};
 	});
@@ -227,7 +227,7 @@ const create = context => {
 			messageId: ERROR_SHIFT,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -327,7 +327,7 @@ const create = context => {
 				}
 
 				for (const node of zeroIndexNodes) {
-					yield removeMemberExpressionProperty(fixer, node, sourceCode);
+					yield removeMemberExpressionProperty(fixer, node, context);
 				}
 
 				for (const node of destructuringNodes) {
@@ -361,7 +361,7 @@ const create = context => {
 			messageId: ERROR_AT_ZERO,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -390,7 +390,7 @@ const create = context => {
 			messageId: ERROR_POP,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -420,7 +420,7 @@ const create = context => {
 			messageId: ERROR_AT_MINUS_ONE,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});

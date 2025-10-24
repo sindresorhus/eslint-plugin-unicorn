@@ -33,7 +33,7 @@ const create = context => ({
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => appendArgument(fixer, node, '0', sourceCode),
+			fix: fixer => appendArgument(fixer, node, '0', context),
 		};
 	},
 });

@@ -36,7 +36,9 @@ function getIfStatementTokens(node, sourceCode) {
 	return tokens;
 }
 
-function fix(innerIfStatement, sourceCode) {
+function fix(innerIfStatement, context) {
+	const {sourceCode} = context;
+
 	return function * (fixer) {
 		const outerIfStatement = (
 			innerIfStatement.parent.type === 'BlockStatement'
@@ -54,16 +56,16 @@ function fix(innerIfStatement, sourceCode) {
 
 		// Remove inner `if` token
 		yield fixer.remove(inner.ifToken);
-		yield removeSpacesAfter(inner.ifToken, sourceCode, fixer);
+		yield removeSpacesAfter(inner.ifToken, context, fixer);
 
 		// Remove outer `{}`
 		if (outer.openingBraceToken) {
 			yield fixer.remove(outer.openingBraceToken);
-			yield removeSpacesAfter(outer.openingBraceToken, sourceCode, fixer);
+			yield removeSpacesAfter(outer.openingBraceToken, context, fixer);
 			yield fixer.remove(outer.closingBraceToken);
 
 			const tokenBefore = sourceCode.getTokenBefore(outer.closingBraceToken, {includeComments: true});
-			yield removeSpacesAfter(tokenBefore, sourceCode, fixer);
+			yield removeSpacesAfter(tokenBefore, context, fixer);
 		}
 
 		// Add new `()`
@@ -86,7 +88,7 @@ function fix(innerIfStatement, sourceCode) {
 				yield fixer.remove(closingParenthesisToken);
 			}
 
-			yield removeSpacesAfter(closingParenthesisToken, sourceCode, fixer);
+			yield removeSpacesAfter(closingParenthesisToken, context, fixer);
 		}
 
 		// If the `if` statement has no block, and is not followed by a semicolon,
@@ -96,7 +98,7 @@ function fix(innerIfStatement, sourceCode) {
 			const lastToken = sourceCode.getLastToken(inner.consequent);
 			if (isNotSemicolonToken(lastToken)) {
 				const nextToken = sourceCode.getTokenAfter(outer);
-				if (nextToken && needsSemicolon(lastToken, sourceCode, nextToken.value)) {
+				if (nextToken && needsSemicolon(lastToken, context, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			}
@@ -131,7 +133,7 @@ const create = context => ({
 		return {
 			node: ifStatement,
 			messageId: MESSAGE_ID,
-			fix: fix(ifStatement, context.sourceCode),
+			fix: fix(ifStatement, context),
 		};
 	},
 });

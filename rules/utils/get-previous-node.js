@@ -1,4 +1,6 @@
-export default function getPreviousNode(node, sourceCode) {
+export default function getPreviousNode(node, context) {
+	const {sourceCode} = context;
+
 	const {parent} = node;
 	const visitorKeys = sourceCode.visitorKeys[parent.type] || Object.keys(parent);
 
