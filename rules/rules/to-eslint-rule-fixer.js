@@ -29,9 +29,13 @@ Convert Unicorn style fix function to ESLint style fix function
 function toEslintRuleFixer(fix) {
 	return fixer => {
 		/** @type {UnicornReportFixer} */
-		let unicornReport;
+		const unicornReport = fix(fixer, fixOptions);
+
+		/** @type {IterableIterator<ESLint.Rule.Fix>} */
+		const eslintReport = iterateFixOrProblems(unicornReport);
+
 		try {
-			unicornReport = fix(fixer, fixOptions);
+			return [...eslintReport];
 		} catch (error) {
 			if (error instanceof FixAbortError) {
 				return;
@@ -40,11 +44,6 @@ function toEslintRuleFixer(fix) {
 			/* c8 ignore next */
 			throw error;
 		}
-
-		/** @type {IterableIterator<ESLint.Rule.Fix>} */
-		const eslintReport = iterateFixOrProblems(unicornReport);
-
-		return eslintReport;
 	};
 }
 
