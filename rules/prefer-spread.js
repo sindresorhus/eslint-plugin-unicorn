@@ -146,7 +146,7 @@ function fixConcat(node, context, fixableArguments) {
 		}
 
 		if (concatCallArguments.length - fixableArguments.length === 0) {
-			yield * removeMethodCall(fixer, node, context);
+			yield removeMethodCall(fixer, node, context);
 		} else {
 			yield removeArguments(fixer);
 		}
@@ -241,7 +241,7 @@ function methodCallToSpread(node, context) {
 
 		// The array is already accessing `.slice` or `.split`, there should not any case need add extra `()`
 
-		yield * removeMethodCall(fixer, node, context);
+		yield removeMethodCall(fixer, node, context);
 	};
 }
 

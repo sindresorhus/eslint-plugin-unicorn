@@ -144,7 +144,7 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		const functionBody = callExpression.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
-		yield * removeParentheses(functionBody, fixer, context);
+		yield removeParentheses(functionBody, fixer, context);
 	}
 
 	return function * (fixer) {
@@ -159,10 +159,10 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		yield removeInitObject(fixer);
 
 		// Remove the first parameter
-		yield * removeFirstParameter(fixer);
+		yield removeFirstParameter(fixer);
 
 		// Replace function body
-		yield * replaceFunctionBody(fixer);
+		yield replaceFunctionBody(fixer);
 	};
 }
 

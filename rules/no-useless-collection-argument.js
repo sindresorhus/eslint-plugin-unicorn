@@ -50,7 +50,7 @@ const removeFallback = (node, context) =>
 			isLeftObjectParenthesized
 			|| left.type !== 'SequenceExpression'
 		) {
-			yield * removeParentheses(logicalExpression, fixer, context);
+			yield removeParentheses(logicalExpression, fixer, context);
 		}
 	};
 

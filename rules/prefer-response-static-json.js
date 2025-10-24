@@ -40,7 +40,7 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				yield fixer.insertTextAfter(newExpression.callee, '.json');
-				yield * switchNewExpressionToCallExpression(newExpression, context, fixer);
+				yield switchNewExpressionToCallExpression(newExpression, context, fixer);
 
 				const [dataNode] = jsonStringifyNode.arguments;
 				const callExpressionRange = getParenthesizedRange(jsonStringifyNode, context);

@@ -33,7 +33,7 @@ function enforceNewExpression({node, path: [name]}, context) {
 	if (name === 'Date') {
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
-			yield * fixSpaceAroundKeyword(fixer, node, context);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		}
 
 		const problem = {
@@ -71,9 +71,7 @@ function enforceCallExpression({node, path: [name]}, context) {
 	};
 
 	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
-		problem.fix = function * (fixer) {
-			yield * switchNewExpressionToCallExpression(node, context, fixer);
-		};
+		problem.fix = fixer => switchNewExpressionToCallExpression(node, context, fixer);
 	}
 
 	return problem;

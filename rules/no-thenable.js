@@ -159,7 +159,7 @@ const cases = [
 
 			for (const variable of context.sourceCode.getDeclaredVariables(node)) {
 				if (variable.name === 'then') {
-					yield * variable.identifiers;
+					yield variable.identifiers;
 				}
 			}
 		},
