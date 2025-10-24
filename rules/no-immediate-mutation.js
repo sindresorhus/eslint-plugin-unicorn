@@ -89,16 +89,14 @@ function * appendElementsTextToSetConstructor({
 	expressionStatementAfterDeclaration,
 	variableDeclaration,
 }) {
-	const {sourceCode} = context;
-
-	if (isNewExpressionWithParentheses(newExpression, sourceCode)) {
+	if (isNewExpressionWithParentheses(newExpression, context)) {
 		const [setInitialValue] = newExpression.arguments;
 		if (setInitialValue) {
 			yield appendElementsTextToArrayExpression(context, fixer, setInitialValue, elementsText);
 		} else {
 			const {
 				openingParenthesisToken,
-			} = getNewExpressionTokens(sourceCode, newExpression);
+			} = getNewExpressionTokens(newExpression, context);
 			yield fixer.insertTextAfter(openingParenthesisToken, `[${elementsText}]`);
 		}
 
@@ -122,9 +120,9 @@ function * appendElementsTextToSetConstructor({
 	yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
 	yield removeExpressionStatement(expressionStatementAfterDeclaration, fixer, context);
 
-	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utiltity
+	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utility
 	// We just simply check if the `variableDeclaration` ends with `;`
-	const lastTokenInDeclaration = sourceCode.getLastToken(variableDeclaration);
+	const lastTokenInDeclaration = context.sourceCode.getLastToken(variableDeclaration);
 	if (!isSemicolonToken(lastTokenInDeclaration)) {
 		yield fixer.insertTextAfter(lastTokenInDeclaration, ';');
 	}
@@ -203,13 +201,12 @@ const arrayMutationSettings = {
 			isPrepend,
 		},
 	) => function * (fixer) {
-		const {sourceCode} = context;
 		const arrayExpression = variableDeclarator.init;
-		const text = getCallExpressionArgumentsText(sourceCode, callExpression, /* includeTrailingComma */ false);
+		const text = getCallExpressionArgumentsText(context, callExpression, /* includeTrailingComma */ false);
 
 		yield (isPrepend
 			? fixer.insertTextAfter(
-				sourceCode.getFirstToken(arrayExpression),
+				context.sourceCode.getFirstToken(arrayExpression),
 				`${text}, `,
 			)
 			: appendElementsTextToArrayExpression(context, fixer, arrayExpression, text));
@@ -316,21 +313,20 @@ const objectMutationSettings = {
 			value,
 		},
 	) => function * (fixer) {
-		const {sourceCode} = context;
 		const objectExpression = variableDeclarator.init;
 
-		let propertyText = getParenthesizedText(property, sourceCode);
+		let propertyText = getParenthesizedText(property, context);
 		if (memberExpression.computed) {
 			propertyText = `[${propertyText}]`;
 		}
 
-		const valueText = getParenthesizedText(value, sourceCode);
+		const valueText = getParenthesizedText(value, context);
 
 		const text = `${propertyText}: ${valueText},`;
 		const [
 			penultimateToken,
 			closingBraceToken,
-		] = sourceCode.getLastTokens(objectExpression, 2);
+		] = context.sourceCode.getLastTokens(objectExpression, 2);
 		const shouldInsertComma = objectExpression.properties.length > 0 && !isCommaToken(penultimateToken);
 
 		yield fixer.insertTextBefore(
@@ -416,7 +412,7 @@ const setMutationSettings = {
 		},
 	) => fixer => {
 		const elementsText = getCallExpressionArgumentsText(
-			context.sourceCode,
+			context,
 			callExpression,
 			/* IncludeTrailingComma */ false,
 		);
@@ -501,7 +497,7 @@ const mapMutationSettings = {
 		},
 	) => fixer => {
 		const argumentsText = getCallExpressionArgumentsText(
-			context.sourceCode,
+			context,
 			callExpression,
 			/* IncludeTrailingComma */ false,
 		);
@@ -549,7 +545,7 @@ function getCaseProblem(
 		return;
 	}
 
-	const expressionStatementAfterDeclaration = getNextNode(variableDeclaration, context.sourceCode);
+	const expressionStatementAfterDeclaration = getNextNode(variableDeclaration, context);
 	if (expressionStatementAfterDeclaration?.type !== 'ExpressionStatement') {
 		return;
 	}
