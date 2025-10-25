@@ -60,10 +60,36 @@ test.snapshot({
 			const array = [1, 2];
 			array?.push(3, 4);
 		`,
+		outdent`
+			let array;
+			array ??= [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			let foo;
+			foo = [1, 2];
+			bar.push(3, 4);
+		`,
+		// Not supported yet
+		outdent`
+			let foo, bar;
+			foo = bar = [1, 2];
+			bar.push(3, 4);
+		`,
+		outdent`
+			const foo = new Foo();
+			foo.bar = [1, 2];
+			foo.bar.push(3, 4);
+		`,
 	],
 	invalid: [
 		outdent`
 			const array = [1, 2];
+			array.push(3, 4);
+		`,
+		outdent`
+			let array;
+			array = [1, 2];
 			array.push(3, 4);
 		`,
 		outdent`
@@ -187,6 +213,12 @@ test.snapshot({
 				[0].map()
 			}
 		`,
+		outdent`
+			let array
+			array = [1, 2]
+			array.push(3, 4)
+			;[0].map()
+		`,
 	],
 });
 
@@ -233,10 +265,36 @@ test.snapshot({
 			const object = foo;
 			object.bar = 2;
 		`,
+		outdent`
+			let object;
+			object ??= {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			let foo;
+			foo = {foo: 1};
+			bar.bar = 2;
+		`,
+		// Not supported yet
+		outdent`
+			let foo, bar;
+			foo = bar = {foo: 1};
+			bar.bar = 2;
+		`,
+		outdent`
+			const foo = new Foo();
+			foo.bar = {foo: 1};
+			foo.bar.bar = 2;
+		`,
 	],
 	invalid: [
 		outdent`
 			const object = {foo: 1};
+			object.bar = 2;
+		`,
+		outdent`
+			let object;
+			object = {foo: 1};
 			object.bar = 2;
 		`,
 		outdent`
@@ -300,6 +358,12 @@ test.snapshot({
 			const object = {foo: 1}
 			object.bar = 2
 			;notNeeded.map()
+		`,
+		outdent`
+			let object
+			object = {foo: 1}
+			object.bar = 2
+			;[0].map()
 		`,
 	],
 });
@@ -371,10 +435,36 @@ test.snapshot({
 			const object = {foo: 1};
 			Object.assign(object, {baz(){return object}});
 		`,
+		outdent`
+			let object;
+			object ??= {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			let foo;
+			foo = {foo: 1};
+			bar.assign(object, baz);
+		`,
+		// Not supported yet
+		outdent`
+			let foo, bar;
+			foo = bar = {foo: 1};
+			Object.assign(bar, baz);
+		`,
+		outdent`
+			const foo = new Foo();
+			foo.bar = {foo: 1};
+			Object.assign(foo.bar, baz);
+		`,
 	],
 	invalid: [
 		outdent`
 			const object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			let object;
+			object = {foo: 1};
 			Object.assign(object, bar);
 		`,
 		outdent`
@@ -467,6 +557,12 @@ test.snapshot({
 			Object.assign(object, bar)
 			;notNeeded.map()
 		`,
+		outdent`
+			let object
+			object = {foo: 1}
+			Object.assign(object, bar)
+			;[0].map()
+		`,
 	],
 });
 
@@ -539,10 +635,36 @@ test.snapshot({
 			const set = new Set([1, 2]);
 			set?.add(3);
 		`,
+		outdent`
+			let set;
+			set ??= new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			let foo;
+			foo ??= new Set([1, 2]);
+			bar.add(3);
+		`,
+		// Not supported yet
+		outdent`
+			let foo, bar;
+			foo = bar = new Set([1, 2]);
+			bar.add(3);
+		`,
+		outdent`
+			const foo = new Foo();
+			foo.bar = new Set([1, 2]);
+			foo.bar.add(3);
+		`,
 	],
 	invalid: [
 		outdent`
 			const set = new Set([1, 2]);
+			set.add(3);
+		`,
+		outdent`
+			let set;
+			set = new Set([1, 2]);
 			set.add(3);
 		`,
 		outdent`
@@ -631,6 +753,12 @@ test.snapshot({
 			set.add(3);
 			notNeeded.map()
 		`,
+		outdent`
+			let set
+			set = new Set([1, 2])
+			set.add(3)
+			;[0].map()
+		`,
 	],
 });
 
@@ -716,10 +844,36 @@ test.snapshot({
 			const map = new Map([["foo", 1]]);
 			map?.set("bar", 2);
 		`,
+		outdent`
+			let map;
+			map ??= new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			let foo;
+			foo = new Map([["foo", 1]]);
+			bar.set("bar", 2);
+		`,
+		// Not supported yet
+		outdent`
+			let foo, bar;
+			foo = bar = new Map([["foo", 1]]);
+			bar.set("bar", 2);
+		`,
+		outdent`
+			const foo = new Foo();
+			foo.bar = new Map([["foo", 1]]);
+			foo.bar.set("bar", 2);
+		`,
 	],
 	invalid: [
 		outdent`
 			const map = new Map([["foo", 1]]);
+			map.set("bar", 2);
+		`,
+		outdent`
+			let map;
+			map = new Map([["foo", 1]]);
 			map.set("bar", 2);
 		`,
 		outdent`
@@ -813,6 +967,12 @@ test.snapshot({
 			map.set("bar", 2);
 			notNeeded.map()
 		`,
+		outdent`
+			let map
+			map = new Map([["foo", 1]])
+			map.set("bar", 2)
+			;[0].map()
+		`,
 	],
 });
 
@@ -826,15 +986,15 @@ test.snapshot({
 	invalid: [
 		// https://github.com/microsoft/vscode/blob/edf4ea5879f5e15302ac4923cebd1d444ee35f7e/extensions/ipynb/src/deserializers.ts#L258C1-L259C67
 		outdent`
-			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>();
+			const cellOutputMappers = new Map<OutputType, (output: any) => NotebookCellOutput>();
 			cellOutputMappers.set('display_data', translateDisplayDataOutput);
 		`,
 		outdent`
-			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>([]);
+			const cellOutputMappers = new Map<OutputType, (output: any) => NotebookCellOutput>([]);
 			cellOutputMappers.set('display_data', translateDisplayDataOutput);
 		`,
 		outdent`
-			const cellOutputMappers = new Map<nbformat.OutputType, (output: any) => NotebookCellOutput>;
+			const cellOutputMappers = new Map<OutputType, (output: any) => NotebookCellOutput>;
 			cellOutputMappers.set('display_data', translateDisplayDataOutput);
 		`,
 	],

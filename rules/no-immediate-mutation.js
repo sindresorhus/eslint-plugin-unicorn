@@ -645,7 +645,7 @@ const getVariable = (node, context) => {
 			.find(variable => variable.defs.length === 1 && variable.defs[0].name === node.id);
 	}
 
-	return findVariable(context.getScope(), node.left.name);
+	return findVariable(context.sourceCode.getScope(node), node.left.name);
 };
 
 function getCaseProblem(
@@ -673,7 +673,11 @@ function getCaseProblem(
 	if (!(
 		// eslint-disable-next-line no-warning-comments
 		// TODO[@fisker]: `AssignmentExpression` should support `a = b = c` too
-		(isAssignment && statement.type === 'ExpressionStatement' && statement.expression === assignNode)
+		(
+			isAssignment
+			&& assignNode.operator === '='
+			&& statement.type === 'ExpressionStatement'
+			&& statement.expression === assignNode)
 		|| (!isAssignment && isLastDeclarator(assignNode))
 	)) {
 		return;
