@@ -97,12 +97,14 @@ const getBreakTarget = node => {
 	}
 };
 
-const isNodeInsideNode = (inner, outer) =>
-	// eslint-disable-next-line internal/no-restricted-property-access
-	inner.range[0] >= outer.range[0] && inner.range[1] <= outer.range[1];
-function hasBreakInside(breakStatements, node) {
+const isNodeInsideNode = (inner, outer, context) => {
+	const {sourceCode} = context;
+	return sourceCode.getRange(inner)[0] >= sourceCode.getRange(outer)[0] && sourceCode.getRange(inner)[1] <= sourceCode.getRange(outer)[1];
+};
+
+function hasBreakInside(breakStatements, node, context) {
 	for (const breakStatement of breakStatements) {
-		if (!isNodeInsideNode(breakStatement, node)) {
+		if (!isNodeInsideNode(breakStatement, node, context)) {
 			continue;
 		}
 
@@ -112,7 +114,7 @@ function hasBreakInside(breakStatements, node) {
 			return true;
 		}
 
-		if (isNodeInsideNode(node, breakTarget)) {
+		if (isNodeInsideNode(node, breakTarget, context)) {
 			return true;
 		}
 	}
@@ -300,7 +302,7 @@ const create = context => {
 
 				if (
 					!hasSideEffect(discriminant, sourceCode)
-					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
+					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement, context))
 				) {
 					problem.fix = fix({discriminant, ifStatements}, context, options);
 				}

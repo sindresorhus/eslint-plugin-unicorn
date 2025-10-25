@@ -96,7 +96,7 @@ const create = context => {
 			messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
 			fix: fixer => fixed
 				.split(delimiter)
-				.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
+				.map((replacement, index) => replaceTemplateElement(node.quasis[index], replacement, context, fixer)),
 		};
 	};
 

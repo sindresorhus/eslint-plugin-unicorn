@@ -112,9 +112,10 @@ const create = context => {
 				);
 			}
 			: fixer => replaceTemplateElement(
-				fixer,
 				node,
 				escapeTemplateElementRaw(fixed),
+				context,
+				fixer,
 			);
 
 		if (autoFix) {

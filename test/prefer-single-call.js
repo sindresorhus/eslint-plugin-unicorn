@@ -90,6 +90,19 @@ test.snapshot({
 			function bar() {}
 			foo.push(bindEvents);
 		`,
+		outdent`
+			foo.push?.(1);
+			foo.push?.(2);
+		`,
+		// Does not allow optional call
+		outdent`
+			foo.push(1);
+			foo.push?.(2);
+		`,
+		outdent`
+			foo.push?.(1);
+			foo.push(2);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -208,6 +221,22 @@ test.snapshot({
 				},
 			],
 		},
+		outdent`
+			foo.push(1);
+			foo?.push(2);
+		`,
+		outdent`
+			foo?.push(1);
+			foo.push(2);
+		`,
+		outdent`
+			foo?.push(1);
+			foo?.push(2);
+		`,
+		outdent`
+			foo?.bar.push(1);
+			foo?.bar.push(2);
+		`,
 	],
 });
 
@@ -255,7 +284,7 @@ test.snapshot({
 		`,
 		outdent`
 			foo.classList.add("foo");
-			foo?.classList.add("bar");
+			foo.classList.add?.("bar");
 		`,
 		outdent`
 			foo.notClassList.add("foo");
@@ -282,6 +311,39 @@ test.snapshot({
 		outdent`
 			foo().bar.classList.add("foo");
 			foo().bar.classList.add("bar");
+		`,
+		// Optional
+		outdent`
+			foo.classList?.add("foo");
+			foo.classList.add("bar");
+		`,
+		outdent`
+			foo.classList.add("foo");
+			foo.classList?.add("bar");
+		`,
+		outdent`
+			foo.classList.add?.("foo");
+			foo.classList.add("bar");
+		`,
+		outdent`
+			foo.classList.add("foo");
+			foo.classList.add?.("bar");
+		`,
+		outdent`
+			foo.classList?.remove("foo");
+			foo.classList.remove("bar");
+		`,
+		outdent`
+			foo.classList.remove("foo");
+			foo.classList?.remove("bar");
+		`,
+		outdent`
+			foo.classList.remove?.("foo");
+			foo.classList.remove("bar");
+		`,
+		outdent`
+			foo.classList.remove("foo");
+			foo.classList.remove?.("bar");
 		`,
 	],
 	invalid: [
@@ -382,6 +444,18 @@ test.snapshot({
 		outdent`
 			foo.bar.classList.add(a);
 			(foo)['bar'].classList.add(b);
+		`,
+		outdent`
+			foo?.classList.add("foo");
+			foo.classList.add("bar");
+		`,
+		outdent`
+			foo.classList.add("foo");
+			foo?.classList.add("bar");
+		`,
+		outdent`
+			foo?.classList.add("foo");
+			foo?.classList.add("bar");
 		`,
 	],
 });
@@ -503,6 +577,18 @@ test.snapshot({
 			importScripts(a)
 			importScripts(b)
 			;[foo].forEach(bar)
+		`,
+		outdent`
+			importScripts?.("foo.js");
+			importScripts("bar.js");
+		`,
+		outdent`
+			importScripts("foo.js");
+			importScripts?.("bar.js");
+		`,
+		outdent`
+			importScripts?.("foo.js");
+			importScripts?.("bar.js");
 		`,
 	],
 });

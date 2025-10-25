@@ -111,7 +111,7 @@ const create = context => {
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === node
-					&& !isOnSameLine(firstToken, secondToken)
+					&& !isOnSameLine(firstToken, secondToken, context)
 					&& !isParenthesized(node, sourceCode)
 					&& !isParenthesized(test, sourceCode)
 				) {

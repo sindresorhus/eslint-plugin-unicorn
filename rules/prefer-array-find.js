@@ -320,7 +320,7 @@ const create = context => {
 				if (singularName) {
 					// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
 					const singularizedName = getAvailableVariableName(singularName, getScopes(scope));
-					yield * renameVariable(variable, singularizedName, fixer);
+					yield * renameVariable(variable, singularizedName, context, fixer);
 
 					// Prevent possible variable conflicts
 					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
