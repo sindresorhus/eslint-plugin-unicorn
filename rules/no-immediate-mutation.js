@@ -137,13 +137,15 @@ const arrayMutationSettings = {
 		variable,
 		expressionStatementAfterDeclaration,
 	}) {
-		let callExpression = expressionStatementAfterDeclaration.expression;
-		if (callExpression.type === 'ChainExpression') {
-			callExpression = callExpression.expression;
-		}
+		const callExpression = expressionStatementAfterDeclaration.expression;
 
 		if (!(
-			isMethodCall(callExpression, {object: variableName, methods: ['push', 'unshift']})
+			isMethodCall(callExpression, {
+				object: variableName,
+				methods: ['push', 'unshift'],
+				optionalMember: false,
+				optionalCall: false,
+			})
 			&& callExpression.arguments.length > 0
 		)) {
 			return;
@@ -356,8 +358,8 @@ const objectWithObjectAssignSettings = {
 			object: 'Object',
 			method: 'assign',
 			minimumArguments: 2,
-			optionalCall: false,
 			optionalMember: false,
+			optionalCall: false,
 		})) {
 			return;
 		}
@@ -463,7 +465,13 @@ const setMutationSettings = {
 			callExpression = callExpression.expression;
 		}
 
-		if (!isMethodCall(callExpression, {object: variableName, method: 'add', argumentsLength: 1})) {
+		if (!isMethodCall(callExpression, {
+			object: variableName,
+			method: 'add',
+			argumentsLength: 1,
+			optionalMember: false,
+			optionalCall: false,
+		})) {
 			return;
 		}
 
@@ -540,12 +548,14 @@ const mapMutationSettings = {
 		variable,
 		expressionStatementAfterDeclaration,
 	}) {
-		let callExpression = expressionStatementAfterDeclaration.expression;
-		if (callExpression.type === 'ChainExpression') {
-			callExpression = callExpression.expression;
-		}
+		const callExpression = expressionStatementAfterDeclaration.expression;
 
-		if (!isMethodCall(callExpression, {object: variableName, method: 'set', argumentsLength: 2})) {
+		if (!isMethodCall(callExpression, {
+			object: variableName,
+			method: 'set',
+			argumentsLength: 2,
+			optionalCall: false,
+		})) {
 			return;
 		}
 
