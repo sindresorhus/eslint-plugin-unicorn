@@ -1,7 +1,5 @@
-import {isCommaToken} from '@eslint-community/eslint-utils';
-import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
+import {removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {isUndefined, isFunction} from './ast/index.js';
-import {getParenthesizedRange} from './utils/index.js';
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -223,58 +221,22 @@ const create = context => {
 	}
 
 	context.on('CallExpression', node => {
-		if (shouldIgnore(node.callee)) {
+		const argumentNodes = node.arguments;
+		const lastArgument = argumentNodes.at(-1);
+
+		if (!isUndefined(lastArgument) || shouldIgnore(node.callee)) {
 			return;
 		}
-
-		const argumentNodes = node.arguments;
 
 		// Ignore arguments in `Function#bind()`, but not `this` argument
 		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
 			return;
 		}
 
-		const undefinedArguments = [];
-		for (let index = argumentNodes.length - 1; index >= 0; index--) {
-			const node = argumentNodes[index];
-			if (isUndefined(node)) {
-				undefinedArguments.unshift(node);
-			} else {
-				break;
-			}
-		}
-
-		if (undefinedArguments.length === 0) {
-			return;
-		}
-
-		const firstUndefined = undefinedArguments[0];
-		const lastUndefined = undefinedArguments.at(-1);
-
 		return {
+			node: lastArgument,
 			messageId,
-			loc: {
-				start: sourceCode.getLoc(firstUndefined).start,
-				end: sourceCode.getLoc(lastUndefined).end,
-			},
-			fix(fixer) {
-				let [start] = getParenthesizedRange(firstUndefined, context);
-				let [, end] = getParenthesizedRange(lastUndefined, context);
-
-				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
-
-				if (previousArgument) {
-					[, start] = getParenthesizedRange(previousArgument, context);
-				} else {
-					// If all arguments removed, and there is trailing comma, we need remove it.
-					const tokenAfter = sourceCode.getTokenBefore(sourceCode.getLastToken(node));
-					if (isCommaToken(tokenAfter)) {
-						[, end] = sourceCode.getRange(tokenAfter);
-					}
-				}
-
-				return fixer.removeRange([start, end]);
-			},
+			fix: fixer => removeArgument(fixer, lastArgument, context),
 		};
 	});
 };
