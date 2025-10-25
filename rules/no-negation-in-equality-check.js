@@ -47,7 +47,7 @@ const create = context => ({
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, binaryExpression, context);
+						yield fixSpaceAroundKeyword(fixer, binaryExpression, context);
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
@@ -58,7 +58,7 @@ const create = context => ({
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
 							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
-								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+								yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}
 

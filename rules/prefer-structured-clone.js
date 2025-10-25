@@ -66,7 +66,7 @@ const create = context => {
 						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
 
 						yield fixer.remove(jsonStringify.callee);
-						yield * removeParentheses(jsonStringify.callee, fixer, context);
+						yield removeParentheses(jsonStringify.callee, fixer, context);
 
 						const {
 							openingParenthesisToken,

@@ -16,7 +16,7 @@ function * removeBraces(fixer, node, context) {
 	const {sourceCode} = context;
 	const [blockStatement] = node.consequent;
 	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
+	yield replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	yield fixer.remove(closingBraceToken);

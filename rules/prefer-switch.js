@@ -247,8 +247,8 @@ function fix({discriminant, ifStatements}, context, options) {
 			}
 
 			if (shouldInsertBreakStatement(consequent)) {
-				yield * insertBreakStatement(consequent, fixer, sourceCode, indent);
-				yield * insertBracesIfNotBlockStatement(consequent, fixer, indent);
+				yield insertBreakStatement(consequent, fixer, sourceCode, indent);
+				yield insertBracesIfNotBlockStatement(consequent, fixer, indent);
 			}
 		}
 	};

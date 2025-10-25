@@ -56,7 +56,7 @@ const create = context => ({
 				//         ^^^^^^^
 				//   (map(…)).flat();
 				//           ^^^^^^^
-				yield * removeMethodCall(fixer, flatCallExpression, context);
+				yield removeMethodCall(fixer, flatCallExpression, context);
 
 				// Renames:
 				//   map(…).flat();

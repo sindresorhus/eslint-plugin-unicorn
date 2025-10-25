@@ -113,7 +113,7 @@ const fix = (node, identifierName, preferredSelector) => {
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return function * (fixer) {
-		yield * getArgumentFix(fixer, nodeToBeFixed, identifierName);
+		yield getArgumentFix(fixer, nodeToBeFixed, identifierName);
 		yield fixer.replaceText(node.callee.property, preferredSelector);
 	};
 };

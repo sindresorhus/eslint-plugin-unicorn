@@ -123,7 +123,7 @@ function create(context) {
 
 		const fix = function * (fixer) {
 			yield fixer.replaceText(node, fixed);
-			yield * fixSpaceAroundKeyword(fixer, node, context);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		};
 
 		const problem = {

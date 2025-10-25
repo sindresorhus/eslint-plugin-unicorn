@@ -58,7 +58,7 @@ const create = context => ({
 				}
 
 				yield fixer.replaceText(node, fixed);
-				yield * fixSpaceAroundKeyword(fixer, node, context);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
 	},
