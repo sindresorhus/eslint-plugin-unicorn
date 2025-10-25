@@ -10,7 +10,6 @@ import {
 	getCallExpressionArgumentsText,
 	getParenthesizedText,
 	getVariableIdentifiers,
-	needsSemicolon,
 	getNewExpressionTokens,
 	isNewExpressionWithParentheses,
 } from './utils/index.js';
@@ -57,19 +56,9 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 }
 
 function * removeExpressionStatementAfterDeclaration(expressionStatement, context, fixer) {
-	yield removeExpressionStatement(expressionStatement, context, fixer);
-
-	const {sourceCode} = context;
-	const tokenBefore = sourceCode.getTokenBefore(expressionStatement);
-
-	if (isSemicolonToken(tokenBefore)) {
-		return;
-	}
-
-	const tokenAfter = sourceCode.getTokenAfter(expressionStatement);
-	if (tokenAfter && needsSemicolon(tokenBefore, context, tokenAfter.value)) {
-		yield fixer.insertTextBefore(tokenAfter, ';');
-	}
+	const tokenBefore = context.sourceCode.getTokenBefore(expressionStatement);
+	const shouldPreserveSemiColon = !isSemicolonToken(tokenBefore);
+	yield removeExpressionStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
 }
 
 function appendElementsTextToArrayExpression(context, fixer, arrayExpression, elementsText) {
@@ -92,7 +81,6 @@ function * appendElementsTextToSetConstructor({
 	newExpression,
 	elementsText,
 	expressionStatementAfterDeclaration,
-	variableDeclaration,
 }) {
 	if (isNewExpressionWithParentheses(newExpression, context)) {
 		const [setInitialValue] = newExpression.arguments;
@@ -104,38 +92,18 @@ function * appendElementsTextToSetConstructor({
 			} = getNewExpressionTokens(newExpression, context);
 			yield fixer.insertTextAfter(openingParenthesisToken, `[${elementsText}]`);
 		}
-
-		yield * removeExpressionStatementAfterDeclaration(
-			expressionStatementAfterDeclaration,
-			context,
-			fixer,
-		);
-
-		return;
+	} else {
+		/*
+		The new expression doesn't have parentheses
+		```
+		const set = (( new (( Set )) ));
+		set.add(1);
+		```
+		*/
+		yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
 	}
 
-	/*
-	The new expression doesn't have parentheses
-	```
-	const set = (( new (( Set )) ));
-	set.add(1);
-	```
-	*/
-	yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
-	yield removeExpressionStatement(expressionStatementAfterDeclaration, context, fixer);
-
-	// Since the `)` token is inserted by us, we can't use `needsSemicolon` utility
-	// We just simply check if the `variableDeclaration` ends with `;`
-	const lastTokenInDeclaration = context.sourceCode.getLastToken(variableDeclaration);
-	if (isSemicolonToken(lastTokenInDeclaration)) {
-		return;
-	}
-
-	const tokenAfter = context.sourceCode.getTokenAfter(expressionStatementAfterDeclaration);
-
-	if (tokenAfter) {
-		yield fixer.insertTextBefore(tokenAfter, ';');
-	}
+	yield * removeExpressionStatementAfterDeclaration(expressionStatementAfterDeclaration, context, fixer);
 }
 
 // `Array`
@@ -409,7 +377,6 @@ const setMutationSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclaration,
 			expressionStatementAfterDeclaration,
 		},
 		{
@@ -428,7 +395,6 @@ const setMutationSettings = {
 			newExpression,
 			elementsText,
 			expressionStatementAfterDeclaration,
-			variableDeclaration,
 		});
 	},
 };
@@ -494,7 +460,6 @@ const mapMutationSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclaration,
 			expressionStatementAfterDeclaration,
 		},
 		{
@@ -514,7 +479,6 @@ const mapMutationSettings = {
 			newExpression,
 			elementsText: entryText,
 			expressionStatementAfterDeclaration,
-			variableDeclaration,
 		});
 	},
 };
