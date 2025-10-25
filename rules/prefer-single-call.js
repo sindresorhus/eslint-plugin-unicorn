@@ -1,8 +1,11 @@
 import {hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
-import {getCallExpressionTokens, getCallExpressionArgumentsText} from './utils/index.js';
-import isSameReference from './utils/is-same-reference.js';
-import {isNodeMatches} from './utils/is-node-matches.js';
-import getPreviousNode from './utils/get-previous-node.js';
+import {
+	getCallExpressionTokens,
+	getCallExpressionArgumentsText,
+	isSameReference,
+	isNodeMatches,
+	getPreviousNode,
+} from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
 const ERROR = 'error/array-push';
