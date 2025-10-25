@@ -349,7 +349,7 @@ const objectWithObjectAssignSettings = {
 	}) {
 		const callExpression = expressionStatementAfterDeclaration.expression;
 
-		if (isMethodCall(callExpression, {
+		if (!isMethodCall(callExpression, {
 			object: 'Object',
 			method: 'assign',
 			argumentsLength: 2,
@@ -365,7 +365,7 @@ const objectWithObjectAssignSettings = {
 			return;
 		}
 
-		if (hasVariableInNodes(variable, value, context)) {
+		if (hasVariableInNodes(variable, [value], context)) {
 			return;
 		}
 
@@ -377,7 +377,7 @@ const objectWithObjectAssignSettings = {
 			getFix,
 		} = information;
 		const {sourceCode} = context;
-		const [, value] = callExpression;
+		const [, value] = callExpression.arguments;
 
 		const problem = {
 			node: callExpression.callee,
