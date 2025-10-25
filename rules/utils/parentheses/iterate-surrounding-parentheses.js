@@ -16,11 +16,15 @@ import getParentSyntaxOpeningParenthesis from './get-parent-syntax-opening-paren
 */
 
 /**
+@typedef {[OpeningParenthesisToken, ClosingParenthesisToken]} ParenthesisTokenPair
+*/
+
+/**
 Get surrounding parenthesis of the tokens or nodes.
 
 @param {[ESTree.Node | OpeningParenthesisToken, ESTree.Node | ClosingParenthesisToken]} param0
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
-@returns [[OpeningParenthesisToken, ClosingParenthesisToken] | void]
+@returns [ParenthesisTokenPair | void]
 */
 function getSurroundingParentheses([head, tail], context) {
 	const tokenBefore = context.sourceCode.getTokenBefore(head);
@@ -45,7 +49,7 @@ Iterate surrounding parenthesis of the node.
 
 @param {ESTree.Node} node
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
-@yields [[OpeningParenthesisToken, ClosingParenthesisToken]]
+@returns {IterableIterator<ParenthesisTokenPair>}
 */
 function * iterateSurroundingParentheses(node, context) {
 	if (
