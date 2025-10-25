@@ -1,5 +1,7 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import {
+	shouldAddParenthesesToMemberExpressionObject,
+	isParenthesized,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
