@@ -9,8 +9,9 @@
 
 Immediate mutation after declaration is not allowed when it can be done in the variable initialization step.
 
-- Declare an array literal and immediately mutation with `Array#{push,unshift}(…)`.
+- Declare an array literal and immediately mutate with `Array#{push,unshift}(…)`.
 - Declare an object literal and immediately assign another property.
+- Declare an object literal and immediately mutate with `Object.assign(…)`.
 - Declare a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
 - Declare a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
 
@@ -42,6 +43,24 @@ object.bar = 2;
 
 // ✅
 const obj = {foo: 1, bar: 2};
+```
+
+```js
+// ❌
+const object = {foo: 1};
+Object.assign(object, {bar: 2})
+
+// ✅
+const obj = {foo: 1, bar: 2};
+```
+
+```js
+// ❌
+const object = {foo: 1};
+Object.assign(object, bar)
+
+// ✅
+const obj = {foo: 1, ...bar};
 ```
 
 ```js
