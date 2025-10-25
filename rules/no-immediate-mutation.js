@@ -130,7 +130,7 @@ function getObjectExpressionPropertiesText(objectExpression, context) {
 
 // `Array`
 const arrayMutationSettings = {
-	testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ArrayExpression',
+	testValue: value => value?.type === 'ArrayExpression',
 	getProblematicNode({
 		context,
 		variableName,
@@ -224,7 +224,7 @@ const arrayMutationSettings = {
 
 // `Object` + `AssignmentExpression`
 const objectWithAssignmentExpressionSettings = {
-	testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
+	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
 		context,
 		variableName,
@@ -345,7 +345,7 @@ const objectWithAssignmentExpressionSettings = {
 
 // `Object` + `Object.assign()`
 const objectWithObjectAssignSettings = {
-	testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
+	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
 		context,
 		variableName,
@@ -453,7 +453,7 @@ const objectWithObjectAssignSettings = {
 
 // `Set` and `WeakSet`
 const setMutationSettings = {
-	testDeclarator: variableDeclarator => isCallExpressionWithOptionalArrayExpression(variableDeclarator.init, ['Set', 'WeakSet']),
+	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Set', 'WeakSet']),
 	getProblematicNode({
 		context,
 		variableName,
@@ -541,7 +541,7 @@ const setMutationSettings = {
 
 // `Map` and `WeakMap`
 const mapMutationSettings = {
-	testDeclarator: variableDeclarator => isCallExpressionWithOptionalArrayExpression(variableDeclarator.init, ['Map', 'WeakMap']),
+	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Map', 'WeakMap']),
 	getProblematicNode({
 		context,
 		variableName,
@@ -598,7 +598,6 @@ const mapMutationSettings = {
 
 		return problem;
 	},
-
 	getFix: (
 		{
 			context,
@@ -637,7 +636,7 @@ function getCaseProblem(
 	context,
 	variableDeclarator,
 	{
-		testDeclarator,
+		testValue,
 		getProblematicNode,
 		getProblem,
 		getFix,
@@ -645,7 +644,7 @@ function getCaseProblem(
 ) {
 	if (!(
 		variableDeclarator.id.type === 'Identifier'
-		&& testDeclarator(variableDeclarator)
+		&& testValue(variableDeclarator.init)
 	)) {
 		return;
 	}
@@ -692,11 +691,12 @@ function getCaseProblem(
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('VariableDeclarator', function * (variableDeclarator) {
-		for (const caseSettings of cases) {
-			yield getCaseProblem(context, variableDeclarator, caseSettings);
-		}
-	});
+	for (const caseSettings of cases) {
+		context.on('VariableDeclarator',
+			variableDeclarator =>
+				getCaseProblem(context, variableDeclarator, caseSettings),
+		);
+	}
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
