@@ -62,3 +62,4 @@ export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as getAncestor} from './get-ancestor.js';
 export * from './string-cases.js';
+export * from './numeric.js';

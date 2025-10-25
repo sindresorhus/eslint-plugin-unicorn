@@ -1,7 +1,9 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
-import needsSemicolon from './utils/needs-semicolon.js';
-import {isDecimalInteger} from './utils/numeric.js';
-import toLocation from './utils/to-location.js';
+import {
+	isParenthesized,
+	needsSemicolon,
+	isDecimalInteger,
+	toLocation,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isNumericLiteral} from './ast/index.js';
 
