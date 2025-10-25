@@ -1,6 +1,9 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import needsSemicolon from './utils/needs-semicolon.js';
-import isNumber from './utils/is-number.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	needsSemicolon,
+	isNumber,
+} from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
@@ -34,7 +37,7 @@ function getProblem(context, node) {
 
 	const {sourceCode} = context;
 	let text = sourceCode.getText(argumentNode);
-	if (isParenthesized(argumentNode, sourceCode)) {
+	if (isParenthesized(argumentNode, context)) {
 		text = `(${text})`;
 	}
 

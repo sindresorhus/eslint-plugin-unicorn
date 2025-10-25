@@ -1,6 +1,6 @@
-import {hasSideEffect, isParenthesized, findVariable} from '@eslint-community/eslint-utils';
+import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
-import {isSameIdentifier, isFunctionSelfUsedInside} from '../utils/index.js';
+import {isSameIdentifier, isFunctionSelfUsedInside, isParenthesized} from '../utils/index.js';
 
 const isSimpleCompare = (node, compareNode) =>
 	node.type === 'BinaryExpression'

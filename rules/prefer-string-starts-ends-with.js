@@ -1,8 +1,11 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import escapeString from './utils/escape-string.js';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
-import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
-import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	getParenthesizedText, getParenthesizedRange,
+	escapeString,
+	shouldAddParenthesesToMemberExpressionObject,
+	shouldAddParenthesesToLogicalExpressionChild,
+} from './utils/index.js';
 import {isMethodCall, isRegexLiteral} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';

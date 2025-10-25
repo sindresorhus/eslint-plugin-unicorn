@@ -1,6 +1,8 @@
-import isNewExpressionWithParentheses from '../utils/is-new-expression-with-parentheses.js';
-import {isParenthesized} from '../utils/parentheses.js';
-import isOnSameLine from '../utils/is-on-same-line.js';
+import {
+	isNewExpressionWithParentheses,
+	isParenthesized,
+	isOnSameLine,
+} from '../utils/index.js';
 import addParenthesizesToReturnOrThrowExpression from './add-parenthesizes-to-return-or-throw-expression.js';
 import removeSpaceAfter from './remove-spaces-after.js';
 

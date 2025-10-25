@@ -1,4 +1,4 @@
-import {getParenthesizedRange} from '../utils/parentheses.js';
+import {getParenthesizedRange} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';

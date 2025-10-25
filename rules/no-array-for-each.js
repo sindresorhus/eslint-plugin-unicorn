@@ -1,5 +1,4 @@
 import {
-	isParenthesized,
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
@@ -11,19 +10,23 @@ import {
 	fixSpaceAroundKeyword,
 	removeParentheses,
 } from './fix/index.js';
-import needsSemicolon from './utils/needs-semicolon.js';
-import shouldAddParenthesesToExpressionStatementExpression from './utils/should-add-parentheses-to-expression-statement-expression.js';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
-import {getParentheses, getParenthesizedRange} from './utils/parentheses.js';
-import isFunctionSelfUsedInside from './utils/is-function-self-used-inside.js';
-import {isNodeMatches} from './utils/is-node-matches.js';
-import assertToken from './utils/assert-token.js';
 import {
 	isArrowFunctionBody,
 	isMethodCall,
 	isReferenceIdentifier,
 	functionTypes,
 } from './ast/index.js';
+import {
+	needsSemicolon,
+	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToMemberExpressionObject,
+	isParenthesized,
+	getParentheses,
+	getParenthesizedRange,
+	isFunctionSelfUsedInside,
+	isNodeMatches,
+	assertToken,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -100,7 +103,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		text += ' of ';
 
 		const shouldAddParenthesesToObject
-			= isParenthesized(iterableObject, sourceCode)
+			= isParenthesized(iterableObject, context)
 				|| (
 				// `1?.forEach()` -> `(1).entries()`
 					isOptionalObject
@@ -145,7 +148,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		let textBefore = '';
 		let textAfter = '';
 		const shouldAddParentheses
-			= !isParenthesized(returnStatement.argument, sourceCode)
+			= !isParenthesized(returnStatement.argument, context)
 				&& shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
 			textBefore = `(${textBefore}`;

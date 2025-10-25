@@ -48,7 +48,7 @@ const create = context => ({
 					node.parent.type === 'MemberExpression'
 					&& node.parent.object === node
 					&& isDecimalInteger(formatted)
-					&& !isParenthesized(node, sourceCode)
+					&& !isParenthesized(node, context)
 				) {
 					fixed = `(${fixed})`;
 

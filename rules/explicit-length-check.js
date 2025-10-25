@@ -1,7 +1,11 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import {checkVueTemplate} from './utils/rule.js';
-import isLogicalExpression from './utils/is-logical-expression.js';
-import {isBooleanNode, getBooleanAncestor} from './utils/boolean.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	checkVueTemplate,
+	isLogicalExpression,
+	isBooleanNode,
+	getBooleanAncestor,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isLiteral, isMemberExpression, isNumericLiteral} from './ast/index.js';
 
@@ -114,7 +118,7 @@ function create(context) {
 
 		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
 		if (
-			!isParenthesized(node, sourceCode)
+			!isParenthesized(node, context)
 			&& node.type === 'UnaryExpression'
 			&& (node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
 		) {

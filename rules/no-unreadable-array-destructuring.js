@@ -49,7 +49,7 @@ const create = context => {
 						const code = isSlice ? `.slice(${index})` : `[${index}]`;
 						const array = parent.init;
 						if (
-							!isParenthesized(array, sourceCode)
+							!isParenthesized(array, context)
 							&& shouldAddParenthesesToMemberExpressionObject(array, context)
 						) {
 							yield fixer.insertTextBefore(array, '(');

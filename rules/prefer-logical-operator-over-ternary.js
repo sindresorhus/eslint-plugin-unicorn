@@ -1,7 +1,10 @@
-import {isParenthesized, getParenthesizedText} from './utils/parentheses.js';
-import isSameReference from './utils/is-same-reference.js';
-import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
-import needsSemicolon from './utils/needs-semicolon.js';
+import {
+	isParenthesized,
+	getParenthesizedText,
+	isSameReference,
+	shouldAddParenthesesToLogicalExpressionChild,
+	needsSemicolon,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';

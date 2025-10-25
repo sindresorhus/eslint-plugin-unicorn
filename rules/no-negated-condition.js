@@ -7,9 +7,12 @@ import {
 	fixSpaceAroundKeyword,
 	addParenthesizesToReturnOrThrowExpression,
 } from './fix/index.js';
-import {getParenthesizedRange, isParenthesized} from './utils/parentheses.js';
-import isOnSameLine from './utils/is-on-same-line.js';
-import needsSemicolon from './utils/needs-semicolon.js';
+import {
+	getParenthesizedRange,
+	isParenthesized,
+	isOnSameLine,
+	needsSemicolon,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-negated-condition';
 const messages = {
@@ -93,7 +96,6 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				const {sourceCode} = context;
 				yield * convertNegatedCondition(fixer, node, context);
 				yield * swapConsequentAndAlternate(fixer, node, context);
 
@@ -106,14 +108,15 @@ const create = context => {
 
 				yield * fixSpaceAroundKeyword(fixer, node, context);
 
+				const {sourceCode} = context;
 				const {parent} = node;
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === node
 					&& !isOnSameLine(firstToken, secondToken, context)
-					&& !isParenthesized(node, sourceCode)
-					&& !isParenthesized(test, sourceCode)
+					&& !isParenthesized(node, context)
+					&& !isParenthesized(test, context)
 				) {
 					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
