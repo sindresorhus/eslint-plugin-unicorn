@@ -1,4 +1,4 @@
-import toEslintCreate, {markFunctionWrapped} from '../rules/to-eslint-create.js';
+import toEslintCreate, {markFunctionWrapped} from '../rule/to-eslint-create.js';
 
 export function checkVueTemplate(unicornCreate, options) {
 	const {
