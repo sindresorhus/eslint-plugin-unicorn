@@ -23,19 +23,19 @@ Get surrounding parenthesis of the tokens or nodes.
 @returns [[OpeningParenthesisToken, ClosingParenthesisToken] | void]
 */
 function getSurroundingParentheses([head, tail], context) {
-	const before = context.sourceCode.getTokenBefore(head);
+	const tokenBefore = context.sourceCode.getTokenBefore(head);
 
-	if (!isOpeningParenthesisToken(before)) {
+	if (!tokenBefore || !isOpeningParenthesisToken(tokenBefore)) {
 		return;
 	}
 
-	const after = context.sourceCode.getTokenAfter(tail);
+	const tokenAfter = context.sourceCode.getTokenAfter(tail);
 
-	if (!isClosingParenthesisToken(after)) {
+	if (!tokenBefore || !isClosingParenthesisToken(tokenAfter)) {
 		return;
 	}
 
-	return [before, after];
+	return [tokenBefore, tokenAfter];
 }
 
 const SYNTAX_OPENING_PARENTHESIS_INITIAL_VALUE = Symbol('SYNTAX_OPENING_PARENTHESIS_INITIAL_VALUE');

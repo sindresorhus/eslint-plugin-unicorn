@@ -1,7 +1,8 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
-	getParenthesizedText, getParenthesizedRange,
+	getParenthesizedText,
+	getParenthesizedRange,
 	escapeString,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToLogicalExpressionChild,
