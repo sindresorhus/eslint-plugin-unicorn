@@ -160,6 +160,11 @@ test.snapshot({
 		`,
 		outdent`
 			const array = [1]
+			;(( array.push(2) ))
+			;[0].map()
+		`,
+		outdent`
+			const array = [1]
 			array.push(2);
 			notNeeded.map()
 		`,
