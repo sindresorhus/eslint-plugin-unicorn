@@ -107,8 +107,8 @@ const create = context => {
 
 			function * fix(fixer, fixType) {
 				let targetText = getParenthesizedText(target, context);
-				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
-				const isTargetParenthesized = isParenthesized(target, sourceCode);
+				const isRegexParenthesized = isParenthesized(regexNode, context);
+				const isTargetParenthesized = isParenthesized(target, context);
 
 				switch (fixType) {
 					// Goal: `(target ?? '').startsWith(pattern)`
