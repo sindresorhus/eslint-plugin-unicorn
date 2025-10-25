@@ -346,18 +346,17 @@ test.snapshot({
 			const foo = {foo: 1};
 			Object.assign(bar, bar);
 		`,
-
+		outdent`
+			let object;
+			Object.assign(object, bar);
+		`,
 		outdent`
 			const object = {foo: 1};
-			Object.assign(object, bar);
+			Object.assign(object, object.foo);
 		`,
 		outdent`
-			var object = {foo: 1};
-			Object.assign(object, bar);
-		`,
-		outdent`
-			let object = {foo: 1};
-			Object.assign(object, bar);
+			const object = {foo: 1};
+			Object.assign(object, {baz(){return object}});
 		`,
 		// Not checking
 		outdent`
@@ -427,11 +426,15 @@ test.snapshot({
 		`,
 		outdent`
 			const object = {foo: 1};
-			Object.assign(object, {baz(){return object}})
+			Object.assign(object, bar());
 		`,
 		outdent`
-			const object = {foo: 1};
-			Object.assign(object, bar());
+			let object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			var object = {foo: 1};
+			Object.assign(object, bar);
 		`,
 		// ASI
 		outdent`
@@ -440,7 +443,7 @@ test.snapshot({
 			;[0].map()
 		`,
 		outdent`
-			const array = [1]
+			const object = {foo: 1}
 			Object.assign(object, bar)
 			;notNeeded.map()
 		`,
