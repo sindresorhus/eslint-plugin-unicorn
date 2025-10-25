@@ -104,7 +104,7 @@ export default function simpleArraySearchRule({method, replacement}) {
 
 			const fix = function * (fixer) {
 				let text = sourceCode.getText(searchValueNode);
-				if (isParenthesized(searchValueNode, sourceCode) && !isParenthesized(callback, sourceCode)) {
+				if (isParenthesized(searchValueNode, context) && !isParenthesized(callback, context)) {
 					text = `(${text})`;
 				}
 
