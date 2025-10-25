@@ -164,6 +164,18 @@ test.snapshot({
 			notNeeded.map()
 		`,
 		outdent`
+			const array = [1]
+			array.push(2);
+			array.push(3);
+			[0].map()
+		`,
+		outdent`
+			const array = [1]
+			array.push(2);
+			array.push(3);
+			notNeeded.map()
+		`,
+		outdent`
 			if(1) {
 				const array = [1]
 				array.push(2);
@@ -173,7 +185,7 @@ test.snapshot({
 	],
 });
 
-// `Object`
+// `Object` + `AssignmentExpression`
 test.snapshot({
 	valid: [
 		outdent`
@@ -280,8 +292,156 @@ test.snapshot({
 			;[0].map()
 		`,
 		outdent`
+			const object = {foo: 1}
+			object.bar = 2
+			;notNeeded.map()
+		`,
+	],
+});
+
+// `Object` + `Object.assign()`
+test.snapshot({
+	valid: [
+		outdent`
+			const object = [];
+			Object.assign(object, bar);
+		`,
+		outdent`
+			const [object] = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			const {object} = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign?.(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object?.assign(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign();
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar, extraArgument);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, ...bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			NotObject.notAssign(object, bar);
+		`,
+		outdent`
+			const foo = {foo: 1};
+			Object.assign(bar, bar);
+		`,
+
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			var object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			let object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		// Not checking
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar, baz);
+		`,
+	],
+	invalid: [
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {bar: 2});
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {bar, baz,});
+		`,
+		outdent`
+			const object = {foo: 1,};
+			Object.assign(object, {bar, baz,});
+		`,
+		outdent`
+			const object = {};
+			Object.assign(object, {bar, baz,});
+		`,
+		outdent`
+			const object = {};
+			Object.assign(object, {});
+		`,
+		outdent`
+			const object = {};
+			Object.assign((( object )), (( 0, bar)));
+		`,
+		outdent`
+			const object = {};
+			Object.assign((( object )), (( {bar: 2} )));
+		`,
+		outdent`
+			const otherVariable = 1,
+				object = {foo: 1};
+			Object.assign(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			${' \t'.repeat(5)}Object.assign(object, bar)${' \t'.repeat(5)}
+			foo()
+		`,
+		outdent`
+			const object = {foo: 1};
+			${' \t'.repeat(5)}Object.assign(object, bar)${' \t'.repeat(5)}
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar) // comment
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar)
+			Object.assign(object, {baz})
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {baz(object){return object}})
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {baz(){return object}})
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar());
+		`,
+		// ASI
+		outdent`
+			const object = {foo: 1}
+			Object.assign(object, bar)
+			;[0].map()
+		`,
+		outdent`
 			const array = [1]
-			array.push(2)
+			Object.assign(object, bar)
 			;notNeeded.map()
 		`,
 	],

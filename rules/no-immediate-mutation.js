@@ -17,12 +17,14 @@ import {
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_ARRAY = 'suggestion/array';
 const MESSAGE_ID_SUGGESTION_OBJECT = 'suggestion/object';
+const MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN = 'suggestion/object-assign';
 const MESSAGE_ID_SUGGESTION_SET = 'suggestion/set';
 const MESSAGE_ID_SUGGESTION_MAP = 'suggestion/map';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
 	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to declaration.',
 	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to declaration.',
+	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: 'Move properties to declaration.',
 	[MESSAGE_ID_SUGGESTION_SET]: 'Move the element to declaration.',
 	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to declaration.',
 };
@@ -61,17 +63,25 @@ function * removeExpressionStatementAfterDeclaration(expressionStatement, contex
 	yield removeExpressionStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
 }
 
-function appendElementsTextToArrayExpression(context, fixer, arrayExpression, elementsText) {
+function appendListTextToArrayExpressionOrObjectExpression(
+	context,
+	fixer,
+	arrayOrObjectExpression,
+	listText,
+) {
 	const {sourceCode} = context;
 	const [
 		penultimateToken,
 		closingBracketToken,
-	] = sourceCode.getLastTokens(arrayExpression, 2);
-	const shouldInsertComma = arrayExpression.elements.length > 0 && !isCommaToken(penultimateToken);
+	] = sourceCode.getLastTokens(arrayOrObjectExpression, 2);
+	const list = arrayOrObjectExpression.type === 'ArrayExpression'
+		? arrayOrObjectExpression.elements
+		: arrayOrObjectExpression.properties;
+	const shouldInsertComma = list.length > 0 && !isCommaToken(penultimateToken);
 
 	return fixer.insertTextBefore(
 		closingBracketToken,
-		`${shouldInsertComma ? ',' : ''} ${elementsText}`,
+		`${shouldInsertComma ? ',' : ''} ${listText}`,
 	);
 }
 
@@ -85,7 +95,7 @@ function * appendElementsTextToSetConstructor({
 	if (isNewExpressionWithParentheses(newExpression, context)) {
 		const [setInitialValue] = newExpression.arguments;
 		if (setInitialValue) {
-			yield appendElementsTextToArrayExpression(context, fixer, setInitialValue, elementsText);
+			yield appendListTextToArrayExpressionOrObjectExpression(context, fixer, setInitialValue, elementsText);
 		} else {
 			const {
 				openingParenthesisToken,
@@ -104,6 +114,15 @@ function * appendElementsTextToSetConstructor({
 	}
 
 	yield * removeExpressionStatementAfterDeclaration(expressionStatementAfterDeclaration, context, fixer);
+}
+
+function getObjectExpressionPropertiesText(objectExpression, context) {
+	const {sourceCode} = context;
+	const openingBraceToken = sourceCode.getFirstToken(objectExpression);
+	const [penultimateToken, closingBraceToken] = sourceCode.getLastTokens(objectExpression, 2);
+	const [, start] = sourceCode.getRange(openingBraceToken);
+	const [end] = sourceCode.getRange(isCommaToken(penultimateToken) ? penultimateToken : closingBraceToken);
+	return sourceCode.text.slice(start, end);
 }
 
 // `Array`
@@ -181,12 +200,14 @@ const arrayMutationSettings = {
 		const arrayExpression = variableDeclarator.init;
 		const text = getCallExpressionArgumentsText(context, callExpression, /* includeTrailingComma */ false);
 
-		yield (isPrepend
-			? fixer.insertTextAfter(
-				context.sourceCode.getFirstToken(arrayExpression),
-				`${text}, `,
-			)
-			: appendElementsTextToArrayExpression(context, fixer, arrayExpression, text));
+		yield (
+			isPrepend
+				? fixer.insertTextAfter(
+					context.sourceCode.getFirstToken(arrayExpression),
+					`${text}, `,
+				)
+				: appendListTextToArrayExpressionOrObjectExpression(context, fixer, arrayExpression, text)
+		);
 
 		yield * removeExpressionStatementAfterDeclaration(
 			expressionStatementAfterDeclaration,
@@ -196,8 +217,8 @@ const arrayMutationSettings = {
 	},
 };
 
-// `Object`
-const objectMutationSettings = {
+// `Object` + `AssignmentExpression`
+const objectWithAssignmentExpressionSettings = {
 	testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
 	getProblematicNode({
 		context,
@@ -308,6 +329,101 @@ const objectMutationSettings = {
 			closingBraceToken,
 			`${shouldInsertComma ? ',' : ''} ${text}`,
 		);
+
+		yield * removeExpressionStatementAfterDeclaration(
+			expressionStatementAfterDeclaration,
+			context,
+			fixer,
+		);
+	},
+};
+
+// `Object` + `Object.assign()`
+const objectWithObjectAssignSettings = {
+	testDeclarator: variableDeclarator => variableDeclarator.init?.type === 'ObjectExpression',
+	getProblematicNode({
+		context,
+		variableName,
+		variable,
+		expressionStatementAfterDeclaration,
+	}) {
+		const callExpression = expressionStatementAfterDeclaration.expression;
+
+		if (isMethodCall(callExpression, {
+			object: 'Object',
+			method: 'assign',
+			argumentsLength: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		const [object, value] = callExpression.arguments;
+
+		if (!(object.type === 'Identifier' && object.name === variableName)) {
+			return;
+		}
+
+		if (hasVariableInNodes(variable, value, context)) {
+			return;
+		}
+
+		return callExpression;
+	},
+	getProblem(callExpression, information) {
+		const {
+			context,
+			getFix,
+		} = information;
+		const {sourceCode} = context;
+		const [, value] = callExpression;
+
+		const problem = {
+			node: callExpression.callee,
+			messageId: MESSAGE_ID_ERROR,
+			data: {description: 'object'},
+		};
+		const fix = getFix(information, {
+			value,
+		});
+
+		if (hasSideEffect(value, sourceCode)) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN,
+					fix,
+				},
+			];
+		} else {
+			problem.fix = fix;
+		}
+
+		return problem;
+	},
+	getFix: (
+		{
+			context,
+			variableDeclarator,
+			expressionStatementAfterDeclaration,
+		},
+		{
+			value,
+		},
+	) => function * (fixer) {
+		const objectExpression = variableDeclarator.init;
+		let text;
+		if (value.type === 'ObjectExpression') {
+			if (value.properties.length > 0) {
+				text = getObjectExpressionPropertiesText(value, context);
+			}
+		} else {
+			text = `...${getParenthesizedText(value, context)}`;
+		}
+
+		if (text) {
+			yield appendListTextToArrayExpressionOrObjectExpression(context, fixer, objectExpression, text);
+		}
 
 		yield * removeExpressionStatementAfterDeclaration(
 			expressionStatementAfterDeclaration,
@@ -485,7 +601,8 @@ const mapMutationSettings = {
 
 const cases = [
 	arrayMutationSettings,
-	objectMutationSettings,
+	objectWithAssignmentExpressionSettings,
+	objectWithObjectAssignSettings,
 	setMutationSettings,
 	mapMutationSettings,
 ];
