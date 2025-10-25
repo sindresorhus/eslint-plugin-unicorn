@@ -4,7 +4,10 @@ import {
 	isMemberExpression,
 	isNewExpression,
 } from './ast/index.js';
-import {removeExpressionStatement} from './fix/index.js';
+import {
+	removeExpressionStatement,
+	removeArgument,
+} from './fix/index.js';
 import {
 	getNextNode,
 	getCallExpressionArgumentsText,
@@ -24,7 +27,7 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
 	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to declaration.',
 	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to declaration.',
-	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: 'Move properties to declaration.',
+	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: '{{description}} declaration.',
 	[MESSAGE_ID_SUGGESTION_SET]: 'Move the element to declaration.',
 	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to declaration.',
 };
@@ -352,20 +355,20 @@ const objectWithObjectAssignSettings = {
 		if (!isMethodCall(callExpression, {
 			object: 'Object',
 			method: 'assign',
-			argumentsLength: 2,
+			minimumArguments: 2,
 			optionalCall: false,
 			optionalMember: false,
 		})) {
 			return;
 		}
 
-		const [object, value] = callExpression.arguments;
+		const [object, firstValue] = callExpression.arguments;
 
-		if (!(object.type === 'Identifier' && object.name === variableName)) {
-			return;
-		}
-
-		if (hasVariableInNodes(variable, [value], context)) {
+		if (
+			!(object.type === 'Identifier' && object.name === variableName)
+			|| firstValue.type === 'SpreadElement'
+			|| hasVariableInNodes(variable, [firstValue], context)
+		) {
 			return;
 		}
 
@@ -377,7 +380,7 @@ const objectWithObjectAssignSettings = {
 			getFix,
 		} = information;
 		const {sourceCode} = context;
-		const [, value] = callExpression.arguments;
+		const [, firstValue] = callExpression.arguments;
 
 		const problem = {
 			node: callExpression.callee,
@@ -385,13 +388,19 @@ const objectWithObjectAssignSettings = {
 			data: {description: 'object'},
 		};
 		const fix = getFix(information, {
-			value,
+			callExpression,
+			firstValue,
 		});
 
-		if (hasSideEffect(value, sourceCode)) {
+		if (hasSideEffect(firstValue, sourceCode)) {
+			const description = firstValue.type === 'ObjectExpression'
+				? 'Move properties to'
+				: 'Spread properties in';
+
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN,
+					data: {description},
 					fix,
 				},
 			];
@@ -408,21 +417,28 @@ const objectWithObjectAssignSettings = {
 			expressionStatementAfterDeclaration,
 		},
 		{
-			value,
+			callExpression,
+			firstValue,
 		},
 	) => function * (fixer) {
 		const objectExpression = variableDeclarator.init;
 		let text;
-		if (value.type === 'ObjectExpression') {
-			if (value.properties.length > 0) {
-				text = getObjectExpressionPropertiesText(value, context);
+		if (firstValue.type === 'ObjectExpression') {
+			if (firstValue.properties.length > 0) {
+				text = getObjectExpressionPropertiesText(firstValue, context);
 			}
 		} else {
-			text = `...${getParenthesizedText(value, context)}`;
+			text = `...${getParenthesizedText(firstValue, context)}`;
 		}
 
 		if (text) {
 			yield appendListTextToArrayExpressionOrObjectExpression(context, fixer, objectExpression, text);
+		}
+
+		if (callExpression.arguments.length !== 2) {
+			yield removeArgument(fixer, firstValue, context);
+
+			return;
 		}
 
 		yield * removeExpressionStatementAfterDeclaration(

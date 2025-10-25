@@ -332,7 +332,15 @@ test.snapshot({
 		`,
 		outdent`
 			const object = {foo: 1};
-			Object.assign(object, bar, extraArgument);
+			Object.assign(...object);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, ...spread);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, ...spread, bar);
 		`,
 		outdent`
 			const object = {foo: 1};
@@ -357,11 +365,6 @@ test.snapshot({
 		outdent`
 			const object = {foo: 1};
 			Object.assign(object, {baz(){return object}});
-		`,
-		// Not checking
-		outdent`
-			const object = {foo: 1};
-			Object.assign(object, bar, baz);
 		`,
 	],
 	invalid: [
@@ -435,6 +438,18 @@ test.snapshot({
 		outdent`
 			var object = {foo: 1};
 			Object.assign(object, bar);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar, baz);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {}, baz);
+		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, bar, ...baz, {bar: 2});
 		`,
 		// ASI
 		outdent`
