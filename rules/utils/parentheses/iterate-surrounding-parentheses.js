@@ -38,7 +38,7 @@ function getSurroundingParentheses([head, tail], context) {
 	return [before, after];
 }
 
-const SYNTAX_OPENING_PARENTHESIS_INITIAL_VALUE = Symbol('syntaxOpeningParenthesisInitialValue');
+const SYNTAX_OPENING_PARENTHESIS_INITIAL_VALUE = Symbol('SYNTAX_OPENING_PARENTHESIS_INITIAL_VALUE');
 
 /**
 Iterate surrounding parenthesis of the node.
