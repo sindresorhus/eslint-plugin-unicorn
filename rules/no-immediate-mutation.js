@@ -22,6 +22,11 @@ import {
 	isNewExpressionWithParentheses,
 } from './utils/index.js';
 
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_ARRAY = 'suggestion/array';
 const MESSAGE_ID_SUGGESTION_OBJECT = 'suggestion/object';
@@ -130,7 +135,31 @@ function getObjectExpressionPropertiesText(objectExpression, context) {
 	return sourceCode.text.slice(start, end);
 }
 
+/**
+@typedef {ESTree.VariableDeclarator['init'] | ESTree.AssignmentExpression['right']} ValueNode
+@typedef {(information: ViolationCaseInformation, arguments: any)} GetFix
+@typedef {Parameters<ESLint.Rule.RuleContext['report']>[0]} Problem
+@typedef {(information: ViolationCaseInformation) => ESTree.Node} GetProblematicNode
+@typedef {{
+	context: ESLint.Rule.RuleContext,
+	variable: ESLint.Scope.Variable,
+	variableNode: ESTree.Identifier,
+	valueNode: ValueNode,
+	statement: ESTree.VariableDeclaration | ESTree.ExpressionStatement,
+	nextExpressionStatement: ESTree.ExpressionStatement,
+	assignType: 'assignment' | 'declaration',
+	getFix: GetFix,
+}} ViolationCaseInformation
+@typedef {{
+	testValue: (value: ValueNode) => boolean,
+	getProblematicNode: GetProblematicNode,
+	getProblem: (node: ReturnType<GetProblematicNode>, information: ViolationCaseInformation) => Problem,
+	getFix: GetFix,
+}} ViolationCase
+*/
+
 // `Array`
+/** @type {ViolationCase} */
 const arrayMutationSettings = {
 	testValue: value => value?.type === 'ArrayExpression',
 	getProblematicNode({
@@ -224,6 +253,7 @@ const arrayMutationSettings = {
 };
 
 // `Object` + `AssignmentExpression`
+/** @type {ViolationCase} */
 const objectWithAssignmentExpressionSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
@@ -344,6 +374,7 @@ const objectWithAssignmentExpressionSettings = {
 };
 
 // `Object` + `Object.assign()`
+/** @type {ViolationCase} */
 const objectWithObjectAssignSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
@@ -451,6 +482,7 @@ const objectWithObjectAssignSettings = {
 };
 
 // `Set` and `WeakSet`
+/** @type {ViolationCase} */
 const setMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Set', 'WeakSet']),
 	getProblematicNode({
@@ -539,6 +571,7 @@ const setMutationSettings = {
 };
 
 // `Map` and `WeakMap`
+/** @type {ViolationCase} */
 const mapMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Map', 'WeakMap']),
 	getProblematicNode({
