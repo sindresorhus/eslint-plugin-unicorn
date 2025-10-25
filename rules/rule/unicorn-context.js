@@ -5,7 +5,7 @@
 
 /**
 @typedef {(type: ListenerType | ListenerType[], listener: Listener) => ReturnType<Listener>} UnicornRuleListen
-@typedef {ESLint & {
+@typedef {ESLint.Rule.RuleContext & {
 	on: UnicornRuleListen
 	onExit: UnicornRuleListen
 }} UnicornContext
@@ -19,6 +19,7 @@ Create a better `Context` object with `on` and `onExit` method to add listeners
 @returns {UnicornContext}
 */
 function createUnicornContext(eslintContext, listeners) {
+	/** @type {UnicornContext} */
 	const context = new Proxy(eslintContext, {
 		get(target, property, receiver) {
 			if (property === 'on' || property === 'onExit') {

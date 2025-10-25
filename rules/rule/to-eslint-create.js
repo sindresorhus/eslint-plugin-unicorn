@@ -4,14 +4,12 @@ import UnicornListeners from './unicorn-listeners.js';
 /**
 @import * as ESLint from 'eslint';
 @import {UnicornContext} from './unicorn-context.js';
+@import {EslintListers, ListenerType, EslintListener} from './to-eslint-listener.js'
 */
 
 /**
-@typedef {keyof ESLint.Rule.RuleListener} ListenerType
-@typedef {valueof ESLint.Rule.RuleListener} Listener
 @typedef {ESLint.Rule.RuleModule['create']} EslintCreate
-@typedef {(context: UnicornContext) => (ReturnType<EslintCreate> | void)} UnicornCreate
-@typedef {ESLint.Rule['RuleListener']} EslintListers
+@typedef {(context: UnicornContext) => (EslintListers | void)} UnicornCreate
 */
 
 // `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice

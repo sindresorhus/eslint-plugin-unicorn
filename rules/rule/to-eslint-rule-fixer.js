@@ -27,11 +27,10 @@ Convert Unicorn style fix function to ESLint style fix function
 @returns {ESLint.Rule.RuleFixer}
 */
 function toEslintRuleFixer(fix) {
+	/** @param {UnicornReportFixer} fixer */
 	return fixer => {
-		/** @type {UnicornReportFixer} */
 		const unicornReport = fix(fixer, fixOptions);
 
-		/** @type {IterableIterator<ESLint.Rule.Fix>} */
 		const eslintReport = iterateFixOrProblems(unicornReport);
 
 		try {

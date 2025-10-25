@@ -1,5 +1,19 @@
 import toEslintFixer from './to-eslint-rule-fixer.js';
 
+/**
+@import * as ESLint from 'eslint';
+*/
+
+/**
+@typedef {Parameters<ESLint.Rule.RuleContext['report']>[0]} EslintProblem
+@typedef {EslintProblem} UnicornProblem
+@typedef {EslintProblem | undefined | EslintProblem[] | IterableIterator<EslintProblem>} UnicornProblems
+*/
+
+/**
+@param {UnicornProblem} unicornProblem
+@returns {EslintProblem}
+*/
 function toEslintProblem(unicornProblem) {
 	const eslintProblem = {...unicornProblem};
 

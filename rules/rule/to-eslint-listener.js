@@ -3,25 +3,28 @@ import toEslintProblem from './to-eslint-problem.js';
 
 /**
 @import * as ESLint from 'eslint';
+@import {UnicornContext} from './unicorn-context.js'
+@import {UnicornProblems} from './to-eslint-problem.js'
 */
 
 /**
-@typedef {keyof ESLint.Rule.RuleListener} ListenerType
-@typedef {value } Listener
-@typedef {(type: ListenerType | ListenerType[], listener: Listener) => void} UnicornRuleListen
-
-@typedef {ESLint & {
-	on: UnicornRuleListen
-	onExit: UnicornRuleListen
-}} UnicornContext
+@typedef {ESLint.Rule.RuleListener} EslintListers
+@typedef {keyof EslintListers} ListenerType
+@typedef {EslintListers[ListenerType]} EslintListener
+@typedef {(...listenerArguments: Parameters<EslintListener>) => UnicornProblems} UnicornRuleListen
 */
 
+/**
+@param {UnicornContext} context
+@param {UnicornRuleListen} listener
+@returns {Listener}
+*/
 function toEslintListener(context, listener) {
 	// Listener arguments can be `codePath, node` or `node`
 
-	/*
-	@typedef {Parameters<ESLint.Rule.RuleListener>}
- */
+	/**
+	@type {UnicornRuleListen}
+	*/
 	return (...listenerArguments) => {
 		const unicornProblems = listener(...listenerArguments);
 
