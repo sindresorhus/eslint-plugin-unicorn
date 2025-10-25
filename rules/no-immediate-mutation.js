@@ -29,12 +29,12 @@ const MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN = 'suggestion/object-assign';
 const MESSAGE_ID_SUGGESTION_SET = 'suggestion/set';
 const MESSAGE_ID_SUGGESTION_MAP = 'suggestion/map';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{description}} is not allowed.',
-	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to declaration.',
-	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to declaration.',
-	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: '{{description}} declaration.',
-	[MESSAGE_ID_SUGGESTION_SET]: 'Move the element to declaration.',
-	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to declaration.',
+	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{objectType}} is not allowed.',
+	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to the {{assignType}}.',
+	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to the {{assignType}}.',
+	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: '{{description}} the {{assignType}}.',
+	[MESSAGE_ID_SUGGESTION_SET]: 'Move the element to the {{assignType}}.',
+	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to the {{assignType}}.',
 };
 
 const hasVariableInNodes = (variable, nodes, context) => {
@@ -161,6 +161,7 @@ const arrayMutationSettings = {
 	getProblem(callExpression, information) {
 		const {
 			context,
+			assignType,
 			getFix,
 		} = information;
 		const {sourceCode} = context;
@@ -169,7 +170,7 @@ const arrayMutationSettings = {
 		const problem = {
 			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
-			data: {description: 'array'},
+			data: {objectType: 'array'},
 		};
 
 		const isPrepend = method.name === 'unshift';
@@ -183,7 +184,7 @@ const arrayMutationSettings = {
 				{
 					messageId: MESSAGE_ID_SUGGESTION_ARRAY,
 					fix,
-					data: {operation: isPrepend ? 'Prepend' : 'Append'},
+					data: {operation: isPrepend ? 'Prepend' : 'Append', assignType},
 				},
 			];
 		} else {
@@ -258,6 +259,7 @@ const objectWithAssignmentExpressionSettings = {
 	getProblem(assignmentExpression, information) {
 		const {
 			context,
+			assignType,
 			getFix,
 		} = information;
 		const {sourceCode} = context;
@@ -276,7 +278,7 @@ const objectWithAssignmentExpressionSettings = {
 				end: sourceCode.getLoc(operatorToken).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
-			data: {description: 'object'},
+			data: {objectType: 'object'},
 		};
 		const fix = getFix(information, {
 			assignmentExpression,
@@ -292,6 +294,7 @@ const objectWithAssignmentExpressionSettings = {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION_OBJECT,
+					data: {assignType},
 					fix,
 				},
 			];
@@ -375,6 +378,7 @@ const objectWithObjectAssignSettings = {
 	getProblem(callExpression, information) {
 		const {
 			context,
+			assignType,
 			getFix,
 		} = information;
 		const {sourceCode} = context;
@@ -383,7 +387,7 @@ const objectWithObjectAssignSettings = {
 		const problem = {
 			node: callExpression.callee,
 			messageId: MESSAGE_ID_ERROR,
-			data: {description: 'object'},
+			data: {objectType: 'object'},
 		};
 		const fix = getFix(information, {
 			callExpression,
@@ -398,7 +402,7 @@ const objectWithObjectAssignSettings = {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN,
-					data: {description},
+					data: {description, assignType},
 					fix,
 				},
 			];
@@ -478,15 +482,16 @@ const setMutationSettings = {
 	getProblem(callExpression, information) {
 		const {
 			context,
-			getFix,
+			assignType,
 			valueNode: newExpression,
+			getFix,
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
 		const problem = {
 			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
-			data: {description: `\`${newExpression.callee.name}\``},
+			data: {objectType: `\`${newExpression.callee.name}\``},
 		};
 
 		const fix = getFix(information, {
@@ -498,6 +503,7 @@ const setMutationSettings = {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION_SET,
+					data: {assignType},
 					fix,
 				},
 			];
@@ -560,15 +566,16 @@ const mapMutationSettings = {
 	getProblem(callExpression, information) {
 		const {
 			context,
-			getFix,
+			assignType,
 			valueNode: newExpression,
+			getFix,
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
 		const problem = {
 			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
-			data: {description: `\`${newExpression.callee.name}\``},
+			data: {objectType: `\`${newExpression.callee.name}\``},
 		};
 
 		const fix = getFix(information, {
@@ -580,6 +587,7 @@ const mapMutationSettings = {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION_MAP,
+					data: {assignType},
 					fix,
 				},
 			];
@@ -689,6 +697,7 @@ function getCaseProblem(
 		valueNode,
 		statement,
 		nextExpressionStatement,
+		assignType: isAssignment ? 'assignment' : 'declaration',
 		getFix,
 	};
 
@@ -720,7 +729,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow immediate mutation after declaration.',
+			description: 'Disallow immediate mutation after variable assignment.',
 			recommended: true,
 		},
 		fixable: 'code',

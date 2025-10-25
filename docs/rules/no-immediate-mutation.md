@@ -1,4 +1,4 @@
-# Disallow immediate mutation after declaration
+# Disallow immediate mutation after variable assignment
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -7,13 +7,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Immediate mutation after declaration is not allowed when it can be done in the variable initialization step.
+Immediate mutation after assignment is not allowed when it can be done in the assignment step.
 
-- Declare an array literal and immediately mutate with `Array#{push,unshift}(…)`.
-- Declare an object literal and immediately assign another property.
-- Declare an object literal and immediately mutate with `Object.assign(…)`.
-- Declare a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
-- Declare a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
+- Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
+- Assign variable to an object literal and immediately assign another property.
+- Assign variable to an object literal and immediately mutate with `Object.assign(…)`.
+- Assign variable to a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
+- Assign variable to a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples
 
