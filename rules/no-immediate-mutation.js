@@ -1,4 +1,9 @@
-import {hasSideEffect, isCommaToken, isSemicolonToken} from '@eslint-community/eslint-utils';
+import {
+	hasSideEffect,
+	isCommaToken,
+	isSemicolonToken,
+	findVariable,
+} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isMemberExpression,
@@ -32,9 +37,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_MAP]: 'Move the entry to declaration.',
 };
 
-const getVariable = (variableDeclarator, context) =>
-	context.sourceCode.getDeclaredVariables(variableDeclarator)
-		.find(variable => variable.defs.length === 1 && variable.defs[0].name === variableDeclarator.id);
 const hasVariableInNodes = (variable, nodes, context) => {
 	const {sourceCode} = context;
 	const identifiers = getVariableIdentifiers(variable);
@@ -60,7 +62,7 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 	return (!iterable || iterable.type === 'ArrayExpression');
 }
 
-function * removeExpressionStatementAfterDeclaration(expressionStatement, context, fixer) {
+function * removeExpressionStatementAfterAssign(expressionStatement, context, fixer) {
 	const tokenBefore = context.sourceCode.getTokenBefore(expressionStatement);
 	const shouldPreserveSemiColon = !isSemicolonToken(tokenBefore);
 	yield removeExpressionStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
@@ -93,7 +95,7 @@ function * appendElementsTextToSetConstructor({
 	fixer,
 	newExpression,
 	elementsText,
-	expressionStatementAfterDeclaration,
+	nextExpressionStatement,
 }) {
 	if (isNewExpressionWithParentheses(newExpression, context)) {
 		const [setInitialValue] = newExpression.arguments;
@@ -116,7 +118,7 @@ function * appendElementsTextToSetConstructor({
 		yield fixer.insertTextAfter(newExpression, `([${elementsText}])`);
 	}
 
-	yield * removeExpressionStatementAfterDeclaration(expressionStatementAfterDeclaration, context, fixer);
+	yield * removeExpressionStatementAfterAssign(nextExpressionStatement, context, fixer);
 }
 
 function getObjectExpressionPropertiesText(objectExpression, context) {
@@ -133,15 +135,14 @@ const arrayMutationSettings = {
 	testValue: value => value?.type === 'ArrayExpression',
 	getProblematicNode({
 		context,
-		variableName,
 		variable,
-		expressionStatementAfterDeclaration,
+		nextExpressionStatement,
 	}) {
-		const callExpression = expressionStatementAfterDeclaration.expression;
+		const callExpression = nextExpressionStatement.expression;
 
 		if (!(
 			isMethodCall(callExpression, {
-				object: variableName,
+				object: variable.name,
 				methods: ['push', 'unshift'],
 				optionalMember: false,
 				optionalCall: false,
@@ -194,15 +195,14 @@ const arrayMutationSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclarator,
-			expressionStatementAfterDeclaration,
+			valueNode: arrayExpression,
+			nextExpressionStatement,
 		},
 		{
 			callExpression,
 			isPrepend,
 		},
 	) => function * (fixer) {
-		const arrayExpression = variableDeclarator.init;
 		const text = getCallExpressionArgumentsText(context, callExpression, /* includeTrailingComma */ false);
 
 		yield (
@@ -214,8 +214,8 @@ const arrayMutationSettings = {
 				: appendListTextToArrayExpressionOrObjectExpression(context, fixer, arrayExpression, text)
 		);
 
-		yield * removeExpressionStatementAfterDeclaration(
-			expressionStatementAfterDeclaration,
+		yield * removeExpressionStatementAfterAssign(
+			nextExpressionStatement,
 			context,
 			fixer,
 		);
@@ -227,15 +227,14 @@ const objectWithAssignmentExpressionSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
 		context,
-		variableName,
 		variable,
-		expressionStatementAfterDeclaration,
+		nextExpressionStatement,
 	}) {
-		const assignmentExpression = expressionStatementAfterDeclaration.expression;
+		const assignmentExpression = nextExpressionStatement.expression;
 		if (!(
 			assignmentExpression.type === 'AssignmentExpression'
 			&& assignmentExpression.operator === '='
-			&& isMemberExpression(assignmentExpression.left, {object: variableName, optional: false})
+			&& isMemberExpression(assignmentExpression.left, {object: variable.name, optional: false})
 		)) {
 			return;
 		}
@@ -305,8 +304,8 @@ const objectWithAssignmentExpressionSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclarator,
-			expressionStatementAfterDeclaration,
+			valueNode: objectExpression,
+			nextExpressionStatement,
 		},
 		{
 			memberExpression,
@@ -314,8 +313,6 @@ const objectWithAssignmentExpressionSettings = {
 			value,
 		},
 	) => function * (fixer) {
-		const objectExpression = variableDeclarator.init;
-
 		let propertyText = getParenthesizedText(property, context);
 		if (memberExpression.computed) {
 			propertyText = `[${propertyText}]`;
@@ -335,8 +332,8 @@ const objectWithAssignmentExpressionSettings = {
 			`${shouldInsertComma ? ',' : ''} ${text}`,
 		);
 
-		yield * removeExpressionStatementAfterDeclaration(
-			expressionStatementAfterDeclaration,
+		yield * removeExpressionStatementAfterAssign(
+			nextExpressionStatement,
 			context,
 			fixer,
 		);
@@ -348,11 +345,10 @@ const objectWithObjectAssignSettings = {
 	testValue: value => value?.type === 'ObjectExpression',
 	getProblematicNode({
 		context,
-		variableName,
 		variable,
-		expressionStatementAfterDeclaration,
+		nextExpressionStatement,
 	}) {
-		const callExpression = expressionStatementAfterDeclaration.expression;
+		const callExpression = nextExpressionStatement.expression;
 
 		if (!isMethodCall(callExpression, {
 			object: 'Object',
@@ -367,7 +363,7 @@ const objectWithObjectAssignSettings = {
 		const [object, firstValue] = callExpression.arguments;
 
 		if (
-			!(object.type === 'Identifier' && object.name === variableName)
+			!(object.type === 'Identifier' && object.name === variable.name)
 			|| firstValue.type === 'SpreadElement'
 			|| hasVariableInNodes(variable, [firstValue], context)
 		) {
@@ -415,15 +411,14 @@ const objectWithObjectAssignSettings = {
 	getFix: (
 		{
 			context,
-			variableDeclarator,
-			expressionStatementAfterDeclaration,
+			valueNode: objectExpression,
+			nextExpressionStatement,
 		},
 		{
 			callExpression,
 			firstValue,
 		},
 	) => function * (fixer) {
-		const objectExpression = variableDeclarator.init;
 		let text;
 		if (firstValue.type === 'ObjectExpression') {
 			if (firstValue.properties.length > 0) {
@@ -443,8 +438,8 @@ const objectWithObjectAssignSettings = {
 			return;
 		}
 
-		yield * removeExpressionStatementAfterDeclaration(
-			expressionStatementAfterDeclaration,
+		yield * removeExpressionStatementAfterAssign(
+			nextExpressionStatement,
 			context,
 			fixer,
 		);
@@ -456,17 +451,16 @@ const setMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Set', 'WeakSet']),
 	getProblematicNode({
 		context,
-		variableName,
 		variable,
-		expressionStatementAfterDeclaration,
+		nextExpressionStatement,
 	}) {
-		let callExpression = expressionStatementAfterDeclaration.expression;
+		let callExpression = nextExpressionStatement.expression;
 		if (callExpression.type === 'ChainExpression') {
 			callExpression = callExpression.expression;
 		}
 
 		if (!isMethodCall(callExpression, {
-			object: variableName,
+			object: variable.name,
 			method: 'add',
 			argumentsLength: 1,
 			optionalMember: false,
@@ -485,11 +479,10 @@ const setMutationSettings = {
 		const {
 			context,
 			getFix,
-			variableDeclarator,
+			valueNode: newExpression,
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
-		const newExpression = variableDeclarator.init;
 		const problem = {
 			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
@@ -517,7 +510,7 @@ const setMutationSettings = {
 	getFix: (
 		{
 			context,
-			expressionStatementAfterDeclaration,
+			nextExpressionStatement,
 		},
 		{
 			callExpression,
@@ -534,7 +527,7 @@ const setMutationSettings = {
 			fixer,
 			newExpression,
 			elementsText,
-			expressionStatementAfterDeclaration,
+			nextExpressionStatement,
 		});
 	},
 };
@@ -544,14 +537,13 @@ const mapMutationSettings = {
 	testValue: value => isCallExpressionWithOptionalArrayExpression(value, ['Map', 'WeakMap']),
 	getProblematicNode({
 		context,
-		variableName,
 		variable,
-		expressionStatementAfterDeclaration,
+		nextExpressionStatement,
 	}) {
-		const callExpression = expressionStatementAfterDeclaration.expression;
+		const callExpression = nextExpressionStatement.expression;
 
 		if (!isMethodCall(callExpression, {
-			object: variableName,
+			object: variable.name,
 			method: 'set',
 			argumentsLength: 2,
 			optionalCall: false,
@@ -569,11 +561,10 @@ const mapMutationSettings = {
 		const {
 			context,
 			getFix,
-			variableDeclarator,
+			valueNode: newExpression,
 		} = information;
 		const {sourceCode} = context;
 		const memberExpression = callExpression.callee;
-		const newExpression = variableDeclarator.init;
 		const problem = {
 			node: memberExpression,
 			messageId: MESSAGE_ID_ERROR,
@@ -601,7 +592,7 @@ const mapMutationSettings = {
 	getFix: (
 		{
 			context,
-			expressionStatementAfterDeclaration,
+			nextExpressionStatement,
 		},
 		{
 			callExpression,
@@ -619,7 +610,7 @@ const mapMutationSettings = {
 			fixer,
 			newExpression,
 			elementsText: entryText,
-			expressionStatementAfterDeclaration,
+			nextExpressionStatement,
 		});
 	},
 };
@@ -632,9 +623,26 @@ const cases = [
 	mapMutationSettings,
 ];
 
+function isLastDeclarator(variableDeclarator) {
+	const variableDeclaration = variableDeclarator.parent;
+	return (
+		variableDeclaration.type === 'VariableDeclaration'
+		&& variableDeclaration.declarations.at(-1) === variableDeclarator
+	);
+}
+
+const getVariable = (node, context) => {
+	if (node.type === 'VariableDeclarator') {
+		return context.sourceCode.getDeclaredVariables(node)
+			.find(variable => variable.defs.length === 1 && variable.defs[0].name === node.id);
+	}
+
+	return findVariable(context.getScope(), node.left.name);
+};
+
 function getCaseProblem(
 	context,
-	variableDeclarator,
+	assignNode,
 	{
 		testValue,
 		getProblematicNode,
@@ -642,29 +650,33 @@ function getCaseProblem(
 		getFix,
 	},
 ) {
+	const isAssignment = assignNode.type === 'AssignmentExpression';
+	const [variableNode, valueNode] = (isAssignment ? ['left', 'right'] : ['id', 'init'])
+		.map(property => assignNode[property]);
+
+	// eslint-disable-next-line no-warning-comments
+	// TODO[@fisker]: `AssignmentExpression` should not limit to `Identifier`
+	if (!(variableNode.type === 'Identifier' && testValue(valueNode))) {
+		return;
+	}
+
+	const statement = assignNode.parent;
+
 	if (!(
-		variableDeclarator.id.type === 'Identifier'
-		&& testValue(variableDeclarator.init)
+		// eslint-disable-next-line no-warning-comments
+		// TODO[@fisker]: `AssignmentExpression` should support `a = b = c` too
+		(isAssignment && statement.type === 'ExpressionStatement' && statement.expression === assignNode)
+		|| (!isAssignment && isLastDeclarator(assignNode))
 	)) {
 		return;
 	}
 
-	const variableDeclaration = variableDeclarator.parent;
-	if (!(
-		variableDeclaration.type === 'VariableDeclaration'
-		&& variableDeclaration.declarations.at(-1) === variableDeclarator
-	)) {
+	const nextExpressionStatement = getNextNode(statement, context);
+	if (nextExpressionStatement?.type !== 'ExpressionStatement') {
 		return;
 	}
 
-	const expressionStatementAfterDeclaration = getNextNode(variableDeclaration, context);
-	if (expressionStatementAfterDeclaration?.type !== 'ExpressionStatement') {
-		return;
-	}
-
-	const variableName = variableDeclarator.id.name;
-	const variable = getVariable(variableDeclarator, context);
-
+	const variable = getVariable(assignNode, context);
 	/* c8 ignore next */
 	if (!variable) {
 		return;
@@ -672,29 +684,32 @@ function getCaseProblem(
 
 	const information = {
 		context,
-		variableName,
 		variable,
-		variableDeclarator,
-		variableDeclaration,
-		expressionStatementAfterDeclaration,
+		variableNode,
+		valueNode,
+		statement,
+		nextExpressionStatement,
 		getFix,
 	};
 
-	const problemNode = getProblematicNode(information);
+	const problematicNode = getProblematicNode(information);
 
-	if (!problemNode) {
+	if (!problematicNode) {
 		return;
 	}
 
-	return getProblem(problemNode, information);
+	return getProblem(problematicNode, information);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	for (const caseSettings of cases) {
-		context.on('VariableDeclarator',
-			variableDeclarator =>
-				getCaseProblem(context, variableDeclarator, caseSettings),
+		context.on(
+			[
+				'VariableDeclarator',
+				'AssignmentExpression',
+			],
+			assignNode => getCaseProblem(context, assignNode, caseSettings),
 		);
 	}
 };
