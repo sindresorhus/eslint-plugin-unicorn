@@ -19,6 +19,12 @@ function isRuleCreate(functionNode) {
 				&& functionNode.parent.parent.declarations.length === 1
 				&& functionNode.parent.parent.declarations[0] === functionNode.parent
 			)
+			|| (
+				functionNode.parent.type === 'Property'
+				&& functionNode.parent.value === functionNode
+				&& functionNode.parent.key.type === 'Identifier'
+				&& functionNode.parent.key.name === 'create'
+			)
 		)
 	);
 }

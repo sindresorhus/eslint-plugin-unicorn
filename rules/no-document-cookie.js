@@ -13,7 +13,9 @@ const tracker = new GlobalReferenceTracker({
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => tracker.listen({context}),
+	create(context) {
+		tracker.listen({context});
+	},
 	meta: {
 		type: 'problem',
 		docs: {
