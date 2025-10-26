@@ -84,7 +84,7 @@ function check(context, functionNode, listeners) {
 				text,
 				start,
 				end,
-				isType: text.startsWith('/**\n'),
+				isType: text.startsWith('/**'),
 			};
 		});
 
@@ -101,7 +101,7 @@ function check(context, functionNode, listeners) {
 			const {
 				commentsBefore = [],
 				commentsForListener = [],
-			} = Object.groupBy(comments, comment => comment.isType ? 'commentsBefore' : 'commentsForListener');
+			} = Object.groupBy(comments, comment => comment.isType ? 'commentsForListener' : 'commentsBefore');
 
 			yield fixer.insertTextBeforeRange(
 				range,

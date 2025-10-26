@@ -84,8 +84,8 @@ const create = context => {
 				&& parentNode.property.type === 'Identifier'
 				&& parentNode.property.name === 'parentNode'
 				&& parentNode.object.type === 'Identifier'
-					&& childNode.type === 'Identifier'
-					&& parentNode.object.name === childNode.name
+				&& childNode.type === 'Identifier'
+				&& parentNode.object.name === childNode.name
 			) {
 				problem.fix = createFix(true);
 				return problem;
