@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Immediate mutation after assignment is not allowed when it can be done in the assignment step.
+When you create a variable and immediately mutate it, you should instead include those changes in the initial value.
 
 - Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
 - Assign variable to an object literal and immediately assign another property.
@@ -27,7 +27,6 @@ const array = [1, 2, 3, 4];
 ```
 
 ```js
-
 // ❌
 const array = [3, 4];
 array.unshift(1, 2);
@@ -42,25 +41,25 @@ const object = {foo: 1};
 object.bar = 2;
 
 // ✅
-const obj = {foo: 1, bar: 2};
+const object = {foo: 1, bar: 2};
 ```
 
 ```js
 // ❌
 const object = {foo: 1};
-Object.assign(object, {bar: 2})
+Object.assign(object, {bar: 2});
 
 // ✅
-const obj = {foo: 1, bar: 2};
+const object = {foo: 1, bar: 2};
 ```
 
 ```js
 // ❌
 const object = {foo: 1};
-Object.assign(object, bar)
+Object.assign(object, bar);
 
 // ✅
-const obj = {foo: 1, ...bar};
+const object = {foo: 1, ...bar};
 ```
 
 ```js
