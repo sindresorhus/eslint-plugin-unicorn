@@ -1,5 +1,7 @@
-import isSameReference from '../utils/is-same-reference.js';
-import {getParenthesizedRange} from '../utils/parentheses.js';
+import {
+	isSameReference,
+	getParenthesizedRange,
+} from '../utils/index.js';
 import {isNumericLiteral} from '../ast/index.js';
 
 /**

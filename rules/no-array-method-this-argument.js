@@ -1,9 +1,12 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {removeArgument} from './fix/index.js';
-import {getParentheses, getParenthesizedText} from './utils/parentheses.js';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
-import {isNodeMatches} from './utils/is-node-matches.js';
-import {isNodeValueNotFunction} from './utils/index.js';
+import {
+	getParentheses,
+	getParenthesizedText,
+	shouldAddParenthesesToMemberExpressionObject,
+	isNodeMatches,
+	isNodeValueNotFunction,
+} from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
 const ERROR_PROTOTYPE_METHOD = 'error-prototype-method';

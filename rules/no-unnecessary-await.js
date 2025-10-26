@@ -1,7 +1,5 @@
 import {addParenthesizesToReturnOrThrowExpression, removeSpacesAfter} from './fix/index.js';
-import {isParenthesized} from './utils/parentheses.js';
-import needsSemicolon from './utils/needs-semicolon.js';
-import isOnSameLine from './utils/is-on-same-line.js';
+import {isParenthesized, needsSemicolon, isOnSameLine} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -74,7 +72,7 @@ const create = context => ({
 			* fix(fixer) {
 				if (
 					!isOnSameLine(awaitToken, valueNode, context)
-					&& !isParenthesized(node, sourceCode)
+					&& !isParenthesized(node, context)
 				) {
 					yield addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
 				}

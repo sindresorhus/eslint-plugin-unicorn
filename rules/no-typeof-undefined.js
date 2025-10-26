@@ -26,8 +26,6 @@ const create = context => {
 		...context.options[0],
 	};
 
-	const {sourceCode} = context;
-
 	return {
 		BinaryExpression(binaryExpression) {
 			if (!(
@@ -46,7 +44,7 @@ const create = context => {
 			}
 
 			const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
-
+			const {sourceCode} = context;
 			const valueNode = typeofNode.argument;
 			const isGlobalVariable = valueNode.type === 'Identifier'
 				&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
@@ -78,8 +76,8 @@ const create = context => {
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === binaryExpression
 					&& !isOnSameLine(typeofToken, secondToken, context)
-					&& !isParenthesized(binaryExpression, sourceCode)
-					&& !isParenthesized(typeofNode, sourceCode)
+					&& !isParenthesized(binaryExpression, context)
+					&& !isParenthesized(typeofNode, context)
 				) {
 					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;

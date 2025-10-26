@@ -1,5 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {getParenthesizedText, getParenthesizedRange} from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
 import {isNumericLiteral, isMethodCall} from './ast/index.js';
 

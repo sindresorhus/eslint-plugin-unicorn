@@ -1,4 +1,4 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
+import {isParenthesized} from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
 
@@ -15,15 +15,16 @@ const extraMessages = {
 const getEventMethodName = memberExpression => memberExpression.property.name;
 const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 
-const fixCode = (fixer, sourceCode, assignmentNode, memberExpression) => {
+const fixCode = (fixer, context, assignmentNode, memberExpression) => {
+	const {sourceCode} = context;
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
 	let eventObjectCode = sourceCode.getText(memberExpression.object);
-	if (isParenthesized(memberExpression.object, sourceCode)) {
+	if (isParenthesized(memberExpression.object, context)) {
 		eventObjectCode = `(${eventObjectCode})`;
 	}
 
 	let fncCode = sourceCode.getText(assignmentNode.right);
-	if (isParenthesized(assignmentNode.right, sourceCode)) {
+	if (isParenthesized(assignmentNode.right, context)) {
 		fncCode = `(${fncCode})`;
 	}
 
@@ -139,7 +140,7 @@ const create = context => {
 				&& node.parent.type === 'ExpressionStatement'
 				&& node.parent.expression === node
 			) {
-				fix = fixer => fixCode(fixer, context.sourceCode, node, memberExpression);
+				fix = fixer => fixCode(fixer, context, node, memberExpression);
 			}
 
 			return {

@@ -1,4 +1,4 @@
-import {isParenthesized, getParenthesizedRange} from './utils/parentheses.js';
+import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import {removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
@@ -30,7 +30,7 @@ const create = context => ({
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
 				const {left} = logicalExpression;
-				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
+				const isLeftObjectParenthesized = isParenthesized(left, context);
 				const [, start] = isLeftObjectParenthesized
 					? getParenthesizedRange(left, context)
 					: sourceCode.getRange(left);

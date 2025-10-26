@@ -1,4 +1,3 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
 	needsSemicolon,
@@ -7,6 +6,7 @@ import {
 	getParenthesizedText,
 	shouldAddParenthesesToConditionalExpressionChild,
 	getScopes,
+	isParenthesized,
 } from './utils/index.js';
 import {extendFixRange} from './fix/index.js';
 

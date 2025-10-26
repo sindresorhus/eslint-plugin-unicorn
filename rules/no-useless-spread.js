@@ -93,7 +93,7 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 		&& parent.argument === arrayExpression
 		&& !isOnSameLine(openingBracketToken, thirdToken, context)
-		&& !isParenthesized(arrayExpression, sourceCode)
+		&& !isParenthesized(arrayExpression, context)
 	) {
 		yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 		return;
