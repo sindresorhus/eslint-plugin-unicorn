@@ -31,6 +31,15 @@ function * removeProperty(property, context, fixer) {
 	}
 }
 
+function printComments(comments) {
+	if (comments.length === 0) {
+		return '';
+	}
+
+	const text = comments.map(({text}) => `\t${text}`).join('\n');
+	return `${text}${text && !text.endsWith('*/') ? '\n' : ''}`;
+}
+
 function check(context, functionNode, listeners) {
 	if (!isRuleCreate(functionNode)) {
 		return;
@@ -68,17 +77,35 @@ function check(context, functionNode, listeners) {
 		}
 
 		const shouldKeepObjectExpression = propertiesCanRemove.length !== listeners.properties.length;
+		const commentsInObjectExpression = sourceCode.getCommentsInside(listeners).map(comment => {
+			const [start, end] = sourceCode.getRange(comment);
+			const text = sourceCode.getText(comment);
+			return {
+				text,
+				start,
+				end,
+				isType: text.startsWith('/**\n'),
+			};
+		});
 
-		for (const property of propertiesCanRemove) {
+		for (const [index, property] of propertiesCanRemove.entries()) {
 			const {key, value, method: isMethod} = property;
 			const selector = key.type === 'Identifier'
 				? `'${key.name}'`
 				: sourceCode.getText(property.key);
 			const listener = `${isMethod ? `function${value.generator ? ' * ' : ''}` : ''}${sourceCode.getText(value)}`;
+			const commentStart = sourceCode.getRange(index === 0 ? sourceCode.getFirstToken(listeners) : propertiesCanRemove[index - 1])[1];
+			const commentEnd = sourceCode.getRange(property)[0];
+			const comments = commentsInObjectExpression.filter(({start, end}) => start >= commentStart && end <= commentEnd);
+
+			const {
+				commentsBefore = [],
+				commentsForListener = [],
+			} = Object.groupBy(comments, comment => comment.isType ? 'commentsBefore' : 'commentsForListener');
 
 			yield fixer.insertTextBeforeRange(
 				range,
-				`\tcontext.on(${selector}, ${listener});\n\n`,
+				`${printComments(commentsBefore)}\tcontext.on(${selector}, ${printComments(commentsForListener)} ${listener});\n\n`,
 			);
 
 			if (shouldKeepObjectExpression) {
