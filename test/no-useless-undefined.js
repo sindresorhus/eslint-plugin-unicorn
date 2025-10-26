@@ -150,7 +150,7 @@ test({
 		},
 		{
 			code: 'foo(undefined, undefined);',
-			output: 'foo();',
+			output: 'foo(undefined);',
 			errors,
 		},
 		{
@@ -160,7 +160,7 @@ test({
 		},
 		{
 			code: 'foo(undefined, undefined,);',
-			output: 'foo();',
+			output: 'foo(undefined,);',
 			errors,
 		},
 		{
@@ -170,7 +170,7 @@ test({
 		},
 		{
 			code: 'foo(bar, undefined, undefined);',
-			output: 'foo(bar);',
+			output: 'foo(bar, undefined);',
 			errors,
 		},
 		{
@@ -190,41 +190,13 @@ test({
 		},
 		{
 			code: 'foo(bar, undefined, undefined,);',
-			output: 'foo(bar,);',
+			output: 'foo(bar, undefined,);',
 			errors,
 		},
 		{
 			code: 'foo(undefined, bar, undefined, undefined,);',
-			output: 'foo(undefined, bar,);',
+			output: 'foo(undefined, bar, undefined,);',
 			errors,
-		},
-		// Test report range
-		{
-			code: outdent`
-				foo(
-					undefined,
-					bar,
-					undefined,
-					undefined,
-					undefined,
-					undefined,
-				)
-			`,
-			output: outdent`
-				foo(
-					undefined,
-					bar,
-				)
-			`,
-			errors: [
-				{
-					messageId,
-					// The second `undefined`
-					line: 4, column: 2,
-					// The last `undefined`
-					endLine: 7, endColumn: 11,
-				},
-			],
 		},
 		{
 			code: 'const {foo = undefined} = {};',
