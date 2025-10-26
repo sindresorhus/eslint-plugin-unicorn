@@ -31,12 +31,11 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
 const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
-	const {sourceCode} = context;
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, context);
 
 	if (
-		!isParenthesized(promiseNode, sourceCode)
+		!isParenthesized(promiseNode, context)
 		&& shouldAddParenthesesToAwaitExpressionArgument(promiseNode)
 	) {
 		text = `(${text})`;
@@ -48,12 +47,11 @@ const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
 };
 
 const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
-	const {sourceCode} = context;
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, context);
 
 	if (
-		!isParenthesized(promiseNode, sourceCode)
+		!isParenthesized(promiseNode, context)
 		// Since the original call expression can be anywhere, it's hard to tell if the promise
 		// need to be parenthesized, but it's safe to add parentheses
 		&& !(
@@ -65,7 +63,7 @@ const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
 		text = `(${text})`;
 	}
 
-	const previousToken = sourceCode.getTokenBefore(callExpression);
+	const previousToken = context.sourceCode.getTokenBefore(callExpression);
 	if (needsSemicolon(previousToken, context, text)) {
 		text = `;${text}`;
 	}

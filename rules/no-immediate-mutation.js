@@ -244,7 +244,7 @@ const arrayMutationSettings = {
 				: appendListTextToArrayExpressionOrObjectExpression(context, fixer, arrayExpression, text)
 		);
 
-		yield * removeExpressionStatementAfterAssign(
+		yield removeExpressionStatementAfterAssign(
 			nextExpressionStatement,
 			context,
 			fixer,
@@ -365,7 +365,7 @@ const objectWithAssignmentExpressionSettings = {
 			`${shouldInsertComma ? ',' : ''} ${text}`,
 		);
 
-		yield * removeExpressionStatementAfterAssign(
+		yield removeExpressionStatementAfterAssign(
 			nextExpressionStatement,
 			context,
 			fixer,
@@ -473,7 +473,7 @@ const objectWithObjectAssignSettings = {
 			return;
 		}
 
-		yield * removeExpressionStatementAfterAssign(
+		yield removeExpressionStatementAfterAssign(
 			nextExpressionStatement,
 			context,
 			fixer,

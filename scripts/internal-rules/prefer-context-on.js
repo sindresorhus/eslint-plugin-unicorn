@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {getParenthesizedRange} from '../../rules/utils/parentheses.js';
+import {getParenthesizedRange} from '../../rules/utils/index.js';
 
 const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 

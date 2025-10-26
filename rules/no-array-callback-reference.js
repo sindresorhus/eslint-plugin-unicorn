@@ -194,7 +194,7 @@ function getProblem(context, node, method, options) {
 				let text = getParenthesizedText(node, context);
 
 				if (
-					!isParenthesized(node, context.sourceCode)
+					!isParenthesized(node, context)
 					&& shouldAddParenthesesToCallExpressionCallee(node)
 				) {
 					text = `(${text})`;

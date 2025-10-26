@@ -54,7 +54,7 @@ const create = context => {
 						const {parent} = binaryExpression;
 						if (
 							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-							&& !isParenthesized(binaryExpression, sourceCode)
+							&& !isParenthesized(binaryExpression, context)
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
 							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {

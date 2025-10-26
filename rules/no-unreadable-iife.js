@@ -8,12 +8,10 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', callExpression => {
-		const {sourceCode} = context;
-
 		if (
 			callExpression.callee.type !== 'ArrowFunctionExpression'
 			|| callExpression.callee.body.type === 'BlockStatement'
-			|| !isParenthesized(callExpression.callee.body, sourceCode)
+			|| !isParenthesized(callExpression.callee.body, context)
 		) {
 			return;
 		}

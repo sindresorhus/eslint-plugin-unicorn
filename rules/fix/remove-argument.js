@@ -1,5 +1,5 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
-import {getParentheses} from '../utils/parentheses.js';
+import {getParentheses} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';

@@ -1,5 +1,7 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
+import {
+	shouldAddParenthesesToMemberExpressionObject,
+	isParenthesized,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'no-unreadable-array-destructuring';
@@ -48,7 +50,7 @@ const create = context => {
 					const code = isSlice ? `.slice(${index})` : `[${index}]`;
 					const array = parent.init;
 					if (
-						!isParenthesized(array, sourceCode)
+						!isParenthesized(array, context)
 						&& shouldAddParenthesesToMemberExpressionObject(array, context)
 					) {
 						yield fixer.insertTextBefore(array, '(');

@@ -1,4 +1,5 @@
-import {isParenthesized, isNotSemicolonToken} from '@eslint-community/eslint-utils';
+import {isNotSemicolonToken} from '@eslint-community/eslint-utils';
+import {isParenthesized} from './utils/index.js';
 import {needsSemicolon} from './utils/index.js';
 import {removeSpacesAfter} from './fix/index.js';
 
@@ -81,7 +82,7 @@ function fix(innerIfStatement, context) {
 		// Remove `()` if `test` don't need it
 		for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
 			if (
-				isParenthesized(test, sourceCode)
+				isParenthesized(test, context)
 				|| !needParenthesis(test)
 			) {
 				yield fixer.remove(openingParenthesisToken);

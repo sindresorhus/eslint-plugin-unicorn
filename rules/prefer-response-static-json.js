@@ -52,12 +52,11 @@ const create = context => {
 				//                               ^^^^^^
 				yield fixer.removeRange([dataNodeRange[1], callExpressionRange[1]]);
 
-				const {sourceCode} = context;
 				if (
-					!isParenthesized(newExpression, sourceCode)
-					&& isParenthesized(newExpression.callee, sourceCode)
+					!isParenthesized(newExpression, context)
+					&& isParenthesized(newExpression.callee, context)
 				) {
-					const tokenBefore = sourceCode.getTokenBefore(newExpression);
+					const tokenBefore = context.sourceCode.getTokenBefore(newExpression);
 					if (needsSemicolon(tokenBefore, context, '(')) {
 						yield fixer.insertTextBefore(newExpression, ';');
 					}
