@@ -89,25 +89,23 @@ const schema = [
 const create = context => {
 	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
 
-	return {
-		* CallExpression(callExpression) {
-			for (const {test, getMethodNode, isSimpleOperation} of cases) {
-				if (!test(callExpression)) {
-					continue;
-				}
-
-				if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
-					continue;
-				}
-
-				const methodNode = getMethodNode(callExpression);
-				yield {
-					node: methodNode,
-					messageId: methodNode.name,
-				};
+	context.on('CallExpression', function * (callExpression) {
+		for (const {test, getMethodNode, isSimpleOperation} of cases) {
+			if (!test(callExpression)) {
+				continue;
 			}
-		},
-	};
+
+			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
+				continue;
+			}
+
+			const methodNode = getMethodNode(callExpression);
+			yield {
+				node: methodNode,
+				messageId: methodNode.name,
+			};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

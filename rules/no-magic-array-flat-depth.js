@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			method: 'flat',
 			argumentsLength: 1,
@@ -36,8 +36,8 @@ const create = context => ({
 			node: depth,
 			messageId: MESSAGE_ID,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

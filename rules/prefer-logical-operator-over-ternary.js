@@ -112,36 +112,34 @@ function getProblem({
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		ConditionalExpression(conditionalExpression) {
-			const {test, consequent, alternate} = conditionalExpression;
+	context.on('ConditionalExpression', conditionalExpression => {
+		const {test, consequent, alternate} = conditionalExpression;
 
-			// `foo ? foo : bar`
-			if (isSameNode(test, consequent, sourceCode)) {
-				return getProblem({
-					context,
-					conditionalExpression,
-					left: test,
-					right: alternate,
-				});
-			}
+		// `foo ? foo : bar`
+		if (isSameNode(test, consequent, sourceCode)) {
+			return getProblem({
+				context,
+				conditionalExpression,
+				left: test,
+				right: alternate,
+			});
+		}
 
-			// `!bar ? foo : bar`
-			if (
-				test.type === 'UnaryExpression'
-				&& test.operator === '!'
-				&& test.prefix
-				&& isSameNode(test.argument, alternate, sourceCode)
-			) {
-				return getProblem({
-					context,
-					conditionalExpression,
-					left: test.argument,
-					right: consequent,
-				});
-			}
-		},
-	};
+		// `!bar ? foo : bar`
+		if (
+			test.type === 'UnaryExpression'
+			&& test.operator === '!'
+			&& test.prefix
+			&& isSameNode(test.argument, alternate, sourceCode)
+		) {
+			return getProblem({
+				context,
+				conditionalExpression,
+				left: test.argument,
+				right: consequent,
+			});
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

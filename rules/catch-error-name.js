@@ -47,60 +47,58 @@ const create = context => {
 		|| name.endsWith(expectedName)
 		|| name.endsWith(upperFirst(expectedName));
 
-	return {
-		Identifier(node) {
-			if (
-				!(node.parent.type === 'CatchClause' && node.parent.param === node)
-				&& !isPromiseCatchParameter(node)
-			) {
-				return;
-			}
+	context.on('Identifier', node => {
+		if (
+			!(node.parent.type === 'CatchClause' && node.parent.param === node)
+			&& !isPromiseCatchParameter(node)
+		) {
+			return;
+		}
 
-			const originalName = node.name;
+		const originalName = node.name;
 
-			if (
-				isNameAllowed(originalName)
-				|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
-			) {
-				return;
-			}
+		if (
+			isNameAllowed(originalName)
+			|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
+		) {
+			return;
+		}
 
-			const scope = context.sourceCode.getScope(node);
-			const variable = findVariable(scope, node);
+		const scope = context.sourceCode.getScope(node);
+		const variable = findVariable(scope, node);
 
-			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
-			// But can't reproduce, just ignore this case
-			/* c8 ignore next 3 */
-			if (!variable) {
-				return;
-			}
+		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
+		// But can't reproduce, just ignore this case
+		/* c8 ignore next 3 */
+		if (!variable) {
+			return;
+		}
 
-			if (originalName === '_' && variable.references.length === 0) {
-				return;
-			}
+		if (originalName === '_' && variable.references.length === 0) {
+			return;
+		}
 
-			const scopes = [
-				variable.scope,
-				...variable.references.map(({from}) => from),
-			];
-			const fixedName = getAvailableVariableName(expectedName, scopes);
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from),
+		];
+		const fixedName = getAvailableVariableName(expectedName, scopes);
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					originalName,
-					fixedName: fixedName || expectedName,
-				},
-			};
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				originalName,
+				fixedName: fixedName || expectedName,
+			},
+		};
 
-			if (fixedName) {
-				problem.fix = fixer => renameVariable(variable, fixedName, context, fixer);
-			}
+		if (fixedName) {
+			problem.fix = fixer => renameVariable(variable, fixedName, context, fixer);
+		}
 
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 const schema = [

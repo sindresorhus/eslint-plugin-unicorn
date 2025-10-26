@@ -175,53 +175,51 @@ function create(context) {
 	};
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 
-	return {
-		* CallExpression(callExpression) {
-			for (const {test, getProperty} of fixableArrayReduceCases) {
-				if (!test(callExpression)) {
-					continue;
-				}
+	context.on('CallExpression', function * (callExpression) {
+		for (const {test, getProperty} of fixableArrayReduceCases) {
+			if (!test(callExpression)) {
+				continue;
+			}
 
-				const [callbackFunction] = callExpression.arguments;
-				const [firstParameter] = callbackFunction.params;
-				const variables = sourceCode.getDeclaredVariables(callbackFunction);
-				const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
-				if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
-					continue;
-				}
+			const [callbackFunction] = callExpression.arguments;
+			const [firstParameter] = callbackFunction.params;
+			const variables = sourceCode.getDeclaredVariables(callbackFunction);
+			const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
+			if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
+				continue;
+			}
 
+			yield {
+				node: callExpression.callee.property,
+				messageId: MESSAGE_ID_REDUCE,
+				fix: fixReduceAssignOrSpread({
+					context,
+					callExpression,
+					property: getProperty(callbackFunction),
+				}),
+			};
+		}
+
+		if (!isCallExpression(callExpression, {
+			argumentsLength: 1,
+			optional: false,
+		})) {
+			return;
+		}
+
+		const functionNode = callExpression.callee;
+		for (const nameOrPath of functions) {
+			const functionName = nameOrPath.trim();
+			if (isNodeMatchesNameOrPath(functionNode, functionName)) {
 				yield {
-					node: callExpression.callee.property,
-					messageId: MESSAGE_ID_REDUCE,
-					fix: fixReduceAssignOrSpread({
-						context,
-						callExpression,
-						property: getProperty(callbackFunction),
-					}),
+					node: functionNode,
+					messageId: MESSAGE_ID_FUNCTION,
+					data: {functionName},
+					fix: fixer => fixer.replaceText(functionNode, 'Object.fromEntries'),
 				};
 			}
-
-			if (!isCallExpression(callExpression, {
-				argumentsLength: 1,
-				optional: false,
-			})) {
-				return;
-			}
-
-			const functionNode = callExpression.callee;
-			for (const nameOrPath of functions) {
-				const functionName = nameOrPath.trim();
-				if (isNodeMatchesNameOrPath(functionNode, functionName)) {
-					yield {
-						node: functionNode,
-						messageId: MESSAGE_ID_FUNCTION,
-						data: {functionName},
-						fix: fixer => fixer.replaceText(functionNode, 'Object.fromEntries'),
-					};
-				}
-			}
-		},
-	};
+		}
+	});
 }
 
 const schema = [

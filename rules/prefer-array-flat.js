@@ -211,40 +211,38 @@ function create(context) {
 		},
 	];
 
-	return {
-		* CallExpression(node) {
-			for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
-				if (!testFunction(node)) {
-					continue;
-				}
-
-				const array = getArrayNode(node);
-				const optional = isOptionalArray?.(node);
-
-				const data = {
-					description: typeof description === 'string' ? description : description(node),
-				};
-
-				const problem = {
-					node,
-					messageId: MESSAGE_ID,
-					data,
-				};
-
-				const {sourceCode} = context;
-
-				// Don't fix if it has comments.
-				if (
-					sourceCode.getCommentsInside(node).length
-					=== sourceCode.getCommentsInside(array).length
-				) {
-					problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
-				}
-
-				yield problem;
+	context.on('CallExpression', function * (node) {
+		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+			if (!testFunction(node)) {
+				continue;
 			}
-		},
-	};
+
+			const array = getArrayNode(node);
+			const optional = isOptionalArray?.(node);
+
+			const data = {
+				description: typeof description === 'string' ? description : description(node),
+			};
+
+			const problem = {
+				node,
+				messageId: MESSAGE_ID,
+				data,
+			};
+
+			const {sourceCode} = context;
+
+			// Don't fix if it has comments.
+			if (
+				sourceCode.getCommentsInside(node).length
+				=== sourceCode.getCommentsInside(array).length
+			) {
+				problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
+			}
+
+			yield problem;
+		}
+	});
 }
 
 const schema = [

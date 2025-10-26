@@ -110,55 +110,52 @@ const create = context => {
 			: include,
 	);
 
-	return {
-		/** @param {import('estree').BinaryExpression} node */
-		BinaryExpression(node) {
-			const {right, operator} = node;
+	context.on('BinaryExpression', /** @param {import('estree').BinaryExpression} node */ node => {
+		const {right, operator} = node;
 
-			if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
-				return;
-			}
+		if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
+			return;
+		}
 
-			const constructorName = right.name;
+		const constructorName = right.name;
 
-			/** @type {import('eslint').Rule.ReportDescriptor} */
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-			};
+		/** @type {import('eslint').Rule.ReportDescriptor} */
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+		};
 
-			if (
-				constructorName === 'Array'
-				|| (constructorName === 'Error' && useErrorIsError)
-			) {
-				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
-				problem.fix = replaceWithFunctionCall(node, context, functionName);
-				return problem;
-			}
-
-			if (constructorName === 'Function') {
-				problem.fix = replaceWithTypeOfExpression(node, context);
-				return problem;
-			}
-
-			if (primitiveWrappers.has(constructorName)) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
-						data: {type: constructorName.toLowerCase()},
-						fix: replaceWithTypeOfExpression(node, context),
-					},
-				];
-				return problem;
-			}
-
-			if (!forbiddenConstructors.has(constructorName)) {
-				return;
-			}
-
+		if (
+			constructorName === 'Array'
+			|| (constructorName === 'Error' && useErrorIsError)
+		) {
+			const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
+			problem.fix = replaceWithFunctionCall(node, context, functionName);
 			return problem;
-		},
-	};
+		}
+
+		if (constructorName === 'Function') {
+			problem.fix = replaceWithTypeOfExpression(node, context);
+			return problem;
+		}
+
+		if (primitiveWrappers.has(constructorName)) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+					data: {type: constructorName.toLowerCase()},
+					fix: replaceWithTypeOfExpression(node, context),
+				},
+			];
+			return problem;
+		}
+
+		if (!forbiddenConstructors.has(constructorName)) {
+			return;
+		}
+
+		return problem;
+	});
 };
 
 const schema = [

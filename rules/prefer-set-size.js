@@ -61,32 +61,30 @@ function fix(context, lengthAccessNodes) {
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		MemberExpression(node) {
-			if (
-				!isMemberExpression(node, {
-					property: 'length',
-					optional: false,
-				})
-				|| node.object.type !== 'ArrayExpression'
-				|| node.object.elements.length !== 1
-				|| node.object.elements[0]?.type !== 'SpreadElement'
-			) {
-				return;
-			}
+	context.on('MemberExpression', node => {
+		if (
+			!isMemberExpression(node, {
+				property: 'length',
+				optional: false,
+			})
+			|| node.object.type !== 'ArrayExpression'
+			|| node.object.elements.length !== 1
+			|| node.object.elements[0]?.type !== 'SpreadElement'
+		) {
+			return;
+		}
 
-			const maybeSet = node.object.elements[0].argument;
-			if (!isSet(maybeSet, sourceCode.getScope(maybeSet))) {
-				return;
-			}
+		const maybeSet = node.object.elements[0].argument;
+		if (!isSet(maybeSet, sourceCode.getScope(maybeSet))) {
+			return;
+		}
 
-			return {
-				node: node.property,
-				messageId: MESSAGE_ID,
-				fix: fix(context, node),
-			};
-		},
-	};
+		return {
+			node: node.property,
+			messageId: MESSAGE_ID,
+			fix: fix(context, node),
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

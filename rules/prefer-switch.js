@@ -267,50 +267,50 @@ const create = context => {
 	const breakStatements = [];
 	const checked = new Set();
 
-	return {
-		IfStatement(node) {
-			ifStatements.add(node);
-		},
-		BreakStatement(node) {
-			if (!node.label) {
-				breakStatements.push(node);
+	context.on('IfStatement', node => {
+		ifStatements.add(node);
+	});
+
+	context.on('BreakStatement', node => {
+		if (!node.label) {
+			breakStatements.push(node);
+		}
+	});
+
+	context.on('Program:exit', function * () {
+		for (const node of ifStatements) {
+			if (checked.has(node)) {
+				continue;
 			}
-		},
-		* 'Program:exit'() {
-			for (const node of ifStatements) {
-				if (checked.has(node)) {
-					continue;
-				}
 
-				const {discriminant, ifStatements} = getStatements(node);
+			const {discriminant, ifStatements} = getStatements(node);
 
-				if (!discriminant || ifStatements.length < options.minimumCases) {
-					continue;
-				}
-
-				for (const {statement} of ifStatements) {
-					checked.add(statement);
-				}
-
-				const problem = {
-					loc: {
-						start: sourceCode.getLoc(node).start,
-						end: sourceCode.getLoc(node.consequent).start,
-					},
-					messageId: MESSAGE_ID,
-				};
-
-				if (
-					!hasSideEffect(discriminant, sourceCode)
-					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement, context))
-				) {
-					problem.fix = fix({discriminant, ifStatements}, context, options);
-				}
-
-				yield problem;
+			if (!discriminant || ifStatements.length < options.minimumCases) {
+				continue;
 			}
-		},
-	};
+
+			for (const {statement} of ifStatements) {
+				checked.add(statement);
+			}
+
+			const problem = {
+				loc: {
+					start: sourceCode.getLoc(node).start,
+					end: sourceCode.getLoc(node.consequent).start,
+				},
+				messageId: MESSAGE_ID,
+			};
+
+			if (
+				!hasSideEffect(discriminant, sourceCode)
+				&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement, context))
+			) {
+				problem.fix = fix({discriminant, ifStatements}, context, options);
+			}
+
+			yield problem;
+		}
+	});
 };
 
 const schema = [

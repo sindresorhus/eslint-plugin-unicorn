@@ -71,88 +71,86 @@ function create(context) {
 	};
 	const {sourceCode} = context;
 
-	return {
-		* CallExpression(secondCall) {
-			for (const {description, test, ignore = []} of cases) {
-				if (!test(secondCall)) {
-					continue;
-				}
-
-				const ignoredCallee = [...ignore, ...ignoredCalleeInOptions];
-				if (isNodeMatches(secondCall.callee, ignoredCallee)) {
-					continue;
-				}
-
-				let secondExpressionStatement = secondCall.parent;
-				if (secondExpressionStatement.type === 'ChainExpression' && secondCall === secondExpressionStatement.expression) {
-					secondExpressionStatement = secondExpressionStatement.parent;
-				}
-
-				if (secondExpressionStatement.type !== 'ExpressionStatement') {
-					continue;
-				}
-
-				const firstExpressionStatement = getPreviousNode(secondExpressionStatement, context);
-				if (firstExpressionStatement?.type !== 'ExpressionStatement') {
-					continue;
-				}
-
-				let firstCall = firstExpressionStatement.expression;
-
-				if (firstCall.type === 'ChainExpression') {
-					firstCall = firstCall.expression;
-				}
-
-				if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
-					continue;
-				}
-
-				const secondCallArguments = secondCall.arguments;
-				const problem = {
-					node: secondCall.callee.type === 'Identifier' ? secondCall.callee : secondCall.callee.property,
-					messageId: ERROR,
-					data: {description},
-				};
-
-				const fix = function * (fixer) {
-					if (secondCallArguments.length > 0) {
-						const text = getCallExpressionArgumentsText(context, secondCall);
-
-						const {
-							trailingCommaToken,
-							closingParenthesisToken,
-						} = getCallExpressionTokens(firstCall, context);
-
-						yield (
-							trailingCommaToken
-								? fixer.insertTextAfter(trailingCommaToken, ` ${text}`)
-								: fixer.insertTextBefore(closingParenthesisToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
-						);
-					}
-
-					const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpressionStatement))
-						&& isSemicolonToken(sourceCode.getLastToken(secondExpressionStatement));
-					const [, start] = sourceCode.getRange(firstExpressionStatement);
-					const [, end] = sourceCode.getRange(secondExpressionStatement);
-
-					yield fixer.replaceTextRange([start, end], shouldKeepSemicolon ? ';' : '');
-				};
-
-				if (secondCallArguments.some(element => hasSideEffect(element, sourceCode))) {
-					problem.suggest = [
-						{
-							messageId: SUGGESTION,
-							fix,
-						},
-					];
-				} else {
-					problem.fix = fix;
-				}
-
-				yield problem;
+	context.on('CallExpression', function * (secondCall) {
+		for (const {description, test, ignore = []} of cases) {
+			if (!test(secondCall)) {
+				continue;
 			}
-		},
-	};
+
+			const ignoredCallee = [...ignore, ...ignoredCalleeInOptions];
+			if (isNodeMatches(secondCall.callee, ignoredCallee)) {
+				continue;
+			}
+
+			let secondExpressionStatement = secondCall.parent;
+			if (secondExpressionStatement.type === 'ChainExpression' && secondCall === secondExpressionStatement.expression) {
+				secondExpressionStatement = secondExpressionStatement.parent;
+			}
+
+			if (secondExpressionStatement.type !== 'ExpressionStatement') {
+				continue;
+			}
+
+			const firstExpressionStatement = getPreviousNode(secondExpressionStatement, context);
+			if (firstExpressionStatement?.type !== 'ExpressionStatement') {
+				continue;
+			}
+
+			let firstCall = firstExpressionStatement.expression;
+
+			if (firstCall.type === 'ChainExpression') {
+				firstCall = firstCall.expression;
+			}
+
+			if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
+				continue;
+			}
+
+			const secondCallArguments = secondCall.arguments;
+			const problem = {
+				node: secondCall.callee.type === 'Identifier' ? secondCall.callee : secondCall.callee.property,
+				messageId: ERROR,
+				data: {description},
+			};
+
+			const fix = function * (fixer) {
+				if (secondCallArguments.length > 0) {
+					const text = getCallExpressionArgumentsText(context, secondCall);
+
+					const {
+						trailingCommaToken,
+						closingParenthesisToken,
+					} = getCallExpressionTokens(firstCall, context);
+
+					yield (
+						trailingCommaToken
+							? fixer.insertTextAfter(trailingCommaToken, ` ${text}`)
+							: fixer.insertTextBefore(closingParenthesisToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
+					);
+				}
+
+				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpressionStatement))
+					&& isSemicolonToken(sourceCode.getLastToken(secondExpressionStatement));
+				const [, start] = sourceCode.getRange(firstExpressionStatement);
+				const [, end] = sourceCode.getRange(secondExpressionStatement);
+
+				yield fixer.replaceTextRange([start, end], shouldKeepSemicolon ? ';' : '');
+			};
+
+			if (secondCallArguments.some(element => hasSideEffect(element, sourceCode))) {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION,
+						fix,
+					},
+				];
+			} else {
+				problem.fix = fix;
+			}
+
+			yield problem;
+		}
+	});
 }
 
 const schema = [

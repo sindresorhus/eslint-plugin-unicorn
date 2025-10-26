@@ -138,16 +138,13 @@ const create = context => {
 		return false;
 	};
 
-	return {
-		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		TemplateLiteral(node) {
-			if (!shouldIndent(node)) {
-				return;
-			}
+	context.on('TemplateLiteral', /** @param {import('@babel/core').types.TemplateLiteral} node */ node => {
+		if (!shouldIndent(node)) {
+			return;
+		}
 
-			return getProblem(node);
-		},
-	};
+		return getProblem(node);
+	});
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */

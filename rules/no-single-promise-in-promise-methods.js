@@ -112,8 +112,8 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!isPromiseMethodCallWithSingleElementArray(callExpression)) {
 			return;
 		}
@@ -158,8 +158,8 @@ const create = context => ({
 		];
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

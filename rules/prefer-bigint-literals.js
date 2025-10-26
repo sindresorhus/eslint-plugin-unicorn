@@ -67,8 +67,8 @@ function getReplacement(valueNode) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!isCallExpression(callExpression, {
 			name: 'BigInt',
 			argumentsLength: 1,
@@ -108,8 +108,8 @@ const create = context => ({
 		}
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

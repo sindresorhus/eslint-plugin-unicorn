@@ -100,63 +100,61 @@ const create = context => {
 		}
 	}
 
-	return {
-		Identifier(node) {
-			const {name, parent} = node;
-			const keyword = findKeywordPrefix(name, options);
-			const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
+	context.on('Identifier', node => {
+		const {name, parent} = node;
+		const keyword = findKeywordPrefix(name, options);
+		const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
-			if (parent.type === 'MemberExpression') {
-				checkMemberExpression(report, node, options);
-			} else if (
-				parent.type === 'Property'
-				|| parent.type === 'AssignmentPattern'
-			) {
-				if (parent.parent.type === 'ObjectPattern') {
-					const finished = checkObjectPattern(report, node, options);
-					if (finished) {
-						return;
-					}
-				}
-
-				if (
-					!options.checkProperties
-				) {
+		if (parent.type === 'MemberExpression') {
+			checkMemberExpression(report, node, options);
+		} else if (
+			parent.type === 'Property'
+			|| parent.type === 'AssignmentPattern'
+		) {
+			if (parent.parent.type === 'ObjectPattern') {
+				const finished = checkObjectPattern(report, node, options);
+				if (finished) {
 					return;
 				}
+			}
 
-				// Don't check right hand side of AssignmentExpression to prevent duplicate warnings
-				if (
-					Boolean(keyword)
-					&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
-					&& !(parent.right === node)
-					&& !isShorthandPropertyAssignmentPatternLeft(node)
-				) {
-					report(node, keyword);
-				}
-
-			// Check if it's an import specifier
-			} else if (
-				[
-					'ImportSpecifier',
-					'ImportNamespaceSpecifier',
-					'ImportDefaultSpecifier',
-				].includes(parent.type)
+			if (
+				!options.checkProperties
 			) {
-				// Report only if the local imported identifier is invalid
-				if (Boolean(keyword) && parent.local?.name === name) {
-					report(node, keyword);
-				}
+				return;
+			}
 
-			// Report anything that is invalid that isn't a CallExpression
-			} else if (
+			// Don't check right hand side of AssignmentExpression to prevent duplicate warnings
+			if (
 				Boolean(keyword)
 				&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+				&& !(parent.right === node)
+				&& !isShorthandPropertyAssignmentPatternLeft(node)
 			) {
 				report(node, keyword);
 			}
-		},
-	};
+
+			// Check if it's an import specifier
+		} else if (
+			[
+				'ImportSpecifier',
+				'ImportNamespaceSpecifier',
+				'ImportDefaultSpecifier',
+			].includes(parent.type)
+		) {
+			// Report only if the local imported identifier is invalid
+			if (Boolean(keyword) && parent.local?.name === name) {
+				report(node, keyword);
+			}
+
+			// Report anything that is invalid that isn't a CallExpression
+		} else if (
+			Boolean(keyword)
+			&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
+		) {
+			report(node, keyword);
+		}
+	});
 };
 
 const schema = [

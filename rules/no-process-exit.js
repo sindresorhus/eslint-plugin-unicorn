@@ -14,7 +14,7 @@ const create = context => {
 	const startsWithHashBang = context.sourceCode.lines[0].indexOf('#!') === 0;
 
 	if (startsWithHashBang) {
-		return {};
+		return;
 	}
 
 	let processEventHandler;

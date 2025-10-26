@@ -14,58 +14,56 @@ const isCommaFollowedWithComma = (element, index, array) =>
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		ArrayPattern(node) {
-			const {elements, parent} = node;
+	context.on('ArrayPattern', node => {
+		const {elements, parent} = node;
 
-			if (
-				elements.length < 3
-				|| !elements.some((element, index, elements) => isCommaFollowedWithComma(element, index, elements))) {
-				return;
+		if (
+			elements.length < 3
+			|| !elements.some((element, index, elements) => isCommaFollowedWithComma(element, index, elements))) {
+			return;
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+		};
+
+		const nonNullElements = elements.filter(node => node !== null);
+		if (
+			parent.type === 'VariableDeclarator'
+			&& parent.id === node
+			&& parent.init !== null
+			&& nonNullElements.length === 1
+		) {
+			const [element] = nonNullElements;
+
+			if (element.type !== 'AssignmentPattern') {
+				problem.fix = function * (fixer) {
+					const index = elements.indexOf(element);
+					const isSlice = element.type === 'RestElement';
+					const variable = isSlice ? element.argument : element;
+
+					yield fixer.replaceText(node, sourceCode.getText(variable));
+
+					const code = isSlice ? `.slice(${index})` : `[${index}]`;
+					const array = parent.init;
+					if (
+						!isParenthesized(array, sourceCode)
+						&& shouldAddParenthesesToMemberExpressionObject(array, context)
+					) {
+						yield fixer.insertTextBefore(array, '(');
+						yield fixer.insertTextAfter(parent, `)${code}`);
+					} else {
+						yield fixer.insertTextAfter(parent, code);
+					}
+
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				};
 			}
+		}
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-			};
-
-			const nonNullElements = elements.filter(node => node !== null);
-			if (
-				parent.type === 'VariableDeclarator'
-				&& parent.id === node
-				&& parent.init !== null
-				&& nonNullElements.length === 1
-			) {
-				const [element] = nonNullElements;
-
-				if (element.type !== 'AssignmentPattern') {
-					problem.fix = function * (fixer) {
-						const index = elements.indexOf(element);
-						const isSlice = element.type === 'RestElement';
-						const variable = isSlice ? element.argument : element;
-
-						yield fixer.replaceText(node, sourceCode.getText(variable));
-
-						const code = isSlice ? `.slice(${index})` : `[${index}]`;
-						const array = parent.init;
-						if (
-							!isParenthesized(array, sourceCode)
-							&& shouldAddParenthesesToMemberExpressionObject(array, context)
-						) {
-							yield fixer.insertTextBefore(array, '(');
-							yield fixer.insertTextAfter(parent, `)${code}`);
-						} else {
-							yield fixer.insertTextAfter(parent, code);
-						}
-
-						yield fixSpaceAroundKeyword(fixer, node, context);
-					};
-				}
-			}
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

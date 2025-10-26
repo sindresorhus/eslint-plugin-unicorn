@@ -28,90 +28,88 @@ const create = context => {
 
 	const {sourceCode} = context;
 
-	return {
-		BinaryExpression(binaryExpression) {
-			if (!(
-				(
-					binaryExpression.operator === '==='
-					|| binaryExpression.operator === '!=='
-					|| binaryExpression.operator === '=='
-					|| binaryExpression.operator === '!='
-				)
-				&& binaryExpression.left.type === 'UnaryExpression'
-				&& binaryExpression.left.operator === 'typeof'
-				&& binaryExpression.left.prefix
-				&& isLiteral(binaryExpression.right, 'undefined')
-			)) {
+	context.on('BinaryExpression', binaryExpression => {
+		if (!(
+			(
+				binaryExpression.operator === '==='
+				|| binaryExpression.operator === '!=='
+				|| binaryExpression.operator === '=='
+				|| binaryExpression.operator === '!='
+			)
+			&& binaryExpression.left.type === 'UnaryExpression'
+			&& binaryExpression.left.operator === 'typeof'
+			&& binaryExpression.left.prefix
+			&& isLiteral(binaryExpression.right, 'undefined')
+		)) {
+			return;
+		}
+
+		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
+
+		const valueNode = typeofNode.argument;
+		const isGlobalVariable = valueNode.type === 'Identifier'
+			&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
+
+		if (!checkGlobalVariables && isGlobalVariable) {
+			return;
+		}
+
+		const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
+
+		const fix = function * (fixer) {
+			// Change `==`/`!=` to `===`/`!==`
+			if (operator === '==' || operator === '!=') {
+				const operatorToken = sourceCode.getTokenAfter(
+					typeofNode,
+					token => token.type === 'Punctuator' && token.value === operator,
+				);
+
+				yield fixer.insertTextAfter(operatorToken, '=');
+			}
+
+			yield fixer.replaceText(undefinedString, 'undefined');
+
+			yield fixer.remove(typeofToken);
+			yield removeSpacesAfter(typeofToken, context, fixer);
+
+			const {parent} = binaryExpression;
+			if (
+				(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+				&& parent.argument === binaryExpression
+				&& !isOnSameLine(typeofToken, secondToken, context)
+				&& !isParenthesized(binaryExpression, sourceCode)
+				&& !isParenthesized(typeofNode, sourceCode)
+			) {
+				yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 				return;
 			}
 
-			const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
-
-			const valueNode = typeofNode.argument;
-			const isGlobalVariable = valueNode.type === 'Identifier'
-				&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
-
-			if (!checkGlobalVariables && isGlobalVariable) {
-				return;
+			const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
+			if (needsSemicolon(tokenBefore, context, secondToken.value)) {
+				yield fixer.insertTextBefore(binaryExpression, ';');
 			}
+		};
 
-			const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
+		const problem = {
+			node: binaryExpression,
+			loc: sourceCode.getLoc(typeofToken),
+			messageId: MESSAGE_ID_ERROR,
+		};
 
-			const fix = function * (fixer) {
-				// Change `==`/`!=` to `===`/`!==`
-				if (operator === '==' || operator === '!=') {
-					const operatorToken = sourceCode.getTokenAfter(
-						typeofNode,
-						token => token.type === 'Punctuator' && token.value === operator,
-					);
+		if (isGlobalVariable) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {operator: operator.startsWith('!') ? '!==' : '==='},
+					fix,
+				},
+			];
+		} else {
+			problem.fix = fix;
+		}
 
-					yield fixer.insertTextAfter(operatorToken, '=');
-				}
-
-				yield fixer.replaceText(undefinedString, 'undefined');
-
-				yield fixer.remove(typeofToken);
-				yield removeSpacesAfter(typeofToken, context, fixer);
-
-				const {parent} = binaryExpression;
-				if (
-					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-					&& parent.argument === binaryExpression
-					&& !isOnSameLine(typeofToken, secondToken, context)
-					&& !isParenthesized(binaryExpression, sourceCode)
-					&& !isParenthesized(typeofNode, sourceCode)
-				) {
-					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
-					return;
-				}
-
-				const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
-				if (needsSemicolon(tokenBefore, context, secondToken.value)) {
-					yield fixer.insertTextBefore(binaryExpression, ';');
-				}
-			};
-
-			const problem = {
-				node: binaryExpression,
-				loc: sourceCode.getLoc(typeofToken),
-				messageId: MESSAGE_ID_ERROR,
-			};
-
-			if (isGlobalVariable) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {operator: operator.startsWith('!') ? '!==' : '==='},
-						fix,
-					},
-				];
-			} else {
-				problem.fix = fix;
-			}
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 const schema = [

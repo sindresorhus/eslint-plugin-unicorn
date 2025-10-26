@@ -123,74 +123,73 @@ const flatPlusExpression = node =>
 const create = context => {
 	const nodes = [];
 
-	return {
-		CallExpression(callExpression) {
-			if (!isMethodCall(callExpression, {
-				object: 'Math',
-				method: 'sqrt',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})) {
-				return;
-			}
+	context.on('CallExpression', callExpression => {
+		if (!isMethodCall(callExpression, {
+			object: 'Math',
+			method: 'sqrt',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
 
-			const expressions = flatPlusExpression(callExpression.arguments[0]);
-			if (expressions.some(expression => !isPow2Expression(expression))) {
-				return;
-			}
+		const expressions = flatPlusExpression(callExpression.arguments[0]);
+		if (expressions.some(expression => !isPow2Expression(expression))) {
+			return;
+		}
 
-			const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
-			const plusExpressions = new Set(expressions.length === 1 ? [] : expressions.map(expression => expression.parent));
+		const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
+		const plusExpressions = new Set(expressions.length === 1 ? [] : expressions.map(expression => expression.parent));
 
-			return {
-				node: callExpression.callee.property,
-				messageId: MESSAGE_ID,
-				data: {
-					replacement: `Math.${replacementMethod}(…)`,
-					description: 'Math.sqrt(…)',
-				},
-				* fix(fixer) {
-					const {sourceCode} = context;
+		return {
+			node: callExpression.callee.property,
+			messageId: MESSAGE_ID,
+			data: {
+				replacement: `Math.${replacementMethod}(…)`,
+				description: 'Math.sqrt(…)',
+			},
+			* fix(fixer) {
+				const {sourceCode} = context;
 
-					// `Math.sqrt` -> `Math.{hypot,abs}`
-					yield fixer.replaceText(callExpression.callee.property, replacementMethod);
+				// `Math.sqrt` -> `Math.{hypot,abs}`
+				yield fixer.replaceText(callExpression.callee.property, replacementMethod);
 
-					// `a ** 2 + b ** 2` -> `a, b`
-					for (const expression of plusExpressions) {
-						const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
+				// `a ** 2 + b ** 2` -> `a, b`
+				for (const expression of plusExpressions) {
+					const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
-						yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
-						yield removeParentheses(expression, fixer, context);
-					}
+					yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
+					yield removeParentheses(expression, fixer, context);
+				}
 
-					// `x ** 2` => `x`
-					// `x * a` => `x`
-					for (const expression of expressions) {
-						yield fixer.removeRange([
-							getParenthesizedRange(expression.left, context)[1],
-							sourceCode.getRange(expression)[1],
-						]);
-					}
-				},
-			};
-		},
+				// `x ** 2` => `x`
+				// `x * a` => `x`
+				for (const expression of expressions) {
+					yield fixer.removeRange([
+						getParenthesizedRange(expression.left, context)[1],
+						sourceCode.getRange(expression)[1],
+					]);
+				}
+			},
+		};
+	});
 
-		BinaryExpression(node) {
-			nodes.push(node);
-		},
-		* 'Program:exit'() {
-			for (const node of nodes) {
-				for (const getProblem of checkFunctions) {
-					const problem = getProblem(node, context);
+	context.on('BinaryExpression', node => {
+		nodes.push(node);
+	});
 
-					if (problem) {
-						yield problem;
-					}
+	context.on('Program:exit', function * () {
+		for (const node of nodes) {
+			for (const getProblem of checkFunctions) {
+				const problem = getProblem(node, context);
+
+				if (problem) {
+					yield problem;
 				}
 			}
-		},
-	};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

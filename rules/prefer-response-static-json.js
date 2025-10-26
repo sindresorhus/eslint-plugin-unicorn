@@ -17,8 +17,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	NewExpression(newExpression) {
+const create = context => {
+	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {name: 'Response', minimumArguments: 1})) {
 			return;
 		}
@@ -64,8 +64,8 @@ const create = context => ({
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

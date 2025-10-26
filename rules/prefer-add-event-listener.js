@@ -57,103 +57,101 @@ const create = context => {
 	const nodeReturnsSomething = new WeakMap();
 	let codePathInfo;
 
-	return {
-		onCodePathStart(codePath, node) {
-			codePathInfo = {
-				node,
-				upper: codePathInfo,
-				returnsSomething: false,
-			};
-		},
+	context.on('onCodePathStart', (codePath, node) => {
+		codePathInfo = {
+			node,
+			upper: codePathInfo,
+			returnsSomething: false,
+		};
+	});
 
-		onCodePathEnd() {
-			nodeReturnsSomething.set(codePathInfo.node, codePathInfo.returnsSomething);
-			codePathInfo = codePathInfo.upper;
-		},
+	context.on('onCodePathEnd', () => {
+		nodeReturnsSomething.set(codePathInfo.node, codePathInfo.returnsSomething);
+		codePathInfo = codePathInfo.upper;
+	});
 
-		CallExpression(node) {
-			if (!isStaticRequire(node)) {
-				return;
-			}
+	context.on('CallExpression', node => {
+		if (!isStaticRequire(node)) {
+			return;
+		}
 
-			if (!isDisabled && excludedPackages.has(node.arguments[0].value)) {
-				isDisabled = true;
-			}
-		},
+		if (!isDisabled && excludedPackages.has(node.arguments[0].value)) {
+			isDisabled = true;
+		}
+	});
 
-		Literal(node) {
-			if (node.parent.type === 'ImportDeclaration' && !isDisabled && excludedPackages.has(node.value)) {
-				isDisabled = true;
-			}
-		},
+	context.on('Literal', node => {
+		if (node.parent.type === 'ImportDeclaration' && !isDisabled && excludedPackages.has(node.value)) {
+			isDisabled = true;
+		}
+	});
 
-		ReturnStatement(node) {
-			codePathInfo.returnsSomething ||= Boolean(node.argument);
-		},
+	context.on('ReturnStatement', node => {
+		codePathInfo.returnsSomething ||= Boolean(node.argument);
+	});
 
-		'AssignmentExpression:exit'(node) {
-			if (isDisabled) {
-				return;
-			}
+	context.on('AssignmentExpression:exit', node => {
+		if (isDisabled) {
+			return;
+		}
 
-			const {left: memberExpression, right: assignedExpression, operator} = node;
+		const {left: memberExpression, right: assignedExpression, operator} = node;
 
-			if (
-				memberExpression.type !== 'MemberExpression'
-				|| memberExpression.computed
-			) {
-				return;
-			}
+		if (
+			memberExpression.type !== 'MemberExpression'
+			|| memberExpression.computed
+		) {
+			return;
+		}
 
-			const eventMethodName = getEventMethodName(memberExpression);
+		const eventMethodName = getEventMethodName(memberExpression);
 
-			if (!eventMethodName || !eventMethodName.startsWith('on')) {
-				return;
-			}
+		if (!eventMethodName || !eventMethodName.startsWith('on')) {
+			return;
+		}
 
-			const eventTypeName = getEventTypeName(eventMethodName);
+		const eventTypeName = getEventTypeName(eventMethodName);
 
-			if (!eventTypes.has(eventTypeName)) {
-				return;
-			}
+		if (!eventTypes.has(eventTypeName)) {
+			return;
+		}
 
-			let replacement = 'addEventListener';
-			let extra = '';
-			let fix;
+		let replacement = 'addEventListener';
+		let extra = '';
+		let fix;
 
-			if (isClearing(assignedExpression)) {
-				replacement = 'removeEventListener';
-			} else if (
-				eventTypeName === 'beforeunload'
-				&& !shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
-			) {
-				extra = extraMessages.beforeunload;
-			} else if (eventTypeName === 'message') {
-				// Disable `onmessage` fix, see #537
-				extra = extraMessages.message;
-			} else if (eventTypeName === 'error') {
-				// Disable `onerror` fix, see #1493
-				extra = extraMessages.error;
-			} else if (
-				operator === '='
-				&& node.parent.type === 'ExpressionStatement'
-				&& node.parent.expression === node
-			) {
-				fix = fixer => fixCode(fixer, context.sourceCode, node, memberExpression);
-			}
+		if (isClearing(assignedExpression)) {
+			replacement = 'removeEventListener';
+		} else if (
+			eventTypeName === 'beforeunload'
+			&& !shouldFixBeforeUnload(assignedExpression, nodeReturnsSomething)
+		) {
+			extra = extraMessages.beforeunload;
+		} else if (eventTypeName === 'message') {
+			// Disable `onmessage` fix, see #537
+			extra = extraMessages.message;
+		} else if (eventTypeName === 'error') {
+			// Disable `onerror` fix, see #1493
+			extra = extraMessages.error;
+		} else if (
+			operator === '='
+			&& node.parent.type === 'ExpressionStatement'
+			&& node.parent.expression === node
+		) {
+			fix = fixer => fixCode(fixer, context.sourceCode, node, memberExpression);
+		}
 
-			return {
-				node: memberExpression.property,
-				messageId: MESSAGE_ID,
-				data: {
-					replacement,
-					method: eventMethodName,
-					extra: extra ? ` ${extra}` : '',
-				},
-				fix,
-			};
-		},
-	};
+		return {
+			node: memberExpression.property,
+			messageId: MESSAGE_ID,
+			data: {
+				replacement,
+				method: eventMethodName,
+				extra: extra ? ` ${extra}` : '',
+			},
+			fix,
+		};
+	});
 };
 
 const schema = [

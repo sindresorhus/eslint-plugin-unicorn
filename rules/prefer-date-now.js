@@ -26,8 +26,8 @@ const getProblem = (node, problem, context) => ({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		// `new Date().{getTime,valueOf}()`
 		if (
 			isMethodCall(callExpression, {
@@ -64,8 +64,9 @@ const create = context => ({
 
 			return getProblem(callExpression.arguments[0]);
 		}
-	},
-	UnaryExpression(unaryExpression) {
+	});
+
+	context.on('UnaryExpression', unaryExpression => {
 		// https://github.com/estree/estree/blob/master/es5.md#unaryoperator
 		if (
 			unaryExpression.operator !== '+'
@@ -81,8 +82,9 @@ const create = context => ({
 				context,
 			);
 		}
-	},
-	AssignmentExpression(assignmentExpression) {
+	});
+
+	context.on('AssignmentExpression', assignmentExpression => {
 		if (
 			assignmentExpression.operator !== '-='
 			&& assignmentExpression.operator !== '*='
@@ -96,8 +98,9 @@ const create = context => ({
 		if (isNewDate(assignmentExpression.right)) {
 			return getProblem(assignmentExpression.right);
 		}
-	},
-	* BinaryExpression(binaryExpression) {
+	});
+
+	context.on('BinaryExpression', function * (binaryExpression) {
 		if (
 			binaryExpression.operator !== '-'
 			&& binaryExpression.operator !== '*'
@@ -113,8 +116,8 @@ const create = context => ({
 				yield getProblem(node);
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -19,8 +19,8 @@ const isEqualityCheck = node => node.type === 'BinaryExpression' && EQUALITY_OPE
 const isNegatedExpression = node => node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	BinaryExpression(binaryExpression) {
+const create = context => {
+	context.on('BinaryExpression', binaryExpression => {
 		const {operator, left} = binaryExpression;
 
 		if (!(
@@ -78,8 +78,8 @@ const create = context => ({
 				},
 			],
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

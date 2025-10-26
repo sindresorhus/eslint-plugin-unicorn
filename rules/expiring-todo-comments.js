@@ -530,11 +530,9 @@ const create = context => {
 		return uses === 0;
 	}
 
-	return {
-		Program() {
-			rules.Program(); // eslint-disable-line new-cap
-		},
-	};
+	context.on('Program', () => {
+		rules.Program(); // eslint-disable-line new-cap
+	});
 };
 
 const schema = [

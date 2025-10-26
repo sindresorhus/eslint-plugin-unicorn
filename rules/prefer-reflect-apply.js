@@ -56,8 +56,8 @@ const fixFunctionPrototypeCall = (node, sourceCode) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
 				optionalCall: false,
@@ -79,8 +79,8 @@ const create = context => ({
 				fix,
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
