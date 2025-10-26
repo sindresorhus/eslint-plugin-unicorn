@@ -86,9 +86,9 @@ function noArrayMutateRule(methodName) {
 			const fixMethodName = fixer => fixer.replaceText(methodProperty, replacement);
 
 			/*
-				For `[...array].reverse()`, provide two suggestions, let user choose if the object can be unwrapped,
-				otherwise only change `.reverse()` to `.toReversed()`
-				*/
+			For `[...array].reverse()`, provide two suggestions, let user choose if the object can be unwrapped,
+			otherwise only change `.reverse()` to `.toReversed()`
+			*/
 			if (isSpreadAndMutate) {
 				suggestions.push({
 					messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
