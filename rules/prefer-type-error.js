@@ -134,8 +134,8 @@ const isTypecheckingExpression = (node, callExpression) => {
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	ThrowStatement(node) {
+const create = context => {
+	context.on('ThrowStatement', node => {
 		if (
 			isNewExpression(node.argument, {name: 'Error'})
 			&& isLone(node)
@@ -149,8 +149,8 @@ const create = () => ({
 				fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

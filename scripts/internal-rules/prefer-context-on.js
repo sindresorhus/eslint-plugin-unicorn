@@ -6,7 +6,7 @@ const messageId = path.basename(fileURLToPath(import.meta.url), '.js');
 
 function isRuleCreate(functionNode) {
 	return (
-		functionNode.params.length === 1
+		functionNode.params.length < 2
 		&& (
 			(functionNode.id?.name === 'create')
 			|| (

@@ -37,7 +37,7 @@ function toEslintCreate(unicornCreate) {
 
 		const result = unicornCreate(unicornContext);
 
-		assert.equal(result, undefined, 'Rule `create` function should return `undefined`, please use `context.on()` instead of return listeners.');
+		assert.equal(result, undefined, `[${eslintContext.id}] Rule \`create\` function should return \`undefined\`, please use \`context.on()\` instead of return listeners.`);
 
 		const eslintListeners = unicornListeners.toEslintListeners();
 

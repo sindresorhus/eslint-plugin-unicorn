@@ -10,7 +10,7 @@ export default function createDeprecatedRules(rules) {
 			return [
 				ruleId,
 				{
-					create: () => ({}),
+					create() {},
 					meta: {
 						docs: {
 							description: deprecatedInfo.message,
