@@ -22,16 +22,14 @@ function toEslintProblem(unicornProblem) {
 	}
 
 	if (Array.isArray(unicornProblem.suggest)) {
-		eslintProblem.suggest = unicornProblem.suggest.map(unicornSuggest => {
-			const eslintSuggest = {...unicornSuggest};
-			eslintSuggest.fix = toEslintFixer(unicornSuggest.fix);
-			eslintSuggest.data = {
+		eslintProblem.suggest = unicornProblem.suggest.map(unicornSuggest => ({
+			...unicornSuggest,
+			fix: toEslintFixer(unicornSuggest.fix),
+			data: {
 				...unicornProblem.data,
 				...unicornSuggest.data,
-			};
-
-			return eslintSuggest;
-		});
+			},
+		}));
 	}
 
 	return eslintProblem;
