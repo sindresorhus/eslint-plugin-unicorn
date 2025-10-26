@@ -88,7 +88,7 @@ function fixRequireCall(node, context) {
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
-				yield * removeParentheses(node, fixer, context);
+				yield removeParentheses(node, fixer, context);
 			}
 		};
 	}
@@ -149,7 +149,7 @@ function fixRequireCall(node, context) {
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
-				yield * removeParentheses(node, fixer, context);
+				yield removeParentheses(node, fixer, context);
 			}
 
 			if (id.type === 'Identifier') {
@@ -216,7 +216,7 @@ function fixDefaultExport(node, context) {
 		yield removeSpacesAfter(equalToken, context, fixer);
 
 		for (const currentNode of [node.parent, node]) {
-			yield * removeParentheses(currentNode, fixer, context);
+			yield removeParentheses(currentNode, fixer, context);
 		}
 	};
 }
@@ -228,7 +228,7 @@ function fixNamedExport(node, context) {
 		const local = assignmentExpression.right.name;
 		yield fixer.replaceText(assignmentExpression, `export {${local} as ${exported}}`);
 
-		yield * removeParentheses(assignmentExpression, fixer, context);
+		yield removeParentheses(assignmentExpression, fixer, context);
 	};
 }
 

@@ -16,7 +16,7 @@ export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replace
 	const tokens = getParentheses(nodeOrToken, tokenStore ? {sourceCode: tokenStore} : context);
 
 	for (const token of tokens) {
-		yield * replaceNodeOrTokenAndSpacesBefore(token, '', fixer, context, tokenStore);
+		yield replaceNodeOrTokenAndSpacesBefore(token, '', fixer, context, tokenStore);
 	}
 
 	const {sourceCode} = context;

@@ -183,7 +183,7 @@ function switchClassToObject(node, context) {
 		}
 
 		for (const node of body.body) {
-			yield * switchClassMemberToObjectProperty(node, context, fixer);
+			yield switchClassMemberToObjectProperty(node, context, fixer);
 		}
 	};
 }
