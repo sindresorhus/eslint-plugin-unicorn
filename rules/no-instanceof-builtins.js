@@ -61,14 +61,14 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 	const tokenStore = getTokenStore(context, node);
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 
-	yield * fixSpaceAroundKeyword(fixer, node, context);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
 	const range = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
-	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, context, tokenStore);
-	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, context, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
 };
 
 const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
@@ -83,7 +83,7 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 	// Get safe quote
 	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
 
-	yield * fixSpaceAroundKeyword(fixer, node, context);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
 	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');

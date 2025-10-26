@@ -5,6 +5,7 @@ import preferNegativeBooleanAttribute from './prefer-negative-boolean-attribute.
 import preferFixerRemoveRange from './prefer-fixer-remove-range.js';
 import noRestrictedPropertyAccess from './no-restricted-property-access.js';
 import noSourceCodeParameter from './no-source-code-parameter.js';
+import noFixYieldStar from './no-fix-yield-star.js';
 
 const pluginName = 'internal';
 const PROJECT_ROOT = new URL('../../', import.meta.url);
@@ -31,6 +32,7 @@ const rules = [
 	{id: 'prefer-fixer-remove-range', directories: RULES_DIRECTORIES, rule: preferFixerRemoveRange},
 	{id: 'no-restricted-property-access', directories: RULES_DIRECTORIES, rule: noRestrictedPropertyAccess},
 	{id: 'no-source-code-parameter', directories: UTILITIES_DIRECTORIES, rule: noSourceCodeParameter},
+	{id: 'no-fix-yield-star', directories: RULES_DIRECTORIES, rule: noFixYieldStar},
 ];
 
 const createFilePredicate = directories => {
