@@ -26,7 +26,7 @@ function * convertNegatedCondition(fixer, node, context) {
 		const token = sourceCode.getFirstToken(test);
 
 		if (node.type === 'IfStatement') {
-			yield * removeParentheses(test.argument, fixer, context);
+			yield removeParentheses(test.argument, fixer, context);
 		}
 
 		yield fixer.remove(token);
@@ -96,8 +96,8 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
-				yield * convertNegatedCondition(fixer, node, context);
-				yield * swapConsequentAndAlternate(fixer, node, context);
+				yield convertNegatedCondition(fixer, node, context);
+				yield swapConsequentAndAlternate(fixer, node, context);
 
 				if (
 					node.type !== 'ConditionalExpression'
@@ -106,7 +106,7 @@ const create = context => {
 					return;
 				}
 
-				yield * fixSpaceAroundKeyword(fixer, node, context);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 
 				const {sourceCode} = context;
 				const {parent} = node;
@@ -118,7 +118,7 @@ const create = context => {
 					&& !isParenthesized(node, context)
 					&& !isParenthesized(test, context)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 

@@ -206,7 +206,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	return function * (fixer) {
 		// `(( foo.forEach(bar => bar) ))`
-		yield * removeParentheses(callExpression, fixer, context);
+		yield removeParentheses(callExpression, fixer, context);
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
@@ -222,7 +222,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// Parenthesized callback function
 		// foo.forEach( ((bar => {})) )
 		//                         ^^
-		yield * removeCallbackParentheses(fixer);
+		yield removeCallbackParentheses(fixer);
 
 		const [
 			penultimateToken,
@@ -242,7 +242,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield fixer.remove(lastToken);
 
 		for (const returnStatement of returnStatements) {
-			yield * replaceReturnStatement(returnStatement, fixer);
+			yield replaceReturnStatement(returnStatement, fixer);
 		}
 
 		if (ancestor.type === 'ExpressionStatement') {
@@ -258,14 +258,14 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(callExpression, ' }');
 		}
 
-		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, context);
+		yield fixSpaceAroundKeyword(fixer, callExpression.parent, context);
 
 		if (isOptionalObject) {
 			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);
 		}
 
 		// Prevent possible variable conflicts
-		yield * extendFixRange(fixer, sourceCode.getRange(callExpression.parent));
+		yield extendFixRange(fixer, sourceCode.getRange(callExpression.parent));
 	};
 }
 

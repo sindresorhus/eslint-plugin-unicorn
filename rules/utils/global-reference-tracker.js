@@ -48,11 +48,7 @@ export class GlobalReferenceTracker {
 
 			const problems = handle(reference, context);
 
-			if (problems?.[Symbol.iterator]) {
-				yield * problems;
-			} else if (problems) {
-				yield problems;
-			}
+			yield problems;
 		}
 	}
 

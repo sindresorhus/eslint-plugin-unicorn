@@ -79,7 +79,7 @@ const create = context => {
 					&& !isParenthesized(binaryExpression, context)
 					&& !isParenthesized(typeofNode, context)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 

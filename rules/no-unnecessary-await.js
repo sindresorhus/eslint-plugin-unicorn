@@ -74,7 +74,7 @@ const create = context => ({
 					!isOnSameLine(awaitToken, valueNode, context)
 					&& !isParenthesized(node, context)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
+					yield addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
 				}
 
 				yield fixer.remove(awaitToken);

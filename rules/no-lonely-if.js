@@ -21,10 +21,10 @@ const needParenthesis = node => (
 );
 
 function getIfStatementTokens(node, sourceCode) {
-	const tokens = {};
-
-	tokens.ifToken = sourceCode.getFirstToken(node);
-	tokens.openingParenthesisToken = sourceCode.getFirstToken(node, 1);
+	const tokens = {
+		ifToken: sourceCode.getFirstToken(node),
+		openingParenthesisToken: sourceCode.getFirstToken(node, 1),
+	};
 
 	const {consequent} = node;
 	tokens.closingParenthesisToken = sourceCode.getTokenBefore(consequent);

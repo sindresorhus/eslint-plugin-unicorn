@@ -95,11 +95,11 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 		&& !isOnSameLine(openingBracketToken, thirdToken, context)
 		&& !isParenthesized(arrayExpression, context)
 	) {
-		yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+		yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
-	yield * fixSpaceAroundKeyword(fixer, arrayExpression, context);
+	yield fixSpaceAroundKeyword(fixer, arrayExpression, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -155,7 +155,7 @@ const create = context => {
 
 				// `[...(( [foo] ))]`
 				//      ^^       ^^
-				yield * removeParentheses(spreadObject, fixer, context);
+				yield removeParentheses(spreadObject, fixer, context);
 
 				// `[...[foo]]`
 				//      ^

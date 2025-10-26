@@ -60,7 +60,7 @@ const create = context => {
 							yield fixer.insertTextAfter(parent, code);
 						}
 
-						yield * fixSpaceAroundKeyword(fixer, node, context);
+						yield fixSpaceAroundKeyword(fixer, node, context);
 					};
 				}
 			}

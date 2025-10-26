@@ -33,6 +33,7 @@ export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-hex-escape'} from './no-hex-escape.js';
+export {default as 'no-immediate-mutation'} from './no-immediate-mutation.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-remove-event-listener'} from './no-invalid-remove-event-listener.js';

@@ -36,7 +36,7 @@ function * removeImportOrExport(node, fixer, context) {
 		case 'ExportSpecifier':
 		case 'ImportDefaultSpecifier':
 		case 'ImportNamespaceSpecifier': {
-			yield * removeSpecifier(node, fixer, context);
+			yield removeSpecifier(node, fixer, context);
 			return;
 		}
 
@@ -117,10 +117,10 @@ function getFixFunction({
 		}
 
 		if (imported.variable.references.length === 1) {
-			yield * removeImportOrExport(imported.node, fixer, context);
+			yield removeImportOrExport(imported.node, fixer, context);
 		}
 
-		yield * removeImportOrExport(exported.node, fixer, context);
+		yield removeImportOrExport(exported.node, fixer, context);
 	};
 }
 

@@ -187,7 +187,7 @@ function create(context) {
 				isUrlFileURLToPathCall(memberExpression.parent, sourceCode)
 				&& memberExpression.parent.arguments[0] === memberExpression
 			) {
-				yield * iterateProblemsFromFilename(memberExpression.parent, {
+				yield iterateProblemsFromFilename(memberExpression.parent, {
 					reportFilenameNode: true,
 				});
 				return;
@@ -208,7 +208,7 @@ function create(context) {
 					&& isUrlFileURLToPathCall(urlParent, sourceCode)
 					&& urlParent.arguments[0] === newUrl
 				) {
-					yield * iterateProblemsFromFilename(urlParent, {
+					yield iterateProblemsFromFilename(urlParent, {
 						reportFilenameNode: true,
 					});
 					return;
@@ -231,7 +231,7 @@ function create(context) {
 		}
 
 		if (propertyName === 'filename') {
-			yield * iterateProblemsFromFilename(memberExpression);
+			yield iterateProblemsFromFilename(memberExpression);
 		}
 
 		/**
