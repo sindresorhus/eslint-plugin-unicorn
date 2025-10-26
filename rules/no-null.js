@@ -19,106 +19,104 @@ const create = context => {
 		...context.options[0],
 	};
 
-	return {
-		Literal(node) {
-			if (
-				// eslint-disable-next-line unicorn/no-null
-				!isLiteral(node, null)
-				|| (!checkStrictEquality && isStrictEqual(node.parent))
-				// `Object.create(null)`, `Object.create(null, foo)`
-				|| (
-					isMethodCall(node.parent, {
-						object: 'Object',
-						method: 'create',
-						minimumArguments: 1,
-						maximumArguments: 2,
-						optionalCall: false,
-						optionalMember: false,
-					})
-					&& node.parent.arguments[0] === node
-				)
-				// `useRef(null)`
-				|| (
-					isCallExpression(node.parent, {
-						name: 'useRef',
-						argumentsLength: 1,
-						optionalCall: false,
-						optionalMember: false,
-					})
-					&& node.parent.arguments[0] === node
-				)
-				// `React.useRef(null)`
-				|| (
-					isMethodCall(node.parent, {
-						object: 'React',
-						method: 'useRef',
-						argumentsLength: 1,
-						optionalCall: false,
-						optionalMember: false,
-					})
-					&& node.parent.arguments[0] === node
-				)
-				// `foo.insertBefore(bar, null)`
-				|| (
-					isMethodCall(node.parent, {
-						method: 'insertBefore',
-						argumentsLength: 2,
-						optionalCall: false,
-					})
-					&& node.parent.arguments[1] === node
-				)
-			) {
-				return;
-			}
+	context.on('Literal', node => {
+		if (
+			// eslint-disable-next-line unicorn/no-null
+			!isLiteral(node, null)
+			|| (!checkStrictEquality && isStrictEqual(node.parent))
+			// `Object.create(null)`, `Object.create(null, foo)`
+			|| (
+				isMethodCall(node.parent, {
+					object: 'Object',
+					method: 'create',
+					minimumArguments: 1,
+					maximumArguments: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.parent.arguments[0] === node
+			)
+			// `useRef(null)`
+			|| (
+				isCallExpression(node.parent, {
+					name: 'useRef',
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.parent.arguments[0] === node
+			)
+			// `React.useRef(null)`
+			|| (
+				isMethodCall(node.parent, {
+					object: 'React',
+					method: 'useRef',
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& node.parent.arguments[0] === node
+			)
+			// `foo.insertBefore(bar, null)`
+			|| (
+				isMethodCall(node.parent, {
+					method: 'insertBefore',
+					argumentsLength: 2,
+					optionalCall: false,
+				})
+				&& node.parent.arguments[1] === node
+			)
+		) {
+			return;
+		}
 
-			const {parent} = node;
+		const {parent} = node;
 
-			const problem = {
-				node,
-				messageId: ERROR_MESSAGE_ID,
-			};
+		const problem = {
+			node,
+			messageId: ERROR_MESSAGE_ID,
+		};
 
-			const useUndefinedFix = fixer => fixer.replaceText(node, 'undefined');
+		const useUndefinedFix = fixer => fixer.replaceText(node, 'undefined');
 
-			if (isLooseEqual(parent)) {
-				problem.fix = useUndefinedFix;
-				return problem;
-			}
-
-			const useUndefinedSuggestion = {
-				messageId: SUGGESTION_REPLACE_MESSAGE_ID,
-				fix: useUndefinedFix,
-			};
-
-			if (parent.type === 'ReturnStatement' && parent.argument === node) {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.remove(node),
-					},
-					useUndefinedSuggestion,
-				];
-				return problem;
-			}
-
-			if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
-				const {sourceCode} = context;
-				const [, start] = sourceCode.getRange(parent.id);
-				const [, end] = sourceCode.getRange(node);
-				problem.suggest = [
-					{
-						messageId: SUGGESTION_REMOVE_MESSAGE_ID,
-						fix: fixer => fixer.removeRange([start, end]),
-					},
-					useUndefinedSuggestion,
-				];
-				return problem;
-			}
-
-			problem.suggest = [useUndefinedSuggestion];
+		if (isLooseEqual(parent)) {
+			problem.fix = useUndefinedFix;
 			return problem;
-		},
-	};
+		}
+
+		const useUndefinedSuggestion = {
+			messageId: SUGGESTION_REPLACE_MESSAGE_ID,
+			fix: useUndefinedFix,
+		};
+
+		if (parent.type === 'ReturnStatement' && parent.argument === node) {
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					fix: fixer => fixer.remove(node),
+				},
+				useUndefinedSuggestion,
+			];
+			return problem;
+		}
+
+		if (parent.type === 'VariableDeclarator' && parent.init === node && parent.parent.kind !== 'const') {
+			const {sourceCode} = context;
+			const [, start] = sourceCode.getRange(parent.id);
+			const [, end] = sourceCode.getRange(node);
+			problem.suggest = [
+				{
+					messageId: SUGGESTION_REMOVE_MESSAGE_ID,
+					fix: fixer => fixer.removeRange([start, end]),
+				},
+				useUndefinedSuggestion,
+			];
+			return problem;
+		}
+
+		problem.suggest = [useUndefinedSuggestion];
+		return problem;
+	});
 };
 
 const schema = [
