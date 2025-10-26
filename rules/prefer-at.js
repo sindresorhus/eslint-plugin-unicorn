@@ -276,12 +276,12 @@ function create(context) {
 				yield fixer.removeRange([start, end]);
 			}
 
-			// Remove `[0]`, `.shift()`, or `.pop()`
-			if (firstElementGetMethod === 'zero-index') {
-				yield removeMemberExpressionProperty(fixer, sliceCall.parent, context);
-			} else {
-				yield * removeMethodCall(fixer, sliceCall.parent.parent, context);
-			}
+			yield (
+				// Remove `[0]`, `.shift()`, or `.pop()`
+				firstElementGetMethod === 'zero-index'
+					? removeMemberExpressionProperty(fixer, sliceCall.parent, context)
+					: removeMethodCall(fixer, sliceCall.parent.parent, context)
+			);
 		}
 
 		const problem = {

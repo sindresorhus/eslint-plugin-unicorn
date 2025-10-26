@@ -53,7 +53,7 @@ function fix(context, lengthAccessNodes) {
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
 		yield fixer.replaceText(arrayExpression, sourceCode.getText(set));
-		yield * fixSpaceAroundKeyword(fixer, lengthAccessNodes, context);
+		yield fixSpaceAroundKeyword(fixer, lengthAccessNodes, context);
 	};
 }
 

@@ -45,7 +45,7 @@ const inferMethod = (bufferArguments, scope) => {
 function fix(node, context, method) {
 	return function * (fixer) {
 		yield fixer.insertTextAfter(node.callee, `.${method}`);
-		yield * switchNewExpressionToCallExpression(node, context, fixer);
+		yield switchNewExpressionToCallExpression(node, context, fixer);
 	};
 }
 

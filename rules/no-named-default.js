@@ -13,7 +13,7 @@ const fixImportSpecifier = (importSpecifier, context) => function * (fixer) {
 	const {sourceCode} = context;
 	const declaration = importSpecifier.parent;
 
-	yield * removeSpecifier(importSpecifier, fixer, context, /* keepDeclaration */ true);
+	yield removeSpecifier(importSpecifier, fixer, context, /* keepDeclaration */ true);
 
 	const nameText = sourceCode.getText(importSpecifier.local);
 	const hasDefaultImport = declaration.specifiers.some(({type}) => type === 'ImportDefaultSpecifier');
@@ -41,7 +41,7 @@ const fixImportSpecifier = (importSpecifier, context) => function * (fixer) {
 
 const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 	const declaration = exportSpecifier.parent;
-	yield * removeSpecifier(exportSpecifier, fixer, context);
+	yield removeSpecifier(exportSpecifier, fixer, context);
 
 	const text = `export default ${context.sourceCode.getText(exportSpecifier.local)};`;
 	yield fixer.insertTextBefore(declaration, `${text}\n`);

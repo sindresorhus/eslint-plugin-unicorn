@@ -185,7 +185,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 
 		yield fixer.replaceText(node, fixed);
 
-		yield * fixSpaceAroundKeyword(fixer, node, context);
+		yield fixSpaceAroundKeyword(fixer, node, context);
 	};
 }
 

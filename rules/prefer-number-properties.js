@@ -48,7 +48,7 @@ function checkProperty({node, path: [name]}, context) {
 		problem.data.description = '-Infinity';
 		problem.fix = function * (fixer) {
 			yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-			yield * fixSpaceAroundKeyword(fixer, parent, context);
+			yield fixSpaceAroundKeyword(fixer, parent, context);
 		};
 
 		return problem;
