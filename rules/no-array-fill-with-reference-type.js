@@ -46,9 +46,9 @@ const create = context => ({
 			? node.arguments[0]
 			: getReturnNodeOfArrayDotFrom(node, context);
 
-		const [is, resolvedNode] = isReferenceType(fillArgument, context);
+		const referenceNode = getReference(fillArgument, context);
 
-		if (!is) {
+		if (referenceNode === undefined) {
 			return;
 		}
 
@@ -60,7 +60,7 @@ const create = context => ({
 			? 'Array.from().fill()'
 			: 'Array.fill()';
 
-		const type = getType(resolvedNode, context);
+		const type = getType(referenceNode, context);
 
 		return {
 			node: fillArgument,
@@ -244,11 +244,11 @@ function getNewExpressionType(fillArgument, context) {
 /**
  @param {undefined | Node} node
  @param {import('eslint').Rule.RuleContext} context
- @returns {[is: false] | [is: true, node: Node]}
+ @returns {undefined | Node} return undefined if node is not a reference type
  */
-function isReferenceType(node, context) {
+function getReference(node, context) {
 	if (!node) {
-		return [false];
+		return undefined;
 	}
 
 	/** @type {typeof DEFAULTS} */
@@ -261,45 +261,45 @@ function isReferenceType(node, context) {
 	if (node.type === 'Literal') {
 		// Exclude regular expression literals (e.g., `/pattern/`, which are objects despite being literals).
 		if (!options.allowRegularExpressions && isRegexLiteral(node)) {
-			return [true, node];
+			return node;
 		}
 
-		return [false];
+		return undefined;
 	}
 
 	// For template literals.
 	if (node.type === 'TemplateLiteral') {
-		return [false];
+		return undefined;
 	}
 
 	// For variable identifiers (recursively check its declaration).
 	if (node.type === 'Identifier') {
-		return isIdentifierReferenceType(node, context);
+		return getIdentifierReference(node, context);
 	}
 
 	if (isSymbol(node)) {
-		return [false];
+		return undefined;
 	}
 
 	if (options.allowFunctions && isFunction(node)) {
-		return [false];
+		return undefined;
 	}
 
 	if (options.allowRegularExpressions && isNewExpression(node, 'RegExp')) {
-		return [false];
+		return undefined;
 	}
 
 	if (isMemberExpression(node)) {
 		const propertyNode = getMemberExpressionLeafNode(node, context);
 		if (!propertyNode) {
-			return [false];
+			return undefined;
 		}
 
-		return isReferenceType(propertyNode, context);
+		return getReference(propertyNode, context);
 	}
 
 	// Other cases: objects, arrays, new expressions, regular expressions, etc.
-	return [true, node];
+	return node;
 }
 
 /**
@@ -453,9 +453,9 @@ function findVariableDefinition({variableName, node, context}) {
 
  @param {*} node
  @param {import('eslint').Rule.RuleContext} context
- @returns {[is: false] | [is: true, node: Node]}
+ @returns {undefined | Node} return undefined if it's not a reference type
  */
-function isIdentifierReferenceType(node, context) {
+function getIdentifierReference(node, context) {
 	const variable = findVariableDefinition({
 		variableName: node.name,
 		node,
@@ -464,20 +464,20 @@ function isIdentifierReferenceType(node, context) {
 	const definitionNode = variable?.defs[0]?.node;
 
 	if (!variable || !definitionNode) {
-		return [false];
+		return undefined;
 	}
 
 	// Check `const foo = []; Array(3).fill(foo);`
 	if (definitionNode.type === 'VariableDeclarator') {
 		// Not check `let` `let foo = []; Array(3).fill(foo);`
 		if (definitionNode.parent.kind === 'let') {
-			return [false];
+			return undefined;
 		}
 
-		return isReferenceType(definitionNode.init, context);
+		return getReference(definitionNode.init, context);
 	}
 
-	return isReferenceType(definitionNode, context);
+	return getReference(definitionNode, context);
 }
 
 const schema = [
