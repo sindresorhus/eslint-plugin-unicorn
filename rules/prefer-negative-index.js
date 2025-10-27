@@ -1,6 +1,6 @@
 import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-index.js';
 import typedArray from './shared/typed-array.js';
-import {isLiteral} from './ast/index.js';
+import {isEmptyArrayExpression, isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -115,10 +115,7 @@ function parse(node) {
 
 	if (
 		// `[].{slice,splice,toSpliced,at,with}`
-		(
-			parentCallee.type === 'ArrayExpression'
-			&& parentCallee.elements.length === 0
-		)
+		isEmptyArrayExpression(parentCallee)
 		// `''.slice`
 		|| (
 			method === 'slice'
