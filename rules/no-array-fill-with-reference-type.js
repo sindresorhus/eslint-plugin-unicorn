@@ -150,8 +150,8 @@ function getReturnIdentifier(node, context) {
 	// @ts-expect-error
 	const returnStatement = nodeBody.body.find(node => node.type === 'ReturnStatement');
 
-	// const list = Array.from({ length: 3 }, () => {
-	//   return {} // <= the returnStatement  has no name or type !== 'Identifier' we can return here
+	// For case: const list = Array.from({ length: 3 }, () => {
+	//   return {} // <= the returnStatement has no name or type !== 'Identifier' we can return here
 	// });
 	if (returnStatement?.argument?.type !== 'Identifier') {
 		return {
@@ -247,7 +247,7 @@ function getNewExpressionType(fillArgument, context) {
  */
 function getReference(node, context) {
 	if (!node) {
-		return undefined;
+		return;
 	}
 
 	/** @type {typeof DEFAULTS} */
@@ -263,12 +263,12 @@ function getReference(node, context) {
 			return node;
 		}
 
-		return undefined;
+		return;
 	}
 
 	// For template literals.
 	if (node.type === 'TemplateLiteral') {
-		return undefined;
+		return;
 	}
 
 	// For variable identifiers (recursively check its declaration).
@@ -277,21 +277,21 @@ function getReference(node, context) {
 	}
 
 	if (isSymbol(node)) {
-		return undefined;
+		return;
 	}
 
 	if (options.allowFunctions && isFunction(node)) {
-		return undefined;
+		return;
 	}
 
 	if (options.allowRegularExpressions && isNewExpression(node, 'RegExp')) {
-		return undefined;
+		return;
 	}
 
 	if (isMemberExpression(node)) {
 		const propertyNode = getMemberExpressionLeafNode(node, context);
 		if (!propertyNode) {
-			return undefined;
+			return;
 		}
 
 		return getReference(propertyNode, context);
@@ -463,14 +463,14 @@ function getIdentifierReference(node, context) {
 	const definitionNode = variable?.defs[0]?.node;
 
 	if (!variable || !definitionNode) {
-		return undefined;
+		return;
 	}
 
 	// Check `const foo = []; Array(3).fill(foo);`
 	if (definitionNode.type === 'VariableDeclarator') {
 		// Not check `let` `let foo = []; Array(3).fill(foo);`
 		if (definitionNode.parent.kind === 'let') {
-			return undefined;
+			return;
 		}
 
 		return getReference(definitionNode.init, context);
