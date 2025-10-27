@@ -60,7 +60,7 @@ const create = context => ({
 			? 'Array.from().fill()'
 			: 'Array.fill()';
 
-		const type = getType(referenceNode, context);
+		const type = getDescription(referenceNode, context);
 
 		return {
 			node: fillArgument,
@@ -177,12 +177,12 @@ function getReturnIdentifier(node, context) {
 }
 
 /**
- @param {*} fillArgument
+ @param {Node} node
  @param {import('eslint').Rule.RuleContext} context
  @returns {string}
  */
-function getType(fillArgument, context) {
-	switch (fillArgument.type) {
+function getDescription(node, context) {
+	switch (node.type) {
 		case 'ObjectExpression': {
 			return 'Object';
 		}
@@ -192,7 +192,7 @@ function getType(fillArgument, context) {
 		}
 
 		case 'NewExpression': {
-			return getNewExpressionType(fillArgument, context);
+			return getNewExpressionType(node, context);
 		}
 
 		case 'FunctionExpression':
@@ -201,12 +201,16 @@ function getType(fillArgument, context) {
 		}
 
 		default: {
-			if (fillArgument.type === 'Literal' && fillArgument.regex) {
+			if (
+				node.type === 'Literal'
+				// @ts-expect-error
+				&& node.regex
+			) {
 				return 'RegExp';
 			}
 
-			if (fillArgument.type === 'Identifier') {
-				return `variable (${fillArgument.name})`;
+			if (node.type === 'Identifier') {
+				return `variable (${node.name})`;
 			}
 		}
 	}
