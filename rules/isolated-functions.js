@@ -116,10 +116,10 @@ const create = context => {
 		}
 	};
 
-	return Object.fromEntries(functionTypes.map(type => [
-		`${type}:exit`,
+	context.on(
+		functionTypes.map(type => `${type}:exit`),
 		checkForExternallyScopedVariables,
-	]));
+	);
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
