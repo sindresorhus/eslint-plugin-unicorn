@@ -35,8 +35,13 @@ const create = context => ({
 		// `arr.fill()` or `new Array().fill()` or `Array.from().fill()`
 		const isArrayFill = isMethodCall(node, {method: 'fill', argumentsLength: 1});
 
-		// `Array.from().map` or `Array.from(arrayLike, mapper)`
-		const isArrayFrom = isMethodCall(node, {object: 'Array', method: 'from'});
+		// 1. `Array.from(arrayLike, mapper1)`
+		const isArrayFromMap = isMethodCall(node, {object: 'Array', method: 'from', argumentsLength: 2});
+		// 2. or `Array.from().map(mapper2)`
+		// @ts-expect-error
+		const isArrayFromDotMap = isMethodCall(node.callee.object, {object: 'Array', method: 'from', argumentsLength: 1})
+			&& isMemberExpression(node.callee, 'map');
+		const isArrayFrom = isArrayFromMap || isArrayFromDotMap;
 
 		if (!isArrayFill && !isArrayFrom) {
 			return;
@@ -44,7 +49,7 @@ const create = context => ({
 
 		const fillArgument = isArrayFill
 			? node.arguments[0]
-			: getReturnNodeOfArrayDotFrom(node, context);
+			: getCallbackReturnNode(isArrayFromMap ? node.arguments[1] : node.arguments[0], context);
 
 		const referenceNode = getReference(fillArgument, context);
 
@@ -57,7 +62,7 @@ const create = context => ({
 			node.callee.object,
 			{object: 'Array', method: 'from'},
 		)
-			? 'Array.from().fill()'
+			? 'Array.from()'
 			: 'Array.fill()';
 
 		const type = getDescription(referenceNode, context);
@@ -75,23 +80,12 @@ const create = context => ({
 
 /**
 
- @param {import('estree').CallExpression} functionNode
+ @param {import('estree').Expression | import('estree').SpreadElement} callbackExpression
  @param {RuleContext} context
  @returns
  */
-function getReturnNodeOfArrayDotFrom(functionNode, context) {
-	const secondArgument = functionNode.arguments[1];
-
-	let result;
-	// Array.from({ length: 10 }, () => { return sharedObject; });
-	if (secondArgument && isFunction(secondArgument)) {
-		result = getReturnIdentifier(secondArgument, context);
-		// @ts-expect-error node always has a parent
-	} else if (isMemberExpression(functionNode.parent, 'map')) {
-		// Array.from({ length: 10 }).map(() => { return sharedObject; });
-		// @ts-expect-error node always has a parent
-		result = getReturnIdentifier(functionNode.parent.parent.arguments[0], context);
-	}
+function getCallbackReturnNode(callbackExpression, context) {
+	const	result = getReturnIdentifier(callbackExpression, context);
 
 	// Should not check reference type:
 	// 1. if the identifier is declared in the current function（so the reference type is created at every callback therefor not a **shared** reference.）
