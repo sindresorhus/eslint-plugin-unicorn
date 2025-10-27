@@ -71,22 +71,39 @@ const create = context => {
 		}
 	};
 
-	/** @param {import('estree').Node & {parent?: import('estree').Node}} node */
+	/**
+	 Find a comment on this node or its parent, in cases where the node passed is part of a variable or export declaration.
+	 @param {import('estree').Node} node
+	 */
+	const findComment = node => {
+		let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
+		let commentableNode = node;
+		while (
+			(previousToken?.type !== 'Block' && previousToken?.type !== 'Line')
+			&& (commentableNode.parent.type === 'VariableDeclarator'
+				|| commentableNode.parent.type === 'VariableDeclaration'
+				|| commentableNode.parent.type === 'ExportNamedDeclaration'
+				|| commentableNode.parent.type === 'ExportDefaultDeclaration')
+		) {
+			commentableNode = commentableNode.parent;
+			previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
+		}
+
+		if (previousToken?.type === 'Block' || previousToken?.type === 'Line') {
+			return previousToken.value;
+		}
+	};
+
+	/**
+	 Find the string "reason" that a function (node) should be considered isolated. For passing in to `context.report(...)` when out-of-scope variables are found. Returns undefined if the function should not be considered isolated.
+	 @param {import('estree').Node & {parent?: import('estree').Node}} node
+	 */
 	const reasonForBeingIsolatedFunction = node => {
 		if (options.comments.length > 0) {
-			let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
-			let commentableNode = node;
-			while (
-				(previousToken?.type !== 'Block' && previousToken?.type !== 'Line')
-				&& (commentableNode.parent.type === 'VariableDeclarator' || commentableNode.parent.type === 'VariableDeclaration')
-			) {
-				// Search up to find jsdoc comments on the parent declaration `/** @isolated */ const foo = () => abc`
-				commentableNode = commentableNode.parent;
-				previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
-			}
+			let previousComment = findComment(node);
 
-			if (previousToken?.type === 'Block' || previousToken?.type === 'Line') {
-				const previousComment = previousToken.value
+			if (previousComment) {
+				previousComment = previousComment
 					.replace(/(\*\s*)*/, '') // JSDoc comments like `/** @isolated */` are parsed into `* @isolated`. And `/**\n * @isolated */` is parsed into `*\n * @isolated`
 					.trim()
 					.toLowerCase();

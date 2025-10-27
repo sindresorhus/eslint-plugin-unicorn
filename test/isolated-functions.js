@@ -125,6 +125,22 @@ test({
 			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
 		},
 		{
+			name: '@isolated comment on exports',
+			code: outdent`
+				const foo = 'hi';
+
+				// @isolated
+				export const abc = () => foo.slice();
+
+				// @isolated
+				export default () => foo.slice();
+			`,
+			errors: [
+				error({name: 'foo', reason: 'follows comment "@isolated"'}),
+				error({name: 'foo', reason: 'follows comment "@isolated"'}),
+			],
+		},
+		{
 			name: 'all global variables can be explicitly disallowed',
 			languageOptions: {globals: {foo: true}},
 			options: [{globals: {}}],
