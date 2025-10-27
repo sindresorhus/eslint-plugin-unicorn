@@ -248,6 +248,10 @@ test({
 			`,
 		},
 		{
+			name: 'default global variables come from language options',
+			code: 'makeSynchronous(() => process.env.MAP ? new Map() : {})',
+		},
+		{
 			name: 'can implicitly allow global variables from language options',
 			languageOptions: {globals: {foo: true}},
 			code: outdent`
