@@ -510,5 +510,6 @@ test.snapshot({
 		'foo ?? undefined',
 		'foo ?? (( undefined ))',
 		'foo ?? null ?? undefined',
+		'call(foo ?? undefined,)',
 	],
 });
