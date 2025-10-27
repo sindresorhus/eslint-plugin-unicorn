@@ -249,7 +249,7 @@ test({
 		},
 		{
 			name: 'default global variables come from language options',
-			code: 'makeSynchronous(() => process.env.MAP ? new Map() : {})',
+			code: 'makeSynchronous(() => process.env.MAP ? new Map() : new URL("https://example.com"))',
 		},
 		{
 			name: 'can implicitly allow global variables from language options',
