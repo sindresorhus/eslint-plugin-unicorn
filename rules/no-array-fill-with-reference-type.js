@@ -82,8 +82,8 @@ const create = context => ({
 function getReturnNodeOfArrayDotFrom(functionNode, context) {
 	const secondArgument = functionNode.arguments[1];
 
-	// Array.from({ length: 10 }, () => { return sharedObject; });
 	let result;
+	// Array.from({ length: 10 }, () => { return sharedObject; });
 	if (secondArgument && isFunction(secondArgument)) {
 		result = getReturnIdentifier(secondArgument, context);
 		// @ts-expect-error node always has a parent
@@ -93,8 +93,9 @@ function getReturnNodeOfArrayDotFrom(functionNode, context) {
 		result = getReturnIdentifier(functionNode.parent.parent.arguments[0], context);
 	}
 
-	// Should not check reference type if the identifier is declared in the current function
-	// or is global
+	// Should not check reference type:
+	// 1. if the identifier is declared in the current function（so the reference type is created at every callback therefor not a **shared** reference.）
+	// 2. or is global (we cannot know if it is a reference type or not.)
 	if (result?.declaredInCurrentFunction || result?.isGlobal) {
 		return;
 	}
@@ -117,7 +118,7 @@ function getReturnIdentifier(node, context) {
 		const variable = findVariable(scope, node);
 
 		if (!variable) {
-			// Not check if the identifier is not declared
+			// Not check if the identifier is not declared, most likely it is a builtin global
 			return {returnNode: node, declaredInCurrentFunction: false, isGlobal: true};
 		}
 
