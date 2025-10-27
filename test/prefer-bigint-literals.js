@@ -27,6 +27,8 @@ test.snapshot({
 		String.raw`BigInt("\u{31}")`,
 		'BigInt(!1)',
 		'BigInt(~1)',
+		'BigInt("++1")',
+		'BigInt("+ 1")',
 	],
 	invalid: [
 		'BigInt("0")',
@@ -58,5 +60,11 @@ test.snapshot({
 		'BigInt("+1")',
 		'BigInt(-1)',
 		'BigInt(+1)',
+		'-BigInt(-1)',
+		'-BigInt("-1")',
+		'-BigInt(1)',
+		'-BigInt("1")',
+		'BigInt(" +1 ")',
+		'BigInt(" -1 ")',
 	],
 });

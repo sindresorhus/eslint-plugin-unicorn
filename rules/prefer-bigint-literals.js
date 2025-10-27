@@ -36,10 +36,12 @@ const canUseNumericLiteralRaw = (value, nodeRaw) => {
 
 function getValueOfNode(valueNode) {
 	if (valueNode.type === 'UnaryExpression' && (valueNode.operator === '+' || valueNode.operator === '-')) {
-		return valueNode.operator === '+' ? {value: valueNode.argument.value, raw: valueNode.argument.raw} : {value: -valueNode.argument.value, raw: `-${valueNode.argument.raw}`};
+		return valueNode.operator === '+'
+			? {value: valueNode.argument.value, raw: valueNode.argument.raw, isPlusSignUnary: true}
+			: {value: -valueNode.argument.value, raw: `-${valueNode.argument.raw}`, isPlusSignUnary: false};
 	}
 
-	return {value: valueNode.value, raw: valueNode.raw};
+	return {value: valueNode.value, raw: valueNode.raw, isPlusSignUnary: false};
 }
 
 function getReplacement(valueNode) {
@@ -52,14 +54,17 @@ function getReplacement(valueNode) {
 		}
 
 		// BigInt("+1") -> 1n
-		if (raw[0] === '+') {
-			raw = raw.slice(1);
+		const plusSignIndex = raw.indexOf('+');
+
+		if (plusSignIndex !== -1) {
+			raw = raw.slice(0, plusSignIndex) + raw.slice(plusSignIndex + 1);
+			return {shouldUseSuggestion: true, text: `${raw.trimEnd()}n`};
 		}
 
 		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
 	}
 
-	const {value, raw} = getValueOfNode(valueNode);
+	const {value, raw, isPlusSignUnary} = getValueOfNode(valueNode);
 
 	if (!Number.isInteger(value)) {
 		return;
@@ -72,7 +77,7 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	const shouldUseSuggestion = !canUseNumericLiteralRaw(value, raw);
+	const shouldUseSuggestion = isPlusSignUnary ? true : !canUseNumericLiteralRaw(value, raw);
 	const text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
 	return {shouldUseSuggestion, text};
 }
@@ -94,15 +99,28 @@ const create = context => ({
 			return;
 		}
 
+		let {shouldUseSuggestion, text} = replacement;
+		let nodeToReplace = callExpression;
+
+		const {parent} = callExpression;
+
+		// -BigInt(-1) -> 1n
+		if (
+			parent.type === 'UnaryExpression'
+			&& parent.operator === '-'
+			&& text.startsWith('-')
+		) {
+			nodeToReplace = parent;
+			text = text.slice(1);
+		}
+
 		const problem = {
-			node: callExpression,
+			node: nodeToReplace,
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		const {shouldUseSuggestion, text} = replacement;
-
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => fixer.replaceText(callExpression, text);
+		const fix = fixer => fixer.replaceText(nodeToReplace, text);
 
 		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(callExpression).length > 0) {
 			problem.suggest = [
