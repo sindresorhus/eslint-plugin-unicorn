@@ -71,6 +71,8 @@ const create = context => {
 		}
 	};
 
+	const isComment = token => token?.type === 'Block' || token?.type === 'Line';
+
 	/**
 	 Find a comment on this node or its parent, in cases where the node passed is part of a variable or export declaration.
 	 @param {import('estree').Node} node
@@ -79,7 +81,7 @@ const create = context => {
 		let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 		let commentableNode = node;
 		while (
-			(previousToken?.type !== 'Block' && previousToken?.type !== 'Line')
+			!isComment(previousToken)
 			&& (commentableNode.parent.type === 'VariableDeclarator'
 				|| commentableNode.parent.type === 'VariableDeclaration'
 				|| commentableNode.parent.type === 'ExportNamedDeclaration'
@@ -89,7 +91,7 @@ const create = context => {
 			previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
 		}
 
-		if (previousToken?.type === 'Block' || previousToken?.type === 'Line') {
+		if (isComment(previousToken)) {
 			return previousToken.value;
 		}
 	};
@@ -107,7 +109,7 @@ const create = context => {
 					.replace(/(\*\s*)*/, '') // JSDoc comments like `/** @isolated */` are parsed into `* @isolated`. And `/**\n * @isolated */` is parsed into `*\n * @isolated`
 					.trim()
 					.toLowerCase();
-				const match = options.comments.find(comment => previousComment === comment || previousComment.startsWith(`${comment} - `));
+				const match = options.comments.find(comment => previousComment === comment || previousComment.startsWith(`${comment} - `) || previousComment.startsWith(`${comment} -- `));
 				if (match) {
 					return `follows comment ${JSON.stringify(match)}`;
 				}

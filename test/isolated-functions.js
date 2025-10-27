@@ -91,8 +91,14 @@ test({
 				const foo = 'hi';
 				// @isolated - explanation
 				const abc1 = () => foo.slice();
+
+				// @isolated -- explanation
+				const abc2 = () => foo.slice();
 			`,
-			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+			errors: [
+				error({name: 'foo', reason: 'follows comment "@isolated"'}),
+				error({name: 'foo', reason: 'follows comment "@isolated"'}),
+			],
 		},
 		{
 			name: '@isolated block comments',
