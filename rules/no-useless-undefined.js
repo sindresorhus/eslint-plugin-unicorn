@@ -216,6 +216,31 @@ const create = context => {
 		}
 	});
 
+	// `foo ?? undefined`
+	context.on('Identifier', node => {
+		if (
+			isUndefined(node)
+			&& node.parent.type === 'LogicalExpression'
+			&& node.parent.operator === '??'
+			&& node.parent.right === node
+		) {
+			return getProblem(
+				node,
+				fixer => {
+					const logicalExpression = node.parent;
+					const operatorToken = sourceCode.getTokenBefore(node, token => token.value === logicalExpression.operator);
+					const tokenBeforeOperatorToken = sourceCode.getTokenBefore(operatorToken);
+
+					return fixer.removeRange([
+						sourceCode.getRange(tokenBeforeOperatorToken)[1],
+						sourceCode.getRange(logicalExpression)[1],
+					]);
+				},
+				/* CheckFunctionReturnType */ false,
+			);
+		}
+	});
+
 	if (!options.checkArguments) {
 		return;
 	}
