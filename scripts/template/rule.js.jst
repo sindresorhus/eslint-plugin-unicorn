@@ -23,39 +23,37 @@ const messages = {
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
-	return {
-		Literal(node) {
-			if (node.value !== 'unicorn') {
-				return;
-			}
+	context.on('Literal', node => {
+		if (node.value !== 'unicorn') {
+			return;
+		}
 
-			return {
-				node,
-				messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
-				data: {
-					value: 'unicorn',
-					replacement: '🦄',
-				},
-				<% if (fixableType) { %>
-				/** @param {ESLint.Rule.RuleFixer} fixer */
-				fix: fixer => fixer.replaceText(node, '\'🦄\''),
-				<% } %>
-				<% if (hasSuggestions) { %>
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							value: 'unicorn',
-							replacement: '🦄',
-						},
-						/** @param {ESLint.Rule.RuleFixer} fixer */
-						fix: fixer => fixer.replaceText(node, '\'🦄\''),
-					}
-				],
-				<% } %>
-			};
-		},
-	};
+		return {
+			node,
+			messageId: <% if (hasSuggestions) { %>MESSAGE_ID_ERROR<% } else { %>MESSAGE_ID<% } %>,
+			data: {
+				value: 'unicorn',
+				replacement: '🦄',
+			},
+			<% if (fixableType) { %>
+			/** @param {ESLint.Rule.RuleFixer} fixer */
+			fix: fixer => fixer.replaceText(node, '\'🦄\''),
+			<% } %>
+			<% if (hasSuggestions) { %>
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					data: {
+						value: 'unicorn',
+						replacement: '🦄',
+					},
+					/** @param {ESLint.Rule.RuleFixer} fixer */
+					fix: fixer => fixer.replaceText(node, '\'🦄\''),
+				}
+			],
+			<% } %>
+		};
+	});
 };
 
 /** @type {ESLint.Rule.RuleModule} */

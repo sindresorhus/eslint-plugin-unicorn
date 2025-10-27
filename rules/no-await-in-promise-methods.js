@@ -20,8 +20,8 @@ const isPromiseMethodCallWithArrayExpression = node =>
 	&& node.arguments[0].type === 'ArrayExpression';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', function * (callExpression) {
 		if (!isPromiseMethodCallWithArrayExpression(callExpression)) {
 			return;
 		}
@@ -49,8 +49,8 @@ const create = context => ({
 				],
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

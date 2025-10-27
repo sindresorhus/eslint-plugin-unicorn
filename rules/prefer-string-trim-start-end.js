@@ -6,8 +6,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: ['trimLeft', 'trimRight'],
 			argumentsLength: 0,
@@ -26,8 +26,8 @@ const create = () => ({
 			data: {method, replacement},
 			fix: fixer => fixer.replaceText(node, replacement),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

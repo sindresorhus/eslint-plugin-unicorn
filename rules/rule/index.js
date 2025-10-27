@@ -6,4 +6,4 @@
 @import {TSESTree as Estree} from '@typescript-eslint/types';
 */
 
-export {default as createRules} from './to-eslint-rules.js';
+export {default as toEslintRules} from './to-eslint-rules.js';

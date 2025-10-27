@@ -226,8 +226,8 @@ function * getTernaryConsequentAndALternate(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', function * (callExpression) {
 		if (
 			!isMethodCall(callExpression, {
 				minimumArguments: 1,
@@ -265,8 +265,8 @@ const create = context => ({
 
 			yield getProblem(context, callback, methodName, options);
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

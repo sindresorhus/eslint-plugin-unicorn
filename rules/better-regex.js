@@ -20,99 +20,98 @@ const create = context => {
 		ignoreList.push('charClassClassrangesMerge');
 	}
 
-	return {
-		Literal(node) {
-			if (!isRegexLiteral(node)) {
-				return;
-			}
+	context.on('Literal', node => {
+		if (!isRegexLiteral(node)) {
+			return;
+		}
 
-			const {raw: original, regex} = node;
-			// Regular Expressions with `u` and `v` flag are not well handled by `regexp-tree`
-			// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
-			if (regex.flags.includes('u') || regex.flags.includes('v')) {
-				return;
-			}
+		const {raw: original, regex} = node;
+		// Regular Expressions with `u` and `v` flag are not well handled by `regexp-tree`
+		// https://github.com/DmitrySoshnikov/regexp-tree/issues/162
+		if (regex.flags.includes('u') || regex.flags.includes('v')) {
+			return;
+		}
 
-			let optimized = original;
+		let optimized = original;
 
-			try {
-				optimized = regexpTree.optimize(original, undefined, {blacklist: ignoreList}).toString();
-			} catch (error) {
-				return {
-					node,
-					messageId: MESSAGE_ID_PARSE_ERROR,
-					data: {
-						original,
-						error: error.message,
-					},
-				};
-			}
+		try {
+			optimized = regexpTree.optimize(original, undefined, {blacklist: ignoreList}).toString();
+		} catch (error) {
+			return {
+				node,
+				messageId: MESSAGE_ID_PARSE_ERROR,
+				data: {
+					original,
+					error: error.message,
+				},
+			};
+		}
 
-			if (original === optimized) {
-				return;
-			}
+		if (original === optimized) {
+			return;
+		}
 
-			const problem = {
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				original,
+				optimized,
+			},
+		};
+
+		if (
+			node.parent.type === 'MemberExpression'
+			&& node.parent.object === node
+			&& !node.parent.optional
+			&& !node.parent.computed
+			&& node.parent.property.type === 'Identifier'
+			&& (
+				node.parent.property.name === 'toString'
+				|| node.parent.property.name === 'source'
+			)
+		) {
+			return problem;
+		}
+
+		return Object.assign(problem, {
+			fix: fixer => fixer.replaceText(node, optimized),
+		});
+	});
+
+	context.on('NewExpression', node => {
+		if (!isNewExpression(node, {name: 'RegExp', minimumArguments: 1})) {
+			return;
+		}
+
+		const [patternNode, flagsNode] = node.arguments;
+
+		if (!isStringLiteral(patternNode)) {
+			return;
+		}
+
+		const oldPattern = patternNode.value;
+		const flags = isStringLiteral(flagsNode)
+			? flagsNode.value
+			: '';
+
+		const newPattern = cleanRegexp(oldPattern, flags);
+
+		if (oldPattern !== newPattern) {
+			return {
 				node,
 				messageId: MESSAGE_ID,
 				data: {
-					original,
-					optimized,
+					original: oldPattern,
+					optimized: newPattern,
 				},
+				fix: fixer => fixer.replaceText(
+					patternNode,
+					escapeString(newPattern, patternNode.raw.charAt(0)),
+				),
 			};
-
-			if (
-				node.parent.type === 'MemberExpression'
-				&& node.parent.object === node
-				&& !node.parent.optional
-				&& !node.parent.computed
-				&& node.parent.property.type === 'Identifier'
-				&& (
-					node.parent.property.name === 'toString'
-					|| node.parent.property.name === 'source'
-				)
-			) {
-				return problem;
-			}
-
-			return Object.assign(problem, {
-				fix: fixer => fixer.replaceText(node, optimized),
-			});
-		},
-		NewExpression(node) {
-			if (!isNewExpression(node, {name: 'RegExp', minimumArguments: 1})) {
-				return;
-			}
-
-			const [patternNode, flagsNode] = node.arguments;
-
-			if (!isStringLiteral(patternNode)) {
-				return;
-			}
-
-			const oldPattern = patternNode.value;
-			const flags = isStringLiteral(flagsNode)
-				? flagsNode.value
-				: '';
-
-			const newPattern = cleanRegexp(oldPattern, flags);
-
-			if (oldPattern !== newPattern) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					data: {
-						original: oldPattern,
-						optimized: newPattern,
-					},
-					fix: fixer => fixer.replaceText(
-						patternNode,
-						escapeString(newPattern, patternNode.raw.charAt(0)),
-					),
-				};
-			}
-		},
-	};
+		}
+	});
 };
 
 const schema = [

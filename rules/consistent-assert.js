@@ -34,8 +34,8 @@ const isAssertFunction = (specifier, moduleName) =>
 const NODE_PROTOCOL = 'node:';
 
 /** @type {import('eslint').Rule.RuleModule['create']} */
-const create = context => ({
-	* ImportDeclaration(importDeclaration) {
+const create = context => {
+	context.on('ImportDeclaration', function * (importDeclaration) {
 		if (!isValueImport(importDeclaration)) {
 			return;
 		}
@@ -78,8 +78,8 @@ const create = context => ({
 				};
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

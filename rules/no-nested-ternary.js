@@ -8,8 +8,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ConditionalExpression(node) {
+const create = context => {
+	context.on('ConditionalExpression', node => {
 		if ([
 			node.test,
 			node.consequent,
@@ -40,8 +40,8 @@ const create = context => ({
 				messageId: MESSAGE_ID_TOO_DEEP,
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

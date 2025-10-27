@@ -52,34 +52,32 @@ function fix(node, context, method) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	return {
-		NewExpression(node) {
-			if (!isNewExpression(node, {name: 'Buffer'})) {
-				return;
-			}
+	context.on('NewExpression', node => {
+		if (!isNewExpression(node, {name: 'Buffer'})) {
+			return;
+		}
 
-			const method = inferMethod(node.arguments, sourceCode.getScope(node));
+		const method = inferMethod(node.arguments, sourceCode.getScope(node));
 
-			if (method) {
-				return {
-					node,
-					messageId: ERROR,
-					data: {method},
-					fix: fix(node, context, method),
-				};
-			}
-
+		if (method) {
 			return {
 				node,
-				messageId: ERROR_UNKNOWN,
-				suggest: ['from', 'alloc'].map(replacement => ({
-					messageId: SUGGESTION,
-					data: {replacement},
-					fix: fix(node, context, replacement),
-				})),
+				messageId: ERROR,
+				data: {method},
+				fix: fix(node, context, method),
 			};
-		},
-	};
+		}
+
+		return {
+			node,
+			messageId: ERROR_UNKNOWN,
+			suggest: ['from', 'alloc'].map(replacement => ({
+				messageId: SUGGESTION,
+				data: {replacement},
+				fix: fix(node, context, replacement),
+			})),
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

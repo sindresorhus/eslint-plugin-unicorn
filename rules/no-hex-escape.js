@@ -22,20 +22,21 @@ function checkEscape(context, node, value) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		if (isStringLiteral(node) || isRegexLiteral(node)) {
 			return checkEscape(context, node, node.raw);
 		}
-	},
-	TemplateElement(node) {
+	});
+
+	context.on('TemplateElement', node => {
 		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
 			return;
 		}
 
 		return checkEscape(context, node, node.value.raw);
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

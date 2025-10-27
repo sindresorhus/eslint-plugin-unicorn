@@ -55,8 +55,8 @@ const removeFallback = (node, context) =>
 	};
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	NewExpression(newExpression) {
+const create = context => {
+	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {
 			names: ['Set', 'Map', 'WeakSet', 'WeakMap'],
 			argumentsLength: 1,
@@ -81,8 +81,8 @@ const create = context => ({
 				? removeFallback(node, context)
 				: fixer => removeArgument(fixer, node, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -489,70 +489,68 @@ const create = context => {
 		}
 	};
 
-	return {
-		Identifier(node) {
-			if (!options.checkProperties) {
-				return;
-			}
+	context.on('Identifier', node => {
+		if (!options.checkProperties) {
+			return;
+		}
 
-			if (node.name === '__proto__') {
-				return;
-			}
+		if (node.name === '__proto__') {
+			return;
+		}
 
-			const identifierReplacements = getNameReplacements(node.name, options);
+		const identifierReplacements = getNameReplacements(node.name, options);
 
-			if (identifierReplacements.total === 0) {
-				return;
-			}
+		if (identifierReplacements.total === 0) {
+			return;
+		}
 
-			if (!shouldReportIdentifierAsProperty(node)) {
-				return;
-			}
+		if (!shouldReportIdentifierAsProperty(node)) {
+			return;
+		}
 
-			const problem = {
-				...getMessage(node.name, identifierReplacements, 'property'),
-				node,
-			};
+		const problem = {
+			...getMessage(node.name, identifierReplacements, 'property'),
+			node,
+		};
 
-			context.report(problem);
-		},
+		context.report(problem);
+	});
 
-		Program(node) {
-			if (!options.checkFilenames) {
-				return;
-			}
+	context.on('Program', node => {
+		if (!options.checkFilenames) {
+			return;
+		}
 
-			if (
-				filenameWithExtension === '<input>'
-				|| filenameWithExtension === '<text>'
-			) {
-				return;
-			}
+		if (
+			filenameWithExtension === '<input>'
+			|| filenameWithExtension === '<text>'
+		) {
+			return;
+		}
 
-			const filename = path.basename(filenameWithExtension);
-			const extension = path.extname(filename);
-			const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
+		const filename = path.basename(filenameWithExtension);
+		const extension = path.extname(filename);
+		const filenameReplacements = getNameReplacements(path.basename(filename, extension), options);
 
-			if (filenameReplacements.total === 0) {
-				return;
-			}
+		if (filenameReplacements.total === 0) {
+			return;
+		}
 
-			filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
+		filenameReplacements.samples = filenameReplacements.samples.map(replacement => `${replacement}${extension}`);
 
-			context.report({
-				...getMessage(filename, filenameReplacements, 'filename'),
-				node,
-			});
-		},
+		context.report({
+			...getMessage(filename, filenameReplacements, 'filename'),
+			node,
+		});
+	});
 
-		'Program:exit'(program) {
-			if (!options.checkVariables) {
-				return;
-			}
+	context.on('Program:exit', program => {
+		if (!options.checkVariables) {
+			return;
+		}
 
-			checkScope(context.sourceCode.getScope(program));
-		},
-	};
+		checkScope(context.sourceCode.getScope(program));
+	});
 };
 
 const schema = {

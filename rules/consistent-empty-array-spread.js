@@ -94,8 +94,8 @@ function getProblem(conditionalExpression, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* ArrayExpression(arrayExpression) {
+const create = context => {
+	context.on('ArrayExpression', function * (arrayExpression) {
 		for (const element of arrayExpression.elements) {
 			if (
 				element?.type !== 'SpreadElement'
@@ -106,8 +106,8 @@ const create = context => ({
 
 			yield getProblem(element.argument, context);
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

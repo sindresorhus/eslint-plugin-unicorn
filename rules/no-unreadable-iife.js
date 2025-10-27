@@ -6,8 +6,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (
 			callExpression.callee.type !== 'ArrowFunctionExpression'
 			|| callExpression.callee.body.type === 'BlockStatement'
@@ -21,8 +21,8 @@ const create = context => ({
 			loc: toLocation(getParenthesizedRange(callExpression.callee.body, context), context),
 			messageId: MESSAGE_ID_ERROR,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

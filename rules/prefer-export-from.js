@@ -270,81 +270,81 @@ function create(context) {
 	const importDeclarations = new Set();
 	const exportDeclarations = [];
 
-	return {
-		ImportDeclaration(node) {
-			if (node.specifiers.length > 0) {
-				importDeclarations.add(node);
+	context.on('ImportDeclaration', node => {
+		if (node.specifiers.length > 0) {
+			importDeclarations.add(node);
+		}
+	});
+
+	// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
+	context.on('ExportNamedDeclaration', node => {
+		if (isStringLiteral(node.source)) {
+			exportDeclarations.push(node);
+		}
+	});
+
+	context.on('Program:exit', function * (program) {
+		for (const importDeclaration of importDeclarations) {
+			let variables = sourceCode.getDeclaredVariables(importDeclaration);
+
+			if (variables.some(variable => variable.defs.length !== 1 || variable.defs[0].parent !== importDeclaration)) {
+				continue;
 			}
-		},
-		// `ExportAllDeclaration` and `ExportDefaultDeclaration` can't be reused
-		ExportNamedDeclaration(node) {
-			if (isStringLiteral(node.source)) {
-				exportDeclarations.push(node);
+
+			variables = variables.map(variable => {
+				const imported = getImported(variable, sourceCode);
+				const exports = getExports(imported, sourceCode);
+
+				return {
+					variable,
+					imported,
+					exports,
+				};
+			});
+
+			if (
+				ignoreUsedVariables
+				&& variables.some(({variable, exports}) => variable.references.length !== exports.length)
+			) {
+				continue;
 			}
-		},
-		* 'Program:exit'(program) {
-			for (const importDeclaration of importDeclarations) {
-				let variables = sourceCode.getDeclaredVariables(importDeclaration);
 
-				if (variables.some(variable => variable.defs.length !== 1 || variable.defs[0].parent !== importDeclaration)) {
-					continue;
-				}
+			const shouldUseSuggestion = ignoreUsedVariables
+				&& variables.some(({variable}) => variable.references.length === 0);
 
-				variables = variables.map(variable => {
-					const imported = getImported(variable, sourceCode);
-					const exports = getExports(imported, sourceCode);
-
-					return {
-						variable,
-						imported,
-						exports,
+			for (const {imported, exports} of variables) {
+				for (const exported of exports) {
+					const problem = {
+						node: exported.node,
+						messageId: MESSAGE_ID_ERROR,
+						data: {
+							exported: exported.text,
+						},
 					};
-				});
+					const fix = getFixFunction({
+						context,
+						imported,
+						exported,
+						exportDeclarations,
+						program,
+					});
 
-				if (
-					ignoreUsedVariables
-					&& variables.some(({variable, exports}) => variable.references.length !== exports.length)
-				) {
-					continue;
-				}
-
-				const shouldUseSuggestion = ignoreUsedVariables
-					&& variables.some(({variable}) => variable.references.length === 0);
-
-				for (const {imported, exports} of variables) {
-					for (const exported of exports) {
-						const problem = {
-							node: exported.node,
-							messageId: MESSAGE_ID_ERROR,
-							data: {
-								exported: exported.text,
+					if (shouldUseSuggestion) {
+						problem.suggest = [
+							{
+								messageId: MESSAGE_ID_SUGGESTION,
+								fix,
 							},
-						};
-						const fix = getFixFunction({
-							context,
-							imported,
-							exported,
-							exportDeclarations,
-							program,
-						});
-
-						if (shouldUseSuggestion) {
-							problem.suggest = [
-								{
-									messageId: MESSAGE_ID_SUGGESTION,
-									fix,
-								},
-							];
-						} else {
-							problem.fix = fix;
-						}
-
-						yield problem;
+						];
+					} else {
+						problem.fix = fix;
 					}
+
+					yield problem;
 				}
 			}
-		},
-	};
+		}
+	});
 }
 
 /** @type {import('eslint').Rule.RuleModule} */

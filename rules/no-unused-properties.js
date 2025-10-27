@@ -210,18 +210,16 @@ const create = context => {
 		}
 	};
 
-	return {
-		'Program:exit'(program) {
-			const scopes = getScopes(sourceCode.getScope(program));
-			for (const scope of scopes) {
-				if (scope.type === 'global') {
-					continue;
-				}
-
-				checkVariables(scope);
+	context.on('Program:exit', program => {
+		const scopes = getScopes(sourceCode.getScope(program));
+		for (const scope of scopes) {
+			if (scope.type === 'global') {
+				continue;
 			}
-		},
-	};
+
+			checkVariables(scope);
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -20,8 +20,8 @@ const fix = (raw, {hexadecimalValue}) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		const {raw} = node;
 
 		/** @type {Options} */
@@ -42,8 +42,8 @@ const create = context => ({
 				fix: fixer => fixer.replaceText(node, fixed),
 			};
 		}
-	},
-});
+	});
+};
 
 /** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
 

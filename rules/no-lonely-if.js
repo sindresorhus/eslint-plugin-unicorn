@@ -108,8 +108,8 @@ function fix(innerIfStatement, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	IfStatement(ifStatement) {
+const create = context => {
+	context.on('IfStatement', ifStatement => {
 		if (!(
 			isIfStatementWithoutAlternate(ifStatement)
 			&& (
@@ -136,8 +136,8 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			fix: fix(ifStatement, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

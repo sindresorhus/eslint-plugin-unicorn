@@ -8,8 +8,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	AssignmentPattern(node) {
+const create = context => {
+	context.on('AssignmentPattern', node => {
 		if (!(
 			node.right.type === 'ObjectExpression'
 			&& node.right.properties.length > 0
@@ -33,8 +33,8 @@ const create = () => ({
 			node: right,
 			messageId: MESSAGE_ID_NON_IDENTIFIER,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

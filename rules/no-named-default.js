@@ -48,8 +48,8 @@ const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ImportSpecifier(specifier) {
+const create = context => {
+	context.on('ImportSpecifier', specifier => {
 		if (!(
 			isValueImport(specifier)
 			&& specifier.imported.name === 'default'
@@ -64,8 +64,9 @@ const create = context => ({
 			data: {type: 'import'},
 			fix: fixImportSpecifier(specifier, context),
 		};
-	},
-	ExportSpecifier(specifier) {
+	});
+
+	context.on('ExportSpecifier', specifier => {
 		if (!(
 			isValueExport(specifier)
 			&& specifier.exported.name === 'default'
@@ -81,8 +82,8 @@ const create = context => ({
 			data: {type: 'export'},
 			fix: fixExportSpecifier(specifier, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

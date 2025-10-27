@@ -60,61 +60,59 @@ function noArrayMutateRule(methodName) {
 	const create = context => {
 		const {allowExpressionStatement} = context.options[0];
 
-		return {
-			CallExpression(callExpression) {
-				if (!predicate(callExpression)) {
+		context.on('CallExpression', callExpression => {
+			if (!predicate(callExpression)) {
+				return;
+			}
+
+			const array = callExpression.callee.object;
+
+			// `[...array].reverse()`
+			const isSpreadAndMutate = array.type === 'ArrayExpression'
+				&& array.elements.length === 1
+				&& array.elements[0].type === 'SpreadElement';
+
+			if (allowExpressionStatement && !isSpreadAndMutate) {
+				const maybeExpressionStatement = callExpression.parent.type === 'ChainExpression'
+					? callExpression.parent.parent
+					: callExpression.parent;
+				if (maybeExpressionStatement.type === 'ExpressionStatement') {
 					return;
 				}
+			}
 
-				const array = callExpression.callee.object;
+			const methodProperty = callExpression.callee.property;
+			const suggestions = [];
+			const fixMethodName = fixer => fixer.replaceText(methodProperty, replacement);
 
-				// `[...array].reverse()`
-				const isSpreadAndMutate = array.type === 'ArrayExpression'
-					&& array.elements.length === 1
-					&& array.elements[0].type === 'SpreadElement';
-
-				if (allowExpressionStatement && !isSpreadAndMutate) {
-					const maybeExpressionStatement = callExpression.parent.type === 'ChainExpression'
-						? callExpression.parent.parent
-						: callExpression.parent;
-					if (maybeExpressionStatement.type === 'ExpressionStatement') {
-						return;
-					}
-				}
-
-				const methodProperty = callExpression.callee.property;
-				const suggestions = [];
-				const fixMethodName = fixer => fixer.replaceText(methodProperty, replacement);
-
-				/*
-				For `[...array].reverse()`, provide two suggestions, let user choose if the object can be unwrapped,
-				otherwise only change `.reverse()` to `.toReversed()`
-				*/
-				if (isSpreadAndMutate) {
-					suggestions.push({
-						messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
-						* fix(fixer) {
-							const text = getParenthesizedText(array.elements[0].argument, context);
-							yield fixer.replaceText(array, text);
-							yield fixMethodName(fixer);
-						},
-					});
-				}
-
+			/*
+			For `[...array].reverse()`, provide two suggestions, let user choose if the object can be unwrapped,
+			otherwise only change `.reverse()` to `.toReversed()`
+			*/
+			if (isSpreadAndMutate) {
 				suggestions.push({
-					messageId: isSpreadAndMutate
-						? MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY
-						: MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT,
-					fix: fixMethodName,
+					messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
+					* fix(fixer) {
+						const text = getParenthesizedText(array.elements[0].argument, context);
+						yield fixer.replaceText(array, text);
+						yield fixMethodName(fixer);
+					},
 				});
+			}
 
-				return {
-					node: methodProperty,
-					messageId: MESSAGE_ID_ERROR,
-					suggest: suggestions,
-				};
-			},
-		};
+			suggestions.push({
+				messageId: isSpreadAndMutate
+					? MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY
+					: MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT,
+				fix: fixMethodName,
+			});
+
+			return {
+				node: methodProperty,
+				messageId: MESSAGE_ID_ERROR,
+				suggest: suggestions,
+			};
+		});
 	};
 
 	/** @type {import('eslint').Rule.RuleModule} */

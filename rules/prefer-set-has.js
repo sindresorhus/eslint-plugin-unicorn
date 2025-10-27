@@ -65,8 +65,8 @@ const isMultipleCall = (identifier, node) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Identifier(node) {
+const create = context => {
+	context.on('Identifier', node => {
 		const {parent} = node;
 
 		if (!(
@@ -160,8 +160,8 @@ const create = context => ({
 		}
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -119,8 +119,8 @@ const fix = (node, identifierName, preferredSelector) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
 				methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName', 'getElementsByName'],
@@ -150,8 +150,8 @@ const create = () => ({
 		}
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

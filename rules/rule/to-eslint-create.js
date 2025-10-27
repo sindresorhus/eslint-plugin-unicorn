@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import createUnicornContext from './unicorn-context.js';
 import UnicornListeners from './unicorn-listeners.js';
 
@@ -9,7 +10,7 @@ import UnicornListeners from './unicorn-listeners.js';
 
 /**
 @typedef {ESLint.Rule.RuleModule['create']} EslintCreate
-@typedef {(context: UnicornContext) => (EslintListers | void)} UnicornCreate
+@typedef {(context: UnicornContext) => void} UnicornCreate
 */
 
 // `checkVueTemplate` function will wrap `create` function, there is no need to wrap twice
@@ -33,13 +34,10 @@ function toEslintCreate(unicornCreate) {
 	return eslintContext => {
 		const unicornListeners = new UnicornListeners(eslintContext);
 		const unicornContext = createUnicornContext(eslintContext, unicornListeners);
-		const listeners = unicornCreate(unicornContext);
 
-		if (listeners) {
-			for (const [selector, listener] of Object.entries(listeners)) {
-				unicornListeners.on(selector, listener);
-			}
-		}
+		const result = unicornCreate(unicornContext);
+
+		assert.equal(result, undefined, `[${eslintContext.id}] Rule \`create\` function should return \`undefined\`, please use \`context.on()\` instead of return listeners.`);
 
 		const eslintListeners = unicornListeners.toEslintListeners();
 

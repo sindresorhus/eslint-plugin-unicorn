@@ -116,31 +116,28 @@ const isPropertyWrite = (thisExpression, property) => {
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		/** @param {import('estree').ThisExpression} thisExpression */
-		ThisExpression(thisExpression) {
-			const scope = getClosestFunctionScope(sourceCode, thisExpression);
+	context.on('ThisExpression', /** @param {import('estree').ThisExpression} thisExpression */ thisExpression => {
+		const scope = getClosestFunctionScope(sourceCode, thisExpression);
 
-			if (!scope) {
-				return;
-			}
+		if (!scope) {
+			return;
+		}
 
-			/** @type {import('estree').Property | import('estree').MethodDefinition} */
-			const property = scope.block.parent;
+		/** @type {import('estree').Property | import('estree').MethodDefinition} */
+		const property = scope.block.parent;
 
-			if (!isValidProperty(property)) {
-				return;
-			}
+		if (!isValidProperty(property)) {
+			return;
+		}
 
-			if (property.kind === 'get' && isPropertyRead(thisExpression, property)) {
-				return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
-			}
+		if (property.kind === 'get' && isPropertyRead(thisExpression, property)) {
+			return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
+		}
 
-			if (property.kind === 'set' && isPropertyWrite(thisExpression, property)) {
-				return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
-			}
-		},
-	};
+		if (property.kind === 'set' && isPropertyWrite(thisExpression, property)) {
+			return {node: thisExpression.parent, messageId: MESSAGE_ID_ERROR, data: {kind: property.kind}};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

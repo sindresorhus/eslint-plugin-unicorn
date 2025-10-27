@@ -14,8 +14,8 @@ const eslintDisableDirectives = new Set([
 
 let commentParser;
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* Program(node) {
+const create = context => {
+	context.on('Program', function * (node) {
 		for (const comment of node.comments) {
 			commentParser ??= new ConfigCommentParser();
 			const result = commentParser.parseDirective(comment.value);
@@ -44,8 +44,8 @@ const create = context => ({
 				messageId: MESSAGE_ID,
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

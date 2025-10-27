@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ObjectExpression(node) {
+const create = context => {
+	context.on('ObjectExpression', node => {
 		if (!(
 			node.properties.length === 0
 			&& node.parent.type === 'LogicalExpression'
@@ -46,8 +46,8 @@ const create = context => ({
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -10,6 +10,7 @@ export default function createDeprecatedRules(rules) {
 			return [
 				ruleId,
 				{
+					// eslint-disable-next-line internal/prefer-context-on
 					create: () => ({}),
 					meta: {
 						docs: {

@@ -30,46 +30,44 @@ const create = context => {
 		};
 	};
 
-	return {
-		* CallExpression(node) {
-			if (
-				!isMethodCall(node, {
-					object: 'console',
-					methods: [
-						'log',
-						'debug',
-						'info',
-						'warn',
-						'error',
-					],
-					minimumArguments: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-			) {
-				return;
+	context.on('CallExpression', function * (node) {
+		if (
+			!isMethodCall(node, {
+				object: 'console',
+				methods: [
+					'log',
+					'debug',
+					'info',
+					'warn',
+					'error',
+				],
+				minimumArguments: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+		) {
+			return;
+		}
+
+		const method = node.callee.property.name;
+		const {arguments: messages} = node;
+		const {length} = messages;
+		for (const [index, node] of messages.entries()) {
+			if (!isStringLiteral(node) && node.type !== 'TemplateLiteral') {
+				continue;
 			}
 
-			const method = node.callee.property.name;
-			const {arguments: messages} = node;
-			const {length} = messages;
-			for (const [index, node] of messages.entries()) {
-				if (!isStringLiteral(node) && node.type !== 'TemplateLiteral') {
-					continue;
-				}
+			const raw = sourceCode.getText(node).slice(1, -1);
 
-				const raw = sourceCode.getText(node).slice(1, -1);
-
-				if (index !== 0 && hasLeadingSpace(raw)) {
-					yield getProblem(node, method, 'leading');
-				}
-
-				if (index !== length - 1 && hasTrailingSpace(raw)) {
-					yield getProblem(node, method, 'trailing');
-				}
+			if (index !== 0 && hasLeadingSpace(raw)) {
+				yield getProblem(node, method, 'leading');
 			}
-		},
-	};
+
+			if (index !== length - 1 && hasTrailingSpace(raw)) {
+				yield getProblem(node, method, 'trailing');
+			}
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

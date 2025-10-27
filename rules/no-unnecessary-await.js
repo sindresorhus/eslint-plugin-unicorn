@@ -34,8 +34,8 @@ function notPromise(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	AwaitExpression(node) {
+const create = context => {
+	context.on('AwaitExpression', node => {
 		if (
 			// F#-style pipeline operator, `Promise.resolve() |> await`
 			!node.argument
@@ -87,8 +87,8 @@ const create = context => ({
 				}
 			},
 		});
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

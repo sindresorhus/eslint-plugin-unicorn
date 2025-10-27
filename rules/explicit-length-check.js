@@ -150,62 +150,60 @@ function create(context) {
 		return problem;
 	}
 
-	return {
-		MemberExpression(memberExpression) {
-			if (
-				!isMemberExpression(memberExpression, {
-					properties: ['length', 'size'],
-					optional: false,
-				})
-				|| memberExpression.object.type === 'ThisExpression'
-			) {
-				return;
-			}
+	context.on('MemberExpression', memberExpression => {
+		if (
+			!isMemberExpression(memberExpression, {
+				properties: ['length', 'size'],
+				optional: false,
+			})
+			|| memberExpression.object.type === 'ThisExpression'
+		) {
+			return;
+		}
 
-			const lengthNode = memberExpression;
-			const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
-			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
-				// Ignore known, non-positive-integer length properties.
-				return;
-			}
+		const lengthNode = memberExpression;
+		const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
+		if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
+			// Ignore known, non-positive-integer length properties.
+			return;
+		}
 
-			let node;
-			let autoFix = true;
-			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
-			if (lengthCheckNode) {
-				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+		let node;
+		let autoFix = true;
+		let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
+		if (lengthCheckNode) {
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+			node = ancestor;
+			if (isNegative) {
+				isZeroLengthCheck = !isZeroLengthCheck;
+			}
+		} else {
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
+			if (isBooleanNode(ancestor)) {
+				isZeroLengthCheck = isNegative;
 				node = ancestor;
-				if (isNegative) {
-					isZeroLengthCheck = !isZeroLengthCheck;
-				}
-			} else {
-				const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-				if (isBooleanNode(ancestor)) {
-					isZeroLengthCheck = isNegative;
-					node = ancestor;
-				} else if (
-					isLogicalExpression(lengthNode.parent)
-					&& !(
-						lengthNode.parent.operator === '||'
-						&& isNodeValueNumber(lengthNode.parent.right, context)
-					)
-				) {
-					isZeroLengthCheck = isNegative;
-					node = lengthNode;
-					autoFix = false;
-				}
+			} else if (
+				isLogicalExpression(lengthNode.parent)
+				&& !(
+					lengthNode.parent.operator === '||'
+					&& isNodeValueNumber(lengthNode.parent.right, context)
+				)
+			) {
+				isZeroLengthCheck = isNegative;
+				node = lengthNode;
+				autoFix = false;
 			}
+		}
 
-			if (node) {
-				return getProblem({
-					node,
-					isZeroLengthCheck,
-					lengthNode,
-					autoFix,
-				});
-			}
-		},
-	};
+		if (node) {
+			return getProblem({
+				node,
+				isZeroLengthCheck,
+				lengthNode,
+				autoFix,
+			});
+		}
+	});
 }
 
 const schema = [

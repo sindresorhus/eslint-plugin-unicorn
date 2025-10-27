@@ -65,8 +65,8 @@ function getFix(callExpression, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!(
 			(
 				isMethodCall(callExpression, {
@@ -115,8 +115,8 @@ const create = context => ({
 			data: {method: callExpression.callee.property.name},
 			fix: getFix(callExpression, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
