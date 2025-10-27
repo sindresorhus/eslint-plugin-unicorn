@@ -106,7 +106,7 @@ Array of [ESLint selectors](https://eslint.org/docs/developer-guide/selectors) t
 Type: `string[]`\
 Default: `['@isolated']`
 
-Array of comment strings that mark functions as isolated. Functions with JSDoc comments containing these strings will be considered isolated.
+Array of comment strings that mark functions as isolated. Functions with inline, block, or JSDoc comments tagged with these strings will be considered isolated. (Definition of "tagged": either the comment consists solely of the tag, or starts with it, and has an explanation following a hyphen, like `// @isolated - this function will be stringified`).
 
 ```js
 {

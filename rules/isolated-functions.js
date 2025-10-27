@@ -19,7 +19,7 @@ const parseEsquerySelector = selector => {
 const defaultOptions = {
 	functions: ['makeSynchronous'],
 	selectors: [],
-	comments: ['isolated'],
+	comments: ['@isolated'],
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -86,10 +86,13 @@ const create = context => {
 			}
 
 			if (previousToken?.type === 'Block' || previousToken?.type === 'Line') {
-				const previousComment = previousToken.value.trim().toLowerCase();
-				const match = options.comments.find(comment => previousComment.includes(comment));
+				const previousComment = previousToken.value
+					.replace(/(\*\s*)*/, '') // JSDoc comments like `/** @isolated */` are parsed into `* @isolated`. And `/**\n * @isolated */` is parsed into `*\n * @isolated`
+					.trim()
+					.toLowerCase();
+				const match = options.comments.find(comment => previousComment === comment || previousComment.startsWith(`${comment} - `));
 				if (match) {
-					return `follows comment containing ${JSON.stringify(match)}`;
+					return `follows comment ${JSON.stringify(match)}`;
 				}
 			}
 		}
