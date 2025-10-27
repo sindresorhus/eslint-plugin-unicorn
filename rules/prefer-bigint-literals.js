@@ -35,6 +35,7 @@ const canUseNumericLiteralRaw = (value, nodeRaw) => {
 };
 
 function getValueOfNode(valueNode) {
+	// -BigInt(1)
 	if (valueNode.type === 'UnaryExpression' && (valueNode.operator === '+' || valueNode.operator === '-')) {
 		return valueNode.operator === '+'
 			? {value: valueNode.argument.value, raw: valueNode.argument.raw, isPlusSignUnary: true}
@@ -122,7 +123,7 @@ const create = context => ({
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => fixer.replaceText(nodeToReplace, text);
 
-		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(callExpression).length > 0) {
+		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(nodeToReplace).length > 0) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

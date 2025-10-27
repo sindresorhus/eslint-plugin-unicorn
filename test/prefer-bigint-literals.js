@@ -66,5 +66,12 @@ test.snapshot({
 		'-BigInt("1")',
 		'BigInt(" +1 ")',
 		'BigInt(" -1 ")',
+		`
+		foo
+		BigInt("-1")
+		`,
+		'-BigInt("+1")',
+		'-BigInt(/* comment */-1)',
+		'-(BigInt(-1))',
 	],
 });
