@@ -508,7 +508,7 @@ test.snapshot({
 	],
 	invalid: [
 		'foo ?? undefined',
-		'foo ?? (( undefined ))',
+		'(( (( foo )) ?? (( undefined )) ))',
 		'foo ?? null ?? undefined',
 		'call(foo ?? undefined,)',
 	],
