@@ -3,6 +3,35 @@ import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
 import {mergeLanguageOptions} from './language-options.js';
+import * as YAML from 'yaml';
+import {inspect} from 'node:util';
+
+const isPlainObject = value => value && Object.getPrototypeOf(value)?.constructor === Object;
+
+function serializeOptions(value) {
+	return YAML.stringify(
+		value,
+		(key, value) => {
+			if (
+				Array.isArray(value)
+				|| isPlainObject(value)
+				|| typeof value === 'boolean'
+				|| typeof value === 'number'
+				|| typeof value === 'string'
+				|| value === null
+			) {
+				return value;
+			}
+
+			throw new Error('Unsupported value');
+		},
+		{
+			defaultKeyType: 'PLAIN',
+			defaultStringType: 'QUOTE_SINGLE',
+		},
+	)
+		.trimEnd();
+}
 
 const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 // A simple version of `SourceCodeFixer.applyFixes`
@@ -108,7 +137,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 function verify(code, verifyConfig, {filename}) {
 	// https://github.com/eslint/eslint/pull/17989
 	const linterOptions = {};
-	if (filename) {
+	if (typeof filename === 'string') {
 		linterOptions.cwd = path.parse(filename).root;
 	}
 
@@ -167,15 +196,30 @@ class SnapshotRuleTester {
 
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
 
-					t.snapshot(`\n${printCode(input)}\n`, 'Input');
-
-					if (filename) {
-						t.snapshot(`\n${filename}\n`, 'Filename');
-					}
+					const inputSnapshotParts = [];
+					let shouldPrintCodeHead = false;
 
 					if (Array.isArray(options)) {
-						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
+						inputSnapshotParts.push(outdent`
+							Options:
+							${serializeOptions(options)}
+						`);
+						shouldPrintCodeHead = true;
 					}
+
+					inputSnapshotParts.push(
+						shouldPrintCodeHead
+							? outdent`
+								Code:
+								${printCode(input)}
+							`
+							: printCode(input),
+					);
+
+					t.snapshot(
+						`\n${inputSnapshotParts.join('\n\n')}\n`,
+						'Input' + (filename === undefined ? '' : ` ${inspect(filename)}`),
+					);
 
 					for (const [index, message] of messages.entries()) {
 						const snapshotParts = [
