@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npx ava
+      - run: npx c8 ava
       - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
