@@ -22,12 +22,14 @@ const isAssertFunction = (specifier, moduleName) =>
 	// `import {default as assert} from 'node:assert/strict';`
 	|| (
 		specifier.type === 'ImportSpecifier'
+		&& specifier.imported.type === 'Identifier'
 		&& specifier.imported.name === 'default'
 	)
 	// `import {strict as assert} from 'node:assert';`
 	|| (
 		moduleName === 'assert'
 		&& specifier.type === 'ImportSpecifier'
+		&& specifier.imported.type === 'Identifier'
 		&& specifier.imported.name === 'strict'
 	);
 
