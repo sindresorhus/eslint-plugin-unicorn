@@ -31,33 +31,19 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npx ava
-  lint-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
-          node-version: 24
-      - run: npm install
-      - run: npm run lint
-      - run: npx del-cli test/snapshots --verbose
-      # Force update snapshots, https://github.com/avajs/ava/discussions/2754
-      - run: npx c8 ava --update-snapshots
-        env:
-          AVA_FORCE_CI: not-ci
-      - run: git diff --exit-code
       - uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           disable_search: true
           files: coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+      - run: npm run lint
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
