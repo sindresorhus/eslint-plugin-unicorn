@@ -1,5 +1,6 @@
 import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import {removeParentheses} from './fix/index.js';
+import {isEmptyObjectExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
 const messages = {
@@ -10,7 +11,7 @@ const messages = {
 const create = context => {
 	context.on('ObjectExpression', node => {
 		if (!(
-			node.properties.length === 0
+			isEmptyObjectExpression(node)
 			&& node.parent.type === 'LogicalExpression'
 			&& node.parent.right === node
 			&& (node.parent.operator === '||' || node.parent.operator === '??')

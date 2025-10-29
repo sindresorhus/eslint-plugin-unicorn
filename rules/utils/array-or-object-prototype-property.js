@@ -1,4 +1,8 @@
-import {isMemberExpression} from '../ast/index.js';
+import {
+	isMemberExpression,
+	isEmptyArrayExpression,
+	isEmptyObjectExpression,
+} from '../ast/index.js';
 
 /**
 @param {
@@ -39,17 +43,9 @@ function isPrototypeProperty(node, options) {
 			optional: false,
 		})
 		// `[].method`
-		|| (
-			object === 'Array'
-			&& objectNode.type === 'ArrayExpression'
-			&& objectNode.elements.length === 0
-		)
+		|| (object === 'Array' && isEmptyArrayExpression(objectNode))
 		// `{}.method`
-		|| (
-			object === 'Object'
-			&& objectNode.type === 'ObjectExpression'
-			&& objectNode.properties.length === 0
-		)
+		|| (object === 'Object' && isEmptyObjectExpression(objectNode))
 	);
 }
 
