@@ -1,10 +1,10 @@
 import path from 'node:path';
+import {inspect} from 'node:util';
 import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
 import outdent from 'outdent';
-import {mergeLanguageOptions} from './language-options.js';
 import * as YAML from 'yaml';
-import {inspect} from 'node:util';
+import {mergeLanguageOptions} from './language-options.js';
 
 const isPlainObject = value => value && Object.getPrototypeOf(value)?.constructor === Object;
 
