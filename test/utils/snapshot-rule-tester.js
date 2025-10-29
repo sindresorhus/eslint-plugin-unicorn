@@ -127,10 +127,7 @@ function verify(code, verifyConfig, {filename}) {
 		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
 	}
 
-	return {
-		linter,
-		messages,
-	};
+	return messages;
 }
 
 class SnapshotRuleTester {
@@ -146,32 +143,31 @@ class SnapshotRuleTester {
 		const {valid, invalid} = normalizeTests(tests);
 
 		for (const [index, testCase] of valid.entries()) {
-			const {code, filename, only} = testCase;
+			const {code: input, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 
 			(only ? test.only : test)(
-				`valid(${index + 1}): ${code}`,
+				`valid(${index + 1}): ${input}`,
 				t => {
-					const {messages} = verify(code, verifyConfig, {filename});
+					const messages = verify(input, verifyConfig, {filename});
 					t.deepEqual(messages, [], 'Valid case should not have errors.');
 				},
 			);
 		}
 
 		for (const [index, testCase] of invalid.entries()) {
-			const {code, options, filename, only} = testCase;
+			const {code: input, options, filename, only} = testCase;
 			const verifyConfig = getVerifyConfig(ruleId, rule, testerConfig, testCase);
 			const runVerify = code => verify(code, verifyConfig, {filename});
 
 			(only ? test.only : test)(
-				`invalid(${index + 1}): ${code}`,
+				`invalid(${index + 1}): ${input}`,
 				t => {
-					const {linter, messages} = runVerify(code);
+					const messages = runVerify(input);
 
 					t.notDeepEqual(messages, [], 'Invalid case should have at least one error.');
-					const {fixed, output} = fixable ? linter.verifyAndFix(code, verifyConfig, {filename}) : {fixed: false};
 
-					t.snapshot(`\n${printCode(code)}\n`, 'Input');
+					t.snapshot(`\n${printCode(input)}\n`, 'Input');
 
 					if (filename) {
 						t.snapshot(`\n${filename}\n`, 'Filename');
@@ -181,29 +177,45 @@ class SnapshotRuleTester {
 						t.snapshot(`\n${JSON.stringify(options, undefined, 2)}\n`, 'Options');
 					}
 
-					if (fixable && fixed) {
-						runVerify(output);
-						t.snapshot(`\n${printCode(output)}\n`, 'Output');
-					}
-
 					for (const [index, message] of messages.entries()) {
-						let messageForSnapshot = visualizeEslintMessage(code, message);
+						const snapshotParts = [
+							outdent`
+								Message:
+								${visualizeEslintMessage(input, message)}
+							`,
+						];
+
+						if (fixable && message.fix) {
+							const output = applyFix(input, message);
+							if (output !== input) {
+								runVerify(output);
+
+								snapshotParts.push(
+									outdent`
+										Output:
+										${printCode(output)}
+									`,
+								);
+							}
+						}
 
 						const {suggestions = []} = message;
 
 						for (const [index, suggestion] of suggestions.entries()) {
-							const output = applyFix(code, suggestion);
+							const output = applyFix(input, suggestion);
+							t.not(output, input, 'Suggestion should provide different output.');
+
 							runVerify(output);
 
-							messageForSnapshot += outdent`
-								\n
-								${'-'.repeat(80)}
-								Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}
-								${printCode(output)}
-							`;
+							snapshotParts.push([
+								outdent`
+									Suggestion ${index + 1}/${suggestions.length}: ${suggestion.desc}:
+									${printCode(output)}
+								`,
+							]);
 						}
 
-						t.snapshot(`\n${messageForSnapshot}\n`, `Error ${index + 1}/${messages.length}`);
+						t.snapshot(`\n${snapshotParts.join('\n\n')}\n`, `Error ${index + 1}/${messages.length}`);
 					}
 				},
 			);
