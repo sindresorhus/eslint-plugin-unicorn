@@ -1,0 +1,27 @@
+name: autofix.ci # needed to securely identify the workflow
+on:
+  pull_request:
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  update-snapshots:
+    if: github.repository == 'sindresorhus/eslint-plugin-unicorn'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
+          node-version: 24
+      - run: npm install
+      - run: npm run lint
+      - run: rm -rf test/snapshots
+      # Force update snapshots, https://github.com/avajs/ava/discussions/2754
+      - run: npx c8 ava --update-snapshots
+        env:
+          AVA_FORCE_CI: not-ci
+      - uses: autofix-ci/action@v1
+        with:
+          commit-message: "Update snapshots"
