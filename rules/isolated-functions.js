@@ -1,3 +1,4 @@
+import globals from 'globals';
 import esquery from 'esquery';
 import functionTypes from './ast/function-types.js';
 
@@ -33,7 +34,10 @@ const create = context => {
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
-	const allowedGlobals = options.globals ?? context.languageOptions.globals;
+	const allowedGlobals = {
+		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtins),
+		...(options.globals ?? context.languageOptions.globals),
+	};
 
 	/** @param {import('estree').Node} node */
 	const checkForExternallyScopedVariables = node => {

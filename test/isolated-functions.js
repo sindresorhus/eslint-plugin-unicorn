@@ -208,6 +208,12 @@ test({
 				error({name: 'foo', reason: 'matches selector "FunctionDeclaration[id.name=/lambdaHandler.*/]"'}),
 			],
 		},
+		{
+			name: 'can explicitly turn off ecmascript globals',
+			code: 'makeSynchronous(() => new Array())',
+			options: [{globals: {Array: 'off'}}],
+			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
+		},
 	],
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
@@ -250,6 +256,15 @@ test({
 		{
 			name: 'default global variables come from language options',
 			code: 'makeSynchronous(() => process.env.MAP ? new Map() : new URL("https://example.com"))',
+		},
+		{
+			name: 'global Array',
+			code: 'makeSynchronous(() => new Array())',
+		},
+		{
+			name: 'global Array w globals: {} still works',
+			code: 'makeSynchronous(() => new Array())',
+			options: [{globals: {}}],
 		},
 		{
 			name: 'can implicitly allow global variables from language options',
