@@ -7,6 +7,77 @@ const error = data => ({messageId: 'externally-scoped-variable', data});
 const fooInMakeSynchronousError = error({name: 'foo', reason: 'callee of function named "makeSynchronous"'});
 
 test({
+	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
+	valid: [
+		{
+			name: 'variable defined in scope of isolated function',
+			code: outdent`
+				makeSynchronous(() => {
+					const foo = 'hi';
+					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'variable defined as parameter of isolated function',
+			code: outdent`
+				makeSynchronous(foo => {
+					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'inner function can access outer function parameters',
+			code: outdent`
+				/** @isolated */
+				function abc () {
+					const foo = 'hi';
+					const slice = () => foo.slice();
+					return slice();
+				}
+			`,
+		},
+		{
+			name: 'variable defined as parameter of isolated function (async)',
+			code: outdent`
+				makeSynchronous(async function (foo) {
+					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'default global variables come from language options',
+			code: 'makeSynchronous(() => process.env.MAP ? new Map() : new URL("https://example.com"))',
+		},
+		{
+			name: 'global Array',
+			code: 'makeSynchronous(() => new Array())',
+		},
+		{
+			name: 'global Array w globals: {} still works',
+			code: 'makeSynchronous(() => new Array())',
+			options: [{globals: {}}],
+		},
+		{
+			name: 'can implicitly allow global variables from language options',
+			languageOptions: {globals: {foo: true}},
+			code: outdent`
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'allow global variables separate from language options',
+			languageOptions: {globals: {abc: true}},
+			options: [{globals: {foo: true}}],
+			code: outdent`
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+		},
+	],
 	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
 	invalid: [
 		{
@@ -213,77 +284,6 @@ test({
 			code: 'makeSynchronous(() => new Array())',
 			options: [{globals: {Array: 'off'}}],
 			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
-		},
-	],
-	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
-	valid: [
-		{
-			name: 'variable defined in scope of isolated function',
-			code: outdent`
-				makeSynchronous(() => {
-					const foo = 'hi';
-					return foo.slice();
-				});
-			`,
-		},
-		{
-			name: 'variable defined as parameter of isolated function',
-			code: outdent`
-				makeSynchronous(foo => {
-					return foo.slice();
-				});
-			`,
-		},
-		{
-			name: 'inner function can access outer function parameters',
-			code: outdent`
-				/** @isolated */
-				function abc () {
-					const foo = 'hi';
-					const slice = () => foo.slice();
-					return slice();
-				}
-			`,
-		},
-		{
-			name: 'variable defined as parameter of isolated function (async)',
-			code: outdent`
-				makeSynchronous(async function (foo) {
-					return foo.slice();
-				});
-			`,
-		},
-		{
-			name: 'default global variables come from language options',
-			code: 'makeSynchronous(() => process.env.MAP ? new Map() : new URL("https://example.com"))',
-		},
-		{
-			name: 'global Array',
-			code: 'makeSynchronous(() => new Array())',
-		},
-		{
-			name: 'global Array w globals: {} still works',
-			code: 'makeSynchronous(() => new Array())',
-			options: [{globals: {}}],
-		},
-		{
-			name: 'can implicitly allow global variables from language options',
-			languageOptions: {globals: {foo: true}},
-			code: outdent`
-				makeSynchronous(function () {
-					return foo.slice();
-				});
-			`,
-		},
-		{
-			name: 'allow global variables separate from language options',
-			languageOptions: {globals: {abc: true}},
-			options: [{globals: {foo: true}}],
-			code: outdent`
-				makeSynchronous(function () {
-					return foo.slice();
-				});
-			`,
 		},
 	],
 });
