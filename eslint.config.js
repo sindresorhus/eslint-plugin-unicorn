@@ -47,6 +47,7 @@ const config = [
 	},
 	{
 		rules: {
+			'no-sequences': ['error', {allowInParentheses: false}],
 			'unicorn/escape-case': 'off',
 			'unicorn/expiring-todo-comments': 'off',
 			'unicorn/no-hex-escape': 'off',

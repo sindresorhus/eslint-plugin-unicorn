@@ -185,8 +185,8 @@ const create = context => {
 					optional: false,
 				})
 				|| (
-					node.left.type === 'Identifier',
-					node.left.name === 'exports'
+					node.left.type === 'Identifier'
+					&& node.left.name === 'exports'
 				)
 			)
 		) {
