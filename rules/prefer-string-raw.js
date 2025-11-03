@@ -109,6 +109,7 @@ const create = context => {
 			(node.parent.type === 'TaggedTemplateExpression' && node.parent.quasi === node)
 			|| node.quasis.every(({value: {cooked, raw}}) => cooked === raw)
 			|| node.quasis.some(({value: {cooked, raw}}) => cooked.at(-1) === BACKSLASH || unescapeBackslash(raw) !== cooked)
+			|| isJestInlineSnapshot(node)
 		) {
 			return;
 		}
