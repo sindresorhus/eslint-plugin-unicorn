@@ -1,5 +1,6 @@
 import {isStringLiteral, isDirective} from './ast/index.js';
 import {fixSpaceAroundKeyword, replaceTemplateElement} from './fix/index.js';
+import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
@@ -72,7 +73,7 @@ function isStringRawRestricted(node) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Literal', node => {
-		if (!isStringLiteral(node) || isStringRawRestricted(node)) {
+		if (!isStringLiteral(node) || isStringRawRestricted(node) || isJestInlineSnapshot(node)) {
 			return;
 		}
 

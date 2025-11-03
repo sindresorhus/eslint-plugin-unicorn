@@ -141,7 +141,11 @@ test.snapshot({
 		String.raw`type T = '${TEST_STRING}';`,
 		...keyTestsComputedIsInvalid,
 		...keyTestsComputedIsValid.flatMap(code => [code, toComputed(code)]),
+		`expect(foo).toMatchInlineSnapshot('${TEST_STRING}')`,
 	],
-	invalid: keyTestsComputedIsInvalid.map(code => toComputed(code)),
+	invalid: [
+		...keyTestsComputedIsInvalid.map(code => toComputed(code)),
+		`expect('${TEST_STRING}').toMatchInlineSnapshot("")`,
+	],
 });
 

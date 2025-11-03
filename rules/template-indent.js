@@ -2,28 +2,14 @@ import stripIndent from 'strip-indent';
 import indentString from 'indent-string';
 import esquery from 'esquery';
 import {replaceTemplateElement} from './fix/index.js';
-import {isMethodCall, isCallExpression, isTaggedTemplateLiteral} from './ast/index.js';
+import {isTaggedTemplateLiteral} from './ast/index.js';
 import {isNodeMatches} from './utils/index.js';
+import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
-
-const isJestInlineSnapshot = node =>
-	isMethodCall(node.parent, {
-		method: 'toMatchInlineSnapshot',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& node.parent.arguments[0] === node
-	&& isCallExpression(node.parent.callee.object, {
-		name: 'expect',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	});
 
 const parsedEsquerySelectors = new Map();
 const parseEsquerySelector = selector => {
