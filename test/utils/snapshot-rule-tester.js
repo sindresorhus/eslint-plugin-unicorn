@@ -6,7 +6,7 @@ import outdent from 'outdent';
 import * as YAML from 'yaml';
 import {mergeLanguageOptions} from './language-options.js';
 
-const isPlainObject = value => value && Object.getPrototypeOf(value)?.constructor === Object;
+const isPlainObject = value => value && Object.getPrototypeOf(value) === Object.prototype;
 
 function serializeOptions(value) {
 	return YAML.stringify(
