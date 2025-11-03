@@ -38,7 +38,7 @@ export default function simpleArraySearchRule({method, replacement}) {
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}suggestion`;
 	const ERROR_MESSAGES = {
 		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-		findLastIndex: 'Use `.lastIndexOf()` instead of `findLastIndex() when looking for the index of an item.`',
+		findLastIndex: 'Use `.lastIndexOf()` instead of `.findLastIndex() when looking for the index of an item.`',
 		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`,
 	};
 
