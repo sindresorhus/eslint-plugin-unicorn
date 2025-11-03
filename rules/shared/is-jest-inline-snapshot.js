@@ -1,4 +1,3 @@
-
 import {isMethodCall, isCallExpression} from '../ast/index.js';
 
 const isJestInlineSnapshot = node =>
