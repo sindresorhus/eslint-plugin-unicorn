@@ -28,16 +28,12 @@ const getText = makeSynchronous(async () => {
 	return response.text();
 });
 
-console.log(getText());
-
 // ✅ Define all variables within isolated function's scope
 const getText = makeSynchronous(async () => {
 	const url = 'https://example.com'; // Variable defined within function scope
 	const response = await fetch(url);
 	return response.text();
 });
-
-console.log(getText());
 
 // ✅ Alternative: Pass as parameter
 const getText = makeSynchronous(async (url) => { // Variable passed as parameter
