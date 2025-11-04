@@ -21,37 +21,31 @@ By default, this rule uses ESLint's language options globals and allows global v
 ```js
 import makeSynchronous from 'make-synchronous';
 
-export const fetchSync = () => {
-	const url = 'https://example.com';
+const url = 'https://example.com';
 
-	const getText = makeSynchronous(async () => {
-		const response = await fetch(url); // ❌ 'url' is not defined in isolated function scope
-		return response.text();
-	});
+const getText = makeSynchronous(async () => {
+	const response = await fetch(url); // ❌ 'url' is not defined in isolated function scope
+	return response.text();
+});
 
-	console.log(getText());
-};
+console.log(getText());
 
 // ✅ Define all variables within isolated function's scope
-export const fetchSync = () => {
-	const getText = makeSynchronous(async () => {
-		const url = 'https://example.com'; // Variable defined within function scope
-		const response = await fetch(url);
-		return response.text();
-	});
+const getText = makeSynchronous(async () => {
+	const url = 'https://example.com'; // Variable defined within function scope
+	const response = await fetch(url);
+	return response.text();
+});
 
-	console.log(getText());
-};
+console.log(getText());
 
 // ✅ Alternative: Pass as parameter
-export const fetchSync = () => {
-	const getText = makeSynchronous(async (url) => { // Variable passed as parameter
-		const response = await fetch(url);
-		return response.text();
-	});
+const getText = makeSynchronous(async (url) => { // Variable passed as parameter
+	const response = await fetch(url);
+	return response.text();
+});
 
-	console.log(getText('https://example.com'));
-};
+console.log(getText('https://example.com'));
 ```
 
 ```js
@@ -217,7 +211,7 @@ makeSynchronous(async () => {
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: {} // Empty object disallows all globals
+			globals: {} // Empty object disallows all globals except language globals
 		}
 	]
 }

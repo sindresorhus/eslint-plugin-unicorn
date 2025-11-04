@@ -1,6 +1,6 @@
 import globals from 'globals';
 import esquery from 'esquery';
-import functionTypes from './ast/function-types.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const messages = {
@@ -110,7 +110,7 @@ const create = context => {
 
 			if (previousComment) {
 				previousComment = previousComment
-					.replace(/(\*\s*)*/, '') // JSDoc comments like `/** @isolated */` are parsed into `* @isolated`. And `/**\n * @isolated */` is parsed into `*\n * @isolated`
+					.replace(/(?:\*\s*)*/, '') // JSDoc comments like `/** @isolated */` are parsed into `* @isolated`. And `/**\n * @isolated */` is parsed into `*\n * @isolated`
 					.trim()
 					.toLowerCase();
 				const match = options.comments.find(comment => previousComment === comment || previousComment.startsWith(`${comment} - `) || previousComment.startsWith(`${comment} -- `));
