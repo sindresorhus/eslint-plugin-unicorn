@@ -54,9 +54,9 @@ test({
 			code: 'makeSynchronous(() => new Array())',
 		},
 		{
-			name: 'global Array w globals: {} still works',
+			name: 'global Array w overrideGlobals: {} still works',
 			code: 'makeSynchronous(() => new Array())',
-			options: [{globals: {}}],
+			options: [{overrideGlobals: {}}],
 		},
 		{
 			name: 'can implicitly allow global variables from language options',
@@ -70,7 +70,7 @@ test({
 		{
 			name: 'allow global variables separate from language options',
 			languageOptions: {globals: {abc: true}},
-			options: [{globals: {foo: true}}],
+			options: [{overrideGlobals: {foo: true}}],
 			code: outdent`
 				makeSynchronous(function () {
 					return foo.slice();
@@ -218,19 +218,8 @@ test({
 			],
 		},
 		{
-			name: 'all global variables can be explicitly disallowed',
-			languageOptions: {globals: {foo: true}},
-			options: [{globals: {}}],
-			code: outdent`
-				makeSynchronous(function () {
-					return foo.slice();
-				});
-			`,
-			errors: [fooInMakeSynchronousError],
-		},
-		{
 			name: 'individual global variables can be explicitly disallowed',
-			options: [{globals: {URLSearchParams: 'readonly', URL: 'off'}}],
+			options: [{overrideGlobals: {URLSearchParams: 'readonly', URL: 'off'}}],
 			code: outdent`
 				makeSynchronous(function () {
 					return new URL('https://example.com?') + new URLSearchParams({a: 'b'}).toString();
@@ -282,7 +271,7 @@ test({
 		{
 			name: 'can explicitly turn off ecmascript globals',
 			code: 'makeSynchronous(() => new Array())',
-			options: [{globals: {Array: 'off'}}],
+			options: [{overrideGlobals: {Array: 'off'}}],
 			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
 		},
 	],

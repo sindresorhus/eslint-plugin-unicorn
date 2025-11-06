@@ -16,11 +16,12 @@ const parseEsquerySelector = selector => {
 	return parsedEsquerySelectors.get(selector);
 };
 
-/** @type {{functions: string[], selectors: string[], comments: string[], globals?: import('eslint').Linter.Globals}} */
+/** @type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}} */
 const defaultOptions = {
 	functions: ['makeSynchronous'],
 	selectors: [],
 	comments: ['@isolated'],
+	overrideGlobals: {},
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -36,7 +37,8 @@ const create = context => {
 
 	const allowedGlobals = {
 		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtins),
-		...(options.globals ?? context.languageOptions.globals),
+		...context.languageOptions.globals,
+		...options.overrideGlobals,
 	};
 
 	/** @param {import('estree').Node} node */
@@ -151,7 +153,7 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			globals: {
+			overrideGlobals: {
 				additionalProperties: {
 					anyOf: [{type: 'boolean'}, {type: 'string', enum: ['readonly', 'writable', 'writeable', 'off']}],
 				},

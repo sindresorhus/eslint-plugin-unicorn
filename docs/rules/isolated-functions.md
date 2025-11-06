@@ -112,7 +112,7 @@ Array of comment strings that mark functions as isolated. Functions with inline,
 }
 ```
 
-### globals
+### overrideGlobals
 
 Type: `object`\
 Default: `undefined` (uses ESLint's language options globals)
@@ -128,7 +128,7 @@ Controls how global variables are handled. When not specified, uses ESLint's lan
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: {
+			overrideGlobals: {
 				console: 'writable',     // Allowed and writable
 				fetch: 'readonly',       // Allowed but readonly
 				process: 'off'           // Not allowed
@@ -200,28 +200,6 @@ makeSynchronous(async () => {
 });
 ```
 
-### Disallowing all globals
-
-```js
-{
-	'unicorn/isolated-functions': [
-		'error',
-		{
-			globals: {} // Empty object disallows all globals except language globals
-		}
-	]
-}
-```
-
-```js
-// ❌ All globals are disallowed
-makeSynchronous(async () => {
-	console.log('Starting...'); // ❌ 'console' is not allowed
-	const response = await fetch('https://api.example.com'); // ❌ 'fetch' is not allowed
-	return response.text();
-});
-```
-
 ### Allowing specific globals
 
 ```js
@@ -229,7 +207,7 @@ makeSynchronous(async () => {
 	'unicorn/isolated-functions': [
 		'error',
 		{
-			globals: {
+			overrideGlobals: {
 				console: 'writable',     // Allowed and writable
 				fetch: 'readonly',       // Allowed but readonly
 				URL: 'readonly'          // Allowed but readonly
