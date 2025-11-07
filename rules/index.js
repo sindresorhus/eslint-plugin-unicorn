@@ -16,6 +16,7 @@ export {default as 'expiring-todo-comments'} from './expiring-todo-comments.js';
 export {default as 'explicit-length-check'} from './explicit-length-check.js';
 export {default as 'filename-case'} from './filename-case.js';
 export {default as 'import-style'} from './import-style.js';
+export {default as 'isolated-functions'} from './isolated-functions.js';
 export {default as 'new-for-builtins'} from './new-for-builtins.js';
 export {default as 'no-abusive-eslint-disable'} from './no-abusive-eslint-disable.js';
 export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
