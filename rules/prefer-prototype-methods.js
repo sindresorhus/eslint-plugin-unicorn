@@ -1,6 +1,11 @@
 import {getPropertyName, ReferenceTracker} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {
+	isEmptyArrayExpression,
+	isEmptyObjectExpression,
+	isMemberExpression,
+	isMethodCall,
+} from './ast/index.js';
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
@@ -37,10 +42,7 @@ function getConstructorAndMethodName(methodNode, {context, globalReferences}) {
 
 	const objectNode = methodNode.object;
 
-	if (!(
-		(objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0)
-		|| (objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0)
-	)) {
+	if (!(isEmptyArrayExpression(objectNode) || isEmptyObjectExpression(objectNode))) {
 		return;
 	}
 
