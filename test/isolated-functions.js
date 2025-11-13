@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -74,6 +74,23 @@ test({
 			code: outdent`
 				makeSynchronous(function () {
 					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'typescript types are allowed to be out-of-scope',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+			code: outdent`
+				type MyType = { foo: string };
+				makeSynchronous(() => {
+					const f = <T extends MyType>(t: T) => t;
+					let myType: MyType = { foo: 'bar' };
+					myType = { foo: 'bar' } as MyType;
+					myType = { foo: 'bar' } as const;
+					myType = { foo: 'baz' } satisfies MyType;
+					type X = typeof myType extends MyType ? true : false;
 				});
 			`,
 		},
