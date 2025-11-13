@@ -83,8 +83,10 @@ test({
 				parser: parsers.typescript,
 			},
 			code: outdent`
+				const a = 1;
 				type MyType = { foo: string };
 				makeSynchronous(() => {
+					const b: typeof a = 1;
 					const f = <T extends MyType>(t: T) => t;
 					let myType: MyType = { foo: 'bar' };
 					myType = { foo: 'bar' } as MyType;

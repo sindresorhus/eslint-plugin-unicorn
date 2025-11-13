@@ -54,7 +54,7 @@ const create = context => {
 		for (const reference of nodeScope.through) {
 			const {identifier} = reference;
 
-			if (identifier?.parent?.type === 'TSTypeReference') {
+			if (identifier?.parent?.type === 'TSTypeReference' || identifier?.parent?.type === 'TSTypeQuery') {
 				continue;
 			}
 
