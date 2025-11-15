@@ -53,6 +53,11 @@ const create = context => {
 		// `through`: "The array of references which could not be resolved in this scope" https://eslint.org/docs/latest/extend/scope-manager-interface#scope-interface
 		for (const reference of nodeScope.through) {
 			const {identifier} = reference;
+
+			if (identifier.parent.type === 'TSTypeReference' || identifier.parent.type === 'TSTypeQuery') {
+				continue;
+			}
+
 			if (identifier.name in allowedGlobals && allowedGlobals[identifier.name] !== 'off') {
 				if (reference.isReadOnly()) {
 					continue;
