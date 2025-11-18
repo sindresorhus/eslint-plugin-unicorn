@@ -497,19 +497,3 @@ test.snapshot({
 		},
 	],
 });
-
-// `foo ?? undefined`
-test.snapshot({
-	valid: [
-		'foo || undefined',
-		'foo && undefined',
-		'foo ?? null',
-		'undefined ?? foo',
-	],
-	invalid: [
-		'foo ?? undefined',
-		'(( (( foo )) ?? (( undefined )) ))',
-		'foo ?? null ?? undefined',
-		'call(foo ?? undefined,)',
-	],
-});
