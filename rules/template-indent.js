@@ -1,6 +1,5 @@
 import stripIndent from 'strip-indent';
 import indentString from 'indent-string';
-import esquery from 'esquery';
 import {replaceTemplateElement} from './fix/index.js';
 import {isTaggedTemplateLiteral} from './ast/index.js';
 import {isNodeMatches} from './utils/index.js';
@@ -9,15 +8,6 @@ import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
-};
-
-const parsedEsquerySelectors = new Map();
-const parseEsquerySelector = selector => {
-	if (!parsedEsquerySelectors.has(selector)) {
-		parsedEsquerySelectors.set(selector, esquery.parse(selector));
-	}
-
-	return parsedEsquerySelectors.get(selector);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -32,9 +22,16 @@ const create = context => {
 	};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
+	const checked = new WeakSet();
 
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
 	const getProblem = node => {
+		if (node.type !== 'TemplateLiteral' || checked.has(node)) {
+			return;
+		}
+
+		checked.add(node);
+
 		const delimiter = '__PLACEHOLDER__' + Math.random();
 		const joined = node.quasis
 			.map(quasi => {
@@ -114,13 +111,6 @@ const create = context => {
 			return true;
 		}
 
-		if (options.selectors.length > 0) {
-			const ancestors = sourceCode.getAncestors(node).toReversed();
-			if (options.selectors.some(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors))) {
-				return true;
-			}
-		}
-
 		return false;
 	};
 
@@ -131,6 +121,8 @@ const create = context => {
 
 		return getProblem(node);
 	});
+
+	context.on(options.selectors, /** @param {import('@babel/core').types.TemplateLiteral} node */ node => getProblem(node));
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
