@@ -1,19 +1,9 @@
 import globals from 'globals';
-import esquery from 'esquery';
 import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const messages = {
 	[MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE]: 'Variable {{name}} not defined in scope of isolated function. Function is isolated because: {{reason}}.',
-};
-
-const parsedEsquerySelectors = new Map();
-const parseEsquerySelector = selector => {
-	if (!parsedEsquerySelectors.has(selector)) {
-		parsedEsquerySelectors.set(selector, esquery.parse(selector));
-	}
-
-	return parsedEsquerySelectors.get(selector);
 };
 
 /** @type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}} */
@@ -40,13 +30,15 @@ const create = context => {
 		...context.languageOptions.globals,
 		...options.overrideGlobals,
 	};
+	const checked = new WeakSet();
 
 	/** @param {import('estree').Node} node */
-	const checkForExternallyScopedVariables = node => {
-		let reason = reasonForBeingIsolatedFunction(node);
-		if (!reason) {
+	const checkForExternallyScopedVariables = (node, reason) => {
+		if (checked.has(node) || !functionTypes.includes(node.type)) {
 			return;
 		}
+
+		checked.add(node);
 
 		const nodeScope = sourceCode.getScope(node);
 
@@ -136,20 +128,29 @@ const create = context => {
 		) {
 			return `callee of function named ${JSON.stringify(node.parent.callee.name)}`;
 		}
-
-		if (options.selectors.length > 0) {
-			const ancestors = sourceCode.getAncestors(node);
-			const matchedSelector = options.selectors.find(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors));
-			if (matchedSelector) {
-				return `matches selector ${JSON.stringify(matchedSelector)}`;
-			}
-		}
 	};
 
-	context.on(
-		functionTypes.map(type => `${type}:exit`),
-		checkForExternallyScopedVariables,
+	context.onExit(
+		functionTypes,
+		node => {
+			const reason = reasonForBeingIsolatedFunction(node);
+			if (!reason) {
+				return;
+			}
+
+			return checkForExternallyScopedVariables(node, reason);
+		},
 	);
+
+	for (const selector of options.selectors) {
+		context.onExit(
+			selector,
+			node => {
+				const reason = `matches selector ${JSON.stringify(selector)}`;
+				return checkForExternallyScopedVariables(node, reason);
+			},
+		);
+	}
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
