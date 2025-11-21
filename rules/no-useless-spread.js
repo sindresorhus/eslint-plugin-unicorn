@@ -2,7 +2,13 @@ import {isCommaToken} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {removeParentheses, fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
 import {isParenthesized, isOnSameLine} from './utils/index.js';
-import {isNewExpression, isMethodCall, isCallOrNewExpression} from './ast/index.js';
+import {
+	isNewExpression,
+	isMethodCall,
+	isCallOrNewExpression,
+	isEmptyArrayExpression,
+	isEmptyObjectExpression,
+} from './ast/index.js';
 
 const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
@@ -179,10 +185,7 @@ const create = context => {
 
 				// `[...[], 1]`
 				//        ^
-				if (
-					(node.type === 'ArrayExpression' && node.elements.length === 0)
-					|| (node.type === 'ObjectExpression' && node.properties.length === 0)
-				) {
+				if (isEmptyArrayExpression(node) || isEmptyObjectExpression(node)) {
 					const nextToken = sourceCode.getTokenAfter(spreadElement);
 					if (isCommaToken(nextToken)) {
 						yield fixer.remove(nextToken);

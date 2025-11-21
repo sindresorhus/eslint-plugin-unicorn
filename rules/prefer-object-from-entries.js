@@ -1,5 +1,5 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isLiteral} from './ast/index.js';
+import {isMethodCall, isLiteral, isEmptyObjectExpression} from './ast/index.js';
 import {removeParentheses} from './fix/index.js';
 import {
 	getParentheses,
@@ -18,7 +18,7 @@ const messages = {
 
 const isEmptyObject = node =>
 	// `{}`
-	(node.type === 'ObjectExpression' && node.properties.length === 0)
+	isEmptyObjectExpression(node)
 	// `Object.create(null)`
 	|| (
 		isMethodCall(node, {

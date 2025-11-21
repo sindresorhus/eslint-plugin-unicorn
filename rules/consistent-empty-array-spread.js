@@ -1,17 +1,13 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isEmptyArrayExpression,
+	isEmptyStringLiteral,
+} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using empty {{replacementDescription}} since the {{anotherNodePosition}} is {{anotherNodeDescription}}.',
 };
-
-const isEmptyArrayExpression = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.length === 0;
-
-const isEmptyStringLiteral = node =>
-	node.type === 'Literal'
-	&& node.value === '';
 
 const isString = (node, context) => {
 	const staticValueResult = getStaticValue(node, context.sourceCode.getScope(node));
