@@ -284,6 +284,13 @@ const create = context => {
 
 	const {sourceCode} = context;
 	const comments = sourceCode.getAllComments();
+
+	const isEslintDirectiveComment = comment => {
+		// Strip leading whitespace and optional `*` from block comments
+		const normalizedComment = comment.value.trimStart().replace(/^\*\s*/, '');
+		return /^eslint(?:-(?:en|dis)able)?(?:-(?:next-)?line)?\b/.test(normalizedComment);
+	};
+
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
 		// Block comments come as one.
@@ -319,6 +326,10 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
+		if (isEslintDirectiveComment(comment)) {
+			return;
+		}
+
 		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
 			return;
 		}
