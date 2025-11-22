@@ -1,3 +1,4 @@
+import {ConfigCommentParser} from '@eslint/plugin-kit';
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import semver from 'semver';
@@ -267,6 +268,8 @@ const DEFAULT_OPTIONS = {
 	allowWarningComments: true,
 };
 
+let configCommentParser;
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
@@ -284,13 +287,6 @@ const create = context => {
 
 	const {sourceCode} = context;
 	const comments = sourceCode.getAllComments();
-
-	const isEslintDirectiveComment = comment => {
-		// Strip leading whitespace and optional `*` from block comments
-		const normalizedComment = comment.value.trimStart().replace(/^\*\s*/, '');
-		return /^eslint(?:-(?:en|dis)able)?(?:-(?:next-)?line)?\b/.test(normalizedComment);
-	};
-
 	const unusedComments = comments
 		.filter(token => token.type !== 'Shebang')
 		// Block comments come as one.
@@ -326,7 +322,10 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
-		if (isEslintDirectiveComment(comment)) {
+		configCommentParser ??= new ConfigCommentParser();
+
+		const directive = configCommentParser.parseDirective(comment.value);
+		if (directive?.label?.startsWith('eslint')) {
 			return;
 		}
 
