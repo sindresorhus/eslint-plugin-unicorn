@@ -1,8 +1,8 @@
-import {ConfigCommentParser} from '@eslint/plugin-kit';
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import semver from 'semver';
 import * as ci from 'ci-info';
+import parseDirective from './utils/parse-directive.js';
 import getBuiltinRule from './utils/get-builtin-rule.js';
 import {readPackageJson} from './shared/package-json.js';
 
@@ -268,8 +268,6 @@ const DEFAULT_OPTIONS = {
 	allowWarningComments: true,
 };
 
-let configCommentParser;
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
@@ -322,10 +320,8 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
-		configCommentParser ??= new ConfigCommentParser();
-
-		const directive = configCommentParser.parseDirective(comment.value);
-		if (directive?.label?.startsWith('eslint')) {
+		const directive = parseDirective(comment);
+		if (directive?.isEslintDisableDirective || directive?.isEslintEnableDirective) {
 			return;
 		}
 

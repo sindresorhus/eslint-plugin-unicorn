@@ -49,6 +49,7 @@ export {default as isShorthandImportLocal} from './is-shorthand-import-local.js'
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
+export {default as parseDirective} from './parse-directive.js';
 export {checkVueTemplate} from './rule.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
