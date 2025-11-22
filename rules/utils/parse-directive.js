@@ -1,5 +1,6 @@
 import {ConfigCommentParser} from '@eslint/plugin-kit';
 
+// https://github.com/eslint/eslint/blob/ecd0ede7fd2ccbb4c0daf0e4732e97ea0f49db1b/lib/linter/linter.js#L509-L512
 const ESLINT_DISABLE_DIRECTIVES = new Set([
 	'eslint-disable',
 	'eslint-disable-line',
