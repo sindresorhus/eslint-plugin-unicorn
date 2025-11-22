@@ -6,12 +6,6 @@ const ESLINT_DISABLE_DIRECTIVES = new Set([
 	'eslint-disable-next-line',
 ]);
 
-const ESLINT_ENABLE_DIRECTIVES = new Set([
-	'eslint-enable',
-	'eslint-enable-line',
-	'eslint-enable-next-line',
-]);
-
 let configCommentParser;
 
 /**
@@ -37,7 +31,7 @@ export default function parseDirective(comment) {
 
 	const {label} = result;
 	const isEslintDisableDirective = ESLINT_DISABLE_DIRECTIVES.has(label);
-	const isEslintEnableDirective = ESLINT_ENABLE_DIRECTIVES.has(label);
+	const isEslintEnableDirective = label === 'eslint-enable';
 
 	return {
 		...result,
