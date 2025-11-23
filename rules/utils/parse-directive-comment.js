@@ -4,7 +4,7 @@ import {ConfigCommentParser} from '@eslint/plugin-kit';
 @typedef {Exclude<ReturnType<ConfigCommentParser['parseDirective']>, undefined>} DirectiveComment
 */
 
-// https://github.com/eslint/eslint/blob/ecd0ede7fd2ccbb4c0daf0e4732e97ea0f49db1b/lib/linter/linter.js#L509-L512
+// https://github.com/eslint/eslint/blob/df5566f826d9f5740546e473aa6876b1f7d2f12c/lib/languages/js/source-code/source-code.js#L914-L917
 const ESLINT_DISABLE_DIRECTIVES = new Set([
 	'eslint-disable',
 	'eslint-disable-line',
