@@ -12,7 +12,7 @@ const create = context => {
 	context.on('Program', function * () {
 		for (const directive of getEslintDisableDirectives(context)) {
 			if (directive.value) {
-				return;
+				continue;
 			}
 
 			const {start, end} = context.sourceCode.getLoc(directive.node);
