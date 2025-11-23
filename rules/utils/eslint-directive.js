@@ -7,7 +7,7 @@ const ESLINT_DISABLE_DIRECTIVE_TYPES = new Set([
 
 function getEslintDisableDirectives(context) {
 	const {directives} = context.sourceCode.getDisableDirectives();
-	return directives.filters(({type}) => ESLINT_DISABLE_DIRECTIVE_TYPES.has(type));
+	return directives.filter(({type}) => ESLINT_DISABLE_DIRECTIVE_TYPES.has(type));
 }
 
 function isEslintDisableOrEnableDirective(context, comment) {
