@@ -1,5 +1,9 @@
 import {ConfigCommentParser} from '@eslint/plugin-kit';
 
+/**
+@typedef {Exclude<ReturnType<ConfigCommentParser['parseDirective']>, undefined>} DirectiveComment
+*/
+
 // https://github.com/eslint/eslint/blob/ecd0ede7fd2ccbb4c0daf0e4732e97ea0f49db1b/lib/linter/linter.js#L509-L512
 const ESLINT_DISABLE_DIRECTIVES = new Set([
 	'eslint-disable',
@@ -13,15 +17,15 @@ let configCommentParser;
 Parse a directive comment value and return directive meta info.
 
 @param {ESTree.Comment} comment
-@returns {{
-	label: string,
-	value: string,
-	justification: string,
-	isEslintDisableDirective: boolean,
-	isEslintEnableDirective: boolean,
-}|undefined}
+@returns {
+	| DirectiveComment & {
+			isEslintDisableDirective: boolean,
+			isEslintEnableDirective: boolean,
+		}
+	| undefined
+}
 */
-export default function parseDirective(comment) {
+export default function parseDirectiveComment(comment) {
 	configCommentParser ??= new ConfigCommentParser();
 
 	const result = configCommentParser.parseDirective(comment.value);
@@ -31,12 +35,10 @@ export default function parseDirective(comment) {
 	}
 
 	const {label} = result;
-	const isEslintDisableDirective = ESLINT_DISABLE_DIRECTIVES.has(label);
-	const isEslintEnableDirective = label === 'eslint-enable';
 
 	return {
 		...result,
-		isEslintDisableDirective,
-		isEslintEnableDirective,
+		isEslintDisableDirective: ESLINT_DISABLE_DIRECTIVES.has(label),
+		isEslintEnableDirective: label === 'eslint-enable',
 	};
 }

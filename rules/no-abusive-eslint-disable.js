@@ -1,4 +1,6 @@
-import parseDirective from './utils/parse-directive.js';
+import {
+	parseDirectiveComment,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-abusive-eslint-disable';
 const messages = {
@@ -9,7 +11,7 @@ const messages = {
 const create = context => {
 	context.on('Program', function * (node) {
 		for (const comment of node.comments) {
-			const directive = parseDirective(comment);
+			const directive = parseDirectiveComment(comment);
 
 			if (!(
 				// It's a eslint-disable comment

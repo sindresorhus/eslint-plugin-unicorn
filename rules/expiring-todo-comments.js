@@ -2,8 +2,10 @@ import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import semver from 'semver';
 import * as ci from 'ci-info';
-import parseDirective from './utils/parse-directive.js';
-import getBuiltinRule from './utils/get-builtin-rule.js';
+import {
+	parseDirectiveComment,
+	getBuiltinRule,
+} from './utils/index.js';
 import {readPackageJson} from './shared/package-json.js';
 
 const baseRule = getBuiltinRule('no-warning-comments');
@@ -320,7 +322,7 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
-		const directive = parseDirective(comment);
+		const directive = parseDirectiveComment(comment);
 		if (directive?.isEslintDisableDirective || directive?.isEslintEnableDirective) {
 			return;
 		}
