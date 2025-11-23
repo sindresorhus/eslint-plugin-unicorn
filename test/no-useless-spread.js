@@ -259,14 +259,15 @@ test.snapshot({
 		'[...Promise.all(foo)]',
 		'[...Promise.allSettled(foo)]',
 		'[...await Promise.all(foo, extraArgument)]',
+		// Can be `Iterator` methods
+		'[...foo.filter(bar)]',
+		'[...foo.flatMap(bar)]',
+		'[...foo.map(bar)]',
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
 		'[...foo.copyWithin(-2)]',
-		'[...foo.filter(bar)]',
 		'[...foo.flat()]',
-		'[...foo.flatMap(bar)]',
-		'[...foo.map(bar)]',
 		'[...foo.slice(1)]',
 		'[...foo.splice(1)]',
 		'[...foo.toReversed()]',
