@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import enquirer from 'enquirer';
-import {template} from 'lodash-es';
 import openEditor from 'open-editor';
 import spawn from 'nano-spawn';
+import styleText from 'node-style-text';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.join(dirname, '..');
+const PROJECT_ROOT = new URL('../', import.meta.url);
+const TEMPLATE_DIRECTORY = new URL('template/', import.meta.url);
 
 function checkFiles(ruleId) {
 	const files = [
@@ -20,20 +18,29 @@ function checkFiles(ruleId) {
 	];
 
 	for (const file of files) {
-		if (fs.existsSync(path.join(ROOT, file))) {
+		if (fs.existsSync(new URL(file, PROJECT_ROOT))) {
 			throw new Error(`“${file}” already exists.`);
 		}
 	}
 }
 
-function renderTemplate({source, target, data}) {
-	const templateFile = path.join(dirname, `template/${source}`);
-	const targetFile = path.join(ROOT, target);
-	const templateContent = fs.readFileSync(templateFile, 'utf8');
+async function renderTemplate({source, target}, data) {
+	const sourceUrl = new URL(source, TEMPLATE_DIRECTORY);
+	const targetUrl = new URL(target, PROJECT_ROOT);
 
-	const compiled = template(templateContent);
-	const content = compiled(data);
-	return fs.writeFileSync(targetFile, content);
+	if (source.endsWith('.template.txt')) {
+		await fs.promises.copyFile(sourceUrl, targetUrl);
+	} else if (source.endsWith('.template.js')) {
+		const {default: render} = await import(new URL(source, TEMPLATE_DIRECTORY));
+		const content = render(data);
+		await fs.promises.writeFile(targetUrl, content);
+	} else {
+		throw new Error(`Unknown template file '${source}'.`);
+	}
+
+	console.log(`File ${styleText.underline.blue(target)} created.`);
+
+	return target;
 }
 
 async function getData() {
@@ -101,36 +108,41 @@ const data = await getData();
 const {id} = data;
 
 checkFiles(id);
-renderTemplate({
-	source: 'documentation.md.jst',
-	target: `docs/rules/${id}.md`,
-	data,
-});
-renderTemplate({
-	source: 'rule.js.jst',
-	target: `rules/${id}.js`,
-	data,
-});
-renderTemplate({
-	source: 'test.js.jst',
-	target: `test/${id}.js`,
-	data,
+
+const files = await Promise.all(
+	[
+		{
+			source: 'documentation.md.template.txt',
+			target: `docs/rules/${id}.md`,
+		},
+		{
+			source: 'rule.js.template.js',
+			target: `rules/${id}.js`,
+		},
+		{
+			source: 'test.js.template.txt',
+			target: `test/${id}.js`,
+		},
+	].map(template => renderTemplate(template, data)),
+);
+
+const shouldOpenFiles = await enquirer.prompt({
+	type: 'confirm',
+	message: 'Open files in editor?',
+	initial: true,
 });
 
-const filesToOpen = [
-	`docs/rules/${id}.md`,
-	`rules/${id}.js`,
-	`test/${id}.js`,
-];
-try {
-	await openEditor(filesToOpen);
-} catch {
-	// https://github.com/sindresorhus/open-editor/issues/15
+if (shouldOpenFiles) {
 	try {
-		await spawn('code', [
-			'--new-window',
-			'.',
-			...filesToOpen,
-		], {cwd: ROOT});
-	} catch {}
+		await openEditor(files.map(file => new URL(file, PROJECT_ROOT)));
+	} catch {
+		// https://github.com/sindresorhus/open-editor/issues/15
+		try {
+			await spawn('code', [
+				'--new-window',
+				'.',
+				...files,
+			], {cwd: PROJECT_ROOT});
+		} catch {}
+	}
 }
