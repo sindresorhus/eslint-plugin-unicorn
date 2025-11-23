@@ -37,6 +37,8 @@ const config = [
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
+			'unicorn/template-indent': ['error', {indent: '\t'}],
 		},
 	},
 	{
