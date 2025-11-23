@@ -15,18 +15,17 @@ const create = context => {
 				return;
 			}
 
-			const comment = directive.node;
-			const {sourceCode} = context;
+			const {start, end} = context.sourceCode.getLoc(directive.node);
 
 			yield {
 				// Can't set it at the given location as the warning
 				// will be ignored due to the disable comment
 				loc: {
 					start: {
-						...sourceCode.getLoc(comment).start,
+						...start,
 						column: -1,
 					},
-					end: sourceCode.getLoc(comment).end,
+					end,
 				},
 				messageId: MESSAGE_ID,
 			};
