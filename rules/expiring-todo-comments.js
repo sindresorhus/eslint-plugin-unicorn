@@ -3,7 +3,7 @@ import {isRegExp} from 'node:util/types';
 import semver from 'semver';
 import * as ci from 'ci-info';
 import {
-	parseDirectiveComment,
+	isEslintDisableOrEnableDirective,
 	getBuiltinRule,
 } from './utils/index.js';
 import {readPackageJson} from './shared/package-json.js';
@@ -288,7 +288,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
-		.filter(token => token.type !== 'Shebang')
+		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
@@ -322,11 +322,6 @@ const create = context => {
 
 	// eslint-disable-next-line complexity
 	function processComment(comment) {
-		const directive = parseDirectiveComment(comment);
-		if (directive?.isEslintDisableDirective || directive?.isEslintEnableDirective) {
-			return;
-		}
-
 		if (ignoreRegexes.some(ignore => ignore.test(comment.value))) {
 			return;
 		}
