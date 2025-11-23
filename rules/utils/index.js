@@ -50,6 +50,7 @@ export {default as isShorthandPropertyValue} from './is-shorthand-property-value
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {
+	getEslintDisableDirectives,
 	isEslintDisableOrEnableDirective,
 } from './eslint-directive.js';
 export {checkVueTemplate} from './rule.js';
