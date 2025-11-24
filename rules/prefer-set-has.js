@@ -10,10 +10,9 @@ const messages = {
 };
 
 /*
-Some of these methods can be `Iterator`
-Since `Iterator` don't have an `includes()` method
-We are safe to assume they are array.
-Except `concat` and `slice` which can be an string, https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2216 .
+Some of these methods can be `Iterator`.
+
+Since `Iterator` don't have an `includes()` method, we are safe to assume they are array. Except `concat` and `slice` which can be a string: https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2216
 */
 const methodsReturnsArray = [
 	// `Array`
