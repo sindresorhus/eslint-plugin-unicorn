@@ -139,6 +139,8 @@ test.snapshot({
 		String.raw`import type T = require('${TEST_STRING}');`,
 		// (TypeScript) Literal type
 		String.raw`type T = '${TEST_STRING}';`,
+		// (TypeScript) Import type
+		String.raw`type T = import('${TEST_STRING}');`,
 		...keyTestsComputedIsInvalid,
 		...keyTestsComputedIsValid.flatMap(code => [code, toComputed(code)]),
 		`expect(foo).toMatchInlineSnapshot('${TEST_STRING}')`,
