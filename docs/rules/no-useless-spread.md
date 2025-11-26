@@ -101,20 +101,6 @@ function * foo() {
 ```
 
 ```js
-// ❌
-function foo(bar) {
-	return [
-		...bar.map(x => x * 2),
-	];
-}
-
-// ✅
-function foo(bar) {
-	return bar.map(x => x * 2);
-}
-```
-
-```js
 // ✅
 const array = [...foo, bar];
 ```
