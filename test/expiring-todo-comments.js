@@ -114,6 +114,18 @@ test({
 			code: '// TODO [2001-01-01]: quite old',
 			options: [{date: '2000-01-01'}],
 		},
+		{
+			code: `// eslint-disable-next-line rule-to-test/expiring-todo-comments
+				   // TODO without a date`,
+			options: [{allowWarningComments: false}],
+		},
+		{
+			code: `/* eslint-disable rule-to-test/expiring-todo-comments */
+				   // TODO without a date
+				   // fixme [2000-01-01]: too old'
+				   /* eslint-enable rule-to-test/expiring-todo-comments */`,
+			options: [{allowWarningComments: false}],
+		},
 	],
 	invalid: [
 		{
