@@ -1,5 +1,7 @@
+// @ts-check
 /* eslint-disable complexity */
 /**
+@param {ESTreeNode} node
 @param {
 	{
 		property?: string,
@@ -10,7 +12,7 @@
 		computed?: boolean
 	} | string | string[]
 } [options]
-@returns {string}
+@returns {boolean}
 */
 export default function isMemberExpression(node, options) {
 	if (node?.type !== 'MemberExpression') {
@@ -96,3 +98,5 @@ export default function isMemberExpression(node, options) {
 
 	return true;
 }
+
+/** @typedef {import('estree').Node} ESTreeNode */
