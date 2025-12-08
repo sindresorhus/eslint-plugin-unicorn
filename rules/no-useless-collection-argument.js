@@ -8,9 +8,16 @@ import {
 } from './ast/index.js';
 import {removeParentheses, removeArgument} from './fix/index.js';
 
-const MESSAGE_ID = 'no-useless-collection-argument';
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
+const MESSAGE_ID_ERROR = 'no-useless-collection-argument/error';
+const MESSAGE_ID_SUGGESTION = 'no-useless-collection-argument/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'The {{description}} is useless.',
+	[MESSAGE_ID_ERROR]: 'The {{description}} is useless.',
+	[MESSAGE_ID_SUGGESTION]: 'Remove the {{description}}',
 };
 
 const getDescription = node => {
@@ -33,7 +40,7 @@ const getDescription = node => {
 
 const removeFallback = (node, context) =>
 	// Same code from rules/no-useless-fallback-in-spread.js
-	/** @param {import('eslint').Rule.RuleFixer} fixer */
+	/** @param {ESLint.Rule.RuleFixer} fixer */
 	function * fix(fixer) {
 		const {sourceCode} = context;
 		const logicalExpression = node.parent;
@@ -54,9 +61,9 @@ const removeFallback = (node, context) =>
 		}
 	};
 
-/** @param {import('eslint').Rule.RuleContext} context */
+/** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
-	context.on('NewExpression', newExpression => {
+	context.on('NewExpression', (/** @type {ESTree.NewExpression} */ newExpression) => {
 		if (!isNewExpression(newExpression, {
 			names: ['Set', 'Map', 'WeakSet', 'WeakMap'],
 			argumentsLength: 1,
@@ -73,18 +80,40 @@ const create = context => {
 			return;
 		}
 
-		return {
+		let fix;
+		let shouldUseSuggestion = false;
+		if (isCheckingFallback) {
+			fix = removeFallback(node, context);
+		} else {
+			if (context.sourceCode.getCommentsInside(node).length > 0) {
+				shouldUseSuggestion = true;
+			}
+
+			fix = fixer => removeArgument(fixer, node, context);
+		}
+
+		const problem = {
 			node,
-			messageId: MESSAGE_ID,
+			messageId: MESSAGE_ID_ERROR,
 			data: {description},
-			fix: isCheckingFallback
-				? removeFallback(node, context)
-				: fixer => removeArgument(fixer, node, context),
 		};
+
+		if (shouldUseSuggestion) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix,
+				},
+			];
+		} else {
+			problem.fix = fix;
+		}
+
+		return problem;
 	});
 };
 
-/** @type {import('eslint').Rule.RuleModule} */
+/** @type {ESLint.Rule.RuleModule} */
 const config = {
 	create,
 	meta: {
@@ -94,6 +123,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };

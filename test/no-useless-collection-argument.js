@@ -71,5 +71,7 @@ test.snapshot({
 		'new Set([] ?? "")',
 		'new Set( (( (( "" )) ?? (( [] )) )) )',
 		'new Set(foo ?? bar ?? [])',
+		// Comments
+		'new Set([/**/])',
 	],
 });
