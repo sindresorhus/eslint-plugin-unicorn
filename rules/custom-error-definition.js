@@ -144,6 +144,7 @@ function * customErrorDefinition(context, node) {
 	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
 	if (!nameExpression) {
 		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
+
 		if (!nameProperty?.value || nameProperty.value.value !== name) {
 			yield {
 				node: nameProperty?.value ?? constructorBodyNode,
