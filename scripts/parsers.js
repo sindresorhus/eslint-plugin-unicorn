@@ -6,6 +6,7 @@ Workaround for https://github.com/typescript-eslint/typescript-eslint/issues/117
 import {Variable} from 'eslint-scope';
 import typescriptEslintParserOriginal from '@typescript-eslint/parser';
 import babelEslintParserOriginal from '@babel/eslint-parser';
+import vueEslintParserOriginal from 'vue-eslint-parser';
 
 function addGlobals(names) {
 	const globalScope = this.scopes[0];
@@ -72,7 +73,9 @@ function fixParse(parse) {
 	return function parseForESLint(...arguments_) {
 		const result = parse(...arguments_);
 
-		result.scopeManager.addGlobals = addGlobals;
+		if (result.scopeManager) {
+			result.scopeManager.addGlobals ??= addGlobals;
+		}
 
 		return result;
 	};
@@ -86,4 +89,9 @@ export const typescriptEslintParser = {
 export const babelEslintParser = {
 	...babelEslintParserOriginal,
 	parseForESLint: fixParse(babelEslintParserOriginal.parseForESLint),
+};
+
+export const vueEslintParser = {
+	...vueEslintParserOriginal,
+	parseForESLint: fixParse(vueEslintParserOriginal.parseForESLint),
 };
