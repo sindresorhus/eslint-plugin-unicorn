@@ -48,7 +48,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		}
 
 		if (typeof getNumericValue(secondArgument) === 'number') {
-			yield replaceSecondArgument(Math.max(0, getNumericValue(secondArgument)));
+			yield replaceSecondArgument(String(Math.max(0, getNumericValue(secondArgument))));
 			return;
 		}
 
@@ -58,7 +58,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	}
 
 	if (argumentNodes.every(node => isNumericLiteral(node))) {
-		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
+		yield replaceSecondArgument(String(firstArgument.value + secondArgument.value));
 		return;
 	}
 
@@ -78,7 +78,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		}
 
 		if (firstNumber !== undefined) {
-			yield replaceFirstArgument(Math.max(0, firstNumber));
+			yield replaceFirstArgument(String(Math.max(0, firstNumber)));
 			return;
 		}
 
@@ -99,18 +99,18 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		}
 
 		if (argumentsValue[0] !== firstNumber) {
-			yield replaceFirstArgument(argumentsValue[0]);
+			yield replaceFirstArgument(String(argumentsValue[0]));
 		}
 
 		if (argumentsValue[1] !== secondNumber) {
-			yield replaceSecondArgument(argumentsValue[1]);
+			yield replaceSecondArgument(String(argumentsValue[1]));
 		}
 
 		return;
 	}
 
 	if (firstNumber === 0 || secondNumber === 0) {
-		yield replaceFirstArgument(0);
+		yield replaceFirstArgument('0');
 		yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
 		return;
 	}
