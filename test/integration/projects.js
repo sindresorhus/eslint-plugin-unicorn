@@ -38,7 +38,13 @@ export default [
 				'test-tap/fixture/report/edgecases/ast-syntax-error.cjs',
 			],
 		},
-		'https://github.com/chalk/chalk',
+		{
+			repository: 'https://github.com/chalk/chalk',
+			ignore: [
+				// Uses `/* eslint-env */`
+				'source/vendor/supports-color/browser.js',
+			],
+		},
 		'https://github.com/chalk/wrap-ansi',
 		'https://github.com/sindresorhus/np',
 		'https://github.com/sindresorhus/ora',
