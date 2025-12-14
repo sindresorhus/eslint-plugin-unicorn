@@ -113,7 +113,15 @@ export default [
 				'importAssertions',
 			],
 		},
-		'https://github.com/ReactTraining/react-router',
+		{
+			repository: 'https://github.com/ReactTraining/react-router',
+			ignore: [
+				// Uses `/* eslint-env */`
+				'lib/dom/node-main.js',
+				'node-main-dom-export.js',
+				'node-main.js',
+			],
+		},
 		// #902
 		{
 			repository: 'https://github.com/reakit/reakit',
@@ -146,6 +154,13 @@ export default [
 		{
 			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
 			babelPlugins: ['decorators'],
+			ignore: [
+				// Uses `/* eslint-env */`
+				'config/storybook/webpack.config.js',
+				'config/webpack.config.babel.js',
+				'config/webpack.dll.babel.js',
+				'pkg/webui/lib/get-by-path_test.js',
+			],
 		},
 		'https://github.com/zloirock/core-js',
 		{
@@ -184,6 +199,10 @@ export default [
 			'test/**',
 			'**/tests/**',
 			'**/compiled/**',
+
+			// Uses `/* eslint-env */`
+			'src/server/lib/router-utils/decode-path-params.test.ts',
+			'src/server/node-polyfill-crypto.test.ts',
 		],
 	},
 	// #903
@@ -204,6 +223,10 @@ export default [
 
 			// Global return
 			'scripts/cypress.js',
+
+			// Uses `/* eslint-env */`
+			'packages/charts/chart-web-components/scripts/e2e.js',
+			'packages/web-components/scripts/e2e.js',
 		],
 	},
 	{
