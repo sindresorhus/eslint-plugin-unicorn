@@ -4,8 +4,8 @@ import {
 } from 'eslint-remote-tester-repositories';
 import {
 	typescriptEslintParser,
+	vueEslintParser,
 } from '../../scripts/parsers.js';
-import vueParser from 'vue-eslint-parser';
 import eslintPluginUnicorn from '../../index.js';
 
 /** @type {import('eslint-remote-tester').Config} */
@@ -66,7 +66,7 @@ const config = {
 				'**/*.vue',
 			],
 			languageOptions: {
-				parser: vueParser,
+				parser: vueEslintParser,
 				parserOptions: {
 					parser: '@typescript-eslint/parser',
 					ecmaFeatures: {
