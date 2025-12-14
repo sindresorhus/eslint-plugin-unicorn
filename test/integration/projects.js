@@ -117,9 +117,9 @@ export default [
 			repository: 'https://github.com/ReactTraining/react-router',
 			ignore: [
 				// Uses `/* eslint-env */`
-				'lib/dom/node-main.js',
-				'node-main-dom-export.js',
-				'node-main.js',
+				'packages/react-router/lib/dom/node-main.js',
+				'packages/react-router/node-main-dom-export.js',
+				'packages/react-router/node-main.js',
 			],
 		},
 		// #902
@@ -201,8 +201,8 @@ export default [
 			'**/compiled/**',
 
 			// Uses `/* eslint-env */`
-			'src/server/lib/router-utils/decode-path-params.test.ts',
-			'src/server/node-polyfill-crypto.test.ts',
+			'packages/next/src/server/lib/router-utils/decode-path-params.test.ts',
+			'packages/next/src/server/node-polyfill-crypto.test.ts',
 		],
 	},
 	// #903
@@ -259,6 +259,8 @@ export default [
 			'src/vs/platform/files/test/node/fixtures/**',
 			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
 			'extensions/vscode-colorize-perf-tests/test/**',
+			// Uses `/* eslint-env */`
+			'test/unit/electron/renderer.js',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>

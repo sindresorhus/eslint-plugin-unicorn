@@ -8,8 +8,8 @@ import {outdent} from 'outdent';
 import {
 	babelEslintParser,
 	typescriptEslintParser,
+	vueEslintParser,
 } from '../../scripts/parsers.js';
-import vueParser from 'vue-eslint-parser';
 import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
 
@@ -72,7 +72,7 @@ const basicConfigs = [
 	{
 		files: ['**/*.vue'],
 		languageOptions: {
-			parser: vueParser,
+			parser: vueEslintParser,
 			parserOptions: {
 				parser: '@typescript-eslint/parser',
 				ecmaFeatures: {
