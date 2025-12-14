@@ -5,8 +5,10 @@ import {codeFrameColumns} from '@babel/code-frame';
 import {ESLint} from 'eslint';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
-import babelParser from '@babel/eslint-parser';
-import typescriptParser from '@typescript-eslint/parser';
+import {
+	babelEslintParser,
+	typescriptEslintParser,
+} from '../../scripts/parsers.js';
 import vueParser from 'vue-eslint-parser';
 import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
@@ -61,7 +63,7 @@ const basicConfigs = [
 	{
 		files: ['**/*.ts', '**/*.mts', '**/*.cts', '**/*.tsx'],
 		languageOptions: {
-			parser: typescriptParser,
+			parser: typescriptEslintParser,
 			parserOptions: {
 				project: [],
 			},
@@ -86,7 +88,7 @@ function getBabelParserConfig(project) {
 	return {
 		languageOptions: {
 			sourceType: 'module',
-			parser: babelParser,
+			parser: babelEslintParser,
 			parserOptions: {
 				requireConfigFile: false,
 				babelOptions: {

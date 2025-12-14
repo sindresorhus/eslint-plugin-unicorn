@@ -1,5 +1,4 @@
-import babelEslintParser from '@babel/eslint-parser';
-import typescriptEslintParser from '@typescript-eslint/parser';
+import {typescriptEslintParser, babelEslintParser} from '../../scripts/parsers.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const babelParser = {

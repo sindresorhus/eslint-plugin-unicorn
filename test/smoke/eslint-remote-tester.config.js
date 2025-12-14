@@ -2,7 +2,9 @@ import {
 	getRepositories,
 	getPathIgnorePattern,
 } from 'eslint-remote-tester-repositories';
-import typescriptParser from '@typescript-eslint/parser';
+import {
+	typescriptEslintParser,
+} from '../../scripts/parsers.js';
 import vueParser from 'vue-eslint-parser';
 import eslintPluginUnicorn from '../../index.js';
 
@@ -53,7 +55,7 @@ const config = {
 				'**/*.tsx',
 			],
 			languageOptions: {
-				parser: typescriptParser,
+				parser: typescriptEslintParser,
 				parserOptions: {
 					project: [],
 				},
