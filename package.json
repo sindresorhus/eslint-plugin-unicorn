@@ -109,7 +109,7 @@
 		"yaml": "^2.8.1"
 	},
 	"peerDependencies": {
-		"eslint": ">=9.38.0"
+		"eslint": ">=9.38.0 || >=10.0.0-0"
 	},
 	"ava": {
 		"files": [
