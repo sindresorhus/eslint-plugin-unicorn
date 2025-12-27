@@ -86,14 +86,14 @@ function getFixFunction({
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
+				`\nexport ${shouldExportAsType ? 'type ' : ''}* as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 			);
 		} else {
 			let specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
 
-			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
+			// Add an inline type specifier if the value is a type and the export declaration is a value declaration
 			if (shouldExportAsType && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
 				specifierText = `type ${specifierText}`;
 			}
@@ -116,7 +116,8 @@ function getFixFunction({
 			}
 		}
 
-		if (imported.variable.references.length === 1) {
+		const importHasSideEffects = exported.isTypeExport && !imported.isTypeImport;
+		if (imported.variable.references.length === 1 && !importHasSideEffects) {
 			yield removeImportOrExport(imported.node, fixer, context);
 		}
 
