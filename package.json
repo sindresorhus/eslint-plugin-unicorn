@@ -63,7 +63,6 @@
 		"ci-info": "^4.3.1",
 		"clean-regexp": "^1.0.0",
 		"core-js-compat": "^3.46.0",
-		"eslint-scope": "^9.0.0",
 		"find-up-simple": "^1.0.1",
 		"globals": "^16.4.0",
 		"indent-string": "^5.0.0",
@@ -95,6 +94,7 @@
 		"eslint-plugin-unicorn": "^61.0.2",
 		"eslint-remote-tester": "^4.0.3",
 		"eslint-remote-tester-repositories": "^2.0.2",
+		"eslint-scope": "^9.0.0",
 		"espree": "^10.4.0",
 		"listr2": "^9.0.5",
 		"markdownlint-cli": "^0.45.0",
@@ -123,6 +123,5 @@
 			"text",
 			"lcov"
 		]
-	},
-	"packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
+	}
 }
