@@ -58,7 +58,6 @@
 	"dependencies": {
 		"@babel/helper-validator-identifier": "^7.28.5",
 		"@eslint-community/eslint-utils": "^4.9.0",
-		"@eslint/plugin-kit": "^0.4.0",
 		"change-case": "^5.4.4",
 		"ci-info": "^4.3.1",
 		"clean-regexp": "^1.0.0",

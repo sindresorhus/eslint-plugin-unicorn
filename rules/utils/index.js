@@ -49,6 +49,10 @@ export {default as isShorthandImportLocal} from './is-shorthand-import-local.js'
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
+export {
+	getEslintDisableDirectives,
+	isEslintDisableOrEnableDirective,
+} from './eslint-directive.js';
 export {checkVueTemplate} from './rule.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
@@ -64,3 +68,4 @@ export {default as getAncestor} from './get-ancestor.js';
 export {getPreviousNode, getNextNode} from './get-sibling-node.js';
 export * from './string-cases.js';
 export * from './numeric.js';
+export {default as getBuiltinRule} from './get-builtin-rule.js';

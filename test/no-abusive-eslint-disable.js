@@ -96,5 +96,11 @@ test.snapshot({
 			// eslint-disable-next-line -- reason
 			eval();
 		`,
+		outdent`
+			// eslint-disable-next-line no-eval
+			eval();
+			// eslint-disable-next-line
+			eval();
+		`,
 	],
 });
