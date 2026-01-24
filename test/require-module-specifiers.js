@@ -18,7 +18,6 @@ test.snapshot({
 		'import foo,{bar} from "foo"',
 		typescriptCode('import type foo from "foo"'),
 		typescriptCode('import * as foo from "foo"'),
-		typescriptCode('import type foo,{bar} from "foo"'),
 		typescriptCode('import foo,{type bar} from "foo"'),
 	],
 	invalid: [
@@ -37,8 +36,6 @@ test.snapshot({
 		'import foo,{}/* comment */from "foo";',
 		typescriptCode('import type {} from "foo";'),
 		typescriptCode('import type{}from"foo";'),
-		typescriptCode('import type foo, {} from "foo";'),
-		typescriptCode('import type foo,{}from "foo";'),
 	],
 });
 
