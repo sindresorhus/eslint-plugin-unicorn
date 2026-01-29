@@ -106,6 +106,11 @@ const create = context => {
 
 		const {parent} = callExpression;
 
+		// +BigInt(1), +1n throws TypeError, skip these
+		if (parent.type === 'UnaryExpression' && parent.operator === '+') {
+			return;
+		}
+
 		// -BigInt(-1) -> -(-1n)
 		// -BigInt("-1") -> -(-1n)
 		if (
@@ -118,7 +123,20 @@ const create = context => {
 		}
 
 		const tokenBefore = context.sourceCode.getTokenBefore(nodeToReplace);
-		if (needsSemicolon(tokenBefore, context, text)) {
+
+		if (text.startsWith('-') && !text.startsWith('-(')) {
+			const needsParentheses
+				// BigInt(-1).toString() -> (-1n).toString()
+				= (parent.type === 'MemberExpression' && parent.object === callExpression)
+				// 2n -BigInt("-1") -> 2n -(-1n)
+				|| (tokenBefore?.type === 'Punctuator' && (tokenBefore.value === '-' || tokenBefore.value === '+'));
+
+			if (needsParentheses) {
+				text = `(${text})`;
+			}
+		}
+
+		if (tokenBefore && needsSemicolon(tokenBefore, context, text)) {
 			text = `;${text}`;
 		}
 
