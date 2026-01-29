@@ -63,6 +63,8 @@ const config = [
 			'func-names': 'off',
 			'@stylistic/function-paren-newline': 'off',
 			'@stylistic/curly-newline': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
+			'unicorn/template-indent': ['error', {indent: '\t'}],
 		},
 	},
 	{

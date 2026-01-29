@@ -15,11 +15,11 @@ jobs:
         with:
           # Locked due to the difference of `zlib.gzipSync()` between Node.js versions
           node-version: 24
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run lint
       - run: rm -rf test/snapshots
       # Force update snapshots, https://github.com/avajs/ava/discussions/2754
-      - run: npx c8 ava --update-snapshots
+      - run: npx ava --update-snapshots
         env:
           AVA_FORCE_CI: not-ci
       - uses: autofix-ci/action@v1

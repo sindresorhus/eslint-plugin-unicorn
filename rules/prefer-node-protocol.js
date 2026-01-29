@@ -21,6 +21,7 @@ const create = context => {
 					node.parent.type === 'ImportDeclaration'
 					|| node.parent.type === 'ExportNamedDeclaration'
 					|| node.parent.type === 'ImportExpression'
+					|| node.parent.type === 'TSImportType'
 				)
 				&& node.parent.source === node
 			)
@@ -36,12 +37,6 @@ const create = context => {
 					|| isStaticRequire(node.parent)
 				)
 				&& node.parent.arguments[0] === node
-			)
-			|| (
-				node.parent.type === 'TSLiteralType'
-				&& node.parent.literal === node
-				&& node.parent.parent.type === 'TSImportType'
-				&& node.parent.parent.argument === node.parent
 			)
 		)) {
 			return;

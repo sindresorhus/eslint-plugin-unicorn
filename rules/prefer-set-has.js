@@ -9,8 +9,13 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.',
 };
 
-const arrayMethodsReturnsArray = [
-	'concat',
+/*
+Some of these methods can be `Iterator`.
+
+Since `Iterator` don't have an `includes()` method, we are safe to assume they are array. Except `concat` and `slice` which can be a string: https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2216
+*/
+const methodsReturnsArray = [
+	// `Array`
 	'copyWithin',
 	'fill',
 	'filter',
@@ -18,13 +23,22 @@ const arrayMethodsReturnsArray = [
 	'flatMap',
 	'map',
 	'reverse',
-	'slice',
 	'sort',
 	'splice',
 	'toReversed',
 	'toSorted',
 	'toSpliced',
 	'with',
+
+	// `Array` or `String` (unsafe)
+	'slice',
+	'concat',
+
+	// `String`
+	'split',
+
+	// `Iterator`
+	'toArray',
 ];
 
 const isIncludesCall = node =>
@@ -95,9 +109,9 @@ const create = context => {
 					optionalCall: false,
 					optionalMember: false,
 				})
-				// Array methods that return an array
+				// Methods that return an array
 				|| isMethodCall(parent.init, {
-					methods: arrayMethodsReturnsArray,
+					methods: methodsReturnsArray,
 					optionalCall: false,
 					optionalMember: false,
 				})

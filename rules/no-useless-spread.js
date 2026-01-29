@@ -293,15 +293,13 @@ const create = context => {
 
 		const node = arrayExpression.elements[0].argument;
 		if (!(
-			// Array methods returns a new array
+			// Array methods returns a new array, but exclude these also exists in `Iterator`
+			// `filter`, `flatMap`, and `map`
 			isMethodCall(node, {
 				methods: [
 					'concat',
 					'copyWithin',
-					'filter',
 					'flat',
-					'flatMap',
-					'map',
 					'slice',
 					'splice',
 					'toReversed',

@@ -105,7 +105,6 @@ test.snapshot({
 			'Error.captureStackTrace(this, MyError)',
 			'Error.captureStackTrace?.(this, MyError)',
 			'Error.captureStackTrace(this, this.constructor)',
-			'Error.captureStackTrace(this, this.constructor)',
 			'Error.captureStackTrace?.(this, this.constructor)',
 			'Error.captureStackTrace(this, new.target)',
 			'Error.captureStackTrace?.(this, new.target)',

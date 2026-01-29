@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npx c8 ava
       - uses: codecov/codecov-action@v5
         with:
@@ -42,14 +42,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run lint
   run-rules-on-codebase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run run-rules-on-codebase
   integration:
     name: Integration test (${{ matrix.group }})
@@ -72,5 +72,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run integration -- --group ${{ matrix.group }}

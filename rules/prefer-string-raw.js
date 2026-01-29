@@ -67,6 +67,8 @@ function isStringRawRestricted(node) {
 		|| (type === 'TSExternalModuleReference' && parent.expression === node)
 		// (TypeScript) Literal type
 		|| (type === 'TSLiteralType' && parent.literal === node)
+		// (TypeScript) Import type
+		|| (type === 'TSImportType' && parent.source === node)
 	);
 }
 
