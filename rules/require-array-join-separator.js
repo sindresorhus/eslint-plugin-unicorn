@@ -8,8 +8,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (!(
 			// `foo.join()`
 			isMethodCall(node, {
@@ -43,10 +43,10 @@ const create = context => ({
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => appendArgument(fixer, node, '\',\'', sourceCode),
+			fix: fixer => appendArgument(fixer, node, '\',\'', context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

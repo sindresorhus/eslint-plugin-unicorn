@@ -142,13 +142,13 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 			* fix(fixer) {
 				yield fixer.replaceText(property, 'find');
 				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
-				yield * fixDestructuring(node, sourceCode, fixer);
+				yield fixDestructuring(node, sourceCode, fixer);
 			},
 		}));
 	} else {
 		fix = function * (fixer) {
 			yield fixer.replaceText(property, 'find');
-			yield * fixDestructuring(node, sourceCode, fixer);
+			yield fixDestructuring(node, sourceCode, fixer);
 		};
 	}
 
@@ -202,7 +202,7 @@ const create = context => {
 			messageId: ERROR_ZERO_INDEX,
 			fix: fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
-				removeMemberExpressionProperty(fixer, node, sourceCode),
+				removeMemberExpressionProperty(fixer, node, context),
 			],
 		};
 	});
@@ -227,7 +227,7 @@ const create = context => {
 			messageId: ERROR_SHIFT,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -320,18 +320,18 @@ const create = context => {
 				if (singularName) {
 					// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
 					const singularizedName = getAvailableVariableName(singularName, getScopes(scope));
-					yield * renameVariable(variable, singularizedName, fixer);
+					yield renameVariable(variable, singularizedName, context, fixer);
 
 					// Prevent possible variable conflicts
-					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
+					yield extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
 				}
 
 				for (const node of zeroIndexNodes) {
-					yield removeMemberExpressionProperty(fixer, node, sourceCode);
+					yield removeMemberExpressionProperty(fixer, node, context);
 				}
 
 				for (const node of destructuringNodes) {
-					yield * fixDestructuring(node, sourceCode, fixer);
+					yield fixDestructuring(node, sourceCode, fixer);
 				}
 			};
 		}
@@ -361,7 +361,7 @@ const create = context => {
 			messageId: ERROR_AT_ZERO,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -390,7 +390,7 @@ const create = context => {
 			messageId: ERROR_POP,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -420,7 +420,7 @@ const create = context => {
 			messageId: ERROR_AT_MINUS_ONE,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});

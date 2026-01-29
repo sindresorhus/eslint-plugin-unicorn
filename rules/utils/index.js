@@ -1,10 +1,9 @@
 export {
 	isParenthesized,
-	getParenthesizedTimes,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
-} from './parentheses.js';
+} from './parentheses/parentheses.js';
 
 export {
 	isArrayPrototypeProperty,
@@ -21,11 +20,13 @@ export {
 	getBooleanAncestor,
 } from './boolean.js';
 
+export {default as assertToken} from './assert-token.js';
 export {default as cartesianProductSamples} from './cartesian-product-samples.js';
 export {default as escapeString} from './escape-string.js';
+export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
 export {default as getCallExpressionArgumentsText} from './get-call-expression-arguments-text.js';
-export {default as getCallExpressionTokens} from './get-call-expression-tokens.js';
+export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new-expression-tokens.js';
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getReferences} from './get-references.js';
 export {default as getScopes} from './get-scopes.js';
@@ -36,6 +37,8 @@ export {default as isFunctionSelfUsedInside} from './is-function-self-used-insid
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
+export {default as isNewExpressionWithParentheses} from './is-new-expression-with-parentheses.js';
+export {default as isNumber} from './is-number.js';
 export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
 export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
 export {default as isOnSameLine} from './is-on-same-line.js';
@@ -52,7 +55,12 @@ export {default as shouldAddParenthesesToCallExpressionCallee} from './should-ad
 export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
+export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
+export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
+export {default as shouldAddParenthesesToLogicalExpressionChild} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as getAncestor} from './get-ancestor.js';
+export {getPreviousNode, getNextNode} from './get-sibling-node.js';
 export * from './string-cases.js';
+export * from './numeric.js';

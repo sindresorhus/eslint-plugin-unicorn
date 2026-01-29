@@ -457,6 +457,28 @@ const tests = {
 			`,
 			errors: [passMessageToSuperError],
 		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor() {
+						super();
+						this.message = foo.error;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			output: outdent`
+				class FooError extends Error {
+					constructor() {
+						super(foo.error);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
 	],
 };
 

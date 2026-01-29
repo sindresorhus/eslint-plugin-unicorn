@@ -52,8 +52,9 @@ const getProblem = (valueNode, fix, reportNode) => {
 	return problem;
 };
 
-const getConditionText = (node, sourceCode, isNegative) => {
-	let text = getParenthesizedText(node, sourceCode);
+const getConditionText = (node, context, isNegative) => {
+	const {sourceCode} = context;
+	let text = getParenthesizedText(node, context);
 
 	if (isNegative) {
 		if (
@@ -168,13 +169,13 @@ const create = context => {
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		function * fix(fixer) {
-			const elementText = getParenthesizedText(consequent.callee.object.object, sourceCode);
-			const classNameText = getParenthesizedText(consequent.arguments[0], sourceCode);
+			const elementText = getParenthesizedText(consequent.callee.object.object, context);
+			const classNameText = getParenthesizedText(consequent.arguments[0], context);
 			const isExpression = node.type === 'ConditionalExpression';
 			const isNegative = consequent.callee.property.name === 'remove';
 			const conditionNode = node.test;
 			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, consequent);
-			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
+			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, context, isNegative);
 			const isOptional = consequent.callee.object.optional || alternate.callee.object.optional || classListContainsCall?.callee.object.optional;
 
 			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}${conditionText ? `, ${conditionText}` : ''})`;
@@ -183,14 +184,14 @@ const create = context => {
 				text = `${text};`;
 			}
 
-			if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, text)) {
+			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 				text = `;${text}`;
 			}
 
 			yield fixer.replaceText(node, text);
 
 			if (isExpression) {
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			}
 		}
 
@@ -223,13 +224,13 @@ const create = context => {
 			const isNegative = conditionalExpression.consequent.value === 'remove';
 			const conditionNode = conditionalExpression.test;
 			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
-			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, sourceCode, isNegative);
+			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, context, isNegative);
 
 			if (conditionText) {
 				yield fixer.insertTextAfter(callExpression.arguments[0], `, ${conditionText}`);
 			}
 
-			yield replaceMemberExpressionProperty(fixer, classListMethod, sourceCode, '.toggle');
+			yield replaceMemberExpressionProperty(fixer, classListMethod, context, '.toggle');
 		}
 
 		return getProblem(callExpression, fix, conditionalExpression);

@@ -11,8 +11,8 @@ const messages = {
 const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node));
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* SwitchStatement(switchStatement) {
+const create = context => {
+	context.on('SwitchStatement', function * (switchStatement) {
 		const {cases} = switchStatement;
 
 		// We only check cases where the last case is the `default` case
@@ -28,7 +28,7 @@ const create = context => ({
 
 			yield {
 				node,
-				loc: getSwitchCaseHeadLocation(node, context.sourceCode),
+				loc: getSwitchCaseHeadLocation(node, context),
 				messageId: MESSAGE_ID_ERROR,
 				suggest: [
 					{
@@ -39,8 +39,8 @@ const create = context => ({
 				],
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

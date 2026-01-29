@@ -20,8 +20,8 @@ const isPromiseMethodCallWithArrayExpression = node =>
 	&& node.arguments[0].type === 'ArrayExpression';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', function * (callExpression) {
 		if (!isPromiseMethodCallWithArrayExpression(callExpression)) {
 			return;
 		}
@@ -41,17 +41,16 @@ const create = context => ({
 					{
 						messageId: MESSAGE_ID_SUGGESTION,
 						* fix(fixer) {
-							const {sourceCode} = context;
 							const awaitToken = context.sourceCode.getFirstToken(element);
 							yield fixer.remove(awaitToken);
-							yield removeSpacesAfter(awaitToken, sourceCode, fixer);
+							yield removeSpacesAfter(awaitToken, context, fixer);
 						},
 					},
 				],
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

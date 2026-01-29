@@ -64,77 +64,75 @@ function create(context) {
 		return;
 	}
 
-	return {
-		CallExpression(node) {
-			if (
-				!isTopLevelCallExpression(node)
-				|| isPromiseMethodCalleeObject(node)
-				|| isAwaitExpressionArgument(node)
-				|| isInPromiseMethods(node)
-			) {
-				return;
-			}
+	context.on('CallExpression', node => {
+		if (
+			!isTopLevelCallExpression(node)
+			|| isPromiseMethodCalleeObject(node)
+			|| isAwaitExpressionArgument(node)
+			|| isInPromiseMethods(node)
+		) {
+			return;
+		}
 
-			// Promises
-			if (isMemberExpression(node.callee, {
-				properties: promisePrototypeMethods,
-				computed: false,
-			})) {
-				return {
-					node: node.callee.property,
-					messageId: ERROR_PROMISE,
-				};
-			}
+		// Promises
+		if (isMemberExpression(node.callee, {
+			properties: promisePrototypeMethods,
+			computed: false,
+		})) {
+			return {
+				node: node.callee.property,
+				messageId: ERROR_PROMISE,
+			};
+		}
 
-			const {sourceCode} = context;
+		const {sourceCode} = context;
 
-			// IIFE
-			if (
-				(node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
-				&& node.callee.async
-				&& !node.callee.generator
-			) {
-				return {
-					node,
-					loc: getFunctionHeadLocation(node.callee, sourceCode),
-					messageId: ERROR_IIFE,
-				};
-			}
-
-			// Identifier
-			if (node.callee.type !== 'Identifier') {
-				return;
-			}
-
-			const variable = findVariable(sourceCode.getScope(node), node.callee);
-			if (!variable || variable.defs.length !== 1) {
-				return;
-			}
-
-			const [definition] = variable.defs;
-			const value = definition.type === 'Variable' && definition.kind === 'const'
-				? definition.node.init
-				: definition.node;
-			if (
-				!value
-				|| !(isFunction(value) && !value.generator && value.async)
-			) {
-				return;
-			}
-
+		// IIFE
+		if (
+			(node.callee.type === 'FunctionExpression' || node.callee.type === 'ArrowFunctionExpression')
+			&& node.callee.async
+			&& !node.callee.generator
+		) {
 			return {
 				node,
-				messageId: ERROR_IDENTIFIER,
-				data: {name: node.callee.name},
-				suggest: [
-					{
-						messageId: SUGGESTION_ADD_AWAIT,
-						fix: fixer => fixer.insertTextBefore(node, 'await '),
-					},
-				],
+				loc: getFunctionHeadLocation(node.callee, sourceCode),
+				messageId: ERROR_IIFE,
 			};
-		},
-	};
+		}
+
+		// Identifier
+		if (node.callee.type !== 'Identifier') {
+			return;
+		}
+
+		const variable = findVariable(sourceCode.getScope(node), node.callee);
+		if (!variable || variable.defs.length !== 1) {
+			return;
+		}
+
+		const [definition] = variable.defs;
+		const value = definition.type === 'Variable' && definition.kind === 'const'
+			? definition.node.init
+			: definition.node;
+		if (
+			!value
+			|| !(isFunction(value) && !value.generator && value.async)
+		) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: ERROR_IDENTIFIER,
+			data: {name: node.callee.name},
+			suggest: [
+				{
+					messageId: SUGGESTION_ADD_AWAIT,
+					fix: fixer => fixer.insertTextBefore(node, 'await '),
+				},
+			],
+		};
+	});
 }
 
 /** @type {import('eslint').Rule.RuleModule} */

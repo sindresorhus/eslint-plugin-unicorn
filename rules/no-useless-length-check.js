@@ -64,73 +64,74 @@ const create = context => {
 			}));
 	}
 
-	return {
-		BinaryExpression(node) {
-			if (isLengthCompareZero(node)) {
-				const {operator} = node;
-				if (operator === '===') {
-					zeroLengthChecks.add(node);
-				} else if (operator === '>' || operator === '!==') {
-					nonZeroLengthChecks.add(node);
-				}
+	context.on('BinaryExpression', node => {
+		if (isLengthCompareZero(node)) {
+			const {operator} = node;
+			if (operator === '===') {
+				zeroLengthChecks.add(node);
+			} else if (operator === '>' || operator === '!==') {
+				nonZeroLengthChecks.add(node);
 			}
-		},
-		CallExpression(node) {
-			if (
-				isMethodCall(node, {
-					optionalCall: false,
-					optionalMember: false,
-					computed: false,
-				})
-				&& node.callee.property.type === 'Identifier'
-			) {
-				if (node.callee.property.name === 'some') {
-					arraySomeCalls.add(node);
-				} else if (node.callee.property.name === 'every') {
-					arrayEveryCalls.add(node);
-				}
-			}
-		},
-		LogicalExpression(node) {
-			if (isLogicalExpression(node)) {
-				logicalExpressions.push(node);
-			}
-		},
-		* 'Program:exit'() {
-			const nodes = new Set(
-				logicalExpressions.flatMap(logicalExpression =>
-					getUselessLengthCheckNode(logicalExpression),
-				),
-			);
-			const {sourceCode} = context;
+		}
+	});
 
-			for (const node of nodes) {
-				yield {
-					loc: {
-						start: sourceCode.getLoc(node.left.property).start,
-						end: sourceCode.getLoc(node).end,
-					},
-					messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix(fixer) {
-						const {left, right} = node.parent;
-						const leftRange = getParenthesizedRange(left, sourceCode);
-						const rightRange = getParenthesizedRange(right, sourceCode);
-						const range = [];
-						if (left === node) {
-							range[0] = leftRange[0];
-							range[1] = rightRange[0];
-						} else {
-							range[0] = leftRange[1];
-							range[1] = rightRange[1];
-						}
-
-						return fixer.removeRange(range);
-					},
-				};
+	context.on('CallExpression', node => {
+		if (
+			isMethodCall(node, {
+				optionalCall: false,
+				optionalMember: false,
+				computed: false,
+			})
+			&& node.callee.property.type === 'Identifier'
+		) {
+			if (node.callee.property.name === 'some') {
+				arraySomeCalls.add(node);
+			} else if (node.callee.property.name === 'every') {
+				arrayEveryCalls.add(node);
 			}
-		},
-	};
+		}
+	});
+
+	context.on('LogicalExpression', node => {
+		if (isLogicalExpression(node)) {
+			logicalExpressions.push(node);
+		}
+	});
+
+	context.on('Program:exit', function * () {
+		const nodes = new Set(
+			logicalExpressions.flatMap(logicalExpression =>
+				getUselessLengthCheckNode(logicalExpression),
+			),
+		);
+		const {sourceCode} = context;
+
+		for (const node of nodes) {
+			yield {
+				loc: {
+					start: sourceCode.getLoc(node.left.property).start,
+					end: sourceCode.getLoc(node).end,
+				},
+				messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix(fixer) {
+					const {left, right} = node.parent;
+					const leftRange = getParenthesizedRange(left, context);
+					const rightRange = getParenthesizedRange(right, context);
+					const range = [];
+					if (left === node) {
+						range[0] = leftRange[0];
+						range[1] = rightRange[0];
+					} else {
+						range[0] = leftRange[1];
+						range[1] = rightRange[1];
+					}
+
+					return fixer.removeRange(range);
+				},
+			};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -157,20 +157,21 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
-function fix(node, array, sourceCode, shouldSwitchToArray, optional) {
+function fix(node, array, context, shouldSwitchToArray, optional) {
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
 	return function * (fixer) {
-		let fixed = getParenthesizedText(array, sourceCode);
+		const {sourceCode} = context;
+		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
 			!isParenthesized(array, sourceCode)
-			&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(array, context)
 		) {
 			fixed = `(${fixed})`;
 		}
@@ -178,13 +179,13 @@ function fix(node, array, sourceCode, shouldSwitchToArray, optional) {
 		fixed = `${fixed}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
-		if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+		if (needsSemicolon(tokenBefore, context, fixed)) {
 			fixed = `;${fixed}`;
 		}
 
 		yield fixer.replaceText(node, fixed);
 
-		yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		yield fixSpaceAroundKeyword(fixer, node, context);
 	};
 }
 
@@ -210,40 +211,38 @@ function create(context) {
 		},
 	];
 
-	return {
-		* CallExpression(node) {
-			for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
-				if (!testFunction(node)) {
-					continue;
-				}
-
-				const array = getArrayNode(node);
-				const optional = isOptionalArray?.(node);
-
-				const data = {
-					description: typeof description === 'string' ? description : description(node),
-				};
-
-				const problem = {
-					node,
-					messageId: MESSAGE_ID,
-					data,
-				};
-
-				const {sourceCode} = context;
-
-				// Don't fix if it has comments.
-				if (
-					sourceCode.getCommentsInside(node).length
-					=== sourceCode.getCommentsInside(array).length
-				) {
-					problem.fix = fix(node, array, sourceCode, shouldSwitchToArray, optional);
-				}
-
-				yield problem;
+	context.on('CallExpression', function * (node) {
+		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+			if (!testFunction(node)) {
+				continue;
 			}
-		},
-	};
+
+			const array = getArrayNode(node);
+			const optional = isOptionalArray?.(node);
+
+			const data = {
+				description: typeof description === 'string' ? description : description(node),
+			};
+
+			const problem = {
+				node,
+				messageId: MESSAGE_ID,
+				data,
+			};
+
+			const {sourceCode} = context;
+
+			// Don't fix if it has comments.
+			if (
+				sourceCode.getCommentsInside(node).length
+				=== sourceCode.getCommentsInside(array).length
+			) {
+				problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
+			}
+
+			yield problem;
+		}
+	});
 }
 
 const schema = [

@@ -1,7 +1,9 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
-import needsSemicolon from './utils/needs-semicolon.js';
-import {isDecimalInteger} from './utils/numeric.js';
-import toLocation from './utils/to-location.js';
+import {
+	isParenthesized,
+	needsSemicolon,
+	isDecimalInteger,
+	toLocation,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isNumericLiteral} from './ast/index.js';
 
@@ -13,8 +15,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		if (!isNumericLiteral(node)) {
 			return;
 		}
@@ -40,7 +42,7 @@ const create = context => ({
 		const end = sourceCode.getRange(node)[0] + before.length + dotAndFractions.length;
 		const start = end - (raw.length - formatted.length);
 		return {
-			loc: toLocation([start, end], sourceCode),
+			loc: toLocation([start, end], context),
 			messageId: isDanglingDot ? MESSAGE_DANGLING_DOT : MESSAGE_ZERO_FRACTION,
 			* fix(fixer) {
 				let fixed = formatted;
@@ -48,21 +50,21 @@ const create = context => ({
 					node.parent.type === 'MemberExpression'
 					&& node.parent.object === node
 					&& isDecimalInteger(formatted)
-					&& !isParenthesized(node, sourceCode)
+					&& !isParenthesized(node, context)
 				) {
 					fixed = `(${fixed})`;
 
-					if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, fixed)) {
+					if (needsSemicolon(sourceCode.getTokenBefore(node), context, fixed)) {
 						fixed = `;${fixed}`;
 					}
 				}
 
 				yield fixer.replaceText(node, fixed);
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

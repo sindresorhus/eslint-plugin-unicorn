@@ -12,22 +12,22 @@ const messages = {
 
 const isNewDate = node => isNewExpression(node, {name: 'Date', argumentsLength: 0});
 
-const getProblem = (node, problem, sourceCode) => ({
+const getProblem = (node, problem, context) => ({
 	node,
 	messageId: MESSAGE_ID_DEFAULT,
 	* fix(fixer) {
 		yield fixer.replaceText(node, 'Date.now()');
 
 		if (node.type === 'UnaryExpression') {
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		}
 	},
 	...problem,
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		// `new Date().{getTime,valueOf}()`
 		if (
 			isMethodCall(callExpression, {
@@ -64,8 +64,9 @@ const create = context => ({
 
 			return getProblem(callExpression.arguments[0]);
 		}
-	},
-	UnaryExpression(unaryExpression) {
+	});
+
+	context.on('UnaryExpression', unaryExpression => {
 		// https://github.com/estree/estree/blob/master/es5.md#unaryoperator
 		if (
 			unaryExpression.operator !== '+'
@@ -78,11 +79,12 @@ const create = context => ({
 			return getProblem(
 				unaryExpression.operator === '-' ? unaryExpression.argument : unaryExpression,
 				{},
-				context.sourceCode,
+				context,
 			);
 		}
-	},
-	AssignmentExpression(assignmentExpression) {
+	});
+
+	context.on('AssignmentExpression', assignmentExpression => {
 		if (
 			assignmentExpression.operator !== '-='
 			&& assignmentExpression.operator !== '*='
@@ -96,8 +98,9 @@ const create = context => ({
 		if (isNewDate(assignmentExpression.right)) {
 			return getProblem(assignmentExpression.right);
 		}
-	},
-	* BinaryExpression(binaryExpression) {
+	});
+
+	context.on('BinaryExpression', function * (binaryExpression) {
 		if (
 			binaryExpression.operator !== '-'
 			&& binaryExpression.operator !== '*'
@@ -113,8 +116,8 @@ const create = context => ({
 				yield getProblem(node);
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

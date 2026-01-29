@@ -1,17 +1,8 @@
-import {getTester} from './utils/test.js';
+import {getTester, normalizeTestCase} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 test.snapshot({
-	testerOptions: {
-		languageOptions: {
-			parserOptions: {
-				ecmaFeatures: {
-					jsx: true,
-				},
-			},
-		},
-	},
 	valid: [
 		'`UTF-8`',
 		'"utf8"',
@@ -21,8 +12,6 @@ test.snapshot({
 		String.raw`"\u0055tf8"`,
 		'const ASCII = 1',
 		'const UTF8 = 1',
-		'<meta charset="utf-8" />',
-		'<META CHARSET="utf-8" />',
 	],
 	invalid: [
 		'"UTF-8"',
@@ -44,14 +33,38 @@ test.snapshot({
 		'await fs.readFile(file, "UTF-8",)',
 		'fs.promises.readFile(file, "UTF-8",)',
 		'whatever.readFile(file, "UTF-8",)',
-		'<not-meta charset="utf-8" />',
-		'<meta not-charset="utf-8" />',
-		'<meta charset="ASCII" />',
-		'<META CHARSET="ASCII" />',
 	],
 });
 
 // `withDash` option
+test.snapshot({
+	valid: [
+		'`Utf-8`;',
+		'"utf-8";',
+		'"   Utf8   ";',
+		'\'utf-8\';',
+		'const utf8 = 2;',
+	].map(code => ({code, options: [{withDash: true}]})),
+	invalid: [
+		'"UTF-8";',
+		'"UTF8";',
+		'"utf8";',
+		'\'utf8\';',
+		'"Utf8";',
+		'"ASCII";',
+		'fs.readFile(file, "utf8",);',
+		'whatever.readFile(file, "UTF8",)',
+	].map(code => ({code, options: [{withDash: true}]})),
+});
+
+const setWithDashOption = (testCase, withDash) => ({
+	...normalizeTestCase(testCase, /* shouldNormalizeLanguageOptions */ false),
+	options: [{withDash}],
+});
+const withDash = testCase => setWithDashOption(testCase, true);
+const noDash = testCase => setWithDashOption(testCase, false);
+
+// Cases requires `utf-8`
 test.snapshot({
 	testerOptions: {
 		languageOptions: {
@@ -63,26 +76,54 @@ test.snapshot({
 		},
 	},
 	valid: [
-		'`Utf-8`;',
-		'"utf-8";',
-		'"   Utf8   ";',
-		'\'utf-8\';',
-		'const utf8 = 2;',
-		'<meta charset="utf-8" id="with-dash"/>',
-		'<META CHARSET="utf-8" id="with-dash"/>',
-	].map(code => ({code, options: [{withDash: true}]})),
+		withDash('<meta charset="utf-8" />'),
+		noDash('<meta charset="utf-8" />'),
+
+		withDash('<META CHARSET="utf-8" />'),
+		noDash('<META CHARSET="utf-8" />'),
+
+		withDash('<form acceptCharset="utf-8" />'),
+		noDash('<form acceptCharset="utf-8" />'),
+
+		withDash('<form accept-charset="utf-8" />'),
+		noDash('<form accept-charset="utf-8" />'),
+
+		withDash('new TextDecoder("utf-8")'),
+		noDash('new TextDecoder("utf-8")'),
+
+		withDash('<not-meta charset="utf-8" />'),
+		withDash('<not-meta notCharset="utf-8" />'),
+		noDash('<not-meta charset="utf8" />'),
+		noDash('<not-meta notCharset="utf8" />'),
+	],
 	invalid: [
-		'"UTF-8";',
-		'"UTF8";',
-		'"utf8";',
-		'\'utf8\';',
-		'"Utf8";',
-		'"ASCII";',
-		'fs.readFile(file, "utf8",);',
-		'whatever.readFile(file, "UTF8",)',
-		'<meta charset="utf8" id="with-dash"/>',
-		'<META CHARSET="utf8" id="with-dash"/>',
-		'<not-meta charset="utf8" id="with-dash"/>',
-		'<meta not-charset="utf8" id="with-dash"/>',
-	].map(code => ({code, options: [{withDash: true}]})),
+		withDash('<meta charset="ASCII" />'),
+		noDash('<meta charset="ASCII" />'),
+
+		withDash('<META CHARSET="ASCII" />'),
+		noDash('<META CHARSET="ASCII" />'),
+
+		withDash('<meta charset="utf8" />'),
+		noDash('<meta charset="utf8" />'),
+
+		withDash('<meta charset="UTF-8" />'),
+		noDash('<meta charset="UTF-8" />'),
+
+		withDash('<form acceptCharset="utf8" />'),
+		noDash('<form acceptCharset="utf8" />'),
+
+		withDash('<form accept-charset="UTF-8" />'),
+		noDash('<form accept-charset="UTF-8" />'),
+
+		withDash('new TextDecoder("UTF-8")'),
+		noDash('new TextDecoder("UTF-8")'),
+
+		withDash('new TextDecoder("UTF-8", options)'),
+		noDash('new TextDecoder("UTF-8", options)'),
+
+		withDash('<not-meta charset="utf8" />'),
+		withDash('<not-meta notCharset="utf8" />'),
+		noDash('<not-meta charset="utf-8" />'),
+		noDash('<not-meta notCharset="utf-8" />'),
+	],
 });

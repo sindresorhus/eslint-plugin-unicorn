@@ -1,6 +1,11 @@
 import {getPropertyName, ReferenceTracker} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {
+	isEmptyArrayExpression,
+	isEmptyObjectExpression,
+	isMemberExpression,
+	isMethodCall,
+} from './ast/index.js';
 
 const messages = {
 	'known-method': 'Prefer using `{{constructorName}}.prototype.{{methodName}}`.',
@@ -16,7 +21,7 @@ const OBJECT_PROTOTYPE_METHODS = [
 	'valueOf',
 ];
 
-function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) {
+function getConstructorAndMethodName(methodNode, {context, globalReferences}) {
 	if (!methodNode) {
 		return;
 	}
@@ -37,15 +42,12 @@ function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences})
 
 	const objectNode = methodNode.object;
 
-	if (!(
-		(objectNode.type === 'ArrayExpression' && objectNode.elements.length === 0)
-		|| (objectNode.type === 'ObjectExpression' && objectNode.properties.length === 0)
-	)) {
+	if (!(isEmptyArrayExpression(objectNode) || isEmptyObjectExpression(objectNode))) {
 		return;
 	}
 
 	const constructorName = objectNode.type === 'ArrayExpression' ? 'Array' : 'Object';
-	const methodName = getPropertyName(methodNode, sourceCode.getScope(methodNode));
+	const methodName = getPropertyName(methodNode, context.sourceCode.getScope(methodNode));
 
 	return {
 		constructorName,
@@ -53,7 +55,7 @@ function getConstructorAndMethodName(methodNode, {sourceCode, globalReferences})
 	};
 }
 
-function getProblem(callExpression, {sourceCode, globalReferences}) {
+function getProblem(callExpression, {context, globalReferences}) {
 	let methodNode;
 
 	if (
@@ -84,7 +86,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 		isGlobalReference,
 		constructorName,
 		methodName,
-	} = getConstructorAndMethodName(methodNode, {sourceCode, globalReferences}) ?? {};
+	} = getConstructorAndMethodName(methodNode, {context, globalReferences}) ?? {};
 
 	if (!constructorName) {
 		return;
@@ -109,7 +111,7 @@ function getProblem(callExpression, {sourceCode, globalReferences}) {
 					objectNode.type === 'ArrayExpression'
 					|| objectNode.type === 'ObjectExpression'
 				) {
-					yield * fixSpaceAroundKeyword(fixer, callExpression, sourceCode);
+					yield fixSpaceAroundKeyword(fixer, callExpression, context);
 				}
 			}
 		},
@@ -138,7 +140,7 @@ function create(context) {
 
 		for (const callExpression of callExpressions) {
 			yield getProblem(callExpression, {
-				sourceCode,
+				context,
 				globalReferences,
 			});
 		}

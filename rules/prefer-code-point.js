@@ -19,16 +19,17 @@ const getProblem = (node, replacement) => ({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (isMethodCall(node, {
 			method: 'charCodeAt',
 			optionalCall: false,
 		})) {
 			return getProblem(node.callee.property, 'codePointAt');
 		}
-	},
-	MemberExpression(node) {
+	});
+
+	context.on('MemberExpression', node => {
 		if (isMemberExpression(node, {
 			object: 'String',
 			property: 'fromCharCode',
@@ -36,8 +37,8 @@ const create = () => ({
 		})) {
 			return getProblem(node.property, 'fromCodePoint');
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -1,5 +1,6 @@
-import {isParenthesized, getParenthesizedRange} from './utils/parentheses.js';
+import {isParenthesized, getParenthesizedRange} from './utils/index.js';
 import {removeParentheses} from './fix/index.js';
+import {isEmptyObjectExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'no-useless-fallback-in-spread';
 const messages = {
@@ -7,10 +8,10 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ObjectExpression(node) {
+const create = context => {
+	context.on('ObjectExpression', node => {
 		if (!(
-			node.properties.length === 0
+			isEmptyObjectExpression(node)
 			&& node.parent.type === 'LogicalExpression'
 			&& node.parent.right === node
 			&& (node.parent.operator === '||' || node.parent.operator === '??')
@@ -30,9 +31,9 @@ const create = context => ({
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
 				const {left} = logicalExpression;
-				const isLeftObjectParenthesized = isParenthesized(left, sourceCode);
+				const isLeftObjectParenthesized = isParenthesized(left, context);
 				const [, start] = isLeftObjectParenthesized
-					? getParenthesizedRange(left, sourceCode)
+					? getParenthesizedRange(left, context)
 					: sourceCode.getRange(left);
 				const [, end] = sourceCode.getRange(logicalExpression);
 
@@ -42,12 +43,12 @@ const create = context => ({
 					isLeftObjectParenthesized
 					|| left.type !== 'SequenceExpression'
 				) {
-					yield * removeParentheses(logicalExpression, fixer, sourceCode);
+					yield removeParentheses(logicalExpression, fixer, context);
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

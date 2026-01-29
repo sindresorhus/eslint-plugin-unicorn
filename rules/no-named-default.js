@@ -9,10 +9,11 @@ const messages = {
 const isValueImport = node => !node.importKind || node.importKind === 'value';
 const isValueExport = node => !node.exportKind || node.exportKind === 'value';
 
-const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer) {
+const fixImportSpecifier = (importSpecifier, context) => function * (fixer) {
+	const {sourceCode} = context;
 	const declaration = importSpecifier.parent;
 
-	yield * removeSpecifier(importSpecifier, fixer, sourceCode, /* keepDeclaration */ true);
+	yield removeSpecifier(importSpecifier, fixer, context, /* keepDeclaration */ true);
 
 	const nameText = sourceCode.getText(importSpecifier.local);
 	const hasDefaultImport = declaration.specifiers.some(({type}) => type === 'ImportDefaultSpecifier');
@@ -38,17 +39,17 @@ const fixImportSpecifier = (importSpecifier, {sourceCode}) => function * (fixer)
 	yield fixer.insertTextAfter(importToken, ` ${nameText}${shouldAddComma ? ',' : ''}`);
 };
 
-const fixExportSpecifier = (exportSpecifier, {sourceCode}) => function * (fixer) {
+const fixExportSpecifier = (exportSpecifier, context) => function * (fixer) {
 	const declaration = exportSpecifier.parent;
-	yield * removeSpecifier(exportSpecifier, fixer, sourceCode);
+	yield removeSpecifier(exportSpecifier, fixer, context);
 
-	const text = `export default ${sourceCode.getText(exportSpecifier.local)};`;
+	const text = `export default ${context.sourceCode.getText(exportSpecifier.local)};`;
 	yield fixer.insertTextBefore(declaration, `${text}\n`);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	ImportSpecifier(specifier) {
+const create = context => {
+	context.on('ImportSpecifier', specifier => {
 		if (!(
 			isValueImport(specifier)
 			&& specifier.imported.name === 'default'
@@ -63,8 +64,9 @@ const create = context => ({
 			data: {type: 'import'},
 			fix: fixImportSpecifier(specifier, context),
 		};
-	},
-	ExportSpecifier(specifier) {
+	});
+
+	context.on('ExportSpecifier', specifier => {
 		if (!(
 			isValueExport(specifier)
 			&& specifier.exported.name === 'default'
@@ -80,8 +82,8 @@ const create = context => ({
 			data: {type: 'export'},
 			fix: fixExportSpecifier(specifier, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

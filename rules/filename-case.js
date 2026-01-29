@@ -154,51 +154,49 @@ const create = context => {
 		return;
 	}
 
-	return {
-		Program() {
-			const {
-				basename,
-				filename,
-				middle,
-				extension,
-			} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
+	context.on('Program', () => {
+		const {
+			basename,
+			filename,
+			middle,
+			extension,
+		} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
 
-			if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
-				return;
+		if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
+			return;
+		}
+
+		const {leading, words} = splitFilename(filename);
+		const isValid = validateFilename(words, chosenCasesFunctions);
+
+		if (isValid) {
+			if (!isLowerCase(extension)) {
+				return {
+					loc: {column: 0, line: 1},
+					messageId: MESSAGE_ID_EXTENSION,
+					data: {filename: filename + middle + extension.toLowerCase(), extension},
+				};
 			}
 
-			const {leading, words} = splitFilename(filename);
-			const isValid = validateFilename(words, chosenCasesFunctions);
+			return;
+		}
 
-			if (isValid) {
-				if (!isLowerCase(extension)) {
-					return {
-						loc: {column: 0, line: 1},
-						messageId: MESSAGE_ID_EXTENSION,
-						data: {filename: filename + middle + extension.toLowerCase(), extension},
-					};
-				}
+		const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
+			leading,
+			trailing: middle + extension.toLowerCase(),
+		});
 
-				return;
-			}
-
-			const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
-				leading,
-				trailing: middle + extension.toLowerCase(),
-			});
-
-			return {
-				// Report on first character like `unicode-bom` rule
-				// https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rules/unicode-bom.js#L46
-				loc: {column: 0, line: 1},
-				messageId: MESSAGE_ID,
-				data: {
-					chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
-					renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
-				},
-			};
-		},
-	};
+		return {
+			// Report on first character like `unicode-bom` rule
+			// https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rules/unicode-bom.js#L46
+			loc: {column: 0, line: 1},
+			messageId: MESSAGE_ID,
+			data: {
+				chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
+				renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
+			},
+		};
+	});
 };
 
 const schema = [

@@ -96,39 +96,37 @@ const create = context => {
 		},
 	};
 
-	return {
-		Literal(node) {
-			if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
-				return;
-			}
+	context.on('Literal', node => {
+		if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
+			return;
+		}
 
-			const {raw} = node;
-			let number = raw;
-			let suffix = '';
-			if (isBigIntLiteral(node)) {
-				number = raw.slice(0, -1);
-				suffix = 'n';
-			}
+		const {raw} = node;
+		let number = raw;
+		let suffix = '';
+		if (isBigIntLiteral(node)) {
+			number = raw.slice(0, -1);
+			suffix = 'n';
+		}
 
-			const strippedNumber = number.replaceAll('_', '');
-			const {prefix, data} = numeric.getPrefix(strippedNumber);
+		const strippedNumber = number.replaceAll('_', '');
+		const {prefix, data} = numeric.getPrefix(strippedNumber);
 
-			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
-			if (onlyIfContainsSeparator && !raw.includes('_')) {
-				return;
-			}
+		const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
+		if (onlyIfContainsSeparator && !raw.includes('_')) {
+			return;
+		}
 
-			const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
+		const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
 
-			if (raw !== formatted) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, formatted),
-				};
-			}
-		},
-	};
+		if (raw !== formatted) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				fix: fixer => fixer.replaceText(node, formatted),
+			};
+		}
+	});
 };
 
 const formatOptionsSchema = () => ({

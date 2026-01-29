@@ -9,8 +9,8 @@ const messages = {
 const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		const {callee} = node;
 		if (!(
 			(callee.type === 'Identifier' && customError.test(callee.name))
@@ -38,10 +38,10 @@ const create = context => ({
 		return {
 			node,
 			messageId,
-			fix: fixer => switchCallExpressionToNewExpression(node, context.sourceCode, fixer),
+			fix: fixer => switchCallExpressionToNewExpression(node, context, fixer),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

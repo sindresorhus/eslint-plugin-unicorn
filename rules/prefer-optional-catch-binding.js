@@ -9,8 +9,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CatchClause(catchClause) {
+const create = context => {
+	context.on('CatchClause', catchClause => {
 		const node = catchClause.param;
 		if (!node) {
 			return;
@@ -57,8 +57,8 @@ const create = context => ({
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

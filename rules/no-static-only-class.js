@@ -50,7 +50,8 @@ function isStaticMember(node) {
 	return true;
 }
 
-function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
+function * switchClassMemberToObjectProperty(node, context, fixer) {
+	const {sourceCode} = context;
 	const staticToken = sourceCode.getFirstToken(node);
 	assertToken(staticToken, {
 		expected: {type: 'Keyword', value: 'static'},
@@ -58,7 +59,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	});
 
 	yield fixer.remove(staticToken);
-	yield removeSpacesAfter(staticToken, sourceCode, fixer);
+	yield removeSpacesAfter(staticToken, context, fixer);
 
 	const maybeSemicolonToken = isPropertyDefinition(node)
 		? sourceCode.getLastToken(node)
@@ -86,7 +87,7 @@ function * switchClassMemberToObjectProperty(node, sourceCode, fixer) {
 	);
 }
 
-function switchClassToObject(node, sourceCode) {
+function switchClassToObject(node, context) {
 	const {
 		type,
 		id,
@@ -115,6 +116,7 @@ function switchClassToObject(node, sourceCode) {
 		return;
 	}
 
+	const {sourceCode} = context;
 	for (const node of body.body) {
 		if (
 			isPropertyDefinition(node)
@@ -170,7 +172,7 @@ function switchClassToObject(node, sourceCode) {
 						{};
 						```
 				*/
-				yield removeSpacesAfter(classToken, sourceCode, fixer);
+				yield removeSpacesAfter(classToken, context, fixer);
 			}
 
 			// There should not be ASI problem
@@ -181,7 +183,7 @@ function switchClassToObject(node, sourceCode) {
 		}
 
 		for (const node of body.body) {
-			yield * switchClassMemberToObjectProperty(node, sourceCode, fixer);
+			yield switchClassMemberToObjectProperty(node, context, fixer);
 		}
 	};
 }
@@ -198,13 +200,11 @@ function create(context) {
 			return;
 		}
 
-		const {sourceCode} = context;
-
 		return {
 			node,
-			loc: getClassHeadLocation(node, sourceCode),
+			loc: getClassHeadLocation(node, context),
 			messageId: MESSAGE_ID,
-			fix: switchClassToObject(node, sourceCode),
+			fix: switchClassToObject(node, context),
 		};
 	});
 }

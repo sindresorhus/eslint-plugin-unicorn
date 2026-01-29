@@ -1,4 +1,5 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
+import {isEmptyObjectExpression} from './ast/index.js';
 import {removeObjectProperty} from './fix/index.js';
 import {getParentheses} from './utils/index.js';
 
@@ -70,8 +71,7 @@ const create = context => {
 						&& property.key.value === 'with'
 					)
 				)
-				&& property.value.type === 'ObjectExpression'
-				&& property.value.properties.length === 0,
+				&& isEmptyObjectExpression(property.value),
 		);
 
 		const nodeToRemove = optionsNode.properties.length === 0 || (emptyWithProperty && optionsNode.properties.length === 1)
@@ -97,7 +97,7 @@ const create = context => {
 					// Comma token before
 					sourceCode.getTokenBefore(nodeToRemove, isCommaToken),
 					...sourceCode.getTokens(nodeToRemove),
-					...getParentheses(nodeToRemove, sourceCode),
+					...getParentheses(nodeToRemove, context),
 				].map(token => fixer.remove(token)),
 		};
 	});

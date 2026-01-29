@@ -191,18 +191,17 @@ function getProblem(context, node, method, options) {
 				parameters: suggestionParameters,
 			},
 			fix(fixer) {
-				const {sourceCode} = context;
-				let text = getParenthesizedText(node, sourceCode);
+				let text = getParenthesizedText(node, context);
 
 				if (
-					!isParenthesized(node, sourceCode)
+					!isParenthesized(node, context)
 					&& shouldAddParenthesesToCallExpressionCallee(node)
 				) {
 					text = `(${text})`;
 				}
 
 				return fixer.replaceTextRange(
-					getParenthesizedRange(node, sourceCode),
+					getParenthesizedRange(node, context),
 					returnsUndefined
 						? `(${suggestionParameters}) => { ${text}(${suggestionParameters}); }`
 						: `(${suggestionParameters}) => ${text}(${suggestionParameters})`,
@@ -227,8 +226,8 @@ function * getTernaryConsequentAndALternate(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', function * (callExpression) {
 		if (
 			!isMethodCall(callExpression, {
 				minimumArguments: 1,
@@ -266,8 +265,8 @@ const create = context => ({
 
 			yield getProblem(context, callback, methodName, options);
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

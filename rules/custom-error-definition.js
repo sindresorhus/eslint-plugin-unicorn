@@ -1,4 +1,7 @@
-import {upperFirst} from './utils/index.js';
+import {
+	upperFirst,
+	getParenthesizedText,
+} from './utils/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const messages = {
@@ -121,7 +124,12 @@ function * customErrorDefinition(context, node) {
 				if (superExpression.expression.arguments.length === 0) {
 					const rhs = expression.expression.right;
 					const [start] = sourceCode.getRange(superExpression);
-					yield fixer.insertTextAfterRange([start, start + 6], rhs.raw || rhs.name);
+					// This part crashes on ESLint 10, but it's still not correct.
+					// There can be spaces, comments after `super`
+					yield fixer.insertTextAfterRange(
+						[start, start + 6],
+						getParenthesizedText(rhs, context),
+					);
 				}
 
 				const start = messageExpressionIndex === 0

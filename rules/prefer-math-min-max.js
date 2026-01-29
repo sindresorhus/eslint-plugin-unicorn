@@ -34,9 +34,8 @@ const getExpressionText = (node, sourceCode) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	/** @param {import('estree').ConditionalExpression} conditionalExpression */
-	ConditionalExpression(conditionalExpression) {
+const create = context => {
+	context.on('ConditionalExpression', /** @param {import('estree').ConditionalExpression} conditionalExpression */ conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
 
 		if (test.type !== 'BinaryExpression') {
@@ -176,7 +175,7 @@ const create = context => ({
 			* fix(fixer) {
 				const {sourceCode} = context;
 
-				yield * fixSpaceAroundKeyword(fixer, conditionalExpression, sourceCode);
+				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 
 				const argumentsText = [left, right]
 					.map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node))
@@ -185,8 +184,8 @@ const create = context => ({
 				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

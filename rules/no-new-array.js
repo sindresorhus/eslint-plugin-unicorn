@@ -1,6 +1,9 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import needsSemicolon from './utils/needs-semicolon.js';
-import isNumber from './utils/is-number.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	needsSemicolon,
+	isNumber,
+} from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
@@ -34,11 +37,11 @@ function getProblem(context, node) {
 
 	const {sourceCode} = context;
 	let text = sourceCode.getText(argumentNode);
-	if (isParenthesized(argumentNode, sourceCode)) {
+	if (isParenthesized(argumentNode, context)) {
 		text = `(${text})`;
 	}
 
-	const maybeSemiColon = needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
+	const maybeSemiColon = needsSemicolon(sourceCode.getTokenBefore(node), context, '[')
 		? ';'
 		: '';
 
@@ -82,11 +85,9 @@ function getProblem(context, node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	NewExpression(node) {
-		return getProblem(context, node);
-	},
-});
+const create = context => {
+	context.on('NewExpression', node => getProblem(context, node));
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

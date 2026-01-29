@@ -6,8 +6,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {
 			methods: ['readAsText', 'readAsArrayBuffer'],
 			argumentsLength: 1,
@@ -28,8 +28,8 @@ const create = () => ({
 				replacement: methodName === 'readAsArrayBuffer' ? 'arrayBuffer' : 'text',
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

@@ -51,6 +51,11 @@ test.snapshot({
 			import assert from 'node:assert/strict';
 			console.log(assert)
 		`,
+		// We are not checking this
+		outdent`
+			import {'strict' as assert} from 'assert';
+			assert(foo)
+		`,
 		...[
 			'import type assert from "node:assert/strict";',
 			'import {type strict as assert} from "node:assert/strict";',

@@ -6,25 +6,23 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
-		const {sourceCode} = context;
-
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (
 			callExpression.callee.type !== 'ArrowFunctionExpression'
 			|| callExpression.callee.body.type === 'BlockStatement'
-			|| !isParenthesized(callExpression.callee.body, sourceCode)
+			|| !isParenthesized(callExpression.callee.body, context)
 		) {
 			return;
 		}
 
 		return {
 			node: callExpression,
-			loc: toLocation(getParenthesizedRange(callExpression.callee.body, sourceCode), sourceCode),
+			loc: toLocation(getParenthesizedRange(callExpression.callee.body, context), context),
 			messageId: MESSAGE_ID_ERROR,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

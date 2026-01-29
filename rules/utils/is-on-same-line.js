@@ -1,4 +1,7 @@
-export default function isOnSameLine(nodeOrTokenA, nodeOrTokenB) {
-	// eslint-disable-next-line internal/no-restricted-property-access -- Need fix
-	return nodeOrTokenA.loc.start.line === nodeOrTokenB.loc.start.line;
+export default function isOnSameLine(nodeOrTokenA, nodeOrTokenB, context) {
+	const [
+		lineA,
+		lineB,
+	] = [nodeOrTokenA, nodeOrTokenB].map(nodeOrToken => context.sourceCode.getLoc(nodeOrToken).start.line);
+	return lineA === lineB;
 }

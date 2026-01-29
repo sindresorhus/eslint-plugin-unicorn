@@ -10,8 +10,8 @@ const config = [
 		// If external rules needs to be disabled, add the rule name here.
 		'n/no-unsupported-features/es-syntax',
 		'eslint-plugin/require-meta-default-options',
-		'internal/no-restricted-property-access',
 		'@stylistic/max-len',
+		'internal/prefer-context-on',
 	]),
 	{
 		linterOptions: {
@@ -37,6 +37,8 @@ const config = [
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
 			'unicorn/no-keyword-prefix': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
+			'unicorn/template-indent': ['error', {indent: '\t'}],
 		},
 	},
 	{

@@ -108,8 +108,8 @@ const getProblem = node => ({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Identifier(node) {
+const create = context => {
+	context.on('Identifier', node => {
 		if (
 			node.name !== 'keyCode'
 			&& node.name !== 'charCode'
@@ -130,9 +130,9 @@ const create = context => ({
 		) {
 			return getProblem(node);
 		}
-	},
+	});
 
-	Property(node) {
+	context.on('Property', node => {
 		// Destructured case
 		const propertyName = node.value.name;
 		if (!keys.has(propertyName)) {
@@ -168,8 +168,8 @@ const create = context => ({
 				}
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

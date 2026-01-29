@@ -1,6 +1,6 @@
 import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-index.js';
 import typedArray from './shared/typed-array.js';
-import {isLiteral} from './ast/index.js';
+import {isEmptyArrayExpression, isLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-negative-index';
 const messages = {
@@ -115,10 +115,7 @@ function parse(node) {
 
 	if (
 		// `[].{slice,splice,toSpliced,at,with}`
-		(
-			parentCallee.type === 'ArrayExpression'
-			&& parentCallee.elements.length === 0
-		)
+		isEmptyArrayExpression(parentCallee)
 		// `''.slice`
 		|| (
 			method === 'slice'
@@ -154,8 +151,8 @@ function parse(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (node.callee.type !== 'MemberExpression') {
 			return;
 		}
@@ -186,14 +183,13 @@ const create = context => ({
 			messageId: MESSAGE_ID,
 			data: {method},
 			* fix(fixer) {
-				const {sourceCode} = context;
 				for (const node of removableNodes) {
-					yield removeLengthNode(node, fixer, sourceCode);
+					yield removeLengthNode(node, fixer, context);
 				}
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

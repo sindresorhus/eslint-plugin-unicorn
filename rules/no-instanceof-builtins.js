@@ -60,16 +60,15 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 	const {left, right} = node;
 	const tokenStore = getTokenStore(context, node);
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-	const {sourceCode} = context;
 
-	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
-	const range = getParenthesizedRange(left, tokenStore);
+	const range = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
-	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, context, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
 };
 
 const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
@@ -84,14 +83,14 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 	// Get safe quote
 	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
 
-	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
-	const leftRange = getParenthesizedRange(left, tokenStore);
+	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
 
 	yield fixer.replaceText(instanceofToken, '===');
 
-	const rightRange = getParenthesizedRange(right, tokenStore);
+	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
 	yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
 };
@@ -111,55 +110,52 @@ const create = context => {
 			: include,
 	);
 
-	return {
-		/** @param {import('estree').BinaryExpression} node */
-		BinaryExpression(node) {
-			const {right, operator} = node;
+	context.on('BinaryExpression', /** @param {import('estree').BinaryExpression} node */ node => {
+		const {right, operator} = node;
 
-			if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
-				return;
-			}
+		if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
+			return;
+		}
 
-			const constructorName = right.name;
+		const constructorName = right.name;
 
-			/** @type {import('eslint').Rule.ReportDescriptor} */
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-			};
+		/** @type {import('eslint').Rule.ReportDescriptor} */
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+		};
 
-			if (
-				constructorName === 'Array'
-				|| (constructorName === 'Error' && useErrorIsError)
-			) {
-				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
-				problem.fix = replaceWithFunctionCall(node, context, functionName);
-				return problem;
-			}
-
-			if (constructorName === 'Function') {
-				problem.fix = replaceWithTypeOfExpression(node, context);
-				return problem;
-			}
-
-			if (primitiveWrappers.has(constructorName)) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
-						data: {type: constructorName.toLowerCase()},
-						fix: replaceWithTypeOfExpression(node, context),
-					},
-				];
-				return problem;
-			}
-
-			if (!forbiddenConstructors.has(constructorName)) {
-				return;
-			}
-
+		if (
+			constructorName === 'Array'
+			|| (constructorName === 'Error' && useErrorIsError)
+		) {
+			const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
+			problem.fix = replaceWithFunctionCall(node, context, functionName);
 			return problem;
-		},
-	};
+		}
+
+		if (constructorName === 'Function') {
+			problem.fix = replaceWithTypeOfExpression(node, context);
+			return problem;
+		}
+
+		if (primitiveWrappers.has(constructorName)) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+					data: {type: constructorName.toLowerCase()},
+					fix: replaceWithTypeOfExpression(node, context),
+				},
+			];
+			return problem;
+		}
+
+		if (!forbiddenConstructors.has(constructorName)) {
+			return;
+		}
+
+		return problem;
+	});
 };
 
 const schema = [

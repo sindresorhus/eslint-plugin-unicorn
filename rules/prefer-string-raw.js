@@ -1,5 +1,6 @@
 import {isStringLiteral, isDirective} from './ast/index.js';
 import {fixSpaceAroundKeyword, replaceTemplateElement} from './fix/index.js';
+import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
 const messages = {
@@ -66,13 +67,15 @@ function isStringRawRestricted(node) {
 		|| (type === 'TSExternalModuleReference' && parent.expression === node)
 		// (TypeScript) Literal type
 		|| (type === 'TSLiteralType' && parent.literal === node)
+		// (TypeScript) Import type
+		|| (type === 'TSImportType' && parent.source === node)
 	);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Literal', node => {
-		if (!isStringLiteral(node) || isStringRawRestricted(node)) {
+		if (!isStringLiteral(node) || isStringRawRestricted(node) || isJestInlineSnapshot(node)) {
 			return;
 		}
 
@@ -97,7 +100,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
 			},
 		};
@@ -108,6 +111,7 @@ const create = context => {
 			(node.parent.type === 'TaggedTemplateExpression' && node.parent.quasi === node)
 			|| node.quasis.every(({value: {cooked, raw}}) => cooked === raw)
 			|| node.quasis.some(({value: {cooked, raw}}) => cooked.at(-1) === BACKSLASH || unescapeBackslash(raw) !== cooked)
+			|| isJestInlineSnapshot(node)
 		) {
 			return;
 		}
@@ -116,7 +120,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield * fixSpaceAroundKeyword(fixer, node, context.sourceCode);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 				yield fixer.insertTextBefore(node, 'String.raw');
 
 				for (const quasis of node.quasis) {
@@ -125,7 +129,7 @@ const create = context => {
 						continue;
 					}
 
-					yield replaceTemplateElement(fixer, quasis, cooked);
+					yield replaceTemplateElement(quasis, cooked, context, fixer);
 				}
 			},
 		};

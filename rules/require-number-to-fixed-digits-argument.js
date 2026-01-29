@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
 				method: 'toFixed',
@@ -33,10 +33,10 @@ const create = context => ({
 			},
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => appendArgument(fixer, node, '0', sourceCode),
+			fix: fixer => appendArgument(fixer, node, '0', context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

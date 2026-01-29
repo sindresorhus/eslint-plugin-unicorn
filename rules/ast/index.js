@@ -18,6 +18,7 @@ export {default as isArrowFunctionBody} from './is-arrow-function-body.js';
 export {default as isDirective} from './is-directive.js';
 export {default as isEmptyNode} from './is-empty-node.js';
 export {default as isEmptyArrayExpression} from './is-empty-array-expression.js';
+export {default as isEmptyObjectExpression} from './is-empty-object-expression.js';
 export {default as isExpressionStatement} from './is-expression-statement.js';
 export {default as isFunction} from './is-function.js';
 export {default as isMemberExpression} from './is-member-expression.js';

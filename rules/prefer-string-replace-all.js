@@ -107,8 +107,8 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {
 			methods: ['replace', 'replaceAll'],
 			argumentsLength: 2,
@@ -160,8 +160,8 @@ const create = context => ({
 				yield fixer.replaceText(pattern, patternReplacement);
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

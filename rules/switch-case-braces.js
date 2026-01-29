@@ -12,16 +12,18 @@ const messages = {
 	[MESSAGE_ID_UNNECESSARY_BRACES]: 'Unnecessary braces in case clause.',
 };
 
-function * removeBraces(fixer, node, sourceCode) {
+function * removeBraces(fixer, node, context) {
+	const {sourceCode} = context;
 	const [blockStatement] = node.consequent;
 	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield * replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, sourceCode);
+	yield replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	yield fixer.remove(closingBraceToken);
 }
 
-function * addBraces(fixer, node, sourceCode) {
+function * addBraces(fixer, node, context) {
+	const {sourceCode} = context;
 	const colonToken = sourceCode.getTokenAfter(
 		node.test || sourceCode.getFirstToken(node),
 		isColonToken,
@@ -29,7 +31,7 @@ function * addBraces(fixer, node, sourceCode) {
 	yield fixer.insertTextAfter(colonToken, ' {');
 
 	const lastToken = sourceCode.getLastToken(node);
-	const indent = getIndentString(node, sourceCode);
+	const indent = getIndentString(node, context);
 	yield fixer.insertTextAfter(lastToken, `\n${indent}}`);
 }
 
@@ -38,59 +40,57 @@ const create = context => {
 	const isBracesRequired = context.options[0] !== 'avoid';
 	const {sourceCode} = context;
 
-	return {
-		SwitchCase(node) {
-			const {consequent} = node;
-			if (consequent.length === 0) {
-				return;
-			}
+	context.on('SwitchCase', node => {
+		const {consequent} = node;
+		if (consequent.length === 0) {
+			return;
+		}
 
-			if (
+		if (
+			consequent.length === 1
+			&& consequent[0].type === 'BlockStatement'
+			&& consequent[0].body.length === 0
+		) {
+			return {
+				node,
+				loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
+				messageId: MESSAGE_ID_EMPTY_CLAUSE,
+				fix: fixer => removeBraces(fixer, node, context),
+			};
+		}
+
+		if (
+			isBracesRequired
+			&& !(
 				consequent.length === 1
 				&& consequent[0].type === 'BlockStatement'
-				&& consequent[0].body.length === 0
-			) {
-				return {
-					node,
-					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
-					messageId: MESSAGE_ID_EMPTY_CLAUSE,
-					fix: fixer => removeBraces(fixer, node, sourceCode),
-				};
-			}
+			)
+		) {
+			return {
+				node,
+				loc: getSwitchCaseHeadLocation(node, context),
+				messageId: MESSAGE_ID_MISSING_BRACES,
+				fix: fixer => addBraces(fixer, node, context),
+			};
+		}
 
-			if (
-				isBracesRequired
-				&& !(
-					consequent.length === 1
-					&& consequent[0].type === 'BlockStatement'
-				)
-			) {
-				return {
-					node,
-					loc: getSwitchCaseHeadLocation(node, sourceCode),
-					messageId: MESSAGE_ID_MISSING_BRACES,
-					fix: fixer => addBraces(fixer, node, sourceCode),
-				};
-			}
-
-			if (
-				!isBracesRequired
-				&& consequent.length === 1
-				&& consequent[0].type === 'BlockStatement'
-				&& consequent[0].body.every(node =>
-					node.type !== 'VariableDeclaration'
-					&& node.type !== 'FunctionDeclaration',
-				)
-			) {
-				return {
-					node,
-					loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
-					messageId: MESSAGE_ID_UNNECESSARY_BRACES,
-					fix: fixer => removeBraces(fixer, node, sourceCode),
-				};
-			}
-		},
-	};
+		if (
+			!isBracesRequired
+			&& consequent.length === 1
+			&& consequent[0].type === 'BlockStatement'
+			&& consequent[0].body.every(node =>
+				node.type !== 'VariableDeclaration'
+				&& node.type !== 'FunctionDeclaration',
+			)
+		) {
+			return {
+				node,
+				loc: sourceCode.getLoc(sourceCode.getFirstToken(consequent[0])),
+				messageId: MESSAGE_ID_UNNECESSARY_BRACES,
+				fix: fixer => removeBraces(fixer, node, context),
+			};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

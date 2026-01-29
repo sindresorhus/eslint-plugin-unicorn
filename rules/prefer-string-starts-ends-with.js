@@ -1,8 +1,12 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import escapeString from './utils/escape-string.js';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
-import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
-import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	getParenthesizedText,
+	getParenthesizedRange,
+	escapeString,
+	shouldAddParenthesesToMemberExpressionObject,
+	shouldAddParenthesesToLogicalExpressionChild,
+} from './utils/index.js';
 import {isMethodCall, isRegexLiteral} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
@@ -57,130 +61,128 @@ const checkRegex = ({pattern, flags}) => {
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		CallExpression(node) {
-			if (
-				!isMethodCall(node, {
-					method: 'test',
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				|| !isRegexLiteral(node.callee.object)
-			) {
-				return;
+	context.on('CallExpression', node => {
+		if (
+			!isMethodCall(node, {
+				method: 'test',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| !isRegexLiteral(node.callee.object)
+		) {
+			return;
+		}
+
+		const regexNode = node.callee.object;
+		const {regex} = regexNode;
+		const result = checkRegex(regex);
+		if (!result) {
+			return;
+		}
+
+		const [target] = node.arguments;
+		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
+
+		let isString = target.type === 'TemplateLiteral'
+			|| (
+				target.type === 'CallExpression'
+				&& target.callee.type === 'Identifier'
+				&& target.callee.name === 'String'
+			);
+		let isNonString = false;
+		if (!isString) {
+			const staticValue = getStaticValue(target, sourceCode.getScope(target));
+
+			if (staticValue) {
+				isString = typeof staticValue.value === 'string';
+				isNonString = !isString;
 			}
+		}
 
-			const regexNode = node.callee.object;
-			const {regex} = regexNode;
-			const result = checkRegex(regex);
-			if (!result) {
-				return;
-			}
+		const problem = {
+			node,
+			messageId: result.messageId,
+		};
 
-			const [target] = node.arguments;
-			const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
+		function * fix(fixer, fixType) {
+			let targetText = getParenthesizedText(target, context);
+			const isRegexParenthesized = isParenthesized(regexNode, context);
+			const isTargetParenthesized = isParenthesized(target, context);
 
-			let isString = target.type === 'TemplateLiteral'
-				|| (
-					target.type === 'CallExpression'
-					&& target.callee.type === 'Identifier'
-					&& target.callee.name === 'String'
-				);
-			let isNonString = false;
-			if (!isString) {
-				const staticValue = getStaticValue(target, sourceCode.getScope(target));
+			switch (fixType) {
+				// Goal: `(target ?? '').startsWith(pattern)`
+				case FIX_TYPE_NULLISH_COALESCING: {
+					if (
+						!isTargetParenthesized
+						&& shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
+					) {
+						targetText = addParentheses(targetText);
+					}
 
-				if (staticValue) {
-					isString = typeof staticValue.value === 'string';
-					isNonString = !isString;
+					targetText += ' ?? \'\'';
+
+					// `LogicalExpression` need add parentheses to call `.startsWith()`,
+					// but if regex is parenthesized, we can reuse it
+					if (!isRegexParenthesized) {
+						targetText = addParentheses(targetText);
+					}
+
+					break;
+				}
+
+				// Goal: `String(target).startsWith(pattern)`
+				case FIX_TYPE_STRING_CASTING: {
+					// `target` was a call argument, don't need check parentheses
+					targetText = `String(${targetText})`;
+					// `CallExpression` don't need add parentheses to call `.startsWith()`
+					break;
+				}
+
+				// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
+				case FIX_TYPE_OPTIONAL_CHAINING: {
+					// Optional chaining: `target.startsWith` => `target?.startsWith`
+					yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
+				}
+
+				// Fallthrough
+				default: {
+					if (
+						!isRegexParenthesized
+						&& !isTargetParenthesized
+						&& shouldAddParenthesesToMemberExpressionObject(target, context)
+					) {
+						targetText = addParentheses(targetText);
+					}
 				}
 			}
 
-			const problem = {
-				node,
-				messageId: result.messageId,
-			};
+			// The regex literal always starts with `/` or `(`, so we don't need check ASI
 
-			function * fix(fixer, fixType) {
-				let targetText = getParenthesizedText(target, sourceCode);
-				const isRegexParenthesized = isParenthesized(regexNode, sourceCode);
-				const isTargetParenthesized = isParenthesized(target, sourceCode);
+			// Replace regex with string
+			yield fixer.replaceText(regexNode, targetText);
 
-				switch (fixType) {
-					// Goal: `(target ?? '').startsWith(pattern)`
-					case FIX_TYPE_NULLISH_COALESCING: {
-						if (
-							!isTargetParenthesized
-							&& shouldAddParenthesesToLogicalExpressionChild(target, {operator: '??', property: 'left'})
-						) {
-							targetText = addParentheses(targetText);
-						}
+			// `.test` => `.startsWith` / `.endsWith`
+			yield fixer.replaceText(node.callee.property, method);
 
-						targetText += ' ?? \'\'';
+			// Replace argument with result.string
+			yield fixer.replaceTextRange(getParenthesizedRange(target, context), escapeString(result.string));
+		}
 
-						// `LogicalExpression` need add parentheses to call `.startsWith()`,
-						// but if regex is parenthesized, we can reuse it
-						if (!isRegexParenthesized) {
-							targetText = addParentheses(targetText);
-						}
+		if (isString || !isNonString) {
+			problem.fix = fix;
+		}
 
-						break;
-					}
+		if (!isString) {
+			problem.suggest = [
+				FIX_TYPE_STRING_CASTING,
+				FIX_TYPE_OPTIONAL_CHAINING,
+				FIX_TYPE_NULLISH_COALESCING,
+			].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
+		}
 
-					// Goal: `String(target).startsWith(pattern)`
-					case FIX_TYPE_STRING_CASTING: {
-						// `target` was a call argument, don't need check parentheses
-						targetText = `String(${targetText})`;
-						// `CallExpression` don't need add parentheses to call `.startsWith()`
-						break;
-					}
-
-					// Goal: `target.startsWith(pattern)` or `target?.startsWith(pattern)`
-					case FIX_TYPE_OPTIONAL_CHAINING: {
-						// Optional chaining: `target.startsWith` => `target?.startsWith`
-						yield fixer.replaceText(sourceCode.getTokenBefore(node.callee.property), '?.');
-					}
-
-					// Fallthrough
-					default: {
-						if (
-							!isRegexParenthesized
-							&& !isTargetParenthesized
-							&& shouldAddParenthesesToMemberExpressionObject(target, sourceCode)
-						) {
-							targetText = addParentheses(targetText);
-						}
-					}
-				}
-
-				// The regex literal always starts with `/` or `(`, so we don't need check ASI
-
-				// Replace regex with string
-				yield fixer.replaceText(regexNode, targetText);
-
-				// `.test` => `.startsWith` / `.endsWith`
-				yield fixer.replaceText(node.callee.property, method);
-
-				// Replace argument with result.string
-				yield fixer.replaceTextRange(getParenthesizedRange(target, sourceCode), escapeString(result.string));
-			}
-
-			if (isString || !isNonString) {
-				problem.fix = fix;
-			}
-
-			if (!isString) {
-				problem.suggest = [
-					FIX_TYPE_STRING_CASTING,
-					FIX_TYPE_OPTIONAL_CHAINING,
-					FIX_TYPE_NULLISH_COALESCING,
-				].map(type => ({messageId: type, data: {method}, fix: fixer => fix(fixer, type)}));
-			}
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

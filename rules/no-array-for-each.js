@@ -1,5 +1,4 @@
 import {
-	isParenthesized,
 	isCommaToken,
 	isSemicolonToken,
 	isClosingParenToken,
@@ -11,19 +10,23 @@ import {
 	fixSpaceAroundKeyword,
 	removeParentheses,
 } from './fix/index.js';
-import needsSemicolon from './utils/needs-semicolon.js';
-import shouldAddParenthesesToExpressionStatementExpression from './utils/should-add-parentheses-to-expression-statement-expression.js';
-import shouldAddParenthesesToMemberExpressionObject from './utils/should-add-parentheses-to-member-expression-object.js';
-import {getParentheses, getParenthesizedRange} from './utils/parentheses.js';
-import isFunctionSelfUsedInside from './utils/is-function-self-used-inside.js';
-import {isNodeMatches} from './utils/is-node-matches.js';
-import assertToken from './utils/assert-token.js';
 import {
 	isArrowFunctionBody,
 	isMethodCall,
 	isReferenceIdentifier,
 	functionTypes,
 } from './ast/index.js';
+import {
+	needsSemicolon,
+	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToMemberExpressionObject,
+	isParenthesized,
+	getParentheses,
+	getParenthesizedRange,
+	isFunctionSelfUsedInside,
+	isNodeMatches,
+	assertToken,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-for-each/error';
 const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
@@ -100,12 +103,12 @@ function getFixFunction(callExpression, functionInfo, context) {
 		text += ' of ';
 
 		const shouldAddParenthesesToObject
-			= isParenthesized(iterableObject, sourceCode)
+			= isParenthesized(iterableObject, context)
 				|| (
 				// `1?.forEach()` -> `(1).entries()`
 					isOptionalObject
 					&& shouldUseEntries
-					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(iterableObject, context)
 				);
 
 		text += shouldAddParenthesesToObject ? `(${objectText})` : objectText;
@@ -121,7 +124,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	const getForOfLoopHeadRange = () => {
 		const [start] = sourceCode.getRange(callExpression);
-		const [end] = getParenthesizedRange(callback.body, sourceCode);
+		const [end] = getParenthesizedRange(callback.body, context);
 		return [start, end];
 	};
 
@@ -145,7 +148,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		let textBefore = '';
 		let textAfter = '';
 		const shouldAddParentheses
-			= !isParenthesized(returnStatement.argument, sourceCode)
+			= !isParenthesized(returnStatement.argument, context)
 				&& shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
 			textBefore = `(${textBefore}`;
@@ -155,7 +158,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
 		if (insertBraces) {
 			textBefore = `{ ${textBefore}`;
-		} else if (needsSemicolon(previousToken, sourceCode, shouldAddParentheses ? '(' : nextToken.value)) {
+		} else if (needsSemicolon(previousToken, context, shouldAddParentheses ? '(' : nextToken.value)) {
 			textBefore = `;${textBefore}`;
 		}
 
@@ -193,7 +196,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	function * removeCallbackParentheses(fixer) {
 		// Opening parenthesis tokens already included in `getForOfLoopHeadRange`
-		const closingParenthesisTokens = getParentheses(callback, sourceCode)
+		const closingParenthesisTokens = getParentheses(callback, context)
 			.filter(token => isClosingParenToken(token));
 
 		for (const closingParenthesisToken of closingParenthesisTokens) {
@@ -203,7 +206,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 
 	return function * (fixer) {
 		// `(( foo.forEach(bar => bar) ))`
-		yield * removeParentheses(callExpression, fixer, sourceCode);
+		yield removeParentheses(callExpression, fixer, context);
 
 		// Replace these with `for (const … of …) `
 		// foo.forEach(bar =>    bar)
@@ -219,7 +222,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		// Parenthesized callback function
 		// foo.forEach( ((bar => {})) )
 		//                         ^^
-		yield * removeCallbackParentheses(fixer);
+		yield removeCallbackParentheses(fixer);
 
 		const [
 			penultimateToken,
@@ -239,7 +242,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield fixer.remove(lastToken);
 
 		for (const returnStatement of returnStatements) {
-			yield * replaceReturnStatement(returnStatement, fixer);
+			yield replaceReturnStatement(returnStatement, fixer);
 		}
 
 		if (ancestor.type === 'ExpressionStatement') {
@@ -255,14 +258,14 @@ function getFixFunction(callExpression, functionInfo, context) {
 			yield fixer.insertTextAfter(callExpression, ' }');
 		}
 
-		yield * fixSpaceAroundKeyword(fixer, callExpression.parent, sourceCode);
+		yield fixSpaceAroundKeyword(fixer, callExpression.parent, context);
 
 		if (isOptionalObject) {
 			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);
 		}
 
 		// Prevent possible variable conflicts
-		yield * extendFixRange(fixer, sourceCode.getRange(callExpression.parent));
+		yield extendFixRange(fixer, sourceCode.getRange(callExpression.parent));
 	};
 }
 
