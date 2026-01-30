@@ -50,14 +50,12 @@ function getReplacement(valueNode) {
 			return;
 		}
 
-		let shouldUseSuggestion = false;
 		let text = bigint === 0n ? '0' : raw.trim();
 		if (text.startsWith('+')) {
-			shouldUseSuggestion = true;
 			text = text.slice(1).trim();
 		}
 
-		return {shouldUseSuggestion, text: `${text}n`, bigint};
+		return {shouldUseSuggestion: raw.includes('+'), text: `${text}n`, bigint};
 	}
 
 	let shouldUseSuggestion = false;
