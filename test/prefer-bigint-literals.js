@@ -92,11 +92,13 @@ test.snapshot({
 		'BigInt(1) + BigInt(2)',
 		'BigInt(1) ** 2n',
 		'condition ? BigInt(1) : BigInt(2)',
-
 		'+BigInt(1)',
 		'+BigInt(-1)',
 		'+BigInt("1")',
-
+		'BigInt(+0)',
+		'BigInt(-0)',
+		'BigInt("+0")',
+		'BigInt("-0")',
 		'1n - (( BigInt("-1") ))',
 		'BigInt(-(+(-10)))',
 	],
