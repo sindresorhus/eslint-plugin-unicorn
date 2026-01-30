@@ -96,5 +96,8 @@ test.snapshot({
 		'+BigInt(1)',
 		'+BigInt(-1)',
 		'+BigInt("1")',
+
+		'1n - (( BigInt("-1") ))',
+		'BigInt(-(+(-10)))',
 	],
 });
