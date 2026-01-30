@@ -42,7 +42,7 @@ const canUseNumericLiteralRaw = numericLiteral => {
 
 function getReplacement(valueNode) {
 	if (isStringLiteral(valueNode)) {
-		let raw = valueNode.raw.slice(1, -1);
+		const raw = valueNode.raw.slice(1, -1);
 		let bigint;
 		try {
 			bigint = BigInt(raw);
@@ -50,12 +50,12 @@ function getReplacement(valueNode) {
 			return;
 		}
 
-		raw = raw.trim();
-		if (raw.startsWith('+')) {
-			raw = raw.slice(1).trim();
+		let text = bigint === 0n ? '0' : raw.trim();
+		if (text.startsWith('+')) {
+			text = text.slice(1).trim();
 		}
 
-		return {shouldUseSuggestion: false, text: `${raw}n`, bigint};
+		return {shouldUseSuggestion: false, text: `${text}n`, bigint};
 	}
 
 	let isNegated = false;
