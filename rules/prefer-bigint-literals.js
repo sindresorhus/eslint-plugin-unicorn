@@ -50,17 +50,21 @@ function getReplacement(valueNode) {
 			return;
 		}
 
+		let shouldUseSuggestion = false;
 		let text = bigint === 0n ? '0' : raw.trim();
 		if (text.startsWith('+')) {
+			shouldUseSuggestion = true;
 			text = text.slice(1).trim();
 		}
 
-		return {shouldUseSuggestion: false, text: `${text}n`, bigint};
+		return {shouldUseSuggestion, text: `${text}n`, bigint};
 	}
 
+	let shouldUseSuggestion = false;
 	let isNegated = false;
 	while (valueNode.type === 'UnaryExpression' && valueNode.prefix) {
 		if (valueNode.operator === '+') {
+			shouldUseSuggestion = true;
 			valueNode = valueNode.argument;
 		} else if (valueNode.operator === '-') {
 			isNegated = !isNegated;
@@ -83,8 +87,13 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	const shouldUseSuggestion = !canUseNumericLiteralRaw(valueNode);
-	let text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
+	let text;
+	if (canUseNumericLiteralRaw(valueNode)) {
+		text = `${raw}n`;
+	} else {
+		text = `${bigint}n`;
+		shouldUseSuggestion = true;
+	}
 
 	if (isNegated && bigint !== 0n) {
 		text = `-${text}`;
