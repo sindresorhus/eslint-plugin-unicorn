@@ -2,7 +2,10 @@ import {
 	isCallExpression,
 	isStringLiteral,
 } from './ast/index.js';
-import needsSemicolon from './utils/needs-semicolon.js';
+import {
+	needsSemicolon,
+	isParenthesized,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-bigint-literals/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-bigint-literals/suggestion';
@@ -11,12 +14,14 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with {{replacement}}.',
 };
 
-const canUseNumericLiteralRaw = (value, nodeRaw) => {
-	const raw = nodeRaw.replaceAll('_', '').toLowerCase();
+const canUseNumericLiteralRaw = numericLiteral => {
+	const raw = numericLiteral.raw.replaceAll('_', '').toLowerCase();
 
 	if (raw.includes('.')) {
 		return false;
 	}
+
+	const {value} = numericLiteral;
 
 	for (const {prefix, base} of [
 		{prefix: '0b', base: 2},
@@ -35,38 +40,37 @@ const canUseNumericLiteralRaw = (value, nodeRaw) => {
 	return raw === String(value);
 };
 
-function getValueOfNode(valueNode) {
-	// -BigInt(1)
-	if (valueNode.type === 'UnaryExpression' && (valueNode.operator === '+' || valueNode.operator === '-')) {
-		return valueNode.operator === '+'
-			? {value: valueNode.argument.value, raw: valueNode.argument.raw, isPlusSignUnary: true}
-			: {value: -valueNode.argument.value, raw: `-${valueNode.argument.raw}`, isPlusSignUnary: false};
-	}
-
-	return {value: valueNode.value, raw: valueNode.raw, isPlusSignUnary: false};
-}
-
 function getReplacement(valueNode) {
 	if (isStringLiteral(valueNode)) {
 		let raw = valueNode.raw.slice(1, -1);
+		let bigint;
 		try {
-			BigInt(raw);
+			bigint = BigInt(raw);
 		} catch {
 			return;
 		}
 
-		// BigInt("+1") -> 1n
-		const plusSignIndex = raw.indexOf('+');
-
-		if (plusSignIndex !== -1) {
-			raw = raw.slice(0, plusSignIndex) + raw.slice(plusSignIndex + 1);
-			return {shouldUseSuggestion: true, text: `${raw.trimEnd()}n`};
+		raw = raw.trim();
+		if (raw.startsWith('+')) {
+			raw = raw.slice(1).trim();
 		}
 
-		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
+		return {shouldUseSuggestion: false, text: `${raw}n`, bigint};
 	}
 
-	const {value, raw, isPlusSignUnary} = getValueOfNode(valueNode);
+	let isNegated = false;
+	while (valueNode.type === 'UnaryExpression' && valueNode.prefix) {
+		if (valueNode.operator === '+') {
+			valueNode = valueNode.argument;
+		} else if (valueNode.operator === '-') {
+			isNegated = !isNegated;
+			valueNode = valueNode.argument;
+		} else {
+			return;
+		}
+	}
+
+	const {value, raw} = valueNode;
 
 	if (!Number.isInteger(value)) {
 		return;
@@ -79,9 +83,15 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	const shouldUseSuggestion = isPlusSignUnary ? true : !canUseNumericLiteralRaw(value, raw);
-	const text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
-	return {shouldUseSuggestion, text};
+	const shouldUseSuggestion = !canUseNumericLiteralRaw(valueNode);
+	let text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
+
+	if (isNegated && bigint !== 0n) {
+		text = `-${text}`;
+		bigint = -bigint;
+	}
+
+	return {shouldUseSuggestion, text, bigint};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -101,46 +111,30 @@ const create = context => {
 			return;
 		}
 
-		let {shouldUseSuggestion, text} = replacement;
-		let nodeToReplace = callExpression;
-
-		const {parent} = callExpression;
-
-		// +BigInt(1), +1n throws TypeError, skip these
-		if (parent.type === 'UnaryExpression' && parent.operator === '+') {
-			return;
-		}
-
-		// -BigInt(-1) -> -(-1n)
-		// -BigInt("-1") -> -(-1n)
-		if (
-			parent.type === 'UnaryExpression'
-			&& parent.operator === '-'
-			&& text.startsWith('-')
-		) {
-			nodeToReplace = parent;
-			text = `-(-${text.slice(1)})`;
-		}
-
-		const tokenBefore = context.sourceCode.getTokenBefore(nodeToReplace);
-
-		if (text.startsWith('-') && !text.startsWith('-(')) {
-			text = `(${text})`;
-		}
-
-		if (tokenBefore && needsSemicolon(tokenBefore, context, text)) {
-			text = `;${text}`;
-		}
+		const {shouldUseSuggestion, text, bigint} = replacement;
 
 		const problem = {
-			node: nodeToReplace,
+			node: callExpression,
 			messageId: MESSAGE_ID_ERROR,
 		};
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => fixer.replaceText(nodeToReplace, text);
+		const fix = fixer => {
+			let replacementText = text;
+			if (!isParenthesized(callExpression, context) && bigint < 0n) {
+				replacementText = `(${replacementText})`;
 
-		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(nodeToReplace).length > 0) {
+				const tokenBefore = context.sourceCode.getTokenBefore(callExpression);
+
+				if (needsSemicolon(tokenBefore, context, replacementText)) {
+					replacementText = `;${replacementText}`;
+				}
+			}
+
+			return fixer.replaceText(callExpression, replacementText);
+		};
+
+		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(callExpression).length > 0) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

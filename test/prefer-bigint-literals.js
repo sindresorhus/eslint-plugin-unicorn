@@ -29,10 +29,6 @@ test.snapshot({
 		'BigInt(~1)',
 		'BigInt("++1")',
 		'BigInt("+ 1")',
-		// +BigInt(1), +1n throws TypeError, skip these
-		'+BigInt(1)',
-		'+BigInt(-1)',
-		'+BigInt("1")',
 		'BigInt(void 0)',
 		'BigInt(NaN)',
 		'BigInt(Infinity)',
@@ -96,5 +92,9 @@ test.snapshot({
 		'BigInt(1) + BigInt(2)',
 		'BigInt(1) ** 2n',
 		'condition ? BigInt(1) : BigInt(2)',
+
+		'+BigInt(1)',
+		'+BigInt(-1)',
+		'+BigInt("1")',
 	],
 });
