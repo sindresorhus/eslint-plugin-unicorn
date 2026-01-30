@@ -111,12 +111,12 @@ const create = context => {
 			return;
 		}
 
-		const {shouldUseSuggestion, text, bigint} = replacement;
-
 		const problem = {
 			node: callExpression,
 			messageId: MESSAGE_ID_ERROR,
 		};
+
+		const {shouldUseSuggestion, text, bigint} = replacement;
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => {
