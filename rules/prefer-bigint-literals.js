@@ -129,7 +129,7 @@ const create = context => {
 				// BigInt(-1).toString() -> (-1n).toString()
 				= (parent.type === 'MemberExpression' && parent.object === callExpression)
 				// 2n -BigInt("-1") -> 2n -(-1n)
-				|| (tokenBefore?.type === 'Punctuator' && (tokenBefore.value === '-' || tokenBefore.value === '+'));
+					|| (tokenBefore?.type === 'Punctuator' && (tokenBefore.value === '-' || tokenBefore.value === '+'));
 
 			if (needsParentheses) {
 				text = `(${text})`;
