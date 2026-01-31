@@ -83,9 +83,6 @@ const configs = {
 	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
 
-const allConfigs = {
-	...unicorn,
-	configs,
-};
+unicorn.configs = configs;
 
-export default allConfigs;
+export default unicorn;
