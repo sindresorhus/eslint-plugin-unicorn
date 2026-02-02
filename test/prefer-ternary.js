@@ -6,7 +6,8 @@ const {test} = getTester(import.meta);
 const messageId = 'prefer-ternary';
 const errors = [{messageId}];
 
-const onlySingleLineOptions = ['only-single-line'];
+const onlySingleLineOptions = [{onlySingleLine: true}];
+const onlyAssignmentsOptions = [{onlyAssignments: true}];
 
 // ReturnStatement
 test({
@@ -1309,6 +1310,283 @@ test({
 		},
 		{
 			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
+			errors,
+		},
+	],
+});
+
+// `only-assignments`
+test({
+	valid: [
+		// YieldExpression should be ignored
+		{
+			code: outdent`
+				function* unicorn() {
+					// only-assignments: YieldExpression
+					if (test) {
+						yield a;
+					} else {
+						yield b;
+					}
+				}
+			`,
+			options: onlyAssignmentsOptions,
+		},
+		// AwaitExpression should be ignored
+		{
+			code: outdent`
+				async function unicorn() {
+					// only-assignments: AwaitExpression
+					if (test) {
+						await a;
+					} else {
+						await b;
+					}
+				}
+			`,
+			options: onlyAssignmentsOptions,
+		},
+		// ThrowStatement should be ignored
+		{
+			code: outdent`
+				function unicorn() {
+					// only-assignments: ThrowStatement
+					if (test) {
+						throw new Error('a');
+					} else {
+						throw new Error('b');
+					}
+				}
+			`,
+			options: onlyAssignmentsOptions,
+		},
+	],
+	invalid: [
+		// ReturnStatement should be reported
+		{
+			code: outdent`
+				function unicorn() {
+					// only-assignments: ReturnStatement
+					if (test) {
+						return a;
+					} else {
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					// only-assignments: ReturnStatement
+					return test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// ReturnStatement with await - await stays inside each branch
+		{
+			code: outdent`
+				async function unicorn() {
+					// only-assignments: ReturnStatement with await
+					if (test) {
+						return await a;
+					} else {
+						return await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					// only-assignments: ReturnStatement with await
+					return test ? (await a) : (await b);
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// AssignmentExpression should still be reported
+		{
+			code: outdent`
+				function unicorn() {
+					// only-assignments: AssignmentExpression
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					// only-assignments: AssignmentExpression
+					foo = test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// AssignmentExpression with await should still be reported
+		// With only-assignments, await stays inside each branch
+		{
+			code: outdent`
+				async function unicorn() {
+					// only-assignments: AssignmentExpression with await
+					if (test) {
+						foo = await a;
+					} else {
+						foo = await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					// only-assignments: AssignmentExpression with await
+					foo = test ? (await a) : (await b);
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// Combine with preceding uninitialized variable declaration
+		{
+			code: outdent`
+				function unicorn() {
+					let foo;
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					let foo = test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// Combine with var declaration
+		{
+			code: outdent`
+				function unicorn() {
+					var foo;
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					var foo = test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// Combine with declaration and await
+		{
+			code: outdent`
+				async function unicorn() {
+					let foo;
+					if (test) {
+						foo = await a;
+					} else {
+						foo = await b;
+					}
+				}
+			`,
+			output: outdent`
+				async function unicorn() {
+					let foo = test ? (await a) : (await b);
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+	],
+});
+
+// Combined `only-single-line` and `only-assignments`
+test({
+	valid: [
+		// Multi-line assignment should be ignored
+		{
+			code: outdent`
+				function unicorn() {
+					// combined options: multi-line assignment
+					if (test) {
+						foo = {
+							a: 1
+						};
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			options: [{onlySingleLine: true, onlyAssignments: true}],
+		},
+		// Multi-line return should be ignored
+		{
+			code: outdent`
+				function unicorn() {
+					// combined options: multi-line return
+					if (test) {
+						return {
+							a: 1
+						};
+					} else {
+						return b;
+					}
+				}
+			`,
+			options: [{onlySingleLine: true, onlyAssignments: true}],
+		},
+	],
+	invalid: [
+		// Single-line assignment should be reported
+		{
+			code: outdent`
+				function unicorn() {
+					// combined options: single-line assignment
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					// combined options: single-line assignment
+					foo = test ? a : b;
+				}
+			`,
+			options: [{onlySingleLine: true, onlyAssignments: true}],
+			errors,
+		},
+		// Single-line return should be reported
+		{
+			code: outdent`
+				function unicorn() {
+					// combined options: single-line return
+					if (test) {
+						return a;
+					} else {
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					// combined options: single-line return
+					return test ? a : b;
+				}
+			`,
+			options: [{onlySingleLine: true, onlyAssignments: true}],
 			errors,
 		},
 	],
