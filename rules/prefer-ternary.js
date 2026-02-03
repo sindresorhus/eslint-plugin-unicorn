@@ -38,10 +38,10 @@ const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
 /**
- * Find a preceding uninitialized variable declaration that matches the assignment target.
- * @param {import('estree').IfStatement} ifStatement
- * @param {import('estree').Identifier} assignmentLeft
- * @returns {import('estree').VariableDeclaration | undefined}
+ Find a preceding uninitialized variable declaration that matches the assignment target.
+ @param {import('estree').IfStatement} ifStatement
+ @param {import('estree').Identifier} assignmentLeft
+ @returns {import('estree').VariableDeclaration | undefined}
  */
 function findPrecedingVariableDeclaration(ifStatement, assignmentLeft) {
 	const {parent} = ifStatement;
