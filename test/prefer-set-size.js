@@ -22,6 +22,23 @@ test.snapshot({
 		'[...foo].length',
 		'var foo = new Set(); var foo = new Set(); [...foo].length',
 		'[,].length',
+		// `Array.from` — valid cases
+		'Array.from(foo).length',
+		'Array.from(new NotSet(array)).length',
+		'Array.from(Set(array)).length',
+		'Array.from(new Set(array)).notLength',
+		'Array.from(new Set(array))?.length',
+		'Array.from(new Set(array))[length]',
+		'Array.from(new Set(array))["length"]',
+		'Array.from(new Set(array), mapFn).length',
+		'Array?.from(new Set(array)).length',
+		'Array.from?.(new Set(array)).length',
+		'const foo = new NotSet([]);Array.from(foo).length;',
+		'let foo = new Set([]);Array.from(foo).length;',
+		'const {foo} = new Set([]);Array.from(foo).length;',
+		'const [foo] = new Set([]);Array.from(foo).length;',
+		'var foo = new Set(); var foo = new Set(); Array.from(foo).length',
+		'NotArray.from(new Set(array)).length',
 	],
 	invalid: [
 		'[...new Set(array)].length',
@@ -43,5 +60,20 @@ test.snapshot({
 		`,
 		'[/* comment */...new Set(array)].length',
 		'[...new /* comment */ Set(array)].length',
+		// `Array.from` — invalid cases
+		'Array.from(new Set(array)).length',
+		outdent`
+			const foo = new Set([]);
+			console.log(Array.from(foo).length);
+		`,
+		'Array.from((( new Set(array) ))).length',
+		'(( Array.from(new Set(array)) )).length',
+		'Array.from(/* comment */ new Set(array)).length',
+		'Array.from(new /* comment */ Set(array)).length',
+		outdent`
+			function isUnique(array) {
+				return Array.from(new Set(array)).length === array.length
+			}
+		`,
 	],
 });

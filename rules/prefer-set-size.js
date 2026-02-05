@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isNewExpression, isMemberExpression} from './ast/index.js';
+import {isNewExpression, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -36,24 +36,43 @@ function isSet(node, scope) {
 		&& isNewSet(definition.node.init);
 }
 
-// `[...set].length` -> `set.size`
-function fix(context, lengthAccessNodes) {
-	const {sourceCode} = context;
-	const {
-		object: arrayExpression,
-		property,
-	} = lengthAccessNodes;
-	const set = arrayExpression.elements[0].argument;
+function getSetNode(memberExpressionObject) {
+	// `[...set].length`
+	if (
+		memberExpressionObject.type === 'ArrayExpression'
+		&& memberExpressionObject.elements.length === 1
+		&& memberExpressionObject.elements[0]?.type === 'SpreadElement'
+	) {
+		return memberExpressionObject.elements[0].argument;
+	}
 
-	if (sourceCode.getCommentsInside(arrayExpression).length > sourceCode.getCommentsInside(set).length) {
+	// `Array.from(set).length`
+	if (
+		isMethodCall(memberExpressionObject, {
+			object: 'Array',
+			method: 'from',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return memberExpressionObject.arguments[0];
+	}
+}
+
+function createFix(context, node, set) {
+	const {sourceCode} = context;
+	const {object: wrapper, property} = node;
+
+	if (sourceCode.getCommentsInside(wrapper).length > sourceCode.getCommentsInside(set).length) {
 		return;
 	}
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
-		yield fixer.replaceText(arrayExpression, sourceCode.getText(set));
-		yield fixSpaceAroundKeyword(fixer, lengthAccessNodes, context);
+		yield fixer.replaceText(wrapper, sourceCode.getText(set));
+		yield fixSpaceAroundKeyword(fixer, node, context);
 	};
 }
 
@@ -67,22 +86,19 @@ const create = context => {
 				property: 'length',
 				optional: false,
 			})
-			|| node.object.type !== 'ArrayExpression'
-			|| node.object.elements.length !== 1
-			|| node.object.elements[0]?.type !== 'SpreadElement'
 		) {
 			return;
 		}
 
-		const maybeSet = node.object.elements[0].argument;
-		if (!isSet(maybeSet, sourceCode.getScope(maybeSet))) {
+		const set = getSetNode(node.object);
+		if (!set || !isSet(set, sourceCode.getScope(set))) {
 			return;
 		}
 
 		return {
 			node: node.property,
 			messageId: MESSAGE_ID,
-			fix: fix(context, node),
+			fix: createFix(context, node, set),
 		};
 	});
 };
