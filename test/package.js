@@ -104,6 +104,12 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
 		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
+
+		for (const replacement of rule.meta.deprecated.replacedBy) {
+			t.is(typeof replacement.rule.name, 'string', `${name} meta.deprecated.replacedBy[].rule.name should be string`);
+			t.is(typeof replacement.rule.url, 'string', `${name} meta.deprecated.replacedBy[].rule.url should be string`);
+		}
+
 		t.true(content.includes(`\n### ${name}\n`));
 		t.false(content.includes(`\n### ~${name}~\n`));
 	}
