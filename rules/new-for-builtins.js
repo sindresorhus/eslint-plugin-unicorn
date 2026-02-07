@@ -30,7 +30,7 @@ function enforceNewExpression({node, path: [name]}, context) {
 
 	// `Date()` returns a string representation of the current date and time, exactly as `new Date().toString()` does.
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#return_value
-	if (name === 'Date') {
+	if (name === 'Date' && node.arguments.length === 0) {
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
 			yield fixSpaceAroundKeyword(fixer, node, context);
@@ -41,7 +41,7 @@ function enforceNewExpression({node, path: [name]}, context) {
 			messageId: MESSAGE_ID_ERROR_DATE,
 		};
 
-		if (context.sourceCode.getCommentsInside(node).length === 0 && node.arguments.length === 0) {
+		if (context.sourceCode.getCommentsInside(node).length === 0) {
 			problem.fix = fix;
 		} else {
 			problem.suggest = [
