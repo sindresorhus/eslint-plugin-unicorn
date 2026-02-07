@@ -101,9 +101,13 @@ test({
 		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
 		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
 		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
-		// Logical OR
+		// Logical OR with number or string fallback
 		'const x = foo.length || 2',
 		'const A_NUMBER = 2; const x = foo.length || A_NUMBER',
+		'const x = foo.length || "bar"',
+		'const x = foo.length || `bar`',
+		'const A_STRING = "bar"; const x = foo.length || A_STRING',
+		'const size = props.size || "mini"',
 	],
 	invalid: [
 		suggestionCase({
@@ -119,9 +123,9 @@ test({
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
-			code: 'const NON_NUMBER = "2"; const x = foo.length || NON_NUMBER',
+			code: 'const NON_NUMBER = true; const x = foo.length || NON_NUMBER',
 			messageId: TYPE_NON_ZERO,
-			output: 'const NON_NUMBER = "2"; const x = foo.length > 0 || NON_NUMBER',
+			output: 'const NON_NUMBER = true; const x = foo.length > 0 || NON_NUMBER',
 			desc: 'Replace `.length` with `.length > 0`.',
 		}),
 		suggestionCase({
