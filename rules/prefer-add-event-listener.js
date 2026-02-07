@@ -49,6 +49,19 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 
 const isClearing = node => isUndefined(node) || isNullLiteral(node);
 
+const notFunctionNodeTypes = new Set([
+	'Literal',
+	'TemplateLiteral',
+	'ObjectExpression',
+	'ArrayExpression',
+	'UnaryExpression',
+	'BinaryExpression',
+	'UpdateExpression',
+	'NewExpression',
+	'ClassExpression',
+	'ThisExpression',
+]);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
@@ -138,6 +151,7 @@ const create = context => {
 			operator === '='
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
+			&& !notFunctionNodeTypes.has(assignedExpression.type)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);
 		}
