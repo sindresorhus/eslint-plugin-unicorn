@@ -84,7 +84,7 @@ function removeDotSlash(node, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const style = context.options[0] || 'never';
+	const style = context.options[0];
 
 	// TemplateLiteral are not always safe to remove `./`, but if it's starts with `./` we'll report
 	if (style === 'never') {

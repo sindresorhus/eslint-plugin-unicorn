@@ -103,10 +103,7 @@ function isNodeValueNumber(node, context) {
 }
 
 function create(context) {
-	const options = {
-		'non-zero': 'greater-than',
-		...context.options[0],
-	};
+	const options = context.options[0];
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const {sourceCode} = context;
 
@@ -230,6 +227,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{'non-zero': 'greater-than'}],
 		messages,
 		hasSuggestions: true,
 	},

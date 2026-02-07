@@ -190,10 +190,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 }
 
 function create(context) {
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFlattenFunctions];
 
 	const cases = [
@@ -269,7 +266,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

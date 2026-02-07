@@ -106,11 +106,7 @@ const create = context => {
 		};
 	};
 
-	const options = {
-		checkArguments: true,
-		checkArrowFunctionBody: true,
-		...context.options[0],
-	};
+	const options = context.options[0];
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, context);
@@ -267,7 +263,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{checkArguments: true, checkArrowFunctionBody: true}],
 		messages,
 	},
 };

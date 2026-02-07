@@ -32,11 +32,7 @@ const isPromiseCatchParameter = node =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = {
-		name: 'error',
-		ignore: [],
-		...context.options[0],
-	};
+	const options = context.options[0];
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
 		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
@@ -128,7 +124,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{name: 'error', ignore: []}],
 		messages,
 	},
 };

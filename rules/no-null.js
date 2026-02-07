@@ -14,10 +14,7 @@ const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!==']
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkStrictEquality} = {
-		checkStrictEquality: false,
-		...context.options[0],
-	};
+	const {checkStrictEquality} = context.options[0];
 
 	context.on('Literal', node => {
 		if (

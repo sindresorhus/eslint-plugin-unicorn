@@ -13,13 +13,7 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const options = {
-		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
-		functions: ['dedent', 'stripIndent'],
-		selectors: [],
-		comments: ['HTML', 'indent'],
-		...context.options[0],
-	};
+	const options = {...context.options[0]};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 	const checked = new WeakSet();
@@ -186,7 +180,12 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{
+			tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
+			functions: ['dedent', 'stripIndent'],
+			selectors: [],
+			comments: ['HTML', 'indent'],
+		}],
 		messages,
 	},
 };

@@ -51,8 +51,8 @@ const isClearing = node => isUndefined(node) || isNullLiteral(node);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = context.options[0] || {};
-	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
+	const options = context.options[0];
+	const excludedPackages = new Set(options.excludedPackages);
 	let isDisabled;
 
 	const nodeReturnsSomething = new WeakMap();
@@ -182,7 +182,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{excludedPackages: ['koa', 'sax']}],
 		messages,
 	},
 };
