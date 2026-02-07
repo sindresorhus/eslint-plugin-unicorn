@@ -26,7 +26,7 @@ const create = context => {
 				// But it did not specify any rules
 				&& !result?.value
 			)) {
-				return;
+				continue;
 			}
 
 			const {sourceCode} = context;

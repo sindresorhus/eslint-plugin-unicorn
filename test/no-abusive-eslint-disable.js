@@ -96,5 +96,11 @@ test.snapshot({
 			// eslint-disable-next-line -- reason
 			eval();
 		`,
+		// Should still detect blanket disable after a rule-specific disable
+		outdent`
+			/* eslint-disable no-eval */
+			/* eslint-disable */
+			eval();
+		`,
 	],
 });
