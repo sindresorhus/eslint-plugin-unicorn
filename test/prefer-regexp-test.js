@@ -176,6 +176,26 @@ test.vue({
 	],
 });
 
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'function foo(pattern: string | RegExp) { if ("string".match(pattern)) {} }',
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: [
+						{
+							desc: 'Switch to `RegExp#test(…)`.',
+							output: 'function foo(pattern: string | RegExp) { if (pattern.test("string")) {} }',
+						},
+					],
+				},
+			],
+		},
+	],
+});
+
 const supportsUnicodeSets = (() => {
 	try {
 		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
