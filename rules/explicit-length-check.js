@@ -102,6 +102,19 @@ function isNodeValueNumber(node, context) {
 	return staticValue && typeof staticValue.value === 'number';
 }
 
+function isNodeValueString(node, context) {
+	if (node.type === 'Literal' && typeof node.value === 'string') {
+		return true;
+	}
+
+	if (node.type === 'TemplateLiteral') {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue && typeof staticValue.value === 'string';
+}
+
 function create(context) {
 	const options = context.options[0];
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
@@ -183,7 +196,7 @@ function create(context) {
 				isLogicalExpression(lengthNode.parent)
 				&& !(
 					lengthNode.parent.operator === '||'
-					&& isNodeValueNumber(lengthNode.parent.right, context)
+					&& (isNodeValueNumber(lengthNode.parent.right, context) || isNodeValueString(lengthNode.parent.right, context))
 				)
 			) {
 				isZeroLengthCheck = isNegative;
