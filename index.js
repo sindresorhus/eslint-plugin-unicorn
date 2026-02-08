@@ -13,11 +13,11 @@ const deprecatedRules = createDeprecatedRules({
 	},
 	'no-length-as-slice-end': {
 		message: 'Replaced by `unicorn/no-unnecessary-slice-end` which covers more cases.',
-		replacedBy: ['no-unnecessary-slice-end'],
+		replacedBy: ['unicorn/no-unnecessary-slice-end'],
 	},
 	'no-array-push-push': {
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
-		replacedBy: ['prefer-single-call'],
+		replacedBy: ['unicorn/prefer-single-call'],
 	},
 });
 
