@@ -1,12 +1,16 @@
 # Disallow top-level side effects in module files
 
-💡 *This rule is part of the `unopinionated` config.*
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+
+<!-- end auto-generated rule header -->
 
 Importing a module should not produce observable side effects. Side-effectful code at the top level makes modules harder to test, tree-shake, and reason about. Side effects should be wrapped in exported functions that consumers call explicitly.
 
 Files without any exports (entry points) and files with a hashbang (`#!/usr/bin/env node`) are exempt.
 
-## Fail
+## Examples
+
+### Fail
 
 ```js
 console.log('loaded');
@@ -23,7 +27,7 @@ document.title = 'My App';
 export const x = 1;
 ```
 
-## Pass
+### Pass
 
 ```js
 // Variable declarations with initializers are fine

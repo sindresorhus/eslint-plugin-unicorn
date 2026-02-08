@@ -21,7 +21,7 @@ const hasCjsExports = body => body.some(node => {
 
 	const {left} = expression;
 
-	// module.exports = ...
+	// `module.exports = ...`
 	if (
 		left.type === 'MemberExpression'
 		&& left.object.type === 'Identifier'
@@ -33,7 +33,7 @@ const hasCjsExports = body => body.some(node => {
 		return true;
 	}
 
-	// exports.foo = ...
+	// `exports.foo = ...`
 	if (
 		left.type === 'MemberExpression'
 		&& left.object.type === 'Identifier'
