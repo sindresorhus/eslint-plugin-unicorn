@@ -57,8 +57,6 @@ const getRootIdentifier = node => {
 	if (node.type === 'MemberExpression') {
 		return getRootIdentifier(node.object);
 	}
-
-	return;
 };
 
 /**
