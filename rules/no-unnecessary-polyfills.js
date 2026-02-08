@@ -81,7 +81,13 @@ function create(context) {
 		return;
 	}
 
-	const checkFeatures = features => !features.every(feature => unavailableFeatures.includes(feature));
+	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
+	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".
+	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
+	const checkFeatures = features => !features.every(feature =>
+		unavailableFeatures.includes(feature)
+		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))),
+	);
 
 	context.on('Literal', node => {
 		if (
