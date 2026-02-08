@@ -1,4 +1,4 @@
-import {isParenthesized} from './utils/index.js';
+import {isParenthesized, isNodeValueNotFunction} from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
 
@@ -48,19 +48,6 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 };
 
 const isClearing = node => isUndefined(node) || isNullLiteral(node);
-
-const notFunctionNodeTypes = new Set([
-	'Literal',
-	'TemplateLiteral',
-	'ObjectExpression',
-	'ArrayExpression',
-	'UnaryExpression',
-	'BinaryExpression',
-	'UpdateExpression',
-	'NewExpression',
-	'ClassExpression',
-	'ThisExpression',
-]);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -151,7 +138,7 @@ const create = context => {
 			operator === '='
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
-			&& !notFunctionNodeTypes.has(assignedExpression.type)
+			&& !isNodeValueNotFunction(assignedExpression)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);
 		}
