@@ -136,11 +136,7 @@ function create(context) {
 	const {
 		getLastElementFunctions,
 		checkAllIndexAccess,
-	} = {
-		getLastElementFunctions: [],
-		checkAllIndexAccess: false,
-		...context.options[0],
-	};
+	} = context.options[0];
 	const getLastFunctions = [...getLastElementFunctions, ...lodashLastFunctions];
 	const {sourceCode} = context;
 

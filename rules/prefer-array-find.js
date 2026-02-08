@@ -176,12 +176,7 @@ const isDestructuringFirstElement = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const {
-		checkFromLast,
-	} = {
-		checkFromLast: true,
-		...context.options[0],
-	};
+	const {checkFromLast} = context.options[0];
 
 	// Zero index access
 	// `array.filter()[0]`

@@ -63,12 +63,7 @@ const cases = [
 ];
 
 function create(context) {
-	const {
-		ignore: ignoredCalleeInOptions,
-	} = {
-		ignore: [],
-		...context.options[0],
-	};
+	const {ignore: ignoredCalleeInOptions} = context.options[0];
 	const {sourceCode} = context;
 
 	context.on('CallExpression', function * (secondCall) {
@@ -178,7 +173,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{ignore: []}],
 		messages,
 	},
 };

@@ -16,10 +16,7 @@ const lodashCloneDeepFunctions = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashCloneDeepFunctions];
 
 	// `JSON.parse(JSON.stringify(…))`
@@ -141,7 +138,7 @@ const config = {
 		},
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

@@ -76,11 +76,7 @@ const create = context => {
 	const {
 		checkInfinity,
 		checkNaN,
-	} = {
-		checkInfinity: false,
-		checkNaN: true,
-		...context.options[0],
-	};
+	} = context.options[0];
 
 	const objects = Object.keys(globalObjects).filter(name => {
 		if (!checkInfinity && name === 'Infinity') {

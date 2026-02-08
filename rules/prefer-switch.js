@@ -257,10 +257,8 @@ function fix({discriminant, ifStatements}, context, options) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
-		minimumCases: 3,
-		emptyDefaultCase: 'no-default-comment',
-		insertBreakInDefaultCase: false,
 		...context.options[0],
+		insertBreakInDefaultCase: false,
 	};
 	const {sourceCode} = context;
 	const ifStatements = new Set();

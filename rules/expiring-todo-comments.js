@@ -273,7 +273,6 @@ const DEFAULT_OPTIONS = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
-		...DEFAULT_OPTIONS,
 		date: new Date().toISOString().slice(0, 10),
 		...context.options[0],
 	};

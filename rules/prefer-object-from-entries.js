@@ -169,10 +169,7 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 
 	context.on('CallExpression', function * (callExpression) {
@@ -246,7 +243,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

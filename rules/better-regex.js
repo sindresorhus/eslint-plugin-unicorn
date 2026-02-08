@@ -12,7 +12,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sortCharacterClasses} = context.options[0] || {};
+	const {sortCharacterClasses} = context.options[0];
 
 	const ignoreList = [];
 

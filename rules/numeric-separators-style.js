@@ -68,32 +68,13 @@ const create = context => {
 		octal,
 		hexadecimal,
 		number,
-	} = {
-		onlyIfContainsSeparator: false,
-		...context.options[0],
-	};
+	} = context.options[0];
 
 	const options = {
-		'0b': {
-			onlyIfContainsSeparator,
-			...defaultOptions.binary,
-			...binary,
-		},
-		'0o': {
-			onlyIfContainsSeparator,
-			...defaultOptions.octal,
-			...octal,
-		},
-		'0x': {
-			onlyIfContainsSeparator,
-			...defaultOptions.hexadecimal,
-			...hexadecimal,
-		},
-		'': {
-			onlyIfContainsSeparator,
-			...defaultOptions.number,
-			...number,
-		},
+		'0b': {onlyIfContainsSeparator, ...binary},
+		'0o': {onlyIfContainsSeparator, ...octal},
+		'0x': {onlyIfContainsSeparator, ...hexadecimal},
+		'': {onlyIfContainsSeparator, ...number},
 	};
 
 	context.on('Literal', node => {

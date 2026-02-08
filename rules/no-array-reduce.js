@@ -87,7 +87,7 @@ const schema = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
+	const {allowSimpleOperations} = context.options[0];
 
 	context.on('CallExpression', function * (callExpression) {
 		for (const {test, getMethodNode, isSimpleOperation} of cases) {
