@@ -1,25 +1,10 @@
 import {isMethodCall} from '../ast/index.js';
-import {getParenthesizedText} from '../utils/index.js';
+import {getParenthesizedText, isNodeValueNotFunction} from '../utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT = 'suggestion-apply-replacement';
 const MESSAGE_ID_SUGGESTION_SPREADING_ARRAY = 'suggestion-spreading-array';
 const MESSAGE_ID_SUGGESTION_NOT_SPREADING_ARRAY = 'suggestion-not-spreading-array';
-
-// `Array#sort()` only accepts a compare function. If the argument is clearly not a function,
-// the `.sort()` call is from a different API (e.g., MongoDB cursor, ORM query builder).
-const nonFunctionTypes = new Set([
-	'ObjectExpression',
-	'ArrayExpression',
-	'Literal',
-	'TemplateLiteral',
-]);
-
-const isUnaryLiteralExpression = node => node?.type === 'UnaryExpression'
-	&& node.argument.type === 'Literal';
-
-const isNonFunctionNode = node => nonFunctionTypes.has(node?.type)
-	|| isUnaryLiteralExpression(node);
 
 const methods = new Map([
 	[
@@ -42,7 +27,7 @@ const methods = new Map([
 				maximumArguments: 1,
 				optionalCall: false,
 			})
-			&& !isNonFunctionNode(callExpression.arguments[0]),
+			&& !(callExpression.arguments[0] && isNodeValueNotFunction(callExpression.arguments[0])),
 		},
 	],
 ]);
