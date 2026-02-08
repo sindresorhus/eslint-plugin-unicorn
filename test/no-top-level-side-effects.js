@@ -73,6 +73,31 @@ test.snapshot({
 		outdent`
 			export { foo } from 'bar';
 		`,
+		// Assignment to property of module-scoped variable
+		outdent`
+			const unicorn = {};
+			unicorn.configs = { recommended: {} };
+			export default unicorn;
+		`,
+		// Object.assign on a module-scoped class
+		outdent`
+			import {ReferenceTracker} from 'foo';
+			class GlobalReferenceTracker {}
+			Object.assign(GlobalReferenceTracker, { READ: ReferenceTracker.READ });
+			export default GlobalReferenceTracker;
+		`,
+		// Object.freeze on a module-scoped variable
+		outdent`
+			const config = { key: 'value' };
+			Object.freeze(config);
+			export default config;
+		`,
+		// Object.defineProperty on a module-scoped variable
+		outdent`
+			class Foo {}
+			Object.defineProperty(Foo, 'bar', { value: 1 });
+			export default Foo;
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports

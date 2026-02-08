@@ -53,3 +53,17 @@ document.title = 'My App';
 export function setup() {}
 export class App {}
 ```
+
+```js
+// Mutations of module-scoped variables are fine
+const plugin = {};
+plugin.configs = { recommended: {} };
+export default plugin;
+```
+
+```js
+// Object.assign / Object.freeze on module-scoped variables are fine
+class Tracker {}
+Object.assign(Tracker, { READ: 1 });
+export default Tracker;
+```
