@@ -246,6 +246,10 @@ const create = context => {
 		});
 
 		context.on('ExportNamedDeclaration', node => {
+			if (!node.source) {
+				return;
+			}
+
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
 			const allowedImportStyles = styles.get(moduleName);
