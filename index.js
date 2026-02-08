@@ -9,7 +9,7 @@ const rules = toEslintRules(rawRules);
 const deprecatedRules = createDeprecatedRules({
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
-		replacedBy: ['no-instanceof-builtins'],
+		replacedBy: ['unicorn/no-instanceof-builtins'],
 	},
 	'no-length-as-slice-end': {
 		message: 'Replaced by `unicorn/no-unnecessary-slice-end` which covers more cases.',
