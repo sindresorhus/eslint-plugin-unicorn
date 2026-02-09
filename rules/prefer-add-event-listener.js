@@ -1,4 +1,4 @@
-import {isParenthesized} from './utils/index.js';
+import {isParenthesized, isNodeValueNotFunction} from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
 
@@ -138,6 +138,7 @@ const create = context => {
 			operator === '='
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
+			&& !isNodeValueNotFunction(assignedExpression)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);
 		}
