@@ -60,20 +60,61 @@ const getRootIdentifier = node => {
 };
 
 /**
-Collect names declared at the top level of the program body.
-Includes variable declarations, function declarations, class declarations,
-and import bindings.
+Collect identifier names from a binding pattern (handles destructuring).
 */
-const getTopLevelDeclaredNames = body => {
+const collectBindingNames = (pattern, names) => {
+	switch (pattern.type) {
+		case 'Identifier': {
+			names.add(pattern.name);
+			break;
+		}
+
+		case 'ObjectPattern': {
+			for (const property of pattern.properties) {
+				collectBindingNames(
+					property.type === 'RestElement' ? property.argument : property.value,
+					names,
+				);
+			}
+
+			break;
+		}
+
+		case 'ArrayPattern': {
+			for (const element of pattern.elements) {
+				if (element) {
+					collectBindingNames(
+						element.type === 'RestElement' ? element.argument : element,
+						names,
+					);
+				}
+			}
+
+			break;
+		}
+
+		case 'AssignmentPattern': {
+			collectBindingNames(pattern.left, names);
+			break;
+		}
+
+		// No default
+	}
+};
+
+/**
+Collect names declared locally at the top level of the program body.
+Includes variable declarations, function declarations, and class declarations.
+Imported bindings are excluded — mutating imports is a side effect.
+*/
+const getTopLevelLocalNames = body => {
 	const names = new Set();
 
 	for (const node of body) {
 		switch (node.type) {
 			case 'VariableDeclaration': {
 				for (const declarator of node.declarations) {
-					if (declarator.id.type === 'Identifier') {
-						names.add(declarator.id.name);
-					}
+					collectBindingNames(declarator.id, names);
 				}
 
 				break;
@@ -88,22 +129,12 @@ const getTopLevelDeclaredNames = body => {
 				break;
 			}
 
-			case 'ImportDeclaration': {
-				for (const specifier of node.specifiers) {
-					names.add(specifier.local.name);
-				}
-
-				break;
-			}
-
 			case 'ExportNamedDeclaration':
 			case 'ExportDefaultDeclaration': {
 				if (node.declaration) {
 					if (node.declaration.type === 'VariableDeclaration') {
 						for (const declarator of node.declaration.declarations) {
-							if (declarator.id.type === 'Identifier') {
-								names.add(declarator.id.name);
-							}
+							collectBindingNames(declarator.id, names);
 						}
 					} else if (node.declaration.id) {
 						names.add(node.declaration.id.name);
@@ -113,6 +144,8 @@ const getTopLevelDeclaredNames = body => {
 				break;
 			}
 
+			// ImportDeclaration intentionally excluded — imports are not local
+
 			// No default
 		}
 	}
@@ -120,62 +153,81 @@ const getTopLevelDeclaredNames = body => {
 	return names;
 };
 
-const isSideEffectStatement = (node, topLevelNames) => {
-	// Only expression statements can be side effects
-	if (node.type !== 'ExpressionStatement') {
+/**
+Top-level statement types that are always safe (declarations, exports, imports).
+*/
+const safeStatementTypes = new Set([
+	'VariableDeclaration',
+	'FunctionDeclaration',
+	'ClassDeclaration',
+	'ImportDeclaration',
+	'ExportNamedDeclaration',
+	'ExportDefaultDeclaration',
+	'ExportAllDeclaration',
+	'EmptyStatement',
+]);
+
+const isSideEffectStatement = (node, localNames) => {
+	// Declarations, exports, and imports are always safe
+	if (safeStatementTypes.has(node.type)) {
 		return false;
 	}
 
-	const {expression} = node;
+	// Expression statements need further analysis
+	if (node.type === 'ExpressionStatement') {
+		const {expression} = node;
 
-	// Allow 'use strict' directives
-	if (expression.type === 'Literal' && typeof expression.value === 'string') {
-		return false;
-	}
+		// Allow 'use strict' directives
+		if (expression.type === 'Literal' && typeof expression.value === 'string') {
+			return false;
+		}
 
-	// Assignments — exempt if target is a module-scoped variable
-	if (expression.type === 'AssignmentExpression') {
-		const {left} = expression;
+		// Assignments — exempt if target is a locally-declared variable (not import)
+		if (expression.type === 'AssignmentExpression') {
+			const {left} = expression;
 
-		// CJS exports: `module.exports = ...`, `exports.foo = ...`
+			// CJS exports: `module.exports = ...`, `exports.foo = ...`
+			if (
+				left.type === 'MemberExpression'
+				&& left.object.type === 'Identifier'
+				&& (left.object.name === 'module' || left.object.name === 'exports')
+			) {
+				return false;
+			}
+
+			// Assignments to properties of locally-declared variables: `obj.prop = ...`
+			const rootName = getRootIdentifier(left);
+			if (rootName && localNames.has(rootName)) {
+				return false;
+			}
+		}
+
+		// `Object.assign(localVar, ...)` / `Object.defineProperty(localVar, ...)`
 		if (
-			left.type === 'MemberExpression'
-			&& left.object.type === 'Identifier'
-			&& (left.object.name === 'module' || left.object.name === 'exports')
+			expression.type === 'CallExpression'
+			&& expression.callee.type === 'MemberExpression'
+			&& expression.callee.object.type === 'Identifier'
+			&& expression.callee.object.name === 'Object'
+			&& !expression.callee.computed
+			&& expression.callee.property.type === 'Identifier'
+			&& (
+				expression.callee.property.name === 'assign'
+				|| expression.callee.property.name === 'defineProperty'
+				|| expression.callee.property.name === 'defineProperties'
+				|| expression.callee.property.name === 'freeze'
+				|| expression.callee.property.name === 'seal'
+			)
+			&& expression.arguments.length > 0
 		) {
-			return false;
-		}
-
-		// Assignments to properties of locally-declared variables: `obj.prop = ...`
-		const rootName = getRootIdentifier(left);
-		if (rootName && topLevelNames.has(rootName)) {
-			return false;
+			const rootName = getRootIdentifier(expression.arguments[0]);
+			if (rootName && localNames.has(rootName)) {
+				return false;
+			}
 		}
 	}
 
-	// `Object.assign(localVar, ...)` / `Object.defineProperty(localVar, ...)`
-	if (
-		expression.type === 'CallExpression'
-		&& expression.callee.type === 'MemberExpression'
-		&& expression.callee.object.type === 'Identifier'
-		&& expression.callee.object.name === 'Object'
-		&& !expression.callee.computed
-		&& expression.callee.property.type === 'Identifier'
-		&& (
-			expression.callee.property.name === 'assign'
-			|| expression.callee.property.name === 'defineProperty'
-			|| expression.callee.property.name === 'defineProperties'
-			|| expression.callee.property.name === 'freeze'
-			|| expression.callee.property.name === 'seal'
-		)
-		&& expression.arguments.length > 0
-	) {
-		const rootName = getRootIdentifier(expression.arguments[0]);
-		if (rootName && topLevelNames.has(rootName)) {
-			return false;
-		}
-	}
-
+	// All other top-level statements (if, for, while, throw, try, switch, etc.)
+	// are side effects
 	return true;
 };
 
@@ -194,10 +246,10 @@ const create = context => {
 			return;
 		}
 
-		const topLevelNames = getTopLevelDeclaredNames(body);
+		const localNames = getTopLevelLocalNames(body);
 
 		for (const node of body) {
-			if (isSideEffectStatement(node, topLevelNames)) {
+			if (isSideEffectStatement(node, localNames)) {
 				yield {
 					node,
 					messageId: MESSAGE_ID,

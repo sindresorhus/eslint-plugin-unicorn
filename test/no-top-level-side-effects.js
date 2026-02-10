@@ -98,6 +98,36 @@ test.snapshot({
 			Object.defineProperty(Foo, 'bar', { value: 1 });
 			export default Foo;
 		`,
+		// Destructured locals — mutation is fine
+		outdent`
+			const {config} = createConfig();
+			config.enabled = true;
+			export {config};
+		`,
+		// Array destructured locals — mutation is fine
+		outdent`
+			const [first, second] = getItems();
+			first.value = true;
+			export {first, second};
+		`,
+		// Nested destructured locals — mutation is fine
+		outdent`
+			const {a: {b}} = getConfig();
+			b.flag = true;
+			export {b};
+		`,
+		// Rest element in destructuring
+		outdent`
+			const {main, ...rest} = getOptions();
+			rest.extra = true;
+			export {main, rest};
+		`,
+		// Default value in destructuring
+		outdent`
+			const {config = {}} = getOptions();
+			config.enabled = true;
+			export {config};
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports
@@ -135,6 +165,59 @@ test.snapshot({
 		outdent`
 			export const x = 1;
 			console.log('after export');
+		`,
+		// Imported binding mutation is a side effect
+		outdent`
+			import shared from 'x';
+			shared.flag = true;
+			export default shared;
+		`,
+		// Top-level if statement is a side effect
+		outdent`
+			if (Math.random() > 0.5) {
+				console.log('x');
+			}
+			export const value = 1;
+		`,
+		// Top-level for loop is a side effect
+		outdent`
+			for (let i = 0; i < 3; i++) {
+				console.log(i);
+			}
+			export const value = 1;
+		`,
+		// Top-level while loop is a side effect
+		outdent`
+			while (false) {
+				break;
+			}
+			export const value = 1;
+		`,
+		// Top-level throw is a side effect
+		outdent`
+			throw new Error('fail');
+			export const value = 1;
+		`,
+		// Top-level try/catch is a side effect
+		outdent`
+			try {
+				doSomething();
+			} catch {}
+			export const value = 1;
+		`,
+		// Top-level switch is a side effect
+		outdent`
+			switch (process.env.NODE_ENV) {
+				case 'production':
+					break;
+			}
+			export const value = 1;
+		`,
+		// Object.assign on imported binding is a side effect
+		outdent`
+			import shared from 'x';
+			Object.assign(shared, { flag: true });
+			export default shared;
 		`,
 	],
 });
