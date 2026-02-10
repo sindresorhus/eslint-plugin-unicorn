@@ -1,5 +1,5 @@
 import {isMethodCall} from '../ast/index.js';
-import {getParenthesizedText} from '../utils/index.js';
+import {getParenthesizedText, isNodeValueNotFunction} from '../utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT = 'suggestion-apply-replacement';
@@ -26,7 +26,8 @@ const methods = new Map([
 				method: 'sort',
 				maximumArguments: 1,
 				optionalCall: false,
-			}),
+			})
+			&& !(callExpression.arguments[0] && isNodeValueNotFunction(callExpression.arguments[0])),
 		},
 	],
 ]);
