@@ -474,6 +474,22 @@ test.snapshot({
 			export {foo};
 			export {bar} from './foo.json' assert { type: 'unknown' };
 		`,
+		outdent`
+			import type * as X from 'foo';
+			export { X };
+		`,
+		outdent`
+			import * as X from 'foo';
+			export type { X };
+		`,
+		outdent`
+			import type * as X from 'foo';
+			export type { X };
+		`,
+		outdent`
+			import * as X from 'foo';
+			export { X };
+		`,
 	],
 });
 
