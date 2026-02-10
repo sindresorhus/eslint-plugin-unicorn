@@ -29,6 +29,55 @@ test.snapshot({
 	],
 });
 
+// `TemplateLiteral` to `String.raw`
+test.snapshot({
+	valid: [
+		// No backslash
+		'a = `a`',
+		'a = `${foo}`',
+		'a = `a${100}b`',
+
+		// Escaped characters other than backslash
+		'a = `a\\t${foo.bar}b\\\\c`', // \t
+		'a = `${foo}\\\\a${bar}\\``', // \`
+		'a = `a\\${`', // \$
+		'a = `a$\\{`', // \{
+		'a = `${a}\\\'${b}\\\\`', // \'
+		'a = `\\"a\\\\b`', // \"
+
+		// Ending with backslash
+		'a = `\\\\a${foo}b\\\\${foo}`',
+
+		// Tagged template expression
+		'a = String.raw`a\\\\b`',
+
+		// Slash before newline (spread into multiple lines)
+		outdent`
+			a = \`\\\\a \\
+			b\`
+		`,
+	],
+	invalid: [
+		'a = `a\\\\b`',
+		'function a() {return`a\\\\b${foo}cd`}',
+		'a = {[`a\\\\b${foo}cd${foo.bar}e\\\\f`]: b}',
+		'a = `a${foo}${foo.bar}b\\\\c`',
+		'a = `a\\\\b${"c\\\\d"}e`',
+		outdent`
+			a = \`\\\\a
+			b\`
+		`,
+		outdent`
+			a = \`\\\\a\${foo}
+			b\${bar}c
+			d\\\\\\\\e\`
+		`,
+		'a = `a\\\\b${ foo /* bar */}c\\\\d`',
+		'a = `a\\\\b${ foo + bar }`',
+		'a = `${ foo .bar }a\\\\b`',
+	],
+});
+
 test.snapshot({
 	valid: [
 		'a = foo`ab`',
@@ -88,55 +137,6 @@ test.snapshot({
 			a = String.raw  /* comment */  \`ab
 			c\`
 		`,
-	],
-});
-
-// `TemplateLiteral` to `String.raw`
-test.snapshot({
-	valid: [
-		// No backslash
-		'a = `a`',
-		'a = `${foo}`',
-		'a = `a${100}b`',
-
-		// Escaped characters other than backslash
-		'a = `a\\t${foo.bar}b\\\\c`', // \t
-		'a = `${foo}\\\\a${bar}\\``', // \`
-		'a = `a\\${`', // \$
-		'a = `a$\\{`', // \{
-		'a = `${a}\\\'${b}\\\\`', // \'
-		'a = `\\"a\\\\b`', // \"
-
-		// Ending with backslash
-		'a = `\\\\a${foo}b\\\\${foo}`',
-
-		// Tagged template expression
-		'a = String.raw`a\\\\b`',
-
-		// Slash before newline (spread into multiple lines)
-		outdent`
-			a = \`\\\\a \\
-			b\`
-		`,
-	],
-	invalid: [
-		'a = `a\\\\b`',
-		'function a() {return`a\\\\b${foo}cd`}',
-		'a = {[`a\\\\b${foo}cd${foo.bar}e\\\\f`]: b}',
-		'a = `a${foo}${foo.bar}b\\\\c`',
-		'a = `a\\\\b${"c\\\\d"}e`',
-		outdent`
-			a = \`\\\\a
-			b\`
-		`,
-		outdent`
-			a = \`\\\\a\${foo}
-			b\${bar}c
-			d\\\\\\\\e\`
-		`,
-		'a = `a\\\\b${ foo /* bar */}c\\\\d`',
-		'a = `a\\\\b${ foo + bar }`',
-		'a = `${ foo .bar }a\\\\b`',
 	],
 });
 

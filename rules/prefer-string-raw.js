@@ -164,7 +164,7 @@ const create = context => {
 			messageId: MESSAGE_ID_UNNECESSARY_STRING_RAW,
 			* fix(fixer) {
 				const tokenBefore = sourceCode.getTokenBefore(node);
-				if (needsSemicolon(tokenBefore, sourceCode, suggestion)) {
+				if (needsSemicolon(tokenBefore, context, suggestion)) {
 					yield fixer.insertTextBefore(node, ';');
 				}
 
