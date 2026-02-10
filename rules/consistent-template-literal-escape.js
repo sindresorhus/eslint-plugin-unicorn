@@ -24,11 +24,19 @@ const create = context => {
 		);
 
 		if (raw !== fixedRaw) {
-			return {
+			const problem = {
 				node,
 				messageId: MESSAGE_ID,
-				fix: fixer => replaceTemplateElement(node, fixedRaw, context, fixer),
 			};
+
+			// Only auto-fix untagged templates. Tagged templates may have tag
+			// functions that read `strings.raw`, where changing the escape style
+			// would alter runtime behavior.
+			if (!isTaggedTemplateLiteral(node.parent)) {
+				problem.fix = fixer => replaceTemplateElement(node, fixedRaw, context, fixer);
+			}
+
+			return problem;
 		}
 	});
 };
