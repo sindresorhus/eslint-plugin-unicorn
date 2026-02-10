@@ -57,11 +57,11 @@ function getPatternReplacement(node) {
 					return String.raw`\t`;
 				}
 
-				return `\\u{${codePoint.toString(16)}}`;
+				return String.raw`\u{${codePoint.toString(16)}}`;
 			}
 
 			if (kind === 'octal') {
-				return `\\u{${codePoint.toString(16)}}`;
+				return String.raw`\u{${codePoint.toString(16)}}`;
 			}
 
 			let character = raw;
@@ -107,13 +107,12 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {
 			methods: ['replace', 'replaceAll'],
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}
@@ -161,8 +160,8 @@ const create = context => ({
 				yield fixer.replaceText(pattern, patternReplacement);
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -171,7 +170,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

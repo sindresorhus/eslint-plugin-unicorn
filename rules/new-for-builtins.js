@@ -16,7 +16,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
-function enforceNewExpression({node, path: [name]}, sourceCode) {
+function enforceNewExpression({node, path: [name]}, context) {
 	if (name === 'Object') {
 		const {parent} = node;
 		if (
@@ -33,7 +33,7 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 	if (name === 'Date') {
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		}
 
 		const problem = {
@@ -41,7 +41,7 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 			messageId: MESSAGE_ID_ERROR_DATE,
 		};
 
-		if (sourceCode.getCommentsInside(node).length === 0 && node.arguments.length === 0) {
+		if (context.sourceCode.getCommentsInside(node).length === 0 && node.arguments.length === 0) {
 			problem.fix = fix;
 		} else {
 			problem.suggest = [
@@ -59,11 +59,11 @@ function enforceNewExpression({node, path: [name]}, sourceCode) {
 		node,
 		messageId: 'enforce',
 		data: {name},
-		fix: fixer => switchCallExpressionToNewExpression(node, sourceCode, fixer),
+		fix: fixer => switchCallExpressionToNewExpression(node, context, fixer),
 	};
 }
 
-function enforceCallExpression({node, path: [name]}, sourceCode) {
+function enforceCallExpression({node, path: [name]}, context) {
 	const problem = {
 		node,
 		messageId: 'disallow',
@@ -71,36 +71,27 @@ function enforceCallExpression({node, path: [name]}, sourceCode) {
 	};
 
 	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
-		problem.fix = function * (fixer) {
-			yield * switchNewExpressionToCallExpression(node, sourceCode, fixer);
-		};
+		problem.fix = fixer => switchNewExpressionToCallExpression(node, context, fixer);
 	}
 
 	return problem;
 }
 
+const newExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.disallowNew,
+	type: GlobalReferenceTracker.CONSTRUCT,
+	handle: enforceCallExpression,
+});
+const callExpressionTracker = new GlobalReferenceTracker({
+	objects: builtins.enforceNew,
+	type: GlobalReferenceTracker.CALL,
+	handle: enforceNewExpression,
+});
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-	const newExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.disallowNew,
-		type: GlobalReferenceTracker.CONSTRUCT,
-		handle: reference => enforceCallExpression(reference, sourceCode),
-	});
-	const callExpressionTracker = new GlobalReferenceTracker({
-		objects: builtins.enforceNew,
-		type: GlobalReferenceTracker.CALL,
-		handle: reference => enforceNewExpression(reference, sourceCode),
-	});
-
-	return {
-		* 'Program:exit'(program) {
-			const scope = sourceCode.getScope(program);
-
-			yield * newExpressionTracker.track(scope);
-			yield * callExpressionTracker.track(scope);
-		},
-	};
+	newExpressionTracker.listen({context});
+	callExpressionTracker.listen({context});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -110,7 +101,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

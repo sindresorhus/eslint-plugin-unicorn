@@ -21,24 +21,18 @@ const isPromiseCatchParameter = node =>
 			method: 'then',
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})
 		|| isMethodCall(node.parent.parent, {
 			method: 'catch',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false,
 		})
 	)
 	&& node.parent.parent.arguments.at(-1) === node.parent;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = {
-		name: 'error',
-		ignore: [],
-		...context.options[0],
-	};
+	const options = context.options[0];
 	const {name: expectedName} = options;
 	const ignore = options.ignore.map(
 		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
@@ -49,60 +43,58 @@ const create = context => {
 		|| name.endsWith(expectedName)
 		|| name.endsWith(upperFirst(expectedName));
 
-	return {
-		Identifier(node) {
-			if (
-				!(node.parent.type === 'CatchClause' && node.parent.param === node)
-				&& !isPromiseCatchParameter(node)
-			) {
-				return;
-			}
+	context.on('Identifier', node => {
+		if (
+			!(node.parent.type === 'CatchClause' && node.parent.param === node)
+			&& !isPromiseCatchParameter(node)
+		) {
+			return;
+		}
 
-			const originalName = node.name;
+		const originalName = node.name;
 
-			if (
-				isNameAllowed(originalName)
-				|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
-			) {
-				return;
-			}
+		if (
+			isNameAllowed(originalName)
+			|| isNameAllowed(originalName.replaceAll(/_+$/g, ''))
+		) {
+			return;
+		}
 
-			const scope = context.sourceCode.getScope(node);
-			const variable = findVariable(scope, node);
+		const scope = context.sourceCode.getScope(node);
+		const variable = findVariable(scope, node);
 
-			// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
-			// But can't reproduce, just ignore this case
-			/* c8 ignore next 3 */
-			if (!variable) {
-				return;
-			}
+		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768072967
+		// But can't reproduce, just ignore this case
+		/* c8 ignore next 3 */
+		if (!variable) {
+			return;
+		}
 
-			if (originalName === '_' && variable.references.length === 0) {
-				return;
-			}
+		if (originalName === '_' && variable.references.length === 0) {
+			return;
+		}
 
-			const scopes = [
-				variable.scope,
-				...variable.references.map(({from}) => from),
-			];
-			const fixedName = getAvailableVariableName(expectedName, scopes);
+		const scopes = [
+			variable.scope,
+			...variable.references.map(({from}) => from),
+		];
+		const fixedName = getAvailableVariableName(expectedName, scopes);
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					originalName,
-					fixedName: fixedName || expectedName,
-				},
-			};
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				originalName,
+				fixedName: fixedName || expectedName,
+			},
+		};
 
-			if (fixedName) {
-				problem.fix = fixer => renameVariable(variable, fixedName, fixer);
-			}
+		if (fixedName) {
+			problem.fix = fixer => renameVariable(variable, fixedName, context, fixer);
+		}
 
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 const schema = [
@@ -132,7 +124,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{name: 'error', ignore: []}],
 		messages,
 	},
 };

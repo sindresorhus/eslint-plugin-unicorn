@@ -26,7 +26,7 @@ const isNegative = node => {
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-function checkProperty({node, path: [name]}, sourceCode) {
+function checkProperty({node, path: [name]}, context) {
 	const {parent} = node;
 
 	let property = name;
@@ -48,13 +48,13 @@ function checkProperty({node, path: [name]}, sourceCode) {
 		problem.data.description = '-Infinity';
 		problem.fix = function * (fixer) {
 			yield fixer.replaceText(parent, 'Number.NEGATIVE_INFINITY');
-			yield * fixSpaceAroundKeyword(fixer, parent, sourceCode);
+			yield fixSpaceAroundKeyword(fixer, parent, context);
 		};
 
 		return problem;
 	}
 
-	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, fixer, sourceCode);
+	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, context, fixer);
 	const isSafeToFix = globalObjects[name];
 
 	if (isSafeToFix) {
@@ -76,12 +76,7 @@ const create = context => {
 	const {
 		checkInfinity,
 		checkNaN,
-	} = {
-		checkInfinity: false,
-		checkNaN: true,
-		...context.options[0],
-	};
-	const {sourceCode} = context;
+	} = context.options[0];
 
 	const objects = Object.keys(globalObjects).filter(name => {
 		if (!checkInfinity && name === 'Infinity') {
@@ -95,13 +90,12 @@ const create = context => {
 		return true;
 	});
 
-	const tracker = new GlobalReferenceTracker({
+	new GlobalReferenceTracker({
 		objects,
-		handle: reference => checkProperty(reference, sourceCode),
+		context,
+		handle: checkProperty,
 		filter: ({node}) => !isLeftHandSide(node),
-	});
-
-	return tracker.createListeners(context);
+	}).listen();
 };
 
 const schema = [
@@ -126,7 +120,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Number` static properties over global ones.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

@@ -19,6 +19,8 @@ const methodsReturnsArray = [
 	'toSorted',
 	'toSpliced',
 	'with',
+	'toArray',
+	'split',
 ];
 
 test.snapshot({

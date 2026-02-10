@@ -1,6 +1,6 @@
 # Prefer `Number` static properties over global ones
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -17,68 +17,76 @@ ECMAScript 2015 moved globals onto the `Number` constructor for consistency and 
 - [`Number.POSITIVE_INFINITY`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/POSITIVE_INFINITY) over [`Infinity`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity) *(fixable)*
 - [`Number.NEGATIVE_INFINITY`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NEGATIVE_INFINITY) over [`-Infinity`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity) *(fixable)*
 
-## Fail
+## Examples
 
 ```js
+// ❌
 const foo = parseInt('10', 2);
-```
 
-```js
-const foo = parseFloat('10.5');
-```
-
-```js
-const foo = isNaN(10);
-```
-
-```js
-const foo = isFinite(10);
-```
-
-```js
-if (Object.is(foo, NaN)) {}
-```
-
-```js
-const {parseInt} = Number;
-const foo = parseInt('10', 2);
-```
-
-## Pass
-
-```js
+// ✅
 const foo = Number.parseInt('10', 2);
 ```
 
 ```js
+// ❌
+const foo = parseFloat('10.5');
+
+// ✅
 const foo = Number.parseFloat('10.5');
 ```
 
 ```js
+// ❌
+const foo = isNaN(10);
+
+// ✅
 const foo = Number.isNaN(10);
 ```
 
 ```js
+// ❌
+const foo = isFinite(10);
+
+// ✅
 const foo = Number.isFinite(10);
 ```
 
 ```js
+// ❌
+if (Object.is(foo, NaN)) {}
+
+// ✅
 if (Object.is(foo, Number.NaN)) {}
 ```
 
 ```js
+// ✅
+const foo = Number.parseInt('10', 2);
+```
+
+```js
+// ✅
+const {parseInt} = Number;
+const foo = parseInt('10', 2);
+```
+
+```js
+// ✅
 const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INFINITY;
 ```
 
 ```js
+// ✅
 const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
 ```
 
 ```js
+// ✅
 const isPositiveZero = value => value === 0 && 1 / value === Infinity;
 ```
 
 ```js
+// ✅
 const isNegativeZero = value => value === 0 && 1 / value === -Infinity;
 ```
 
@@ -93,48 +101,22 @@ Default: `false`
 
 Pass `checkInfinity: true` to enable check on `Infinity`.
 
-#### Fail
-
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+/* eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}] */
+
+// ❌
 const foo = Infinity;
-```
 
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
-const foo = -Infinity;
-```
-
-#### Pass
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
+// ✅
 const foo = Number.POSITIVE_INFINITY;
 ```
 
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
-const foo = Number.NEGATIVE_INFINITY;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
-const foo = Infinity;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": false}]
+// ❌
 const foo = -Infinity;
-```
 
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
-const isPositiveZero = value => value === 0 && 1 / value === Number.POSITIVE_INFINITY;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkInfinity": true}]
-const isNegativeZero = value => value === 0 && 1 / value === Number.NEGATIVE_INFINITY;
+// ✅
+const foo = Number.NEGATIVE_INFINITY;
 ```
 
 ### checkNaN
@@ -144,36 +126,12 @@ Default: `true`
 
 Pass `checkNaN: false` to disable check on `NaN`.
 
-#### Fail
-
 ```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
+/* eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}] */
+
+// ✅
 const foo = NaN;
-```
 
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
-const foo = -NaN;
-```
-
-#### Pass
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
-const foo = Number.NaN;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": true}]
-const foo = -Number.NaN;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
-const foo = NaN;
-```
-
-```js
-// eslint unicorn/prefer-number-properties: ["error", {"checkNaN": false}]
+// ✅
 const foo = -NaN;
 ```

@@ -1,54 +1,31 @@
 import stripIndent from 'strip-indent';
 import indentString from 'indent-string';
-import esquery from 'esquery';
 import {replaceTemplateElement} from './fix/index.js';
-import {isMethodCall, isCallExpression, isTaggedTemplateLiteral} from './ast/index.js';
+import {isTaggedTemplateLiteral} from './ast/index.js';
 import {isNodeMatches} from './utils/index.js';
+import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 
 const MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE = 'template-indent';
 const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
 
-const isJestInlineSnapshot = node =>
-	isMethodCall(node.parent, {
-		method: 'toMatchInlineSnapshot',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& node.parent.arguments[0] === node
-	&& isCallExpression(node.parent.callee.object, {
-		name: 'expect',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	});
-
-const parsedEsquerySelectors = new Map();
-const parseEsquerySelector = selector => {
-	if (!parsedEsquerySelectors.has(selector)) {
-		parsedEsquerySelectors.set(selector, esquery.parse(selector));
-	}
-
-	return parsedEsquerySelectors.get(selector);
-};
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const options = {
-		tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
-		functions: ['dedent', 'stripIndent'],
-		selectors: [],
-		comments: ['HTML', 'indent'],
-		...context.options[0],
-	};
+	const options = {...context.options[0]};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
+	const checked = new WeakSet();
 
 	/** @param {import('@babel/core').types.TemplateLiteral} node */
 	const getProblem = node => {
+		if (node.type !== 'TemplateLiteral' || checked.has(node)) {
+			return;
+		}
+
+		checked.add(node);
+
 		const delimiter = '__PLACEHOLDER__' + Math.random();
 		const joined = node.quasis
 			.map(quasi => {
@@ -96,7 +73,7 @@ const create = context => {
 			messageId: MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE,
 			fix: fixer => fixed
 				.split(delimiter)
-				.map((replacement, index) => replaceTemplateElement(fixer, node.quasis[index], replacement)),
+				.map((replacement, index) => replaceTemplateElement(node.quasis[index], replacement, context, fixer)),
 		};
 	};
 
@@ -128,26 +105,18 @@ const create = context => {
 			return true;
 		}
 
-		if (options.selectors.length > 0) {
-			const ancestors = sourceCode.getAncestors(node).reverse();
-			if (options.selectors.some(selector => esquery.matches(node, parseEsquerySelector(selector), ancestors))) {
-				return true;
-			}
-		}
-
 		return false;
 	};
 
-	return {
-		/** @param {import('@babel/core').types.TemplateLiteral} node */
-		TemplateLiteral(node) {
-			if (!shouldIndent(node)) {
-				return;
-			}
+	context.on('TemplateLiteral', /** @param {import('@babel/core').types.TemplateLiteral} node */ node => {
+		if (!shouldIndent(node)) {
+			return;
+		}
 
-			return getProblem(node);
-		},
-	};
+		return getProblem(node);
+	});
+
+	context.on(options.selectors, /** @param {import('@babel/core').types.TemplateLiteral} node */ node => getProblem(node));
 };
 
 /** @type {import('json-schema').JSONSchema7[]} */
@@ -211,7 +180,12 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{
+			tags: ['outdent', 'dedent', 'gql', 'sql', 'html', 'styled'],
+			functions: ['dedent', 'stripIndent'],
+			selectors: [],
+			comments: ['HTML', 'indent'],
+		}],
 		messages,
 	},
 };

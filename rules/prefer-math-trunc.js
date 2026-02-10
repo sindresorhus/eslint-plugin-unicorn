@@ -54,7 +54,7 @@ const create = context => {
 					yield fixer.replaceText(operatorToken, '=');
 					yield fixer.replaceText(right, fixed);
 				} else {
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+					yield fixSpaceAroundKeyword(fixer, node, context);
 					yield fixer.replaceText(node, fixed);
 				}
 			};
@@ -86,7 +86,7 @@ const create = context => {
 				messageId: ERROR_BITWISE_NOT,
 				* fix(fixer) {
 					yield fixer.replaceText(node, mathTruncFunctionCall(node.argument.argument));
-					yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+					yield fixSpaceAroundKeyword(fixer, node, context);
 				},
 			};
 		}
@@ -100,7 +100,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of `Math.trunc` instead of bitwise operators.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

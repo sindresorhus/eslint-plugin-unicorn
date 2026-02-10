@@ -9,6 +9,7 @@ import {
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {isLiteral, isMethodCall} from './ast/index.js';
+import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -41,6 +42,29 @@ const ignoredSliceCallee = [
 	'this',
 ];
 
+// TypedArray and ArrayBuffer constructors - these have .slice() but spreading them
+// either doesn't work (ArrayBuffer has no iterator) or changes the type (TypedArray.slice()
+// returns the same typed array, but spreading converts to number[])
+const typedArrayConstructors = new Set([
+	...typedArrayTypes,
+	'ArrayBuffer',
+	'SharedArrayBuffer',
+]);
+
+/**
+Check if node is a TypedArray/ArrayBuffer construction (new Uint8Array(...)).
+
+@param {import('estree').Node} node
+@returns {boolean}
+*/
+function isTypedArrayConstruction(node) {
+	return (
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& typedArrayConstructors.has(node.callee.name)
+	);
+}
+
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	if (node.elements.length === 0) {
@@ -50,10 +74,11 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	return isCommaToken(sourceCode.getLastToken(node, 1));
 };
 
-function fixConcat(node, sourceCode, fixableArguments) {
+function fixConcat(node, context, fixableArguments) {
+	const {sourceCode} = context;
 	const array = node.callee.object;
 	const concatCallArguments = node.arguments;
-	const arrayParenthesizedRange = getParenthesizedRange(array, sourceCode);
+	const arrayParenthesizedRange = getParenthesizedRange(array, context);
 	const arrayIsArrayLiteral = isArrayLiteral(array);
 	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
 
@@ -81,7 +106,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
-				let text = getParenthesizedText(node, sourceCode);
+				let text = getParenthesizedText(node, context);
 
 				if (testArgument) {
 					return `...(Array.isArray(${text}) ? ${text} : [${text}])`;
@@ -125,7 +150,7 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		const [firstArgument] = concatCallArguments;
 		const lastArgument = concatCallArguments[fixableArguments.length - 1];
 
-		const [start] = getParenthesizedRange(firstArgument, sourceCode);
+		const [start] = getParenthesizedRange(firstArgument, context);
 		let [, end] = sourceCode.getRange(sourceCode.getTokenAfter(lastArgument, isCommaToken));
 
 		const textAfter = sourceCode.text.slice(end);
@@ -139,16 +164,16 @@ function fixConcat(node, sourceCode, fixableArguments) {
 		// Fixed code always starts with `[`
 		if (
 			!arrayIsArrayLiteral
-			&& needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')
+			&& needsSemicolon(sourceCode.getTokenBefore(node), context, '[')
 		) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
-		if (concatCallArguments.length - fixableArguments.length === 0) {
-			yield * removeMethodCall(fixer, node, sourceCode);
-		} else {
-			yield removeArguments(fixer);
-		}
+		yield (
+			concatCallArguments.length - fixableArguments.length === 0
+				? removeMethodCall(fixer, node, context)
+				: removeArguments(fixer)
+		);
 
 		const text = getFixedText();
 
@@ -200,7 +225,8 @@ function getConcatFixableArguments(argumentsList, scope) {
 	return fixableArguments;
 }
 
-function fixArrayFrom(node, sourceCode) {
+function fixArrayFrom(node, context) {
+	const {sourceCode} = context;
 	const [object] = node.arguments;
 
 	function getObjectText() {
@@ -208,7 +234,7 @@ function fixArrayFrom(node, sourceCode) {
 			return sourceCode.getText(object);
 		}
 
-		const [start, end] = getParenthesizedRange(object, sourceCode);
+		const [start, end] = getParenthesizedRange(object, context);
 		const text = sourceCode.text.slice(start, end);
 
 		return `[...${text}]`;
@@ -216,7 +242,7 @@ function fixArrayFrom(node, sourceCode) {
 
 	return function * (fixer) {
 		// Fixed code always starts with `[`
-		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+		if (needsSemicolon(sourceCode.getTokenBefore(node), context, '[')) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
@@ -226,10 +252,11 @@ function fixArrayFrom(node, sourceCode) {
 	};
 }
 
-function methodCallToSpread(node, sourceCode) {
+function methodCallToSpread(node, context) {
 	return function * (fixer) {
+		const {sourceCode} = context;
 		// Fixed code always starts with `[`
-		if (needsSemicolon(sourceCode.getTokenBefore(node), sourceCode, '[')) {
+		if (needsSemicolon(sourceCode.getTokenBefore(node), context, '[')) {
 			yield fixer.insertTextBefore(node, ';');
 		}
 
@@ -238,7 +265,7 @@ function methodCallToSpread(node, sourceCode) {
 
 		// The array is already accessing `.slice` or `.split`, there should not any case need add extra `()`
 
-		yield * removeMethodCall(fixer, node, sourceCode);
+		yield removeMethodCall(fixer, node, context);
 	};
 }
 
@@ -296,7 +323,7 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_ARRAY_FROM,
-				fix: fixArrayFrom(node, sourceCode),
+				fix: fixArrayFrom(node, context),
 			};
 		}
 	});
@@ -331,7 +358,7 @@ const create = context => {
 		const fixableArguments = getConcatFixableArguments(node.arguments, scope);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
-			problem.fix = fixConcat(node, sourceCode, fixableArguments);
+			problem.fix = fixConcat(node, context, fixableArguments);
 			return problem;
 		}
 
@@ -363,7 +390,7 @@ const create = context => {
 			messageId,
 			fix: fixConcat(
 				node,
-				sourceCode,
+				context,
 				// When apply suggestion, we also merge fixable arguments after the first one
 				[
 					{
@@ -384,7 +411,7 @@ const create = context => {
 				messageId: SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS,
 				fix: fixConcat(
 					node,
-					sourceCode,
+					context,
 					node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true}),
 				),
 			});
@@ -413,6 +440,12 @@ const create = context => {
 			return;
 		}
 
+		// Skip TypedArray/ArrayBuffer constructions - spreading them either fails
+		// (ArrayBuffer has no iterator) or changes the type (TypedArray -> number[])
+		if (isTypedArrayConstruction(node.callee.object)) {
+			return;
+		}
+
 		const [firstArgument] = node.arguments;
 		if (firstArgument && !isLiteral(firstArgument, 0)) {
 			return;
@@ -421,7 +454,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_SLICE,
-			fix: methodCallToSpread(node, sourceCode),
+			fix: methodCallToSpread(node, context),
 		};
 	});
 
@@ -442,7 +475,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_TO_SPLICED,
-			fix: methodCallToSpread(node, sourceCode),
+			fix: methodCallToSpread(node, context),
 		};
 	});
 
@@ -486,12 +519,12 @@ const create = context => {
 		};
 
 		if (hasSameResult) {
-			problem.fix = methodCallToSpread(node, sourceCode);
+			problem.fix = methodCallToSpread(node, context);
 		} else {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_USE_SPREAD,
-					fix: methodCallToSpread(node, sourceCode),
+					fix: methodCallToSpread(node, context),
 				},
 			];
 		}

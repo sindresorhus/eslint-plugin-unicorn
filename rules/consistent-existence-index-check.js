@@ -1,12 +1,12 @@
 import toLocation from './utils/to-location.js';
-import {isMethodCall, isNegativeOne, isNumberLiteral} from './ast/index.js';
+import {isMethodCall, isNegativeOne, isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-existence-index-check';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacementOperator}} {{replacementValue}}` over `{{originalOperator}} {{originalValue}}` to check {{existenceOrNonExistence}}.',
 };
 
-const isZero = node => isNumberLiteral(node) && node.value === 0;
+const isZero = node => isNumericLiteral(node) && node.value === 0;
 
 /**
 @param {parent: import('estree').BinaryExpression} binaryExpression
@@ -49,9 +49,8 @@ function getReplacement(binaryExpression) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	/** @param {import('estree').VariableDeclarator} variableDeclarator */
-	* VariableDeclarator(variableDeclarator) {
+const create = context => {
+	context.on('VariableDeclarator', /** @param {import('estree').VariableDeclarator} variableDeclarator */ function * (variableDeclarator) {
 		if (!(
 			variableDeclarator.parent.type === 'VariableDeclaration'
 			&& variableDeclarator.parent.kind === 'const'
@@ -101,7 +100,7 @@ const create = context => ({
 
 			yield {
 				node: binaryExpression,
-				loc: toLocation([start, end], sourceCode),
+				loc: toLocation([start, end], context),
 				messageId: MESSAGE_ID,
 				data: {
 					...replacement,
@@ -116,8 +115,8 @@ const create = context => ({
 				},
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -127,7 +126,7 @@ const config = {
 		docs: {
 			description:
 				'Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

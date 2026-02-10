@@ -70,7 +70,7 @@ function getTargets(options, dirname) {
 function create(context) {
 	const targets = getTargets(context.options[0], path.dirname(context.filename));
 	if (!targets) {
-		return {};
+		return;
 	}
 
 	let unavailableFeatures;
@@ -78,58 +78,62 @@ function create(context) {
 		unavailableFeatures = coreJsCompat({targets}).list;
 	} catch {
 		// This can happen if the targets are invalid or use unsupported syntax like `{node:'*'}`.
-		return {};
+		return;
 	}
 
-	const checkFeatures = features => !features.every(feature => unavailableFeatures.includes(feature));
+	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
+	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".
+	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
+	const checkFeatures = features => !features.every(feature =>
+		unavailableFeatures.includes(feature)
+		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))),
+	);
 
-	return {
-		Literal(node) {
-			if (
-				!(
-					(['ImportDeclaration', 'ImportExpression'].includes(node.parent.type) && node.parent.source === node)
-					|| (isStaticRequire(node.parent) && node.parent.arguments[0] === node)
-				)
-			) {
-				return;
-			}
+	context.on('Literal', node => {
+		if (
+			!(
+				(['ImportDeclaration', 'ImportExpression'].includes(node.parent.type) && node.parent.source === node)
+				|| (isStaticRequire(node.parent) && node.parent.arguments[0] === node)
+			)
+		) {
+			return;
+		}
 
-			const importedModule = node.value;
-			if (typeof importedModule !== 'string' || ['.', '/'].includes(importedModule[0])) {
-				return;
-			}
+		const importedModule = node.value;
+		if (typeof importedModule !== 'string' || ['.', '/'].includes(importedModule[0])) {
+			return;
+		}
 
-			const coreJsModuleFeatures = coreJsEntries[importedModule.replace('core-js-pure', 'core-js')];
+		const coreJsModuleFeatures = coreJsEntries[importedModule.replace('core-js-pure', 'core-js')];
 
-			if (coreJsModuleFeatures) {
-				if (coreJsModuleFeatures.length > 1) {
-					if (checkFeatures(coreJsModuleFeatures)) {
-						return {
-							node,
-							messageId: MESSAGE_ID_CORE_JS,
-							data: {
-								coreJsModule: importedModule,
-							},
-						};
-					}
-				} else if (!unavailableFeatures.includes(coreJsModuleFeatures[0])) {
-					return {node, messageId: MESSAGE_ID_POLYFILL};
+		if (coreJsModuleFeatures) {
+			if (coreJsModuleFeatures.length > 1) {
+				if (checkFeatures(coreJsModuleFeatures)) {
+					return {
+						node,
+						messageId: MESSAGE_ID_CORE_JS,
+						data: {
+							coreJsModule: importedModule,
+						},
+					};
 				}
-
-				return;
+			} else if (!unavailableFeatures.includes(coreJsModuleFeatures[0])) {
+				return {node, messageId: MESSAGE_ID_POLYFILL};
 			}
 
-			const polyfill = polyfills.find(({pattern}) => pattern.test(importedModule));
-			if (polyfill) {
-				const [, namespace, method = ''] = polyfill.feature.split('.');
-				const features = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
+			return;
+		}
 
-				if (features && checkFeatures(features)) {
-					return {node, messageId: MESSAGE_ID_POLYFILL};
-				}
+		const polyfill = polyfills.find(({pattern}) => pattern.test(importedModule));
+		if (polyfill) {
+			const [, namespace, method = ''] = polyfill.feature.split('.');
+			const features = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
+
+			if (features && checkFeatures(features)) {
+				return {node, messageId: MESSAGE_ID_POLYFILL};
 			}
-		},
-	};
+		}
+	});
 }
 
 const schema = [
@@ -162,7 +166,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of built-in methods instead of unnecessary polyfills.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		schema,
 		// eslint-disable-next-line eslint-plugin/require-meta-default-options

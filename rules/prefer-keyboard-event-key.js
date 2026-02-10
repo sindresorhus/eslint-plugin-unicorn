@@ -1,6 +1,6 @@
 import escapeString from './utils/escape-string.js';
 import translateToKey from './shared/event-keys.js';
-import {isNumberLiteral} from './ast/index.js';
+import {isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
 const messages = {
@@ -80,7 +80,7 @@ const fix = node => fixer => {
 		!(
 			type === 'BinaryExpression'
 			&& (operator === '==' || operator === '===')
-			&& isNumberLiteral(right)
+			&& isNumericLiteral(right)
 		)
 	) {
 		return;
@@ -108,8 +108,8 @@ const getProblem = node => ({
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Identifier(node) {
+const create = context => {
+	context.on('Identifier', node => {
 		if (
 			node.name !== 'keyCode'
 			&& node.name !== 'charCode'
@@ -130,9 +130,9 @@ const create = context => ({
 		) {
 			return getProblem(node);
 		}
-	},
+	});
 
-	Property(node) {
+	context.on('Property', node => {
 		// Destructured case
 		const propertyName = node.value.name;
 		if (!keys.has(propertyName)) {
@@ -168,8 +168,8 @@ const create = context => ({
 				}
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -178,7 +178,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

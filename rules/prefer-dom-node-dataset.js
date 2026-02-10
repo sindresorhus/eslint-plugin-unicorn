@@ -33,7 +33,7 @@ function getFix(callExpression, context) {
 		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
 		const {sourceCode} = context;
 		let text = '';
-		const datasetText = `${sourceCode.getText(callExpression.callee.object)}.dataset`;
+		const datasetText = `${sourceCode.getText(callExpression.callee.object)}${callExpression.callee.optional ? '?' : ''}.dataset`;
 		switch (method) {
 			case 'setAttribute':
 			case 'getAttribute':
@@ -65,8 +65,8 @@ function getFix(callExpression, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!(
 			(
 				isMethodCall(callExpression, {
@@ -76,10 +76,15 @@ const create = context => ({
 					optionalMember: false,
 				})
 				|| isMethodCall(callExpression, {
-					methods: ['getAttribute', 'removeAttribute', 'hasAttribute'],
+					methods: ['removeAttribute', 'hasAttribute'],
 					argumentsLength: 1,
 					optionalCall: false,
 					optionalMember: false,
+				})
+				|| isMethodCall(callExpression, {
+					method: 'getAttribute',
+					argumentsLength: 1,
+					optionalCall: false,
 				})
 			)
 			&& isStringLiteral(callExpression.arguments[0])
@@ -110,8 +115,8 @@ const create = context => ({
 			data: {method: callExpression.callee.property.name},
 			fix: getFix(callExpression, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -120,7 +125,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

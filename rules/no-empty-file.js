@@ -21,25 +21,23 @@ const create = context => {
 		return;
 	}
 
-	return {
-		Program(node) {
-			if (node.body.some(node => !isEmpty(node))) {
-				return;
-			}
+	context.on('Program', node => {
+		if (node.body.some(node => !isEmpty(node))) {
+			return;
+		}
 
-			const {sourceCode} = context;
-			const comments = sourceCode.getAllComments();
+		const {sourceCode} = context;
+		const comments = sourceCode.getAllComments();
 
-			if (hasTripeSlashDirectives(comments)) {
-				return;
-			}
+		if (hasTripeSlashDirectives(comments)) {
+			return;
+		}
 
-			return {
-				node,
-				messageId: MESSAGE_ID,
-			};
-		},
-	};
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -49,7 +47,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow empty files.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

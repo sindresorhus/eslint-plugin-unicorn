@@ -1,15 +1,28 @@
-import isNewExpressionWithParentheses from '../utils/is-new-expression-with-parentheses.js';
-import {isParenthesized} from '../utils/parentheses.js';
-import isOnSameLine from '../utils/is-on-same-line.js';
+import {
+	isNewExpressionWithParentheses,
+	isParenthesized,
+	isOnSameLine,
+} from '../utils/index.js';
 import addParenthesizesToReturnOrThrowExpression from './add-parenthesizes-to-return-or-throw-expression.js';
 import removeSpaceAfter from './remove-spaces-after.js';
 
-export default function * switchNewExpressionToCallExpression(newExpression, sourceCode, fixer) {
-	const newToken = sourceCode.getFirstToken(newExpression);
-	yield fixer.remove(newToken);
-	yield removeSpaceAfter(newToken, sourceCode, fixer);
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
 
-	if (!isNewExpressionWithParentheses(newExpression, sourceCode)) {
+/**
+@param {ESTree.NewExpression} newExpression
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {ESLint.Rule.RuleFixer} fixer
+@returns {ESLint.Rule.ReportFixer}
+*/
+export default function * switchNewExpressionToCallExpression(newExpression, context, fixer) {
+	const newToken = context.sourceCode.getFirstToken(newExpression);
+	yield fixer.remove(newToken);
+	yield removeSpaceAfter(newToken, context, fixer);
+
+	if (!isNewExpressionWithParentheses(newExpression, context)) {
 		yield fixer.insertTextAfter(newExpression, '()');
 	}
 
@@ -23,9 +36,9 @@ export default function * switchNewExpressionToCallExpression(newExpression, sou
 			}
 		```
 	*/
-	if (!isOnSameLine(newToken, newExpression.callee) && !isParenthesized(newExpression, sourceCode)) {
+	if (!isOnSameLine(newToken, newExpression.callee, context) && !isParenthesized(newExpression, context)) {
 		// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
 		// But adding extra parentheses is harmless, no need to be too complicated
-		yield * addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, sourceCode);
+		yield addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, context);
 	}
 }

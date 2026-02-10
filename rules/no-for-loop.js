@@ -19,6 +19,77 @@ const isLiteralOne = node => isLiteral(node, 1);
 
 const isIdentifierWithName = (node, name) => node?.type === 'Identifier' && node.name === name;
 
+const getTypeReferenceTypeAnnotation = (typeReferenceName, scope) => {
+	const typeVariable = scope && resolveIdentifierName(typeReferenceName, scope);
+	const [definition] = typeVariable?.defs ?? [];
+
+	if (!definition || definition.type !== 'Type') {
+		return;
+	}
+
+	if (definition.node.type === 'TSTypeAliasDeclaration') {
+		return definition.node.typeAnnotation;
+	}
+
+	if (definition.node.type === 'TSTypeParameter') {
+		return definition.node.constraint;
+	}
+};
+
+const isArrayTypeReference = (node, scope, visitedTypeReferenceNames) => {
+	if (node.typeName.type !== 'Identifier') {
+		return false;
+	}
+
+	const typeReferenceName = node.typeName.name;
+
+	if (typeReferenceName === 'Array' || typeReferenceName === 'ReadonlyArray') {
+		return true;
+	}
+
+	if (visitedTypeReferenceNames.has(typeReferenceName)) {
+		return false;
+	}
+
+	visitedTypeReferenceNames.add(typeReferenceName);
+
+	const typeAnnotation = getTypeReferenceTypeAnnotation(typeReferenceName, scope);
+	const isArray = isArrayType(typeAnnotation, scope, visitedTypeReferenceNames);
+
+	visitedTypeReferenceNames.delete(typeReferenceName);
+
+	return isArray;
+};
+
+const isArrayType = (node, scope, visitedTypeReferenceNames = new Set()) => {
+	switch (node?.type) {
+		case 'TSArrayType':
+		case 'TSTupleType': {
+			return true;
+		}
+
+		case 'TSTypeReference': {
+			return isArrayTypeReference(node, scope, visitedTypeReferenceNames);
+		}
+
+		case 'TSTypeOperator': {
+			return node.operator === 'readonly' && isArrayType(node.typeAnnotation, scope, visitedTypeReferenceNames);
+		}
+
+		case 'TSUnionType': {
+			return node.types.every(type => isArrayType(type, scope, visitedTypeReferenceNames));
+		}
+
+		case 'TSIntersectionType': {
+			return node.types.some(type => isArrayType(type, scope, visitedTypeReferenceNames));
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
@@ -268,137 +339,144 @@ const create = context => {
 	const {sourceCode} = context;
 	const {scopeManager} = sourceCode;
 
-	return {
-		ForStatement(node) {
-			const indexIdentifierName = getIndexIdentifierName(node);
+	context.on('ForStatement', node => {
+		const indexIdentifierName = getIndexIdentifierName(node);
 
-			if (!indexIdentifierName) {
-				return;
+		if (!indexIdentifierName) {
+			return;
+		}
+
+		const arrayIdentifier = getArrayIdentifier(node, indexIdentifierName);
+		if (!arrayIdentifier) {
+			return;
+		}
+
+		const arrayIdentifierName = arrayIdentifier.name;
+
+		const scope = sourceCode.getScope(node);
+		const staticResult = getStaticValue(arrayIdentifier, scope);
+		if (staticResult && !Array.isArray(staticResult.value)) {
+			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
+			return;
+		}
+
+		if (!checkUpdateExpression(node, indexIdentifierName)) {
+			return;
+		}
+
+		if (!node.body || node.body.type !== 'BlockStatement') {
+			return;
+		}
+
+		const forScope = scopeManager.acquire(node);
+		const bodyScope = scopeManager.acquire(node.body);
+
+		if (!bodyScope) {
+			return;
+		}
+
+		const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+
+		if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
+			return;
+		}
+
+		const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
+
+		if (arrayReferences.length === 0) {
+			return;
+		}
+
+		if (!isOnlyArrayOfIndexVariableRead(arrayReferences, indexIdentifierName)) {
+			return;
+		}
+
+		const [start] = sourceCode.getRange(node);
+		const closingParenthesisToken = sourceCode.getTokenBefore(node.body, isClosingParenToken);
+		const [, end] = sourceCode.getRange(closingParenthesisToken);
+
+		const problem = {
+			loc: toLocation([start, end], context),
+			messageId: MESSAGE_ID,
+		};
+
+		const elementReference = arrayReferences.find(reference => {
+			const node = reference.identifier.parent;
+
+			if (node.parent.type !== 'VariableDeclarator') {
+				return false;
 			}
 
-			const arrayIdentifier = getArrayIdentifier(node, indexIdentifierName);
-			if (!arrayIdentifier) {
-				return;
-			}
+			return true;
+		});
+		const elementNode = elementReference?.identifier.parent.parent;
+		const elementIdentifierName = elementNode?.id.name;
+		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
-			const arrayIdentifierName = arrayIdentifier.name;
+		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
-			const scope = sourceCode.getScope(node);
-			const staticResult = getStaticValue(arrayIdentifier, scope);
-			if (staticResult && !Array.isArray(staticResult.value)) {
-				// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
-				return;
-			}
+		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
+		const hasNonArrayTypeAnnotation = resolveIdentifierName(arrayIdentifierName, scope)
+			?.defs.some(definition => {
+				const typeAnnotation = definition.name.typeAnnotation?.typeAnnotation;
+				return typeAnnotation && !isArrayType(typeAnnotation, scope);
+			});
 
-			if (!checkUpdateExpression(node, indexIdentifierName)) {
-				return;
-			}
+		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+			&& !elementNode?.id.typeAnnotation
+			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 
-			if (!node.body || node.body.type !== 'BlockStatement') {
-				return;
-			}
+		if (shouldFix) {
+			problem.fix = function * (fixer) {
+				const index = indexIdentifierName;
+				const element = elementIdentifierName
+					|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
+				const array = arrayIdentifierName;
 
-			const forScope = scopeManager.acquire(node);
-			const bodyScope = scopeManager.acquire(node.body);
+				let declarationElement = element;
+				let declarationType = 'const';
+				let removeDeclaration = true;
 
-			if (!bodyScope) {
-				return;
-			}
+				if (elementNode) {
+					if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
+						removeDeclaration = arrayReferences.length === 1;
+					}
 
-			const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
-
-			if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
-				return;
-			}
-
-			const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
-
-			if (arrayReferences.length === 0) {
-				return;
-			}
-
-			if (!isOnlyArrayOfIndexVariableRead(arrayReferences, indexIdentifierName)) {
-				return;
-			}
-
-			const [start] = sourceCode.getRange(node);
-			const closingParenthesisToken = sourceCode.getTokenBefore(node.body, isClosingParenToken);
-			const [, end] = sourceCode.getRange(closingParenthesisToken);
-
-			const problem = {
-				loc: toLocation([start, end], sourceCode),
-				messageId: MESSAGE_ID,
-			};
-
-			const elementReference = arrayReferences.find(reference => {
-				const node = reference.identifier.parent;
-
-				if (node.parent.type !== 'VariableDeclarator') {
-					return false;
+					if (removeDeclaration) {
+						declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
+						declarationElement = sourceCode.getText(elementNode.id);
+					}
 				}
 
-				return true;
-			});
-			const elementNode = elementReference?.identifier.parent.parent;
-			const elementIdentifierName = elementNode?.id.name;
-			const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
+				const parts = [declarationType];
+				if (shouldGenerateIndex) {
+					parts.push(` [${index}, ${declarationElement}] of ${array}.entries()`);
+				} else {
+					parts.push(` ${declarationElement} of ${array}`);
+				}
 
-			const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
-				&& !elementNode?.id.typeAnnotation;
+				const replacement = parts.join('');
+				const [start] = sourceCode.getRange(node.init);
+				const [, end] = sourceCode.getRange(node.update);
 
-			if (shouldFix) {
-				problem.fix = function * (fixer) {
-					const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
-					const index = indexIdentifierName;
-					const element = elementIdentifierName
-						|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
-					const array = arrayIdentifierName;
+				yield fixer.replaceTextRange([start, end], replacement);
 
-					let declarationElement = element;
-					let declarationType = 'const';
-					let removeDeclaration = true;
-
-					if (elementNode) {
-						if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
-							removeDeclaration = arrayReferences.length === 1;
-						}
-
-						if (removeDeclaration) {
-							declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
-							declarationElement = sourceCode.getText(elementNode.id);
-						}
+				for (const reference of arrayReferences) {
+					if (reference !== elementReference) {
+						yield fixer.replaceText(reference.identifier.parent, element);
 					}
+				}
 
-					const parts = [declarationType];
-					if (shouldGenerateIndex) {
-						parts.push(` [${index}, ${declarationElement}] of ${array}.entries()`);
-					} else {
-						parts.push(` ${declarationElement} of ${array}`);
-					}
+				if (elementNode) {
+					yield removeDeclaration
+						? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
+						: fixer.replaceText(elementNode.init, element);
+				}
+			};
+		}
 
-					const replacement = parts.join('');
-					const [start] = sourceCode.getRange(node.init);
-					const [, end] = sourceCode.getRange(node.update);
-
-					yield fixer.replaceTextRange([start, end], replacement);
-
-					for (const reference of arrayReferences) {
-						if (reference !== elementReference) {
-							yield fixer.replaceText(reference.identifier.parent, element);
-						}
-					}
-
-					if (elementNode) {
-						yield removeDeclaration
-							? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
-							: fixer.replaceText(elementNode.init, element);
-					}
-				};
-			}
-
-			return problem;
-		},
-	};
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

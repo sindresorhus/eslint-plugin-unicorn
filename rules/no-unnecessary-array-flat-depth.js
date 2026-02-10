@@ -26,7 +26,7 @@ const create = context => {
 			node: numberOne,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			fix: fixer => removeArgument(fixer, numberOne, context.sourceCode),
+			fix: fixer => removeArgument(fixer, numberOne, context),
 		};
 	});
 };
@@ -38,7 +38,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `1` as the `depth` argument of `Array#flat()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

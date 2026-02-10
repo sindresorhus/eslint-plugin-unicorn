@@ -96,8 +96,8 @@ function isUtf8Encoding(node, scope) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!(isMethodCall(callExpression, {
 			object: 'JSON',
 			method: 'parse',
@@ -139,10 +139,10 @@ const create = context => ({
 		return {
 			node: charsetNode,
 			messageId: MESSAGE_ID,
-			fix: fixer => removeArgument(fixer, charsetNode, sourceCode),
+			fix: fixer => removeArgument(fixer, charsetNode, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

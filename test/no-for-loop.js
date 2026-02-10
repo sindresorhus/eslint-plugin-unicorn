@@ -758,6 +758,173 @@ test(avoidTestTitleConflict({
 test.typescript({
 	valid: [],
 	invalid: [
+		// String type annotation with index usage - no autofix since `.entries()` doesn't exist on strings
+		{
+			code: outdent`
+				function foo(formattedValue: string) {
+					for (let i = 0; i < formattedValue.length; i++) {
+						const char = formattedValue[i];
+						console.log(\`Key: \${i} Value: \${char}\`);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const text: string = getText();
+				for (let i = 0; i < text.length; i++) {
+					const char = text[i];
+					console.log(i, char);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Text = string;
+				const text: Text = getText();
+				for (let i = 0; i < text.length; i++) {
+					const char = text[i];
+					console.log(i, char);
+				}
+			`,
+			errors: 1,
+		},
+		// String type annotation without index usage - autofix works
+		{
+			code: outdent`
+				function foo(formattedValue: string) {
+					for (let i = 0; i < formattedValue.length; i++) {
+						console.log(formattedValue[i]);
+					}
+				}
+			`,
+			output: outdent`
+				function foo(formattedValue: string) {
+					for (const element of formattedValue) {
+						console.log(element);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const text: string = getText();
+				for (let i = 0; i < text.length; i++) {
+					console.log(text[i]);
+				}
+			`,
+			output: outdent`
+				const text: string = getText();
+				for (const element of text) {
+					console.log(element);
+				}
+			`,
+			errors: 1,
+		},
+		// Union type annotations containing `string` - no autofix since `.entries()` doesn't exist on strings
+		{
+			code: outdent`
+				const text: string | string[] = getText();
+				for (let i = 0; i < text.length; i++) {
+					const char = text[i];
+					console.log(i, char);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const text: string | Foo = getText();
+				for (let i = 0; i < text.length; i++) {
+					const char = text[i];
+					console.log(i, char);
+				}
+			`,
+			errors: 1,
+		},
+		// Array type annotations - autofix works normally including `.entries()`
+		testCase(outdent`
+			function foo(items: string[]) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: string[]) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		testCase(outdent`
+			function foo(items: Array<string>) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: Array<string>) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		testCase(outdent`
+			type Items = string[];
+			function foo(items: Items) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			type Items = string[];
+			function foo(items: Items) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		testCase(outdent`
+			function foo(items: readonly string[]) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: readonly string[]) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		// Intersection type annotations containing an array - autofix works including `.entries()`
+		testCase(outdent`
+			function foo(items: string[] & {foo: string}) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: string[] & {foo: string}) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		// Non-array type annotation with index usage - no autofix
+		{
+			code: outdent`
+				function foo(items: Foo) {
+					for (let i = 0; i < items.length; i++) {
+						console.log(i, items[i]);
+					}
+				}
+			`,
+			errors: 1,
+		},
 		{
 			// https://github.com/microsoft/vscode/blob/cf9ac85214c3f1d3d0b80cc503ff7498f2b3ea2f/src/vs/workbench/api/common/extHostLanguageFeatures.ts#L1207
 			code: outdent`

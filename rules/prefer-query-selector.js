@@ -113,14 +113,14 @@ const fix = (node, identifierName, preferredSelector) => {
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return function * (fixer) {
-		yield * getArgumentFix(fixer, nodeToBeFixed, identifierName);
+		yield getArgumentFix(fixer, nodeToBeFixed, identifierName);
 		yield fixer.replaceText(node.callee.property, preferredSelector);
 	};
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
 				methods: ['getElementById', 'getElementsByClassName', 'getElementsByTagName', 'getElementsByName'],
@@ -150,8 +150,8 @@ const create = () => ({
 		}
 
 		return problem;
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

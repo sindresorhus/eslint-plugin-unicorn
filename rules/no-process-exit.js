@@ -14,7 +14,7 @@ const create = context => {
 	const startsWithHashBang = context.sourceCode.lines[0].indexOf('#!') === 0;
 
 	if (startsWithHashBang) {
-		return {};
+		return;
 	}
 
 	let processEventHandler;
@@ -97,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow `process.exit()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

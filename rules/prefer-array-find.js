@@ -38,12 +38,12 @@ const messages = {
 	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
-const isArrayFilterCall = node => isMethodCall(node, {
+const isArrayFilterCall = (node, options) => isMethodCall(node, {
 	method: 'filter',
 	minimumArguments: 1,
 	maximumArguments: 2,
 	optionalCall: false,
-	optionalMember: false,
+	...options,
 });
 
 // Need add `()` to the `AssignmentExpression`
@@ -142,13 +142,13 @@ const fixDestructuringAndReplaceFilter = (sourceCode, node) => {
 			* fix(fixer) {
 				yield fixer.replaceText(property, 'find');
 				yield fixDestructuringDefaultValue(node, sourceCode, fixer, operator);
-				yield * fixDestructuring(node, sourceCode, fixer);
+				yield fixDestructuring(node, sourceCode, fixer);
 			},
 		}));
 	} else {
 		fix = function * (fixer) {
 			yield fixer.replaceText(property, 'find');
-			yield * fixDestructuring(node, sourceCode, fixer);
+			yield fixDestructuring(node, sourceCode, fixer);
 		};
 	}
 
@@ -176,14 +176,11 @@ const isDestructuringFirstElement = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const {
-		checkFromLast,
-	} = {
-		checkFromLast: true,
-		...context.options[0],
-	};
+	const {checkFromLast} = context.options[0];
 
 	// Zero index access
+	// `array.filter()[0]`
+	// `array?.filter()[0]`
 	context.on('MemberExpression', node => {
 		if (!(
 			node.computed
@@ -200,12 +197,13 @@ const create = context => {
 			messageId: ERROR_ZERO_INDEX,
 			fix: fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
-				removeMemberExpressionProperty(fixer, node, sourceCode),
+				removeMemberExpressionProperty(fixer, node, context),
 			],
 		};
 	});
 
 	// `array.filter().shift()`
+	// `array?.filter().shift()`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -224,7 +222,7 @@ const create = context => {
 			messageId: ERROR_SHIFT,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -236,7 +234,7 @@ const create = context => {
 			&& node.id.elements.length === 1
 			&& node.id.elements[0]
 			&& node.id.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.init)
+			&& isArrayFilterCall(node.init, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -255,7 +253,7 @@ const create = context => {
 			&& node.left.elements.length === 1
 			&& node.left.elements[0]
 			&& node.left.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.right)
+			&& isArrayFilterCall(node.right, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -271,7 +269,7 @@ const create = context => {
 	context.on('VariableDeclarator', node => {
 		if (!(
 			node.id.type === 'Identifier'
-			&& isArrayFilterCall(node.init)
+			&& isArrayFilterCall(node.init, {optionalMember: false})
 			&& node.parent.type === 'VariableDeclaration'
 			&& node.parent.declarations.includes(node)
 			// Exclude `export const foo = [];`
@@ -317,18 +315,18 @@ const create = context => {
 				if (singularName) {
 					// Rename variable to be singularized now that it refers to a single item in the array instead of the entire array.
 					const singularizedName = getAvailableVariableName(singularName, getScopes(scope));
-					yield * renameVariable(variable, singularizedName, fixer);
+					yield renameVariable(variable, singularizedName, context, fixer);
 
 					// Prevent possible variable conflicts
-					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
+					yield extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
 				}
 
 				for (const node of zeroIndexNodes) {
-					yield removeMemberExpressionProperty(fixer, node, sourceCode);
+					yield removeMemberExpressionProperty(fixer, node, context);
 				}
 
 				for (const node of destructuringNodes) {
-					yield * fixDestructuring(node, sourceCode, fixer);
+					yield fixDestructuring(node, sourceCode, fixer);
 				}
 			};
 		}
@@ -337,6 +335,7 @@ const create = context => {
 	});
 
 	// `array.filter().at(0)`
+	// `array?.filter().at(0)`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -357,7 +356,7 @@ const create = context => {
 			messageId: ERROR_AT_ZERO,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'find'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -367,6 +366,7 @@ const create = context => {
 	}
 
 	// `array.filter().pop()`
+	// `array?.filter().pop()`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -385,12 +385,13 @@ const create = context => {
 			messageId: ERROR_POP,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
 
 	// `array.filter().at(-1)`
+	// `array?.filter().at(-1)`
 	context.on('CallExpression', node => {
 		if (!(
 			isMethodCall(node, {
@@ -414,7 +415,7 @@ const create = context => {
 			messageId: ERROR_AT_MINUS_ONE,
 			fix: fixer => [
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
-				...removeMethodCall(fixer, node, sourceCode),
+				...removeMethodCall(fixer, node, context),
 			],
 		};
 	});
@@ -439,7 +440,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

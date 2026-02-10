@@ -1,17 +1,13 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isEmptyArrayExpression,
+	isEmptyStringLiteral,
+} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-empty-array-spread';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using empty {{replacementDescription}} since the {{anotherNodePosition}} is {{anotherNodeDescription}}.',
 };
-
-const isEmptyArrayExpression = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.length === 0;
-
-const isEmptyStringLiteral = node =>
-	node.type === 'Literal'
-	&& node.value === '';
 
 const isString = (node, context) => {
 	const staticValueResult = getStaticValue(node, context.sourceCode.getScope(node));
@@ -94,8 +90,8 @@ function getProblem(conditionalExpression, context) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* ArrayExpression(arrayExpression) {
+const create = context => {
+	context.on('ArrayExpression', function * (arrayExpression) {
 		for (const element of arrayExpression.elements) {
 			if (
 				element?.type !== 'SpreadElement'
@@ -106,8 +102,8 @@ const create = context => ({
 
 			yield getProblem(element.argument, context);
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

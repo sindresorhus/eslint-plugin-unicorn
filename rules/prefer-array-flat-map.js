@@ -10,8 +10,8 @@ const messages = {
 const ignored = ['React.Children', 'Children'];
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!(
 			isMethodCall(callExpression, {
 				method: 'flat',
@@ -29,7 +29,6 @@ const create = context => ({
 			&& isMethodCall(callExpression.callee.object, {
 				method: 'map',
 				optionalCall: false,
-				optionalMember: false,
 			})
 		)) {
 			return;
@@ -57,7 +56,7 @@ const create = context => ({
 				//         ^^^^^^^
 				//   (map(…)).flat();
 				//           ^^^^^^^
-				yield * removeMethodCall(fixer, flatCallExpression, sourceCode);
+				yield removeMethodCall(fixer, flatCallExpression, context);
 
 				// Renames:
 				//   map(…).flat();
@@ -67,8 +66,8 @@ const create = context => ({
 				yield fixer.replaceText(mapProperty, 'flatMap');
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -77,7 +76,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

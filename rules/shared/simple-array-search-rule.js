@@ -1,6 +1,6 @@
-import {hasSideEffect, isParenthesized, findVariable} from '@eslint-community/eslint-utils';
+import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
-import {isSameIdentifier, isFunctionSelfUsedInside} from '../utils/index.js';
+import {isSameIdentifier, isFunctionSelfUsedInside, isParenthesized} from '../utils/index.js';
 
 const isSimpleCompare = (node, compareNode) =>
 	node.type === 'BinaryExpression'
@@ -38,7 +38,7 @@ export default function simpleArraySearchRule({method, replacement}) {
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}suggestion`;
 	const ERROR_MESSAGES = {
 		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-		findLastIndex: 'Use `.lastIndexOf()` instead of `findLastIndex() when looking for the index of an item.`',
+		findLastIndex: 'Use `.lastIndexOf()` instead of `.findLastIndex() when looking for the index of an item.`',
 		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`,
 	};
 
@@ -57,7 +57,6 @@ export default function simpleArraySearchRule({method, replacement}) {
 					method,
 					argumentsLength: 1,
 					optionalCall: false,
-					optionalMember: false,
 				})
 				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
 			) {
@@ -86,8 +85,11 @@ export default function simpleArraySearchRule({method, replacement}) {
 
 			const callbackScope = scopeManager.acquire(callback);
 			if (
+				// Can't use scopeManager in vue template
+				// https://github.com/vuejs/vue-eslint-parser/issues/263
+				!callbackScope
 				// `parameter` is used somewhere else
-				findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
+				|| findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterInBinaryExpression)
 				|| isFunctionSelfUsedInside(callback, callbackScope)
 			) {
 				return;
@@ -102,7 +104,7 @@ export default function simpleArraySearchRule({method, replacement}) {
 
 			const fix = function * (fixer) {
 				let text = sourceCode.getText(searchValueNode);
-				if (isParenthesized(searchValueNode, sourceCode) && !isParenthesized(callback, sourceCode)) {
+				if (isParenthesized(searchValueNode, context) && !isParenthesized(callback, context)) {
 					text = `(${text})`;
 				}
 

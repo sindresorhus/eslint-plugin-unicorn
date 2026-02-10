@@ -77,6 +77,11 @@ test.snapshot({
 		'const object = {a, ...{a, b}, b,}',
 		'foo(a, ...[a, b], b,)',
 		'new Foo(a, ...[a, b], b,)',
+		'const array = [a, ...[], b]',
+		'const array = [a, ...(( [] )),]',
+		'const array = [a, ...(( [] ))]',
+		'const array = [a, ...[b], c]',
+		'const object = {a, ...(({})), b,}',
 
 		// Duplicated keys
 		'({a:1, ...{a: 2}})',
@@ -254,14 +259,15 @@ test.snapshot({
 		'[...Promise.all(foo)]',
 		'[...Promise.allSettled(foo)]',
 		'[...await Promise.all(foo, extraArgument)]',
+		// Can be `Iterator` methods
+		'[...foo.filter(bar)]',
+		'[...foo.flatMap(bar)]',
+		'[...foo.map(bar)]',
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
 		'[...foo.copyWithin(-2)]',
-		'[...foo.filter(bar)]',
 		'[...foo.flat()]',
-		'[...foo.flatMap(bar)]',
-		'[...foo.map(bar)]',
 		'[...foo.slice(1)]',
 		'[...foo.splice(1)]',
 		'[...foo.toReversed()]',

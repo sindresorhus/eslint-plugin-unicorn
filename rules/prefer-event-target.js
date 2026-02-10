@@ -75,8 +75,8 @@ function isFromIgnoredPackage(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Identifier(node) {
+const create = context => {
+	context.on('Identifier', node => {
 		if (!(
 			node.name === 'EventEmitter'
 			&& (
@@ -100,8 +100,8 @@ const create = context => ({
 			node,
 			messageId: MESSAGE_ID,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -110,7 +110,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `EventTarget` over `EventEmitter`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

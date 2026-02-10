@@ -61,6 +61,7 @@ test({
 		'props.setState?.(undefined)',
 		'array.includes(undefined)',
 		'set.has(undefined)',
+		'set.delete(undefined)',
 
 		// `Function#bind()`
 		'foo.bind(bar, undefined)',
@@ -149,7 +150,7 @@ test({
 		},
 		{
 			code: 'foo(undefined, undefined);',
-			output: 'foo();',
+			output: 'foo(undefined);',
 			errors,
 		},
 		{
@@ -159,7 +160,7 @@ test({
 		},
 		{
 			code: 'foo(undefined, undefined,);',
-			output: 'foo();',
+			output: 'foo(undefined,);',
 			errors,
 		},
 		{
@@ -169,7 +170,7 @@ test({
 		},
 		{
 			code: 'foo(bar, undefined, undefined);',
-			output: 'foo(bar);',
+			output: 'foo(bar, undefined);',
 			errors,
 		},
 		{
@@ -189,41 +190,13 @@ test({
 		},
 		{
 			code: 'foo(bar, undefined, undefined,);',
-			output: 'foo(bar,);',
+			output: 'foo(bar, undefined,);',
 			errors,
 		},
 		{
 			code: 'foo(undefined, bar, undefined, undefined,);',
-			output: 'foo(undefined, bar,);',
+			output: 'foo(undefined, bar, undefined,);',
 			errors,
-		},
-		// Test report range
-		{
-			code: outdent`
-				foo(
-					undefined,
-					bar,
-					undefined,
-					undefined,
-					undefined,
-					undefined,
-				)
-			`,
-			output: outdent`
-				foo(
-					undefined,
-					bar,
-				)
-			`,
-			errors: [
-				{
-					messageId,
-					// The second `undefined`
-					line: 4, column: 2,
-					// The last `undefined`
-					endLine: 7, endColumn: 11,
-				},
-			],
 		},
 		{
 			code: 'const {foo = undefined} = {};',
@@ -448,6 +421,16 @@ test.snapshot({
 		'foo.bind?.(bar, undefined)',
 		'foo[bind](bar, undefined)',
 		'foo.notBind(bar, undefined)',
+		// https://github.com/webpack/webpack/blob/0f84d1e3bf69915dc060f23ced9dfa468a884a42/lib/wasm-sync/WasmFinalizeExportsPlugin.js#L49
+		outdent`
+			const referencedExports =
+				compilation.getDependencyReferencedExports(
+					/** @type {Dependency} */ (connection.dependency),
+					undefined
+				);
+		`,
+		'foo( ((a)), ((undefined)), ((undefined)), )',
+		'foo( ((undefined)), ((undefined)), )',
 	],
 });
 

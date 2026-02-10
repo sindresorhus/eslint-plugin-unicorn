@@ -35,109 +35,107 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		ClassBody(classBody) {
-			const constructor = classBody.body.find(node =>
-				node.kind === 'constructor'
-				&& !node.computed
-				&& !node.static
-				&& node.type === 'MethodDefinition'
-				&& node.value.type === 'FunctionExpression',
-			);
+	context.on('ClassBody', classBody => {
+		const constructor = classBody.body.find(node =>
+			node.kind === 'constructor'
+			&& !node.computed
+			&& !node.static
+			&& node.type === 'MethodDefinition'
+			&& node.value.type === 'FunctionExpression',
+		);
 
-			if (!constructor) {
-				return;
-			}
+		if (!constructor) {
+			return;
+		}
 
-			const node = constructor.value.body.body.find(node => node.type !== 'EmptyStatement');
+		const node = constructor.value.body.body.find(node => node.type !== 'EmptyStatement');
 
-			if (!(
-				node?.type === 'ExpressionStatement'
-				&& node.expression.type === 'AssignmentExpression'
-				&& node.expression.operator === '='
-				&& node.expression.left.type === 'MemberExpression'
-				&& node.expression.left.object.type === 'ThisExpression'
-				&& !node.expression.left.computed
-				&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
-				&& node.expression.right.type === 'Literal'
-			)) {
-				return;
-			}
+		if (!(
+			node?.type === 'ExpressionStatement'
+			&& node.expression.type === 'AssignmentExpression'
+			&& node.expression.operator === '='
+			&& node.expression.left.type === 'MemberExpression'
+			&& node.expression.left.object.type === 'ThisExpression'
+			&& !node.expression.left.computed
+			&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
+			&& node.expression.right.type === 'Literal'
+		)) {
+			return;
+		}
 
-			const propertyName = node.expression.left.property.name;
-			const propertyValue = node.expression.right.raw;
-			const propertyType = node.expression.left.property.type;
-			const existingProperty = classBody.body.find(node =>
-				node.type === 'PropertyDefinition'
-				&& !node.computed
-				&& !node.static
-				&& node.key.type === propertyType
-				&& node.key.name === propertyName,
-			);
+		const propertyName = node.expression.left.property.name;
+		const propertyValue = node.expression.right.raw;
+		const propertyType = node.expression.left.property.type;
+		const existingProperty = classBody.body.find(node =>
+			node.type === 'PropertyDefinition'
+			&& !node.computed
+			&& !node.static
+			&& node.key.type === propertyType
+			&& node.key.name === propertyName,
+		);
 
-			const problem = {
-				node,
-				messageId: MESSAGE_ID_ERROR,
-			};
+		const problem = {
+			node,
+			messageId: MESSAGE_ID_ERROR,
+		};
 
-			/**
+		/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			function * fix(fixer) {
-				yield removeFieldAssignment(node, sourceCode, fixer);
+		function * fix(fixer) {
+			yield removeFieldAssignment(node, sourceCode, fixer);
 
-				if (existingProperty) {
-					if (existingProperty.value) {
-						yield fixer.replaceText(existingProperty.value, propertyValue);
-						return;
-					}
-
-					const text = ` = ${propertyValue}`;
-					const lastToken = sourceCode.getLastToken(existingProperty);
-					if (isSemicolonToken(lastToken)) {
-						yield fixer.insertTextBefore(lastToken, text);
-						return;
-					}
-
-					yield fixer.insertTextAfter(existingProperty, `${text};`);
+			if (existingProperty) {
+				if (existingProperty.value) {
+					yield fixer.replaceText(existingProperty.value, propertyValue);
 					return;
 				}
 
-				const closingBrace = sourceCode.getLastToken(classBody);
-				const indent = getIndentString(constructor, sourceCode);
-
-				let text = `${indent}${propertyName} = ${propertyValue};\n`;
-
-				const characterBefore = sourceCode.getText()[sourceCode.getRange(closingBrace)[0] - 1];
-				if (characterBefore !== '\n') {
-					text = `\n${text}`;
+				const text = ` = ${propertyValue}`;
+				const lastToken = sourceCode.getLastToken(existingProperty);
+				if (isSemicolonToken(lastToken)) {
+					yield fixer.insertTextBefore(lastToken, text);
+					return;
 				}
 
-				const lastProperty = classBody.body.at(-1);
-				if (
-					lastProperty.type === 'PropertyDefinition'
-					&& sourceCode.getLastToken(lastProperty).value !== ';'
-				) {
-					text = `;${text}`;
-				}
-
-				yield fixer.insertTextBefore(closingBrace, text);
+				yield fixer.insertTextAfter(existingProperty, `${text};`);
+				return;
 			}
 
-			if (existingProperty?.value) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						fix,
-					},
-				];
-				return problem;
+			const closingBrace = sourceCode.getLastToken(classBody);
+			const indent = getIndentString(constructor, context);
+
+			let text = `${indent}${propertyName} = ${propertyValue};\n`;
+
+			const characterBefore = sourceCode.getText()[sourceCode.getRange(closingBrace)[0] - 1];
+			if (characterBefore !== '\n') {
+				text = `\n${text}`;
 			}
 
-			problem.fix = fix;
+			const lastProperty = classBody.body.at(-1);
+			if (
+				lastProperty.type === 'PropertyDefinition'
+				&& sourceCode.getLastToken(lastProperty).value !== ';'
+			) {
+				text = `;${text}`;
+			}
+
+			yield fixer.insertTextBefore(closingBrace, text);
+		}
+
+		if (existingProperty?.value) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix,
+				},
+			];
 			return problem;
-		},
-	};
+		}
+
+		problem.fix = fix;
+		return problem;
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -147,7 +145,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer class field declarations over `this` assignments in constructors.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

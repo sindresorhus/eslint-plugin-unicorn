@@ -1,7 +1,7 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getParenthesizedRange} from './utils/parentheses.js';
+import {getParenthesizedText, getParenthesizedRange} from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
-import {isNumberLiteral, isMethodCall} from './ast/index.js';
+import {isNumericLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -11,7 +11,7 @@ const messages = {
 };
 
 const getNumericValue = node => {
-	if (isNumberLiteral(node)) {
+	if (isNumericLiteral(node)) {
 		return node.value;
 	}
 
@@ -39,16 +39,16 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const {sourceCode} = context;
 	const scope = sourceCode.getScope(node);
 	const firstArgumentStaticResult = getStaticValue(firstArgument, scope);
-	const secondArgumentRange = getParenthesizedRange(secondArgument, sourceCode);
-	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
+	const secondArgumentRange = getParenthesizedRange(secondArgument, context);
+	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstArgumentStaticResult?.value === 0) {
-		if (isNumberLiteral(secondArgument) || isLengthProperty(secondArgument)) {
+		if (isNumericLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}
 
 		if (typeof getNumericValue(secondArgument) === 'number') {
-			yield replaceSecondArgument(Math.max(0, getNumericValue(secondArgument)));
+			yield replaceSecondArgument(String(Math.max(0, getNumericValue(secondArgument))));
 			return;
 		}
 
@@ -57,8 +57,8 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	if (argumentNodes.every(node => isNumberLiteral(node))) {
-		yield replaceSecondArgument(firstArgument.value + secondArgument.value);
+	if (argumentNodes.every(node => isNumericLiteral(node))) {
+		yield replaceSecondArgument(String(firstArgument.value + secondArgument.value));
 		return;
 	}
 
@@ -66,12 +66,11 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 }
 
 function * fixSubstringArguments({node, fixer, context, abort}) {
-	const {sourceCode} = context;
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
-	const firstArgumentText = getParenthesizedText(firstArgument, sourceCode);
-	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, sourceCode);
+	const firstArgumentText = getParenthesizedText(firstArgument, context);
+	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, context);
 
 	if (!secondArgument) {
 		if (isLengthProperty(firstArgument)) {
@@ -79,19 +78,19 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		}
 
 		if (firstNumber !== undefined) {
-			yield replaceFirstArgument(Math.max(0, firstNumber));
+			yield replaceFirstArgument(String(Math.max(0, firstNumber)));
 			return;
 		}
 
-		const firstArgumentRange = getParenthesizedRange(firstArgument, sourceCode);
+		const firstArgumentRange = getParenthesizedRange(firstArgument, context);
 		yield fixer.insertTextBeforeRange(firstArgumentRange, 'Math.max(0, ');
 		yield fixer.insertTextAfterRange(firstArgumentRange, ')');
 		return;
 	}
 
 	const secondNumber = getNumericValue(secondArgument);
-	const secondArgumentText = getParenthesizedText(secondArgument, sourceCode);
-	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, sourceCode);
+	const secondArgumentText = getParenthesizedText(secondArgument, context);
+	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstNumber !== undefined && secondNumber !== undefined) {
 		const argumentsValue = [Math.max(0, firstNumber), Math.max(0, secondNumber)];
@@ -100,18 +99,18 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		}
 
 		if (argumentsValue[0] !== firstNumber) {
-			yield replaceFirstArgument(argumentsValue[0]);
+			yield replaceFirstArgument(String(argumentsValue[0]));
 		}
 
 		if (argumentsValue[1] !== secondNumber) {
-			yield replaceSecondArgument(argumentsValue[1]);
+			yield replaceSecondArgument(String(argumentsValue[1]));
 		}
 
 		return;
 	}
 
 	if (firstNumber === 0 || secondNumber === 0) {
-		yield replaceFirstArgument(0);
+		yield replaceFirstArgument('0');
 		yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
 		return;
 	}
@@ -127,8 +126,8 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {methods: ['substr', 'substring']})) {
 			return;
 		}
@@ -153,7 +152,7 @@ const create = context => ({
 				}
 
 				const fixArguments = method === 'substr' ? fixSubstrArguments : fixSubstringArguments;
-				yield * fixArguments({
+				yield fixArguments({
 					node,
 					fixer,
 					context,
@@ -161,8 +160,8 @@ const create = context => ({
 				});
 			},
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -171,7 +170,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `String#slice()` over `String#substr()` and `String#substring()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

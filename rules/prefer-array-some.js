@@ -79,7 +79,7 @@ const create = context => {
 						}
 
 						const {sourceCode} = context;
-						const parenthesizedRange = getParenthesizedRange(callExpression, sourceCode);
+						const parenthesizedRange = getParenthesizedRange(callExpression, context);
 						yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
 
 						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
@@ -183,7 +183,7 @@ const create = context => {
 					`(( (( array.filter() )).length )) > (( 0 ))`
 					------------------------^^^^^^^
 				*/
-				yield removeMemberExpressionProperty(fixer, lengthNode, sourceCode);
+				yield removeMemberExpressionProperty(fixer, lengthNode, context);
 
 				/*
 					Remove `> 0`
@@ -191,7 +191,7 @@ const create = context => {
 					----------------------------------^^^^^^^^^^
 				*/
 				yield fixer.removeRange([
-					getParenthesizedRange(lengthNode, sourceCode)[1],
+					getParenthesizedRange(lengthNode, context)[1],
 					sourceCode.getRange(binaryExpression)[1],
 				]);
 
@@ -208,7 +208,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.some(…)` over `.filter(…).length` check and `.{find,findLast,findIndex,findLastIndex}(…)`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

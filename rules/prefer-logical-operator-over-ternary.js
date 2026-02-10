@@ -1,7 +1,10 @@
-import {isParenthesized, getParenthesizedText} from './utils/parentheses.js';
-import isSameReference from './utils/is-same-reference.js';
-import shouldAddParenthesesToLogicalExpressionChild from './utils/should-add-parentheses-to-logical-expression-child.js';
-import needsSemicolon from './utils/needs-semicolon.js';
+import {
+	isParenthesized,
+	getParenthesizedText,
+	isSameReference,
+	shouldAddParenthesesToLogicalExpressionChild,
+	needsSemicolon,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';
@@ -52,15 +55,16 @@ function isSameNode(left, right, sourceCode) {
 
 function fix({
 	fixer,
-	sourceCode,
+	context,
 	conditionalExpression,
 	left,
 	right,
 	operator,
 }) {
+	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
-		const isNodeParenthesized = isParenthesized(node, sourceCode);
-		let text = isNodeParenthesized ? getParenthesizedText(node, sourceCode) : sourceCode.getText(node);
+		const isNodeParenthesized = isParenthesized(node, context);
+		let text = isNodeParenthesized ? getParenthesizedText(node, context) : sourceCode.getText(node);
 
 		if (
 			!isNodeParenthesized
@@ -76,7 +80,7 @@ function fix({
 	// There should be no cases need add parentheses when switching ternary to logical expression
 
 	// ASI
-	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), sourceCode, text)) {
+	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {
 		text = `;${text}`;
 	}
 
@@ -84,7 +88,7 @@ function fix({
 }
 
 function getProblem({
-	sourceCode,
+	context,
 	conditionalExpression,
 	left,
 	right,
@@ -97,7 +101,7 @@ function getProblem({
 			data: {operator},
 			fix: fixer => fix({
 				fixer,
-				sourceCode,
+				context,
 				conditionalExpression,
 				left,
 				right,
@@ -111,36 +115,34 @@ function getProblem({
 const create = context => {
 	const {sourceCode} = context;
 
-	return {
-		ConditionalExpression(conditionalExpression) {
-			const {test, consequent, alternate} = conditionalExpression;
+	context.on('ConditionalExpression', conditionalExpression => {
+		const {test, consequent, alternate} = conditionalExpression;
 
-			// `foo ? foo : bar`
-			if (isSameNode(test, consequent, sourceCode)) {
-				return getProblem({
-					sourceCode,
-					conditionalExpression,
-					left: test,
-					right: alternate,
-				});
-			}
+		// `foo ? foo : bar`
+		if (isSameNode(test, consequent, sourceCode)) {
+			return getProblem({
+				context,
+				conditionalExpression,
+				left: test,
+				right: alternate,
+			});
+		}
 
-			// `!bar ? foo : bar`
-			if (
-				test.type === 'UnaryExpression'
-				&& test.operator === '!'
-				&& test.prefix
-				&& isSameNode(test.argument, alternate, sourceCode)
-			) {
-				return getProblem({
-					sourceCode,
-					conditionalExpression,
-					left: test.argument,
-					right: consequent,
-				});
-			}
-		},
-	};
+		// `!bar ? foo : bar`
+		if (
+			test.type === 'UnaryExpression'
+			&& test.operator === '!'
+			&& test.prefix
+			&& isSameNode(test.argument, alternate, sourceCode)
+		) {
+			return getProblem({
+				context,
+				conditionalExpression,
+				left: test.argument,
+				right: consequent,
+			});
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -150,7 +152,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using a logical operator over a ternary.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 
 		hasSuggestions: true,

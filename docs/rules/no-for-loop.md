@@ -1,6 +1,6 @@
 # Do not use a `for` loop that can be replaced with a `for-of` loop
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -13,22 +13,29 @@ Off-by-one errors are one of the most common bugs in software. [Swift actually r
 
 This rule is fixable unless index or element variables were used outside of the loop.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 for (let index = 0; index < array.length; index++) {
 	const element = array[index];
 	console.log(index, element);
 }
-```
 
-## Pass
-
-```js
+// ✅
 for (const [index, element] of array.entries()) {
 	console.log(index, element);
 }
+```
 
+```js
+// ❌
+for (let index = 0; index < array.length; index++) {
+	const element = array[index];
+	console.log(element);
+}
+
+// ✅
 for (const element of array) {
 	console.log(element);
 }

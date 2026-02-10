@@ -1,5 +1,5 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isLiteral} from './ast/index.js';
+import {isMethodCall, isLiteral, isEmptyObjectExpression} from './ast/index.js';
 import {removeParentheses} from './fix/index.js';
 import {
 	getParentheses,
@@ -18,7 +18,7 @@ const messages = {
 
 const isEmptyObject = node =>
 	// `{}`
-	(node.type === 'ObjectExpression' && node.properties.length === 0)
+	isEmptyObjectExpression(node)
 	// `Object.create(null)`
 	|| (
 		isMethodCall(node, {
@@ -93,10 +93,11 @@ const lodashFromPairsFunctions = [
 	'lodash.fromPairs',
 ];
 
-function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
+function fixReduceAssignOrSpread({context, callExpression, property}) {
+	const {sourceCode} = context;
 	const removeInitObject = fixer => {
 		const initObject = callExpression.arguments[1];
-		const parentheses = getParentheses(initObject, sourceCode);
+		const parentheses = getParentheses(initObject, context);
 		const firstToken = parentheses[0] || initObject;
 		const lastToken = parentheses.at(-1) || initObject;
 		const startToken = sourceCode.getTokenBefore(firstToken);
@@ -129,8 +130,8 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 
 	const getKeyValueText = () => {
 		const {key, value} = property;
-		let keyText = getParenthesizedText(key, sourceCode);
-		const valueText = getParenthesizedText(value, sourceCode);
+		let keyText = getParenthesizedText(key, context);
+		const valueText = getParenthesizedText(value, context);
 
 		if (!property.computed && key.type === 'Identifier') {
 			keyText = `'${keyText}'`;
@@ -143,7 +144,7 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 		const functionBody = callExpression.arguments[0].body;
 		const {keyText, valueText} = getKeyValueText();
 		yield fixer.replaceText(functionBody, `[${keyText}, ${valueText}]`);
-		yield * removeParentheses(functionBody, fixer, sourceCode);
+		yield removeParentheses(functionBody, fixer, context);
 	}
 
 	return function * (fixer) {
@@ -158,69 +159,64 @@ function fixReduceAssignOrSpread({sourceCode, callExpression, property}) {
 		yield removeInitObject(fixer);
 
 		// Remove the first parameter
-		yield * removeFirstParameter(fixer);
+		yield removeFirstParameter(fixer);
 
 		// Replace function body
-		yield * replaceFunctionBody(fixer);
+		yield replaceFunctionBody(fixer);
 	};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 
-	return {
-		* CallExpression(callExpression) {
-			for (const {test, getProperty} of fixableArrayReduceCases) {
-				if (!test(callExpression)) {
-					continue;
-				}
+	context.on('CallExpression', function * (callExpression) {
+		for (const {test, getProperty} of fixableArrayReduceCases) {
+			if (!test(callExpression)) {
+				continue;
+			}
 
-				const [callbackFunction] = callExpression.arguments;
-				const [firstParameter] = callbackFunction.params;
-				const variables = sourceCode.getDeclaredVariables(callbackFunction);
-				const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
-				if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
-					continue;
-				}
+			const [callbackFunction] = callExpression.arguments;
+			const [firstParameter] = callbackFunction.params;
+			const variables = sourceCode.getDeclaredVariables(callbackFunction);
+			const firstParameterVariable = variables.find(variable => variable.identifiers.length === 1 && variable.identifiers[0] === firstParameter);
+			if (!firstParameterVariable || firstParameterVariable.references.length !== 1) {
+				continue;
+			}
 
+			yield {
+				node: callExpression.callee.property,
+				messageId: MESSAGE_ID_REDUCE,
+				fix: fixReduceAssignOrSpread({
+					context,
+					callExpression,
+					property: getProperty(callbackFunction),
+				}),
+			};
+		}
+
+		if (!isCallExpression(callExpression, {
+			argumentsLength: 1,
+			optional: false,
+		})) {
+			return;
+		}
+
+		const functionNode = callExpression.callee;
+		for (const nameOrPath of functions) {
+			const functionName = nameOrPath.trim();
+			if (isNodeMatchesNameOrPath(functionNode, functionName)) {
 				yield {
-					node: callExpression.callee.property,
-					messageId: MESSAGE_ID_REDUCE,
-					fix: fixReduceAssignOrSpread({
-						sourceCode,
-						callExpression,
-						property: getProperty(callbackFunction),
-					}),
+					node: functionNode,
+					messageId: MESSAGE_ID_FUNCTION,
+					data: {functionName},
+					fix: fixer => fixer.replaceText(functionNode, 'Object.fromEntries'),
 				};
 			}
-
-			if (!isCallExpression(callExpression, {
-				argumentsLength: 1,
-				optional: false,
-			})) {
-				return;
-			}
-
-			const functionNode = callExpression.callee;
-			for (const nameOrPath of functions) {
-				const functionName = nameOrPath.trim();
-				if (isNodeMatchesNameOrPath(functionNode, functionName)) {
-					yield {
-						node: functionNode,
-						messageId: MESSAGE_ID_FUNCTION,
-						data: {functionName},
-						fix: fixer => fixer.replaceText(functionNode, 'Object.fromEntries'),
-					};
-				}
-			}
-		},
-	};
+		}
+	});
 }
 
 const schema = [
@@ -243,11 +239,11 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `Object.fromEntries(…)` to transform a list of key-value pairs into an object.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

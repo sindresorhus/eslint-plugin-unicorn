@@ -1,5 +1,8 @@
-import {checkVueTemplate} from './utils/rule.js';
-import {getParenthesizedRange} from './utils/parentheses.js';
+import {
+	checkVueTemplate,
+	getParenthesizedRange,
+	getTokenStore,
+} from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 import typedArray from './shared/typed-array.js';
@@ -53,23 +56,26 @@ const strictStrategyConstructors = [
 	'FinalizationRegistry',
 ];
 
-const replaceWithFunctionCall = (node, sourceCode, functionName) => function * (fixer) {
-	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
+const replaceWithFunctionCall = (node, context, functionName) => function * (fixer) {
 	const {left, right} = node;
+	const tokenStore = getTokenStore(context, node);
+	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 
-	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
-	const range = getParenthesizedRange(left, tokenStore);
+	const range = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(range, functionName + '(');
 	yield fixer.insertTextAfterRange(range, ')');
 
-	yield * replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, sourceCode, tokenStore);
-	yield * replaceNodeOrTokenAndSpacesBefore(right, '', fixer, sourceCode, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(instanceofToken, '', fixer, context, tokenStore);
+	yield replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
 };
 
-const replaceWithTypeOfExpression = (node, sourceCode) => function * (fixer) {
-	const {tokenStore, instanceofToken} = getInstanceOfToken(sourceCode, node);
+const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 	const {left, right} = node;
+	const tokenStore = getTokenStore(context, node);
+	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
+	const {sourceCode} = context;
 
 	// Check if the node is in a Vue template expression
 	const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
@@ -77,29 +83,16 @@ const replaceWithTypeOfExpression = (node, sourceCode) => function * (fixer) {
 	// Get safe quote
 	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
 
-	yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+	yield fixSpaceAroundKeyword(fixer, node, context);
 
-	const leftRange = getParenthesizedRange(left, tokenStore);
+	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
 	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
 
 	yield fixer.replaceText(instanceofToken, '===');
 
-	const rightRange = getParenthesizedRange(right, tokenStore);
+	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
 	yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
-};
-
-const getInstanceOfToken = (sourceCode, node) => {
-	const {left} = node;
-
-	let tokenStore = sourceCode;
-	let instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-	if (!instanceofToken && sourceCode.parserServices.getTemplateBodyTokenStore) {
-		tokenStore = sourceCode.parserServices.getTemplateBodyTokenStore();
-		instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
-	}
-
-	return {tokenStore, instanceofToken};
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -117,57 +110,52 @@ const create = context => {
 			: include,
 	);
 
-	const {sourceCode} = context;
+	context.on('BinaryExpression', /** @param {import('estree').BinaryExpression} node */ node => {
+		const {right, operator} = node;
 
-	return {
-		/** @param {import('estree').BinaryExpression} node */
-		BinaryExpression(node) {
-			const {right, operator} = node;
+		if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
+			return;
+		}
 
-			if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
-				return;
-			}
+		const constructorName = right.name;
 
-			const constructorName = right.name;
+		/** @type {import('eslint').Rule.ReportDescriptor} */
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+		};
 
-			/** @type {import('eslint').Rule.ReportDescriptor} */
-			const problem = {
-				node,
-				messageId: MESSAGE_ID,
-			};
-
-			if (
-				constructorName === 'Array'
-				|| (constructorName === 'Error' && useErrorIsError)
-			) {
-				const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
-				problem.fix = replaceWithFunctionCall(node, sourceCode, functionName);
-				return problem;
-			}
-
-			if (constructorName === 'Function') {
-				problem.fix = replaceWithTypeOfExpression(node, sourceCode);
-				return problem;
-			}
-
-			if (primitiveWrappers.has(constructorName)) {
-				problem.suggest = [
-					{
-						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
-						data: {type: constructorName.toLowerCase()},
-						fix: replaceWithTypeOfExpression(node, sourceCode),
-					},
-				];
-				return problem;
-			}
-
-			if (!forbiddenConstructors.has(constructorName)) {
-				return;
-			}
-
+		if (
+			constructorName === 'Array'
+			|| (constructorName === 'Error' && useErrorIsError)
+		) {
+			const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
+			problem.fix = replaceWithFunctionCall(node, context, functionName);
 			return problem;
-		},
-	};
+		}
+
+		if (constructorName === 'Function') {
+			problem.fix = replaceWithTypeOfExpression(node, context);
+			return problem;
+		}
+
+		if (primitiveWrappers.has(constructorName)) {
+			problem.suggest = [
+				{
+					messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+					data: {type: constructorName.toLowerCase()},
+					fix: replaceWithTypeOfExpression(node, context),
+				},
+			];
+			return problem;
+		}
+
+		if (!forbiddenConstructors.has(constructorName)) {
+			return;
+		}
+
+		return problem;
+	});
 };
 
 const schema = [
@@ -207,7 +195,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `instanceof` with built-in objects',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

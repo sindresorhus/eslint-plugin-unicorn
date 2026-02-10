@@ -38,7 +38,13 @@ export default [
 				'test-tap/fixture/report/edgecases/ast-syntax-error.cjs',
 			],
 		},
-		'https://github.com/chalk/chalk',
+		{
+			repository: 'https://github.com/chalk/chalk',
+			ignore: [
+				// Uses `/* eslint-env */`
+				'source/vendor/supports-color/browser.js',
+			],
+		},
 		'https://github.com/chalk/wrap-ansi',
 		'https://github.com/sindresorhus/np',
 		'https://github.com/sindresorhus/ora',
@@ -113,7 +119,15 @@ export default [
 				'importAssertions',
 			],
 		},
-		'https://github.com/ReactTraining/react-router',
+		{
+			repository: 'https://github.com/ReactTraining/react-router',
+			ignore: [
+				// Uses `/* eslint-env */`
+				'packages/react-router/lib/dom/node-main.js',
+				'packages/react-router/node-main-dom-export.js',
+				'packages/react-router/node-main.js',
+			],
+		},
 		// #902
 		{
 			repository: 'https://github.com/reakit/reakit',
@@ -146,6 +160,13 @@ export default [
 		{
 			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
 			babelPlugins: ['decorators'],
+			ignore: [
+				// Uses `/* eslint-env */`
+				'config/storybook/webpack.config.js',
+				'config/webpack.config.babel.js',
+				'config/webpack.dll.babel.js',
+				'pkg/webui/lib/get-by-path_test.js',
+			],
 		},
 		'https://github.com/zloirock/core-js',
 		{
@@ -163,25 +184,41 @@ export default [
 			],
 		},
 	],
-	{
-		repository: 'https://github.com/gatsbyjs/gatsby',
-		ignore: [
-			// These files use `flow`
-			'**/*.js',
-			'packages/gatsby-cli/src/reporter/__tests__',
-		],
-	},
+	[
+		{
+			repository: 'https://github.com/gatsbyjs/gatsby',
+			ignore: [
+				// These files use `flow`
+				'**/*.js',
+				'packages/gatsby-cli/src/reporter/__tests__',
+			],
+		},
+		{
+			repository: 'https://github.com/webpack/webpack',
+			ignore: ['test/**/*'],
+		},
+	],
 	{
 		repository: 'https://github.com/vercel/next.js',
 		ignore: [
 			'examples/**',
+			'test/**',
+			'**/tests/**',
+			'**/compiled/**',
 
-			// These files use `>` in jsx
-			'test/integration/**',
+			// Uses `/* eslint-env */`
+			'packages/next/src/server/lib/router-utils/decode-path-params.test.ts',
+			'packages/next/src/server/node-polyfill-crypto.test.ts',
 		],
 	},
 	// #903
-	'https://github.com/mattermost/mattermost-webapp',
+	{
+		repository: 'https://github.com/mattermost/mattermost-webapp',
+		ignore: [
+			// Empty type argument lists
+			'e2e/cypress/tests/support/api/bots.d.ts',
+		],
+	},
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
@@ -192,6 +229,10 @@ export default [
 
 			// Global return
 			'scripts/cypress.js',
+
+			// Uses `/* eslint-env */`
+			'packages/charts/chart-web-components/scripts/e2e.js',
+			'packages/web-components/scripts/e2e.js',
 		],
 	},
 	{
@@ -224,6 +265,8 @@ export default [
 			'src/vs/platform/files/test/node/fixtures/**',
 			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
 			'extensions/vscode-colorize-perf-tests/test/**',
+			// Uses `/* eslint-env */`
+			'test/unit/electron/renderer.js',
 		],
 	},
 ].flatMap((projectOrProjects, index) =>

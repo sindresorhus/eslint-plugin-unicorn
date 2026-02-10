@@ -1,6 +1,6 @@
 # Prefer using the `node:` protocol when importing Node.js builtin modules
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -49,4 +49,12 @@ const fs = process.getBuiltinModule('fs/promises');
 
 // ✅
 const fs = process.getBuiltinModule('node:fs/promises');
+```
+
+```ts
+// ❌
+type Fs = import('fs');
+
+// ✅
+type Fs = import('node:fs');
 ```

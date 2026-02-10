@@ -55,7 +55,6 @@ test({
 		'// FIXME [2200-12-12] (lubien): Too long... Can you feel it?',
 		{
 			code: '// Expire Condition [2200-12-12]: new term name',
-			errors: [],
 			options: [{terms: ['Expire Condition']}],
 		},
 		'// Expire Condition [2000-01-01]: new term name',
@@ -80,19 +79,15 @@ test({
 		  */`,
 		{
 			code: '// TODO',
-			errors: [],
 		},
 		{
 			code: '// TODO [invalid]',
-			errors: [],
 		},
 		{
 			code: '// TODO [] might have [some] that [try [to trick] me]',
-			errors: [],
 		},
 		{
 			code: '// TODO [but [it will]] [fallback] [[[ to the default ]]] rule [[',
-			errors: [],
 		},
 		{
 			code: '// TODO ISSUE-123 fix later',
@@ -113,6 +108,18 @@ test({
 		{
 			code: '// TODO [2001-01-01]: quite old',
 			options: [{date: '2000-01-01'}],
+		},
+		{
+			code: `// eslint-disable-next-line rule-to-test/expiring-todo-comments
+				   // TODO without a date`,
+			options: [{allowWarningComments: false}],
+		},
+		{
+			code: `/* eslint-disable rule-to-test/expiring-todo-comments */
+				   // TODO without a date
+				   // fixme [2000-01-01]: too old'
+				   /* eslint-enable rule-to-test/expiring-todo-comments */`,
+			options: [{allowWarningComments: false}],
 		},
 	],
 	invalid: [

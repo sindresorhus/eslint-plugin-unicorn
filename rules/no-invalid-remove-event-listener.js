@@ -7,14 +7,13 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!(
 			isMethodCall(callExpression, {
 				method: 'removeEventListener',
 				minimumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			&& callExpression.arguments[0].type !== 'SpreadElement'
 			&& (
@@ -43,8 +42,8 @@ const create = context => ({
 			node: listener.callee.property,
 			messageId: MESSAGE_ID,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -53,7 +52,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Prevent calling `EventTarget#removeEventListener()` with the result of an expression.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

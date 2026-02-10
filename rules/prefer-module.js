@@ -63,7 +63,7 @@ const commonJsGlobals = new Set([
 	'__dirname',
 ]);
 
-function fixRequireCall(node, sourceCode) {
+function fixRequireCall(node, context) {
 	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
 		return;
 	}
@@ -83,12 +83,12 @@ function fixRequireCall(node, sourceCode) {
 			const {
 				openingParenthesisToken,
 				closingParenthesisToken,
-			} = getCallExpressionTokens(sourceCode, requireCall);
+			} = getCallExpressionTokens(requireCall, context);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
-				yield * removeParentheses(node, fixer, sourceCode);
+				yield removeParentheses(node, fixer, context);
 			}
 		};
 	}
@@ -122,6 +122,7 @@ function fixRequireCall(node, sourceCode) {
 		const {id} = declarator;
 
 		return function * (fixer) {
+			const {sourceCode} = context;
 			const constToken = sourceCode.getFirstToken(declaration);
 			assertToken(constToken, {
 				expected: {type: 'Keyword', value: 'const'},
@@ -134,8 +135,8 @@ function fixRequireCall(node, sourceCode) {
 				expected: {type: 'Punctuator', value: '='},
 				ruleId: 'prefer-module',
 			});
-			yield removeSpacesAfter(id, sourceCode, fixer);
-			yield removeSpacesAfter(equalToken, sourceCode, fixer);
+			yield removeSpacesAfter(id, context, fixer);
+			yield removeSpacesAfter(equalToken, context, fixer);
 			yield fixer.replaceText(equalToken, ' from ');
 
 			yield fixer.remove(callee);
@@ -143,12 +144,12 @@ function fixRequireCall(node, sourceCode) {
 			const {
 				openingParenthesisToken,
 				closingParenthesisToken,
-			} = getCallExpressionTokens(sourceCode, requireCall);
+			} = getCallExpressionTokens(requireCall, context);
 			yield fixer.remove(openingParenthesisToken);
 			yield fixer.remove(closingParenthesisToken);
 
 			for (const node of [callee, requireCall, source]) {
-				yield * removeParentheses(node, fixer, sourceCode);
+				yield removeParentheses(node, fixer, context);
 			}
 
 			if (id.type === 'Identifier') {
@@ -165,8 +166,8 @@ function fixRequireCall(node, sourceCode) {
 						expected: {type: 'Punctuator', value: ':'},
 						ruleId: 'prefer-module',
 					});
-					yield removeSpacesAfter(key, sourceCode, fixer);
-					yield removeSpacesAfter(commaToken, sourceCode, fixer);
+					yield removeSpacesAfter(key, context, fixer);
+					yield removeSpacesAfter(commaToken, context, fixer);
 					yield fixer.replaceText(commaToken, ' as ');
 				}
 			}
@@ -205,47 +206,47 @@ const isTopLevelReturnStatement = node => {
 	return true;
 };
 
-function fixDefaultExport(node, sourceCode) {
+function fixDefaultExport(node, context) {
 	return function * (fixer) {
 		yield fixer.replaceText(node, 'export default ');
-		yield removeSpacesAfter(node, sourceCode, fixer);
+		yield removeSpacesAfter(node, context, fixer);
 
-		const equalToken = sourceCode.getTokenAfter(node, token => token.type === 'Punctuator' && token.value === '=');
+		const equalToken = context.sourceCode.getTokenAfter(node, token => token.type === 'Punctuator' && token.value === '=');
 		yield fixer.remove(equalToken);
-		yield removeSpacesAfter(equalToken, sourceCode, fixer);
+		yield removeSpacesAfter(equalToken, context, fixer);
 
 		for (const currentNode of [node.parent, node]) {
-			yield * removeParentheses(currentNode, fixer, sourceCode);
+			yield removeParentheses(currentNode, fixer, context);
 		}
 	};
 }
 
-function fixNamedExport(node, sourceCode) {
+function fixNamedExport(node, context) {
 	return function * (fixer) {
 		const assignmentExpression = node.parent.parent;
 		const exported = node.parent.property.name;
 		const local = assignmentExpression.right.name;
 		yield fixer.replaceText(assignmentExpression, `export {${local} as ${exported}}`);
 
-		yield * removeParentheses(assignmentExpression, fixer, sourceCode);
+		yield removeParentheses(assignmentExpression, fixer, context);
 	};
 }
 
-function fixExports(node, sourceCode) {
+function fixExports(node, context) {
 	// `exports = bar`
 	if (isTopLevelAssignment(node)) {
-		return fixDefaultExport(node, sourceCode);
+		return fixDefaultExport(node, context);
 	}
 
 	// `exports.foo = bar`
 	if (isNamedExport(node)) {
-		return fixNamedExport(node, sourceCode);
+		return fixNamedExport(node, context);
 	}
 }
 
-function fixModuleExports(node, sourceCode) {
+function fixModuleExports(node, context) {
 	if (isModuleExports(node)) {
-		return fixExports(node.parent, sourceCode);
+		return fixExports(node.parent, context);
 	}
 }
 
@@ -266,7 +267,7 @@ function create(context) {
 		const problem = {node, messageId: ERROR_USE_STRICT_DIRECTIVE};
 		const fix = function * (fixer) {
 			yield fixer.remove(node);
-			yield removeSpacesAfter(node, sourceCode, fixer);
+			yield removeSpacesAfter(node, context, fixer);
 		};
 
 		if (filename.endsWith('.mjs')) {
@@ -306,14 +307,14 @@ function create(context) {
 				problem.suggest = suggestions.get(node.name)
 					.map(({messageId, replacement}) => ({
 						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, fixer),
+						fix: fixer => replaceReferenceIdentifier(node, replacement, context, fixer),
 					}));
 
 				return problem;
 			}
 
 			case 'require': {
-				const fix = fixRequireCall(node, sourceCode);
+				const fix = fixRequireCall(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_IMPORT,
@@ -326,7 +327,7 @@ function create(context) {
 			}
 
 			case 'exports': {
-				const fix = fixExports(node, sourceCode);
+				const fix = fixExports(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_EXPORT,
@@ -339,7 +340,7 @@ function create(context) {
 			}
 
 			case 'module': {
-				const fix = fixModuleExports(node, sourceCode);
+				const fix = fixModuleExports(node, context);
 				if (fix) {
 					problem.suggest = [{
 						messageId: SUGGESTION_EXPORT,
@@ -365,7 +366,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer JavaScript modules (ESM) over CommonJS.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

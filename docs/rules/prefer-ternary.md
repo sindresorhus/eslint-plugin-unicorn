@@ -1,6 +1,6 @@
 # Prefer ternary expressions over simple `if-else` statements
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -13,9 +13,10 @@ Using an `if-else` statement typically results in more lines of code than a sing
 
 Additionally, using an `if-else` statement can result in defining variables using `let` or `var` solely to be reassigned within the blocks. This leads to variables being unnecessarily mutable and prevents `prefer-const` from flagging the variable.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 function unicorn() {
 	if (test) {
 		return a;
@@ -23,9 +24,15 @@ function unicorn() {
 		return b;
 	}
 }
+
+// ✅
+function unicorn() {
+	return test ? a : b;
+}
 ```
 
 ```js
+// ❌
 function* unicorn() {
 	if (test) {
 		yield a;
@@ -33,9 +40,15 @@ function* unicorn() {
 		yield b;
 	}
 }
+
+// ✅
+function* unicorn() {
+	yield (test ? a : b);
+}
 ```
 
 ```js
+// ❌
 async function unicorn() {
 	if (test) {
 		await a();
@@ -43,68 +56,55 @@ async function unicorn() {
 		await b();
 	}
 }
-```
 
-```js
-if (test) {
-	throw new Error('foo');
-} else {
-	throw new Error('bar');
-}
-```
-
-```js
-let foo;
-if (test) {
-	foo = 1;
-} else {
-	foo = 2;
-}
-```
-
-## Pass
-
-```js
-function unicorn() {
-	return test ? a : b;
-}
-```
-
-```js
-function* unicorn() {
-	yield (test ? a : b);
-}
-```
-
-```js
+// ✅
 async function unicorn() {
 	await (test ? a() : b());
 }
 ```
 
 ```js
+// ❌
+if (test) {
+	throw new Error('foo');
+} else {
+	throw new Error('bar');
+}
+
+// ✅
 const error = test ? new Error('foo') : new Error('bar');
 throw error;
 ```
 
 ```js
+// ❌
+let foo;
+if (test) {
+	foo = 1;
+} else {
+	foo = 2;
+}
+
+// ✅
 let foo;
 foo = test ? 1 : 2;
 ```
 
 ```js
+// ✅
 // Multiple expressions
 let foo;
 let bar;
 if (test) {
 	foo = 1;
 	bar = 2;
-} else{
+} else {
 	foo = 2;
 }
 ```
 
 ```js
+// ✅
 // Different expressions
 function unicorn() {
 	if (test) {
@@ -116,12 +116,13 @@ function unicorn() {
 ```
 
 ```js
+// ✅
 // Assign to different variable
 let foo;
 let bar;
 if (test) {
 	foo = 1;
-} else{
+} else {
 	baz = 2;
 }
 ```
@@ -136,15 +137,14 @@ Default: `'always'`
 - `'only-single-line'`
   - Only check if the content of the `if` and/or `else` block is less than one line long.
 
-The following case is considered valid:
-
 ```js
-// eslint unicorn/prefer-ternary: ["error", "only-single-line"]
+/* eslint unicorn/prefer-ternary: ["error", "only-single-line"] */
+// ✅
 if (test) {
 	foo = [
 		'multiple line array'
 	];
 } else {
-	bar = baz;
+	foo = bar;
 }
 ```

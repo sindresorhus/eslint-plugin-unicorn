@@ -117,6 +117,11 @@ test({
 		'export {x} from \'named\'',
 		'export {x as y} from \'named\'',
 
+		// `export` without `from` should not crash
+		'const foo = 1; export {foo}',
+		'export const foo = 1;',
+		'export function foo() {}',
+
 		{
 			code: 'import {inspect} from \'util\'',
 			options: [],

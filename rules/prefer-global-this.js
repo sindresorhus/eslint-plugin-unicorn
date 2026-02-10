@@ -62,6 +62,7 @@ const windowSpecificAPIs = new Set([
 	'open',
 	'originAgentCluster',
 	'postMessage',
+	'navigation',
 
 	// Events commonly associated with "window"
 	...[...windowSpecificEvents].map(event => `on${event}`),
@@ -168,8 +169,8 @@ Check if the node is a web worker specific API.
 const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	* Program(program) {
+const create = context => {
+	context.on('Program', function * (program) {
 		const scope = context.sourceCode.getScope(program);
 
 		const references = [
@@ -200,8 +201,8 @@ const create = context => ({
 				fix: fixer => fixer.replaceText(identifier, replacement),
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -210,7 +211,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `globalThis` over `window`, `self`, and `global`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: false,

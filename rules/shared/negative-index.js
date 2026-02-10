@@ -1,6 +1,13 @@
-import isSameReference from '../utils/is-same-reference.js';
-import {getParenthesizedRange} from '../utils/parentheses.js';
-import {isNumberLiteral} from '../ast/index.js';
+import {
+	isSameReference,
+	getParenthesizedRange,
+} from '../utils/index.js';
+import {isNumericLiteral} from '../ast/index.js';
+
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
 
 const isLengthMemberExpression = node =>
 	node.type === 'MemberExpression'
@@ -10,7 +17,7 @@ const isLengthMemberExpression = node =>
 	&& node.property.name === 'length';
 
 const isLiteralPositiveNumber = node =>
-	isNumberLiteral(node)
+	isNumericLiteral(node)
 	&& node.value > 0;
 
 export function getNegativeIndexLengthNode(node, objectNode) {
@@ -32,11 +39,16 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 	return getNegativeIndexLengthNode(left, objectNode);
 }
 
-export function removeLengthNode(node, fixer, sourceCode) {
-	const [start, end] = getParenthesizedRange(node, sourceCode);
+/**
+@param {ESTree.Node} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {ESLint.Rule.ReportFixer}
+*/
+export function removeLengthNode(node, fixer, context) {
+	const [start, end] = getParenthesizedRange(node, context);
 	return fixer.removeRange([
 		start,
-		end + sourceCode.text.slice(end).match(/\S|$/).index,
+		end + context.sourceCode.text.slice(end).match(/\S|$/).index,
 	]);
 }
 

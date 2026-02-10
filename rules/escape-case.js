@@ -56,7 +56,7 @@ const create = context => {
 			node,
 			original: node.value.raw,
 			lowercase,
-			fix: (fixer, fixed) => replaceTemplateElement(fixer, node, fixed),
+			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
 		});
 	});
 };
@@ -74,7 +74,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Require escape sequences to use uppercase or lowercase values.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

@@ -90,19 +90,21 @@ const breakAbleNodeTypes = new Set([
 	'SwitchStatement',
 ]);
 const getBreakTarget = node => {
-	for (;node.parent; node = node.parent) {
+	for (; node.parent; node = node.parent) {
 		if (breakAbleNodeTypes.has(node.type)) {
 			return node;
 		}
 	}
 };
 
-const isNodeInsideNode = (inner, outer) =>
-	// eslint-disable-next-line internal/no-restricted-property-access
-	inner.range[0] >= outer.range[0] && inner.range[1] <= outer.range[1];
-function hasBreakInside(breakStatements, node) {
+const isNodeInsideNode = (inner, outer, context) => {
+	const {sourceCode} = context;
+	return sourceCode.getRange(inner)[0] >= sourceCode.getRange(outer)[0] && sourceCode.getRange(inner)[1] <= sourceCode.getRange(outer)[1];
+};
+
+function hasBreakInside(breakStatements, node, context) {
 	for (const breakStatement of breakStatements) {
-		if (!isNodeInsideNode(breakStatement, node)) {
+		if (!isNodeInsideNode(breakStatement, node, context)) {
 			continue;
 		}
 
@@ -112,7 +114,7 @@ function hasBreakInside(breakStatements, node) {
 			return true;
 		}
 
-		if (isNodeInsideNode(node, breakTarget)) {
+		if (isNodeInsideNode(node, breakTarget, context)) {
 			return true;
 		}
 	}
@@ -183,12 +185,13 @@ function shouldInsertBreakStatement(node) {
 	}
 }
 
-function fix({discriminant, ifStatements}, sourceCode, options) {
+function fix({discriminant, ifStatements}, context, options) {
+	const {sourceCode} = context;
 	const discriminantText = sourceCode.getText(discriminant);
 
 	return function * (fixer) {
 		const firstStatement = ifStatements[0].statement;
-		const indent = getIndentString(firstStatement, sourceCode);
+		const indent = getIndentString(firstStatement, context);
 		yield fixer.insertTextBefore(firstStatement, `switch (${discriminantText}) {`);
 
 		const lastStatement = ifStatements.at(-1).statement;
@@ -244,8 +247,8 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 			}
 
 			if (shouldInsertBreakStatement(consequent)) {
-				yield * insertBreakStatement(consequent, fixer, sourceCode, indent);
-				yield * insertBracesIfNotBlockStatement(consequent, fixer, indent);
+				yield insertBreakStatement(consequent, fixer, sourceCode, indent);
+				yield insertBracesIfNotBlockStatement(consequent, fixer, indent);
 			}
 		}
 	};
@@ -254,60 +257,58 @@ function fix({discriminant, ifStatements}, sourceCode, options) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
-		minimumCases: 3,
-		emptyDefaultCase: 'no-default-comment',
-		insertBreakInDefaultCase: false,
 		...context.options[0],
+		insertBreakInDefaultCase: false,
 	};
 	const {sourceCode} = context;
 	const ifStatements = new Set();
 	const breakStatements = [];
 	const checked = new Set();
 
-	return {
-		IfStatement(node) {
-			ifStatements.add(node);
-		},
-		BreakStatement(node) {
-			if (!node.label) {
-				breakStatements.push(node);
+	context.on('IfStatement', node => {
+		ifStatements.add(node);
+	});
+
+	context.on('BreakStatement', node => {
+		if (!node.label) {
+			breakStatements.push(node);
+		}
+	});
+
+	context.on('Program:exit', function * () {
+		for (const node of ifStatements) {
+			if (checked.has(node)) {
+				continue;
 			}
-		},
-		* 'Program:exit'() {
-			for (const node of ifStatements) {
-				if (checked.has(node)) {
-					continue;
-				}
 
-				const {discriminant, ifStatements} = getStatements(node);
+			const {discriminant, ifStatements} = getStatements(node);
 
-				if (!discriminant || ifStatements.length < options.minimumCases) {
-					continue;
-				}
-
-				for (const {statement} of ifStatements) {
-					checked.add(statement);
-				}
-
-				const problem = {
-					loc: {
-						start: sourceCode.getLoc(node).start,
-						end: sourceCode.getLoc(node.consequent).start,
-					},
-					messageId: MESSAGE_ID,
-				};
-
-				if (
-					!hasSideEffect(discriminant, sourceCode)
-					&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement))
-				) {
-					problem.fix = fix({discriminant, ifStatements}, sourceCode, options);
-				}
-
-				yield problem;
+			if (!discriminant || ifStatements.length < options.minimumCases) {
+				continue;
 			}
-		},
-	};
+
+			for (const {statement} of ifStatements) {
+				checked.add(statement);
+			}
+
+			const problem = {
+				loc: {
+					start: sourceCode.getLoc(node).start,
+					end: sourceCode.getLoc(node.consequent).start,
+				},
+				messageId: MESSAGE_ID,
+			};
+
+			if (
+				!hasSideEffect(discriminant, sourceCode)
+				&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement, context))
+			) {
+				problem.fix = fix({discriminant, ifStatements}, context, options);
+			}
+
+			yield problem;
+		}
+	});
 };
 
 const schema = [
@@ -337,7 +338,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `switch` over multiple `else-if`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

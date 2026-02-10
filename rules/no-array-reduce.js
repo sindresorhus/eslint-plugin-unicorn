@@ -17,7 +17,6 @@ const cases = [
 				minimumArguments: 1,
 				maximumArguments: 2,
 				optionalCall: false,
-				optionalMember: false,
 			})
 			&& !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
@@ -88,27 +87,25 @@ const schema = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {allowSimpleOperations} = {allowSimpleOperations: true, ...context.options[0]};
+	const {allowSimpleOperations} = context.options[0];
 
-	return {
-		* CallExpression(callExpression) {
-			for (const {test, getMethodNode, isSimpleOperation} of cases) {
-				if (!test(callExpression)) {
-					continue;
-				}
-
-				if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
-					continue;
-				}
-
-				const methodNode = getMethodNode(callExpression);
-				yield {
-					node: methodNode,
-					messageId: methodNode.name,
-				};
+	context.on('CallExpression', function * (callExpression) {
+		for (const {test, getMethodNode, isSimpleOperation} of cases) {
+			if (!test(callExpression)) {
+				continue;
 			}
-		},
-	};
+
+			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
+				continue;
+			}
+
+			const methodNode = getMethodNode(callExpression);
+			yield {
+				node: methodNode,
+				messageId: methodNode.name,
+			};
+		}
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

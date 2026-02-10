@@ -15,27 +15,28 @@ function checkEscape(context, node, value) {
 			messageId: MESSAGE_ID,
 			fix: fixer =>
 				node.type === 'TemplateElement'
-					? replaceTemplateElement(fixer, node, fixedValue)
+					? replaceTemplateElement(node, fixedValue, context, fixer)
 					: fixer.replaceText(node, fixedValue),
 		};
 	}
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		if (isStringLiteral(node) || isRegexLiteral(node)) {
 			return checkEscape(context, node, node.raw);
 		}
-	},
-	TemplateElement(node) {
+	});
+
+	context.on('TemplateElement', node => {
 		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
 			return;
 		}
 
 		return checkEscape(context, node, node.value.raw);
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -44,7 +45,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the use of Unicode escapes instead of hexadecimal escapes.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

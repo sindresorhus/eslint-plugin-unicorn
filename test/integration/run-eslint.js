@@ -5,9 +5,11 @@ import {codeFrameColumns} from '@babel/code-frame';
 import {ESLint} from 'eslint';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
-import babelParser from '@babel/eslint-parser';
-import typescriptParser from '@typescript-eslint/parser';
-import vueParser from 'vue-eslint-parser';
+import {
+	babelEslintParser,
+	typescriptEslintParser,
+	vueEslintParser,
+} from '../../scripts/parsers.js';
 import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
 
@@ -61,7 +63,7 @@ const basicConfigs = [
 	{
 		files: ['**/*.ts', '**/*.mts', '**/*.cts', '**/*.tsx'],
 		languageOptions: {
-			parser: typescriptParser,
+			parser: typescriptEslintParser,
 			parserOptions: {
 				project: [],
 			},
@@ -70,7 +72,7 @@ const basicConfigs = [
 	{
 		files: ['**/*.vue'],
 		languageOptions: {
-			parser: vueParser,
+			parser: vueEslintParser,
 			parserOptions: {
 				parser: '@typescript-eslint/parser',
 				ecmaFeatures: {
@@ -86,7 +88,7 @@ function getBabelParserConfig(project) {
 	return {
 		languageOptions: {
 			sourceType: 'module',
-			parser: babelParser,
+			parser: babelEslintParser,
 			parserOptions: {
 				requireConfigFile: false,
 				babelOptions: {
@@ -122,6 +124,11 @@ async function runEslint(project) {
 		],
 		fix: true,
 		errorOnUnmatchedPattern: false,
+		/*
+		TODO: Try to figure out how to make it work, currently it throws error
+		"The option "overrideConfig" cannot be cloned. When concurrency is enabled, all options must be cloneable values (JSON values). Remove uncloneable options or use an options module."
+		*/
+		// concurrency: 'auto',
 	});
 
 	const startTime = process.hrtime.bigint();
@@ -145,7 +152,7 @@ async function runEslint(project) {
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
 	console.log();
 	console.log(outdent`
-		${styleText.green.bold.underline(`[${project.name}]`)} ${results.length} files linted:
+		${styleText.green.bold.underline`[${project.name}]`} ${results.length} files linted:
 		- error: ${styleText.gray(String(errorCount))}
 		- warning: ${styleText.gray(String(warningCount))}
 		- fixable error: ${styleText.gray(String(fixableErrorCount))}

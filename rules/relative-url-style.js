@@ -84,13 +84,11 @@ function removeDotSlash(node, sourceCode) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const style = context.options[0] || 'never';
-
-	const listeners = {};
+	const style = context.options[0];
 
 	// TemplateLiteral are not always safe to remove `./`, but if it's starts with `./` we'll report
 	if (style === 'never') {
-		listeners.TemplateLiteral = function (node) {
+		context.on('TemplateLiteral', node => {
 			if (!(
 				isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
 				&& node.parent.arguments[0] === node
@@ -116,10 +114,10 @@ const create = context => {
 					},
 				],
 			};
-		};
+		});
 	}
 
-	listeners.Literal = function (node) {
+	context.on('Literal', node => {
 		if (!(
 			isStringLiteral(node)
 			&& isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
@@ -140,9 +138,7 @@ const create = context => {
 			messageId: style,
 			fix,
 		};
-	};
-
-	return listeners;
+	});
 };
 
 const schema = [
@@ -158,7 +154,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent relative URL style.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,

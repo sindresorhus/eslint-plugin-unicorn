@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	NewExpression(newExpression) {
+const create = context => {
+	context.on('NewExpression', newExpression => {
 		if (!isNewExpression(newExpression, {name: 'Date', argumentsLength: 1})) {
 			return;
 		}
@@ -32,10 +32,10 @@ const create = context => ({
 				end: sourceCode.getLoc(callExpression).end,
 			},
 			messageId: MESSAGE_ID_ERROR,
-			fix: fixer => removeMethodCall(fixer, callExpression, sourceCode),
+			fix: fixer => removeMethodCall(fixer, callExpression, context),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -44,7 +44,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer passing `Date` directly to the constructor when cloning.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

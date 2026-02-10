@@ -12,7 +12,7 @@ export function isLiteral(node, value) {
 
 export const isStringLiteral = node => node?.type === 'Literal' && typeof node.value === 'string';
 
-export const isNumberLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
+export const isNumericLiteral = node => node.type === 'Literal' && typeof node.value === 'number';
 
 export const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
 
@@ -21,3 +21,4 @@ export const isNullLiteral = node => isLiteral(node, null);
 
 export const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
 
+export const isEmptyStringLiteral = node => isLiteral(node, '');

@@ -108,6 +108,43 @@ const isIife = node =>
 	&& node.parent.type === 'CallExpression'
 	&& node.parent.callee === node;
 
+// Helper to walk up the chain to find the first non-arrow ancestor
+function getNonArrowAncestor(node) {
+	let ancestor = node;
+	while (ancestor && ancestor.type === 'ArrowFunctionExpression') {
+		ancestor = ancestor.parent;
+	}
+
+	return ancestor;
+}
+
+// Helper to skip over a chain of ArrowFunctionExpression nodes
+function skipArrowFunctionChain(node) {
+	let current = node;
+	while (current.type === 'ArrowFunctionExpression') {
+		current = current.parent;
+	}
+
+	return current;
+}
+
+function handleNestedArrowFunctions(parentNode, node) {
+	// Skip over arrow function expressions when they are parents and we came from a ReturnStatement
+	// This handles nested arrow functions: return next => action => { ... }
+	// But only when we're in a return statement context
+	if (parentNode.type === 'ArrowFunctionExpression' && node.type === 'ArrowFunctionExpression') {
+		const ancestor = getNonArrowAncestor(parentNode);
+		if (ancestor && ancestor.type === 'ReturnStatement') {
+			parentNode = skipArrowFunctionChain(parentNode);
+			if (parentNode.type === 'ReturnStatement') {
+				parentNode = parentNode.parent;
+			}
+		}
+	}
+
+	return parentNode;
+}
+
 function checkNode(node, scopeManager) {
 	const scope = scopeManager.acquire(node);
 
@@ -128,7 +165,15 @@ function checkNode(node, scopeManager) {
 		parentNode = parentNode.parent;
 	}
 
-	if (parentNode.type === 'BlockStatement') {
+	// Only skip ReturnStatement for arrow functions
+	// Regular function expressions have different semantics and shouldn't be moved
+	if (parentNode?.type === 'ReturnStatement' && node.type === 'ArrowFunctionExpression') {
+		parentNode = parentNode.parent;
+	}
+
+	parentNode = handleNestedArrowFunctions(parentNode, node);
+
+	if (parentNode?.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
 	}
 
@@ -147,7 +192,7 @@ function checkNode(node, scopeManager) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkArrowFunctions} = {checkArrowFunctions: true, ...context.options[0]};
+	const {checkArrowFunctions} = context.options[0];
 	const {sourceCode} = context;
 	const {scopeManager} = sourceCode;
 

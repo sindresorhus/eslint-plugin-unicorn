@@ -68,67 +68,46 @@ const create = context => {
 		octal,
 		hexadecimal,
 		number,
-	} = {
-		onlyIfContainsSeparator: false,
-		...context.options[0],
-	};
+	} = context.options[0];
 
 	const options = {
-		'0b': {
-			onlyIfContainsSeparator,
-			...defaultOptions.binary,
-			...binary,
-		},
-		'0o': {
-			onlyIfContainsSeparator,
-			...defaultOptions.octal,
-			...octal,
-		},
-		'0x': {
-			onlyIfContainsSeparator,
-			...defaultOptions.hexadecimal,
-			...hexadecimal,
-		},
-		'': {
-			onlyIfContainsSeparator,
-			...defaultOptions.number,
-			...number,
-		},
+		'0b': {onlyIfContainsSeparator, ...binary},
+		'0o': {onlyIfContainsSeparator, ...octal},
+		'0x': {onlyIfContainsSeparator, ...hexadecimal},
+		'': {onlyIfContainsSeparator, ...number},
 	};
 
-	return {
-		Literal(node) {
-			if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
-				return;
-			}
+	context.on('Literal', node => {
+		if (!numeric.isNumeric(node) || numeric.isLegacyOctal(node)) {
+			return;
+		}
 
-			const {raw} = node;
-			let number = raw;
-			let suffix = '';
-			if (isBigIntLiteral(node)) {
-				number = raw.slice(0, -1);
-				suffix = 'n';
-			}
+		const {raw} = node;
+		let number = raw;
+		let suffix = '';
+		if (isBigIntLiteral(node)) {
+			number = raw.slice(0, -1);
+			suffix = 'n';
+		}
 
-			const strippedNumber = number.replaceAll('_', '');
-			const {prefix, data} = numeric.getPrefix(strippedNumber);
+		const strippedNumber = number.replaceAll('_', '');
+		const {prefix, data} = numeric.getPrefix(strippedNumber);
 
-			const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
-			if (onlyIfContainsSeparator && !raw.includes('_')) {
-				return;
-			}
+		const {onlyIfContainsSeparator} = options[prefix.toLowerCase()];
+		if (onlyIfContainsSeparator && !raw.includes('_')) {
+			return;
+		}
 
-			const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
+		const formatted = format(strippedNumber, {prefix, data}, options) + suffix;
 
-			if (raw !== formatted) {
-				return {
-					node,
-					messageId: MESSAGE_ID,
-					fix: fixer => fixer.replaceText(node, formatted),
-				};
-			}
-		},
-	};
+		if (raw !== formatted) {
+			return {
+				node,
+				messageId: MESSAGE_ID,
+				fix: fixer => fixer.replaceText(node, formatted),
+			};
+		}
+	});
 };
 
 const formatOptionsSchema = () => ({
@@ -169,7 +148,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce the style of numeric separators by correctly grouping digits.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

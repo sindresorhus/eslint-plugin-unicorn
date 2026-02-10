@@ -1,4 +1,3 @@
-import {isParenthesized} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
 	needsSemicolon,
@@ -7,6 +6,7 @@ import {
 	getParenthesizedText,
 	shouldAddParenthesesToConditionalExpressionChild,
 	getScopes,
+	isParenthesized,
 } from './utils/index.js';
 import {extendFixRange} from './fix/index.js';
 
@@ -34,8 +34,8 @@ function getNodeBody(node) {
 	return node;
 }
 
-// eslint-disable-next-line internal/no-restricted-property-access -- Need fix
-const isSingleLineNode = node => node.loc.start.line === node.loc.end.line;
+const isSingleLineNode = (node, context) =>
+	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -48,7 +48,7 @@ const create = context => {
 	});
 
 	const getText = node => {
-		let text = getParenthesizedText(node, sourceCode);
+		let text = getParenthesizedText(node, context);
 		if (
 			!isParenthesized(node, sourceCode)
 			&& shouldAddParenthesesToConditionalExpressionChild(node)
@@ -168,97 +168,95 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	return {
-		IfStatement(node) {
-			if (
-				(node.parent.type === 'IfStatement' && node.parent.alternate === node)
-				|| node.test.type === 'ConditionalExpression'
-				|| !node.consequent
-				|| !node.alternate
-			) {
-				return;
-			}
+	context.on('IfStatement', node => {
+		if (
+			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
+			|| node.test.type === 'ConditionalExpression'
+			|| !node.consequent
+			|| !node.alternate
+		) {
+			return;
+		}
 
-			const consequent = getNodeBody(node.consequent);
-			const alternate = getNodeBody(node.alternate);
+		const consequent = getNodeBody(node.consequent);
+		const alternate = getNodeBody(node.alternate);
 
-			if (
-				onlySingleLine
-				&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node))
-			) {
-				return;
-			}
+		if (
+			onlySingleLine
+			&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node, context))
+		) {
+			return;
+		}
 
-			const result = merge({node, consequent, alternate}, {
-				checkThrowStatement: true,
-				returnFalseIfNotMergeable: true,
-			});
+		const result = merge({node, consequent, alternate}, {
+			checkThrowStatement: true,
+			returnFalseIfNotMergeable: true,
+		});
 
-			if (!result) {
-				return;
-			}
+		if (!result) {
+			return;
+		}
 
-			const problem = {node, messageId};
+		const problem = {node, messageId};
 
-			// Don't fix if there are comments
-			if (sourceCode.getCommentsInside(node).length > 0) {
-				return problem;
-			}
+		// Don't fix if there are comments
+		if (sourceCode.getCommentsInside(node).length > 0) {
+			return problem;
+		}
 
-			const scope = sourceCode.getScope(node);
-			problem.fix = function * (fixer) {
-				const testText = getText(node.test);
-				const consequentText = typeof result.consequent === 'string'
-					? result.consequent
-					: getText(result.consequent);
-				const alternateText = typeof result.alternate === 'string'
-					? result.alternate
-					: getText(result.alternate);
+		const scope = sourceCode.getScope(node);
+		problem.fix = function * (fixer) {
+			const testText = getText(node.test);
+			const consequentText = typeof result.consequent === 'string'
+				? result.consequent
+				: getText(result.consequent);
+			const alternateText = typeof result.alternate === 'string'
+				? result.alternate
+				: getText(result.alternate);
 
-				let {type, before, after} = result;
+			let {type, before, after} = result;
 
-				let generateNewVariables = false;
-				if (type === 'ThrowStatement') {
-					const scopes = getScopes(scope);
-					const errorName = getAvailableVariableName('error', scopes, isSafeName);
+			let generateNewVariables = false;
+			if (type === 'ThrowStatement') {
+				const scopes = getScopes(scope);
+				const errorName = getAvailableVariableName('error', scopes, isSafeName);
 
-					for (const scope of scopes) {
-						if (!scopeToNamesGeneratedByFixer.has(scope)) {
-							scopeToNamesGeneratedByFixer.set(scope, new Set());
-						}
-
-						const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-						generatedNames.add(errorName);
+				for (const scope of scopes) {
+					if (!scopeToNamesGeneratedByFixer.has(scope)) {
+						scopeToNamesGeneratedByFixer.set(scope, new Set());
 					}
 
-					const indentString = getIndentString(node, sourceCode);
-
-					after = after
-						.replace('{{INDENT_STRING}}', indentString)
-						.replace('{{ERROR_NAME}}', errorName);
-					before = before
-						.replace('{{INDENT_STRING}}', indentString)
-						.replace('{{ERROR_NAME}}', errorName);
-					generateNewVariables = true;
+					const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
+					generatedNames.add(errorName);
 				}
 
-				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
-				const tokenBefore = sourceCode.getTokenBefore(node);
-				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, sourceCode, fixed);
-				if (shouldAddSemicolonBefore) {
-					fixed = `;${fixed}`;
-				}
+				const indentString = getIndentString(node, context);
 
-				yield fixer.replaceText(node, fixed);
+				after = after
+					.replace('{{INDENT_STRING}}', indentString)
+					.replace('{{ERROR_NAME}}', errorName);
+				before = before
+					.replace('{{INDENT_STRING}}', indentString)
+					.replace('{{ERROR_NAME}}', errorName);
+				generateNewVariables = true;
+			}
 
-				if (generateNewVariables) {
-					yield * extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
-				}
-			};
+			let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
+			const tokenBefore = sourceCode.getTokenBefore(node);
+			const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
+			if (shouldAddSemicolonBefore) {
+				fixed = `;${fixed}`;
+			}
 
-			return problem;
-		},
-	};
+			yield fixer.replaceText(node, fixed);
+
+			if (generateNewVariables) {
+				yield extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
+			}
+		};
+
+		return problem;
+	});
 };
 
 const schema = [
@@ -274,7 +272,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer ternary expressions over simple `if-else` statements.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

@@ -1,5 +1,4 @@
-import {isCommaToken} from '@eslint-community/eslint-utils';
-import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
+import {removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {isUndefined, isFunction} from './ast/index.js';
 
 const messageId = 'no-useless-undefined';
@@ -53,6 +52,8 @@ const shouldIgnore = node => {
 		|| name === 'add'
 		// `set.has(undefined)`
 		|| name === 'has'
+		// `set.delete(undefined)`
+		|| name === 'delete'
 
 		// `map.set(foo, undefined)`
 		|| name === 'set'
@@ -105,14 +106,10 @@ const create = context => {
 		};
 	};
 
-	const options = {
-		checkArguments: true,
-		checkArrowFunctionBody: true,
-		...context.options[0],
-	};
+	const options = context.options[0];
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
-		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, sourceCode);
+		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, context);
 
 	// `return undefined`
 	context.on('Identifier', node => {
@@ -154,7 +151,7 @@ const create = context => {
 			) {
 				return getProblem(
 					node,
-					fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, sourceCode),
+					fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, context),
 					/* CheckFunctionReturnType */ true,
 				);
 			}
@@ -220,58 +217,22 @@ const create = context => {
 	}
 
 	context.on('CallExpression', node => {
-		if (shouldIgnore(node.callee)) {
+		const argumentNodes = node.arguments;
+		const lastArgument = argumentNodes.at(-1);
+
+		if (!isUndefined(lastArgument) || shouldIgnore(node.callee)) {
 			return;
 		}
-
-		const argumentNodes = node.arguments;
 
 		// Ignore arguments in `Function#bind()`, but not `this` argument
 		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
 			return;
 		}
 
-		const undefinedArguments = [];
-		for (let index = argumentNodes.length - 1; index >= 0; index--) {
-			const node = argumentNodes[index];
-			if (isUndefined(node)) {
-				undefinedArguments.unshift(node);
-			} else {
-				break;
-			}
-		}
-
-		if (undefinedArguments.length === 0) {
-			return;
-		}
-
-		const firstUndefined = undefinedArguments[0];
-		const lastUndefined = undefinedArguments.at(-1);
-
 		return {
+			node: lastArgument,
 			messageId,
-			loc: {
-				start: sourceCode.getLoc(firstUndefined).start,
-				end: sourceCode.getLoc(lastUndefined).end,
-			},
-			fix(fixer) {
-				let [start] = sourceCode.getRange(firstUndefined);
-				let [, end] = sourceCode.getRange(lastUndefined);
-
-				const previousArgument = argumentNodes[argumentNodes.length - undefinedArguments.length - 1];
-
-				if (previousArgument) {
-					[, start] = sourceCode.getRange(previousArgument);
-				} else {
-					// If all arguments removed, and there is trailing comma, we need remove it.
-					const tokenAfter = sourceCode.getTokenAfter(lastUndefined);
-					if (isCommaToken(tokenAfter)) {
-						[, end] = sourceCode.getRange(tokenAfter);
-					}
-				}
-
-				return fixer.removeRange([start, end]);
-			},
+			fix: fixer => removeArgument(fixer, lastArgument, context),
 		};
 	});
 };
@@ -298,11 +259,11 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow useless `undefined`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{checkArguments: true, checkArrowFunctionBody: true}],
 		messages,
 	},
 };

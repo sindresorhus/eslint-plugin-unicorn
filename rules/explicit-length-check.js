@@ -1,9 +1,13 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
-import {checkVueTemplate} from './utils/rule.js';
-import isLogicalExpression from './utils/is-logical-expression.js';
-import {isBooleanNode, getBooleanAncestor} from './utils/boolean.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {
+	isParenthesized,
+	checkVueTemplate,
+	isLogicalExpression,
+	isBooleanNode,
+	getBooleanAncestor,
+} from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isLiteral, isMemberExpression, isNumberLiteral} from './ast/index.js';
+import {isLiteral, isMemberExpression, isNumericLiteral} from './ast/index.js';
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -90,7 +94,7 @@ function getLengthCheckNode(node) {
 }
 
 function isNodeValueNumber(node, context) {
-	if (isNumberLiteral(node)) {
+	if (isNumericLiteral(node)) {
 		return true;
 	}
 
@@ -98,11 +102,21 @@ function isNodeValueNumber(node, context) {
 	return staticValue && typeof staticValue.value === 'number';
 }
 
+function isNodeValueString(node, context) {
+	if (node.type === 'Literal' && typeof node.value === 'string') {
+		return true;
+	}
+
+	if (node.type === 'TemplateLiteral') {
+		return true;
+	}
+
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return staticValue && typeof staticValue.value === 'string';
+}
+
 function create(context) {
-	const options = {
-		'non-zero': 'greater-than',
-		...context.options[0],
-	};
+	const options = context.options[0];
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const {sourceCode} = context;
 
@@ -114,7 +128,7 @@ function create(context) {
 
 		let fixed = `${sourceCode.getText(lengthNode)} ${code}`;
 		if (
-			!isParenthesized(node, sourceCode)
+			!isParenthesized(node, context)
 			&& node.type === 'UnaryExpression'
 			&& (node.parent.type === 'UnaryExpression' || node.parent.type === 'AwaitExpression')
 		) {
@@ -123,7 +137,7 @@ function create(context) {
 
 		const fix = function * (fixer) {
 			yield fixer.replaceText(node, fixed);
-			yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		};
 
 		const problem = {
@@ -146,62 +160,60 @@ function create(context) {
 		return problem;
 	}
 
-	return {
-		MemberExpression(memberExpression) {
-			if (
-				!isMemberExpression(memberExpression, {
-					properties: ['length', 'size'],
-					optional: false,
-				})
-				|| memberExpression.object.type === 'ThisExpression'
-			) {
-				return;
-			}
+	context.on('MemberExpression', memberExpression => {
+		if (
+			!isMemberExpression(memberExpression, {
+				properties: ['length', 'size'],
+				optional: false,
+			})
+			|| memberExpression.object.type === 'ThisExpression'
+		) {
+			return;
+		}
 
-			const lengthNode = memberExpression;
-			const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
-			if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
-				// Ignore known, non-positive-integer length properties.
-				return;
-			}
+		const lengthNode = memberExpression;
+		const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
+		if (staticValue && (!Number.isInteger(staticValue.value) || staticValue.value < 0)) {
+			// Ignore known, non-positive-integer length properties.
+			return;
+		}
 
-			let node;
-			let autoFix = true;
-			let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
-			if (lengthCheckNode) {
-				const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+		let node;
+		let autoFix = true;
+		let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
+		if (lengthCheckNode) {
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+			node = ancestor;
+			if (isNegative) {
+				isZeroLengthCheck = !isZeroLengthCheck;
+			}
+		} else {
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
+			if (isBooleanNode(ancestor)) {
+				isZeroLengthCheck = isNegative;
 				node = ancestor;
-				if (isNegative) {
-					isZeroLengthCheck = !isZeroLengthCheck;
-				}
-			} else {
-				const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-				if (isBooleanNode(ancestor)) {
-					isZeroLengthCheck = isNegative;
-					node = ancestor;
-				} else if (
-					isLogicalExpression(lengthNode.parent)
-					&& !(
-						lengthNode.parent.operator === '||'
-						&& isNodeValueNumber(lengthNode.parent.right, context)
-					)
-				) {
-					isZeroLengthCheck = isNegative;
-					node = lengthNode;
-					autoFix = false;
-				}
+			} else if (
+				isLogicalExpression(lengthNode.parent)
+				&& !(
+					lengthNode.parent.operator === '||'
+					&& (isNodeValueNumber(lengthNode.parent.right, context) || isNodeValueString(lengthNode.parent.right, context))
+				)
+			) {
+				isZeroLengthCheck = isNegative;
+				node = lengthNode;
+				autoFix = false;
 			}
+		}
 
-			if (node) {
-				return getProblem({
-					node,
-					isZeroLengthCheck,
-					lengthNode,
-					autoFix,
-				});
-			}
-		},
-	};
+		if (node) {
+			return getProblem({
+				node,
+				isZeroLengthCheck,
+				lengthNode,
+				autoFix,
+			});
+		}
+	});
 }
 
 const schema = [
@@ -228,6 +240,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{'non-zero': 'greater-than'}],
 		messages,
 		hasSuggestions: true,
 	},

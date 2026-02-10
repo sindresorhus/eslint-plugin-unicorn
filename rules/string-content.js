@@ -62,10 +62,7 @@ function getReplacements(patterns) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {patterns} = {
-		patterns: {},
-		...context.options[0],
-	};
+	const {patterns} = context.options[0];
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
@@ -112,9 +109,10 @@ const create = context => {
 				);
 			}
 			: fixer => replaceTemplateElement(
-				fixer,
 				node,
 				escapeTemplateElementRaw(fixed),
+				context,
+				fixer,
 			);
 
 		if (autoFix) {
@@ -183,7 +181,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{patterns: {}}],
 		messages,
 	},
 };

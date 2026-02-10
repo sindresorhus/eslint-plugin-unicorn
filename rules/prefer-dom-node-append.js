@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	CallExpression(node) {
+const create = context => {
+	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
 				method: 'appendChild',
@@ -30,8 +30,8 @@ const create = () => ({
 			messageId: MESSAGE_ID,
 			fix,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -40,7 +40,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

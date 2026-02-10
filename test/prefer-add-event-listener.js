@@ -165,6 +165,14 @@ test.snapshot({
 		'window.onunload ??= function() {};',
 		'window.onunload ||= function() {};',
 		'window.onunload += function() {};',
+		// Non-function values should not be autofixed
+		'foo.onclick = true',
+		'foo.onclick = \'bar\'',
+		'foo.onclick = `bar`',
+		'foo.onclick = {}',
+		'foo.onclick = []',
+		'foo.onclick = void 0',
+		'foo.onclick = new Handler()',
 	],
 });
 

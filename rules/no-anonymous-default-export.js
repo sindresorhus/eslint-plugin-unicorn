@@ -2,9 +2,13 @@ import path from 'node:path';
 import {getFunctionHeadLocation, getFunctionNameWithKind, isOpeningParenToken} from '@eslint-community/eslint-utils';
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {camelCase} from 'change-case';
-import getClassHeadLocation from './utils/get-class-head-location.js';
-import {getParenthesizedRange} from './utils/parentheses.js';
-import {getScopes, getAvailableVariableName, upperFirst} from './utils/index.js';
+import {
+	getClassHeadLocation,
+	getParenthesizedRange,
+	getScopes,
+	getAvailableVariableName,
+	upperFirst,
+} from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
@@ -47,7 +51,8 @@ function getSuggestionName(node, filename, sourceCode) {
 	return name;
 }
 
-function addName(fixer, node, name, sourceCode) {
+function addName(fixer, node, name, context) {
+	const {sourceCode} = context;
 	switch (node.type) {
 		case 'ClassDeclaration':
 		case 'ClassExpression': {
@@ -78,7 +83,7 @@ function addName(fixer, node, name, sourceCode) {
 						? node.parent
 						: node.parent.parent,
 				);
-			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, sourceCode);
+			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, context);
 
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);
 			let textAfter = sourceCode.text.slice(arrowFunctionEnd, exportDeclarationEnd);
@@ -120,7 +125,7 @@ function getProblem(node, context) {
 	let loc;
 	let description;
 	if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-		loc = getClassHeadLocation(node, sourceCode);
+		loc = getClassHeadLocation(node, context);
 		description = 'class';
 	} else {
 		loc = getFunctionHeadLocation(node, sourceCode);
@@ -148,7 +153,7 @@ function getProblem(node, context) {
 			data: {
 				name: suggestionName,
 			},
-			fix: fixer => addName(fixer, node, suggestionName, sourceCode),
+			fix: fixer => addName(fixer, node, suggestionName, context),
 		},
 	];
 
@@ -180,8 +185,8 @@ const create = context => {
 					optional: false,
 				})
 				|| (
-					node.left.type === 'Identifier',
-					node.left.name === 'exports'
+					node.left.type === 'Identifier'
+					&& node.left.name === 'exports'
 				)
 			)
 		) {
@@ -199,7 +204,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow anonymous functions and classes as the default export.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

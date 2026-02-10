@@ -10,14 +10,18 @@ const messages = {
 };
 const NODE_PROTOCOL = 'node:';
 
-const create = context => ({
-	Literal(node) {
+/**
+@param {import('eslint').Rule.RuleContext} context
+*/
+const create = context => {
+	context.on('Literal', node => {
 		if (!(
 			(
 				(
 					node.parent.type === 'ImportDeclaration'
 					|| node.parent.type === 'ExportNamedDeclaration'
 					|| node.parent.type === 'ImportExpression'
+					|| node.parent.type === 'TSImportType'
 				)
 				&& node.parent.source === node
 			)
@@ -57,8 +61,8 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			fix: fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], NODE_PROTOCOL),
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -67,7 +71,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using the `node:` protocol when importing Node.js builtin modules.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

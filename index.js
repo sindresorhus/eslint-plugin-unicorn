@@ -1,13 +1,12 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
 import flatConfigBase from './configs/flat-config-base.js';
 import * as rawRules from './rules/index.js';
-import {createRules} from './rules/utils/rule.js';
+import {toEslintRules} from './rules/rule/index.js';
 import packageJson from './package.json' with {type: 'json'};
 
-const rules = createRules(rawRules);
+const rules = toEslintRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
-	// {ruleId: {message: string, replacedBy: string[]}}
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
 		replacedBy: ['unicorn/no-instanceof-builtins'],
@@ -36,6 +35,13 @@ const recommendedRules = Object.fromEntries(
 	]),
 );
 
+const unopinionatedRules = Object.fromEntries(
+	Object.entries(rules).map(([id, rule]) => [
+		`unicorn/${id}`,
+		rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+	]),
+);
+
 const allRules = Object.fromEntries(
 	Object.keys(rules).map(id => [
 		`unicorn/${id}`,
@@ -61,13 +67,14 @@ const unicorn = {
 		version: packageJson.version,
 	},
 	rules: {
-		...createRules(rules),
+		...rules,
 		...deprecatedRules,
 	},
 };
 
 const configs = {
 	recommended: createConfig(recommendedRules, 'unicorn/recommended'),
+	unopinionated: createConfig(unopinionatedRules, 'unicorn/unopinionated'),
 	all: createConfig(allRules, 'unicorn/all'),
 
 	// TODO: Remove this at some point. Kept for now to avoid breaking users.
@@ -75,9 +82,6 @@ const configs = {
 	'flat/all': createConfig(allRules, 'unicorn/flat/all'),
 };
 
-const allConfigs = {
-	...unicorn,
-	configs,
-};
+unicorn.configs = configs;
 
-export default allConfigs;
+export default unicorn;

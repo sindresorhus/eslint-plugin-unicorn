@@ -1,7 +1,5 @@
 import {addParenthesizesToReturnOrThrowExpression, removeSpacesAfter} from './fix/index.js';
-import {isParenthesized} from './utils/parentheses.js';
-import needsSemicolon from './utils/needs-semicolon.js';
-import isOnSameLine from './utils/is-on-same-line.js';
+import {isParenthesized, needsSemicolon, isOnSameLine} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-await';
 const messages = {
@@ -36,8 +34,8 @@ function notPromise(node) {
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	AwaitExpression(node) {
+const create = context => {
+	context.on('AwaitExpression', node => {
 		if (
 			// F#-style pipeline operator, `Promise.resolve() |> await`
 			!node.argument
@@ -73,24 +71,24 @@ const create = context => ({
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				if (
-					!isOnSameLine(awaitToken, valueNode)
-					&& !isParenthesized(node, sourceCode)
+					!isOnSameLine(awaitToken, valueNode, context)
+					&& !isParenthesized(node, context)
 				) {
-					yield * addParenthesizesToReturnOrThrowExpression(fixer, node.parent, sourceCode);
+					yield addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
 				}
 
 				yield fixer.remove(awaitToken);
-				yield removeSpacesAfter(awaitToken, sourceCode, fixer);
+				yield removeSpacesAfter(awaitToken, context, fixer);
 
 				const nextToken = sourceCode.getTokenAfter(awaitToken);
 				const tokenBefore = sourceCode.getTokenBefore(awaitToken);
-				if (needsSemicolon(tokenBefore, sourceCode, nextToken.value)) {
+				if (needsSemicolon(tokenBefore, context, nextToken.value)) {
 					yield fixer.insertTextBefore(nextToken, ';');
 				}
 			},
 		});
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -99,7 +97,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow awaiting non-promise values.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

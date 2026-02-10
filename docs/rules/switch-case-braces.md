@@ -1,6 +1,6 @@
 # Enforce consistent brace style for `case` clauses
 
-💼 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -10,9 +10,10 @@
 1. Forbid braces for empty clauses.
 1. Enforce braces for non-empty clauses.
 
-## Fail
+## Examples
 
 ```js
+// ❌
 switch (foo) {
 	case 1: {
 	}
@@ -21,19 +22,26 @@ switch (foo) {
 		break;
 	}
 }
+
+// ✅
+switch (foo) {
+	case 1:
+	case 2: {
+		doSomething();
+		break;
+	}
+}
 ```
 
 ```js
+// ❌
 switch (foo) {
 	case 1:
 		doSomething();
 		break;
 }
-```
 
-## Pass
-
-```js
+// ✅
 switch (foo) {
 	case 1: {
 		doSomething();
@@ -55,7 +63,7 @@ Default: `'always'`
 The following cases are considered valid:
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1:
 		doSomething();
@@ -64,7 +72,7 @@ switch (foo) {
 ```
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1: {
 		const bar = 2;
@@ -77,7 +85,7 @@ switch (foo) {
 The following case is considered invalid:
 
 ```js
-// eslint unicorn/switch-case-braces: ["error", "avoid"]
+/* eslint unicorn/switch-case-braces: ["error", "avoid"] */
 switch (foo) {
 	case 1: {
 		doSomething();

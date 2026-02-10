@@ -1,13 +1,33 @@
 import globals from 'globals';
-import xo from 'eslint-config-xo';
+import _xo from 'eslint-config-xo';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
+import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
-import unicorn from './index.js';
+import unicorn from './node_modules/eslint-plugin-unicorn/index.js';
+
+/*
+Workaround for this error
+
+```
+Oops! Something went wrong! :(
+
+ESLint: 9.38.0
+
+TypeError: Key "languageOptions": allowTrailingCommas option is only available in JSONC.
+```
+*/
+const omit = (property, {[property]: _, ...object}) => object;
+const xo = _xo.map(config =>
+	config.languageOptions?.allowTrailingCommas
+		? {...config, languageOptions: omit('allowTrailingCommas', config.languageOptions)}
+		: config,
+);
 
 const config = [
 	...xo,
 	unicorn.configs.recommended,
+	nodeStyleTextConfig,
 	internalRules,
 	{
 		languageOptions: {
@@ -27,6 +47,7 @@ const config = [
 	},
 	{
 		rules: {
+			'no-sequences': ['error', {allowInParentheses: false}],
 			'unicorn/escape-case': 'off',
 			'unicorn/expiring-todo-comments': 'off',
 			'unicorn/no-hex-escape': 'off',
@@ -42,6 +63,8 @@ const config = [
 			'func-names': 'off',
 			'@stylistic/function-paren-newline': 'off',
 			'@stylistic/curly-newline': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
+			'unicorn/template-indent': ['error', {indent: '\t'}],
 		},
 	},
 	{
@@ -57,6 +80,12 @@ const config = [
 				'error',
 				{
 					pattern: '.+',
+				},
+			],
+			'eslint-plugin/require-meta-docs-recommended': [
+				'error',
+				{
+					allowNonBoolean: true,
 				},
 			],
 			'eslint-plugin/require-meta-docs-url': 'off',

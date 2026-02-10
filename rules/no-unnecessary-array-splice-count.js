@@ -7,12 +7,14 @@ const messages = {
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => listen(context, {methods: ['splice', 'toSpliced'], messageId: MESSAGE_ID}),
+	create(context) {
+		listen(context, {methods: ['splice', 'toSpliced'], messageId: MESSAGE_ID});
+	},
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `.length` or `Infinity` as the `deleteCount` or `skipCount` argument of `Array#{splice,toSpliced}()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 

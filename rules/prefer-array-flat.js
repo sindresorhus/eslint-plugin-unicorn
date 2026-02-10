@@ -9,16 +9,12 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isMethodCall, isCallExpression} from './ast/index.js';
+import {isMethodCall, isCallExpression, isEmptyArrayExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-array-flat';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Array#flat()` over `{{description}}` to flatten an array.',
 };
-
-const isEmptyArrayExpression = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.length === 0;
 
 // `array.flatMap(x => x)`
 const arrayFlatMap = {
@@ -27,7 +23,6 @@ const arrayFlatMap = {
 			method: 'flatMap',
 			argumentsLength: 1,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return false;
 		}
@@ -41,18 +36,20 @@ const arrayFlatMap = {
 		);
 	},
 	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
 	description: 'Array#flatMap()',
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
+// `array?.reduce((a, b) => a.concat(b), [])`
 // `array.reduce((a, b) => [...a, ...b], [])`
+// `array?.reduce((a, b) => [...a, ...b], [])`
 const arrayReduce = {
 	testFunction(node) {
 		if (!isMethodCall(node, {
 			method: 'reduce',
 			argumentsLength: 2,
 			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return false;
 		}
@@ -94,6 +91,7 @@ const arrayReduce = {
 		);
 	},
 	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
 	description: 'Array#reduce()',
 };
 
@@ -159,42 +157,40 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
-function fix(node, array, sourceCode, shouldSwitchToArray) {
+function fix(node, array, context, shouldSwitchToArray, optional) {
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
 	}
 
 	return function * (fixer) {
-		let fixed = getParenthesizedText(array, sourceCode);
+		const {sourceCode} = context;
+		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
 			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
 			!isParenthesized(array, sourceCode)
-			&& shouldAddParenthesesToMemberExpressionObject(array, sourceCode)
+			&& shouldAddParenthesesToMemberExpressionObject(array, context)
 		) {
 			fixed = `(${fixed})`;
 		}
 
-		fixed = `${fixed}.flat()`;
+		fixed = `${fixed}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
-		if (needsSemicolon(tokenBefore, sourceCode, fixed)) {
+		if (needsSemicolon(tokenBefore, context, fixed)) {
 			fixed = `;${fixed}`;
 		}
 
 		yield fixer.replaceText(node, fixed);
 
-		yield * fixSpaceAroundKeyword(fixer, node, sourceCode);
+		yield fixSpaceAroundKeyword(fixer, node, context);
 	};
 }
 
 function create(context) {
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFlattenFunctions];
 
 	const cases = [
@@ -212,39 +208,38 @@ function create(context) {
 		},
 	];
 
-	return {
-		* CallExpression(node) {
-			for (const {testFunction, description, getArrayNode, shouldSwitchToArray} of cases) {
-				if (!testFunction(node)) {
-					continue;
-				}
-
-				const array = getArrayNode(node);
-
-				const data = {
-					description: typeof description === 'string' ? description : description(node),
-				};
-
-				const problem = {
-					node,
-					messageId: MESSAGE_ID,
-					data,
-				};
-
-				const {sourceCode} = context;
-
-				// Don't fix if it has comments.
-				if (
-					sourceCode.getCommentsInside(node).length
-					=== sourceCode.getCommentsInside(array).length
-				) {
-					problem.fix = fix(node, array, sourceCode, shouldSwitchToArray);
-				}
-
-				yield problem;
+	context.on('CallExpression', function * (node) {
+		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+			if (!testFunction(node)) {
+				continue;
 			}
-		},
-	};
+
+			const array = getArrayNode(node);
+			const optional = isOptionalArray?.(node);
+
+			const data = {
+				description: typeof description === 'string' ? description : description(node),
+			};
+
+			const problem = {
+				node,
+				messageId: MESSAGE_ID,
+				data,
+			};
+
+			const {sourceCode} = context;
+
+			// Don't fix if it has comments.
+			if (
+				sourceCode.getCommentsInside(node).length
+				=== sourceCode.getCommentsInside(array).length
+			) {
+				problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
+			}
+
+			yield problem;
+		}
+	});
 }
 
 const schema = [
@@ -267,11 +262,11 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Array#flat()` over legacy techniques to flatten arrays.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

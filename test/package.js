@@ -26,18 +26,6 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
 	'filename-case',
-
-	// Intended to not use `Examples` section in this rule.
-	'prefer-modern-math-apis',
-	'prefer-math-min-max',
-	'consistent-existence-index-check',
-	'prefer-class-fields',
-	'prefer-global-this',
-	'no-instanceof-builtins',
-	'no-named-default',
-	'consistent-assert',
-	'no-accessor-recursion',
-	'consistent-date-clone',
 ]);
 
 test('Every rule is defined in index file in alphabetical order', t => {
@@ -116,6 +104,12 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
 		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
 		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
+
+		for (const replacement of rule.meta.deprecated.replacedBy) {
+			t.is(typeof replacement.rule.name, 'string', `${name} meta.deprecated.replacedBy[].rule.name should be string`);
+			t.is(typeof replacement.rule.url, 'string', `${name} meta.deprecated.replacedBy[].rule.url should be string`);
+		}
+
 		t.true(content.includes(`\n### ${name}\n`));
 		t.false(content.includes(`\n### ~${name}~\n`));
 	}
@@ -127,7 +121,12 @@ test('Every rule file has the appropriate contents', t => {
 		const rulePath = path.join('rules', `${ruleName}.js`);
 		const ruleContents = fs.readFileSync(rulePath, 'utf8');
 
-		t.true(ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */'), `${ruleName} includes jsdoc comment for rule type`);
+		t.true(
+			// TODO: Use `@import` instead of `import('eslint')`
+			ruleContents.includes('/** @type {import(\'eslint\').Rule.RuleModule} */')
+			|| ruleContents.includes('/** @type {ESLint.Rule.RuleModule} */'),
+			`${ruleName} includes jsdoc comment for rule type`,
+		);
 	}
 });
 
@@ -139,13 +138,11 @@ test('Every rule has a doc with the appropriate content', t => {
 			continue;
 		}
 
-		/// const documentPath = path.join('docs/rules', `${ruleName}.md`);
-		/// const documentContents = fs.readFileSync(documentPath, 'utf8');
+		const documentPath = path.join('docs/rules', `${ruleName}.md`);
+		const documentContents = fs.readFileSync(documentPath, 'utf8');
 
-		// TODO: Disabled until https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2530 is done.
 		// Check for examples.
-		// t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
-		t.pass();
+		t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
 	}
 });
 
@@ -210,7 +207,7 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		}
 
 		const {recommended} = rule.meta.docs;
-		t.is(typeof recommended, 'boolean', `meta.docs.recommended in '${name}' rule should be a boolean.`);
+		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 
 		const severity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
 		if (recommended) {

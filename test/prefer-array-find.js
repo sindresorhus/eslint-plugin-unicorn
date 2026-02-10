@@ -57,8 +57,18 @@ test({
 			errors: [{messageId: ERROR_ZERO_INDEX}],
 		},
 		{
+			code: 'array?.filter(foo)[0]',
+			output: 'array?.find(foo)',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+		{
 			code: 'array.filter(foo, thisArgument)[0]',
 			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+		{
+			code: 'array?.filter(foo, thisArgument)[0]',
+			output: 'array?.find(foo, thisArgument)',
 			errors: [{messageId: ERROR_ZERO_INDEX}],
 		},
 	],
@@ -105,8 +115,18 @@ test({
 			errors: [{messageId: ERROR_SHIFT}],
 		},
 		{
+			code: 'array?.filter(foo).shift()',
+			output: 'array?.find(foo)',
+			errors: [{messageId: ERROR_SHIFT}],
+		},
+		{
 			code: 'array.filter(foo, thisArgument).shift()',
 			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: ERROR_SHIFT}],
+		},
+		{
+			code: 'array?.filter(foo, thisArgument).shift()',
+			output: 'array?.find(foo, thisArgument)',
 			errors: [{messageId: ERROR_SHIFT}],
 		},
 		{
@@ -1149,8 +1169,18 @@ test({
 			errors: [{messageId: ERROR_AT_ZERO}],
 		},
 		{
+			code: 'array?.filter(foo).at(0)',
+			output: 'array?.find(foo)',
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+		{
 			code: 'array.filter(foo, thisArgument).at(0)',
 			output: 'array.find(foo, thisArgument)',
+			errors: [{messageId: ERROR_AT_ZERO}],
+		},
+		{
+			code: 'array?.filter(foo, thisArgument).at(0)',
+			output: 'array?.find(foo, thisArgument)',
 			errors: [{messageId: ERROR_AT_ZERO}],
 		},
 		{

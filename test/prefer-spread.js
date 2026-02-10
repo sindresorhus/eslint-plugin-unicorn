@@ -275,7 +275,7 @@ test.snapshot({
 		'do foo.concat(1); while (test)',
 		{
 			code: 'with (foo) foo.concat(1)',
-			languageOptions: {parserOptions: {ecmaVersion: 6, sourceType: 'script'}},
+			languageOptions: {parserOptions: {sourceType: 'script'}},
 		},
 		// Code from example in docs
 		outdent`
@@ -314,6 +314,24 @@ test.snapshot({
 		'file.slice()',
 		'class A {foo() {this.slice()}}',
 		'scopeManager?.scopes.slice()',
+		// TypedArray/ArrayBuffer constructors - spreading doesn't work or changes type
+		'new ArrayBuffer(10).slice()',
+		'new ArrayBuffer(10).slice(0)',
+		'new SharedArrayBuffer(10).slice()',
+		'new SharedArrayBuffer(10).slice(0)',
+		'new Int8Array([1, 2, 3]).slice()',
+		'new Int8Array([1, 2, 3]).slice(0)',
+		'new Uint8Array([10, 20, 30, 40, 50]).slice()',
+		'new Uint8Array([10, 20, 30, 40, 50]).slice(0)',
+		'new Uint8ClampedArray([1, 2, 3]).slice()',
+		'new Int16Array([1, 2, 3]).slice()',
+		'new Uint16Array([1, 2, 3]).slice()',
+		'new Int32Array([1, 2, 3]).slice()',
+		'new Uint32Array([1, 2, 3]).slice()',
+		'new Float32Array([1, 2, 3]).slice()',
+		'new Float64Array([1, 2, 3]).slice()',
+		'new BigInt64Array([1n, 2n, 3n]).slice()',
+		'new BigUint64Array([1n, 2n, 3n]).slice()',
 	],
 	invalid: [
 		'array.slice()',
@@ -328,9 +346,8 @@ test.snapshot({
 			bar()
 			foo.slice()
 		`,
-		// `{String,TypedArray}#slice` are wrongly detected
+		// `String#slice` is wrongly detected (strings are iterable but spreading produces array, not string)
 		'"".slice()',
-		'new Uint8Array([10, 20, 30, 40, 50]).slice()',
 		'array.slice(0)',
 		'array.slice(0b0)',
 		'array.slice(0.00)',

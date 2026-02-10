@@ -22,20 +22,22 @@ const isAssertFunction = (specifier, moduleName) =>
 	// `import {default as assert} from 'node:assert/strict';`
 	|| (
 		specifier.type === 'ImportSpecifier'
+		&& specifier.imported.type === 'Identifier'
 		&& specifier.imported.name === 'default'
 	)
 	// `import {strict as assert} from 'node:assert';`
 	|| (
 		moduleName === 'assert'
 		&& specifier.type === 'ImportSpecifier'
+		&& specifier.imported.type === 'Identifier'
 		&& specifier.imported.name === 'strict'
 	);
 
 const NODE_PROTOCOL = 'node:';
 
 /** @type {import('eslint').Rule.RuleModule['create']} */
-const create = context => ({
-	* ImportDeclaration(importDeclaration) {
+const create = context => {
+	context.on('ImportDeclaration', function * (importDeclaration) {
 		if (!isValueImport(importDeclaration)) {
 			return;
 		}
@@ -78,8 +80,8 @@ const create = context => ({
 				};
 			}
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {

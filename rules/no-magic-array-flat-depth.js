@@ -1,4 +1,4 @@
-import {isMethodCall, isNumberLiteral} from './ast/index.js';
+import {isMethodCall, isNumericLiteral} from './ast/index.js';
 import {getCallExpressionTokens} from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
@@ -7,8 +7,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	CallExpression(callExpression) {
+const create = context => {
+	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			method: 'flat',
 			argumentsLength: 1,
@@ -19,7 +19,7 @@ const create = context => ({
 
 		const [depth] = callExpression.arguments;
 
-		if (!isNumberLiteral(depth) || depth.value === 1) {
+		if (!isNumericLiteral(depth) || depth.value === 1) {
 			return;
 		}
 
@@ -27,7 +27,7 @@ const create = context => ({
 		const {
 			openingParenthesisToken,
 			closingParenthesisToken,
-		} = getCallExpressionTokens(sourceCode, callExpression);
+		} = getCallExpressionTokens(callExpression, context);
 		if (sourceCode.commentsExistBetween(openingParenthesisToken, closingParenthesisToken)) {
 			return;
 		}
@@ -36,8 +36,8 @@ const create = context => ({
 			node: depth,
 			messageId: MESSAGE_ID,
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -46,7 +46,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow a magic number as the `depth` argument in `Array#flat(…).`',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		messages,
 	},

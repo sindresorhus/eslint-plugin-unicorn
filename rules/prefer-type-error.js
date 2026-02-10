@@ -73,6 +73,19 @@ const isTypecheckingMemberExpression = (node, callExpression) => {
 	return false;
 };
 
+const errorNameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
+const isErrorConstructor = node => {
+	if (node.type === 'Identifier') {
+		return errorNameRegexp.test(node.name);
+	}
+
+	if (node.type === 'MemberExpression' && !node.optional && !node.computed && node.property.type === 'Identifier') {
+		return errorNameRegexp.test(node.property.name);
+	}
+
+	return false;
+};
+
 const isTypecheckingExpression = (node, callExpression) => {
 	switch (node.type) {
 		case 'Identifier': {
@@ -95,11 +108,14 @@ const isTypecheckingExpression = (node, callExpression) => {
 		}
 
 		case 'BinaryExpression': {
-			return (
-				node.operator === 'instanceof'
-				|| isTypecheckingExpression(node.left, callExpression)
-				|| isTypecheckingExpression(node.right, callExpression)
-			);
+			const {operator, left, right} = node;
+
+			if (operator === 'instanceof') {
+				return !isErrorConstructor(right);
+			}
+
+			return isTypecheckingExpression(left, callExpression)
+				|| isTypecheckingExpression(right, callExpression);
 		}
 
 		case 'LogicalExpression': {
@@ -118,8 +134,8 @@ const isTypecheckingExpression = (node, callExpression) => {
 const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpression(node.test);
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	ThrowStatement(node) {
+const create = context => {
+	context.on('ThrowStatement', node => {
 		if (
 			isNewExpression(node.argument, {name: 'Error'})
 			&& isLone(node)
@@ -133,8 +149,8 @@ const create = () => ({
 				fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
 			};
 		}
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -143,7 +159,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce throwing `TypeError` in type checking conditions.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

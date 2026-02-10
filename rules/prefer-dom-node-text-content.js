@@ -8,8 +8,8 @@ const messages = {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = () => ({
-	MemberExpression(memberExpression) {
+const create = context => {
+	context.on('MemberExpression', memberExpression => {
 		if (
 			!isMemberExpression(memberExpression, {
 				property: 'innerText',
@@ -30,8 +30,9 @@ const create = () => ({
 				},
 			],
 		};
-	},
-	Identifier(node) {
+	});
+
+	context.on('Identifier', node => {
 		if (!(
 			node.name === 'innerText'
 			&& node.parent.type === 'Property'
@@ -57,8 +58,8 @@ const create = () => ({
 				},
 			],
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -67,7 +68,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.textContent` over `.innerText`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,

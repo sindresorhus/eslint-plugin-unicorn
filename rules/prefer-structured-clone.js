@@ -16,10 +16,7 @@ const lodashCloneDeepFunctions = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashCloneDeepFunctions];
 
 	// `JSON.parse(JSON.stringify(…))`
@@ -66,13 +63,13 @@ const create = context => {
 						yield fixer.replaceText(jsonParse.callee, 'structuredClone');
 
 						yield fixer.remove(jsonStringify.callee);
-						yield * removeParentheses(jsonStringify.callee, fixer, sourceCode);
+						yield removeParentheses(jsonStringify.callee, fixer, context);
 
 						const {
 							openingParenthesisToken,
 							closingParenthesisToken,
 							trailingCommaToken,
-						} = getCallExpressionTokens(sourceCode, jsonStringify);
+						} = getCallExpressionTokens(jsonStringify, context);
 
 						yield fixer.remove(openingParenthesisToken);
 						yield fixer.remove(closingParenthesisToken);
@@ -137,11 +134,11 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer using `structuredClone` to create a deep clone.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

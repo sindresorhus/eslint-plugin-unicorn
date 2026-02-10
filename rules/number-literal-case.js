@@ -1,5 +1,5 @@
 import {checkVueTemplate} from './utils/rule.js';
-import {isNumberLiteral, isBigIntLiteral} from './ast/index.js';
+import {isNumericLiteral, isBigIntLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'number-literal-case';
 const messages = {
@@ -20,8 +20,8 @@ const fix = (raw, {hexadecimalValue}) => {
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	Literal(node) {
+const create = context => {
+	context.on('Literal', node => {
 		const {raw} = node;
 
 		/** @type {Options} */
@@ -29,7 +29,7 @@ const create = context => ({
 		options.hexadecimalValue ??= 'uppercase';
 
 		let fixed = raw;
-		if (isNumberLiteral(node)) {
+		if (isNumericLiteral(node)) {
 			fixed = fix(raw, options);
 		} else if (isBigIntLiteral(node)) {
 			fixed = fix(raw.slice(0, -1), options) + 'n';
@@ -42,8 +42,8 @@ const create = context => ({
 				fix: fixer => fixer.replaceText(node, fixed),
 			};
 		}
-	},
-});
+	});
+};
 
 /** @typedef {Record<keyof typeof schema[0]["properties"], typeof caseEnum["enum"][number]>} Options */
 
@@ -68,7 +68,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce proper case for numeric literals.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,

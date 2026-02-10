@@ -7,12 +7,14 @@ const messages = {
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
-	create: context => listen(context, {methods: ['slice'], messageId: MESSAGE_ID}),
+	create(context) {
+		listen(context, {methods: ['slice'], messageId: MESSAGE_ID});
+	},
 	meta: {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow using `.length` or `Infinity` as the `end` argument of `{Array,String,TypedArray}#slice()`.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		messages,

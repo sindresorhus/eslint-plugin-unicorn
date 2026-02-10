@@ -1,12 +1,24 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
-import {getParentheses} from '../utils/parentheses.js';
+import {getParentheses} from '../utils/index.js';
 
-export default function removeArgument(fixer, node, sourceCode) {
-	const callExpression = node.parent;
-	const index = callExpression.arguments.indexOf(node);
-	const parentheses = getParentheses(node, sourceCode);
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
+/**
+@param {ESLint.Rule.RuleFixer} fixer
+@param {ESTree.NewExpression | ESTree.CallExpression} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {ESLint.Rule.ReportFixer}
+*/
+export default function removeArgument(fixer, node, context) {
+	const callOrNewExpression = node.parent;
+	const index = callOrNewExpression.arguments.indexOf(node);
+	const parentheses = getParentheses(node, context);
 	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
+	const {sourceCode} = context;
 
 	let [start] = sourceCode.getRange(firstToken);
 	let [, end] = sourceCode.getRange(lastToken);
@@ -17,14 +29,12 @@ export default function removeArgument(fixer, node, sourceCode) {
 	}
 
 	// If the removed argument is the only argument, the trailing comma must be removed too
-	/* c8 ignore start */
-	if (callExpression.arguments.length === 1) {
-		const tokenAfter = sourceCode.getTokenBefore(lastToken);
+	if (callOrNewExpression.arguments.length === 1) {
+		const tokenAfter = sourceCode.getTokenAfter(lastToken);
 		if (isCommaToken(tokenAfter)) {
 			[, end] = sourceCode.getRange(tokenAfter);
 		}
 	}
-	/* c8 ignore end */
 
 	return fixer.removeRange([start, end]);
 }

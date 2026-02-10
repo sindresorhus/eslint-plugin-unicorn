@@ -19,8 +19,8 @@ const isEqualityCheck = node => node.type === 'BinaryExpression' && EQUALITY_OPE
 const isNegatedExpression = node => node.type === 'UnaryExpression' && node.prefix && node.operator === '!';
 
 /** @param {import('eslint').Rule.RuleContext} context */
-const create = context => ({
-	BinaryExpression(binaryExpression) {
+const create = context => {
+	context.on('BinaryExpression', binaryExpression => {
 		const {operator, left} = binaryExpression;
 
 		if (!(
@@ -47,25 +47,25 @@ const create = context => ({
 					},
 					/** @param {import('eslint').Rule.RuleFixer} fixer */
 					* fix(fixer) {
-						yield * fixSpaceAroundKeyword(fixer, binaryExpression, sourceCode);
+						yield fixSpaceAroundKeyword(fixer, binaryExpression, context);
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
 						const {parent} = binaryExpression;
 						if (
 							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-							&& !isParenthesized(binaryExpression, sourceCode)
+							&& !isParenthesized(binaryExpression, context)
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
-							if (!isOnSameLine(returnToken, tokenAfterBang)) {
-								yield * addParenthesizesToReturnOrThrowExpression(fixer, parent, sourceCode);
+							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
+								yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}
 
 						yield fixer.remove(bangToken);
 
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						if (needsSemicolon(previousToken, sourceCode, tokenAfterBang.value)) {
+						if (needsSemicolon(previousToken, context, tokenAfterBang.value)) {
 							yield fixer.insertTextAfter(bangToken, ';');
 						}
 
@@ -78,8 +78,8 @@ const create = context => ({
 				},
 			],
 		};
-	},
-});
+	});
+};
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -88,7 +88,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow negated expression in equality check.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 
 		hasSuggestions: true,

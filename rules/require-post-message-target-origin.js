@@ -11,49 +11,46 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
-	return {
-		CallExpression(node) {
-			if (!isMethodCall(node, {
-				method: 'postMessage',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})) {
-				return;
-			}
+	context.on('CallExpression', node => {
+		if (!isMethodCall(node, {
+			method: 'postMessage',
+			argumentsLength: 1,
+			optionalCall: false,
+		})) {
+			return;
+		}
 
-			const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
-			const replacements = [];
-			const target = node.callee.object;
-			if (target.type === 'Identifier') {
-				const {name} = target;
+		const [penultimateToken, lastToken] = sourceCode.getLastTokens(node, 2);
+		const replacements = [];
+		const target = node.callee.object;
+		if (target.type === 'Identifier') {
+			const {name} = target;
 
-				replacements.push(`${name}.location.origin`);
+			replacements.push(`${name}.location.origin`);
 
-				if (name !== 'self' && name !== 'window' && name !== 'globalThis') {
-					replacements.push('self.location.origin');
-				}
-			} else {
+			if (name !== 'self' && name !== 'window' && name !== 'globalThis') {
 				replacements.push('self.location.origin');
 			}
+		} else {
+			replacements.push('self.location.origin');
+		}
 
-			replacements.push('\'*\'');
+		replacements.push('\'*\'');
 
-			return {
-				loc: {
-					start: sourceCode.getLoc(penultimateToken).end,
-					end: sourceCode.getLoc(lastToken).end,
-				},
-				messageId: ERROR,
-				suggest: replacements.map(code => ({
-					messageId: SUGGESTION,
-					data: {code},
-					/** @param {import('eslint').Rule.RuleFixer} fixer */
-					fix: fixer => appendArgument(fixer, node, code, sourceCode),
-				})),
-			};
-		},
-	};
+		return {
+			loc: {
+				start: sourceCode.getLoc(penultimateToken).end,
+				end: sourceCode.getLoc(lastToken).end,
+			},
+			messageId: ERROR,
+			suggest: replacements.map(code => ({
+				messageId: SUGGESTION,
+				data: {code},
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix: fixer => appendArgument(fixer, node, code, context),
+			})),
+		};
+	});
 }
 
 /** @type {import('eslint').Rule.RuleModule} */
