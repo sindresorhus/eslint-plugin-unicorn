@@ -60,19 +60,25 @@ function getSetNode(memberExpressionObject) {
 	}
 }
 
-function createFix(context, node, set) {
+function createFix(context, lengthAccessNode, set) {
 	const {sourceCode} = context;
-	const {object: wrapper, property} = node;
+	const {
+		object: array,
+		property,
+	} = lengthAccessNode;
 
-	if (sourceCode.getCommentsInside(wrapper).length > sourceCode.getCommentsInside(set).length) {
+	if (sourceCode.getCommentsInside(array).length > sourceCode.getCommentsInside(set).length) {
 		return;
 	}
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
-		yield fixer.replaceText(wrapper, sourceCode.getText(set));
-		yield fixSpaceAroundKeyword(fixer, node, context);
+		yield fixer.replaceText(array, sourceCode.getText(set));
+
+		if (array.type === 'ArrayExpression') {
+			yield fixSpaceAroundKeyword(fixer, lengthAccessNode, context);
+		}
 	};
 }
 
