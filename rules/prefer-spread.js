@@ -9,6 +9,7 @@ import {
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {isLiteral, isMethodCall} from './ast/index.js';
+import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
@@ -40,6 +41,29 @@ const ignoredSliceCallee = [
 	'file',
 	'this',
 ];
+
+// TypedArray and ArrayBuffer constructors - these have .slice() but spreading them
+// either doesn't work (ArrayBuffer has no iterator) or changes the type (TypedArray.slice()
+// returns the same typed array, but spreading converts to number[])
+const typedArrayConstructors = new Set([
+	...typedArrayTypes,
+	'ArrayBuffer',
+	'SharedArrayBuffer',
+]);
+
+/**
+Check if node is a TypedArray/ArrayBuffer construction (new Uint8Array(...)).
+
+@param {import('estree').Node} node
+@returns {boolean}
+*/
+function isTypedArrayConstruction(node) {
+	return (
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& typedArrayConstructors.has(node.callee.name)
+	);
+}
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
@@ -413,6 +437,12 @@ const create = context => {
 		}
 
 		if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
+			return;
+		}
+
+		// Skip TypedArray/ArrayBuffer constructions - spreading them either fails
+		// (ArrayBuffer has no iterator) or changes the type (TypedArray -> number[])
+		if (isTypedArrayConstruction(node.callee.object)) {
 			return;
 		}
 
