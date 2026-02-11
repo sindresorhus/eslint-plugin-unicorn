@@ -78,6 +78,7 @@ test.snapshot({
 	],
 });
 
+// No unnecessary `String.raw`
 test.snapshot({
 	valid: [
 		'a = foo`ab`',
