@@ -145,7 +145,7 @@ const create = context => {
 	});
 
 	context.on('TaggedTemplateExpression', node => {
-		const {quasi, tag} = node;
+		const {quasi, tag, parent} = node;
 		const {sourceCode} = context;
 
 		if (!isMemberExpression(tag, {object: 'String', property: 'raw', optional: false})) {
@@ -174,7 +174,6 @@ const create = context => {
 					yield fixer.insertTextBefore(node, ';');
 				}
 
-				const {parent} = node;
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& !isOnSameLine(tokenBefore, node.quasi, context)
