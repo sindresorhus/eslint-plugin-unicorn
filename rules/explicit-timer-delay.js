@@ -1,4 +1,5 @@
 import {isLiteral} from './ast/index.js';
+import {getParenthesizedRange} from './utils/index.js';
 
 const MODE_ALWAYS = 'always';
 const MODE_NEVER = 'never';
@@ -92,7 +93,9 @@ const create = context => {
 
 			const [firstArgument] = arguments_;
 			if (firstArgument && firstArgument.type !== 'SpreadElement') {
-				problem.fix = fixer => fixer.insertTextAfter(firstArgument, ', 0');
+				problem.fix = fixer => fixer.insertTextAfterRange(
+					getParenthesizedRange(firstArgument, context), ', 0',
+				);
 			}
 
 			return problem;
@@ -107,11 +110,10 @@ const create = context => {
 					messageId: MESSAGE_ID_REDUNDANT_DELAY,
 					data: {name},
 					fix(fixer) {
-						const firstArgument = arguments_[0];
-						const [, firstArgumentEnd] = sourceCode.getRange(firstArgument);
-						const [delayArgumentStart] = sourceCode.getRange(delayArgument);
-
-						return fixer.removeRange([firstArgumentEnd, delayArgumentStart + sourceCode.getText(delayArgument).length]);
+						const [firstArgument] = arguments_;
+						const [, firstArgumentEnd] = getParenthesizedRange(firstArgument, context);
+						const [, delayArgumentEnd] = getParenthesizedRange(delayArgument, context);
+						return fixer.removeRange([firstArgumentEnd, delayArgumentEnd]);
 					},
 				};
 			}

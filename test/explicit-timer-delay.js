@@ -43,8 +43,13 @@ test({
 			code: 'globalThis.setInterval(callback);',
 			options: ['never'],
 		},
+		'setTimeout((callback), 0);',
 		{
 			code: 'setTimeout(() => console.log("Hello"), 1000);',
+			options: ['never'],
+		},
+		{
+			code: 'setTimeout(callback, (1000));',
 			options: ['never'],
 		},
 		{
@@ -124,6 +129,14 @@ test({
 			errors: [{messageId: MESSAGE_ID_MISSING_DELAY}],
 		},
 		{
+			code: 'setTimeout((callback));',
+			output: 'setTimeout((callback), 0);',
+			errors: [{
+				messageId: MESSAGE_ID_MISSING_DELAY,
+				data: {name: 'setTimeout'},
+			}],
+		},
+		{
 			code: 'setTimeout(...args);',
 			errors: [{
 				messageId: MESSAGE_ID_MISSING_DELAY,
@@ -146,6 +159,15 @@ test({
 			errors: [{
 				messageId: MESSAGE_ID_REDUNDANT_DELAY,
 				data: {name: 'setInterval'},
+			}],
+		},
+		{
+			code: 'setTimeout((callback), 0);',
+			output: 'setTimeout((callback));',
+			options: ['never'],
+			errors: [{
+				messageId: MESSAGE_ID_REDUNDANT_DELAY,
+				data: {name: 'setTimeout'},
 			}],
 		},
 		{
@@ -208,6 +230,12 @@ test({
 					callback
 				);
 			`,
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setTimeout(callback, (0));',
+			output: 'setTimeout(callback);',
 			options: ['never'],
 			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
 		},
