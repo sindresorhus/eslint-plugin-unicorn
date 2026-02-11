@@ -1959,6 +1959,17 @@ test({
 				},
 			],
 		},
+		{
+			code: 'foo();',
+			filename: 'tsconfig.lib.json',
+			options: [
+				{
+					ignore: [
+						/tsconfig\.lib$/,
+					],
+				},
+			],
+		},
 	],
 	invalid: [
 		{
@@ -2010,6 +2021,18 @@ test({
 				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
 				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.'),
 			],
+		},
+		{
+			code: 'foo();',
+			filename: 'tsconfig.lib.json',
+			options: [
+				{
+					ignore: [
+						/tsconfig\.lib\.json$/,
+					],
+				},
+			],
+			errors: createErrors('The filename `tsconfig.lib.json` should be named `tsconfig.library.json`. A more descriptive name will do too.'),
 		},
 	],
 });
