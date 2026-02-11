@@ -186,15 +186,20 @@ function create(context) {
 				continue;
 			}
 
-			yield {
+			const problem = {
 				node: callExpression.callee.property,
 				messageId: MESSAGE_ID_REDUCE,
-				fix: fixReduceAssignOrSpread({
+			};
+
+			if (!callExpression.typeArguments) {
+				problem.fix = fixReduceAssignOrSpread({
 					context,
 					callExpression,
 					property: getProperty(callbackFunction),
-				}),
-			};
+				});
+			}
+
+			yield problem;
 		}
 
 		if (!isCallExpression(callExpression, {
