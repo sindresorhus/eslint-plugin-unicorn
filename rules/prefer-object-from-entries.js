@@ -191,7 +191,7 @@ function create(context) {
 				messageId: MESSAGE_ID_REDUCE,
 			};
 
-			if (!(callExpression.typeArguments ?? callExpression.typeParameters)) {
+			if (!callExpression.typeArguments) {
 				problem.fix = fixReduceAssignOrSpread({
 					context,
 					callExpression,
