@@ -21,7 +21,7 @@ test.snapshot({
 		String.raw`a = 'a\\b\"'`,
 	],
 	invalid: [
-		String.raw`TEST_STRING = '${TEST_STRING}';`,
+		`TEST_STRING = '${TEST_STRING}';`,
 		String.raw`function a() {return'a\\b'}`,
 		String.raw`const foo = "foo \\x46";`,
 		String.raw`a = 'a\\b\''`,
@@ -169,47 +169,47 @@ test.snapshot({
 // Restricted places
 const keyTestsComputedIsInvalid = [
 	// Object property key
-	String.raw`({ '${TEST_STRING}': 1 })`,
+	`({ '${TEST_STRING}': 1 })`,
 	// Class members key
-	String.raw`class C { '${TEST_STRING}' = 1 }`,
-	String.raw`class C { '${TEST_STRING}'(){} }`,
-	String.raw`class C { accessor '${TEST_STRING}' = 1 }`,
+	`class C { '${TEST_STRING}' = 1 }`,
+	`class C { '${TEST_STRING}'(){} }`,
+	`class C { accessor '${TEST_STRING}' = 1 }`,
 ];
 const keyTestsComputedIsValid = [
 	// Abstract class members key
-	String.raw`abstract class C { abstract '${TEST_STRING}' }`,
-	String.raw`abstract class C { abstract '${TEST_STRING}'() }`,
-	String.raw`abstract class C { abstract accessor '${TEST_STRING}' }`,
+	`abstract class C { abstract '${TEST_STRING}' }`,
+	`abstract class C { abstract '${TEST_STRING}'() }`,
+	`abstract class C { abstract accessor '${TEST_STRING}' }`,
 	// Interface members key
-	String.raw`interface I { '${TEST_STRING}' }`,
+	`interface I { '${TEST_STRING}' }`,
 ];
-const toComputed = code => code.replace(String.raw`'${TEST_STRING}'`, String.raw`['${TEST_STRING}']`);
+const toComputed = code => code.replace(`'${TEST_STRING}'`, `['${TEST_STRING}']`);
 test.snapshot({
 	testerOptions: {
 		languageOptions: {parser: parsers.typescript},
 	},
 	valid: [
 		// Directive
-		String.raw`'${TEST_STRING}';`,
+		`'${TEST_STRING}';`,
 		// Module source
-		String.raw`import '${TEST_STRING}';`,
-		String.raw`export {} from '${TEST_STRING}';`,
-		String.raw`export * from '${TEST_STRING}';`,
+		`import '${TEST_STRING}';`,
+		`export {} from '${TEST_STRING}';`,
+		`export * from '${TEST_STRING}';`,
 		// Import attribute key
-		String.raw`import 'm' with {'${TEST_STRING}': 'v'};`,
-		String.raw`export {} from 'm' with {'${TEST_STRING}': 'v'};`,
+		`import 'm' with {'${TEST_STRING}': 'v'};`,
+		`export {} from 'm' with {'${TEST_STRING}': 'v'};`,
 		// Import attribute value
-		String.raw`import 'm' with {k: '${TEST_STRING}'};`,
-		String.raw`export {} from 'm' with {k: '${TEST_STRING}'};`,
+		`import 'm' with {k: '${TEST_STRING}'};`,
+		`export {} from 'm' with {k: '${TEST_STRING}'};`,
 		// Module specifier
-		String.raw`import {'${TEST_STRING}' as s} from 'm';`,
-		String.raw`export {'${TEST_STRING}' as s} from 'm';`,
-		String.raw`export {s as '${TEST_STRING}'} from 'm';`,
-		String.raw`export * as '${TEST_STRING}' from 'm';`,
+		`import {'${TEST_STRING}' as s} from 'm';`,
+		`export {'${TEST_STRING}' as s} from 'm';`,
+		`export {s as '${TEST_STRING}'} from 'm';`,
+		`export * as '${TEST_STRING}' from 'm';`,
 
 		// JSX attribute value
 		{
-			code: String.raw`<Component attribute='${TEST_STRING}' />`,
+			code: `<Component attribute='${TEST_STRING}' />`,
 			languageOptions: {
 				parserOptions: {
 					ecmaFeatures: {
@@ -219,16 +219,16 @@ test.snapshot({
 			},
 		},
 		// (TypeScript) Enum member key and value
-		String.raw`enum E {'${TEST_STRING}' = 1}`,
-		String.raw`enum E {K = '${TEST_STRING}'}`,
+		`enum E {'${TEST_STRING}' = 1}`,
+		`enum E {K = '${TEST_STRING}'}`,
 		// (TypeScript) Module declaration
-		String.raw`module '${TEST_STRING}' {}`,
+		`module '${TEST_STRING}' {}`,
 		// (TypeScript) CommonJS module reference
-		String.raw`import type T = require('${TEST_STRING}');`,
+		`import type T = require('${TEST_STRING}');`,
 		// (TypeScript) Literal type
-		String.raw`type T = '${TEST_STRING}';`,
+		`type T = '${TEST_STRING}';`,
 		// (TypeScript) Import type
-		String.raw`type T = import('${TEST_STRING}');`,
+		`type T = import('${TEST_STRING}');`,
 		...keyTestsComputedIsInvalid,
 		...keyTestsComputedIsValid.flatMap(code => [code, toComputed(code)]),
 		`expect(foo).toMatchInlineSnapshot('${TEST_STRING}')`,
