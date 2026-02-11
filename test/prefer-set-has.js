@@ -386,6 +386,18 @@ test.snapshot({
 				return _.includes(foo, 1);
 			}
 		`,
+		outdent`
+			const text = 'abc'.slice();
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`abc\`.concat('def');
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`${1}abc\`.slice();
+			text.includes('ab') || text.includes('bc');
+		`,
 	],
 	invalid: [
 		outdent`
@@ -610,6 +622,10 @@ test.snapshot({
 				}
 			`,
 		),
+		outdent`
+			const foo = [1, 2, 3].slice();
+			foo.includes(1) || foo.includes(2);
+		`,
 
 		// `lodash`
 		// `bar` is not `array`, but code not broken

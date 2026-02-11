@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getVariableIdentifiers} from './utils/index.js';
-import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
+import {isCallOrNewExpression, isMethodCall, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -41,6 +41,11 @@ const methodsReturnsArray = [
 	'toArray',
 ];
 
+const methodsReturnsArrayAndString = [
+	'slice',
+	'concat',
+];
+
 const isIncludesCall = node =>
 	isMethodCall(node.parent.parent, {
 		method: 'includes',
@@ -77,6 +82,18 @@ const isMultipleCall = (identifier, node) => {
 
 	return false;
 };
+
+const isStaticallyStringLikeNode = node =>
+	isStringLiteral(node)
+	|| node.type === 'TemplateLiteral';
+
+const isArrayOrStringMethodCallOnStringLikeNode = node =>
+	isMethodCall(node, {
+		methods: methodsReturnsArrayAndString,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isStaticallyStringLikeNode(node.callee.object);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -116,6 +133,7 @@ const create = context => {
 					optionalMember: false,
 				})
 			)
+			&& !isArrayOrStringMethodCallOnStringLikeNode(parent.init)
 		)) {
 			return;
 		}
