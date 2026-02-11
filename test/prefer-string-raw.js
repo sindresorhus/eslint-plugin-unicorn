@@ -163,6 +163,7 @@ test.snapshot({
 						\`abc\`
 			}
 		`,
+		'String.raw`use strict`', // After fix, this becomes a directive. But that's fine for now.
 	],
 });
 
