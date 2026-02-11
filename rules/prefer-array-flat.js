@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	isArrayPrototypeProperty,
@@ -38,6 +39,9 @@ const arrayFlatMap = {
 	getArrayNode: node => node.callee.object,
 	isOptionalArray: node => node.callee.optional,
 	description: 'Array#flatMap()',
+	shouldIgnoreCase(node, context) {
+		return isObviouslyNonArrayFlatMapReceiver(node.callee.object, context);
+	},
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
@@ -157,6 +161,72 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
+const pascalCaseNamePattern = /^\p{Lu}/u;
+const isPascalCaseIdentifier = node =>
+	node.type === 'Identifier'
+	&& pascalCaseNamePattern.test(node.name);
+
+const isKnownNonArrayConstruction = node =>
+	node.type === 'NewExpression'
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name !== 'Array';
+
+const isDefinitelyArrayExpression = node => (
+	node.type === 'ArrayExpression'
+	|| (
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'Array'
+	)
+);
+
+const isDefinitelyNonArrayExpression = node => (
+	node.type === 'ObjectExpression'
+	|| node.type === 'Literal'
+	|| node.type === 'TemplateLiteral'
+	|| node.type === 'ArrowFunctionExpression'
+	|| node.type === 'FunctionExpression'
+	|| node.type === 'ClassExpression'
+	|| isKnownNonArrayConstruction(node)
+);
+
+const getConstVariableInitializer = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (!variable || variable.defs.length !== 1) {
+		return;
+	}
+
+	const [definition] = variable.defs;
+	if (
+		definition.type !== 'Variable'
+		|| definition.node.type !== 'VariableDeclarator'
+		|| definition.parent.type !== 'VariableDeclaration'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	return definition.node.init;
+};
+
+const isConstNonArrayVariable = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer && isDefinitelyNonArrayExpression(initializer));
+};
+
+const isConstArrayVariable = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer && isDefinitelyArrayExpression(initializer));
+};
+
+const isObviouslyNonArrayFlatMapReceiver = (node, context) =>
+	(isPascalCaseIdentifier(node) && !isConstArrayVariable(node, context))
+	|| isConstNonArrayVariable(node, context);
+
 function fix(node, array, context, shouldSwitchToArray, optional) {
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
@@ -209,8 +279,12 @@ function create(context) {
 	];
 
 	context.on('CallExpression', function * (node) {
-		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray, shouldIgnoreCase} of cases) {
 			if (!testFunction(node)) {
+				continue;
+			}
+
+			if (shouldIgnoreCase?.(node, context)) {
 				continue;
 			}
 
