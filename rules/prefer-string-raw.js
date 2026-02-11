@@ -1,6 +1,12 @@
 import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
-import {fixSpaceAroundKeyword, replaceTemplateElement} from './fix/index.js';
+import {
+	addParenthesizesToReturnOrThrowExpression,
+	fixSpaceAroundKeyword,
+	removeParentheses,
+	replaceTemplateElement,
+} from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
+import {isOnSameLine, isParenthesized} from './utils/index.js';
 import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
@@ -168,7 +174,17 @@ const create = context => {
 					yield fixer.insertTextBefore(node, ';');
 				}
 
+				const {parent} = node;
+				if (
+					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+					&& !isOnSameLine(tokenBefore, node.quasi, context)
+					&& !isParenthesized(node, context)
+				) {
+					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+				}
+
 				yield fixer.replaceText(node.quasi, suggestion);
+				yield removeParentheses(node.tag, fixer, context);
 				yield fixer.remove(node.tag);
 			},
 		};

@@ -137,6 +137,31 @@ test.snapshot({
 			a = String.raw  /* comment */  \`ab
 			c\`
 		`,
+		outdent`
+			function foo() {
+				return String.raw\`abc\`
+			}
+		`,
+		outdent`
+			function foo() {
+				return String.raw
+						// comment
+						\`abc\`
+			}
+		`,
+		outdent`
+			function foo() {
+				return (String.raw
+						// already parenthesized
+						\`abc\`)
+			}
+		`,
+		outdent`
+			function foo() {
+				return (String.raw) // remove parenthesis
+						\`abc\`
+			}
+		`,
 	],
 });
 
