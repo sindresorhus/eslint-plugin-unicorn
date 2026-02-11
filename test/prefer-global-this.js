@@ -50,6 +50,7 @@ test.snapshot({
 		'self.navigator',
 		'window.addEventListener("resize", () => {})',
 		'window.onresize = function () {}',
+		'\'open\' in window; window.open("https://example.com")',
 		outdent`
 			const {window} = jsdom()
 			window.jQuery = jQuery;
@@ -168,6 +169,7 @@ test.snapshot({
 		'[window.foo] = []',
 		'foo[window]',
 		'foo[window.foo]',
+		'\'foo\' in window',
 		'typeof window !== "undefined"',
 		'typeof self !== "undefined"',
 		'typeof global !== "undefined"',

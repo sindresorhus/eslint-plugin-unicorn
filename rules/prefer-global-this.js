@@ -1,3 +1,5 @@
+import {isStringLiteral} from './ast/index.js';
+
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
@@ -125,6 +127,11 @@ const webWorkerSpecificAPIs = new Set([
 	'onconnect',
 ]);
 
+const environmentSpecificAPIByGlobalIdentifier = {
+	window: windowSpecificAPIs,
+	self: webWorkerSpecificAPIs,
+};
+
 /**
 Check if the node is a window-specific API.
 
@@ -161,6 +168,30 @@ function isComputedMemberExpressionObject(identifier) {
 }
 
 /**
+Check if the identifier is used in an existence check for a known environment-specific API.
+
+@param {import('estree').Identifier} identifier
+@returns {boolean}
+*/
+function isKnownSpecificAPIExistenceCheck(identifier) {
+	const specificAPIs = environmentSpecificAPIByGlobalIdentifier[identifier.name];
+	if (!specificAPIs) {
+		return false;
+	}
+
+	const {parent} = identifier;
+	if (parent.type !== 'BinaryExpression' || parent.operator !== 'in' || parent.right !== identifier) {
+		return false;
+	}
+
+	if (!isStringLiteral(parent.left)) {
+		return false;
+	}
+
+	return specificAPIs.has(parent.left.value);
+}
+
+/**
 Check if the node is a web worker specific API.
 
 @param {import('estree').MemberExpression} node
@@ -183,6 +214,7 @@ const create = context => {
 		for (const {identifier} of references) {
 			if (
 				isComputedMemberExpressionObject(identifier)
+				|| isKnownSpecificAPIExistenceCheck(identifier)
 				|| isWindowSpecificAPI(identifier.parent)
 				|| isWebWorkerSpecificAPI(identifier.parent)
 			) {
