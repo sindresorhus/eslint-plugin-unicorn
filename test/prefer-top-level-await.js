@@ -217,6 +217,14 @@ test.snapshot({
 			await Promise.race?.([foo()]);
 		`,
 		outdent`
+			async function getStat() {}
+			const [core, pure, bundle] = await Promise.all([
+				getStat('core-js'),
+				ALL && getStat('core-js-pure'),
+				ALL && getStat('core-js-bundle'),
+			]);
+		`,
+		outdent`
 			const foo = async () => {};
 			const promise = Promise.all([
 				(async () => {})(),
@@ -227,7 +235,13 @@ test.snapshot({
 			await promise;
 		`,
 	],
-	invalid: [],
+	invalid: [
+		outdent`
+			const runAsync = async () => {};
+			const value = true;
+			await Promise.all([runAsync() && value]);
+		`,
+	],
 });
 
 test.babel({
@@ -244,4 +258,3 @@ test.babel({
 	],
 	invalid: [],
 });
-
