@@ -3,7 +3,8 @@ import {
 	isParenthesized,
 	checkVueTemplate,
 	isLogicalExpression,
-	isBooleanNode,
+	isBooleanExpression,
+	isControlFlowTest,
 	getBooleanAncestor,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -189,7 +190,7 @@ function create(context) {
 			}
 		} else {
 			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-			if (isBooleanNode(ancestor)) {
+			if (isBooleanExpression(ancestor) || isControlFlowTest(ancestor)) {
 				isZeroLengthCheck = isNegative;
 				node = ancestor;
 			} else if (

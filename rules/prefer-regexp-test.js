@@ -1,7 +1,7 @@
 import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
 import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
-import {isBooleanNode, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {isBooleanExpression, isControlFlowTest, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
@@ -64,7 +64,7 @@ const cases = [
 				regexpText = `(${regexpText})`;
 			}
 
-			// The nodes that pass `isBooleanNode` cannot have an ASI problem.
+			// The nodes that pass control-flow test checks or explicit boolean expressions cannot have an ASI problem.
 
 			yield fixer.replaceText(stringNode, regexpText);
 		},
@@ -95,7 +95,7 @@ const isRegExpWithoutGlobalFlag = (node, scope) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (node) {
-		if (!isBooleanNode(node)) {
+		if (!(isBooleanExpression(node) || isControlFlowTest(node))) {
 			return;
 		}
 

@@ -20,43 +20,52 @@ const isVueBooleanAttributeValue = node =>
 		|| node.parent.key.name.rawName === 'else-if'
 		|| node.parent.key.name.rawName === 'show'
 	);
+const isDirectControlFlowTest = node =>
+	(
+		node.parent?.type === 'IfStatement'
+		|| node.parent?.type === 'ConditionalExpression'
+		|| node.parent?.type === 'WhileStatement'
+		|| node.parent?.type === 'DoWhileStatement'
+		|| node.parent?.type === 'ForStatement'
+	)
+	&& node.parent.test === node;
+const isDirectBooleanExpression = node =>
+	isLogicNot(node)
+	|| isLogicNotArgument(node)
+	|| isBooleanCall(node)
+	|| isBooleanCallArgument(node);
 
 /**
-Check if the value of node is a `boolean`.
+Check if the expression value of `node` is a `boolean`.
 
 @param {Node} node
 @returns {boolean}
 */
-export function isBooleanNode(node) {
-	if (
-		isLogicNot(node)
-		|| isLogicNotArgument(node)
-		|| isBooleanCall(node)
-		|| isBooleanCallArgument(node)
-	) {
+export function isBooleanExpression(node) {
+	if (isDirectBooleanExpression(node)) {
 		return true;
 	}
 
-	const {parent} = node;
-	if (isVueBooleanAttributeValue(parent)) {
+	if (isLogicalExpression(node.parent)) {
+		return isBooleanExpression(node.parent);
+	}
+
+	return false;
+}
+
+/**
+Check if `node` is used as a control-flow test.
+
+@param {Node} node
+@returns {boolean}
+*/
+export function isControlFlowTest(node) {
+	if (isVueBooleanAttributeValue(node.parent) || isDirectControlFlowTest(node)) {
 		return true;
 	}
 
-	if (
-		(
-			parent.type === 'IfStatement'
-			|| parent.type === 'ConditionalExpression'
-			|| parent.type === 'WhileStatement'
-			|| parent.type === 'DoWhileStatement'
-			|| parent.type === 'ForStatement'
-		)
-		&& parent.test === node
-	) {
-		return true;
-	}
-
-	if (isLogicalExpression(parent)) {
-		return isBooleanNode(parent);
+	if (isLogicalExpression(node.parent)) {
+		return isControlFlowTest(node.parent);
 	}
 
 	return false;
