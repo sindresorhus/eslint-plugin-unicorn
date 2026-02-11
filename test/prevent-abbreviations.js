@@ -131,6 +131,7 @@ const tests = {
 		'const i18nData = {}',
 		'const l10n = new L10n()',
 		'const iOS = true',
+		'const jQueryEvent = true',
 		outdent`
 			(class {
 				error() {}

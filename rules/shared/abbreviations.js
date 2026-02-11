@@ -267,4 +267,5 @@ export const defaultIgnore = [
 	// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1188
 	'i18n',
 	'l10n',
+	'jQuery',
 ];
