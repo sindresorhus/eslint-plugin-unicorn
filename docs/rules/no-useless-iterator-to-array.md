@@ -2,7 +2,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -18,20 +18,23 @@
   - `TypedArray` constructor
   - `Array.from(…)`
   - `TypedArray.from(…)`
-  - `Promise.{all,allSettled,any,race}(…)`
   - `Object.fromEntries(…)`
 
 - `for…of` can iterate over any iterable, so converting to an array first is unnecessary.
 
 - `yield*` can delegate to any iterable, so converting to an array first is unnecessary.
 
-- Some `Array` methods also exist on `Iterator` with the same semantics, so converting to an array to call them is unnecessary:
+- `Promise.{all,allSettled,any,race}(…)` accept an iterable, so `.toArray()` is unnecessary. However, removing it can change a synchronous throw into an asynchronous rejection when iteration fails, so these cases are reported as **suggestions** rather than autofixes.
+
+- Some `Array` methods also exist on `Iterator`, so converting to an array to call them is unnecessary:
 
   - `.every()`
   - `.find()`
   - `.forEach()`
   - `.reduce()`
   - `.some()`
+
+  However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
 
 This rule does not flag `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays, so the semantics differ.
 
