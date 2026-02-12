@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getVariableIdentifiers} from './utils/index.js';
-import {isCallOrNewExpression, isMethodCall, isStringLiteral} from './ast/index.js';
+import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -29,10 +29,6 @@ const methodsReturnsArray = [
 	'toSorted',
 	'toSpliced',
 	'with',
-
-	// `Array` or `String` (unsafe)
-	'slice',
-	'concat',
 
 	// `String`
 	'split',
@@ -83,17 +79,31 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
-const isStaticallyStringLikeNode = node =>
-	isStringLiteral(node)
-	|| node.type === 'TemplateLiteral';
-
-const isArrayOrStringMethodCallOnStringLikeNode = node =>
-	isMethodCall(node, {
-		methods: methodsReturnsArrayAndString,
+const isArrayMethodCall = node =>
+	node.type === 'ArrayExpression'
+	|| isCallOrNewExpression(node, {
+		name: 'Array',
+		optional: false,
+	})
+	|| isMethodCall(node, {
+		object: 'Array',
+		methods: ['from', 'of'],
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& isStaticallyStringLikeNode(node.callee.object);
+	|| isMethodCall(node, {
+		methods: methodsReturnsArray,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	|| (
+		isMethodCall(node, {
+			methods: methodsReturnsArrayAndString,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isArrayMethodCall(node.callee.object)
+	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -112,28 +122,8 @@ const create = context => {
 				&& parent.parent.parent.declaration === parent.parent
 			)
 			&& (
-				// `[]`
-				parent.init.type === 'ArrayExpression'
-				// `Array()` and `new Array()`
-				|| isCallOrNewExpression(parent.init, {
-					name: 'Array',
-					optional: false,
-				})
-				// `Array.from()` and `Array.of()`
-				|| isMethodCall(parent.init, {
-					object: 'Array',
-					methods: ['from', 'of'],
-					optionalCall: false,
-					optionalMember: false,
-				})
-				// Methods that return an array
-				|| isMethodCall(parent.init, {
-					methods: methodsReturnsArray,
-					optionalCall: false,
-					optionalMember: false,
-				})
+				isArrayMethodCall(parent.init)
 			)
-			&& !isArrayOrStringMethodCallOnStringLikeNode(parent.init)
 		)) {
 			return;
 		}

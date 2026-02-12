@@ -23,6 +23,13 @@ const methodsReturnsArray = [
 	'split',
 ];
 
+const methodsReturnsArrayOrString = [
+	'concat',
+	'slice',
+];
+
+const methodsReturnsOnlyArray = methodsReturnsArray.filter(method => !methodsReturnsArrayOrString.includes(method));
+
 test.snapshot({
 	valid: [
 		outdent`
@@ -378,6 +385,12 @@ test.snapshot({
 				return foo.includes(1);
 			}
 		`,
+		...methodsReturnsArrayOrString.map(method => outdent`
+			const foo = bar.${method}();
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`),
 
 		// `lodash`
 		outdent`
@@ -614,7 +627,7 @@ test.snapshot({
 		`,
 
 		// Methods
-		...methodsReturnsArray.map(method =>
+		...methodsReturnsOnlyArray.map(method =>
 			outdent`
 				const foo = bar.${method}();
 				function unicorn() {
@@ -624,6 +637,10 @@ test.snapshot({
 		),
 		outdent`
 			const foo = [1, 2, 3].slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const foo = [1, 2, 3].concat(4);
 			foo.includes(1) || foo.includes(2);
 		`,
 
