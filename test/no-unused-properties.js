@@ -422,6 +422,32 @@ test.babel({
 	invalid: [],
 });
 
+test.typescript({
+	valid: [
+		outdent`
+			type Configuration = {
+				debounce: {
+					wait: number;
+				};
+			};
+
+			const configurationInput = {};
+
+			const {
+				debounce: userDebounce,
+			}: Configuration = {
+				debounce: {
+					wait: 1000,
+				},
+				...configurationInput,
+			};
+
+			console.log(userDebounce);
+		`,
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [],
 	invalid: [
