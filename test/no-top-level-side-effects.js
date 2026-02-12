@@ -65,6 +65,10 @@ test.snapshot({
 		outdent`
 			exports.foo = 'bar';
 		`,
+		// module.exports.foo is also a CJS export
+		outdent`
+			module.exports.foo = 1;
+		`,
 		// Type exports (TypeScript-style, but still valid ESM syntax)
 		outdent`
 			export default function() {}
@@ -218,6 +222,19 @@ test.snapshot({
 			import shared from 'x';
 			Object.assign(shared, { flag: true });
 			export default shared;
+		`,
+		// export default with side-effecting call expression
+		outdent`
+			export default setup();
+		`,
+		// export default with comma expression containing side effects
+		outdent`
+			export default (console.log('x'), 1);
+		`,
+		// module.exports.foo should count as exports
+		outdent`
+			module.exports.foo = 1;
+			console.log('loaded');
 		`,
 	],
 });

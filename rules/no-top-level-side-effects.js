@@ -3,11 +3,13 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use top-level side effects in modules.',
 };
 
-const hasExports = body => body.some(node =>
-	node.type === 'ExportNamedDeclaration'
-	|| node.type === 'ExportDefaultDeclaration'
-	|| node.type === 'ExportAllDeclaration',
-);
+const esmExportTypes = new Set([
+	'ExportNamedDeclaration',
+	'ExportDefaultDeclaration',
+	'ExportAllDeclaration',
+]);
+
+const hasExports = body => body.some(node => esmExportTypes.has(node.type));
 
 const hasCjsExports = body => body.some(node => {
 	if (node.type !== 'ExpressionStatement') {
@@ -21,25 +23,12 @@ const hasCjsExports = body => body.some(node => {
 
 	const {left} = expression;
 
-	// `module.exports = ...`
-	if (
-		left.type === 'MemberExpression'
-		&& left.object.type === 'Identifier'
-		&& left.object.name === 'module'
-		&& !left.computed
-		&& left.property.type === 'Identifier'
-		&& left.property.name === 'exports'
-	) {
-		return true;
-	}
-
-	// `exports.foo = ...`
-	if (
-		left.type === 'MemberExpression'
-		&& left.object.type === 'Identifier'
-		&& left.object.name === 'exports'
-	) {
-		return true;
+	// `module.exports = ...` or `module.exports.foo = ...`
+	if (left.type === 'MemberExpression') {
+		const rootName = getRootIdentifier(left);
+		if (rootName === 'module' || rootName === 'exports') {
+			return true;
+		}
 	}
 
 	return false;
@@ -131,14 +120,13 @@ const getTopLevelLocalNames = body => {
 
 			case 'ExportNamedDeclaration':
 			case 'ExportDefaultDeclaration': {
-				if (node.declaration) {
-					if (node.declaration.type === 'VariableDeclaration') {
-						for (const declarator of node.declaration.declarations) {
-							collectBindingNames(declarator.id, names);
-						}
-					} else if (node.declaration.id) {
-						names.add(node.declaration.id.name);
+				const {declaration} = node;
+				if (declaration?.type === 'VariableDeclaration') {
+					for (const declarator of declaration.declarations) {
+						collectBindingNames(declarator.id, names);
 					}
+				} else if (declaration?.id) {
+					names.add(declaration.id.name);
 				}
 
 				break;
@@ -162,15 +150,74 @@ const safeStatementTypes = new Set([
 	'ClassDeclaration',
 	'ImportDeclaration',
 	'ExportNamedDeclaration',
-	'ExportDefaultDeclaration',
 	'ExportAllDeclaration',
 	'EmptyStatement',
 ]);
+
+const safeDefaultExportTypes = new Set([
+	'FunctionDeclaration',
+	'ClassDeclaration',
+	'Identifier',
+	'Literal',
+]);
+
+/**
+Check if an `export default` declaration has side effects.
+Safe: function/class declarations, identifiers, literals.
+Unsafe: call expressions, comma expressions, etc.
+*/
+const isDefaultExportSideEffect = node => !safeDefaultExportTypes.has(node.declaration.type);
+
+/**
+Check if an assignment expression is a CJS export (`module.exports`, `exports`).
+*/
+const isCjsExportAssignment = left => {
+	if (left.type !== 'MemberExpression') {
+		return false;
+	}
+
+	const rootName = getRootIdentifier(left);
+	return rootName === 'module' || rootName === 'exports';
+};
+
+const safeObjectMethods = new Set([
+	'assign',
+	'defineProperty',
+	'defineProperties',
+	'freeze',
+	'seal',
+]);
+
+/**
+Check if a call expression is `Object.<method>(localVar, ...)` targeting a local.
+*/
+const isLocalObjectMethodCall = (expression, localNames) => {
+	const {callee} = expression;
+	if (
+		callee.type !== 'MemberExpression'
+		|| callee.object.type !== 'Identifier'
+		|| callee.object.name !== 'Object'
+		|| callee.computed
+		|| callee.property.type !== 'Identifier'
+		|| !safeObjectMethods.has(callee.property.name)
+		|| expression.arguments.length === 0
+	) {
+		return false;
+	}
+
+	const rootName = getRootIdentifier(expression.arguments[0]);
+	return rootName && localNames.has(rootName);
+};
 
 const isSideEffectStatement = (node, localNames) => {
 	// Declarations, exports, and imports are always safe
 	if (safeStatementTypes.has(node.type)) {
 		return false;
+	}
+
+	// `export default <expression>` — safe only for declarations and simple values
+	if (node.type === 'ExportDefaultDeclaration') {
+		return isDefaultExportSideEffect(node);
 	}
 
 	// Expression statements need further analysis
@@ -182,21 +229,13 @@ const isSideEffectStatement = (node, localNames) => {
 			return false;
 		}
 
-		// Assignments — exempt if target is a locally-declared variable (not import)
+		// Assignments — exempt if target is CJS export or locally-declared variable
 		if (expression.type === 'AssignmentExpression') {
-			const {left} = expression;
-
-			// CJS exports: `module.exports = ...`, `exports.foo = ...`
-			if (
-				left.type === 'MemberExpression'
-				&& left.object.type === 'Identifier'
-				&& (left.object.name === 'module' || left.object.name === 'exports')
-			) {
+			if (isCjsExportAssignment(expression.left)) {
 				return false;
 			}
 
-			// Assignments to properties of locally-declared variables: `obj.prop = ...`
-			const rootName = getRootIdentifier(left);
+			const rootName = getRootIdentifier(expression.left);
 			if (rootName && localNames.has(rootName)) {
 				return false;
 			}
@@ -205,24 +244,9 @@ const isSideEffectStatement = (node, localNames) => {
 		// `Object.assign(localVar, ...)` / `Object.defineProperty(localVar, ...)`
 		if (
 			expression.type === 'CallExpression'
-			&& expression.callee.type === 'MemberExpression'
-			&& expression.callee.object.type === 'Identifier'
-			&& expression.callee.object.name === 'Object'
-			&& !expression.callee.computed
-			&& expression.callee.property.type === 'Identifier'
-			&& (
-				expression.callee.property.name === 'assign'
-				|| expression.callee.property.name === 'defineProperty'
-				|| expression.callee.property.name === 'defineProperties'
-				|| expression.callee.property.name === 'freeze'
-				|| expression.callee.property.name === 'seal'
-			)
-			&& expression.arguments.length > 0
+			&& isLocalObjectMethodCall(expression, localNames)
 		) {
-			const rootName = getRootIdentifier(expression.arguments[0]);
-			if (rootName && localNames.has(rootName)) {
-				return false;
-			}
+			return false;
 		}
 	}
 
