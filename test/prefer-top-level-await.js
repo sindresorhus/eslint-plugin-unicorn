@@ -226,6 +226,12 @@ test.snapshot({
 			]);
 		`,
 		outdent`
+			async function getStat() {}
+			const [core] = await Promise.all([
+				ALL ? getStat('core-js') : getStat('core-js-pure'),
+			]);
+		`,
+		outdent`
 			const foo = async () => {};
 			const promise = Promise.all([
 				(async () => {})(),

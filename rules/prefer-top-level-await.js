@@ -51,6 +51,13 @@ const isAwaitExpressionArgument = node => {
 const isArrayElementWrapper = node => (
 	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
 	|| (
+		node.parent.type === 'ConditionalExpression'
+		&& (
+			node.parent.consequent === node
+			|| node.parent.alternate === node
+		)
+	)
+	|| (
 		isLogicalExpression(node.parent)
 		&& (
 			node.parent.right === node
