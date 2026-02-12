@@ -163,6 +163,8 @@ The `non-zero` option can be configured with one of the following:
 - `not-equal`
   - Enforces non-zero to be checked with: `foo.length !== 0`
 
+This rule does not support Yoda-style comparisons like `0 < foo.length`. If you use [`eslint/yoda`](https://eslint.org/docs/latest/rules/yoda), configure it to allow non-Yoda style for relational comparisons.
+
 ## Unsafe to fix case
 
 `.length` check inside `LogicalExpression`s are not safe to fix.
