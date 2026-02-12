@@ -170,6 +170,7 @@ test.snapshot({
 		'foo[window]',
 		'foo[window.foo]',
 		'\'foo\' in window',
+		'\'foo\' in global',
 		'typeof window !== "undefined"',
 		'typeof self !== "undefined"',
 		'typeof global !== "undefined"',
