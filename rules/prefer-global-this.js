@@ -127,7 +127,7 @@ const webWorkerSpecificAPIs = new Set([
 	'onconnect',
 ]);
 
-const environmentSpecificAPIByGlobalIdentifier = {
+const environmentSpecificApiByGlobalIdentifier = {
 	window: windowSpecificAPIs,
 	self: webWorkerSpecificAPIs,
 };
@@ -174,7 +174,7 @@ Check if the identifier is used in an existence check for a known environment-sp
 @returns {boolean}
 */
 function isKnownSpecificAPIExistenceCheck(identifier) {
-	const specificAPIs = environmentSpecificAPIByGlobalIdentifier[identifier.name];
+	const specificAPIs = environmentSpecificApiByGlobalIdentifier[identifier.name];
 	if (!specificAPIs) {
 		return false;
 	}
