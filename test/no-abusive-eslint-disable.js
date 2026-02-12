@@ -65,6 +65,10 @@ test({
 			/* global foo */
 			foo();
 		`,
+		outdent`
+			// eslint-disables: This file is a polyfill, it is meant to abstract away rules
+			const x = ''
+		`,
 	],
 	invalid: [],
 });
