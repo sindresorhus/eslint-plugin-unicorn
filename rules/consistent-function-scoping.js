@@ -1,5 +1,5 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
-import {getReferences, isNodeMatches} from './utils/index.js';
+import {getReferences, isNodeContainsLexicalThis, isNodeMatches} from './utils/index.js';
 import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-function-scoping';
@@ -94,10 +94,11 @@ const isReactHook = scope =>
 	scope.block?.parent?.callee
 	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
-const isArrowFunctionWithThis = scope =>
-	scope.type === 'function'
-	&& scope.block?.type === 'ArrowFunctionExpression'
-	&& (scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+const isArrowFunctionNodeWithThis = (node, visitorKeys) =>
+	node.type === 'ArrowFunctionExpression'
+	// We avoid `scope.thisFound` because parser scope metadata differs; AST lexical checks are consistent.
+	// Include both params and body, because parameter defaults can reference lexical `this`.
+	&& isNodeContainsLexicalThis(node, visitorKeys);
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
@@ -145,10 +146,13 @@ function handleNestedArrowFunctions(parentNode, node) {
 	return parentNode;
 }
 
-function checkNode(node, scopeManager) {
+function checkNode(node, scopeManager, sourceCode) {
 	const scope = scopeManager.acquire(node);
 
-	if (!scope || isArrowFunctionWithThis(scope)) {
+	if (
+		!scope
+		|| isArrowFunctionNodeWithThis(node, sourceCode.visitorKeys)
+	) {
 		return true;
 	}
 
@@ -220,7 +224,7 @@ const create = context => {
 			return;
 		}
 
-		if (checkNode(node, scopeManager)) {
+		if (checkNode(node, scopeManager, sourceCode)) {
 			return;
 		}
 

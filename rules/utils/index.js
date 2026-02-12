@@ -41,6 +41,7 @@ export {default as isNewExpressionWithParentheses} from './is-new-expression-wit
 export {default as isNumber} from './is-number.js';
 export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
 export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
+export {default as isNodeContainsLexicalThis} from './is-node-contains-lexical-this.js';
 export {default as isOnSameLine} from './is-on-same-line.js';
 export {default as isSameIdentifier} from './is-same-identifier.js';
 export {default as isSameReference} from './is-same-reference.js';
