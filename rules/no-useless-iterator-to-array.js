@@ -9,12 +9,16 @@ const MESSAGE_ID_ITERABLE_ACCEPTING = 'iterable-accepting';
 const MESSAGE_ID_FOR_OF = 'for-of';
 const MESSAGE_ID_YIELD_STAR = 'yield-star';
 const MESSAGE_ID_ITERATOR_METHOD = 'iterator-method';
+const MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING = 'iterable-accepting/suggestion';
+const MESSAGE_ID_SUGGESTION_ITERATOR_METHOD = 'iterator-method/suggestion';
 
 const messages = {
 	[MESSAGE_ID_ITERABLE_ACCEPTING]: '`{{description}}` accepts an iterable, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_FOR_OF]: '`for…of` can iterate over an iterable, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_YIELD_STAR]: '`yield*` can delegate to an iterable, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_ITERATOR_METHOD]: '`Iterator` has a `.{{method}}()` method, `.toArray()` is unnecessary.',
+	[MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING]: 'Remove `.toArray()`.',
+	[MESSAGE_ID_SUGGESTION_ITERATOR_METHOD]: 'Remove `.toArray()` and use `Iterator#{{method}}()`.',
 };
 
 // Iterator methods that share semantics with Array methods.
@@ -63,17 +67,11 @@ const create = context => {
 		};
 	});
 
-	// Case 2: `Promise.all(iterator.toArray())`, `Array.from(iterator.toArray())`, etc.
+	// Case 2a: `Array.from(iterator.toArray())`, `Object.fromEntries(iterator.toArray())`, etc.
+	// These are safe to autofix — no behavioral difference.
 	context.on('CallExpression', node => {
-		const isIterableAcceptingMethod
+		const isSafeIterableAcceptingMethod
 			= isMethodCall(node, {
-				object: 'Promise',
-				methods: ['all', 'allSettled', 'any', 'race'],
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			|| isMethodCall(node, {
 				objects: ['Array', ...typedArray],
 				method: 'from',
 				argumentsLength: 1,
@@ -88,7 +86,7 @@ const create = context => {
 				optionalMember: false,
 			});
 
-		if (!isIterableAcceptingMethod || !isToArrayCall(node.arguments[0])) {
+		if (!isSafeIterableAcceptingMethod || !isToArrayCall(node.arguments[0])) {
 			return;
 		}
 
@@ -99,6 +97,38 @@ const create = context => {
 			messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
 			data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
 			fix: fixer => removeMethodCall(fixer, toArrayCall, context),
+		};
+	});
+
+	// Case 2b: `Promise.all(iterator.toArray())`, etc.
+	// Suggestion only — passing an iterator directly can change a sync throw
+	// into an async rejection when iteration fails.
+	context.on('CallExpression', node => {
+		if (
+			!isMethodCall(node, {
+				object: 'Promise',
+				methods: ['all', 'allSettled', 'any', 'race'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| !isToArrayCall(node.arguments[0])
+		) {
+			return;
+		}
+
+		const toArrayCall = node.arguments[0];
+
+		return {
+			node: toArrayCall.callee.property,
+			messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
+			data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING,
+					fix: fixer => removeMethodCall(fixer, toArrayCall, context),
+				},
+			],
 		};
 	});
 
@@ -129,8 +159,8 @@ const create = context => {
 	});
 
 	// Case 5: `iterator.toArray().every(fn)`, `iterator.toArray().find(fn)`, etc.
-	// Only match when argument count is safe — Array's `thisArg` param
-	// does not exist on Iterator, and reduce without initialValue throws.
+	// Suggestion only — Array callbacks receive a 3rd `array` argument
+	// (and `reduce` a 4th) that Iterator callbacks do not.
 	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
@@ -158,7 +188,13 @@ const create = context => {
 			node: callerObject.callee.property,
 			messageId: MESSAGE_ID_ITERATOR_METHOD,
 			data: {method: node.callee.property.name},
-			fix: fixer => removeMethodCall(fixer, callerObject, context),
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION_ITERATOR_METHOD,
+					data: {method: node.callee.property.name},
+					fix: fixer => removeMethodCall(fixer, callerObject, context),
+				},
+			],
 		};
 	});
 };
@@ -173,6 +209,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 	},
 };
