@@ -209,6 +209,7 @@ test.snapshot({
 				(async () => {})(),
 				/* hole */,
 				foo(),
+				foo?.(),
 				foo.then(bar),
 				foo.catch(bar),
 			]);

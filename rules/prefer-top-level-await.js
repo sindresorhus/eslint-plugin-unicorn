@@ -65,10 +65,7 @@ const isArrayElementWrapper = node => (
 // `Promise.{all,allSettled,any,race}([foo()])`
 const isInPromiseMethods = node => {
 	let expression = node;
-	while (
-		expression.parent
-		&& isArrayElementWrapper(expression)
-	) {
+	while (isArrayElementWrapper(expression)) {
 		expression = expression.parent;
 	}
 
