@@ -263,6 +263,11 @@ test({
 		testCaseWithOptions('src/foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('spec/Iss47.100Spec.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
+		{
+			code: '/* eslint-disable rule-to-test/filename-case */\nconst value = 1;',
+			filename: 'src/foo/foo_bar.js',
+			options: [{case: 'kebabCase'}],
+		},
 		// Multiple filename parts - multiple file extensions
 		testCaseWithOptions('src/foo/fooBar.Test.js', undefined, [{case: 'camelCase'}]),
 		testCaseWithOptions('test/foo/fooBar.testUtils.js', undefined, [{case: 'camelCase'}]),
@@ -278,6 +283,16 @@ test({
 		testCaseWithOptions('test/foo/.TestUtils.js', undefined, [{case: 'pascalCase'}]),
 	],
 	invalid: [
+		{
+			code: '// eslint-disable rule-to-test/filename-case\nconst value = 1;',
+			filename: 'src/foo/foo_bar.js',
+			options: [{case: 'kebabCase'}],
+			errors: [
+				{
+					message: 'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+				},
+			],
+		},
 		testCase(
 			'src/foo/foo_bar.js',
 			undefined,
