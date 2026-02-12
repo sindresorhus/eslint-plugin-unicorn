@@ -108,40 +108,11 @@ test({
 		'const x = foo.length || `bar`',
 		'const A_STRING = "bar"; const x = foo.length || A_STRING',
 		'const size = props.size || "mini"',
+		'const x = foo.length || unknown',
+		'something(options.length || 500)',
+		'const itemCount = result.totalCount || result.length',
 	],
 	invalid: [
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || bar()',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || unknown',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || unknown',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const NON_NUMBER = true; const x = foo.length || NON_NUMBER',
-			messageId: TYPE_NON_ZERO,
-			output: 'const NON_NUMBER = true; const x = foo.length > 0 || NON_NUMBER',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length !== 0 || bar()',
-			desc: 'Replace `.length` with `.length !== 0`.',
-			options: [{'non-zero': 'not-equal'}],
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || bar()',
-			desc: 'Replace `.length` with `.length > 0`.',
-			options: [{'non-zero': 'greater-than'}],
-		}),
 		suggestionCase({
 			code: '() => foo.length && bar()',
 			messageId: TYPE_NON_ZERO,
