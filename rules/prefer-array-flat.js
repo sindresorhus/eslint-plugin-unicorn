@@ -19,7 +19,10 @@ const messages = {
 
 // `array.flatMap(x => x)`
 const arrayFlatMap = {
-	testFunction(node) {
+	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
+	description: 'Array#flatMap()',
+	testFunction(node, context) {
 		if (!isMethodCall(node, {
 			method: 'flatMap',
 			argumentsLength: 1,
@@ -34,13 +37,8 @@ const arrayFlatMap = {
 			&& !firstArgument.async
 			&& firstArgument.params.length === 1
 			&& isSameIdentifier(firstArgument.params[0], firstArgument.body)
+			&& !isObviouslyNonArrayFlatMapReceiver(node.callee.object, context)
 		);
-	},
-	getArrayNode: node => node.callee.object,
-	isOptionalArray: node => node.callee.optional,
-	description: 'Array#flatMap()',
-	shouldIgnoreCase(node, context) {
-		return isObviouslyNonArrayFlatMapReceiver(node.callee.object, context);
 	},
 };
 
@@ -279,12 +277,8 @@ function create(context) {
 	];
 
 	context.on('CallExpression', function * (node) {
-		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray, shouldIgnoreCase} of cases) {
-			if (!testFunction(node)) {
-				continue;
-			}
-
-			if (shouldIgnoreCase?.(node, context)) {
+		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+			if (!testFunction(node, context)) {
 				continue;
 			}
 
