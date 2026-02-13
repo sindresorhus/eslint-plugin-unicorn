@@ -1,73 +1,43 @@
-import {parse} from 'espree';
+import {Linter} from 'eslint';
 import test from 'ava';
 import {isBooleanExpression, isControlFlowTest, getBooleanAncestor} from '../../rules/utils/boolean.js';
 
-function parseJavaScript(code) {
-	const ast = parse(code, {
+const linter = new Linter();
+const testConfig = {
+	languageOptions: {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
-	});
-	setParent(ast);
-	return ast;
-}
-
-function setParent(node, parent) {
-	if (!node || typeof node !== 'object') {
-		return;
-	}
-
-	if (typeof node.type === 'string') {
-		node.parent = parent;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				setParent(child, node);
-			}
-		} else {
-			setParent(value, node);
-		}
-	}
-}
-
-function findNode(node, predicate) {
-	if (!node || typeof node !== 'object') {
-		return;
-	}
-
-	if (typeof node.type === 'string' && predicate(node)) {
-		return node;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				const result = findNode(child, predicate);
-				if (result) {
-					return result;
-				}
-			}
-		} else {
-			const result = findNode(value, predicate);
-			if (result) {
-				return result;
-			}
-		}
-	}
-}
+	},
+	plugins: {
+		test: {
+			rules: {
+				capture: {
+					create() {
+						return {
+							MemberExpression(node) {
+								memberExpressionNode ||= node;
+							},
+						};
+					},
+				},
+			},
+		},
+	},
+	rules: {
+		'test/capture': 'error',
+	},
+};
+let memberExpressionNode;
 
 function findFirstMemberExpression(code) {
-	const ast = parseJavaScript(code);
-	return findNode(ast, node => node.type === 'MemberExpression');
+	memberExpressionNode = undefined;
+	linter.verify(code, testConfig);
+
+	if (!memberExpressionNode) {
+		throw new Error('Expected to find a MemberExpression node.');
+	}
+
+	return memberExpressionNode;
 }
 
 test('`isBooleanExpression` returns `true` for boolean-producing expressions', t => {
