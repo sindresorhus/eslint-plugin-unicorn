@@ -55,12 +55,17 @@ const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope
 			return false;
 		}
 
-		if (reference.from.variableScope !== memberScope.variableScope) {
+		const [referenceStart] = sourceCode.getRange(reference.identifier);
+		if (referenceStart < declarationEnd) {
 			return false;
 		}
 
-		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
-		return referenceStart >= declarationEnd && referenceEnd <= memberStart;
+		// Be conservative: writes from other variable scopes may run before this read via calls/closures.
+		if (reference.from.variableScope !== memberScope.variableScope) {
+			return true;
+		}
+
+		return referenceStart <= memberStart;
 	});
 };
 

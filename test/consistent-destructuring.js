@@ -213,6 +213,23 @@ test({
 		outdent`
 			let foo = bar;
 			const {a} = foo;
+			reassign();
+			console.log(foo.a);
+			function reassign() {
+				foo = baz;
+			}
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			function reassign() {
+				foo = baz;
+			}
+			console.log(foo.a);
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
 			foo = baz;
 			console.log(foo.a);
 		`,
@@ -233,6 +250,34 @@ test({
 		`,
 	],
 	invalid: [
+		invalidTestCase({
+			code: outdent`
+				let foo = bar;
+				foo = baz;
+				const {a} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				let foo = bar;
+				foo = baz;
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				let foo = bar;
+				const {a} = foo;
+				console.log(foo.a);
+				foo = baz;
+			`,
+			suggestions: [outdent`
+				let foo = bar;
+				const {a} = foo;
+				console.log(a);
+				foo = baz;
+			`],
+		}),
 		invalidTestCase({
 			code: outdent`
 				const {a} = foo;
@@ -454,24 +499,6 @@ test({
 			`,
 			suggestions: [outdent`
 				const {a, ...b} = foo;
-				console.log(a);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				let foo = bar;
-				const {a} = foo;
-				function reassign() {
-					foo = baz;
-				}
-				console.log(foo.a);
-			`,
-			suggestions: [outdent`
-				let foo = bar;
-				const {a} = foo;
-				function reassign() {
-					foo = baz;
-				}
 				console.log(a);
 			`],
 		}),
