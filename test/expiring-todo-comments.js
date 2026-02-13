@@ -110,6 +110,10 @@ test({
 			options: [{date: '2000-01-01'}],
 		},
 		{
+			code: '// TODO [2000-01-01]: too old but ignored in all environments',
+			options: [{ignoreDates: true, ignoreDatesOnPullRequests: false}],
+		},
+		{
 			code: `// eslint-disable-next-line rule-to-test/expiring-todo-comments
 				   // TODO without a date`,
 			options: [{allowWarningComments: false}],
@@ -202,6 +206,11 @@ test({
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
 			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates')],
+		},
+		{
+			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates are still invalid',
+			errors: [avoidMultipleDatesError('2200-12-12, 2200-12-12', 'Multiple dates are still invalid')],
+			options: [{ignoreDates: true}],
 		},
 		{
 			code: '// TODO [>1]: if your package.json version is >1',
