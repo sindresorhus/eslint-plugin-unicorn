@@ -756,7 +756,14 @@ test(avoidTestTitleConflict({
 }, 'es5'));
 
 test.typescript({
-	valid: [],
+	valid: [
+		outdent`
+			const str = '123'.slice(1);
+			for (let i = 0; i < str.length; i++) {
+				console.log(str[i], i);
+			}
+		`,
+	],
 	invalid: [
 		// String type annotation with index usage - no autofix since `.entries()` doesn't exist on strings
 		{
