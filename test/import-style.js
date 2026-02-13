@@ -714,6 +714,20 @@ test.babel({
 	].map(test => addDefaultOptions(test)),
 });
 
+test.typescript({
+	valid: [
+		{
+			code: 'import {type ChalkInstance} from \'chalk\'',
+			options: [],
+		},
+		{
+			code: 'import type {ChalkInstance} from \'chalk\'',
+			options: [],
+		},
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
 		'let a',
