@@ -4,7 +4,6 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const methodsReturnsArray = [
-	'concat',
 	'copyWithin',
 	'fill',
 	'filter',
@@ -12,7 +11,6 @@ const methodsReturnsArray = [
 	'flatMap',
 	'map',
 	'reverse',
-	'slice',
 	'sort',
 	'splice',
 	'toReversed',
@@ -27,8 +25,6 @@ const methodsReturnsArrayOrString = [
 	'concat',
 	'slice',
 ];
-
-const methodsReturnsOnlyArray = methodsReturnsArray.filter(method => !methodsReturnsArrayOrString.includes(method));
 
 test.snapshot({
 	valid: [
@@ -627,7 +623,7 @@ test.snapshot({
 		`,
 
 		// Methods
-		...methodsReturnsOnlyArray.map(method =>
+		...methodsReturnsArray.map(method =>
 			outdent`
 				const foo = bar.${method}();
 				function unicorn() {

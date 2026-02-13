@@ -80,17 +80,21 @@ const isMultipleCall = (identifier, node) => {
 };
 
 const isArrayMethodCall = node =>
+	// `[]`
 	node.type === 'ArrayExpression'
+	// `Array()` and `new Array()`
 	|| isCallOrNewExpression(node, {
 		name: 'Array',
 		optional: false,
 	})
+	// `Array.from()` and `Array.of()`
 	|| isMethodCall(node, {
 		object: 'Array',
 		methods: ['from', 'of'],
 		optionalCall: false,
 		optionalMember: false,
 	})
+	// Methods that return an array
 	|| isMethodCall(node, {
 		methods: methodsReturnsArray,
 		optionalCall: false,
