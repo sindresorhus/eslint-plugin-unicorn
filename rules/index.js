@@ -8,6 +8,7 @@ export {default as 'consistent-destructuring'} from './consistent-destructuring.
 export {default as 'consistent-empty-array-spread'} from './consistent-empty-array-spread.js';
 export {default as 'consistent-existence-index-check'} from './consistent-existence-index-check.js';
 export {default as 'consistent-function-scoping'} from './consistent-function-scoping.js';
+export {default as 'consistent-template-literal-escape'} from './consistent-template-literal-escape.js';
 export {default as 'custom-error-definition'} from './custom-error-definition.js';
 export {default as 'empty-brace-spaces'} from './empty-brace-spaces.js';
 export {default as 'error-message'} from './error-message.js';
