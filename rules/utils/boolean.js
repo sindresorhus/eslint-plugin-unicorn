@@ -22,11 +22,11 @@ const isVueBooleanAttributeValue = node =>
 	);
 const isDirectControlFlowTest = node =>
 	(
-		node.parent?.type === 'IfStatement'
-		|| node.parent?.type === 'ConditionalExpression'
-		|| node.parent?.type === 'WhileStatement'
-		|| node.parent?.type === 'DoWhileStatement'
-		|| node.parent?.type === 'ForStatement'
+		node.parent.type === 'IfStatement'
+		|| node.parent.type === 'ConditionalExpression'
+		|| node.parent.type === 'WhileStatement'
+		|| node.parent.type === 'DoWhileStatement'
+		|| node.parent.type === 'ForStatement'
 	)
 	&& node.parent.test === node;
 const isDirectBooleanExpression = node =>
