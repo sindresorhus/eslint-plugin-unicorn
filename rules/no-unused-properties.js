@@ -25,35 +25,22 @@ const specialProtoPropertyKey = {
 	name: '__proto__',
 };
 
-const normalizePropertyKey = key => key.type === 'JSXIdentifier'
-	? {
-		type: 'Identifier',
-		name: key.name,
+const getPropertyKeyName = key => {
+	if (key.type === 'Identifier' || key.type === 'JSXIdentifier') {
+		return key.name;
 	}
-	: key;
+
+	if (key.type === 'Literal') {
+		return key.value;
+	}
+};
 
 const propertyKeysEqual = (keyA, keyB) => {
-	keyA = normalizePropertyKey(keyA);
-	keyB = normalizePropertyKey(keyB);
+	const keyNameA = getPropertyKeyName(keyA);
+	const keyNameB = getPropertyKeyName(keyB);
 
-	if (keyA.type === 'Identifier') {
-		if (keyB.type === 'Identifier') {
-			return keyA.name === keyB.name;
-		}
-
-		if (keyB.type === 'Literal') {
-			return keyA.name === keyB.value;
-		}
-	}
-
-	if (keyA.type === 'Literal') {
-		if (keyB.type === 'Identifier') {
-			return keyA.value === keyB.name;
-		}
-
-		if (keyB.type === 'Literal') {
-			return keyA.value === keyB.value;
-		}
+	if (keyNameA !== undefined && keyNameB !== undefined) {
+		return keyNameA === keyNameB;
 	}
 
 	return false;
