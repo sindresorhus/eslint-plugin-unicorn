@@ -132,6 +132,30 @@ test.snapshot({
 			config.enabled = true;
 			export {config};
 		`,
+		// Export default with pure object literal (no calls)
+		outdent`
+			const create = () => {};
+			export default { create, meta: { type: 'problem' } };
+		`,
+		// Export default with pure array literal (no calls)
+		outdent`
+			const a = 1;
+			const b = 2;
+			export default [a, b];
+		`,
+		// Pure-annotated export default call expression
+		outdent`
+			export default /* @__PURE__ */ setup();
+		`,
+		// Pure notation with # prefix
+		outdent`
+			export default /* #__PURE__ */ setup();
+		`,
+		// Pure-annotated bare call expression
+		outdent`
+			/* @__PURE__ */ setup();
+			export const x = 1;
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports

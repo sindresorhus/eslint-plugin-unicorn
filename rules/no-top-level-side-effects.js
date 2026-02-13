@@ -164,12 +164,85 @@ const safeDefaultExportTypes = new Set([
 ]);
 
 /**
+Check if an expression contains no side effects (no calls, new, tagged templates).
+Recursively checks object/array literals.
+*/
+const isPureExpression = node => {
+	switch (node.type) {
+		case 'Identifier':
+		case 'Literal':
+		case 'TemplateLiteral':
+		case 'FunctionExpression':
+		case 'ArrowFunctionExpression': {
+			return true;
+		}
+
+		case 'ObjectExpression': {
+			return node.properties.every(property =>
+				property.type === 'SpreadElement'
+					? isPureExpression(property.argument)
+					: isPureExpression(property.value),
+			);
+		}
+
+		case 'ArrayExpression': {
+			return node.elements.every(element => {
+				if (!element) {
+					return true;
+				}
+
+				return element.type === 'SpreadElement'
+					? isPureExpression(element.argument)
+					: isPureExpression(element);
+			});
+		}
+
+		case 'MemberExpression': {
+			return isPureExpression(node.object);
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
+/**
+Check if a node has a `@__PURE__` or `#__PURE__` leading comment annotation.
+These annotations signal that a call expression has no side effects.
+@see https://github.com/javascript-compiler-hints/compiler-notations-spec
+*/
+const hasPureAnnotation = (node, sourceCode) => {
+	const comments = sourceCode.getCommentsBefore(node);
+	return comments.some(comment =>
+		comment.type === 'Block' && /[#@]__PURE__/.test(comment.value),
+	);
+};
+
+/**
 Check if an `export default` declaration has side effects.
 Safe: function/class declarations, function expressions, identifiers, literals.
 Unsafe: call expressions, new expressions, tagged templates, object/array literals
 (which can contain call expressions in values), comma expressions, etc.
+Pure-annotated call expressions (`@__PURE__` / `#__PURE__`) are also safe.
 */
-const isDefaultExportSideEffect = node => !safeDefaultExportTypes.has(node.declaration.type);
+const isDefaultExportSideEffect = (node, sourceCode) => {
+	const {declaration} = node;
+
+	if (safeDefaultExportTypes.has(declaration.type)) {
+		return false;
+	}
+
+	if (isPureExpression(declaration)) {
+		return false;
+	}
+
+	if (hasPureAnnotation(declaration, sourceCode)) {
+		return false;
+	}
+
+	return true;
+};
 
 /**
 Check if an assignment expression is a CJS export (`module.exports`, `exports`).
@@ -212,7 +285,7 @@ const isLocalObjectMethodCall = (expression, localNames) => {
 	return rootName && localNames.has(rootName);
 };
 
-const isSideEffectStatement = (node, localNames) => {
+const isSideEffectStatement = (node, localNames, sourceCode) => {
 	// Declarations, exports, and imports are always safe
 	if (safeStatementTypes.has(node.type)) {
 		return false;
@@ -220,7 +293,7 @@ const isSideEffectStatement = (node, localNames) => {
 
 	// `export default <expression>` — safe only for declarations and simple values
 	if (node.type === 'ExportDefaultDeclaration') {
-		return isDefaultExportSideEffect(node);
+		return isDefaultExportSideEffect(node, sourceCode);
 	}
 
 	// Expression statements need further analysis
@@ -251,6 +324,14 @@ const isSideEffectStatement = (node, localNames) => {
 		) {
 			return false;
 		}
+
+		// Pure-annotated call expressions are safe
+		if (
+			expression.type === 'CallExpression'
+			&& hasPureAnnotation(expression, sourceCode)
+		) {
+			return false;
+		}
 	}
 
 	// All other top-level statements (if, for, while, throw, try, switch, etc.)
@@ -274,9 +355,10 @@ const create = context => {
 		}
 
 		const localNames = getTopLevelLocalNames(body);
+		const {sourceCode} = context;
 
 		for (const node of body) {
-			if (isSideEffectStatement(node, localNames)) {
+			if (isSideEffectStatement(node, localNames, sourceCode)) {
 				yield {
 					node,
 					messageId: MESSAGE_ID,
