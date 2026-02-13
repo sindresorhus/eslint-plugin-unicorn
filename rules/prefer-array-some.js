@@ -1,5 +1,10 @@
 import {checkVueTemplate} from './utils/rule.js';
-import {isBooleanNode, getParenthesizedRange, isNodeValueNotFunction} from './utils/index.js';
+import {
+	isBooleanExpression,
+	isControlFlowTest,
+	getParenthesizedRange,
+	isNodeValueNotFunction,
+} from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
 	isLiteral,
@@ -59,7 +64,7 @@ const create = context => {
 		}
 
 		const isCompare = isCheckingUndefined(callExpression);
-		if (!isCompare && !isBooleanNode(callExpression)) {
+		if (!isCompare && !(isBooleanExpression(callExpression) || isControlFlowTest(callExpression))) {
 			return;
 		}
 

@@ -16,7 +16,8 @@ export {
 } from './is-node-matches.js';
 
 export {
-	isBooleanNode,
+	isBooleanExpression,
+	isControlFlowTest,
 	getBooleanAncestor,
 } from './boolean.js';
 
