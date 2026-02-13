@@ -236,5 +236,21 @@ test.snapshot({
 			module.exports.foo = 1;
 			console.log('loaded');
 		`,
+		// Export default with new expression (constructor call is a side effect)
+		outdent`
+			export default new App();
+		`,
+		// Export default with object containing call expressions
+		outdent`
+			export default { data: fetchData() };
+		`,
+		// Export default with array containing call expressions
+		outdent`
+			export default [setup(), teardown()];
+		`,
+		// Export default with tagged template literal (side effect)
+		outdent`
+			export default html\`<div>hello</div>\`;
+		`,
 	],
 });

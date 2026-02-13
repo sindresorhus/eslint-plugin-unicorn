@@ -161,15 +161,13 @@ const safeDefaultExportTypes = new Set([
 	'ArrowFunctionExpression',
 	'Identifier',
 	'Literal',
-	'TemplateLiteral',
-	'ObjectExpression',
-	'ArrayExpression',
 ]);
 
 /**
 Check if an `export default` declaration has side effects.
-Safe: declarations, identifiers, literals, objects, arrays, functions.
-Unsafe: call expressions, comma expressions, etc.
+Safe: function/class declarations, function expressions, identifiers, literals.
+Unsafe: call expressions, new expressions, tagged templates, object/array literals
+(which can contain call expressions in values), comma expressions, etc.
 */
 const isDefaultExportSideEffect = node => !safeDefaultExportTypes.has(node.declaration.type);
 
