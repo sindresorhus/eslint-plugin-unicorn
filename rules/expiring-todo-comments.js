@@ -266,6 +266,7 @@ function semverComparisonForOperator(operator) {
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
+	ignoreDates: false,
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
 };
@@ -357,7 +358,7 @@ const create = context => {
 			uses++;
 			const [expirationDate] = dates;
 
-			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
+			const shouldIgnore = options.ignoreDates || (options.ignoreDatesOnPullRequests && ci.isPR);
 			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
@@ -551,6 +552,9 @@ const schema = [
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+			},
+			ignoreDates: {
+				type: 'boolean',
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
