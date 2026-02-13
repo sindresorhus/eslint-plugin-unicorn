@@ -83,6 +83,11 @@ test.snapshot({
 		`,
 		'/* eslint-disable */',
 		outdent`
+			// Test
+			/* eslint-disable */
+			eval();
+		`,
+		outdent`
 			foo();
 			/* eslint-disable */
 			eval();
