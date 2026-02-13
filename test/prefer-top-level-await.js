@@ -209,12 +209,27 @@ test.snapshot({
 				(async () => {})(),
 				/* hole */,
 				foo(),
+				foo?.(),
 				foo.then(bar),
 				foo.catch(bar),
 			]);
 			await Promise.allSettled([foo()]);
 			await Promise?.any([foo()]);
 			await Promise.race?.([foo()]);
+		`,
+		outdent`
+			async function getStat() {}
+			const [core, pure, bundle] = await Promise.all([
+				getStat('core-js'),
+				ALL && getStat('core-js-pure'),
+				ALL && getStat('core-js-bundle'),
+			]);
+		`,
+		outdent`
+			async function getStat() {}
+			const [core] = await Promise.all([
+				ALL ? getStat('core-js') : getStat('core-js-pure'),
+			]);
 		`,
 		outdent`
 			const foo = async () => {};
@@ -227,7 +242,13 @@ test.snapshot({
 			await promise;
 		`,
 	],
-	invalid: [],
+	invalid: [
+		outdent`
+			const runAsync = async () => {};
+			const value = true;
+			await Promise.all([runAsync() && value]);
+		`,
+	],
 });
 
 test.babel({
@@ -244,4 +265,3 @@ test.babel({
 	],
 	invalid: [],
 });
-
