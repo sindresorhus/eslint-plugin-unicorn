@@ -402,6 +402,26 @@ test({
 			`,
 			errors: [error],
 		},
+		{
+			code: outdent`
+				const styles = {
+					wrapper: styled('div', {}),
+					unused: styled('div', {}),
+				};
+
+				function Component() {
+					return <styles.wrapper />;
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [error],
+		},
 	],
 });
 

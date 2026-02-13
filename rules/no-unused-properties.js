@@ -25,7 +25,17 @@ const specialProtoPropertyKey = {
 	name: '__proto__',
 };
 
+const normalizePropertyKey = key => key.type === 'JSXIdentifier'
+	? {
+		type: 'Identifier',
+		name: key.name,
+	}
+	: key;
+
 const propertyKeysEqual = (keyA, keyB) => {
+	keyA = normalizePropertyKey(keyA);
+	keyB = normalizePropertyKey(keyB);
+
 	if (keyA.type === 'Identifier') {
 		if (keyB.type === 'Identifier') {
 			return keyA.name === keyB.name;
@@ -137,7 +147,10 @@ const create = context => {
 						return;
 					}
 
-					if (parent.type === 'MemberExpression') {
+					if (
+						parent.type === 'MemberExpression'
+						|| parent.type === 'JSXMemberExpression'
+					) {
 						if (
 							isMemberExpressionAssignment(parent)
 							|| isMemberExpressionCall(parent)
