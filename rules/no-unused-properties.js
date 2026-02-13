@@ -37,13 +37,7 @@ const getPropertyKeyName = key => {
 
 const propertyKeysEqual = (keyA, keyB) => {
 	const keyNameA = getPropertyKeyName(keyA);
-	const keyNameB = getPropertyKeyName(keyB);
-
-	if (keyNameA !== undefined && keyNameB !== undefined) {
-		return keyNameA === keyNameB;
-	}
-
-	return false;
+	return keyNameA !== undefined && keyNameA === getPropertyKeyName(keyB);
 };
 
 const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
