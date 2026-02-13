@@ -210,6 +210,27 @@ test({
 			const {a: b} = foo;
 			console.log(foo.b);
 		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			foo = baz;
+			console.log(foo.a);
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			{
+				foo = baz;
+			}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			{
+				const foo = bar;
+				console.log(foo.a);
+			}
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -433,6 +454,24 @@ test({
 			`,
 			suggestions: [outdent`
 				const {a, ...b} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				let foo = bar;
+				const {a} = foo;
+				function reassign() {
+					foo = baz;
+				}
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				let foo = bar;
+				const {a} = foo;
+				function reassign() {
+					foo = baz;
+				}
 				console.log(a);
 			`],
 		}),

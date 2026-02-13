@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {getAvailableVariableName, isLeftHandSide} from './utils/index.js';
 import {isCallOrNewExpression} from './ast/index.js';
 
@@ -33,6 +34,36 @@ const isChildInParentScope = (child, parent) => {
 	return false;
 };
 
+const getRootIdentifier = expression => {
+	while (expression?.type === 'MemberExpression') {
+		expression = expression.object;
+	}
+
+	return expression?.type === 'Identifier' ? expression : undefined;
+};
+
+const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
+	if (!declaration.rootVariable) {
+		return false;
+	}
+
+	const [, declarationEnd] = sourceCode.getRange(declaration.object);
+	const [memberStart] = sourceCode.getRange(memberExpressionNode);
+
+	return declaration.rootVariable.references.some(reference => {
+		if (!reference.isWrite()) {
+			return false;
+		}
+
+		if (reference.from.variableScope !== memberScope.variableScope) {
+			return false;
+		}
+
+		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
+		return referenceStart >= declarationEnd && referenceEnd <= memberStart;
+	});
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -49,9 +80,12 @@ const create = context => {
 			return;
 		}
 
+		const rootIdentifier = getRootIdentifier(node.init);
 		declarations.set(sourceCode.getText(node.init), {
 			scope: sourceCode.getScope(node),
-			variables: sourceCode.getDeclaredVariables(node),
+			object: node.init,
+			rootIdentifierName: rootIdentifier?.name,
+			rootVariable: rootIdentifier && findVariable(sourceCode.getScope(node), rootIdentifier),
 			objectPattern: node.id,
 		});
 	});
@@ -74,8 +108,22 @@ const create = context => {
 			return;
 		}
 
-		const {scope, objectPattern} = declaration;
 		const memberScope = sourceCode.getScope(node);
+		const memberRootIdentifier = getRootIdentifier(node.object);
+		const memberRootVariable = memberRootIdentifier && findVariable(memberScope, memberRootIdentifier);
+		if (
+			declaration.rootIdentifierName
+			&& memberRootIdentifier?.name === declaration.rootIdentifierName
+			&& memberRootVariable !== declaration.rootVariable
+		) {
+			return;
+		}
+
+		if (isRootVariableReassigned(declaration, node, memberScope, sourceCode)) {
+			return;
+		}
+
+		const {scope, objectPattern} = declaration;
 
 		// Property is destructured outside the current scope
 		if (!isChildInParentScope(memberScope, scope)) {
