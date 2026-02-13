@@ -80,6 +80,19 @@ test({
 			output: 'const Items = []; Items.flat();',
 			errors: 1,
 		},
+		{
+			code: outdent`
+				for (const value of values) {
+					value.flatMap(x => x);
+				}
+			`,
+			output: outdent`
+				for (const value of values) {
+					value.flat();
+				}
+			`,
+			errors: 1,
+		},
 	],
 });
 
