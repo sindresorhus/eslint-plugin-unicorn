@@ -4,7 +4,6 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const methodsReturnsArray = [
-	'concat',
 	'copyWithin',
 	'fill',
 	'filter',
@@ -12,7 +11,6 @@ const methodsReturnsArray = [
 	'flatMap',
 	'map',
 	'reverse',
-	'slice',
 	'sort',
 	'splice',
 	'toReversed',
@@ -21,6 +19,11 @@ const methodsReturnsArray = [
 	'with',
 	'toArray',
 	'split',
+];
+
+const methodsReturnsArrayOrString = [
+	'concat',
+	'slice',
 ];
 
 test.snapshot({
@@ -378,6 +381,12 @@ test.snapshot({
 				return foo.includes(1);
 			}
 		`,
+		...methodsReturnsArrayOrString.map(method => outdent`
+			const foo = bar.${method}();
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`),
 
 		// `lodash`
 		outdent`
@@ -385,6 +394,18 @@ test.snapshot({
 			function unicorn() {
 				return _.includes(foo, 1);
 			}
+		`,
+		outdent`
+			const text = 'abc'.slice();
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`abc\`.concat('def');
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`${1}abc\`.slice();
+			text.includes('ab') || text.includes('bc');
 		`,
 	],
 	invalid: [
@@ -610,6 +631,14 @@ test.snapshot({
 				}
 			`,
 		),
+		outdent`
+			const foo = [1, 2, 3].slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const foo = [1, 2, 3].concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
 
 		// `lodash`
 		// `bar` is not `array`, but code not broken
