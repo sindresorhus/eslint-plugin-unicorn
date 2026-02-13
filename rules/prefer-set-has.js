@@ -125,9 +125,7 @@ const create = context => {
 				parent.parent.parent.type === 'ExportNamedDeclaration'
 				&& parent.parent.parent.declaration === parent.parent
 			)
-			&& (
-				isArrayMethodCall(parent.init)
-			)
+			&& isArrayMethodCall(parent.init)
 		)) {
 			return;
 		}
