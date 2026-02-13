@@ -90,6 +90,26 @@ test({
 			output: String.raw`const foo = /\w/gi`,
 		},
 		{
+			code: String.raw`const expression = /|/`,
+			errors: createError(String.raw`/|/`, String.raw`/(?:)/`),
+			output: String.raw`const expression = /(?:)/`,
+		},
+		{
+			code: String.raw`const expression = /|/g`,
+			errors: createError(String.raw`/|/g`, String.raw`/(?:)/g`),
+			output: String.raw`const expression = /(?:)/g`,
+		},
+		{
+			code: String.raw`const expression = /(?:)|/`,
+			errors: createError(String.raw`/(?:)|/`, String.raw`/(?:)/`),
+			output: String.raw`const expression = /(?:)/`,
+		},
+		{
+			code: String.raw`const expression = /(?:)|/g`,
+			errors: createError(String.raw`/(?:)|/g`, String.raw`/(?:)/g`),
+			output: String.raw`const expression = /(?:)/g`,
+		},
+		{
 			code: 'const foo = /[0-9]/',
 			errors: createError('/[0-9]/', String.raw`/\d/`),
 			output: String.raw`const foo = /\d/`,
