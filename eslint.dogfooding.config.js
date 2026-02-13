@@ -59,6 +59,15 @@ const config = [
 			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},
+	{
+		files: [
+			'rules/no-unnecessary-polyfills.js',
+		],
+		rules: {
+			// Uses top-level `for` loop to build polyfill lookup tables
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
 ];
 
 // Create rule to allow inline config to disable
