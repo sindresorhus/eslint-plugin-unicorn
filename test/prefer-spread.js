@@ -146,7 +146,11 @@ test.snapshot({
 		'Array.from([...a, ...b], )',
 		'Array.from([1])',
 		'Array.from([...a, ...b])',
+		'Array.from((/* keep */ [1]))',
+		'Array.from((/* comment */ foo))',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
+		// Comments inside should prevent autofix
+		'Array.from(/* comment */ foo)',
 	],
 });
 
@@ -284,6 +288,37 @@ test.snapshot({
 		`,
 		// This not considered `Array#join()` since there are more than one argument
 		'foo.join(foo, bar).concat("...")',
+		'foo.concat((/* keep */ [1]))',
+		'[1].concat([/* keep */ 2])',
+		'[1].concat([2, /* keep */], [3])',
+		'foo.concat((/* keep */ []))',
+		'foo.concat([/* keep */])',
+		'foo.concat([1], /* keep */ bar)',
+		'foo.concat(/* keep */ [1], bar)',
+		outdent`
+			foo.concat(
+				// keep
+				[1],
+				bar,
+			)
+		`,
+		outdent`
+			foo.concat(
+				// keep
+				[1],
+			)
+		`,
+		'foo/* keep */.concat([1], bar)',
+		'foo.concat(/* keep */ [1])',
+		'foo/* keep */.concat([1])',
+		// Comments inside should prevent autofix
+		'[1].concat(/* comment */ 2)',
+		outdent`
+			[1].concat(
+				// eslint-disable-next-line no-restricted-syntax
+				[2, 3],
+			)
+		`,
 	],
 });
 
@@ -352,6 +387,9 @@ test.snapshot({
 		'array.slice(0b0)',
 		'array.slice(0.00)',
 		'array.slice(0.00, )',
+		'(/* comment */ array).slice()',
+		// Comments inside should prevent autofix
+		'array.slice(/* comment */)',
 	],
 });
 
@@ -391,6 +429,8 @@ test.snapshot({
 		// `{String,TypedArray}#toSpliced` are wrongly detected
 		'"".toSpliced()',
 		'new Uint8Array([10, 20, 30, 40, 50]).toSpliced()',
+		// Comments inside should prevent autofix
+		'array.toSpliced(/* comment */)',
 	],
 });
 
@@ -434,5 +474,8 @@ test.snapshot({
 		// Not result the same
 		'"🦄".split("")',
 		'const {length} = "🦄".split("")',
+		// Comments inside should prevent autofix
+		'"string".split(/* comment */ "")',
+		'unknown.split(/* comment */ "")',
 	],
 });

@@ -1,5 +1,11 @@
-import {getStaticValue, isCommaToken, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	getStaticValue,
+	isCommaToken,
+	isCommentToken,
+	hasSideEffect,
+} from '@eslint-community/eslint-utils';
+import {
+	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
 	needsSemicolon,
@@ -8,7 +14,7 @@ import {
 	hasOptionalChainElement,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
-import {isLiteral, isMethodCall} from './ast/index.js';
+import {isLiteral, isMethodCall, isEmptyArrayExpression} from './ast/index.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -30,7 +36,7 @@ const messages = {
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
-	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments`.',
+	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments.',
 	[SUGGESTION_USE_SPREAD]: 'Use `...` operator.',
 };
 
@@ -66,12 +72,31 @@ function isTypedArrayConstruction(node) {
 }
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
+const hasArrayHoles = node => node.elements.some(element => element?.type === undefined);
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
-	if (node.elements.length === 0) {
+	if (isEmptyArrayExpression(node)) {
 		return false;
 	}
 
 	return isCommaToken(sourceCode.getLastToken(node, 1));
+};
+
+const isArrayLiteralOuterCommentsPreservable = (node, context) => {
+	if (hasArrayHoles(node)) {
+		return false;
+	}
+
+	const parentheses = getParentheses(node, context);
+	if (parentheses.length === 0) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const hasCommentBetween = (a, b) =>
+		sourceCode.getTokensBetween(a, b, {includeComments: true})
+			.some(token => isCommentToken(token));
+
+	return hasCommentBetween(parentheses[0], node) || hasCommentBetween(node, parentheses.at(-1));
 };
 
 function fixConcat(node, context, fixableArguments) {
@@ -97,12 +122,16 @@ function fixConcat(node, context, fixableArguments) {
 
 	const getFixedText = () => {
 		const nonEmptyArguments = fixableArguments
-			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || node.elements.length > 0));
+			.filter(({node, isArrayLiteral}) => (!isArrayLiteral || !isEmptyArrayExpression(node)));
 		const lastArgument = nonEmptyArguments.at(-1);
 
 		let text = nonEmptyArguments
 			.map(({node, isArrayLiteral, isSpreadable, testArgument}) => {
 				if (isArrayLiteral) {
+					if (isArrayLiteralOuterCommentsPreservable(node, context)) {
+						return `...${getParenthesizedText(node, context)}`;
+					}
+
 					return getArrayLiteralElementsText(node, node === lastArgument.node);
 				}
 
@@ -125,7 +154,7 @@ function fixConcat(node, context, fixableArguments) {
 		}
 
 		if (arrayIsArrayLiteral) {
-			if (array.elements.length > 0) {
+			if (!isEmptyArrayExpression(array)) {
 				text = ` ${text}`;
 
 				if (!arrayHasTrailingComma) {
@@ -181,7 +210,7 @@ function fixConcat(node, context, fixableArguments) {
 			const closingBracketToken = sourceCode.getLastToken(array);
 			yield fixer.insertTextBefore(closingBracketToken, text);
 		} else {
-			// The array is already accessing `.concat`, there should not any case need add extra `()`
+			// The array is already accessing `.concat`, there should be no case where extra `()` are needed.
 			yield fixer.insertTextBeforeRange(arrayParenthesizedRange, '[...');
 			yield fixer.insertTextAfterRange(arrayParenthesizedRange, text);
 			yield fixer.insertTextAfterRange(arrayParenthesizedRange, ']');
@@ -263,7 +292,7 @@ function methodCallToSpread(node, context) {
 		yield fixer.insertTextBefore(node, '[...');
 		yield fixer.insertTextAfter(node, ']');
 
-		// The array is already accessing `.slice` or `.split`, there should not any case need add extra `()`
+		// The array is already accessing `.slice` or `.split`, there should be no case where extra `()` are needed.
 
 		yield removeMethodCall(fixer, node, context);
 	};
@@ -307,6 +336,76 @@ function isNotArray(node, scope) {
 const create = context => {
 	const {sourceCode} = context;
 
+	// Any inner comment outside preserved ranges means the autofix would relocate or drop comments.
+	const hasCommentsOutsideRanges = (node, preservedRanges) => sourceCode.getCommentsInside(node).some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return !preservedRanges.some(([start, end]) => commentStart >= start && commentEnd <= end);
+	});
+
+	const hasExtraComments = (node, preservedNodeOrRange) => {
+		const preservedRange = Array.isArray(preservedNodeOrRange)
+			? preservedNodeOrRange
+			: getParenthesizedRange(preservedNodeOrRange, context);
+
+		return hasCommentsOutsideRanges(node, [preservedRange]);
+	};
+
+	// Collect ranges whose comments are guaranteed to survive the concat-to-spread fix.
+	const getConcatPreservedRanges = (node, fixedArgumentsCount) => {
+		const fixedArguments = node.arguments.slice(0, fixedArgumentsCount);
+		// Needed to decide whether a trailing comma comment can still stay in place.
+		const lastNonEmptyFixedArgument = fixedArguments.findLast(argument =>
+			!isArrayLiteral(argument)
+			|| !isEmptyArrayExpression(argument),
+		);
+		const preservedRanges = [
+			getParenthesizedRange(node.callee.object, context),
+			...fixedArguments.flatMap(argument => {
+				if (isArrayLiteral(argument)) {
+					if (isEmptyArrayExpression(argument)) {
+						return [];
+					}
+
+					if (isArrayLiteralOuterCommentsPreservable(argument, context)) {
+						return [getParenthesizedRange(argument, context)];
+					}
+
+					const arrayRange = sourceCode.getRange(argument);
+
+					if (
+						isArrayLiteralHasTrailingComma(argument, sourceCode)
+						&& argument !== lastNonEmptyFixedArgument
+					) {
+						const [trailingCommaStart] = sourceCode.getRange(sourceCode.getLastToken(argument, 1));
+
+						// Preserve comments after the last element but before trailing comma,
+						// since the comma itself disappears when this argument is flattened.
+						return [[arrayRange[0] + 1, trailingCommaStart]];
+					}
+
+					if (hasArrayHoles(argument)) {
+						// Hole positions must stay stable, so preserve the full literal range.
+						return [arrayRange];
+					}
+				}
+
+				return [getParenthesizedRange(argument, context)];
+			}),
+		];
+
+		if (fixedArgumentsCount < node.arguments.length) {
+			// Comments between `.concat(` and the first fixed argument can be moved to the
+			// remaining arguments by the partial fix, so they are intentionally not preserved.
+			const lastFixedArgument = fixedArguments.at(-1);
+			const commaToken = sourceCode.getTokenAfter(lastFixedArgument, isCommaToken);
+			const [, start] = sourceCode.getRange(commaToken);
+			const [, end] = sourceCode.getRange(node);
+			preservedRanges.push([start, end]);
+		}
+
+		return preservedRanges;
+	};
+
 	// `Array.from()`
 	context.on('CallExpression', node => {
 		if (
@@ -320,10 +419,15 @@ const create = context => {
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
 		) {
+			const [firstArgument] = node.arguments;
+			const preservedRange = isArrayLiteral(firstArgument)
+				? sourceCode.getRange(firstArgument)
+				: getParenthesizedRange(firstArgument, context);
+
 			return {
 				node,
 				messageId: ERROR_ARRAY_FROM,
-				fix: fixArrayFrom(node, context),
+				...(!hasExtraComments(node, preservedRange) && {fix: fixArrayFrom(node, context)}),
 			};
 		}
 	});
@@ -345,11 +449,6 @@ const create = context => {
 			return;
 		}
 
-		const staticResult = getStaticValue(object, scope);
-		if (staticResult && !Array.isArray(staticResult.value)) {
-			return;
-		}
-
 		const problem = {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_CONCAT,
@@ -358,7 +457,10 @@ const create = context => {
 		const fixableArguments = getConcatFixableArguments(node.arguments, scope);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
-			problem.fix = fixConcat(node, context, fixableArguments);
+			if (!hasCommentsOutsideRanges(node, getConcatPreservedRanges(node, fixableArguments.length))) {
+				problem.fix = fixConcat(node, context, fixableArguments);
+			}
+
 			return problem;
 		}
 
@@ -454,7 +556,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_SLICE,
-			fix: methodCallToSpread(node, context),
+			...(!hasExtraComments(node, node.callee.object) && {fix: methodCallToSpread(node, context)}),
 		};
 	});
 
@@ -475,7 +577,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_TO_SPLICED,
-			fix: methodCallToSpread(node, context),
+			...(!hasExtraComments(node, node.callee.object) && {fix: methodCallToSpread(node, context)}),
 		};
 	});
 
@@ -518,7 +620,7 @@ const create = context => {
 			messageId: ERROR_STRING_SPLIT,
 		};
 
-		if (hasSameResult) {
+		if (hasSameResult && !hasExtraComments(node, node.callee.object)) {
 			problem.fix = methodCallToSpread(node, context);
 		} else {
 			problem.suggest = [
