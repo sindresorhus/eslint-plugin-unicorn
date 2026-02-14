@@ -8,6 +8,7 @@ import {
 const MESSAGE_ID_ITERABLE_ACCEPTING = 'iterable-accepting';
 const MESSAGE_ID_FOR_OF = 'for-of';
 const MESSAGE_ID_YIELD_STAR = 'yield-star';
+const MESSAGE_ID_SPREAD = 'spread';
 const MESSAGE_ID_ITERATOR_METHOD = 'iterator-method';
 const MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING = 'iterable-accepting/suggestion';
 const MESSAGE_ID_SUGGESTION_ITERATOR_METHOD = 'iterator-method/suggestion';
@@ -16,6 +17,7 @@ const messages = {
 	[MESSAGE_ID_ITERABLE_ACCEPTING]: '`{{description}}` accepts an iterable, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_FOR_OF]: '`for…of` can iterate over an iterable, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_YIELD_STAR]: '`yield*` can delegate to an iterable, `.toArray()` is unnecessary.',
+	[MESSAGE_ID_SPREAD]: 'Spread works on iterables, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_ITERATOR_METHOD]: '`Iterator` has a `.{{method}}()` method, `.toArray()` is unnecessary.',
 	[MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING]: 'Remove `.toArray()`.',
 	[MESSAGE_ID_SUGGESTION_ITERATOR_METHOD]: 'Remove `.toArray()` and use `Iterator#{{method}}()`.',
@@ -154,6 +156,29 @@ const create = context => {
 		return {
 			node: node.argument.callee.property,
 			messageId: MESSAGE_ID_YIELD_STAR,
+			fix: fixer => removeMethodCall(fixer, node.argument, context),
+		};
+	});
+
+	// Case 6 & 7: `[...iterator.toArray()]`, `call(...iterator.toArray())`
+	// Spread works on iterables — `.toArray()` is unnecessary.
+	context.on('SpreadElement', node => {
+		if (!isToArrayCall(node.argument)) {
+			return;
+		}
+
+		const {parent} = node;
+		if (
+			parent.type !== 'ArrayExpression'
+			&& parent.type !== 'CallExpression'
+			&& parent.type !== 'NewExpression'
+		) {
+			return;
+		}
+
+		return {
+			node: node.argument.callee.property,
+			messageId: MESSAGE_ID_SPREAD,
 			fix: fixer => removeMethodCall(fixer, node.argument, context),
 		};
 	});
