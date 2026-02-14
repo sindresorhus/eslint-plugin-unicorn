@@ -47,6 +47,16 @@ test.snapshot({
 		'function foo() { return iterator.toArray() }',
 		'foo(iterator.toArray())',
 
+		// Spread — not `.toArray()`
+		'[...iterator]',
+		'call(...iterator)',
+
+		// Spread — optional chaining
+		'[...iterator?.toArray()]',
+		'[...iterator.toArray?.()]',
+		'call(...iterator?.toArray())',
+		'call(...iterator.toArray?.())',
+
 		// Not a direct `.toArray()` — computed property
 		'new Set(iterator["toArray"]())',
 
@@ -137,6 +147,16 @@ test.snapshot({
 				.toArray()
 				.every(x => x > 0);
 		`,
+
+		// Case 6: Spread in array literal
+		'[...iterator.toArray()]',
+		'[a, ...iterator.toArray()]',
+		'[...iterator.toArray(), b]',
+
+		// Case 7: Spread in function call / new expression
+		'call(...iterator.toArray())',
+		'call(a, ...iterator.toArray())',
+		'new Foo(...iterator.toArray())',
 
 		// Parenthesized
 		'new Set((iterator.toArray()))',
