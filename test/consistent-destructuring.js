@@ -166,6 +166,46 @@ test({
 			console.log(b.a);
 		`,
 		outdent`
+			const t = {a: {b: {c: 0, d: 1, e: 2}}};
+			const {
+				a: {
+					b: {c, ...other}
+				}
+			} = t;
+			const tt = {...t, a: {...t.a, b: other}};
+		`,
+		outdent`
+			const t = {
+				get a() {
+					return {b: {c: 0, d: 1, e: 2}};
+				}
+			};
+			const {
+				a: {
+					b: {c, ...other}
+				}
+			} = t;
+			console.log(t.a, other);
+		`,
+		outdent`
+			const {
+				a: {
+					b,
+					...other
+				} = fallback
+			} = foo;
+			console.log(foo.a, b, other);
+		`,
+		outdent`
+			const {
+				a: [
+					b,
+					...other
+				]
+			} = foo;
+			console.log(foo.a, b, other);
+		`,
+		outdent`
 			function bar() {
 				const {a} = foo;
 			}
@@ -368,6 +408,28 @@ test({
 					a: {
 						b
 					}, a
+				} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {
+					a: {
+						b,
+						...other
+					},
+					a
+				} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				const {
+					a: {
+						b,
+						...other
+					},
+					a
 				} = foo;
 				console.log(a);
 			`],
