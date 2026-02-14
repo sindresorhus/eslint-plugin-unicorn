@@ -1,5 +1,6 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
+import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
@@ -1505,6 +1506,94 @@ test({
 				}
 			`,
 			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// TDZ: variable referenced in the if-condition should not merge with declaration
+		{
+			code: outdent`
+				function unicorn() {
+					let foo;
+					if (foo) {
+						foo = 1;
+					} else {
+						foo = 2;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					let foo;
+					foo = foo ? 1 : 2;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// Comments between declaration and if should not be dropped
+		{
+			code: outdent`
+				function unicorn() {
+					let foo;
+					// keep me
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					let foo;
+					// keep me
+					foo = test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// Block comment between declaration and if should not be dropped
+		{
+			code: outdent`
+				function unicorn() {
+					let foo;
+					/* keep me */
+					if (test) {
+						foo = a;
+					} else {
+						foo = b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					let foo;
+					/* keep me */
+					foo = test ? a : b;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			errors,
+		},
+		// TypeScript annotation should be preserved when merging with declaration
+		{
+			code: outdent`
+				function unicorn() {
+					let foo: number;
+					if (test) {
+						foo = 1;
+					} else {
+						foo = 2;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					let foo: number = test ? 1 : 2;
+				}
+			`,
+			options: onlyAssignmentsOptions,
+			languageOptions: {parser: parsers.typescript},
 			errors,
 		},
 	],

@@ -286,6 +286,25 @@ const create = context => {
 			if (precedingVariableDeclaration && sourceCode.getCommentsInside(precedingVariableDeclaration).length > 0) {
 				precedingVariableDeclaration = undefined;
 			}
+
+			// Don't merge if the declared variable is referenced in the if-condition (TDZ error)
+			if (precedingVariableDeclaration) {
+				const variableName = precedingVariableDeclaration.declarations[0].id.name;
+				const tokens = sourceCode.getTokens(node.test);
+				if (tokens.some(token => token.type === 'Identifier' && token.value === variableName)) {
+					precedingVariableDeclaration = undefined;
+				}
+			}
+
+			// Don't merge if there are comments between the declaration and the if-statement
+			if (precedingVariableDeclaration) {
+				const tokensBetween = sourceCode.getTokensBetween(
+					precedingVariableDeclaration, node, {includeComments: true},
+				);
+				if (tokensBetween.some(token => token.type === 'Line' || token.type === 'Block')) {
+					precedingVariableDeclaration = undefined;
+				}
+			}
 		}
 
 		const scope = sourceCode.getScope(node);
@@ -327,9 +346,8 @@ const create = context => {
 
 			// Combine with preceding variable declaration if found
 			if (precedingVariableDeclaration) {
-				const {kind} = precedingVariableDeclaration;
-				const variableName = precedingVariableDeclaration.declarations[0].id.name;
-				const fixed = `${kind} ${variableName} = ${testText} ? ${consequentText} : ${alternateText};`;
+				const declarationText = sourceCode.getText(precedingVariableDeclaration).replace(/;$/, '');
+				const fixed = `${declarationText} = ${testText} ? ${consequentText} : ${alternateText};`;
 
 				// Remove the variable declaration including trailing whitespace up to the if-else
 				const declarationRange = sourceCode.getRange(precedingVariableDeclaration);
