@@ -208,14 +208,14 @@ const isPureExpression = node => {
 };
 
 /**
-Check if a node has a `@__PURE__` or `#__PURE__` leading comment annotation.
-These annotations signal that a call expression has no side effects.
+Check if a node has a pure/no-side-effects leading comment annotation.
+Supports `@__PURE__`, `#__PURE__`, `@__NO_SIDE_EFFECTS__`, and `#__NO_SIDE_EFFECTS__`.
 @see https://github.com/javascript-compiler-hints/compiler-notations-spec
 */
 const hasPureAnnotation = (node, sourceCode) => {
 	const comments = sourceCode.getCommentsBefore(node);
 	return comments.some(comment =>
-		comment.type === 'Block' && /[#@]__PURE__/.test(comment.value),
+		comment.type === 'Block' && /[#@]__(?:PURE|NO_SIDE_EFFECTS)__/.test(comment.value),
 	);
 };
 
@@ -224,7 +224,7 @@ Check if an `export default` declaration has side effects.
 Safe: function/class declarations, function expressions, identifiers, literals.
 Unsafe: call expressions, new expressions, tagged templates, object/array literals
 (which can contain call expressions in values), comma expressions, etc.
-Pure-annotated call expressions (`@__PURE__` / `#__PURE__`) are also safe.
+Pure-annotated call expressions (`@__PURE__` / `#__PURE__` / `@__NO_SIDE_EFFECTS__` / `#__NO_SIDE_EFFECTS__`) are also safe.
 */
 const isDefaultExportSideEffect = (node, sourceCode) => {
 	const {declaration} = node;

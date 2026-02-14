@@ -156,6 +156,19 @@ test.snapshot({
 			/* @__PURE__ */ setup();
 			export const x = 1;
 		`,
+		// NO_SIDE_EFFECTS annotation on export default
+		outdent`
+			export default /* @__NO_SIDE_EFFECTS__ */ setup();
+		`,
+		// NO_SIDE_EFFECTS with # prefix
+		outdent`
+			export default /* #__NO_SIDE_EFFECTS__ */ setup();
+		`,
+		// NO_SIDE_EFFECTS on bare call expression
+		outdent`
+			/* @__NO_SIDE_EFFECTS__ */ setup();
+			export const x = 1;
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports
