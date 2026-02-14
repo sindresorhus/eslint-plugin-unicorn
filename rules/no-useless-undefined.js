@@ -77,6 +77,9 @@ const getFunction = scope => {
 	}
 };
 
+const isUndefinedReturnType = functionNode =>
+	functionNode.returnType?.typeAnnotation?.type === 'TSUndefinedKeyword';
+
 const isFunctionBindCall = node =>
 	!node.optional
 	&& node.callee.type === 'MemberExpression'
@@ -106,11 +109,7 @@ const create = context => {
 		};
 	};
 
-	const options = {
-		checkArguments: true,
-		checkArrowFunctionBody: true,
-		...context.options[0],
-	};
+	const options = context.options[0];
 
 	const removeNodeAndLeadingSpace = (node, fixer) =>
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, context);
@@ -122,10 +121,14 @@ const create = context => {
 			&& node.parent.type === 'ReturnStatement'
 			&& node.parent.argument === node
 		) {
+			const functionNode = getFunction(sourceCode.getScope(node));
+			if (functionNode?.returnType && !isUndefinedReturnType(functionNode)) {
+				return;
+			}
+
 			return getProblem(
 				node,
 				fixer => removeNodeAndLeadingSpace(node, fixer),
-				/* CheckFunctionReturnType */ true,
 			);
 		}
 	});
@@ -267,7 +270,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{checkArguments: true, checkArrowFunctionBody: true}],
 		messages,
 	},
 };

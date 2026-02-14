@@ -2,7 +2,10 @@ import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import semver from 'semver';
 import * as ci from 'ci-info';
-import getBuiltinRule from './utils/get-builtin-rule.js';
+import {
+	isEslintDisableOrEnableDirective,
+	getBuiltinRule,
+} from './utils/index.js';
 import {readPackageJson} from './shared/package-json.js';
 
 const baseRule = getBuiltinRule('no-warning-comments');
@@ -263,6 +266,7 @@ function semverComparisonForOperator(operator) {
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
+	ignoreDates: false,
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
 };
@@ -270,7 +274,6 @@ const DEFAULT_OPTIONS = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
-		...DEFAULT_OPTIONS,
 		date: new Date().toISOString().slice(0, 10),
 		...context.options[0],
 	};
@@ -285,7 +288,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const comments = sourceCode.getAllComments();
 	const unusedComments = comments
-		.filter(token => token.type !== 'Shebang')
+		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
@@ -355,7 +358,7 @@ const create = context => {
 			uses++;
 			const [expirationDate] = dates;
 
-			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
+			const shouldIgnore = options.ignoreDates || (options.ignoreDatesOnPullRequests && ci.isPR);
 			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
@@ -549,6 +552,9 @@ const schema = [
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+			},
+			ignoreDates: {
+				type: 'boolean',
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',

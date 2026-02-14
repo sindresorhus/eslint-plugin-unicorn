@@ -1313,6 +1313,25 @@ test({
 			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
 			errors,
 		},
+		{
+			code: outdent`
+				function *foo(bool) {
+					if (!bool) {
+						yield call(
+							setOnTop,
+							false,
+						);
+					} else {
+						yield call(
+							setOnTop,
+							true,
+							'normal',
+						); // Keep this comment.
+					}
+				}
+			`,
+			errors,
+		},
 	],
 });
 

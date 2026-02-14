@@ -8,6 +8,15 @@ test({
 			code: 'require("object-assign")',
 			options: [{targets: {node: '0.1.0'}}],
 		},
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2584
+		{
+			code: 'import regexpEscape from "regexp.escape"',
+			options: [{targets: {node: '18'}}],
+		},
+		{
+			code: 'require("core-js/full/regexp/escape")',
+			options: [{targets: {node: '18'}}],
+		},
 		{
 			code: 'require("this-is-not-a-polyfill")',
 			options: [{targets: {node: '0.1.0'}}],
@@ -109,8 +118,23 @@ test({
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
+			code: 'require("promiseall-settled-polyfill")',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
 			code: 'require("es6-promise")',
 			options: [{targets: 'node >15'}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("es.prototype.array.find")',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("polyfill-es.prototype.array.find")',
+			options: [{targets: {node: '20'}}],
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
@@ -159,6 +183,11 @@ test({
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
+			code: 'require("arrayevery-polyfill")',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
 			code: 'require("mdn-polyfills/Array.prototype.findIndex")',
 			options: [{targets: 'node 4'}],
 			errors: [{message: 'Use built-in instead.'}],
@@ -172,6 +201,17 @@ test({
 			code: 'require("typed-array-float64-array-polyfill")',
 			options: [{targets: 'node 17'}],
 			errors: [{message: 'Use built-in instead.'}],
+		},
+		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2584
+		{
+			code: 'import regexpEscape from "regexp.escape"',
+			options: [{targets: {node: '24'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("core-js/full/regexp/escape")',
+			options: [{targets: {node: '24'}}],
+			errors: [{message: 'All polyfilled features imported from `core-js/full/regexp/escape` are available as built-ins. Use the built-ins instead.'}],
 		},
 	],
 });

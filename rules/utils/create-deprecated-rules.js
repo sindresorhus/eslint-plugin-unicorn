@@ -1,3 +1,4 @@
+import getDocumentationUrl from './get-documentation-url.js';
 import packageJson from '../../package.json' with {type: 'json'};
 
 const repoUrl = 'https://github.com/sindresorhus/eslint-plugin-unicorn';
@@ -20,7 +21,12 @@ export default function createDeprecatedRules(rules) {
 						deprecated: {
 							message: deprecatedInfo.message,
 							url,
-							replacedBy: deprecatedInfo.replacedBy,
+							replacedBy: deprecatedInfo.replacedBy.map(replacementRuleId => ({
+								rule: {
+									name: replacementRuleId,
+									url: getDocumentationUrl(replacementRuleId),
+								},
+							})),
 						},
 					},
 				},

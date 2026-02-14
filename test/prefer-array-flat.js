@@ -29,6 +29,73 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [
+		outdent`
+			const randomObject = {
+				flatMap(function_) {
+					function_();
+				},
+			};
+			randomObject.flatMap(x => x);
+		`,
+		'Effects.flatMap(x => x)',
+		outdent`
+			const effects = {
+				flatMap(function_) {
+					function_();
+				},
+			};
+			effects.flatMap(x => x);
+		`,
+		'const effects = new Set(); effects.flatMap(x => x);',
+		'const mapping = new Map(); mapping.flatMap(x => x);',
+		'const text = ""; text.flatMap(x => x);',
+		'const handler = () => {}; handler.flatMap(x => x);',
+		'const collection = new Foo(); collection.flatMap(x => x);',
+	],
+	invalid: [
+		{
+			code: 'array.flatMap((x) => x)',
+			output: 'array.flat()',
+			errors: 1,
+		},
+		{
+			code: 'Foo.bar.flatMap(x => x)',
+			output: 'Foo.bar.flat()',
+			errors: 1,
+		},
+		{
+			code: 'const values = getValues(); values.flatMap(x => x);',
+			output: 'const values = getValues(); values.flat();',
+			errors: 1,
+		},
+		{
+			code: 'const values = []; values.flatMap(x => x);',
+			output: 'const values = []; values.flat();',
+			errors: 1,
+		},
+		{
+			code: 'const Items = []; Items.flatMap(x => x);',
+			output: 'const Items = []; Items.flat();',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				for (const value of values) {
+					value.flatMap(x => x);
+				}
+			`,
+			output: outdent`
+				for (const value of values) {
+					value.flat();
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
 // `array.reduce((a, b) => a.concat(b), [])`
 test.snapshot({
 	valid: [
@@ -405,4 +472,3 @@ test.snapshot({
 		'[/**/].concat(some.array)',
 	],
 });
-

@@ -101,43 +101,18 @@ test({
 		'const foo = { length: 1.5 }; if (foo.length) {}', // Array lengths must be integers
 		'const foo = { length: NaN }; if (foo.length) {}', // Array lengths cannot be NaN
 		'const foo = { length: Infinity }; if (foo.length) {}', // Array lengths cannot be Infinity
-		// Logical OR
+		// Logical OR with number or string fallback
 		'const x = foo.length || 2',
 		'const A_NUMBER = 2; const x = foo.length || A_NUMBER',
+		'const x = foo.length || "bar"',
+		'const x = foo.length || `bar`',
+		'const A_STRING = "bar"; const x = foo.length || A_STRING',
+		'const size = props.size || "mini"',
+		'const x = foo.length || unknown',
+		'something(options.length || 500)',
+		'const itemCount = result.totalCount || result.length',
 	],
 	invalid: [
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || bar()',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || unknown',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || unknown',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const NON_NUMBER = "2"; const x = foo.length || NON_NUMBER',
-			messageId: TYPE_NON_ZERO,
-			output: 'const NON_NUMBER = "2"; const x = foo.length > 0 || NON_NUMBER',
-			desc: 'Replace `.length` with `.length > 0`.',
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length !== 0 || bar()',
-			desc: 'Replace `.length` with `.length !== 0`.',
-			options: [{'non-zero': 'not-equal'}],
-		}),
-		suggestionCase({
-			code: 'const x = foo.length || bar()',
-			messageId: TYPE_NON_ZERO,
-			output: 'const x = foo.length > 0 || bar()',
-			desc: 'Replace `.length` with `.length > 0`.',
-			options: [{'non-zero': 'greater-than'}],
-		}),
 		suggestionCase({
 			code: '() => foo.length && bar()',
 			messageId: TYPE_NON_ZERO,

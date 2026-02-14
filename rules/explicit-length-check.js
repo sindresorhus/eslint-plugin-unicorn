@@ -3,11 +3,12 @@ import {
 	isParenthesized,
 	checkVueTemplate,
 	isLogicalExpression,
-	isBooleanNode,
+	isBooleanExpression,
+	isControlFlowTest,
 	getBooleanAncestor,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isLiteral, isMemberExpression, isNumericLiteral} from './ast/index.js';
+import {isLiteral, isMemberExpression} from './ast/index.js';
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -93,20 +94,8 @@ function getLengthCheckNode(node) {
 	return {};
 }
 
-function isNodeValueNumber(node, context) {
-	if (isNumericLiteral(node)) {
-		return true;
-	}
-
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
-	return staticValue && typeof staticValue.value === 'number';
-}
-
 function create(context) {
-	const options = {
-		'non-zero': 'greater-than',
-		...context.options[0],
-	};
+	const options = context.options[0];
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const {sourceCode} = context;
 
@@ -179,16 +168,10 @@ function create(context) {
 			}
 		} else {
 			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-			if (isBooleanNode(ancestor)) {
+			if (isBooleanExpression(ancestor) || isControlFlowTest(ancestor)) {
 				isZeroLengthCheck = isNegative;
 				node = ancestor;
-			} else if (
-				isLogicalExpression(lengthNode.parent)
-				&& !(
-					lengthNode.parent.operator === '||'
-					&& isNodeValueNumber(lengthNode.parent.right, context)
-				)
-			) {
+			} else if (isLogicalExpression(lengthNode.parent) && lengthNode.parent.operator === '&&') {
 				isZeroLengthCheck = isNegative;
 				node = lengthNode;
 				autoFix = false;
@@ -230,6 +213,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
+		defaultOptions: [{'non-zero': 'greater-than'}],
 		messages,
 		hasSuggestions: true,
 	},

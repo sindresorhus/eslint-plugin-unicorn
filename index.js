@@ -7,7 +7,6 @@ import packageJson from './package.json' with {type: 'json'};
 const rules = toEslintRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
-	// {ruleId: {message: string, replacedBy: string[]}}
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
 		replacedBy: ['unicorn/no-instanceof-builtins'],

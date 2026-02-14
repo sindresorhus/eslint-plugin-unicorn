@@ -10,9 +10,17 @@ const messages = {
 	[MESSAGE_ID_PARSE_ERROR]: 'Problem parsing {{original}}: {{error}}',
 };
 
+// `regexp-tree` can optimize `/|/` into `//`, which is not valid JavaScript syntax.
+// Normalize to an explicit empty alternative so the autofix always stays parseable.
+const normalizeOptimizedRegexLiteral = optimizedRegexLiteral => (
+	optimizedRegexLiteral.startsWith('//')
+		? `/(?:)/${optimizedRegexLiteral.slice(2)}`
+		: optimizedRegexLiteral
+);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sortCharacterClasses} = context.options[0] || {};
+	const {sortCharacterClasses} = context.options[0];
 
 	const ignoreList = [];
 
@@ -36,6 +44,7 @@ const create = context => {
 
 		try {
 			optimized = regexpTree.optimize(original, undefined, {blacklist: ignoreList}).toString();
+			optimized = normalizeOptimizedRegexLiteral(optimized);
 		} catch (error) {
 			return {
 				node,

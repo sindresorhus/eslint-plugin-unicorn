@@ -65,6 +65,10 @@ test({
 			/* global foo */
 			foo();
 		`,
+		outdent`
+			// eslint-disables: This file is a polyfill, it is meant to abstract away rules
+			const x = ''
+		`,
 	],
 	invalid: [],
 });
@@ -78,6 +82,11 @@ test.snapshot({
 			eval(); // eslint-disable-line
 		`,
 		'/* eslint-disable */',
+		outdent`
+			// Test
+			/* eslint-disable */
+			eval();
+		`,
 		outdent`
 			foo();
 			/* eslint-disable */
@@ -94,6 +103,12 @@ test.snapshot({
 		`,
 		outdent`
 			// eslint-disable-next-line -- reason
+			eval();
+		`,
+		outdent`
+			// eslint-disable-next-line no-eval
+			eval();
+			// eslint-disable-next-line
 			eval();
 		`,
 	],

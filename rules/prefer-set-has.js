@@ -30,15 +30,16 @@ const methodsReturnsArray = [
 	'toSpliced',
 	'with',
 
-	// `Array` or `String` (unsafe)
-	'slice',
-	'concat',
-
 	// `String`
 	'split',
 
 	// `Iterator`
 	'toArray',
+];
+
+const methodsReturnsArrayAndString = [
+	'slice',
+	'concat',
 ];
 
 const isIncludesCall = node =>
@@ -78,6 +79,36 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
+const isArrayMethodCall = node =>
+	// `[]`
+	node.type === 'ArrayExpression'
+	// `Array()` and `new Array()`
+	|| isCallOrNewExpression(node, {
+		name: 'Array',
+		optional: false,
+	})
+	// `Array.from()` and `Array.of()`
+	|| isMethodCall(node, {
+		object: 'Array',
+		methods: ['from', 'of'],
+		optionalCall: false,
+		optionalMember: false,
+	})
+	// Methods that return an array
+	|| isMethodCall(node, {
+		methods: methodsReturnsArray,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	|| (
+		isMethodCall(node, {
+			methods: methodsReturnsArrayAndString,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isArrayMethodCall(node.callee.object)
+	);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Identifier', node => {
@@ -94,28 +125,7 @@ const create = context => {
 				parent.parent.parent.type === 'ExportNamedDeclaration'
 				&& parent.parent.parent.declaration === parent.parent
 			)
-			&& (
-				// `[]`
-				parent.init.type === 'ArrayExpression'
-				// `Array()` and `new Array()`
-				|| isCallOrNewExpression(parent.init, {
-					name: 'Array',
-					optional: false,
-				})
-				// `Array.from()` and `Array.of()`
-				|| isMethodCall(parent.init, {
-					object: 'Array',
-					methods: ['from', 'of'],
-					optionalCall: false,
-					optionalMember: false,
-				})
-				// Methods that return an array
-				|| isMethodCall(parent.init, {
-					methods: methodsReturnsArray,
-					optionalCall: false,
-					optionalMember: false,
-				})
-			)
+			&& isArrayMethodCall(parent.init)
 		)) {
 			return;
 		}

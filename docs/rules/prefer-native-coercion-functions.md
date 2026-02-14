@@ -49,6 +49,11 @@ const toStringObject = value => new String(value);
 const toObject = value => Object(value);
 ```
 
+```ts
+// ✅
+const strings = mixedData.filter((value): value is string => value);
+```
+
 ## Note
 
 We don't check implicit coercion like:

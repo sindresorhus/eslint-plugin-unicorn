@@ -1,4 +1,4 @@
-import {isParenthesized} from './utils/index.js';
+import {isParenthesized, isNodeValueNotFunction} from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefined, isNullLiteral, isStaticRequire} from './ast/index.js';
 
@@ -51,8 +51,8 @@ const isClearing = node => isUndefined(node) || isNullLiteral(node);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = context.options[0] || {};
-	const excludedPackages = new Set(options.excludedPackages || ['koa', 'sax']);
+	const options = context.options[0];
+	const excludedPackages = new Set(options.excludedPackages);
 	let isDisabled;
 
 	const nodeReturnsSomething = new WeakMap();
@@ -138,6 +138,7 @@ const create = context => {
 			operator === '='
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
+			&& !isNodeValueNotFunction(assignedExpression)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);
 		}
@@ -182,7 +183,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{excludedPackages: ['koa', 'sax']}],
 		messages,
 	},
 };

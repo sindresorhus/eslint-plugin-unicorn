@@ -19,12 +19,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {
-		checkGlobalVariables,
-	} = {
-		checkGlobalVariables: false,
-		...context.options[0],
-	};
+	const {checkGlobalVariables} = context.options[0];
 
 	context.on('BinaryExpression', binaryExpression => {
 		if (!(

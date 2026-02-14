@@ -402,6 +402,26 @@ test({
 			`,
 			errors: [error],
 		},
+		{
+			code: outdent`
+				const styles = {
+					wrapper: styled('div', {}),
+					unused: styled('div', {}),
+				};
+
+				function Component() {
+					return <styles.wrapper />;
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [error],
+		},
 	],
 });
 
@@ -417,6 +437,32 @@ test.babel({
 				...bar,
 			};
 			console.log(foo.a);
+		`,
+	],
+	invalid: [],
+});
+
+test.typescript({
+	valid: [
+		outdent`
+			type Configuration = {
+				debounce: {
+					wait: number;
+				};
+			};
+
+			const configurationInput = {};
+
+			const {
+				debounce: userDebounce,
+			}: Configuration = {
+				debounce: {
+					wait: 1000,
+				},
+				...configurationInput,
+			};
+
+			console.log(userDebounce);
 		`,
 	],
 	invalid: [],

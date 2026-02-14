@@ -169,10 +169,7 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
-	const {functions: configFunctions} = {
-		functions: [],
-		...context.options[0],
-	};
+	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
 
 	context.on('CallExpression', function * (callExpression) {
@@ -189,15 +186,20 @@ function create(context) {
 				continue;
 			}
 
-			yield {
+			const problem = {
 				node: callExpression.callee.property,
 				messageId: MESSAGE_ID_REDUCE,
-				fix: fixReduceAssignOrSpread({
+			};
+
+			if (!callExpression.typeArguments) {
+				problem.fix = fixReduceAssignOrSpread({
 					context,
 					callExpression,
 					property: getProperty(callbackFunction),
-				}),
-			};
+				});
+			}
+
+			yield problem;
 		}
 
 		if (!isCallExpression(callExpression, {
@@ -246,7 +248,7 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{}],
+		defaultOptions: [{functions: []}],
 		messages,
 	},
 };

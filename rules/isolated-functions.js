@@ -18,10 +18,7 @@ const defaultOptions = {
 const create = context => {
 	const {sourceCode} = context;
 	/** @type {typeof defaultOptions} */
-	const options = {
-		...defaultOptions,
-		...context.options[0],
-	};
+	const options = {...context.options[0]};
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 

@@ -2,6 +2,10 @@ import {
 	isCallExpression,
 	isStringLiteral,
 } from './ast/index.js';
+import {
+	needsSemicolon,
+	isParenthesized,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-bigint-literals/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-bigint-literals/suggestion';
@@ -39,13 +43,33 @@ const canUseNumericLiteralRaw = numericLiteral => {
 function getReplacement(valueNode) {
 	if (isStringLiteral(valueNode)) {
 		const raw = valueNode.raw.slice(1, -1);
+		let bigint;
 		try {
-			BigInt(raw);
+			bigint = BigInt(raw);
 		} catch {
 			return;
 		}
 
-		return {shouldUseSuggestion: false, text: `${raw.trimEnd()}n`};
+		let text = bigint === 0n ? '0' : raw.trim();
+		if (text.startsWith('+')) {
+			text = text.slice(1).trim();
+		}
+
+		return {shouldUseSuggestion: raw.includes('+'), text: `${text}n`, bigint};
+	}
+
+	let shouldUseSuggestion = false;
+	let isNegated = false;
+	while (valueNode.type === 'UnaryExpression' && valueNode.prefix) {
+		if (valueNode.operator === '+') {
+			shouldUseSuggestion = true;
+			valueNode = valueNode.argument;
+		} else if (valueNode.operator === '-') {
+			isNegated = !isNegated;
+			valueNode = valueNode.argument;
+		} else {
+			return;
+		}
 	}
 
 	const {value, raw} = valueNode;
@@ -61,9 +85,20 @@ function getReplacement(valueNode) {
 		return;
 	}
 
-	const shouldUseSuggestion = !canUseNumericLiteralRaw(valueNode);
-	const text = shouldUseSuggestion ? `${bigint}n` : `${raw}n`;
-	return {shouldUseSuggestion, text};
+	let text;
+	if (canUseNumericLiteralRaw(valueNode)) {
+		text = `${raw}n`;
+	} else {
+		text = `${bigint}n`;
+		shouldUseSuggestion = true;
+	}
+
+	if (isNegated && bigint !== 0n) {
+		text = `-${text}`;
+		bigint = -bigint;
+	}
+
+	return {shouldUseSuggestion, text, bigint};
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -88,10 +123,23 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		const {shouldUseSuggestion, text} = replacement;
+		const {shouldUseSuggestion, text, bigint} = replacement;
 
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
-		const fix = fixer => fixer.replaceText(callExpression, text);
+		const fix = fixer => {
+			let replacementText = text;
+			if (!isParenthesized(callExpression, context) && bigint < 0n) {
+				replacementText = `(${replacementText})`;
+
+				const tokenBefore = context.sourceCode.getTokenBefore(callExpression);
+
+				if (needsSemicolon(tokenBefore, context, replacementText)) {
+					replacementText = `;${replacementText}`;
+				}
+			}
+
+			return fixer.replaceText(callExpression, replacementText);
+		};
 
 		if (shouldUseSuggestion || context.sourceCode.getCommentsInside(callExpression).length > 0) {
 			problem.suggest = [
