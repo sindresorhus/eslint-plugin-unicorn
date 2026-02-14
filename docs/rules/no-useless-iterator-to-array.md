@@ -26,6 +26,11 @@
 
 - `Promise.{all,allSettled,any,race}(…)` accept an iterable, so `.toArray()` is unnecessary. However, removing it can change a synchronous throw into an asynchronous rejection when iteration fails, so these cases are reported as **suggestions** rather than autofixes.
 
+- The spread operator (`...`) works on any iterable, so converting to an array before spreading is unnecessary:
+
+  - `[...iterator.toArray()]` → `[...iterator]`
+  - `call(...iterator.toArray())` → `call(...iterator)`
+
 - Some `Array` methods also exist on `Iterator`, so converting to an array to call them is unnecessary:
 
   - `.every()`
@@ -74,6 +79,22 @@ function * foo() {
 function * foo() {
 	yield * iterator;
 }
+```
+
+```js
+// ❌
+const items = [...iterator.toArray()];
+
+// ✅
+const items = [...iterator];
+```
+
+```js
+// ❌
+call(...iterator.toArray());
+
+// ✅
+call(...iterator);
 ```
 
 ```js
