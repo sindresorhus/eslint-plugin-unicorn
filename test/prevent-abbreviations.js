@@ -1893,6 +1893,79 @@ test.typescript({
 			`,
 			errors: 2,
 		},
+
+		// TypeScript type references should be autofixed
+		{
+			code: outdent`
+				enum Btn {
+					Primary,
+				}
+				let test: Btn;
+			`,
+			output: outdent`
+				enum Button {
+					Primary,
+				}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Btn {}
+				let test: Btn;
+			`,
+			output: outdent`
+				class Button {}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				interface Btn {
+					id: number;
+				}
+				let test: Btn;
+			`,
+			output: outdent`
+				interface Button {
+					id: number;
+				}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: 'type Btn = {};',
+			output: 'type Button = {};',
+			errors: 1,
+		},
+		{
+			code: 'interface Btn {}',
+			output: 'interface Button {}',
+			errors: 1,
+		},
+
+		// Exported TypeScript interface/enum should NOT be autofixed
+		{
+			code: outdent`
+				export interface Btn {
+					id: number;
+				}
+				let test: Btn;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				export enum Btn {
+					Primary,
+				}
+				let test: Btn;
+			`,
+			errors: 1,
+		},
 	],
 });
 

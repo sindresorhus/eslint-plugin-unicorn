@@ -195,6 +195,14 @@ const getMessage = (discouragedName, replacements, nameTypeText) => {
 	};
 };
 
+const declarationTypes = new Set([
+	'FunctionDeclaration',
+	'ClassDeclaration',
+	'TSTypeAliasDeclaration',
+	'TSInterfaceDeclaration',
+	'TSEnumDeclaration',
+]);
+
 const isExportedIdentifier = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator'
@@ -207,21 +215,7 @@ const isExportedIdentifier = identifier => {
 	}
 
 	if (
-		identifier.parent.type === 'FunctionDeclaration'
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	if (
-		identifier.parent.type === 'ClassDeclaration'
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	if (
-		identifier.parent.type === 'TSTypeAliasDeclaration'
+		declarationTypes.has(identifier.parent.type)
 		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
