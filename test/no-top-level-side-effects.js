@@ -169,6 +169,26 @@ test.snapshot({
 			/* @__NO_SIDE_EFFECTS__ */ setup();
 			export const x = 1;
 		`,
+		// #__NO_SIDE_EFFECTS__ on function declaration — calls are safe
+		outdent`
+			/* #__NO_SIDE_EFFECTS__ */
+			function setup() { return {}; }
+			const app = setup();
+			export default app;
+		`,
+		// @__NO_SIDE_EFFECTS__ on function declaration — export default call is safe
+		outdent`
+			/* @__NO_SIDE_EFFECTS__ */
+			function createConfig() { return {}; }
+			export default createConfig();
+		`,
+		// #__NO_SIDE_EFFECTS__ on exported function declaration
+		outdent`
+			/* #__NO_SIDE_EFFECTS__ */
+			export function setup() { return {}; }
+			const app = setup();
+			export default app;
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports

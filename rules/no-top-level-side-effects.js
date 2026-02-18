@@ -226,7 +226,7 @@ Unsafe: call expressions, new expressions, tagged templates, object/array litera
 (which can contain call expressions in values), comma expressions, etc.
 Pure-annotated call expressions (`@__PURE__` / `#__PURE__` / `@__NO_SIDE_EFFECTS__` / `#__NO_SIDE_EFFECTS__`) are also safe.
 */
-const isDefaultExportSideEffect = (node, sourceCode) => {
+const isDefaultExportSideEffect = (node, sourceCode, noSideEffectsFunctions) => {
 	const {declaration} = node;
 
 	if (safeDefaultExportTypes.has(declaration.type)) {
@@ -238,6 +238,10 @@ const isDefaultExportSideEffect = (node, sourceCode) => {
 	}
 
 	if (hasPureAnnotation(declaration, sourceCode)) {
+		return false;
+	}
+
+	if (isNoSideEffectsCall(declaration, noSideEffectsFunctions)) {
 		return false;
 	}
 
@@ -285,7 +289,7 @@ const isLocalObjectMethodCall = (expression, localNames) => {
 	return rootName && localNames.has(rootName);
 };
 
-const isSideEffectStatement = (node, localNames, sourceCode) => {
+const isSideEffectStatement = (node, localNames, sourceCode, noSideEffectsFunctions) => {
 	// Declarations, exports, and imports are always safe
 	if (safeStatementTypes.has(node.type)) {
 		return false;
@@ -293,7 +297,7 @@ const isSideEffectStatement = (node, localNames, sourceCode) => {
 
 	// `export default <expression>` — safe only for declarations and simple values
 	if (node.type === 'ExportDefaultDeclaration') {
-		return isDefaultExportSideEffect(node, sourceCode);
+		return isDefaultExportSideEffect(node, sourceCode, noSideEffectsFunctions);
 	}
 
 	// Expression statements need further analysis
@@ -332,11 +336,52 @@ const isSideEffectStatement = (node, localNames, sourceCode) => {
 		) {
 			return false;
 		}
+
+		// Calls to functions annotated with `#__NO_SIDE_EFFECTS__` are safe
+		if (isNoSideEffectsCall(expression, noSideEffectsFunctions)) {
+			return false;
+		}
 	}
 
 	// All other top-level statements (if, for, while, throw, try, switch, etc.)
 	// are side effects
 	return true;
+};
+
+/**
+Collect names of functions annotated with `#__NO_SIDE_EFFECTS__` or `@__NO_SIDE_EFFECTS__`.
+Calls to these functions are treated as pure (no side effects).
+*/
+const getNoSideEffectsFunctionNames = (body, sourceCode) => {
+	const names = new Set();
+
+	for (const node of body) {
+		const declaration = node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration'
+			? node.declaration
+			: node;
+
+		if (
+			declaration?.type === 'FunctionDeclaration'
+			&& declaration.id
+			&& hasPureAnnotation(declaration, sourceCode)
+		) {
+			names.add(declaration.id.name);
+		}
+	}
+
+	return names;
+};
+
+/**
+Check if a call expression calls a function annotated with `#__NO_SIDE_EFFECTS__`.
+*/
+const isNoSideEffectsCall = (expression, noSideEffectsFunctions) => {
+	if (expression.type !== 'CallExpression') {
+		return false;
+	}
+
+	const {callee} = expression;
+	return callee.type === 'Identifier' && noSideEffectsFunctions.has(callee.name);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -356,9 +401,10 @@ const create = context => {
 
 		const localNames = getTopLevelLocalNames(body);
 		const {sourceCode} = context;
+		const noSideEffectsFunctions = getNoSideEffectsFunctionNames(body, sourceCode);
 
 		for (const node of body) {
-			if (isSideEffectStatement(node, localNames, sourceCode)) {
+			if (isSideEffectStatement(node, localNames, sourceCode, noSideEffectsFunctions)) {
 				yield {
 					node,
 					messageId: MESSAGE_ID,
