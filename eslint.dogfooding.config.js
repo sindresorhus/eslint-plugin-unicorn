@@ -50,6 +50,24 @@ const config = [
 			'unicorn/prefer-import-meta-properties': 'off', // We can enable this rule when we drop support for Node.js v18.
 		},
 	},
+	{
+		files: [
+			'test/integration/projects.js',
+		],
+		rules: {
+			// Uses `export default [...].flatMap(...)` which is a call expression at top level
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/no-unnecessary-polyfills.js',
+		],
+		rules: {
+			// Uses top-level `for` loop to build polyfill lookup tables
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
 ];
 
 // Create rule to allow inline config to disable
