@@ -37,9 +37,56 @@ function getNodeBody(node) {
 const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
+/**
+ Find a preceding uninitialized variable declaration that matches the assignment target.
+ @param {import('estree').IfStatement} ifStatement
+ @param {import('estree').Identifier} assignmentLeft
+ @returns {import('estree').VariableDeclaration | undefined}
+ */
+function findPrecedingVariableDeclaration(ifStatement, assignmentLeft) {
+	const {parent} = ifStatement;
+	if (parent.type !== 'BlockStatement' && parent.type !== 'Program') {
+		return;
+	}
+
+	const {body} = parent;
+	const nodeIndex = body.indexOf(ifStatement);
+	if (nodeIndex <= 0) {
+		return;
+	}
+
+	const previousStatement = body[nodeIndex - 1];
+	if (previousStatement.type !== 'VariableDeclaration') {
+		return;
+	}
+
+	// Must have a single declarator with no init
+	if (previousStatement.declarations.length !== 1) {
+		return;
+	}
+
+	const declarator = previousStatement.declarations[0];
+	if (declarator.init !== null) {
+		return;
+	}
+
+	// Assignment target must be a simple identifier
+	if (assignmentLeft.type !== 'Identifier' || declarator.id.type !== 'Identifier') {
+		return;
+	}
+
+	if (declarator.id.name !== assignmentLeft.name) {
+		return;
+	}
+
+	return previousStatement;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const onlySingleLine = context.options[0] === 'only-single-line';
+	const options = context.options[0] ?? {};
+	const onlySingleLine = options === 'always' ? false : options.onlySingleLine;
+	const onlyAssignments = options === 'always' ? false : options.onlyAssignments;
 	const {sourceCode} = context;
 	const scopeToNamesGeneratedByFixer = new WeakMap();
 	const isSafeName = (name, scopes) => scopes.every(scope => {
@@ -72,9 +119,11 @@ const create = context => {
 		const {
 			checkThrowStatement,
 			returnFalseIfNotMergeable,
+			stopAfterAssignment,
 		} = {
 			checkThrowStatement: false,
 			returnFalseIfNotMergeable: false,
+			stopAfterAssignment: false,
 			...mergeOptions,
 		};
 
@@ -89,13 +138,21 @@ const create = context => {
 			&& !isTernary(argument)
 			&& !isTernary(alternate.argument)
 		) {
-			return merge({
+			const returnResult = {
 				before: `${before}return `,
 				after,
 				consequent: argument === null ? 'undefined' : argument,
 				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
 				node,
-			});
+			};
+
+			// When stopAfterAssignment is true, don't recurse further
+			// This keeps await/yield inside the ternary branches
+			if (stopAfterAssignment) {
+				return returnResult;
+			}
+
+			return merge(returnResult);
 		}
 
 		if (
@@ -156,13 +213,21 @@ const create = context => {
 			&& !isTernary(alternate.right)
 			&& isSameReference(left, alternate.left)
 		) {
-			return merge({
+			const assignmentResult = {
 				before: `${before}${sourceCode.getText(left)} ${operator} `,
 				after,
 				consequent: right,
 				alternate: alternate.right,
 				node,
-			});
+			};
+
+			// When stopAfterAssignment is true, don't recurse further
+			// This keeps await/yield inside the ternary branches
+			if (stopAfterAssignment) {
+				return assignmentResult;
+			}
+
+			return merge(assignmentResult);
 		}
 
 		return returnFalseIfNotMergeable ? false : options;
@@ -188,9 +253,18 @@ const create = context => {
 			return;
 		}
 
+		if (
+			onlyAssignments
+			&& consequent?.type !== 'AssignmentExpression'
+			&& consequent?.type !== 'ReturnStatement'
+		) {
+			return;
+		}
+
 		const result = merge({node, consequent, alternate}, {
 			checkThrowStatement: true,
 			returnFalseIfNotMergeable: true,
+			stopAfterAssignment: onlyAssignments,
 		});
 
 		if (!result) {
@@ -202,6 +276,35 @@ const create = context => {
 		// Don't fix if there are comments
 		if (sourceCode.getCommentsInside(node).length > 0) {
 			return problem;
+		}
+
+		// Check for preceding variable declaration when only-assignments is enabled
+		let precedingVariableDeclaration;
+		if (onlyAssignments && consequent?.type === 'AssignmentExpression' && consequent.operator === '=') {
+			precedingVariableDeclaration = findPrecedingVariableDeclaration(node, consequent.left);
+			// Don't combine if there are comments in the declaration
+			if (precedingVariableDeclaration && sourceCode.getCommentsInside(precedingVariableDeclaration).length > 0) {
+				precedingVariableDeclaration = undefined;
+			}
+
+			// Don't merge if the declared variable is referenced in the if-condition (TDZ error)
+			if (precedingVariableDeclaration) {
+				const variableName = precedingVariableDeclaration.declarations[0].id.name;
+				const tokens = sourceCode.getTokens(node.test);
+				if (tokens.some(token => token.type === 'Identifier' && token.value === variableName)) {
+					precedingVariableDeclaration = undefined;
+				}
+			}
+
+			// Don't merge if there are comments between the declaration and the if-statement
+			if (precedingVariableDeclaration) {
+				const tokensBetween = sourceCode.getTokensBetween(
+					precedingVariableDeclaration, node, {includeComments: true},
+				);
+				if (tokensBetween.some(token => token.type === 'Line' || token.type === 'Block')) {
+					precedingVariableDeclaration = undefined;
+				}
+			}
 		}
 
 		const scope = sourceCode.getScope(node);
@@ -241,6 +344,19 @@ const create = context => {
 				generateNewVariables = true;
 			}
 
+			// Combine with preceding variable declaration if found
+			if (precedingVariableDeclaration) {
+				const declarationText = sourceCode.getText(precedingVariableDeclaration).replace(/;$/, '');
+				const fixed = `${declarationText} = ${testText} ? ${consequentText} : ${alternateText};`;
+
+				// Remove the variable declaration including trailing whitespace up to the if-else
+				const declarationRange = sourceCode.getRange(precedingVariableDeclaration);
+				const ifRange = sourceCode.getRange(node);
+				yield fixer.removeRange([declarationRange[0], ifRange[0]]);
+				yield fixer.replaceText(node, fixed);
+				return;
+			}
+
 			let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
 			const tokenBefore = sourceCode.getTokenBefore(node);
 			const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
@@ -261,7 +377,17 @@ const create = context => {
 
 const schema = [
 	{
-		enum: ['always', 'only-single-line'],
+		oneOf: [
+			{enum: ['always']},
+			{
+				type: 'object',
+				properties: {
+					onlySingleLine: {type: 'boolean'},
+					onlyAssignments: {type: 'boolean'},
+				},
+				additionalProperties: false,
+			},
+		],
 	},
 ];
 

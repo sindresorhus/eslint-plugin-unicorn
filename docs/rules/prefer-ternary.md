@@ -129,21 +129,126 @@ if (test) {
 
 ## Options
 
-Type: `string`\
+Type: `string | object`\
 Default: `'always'`
 
-- `'always'` (default)
-  - Always report when using an `IfStatement` where a ternary expression can be used.
-- `'only-single-line'`
-  - Only check if the content of the `if` and/or `else` block is less than one line long.
+### `'always'`
+
+Always report when using an `IfStatement` where a ternary expression can be used.
+
+### `{ onlySingleLine: true }`
+
+Only check if the content of the `if` and/or `else` block is less than one line long.
 
 ```js
-/* eslint unicorn/prefer-ternary: ["error", "only-single-line"] */
+/* eslint unicorn/prefer-ternary: ["error", { "onlySingleLine": true }] */
 // ✅
 if (test) {
 	foo = [
 		'multiple line array'
 	];
+} else {
+	foo = bar;
+}
+```
+
+### `{ onlyAssignments: true }`
+
+Only check if the statement is an assignment or return expression (where a value is being captured).
+
+```js
+/* eslint unicorn/prefer-ternary: ["error", { "onlyAssignments": true }] */
+// ✅
+// Yield statements are ignored
+function* unicorn() {
+	if (test) {
+		yield a;
+	} else {
+		yield b;
+	}
+}
+
+// ✅
+// Standalone await statements are ignored
+async function unicorn() {
+	if (test) {
+		await a;
+	} else {
+		await b;
+	}
+}
+
+// ❌
+// Assignments are checked, and combined with preceding uninitialized declaration
+let foo;
+if (test) {
+	foo = 1;
+} else {
+	foo = 2;
+}
+// ✅ Fixed to: let foo = test ? 1 : 2;
+
+// ❌
+// Return statements are checked
+function unicorn() {
+	if (test) {
+		return a;
+	} else {
+		return b;
+	}
+}
+// ✅ Fixed to: return test ? a : b;
+```
+
+With this option, `await` expressions stay inside each branch of the ternary rather than being hoisted:
+
+```js
+/* eslint unicorn/prefer-ternary: ["error", { "onlyAssignments": true }] */
+// ❌
+async function unicorn() {
+	if (test) {
+		foo = await a;
+	} else {
+		foo = await b;
+	}
+}
+// ✅ Fixed to: foo = test ? (await a) : (await b);
+
+// ❌
+async function unicorn() {
+	if (test) {
+		return await a;
+	} else {
+		return await b;
+	}
+}
+// ✅ Fixed to: return test ? (await a) : (await b);
+
+// ❌
+// Combined with preceding declaration
+async function unicorn() {
+	let foo;
+	if (test) {
+		foo = await a;
+	} else {
+		foo = await b;
+	}
+}
+// ✅ Fixed to: let foo = test ? (await a) : (await b);
+```
+
+### Combined options
+
+Options can be combined:
+
+```js
+/* eslint unicorn/prefer-ternary: ["error", { "onlySingleLine": true, "onlyAssignments": true }] */
+// ✅
+// Multi-line assignment is ignored
+if (test) {
+	foo = {
+		a: 1
+	};
 } else {
 	foo = bar;
 }
