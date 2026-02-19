@@ -4,6 +4,7 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const TYPE_NON_ZERO = 'non-zero';
+const TYPE_ZERO = 'zero';
 
 const suggestionCase = ({code, messageId, output, desc, options = []}) => ({
 	code,
@@ -113,6 +114,18 @@ test({
 		'const itemCount = result.totalCount || result.length',
 	],
 	invalid: [
+		{
+			code: 'if (!foo.length > 0) {}',
+			// eslint-disable-next-line unicorn/no-null
+			output: null,
+			errors: [{messageId: TYPE_ZERO}],
+		},
+		{
+			code: 'if (!foo.length === 0) {}',
+			// eslint-disable-next-line unicorn/no-null
+			output: null,
+			errors: [{messageId: TYPE_ZERO}],
+		},
 		suggestionCase({
 			code: '() => foo.length && bar()',
 			messageId: TYPE_NON_ZERO,
