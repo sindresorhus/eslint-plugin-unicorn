@@ -189,6 +189,15 @@ test.snapshot({
 			const app = setup();
 			export default app;
 		`,
+		// Export default with pure template literal (no expressions) is fine
+		outdent`
+			export default \`hello world\`;
+		`,
+		// Export default with pure member access (non-computed) is fine
+		outdent`
+			const config = { key: 'value' };
+			export default config.key;
+		`,
 	],
 	invalid: [
 		// Bare function call in a module with exports
@@ -308,6 +317,19 @@ test.snapshot({
 		// Export default with tagged template literal (side effect)
 		outdent`
 			export default html\`<div>hello</div>\`;
+		`,
+		// `module.id` assignment is NOT a CJS export — should be flagged
+		outdent`
+			module.id = 1;
+			export const value = 1;
+		`,
+		// Export default with template literal containing side-effecting expression
+		outdent`
+			export default \`\${setup()}\`;
+		`,
+		// Export default with computed member access containing side effect
+		outdent`
+			export default object[setup()];
 		`,
 	],
 });

@@ -23,12 +23,33 @@ const hasCjsExports = body => body.some(node => {
 
 	const {left} = expression;
 
+	if (left.type !== 'MemberExpression') {
+		return false;
+	}
+
+	const rootName = getRootIdentifier(left);
+
+	// `exports.foo = ...`
+	if (rootName === 'exports') {
+		return true;
+	}
+
 	// `module.exports = ...` or `module.exports.foo = ...`
-	if (left.type === 'MemberExpression') {
-		const rootName = getRootIdentifier(left);
-		if (rootName === 'module' || rootName === 'exports') {
-			return true;
+	// Must specifically be `module.exports`, not other `module.*` properties
+	if (rootName === 'module') {
+		let current = left;
+		while (current.type === 'MemberExpression' && current.object.type === 'MemberExpression') {
+			current = current.object;
 		}
+
+		return (
+			current.type === 'MemberExpression'
+			&& current.object.type === 'Identifier'
+			&& current.object.name === 'module'
+			&& !current.computed
+			&& current.property.type === 'Identifier'
+			&& current.property.name === 'exports'
+		);
 	}
 
 	return false;
@@ -171,17 +192,21 @@ const isPureExpression = node => {
 	switch (node.type) {
 		case 'Identifier':
 		case 'Literal':
-		case 'TemplateLiteral':
 		case 'FunctionExpression':
 		case 'ArrowFunctionExpression': {
 			return true;
+		}
+
+		case 'TemplateLiteral': {
+			// Template literals are pure only if all embedded expressions are pure
+			return node.expressions.every(expression => isPureExpression(expression));
 		}
 
 		case 'ObjectExpression': {
 			return node.properties.every(property =>
 				property.type === 'SpreadElement'
 					? isPureExpression(property.argument)
-					: isPureExpression(property.value),
+					: isPureExpression(property.value) && (!property.computed || isPureExpression(property.key)),
 			);
 		}
 
@@ -198,6 +223,11 @@ const isPureExpression = node => {
 		}
 
 		case 'MemberExpression': {
+			// Computed member access like `object[setup()]` must check the property expression
+			if (node.computed && !isPureExpression(node.property)) {
+				return false;
+			}
+
 			return isPureExpression(node.object);
 		}
 
@@ -250,14 +280,40 @@ const isDefaultExportSideEffect = (node, sourceCode, noSideEffectsFunctions) => 
 
 /**
 Check if an assignment expression is a CJS export (`module.exports`, `exports`).
+Only matches `module.exports` and `exports`, not other `module.*` properties like `module.id`.
 */
 const isCjsExportAssignment = left => {
 	if (left.type !== 'MemberExpression') {
 		return false;
 	}
 
+	// `exports.foo = ...` or `exports = ...`
 	const rootName = getRootIdentifier(left);
-	return rootName === 'module' || rootName === 'exports';
+	if (rootName === 'exports') {
+		return true;
+	}
+
+	// `module.exports = ...` or `module.exports.foo = ...`
+	// Must be rooted at `module` with `exports` as the first property
+	if (rootName === 'module') {
+		// Walk up to find the `module.exports` part
+		let current = left;
+		while (current.type === 'MemberExpression' && current.object.type === 'MemberExpression') {
+			current = current.object;
+		}
+
+		// `current` is now the innermost MemberExpression: `module.exports`
+		return (
+			current.type === 'MemberExpression'
+			&& current.object.type === 'Identifier'
+			&& current.object.name === 'module'
+			&& !current.computed
+			&& current.property.type === 'Identifier'
+			&& current.property.name === 'exports'
+		);
+	}
+
+	return false;
 };
 
 const safeObjectMethods = new Set([
