@@ -27,6 +27,16 @@ test.snapshot({
 
 		// Nullish coalescing — not handled by rule
 		'const x = foo.bar ?? baz',
+
+		// Potentially unsafe to reorder (side effects / throws)
+		'if ((state.ready = true) && ok);',
+		'if (++counter && ok);',
+		'if (object.deep.value && ok);',
+		'const x = object.deep.value || ok;',
+		'if (tag`x` && ok);',
+
+		// Deep member chain in assignment context — not flagged
+		'const x = a.b.c && d',
 	],
 	invalid: [
 		// Call on left, identifier on right — suggestion (has call)
@@ -50,9 +60,6 @@ test.snapshot({
 		// Chained: complex && complex && simple — outermost flagged
 		'if (a() && b() && c);',
 
-		// Assignment context — no calls, auto-fix
-		'const x = a.b.c && d',
-
 		// Parenthesized complex expression on left — auto-fix
 		'if ((a.b || c) && d);',
 
@@ -62,7 +69,5 @@ test.snapshot({
 		// Unary expression on left, identifier on right — auto-fix
 		'if (!foo && bar);',
 
-		// TaggedTemplateExpression on left — suggestion (call-like)
-		'if (tag`template` && ready);',
 	],
 });

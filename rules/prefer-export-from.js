@@ -76,10 +76,10 @@ function getFixFunction({
 	let exportDeclaration;
 	if (shouldExportAsType) {
 		// If a type export declaration already exists, reuse it, else use a value export declaration with an inline type specifier.
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => (exportKind === 'type') && (source.value === sourceValue));
 	}
 
-	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => (exportKind !== 'type') && (source.value === sourceValue));
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {

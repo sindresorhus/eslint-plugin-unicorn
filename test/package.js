@@ -207,7 +207,7 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		}
 
 		const {recommended} = rule.meta.docs;
-		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
+		t.true((recommended === 'unopinionated') || (typeof recommended === 'boolean'), `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 
 		const severity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
 		if (recommended) {

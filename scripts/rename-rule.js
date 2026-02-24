@@ -70,7 +70,7 @@ const run = async () => {
 		initial: originalRuleId,
 	}).run();
 
-	if (!ruleId || originalRuleId === ruleId) {
+	if ((originalRuleId === ruleId) || !ruleId) {
 		return;
 	}
 

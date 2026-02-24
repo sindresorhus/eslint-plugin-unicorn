@@ -102,7 +102,7 @@ function checkSliceCall(node) {
 			&& (
 				firstElementGetMethod === 'zero-index'
 				|| firstElementGetMethod === 'shift'
-				|| (startIndex === -1 && firstElementGetMethod === 'pop')
+				|| ((firstElementGetMethod === 'pop') && (startIndex === -1))
 			)
 		) {
 			return {safeToFix: true, firstElementGetMethod};

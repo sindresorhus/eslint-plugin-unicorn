@@ -114,7 +114,7 @@ const create = context => {
 			},
 		};
 
-		if (!source || exportKind === 'type') {
+		if ((exportKind === 'type') || !source) {
 			problem.fix = fixer => fixer.remove(exportDeclaration);
 			return problem;
 		}
