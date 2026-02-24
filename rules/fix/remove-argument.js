@@ -16,7 +16,7 @@ export default function removeArgument(fixer, node, context) {
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, context);
-	const firstToken = node || parentheses[0];
+	const firstToken = parentheses[0] || node;
 	const lastToken = parentheses.at(-1) || node;
 	const {sourceCode} = context;
 
