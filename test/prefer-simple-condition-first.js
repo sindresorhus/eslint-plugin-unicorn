@@ -24,6 +24,9 @@ test.snapshot({
 
 		// Simple on left, complex on right — correct order
 		'if (bar || foo());',
+
+		// Nullish coalescing — not handled by rule
+		'const x = foo.bar ?? baz',
 	],
 	invalid: [
 		// Call on left, identifier on right — suggestion (has call)
@@ -49,5 +52,17 @@ test.snapshot({
 
 		// Assignment context — no calls, auto-fix
 		'const x = a.b.c && d',
+
+		// Parenthesized complex expression on left — auto-fix
+		'if ((a.b || c) && d);',
+
+		// Parenthesized member expression on left — auto-fix
+		'if ((a.b) && c);',
+
+		// Unary expression on left, identifier on right — auto-fix
+		'if (!foo && bar);',
+
+		// TaggedTemplateExpression on left — suggestion (call-like)
+		'if (tag`template` && ready);',
 	],
 });
