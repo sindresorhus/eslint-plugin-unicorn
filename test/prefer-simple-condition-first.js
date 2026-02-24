@@ -38,7 +38,7 @@ test.snapshot({
 		// Call on left, identifier on right with || — suggestion
 		'const x = foo() || bar',
 
-		// new expression on left — suggestion
+		// New expression on left — suggestion
 		'if (new Foo() && bar);',
 
 		// Member + call on left, simple comparison on right — suggestion
