@@ -27,16 +27,6 @@ test.snapshot({
 
 		// Nullish coalescing — not handled by rule
 		'const x = foo.bar ?? baz',
-
-		// Potentially unsafe to reorder (side effects / throws)
-		'if ((state.ready = true) && ok);',
-		'if (++counter && ok);',
-		'if (object.deep.value && ok);',
-		'const x = object.deep.value || ok;',
-		'if (tag`x` && ok);',
-
-		// Deep member chain in assignment context — not flagged
-		'const x = a.b.c && d',
 	],
 	invalid: [
 		// Call on left, identifier on right — suggestion (has call)
@@ -69,5 +59,18 @@ test.snapshot({
 		// Unary expression on left, identifier on right — auto-fix
 		'if (!foo && bar);',
 
+		// Side effects / throws — suggestion only (not auto-fix)
+		'if ((state.ready = true) && ok);',
+		'if (++counter && ok);',
+		'if (object.deep.value && ok);',
+		'const x = object.deep.value || ok;',
+		'if (tag`x` && ok);',
+
+		// Nested side effects — suggestion only
+		'if ((a + (b = c)) && ok);',
+		'if (-(++x) && ok);',
+
+		// Deep member chain — suggestion only
+		'const x = a.b.c && d',
 	],
 });

@@ -42,30 +42,10 @@ function isSimple(node) {
 }
 
 /**
-Check if a node has side effects or can throw, making it unsafe to reorder.
-Only checks the top-level node type (not recursive).
+Check if an AST subtree contains any node that makes it unsafe to auto-fix (reorder):
+calls, side effects, or expressions that can throw.
 */
-function hasSideEffectsOrThrows(node) {
-	if (
-		node.type === 'AssignmentExpression'
-		|| node.type === 'UpdateExpression'
-		|| node.type === 'TaggedTemplateExpression'
-	) {
-		return true;
-	}
-
-	// Deep member expression chains (2+ levels) can throw
-	if (node.type === 'MemberExpression' && node.object.type === 'MemberExpression') {
-		return true;
-	}
-
-	return false;
-}
-
-/**
-Check if an AST subtree contains any CallExpression, NewExpression, or TaggedTemplateExpression.
-*/
-function hasCall(node) {
+function isUnsafeToAutoFix(node) {
 	if (!node || typeof node !== 'object') {
 		return false;
 	}
@@ -74,7 +54,14 @@ function hasCall(node) {
 		node.type === 'CallExpression'
 		|| node.type === 'NewExpression'
 		|| node.type === 'TaggedTemplateExpression'
+		|| node.type === 'AssignmentExpression'
+		|| node.type === 'UpdateExpression'
 	) {
+		return true;
+	}
+
+	// Deep member expression chains (2+ levels) can throw
+	if (node.type === 'MemberExpression' && node.object.type === 'MemberExpression') {
 		return true;
 	}
 
@@ -85,10 +72,10 @@ function hasCall(node) {
 
 		const value = node[key];
 		if (Array.isArray(value)) {
-			if (value.some(child => hasCall(child))) {
+			if (value.some(child => isUnsafeToAutoFix(child))) {
 				return true;
 			}
-		} else if (value && typeof value.type === 'string' && hasCall(value)) {
+		} else if (value && typeof value.type === 'string' && isUnsafeToAutoFix(value)) {
 			return true;
 		}
 	}
@@ -125,10 +112,6 @@ const create = context => {
 			return;
 		}
 
-		if (hasSideEffectsOrThrows(node.left)) {
-			return;
-		}
-
 		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
 		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
 
@@ -137,9 +120,9 @@ const create = context => {
 			`${rightText} ${node.operator} ${leftText}`,
 		);
 
-		// Use suggestion (not auto-fix) when left contains calls or is a chain
+		// Use suggestion (not auto-fix) when left is unsafe to reorder (calls, side effects, throws) or is a chain
 		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
-		if (isChain || hasCall(node.left)) {
+		if (isChain || isUnsafeToAutoFix(node.left)) {
 			return {
 				node,
 				loc: sourceCode.getLoc(node.right),
