@@ -27,6 +27,8 @@ test({
 		'setTimeout();',
 		'customSetTimeout(callback);',
 		'obj.customSetTimeout(callback);',
+		'Math.setTimeout(callback);',
+		'foo.setTimeout(callback);',
 		{
 			code: 'setTimeout(() => console.log("Hello"));',
 			options: ['never'],
@@ -241,7 +243,6 @@ test({
 		},
 		{
 			code: 'setTimeout(callback, 0, arg1, arg2);',
-			output: 'setTimeout(callback, arg1, arg2);',
 			options: ['never'],
 			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
 		},

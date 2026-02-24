@@ -13,6 +13,7 @@ const messages = {
 };
 
 const timerFunctions = new Set(['setTimeout', 'setInterval']);
+const globalObjects = new Set(['window', 'globalThis', 'global', 'self']);
 
 /**
 Check if a call expression is a timer function call.
@@ -41,6 +42,7 @@ const checkTimerCall = (node, sourceCode) => {
 
 		if (
 			object.type === 'Identifier'
+			&& globalObjects.has(object.name)
 			&& sourceCode.isGlobalReference(object)
 		) {
 			return {isTimer: true, name: callee.property.name};
@@ -105,17 +107,22 @@ const create = context => {
 			const delayArgument = arguments_[1];
 
 			if (isZeroDelay(delayArgument)) {
-				return {
+				const problem = {
 					node: delayArgument,
 					messageId: MESSAGE_ID_REDUNDANT_DELAY,
 					data: {name},
-					fix(fixer) {
+				};
+
+				if (arguments_.length === 2) {
+					problem.fix = function (fixer) {
 						const [firstArgument] = arguments_;
 						const [, firstArgumentEnd] = getParenthesizedRange(firstArgument, context);
 						const [, delayArgumentEnd] = getParenthesizedRange(delayArgument, context);
 						return fixer.removeRange([firstArgumentEnd, delayArgumentEnd]);
-					},
-				};
+					};
+				}
+
+				return problem;
 			}
 		}
 	});
