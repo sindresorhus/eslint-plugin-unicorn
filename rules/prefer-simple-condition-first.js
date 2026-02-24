@@ -76,7 +76,7 @@ const create = context => {
 		const rightText = sourceCode.getText(node.right);
 
 		const fix = fixer => fixer.replaceTextRange(
-			[node.left.range[0], node.right.range[1]],
+			[sourceCode.getRange(node.left)[0], sourceCode.getRange(node.right)[1]],
 			`${rightText} ${node.operator} ${leftText}`,
 		);
 
