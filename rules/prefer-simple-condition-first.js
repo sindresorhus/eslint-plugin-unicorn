@@ -1,3 +1,10 @@
+import {
+	isParenthesized,
+	getParenthesizedText,
+	getParenthesizedRange,
+	shouldAddParenthesesToLogicalExpressionChild,
+} from './utils/index.js';
+
 const MESSAGE_ID = 'prefer-simple-condition-first';
 const MESSAGE_ID_SUGGESTION = 'prefer-simple-condition-first/suggestion';
 
@@ -30,14 +37,18 @@ function isSimple(node) {
 }
 
 /**
-Check if an AST subtree contains any CallExpression or NewExpression.
+Check if an AST subtree contains any CallExpression, NewExpression, or TaggedTemplateExpression.
 */
 function hasCall(node) {
 	if (!node || typeof node !== 'object') {
 		return false;
 	}
 
-	if (node.type === 'CallExpression' || node.type === 'NewExpression') {
+	if (
+		node.type === 'CallExpression'
+		|| node.type === 'NewExpression'
+		|| node.type === 'TaggedTemplateExpression'
+	) {
 		return true;
 	}
 
@@ -59,6 +70,22 @@ function hasCall(node) {
 	return false;
 }
 
+function getSwapText(node, context, {operator, property}) {
+	const isNodeParenthesized = isParenthesized(node, context);
+	let text = isNodeParenthesized
+		? getParenthesizedText(node, context)
+		: context.sourceCode.getText(node);
+
+	if (
+		!isNodeParenthesized
+		&& shouldAddParenthesesToLogicalExpressionChild(node, {operator, property})
+	) {
+		text = `(${text})`;
+	}
+
+	return text;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -72,11 +99,11 @@ const create = context => {
 			return;
 		}
 
-		const leftText = sourceCode.getText(node.left);
-		const rightText = sourceCode.getText(node.right);
+		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
+		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
 
 		const fix = fixer => fixer.replaceTextRange(
-			[sourceCode.getRange(node.left)[0], sourceCode.getRange(node.right)[1]],
+			[getParenthesizedRange(node.left, context)[0], getParenthesizedRange(node.right, context)[1]],
 			`${rightText} ${node.operator} ${leftText}`,
 		);
 
