@@ -10,6 +10,7 @@
 When writing multiple conditions in a logical expression (`&&`, `||`), simple conditions should come first. This can improve readability and performance, since simple checks like identifiers and strict equality comparisons are cheaper to evaluate and can short-circuit before expensive operations.
 
 A condition is considered "simple" if it is:
+
 - A bare identifier (`foo`)
 - A strict equality/inequality comparison between identifiers and/or literals (`foo === 1`, `a !== b`)
 
@@ -45,6 +46,13 @@ const x = bar || foo();
 
 ## Fix safety
 
+Expressions with side effects or throwing potential are not flagged, since reordering would change program behavior:
+
+- Assignment expressions (`state.ready = true`)
+- Update expressions (`++counter`)
+- Deep member expression chains (`object.deep.value`)
+- Tagged template expressions (`` tag`x` ``)
+
 When the complex side contains function calls or `new` expressions, the fix is provided as a **suggestion** rather than an auto-fix, because reordering changes when the call executes due to short-circuit evaluation.
 
-When both sides are side-effect-free (identifiers, member expressions without calls, literals), the fix is applied automatically.
+When both sides are side-effect-free (identifiers, simple member expressions, literals), the fix is applied automatically.

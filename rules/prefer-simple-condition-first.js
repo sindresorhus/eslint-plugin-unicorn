@@ -33,6 +33,32 @@ function isSimple(node) {
 			&& (node.left.type === 'Identifier' || node.right.type === 'Identifier');
 	}
 
+	// A chain of all-simple conditions is considered simple to prevent fix oscillation
+	if (node.type === 'LogicalExpression') {
+		return isSimple(node.left) && isSimple(node.right);
+	}
+
+	return false;
+}
+
+/**
+Check if a node has side effects or can throw, making it unsafe to reorder.
+Only checks the top-level node type (not recursive).
+*/
+function hasSideEffectsOrThrows(node) {
+	if (
+		node.type === 'AssignmentExpression'
+		|| node.type === 'UpdateExpression'
+		|| node.type === 'TaggedTemplateExpression'
+	) {
+		return true;
+	}
+
+	// Deep member expression chains (2+ levels) can throw
+	if (node.type === 'MemberExpression' && node.object.type === 'MemberExpression') {
+		return true;
+	}
+
 	return false;
 }
 
@@ -99,6 +125,10 @@ const create = context => {
 			return;
 		}
 
+		if (hasSideEffectsOrThrows(node.left)) {
+			return;
+		}
+
 		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
 		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
 
@@ -107,7 +137,9 @@ const create = context => {
 			`${rightText} ${node.operator} ${leftText}`,
 		);
 
-		if (hasCall(node.left)) {
+		// Use suggestion (not auto-fix) when left contains calls or is a chain
+		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
+		if (isChain || hasCall(node.left)) {
 			return {
 				node,
 				loc: sourceCode.getLoc(node.right),
