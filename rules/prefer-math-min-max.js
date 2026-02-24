@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import {isBigIntLiteral, isCallExpression} from './ast/index.js';
+import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
@@ -55,6 +55,12 @@ const create = context => {
 		);
 
 		if (hasBigInt) {
+			return;
+		}
+
+		const hasDate = [left, right].some(node => isNewExpression(node, {name: 'Date'}));
+
+		if (hasDate) {
 			return;
 		}
 
@@ -155,6 +161,17 @@ const create = context => {
 							```
 							*/
 							if (variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number') {
+								return;
+							}
+
+							/**
+							Capture the following statement
+
+							```js
+							var foo = new Date()
+							```
+							*/
+							if (isNewExpression(variableDeclarator.init, {name: 'Date'})) {
 								return;
 							}
 
