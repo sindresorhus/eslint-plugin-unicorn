@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When writing multiple conditions in a logical expression (`&&`, `||`), simple conditions should come first. This can improve readability and performance — simple checks like identifiers and strict equality comparisons are cheaper to evaluate and can short-circuit before expensive operations.
+When writing multiple conditions in a logical expression (`&&`, `||`), simple conditions should come first. This can improve readability and performance, since simple checks like identifiers and strict equality comparisons are cheaper to evaluate and can short-circuit before expensive operations.
 
 A condition is considered "simple" if it is:
 - A bare identifier (`foo`)
