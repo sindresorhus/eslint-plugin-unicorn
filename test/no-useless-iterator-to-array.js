@@ -57,6 +57,9 @@ test.snapshot({
 		'call(...iterator?.toArray())',
 		'call(...iterator.toArray?.())',
 
+		// Object spread should not be flagged
+		'({...iterator.toArray()})',
+
 		// Not a direct `.toArray()` — computed property
 		'new Set(iterator["toArray"]())',
 
@@ -160,6 +163,12 @@ test.snapshot({
 
 		// Parenthesized
 		'new Set((iterator.toArray()))',
+		'Promise.all((iterator.toArray()))',
+		'Array.from((iterator.toArray()))',
+		'Object.fromEntries((iterator.toArray()))',
 		'for (const x of (iterator.toArray()));',
+		'[...(iterator.toArray())]',
+		'call(...(iterator.toArray()))',
+		'new Foo(...(iterator.toArray()))',
 	],
 });
