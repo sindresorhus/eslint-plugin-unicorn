@@ -119,6 +119,7 @@ export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
 export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
 export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
+export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
 export {default as 'prefer-string-raw'} from './prefer-string-raw.js';
