@@ -49,27 +49,32 @@ const shouldEnforceDash = node =>
 	|| isJsxElementAttributes(node, {element: 'form', attributes: ['acceptCharset', 'accept-charset'].map(attribute => attribute.toLowerCase())})
 	|| (isNewExpression(node.parent, {name: 'TextDecoder'}) && node.parent.arguments[0] === node);
 
+const getStringLiteralValue = node => {
+	if (node.type === 'Literal') {
+		if (typeof node.value !== 'string') {
+			return;
+		}
+
+		return node.raw.slice(1, -1);
+	}
+
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+		&& node.quasis.length === 1
+	) {
+		return node.quasis[0].value.cooked;
+	}
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0];
 
 	context.on(['Literal', 'TemplateLiteral'], node => {
-		let value;
-
-		if (node.type === 'Literal') {
-			if (typeof node.value !== 'string') {
-				return;
-			}
-
-			const {raw} = node;
-			value = raw.slice(1, -1);
-		} else {
-			// Only check template literals with no expressions
-			if (node.expressions.length > 0) {
-				return;
-			}
-
-			value = node.quasis[0].value.cooked;
+		const value = getStringLiteralValue(node);
+		if (!value) {
+			return;
 		}
 
 		const withDash = options.withDash || shouldEnforceDash(node);

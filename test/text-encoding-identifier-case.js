@@ -12,6 +12,7 @@ test.snapshot({
 		'"   utf8   "',
 		'\'utf8\'',
 		String.raw`"\u0055tf8"`,
+		String.raw`foo.replace(/\1/g, _)`,
 		'const ASCII = 1',
 		'const UTF8 = 1',
 	],
@@ -51,6 +52,7 @@ test.snapshot({
 		'"utf-8";',
 		'"   Utf8   ";',
 		'\'utf-8\';',
+		String.raw`foo.replace(/\1/g, _)`,
 		'const utf8 = 2;',
 	].map(code => ({code, options: [{withDash: true}]})),
 	invalid: [
