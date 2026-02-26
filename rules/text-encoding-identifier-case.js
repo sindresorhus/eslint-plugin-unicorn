@@ -53,15 +53,26 @@ const shouldEnforceDash = node =>
 const create = context => {
 	const options = context.options[0];
 
-	context.on('Literal', node => {
-		if (typeof node.value !== 'string') {
-			return;
+	context.on(['Literal', 'TemplateLiteral'], node => {
+		let value;
+
+		if (node.type === 'Literal') {
+			if (typeof node.value !== 'string') {
+				return;
+			}
+
+			const {raw} = node;
+			value = raw.slice(1, -1);
+		} else {
+			// Only check template literals with no expressions
+			if (node.expressions.length > 0) {
+				return;
+			}
+
+			value = node.quasis[0].value.cooked;
 		}
 
 		const withDash = options.withDash || shouldEnforceDash(node);
-
-		const {raw} = node;
-		const value = raw.slice(1, -1);
 
 		const replacement = getReplacement(value, withDash);
 		if (!replacement || replacement === value) {
