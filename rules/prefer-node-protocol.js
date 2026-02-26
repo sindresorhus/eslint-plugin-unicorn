@@ -1,4 +1,4 @@
-import isBuiltinModule from 'is-builtin-module';
+import {isBuiltin} from 'node:module';
 import {
 	isStaticRequire,
 	isMethodCall,
@@ -9,6 +9,11 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `node:{{moduleName}}` over `{{moduleName}}`.',
 };
 const NODE_PROTOCOL = 'node:';
+
+// Deprecated built-in modules that should not get the node: prefix suggestion.
+// node:module.isBuiltin() returns true for these, but they are deprecated
+// and not part of the recommended module set.
+const deprecatedBuiltins = new Set(['punycode', 'sys']);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -47,8 +52,9 @@ const create = context => {
 		if (!(
 			typeof value === 'string'
 			&& !value.startsWith(NODE_PROTOCOL)
-			&& isBuiltinModule(value)
-			&& isBuiltinModule(`${NODE_PROTOCOL}${value}`)
+			&& !deprecatedBuiltins.has(value)
+			&& isBuiltin(value)
+			&& isBuiltin(`${NODE_PROTOCOL}${value}`)
 		)) {
 			return;
 		}

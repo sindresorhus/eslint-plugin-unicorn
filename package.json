@@ -65,7 +65,6 @@
 		"find-up-simple": "^1.0.1",
 		"globals": "^16.4.0",
 		"indent-string": "^5.0.0",
-		"is-builtin-module": "^5.0.0",
 		"jsesc": "^3.1.0",
 		"pluralize": "^8.0.0",
 		"regexp-tree": "^0.1.27",
