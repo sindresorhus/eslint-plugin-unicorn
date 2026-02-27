@@ -99,7 +99,7 @@ function create(context) {
 	const nonZeroStyle = nonZeroStyles.get(options['non-zero']);
 	const {sourceCode} = context;
 
-	function getProblem({node, isZeroLengthCheck, lengthNode, autoFix}) {
+	function getProblem({node, isZeroLengthCheck, lengthNode, autoFix, shouldSuggest = true}) {
 		const {code, test} = isZeroLengthCheck ? zeroStyle : nonZeroStyle;
 		if (test(node)) {
 			return;
@@ -127,7 +127,7 @@ function create(context) {
 
 		if (autoFix) {
 			problem.fix = fix;
-		} else {
+		} else if (shouldSuggest) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
@@ -179,11 +179,17 @@ function create(context) {
 		}
 
 		if (node) {
+			const isUnsafeNegationInBinaryExpression = node.type === 'UnaryExpression'
+				&& node.operator === '!'
+				&& node.parent.type === 'BinaryExpression'
+				&& node.parent.left === node;
+
 			return getProblem({
 				node,
 				isZeroLengthCheck,
 				lengthNode,
-				autoFix,
+				autoFix: autoFix && !isUnsafeNegationInBinaryExpression,
+				shouldSuggest: !isUnsafeNegationInBinaryExpression,
 			});
 		}
 	});
