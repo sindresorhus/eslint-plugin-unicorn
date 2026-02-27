@@ -15,6 +15,7 @@ export {default as 'error-message'} from './error-message.js';
 export {default as 'escape-case'} from './escape-case.js';
 export {default as 'expiring-todo-comments'} from './expiring-todo-comments.js';
 export {default as 'explicit-length-check'} from './explicit-length-check.js';
+export {default as 'explicit-timer-delay'} from './explicit-timer-delay.js';
 export {default as 'filename-case'} from './filename-case.js';
 export {default as 'import-style'} from './import-style.js';
 export {default as 'isolated-functions'} from './isolated-functions.js';
