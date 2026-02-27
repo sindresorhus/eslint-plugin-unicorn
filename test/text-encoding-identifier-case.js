@@ -4,12 +4,17 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'`UTF-8`',
+		'`utf8`',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`UTF-${8}`',
+		'`\\u0055tf8`',
+		'tag`\\unicode`',
 		'"utf8"',
 		'"utf+8"',
 		'"   utf8   "',
 		'\'utf8\'',
 		String.raw`"\u0055tf8"`,
+		String.raw`foo.replace(/\1/g, _)`,
 		'const ASCII = 1',
 		'const UTF8 = 1',
 	],
@@ -19,6 +24,10 @@ test.snapshot({
 		'\'utf-8\'',
 		'"Utf8"',
 		'"ASCII"',
+		'`UTF-8`',
+		'`utf-8`',
+		'`Utf8`',
+		'`ASCII`',
 		'fs.readFile?.(file, "UTF-8")',
 		'fs?.readFile(file, "UTF-8")',
 		'readFile(file, "UTF-8")',
@@ -39,10 +48,13 @@ test.snapshot({
 // `withDash` option
 test.snapshot({
 	valid: [
-		'`Utf-8`;',
+		'`utf-8`',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`Utf-${8}`',
 		'"utf-8";',
 		'"   Utf8   ";',
 		'\'utf-8\';',
+		String.raw`foo.replace(/\1/g, _)`,
 		'const utf8 = 2;',
 	].map(code => ({code, options: [{withDash: true}]})),
 	invalid: [
@@ -52,6 +64,11 @@ test.snapshot({
 		'\'utf8\';',
 		'"Utf8";',
 		'"ASCII";',
+		'`UTF-8`;',
+		'`UTF8`;',
+		'`utf8`;',
+		'`Utf8`;',
+		'`ASCII`;',
 		'fs.readFile(file, "utf8",);',
 		'whatever.readFile(file, "UTF8",)',
 	].map(code => ({code, options: [{withDash: true}]})),
