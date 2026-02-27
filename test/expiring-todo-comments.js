@@ -59,6 +59,11 @@ test({
 		},
 		'// Expire Condition [2000-01-01]: new term name',
 		'// TODO [>2000]: We sure didnt past this version',
+		// Partial versions should use semver range semantics (#1132)
+		// `>1` means `>=2.0.0`, not `>1.0.0`; `>63` means `>=64.0.0`, not `>63.0.0`
+		'// TODO [>63]: package is 63.0.0 so >63 should not trigger',
+		'// TODO [find-up-simple@>1]: find-up-simple is 1.0.1 so >1 should not trigger',
+		'// TODO [engine:node@>20]: node engine is 20.x so >20 should not trigger',
 		'// TODO [-find-up-simple]: We actually use this.',
 		'// TODO [+popura]: I think we wont need a broken package.',
 		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
@@ -255,6 +260,10 @@ test({
 		{
 			code: '// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.0]: when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0',
 			errors: [versionMatchesError('@lubien/fixture-beta-package >= 1.0.0-beta.0', 'when `@lubien/fixture-beta-package` version is >= 1.0.0-beta.0')],
+		},
+		{
+			code: '// TODO [@lubien/fixture-beta-package@>0.9]: when `@lubien/fixture-beta-package` prerelease version is > 0.9',
+			errors: [versionMatchesError('@lubien/fixture-beta-package > 0.9', 'when `@lubien/fixture-beta-package` prerelease version is > 0.9')],
 		},
 		{
 			code: '// TODO [semver>1]: Missing @.',
