@@ -7,6 +7,8 @@ test.snapshot({
 		'`utf8`',
 		// eslint-disable-next-line no-template-curly-in-string
 		'`UTF-${8}`',
+		'`\\u0055tf8`',
+		'tag`\\unicode`',
 		'"utf8"',
 		'"utf+8"',
 		'"   utf8   "',

@@ -63,7 +63,7 @@ const getStringLiteralValue = node => {
 		&& node.expressions.length === 0
 		&& node.quasis.length === 1
 	) {
-		return node.quasis[0].value.cooked;
+		return node.quasis[0].value.raw;
 	}
 };
 
