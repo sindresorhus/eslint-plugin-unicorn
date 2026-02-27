@@ -43,7 +43,7 @@ const create = context => {
 		const isGlobalVariable = valueNode.type === 'Identifier'
 			&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
 
-		if (!checkGlobalVariables && isGlobalVariable) {
+		if (isGlobalVariable && !checkGlobalVariables) {
 			return;
 		}
 

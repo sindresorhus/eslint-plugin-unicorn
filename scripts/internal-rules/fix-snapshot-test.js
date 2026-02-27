@@ -125,7 +125,7 @@ function checkTestCaseProperty(propertyNode, context) {
 				messageId: MESSAGE_ID_DISALLOWED_PROPERTY,
 				data: {
 					name: key.name,
-					autoFixEnableTip: !hasFixMark && canFix
+					autoFixEnableTip: canFix && !hasFixMark
 						? ' Put /* fix */ before `test.snapshot()` to enable auto-fix.'
 						: '',
 				},
