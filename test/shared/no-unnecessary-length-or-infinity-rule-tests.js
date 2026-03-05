@@ -28,6 +28,10 @@ function createFixtures(method) {
 				code: `(foo as any[]).${method}(1, bar.length)`,
 				languageOptions: {parser: parsers.typescript},
 			},
+			{
+				code: `foo!.${method}(1, bar!.length)`,
+				languageOptions: {parser: parsers.typescript},
+			},
 		],
 		invalid: [
 			`foo.${method}(1, foo.length)`,
@@ -53,6 +57,18 @@ function createFixtures(method) {
 			},
 			{
 				code: `(bar as any[]).${method}(1, Number.POSITIVE_INFINITY)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `foo!.${method}(1, foo!.length)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `foo!.${method}(1, Infinity)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `bar!.${method}(1, Number.POSITIVE_INFINITY)`,
 				languageOptions: {parser: parsers.typescript},
 			},
 		],
