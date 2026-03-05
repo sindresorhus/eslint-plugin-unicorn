@@ -300,6 +300,16 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				if (condition) {
+					element!.classList.add('className');
+				} else {
+					element!.classList.remove('className');
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
