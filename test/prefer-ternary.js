@@ -1067,6 +1067,22 @@ test({
 			`,
 			errors,
 		},
+		{
+			code: outdent`
+				unrelatedStatement()
+				if (foo) {
+					;(bar.baz as any) = 'string'
+				} else {
+					bar.baz = 2
+				}
+			`,
+			output: outdent`
+				unrelatedStatement()
+				;(bar.baz as any) = foo ? 'string' : 2;
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
