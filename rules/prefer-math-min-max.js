@@ -35,6 +35,16 @@ function unwrapNode(node) {
 	return node;
 }
 
+function getTypeAnnotation(node) {
+	if (node.type === 'TSNonNullExpression') {
+		return getTypeAnnotation(node.expression);
+	}
+
+	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+		return node.typeAnnotation;
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ConditionalExpression', /** @param {import('estree').ConditionalExpression} conditionalExpression */ conditionalExpression => {
@@ -92,11 +102,11 @@ const create = context => {
 
 		for (const node of [left, right]) {
 			const expressionNode = unwrapNode(node);
-
+			const typeAnnotation = getTypeAnnotation(node);
 			if (
 				node !== expressionNode
-				&& node.typeAnnotation
-				&& !isNumberTypeAnnotation(node.typeAnnotation)
+				&& typeAnnotation
+				&& !isNumberTypeAnnotation(typeAnnotation)
 			) {
 				return;
 			}

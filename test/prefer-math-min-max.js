@@ -140,6 +140,16 @@ test.snapshot({
 
 			var value = foo > bar ? bar : foo;
 		`,
+		outdent`
+			function foo(a, b) {
+				return (a as string)! > b ? (a as string)! : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<string>a)! > b ? (<string>a)! : b;
+			}
+		`,
 	],
 	invalid: [
 		outdent`
