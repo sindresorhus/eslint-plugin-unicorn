@@ -181,6 +181,42 @@ test({
 			errors,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return foo!;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? foo! : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test!){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test! ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
