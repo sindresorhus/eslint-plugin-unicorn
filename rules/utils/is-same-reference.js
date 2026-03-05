@@ -98,6 +98,19 @@ function equalLiteralValue(left, right) {
 }
 
 /**
+Unwrap ChainExpression (`?.`)nodes.
+@param {ASTNode} node The node to unwrap.
+@returns {ASTNode} The unwrapped node.
+*/
+function unwrapNode(node) {
+	if (node.type === 'ChainExpression') {
+		return unwrapNode(node.expression);
+	}
+
+	return node;
+}
+
+/**
 Check if two expressions reference the same value. For example:
 	a = a
 	a.b = a.b
@@ -108,16 +121,10 @@ Check if two expressions reference the same value. For example:
 @returns {boolean} `true` if both sides match and reference the same value.
 */
 export default function isSameReference(left, right) {
+	left = unwrapNode(left);
+	right = unwrapNode(right);
+
 	if (left.type !== right.type) {
-		// Handle `a.b` and `a?.b` are samely.
-		if (left.type === 'ChainExpression') {
-			return isSameReference(left.expression, right);
-		}
-
-		if (right.type === 'ChainExpression') {
-			return isSameReference(left, right.expression);
-		}
-
 		return false;
 	}
 
@@ -134,10 +141,6 @@ export default function isSameReference(left, right) {
 
 		case 'Literal': {
 			return equalLiteralValue(left, right);
-		}
-
-		case 'ChainExpression': {
-			return isSameReference(left.expression, right.expression);
 		}
 
 		case 'MemberExpression': {
