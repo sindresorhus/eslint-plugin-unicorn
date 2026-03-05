@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -385,6 +385,14 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: outdent`
+				if ((foo as number) === 1) {}
+				else if ((foo as number) === 2) {}
+				else if ((foo as number) === 3) {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
