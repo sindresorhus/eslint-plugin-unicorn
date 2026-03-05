@@ -171,5 +171,13 @@ test.snapshot({
 			code: '(array as any[]).length > 0 && (array as any[]).some(Boolean)',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'array!.length === 0 || array!.every(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.length > 0 && array!.some(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
