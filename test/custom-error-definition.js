@@ -4,9 +4,8 @@ import {getTester, avoidTestTitleConflict} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
-const constructorError = {message: 'Add a constructor to your error.'};
-const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
 const invalidNameError = name => ({message: `The \`name\` property should be set to \`${name}\`.`});
+const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
 const passMessageToSuperError = {message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 const invalidExportError = {
 	messageId: 'invalidExport',
@@ -56,6 +55,11 @@ const tests = {
 					super();
 					this.name = 'FooError';
 				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				name = 'FooError';
 			}
 		`,
 		outdent`
@@ -133,14 +137,43 @@ const tests = {
 				class FooError extends Error {}
 			`,
 			errors: [
-				constructorError,
+				invalidNameError('FooError'),
 			],
 			output: outdent`
 				class FooError extends Error {
-					constructor() {
-						super();
-						this.name = 'FooError';
-					}
+					name = 'FooError';
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					name = 'BadError';
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+			output: outdent`
+				class FooError extends Error {
+					name = 'FooError';
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					static name = 'FooError';
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+			output: outdent`
+				class FooError extends Error {
+					name = 'FooError';
+
+					static name = 'FooError';
 				}
 			`,
 		},
@@ -545,6 +578,19 @@ test.typescript({
 				}
 			`,
 			errors: [invalidNameError('ValidationError')],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					name: string;
+				}
+			`,
+			errors: [invalidNameError('FooError')],
+			output: outdent`
+				class FooError extends Error {
+					name = 'FooError';
+				}
+			`,
 		},
 	],
 });

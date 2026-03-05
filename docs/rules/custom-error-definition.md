@@ -106,3 +106,10 @@ class CustomError extends TypeError {
 	}
 }
 ```
+
+```js
+// ✅
+class CustomError extends Error {
+	name = 'CustomError';
+}
+```
