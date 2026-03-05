@@ -1,3 +1,5 @@
+import parsers from '../utils/parsers.js';
+
 function createFixtures(method) {
 	return {
 		valid: [
@@ -22,6 +24,10 @@ function createFixtures(method) {
 			`foo?.${method}(1, Number?.POSITIVE_INFINITY)`,
 			// `isSameReference` consider they are not the same reference
 			`foo().${method}(1, foo().length)`,
+			{
+				code: `(foo as any[]).${method}(1, bar.length)`,
+				languageOptions: {parser: parsers.typescript},
+			},
 		],
 		invalid: [
 			`foo.${method}(1, foo.length)`,
@@ -33,6 +39,22 @@ function createFixtures(method) {
 			`foo?.${method}(1, Infinity)`,
 			`foo?.${method}(1, Number.POSITIVE_INFINITY)`,
 			`foo.bar.${method}(1, foo.bar.length)`,
+			{
+				code: `(foo as any[]).${method}(1, (foo as any[]).length)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `(array as string[])?.${method}(1, (array as string[])?.length)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `(foo as number[]).${method}(1, Infinity)`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			{
+				code: `(bar as any[]).${method}(1, Number.POSITIVE_INFINITY)`,
+				languageOptions: {parser: parsers.typescript},
+			},
 		],
 	};
 }
