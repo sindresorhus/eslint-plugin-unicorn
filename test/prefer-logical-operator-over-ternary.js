@@ -53,5 +53,13 @@ test.snapshot({
 			code: '(a && b as boolean) ? (a && b as boolean) : bar',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'foo! ? foo! : bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.bar! ? foo.bar! : foo.baz',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
