@@ -256,11 +256,8 @@ function tryToCoerceVersion(rawVersion) {
 	}
 }
 
-function semverComparisonForOperator(operator) {
-	return {
-		'>': semver.gt,
-		'>=': semver.gte,
-	}[operator];
+function satisfiesRange(version, condition, range) {
+	return semver.satisfies(version, `${condition}${range}`, {includePrerelease: true});
 }
 
 const DEFAULT_OPTIONS = {
@@ -388,10 +385,7 @@ const create = context => {
 			const [{condition, version}] = packageVersions;
 
 			const packageVersion = tryToCoerceVersion(packageJson.version);
-			const decidedPackageVersion = tryToCoerceVersion(version);
-
-			const compare = semverComparisonForOperator(condition);
-			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
+			if (packageVersion && satisfiesRange(packageVersion, condition, version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
@@ -431,7 +425,6 @@ const create = context => {
 				continue;
 			}
 
-			const todoVersion = tryToCoerceVersion(dependency.version);
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
 			/* c8 ignore start */
@@ -441,9 +434,7 @@ const create = context => {
 			}
 			/* c8 ignore end */
 
-			const compare = semverComparisonForOperator(dependency.condition);
-
-			if (compare(targetPackageVersion, todoVersion)) {
+			if (satisfiesRange(targetPackageVersion, dependency.condition, dependency.version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_VERSION_MATCHES,
@@ -468,14 +459,11 @@ const create = context => {
 				continue;
 			}
 
-			const todoEngine = tryToCoerceVersion(engine.version);
 			const targetPackageEngineVersion = tryToCoerceVersion(
 				targetPackageRawEngineVersion,
 			);
 
-			const compare = semverComparisonForOperator(engine.condition);
-
-			if (compare(targetPackageEngineVersion, todoEngine)) {
+			if (targetPackageEngineVersion && satisfiesRange(targetPackageEngineVersion, engine.condition, engine.version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
