@@ -1,5 +1,6 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
+import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
@@ -385,5 +386,17 @@ test.snapshot({
 		'foo.subarray(foo.length - 3, foo.length - 6)',
 		'Uint8Array.prototype.subarray.call(foo, foo.length - 3, foo.length - 6)',
 		'Uint8Array.prototype.subarray.apply(foo, [foo.length - 3, foo.length - 6])',
+		{
+			code: '(foo as string[]).slice((foo as string[]).length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(array as number[]).splice((array as number[]).length - 2, 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Array.prototype.slice.call(foo as any[], (foo as any[]).length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
