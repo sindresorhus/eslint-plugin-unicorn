@@ -200,8 +200,8 @@ export default function isNumber(node, scope) {
 			if (
 				testStaticValueResult !== null
 				&& (
-					(testStaticValueResult.value && isConsequentNumber)
-					|| (!testStaticValueResult.value && isAlternateNumber)
+					(isConsequentNumber && testStaticValueResult.value)
+					|| (isAlternateNumber && !testStaticValueResult.value)
 				)
 			) {
 				return true;
