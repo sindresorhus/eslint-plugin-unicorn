@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -237,6 +237,13 @@ test.snapshot({
 			foo?.bar.push(1);
 			foo?.bar.push(2);
 		`,
+		{
+			code: outdent`
+				(foo as any[]).push(1);
+				(foo as any[]).push(2);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
