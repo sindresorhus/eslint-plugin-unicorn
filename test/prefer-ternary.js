@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -162,6 +162,24 @@ test({
 				}
 			`,
 			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return (foo as string);
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? (foo as string) : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });
