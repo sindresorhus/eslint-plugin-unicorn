@@ -244,6 +244,13 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				foo!.push(1);
+				foo!.push(2);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
