@@ -59,6 +59,14 @@ test.snapshot({
 			code: '<Foo[]>array[(<Foo[]>array).length - 1]',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'array![array.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array![array!.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -89,6 +97,10 @@ test.snapshot({
 		},
 		{
 			code: '<string>string.charAt((<string>string).length - 1);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'string!.charAt(string!.length - 1);',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
@@ -150,6 +162,14 @@ test.snapshot({
 		},
 		{
 			code: '<Foo[]>array.slice(-1).shift()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.slice(-1)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.slice(-1).pop()',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
