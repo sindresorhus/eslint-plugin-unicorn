@@ -9,5 +9,7 @@ export default function shouldAddParenthesesToConditionalExpressionChild(node) {
 		// Lower precedence, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 		|| node.type === 'AssignmentExpression'
 		|| node.type === 'YieldExpression'
-		|| node.type === 'SequenceExpression';
+		|| node.type === 'SequenceExpression'
+		|| node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion';
 }
