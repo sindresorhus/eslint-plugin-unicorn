@@ -49,19 +49,35 @@ const shouldEnforceDash = node =>
 	|| isJsxElementAttributes(node, {element: 'form', attributes: ['acceptCharset', 'accept-charset'].map(attribute => attribute.toLowerCase())})
 	|| (isNewExpression(node.parent, {name: 'TextDecoder'}) && node.parent.arguments[0] === node);
 
-/** @param {import('eslint').Rule.RuleContext} context */
-const create = context => {
-	const options = context.options[0];
-
-	context.on('Literal', node => {
+const getStringLiteralValue = node => {
+	if (node.type === 'Literal') {
 		if (typeof node.value !== 'string') {
 			return;
 		}
 
-		const withDash = options.withDash || shouldEnforceDash(node);
+		return node.raw.slice(1, -1);
+	}
 
-		const {raw} = node;
-		const value = raw.slice(1, -1);
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+		&& node.quasis.length === 1
+	) {
+		return node.quasis[0].value.raw;
+	}
+};
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	const options = context.options[0];
+
+	context.on(['Literal', 'TemplateLiteral'], node => {
+		const value = getStringLiteralValue(node);
+		if (!value) {
+			return;
+		}
+
+		const withDash = options.withDash || shouldEnforceDash(node);
 
 		const replacement = getReplacement(value, withDash);
 		if (!replacement || replacement === value) {
