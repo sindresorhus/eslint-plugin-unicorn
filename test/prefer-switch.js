@@ -393,6 +393,14 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				if (foo! === 1) {}
+				else if (foo! === 2) {}
+				else if (foo! === 3) {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
