@@ -184,6 +184,24 @@ test({
 		{
 			code: outdent`
 				function unicorn() {
+					if(test as boolean){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return (test as boolean) ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
 					if(test){
 						return foo!;
 					} else{
