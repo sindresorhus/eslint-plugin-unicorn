@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -41,5 +41,17 @@ test.snapshot({
 			const foo = []
 			a && b ? a && b : 1
 		`,
+		{
+			code: '(foo as string) ? (foo as string) : bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo.bar as string) ? (foo.bar as string) : foo.baz',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(a && b as boolean) ? (a && b as boolean) : bar',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
