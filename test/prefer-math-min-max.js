@@ -104,6 +104,16 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function foo(a, b) {
+				return (<bigint>a) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<string>a) > b ? a : b;
+			}
+		`,
+		outdent`
 			function foo(a: string, b) {
 				return a > b ? a : b;
 			}
@@ -164,6 +174,21 @@ test.snapshot({
 			var bar: number;
 
 			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as number) > b ? (a as number) : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<number>a) > b ? (<number>a) : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return a! > b ? a! : b;
+			}
 		`,
 	],
 });

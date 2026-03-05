@@ -23,15 +23,17 @@ const isNumberTypeAnnotation = typeAnnotation => {
 	return false;
 };
 
-const getExpressionText = (node, sourceCode) => {
-	const expressionNode = node.type === 'TSAsExpression' ? node.expression : node;
-
-	if (node.type === 'TSAsExpression') {
-		return getExpressionText(expressionNode, sourceCode);
+function unwrapNode(node) {
+	if (
+		node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSNonNullExpression'
+	) {
+		return unwrapNode(node.expression);
 	}
 
-	return sourceCode.getText(expressionNode);
-};
+	return node;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -58,7 +60,9 @@ const create = context => {
 			return;
 		}
 
-		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => getExpressionText(node, context.sourceCode));
+		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(
+			node => context.sourceCode.getText(unwrapNode(node)),
+		);
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
 		const isLessOrEqual = operator === '<' || operator === '<=';
@@ -87,15 +91,14 @@ const create = context => {
 		}
 
 		for (const node of [left, right]) {
-			let expressionNode = node;
+			const expressionNode = unwrapNode(node);
 
-			if (expressionNode.typeAnnotation && expressionNode.type === 'TSAsExpression') {
-				// Ignore if the test is not a number comparison operator
-				if (!isNumberTypeAnnotation(expressionNode.typeAnnotation)) {
-					return;
-				}
-
-				expressionNode = expressionNode.expression;
+			if (
+				node !== expressionNode
+				&& node.typeAnnotation
+				&& !isNumberTypeAnnotation(node.typeAnnotation)
+			) {
+				return;
 			}
 
 			// Find variable declaration
