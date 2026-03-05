@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -290,6 +290,16 @@ test.snapshot({
 				element.classList.remove('className');
 			}
 		`,
+		{
+			code: outdent`
+				if (condition) {
+					(element as Element).classList.add('className');
+				} else {
+					(element as Element).classList.remove('className');
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
