@@ -398,5 +398,13 @@ test.snapshot({
 			code: 'Array.prototype.slice.call(foo as any[], (foo as any[]).length - 1)',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'foo!.slice(foo!.length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.splice(array!.length - 2, 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
