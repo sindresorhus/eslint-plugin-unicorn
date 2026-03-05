@@ -98,12 +98,16 @@ function equalLiteralValue(left, right) {
 }
 
 /**
-Unwrap ChainExpression (`?.`)nodes.
+Unwrap ChainExpression (`?.`) and TypeScript type assertion (`as` or `<Type>`) nodes.
 @param {ASTNode} node The node to unwrap.
 @returns {ASTNode} The unwrapped node.
 */
 function unwrapNode(node) {
-	if (node.type === 'ChainExpression') {
+	if (
+		node.type === 'ChainExpression'
+		|| node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+	) {
 		return unwrapNode(node.expression);
 	}
 
