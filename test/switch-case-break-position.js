@@ -2,6 +2,7 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const error = {messageId: 'switch-case-break-position'};
 
 test.snapshot({
 	valid: [
@@ -185,5 +186,98 @@ test.snapshot({
 				break;
 			}
 		`,
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// Inline comment
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff(); // Keep this comment with the statement
+					}
+					break;
+				}
+			`,
+			output: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff(); // Keep this comment with the statement
+						break;
+					}
+				}
+			`,
+			errors: [error],
+		},
+		// Block comment
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff(); /* Keep this block comment with the statement */
+					}
+					break;
+				}
+			`,
+			output: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff(); /* Keep this block comment with the statement */
+						break;
+					}
+				}
+			`,
+			errors: [error],
+		},
+		// Before closing brace
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff();
+						// Keep this comment before the inserted break
+					}
+					break;
+				}
+			`,
+			output: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff();
+						// Keep this comment before the inserted break
+						break;
+					}
+				}
+			`,
+			errors: [error],
+		},
+		// ESLint directive
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						console.log(foo); // eslint-disable-line no-console
+					}
+					break;
+				}
+			`,
+			output: outdent`
+				switch(foo) {
+					case 1: {
+						console.log(foo); // eslint-disable-line no-console
+						break;
+					}
+				}
+			`,
+			errors: [error],
+		},
+		// Single-line block — error reported but fix skipped (would produce malformed output)
+		{
+			code: 'switch(foo) { case 1: { doStuff(); } break; }',
+			errors: [error],
+		},
 	],
 });
