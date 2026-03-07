@@ -1,5 +1,4 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
-import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID = 'switch-case-break-position';
@@ -86,18 +85,28 @@ const create = context => {
 					return;
 				}
 
+				// Skip fix for single-line blocks (produces malformed output)
+				const blockLoc = sourceCode.getLoc(blockStatement);
+				if (blockLoc.start.line === blockLoc.end.line) {
+					return;
+				}
+
 				const lastBodyStatement = blockStatement.body.at(-1);
 				const terminatingStatementText = sourceCode.getText(lastStatement);
 				const bodyIndent = getIndentString(lastBodyStatement, context);
 
-				// Insert the terminating statement after the last statement in the block
+				// Insert before the closing brace, after the last token (including any comments)
+				// This preserves comment attachment to the original statements
+				const lastTokenBeforeBrace = sourceCode.getTokenBefore(closingBrace, {includeComments: true});
 				yield fixer.insertTextAfter(
-					lastBodyStatement,
+					lastTokenBeforeBrace,
 					`\n${bodyIndent}${terminatingStatementText}`,
 				);
 
-				// Remove the terminating statement after the block
-				yield replaceNodeOrTokenAndSpacesBefore(lastStatement, '', fixer, context);
+				// Remove the terminating statement and whitespace between it and the closing brace
+				const closingBraceEnd = sourceCode.getRange(closingBrace)[1];
+				const terminatingEnd = sourceCode.getRange(lastStatement)[1];
+				yield fixer.removeRange([closingBraceEnd, terminatingEnd]);
 			},
 		};
 	});
