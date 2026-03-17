@@ -184,6 +184,27 @@ test({
 	],
 
 	invalid: [
+		// Cached-length pattern: for (let i = 0, j = arr.length; i < j; ...) — #295
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i += 1) {
+				const element = arr[i];
+				console.log(element);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i]);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+
 		// Use default name
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
