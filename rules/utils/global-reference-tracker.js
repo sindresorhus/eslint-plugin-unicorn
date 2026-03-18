@@ -15,7 +15,6 @@ export class GlobalReferenceTracker {
 	static READ = ReferenceTracker.READ;
 	static CALL = ReferenceTracker.CALL;
 	static CONSTRUCT = ReferenceTracker.CONSTRUCT;
-
 	#traceMap = {};
 	#context;
 	#filter;
