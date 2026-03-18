@@ -8,6 +8,7 @@
 Modules with top-level side effects cannot be safely [tree-shaken](https://webpack.js.org/guides/tree-shaking/). Webpack calls these "pure modules" — a module is considered side-effect-free when it does not execute observable operations (function calls, `new` expressions) at the top level.
 
 This rule is skipped for:
+
 - Files with a hashbang (`#!/usr/bin/env node`) — these are scripts, not modules
 - Files with no exports — files without exports are treated as scripts
 

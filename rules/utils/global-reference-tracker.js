@@ -12,6 +12,10 @@ const createTraceMap = (object, type) => {
 };
 
 export class GlobalReferenceTracker {
+	static READ = ReferenceTracker.READ;
+	static CALL = ReferenceTracker.CALL;
+	static CONSTRUCT = ReferenceTracker.CONSTRUCT;
+
 	#traceMap = {};
 	#context;
 	#filter;
@@ -60,9 +64,3 @@ export class GlobalReferenceTracker {
 		);
 	}
 }
-
-Object.assign(GlobalReferenceTracker, {
-	READ: ReferenceTracker.READ,
-	CALL: ReferenceTracker.CALL,
-	CONSTRUCT: ReferenceTracker.CONSTRUCT,
-});
