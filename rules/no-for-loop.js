@@ -100,21 +100,56 @@ const getIndexIdentifierName = forStatement => {
 		return;
 	}
 
-	if (variableDeclaration.declarations.length !== 1) {
-		return;
+	const {declarations} = variableDeclaration;
+
+	// Handle: for (let i = 0; ...)
+	if (declarations.length === 1) {
+		const [variableDeclarator] = declarations;
+
+		if (!isLiteralZero(variableDeclarator.init)) {
+			return;
+		}
+
+		if (variableDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		return variableDeclarator.id.name;
 	}
 
-	const [variableDeclarator] = variableDeclaration.declarations;
+	// Handle: for (let i = 0, j = arr.length; i < j; ...)
+	// The second declarator caches the array length to avoid repeated .length lookups.
+	if (declarations.length === 2) {
+		const [indexDeclarator, lengthDeclarator] = declarations;
 
-	if (!isLiteralZero(variableDeclarator.init)) {
-		return;
+		if (!isLiteralZero(indexDeclarator.init)) {
+			return;
+		}
+
+		if (indexDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		if (lengthDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		// Second declarator MUST be `j = someArray.length`, not just any value.
+		// Without this check `for (let i = 0, j = 0; i < arr.length; i++)` would
+		// incorrectly trigger because the test still contains `i < arr.length`.
+		const {init: lengthInit} = lengthDeclarator;
+		if (
+			!lengthInit
+			|| lengthInit.type !== 'MemberExpression'
+			|| lengthInit.object.type !== 'Identifier'
+			|| lengthInit.property.type !== 'Identifier'
+			|| lengthInit.property.name !== 'length'
+		) {
+			return;
+		}
+
+		return indexDeclarator.id.name;
 	}
-
-	if (variableDeclarator.id.type !== 'Identifier') {
-		return;
-	}
-
-	return variableDeclarator.id.name;
 };
 
 const getStrictComparisonOperands = binaryExpression => {
@@ -165,13 +200,53 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 };
 
 const getArrayIdentifier = (forStatement, indexIdentifierName) => {
-	const {test} = forStatement;
+	const {test, init: variableDeclaration} = forStatement;
 
 	if (!test || test.type !== 'BinaryExpression') {
 		return;
 	}
 
-	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	// Standard case: for (let i = 0; i < arr.length; ...)
+	const fromTest = getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	if (fromTest) {
+		return fromTest;
+	}
+
+	// Cached-length case: for (let i = 0, j = arr.length; i < j; ...)
+	// The test uses a variable `j` that was assigned `arr.length` in the init.
+	if (!variableDeclaration || variableDeclaration.declarations.length !== 2) {
+		return;
+	}
+
+	const [, lengthDeclarator] = variableDeclaration.declarations;
+	const lengthVariableName = lengthDeclarator.id.name;
+
+	const operands = getStrictComparisonOperands(test);
+	if (!operands) {
+		return;
+	}
+
+	const {lesser, greater} = operands;
+	if (
+		!isIdentifierWithName(lesser, indexIdentifierName)
+		|| !isIdentifierWithName(greater, lengthVariableName)
+	) {
+		return;
+	}
+
+	// Verify that the second declarator is `j = arr.length`
+	const {init: lengthInit} = lengthDeclarator;
+	if (
+		!lengthInit
+		|| lengthInit.type !== 'MemberExpression'
+		|| lengthInit.object.type !== 'Identifier'
+		|| lengthInit.property.type !== 'Identifier'
+		|| lengthInit.property.name !== 'length'
+	) {
+		return;
+	}
+
+	return lengthInit.object;
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
