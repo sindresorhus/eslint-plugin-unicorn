@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	isNodeMatches,
@@ -225,6 +226,58 @@ function * getTernaryConsequentAndALternate(node) {
 	yield node;
 }
 
+// These methods have dedicated type-predicate overloads in TypeScript's lib files.
+// Wrapping a type guard can lose narrowing, so direct references should be allowed here.
+const methodsWithTypePredicateOverloads = new Set([
+	'every',
+	'filter',
+	'find',
+	'findLast',
+]);
+
+function hasTypePredicateReturnType(node) {
+	return node.returnType?.typeAnnotation?.type === 'TSTypePredicate';
+}
+
+function hasTypePredicateFunctionType(node) {
+	return node.typeAnnotation?.typeAnnotation?.returnType?.typeAnnotation?.type === 'TSTypePredicate';
+}
+
+function isTypePredicateCallback(callback, context) {
+	if (callback.type !== 'Identifier') {
+		return false;
+	}
+
+	// Keep this local and syntax-based. Imported/member expressions need type-aware linting.
+	const variable = findVariable(context.sourceCode.getScope(callback), callback);
+	const definition = variable?.defs[0];
+
+	if (!definition) {
+		return false;
+	}
+
+	if (definition.type === 'FunctionName') {
+		return hasTypePredicateReturnType(definition.node);
+	}
+
+	if (definition.type === 'Parameter') {
+		return hasTypePredicateFunctionType(definition.name);
+	}
+
+	if (definition.type === 'Variable') {
+		if (hasTypePredicateFunctionType(definition.node.id)) {
+			return true;
+		}
+
+		const {init} = definition.node;
+		return init
+			&& (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
+			&& hasTypePredicateReturnType(init);
+	}
+
+	return false;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (callExpression) {
@@ -255,10 +308,11 @@ const create = context => {
 			if (
 				callback.type === 'FunctionExpression'
 				|| callback.type === 'ArrowFunctionExpression'
-				// Ignore all `CallExpression`s include `function.bind()`
+				// Ignore all `CallExpression`s, including `function.bind()`
 				|| callback.type === 'CallExpression'
 				|| options.shouldIgnoreCallback(callback)
 				|| isNodeValueNotFunction(callback)
+				|| (methodsWithTypePredicateOverloads.has(methodName) && isTypePredicateCallback(callback, context))
 			) {
 				continue;
 			}

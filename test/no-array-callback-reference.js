@@ -534,3 +534,129 @@ test.snapshot({
 		`,
 	],
 });
+
+test.typescript({
+	valid: [
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString = (value: unknown): value is string => typeof value === 'string';
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString = function (value: unknown): value is string {
+				return typeof value === 'string';
+			};
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString: (value: unknown) => value is string = value => typeof value === 'string';
+			foo.filter(isString);
+		`,
+		outdent`
+			function run(predicate: (value: unknown) => value is string) {
+				foo.filter(predicate);
+			}
+		`,
+		outdent`
+			function runEvery(predicate: (value: unknown) => value is string) {
+				foo.every(predicate);
+			}
+		`,
+		outdent`
+			function runFind(predicate: (value: unknown) => value is string) {
+				foo.find(predicate);
+			}
+		`,
+		outdent`
+			function runFindLast(predicate: (value: unknown) => value is string) {
+				foo.findLast(predicate);
+			}
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			const guard: (value: unknown) => value is string = isString;
+			foo.filter(guard);
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.find(isString);
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.every(isString);
+		`,
+	],
+	invalid: [
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): boolean {
+					return typeof value === 'string';
+				}
+				foo.filter(isString);
+			`,
+			method: 'filter',
+			name: 'isString',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element) => isString(element));
+				`,
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element, index) => isString(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): value is string {
+					return typeof value === 'string';
+				}
+				foo.map(isString);
+			`,
+			method: 'map',
+			name: 'isString',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element) => isString(element));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element, index) => isString(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
+	],
+});

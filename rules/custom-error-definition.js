@@ -1,6 +1,7 @@
 import {
 	upperFirst,
 	getParenthesizedText,
+	isNodeMatchesNameOrPath,
 } from './utils/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
@@ -12,91 +13,57 @@ const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
 const getClassName = name => upperFirst(name).replace(/(?:error|)$/i, 'Error');
 
-const getConstructorMethod = className => `
-	constructor() {
-		super();
-		this.name = '${className}';
-	}
+const getNameProperty = className => `
+	name = '${className}';
 `;
 
+const getSuperClassName = superClass => {
+	if (superClass?.type === 'Identifier') {
+		return superClass.name;
+	}
+
+	if (
+		superClass?.type === 'MemberExpression'
+		&& !superClass.computed
+		&& superClass.property.type === 'Identifier'
+	) {
+		return superClass.property.name;
+	}
+};
+
 const hasValidSuperClass = node => {
-	if (!node.superClass) {
-		return false;
-	}
-
-	let {name, type, property} = node.superClass;
-
-	if (type === 'MemberExpression') {
-		({name} = property);
-	}
-
-	return nameRegexp.test(name);
+	const superClassName = getSuperClassName(node.superClass);
+	return Boolean(superClassName) && nameRegexp.test(superClassName);
 };
 
 const isSuperExpression = node =>
 	node.type === 'ExpressionStatement'
 	&& node.expression.type === 'CallExpression'
-	&& node.expression.callee.type === 'Super';
+	&& isNodeMatchesNameOrPath(node.expression.callee, 'super');
 
-const isAssignmentExpression = (node, name) => {
-	if (
-		node.type !== 'ExpressionStatement'
-		|| node.expression.type !== 'AssignmentExpression'
-	) {
-		return false;
-	}
+const isAssignmentExpression = (node, name) =>
+	node.type === 'ExpressionStatement'
+	&& node.expression.type === 'AssignmentExpression'
+	&& isNodeMatchesNameOrPath(node.expression.left, `this.${name}`);
 
-	const lhs = node.expression.left;
-
-	if (!lhs.object || lhs.object.type !== 'ThisExpression') {
-		return false;
-	}
-
-	return lhs.property.name === name;
-};
+const createInvalidNameError = (node, name) => ({
+	node,
+	message: `The \`name\` property should be set to \`${name}\`.`,
+});
 
 const isPropertyDefinition = (node, name) =>
 	node.type === 'PropertyDefinition'
+	&& !node.static
 	&& !node.computed
 	&& node.key.type === 'Identifier'
 	&& node.key.name === name;
 
-function * customErrorDefinition(context, node) {
-	if (!hasValidSuperClass(node)) {
-		return;
-	}
+const isValidNameProperty = (nameProperty, className) =>
+	nameProperty?.value
+	&& nameProperty.value.value === className;
 
-	if (node.id === null) {
-		return;
-	}
-
-	const {name} = node.id;
-	const className = getClassName(name);
-
-	if (name !== className) {
-		yield {
-			node: node.id,
-			message: `Invalid class name, use \`${className}\`.`,
-		};
-	}
-
+function * checkConstructorBody(context, constructor, name, nameProperty) {
 	const {sourceCode} = context;
-	const {body} = node.body;
-	const range = sourceCode.getRange(node.body);
-	const constructor = body.find(x => x.kind === 'constructor');
-
-	if (!constructor) {
-		yield {
-			node,
-			message: 'Add a constructor to your error.',
-			fix: fixer => fixer.insertTextAfterRange([
-				range[0],
-				range[0] + 1,
-			], getConstructorMethod(name)),
-		};
-		return;
-	}
-
 	const constructorBodyNode = constructor.value.body;
 
 	// Verify the constructor has a body (TypeScript)
@@ -106,8 +73,8 @@ function * customErrorDefinition(context, node) {
 
 	const constructorBody = constructorBodyNode.body;
 
-	const superExpression = constructorBody.find(body => isSuperExpression(body));
-	const messageExpressionIndex = constructorBody.findIndex(x => isAssignmentExpression(x, 'message'));
+	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
+	const messageExpressionIndex = constructorBody.findIndex(bodyNode => isAssignmentExpression(bodyNode, 'message'));
 
 	if (!superExpression) {
 		yield {
@@ -141,22 +108,75 @@ function * customErrorDefinition(context, node) {
 		};
 	}
 
-	const nameExpression = constructorBody.find(x => isAssignmentExpression(x, 'name'));
+	const nameExpression = constructorBody.find(bodyNode => isAssignmentExpression(bodyNode, 'name'));
 	if (!nameExpression) {
-		const nameProperty = body.find(node => isPropertyDefinition(node, 'name'));
-
-		if (!nameProperty?.value || nameProperty.value.value !== name) {
-			yield {
-				node: nameProperty?.value ?? constructorBodyNode,
-				message: `The \`name\` property should be set to \`${name}\`.`,
-			};
+		if (!isValidNameProperty(nameProperty, name)) {
+			yield createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
 		}
-	} else if (nameExpression.expression.right.value !== name) {
+
+		return;
+	}
+
+	if (
+		nameExpression.expression.right.type !== 'Literal'
+		|| nameExpression.expression.right.value !== name
+	) {
+		yield createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
+	}
+}
+
+function * customErrorDefinition(context, node) {
+	if (!hasValidSuperClass(node)) {
+		return;
+	}
+
+	if (node.id === null) {
+		return;
+	}
+
+	const {name} = node.id;
+	const className = getClassName(name);
+
+	if (name !== className) {
 		yield {
-			node: nameExpression?.expression.right ?? constructorBodyNode,
-			message: `The \`name\` property should be set to \`${name}\`.`,
+			node: node.id,
+			message: `Invalid class name, use \`${className}\`.`,
 		};
 	}
+
+	const {body} = node.body;
+	const {sourceCode} = context;
+	const constructor = body.find(x => x.kind === 'constructor');
+	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
+
+	if (!constructor) {
+		if (isValidNameProperty(nameProperty, name)) {
+			return;
+		}
+
+		const range = sourceCode.getRange(node.body);
+		yield {
+			...createInvalidNameError(nameProperty?.value ?? node, name),
+			fix(fixer) {
+				if (nameProperty?.value) {
+					return fixer.replaceText(nameProperty.value, `'${name}'`);
+				}
+
+				if (nameProperty) {
+					return fixer.replaceText(nameProperty, getNameProperty(name).trim());
+				}
+
+				return fixer.insertTextAfterRange([
+					range[0],
+					range[0] + 1,
+				], getNameProperty(name));
+			},
+		};
+
+		return;
+	}
+
+	yield * checkConstructorBody(context, constructor, name, nameProperty);
 }
 
 const customErrorExport = (context, node) => {
