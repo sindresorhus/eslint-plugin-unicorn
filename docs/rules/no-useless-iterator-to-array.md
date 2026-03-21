@@ -39,7 +39,7 @@
   - `.reduce()`
   - `.some()`
 
-  However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
+However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
 
 This rule does not flag `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays, so the semantics differ.
 
