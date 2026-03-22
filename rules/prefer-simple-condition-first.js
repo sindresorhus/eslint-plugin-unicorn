@@ -42,20 +42,19 @@ function isSimple(node) {
 }
 
 /**
-Check if an AST subtree contains any node that makes it unsafe to auto-fix (reorder):
-calls, side effects, or expressions that can throw.
+Check if an AST subtree contains side effects or throwing potential
+(assignments, updates, deep member chains, tagged templates).
+These patterns are not flagged, since reordering would change program behavior.
 */
-function isUnsafeToAutoFix(node) {
+function hasSideEffectsOrThrows(node) {
 	if (!node || typeof node !== 'object') {
 		return false;
 	}
 
 	if (
-		node.type === 'CallExpression'
-		|| node.type === 'NewExpression'
-		|| node.type === 'TaggedTemplateExpression'
-		|| node.type === 'AssignmentExpression'
+		node.type === 'AssignmentExpression'
 		|| node.type === 'UpdateExpression'
+		|| node.type === 'TaggedTemplateExpression'
 	) {
 		return true;
 	}
@@ -72,10 +71,40 @@ function isUnsafeToAutoFix(node) {
 
 		const value = node[key];
 		if (Array.isArray(value)) {
-			if (value.some(child => isUnsafeToAutoFix(child))) {
+			if (value.some(child => hasSideEffectsOrThrows(child))) {
 				return true;
 			}
-		} else if (value && typeof value.type === 'string' && isUnsafeToAutoFix(value)) {
+		} else if (value && typeof value.type === 'string' && hasSideEffectsOrThrows(value)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+Check if an AST subtree contains call or new expressions.
+*/
+function hasCallOrNew(node) {
+	if (!node || typeof node !== 'object') {
+		return false;
+	}
+
+	if (node.type === 'CallExpression' || node.type === 'NewExpression') {
+		return true;
+	}
+
+	for (const key of Object.keys(node)) {
+		if (key === 'parent') {
+			continue;
+		}
+
+		const value = node[key];
+		if (Array.isArray(value)) {
+			if (value.some(child => hasCallOrNew(child))) {
+				return true;
+			}
+		} else if (value && typeof value.type === 'string' && hasCallOrNew(value)) {
 			return true;
 		}
 	}
@@ -112,6 +141,11 @@ const create = context => {
 			return;
 		}
 
+		// Skip expressions with side effects or throwing potential entirely
+		if (hasSideEffectsOrThrows(node.left)) {
+			return;
+		}
+
 		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
 		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
 
@@ -120,9 +154,9 @@ const create = context => {
 			`${rightText} ${node.operator} ${leftText}`,
 		);
 
-		// Use suggestion (not auto-fix) when left is unsafe to reorder (calls, side effects, throws) or is a chain
+		// Use suggestion (not auto-fix) when left contains calls/new or is a chain
 		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
-		if (isChain || isUnsafeToAutoFix(node.left)) {
+		if (isChain || hasCallOrNew(node.left)) {
 			return {
 				node,
 				loc: sourceCode.getLoc(node.right),

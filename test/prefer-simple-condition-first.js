@@ -25,6 +25,21 @@ test.snapshot({
 		// Simple on left, complex on right — correct order
 		'if (bar || foo());',
 
+		// Potentially unsafe to reorder (side effects / throws)
+		'if ((state.ready = true) && ok);',
+		'if (++counter && ok);',
+		'if (object.deep.value && ok);',
+		'const x = object.deep.value || ok;',
+		'if (tag`x` && ok);',
+
+		// Nested side effects
+		'if ((a + (b = c)) && ok);',
+		'if (-(++x) && ok);',
+
+		// Deep member chain in comparison
+		'if (foo.bar.baz === 1 && bar === 2);',
+		'const x = a.b.c && d',
+
 		// Nullish coalescing — not handled by rule
 		'const x = foo.bar ?? baz',
 	],
@@ -34,9 +49,6 @@ test.snapshot({
 
 		// Member expression on left, identifier on right — auto-fix (no calls)
 		'if (a.b && c);',
-
-		// Complex comparison on left, simple comparison on right — auto-fix
-		'if (foo.bar.baz === 1 && bar === 2);',
 
 		// Call on left, identifier on right with || — suggestion
 		'const x = foo() || bar',
@@ -58,19 +70,5 @@ test.snapshot({
 
 		// Unary expression on left, identifier on right — auto-fix
 		'if (!foo && bar);',
-
-		// Side effects / throws — suggestion only (not auto-fix)
-		'if ((state.ready = true) && ok);',
-		'if (++counter && ok);',
-		'if (object.deep.value && ok);',
-		'const x = object.deep.value || ok;',
-		'if (tag`x` && ok);',
-
-		// Nested side effects — suggestion only
-		'if ((a + (b = c)) && ok);',
-		'if (-(++x) && ok);',
-
-		// Deep member chain — suggestion only
-		'const x = a.b.c && d',
 	],
 });
