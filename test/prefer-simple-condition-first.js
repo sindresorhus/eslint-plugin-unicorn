@@ -22,6 +22,11 @@ test.snapshot({
 		// Single condition — not a LogicalExpression
 		'if (foo);',
 
+		// Negation of identifier — still simple
+		'if (!foo && bar);',
+		'if (bar && !foo);',
+		'if (!a || !b);',
+
 		// Simple on left, complex on right — correct order
 		'if (bar || foo());',
 
@@ -68,7 +73,7 @@ test.snapshot({
 		// Parenthesized member expression on left — auto-fix
 		'if ((a.b) && c);',
 
-		// Unary expression on left, identifier on right — auto-fix
-		'if (!foo && bar);',
+		// Complex on left, negated identifier on right — auto-fix
+		'if (a.b && !c);',
 	],
 });

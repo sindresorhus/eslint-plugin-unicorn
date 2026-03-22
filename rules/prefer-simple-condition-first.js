@@ -24,6 +24,13 @@ function isSimple(node) {
 	}
 
 	if (
+		node.type === 'UnaryExpression'
+		&& node.operator === '!'
+	) {
+		return isSimple(node.argument);
+	}
+
+	if (
 		node.type === 'BinaryExpression'
 		&& (node.operator === '===' || node.operator === '!==')
 	) {

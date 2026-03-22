@@ -81,7 +81,7 @@ const create = context => {
 		const withDash = options.withDash || shouldEnforceDash(node);
 
 		const replacement = getReplacement(value, withDash);
-		if ((replacement === value) || !replacement) {
+		if (!replacement || replacement === value) {
 			return;
 		}
 
