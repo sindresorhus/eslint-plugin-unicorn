@@ -64,7 +64,7 @@ const create = context => {
 		const value = raw.slice(1, -1);
 
 		const replacement = getReplacement(value, withDash);
-		if ((replacement === value) || !replacement) {
+		if (!replacement || replacement === value) {
 			return;
 		}
 

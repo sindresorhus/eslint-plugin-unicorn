@@ -33,7 +33,7 @@ function isStaticMember(node) {
 		return false;
 	}
 
-	if (isPrivate || !isStatic || key.type === 'PrivateIdentifier') {
+	if (!isStatic || isPrivate || key.type === 'PrivateIdentifier') {
 		return false;
 	}
 
