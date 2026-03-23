@@ -488,6 +488,16 @@ const create = context => {
 		const elementIdentifierName = elementNode?.id.name;
 		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
+		// For the cached-length pattern `for (let i = 0, j = arr.length; i < j; ...)`,
+		// the autofix removes the entire `for (...)` header, eliminating the `j` declaration.
+		// If `j` is referenced inside the loop body it would become undefined after the fix.
+		const initDeclarations = node.init?.declarations;
+		const lengthIdentifierName = initDeclarations?.length === 2 ? initDeclarations[1].id?.name : undefined;
+		const lengthVariable = lengthIdentifierName && resolveIdentifierName(lengthIdentifierName, bodyScope);
+		const isLengthVariableUsedInBody = Boolean(
+			lengthVariable?.references.some(reference => scopeContains(bodyScope, reference.from)),
+		);
+
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
@@ -498,6 +508,7 @@ const create = context => {
 			});
 
 		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+			&& !isLengthVariableUsedInBody
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 

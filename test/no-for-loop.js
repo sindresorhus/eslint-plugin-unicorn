@@ -205,6 +205,16 @@ test({
 			}
 		`),
 
+		// Cached-length: j used only in loop condition (not body) — should still fix
+		testCase('for (let i = 0, j = arr.length; i < j; i++) { console.log(arr[i]); }', 'for (const element of arr) { console.log(element); }'),
+
+		// Cached-length: j used in loop body — autofix would make j undefined, so no fix
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i], j);
+			}
+		`),
+
 		// Use default name
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
