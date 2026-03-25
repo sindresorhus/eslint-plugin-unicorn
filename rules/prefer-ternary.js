@@ -157,7 +157,7 @@ const create = context => {
 			&& isSameReference(left, alternate.left)
 		) {
 			return merge({
-				before: `${before}${sourceCode.getText(left)} ${operator} `,
+				before: `${before}${getParenthesizedText(left, context)} ${operator} `,
 				after,
 				consequent: right,
 				alternate: alternate.right,
