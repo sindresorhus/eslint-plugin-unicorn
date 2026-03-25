@@ -15,6 +15,7 @@ test({
 		'window.setTimeout(() => console.log("Hello"), 0);',
 		'globalThis.setInterval(callback, 0);',
 		'global.setTimeout(() => {}, 0);',
+		'self.setTimeout(() => {}, 0);',
 		'setTimeout(callback, 0, arg1, arg2);',
 		'setInterval(callback, 100, arg1);',
 		outdent`
@@ -25,6 +26,7 @@ test({
 		'setTimeout?.(() => {});',
 		'window.setTimeout?.(callback);',
 		'setTimeout();',
+		'setTimeout(...args);',
 		'customSetTimeout(callback);',
 		'obj.customSetTimeout(callback);',
 		'Math.setTimeout(callback);',
@@ -105,6 +107,14 @@ test({
 			}],
 		},
 		{
+			code: 'self.setTimeout(fn);',
+			output: 'self.setTimeout(fn, 0);',
+			errors: [{
+				messageId: MESSAGE_ID_MISSING_DELAY,
+				data: {name: 'setTimeout'},
+			}],
+		},
+		{
 			code: outdent`
 				setTimeout(
 					() => console.log("Hello")
@@ -133,13 +143,6 @@ test({
 		{
 			code: 'setTimeout((callback));',
 			output: 'setTimeout((callback), 0);',
-			errors: [{
-				messageId: MESSAGE_ID_MISSING_DELAY,
-				data: {name: 'setTimeout'},
-			}],
-		},
-		{
-			code: 'setTimeout(...args);',
 			errors: [{
 				messageId: MESSAGE_ID_MISSING_DELAY,
 				data: {name: 'setTimeout'},
