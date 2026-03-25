@@ -990,6 +990,40 @@ test.typescript({
 			`,
 			errors: 1,
 		},
+
+	// Issue #295 — cached-length pattern: for (let i = 0, j = arr.length; i < j; i++)
+	// Case 1: j is used in the loop body → autofix is unsafe (would remove j from scope)
+	{
+		code: outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i], j);
+			}
+		`,
+		errors: 1,
+	},
+	// Case 2: j leaks out of the loop (used after) → autofix is unsafe
+	{
+		code: outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i]);
+			}
+			console.log(j);
+		`,
+		errors: 1,
+	},
+	// Case 3: j is only in the for-header (not body, not after) → autofix is safe
+	testCase(
+		outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i]);
+			}
+		`,
+		outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`,
+	),
 	],
 });
 
