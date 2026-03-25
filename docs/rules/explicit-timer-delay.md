@@ -14,16 +14,39 @@ When using [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/set
 ```js
 // ❌
 setTimeout(() => console.log('Hello'));
-setInterval(callback);
-window.setTimeout(() => console.log('Hello'));
-globalThis.setInterval(callback);
 
 // ✅
 setTimeout(() => console.log('Hello'), 0);
+```
+
+```js
+// ❌
+setInterval(callback);
+
+// ✅
 setInterval(callback, 0);
-setTimeout(() => console.log('Hello'), 1000);
+```
+
+```js
+// ❌
+window.setTimeout(() => console.log('Hello'));
+
+// ✅
 window.setTimeout(() => console.log('Hello'), 0);
-globalThis.setInterval(callback, 100);
+```
+
+```js
+// ❌
+globalThis.setInterval(callback);
+
+// ✅
+globalThis.setInterval(callback, 0);
+```
+
+```js
+// ✅
+setTimeout(() => console.log('Hello'), 1000);
+setInterval(callback, 100);
 ```
 
 ## Options
@@ -43,14 +66,45 @@ Default: `'always'`
 
 // ❌
 setTimeout(() => console.log('Hello'), 0);
-setInterval(callback, 0);
-window.setTimeout(() => console.log('Hello'), 0);
-globalThis.setInterval(callback, 0);
 
 // ✅
 setTimeout(() => console.log('Hello'));
+```
+
+```js
+/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
+
+// ❌
+setInterval(callback, 0);
+
+// ✅
 setInterval(callback);
-setTimeout(() => console.log('Hello'), 1000);
+```
+
+```js
+/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
+
+// ❌
+window.setTimeout(() => console.log('Hello'), 0);
+
+// ✅
 window.setTimeout(() => console.log('Hello'));
+```
+
+```js
+/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
+
+// ❌
+globalThis.setInterval(callback, 0);
+
+// ✅
+globalThis.setInterval(callback);
+```
+
+```js
+/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
+
+// ✅
+setTimeout(() => console.log('Hello'), 1000);
 globalThis.setInterval(callback, 100);
 ```
