@@ -55,17 +55,17 @@ const checkTimerCall = (node, sourceCode) => {
 };
 
 /**
-  Check if the delay argument is explicitly zero.
-  @param {import('estree').Node} node - The argument node.
-  @returns {boolean} True if the argument is zero.
-  */
+Check if the delay argument is explicitly zero.
+@param {import('estree').Node} node - The argument node.
+@returns {boolean} True if the argument is zero.
+*/
 const isZeroDelay = node =>
 	isLiteral(node, 0)
 	|| (node.type === 'UnaryExpression' && node.operator === '-' && isLiteral(node.argument, 0));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const mode = context.options[0] || MODE_ALWAYS;
+	const mode = context.options[0];
 	const {sourceCode} = context;
 
 	context.on('CallExpression', node => {
@@ -87,13 +87,17 @@ const create = context => {
 				return;
 			}
 
+			const [firstArgument] = arguments_;
+			if (arguments_.length === 1 && firstArgument?.type === 'SpreadElement') {
+				return;
+			}
+
 			const problem = {
 				node,
 				messageId: MESSAGE_ID_MISSING_DELAY,
 				data: {name},
 			};
 
-			const [firstArgument] = arguments_;
 			if (firstArgument && firstArgument.type !== 'SpreadElement') {
 				problem.fix = fixer => fixer.insertTextAfterRange(
 					getParenthesizedRange(firstArgument, context), ', 0',
