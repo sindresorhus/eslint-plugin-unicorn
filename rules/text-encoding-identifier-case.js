@@ -60,6 +60,7 @@ const getStringLiteralValue = node => {
 
 	if (
 		node.type === 'TemplateLiteral'
+		&& node.parent.type !== 'TaggedTemplateExpression'
 		&& node.expressions.length === 0
 		&& node.quasis.length === 1
 	) {

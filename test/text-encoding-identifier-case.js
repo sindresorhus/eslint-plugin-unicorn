@@ -9,6 +9,7 @@ test.snapshot({
 		'`UTF-${8}`',
 		'`\\u0055tf8`',
 		'tag`\\unicode`',
+		'tag`UTF-8`',
 		'"utf8"',
 		'"utf+8"',
 		'"   utf8   "',
