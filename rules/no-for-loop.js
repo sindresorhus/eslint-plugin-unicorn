@@ -488,14 +488,16 @@ const create = context => {
 		const elementIdentifierName = elementNode?.id.name;
 		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
-		// For the cached-length pattern `for (let i = 0, j = arr.length; i < j; ...)`,
-		// the autofix removes the entire `for (...)` header, eliminating the `j` declaration.
-		// If `j` is referenced inside the loop body it would become undefined after the fix.
-		const initDeclarations = node.init?.declarations;
-		const lengthIdentifierName = initDeclarations?.length === 2 ? initDeclarations[1].id?.name : undefined;
-		const lengthVariable = lengthIdentifierName && resolveIdentifierName(lengthIdentifierName, bodyScope);
-		const isLengthVariableUsedInBody = Boolean(
-			lengthVariable?.references.some(reference => scopeContains(bodyScope, reference.from)),
+		// For cached-length patterns like `for (let i = 0, j = arr.length; i < j; ...)`,
+		// the autofix replaces the entire `for (let ...)` header — removing any extra declarators
+		// beyond the index variable. Block the fix if any such variable is referenced inside the
+		// loop body or escapes the loop scope (e.g. used after the loop closes).
+		const extraInitVariables = (node.init?.declarations ?? [])
+			.slice(1) // skip the index variable (first declarator)
+			.map(d => d.id?.name && resolveIdentifierName(d.id.name, bodyScope))
+			.filter(Boolean);
+		const isExtraVariableUsedInBody = extraInitVariables.some(
+			variable => variable.references.some(reference => scopeContains(bodyScope, reference.from)),
 		);
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
@@ -507,8 +509,8 @@ const create = context => {
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);
 			});
 
-		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
-			&& !isLengthVariableUsedInBody
+		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable, ...extraInitVariables].filter(Boolean), forScope)
+			&& !isExtraVariableUsedInBody
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 
