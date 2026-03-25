@@ -214,10 +214,13 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 
 	// Cached-length case: for (let i = 0, j = arr.length; i < j; ...)
 	// The test uses a variable `j` that was assigned `arr.length` in the init.
-	if (!variableDeclaration || variableDeclaration.declarations.length !== 2) {
+	// `getIndexIdentifierName` already verified the second declarator is `j = arr.length`,
+	// so no need to re-validate the MemberExpression shape here.
+	if (!variableDeclaration || variableDeclaration.declarations.length < 2) {
 		return;
 	}
 
+	// The length-caching declarator is always the second one (index 1).
 	const [, lengthDeclarator] = variableDeclaration.declarations;
 	const lengthVariableName = lengthDeclarator.id.name;
 
@@ -234,19 +237,8 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 		return;
 	}
 
-	// Verify that the second declarator is `j = arr.length`
-	const {init: lengthInit} = lengthDeclarator;
-	if (
-		!lengthInit
-		|| lengthInit.type !== 'MemberExpression'
-		|| lengthInit.object.type !== 'Identifier'
-		|| lengthInit.property.type !== 'Identifier'
-		|| lengthInit.property.name !== 'length'
-	) {
-		return;
-	}
-
-	return lengthInit.object;
+	// `getIndexIdentifierName` already verified that `lengthDeclarator.init` is `arr.length`.
+	return lengthDeclarator.init.object;
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
@@ -489,16 +481,38 @@ const create = context => {
 		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
 		// For cached-length patterns like `for (let i = 0, j = arr.length; i < j; ...)`,
-		// the autofix replaces the entire `for (let ...)` header — removing any extra declarators
+		// the autofix replaces the entire `for (let ...)` header, removing any extra declarators
 		// beyond the index variable. Block the fix if any such variable is referenced inside the
 		// loop body or escapes the loop scope (e.g. used after the loop closes).
-		const extraInitVariables = (node.init?.declarations ?? [])
-			.slice(1) // skip the index variable (first declarator)
-			.map(d => d.id?.name && resolveIdentifierName(d.id.name, bodyScope))
+		const extraInitDeclaratorNames = (node.init?.declarations ?? [])
+			.slice(1) // Skip the index variable (first declarator)
+			.map(d => d.id?.name)
+			.filter(Boolean);
+		const extraInitVariables = extraInitDeclaratorNames
+			.map(name => resolveIdentifierName(name, bodyScope))
 			.filter(Boolean);
 		const isExtraVariableUsedInBody = extraInitVariables.some(
 			variable => variable.references.some(reference => scopeContains(bodyScope, reference.from)),
 		);
+
+		// `let j` in a `for` init is block-scoped to the for statement, so any reference to `j`
+		// outside the for node becomes an unresolved "through" reference on an ancestor scope —
+		// it won't appear in `variable.references` and thus bypasses `someVariablesLeakOutOfTheLoop`.
+		// Catch it explicitly by scanning ancestor scope through-references.
+		const isExtraVariableReferencedOutsideLoop = extraInitDeclaratorNames.some(name => {
+			let ancestorScope = scope;
+			while (ancestorScope) {
+				if (ancestorScope.through.some(
+					reference => reference.identifier.name === name && !nodeContains(node, reference.identifier),
+				)) {
+					return true;
+				}
+
+				ancestorScope = ancestorScope.upper;
+			}
+
+			return false;
+		});
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
@@ -511,6 +525,7 @@ const create = context => {
 
 		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable, ...extraInitVariables].filter(Boolean), forScope)
 			&& !isExtraVariableUsedInBody
+			&& !isExtraVariableReferencedOutsideLoop
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 
