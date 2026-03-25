@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import {isBigIntLiteral, isCallExpression} from './ast/index.js';
+import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
@@ -23,15 +23,27 @@ const isNumberTypeAnnotation = typeAnnotation => {
 	return false;
 };
 
-const getExpressionText = (node, sourceCode) => {
-	const expressionNode = node.type === 'TSAsExpression' ? node.expression : node;
-
-	if (node.type === 'TSAsExpression') {
-		return getExpressionText(expressionNode, sourceCode);
+function unwrapNode(node) {
+	if (
+		node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSNonNullExpression'
+	) {
+		return unwrapNode(node.expression);
 	}
 
-	return sourceCode.getText(expressionNode);
-};
+	return node;
+}
+
+function getTypeAnnotation(node) {
+	if (node.type === 'TSNonNullExpression') {
+		return getTypeAnnotation(node.expression);
+	}
+
+	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+		return node.typeAnnotation;
+	}
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -58,7 +70,15 @@ const create = context => {
 			return;
 		}
 
-		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => getExpressionText(node, context.sourceCode));
+		const hasDate = [left, right].some(node => isNewExpression(node, {name: 'Date'}));
+
+		if (hasDate) {
+			return;
+		}
+
+		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(
+			node => context.sourceCode.getText(unwrapNode(node)),
+		);
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
 		const isLessOrEqual = operator === '<' || operator === '<=';
@@ -87,15 +107,14 @@ const create = context => {
 		}
 
 		for (const node of [left, right]) {
-			let expressionNode = node;
-
-			if (expressionNode.typeAnnotation && expressionNode.type === 'TSAsExpression') {
-				// Ignore if the test is not a number comparison operator
-				if (!isNumberTypeAnnotation(expressionNode.typeAnnotation)) {
-					return;
-				}
-
-				expressionNode = expressionNode.expression;
+			const expressionNode = unwrapNode(node);
+			const typeAnnotation = getTypeAnnotation(node);
+			if (
+				node !== expressionNode
+				&& typeAnnotation
+				&& !isNumberTypeAnnotation(typeAnnotation)
+			) {
+				return;
 			}
 
 			// Find variable declaration
@@ -155,6 +174,17 @@ const create = context => {
 							```
 							*/
 							if (variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number') {
+								return;
+							}
+
+							/**
+							Capture the following statement
+
+							```js
+							var foo = new Date()
+							```
+							*/
+							if (isNewExpression(variableDeclarator.init, {name: 'Date'})) {
 								return;
 							}
 

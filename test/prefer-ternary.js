@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -162,6 +162,78 @@ test({
 				}
 			`,
 			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return (foo as string);
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? (foo as string) : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test as boolean){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return (test as boolean) ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return foo!;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? foo! : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test!){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test! ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });
@@ -994,6 +1066,22 @@ test({
 					2);
 			`,
 			errors,
+		},
+		{
+			code: outdent`
+				unrelatedStatement()
+				if (foo) {
+					;(bar.baz as any) = 'string'
+				} else {
+					bar.baz = 2
+				}
+			`,
+			output: outdent`
+				unrelatedStatement()
+				;(bar.baz as any) = foo ? 'string' : 2;
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });
