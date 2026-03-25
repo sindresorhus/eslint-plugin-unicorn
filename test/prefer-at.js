@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -43,6 +43,30 @@ test.snapshot({
 		'function foo() {return arguments[arguments.length - 1]}',
 		'class Foo {bar; baz() {return this.bar[this.bar.length - 1]}}',
 		'class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}}',
+		{
+			code: '(array as Foo[])[array.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(array as Foo[])[(array as Foo[]).length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '<Foo[]>array[array.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '<Foo[]>array[(<Foo[]>array).length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array![array.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array![array!.length - 1]',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -67,6 +91,18 @@ test.snapshot({
 		'(( string )).charAt(string.length - 1);',
 		'(( string.charAt ))(string.length - 1);',
 		'(( string.charAt(string.length - 1) ));',
+		{
+			code: '(string as string).charAt((string as string).length - 1);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '<string>string.charAt((<string>string).length - 1);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'string!.charAt(string!.length - 1);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -112,6 +148,30 @@ test.snapshot({
 		'(( array.slice(-1).pop ))();',
 		'(( array.slice(-1).pop() ));',
 		'array.slice(-1)[0].pop().shift().slice(-1)',
+		{
+			code: '(array as Foo[]).slice(-1)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(array as Foo[]).slice(-1).pop()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '<Foo[]>array.slice(-1)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '<Foo[]>array.slice(-1).shift()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.slice(-1)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.slice(-1).pop()',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
