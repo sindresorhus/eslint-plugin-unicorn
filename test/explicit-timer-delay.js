@@ -61,7 +61,15 @@ test({
 			options: ['never'],
 		},
 		{
+			code: 'setInterval(callback, 0, arg1);',
+			options: ['never'],
+		},
+		{
 			code: 'setTimeout(callback, 500, arg1);',
+			options: ['never'],
+		},
+		{
+			code: 'setTimeout(callback, 0, arg1, arg2);',
 			options: ['never'],
 		},
 	],
@@ -241,11 +249,6 @@ test({
 		{
 			code: 'setTimeout(callback, (0));',
 			output: 'setTimeout(callback);',
-			options: ['never'],
-			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
-		},
-		{
-			code: 'setTimeout(callback, 0, arg1, arg2);',
 			options: ['never'],
 			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
 		},

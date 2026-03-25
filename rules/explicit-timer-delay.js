@@ -92,41 +92,31 @@ const create = context => {
 				return;
 			}
 
-			const problem = {
+			return {
 				node,
 				messageId: MESSAGE_ID_MISSING_DELAY,
 				data: {name},
-			};
-
-			if (firstArgument && firstArgument.type !== 'SpreadElement') {
-				problem.fix = fixer => fixer.insertTextAfterRange(
+				fix: fixer => fixer.insertTextAfterRange(
 					getParenthesizedRange(firstArgument, context), ', 0',
-				);
-			}
-
-			return problem;
+				),
+			};
 		}
 
-		if (mode === MODE_NEVER && hasDelayArgument) {
+		if (mode === MODE_NEVER && arguments_.length === 2) {
 			const delayArgument = arguments_[1];
 
 			if (isZeroDelay(delayArgument)) {
-				const problem = {
+				return {
 					node: delayArgument,
 					messageId: MESSAGE_ID_REDUNDANT_DELAY,
 					data: {name},
-				};
-
-				if (arguments_.length === 2) {
-					problem.fix = function (fixer) {
+					fix(fixer) {
 						const [firstArgument] = arguments_;
 						const [, firstArgumentEnd] = getParenthesizedRange(firstArgument, context);
 						const [, delayArgumentEnd] = getParenthesizedRange(delayArgument, context);
 						return fixer.removeRange([firstArgumentEnd, delayArgumentEnd]);
-					};
-				}
-
-				return problem;
+					},
+				};
 			}
 		}
 	});
