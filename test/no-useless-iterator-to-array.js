@@ -94,6 +94,9 @@ test.snapshot({
 		'iterator.toArray().forEach(fn, thisArg)',
 		'iterator.toArray().some(fn, thisArg)',
 
+		// Array callbacks receive the 3rd `array` argument, Iterator callbacks do not
+		'iterator.toArray().every((value, index, array) => array.length === 1)',
+
 		// `reduce` without initialValue — Array uses first element, Iterator throws
 		'iterator.toArray().reduce(fn)',
 

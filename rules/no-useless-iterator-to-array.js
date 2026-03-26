@@ -151,6 +151,19 @@ const create = context => {
 			)
 			&& isToArrayCall(node.callee.object)
 		) {
+			// If the callback is a function/arrow with enough parameters to reference
+			// the `array` argument, `.toArray()` may be intentional.
+			const callback = node.arguments[0];
+			const isReduceCall = node.callee.property.name === reduceMethod;
+			const arrayParameterIndex = isReduceCall ? 3 : 2;
+			if (
+				callback
+				&& (callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
+				&& callback.params.length > arrayParameterIndex
+			) {
+				return;
+			}
+
 			const callerObject = node.callee.object;
 
 			return {
