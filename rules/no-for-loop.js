@@ -488,8 +488,12 @@ const create = context => {
 			.slice(1) // Skip the index variable (first declarator)
 			.map(d => d.id?.name)
 			.filter(Boolean);
+		// Use forScope (not bodyScope) so a shadowed variable inside the loop body
+		// doesn't cause resolveIdentifierName to return the wrong (inner) variable.
+		// The extra declarators (e.g. `j` in `for (let i = 0, j = arr.length; ...)`)
+		// are always defined in forScope — bodyScope is a child and may shadow them.
 		const extraInitVariables = extraInitDeclaratorNames
-			.map(name => resolveIdentifierName(name, bodyScope))
+			.map(name => resolveIdentifierName(name, forScope))
 			.filter(Boolean);
 		const isExtraVariableUsedInBody = extraInitVariables.some(
 			variable => variable.references.some(reference => scopeContains(bodyScope, reference.from)),

@@ -1024,6 +1024,34 @@ test.typescript({
 				}
 			`,
 		),
+		// Case 4: j is shadowed inside the loop body (with init), outer j used after loop → autofix is unsafe
+		// When the shadow has an initializer, resolveIdentifierName finds the inner variable first,
+		// but it still has a write reference → isExtraVariableUsedInBody catches it.
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					let j = arr[i];
+					console.log(arr[i]);
+				}
+				console.log(j);
+			`,
+			errors: 1,
+		},
+		// Case 5: j is shadowed inside the loop body (no initializer), outer j used after loop → autofix is unsafe
+		// BUG: resolveIdentifierName finds the inner variable (no write ref in variable.references
+		// for a declarator with no initializer), so isExtraVariableUsedInBody returns false.
+		// The outer j IS used after the loop (through-reference), so isExtraVariableReferencedOutsideLoop
+		// must catch it. This test verifies the fix is correctly blocked.
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					let j;
+					console.log(arr[i]);
+				}
+				console.log(j);
+			`,
+			errors: 1,
+		},
 	],
 });
 
