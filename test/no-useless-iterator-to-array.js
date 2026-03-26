@@ -97,9 +97,9 @@ test.snapshot({
 		// `reduce` without initialValue — Array uses first element, Iterator throws
 		'iterator.toArray().reduce(fn)',
 
-		// Extra arguments to static methods
-		'Array.from(iterator.toArray(), mapFn)',
-		'Object.fromEntries(iterator.toArray(), extra)',
+		// `reduce` with extra arguments — not flagged (argumentsLength: 2 is exact)
+		'iterator.toArray().reduce(fn, init, extra)',
+
 	],
 	invalid: [
 		// Case 1: Constructors that accept iterables
@@ -119,14 +119,19 @@ test.snapshot({
 		'Array.from(iterator.toArray())',
 		'Object.fromEntries(iterator.toArray())',
 
-		// Case 2b: TypedArray.from
+		// Case 2a: TypedArray.from
 		'Uint8Array.from(iterator.toArray())',
+
+		// Case 2a: Extra arguments — .toArray() is still unnecessary
+		'Array.from(iterator.toArray(), mapFn)',
+		'Object.fromEntries(iterator.toArray(), extra)',
 
 		// Case 3: for-of
 		'for (const x of iterator.toArray());',
 		'for (const x of foo.bar().toArray());',
 
-		// Case 3b: for-await-of
+		// Case 3b: for-await-of — safe because `for await` falls back to
+		// `Symbol.iterator` for synchronous iterables, so behavior is preserved.
 		'async () => { for await (const x of iterator.toArray()); }',
 
 		// Case 4: yield*
@@ -136,7 +141,7 @@ test.snapshot({
 			}
 		`,
 
-		// Case 5: Iterator methods
+		// Case 2c: Iterator methods
 		'iterator.toArray().every(fn)',
 		'iterator.toArray().find(fn)',
 		'iterator.toArray().forEach(fn)',
@@ -151,12 +156,12 @@ test.snapshot({
 				.every(x => x > 0);
 		`,
 
-		// Case 6: Spread in array literal
+		// Case 5: Spread in array literal
 		'[...iterator.toArray()]',
 		'[a, ...iterator.toArray()]',
 		'[...iterator.toArray(), b]',
 
-		// Case 7: Spread in function call / new expression
+		// Case 5: Spread in function call / new expression
 		'call(...iterator.toArray())',
 		'call(a, ...iterator.toArray())',
 		'new Foo(...iterator.toArray())',

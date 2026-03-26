@@ -69,69 +69,103 @@ const create = context => {
 		};
 	});
 
-	// Case 2a: `Array.from(iterator.toArray())`, `Object.fromEntries(iterator.toArray())`, etc.
-	// These are safe to autofix — no behavioral difference.
+	// Case 2: Call expressions — static methods and iterator prototype methods.
 	context.on('CallExpression', node => {
-		const isSafeIterableAcceptingMethod
-			= isMethodCall(node, {
-				objects: ['Array', ...typedArray],
-				method: 'from',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			|| isMethodCall(node, {
-				object: 'Object',
-				method: 'fromEntries',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			});
+		// Case 2a: `Array.from(iterator.toArray())`, `TypedArray.from(…)`, `Object.fromEntries(…)`
+		// Autofix — these methods materialize their first argument into an array/object
+		// regardless of extra arguments (e.g. mapFn), so .toArray() is always unnecessary.
+		if (
+			(
+				isMethodCall(node, {
+					objects: ['Array', ...typedArray],
+					method: 'from',
+					minimumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| isMethodCall(node, {
+					object: 'Object',
+					method: 'fromEntries',
+					minimumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			)
+			&& isToArrayCall(node.arguments[0])
+		) {
+			const toArrayCall = node.arguments[0];
 
-		if (!isSafeIterableAcceptingMethod || !isToArrayCall(node.arguments[0])) {
-			return;
+			return {
+				node: toArrayCall.callee.property,
+				messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
+				data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
+				fix: fixer => removeMethodCall(fixer, toArrayCall, context),
+			};
 		}
 
-		const toArrayCall = node.arguments[0];
-
-		return {
-			node: toArrayCall.callee.property,
-			messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
-			data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
-			fix: fixer => removeMethodCall(fixer, toArrayCall, context),
-		};
-	});
-
-	// Case 2b: `Promise.all(iterator.toArray())`, etc.
-	// Suggestion only — passing an iterator directly can change a sync throw
-	// into an async rejection when iteration fails.
-	context.on('CallExpression', node => {
+		// Case 2b: `Promise.all(iterator.toArray())`, etc.
+		// Suggestion only — passing an iterator directly can change a sync throw
+		// into an async rejection when iteration fails.
 		if (
-			!isMethodCall(node, {
+			isMethodCall(node, {
 				object: 'Promise',
 				methods: ['all', 'allSettled', 'any', 'race'],
 				argumentsLength: 1,
 				optionalCall: false,
 				optionalMember: false,
 			})
-			|| !isToArrayCall(node.arguments[0])
+			&& isToArrayCall(node.arguments[0])
 		) {
-			return;
+			const toArrayCall = node.arguments[0];
+
+			return {
+				node: toArrayCall.callee.property,
+				messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
+				data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING,
+						fix: fixer => removeMethodCall(fixer, toArrayCall, context),
+					},
+				],
+			};
 		}
 
-		const toArrayCall = node.arguments[0];
+		// Case 2c: `iterator.toArray().every(fn)`, `.find(fn)`, `.forEach(fn)`, `.some(fn)`, `.reduce(fn, init)`
+		// Suggestion only — Array callbacks receive a 3rd `array` argument
+		// (and `reduce` a 4th) that Iterator callbacks do not.
+		if (
+			(
+				isMethodCall(node, {
+					methods: callbackOnlyIteratorMethods,
+					maximumArguments: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				|| isMethodCall(node, {
+					method: reduceMethod,
+					argumentsLength: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+			)
+			&& isToArrayCall(node.callee.object)
+		) {
+			const callerObject = node.callee.object;
 
-		return {
-			node: toArrayCall.callee.property,
-			messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
-			data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING,
-					fix: fixer => removeMethodCall(fixer, toArrayCall, context),
-				},
-			],
-		};
+			return {
+				node: callerObject.callee.property,
+				messageId: MESSAGE_ID_ITERATOR_METHOD,
+				data: {method: node.callee.property.name},
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION_ITERATOR_METHOD,
+						data: {method: node.callee.property.name},
+						fix: fixer => removeMethodCall(fixer, callerObject, context),
+					},
+				],
+			};
+		}
 	});
 
 	// Case 3: `for (const x of iterator.toArray())`
@@ -160,7 +194,7 @@ const create = context => {
 		};
 	});
 
-	// Case 6 & 7: `[...iterator.toArray()]`, `call(...iterator.toArray())`
+	// Case 5: `[...iterator.toArray()]`, `call(...iterator.toArray())`
 	// Spread works on iterables — `.toArray()` is unnecessary.
 	context.on('SpreadElement', node => {
 		if (!isToArrayCall(node.argument)) {
@@ -180,46 +214,6 @@ const create = context => {
 			node: node.argument.callee.property,
 			messageId: MESSAGE_ID_SPREAD,
 			fix: fixer => removeMethodCall(fixer, node.argument, context),
-		};
-	});
-
-	// Case 5: `iterator.toArray().every(fn)`, `iterator.toArray().find(fn)`, etc.
-	// Suggestion only — Array callbacks receive a 3rd `array` argument
-	// (and `reduce` a 4th) that Iterator callbacks do not.
-	context.on('CallExpression', node => {
-		if (
-			!isMethodCall(node, {
-				methods: callbackOnlyIteratorMethods,
-				maximumArguments: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			&& !isMethodCall(node, {
-				method: reduceMethod,
-				minimumArguments: 2,
-				optionalCall: false,
-				optionalMember: false,
-			})
-		) {
-			return;
-		}
-
-		const callerObject = node.callee.object;
-		if (!isToArrayCall(callerObject)) {
-			return;
-		}
-
-		return {
-			node: callerObject.callee.property,
-			messageId: MESSAGE_ID_ITERATOR_METHOD,
-			data: {method: node.callee.property.name},
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION_ITERATOR_METHOD,
-					data: {method: node.callee.property.name},
-					fix: fixer => removeMethodCall(fixer, callerObject, context),
-				},
-			],
 		};
 	});
 };
