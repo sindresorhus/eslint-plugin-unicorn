@@ -30,12 +30,18 @@ test.snapshot({
 		// Simple on left, complex on right — correct order
 		'if (bar || foo());',
 
+		// Negative numeric literal — both sides are simple
+		'if (x === -1 && y);',
+
 		// Potentially unsafe to reorder (side effects / throws)
 		'if ((state.ready = true) && ok);',
 		'if (++counter && ok);',
 		'if (object.deep.value && ok);',
 		'const x = object.deep.value || ok;',
 		'if (tag`x` && ok);',
+		'async function f() { if ((await foo) && bar); }',
+		'function* f() { if ((yield foo) && bar); }',
+		'if (import("foo") && bar);',
 
 		// Nested side effects
 		'if ((a + (b = c)) && ok);',
@@ -75,5 +81,11 @@ test.snapshot({
 
 		// Complex on left, negated identifier on right — auto-fix
 		'if (a.b && !c);',
+
+		// Negative numeric literal in comparison on right — auto-fix
+		'if (a.b && x === -1);',
+
+		// Optional chaining on left, identifier on right — auto-fix
+		'if (a?.b && c);',
 	],
 });

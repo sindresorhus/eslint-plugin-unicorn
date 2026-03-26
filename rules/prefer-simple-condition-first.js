@@ -16,8 +16,21 @@ const messages = {
 /**
 Check if a node is a "simple" condition:
 1. Bare identifier (`foo`)
-2. `identifier === literal`, `identifier !== literal`, or `identifier === identifier`
+2. A binary `===`/`!==` where each operand is an identifier, a literal, or a signed
+   numeric literal (`-1`, `+0`), and at least one operand is an identifier.
 */
+function isSimpleOperand(node) {
+	if (node.type === 'Identifier' || node.type === 'Literal') {
+		return true;
+	}
+
+	// Negative/positive numeric literals: `-1`, `+0`
+	return node.type === 'UnaryExpression'
+		&& (node.operator === '-' || node.operator === '+')
+		&& node.argument.type === 'Literal'
+		&& typeof node.argument.value === 'number';
+}
+
 function isSimple(node) {
 	if (node.type === 'Identifier') {
 		return true;
@@ -34,9 +47,7 @@ function isSimple(node) {
 		node.type === 'BinaryExpression'
 		&& (node.operator === '===' || node.operator === '!==')
 	) {
-		const leftIsSimple = node.left.type === 'Identifier' || node.left.type === 'Literal';
-		const rightIsSimple = node.right.type === 'Identifier' || node.right.type === 'Literal';
-		return leftIsSimple && rightIsSimple
+		return isSimpleOperand(node.left) && isSimpleOperand(node.right)
 			&& (node.left.type === 'Identifier' || node.right.type === 'Identifier');
 	}
 
@@ -50,7 +61,7 @@ function isSimple(node) {
 
 /**
 Check if an AST subtree contains side effects or throwing potential
-(assignments, updates, deep member chains, tagged templates).
+(assignments, updates, deep member chains, tagged templates, await, yield, dynamic import).
 These patterns are not flagged, since reordering would change program behavior.
 */
 function hasSideEffectsOrThrows(node) {
@@ -62,6 +73,9 @@ function hasSideEffectsOrThrows(node) {
 		node.type === 'AssignmentExpression'
 		|| node.type === 'UpdateExpression'
 		|| node.type === 'TaggedTemplateExpression'
+		|| node.type === 'AwaitExpression'
+		|| node.type === 'YieldExpression'
+		|| node.type === 'ImportExpression'
 	) {
 		return true;
 	}
