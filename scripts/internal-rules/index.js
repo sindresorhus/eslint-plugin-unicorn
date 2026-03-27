@@ -47,19 +47,17 @@ const plugin = {
 		name: pluginName,
 		version: '1.0.0',
 	},
-	rules: Object.fromEntries(
-		rules.map(({id, directories, rule}) => {
-			const isFileInsideDirectories = createFilePredicate(directories);
-			return [
-				id,
-				{
-					...rule,
-					create: context =>
-						isFileInsideDirectories(context.physicalFilename) ? rule.create(context) : {},
-				},
-			];
-		}),
-	),
+	rules: Object.fromEntries(rules.map(({id, directories, rule}) => {
+		const isFileInsideDirectories = createFilePredicate(directories);
+		return [
+			id,
+			{
+				...rule,
+				create: context =>
+					isFileInsideDirectories(context.physicalFilename) ? rule.create(context) : {},
+			},
+		];
+	})),
 };
 
 const config = {

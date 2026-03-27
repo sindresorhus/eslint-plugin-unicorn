@@ -171,12 +171,15 @@ const schema = [
 				],
 				minItems: 0,
 				uniqueItems: true,
+				description: 'The prefixes to disallow.',
 			},
 			checkProperties: {
 				type: 'boolean',
+				description: 'Whether to check property names.',
 			},
 			onlyCamelCase: {
 				type: 'boolean',
+				description: 'Whether to only check camelCase names.',
 			},
 		},
 	},

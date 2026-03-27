@@ -152,6 +152,16 @@ test.snapshot({
 	],
 });
 
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'array.reduce<Record<string, Data & {b?: string}>>((result, entry) => ({...result, [entry.id]: entry.data}), {});',
+			errors: [{messageId: 'reduce'}],
+		},
+	],
+});
+
 // Functions
 test.snapshot({
 	valid: [

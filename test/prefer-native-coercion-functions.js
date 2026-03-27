@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -180,6 +180,22 @@ test.snapshot({
 				return v;
 			})
 		`,
+		{
+			code: 'array.filter((value): value is string => value)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				array.filter((value): value is string => {
+					return value;
+				})
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.some((value): value is string => value)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'array.every(v => v)',
@@ -204,5 +220,9 @@ test.snapshot({
 		// No fix
 		'array.some((v, extra) => v)',
 		'array.some((v, ) => /* comment */ v)',
+		{
+			code: 'array.filter((value): boolean => value)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

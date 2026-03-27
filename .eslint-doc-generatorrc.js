@@ -12,7 +12,7 @@ const config = {
 		'flat/recommended',
 	],
 	ignoreDeprecatedRules: true,
-	ruleDocTitleFormat: 'desc',
+	ruleDocTitleFormat: 'name',
 	ruleListColumns: [
 		'name',
 		'description',

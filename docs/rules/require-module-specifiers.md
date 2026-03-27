@@ -1,4 +1,6 @@
-# Require non-empty specifier list in import and export statements
+# require-module-specifiers
+
+📝 Require non-empty specifier list in import and export statements.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

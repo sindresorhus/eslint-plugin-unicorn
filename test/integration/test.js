@@ -47,6 +47,8 @@ let projects = projectsArguments.length === 0
 	? allProjects
 	: allProjects.filter(({name}) => projectsArguments.includes(name));
 
+projects = projects.filter(project => !project.requiresBabel && project.babelPlugins.length === 0);
+
 if (isCI && !group) {
 	throw new Error('"--group" is required');
 }

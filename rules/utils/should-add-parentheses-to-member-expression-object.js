@@ -6,7 +6,7 @@ import {isDecimalIntegerNode} from './numeric.js';
 */
 
 /**
-Check if parentheses should to be added to a `node` when it's used as an `object` of `MemberExpression`.
+Check if parentheses should be added to a `node` when it's used as an `object` of `MemberExpression`.
 
 @param {ESTree.Node} node - The AST node to check.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.

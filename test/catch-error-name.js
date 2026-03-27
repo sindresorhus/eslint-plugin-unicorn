@@ -911,23 +911,43 @@ test.typescript({
 	],
 });
 
-test.babel({
+test.typescript({
 	testerOptions: {
 		languageOptions: {
 			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: [
-							['decorators', {decoratorsBeforeExport: true}],
-						],
-					},
+				ecmaFeatures: {
+					decorators: true,
 				},
 			},
 		},
 	},
 	valid: [],
 	invalid: [
-		// https://github.com/untitled-labs/metabase-custom/blob/0fbb8b3d6f183bff6ad786d5158ddabf745f1f5c/frontend/src/metabase/containers/dnd/ItemDragSource.jsx#L51
+		{
+			code: outdent`
+				@DragSource({
+					async endDrag(props, monitor, component) {
+						try {
+						} catch (e) {
+							alert("There was a problem moving these items: " + e);
+						}
+					}
+				})
+				export default class A {}
+			`,
+			output: outdent`
+				@DragSource({
+					async endDrag(props, monitor, component) {
+						try {
+						} catch (error) {
+							alert("There was a problem moving these items: " + error);
+						}
+					}
+				})
+				export default class A {}
+			`,
+			errors: 1,
+		},
 		{
 			code: outdent`
 				@DragSource({

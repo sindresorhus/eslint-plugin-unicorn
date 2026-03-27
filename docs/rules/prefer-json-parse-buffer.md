@@ -1,4 +1,6 @@
-# Prefer reading a JSON file as a buffer
+# prefer-json-parse-buffer
+
+📝 Prefer reading a JSON file as a buffer.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

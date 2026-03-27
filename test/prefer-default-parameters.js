@@ -648,7 +648,7 @@ test({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		outdent`
 			function abc(foo, bar) {

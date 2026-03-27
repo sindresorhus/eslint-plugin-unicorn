@@ -1,4 +1,6 @@
-# Disallow negated expression in equality check
+# no-negation-in-equality-check
+
+📝 Disallow negated expression in equality check.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

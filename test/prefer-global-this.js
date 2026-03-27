@@ -1,5 +1,5 @@
-import {getTester} from './utils/test.js';
 import outdent from 'outdent';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -50,6 +50,8 @@ test.snapshot({
 		'self.navigator',
 		'window.addEventListener("resize", () => {})',
 		'window.onresize = function () {}',
+		'\'open\' in window; window.open("https://example.com")',
+		'`open` in window; window.open("https://example.com")',
 		outdent`
 			const {window} = jsdom()
 			window.jQuery = jQuery;
@@ -168,6 +170,8 @@ test.snapshot({
 		'[window.foo] = []',
 		'foo[window]',
 		'foo[window.foo]',
+		'\'foo\' in window',
+		'\'foo\' in global',
 		'typeof window !== "undefined"',
 		'typeof self !== "undefined"',
 		'typeof global !== "undefined"',

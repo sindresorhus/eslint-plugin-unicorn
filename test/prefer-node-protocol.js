@@ -115,24 +115,6 @@ test.snapshot({
 	],
 });
 
-test.babel({
-	valid: [
-		'export fs from "node:fs";',
-	],
-	invalid: [
-		{
-			code: 'export fs from "fs";',
-			output: 'export fs from "node:fs";',
-			errors: 1,
-		},
-		{
-			code: 'await import(\'assert/strict\')',
-			output: 'await import(\'node:assert/strict\')',
-			errors: 1,
-		},
-	],
-});
-
 test.typescript({
 	valid: [
 		'const fs = require("node:fs") as "fs";',

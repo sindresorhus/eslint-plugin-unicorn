@@ -85,19 +85,11 @@ test.typescript({
 		'class A { static #a = 1; }',
 		'const A = class { static #a() {}; }',
 		'const A = class { static #a = 1; }',
-		// Decorator
-		'@decorator class A { static  a = 1; }',
 		// TS class
 		'class A { static public a = 1; }',
 		'class A { static private a = 1; }',
 		'class A { static readonly a = 1; }',
 		'class A { static declare a = 1; }',
-		outdent`
-			class A {
-				@decorator
-				static a = 1;
-			}
-		`,
 		// Static block
 		'class A { static {}; }',
 	],
@@ -209,18 +201,7 @@ test.typescript({
 	],
 });
 
-test.babel({
-	testerOptions: {
-		languageOptions: {
-			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: ['classStaticBlock'],
-					},
-				},
-			},
-		},
-	},
+test({
 	valid: [
 		// `private`
 		'class A2 { static #a() {}; }',

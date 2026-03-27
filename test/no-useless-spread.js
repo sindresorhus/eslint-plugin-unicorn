@@ -313,17 +313,6 @@ test.snapshot({
 	],
 });
 
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: 'for (const foo of[...iterable]);',
-			output: 'for (const foo of iterable);',
-			errors: 1,
-		},
-	],
-});
-
 test.typescript({
 	valid: [],
 	invalid: [

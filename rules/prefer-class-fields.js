@@ -41,8 +41,7 @@ const create = context => {
 			&& !node.computed
 			&& !node.static
 			&& node.type === 'MethodDefinition'
-			&& node.value.type === 'FunctionExpression',
-		);
+			&& node.value.type === 'FunctionExpression');
 
 		if (!constructor) {
 			return;
@@ -71,8 +70,7 @@ const create = context => {
 			&& !node.computed
 			&& !node.static
 			&& node.key.type === propertyType
-			&& node.key.name === propertyName,
-		);
+			&& node.key.name === propertyName);
 
 		const problem = {
 			node,

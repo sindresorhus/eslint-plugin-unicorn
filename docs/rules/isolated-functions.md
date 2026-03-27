@@ -1,4 +1,6 @@
-# Prevent usage of variables from outside the scope of isolated functions
+# isolated-functions
+
+📝 Prevent usage of variables from outside the scope of isolated functions.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

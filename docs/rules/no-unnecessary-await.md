@@ -1,4 +1,6 @@
-# Disallow awaiting non-promise values
+# no-unnecessary-await
+
+📝 Disallow awaiting non-promise values.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

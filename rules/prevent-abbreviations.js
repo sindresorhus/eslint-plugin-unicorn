@@ -44,10 +44,8 @@ const prepareOptions = ({
 	ignore = [],
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements
-		? Object.fromEntries(
-			[...Object.keys(defaultReplacements), ...Object.keys(replacements)]
-				.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]),
-		)
+		? Object.fromEntries([...Object.keys(defaultReplacements), ...Object.keys(replacements)]
+			.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]))
 		: replacements;
 
 	const mergedAllowList = extendDefaultAllowList
@@ -56,9 +54,7 @@ const prepareOptions = ({
 
 	ignore = [...defaultIgnore, ...ignore];
 
-	ignore = ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	ignore = ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 
 	return {
 		checkProperties,
@@ -70,12 +66,8 @@ const prepareOptions = ({
 
 		checkFilenames,
 
-		replacements: new Map(
-			Object.entries(mergedReplacements).map(
-				([discouragedName, replacements]) =>
-					[discouragedName, new Map(Object.entries(replacements))],
-			),
-		),
+		replacements: new Map(Object.entries(mergedReplacements).map(([discouragedName, replacements]) =>
+			[discouragedName, new Map(Object.entries(replacements))])),
 		allowList: new Map(Object.entries(mergedAllowList)),
 
 		ignore,
@@ -195,6 +187,14 @@ const getMessage = (discouragedName, replacements, nameTypeText) => {
 	};
 };
 
+const declarationTypes = new Set([
+	'FunctionDeclaration',
+	'ClassDeclaration',
+	'TSTypeAliasDeclaration',
+	'TSInterfaceDeclaration',
+	'TSEnumDeclaration',
+]);
+
 const isExportedIdentifier = identifier => {
 	if (
 		identifier.parent.type === 'VariableDeclarator'
@@ -207,21 +207,7 @@ const isExportedIdentifier = identifier => {
 	}
 
 	if (
-		identifier.parent.type === 'FunctionDeclaration'
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	if (
-		identifier.parent.type === 'ClassDeclaration'
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	if (
-		identifier.parent.type === 'TSTypeAliasDeclaration'
+		declarationTypes.has(identifier.parent.type)
 		&& identifier.parent.id === identifier
 	) {
 		return identifier.parent.parent.type === 'ExportNamedDeclaration';
@@ -235,8 +221,7 @@ const shouldFix = variable => getVariableIdentifiers(variable)
 		!isExportedIdentifier(identifier)
 		// In typescript parser, only `JSXOpeningElement` is added to variable
 		// `<foo></foo>` -> `<bar></foo>` will cause parse error
-		&& identifier.type !== 'JSXIdentifier',
-	);
+		&& identifier.type !== 'JSXIdentifier');
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
@@ -349,7 +334,7 @@ const create = context => {
 	// A `class` declaration produces two variables in two scopes:
 	// the inner class scope, and the outer one (wherever the class is declared).
 	// This map holds the outer ones to be later processed when the inner one is encountered.
-	// For why this is not a eslint issue see https://github.com/eslint/eslint-scope/issues/48#issuecomment-464358754
+	// For why this is not an ESLint issue see https://github.com/eslint/eslint-scope/issues/48#issuecomment-464358754
 	const identifierToOuterClassVariable = new WeakMap();
 
 	const checkPossiblyWeirdClassVariable = variable => {
@@ -444,9 +429,7 @@ const create = context => {
 			...variable.references.map(reference => reference.from),
 			variable.scope,
 		];
-		variableReplacements.samples = variableReplacements.samples.map(
-			name => getAvailableVariableName(name, scopes, isSafeName),
-		);
+		variableReplacements.samples = variableReplacements.samples.map(name => getAvailableVariableName(name, scopes, isSafeName));
 
 		const problem = {
 			...getMessage(definition.name.name, variableReplacements, 'variable'),
@@ -563,9 +546,11 @@ const schema = {
 			properties: {
 				checkProperties: {
 					type: 'boolean',
+					description: 'Whether to check property names.',
 				},
 				checkVariables: {
 					type: 'boolean',
+					description: 'Whether to check variable names.',
 				},
 				checkDefaultAndNamespaceImports: {
 					type: [
@@ -573,6 +558,7 @@ const schema = {
 						'string',
 					],
 					pattern: 'internal',
+					description: 'Whether to check default and namespace import names.',
 				},
 				checkShorthandImports: {
 					type: [
@@ -580,28 +566,36 @@ const schema = {
 						'string',
 					],
 					pattern: 'internal',
+					description: 'Whether to check shorthand import names.',
 				},
 				checkShorthandProperties: {
 					type: 'boolean',
+					description: 'Whether to check shorthand property names.',
 				},
 				checkFilenames: {
 					type: 'boolean',
+					description: 'Whether to check filenames.',
 				},
 				extendDefaultReplacements: {
 					type: 'boolean',
+					description: 'Whether to extend the default replacements.',
 				},
 				replacements: {
 					$ref: '#/definitions/abbreviations',
+					description: 'Custom abbreviation replacements.',
 				},
 				extendDefaultAllowList: {
 					type: 'boolean',
+					description: 'Whether to extend the default allow list.',
 				},
 				allowList: {
 					$ref: '#/definitions/booleanObject',
+					description: 'Custom allow list of names.',
 				},
 				ignore: {
 					type: 'array',
 					uniqueItems: true,
+					description: 'Patterns to ignore.',
 				},
 			},
 		},

@@ -122,6 +122,7 @@ const schema = [
 			functions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions to check.',
 			},
 		},
 	},

@@ -319,6 +319,7 @@ const schema = [
 			minimumCases: {
 				type: 'integer',
 				minimum: 2,
+				description: 'The minimum number of `if`/`else if` cases before suggesting a `switch` statement.',
 			},
 			emptyDefaultCase: {
 				enum: [
@@ -326,6 +327,7 @@ const schema = [
 					'do-nothing-comment',
 					'no-default-case',
 				],
+				description: 'How to handle an empty `default` case.',
 			},
 		},
 	},

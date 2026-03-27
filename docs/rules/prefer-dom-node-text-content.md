@@ -1,4 +1,6 @@
-# Prefer `.textContent` over `.innerText`
+# prefer-dom-node-text-content
+
+📝 Prefer `.textContent` over `.innerText`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

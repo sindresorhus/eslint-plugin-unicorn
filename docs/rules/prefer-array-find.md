@@ -1,4 +1,6 @@
-# Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`
+# prefer-array-find
+
+📝 Prefer `.find(…)` and `.findLast(…)` over the first or last element from `.filter(…)`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

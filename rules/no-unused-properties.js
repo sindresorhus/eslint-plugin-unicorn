@@ -25,28 +25,19 @@ const specialProtoPropertyKey = {
 	name: '__proto__',
 };
 
+const getPropertyKeyName = key => {
+	if (key.type === 'Identifier' || key.type === 'JSXIdentifier') {
+		return key.name;
+	}
+
+	if (key.type === 'Literal') {
+		return key.value;
+	}
+};
+
 const propertyKeysEqual = (keyA, keyB) => {
-	if (keyA.type === 'Identifier') {
-		if (keyB.type === 'Identifier') {
-			return keyA.name === keyB.name;
-		}
-
-		if (keyB.type === 'Literal') {
-			return keyA.name === keyB.value;
-		}
-	}
-
-	if (keyA.type === 'Literal') {
-		if (keyB.type === 'Identifier') {
-			return keyA.value === keyB.name;
-		}
-
-		if (keyB.type === 'Literal') {
-			return keyA.value === keyB.value;
-		}
-	}
-
-	return false;
+	const keyNameA = getPropertyKeyName(keyA);
+	return keyNameA !== undefined && keyNameA === getPropertyKeyName(keyB);
 };
 
 const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
@@ -137,7 +128,10 @@ const create = context => {
 						return;
 					}
 
-					if (parent.type === 'MemberExpression') {
+					if (
+						parent.type === 'MemberExpression'
+						|| parent.type === 'JSXMemberExpression'
+					) {
 						if (
 							isMemberExpressionAssignment(parent)
 							|| isMemberExpressionCall(parent)

@@ -1,4 +1,6 @@
-# Prefer using a logical operator over a ternary
+# prefer-logical-operator-over-ternary
+
+📝 Prefer using a logical operator over a ternary.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,6 +1,5 @@
 import {isNotSemicolonToken} from '@eslint-community/eslint-utils';
-import {isParenthesized} from './utils/index.js';
-import {needsSemicolon} from './utils/index.js';
+import {isParenthesized, needsSemicolon} from './utils/index.js';
 import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-lonely-if';
@@ -79,7 +78,7 @@ function fix(innerIfStatement, context) {
 		// Add ` && `
 		yield fixer.insertTextAfter(outer.closingParenthesisToken, ' && ');
 
-		// Remove `()` if `test` don't need it
+		// Remove `()` if `test` doesn't need it
 		for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
 			if (
 				isParenthesized(test, context)

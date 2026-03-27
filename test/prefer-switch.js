@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -111,7 +111,7 @@ test.snapshot({
 			else if (bar.bar === true) {}
 			else if (true === baz()) {}
 		`,
-		// No need add parentheses
+		// No need to add parentheses
 		outdent`
 			if (foo === ((0, 1))) {}
 			else if (foo === (bar + 2)) {}
@@ -385,6 +385,22 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: outdent`
+				if ((foo as number) === 1) {}
+				else if ((foo as number) === 2) {}
+				else if ((foo as number) === 3) {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				if (foo! === 1) {}
+				else if (foo! === 2) {}
+				else if (foo! === 3) {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

@@ -3,10 +3,6 @@ export function isLiteral(node, value) {
 		return false;
 	}
 
-	if (value === null) {
-		return node.raw === 'null';
-	}
-
 	return node.value === value;
 }
 
@@ -16,8 +12,7 @@ export const isNumericLiteral = node => node.type === 'Literal' && typeof node.v
 
 export const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.regex);
 
-// eslint-disable-next-line unicorn/no-null
-export const isNullLiteral = node => isLiteral(node, null);
+export const isNullLiteral = node => node?.type === 'Literal' && node.raw === 'null';
 
 export const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
 

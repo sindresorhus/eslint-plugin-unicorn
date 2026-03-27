@@ -1,4 +1,6 @@
-# Prefer ternary expressions over simple `if-else` statements
+# prefer-ternary
+
+📝 Prefer ternary expressions over simple `if-else` statements.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -7,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over  'simple' `if-else` statements, where 'simple' means the consequent and alternate are each one line and have the same basic type and form.
+This rule enforces the use of ternary expressions over 'simple' `if-else` statements, where 'simple' means the consequent and alternate are each one line and have the same basic type and form.
 
 Using an `if-else` statement typically results in more lines of code than a single-line ternary expression, which leads to an unnecessarily larger codebase that is more difficult to maintain.
 

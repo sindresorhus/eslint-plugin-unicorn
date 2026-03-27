@@ -325,11 +325,7 @@ const isIndexVariableAssignedToInTheLoopBody = (indexVariable, bodyScope) =>
 		.some(inBodyReference => inBodyReference.isWrite());
 
 const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
-	variables.some(
-		variable => !variable.references.every(
-			reference => scopeContains(forScope, reference.from) || nodeContains(forStatement, reference.identifier),
-		),
-	);
+	variables.some(variable => !variable.references.every(reference => scopeContains(forScope, reference.from) || nodeContains(forStatement, reference.identifier)));
 
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);

@@ -1,4 +1,6 @@
-# Prefer top-level await over top-level promises and async function calls
+# prefer-top-level-await
+
+📝 Prefer top-level await over top-level promises and async function calls.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

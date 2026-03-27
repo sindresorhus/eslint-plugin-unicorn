@@ -428,6 +428,7 @@ const schema = [
 		properties: {
 			checkFromLast: {
 				type: 'boolean',
+				description: 'Whether to also check for patterns that can be replaced with `findLast()`.',
 			},
 		},
 	},

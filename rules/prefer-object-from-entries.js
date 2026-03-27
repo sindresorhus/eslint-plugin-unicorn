@@ -1,5 +1,5 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isLiteral, isEmptyObjectExpression} from './ast/index.js';
+import {isMethodCall, isNullLiteral, isEmptyObjectExpression} from './ast/index.js';
 import {removeParentheses} from './fix/index.js';
 import {
 	getParentheses,
@@ -28,8 +28,7 @@ const isEmptyObject = node =>
 			optionalCall: false,
 			optionalMember: false,
 		})
-		// eslint-disable-next-line unicorn/no-null
-		&& isLiteral(node.arguments[0], null)
+		&& isNullLiteral(node.arguments[0])
 	);
 
 const isArrowFunctionCallback = node =>
@@ -186,15 +185,20 @@ function create(context) {
 				continue;
 			}
 
-			yield {
+			const problem = {
 				node: callExpression.callee.property,
 				messageId: MESSAGE_ID_REDUCE,
-				fix: fixReduceAssignOrSpread({
+			};
+
+			if (!callExpression.typeArguments) {
+				problem.fix = fixReduceAssignOrSpread({
 					context,
 					callExpression,
 					property: getProperty(callbackFunction),
-				}),
-			};
+				});
+			}
+
+			yield problem;
 		}
 
 		if (!isCallExpression(callExpression, {
@@ -227,6 +231,7 @@ const schema = [
 			functions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions to check.',
 			},
 		},
 	},

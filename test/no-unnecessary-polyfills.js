@@ -118,8 +118,23 @@ test({
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
+			code: 'require("promiseall-settled-polyfill")',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
 			code: 'require("es6-promise")',
 			options: [{targets: 'node >15'}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("es.prototype.array.find")',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("polyfill-es.prototype.array.find")',
+			options: [{targets: {node: '20'}}],
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
@@ -165,6 +180,11 @@ test({
 		{
 			code: 'require("array-find-index")',
 			options: [{targets: 'node 4'}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("arrayevery-polyfill")',
+			options: [{targets: {node: '20'}}],
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{

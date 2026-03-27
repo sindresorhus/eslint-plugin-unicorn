@@ -1,5 +1,5 @@
 /**
-Check if parentheses should to be added to a `node` when it's used as an `expression` of `ExpressionStatement`.
+Check if parentheses should be added to a `node` when it's used as an `expression` of `ExpressionStatement`.
 
 @param {Node} node - The AST node to check.
 @param {SourceCode} sourceCode - The source code object.

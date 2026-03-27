@@ -1,4 +1,6 @@
-# Disallow using `1` as the `depth` argument of `Array#flat()`
+# no-unnecessary-array-flat-depth
+
+📝 Disallow using `1` as the `depth` argument of `Array#flat()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

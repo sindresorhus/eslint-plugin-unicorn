@@ -4,7 +4,6 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const methodsReturnsArray = [
-	'concat',
 	'copyWithin',
 	'fill',
 	'filter',
@@ -12,7 +11,6 @@ const methodsReturnsArray = [
 	'flatMap',
 	'map',
 	'reverse',
-	'slice',
 	'sort',
 	'splice',
 	'toReversed',
@@ -21,6 +19,11 @@ const methodsReturnsArray = [
 	'with',
 	'toArray',
 	'split',
+];
+
+const methodsReturnsArrayOrString = [
+	'concat',
+	'slice',
 ];
 
 test.snapshot({
@@ -378,6 +381,12 @@ test.snapshot({
 				return foo.includes(1);
 			}
 		`,
+		...methodsReturnsArrayOrString.map(method => outdent`
+			const foo = bar.${method}();
+			function unicorn() {
+				return foo.includes(1);
+			}
+		`),
 
 		// `lodash`
 		outdent`
@@ -385,6 +394,24 @@ test.snapshot({
 			function unicorn() {
 				return _.includes(foo, 1);
 			}
+		`,
+		outdent`
+			const text = 'abc'.slice();
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`abc\`.concat('def');
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			const text = \`${1}abc\`.slice();
+			text.includes('ab') || text.includes('bc');
+		`,
+		outdent`
+			let items = [1, 2, 3];
+			items = 'abc';
+			const foo = items.slice();
+			foo.includes('ab') || foo.includes('bc');
 		`,
 	],
 	invalid: [
@@ -608,9 +635,25 @@ test.snapshot({
 				function unicorn() {
 					return foo.includes(1);
 				}
-			`,
-		),
-
+			`),
+		outdent`
+			const foo = [1, 2, 3].slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const foo = [1, 2, 3].concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
 		// `lodash`
 		// `bar` is not `array`, but code not broken
 		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641
@@ -621,43 +664,6 @@ test.snapshot({
 				return bar.includes(1);
 			}
 		`,
-	],
-});
-
-test.snapshot({
-	testerOptions: {
-		languageOptions: {
-			parser: parsers.babel,
-			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: [
-							['decorators', {decoratorsBeforeExport: true}],
-						],
-					},
-				},
-			},
-		},
-	},
-	valid: [
-		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
-		outdent`
-			@connect(
-				state => {
-					const availableComponents = ['is']
-					if (nsConfig.enabled) availableComponents.push('ns')
-					if (jsConfig.enabled) availableComponents.push('js')
-					if (asConfig.enabled) availableComponents.push('as')
-
-					return {
-						availableComponents,
-					}
-				},
-			)
-			export default class A {}
-		`,
-	],
-	invalid: [
 	],
 });
 

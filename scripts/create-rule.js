@@ -109,22 +109,20 @@ const {id} = data;
 
 checkFiles(id);
 
-const files = await Promise.all(
-	[
-		{
-			source: 'documentation.md.template.txt',
-			target: `docs/rules/${id}.md`,
-		},
-		{
-			source: 'rule.js.template.js',
-			target: `rules/${id}.js`,
-		},
-		{
-			source: 'test.js.template.txt',
-			target: `test/${id}.js`,
-		},
-	].map(template => renderTemplate(template, data)),
-);
+const files = await Promise.all([
+	{
+		source: 'documentation.md.template.txt',
+		target: `docs/rules/${id}.md`,
+	},
+	{
+		source: 'rule.js.template.js',
+		target: `rules/${id}.js`,
+	},
+	{
+		source: 'test.js.template.txt',
+		target: `test/${id}.js`,
+	},
+].map(template => renderTemplate(template, data)));
 
 const shouldOpenFiles = await enquirer.prompt({
 	type: 'confirm',

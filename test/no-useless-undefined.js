@@ -274,71 +274,163 @@ test.typescript({
 				return undefined;
 			}
 		`,
-		'const foo = (): undefined => {return undefined;}',
 		'const foo = (): undefined => undefined;',
 		'const foo = (): string => undefined;',
-		'const foo = function (): undefined {return undefined}',
-		'export function foo(): undefined {return undefined}',
-		outdent`
-			const object = {
-				method(): undefined {
-					return undefined;
-				}
-			}
-		`,
-		outdent`
-			class A {
-				method(): undefined {
-					return undefined;
-				}
-			}
-		`,
-		outdent`
-			const A = class A {
-				method(): undefined {
-					return undefined
-				}
-			};
-		`,
-		outdent`
-			class A {
-				static method(): undefined {
-					return undefined
-				}
-			}
-		`,
-		outdent`
-			class A {
-				get method(): undefined {
-					return undefined;
-				}
-			}
-		`,
-		outdent`
-			class A {
-				static get method(): undefined {
-					return undefined;
-				}
-			}
-		`,
-		outdent`
-			class A {
-				#method(): undefined {
-					return undefined;
-				}
-			}
-		`,
-		outdent`
-			class A {
-				private method(): undefined {
-					return undefined;
-				}
-			}
-		`,
 		'createContext<T>(undefined);',
 		'React.createContext<T>(undefined);',
 	],
 	invalid: [
+		{
+			code: 'function shouldBeFlagged(): undefined {return undefined;}',
+			output: 'function shouldBeFlagged(): undefined {return;}',
+			errors,
+		},
+		{
+			code: 'const foo = function (): undefined {return undefined};',
+			output: 'const foo = function (): undefined {return};',
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: 'export function foo(): undefined {return undefined}',
+			output: 'export function foo(): undefined {return}',
+			errors,
+		},
+		{
+			code: outdent`
+				const object = {
+					method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				const object = {
+					method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				const A = class A {
+					method(): undefined {
+						return undefined
+					}
+				};
+			`,
+			output: outdent`
+				const A = class A {
+					method(): undefined {
+						return
+					}
+				};
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					static method(): undefined {
+						return undefined
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					static method(): undefined {
+						return
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					get method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					get method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					static get method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					static get method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					#method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					#method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					private method(): undefined {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					private method(): undefined {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
 		{
 			code: outdent`
 				function foo():undefined {

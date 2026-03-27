@@ -1,4 +1,6 @@
-# Prefer `.at()` method for index access and `String#charAt()`
+# prefer-at
+
+📝 Prefer `.at()` method for index access and `String#charAt()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,4 +1,6 @@
-# Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly
+# prefer-native-coercion-functions
+
+📝 Prefer using `String`, `Number`, `BigInt`, `Boolean`, and `Symbol` directly.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -47,6 +49,11 @@ const toStringObject = value => new String(value);
 ```js
 // ✅
 const toObject = value => Object(value);
+```
+
+```ts
+// ✅
+const strings = mixedData.filter((value): value is string => value);
 ```
 
 ## Note

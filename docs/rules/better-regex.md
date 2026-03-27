@@ -1,4 +1,6 @@
-# Improve regexes by making them shorter, consistent, and safer
+# better-regex
+
+📝 Improve regexes by making them shorter, consistent, and safer.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

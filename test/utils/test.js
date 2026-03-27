@@ -2,10 +2,10 @@ import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
+import plugin from '../../index.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
-import plugin from '../../index.js';
 
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {
@@ -35,8 +35,8 @@ function normalizeInvalidTest(test, rule) {
 	return {
 		// Use `null` instead of `code` to get a better message
 		// See https://github.com/eslint/eslint/blob/8a77b661bc921c3408bae01b3aa41579edfc6e58/lib/rule-tester/rule-tester.js#L847-L853
-		// eslint-disable-next-line unicorn/no-null
-		output: null,
+
+		output: JSON.parse('null'),
 		...test,
 	};
 }

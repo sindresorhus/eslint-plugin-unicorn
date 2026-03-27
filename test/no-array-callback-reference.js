@@ -152,30 +152,26 @@ test({
 	],
 	invalid: [
 		// Suggestions
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((element) => fn(element))`,
-					`foo.${method}((element, index) => fn(element, index))`,
-					`foo.${method}((element, index, array) => fn(element, index, array))`,
-				],
-			}),
-		),
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo?.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo?.${method}((element) => fn(element))`,
-					`foo?.${method}((element, index) => fn(element, index))`,
-					`foo?.${method}((element, index, array) => fn(element, index, array))`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((element) => fn(element))`,
+				`foo.${method}((element, index) => fn(element, index))`,
+				`foo.${method}((element, index, array) => fn(element, index, array))`,
+			],
+		})),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo?.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo?.${method}((element) => fn(element))`,
+				`foo?.${method}((element, index) => fn(element, index))`,
+				`foo?.${method}((element, index, array) => fn(element, index, array))`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(fn)',
 			method: 'forEach',
@@ -186,32 +182,28 @@ test({
 				'foo.forEach((element, index, array) => { fn(element, index, array); })',
 			],
 		}),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((accumulator, element) => fn(accumulator, element))`,
-					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((accumulator, element) => fn(accumulator, element))`,
+				`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
+				`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`,
+			],
+		})),
 
 		// 2 arguments
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn, thisArgument)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((element) => fn(element), thisArgument)`,
-					`foo.${method}((element, index) => fn(element, index), thisArgument)`,
-					`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(fn, thisArgument)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((element) => fn(element), thisArgument)`,
+				`foo.${method}((element, index) => fn(element, index), thisArgument)`,
+				`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(fn, thisArgument)',
 			method: 'forEach',
@@ -222,32 +214,28 @@ test({
 				'foo.forEach((element, index, array) => { fn(element, index, array); }, thisArgument)',
 			],
 		}),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn, initialValue)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
-					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(fn, initialValue)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
+				`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
+				`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`,
+			],
+		})),
 
 		// `Boolean` is only ignored on reasonable places
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(Boolean, initialValue)`,
-				method,
-				name: 'Boolean',
-				suggestions: [
-					`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
-					`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(Boolean, initialValue)`,
+			method,
+			name: 'Boolean',
+			suggestions: [
+				`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
+				`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
+				`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(Boolean)',
 			method: 'forEach',
@@ -260,28 +248,24 @@ test({
 		}),
 
 		// Not `Identifier`
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(lib.fn)`,
-				method,
-				suggestions: [
-					`foo.${method}((element) => lib.fn(element))`,
-					`foo.${method}((element, index) => lib.fn(element, index))`,
-					`foo.${method}((element, index, array) => lib.fn(element, index, array))`,
-				],
-			}),
-		),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(lib.fn)`,
-				method,
-				suggestions: [
-					`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
-					`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(lib.fn)`,
+			method,
+			suggestions: [
+				`foo.${method}((element) => lib.fn(element))`,
+				`foo.${method}((element, index) => lib.fn(element, index))`,
+				`foo.${method}((element, index, array) => lib.fn(element, index, array))`,
+			],
+		})),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(lib.fn)`,
+			method,
+			suggestions: [
+				`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
+				`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
+				`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`,
+			],
+		})),
 
 		// Need parenthesized
 
@@ -517,7 +501,7 @@ test.snapshot({
 			);
 		`,
 		// Needs parentheses
-		// Some of them was ignored since we know they are not callback function
+		// Some of them were ignored since we know they are not callback function
 		outdent`
 			async function * foo () {
 				foo.map((0, bar));
@@ -532,5 +516,147 @@ test.snapshot({
 				foo.map(new Function(''));
 			}
 		`,
+	],
+});
+
+test.typescript({
+	valid: [
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString = (value: unknown): value is string => typeof value === 'string';
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString = function (value: unknown): value is string {
+				return typeof value === 'string';
+			};
+			foo.filter(isString);
+		`,
+		outdent`
+			const isString: (value: unknown) => value is string = value => typeof value === 'string';
+			foo.filter(isString);
+		`,
+		outdent`
+			function run(predicate: (value: unknown) => value is string) {
+				foo.filter(predicate);
+			}
+		`,
+		outdent`
+			function runEvery(predicate: (value: unknown) => value is string) {
+				foo.every(predicate);
+			}
+		`,
+		outdent`
+			function runFind(predicate: (value: unknown) => value is string) {
+				foo.find(predicate);
+			}
+		`,
+		outdent`
+			function runFindLast(predicate: (value: unknown) => value is string) {
+				foo.findLast(predicate);
+			}
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			const guard: (value: unknown) => value is string = isString;
+			foo.filter(guard);
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.find(isString);
+		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			foo.every(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.filter(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.find(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.findLast(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.every(isString);
+		`,
+	],
+	invalid: [
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): boolean {
+					return typeof value === 'string';
+				}
+				foo.filter(isString);
+			`,
+			method: 'filter',
+			name: 'isString',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element) => isString(element));
+				`,
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element, index) => isString(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): boolean {
+						return typeof value === 'string';
+					}
+					foo.filter((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): value is string {
+					return typeof value === 'string';
+				}
+				foo.map(isString);
+			`,
+			method: 'map',
+			name: 'isString',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element) => isString(element));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element, index) => isString(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					foo.map((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
 	],
 });

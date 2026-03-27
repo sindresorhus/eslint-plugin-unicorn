@@ -1,4 +1,6 @@
-# Prefer borrowing methods from the prototype instead of the instance
+# prefer-prototype-methods
+
+📝 Prefer borrowing methods from the prototype instead of the instance.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

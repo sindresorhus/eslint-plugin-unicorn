@@ -5,5 +5,6 @@
 	"ul-style": {
 		"style": "dash"
 	},
-	"descriptive-link-text": false
+	"descriptive-link-text": false,
+	"table-column-style": false
 }

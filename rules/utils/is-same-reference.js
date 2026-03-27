@@ -81,12 +81,10 @@ Check if two literal nodes are the same value.
 function equalLiteralValue(left, right) {
 	// RegExp literal.
 	if (left.regex || right.regex) {
-		return Boolean(
-			left.regex
+		return Boolean(left.regex
 			&& right.regex
 			&& left.regex.pattern === right.regex.pattern
-			&& left.regex.flags === right.regex.flags,
-		);
+			&& left.regex.flags === right.regex.flags);
 	}
 
 	// BigInt literal.
@@ -95,6 +93,24 @@ function equalLiteralValue(left, right) {
 	}
 
 	return left.value === right.value;
+}
+
+/**
+Unwrap ChainExpression (`?.`) and TypeScript type assertion (`as`, `<Type>`, or `!`) nodes.
+@param {ASTNode} node The node to unwrap.
+@returns {ASTNode} The unwrapped node.
+*/
+function unwrapNode(node) {
+	if (
+		node.type === 'ChainExpression'
+		|| node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSNonNullExpression'
+	) {
+		return unwrapNode(node.expression);
+	}
+
+	return node;
 }
 
 /**
@@ -108,16 +124,10 @@ Check if two expressions reference the same value. For example:
 @returns {boolean} `true` if both sides match and reference the same value.
 */
 export default function isSameReference(left, right) {
+	left = unwrapNode(left);
+	right = unwrapNode(right);
+
 	if (left.type !== right.type) {
-		// Handle `a.b` and `a?.b` are samely.
-		if (left.type === 'ChainExpression') {
-			return isSameReference(left.expression, right);
-		}
-
-		if (right.type === 'ChainExpression') {
-			return isSameReference(left, right.expression);
-		}
-
 		return false;
 	}
 
@@ -134,10 +144,6 @@ export default function isSameReference(left, right) {
 
 		case 'Literal': {
 			return equalLiteralValue(left, right);
-		}
-
-		case 'ChainExpression': {
-			return isSameReference(left.expression, right.expression);
 		}
 
 		case 'MemberExpression': {

@@ -1,3 +1,4 @@
+// We use `is-builtin-module` (static list) instead of `node:module`'s `isBuiltin` because the latter depends on the running Node.js version, causing inconsistent results across environments.
 import isBuiltinModule from 'is-builtin-module';
 import {
 	isStaticRequire,

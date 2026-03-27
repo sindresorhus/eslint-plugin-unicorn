@@ -104,16 +104,14 @@ const create = context => {
 		exclude = [],
 	} = context.options[0] ?? {};
 
-	const forbiddenConstructors = new Set(
-		strategy === 'strict'
-			? [...strictStrategyConstructors, ...include]
-			: include,
-	);
+	const forbiddenConstructors = new Set(strategy === 'strict'
+		? [...strictStrategyConstructors, ...include]
+		: include);
 
 	context.on('BinaryExpression', /** @param {import('estree').BinaryExpression} node */ node => {
 		const {right, operator} = node;
 
-		if (right.type !== 'Identifier' || operator !== 'instanceof' || exclude.includes(right.name)) {
+		if ((operator !== 'instanceof') || (right.type !== 'Identifier') || exclude.includes(right.name)) {
 			return;
 		}
 

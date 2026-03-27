@@ -1,4 +1,6 @@
-# Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`
+# prefer-regexp-test
+
+📝 Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

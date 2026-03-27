@@ -1,5 +1,5 @@
-import toEslintCreate from './to-eslint-create.js';
 import getDocumentationUrl from '../utils/get-documentation-url.js';
+import toEslintCreate from './to-eslint-create.js';
 
 /**
 @import * as ESLint from 'eslint';

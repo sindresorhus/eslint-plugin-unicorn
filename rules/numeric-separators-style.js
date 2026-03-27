@@ -116,14 +116,17 @@ const formatOptionsSchema = () => ({
 	properties: {
 		onlyIfContainsSeparator: {
 			type: 'boolean',
+			description: 'Whether to only enforce the style if the number already contains a separator.',
 		},
 		minimumDigits: {
 			type: 'integer',
 			minimum: 0,
+			description: 'The minimum number of digits before separators are enforced.',
 		},
 		groupLength: {
 			type: 'integer',
 			minimum: 1,
+			description: 'The number of digits in each group.',
 		},
 	},
 });
@@ -132,11 +135,10 @@ const schema = [{
 	type: 'object',
 	additionalProperties: false,
 	properties: {
-		...Object.fromEntries(
-			Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()]),
-		),
+		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()])),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
+			description: 'Whether to only enforce the style if the number already contains a separator.',
 		},
 	},
 }];

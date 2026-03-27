@@ -102,13 +102,11 @@ function fixRequireCall(node, context) {
 			parent.id.type === 'Identifier'
 			|| (
 				parent.id.type === 'ObjectPattern'
-				&& parent.id.properties.every(
-					({type, key, value, computed}) =>
-						type === 'Property'
-						&& !computed
-						&& value.type === 'Identifier'
-						&& key.type === 'Identifier',
-				)
+				&& parent.id.properties.every(({type, key, value, computed}) =>
+					type === 'Property'
+					&& !computed
+					&& value.type === 'Identifier'
+					&& key.type === 'Identifier')
 			)
 		)
 		&& parent.parent.type === 'VariableDeclaration'

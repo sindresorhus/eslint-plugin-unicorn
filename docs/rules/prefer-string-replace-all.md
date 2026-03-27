@@ -1,4 +1,6 @@
-# Prefer `String#replaceAll()` over regex searches with the global flag
+# prefer-string-replace-all
+
+📝 Prefer `String#replaceAll()` over regex searches with the global flag.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

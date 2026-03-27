@@ -1,4 +1,6 @@
-# Add expiration conditions to TODO comments
+# expiring-todo-comments
+
+📝 Add expiration conditions to TODO comments.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -233,6 +235,26 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 ```
 
 ## Options
+
+### ignoreDates
+
+Type: `boolean`\
+Default: `false`
+
+Disables expired `Expiry Date` diagnostics.
+
+This option does not disable date argument validation. For example, TODO comments with multiple dates are still reported as invalid.
+
+This is useful when your CI system runs on pull request branches but cannot reliably expose pull request context to tooling, like some `push`-only GitHub Actions workflows.
+
+```js
+"unicorn/expiring-todo-comments": [
+	"error",
+	{
+		"ignoreDates": true
+	}
+]
+```
 
 ### ignoreDatesOnPullRequests
 

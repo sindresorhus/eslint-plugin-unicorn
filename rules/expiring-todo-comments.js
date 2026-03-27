@@ -256,16 +256,14 @@ function tryToCoerceVersion(rawVersion) {
 	}
 }
 
-function semverComparisonForOperator(operator) {
-	return {
-		'>': semver.gt,
-		'>=': semver.gte,
-	}[operator];
+function satisfiesRange(version, condition, range) {
+	return semver.satisfies(version, `${condition}${range}`, {includePrerelease: true});
 }
 
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
+	ignoreDates: false,
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
 };
@@ -277,9 +275,7 @@ const create = context => {
 		...context.options[0],
 	};
 
-	const ignoreRegexes = options.ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	const ignoreRegexes = options.ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 
 	const dirname = path.dirname(context.filename);
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
@@ -299,8 +295,7 @@ const create = context => {
 			comment.value.split('\n').map(line => ({
 				...comment,
 				value: line,
-			})),
-		).filter(comment => processComment(comment));
+			}))).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
@@ -357,7 +352,7 @@ const create = context => {
 			uses++;
 			const [expirationDate] = dates;
 
-			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
+			const shouldIgnore = options.ignoreDates || (options.ignoreDatesOnPullRequests && ci.isPR);
 			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
@@ -387,10 +382,7 @@ const create = context => {
 			const [{condition, version}] = packageVersions;
 
 			const packageVersion = tryToCoerceVersion(packageJson.version);
-			const decidedPackageVersion = tryToCoerceVersion(version);
-
-			const compare = semverComparisonForOperator(condition);
-			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
+			if (packageVersion && satisfiesRange(packageVersion, condition, version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
@@ -430,7 +422,6 @@ const create = context => {
 				continue;
 			}
 
-			const todoVersion = tryToCoerceVersion(dependency.version);
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
 			/* c8 ignore start */
@@ -440,9 +431,7 @@ const create = context => {
 			}
 			/* c8 ignore end */
 
-			const compare = semverComparisonForOperator(dependency.condition);
-
-			if (compare(targetPackageVersion, todoVersion)) {
+			if (satisfiesRange(targetPackageVersion, dependency.condition, dependency.version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_VERSION_MATCHES,
@@ -467,14 +456,9 @@ const create = context => {
 				continue;
 			}
 
-			const todoEngine = tryToCoerceVersion(engine.version);
-			const targetPackageEngineVersion = tryToCoerceVersion(
-				targetPackageRawEngineVersion,
-			);
+			const targetPackageEngineVersion = tryToCoerceVersion(targetPackageRawEngineVersion);
 
-			const compare = semverComparisonForOperator(engine.condition);
-
-			if (compare(targetPackageEngineVersion, todoEngine)) {
+			if (targetPackageEngineVersion && satisfiesRange(targetPackageEngineVersion, engine.condition, engine.version)) {
 				context.report({
 					loc: sourceCode.getLoc(comment),
 					messageId: MESSAGE_ID_ENGINE_MATCHES,
@@ -547,20 +531,29 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Comment terms to check.',
 			},
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Patterns to ignore.',
+			},
+			ignoreDates: {
+				type: 'boolean',
+				description: 'Whether to ignore expiration dates.',
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
+				description: 'Whether to ignore expiration dates on pull requests.',
 			},
 			allowWarningComments: {
 				type: 'boolean',
+				description: 'Whether to allow warning comments.',
 			},
 			date: {
 				type: 'string',
 				format: 'date',
+				description: 'The reference date.',
 			},
 		},
 	},

@@ -1,4 +1,6 @@
-# Prefer `Number` static properties over global ones
+# prefer-number-properties
+
+📝 Prefer `Number` static properties over global ones.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

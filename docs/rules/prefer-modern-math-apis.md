@@ -1,4 +1,6 @@
-# Prefer modern `Math` APIs over legacy patterns
+# prefer-modern-math-apis
+
+📝 Prefer modern `Math` APIs over legacy patterns.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

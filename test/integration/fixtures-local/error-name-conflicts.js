@@ -1,12 +1,8 @@
 function foo() {
-	try {
-	} catch (err) {
-		console.log(err);
+	try {} catch (error_) {
+		console.log(error_);
 
-		if (test) {
-			throw a;
-		} else {
-			throw b;
-		}
+		const error = test ? a : b;
+		throw error;
 	}
 }

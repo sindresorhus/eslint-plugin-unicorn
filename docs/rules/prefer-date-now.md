@@ -1,4 +1,6 @@
-# Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch
+# prefer-date-now
+
+📝 Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

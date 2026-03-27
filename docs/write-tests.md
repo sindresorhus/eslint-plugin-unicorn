@@ -109,10 +109,6 @@ test({
 });
 ```
 
-## `test.babel()`
-
-Same as `test()`, but uses [`@babel/eslint-parser`](https://www.npmjs.com/package/@babel/eslint-parser) as parser.
-
 ## `test.typescript()`
 
 Same as `test()`, but uses [`@typescript-eslint/parser`](https://www.npmjs.com/package/@typescript-eslint/parser) as parser.
@@ -128,9 +124,11 @@ Same as `test()`, but uses [`vue-eslint-parser`](https://www.npmjs.com/package/v
 ```js
 test.snapshot({
 	testerOptions: {
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
 			},
 		},
 	},
@@ -150,7 +148,9 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	testerOptions: {
-		parser: parsers.babel,
+		languageOptions: {
+			parser: parsers.typescript,
+		},
 	},
 	valid: [],
 	invalid: [],
@@ -166,13 +166,15 @@ test.snapshot({
 	valid: [],
 	invalid: [
 		{
-			code: 'invalid.code.parse.by.babel',
-			parser: parsers.babel,
+			code: 'const foo = 1 as const;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
 		},
 	],
 })
 ```
 
-Why use `parser: parsers.babel` instead of `parser: '@babel/eslint-parser'`?
+Why use `parser: parsers.typescript` instead of `parser: '@typescript-eslint/parser'`?
 
-Using `parsers.babel` will make the `parserOptions` merge with useful default options. See [`parser.js`](../test/utils/parsers.js) for details.
+Using `parsers.typescript` will make the `parserOptions` merge with useful default options. See [`parsers.js`](../test/utils/parsers.js) for details.

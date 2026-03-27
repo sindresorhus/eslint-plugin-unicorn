@@ -74,8 +74,7 @@ const isRecursiveDestructuringAccess = (node, property) =>
 	&& node.parent.id.properties.some(declaratorProperty =>
 		declaratorProperty.type === 'Property'
 		&& !declaratorProperty.computed
-		&& isSameKey(declaratorProperty.key, property.key),
-	);
+		&& isSameKey(declaratorProperty.key, property.key));
 
 const isPropertyRead = (thisExpression, property) =>
 	isMemberAccess(thisExpression, property)

@@ -1,4 +1,6 @@
-# Prefer passing `Date` directly to the constructor when cloning
+# consistent-date-clone
+
+📝 Prefer passing `Date` directly to the constructor when cloning.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

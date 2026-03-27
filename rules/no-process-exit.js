@@ -19,7 +19,7 @@ const create = context => {
 
 	let processEventHandler;
 
-	// Only report if it's outside an worker thread context. See #328.
+	// Only report if it's outside a worker thread context. See #328.
 	let requiredWorkerThreadsModule = false;
 	const problemNodes = [];
 

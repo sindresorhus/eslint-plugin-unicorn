@@ -52,7 +52,7 @@ test.snapshot({
 			import * as namespace from 'foo';
 			export {namespace as default};
 		`,
-		// Cases we are not handled
+		// Cases we are not handling
 		outdent`
 			import defaultExport from 'foo';
 			const variable = defaultExport;

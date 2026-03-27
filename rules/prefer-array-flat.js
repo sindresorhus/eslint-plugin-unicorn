@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	isArrayPrototypeProperty,
@@ -18,7 +19,10 @@ const messages = {
 
 // `array.flatMap(x => x)`
 const arrayFlatMap = {
-	testFunction(node) {
+	getArrayNode: node => node.callee.object,
+	isOptionalArray: node => node.callee.optional,
+	description: 'Array#flatMap()',
+	testFunction(node, context) {
 		if (!isMethodCall(node, {
 			method: 'flatMap',
 			argumentsLength: 1,
@@ -33,11 +37,9 @@ const arrayFlatMap = {
 			&& !firstArgument.async
 			&& firstArgument.params.length === 1
 			&& isSameIdentifier(firstArgument.params[0], firstArgument.body)
+			&& !isObviouslyNonArrayFlatMapReceiver(node.callee.object, context)
 		);
 	},
-	getArrayNode: node => node.callee.object,
-	isOptionalArray: node => node.callee.optional,
-	description: 'Array#flatMap()',
 };
 
 // `array.reduce((a, b) => a.concat(b), [])`
@@ -85,8 +87,7 @@ const arrayReduce = {
 				&& firstArgumentBody.elements.every((node, index) =>
 					node?.type === 'SpreadElement'
 					&& node.argument.type === 'Identifier'
-					&& isSameIdentifier(firstArgument.params[index], node.argument),
-				)
+					&& isSameIdentifier(firstArgument.params[index], node.argument))
 			)
 		);
 	},
@@ -157,6 +158,72 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
+const pascalCaseNamePattern = /^\p{Lu}/u;
+const isPascalCaseIdentifier = node =>
+	node.type === 'Identifier'
+	&& pascalCaseNamePattern.test(node.name);
+
+const isKnownNonArrayConstruction = node =>
+	node.type === 'NewExpression'
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name !== 'Array';
+
+const isDefinitelyArrayExpression = node => (
+	node.type === 'ArrayExpression'
+	|| (
+		node.type === 'NewExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'Array'
+	)
+);
+
+const isDefinitelyNonArrayExpression = node => (
+	node.type === 'ObjectExpression'
+	|| node.type === 'Literal'
+	|| node.type === 'TemplateLiteral'
+	|| node.type === 'ArrowFunctionExpression'
+	|| node.type === 'FunctionExpression'
+	|| node.type === 'ClassExpression'
+	|| isKnownNonArrayConstruction(node)
+);
+
+const getConstVariableInitializer = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (!variable || variable.defs.length !== 1) {
+		return;
+	}
+
+	const [definition] = variable.defs;
+	if (
+		definition.type !== 'Variable'
+		|| definition.node.type !== 'VariableDeclarator'
+		|| definition.parent.type !== 'VariableDeclaration'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	return definition.node.init;
+};
+
+const isConstNonArrayVariable = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer && isDefinitelyNonArrayExpression(initializer));
+};
+
+const isConstArrayVariable = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer && isDefinitelyArrayExpression(initializer));
+};
+
+const isObviouslyNonArrayFlatMapReceiver = (node, context) =>
+	(isPascalCaseIdentifier(node) && !isConstArrayVariable(node, context))
+	|| isConstNonArrayVariable(node, context);
+
 function fix(node, array, context, shouldSwitchToArray, optional) {
 	if (typeof shouldSwitchToArray === 'function') {
 		shouldSwitchToArray = shouldSwitchToArray(node);
@@ -166,7 +233,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 		const {sourceCode} = context;
 		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
-			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
+			// `array` is an argument, when it changes to `array[]`, we don't need to add extra parentheses
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
@@ -210,7 +277,7 @@ function create(context) {
 
 	context.on('CallExpression', function * (node) {
 		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
-			if (!testFunction(node)) {
+			if (!testFunction(node, context)) {
 				continue;
 			}
 
@@ -250,6 +317,7 @@ const schema = [
 			functions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions to check.',
 			},
 		},
 	},

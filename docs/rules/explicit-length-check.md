@@ -1,4 +1,6 @@
-# Enforce explicitly comparing the `length` or `size` property of a value
+# explicit-length-check
+
+📝 Enforce explicitly comparing the `length` or `size` property of a value.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -163,9 +165,11 @@ The `non-zero` option can be configured with one of the following:
 - `not-equal`
   - Enforces non-zero to be checked with: `foo.length !== 0`
 
+This rule does not support Yoda-style comparisons like `0 < foo.length`. If you use [`eslint/yoda`](https://eslint.org/docs/latest/rules/yoda), configure it to allow non-Yoda style for relational comparisons.
+
 ## Unsafe to fix case
 
-`.length` check inside `LogicalExpression`s are not safe to fix.
+`.length` check inside some expressions are not safe to fix.
 
 Example:
 
@@ -181,6 +185,13 @@ In this case, the `bothNotEmpty` function returns a `number`, but it will most l
 const bothNotEmpty = (a, b) => a.length > 0 && b.length > 0;
 
 if (bothNotEmpty(foo, bar)) {}
+```
+
+`!foo.length` used as the left side of a comparison is also unsafe to fix due to operator precedence.
+
+```js
+// ❌
+if (!foo.length > 0) {}
 ```
 
 The rule is smart enough to know some `LogicalExpression`s are safe to fix, like when it's inside `if`, `while`, etc.

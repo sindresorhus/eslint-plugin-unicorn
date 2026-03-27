@@ -166,6 +166,28 @@ test({
 			console.log(b.a);
 		`,
 		outdent`
+			const t = {a: {b: {c: 0, d: 1, e: 2}}};
+			const {
+				a: {
+					b: {c, ...other}
+				}
+			} = t;
+			const tt = {...t, a: {...t.a, b: other}};
+		`,
+		outdent`
+			const t = {
+				get a() {
+					return {b: {c: 0, d: 1, e: 2}};
+				}
+			};
+			const {
+				a: {
+					b: {c, ...other}
+				}
+			} = t;
+			console.log(t.a, other);
+		`,
+		outdent`
 			function bar() {
 				const {a} = foo;
 			}
@@ -210,8 +232,74 @@ test({
 			const {a: b} = foo;
 			console.log(foo.b);
 		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			reassign();
+			console.log(foo.a);
+			function reassign() {
+				foo = baz;
+			}
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			function reassign() {
+				foo = baz;
+			}
+			console.log(foo.a);
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			foo = baz;
+			console.log(foo.a);
+		`,
+		outdent`
+			let foo = bar;
+			const {a} = foo;
+			{
+				foo = baz;
+			}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			{
+				const foo = bar;
+				console.log(foo.a);
+			}
+		`,
 	],
 	invalid: [
+		invalidTestCase({
+			code: outdent`
+				let foo = bar;
+				foo = baz;
+				const {a} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				let foo = bar;
+				foo = baz;
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				let foo = bar;
+				const {a} = foo;
+				console.log(foo.a);
+				foo = baz;
+			`,
+			suggestions: [outdent`
+				let foo = bar;
+				const {a} = foo;
+				console.log(a);
+				foo = baz;
+			`],
+		}),
 		invalidTestCase({
 			code: outdent`
 				const {a} = foo;
@@ -302,6 +390,68 @@ test({
 					a: {
 						b
 					}, a
+				} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {
+					a: {
+						b,
+						...other
+					} = fallback
+				} = foo;
+				console.log(foo.a, b, other);
+			`,
+			suggestions: [outdent`
+				const {
+					a: {
+						b,
+						...other
+					} = fallback, a
+				} = foo;
+				console.log(a, b, other);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {
+					a: [
+						b,
+						...other
+					]
+				} = foo;
+				console.log(foo.a, b, other);
+			`,
+			suggestions: [outdent`
+				const {
+					a: [
+						b,
+						...other
+					], a
+				} = foo;
+				console.log(a, b, other);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {
+					a: {
+						b,
+						...other
+					},
+					a
+				} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				const {
+					a: {
+						b,
+						...other
+					},
+					a
 				} = foo;
 				console.log(a);
 			`],
@@ -469,7 +619,7 @@ test({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		outdent`
 			const {a, ...b} = bar;

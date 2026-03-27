@@ -140,18 +140,12 @@ const create = context => {
 	] = context.options;
 
 	styles = extendDefaultStyles
-		? Object.fromEntries(
-			[...Object.keys(defaultStyles), ...Object.keys(styles)]
-				.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]),
-		)
+		? Object.fromEntries([...Object.keys(defaultStyles), ...Object.keys(styles)]
+			.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]))
 		: styles;
 
-	styles = new Map(
-		Object.entries(styles).map(
-			([moduleName, styles]) =>
-				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
-		),
-	);
+	styles = new Map(Object.entries(styles).map(([moduleName, styles]) =>
+		[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]));
 
 	const {sourceCode} = context;
 
@@ -314,21 +308,27 @@ const schema = {
 			properties: {
 				checkImport: {
 					type: 'boolean',
+					description: 'Whether to check `import` statements.',
 				},
 				checkDynamicImport: {
 					type: 'boolean',
+					description: 'Whether to check dynamic `import()` expressions.',
 				},
 				checkExportFrom: {
 					type: 'boolean',
+					description: 'Whether to check `export … from` statements.',
 				},
 				checkRequire: {
 					type: 'boolean',
+					description: 'Whether to check `require()` calls.',
 				},
 				extendDefaultStyles: {
 					type: 'boolean',
+					description: 'Whether to extend the default styles.',
 				},
 				styles: {
 					$ref: '#/definitions/moduleStyles',
+					description: 'Module import styles.',
 				},
 			},
 		},

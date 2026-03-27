@@ -1,4 +1,6 @@
-# Disallow the use of objects as default parameters
+# no-object-as-default-parameter
+
+📝 Disallow the use of objects as default parameters.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

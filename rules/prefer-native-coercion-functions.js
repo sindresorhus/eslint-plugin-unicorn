@@ -45,6 +45,10 @@ const isArrayIdentityCallback = node =>
 	&& node.parent.callee.property.type === 'Identifier'
 	&& arrayMethodsWithBooleanCallback.has(node.parent.callee.property.name);
 
+const isTypeScriptTypePredicateFunction = node =>
+	node.returnType?.type === 'TSTypeAnnotation'
+	&& node.returnType.typeAnnotation.type === 'TSTypePredicate';
+
 function getCallExpression(node) {
 	const firstParameterName = node.params[0].name;
 
@@ -69,7 +73,10 @@ function getCallExpression(node) {
 }
 
 function getArrayCallbackProblem(node) {
-	if (!isArrayIdentityCallback(node)) {
+	if (
+		!isArrayIdentityCallback(node)
+		|| isTypeScriptTypePredicateFunction(node)
+	) {
 		return;
 	}
 
