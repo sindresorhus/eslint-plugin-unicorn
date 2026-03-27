@@ -29,8 +29,17 @@ test({
 		'setTimeout(...args);',
 		'customSetTimeout(callback);',
 		'obj.customSetTimeout(callback);',
+		'globalThis["setTimeout"](callback);',
 		'Math.setTimeout(callback);',
 		'foo.setTimeout(callback);',
+		outdent`
+			const window = foo;
+			window.setTimeout(callback);
+		`,
+		outdent`
+			const self = foo;
+			self.setInterval(callback);
+		`,
 		{
 			code: 'setTimeout(() => console.log("Hello"));',
 			options: ['never'],
@@ -184,6 +193,24 @@ test({
 			}],
 		},
 		{
+			code: 'self.setTimeout(fn, 0);',
+			output: 'self.setTimeout(fn);',
+			options: ['never'],
+			errors: [{
+				messageId: MESSAGE_ID_REDUNDANT_DELAY,
+				data: {name: 'setTimeout'},
+			}],
+		},
+		{
+			code: 'self.setInterval(fn, 0);',
+			output: 'self.setInterval(fn);',
+			options: ['never'],
+			errors: [{
+				messageId: MESSAGE_ID_REDUNDANT_DELAY,
+				data: {name: 'setInterval'},
+			}],
+		},
+		{
 			code: 'window.setTimeout(() => console.log("Hello"), 0);',
 			output: 'window.setTimeout(() => console.log("Hello"));',
 			options: ['never'],
@@ -213,6 +240,24 @@ test({
 		{
 			code: 'setTimeout(() => console.log("Hello"), -0);',
 			output: 'setTimeout(() => console.log("Hello"));',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setTimeout(callback, +0);',
+			output: 'setTimeout(callback);',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setInterval(callback, +(0));',
+			output: 'setInterval(callback);',
+			options: ['never'],
+			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
+		},
+		{
+			code: 'setTimeout(callback, (-0));',
+			output: 'setTimeout(callback);',
 			options: ['never'],
 			errors: [{messageId: MESSAGE_ID_REDUNDANT_DELAY}],
 		},

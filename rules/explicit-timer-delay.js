@@ -61,7 +61,11 @@ Check if the delay argument is explicitly zero.
 */
 const isZeroDelay = node =>
 	isLiteral(node, 0)
-	|| (node.type === 'UnaryExpression' && node.operator === '-' && isLiteral(node.argument, 0));
+	|| (
+		node.type === 'UnaryExpression'
+		&& (node.operator === '+' || node.operator === '-')
+		&& isZeroDelay(node.argument)
+	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

@@ -62,8 +62,12 @@ Default: `'always'`
 ### `'never'`
 
 ```js
-/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
+{
+	'unicorn/explicit-timer-delay': ['error', 'never']
+}
+```
 
+```js
 // ❌
 setTimeout(() => console.log('Hello'), 0);
 
@@ -72,8 +76,6 @@ setTimeout(() => console.log('Hello'));
 ```
 
 ```js
-/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
-
 // ❌
 setInterval(callback, 0);
 
@@ -82,8 +84,6 @@ setInterval(callback);
 ```
 
 ```js
-/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
-
 // ❌
 window.setTimeout(() => console.log('Hello'), 0);
 
@@ -92,8 +92,6 @@ window.setTimeout(() => console.log('Hello'));
 ```
 
 ```js
-/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
-
 // ❌
 globalThis.setInterval(callback, 0);
 
@@ -102,8 +100,6 @@ globalThis.setInterval(callback);
 ```
 
 ```js
-/* eslint unicorn/explicit-timer-delay: ["error", "never"] */
-
 // ✅
 setTimeout(() => console.log('Hello'), 1000);
 globalThis.setInterval(callback, 100);
