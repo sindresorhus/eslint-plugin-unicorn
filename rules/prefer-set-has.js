@@ -42,6 +42,30 @@ const methodsReturnsArrayAndString = [
 	'concat',
 ];
 
+const isStringLiteral = node =>
+	(node.type === 'Literal' && typeof node.value === 'string')
+	|| (node.type === 'TemplateLiteral' && node.expressions.length === 0);
+
+const isIdentifierInitializedWithArray = (node, scope, visitedVariables = new Set()) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(scope, node);
+	if (!variable || visitedVariables.has(variable) || variable.defs.length !== 1) {
+		return false;
+	}
+
+	visitedVariables.add(variable);
+
+	const [definition] = variable.defs;
+
+	return definition.type === 'Variable'
+		&& definition.kind === 'const'
+		&& Boolean(definition.node.init)
+		&& isArrayMethodCall(definition.node.init, scope, visitedVariables);
+};
+
 const isIncludesCall = node =>
 	isMethodCall(node.parent.parent, {
 		method: 'includes',
@@ -79,7 +103,7 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
-const isArrayMethodCall = node =>
+const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 	// `[]`
 	node.type === 'ArrayExpression'
 	// `Array()` and `new Array()`
@@ -106,7 +130,11 @@ const isArrayMethodCall = node =>
 			optionalCall: false,
 			optionalMember: false,
 		})
-		&& isArrayMethodCall(node.callee.object)
+		&& !isStringLiteral(node.callee.object)
+		&& (
+			node.callee.object.type !== 'Identifier'
+			|| isIdentifierInitializedWithArray(node.callee.object, scope, visitedVariables)
+		)
 	);
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -125,7 +153,7 @@ const create = context => {
 				parent.parent.parent.type === 'ExportNamedDeclaration'
 				&& parent.parent.parent.declaration === parent.parent
 			)
-			&& isArrayMethodCall(parent.init)
+			&& isArrayMethodCall(parent.init, context.sourceCode.getScope(parent.init))
 		)) {
 			return;
 		}

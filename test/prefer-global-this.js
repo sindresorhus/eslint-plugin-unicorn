@@ -51,6 +51,7 @@ test.snapshot({
 		'window.addEventListener("resize", () => {})',
 		'window.onresize = function () {}',
 		'\'open\' in window; window.open("https://example.com")',
+		'`open` in window; window.open("https://example.com")',
 		outdent`
 			const {window} = jsdom()
 			window.jQuery = jQuery;

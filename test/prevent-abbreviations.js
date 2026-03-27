@@ -202,7 +202,7 @@ const tests = {
 		'({err: error}) => error',
 		'const {err: httpError} = {}',
 
-		// `err` in not defined, should not be report (could be reported by `no-unused-vars`)
+		// `err` is not defined, should not be reported (could be reported by `no-unused-vars`)
 		'console.log(err)',
 
 		// `err` would be reported by `quote-props` if it's a problem for user

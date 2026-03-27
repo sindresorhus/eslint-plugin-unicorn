@@ -46,13 +46,13 @@ const x = bar || foo();
 
 ## Fix safety
 
-Expressions with side effects or throwing potential are not flagged, since reordering would change program behavior:
+Expressions with side effects or observable property reads are not flagged, since reordering would change program behavior:
 
 - Assignment expressions (`state.ready = true`)
 - Update expressions (`++counter`)
-- Deep member expression chains (`object.deep.value`)
+- Member expressions (`object.flag`, `object?.flag`, `object[index]`)
 - Tagged template expressions (`` tag`x` ``)
 
-When the complex side contains function calls or `new` expressions, the fix is provided as a **suggestion** rather than an auto-fix, because reordering changes when the call executes due to short-circuit evaluation.
+Expressions containing function calls or `new` expressions on the complex side are not flagged, because reordering them is not semantics-preserving under short-circuit evaluation.
 
-When both sides are side-effect-free (identifiers, simple member expressions, literals), the fix is applied automatically.
+When both sides are side-effect-free (identifiers, literals, and other pure expressions), the fix is applied automatically unless comments between the operands would be lost.

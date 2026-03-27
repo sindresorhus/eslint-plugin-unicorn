@@ -1,6 +1,7 @@
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const error = {messageId: 'prefer-simple-condition-first'};
 
 test.snapshot({
 	valid: [
@@ -36,6 +37,13 @@ test.snapshot({
 		// Potentially unsafe to reorder (side effects / throws)
 		'if ((state.ready = true) && ok);',
 		'if (++counter && ok);',
+		'if ((foo + bar) && ready);',
+		'if (check(foo) && bar);',
+		'if (new Foo() && bar);',
+		'while (foo() && bar) {}',
+		'for (; foo() && bar; ) {}',
+		'(foo() && bar) ? 1 : 0',
+		'if (a() && b() && c);',
 		'if (object.deep.value && ok);',
 		'const x = object.deep.value || ok;',
 		'if (tag`x` && ok);',
@@ -56,6 +64,7 @@ test.snapshot({
 
 		// Shallow member access can throw if object is nullish
 		'if (a.b && c);',
+		'if (a?.b && c);',
 		'if (a[b] && c);',
 
 		// `in` and `instanceof` throw if right operand is not object/constructor
@@ -76,21 +85,17 @@ test.snapshot({
 		'if (a.b && x === -1);',
 	],
 	invalid: [
-		// Call on left, identifier on right — suggestion (has call)
-		'if (check(foo) && bar);',
+		// Pure non-simple expression on the left — auto-fix
+		'if ((foo ? bar : baz) && ready);',
+	],
+});
 
-		// New expression on left — suggestion
-		'if (new Foo() && bar);',
-
-		// Chained: complex && complex && simple — outermost flagged
-		'if (a() && b() && c);',
-
-		// Optional chaining on left, identifier on right — auto-fix
-		'if (a?.b && c);',
-
-		// Boolean contexts other than if — rule should still fire
-		'while (foo() && bar) {}',
-		'for (; foo() && bar; ) {}',
-		'(foo() && bar) ? 1 : 0',
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if ((foo ? bar : baz) /* keep */ && ready);',
+			errors: [error],
+		},
 	],
 });

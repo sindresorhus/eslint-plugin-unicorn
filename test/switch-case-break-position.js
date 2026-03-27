@@ -186,6 +186,28 @@ test.snapshot({
 				break;
 			}
 		`,
+		// Return after block is reported but not auto-fixed
+		outdent`
+			function bar() {
+				switch(foo) {
+					case 1: {
+						const value = 1;
+					}
+					return value;
+				}
+			}
+		`,
+		// Throw after block is reported but not auto-fixed
+		outdent`
+			function bar() {
+				switch(foo) {
+					case 1: {
+						const error = new Error('inner');
+					}
+					throw error;
+				}
+			}
+		`,
 	],
 });
 

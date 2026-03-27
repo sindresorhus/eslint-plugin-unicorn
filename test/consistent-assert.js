@@ -122,7 +122,7 @@ test.snapshot({
 			i(foo);
 			j(foo);
 		`,
-		// Optional call, not really matters
+		// Optional call, doesn't really matter
 		outdent`
 			import assert from 'node:assert';
 			assert?.(foo)

@@ -21,6 +21,8 @@ test.snapshot({
 		'const foo = `${a}${b}`',
 		// String.raw tagged template (skipped)
 		'const foo = String.raw`$\\{a}`',
+		// Tagged templates are skipped because tags can observe `strings.raw`
+		'const foo = html`$\\{a}`',
 		// Escaped backslash before \${ (the backslash is escaped, \${ is correct)
 		// eslint-disable-next-line no-template-curly-in-string
 		'const foo = `\\\\\\${a}`',
@@ -38,8 +40,6 @@ test.snapshot({
 		'const foo = `\\\\$\\{a}`',
 		// Both escaped with preceding escaped backslash
 		'const foo = `\\\\\\$\\{a}`',
-		// Non-String.raw tagged template (should still be flagged)
-		'const foo = html`$\\{a}`',
 		// Bad escape in head element (before expression)
 		// eslint-disable-next-line no-template-curly-in-string
 		'const foo = `$\\{a}${expr}`',

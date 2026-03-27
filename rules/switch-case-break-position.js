@@ -76,45 +76,47 @@ const create = context => {
 			loc: sourceCode.getLoc(lastStatement),
 			messageId: MESSAGE_ID,
 			data: {keyword},
-			* fix(fixer) {
-				// Skip fix if there are comments between the block and the terminating statement
-				const closingBrace = sourceCode.getLastToken(blockStatement);
-				const hasComments = sourceCode.getTokensBetween(closingBrace, lastStatement, {includeComments: true})
-					.some(token => isCommentToken(token));
-				if (hasComments) {
-					return;
-				}
+			...(lastStatement.type !== 'ReturnStatement' && lastStatement.type !== 'ThrowStatement' && {
+				* fix(fixer) {
+					// Skip fix if there are comments between the block and the terminating statement
+					const closingBrace = sourceCode.getLastToken(blockStatement);
+					const hasComments = sourceCode.getTokensBetween(closingBrace, lastStatement, {includeComments: true})
+						.some(token => isCommentToken(token));
+					if (hasComments) {
+						return;
+					}
 
-				// Skip fix for single-line blocks (produces malformed output)
-				const blockLoc = sourceCode.getLoc(blockStatement);
-				if (blockLoc.start.line === blockLoc.end.line) {
-					return;
-				}
+					// Skip fix for single-line blocks (produces malformed output)
+					const blockLoc = sourceCode.getLoc(blockStatement);
+					if (blockLoc.start.line === blockLoc.end.line) {
+						return;
+					}
 
-				// Skip fix if the terminator has trailing same-line comments
-				const trailingComments = sourceCode.getCommentsAfter(lastStatement);
-				const terminatorLine = sourceCode.getLoc(lastStatement).end.line;
-				if (trailingComments.some(comment => sourceCode.getLoc(comment).start.line === terminatorLine)) {
-					return;
-				}
+					// Skip fix if the terminator has trailing same-line comments
+					const trailingComments = sourceCode.getCommentsAfter(lastStatement);
+					const terminatorLine = sourceCode.getLoc(lastStatement).end.line;
+					if (trailingComments.some(comment => sourceCode.getLoc(comment).start.line === terminatorLine)) {
+						return;
+					}
 
-				const lastBodyStatement = blockStatement.body.at(-1);
-				const terminatingStatementText = sourceCode.getText(lastStatement);
-				const bodyIndent = getIndentString(lastBodyStatement, context);
+					const lastBodyStatement = blockStatement.body.at(-1);
+					const terminatingStatementText = sourceCode.getText(lastStatement);
+					const bodyIndent = getIndentString(lastBodyStatement, context);
 
-				// Insert before the closing brace, after the last token (including any comments)
-				// This preserves comment attachment to the original statements
-				const lastTokenBeforeBrace = sourceCode.getTokenBefore(closingBrace, {includeComments: true});
-				yield fixer.insertTextAfter(
-					lastTokenBeforeBrace,
-					`\n${bodyIndent}${terminatingStatementText}`,
-				);
+					// Insert before the closing brace, after the last token (including any comments)
+					// This preserves comment attachment to the original statements
+					const lastTokenBeforeBrace = sourceCode.getTokenBefore(closingBrace, {includeComments: true});
+					yield fixer.insertTextAfter(
+						lastTokenBeforeBrace,
+						`\n${bodyIndent}${terminatingStatementText}`,
+					);
 
-				// Remove the terminating statement and whitespace between it and the closing brace
-				const closingBraceEnd = sourceCode.getRange(closingBrace)[1];
-				const terminatingEnd = sourceCode.getRange(lastStatement)[1];
-				yield fixer.removeRange([closingBraceEnd, terminatingEnd]);
-			},
+					// Remove the terminating statement and whitespace between it and the closing brace
+					const closingBraceEnd = sourceCode.getRange(closingBrace)[1];
+					const terminatingEnd = sourceCode.getRange(lastStatement)[1];
+					yield fixer.removeRange([closingBraceEnd, terminatingEnd]);
+				},
+			}),
 		};
 	});
 };

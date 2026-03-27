@@ -260,6 +260,12 @@ function isTypePredicateCallback(callback, context) {
 		return hasTypePredicateReturnType(definition.node);
 	}
 
+	// Imported callbacks may be type guards, but we can't inspect their predicate return
+	// type without type-aware linting. Be conservative on methods with predicate overloads.
+	if (definition.type === 'ImportBinding') {
+		return true;
+	}
+
 	if (definition.type === 'Parameter') {
 		return hasTypePredicateFunctionType(definition.name);
 	}

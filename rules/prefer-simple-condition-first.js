@@ -1,3 +1,4 @@
+import {isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	getParenthesizedText,
@@ -80,8 +81,8 @@ function hasSideEffectsOrThrows(node) {
 
 	if (
 		sideEffectTypes.has(node.type)
-		// Any non-optional member access can throw if the object is nullish
-		|| (node.type === 'MemberExpression' && !node.optional)
+		// Property reads can throw or trigger getters, including with optional chaining.
+		|| node.type === 'MemberExpression'
 		// `in` and `instanceof` throw if the right operand is not an object/constructor
 		|| (node.type === 'BinaryExpression' && (node.operator === 'in' || node.operator === 'instanceof'))
 	) {
@@ -182,6 +183,15 @@ function isBooleanContext(node) {
 	return false;
 }
 
+function hasCommentsBetweenOperands(node, sourceCode) {
+	return sourceCode.getTokensBetween(node.left, node.right, {includeComments: true})
+		.some(token => isCommentToken(token));
+}
+
+function isReorderableLeftOperand(node) {
+	return node.type === 'ConditionalExpression';
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -195,6 +205,10 @@ const create = context => {
 			return;
 		}
 
+		if (!isReorderableLeftOperand(node.left)) {
+			return;
+		}
+
 		// Only flag in boolean contexts — reordering in value-producing contexts changes the result
 		if (!isBooleanContext(node)) {
 			return;
@@ -205,28 +219,38 @@ const create = context => {
 			return;
 		}
 
+		// Calls and `new` are lazy under short-circuiting, so swapping is not semantics-preserving.
+		if (hasCallOrNew(node.left)) {
+			return;
+		}
+
 		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
 		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
 
-		const fix = fixer => fixer.replaceTextRange(
-			[getParenthesizedRange(node.left, context)[0], getParenthesizedRange(node.right, context)[1]],
-			`${rightText} ${node.operator} ${leftText}`,
-		);
+		const hasCommentsBetween = hasCommentsBetweenOperands(node, sourceCode);
+		const fix = hasCommentsBetween
+			? undefined
+			: fixer => fixer.replaceTextRange(
+				[getParenthesizedRange(node.left, context)[0], getParenthesizedRange(node.right, context)[1]],
+				`${rightText} ${node.operator} ${leftText}`,
+			);
 
-		// Use suggestion (not auto-fix) when left contains calls/new or is a chain
+		// Use suggestion (not auto-fix) for chains to avoid fix oscillation.
 		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
-		if (isChain || hasCallOrNew(node.left)) {
+		if (isChain) {
 			return {
 				node,
 				loc: sourceCode.getLoc(node.right),
 				messageId: MESSAGE_ID,
 				data: {operator: node.operator},
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						fix,
-					},
-				],
+				...(fix && {
+					suggest: [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							fix,
+						},
+					],
+				}),
 			};
 		}
 
@@ -235,7 +259,7 @@ const create = context => {
 			loc: sourceCode.getLoc(node.right),
 			messageId: MESSAGE_ID,
 			data: {operator: node.operator},
-			fix,
+			...(fix && {fix}),
 		};
 	});
 };

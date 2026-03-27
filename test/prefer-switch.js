@@ -111,7 +111,7 @@ test.snapshot({
 			else if (bar.bar === true) {}
 			else if (true === baz()) {}
 		`,
-		// No need add parentheses
+		// No need to add parentheses
 		outdent`
 			if (foo === ((0, 1))) {}
 			else if (foo === (bar + 2)) {}

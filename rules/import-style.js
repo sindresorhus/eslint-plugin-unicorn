@@ -7,10 +7,6 @@ const messages = {
 };
 
 const getActualImportDeclarationStyles = importDeclaration => {
-	if (importDeclaration.importKind === 'type') {
-		return [];
-	}
-
 	const {specifiers} = importDeclaration;
 
 	if (specifiers.length === 0) {
@@ -31,10 +27,6 @@ const getActualImportDeclarationStyles = importDeclaration => {
 		}
 
 		if (specifier.type === 'ImportSpecifier') {
-			if (specifier.importKind === 'type') {
-				continue;
-			}
-
 			if (specifier.imported.type === 'Identifier' && specifier.imported.name === 'default') {
 				styles.add('default');
 				continue;

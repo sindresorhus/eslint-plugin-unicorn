@@ -12,7 +12,7 @@ When you create a variable and immediately mutate it, you should instead include
 - Assign variable to an array literal and immediately mutate with `Array#{push,unshift}(…)`.
 - Assign variable to an object literal and immediately assign another property.
 - Assign variable to an object literal and immediately mutate with `Object.assign(…)`.
-- Assign variable to a `Set` or `WeakSet` from an array literal and immediately adding an new element with `{Set,WeakSet}.add(…)`.
+- Assign variable to a `Set` or `WeakSet` from an array literal and immediately adding a new element with `{Set,WeakSet}.add(…)`.
 - Assign variable to a `Map` or `WeakMap` from an array literal and immediately set another key with `{Map,WeakMap}.set(…, …)`.
 
 ## Examples

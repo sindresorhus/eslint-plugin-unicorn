@@ -79,7 +79,7 @@ function fix(innerIfStatement, context) {
 		// Add ` && `
 		yield fixer.insertTextAfter(outer.closingParenthesisToken, ' && ');
 
-		// Remove `()` if `test` don't need it
+		// Remove `()` if `test` doesn't need it
 		for (const {test, openingParenthesisToken, closingParenthesisToken} of [outer, inner]) {
 			if (
 				isParenthesized(test, context)

@@ -10,6 +10,8 @@ Enforce that terminating statements (`break`, `return`, `continue`, `throw`) app
 
 This can happen when refactoring — for example, removing an `if` wrapper but leaving the `break` outside the braces.
 
+`break` and `continue` are auto-fixed. `return` and `throw` are still reported, but are left for manual fixes because moving them into the block can change lexical binding resolution.
+
 ## Examples
 
 ```js

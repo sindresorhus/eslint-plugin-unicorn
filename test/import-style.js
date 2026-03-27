@@ -717,15 +717,38 @@ test.babel({
 test.typescript({
 	valid: [
 		{
+			code: 'import type chalk from \'chalk\'',
+			options: [],
+		},
+		{
+			code: 'import type {x} from \'named\'',
+			options: [options],
+		},
+	],
+	invalid: [
+		{
 			code: 'import {type ChalkInstance} from \'chalk\'',
 			options: [],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'chalk',
+				},
+			}],
 		},
 		{
 			code: 'import type {ChalkInstance} from \'chalk\'',
 			options: [],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'chalk',
+				},
+			}],
 		},
 	],
-	invalid: [],
 });
 
 test.snapshot({

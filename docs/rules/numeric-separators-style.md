@@ -82,7 +82,7 @@ Example:
 /* eslint unicorn/numeric-separators-style: ["error", {"onlyIfContainsSeparator": true, "binary": {"onlyIfContainsSeparator": false}] */
 const number = 100000; // Pass, this number does not contain separators
 const binary = 0b101010001; // Fail, `binary` type don't require separators
-const hexadecimal = 0xD_EED_BEE_F; // Fail, it contain separators and it's incorrectly grouped
+const hexadecimal = 0xD_EED_BEE_F; // Fail, it contains separators and it's incorrectly grouped
 ```
 
 **`minimumDigits`**

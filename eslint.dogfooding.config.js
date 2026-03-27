@@ -7,7 +7,7 @@ import eslintPluginUnicorn from './index.js';
 const config = [
 	eslintPluginUnicorn.configs.all,
 	disableExternalRules([
-		// If external rules needs to be disabled, add the rule name here.
+		// If external rules need to be disabled, add the rule name here.
 		'n/no-unsupported-features/es-syntax',
 		'eslint-plugin/require-meta-default-options',
 		'@stylistic/max-len',

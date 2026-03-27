@@ -122,7 +122,7 @@ const create = context => {
 
 					targetText += ' ?? \'\'';
 
-					// `LogicalExpression` need add parentheses to call `.startsWith()`,
+					// `LogicalExpression` need to add parentheses to call `.startsWith()`,
 					// but if regex is parenthesized, we can reuse it
 					if (!isRegexParenthesized) {
 						targetText = addParentheses(targetText);
@@ -133,7 +133,7 @@ const create = context => {
 
 				// Goal: `String(target).startsWith(pattern)`
 				case FIX_TYPE_STRING_CASTING: {
-					// `target` was a call argument, don't need check parentheses
+					// `target` was a call argument, don't need to check parentheses
 					targetText = `String(${targetText})`;
 					// `CallExpression` don't need add parentheses to call `.startsWith()`
 					break;

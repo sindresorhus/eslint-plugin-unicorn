@@ -517,7 +517,7 @@ test.snapshot({
 			);
 		`,
 		// Needs parentheses
-		// Some of them was ignored since we know they are not callback function
+		// Some of them were ignored since we know they are not callback function
 		outdent`
 			async function * foo () {
 				foo.map((0, bar));
@@ -594,6 +594,22 @@ test.typescript({
 			function isString(value: unknown): value is string {
 				return typeof value === 'string';
 			}
+			foo.every(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.filter(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.find(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
+			foo.findLast(isString);
+		`,
+		outdent`
+			import {isString} from './guards';
 			foo.every(isString);
 		`,
 	],

@@ -132,6 +132,16 @@ const environmentSpecificApisByGlobalIdentifier = new Map([
 	['self', webWorkerSpecificApis],
 ]);
 
+function getStaticPropertyName(node) {
+	if (isStringLiteral(node)) {
+		return node.value;
+	}
+
+	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
+		return node.quasis[0].value.cooked;
+	}
+}
+
 /**
 Check if the node is a window-specific API.
 
@@ -184,11 +194,12 @@ function isKnownSpecificApiExistenceCheck(identifier) {
 		return false;
 	}
 
-	if (!isStringLiteral(parent.left)) {
+	const propertyName = getStaticPropertyName(parent.left);
+	if (typeof propertyName !== 'string') {
 		return false;
 	}
 
-	return specificApis.has(parent.left.value);
+	return specificApis.has(propertyName);
 }
 
 /**

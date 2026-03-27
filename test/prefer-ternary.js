@@ -1250,7 +1250,7 @@ test({
 		`,
 	],
 	invalid: [
-		// Empty block should not matters
+		// Empty block should not matter
 		{
 			code: outdent`
 				function unicorn() {
@@ -1271,7 +1271,7 @@ test({
 			`,
 			errors,
 		},
-		// `ExpressionStatement` or `BlockStatement` should not matters
+		// `ExpressionStatement` or `BlockStatement` should not matter
 		{
 			code: outdent`
 				function unicorn() {
@@ -1287,7 +1287,7 @@ test({
 			`,
 			errors,
 		},
-		// No `ExpressionStatement` or `BlockStatement` should not matters
+		// No `ExpressionStatement` or `BlockStatement` should not matter
 		{
 			code: outdent`
 				function unicorn() {

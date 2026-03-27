@@ -135,7 +135,7 @@ const create = context => {
 		) {
 			// `ThrowStatement` don't check nested
 
-			// If `IfStatement` is not a `BlockStatement`, need add `{}`
+			// If `IfStatement` is not a `BlockStatement`, need to add `{}`
 			const {parent} = node;
 			const needBraces = parent && parent.type !== 'BlockStatement';
 			return {

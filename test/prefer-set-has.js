@@ -407,6 +407,12 @@ test.snapshot({
 			const text = \`${1}abc\`.slice();
 			text.includes('ab') || text.includes('bc');
 		`,
+		outdent`
+			let items = [1, 2, 3];
+			items = 'abc';
+			const foo = items.slice();
+			foo.includes('ab') || foo.includes('bc');
+		`,
 	],
 	invalid: [
 		outdent`
@@ -639,7 +645,16 @@ test.snapshot({
 			const foo = [1, 2, 3].concat(4);
 			foo.includes(1) || foo.includes(2);
 		`,
-
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
 		// `lodash`
 		// `bar` is not `array`, but code not broken
 		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641

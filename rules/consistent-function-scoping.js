@@ -61,7 +61,7 @@ function checkReferences(scope, parent, scopeManager) {
 			return false;
 		}
 
-		// Look at the scope above the function definition to see if lives
+		// Look at the scope above the function definition to see if it lives
 		// next to the reference being checked
 		return isSameScope(parent, identifierParentScope.upper);
 	});
