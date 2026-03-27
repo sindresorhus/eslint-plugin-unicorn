@@ -279,5 +279,43 @@ test({
 			code: 'switch(foo) { case 1: { doStuff(); } break; }',
 			errors: [error],
 		},
+		// Trailing line comment on break — fix bails to avoid detaching comment
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff();
+					}
+					break; // keep with break
+				}
+			`,
+			errors: [error],
+		},
+		// Trailing block comment on break — fix bails
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+						doStuff();
+					}
+					break; /* keep with break */
+				}
+			`,
+			errors: [error],
+		},
+		// Trailing comment on return — proves not break-specific
+		{
+			code: outdent`
+				function foo() {
+					switch(bar) {
+						case 1: {
+							doStuff();
+						}
+						return value; // keep with return
+					}
+				}
+			`,
+			errors: [error],
+		},
 	],
 });

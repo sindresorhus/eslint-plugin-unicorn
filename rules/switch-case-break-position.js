@@ -91,6 +91,13 @@ const create = context => {
 					return;
 				}
 
+				// Skip fix if the terminator has trailing same-line comments
+				const trailingComments = sourceCode.getCommentsAfter(lastStatement);
+				const terminatorLine = sourceCode.getLoc(lastStatement).end.line;
+				if (trailingComments.some(comment => sourceCode.getLoc(comment).start.line === terminatorLine)) {
+					return;
+				}
+
 				const lastBodyStatement = blockStatement.body.at(-1);
 				const terminatingStatementText = sourceCode.getText(lastStatement);
 				const bodyIndent = getIndentString(lastBodyStatement, context);
