@@ -4,11 +4,14 @@ import {isMethodCall, isStringLiteral, isExpressionStatement} from './ast/index.
 
 const {isIdentifierName} = helperValidatorIdentifier;
 const MESSAGE_ID = 'prefer-dom-node-dataset';
+const INVERSE_MESSAGE_ID = 'prefer-attribute-methods';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
+	[INVERSE_MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.dataset`.',
 };
 
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
+const camelCaseToDash = string => `data-${string.replaceAll(/[A-Z]/g, char => `-${char.toLowerCase()}`)}`;
 
 function getFix(callExpression, context) {
 	const method = callExpression.callee.property.name;
@@ -64,8 +67,135 @@ function getFix(callExpression, context) {
 	};
 }
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			inverse: {
+				type: 'boolean',
+			},
+		},
+	},
+];
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {inverse} = context.options[0];
+
+	if (inverse) {
+		const {sourceCode} = context;
+
+		const isDatasetAccess = node =>
+			node.type === 'MemberExpression'
+			&& node.property.type === 'Identifier'
+			&& node.property.name === 'dataset'
+			&& !node.computed;
+
+		context.on('BinaryExpression', binaryExpression => {
+			if (!(
+				binaryExpression.operator === 'in'
+				&& isStringLiteral(binaryExpression.left)
+				&& isDatasetAccess(binaryExpression.right)
+			)) {
+				return;
+			}
+
+			const datasetNode = binaryExpression.right;
+			const objectText = sourceCode.getText(datasetNode.object);
+			const chain = datasetNode.optional ? '?.' : '.';
+			const attributeName = escapeString(camelCaseToDash(binaryExpression.left.value));
+
+			return {
+				node: binaryExpression,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method: 'hasAttribute'},
+				fix: fixer => fixer.replaceText(
+					binaryExpression,
+					`${objectText}${chain}hasAttribute(${attributeName})`,
+				),
+			};
+		});
+
+		context.on('CallExpression', callExpression => {
+			if (!(
+				isMethodCall(callExpression, {
+					object: 'Object',
+					method: 'hasOwn',
+					argumentsLength: 2,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& isDatasetAccess(callExpression.arguments[0])
+				&& isStringLiteral(callExpression.arguments[1])
+			)) {
+				return;
+			}
+
+			const datasetNode = callExpression.arguments[0];
+			const objectText = sourceCode.getText(datasetNode.object);
+			const chain = datasetNode.optional ? '?.' : '.';
+			const attributeName = escapeString(camelCaseToDash(callExpression.arguments[1].value));
+
+			return {
+				node: callExpression,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method: 'hasAttribute'},
+				fix: fixer => fixer.replaceText(
+					callExpression,
+					`${objectText}${chain}hasAttribute(${attributeName})`,
+				),
+			};
+		});
+
+		context.on('MemberExpression', memberExpression => {
+			const {object, parent} = memberExpression;
+			if (!isDatasetAccess(object)) {
+				return;
+			}
+
+			const keyName = memberExpression.computed
+				? (isStringLiteral(memberExpression.property) ? memberExpression.property.value : undefined)
+				: memberExpression.property.name;
+			if (keyName === undefined) {
+				return;
+			}
+
+			if (
+				parent.type === 'UpdateExpression'
+				|| (parent.type === 'AssignmentExpression' && parent.left === memberExpression && parent.operator !== '=')
+			) {
+				return;
+			}
+
+			const isWrite = parent.type === 'AssignmentExpression' && parent.left === memberExpression;
+			const isDelete = parent.type === 'UnaryExpression' && parent.operator === 'delete';
+			const method = isWrite ? 'setAttribute' : (isDelete ? 'removeAttribute' : 'getAttribute');
+
+			const objectText = sourceCode.getText(object.object);
+			const chain = object.optional ? '?.' : '.';
+			const attributeName = escapeString(camelCaseToDash(keyName));
+
+			let fix;
+			if (isWrite && isValueNotUsable(parent)) {
+				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}setAttribute(${attributeName}, ${sourceCode.getText(parent.right)})`);
+			} else if (isDelete && isExpressionStatement(parent.parent)) {
+				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}removeAttribute(${attributeName})`);
+			} else if (!isWrite && !isDelete) {
+				fix = fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`);
+			}
+
+			return {
+				node: memberExpression,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method},
+				fix,
+			};
+		});
+
+		return;
+	}
+
 	context.on('CallExpression', callExpression => {
 		if (!(
 			(
@@ -128,6 +258,8 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{inverse: false}],
 		messages,
 	},
 };

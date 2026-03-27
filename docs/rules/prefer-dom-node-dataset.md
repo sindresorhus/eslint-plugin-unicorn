@@ -64,3 +64,28 @@ element.removeAttribute('not-dataset');
 // ✅
 const hasFoo = element.hasAttribute('foo');
 ```
+
+## Options
+
+### inverse
+
+Type: `boolean`\
+Default: `false`
+
+When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over `.dataset`. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
+
+```js
+// eslint unicorn/prefer-dom-node-dataset: ["error", {"inverse": true}]
+
+// ❌
+const unicorn = element.dataset.unicorn;
+element.dataset.unicorn = '🦄';
+delete element.dataset.unicorn;
+'unicorn' in element.dataset;
+
+// ✅
+const unicorn = element.getAttribute('data-unicorn');
+element.setAttribute('data-unicorn', '🦄');
+element.removeAttribute('data-unicorn');
+element.hasAttribute('data-unicorn');
+```

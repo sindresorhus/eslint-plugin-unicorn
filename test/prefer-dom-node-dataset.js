@@ -213,3 +213,31 @@ test.snapshot({
 		'element.getAttribute("data-unicorn").toString()',
 	],
 });
+
+// Inverse
+test.snapshot({
+	valid: [
+		'console.log(element.dataset);',
+		'element.dataset[variable];',
+		'element.dataset.foo += "bar";',
+		'element.dataset.foo++;',
+	].map(code => ({code, options: [{inverse: true}]})),
+	invalid: [
+		'element.dataset.unicorn;',
+		'element.dataset.fooBar;',
+		'element.dataset["foo:bar"];',
+		'element?.dataset.unicorn;',
+		'element.dataset.unicorn = "🦄";',
+		'element.dataset.fooBar = "baz";',
+		// Not fixable: return value is used
+		'const result = element.dataset.unicorn = "🦄";',
+		'delete element.dataset.unicorn;',
+		'delete element.dataset.fooBar;',
+		// Not fixable: return value is used
+		'if (delete element.dataset.unicorn) {}',
+		'"unicorn" in element.dataset',
+		'"fooBar" in element.dataset',
+		'Object.hasOwn(element.dataset, "unicorn")',
+		'Object.hasOwn(element.dataset, "fooBar")',
+	].map(code => ({code, options: [{inverse: true}]})),
+});
