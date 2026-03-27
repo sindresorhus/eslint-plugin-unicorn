@@ -59,9 +59,18 @@ function isSimple(node) {
 	return false;
 }
 
+const sideEffectTypes = new Set([
+	'AssignmentExpression',
+	'UpdateExpression',
+	'TaggedTemplateExpression',
+	'AwaitExpression',
+	'YieldExpression',
+	'ImportExpression',
+]);
+
 /**
 Check if an AST subtree contains side effects or throwing potential
-(assignments, updates, deep member chains, tagged templates, await, yield, dynamic import).
+(assignments, updates, member access, tagged templates, in/instanceof, await, yield, dynamic import).
 These patterns are not flagged, since reordering would change program behavior.
 */
 function hasSideEffectsOrThrows(node) {
@@ -70,18 +79,12 @@ function hasSideEffectsOrThrows(node) {
 	}
 
 	if (
-		node.type === 'AssignmentExpression'
-		|| node.type === 'UpdateExpression'
-		|| node.type === 'TaggedTemplateExpression'
-		|| node.type === 'AwaitExpression'
-		|| node.type === 'YieldExpression'
-		|| node.type === 'ImportExpression'
+		sideEffectTypes.has(node.type)
+		// Any non-optional member access can throw if the object is nullish
+		|| (node.type === 'MemberExpression' && !node.optional)
+		// `in` and `instanceof` throw if the right operand is not an object/constructor
+		|| (node.type === 'BinaryExpression' && (node.operator === 'in' || node.operator === 'instanceof'))
 	) {
-		return true;
-	}
-
-	// Deep member expression chains (2+ levels) can throw
-	if (node.type === 'MemberExpression' && node.object.type === 'MemberExpression') {
 		return true;
 	}
 
@@ -149,6 +152,36 @@ function getSwapText(node, context, {operator, property}) {
 	return text;
 }
 
+/**
+Check if a LogicalExpression is used in a boolean context where the
+produced value is only tested for truthiness, not consumed as a value.
+*/
+function isBooleanContext(node) {
+	const {parent} = node;
+
+	if (!parent) {
+		return false;
+	}
+
+	if (
+		(parent.type === 'IfStatement' && parent.test === node)
+		|| (parent.type === 'WhileStatement' && parent.test === node)
+		|| (parent.type === 'DoWhileStatement' && parent.test === node)
+		|| (parent.type === 'ForStatement' && parent.test === node)
+		|| (parent.type === 'ConditionalExpression' && parent.test === node)
+		|| (parent.type === 'UnaryExpression' && parent.operator === '!')
+	) {
+		return true;
+	}
+
+	// A LogicalExpression nested inside another LogicalExpression inherits its context
+	if (parent.type === 'LogicalExpression') {
+		return isBooleanContext(parent);
+	}
+
+	return false;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -159,6 +192,11 @@ const create = context => {
 		}
 
 		if (!isSimple(node.right) || isSimple(node.left)) {
+			return;
+		}
+
+		// Only flag in boolean contexts — reordering in value-producing contexts changes the result
+		if (!isBooleanContext(node)) {
 			return;
 		}
 

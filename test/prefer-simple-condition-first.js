@@ -53,39 +53,44 @@ test.snapshot({
 
 		// Nullish coalescing — not handled by rule
 		'const x = foo.bar ?? baz',
+
+		// Shallow member access can throw if object is nullish
+		'if (a.b && c);',
+		'if (a[b] && c);',
+
+		// `in` and `instanceof` throw if right operand is not object/constructor
+		'if (foo in bar && baz);',
+		'if (foo instanceof bar && baz);',
+
+		// Value-producing contexts — reordering changes the result, not just evaluation order
+		'const x = foo() || bar',
+		'const x = a.b && c',
+
+		// Member + call on left — member access can throw
+		'if (foo.bar() && baz === 1);',
+
+		// Member expression in various positions — all can throw
+		'if ((a.b || c) && d);',
+		'if ((a.b) && c);',
+		'if (a.b && !c);',
+		'if (a.b && x === -1);',
 	],
 	invalid: [
 		// Call on left, identifier on right — suggestion (has call)
 		'if (check(foo) && bar);',
 
-		// Member expression on left, identifier on right — auto-fix (no calls)
-		'if (a.b && c);',
-
-		// Call on left, identifier on right with || — suggestion
-		'const x = foo() || bar',
-
 		// New expression on left — suggestion
 		'if (new Foo() && bar);',
-
-		// Member + call on left, simple comparison on right — suggestion
-		'if (foo.bar() && baz === 1);',
 
 		// Chained: complex && complex && simple — outermost flagged
 		'if (a() && b() && c);',
 
-		// Parenthesized complex expression on left — auto-fix
-		'if ((a.b || c) && d);',
-
-		// Parenthesized member expression on left — auto-fix
-		'if ((a.b) && c);',
-
-		// Complex on left, negated identifier on right — auto-fix
-		'if (a.b && !c);',
-
-		// Negative numeric literal in comparison on right — auto-fix
-		'if (a.b && x === -1);',
-
 		// Optional chaining on left, identifier on right — auto-fix
 		'if (a?.b && c);',
+
+		// Boolean contexts other than if — rule should still fire
+		'while (foo() && bar) {}',
+		'for (; foo() && bar; ) {}',
+		'(foo() && bar) ? 1 : 0',
 	],
 });
