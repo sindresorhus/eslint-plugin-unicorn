@@ -112,6 +112,7 @@ const schema = [
 		properties: {
 			checkGlobalVariables: {
 				type: 'boolean',
+				description: 'Whether to also check `typeof` comparisons against global variables.',
 			},
 		},
 	},

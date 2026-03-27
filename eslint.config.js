@@ -91,7 +91,7 @@ const config = [
 			'eslint-plugin/require-meta-docs-url': 'off',
 			'eslint-plugin/require-meta-has-suggestions': 'off',
 			'eslint-plugin/require-meta-schema': 'off',
-			'eslint-plugin/require-meta-schema-description': 'off',
+			'eslint-plugin/require-meta-schema-description': 'error',
 		},
 	},
 	{

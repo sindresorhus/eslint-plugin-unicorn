@@ -262,6 +262,7 @@ const create = context => {
 const schema = [
 	{
 		enum: ['always', 'only-single-line'],
+		description: 'Whether to always prefer ternary, or only for single-line expressions.',
 	},
 ];
 

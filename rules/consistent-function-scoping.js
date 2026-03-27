@@ -246,6 +246,7 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
+				description: 'Whether to check arrow functions.',
 			},
 		},
 	},

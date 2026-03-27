@@ -130,6 +130,7 @@ const schema = [
 		properties: {
 			sortCharacterClasses: {
 				type: 'boolean',
+				description: 'Whether to sort character classes.',
 			},
 		},
 	},

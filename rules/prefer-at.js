@@ -348,9 +348,11 @@ const schema = [
 			getLastElementFunctions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions that return the last element.',
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
+				description: 'Whether to also check positive integer index access.',
 			},
 		},
 	},

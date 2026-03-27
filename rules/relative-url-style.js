@@ -144,6 +144,7 @@ const create = context => {
 const schema = [
 	{
 		enum: ['never', 'always'],
+		description: 'Whether to never or always use a leading `./` for relative URLs.',
 	},
 ];
 

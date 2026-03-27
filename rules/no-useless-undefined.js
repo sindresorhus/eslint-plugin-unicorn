@@ -251,9 +251,11 @@ const schema = [
 		properties: {
 			checkArguments: {
 				type: 'boolean',
+				description: 'Whether to check function arguments.',
 			},
 			checkArrowFunctionBody: {
 				type: 'boolean',
+				description: 'Whether to check arrow function bodies.',
 			},
 		},
 	},

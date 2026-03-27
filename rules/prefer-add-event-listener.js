@@ -167,6 +167,7 @@ const schema = [
 					type: 'string',
 				},
 				uniqueItems: true,
+				description: 'Packages to exclude from checking.',
 			},
 		},
 	},

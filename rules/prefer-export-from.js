@@ -259,6 +259,7 @@ const schema = [
 		properties: {
 			ignoreUsedVariables: {
 				type: 'boolean',
+				description: 'Whether to ignore variables that are used in the module.',
 			},
 		},
 	},

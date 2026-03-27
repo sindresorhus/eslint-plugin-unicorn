@@ -536,23 +536,29 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Comment terms to check.',
 			},
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Patterns to ignore.',
 			},
 			ignoreDates: {
 				type: 'boolean',
+				description: 'Whether to ignore expiration dates.',
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
+				description: 'Whether to ignore expiration dates on pull requests.',
 			},
 			allowWarningComments: {
 				type: 'boolean',
+				description: 'Whether to allow warning comments.',
 			},
 			date: {
 				type: 'string',
 				format: 'date',
+				description: 'The reference date.',
 			},
 		},
 	},

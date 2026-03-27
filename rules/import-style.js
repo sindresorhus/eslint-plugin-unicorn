@@ -322,21 +322,27 @@ const schema = {
 			properties: {
 				checkImport: {
 					type: 'boolean',
+					description: 'Whether to check `import` statements.',
 				},
 				checkDynamicImport: {
 					type: 'boolean',
+					description: 'Whether to check dynamic `import()` expressions.',
 				},
 				checkExportFrom: {
 					type: 'boolean',
+					description: 'Whether to check `export … from` statements.',
 				},
 				checkRequire: {
 					type: 'boolean',
+					description: 'Whether to check `require()` calls.',
 				},
 				extendDefaultStyles: {
 					type: 'boolean',
+					description: 'Whether to extend the default styles.',
 				},
 				styles: {
 					$ref: '#/definitions/moduleStyles',
+					description: 'Module import styles.',
 				},
 			},
 		},

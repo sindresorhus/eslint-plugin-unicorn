@@ -123,6 +123,7 @@ const schema = [
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
+				description: 'Whether to check strict equality comparisons against `null`.',
 			},
 		},
 	},

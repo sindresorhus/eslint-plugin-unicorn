@@ -557,9 +557,11 @@ const schema = {
 			properties: {
 				checkProperties: {
 					type: 'boolean',
+					description: 'Whether to check property names.',
 				},
 				checkVariables: {
 					type: 'boolean',
+					description: 'Whether to check variable names.',
 				},
 				checkDefaultAndNamespaceImports: {
 					type: [
@@ -567,6 +569,7 @@ const schema = {
 						'string',
 					],
 					pattern: 'internal',
+					description: 'Whether to check default and namespace import names.',
 				},
 				checkShorthandImports: {
 					type: [
@@ -574,28 +577,36 @@ const schema = {
 						'string',
 					],
 					pattern: 'internal',
+					description: 'Whether to check shorthand import names.',
 				},
 				checkShorthandProperties: {
 					type: 'boolean',
+					description: 'Whether to check shorthand property names.',
 				},
 				checkFilenames: {
 					type: 'boolean',
+					description: 'Whether to check filenames.',
 				},
 				extendDefaultReplacements: {
 					type: 'boolean',
+					description: 'Whether to extend the default replacements.',
 				},
 				replacements: {
 					$ref: '#/definitions/abbreviations',
+					description: 'Custom abbreviation replacements.',
 				},
 				extendDefaultAllowList: {
 					type: 'boolean',
+					description: 'Whether to extend the default allow list.',
 				},
 				allowList: {
 					$ref: '#/definitions/booleanObject',
+					description: 'Custom allow list of names.',
 				},
 				ignore: {
 					type: 'array',
 					uniqueItems: true,
+					description: 'Patterns to ignore.',
 				},
 			},
 		},

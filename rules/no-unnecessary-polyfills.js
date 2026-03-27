@@ -328,14 +328,18 @@ const schema = [
 				oneOf: [
 					{
 						type: 'string',
+						description: 'A browserslist query string.',
 					},
 					{
 						type: 'array',
+						description: 'An array of browserslist query strings.',
 					},
 					{
 						type: 'object',
+						description: 'A browserslist targets object.',
 					},
 				],
+				description: 'The target environments.',
 			},
 		},
 	},

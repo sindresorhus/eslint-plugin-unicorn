@@ -120,6 +120,7 @@ const schema = [
 		properties: {
 			withDash: {
 				type: 'boolean',
+				description: 'Whether to prefer identifiers with a dash, like `utf-8` instead of `utf8`.',
 			},
 		},
 	},

@@ -104,10 +104,12 @@ const schema = [
 		properties: {
 			name: {
 				type: 'string',
+				description: 'The expected name for the error variable.',
 			},
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Patterns to ignore.',
 			},
 		},
 	},
