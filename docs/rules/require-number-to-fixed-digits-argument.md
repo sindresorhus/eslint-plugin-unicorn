@@ -1,4 +1,6 @@
-# Enforce using the digits argument with `Number#toFixed()`
+# require-number-to-fixed-digits-argument
+
+📝 Enforce using the digits argument with `Number#toFixed()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

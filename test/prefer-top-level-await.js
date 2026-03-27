@@ -251,7 +251,7 @@ test.snapshot({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		'await foo',
 		'await foo()',

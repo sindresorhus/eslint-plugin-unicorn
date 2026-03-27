@@ -1,4 +1,6 @@
-# Prefer `globalThis` over `window`, `self`, and `global`
+# prefer-global-this
+
+📝 Prefer `globalThis` over `window`, `self`, and `global`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

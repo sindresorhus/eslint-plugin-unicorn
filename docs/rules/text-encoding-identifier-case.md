@@ -1,4 +1,6 @@
-# Enforce consistent case for text encoding identifiers
+# text-encoding-identifier-case
+
+📝 Enforce consistent case for text encoding identifiers.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,4 +1,6 @@
-# Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`
+# prefer-string-starts-ends-with
+
+📝 Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,32 +1,12 @@
 import globals from 'globals';
-import _xo from 'eslint-config-xo';
+import xo from 'eslint-config-xo';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
-import unicorn from './node_modules/eslint-plugin-unicorn/index.js';
-
-/*
-Workaround for this error
-
-```
-Oops! Something went wrong! :(
-
-ESLint: 9.38.0
-
-TypeError: Key "languageOptions": allowTrailingCommas option is only available in JSONC.
-```
-*/
-const omit = (property, {[property]: _, ...object}) => object;
-const xo = _xo.map(config =>
-	config.languageOptions?.allowTrailingCommas
-		? {...config, languageOptions: omit('allowTrailingCommas', config.languageOptions)}
-		: config,
-);
 
 const config = [
-	...xo,
-	unicorn.configs.recommended,
+	...xo(),
 	nodeStyleTextConfig,
 	internalRules,
 	{
@@ -46,12 +26,20 @@ const config = [
 		],
 	},
 	{
+		files: ['**/*.js'],
 		rules: {
 			'no-sequences': ['error', {allowInParentheses: false}],
+			'require-unicode-regexp': 'off',
+			'no-shadow': 'off',
+			'no-unused-vars': 'off',
+			'no-undef': 'off',
+			'import-x/no-anonymous-default-export': 'off',
+			'ava/no-conditional-assertion': 'off',
+			'n/prefer-global/process': 'off',
 			'unicorn/escape-case': 'off',
 			'unicorn/expiring-todo-comments': 'off',
 			'unicorn/no-hex-escape': 'off',
-			'unicorn/no-null': 'error',
+			'unicorn/no-null': 'off',
 			'unicorn/prefer-array-flat': ['error', {
 				functions: [
 					'flat',

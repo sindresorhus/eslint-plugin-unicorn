@@ -1,7 +1,7 @@
 import path from 'node:path';
 import {inspect} from 'node:util';
-import {Linter} from 'eslint';
 import {codeFrameColumns} from '@babel/code-frame';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import * as YAML from 'yaml';
 import {mergeLanguageOptions} from './language-options.js';
@@ -33,10 +33,10 @@ function serializeOptions(value) {
 		.trimEnd();
 }
 
-const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 // A simple version of `SourceCodeFixer.applyFixes`
 // https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
 const applyFix = (code, {fix}) => `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
+const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(
@@ -207,14 +207,12 @@ class SnapshotRuleTester {
 						shouldPrintCodeHead = true;
 					}
 
-					inputSnapshotParts.push(
-						shouldPrintCodeHead
-							? outdent`
-								Code:
-								${printCode(input)}
-							`
-							: printCode(input),
-					);
+					inputSnapshotParts.push(shouldPrintCodeHead
+						? outdent`
+							Code:
+							${printCode(input)}
+						`
+						: printCode(input));
 
 					t.snapshot(
 						`\n${inputSnapshotParts.join('\n\n')}\n`,
@@ -234,12 +232,10 @@ class SnapshotRuleTester {
 							if (output !== input) {
 								runVerify(output);
 
-								snapshotParts.push(
-									outdent`
-										Output:
-										${printCode(output)}
-									`,
-								);
+								snapshotParts.push(outdent`
+									Output:
+									${printCode(output)}
+								`);
 							}
 						}
 
@@ -268,3 +264,4 @@ class SnapshotRuleTester {
 }
 
 export default SnapshotRuleTester;
+export {visualizeEslintMessage};

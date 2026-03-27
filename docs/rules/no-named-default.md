@@ -1,4 +1,6 @@
-# Disallow named usage of default import and export
+# no-named-default
+
+📝 Disallow named usage of default import and export.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

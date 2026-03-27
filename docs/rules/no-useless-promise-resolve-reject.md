@@ -1,4 +1,6 @@
-# Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks
+# no-useless-promise-resolve-reject
+
+📝 Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

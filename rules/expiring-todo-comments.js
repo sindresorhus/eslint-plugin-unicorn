@@ -275,9 +275,7 @@ const create = context => {
 		...context.options[0],
 	};
 
-	const ignoreRegexes = options.ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	const ignoreRegexes = options.ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 
 	const dirname = path.dirname(context.filename);
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
@@ -297,8 +295,7 @@ const create = context => {
 			comment.value.split('\n').map(line => ({
 				...comment,
 				value: line,
-			})),
-		).filter(comment => processComment(comment));
+			}))).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
@@ -459,9 +456,7 @@ const create = context => {
 				continue;
 			}
 
-			const targetPackageEngineVersion = tryToCoerceVersion(
-				targetPackageRawEngineVersion,
-			);
+			const targetPackageEngineVersion = tryToCoerceVersion(targetPackageRawEngineVersion);
 
 			if (targetPackageEngineVersion && satisfiesRange(targetPackageEngineVersion, engine.condition, engine.version)) {
 				context.report({

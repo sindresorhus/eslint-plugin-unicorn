@@ -44,10 +44,8 @@ const prepareOptions = ({
 	ignore = [],
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements
-		? Object.fromEntries(
-			[...Object.keys(defaultReplacements), ...Object.keys(replacements)]
-				.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]),
-		)
+		? Object.fromEntries([...Object.keys(defaultReplacements), ...Object.keys(replacements)]
+			.map(name => [name, replacements[name] === false ? {} : {...defaultReplacements[name], ...replacements[name]}]))
 		: replacements;
 
 	const mergedAllowList = extendDefaultAllowList
@@ -56,9 +54,7 @@ const prepareOptions = ({
 
 	ignore = [...defaultIgnore, ...ignore];
 
-	ignore = ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	ignore = ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 
 	return {
 		checkProperties,
@@ -70,12 +66,8 @@ const prepareOptions = ({
 
 		checkFilenames,
 
-		replacements: new Map(
-			Object.entries(mergedReplacements).map(
-				([discouragedName, replacements]) =>
-					[discouragedName, new Map(Object.entries(replacements))],
-			),
-		),
+		replacements: new Map(Object.entries(mergedReplacements).map(([discouragedName, replacements]) =>
+			[discouragedName, new Map(Object.entries(replacements))])),
 		allowList: new Map(Object.entries(mergedAllowList)),
 
 		ignore,
@@ -229,8 +221,7 @@ const shouldFix = variable => getVariableIdentifiers(variable)
 		!isExportedIdentifier(identifier)
 		// In typescript parser, only `JSXOpeningElement` is added to variable
 		// `<foo></foo>` -> `<bar></foo>` will cause parse error
-		&& identifier.type !== 'JSXIdentifier',
-	);
+		&& identifier.type !== 'JSXIdentifier');
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
@@ -438,9 +429,7 @@ const create = context => {
 			...variable.references.map(reference => reference.from),
 			variable.scope,
 		];
-		variableReplacements.samples = variableReplacements.samples.map(
-			name => getAvailableVariableName(name, scopes, isSafeName),
-		);
+		variableReplacements.samples = variableReplacements.samples.map(name => getAvailableVariableName(name, scopes, isSafeName));
 
 		const problem = {
 			...getMessage(definition.name.name, variableReplacements, 'variable'),

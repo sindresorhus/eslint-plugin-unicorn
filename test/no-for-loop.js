@@ -662,8 +662,7 @@ test({
 			testCase(
 				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
 				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
-			),
-		),
+			)),
 
 		// Singularization (avoid using reserved JavaScript keywords):
 		testCase(outdent`

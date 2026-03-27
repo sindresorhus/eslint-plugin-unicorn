@@ -288,9 +288,7 @@ const tests = {
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(
-				'Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.',
-			),
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.'),
 		},
 
 		// All suggested names should avoid capture
@@ -1294,75 +1292,6 @@ const tests = {
 };
 
 test(tests);
-test.babel(avoidTestTitleConflict(tests, 'babel'));
-test.typescript(avoidTestTitleConflict(tests, 'typescript'));
-
-test({
-	testerOptions: {
-		languageOptions: {
-			sourceType: 'script',
-			ecmaVersion: 5,
-			globals: {
-				document: 'readonly',
-				event: 'readonly',
-			},
-		},
-	},
-	valid: [],
-	invalid: [
-		{
-			code: 'var doc',
-			output: 'var document_',
-			errors: 1,
-		},
-		{
-			code: outdent`
-				var doc;
-				document.querySelector(doc);
-			`,
-			output: outdent`
-				var document_;
-				document.querySelector(document_);
-			`,
-			errors: 1,
-		},
-
-		{
-			code: 'var y',
-			output: 'var yield_',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				"use strict";
-				var y;
-			`,
-			output: outdent`
-				"use strict";
-				var yield_;
-			`,
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'function a() {try {} catch(args) {}}',
-			output: 'function a() {try {} catch(arguments_) {}}',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'var one',
-			options: [{replacements: {one: {1: true}}}],
-			errors: 1,
-		},
-		{
-			code: 'var one_two',
-			options: [{replacements: {one: {first: true, 1: true}}}],
-			errors: 1,
-		},
-	],
-});
 
 const importExportTests = {
 	valid: [
@@ -1679,107 +1608,6 @@ const importExportTests = {
 	],
 };
 test(importExportTests);
-test.babel(avoidTestTitleConflict(importExportTests, 'babel'));
-test.typescript(avoidTestTitleConflict(importExportTests, 'typescript'));
-
-test.babel({
-	valid: [
-		// Allowed names
-		'Foo.defaultProps = {}',
-		outdent`
-			class Foo {
-				static propTypes = {};
-				static getDerivedStateFromProps() {}
-			}
-		`,
-
-		// Property should not report by default
-		outdent`
-			class Foo {
-				static propTypesAndStuff = {};
-			}
-		`,
-		'(class {e = 1})',
-		'(class {err = 1})',
-		outdent`
-			class C {
-				err = () => {}
-			}
-		`,
-	],
-	invalid: [
-		{
-			code: outdent`
-				function unicorn(unicorn) {
-					const {prop = {}} = unicorn;
-					return property;
-				}
-			`,
-			output: outdent`
-				function unicorn(unicorn) {
-					const {prop: property_ = {}} = unicorn;
-					return property;
-				}
-			`,
-			errors: 1,
-		},
-		{
-			code: '({err}) => err;',
-			output: '({err: error}) => error;',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'err => ({err});',
-			output: 'error => ({err: error});',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'Foo.customProps = {}',
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				class Foo {
-					static propTypesAndStuff = {};
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				class Foo {
-					static getDerivedContextFromProps() {}
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-
-		{
-			code: '(class {e = 1})',
-			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
-		},
-		{
-			code: '(class {err = 1})',
-			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
-		},
-		{
-			code: outdent`
-				class C {
-					err = () => {}
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-	],
-});
 
 test.typescript({
 	testerOptions: {

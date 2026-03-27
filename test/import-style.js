@@ -694,26 +694,6 @@ test({
 	].map(test => addDefaultOptions(test)),
 });
 
-test.babel({
-	valid: [
-		'const {...rest2} = require("named")',
-	],
-	invalid: [
-		{
-			code: 'const {...rest2} = require("unassigned")',
-			errors: [unassignedError],
-		},
-		{
-			code: 'const {...rest2} = require("default")',
-			errors: [defaultError],
-		},
-		{
-			code: 'const {...rest2} = require("namespace")',
-			errors: [namespaceError],
-		},
-	].map(test => addDefaultOptions(test)),
-});
-
 test.typescript({
 	valid: [
 		{

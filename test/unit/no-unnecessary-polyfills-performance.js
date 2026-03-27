@@ -1,7 +1,7 @@
-import test from 'ava';
 import path from 'node:path';
 import url from 'node:url';
 import {execFileSync} from 'node:child_process';
+import test from 'ava';
 
 test('No unnecessary polyfills avoids scanning every pattern for unrelated imports', t => {
 	const cwd = path.dirname(path.dirname(path.dirname(url.fileURLToPath(import.meta.url))));

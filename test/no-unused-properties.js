@@ -425,7 +425,7 @@ test({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		outdent`
 			const foo1 = {a: 1, b: 2};

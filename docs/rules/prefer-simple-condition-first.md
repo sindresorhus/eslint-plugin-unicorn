@@ -1,4 +1,6 @@
-# Prefer simple conditions first in logical expressions
+# prefer-simple-condition-first
+
+📝 Prefer simple conditions first in logical expressions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

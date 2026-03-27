@@ -1,4 +1,6 @@
-# Disallow using the `this` argument in array methods
+# no-array-method-this-argument
+
+📝 Disallow using the `this` argument in array methods.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

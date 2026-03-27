@@ -635,8 +635,7 @@ test.snapshot({
 				function unicorn() {
 					return foo.includes(1);
 				}
-			`,
-		),
+			`),
 		outdent`
 			const foo = [1, 2, 3].slice();
 			foo.includes(1) || foo.includes(2);
@@ -665,43 +664,6 @@ test.snapshot({
 				return bar.includes(1);
 			}
 		`,
-	],
-});
-
-test.snapshot({
-	testerOptions: {
-		languageOptions: {
-			parser: parsers.babel,
-			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: [
-							['decorators', {decoratorsBeforeExport: true}],
-						],
-					},
-				},
-			},
-		},
-	},
-	valid: [
-		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
-		outdent`
-			@connect(
-				state => {
-					const availableComponents = ['is']
-					if (nsConfig.enabled) availableComponents.push('ns')
-					if (jsConfig.enabled) availableComponents.push('js')
-					if (asConfig.enabled) availableComponents.push('as')
-
-					return {
-						availableComponents,
-					}
-				},
-			)
-			export default class A {}
-		`,
-	],
-	invalid: [
 	],
 });
 

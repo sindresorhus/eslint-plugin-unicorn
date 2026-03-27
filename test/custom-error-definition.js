@@ -518,7 +518,7 @@ const tests = {
 test(tests);
 test.typescript(avoidTestTitleConflict(tests, 'typescript'));
 
-test.babel({
+test({
 	valid: [
 		// #130
 		outdent`

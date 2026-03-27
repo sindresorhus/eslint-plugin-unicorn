@@ -135,9 +135,7 @@ const schema = [{
 	type: 'object',
 	additionalProperties: false,
 	properties: {
-		...Object.fromEntries(
-			Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()]),
-		),
+		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()])),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
 			description: 'Whether to only enforce the style if the number already contains a separator.',

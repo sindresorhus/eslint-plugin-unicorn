@@ -1,4 +1,5 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
+
 const isWhitespaceOnly = text => /^\s*$/.test(text);
 
 function removeExpressionStatement(expressionStatement, context, fixer, preserveSemiColon = false) {

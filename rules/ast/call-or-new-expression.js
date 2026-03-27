@@ -71,11 +71,9 @@ function create(node, options, types) {
 		const maximumArgumentsLength = Number.isFinite(maximumArguments) ? maximumArguments : argumentsLength;
 		if (
 			typeof maximumArgumentsLength === 'number'
-			&& node.arguments.some(
-				(node, index) =>
-					node.type === 'SpreadElement'
-					&& index < maximumArgumentsLength,
-			)
+			&& node.arguments.some((node, index) =>
+				node.type === 'SpreadElement'
+				&& index < maximumArgumentsLength)
 		) {
 			return false;
 		}

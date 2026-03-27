@@ -1,4 +1,6 @@
-# Enforce the use of Unicode escapes instead of hexadecimal escapes
+# no-hex-escape
+
+📝 Enforce the use of Unicode escapes instead of hexadecimal escapes.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

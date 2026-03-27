@@ -1,4 +1,6 @@
-# Do not use leading/trailing space between `console.log` parameters
+# no-console-spaces
+
+📝 Do not use leading/trailing space between `console.log` parameters.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

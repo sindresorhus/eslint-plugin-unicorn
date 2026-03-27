@@ -54,14 +54,12 @@ const hasRestElement = pattern => {
 
 		case 'ObjectPattern': {
 			return pattern.properties.some(property =>
-				hasRestElement(property.type === 'Property' ? property.value : property),
-			);
+				hasRestElement(property.type === 'Property' ? property.value : property));
 		}
 
 		case 'ArrayPattern': {
 			return pattern.elements.some(element =>
-				hasRestElement(element),
-			);
+				hasRestElement(element));
 		}
 
 		default: {
@@ -111,8 +109,7 @@ const isMemberDestructuredInNestedPatternWithRest = (objectPattern, memberName) 
 		isIdentifierProperty(property)
 		&& property.key.name === memberName
 		&& property.value.type !== 'Identifier'
-		&& hasNestedRestElement(property.value),
-	);
+		&& hasNestedRestElement(property.value));
 
 const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
 	if (!declaration.rootVariable) {
@@ -212,8 +209,7 @@ const create = context => {
 
 		const destructuredProperties = objectPattern.properties.filter(property =>
 			isIdentifierProperty(property)
-			&& property.value.type === 'Identifier',
-		);
+			&& property.value.type === 'Identifier');
 
 		const lastProperty = objectPattern.properties.at(-1);
 		const hasRest = lastProperty?.type === 'RestElement';
@@ -221,8 +217,7 @@ const create = context => {
 
 		// Member might already be destructured
 		const destructuredMember = destructuredProperties.find(property =>
-			property.key.name === member,
-		);
+			property.key.name === member);
 
 		if (!destructuredMember) {
 			if (memberDestructuredInNestedPattern) {

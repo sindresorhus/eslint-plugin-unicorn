@@ -19,9 +19,7 @@ const additionalPolyfillModules = {
 	'es.object.set-prototype-of': ['setprototypeof'],
 	'es.string.code-point-at': ['code-point-at'],
 };
-const additionalPolyfillPatterns = Object.fromEntries(
-	Object.entries(additionalPolyfillModules).map(([feature, modules]) => [feature, `|(${modules.join('|')})`]),
-);
+const additionalPolyfillPatterns = Object.fromEntries(Object.entries(additionalPolyfillModules).map(([feature, modules]) => [feature, `|(${modules.join('|')})`]));
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
@@ -263,8 +261,7 @@ function create(context) {
 	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
 	const checkFeatures = features => !features.every(feature =>
 		unavailableFeatureSet.has(feature)
-		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))),
-	);
+		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))));
 
 	context.on('Literal', node => {
 		if (

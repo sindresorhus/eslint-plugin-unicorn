@@ -1,4 +1,6 @@
-# Disallow number literals with zero fractions or dangling dots
+# no-zero-fractions
+
+📝 Disallow number literals with zero fractions or dangling dots.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

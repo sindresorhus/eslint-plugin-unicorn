@@ -5,7 +5,6 @@ Workaround for https://github.com/typescript-eslint/typescript-eslint/issues/117
 
 import {Variable} from 'eslint-scope';
 import typescriptEslintParserOriginal from '@typescript-eslint/parser';
-import babelEslintParserOriginal from '@babel/eslint-parser';
 import vueEslintParserOriginal from 'vue-eslint-parser';
 
 function addGlobals(names) {
@@ -84,11 +83,6 @@ function fixParse(parse) {
 export const typescriptEslintParser = {
 	...typescriptEslintParserOriginal,
 	parseForESLint: fixParse(typescriptEslintParserOriginal.parseForESLint),
-};
-
-export const babelEslintParser = {
-	...babelEslintParserOriginal,
-	parseForESLint: fixParse(babelEslintParserOriginal.parseForESLint),
 };
 
 export const vueEslintParser = {

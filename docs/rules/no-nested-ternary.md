@@ -1,4 +1,6 @@
-# Disallow nested ternary expressions
+# no-nested-ternary
+
+📝 Disallow nested ternary expressions.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

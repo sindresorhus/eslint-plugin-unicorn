@@ -1,4 +1,6 @@
-# Disallow comparing `undefined` using `typeof`
+# no-typeof-undefined
+
+📝 Disallow comparing `undefined` using `typeof`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

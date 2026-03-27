@@ -10,11 +10,9 @@ export default function assertToken(token, {test, expected, ruleId}) {
 
 	if (
 		!test
-		&& expected.some(
-			expectedToken =>
-				Object.entries(expectedToken)
-					.every(([key, value]) => token[key] === value),
-		)
+		&& expected.some(expectedToken =>
+			Object.entries(expectedToken)
+				.every(([key, value]) => token[key] === value))
 	) {
 		return;
 	}

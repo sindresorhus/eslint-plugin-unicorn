@@ -1,4 +1,6 @@
-# Enforce the use of built-in methods instead of unnecessary polyfills
+# no-unnecessary-polyfills
+
+📝 Enforce the use of built-in methods instead of unnecessary polyfills.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

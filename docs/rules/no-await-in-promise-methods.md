@@ -1,4 +1,6 @@
-# Disallow using `await` in `Promise` method parameters
+# no-await-in-promise-methods
+
+📝 Disallow using `await` in `Promise` method parameters.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

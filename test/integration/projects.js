@@ -13,6 +13,7 @@ function normalizeProject(project) {
 		name = repository.split('/').pop(),
 		ignore = [],
 		babelPlugins = [],
+		requiresBabel = false,
 	} = project;
 
 	return {
@@ -22,6 +23,7 @@ function normalizeProject(project) {
 		repository,
 		ignore,
 		babelPlugins,
+		requiresBabel,
 	};
 }
 
@@ -171,6 +173,7 @@ export default [
 		'https://github.com/zloirock/core-js',
 		{
 			repository: 'https://github.com/rollup/rollup',
+			requiresBabel: true,
 			ignore: [
 				'test/**',
 				'scripts/perf.js',
@@ -195,11 +198,13 @@ export default [
 		},
 		{
 			repository: 'https://github.com/webpack/webpack',
+			requiresBabel: true,
 			ignore: ['test/**/*'],
 		},
 	],
 	{
 		repository: 'https://github.com/vercel/next.js',
+		requiresBabel: true,
 		ignore: [
 			'examples/**',
 			'test/**',
@@ -214,6 +219,7 @@ export default [
 	// #903
 	{
 		repository: 'https://github.com/mattermost/mattermost-webapp',
+		requiresBabel: true,
 		ignore: [
 			// Empty type argument lists
 			'e2e/cypress/tests/support/api/bots.d.ts',
@@ -222,6 +228,7 @@ export default [
 	// #912
 	{
 		repository: 'https://github.com/microsoft/fluentui',
+		requiresBabel: true,
 		ignore: [
 			// These files use `package` keyword as variable
 			'scripts/publish-beta.js',
@@ -261,6 +268,9 @@ export default [
 		ignore: [
 			// Cannot parse `'\033'`
 			'build/**',
+			// Global return
+			'extensions/vscode-colorize-tests/test/colorize-fixtures/test6916.js',
+			'scripts/xterm-update.js',
 			// Invalid syntax
 			'src/vs/platform/files/test/node/fixtures/**',
 			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
@@ -272,5 +282,4 @@ export default [
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
-		: [{...normalizeProject(projectOrProjects), group: index}],
-);
+		: [{...normalizeProject(projectOrProjects), group: index}]);

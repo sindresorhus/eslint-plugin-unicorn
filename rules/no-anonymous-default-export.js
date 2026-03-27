@@ -78,11 +78,9 @@ function addName(fixer, node, name, context) {
 
 		case 'ArrowFunctionExpression': {
 			const [exportDeclarationStart, exportDeclarationEnd]
-				= sourceCode.getRange(
-					node.parent.type === 'ExportDefaultDeclaration'
-						? node.parent
-						: node.parent.parent,
-				);
+				= sourceCode.getRange(node.parent.type === 'ExportDefaultDeclaration'
+					? node.parent
+					: node.parent.parent);
 			const [arrowFunctionStart, arrowFunctionEnd] = getParenthesizedRange(node, context);
 
 			let textBefore = sourceCode.text.slice(exportDeclarationStart, arrowFunctionStart);

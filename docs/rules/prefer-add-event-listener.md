@@ -1,4 +1,6 @@
-# Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions
+# prefer-add-event-listener
+
+📝 Prefer `.addEventListener()` and `.removeEventListener()` over `on`-functions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

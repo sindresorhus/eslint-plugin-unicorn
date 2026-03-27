@@ -1,4 +1,6 @@
-# Enforce throwing `TypeError` in type checking conditions
+# prefer-type-error
+
+📝 Enforce throwing `TypeError` in type checking conditions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

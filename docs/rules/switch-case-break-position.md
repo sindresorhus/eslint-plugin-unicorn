@@ -1,4 +1,6 @@
-# Enforce consistent `break`/`return`/`continue`/`throw` position in `case` clauses
+# switch-case-break-position
+
+📝 Enforce consistent `break`/`return`/`continue`/`throw` position in `case` clauses.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

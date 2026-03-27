@@ -54,25 +54,23 @@ const create = context => {
 			return;
 		}
 
-		const emptyWithProperty = optionsNode.properties.find(
-			property =>
-				property.type === 'Property'
-				&& !property.method
-				&& !property.shorthand
-				&& !property.computed
-				&& property.kind === 'init'
-				&& (
-					(
-						property.key.type === 'Identifier'
-						&& property.key.name === 'with'
-					)
-					|| (
-						property.key.type === 'Literal'
-						&& property.key.value === 'with'
-					)
+		const emptyWithProperty = optionsNode.properties.find(property =>
+			property.type === 'Property'
+			&& !property.method
+			&& !property.shorthand
+			&& !property.computed
+			&& property.kind === 'init'
+			&& (
+				(
+					property.key.type === 'Identifier'
+					&& property.key.name === 'with'
 				)
-				&& isEmptyObjectExpression(property.value),
-		);
+				|| (
+					property.key.type === 'Literal'
+					&& property.key.value === 'with'
+				)
+			)
+			&& isEmptyObjectExpression(property.value));
 
 		const nodeToRemove = optionsNode.properties.length === 0 || (emptyWithProperty && optionsNode.properties.length === 1)
 			? optionsNode

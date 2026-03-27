@@ -132,9 +132,7 @@ function create(context) {
 
 		const tracker = new ReferenceTracker(sourceCode.getScope(program));
 
-		for (const {node, path} of tracker.iterateGlobalReferences(
-			Object.fromEntries(OBJECT_PROTOTYPE_METHODS.map(method => [method, {[ReferenceTracker.READ]: true}])),
-		)) {
+		for (const {node, path} of tracker.iterateGlobalReferences(Object.fromEntries(OBJECT_PROTOTYPE_METHODS.map(method => [method, {[ReferenceTracker.READ]: true}])))) {
 			globalReferences.set(node, path);
 		}
 

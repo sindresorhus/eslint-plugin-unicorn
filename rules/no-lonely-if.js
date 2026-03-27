@@ -1,6 +1,5 @@
 import {isNotSemicolonToken} from '@eslint-community/eslint-utils';
-import {isParenthesized} from './utils/index.js';
-import {needsSemicolon} from './utils/index.js';
+import {isParenthesized, needsSemicolon} from './utils/index.js';
 import {removeSpacesAfter} from './fix/index.js';
 
 const MESSAGE_ID = 'no-lonely-if';

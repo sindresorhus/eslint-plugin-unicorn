@@ -1,4 +1,6 @@
-# Enforce consistent style for escaping `${` in template literals
+# consistent-template-literal-escape
+
+📝 Enforce consistent style for escaping `${` in template literals.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

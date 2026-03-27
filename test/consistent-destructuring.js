@@ -619,7 +619,7 @@ test({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		outdent`
 			const {a, ...b} = bar;

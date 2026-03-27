@@ -1,4 +1,6 @@
-# Prefer using `Set#size` instead of `Array#length`
+# prefer-set-size
+
+📝 Prefer using `Set#size` instead of `Array#length`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

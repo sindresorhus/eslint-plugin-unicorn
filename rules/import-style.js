@@ -140,18 +140,12 @@ const create = context => {
 	] = context.options;
 
 	styles = extendDefaultStyles
-		? Object.fromEntries(
-			[...Object.keys(defaultStyles), ...Object.keys(styles)]
-				.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]),
-		)
+		? Object.fromEntries([...Object.keys(defaultStyles), ...Object.keys(styles)]
+			.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]))
 		: styles;
 
-	styles = new Map(
-		Object.entries(styles).map(
-			([moduleName, styles]) =>
-				[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))],
-		),
-	);
+	styles = new Map(Object.entries(styles).map(([moduleName, styles]) =>
+		[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]));
 
 	const {sourceCode} = context;
 

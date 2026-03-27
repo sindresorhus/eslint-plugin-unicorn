@@ -28,26 +28,20 @@ const externalRules = {
 	'no-nested-ternary': 'off',
 };
 
-const recommendedRules = Object.fromEntries(
-	Object.entries(rules).map(([id, rule]) => [
-		`unicorn/${id}`,
-		rule.meta.docs.recommended ? 'error' : 'off',
-	]),
-);
+const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended ? 'error' : 'off',
+]));
 
-const unopinionatedRules = Object.fromEntries(
-	Object.entries(rules).map(([id, rule]) => [
-		`unicorn/${id}`,
-		rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
-	]),
-);
+const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+]));
 
-const allRules = Object.fromEntries(
-	Object.keys(rules).map(id => [
-		`unicorn/${id}`,
-		'error',
-	]),
-);
+const allRules = Object.fromEntries(Object.keys(rules).map(id => [
+	`unicorn/${id}`,
+	'error',
+]));
 
 const createConfig = (rules, flatConfigName) => ({
 	...flatConfigBase,

@@ -87,8 +87,7 @@ const arrayReduce = {
 				&& firstArgumentBody.elements.every((node, index) =>
 					node?.type === 'SpreadElement'
 					&& node.argument.type === 'Identifier'
-					&& isSameIdentifier(firstArgument.params[index], node.argument),
-				)
+					&& isSameIdentifier(firstArgument.params[index], node.argument))
 			)
 		);
 	},

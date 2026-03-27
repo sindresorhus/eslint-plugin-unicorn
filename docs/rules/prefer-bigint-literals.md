@@ -1,4 +1,6 @@
-# Prefer `BigInt` literals over the constructor
+# prefer-bigint-literals
+
+📝 Prefer `BigInt` literals over the constructor.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,4 +1,6 @@
-# Add expiration conditions to TODO comments
+# expiring-todo-comments
+
+📝 Add expiration conditions to TODO comments.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

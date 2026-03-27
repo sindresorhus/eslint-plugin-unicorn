@@ -1,4 +1,6 @@
-# Prefer negative index over `.length - index` when possible
+# prefer-negative-index
+
+📝 Prefer negative index over `.length - index` when possible.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

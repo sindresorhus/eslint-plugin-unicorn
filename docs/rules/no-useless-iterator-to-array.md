@@ -1,4 +1,6 @@
-# Disallow unnecessary `.toArray()` on iterators
+# no-useless-iterator-to-array
+
+📝 Disallow unnecessary `.toArray()` on iterators.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

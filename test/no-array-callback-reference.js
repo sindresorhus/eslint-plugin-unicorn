@@ -152,30 +152,26 @@ test({
 	],
 	invalid: [
 		// Suggestions
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((element) => fn(element))`,
-					`foo.${method}((element, index) => fn(element, index))`,
-					`foo.${method}((element, index, array) => fn(element, index, array))`,
-				],
-			}),
-		),
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo?.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo?.${method}((element) => fn(element))`,
-					`foo?.${method}((element, index) => fn(element, index))`,
-					`foo?.${method}((element, index, array) => fn(element, index, array))`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((element) => fn(element))`,
+				`foo.${method}((element, index) => fn(element, index))`,
+				`foo.${method}((element, index, array) => fn(element, index, array))`,
+			],
+		})),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo?.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo?.${method}((element) => fn(element))`,
+				`foo?.${method}((element, index) => fn(element, index))`,
+				`foo?.${method}((element, index, array) => fn(element, index, array))`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(fn)',
 			method: 'forEach',
@@ -186,32 +182,28 @@ test({
 				'foo.forEach((element, index, array) => { fn(element, index, array); })',
 			],
 		}),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((accumulator, element) => fn(accumulator, element))`,
-					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(fn)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((accumulator, element) => fn(accumulator, element))`,
+				`foo.${method}((accumulator, element, index) => fn(accumulator, element, index))`,
+				`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array))`,
+			],
+		})),
 
 		// 2 arguments
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn, thisArgument)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((element) => fn(element), thisArgument)`,
-					`foo.${method}((element, index) => fn(element, index), thisArgument)`,
-					`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(fn, thisArgument)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((element) => fn(element), thisArgument)`,
+				`foo.${method}((element, index) => fn(element, index), thisArgument)`,
+				`foo.${method}((element, index, array) => fn(element, index, array), thisArgument)`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(fn, thisArgument)',
 			method: 'forEach',
@@ -222,32 +214,28 @@ test({
 				'foo.forEach((element, index, array) => { fn(element, index, array); }, thisArgument)',
 			],
 		}),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(fn, initialValue)`,
-				method,
-				name: 'fn',
-				suggestions: [
-					`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
-					`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(fn, initialValue)`,
+			method,
+			name: 'fn',
+			suggestions: [
+				`foo.${method}((accumulator, element) => fn(accumulator, element), initialValue)`,
+				`foo.${method}((accumulator, element, index) => fn(accumulator, element, index), initialValue)`,
+				`foo.${method}((accumulator, element, index, array) => fn(accumulator, element, index, array), initialValue)`,
+			],
+		})),
 
 		// `Boolean` is only ignored on reasonable places
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(Boolean, initialValue)`,
-				method,
-				name: 'Boolean',
-				suggestions: [
-					`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
-					`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
-					`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`,
-				],
-			}),
-		),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(Boolean, initialValue)`,
+			method,
+			name: 'Boolean',
+			suggestions: [
+				`foo.${method}((accumulator, element) => Boolean(accumulator, element), initialValue)`,
+				`foo.${method}((accumulator, element, index) => Boolean(accumulator, element, index), initialValue)`,
+				`foo.${method}((accumulator, element, index, array) => Boolean(accumulator, element, index, array), initialValue)`,
+			],
+		})),
 		invalidTestCase({
 			code: 'foo.forEach(Boolean)',
 			method: 'forEach',
@@ -260,28 +248,24 @@ test({
 		}),
 
 		// Not `Identifier`
-		...simpleMethodsExceptForEach.map(
-			method => invalidTestCase({
-				code: `foo.${method}(lib.fn)`,
-				method,
-				suggestions: [
-					`foo.${method}((element) => lib.fn(element))`,
-					`foo.${method}((element, index) => lib.fn(element, index))`,
-					`foo.${method}((element, index, array) => lib.fn(element, index, array))`,
-				],
-			}),
-		),
-		...reduceLikeMethods.map(
-			method => invalidTestCase({
-				code: `foo.${method}(lib.fn)`,
-				method,
-				suggestions: [
-					`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
-					`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
-					`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`,
-				],
-			}),
-		),
+		...simpleMethodsExceptForEach.map(method => invalidTestCase({
+			code: `foo.${method}(lib.fn)`,
+			method,
+			suggestions: [
+				`foo.${method}((element) => lib.fn(element))`,
+				`foo.${method}((element, index) => lib.fn(element, index))`,
+				`foo.${method}((element, index, array) => lib.fn(element, index, array))`,
+			],
+		})),
+		...reduceLikeMethods.map(method => invalidTestCase({
+			code: `foo.${method}(lib.fn)`,
+			method,
+			suggestions: [
+				`foo.${method}((accumulator, element) => lib.fn(accumulator, element))`,
+				`foo.${method}((accumulator, element, index) => lib.fn(accumulator, element, index))`,
+				`foo.${method}((accumulator, element, index, array) => lib.fn(accumulator, element, index, array))`,
+			],
+		})),
 
 		// Need parenthesized
 

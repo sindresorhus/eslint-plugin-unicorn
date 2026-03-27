@@ -1,4 +1,6 @@
-# Disallow negated conditions
+# no-negated-condition
+
+📝 Disallow negated conditions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

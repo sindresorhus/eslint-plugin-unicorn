@@ -1,4 +1,6 @@
-# Enforce the style of numeric separators by correctly grouping digits
+# numeric-separators-style
+
+📝 Enforce the style of numeric separators by correctly grouping digits.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

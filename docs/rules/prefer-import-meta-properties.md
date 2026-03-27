@@ -1,4 +1,6 @@
-# Prefer `import.meta.{dirname,filename}` over legacy techniques for getting file paths
+# prefer-import-meta-properties
+
+📝 Prefer `import.meta.{dirname,filename}` over legacy techniques for getting file paths.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

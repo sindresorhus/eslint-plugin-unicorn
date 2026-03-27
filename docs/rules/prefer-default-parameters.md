@@ -1,4 +1,6 @@
-# Prefer default parameters over reassignment
+# prefer-default-parameters
+
+📝 Prefer default parameters over reassignment.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

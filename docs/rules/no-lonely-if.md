@@ -1,4 +1,6 @@
-# Disallow `if` statements as the only statement in `if` blocks without `else`
+# no-lonely-if
+
+📝 Disallow `if` statements as the only statement in `if` blocks without `else`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

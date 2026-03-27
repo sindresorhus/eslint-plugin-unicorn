@@ -80,8 +80,7 @@ const create = context => {
 			&& consequent[0].type === 'BlockStatement'
 			&& consequent[0].body.every(node =>
 				node.type !== 'VariableDeclaration'
-				&& node.type !== 'FunctionDeclaration',
-			)
+				&& node.type !== 'FunctionDeclaration')
 		) {
 			return {
 				node,

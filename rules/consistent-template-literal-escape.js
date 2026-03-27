@@ -27,9 +27,8 @@ const create = context => {
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
+				fix: fixer => replaceTemplateElement(node, fixedRaw, context, fixer),
 			};
-
-			problem.fix = fixer => replaceTemplateElement(node, fixedRaw, context, fixer);
 
 			return problem;
 		}

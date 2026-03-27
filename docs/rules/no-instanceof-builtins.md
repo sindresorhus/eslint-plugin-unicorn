@@ -1,4 +1,6 @@
-# Disallow `instanceof` with built-in objects
+# no-instanceof-builtins
+
+📝 Disallow `instanceof` with built-in objects.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

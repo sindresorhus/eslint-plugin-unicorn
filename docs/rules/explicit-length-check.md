@@ -1,4 +1,6 @@
-# Enforce explicitly comparing the `length` or `size` property of a value
+# explicit-length-check
+
+📝 Enforce explicitly comparing the `length` or `size` property of a value.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

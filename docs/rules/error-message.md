@@ -1,4 +1,6 @@
-# Enforce passing a `message` value when creating a built-in error
+# error-message
+
+📝 Enforce passing a `message` value when creating a built-in error.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

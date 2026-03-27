@@ -72,8 +72,7 @@ function checkReferences(scope, parent, scopeManager) {
 		.some(variable =>
 			hitReference(variable.references)
 			|| hitDefinitions(variable.defs)
-			|| hitIdentifier(variable.identifiers),
-		);
+			|| hitIdentifier(variable.identifiers));
 }
 
 // https://reactjs.org/docs/hooks-reference.html
