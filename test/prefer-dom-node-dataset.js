@@ -229,15 +229,14 @@ test.snapshot({
 		'element?.dataset.unicorn;',
 		'element.dataset.unicorn = "🦄";',
 		'element.dataset.fooBar = "baz";',
-		// Not fixable: return value is used
-		'const result = element.dataset.unicorn = "🦄";',
 		'delete element.dataset.unicorn;',
 		'delete element.dataset.fooBar;',
-		// Not fixable: return value is used
-		'if (delete element.dataset.unicorn) {}',
 		'"unicorn" in element.dataset',
 		'"fooBar" in element.dataset',
 		'Object.hasOwn(element.dataset, "unicorn")',
 		'Object.hasOwn(element.dataset, "fooBar")',
+		// Not fixable: return value is used
+		'const result = element.dataset.unicorn = "🦄";',
+		'if (delete element.dataset.unicorn) {}',
 	].map(code => ({code, options: [{inverse: true}]})),
 });
