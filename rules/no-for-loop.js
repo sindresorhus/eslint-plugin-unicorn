@@ -107,6 +107,20 @@ const getIndexIdentifierName = forStatement => {
 		return;
 	}
 
+	// When there are 2 declarators, only proceed if this is a cached-length pattern
+	// (i.e., second declarator is `x = arr.length`). Otherwise, bail — e.g. `let i = 0, j = 0`.
+	if (variableDeclaration.declarations.length === 2) {
+		const [, second] = variableDeclaration.declarations;
+		if (
+			!second.init
+			|| second.init.type !== 'MemberExpression'
+			|| second.init.property.type !== 'Identifier'
+			|| second.init.property.name !== 'length'
+		) {
+			return;
+		}
+	}
+
 	const [variableDeclarator] = variableDeclaration.declarations;
 
 	if (!isLiteralZero(variableDeclarator.init)) {
