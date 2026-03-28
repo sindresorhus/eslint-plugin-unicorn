@@ -19,7 +19,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Do not use `document.cookie` directly.',
+			description: 'Do not use `document.cookie` directly, as it is an error-prone and unstructured API. Consider using a library like `js-cookie` instead.',
 			recommended: 'unopinionated',
 		},
 		messages,
