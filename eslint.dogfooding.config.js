@@ -56,15 +56,12 @@ const config = [
 
 // Create rule to allow inline config to disable
 function disableExternalRules(rules) {
-	const plugins = {};
+	const rulesConfig = {};
 	for (const rule of rules) {
-		const [pluginName, ...rest] = rule.split('/');
-		const ruleName = rest.join('/');
-		plugins[pluginName] ??= {rules: {}};
-		plugins[pluginName].rules[ruleName] ??= {};
+		rulesConfig[rule] = 'off';
 	}
 
-	return {plugins};
+	return {rules: rulesConfig};
 }
 
 export default config;
