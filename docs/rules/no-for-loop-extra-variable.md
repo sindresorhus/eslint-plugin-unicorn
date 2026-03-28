@@ -11,17 +11,17 @@
 
 Caching `array.length` in a `for` loop initializer is an outdated pattern that makes the loop harder to simplify.
 
+## Examples
+
 This rule rewrites:
 
 ```js
+// ❌
 for (let i = 0, j = array.length; i < j; i += 1) {
 	console.log(array[i], j);
 }
-```
 
-to:
-
-```js
+// ✅
 for (let i = 0; i < array.length; i += 1) {
 	console.log(array[i], array.length);
 }
