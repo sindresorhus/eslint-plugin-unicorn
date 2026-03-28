@@ -40,7 +40,7 @@ Removed due to bugs.
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
 
-### ~prefer-dom-node-dataset~
+### prefer-dom-node-dataset
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
 
