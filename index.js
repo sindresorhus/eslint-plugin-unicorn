@@ -19,10 +19,6 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
 		replacedBy: ['unicorn/prefer-single-call'],
 	},
-	'prefer-dom-node-dataset': {
-		message: 'Renamed to `unicorn/dom-node-dataset`.',
-		replacedBy: ['unicorn/dom-node-dataset'],
-	},
 });
 
 const externalRules = {
