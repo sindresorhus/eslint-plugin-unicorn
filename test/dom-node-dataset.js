@@ -214,7 +214,7 @@ test.snapshot({
 	],
 });
 
-// preferAttributes
+// PreferAttributes
 test.snapshot({
 	valid: [
 		'console.log(element.dataset);',
