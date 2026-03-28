@@ -60,8 +60,8 @@ test({
 		'// Expire Condition [2000-01-01]: new term name',
 		'// TODO [>2000]: We sure didn\'t past this version',
 		// Partial versions should use semver range semantics (#1132)
-		// `>1` means `>=2.0.0`, not `>1.0.0`; `>63` means `>=64.0.0`, not `>63.0.0`
-		'// TODO [>63]: package is 63.0.0 so >63 should not trigger',
+		// `>1` means `>=2.0.0`, not `>1.0.0`; `>1000` means `>=1001.0.0`, not `>1000.0.0`
+		'// TODO [>1000]: partial version with > should use semver range semantics',
 		'// TODO [find-up-simple@>1]: find-up-simple is 1.0.1 so >1 should not trigger',
 		'// TODO [engine:node@>20]: node engine is 20.x so >20 should not trigger',
 		'// TODO [-find-up-simple]: We actually use this.',
