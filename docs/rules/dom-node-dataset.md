@@ -72,7 +72,7 @@ const hasFoo = element.hasAttribute('foo');
 Type: `boolean`\
 Default: `false`
 
-When `true`, prefer attribute methods (`getAttribute(…)`, `setAttribute(…)`, `removeAttribute(…)`, `hasAttribute(…)`) over `.dataset`.
+When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over `.dataset`. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
 
 ```js
 // eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}]
