@@ -162,6 +162,11 @@ const create = context => {
 				return;
 			}
 
+			// Bracket keys with dashes (e.g. dataset["foo-bar"]) are ambiguous — skip
+			if (memberExpression.computed && keyName.includes('-')) {
+				return;
+			}
+
 			if (
 				parent.type === 'UpdateExpression'
 				|| (parent.type === 'AssignmentExpression' && parent.left === memberExpression && parent.operator !== '=')

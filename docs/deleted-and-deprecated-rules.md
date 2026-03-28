@@ -14,6 +14,10 @@ Replaced by [`prefer-single-call`](rules/prefer-single-call.md) which covers mor
 
 Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) which covers more cases.
 
+### prefer-dom-node-dataset
+
+This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
+
 ## Deleted rules
 
 ### ~import-index~
@@ -37,10 +41,6 @@ This rule was renamed to [`no-array-reduce`](rules/no-array-reduce.md) to be mor
 Removed due to bugs.
 
 ### ~prefer-dataset~
-
-This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
-
-### ~prefer-dom-node-dataset~
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
 

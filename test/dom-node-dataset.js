@@ -221,6 +221,8 @@ test.snapshot({
 		'element.dataset[variable];',
 		'element.dataset.foo += "bar";',
 		'element.dataset.foo++;',
+		// Bracket keys with dashes are ambiguous
+		'element.dataset["foo-bar"];',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
