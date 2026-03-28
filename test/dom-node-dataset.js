@@ -214,14 +214,14 @@ test.snapshot({
 	],
 });
 
-// Inverse
+// preferAttributes
 test.snapshot({
 	valid: [
 		'console.log(element.dataset);',
 		'element.dataset[variable];',
 		'element.dataset.foo += "bar";',
 		'element.dataset.foo++;',
-	].map(code => ({code, options: [{inverse: true}]})),
+	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
 		'element.dataset.fooBar;',
@@ -238,5 +238,5 @@ test.snapshot({
 		// Not fixable: return value is used
 		'const result = element.dataset.unicorn = "🦄";',
 		'if (delete element.dataset.unicorn) {}',
-	].map(code => ({code, options: [{inverse: true}]})),
+	].map(code => ({code, options: [{preferAttributes: true}]})),
 });

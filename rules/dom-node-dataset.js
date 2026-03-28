@@ -3,8 +3,8 @@ import {escapeString, hasOptionalChainElement, isValueNotUsable} from './utils/i
 import {isMethodCall, isStringLiteral, isExpressionStatement} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
-const MESSAGE_ID = 'prefer-dom-node-dataset';
-const INVERSE_MESSAGE_ID = 'prefer-attribute-methods';
+const MESSAGE_ID = 'prefer-dataset';
+const INVERSE_MESSAGE_ID = 'prefer-attributes';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.dataset` over `{{method}}(…)`.',
 	[INVERSE_MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.dataset`.',
@@ -72,7 +72,7 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			inverse: {
+			preferAttributes: {
 				type: 'boolean',
 			},
 		},
@@ -81,9 +81,9 @@ const schema = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {inverse} = context.options[0];
+	const {preferAttributes} = context.options[0];
 
-	if (inverse) {
+	if (preferAttributes) {
 		const {sourceCode} = context;
 
 		const isDatasetAccess = node =>
@@ -254,12 +254,12 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer using `.dataset` on DOM elements over calling attribute methods.',
+			description: 'Enforce consistent style for DOM element dataset access.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{inverse: false}],
+		defaultOptions: [{preferAttributes: false}],
 		messages,
 	},
 };

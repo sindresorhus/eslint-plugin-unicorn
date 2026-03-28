@@ -10,6 +10,7 @@ export {default as 'consistent-existence-index-check'} from './consistent-existe
 export {default as 'consistent-function-scoping'} from './consistent-function-scoping.js';
 export {default as 'consistent-template-literal-escape'} from './consistent-template-literal-escape.js';
 export {default as 'custom-error-definition'} from './custom-error-definition.js';
+export {default as 'dom-node-dataset'} from './dom-node-dataset.js';
 export {default as 'empty-brace-spaces'} from './empty-brace-spaces.js';
 export {default as 'error-message'} from './error-message.js';
 export {default as 'escape-case'} from './escape-case.js';
@@ -91,7 +92,6 @@ export {default as 'prefer-code-point'} from './prefer-code-point.js';
 export {default as 'prefer-date-now'} from './prefer-date-now.js';
 export {default as 'prefer-default-parameters'} from './prefer-default-parameters.js';
 export {default as 'prefer-dom-node-append'} from './prefer-dom-node-append.js';
-export {default as 'prefer-dom-node-dataset'} from './prefer-dom-node-dataset.js';
 export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
