@@ -74,6 +74,7 @@ const schema = [
 		properties: {
 			preferAttributes: {
 				type: 'boolean',
+				description: 'Prefer attribute methods over `.dataset`.',
 			},
 		},
 	},
