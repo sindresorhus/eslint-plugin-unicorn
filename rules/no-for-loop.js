@@ -100,7 +100,10 @@ const getIndexIdentifierName = forStatement => {
 		return;
 	}
 
-	if (variableDeclaration.declarations.length !== 1) {
+	if (
+		variableDeclaration.declarations.length !== 1
+		&& variableDeclaration.declarations.length !== 2
+	) {
 		return;
 	}
 
@@ -115,6 +118,39 @@ const getIndexIdentifierName = forStatement => {
 	}
 
 	return variableDeclarator.id.name;
+};
+
+/** Returns the cached array identifier when init has two declarators: `let i = 0, j = arr.length` */
+const getCachedLengthIdentifier = forStatement => {
+	const {init: variableDeclaration} = forStatement;
+
+	if (
+		!variableDeclaration
+		|| variableDeclaration.type !== 'VariableDeclaration'
+		|| variableDeclaration.declarations.length !== 2
+	) {
+		return;
+	}
+
+	const [, lengthDeclarator] = variableDeclaration.declarations;
+
+	if (lengthDeclarator.id.type !== 'Identifier') {
+		return;
+	}
+
+	const {init} = lengthDeclarator;
+
+	if (
+		!init
+		|| init.type !== 'MemberExpression'
+		|| init.object.type !== 'Identifier'
+		|| init.property.type !== 'Identifier'
+		|| init.property.name !== 'length'
+	) {
+		return;
+	}
+
+	return {lengthVariableName: lengthDeclarator.id.name, arrayIdentifier: init.object};
 };
 
 const getStrictComparisonOperands = binaryExpression => {
@@ -133,7 +169,7 @@ const getStrictComparisonOperands = binaryExpression => {
 	}
 };
 
-const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName, cachedLength) => {
 	const operands = getStrictComparisonOperands(binaryExpression);
 
 	if (!operands) {
@@ -144,6 +180,11 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 
 	if (!isIdentifierWithName(lesser, indexIdentifierName)) {
 		return;
+	}
+
+	// Handle cached-length pattern: `i < j` where j was declared as `arr.length`
+	if (cachedLength && isIdentifierWithName(greater, cachedLength.lengthVariableName)) {
+		return cachedLength.arrayIdentifier;
 	}
 
 	if (greater.type !== 'MemberExpression') {
@@ -171,7 +212,8 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 		return;
 	}
 
-	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	const cachedLength = getCachedLengthIdentifier(forStatement);
+	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName, cachedLength);
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {

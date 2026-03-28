@@ -185,6 +185,35 @@ test({
 
 	invalid: [
 		// Use default name
+		// Cached-length pattern: for (let i = 0, j = arr.length; i < j; i++)
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i])
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element)
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i += 1) {
+				const el = arr[i]
+				console.log(el)
+			}
+		`, outdent`
+			for (const el of arr) {
+				console.log(el)
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, len = arr.length; i < len; i++) {
+				console.log(arr[i])
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element)
+			}
+		`),
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
 				console.log(arr[i])
