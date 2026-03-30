@@ -90,6 +90,11 @@ const isArrayType = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	}
 };
 
+/** Check if a binary expression test references a given identifier name */
+const testUsesIdentifier = (test, name) =>
+	(test.left?.type === 'Identifier' && test.left.name === name)
+	|| (test.right?.type === 'Identifier' && test.right.name === name);
+
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
@@ -100,8 +105,25 @@ const getIndexIdentifierName = forStatement => {
 		return;
 	}
 
-	if (variableDeclaration.declarations.length !== 1) {
+	if (
+		variableDeclaration.declarations.length !== 1
+		&& variableDeclaration.declarations.length !== 2
+	) {
 		return;
+	}
+
+	// When there are 2 declarators, only proceed if this is a cached-length pattern
+	// (i.e., second declarator is `x = arr.length`). Otherwise, bail — e.g. `let i = 0, j = 0`.
+	if (variableDeclaration.declarations.length === 2) {
+		const [, second] = variableDeclaration.declarations;
+		if (
+			!second.init
+			|| second.init.type !== 'MemberExpression'
+			|| second.init.property.type !== 'Identifier'
+			|| second.init.property.name !== 'length'
+		) {
+			return;
+		}
 	}
 
 	const [variableDeclarator] = variableDeclaration.declarations;
@@ -115,6 +137,39 @@ const getIndexIdentifierName = forStatement => {
 	}
 
 	return variableDeclarator.id.name;
+};
+
+/** Returns the cached array identifier when init has two declarators: `let i = 0, j = arr.length` */
+const getCachedLengthIdentifier = forStatement => {
+	const {init: variableDeclaration} = forStatement;
+
+	if (
+		!variableDeclaration
+		|| variableDeclaration.type !== 'VariableDeclaration'
+		|| variableDeclaration.declarations.length !== 2
+	) {
+		return;
+	}
+
+	const [, lengthDeclarator] = variableDeclaration.declarations;
+
+	if (lengthDeclarator.id.type !== 'Identifier') {
+		return;
+	}
+
+	const {init} = lengthDeclarator;
+
+	if (
+		!init
+		|| init.type !== 'MemberExpression'
+		|| init.object.type !== 'Identifier'
+		|| init.property.type !== 'Identifier'
+		|| init.property.name !== 'length'
+	) {
+		return;
+	}
+
+	return {lengthVariableName: lengthDeclarator.id.name, arrayIdentifier: init.object};
 };
 
 const getStrictComparisonOperands = binaryExpression => {
@@ -133,7 +188,7 @@ const getStrictComparisonOperands = binaryExpression => {
 	}
 };
 
-const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName, cachedLength) => {
 	const operands = getStrictComparisonOperands(binaryExpression);
 
 	if (!operands) {
@@ -144,6 +199,11 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 
 	if (!isIdentifierWithName(lesser, indexIdentifierName)) {
 		return;
+	}
+
+	// Handle cached-length pattern: `i < j` where j was declared as `arr.length`
+	if (cachedLength && isIdentifierWithName(greater, cachedLength.lengthVariableName)) {
+		return cachedLength.arrayIdentifier;
 	}
 
 	if (greater.type !== 'MemberExpression') {
@@ -171,7 +231,8 @@ const getArrayIdentifier = (forStatement, indexIdentifierName) => {
 		return;
 	}
 
-	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	const cachedLength = getCachedLengthIdentifier(forStatement);
+	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName, cachedLength);
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
@@ -418,7 +479,19 @@ const create = context => {
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);
 			});
 
-		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+		// Check if there's a second declarator (cached-length pattern)
+		const cachedLength = getCachedLengthIdentifier(node);
+		const cachedLengthVariable = cachedLength
+			&& resolveIdentifierName(cachedLength.lengthVariableName, bodyScope);
+
+		// Don't autofix if there's a second declarator that the test doesn't use
+		// (its init side effects would be silently dropped)
+		const hasUnusedSecondDeclarator = node.init?.declarations?.length === 2
+			&& cachedLength
+			&& !testUsesIdentifier(node.test, cachedLength.lengthVariableName);
+
+		const shouldFix = !hasUnusedSecondDeclarator
+			&& !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable, cachedLengthVariable].filter(Boolean), forScope)
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 

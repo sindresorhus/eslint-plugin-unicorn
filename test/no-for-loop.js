@@ -185,6 +185,35 @@ test({
 
 	invalid: [
 		// Use default name
+		// Cached-length pattern: for (let i = 0, j = arr.length; i < j; i++)
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i])
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element)
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i += 1) {
+				const el = arr[i]
+				console.log(el)
+			}
+		`, outdent`
+			for (const el of arr) {
+				console.log(el)
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, len = arr.length; i < len; i++) {
+				console.log(arr[i])
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element)
+			}
+		`),
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
 				console.log(arr[i])
@@ -1003,6 +1032,17 @@ test.snapshot({
 			for (let i = 0; i < array.length; i++) {
 				var foo = array[i], bar = 1;
 			}
+		`,
+		// Bug fix: second declarator with side effects — test doesn't use cached var
+		// Reports but no autofix (would drop sideEffect() call)
+		'for (let i = 0, len = sideEffect().length; i < arr.length; i++) { console.log(arr[i]); }',
+		// Bug fix: cached-length var leaks via `var` and is used after loop
+		// Reports but no autofix (len would become undefined)
+		outdent`
+			for (var i = 0, len = arr.length; i < len; i++) {
+				console.log(arr[i]);
+			}
+			console.log(len);
 		`,
 	],
 });
