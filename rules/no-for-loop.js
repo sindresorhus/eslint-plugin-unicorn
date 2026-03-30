@@ -90,6 +90,11 @@ const isArrayType = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	}
 };
 
+/** Check if a binary expression test references a given identifier name */
+const testUsesIdentifier = (test, name) =>
+	(test.left?.type === 'Identifier' && test.left.name === name)
+	|| (test.right?.type === 'Identifier' && test.right.name === name);
+
 const getIndexIdentifierName = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
@@ -474,7 +479,19 @@ const create = context => {
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);
 			});
 
-		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+		// Check if there's a second declarator (cached-length pattern)
+		const cachedLength = getCachedLengthIdentifier(node);
+		const cachedLengthVariable = cachedLength
+			&& resolveIdentifierName(cachedLength.lengthVariableName, bodyScope);
+
+		// Don't autofix if there's a second declarator that the test doesn't use
+		// (its init side effects would be silently dropped)
+		const hasUnusedSecondDeclarator = node.init?.declarations?.length === 2
+			&& cachedLength
+			&& !testUsesIdentifier(node.test, cachedLength.lengthVariableName);
+
+		const shouldFix = !hasUnusedSecondDeclarator
+			&& !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable, cachedLengthVariable].filter(Boolean), forScope)
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 

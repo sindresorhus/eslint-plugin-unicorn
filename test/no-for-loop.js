@@ -1033,5 +1033,16 @@ test.snapshot({
 				var foo = array[i], bar = 1;
 			}
 		`,
+		// Bug fix: second declarator with side effects — test doesn't use cached var
+		// Reports but no autofix (would drop sideEffect() call)
+		'for (let i = 0, len = sideEffect().length; i < arr.length; i++) { console.log(arr[i]); }',
+		// Bug fix: cached-length var leaks via `var` and is used after loop
+		// Reports but no autofix (len would become undefined)
+		outdent`
+			for (var i = 0, len = arr.length; i < len; i++) {
+				console.log(arr[i]);
+			}
+			console.log(len);
+		`,
 	],
 });
