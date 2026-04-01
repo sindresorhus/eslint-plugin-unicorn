@@ -102,10 +102,15 @@ const create = context => {
 				return;
 			}
 
+			const keyName = binaryExpression.left.value;
+			if (keyName.includes('-')) {
+				return;
+			}
+
 			const datasetNode = binaryExpression.right;
 			const objectText = sourceCode.getText(datasetNode.object);
 			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(binaryExpression.left.value));
+			const attributeName = escapeString(camelCaseToDash(keyName));
 
 			return {
 				node: binaryExpression,
@@ -133,10 +138,15 @@ const create = context => {
 				return;
 			}
 
+			const keyName = callExpression.arguments[1].value;
+			if (keyName.includes('-')) {
+				return;
+			}
+
 			const datasetNode = callExpression.arguments[0];
 			const objectText = sourceCode.getText(datasetNode.object);
 			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(callExpression.arguments[1].value));
+			const attributeName = escapeString(camelCaseToDash(keyName));
 
 			return {
 				node: callExpression,

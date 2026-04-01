@@ -221,8 +221,12 @@ test.snapshot({
 		'element.dataset[variable];',
 		'element.dataset.foo += "bar";',
 		'element.dataset.foo++;',
-		// Bracket keys with dashes are ambiguous
+		// Dataset keys with dashes are not valid property names
 		'element.dataset["foo-bar"];',
+		'element.dataset["foo-bar"] = "baz";',
+		'delete element.dataset["foo-bar"];',
+		'"foo-bar" in element.dataset',
+		'Object.hasOwn(element.dataset, "foo-bar")',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
