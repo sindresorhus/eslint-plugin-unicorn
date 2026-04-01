@@ -102,15 +102,15 @@ const create = context => {
 				return;
 			}
 
-			const keyName = binaryExpression.left.value;
-			if (keyName.includes('-')) {
+			const keyNode = binaryExpression.left;
+			if (keyNode.value.includes('-')) {
 				return;
 			}
 
 			const datasetNode = binaryExpression.right;
 			const objectText = sourceCode.getText(datasetNode.object);
 			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyName));
+			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
 
 			return {
 				node: binaryExpression,
@@ -138,15 +138,15 @@ const create = context => {
 				return;
 			}
 
-			const keyName = callExpression.arguments[1].value;
-			if (keyName.includes('-')) {
+			const keyNode = callExpression.arguments[1];
+			if (keyNode.value.includes('-')) {
 				return;
 			}
 
 			const datasetNode = callExpression.arguments[0];
 			const objectText = sourceCode.getText(datasetNode.object);
 			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyName));
+			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
 
 			return {
 				node: callExpression,
@@ -190,7 +190,8 @@ const create = context => {
 
 			const objectText = sourceCode.getText(object.object);
 			const chain = object.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyName));
+			const quote = memberExpression.computed ? memberExpression.property.raw.charAt(0) : undefined;
+			const attributeName = escapeString(camelCaseToDash(keyName), quote);
 
 			let fix;
 			if (isWrite && isValueNotUsable(parent)) {
