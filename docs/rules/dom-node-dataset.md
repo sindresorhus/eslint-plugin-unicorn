@@ -72,13 +72,14 @@ const hasFoo = element.hasAttribute('foo');
 Type: `boolean`\
 Default: `false`
 
-When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over `.dataset`. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
+When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over `.dataset` property access. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
 
 ```js
 // eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}]
 
 // ❌
 const unicorn = element.dataset.unicorn;
+const {unicorn} = element.dataset;
 element.dataset.unicorn = '🦄';
 delete element.dataset.unicorn;
 'unicorn' in element.dataset;

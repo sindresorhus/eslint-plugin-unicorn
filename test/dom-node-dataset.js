@@ -227,6 +227,10 @@ test.snapshot({
 		'delete element.dataset["foo-bar"];',
 		'"foo-bar" in element.dataset',
 		'Object.hasOwn(element.dataset, "foo-bar")',
+		// Plain dataset reads
+		'const data = element.dataset;',
+		// Optional chain wraps in ChainExpression
+		'const {unicorn} = element?.dataset;',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
@@ -243,8 +247,21 @@ test.snapshot({
 		'Object.hasOwn(element.dataset, "unicorn")',
 		'Object.hasOwn(element.dataset, \'unicorn\')',
 		'Object.hasOwn(element.dataset, "fooBar")',
-		// Not fixable: return value is used
+		// Destructuring
+		'const {unicorn} = element.dataset;',
+		'const {unicorn: myVar} = element.dataset;',
+		'const {foo, bar} = element.dataset;',
+		'let {foo, bar} = element.dataset;',
+		// Not fixable
 		'const result = element.dataset.unicorn = "🦄";',
 		'if (delete element.dataset.unicorn) {}',
+		'const {unicorn = "default"} = element.dataset;',
+		'const {...rest} = element.dataset;',
+		'const {foo, bar} = element.querySelector("#selector").dataset;',
+		'for (const {foo} = element.dataset; ;) {}',
+		'export const {foo} = element.dataset;',
+		'element.dataset.hasOwnProperty("unicorn")',
+		'element.dataset.toString()',
+		'element.dataset.unicorn()',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 });

@@ -1,5 +1,7 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
-import {escapeString, hasOptionalChainElement, isValueNotUsable} from './utils/index.js';
+import {
+	escapeString, getIndentString, hasOptionalChainElement, isValueNotUsable,
+} from './utils/index.js';
 import {isMethodCall, isStringLiteral, isExpressionStatement} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
@@ -159,6 +161,57 @@ const create = context => {
 			};
 		});
 
+		context.on('VariableDeclarator', declarator => {
+			if (!(
+				declarator.init
+				&& isDatasetAccess(declarator.init)
+				&& declarator.id.type === 'ObjectPattern'
+			)) {
+				return;
+			}
+
+			const {properties} = declarator.id;
+			const datasetNode = declarator.init;
+			const objectText = sourceCode.getText(datasetNode.object);
+			const chain = datasetNode.optional ? '?.' : '.';
+
+			// Only autofix when all properties are simple (no defaults, rest, computed)
+			// and object is a plain identifier (safe to repeat for multi-property)
+			const declaration = declarator.parent;
+			let fix;
+			if (
+				properties.length > 0
+				&& declaration.declarations.length === 1
+				&& !declaration.parent.type.startsWith('For')
+				&& declaration.parent.type !== 'ExportNamedDeclaration'
+				&& properties.every(property =>
+					property.type === 'Property'
+					&& !property.computed
+					&& property.key.type === 'Identifier'
+					&& property.value.type === 'Identifier',
+				)
+				&& (properties.length === 1 || datasetNode.object.type === 'Identifier')
+			) {
+				const indent = getIndentString(declaration, context);
+				const declarations = properties.map(property => {
+					const attributeName = escapeString(camelCaseToDash(property.key.name), '\'');
+					return `${declaration.kind} ${property.value.name} = ${objectText}${chain}getAttribute(${attributeName})`;
+				});
+
+				fix = fixer => fixer.replaceText(
+					declaration,
+					`${declarations.join(`;\n${indent}`)};`,
+				);
+			}
+
+			return {
+				node: datasetNode,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method: 'getAttribute'},
+				fix,
+			};
+		});
+
 		context.on('MemberExpression', memberExpression => {
 			const {object, parent} = memberExpression;
 			if (!isDatasetAccess(object)) {
@@ -170,6 +223,18 @@ const create = context => {
 				: memberExpression.property.name;
 			if (keyName === undefined) {
 				return;
+			}
+
+			// Method calls and tagged templates on dataset — report without fix
+			if (
+				(parent.type === 'CallExpression' && parent.callee === memberExpression)
+				|| (parent.type === 'TaggedTemplateExpression' && parent.tag === memberExpression)
+			) {
+				return {
+					node: memberExpression,
+					messageId: INVERSE_MESSAGE_ID,
+					data: {method: 'getAttribute'},
+				};
 			}
 
 			// Bracket keys with dashes (e.g. dataset["foo-bar"]) are ambiguous — skip
