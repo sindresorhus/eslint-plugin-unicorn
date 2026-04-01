@@ -254,7 +254,7 @@ test.snapshot({
 		'const {unicorn = "default"} = element.dataset;',
 		'const {...rest} = element.dataset;',
 		'const {foo, bar} = element.querySelector("#selector").dataset;',
-		'for (const {foo} = element.dataset; ;) {}',
+		'for (const {foo} = element.dataset;;) {}',
 		'export const {foo} = element.dataset;',
 		'element.dataset.hasOwnProperty("unicorn")',
 		'element.dataset.toString()',
