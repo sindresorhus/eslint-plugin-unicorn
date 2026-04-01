@@ -79,7 +79,6 @@ When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(�
 
 // ❌
 const unicorn = element.dataset.unicorn;
-const {unicorn} = element.dataset;
 element.dataset.unicorn = '🦄';
 delete element.dataset.unicorn;
 'unicorn' in element.dataset;
