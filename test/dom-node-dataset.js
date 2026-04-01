@@ -221,15 +221,12 @@ test.snapshot({
 		'element.dataset[variable];',
 		'element.dataset.foo += "bar";',
 		'element.dataset.foo++;',
-		// Dataset keys with dashes are not valid property names
 		'element.dataset["foo-bar"];',
 		'element.dataset["foo-bar"] = "baz";',
 		'delete element.dataset["foo-bar"];',
 		'"foo-bar" in element.dataset',
 		'Object.hasOwn(element.dataset, "foo-bar")',
-		// Plain dataset reads
 		'const data = element.dataset;',
-		// Optional chain wraps in ChainExpression
 		'const {unicorn} = element?.dataset;',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
@@ -247,7 +244,6 @@ test.snapshot({
 		'Object.hasOwn(element.dataset, "unicorn")',
 		'Object.hasOwn(element.dataset, \'unicorn\')',
 		'Object.hasOwn(element.dataset, "fooBar")',
-		// Destructuring
 		'const {unicorn} = element.dataset;',
 		'const {unicorn: myVar} = element.dataset;',
 		'const {foo, bar} = element.dataset;',
