@@ -105,33 +105,6 @@ const windowSpecificApis = new Set([
 	'devicePixelRatio',
 ]);
 
-const webWorkerSpecificApis = new Set([
-	// https://html.spec.whatwg.org/multipage/workers.html#the-workerglobalscope-common-interface
-	'addEventListener',
-	'removeEventListener',
-	'dispatchEvent',
-
-	'self',
-	'location',
-	'navigator',
-	'onerror',
-	'onlanguagechange',
-	'onoffline',
-	'ononline',
-	'onrejectionhandled',
-	'onunhandledrejection',
-
-	// https://html.spec.whatwg.org/multipage/workers.html#dedicated-workers-and-the-dedicatedworkerglobalscope-interface
-	'name',
-	'postMessage',
-	'onconnect',
-]);
-
-const environmentSpecificApisByGlobalIdentifier = new Map([
-	['window', windowSpecificApis],
-	['self', webWorkerSpecificApis],
-]);
-
 function getStaticPropertyName(node) {
 	if (isStringLiteral(node)) {
 		return node.value;
@@ -178,17 +151,12 @@ function isComputedMemberExpressionObject(identifier) {
 }
 
 /**
-Check if the identifier is used in an existence check for a known environment-specific API.
+Check if the identifier is used in an existence check for a known window-specific API.
 
 @param {import('estree').Identifier} identifier
 @returns {boolean}
 */
 function isKnownSpecificApiExistenceCheck(identifier) {
-	const specificApis = environmentSpecificApisByGlobalIdentifier.get(identifier.name);
-	if (!specificApis) {
-		return false;
-	}
-
 	const {parent} = identifier;
 	if (parent.type !== 'BinaryExpression' || parent.operator !== 'in' || parent.right !== identifier) {
 		return false;
@@ -199,16 +167,8 @@ function isKnownSpecificApiExistenceCheck(identifier) {
 		return false;
 	}
 
-	return specificApis.has(propertyName);
+	return windowSpecificApis.has(propertyName);
 }
-
-/**
-Check if the node is a web worker specific API.
-
-@param {import('estree').MemberExpression} node
-@returns {boolean}
-*/
-const isWebWorkerSpecificApi = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificApis.has(node.property.name);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -224,10 +184,11 @@ const create = context => {
 
 		for (const {identifier} of references) {
 			if (
-				isComputedMemberExpressionObject(identifier)
-				|| isKnownSpecificApiExistenceCheck(identifier)
-				|| isWindowSpecificApi(identifier.parent)
-				|| isWebWorkerSpecificApi(identifier.parent)
+				identifier.name === 'window' && (
+					isComputedMemberExpressionObject(identifier)
+					|| isKnownSpecificApiExistenceCheck(identifier)
+					|| isWindowSpecificApi(identifier.parent)
+				)
 			) {
 				continue;
 			}
