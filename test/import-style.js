@@ -208,6 +208,55 @@ test({
 				},
 			}],
 		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				stylePatterns: [{
+					pattern: /^node:/u,
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+		},
+		{
+			code: 'import fs from \'node:fs\'',
+			options: [{
+				styles: {
+					'node:fs': {
+						default: true,
+					},
+				},
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+		},
+		{
+			code: 'import fs from \'fs\'',
+			options: [{
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+		},
 
 		'require(1, 2, 3)',
 		'require(variable)',
@@ -555,6 +604,106 @@ test({
 		{
 			code: 'import util, {inspect} from \'default\'',
 			errors: [defaultError],
+		},
+		{
+			code: 'import fs from \'node:fs\'',
+			options: [{
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'node:fs',
+				},
+			}],
+		},
+		{
+			code: 'const fs = require(\'node:fs\')',
+			options: [{
+				stylePatterns: [{
+					pattern: /^node:/u,
+					styles: {
+						named: true,
+					},
+				}],
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'named',
+					moduleName: 'node:fs',
+				},
+			}],
+		},
+		{
+			code: outdent`
+				async () => {
+					import('node:fs');
+				}
+			`,
+			options: [{
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'namespace',
+					moduleName: 'node:fs',
+				},
+			}],
+		},
+		{
+			code: 'export * from \'node:fs\'',
+			options: [{
+				checkExportFrom: true,
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						named: true,
+					},
+				}],
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'named',
+					moduleName: 'node:fs',
+				},
+			}],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				styles: {
+					'node:fs': {
+						default: true,
+					},
+				},
+				stylePatterns: [{
+					pattern: '^node:',
+					styles: {
+						namespace: true,
+					},
+				}],
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'node:fs',
+				},
+			}],
 		},
 
 		{

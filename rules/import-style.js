@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
 import {isCallExpression} from './ast/index.js';
 
@@ -126,11 +127,15 @@ const defaultStyles = {
 	},
 };
 
+const getAllowedImportStyles = styles =>
+	new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style));
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let [
 		{
-			styles = {},
+			styles: configuredStyles = {},
+			stylePatterns: configuredStylePatterns = [],
 			extendDefaultStyles = true,
 			checkImport = true,
 			checkDynamicImport = true,
@@ -139,13 +144,35 @@ const create = context => {
 		} = {},
 	] = context.options;
 
-	styles = extendDefaultStyles
-		? Object.fromEntries([...Object.keys(defaultStyles), ...Object.keys(styles)]
-			.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]))
-		: styles;
+	configuredStyles = extendDefaultStyles
+		? Object.fromEntries([...Object.keys(defaultStyles), ...Object.keys(configuredStyles)]
+			.map(name => [name, configuredStyles[name] === false ? {} : {...defaultStyles[name], ...configuredStyles[name]}]))
+		: configuredStyles;
 
-	styles = new Map(Object.entries(styles).map(([moduleName, styles]) =>
-		[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]));
+	const styles = new Map(Object.entries(configuredStyles).map(([moduleName, styles]) =>
+		[moduleName, getAllowedImportStyles(styles)]));
+
+	const stylePatterns = configuredStylePatterns.map(({pattern, styles = {}}) => ({
+		pattern: isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
+		styles: getAllowedImportStyles(styles === false ? {} : styles),
+	}));
+
+	const getModuleAllowedImportStyles = moduleName => {
+		if (typeof moduleName !== 'string') {
+			return;
+		}
+
+		const allowedImportStyles = styles.get(moduleName);
+		if (allowedImportStyles) {
+			return allowedImportStyles;
+		}
+
+		for (const {pattern, styles} of stylePatterns) {
+			if (pattern.test(moduleName)) {
+				return styles;
+			}
+		}
+	};
 
 	const {sourceCode} = context;
 
@@ -186,7 +213,7 @@ const create = context => {
 		context.on('ImportDeclaration', node => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = getActualImportDeclarationStyles(node);
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
@@ -200,7 +227,7 @@ const create = context => {
 			}
 
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = ['unassigned'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
@@ -222,7 +249,7 @@ const create = context => {
 				return;
 			}
 
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
@@ -233,7 +260,7 @@ const create = context => {
 		context.on('ExportAllDeclaration', node => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = ['namespace'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
@@ -246,7 +273,7 @@ const create = context => {
 
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = getActualExportDeclarationStyles(node);
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles);
@@ -267,7 +294,7 @@ const create = context => {
 			}
 
 			const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = ['unassigned'];
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
@@ -290,7 +317,7 @@ const create = context => {
 				return;
 			}
 
-			const allowedImportStyles = styles.get(moduleName);
+			const allowedImportStyles = getModuleAllowedImportStyles(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
 			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
@@ -329,6 +356,31 @@ const schema = {
 				styles: {
 					$ref: '#/definitions/moduleStyles',
 					description: 'Module import styles.',
+				},
+				stylePatterns: {
+					type: 'array',
+					description: 'Module import style patterns.',
+					items: {
+						type: 'object',
+						additionalProperties: false,
+						properties: {
+							pattern: {
+								anyOf: [
+									{
+										type: 'string',
+									},
+									{},
+								],
+							},
+							styles: {
+								$ref: '#/definitions/styles',
+							},
+						},
+						required: [
+							'pattern',
+							'styles',
+						],
+					},
 				},
 			},
 		},

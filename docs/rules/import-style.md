@@ -70,6 +70,35 @@ The example below:
 ]
 ```
 
+### stylePatterns
+
+Type: `Array<object>`
+
+Use `stylePatterns` to enforce styles by module-name pattern. This is useful when you want to target groups such as all `node:` imports without enumerating every module.
+
+Each item accepts:
+
+- `pattern` - A regular expression (in JavaScript config) or a string pattern (in JSON config).
+- `styles` - Same style flags as the `styles` option (`unassigned`, `default`, `namespace`, `named`).
+
+```js
+"unicorn/import-style": [
+	"error",
+	{
+		"stylePatterns": [
+			{
+				"pattern": "^node:",
+				"styles": {
+					"namespace": true
+				}
+			}
+		]
+	}
+]
+```
+
+When both `styles` and `stylePatterns` match a module, exact `styles` entries take precedence.
+
 ### extendDefaultStyles
 
 Type: `boolean`\
