@@ -47,7 +47,7 @@ const create = context => {
 		};
 	});
 
-	context.on('ImportExpression', importExpression => {
+	context.on(['ImportExpression', 'TSImportType'], importExpression => {
 		const {options: optionsNode} = importExpression;
 
 		if (optionsNode?.type !== 'ObjectExpression') {
@@ -86,7 +86,7 @@ const create = context => {
 			node: emptyWithProperty?.value ?? nodeToRemove,
 			messageId: MESSAGE_ID,
 			data: {
-				type: 'import expression',
+				type: importExpression.type === 'ImportExpression' ? 'import expression' : 'import type',
 			},
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			fix: fixer => isProperty
