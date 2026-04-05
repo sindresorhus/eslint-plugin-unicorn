@@ -1,6 +1,7 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
 import flatConfigBase from './configs/flat-config-base.js';
 import * as rawRules from './rules/index.js';
+import noUnusedVarsBeforeExit from './rules/no-unused-vars-before-exit.js';
 import {toEslintRules} from './rules/rule/index.js';
 import packageJson from './package.json' with {type: 'json'};
 
@@ -62,6 +63,7 @@ const unicorn = {
 	},
 	rules: {
 		...rules,
+		...toEslintRules({'no-unused-vars-before-exit': noUnusedVarsBeforeExit}),
 		...deprecatedRules,
 	},
 };
