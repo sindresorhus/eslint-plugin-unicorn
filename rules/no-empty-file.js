@@ -10,7 +10,7 @@ const isEmpty = node => isEmptyNode(node, isDirective);
 const isTripleSlashDirective = node =>
 	node.type === 'Line' && node.value.startsWith('/');
 
-const hasTripeSlashDirectives = comments =>
+const hasTripleSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -29,7 +29,7 @@ const create = context => {
 		const {sourceCode} = context;
 		const comments = sourceCode.getAllComments();
 
-		if (hasTripeSlashDirectives(comments)) {
+		if (hasTripleSlashDirectives(comments)) {
 			return;
 		}
 
