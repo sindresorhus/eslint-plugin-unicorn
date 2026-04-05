@@ -15,7 +15,7 @@ const messages = {
 	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.',
 };
 
-const isIgnoredChar = char => !/^[a-z\d-_]$/i.test(char);
+const isIgnoredChar = char => !/^[a-z\d-_$]$/i.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
 
@@ -99,7 +99,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 	return parts;
 }
 
-const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
+const leadingUnderscoresRegex = /^(?<leading>[_$]+)(?<tailing>.*)$/;
 function splitFilename(filename) {
 	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
 	const {leading = '', tailing = filename} = result.groups;
