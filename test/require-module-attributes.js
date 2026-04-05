@@ -46,3 +46,16 @@ test.snapshot({
 		'import("foo", {/* comment 1 */"with"/* comment 2 */:/* comment 3 */{/* comment 4 */}, }/* comment 5 */,)',
 	],
 });
+
+// `TSImportType`
+test.snapshot({
+	valid: [
+		'type A = import("foo")',
+		'type A = import("foo", {unknown: "unknown"})',
+		'type A = import("foo", {with: {type: "json"}})',
+	],
+	invalid: [
+		'type A = import("foo", {})',
+		'type A = import("foo", {with: {}})',
+	],
+});
