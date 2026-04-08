@@ -184,6 +184,37 @@ test({
 	],
 
 	invalid: [
+		// Cached-length pattern: for (let i = 0, j = arr.length; i < j; ...) — #295
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i += 1) {
+				const element = arr[i];
+				console.log(element);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i]);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+
+		// Cached-length: j used only in loop condition (not body) — should still fix
+		testCase('for (let i = 0, j = arr.length; i < j; i++) { console.log(arr[i]); }', 'for (const element of arr) { console.log(element); }'),
+
+		// Cached-length: j used in loop body — autofix would make j undefined, so no fix
+		testCase(outdent`
+			for (let i = 0, j = arr.length; i < j; i++) {
+				console.log(arr[i], j);
+			}
+		`),
+
 		// Use default name
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i += 1) {
@@ -955,6 +986,68 @@ test.typescript({
 				for (let i = 0; i < positions.length; i++) {
 					let last: vscode.Position | vscode.Range = positions[i];
 				}
+			`,
+			errors: 1,
+		},
+
+		// Issue #295 — cached-length pattern: for (let i = 0, j = arr.length; i < j; i++)
+		// Case 1: j is used in the loop body → autofix is unsafe (would remove j from scope)
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					console.log(arr[i], j);
+				}
+			`,
+			errors: 1,
+		},
+		// Case 2: j leaks out of the loop (used after) → autofix is unsafe
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					console.log(arr[i]);
+				}
+				console.log(j);
+			`,
+			errors: 1,
+		},
+		// Case 3: j is only in the for-header (not body, not after) → autofix is safe
+		testCase(
+			outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					console.log(arr[i]);
+				}
+			`,
+			outdent`
+				for (const element of arr) {
+					console.log(element);
+				}
+			`,
+		),
+		// Case 4: j is shadowed inside the loop body (with init), outer j used after loop → autofix is unsafe
+		// When the shadow has an initializer, resolveIdentifierName finds the inner variable first,
+		// but it still has a write reference → isExtraVariableUsedInBody catches it.
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					let j = arr[i];
+					console.log(arr[i]);
+				}
+				console.log(j);
+			`,
+			errors: 1,
+		},
+		// Case 5: j is shadowed inside the loop body (no initializer), outer j used after loop → autofix is unsafe
+		// BUG: resolveIdentifierName finds the inner variable (no write ref in variable.references
+		// for a declarator with no initializer), so isExtraVariableUsedInBody returns false.
+		// The outer j IS used after the loop (through-reference), so isExtraVariableReferencedOutsideLoop
+		// must catch it. This test verifies the fix is correctly blocked.
+		{
+			code: outdent`
+				for (let i = 0, j = arr.length; i < j; i++) {
+					let j;
+					console.log(arr[i]);
+				}
+				console.log(j);
 			`,
 			errors: 1,
 		},
