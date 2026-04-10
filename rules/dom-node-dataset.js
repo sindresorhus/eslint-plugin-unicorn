@@ -2,7 +2,9 @@ import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
 	escapeString, getIndentString, hasOptionalChainElement, isValueNotUsable,
 } from './utils/index.js';
-import {isMethodCall, isStringLiteral, isExpressionStatement} from './ast/index.js';
+import {
+	isMemberExpression, isMethodCall, isStringLiteral, isExpressionStatement,
+} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
 const MESSAGE_ID = 'prefer-dataset';
@@ -14,6 +16,7 @@ const messages = {
 
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
 const camelCaseToDash = string => `data-${string.replaceAll(/[A-Z]/g, char => `-${char.toLowerCase()}`)}`;
+const isDatasetAccess = node => isMemberExpression(node, {property: 'dataset'});
 
 function getFix(callExpression, context) {
 	const method = callExpression.callee.property.name;
@@ -89,11 +92,25 @@ const create = context => {
 	if (preferAttributes) {
 		const {sourceCode} = context;
 
-		const isDatasetAccess = node =>
-			node.type === 'MemberExpression'
-			&& node.property.type === 'Identifier'
-			&& node.property.name === 'dataset'
-			&& !node.computed;
+		const getHasAttributeReport = (reportNode, keyNode, datasetNode) => {
+			if (keyNode.value.includes('-')) {
+				return;
+			}
+
+			const objectText = sourceCode.getText(datasetNode.object);
+			const chain = datasetNode.optional ? '?.' : '.';
+			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
+
+			return {
+				node: reportNode,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method: 'hasAttribute'},
+				fix: fixer => fixer.replaceText(
+					reportNode,
+					`${objectText}${chain}hasAttribute(${attributeName})`,
+				),
+			};
+		};
 
 		context.on('BinaryExpression', binaryExpression => {
 			if (!(
@@ -104,25 +121,7 @@ const create = context => {
 				return;
 			}
 
-			const keyNode = binaryExpression.left;
-			if (keyNode.value.includes('-')) {
-				return;
-			}
-
-			const datasetNode = binaryExpression.right;
-			const objectText = sourceCode.getText(datasetNode.object);
-			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
-
-			return {
-				node: binaryExpression,
-				messageId: INVERSE_MESSAGE_ID,
-				data: {method: 'hasAttribute'},
-				fix: fixer => fixer.replaceText(
-					binaryExpression,
-					`${objectText}${chain}hasAttribute(${attributeName})`,
-				),
-			};
+			return getHasAttributeReport(binaryExpression, binaryExpression.left, binaryExpression.right);
 		});
 
 		context.on('CallExpression', callExpression => {
@@ -140,25 +139,7 @@ const create = context => {
 				return;
 			}
 
-			const keyNode = callExpression.arguments[1];
-			if (keyNode.value.includes('-')) {
-				return;
-			}
-
-			const datasetNode = callExpression.arguments[0];
-			const objectText = sourceCode.getText(datasetNode.object);
-			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
-
-			return {
-				node: callExpression,
-				messageId: INVERSE_MESSAGE_ID,
-				data: {method: 'hasAttribute'},
-				fix: fixer => fixer.replaceText(
-					callExpression,
-					`${objectText}${chain}hasAttribute(${attributeName})`,
-				),
-			};
+			return getHasAttributeReport(callExpression, callExpression.arguments[1], callExpression.arguments[0]);
 		});
 
 		context.on('VariableDeclarator', declarator => {
@@ -324,7 +305,7 @@ const create = context => {
 		return {
 			node: callExpression,
 			messageId: MESSAGE_ID,
-			data: {method: callExpression.callee.property.name},
+			data: {method},
 			fix: getFix(callExpression, context),
 		};
 	});

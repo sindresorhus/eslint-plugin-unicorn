@@ -228,6 +228,8 @@ test.snapshot({
 		'Object.hasOwn(element.dataset, "foo-bar")',
 		'const data = element.dataset;',
 		'const {unicorn} = element?.dataset;',
+		'"unicorn" in element?.dataset',
+		'Object.hasOwn(element?.dataset, "unicorn")',
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
