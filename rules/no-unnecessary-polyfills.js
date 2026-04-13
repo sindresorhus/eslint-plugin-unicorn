@@ -19,12 +19,18 @@ const additionalPolyfillModules = {
 	'es.object.set-prototype-of': ['setprototypeof'],
 	'es.string.code-point-at': ['code-point-at'],
 };
+const directFeatureCheckPolyfills = new Set([
+	'es6-symbol',
+	'promise-polyfill',
+	'es6-promise',
+	'weakmap-polyfill',
+]);
 const additionalPolyfillPatterns = Object.fromEntries(Object.entries(additionalPolyfillModules).map(([feature, modules]) => [feature, `|(${modules.join('|')})`]));
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
 const delimiter = String.raw`(\.|-|\.prototype\.|/)?`;
-const moduleDelimiter = /[./-]/u;
+const moduleDelimiter = /[.\/]|-/v;
 
 const getFirstSegment = value => {
 	const [firstSegment = ''] = value.split(moduleDelimiter);
@@ -84,7 +90,7 @@ const polyfills = Object.keys(compatData).map(feature => {
 
 	return {
 		feature,
-		pattern: new RegExp(patterns.join(''), 'i'),
+		pattern: new RegExp(patterns.join(''), 'iv'),
 		tokens: (() => {
 			const tokens = new Set();
 
@@ -225,6 +231,26 @@ const getPolyfillCandidates = importedModule => {
 	return [...candidates];
 };
 
+export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
+	let bestMatch;
+	let bestMatchSegments = Number.POSITIVE_INFINITY;
+
+	for (const polyfill of polyfillCandidates) {
+		if (!polyfill.pattern.test(importedModule)) {
+			continue;
+		}
+
+		// Prefer the broad constructor/module feature over narrower follow-up features like `es.symbol.description`.
+		const segments = polyfill.feature.split('.').length;
+		if (segments < bestMatchSegments) {
+			bestMatch = polyfill;
+			bestMatchSegments = segments;
+		}
+	}
+
+	return bestMatch;
+};
+
 function getTargets(options, dirname) {
 	if (options?.targets) {
 		return options.targets;
@@ -298,18 +324,31 @@ function create(context) {
 			return;
 		}
 
-		const polyfillCandidates = getPolyfillCandidates(importedModule.toLowerCase());
+		const normalizedImportedModule = importedModule.toLowerCase();
+		const polyfillCandidates = getPolyfillCandidates(normalizedImportedModule);
 		if (!polyfillCandidates) {
 			return;
 		}
 
-		const polyfill = polyfillCandidates.find(({pattern}) => pattern.test(importedModule));
-		if (polyfill) {
-			const [, namespace, method = ''] = polyfill.feature.split('.');
-			const coreJsModuleFeatures = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
-			if (coreJsModuleFeatures && checkFeatures(coreJsModuleFeatures)) {
+		const polyfill = getBestMatchingPolyfill(polyfillCandidates, importedModule);
+		if (!polyfill) {
+			return;
+		}
+
+		if (directFeatureCheckPolyfills.has(normalizedImportedModule)) {
+			// These legacy aliases target one built-in feature, while the matching `core-js/full/*`
+			// module now bundles extra `esnext` features that can still be unavailable in CI.
+			if (!unavailableFeatureSet.has(polyfill.feature)) {
 				return {node, messageId: MESSAGE_ID_POLYFILL};
 			}
+
+			return;
+		}
+
+		const [, namespace, method = ''] = polyfill.feature.split('.');
+		const matchedCoreJsModuleFeatures = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
+		if (matchedCoreJsModuleFeatures && checkFeatures(matchedCoreJsModuleFeatures)) {
+			return {node, messageId: MESSAGE_ID_POLYFILL};
 		}
 	});
 }
@@ -318,7 +357,7 @@ const schema = [
 	{
 		type: 'object',
 		additionalProperties: false,
-		required: ['targets'],
+		// `targets` is optional because the rule can fall back to `browserslist`/`engines` from package.json.
 		properties: {
 			targets: {
 				oneOf: [
@@ -351,8 +390,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		schema,
-		// eslint-disable-next-line eslint-plugin/require-meta-default-options
-		defaultOptions: [],
+		defaultOptions: [{}],
 		messages,
 	},
 };
