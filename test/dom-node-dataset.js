@@ -52,9 +52,7 @@ test.snapshot({
 		'element.setAttribute("DATA--FOO", "🦄");',
 		'element.setAttribute("DATA- ", "🦄");',
 		'element.setAttribute("DATA-Foo-bar", "🦄");',
-		// Parenthesized receiver — fix must preserve parens
 		'(a + b).setAttribute("data-unicorn", "🦄");',
-		// Sequence-expression value — fix must preserve parens
 		'element.setAttribute("data-unicorn", (a, b));',
 		// Not fixable
 		'optional?.element.setAttribute("data-unicorn", "🦄");',
@@ -288,7 +286,6 @@ test.snapshot({
 		'element.dataset.hasOwnProperty(\'unicorn\')',
 		'element.dataset.hasOwnProperty("fooBar")',
 		'element?.dataset.hasOwnProperty("unicorn")',
-		// Parenthesized receivers — fix must preserve the parens
 		'(a + b).dataset.unicorn;',
 		'(a + b).dataset.unicorn = "🦄";',
 		'delete (a + b).dataset.unicorn;',
@@ -297,9 +294,7 @@ test.snapshot({
 		'(a + b).dataset.hasOwnProperty("unicorn")',
 		'const {unicorn} = (a + b).dataset;',
 		'({}).dataset.unicorn;',
-		// Sequence-expression value — fix must preserve parens
 		'element.dataset.foo = (a, b);',
-		// ASI hazards — fix must add a leading semicolon
 		'foo()\ndelete (a + b).dataset.unicorn;',
 		'foo()\n"unicorn" in (a + b).dataset',
 		'foo()\nObject.hasOwn((a + b).dataset, "unicorn")',
