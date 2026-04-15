@@ -72,7 +72,7 @@ const hasFoo = element.hasAttribute('foo');
 Type: `boolean`\
 Default: `false`
 
-When `true`, enforces the opposite: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over `.dataset` property access. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
+When `true`, enforces the opposite direction: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over named `.dataset` access — covering reads, writes, `delete`, simple destructuring, and existence checks (`in`, `Object.hasOwn`, `.hasOwnProperty()`). Whole-object reads (`const data = element.dataset`) and inherited members (`element.dataset.toString`) are not flagged. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
 
 ```js
 // eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}]

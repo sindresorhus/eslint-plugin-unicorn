@@ -1,6 +1,13 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
-	escapeString, getIndentString, hasOptionalChainElement, isValueNotUsable,
+	escapeString,
+	getIndentString,
+	getParenthesizedText,
+	hasOptionalChainElement,
+	isParenthesized,
+	isValueNotUsable,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 import {
 	isMemberExpression, isMethodCall, isStringLiteral, isExpressionStatement,
@@ -17,6 +24,50 @@ const messages = {
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
 const camelCaseToDash = string => `data-${string.replaceAll(/[A-Z]/g, char => `-${char.toLowerCase()}`)}`;
 const isDatasetAccess = node => isMemberExpression(node, {property: 'dataset'});
+
+// Names inherited from `Object.prototype` — never a real `data-*` attribute.
+const DATASET_INHERITED_MEMBERS = new Set([
+	'constructor',
+	'hasOwnProperty',
+	'isPrototypeOf',
+	'propertyIsEnumerable',
+	'toLocaleString',
+	'toString',
+	'valueOf',
+	'__proto__',
+	'__defineGetter__',
+	'__defineSetter__',
+	'__lookupGetter__',
+	'__lookupSetter__',
+]);
+
+// HTML attribute names cannot contain whitespace, ", ', <, >, /, =, or control chars.
+const INVALID_ATTRIBUTE_NAME_CHARS = /[\s"'<>/=\u0000-\u001F]/; // eslint-disable-line no-control-regex
+
+// A dataset key only safely maps to a `data-*` attribute when it is not
+// inherited from `Object.prototype` (the inverse `dataset.toString` is the
+// inherited method, not an attribute), doesn't contain a dash (`dataset.fooBar`
+// and `dataset['foo-bar']` collapse to the same `data-foo-bar`), and doesn't
+// include chars forbidden in HTML attribute names (`setAttribute` would throw).
+const isUnsafeDatasetKey = key =>
+	DATASET_INHERITED_MEMBERS.has(key)
+	|| key.includes('-')
+	|| INVALID_ATTRIBUTE_NAME_CHARS.test(key);
+
+// Get text for a node that becomes the receiver of a method call, preserving
+// any required parentheses so e.g. `(a + b).dataset.foo` rewrites to
+// `(a + b).getAttribute('data-foo')` rather than `a + b.getAttribute(...)`.
+function getReceiverText(node, context) {
+	const text = getParenthesizedText(node, context);
+	if (
+		!isParenthesized(node, context.sourceCode)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+	) {
+		return `(${text})`;
+	}
+
+	return text;
+}
 
 function getFix(callExpression, context) {
 	const method = callExpression.callee.property.name;
@@ -39,9 +90,8 @@ function getFix(callExpression, context) {
 	return fixer => {
 		const [nameNode] = callExpression.arguments;
 		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
-		const {sourceCode} = context;
 		let text = '';
-		const datasetText = `${sourceCode.getText(callExpression.callee.object)}${callExpression.callee.optional ? '?' : ''}.dataset`;
+		const datasetText = `${getReceiverText(callExpression.callee.object, context)}${callExpression.callee.optional ? '?' : ''}.dataset`;
 		switch (method) {
 			case 'setAttribute':
 			case 'getAttribute':
@@ -49,7 +99,7 @@ function getFix(callExpression, context) {
 				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
-					text += ` = ${sourceCode.getText(callExpression.arguments[1])}`;
+					text += ` = ${getParenthesizedText(callExpression.arguments[1], context)}`;
 				} else if (method === 'removeAttribute') {
 					text = `delete ${text}`;
 				}
@@ -79,7 +129,7 @@ const schema = [
 		properties: {
 			preferAttributes: {
 				type: 'boolean',
-				description: 'Prefer attribute methods over `.dataset`.',
+				description: 'Prefer attribute methods over named `.dataset` access.',
 			},
 		},
 	},
@@ -93,11 +143,11 @@ const create = context => {
 		const {sourceCode} = context;
 
 		const getHasAttributeReport = (reportNode, keyNode, datasetNode) => {
-			if (keyNode.value.includes('-')) {
+			if (isUnsafeDatasetKey(keyNode.value)) {
 				return;
 			}
 
-			const objectText = sourceCode.getText(datasetNode.object);
+			const objectText = getReceiverText(datasetNode.object, context);
 			const chain = datasetNode.optional ? '?.' : '.';
 			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
 
@@ -105,10 +155,14 @@ const create = context => {
 				node: reportNode,
 				messageId: INVERSE_MESSAGE_ID,
 				data: {method: 'hasAttribute'},
-				fix: fixer => fixer.replaceText(
-					reportNode,
-					`${objectText}${chain}hasAttribute(${attributeName})`,
-				),
+				fix(fixer) {
+					let text = `${objectText}${chain}hasAttribute(${attributeName})`;
+					if (needsSemicolon(sourceCode.getTokenBefore(reportNode), context, text)) {
+						text = `;${text}`;
+					}
+
+					return fixer.replaceText(reportNode, text);
+				},
 			};
 		};
 
@@ -125,7 +179,7 @@ const create = context => {
 		});
 
 		context.on('CallExpression', callExpression => {
-			if (!(
+			if (
 				isMethodCall(callExpression, {
 					object: 'Object',
 					method: 'hasOwn',
@@ -135,11 +189,22 @@ const create = context => {
 				})
 				&& isDatasetAccess(callExpression.arguments[0])
 				&& isStringLiteral(callExpression.arguments[1])
-			)) {
-				return;
+			) {
+				return getHasAttributeReport(callExpression, callExpression.arguments[1], callExpression.arguments[0]);
 			}
 
-			return getHasAttributeReport(callExpression, callExpression.arguments[1], callExpression.arguments[0]);
+			if (
+				isMethodCall(callExpression, {
+					method: 'hasOwnProperty',
+					argumentsLength: 1,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& isDatasetAccess(callExpression.callee.object)
+				&& isStringLiteral(callExpression.arguments[0])
+			) {
+				return getHasAttributeReport(callExpression, callExpression.arguments[0], callExpression.callee.object);
+			}
 		});
 
 		context.on('VariableDeclarator', declarator => {
@@ -152,8 +217,30 @@ const create = context => {
 			}
 
 			const {properties} = declarator.id;
+
+			// Skip the whole pattern if any destructured key can't safely map to a
+			// `data-*` attribute, or is a runtime computed key we can't analyze
+			const hasUnsafeKey = properties.some(property => {
+				if (property.type !== 'Property') {
+					return false;
+				}
+
+				if (!property.computed && property.key.type === 'Identifier') {
+					return isUnsafeDatasetKey(property.key.name);
+				}
+
+				if (isStringLiteral(property.key)) {
+					return isUnsafeDatasetKey(property.key.value);
+				}
+
+				return true;
+			});
+			if (hasUnsafeKey) {
+				return;
+			}
+
 			const datasetNode = declarator.init;
-			const objectText = sourceCode.getText(datasetNode.object);
+			const objectText = getReceiverText(datasetNode.object, context);
 			const chain = datasetNode.optional ? '?.' : '.';
 
 			// Only autofix when all properties are simple (no defaults, rest, computed)
@@ -202,24 +289,22 @@ const create = context => {
 			const keyName = memberExpression.computed
 				? (isStringLiteral(memberExpression.property) ? memberExpression.property.value : undefined)
 				: memberExpression.property.name;
-			if (keyName === undefined) {
+			if (keyName === undefined || isUnsafeDatasetKey(keyName)) {
 				return;
 			}
 
-			// Method calls and tagged templates on dataset — report without fix
+			// `element.dataset?.foo` short-circuits if `dataset` is nullish; the rewrite
+			// would lose that — skip (the outer `element?.dataset.foo` form is fine
+			// because the optional is on the dataset access, captured via `object.optional`)
+			if (memberExpression.optional) {
+				return;
+			}
+
+			// Method calls and tagged templates on dataset are not attribute reads — skip
 			if (
 				(parent.type === 'CallExpression' && parent.callee === memberExpression)
 				|| (parent.type === 'TaggedTemplateExpression' && parent.tag === memberExpression)
 			) {
-				return {
-					node: memberExpression,
-					messageId: INVERSE_MESSAGE_ID,
-					data: {method: 'getAttribute'},
-				};
-			}
-
-			// Bracket keys with dashes (e.g. dataset["foo-bar"]) are ambiguous — skip
-			if (memberExpression.computed && keyName.includes('-')) {
 				return;
 			}
 
@@ -234,16 +319,23 @@ const create = context => {
 			const isDelete = parent.type === 'UnaryExpression' && parent.operator === 'delete';
 			const method = isWrite ? 'setAttribute' : (isDelete ? 'removeAttribute' : 'getAttribute');
 
-			const objectText = sourceCode.getText(object.object);
+			const objectText = getReceiverText(object.object, context);
 			const chain = object.optional ? '?.' : '.';
 			const quote = memberExpression.computed ? memberExpression.property.raw.charAt(0) : undefined;
 			const attributeName = escapeString(camelCaseToDash(keyName), quote);
 
 			let fix;
 			if (isWrite && isValueNotUsable(parent)) {
-				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}setAttribute(${attributeName}, ${sourceCode.getText(parent.right)})`);
+				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}setAttribute(${attributeName}, ${getParenthesizedText(parent.right, context)})`);
 			} else if (isDelete && isExpressionStatement(parent.parent)) {
-				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}removeAttribute(${attributeName})`);
+				fix = fixer => {
+					let text = `${objectText}${chain}removeAttribute(${attributeName})`;
+					if (needsSemicolon(sourceCode.getTokenBefore(parent), context, text)) {
+						text = `;${text}`;
+					}
+
+					return fixer.replaceText(parent, text);
+				};
 			} else if (!isWrite && !isDelete) {
 				fix = fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`);
 			}
