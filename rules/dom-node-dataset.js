@@ -42,7 +42,7 @@ const DATASET_INHERITED_MEMBERS = new Set([
 ]);
 
 // HTML attribute names cannot contain whitespace, ", ', <, >, /, =, or control chars.
-const INVALID_ATTRIBUTE_NAME_CHARS = /[\s"'<>/=\u0000-\u001F]/; // eslint-disable-line no-control-regex
+const INVALID_ATTRIBUTE_NAME_CHARS = /[\s\u0000-\u001F"'/<=>]/; // eslint-disable-line no-control-regex
 
 // A dataset key only safely maps to a `data-*` attribute when it is not
 // inherited from `Object.prototype` (the inverse `dataset.toString` is the
