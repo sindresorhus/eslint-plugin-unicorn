@@ -281,7 +281,7 @@ const create = context => {
 		});
 
 		context.on('MemberExpression', memberExpression => {
-			const {object, parent} = memberExpression;
+			const {object} = memberExpression;
 			if (!isDatasetAccess(object)) {
 				return;
 			}
@@ -299,6 +299,13 @@ const create = context => {
 			if (memberExpression.optional) {
 				return;
 			}
+
+			// `ChainExpression` wraps the outermost optional-chain expression, so for
+			// `delete element?.dataset.foo` the surrounding `delete` sits on the chain's
+			// parent — unwrap to see the real operator context
+			const parent = memberExpression.parent.type === 'ChainExpression'
+				? memberExpression.parent.parent
+				: memberExpression.parent;
 
 			// Method calls and tagged templates on dataset are not attribute reads — skip
 			if (
@@ -380,9 +387,11 @@ const create = context => {
 		const method = callExpression.callee.property.name;
 		// Playwright's `Locator#getAttribute()` returns a promise.
 		// https://playwright.dev/docs/api/class-locator#locator-get-attribute
+		// `ChainExpression` wraps `await locator?.getAttribute(…)`, so unwrap it
+		const outerNode = callExpression.parent.type === 'ChainExpression' ? callExpression.parent : callExpression;
 		if (
-			callExpression.parent.type === 'AwaitExpression'
-			&& callExpression.parent.argument === callExpression
+			outerNode.parent.type === 'AwaitExpression'
+			&& outerNode.parent.argument === outerNode
 			&& method === 'getAttribute'
 		) {
 			return;

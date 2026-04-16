@@ -192,6 +192,7 @@ test.snapshot({
 		'element.getAttribute("data");',
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2307
 		'await page.locator("text=Hello").getAttribute("data-foo")',
+		'await page.locator("text=Hello")?.getAttribute("data-foo")',
 	],
 	invalid: [
 		outdent`
@@ -286,6 +287,10 @@ test.snapshot({
 		'element.dataset.hasOwnProperty(\'unicorn\')',
 		'element.dataset.hasOwnProperty("fooBar")',
 		'element?.dataset.hasOwnProperty("unicorn")',
+		'delete element?.dataset.unicorn;',
+		'delete element?.dataset["unicorn"];',
+		'delete element?.dataset.fooBar;',
+		'delete (a + b)?.dataset.unicorn;',
 		'(a + b).dataset.unicorn;',
 		'(a + b).dataset.unicorn = "🦄";',
 		'delete (a + b).dataset.unicorn;',
@@ -305,6 +310,7 @@ test.snapshot({
 		// Not fixable
 		'const result = element.dataset.unicorn = "🦄";',
 		'if (delete element.dataset.unicorn) {}',
+		'if (delete element?.dataset.unicorn) {}',
 		'const {unicorn = "default"} = element.dataset;',
 		'const {...rest} = element.dataset;',
 		'const {foo, bar} = element.querySelector("#selector").dataset;',
