@@ -1,6 +1,6 @@
-# prefer-dom-node-dataset
+# dom-node-dataset
 
-📝 Prefer using `.dataset` on DOM elements over calling attribute methods.
+📝 Enforce consistent style for DOM element dataset access.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -63,4 +63,29 @@ element.removeAttribute('not-dataset');
 ```js
 // ✅
 const hasFoo = element.hasAttribute('foo');
+```
+
+## Options
+
+### preferAttributes
+
+Type: `boolean`\
+Default: `false`
+
+When `true`, enforces the opposite direction: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over named `.dataset` access — covering reads, writes, `delete`, simple destructuring, and existence checks (`in`, `Object.hasOwn`, `.hasOwnProperty()`). Whole-object reads (`const data = element.dataset`) and inherited members (`element.dataset.toString`) are not flagged. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
+
+```js
+// eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}]
+
+// ❌
+const unicorn = element.dataset.unicorn;
+element.dataset.unicorn = '🦄';
+delete element.dataset.unicorn;
+'unicorn' in element.dataset;
+
+// ✅
+const unicorn = element.getAttribute('data-unicorn');
+element.setAttribute('data-unicorn', '🦄');
+element.removeAttribute('data-unicorn');
+element.hasAttribute('data-unicorn');
 ```
