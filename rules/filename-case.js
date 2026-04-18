@@ -99,7 +99,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 	return parts;
 }
 
-const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
+const leadingUnderscoresRegex = /^(?<leading>[_$]+)(?<tailing>.*)$/;
 function splitFilename(filename) {
 	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
 	const {leading = '', tailing = filename} = result.groups;
