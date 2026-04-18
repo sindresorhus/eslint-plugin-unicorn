@@ -13,6 +13,8 @@ Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `inde
 
 Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored.
 
+Leading `_` and `$` characters are ignored when checking the case style. For example, `_foo-bar.js` and `$userId.tsx` are valid `kebabCase` filenames.
+
 ## Cases
 
 ### `kebabCase`
