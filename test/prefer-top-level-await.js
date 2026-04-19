@@ -168,6 +168,16 @@ test.snapshot({
 			await foo();
 		`,
 		'for (const statement of statements) { statement() };',
+		// #2946: lock in that `let`/`var` (and by extension `using`/`await using`)
+		// still fall through under `@typescript-eslint/parser`, preserving the
+		// rule's intentional const-only behavior alongside the kind fallback.
+		{
+			code: outdent`
+				let foo = async () => {};
+				foo();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`
