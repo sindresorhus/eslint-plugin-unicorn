@@ -145,7 +145,13 @@ function create(context) {
 		}
 
 		const [definition] = variable.defs;
-		const value = definition.type === 'Variable' && definition.kind === 'const'
+		// `definition.kind` is populated by espree but is undefined under
+		// `@typescript-eslint/parser`, so fall back to the parent
+		// VariableDeclaration's `kind` to stay cross-parser. See #2946.
+		const variableKind = definition.type === 'Variable'
+			? (definition.kind ?? definition.node.parent?.kind)
+			: undefined;
+		const value = variableKind === 'const'
 			? definition.node.init
 			: definition.node;
 		if (

@@ -1,5 +1,6 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
+import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
@@ -197,6 +198,16 @@ test.snapshot({
 				foo();
 			}
 		`,
+		// #2946: the TypeScript parser does not populate `definition.kind`, so
+		// falling back to the parent `VariableDeclaration.kind` is required to
+		// still flag top-level async-function calls under `@typescript-eslint/parser`.
+		{
+			code: outdent`
+				const foo = async () => {};
+				foo();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
