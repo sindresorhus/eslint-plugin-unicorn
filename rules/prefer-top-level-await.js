@@ -145,7 +145,16 @@ function create(context) {
 		}
 
 		const [definition] = variable.defs;
-		const value = definition.type === 'Variable' && definition.kind === 'const'
+		// `definition.kind` is populated by espree but is undefined under
+		// `@typescript-eslint/parser`, so fall back to `definition.parent.kind`
+		// (the enclosing VariableDeclaration) to stay cross-parser. See #2946.
+		// Note: non-`const` kinds — `let`, `var`, `using`, `await using` — all
+		// take the else branch and harmlessly bail at the `isFunction` guard
+		// below, preserving the rule's intentional const-only behavior.
+		const variableKind = definition.type === 'Variable'
+			? (definition.kind ?? definition.parent?.kind)
+			: undefined;
+		const value = variableKind === 'const'
 			? definition.node.init
 			: definition.node;
 		if (
