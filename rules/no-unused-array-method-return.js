@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not ignore the return value of `.{{method}}(…)`.',
 };
 
-const methodNames = [
+const methods = new Set([
 	'at',
 	'concat',
 	'entries',
@@ -36,8 +36,7 @@ const methodNames = [
 	'toSpliced',
 	'values',
 	'with',
-];
-const methods = new Set(methodNames);
+]);
 
 const pascalCaseNamePattern = /^\p{Lu}/v;
 const uncertainValue = Symbol('uncertainValue');
@@ -145,6 +144,7 @@ function getVariableValue(node, context) {
 		&& definition.node.type === 'VariableDeclarator'
 		&& definition.node.id.type === 'Identifier'
 		&& definition.node.id.name === node.name
+		&& definition.node.init
 		&& definition.parent.type === 'VariableDeclaration'
 	) {
 		return definition.node.init;
@@ -158,7 +158,7 @@ function getStaticPropertyName(node, context) {
 }
 
 function resolveReceiver(node, context, visitedNodes = new Set()) {
-	if (node === uncertainValue) {
+	if (!node || node === uncertainValue) {
 		return node;
 	}
 

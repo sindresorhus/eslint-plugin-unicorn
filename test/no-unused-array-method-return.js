@@ -127,6 +127,9 @@ test.snapshot({
 			values = [];
 			values.map(fn);
 		`,
+		'let values; values.map(fn);',
+		'for (const value of array) value.map(fn);',
+		'for (const key in object) key.map(fn);',
 		outdent`
 			let values = 'x';
 			values = [];
@@ -178,6 +181,8 @@ test.snapshot({
 		'array?.map(fn);',
 		'array.map?.(fn);',
 		'array["map"](fn);',
+		'Array(1).map(fn);',
+		'new Array(1).map(fn);',
 		'array.at(0);',
 		'array.slice?.(1);',
 		'array.filter(fn);',
