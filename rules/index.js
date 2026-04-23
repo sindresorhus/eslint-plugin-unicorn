@@ -99,6 +99,7 @@ export {default as 'prefer-export-from'} from './prefer-export-from.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
+export {default as 'prefer-iterator-to-array-at-end'} from './prefer-iterator-to-array-at-end.js';
 export {default as 'prefer-json-parse-buffer'} from './prefer-json-parse-buffer.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
