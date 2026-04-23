@@ -100,21 +100,56 @@ const getIndexIdentifierName = forStatement => {
 		return;
 	}
 
-	if (variableDeclaration.declarations.length !== 1) {
-		return;
+	const {declarations} = variableDeclaration;
+
+	// Handle: for (let i = 0; ...)
+	if (declarations.length === 1) {
+		const [variableDeclarator] = declarations;
+
+		if (!isLiteralZero(variableDeclarator.init)) {
+			return;
+		}
+
+		if (variableDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		return variableDeclarator.id.name;
 	}
 
-	const [variableDeclarator] = variableDeclaration.declarations;
+	// Handle: for (let i = 0, j = arr.length; i < j; ...)
+	// The second declarator caches the array length to avoid repeated .length lookups.
+	if (declarations.length === 2) {
+		const [indexDeclarator, lengthDeclarator] = declarations;
 
-	if (!isLiteralZero(variableDeclarator.init)) {
-		return;
+		if (!isLiteralZero(indexDeclarator.init)) {
+			return;
+		}
+
+		if (indexDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		if (lengthDeclarator.id.type !== 'Identifier') {
+			return;
+		}
+
+		// Second declarator MUST be `j = someArray.length`, not just any value.
+		// Without this check `for (let i = 0, j = 0; i < arr.length; i++)` would
+		// incorrectly trigger because the test still contains `i < arr.length`.
+		const {init: lengthInit} = lengthDeclarator;
+		if (
+			!lengthInit
+			|| lengthInit.type !== 'MemberExpression'
+			|| lengthInit.object.type !== 'Identifier'
+			|| lengthInit.property.type !== 'Identifier'
+			|| lengthInit.property.name !== 'length'
+		) {
+			return;
+		}
+
+		return indexDeclarator.id.name;
 	}
-
-	if (variableDeclarator.id.type !== 'Identifier') {
-		return;
-	}
-
-	return variableDeclarator.id.name;
 };
 
 const getStrictComparisonOperands = binaryExpression => {
@@ -165,13 +200,45 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 };
 
 const getArrayIdentifier = (forStatement, indexIdentifierName) => {
-	const {test} = forStatement;
+	const {test, init: variableDeclaration} = forStatement;
 
 	if (!test || test.type !== 'BinaryExpression') {
 		return;
 	}
 
-	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	// Standard case: for (let i = 0; i < arr.length; ...)
+	const fromTest = getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	if (fromTest) {
+		return fromTest;
+	}
+
+	// Cached-length case: for (let i = 0, j = arr.length; i < j; ...)
+	// The test uses a variable `j` that was assigned `arr.length` in the init.
+	// `getIndexIdentifierName` already verified the second declarator is `j = arr.length`,
+	// so no need to re-validate the MemberExpression shape here.
+	if (!variableDeclaration || variableDeclaration.declarations.length < 2) {
+		return;
+	}
+
+	// The length-caching declarator is always the second one (index 1).
+	const [, lengthDeclarator] = variableDeclaration.declarations;
+	const lengthVariableName = lengthDeclarator.id.name;
+
+	const operands = getStrictComparisonOperands(test);
+	if (!operands) {
+		return;
+	}
+
+	const {lesser, greater} = operands;
+	if (
+		!isIdentifierWithName(lesser, indexIdentifierName)
+		|| !isIdentifierWithName(greater, lengthVariableName)
+	) {
+		return;
+	}
+
+	// `getIndexIdentifierName` already verified that `lengthDeclarator.init` is `arr.length`.
+	return lengthDeclarator.init.object;
 };
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
@@ -409,6 +476,44 @@ const create = context => {
 		const elementIdentifierName = elementNode?.id.name;
 		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
 
+		// For cached-length patterns like `for (let i = 0, j = arr.length; i < j; ...)`,
+		// the autofix replaces the entire `for (let ...)` header, removing any extra declarators
+		// beyond the index variable. Block the fix if any such variable is referenced inside the
+		// loop body or escapes the loop scope (e.g. used after the loop closes).
+		const extraInitDeclaratorNames = (node.init?.declarations ?? [])
+			.slice(1) // Skip the index variable (first declarator)
+			.map(d => d.id?.name)
+			.filter(Boolean);
+		// Use forScope (not bodyScope) so a shadowed variable inside the loop body
+		// doesn't cause resolveIdentifierName to return the wrong (inner) variable.
+		// The extra declarators (e.g. `j` in `for (let i = 0, j = arr.length; ...)`)
+		// are always defined in forScope — bodyScope is a child and may shadow them.
+		const extraInitVariables = extraInitDeclaratorNames
+			.map(name => resolveIdentifierName(name, forScope))
+			.filter(Boolean);
+		const isExtraVariableUsedInBody = extraInitVariables.some(
+			variable => variable.references.some(reference => scopeContains(bodyScope, reference.from)),
+		);
+
+		// `let j` in a `for` init is block-scoped to the for statement, so any reference to `j`
+		// outside the for node becomes an unresolved "through" reference on an ancestor scope —
+		// it won't appear in `variable.references` and thus bypasses `someVariablesLeakOutOfTheLoop`.
+		// Catch it explicitly by scanning ancestor scope through-references.
+		const isExtraVariableReferencedOutsideLoop = extraInitDeclaratorNames.some(name => {
+			let ancestorScope = scope;
+			while (ancestorScope) {
+				if (ancestorScope.through.some(
+					reference => reference.identifier.name === name && !nodeContains(node, reference.identifier),
+				)) {
+					return true;
+				}
+
+				ancestorScope = ancestorScope.upper;
+			}
+
+			return false;
+		});
+
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
@@ -418,7 +523,9 @@ const create = context => {
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);
 			});
 
-		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
+		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable, ...extraInitVariables].filter(Boolean), forScope)
+			&& !isExtraVariableUsedInBody
+			&& !isExtraVariableReferencedOutsideLoop
 			&& !elementNode?.id.typeAnnotation
 			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
 
