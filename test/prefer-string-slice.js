@@ -288,6 +288,16 @@ test({
 			output: 'foo.slice(0, Math.max(0, bar.length - 1))',
 			errors: errorsSubstring,
 		},
+		{
+			code: 'foo.substr(0, foo.length - 1.5)',
+			output: 'foo.slice(0, Math.max(0, foo.length - 1.5))',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substring(0, foo.length - 1.5)',
+			output: 'foo.slice(0, Math.max(0, foo.length - 1.5))',
+			errors: errorsSubstring,
+		},
 		// Extra arguments
 		{
 			code: 'foo.substring(1, 2, 3)',

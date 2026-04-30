@@ -1,5 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedText, getParenthesizedRange, isDecimalInteger} from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
 import {isNumericLiteral, isMethodCall} from './ast/index.js';
 import {getNegativeIndexLengthNode} from './shared/negative-index.js';
@@ -54,7 +54,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 		}
 
 		const lengthNode = getNegativeIndexLengthNode(secondArgument, node.callee.object);
-		if (lengthNode && secondArgument.left === lengthNode) {
+		if (lengthNode && secondArgument.left === lengthNode && isDecimalInteger(secondArgument.right.raw)) {
 			yield replaceSecondArgument(`-${secondArgument.right.value}`);
 			return;
 		}
@@ -121,7 +121,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		const nonZeroArgumentText = getParenthesizedText(nonZeroArgument, context);
 		const lengthNode = getNegativeIndexLengthNode(nonZeroArgument, node.callee.object);
 
-		if (lengthNode && nonZeroArgument.left === lengthNode) {
+		if (lengthNode && nonZeroArgument.left === lengthNode && isDecimalInteger(nonZeroArgument.right.raw)) {
 			yield replaceSecondArgument(`-${nonZeroArgument.right.value}`);
 			return;
 		}
