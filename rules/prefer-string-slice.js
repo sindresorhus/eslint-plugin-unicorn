@@ -1,7 +1,8 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedText, getParenthesizedRange, isDecimalInteger} from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
 import {isNumericLiteral, isMethodCall} from './ast/index.js';
+import {getNegativeIndexLengthNode} from './shared/negative-index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -52,6 +53,12 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 			return;
 		}
 
+		const lengthNode = getNegativeIndexLengthNode(secondArgument, node.callee.object);
+		if (lengthNode && secondArgument.left === lengthNode && isDecimalInteger(secondArgument.right.raw)) {
+			yield replaceSecondArgument(`-${secondArgument.right.value}`);
+			return;
+		}
+
 		yield fixer.insertTextBeforeRange(secondArgumentRange, 'Math.max(0, ');
 		yield fixer.insertTextAfterRange(secondArgumentRange, ')');
 		return;
@@ -69,7 +76,6 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
-	const firstArgumentText = getParenthesizedText(firstArgument, context);
 	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, context);
 
 	if (!secondArgument) {
@@ -89,7 +95,6 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	}
 
 	const secondNumber = getNumericValue(secondArgument);
-	const secondArgumentText = getParenthesizedText(secondArgument, context);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstNumber !== undefined && secondNumber !== undefined) {
@@ -111,7 +116,17 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 
 	if (firstNumber === 0 || secondNumber === 0) {
 		yield replaceFirstArgument('0');
-		yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
+
+		const nonZeroArgument = firstNumber === 0 ? secondArgument : firstArgument;
+		const nonZeroArgumentText = getParenthesizedText(nonZeroArgument, context);
+		const lengthNode = getNegativeIndexLengthNode(nonZeroArgument, node.callee.object);
+
+		if (lengthNode && nonZeroArgument.left === lengthNode && isDecimalInteger(nonZeroArgument.right.raw)) {
+			yield replaceSecondArgument(`-${nonZeroArgument.right.value}`);
+			return;
+		}
+
+		yield replaceSecondArgument(`Math.max(0, ${nonZeroArgumentText})`);
 		return;
 	}
 
