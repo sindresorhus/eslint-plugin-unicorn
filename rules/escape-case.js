@@ -48,7 +48,10 @@ const create = context => {
 	});
 
 	context.on('TemplateElement', node => {
-		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+		// Skip all tagged template literals: changing escape case in a tagged
+		// template modifies the `raw` property received by the tag function,
+		// which can silently break runtime behaviour (see #2341).
+		if (isTaggedTemplateLiteral(node.parent)) {
 			return;
 		}
 
