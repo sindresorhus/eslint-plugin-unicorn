@@ -48,6 +48,9 @@ document.querySelectorAll('main');
 ```js
 // ❌
 document.getElementsByClassName(fn());
+
+// ✅
+document.querySelectorAll(`.${fn()}`);
 ```
 
 ```js

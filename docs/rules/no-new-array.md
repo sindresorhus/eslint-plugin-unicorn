@@ -38,9 +38,7 @@ const array = [onlyElement];
 ```js
 // ❌
 const array = new Array(...unknownArgumentsList);
-```
 
-```js
 // ✅
-const array = [...items];
+const array = [...unknownArgumentsList];
 ```

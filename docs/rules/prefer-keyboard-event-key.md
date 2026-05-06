@@ -36,11 +36,9 @@ window.addEventListener('keydown', event => {
 window.addEventListener('keydown', event => {
 	console.log(event.keyCode);
 });
-```
 
-```js
 // ✅
-window.addEventListener('click', event => {
+window.addEventListener('keydown', event => {
 	console.log(event.key);
 });
 ```

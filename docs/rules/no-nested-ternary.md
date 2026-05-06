@@ -24,6 +24,18 @@ const foo = i > 5 ? (i < 100 ? true : false) : true;
 ```js
 // ❌
 const foo = i > 5 ? true : (i < 100 ? true : (i < 1000 ? true : false));
+
+// ✅
+let foo;
+if (i > 5) {
+	foo = true;
+} else if (i < 100) {
+	foo = true;
+} else if (i < 1000) {
+	foo = true;
+} else {
+	foo = false;
+}
 ```
 
 ```js

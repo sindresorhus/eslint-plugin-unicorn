@@ -22,24 +22,6 @@ export function doFoo(foo) {
 	return doBar;
 }
 
-function doFoo(foo) {
-	const doBar = bar => {
-		return bar === 'bar';
-	};
-}
-
-function doFoo() {
-	// Does not capture anything from the scope, can be moved to the outer scope
-	return bar => bar === 'bar';
-}
-
-// Arrow functions in return statements are now also flagged
-export function someAction() {
-	return dispatch => dispatch({type: 'SOME_TYPE'});
-}
-```
-
-```js
 // ✅
 function doBar(bar) {
 	return bar === 'bar';
@@ -47,6 +29,36 @@ function doBar(bar) {
 
 export function doFoo(foo) {
 	return doBar;
+}
+```
+
+```js
+// ❌
+function doFoo() {
+	// Does not capture anything from the scope, can be moved to the outer scope
+	return bar => bar === 'bar';
+}
+
+// ✅
+const doBar = bar => bar === 'bar';
+
+function doFoo() {
+	return doBar;
+}
+```
+
+```js
+// Arrow functions in return statements are also flagged
+// ❌
+export function someAction() {
+	return dispatch => dispatch({type: 'SOME_TYPE'});
+}
+
+// ✅
+const handleDispatch = dispatch => dispatch({type: 'SOME_TYPE'});
+
+export function someAction() {
+	return handleDispatch;
 }
 ```
 

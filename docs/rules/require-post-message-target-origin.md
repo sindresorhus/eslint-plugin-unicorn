@@ -18,9 +18,7 @@ This rule cannot distinguish between `window.postMessage()` and other calls like
 ```js
 // ❌
 window.postMessage(message);
-```
 
-```js
 // ✅
 window.postMessage(message, 'https://example.com');
 ```

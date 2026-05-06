@@ -132,6 +132,9 @@ Example:
 /* eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}] */
 // ❌
 const foo = utils.lastElement(bar);
+
+// ✅
+const foo = bar.at(-1);
 ```
 
 ## Related rules

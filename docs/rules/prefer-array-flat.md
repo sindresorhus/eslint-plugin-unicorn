@@ -91,6 +91,9 @@ Example:
 /* eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}] */
 // ❌
 const foo = utils.flat(bar);
+
+// ✅
+const foo = bar.flat();
 ```
 
 ## Related rules

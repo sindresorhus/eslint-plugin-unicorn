@@ -20,6 +20,9 @@ class MyError extends Error {
 		Error.captureStackTrace(this, MyError);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```
 
 ```js
@@ -29,6 +32,9 @@ class MyError extends Error {
 		Error.captureStackTrace?.(this, MyError);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```
 
 ```js
@@ -38,6 +44,9 @@ class MyError extends Error {
 		Error.captureStackTrace(this, this.constructor);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```
 
 ```js
@@ -47,6 +56,9 @@ class MyError extends Error {
 		Error.captureStackTrace?.(this, this.constructor);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```
 
 ```js
@@ -56,6 +68,9 @@ class MyError extends Error {
 		Error.captureStackTrace(this, new.target);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```
 
 ```js
@@ -65,4 +80,7 @@ class MyError extends Error {
 		Error.captureStackTrace?.(this, new.target);
 	}
 }
+
+// ✅
+class MyError extends Error {}
 ```

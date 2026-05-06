@@ -73,6 +73,11 @@ Prefer using the [JavaScript module](https://developer.mozilla.org/en-US/docs/We
 'use strict';
 
 // …
+
+// ✅
+// (Remove the 'use strict' directive — JavaScript modules are in strict mode by default)
+
+// …
 ```
 
 ```js
@@ -82,9 +87,7 @@ if (foo) {
 }
 
 // …
-```
 
-```js
 // ✅
 function run() {
 	if (foo) {

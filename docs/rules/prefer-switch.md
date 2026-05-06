@@ -24,18 +24,7 @@ if (foo === 1) {
 } else {
 	// default
 }
-```
 
-```js
-// ✅
-if (foo === 1) {
-	// 1
-} else if (foo === 2) {
-	// 2
-}
-```
-
-```js
 // ✅
 switch (foo) {
 	case 1: {
@@ -53,6 +42,15 @@ switch (foo) {
 	default: {
 		// default
 	}
+}
+```
+
+```js
+// ✅
+if (foo === 1) {
+	// 1
+} else if (foo === 2) {
+	// 2
 }
 ```
 
@@ -98,6 +96,16 @@ else if (foo === 4) {}
 // ❌
 if (foo === 1) {}
 else if (foo === 2) {}
+
+// ✅
+switch (foo) {
+	case 1: {
+		break;
+	}
+	case 2: {
+		// No default
+	}
+}
 ```
 
 ### `emptyDefaultCase`

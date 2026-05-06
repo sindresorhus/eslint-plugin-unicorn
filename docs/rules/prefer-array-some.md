@@ -79,14 +79,15 @@ const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
 
 // ❌
 const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
+
+// ✅
+const hasUnicorn = array.some(element => isUnicorn(element));
 ```
 
 ```js
 // ❌
 const foo = array.findLast(element => isUnicorn(element)) ? bar : baz;
-```
 
-```js
 // ✅
 const foo = array.findLast(element => isUnicorn(element)) || bar;
 ```
@@ -108,5 +109,8 @@ const foo = array.findLast(element => isUnicorn(element)) || bar;
 <template>
 	<!-- ❌ -->
 	<div v-if="array.findLast(element => isUnicorn(element))">Vue</div>
+
+	<!-- ✅ -->
+	<div v-if="array.some(element => isUnicorn(element))">Vue</div>
 </template>
 ```

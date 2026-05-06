@@ -19,6 +19,9 @@ We only check `.length === 0`, `.length !== 0`, and `.length > 0`. These zero an
 ```js
 // ❌
 if (array.length === 0 || array.every(Boolean));
+
+// ✅
+if (array.every(Boolean));
 ```
 
 ```js

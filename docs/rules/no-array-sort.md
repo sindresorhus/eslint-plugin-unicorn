@@ -55,6 +55,9 @@ Pass `allowExpressionStatement: false` to forbid `Array#sort()` even if it's an 
 /* eslint unicorn/no-array-sort: ["error", {"allowExpressionStatement": false}] */
 // ❌
 array.sort();
+
+// ✅
+array = array.toSorted();
 ```
 
 ## Related rules

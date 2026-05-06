@@ -44,6 +44,12 @@ const {
 	a: {b},
 } = foo;
 console.log(foo.a.c);
+
+// ✅
+const {
+	a: {b, c},
+} = foo;
+console.log(c);
 ```
 
 ```js

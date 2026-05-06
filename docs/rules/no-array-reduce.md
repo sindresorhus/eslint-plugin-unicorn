@@ -60,16 +60,31 @@ for (const element of array.toReversed()) { // Equivalent to .reduceRight()
 ```js
 // ❌
 [].reduce.call(array, reducer);
+
+// ✅
+// eslint-disable-next-line unicorn/no-array-reduce
+array.reduce(reducer);
 ```
 
 ```js
 // ❌
 [].reduce.apply(array, [reducer, initialValue]);
+
+// ✅
+let result = initialValue;
+
+for (const element of array) {
+	result = reducer(result, element);
+}
 ```
 
 ```js
 // ❌
 Array.prototype.reduce.call(array, reducer);
+
+// ✅
+// eslint-disable-next-line unicorn/no-array-reduce
+array.reduce(reducer);
 ```
 
 ## Options
@@ -93,4 +108,11 @@ array.reduce((total, item) => total + item)
 /* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}] */
 // ❌
 array.reduce((total, item) => total + item)
+
+// ✅
+let total = 0;
+
+for (const item of array) {
+	total += item;
+}
 ```

@@ -192,6 +192,9 @@ if (bothNotEmpty(foo, bar)) {}
 ```js
 // ❌
 if (!foo.length > 0) {}
+
+// ✅
+if (foo.length === 0) {}
 ```
 
 The rule is smart enough to know some `LogicalExpression`s are safe to fix, like when it's inside `if`, `while`, etc.

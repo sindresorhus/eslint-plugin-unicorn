@@ -130,6 +130,9 @@ Numbers are split into 3 distinct parts:
 // ❌
 const foo = 12345;
 
+// ✅
+const foo = 12_345;
+
 // ✅ The fractional part is not grouped by default
 const foo = 0.0000001;
 ```
@@ -140,8 +143,14 @@ const foo = 0.0000001;
 // ❌
 const foo = 0.000_0001;
 
+// ✅
+const foo = 0.000_000_1;
+
 // ❌
 const foo = 123.1_000_001;
+
+// ✅
+const foo = 123.100_000_1;
 ```
 
 ```js
@@ -150,14 +159,23 @@ const foo = 123.1_000_001;
 // ❌
 const foo = 0b101010;
 
+// ✅
+const foo = 0b10_1010;
+
 // ❌
 const foo = 0b1010_10001;
+
+// ✅
+const foo = 0b1_0101_0001;
 ```
 
 ```js
 /* eslint unicorn/numeric-separators-style: ["error", {"hexadecimal": {"minimumDigits": 0, "groupLength": 2}}] */
 // ❌
 const foo = 0xA_B_CD_EF;
+
+// ✅
+const foo = 0xAB_CD_EF;
 ```
 
 ```js

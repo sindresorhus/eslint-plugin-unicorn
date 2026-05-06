@@ -74,6 +74,9 @@ Strict equality(`===`) and strict inequality(`!==`) is ignored by default.
 /* eslint unicorn/no-null: ["error", {"checkStrictEquality": true}] */
 // ❌
 if (foo === null) {}
+
+// ✅
+if (foo === undefined) {}
 ```
 
 ## Why
