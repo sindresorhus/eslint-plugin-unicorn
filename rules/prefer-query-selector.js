@@ -104,7 +104,9 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 const isNonLiteralArgument = node =>
 	!isNullLiteral(node)
 	&& !isStringLiteral(node)
-	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0);
+	&& node.type !== 'BinaryExpression'
+	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
+	&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
 
 const canBeFixed = node =>
 	isNullLiteral(node)

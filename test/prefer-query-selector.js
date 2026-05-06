@@ -56,14 +56,6 @@ test.snapshot({
 			options: allowWithVariablesOptions,
 		},
 		{
-			code: 'document.getElementsByClassName("foo" + fn());',
-			options: allowWithVariablesOptions,
-		},
-		{
-			code: 'document.getElementsByClassName(foo + "bar");',
-			options: allowWithVariablesOptions,
-		},
-		{
 			code: 'document.getElementsByClassName(`${someClass}`);', // eslint-disable-line no-template-curly-in-string
 			options: allowWithVariablesOptions,
 		},
@@ -134,6 +126,28 @@ test.snapshot({
 		},
 		{
 			code: 'document.getElementsByClassName(`foo`);',
+			options: allowWithVariablesOptions,
+		},
+		// `allowWithVariables` - binary expressions and mixed template literals are still reported,
+		// because one can still compose a valid selector (e.g. `'.' + variable + 'x'` or `#${variable}x`)
+		{
+			code: 'document.getElementsByClassName(variable + "x");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName("foo" + fn());',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(foo + "bar");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementById(`x${someId}`);', // eslint-disable-line no-template-curly-in-string
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(`foo ${someClass}`);', // eslint-disable-line no-template-curly-in-string
 			options: allowWithVariablesOptions,
 		},
 	],
