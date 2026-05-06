@@ -155,11 +155,16 @@ const create = context => {
 			return;
 		}
 
-		if (allowWithVariables && isNonLiteralArgument(node.arguments[0])) {
+		const method = node.callee.property.name;
+
+		if (
+			allowWithVariables
+			&& (method === 'getElementById' || method === 'getElementsByClassName')
+			&& isNonLiteralArgument(node.arguments[0])
+		) {
 			return;
 		}
 
-		const method = node.callee.property.name;
 		const preferredSelector = disallowedIdentifierNames.get(method);
 
 		const problem = {

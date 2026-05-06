@@ -44,14 +44,6 @@ test.snapshot({
 			options: allowWithVariablesOptions,
 		},
 		{
-			code: 'document.getElementsByTagName(someTag);',
-			options: allowWithVariablesOptions,
-		},
-		{
-			code: 'document.getElementsByName(someName);',
-			options: allowWithVariablesOptions,
-		},
-		{
 			code: 'document.getElementsByClassName(fn());',
 			options: allowWithVariablesOptions,
 		},
@@ -118,6 +110,16 @@ test.snapshot({
 		},
 		{
 			code: 'document.getElementsByName("foo");',
+			options: allowWithVariablesOptions,
+		},
+		// `allowWithVariables` - getElementsByTagName and getElementsByName are never allowed,
+		// even with non-literal arguments
+		{
+			code: 'document.getElementsByTagName(someTag);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByName(someName);',
 			options: allowWithVariablesOptions,
 		},
 		{

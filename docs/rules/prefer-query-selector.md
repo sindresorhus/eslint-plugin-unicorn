@@ -57,7 +57,7 @@ document.getElementsByClassName(fn());
 Type: `boolean`\
 Default: `false`
 
-When set to `true`, allows using `.getElementById()`, `.getElementsByClassName()`, `.getElementsByTagName()`, and `.getElementsByName()` when called with a non-literal argument (a variable, expression, or template literal with interpolation). This avoids the need to manually compose a CSS selector string, which can be less readable.
+When set to `true`, allows using `.getElementById()` and `.getElementsByClassName()` when called with a non-literal argument (a variable, expression, or template literal with interpolation). This avoids the need to manually compose a CSS selector string, which can be less readable. `.getElementsByTagName()` and `.getElementsByName()` are always reported regardless.
 
 ```js
 // eslint unicorn/prefer-query-selector: ["error", {"allowWithVariables": true}]
@@ -65,11 +65,12 @@ When set to `true`, allows using `.getElementById()`, `.getElementsByClassName()
 // ✅ Allowed - variable argument
 document.getElementById(someId);
 document.getElementsByClassName(someClass);
-document.getElementsByTagName(someTag);
-document.getElementsByName(someName);
 
 // ❌ Still reported - literal argument
 document.getElementById('foo');
 document.getElementsByClassName('foo');
-```
 
+// ❌ Still reported - getElementsByTagName and getElementsByName are never allowed
+document.getElementsByTagName(someTag);
+document.getElementsByName(someName);
+```
