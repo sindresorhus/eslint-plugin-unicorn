@@ -49,3 +49,27 @@ document.querySelectorAll('main');
 // ❌
 document.getElementsByClassName(fn());
 ```
+
+## Options
+
+### `allowWithVariables`
+
+Type: `boolean`\
+Default: `false`
+
+When set to `true`, allows using `.getElementById()`, `.getElementsByClassName()`, `.getElementsByTagName()`, and `.getElementsByName()` when called with a non-literal argument (a variable, expression, or template literal with interpolation). This avoids the need to manually compose a CSS selector string, which can be less readable.
+
+```js
+// eslint unicorn/prefer-query-selector: ["error", {"allowWithVariables": true}]
+
+// ✅ Allowed - variable argument
+document.getElementById(someId);
+document.getElementsByClassName(someClass);
+document.getElementsByTagName(someTag);
+document.getElementsByName(someName);
+
+// ❌ Still reported - literal argument
+document.getElementById('foo');
+document.getElementsByClassName('foo');
+```
+

@@ -6,6 +6,19 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `.{{replacement}}()` over `.{{method}}()`.',
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allowWithVariables: {
+				type: 'boolean',
+				description: 'Allow using the old APIs when called with non-literal arguments (variables, expressions, etc.).',
+			},
+		},
+	},
+];
+
 const disallowedIdentifierNames = new Map([
 	['getElementById', 'querySelector'],
 	['getElementsByClassName', 'querySelectorAll'],
@@ -88,6 +101,11 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 	}
 }
 
+const isNonLiteralArgument = node =>
+	!isNullLiteral(node)
+	&& !isStringLiteral(node)
+	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0);
+
 const canBeFixed = node =>
 	isNullLiteral(node)
 	|| (isStringLiteral(node) && Boolean(node.value.trim()))
@@ -120,6 +138,8 @@ const fix = (node, identifierName, preferredSelector) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {allowWithVariables} = context.options[0];
+
 	context.on('CallExpression', node => {
 		if (
 			!isMethodCall(node, {
@@ -130,6 +150,10 @@ const create = context => {
 			})
 			|| isNodeValueNotDomNode(node.callee.object)
 		) {
+			return;
+		}
+
+		if (allowWithVariables && isNonLiteralArgument(node.arguments[0])) {
 			return;
 		}
 
@@ -163,6 +187,8 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{allowWithVariables: false}],
 		messages,
 	},
 };
