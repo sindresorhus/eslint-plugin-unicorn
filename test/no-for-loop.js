@@ -74,6 +74,18 @@ test({
 			}
 		`,
 		outdent`
+			for (let i = 0; i < arr.length - 1; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
+			for (let i = 0; i <= arr.length - 2; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`,
+		outdent`
 			for (let i = 0; i < arr['length']; i++) {
 				const el = arr[i];
 				console.log(i, el);
@@ -208,6 +220,48 @@ test({
 
 		testCase(outdent`
 			for (let i = 0; i < arr.length; i++) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`, outdent`
+			for (const [i, el] of arr.entries()) {
+				console.log(i, el);
+			}
+		`),
+
+		testCase(outdent`
+			for (let i = 0; i !== arr.length; i++) {
+				console.log(arr[i]);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+
+		testCase(outdent`
+			for (let i = 0; arr.length !== i; i += 1) {
+				const el = arr[i];
+				console.log(i, el);
+			}
+		`, outdent`
+			for (const [i, el] of arr.entries()) {
+				console.log(i, el);
+			}
+		`),
+
+		testCase(outdent`
+			for (let i = 0; i <= arr.length - 1; i++) {
+				console.log(arr[i]);
+			}
+		`, outdent`
+			for (const element of arr) {
+				console.log(element);
+			}
+		`),
+
+		testCase(outdent`
+			for (let i = 0; arr.length - 1 >= i; i += 1) {
 				const el = arr[i];
 				console.log(i, el);
 			}

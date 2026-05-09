@@ -133,35 +133,87 @@ const getStrictComparisonOperands = binaryExpression => {
 	}
 };
 
-const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
-	const operands = getStrictComparisonOperands(binaryExpression);
+const getNonStrictComparisonOperands = binaryExpression => {
+	if (binaryExpression.operator === '<=') {
+		return {
+			lesser: binaryExpression.left,
+			greater: binaryExpression.right,
+		};
+	}
 
-	if (!operands) {
+	if (binaryExpression.operator === '>=') {
+		return {
+			lesser: binaryExpression.right,
+			greater: binaryExpression.left,
+		};
+	}
+};
+
+const getArrayIdentifierFromLengthExpression = node => {
+	if (node.type !== 'MemberExpression') {
 		return;
 	}
 
-	const {lesser, greater} = operands;
+	if (
+		node.object.type !== 'Identifier'
+		|| node.property.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	if (node.property.name !== 'length') {
+		return;
+	}
+
+	return node.object;
+};
+
+const getArrayIdentifierFromOneLessThanLengthExpression = node => {
+	if (
+		node.type !== 'BinaryExpression'
+		|| node.operator !== '-'
+		|| !isLiteralOne(node.right)
+	) {
+		return;
+	}
+
+	return getArrayIdentifierFromLengthExpression(node.left);
+};
+
+const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+	if (binaryExpression.operator === '!==') {
+		if (isIdentifierWithName(binaryExpression.left, indexIdentifierName)) {
+			return getArrayIdentifierFromLengthExpression(binaryExpression.right);
+		}
+
+		if (isIdentifierWithName(binaryExpression.right, indexIdentifierName)) {
+			return getArrayIdentifierFromLengthExpression(binaryExpression.left);
+		}
+	}
+
+	const operands = getStrictComparisonOperands(binaryExpression);
+	if (operands) {
+		const {lesser, greater} = operands;
+
+		if (!isIdentifierWithName(lesser, indexIdentifierName)) {
+			return;
+		}
+
+		return getArrayIdentifierFromLengthExpression(greater);
+	}
+
+	const nonStrictOperands = getNonStrictComparisonOperands(binaryExpression);
+	if (!nonStrictOperands) {
+		return;
+	}
+
+	const {lesser, greater} = nonStrictOperands;
 
 	if (!isIdentifierWithName(lesser, indexIdentifierName)) {
 		return;
 	}
 
-	if (greater.type !== 'MemberExpression') {
-		return;
-	}
-
-	if (
-		greater.object.type !== 'Identifier'
-		|| greater.property.type !== 'Identifier'
-	) {
-		return;
-	}
-
-	if (greater.property.name !== 'length') {
-		return;
-	}
-
-	return greater.object;
+	return getArrayIdentifierFromOneLessThanLengthExpression(greater);
 };
 
 const getArrayIdentifier = (forStatement, indexIdentifierName) => {
@@ -330,6 +382,12 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
+const isKnownNonArray = (node, scope) => {
+	const staticResult = getStaticValue(node, scope);
+
+	return staticResult && !Array.isArray(staticResult.value);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -350,8 +408,7 @@ const create = context => {
 		const arrayIdentifierName = arrayIdentifier.name;
 
 		const scope = sourceCode.getScope(node);
-		const staticResult = getStaticValue(arrayIdentifier, scope);
-		if (staticResult && !Array.isArray(staticResult.value)) {
+		if (isKnownNonArray(arrayIdentifier, scope)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
