@@ -39,6 +39,8 @@ const config = [
 			'unicorn/no-keyword-prefix': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
+			// New rule needs dogfooding decisions for module initialization code.
+			'unicorn/no-top-level-side-effects': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
 			'unicorn/template-indent': ['error', {indent: '\t'}],
 		},
