@@ -16,15 +16,19 @@ Using a negated expression in equality check is most likely a mistake.
 ```js
 // ❌
 if (!foo === bar) {}
-
-// ✅
-if (foo !== bar) {}
 ```
 
 ```js
 // ❌
 if (!foo !== bar) {}
+```
 
+```js
 // ✅
-if (foo === bar) {}
+if (foo !== bar) {}
+```
+
+```js
+// ✅
+if (!(foo === bar)) {}
 ```
