@@ -14,18 +14,11 @@ When calling [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/
 ```js
 // ❌
 const foo = array.flat(2);
-
-// ✅
-const FLATTEN_DEPTH = 2;
-const foo = array.flat(FLATTEN_DEPTH);
 ```
 
 ```js
 // ❌
 const foo = array.flat(99);
-
-// ✅
-const foo = array.flat(Number.POSITIVE_INFINITY);
 ```
 
 ```js
