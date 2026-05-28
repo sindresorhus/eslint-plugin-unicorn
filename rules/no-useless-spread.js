@@ -297,7 +297,6 @@ const create = context => {
 			// `filter`, `flatMap`, and `map`
 			isMethodCall(node, {
 				methods: [
-					'concat',
 					'copyWithin',
 					'flat',
 					'slice',
@@ -310,6 +309,15 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
+			// `concat()` can be an array or string, but `Iterator.concat()` should be excluded
+			|| (
+				isMethodCall(node, {
+					method: 'concat',
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Iterator')
+			)
 			// `String#split()`
 			|| isMethodCall(node, {
 				method: 'split',
@@ -324,7 +332,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			// `await Promise.all()` and `await Promise.allSettled`
+			// `await Promise.all()` and `await Promise.allSettled()`
 			|| (
 				node.type === 'AwaitExpression'
 				&& isMethodCall(node.argument, {
