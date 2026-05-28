@@ -60,7 +60,6 @@
 		"@eslint-community/eslint-utils": "^4.9.1",
 		"change-case": "^5.4.4",
 		"ci-info": "^4.4.0",
-		"clean-regexp": "^1.0.0",
 		"core-js-compat": "^3.49.0",
 		"find-up-simple": "^1.0.1",
 		"globals": "^17.4.0",
@@ -68,7 +67,6 @@
 		"is-builtin-module": "^5.0.0",
 		"jsesc": "^3.1.0",
 		"pluralize": "^8.0.0",
-		"regexp-tree": "^0.1.27",
 		"regjsparser": "^0.13.0",
 		"semver": "^7.7.4",
 		"strip-indent": "^4.1.1"
