@@ -55,7 +55,10 @@ Use WHATWG standard encoding notation with dashes (e.g., ⁠`utf-8` instead of `
 // ❌
 /* eslint unicorn/text-encoding-identifier-case: ["error", {"withDash": true}] */
 await fs.readFile(file, 'utf8');
+```
 
+```js
 // ✅
+/* eslint unicorn/text-encoding-identifier-case: ["error", {"withDash": true}] */
 await fs.readFile(file, 'utf-8');
 ```
