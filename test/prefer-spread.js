@@ -177,6 +177,9 @@ test.snapshot({
 		'foo.join(",").concat("...")',
 		'foo.join().concat(bar)',
 		'(a + b).concat(c)',
+			// `Iterator.concat()`
+		'Iterator.concat(2)',
+		'Iterator.concat([2, 3])',
 	],
 	invalid: [
 		'[1].concat(2)',

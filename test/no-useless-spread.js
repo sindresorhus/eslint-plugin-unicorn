@@ -263,6 +263,8 @@ test.snapshot({
 		'[...foo.filter(bar)]',
 		'[...foo.flatMap(bar)]',
 		'[...foo.map(bar)]',
+			// `Iterator.concat()`
+		'[...Iterator.concat(bar)]',
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
