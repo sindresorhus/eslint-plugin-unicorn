@@ -86,6 +86,8 @@ This rule was renamed to [`prefer-string-trim-start-end`](rules/prefer-string-tr
 
 ### ~regex-shorthand~
 
+This rule was renamed to [`better-regex`](rules/better-regex.md) as it does more than just preferring the shorthand.
+
 ### ~better-regex~
 
-This rule was renamed to [`better-regex`](rules/better-regex.md) and alter removed.
+Removed due to bugs and lack of support of the underlying library.
