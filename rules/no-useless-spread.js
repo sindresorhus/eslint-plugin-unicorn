@@ -309,7 +309,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			// `concat()` can be an array or string, but `Iterator.concat()` should exclude
+			// `concat()` can be an array or string, but `Iterator.concat()` should be excluded
 			|| (
 				isMethodCall(node, {
 					method: 'concat',
