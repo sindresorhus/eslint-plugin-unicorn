@@ -83,11 +83,6 @@ import {named1, named2} from './foo.js';
 use(named1);
 
 export {named1, named2};
-
-// ✅
-export {named1, named2} from './foo.js';
-
-use(named1);
 ```
 
 ```js
