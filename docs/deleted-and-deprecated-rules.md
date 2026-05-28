@@ -18,6 +18,10 @@ Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) whic
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
 
+### better-regex
+
+Removed due to bugs and lack of support of the underlying library.
+
 ## Deleted rules
 
 ### ~import-index~
@@ -87,7 +91,3 @@ This rule was renamed to [`prefer-string-trim-start-end`](rules/prefer-string-tr
 ### ~regex-shorthand~
 
 This rule was renamed to [`better-regex`](rules/better-regex.md) as it does more than just preferring the shorthand.
-
-### ~better-regex~
-
-Removed due to bugs and lack of support of the underlying library.
