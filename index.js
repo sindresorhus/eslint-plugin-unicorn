@@ -9,6 +9,7 @@ const rules = toEslintRules(rawRules);
 const deprecatedRules = createDeprecatedRules({
 	'better-regex': {
 		message: 'Removed. Prefer `eslint-plugin-regexp`',
+		replacedBy: [],
 	},
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
