@@ -315,8 +315,8 @@ const create = context => {
 					method: 'concat',
 					optionalCall: false,
 					optionalMember: false,
-				}) &&
-				!(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Iterator')
+				})
+				&& !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Iterator')
 			)
 			// `String#split()`
 			|| isMethodCall(node, {
