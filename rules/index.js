@@ -1,6 +1,5 @@
 // Generated file, DO NOT edit
 
-export {default as 'better-regex'} from './better-regex.js';
 export {default as 'catch-error-name'} from './catch-error-name.js';
 export {default as 'consistent-assert'} from './consistent-assert.js';
 export {default as 'consistent-date-clone'} from './consistent-date-clone.js';

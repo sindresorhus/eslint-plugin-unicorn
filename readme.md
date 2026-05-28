@@ -38,7 +38,7 @@ export default [
 			unicorn: eslintPluginUnicorn,
 		},
 		rules: {
-			'unicorn/better-regex': 'error',
+			'unicorn/prefer-module': 'error',
 			'unicorn/…': 'error',
 		},
 	},
@@ -59,7 +59,6 @@ export default [
 
 | Name                                                                                             | Description                                                                                                                                                                                                       | 💼   | 🔧 | 💡 |
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--- | :- | :- |
-| [better-regex](docs/rules/better-regex.md)                                                       | Improve regexes by making them shorter, consistent, and safer.                                                                                                                                                    |      | 🔧 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                               | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅    | 🔧 |    |
 | [consistent-assert](docs/rules/consistent-assert.md)                                             | Enforce consistent assertion style with `node:assert`.                                                                                                                                                            | ✅    | 🔧 |    |
 | [consistent-date-clone](docs/rules/consistent-date-clone.md)                                     | Prefer passing `Date` directly to the constructor when cloning.                                                                                                                                                   | ✅ ☑️ | 🔧 |    |
@@ -230,7 +229,7 @@ export default [
 		eslintPluginUnicorn.configs.recommended,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];
@@ -248,7 +247,7 @@ export default [
 		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];

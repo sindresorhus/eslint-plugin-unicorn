@@ -85,5 +85,6 @@ This rule was renamed to [`prefer-dom-node-text-content`](rules/prefer-dom-node-
 This rule was renamed to [`prefer-string-trim-start-end`](rules/prefer-string-trim-start-end.md) to be more specific.
 
 ### ~regex-shorthand~
+### ~better-regex~
 
-This rule was renamed to [`better-regex`](rules/better-regex.md) as it does more than just preferring the shorthand.
+This rule was renamed to [`better-regex`](rules/better-regex.md) and alter removed.
