@@ -44,9 +44,9 @@ if (foo.bar !== undefined) {}
 Type: `boolean`\
 Default: `false`
 
-The rule ignores variables not defined in the file by default.
+The rule ignores variables not defined in the file by default. If the variable was never defined, checking for its existance without `typeof` will cause a `ReferenceError`.
 
-Set it to `true` to check all variables.
+Set it to `true` to accept this risk and check all variables.
 
 ```js
 /* eslint unicorn/no-typeof-undefined: ["error", {"checkGlobalVariables": true}] */
