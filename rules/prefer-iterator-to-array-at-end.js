@@ -35,30 +35,43 @@ const create = context => {
 			return;
 		}
 
-		// Iterator#filter/map call the callback with two arguments (element, index).
-		// Array versions also pass a third argument (the array reference). If the callback
-		// declares more than two parameters, the third (array) would be `undefined`
-		// after the fix, so skip.
+		// Iterator#filter/map call the callback with two arguments (element, index), while
+		// Array versions also pass the array. Inline callbacks with a third/rest parameter
+		// can observe that difference, so don't report them.
 		const callback = node.arguments[0];
 		if (
-			callback
-			&& (callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
-			&& callback.params.length > 2
+			(
+				callback.type === 'ArrowFunctionExpression'
+				|| callback.type === 'FunctionExpression'
+			)
+			&& (
+				callback.params.length > 2
+				|| callback.params.some(parameter => parameter.type === 'RestElement')
+			)
 		) {
 			return;
 		}
 
+		const isSafeToFix = callback.type === 'ArrowFunctionExpression'
+			&& callback.params.length <= 2
+			&& callback.params.every(parameter => parameter.type !== 'RestElement');
+
 		const toArrayCall = node.callee.object;
 
-		return {
+		const problem = {
 			node: toArrayCall.callee.property,
 			messageId: MESSAGE_ID,
 			data: {method: node.callee.property.name},
-			* fix(fixer) {
+		};
+
+		if (isSafeToFix) {
+			problem.fix = function * (fixer) {
 				yield removeMethodCall(fixer, toArrayCall, context);
 				yield fixer.insertTextAfter(node, '.toArray()');
-			},
-		};
+			};
+		}
+
+		return problem;
 	});
 };
 

@@ -5,8 +5,8 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		// Already at the end
-		'iterator.filter(fn).toArray()',
-		'iterator.map(fn).toArray()',
+		'iterator.filter(x => x > 0).toArray()',
+		'iterator.map(x => x * 2).toArray()',
 
 		// No chaining after `.toArray()`
 		'iterator.toArray()',
@@ -24,41 +24,47 @@ test.snapshot({
 		'iterator.toArray().length',
 
 		// Optional chaining
-		'iterator?.toArray().filter(fn)',
-		'iterator.toArray?.().filter(fn)',
-		'iterator.toArray().filter?.(fn)',
-		'iterator.toArray()?.filter(fn)',
+		'iterator?.toArray().filter(x => x > 0)',
+		'iterator.toArray?.().filter(x => x > 0)',
+		'iterator.toArray().filter?.(x => x > 0)',
+		'iterator.toArray()?.filter(x => x > 0)',
 
 		// `.toArray()` with arguments
-		'iterator.toArray(true).filter(fn)',
+		'iterator.toArray(true).filter(x => x > 0)',
 
 		// `thisArg` — Array accepts it, Iterator does not
-		'iterator.toArray().filter(fn, thisArg)',
+		'iterator.toArray().filter(x => x > 0, thisArg)',
 
 		// `flatMap` — Array callback can return any value, Iterator requires iterable
-		'iterator.toArray().flatMap(fn)',
 		'iterator.toArray().flatMap(x => x)',
 		'iterator.toArray().flatMap(x => x * 2)',
 
 		// Array callbacks receive the 3rd `array` argument, Iterator callbacks do not
 		'iterator.toArray().filter((x, index, array) => array.length > 0)',
+		'iterator.toArray().filter(function(x, index, array) { return array.length > 0; })',
+
+		// Rest parameters receive Array's extra callback argument
+		'iterator.toArray().filter((...values) => values.length > 0)',
 	],
 	invalid: [
-		'iterator.toArray().filter(fn)',
-		'iterator.toArray().map(fn)',
+		'iterator.toArray().filter(x => x > 0)',
+		'iterator.toArray().map(x => x * 2)',
 
 		// Chained
-		'iter.values().toArray().filter(fn)',
-		'iter.take(10).toArray().filter(fn)',
+		'iter.values().toArray().filter(x => x > 0)',
+		'iter.take(10).toArray().filter(x => x > 0)',
 
 		// Multi-step chain
-		'iter.toArray().filter(fn).map(fn2)',
+		'iter.toArray().filter(x => x > 0).map(x => x * 2)',
 
 		// Parenthesized
-		'(iterator.toArray()).filter(fn)',
+		'(iterator.toArray()).filter(x => x > 0)',
 
 		// Callback uses `index`
 		'iterator.toArray().filter((x, index) => index > 0)',
-		'iterator.toArray().filter(function(x, index) { return index > 0; })',
+
+		// Unsafe to autofix: callback behavior is not verifiable
+		'iterator.toArray().filter(fn)',
+		'iterator.toArray().filter(function(x) { return x > 0; })',
 	],
 });
