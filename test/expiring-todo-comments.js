@@ -1,6 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
+import css from '@eslint/css';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const expiredTodoError = (expirationDate, message) => ({
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`,
@@ -46,7 +50,7 @@ const noWarningCommentError = comment => ({
 	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`,
 });
 
-test({
+ruleTest({
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',
@@ -422,4 +426,46 @@ test({
 			errors: [expiredTodoError('2999-12-01', 'Y3K bug')],
 		},
 	],
+});
+
+test('supports CSS comments with @eslint/css', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		/* TODO [2000-01-01]: Drop */
+		/* TODO: Add styles */
+		.outdated { color: hotpink; }
+	`, {
+		files: ['**/*.css'],
+		language: 'css/css',
+		plugins: {
+			css,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					ignoreDatesOnPullRequests: false,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.css',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Add styles\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
 });
