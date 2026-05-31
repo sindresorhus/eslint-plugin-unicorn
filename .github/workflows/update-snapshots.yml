@@ -22,6 +22,5 @@ jobs:
       - run: npx ava --update-snapshots
         env:
           AVA_FORCE_CI: not-ci
-      - uses: autofix-ci/action@v1
-        with:
-          commit-message: "Update snapshots"
+      - run: git commit -am 'Update snapshots' || true
+      - run: git push origin
