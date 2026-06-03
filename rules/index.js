@@ -40,6 +40,7 @@ export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-remove-event-listener'} from './no-invalid-remove-event-listener.js';
 export {default as 'no-keyword-prefix'} from './no-keyword-prefix.js';
+export {default as 'no-late-current-target-access'} from './no-late-current-target-access.js';
 export {default as 'no-lonely-if'} from './no-lonely-if.js';
 export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-depth.js';
 export {default as 'no-named-default'} from './no-named-default.js';
