@@ -52,6 +52,15 @@ const config = [
 			'unicorn/prefer-import-meta-properties': 'off', // We can enable this rule when we drop support for Node.js v18.
 		},
 	},
+	{
+		files: [
+			'scripts/rename-rule.js',
+		],
+		rules: {
+			// Exports are intentionally kept for unit tests.
+			'unicorn/no-exports-in-scripts': 'off',
+		},
+	},
 ];
 
 // Create rule to allow inline config to disable
