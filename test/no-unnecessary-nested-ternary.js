@@ -95,7 +95,6 @@ test({
 		},
 		{
 			code: 'foo ? (bar ? baz : fallback /* comment */) : fallback;',
-			output: null,
 			errors: 1,
 		},
 		{
