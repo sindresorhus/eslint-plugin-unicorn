@@ -14,7 +14,7 @@
   - Spread an array literal as elements of an array literal
   - Spread an array literal as arguments of a call or a `new` call
   - Spread an object literal as properties of an object literal
-  - Spread an iterable as arguments of a collection constructor that accepts a single iterable argument
+  - Spread an iterable as the only argument to a collection constructor that accepts a single iterable argument
   - Use spread syntax to clone an array created inline
 
 - The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:

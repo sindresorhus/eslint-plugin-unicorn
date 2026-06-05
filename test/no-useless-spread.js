@@ -156,6 +156,7 @@ test.snapshot({
 		'new namespace.Set(...iterable)',
 		'Set(...iterable)',
 		'new Uint8Array(...iterable)',
+		'new Set(...iterable, extraArgument)',
 	],
 	invalid: [
 		'new Set(...iterable)',
