@@ -71,6 +71,55 @@ test({
 			code: 'if (foo.length !== 0) {}',
 			options: [{'non-zero': 'not-equal'}],
 		},
+		{
+			code: 'const object: {size: number | null} = {size: 123}; if (object.size && object.size > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {length: number | undefined} = {length: 123}; if (object.length && object.length > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size && object.size !== 0) {}',
+			languageOptions: {parser: parsers.typescript},
+			options: [{'non-zero': 'not-equal'}],
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size && object.size! > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size && (object.size as number) > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size && (<number>object.size) > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {size: 123}; if (object.size && (object.size satisfies number) > 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size! >= 1) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if ((object.size as number) >= 1) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if ((<number>object.size) >= 1) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {size: 123}; if ((object.size satisfies number) >= 1) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object: {size: number | undefined} = {size: 123}; if (object.size && object.size! >= 1) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Checking 'non-zero'
 		'if (foo.length === 0) {}',
@@ -188,6 +237,65 @@ test({
 			code: 'if (dimensions.width > 0 && dimensions.length) {}',
 			output: 'if (dimensions.width > 0 && dimensions.length > 0) {}',
 			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && object.size >= 1) {}',
+			output: 'if (object.size && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (0 < object.size && object.size) {}',
+			output: 'if (object.size > 0 && object.size) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && object.size > 0) {}',
+			output: 'if (object.size && object.size !== 0) {}',
+			options: [{'non-zero': 'not-equal'}],
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && other.size > 0) {}',
+			output: 'if (object.size > 0 && other.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && !(object.size === 0)) {}',
+			output: 'if (object.size && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && Boolean(object.size !== 0)) {}',
+			output: 'if (object.size && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && Boolean(object.size > 0)) {}',
+			output: 'if (object.size && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size && !Boolean(object.size === 0)) {}',
+			output: 'if (object.size && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (object.size >= 1 && object.size !== 0) {}',
+			output: 'if (object.size > 0 && object.size > 0) {}',
+			errors: [
+				{messageId: TYPE_NON_ZERO},
+				{messageId: TYPE_NON_ZERO},
+			],
+		},
+		{
+			code: 'if (!!object.size && object.size > 0) {}',
+			output: 'if (object.size > 0 && object.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (!object.size && object.size > 0) {}',
+			output: 'if (object.size === 0 && object.size > 0) {}',
+			errors: [{messageId: TYPE_ZERO}],
 		},
 	],
 });

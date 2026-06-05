@@ -51,6 +51,39 @@ const zeroStyle = {
 
 const shapeProperties = new Set(['depth', 'height', 'width']);
 
+function isLengthOrSizeMemberExpression(node) {
+	return isMemberExpression(node, {
+		properties: ['length', 'size'],
+		optional: false,
+	});
+}
+
+function isTypeScriptExpression(node) {
+	return node?.type === 'TSAsExpression'
+		|| node?.type === 'TSSatisfiesExpression'
+		|| node?.type === 'TSTypeAssertion'
+		|| node?.type === 'TSNonNullExpression';
+}
+
+function unwrapTypeScriptExpression(node) {
+	if (isTypeScriptExpression(node)) {
+		return unwrapTypeScriptExpression(node.expression);
+	}
+
+	return node;
+}
+
+function getLengthCheckParent(node, allowTypeScriptExpression) {
+	node = node.parent;
+	if (allowTypeScriptExpression) {
+		while (isTypeScriptExpression(node)) {
+			node = node.parent;
+		}
+	}
+
+	return node;
+}
+
 function getLogicalExpressionRoot(node) {
 	while (
 		isLogicalExpression(node.parent)
@@ -86,8 +119,37 @@ function hasSameObjectShapePropertyCheck({node, lengthNode}) {
 		&& isSameReference(operand.object, lengthNode.object));
 }
 
-function getLengthCheckNode(node) {
-	node = node.parent;
+function getLengthCheckMemberExpression(node) {
+	if (node.type === 'UnaryExpression' && node.operator === '!') {
+		return getLengthCheckMemberExpression(node.argument);
+	}
+
+	if (
+		node.type === 'CallExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'Boolean'
+		&& node.arguments.length === 1
+	) {
+		return getLengthCheckMemberExpression(node.arguments[0]);
+	}
+
+	if (node.type !== 'BinaryExpression') {
+		return;
+	}
+
+	const left = unwrapTypeScriptExpression(node.left);
+	if (isLengthOrSizeMemberExpression(left)) {
+		return left;
+	}
+
+	const right = unwrapTypeScriptExpression(node.right);
+	if (isLengthOrSizeMemberExpression(right)) {
+		return right;
+	}
+}
+
+function getLengthCheckNode(node, {allowTypeScriptExpression = false} = {}) {
+	node = getLengthCheckParent(node, allowTypeScriptExpression);
 
 	// Zero length check
 	if (
@@ -119,7 +181,7 @@ function getLengthCheckNode(node) {
 		|| isCompareRight(node, '>=', 1)
 		// `0 !== foo.length`
 		|| isCompareLeft(node, '!==', 0)
-		// `0 !== foo.length`
+		// `0 != foo.length`
 		|| isCompareLeft(node, '!=', 0)
 		// `0 < foo.length`
 		|| isCompareLeft(node, '<', 0)
@@ -130,6 +192,35 @@ function getLengthCheckNode(node) {
 	}
 
 	return {};
+}
+
+function isSameLengthNonZeroCheck(node, lengthNode) {
+	const comparisonLengthNode = getLengthCheckMemberExpression(node);
+	if (!comparisonLengthNode || !isSameReference(comparisonLengthNode, lengthNode)) {
+		return false;
+	}
+
+	const {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(comparisonLengthNode, {allowTypeScriptExpression: true});
+	if (!lengthCheckNode) {
+		return false;
+	}
+
+	const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+	return ancestor === node && isNegative === isZeroLengthCheck;
+}
+
+function isLengthGuardedByNonZeroCheck(lengthNode) {
+	const root = getLogicalExpressionRoot(lengthNode);
+	if (
+		root.type !== 'LogicalExpression'
+		|| root.operator !== '&&'
+	) {
+		return false;
+	}
+
+	return getLogicalExpressionOperands(root).some(operand =>
+		operand !== lengthNode
+		&& isSameLengthNonZeroCheck(operand, lengthNode));
 }
 
 function create(context) {
@@ -179,10 +270,7 @@ function create(context) {
 
 	context.on('MemberExpression', memberExpression => {
 		if (
-			!isMemberExpression(memberExpression, {
-				properties: ['length', 'size'],
-				optional: false,
-			})
+			!isLengthOrSizeMemberExpression(memberExpression)
 			|| memberExpression.object.type === 'ThisExpression'
 		) {
 			return;
@@ -217,7 +305,10 @@ function create(context) {
 		}
 
 		if (node) {
-			if (hasSameObjectShapePropertyCheck({node, lengthNode})) {
+			if (
+				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode))
+				|| hasSameObjectShapePropertyCheck({node, lengthNode})
+			) {
 				return;
 			}
 
