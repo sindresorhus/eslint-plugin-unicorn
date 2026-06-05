@@ -39,6 +39,9 @@ const tests = {
 		'const foo = `\\\\\\\\xd8\\\\\\\\x3d\\\\\\\\xdc\\\\\\\\xa9`',
 		'const foo = `foo\\\\\\\\x12foo\\\\\\\\x34`',
 		'const foo = String.raw`\\\\xb1`',
+		// Tagged template literals are ignored because tags can observe raw escapes.
+		// #2341
+		'const foo = tagged`\\xb1`',
 	],
 	invalid: [
 		{
@@ -198,12 +201,6 @@ const tests = {
 			code: 'const foo = `\\xb1```',
 			errors: [error],
 			output: 'const foo = `\\u00b1```',
-		},
-		// TODO: Not safe #2341
-		{
-			code: 'const foo = tagged`\\xb1`',
-			errors: [error],
-			output: 'const foo = tagged`\\u00b1`',
 		},
 	],
 };
