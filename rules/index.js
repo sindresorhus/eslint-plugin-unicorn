@@ -7,6 +7,7 @@ export {default as 'consistent-destructuring'} from './consistent-destructuring.
 export {default as 'consistent-empty-array-spread'} from './consistent-empty-array-spread.js';
 export {default as 'consistent-existence-index-check'} from './consistent-existence-index-check.js';
 export {default as 'consistent-function-scoping'} from './consistent-function-scoping.js';
+export {default as 'consistent-json-file-read'} from './consistent-json-file-read.js';
 export {default as 'consistent-template-literal-escape'} from './consistent-template-literal-escape.js';
 export {default as 'custom-error-definition'} from './custom-error-definition.js';
 export {default as 'dom-node-dataset'} from './dom-node-dataset.js';
@@ -30,6 +31,7 @@ export {default as 'no-array-reverse'} from './no-array-reverse.js';
 export {default as 'no-array-sort'} from './no-array-sort.js';
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
+export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
 export {default as 'no-confusing-array-splice'} from './no-confusing-array-splice.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
@@ -102,7 +104,6 @@ export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
-export {default as 'prefer-json-parse-buffer'} from './prefer-json-parse-buffer.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
 export {default as 'prefer-math-min-max'} from './prefer-math-min-max.js';

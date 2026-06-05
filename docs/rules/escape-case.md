@@ -11,6 +11,8 @@
 
 Enforces a consistent escaped value style by defining escape sequence values with uppercase or lowercase characters. The default style is uppercase, which promotes readability by making the escaped value more distinguishable from the identifier.
 
+Tagged template literals are ignored because tag functions can observe the raw escape sequences.
+
 ## Examples
 
 ```js

@@ -112,6 +112,17 @@ test({
 		'const x = foo.length || unknown',
 		'something(options.length || 500)',
 		'const itemCount = result.totalCount || result.length',
+		outdent`
+			if (
+				dimensions.width &&
+				dimensions.height &&
+				dimensions.length
+			) {}
+		`,
+		'if (packagingData.dimensions.width && packagingData.dimensions.length) {}',
+		'if (dimensions.width && dimensions.size) {}',
+		'if (dimensions.height && dimensions.length) {}',
+		'if (dimensions.depth && dimensions.length) {}',
 	],
 	invalid: [
 		{
@@ -138,6 +149,46 @@ test({
 			desc: 'Replace `.length` with `.length > 0`.',
 			output: 'alert(foo.length > 0 && bar())',
 		}),
+		{
+			code: 'if (items.length && items.every(Boolean)) {}',
+			output: 'if (items.length > 0 && items.every(Boolean)) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (items.map && items.length) {}',
+			output: 'if (items.map && items.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (text.trim && text.length) {}',
+			output: 'if (text.trim && text.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (set.has && set.size) {}',
+			output: 'if (set.has && set.size > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (bytes.subarray && bytes.length) {}',
+			output: 'if (bytes.subarray && bytes.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (typedArray.BYTES_PER_ELEMENT && typedArray.length) {}',
+			output: 'if (typedArray.BYTES_PER_ELEMENT && typedArray.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (container.width && items.length) {}',
+			output: 'if (container.width && items.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
+		{
+			code: 'if (dimensions.width > 0 && dimensions.length) {}',
+			output: 'if (dimensions.width > 0 && dimensions.length > 0) {}',
+			errors: [{messageId: TYPE_NON_ZERO}],
+		},
 	],
 });
 

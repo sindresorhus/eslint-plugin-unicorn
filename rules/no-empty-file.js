@@ -5,16 +5,34 @@ const messages = {
 	[MESSAGE_ID]: 'Empty files are not allowed.',
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			allowComments: {
+				type: 'boolean',
+				description: 'Whether to allow files that only contain comments.',
+			},
+		},
+	},
+];
+
 const isEmpty = node => isEmptyNode(node, isDirective);
+
+const isRegularComment = node =>
+	node.type === 'Line'
+	|| node.type === 'Block';
 
 const isTripleSlashDirective = node =>
 	node.type === 'Line' && node.value.startsWith('/');
 
-const hasTripeSlashDirectives = comments =>
+const hasTripleSlashDirectives = comments =>
 	comments.some(currentNode => isTripleSlashDirective(currentNode));
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {allowComments} = context.options[0];
 	const filename = context.physicalFilename;
 
 	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
@@ -29,7 +47,16 @@ const create = context => {
 		const {sourceCode} = context;
 		const comments = sourceCode.getAllComments();
 
-		if (hasTripeSlashDirectives(comments)) {
+		if (hasTripleSlashDirectives(comments)) {
+			return;
+		}
+
+		if (
+			allowComments
+			&& comments.length > 0
+			&& comments.every(comment => isRegularComment(comment))
+			&& sourceCode.ast.tokens.length === 0
+		) {
 			return;
 		}
 
@@ -49,6 +76,8 @@ const config = {
 			description: 'Disallow empty files.',
 			recommended: 'unopinionated',
 		},
+		schema,
+		defaultOptions: [{allowComments: false}],
 		messages,
 	},
 };
