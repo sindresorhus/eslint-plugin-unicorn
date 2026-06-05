@@ -20,6 +20,9 @@ if (string.match(/unicorn/)) {}
 // ❌
 if (/unicorn/.exec(string)) {}
 
+// ❌
+if (string.match(/unicorn/).length > 0) {}
+
 // ✅
 if (/unicorn/.test(string)) {}
 ```

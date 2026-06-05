@@ -1,7 +1,19 @@
 import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
-import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
-import {isBooleanExpression, isControlFlowTest, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {removeMemberExpressionProperty} from './fix/index.js';
+import {
+	isLiteral,
+	isRegexLiteral,
+	isNewExpression,
+	isMethodCall,
+	isMemberExpression,
+} from './ast/index.js';
+import {
+	isBooleanExpression,
+	isControlFlowTest,
+	getParenthesizedRange,
+	shouldAddParenthesesToMemberExpressionObject,
+} from './utils/index.js';
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
@@ -73,6 +85,47 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
+const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
+
+const isLengthMemberExpression = (node, object) =>
+	isMemberExpression(node, {property: 'length'})
+	&& node.object === object;
+
+const getLengthCheck = node => {
+	const lengthNode = unwrapChainExpression(node.parent);
+	if (!isLengthMemberExpression(lengthNode, node)) {
+		return;
+	}
+
+	const lengthCheckNode = lengthNode.parent.type === 'ChainExpression'
+		? lengthNode.parent
+		: lengthNode;
+
+	if (isBooleanExpression(lengthCheckNode) || isControlFlowTest(lengthCheckNode)) {
+		return {lengthNode, node: lengthCheckNode};
+	}
+
+	const {parent} = lengthCheckNode;
+	if (
+		parent?.type === 'BinaryExpression'
+		&& parent.left === lengthCheckNode
+		&& parent.operator === '>'
+		&& isLiteral(parent.right, 0)
+		&& (isBooleanExpression(parent) || isControlFlowTest(parent))
+	) {
+		return {lengthNode, node: parent, comparisonLeftNode: lengthCheckNode};
+	}
+};
+
+function * yieldFixResult(fixResult) {
+	if (fixResult?.[Symbol.iterator]) {
+		yield * fixResult;
+		return;
+	}
+
+	yield fixResult;
+}
+
 const isRegExpWithoutGlobalFlag = (node, scope) => {
 	if (isRegexLiteral(node)) {
 		return !node.regex.flags.includes('g');
@@ -95,7 +148,8 @@ const isRegExpWithoutGlobalFlag = (node, scope) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (node) {
-		if (!(isBooleanExpression(node) || isControlFlowTest(node))) {
+		const lengthCheck = getLengthCheck(node);
+		if (!lengthCheck && !(isBooleanExpression(node) || isControlFlowTest(node))) {
 			return;
 		}
 
@@ -116,9 +170,31 @@ const create = context => {
 				messageId: type,
 			};
 
-			const fixFunction = fixer => fix(fixer, nodes, context);
+			const fixFunction = function * (fixer) {
+				if (lengthCheck) {
+					yield removeMemberExpressionProperty(fixer, lengthCheck.lengthNode, context);
 
-			if (
+					if (lengthCheck.comparisonLeftNode) {
+						yield fixer.removeRange([
+							getParenthesizedRange(lengthCheck.comparisonLeftNode, context)[1],
+							context.sourceCode.getRange(lengthCheck.node)[1],
+						]);
+					}
+				}
+
+				for (const fixResult of yieldFixResult(fix(fixer, nodes, context))) {
+					yield fixResult;
+				}
+			};
+
+			if (lengthCheck) {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION,
+						fix: fixFunction,
+					},
+				];
+			} else if (
 				isRegExpNode(regexpNode)
 				|| isRegExpWithoutGlobalFlag(regexpNode, context.sourceCode.getScope(regexpNode))
 			) {
