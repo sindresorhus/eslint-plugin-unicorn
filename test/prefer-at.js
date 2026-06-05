@@ -20,6 +20,7 @@ test.snapshot({
 		'class Foo {bar; #bar; baz() {return this.#bar[this.bar.length - 1]}}',
 		'([array[array.length - 1]] = [])',
 		'({foo: array[array.length - 1] = 9} = {})',
+		'function foo() {return arguments[arguments.length - 1]}',
 	],
 	invalid: [
 		'array[array.length - 1];',
@@ -40,7 +41,6 @@ test.snapshot({
 		'const a = array[array.length - 1]',
 		'const {a = array[array.length - 1]} = {}',
 		'typeof array[array.length - 1]',
-		'function foo() {return arguments[arguments.length - 1]}',
 		'class Foo {bar; baz() {return this.bar[this.bar.length - 1]}}',
 		'class Foo {#bar; baz() {return this.#bar[this.#bar.length - 1]}}',
 		{
@@ -216,6 +216,13 @@ test.snapshot({
 		'new _.last(array)',
 		'_.last(array, 2)',
 		'_.last(...array)',
+		'function foo() {return _.last(arguments)}',
+		'function foo() {return lodash.last(arguments)}',
+		'function foo() {return underscore.last(arguments)}',
+		{
+			code: 'function foo() {return getLast(arguments)}',
+			options: [{getLastElementFunctions: ['getLast']}],
+		},
 	],
 	invalid: [
 		'_.last(array)',
@@ -241,7 +248,6 @@ test.snapshot({
 			code: '_.last(getLast(utils.lastOne(array)))',
 			options: [{getLastElementFunctions: ['getLast', '  utils.lastOne  ']}],
 		},
-		'function foo() {return _.last(arguments)}',
 	],
 });
 
@@ -258,6 +264,7 @@ test.snapshot({
 		'array[-1]',
 		'array[1.5]',
 		'array[1n]',
+		'function foo() {return arguments[0]}',
 	]),
 	invalid: setCheckAllIndexAccessTrue([
 		'array[0]',
