@@ -1,7 +1,11 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, getParenthesizedRange} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getParenthesizedRange,
+	isSameReference,
+} from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
-import {isNumericLiteral, isMethodCall} from './ast/index.js';
+import {isNumericLiteral, isStringLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -28,6 +32,33 @@ const isLengthProperty = node => (
 	&& node.property.name === 'length'
 );
 
+const isPositiveIntegerLiteral = node => (
+	isNumericLiteral(node)
+	&& Number.isInteger(node.value)
+	&& node.value > 0
+);
+
+const isSafeNegativeIndexReceiver = node => (
+	node.type === 'Identifier'
+	|| isStringLiteral(node)
+);
+
+const getNegativeIndex = (node, receiver, sourceCode) => {
+	if (
+		node.type !== 'BinaryExpression'
+		|| node.operator !== '-'
+		|| !isPositiveIntegerLiteral(node.right)
+		|| !isLengthProperty(node.left)
+		|| !isSafeNegativeIndexReceiver(receiver)
+		|| !isSameReference(node.left.object, receiver)
+		|| sourceCode.getCommentsInside(node).length > 0
+	) {
+		return;
+	}
+
+	return `-${node.right.raw}`;
+};
+
 function * fixSubstrArguments({node, fixer, context, abort}) {
 	const argumentNodes = node.arguments;
 	const [firstArgument, secondArgument] = argumentNodes;
@@ -43,6 +74,12 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstArgumentStaticResult?.value === 0) {
+		const negativeIndex = getNegativeIndex(secondArgument, node.callee.object, sourceCode);
+		if (negativeIndex) {
+			yield replaceSecondArgument(negativeIndex);
+			return;
+		}
+
 		if (isNumericLiteral(secondArgument) || isLengthProperty(secondArgument)) {
 			return;
 		}
