@@ -133,6 +133,7 @@ export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
+export {default as 'prefer-split-limit'} from './prefer-split-limit.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
 export {default as 'prefer-string-pad-start-end'} from './prefer-string-pad-start-end.js';
 export {default as 'prefer-string-raw'} from './prefer-string-raw.js';
