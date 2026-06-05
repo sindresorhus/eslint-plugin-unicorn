@@ -11,6 +11,10 @@ const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
+		if (node.parent.type === 'Decorator') {
+			return;
+		}
+
 		const {callee} = node;
 		if (!(
 			(callee.type === 'Identifier' && customError.test(callee.name))
