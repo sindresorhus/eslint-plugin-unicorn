@@ -51,6 +51,13 @@ const zeroStyle = {
 
 const shapeProperties = new Set(['depth', 'height', 'width']);
 
+function isLengthOrSizeMemberExpression(node) {
+	return isMemberExpression(node, {
+		properties: ['length', 'size'],
+		optional: false,
+	});
+}
+
 function getLogicalExpressionRoot(node) {
 	while (
 		isLogicalExpression(node.parent)
@@ -84,6 +91,20 @@ function hasSameObjectShapePropertyCheck({node, lengthNode}) {
 		&& operand.property.type === 'Identifier'
 		&& shapeProperties.has(operand.property.name)
 		&& isSameReference(operand.object, lengthNode.object));
+}
+
+function getLengthCheckMemberExpression(node) {
+	if (node.type !== 'BinaryExpression') {
+		return;
+	}
+
+	if (isLengthOrSizeMemberExpression(node.left)) {
+		return node.left;
+	}
+
+	if (isLengthOrSizeMemberExpression(node.right)) {
+		return node.right;
+	}
 }
 
 function getLengthCheckNode(node) {
@@ -130,6 +151,30 @@ function getLengthCheckNode(node) {
 	}
 
 	return {};
+}
+
+function isSameLengthNonZeroCheck(node, lengthNode) {
+	const comparisonLengthNode = getLengthCheckMemberExpression(node);
+	if (!comparisonLengthNode || !isSameReference(comparisonLengthNode, lengthNode)) {
+		return false;
+	}
+
+	const {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(comparisonLengthNode);
+	return lengthCheckNode === node && isZeroLengthCheck === false;
+}
+
+function hasSameLengthNonZeroCheck({node, lengthNode}) {
+	const root = getLogicalExpressionRoot(node);
+	if (
+		root.type !== 'LogicalExpression'
+		|| root.operator !== '&&'
+	) {
+		return false;
+	}
+
+	return getLogicalExpressionOperands(root).some(operand =>
+		operand !== node
+		&& isSameLengthNonZeroCheck(operand, lengthNode));
 }
 
 function create(context) {
@@ -179,10 +224,7 @@ function create(context) {
 
 	context.on('MemberExpression', memberExpression => {
 		if (
-			!isMemberExpression(memberExpression, {
-				properties: ['length', 'size'],
-				optional: false,
-			})
+			!isLengthOrSizeMemberExpression(memberExpression)
 			|| memberExpression.object.type === 'ThisExpression'
 		) {
 			return;
@@ -217,7 +259,11 @@ function create(context) {
 		}
 
 		if (node) {
-			if (hasSameObjectShapePropertyCheck({node, lengthNode})) {
+			const isSameLengthGuard = node === lengthNode && hasSameLengthNonZeroCheck({node, lengthNode});
+			if (
+				isSameLengthGuard
+				|| hasSameObjectShapePropertyCheck({node, lengthNode})
+			) {
 				return;
 			}
 
