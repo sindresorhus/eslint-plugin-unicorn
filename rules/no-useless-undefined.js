@@ -114,12 +114,17 @@ const create = context => {
 	const removeNodeAndLeadingSpace = (node, fixer) =>
 		replaceNodeOrTokenAndSpacesBefore(node, '', fixer, context);
 
-	// `return undefined`
 	context.on('Identifier', node => {
+		if (!isUndefined(node)) {
+			return;
+		}
+
+		const {parent} = node;
+
+		// `return undefined`
 		if (
-			isUndefined(node)
-			&& node.parent.type === 'ReturnStatement'
-			&& node.parent.argument === node
+			parent.type === 'ReturnStatement'
+			&& parent.argument === node
 		) {
 			const functionNode = getFunction(sourceCode.getScope(node));
 			if (functionNode?.returnType && !isUndefinedReturnType(functionNode)) {
@@ -131,51 +136,41 @@ const create = context => {
 				fixer => removeNodeAndLeadingSpace(node, fixer),
 			);
 		}
-	});
 
-	// `yield undefined`
-	context.on('Identifier', node => {
+		// `yield undefined`
 		if (
-			isUndefined(node)
-			&& node.parent.type === 'YieldExpression'
-			&& !node.parent.delegate
-			&& node.parent.argument === node
+			parent.type === 'YieldExpression'
+			&& !parent.delegate
+			&& parent.argument === node
 		) {
 			return getProblem(
 				node,
 				fixer => removeNodeAndLeadingSpace(node, fixer),
 			);
 		}
-	});
 
-	// `() => undefined`
-	if (options.checkArrowFunctionBody) {
-		context.on('Identifier', node => {
-			if (
-				isUndefined(node)
-				&& node.parent.type === 'ArrowFunctionExpression'
-				&& node.parent.body === node
-			) {
-				return getProblem(
-					node,
-					fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, context),
-					/* CheckFunctionReturnType */ true,
-				);
-			}
-		});
-	}
-
-	// `let foo = undefined` / `var foo = undefined`
-	context.on('Identifier', node => {
+		// `() => undefined`
 		if (
-			isUndefined(node)
-			&& node.parent.type === 'VariableDeclarator'
-			&& node.parent.init === node
-			&& node.parent.parent.type === 'VariableDeclaration'
-			&& node.parent.parent.kind !== 'const'
-			&& node.parent.parent.declarations.includes(node.parent)
+			options.checkArrowFunctionBody
+			&& parent.type === 'ArrowFunctionExpression'
+			&& parent.body === node
 		) {
-			const [, start] = sourceCode.getRange(node.parent.id);
+			return getProblem(
+				node,
+				fixer => replaceNodeOrTokenAndSpacesBefore(node, ' {}', fixer, context),
+				/* CheckFunctionReturnType */ true,
+			);
+		}
+
+		// `let foo = undefined` / `var foo = undefined`
+		if (
+			parent.type === 'VariableDeclarator'
+			&& parent.init === node
+			&& parent.parent.type === 'VariableDeclaration'
+			&& parent.parent.kind !== 'const'
+			&& parent.parent.declarations.includes(parent)
+		) {
+			const [, start] = sourceCode.getRange(parent.id);
 			const [, end] = sourceCode.getRange(node);
 			return getProblem(
 				node,
@@ -183,19 +178,16 @@ const create = context => {
 				/* CheckFunctionReturnType */ true,
 			);
 		}
-	});
 
-	// `const {foo = undefined} = {}`
-	context.on('Identifier', node => {
+		// `const {foo = undefined} = {}`
 		if (
-			isUndefined(node)
-			&& node.parent.type === 'AssignmentPattern'
-			&& node.parent.right === node
+			parent.type === 'AssignmentPattern'
+			&& parent.right === node
 		) {
 			return getProblem(
 				node,
 				function * (fixer) {
-					const assignmentPattern = node.parent;
+					const assignmentPattern = parent;
 					const {left} = assignmentPattern;
 					const [, start] = sourceCode.getRange(left);
 					const [, end] = sourceCode.getRange(node);
