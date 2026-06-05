@@ -510,7 +510,7 @@ test({
 				obj.then(err => {}, error => {});
 				obj.then(err => {}, error => {});
 			`,
-			errors: Array.from({length: 4}).fill(generateError('err', 'error')),
+			errors: Array.from({length: 4}, () => generateError('err', 'error')),
 		},
 
 		// Allowed names

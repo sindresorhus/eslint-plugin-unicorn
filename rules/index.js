@@ -25,6 +25,7 @@ export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
 export {default as 'no-anonymous-default-export'} from './no-anonymous-default-export.js';
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
 export {default as 'no-array-for-each'} from './no-array-for-each.js';
+export {default as 'no-array-from-fill'} from './no-array-from-fill.js';
 export {default as 'no-array-method-this-argument'} from './no-array-method-this-argument.js';
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
 export {default as 'no-array-reverse'} from './no-array-reverse.js';
