@@ -13,6 +13,8 @@ Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `inde
 
 Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored.
 
+The filename case check ignores filenames starting with `$`, as they are commonly used for route parameters.
+
 ## Cases
 
 ### `kebabCase`
