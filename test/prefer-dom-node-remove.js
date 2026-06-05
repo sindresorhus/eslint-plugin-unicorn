@@ -109,6 +109,7 @@ test.snapshot({
 		'foo?.parentNode.removeChild(foo)',
 		'foo.parentNode?.removeChild(foo)',
 		'foo?.parentNode?.removeChild(foo)',
+		'((foo))?.parentNode.removeChild(foo)',
 		'foo.bar?.parentNode.removeChild(foo.bar)',
 		'foo.bar?.parentNode.removeChild(foo["bar"])',
 		'a?.b.parentNode.removeChild(a.b)',

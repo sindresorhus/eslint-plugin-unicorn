@@ -78,10 +78,10 @@ const create = context => {
 		};
 
 		const createSameReferenceFix = (optional = false) => fixer => {
-			const [, childNodeEnd] = getParenthesizedRange(parentNode.object, context);
+			const [, receiverEnd] = getParenthesizedRange(parentNode.object, context);
 			const [, callEnd] = sourceCode.getRange(node);
 
-			return fixer.replaceTextRange([childNodeEnd, callEnd], `${optional ? '?' : ''}.remove()`);
+			return fixer.replaceTextRange([receiverEnd, callEnd], `${optional ? '?' : ''}.remove()`);
 		};
 
 		if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
