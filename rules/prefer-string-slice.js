@@ -43,7 +43,21 @@ const isSafeNegativeIndexReceiver = node => (
 	|| isStringLiteral(node)
 );
 
-const getNegativeIndex = (node, receiver, sourceCode) => {
+const hasCommentsInsideRange = (sourceCode, range) => sourceCode.getAllComments().some(comment => {
+	const commentRange = sourceCode.getRange(comment);
+	return commentRange[0] >= range[0] && commentRange[1] <= range[1];
+});
+
+const getArgumentRangeWithLeadingComments = (node, context) => {
+	const [start, end] = getParenthesizedRange(node, context);
+	const firstToken = context.sourceCode.getTokenByRangeStart(start);
+	const previousToken = context.sourceCode.getTokenBefore(firstToken);
+	return [context.sourceCode.getRange(previousToken)[1], end];
+};
+
+const getNegativeIndex = (node, receiver, context) => {
+	const {sourceCode} = context;
+
 	if (
 		node.type !== 'BinaryExpression'
 		|| node.operator !== '-'
@@ -51,7 +65,7 @@ const getNegativeIndex = (node, receiver, sourceCode) => {
 		|| !isLengthProperty(node.left)
 		|| !isSafeNegativeIndexReceiver(receiver)
 		|| !isSameReference(node.left.object, receiver)
-		|| sourceCode.getCommentsInside(node).length > 0
+		|| hasCommentsInsideRange(sourceCode, getArgumentRangeWithLeadingComments(node, context))
 	) {
 		return;
 	}
@@ -74,7 +88,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstArgumentStaticResult?.value === 0) {
-		const negativeIndex = getNegativeIndex(secondArgument, node.callee.object, sourceCode);
+		const negativeIndex = getNegativeIndex(secondArgument, node.callee.object, context);
 		if (negativeIndex) {
 			yield replaceSecondArgument(negativeIndex);
 			return;
@@ -155,7 +169,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	// As values aren't Literal, we cannot know whether secondArgument will become smaller than the first or not, causing an issue:
 	//   .substring(0, 2) and .substring(2, 0) returns the same result
 	//   .slice(0, 2) and .slice(2, 0) doesn't return the same result
-	// There's also an issue with us now knowing whether the value will be negative or not, due to:
+	// There's also an issue with us not knowing whether the value will be negative or not, due to:
 	//   .substring() treats a negative number the same as it treats a zero.
 	// The latter issue could be solved by wrapping all dynamic numbers in Math.max(0, <value>), but the resulting code would not be nice
 

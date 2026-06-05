@@ -188,6 +188,16 @@ test({
 			errors: errorsSubstr,
 		},
 		{
+			code: 'foo?.substr(0, foo.length - 2)',
+			output: 'foo?.slice(0, -2)',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substr(0, (foo.length - 2))',
+			output: 'foo.slice(0, -2)',
+			errors: errorsSubstr,
+		},
+		{
 			code: '"foo".substr(0, "foo".length - 2)',
 			output: '"foo".slice(0, -2)',
 			errors: errorsSubstr,
@@ -225,6 +235,26 @@ test({
 		{
 			code: 'foo.substr(0, foo.length - /* comment */ 2)',
 			output: 'foo.slice(0, Math.max(0, foo.length - /* comment */ 2))',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substr(0, /* comment */ foo.length - 2)',
+			output: 'foo.slice(0, /* comment */ Math.max(0, foo.length - 2))',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substr(0, (/* comment */ foo.length - 2))',
+			output: 'foo.slice(0, Math.max(0, (/* comment */ foo.length - 2)))',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substr(0, (/* comment */ (foo.length - 2)))',
+			output: 'foo.slice(0, Math.max(0, (/* comment */ (foo.length - 2))))',
+			errors: errorsSubstr,
+		},
+		{
+			code: 'foo.substr(0, /* comment */ (foo.length - 2))',
+			output: 'foo.slice(0, /* comment */ Math.max(0, (foo.length - 2)))',
 			errors: errorsSubstr,
 		},
 
