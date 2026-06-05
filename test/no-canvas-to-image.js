@@ -11,11 +11,19 @@ test.snapshot({
 		'context.drawImage(await loadImage(url), 0, 0);',
 		'context.drawImage(await loadImage(...canvas.toDataURL()), 0, 0);',
 		'context.drawImage(await loadImage(canvas.toBlob()), 0, 0);',
+		'context.drawImage(await loadImage(canvas["toDataURL"]()), 0, 0);',
+		'context.drawImage(await loadImage(canvas.toDataURL?.()), 0, 0);',
+		'context.drawImage(await loadImage(canvas?.toDataURL()), 0, 0);',
 		'context.drawImage?.(await loadImage(canvas.toDataURL()), 0, 0);',
 		'context?.drawImage(await loadImage(canvas.toDataURL()), 0, 0);',
+		'context.drawImage(await loadImage(chart.toDataURL()), 0, 0);',
+		'const image = await loadImage(chart.toDataURL()); context.drawImage(image, 0, 0);',
 		'context.putImageData(imageData, 0, 0);',
 		'context.putImageData(await imageData, 0, 0);',
 		'context.putImageData(...context.getImageData(0, 0, width, height));',
+		'context.putImageData(context["getImageData"](0, 0, width, height), 0, 0);',
+		'context.putImageData(context.getImageData?.(0, 0, width, height), 0, 0);',
+		'context.putImageData(context?.getImageData(0, 0, width, height), 0, 0);',
 		'context.putImageData?.(context.getImageData(0, 0, width, height), 0, 0);',
 		'context?.putImageData(context.getImageData(0, 0, width, height), 0, 0);',
 		'const url = canvas.toDataURL();',
@@ -56,6 +64,8 @@ test.snapshot({
 	invalid: [
 		'context.drawImage(loadImage(canvas.toDataURL()), 0, 0);',
 		'context.drawImage(await loadImage(canvas.toDataURL()), 0, 0);',
+		'context.drawImage(await loadImage(sourceCanvas.toDataURL()), 0, 0);',
+		'context.drawImage(await loadImage(this.canvas.toDataURL()), 0, 0);',
 		outdent`
 			const image = await loadImage(canvas.toDataURL());
 			context.drawImage(image, 0, 0);

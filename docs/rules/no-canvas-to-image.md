@@ -9,7 +9,7 @@
 
 [`CanvasRenderingContext2D#drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) accepts a canvas as the image source. Converting a canvas to a data URL and loading it as an image, or copying it through `getImageData()` and `putImageData()`, does unnecessary work when the goal is just to draw one canvas onto another.
 
-This rule intentionally checks simple syntactic patterns and does not infer DOM types.
+This rule intentionally checks simple syntactic patterns and does not infer DOM types. For the `toDataURL()` pattern, it only checks identifiers and non-computed property names that contain `canvas`, case-insensitively.
 
 ## Examples
 

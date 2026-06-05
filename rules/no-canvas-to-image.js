@@ -14,7 +14,7 @@ const getExpressionWithoutAwait = node => {
 	return node;
 };
 
-function getOneUseConstDeclaration(node, sourceCode) {
+function getDirectExpressionOrOneUseConstInitializer(node, sourceCode) {
 	node = getExpressionWithoutAwait(node);
 
 	if (node?.type !== 'Identifier') {
@@ -44,21 +44,35 @@ function getOneUseConstDeclaration(node, sourceCode) {
 	return getExpressionWithoutAwait(identifier.parent.init);
 }
 
-const isCanvasToDataUrlCall = node =>
+const isCanvasLikeName = name => name.toLowerCase().includes('canvas');
+
+const isCanvasLikeExpression = node => {
+	if (node.type === 'Identifier') {
+		return isCanvasLikeName(node.name);
+	}
+
+	return node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& isCanvasLikeName(node.property.name);
+};
+
+const isToDataUrlCall = node =>
 	isMethodCall(node, {
 		method: 'toDataURL',
 		optionalCall: false,
 		optionalMember: false,
-	});
+	})
+	&& isCanvasLikeExpression(node.callee.object);
 
-const isLoadImageFromCanvasToDataUrlCall = node =>
+const isLoadImageFromCanvasLikeDataUrlCall = node =>
 	node?.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'Identifier'
 	&& node.callee.name === 'loadImage'
 	&& node.arguments.length > 0
 	&& node.arguments[0].type !== 'SpreadElement'
-	&& isCanvasToDataUrlCall(node.arguments[0]);
+	&& isToDataUrlCall(node.arguments[0]);
 
 const isGetImageDataCall = node =>
 	isMethodCall(node, {
@@ -86,7 +100,7 @@ const create = context => {
 			return;
 		}
 
-		if (!isLoadImageFromCanvasToDataUrlCall(getOneUseConstDeclaration(image, sourceCode))) {
+		if (!isLoadImageFromCanvasLikeDataUrlCall(getDirectExpressionOrOneUseConstInitializer(image, sourceCode))) {
 			return;
 		}
 
@@ -111,7 +125,7 @@ const create = context => {
 			return;
 		}
 
-		if (!isGetImageDataCall(getOneUseConstDeclaration(imageData, sourceCode))) {
+		if (!isGetImageDataCall(getDirectExpressionOrOneUseConstInitializer(imageData, sourceCode))) {
 			return;
 		}
 
