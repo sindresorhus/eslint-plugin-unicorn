@@ -1,5 +1,6 @@
 import stripIndent from 'strip-indent';
 import indentString from 'indent-string';
+import detectIndent from 'detect-indent';
 import {replaceTemplateElement} from './fix/index.js';
 import {isTaggedTemplateLiteral} from './ast/index.js';
 import {isNodeMatches} from './utils/index.js';
@@ -10,10 +11,58 @@ const messages = {
 	[MESSAGE_ID_IMPROPERLY_INDENTED_TEMPLATE]: 'Templates should be properly indented.',
 };
 
+const getIgnoredTemplateLiteralLines = sourceCode => {
+	const ignoredLines = new Set();
+	const nodes = [sourceCode.ast];
+
+	while (nodes.length > 0) {
+		const node = nodes.pop();
+		if (!node) {
+			continue;
+		}
+
+		if (node.type === 'TemplateLiteral') {
+			const {start: {line: startLine}, end: {line: endLine}} = sourceCode.getLoc(node);
+			for (let line = startLine + 1; line <= endLine; line++) {
+				ignoredLines.add(line);
+			}
+		}
+
+		for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+			const value = node[key];
+			if (Array.isArray(value)) {
+				nodes.push(...value);
+			} else {
+				nodes.push(value);
+			}
+		}
+	}
+
+	return ignoredLines;
+};
+
+const getTextForIndentDetection = (lines, ignoredLines = new Set()) => lines
+	.map((line, index) => ignoredLines.has(index + 1) || line.trim() === '' ? '' : line)
+	.join('\n');
+
+const getTemplateIndent = template => {
+	const text = getTextForIndentDetection(template.split(/\r?\n/));
+	return detectIndent(stripIndent(text)).indent || detectIndent(text).indent;
+};
+
+const getDefaultIndent = (sourceCode, ignoredLines, parentMargin, template) => {
+	if (parentMargin === '') {
+		return detectIndent(getTextForIndentDetection(sourceCode.lines, ignoredLines)).indent || getTemplateIndent(template) || '  ';
+	}
+
+	return parentMargin.startsWith('\t') ? '\t' : '  ';
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 	const options = {...context.options[0]};
+	const ignoredTemplateLiteralLines = getIgnoredTemplateLiteralLines(sourceCode);
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 	const checked = new WeakSet();
@@ -41,7 +90,8 @@ const create = context => {
 
 		const eol = eolMatch[0];
 
-		const startLine = sourceCode.lines[sourceCode.getLoc(node).start.line - 1];
+		const location = sourceCode.getLoc(node);
+		const startLine = sourceCode.lines[location.start.line - 1];
 		const marginMatch = startLine.match(/^(\s*)\S/);
 		const parentMargin = marginMatch ? marginMatch[1] : '';
 
@@ -51,8 +101,7 @@ const create = context => {
 		} else if (typeof options.indent === 'number') {
 			indent = ' '.repeat(options.indent);
 		} else {
-			const tabs = parentMargin.startsWith('\t');
-			indent = tabs ? '\t' : '  ';
+			indent = getDefaultIndent(sourceCode, ignoredTemplateLiteralLines, parentMargin, joined);
 		}
 
 		const dedented = stripIndent(joined);

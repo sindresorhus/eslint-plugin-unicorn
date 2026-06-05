@@ -11,6 +11,8 @@
 
 Enforces a convention of using [Unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) instead of [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal) for consistency and clarity.
 
+Tagged template literals are ignored because tag functions can observe the raw escape sequences.
+
 ## Examples
 
 ```js

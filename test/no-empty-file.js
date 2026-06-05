@@ -40,6 +40,17 @@ test.snapshot({
 			'd.ts',
 			'ts',
 		].map(extension => ({code: '/// <reference types="example" />', filename: `example.${extension}`})),
+		...[
+			'// comment',
+			'/* comment */',
+			outdent`
+				/**
+				 * @typedef {object} Foo
+				 * @property {string} bar
+				 */
+			`,
+		].map(code => ({code, filename: 'example.js', options: [{allowComments: true}]})),
+		{code: '// No need to write tests here.', filename: 'example.test.ts', options: [{allowComments: true}]},
 	],
 	invalid: [
 		...[
@@ -66,6 +77,18 @@ test.snapshot({
 			'{;;}',
 			'{{}}',
 		].map(code => ({code, filename: 'example.js'})),
+		...[
+			'',
+			' ',
+			'#!/usr/bin/env node',
+			outdent`
+				#!/usr/bin/env node
+				// comment
+			`,
+			'; // comment',
+			'\'use strict\'; // comment',
+			'{/* comment */}',
+		].map(code => ({code, filename: 'example.js', options: [{allowComments: true}]})),
 		...[
 			'mjs',
 			'cJs',

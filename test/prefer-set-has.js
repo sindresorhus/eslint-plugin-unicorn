@@ -3,6 +3,70 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const createError = name => ({
+	messageId: 'error',
+	data: {name},
+});
+
+const createTypeScriptFixCase = (typeAnnotation, setTypeAnnotation) => ({
+	code: outdent`
+		const a: ${typeAnnotation} = ['foo', 'bar']
+
+		for (let i = 0; i < 3; i++) {
+			if (a.includes(someString)) {
+				console.log(123)
+			}
+		}
+	`,
+	output: outdent`
+		const a: ${setTypeAnnotation} = new Set(['foo', 'bar'])
+
+		for (let i = 0; i < 3; i++) {
+			if (a.has(someString)) {
+				console.log(123)
+			}
+		}
+	`,
+	errors: [createError('a')],
+});
+
+const createTypeScriptSuggestionCase = (typeAnnotation, typeDefinitions = '') => {
+	const code = outdent`
+		const a: ${typeAnnotation} = ['foo', 'bar']
+
+		for (let i = 0; i < 3; i++) {
+			if (a.includes(someString)) {
+				console.log(123)
+			}
+		}
+	`;
+
+	const output = outdent`
+		const a: ${typeAnnotation} = new Set(['foo', 'bar'])
+
+		for (let i = 0; i < 3; i++) {
+			if (a.has(someString)) {
+				console.log(123)
+			}
+		}
+	`;
+
+	return {
+		code: typeDefinitions ? `${typeDefinitions}\n${code}` : code,
+		errors: [
+			{
+				...createError('a'),
+				suggestions: [
+					{
+						messageId: 'suggestion',
+						output: typeDefinitions ? `${typeDefinitions}\n${output}` : output,
+					},
+				],
+			},
+		],
+	};
+};
+
 const methodsReturnsArray = [
 	'copyWithin',
 	'fill',
@@ -672,7 +736,7 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
+test({
 	testerOptions: {
 		languageOptions: {
 			parser: parsers.typescript,
@@ -696,14 +760,13 @@ test.snapshot({
 		`,
 	],
 	invalid: [
-		outdent`
-			const a: Array<'foo' | 'bar'> = ['foo', 'bar']
-
-			for (let i = 0; i < 3; i++) {
-				if (a.includes(someString)) {
-					console.log(123)
-				}
-			}
-		`,
+		createTypeScriptFixCase('Array<\'foo\' | \'bar\'>', 'Set<\'foo\' | \'bar\'>'),
+		createTypeScriptFixCase('string[]', 'Set<string>'),
+		createTypeScriptFixCase('(string | number)[]', 'Set<string | number>'),
+		createTypeScriptFixCase('ReadonlyArray<string>', 'ReadonlySet<string>'),
+		createTypeScriptFixCase('readonly string[]', 'ReadonlySet<string>'),
+		createTypeScriptSuggestionCase('Items', 'type Items = string[]'),
+		createTypeScriptSuggestionCase('[string, string]'),
+		createTypeScriptSuggestionCase('string /* comment */ []'),
 	],
 });
