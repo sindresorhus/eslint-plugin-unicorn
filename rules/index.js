@@ -98,6 +98,7 @@ export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';
+export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
