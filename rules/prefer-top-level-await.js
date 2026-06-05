@@ -40,6 +40,101 @@ const isPromiseMethodCalleeObject = node =>
 	&& promisePrototypeMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
+
+const isSchemaIdentifier = node =>
+	node.type === 'Identifier'
+	&& (
+		node.name === 'schema'
+		|| node.name.endsWith('Schema')
+	);
+
+const allowedSchemaIdentifierMethods = new Set([
+	'catch',
+	'default',
+	'nullable',
+	'nullish',
+	'optional',
+]);
+
+const terminalSchemaMethods = new Set(['parse', 'safeParse', 'spa']);
+const promiseLikeSchemaMethods = new Set(['then', 'finally']);
+const zodNamespaceProperties = new Set(['coerce']);
+
+const isUnsupportedSchemaProperty = (propertyName, isCalled) =>
+	promiseLikeSchemaMethods.has(propertyName)
+	|| terminalSchemaMethods.has(propertyName)
+	|| propertyName.endsWith('Async')
+	|| (isCalled && zodNamespaceProperties.has(propertyName));
+
+const isSchemaCatchObject = node => {
+	let expression = node;
+	let hasCallExpression = false;
+	let hasMemberExpression = false;
+	let isCurrentMemberCalled = false;
+	let hasUncalledMemberExpression = false;
+	let hasCalledMemberExpressionAfterUncalledMemberExpression = false;
+	const methodNames = [];
+	const uncalledMemberNames = [];
+
+	while (true) {
+		if (expression.type === 'ChainExpression') {
+			expression = expression.expression;
+			continue;
+		}
+
+		if (expression.type === 'CallExpression') {
+			hasCallExpression = true;
+			expression = expression.callee;
+			isCurrentMemberCalled = true;
+			continue;
+		}
+
+		if (expression.type === 'MemberExpression') {
+			if (
+				expression.computed
+				|| expression.property.type !== 'Identifier'
+			) {
+				return false;
+			}
+
+			const propertyName = expression.property.name;
+			if (isUnsupportedSchemaProperty(propertyName, isCurrentMemberCalled)) {
+				return false;
+			}
+
+			hasMemberExpression = true;
+			if (!isCurrentMemberCalled) {
+				hasUncalledMemberExpression = true;
+				uncalledMemberNames.push(propertyName);
+			} else if (hasUncalledMemberExpression) {
+				hasCalledMemberExpressionAfterUncalledMemberExpression = true;
+			}
+
+			methodNames.push(propertyName);
+			expression = expression.object;
+			isCurrentMemberCalled = false;
+			continue;
+		}
+
+		break;
+	}
+
+	if (
+		isSchemaIdentifier(expression)
+		&& !hasUncalledMemberExpression
+		&& methodNames.every(methodName => allowedSchemaIdentifierMethods.has(methodName))
+	) {
+		return true;
+	}
+
+	return expression.type === 'Identifier'
+		&& expression.name === 'z'
+		&& hasCallExpression
+		&& hasMemberExpression
+		&& !hasCalledMemberExpressionAfterUncalledMemberExpression
+		&& uncalledMemberNames.every(propertyName => zodNamespaceProperties.has(propertyName));
+};
+
 const isAwaitExpressionArgument = node => {
 	if (node.parent.type === 'ChainExpression') {
 		node = node.parent;
@@ -113,6 +208,13 @@ function create(context) {
 			properties: promisePrototypeMethods,
 			computed: false,
 		})) {
+			if (
+				node.callee.property.name === 'catch'
+				&& isSchemaCatchObject(node.callee.object)
+			) {
+				return;
+			}
+
 			return {
 				node: node.callee.property,
 				messageId: ERROR_PROMISE,
