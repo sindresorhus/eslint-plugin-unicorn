@@ -29,6 +29,7 @@ test.snapshot({
 		'window.addEventListener("wheel", event => { event.returnValue = false; })',
 		'window.addEventListener("wheel", event => { ({returnValue: event.returnValue} = {returnValue: false}); })',
 		'window.addEventListener("wheel", function () { arguments[0].preventDefault(); })',
+		'window.addEventListener("wheel", function () { const nested = () => arguments[0].preventDefault(); nested(); })',
 		'window.addEventListener("wheel", ({target}) => { console.log(target); })',
 		'window?.addEventListener("wheel", () => {})',
 		'window.addEventListener?.("wheel", () => {})',
