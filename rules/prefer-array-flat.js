@@ -87,8 +87,7 @@ const arrayReduce = {
 				&& firstArgumentBody.elements.every((node, index) =>
 					node?.type === 'SpreadElement'
 					&& node.argument.type === 'Identifier'
-					&& isSameIdentifier(firstArgument.params[index], node.argument),
-				)
+					&& isSameIdentifier(firstArgument.params[index], node.argument))
 			)
 		);
 	},
@@ -234,7 +233,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 		const {sourceCode} = context;
 		let fixed = getParenthesizedText(array, context);
 		if (shouldSwitchToArray) {
-			// `array` is an argument, when it changes to `array[]`, we don't need add extra parentheses
+			// `array` is an argument, when it changes to `array[]`, we don't need to add extra parentheses
 			fixed = `[${fixed}]`;
 			// And we don't need to add parentheses to the new array to call `.flat()`
 		} else if (
@@ -318,6 +317,7 @@ const schema = [
 			functions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions to check.',
 			},
 		},
 	},

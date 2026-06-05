@@ -1,4 +1,6 @@
-# Disallow unreadable array destructuring
+# no-unreadable-array-destructuring
+
+📝 Disallow unreadable array destructuring.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

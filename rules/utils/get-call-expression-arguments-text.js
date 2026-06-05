@@ -26,11 +26,9 @@ export default function getCallExpressionArgumentsText(
 	} = getCallExpressionTokens(callExpression, context);
 
 	const [, start] = sourceCode.getRange(openingParenthesisToken);
-	const [end] = sourceCode.getRange(
-		includeTrailingComma
-			? closingParenthesisToken
-			: (trailingCommaToken ?? closingParenthesisToken),
-	);
+	const [end] = sourceCode.getRange(includeTrailingComma
+		? closingParenthesisToken
+		: (trailingCommaToken ?? closingParenthesisToken));
 
 	return sourceCode.text.slice(start, end);
 }

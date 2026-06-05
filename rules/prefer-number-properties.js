@@ -105,9 +105,11 @@ const schema = [
 		properties: {
 			checkInfinity: {
 				type: 'boolean',
+				description: 'Whether to check usage of the global `Infinity`.',
 			},
 			checkNaN: {
 				type: 'boolean',
+				description: 'Whether to check usage of the global `NaN`.',
 			},
 		},
 	},

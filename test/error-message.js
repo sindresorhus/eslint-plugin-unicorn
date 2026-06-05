@@ -33,7 +33,7 @@ test.snapshot({
 			}
 		`,
 		'new Error(...foo)',
-		// #915, not a issue anymore, we don't track `ThrowStatement`
+		// #915, not an issue anymore, we don't track `ThrowStatement`
 		outdent`
 			/* global x */
 			const a = x;

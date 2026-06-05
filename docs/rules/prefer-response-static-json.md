@@ -1,4 +1,6 @@
-# Prefer `Response.json()` over `new Response(JSON.stringify())`
+# prefer-response-static-json
+
+📝 Prefer `Response.json()` over `new Response(JSON.stringify())`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -9,7 +9,7 @@ const messages = {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('TemplateElement', node => {
-		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+		if (isTaggedTemplateLiteral(node.parent)) {
 			return;
 		}
 
@@ -27,14 +27,8 @@ const create = context => {
 			const problem = {
 				node,
 				messageId: MESSAGE_ID,
+				fix: fixer => replaceTemplateElement(node, fixedRaw, context, fixer),
 			};
-
-			// Only auto-fix untagged templates. Tagged templates may have tag
-			// functions that read `strings.raw`, where changing the escape style
-			// would alter runtime behavior.
-			if (!isTaggedTemplateLiteral(node.parent)) {
-				problem.fix = fixer => replaceTemplateElement(node, fixedRaw, context, fixer);
-			}
 
 			return problem;
 		}

@@ -356,8 +356,7 @@ const create = context => {
 		// Needed to decide whether a trailing comma comment can still stay in place.
 		const lastNonEmptyFixedArgument = fixedArguments.findLast(argument =>
 			!isArrayLiteral(argument)
-			|| !isEmptyArrayExpression(argument),
-		);
+			|| !isEmptyArrayExpression(argument));
 		const preservedRanges = [
 			getParenthesizedRange(node.callee.object, context),
 			...fixedArguments.flatMap(argument => {

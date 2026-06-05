@@ -4,6 +4,8 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
 
+const allowWithVariablesOptions = [{allowWithVariables: true}];
+
 test.snapshot({
 	valid: [
 		// Not `CallExpression`
@@ -31,6 +33,28 @@ test.snapshot({
 		'document.querySelectorAll("li a");',
 		'document.querySelector("li").querySelectorAll("a");',
 		'document.getElementsByName();',
+
+		// `allowWithVariables` option - non-literal arguments are allowed
+		{
+			code: 'document.getElementById(someId);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(someClass);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(fn());',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(`${someClass}`);', // eslint-disable-line no-template-curly-in-string
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementById(`${someId}`);', // eslint-disable-line no-template-curly-in-string
+			options: allowWithVariablesOptions,
+		},
 	],
 	invalid: [
 		'document.getElementById("foo");',
@@ -70,5 +94,63 @@ test.snapshot({
 		'document.getElementsByName("");',
 		'document.getElementsByName(foo + "bar");',
 		'document.getElementsByName("multiple name should be fixable");',
+
+		// `allowWithVariables` option - literal arguments are still reported
+		{
+			code: 'document.getElementById("foo");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName("foo");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByTagName("foo");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByName("foo");',
+			options: allowWithVariablesOptions,
+		},
+		// `allowWithVariables` - getElementsByTagName and getElementsByName are never allowed,
+		// even with non-literal arguments
+		{
+			code: 'document.getElementsByTagName(someTag);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByName(someName);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(null);',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(`foo`);',
+			options: allowWithVariablesOptions,
+		},
+		// `allowWithVariables` - binary expressions and mixed template literals are still reported,
+		// because one can still compose a valid selector (e.g. `'.' + variable + 'x'` or `#${variable}x`)
+		{
+			code: 'document.getElementsByClassName(variable + "x");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName("foo" + fn());',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(foo + "bar");',
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementById(`x${someId}`);', // eslint-disable-line no-template-curly-in-string
+			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName(`foo ${someClass}`);', // eslint-disable-line no-template-curly-in-string
+			options: allowWithVariablesOptions,
+		},
 	],
 });

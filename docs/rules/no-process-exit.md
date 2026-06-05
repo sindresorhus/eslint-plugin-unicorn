@@ -1,4 +1,6 @@
-# Disallow `process.exit()`
+# no-process-exit
+
+📝 Disallow `process.exit()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

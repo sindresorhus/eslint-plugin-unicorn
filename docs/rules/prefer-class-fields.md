@@ -1,4 +1,6 @@
-# Prefer class field declarations over `this` assignments in constructors
+# prefer-class-fields
+
+📝 Prefer class field declarations over `this` assignments in constructors.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

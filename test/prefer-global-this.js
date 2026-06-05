@@ -1,5 +1,5 @@
-import {getTester} from './utils/test.js';
 import outdent from 'outdent';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -46,11 +46,10 @@ test.snapshot({
 		'window.addEventListener',
 		'window.innerWidth',
 		'window.innerHeight',
-		'self.location',
-		'self.navigator',
 		'window.addEventListener("resize", () => {})',
 		'window.onresize = function () {}',
 		'\'open\' in window; window.open("https://example.com")',
+		'`open` in window; window.open("https://example.com")',
 		outdent`
 			const {window} = jsdom()
 			window.jQuery = jQuery;
@@ -161,6 +160,22 @@ test.snapshot({
 		`,
 		'self.innerWidth',
 		'self.innerHeight',
+		'self.location',
+		'self.navigator',
+		'self.name',
+		'self.postMessage("Hello")',
+		'self.onconnect = function () {}',
+		'self.onerror = function () {}',
+		'self.onlanguagechange = function () {}',
+		'self.onoffline = function () {}',
+		'self.ononline = function () {}',
+		'self.addEventListener("message", () => {})',
+		'self.removeEventListener("message", () => {})',
+		'self.dispatchEvent(new Event("message"))',
+		'self.self',
+		'self.onrejectionhandled = function () {}',
+		'self.onunhandledrejection = function () {}',
+		'\'postMessage\' in self',
 		'window.crypto',
 		'window.addEventListener("play", () => {})',
 		'window.onplay = function () {}',
@@ -177,6 +192,8 @@ test.snapshot({
 		'typeof window.something === "function"',
 		'typeof self.something === "function"',
 		'typeof global.something === "function"',
+		'self[foo]',
+		'global[foo]',
 	],
 });
 

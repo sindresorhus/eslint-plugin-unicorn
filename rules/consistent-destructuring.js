@@ -54,14 +54,12 @@ const hasRestElement = pattern => {
 
 		case 'ObjectPattern': {
 			return pattern.properties.some(property =>
-				hasRestElement(property.type === 'Property' ? property.value : property),
-			);
+				hasRestElement(property.type === 'Property' ? property.value : property));
 		}
 
 		case 'ArrayPattern': {
 			return pattern.elements.some(element =>
-				hasRestElement(element),
-			);
+				hasRestElement(element));
 		}
 
 		default: {
@@ -74,13 +72,44 @@ const isIdentifierProperty = property =>
 	property.type === 'Property'
 	&& property.key.type === 'Identifier';
 
+const hasNestedRestElement = pattern => {
+	switch (pattern?.type) {
+		case 'AssignmentPattern': {
+			return hasNestedRestElement(pattern.left);
+		}
+
+		case 'ObjectPattern': {
+			return pattern.properties.some(property => {
+				if (property.type === 'RestElement') {
+					return false;
+				}
+
+				return hasRestElement(property.value);
+			});
+		}
+
+		case 'ArrayPattern': {
+			return pattern.elements.some(element => {
+				if (!element || element.type === 'RestElement') {
+					return false;
+				}
+
+				return hasRestElement(element);
+			});
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
 const isMemberDestructuredInNestedPatternWithRest = (objectPattern, memberName) =>
 	objectPattern.properties.some(property =>
 		isIdentifierProperty(property)
 		&& property.key.name === memberName
 		&& property.value.type !== 'Identifier'
-		&& hasRestElement(property.value),
-	);
+		&& hasNestedRestElement(property.value));
 
 const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
 	if (!declaration.rootVariable) {
@@ -176,15 +205,11 @@ const create = context => {
 		}
 
 		const member = sourceCode.getText(node.property);
-
-		// If the member is already destructured via a nested pattern with rest,
-		// don't suggest adding a separate top-level destructuring for the same member.
 		const memberDestructuredInNestedPattern = isMemberDestructuredInNestedPatternWithRest(objectPattern, member);
 
 		const destructuredProperties = objectPattern.properties.filter(property =>
 			isIdentifierProperty(property)
-			&& property.value.type === 'Identifier',
-		);
+			&& property.value.type === 'Identifier');
 
 		const lastProperty = objectPattern.properties.at(-1);
 		const hasRest = lastProperty?.type === 'RestElement';
@@ -192,8 +217,7 @@ const create = context => {
 
 		// Member might already be destructured
 		const destructuredMember = destructuredProperties.find(property =>
-			property.key.name === member,
-		);
+			property.key.name === member);
 
 		if (!destructuredMember) {
 			if (memberDestructuredInNestedPattern) {

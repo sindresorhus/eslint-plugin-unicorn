@@ -1,4 +1,6 @@
-# Disallow useless array length check
+# no-useless-length-check
+
+📝 Disallow useless array length check.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

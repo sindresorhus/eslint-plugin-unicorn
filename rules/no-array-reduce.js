@@ -80,6 +80,7 @@ const schema = [
 		properties: {
 			allowSimpleOperations: {
 				type: 'boolean',
+				description: 'Whether to allow simple reduce operations whose callback body is a single binary expression.',
 			},
 		},
 	},

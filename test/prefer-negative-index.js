@@ -26,7 +26,7 @@ test({
 		'Array.prototype.forEach.call(foo, foo.length - 1)',
 		// Not Array
 		'FOO.prototype.slice.apply(foo, [-2, -1])',
-		// Second argument is not a array
+		// Second argument is not an array
 		'Array.prototype.slice.apply(foo, "")',
 		// New call
 		'new Foo.forEach(Foo.length - 1)',

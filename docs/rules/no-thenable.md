@@ -1,4 +1,6 @@
-# Disallow `then` property
+# no-thenable
+
+📝 Disallow `then` property.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

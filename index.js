@@ -7,6 +7,10 @@ import packageJson from './package.json' with {type: 'json'};
 const rules = toEslintRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
+	'better-regex': {
+		message: 'Removed. Prefer `eslint-plugin-regexp`',
+		replacedBy: [],
+	},
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
 		replacedBy: ['unicorn/no-instanceof-builtins'],
@@ -19,6 +23,10 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
 		replacedBy: ['unicorn/prefer-single-call'],
 	},
+	'prefer-dom-node-dataset': {
+		message: 'Renamed to `unicorn/dom-node-dataset`.',
+		replacedBy: ['unicorn/dom-node-dataset'],
+	},
 });
 
 const externalRules = {
@@ -28,26 +36,20 @@ const externalRules = {
 	'no-nested-ternary': 'off',
 };
 
-const recommendedRules = Object.fromEntries(
-	Object.entries(rules).map(([id, rule]) => [
-		`unicorn/${id}`,
-		rule.meta.docs.recommended ? 'error' : 'off',
-	]),
-);
+const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended ? 'error' : 'off',
+]));
 
-const unopinionatedRules = Object.fromEntries(
-	Object.entries(rules).map(([id, rule]) => [
-		`unicorn/${id}`,
-		rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
-	]),
-);
+const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
+	`unicorn/${id}`,
+	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
+]));
 
-const allRules = Object.fromEntries(
-	Object.keys(rules).map(id => [
-		`unicorn/${id}`,
-		'error',
-	]),
-);
+const allRules = Object.fromEntries(Object.keys(rules).map(id => [
+	`unicorn/${id}`,
+	'error',
+]));
 
 const createConfig = (rules, flatConfigName) => ({
 	...flatConfigBase,

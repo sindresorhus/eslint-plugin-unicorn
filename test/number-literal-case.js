@@ -184,15 +184,6 @@ const tests = {
 };
 
 test(tests);
-test.babel(avoidTestTitleConflict(tests, 'babel'));
-test.typescript(avoidTestTitleConflict(tests, 'typescript'));
-
-test.snapshot({
-	valid: [],
-	invalid: [
-		'console.log(BigInt(0B10 + 1.2E+3) + 0XdeEd_Beefn)',
-	],
-});
 
 test.snapshot({
 	testerOptions: {

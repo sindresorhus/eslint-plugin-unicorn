@@ -160,6 +160,7 @@ const schema = [
 				additionalProperties: {
 					anyOf: [{type: 'boolean'}, {type: 'string', enum: ['readonly', 'writable', 'writeable', 'off']}],
 				},
+				description: 'Override which global variables are allowed inside isolated scopes.',
 			},
 			functions: {
 				type: 'array',
@@ -167,6 +168,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Function names that mark a scope as isolated.',
 			},
 			selectors: {
 				type: 'array',
@@ -174,6 +176,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'AST selectors that mark a scope as isolated.',
 			},
 			comments: {
 				type: 'array',
@@ -181,6 +184,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Comment patterns that mark a scope as isolated.',
 			},
 		},
 	},

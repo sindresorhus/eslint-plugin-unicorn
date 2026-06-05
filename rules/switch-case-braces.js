@@ -80,8 +80,7 @@ const create = context => {
 			&& consequent[0].type === 'BlockStatement'
 			&& consequent[0].body.every(node =>
 				node.type !== 'VariableDeclaration'
-				&& node.type !== 'FunctionDeclaration',
-			)
+				&& node.type !== 'FunctionDeclaration')
 		) {
 			return {
 				node,
@@ -103,7 +102,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		schema: [{enum: ['always', 'avoid']}],
+		schema: [{enum: ['always', 'avoid'], description: 'Whether to always require braces or avoid them for empty cases.'}],
 		defaultOptions: ['always'],
 		messages,
 	},

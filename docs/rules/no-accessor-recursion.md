@@ -1,4 +1,6 @@
-# Disallow recursive access to `this` within getters and setters
+# no-accessor-recursion
+
+📝 Disallow recursive access to `this` within getters and setters.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

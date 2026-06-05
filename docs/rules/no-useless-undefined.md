@@ -1,4 +1,6 @@
-# Disallow useless `undefined`
+# no-useless-undefined
+
+📝 Disallow useless `undefined`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

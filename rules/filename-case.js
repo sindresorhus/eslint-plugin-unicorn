@@ -211,13 +211,16 @@ const schema = [
 							'kebabCase',
 							'pascalCase',
 						],
+						description: 'The filename case style.',
 					},
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+						description: 'Patterns to ignore.',
 					},
 					multipleFileExtensions: {
 						type: 'boolean',
+						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
 					},
 				},
 				additionalProperties: false,
@@ -228,25 +231,32 @@ const schema = [
 						properties: {
 							camelCase: {
 								type: 'boolean',
+								description: 'Whether to allow camelCase filenames.',
 							},
 							snakeCase: {
 								type: 'boolean',
+								description: 'Whether to allow snake_case filenames.',
 							},
 							kebabCase: {
 								type: 'boolean',
+								description: 'Whether to allow kebab-case filenames.',
 							},
 							pascalCase: {
 								type: 'boolean',
+								description: 'Whether to allow PascalCase filenames.',
 							},
 						},
 						additionalProperties: false,
+						description: 'The allowed filename case styles.',
 					},
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
+						description: 'Patterns to ignore.',
 					},
 					multipleFileExtensions: {
 						type: 'boolean',
+						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
 					},
 				},
 				additionalProperties: false,

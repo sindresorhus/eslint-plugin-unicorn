@@ -96,7 +96,7 @@ function useBoundFunction(callbackNode, thisArgumentNode, context) {
 		}
 
 		const thisArgumentText = getParenthesizedText(thisArgumentNode, context);
-		// `thisArgument` was a argument, no need add extra parentheses
+		// `thisArgument` was an argument, no need to add extra parentheses
 		yield fixer.insertTextAfter(callbackLastToken, `.bind(${thisArgumentText})`);
 	};
 }

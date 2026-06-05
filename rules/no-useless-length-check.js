@@ -18,8 +18,7 @@ function flatLogicalExpression(node) {
 	return [node.left, node.right].flatMap(child =>
 		child.type === 'LogicalExpression' && child.operator === node.operator
 			? flatLogicalExpression(child)
-			: [child],
-	);
+			: [child]);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -37,16 +36,14 @@ const create = context => {
 				&& zeroLengthChecks.has(node)
 				&& siblings.some(condition =>
 					arrayEveryCalls.has(condition)
-					&& isSameReference(node.left.object, condition.callee.object),
-				)
+					&& isSameReference(node.left.object, condition.callee.object))
 			)
 			|| (
 				operator === '&&'
 				&& nonZeroLengthChecks.has(node)
 				&& siblings.some(condition =>
 					arraySomeCalls.has(condition)
-					&& isSameReference(node.left.object, condition.callee.object),
-				)
+					&& isSameReference(node.left.object, condition.callee.object))
 			)
 		);
 	}
@@ -99,11 +96,8 @@ const create = context => {
 	});
 
 	context.on('Program:exit', function * () {
-		const nodes = new Set(
-			logicalExpressions.flatMap(logicalExpression =>
-				getUselessLengthCheckNode(logicalExpression),
-			),
-		);
+		const nodes = new Set(logicalExpressions.flatMap(logicalExpression =>
+			getUselessLengthCheckNode(logicalExpression)));
 		const {sourceCode} = context;
 
 		for (const node of nodes) {

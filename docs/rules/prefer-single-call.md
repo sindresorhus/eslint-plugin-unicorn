@@ -1,4 +1,6 @@
-# Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call
+# prefer-single-call
+
+📝 Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

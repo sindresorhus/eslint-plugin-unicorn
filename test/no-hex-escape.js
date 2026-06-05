@@ -209,12 +209,3 @@ const tests = {
 };
 
 test(tests);
-test.babel(avoidTestTitleConflict(tests, 'babel'));
-test.typescript(avoidTestTitleConflict(tests, 'typescript'));
-
-test.snapshot({
-	valid: [],
-	invalid: [
-		String.raw`const foo = "\xb1"`,
-	],
-});

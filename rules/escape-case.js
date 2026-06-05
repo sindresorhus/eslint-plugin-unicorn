@@ -64,6 +64,7 @@ const create = context => {
 const schema = [
 	{
 		enum: ['uppercase', 'lowercase'],
+		description: 'The case style for escape sequences.',
 	},
 ];
 

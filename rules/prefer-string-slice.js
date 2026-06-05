@@ -115,7 +115,7 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		return;
 	}
 
-	// As values aren't Literal, we can not know whether secondArgument will become smaller than the first or not, causing an issue:
+	// As values aren't Literal, we cannot know whether secondArgument will become smaller than the first or not, causing an issue:
 	//   .substring(0, 2) and .substring(2, 0) returns the same result
 	//   .slice(0, 2) and .slice(2, 0) doesn't return the same result
 	// There's also an issue with us now knowing whether the value will be negative or not, due to:

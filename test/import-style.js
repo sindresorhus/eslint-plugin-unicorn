@@ -694,38 +694,41 @@ test({
 	].map(test => addDefaultOptions(test)),
 });
 
-test.babel({
-	valid: [
-		'const {...rest2} = require("named")',
-	],
-	invalid: [
-		{
-			code: 'const {...rest2} = require("unassigned")',
-			errors: [unassignedError],
-		},
-		{
-			code: 'const {...rest2} = require("default")',
-			errors: [defaultError],
-		},
-		{
-			code: 'const {...rest2} = require("namespace")',
-			errors: [namespaceError],
-		},
-	].map(test => addDefaultOptions(test)),
-});
-
 test.typescript({
 	valid: [
 		{
+			code: 'import type chalk from \'chalk\'',
+			options: [],
+		},
+		{
+			code: 'import type {x} from \'named\'',
+			options: [options],
+		},
+	],
+	invalid: [
+		{
 			code: 'import {type ChalkInstance} from \'chalk\'',
 			options: [],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'chalk',
+				},
+			}],
 		},
 		{
 			code: 'import type {ChalkInstance} from \'chalk\'',
 			options: [],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'chalk',
+				},
+			}],
 		},
 	],
-	invalid: [],
 });
 
 test.snapshot({

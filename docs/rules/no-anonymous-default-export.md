@@ -1,4 +1,6 @@
-# Disallow anonymous functions and classes as the default export
+# no-anonymous-default-export
+
+📝 Disallow anonymous functions and classes as the default export.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

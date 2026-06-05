@@ -1,4 +1,6 @@
-# Enforce consistent relative URL style
+# relative-url-style
+
+📝 Enforce consistent relative URL style.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

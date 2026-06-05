@@ -1,4 +1,6 @@
-# Prefer `EventTarget` over `EventEmitter`
+# prefer-event-target
+
+📝 Prefer `EventTarget` over `EventEmitter`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

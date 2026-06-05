@@ -1,4 +1,6 @@
-# Do not use `document.cookie` directly
+# no-document-cookie
+
+📝 Do not use `document.cookie` directly.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

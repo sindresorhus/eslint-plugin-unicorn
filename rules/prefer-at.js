@@ -102,7 +102,7 @@ function checkSliceCall(node) {
 			&& (
 				firstElementGetMethod === 'zero-index'
 				|| firstElementGetMethod === 'shift'
-				|| (startIndex === -1 && firstElementGetMethod === 'pop')
+				|| ((firstElementGetMethod === 'pop') && (startIndex === -1))
 			)
 		) {
 			return {safeToFix: true, firstElementGetMethod};
@@ -157,7 +157,7 @@ function create(context) {
 				return;
 			}
 
-			// Only if we are sure it's an positive integer
+			// Only if we are sure it's a positive integer
 			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
 			if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
 				return;
@@ -348,9 +348,11 @@ const schema = [
 			getLastElementFunctions: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Additional functions that return the last element.',
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
+				description: 'Whether to also check positive integer index access.',
 			},
 		},
 	},

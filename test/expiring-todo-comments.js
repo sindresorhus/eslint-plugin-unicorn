@@ -1,6 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
+import css from '@eslint/css';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const expiredTodoError = (expirationDate, message) => ({
 	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`,
@@ -46,7 +50,7 @@ const noWarningCommentError = comment => ({
 	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`,
 });
 
-test({
+ruleTest({
 	valid: [
 		'// TODO [2200-12-12]: Too long... Can you feel it?',
 		'// FIXME [2200-12-12]: Too long... Can you feel it?',
@@ -58,16 +62,16 @@ test({
 			options: [{terms: ['Expire Condition']}],
 		},
 		'// Expire Condition [2000-01-01]: new term name',
-		'// TODO [>2000]: We sure didnt past this version',
+		'// TODO [>2000]: We sure didn\'t past this version',
 		// Partial versions should use semver range semantics (#1132)
-		// `>1` means `>=2.0.0`, not `>1.0.0`; `>63` means `>=64.0.0`, not `>63.0.0`
-		'// TODO [>63]: package is 63.0.0 so >63 should not trigger',
+		// `>1` means `>=2.0.0`, not `>1.0.0`; `>1000` means `>=1001.0.0`, not `>1000.0.0`
+		'// TODO [>1000]: partial version with > should use semver range semantics',
 		'// TODO [find-up-simple@>1]: find-up-simple is 1.0.1 so >1 should not trigger',
 		'// TODO [engine:node@>20]: node engine is 20.x so >20 should not trigger',
 		'// TODO [-find-up-simple]: We actually use this.',
-		'// TODO [+popura]: I think we wont need a broken package.',
-		'// TODO [semver@>1000]: Welp hopefully we wont get at that.',
-		'// TODO [semver@>=1000]: Welp hopefully we wont get at that.',
+		'// TODO [+popura]: I think we won\'t need a broken package.',
+		'// TODO [semver@>1000]: Welp hopefully we won\'t get at that.',
+		'// TODO [semver@>=1000]: Welp hopefully we won\'t get at that.',
 		'// TODO [@lubien/fixture-beta-package@>=1.0.0]: we are using a pre-release',
 		'// TODO [@lubien/fixture-beta-package@>=1.0.0-gamma.1]: beta comes first from gamma',
 		'// TODO [@lubien/fixture-beta-package@>=1.0.0-beta.2]: we are in beta.1',
@@ -422,4 +426,46 @@ test({
 			errors: [expiredTodoError('2999-12-01', 'Y3K bug')],
 		},
 	],
+});
+
+test('supports CSS comments with @eslint/css', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		/* TODO [2000-01-01]: Drop */
+		/* TODO: Add styles */
+		.outdated { color: hotpink; }
+	`, {
+		files: ['**/*.css'],
+		language: 'css/css',
+		plugins: {
+			css,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					ignoreDatesOnPullRequests: false,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.css',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Add styles\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
 });

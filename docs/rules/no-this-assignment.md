@@ -1,4 +1,6 @@
-# Disallow assigning `this` to a variable
+# no-this-assignment
+
+📝 Disallow assigning `this` to a variable.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

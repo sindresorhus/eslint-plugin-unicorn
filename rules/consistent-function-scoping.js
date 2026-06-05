@@ -61,7 +61,7 @@ function checkReferences(scope, parent, scopeManager) {
 			return false;
 		}
 
-		// Look at the scope above the function definition to see if lives
+		// Look at the scope above the function definition to see if it lives
 		// next to the reference being checked
 		return isSameScope(parent, identifierParentScope.upper);
 	});
@@ -72,8 +72,7 @@ function checkReferences(scope, parent, scopeManager) {
 		.some(variable =>
 			hitReference(variable.references)
 			|| hitDefinitions(variable.defs)
-			|| hitIdentifier(variable.identifiers),
-		);
+			|| hitIdentifier(variable.identifiers));
 }
 
 // https://reactjs.org/docs/hooks-reference.html
@@ -246,6 +245,7 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
+				description: 'Whether to check arrow functions.',
 			},
 		},
 	},

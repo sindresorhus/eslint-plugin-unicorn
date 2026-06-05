@@ -135,7 +135,7 @@ const create = context => {
 		) {
 			// `ThrowStatement` don't check nested
 
-			// If `IfStatement` is not a `BlockStatement`, need add `{}`
+			// If `IfStatement` is not a `BlockStatement`, need to add `{}`
 			const {parent} = node;
 			const needBraces = parent && parent.type !== 'BlockStatement';
 			return {
@@ -262,6 +262,7 @@ const create = context => {
 const schema = [
 	{
 		enum: ['always', 'only-single-line'],
+		description: 'Whether to always prefer ternary, or only for single-line expressions.',
 	},
 ];
 

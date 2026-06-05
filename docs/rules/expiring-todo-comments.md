@@ -1,4 +1,6 @@
-# Add expiration conditions to TODO comments
+# expiring-todo-comments
+
+📝 Add expiration conditions to TODO comments.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -16,6 +18,8 @@ TODO comments are useful when a piece of code needs some work. Unfortunately the
 With this rule, a TODO can have a condition right from the beginning to define its lifespan. When the condition is met, ESLint will take care of reporting that there's work to be done.
 
 This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
+
+This rule also supports CSS comments when linting CSS files with [`@eslint/css`](https://github.com/eslint/css).
 
 Quick overview of conditions:
 
@@ -142,6 +146,17 @@ You can also use block comments to specify TODOs with conditions. Each line can 
  */
 ```
 
+### CSS
+
+When used with [`@eslint/css`](https://github.com/eslint/css), this rule can check CSS block comments too.
+
+```css
+/* TODO [2019-11-15]: Remove this fallback. */
+.outdated {
+	color: hotpink;
+}
+```
+
 ## Disallow Warning Comments (no-warning-comments)
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).
@@ -182,6 +197,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 - TODOs may or may not have a colon before the message such as
   `TODO [...]: message` or `TODO [...] message`.
 - If no proper argument is found, you'll be notified that the TODO is useless (See [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments)).
+- CSS comments are supported when using [`@eslint/css`](https://github.com/eslint/css).
 
 ## Examples
 

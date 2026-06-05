@@ -1,4 +1,6 @@
-# Enforce a specific parameter name in catch clauses
+# catch-error-name
+
+📝 Enforce a specific parameter name in catch clauses.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

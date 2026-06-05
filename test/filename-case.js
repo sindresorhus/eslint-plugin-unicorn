@@ -248,9 +248,7 @@ test({
 			},
 		]),
 		// Ignored
-		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(
-			filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase)),
-		),
+		...['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue'].flatMap(filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))),
 		testCaseWithOptions('index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/fooBar.test.js', undefined, [{case: 'camelCase', multipleFileExtensions: false}]),

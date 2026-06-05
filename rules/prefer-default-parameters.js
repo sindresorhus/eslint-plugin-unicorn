@@ -149,8 +149,7 @@ const create = context => {
 		const {params} = currentFunction;
 		const parameter = params.find(parameter =>
 			parameter.type === 'Identifier'
-			&& parameter.name === secondId,
-		);
+			&& parameter.name === secondId);
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)

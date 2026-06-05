@@ -1,4 +1,6 @@
-# Prefer omitting the `catch` binding parameter
+# prefer-optional-catch-binding
+
+📝 Prefer omitting the `catch` binding parameter.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

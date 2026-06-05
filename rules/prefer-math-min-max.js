@@ -56,15 +56,13 @@ const create = context => {
 
 		const {operator, left, right} = test;
 
-		const hasBigInt = [left, right].some(
-			node =>
-				isBigIntLiteral(node)
-				|| isCallExpression(node, {
-					name: 'BigInt',
-					argumentsLength: 1,
-					optional: false,
-				}),
-		);
+		const hasBigInt = [left, right].some(node =>
+			isBigIntLiteral(node)
+			|| isCallExpression(node, {
+				name: 'BigInt',
+				argumentsLength: 1,
+				optional: false,
+			}));
 
 		if (hasBigInt) {
 			return;
@@ -76,9 +74,7 @@ const create = context => {
 			return;
 		}
 
-		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(
-			node => context.sourceCode.getText(unwrapNode(node)),
-		);
+		const [leftText, rightText, alternateText, consequentText] = [left, right, alternate, consequent].map(node => context.sourceCode.getText(unwrapNode(node)));
 
 		const isGreaterOrEqual = operator === '>' || operator === '>=';
 		const isLessOrEqual = operator === '<' || operator === '<=';

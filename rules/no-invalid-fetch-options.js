@@ -36,7 +36,7 @@ function checkFetchOptions(context, node) {
 	}
 
 	const methodProperty = properties.findLast(property => isObjectPropertyWithName(property, 'method'));
-	// If `method` is omitted but there is an `SpreadElement`, we just ignore the case
+	// If `method` is omitted but there is a `SpreadElement`, we just ignore the case
 	if (!methodProperty) {
 		if (properties.some(node => node.type === 'SpreadElement')) {
 			return;

@@ -137,6 +137,7 @@ const schema = [
 		properties: {
 			patterns: {
 				type: 'object',
+				description: 'Patterns to replace in string content.',
 				additionalProperties: {
 					anyOf: [
 						{

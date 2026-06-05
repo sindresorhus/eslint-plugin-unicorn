@@ -48,7 +48,7 @@ const cases = [
 			let stringText = sourceCode.getText(stringNode);
 			if (
 				!isParenthesized(regexpNode, sourceCode)
-				// Only `SequenceExpression` need add parentheses
+				// Only `SequenceExpression` need to add parentheses
 				&& stringNode.type === 'SequenceExpression'
 			) {
 				stringText = `(${stringText})`;

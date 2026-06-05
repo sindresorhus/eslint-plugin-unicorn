@@ -116,14 +116,14 @@ test({
 	invalid: [
 		{
 			code: 'if (!foo.length > 0) {}',
-			// eslint-disable-next-line unicorn/no-null
-			output: null,
+
+			output: JSON.parse('null'),
 			errors: [{messageId: TYPE_ZERO}],
 		},
 		{
 			code: 'if (!foo.length === 0) {}',
-			// eslint-disable-next-line unicorn/no-null
-			output: null,
+
+			output: JSON.parse('null'),
 			errors: [{messageId: TYPE_ZERO}],
 		},
 		suggestionCase({

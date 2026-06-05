@@ -1,4 +1,6 @@
-# Prefer using the `node:` protocol when importing Node.js builtin modules
+# prefer-node-protocol
+
+📝 Prefer using the `node:` protocol when importing Node.js builtin modules.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

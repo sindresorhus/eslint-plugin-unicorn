@@ -1,4 +1,6 @@
-# Disallow invalid options in `fetch()` and `new Request()`
+# no-invalid-fetch-options
+
+📝 Disallow invalid options in `fetch()` and `new Request()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

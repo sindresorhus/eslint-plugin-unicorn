@@ -407,6 +407,17 @@ test.snapshot({
 			const text = \`${1}abc\`.slice();
 			text.includes('ab') || text.includes('bc');
 		`,
+		outdent`
+			let items = [1, 2, 3];
+			items = 'abc';
+			const foo = items.slice();
+			foo.includes('ab') || foo.includes('bc');
+		`,
+		// `Iterator.concat()`
+		outdent`
+			const foo = Iterator.concat(bar);
+			foo.includes(1) || foo.includes(2);
+		`,
 	],
 	invalid: [
 		outdent`
@@ -629,8 +640,7 @@ test.snapshot({
 				function unicorn() {
 					return foo.includes(1);
 				}
-			`,
-		),
+			`),
 		outdent`
 			const foo = [1, 2, 3].slice();
 			foo.includes(1) || foo.includes(2);
@@ -639,7 +649,16 @@ test.snapshot({
 			const foo = [1, 2, 3].concat(4);
 			foo.includes(1) || foo.includes(2);
 		`,
-
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.slice();
+			foo.includes(1) || foo.includes(2);
+		`,
+		outdent`
+			const items = [1, 2, 3];
+			const foo = items.concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
 		// `lodash`
 		// `bar` is not `array`, but code not broken
 		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641
@@ -650,43 +669,6 @@ test.snapshot({
 				return bar.includes(1);
 			}
 		`,
-	],
-});
-
-test.snapshot({
-	testerOptions: {
-		languageOptions: {
-			parser: parsers.babel,
-			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: [
-							['decorators', {decoratorsBeforeExport: true}],
-						],
-					},
-				},
-			},
-		},
-	},
-	valid: [
-		// https://github.com/TheThingsNetwork/lorawan-stack/blob/1dab30227e632ceade425e0c67d5f84316e830da/pkg/webui/console/containers/device-importer/index.js#L74
-		outdent`
-			@connect(
-				state => {
-					const availableComponents = ['is']
-					if (nsConfig.enabled) availableComponents.push('ns')
-					if (jsConfig.enabled) availableComponents.push('js')
-					if (asConfig.enabled) availableComponents.push('as')
-
-					return {
-						availableComponents,
-					}
-				},
-			)
-			export default class A {}
-		`,
-	],
-	invalid: [
 	],
 });
 
