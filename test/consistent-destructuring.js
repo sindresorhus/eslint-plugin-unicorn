@@ -639,3 +639,50 @@ test({
 		}),
 	],
 });
+
+test.typescript({
+	valid: [
+		outdent`
+			const {a}: {a: string} & ({b: number} | {c: number} | {}) = params;
+			const value = 'b' in params ? params.b : 'c' in params ? params.c : undefined;
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params) {
+				console.log(params.b);
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params && condition) {
+				console.log(params.b);
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params) {
+				const getValue = () => params.b;
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			const value = 'b' in params && params.b;
+		`,
+	],
+	invalid: [
+		invalidTestCase({
+			code: outdent`
+				const {b}: {b: number} = params;
+				if ('b' in params) {
+					console.log(params.b);
+				}
+			`,
+			suggestions: [outdent`
+				const {b}: {b: number} = params;
+				if ('b' in params) {
+					console.log(b);
+				}
+			`],
+		}),
+	],
+});
