@@ -192,6 +192,7 @@ test.snapshot({
 	invalid: [
 		'array.filter(fn).length > 0',
 		'array.filter(fn).length !== 0',
+		'module$.filter(fn).length > 0',
 		outdent`
 			if (
 				((

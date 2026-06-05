@@ -168,7 +168,7 @@ const create = context => {
 		}
 
 		const filterCall = binaryExpression.left.object;
-		const {object: filterCallObject} = filterCall.callee;
+		const filterCallObject = filterCall.callee.object;
 		if (
 			filterCallObject.type === 'Identifier'
 			&& filterCallObject.name.startsWith('$')
