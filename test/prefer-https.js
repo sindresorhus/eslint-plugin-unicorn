@@ -63,7 +63,7 @@ ruleTest.snapshot({
 });
 
 function createLanguageConfig(language) {
-	const pluginName = language.split('/')[0];
+	const pluginName = language.split('/', 1)[0];
 
 	return {
 		files: ['**'],
