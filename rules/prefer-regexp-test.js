@@ -88,6 +88,12 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
+const isReduxToolkitSliceActionMatcher = ({stringNode, regexpNode}) =>
+	regexpNode.type === 'Identifier'
+	&& regexpNode.name === 'action'
+	&& isMemberExpression(stringNode, {optional: false, computed: false})
+	&& isMemberExpression(stringNode.object, {property: 'actions', optional: false, computed: false});
+
 const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
 
 const isLengthMemberExpression = (node, object) =>
@@ -217,6 +223,10 @@ const create = context => {
 
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
+
+			if (type === STRING_MATCH && isReduxToolkitSliceActionMatcher(nodes)) {
+				continue;
+			}
 
 			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
 				continue;

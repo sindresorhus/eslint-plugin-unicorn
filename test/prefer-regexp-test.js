@@ -41,6 +41,10 @@ test.snapshot({
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
 
+		// Redux Toolkit action matchers
+		'liquidityFormSlice.actions.refetch.match(action) ? wait(1000) : Promise.resolve()',
+		'if (slice.actions.someAction.match(action)) {}',
+
 		// Unsupported length checks
 		'if (uri.match(/unicorn/).length >= 1) {}',
 		'if (uri.match(/unicorn/).length === 0) {}',
@@ -182,6 +186,31 @@ test.snapshot({
 		`,
 		'!/a/u.exec(foo)',
 		'!/a/v.exec(foo)',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (slice.actions.someAction.match(/regexp/)) {}',
+			output: 'if (/regexp/.test(slice.actions.someAction)) {}',
+			errors: [{message: 'Prefer `RegExp#test(…)` over `String#match(…)`.'}],
+		},
+		{
+			code: 'if (slice.actions.someAction.match(unknown)) {}',
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: [
+						{
+							desc: 'Switch to `RegExp#test(…)`.',
+							output: 'if (unknown.test(slice.actions.someAction)) {}',
+						},
+					],
+				},
+			],
+		},
 	],
 });
 

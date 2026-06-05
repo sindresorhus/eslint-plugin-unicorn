@@ -11,6 +11,8 @@
 
 When you want to know whether a pattern is found in a string, use [`RegExp#test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) instead of [`String#match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match) and [`RegExp#exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec), as it exclusively returns a boolean and therefore is more efficient.
 
+Calls like `slice.actions.someAction.match(action)` are ignored because they are Redux Toolkit slice action matchers, not `String#match()`.
+
 ## Examples
 
 ```js
