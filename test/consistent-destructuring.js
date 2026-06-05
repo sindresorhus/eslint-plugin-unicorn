@@ -270,6 +270,31 @@ test({
 				console.log(foo.a);
 			}
 		`,
+		outdent`
+			function getContainerStatus(status, container) {
+				const {containerStatuses = [], initContainerStatuses = []} = status;
+				const statuses = containerStatuses.concat(...initContainerStatuses);
+
+				return statuses.find(status => status.name === container.name);
+			}
+		`,
+		outdent`
+			function switchClassToObject(node, sourceCode) {
+				const {type, id, body, parent} = node;
+
+				for (const node of body.body) {
+					if (
+						node.type === 'ClassProperty'
+						&& node.value
+						&& sourceCode.getText(node).includes('this')
+					) {
+						return;
+					}
+				}
+
+				return {type, id, body, parent};
+			}
+		`,
 	],
 	invalid: [
 		invalidTestCase({
