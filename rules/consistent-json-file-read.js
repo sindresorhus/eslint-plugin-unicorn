@@ -25,7 +25,7 @@ function getIdentifierDeclaration(node, scope) {
 	node = getAwaitExpressionArgument(node);
 
 	if (!node || node.type !== 'Identifier') {
-		return node;
+		return {node, scope};
 	}
 
 	const variable = findVariable(scope, node);
@@ -65,6 +65,12 @@ const isUtf8EncodingString = value => {
 	return value === 'utf8' || value === 'utf-8';
 };
 
+const isSingleEncodingOptionObject = value =>
+	value
+	&& typeof value === 'object'
+	&& Object.keys(value).length === 1
+	&& Object.hasOwn(value, 'encoding');
+
 function isUtf8Encoding(node, scope) {
 	if (
 		node.type === 'ObjectExpression'
@@ -87,9 +93,7 @@ function isUtf8Encoding(node, scope) {
 
 	const {value} = staticValue;
 	if (
-		value
-		&& typeof value === 'object'
-		&& Object.keys(value).length === 1
+		isSingleEncodingOptionObject(value)
 		&& isUtf8EncodingString(value.encoding)
 	) {
 		return true;
@@ -110,9 +114,7 @@ function isBufferEncoding(node, scope) {
 	}
 
 	if (
-		typeof value === 'object'
-		&& Object.keys(value).length === 1
-		&& Object.hasOwn(value, 'encoding')
+		isSingleEncodingOptionObject(value)
 		&& (value.encoding === undefined || value.encoding === null)
 	) {
 		return true;
@@ -167,10 +169,14 @@ const create = context => {
 			return;
 		}
 
-		let [node] = callExpression.arguments;
+		const [argument] = callExpression.arguments;
 		const {sourceCode} = context;
-		const scope = sourceCode.getScope(node);
-		node = getIdentifierDeclaration(node, scope);
+		const resolved = getIdentifierDeclaration(argument, sourceCode.getScope(argument));
+		if (!resolved) {
+			return;
+		}
+
+		const {node, scope} = resolved;
 		if (!isJsonReadFileCall(node, scope)) {
 			return;
 		}

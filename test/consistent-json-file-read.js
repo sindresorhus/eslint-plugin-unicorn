@@ -38,6 +38,8 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
 		'JSON.parse(await fs.readFile(file, {...encoding}));',
 		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
+		'const readingOptions = {flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',
+		'const readingOptions = {encoding: null, flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',
 		'const encoding = "gbk";JSON.parse(await fs.readFile(file, {encoding: encoding}));',
 		'const readingOptions = {encoding: "utf8", extraProperty: undefined};JSON.parse(await fs.readFile(file, readingOptions));',
 		outdent`
@@ -49,13 +51,13 @@ test.snapshot({
 			JSON.parse(string);
 		`,
 		outdent`
-			const abortControl = new AbortControl();
-			const {signal} = abortControl;
-			const promise = readFile(fileName, { encoding: "utf8", signal });
+			const abortController = new AbortController();
+			const {signal} = abortController;
+			const promise = fs.readFile(file, {encoding: "utf8", signal});
 			if (foo) {
 				JSON.parse(await promise);
 			} else {
-				controller.abort();
+				abortController.abort();
 			}
 		`,
 		outdent`
@@ -94,6 +96,7 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, undefined));',
 		'JSON.parse(await fs.readFile(file, {encoding: null}));',
 		'JSON.parse(await fs.readFile(file, {encoding: undefined}));',
+		'const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, readingOptions));',
 		'JSON.parse(await fs.readFileSync(file));',
 		'JSON.parse(fs.readFileSync(file));',
 		outdent`
@@ -125,6 +128,14 @@ test.snapshot({
 					const baz = bar;
 					JSON.parse(baz);
 				}
+			}
+		`,
+		outdent`
+			const readingOptions = {encoding: null};
+			const buffer = fs.readFile(file, readingOptions);
+			function parse() {
+				const readingOptions = {encoding: "utf8"};
+				JSON.parse(buffer);
 			}
 		`,
 		outdent`
@@ -203,6 +214,7 @@ test.snapshot({
 		'JSON.parse(await fs.readFile(file, {encoding: "utf8", extraProperty: "utf8"}));',
 		'JSON.parse(await fs.readFile(file, {...encoding}));',
 		'JSON.parse(await fs.readFile(file, {encoding: unknown}));',
+		'const readingOptions = {encoding: "utf8", flag: "r"};JSON.parse(await fs.readFile(file, readingOptions));',
 		'const encoding = "gbk";JSON.parse(await fs.readFile(file, {encoding: encoding}));',
 		'const readingOptions = {encoding: "utf8", extraProperty: undefined};JSON.parse(await fs.readFile(file, readingOptions));',
 		outdent`
@@ -214,13 +226,13 @@ test.snapshot({
 			JSON.parse(string);
 		`,
 		outdent`
-			const abortControl = new AbortControl();
-			const {signal} = abortControl;
-			const promise = readFile(fileName, { encoding: "utf8", signal });
+			const abortController = new AbortController();
+			const {signal} = abortController;
+			const promise = fs.readFile(file, {encoding: "utf8", signal});
 			if (foo) {
 				JSON.parse(await promise);
 			} else {
-				controller.abort();
+				abortController.abort();
 			}
 		`,
 		outdent`
@@ -270,6 +282,14 @@ test.snapshot({
 		outdent`
 			const string = await fs.readFile(file, "utf8");
 			JSON.parse(string);
+		`,
+		outdent`
+			const encoding = "utf8";
+			const string = fs.readFile(file, encoding);
+			function parse() {
+				const encoding = undefined;
+				JSON.parse(string);
+			}
 		`,
 		outdent`
 			let string = await fs.readFile(file, "utf8");

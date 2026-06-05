@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When reading and parsing a JSON file, consistently read it as a string.
+When reading and parsing a JSON file, consistently read it using the configured style. By default, the rule prefers reading it as a string.
 
-This keeps the code compatible with TypeScript, where [`JSON.parse()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) accepts a string.
+The default keeps the code compatible with TypeScript, where [`JSON.parse()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) accepts a string.
 
 The rule only checks and fixes direct no-option reads and option objects where `encoding` is the only property. Reads with additional options are left unchanged to avoid dropping options.
 
