@@ -60,6 +60,12 @@ const terminalSchemaMethods = new Set(['parse', 'safeParse', 'spa']);
 const promiseLikeSchemaMethods = new Set(['then', 'finally']);
 const zodNamespaceProperties = new Set(['coerce']);
 
+const isUnsupportedSchemaProperty = (propertyName, isCalled) =>
+	promiseLikeSchemaMethods.has(propertyName)
+	|| terminalSchemaMethods.has(propertyName)
+	|| propertyName.endsWith('Async')
+	|| (isCalled && zodNamespaceProperties.has(propertyName));
+
 const isSchemaCatchObject = node => {
 	let expression = node;
 	let hasCallExpression = false;
@@ -87,22 +93,24 @@ const isSchemaCatchObject = node => {
 			if (
 				expression.computed
 				|| expression.property.type !== 'Identifier'
-				|| promiseLikeSchemaMethods.has(expression.property.name)
-				|| terminalSchemaMethods.has(expression.property.name)
-				|| expression.property.name.endsWith('Async')
 			) {
+				return false;
+			}
+
+			const propertyName = expression.property.name;
+			if (isUnsupportedSchemaProperty(propertyName, isCurrentMemberCalled)) {
 				return false;
 			}
 
 			hasMemberExpression = true;
 			if (!isCurrentMemberCalled) {
 				hasUncalledMemberExpression = true;
-				uncalledMemberNames.push(expression.property.name);
+				uncalledMemberNames.push(propertyName);
 			} else if (hasUncalledMemberExpression) {
 				hasCalledMemberExpressionAfterUncalledMemberExpression = true;
 			}
 
-			methodNames.push(expression.property.name);
+			methodNames.push(propertyName);
 			expression = expression.object;
 			isCurrentMemberCalled = false;
 			continue;
