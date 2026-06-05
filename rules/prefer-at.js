@@ -164,48 +164,45 @@ function create(context) {
 			}
 		}
 
-		const problem = {
-			node: indexNode,
-			messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
-		};
-
 		if (isArguments(node.object)) {
-			return problem;
+			return;
 		}
 
-		problem.fix = function * (fixer) {
-			if (lengthNode) {
-				yield removeLengthNode(lengthNode, fixer, context);
-			}
-
-			// Only remove space for `foo[foo.length - 1]`
-			if (
-				indexNode.type === 'BinaryExpression'
-				&& indexNode.operator === '-'
-				&& indexNode.left === lengthNode
-				&& indexNode.right.type === 'Literal'
-				&& /^\d+$/.test(indexNode.right.raw)
-			) {
-				const numberNode = indexNode.right;
-				const tokenBefore = sourceCode.getTokenBefore(numberNode);
-				if (
-					tokenBefore.type === 'Punctuator'
-					&& tokenBefore.value === '-'
-					&& /^\s+$/.test(sourceCode.text.slice(sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]))
-				) {
-					yield fixer.removeRange([sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]]);
+		return {
+			node: indexNode,
+			messageId: lengthNode ? MESSAGE_ID_NEGATIVE_INDEX : MESSAGE_ID_INDEX,
+			* fix(fixer) {
+				if (lengthNode) {
+					yield removeLengthNode(lengthNode, fixer, context);
 				}
-			}
 
-			const isOptional = node.optional;
-			const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
-			yield fixer.replaceText(openingBracketToken, `${isOptional ? '' : '.'}at(`);
+				// Only remove space for `foo[foo.length - 1]`
+				if (
+					indexNode.type === 'BinaryExpression'
+					&& indexNode.operator === '-'
+					&& indexNode.left === lengthNode
+					&& indexNode.right.type === 'Literal'
+					&& /^\d+$/v.test(indexNode.right.raw)
+				) {
+					const numberNode = indexNode.right;
+					const tokenBefore = sourceCode.getTokenBefore(numberNode);
+					if (
+						tokenBefore.type === 'Punctuator'
+						&& tokenBefore.value === '-'
+						&& /^\s+$/v.test(sourceCode.text.slice(sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]))
+					) {
+						yield fixer.removeRange([sourceCode.getRange(tokenBefore)[1], sourceCode.getRange(numberNode)[0]]);
+					}
+				}
 
-			const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
-			yield fixer.replaceText(closingBracketToken, ')');
+				const isOptional = node.optional;
+				const openingBracketToken = sourceCode.getTokenBefore(indexNode, isOpeningBracketToken);
+				yield fixer.replaceText(openingBracketToken, `${isOptional ? '' : '.'}at(`);
+
+				const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
+				yield fixer.replaceText(closingBracketToken, ')');
+			},
 		};
-
-		return problem;
 	});
 
 	// `string.charAt`
@@ -304,39 +301,36 @@ function create(context) {
 			return;
 		}
 
-		const problem = {
-			node: node.callee,
-			messageId: MESSAGE_ID_GET_LAST_FUNCTION,
-			data: {description: matchedFunction.trim()},
-		};
-
 		const [array] = node.arguments;
 
 		if (isArguments(array)) {
-			return problem;
+			return;
 		}
 
-		problem.fix = function (fixer) {
-			let fixed = getParenthesizedText(array, context);
+		return {
+			node: node.callee,
+			messageId: MESSAGE_ID_GET_LAST_FUNCTION,
+			data: {description: matchedFunction.trim()},
+			fix(fixer) {
+				let fixed = getParenthesizedText(array, context);
 
-			if (
-				!isParenthesized(array, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(array, context)
-			) {
-				fixed = `(${fixed})`;
-			}
+				if (
+					!isParenthesized(array, sourceCode)
+					&& shouldAddParenthesesToMemberExpressionObject(array, context)
+				) {
+					fixed = `(${fixed})`;
+				}
 
-			fixed = `${fixed}.at(-1)`;
+				fixed = `${fixed}.at(-1)`;
 
-			const tokenBefore = sourceCode.getTokenBefore(node);
-			if (needsSemicolon(tokenBefore, context, fixed)) {
-				fixed = `;${fixed}`;
-			}
+				const tokenBefore = sourceCode.getTokenBefore(node);
+				if (needsSemicolon(tokenBefore, context, fixed)) {
+					fixed = `;${fixed}`;
+				}
 
-			return fixer.replaceText(node, fixed);
+				return fixer.replaceText(node, fixed);
+			},
 		};
-
-		return problem;
 	});
 }
 

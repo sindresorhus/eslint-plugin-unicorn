@@ -65,6 +65,14 @@ const foo = array.at(array.length - 1);
 array[array.length - 1] = foo;
 ```
 
+```js
+// ✅
+// This rule intentionally ignores `arguments`, which is array-like but does not have `Array#at()`.
+function foo() {
+	return arguments[arguments.length - 1];
+}
+```
+
 ## Options
 
 Type: `object`
