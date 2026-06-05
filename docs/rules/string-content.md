@@ -88,7 +88,7 @@ Default: `[]`
 
 Only check string nodes matching one of these [ESLint selectors](https://eslint.org/docs/latest/extend/selectors). When empty, all supported string nodes are checked.
 
-The selector must match the string node itself:
+The selector must match the string node itself: `Literal` for string literals and `TemplateElement` for template literal content.
 
 ```json
 {

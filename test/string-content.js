@@ -257,6 +257,25 @@ test({
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},
+		{
+			code: outdent`
+				const foo = html\`
+					<div>no</div>
+				\`;
+				const bar = notIgnoredTag\`no\`;
+			`,
+			output: outdent`
+				const foo = html\`
+					<div>no</div>
+				\`;
+				const bar = notIgnoredTag\`yes\`;
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['TaggedTemplateExpression TemplateElement'],
+			}],
+			errors: createError('no', 'yes'),
+		},
 
 		// Object is not `Identifier`
 		{
@@ -319,6 +338,21 @@ test({
 		},
 		{
 			code: outdent`
+				const description = \`no\`;
+				const title = \`no\`;
+			`,
+			output: outdent`
+				const description = \`yes\`;
+				const title = \`no\`;
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['VariableDeclarator[id.name="description"] TemplateElement'],
+			}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
 				const metadata = {
 					description: 'no',
 					title: 'no',
@@ -351,7 +385,7 @@ test({
 			`,
 			options: [{
 				patterns: noToYesPattern,
-				selectors: ['TSPropertySignature[key.name="description"] Literal'],
+				selectors: ['TSPropertySignature[key.name="description"] TSLiteralType > Literal'],
 			}],
 			languageOptions: {
 				parser: parsers.typescript,

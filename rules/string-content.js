@@ -141,7 +141,7 @@ const create = context => {
 
 	context.on(
 		selectors.length === 0 ? targetNodeTypes : selectors,
-		node => checkNode(node),
+		checkNode,
 	);
 };
 
