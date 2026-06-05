@@ -763,6 +763,11 @@ test.typescript({
 				if (event.key === 'K') {}
 			}
 		`,
+		outdent`
+			function handleClick(event: MouseEvent) {
+				if (event.keyCode === 75) {}
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -781,13 +786,13 @@ test.typescript({
 		},
 		{
 			code: outdent`
-				const handleKeyUp = (event: React.KeyboardEvent) => {
+				const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
 					if (event.which === 13) {}
 				};
 			`,
 			errors: [
 				errorWithSuggestion('which', 'Enter', outdent`
-					const handleKeyUp = (event: React.KeyboardEvent) => {
+					const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
 						if (event.key === 'Enter') {}
 					};
 				`),
@@ -806,6 +811,22 @@ test.typescript({
 					};
 				`),
 			],
+		},
+		{
+			code: outdent`
+				function handleKeyDown({keyCode}: KeyboardEvent) {
+					console.log(keyCode);
+				}
+			`,
+			errors: [error('keyCode')],
+		},
+		{
+			code: outdent`
+				const handleKeyDown = ({keyCode: code}: KeyboardEvent) => {
+					console.log(code);
+				};
+			`,
+			errors: [error('keyCode')],
 		},
 		{
 			code: outdent`

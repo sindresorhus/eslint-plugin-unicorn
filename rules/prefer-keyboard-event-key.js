@@ -21,7 +21,7 @@ const keyboardEventHandlerNames = new Set([
 	'onKeyUp',
 ]);
 
-const isPropertyNamedAddEventListener = node =>
+const isAddEventListenerCall = node =>
 	isMethodCall(node, {
 		method: 'addEventListener',
 		minimumArguments: 2,
@@ -60,10 +60,11 @@ const isKeyboardEventTypeAnnotation = node =>
 
 const getParameterEventContexts = (context, functionNode) => {
 	const eventContexts = [];
+	const isInlineCallback = functionNode.type === 'ArrowFunctionExpression' || functionNode.type === 'FunctionExpression';
 
 	if (
-		(functionNode.type === 'ArrowFunctionExpression' || functionNode.type === 'FunctionExpression')
-		&& isPropertyNamedAddEventListener(functionNode.parent)
+		isInlineCallback
+		&& isAddEventListenerCall(functionNode.parent)
 		&& functionNode.parent.arguments[1] === functionNode
 	) {
 		eventContexts.push({
@@ -73,7 +74,7 @@ const getParameterEventContexts = (context, functionNode) => {
 	}
 
 	if (
-		(functionNode.type === 'ArrowFunctionExpression' || functionNode.type === 'FunctionExpression')
+		isInlineCallback
 		&& isKeyboardEventJsxHandler(functionNode)
 	) {
 		eventContexts.push({
@@ -186,9 +187,8 @@ const getReplacement = node => {
 		return;
 	}
 
-	// Either a meta key or a printable character
+	// Either a standard key value or a printable character
 	const key = getKey(right.value);
-	// And if we recognize the `.keyCode`
 	if (!key) {
 		return;
 	}
@@ -199,21 +199,6 @@ const getReplacement = node => {
 	};
 };
 
-const fix = node => fixer => {
-	const replacement = getReplacement(node);
-	if (!replacement) {
-		return;
-	}
-
-	const {key, right} = replacement;
-
-	// Apply fixes
-	return [
-		fixer.replaceText(node, 'key'),
-		fixer.replaceText(right, escapeString(key)),
-	];
-};
-
 const getProblem = (node, {shouldAutofix}) => {
 	const replacement = getReplacement(node);
 	const problem = {
@@ -222,23 +207,27 @@ const getProblem = (node, {shouldAutofix}) => {
 		node,
 	};
 
-	if (shouldAutofix && replacement) {
-		problem.fix = fix(node);
+	if (!replacement) {
 		return problem;
 	}
 
-	if (!shouldAutofix && replacement) {
-		problem.suggest = [
-			{
-				messageId: SUGGESTION_MESSAGE_ID,
-				data: {key: replacement.key},
-				fix: fixer => [
-					fixer.replaceText(node, 'key'),
-					fixer.replaceText(replacement.right, escapeString(replacement.key)),
-				],
-			},
-		];
+	const fix = fixer => [
+		fixer.replaceText(node, 'key'),
+		fixer.replaceText(replacement.right, escapeString(replacement.key)),
+	];
+
+	if (shouldAutofix) {
+		problem.fix = fix;
+		return problem;
 	}
+
+	problem.suggest = [
+		{
+			messageId: SUGGESTION_MESSAGE_ID,
+			data: {key: replacement.key},
+			fix,
+		},
+	];
 
 	return problem;
 };
@@ -313,7 +302,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `KeyboardEvent#key` over `KeyboardEvent#keyCode`.',
+			description: 'Prefer `KeyboardEvent#key` over deprecated keyboard event properties.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
