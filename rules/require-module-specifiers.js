@@ -11,6 +11,64 @@ const messages = {
 
 const isFromToken = token => token.type === 'Identifier' && token.value === 'from';
 
+const isRuntimeImportSpecifier = specifier => specifier.type !== 'ImportSpecifier' || specifier.importKind !== 'type';
+
+const isRuntimeImportDeclaration = importDeclaration =>
+	importDeclaration.importKind !== 'type'
+	&& (
+		importDeclaration.specifiers.length === 0
+		|| importDeclaration.specifiers.some(specifier => isRuntimeImportSpecifier(specifier))
+	);
+
+const isRuntimeExportSpecifier = specifier => specifier.exportKind !== 'type';
+
+const isBareModuleMarker = exportDeclaration =>
+	exportDeclaration.type === 'ExportNamedDeclaration'
+	&& !exportDeclaration.source
+	&& exportDeclaration.exportKind !== 'type'
+	&& !exportDeclaration.declaration
+	&& exportDeclaration.specifiers.length === 0;
+
+const isRuntimeExportDeclaration = exportDeclaration => {
+	if (exportDeclaration.exportKind === 'type') {
+		return false;
+	}
+
+	if (exportDeclaration.type === 'ExportDefaultDeclaration' || exportDeclaration.type === 'ExportAllDeclaration') {
+		return true;
+	}
+
+	const {declaration, source, specifiers} = exportDeclaration;
+	return Boolean(declaration
+		|| (source && specifiers.length === 0)
+		|| specifiers.some(specifier => isRuntimeExportSpecifier(specifier)));
+};
+
+const hasConflictingModuleMarker = exportDeclaration => {
+	const programBody = exportDeclaration.parent.body;
+	const exportDeclarationIndex = programBody.indexOf(exportDeclaration);
+
+	return programBody.some((node, index) => {
+		if (node === exportDeclaration) {
+			return false;
+		}
+
+		if (node.type === 'ImportDeclaration') {
+			return isRuntimeImportDeclaration(node);
+		}
+
+		if (node.type.startsWith('Export')) {
+			if (isBareModuleMarker(node)) {
+				return index < exportDeclarationIndex;
+			}
+
+			return isRuntimeExportDeclaration(node);
+		}
+
+		return false;
+	});
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -96,6 +154,10 @@ const create = context => {
 		}
 
 		const {source, exportKind} = exportDeclaration;
+		if (!source && exportKind !== 'type' && !hasConflictingModuleMarker(exportDeclaration)) {
+			return;
+		}
+
 		const fromToken = source ? sourceCode.getTokenBefore(source) : undefined;
 		const closingBraceToken = fromToken
 			? sourceCode.getTokenBefore(fromToken)
