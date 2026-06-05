@@ -40,6 +40,21 @@ test.snapshot({
 		'if (foo.match(null)) {}',
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
+
+		// Unsupported length checks
+		'if (uri.match(/unicorn/).length >= 1) {}',
+		'if (uri.match(/unicorn/).length === 0) {}',
+		'if (0 < uri.match(/unicorn/).length) {}',
+		'if (uri.match?.(/unicorn/)?.length) {}',
+		'if (!uri.match(/unicorn/).length) {}',
+		'if (!uri.match(/unicorn/)?.length) {}',
+		'if (!uri.match(/unicorn/).length > 0) {}',
+		'if (!(uri.match(/unicorn/).length > 0)) {}',
+		'if (!(foo || uri.match(/unicorn/).length)) {}',
+		'if (!(foo || uri.match(/unicorn/).length > 0)) {}',
+		'if (!Boolean(uri.match(/unicorn/).length)) {}',
+		'if (!Boolean(uri.match(/unicorn/).length > 0)) {}',
+		'if (!Boolean(foo || uri.match(/unicorn/).length)) {}',
 	],
 	invalid: [
 		// `String#match()`
@@ -54,6 +69,7 @@ test.snapshot({
 		'if (uri.match(/unicorn/).length > 0) {}',
 		'if (uri.match(/unicorn/)?.length) {}',
 		'if (uri.match(/unicorn/)?.length > 0) {}',
+		'if (uri.match(/unicorn/).length /* keep */ > 0) {}',
 		outdent`
 			if (
 				uri.match(/unicorn/).length ||
@@ -71,6 +87,8 @@ test.snapshot({
 		'const re = /a/; while (re.exec(foo)) foo = foo.slice(1);',
 		'const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo));',
 		'const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1);',
+		'if (/unicorn/.exec(uri).length) {}',
+		'if (/unicorn/.exec(uri)?.length > 0) {}',
 
 		// Parentheses
 		'const re = /a/; if ((0, foo).match(re)) {}',

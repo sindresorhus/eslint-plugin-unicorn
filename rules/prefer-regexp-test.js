@@ -12,6 +12,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getParenthesizedRange,
+	isLogicalExpression,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -38,7 +39,9 @@ const cases = [
 			methodNode: node.callee.property,
 			regexpNode: node.callee.object,
 		}),
-		fix: (fixer, {methodNode}) => fixer.replaceText(methodNode, 'test'),
+		* fix(fixer, {methodNode}) {
+			yield fixer.replaceText(methodNode, 'test');
+		},
 	},
 	{
 		type: STRING_MATCH,
@@ -91,6 +94,64 @@ const isLengthMemberExpression = (node, object) =>
 	isMemberExpression(node, {property: 'length'})
 	&& node.object === object;
 
+const isNegated = node =>
+	node.parent.type === 'UnaryExpression'
+	&& node.parent.operator === '!'
+	&& node.parent.argument === node;
+
+const isBooleanCall = node =>
+	node?.type === 'CallExpression'
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name === 'Boolean'
+	&& node.arguments.length === 1;
+
+const getBooleanExpressionAncestor = node => {
+	while (true) {
+		if (isLogicalExpression(node.parent)) {
+			node = node.parent;
+			continue;
+		}
+
+		if (isBooleanCall(node.parent) && node.parent.arguments[0] === node) {
+			node = node.parent;
+			continue;
+		}
+
+		break;
+	}
+
+	return node;
+};
+
+const isNegatedBooleanValue = node => isNegated(getBooleanExpressionAncestor(node));
+
+const hasCommentsInRange = (sourceCode, [start, end]) =>
+	sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return commentStart >= start && commentEnd <= end;
+	});
+
+const getLengthWrapperRemovalRanges = (lengthCheck, context) => {
+	const {sourceCode} = context;
+	const ranges = [[
+		getParenthesizedRange(lengthCheck.lengthNode.object, context)[1],
+		sourceCode.getRange(lengthCheck.lengthNode)[1],
+	]];
+
+	if (lengthCheck.comparisonLeftNode) {
+		ranges.push([
+			getParenthesizedRange(lengthCheck.comparisonLeftNode, context)[1],
+			sourceCode.getRange(lengthCheck.node)[1],
+		]);
+	}
+
+	return ranges;
+};
+
+const canSuggestLengthCheck = (lengthCheck, context) =>
+	!getLengthWrapperRemovalRanges(lengthCheck, context)
+		.some(range => hasCommentsInRange(context.sourceCode, range));
+
 const getLengthCheck = node => {
 	const lengthNode = unwrapChainExpression(node.parent);
 	if (!isLengthMemberExpression(lengthNode, node)) {
@@ -100,6 +161,10 @@ const getLengthCheck = node => {
 	const lengthCheckNode = lengthNode.parent.type === 'ChainExpression'
 		? lengthNode.parent
 		: lengthNode;
+
+	if (isNegatedBooleanValue(lengthCheckNode)) {
+		return;
+	}
 
 	if (isBooleanExpression(lengthCheckNode) || isControlFlowTest(lengthCheckNode)) {
 		return {lengthNode, node: lengthCheckNode};
@@ -111,20 +176,12 @@ const getLengthCheck = node => {
 		&& parent.left === lengthCheckNode
 		&& parent.operator === '>'
 		&& isLiteral(parent.right, 0)
+		&& !isNegatedBooleanValue(parent)
 		&& (isBooleanExpression(parent) || isControlFlowTest(parent))
 	) {
 		return {lengthNode, node: parent, comparisonLeftNode: lengthCheckNode};
 	}
 };
-
-function * yieldFixResult(fixResult) {
-	if (fixResult?.[Symbol.iterator]) {
-		yield * fixResult;
-		return;
-	}
-
-	yield fixResult;
-}
 
 const isRegExpWithoutGlobalFlag = (node, scope) => {
 	if (isRegexLiteral(node)) {
@@ -182,18 +239,20 @@ const create = context => {
 					}
 				}
 
-				for (const fixResult of yieldFixResult(fix(fixer, nodes, context))) {
+				for (const fixResult of fix(fixer, nodes, context)) {
 					yield fixResult;
 				}
 			};
 
 			if (lengthCheck) {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION,
-						fix: fixFunction,
-					},
-				];
+				if (canSuggestLengthCheck(lengthCheck, context)) {
+					problem.suggest = [
+						{
+							messageId: SUGGESTION,
+							fix: fixFunction,
+						},
+					];
+				}
 			} else if (
 				isRegExpNode(regexpNode)
 				|| isRegExpWithoutGlobalFlag(regexpNode, context.sourceCode.getScope(regexpNode))
