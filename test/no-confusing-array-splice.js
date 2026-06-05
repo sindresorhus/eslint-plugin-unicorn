@@ -1,0 +1,81 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'array.splice(index)',
+		'array.splice(index, 1)',
+		'array.splice(index, 2, element)',
+		'array.splice(index, 0, element)',
+		'array.splice(index, 1n, element)',
+		'array.splice(-2, 0, element)',
+		'array.splice(-1, 0, element, otherElement)',
+		'array.splice(index, 1, ...elements)',
+		'array.splice(index, ...argumentsArray)',
+		'array.toSpliced(index)',
+		'array.toSpliced(index, 1)',
+		'array.toSpliced(index, 2, element)',
+		'array.toSpliced(index, 0, element)',
+		'array.toSpliced(index, 1n, element)',
+		'array.toSpliced(-2, 0, element)',
+		'array.toSpliced(-1, 0, element, otherElement)',
+		'array.toSpliced(index, 1, ...elements)',
+		'array.toSpliced(index, ...argumentsArray)',
+		'array["splice"](index, 1, element)',
+		'array["toSpliced"](index, 1, element)',
+		'splice(index, 1, element)',
+		'toSpliced(index, 1, element)',
+		'new array.splice(index, 1, element)',
+		'array.splice?.(index, 1, element)',
+		'array.toSpliced?.(index, 1, element)',
+		'array?.splice(index, 1, element)',
+		'array?.toSpliced(index, 1, element)',
+	],
+	invalid: [
+		'array.splice(index, 1, element)',
+		'array.splice(index, 1.0, element)',
+		'array.splice(index, 0x1, element)',
+		'array.splice(index, +1, element)',
+		'const removed = array.splice(index, 1, element)',
+		'array.splice(-1, 1, element)',
+		'array.splice(-1, 0, element)',
+		'array.splice(- 1, 0, element)',
+		'array.splice(-1, +0, element)',
+		'array.splice(-1, -0, element)',
+		'array.splice(-1, 0b0, element)',
+		'array.toSpliced(index, 1, element)',
+		'array.toSpliced(index, 1.0, element)',
+		'array.toSpliced(index, 0x1, element)',
+		'array.toSpliced(index, +1, element)',
+		'const result = array.toSpliced(index, 1, element)',
+		'array.toSpliced(-1, 1, element)',
+		'array.toSpliced(-1, 0, element)',
+		'array.toSpliced(- 1, 0, element)',
+		'array.toSpliced(-1, +0, element)',
+		'array.toSpliced(-1, -0, element)',
+		'array.toSpliced(-1, 0b0, element)',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		'array.splice(index, 1n, element)',
+		'array.toSpliced(index, 1n, element)',
+	],
+	invalid: [
+		'array.splice(index, 1 as const, element)',
+		'array.splice(index, <number>1, element)',
+		'array.splice(index, 1!, element)',
+		'array.splice(-1 as const, 0 as const, element)',
+		'array.toSpliced(index, 1 as const, element)',
+		'array.toSpliced(index, <number>1, element)',
+		'array.toSpliced(index, 1!, element)',
+		'array.toSpliced(-1 as const, 0 as const, element)',
+	],
+});
