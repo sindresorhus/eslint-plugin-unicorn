@@ -18,6 +18,10 @@ test({
 			options: [{targets: {node: '18'}}],
 		},
 		{
+			code: 'import withResolvers from "promise.withresolvers"',
+			options: [{targets: {node: '20.15.0'}}],
+		},
+		{
 			code: 'require("this-is-not-a-polyfill")',
 			options: [{targets: {node: '0.1.0'}}],
 		},
@@ -291,6 +295,11 @@ test({
 			code: 'require("core-js/full/regexp/escape")',
 			options: [{targets: {node: '24'}}],
 			errors: [{message: 'All polyfilled features imported from `core-js/full/regexp/escape` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'import withResolvers from "promise.withresolvers"',
+			options: [{targets: {node: '22.0.0'}}],
+			errors: [{message: 'Use built-in instead.'}],
 		},
 	],
 });
