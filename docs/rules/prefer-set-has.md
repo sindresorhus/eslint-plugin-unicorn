@@ -37,3 +37,29 @@ array.push(3);
 const array = [1, 2, 3];
 const hasOne = array.includes(1);
 ```
+
+## Options
+
+Type: `object`
+
+### `minimumItems`
+
+Type: `integer`\
+Minimum: `0`\
+Default: `0`
+
+The minimum number of known array items before `Set#has()` is enforced.
+
+When this option is greater than `0`, this rule only reports arrays with a statically known size.
+
+```js
+/* eslint unicorn/prefer-set-has: ["error", {"minimumItems": 5}] */
+
+// ❌
+const array = [1, 2, 3, 4, 5];
+const hasValue = value => array.includes(value);
+
+// ✅
+const smallArray = [1, 2, 3, 4];
+const hasSmallValue = value => smallArray.includes(value);
+```
