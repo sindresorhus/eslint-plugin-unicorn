@@ -14,6 +14,7 @@
   - Spread an array literal as elements of an array literal
   - Spread an array literal as arguments of a call or a `new` call
   - Spread an object literal as properties of an object literal
+  - Spread an iterable as arguments of a collection constructor that accepts a single iterable argument
   - Use spread syntax to clone an array created inline
 
 - The following builtins accept an iterable, so it's unnecessary to convert the iterable to an array:
@@ -73,6 +74,13 @@ const set = new Set([...iterable]);
 // ✅
 const set = new Set(iterable);
 ```
+
+```js
+// ❌
+const set = new Set(...iterable);
+```
+
+The `new Set(...iterable)`, `new Map(...iterable)`, `new WeakSet(...iterable)`, and `new WeakMap(...iterable)` cases are intentionally not autofixed because the correct replacement depends on the iterable value. Pass the intended single iterable argument directly.
 
 ```js
 // ❌

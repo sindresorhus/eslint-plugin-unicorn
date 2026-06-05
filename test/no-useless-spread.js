@@ -144,6 +144,25 @@ test.snapshot({
 
 		'Promise.all(...[...iterable])',
 		'new Map(...[...iterable])',
+		'new Set(...[iterable])',
+	],
+});
+
+// Spread in collection constructor
+test.snapshot({
+	valid: [
+		'new Set(iterable)',
+		'new NotSet(...iterable)',
+		'new namespace.Set(...iterable)',
+		'Set(...iterable)',
+		'new Uint8Array(...iterable)',
+	],
+	invalid: [
+		'new Set(...iterable)',
+		'new Map(...iterable)',
+		'new WeakSet(...iterable)',
+		'new WeakMap(...iterable)',
+		'new Set(...getNames())',
 	],
 });
 
@@ -154,7 +173,6 @@ test.snapshot({
 		'new foo.Map([...iterable])',
 		'new Map([...iterable], extraArgument)',
 		'new Map()',
-		'new Map(...iterable)',
 		'new Map([,...iterable])',
 		'new Map([...iterable, extraElement])',
 		'new Map({...iterable})',

@@ -14,14 +14,18 @@ const SPREAD_IN_LIST = 'spread-in-list';
 const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
+const SPREAD_IN_COLLECTION_CONSTRUCTOR = 'spread-in-collection-constructor';
 const CLONE_ARRAY = 'clone-array';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
+	[SPREAD_IN_COLLECTION_CONSTRUCTOR]: '`{{constructorName}}` accepts a single iterable argument, spreading is misleading.',
 	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
 };
+
+const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
 
 const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
@@ -146,13 +150,29 @@ const create = context => {
 		const spreadToken = sourceCode.getFirstToken(spreadElement);
 		const parentType = spreadElement.parent.type;
 
-		return {
+		const problem = {
 			node: spreadToken,
 			messageId: SPREAD_IN_LIST,
 			data: {
 				argumentType: spreadObject.type === 'ArrayExpression' ? 'array' : 'object',
 				parentDescription: parentDescriptions[parentType],
 			},
+		};
+
+		if (
+			parentType === 'NewExpression'
+			&& isSingleArraySpread(spreadObject)
+			&& isNewExpression(spreadElement.parent, {
+				names: collectionConstructors,
+				argumentsLength: 1,
+				allowSpreadElement: true,
+			})
+		) {
+			return problem;
+		}
+
+		return {
+			...problem,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
 			* fix(fixer) {
 				// `[...[foo]]`
@@ -210,6 +230,27 @@ const create = context => {
 		};
 	});
 
+	// Spread in collection constructor
+	context.on('NewExpression', node => {
+		if (
+			!isNewExpression(node, {
+				names: collectionConstructors,
+				argumentsLength: 1,
+				allowSpreadElement: true,
+			})
+			|| node.arguments[0].type !== 'SpreadElement'
+			|| node.arguments[0].argument.type === 'ArrayExpression'
+		) {
+			return;
+		}
+
+		return {
+			node: node.arguments[0],
+			messageId: SPREAD_IN_COLLECTION_CONSTRUCTOR,
+			data: {constructorName: `new ${node.callee.name}(…)`},
+		};
+	});
+
 	// Useless iterable to array
 	context.on('ArrayExpression', arrayExpression => {
 		if (!isSingleArraySpread(arrayExpression)) {
@@ -222,7 +263,7 @@ const create = context => {
 			|| (parent.type === 'YieldExpression' && parent.delegate && parent.argument === arrayExpression)
 			|| (
 				(
-					isNewExpression(parent, {names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1})
+					isNewExpression(parent, {names: collectionConstructors, argumentsLength: 1})
 					|| isNewExpression(parent, {names: typedArray, minimumArguments: 1})
 					|| isMethodCall(parent, {
 						object: 'Promise',
