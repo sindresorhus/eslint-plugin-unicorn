@@ -18,10 +18,6 @@ const isStandaloneConstDeclaration = node =>
 	&& (
 		node.parent.parent.type === 'Program'
 		|| node.parent.parent.type === 'BlockStatement'
-	)
-	&& !(
-		node.parent.parent.type === 'ExportNamedDeclaration'
-		&& node.parent.parent.declaration === node.parent
 	);
 
 function isGlobalIdentifier(node, context) {
@@ -38,10 +34,10 @@ function isSameBindingAtUse(identifier, reference, context) {
 	return findVariable(sourceCode.getScope(identifier), identifier) === findVariable(sourceCode.getScope(reference), identifier);
 }
 
-const isGlobalNewExpression = (node, names, context) =>
+const isGlobalFormDataConstructor = (node, context) =>
 	isNewExpression(node, {
-		names,
-		minimumArguments: 0,
+		name: 'FormData',
+		argumentsLength: 0,
 	})
 	&& isGlobalIdentifier(node.callee, context);
 
@@ -168,7 +164,7 @@ function getSupportedCall(identifier, context) {
 			optionalMember: false,
 		})
 		&& parent.arguments[1] === identifier
-		&& isGlobalNewExpression(getConstIdentifierDeclaration(parent.callee.object, context)?.init, ['FormData'], context)
+		&& isGlobalFormDataConstructor(getConstIdentifierDeclaration(parent.callee.object, context)?.init, context)
 	)) {
 		return;
 	}

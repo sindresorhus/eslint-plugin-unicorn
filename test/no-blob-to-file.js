@@ -21,6 +21,8 @@ test.snapshot({
 		'const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);\nconsole.log(file);',
 		'const file = new File([blob], "image.jpg");\nformData.append("file", file);',
 		'const formData = {append() {}};\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
+		'const formData = new FormData(form);\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
+		'const formData = new FormData(...arguments_);\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
 		'const file = new File([blob], "image.jpg");\nURL.revokeObjectURL(file);',
 		'const file = new File([blob], "image.jpg");\nURL.createObjectURL?.(file);',
 		'const file = new File([blob], "image.jpg");\nURL?.createObjectURL(file);',
