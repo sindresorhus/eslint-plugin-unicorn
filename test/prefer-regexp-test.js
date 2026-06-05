@@ -41,6 +41,12 @@ test.snapshot({
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
 
+		// Redux Toolkit action matchers
+		'liquidityFormSlice.actions.refetch.match(action) ? wait(1000) : Promise.resolve()',
+		'if (slice.actions.someAction.match(action)) {}',
+		'if (slice.actions.someAction.match(receivedAction)) {}',
+		'if (slice.actions.someAction.match(event.action)) {}',
+
 		// Unsupported length checks
 		'if (uri.match(/unicorn/).length >= 1) {}',
 		'if (uri.match(/unicorn/).length === 0) {}',
@@ -65,6 +71,9 @@ test.snapshot({
 		'const re = /a/; while (foo.match(re)) foo = foo.slice(1);',
 		'const re = /a/; do {foo = foo.slice(1)} while (foo.match(re));',
 		'const re = /a/; for (; foo.match(re); ) foo = foo.slice(1);',
+		'if (slice.actions.someAction.match(/regexp/)) {}',
+		'const action = /regexp/; if (slice.actions.someAction.match(action)) {}',
+		'const action = /regexp/g; if (slice.actions.someAction.match(action)) {}',
 		'if (uri.match(/unicorn/).length) {}',
 		'if (uri.match(/unicorn/).length > 0) {}',
 		'if (uri.match(/unicorn/)?.length) {}',
@@ -230,9 +239,9 @@ const supportsUnicodeSets = (() => {
 	try {
 		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
 		return new RegExp('.', 'v').unicodeSets;
-	} catch {}
-
-	return false;
+	} catch {
+		return false;
+	}
 })();
 // These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
 // But will use suggestions instead in environments doesn't support `v` flag.
