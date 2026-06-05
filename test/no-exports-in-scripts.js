@@ -55,12 +55,25 @@ test.snapshot({
 		`,
 		outdent`
 			#!/usr/bin/env node
+			export * as foo from './foo.js';
+		`,
+		outdent`
+			#!/usr/bin/env node
 			const foo = 1;
 			export {foo};
 		`,
 		outdent`
 			#!/usr/bin/env node
+			export {foo} from './foo.js';
+		`,
+		outdent`
+			#!/usr/bin/env node
 			export {};
+		`,
+		outdent`
+			#!/usr/bin/env node
+			export const foo = 1;
+			export const bar = 2;
 		`,
 		typescriptCode(outdent`
 			#!/usr/bin/env node

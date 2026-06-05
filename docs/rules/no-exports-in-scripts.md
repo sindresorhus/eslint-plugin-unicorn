@@ -26,6 +26,8 @@ const foo = 1;
 console.log(foo);
 ```
 
+Modules pass:
+
 ```js
 export const foo = 1;
 ```
