@@ -88,11 +88,22 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
-const isReduxToolkitSliceActionMatcher = ({stringNode, regexpNode}) =>
-	regexpNode.type === 'Identifier'
-	&& regexpNode.name === 'action'
-	&& isMemberExpression(stringNode, {optional: false, computed: false})
+const isReduxToolkitSliceActionMatcher = ({stringNode}) =>
+	isMemberExpression(stringNode, {optional: false, computed: false})
 	&& isMemberExpression(stringNode.object, {property: 'actions', optional: false, computed: false});
+
+const getStaticRegExp = (node, scope) => {
+	const staticResult = getStaticValue(node, scope);
+
+	if (!staticResult) {
+		return;
+	}
+
+	const {value} = staticResult;
+	if (Object.prototype.toString.call(value) === '[object RegExp]') {
+		return value;
+	}
+};
 
 const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
 
@@ -189,25 +200,6 @@ const getLengthCheck = node => {
 	}
 };
 
-const isRegExpWithoutGlobalFlag = (node, scope) => {
-	if (isRegexLiteral(node)) {
-		return !node.regex.flags.includes('g');
-	}
-
-	const staticResult = getStaticValue(node, scope);
-
-	// Don't know if there is `g` flag
-	if (!staticResult) {
-		return false;
-	}
-
-	const {value} = staticResult;
-	return (
-		Object.prototype.toString.call(value) === '[object RegExp]'
-		&& !value.global
-	);
-};
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (node) {
@@ -224,11 +216,20 @@ const create = context => {
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
-			if (type === STRING_MATCH && isReduxToolkitSliceActionMatcher(nodes)) {
+			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
 				continue;
 			}
 
-			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
+			const regexpScope = context.sourceCode.getScope(regexpNode);
+			const staticRegExp = getStaticRegExp(regexpNode, regexpScope);
+			const isRegExp = isRegExpNode(regexpNode);
+			const isKnownRegExp = isRegExp || staticRegExp !== undefined;
+
+			if (
+				type === STRING_MATCH
+				&& !isKnownRegExp
+				&& isReduxToolkitSliceActionMatcher(nodes)
+			) {
 				continue;
 			}
 
@@ -264,8 +265,8 @@ const create = context => {
 					];
 				}
 			} else if (
-				isRegExpNode(regexpNode)
-				|| isRegExpWithoutGlobalFlag(regexpNode, context.sourceCode.getScope(regexpNode))
+				isRegExp
+				|| staticRegExp?.global === false
 			) {
 				problem.fix = fixFunction;
 			} else {
