@@ -896,6 +896,15 @@ test.snapshot({
 			`,
 			options: [{minimumItems: 5}],
 		},
+		{
+			code: outdent`
+				const foo = Array.from({length: 2 ** 32}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
 	],
 	invalid: [
 		{
@@ -982,6 +991,15 @@ test.snapshot({
 		{
 			code: outdent`
 				const foo = new Array(5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = new Array(1, 2, 3, 4, 5);
 				function unicorn() {
 					return foo.includes(1);
 				}

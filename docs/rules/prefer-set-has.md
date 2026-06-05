@@ -48,7 +48,7 @@ Type: `integer`\
 Minimum: `0`\
 Default: `0`
 
-The minimum number of known array items before `Set#has()` is enforced.
+The minimum known array size before `Set#has()` is enforced.
 
 When this option is greater than `0`, this rule only reports arrays with a statically known size.
 

@@ -146,10 +146,10 @@ const isArrayLength = value =>
 	isNonNegativeInteger(value)
 	&& value <= MAX_ARRAY_LENGTH;
 
-const getStaticNonNegativeInteger = (node, scope) => {
+const getStaticArrayLength = (node, scope) => {
 	const result = getStaticValue(node, scope);
 
-	if (isNonNegativeInteger(result?.value)) {
+	if (isArrayLength(result?.value)) {
 		return result.value;
 	}
 };
@@ -183,7 +183,7 @@ const getObjectLength = (node, scope) => {
 	const [property] = node.properties;
 
 	if (isLengthProperty(property)) {
-		return getStaticNonNegativeInteger(property.value, scope);
+		return getStaticArrayLength(property.value, scope);
 	}
 };
 
@@ -430,7 +430,7 @@ const schema = [
 			minimumItems: {
 				type: 'integer',
 				minimum: 0,
-				description: 'The minimum number of known array items before `Set#has()` is enforced.',
+				description: 'The minimum known array size before `Set#has()` is enforced.',
 			},
 		},
 	},
