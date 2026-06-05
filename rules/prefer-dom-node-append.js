@@ -3,7 +3,7 @@ import {isNodeValueNotDomNode, isValueNotUsable} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-dom-node-append';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Node#append()` over `Node#appendChild()`.',
+	[MESSAGE_ID]: 'Prefer `Element#append()` over `Node#appendChild()`.',
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -39,7 +39,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Node#append()` over `Node#appendChild()`.',
+			description: 'Prefer `Element#append()` over `Node#appendChild()`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
