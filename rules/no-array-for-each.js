@@ -388,8 +388,21 @@ const ignoredObjects = [
 	'pIteration',
 	// https://www.npmjs.com/package/effect
 	'Effect',
-	'CB',
 ];
+
+const strictCallbagBasicsPackage = 'strict-callbag-basics';
+
+function isStrictCallbagBasicsNamespace(node, scope) {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(scope, node);
+	return variable?.defs.some(definition =>
+		definition.type === 'ImportBinding'
+		&& definition.node.type === 'ImportNamespaceSpecifier'
+		&& definition.parent.source.value === strictCallbagBasicsPackage) ?? false;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -428,18 +441,20 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
+		const scope = sourceCode.getScope(node);
 		if (
 			!isMethodCall(node, {
 				method: 'forEach',
 			})
 			|| isNodeMatches(node.callee.object, ignoredObjects)
+			|| isStrictCallbagBasicsNamespace(node.callee.object, scope)
 		) {
 			return;
 		}
 
 		callExpressions.push({
 			node,
-			scope: sourceCode.getScope(node),
+			scope,
 		});
 	});
 

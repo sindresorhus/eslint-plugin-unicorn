@@ -19,7 +19,7 @@ test.snapshot({
 		`,
 		// #1788
 		outdent`
-			import * as CB from "strict-callbag-basics";
+			import * as CB from 'strict-callbag-basics';
 
 			CB.pipe(
 				CB.interval(1000),
@@ -28,6 +28,11 @@ test.snapshot({
 				CB.take(5),
 				CB.forEach(x => console.log(x))
 			);
+		`,
+		outdent`
+			import * as callbagBasics from 'strict-callbag-basics';
+
+			callbagBasics.forEach(value => console.log(value));
 		`,
 		// #2758
 		'Effect.forEach([1,2,3], (n) => Effect.succeed(n))',
@@ -578,6 +583,17 @@ test({
 			languageOptions: {
 				sourceType: 'script',
 			},
+		},
+		{
+			code: outdent`
+				const CB = [];
+				CB.forEach(element => console.log(element));
+			`,
+			output: outdent`
+				const CB = [];
+				for (const element of CB) console.log(element);
+			`,
+			errors: 1,
 		},
 	],
 });
