@@ -9,9 +9,11 @@ import {
 import cartesianProductSamples from './utils/cartesian-product-samples.js';
 
 const MESSAGE_ID = 'filename-case';
+const MESSAGE_ID_DIRECTORY = 'directory-case';
 const MESSAGE_ID_EXTENSION = 'filename-extension';
 const messages = {
 	[MESSAGE_ID]: 'Filename is not in {{chosenCases}}. Rename it to {{renamedFilenames}}.',
+	[MESSAGE_ID_DIRECTORY]: 'Directory name `{{directory}}` is not in {{chosenCases}}. Rename it to {{renamedDirectories}}.',
 	[MESSAGE_ID_EXTENSION]: 'File extension `{{extension}}` is not in lowercase. Rename it to `{{filename}}`.',
 };
 
@@ -99,6 +101,25 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 	return parts;
 }
 
+function isInsideCwd(relativePath) {
+	return relativePath !== ''
+		&& relativePath !== '..'
+		&& !relativePath.startsWith(`..${path.sep}`)
+		&& !path.isAbsolute(relativePath);
+}
+
+function getPathSegments(filenameWithExtension, cwd) {
+	const relativePath = path.relative(cwd, filenameWithExtension);
+
+	if (!isInsideCwd(relativePath)) {
+		return [path.basename(filenameWithExtension)];
+	}
+
+	return relativePath
+		.split(path.sep)
+		.filter(segment => segment !== '.');
+}
+
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
 function splitFilename(filename) {
 	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
@@ -135,6 +156,33 @@ Turns `[a, b, c]` into `a, b, or c`.
 */
 const englishishJoinWords = words => new Intl.ListFormat('en-US', {type: 'disjunction'}).format(words);
 
+function getCaseNames(chosenCases) {
+	return englishishJoinWords(chosenCases.map(x => cases[x].name));
+}
+
+function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
+	const {leading, words} = splitFilename(directory);
+
+	if (directory.startsWith('$') || validateFilename(words, chosenCasesFunctions)) {
+		return;
+	}
+
+	const renamedDirectories = fixFilename(words, chosenCasesFunctions, {
+		leading,
+		trailing: '',
+	});
+
+	return {
+		loc: {column: 0, line: 1},
+		messageId: MESSAGE_ID_DIRECTORY,
+		data: {
+			directory,
+			chosenCases: getCaseNames(chosenCases),
+			renamedDirectories: englishishJoinWords(renamedDirectories.map(x => `\`${x}\``)),
+		},
+	};
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = context.options[0] || {};
@@ -155,14 +203,28 @@ const create = context => {
 	}
 
 	context.on('Program', () => {
+		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
+		const basenameWithExtension = pathSegments.at(-1);
 		const {
 			basename,
 			filename,
 			middle,
 			extension,
-		} = getFilenameParts(filenameWithExtension, {multipleFileExtensions});
+		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions});
 
-		if (ignoredByDefault.has(basename) || ignore.some(regexp => regexp.test(basename))) {
+		if (pathSegments.some(segment => ignore.some(regexp => regexp.test(segment)))) {
+			return;
+		}
+
+		for (const directory of pathSegments.slice(0, -1)) {
+			const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
+
+			if (report) {
+				return report;
+			}
+		}
+
+		if (ignoredByDefault.has(basename)) {
 			return;
 		}
 
@@ -192,7 +254,7 @@ const create = context => {
 			loc: {column: 0, line: 1},
 			messageId: MESSAGE_ID,
 			data: {
-				chosenCases: englishishJoinWords(chosenCases.map(x => cases[x].name)),
+				chosenCases: getCaseNames(chosenCases),
 				renamedFilenames: englishishJoinWords(renamedFilenames.map(x => `\`${x}\``)),
 			},
 		};
@@ -271,7 +333,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce a case style for filenames.',
+			description: 'Enforce a case style for filenames and directory names.',
 			recommended: true,
 		},
 		schema,
