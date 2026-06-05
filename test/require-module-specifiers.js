@@ -42,6 +42,7 @@ test.snapshot({
 // `export`
 test.snapshot({
 	valid: [
+		'export {}',
 		outdent`
 			const foo = 1;
 			export {foo};
@@ -51,6 +52,32 @@ test.snapshot({
 		typescriptCode('export type {Foo}'),
 		typescriptCode('export type {foo} from "foo"'),
 		typescriptCode('export type * as foo from "foo"'),
+		typescriptCode(outdent`
+			import type foo from "foo";
+			export type bar = foo;
+			export {}
+		`),
+		typescriptCode(outdent`
+			import {type foo} from "foo";
+			export {}
+		`),
+		typescriptCode(outdent`
+			export {type foo} from "foo";
+			export {}
+		`),
+		typescriptCode(outdent`
+			export type * from "foo";
+			export {}
+		`),
+		typescriptCode(outdent`
+			export type * as foo from "foo";
+			export {}
+		`),
+		typescriptCode(outdent`
+			export {};
+			import type foo from "foo";
+			export type bar = foo;
+		`),
 		'export const foo = 1',
 		'export function foo() {}',
 		'export class foo {}',
@@ -59,7 +86,46 @@ test.snapshot({
 		'export const [] = foo',
 	],
 	invalid: [
-		'export {}',
+		outdent`
+			import "foo";
+			export {}
+		`,
+		outdent`
+			import foo from "foo";
+			export {}
+		`,
+		outdent`
+			export const foo = 1;
+			export {}
+		`,
+		outdent`
+			export * from "foo";
+			export {}
+		`,
+		outdent`
+			export {foo} from "foo";
+			export {}
+		`,
+		outdent`
+			export {};
+			import "foo";
+		`,
+		outdent`
+			export {};
+			export const foo = 1;
+		`,
+		typescriptCode(outdent`
+			import {type foo, bar} from "foo";
+			export {}
+		`),
+		typescriptCode(outdent`
+			export {type foo, bar} from "foo";
+			export {}
+		`),
+		outdent`
+			export {};
+			export {};
+		`,
 		typescriptCode('export type{}'),
 		typescriptCode('export type {} from "foo";'),
 		typescriptCode('declare export type {} from "foo";'),
