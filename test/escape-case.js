@@ -40,6 +40,11 @@ test({
 		'const foo = `foo\\\\\\\\ubarbaz`;',
 		'const foo = `\\ca`;',
 		'const foo = String.raw`\\uAaAa`;',
+		// Tagged template literals are ignored because tags can observe raw escapes.
+		// #2341
+		'const foo = tagged`\\xa9`;',
+		'const foo = tagged`\\uAaAa`;',
+		'const foo = tagged`\\u{00b1}`;',
 
 		// Literal regex
 		String.raw`const foo = /foo\xA9/`,
@@ -166,12 +171,6 @@ test({
 			code: 'const foo = `foo \\\\\\ud834`;',
 			output: 'const foo = `foo \\\\\\uD834`;',
 		},
-		// TODO: This is not safe, it will be broken if `tagged` uses `arguments[0].raw`
-		// #2341
-		{
-			code: 'const foo = tagged`\\uAaAa`;',
-			output: 'const foo = tagged`\\uAAAA`;',
-		},
 		{
 			code: 'const foo = `\\uAaAa```;',
 			output: 'const foo = `\\uAAAA```;',
@@ -290,6 +289,11 @@ test({
 		'const foo = `foo\\\\\\\\uBARBAZ`;',
 		'const foo = `\\ca`;',
 		'const foo = String.raw`\\uAaAa`;',
+		// Tagged template literals are ignored because tags can observe raw escapes.
+		// #2341
+		'const foo = tagged`\\xA9`;',
+		'const foo = tagged`\\uaAaA`;',
+		'const foo = tagged`\\u{00B1}`;',
 
 		// Literal regex
 		String.raw`const foo = /foo\xa9/`,
@@ -415,12 +419,6 @@ test({
 		{
 			code: 'const foo = `FOO \\\\\\uD834`;',
 			output: 'const foo = `FOO \\\\\\ud834`;',
-		},
-		// TODO: This is not safe, it will be broken if `tagged` uses `arguments[0].raw`
-		// #2341
-		{
-			code: 'const foo = tagged`\\uaAaA`;',
-			output: 'const foo = tagged`\\uaaaa`;',
 		},
 		{
 			code: 'const foo = `\\uaAaA```;',

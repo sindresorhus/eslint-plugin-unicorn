@@ -31,6 +31,7 @@ export {default as 'no-array-reverse'} from './no-array-reverse.js';
 export {default as 'no-array-sort'} from './no-array-sort.js';
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
+export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
 export {default as 'no-confusing-array-splice'} from './no-confusing-array-splice.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';

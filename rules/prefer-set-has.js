@@ -137,6 +137,63 @@ const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 		)
 	);
 
+const isNodeInside = (sourceCode, node, parent) => {
+	const nodeRange = sourceCode.getRange(node);
+	const parentRange = sourceCode.getRange(parent);
+
+	return nodeRange[0] >= parentRange[0]
+		&& nodeRange[1] <= parentRange[1];
+};
+
+const hasCommentsOutsideNode = (sourceCode, node, child) =>
+	sourceCode.getCommentsInside(node).some(comment => !isNodeInside(sourceCode, comment, child));
+
+const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
+	if (typeAnnotation.type === 'TSArrayType') {
+		if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeAnnotation.elementType)) {
+			return;
+		}
+
+		return `Set<${sourceCode.getText(typeAnnotation.elementType)}>`;
+	}
+
+	if (
+		typeAnnotation.type === 'TSTypeOperator'
+		&& typeAnnotation.operator === 'readonly'
+		&& typeAnnotation.typeAnnotation.type === 'TSArrayType'
+	) {
+		if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeAnnotation.typeAnnotation.elementType)) {
+			return;
+		}
+
+		return `ReadonlySet<${sourceCode.getText(typeAnnotation.typeAnnotation.elementType)}>`;
+	}
+
+	if (
+		typeAnnotation.type !== 'TSTypeReference'
+		|| typeAnnotation.typeName.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	const typeArguments = typeAnnotation.typeArguments ?? typeAnnotation.typeParameters;
+	if (typeArguments?.params.length !== 1) {
+		return;
+	}
+
+	if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeArguments)) {
+		return;
+	}
+
+	if (typeAnnotation.typeName.name === 'Array') {
+		return `Set${sourceCode.getText(typeArguments)}`;
+	}
+
+	if (typeAnnotation.typeName.name === 'ReadonlyArray') {
+		return `ReadonlySet${sourceCode.getText(typeArguments)}`;
+	}
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Identifier', node => {
@@ -191,7 +248,13 @@ const create = context => {
 			},
 		};
 
+		const setTypeAnnotationText = node.typeAnnotation && getSetTypeAnnotationText(node.typeAnnotation.typeAnnotation, context.sourceCode);
+
 		const fix = function * (fixer) {
+			if (setTypeAnnotationText) {
+				yield fixer.replaceText(node.typeAnnotation.typeAnnotation, setTypeAnnotationText);
+			}
+
 			yield fixer.insertTextBefore(node.parent.init, 'new Set(');
 			yield fixer.insertTextAfter(node.parent.init, ')');
 
@@ -200,7 +263,7 @@ const create = context => {
 			}
 		};
 
-		if (node.typeAnnotation) {
+		if (node.typeAnnotation && !setTypeAnnotationText) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
