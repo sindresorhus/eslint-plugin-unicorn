@@ -5,13 +5,23 @@ const messages = {
 	[MESSAGE_ID]: 'Use the `Array.from(…, mapFunction)` argument instead of chaining `.fill()`.',
 };
 
+const isLengthPropertyKey = key => (
+	(
+		key.type === 'Identifier'
+		&& key.name === 'length'
+	)
+	|| (
+		key.type === 'Literal'
+		&& key.value === 'length'
+	)
+);
+
 const isLengthProperty = property => (
 	property.type === 'Property'
 	&& !property.computed
 	&& !property.method
 	&& property.kind === 'init'
-	&& property.key.type === 'Identifier'
-	&& property.key.name === 'length'
+	&& isLengthPropertyKey(property.key)
 );
 
 const isArrayFromLengthCall = (node, sourceCode) => (
@@ -38,42 +48,10 @@ const isArrayFromFillCall = (node, sourceCode) => (
 	&& isArrayFromLengthCall(node.callee.object, sourceCode)
 );
 
-const isArrayFromFillMapCall = (node, sourceCode) => (
-	isMethodCall(node, {
-		methods: ['map', 'flatMap'],
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& isArrayFromFillCall(node.callee.object, sourceCode)
-);
-
-const isReportedByParentMapCall = (node, context) => {
-	const {parent} = node;
-
-	return (
-		parent.type === 'MemberExpression'
-		&& parent.object === node
-		&& parent.parent.type === 'CallExpression'
-		&& parent.parent.callee === parent
-		&& isArrayFromFillMapCall(parent.parent, context.sourceCode)
-	);
-};
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', callExpression => {
-		if (isArrayFromFillMapCall(callExpression, context.sourceCode)) {
-			return {
-				node: callExpression.callee.object.callee.property,
-				messageId: MESSAGE_ID,
-			};
-		}
-
-		if (
-			isArrayFromFillCall(callExpression, context.sourceCode)
-			&& !isReportedByParentMapCall(callExpression, context)
-		) {
+		if (isArrayFromFillCall(callExpression, context.sourceCode)) {
 			return {
 				node: callExpression.callee.property,
 				messageId: MESSAGE_ID,
