@@ -58,6 +58,7 @@ const allowedSchemaIdentifierMethods = new Set([
 
 const terminalSchemaMethods = new Set(['parse', 'safeParse', 'spa']);
 const promiseLikeSchemaMethods = new Set(['then', 'finally']);
+const zodNamespaceProperties = new Set(['coerce']);
 
 const isSchemaCatchObject = node => {
 	let expression = node;
@@ -67,6 +68,7 @@ const isSchemaCatchObject = node => {
 	let hasUncalledMemberExpression = false;
 	let hasCalledMemberExpressionAfterUncalledMemberExpression = false;
 	const methodNames = [];
+	const uncalledMemberNames = [];
 
 	while (true) {
 		if (expression.type === 'ChainExpression') {
@@ -95,6 +97,7 @@ const isSchemaCatchObject = node => {
 			hasMemberExpression = true;
 			if (!isCurrentMemberCalled) {
 				hasUncalledMemberExpression = true;
+				uncalledMemberNames.push(expression.property.name);
 			} else if (hasUncalledMemberExpression) {
 				hasCalledMemberExpressionAfterUncalledMemberExpression = true;
 			}
@@ -120,7 +123,8 @@ const isSchemaCatchObject = node => {
 		&& expression.name === 'z'
 		&& hasCallExpression
 		&& hasMemberExpression
-		&& !hasCalledMemberExpressionAfterUncalledMemberExpression;
+		&& !hasCalledMemberExpressionAfterUncalledMemberExpression
+		&& uncalledMemberNames.every(propertyName => zodNamespaceProperties.has(propertyName));
 };
 
 const isAwaitExpressionArgument = node => {
