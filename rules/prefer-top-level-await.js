@@ -143,6 +143,22 @@ const isAwaitExpressionArgument = node => {
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
+const variableDeclaratorInitializerWrappers = new Set([
+	'ChainExpression',
+	'TSAsExpression',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
+]);
+
+const isVariableDeclaratorInitializer = node => {
+	while (variableDeclaratorInitializerWrappers.has(node.parent.type)) {
+		node = node.parent;
+	}
+
+	return node.parent.type === 'VariableDeclarator' && node.parent.init === node;
+};
+
 const isArrayElementWrapper = node => (
 	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
 	|| (
@@ -198,6 +214,7 @@ function create(context) {
 			!isTopLevelCallExpression(node)
 			|| isPromiseMethodCalleeObject(node)
 			|| isAwaitExpressionArgument(node)
+			|| isVariableDeclaratorInitializer(node)
 			|| isInPromiseMethods(node)
 		) {
 			return;
