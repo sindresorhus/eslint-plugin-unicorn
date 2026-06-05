@@ -115,3 +115,34 @@ class CustomError extends Error {
 	name = 'CustomError';
 }
 ```
+
+When defining a custom `message` accessor, don't pass the message to `super()` as it would shadow the accessor with an own `message` property. Store the message somewhere else instead.
+
+```js
+// ❌
+class CustomError extends Error {
+	constructor(message) {
+		super(message);
+		this.name = 'CustomError';
+	}
+
+	get message() {
+		return 'Custom message';
+	}
+}
+
+// ✅
+class CustomError extends Error {
+	#message;
+
+	constructor(message) {
+		super();
+		this.#message = message;
+		this.name = 'CustomError';
+	}
+
+	get message() {
+		return this.#message;
+	}
+}
+```
