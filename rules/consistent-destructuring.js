@@ -200,11 +200,21 @@ const isInPositiveGuardBranch = (parent, child, memberExpression, sourceCode) =>
 	}
 };
 
+const isInTypeGuardBoundary = node =>
+	node.type === 'AccessorProperty'
+	|| node.type === 'FunctionDeclaration'
+	|| node.type === 'MethodDefinition'
+	|| node.type === 'PropertyDefinition';
+
 const isInTypeGuardedBranch = (node, sourceCode) => {
 	let child = node;
 	let {parent} = node;
 
 	while (parent) {
+		if (isInTypeGuardBoundary(parent)) {
+			return false;
+		}
+
 		if (isInPositiveGuardBranch(parent, child, node, sourceCode)) {
 			return true;
 		}
@@ -276,6 +286,11 @@ const create = context => {
 		}
 
 		const member = sourceCode.getText(node.property);
+
+		if (isInTypeGuardedBranch(node, sourceCode)) {
+			return;
+		}
+
 		const memberDestructuredInNestedPattern = isMemberDestructuredInNestedPatternWithRest(objectPattern, member);
 
 		const destructuredProperties = objectPattern.properties.filter(property =>
@@ -289,10 +304,6 @@ const create = context => {
 		// Member might already be destructured
 		const destructuredMember = destructuredProperties.find(property =>
 			property.key.name === member);
-
-		if (!destructuredMember && isInTypeGuardedBranch(node, sourceCode)) {
-			return;
-		}
 
 		if (!destructuredMember) {
 			if (memberDestructuredInNestedPattern) {

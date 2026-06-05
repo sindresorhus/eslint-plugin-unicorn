@@ -666,21 +666,131 @@ test.typescript({
 		`,
 		outdent`
 			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params) {
+				const getValue = function () {
+					return params.b;
+				};
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params) {
+				const value = {
+					get() {
+						return params.b;
+					}
+				};
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
+			if ('b' in params) {
+				class Value {
+					static {
+						console.log(params.b);
+					}
+				}
+			}
+		`,
+		outdent`
+			const {a}: {a: string} & ({b: number} | {}) = params;
 			const value = 'b' in params && params.b;
+		`,
+		outdent`
+			const {b}: {b?: number} = params;
+			if ('b' in params) {
+				console.log(params.b);
+			}
 		`,
 	],
 	invalid: [
 		invalidTestCase({
 			code: outdent`
-				const {b}: {b: number} = params;
-				if ('b' in params) {
+				const {a}: {a: string; b: number; c?: unknown} = params;
+				if ('c' in params) {
 					console.log(params.b);
 				}
 			`,
 			suggestions: [outdent`
-				const {b}: {b: number} = params;
-				if ('b' in params) {
+				const {a, b}: {a: string; b: number; c?: unknown} = params;
+				if ('c' in params) {
 					console.log(b);
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						get() {
+							return params.b;
+						}
+					}
+				}
+			`,
+			suggestions: [outdent`
+				const {a, b}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						get() {
+							return b;
+						}
+					}
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						accessor value = params.b;
+					}
+				}
+			`,
+			suggestions: [outdent`
+				const {a, b}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						accessor value = b;
+					}
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						value = params.b;
+					}
+				}
+			`,
+			suggestions: [outdent`
+				const {a, b}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					class Value {
+						value = b;
+					}
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					function getValue() {
+						return params.b;
+					}
+				}
+			`,
+			suggestions: [outdent`
+				const {a, b}: {a: string; b?: number} = params;
+				if ('b' in params) {
+					function getValue() {
+						return b;
+					}
 				}
 			`],
 		}),
