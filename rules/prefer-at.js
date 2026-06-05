@@ -2,6 +2,7 @@ import {
 	isOpeningBracketToken,
 	isClosingBracketToken,
 	getStaticValue,
+	findVariable,
 } from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
@@ -19,6 +20,7 @@ import {
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	isLiteral,
+	isStringLiteral,
 	isCallExpression,
 	isMethodCall,
 	isMemberExpression,
@@ -42,6 +44,63 @@ const messages = {
 };
 
 const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
+
+function unwrapExpression(node) {
+	if (
+		node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSNonNullExpression'
+		|| node.type === 'TSSatisfiesExpression'
+	) {
+		return unwrapExpression(node.expression);
+	}
+
+	return node;
+}
+
+const isUnsupportedAtReceiverExpression = node => {
+	node = unwrapExpression(node);
+
+	return node.type === 'ObjectExpression'
+		|| (node.type === 'Literal' && !isStringLiteral(node))
+		|| node.type === 'ArrowFunctionExpression'
+		|| node.type === 'FunctionExpression'
+		|| node.type === 'ClassExpression';
+};
+
+const getConstVariableInitializer = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (!variable || variable.defs.length !== 1) {
+		return;
+	}
+
+	const [definition] = variable.defs;
+	if (
+		definition.type !== 'Variable'
+		|| definition.node.type !== 'VariableDeclarator'
+		|| definition.parent.type !== 'VariableDeclaration'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	return definition.node.init;
+};
+
+const isObviouslyNonArrayReceiver = (node, context) => {
+	node = unwrapExpression(node);
+
+	if (isUnsupportedAtReceiverExpression(node)) {
+		return true;
+	}
+
+	const initializer = getConstVariableInitializer(node, context);
+	return Boolean(initializer && isUnsupportedAtReceiverExpression(initializer));
+};
 
 const isLiteralNegativeInteger = node =>
 	node.type === 'UnaryExpression'
@@ -160,6 +219,10 @@ function create(context) {
 			// Only if we are sure it's a positive integer
 			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
 			if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
+				return;
+			}
+
+			if (isObviouslyNonArrayReceiver(node.object, context)) {
 				return;
 			}
 		}
