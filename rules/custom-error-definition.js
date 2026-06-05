@@ -3,10 +3,15 @@ import {
 	getParenthesizedText,
 	isNodeMatchesNameOrPath,
 } from './utils/index.js';
+import {isUndefined} from './ast/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
+const MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER = 'doNotPassMessageToSuper';
+const MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER = 'doNotAssignMessageWithoutSetter';
 const messages = {
 	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
+	[MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER]: 'Do not pass the error message to `super()` when the class defines a `message` accessor.',
+	[MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER]: 'Do not assign to `this.message` when the class defines a `message` getter without a setter.',
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
@@ -44,6 +49,7 @@ const isSuperExpression = node =>
 const isAssignmentExpression = (node, name) =>
 	node.type === 'ExpressionStatement'
 	&& node.expression.type === 'AssignmentExpression'
+	&& node.expression.operator === '='
 	&& isNodeMatchesNameOrPath(node.expression.left, `this.${name}`);
 
 const createInvalidNameError = (node, name) => ({
@@ -62,7 +68,52 @@ const isValidNameProperty = (nameProperty, className) =>
 	nameProperty?.value
 	&& nameProperty.value.value === className;
 
-function * checkConstructorBody(context, constructor, name, nameProperty) {
+const isMessageAccessor = (node, kind) =>
+	node.type === 'MethodDefinition'
+	&& node.kind === kind
+	&& !node.static
+	&& !node.computed
+	&& node.key.type === 'Identifier'
+	&& node.key.name === 'message';
+
+const isMissingOrUndefined = node =>
+	!node
+	|| isUndefined(node);
+
+const isSameText = (left, right, sourceCode) =>
+	sourceCode.getText(left) === sourceCode.getText(right);
+
+const hasThisOrSuper = (node, visitorKeys) => {
+	if (node.type === 'ThisExpression' || node.type === 'Super') {
+		return true;
+	}
+
+	const keys = visitorKeys[node.type] ?? [];
+
+	for (const key of keys) {
+		const value = node[key];
+
+		if (!value) {
+			continue;
+		}
+
+		if (Array.isArray(value)) {
+			if (value.some(childNode => childNode && hasThisOrSuper(childNode, visitorKeys))) {
+				return true;
+			}
+
+			continue;
+		}
+
+		if (hasThisOrSuper(value, visitorKeys)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+function * checkConstructorBody(context, constructor, errorDefinition) {
 	const {sourceCode} = context;
 	const constructorBodyNode = constructor.value.body;
 
@@ -72,24 +123,49 @@ function * checkConstructorBody(context, constructor, name, nameProperty) {
 	}
 
 	const constructorBody = constructorBodyNode.body;
+	const {name, nameProperty, hasMessageGetter, hasMessageSetter} = errorDefinition;
 
 	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
+	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
 	const messageExpressionIndex = constructorBody.findIndex(bodyNode => isAssignmentExpression(bodyNode, 'message'));
+	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
 
 	if (!superExpression) {
 		yield {
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.',
 		};
-	} else if (messageExpressionIndex !== -1) {
+	} else if (hasMessageAccessor && !isMissingOrUndefined(superExpression.expression.arguments[0])) {
+		yield {
+			node: superExpression,
+			messageId: MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER,
+		};
+	} else if (
+		hasMessageGetter
+		&& !hasMessageSetter
+		&& messageExpressionIndex !== -1
+	) {
+		yield {
+			node: constructorBody[messageExpressionIndex],
+			messageId: MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER,
+		};
+	} else if (!hasMessageSetter && messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
 
 		yield {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
+				const rhs = expression.expression.right;
+
 				if (superExpression.expression.arguments.length === 0) {
-					const rhs = expression.expression.right;
+					if (
+						messageExpressionIndex !== superExpressionIndex + 1
+						|| hasThisOrSuper(rhs, sourceCode.visitorKeys)
+					) {
+						return;
+					}
+
 					const [start] = sourceCode.getRange(superExpression);
 					// This part crashes on ESLint 10, but it's still not correct.
 					// There can be spaces, comments after `super`
@@ -97,6 +173,8 @@ function * checkConstructorBody(context, constructor, name, nameProperty) {
 						[start, start + 6],
 						getParenthesizedText(rhs, context),
 					);
+				} else if (!isSameText(superExpression.expression.arguments[0], rhs, sourceCode)) {
+					return;
 				}
 
 				const start = messageExpressionIndex === 0
@@ -148,6 +226,8 @@ function * customErrorDefinition(context, node) {
 	const {sourceCode} = context;
 	const constructor = body.find(x => x.kind === 'constructor');
 	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
+	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
+	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
 
 	if (!constructor) {
 		if (isValidNameProperty(nameProperty, name)) {
@@ -176,7 +256,12 @@ function * customErrorDefinition(context, node) {
 		return;
 	}
 
-	yield * checkConstructorBody(context, constructor, name, nameProperty);
+	yield * checkConstructorBody(context, constructor, {
+		name,
+		nameProperty,
+		hasMessageGetter,
+		hasMessageSetter,
+	});
 }
 
 const customErrorExport = (context, node) => {

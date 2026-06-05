@@ -7,6 +7,8 @@ const invalidClassNameError = {message: 'Invalid class name, use `FooError`.'};
 const invalidNameError = name => ({message: `The \`name\` property should be set to \`${name}\`.`});
 const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
 const passMessageToSuperError = {message: 'Pass the error message to `super()` instead of setting `this.message`.'};
+const doNotPassMessageToSuperError = {messageId: 'doNotPassMessageToSuper'};
+const doNotAssignMessageWithoutSetterError = {messageId: 'doNotAssignMessageWithoutSetter'};
 const invalidExportError = {
 	messageId: 'invalidExport',
 };
@@ -127,6 +129,81 @@ const tests = {
 					super();
 					this.name = 'FooError';
 					someThingNotThis.message = 'My custom message';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				#message;
+
+				constructor(message) {
+					super();
+					this.#message = message;
+					this.name = 'FooError';
+				}
+
+				get message() {
+					return this.#message;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				#message;
+
+				constructor(message) {
+					super();
+					this.message = message;
+					this.name = 'FooError';
+				}
+
+				get message() {
+					return this.#message;
+				}
+
+				set message(message) {
+					this.#message = message;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				#message;
+
+				constructor(message, options) {
+					super(undefined, options);
+					this.message = message;
+					this.name = 'FooError';
+				}
+
+				get message() {
+					return this.#message;
+				}
+
+				set message(message) {
+					this.#message = message;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message) {
+					super();
+					this.message = message;
+					this.name = 'FooError';
+				}
+
+				set message(message) {
+					this._message = message;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message) {
+					super();
+					this.message += message;
+					this.name = 'FooError';
 				}
 			}
 		`,
@@ -313,6 +390,20 @@ const tests = {
 			code: outdent`
 				class FooError extends Error {
 					constructor(message) {
+						super('Fallback message');
+						this.message = message;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
 						super();
 						this.message = message;
 						this.name = 'FooError';
@@ -365,14 +456,6 @@ const tests = {
 			errors: [
 				passMessageToSuperError,
 			],
-			output: outdent`
-				class FooError extends Error {
-					constructor(message) {
-						super(message);
-						this.name = 'FooError';
-					}
-				}
-			`,
 		},
 		{
 			code: outdent`
@@ -475,20 +558,21 @@ const tests = {
 					}
 				}
 			`,
-			output: outdent`
-				class AbortError extends Error {
+			errors: [passMessageToSuperError],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor(message) {
-						if (message instanceof Error) {
-							this.originalError = message;
-							message = message.message;
-						}
-
-						super(message);
-						this.name = 'AbortError';
+						super();
+						this.message = this.format(message);
+						this.name = 'FooError';
 					}
 				}
 			`,
-			errors: [passMessageToSuperError],
+			errors: [
+				passMessageToSuperError,
+			],
 		},
 		{
 			code: outdent`
@@ -510,6 +594,81 @@ const tests = {
 			`,
 			errors: [
 				passMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					#message;
+
+					constructor(message) {
+						super(message);
+						this.#message = message;
+						this.name = 'FooError';
+					}
+
+					get message() {
+						return this.#message;
+					}
+				}
+			`,
+			errors: [
+				doNotPassMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					#message;
+
+					constructor(message, options) {
+						super(message, options);
+						this.#message = message;
+						this.name = 'FooError';
+					}
+
+					get message() {
+						return this.#message;
+					}
+				}
+			`,
+			errors: [
+				doNotPassMessageToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super();
+						this.message = message;
+						this.name = 'FooError';
+					}
+
+					get message() {
+						return 'Custom message';
+					}
+				}
+			`,
+			errors: [
+				doNotAssignMessageWithoutSetterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+
+					set message(message) {
+						this._message = message;
+					}
+				}
+			`,
+			errors: [
+				doNotPassMessageToSuperError,
 			],
 		},
 	],
