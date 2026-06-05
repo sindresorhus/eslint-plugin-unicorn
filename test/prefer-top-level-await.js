@@ -89,9 +89,30 @@ test.snapshot({
 		'someSchema.nullable().catch("fallback")',
 		'someSchema.nullish().catch("fallback")',
 		'someSchema.catch("a").optional().catch("b")',
+		outdent`
+			const resultOfRun = run().catch(error => {
+				console.error(error);
+				process.exit(1);
+			});
+		`,
+		'const promise = foo.then(bar)',
+		'const promise = foo.catch(bar)',
+		'const promise = foo.finally(bar)',
+		'const promise = foo?.then?.(bar)',
+		{
+			code: outdent`
+				const promise = foo.then(bar) as Promise<void>;
+				const promise2 = foo.then(bar)!;
+				const promise3 = <Promise<void>>foo.then(bar);
+				const promise4 = foo.then(bar) satisfies Promise<void>;
+				const promise5 = foo?.then?.(bar) as Promise<void>;
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
+		'promise = foo.then(bar)',
 		'foo.then?.(bar)',
 		'foo?.then(bar)',
 		'foo.catch(() => process.exit(1))',
@@ -200,6 +221,10 @@ test.snapshot({
 			const foo = async () => {};
 			await foo();
 		`,
+		outdent`
+			async function run() {}
+			const resultOfRun = run();
+		`,
 		'for (const statement of statements) { statement() };',
 		// #2946: lock in that `let`/`var` (and by extension `using`/`await using`)
 		// still fall through under `@typescript-eslint/parser`, preserving the
@@ -251,6 +276,10 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		outdent`
+			async function run() {}
+			resultOfRun = run();
+		`,
 	],
 });
 
@@ -295,6 +324,11 @@ test.snapshot({
 			]);
 			await promise;
 		`,
+		'const promise = (async () => {})()',
+		{
+			code: 'const promise = (async () => {})() as Promise<void>',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`

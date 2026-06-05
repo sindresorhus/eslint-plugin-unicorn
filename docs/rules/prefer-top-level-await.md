@@ -55,3 +55,14 @@ run().catch(error => {
 // ✅
 await run();
 ```
+
+Initializing a variable directly with a top-level promise for later awaiting is allowed:
+
+```js
+// ✅
+const preparationDone = prepareSomething();
+
+export async function doSomething() {
+	await preparationDone;
+}
+```
