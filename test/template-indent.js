@@ -537,17 +537,17 @@ test({
 			→→\`
 			}
 		`),
-		fixInput(`
-			function f() {
-			→→foo = dedent\`
-			→→→→one
-
-			→→→→two
-			→→→→→→three
-			→→→→four
-			→→\`
-			}
-		`),
+		fixInput([
+			'function f() {',
+			'→→foo = dedent`',
+			'→→→→one',
+			'',
+			'→→→→two',
+			'→→→→→→three',
+			'→→→→four',
+			'→→`',
+			'}',
+		].join('\n')),
 		fixInput(`
 			function f() {
 			••foo = dedent\`
