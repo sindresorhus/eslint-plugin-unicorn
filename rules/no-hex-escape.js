@@ -30,7 +30,7 @@ const create = context => {
 	});
 
 	context.on('TemplateElement', node => {
-		if (isTaggedTemplateLiteral(node.parent, ['String.raw'])) {
+		if (isTaggedTemplateLiteral(node.parent)) {
 			return;
 		}
 
