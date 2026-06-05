@@ -1,4 +1,3 @@
-/* eslint-disable ava/no-ignored-test-files -- This utility registers tests from rule test files that import it. */
 import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
@@ -94,7 +93,7 @@ class Tester {
 			return;
 		}
 
-		test(`empty file: ${ruleId}`, t => {
+		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
 			const messages = linter.verify(
 				'',
@@ -121,7 +120,7 @@ class Tester {
 			);
 
 			t.deepEqual(messages, []);
-		});
+		}]);
 	}
 
 	runTest(tests) {
