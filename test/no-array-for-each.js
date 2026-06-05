@@ -17,6 +17,18 @@ test.snapshot({
 				// My other code...
 			});
 		`,
+		// #1788
+		outdent`
+			import * as CB from "strict-callbag-basics";
+
+			CB.pipe(
+				CB.interval(1000),
+				CB.map(x => x + 1),
+				CB.filter(x => x % 2),
+				CB.take(5),
+				CB.forEach(x => console.log(x))
+			);
+		`,
 		// #2758
 		'Effect.forEach([1,2,3], (n) => Effect.succeed(n))',
 	],
