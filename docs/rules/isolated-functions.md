@@ -80,13 +80,16 @@ Default: `[]`
 
 Array of [ESLint selectors](https://eslint.org/docs/developer-guide/selectors) to identify isolated functions. Useful for custom naming conventions or framework-specific patterns.
 
+Selectors must match the function node that should be treated as isolated. To isolate functions passed to a matching call expression, use ESLint selector syntax to select the function argument:
+
 ```js
 {
 	'unicorn/isolated-functions': [
 		'error',
 		{
 			selectors: [
-				'FunctionDeclaration[id.name=/lambdaHandler.*/]'
+				'FunctionDeclaration[id.name=/lambdaHandler.*/]',
+				'CallExpression[callee.property.name=/CodemodeScript/] > :function'
 			]
 		}
 	]
