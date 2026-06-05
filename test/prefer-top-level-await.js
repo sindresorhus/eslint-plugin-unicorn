@@ -76,6 +76,12 @@ test.snapshot({
 			code: 'foo.then(bar)',
 			filename: 'foo.cjS',
 		},
+		'z.string().catch("")',
+		'z.coerce.string().catch("")',
+		'z.string().optional().catch("")',
+		'schema.catch("fallback")',
+		'someSchema.catch("fallback")',
+		'someSchema.optional().catch("fallback")',
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -95,6 +101,11 @@ test.snapshot({
 		'foo.then(bar).then(baz)?.then(qux)',
 		'foo.then(bar).then(baz).then?.(qux)',
 		'foo.then(bar).catch(bar).finally(bar)',
+		'objectWithCatch.catch()',
+		'getCatchMethod().catch()',
+		'z.string().parseAsync(value).catch(handle)',
+		'someSchema.parseAsync(value).catch(handle)',
+		'someSchema.then(foo).catch(bar)',
 	],
 });
 

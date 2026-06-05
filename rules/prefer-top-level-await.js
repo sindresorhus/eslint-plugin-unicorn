@@ -40,6 +40,65 @@ const isPromiseMethodCalleeObject = node =>
 	&& promisePrototypeMethods.includes(node.parent.property.name)
 	&& node.parent.parent.type === 'CallExpression'
 	&& node.parent.parent.callee === node.parent;
+
+const isSchemaIdentifier = node =>
+	node.type === 'Identifier'
+	&& (
+		node.name === 'schema'
+		|| node.name.endsWith('Schema')
+	);
+
+const isSchemaCatchObject = node => {
+	let expression = node;
+	let hasCallExpression = false;
+	let hasMemberExpression = false;
+
+	while (true) {
+		if (expression.type === 'ChainExpression') {
+			expression = expression.expression;
+			continue;
+		}
+
+		if (expression.type === 'CallExpression') {
+			hasCallExpression = true;
+			expression = expression.callee;
+			continue;
+		}
+
+		if (expression.type === 'MemberExpression') {
+			if (
+				expression.computed
+				|| expression.property.type !== 'Identifier'
+				|| promisePrototypeMethods.includes(expression.property.name)
+				|| expression.property.name.endsWith('Async')
+			) {
+				return false;
+			}
+
+			hasMemberExpression = true;
+			expression = expression.object;
+			continue;
+		}
+
+		break;
+	}
+
+	return isSchemaIdentifier(expression)
+		|| (
+			expression.type === 'Identifier'
+			&& expression.name === 'z'
+			&& hasCallExpression
+			&& hasMemberExpression
+		);
+};
+
+const isSchemaCatchCall = node =>
+	isMethodCall(node, {
+		method: 'catch',
+		computed: false,
+	})
+	&& isSchemaCatchObject(node.callee.object);
+
 const isAwaitExpressionArgument = node => {
 	if (node.parent.type === 'ChainExpression') {
 		node = node.parent;
@@ -113,6 +172,10 @@ function create(context) {
 			properties: promisePrototypeMethods,
 			computed: false,
 		})) {
+			if (isSchemaCatchCall(node)) {
+				return;
+			}
+
 			return {
 				node: node.callee.property,
 				messageId: ERROR_PROMISE,
