@@ -21,6 +21,8 @@ test({
 		'string.split("")[0]',
 		'string.split("/")[1.5]',
 		'string.split("/")[0] = value',
+		'string.split("/")[0]++',
+		'delete string.split("/")[0]',
 		'string.split("/", limit)[0]',
 		'string.split(...separator)[0]',
 		'string.split("/", ...limit)[0]',
@@ -59,6 +61,21 @@ test({
 			errors,
 		},
 		{
+			code: 'string.split(/* separator */ "/")[1]',
+			output: 'string.split(/* separator */ "/", 2)[1]',
+			errors,
+		},
+		{
+			code: 'string.split("/" /* separator */)[1]',
+			output: 'string.split("/" /* separator */, 2)[1]',
+			errors,
+		},
+		{
+			code: 'string.split("/",)[1]',
+			output: 'string.split("/", 2,)[1]',
+			errors,
+		},
+		{
 			code: 'const index = 2;\nstring.split("/")[index]',
 			output: 'const index = 2;\nstring.split("/", 3)[index]',
 			errors,
@@ -69,8 +86,18 @@ test({
 			errors,
 		},
 		{
+			code: 'string.split("/")?.[1]',
+			output: 'string.split("/", 2)?.[1]',
+			errors,
+		},
+		{
 			code: 'string?.split?.("/").at(1)',
 			output: 'string?.split?.("/", 2).at(1)',
+			errors,
+		},
+		{
+			code: 'string.split("/")?.at(1)',
+			output: 'string.split("/", 2)?.at(1)',
 			errors,
 		},
 	],

@@ -1,5 +1,6 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isLeftHandSide} from './utils/index.js';
+import {appendArgument} from './fix/index.js';
 import {
 	isStringLiteral,
 	isRegexLiteral,
@@ -37,10 +38,10 @@ const isSplitCallWithoutLimit = node =>
 	})
 	&& isBuiltInSeparator(node.arguments[0]);
 
-const createProblem = (node, splitCall, index) => ({
+const createProblem = (node, splitCall, index, context) => ({
 	node,
 	messageId: MESSAGE_ID,
-	fix: fixer => fixer.insertTextAfter(splitCall.arguments[0], `, ${index + 1}`),
+	fix: fixer => appendArgument(fixer, splitCall, String(index + 1), context),
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -61,7 +62,7 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, node.object, index);
+		return createProblem(node, node.object, index, context);
 	});
 
 	context.on('CallExpression', node => {
@@ -85,7 +86,7 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, splitCall, index);
+		return createProblem(node, splitCall, index, context);
 	});
 };
 
