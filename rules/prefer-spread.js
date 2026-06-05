@@ -73,6 +73,17 @@ function isTypedArrayConstruction(node) {
 
 const isArrayLiteral = node => node.type === 'ArrayExpression';
 const hasArrayHoles = node => node.elements.some(element => element?.type === undefined);
+const isToArrayCall = node => isMethodCall(node, {
+	method: 'toArray',
+	argumentsLength: 0,
+	optionalCall: false,
+	optionalMember: false,
+});
+const isPreferIteratorConcatArrayLiteral = node =>
+	isArrayLiteral(node)
+	&& node.elements.length >= 2
+	&& node.elements.every(element => element?.type === 'SpreadElement')
+	&& !node.elements.some(element => isToArrayCall(element.argument));
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	if (isEmptyArrayExpression(node)) {
 		return false;
@@ -183,7 +194,7 @@ function fixConcat(node, context, fixableArguments) {
 		let [, end] = sourceCode.getRange(sourceCode.getTokenAfter(lastArgument, isCommaToken));
 
 		const textAfter = sourceCode.text.slice(end);
-		const [leadingSpaces] = textAfter.match(/^\s*/);
+		const [leadingSpaces] = textAfter.match(/^\s*/v);
 		end += leadingSpaces.length;
 
 		return fixer.removeRange([start, end]);
@@ -309,7 +320,7 @@ function isClassName(node) {
 
 	const {name} = node;
 
-	return /^[A-Z]./.test(name) && name.toUpperCase() !== name;
+	return /^[A-Z]./v.test(name) && name.toUpperCase() !== name;
 }
 
 function isNotArray(node, scope) {
@@ -417,6 +428,7 @@ const create = context => {
 			})
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
+			&& !isPreferIteratorConcatArrayLiteral(node.arguments[0])
 		) {
 			const [firstArgument] = node.arguments;
 			const preservedRange = isArrayLiteral(firstArgument)

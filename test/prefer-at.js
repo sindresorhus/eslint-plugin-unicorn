@@ -265,12 +265,34 @@ test.snapshot({
 		'array[1.5]',
 		'array[1n]',
 		'function foo() {return arguments[0]}',
+		'const object = {1: 1, a: 2}; object[1]',
+		'({1: 1})[1]',
+		{
+			code: 'const object = {1: 1} as const; object[1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {1: 1} satisfies Record<number, number>; object[1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {1: 1}; (object as Record<number, number>)[1]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {1: 1}; object![1]',
+			languageOptions: {parser: parsers.typescript},
+		},
 	]),
 	invalid: setCheckAllIndexAccessTrue([
 		'array[0]',
 		'array[1]',
 		'array[5 + 9]',
 		'const offset = 5;array[offset + 9]',
+		'"string"[1]',
+		'`string`[1]',
+		'const string = "string"; string[1]',
+		'new Uint8Array([1])[0]',
 		'array[array.length - 1]',
 		// `charAt` don't care about value
 		'string.charAt(9)',
