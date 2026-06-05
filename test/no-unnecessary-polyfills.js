@@ -89,6 +89,22 @@ test({
 			code: 'require("core-js/features/regexp/escape")',
 			options: [{targets: {node: '18'}}],
 		},
+		{
+			code: 'import "core-js/actual/array/to-spliced"',
+			options: [{targets: {node: '18'}}],
+		},
+		{
+			code: 'import "core-js/full/array/to-spliced"',
+			options: [{targets: {node: '18'}}],
+		},
+		{
+			code: 'import "core-js/es/array/to-spliced"',
+			options: [{targets: {node: '18'}}],
+		},
+		{
+			code: 'import "core-js/stable/array/to-spliced"',
+			options: [{targets: {node: '18'}}],
+		},
 	],
 	invalid: [
 		{
@@ -132,6 +148,26 @@ test({
 			code: 'require("core-js/features/regexp/escape")',
 			options: [{targets: {node: '24'}}],
 			errors: [{message: 'All polyfilled features imported from `core-js/features/regexp/escape` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'import "core-js/actual/array/to-spliced"',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'All polyfilled features imported from `core-js/actual/array/to-spliced` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'import "core-js/full/array/to-spliced"',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'All polyfilled features imported from `core-js/full/array/to-spliced` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'import "core-js/es/array/to-spliced"',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'import "core-js/stable/array/to-spliced"',
+			options: [{targets: {node: '20'}}],
+			errors: [{message: 'Use built-in instead.'}],
 		},
 		{
 			code: 'require("es6-symbol")',

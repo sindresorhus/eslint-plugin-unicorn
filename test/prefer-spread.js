@@ -45,6 +45,9 @@ test.snapshot({
 		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		// FirstArgument is `ObjectExpression`
 		'Array.from({length: 10});',
+		// `prefer-iterator-concat` handles multi-spread arrays.
+		'Array.from([...a, ...b], )',
+		'Array.from([...a, ...b])',
 	],
 	invalid: [
 		'const x = Array.from(set);',
@@ -143,9 +146,8 @@ test.snapshot({
 		'((Array).from)((0, foo))',
 		'Array.from(a ? b : c)',
 		'Array.from((0, a))',
-		'Array.from([...a, ...b], )',
+		'Array.from([...iterator.toArray(), ...other])',
 		'Array.from([1])',
-		'Array.from([...a, ...b])',
 		'Array.from((/* keep */ [1]))',
 		'Array.from((/* comment */ foo))',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',

@@ -106,8 +106,10 @@ export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
+export {default as 'prefer-iterator-concat'} from './prefer-iterator-concat.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
+export {default as 'prefer-math-abs'} from './prefer-math-abs.js';
 export {default as 'prefer-math-min-max'} from './prefer-math-min-max.js';
 export {default as 'prefer-math-trunc'} from './prefer-math-trunc.js';
 export {default as 'prefer-modern-dom-apis'} from './prefer-modern-dom-apis.js';
