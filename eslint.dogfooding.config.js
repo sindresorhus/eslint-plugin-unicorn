@@ -41,7 +41,15 @@ const config = [
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
-			// Intentional HTTP examples are used in tests and docs.
+		},
+	},
+	{
+		// Intentional HTTP examples are used in tests.
+		files: [
+			'test/prefer-https.js',
+			'test/string-content.js',
+		],
+		rules: {
 			'unicorn/prefer-https': 'off',
 		},
 	},

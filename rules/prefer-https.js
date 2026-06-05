@@ -12,11 +12,9 @@ const ROOT_NODE_TYPES = [
 ];
 
 function getHostname(authority) {
-	const url = `http://${authority}`;
-
-	if (URL.canParse(url)) {
-		return new URL(url).hostname;
-	}
+	try {
+		return new URL(`http://${authority}`).hostname;
+	} catch {}
 }
 
 function hasPublicTld(hostname) {

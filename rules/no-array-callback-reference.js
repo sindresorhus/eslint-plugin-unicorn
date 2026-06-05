@@ -147,7 +147,7 @@ const iteratorMethods = new Map([
 }]));
 
 const ignoredCallee = [
-	// http://bluebirdjs.com/docs/api/promise.map.html
+	// https://bluebirdjs.com/docs/api/promise.map.html
 	'Promise',
 	'React.Children',
 	'Children',
