@@ -25,6 +25,7 @@ const directFeatureCheckPolyfills = new Set([
 	'es6-promise',
 	'weakmap-polyfill',
 ]);
+const unavailableFeatureSetByTargets = new Map();
 const additionalPolyfillPatterns = Object.fromEntries(Object.entries(additionalPolyfillModules).map(([feature, modules]) => [feature, `|(${modules.join('|')})`]));
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
@@ -272,15 +273,23 @@ function create(context) {
 		return;
 	}
 
-	let unavailableFeatures;
-	try {
-		unavailableFeatures = coreJsCompat({targets}).list;
-	} catch {
-		// This can happen if the targets are invalid or use unsupported syntax like `{node:'*'}`.
-		return;
+	const targetsCacheKey = JSON.stringify(targets);
+	let unavailableFeatureSet;
+	if (unavailableFeatureSetByTargets.has(targetsCacheKey)) {
+		unavailableFeatureSet = unavailableFeatureSetByTargets.get(targetsCacheKey);
+	} else {
+		try {
+			unavailableFeatureSet = new Set(coreJsCompat({targets}).list);
+		} catch {
+			// This can happen if the targets are invalid or use unsupported syntax like `{node:'*'}`.
+		}
+
+		unavailableFeatureSetByTargets.set(targetsCacheKey, unavailableFeatureSet);
 	}
 
-	const unavailableFeatureSet = new Set(unavailableFeatures);
+	if (!unavailableFeatureSet) {
+		return;
+	}
 
 	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
 	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".

@@ -19,11 +19,26 @@ const prepareOptions = ({
 });
 
 function findKeywordPrefix(name, options) {
-	return options.disallowedPrefixes.find(keyword => {
-		const suffix = options.onlyCamelCase ? '[A-Z]' : '.';
-		const regex = new RegExp(`^${keyword}${suffix}`);
-		return name.match(regex);
-	});
+	for (const keyword of options.disallowedPrefixes) {
+		if (!name.startsWith(keyword)) {
+			continue;
+		}
+
+		const nextCharacter = name[keyword.length];
+		if (!nextCharacter) {
+			continue;
+		}
+
+		if (
+			!options.onlyCamelCase
+			|| (
+				nextCharacter >= 'A'
+				&& nextCharacter <= 'Z'
+			)
+		) {
+			return keyword;
+		}
+	}
 }
 
 function checkMemberExpression(report, node, options) {
