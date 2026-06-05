@@ -119,7 +119,7 @@ You can use a selector for custom use-cases, like indenting _all_ template liter
 }
 ```
 
-Indentation will be done with tabs or spaces depending on the line of code that the template literal starts at. You can override this by supplying an `indent`, which should be either a number (of spaces) or a string consisting only of whitespace characters:
+Indentation will be done with tabs or spaces depending on the line of code that the template literal starts at. When the template literal starts at the root of the file, indentation is inferred from the surrounding source code, falling back to the template content if there is no surrounding indentation signal. You can override this by supplying an `indent`, which should be either a number (of spaces) or a string consisting only of whitespace characters:
 
 ```js
 {

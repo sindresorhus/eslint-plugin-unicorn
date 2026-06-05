@@ -1,8 +1,10 @@
 import {isParenthesized, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	isNodeValueNotDomNode,
+	isSameReference,
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -23,6 +25,12 @@ const isMemberExpressionOptionalObject = node =>
 		node.parent.optional
 		|| (node.type === 'MemberExpression' && isMemberExpressionOptionalObject(node.object))
 	);
+
+const isParentNodeMemberExpression = node =>
+	node.type === 'MemberExpression'
+	&& !node.computed
+	&& node.property.type === 'Identifier'
+	&& node.property.name === 'parentNode';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -50,6 +58,8 @@ const create = context => {
 		};
 
 		const isOptionalParentNode = isMemberExpressionOptionalObject(parentNode);
+		const isSameReferenceParentNode = isParentNodeMemberExpression(parentNode)
+			&& isSameReference(parentNode.object, childNode);
 
 		const createFix = (optional = false) => fixer => {
 			let childNodeText = getParenthesizedText(childNode, context);
@@ -67,27 +77,21 @@ const create = context => {
 			return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
 		};
 
+		const createSameReferenceFix = (optional = false) => fixer => {
+			const [, receiverEnd] = getParenthesizedRange(parentNode.object, context);
+			const [, callEnd] = sourceCode.getRange(node);
+
+			return fixer.replaceTextRange([receiverEnd, callEnd], `${optional ? '?' : ''}.remove()`);
+		};
+
 		if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
-			if (!isOptionalParentNode) {
-				problem.fix = createFix(false);
+			if (isSameReferenceParentNode) {
+				problem.fix = createSameReferenceFix(parentNode.optional);
 				return problem;
 			}
 
-			// The most common case `foo?.parentNode.remove(foo)`
-			// TODO: Allow case like `foo.bar?.parentNode.remove(foo.bar)`
-			if (
-				node.callee.type === 'MemberExpression'
-				&& !node.callee.optional
-				&& parentNode.type === 'MemberExpression'
-				&& parentNode.optional
-				&& !parentNode.computed
-				&& parentNode.property.type === 'Identifier'
-				&& parentNode.property.name === 'parentNode'
-				&& parentNode.object.type === 'Identifier'
-				&& childNode.type === 'Identifier'
-				&& parentNode.object.name === childNode.name
-			) {
-				problem.fix = createFix(true);
+			if (!isOptionalParentNode) {
+				problem.fix = createFix(false);
 				return problem;
 			}
 		}
@@ -97,7 +101,9 @@ const create = context => {
 		).map(optional => ({
 			messageId: SUGGESTION_MESSAGE_ID,
 			data: {dotOrQuestionDot: optional ? '?.' : '.'},
-			fix: createFix(optional),
+			fix: isSameReferenceParentNode
+				? createSameReferenceFix(optional)
+				: createFix(optional),
 		}));
 
 		return problem;

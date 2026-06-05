@@ -30,7 +30,7 @@ export function readPackageJson(dirname) {
 		packageJson = dataCache.get(packageJsonPath);
 	} else {
 		try {
-			packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
+			packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 			dataCache.set(packageJsonPath, packageJson);
 		} catch {
 			// This can happen if package.json files have comments in them etc.
