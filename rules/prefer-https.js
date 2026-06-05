@@ -12,10 +12,10 @@ const ROOT_NODE_TYPES = [
 ];
 
 function getHostname(authority) {
-	try {
-		return new URL(`http://${authority}`).hostname;
-	} catch {
-		return undefined;
+	const url = `http://${authority}`;
+
+	if (URL.canParse(url)) {
+		return new URL(url).hostname;
 	}
 }
 

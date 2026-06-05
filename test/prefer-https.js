@@ -24,6 +24,7 @@ ruleTest.snapshot({
 		'const url = "http://localhost";',
 		'const url = "http://example";',
 		'const url = "http://127.0.0.1";',
+		'const url = "http://[::1]";',
 		'const url = "http://example.123";',
 		'// http://example,',
 		'// http://localhost',
