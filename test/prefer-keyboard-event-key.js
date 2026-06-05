@@ -3,9 +3,20 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const SUGGESTION_MESSAGE_ID = 'prefer-keyboard-event-key/suggestion';
+
 const error = key => ({
 	messageId: 'prefer-keyboard-event-key',
 	data: {name: key},
+});
+
+const errorWithSuggestion = (key, keyboardKey, output) => ({
+	...error(key),
+	suggestions: [{
+		messageId: SUGGESTION_MESSAGE_ID,
+		data: {key: keyboardKey},
+		output,
+	}],
 });
 
 test({
@@ -89,7 +100,13 @@ test({
 			good.which = '34';
 		});`,
 		`foo.addEventListener('click', e => {
-			const {keyCode: a, charCode: b, charCode: c} = e;
+			const {a: keyCode} = e;
+		});`,
+		`foo.addEventListener('click', e => {
+			const {a: charCode} = e;
+		});`,
+		`foo.addEventListener('click', e => {
+			const {a: which} = e;
 		});`,
 		`add.addEventListener('keyup', event => {
 			f.addEventList('some', e => {
@@ -103,6 +120,23 @@ test({
 				console.log(e.keyCode);
 			}
 		});`,
+		`editor.on('keyup', (editor, event) => {
+			if (event.keyCode === 27) {}
+		});`,
+		{
+			code: outdent`
+				const input = <input onClick={event => {
+					if (event.keyCode === 27) {}
+				}} />;
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 	],
 
 	invalid: [
@@ -263,7 +297,7 @@ test({
 		{
 			code: outdent`
 				foo.addEventListener('click', e => {
-					const {a: keyCode, a, b} = e;
+					const {keyCode: code, a, b} = e;
 				});
 			`,
 			errors: [error('keyCode')],
@@ -372,14 +406,6 @@ test({
 		},
 		{
 			code: outdent`
-				foo.addEventListener('click', e => {
-					const {a: charCode, a, b} = e;
-				});
-			`,
-			errors: [error('charCode')],
-		},
-		{
-			code: outdent`
 				window.addEventListener('click', e => {
 					console.log(e.which);
 				})
@@ -465,14 +491,6 @@ test({
 			code: outdent`
 				foo.addEventListener('click', e => {
 					const {which, a, b} = e;
-				});
-			`,
-			errors: [error('which')],
-		},
-		{
-			code: outdent`
-				foo.addEventListener('click', e => {
-					const {a: which, a, b} = e;
 				});
 			`,
 			errors: [error('which')],
@@ -734,6 +752,142 @@ test({
 				});
 			`,
 			errors: [error('keyCode')],
+		},
+	],
+});
+
+test.typescript({
+	valid: [
+		outdent`
+			function handleKeyDown(event: KeyboardEvent) {
+				if (event.key === 'K') {}
+			}
+		`,
+	],
+	invalid: [
+		{
+			code: outdent`
+				function handleKeyDown(event: KeyboardEvent) {
+					if (event.keyCode === 75) {}
+				}
+			`,
+			errors: [
+				errorWithSuggestion('keyCode', 'K', outdent`
+					function handleKeyDown(event: KeyboardEvent) {
+						if (event.key === 'K') {}
+					}
+				`),
+			],
+		},
+		{
+			code: outdent`
+				const handleKeyUp = (event: React.KeyboardEvent) => {
+					if (event.which === 13) {}
+				};
+			`,
+			errors: [
+				errorWithSuggestion('which', 'Enter', outdent`
+					const handleKeyUp = (event: React.KeyboardEvent) => {
+						if (event.key === 'Enter') {}
+					};
+				`),
+			],
+		},
+		{
+			code: outdent`
+				const handleKeyPress = (event: KeyboardEvent) => {
+					if (event.charCode === 65) {}
+				};
+			`,
+			errors: [
+				errorWithSuggestion('charCode', 'A', outdent`
+					const handleKeyPress = (event: KeyboardEvent) => {
+						if (event.key === 'A') {}
+					};
+				`),
+			],
+		},
+		{
+			code: outdent`
+				const input = <input onKeyDown={event => {
+					if (event.keyCode === 27) {}
+				}} />;
+			`,
+			filename: 'input.tsx',
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [
+				errorWithSuggestion('keyCode', 'Escape', outdent`
+					const input = <input onKeyDown={event => {
+						if (event.key === 'Escape') {}
+					}} />;
+				`),
+			],
+		},
+		{
+			code: outdent`
+				const input = <input onKeyDown={({keyCode}) => {
+					console.log(keyCode);
+				}} />;
+			`,
+			filename: 'input.tsx',
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [error('keyCode')],
+		},
+		{
+			code: outdent`
+				const input = <input onKeyUp={function (event) {
+					if (event.keyCode === 13) {}
+				}} />;
+			`,
+			filename: 'input.tsx',
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [
+				errorWithSuggestion('keyCode', 'Enter', outdent`
+					const input = <input onKeyUp={function (event) {
+						if (event.key === 'Enter') {}
+					}} />;
+				`),
+			],
+		},
+		{
+			code: outdent`
+				const input = <input onKeyPress={event => {
+					if (event.keyCode === 32) {}
+				}} />;
+			`,
+			filename: 'input.tsx',
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+			errors: [
+				errorWithSuggestion('keyCode', ' ', outdent`
+					const input = <input onKeyPress={event => {
+						if (event.key === ' ') {}
+					}} />;
+				`),
+			],
 		},
 	],
 });
