@@ -65,6 +65,7 @@ const isSchemaCatchObject = node => {
 	let hasMemberExpression = false;
 	let isCurrentMemberCalled = false;
 	let hasUncalledMemberExpression = false;
+	let hasCalledMemberExpressionAfterUncalledMemberExpression = false;
 	const methodNames = [];
 
 	while (true) {
@@ -94,6 +95,8 @@ const isSchemaCatchObject = node => {
 			hasMemberExpression = true;
 			if (!isCurrentMemberCalled) {
 				hasUncalledMemberExpression = true;
+			} else if (hasUncalledMemberExpression) {
+				hasCalledMemberExpressionAfterUncalledMemberExpression = true;
 			}
 
 			methodNames.push(expression.property.name);
@@ -116,7 +119,8 @@ const isSchemaCatchObject = node => {
 	return expression.type === 'Identifier'
 		&& expression.name === 'z'
 		&& hasCallExpression
-		&& hasMemberExpression;
+		&& hasMemberExpression
+		&& !hasCalledMemberExpressionAfterUncalledMemberExpression;
 };
 
 const isAwaitExpressionArgument = node => {
