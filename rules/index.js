@@ -39,6 +39,7 @@ export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
+export {default as 'no-exports-in-scripts'} from './no-exports-in-scripts.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-hex-escape'} from './no-hex-escape.js';
 export {default as 'no-immediate-mutation'} from './no-immediate-mutation.js';
