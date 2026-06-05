@@ -48,7 +48,7 @@ test.snapshot({
 		outdent`
 			window.addEventListener("wheel", function (event) {
 				function nested() {
-					console.log(arguments);
+					arguments[0].preventDefault();
 				}
 
 				console.log(event.target);
