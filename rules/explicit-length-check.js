@@ -6,6 +6,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getBooleanAncestor,
+	isSameReference,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isLiteral, isMemberExpression} from './ast/index.js';
@@ -47,6 +48,43 @@ const zeroStyle = {
 	code: '=== 0',
 	test: node => isCompareRight(node, '===', 0),
 };
+
+const shapeProperties = new Set(['depth', 'height', 'width']);
+
+function getLogicalExpressionRoot(node) {
+	while (
+		isLogicalExpression(node.parent)
+		&& node.parent.operator === '&&'
+	) {
+		node = node.parent;
+	}
+
+	return node;
+}
+
+function getLogicalExpressionOperands(node) {
+	return [node.left, node.right].flatMap(child =>
+		child.type === 'LogicalExpression' && child.operator === node.operator
+			? getLogicalExpressionOperands(child)
+			: [child]);
+}
+
+function hasSameObjectShapePropertyCheck({node, lengthNode}) {
+	const root = getLogicalExpressionRoot(node);
+	if (
+		root.type !== 'LogicalExpression'
+		|| root.operator !== '&&'
+	) {
+		return false;
+	}
+
+	return getLogicalExpressionOperands(root).some(operand =>
+		operand !== node
+		&& isMemberExpression(operand, {computed: false, optional: false})
+		&& operand.property.type === 'Identifier'
+		&& shapeProperties.has(operand.property.name)
+		&& isSameReference(operand.object, lengthNode.object));
+}
 
 function getLengthCheckNode(node) {
 	node = node.parent;
@@ -179,6 +217,10 @@ function create(context) {
 		}
 
 		if (node) {
+			if (hasSameObjectShapePropertyCheck({node, lengthNode})) {
+				return;
+			}
+
 			const isUnsafeNegationInBinaryExpression = node.type === 'UnaryExpression'
 				&& node.operator === '!'
 				&& node.parent.type === 'BinaryExpression'
