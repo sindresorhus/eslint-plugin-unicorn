@@ -89,7 +89,6 @@ test({
 			code: 'require("core-js/features/regexp/escape")',
 			options: [{targets: {node: '18'}}],
 		},
-		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2506
 		{
 			code: 'import "core-js/actual/array/to-spliced"',
 			options: [{targets: {node: '18'}}],
@@ -150,7 +149,6 @@ test({
 			options: [{targets: {node: '24'}}],
 			errors: [{message: 'All polyfilled features imported from `core-js/features/regexp/escape` are available as built-ins. Use the built-ins instead.'}],
 		},
-		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2506
 		{
 			code: 'import "core-js/actual/array/to-spliced"',
 			options: [{targets: {node: '20'}}],
