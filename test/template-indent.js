@@ -45,6 +45,176 @@ test({
 			output: ['dedent`', '  one', '  two', '`'].join('\r\n'),
 		},
 		{
+			name: 'Detects tabs used elsewhere in the file',
+			code: fixInput(`
+				if (foo) {
+				→→bar();
+				}
+
+				foo = outdent\`
+				foo(
+				→→bar,
+				)
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				if (foo) {
+				→→bar();
+				}
+
+				foo = outdent\`
+				→→foo(
+				→→→→bar,
+				→→)
+				\`
+			`),
+		},
+		{
+			name: 'Detects indentation from lines with inline templates',
+			code: fixInput(`
+				if (foo) {
+				→→const example = \`inline\`;
+				}
+
+				foo = outdent\`
+				foo
+				bar
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				if (foo) {
+				→→const example = \`inline\`;
+				}
+
+				foo = outdent\`
+				→→foo
+				→→bar
+				\`
+			`),
+		},
+		{
+			name: 'Detects spaces used elsewhere in the file',
+			code: fixInput(`
+				if (foo) {
+				••••bar();
+				}
+
+				foo = outdent\`
+				foo(
+				••••bar,
+				)
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				if (foo) {
+				••••bar();
+				}
+
+				foo = outdent\`
+				••••foo(
+				••••••••bar,
+				••••)
+				\`
+			`),
+		},
+		{
+			name: 'Detects tabs from the current template when there is no source indentation',
+			code: fixInput(`
+				foo = outdent\`
+				foo(
+				→→bar,
+				)
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				foo = outdent\`
+				→→foo(
+				→→→→bar,
+				→→)
+				\`
+			`),
+		},
+		{
+			name: 'Ignores whitespace-only lines when detecting tabs from the current template',
+			code: fixInput(`
+				foo = outdent\`
+				••••
+				foo(
+				→→bar,
+				)
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				foo = outdent\`
+				••••
+				→→foo(
+				→→→→bar,
+				→→)
+				\`
+			`),
+		},
+		{
+			name: 'Ignores indentation inside the template when detecting source indentation',
+			code: fixInput(`
+				if (foo) {
+				••bar();
+				}
+
+				foo = outdent\`
+				foo(
+				→→bar,
+				→→baz,
+				)
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				if (foo) {
+				••bar();
+				}
+
+				foo = outdent\`
+				••foo(
+				••→→bar,
+				••→→baz,
+				••)
+				\`
+			`),
+		},
+		{
+			name: 'Ignores indentation inside other templates when detecting source indentation',
+			code: fixInput(`
+				foo = outdent\`
+				foo
+				bar
+				\`
+
+				bar = outdent\`
+				bar(
+				→→baz,
+				)
+				\`
+			`),
+			errors: [...errors, ...errors],
+			output: fixInput(`
+				foo = outdent\`
+				••foo
+				••bar
+				\`
+
+				bar = outdent\`
+				→→bar(
+				→→→→baz,
+				→→)
+				\`
+			`),
+		},
+		{
 			options: [{
 				tags: ['customIndentableTag'],
 			}],
@@ -527,6 +697,12 @@ test({
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
 	valid: [
 		'foo = dedent`one two three`',
+		fixInput(`
+			foo = outdent\`
+			→→foo
+			→→bar
+			\`
+		`),
 		fixInput(`
 			function f() {
 			→→foo = dedent\`
