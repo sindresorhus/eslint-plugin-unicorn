@@ -5,7 +5,7 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 const {test} = getTester(import.meta);
 
 const error = {
-	message: 'Prefer `Node#append()` over `Node#appendChild()`.',
+	message: 'Prefer `Element#append()` over `Node#appendChild()`.',
 };
 
 test({
