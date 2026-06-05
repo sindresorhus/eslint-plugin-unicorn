@@ -26,6 +26,7 @@ test.snapshot({
 				)
 			)();
 		`,
+		'const foo = (() => (/* comment */ a ? b : c))();',
 		outdent`
 			const foo = (() => (
 				a, b
