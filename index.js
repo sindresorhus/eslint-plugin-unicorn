@@ -23,6 +23,10 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
 		replacedBy: ['unicorn/prefer-single-call'],
 	},
+	'prefer-json-parse-buffer': {
+		message: 'Renamed to `unicorn/consistent-json-file-read`.',
+		replacedBy: ['unicorn/consistent-json-file-read'],
+	},
 	'prefer-dom-node-dataset': {
 		message: 'Renamed to `unicorn/dom-node-dataset`.',
 		replacedBy: ['unicorn/dom-node-dataset'],
