@@ -2,10 +2,8 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
-	isParenthesized,
 	isSameReference,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-string-pad-start-end';
@@ -30,15 +28,6 @@ const getStaticString = (node, context) => {
 	}
 };
 
-const getStaticNumber = (node, context) => {
-	const result = getStaticValue(node, context.sourceCode.getScope(node));
-
-	if (typeof result?.value === 'number') {
-		return result.value;
-	}
-};
-
-const isStaticZero = (node, context) => getStaticNumber(node, context) === 0;
 const isStaticNonString = (node, context) => {
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
 
@@ -87,19 +76,33 @@ const isClearlyNonStringTarget = (node, context) => {
 
 const hasCommentsInside = (node, context) => context.sourceCode.getCommentsInside(node).length > 0;
 
-const isSimpleWidth = node => (
-	node.type === 'Identifier'
-	|| (
+const isSimpleTarget = node => node.type === 'Identifier';
+
+const isNumericLiteral = node => (
+	node.type === 'Literal'
+	&& typeof node.value === 'number'
+);
+
+const isZeroLiteral = node => (
+	isNumericLiteral(node)
+	&& node.value === 0
+);
+
+const isSafePaddingNode = node => (
+	(
 		node.type === 'Literal'
-		&& typeof node.value === 'number'
+		&& typeof node.value === 'string'
+	)
+	|| (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
 	)
 );
 
-const isSimpleTarget = node => node.type === 'Identifier';
-
-const canAutofixRepeatCall = ({targetNode, targetLengthNode}) => (
+const canAutofixRepeatCall = ({targetNode, targetLengthNode, paddingNode}) => (
 	isSimpleTarget(targetNode)
-	&& isSimpleWidth(targetLengthNode)
+	&& isNumericLiteral(targetLengthNode)
+	&& isSafePaddingNode(paddingNode)
 );
 
 const getPaddingText = ({paddingNode, paddingString}, context) => {
@@ -158,21 +161,8 @@ const getRepeatLengthCall = (node, context) => {
 	};
 };
 
-const getTargetText = (targetNode, context) => {
-	const targetText = getParenthesizedText(targetNode, context);
-
-	if (
-		!isParenthesized(targetNode, context)
-		&& shouldAddParenthesesToMemberExpressionObject(targetNode, context)
-	) {
-		return `(${targetText})`;
-	}
-
-	return targetText;
-};
-
 const getReplacement = ({method, targetNode, targetLengthNode, paddingNode, paddingString}, context) => {
-	const targetText = getTargetText(targetNode, context);
+	const targetText = getParenthesizedText(targetNode, context);
 	const targetLengthText = getParenthesizedText(targetLengthNode, context);
 	const paddingText = getPaddingText({paddingNode, paddingString}, context);
 
@@ -201,14 +191,17 @@ const getProblem = ({node, method, replacement, context, canFix}) => {
 	return problem;
 };
 
-const getSuggestionProblem = (node, method, replacement, context) => {
+const getSuggestionProblem = ({node, method, replacement, context, canSuggest}) => {
 	const problem = {
 		node,
 		messageId: MESSAGE_ID,
 		data: {method},
 	};
 
-	if (!hasCommentsInside(node, context)) {
+	if (
+		canSuggest
+		&& !hasCommentsInside(node, context)
+	) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
@@ -234,21 +227,22 @@ const getPaddingMethodProblem = (node, context) => {
 		&& isSameReference(node.right, startPaddingCall.targetNode)
 		&& !isClearlyNonStringTarget(node.right, context)
 	) {
-		const replacement = getReplacement({
-			method: 'padStart',
+		const canFix = canAutofixRepeatCall({
 			targetNode: node.right,
-			...startPaddingCall,
-		}, context);
+			targetLengthNode: startPaddingCall.targetLengthNode,
+			paddingNode: startPaddingCall.paddingNode,
+		});
 
 		return getProblem({
 			node,
 			method: 'padStart',
-			replacement,
-			context,
-			canFix: canAutofixRepeatCall({
+			replacement: canFix && getReplacement({
+				method: 'padStart',
 				targetNode: node.right,
-				targetLengthNode: startPaddingCall.targetLengthNode,
-			}),
+				...startPaddingCall,
+			}, context),
+			context,
+			canFix,
 		});
 	}
 
@@ -258,21 +252,22 @@ const getPaddingMethodProblem = (node, context) => {
 		&& isSameReference(node.left, endPaddingCall.targetNode)
 		&& !isClearlyNonStringTarget(node.left, context)
 	) {
-		const replacement = getReplacement({
-			method: 'padEnd',
+		const canFix = canAutofixRepeatCall({
 			targetNode: node.left,
-			...endPaddingCall,
-		}, context);
+			targetLengthNode: endPaddingCall.targetLengthNode,
+			paddingNode: endPaddingCall.paddingNode,
+		});
 
 		return getProblem({
 			node,
 			method: 'padEnd',
-			replacement,
-			context,
-			canFix: canAutofixRepeatCall({
+			replacement: canFix && getReplacement({
+				method: 'padEnd',
 				targetNode: node.left,
-				targetLengthNode: endPaddingCall.targetLengthNode,
-			}),
+				...endPaddingCall,
+			}, context),
+			context,
+			canFix,
 		});
 	}
 };
@@ -310,11 +305,12 @@ const getSlicePaddingSuggestion = (node, context) => {
 		node.arguments.length === 1
 		&& startPaddingCall
 		&& startWidthNode
-		&& isSimpleWidth(startPaddingCall.widthNode)
+		&& isNumericLiteral(startPaddingCall.widthNode)
 		&& isSameReference(startPaddingCall.widthNode, startWidthNode)
 		&& isSimpleTarget(object.right)
 		&& !isClearlyNonStringTarget(object.right, context)
 	) {
+		const canSuggest = isSafePaddingNode(startPaddingCall.paddingNode);
 		const replacement = getReplacement({
 			method: 'padStart',
 			targetNode: object.right,
@@ -322,7 +318,13 @@ const getSlicePaddingSuggestion = (node, context) => {
 			...startPaddingCall,
 		}, context);
 
-		return getSuggestionProblem(node, 'padStart', replacement, context);
+		return getSuggestionProblem({
+			node,
+			method: 'padStart',
+			replacement,
+			context,
+			canSuggest,
+		});
 	}
 
 	const endPaddingCall = getRepeatCall(object.right, context);
@@ -330,12 +332,13 @@ const getSlicePaddingSuggestion = (node, context) => {
 	if (
 		node.arguments.length === 2
 		&& endPaddingCall
-		&& isStaticZero(firstArgument, context)
-		&& isSimpleWidth(endPaddingCall.widthNode)
+		&& isZeroLiteral(firstArgument)
+		&& isNumericLiteral(endPaddingCall.widthNode)
 		&& isSameReference(endPaddingCall.widthNode, secondArgument)
 		&& isSimpleTarget(object.left)
 		&& !isClearlyNonStringTarget(object.left, context)
 	) {
+		const canSuggest = isSafePaddingNode(endPaddingCall.paddingNode);
 		const replacement = getReplacement({
 			method: 'padEnd',
 			targetNode: object.left,
@@ -343,7 +346,13 @@ const getSlicePaddingSuggestion = (node, context) => {
 			...endPaddingCall,
 		}, context);
 
-		return getSuggestionProblem(node, 'padEnd', replacement, context);
+		return getSuggestionProblem({
+			node,
+			method: 'padEnd',
+			replacement,
+			context,
+			canSuggest,
+		});
 	}
 };
 

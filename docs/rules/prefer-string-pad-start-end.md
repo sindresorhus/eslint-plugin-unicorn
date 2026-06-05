@@ -13,6 +13,8 @@ Manual string padding using [`String#repeat()`](https://developer.mozilla.org/en
 
 This rule only reports static one-code-unit padding strings. Multi-character padding is ignored because `repeat()` concatenation and `padStart()` / `padEnd()` truncation are not equivalent.
 
+Autofixes and suggestions are only offered when the target length is a numeric literal, the padding is literal, and the padded value is a simple identifier.
+
 ## Examples
 
 ```js

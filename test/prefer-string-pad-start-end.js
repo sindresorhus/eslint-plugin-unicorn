@@ -18,6 +18,7 @@ test({
 		'const foo = "*".repeat(10 - bar.length) + baz;',
 		'const foo = bar + "*".repeat(10 - baz.length);',
 		'const foo = "*".repeat(10 - true.length) + true;',
+		'const value = 42; const foo = "*".repeat(width - value.length) + value;',
 		'const value = function () {}; const foo = "*".repeat(width - value.length) + value;',
 		'const value = class {}; const foo = value + "*".repeat(width - value.length);',
 		'function value() {} const foo = "*".repeat(width - value.length) + value;',
@@ -28,6 +29,11 @@ test({
 		'const foo = "*".repeat(...[10 - bar.length]) + bar;',
 		'const foo = ("*".repeat(10) + bar).slice(-9);',
 		'const foo = (bar + "*".repeat(10)).slice(1, 10);',
+		'const foo = ("*".repeat(width) + bar).slice(-width);',
+		'const foo = (bar + "*".repeat(width)).slice(0, width);',
+		'const foo = ("*".repeat((value = "bar", 10)) + value).slice(-(value = "bar", 10));',
+		'const foo = (value + "*".repeat((value = "bar", 10))).slice(0, (value = "bar", 10));',
+		'const foo = (value + "*".repeat(10)).slice((value = "bar", 0), 10);',
 		'const foo = ("**".repeat(10) + bar).slice(-10);',
 		'const foo = ("*".repeat(width) + 42).slice(-width);',
 		'const foo = ([1, 2] + "*".repeat(width)).slice(0, width);',
@@ -65,6 +71,14 @@ test({
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
+			code: 'const foo = "*".repeat(width - value.length) + value;',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const foo = value + "*".repeat(width - value.length);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
 			code: 'const foo = "*".repeat(width - object.property.length) + object.property;',
 			errors: [{messageId: MESSAGE_ID}],
 		},
@@ -81,6 +95,22 @@ test({
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
+			code: 'const foo = "*".repeat((value = "bar", 10) - value.length) + value;',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const foo = value + "*".repeat((value = "bar", 10) - value.length);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const foo = (value = "bar", "*").repeat(10 - value.length) + value;',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const foo = value + (value = "bar", "*").repeat(10 - value.length);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
 			code: 'const foo = "*".repeat(10n - value.length) + value;',
 			errors: [{messageId: MESSAGE_ID}],
 		},
@@ -93,8 +123,8 @@ test({
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
-			code: 'foo\n"*".repeat(width - (value).length) + (value)',
-			output: 'foo\n;(value).padStart(width, "*")',
+			code: 'foo\n"*".repeat(10 - (value).length) + (value)',
+			output: 'foo\n;(value).padStart(10, "*")',
 			errors: [{messageId: MESSAGE_ID}],
 		},
 		{
@@ -122,7 +152,15 @@ test({
 			}],
 		},
 		{
-			code: 'const foo = ("*".repeat(width) /* comment */ + value).slice(-width);',
+			code: 'const foo = ("*".repeat(10) /* comment */ + value).slice(-10);',
+			errors: [{messageId: MESSAGE_ID, suggestions: 0}],
+		},
+		{
+			code: 'const foo = ((value = "bar", "*").repeat(10) + value).slice(-10);',
+			errors: [{messageId: MESSAGE_ID, suggestions: 0}],
+		},
+		{
+			code: 'const foo = (value + (value = "bar", "*").repeat(10)).slice(0, 10);',
 			errors: [{messageId: MESSAGE_ID, suggestions: 0}],
 		},
 	],
@@ -148,8 +186,8 @@ test.snapshot({
 		'const foo = `*`.repeat(10 - bar.length) + bar;',
 		String.raw`const foo = "\t".repeat(width - bar.length) + bar;`,
 		'const foo = bar + `*`.repeat(10 - bar.length);',
-		'const foo = ("*".repeat(width) + bar).slice(-width);',
-		'const foo = (bar + "*".repeat(width)).slice(0, width);',
+		'const foo = ("*".repeat(10) + bar).slice(-10);',
+		'const foo = (bar + "*".repeat(10)).slice(0, 10);',
 		outdent`
 			const foo = (
 				"*"
