@@ -168,6 +168,14 @@ const create = context => {
 		}
 
 		const filterCall = binaryExpression.left.object;
+		const filterCallObject = filterCall.callee.object;
+		if (
+			filterCallObject.type === 'Identifier'
+			&& filterCallObject.name.startsWith('$')
+		) {
+			return;
+		}
+
 		const [firstArgument] = filterCall.arguments;
 		if (!firstArgument || isNodeValueNotFunction(firstArgument)) {
 			return;
