@@ -52,7 +52,7 @@ const isIterableAcceptingCall = node =>
 	|| isMethodCall(node, {
 		object: 'Object',
 		method: 'fromEntries',
-		minimumArguments: 1,
+		argumentsLength: 1,
 		optionalCall: false,
 		optionalMember: false,
 	})
@@ -60,7 +60,7 @@ const isIterableAcceptingCall = node =>
 
 const isIterableAcceptingNewExpression = node =>
 	isNewExpression(node, {names: ['Map', 'WeakMap', 'Set', 'WeakSet'], argumentsLength: 1})
-	|| isNewExpression(node, {names: typedArray, minimumArguments: 1});
+	|| isNewExpression(node, {names: typedArray, argumentsLength: 1});
 
 const isInIterableAcceptingParent = node => {
 	const {parent} = node;
@@ -88,6 +88,13 @@ const isToArrayCall = node => isMethodCall(node, {
 
 const hasToArraySpreadElement = arrayExpression =>
 	arrayExpression.elements.some(element => isToArrayCall(element.argument));
+
+const isSuggestionOnlyParent = parent =>
+	(parent.type === 'ForOfStatement' || (parent.type === 'YieldExpression' && parent.delegate))
+	|| (
+		parent.type === 'CallExpression'
+		&& (isPromiseMethodCall(parent) || isFromCallWithMapper(parent))
+	);
 
 const getReplacementText = (arrayExpression, context) => {
 	const argumentsText = arrayExpression.elements
@@ -122,10 +129,7 @@ const create = context => {
 		};
 		const fix = getFix(node, context);
 
-		if (
-			node.parent.type === 'CallExpression'
-			&& (isPromiseMethodCall(node.parent) || isFromCallWithMapper(node.parent))
-		) {
+		if (isSuggestionOnlyParent(node.parent)) {
 			if (!fix) {
 				return problem;
 			}
@@ -159,7 +163,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Iterator.concat(…)` over temporary spread arrays.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,

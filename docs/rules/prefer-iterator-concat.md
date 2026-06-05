@@ -2,7 +2,7 @@
 
 📝 Prefer `Iterator.concat(…)` over temporary spread arrays.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -38,5 +38,7 @@ new Set([first, ...rest]);
 ```
 
 `Array.from(…)` and typed array `.from(…)` cases with mapper functions are reported as suggestions instead of autofixes because replacing the array literal can change when the mapper function runs.
+
+`for…of` and `yield*` cases are reported as suggestions instead of autofixes because replacing the array literal can change when later iterables are consumed.
 
 `Promise.{all,allSettled,any,race}(…)` cases are also reported as suggestions instead of autofixes because replacing the array literal can change a synchronous throw during array creation into an asynchronous rejection.

@@ -29,6 +29,7 @@ test.snapshot({
 		'new Foo([...foo, ...bar])',
 		'new foo.Set([...foo, ...bar])',
 		'new Map([...foo, ...bar], extra)',
+		'new Uint8Array([...foo, ...bar], byteOffset)',
 
 		// Non-matching calls.
 		'foo([...bar, ...baz])',
@@ -36,6 +37,7 @@ test.snapshot({
 		'Array.from?.([...foo, ...bar])',
 		'Array?.from([...foo, ...bar])',
 		'Array["from"]([...foo, ...bar])',
+		'Object.fromEntries([...foo, ...bar], extra)',
 		'Promise.all([...foo, ...bar], extra)',
 
 		// Not direct iterable accepting usage.
@@ -51,14 +53,15 @@ test.snapshot({
 		'new Int8Array([...foo, ...bar])',
 		'new Uint8Array([...foo, ...bar])',
 		'new Float64Array([...foo, ...bar])',
-		'new Uint8Array([...foo, ...bar], byteOffset)',
 
 		// Static methods that accept iterables.
 		'Array.from([...foo, ...bar])',
+		'Array.from([...foo, ...bar], )',
 		'Array.from([...foo, ...bar], mapFunction)',
+		'Array.from([...foo, ...bar], mapFunction, thisArgument)',
+		'Array.from([...foo, ...bar], mapFunction, thisArgument, extra)',
 		'Array.from([...foo, ...throwsOnIteration], mapFunction)',
 		'Object.fromEntries([...foo, ...bar])',
-		'Object.fromEntries([...foo, ...bar], extra)',
 		'Uint8Array.from([...foo, ...bar])',
 		'Uint8Array.from([...foo, ...bar], mapFunction)',
 
