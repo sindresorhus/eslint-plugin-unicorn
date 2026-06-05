@@ -1,4 +1,6 @@
-# Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`
+# prefer-query-selector
+
+📝 Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -46,4 +48,29 @@ document.querySelectorAll('main');
 ```js
 // ❌
 document.getElementsByClassName(fn());
+```
+
+## Options
+
+### `allowWithVariables`
+
+Type: `boolean`\
+Default: `false`
+
+When set to `true`, allows using `.getElementById()` and `.getElementsByClassName()` when called with a variable or expression. This avoids the need to manually compose a CSS selector string, which can be less readable.
+
+```js
+// eslint unicorn/prefer-query-selector: ["error", {"allowWithVariables": true}]
+
+// ✅ Allowed - variable argument
+document.getElementById(someId);
+document.getElementsByClassName(someClass);
+
+// ❌ Still reported - literal argument
+document.getElementById('foo');
+document.getElementsByClassName('foo');
+
+// ❌ Still reported - getElementsByTagName and getElementsByName are never allowed
+document.getElementsByTagName(someTag);
+document.getElementsByName(someName);
 ```

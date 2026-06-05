@@ -1,4 +1,6 @@
-# Prefer `Array#toSorted()` over `Array#sort()`
+# no-array-sort
+
+📝 Prefer `Array#toSorted()` over `Array#sort()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

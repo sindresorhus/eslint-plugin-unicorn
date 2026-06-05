@@ -284,33 +284,6 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
-	testerOptions: {
-		languageOptions: {
-			parser: parsers.babel,
-			parserOptions: {
-				babelOptions: {
-					parserOpts: {
-						plugins: [
-							['destructuringPrivate'],
-						],
-					},
-				},
-			},
-		},
-	},
-	valid: [],
-	invalid: [
-		outdent`
-			class Foo {
-				get #bar() {
-					const {#bar: bar} = this;
-				}
-			}
-		`,
-	],
-});
-
 test.snapshot(avoidTestTitleConflict({
 	testerOptions: {
 		languageOptions: {

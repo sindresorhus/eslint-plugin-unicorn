@@ -85,8 +85,7 @@ function checkInvalidCases(node, context) {
 		&& node.kind === 'init'
 		&& node.key.type === 'Identifier'
 		&& node.key.name === 'invalid'
-		&& node.value.type === 'ArrayExpression',
-	);
+		&& node.value.type === 'ArrayExpression');
 
 	if (!invalidCasesNode) {
 		return;

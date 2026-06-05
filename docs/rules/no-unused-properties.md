@@ -1,4 +1,6 @@
-# Disallow unused object properties
+# no-unused-properties
+
+📝 Disallow unused object properties.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

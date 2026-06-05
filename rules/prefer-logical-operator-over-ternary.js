@@ -77,7 +77,7 @@ function fix({
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
-	// There should be no cases need add parentheses when switching ternary to logical expression
+	// There should be no cases need to add parentheses when switching ternary to logical expression
 
 	// ASI
 	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {

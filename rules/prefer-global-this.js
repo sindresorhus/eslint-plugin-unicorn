@@ -1,3 +1,5 @@
+import {isStringLiteral} from './ast/index.js';
+
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
@@ -37,7 +39,7 @@ Some constructors are occasionally related to window (like Element !== iframe.co
 
 Please use these criteria to decide whether an API should be added here. Context: https://github.com/sindresorhus/eslint-plugin-unicorn/pull/2410#discussion_r1695312427
 */
-const windowSpecificAPIs = new Set([
+const windowSpecificApis = new Set([
 	// Properties and methods
 	// https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-window-object
 	'name',
@@ -103,27 +105,15 @@ const windowSpecificAPIs = new Set([
 	'devicePixelRatio',
 ]);
 
-const webWorkerSpecificAPIs = new Set([
-	// https://html.spec.whatwg.org/multipage/workers.html#the-workerglobalscope-common-interface
-	'addEventListener',
-	'removeEventListener',
-	'dispatchEvent',
+function getStaticPropertyName(node) {
+	if (isStringLiteral(node)) {
+		return node.value;
+	}
 
-	'self',
-	'location',
-	'navigator',
-	'onerror',
-	'onlanguagechange',
-	'onoffline',
-	'ononline',
-	'onrejectionhandled',
-	'onunhandledrejection',
-
-	// https://html.spec.whatwg.org/multipage/workers.html#dedicated-workers-and-the-dedicatedworkerglobalscope-interface
-	'name',
-	'postMessage',
-	'onconnect',
-]);
+	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
+		return node.quasis[0].value.cooked;
+	}
+}
 
 /**
 Check if the node is a window-specific API.
@@ -131,7 +121,7 @@ Check if the node is a window-specific API.
 @param {import('estree').MemberExpression} node
 @returns {boolean}
 */
-const isWindowSpecificAPI = node => {
+const isWindowSpecificApi = node => {
 	if (node.type !== 'MemberExpression') {
 		return false;
 	}
@@ -140,7 +130,7 @@ const isWindowSpecificAPI = node => {
 		return false;
 	}
 
-	if (windowSpecificAPIs.has(node.property.name)) {
+	if (windowSpecificApis.has(node.property.name)) {
 		if (['addEventListener', 'removeEventListener', 'dispatchEvent'].includes(node.property.name) && node.parent.type === 'CallExpression' && node.parent.callee === node) {
 			const argument = node.parent.arguments[0];
 			return argument && argument.type === 'Literal' && windowSpecificEvents.has(argument.value);
@@ -161,12 +151,24 @@ function isComputedMemberExpressionObject(identifier) {
 }
 
 /**
-Check if the node is a web worker specific API.
+Check if the identifier is used in an existence check for a known window-specific API.
 
-@param {import('estree').MemberExpression} node
+@param {import('estree').Identifier} identifier
 @returns {boolean}
 */
-const isWebWorkerSpecificAPI = node => node.type === 'MemberExpression' && node.object.name === 'self' && node.property.type === 'Identifier' && webWorkerSpecificAPIs.has(node.property.name);
+function isKnownSpecificApiExistenceCheck(identifier) {
+	const {parent} = identifier;
+	if (parent.type !== 'BinaryExpression' || parent.operator !== 'in' || parent.right !== identifier) {
+		return false;
+	}
+
+	const propertyName = getStaticPropertyName(parent.left);
+	if (typeof propertyName !== 'string') {
+		return false;
+	}
+
+	return windowSpecificApis.has(propertyName);
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -182,9 +184,11 @@ const create = context => {
 
 		for (const {identifier} of references) {
 			if (
-				isComputedMemberExpressionObject(identifier)
-				|| isWindowSpecificAPI(identifier.parent)
-				|| isWebWorkerSpecificAPI(identifier.parent)
+				identifier.name === 'window' && (
+					isComputedMemberExpressionObject(identifier)
+					|| isKnownSpecificApiExistenceCheck(identifier)
+					|| isWindowSpecificApi(identifier.parent)
+				)
 			) {
 				continue;
 			}

@@ -9,6 +9,8 @@ You might want to check out [XO](https://github.com/xojs/xo), which includes thi
 
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
+**Fully AI-generated pull requests are not accepted. You can use AI, but should be verified and cleaned up by a human. Only Opus 4.6+ (high-effort) and Codex 5.4+ (extra high) are accepted models. Preferably created with Opus and verified by Codex.**
+
 ## Install
 
 ```sh
@@ -36,7 +38,7 @@ export default [
 			unicorn: eslintPluginUnicorn,
 		},
 		rules: {
-			'unicorn/better-regex': 'error',
+			'unicorn/prefer-module': 'error',
 			'unicorn/…': 'error',
 		},
 	},
@@ -57,7 +59,6 @@ export default [
 
 | Name                                                                                             | Description                                                                                                                                                                                                       | 💼   | 🔧 | 💡 |
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--- | :- | :- |
-| [better-regex](docs/rules/better-regex.md)                                                       | Improve regexes by making them shorter, consistent, and safer.                                                                                                                                                    |      | 🔧 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                               | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅    | 🔧 |    |
 | [consistent-assert](docs/rules/consistent-assert.md)                                             | Enforce consistent assertion style with `node:assert`.                                                                                                                                                            | ✅    | 🔧 |    |
 | [consistent-date-clone](docs/rules/consistent-date-clone.md)                                     | Prefer passing `Date` directly to the constructor when cloning.                                                                                                                                                   | ✅ ☑️ | 🔧 |    |
@@ -65,7 +66,9 @@ export default [
 | [consistent-empty-array-spread](docs/rules/consistent-empty-array-spread.md)                     | Prefer consistent types when spreading a ternary in an array literal.                                                                                                                                             | ✅    | 🔧 |    |
 | [consistent-existence-index-check](docs/rules/consistent-existence-index-check.md)               | Enforce consistent style for element existence checks with `indexOf()`, `lastIndexOf()`, `findIndex()`, and `findLastIndex()`.                                                                                    | ✅ ☑️ | 🔧 |    |
 | [consistent-function-scoping](docs/rules/consistent-function-scoping.md)                         | Move function definitions to the highest possible scope.                                                                                                                                                          | ✅    |    |    |
+| [consistent-template-literal-escape](docs/rules/consistent-template-literal-escape.md)           | Enforce consistent style for escaping `${` in template literals.                                                                                                                                                  | ✅    | 🔧 |    |
 | [custom-error-definition](docs/rules/custom-error-definition.md)                                 | Enforce correct `Error` subclassing.                                                                                                                                                                              |      | 🔧 |    |
+| [dom-node-dataset](docs/rules/dom-node-dataset.md)                                               | Enforce consistent style for DOM element dataset access.                                                                                                                                                          | ✅ ☑️ | 🔧 |    |
 | [empty-brace-spaces](docs/rules/empty-brace-spaces.md)                                           | Enforce no spaces between braces.                                                                                                                                                                                 | ✅    | 🔧 |    |
 | [error-message](docs/rules/error-message.md)                                                     | Enforce passing a `message` value when creating a built-in error.                                                                                                                                                 | ✅ ☑️ |    |    |
 | [escape-case](docs/rules/escape-case.md)                                                         | Require escape sequences to use uppercase or lowercase values.                                                                                                                                                    | ✅ ☑️ | 🔧 |    |
@@ -119,10 +122,12 @@ export default [
 | [no-unnecessary-slice-end](docs/rules/no-unnecessary-slice-end.md)                               | Disallow using `.length` or `Infinity` as the `end` argument of `{Array,String,TypedArray}#slice()`.                                                                                                              | ✅ ☑️ | 🔧 |    |
 | [no-unreadable-array-destructuring](docs/rules/no-unreadable-array-destructuring.md)             | Disallow unreadable array destructuring.                                                                                                                                                                          | ✅ ☑️ | 🔧 |    |
 | [no-unreadable-iife](docs/rules/no-unreadable-iife.md)                                           | Disallow unreadable IIFEs.                                                                                                                                                                                        | ✅ ☑️ |    |    |
+| [no-unused-array-method-return](docs/rules/no-unused-array-method-return.md)                     | Disallow ignoring the return value of selected array methods.                                                                                                                                                     | ✅ ☑️ |    |    |
 | [no-unused-properties](docs/rules/no-unused-properties.md)                                       | Disallow unused object properties.                                                                                                                                                                                |      |    |    |
 | [no-useless-collection-argument](docs/rules/no-useless-collection-argument.md)                   | Disallow useless values or fallbacks in `Set`, `Map`, `WeakSet`, or `WeakMap`.                                                                                                                                    | ✅ ☑️ | 🔧 | 💡 |
 | [no-useless-error-capture-stack-trace](docs/rules/no-useless-error-capture-stack-trace.md)       | Disallow unnecessary `Error.captureStackTrace(…)`.                                                                                                                                                                | ✅ ☑️ | 🔧 |    |
 | [no-useless-fallback-in-spread](docs/rules/no-useless-fallback-in-spread.md)                     | Disallow useless fallback when spreading in object literals.                                                                                                                                                      | ✅ ☑️ | 🔧 |    |
+| [no-useless-iterator-to-array](docs/rules/no-useless-iterator-to-array.md)                       | Disallow unnecessary `.toArray()` on iterators.                                                                                                                                                                   | ✅ ☑️ | 🔧 | 💡 |
 | [no-useless-length-check](docs/rules/no-useless-length-check.md)                                 | Disallow useless array length check.                                                                                                                                                                              | ✅ ☑️ | 🔧 |    |
 | [no-useless-promise-resolve-reject](docs/rules/no-useless-promise-resolve-reject.md)             | Disallow returning/yielding `Promise.resolve/reject()` in async functions or promise callbacks                                                                                                                    | ✅ ☑️ | 🔧 |    |
 | [no-useless-spread](docs/rules/no-useless-spread.md)                                             | Disallow unnecessary spread.                                                                                                                                                                                      | ✅ ☑️ | 🔧 |    |
@@ -146,7 +151,6 @@ export default [
 | [prefer-date-now](docs/rules/prefer-date-now.md)                                                 | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.                                                                                                                                       | ✅ ☑️ | 🔧 |    |
 | [prefer-default-parameters](docs/rules/prefer-default-parameters.md)                             | Prefer default parameters over reassignment.                                                                                                                                                                      | ✅ ☑️ |    | 💡 |
 | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md)                                   | Prefer `Node#append()` over `Node#appendChild()`.                                                                                                                                                                 | ✅ ☑️ | 🔧 |    |
-| [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md)                                 | Prefer using `.dataset` on DOM elements over calling attribute methods.                                                                                                                                           | ✅ ☑️ | 🔧 |    |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md)                                   | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.                                                                                                                                             | ✅ ☑️ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md)                       | Prefer `.textContent` over `.innerText`.                                                                                                                                                                          | ✅ ☑️ |    | 💡 |
 | [prefer-event-target](docs/rules/prefer-event-target.md)                                         | Prefer `EventTarget` over `EventEmitter`.                                                                                                                                                                         | ✅ ☑️ |    |    |
@@ -175,6 +179,7 @@ export default [
 | [prefer-response-static-json](docs/rules/prefer-response-static-json.md)                         | Prefer `Response.json()` over `new Response(JSON.stringify())`.                                                                                                                                                   | ✅ ☑️ | 🔧 |    |
 | [prefer-set-has](docs/rules/prefer-set-has.md)                                                   | Prefer `Set#has()` over `Array#includes()` when checking for existence or non-existence.                                                                                                                          | ✅ ☑️ | 🔧 | 💡 |
 | [prefer-set-size](docs/rules/prefer-set-size.md)                                                 | Prefer using `Set#size` instead of `Array#length`.                                                                                                                                                                | ✅ ☑️ | 🔧 |    |
+| [prefer-simple-condition-first](docs/rules/prefer-simple-condition-first.md)                     | Prefer simple conditions first in logical expressions.                                                                                                                                                            | ✅ ☑️ | 🔧 | 💡 |
 | [prefer-single-call](docs/rules/prefer-single-call.md)                                           | Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.                                                                                               | ✅ ☑️ | 🔧 | 💡 |
 | [prefer-spread](docs/rules/prefer-spread.md)                                                     | Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split('')`.                                                                                           | ✅    | 🔧 | 💡 |
 | [prefer-string-raw](docs/rules/prefer-string-raw.md)                                             | Prefer using the `String.raw` tag to avoid escaping `\`.                                                                                                                                                          | ✅ ☑️ | 🔧 |    |
@@ -196,6 +201,7 @@ export default [
 | [require-post-message-target-origin](docs/rules/require-post-message-target-origin.md)           | Enforce using the `targetOrigin` argument with `window.postMessage()`.                                                                                                                                            |      |    | 💡 |
 | [string-content](docs/rules/string-content.md)                                                   | Enforce better string content.                                                                                                                                                                                    |      | 🔧 | 💡 |
 | [switch-case-braces](docs/rules/switch-case-braces.md)                                           | Enforce consistent brace style for `case` clauses.                                                                                                                                                                | ✅    | 🔧 |    |
+| [switch-case-break-position](docs/rules/switch-case-break-position.md)                           | Enforce consistent `break`/`return`/`continue`/`throw` position in `case` clauses.                                                                                                                                | ✅    | 🔧 |    |
 | [template-indent](docs/rules/template-indent.md)                                                 | Fix whitespace-insensitive template indentation.                                                                                                                                                                  | ✅    | 🔧 |    |
 | [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md)                     | Enforce consistent case for text encoding identifiers.                                                                                                                                                            | ✅ ☑️ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md)                                                 | Require `new` when creating an error.                                                                                                                                                                             | ✅ ☑️ | 🔧 |    |
@@ -224,7 +230,7 @@ export default [
 		eslintPluginUnicorn.configs.recommended,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];
@@ -242,7 +248,7 @@ export default [
 		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];

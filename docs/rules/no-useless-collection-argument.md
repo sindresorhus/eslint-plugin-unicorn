@@ -1,4 +1,6 @@
-# Disallow useless values or fallbacks in `Set`, `Map`, `WeakSet`, or `WeakMap`
+# no-useless-collection-argument
+
+📝 Disallow useless values or fallbacks in `Set`, `Map`, `WeakSet`, or `WeakMap`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

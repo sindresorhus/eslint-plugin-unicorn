@@ -1,4 +1,6 @@
-# Disallow identifiers starting with `new` or `class`
+# no-keyword-prefix
+
+📝 Disallow identifiers starting with `new` or `class`.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

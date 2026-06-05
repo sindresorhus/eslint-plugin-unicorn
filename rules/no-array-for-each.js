@@ -319,8 +319,7 @@ function isFunctionParameterVariableReassigned(callbackFunction, sourceCode) {
 	return sourceCode.getDeclaredVariables(callbackFunction)
 		.filter(variable => variable.defs[0].type === 'Parameter')
 		.some(variable =>
-			variable.references.some(reference => !reference.init && reference.isWrite()),
-		);
+			variable.references.some(reference => !reference.init && reference.isWrite()));
 }
 
 function isFixable(callExpression, {scope, functionInfo, allIdentifiers, sourceCode}) {

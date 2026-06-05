@@ -104,10 +104,16 @@ function check(context, functionNode, listeners) {
 			const commentEnd = sourceCode.getRange(property)[0];
 			const comments = commentsInObjectExpression.filter(({start, end}) => start >= commentStart && end <= commentEnd);
 
-			const {
-				commentsBefore = [],
-				commentsForListener = [],
-			} = Object.groupBy(comments, comment => comment.isType ? 'commentsForListener' : 'commentsBefore');
+			const commentsBefore = [];
+			const commentsForListener = [];
+
+			for (const comment of comments) {
+				if (comment.isType) {
+					commentsForListener.push(comment);
+				} else {
+					commentsBefore.push(comment);
+				}
+			}
 
 			yield fixer.insertTextBeforeRange(
 				range,

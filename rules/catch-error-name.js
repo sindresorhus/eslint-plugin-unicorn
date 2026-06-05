@@ -34,9 +34,7 @@ const isPromiseCatchParameter = node =>
 const create = context => {
 	const options = context.options[0];
 	const {name: expectedName} = options;
-	const ignore = options.ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	const ignore = options.ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 	const isNameAllowed = name =>
 		name === expectedName
 		|| ignore.some(regexp => regexp.test(name))
@@ -104,10 +102,12 @@ const schema = [
 		properties: {
 			name: {
 				type: 'string',
+				description: 'The expected name for the error variable.',
 			},
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Patterns to ignore.',
 			},
 		},
 	},

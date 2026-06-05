@@ -1,5 +1,6 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
+import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
@@ -167,6 +168,16 @@ test.snapshot({
 			await foo();
 		`,
 		'for (const statement of statements) { statement() };',
+		// #2946: lock in that `let`/`var` (and by extension `using`/`await using`)
+		// still fall through under `@typescript-eslint/parser`, preserving the
+		// rule's intentional const-only behavior alongside the kind fallback.
+		{
+			code: outdent`
+				let foo = async () => {};
+				foo();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`
@@ -197,6 +208,16 @@ test.snapshot({
 				foo();
 			}
 		`,
+		// #2946: the TypeScript parser does not populate `definition.kind`, so
+		// falling back to the parent `VariableDeclaration.kind` is required to
+		// still flag top-level async-function calls under `@typescript-eslint/parser`.
+		{
+			code: outdent`
+				const foo = async () => {};
+				foo();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -209,12 +230,27 @@ test.snapshot({
 				(async () => {})(),
 				/* hole */,
 				foo(),
+				foo?.(),
 				foo.then(bar),
 				foo.catch(bar),
 			]);
 			await Promise.allSettled([foo()]);
 			await Promise?.any([foo()]);
 			await Promise.race?.([foo()]);
+		`,
+		outdent`
+			async function getStat() {}
+			const [core, pure, bundle] = await Promise.all([
+				getStat('core-js'),
+				ALL && getStat('core-js-pure'),
+				ALL && getStat('core-js-bundle'),
+			]);
+		`,
+		outdent`
+			async function getStat() {}
+			const [core] = await Promise.all([
+				ALL ? getStat('core-js') : getStat('core-js-pure'),
+			]);
 		`,
 		outdent`
 			const foo = async () => {};
@@ -227,10 +263,16 @@ test.snapshot({
 			await promise;
 		`,
 	],
-	invalid: [],
+	invalid: [
+		outdent`
+			const runAsync = async () => {};
+			const value = true;
+			await Promise.all([runAsync() && value]);
+		`,
+	],
 });
 
-test.babel({
+test({
 	valid: [
 		'await foo',
 		'await foo()',
@@ -244,4 +286,3 @@ test.babel({
 	],
 	invalid: [],
 });
-

@@ -1,4 +1,6 @@
-# Enforce using the separator argument with `Array#join()`
+# require-array-join-separator
+
+📝 Enforce using the separator argument with `Array#join()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

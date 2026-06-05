@@ -1,5 +1,5 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
-import {getReferences, isNodeMatches} from './utils/index.js';
+import {getReferences, isNodeContainsLexicalThis, isNodeMatches} from './utils/index.js';
 import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-function-scoping';
@@ -61,7 +61,7 @@ function checkReferences(scope, parent, scopeManager) {
 			return false;
 		}
 
-		// Look at the scope above the function definition to see if lives
+		// Look at the scope above the function definition to see if it lives
 		// next to the reference being checked
 		return isSameScope(parent, identifierParentScope.upper);
 	});
@@ -72,8 +72,7 @@ function checkReferences(scope, parent, scopeManager) {
 		.some(variable =>
 			hitReference(variable.references)
 			|| hitDefinitions(variable.defs)
-			|| hitIdentifier(variable.identifiers),
-		);
+			|| hitIdentifier(variable.identifiers));
 }
 
 // https://reactjs.org/docs/hooks-reference.html
@@ -94,10 +93,11 @@ const isReactHook = scope =>
 	scope.block?.parent?.callee
 	&& isNodeMatches(scope.block.parent.callee, reactHooks);
 
-const isArrowFunctionWithThis = scope =>
-	scope.type === 'function'
-	&& scope.block?.type === 'ArrowFunctionExpression'
-	&& (scope.thisFound || scope.childScopes.some(scope => isArrowFunctionWithThis(scope)));
+const isArrowFunctionNodeWithThis = (node, visitorKeys) =>
+	node.type === 'ArrowFunctionExpression'
+	// We avoid `scope.thisFound` because parser scope metadata differs; AST lexical checks are consistent.
+	// Include both params and body, because parameter defaults can reference lexical `this`.
+	&& isNodeContainsLexicalThis(node, visitorKeys);
 
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
@@ -145,10 +145,13 @@ function handleNestedArrowFunctions(parentNode, node) {
 	return parentNode;
 }
 
-function checkNode(node, scopeManager) {
+function checkNode(node, scopeManager, sourceCode) {
 	const scope = scopeManager.acquire(node);
 
-	if (!scope || isArrowFunctionWithThis(scope)) {
+	if (
+		!scope
+		|| isArrowFunctionNodeWithThis(node, sourceCode.visitorKeys)
+	) {
 		return true;
 	}
 
@@ -220,7 +223,7 @@ const create = context => {
 			return;
 		}
 
-		if (checkNode(node, scopeManager)) {
+		if (checkNode(node, scopeManager, sourceCode)) {
 			return;
 		}
 
@@ -242,6 +245,7 @@ const schema = [
 		properties: {
 			checkArrowFunctions: {
 				type: 'boolean',
+				description: 'Whether to check arrow functions.',
 			},
 		},
 	},

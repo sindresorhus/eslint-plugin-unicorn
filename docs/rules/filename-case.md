@@ -1,4 +1,6 @@
-# Enforce a case style for filenames
+# filename-case
+
+📝 Enforce a case style for filenames.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 

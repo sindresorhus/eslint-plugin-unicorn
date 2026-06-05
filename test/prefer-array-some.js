@@ -79,7 +79,7 @@ test({
 			suggestionOutput: 'console.log(foo /* comment 1 */ . /* comment 2 */ some /* comment 3 */ (fn) ? a : b)',
 			method: 'find',
 		}),
-		// This should not be reported, but `jQuery.find()` is always `truly`,
+		// This should not be reported, but `jQuery.find()` is always `truthy`,
 		// It should not use as a boolean
 		invalidCase({
 			code: 'if (jQuery.find(".outer > div")) {}',

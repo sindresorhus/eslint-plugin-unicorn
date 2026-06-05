@@ -31,7 +31,7 @@ test.snapshot({
 	],
 });
 
-test.babel({
+test({
 	valid: [
 		outdent`
 			class A {

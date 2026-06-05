@@ -1,4 +1,6 @@
-# Enforce proper case for numeric literals
+# number-literal-case
+
+📝 Enforce proper case for numeric literals.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

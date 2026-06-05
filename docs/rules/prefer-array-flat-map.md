@@ -1,4 +1,6 @@
-# Prefer `.flatMap(…)` over `.map(…).flat()`
+# prefer-array-flat-map
+
+📝 Prefer `.flatMap(…)` over `.map(…).flat()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

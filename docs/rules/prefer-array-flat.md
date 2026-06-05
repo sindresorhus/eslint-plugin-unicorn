@@ -1,4 +1,6 @@
-# Prefer `Array#flat()` over legacy techniques to flatten arrays
+# prefer-array-flat
+
+📝 Prefer `Array#flat()` over legacy techniques to flatten arrays.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

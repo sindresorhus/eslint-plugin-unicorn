@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -163,5 +163,21 @@ test.snapshot({
 				);
 			}
 		`,
+		{
+			code: '(array as any[]).length === 0 || (array as any[]).every(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(array as any[]).length > 0 && (array as any[]).some(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.length === 0 || array!.every(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.length > 0 && array!.some(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -1,4 +1,6 @@
-# Enforce specifying rules to disable in `eslint-disable` comments
+# no-abusive-eslint-disable
+
+📝 Enforce specifying rules to disable in `eslint-disable` comments.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

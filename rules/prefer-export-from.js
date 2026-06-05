@@ -76,24 +76,24 @@ function getFixFunction({
 	let exportDeclaration;
 	if (shouldExportAsType) {
 		// If a type export declaration already exists, reuse it, else use a value export declaration with an inline type specifier.
-		exportDeclaration = exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind === 'type');
+		exportDeclaration = exportDeclarations.find(({source, exportKind}) => (exportKind === 'type') && (source.value === sourceValue));
 	}
 
-	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => source.value === sourceValue && exportKind !== 'type');
+	exportDeclaration ||= exportDeclarations.find(({source, exportKind}) => (exportKind !== 'type') && (source.value === sourceValue));
 
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		if (imported.name === NAMESPACE_SPECIFIER_NAME) {
 			yield fixer.insertTextAfter(
 				program,
-				`\nexport * as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
+				`\nexport ${shouldExportAsType ? 'type ' : ''}* as ${exported.text} ${getSourceAndAssertionsText(importDeclaration, context)}`,
 			);
 		} else {
 			let specifierText = exported.name === imported.name
 				? exported.text
 				: `${imported.text} as ${exported.text}`;
 
-			// Add an inline type specifier if the value is a type and the export deceleration is a value deceleration
+			// Add an inline type specifier if the value is a type and the export declaration is a value declaration
 			if (shouldExportAsType && (!exportDeclaration || exportDeclaration.exportKind !== 'type')) {
 				specifierText = `type ${specifierText}`;
 			}
@@ -116,7 +116,8 @@ function getFixFunction({
 			}
 		}
 
-		if (imported.variable.references.length === 1) {
+		const importHasSideEffects = exported.isTypeExport && !imported.isTypeImport;
+		if (imported.variable.references.length === 1 && !importHasSideEffects) {
 			yield removeImportOrExport(imported.node, fixer, context);
 		}
 
@@ -258,6 +259,7 @@ const schema = [
 		properties: {
 			ignoreUsedVariables: {
 				type: 'boolean',
+				description: 'Whether to ignore variables that are used in the module.',
 			},
 		},
 	},

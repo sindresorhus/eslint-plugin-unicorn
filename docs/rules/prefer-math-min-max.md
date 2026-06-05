@@ -1,4 +1,6 @@
-# Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons
+# prefer-math-min-max
+
+📝 Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

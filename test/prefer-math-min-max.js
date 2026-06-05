@@ -13,6 +13,19 @@ test.snapshot({
 		'foo > 10n ? 10n : foo',
 		'foo > BigInt(10) ? BigInt(10) : foo',
 
+		// Ignore Date objects
+		'new Date() > foo ? foo : new Date()',
+		'foo > new Date(0) ? new Date(0) : foo',
+		outdent`
+			var now = new Date();
+			var later = new Date();
+			var value = now > later ? later : now;
+		`,
+		outdent`
+			const start = new Date();
+			var value = start > foo ? foo : start;
+		`,
+
 		// Ignore when you know it is a string
 		outdent`
 			function foo(a = 'string', b) {
@@ -104,6 +117,16 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function foo(a, b) {
+				return (<bigint>a) > b ? a : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<string>a) > b ? a : b;
+			}
+		`,
+		outdent`
 			function foo(a: string, b) {
 				return a > b ? a : b;
 			}
@@ -119,6 +142,16 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function foo(a: Date, b: Date) {
+				return a > b ? a : b;
+			}
+		`,
+		outdent`
+			var foo: Date;
+			var bar: Date;
+			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
 			var foo = 10;
 			var bar = '20';
 
@@ -129,6 +162,16 @@ test.snapshot({
 			var bar: string;
 
 			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as string)! > b ? (a as string)! : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<string>a)! > b ? (<string>a)! : b;
+			}
 		`,
 	],
 	invalid: [
@@ -164,6 +207,21 @@ test.snapshot({
 			var bar: number;
 
 			var value = foo > bar ? bar : foo;
+		`,
+		outdent`
+			function foo(a, b) {
+				return (a as number) > b ? (a as number) : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return (<number>a) > b ? (<number>a) : b;
+			}
+		`,
+		outdent`
+			function foo(a, b) {
+				return a! > b ? a! : b;
+			}
 		`,
 	],
 });

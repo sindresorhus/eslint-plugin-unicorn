@@ -131,6 +131,7 @@ const tests = {
 		'const i18nData = {}',
 		'const l10n = new L10n()',
 		'const iOS = true',
+		'const jQueryEvent = true',
 		outdent`
 			(class {
 				error() {}
@@ -201,7 +202,7 @@ const tests = {
 		'({err: error}) => error',
 		'const {err: httpError} = {}',
 
-		// `err` in not defined, should not be report (could be reported by `no-unused-vars`)
+		// `err` is not defined, should not be reported (could be reported by `no-unused-vars`)
 		'console.log(err)',
 
 		// `err` would be reported by `quote-props` if it's a problem for user
@@ -287,9 +288,7 @@ const tests = {
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors(
-				'Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.',
-			),
+			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.'),
 		},
 
 		// All suggested names should avoid capture
@@ -1293,75 +1292,6 @@ const tests = {
 };
 
 test(tests);
-test.babel(avoidTestTitleConflict(tests, 'babel'));
-test.typescript(avoidTestTitleConflict(tests, 'typescript'));
-
-test({
-	testerOptions: {
-		languageOptions: {
-			sourceType: 'script',
-			ecmaVersion: 5,
-			globals: {
-				document: 'readonly',
-				event: 'readonly',
-			},
-		},
-	},
-	valid: [],
-	invalid: [
-		{
-			code: 'var doc',
-			output: 'var document_',
-			errors: 1,
-		},
-		{
-			code: outdent`
-				var doc;
-				document.querySelector(doc);
-			`,
-			output: outdent`
-				var document_;
-				document.querySelector(document_);
-			`,
-			errors: 1,
-		},
-
-		{
-			code: 'var y',
-			output: 'var yield_',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				"use strict";
-				var y;
-			`,
-			output: outdent`
-				"use strict";
-				var yield_;
-			`,
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'function a() {try {} catch(args) {}}',
-			output: 'function a() {try {} catch(arguments_) {}}',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'var one',
-			options: [{replacements: {one: {1: true}}}],
-			errors: 1,
-		},
-		{
-			code: 'var one_two',
-			options: [{replacements: {one: {first: true, 1: true}}}],
-			errors: 1,
-		},
-	],
-});
 
 const importExportTests = {
 	valid: [
@@ -1678,107 +1608,6 @@ const importExportTests = {
 	],
 };
 test(importExportTests);
-test.babel(avoidTestTitleConflict(importExportTests, 'babel'));
-test.typescript(avoidTestTitleConflict(importExportTests, 'typescript'));
-
-test.babel({
-	valid: [
-		// Allowed names
-		'Foo.defaultProps = {}',
-		outdent`
-			class Foo {
-				static propTypes = {};
-				static getDerivedStateFromProps() {}
-			}
-		`,
-
-		// Property should not report by default
-		outdent`
-			class Foo {
-				static propTypesAndStuff = {};
-			}
-		`,
-		'(class {e = 1})',
-		'(class {err = 1})',
-		outdent`
-			class C {
-				err = () => {}
-			}
-		`,
-	],
-	invalid: [
-		{
-			code: outdent`
-				function unicorn(unicorn) {
-					const {prop = {}} = unicorn;
-					return property;
-				}
-			`,
-			output: outdent`
-				function unicorn(unicorn) {
-					const {prop: property_ = {}} = unicorn;
-					return property;
-				}
-			`,
-			errors: 1,
-		},
-		{
-			code: '({err}) => err;',
-			output: '({err: error}) => error;',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'err => ({err});',
-			output: 'error => ({err: error});',
-			options: customOptions,
-			errors: 1,
-		},
-		{
-			code: 'Foo.customProps = {}',
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				class Foo {
-					static propTypesAndStuff = {};
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-		{
-			code: outdent`
-				class Foo {
-					static getDerivedContextFromProps() {}
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-
-		{
-			code: '(class {e = 1})',
-			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
-		},
-		{
-			code: '(class {err = 1})',
-			options: checkPropertiesOptions,
-			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
-		},
-		{
-			code: outdent`
-				class C {
-					err = () => {}
-				}
-			`,
-			options: checkPropertiesOptions,
-			errors: 1,
-		},
-	],
-});
 
 test.typescript({
 	testerOptions: {
@@ -1892,6 +1721,79 @@ test.typescript({
 			`,
 			errors: 2,
 		},
+
+		// TypeScript type references should be autofixed
+		{
+			code: outdent`
+				enum Btn {
+					Primary,
+				}
+				let test: Btn;
+			`,
+			output: outdent`
+				enum Button {
+					Primary,
+				}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Btn {}
+				let test: Btn;
+			`,
+			output: outdent`
+				class Button {}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				interface Btn {
+					id: number;
+				}
+				let test: Btn;
+			`,
+			output: outdent`
+				interface Button {
+					id: number;
+				}
+				let test: Button;
+			`,
+			errors: 1,
+		},
+		{
+			code: 'type Btn = {};',
+			output: 'type Button = {};',
+			errors: 1,
+		},
+		{
+			code: 'interface Btn {}',
+			output: 'interface Button {}',
+			errors: 1,
+		},
+
+		// Exported TypeScript interface/enum should NOT be autofixed
+		{
+			code: outdent`
+				export interface Btn {
+					id: number;
+				}
+				let test: Btn;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				export enum Btn {
+					Primary,
+				}
+				let test: Btn;
+			`,
+			errors: 1,
+		},
 	],
 });
 
@@ -1959,6 +1861,17 @@ test({
 				},
 			],
 		},
+		{
+			code: 'foo();',
+			filename: 'tsconfig.lib.json',
+			options: [
+				{
+					ignore: [
+						/tsconfig\.lib$/,
+					],
+				},
+			],
+		},
 	],
 	invalid: [
 		{
@@ -2010,6 +1923,18 @@ test({
 				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
 				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.'),
 			],
+		},
+		{
+			code: 'foo();',
+			filename: 'tsconfig.lib.json',
+			options: [
+				{
+					ignore: [
+						/tsconfig\.lib\.json$/,
+					],
+				},
+			],
+			errors: createErrors('The filename `tsconfig.lib.json` should be named `tsconfig.library.json`. A more descriptive name will do too.'),
 		},
 	],
 });

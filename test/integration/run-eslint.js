@@ -1,16 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import {codeFrameColumns} from '@babel/code-frame';
 import {ESLint} from 'eslint';
 import styleText from 'node-style-text';
 import {outdent} from 'outdent';
+import prettyMilliseconds from 'pretty-ms';
 import {
-	babelEslintParser,
 	typescriptEslintParser,
 	vueEslintParser,
 } from '../../scripts/parsers.js';
-import prettyMilliseconds from 'pretty-ms';
 import eslintPluginUnicorn from '../../index.js';
 
 class UnicornIntegrationTestError extends AggregateError {
@@ -36,15 +34,18 @@ class UnicornEslintFatalError extends SyntaxError {
 	get codeFrame() {
 		const {source, output} = this.eslintFile;
 		const {line, column, message, ruleId} = this.eslintMessage;
+		const code = source ?? output;
+		const lines = code.split('\n');
+		const frameMessage = ruleId ? `[${ruleId}]: ${message}` : message;
 
-		return codeFrameColumns(
-			source ?? output,
-			{start: {line, column}},
-			{
-				message: ruleId ? `[${ruleId}]: ${message}` : message,
-				highlightCode: true,
-			},
-		);
+		const result = [];
+		for (const [index, line_] of lines.entries()) {
+			const lineNumber = index + 1;
+			result.push(`${lineNumber.toString().padStart(3)} | ${line_}`);
+		}
+
+		result.push(`    | ${frameMessage}`);
+		return result.join('\n');
 	}
 }
 
@@ -84,30 +85,6 @@ const basicConfigs = [
 	},
 ];
 
-function getBabelParserConfig(project) {
-	return {
-		languageOptions: {
-			sourceType: 'module',
-			parser: babelEslintParser,
-			parserOptions: {
-				requireConfigFile: false,
-				babelOptions: {
-					babelrc: false,
-					configFile: false,
-					parserOpts: {
-						allowReturnOutsideFunction: true,
-						plugins: [
-							'jsx',
-							'exportDefaultFrom',
-							...project.babelPlugins,
-						],
-					},
-				},
-			},
-		},
-	};
-}
-
 async function runEslint(project) {
 	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
 	const ignore = fs.existsSync(eslintIgnoreFile)
@@ -118,7 +95,6 @@ async function runEslint(project) {
 		cwd: project.location,
 		overrideConfigFile: true,
 		overrideConfig: [
-			getBabelParserConfig(project),
 			...basicConfigs,
 			{ignores: [...ignore, ...project.ignore]},
 		],
@@ -136,11 +112,9 @@ async function runEslint(project) {
 
 	const errors = results
 		.filter(file => file.fatalErrorCount > 0)
-		.flatMap(
-			file => file.messages
-				.filter(message => message.fatal)
-				.map(message => new UnicornEslintFatalError(message, file)),
-		);
+		.flatMap(file => file.messages
+			.filter(message => message.fatal)
+			.map(message => new UnicornEslintFatalError(message, file)));
 
 	if (errors.length > 0) {
 		throw new UnicornIntegrationTestError(project, errors);

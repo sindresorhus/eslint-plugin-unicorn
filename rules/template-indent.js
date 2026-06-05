@@ -130,12 +130,15 @@ const schema = [
 					{
 						type: 'string',
 						pattern: /^\s+$/.source,
+						description: 'Whitespace string to use as indentation.',
 					},
 					{
 						type: 'integer',
 						minimum: 1,
+						description: 'Number of spaces to use as indentation.',
 					},
 				],
+				description: 'The indentation to use inside the template literal.',
 			},
 			tags: {
 				type: 'array',
@@ -143,6 +146,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Tagged template names to check.',
 			},
 			functions: {
 				type: 'array',
@@ -150,6 +154,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Function names whose template literal arguments to check.',
 			},
 			selectors: {
 				type: 'array',
@@ -157,6 +162,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'AST selectors for template literals to check.',
 			},
 			comments: {
 				type: 'array',
@@ -164,6 +170,7 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Comment patterns to mark template literals for checking.',
 			},
 		},
 	},

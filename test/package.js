@@ -61,18 +61,16 @@ test('Every rule is defined in index file in alphabetical order', t => {
 });
 
 test('validate configuration', async t => {
-	const results = await Promise.all(
-		Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
-			const eslint = new ESLint({
-				baseConfig: config,
-				overrideConfigFile: true,
-			});
+	const results = await Promise.all(Object.entries(eslintPluginUnicorn.configs).map(async ([name, config]) => {
+		const eslint = new ESLint({
+			baseConfig: config,
+			overrideConfigFile: true,
+		});
 
-			const result = await eslint.calculateConfigForFile('dummy.js');
+		const result = await eslint.calculateConfigForFile('dummy.js');
 
-			return {name, config, result};
-		}),
-	);
+		return {name, config, result};
+	}));
 
 	for (const {name, config, result} of results) {
 		t.deepEqual(

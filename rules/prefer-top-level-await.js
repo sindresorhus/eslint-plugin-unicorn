@@ -1,5 +1,6 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isLogicalExpression} from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -47,16 +48,49 @@ const isAwaitExpressionArgument = node => {
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
+const isArrayElementWrapper = node => (
+	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
+	|| (
+		node.parent.type === 'ConditionalExpression'
+		&& (
+			node.parent.consequent === node
+			|| node.parent.alternate === node
+		)
+	)
+	|| (
+		isLogicalExpression(node.parent)
+		&& (
+			node.parent.right === node
+			|| (
+				node.parent.left === node
+				&& node.parent.operator !== '&&'
+			)
+		)
+	)
+);
+
 // `Promise.{all,allSettled,any,race}([foo()])`
-const isInPromiseMethods = node =>
-	node.parent.type === 'ArrayExpression'
-	&& node.parent.elements.includes(node)
-	&& isMethodCall(node.parent.parent, {
+const isInPromiseMethods = node => {
+	let expression = node;
+	while (isArrayElementWrapper(expression)) {
+		expression = expression.parent;
+	}
+
+	if (
+		expression.parent.type !== 'ArrayExpression'
+		|| !expression.parent.elements.includes(expression)
+	) {
+		return false;
+	}
+
+	const arrayExpression = expression.parent;
+	return isMethodCall(arrayExpression.parent, {
 		object: 'Promise',
 		methods: ['all', 'allSettled', 'any', 'race'],
 		argumentsLength: 1,
 	})
-	&& node.parent.parent.arguments[0] === node.parent;
+	&& arrayExpression.parent.arguments[0] === arrayExpression;
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
@@ -111,7 +145,16 @@ function create(context) {
 		}
 
 		const [definition] = variable.defs;
-		const value = definition.type === 'Variable' && definition.kind === 'const'
+		// `definition.kind` is populated by espree but is undefined under
+		// `@typescript-eslint/parser`, so fall back to `definition.parent.kind`
+		// (the enclosing VariableDeclaration) to stay cross-parser. See #2946.
+		// Note: non-`const` kinds — `let`, `var`, `using`, `await using` — all
+		// take the else branch and harmlessly bail at the `isFunction` guard
+		// below, preserving the rule's intentional const-only behavior.
+		const variableKind = definition.type === 'Variable'
+			? (definition.kind ?? definition.parent?.kind)
+			: undefined;
+		const value = variableKind === 'const'
 			? definition.node.init
 			: definition.node;
 		if (

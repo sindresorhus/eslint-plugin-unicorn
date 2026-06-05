@@ -662,8 +662,7 @@ test({
 			testCase(
 				`for(const i = 0; i < ${arrayName}.length; i++) {console.log(${arrayName}[i])}`,
 				`for(const ${elementName} of ${arrayName}) {console.log(${elementName})}`,
-			),
-		),
+			)),
 
 		// Singularization (avoid using reserved JavaScript keywords):
 		testCase(outdent`
@@ -756,7 +755,14 @@ test(avoidTestTitleConflict({
 }, 'es5'));
 
 test.typescript({
-	valid: [],
+	valid: [
+		outdent`
+			const str = '123'.slice(1);
+			for (let i = 0; i < str.length; i++) {
+				console.log(str[i], i);
+			}
+		`,
+	],
 	invalid: [
 		// String type annotation with index usage - no autofix since `.entries()` doesn't exist on strings
 		{

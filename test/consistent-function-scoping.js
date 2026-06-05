@@ -248,6 +248,20 @@ test({
 				return doBar();
 			};
 		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = (value = this) => value;
+				return doBar();
+			};
+		`,
+		outdent`
+			function doFoo(Foo) {
+				const doBar = () => class C {
+					[this.x]() {}
+				};
+				return doBar();
+			};
+		`,
 		// `arguments`
 		outdent`
 			function doFoo(Foo) {
@@ -951,6 +965,21 @@ test.typescript({
 			export function a(x: number) {
 				const b = (y: number) => (z: number): number => x + y + z;
 				return b(1)(2);
+			}
+		`,
+		// #2088
+		outdent`
+			class Foo {
+				public bar = new FinalizationRegistry(() => {
+					console.log(this);
+				})
+			}
+		`,
+		// #2088
+		outdent`
+			function foo(this: unknown) {
+				const bar = () => console.log(this);
+				return [].map(() => bar);
 			}
 		`,
 	],

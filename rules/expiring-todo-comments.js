@@ -256,19 +256,21 @@ function tryToCoerceVersion(rawVersion) {
 	}
 }
 
-function semverComparisonForOperator(operator) {
-	return {
-		'>': semver.gt,
-		'>=': semver.gte,
-	}[operator];
+function satisfiesRange(version, condition, range) {
+	return semver.satisfies(version, `${condition}${range}`, {includePrerelease: true});
 }
 
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
+	ignoreDates: false,
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
 };
+
+function getAllComments(sourceCode) {
+	return sourceCode.getAllComments?.() ?? sourceCode.comments ?? [];
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -277,15 +279,13 @@ const create = context => {
 		...context.options[0],
 	};
 
-	const ignoreRegexes = options.ignore.map(
-		pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'),
-	);
+	const ignoreRegexes = options.ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u'));
 
 	const dirname = path.dirname(context.filename);
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
 
 	const {sourceCode} = context;
-	const comments = sourceCode.getAllComments();
+	const comments = getAllComments(sourceCode);
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
 		// Block comments come as one.
@@ -299,8 +299,7 @@ const create = context => {
 			comment.value.split('\n').map(line => ({
 				...comment,
 				value: line,
-			})),
-		).filter(comment => processComment(comment));
+			}))).filter(comment => processComment(comment));
 
 	// This is highly dependable on ESLint's `no-warning-comments` implementation.
 	// What we do is patch the parts we know the rule will use, `getAllComments`.
@@ -342,63 +341,48 @@ const create = context => {
 			engines = [],
 			unknowns = [],
 		} = parsed;
+		const todoMessage = parseTodoMessage(comment.value);
+
+		function report(messageId, data = {}) {
+			context.report({
+				node: comment,
+				messageId,
+				data: {
+					...data,
+					message: todoMessage,
+				},
+			});
+		}
 
 		if (dates.length > 1) {
 			uses++;
-			context.report({
-				loc: sourceCode.getLoc(comment),
-				messageId: MESSAGE_ID_AVOID_MULTIPLE_DATES,
-				data: {
-					expirationDates: dates.join(', '),
-					message: parseTodoMessage(comment.value),
-				},
+			report(MESSAGE_ID_AVOID_MULTIPLE_DATES, {
+				expirationDates: dates.join(', '),
 			});
 		} else if (dates.length === 1) {
 			uses++;
 			const [expirationDate] = dates;
 
-			const shouldIgnore = options.ignoreDatesOnPullRequests && ci.isPR;
+			const shouldIgnore = options.ignoreDates || (options.ignoreDatesOnPullRequests && ci.isPR);
 			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
-				context.report({
-					loc: sourceCode.getLoc(comment),
-					messageId: MESSAGE_ID_EXPIRED_TODO,
-					data: {
-						expirationDate,
-						message: parseTodoMessage(comment.value),
-					},
-				});
+				report(MESSAGE_ID_EXPIRED_TODO, {expirationDate});
 			}
 		}
 
 		if (packageVersions.length > 1) {
 			uses++;
-			context.report({
-				loc: sourceCode.getLoc(comment),
-				messageId: MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS,
-				data: {
-					versions: packageVersions
-						.map(({condition, version}) => `${condition}${version}`)
-						.join(', '),
-					message: parseTodoMessage(comment.value),
-				},
+			report(MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS, {
+				versions: packageVersions
+					.map(({condition, version}) => `${condition}${version}`)
+					.join(', '),
 			});
 		} else if (packageVersions.length === 1) {
 			uses++;
 			const [{condition, version}] = packageVersions;
 
 			const packageVersion = tryToCoerceVersion(packageJson.version);
-			const decidedPackageVersion = tryToCoerceVersion(version);
-
-			const compare = semverComparisonForOperator(condition);
-			if (packageVersion && compare(packageVersion, decidedPackageVersion)) {
-				context.report({
-					loc: sourceCode.getLoc(comment),
-					messageId: MESSAGE_ID_REACHED_PACKAGE_VERSION,
-					data: {
-						comparison: `${condition}${version}`,
-						message: parseTodoMessage(comment.value),
-					},
-				});
+			if (packageVersion && satisfiesRange(packageVersion, condition, version)) {
+				report(MESSAGE_ID_REACHED_PACKAGE_VERSION, {comparison: `${condition}${version}`});
 			}
 		}
 
@@ -417,20 +401,12 @@ const create = context => {
 						: [!hasTargetPackage, MESSAGE_ID_DONT_HAVE_PACKAGE];
 
 				if (trigger) {
-					context.report({
-						loc: sourceCode.getLoc(comment),
-						messageId,
-						data: {
-							package: dependency.name,
-							message: parseTodoMessage(comment.value),
-						},
-					});
+					report(messageId, {package: dependency.name});
 				}
 
 				continue;
 			}
 
-			const todoVersion = tryToCoerceVersion(dependency.version);
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
 			/* c8 ignore start */
@@ -440,17 +416,8 @@ const create = context => {
 			}
 			/* c8 ignore end */
 
-			const compare = semverComparisonForOperator(dependency.condition);
-
-			if (compare(targetPackageVersion, todoVersion)) {
-				context.report({
-					loc: sourceCode.getLoc(comment),
-					messageId: MESSAGE_ID_VERSION_MATCHES,
-					data: {
-						comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`,
-						message: parseTodoMessage(comment.value),
-					},
-				});
+			if (satisfiesRange(targetPackageVersion, dependency.condition, dependency.version)) {
+				report(MESSAGE_ID_VERSION_MATCHES, {comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`});
 			}
 		}
 
@@ -467,22 +434,10 @@ const create = context => {
 				continue;
 			}
 
-			const todoEngine = tryToCoerceVersion(engine.version);
-			const targetPackageEngineVersion = tryToCoerceVersion(
-				targetPackageRawEngineVersion,
-			);
+			const targetPackageEngineVersion = tryToCoerceVersion(targetPackageRawEngineVersion);
 
-			const compare = semverComparisonForOperator(engine.condition);
-
-			if (compare(targetPackageEngineVersion, todoEngine)) {
-				context.report({
-					loc: sourceCode.getLoc(comment),
-					messageId: MESSAGE_ID_ENGINE_MATCHES,
-					data: {
-						comparison: `node${engine.condition}${engine.version}`,
-						message: parseTodoMessage(comment.value),
-					},
-				});
+			if (targetPackageEngineVersion && satisfiesRange(targetPackageEngineVersion, engine.condition, engine.version)) {
+				report(MESSAGE_ID_ENGINE_MATCHES, {comparison: `node${engine.condition}${engine.version}`});
 			}
 		}
 
@@ -499,14 +454,9 @@ const create = context => {
 
 				if (parseArgument(testString).type !== 'unknowns') {
 					uses++;
-					context.report({
-						loc: sourceCode.getLoc(comment),
-						messageId: MESSAGE_ID_MISSING_AT_SYMBOL,
-						data: {
-							original: unknown,
-							fix: testString,
-							message: parseTodoMessage(comment.value),
-						},
+					report(MESSAGE_ID_MISSING_AT_SYMBOL, {
+						original: unknown,
+						fix: testString,
 					});
 					continue;
 				}
@@ -516,14 +466,9 @@ const create = context => {
 
 			if (parseArgument(withoutWhitespace).type !== 'unknowns') {
 				uses++;
-				context.report({
-					loc: sourceCode.getLoc(comment),
-					messageId: MESSAGE_ID_REMOVE_WHITESPACE,
-					data: {
-						original: unknown,
-						fix: withoutWhitespace,
-						message: parseTodoMessage(comment.value),
-					},
+				report(MESSAGE_ID_REMOVE_WHITESPACE, {
+					original: unknown,
+					fix: withoutWhitespace,
 				});
 				continue;
 			}
@@ -532,7 +477,7 @@ const create = context => {
 		return uses === 0;
 	}
 
-	context.on('Program', () => {
+	context.on(['Program', 'StyleSheet'], () => {
 		rules.Program(); // eslint-disable-line new-cap
 	});
 };
@@ -547,20 +492,29 @@ const schema = [
 				items: {
 					type: 'string',
 				},
+				description: 'Comment terms to check.',
 			},
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Patterns to ignore.',
+			},
+			ignoreDates: {
+				type: 'boolean',
+				description: 'Whether to ignore expiration dates.',
 			},
 			ignoreDatesOnPullRequests: {
 				type: 'boolean',
+				description: 'Whether to ignore expiration dates on pull requests.',
 			},
 			allowWarningComments: {
 				type: 'boolean',
+				description: 'Whether to allow warning comments.',
 			},
 			date: {
 				type: 'string',
 				format: 'date',
+				description: 'The reference date.',
 			},
 		},
 	},

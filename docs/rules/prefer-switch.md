@@ -1,4 +1,6 @@
-# Prefer `switch` over multiple `else-if`
+# prefer-switch
+
+📝 Prefer `switch` over multiple `else-if`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

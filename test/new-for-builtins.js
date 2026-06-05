@@ -236,7 +236,7 @@ test.snapshot({
 				{
 					var WeakMap = function() {};
 				}
-				// This should not reported
+				// This should not be reported
 				return WeakMap()
 			}
 			function constCheck() {

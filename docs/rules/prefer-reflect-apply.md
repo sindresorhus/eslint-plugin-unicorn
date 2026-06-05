@@ -1,4 +1,6 @@
-# Prefer `Reflect.apply()` over `Function#apply()`
+# prefer-reflect-apply
+
+📝 Prefer `Reflect.apply()` over `Function#apply()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

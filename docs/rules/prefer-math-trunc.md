@@ -1,4 +1,6 @@
-# Enforce the use of `Math.trunc` instead of bitwise operators
+# prefer-math-trunc
+
+📝 Enforce the use of `Math.trunc` instead of bitwise operators.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

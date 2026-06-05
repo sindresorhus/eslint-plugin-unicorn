@@ -1,4 +1,6 @@
-# Disallow unnecessary spread
+# no-useless-spread
+
+📝 Disallow unnecessary spread.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,4 +1,6 @@
-# Prevent calling `EventTarget#removeEventListener()` with the result of an expression
+# no-invalid-remove-event-listener
+
+📝 Prevent calling `EventTarget#removeEventListener()` with the result of an expression.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

@@ -1,4 +1,6 @@
-# Enforce better string content
+# string-content
+
+📝 Enforce better string content.
 
 🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

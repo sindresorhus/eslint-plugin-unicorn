@@ -156,6 +156,7 @@ const schema = [
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
+				description: 'Methods to ignore.',
 			},
 		},
 	},

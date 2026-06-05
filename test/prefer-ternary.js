@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -162,6 +162,78 @@ test({
 				}
 			`,
 			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return (foo as string);
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? (foo as string) : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test as boolean){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return (test as boolean) ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test){
+						return foo!;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test ? foo! : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if(test!){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test! ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });
@@ -995,6 +1067,22 @@ test({
 			`,
 			errors,
 		},
+		{
+			code: outdent`
+				unrelatedStatement()
+				if (foo) {
+					;(bar.baz as any) = 'string'
+				} else {
+					bar.baz = 2
+				}
+			`,
+			output: outdent`
+				unrelatedStatement()
+				;(bar.baz as any) = foo ? 'string' : 2;
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -1162,7 +1250,7 @@ test({
 		`,
 	],
 	invalid: [
-		// Empty block should not matters
+		// Empty block should not matter
 		{
 			code: outdent`
 				function unicorn() {
@@ -1183,7 +1271,7 @@ test({
 			`,
 			errors,
 		},
-		// `ExpressionStatement` or `BlockStatement` should not matters
+		// `ExpressionStatement` or `BlockStatement` should not matter
 		{
 			code: outdent`
 				function unicorn() {
@@ -1199,7 +1287,7 @@ test({
 			`,
 			errors,
 		},
-		// No `ExpressionStatement` or `BlockStatement` should not matters
+		// No `ExpressionStatement` or `BlockStatement` should not matter
 		{
 			code: outdent`
 				function unicorn() {
@@ -1309,6 +1397,25 @@ test({
 		},
 		{
 			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
+			errors,
+		},
+		{
+			code: outdent`
+				function *foo(bool) {
+					if (!bool) {
+						yield call(
+							setOnTop,
+							false,
+						);
+					} else {
+						yield call(
+							setOnTop,
+							true,
+							'normal',
+						); // Keep this comment.
+					}
+				}
+			`,
 			errors,
 		},
 	],

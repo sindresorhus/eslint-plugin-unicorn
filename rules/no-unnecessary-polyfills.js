@@ -14,18 +14,60 @@ const messages = {
 		'All polyfilled features imported from `{{coreJsModule}}` are available as built-ins. Use the built-ins instead.',
 };
 
-const additionalPolyfillPatterns = {
-	'es.promise.finally': '|(p-finally)',
-	'es.object.set-prototype-of': '|(setprototypeof)',
-	'es.string.code-point-at': '|(code-point-at)',
+const additionalPolyfillModules = {
+	'es.promise.finally': ['p-finally'],
+	'es.object.set-prototype-of': ['setprototypeof'],
+	'es.string.code-point-at': ['code-point-at'],
 };
+const directFeatureCheckPolyfills = new Set([
+	'es6-symbol',
+	'promise-polyfill',
+	'es6-promise',
+	'weakmap-polyfill',
+]);
+const additionalPolyfillPatterns = Object.fromEntries(Object.entries(additionalPolyfillModules).map(([feature, modules]) => [feature, `|(${modules.join('|')})`]));
 
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
 const delimiter = String.raw`(\.|-|\.prototype\.|/)?`;
+const moduleDelimiter = /[.\/]|-/v;
+
+const getFirstSegment = value => {
+	const [firstSegment = ''] = value.split(moduleDelimiter);
+	return firstSegment;
+};
+
+const stripPolyfillPrefix = value => {
+	if (value.startsWith('polyfill-')) {
+		return value.slice('polyfill-'.length);
+	}
+
+	if (value.startsWith('mdn-polyfills/')) {
+		return value.slice('mdn-polyfills/'.length);
+	}
+
+	return value;
+};
+
+function addPolyfillToken(tokens, value) {
+	if (!value) {
+		return;
+	}
+
+	const lowercaseValue = value.toLowerCase();
+	tokens.add(lowercaseValue);
+	tokens.add(getFirstSegment(lowercaseValue));
+
+	const camelCasedValue = camelCase(value).toLowerCase();
+	tokens.add(camelCasedValue);
+	tokens.add(getFirstSegment(camelCasedValue));
+}
 
 const polyfills = Object.keys(compatData).map(feature => {
-	let [ecmaVersion, constructorName, methodName = ''] = feature.split('.');
+	const [rawEcmaVersion, rawConstructorName, rawMethodName = ''] = feature.split('.');
+	let ecmaVersion = rawEcmaVersion;
+	let constructorName = rawConstructorName;
+	let methodName = rawMethodName;
 
 	if (ecmaVersion === 'es') {
 		ecmaVersion = String.raw`(es\d*)`;
@@ -48,9 +90,166 @@ const polyfills = Object.keys(compatData).map(feature => {
 
 	return {
 		feature,
-		pattern: new RegExp(patterns.join(''), 'i'),
+		pattern: new RegExp(patterns.join(''), 'iv'),
+		tokens: (() => {
+			const tokens = new Set();
+
+			if (rawEcmaVersion === 'es') {
+				tokens.add('es');
+			} else {
+				addPolyfillToken(tokens, rawEcmaVersion);
+			}
+
+			addPolyfillToken(tokens, rawConstructorName);
+			addPolyfillToken(tokens, rawMethodName);
+
+			for (const module of additionalPolyfillModules[feature] || []) {
+				addPolyfillToken(tokens, module);
+			}
+
+			return tokens;
+		})(),
 	};
 });
+const polyfillsByToken = new Map();
+const polyfillTokensByFirstCharacter = new Map();
+const esConstructorTokens = new Set();
+
+for (const polyfill of polyfills) {
+	const [ecmaVersion, constructorName] = polyfill.feature.split('.');
+	if (ecmaVersion === 'es') {
+		esConstructorTokens.add(constructorName.toLowerCase());
+		esConstructorTokens.add(camelCase(constructorName).toLowerCase());
+	}
+
+	for (const token of polyfill.tokens) {
+		if (!token) {
+			continue;
+		}
+
+		if (polyfillsByToken.has(token)) {
+			polyfillsByToken.get(token).push(polyfill);
+		} else {
+			polyfillsByToken.set(token, [polyfill]);
+		}
+
+		const firstCharacter = token[0];
+		if (polyfillTokensByFirstCharacter.has(firstCharacter)) {
+			polyfillTokensByFirstCharacter.get(firstCharacter).add(token);
+		} else {
+			polyfillTokensByFirstCharacter.set(firstCharacter, new Set([token]));
+		}
+	}
+}
+
+const hasEsConstructorPrefix = value => {
+	for (const token of esConstructorTokens) {
+		if (value.startsWith(token)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const isPotentialEsPrefix = importedModule => {
+	if (!importedModule.startsWith('es')) {
+		return false;
+	}
+
+	let constructorIndex = 2;
+	while (
+		constructorIndex < importedModule.length
+		&& importedModule[constructorIndex] >= '0'
+		&& importedModule[constructorIndex] <= '9'
+	) {
+		constructorIndex++;
+	}
+
+	if (importedModule.startsWith('.prototype.', constructorIndex)) {
+		constructorIndex += '.prototype.'.length;
+	} else if (['.', '-', '/'].includes(importedModule[constructorIndex])) {
+		constructorIndex++;
+	}
+
+	return hasEsConstructorPrefix(importedModule.slice(constructorIndex));
+};
+
+const getPolyfillCandidates = importedModule => {
+	const normalizedImportedModule = stripPolyfillPrefix(importedModule);
+	if (!normalizedImportedModule) {
+		return;
+	}
+
+	const firstCharacter = normalizedImportedModule[0];
+	const tokens = polyfillTokensByFirstCharacter.get(firstCharacter);
+	if (!tokens) {
+		return;
+	}
+
+	const candidates = new Set();
+	const firstSegment = getFirstSegment(normalizedImportedModule);
+	if (firstSegment === normalizedImportedModule) {
+		for (const token of tokens) {
+			if (token === 'es') {
+				if (!isPotentialEsPrefix(normalizedImportedModule)) {
+					continue;
+				}
+			} else if (!normalizedImportedModule.startsWith(token)) {
+				continue;
+			}
+
+			for (const polyfill of polyfillsByToken.get(token)) {
+				candidates.add(polyfill);
+			}
+		}
+	} else {
+		for (const token of tokens) {
+			if (
+				token === 'es'
+				|| !firstSegment.startsWith(token)
+			) {
+				continue;
+			}
+
+			for (const polyfill of polyfillsByToken.get(token)) {
+				candidates.add(polyfill);
+			}
+		}
+	}
+
+	if (isPotentialEsPrefix(normalizedImportedModule)) {
+		for (const polyfill of polyfillsByToken.get('es') || []) {
+			candidates.add(polyfill);
+		}
+	}
+
+	if (candidates.size === 0) {
+		return;
+	}
+
+	return [...candidates];
+};
+
+export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
+	let bestMatch;
+	let bestMatchSegments = Number.POSITIVE_INFINITY;
+
+	for (const polyfill of polyfillCandidates) {
+		if (!polyfill.pattern.test(importedModule)) {
+			continue;
+		}
+
+		// Prefer the broad constructor/module feature over narrower follow-up features like `es.symbol.description`.
+		const segments = polyfill.feature.split('.').length;
+		if (segments < bestMatchSegments) {
+			bestMatch = polyfill;
+			bestMatchSegments = segments;
+		}
+	}
+
+	return bestMatch;
+};
 
 function getTargets(options, dirname) {
 	if (options?.targets) {
@@ -81,13 +280,14 @@ function create(context) {
 		return;
 	}
 
+	const unavailableFeatureSet = new Set(unavailableFeatures);
+
 	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
 	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".
 	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
-	const checkFeatures = features => !features.every(feature =>
-		unavailableFeatures.includes(feature)
-		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))),
-	);
+	const checkFeatures = features => features.every(feature =>
+		!unavailableFeatureSet.has(feature)
+		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))));
 
 	context.on('Literal', node => {
 		if (
@@ -117,21 +317,38 @@ function create(context) {
 						},
 					};
 				}
-			} else if (!unavailableFeatures.includes(coreJsModuleFeatures[0])) {
+			} else if (!unavailableFeatureSet.has(coreJsModuleFeatures[0])) {
 				return {node, messageId: MESSAGE_ID_POLYFILL};
 			}
 
 			return;
 		}
 
-		const polyfill = polyfills.find(({pattern}) => pattern.test(importedModule));
-		if (polyfill) {
-			const [, namespace, method = ''] = polyfill.feature.split('.');
-			const features = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
+		const normalizedImportedModule = importedModule.toLowerCase();
+		const polyfillCandidates = getPolyfillCandidates(normalizedImportedModule);
+		if (!polyfillCandidates) {
+			return;
+		}
 
-			if (features && checkFeatures(features)) {
+		const polyfill = getBestMatchingPolyfill(polyfillCandidates, importedModule);
+		if (!polyfill) {
+			return;
+		}
+
+		if (directFeatureCheckPolyfills.has(normalizedImportedModule)) {
+			// These legacy aliases target one built-in feature, while the matching `core-js/full/*`
+			// module now bundles extra `esnext` features that can still be unavailable in CI.
+			if (!unavailableFeatureSet.has(polyfill.feature)) {
 				return {node, messageId: MESSAGE_ID_POLYFILL};
 			}
+
+			return;
+		}
+
+		const [, namespace, method = ''] = polyfill.feature.split('.');
+		const matchedCoreJsModuleFeatures = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
+		if (matchedCoreJsModuleFeatures && checkFeatures(matchedCoreJsModuleFeatures)) {
+			return {node, messageId: MESSAGE_ID_POLYFILL};
 		}
 	});
 }
@@ -140,20 +357,24 @@ const schema = [
 	{
 		type: 'object',
 		additionalProperties: false,
-		required: ['targets'],
+		// `targets` is optional because the rule can fall back to `browserslist`/`engines` from package.json.
 		properties: {
 			targets: {
 				oneOf: [
 					{
 						type: 'string',
+						description: 'A browserslist query string.',
 					},
 					{
 						type: 'array',
+						description: 'An array of browserslist query strings.',
 					},
 					{
 						type: 'object',
+						description: 'A browserslist targets object.',
 					},
 				],
+				description: 'The target environments.',
 			},
 		},
 	},
@@ -169,8 +390,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		schema,
-		// eslint-disable-next-line eslint-plugin/require-meta-default-options
-		defaultOptions: [],
+		defaultOptions: [{}],
 		messages,
 	},
 };

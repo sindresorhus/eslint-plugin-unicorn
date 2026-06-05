@@ -21,8 +21,19 @@ test.snapshot({
 		'new Error("message", 0, 0)',
 		// We don't know the value
 		'new Error(foo)',
+		// #2265
+		outdent`
+			const errors = [];
+			if (condition) {
+				errors.push('hello');
+			}
+
+			if (errors.length) {
+				throw new Error(errors.join('\\n'));
+			}
+		`,
 		'new Error(...foo)',
-		// #915, not a issue anymore, we don't track `ThrowStatement`
+		// #915, not an issue anymore, we don't track `ThrowStatement`
 		outdent`
 			/* global x */
 			const a = x;

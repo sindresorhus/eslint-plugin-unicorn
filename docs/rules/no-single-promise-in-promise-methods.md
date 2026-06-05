@@ -1,4 +1,6 @@
-# Disallow passing single-element arrays to `Promise` methods
+# no-single-promise-in-promise-methods
+
+📝 Disallow passing single-element arrays to `Promise` methods.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

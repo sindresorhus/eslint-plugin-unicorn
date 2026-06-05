@@ -52,7 +52,7 @@ test.snapshot({
 			import * as namespace from 'foo';
 			export {namespace as default};
 		`,
-		// Cases we are not handled
+		// Cases we are not handling
 		outdent`
 			import defaultExport from 'foo';
 			const variable = defaultExport;
@@ -473,6 +473,22 @@ test.snapshot({
 			import {foo} from './foo.json';
 			export {foo};
 			export {bar} from './foo.json' assert { type: 'unknown' };
+		`,
+		outdent`
+			import type * as X from 'foo';
+			export { X };
+		`,
+		outdent`
+			import * as X from 'foo';
+			export type { X };
+		`,
+		outdent`
+			import type * as X from 'foo';
+			export type { X };
+		`,
+		outdent`
+			import * as X from 'foo';
+			export { X };
 		`,
 	],
 });

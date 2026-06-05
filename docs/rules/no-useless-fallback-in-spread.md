@@ -1,4 +1,6 @@
-# Disallow useless fallback when spreading in object literals
+# no-useless-fallback-in-spread
+
+📝 Disallow useless fallback when spreading in object literals.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

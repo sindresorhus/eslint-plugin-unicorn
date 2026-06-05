@@ -1,8 +1,14 @@
 import {checkVueTemplate} from './utils/rule.js';
-import {isBooleanNode, getParenthesizedRange, isNodeValueNotFunction} from './utils/index.js';
+import {
+	isBooleanExpression,
+	isControlFlowTest,
+	getParenthesizedRange,
+	isNodeValueNotFunction,
+} from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
 	isLiteral,
+	isNullLiteral,
 	isUndefined,
 	isMethodCall,
 	isMemberExpression,
@@ -36,8 +42,7 @@ const isCheckingUndefined = node =>
 				node.parent.operator === '!='
 				|| node.parent.operator === '=='
 			)
-			// eslint-disable-next-line unicorn/no-null
-			&& isLiteral(node.parent.right, null)
+			&& isNullLiteral(node.parent.right)
 		)
 	);
 const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
@@ -59,7 +64,7 @@ const create = context => {
 		}
 
 		const isCompare = isCheckingUndefined(callExpression);
-		if (!isCompare && !isBooleanNode(callExpression)) {
+		if (!isCompare && !(isBooleanExpression(callExpression) || isControlFlowTest(callExpression))) {
 			return;
 		}
 

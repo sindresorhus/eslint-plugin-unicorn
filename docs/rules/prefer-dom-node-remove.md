@@ -1,4 +1,6 @@
-# Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`
+# prefer-dom-node-remove
+
+📝 Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

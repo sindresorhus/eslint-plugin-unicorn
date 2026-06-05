@@ -1,4 +1,4 @@
-import {isMethodCall, isCallExpression, isLiteral} from './ast/index.js';
+import {isMethodCall, isCallExpression, isNullLiteral} from './ast/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -18,8 +18,7 @@ const create = context => {
 
 	context.on('Literal', node => {
 		if (
-			// eslint-disable-next-line unicorn/no-null
-			!isLiteral(node, null)
+			!isNullLiteral(node)
 			|| (!checkStrictEquality && isStrictEqual(node.parent))
 			// `Object.create(null)`, `Object.create(null, foo)`
 			|| (
@@ -123,6 +122,7 @@ const schema = [
 		properties: {
 			checkStrictEquality: {
 				type: 'boolean',
+				description: 'Whether to check strict equality comparisons against `null`.',
 			},
 		},
 	},

@@ -5,7 +5,7 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		// Skip checking if indexOf() method is not a method call from a object
+		// Skip checking if indexOf() method is not a method call on an object
 		outdent`
 			const index = indexOf('bar');
 
@@ -37,7 +37,7 @@ test.snapshot({
 
 			if (index < 0) {}
 		`,
-		// If index is not declared via VariableDeclarator, it will not be check here.
+		// If index is not declared via VariableDeclarator, it will not be checked here.
 		outdent`
 			function foo (index) {
 				if (index < 0) {}

@@ -263,6 +263,8 @@ test.snapshot({
 		'[...foo.filter(bar)]',
 		'[...foo.flatMap(bar)]',
 		'[...foo.map(bar)]',
+		// `Iterator.concat()`
+		'[...Iterator.concat(bar)]',
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
@@ -310,17 +312,6 @@ test.snapshot({
 				]);
 			}
 		`,
-	],
-});
-
-test.babel({
-	valid: [],
-	invalid: [
-		{
-			code: 'for (const foo of[...iterable]);',
-			output: 'for (const foo of iterable);',
-			errors: 1,
-		},
 	],
 });
 

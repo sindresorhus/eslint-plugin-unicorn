@@ -1,6 +1,6 @@
 import outdent from 'outdent';
-import {getTester, parsers} from './utils/test.js';
 import builtinErrors from '../rules/shared/builtin-errors.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 

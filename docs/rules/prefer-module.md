@@ -1,4 +1,6 @@
-# Prefer JavaScript modules (ESM) over CommonJS
+# prefer-module
+
+📝 Prefer JavaScript modules (ESM) over CommonJS.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

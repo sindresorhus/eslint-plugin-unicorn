@@ -1,4 +1,6 @@
-# Enforce specific import styles per module
+# import-style
+
+📝 Enforce specific import styles per module.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
