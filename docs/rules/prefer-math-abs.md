@@ -1,6 +1,6 @@
 # prefer-math-abs
 
-📝 Prefer `Math.abs()` over manual absolute value expressions.
+📝 Prefer `Math.abs()` over manual absolute value expressions and symmetric range checks.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of `Math.abs()` instead of hand-written absolute value expressions.
+This rule enforces the use of `Math.abs()` instead of hand-written absolute value expressions and symmetric range checks.
 
 ## Examples
 

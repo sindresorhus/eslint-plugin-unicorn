@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -13,12 +13,15 @@ test.snapshot({
 		'value < 0 ? -value : otherValue',
 		'value < 0n ? -value : value',
 		'value < BigInt(0) ? -value : value',
+		'const value = 1n; value < 0 ? -value : value;',
+		'const value = BigInt(1); value < 0 ? -value : value;',
 		'value > limit || value < limit',
 		'value > limit || otherValue < -limit',
 		'value > limit || value <= -limit',
 		'value > limit || value < -otherLimit',
 		'value > 0n || value < -0n',
 		'value > BigInt(0) || value < -BigInt(0)',
+		'const value = 1n; const limit = 2n; value > limit || value < -limit;',
 		'(value + 1) < 0 ? -(value + 1) : value + 1',
 		'Math.abs(value) > limit',
 		'Math.abs(value) >= limit',
@@ -45,6 +48,10 @@ test.snapshot({
 		'const absolute = value <= -limit || value >= limit;',
 		'const absolute = limit < value || -limit > value;',
 		'const absolute = limit <= value || -limit >= value;',
+		'function foo() {return value > limit || value < -limit;}',
+		'function foo() {return(value > limit || value < -limit);}',
+		'value < 0 ? -/* comment */value : value',
+		'value > limit || value < -/* comment */limit',
 		outdent`
 			if (number > POSITIVE_CONSTANT || number < -POSITIVE_CONSTANT) {
 				console.log(number);
@@ -53,6 +60,43 @@ test.snapshot({
 		outdent`
 			if (number >= POSITIVE_CONSTANT || number <= -POSITIVE_CONSTANT) {
 				console.log(number);
+			}
+		`,
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		outdent`
+			function foo(value: bigint) {
+				return value < 0 ? -value : value;
+			}
+		`,
+		outdent`
+			function foo(value) {
+				return (value as bigint) < 0 ? -value : value;
+			}
+		`,
+		outdent`
+			function foo(value) {
+				return (<bigint>value) < 0 ? -value : value;
+			}
+		`,
+		outdent`
+			function foo(value: bigint, limit: bigint) {
+				return value > limit || value < -limit;
+			}
+		`,
+	],
+	invalid: [
+		outdent`
+			function foo(value: number) {
+				return value < 0 ? -value : value;
 			}
 		`,
 	],

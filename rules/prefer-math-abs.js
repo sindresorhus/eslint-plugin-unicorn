@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isBigIntLiteral,
 	isCallExpression,
@@ -27,18 +28,88 @@ const matchingOperator = {
 
 const isZero = node => isLiteral(node, 0);
 
-const isBigInt = node =>
-	isBigIntLiteral(node)
-	|| isCallExpression(node, {
-		name: 'BigInt',
-		argumentsLength: 1,
-		optional: false,
-	})
-	|| (
-		node?.type === 'UnaryExpression'
-		&& node.operator === '-'
-		&& isBigInt(node.argument)
-	);
+function isBigIntTypeAnnotation(typeAnnotation) {
+	return typeAnnotation.type === 'TSBigIntKeyword'
+		|| (
+			typeAnnotation.type === 'TSTypeAnnotation'
+			&& isBigIntTypeAnnotation(typeAnnotation.typeAnnotation)
+		);
+}
+
+function unwrapTypeScriptExpression(node) {
+	if (
+		node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSNonNullExpression'
+	) {
+		return unwrapTypeScriptExpression(node.expression);
+	}
+
+	return node;
+}
+
+function getTypeAnnotation(node) {
+	if (node.type === 'TSNonNullExpression') {
+		return getTypeAnnotation(node.expression);
+	}
+
+	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+		return node.typeAnnotation;
+	}
+}
+
+function hasBigIntTypeAnnotation(node) {
+	const typeAnnotation = getTypeAnnotation(node);
+	return typeAnnotation && isBigIntTypeAnnotation(typeAnnotation);
+}
+
+function isBigIntExpression(node) {
+	return isBigIntLiteral(node)
+		|| isCallExpression(node, {
+			name: 'BigInt',
+			argumentsLength: 1,
+			optional: false,
+		})
+		|| (
+			node.type === 'UnaryExpression'
+			&& node.operator === '-'
+			&& isBigIntExpression(node.argument)
+		)
+		|| hasBigIntTypeAnnotation(node);
+}
+
+function hasBigIntDefinition(node, context) {
+	const expressionNode = unwrapTypeScriptExpression(node);
+
+	if (expressionNode.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(expressionNode), expressionNode);
+
+	return variable?.defs.some(definition => {
+		if (definition.type === 'Parameter') {
+			return definition.name.typeAnnotation && isBigIntTypeAnnotation(definition.name.typeAnnotation);
+		}
+
+		if (definition.type === 'Variable') {
+			return (
+				definition.node.id.typeAnnotation
+				&& isBigIntTypeAnnotation(definition.node.id.typeAnnotation)
+			) || (
+				definition.node.init
+				&& isBigIntExpression(definition.node.init)
+			);
+		}
+
+		return false;
+	}) ?? false;
+}
+
+function isBigInt(node, context) {
+	return isBigIntExpression(node)
+		|| hasBigIntDefinition(node, context);
+}
 
 function isNegativeExpression(node, valueNode) {
 	if (
@@ -72,12 +143,12 @@ function isNegativeExpression(node, valueNode) {
 	return false;
 }
 
-function getComparisonWithZero(node) {
+function getComparisonWithZero(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left)
-		|| isBigInt(node.right)
+		|| isBigInt(node.left, context)
+		|| isBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -97,12 +168,12 @@ function getComparisonWithZero(node) {
 	}
 }
 
-function getGreaterComparison(node) {
+function getGreaterComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left)
-		|| isBigInt(node.right)
+		|| isBigInt(node.left, context)
+		|| isBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -122,12 +193,12 @@ function getGreaterComparison(node) {
 	};
 }
 
-function getLessComparison(node) {
+function getLessComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left)
-		|| isBigInt(node.right)
+		|| isBigInt(node.left, context)
+		|| isBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -152,8 +223,25 @@ function getAbsoluteValueText(node, context) {
 	return node.type === 'SequenceExpression' ? `(${text})` : text;
 }
 
-function getTernaryReplacement(conditionalExpression) {
-	const comparison = getComparisonWithZero(conditionalExpression.test);
+function hasCommentsInside(node, context) {
+	return context.sourceCode.getCommentsInside(node).length > 0;
+}
+
+function createProblem(node, context, fix) {
+	const problem = {
+		node,
+		messageId: MESSAGE_ID,
+	};
+
+	if (!hasCommentsInside(node, context)) {
+		problem.fix = fix;
+	}
+
+	return problem;
+}
+
+function getTernaryReplacement(conditionalExpression, context) {
+	const comparison = getComparisonWithZero(conditionalExpression.test, context);
 	if (!comparison) {
 		return;
 	}
@@ -178,13 +266,13 @@ function getTernaryReplacement(conditionalExpression) {
 	}
 }
 
-function getLogicalExpressionReplacement(logicalExpression) {
+function getLogicalExpressionReplacement(logicalExpression, context) {
 	if (logicalExpression.operator !== '||') {
 		return;
 	}
 
-	const leftGreaterComparison = getGreaterComparison(logicalExpression.left);
-	const rightLessComparison = getLessComparison(logicalExpression.right);
+	const leftGreaterComparison = getGreaterComparison(logicalExpression.left, context);
+	const rightLessComparison = getLessComparison(logicalExpression.right, context);
 
 	if (
 		leftGreaterComparison
@@ -200,8 +288,8 @@ function getLogicalExpressionReplacement(logicalExpression) {
 		};
 	}
 
-	const rightGreaterComparison = getGreaterComparison(logicalExpression.right);
-	const leftLessComparison = getLessComparison(logicalExpression.left);
+	const rightGreaterComparison = getGreaterComparison(logicalExpression.right, context);
+	const leftLessComparison = getLessComparison(logicalExpression.left, context);
 
 	if (
 		rightGreaterComparison
@@ -221,25 +309,25 @@ function getLogicalExpressionReplacement(logicalExpression) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ConditionalExpression', conditionalExpression => {
-		const value = getTernaryReplacement(conditionalExpression);
+		const value = getTernaryReplacement(conditionalExpression, context);
 
 		if (!value) {
 			return;
 		}
 
-		return {
-			node: conditionalExpression,
-			messageId: MESSAGE_ID,
+		return createProblem(
+			conditionalExpression,
+			context,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
+			function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 				yield fixer.replaceText(conditionalExpression, `Math.abs(${getAbsoluteValueText(value, context)})`);
 			},
-		};
+		);
 	});
 
 	context.on('LogicalExpression', logicalExpression => {
-		const replacement = getLogicalExpressionReplacement(logicalExpression);
+		const replacement = getLogicalExpressionReplacement(logicalExpression, context);
 
 		if (!replacement) {
 			return;
@@ -247,15 +335,15 @@ const create = context => {
 
 		const {value, threshold, operator} = replacement;
 
-		return {
-			node: logicalExpression,
-			messageId: MESSAGE_ID,
+		return createProblem(
+			logicalExpression,
+			context,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
+			function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, logicalExpression, context);
 				yield fixer.replaceText(logicalExpression, `Math.abs(${getAbsoluteValueText(value, context)}) ${operator} ${getParenthesizedText(threshold, context)}`);
 			},
-		};
+		);
 	});
 };
 
@@ -265,7 +353,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Math.abs()` over manual absolute value expressions.',
+			description: 'Prefer `Math.abs()` over manual absolute value expressions and symmetric range checks.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
