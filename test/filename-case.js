@@ -268,6 +268,7 @@ test({
 		testCaseWithOptions('src/foo/foo.test.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/foo-bar.test.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/foo-bar.test-utils.js', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
+		testCaseWithOptions('src/foo/$userId.test.tsx', undefined, [{case: 'kebabCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/Foo.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/FooBar.Test.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/FooBar.TestUtils.js', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
@@ -440,6 +441,11 @@ test({
 			'src/foo/[foo_bar].js',
 			undefined,
 			'Filename is not in kebab case. Rename it to `[foo-bar].js`.',
+		),
+		testCase(
+			'src/foo/foo$Bar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo$bar.js`.',
 		),
 		testCase(
 			'src/foo/$userId.TSX',

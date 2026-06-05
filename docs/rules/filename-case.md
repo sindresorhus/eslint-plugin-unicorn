@@ -11,7 +11,7 @@ Enforces all linted files to have their names in a certain case style and lowerc
 
 Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (Only a problem with `pascalCase`).
 
-Characters in the filename except `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored.
+Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested filenames.
 
 The filename case check ignores filenames starting with `$`, as they are commonly used for route parameters.
 

@@ -16,7 +16,6 @@ const messages = {
 };
 
 const isIgnoredChar = char => !/^[a-z\d-_]$/i.test(char);
-const isRouteParameterFilename = filename => filename.startsWith('$');
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
 
@@ -168,7 +167,7 @@ const create = context => {
 		}
 
 		const {leading, words} = splitFilename(filename);
-		const isValid = isRouteParameterFilename(filename) || validateFilename(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || validateFilename(words, chosenCasesFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
