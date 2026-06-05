@@ -81,6 +81,32 @@ For example, if you want to enforce `...` → `…`:
 }
 ```
 
+### selectors
+
+Type: `string[]`
+Default: `[]`
+
+Only check string nodes matching one of these [ESLint selectors](https://eslint.org/docs/latest/extend/selectors). When empty, all supported string nodes are checked.
+
+The selector must match the string node itself:
+
+```json
+{
+	"unicorn/string-content": [
+		"error",
+		{
+			"patterns": {
+				"\\.\\.\\.": "…"
+			},
+			"selectors": [
+				"VariableDeclarator[id.name=\"description\"] > Literal",
+				"Property[key.name=\"description\"] > Literal"
+			]
+		}
+	]
+}
+```
+
 ## Pattern ideas
 
 - Enforce `’` over `'` to avoid escape.
