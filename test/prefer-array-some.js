@@ -186,6 +186,8 @@ test.snapshot({
 
 		// `jQuery#filter`
 		'$element.filter(":visible").length > 0',
+		'var res = $module.filter(selector.disabled).length > 0;',
+		'$module.filter(fn).length !== 0',
 	],
 	invalid: [
 		'array.filter(fn).length > 0',
