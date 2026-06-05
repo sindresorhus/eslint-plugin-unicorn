@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Repeated whitespace in string literals is hard to count. Use [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) to make the count explicit.
+Repeated whitespace in string literals and no-substitution template literals is hard to count. Use [`String#repeat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat) to make the count explicit.
 
-This rule only reports strings made entirely of the same repeated whitespace character. It does not report repeated words or mixed whitespace.
+This rule only reports string literals and no-substitution template literals made entirely of the same repeated whitespace character. It does not report repeated words or mixed whitespace.
 
 ## Examples
 

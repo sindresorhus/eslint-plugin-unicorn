@@ -8,7 +8,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use `String#repeat()` for repeated whitespace.',
 };
 
-const repeatedHexEscape = /\\x(?<hex>[\dA-F]{2})/g;
 const singleWhitespace = /^\s$/u;
 
 function quoteWhitespace(character) {
@@ -18,7 +17,8 @@ function quoteWhitespace(character) {
 		es6: true,
 		minimal: false,
 		lowercaseHex: false,
-	}).replaceAll(repeatedHexEscape, String.raw`\u00$<hex>`);
+		json: true,
+	});
 }
 
 function getRepeatedWhitespace(value, minimumRepetitions) {
@@ -41,7 +41,7 @@ function getRepeatedWhitespace(value, minimumRepetitions) {
 }
 
 // eslint-disable-next-line complexity
-function isRestrictedLiteralReplacement(node) {
+function isRestrictedReplacement(node) {
 	const {parent} = node;
 	const {type} = parent;
 
@@ -85,8 +85,8 @@ function isRestrictedLiteralReplacement(node) {
 	);
 }
 
-function getProblem(node, value, context, options) {
-	const repeatedWhitespace = getRepeatedWhitespace(value, options.minimumRepetitions);
+function getProblem(node, value, context, minimumRepetitions) {
+	const repeatedWhitespace = getRepeatedWhitespace(value, minimumRepetitions);
 	if (!repeatedWhitespace) {
 		return;
 	}
@@ -105,20 +105,21 @@ function getProblem(node, value, context, options) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = context.options[0];
+	const {minimumRepetitions} = context.options[0];
 
 	context.on('Literal', node => {
-		if (!isStringLiteral(node) || isRestrictedLiteralReplacement(node) || isJestInlineSnapshot(node)) {
+		if (!isStringLiteral(node) || isRestrictedReplacement(node) || isJestInlineSnapshot(node)) {
 			return;
 		}
 
-		return getProblem(node, node.value, context, options);
+		return getProblem(node, node.value, context, minimumRepetitions);
 	});
 
 	context.on('TemplateLiteral', node => {
 		if (
 			node.parent.type === 'TaggedTemplateExpression'
 			|| node.expressions.length > 0
+			|| isRestrictedReplacement(node)
 			|| isJestInlineSnapshot(node)
 		) {
 			return;
@@ -129,7 +130,7 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, value.cooked, context, options);
+		return getProblem(node, value.cooked, context, minimumRepetitions);
 	});
 };
 

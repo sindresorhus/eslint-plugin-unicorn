@@ -20,9 +20,9 @@ test.snapshot({
 			const string = \`  \${value}\`;
 		`,
 		'const object = {"   ": value};',
-		'const object = {   };',
 		'"   ";',
 		'expect(foo).toMatchInlineSnapshot("   ");',
+		'expect(foo).toMatchInlineSnapshot(`   `);',
 	],
 	invalid: [
 		'const string = "   ";',
@@ -36,7 +36,11 @@ test.snapshot({
 		String.raw`const string = "\u2003\u2003\u2003";`,
 		String.raw`const string = "\uFEFF\uFEFF\uFEFF";`,
 		'const string = `   `;',
+		outdent`
+			const string = \`\\t\\t\\t\`;
+		`,
 		'function foo() {return"   "}',
+		'foo(); "   ";',
 		'const object = {["   "]: value};',
 	],
 });
@@ -81,14 +85,20 @@ test.snapshot({
 		'module "   " {}',
 		'import type Type = require("   ");',
 		'type Type = "   ";',
+		'type Type = `   `;',
 		'type Type = import("   ");',
+		'type Type = import(`   `);',
 		'abstract class Class { abstract "   " }',
 		'abstract class Class { abstract "   "() }',
+		'abstract class Class { abstract [`   `](): void }',
 		'abstract class Class { abstract accessor "   " }',
+		'abstract class Class { abstract accessor [`   `]: string }',
 		'interface Interface { "   " }',
+		'interface Interface { readonly [`   `]: string }',
 		'class Class { "   " = 1 }',
 		'class Class { "   "() {} }',
 		'class Class { accessor "   " = 1 }',
+		'enum OtherEnum {Key = `   `}',
 	],
 	invalid: [
 		'class Class { ["   "] = 1 }',
