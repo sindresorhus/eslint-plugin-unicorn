@@ -18,6 +18,10 @@ Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) whic
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).
 
+### prefer-json-parse-buffer
+
+This rule was renamed to [`consistent-json-file-read`](rules/consistent-json-file-read.md).
+
 ### better-regex
 
 Removed due to bugs and lack of support of the underlying library.

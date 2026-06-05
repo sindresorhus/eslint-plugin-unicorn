@@ -2,9 +2,11 @@ import {findVariable, getStaticValue, getPropertyName} from '@eslint-community/e
 import {isMethodCall} from './ast/index.js';
 import {removeArgument} from './fix/index.js';
 
-const MESSAGE_ID = 'prefer-json-parse-buffer';
+const MESSAGE_ID_STRING = 'consistent-json-file-read/string';
+const MESSAGE_ID_BUFFER = 'consistent-json-file-read/buffer';
 const messages = {
-	[MESSAGE_ID]: 'Prefer reading the JSON file as a buffer.',
+	[MESSAGE_ID_STRING]: 'Prefer reading the JSON file as a string.',
+	[MESSAGE_ID_BUFFER]: 'Prefer reading the JSON file as a buffer.',
 };
 
 const getAwaitExpressionArgument = node => {
@@ -85,7 +87,8 @@ function isUtf8Encoding(node, scope) {
 
 	const {value} = staticValue;
 	if (
-		typeof value === 'object'
+		value
+		&& typeof value === 'object'
 		&& Object.keys(value).length === 1
 		&& isUtf8EncodingString(value.encoding)
 	) {
@@ -95,8 +98,64 @@ function isUtf8Encoding(node, scope) {
 	return false;
 }
 
+function isBufferEncoding(node, scope) {
+	const staticValue = getStaticValue(node, scope);
+	if (!staticValue) {
+		return false;
+	}
+
+	const {value} = staticValue;
+	if (value === undefined || value === null) {
+		return true;
+	}
+
+	if (
+		typeof value === 'object'
+		&& Object.keys(value).length === 1
+		&& Object.hasOwn(value, 'encoding')
+		&& (value.encoding === undefined || value.encoding === null)
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+function isJsonReadFileCall(node, scope) {
+	if (
+		!(
+			node
+			&& node.type === 'CallExpression'
+			&& !node.optional
+			&& (node.arguments.length === 1 || node.arguments.length === 2)
+			&& !node.arguments.some(node => node.type === 'SpreadElement')
+			&& node.callee.type === 'MemberExpression'
+			&& !node.callee.optional
+		)
+	) {
+		return false;
+	}
+
+	const method = getPropertyName(node.callee, scope);
+	return method === 'readFile' || method === 'readFileSync';
+}
+
+function addUtf8Encoding(fixer, callExpression, context) {
+	const {sourceCode} = context;
+	const [fileNode] = callExpression.arguments;
+	const tokenAfterFile = sourceCode.getTokenAfter(fileNode);
+
+	if (tokenAfterFile.value === ',') {
+		return fixer.insertTextAfter(tokenAfterFile, ' \'utf8\'');
+	}
+
+	return fixer.insertTextAfter(fileNode, ', \'utf8\'');
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const [option] = context.options;
+
 	context.on('CallExpression', callExpression => {
 		if (!(isMethodCall(callExpression, {
 			object: 'JSON',
@@ -112,22 +171,32 @@ const create = context => {
 		const {sourceCode} = context;
 		const scope = sourceCode.getScope(node);
 		node = getIdentifierDeclaration(node, scope);
-		if (
-			!(
-				node
-				&& node.type === 'CallExpression'
-				&& !node.optional
-				&& node.arguments.length === 2
-				&& !node.arguments.some(node => node.type === 'SpreadElement')
-				&& node.callee.type === 'MemberExpression'
-				&& !node.callee.optional
-			)
-		) {
+		if (!isJsonReadFileCall(node, scope)) {
 			return;
 		}
 
-		const method = getPropertyName(node.callee, scope);
-		if (method !== 'readFile' && method !== 'readFileSync') {
+		if (option === 'string') {
+			if (node.arguments.length === 1) {
+				return {
+					node,
+					messageId: MESSAGE_ID_STRING,
+					fix: fixer => addUtf8Encoding(fixer, node, context),
+				};
+			}
+
+			const [, optionsNode] = node.arguments;
+			if (!isBufferEncoding(optionsNode, scope)) {
+				return;
+			}
+
+			return {
+				node: optionsNode,
+				messageId: MESSAGE_ID_STRING,
+				fix: fixer => fixer.replaceText(optionsNode, '\'utf8\''),
+			};
+		}
+
+		if (node.arguments.length !== 2) {
 			return;
 		}
 
@@ -138,11 +207,18 @@ const create = context => {
 
 		return {
 			node: charsetNode,
-			messageId: MESSAGE_ID,
+			messageId: MESSAGE_ID_BUFFER,
 			fix: fixer => removeArgument(fixer, charsetNode, context),
 		};
 	});
 };
+
+const schema = [
+	{
+		enum: ['string', 'buffer'],
+		description: 'Whether to prefer reading JSON files as strings or buffers before passing them to `JSON.parse()`.',
+	},
+];
 
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
@@ -150,10 +226,12 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer reading a JSON file as a buffer.',
-			recommended: false,
+			description: 'Enforce consistent JSON file reads before `JSON.parse()`.',
+			recommended: true,
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: ['string'],
 		messages,
 	},
 };
