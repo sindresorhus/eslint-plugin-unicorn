@@ -538,7 +538,7 @@ test({
 		},
 		{
 			options: [{
-				indent: '\t\t\t\t',
+				indent: '\t'.repeat(4),
 			}],
 			code: fixInput(`
 				foo = dedent\`
