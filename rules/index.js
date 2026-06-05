@@ -149,6 +149,7 @@ export {default as 'require-array-join-separator'} from './require-array-join-se
 export {default as 'require-module-attributes'} from './require-module-attributes.js';
 export {default as 'require-module-specifiers'} from './require-module-specifiers.js';
 export {default as 'require-number-to-fixed-digits-argument'} from './require-number-to-fixed-digits-argument.js';
+export {default as 'require-passive-events'} from './require-passive-events.js';
 export {default as 'require-post-message-target-origin'} from './require-post-message-target-origin.js';
 export {default as 'string-content'} from './string-content.js';
 export {default as 'switch-case-braces'} from './switch-case-braces.js';
