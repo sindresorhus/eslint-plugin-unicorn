@@ -49,7 +49,7 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0),
 };
 
-const collectionSizeProperties = new Set(['length', 'size']);
+const shapeProperties = new Set(['depth', 'height', 'width']);
 
 function getLogicalExpressionRoot(node) {
 	while (
@@ -63,27 +63,13 @@ function getLogicalExpressionRoot(node) {
 }
 
 function getLogicalExpressionOperands(node) {
-	if (node.type !== 'LogicalExpression') {
-		return [node];
-	}
-
-	const operands = [];
-	for (const child of [node.left, node.right]) {
-		if (
-			child.type === 'LogicalExpression'
-			&& child.operator === node.operator
-		) {
-			operands.push(...getLogicalExpressionOperands(child));
-			continue;
-		}
-
-		operands.push(child);
-	}
-
-	return operands;
+	return [node.left, node.right].flatMap(child =>
+		child.type === 'LogicalExpression' && child.operator === node.operator
+			? getLogicalExpressionOperands(child)
+			: [child]);
 }
 
-function isLikelyNonCollectionInBooleanExpression({node, lengthNode}) {
+function hasSameObjectShapePropertyCheck({node, lengthNode}) {
 	const root = getLogicalExpressionRoot(node);
 	if (
 		root.type !== 'LogicalExpression'
@@ -96,7 +82,7 @@ function isLikelyNonCollectionInBooleanExpression({node, lengthNode}) {
 		operand !== node
 		&& isMemberExpression(operand, {computed: false, optional: false})
 		&& operand.property.type === 'Identifier'
-		&& !collectionSizeProperties.has(operand.property.name)
+		&& shapeProperties.has(operand.property.name)
 		&& isSameReference(operand.object, lengthNode.object));
 }
 
@@ -231,7 +217,7 @@ function create(context) {
 		}
 
 		if (node) {
-			if (isLikelyNonCollectionInBooleanExpression({node, lengthNode})) {
+			if (hasSameObjectShapePropertyCheck({node, lengthNode})) {
 				return;
 			}
 
