@@ -99,6 +99,7 @@ test.snapshot({
 		'function foo() { return parentNode.removeChild(child); }',
 		'const foo = () => { return parentElement.removeChild(child); }',
 		'foo(bar = parentNode.removeChild(child))',
+		'const removed = a?.b.parentNode.removeChild(a.b);',
 
 		// `parentNode` has side effect
 		'foo().removeChild(child)',
@@ -109,9 +110,11 @@ test.snapshot({
 		'foo.parentNode?.removeChild(foo)',
 		'foo?.parentNode?.removeChild(foo)',
 		'foo.bar?.parentNode.removeChild(foo.bar)',
+		'foo.bar?.parentNode.removeChild(foo["bar"])',
+		'a?.b.parentNode.removeChild(a.b)',
+		'a?.b?.parentNode.removeChild(a.b)',
+		'a?.["b"].parentNode.removeChild(a.b)',
 		'a.b?.c.parentNode.removeChild(foo)',
 		'a[b?.c].parentNode.removeChild(foo)',
-		// The suggestions are bad, since they will break code
-		'a?.b.parentNode.removeChild(a.b)',
 	],
 });
