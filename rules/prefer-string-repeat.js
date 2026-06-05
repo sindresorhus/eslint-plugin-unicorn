@@ -62,6 +62,7 @@ function isRestrictedReplacement(node) {
 				|| type === 'TSAbstractMethodDefinition'
 				|| type === 'TSAbstractAccessorProperty'
 				|| type === 'TSPropertySignature'
+				|| type === 'TSMethodSignature'
 			)
 			&& parent.key === node
 		)

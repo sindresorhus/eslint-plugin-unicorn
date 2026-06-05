@@ -55,7 +55,7 @@ test({
 			languageOptions: {sourceType: 'script'},
 		},
 		// We don't check these cases
-		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, '   ')),
+		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, ' '.repeat(3))),
 	],
 	invalid: [
 		...[
