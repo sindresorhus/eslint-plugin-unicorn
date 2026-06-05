@@ -167,7 +167,7 @@ const create = context => {
 		}
 
 		const {leading, words} = splitFilename(filename);
-		const isValid = validateFilename(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || validateFilename(words, chosenCasesFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
