@@ -96,6 +96,8 @@ test.snapshot({
 			});
 		`,
 		'const promise = foo.then(bar)',
+		'const promise = foo.catch(bar)',
+		'const promise = foo.finally(bar)',
 		'const promise = foo?.then?.(bar)',
 		{
 			code: outdent`
@@ -274,6 +276,10 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		outdent`
+			async function run() {}
+			resultOfRun = run();
+		`,
 	],
 });
 
