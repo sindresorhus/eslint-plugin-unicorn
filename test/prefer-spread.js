@@ -164,6 +164,9 @@ test.snapshot({
 		'array[concat](1)',
 		'"foo".concat("bar")',
 		'string.concat("bar")',
+		'string.concat("bar", "baz")',
+		'foo.concat("bar")',
+		'foo.concat("bar", "baz")',
 		// eslint-disable-next-line no-template-curly-in-string
 		'`${foo}`.concat("bar")',
 		outdent`
@@ -174,6 +177,17 @@ test.snapshot({
 			let test = 'foo';
 			test = test.concat('bar');
 		`,
+		outdent`
+			const suffix = 'bar';
+			foo.concat(suffix);
+		`,
+		// Non-literal receivers with string arguments are skipped, even when they may be arrays.
+		outdent`
+			const array = [,];
+			array.concat("bar");
+		`,
+		'Array(1).concat("bar")',
+		'new Array(1).concat("bar")',
 		// #1068
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
 		'Foo.concat(1)',
@@ -226,12 +240,8 @@ test.snapshot({
 		'foo.concat([bar])',
 		'foo.concat(bar)',
 		'Array.from(set).concat([2, 3])',
-		'foo.concat([2, 3]).concat(4)',
-		'const array = [1]; array.concat("bar");',
-		'Array(1).concat("bar")',
-		'new Array(1).concat("bar")',
 		'Array.from(set).concat("bar")',
-		'Array.of(1).concat("bar")',
+		'foo.concat([2, 3]).concat(4)',
 		'foo.concat(2, 3)',
 		'foo.concat(2, bar)',
 		// This is output of last case
@@ -361,9 +371,14 @@ test.snapshot({
 		'blob.slice()',
 		'buffer.slice()',
 		'file.slice()',
+		'Foo.slice()',
 		'class A {foo() {this.slice()}}',
 		'scopeManager?.scopes.slice()',
 		'"".slice()',
+		// eslint-disable-next-line no-template-curly-in-string
+		'`${foo}`.slice()',
+		'(a + b).slice()',
+		'foo.join().slice()',
 		outdent`
 			const test = 'foo';
 			const copy = test.slice();

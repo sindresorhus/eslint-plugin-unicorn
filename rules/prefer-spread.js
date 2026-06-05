@@ -14,12 +14,7 @@ import {
 	hasOptionalChainElement,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
-import {
-	isLiteral,
-	isMethodCall,
-	isEmptyArrayExpression,
-	isCallOrNewExpression,
-} from './ast/index.js';
+import {isLiteral, isMethodCall, isEmptyArrayExpression} from './ast/index.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -101,22 +96,6 @@ const isStaticString = (node, scope) => {
 	const staticValue = getStaticValue(node, scope);
 	return typeof staticValue?.value === 'string';
 };
-
-const isStaticArray = (node, scope) => {
-	const staticValue = getStaticValue(node, scope);
-	return Array.isArray(staticValue?.value);
-};
-
-const isKnownArray = (node, scope) =>
-	isArrayLiteral(node)
-	|| isStaticArray(node, scope)
-	|| isCallOrNewExpression(node, {name: 'Array'})
-	|| isMethodCall(node, {
-		object: 'Array',
-		methods: ['from', 'of'],
-		optionalCall: false,
-		optionalMember: false,
-	});
 
 const isArrayLiteralOuterCommentsPreservable = (node, context) => {
 	if (hasArrayHoles(node)) {
@@ -487,7 +466,7 @@ const create = context => {
 		}
 
 		if (
-			!isKnownArray(object, scope)
+			!isArrayLiteral(object)
 			&& node.arguments.length > 0
 			&& node.arguments.every(argument => isStaticString(argument, scope))
 		) {
