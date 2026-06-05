@@ -121,3 +121,7 @@ foo(foo, ...bar);
 // ✅
 const object = new Foo(...foo, bar);
 ```
+
+## Sparse arrays
+
+This rule assumes dense arrays. Sparse arrays are unsupported: array spread turns empty slots into `undefined`, while methods like `Array#concat()` preserve them. Disable this rule where sparse arrays are intentional.
