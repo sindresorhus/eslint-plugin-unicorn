@@ -36,3 +36,13 @@ const file = `C:\\windows\\temp\\myapp-${process.pid}.log`;
 // ✅
 const file = String.raw`C:\windows\temp\myapp-${process.pid}.log`;
 ```
+
+[`String.raw`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw) should not be used if the string does not contain any `\`.
+
+```js
+// ❌
+const noBackslash = String.raw`foobar`
+
+// ✅
+const noBackslash = 'foobar'
+```
