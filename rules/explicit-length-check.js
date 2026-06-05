@@ -58,6 +58,32 @@ function isLengthOrSizeMemberExpression(node) {
 	});
 }
 
+function isTypeScriptExpression(node) {
+	return node?.type === 'TSAsExpression'
+		|| node?.type === 'TSSatisfiesExpression'
+		|| node?.type === 'TSTypeAssertion'
+		|| node?.type === 'TSNonNullExpression';
+}
+
+function unwrapTypeScriptExpression(node) {
+	if (isTypeScriptExpression(node)) {
+		return unwrapTypeScriptExpression(node.expression);
+	}
+
+	return node;
+}
+
+function getLengthCheckParent(node, allowTypeScriptExpression) {
+	node = node.parent;
+	if (allowTypeScriptExpression) {
+		while (isTypeScriptExpression(node)) {
+			node = node.parent;
+		}
+	}
+
+	return node;
+}
+
 function getLogicalExpressionRoot(node) {
 	while (
 		isLogicalExpression(node.parent)
@@ -94,21 +120,36 @@ function hasSameObjectShapePropertyCheck({node, lengthNode}) {
 }
 
 function getLengthCheckMemberExpression(node) {
+	if (node.type === 'UnaryExpression' && node.operator === '!') {
+		return getLengthCheckMemberExpression(node.argument);
+	}
+
+	if (
+		node.type === 'CallExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'Boolean'
+		&& node.arguments.length === 1
+	) {
+		return getLengthCheckMemberExpression(node.arguments[0]);
+	}
+
 	if (node.type !== 'BinaryExpression') {
 		return;
 	}
 
-	if (isLengthOrSizeMemberExpression(node.left)) {
-		return node.left;
+	const left = unwrapTypeScriptExpression(node.left);
+	if (isLengthOrSizeMemberExpression(left)) {
+		return left;
 	}
 
-	if (isLengthOrSizeMemberExpression(node.right)) {
-		return node.right;
+	const right = unwrapTypeScriptExpression(node.right);
+	if (isLengthOrSizeMemberExpression(right)) {
+		return right;
 	}
 }
 
-function getLengthCheckNode(node) {
-	node = node.parent;
+function getLengthCheckNode(node, {allowTypeScriptExpression = false} = {}) {
+	node = getLengthCheckParent(node, allowTypeScriptExpression);
 
 	// Zero length check
 	if (
@@ -140,7 +181,7 @@ function getLengthCheckNode(node) {
 		|| isCompareRight(node, '>=', 1)
 		// `0 !== foo.length`
 		|| isCompareLeft(node, '!==', 0)
-		// `0 !== foo.length`
+		// `0 != foo.length`
 		|| isCompareLeft(node, '!=', 0)
 		// `0 < foo.length`
 		|| isCompareLeft(node, '<', 0)
@@ -159,12 +200,17 @@ function isSameLengthNonZeroCheck(node, lengthNode) {
 		return false;
 	}
 
-	const {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(comparisonLengthNode);
-	return lengthCheckNode === node && isZeroLengthCheck === false;
+	const {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(comparisonLengthNode, {allowTypeScriptExpression: true});
+	if (!lengthCheckNode) {
+		return false;
+	}
+
+	const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+	return ancestor === node && isNegative === isZeroLengthCheck;
 }
 
-function hasSameLengthNonZeroCheck({node, lengthNode}) {
-	const root = getLogicalExpressionRoot(node);
+function isLengthGuardedByNonZeroCheck(lengthNode) {
+	const root = getLogicalExpressionRoot(lengthNode);
 	if (
 		root.type !== 'LogicalExpression'
 		|| root.operator !== '&&'
@@ -173,7 +219,7 @@ function hasSameLengthNonZeroCheck({node, lengthNode}) {
 	}
 
 	return getLogicalExpressionOperands(root).some(operand =>
-		operand !== node
+		operand !== lengthNode
 		&& isSameLengthNonZeroCheck(operand, lengthNode));
 }
 
@@ -259,9 +305,8 @@ function create(context) {
 		}
 
 		if (node) {
-			const isSameLengthGuard = node === lengthNode && hasSameLengthNonZeroCheck({node, lengthNode});
 			if (
-				isSameLengthGuard
+				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode))
 				|| hasSameObjectShapePropertyCheck({node, lengthNode})
 			) {
 				return;
