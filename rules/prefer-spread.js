@@ -92,6 +92,11 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	return isCommaToken(sourceCode.getLastToken(node, 1));
 };
 
+const isStaticString = (node, scope) => {
+	const staticValue = getStaticValue(node, scope);
+	return typeof staticValue?.value === 'string';
+};
+
 const isArrayLiteralOuterCommentsPreservable = (node, context) => {
 	if (hasArrayHoles(node)) {
 		return false;
@@ -329,8 +334,8 @@ function isNotArray(node, scope) {
 		|| node.type === 'Literal'
 		|| node.type === 'BinaryExpression'
 		|| isClassName(node)
-		// `foo.join()`
-		|| (isMethodNamed(node, 'join') && node.arguments.length <= 1)
+		// `foo.join(…)`
+		|| isMethodNamed(node, 'join')
 	) {
 		return true;
 	}
@@ -460,6 +465,14 @@ const create = context => {
 			return;
 		}
 
+		if (
+			!isArrayLiteral(object)
+			&& node.arguments.length > 0
+			&& node.arguments.every(argument => isStaticString(argument, scope))
+		) {
+			return;
+		}
+
 		const problem = {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_CONCAT,
@@ -550,6 +563,11 @@ const create = context => {
 		}
 
 		if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
+			return;
+		}
+
+		const scope = sourceCode.getScope(node.callee.object);
+		if (isNotArray(node.callee.object, scope)) {
 			return;
 		}
 
