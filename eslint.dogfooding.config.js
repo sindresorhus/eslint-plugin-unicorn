@@ -39,6 +39,8 @@ const config = [
 			'unicorn/no-keyword-prefix': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
+			// TODO: Enable when targeting Node.js 26.
+			'unicorn/prefer-iterator-concat': 'off',
 		},
 	},
 	{

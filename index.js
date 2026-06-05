@@ -50,6 +50,8 @@ const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, ru
 	rule.meta.docs.recommended === 'unopinionated' ? 'error' : 'off',
 ]));
 
+// TODO: Enable `prefer-iterator-concat` in the recommended and unopinionated configs when targeting Node.js 26.
+
 const allRules = Object.fromEntries(Object.keys(rules).map(id => [
 	`unicorn/${id}`,
 	'error',
