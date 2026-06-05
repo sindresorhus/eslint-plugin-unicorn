@@ -14,7 +14,12 @@ import {
 	hasOptionalChainElement,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
-import {isLiteral, isMethodCall, isEmptyArrayExpression} from './ast/index.js';
+import {
+	isLiteral,
+	isMethodCall,
+	isEmptyArrayExpression,
+	isCallOrNewExpression,
+} from './ast/index.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -91,6 +96,27 @@ const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 
 	return isCommaToken(sourceCode.getLastToken(node, 1));
 };
+
+const isStaticString = (node, scope) => {
+	const staticValue = getStaticValue(node, scope);
+	return typeof staticValue?.value === 'string';
+};
+
+const isStaticArray = (node, scope) => {
+	const staticValue = getStaticValue(node, scope);
+	return Array.isArray(staticValue?.value);
+};
+
+const isKnownArray = (node, scope) =>
+	isArrayLiteral(node)
+	|| isStaticArray(node, scope)
+	|| isCallOrNewExpression(node, {name: 'Array'})
+	|| isMethodCall(node, {
+		object: 'Array',
+		methods: ['from', 'of'],
+		optionalCall: false,
+		optionalMember: false,
+	});
 
 const isArrayLiteralOuterCommentsPreservable = (node, context) => {
 	if (hasArrayHoles(node)) {
@@ -329,8 +355,8 @@ function isNotArray(node, scope) {
 		|| node.type === 'Literal'
 		|| node.type === 'BinaryExpression'
 		|| isClassName(node)
-		// `foo.join()`
-		|| (isMethodNamed(node, 'join') && node.arguments.length <= 1)
+		// `foo.join(…)`
+		|| isMethodNamed(node, 'join')
 	) {
 		return true;
 	}
@@ -460,6 +486,14 @@ const create = context => {
 			return;
 		}
 
+		if (
+			!isKnownArray(object, scope)
+			&& node.arguments.length > 0
+			&& node.arguments.every(argument => isStaticString(argument, scope))
+		) {
+			return;
+		}
+
 		const problem = {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_CONCAT,
@@ -550,6 +584,11 @@ const create = context => {
 		}
 
 		if (isNodeMatches(node.callee.object, ignoredSliceCallee)) {
+			return;
+		}
+
+		const scope = sourceCode.getScope(node.callee.object);
+		if (isNotArray(node.callee.object, scope)) {
 			return;
 		}
 

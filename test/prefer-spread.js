@@ -163,11 +163,16 @@ test.snapshot({
 		'concat(1)',
 		'array[concat](1)',
 		'"foo".concat("bar")',
+		'string.concat("bar")',
 		// eslint-disable-next-line no-template-curly-in-string
 		'`${foo}`.concat("bar")',
 		outdent`
 			const string = 'foo';
 			foo = string.concat("bar");
+		`,
+		outdent`
+			let test = 'foo';
+			test = test.concat('bar');
 		`,
 		// #1068
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
@@ -178,6 +183,8 @@ test.snapshot({
 		'["1", "2"].join(",").concat("...")',
 		'foo.join(",").concat("...")',
 		'foo.join().concat(bar)',
+		'foo.join(foo, bar).concat("...")',
+		'foo.join(foo, bar).concat(bar)',
 		'(a + b).concat(c)',
 		// `Iterator.concat()`
 		'Iterator.concat(2)',
@@ -185,6 +192,7 @@ test.snapshot({
 	],
 	invalid: [
 		'[1].concat(2)',
+		'[1].concat("bar")',
 		'[1].concat([2, 3])',
 		'[1].concat(2,)',
 		'[1].concat([2, ...bar],)',
@@ -219,8 +227,11 @@ test.snapshot({
 		'foo.concat(bar)',
 		'Array.from(set).concat([2, 3])',
 		'foo.concat([2, 3]).concat(4)',
-		// `String#concat` is wrongly detected, but people should use `+` to concat string
-		'string.concat("bar")',
+		'const array = [1]; array.concat("bar");',
+		'Array(1).concat("bar")',
+		'new Array(1).concat("bar")',
+		'Array.from(set).concat("bar")',
+		'Array.of(1).concat("bar")',
 		'foo.concat(2, 3)',
 		'foo.concat(2, bar)',
 		// This is output of last case
@@ -291,8 +302,6 @@ test.snapshot({
 			const baz = [2];
 			call(foo, ...[bar].concat(baz));
 		`,
-		// This not considered `Array#join()` since there are more than one argument
-		'foo.join(foo, bar).concat("...")',
 		'foo.concat((/* keep */ [1]))',
 		'[1].concat([/* keep */ 2])',
 		'[1].concat([2, /* keep */], [3])',
@@ -354,6 +363,11 @@ test.snapshot({
 		'file.slice()',
 		'class A {foo() {this.slice()}}',
 		'scopeManager?.scopes.slice()',
+		'"".slice()',
+		outdent`
+			const test = 'foo';
+			const copy = test.slice();
+		`,
 		// TypedArray/ArrayBuffer constructors - spreading doesn't work or changes type
 		'new ArrayBuffer(10).slice()',
 		'new ArrayBuffer(10).slice(0)',
@@ -386,8 +400,6 @@ test.snapshot({
 			bar()
 			foo.slice()
 		`,
-		// `String#slice` is wrongly detected (strings are iterable but spreading produces array, not string)
-		'"".slice()',
 		'array.slice(0)',
 		'array.slice(0b0)',
 		'array.slice(0.00)',
