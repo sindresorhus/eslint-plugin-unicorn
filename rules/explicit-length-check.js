@@ -6,6 +6,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getBooleanAncestor,
+	isSameReference,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isLiteral, isMemberExpression} from './ast/index.js';
@@ -47,6 +48,57 @@ const zeroStyle = {
 	code: '=== 0',
 	test: node => isCompareRight(node, '===', 0),
 };
+
+const collectionSizeProperties = new Set(['length', 'size']);
+
+function getLogicalExpressionRoot(node) {
+	while (
+		isLogicalExpression(node.parent)
+		&& node.parent.operator === '&&'
+	) {
+		node = node.parent;
+	}
+
+	return node;
+}
+
+function getLogicalExpressionOperands(node) {
+	if (node.type !== 'LogicalExpression') {
+		return [node];
+	}
+
+	const operands = [];
+	for (const child of [node.left, node.right]) {
+		if (
+			child.type === 'LogicalExpression'
+			&& child.operator === node.operator
+		) {
+			operands.push(...getLogicalExpressionOperands(child));
+			continue;
+		}
+
+		operands.push(child);
+	}
+
+	return operands;
+}
+
+function isLikelyNonCollectionInBooleanExpression({node, lengthNode}) {
+	const root = getLogicalExpressionRoot(node);
+	if (
+		root.type !== 'LogicalExpression'
+		|| root.operator !== '&&'
+	) {
+		return false;
+	}
+
+	return getLogicalExpressionOperands(root).some(operand =>
+		operand !== node
+		&& isMemberExpression(operand, {computed: false, optional: false})
+		&& operand.property.type === 'Identifier'
+		&& !collectionSizeProperties.has(operand.property.name)
+		&& isSameReference(operand.object, lengthNode.object));
+}
 
 function getLengthCheckNode(node) {
 	node = node.parent;
@@ -179,6 +231,10 @@ function create(context) {
 		}
 
 		if (node) {
+			if (isLikelyNonCollectionInBooleanExpression({node, lengthNode})) {
+				return;
+			}
+
 			const isUnsafeNegationInBinaryExpression = node.type === 'UnaryExpression'
 				&& node.operator === '!'
 				&& node.parent.type === 'BinaryExpression'
