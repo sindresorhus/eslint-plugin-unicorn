@@ -29,7 +29,7 @@ const domEvents = new Set([
 	'selectstart',	// IE, Safari, Chrome
 
 	// Wheel events
-	// http://www.w3.org/TR/DOM-Level-3-Events/#events-wheelevents
+	// https://www.w3.org/TR/DOM-Level-3-Events/#events-wheelevents
 	'wheel',
 
 	// Key events
@@ -63,7 +63,7 @@ const domEvents = new Set([
 
 	// Touch events
 	// Note that other touch events exist, but we should follow the W3C list here.
-	// http://www.w3.org/TR/touch-events/#list-of-touchevent-types
+	// https://www.w3.org/TR/touch-events/#list-of-touchevent-types
 	'touchstart',
 	'touchmove',
 	'touchend',
@@ -120,7 +120,7 @@ const domEvents = new Set([
 	'updateend',
 
 	// HTML 5 History events
-	// See http://www.w3.org/TR/html5/browsers.html#event-definitions-0
+	// See https://www.w3.org/TR/html5/browsers.html#event-definitions-0
 	'hashchange',
 	'pagehide',
 	'pageshow',
@@ -129,7 +129,7 @@ const domEvents = new Set([
 	// Copy and Paste
 	// Support is limited. Make sure it works on your favorite browser
 	// before using.
-	// http://www.quirksmode.org/dom/events/cutcopypaste.html
+	// https://www.quirksmode.org/dom/events/cutcopypaste.html
 	'copy',
 	'paste',
 	'cut',
@@ -138,7 +138,7 @@ const domEvents = new Set([
 	'beforepaste',
 
 	// HTML5 online/offline events.
-	// http://www.w3.org/TR/offline-webapps/#related
+	// https://www.w3.org/TR/offline-webapps/#related
 	'online',
 	'offline',
 
@@ -171,7 +171,7 @@ const domEvents = new Set([
 	...getVendorPrefixedName('TransitionEnd'),
 
 	// W3C Pointer Events
-	// http://www.w3.org/TR/pointerevents/
+	// https://www.w3.org/TR/pointerevents/
 	'pointerdown',
 	'pointerup',
 	'pointercancel',
@@ -184,7 +184,7 @@ const domEvents = new Set([
 	'lostpointercapture',
 
 	// IE specific events.
-	// See http://msdn.microsoft.com/en-us/library/ie/hh772103(v=vs.85).aspx
+	// See https://msdn.microsoft.com/en-us/library/ie/hh772103(v=vs.85).aspx
 	// these events will be supplanted in IE11.
 	'MSGestureChange',
 	'MSGestureEnd',

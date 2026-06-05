@@ -44,6 +44,16 @@ const config = [
 		},
 	},
 	{
+		// Intentional HTTP examples are used in tests.
+		files: [
+			'test/prefer-https.js',
+			'test/string-content.js',
+		],
+		rules: {
+			'unicorn/prefer-https': 'off',
+		},
+	},
+	{
 		files: [
 			'**/*.js',
 		],
