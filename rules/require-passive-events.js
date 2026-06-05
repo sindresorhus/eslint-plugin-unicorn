@@ -1,5 +1,5 @@
 import {isMethodCall, isStringLiteral} from './ast/index.js';
-import getIndentString from './utils/get-indent-string.js';
+import {getIndentString, getReferences} from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
 const messages = {
@@ -56,6 +56,17 @@ const getPassiveProperty = optionsNode =>
 		property.type === 'Property'
 		&& getPropertyName(property) === 'passive');
 
+const hasCommentsBeforeClosingBrace = (optionsNode, sourceCode) => {
+	const lastProperty = optionsNode.properties.at(-1);
+	if (!lastProperty) {
+		return false;
+	}
+
+	const closingBrace = sourceCode.getLastToken(optionsNode);
+	return sourceCode.getTokensBetween(lastProperty, closingBrace, {includeComments: true})
+		.some(token => token.type === 'Block' || token.type === 'Line');
+};
+
 const getCallExpression = node => {
 	if (node.parent.type === 'CallExpression' && node.parent.callee === node) {
 		return node.parent;
@@ -80,6 +91,31 @@ const isDirectPreventDefaultReference = identifier =>
 	&& identifier.parent.object === identifier
 	&& isPreventDefaultCall(identifier.parent);
 
+const getOutermostMemberExpression = memberExpression => {
+	while (
+		memberExpression.parent.type === 'MemberExpression'
+		&& memberExpression.parent.object === memberExpression
+	) {
+		memberExpression = memberExpression.parent;
+	}
+
+	return memberExpression;
+};
+
+const isReadOnlyMemberExpression = memberExpression => {
+	const outermostMemberExpression = getOutermostMemberExpression(memberExpression);
+	const {parent} = outermostMemberExpression;
+	return !(
+		(parent.type === 'AssignmentExpression' && parent.left === outermostMemberExpression)
+		|| (parent.type === 'UpdateExpression' && parent.argument === outermostMemberExpression)
+		|| (parent.type === 'UnaryExpression' && parent.operator === 'delete' && parent.argument === outermostMemberExpression)
+	);
+};
+
+const usesArguments = (listener, sourceCode) =>
+	listener.type === 'FunctionExpression'
+	&& getReferences(sourceCode.getScope(listener)).some(({identifier}) => identifier.name === 'arguments');
+
 const isSafeEventPropertyReference = identifier => {
 	if (
 		identifier.parent.type !== 'MemberExpression'
@@ -89,10 +125,14 @@ const isSafeEventPropertyReference = identifier => {
 	}
 
 	const propertyName = getMemberPropertyName(identifier.parent);
-	return propertyName && propertyName !== 'preventDefault';
+	return propertyName && propertyName !== 'preventDefault' && isReadOnlyMemberExpression(identifier.parent);
 };
 
 const isEventParameterSafe = (listener, context) => {
+	if (usesArguments(listener, context.sourceCode)) {
+		return false;
+	}
+
 	const [eventParameter] = listener.params;
 	if (!eventParameter) {
 		return true;
@@ -178,7 +218,7 @@ const getOptionsProblem = (context, callExpression, optionsNode) => {
 	const passiveProperty = getPassiveProperty(optionsNode);
 	if (!passiveProperty) {
 		return {
-			fix: fixObjectOptionsWithoutPassive(optionsNode, context),
+			fix: hasCommentsBeforeClosingBrace(optionsNode, context.sourceCode) ? undefined : fixObjectOptionsWithoutPassive(optionsNode, context),
 		};
 	}
 

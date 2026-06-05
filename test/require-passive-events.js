@@ -26,6 +26,8 @@ test.snapshot({
 		'window.addEventListener("wheel", event => { return event; })',
 		'window.addEventListener("wheel", event => { const anotherEvent = event; })',
 		'window.addEventListener("wheel", event => { event[method](); })',
+		'window.addEventListener("wheel", event => { event.returnValue = false; })',
+		'window.addEventListener("wheel", function () { arguments[0].preventDefault(); })',
 		'window.addEventListener("wheel", ({target}) => { console.log(target); })',
 		'window?.addEventListener("wheel", () => {})',
 		'window.addEventListener?.("wheel", () => {})',
@@ -51,6 +53,11 @@ test.snapshot({
 		outdent`
 			window.addEventListener("wheel", () => {}, {
 				once: true,
+			})
+		`,
+		outdent`
+			window.addEventListener("wheel", () => {}, {
+				once: true // Keep this comment with once.
 			})
 		`,
 	],
