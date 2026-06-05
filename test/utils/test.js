@@ -1,11 +1,17 @@
+/* eslint-disable ava/no-ignored-test-files -- This utility registers tests from rule test files that import it. */
 import path from 'node:path';
 import url from 'node:url';
 import test from 'ava';
 import AvaRuleTester from 'eslint-ava-rule-tester';
+import {Linter} from 'eslint';
 import plugin from '../../index.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
+
+const RULES_REPORTING_EMPTY_FILE = new Set([
+	'no-empty-file',
+]);
 
 function normalizeTestCase(testCase, shouldNormalizeLanguageOptions = true) {
 	if (typeof testCase === 'string') {
@@ -41,6 +47,16 @@ function normalizeInvalidTest(test, rule) {
 	};
 }
 
+function assertNoManualEmptyFileTestCases(ruleId, testCases) {
+	if (RULES_REPORTING_EMPTY_FILE.has(ruleId)) {
+		return;
+	}
+
+	if (testCases.some(({code}) => code === '')) {
+		throw new Error(`Do not add manual empty file test cases for \`${ruleId}\`. They are covered by the shared empty file test.`);
+	}
+}
+
 // https://github.com/tc39/proposal-array-is-template-object
 const isTemplateObject = value => Array.isArray(value?.raw);
 // https://github.com/tc39/proposal-string-cooked
@@ -70,6 +86,44 @@ class Tester {
 		this.rule = plugin.rules[ruleId];
 	}
 
+	runEmptyFileTest() {
+		const {ruleId, rule} = this;
+
+		// Empty input should be a no-op for every rule except the rule that exists to report it.
+		if (RULES_REPORTING_EMPTY_FILE.has(ruleId)) {
+			return;
+		}
+
+		test(`empty file: ${ruleId}`, t => {
+			const linter = new Linter();
+			const messages = linter.verify(
+				'',
+				[
+					{
+						files: ['**'],
+						languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+						linterOptions: {
+							reportUnusedDisableDirectives: 'off',
+						},
+						plugins: {
+							'rule-to-test': {
+								rules: {
+									[ruleId]: rule,
+								},
+							},
+						},
+						rules: {
+							[`rule-to-test/${ruleId}`]: 'error',
+						},
+					},
+				],
+				{filename: 'index.js'},
+			);
+
+			t.deepEqual(messages, []);
+		});
+	}
+
 	runTest(tests) {
 		const {ruleId, rule} = this;
 
@@ -77,6 +131,7 @@ class Tester {
 
 		valid = valid.map(testCase => normalizeTestCase(testCase));
 		invalid = invalid.map(testCase => normalizeInvalidTest(normalizeTestCase(testCase), rule));
+		assertNoManualEmptyFileTestCases(ruleId, [...valid, ...invalid]);
 
 		const testConfig = {
 			...testerOptions,
@@ -93,10 +148,12 @@ class Tester {
 	}
 
 	snapshot(tests) {
+		const {ruleId, rule} = this;
 		let {testerOptions = {}, valid, invalid} = tests;
 
 		valid = valid.map(testCase => normalizeTestCase(testCase));
 		invalid = invalid.map(testCase => normalizeTestCase(testCase));
+		assertNoManualEmptyFileTestCases(ruleId, [...valid, ...invalid]);
 
 		const testConfig = {
 			...testerOptions,
@@ -104,7 +161,6 @@ class Tester {
 		};
 
 		const tester = new SnapshotRuleTester(test, testConfig);
-		const {ruleId, rule} = this;
 		return tester.run(ruleId, rule, {valid, invalid});
 	}
 }
@@ -113,6 +169,7 @@ function getTester(importMeta) {
 	const filename = url.fileURLToPath(importMeta.url);
 	const ruleId = path.basename(filename, '.js');
 	const tester = new Tester(ruleId);
+	tester.runEmptyFileTest();
 
 	const runTest = Tester.prototype.runTest.bind(tester);
 	runTest.snapshot = Tester.prototype.snapshot.bind(tester);
