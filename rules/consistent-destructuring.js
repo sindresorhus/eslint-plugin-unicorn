@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getAvailableVariableName, isLeftHandSide} from './utils/index.js';
-import {isCallOrNewExpression} from './ast/index.js';
+import {isCallOrNewExpression, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -111,6 +111,14 @@ const isMemberDestructuredInNestedPatternWithRest = (objectPattern, memberName) 
 		&& property.value.type !== 'Identifier'
 		&& hasNestedRestElement(property.value));
 
+const shouldIgnoreMemberExpression = node =>
+	node.computed
+	|| (
+		isCallOrNewExpression(node.parent)
+		&& node.parent.callee === node
+	)
+	|| isLeftHandSide(node);
+
 const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
 	if (!declaration.rootVariable) {
 		return false;
@@ -136,6 +144,86 @@ const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope
 
 		return referenceStart <= memberStart;
 	});
+};
+
+const isMatchingInExpression = (node, memberExpression, sourceCode) => {
+	if (!(
+		node.type === 'BinaryExpression'
+		&& node.operator === 'in'
+		&& isStringLiteral(node.left)
+		&& memberExpression.property.type === 'Identifier'
+		&& node.left.value === memberExpression.property.name
+	)) {
+		return false;
+	}
+
+	return sourceCode.getText(node.right) === sourceCode.getText(memberExpression.object);
+};
+
+const hasMatchingInExpression = (node, memberExpression, sourceCode) => {
+	if (isMatchingInExpression(node, memberExpression, sourceCode)) {
+		return true;
+	}
+
+	if (
+		node.type !== 'LogicalExpression'
+		|| node.operator !== '&&'
+	) {
+		return false;
+	}
+
+	return hasMatchingInExpression(node.left, memberExpression, sourceCode)
+		|| hasMatchingInExpression(node.right, memberExpression, sourceCode);
+};
+
+const isInPositiveGuardBranch = (parent, child, memberExpression, sourceCode) => {
+	switch (parent.type) {
+		case 'ConditionalExpression': {
+			return parent.consequent === child
+				&& hasMatchingInExpression(parent.test, memberExpression, sourceCode);
+		}
+
+		case 'LogicalExpression': {
+			return parent.operator === '&&'
+				&& parent.right === child
+				&& hasMatchingInExpression(parent.left, memberExpression, sourceCode);
+		}
+
+		case 'IfStatement': {
+			return parent.consequent === child
+				&& hasMatchingInExpression(parent.test, memberExpression, sourceCode);
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
+
+const isInTypeGuardBoundary = node =>
+	node.type === 'AccessorProperty'
+	|| node.type === 'FunctionDeclaration'
+	|| node.type === 'MethodDefinition'
+	|| node.type === 'PropertyDefinition';
+
+const isInTypeGuardedBranch = (node, sourceCode) => {
+	let child = node;
+	let {parent} = node;
+
+	while (parent) {
+		if (isInTypeGuardBoundary(parent)) {
+			return false;
+		}
+
+		if (isInPositiveGuardBranch(parent, child, node, sourceCode)) {
+			return true;
+		}
+
+		child = parent;
+		parent = parent.parent;
+	}
+
+	return false;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -165,14 +253,7 @@ const create = context => {
 	});
 
 	context.on('MemberExpression', node => {
-		if (
-			node.computed
-			|| (
-				isCallOrNewExpression(node.parent)
-				&& node.parent.callee === node
-			)
-			|| isLeftHandSide(node)
-		) {
+		if (shouldIgnoreMemberExpression(node)) {
 			return;
 		}
 
@@ -205,6 +286,11 @@ const create = context => {
 		}
 
 		const member = sourceCode.getText(node.property);
+
+		if (isInTypeGuardedBranch(node, sourceCode)) {
+			return;
+		}
+
 		const memberDestructuredInNestedPattern = isMemberDestructuredInNestedPatternWithRest(objectPattern, member);
 
 		const destructuredProperties = objectPattern.properties.filter(property =>
