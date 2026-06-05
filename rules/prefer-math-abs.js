@@ -10,7 +10,7 @@ import {getParenthesizedText, isSameReference} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-abs';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Math.abs()` to simplify absolute value expressions.',
+	[MESSAGE_ID]: 'Prefer `Math.abs()` to simplify this expression.',
 };
 
 const operators = new Set(['>', '>=', '<', '<=']);
@@ -31,8 +31,20 @@ const isZero = node => isLiteral(node, 0);
 function isBigIntTypeAnnotation(typeAnnotation) {
 	return typeAnnotation.type === 'TSBigIntKeyword'
 		|| (
+			typeAnnotation.type === 'TSLiteralType'
+			&& isBigIntLiteral(typeAnnotation.literal)
+		)
+		|| (
 			typeAnnotation.type === 'TSTypeAnnotation'
 			&& isBigIntTypeAnnotation(typeAnnotation.typeAnnotation)
+		)
+		|| (
+			typeAnnotation.type === 'TSUnionType'
+			&& typeAnnotation.types.some(type => isBigIntTypeAnnotation(type))
+		)
+		|| (
+			typeAnnotation.type === 'TSIntersectionType'
+			&& typeAnnotation.types.some(type => isBigIntTypeAnnotation(type))
 		);
 }
 
@@ -89,7 +101,13 @@ function hasBigIntDefinition(node, context) {
 
 	return variable?.defs.some(definition => {
 		if (definition.type === 'Parameter') {
-			return definition.name.typeAnnotation && isBigIntTypeAnnotation(definition.name.typeAnnotation);
+			return (
+				definition.name.typeAnnotation
+				&& isBigIntTypeAnnotation(definition.name.typeAnnotation)
+			) || (
+				definition.name.parent.type === 'AssignmentPattern'
+				&& isBigIntExpression(definition.name.parent.right)
+			);
 		}
 
 		if (definition.type === 'Variable') {
@@ -233,11 +251,19 @@ function createProblem(node, context, fix) {
 		messageId: MESSAGE_ID,
 	};
 
-	if (!hasCommentsInside(node, context)) {
+	if (fix && !hasCommentsInside(node, context)) {
 		problem.fix = fix;
 	}
 
 	return problem;
+}
+
+function isSideEffectFreeReference(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	return node.type === 'Identifier'
+		|| node.type === 'Literal'
+		|| node.type === 'ThisExpression';
 }
 
 function getTernaryReplacement(conditionalExpression, context) {
@@ -315,15 +341,15 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(
-			conditionalExpression,
-			context,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			function * (fixer) {
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		const fix = isSideEffectFreeReference(value)
+			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 				yield fixer.replaceText(conditionalExpression, `Math.abs(${getAbsoluteValueText(value, context)})`);
-			},
-		);
+			}
+			: undefined;
+
+		return createProblem(conditionalExpression, context, fix);
 	});
 
 	context.on('LogicalExpression', logicalExpression => {
@@ -335,15 +361,18 @@ const create = context => {
 
 		const {value, threshold, operator} = replacement;
 
-		return createProblem(
-			logicalExpression,
-			context,
-			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			function * (fixer) {
+		/** @param {import('eslint').Rule.RuleFixer} fixer */
+		const fix = (
+			isSideEffectFreeReference(value)
+			&& isSideEffectFreeReference(threshold)
+		)
+			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, logicalExpression, context);
 				yield fixer.replaceText(logicalExpression, `Math.abs(${getAbsoluteValueText(value, context)}) ${operator} ${getParenthesizedText(threshold, context)}`);
-			},
-		);
+			}
+			: undefined;
+
+		return createProblem(logicalExpression, context, fix);
 	});
 };
 
