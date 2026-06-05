@@ -37,7 +37,7 @@ export default [
 			repository: 'https://github.com/avajs/ava',
 			ignore: [
 				'test/node_modules',
-				'test-tap/fixture/report/edgecases/ast-syntax-error.cjs',
+				'test-tap/fixture/report/edgecases/ast-syntax-error.js',
 			],
 		},
 		{

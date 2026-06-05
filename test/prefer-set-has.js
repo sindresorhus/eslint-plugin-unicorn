@@ -413,6 +413,11 @@ test.snapshot({
 			const foo = items.slice();
 			foo.includes('ab') || foo.includes('bc');
 		`,
+		// `Iterator.concat()`
+		outdent`
+			const foo = Iterator.concat(bar);
+			foo.includes(1) || foo.includes(2);
+		`,
 	],
 	invalid: [
 		outdent`

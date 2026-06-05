@@ -38,7 +38,7 @@ export default [
 			unicorn: eslintPluginUnicorn,
 		},
 		rules: {
-			'unicorn/better-regex': 'error',
+			'unicorn/prefer-module': 'error',
 			'unicorn/…': 'error',
 		},
 	},
@@ -59,7 +59,6 @@ export default [
 
 | Name                                                                                             | Description                                                                                                                                                                                                       | 💼   | 🔧 | 💡 |
 | :----------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--- | :- | :- |
-| [better-regex](docs/rules/better-regex.md)                                                       | Improve regexes by making them shorter, consistent, and safer.                                                                                                                                                    |      | 🔧 |    |
 | [catch-error-name](docs/rules/catch-error-name.md)                                               | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅    | 🔧 |    |
 | [consistent-assert](docs/rules/consistent-assert.md)                                             | Enforce consistent assertion style with `node:assert`.                                                                                                                                                            | ✅    | 🔧 |    |
 | [consistent-date-clone](docs/rules/consistent-date-clone.md)                                     | Prefer passing `Date` directly to the constructor when cloning.                                                                                                                                                   | ✅ ☑️ | 🔧 |    |
@@ -69,6 +68,7 @@ export default [
 | [consistent-function-scoping](docs/rules/consistent-function-scoping.md)                         | Move function definitions to the highest possible scope.                                                                                                                                                          | ✅    |    |    |
 | [consistent-template-literal-escape](docs/rules/consistent-template-literal-escape.md)           | Enforce consistent style for escaping `${` in template literals.                                                                                                                                                  | ✅    | 🔧 |    |
 | [custom-error-definition](docs/rules/custom-error-definition.md)                                 | Enforce correct `Error` subclassing.                                                                                                                                                                              |      | 🔧 |    |
+| [dom-node-dataset](docs/rules/dom-node-dataset.md)                                               | Enforce consistent style for DOM element dataset access.                                                                                                                                                          | ✅ ☑️ | 🔧 |    |
 | [empty-brace-spaces](docs/rules/empty-brace-spaces.md)                                           | Enforce no spaces between braces.                                                                                                                                                                                 | ✅    | 🔧 |    |
 | [error-message](docs/rules/error-message.md)                                                     | Enforce passing a `message` value when creating a built-in error.                                                                                                                                                 | ✅ ☑️ |    |    |
 | [escape-case](docs/rules/escape-case.md)                                                         | Require escape sequences to use uppercase or lowercase values.                                                                                                                                                    | ✅ ☑️ | 🔧 |    |
@@ -151,7 +151,6 @@ export default [
 | [prefer-date-now](docs/rules/prefer-date-now.md)                                                 | Prefer `Date.now()` to get the number of milliseconds since the Unix Epoch.                                                                                                                                       | ✅ ☑️ | 🔧 |    |
 | [prefer-default-parameters](docs/rules/prefer-default-parameters.md)                             | Prefer default parameters over reassignment.                                                                                                                                                                      | ✅ ☑️ |    | 💡 |
 | [prefer-dom-node-append](docs/rules/prefer-dom-node-append.md)                                   | Prefer `Node#append()` over `Node#appendChild()`.                                                                                                                                                                 | ✅ ☑️ | 🔧 |    |
-| [prefer-dom-node-dataset](docs/rules/prefer-dom-node-dataset.md)                                 | Prefer using `.dataset` on DOM elements over calling attribute methods.                                                                                                                                           | ✅ ☑️ | 🔧 |    |
 | [prefer-dom-node-remove](docs/rules/prefer-dom-node-remove.md)                                   | Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`.                                                                                                                                             | ✅ ☑️ | 🔧 | 💡 |
 | [prefer-dom-node-text-content](docs/rules/prefer-dom-node-text-content.md)                       | Prefer `.textContent` over `.innerText`.                                                                                                                                                                          | ✅ ☑️ |    | 💡 |
 | [prefer-event-target](docs/rules/prefer-event-target.md)                                         | Prefer `EventTarget` over `EventEmitter`.                                                                                                                                                                         | ✅ ☑️ |    |    |
@@ -231,7 +230,7 @@ export default [
 		eslintPluginUnicorn.configs.recommended,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];
@@ -249,7 +248,7 @@ export default [
 		eslintPluginUnicorn.configs.all,
 		{
 			rules: {
-				'unicorn/better-regex': 'warn',
+				'unicorn/prefer-module': 'warn',
 			},
 		},
 ];

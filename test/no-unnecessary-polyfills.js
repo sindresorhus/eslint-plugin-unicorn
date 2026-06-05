@@ -58,6 +58,37 @@ test({
 			options: [{targets: 'node >3'}],
 		},
 		'import ExtendableError from "es6-error"',
+		{
+			code: 'import "core-js/stable"',
+			options: [{targets: ['>0.2%', 'iOS 14', 'not dead', 'not op_mini all']}],
+		},
+		// Multi-feature imports where some features are still unavailable
+		{
+			code: 'require("core-js/features/typed-array")',
+			options: [{targets: 'node >16'}],
+		},
+		{
+			code: 'require("core-js/stable/promise")',
+			options: [{targets: 'node >15'}],
+		},
+		{
+			code: 'import "core-js/stable"',
+			options: [{targets: 'node >20'}],
+		},
+		{
+			code: 'require("core-js-pure/stable/symbol")',
+			options: [{targets: 'node >15'}],
+		},
+		// Alias polyfill whose mapped `core-js/full` entry still includes unavailable features
+		{
+			code: 'require("typed-array-float64-array-polyfill")',
+			options: [{targets: 'node 17'}],
+		},
+		// `esnext` feature still needed (not yet graduated)
+		{
+			code: 'require("core-js/features/regexp/escape")',
+			options: [{targets: {node: '18'}}],
+		},
 	],
 	invalid: [
 		{
@@ -80,10 +111,27 @@ test({
 			options: [{targets: 'node >7'}],
 			errors: [{message: 'All polyfilled features imported from `core-js/features/array/from` are available as built-ins. Use the built-ins instead.'}],
 		},
+		// Multi-feature imports where all features are available
 		{
-			code: 'require("core-js/features/typed-array")',
+			code: 'require("core-js/features/array/flat")',
 			options: [{targets: 'node >16'}],
-			errors: [{message: 'All polyfilled features imported from `core-js/features/typed-array` are available as built-ins. Use the built-ins instead.'}],
+			errors: [{message: 'All polyfilled features imported from `core-js/features/array/flat` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'require("core-js/stable/promise")',
+			options: [{targets: 'node >24'}],
+			errors: [{message: 'All polyfilled features imported from `core-js/stable/promise` are available as built-ins. Use the built-ins instead.'}],
+		},
+		{
+			code: 'import "core-js-pure/stable/array/flat"',
+			options: [{targets: 'node >16'}],
+			errors: [{message: 'All polyfilled features imported from `core-js-pure/stable/array/flat` are available as built-ins. Use the built-ins instead.'}],
+		},
+		// `esnext` feature that graduated to `es` (both available)
+		{
+			code: 'require("core-js/features/regexp/escape")',
+			options: [{targets: {node: '24'}}],
+			errors: [{message: 'All polyfilled features imported from `core-js/features/regexp/escape` are available as built-ins. Use the built-ins instead.'}],
 		},
 		{
 			code: 'require("es6-symbol")',
@@ -195,11 +243,6 @@ test({
 		{
 			code: 'require("weakmap-polyfill")',
 			options: [{targets: 'node 12'}],
-			errors: [{message: 'Use built-in instead.'}],
-		},
-		{
-			code: 'require("typed-array-float64-array-polyfill")',
-			options: [{targets: 'node 17'}],
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2584

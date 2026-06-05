@@ -116,6 +116,7 @@ test.snapshot({
 		'array.reduce((a, b) => b.concat(a), [])',
 		'array.reduce((a, b) => a.notConcat(b), [])',
 		'array.reduce((a, b) => a.concat, [])',
+		'array.reduce((a, b) => Iterator.concat(a, b), [])',
 	],
 	invalid: [
 		'array.reduce((a, b) => a.concat(b), [])',

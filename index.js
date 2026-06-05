@@ -7,6 +7,10 @@ import packageJson from './package.json' with {type: 'json'};
 const rules = toEslintRules(rawRules);
 
 const deprecatedRules = createDeprecatedRules({
+	'better-regex': {
+		message: 'Removed. Prefer `eslint-plugin-regexp`',
+		replacedBy: [],
+	},
 	'no-instanceof-array': {
 		message: 'Replaced by `unicorn/no-instanceof-builtins` which covers more cases.',
 		replacedBy: ['unicorn/no-instanceof-builtins'],
@@ -18,6 +22,10 @@ const deprecatedRules = createDeprecatedRules({
 	'no-array-push-push': {
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
 		replacedBy: ['unicorn/prefer-single-call'],
+	},
+	'prefer-dom-node-dataset': {
+		message: 'Renamed to `unicorn/dom-node-dataset`.',
+		replacedBy: ['unicorn/dom-node-dataset'],
 	},
 });
 
