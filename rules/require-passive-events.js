@@ -1,5 +1,5 @@
 import {isMethodCall, isStringLiteral} from './ast/index.js';
-import {getIndentString, getReferences} from './utils/index.js';
+import {getIndentString, isLeftHandSide} from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
 const messages = {
@@ -104,17 +104,12 @@ const getOutermostMemberExpression = memberExpression => {
 
 const isReadOnlyMemberExpression = memberExpression => {
 	const outermostMemberExpression = getOutermostMemberExpression(memberExpression);
-	const {parent} = outermostMemberExpression;
-	return !(
-		(parent.type === 'AssignmentExpression' && parent.left === outermostMemberExpression)
-		|| (parent.type === 'UpdateExpression' && parent.argument === outermostMemberExpression)
-		|| (parent.type === 'UnaryExpression' && parent.operator === 'delete' && parent.argument === outermostMemberExpression)
-	);
+	return !isLeftHandSide(outermostMemberExpression);
 };
 
 const usesArguments = (listener, sourceCode) =>
 	listener.type === 'FunctionExpression'
-	&& getReferences(sourceCode.getScope(listener)).some(({identifier}) => identifier.name === 'arguments');
+	&& sourceCode.getScope(listener).references.some(({identifier}) => identifier.name === 'arguments');
 
 const isSafeEventPropertyReference = identifier => {
 	if (
