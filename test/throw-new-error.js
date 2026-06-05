@@ -1,7 +1,16 @@
 import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typescriptDecoratorsLanguageOptions = {
+	parser: parsers.typescript,
+	parserOptions: {
+		ecmaFeatures: {
+			decorators: true,
+		},
+	},
+};
 
 test.snapshot({
 	valid: [
@@ -31,6 +40,35 @@ test.snapshot({
 		'throw lib.getError()',
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)
 		'class QueryError extends Data.TaggedError(\'QueryError\') {}',
+		{
+			code: outdent`
+				function RegisterServiceError() {
+					return function <T extends new (...arguments_: any[]) => Error>(constructor: T) {
+						return constructor;
+					};
+				}
+
+				@RegisterServiceError()
+				export class SomeError extends Error {}
+			`,
+			languageOptions: typescriptDecoratorsLanguageOptions,
+		},
+		{
+			code: outdent`
+				@decorators.RegisterServiceError()
+				export class SomeError extends Error {}
+			`,
+			languageOptions: typescriptDecoratorsLanguageOptions,
+		},
+		{
+			code: outdent`
+				class Service {
+					@OnQueueError()
+					handle() {}
+				}
+			`,
+			languageOptions: typescriptDecoratorsLanguageOptions,
+		},
 	],
 	invalid: [
 		'throw Error()',
@@ -67,5 +105,12 @@ test.snapshot({
 				return[globalThis][0].Error('message');
 			}
 		`,
+		{
+			code: outdent`
+				@Decorator(Error())
+				export class SomeError extends Error {}
+			`,
+			languageOptions: typescriptDecoratorsLanguageOptions,
+		},
 	],
 });
