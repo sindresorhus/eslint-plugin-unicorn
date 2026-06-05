@@ -167,6 +167,47 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [
+		outdent`
+			const String = {raw() {}};
+			a = String.raw\`abc\`
+		`,
+	],
+	invalid: [
+		{
+			code: outdent`
+				function* foo() {
+					yield String.raw
+						\`abc\`;
+				}
+			`,
+			output: outdent`
+				function* foo() {
+					yield (
+						'abc');
+				}
+			`,
+			errors: [{messageId: 'unnecessary-string-raw'}],
+		},
+		{
+			code: outdent`
+				function* foo() {
+					yield String.raw
+						\`a\${value}\`;
+				}
+			`,
+			output: outdent`
+				function* foo() {
+					yield (
+						\`a\${value}\`);
+				}
+			`,
+			errors: [{messageId: 'unnecessary-string-raw'}],
+		},
+	],
+});
+
 // Restricted places
 const keyTestsComputedIsInvalid = [
 	// Object property key
@@ -241,4 +282,3 @@ test.snapshot({
 		`expect(\`${TEST_STRING}\`).toMatchInlineSnapshot(\`\`)`,
 	],
 });
-

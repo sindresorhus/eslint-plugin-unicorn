@@ -81,6 +81,14 @@ function isStringRawRestricted(node) {
 	);
 }
 
+function shouldParenthesizeYieldArgument(parent, node, tokenBefore, context) {
+	return parent.type === 'YieldExpression'
+		&& !parent.delegate
+		&& parent.argument === node
+		&& !isOnSameLine(tokenBefore, node.quasi, context)
+		&& !isParenthesized(node, context);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Literal', node => {
@@ -148,7 +156,10 @@ const create = context => {
 		const {quasi, tag, parent} = node;
 		const {sourceCode} = context;
 
-		if (!isMemberExpression(tag, {object: 'String', property: 'raw', optional: false})) {
+		if (
+			!isMemberExpression(tag, {object: 'String', property: 'raw', optional: false})
+			|| !sourceCode.isGlobalReference(tag.object)
+		) {
 			return;
 		}
 
@@ -180,6 +191,11 @@ const create = context => {
 					&& !isParenthesized(node, context)
 				) {
 					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+				}
+
+				if (shouldParenthesizeYieldArgument(parent, node, tokenBefore, context)) {
+					yield fixer.insertTextBefore(node, '(');
+					yield fixer.insertTextAfter(node, ')');
 				}
 
 				yield fixer.replaceText(node.quasi, suggestion);
