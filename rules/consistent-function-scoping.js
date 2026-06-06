@@ -99,6 +99,25 @@ const isArrowFunctionNodeWithThis = (node, visitorKeys) =>
 	// Include both params and body, because parameter defaults can reference lexical `this`.
 	&& isNodeContainsLexicalThis(node, visitorKeys);
 
+function isInsideJestMockFactory(node) {
+	let current = node;
+	while (current.parent) {
+		const {parent} = current;
+		if (
+			parent.type === 'CallExpression'
+			&& parent.arguments[1] === current
+			&& functionTypes.includes(current.type)
+			&& isNodeMatches(parent.callee, ['jest.mock'])
+		) {
+			return true;
+		}
+
+		current = parent;
+	}
+
+	return false;
+}
+
 const iifeFunctionTypes = new Set([
 	'FunctionExpression',
 	'ArrowFunctionExpression',
@@ -151,6 +170,7 @@ function checkNode(node, scopeManager, sourceCode) {
 	if (
 		!scope
 		|| isArrowFunctionNodeWithThis(node, sourceCode.visitorKeys)
+		|| isInsideJestMockFactory(node)
 	) {
 		return true;
 	}

@@ -405,6 +405,25 @@ test({
 				return (dispatch) => dispatch({ type });
 			}
 		`,
+		// #805 - Jest mock factories cannot reference out-of-scope variables.
+		'jest.mock("next/dynamic", () => () => "dynamic-drawer");',
+		outdent`
+			jest.mock("module", () => {
+				function createMock() {
+					return "mock";
+				}
+
+				return createMock;
+			});
+		`,
+		outdent`
+			jest.mock("module", () => ({
+				default: function MockComponent() {
+					const createMock = () => "mock";
+					return createMock();
+				},
+			}));
+		`,
 		// Should ignore functions inside arrow functions
 		{
 			code: outdent`
@@ -848,6 +867,19 @@ test({
 				}
 			`,
 			errors: [createError('arrow function')],
+		},
+		{
+			code: 'jest.doMock("module", () => () => "mock");',
+			errors: [createError('arrow function')],
+		},
+		{
+			code: outdent`
+				jest.doMock("module", () => {
+					function createMock() {}
+					return createMock;
+				});
+			`,
+			errors: [createError('function \'createMock\'')],
 		},
 		{
 			code: outdent`
