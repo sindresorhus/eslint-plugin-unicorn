@@ -63,6 +63,7 @@ export {default as 'no-single-promise-in-promise-methods'} from './no-single-pro
 export {default as 'no-static-only-class'} from './no-static-only-class.js';
 export {default as 'no-thenable'} from './no-thenable.js';
 export {default as 'no-this-assignment'} from './no-this-assignment.js';
+export {default as 'no-this-outside-of-class'} from './no-this-outside-of-class.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
