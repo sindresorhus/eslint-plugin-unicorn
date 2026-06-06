@@ -19,6 +19,7 @@ test.snapshot({
 		'array.fill(function () {})',
 		'array.fill(/x/)',
 		'array.fill(new RegExp("x"))',
+		'const value = new RegExp("x"); array.fill(value)',
 		'let value = {}; value = 1; array.fill(value)',
 		'var value = {}; array.fill(value)',
 		'const value = {}; const alias = value; array.fill(alias)',
@@ -41,6 +42,7 @@ test.snapshot({
 		'const value = []; array.fill(value)',
 		'const value = new Map(); array.fill(value)',
 		'const value = new class {}; array.fill(value)',
+		'const RegExp = class {}; array.fill(new RegExp())',
 		'array.fill(class {})',
 		outdent`
 			const value = {};
