@@ -192,6 +192,125 @@ test({
 				'const callback = value => value; array.map((element, index, array) => callback(element, index, array));',
 			],
 		}),
+		invalidTestCase({
+			code: 'array.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'array.map((element) => fn(element))',
+				'array.map((element, index) => fn(element, index))',
+				'array.map((element, index, array) => fn(element, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'foo.map(element)',
+			method: 'map',
+			name: 'element',
+			suggestions: [
+				'foo.map((element_) => element(element_))',
+				'foo.map((element_, index) => element(element_, index))',
+				'foo.map((element_, index, array) => element(element_, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'items.map((item) => fn(item))',
+				'items.map((item, index) => fn(item, index))',
+				'items.map((item, index, items) => fn(item, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(item)',
+			method: 'map',
+			name: 'item',
+			suggestions: [
+				'items.map((element) => item(element))',
+				'items.map((element, index) => item(element, index))',
+				'items.map((element, index, items) => item(element, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(items)',
+			method: 'map',
+			name: 'items',
+			suggestions: [
+				'items.map((item) => items(item))',
+				'items.map((item, index) => items(item, index))',
+				'items.map((item, index, array) => items(item, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(index)',
+			method: 'map',
+			name: 'index',
+			suggestions: [
+				'items.map((item) => index(item))',
+				'items.map((item, index_) => index(item, index_))',
+				'items.map((item, index_, items) => index(item, index_, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(item.fn)',
+			method: 'map',
+			suggestions: [
+				'items.map((element) => item.fn(element))',
+				'items.map((element, index) => item.fn(element, index))',
+				'items.map((element, index, array) => item.fn(element, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'classes.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'classes.map((element) => fn(element))',
+				'classes.map((element, index) => fn(element, index))',
+				'classes.map((element, index, classes) => fn(element, index, classes))',
+			],
+		}),
+		invalidTestCase({
+			code: 'indices.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'indices.map((element) => fn(element))',
+				'indices.map((element, index) => fn(element, index))',
+				'indices.map((element, index, indices) => fn(element, index, indices))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.forEach(fn)',
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'items.forEach((item) => { fn(item); })',
+				'items.forEach((item, index) => { fn(item, index); })',
+				'items.forEach((item, index, items) => { fn(item, index, items); })',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.reduce(fn)',
+			method: 'reduce',
+			name: 'fn',
+			suggestions: [
+				'items.reduce((accumulator, item) => fn(accumulator, item))',
+				'items.reduce((accumulator, item, index) => fn(accumulator, item, index))',
+				'items.reduce((accumulator, item, index, items) => fn(accumulator, item, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.reduce(accumulator)',
+			method: 'reduce',
+			name: 'accumulator',
+			suggestions: [
+				'items.reduce((accumulator_, item) => accumulator(accumulator_, item))',
+				'items.reduce((accumulator_, item, index) => accumulator(accumulator_, item, index))',
+				'items.reduce((accumulator_, item, index, items) => accumulator(accumulator_, item, index, items))',
+			],
+		}),
 		...reduceLikeMethods.map(method => invalidTestCase({
 			code: `foo.${method}(fn)`,
 			method,
