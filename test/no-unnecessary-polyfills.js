@@ -24,11 +24,11 @@ test({
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2270
 		{
 			code: 'import arrayFromAsync from "array-from-async"',
-			options: [{targets: {node: '18'}}],
+			filename: 'test/fixtures/no-unnecessary-polyfills/issue-2270-node-18-range/index.js',
 		},
 		{
 			code: 'import arrayFromAsync from "array-from-async"',
-			options: [{targets: {node: '>=18'}}],
+			options: [{targets: {node: '21'}}],
 		},
 		{
 			code: 'require("this-is-not-a-polyfill")',
@@ -313,7 +313,7 @@ test({
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2270
 		{
 			code: 'import arrayFromAsync from "array-from-async"',
-			options: [{targets: {node: '22'}}],
+			filename: 'test/fixtures/no-unnecessary-polyfills/issue-2270-node-22/index.js',
 			errors: [{message: 'Use built-in instead.'}],
 		},
 	],
