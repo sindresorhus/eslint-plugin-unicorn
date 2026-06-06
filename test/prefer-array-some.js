@@ -34,7 +34,9 @@ test({
 		'const hasFoo = foo.find(fn); const value = other || hasFoo;',
 		'const {hasFoo} = foo.find(fn); if (hasFoo) {}',
 		'export const hasFoo = foo.find(fn);',
+		'const hasFoo = foo.find(fn); export {hasFoo};',
 		'const hasFoo = foo.find(fn);',
+		'const hasFoo = foo.find(fn); if (hasFoo === undefined) {}',
 		{
 			code: 'const hasFoo: Item | undefined = foo.find(fn); if (hasFoo) {}',
 			languageOptions: {parser: parsers.typescript},
@@ -44,11 +46,23 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'const hasFoo = foo.findLast<Item>(fn); if (hasFoo) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'if (foo.find<Item>(fn)) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'if (foo.findLast<Item>(fn)) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'foo.find<Item>(fn) !== undefined',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.findLast<Item>(fn) !== undefined',
 			languageOptions: {parser: parsers.typescript},
 		},
 

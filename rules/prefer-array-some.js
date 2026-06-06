@@ -81,7 +81,11 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 		return false;
 	}
 
-	return references.every(reference => reference.isRead() && (isBooleanExpression(reference.identifier) || isControlFlowTest(reference.identifier)));
+	return references.every(reference => {
+		const {identifier} = reference;
+
+		return reference.isRead() && (isBooleanExpression(identifier) || isControlFlowTest(identifier));
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
