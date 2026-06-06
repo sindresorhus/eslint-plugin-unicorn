@@ -79,6 +79,7 @@ ruleTest({
 		'// TODO [2200-12-12, -find-up-simple, +popura]: Combo',
 		'// TODO [2200-12-12, -find-up-simple, +popura, semver@>=1000]: Combo',
 		'// TODO [engine:node@>=100]: When we start supporting only >= 10',
+		'// TODO [2000-01-01]: Expired dates are ignored by default',
 		`// TODO [2200-12-12]: Multiple
 		// TODO [2200-12-12]: Lines`,
 		`/*
@@ -139,7 +140,7 @@ ruleTest({
 		{
 			code: '// TODO [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -152,7 +153,7 @@ ruleTest({
 				expiredTodoError('2000-01-01', 'Another'),
 				expiredTodoError('2000-01-01', 'Way'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -164,7 +165,7 @@ ruleTest({
 				expiredTodoError('2000-01-01', 'Invalid'),
 				expiredTodoError('2000-01-01', 'Invalid'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: `/*
@@ -175,42 +176,41 @@ ruleTest({
 			errors: [
 				engineMatchesError('node>=8', 'Invalid'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// fixme [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// xxx [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// ToDo [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// fIxME [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// Todoist [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Todoist']}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false, terms: ['Todoist']}],
 		},
 		{
 			code: '// Expire Condition [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
 		},
 		{
 			code: '// XxX [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',
@@ -342,7 +342,7 @@ ruleTest({
 				expiredTodoError('2000-01-01', 'Combine date with package version'),
 				reachedPackageVersionError('>1', 'Combine date with package version'),
 			],
-			options: [{ignoreDatesOnPullRequests: false}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false}],
 		},
 		{
 			code: '// TODO [2200-12-12, >1, 2200-12-12, >2]: Multiple dates and package versions',
@@ -371,7 +371,7 @@ ruleTest({
 				expiredTodoError('2000-01-01', 'Expired TODO and missing symbol'),
 				missingAtSymbolError('semver>1', 'semver@>1', 'Expired TODO and missing symbol'),
 			],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false, terms: ['Expire Condition']}],
 		},
 		{
 			code: '// TODO [semver @>=1, -popura]: Package uninstalled and whitespace error',
@@ -391,7 +391,7 @@ ruleTest({
 				engineMatchesError('node>=8', 'Big mix'),
 				removeWhitespaceError('semver @>=1', 'Big mix'),
 			],
-			options: [{ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}],
+			options: [{ignoreDates: false, ignoreDatesOnPullRequests: false, terms: ['HUGETODO']}],
 		},
 		{
 			code: '// TODO [ISSUE-123] fix later',
@@ -422,7 +422,7 @@ ruleTest({
 		},
 		{
 			code: '// TODO [2999-12-01]: Y3K bug',
-			options: [{date: '3000-01-01', ignoreDatesOnPullRequests: false}],
+			options: [{date: '3000-01-01', ignoreDates: false, ignoreDatesOnPullRequests: false}],
 			errors: [expiredTodoError('2999-12-01', 'Y3K bug')],
 		},
 	],
@@ -446,6 +446,7 @@ test('supports CSS comments with @eslint/css', t => {
 				'error',
 				{
 					date: '2026-05-29',
+					ignoreDates: false,
 					ignoreDatesOnPullRequests: false,
 					allowWarningComments: false,
 				},
