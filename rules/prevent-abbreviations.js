@@ -1,5 +1,6 @@
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
+import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
 	getAvailableVariableName,
 	cartesianProductSamples,
@@ -16,10 +17,13 @@ import {isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
+const MESSAGE_ID_RENAME = 'rename';
+const {isIdentifierName} = helperValidatorIdentifier;
 const anotherNameMessage = 'A more descriptive name will do too.';
 const messages = {
 	[MESSAGE_ID_REPLACE]: `The {{nameTypeText}} \`{{discouragedName}}\` should be named \`{{replacement}}\`. ${anotherNameMessage}`,
 	[MESSAGE_ID_SUGGESTION]: `Please rename the {{nameTypeText}} \`{{discouragedName}}\`. Suggested names are: {{replacementsText}}. ${anotherNameMessage}`,
+	[MESSAGE_ID_RENAME]: 'Rename to `{{replacement}}`.',
 };
 
 const isUpperCase = string => string === string.toUpperCase();
@@ -185,6 +189,23 @@ const getMessage = (discouragedName, replacements, nameTypeText) => {
 			replacementsText,
 		},
 	};
+};
+
+const getSuggestions = (replacements, fix) => {
+	if (replacements.total <= 1) {
+		return;
+	}
+
+	const samples = replacements.samples.filter(replacement => typeof replacement === 'string' && isIdentifierName(replacement));
+	if (samples.length === 0) {
+		return;
+	}
+
+	return samples.map(replacement => ({
+		messageId: MESSAGE_ID_RENAME,
+		data: {replacement},
+		fix: fixer => fix(fixer, replacement),
+	}));
 };
 
 const declarationTypes = new Set([
@@ -456,6 +477,21 @@ const create = context => {
 			problem.fix = fixer => renameVariable(variable, replacement, context, fixer);
 		}
 
+		if (
+			!problem.fix
+			&& shouldFix(variable)
+			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+		) {
+			const suggestions = getSuggestions(
+				variableReplacements,
+				(fixer, replacement) => renameVariable(variable, replacement, context, fixer),
+			);
+
+			if (suggestions) {
+				problem.suggest = suggestions;
+			}
+		}
+
 		context.report(problem);
 	};
 
@@ -495,6 +531,13 @@ const create = context => {
 			...getMessage(node.name, identifierReplacements, 'property'),
 			node,
 		};
+		const suggestions = getSuggestions(
+			identifierReplacements,
+			(fixer, replacement) => fixer.replaceText(node, replacement),
+		);
+		if (suggestions) {
+			problem.suggest = suggestions;
+		}
 
 		context.report(problem);
 	});
@@ -638,6 +681,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [{}],
 		messages,
