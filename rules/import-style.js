@@ -2,8 +2,10 @@ import {getStringIfConstant} from '@eslint-community/eslint-utils';
 import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
+const MESSAGE_ID_BANNED = 'importStyleBanned';
 const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
+	[MESSAGE_ID_BANNED]: 'All import styles are disabled for module `{{moduleName}}`. Use the `no-restricted-imports` rule to disallow a module.',
 };
 
 const getActualImportDeclarationStyles = importDeclaration => {
@@ -144,6 +146,12 @@ const create = context => {
 			.map(name => [name, styles[name] === false ? {} : {...defaultStyles[name], ...styles[name]}]))
 		: styles;
 
+	const bannedModules = new Set(
+		Object.entries(styles)
+			.filter(([, moduleStyles]) => ['unassigned', 'default', 'namespace', 'named'].every(key => moduleStyles[key] === false))
+			.map(([name]) => name),
+	);
+
 	styles = new Map(Object.entries(styles).map(([moduleName, styles]) =>
 		[moduleName, new Set(Object.entries(styles).filter(([, isAllowed]) => isAllowed).map(([style]) => style))]));
 
@@ -151,7 +159,19 @@ const create = context => {
 
 	// eslint-disable-next-line max-params
 	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
-		if (!allowedImportStyles || allowedImportStyles.size === 0) {
+		if (!allowedImportStyles) {
+			return;
+		}
+
+		if (allowedImportStyles.size === 0) {
+			if (bannedModules.has(moduleName)) {
+				context.report({
+					node,
+					messageId: MESSAGE_ID_BANNED,
+					data: {moduleName},
+				});
+			}
+
 			return;
 		}
 

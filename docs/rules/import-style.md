@@ -70,6 +70,8 @@ The example below:
 ]
 ```
 
+Do not set all styles to `false` for a module. To disallow a module entirely, use the [`no-restricted-imports`](https://eslint.org/docs/latest/rules/no-restricted-imports) rule instead.
+
 ### extendDefaultStyles
 
 Type: `boolean`\
