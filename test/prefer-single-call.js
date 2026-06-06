@@ -72,6 +72,18 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			process.stdin.push(chunk);
+			process.stdin.push(null);
+		`,
+		outdent`
+			process.stdout.push(chunk);
+			process.stdout.push(null);
+		`,
+		outdent`
+			process.stderr.push(chunk);
+			process.stderr.push(null);
+		`,
 		{
 			code: outdent`
 				foo.push(1);
@@ -327,6 +339,14 @@ test.snapshot({
 			process.stdin.unshift(chunk);
 			process.stdin.unshift(null);
 		`,
+		outdent`
+			process.stdout.unshift(chunk);
+			process.stdout.unshift(null);
+		`,
+		outdent`
+			process.stderr.unshift(chunk);
+			process.stderr.unshift(null);
+		`,
 		{
 			code: outdent`
 				foo.unshift(1);
@@ -472,6 +492,10 @@ test.snapshot({
 		outdent`
 			foo.unshift(1);
 			foo?.unshift(2);
+		`,
+		outdent`
+			foo.unshift(1);
+			foo?.unshift(2,);
 		`,
 		outdent`
 			foo?.unshift(1);

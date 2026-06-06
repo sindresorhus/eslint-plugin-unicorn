@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Array#unshift()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accepts multiple arguments. Multiple calls should be combined into one.
+[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Array#unshift()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts()`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accept multiple arguments. Multiple calls should be combined into one.
 
 ## Examples
 
@@ -62,7 +62,7 @@ Type: `string[]`
 
 Functions to ignore.
 
-`stream.push`, `stream.unshift`, `this.push`, `this.unshift`, `this.stream.push`, `this.stream.unshift`, and `process.std*.{push,unshift}` are ignored by default.
+`stream.push`, `stream.unshift`, `this.push`, `this.unshift`, `this.stream.push`, `this.stream.unshift`, `process.stdin.push`, `process.stdin.unshift`, `process.stdout.push`, `process.stdout.unshift`, `process.stderr.push`, and `process.stderr.unshift` are ignored by default.
 
 Example:
 

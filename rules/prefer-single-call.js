@@ -198,7 +198,7 @@ function create(context) {
 
 			const fix = function * (fixer) {
 				if (sourceCallArguments.length > 0) {
-					const text = getCallExpressionArgumentsText(context, sourceCall);
+					const text = getCallExpressionArgumentsText(context, sourceCall, !shouldPrependSourceArguments);
 
 					const {
 						openingParenthesisToken,
