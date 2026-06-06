@@ -1901,6 +1901,11 @@ test.typescript({
 			errors: 1,
 		},
 		{
+			code: 'type Constructor = new (ctx: object) => object',
+			output: 'type Constructor = new (context: object) => object',
+			errors: 1,
+		},
+		{
 			code: 'interface Middleware { handle: (ctx: object) => void; }',
 			output: 'interface Middleware { handle: (context: object) => void; }',
 			errors: 1,
@@ -2040,11 +2045,41 @@ test.typescript({
 		{
 			code: outdent`
 				/**
+				 * @param e Value.
+				 */
+				function isError(e: unknown): e is Error {
+					return e instanceof Error;
+				}
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
 				 * @param ctx Koa context.
 				 */
 				type Middleware = (ctx: object) => void;
 			`,
 			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param e Value.
+				 */
+				type Constructor = new (e: unknown) => object;
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
 		},
 		{
 			code: outdent`

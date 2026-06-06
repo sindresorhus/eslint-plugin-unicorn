@@ -260,6 +260,7 @@ const functionLikeTypesWithReturnType = new Set([
 	...functionTypes,
 	'TSCallSignatureDeclaration',
 	'TSConstructSignatureDeclaration',
+	'TSConstructorType',
 	'TSDeclareFunction',
 	'TSEmptyBodyFunctionExpression',
 	'TSFunctionType',
