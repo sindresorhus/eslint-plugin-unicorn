@@ -42,11 +42,13 @@ test.snapshot({
 		// `checkArguments: false`
 		...[
 			'foo(null)',
+			'foo(bar, null)',
 			'drawingManager.setMap(null)',
 			'markers[index].setMap(null)',
 			'object?.method?.(null)',
 			'foo?.(null)',
 			'new HttpResponse(null)',
+			'new HttpResponse(body, null)',
 		].map(code => ({
 			code,
 			options: optionsIgnoreArguments,

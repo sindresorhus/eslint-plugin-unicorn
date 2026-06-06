@@ -48,7 +48,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `null` in function call and constructor arguments. Pass `checkArguments: false` to disable checking them.
+Disallow the use of `null` as a direct function call or constructor argument. Pass `checkArguments: false` to disable checking them.
 
 ```js
 /* eslint unicorn/no-null: ["error", {"checkArguments": true}] */

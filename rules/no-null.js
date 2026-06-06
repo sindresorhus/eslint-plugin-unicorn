@@ -127,13 +127,13 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			checkArguments: {
+				type: 'boolean',
+				description: 'Whether to check `null` used as a direct function call or constructor argument.',
+			},
 			checkStrictEquality: {
 				type: 'boolean',
 				description: 'Whether to check strict equality comparisons against `null`.',
-			},
-			checkArguments: {
-				type: 'boolean',
-				description: 'Whether to check `null` used as function call or constructor arguments.',
 			},
 		},
 	},
