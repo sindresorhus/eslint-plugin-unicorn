@@ -63,6 +63,7 @@ test.snapshot({
 		'iterator.toArray().map(value => value * 2)',
 		'iterator.toArray().filter((value, index) => index > 0)',
 		'iterator.toArray().flatMap(value => [value])',
+		'iterator.toArray().flatMap(value => value)',
 
 		// Parenthesized.
 		'(iterator.toArray()).map(fn)',
@@ -82,8 +83,10 @@ test.snapshot({
 		// Comments inside `.toArray()` are reported without a fix.
 		'iterator.toArray(/* comment */).map(fn)',
 
-		// Comments outside the preserved argument text are reported without a fix.
+		// Comments between `.toArray()` and the helper method are reported without a fix.
 		'iterator.toArray() /* comment */ .map(value => value)',
+
+		// Comments before helper arguments are preserved.
 		'iterator.toArray().map /* comment */ (value => value)',
 
 		// Multiline.
@@ -96,6 +99,12 @@ test.snapshot({
 		// TypeScript.
 		{
 			code: '(iterator as Iterator<number>).toArray().map(value => value * 2)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'iterator.toArray().map<string>(value => value)',
 			languageOptions: {
 				parser: parsers.typescript,
 			},

@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 
@@ -30,7 +30,9 @@ const result = iterator.toArray().filter(fn);
 const result = iterator.filter(fn).toArray();
 ```
 
-`flatMap()` is reported as a suggestion instead of an autofix because `Array#flatMap()` and `Iterator#flatMap()` differ when the callback returns a non-iterable value.
+Cases are reported as suggestions instead of autofixes because moving `toArray()` changes when callbacks run: `Array` methods run after the iterator has been exhausted, while `Iterator` helpers run lazily as the result is consumed. `Array` callbacks also receive an extra `array` argument that `Iterator` callbacks do not.
+
+`flatMap()` has an additional difference: `Array#flatMap()` accepts non-iterable callback results, while `Iterator#flatMap()` requires iterable results.
 
 ```js
 // ❌

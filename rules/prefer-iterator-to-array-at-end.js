@@ -6,21 +6,15 @@ import {
 import {isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-iterator-to-array-at-end';
-const MESSAGE_ID_SUGGESTION = 'prefer-iterator-to-array-at-end/suggestion';
-
-const autofixableMethods = new Set([
-	'filter',
-	'map',
-]);
 
 const methods = [
-	...autofixableMethods,
+	'filter',
 	'flatMap',
+	'map',
 ];
 
 const messages = {
 	[MESSAGE_ID]: 'Move `.toArray()` after `.{{method}}(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Move `.toArray()` after `.{{method}}(…)`.',
 };
 
 const isToArrayCall = node => isMethodCall(node, {
@@ -38,39 +32,37 @@ const hasArrayParameter = node => (
 	|| node.params.some(parameter => parameter.type === 'RestElement')
 );
 
-const getReplacementText = (toArrayCall, methodCall, context) => {
+const getReplacementText = (toArrayCall, methodCall, context, openingParenthesisToken) => {
+	const {sourceCode} = context;
 	const iteratorText = getParenthesizedText(toArrayCall.callee.object, context);
 	const method = methodCall.callee.property.name;
 	const argumentsText = getCallExpressionArgumentsText(context, methodCall);
+	const [, methodNameEnd] = sourceCode.getRange(methodCall.callee.property);
+	const [openingParenthesisStart] = sourceCode.getRange(openingParenthesisToken);
+	const textBetweenMethodAndArguments = sourceCode.text.slice(methodNameEnd, openingParenthesisStart);
 
-	return `${iteratorText}.${method}(${argumentsText}).toArray()`;
+	return `${iteratorText}.${method}${textBetweenMethodAndArguments}(${argumentsText}).toArray()`;
 };
 
 const getFix = (toArrayCall, methodCall, context) => {
 	const {sourceCode} = context;
-	if (sourceCode.getCommentsInside(toArrayCall).length > 0) {
-		return;
-	}
-
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
 	} = getCallExpressionTokens(methodCall, context);
-	const [, argumentsStart] = sourceCode.getRange(openingParenthesisToken);
+	const [, methodNameEnd] = sourceCode.getRange(methodCall.callee.property);
 	const [argumentsEnd] = sourceCode.getRange(closingParenthesisToken);
 
 	if (sourceCode.getCommentsInside(methodCall).some(comment => {
 		const [start, end] = sourceCode.getRange(comment);
 
-		return start < argumentsStart || end > argumentsEnd;
+		return start < methodNameEnd || end > argumentsEnd;
 	})) {
 		return;
 	}
 
-	return fixer => fixer.replaceText(methodCall, getReplacementText(toArrayCall, methodCall, context));
+	return fixer => fixer.replaceText(methodCall, getReplacementText(toArrayCall, methodCall, context, openingParenthesisToken));
 };
-
-const isAutofixable = (method, callback) => autofixableMethods.has(method) && callback.type === 'ArrowFunctionExpression';
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -90,29 +82,12 @@ const create = context => {
 
 		const method = node.callee.property.name;
 		const toArrayCall = node.callee.object;
+		const fix = getFix(toArrayCall, node, context);
 		const problem = {
 			node: toArrayCall.callee.property,
 			messageId: MESSAGE_ID,
 			data: {method},
 		};
-		const fix = getFix(toArrayCall, node, context);
-
-		if (!isAutofixable(method, node.arguments[0])) {
-			if (!fix) {
-				return problem;
-			}
-
-			return {
-				...problem,
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {method},
-						fix,
-					},
-				],
-			};
-		}
 
 		if (!fix) {
 			return problem;
@@ -120,7 +95,13 @@ const create = context => {
 
 		return {
 			...problem,
-			fix,
+			suggest: [
+				{
+					messageId: MESSAGE_ID,
+					data: {method},
+					fix,
+				},
+			],
 		};
 	});
 };
@@ -134,7 +115,6 @@ const config = {
 			description: 'Prefer moving `.toArray()` to the end of iterator helper chains.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 	},
