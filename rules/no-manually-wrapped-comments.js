@@ -8,6 +8,7 @@ const messages = {
 const sentenceEndPattern = /[.!?]$/v;
 const directiveCommentPattern = /^(?:[\/#@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|oxlint|prettier)-)/v;
 const listCommentPattern = /^(?:(?:-|\*|\+)\s|\d+(?:\.|\))\s)/v;
+const separatorCommentPattern = /^[\-=*_#~]{3,}$/v;
 const urlPattern = /\bhttps?:\/\/|www\./v;
 const codeCharacters = ['`', '{', '}', '(', ')', '[', ']'];
 
@@ -18,6 +19,7 @@ const endsWithSentencePunctuation = comment => sentenceEndPattern.test(getCommen
 const isIgnoredCommentText = text =>
 	directiveCommentPattern.test(text)
 	|| listCommentPattern.test(text)
+	|| separatorCommentPattern.test(text)
 	|| urlPattern.test(text)
 	|| codeCharacters.some(character => text.includes(character));
 
@@ -122,10 +124,6 @@ const create = context => {
 				continue;
 			}
 
-			if (endsWithSentencePunctuation(group.at(-1))) {
-				continue;
-			}
-
 			yield {
 				node: group[0],
 				messageId: MESSAGE_ID,
@@ -142,7 +140,7 @@ const config = {
 		type: 'layout',
 		docs: {
 			description: 'Disallow manually wrapped comments.',
-			recommended: 'unopinionated',
+			recommended: false,
 		},
 		fixable: 'whitespace',
 		messages,

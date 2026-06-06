@@ -36,6 +36,7 @@ const config = [
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
+			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',

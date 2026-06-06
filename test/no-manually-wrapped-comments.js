@@ -34,6 +34,11 @@ test.snapshot({
 			// I don't like long lines.
 		`,
 		outdent`
+			// ----------
+			// Section
+			// ----------
+		`,
+		outdent`
 			// \`array.reduce(callback)\`
 			// \`Array.prototype.reduce.call(array, callback)\`
 		`,
@@ -48,10 +53,6 @@ test.snapshot({
 		outdent`
 			// {then() {}}
 			// {get then() {}}
-		`,
-		outdent`
-			// Skip over junk like the block statement inside of a function declaration
-			// or the various pieces of an arrow function.
 		`,
 		outdent`
 			// This is a long comment but
@@ -171,6 +172,11 @@ test.snapshot({
 		outdent`
 			//This is a long comment but
 			//   spacing should be normalized
+		`,
+		outdent`
+			// This is a long comment but
+			// it ends here.
+			// This is intentionally separate.
 		`,
 		outdent`
 			// This is a long comment but
