@@ -1,4 +1,9 @@
-import {isMethodCall, isCallExpression, isNullLiteral} from './ast/index.js';
+import {
+	isMethodCall,
+	isCallExpression,
+	isCallOrNewExpression,
+	isNullLiteral,
+} from './ast/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -11,15 +16,17 @@ const messages = {
 
 const isLooseEqual = node => node.type === 'BinaryExpression' && ['==', '!='].includes(node.operator);
 const isStrictEqual = node => node.type === 'BinaryExpression' && ['===', '!=='].includes(node.operator);
+const isCallOrNewArgument = node => isCallOrNewExpression(node.parent) && node.parent.arguments.includes(node);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkStrictEquality} = context.options[0];
+	const {checkArguments, checkStrictEquality} = context.options[0];
 
 	context.on('Literal', node => {
 		if (
 			!isNullLiteral(node)
 			|| (!checkStrictEquality && isStrictEqual(node.parent))
+			|| (!checkArguments && isCallOrNewArgument(node))
 			// `Object.create(null)`, `Object.create(null, foo)`
 			|| (
 				isMethodCall(node.parent, {
@@ -120,6 +127,10 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			checkArguments: {
+				type: 'boolean',
+				description: 'Whether to check `null` used as a direct function call or constructor argument.',
+			},
 			checkStrictEquality: {
 				type: 'boolean',
 				description: 'Whether to check strict equality comparisons against `null`.',
@@ -140,7 +151,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{checkStrictEquality: false}],
+		defaultOptions: [{checkArguments: true, checkStrictEquality: false}],
 		messages,
 	},
 };
