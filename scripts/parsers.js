@@ -7,8 +7,8 @@ import {Variable} from 'eslint-scope';
 import typescriptEslintParserOriginal from '@typescript-eslint/parser';
 import vueEslintParserOriginal from 'vue-eslint-parser';
 
-function addGlobals(names) {
-	const globalScope = this.scopes[0];
+function addGlobals(scopeManager, names) {
+	const globalScope = scopeManager.scopes[0];
 	for (const name of names) {
 		let variable = globalScope.set.get(name);
 
@@ -73,7 +73,9 @@ function fixParse(parse) {
 		const result = parse(...arguments_);
 
 		if (result.scopeManager) {
-			result.scopeManager.addGlobals ??= addGlobals;
+			result.scopeManager.addGlobals ??= names => {
+				addGlobals(result.scopeManager, names);
+			};
 		}
 
 		return result;

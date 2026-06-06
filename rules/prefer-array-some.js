@@ -48,6 +48,46 @@ const isCheckingUndefined = node =>
 const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
 const isLiteralZero = node => isLiteral(node, 0);
 
+function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
+	const variableDeclarator = callExpression.parent;
+
+	if (
+		variableDeclarator.type !== 'VariableDeclarator'
+		|| variableDeclarator.init !== callExpression
+		|| variableDeclarator.id.type !== 'Identifier'
+		|| variableDeclarator.id.typeAnnotation
+		|| variableDeclarator.parent.type !== 'VariableDeclaration'
+		|| variableDeclarator.parent.kind !== 'const'
+		|| (
+			variableDeclarator.parent.parent.type === 'ExportNamedDeclaration'
+			&& variableDeclarator.parent.parent.declaration === variableDeclarator.parent
+		)
+	) {
+		return false;
+	}
+
+	const [variable] = context.sourceCode.getDeclaredVariables(variableDeclarator);
+
+	if (
+		!variable
+		|| variable.identifiers.length !== 1
+		|| variable.identifiers[0] !== variableDeclarator.id
+	) {
+		return false;
+	}
+
+	const references = variable.references.filter(reference => !reference.init);
+	if (references.length === 0) {
+		return false;
+	}
+
+	return references.every(reference => {
+		const {identifier} = reference;
+
+		return reference.isRead() && (isBooleanExpression(identifier) || isControlFlowTest(identifier));
+	});
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	// `.find(…)`
@@ -63,8 +103,19 @@ const create = context => {
 			return;
 		}
 
+		if (callExpression.typeArguments || callExpression.typeParameters) {
+			return;
+		}
+
 		const isCompare = isCheckingUndefined(callExpression);
-		if (!isCompare && !(isBooleanExpression(callExpression) || isControlFlowTest(callExpression))) {
+		if (
+			!isCompare
+			&& !(
+				isBooleanExpression(callExpression)
+				|| isControlFlowTest(callExpression)
+				|| isFindResultVariableUsedOnlyAsBoolean(callExpression, context)
+			)
+		) {
 			return;
 		}
 

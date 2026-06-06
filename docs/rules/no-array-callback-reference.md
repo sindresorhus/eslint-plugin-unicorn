@@ -11,6 +11,10 @@
 
 Passing functions to iterator methods can cause issues when the function is changed without realizing that the iterator passes 2 more parameters to it. **This also applies when using TypeScript,** albeit only if the function accepts the same parameter type used by the iterator method.
 
+This rule intentionally reports locally declared callbacks too. Use an inline wrapper when you want to make the callback arguments explicit.
+
+Type predicate callbacks are allowed for `.every()`, `.filter()`, `.find()`, and `.findLast()` because wrapping them can fail to preserve TypeScript's predicate overload narrowing.
+
 Suppose you have a `unicorn` module:
 
 ```js
@@ -186,4 +190,37 @@ function readFile(filename) {
 }
 
 Promise.map(filenames, readFile);
+```
+
+## Options
+
+Type: `object`
+
+### ignore
+
+Type: `string[]`
+
+Callees to ignore. The callee is matched against the object the iterator method is called on, so `"Angular"` ignores all `Angular.<method>(…)` calls.
+
+`Promise`, `React.Children`, `Children`, `lodash`, `underscore`, `_`, `Async`, `async`, `this`, `$`, and `jQuery` are always ignored.
+
+Example:
+
+```js
+{
+	'unicorn/no-array-callback-reference': [
+		'error',
+		{
+			ignore: [
+				'Angular',
+				'P'
+			]
+		}
+	]
+}
+```
+
+```js
+/* eslint unicorn/no-array-callback-reference: ["error", {"ignore": ["Angular"]}] */
+Angular.forEach(list, fn); // Passes
 ```

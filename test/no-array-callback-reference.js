@@ -42,8 +42,9 @@ const suggestionOutput = (output, name) => ({
 	output,
 });
 
-const invalidTestCase = (({code, method, name, suggestions}) => ({
+const invalidTestCase = (({code, options, method, name, suggestions}) => ({
 	code,
+	...options && {options},
 	errors: [
 		{
 			...generateError(method, name),
@@ -109,6 +110,34 @@ test({
 		'jQuery(this).find(tooltip)',
 		'jQuery.map(realArray, function(value, index) {});',
 		'jQuery(this).filter(tooltip)',
+
+		// `ignore` option
+		{
+			code: 'Angular.forEach(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
+		{
+			code: 'P.map(list, fn)',
+			options: [{ignore: ['P']}],
+		},
+		{
+			code: 'myLib.utils.map(list, fn)',
+			options: [{ignore: ['myLib.utils']}],
+		},
+		// `ignore` option — chained call
+		{
+			code: 'myLib(args).map(fn)',
+			options: [{ignore: ['myLib']}],
+		},
+		// `ignore` option — default ignored callees still apply
+		{
+			code: 'Promise.map(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
+		{
+			code: 'lodash.map(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
 
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
@@ -180,6 +209,145 @@ test({
 				'foo.forEach((element) => { fn(element); })',
 				'foo.forEach((element, index) => { fn(element, index); })',
 				'foo.forEach((element, index, array) => { fn(element, index, array); })',
+			],
+		}),
+		invalidTestCase({
+			code: 'const callback = value => value; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = value => value; array.map((element) => callback(element));',
+				'const callback = value => value; array.map((element, index) => callback(element, index));',
+				'const callback = value => value; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'array.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'array.map((element) => fn(element))',
+				'array.map((element, index) => fn(element, index))',
+				'array.map((element, index, array) => fn(element, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'foo.map(element)',
+			method: 'map',
+			name: 'element',
+			suggestions: [
+				'foo.map((element_) => element(element_))',
+				'foo.map((element_, index) => element(element_, index))',
+				'foo.map((element_, index, array) => element(element_, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'items.map((item) => fn(item))',
+				'items.map((item, index) => fn(item, index))',
+				'items.map((item, index, items) => fn(item, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(item)',
+			method: 'map',
+			name: 'item',
+			suggestions: [
+				'items.map((element) => item(element))',
+				'items.map((element, index) => item(element, index))',
+				'items.map((element, index, items) => item(element, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(items)',
+			method: 'map',
+			name: 'items',
+			suggestions: [
+				'items.map((item) => items(item))',
+				'items.map((item, index) => items(item, index))',
+				'items.map((item, index, array) => items(item, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(index)',
+			method: 'map',
+			name: 'index',
+			suggestions: [
+				'items.map((item) => index(item))',
+				'items.map((item, index_) => index(item, index_))',
+				'items.map((item, index_, items) => index(item, index_, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.map(item.fn)',
+			method: 'map',
+			suggestions: [
+				'items.map((element) => item.fn(element))',
+				'items.map((element, index) => item.fn(element, index))',
+				'items.map((element, index, array) => item.fn(element, index, array))',
+			],
+		}),
+		invalidTestCase({
+			code: 'classes.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'classes.map((element) => fn(element))',
+				'classes.map((element, index) => fn(element, index))',
+				'classes.map((element, index, classes) => fn(element, index, classes))',
+			],
+		}),
+		invalidTestCase({
+			code: 'indices.map(fn)',
+			method: 'map',
+			name: 'fn',
+			suggestions: [
+				'indices.map((element) => fn(element))',
+				'indices.map((element, index) => fn(element, index))',
+				'indices.map((element, index, indices) => fn(element, index, indices))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.forEach(fn)',
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'items.forEach((item) => { fn(item); })',
+				'items.forEach((item, index) => { fn(item, index); })',
+				'items.forEach((item, index, items) => { fn(item, index, items); })',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.reduce(fn)',
+			method: 'reduce',
+			name: 'fn',
+			suggestions: [
+				'items.reduce((accumulator, item) => fn(accumulator, item))',
+				'items.reduce((accumulator, item, index) => fn(accumulator, item, index))',
+				'items.reduce((accumulator, item, index, items) => fn(accumulator, item, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.reduceRight(fn)',
+			method: 'reduceRight',
+			name: 'fn',
+			suggestions: [
+				'items.reduceRight((accumulator, item) => fn(accumulator, item))',
+				'items.reduceRight((accumulator, item, index) => fn(accumulator, item, index))',
+				'items.reduceRight((accumulator, item, index, items) => fn(accumulator, item, index, items))',
+			],
+		}),
+		invalidTestCase({
+			code: 'items.reduce(accumulator)',
+			method: 'reduce',
+			name: 'accumulator',
+			suggestions: [
+				'items.reduce((accumulator_, item) => accumulator(accumulator_, item))',
+				'items.reduce((accumulator_, item, index) => accumulator(accumulator_, item, index))',
+				'items.reduce((accumulator_, item, index, items) => accumulator(accumulator_, item, index, items))',
 			],
 		}),
 		...reduceLikeMethods.map(method => invalidTestCase({
@@ -278,6 +446,62 @@ test({
 				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
+		{
+			code: 'array.map(condition ? toFile : toBuffer);',
+			errors: [
+				{
+					...generateError('map', 'toFile'),
+					suggestions: [
+						suggestionOutput('array.map(condition ? (element) => toFile(element) : toBuffer);', 'toFile'),
+						suggestionOutput('array.map(condition ? (element, index) => toFile(element, index) : toBuffer);', 'toFile'),
+						suggestionOutput('array.map(condition ? (element, index, array) => toFile(element, index, array) : toBuffer);', 'toFile'),
+					],
+				},
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('array.map(condition ? toFile : (element) => toBuffer(element));', 'toBuffer'),
+						suggestionOutput('array.map(condition ? toFile : (element, index) => toBuffer(element, index));', 'toBuffer'),
+						suggestionOutput('array.map(condition ? toFile : (element, index, array) => toBuffer(element, index, array));', 'toBuffer'),
+					],
+				},
+			],
+		},
+		{
+			code: 'function * foo() { array.map(condition ? (yield toFile) : toBuffer); }',
+			errors: [
+				generateError('map'),
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element) => toBuffer(element)); }', 'toBuffer'),
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element, index) => toBuffer(element, index)); }', 'toBuffer'),
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element, index, array) => toBuffer(element, index, array)); }', 'toBuffer'),
+					],
+				},
+			],
+		},
+		{
+			code: 'async function foo() { array.map((await condition) ? toFile : toBuffer); }',
+			errors: [
+				{
+					...generateError('map', 'toFile'),
+					suggestions: [
+						suggestionOutput('async function foo() { array.map((await condition) ? (element) => toFile(element) : toBuffer); }', 'toFile'),
+						suggestionOutput('async function foo() { array.map((await condition) ? (element, index) => toFile(element, index) : toBuffer); }', 'toFile'),
+						suggestionOutput('async function foo() { array.map((await condition) ? (element, index, array) => toFile(element, index, array) : toBuffer); }', 'toFile'),
+					],
+				},
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element) => toBuffer(element)); }', 'toBuffer'),
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element, index) => toBuffer(element, index)); }', 'toBuffer'),
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element, index, array) => toBuffer(element, index, array)); }', 'toBuffer'),
+					],
+				},
+			],
+		},
 
 		// Actual messages
 		{
@@ -472,6 +696,19 @@ test({
 				`,
 			],
 		}),
+
+		// `ignore` option — non-matching callee is still reported
+		invalidTestCase({
+			code: 'Other.forEach(fn)',
+			options: [{ignore: ['Angular']}],
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'Other.forEach((element) => { fn(element); })',
+				'Other.forEach((element, index) => { fn(element, index); })',
+				'Other.forEach((element, index, array) => { fn(element, index, array); })',
+			],
+		}),
 	],
 });
 
@@ -596,6 +833,15 @@ test.typescript({
 			import {isString} from './guards';
 			foo.every(isString);
 		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			function isNumber(value: unknown): value is number {
+				return typeof value === 'number';
+			}
+			foo.filter(condition ? isString : isNumber);
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -655,6 +901,48 @@ test.typescript({
 						return typeof value === 'string';
 					}
 					foo.map((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): value is string {
+					return typeof value === 'string';
+				}
+				function isObject(value: unknown): boolean {
+					return typeof value === 'object';
+				}
+				foo.filter(condition ? isString : isObject);
+			`,
+			method: 'filter',
+			name: 'isObject',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element) => isObject(element));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element, index) => isObject(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element, index, array) => isObject(element, index, array));
 				`,
 			],
 		}),
