@@ -736,6 +736,279 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	valid: [
+		{
+			code: outdent`
+				const foo = [1, 2, 3, 4];
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.of(1, 2, 3, 4);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from({length: 4}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from([1, 2, 3, 4]);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from([1, 2, 3, 4, ...bar]);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from(...bar);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from('test');
+				function unicorn() {
+					return foo.includes('t');
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(4);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(...bar);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(1, 2, 3, 4);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = new Array(4);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = new Array(...bar);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(2 ** 32);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = bar.map(value => value);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.of(...bar);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = [1, 2, 3, 4, ...bar];
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from({
+					length: 5,
+					*[Symbol.iterator]() {
+						yield 1;
+					},
+				});
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from({length: 2 ** 32}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+	],
+	invalid: [
+		{
+			code: outdent`
+				const foo = [1, 2, 3, 4, 5];
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.of(1, 2, 3, 4, 5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from({length: 5}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from({length: 2 + 3}, (_, index) => index);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from([1, 2, 3, 4, 5]);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array.from('hello');
+				function unicorn() {
+					return foo.includes('h');
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(2 + 3);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = Array(1, 2, 3, 4, 5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = new Array(5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+		{
+			code: outdent`
+				const foo = new Array(1, 2, 3, 4, 5);
+				function unicorn() {
+					return foo.includes(1);
+				}
+			`,
+			options: [{minimumItems: 5}],
+		},
+	],
+});
+
 test({
 	testerOptions: {
 		languageOptions: {

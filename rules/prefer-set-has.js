@@ -1,9 +1,10 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {getVariableIdentifiers} from './utils/index.js';
 import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
+const MAX_ARRAY_LENGTH = (2 ** 32) - 1;
 const messages = {
 	[MESSAGE_ID_ERROR]: '`{{name}}` should be a `Set`, and use `{{name}}.has()` to check existence or non-existence.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch `{{name}}` to `Set`.',
@@ -137,6 +138,137 @@ const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 		)
 	);
 
+const isNonNegativeInteger = value =>
+	Number.isInteger(value)
+	&& value >= 0;
+
+const isArrayLength = value =>
+	isNonNegativeInteger(value)
+	&& value <= MAX_ARRAY_LENGTH;
+
+const getStaticArrayLength = (node, scope) => {
+	const result = getStaticValue(node, scope);
+
+	if (isArrayLength(result?.value)) {
+		return result.value;
+	}
+};
+
+const hasSpread = nodes => nodes.some(node => node?.type === 'SpreadElement');
+
+const isLengthProperty = property => {
+	if (
+		property.type !== 'Property'
+		|| property.computed
+	) {
+		return false;
+	}
+
+	const {key} = property;
+
+	return (
+		(key.type === 'Identifier' && key.name === 'length')
+		|| (key.type === 'Literal' && key.value === 'length')
+	);
+};
+
+const getObjectLength = (node, scope) => {
+	if (
+		node.type !== 'ObjectExpression'
+		|| node.properties.length !== 1
+	) {
+		return;
+	}
+
+	const [property] = node.properties;
+
+	if (isLengthProperty(property)) {
+		return getStaticArrayLength(property.value, scope);
+	}
+};
+
+const getArrayFromSize = (node, scope) => {
+	const [source] = node.arguments;
+
+	if (!source || source.type === 'SpreadElement') {
+		return;
+	}
+
+	if (source.type === 'ArrayExpression') {
+		return hasSpread(source.elements) ? undefined : source.elements.length;
+	}
+
+	if (isStringLiteral(source)) {
+		const result = getStaticValue(source, scope);
+		return typeof result?.value === 'string' ? [...result.value].length : undefined;
+	}
+
+	return getObjectLength(source, scope);
+};
+
+const getArrayConstructorSize = (node, scope) => {
+	if (hasSpread(node.arguments)) {
+		return;
+	}
+
+	if (node.arguments.length !== 1) {
+		return node.arguments.length;
+	}
+
+	const result = getStaticValue(node.arguments[0], scope);
+
+	if (!result) {
+		return;
+	}
+
+	const {value} = result;
+
+	if (typeof value !== 'number') {
+		return 1;
+	}
+
+	if (isArrayLength(value)) {
+		return value;
+	}
+};
+
+const getKnownArraySize = (node, scope) => {
+	if (node.type === 'ArrayExpression') {
+		return hasSpread(node.elements) ? undefined : node.elements.length;
+	}
+
+	if (
+		isCallOrNewExpression(node, {
+			name: 'Array',
+			optional: false,
+		})
+	) {
+		return getArrayConstructorSize(node, scope);
+	}
+
+	if (
+		isMethodCall(node, {
+			object: 'Array',
+			method: 'of',
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return hasSpread(node.arguments) ? undefined : node.arguments.length;
+	}
+
+	if (
+		isMethodCall(node, {
+			object: 'Array',
+			method: 'from',
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return getArrayFromSize(node, scope);
+	}
+};
+
 const isNodeInside = (sourceCode, node, parent) => {
 	const nodeRange = sourceCode.getRange(node);
 	const parentRange = sourceCode.getRange(parent);
@@ -196,6 +328,8 @@ const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {minimumItems} = context.options[0];
+
 	context.on('Identifier', node => {
 		const {parent} = node;
 
@@ -213,6 +347,16 @@ const create = context => {
 			&& isArrayMethodCall(parent.init, context.sourceCode.getScope(parent.init))
 		)) {
 			return;
+		}
+
+		if (minimumItems > 0) {
+			const arraySize = getKnownArraySize(parent.init, context.sourceCode.getScope(parent.init));
+			if (
+				arraySize === undefined
+				|| arraySize < minimumItems
+			) {
+				return;
+			}
 		}
 
 		const variable = findVariable(context.sourceCode.getScope(node), node);
@@ -278,6 +422,20 @@ const create = context => {
 	});
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			minimumItems: {
+				type: 'integer',
+				minimum: 0,
+				description: 'The minimum known array size before `Set#has()` is enforced.',
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
 	create,
@@ -289,6 +447,12 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema,
+		defaultOptions: [
+			{
+				minimumItems: 0,
+			},
+		],
 		messages,
 	},
 };
