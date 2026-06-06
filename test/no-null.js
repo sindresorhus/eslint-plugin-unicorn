@@ -3,6 +3,8 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const optionsIgnoreArguments = [{checkArguments: false}];
+
 test.snapshot({
 	valid: [
 		'let foo',
@@ -37,6 +39,18 @@ test.snapshot({
 			code,
 			options: [{checkStrictEquality: false}],
 		})),
+		// `checkArguments: false`
+		...[
+			'foo(null)',
+			'drawingManager.setMap(null)',
+			'markers[index].setMap(null)',
+			'object?.method?.(null)',
+			'foo?.(null)',
+			'new HttpResponse(null)',
+		].map(code => ({
+			code,
+			options: optionsIgnoreArguments,
+		})),
 		// #1146
 		{
 			code: 'foo = Object.create(null)',
@@ -65,6 +79,31 @@ test.snapshot({
 		'var foo = null;',
 		'var foo = 1, bar = null, baz = 2;',
 		'const foo = null;',
+		{
+			code: 'const foo = null;',
+			options: optionsIgnoreArguments,
+		},
+		{
+			code: outdent`
+				function foo() {
+					return null;
+				}
+			`,
+			options: optionsIgnoreArguments,
+		},
+		{
+			code: 'if (foo === null) {}',
+			options: [{checkArguments: false, checkStrictEquality: true}],
+		},
+		...[
+			'foo([null])',
+			'foo(bar ?? null)',
+			'foo(...[null])',
+			'new HttpResponse([null])',
+		].map(code => ({
+			code,
+			options: optionsIgnoreArguments,
+		})),
 
 		// `checkStrictEquality`
 		...[

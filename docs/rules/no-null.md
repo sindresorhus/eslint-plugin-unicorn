@@ -43,6 +43,26 @@ if (foo === null) {}
 
 Type: `object`
 
+### checkArguments
+
+Type: `boolean`\
+Default: `true`
+
+Disallow the use of `null` in function call and constructor arguments. Pass `checkArguments: false` to disable checking them.
+
+```js
+/* eslint unicorn/no-null: ["error", {"checkArguments": true}] */
+// ❌
+foo(null);
+```
+
+```js
+/* eslint unicorn/no-null: ["error", {"checkArguments": false}] */
+// ✅
+foo(null);
+new HttpResponse(null);
+```
+
 ### checkStrictEquality
 
 Type: `boolean`\
