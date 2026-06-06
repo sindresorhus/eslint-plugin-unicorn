@@ -34,6 +34,27 @@ const isTryBlock = node =>
 	node.parent?.type === 'TryStatement'
 	&& node.parent.block === node;
 
+const classFieldTypes = new Set(['AccessorProperty', 'PropertyDefinition']);
+
+const isInsideInstanceClassFieldValue = node => {
+	let child = node;
+	for (let {parent} = node; parent; child = parent, parent = parent.parent) {
+		if (functionTypes.includes(parent.type)) {
+			return false;
+		}
+
+		if (
+			classFieldTypes.has(parent.type)
+			&& !parent.static
+			&& parent.value === child
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const schema = [
 	{
 		type: 'object',
@@ -57,6 +78,7 @@ const create = context => {
 	const increaseComplexity = node => {
 		if (
 			tryBlockStack.length === 0
+			|| isInsideInstanceClassFieldValue(node)
 			|| !increasesComplexity(node)
 		) {
 			return;

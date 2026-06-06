@@ -49,6 +49,22 @@ test.snapshot({
 				doSomething();
 			} catch {}
 		`,
+		outdent`
+			try {
+				class Foo {
+					field = condition ? a : b;
+				}
+			} catch {}
+		`,
+		outdent`
+			try {
+				class Foo {
+					field = class Bar {
+						static field = condition ? a : b;
+					};
+				}
+			} catch {}
+		`,
 		{
 			code: outdent`
 				try {
@@ -84,6 +100,27 @@ test.snapshot({
 		`,
 		outdent`
 			try {
+				for (let index = 0; index < items.length; index++) {
+					doSomething(items[index]);
+				}
+			} catch {}
+		`,
+		outdent`
+			try {
+				for (const key in object) {
+					doSomething(object[key]);
+				}
+			} catch {}
+		`,
+		outdent`
+			try {
+				do {
+					doSomething();
+				} while (condition);
+			} catch {}
+		`,
+		outdent`
+			try {
 				const value = condition ? a : b;
 			} catch {}
 		`,
@@ -95,6 +132,23 @@ test.snapshot({
 		outdent`
 			try {
 				value ||= fallback;
+			} catch {}
+		`,
+		outdent`
+			try {
+				value &&= fallback;
+			} catch {}
+		`,
+		outdent`
+			try {
+				value ??= fallback;
+			} catch {}
+		`,
+		outdent`
+			try {
+				class Foo {
+					static field = condition ? a : b;
+				}
 			} catch {}
 		`,
 		outdent`
