@@ -769,7 +769,14 @@ test.snapshot({
 		// All styles set to `false` — should report misuse
 		...(() => {
 			const bannedOptions = [{
-				styles: {banned: {unassigned: false, default: false, namespace: false, named: false}},
+				styles: {
+					banned: {
+						unassigned: false,
+						default: false,
+						namespace: false,
+						named: false,
+					},
+				},
 				extendDefaultStyles: false,
 			}];
 
@@ -791,16 +798,37 @@ test.snapshot({
 				{code: 'require(\'banned\')', options: bannedOptions},
 				{
 					code: 'export {foo} from \'banned\'',
-					options: [{checkExportFrom: true, ...bannedOptions[0]}],
+					options: [
+						{
+							checkExportFrom: true,
+							...bannedOptions[0],
+						},
+					],
 				},
 				{
 					code: 'export * from \'banned\'',
-					options: [{checkExportFrom: true, ...bannedOptions[0]}],
+					options: [
+						{
+							checkExportFrom: true,
+							...bannedOptions[0],
+						},
+					],
 				},
 				// `extendDefaultStyles: true` (default) should also detect banned modules
 				{
 					code: 'import \'banned\'',
-					options: [{styles: {banned: {unassigned: false, default: false, namespace: false, named: false}}}],
+					options: [
+						{
+							styles: {
+								banned: {
+									unassigned: false,
+									default: false,
+									namespace: false,
+									named: false,
+								},
+							},
+						},
+					],
 				},
 			];
 		})(),
