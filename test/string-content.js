@@ -94,6 +94,11 @@ test({
 			code,
 			options: [{patterns: noToYesPattern}],
 		})),
+		// `caseSensitive` - default (true) should not match different case
+		{
+			code: 'const foo = "NO"',
+			options: [{patterns: noToYesPattern}],
+		},
 	],
 	invalid: [
 		// `Literal` string
@@ -408,6 +413,44 @@ test({
 					'VariableDeclarator[id.name=/description/] > Literal',
 				],
 			}],
+			errors: createError('no', 'yes'),
+		},
+
+		// `caseSensitive: false`
+		{
+			code: 'const foo = "End of Day"',
+			output: 'const foo = "EOD"',
+			options: [{patterns: {'end of day': {suggest: 'EOD', caseSensitive: false}}}],
+			errors: createError('end of day', 'EOD'),
+		},
+		{
+			code: 'const foo = "END OF DAY"',
+			output: 'const foo = "EOD"',
+			options: [{patterns: {'end of day': {suggest: 'EOD', caseSensitive: false}}}],
+			errors: createError('end of day', 'EOD'),
+		},
+		// Multiple case variants in one string
+		{
+			code: 'const foo = "no No NO"',
+			output: 'const foo = "yes yes yes"',
+			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false}}}],
+			errors: createError('no', 'yes'),
+		},
+		// `caseSensitive: false` with `fix: false`
+		{
+			code: 'const foo = "NO"',
+			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false, fix: false}}}],
+			errors: createSuggestionError(
+				'no',
+				'yes',
+				'const foo = "yes"',
+			),
+		},
+		// `caseSensitive: false` with template literal
+		{
+			code: 'const foo = `NO`',
+			output: 'const foo = `yes`',
+			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false}}}],
 			errors: createError('no', 'yes'),
 		},
 	],

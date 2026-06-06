@@ -69,6 +69,24 @@ The example below:
 }
 ```
 
+Set `caseSensitive` to `false` to match regardless of case:
+
+```json
+{
+	"unicorn/string-content": [
+		"error",
+		{
+			"patterns": {
+				"end of day": {
+					"suggest": "EOD",
+					"caseSensitive": false
+				}
+			}
+		}
+	]
+}
+```
+
 The key of `patterns` is treated as a regex, so you must escape special characters.
 
 For example, if you want to enforce `...` → `…`:
