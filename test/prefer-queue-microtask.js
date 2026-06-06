@@ -9,6 +9,7 @@ test.snapshot({
 		'process?.nextTick(callback);',
 		'process["nextTick"](callback);',
 		'const process = {nextTick: callback => callback()}; process.nextTick(callback);',
+		'const process = await import("node:process"); process.nextTick(callback);',
 		'const object = {process: {nextTick: callback => callback()}}; object.process.nextTick(callback);',
 		'const {nextTick} = process; nextTick(callback);',
 		'import {nextTick} from "node:process"; nextTick(callback);',
@@ -73,6 +74,8 @@ test.snapshot({
 	],
 	invalid: [
 		'process.nextTick(callback);',
+		'const result = process.nextTick(callback);',
+		'process /* keep */ .nextTick(callback);',
 		'process.nextTick(...argumentsArray);',
 		'process.nextTick(callback, value);',
 		'const tick = process.nextTick;',
@@ -100,6 +103,10 @@ test.snapshot({
 		},
 		{
 			code: 'setTimeout(callback, 0 /* delay */);',
+			options: [{checkSetTimeout: true}],
+		},
+		{
+			code: 'setTimeout(callback, 0 // delay\n);',
 			options: [{checkSetTimeout: true}],
 		},
 		{

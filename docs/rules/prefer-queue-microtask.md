@@ -31,6 +31,8 @@ process.nextTick(callback, value);
 queueMicrotask(() => callback(value));
 ```
 
+Only direct calls with one callback are autofixed. Calls with forwarded arguments are reported without a fix.
+
 ## Options
 
 Type: `object`
@@ -41,6 +43,8 @@ Type: `boolean`\
 Default: `false`
 
 Check `setImmediate(callback)`.
+
+Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments are reported without a fix.
 
 ```js
 /* eslint unicorn/prefer-queue-microtask: ["error", {"checkSetImmediate": true}] */
@@ -58,6 +62,8 @@ Type: `boolean`\
 Default: `false`
 
 Check `setTimeout(callback, 0)`.
+
+Only calls whose timer handle is unused and whose callback is not obviously non-callable are checked. Used timer handles are ignored because `queueMicrotask()` cannot preserve them. Calls with extra arguments or comments on the delay argument are reported without a fix.
 
 ```js
 /* eslint unicorn/prefer-queue-microtask: ["error", {"checkSetTimeout": true}] */

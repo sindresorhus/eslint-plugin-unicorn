@@ -30,13 +30,14 @@ const isOptionalCall = node => (
 	&& node.parent.optional
 );
 
-const getProcessNextTickFix = node => {
+const getProcessNextTickFix = (node, context) => {
 	const {parent} = node;
 	if (
 		parent.type !== 'CallExpression'
 		|| parent.callee !== node
 		|| parent.arguments.length !== 1
 		|| parent.arguments[0].type === 'SpreadElement'
+		|| context.sourceCode.getCommentsInside(node).length > 0
 	) {
 		return;
 	}
@@ -104,6 +105,11 @@ const getGlobalCallFix = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {
+		checkSetImmediate,
+		checkSetTimeout,
+	} = context.options[0];
+
 	context.on('MemberExpression', node => {
 		if (
 			!isProcessNextTick(node, context)
@@ -116,16 +122,11 @@ const create = context => {
 			node: node.property,
 			messageId: MESSAGE_ID,
 			data: {name: 'process.nextTick()'},
-			fix: getProcessNextTickFix(node),
+			fix: getProcessNextTickFix(node, context),
 		};
 	});
 
 	context.on('CallExpression', node => {
-		const {
-			checkSetImmediate,
-			checkSetTimeout,
-		} = context.options[0];
-
 		if (
 			checkSetImmediate
 			&& node.callee.type === 'Identifier'
