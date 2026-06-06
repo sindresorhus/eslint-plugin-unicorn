@@ -284,10 +284,10 @@ test.typescript({
 		'const foo = (): string => undefined;',
 		'createContext<T>(undefined);',
 		'React.createContext<T>(undefined);',
-		{
+		...['file.ts', 'file.tsx', 'file.mts', 'file.cts'].map(filename => ({
 			code: 'Promise.resolve(undefined);',
-			filename: 'file.ts',
-		},
+			filename,
+		})),
 		{
 			code: 'Promise.resolve<undefined>(undefined);',
 			filename: 'file.ts',
@@ -303,6 +303,12 @@ test.typescript({
 		{
 			code: 'Promise.resolve?.(undefined);',
 			output: 'Promise.resolve?.();',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'Promise?.resolve(undefined);',
+			output: 'Promise?.resolve();',
 			filename: 'file.ts',
 			errors,
 		},
