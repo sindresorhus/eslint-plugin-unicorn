@@ -42,6 +42,9 @@ test.snapshot({
 		'element.querySelector?.("a").querySelector("b").querySelector("c");',
 		'element.querySelector("a")?.querySelector("b").querySelector("c");',
 		'element.querySelector("a").querySelector("b")?.querySelector("c");',
+		'element.querySelector("a").querySelector("b")?.foo;',
+		'element.querySelector("a").querySelector("b").foo?.querySelector("c");',
+		'(element?.querySelector("a")).querySelector("b").querySelector("c");',
 
 		// Wrong selector methods or arguments
 		'element.querySelector();',

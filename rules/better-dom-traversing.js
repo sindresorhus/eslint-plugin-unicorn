@@ -124,11 +124,6 @@ const canMergeSelectorValues = selectors =>
 const isQuerySelectorCall = node =>
 	isMethodCall(node, QUERY_SELECTOR_CALL);
 
-const isOptionalExpression = node =>
-	node.type === 'ChainExpression'
-	|| node.optional
-	|| node.callee?.optional;
-
 const isFollowedByStaticQuerySelectorCall = node =>
 	node.parent?.type === 'MemberExpression'
 	&& node.parent.object === node
@@ -136,16 +131,16 @@ const isFollowedByStaticQuerySelectorCall = node =>
 	&& isQuerySelectorCall(node.parent.parent)
 	&& isStaticSelector(node.parent.parent.arguments[0]);
 
-const isFollowedByOptionalQuerySelectorCall = node =>
-	node.parent?.type === 'MemberExpression'
-	&& node.parent.object === node
-	&& node.parent.parent?.type === 'CallExpression'
-	&& node.parent.parent.callee === node.parent
-	&& isMemberExpression(node.parent, {
-		property: 'querySelector',
-		computed: false,
-	})
-	&& (node.parent.optional || node.parent.parent.optional);
+const isPartOfChainExpression = node => {
+	while (
+		(node.parent?.type === 'MemberExpression' && node.parent.object === node)
+		|| (node.parent?.type === 'CallExpression' && node.parent.callee === node)
+	) {
+		node = node.parent;
+	}
+
+	return node.parent?.type === 'ChainExpression';
+};
 
 const getQuerySelectorChain = node => {
 	const calls = [];
@@ -162,7 +157,7 @@ const getQuerySelectorChain = node => {
 
 	if (
 		calls.length < 2
-		|| isOptionalExpression(node)
+		|| node.type === 'ChainExpression'
 		|| isNodeValueNotDomNode(node)
 	) {
 		return;
@@ -261,7 +256,7 @@ const create = context => {
 		if (
 			!isQuerySelectorCall(node)
 			|| isFollowedByStaticQuerySelectorCall(node)
-			|| isFollowedByOptionalQuerySelectorCall(node)
+			|| isPartOfChainExpression(node)
 		) {
 			return;
 		}
