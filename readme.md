@@ -230,6 +230,7 @@ export default [
 | [template-indent](docs/rules/template-indent.md)                                                 | Fix whitespace-insensitive template indentation.                                                                                                                                                                  | ✅    | 🔧 |    |
 | [text-encoding-identifier-case](docs/rules/text-encoding-identifier-case.md)                     | Enforce consistent case for text encoding identifiers.                                                                                                                                                            | ✅ ☑️ | 🔧 | 💡 |
 | [throw-new-error](docs/rules/throw-new-error.md)                                                 | Require `new` when creating an error.                                                                                                                                                                             | ✅ ☑️ | 🔧 |    |
+| [try-complexity](docs/rules/try-complexity.md)                                                   | Limit the complexity of `try` blocks.                                                                                                                                                                             |      |    |    |
 
 <!-- end auto-generated rules list -->
 

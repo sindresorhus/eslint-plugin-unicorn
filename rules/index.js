@@ -171,3 +171,4 @@ export {default as 'switch-case-break-position'} from './switch-case-break-posit
 export {default as 'template-indent'} from './template-indent.js';
 export {default as 'text-encoding-identifier-case'} from './text-encoding-identifier-case.js';
 export {default as 'throw-new-error'} from './throw-new-error.js';
+export {default as 'try-complexity'} from './try-complexity.js';
