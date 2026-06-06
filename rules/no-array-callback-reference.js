@@ -284,6 +284,16 @@ function isTypePredicateCallback(callback, context) {
 	return false;
 }
 
+function shouldIgnoreCallback(callback, methodName, options, context) {
+	return callback.type === 'FunctionExpression'
+		|| callback.type === 'ArrowFunctionExpression'
+		// Ignore all `CallExpression`s, including `function.bind()`
+		|| callback.type === 'CallExpression'
+		|| options.shouldIgnoreCallback(callback)
+		|| isNodeValueNotFunction(callback)
+		|| (methodsWithTypePredicateOverloads.has(methodName) && isTypePredicateCallback(callback, context));
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (callExpression) {
@@ -310,19 +320,11 @@ const create = context => {
 			return;
 		}
 
-		for (const callback of getTernaryConsequentAndALternate(callExpression.arguments[0])) {
-			if (
-				callback.type === 'FunctionExpression'
-				|| callback.type === 'ArrowFunctionExpression'
-				// Ignore all `CallExpression`s, including `function.bind()`
-				|| callback.type === 'CallExpression'
-				|| options.shouldIgnoreCallback(callback)
-				|| isNodeValueNotFunction(callback)
-				|| (methodsWithTypePredicateOverloads.has(methodName) && isTypePredicateCallback(callback, context))
-			) {
-				continue;
-			}
+		const callbackArgument = callExpression.arguments[0];
+		const callbacks = [...getTernaryConsequentAndALternate(callbackArgument)];
+		const reportableCallbacks = callbacks.filter(callback => !shouldIgnoreCallback(callback, methodName, options, context));
 
+		for (const callback of reportableCallbacks) {
 			yield getProblem(context, callback, methodName, options);
 		}
 	});
