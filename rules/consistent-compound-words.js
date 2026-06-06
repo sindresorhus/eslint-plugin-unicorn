@@ -21,7 +21,7 @@ const messages = {
 };
 
 const defaultReplacements = {
-	// Ambiguous/common API spellings like `fileName`, `setUp`, and `lookUp` are intentionally excluded.
+	// Ambiguous/common API spellings like `fileName`, `setUp`, `lookUp`, `onLine`, `offLine`, `styleSheet`, and `superClass` are intentionally excluded.
 	backGround: 'background',
 	callBack: 'callback',
 	checkBox: 'checkbox',
@@ -33,8 +33,6 @@ const defaultReplacements = {
 	keyFrame: 'keyframe',
 	metaData: 'metadata',
 	nameSpace: 'namespace',
-	offLine: 'offline',
-	onLine: 'online',
 	overRide: 'override',
 	passWord: 'password',
 	payLoad: 'payload',
@@ -50,7 +48,6 @@ const defaultReplacements = {
 	subString: 'substring',
 	subTree: 'subtree',
 	subType: 'subtype',
-	superClass: 'superclass',
 	toolBar: 'toolbar',
 	toolTip: 'tooltip',
 	touchScreen: 'touchscreen',

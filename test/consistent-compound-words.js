@@ -31,6 +31,23 @@ const customOptions = [
 	},
 ];
 
+const withJsx = tests => ({
+	...tests,
+	testerOptions: {
+		...tests.testerOptions,
+		languageOptions: {
+			...tests.testerOptions?.languageOptions,
+			parserOptions: {
+				...tests.testerOptions?.languageOptions?.parserOptions,
+				ecmaFeatures: {
+					...tests.testerOptions?.languageOptions?.parserOptions?.ecmaFeatures,
+					jsx: true,
+				},
+			},
+		},
+	},
+});
+
 test.snapshot({
 	valid: [
 		'const password = 1;',
@@ -45,8 +62,12 @@ test.snapshot({
 		'const popUp = window.open();',
 		'const webSocket = new WebSocket(url);',
 		'const sourceMap = parseSourceMap();',
+		'const isOnLine = isOnlyNodeOnLine(node);',
+		'const isOffLine = position.column === 0;',
 		'const styleSheet = document.styleSheets[0];',
 		'const CSSStyleSheetConstructor = CSSStyleSheet;',
+		'const superClass = node.superClass;',
+		'const superClassName = getSuperClassName(node.superClass);',
 		'const VIEW_PORT = 1;',
 		'const XMLHttpRequest = 1;',
 		'const payload = 1;',
@@ -102,8 +123,6 @@ test.snapshot({
 		'const placeHolder = "Name";',
 		'const preView = render();',
 		'const overRide = true;',
-		'const isOnLine = navigator.onLine;',
-		'const isOffLine = !navigator.onLine;',
 		'const callBack = () => {};',
 		'const weekEnd = new Date();',
 		'const checkBox = element;',
@@ -124,7 +143,6 @@ test.snapshot({
 		'const subString = value.slice(1);',
 		'const subTree = tree.children[0];',
 		'const subType = type.kind;',
-		'const superClass = Object.getPrototypeOf(Class);',
 		'const editorToolBar = editor.toolbar;',
 		'const toolTip = button.title;',
 		'const touchScreen = matchMedia("(pointer: coarse)");',
@@ -206,3 +224,20 @@ test.snapshot({
 		},
 	],
 });
+
+test.snapshot(withJsx({
+	valid: [
+		'<input passWord="current" />',
+		'<passWord />',
+	],
+	invalid: [
+		outdent`
+			const passWord = 'secret';
+			const element = <input value={passWord} />;
+		`,
+		outdent`
+			function UserNameField() {}
+			const element = <UserNameField />;
+		`,
+	],
+}));
