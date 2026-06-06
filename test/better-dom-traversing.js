@@ -39,6 +39,9 @@ test.snapshot({
 		'element.parentElement?.parentElement;',
 		'element.querySelector?.("a").querySelector("b");',
 		'element.querySelector("a")?.querySelector("b");',
+		'element.querySelector?.("a").querySelector("b").querySelector("c");',
+		'element.querySelector("a")?.querySelector("b").querySelector("c");',
+		'element.querySelector("a").querySelector("b")?.querySelector("c");',
 
 		// Wrong selector methods or arguments
 		'element.querySelector();',
@@ -76,6 +79,9 @@ test.snapshot({
 		'element.querySelector("a > b").querySelector(".c");',
 		'element.querySelector(".a, .b").querySelector(".c");',
 		'element.querySelector(".a").querySelector(".b, .c");',
+		'element.querySelector("a").querySelector("b").querySelector("c");',
+		'element.querySelector("a").querySelector("b").querySelector(selector);',
+		'element.querySelector(selector).querySelector("b").querySelector("c");',
 		'(getElement()).querySelector("a").querySelector("b");',
 		'(foo || bar).querySelector("a").querySelector("b");',
 

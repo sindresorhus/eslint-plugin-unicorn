@@ -9,13 +9,19 @@ const MESSAGE_ID_MERGE_QUERY_SELECTOR = 'merge-query-selector';
 const SUGGESTION_ID_FIRST_CHILD = 'suggestion-first-child';
 const SUGGESTION_ID_FIRST_ELEMENT_CHILD = 'suggestion-first-element-child';
 const SUGGESTION_ID_MERGE_QUERY_SELECTOR = 'suggestion-merge-query-selector';
+const QUERY_SELECTOR_CALL = {
+	method: 'querySelector',
+	argumentsLength: 1,
+	optionalCall: false,
+	optionalMember: false,
+};
 
 const messages = {
 	[MESSAGE_ID_FIRST_CHILD]: 'Prefer `.firstChild` over `.childNodes[0]`.',
 	[MESSAGE_ID_FIRST_ELEMENT_CHILD]: 'Prefer `.firstElementChild` over `.children[0]`.',
-	[MESSAGE_ID_QUERY_SELECTOR]: 'Prefer `.querySelector()` over positional child traversal.',
-	[MESSAGE_ID_CLOSEST]: 'Prefer `.closest()` over chaining `.parentElement`.',
-	[MESSAGE_ID_MERGE_QUERY_SELECTOR]: 'Prefer a single `.querySelector()` call.',
+	[MESSAGE_ID_QUERY_SELECTOR]: 'Consider `.querySelector()` over positional child traversal.',
+	[MESSAGE_ID_CLOSEST]: 'Consider `.closest()` over chaining `.parentElement`.',
+	[MESSAGE_ID_MERGE_QUERY_SELECTOR]: 'Consider merging chained `.querySelector()` calls.',
 	[SUGGESTION_ID_FIRST_CHILD]: 'Switch to `.firstChild`.',
 	[SUGGESTION_ID_FIRST_ELEMENT_CHILD]: 'Switch to `.firstElementChild`.',
 	[SUGGESTION_ID_MERGE_QUERY_SELECTOR]: 'Merge the `.querySelector()` calls.',
@@ -115,24 +121,78 @@ const getSelectorQuote = node =>
 const canMergeSelectorValues = selectors =>
 	selectors.every(selector => !selector.includes(','));
 
-const getMergeQuerySelectorSuggestion = (node, innerCall, context) => {
+const isQuerySelectorCall = node =>
+	isMethodCall(node, QUERY_SELECTOR_CALL);
+
+const isOptionalExpression = node =>
+	node.type === 'ChainExpression'
+	|| node.optional
+	|| node.callee?.optional;
+
+const isFollowedByStaticQuerySelectorCall = node =>
+	node.parent?.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& node.parent.parent?.callee === node.parent
+	&& isQuerySelectorCall(node.parent.parent)
+	&& isStaticSelector(node.parent.parent.arguments[0]);
+
+const isFollowedByOptionalQuerySelectorCall = node =>
+	node.parent?.type === 'MemberExpression'
+	&& node.parent.object === node
+	&& node.parent.parent?.type === 'CallExpression'
+	&& node.parent.parent.callee === node.parent
+	&& isMemberExpression(node.parent, {
+		property: 'querySelector',
+		computed: false,
+	})
+	&& (node.parent.optional || node.parent.parent.optional);
+
+const getQuerySelectorChain = node => {
+	const calls = [];
+
+	while (isQuerySelectorCall(node)) {
+		const [selector] = node.arguments;
+		if (!isStaticSelector(selector)) {
+			break;
+		}
+
+		calls.push(node);
+		node = node.callee.object;
+	}
+
+	if (
+		calls.length < 2
+		|| isOptionalExpression(node)
+		|| isNodeValueNotDomNode(node)
+	) {
+		return;
+	}
+
+	const selectors = [];
+	for (const call of calls) {
+		selectors.unshift(getStaticSelectorValue(call.arguments[0]));
+	}
+
+	return {
+		root: node,
+		selectors,
+		quoteNode: calls.at(-1).arguments[0],
+	};
+};
+
+const getMergeQuerySelectorSuggestion = (node, querySelectorChain, context) => {
 	const {sourceCode} = context;
 	if (hasCommentsInside(node, sourceCode)) {
 		return;
 	}
 
-	const root = getParenthesizedText(innerCall.callee.object, context);
-	const selectors = [
-		getStaticSelectorValue(innerCall.arguments[0]),
-		getStaticSelectorValue(node.arguments[0]),
-	];
-
-	if (!canMergeSelectorValues(selectors)) {
+	if (!canMergeSelectorValues(querySelectorChain.selectors)) {
 		return;
 	}
 
-	const selector = selectors.join(' ');
-	const replacement = `${root}.querySelector(${escapeString(selector, getSelectorQuote(innerCall.arguments[0]))})`;
+	const root = getParenthesizedText(querySelectorChain.root, context);
+	const selector = querySelectorChain.selectors.join(' ');
+	const replacement = `${root}.querySelector(${escapeString(selector, getSelectorQuote(querySelectorChain.quoteNode))})`;
 
 	return [
 		{
@@ -198,34 +258,23 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {
-			method: 'querySelector',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
+		if (
+			!isQuerySelectorCall(node)
+			|| isFollowedByStaticQuerySelectorCall(node)
+			|| isFollowedByOptionalQuerySelectorCall(node)
+		) {
 			return;
 		}
 
-		const innerCall = node.callee.object;
-		if (
-			!isMethodCall(innerCall, {
-				method: 'querySelector',
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			|| isNodeValueNotDomNode(innerCall.callee.object)
-			|| !isStaticSelector(innerCall.arguments[0])
-			|| !isStaticSelector(node.arguments[0])
-		) {
+		const querySelectorChain = getQuerySelectorChain(node);
+		if (!querySelectorChain) {
 			return;
 		}
 
 		return {
 			node,
 			messageId: MESSAGE_ID_MERGE_QUERY_SELECTOR,
-			suggest: getMergeQuerySelectorSuggestion(node, innerCall, context),
+			suggest: getMergeQuerySelectorSuggestion(node, querySelectorChain, context),
 		};
 	});
 };

@@ -11,7 +11,9 @@
 
 Prefer more readable and robust DOM traversal APIs.
 
-Use named first-child properties instead of positional access, selectors instead of positional child traversal, `.closest()` instead of repeated parent traversal, and a single `.querySelector()` call when selectors can be combined.
+Use named first-child properties instead of positional access, selectors instead of positional child traversal, `.closest()` instead of repeated parent traversal, and merged `.querySelector()` calls when static selectors can be combined.
+
+This rule is syntax-based and reports common DOM traversal patterns. Suggestions are intentionally manual because the replacement can change behavior in some cases, such as `undefined` versus `null` for empty child collections, exact-depth parent traversal versus selector-based ancestor lookup, or chained `querySelector()` calls that only search inside the first matching element.
 
 ## Examples
 
