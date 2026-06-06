@@ -1,4 +1,5 @@
 import {
+	htmlEslintParser,
 	typescriptEslintParser,
 	vueEslintParser,
 } from '../../scripts/parsers.js';
@@ -19,7 +20,13 @@ const vueParser = {
 	implementation: vueEslintParser,
 };
 
+const htmlParser = {
+	name: 'html',
+	implementation: htmlEslintParser,
+};
+
 const parsers = Object.fromEntries([
+	htmlParser,
 	typescriptParser,
 	vueParser,
 ].map(parser => [parser.name, parser]));
