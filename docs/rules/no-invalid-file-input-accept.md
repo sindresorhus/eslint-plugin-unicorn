@@ -11,7 +11,7 @@
 
 This rule enforces static `accept` values made up of comma-separated filename extensions, MIME types, or the wildcard MIME types `audio/*`, `image/*`, and `video/*`. It rejects invalid tokens and empty entries, and normalizes casing, spacing, duplicates, and common MIME type mistakes.
 
-This rule checks JSX file inputs and HTML file inputs parsed by [`@html-eslint/eslint-plugin`](https://www.npmjs.com/package/@html-eslint/eslint-plugin).
+This rule checks JSX file inputs and HTML file inputs parsed by [`yeonjuan/html-eslint`](https://github.com/yeonjuan/html-eslint).
 
 ## Examples
 
