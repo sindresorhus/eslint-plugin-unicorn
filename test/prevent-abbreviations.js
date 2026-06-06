@@ -5,6 +5,11 @@ import {getTester, avoidTestTitleConflict} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const createErrors = message => [{message}];
+const createRenameSuggestions = suggestions => suggestions.map(([replacement, output]) => ({
+	messageId: 'rename',
+	data: {replacement},
+	output,
+}));
 
 const extendedOptions = [
 	{
@@ -259,36 +264,83 @@ const tests = {
 	invalid: [
 		{
 			code: 'let e',
-			errors: createErrors('Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', 'let error'],
+						['event_', 'let event_'],
+					]),
+				},
+			],
 		},
 		{
 			code: 'let eCbOpts',
-			errors: createErrors('Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['errorCallbackOptions', 'let errorCallbackOptions'],
+						['eventCallbackOptions', 'let eventCallbackOptions'],
+					]),
+				},
+			],
 		},
 		{
 			code: '({e: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', '({error: 1})'],
+						['event', '({event: 1})'],
+					]),
+				},
+			],
 		},
 		{
 			code: 'this.e = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', 'this.error = 1'],
+						['event', 'this.event = 1'],
+					]),
+				},
+			],
 		},
 		{
 			code: '({e() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
+			],
 		},
 		{
 			code: '(class {e() {}})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
+			],
 		},
 		{
 			code: 'this.eResDir = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `eResDir`. Suggested names are: `errorResourceDirection`, `errorResourceDirectory`, `errorResponseDirection`, ... (9 more omitted). A more descriptive name will do too.',
+					suggestions: 3,
+				},
+			],
 		},
 
 		// All suggested names should avoid capture
@@ -311,7 +363,28 @@ const tests = {
 				},
 			],
 
-			errors: createErrors('Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['const_', outdent`
+							const const_ = 1;
+							const var_ = 1;
+							const used = 1;
+						`],
+						['used_', outdent`
+							const used_ = 1;
+							const var_ = 1;
+							const used = 1;
+						`],
+						['var__', outdent`
+							const var__ = 1;
+							const var_ = 1;
+							const used = 1;
+						`],
+					]),
+				},
+			],
 		},
 
 		{
@@ -505,7 +578,21 @@ const tests = {
 				let e;
 				console.log(e);
 			`,
-			errors: 1,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', outdent`
+							let error;
+							console.log(error);
+						`],
+						['event_', outdent`
+							let event_;
+							console.log(event_);
+						`],
+					]),
+				},
+			],
 		},
 
 		{
@@ -716,7 +803,12 @@ const tests = {
 		{
 			code: 'this.e_ = 1',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `e_`. Suggested names are: `error_`, `event_`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
+			],
 		},
 
 		{
@@ -731,7 +823,12 @@ const tests = {
 		},
 		{
 			code: 'let _e',
-			errors: createErrors('Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the variable `_e`. Suggested names are: `_error`, `_event`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
+			],
 		},
 
 		{
@@ -746,7 +843,12 @@ const tests = {
 		},
 		{
 			code: 'class Res {}',
-			errors: createErrors('Please rename the variable `Res`. Suggested names are: `Resource`, `Response_`, `Result`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the variable `Res`. Suggested names are: `Resource`, `Response_`, `Result`. A more descriptive name will do too.',
+					suggestions: 3,
+				},
+			],
 		},
 		{
 			code: 'const Err = 1;',
@@ -766,7 +868,12 @@ const tests = {
 		{
 			code: '({Res: 1})',
 			options: checkPropertiesOptions,
-			errors: createErrors('Please rename the property `Res`. Suggested names are: `Resource`, `Response`, `Result`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the property `Res`. Suggested names are: `Resource`, `Response`, `Result`. A more descriptive name will do too.',
+					suggestions: 3,
+				},
+			],
 		},
 
 		{
@@ -1604,6 +1711,20 @@ const importExportTests = {
 			options: checkPropertiesOptions,
 			errors: 1,
 		},
+		{
+			code: outdent`
+				const foo = 1;
+				const bar = 2;
+				export {foo as e, bar as error};
+			`,
+			options: checkPropertiesOptions,
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: 0,
+				},
+			],
+		},
 
 	],
 };
@@ -1897,7 +2018,12 @@ test({
 		{
 			code: 'foo();',
 			filename: 'e.js',
-			errors: createErrors('Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.'),
+			errors: [
+				{
+					message: 'Please rename the filename `e.js`. Suggested names are: `error.js`, `event.js`. A more descriptive name will do too.',
+					suggestions: 0,
+				},
+			],
 		},
 		{
 			code: 'foo();',
@@ -1920,8 +2046,14 @@ test({
 			filename: 'some.spec.e2e.test.js',
 			errors: [
 				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.'),
-				...createErrors('Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.'),
+				{
+					message: 'Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
+				{
+					message: 'Please rename the variable `end_with_e`. Suggested names are: `end_with_error`, `end_with_event`. A more descriptive name will do too.',
+					suggestions: 2,
+				},
 			],
 		},
 		{
