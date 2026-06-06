@@ -101,7 +101,8 @@ const create = context => {
 				messageId: MESSAGE_ID_MISSING_DELAY,
 				data: {name},
 				fix: fixer => fixer.insertTextAfterRange(
-					getParenthesizedRange(firstArgument, context), ', 0',
+					getParenthesizedRange(firstArgument, context),
+					', 0',
 				),
 			};
 		}
@@ -129,6 +130,7 @@ const create = context => {
 const schema = [
 	{
 		enum: [MODE_ALWAYS, MODE_NEVER],
+		description: 'Whether to always require an explicit `delay` argument, or disallow an explicit `0` delay.',
 	},
 ];
 
