@@ -34,16 +34,8 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	let tree;
-
-	try {
-		tree = parseRegExp(pattern, flags, {
-			unicodePropertyEscape: flags.includes('u'),
-			unicodeSet: flags.includes('v'),
-			namedGroups: true,
-			lookbehind: true,
-		});
-	} catch {
+	const tree = parseRegExpLiteral(node);
+	if (!tree) {
 		return;
 	}
 

@@ -162,8 +162,10 @@ test.snapshot({
 
 		// `split().join()`
 		'foo.split("a").join("b")',
+		'foo.split(`a`).join("b")',
 		'foo.split("a").join(`b`)',
 		'foo.split("_").join("$&")',
+		'foo.split("_").join("$1")',
 		'(foo).split("a").join("b")',
 		'foo.split(/a+/).join("b")',
 		'foo.split(/(?:a)/).join("b")',
