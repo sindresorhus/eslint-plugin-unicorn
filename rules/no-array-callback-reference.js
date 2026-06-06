@@ -122,7 +122,7 @@ const iteratorMethods = new Map([
 	minParameters,
 	parameters,
 	returnsUndefined,
-	shouldIgnoreCallExpression(callExpression) {
+	shouldIgnoreCallExpression(callExpression, ignoredCallees) {
 		if (
 			method !== 'reduce'
 			&& method !== 'reduceRight'
@@ -131,13 +131,13 @@ const iteratorMethods = new Map([
 			return true;
 		}
 
-		if (isNodeMatches(callExpression.callee.object, ignoredCallee)) {
+		if (isNodeMatches(callExpression.callee.object, ignoredCallees)) {
 			return true;
 		}
 
 		if (
 			callExpression.callee.object.type === 'CallExpression'
-			&& isNodeMatches(callExpression.callee.object.callee, ignoredCallee)
+			&& isNodeMatches(callExpression.callee.object.callee, ignoredCallees)
 		) {
 			return true;
 		}
@@ -153,7 +153,7 @@ const iteratorMethods = new Map([
 	},
 }]));
 
-const ignoredCallee = [
+const defaultIgnoredCallees = [
 	// https://bluebirdjs.com/docs/api/promise.map.html
 	'Promise',
 	'React.Children',
@@ -340,6 +340,9 @@ function shouldIgnoreCallback(callback, methodName, options, context) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {ignore} = context.options[0];
+	const ignoredCallees = [...defaultIgnoredCallees, ...ignore];
+
 	context.on('CallExpression', function * (callExpression) {
 		if (
 			!isMethodCall(callExpression, {
@@ -360,7 +363,7 @@ const create = context => {
 		}
 
 		const options = iteratorMethods.get(methodName);
-		if (options.shouldIgnoreCallExpression(callExpression)) {
+		if (options.shouldIgnoreCallExpression(callExpression, ignoredCallees)) {
 			return;
 		}
 
@@ -374,6 +377,21 @@ const create = context => {
 	});
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			ignore: {
+				type: 'array',
+				uniqueItems: true,
+				items: {type: 'string'},
+				description: 'Callees to ignore.',
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
 	create,
@@ -384,6 +402,8 @@ const config = {
 			recommended: true,
 		},
 		hasSuggestions: true,
+		schema,
+		defaultOptions: [{ignore: []}],
 		messages,
 	},
 };
