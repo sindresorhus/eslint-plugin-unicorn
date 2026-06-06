@@ -13,7 +13,7 @@ import {
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
 import {renameVariable} from './fix/index.js';
-import {isStaticRequire} from './ast/index.js';
+import {functionTypes, isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -237,12 +237,108 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
+const isParameterDefinition = definition => definition.type === 'Parameter';
+
+const isComment = token => token?.type === 'Block' || token?.type === 'Line';
+
+const commentAttachmentParentTypes = new Set([
+	'AssignmentExpression',
+	'ExportDefaultDeclaration',
+	'ExportNamedDeclaration',
+	'ExpressionStatement',
+	'MethodDefinition',
+	'Property',
+	'PropertyDefinition',
+	'VariableDeclaration',
+	'VariableDeclarator',
+]);
+
+const functionLikeTypesWithReturnType = new Set([
+	...functionTypes,
+	'TSCallSignatureDeclaration',
+	'TSConstructSignatureDeclaration',
+	'TSDeclareFunction',
+	'TSFunctionType',
+	'TSMethodSignature',
+]);
+
+const findAttachedComment = (node, sourceCode) => {
+	let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
+	let commentableNode = node;
+
+	while (
+		!isComment(previousToken)
+		&& commentAttachmentParentTypes.has(commentableNode.parent.type)
+	) {
+		commentableNode = commentableNode.parent;
+		previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
+	}
+
+	if (!isComment(previousToken)) {
+		return;
+	}
+
+	const commentEnd = sourceCode.getLoc(previousToken).end;
+	const nodeStart = sourceCode.getLoc(commentableNode).start;
+
+	if (commentEnd.line < nodeStart.line - 1) {
+		return;
+	}
+
+	return previousToken;
+};
+
+const hasAttachedJSDocParameterComment = (node, sourceCode) => {
+	const comment = findAttachedComment(node, sourceCode);
+
+	return Boolean(
+		comment?.type === 'Block'
+		&& comment.value.trimStart().startsWith('*')
+		&& /@param\b/u.test(comment.value),
+	);
+};
+
+const getParentFunctionLikeNode = identifier => {
+	let {parent} = identifier;
+
+	while (parent) {
+		if (functionLikeTypesWithReturnType.has(parent.type)) {
+			return parent;
+		}
+
+		parent = parent.parent;
+	}
+};
+
+const hasTypePredicateReturnType = node =>
+	node.returnType?.typeAnnotation?.type === 'TSTypePredicate';
+
+const shouldFixParameter = (definition, context) => {
+	if (!isParameterDefinition(definition)) {
+		return true;
+	}
+
+	const functionNode = getParentFunctionLikeNode(definition.name);
+
+	if (!functionNode) {
+		return true;
+	}
+
+	return Boolean(
+		!hasAttachedJSDocParameterComment(functionNode, context.sourceCode)
+		&& !hasTypePredicateReturnType(functionNode),
+	);
+};
+
 const shouldFix = variable => getVariableIdentifiers(variable)
 	.every(identifier =>
 		!isExportedIdentifier(identifier)
 		// In typescript parser, only `JSXOpeningElement` is added to variable
 		// `<foo></foo>` -> `<bar></foo>` will cause parse error
 		&& identifier.type !== 'JSXIdentifier');
+
+const shouldAutofix = (variable, context) =>
+	shouldFix(variable) && shouldFixParameter(variable.defs[0], context);
 
 const isDefaultOrNamespaceImportName = identifier => {
 	if (
@@ -347,6 +443,30 @@ const isInternalImport = node => {
 	);
 };
 
+const shouldCheckDefaultOrNamespaceImportName = (definition, options) => {
+	if (!isDefaultOrNamespaceImportName(definition.name)) {
+		return true;
+	}
+
+	if (!options.checkDefaultAndNamespaceImports) {
+		return false;
+	}
+
+	return options.checkDefaultAndNamespaceImports !== 'internal' || isInternalImport(definition);
+};
+
+const shouldCheckShorthandImportName = (definition, options, context) => {
+	if (!isShorthandImportLocal(definition.name, context)) {
+		return true;
+	}
+
+	if (!options.checkShorthandImports) {
+		return false;
+	}
+
+	return options.checkShorthandImports !== 'internal' || isInternalImport(definition);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = prepareOptions(context.options[0]);
@@ -407,30 +527,12 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		if (isDefaultOrNamespaceImportName(definition.name)) {
-			if (!options.checkDefaultAndNamespaceImports) {
-				return;
-			}
-
-			if (
-				options.checkDefaultAndNamespaceImports === 'internal'
-				&& !isInternalImport(definition)
-			) {
-				return;
-			}
+		if (!shouldCheckDefaultOrNamespaceImportName(definition, options)) {
+			return;
 		}
 
-		if (isShorthandImportLocal(definition.name, context)) {
-			if (!options.checkShorthandImports) {
-				return;
-			}
-
-			if (
-				options.checkShorthandImports === 'internal'
-				&& !isInternalImport(definition)
-			) {
-				return;
-			}
+		if (!shouldCheckShorthandImportName(definition, options, context)) {
+			return;
 		}
 
 		if (
@@ -459,7 +561,7 @@ const create = context => {
 
 		if (
 			variableReplacements.total === 1
-			&& shouldFix(variable)
+			&& shouldAutofix(variable, context)
 			&& variableReplacements.samples[0]
 			&& !variable.references.some(reference => reference.vueUsedInTemplate)
 		) {

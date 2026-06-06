@@ -679,6 +679,136 @@ const tests = {
 			output: 'error => error',
 			errors: 1,
 		},
+		{
+			code: 'ctx => ctx.body',
+			output: 'context => context.body',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			output: outdent`
+				function middleware(context) {
+					return context.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {unknown} e Value.
+				 */
+				function handle(e) {
+					return e;
+				}
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', outdent`
+							/**
+							 * @param {unknown} e Value.
+							 */
+							function handle(error) {
+								return error;
+							}
+						`],
+						['event_', outdent`
+							/**
+							 * @param {unknown} e Value.
+							 */
+							function handle(event_) {
+								return event_;
+							}
+						`],
+					]),
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				const middleware = ctx => ctx.body;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				export function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				export default function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const middleware = {
+					/**
+					 * @param {object} ctx Koa context.
+					 */
+					handle(ctx) {
+						return ctx.body;
+					},
+				};
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Middleware {
+					/**
+					 * @param {object} ctx Koa context.
+					 */
+					handle(ctx) {
+						return ctx.body;
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				module.exports = function middleware(ctx) {
+					return ctx.body;
+				};
+			`,
+			errors: 1,
+		},
 
 		{
 			code: outdent`
@@ -1764,6 +1894,46 @@ test.typescript({
 		{
 			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
+			errors: 1,
+		},
+		{
+			code: 'const isString = (val: unknown) => typeof val === "string"',
+			output: 'const isString = (value: unknown) => typeof value === "string"',
+			errors: 1,
+		},
+		{
+			code: 'type Callback = (val: unknown) => string',
+			output: 'type Callback = (value: unknown) => string',
+			errors: 1,
+		},
+		{
+			code: 'const isString = (val: unknown): val is string => typeof val === "string"',
+			errors: 1,
+		},
+		{
+			code: 'type Predicate = (val: unknown) => val is string',
+			errors: 1,
+		},
+		{
+			code: 'interface Predicate { (val: unknown): val is string; }',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function assertString(val: unknown): asserts val is string {
+					if (typeof val !== "string") {
+						throw new TypeError();
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: 'type AssertString = (val: unknown) => asserts val is string',
+			errors: 1,
+		},
+		{
+			code: 'interface AssertString { (val: unknown): asserts val is string; }',
 			errors: 1,
 		},
 

@@ -17,6 +17,8 @@ You can find the default replacements [here](https://github.com/sindresorhus/esl
 
 This rule is automatically fixable only for variable names with exactly one replacement defined. Ambiguous variable names and checked property names can be manually fixed with editor suggestions when the rename is local to source text. Filename reports and exported-name property reports do not provide editor suggestions.
 
+Parameter names are not autofixed when the function has an attached JSDoc `@param` comment or a TypeScript type predicate/assertion return type, as those references are not normal variable references and would otherwise be left stale.
+
 ## Examples
 
 ```js
