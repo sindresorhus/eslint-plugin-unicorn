@@ -6,6 +6,7 @@ Workaround for https://github.com/typescript-eslint/typescript-eslint/issues/117
 import {Variable} from 'eslint-scope';
 import typescriptEslintParserOriginal from '@typescript-eslint/parser';
 import vueEslintParserOriginal from 'vue-eslint-parser';
+import htmlEslintParserOriginal from '@html-eslint/parser';
 
 function addGlobals(scopeManager, names) {
 	const globalScope = scopeManager.scopes[0];
@@ -69,7 +70,7 @@ function addGlobals(scopeManager, names) {
 }
 
 function fixParse(parse) {
-	return function parseForESLint(...arguments_) {
+	return function (...arguments_) {
 		const result = parse(...arguments_);
 
 		if (result.scopeManager) {
@@ -90,4 +91,9 @@ export const typescriptEslintParser = {
 export const vueEslintParser = {
 	...vueEslintParserOriginal,
 	parseForESLint: fixParse(vueEslintParserOriginal.parseForESLint),
+};
+
+export const htmlEslintParser = {
+	...htmlEslintParserOriginal,
+	parseForESLint: fixParse(htmlEslintParserOriginal.parseForESLint),
 };
