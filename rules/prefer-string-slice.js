@@ -21,6 +21,18 @@ const getNumericValue = node => {
 	}
 };
 
+const getNegativeIndexText = (node, objectNode, sourceCode) => {
+	const lengthNode = getNegativeIndexLengthNode(node, objectNode);
+	if (
+		lengthNode
+		&& node.left === lengthNode
+		&& isDecimalInteger(node.right.raw)
+		&& sourceCode.getCommentsInside(node).length === 0
+	) {
+		return `-${node.right.value}`;
+	}
+};
+
 // This handles cases where the argument is very likely to be a number, such as `.substring('foo'.length)`.
 const isLengthProperty = node => (
 	node?.type === 'MemberExpression'
@@ -53,9 +65,9 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 			return;
 		}
 
-		const lengthNode = getNegativeIndexLengthNode(secondArgument, node.callee.object);
-		if (lengthNode && secondArgument.left === lengthNode && isDecimalInteger(secondArgument.right.raw)) {
-			yield replaceSecondArgument(`-${secondArgument.right.value}`);
+		const negativeIndexText = getNegativeIndexText(secondArgument, node.callee.object, sourceCode);
+		if (negativeIndexText) {
+			yield replaceSecondArgument(negativeIndexText);
 			return;
 		}
 
@@ -118,14 +130,13 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 		yield replaceFirstArgument('0');
 
 		const nonZeroArgument = firstNumber === 0 ? secondArgument : firstArgument;
-		const nonZeroArgumentText = getParenthesizedText(nonZeroArgument, context);
-		const lengthNode = getNegativeIndexLengthNode(nonZeroArgument, node.callee.object);
-
-		if (lengthNode && nonZeroArgument.left === lengthNode && isDecimalInteger(nonZeroArgument.right.raw)) {
-			yield replaceSecondArgument(`-${nonZeroArgument.right.value}`);
+		const negativeIndexText = getNegativeIndexText(nonZeroArgument, node.callee.object, context.sourceCode);
+		if (negativeIndexText) {
+			yield replaceSecondArgument(negativeIndexText);
 			return;
 		}
 
+		const nonZeroArgumentText = getParenthesizedText(nonZeroArgument, context);
 		yield replaceSecondArgument(`Math.max(0, ${nonZeroArgumentText})`);
 		return;
 	}
