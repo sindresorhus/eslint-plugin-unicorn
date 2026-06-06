@@ -90,6 +90,18 @@ const isFunctionBindCall = node =>
 const isTypeScriptFile = context =>
 	/\.(?:ts|mts|cts|tsx)$/i.test(context.physicalFilename);
 
+const isTypeScriptPromiseResolveUndefinedCall = (node, context) =>
+	isTypeScriptFile(context)
+	&& node.arguments.length === 1
+	&& node.callee.type === 'MemberExpression'
+	&& !node.optional
+	&& !node.callee.optional
+	&& !node.callee.computed
+	&& node.callee.object.type === 'Identifier'
+	&& node.callee.object.name === 'Promise'
+	&& node.callee.property.type === 'Identifier'
+	&& node.callee.property.name === 'resolve';
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -225,6 +237,10 @@ const create = context => {
 
 		// Ignore arguments in `Function#bind()`, but not `this` argument
 		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
+			return;
+		}
+
+		if (isTypeScriptPromiseResolveUndefinedCall(node, context)) {
 			return;
 		}
 

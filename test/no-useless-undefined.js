@@ -199,6 +199,12 @@ test({
 			errors,
 		},
 		{
+			code: 'Promise.resolve(undefined);',
+			output: 'Promise.resolve();',
+			filename: 'file.js',
+			errors,
+		},
+		{
 			code: 'const {foo = undefined} = {};',
 			output: 'const {foo} = {};',
 			errors,
@@ -278,8 +284,52 @@ test.typescript({
 		'const foo = (): string => undefined;',
 		'createContext<T>(undefined);',
 		'React.createContext<T>(undefined);',
+		{
+			code: 'Promise.resolve(undefined);',
+			filename: 'file.ts',
+		},
+		{
+			code: 'Promise.resolve<undefined>(undefined);',
+			filename: 'file.ts',
+		},
 	],
 	invalid: [
+		{
+			code: 'Promise.resolve(foo, undefined);',
+			output: 'Promise.resolve(foo);',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'Promise.resolve?.(undefined);',
+			output: 'Promise.resolve?.();',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'Promise["resolve"](undefined);',
+			output: 'Promise["resolve"]();',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'globalThis.Promise.resolve(undefined);',
+			output: 'globalThis.Promise.resolve();',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'const resolve = Promise.resolve; resolve(undefined);',
+			output: 'const resolve = Promise.resolve; resolve();',
+			filename: 'file.ts',
+			errors,
+		},
+		{
+			code: 'NotPromise.resolve(undefined);',
+			output: 'NotPromise.resolve();',
+			filename: 'file.ts',
+			errors,
+		},
 		{
 			code: 'function shouldBeFlagged(): undefined {return undefined;}',
 			output: 'function shouldBeFlagged(): undefined {return;}',
