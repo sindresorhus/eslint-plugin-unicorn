@@ -233,6 +233,21 @@ test({
 				},
 			],
 		},
+		// Overriding a default style with `{named: false}` should allow any style, not flag as banned
+		{
+			code: `
+				import util from "node:util";
+				import * as util2 from "node:util";
+				import {foo} from "node:util";
+			`,
+			options: [
+				{
+					styles: {
+						'node:util': {named: false},
+					},
+				},
+			],
+		},
 	].map(test => addDefaultOptions(test)),
 
 	invalid: [
@@ -751,5 +766,43 @@ test.snapshot({
 				const {red} = await import('chalk');
 			}
 		`,
+		// All styles set to `false` — should report misuse
+		...(() => {
+			const bannedOptions = [{
+				styles: {banned: {unassigned: false, default: false, namespace: false, named: false}},
+				extendDefaultStyles: false,
+			}];
+
+			return [
+				{code: 'import \'banned\'', options: bannedOptions},
+				{code: 'import foo from \'banned\'', options: bannedOptions},
+				{code: 'import * as foo from \'banned\'', options: bannedOptions},
+				{code: 'import {foo} from \'banned\'', options: bannedOptions},
+				{
+					code: outdent`
+						async () => {
+							const foo = await import('banned');
+						}
+					`,
+					options: bannedOptions,
+				},
+				{code: 'import(\'banned\')', options: bannedOptions},
+				{code: 'const foo = require(\'banned\')', options: bannedOptions},
+				{code: 'require(\'banned\')', options: bannedOptions},
+				{
+					code: 'export {foo} from \'banned\'',
+					options: [{checkExportFrom: true, ...bannedOptions[0]}],
+				},
+				{
+					code: 'export * from \'banned\'',
+					options: [{checkExportFrom: true, ...bannedOptions[0]}],
+				},
+				// `extendDefaultStyles: true` (default) should also detect banned modules
+				{
+					code: 'import \'banned\'',
+					options: [{styles: {banned: {unassigned: false, default: false, namespace: false, named: false}}}],
+				},
+			];
+		})(),
 	],
 });
