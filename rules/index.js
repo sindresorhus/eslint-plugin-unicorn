@@ -51,6 +51,7 @@ export {default as 'no-keyword-prefix'} from './no-keyword-prefix.js';
 export {default as 'no-late-current-target-access'} from './no-late-current-target-access.js';
 export {default as 'no-lonely-if'} from './no-lonely-if.js';
 export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-depth.js';
+export {default as 'no-manually-wrapped-comments'} from './no-manually-wrapped-comments.js';
 export {default as 'no-named-default'} from './no-named-default.js';
 export {default as 'no-negated-condition'} from './no-negated-condition.js';
 export {default as 'no-negation-in-equality-check'} from './no-negation-in-equality-check.js';
