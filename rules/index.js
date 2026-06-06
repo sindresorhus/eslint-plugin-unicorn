@@ -133,6 +133,7 @@ export {default as 'prefer-object-from-entries'} from './prefer-object-from-entr
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
 export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.js';
 export {default as 'prefer-query-selector'} from './prefer-query-selector.js';
+export {default as 'prefer-queue-microtask'} from './prefer-queue-microtask.js';
 export {default as 'prefer-reflect-apply'} from './prefer-reflect-apply.js';
 export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
 export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
