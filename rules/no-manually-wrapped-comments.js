@@ -7,10 +7,19 @@ const messages = {
 
 const sentenceEndPattern = /[.!?]$/v;
 const directiveCommentPattern = /^(?:[\/#@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|oxlint|prettier)-)/v;
+const listCommentPattern = /^(?:(?:-|\*|\+)\s|\d+(?:\.|\))\s)/v;
+const urlPattern = /\bhttps?:\/\/|www\./v;
+const codeCharacters = ['`', '{', '}', '(', ')', '[', ']'];
 
 const getCommentText = comment => comment.value.trim();
 
 const endsWithSentencePunctuation = comment => sentenceEndPattern.test(getCommentText(comment));
+
+const isIgnoredCommentText = text =>
+	directiveCommentPattern.test(text)
+	|| listCommentPattern.test(text)
+	|| urlPattern.test(text)
+	|| codeCharacters.some(character => text.includes(character));
 
 const getLinePrefix = (sourceCode, comment) => {
 	const {line, column} = sourceCode.getLoc(comment).start;
@@ -20,7 +29,7 @@ const getLinePrefix = (sourceCode, comment) => {
 const isStandaloneLineComment = (sourceCode, comment) => (
 	comment.type === 'Line'
 	&& getCommentText(comment).length > 0
-	&& !directiveCommentPattern.test(getCommentText(comment))
+	&& !isIgnoredCommentText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
 );
 
@@ -31,6 +40,38 @@ const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 	return firstCommentLocation.end.line + 1 === secondCommentLocation.start.line
 		&& firstCommentLocation.start.column === secondCommentLocation.start.column;
 };
+
+const isBlankLine = (sourceCode, line) => line < 1 || line > sourceCode.lines.length || sourceCode.lines[line - 1].trim() === '';
+
+const getLineCommentText = lineText => {
+	const trimmedLineText = lineText.trim();
+	return trimmedLineText.startsWith('//') ? trimmedLineText.slice(2).trim() : undefined;
+};
+
+const isSeparatedBeforeCommentGroup = (sourceCode, comment) => {
+	const {line} = sourceCode.getLoc(comment).start;
+
+	if (isBlankLine(sourceCode, line - 1)) {
+		return true;
+	}
+
+	const previousLineCommentText = getLineCommentText(sourceCode.lines[line - 2]);
+	return previousLineCommentText !== undefined && sentenceEndPattern.test(previousLineCommentText);
+};
+
+const isSeparatedAfterCommentGroup = (sourceCode, comment) => {
+	const {line} = sourceCode.getLoc(comment).end;
+
+	return isBlankLine(sourceCode, line + 1)
+		|| (
+			getLineCommentText(sourceCode.lines[line]) !== undefined
+			&& endsWithSentencePunctuation(comment)
+		);
+};
+
+const isSeparatedCommentGroup = (sourceCode, comments) =>
+	isSeparatedBeforeCommentGroup(sourceCode, comments[0])
+	&& isSeparatedAfterCommentGroup(sourceCode, comments.at(-1));
 
 const isWrappedCommentBoundary = (context, firstComment, secondComment) => {
 	const {sourceCode} = context;
@@ -76,6 +117,14 @@ const create = context => {
 			}
 
 			index += group.length - 1;
+
+			if (!isSeparatedCommentGroup(context.sourceCode, group)) {
+				continue;
+			}
+
+			if (endsWithSentencePunctuation(group.at(-1))) {
+				continue;
+			}
 
 			yield {
 				node: group[0],

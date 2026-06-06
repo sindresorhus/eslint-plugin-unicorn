@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule reports consecutive line comments that look like one manually wrapped sentence. End each intentionally separate comment with sentence punctuation.
+This rule reports separated consecutive line comments that look like one manually wrapped unfinished sentence. End each intentionally separate comment with sentence punctuation.
 
 ## Examples
 

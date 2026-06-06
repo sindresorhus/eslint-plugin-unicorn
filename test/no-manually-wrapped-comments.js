@@ -34,6 +34,26 @@ test.snapshot({
 			// I don't like long lines.
 		`,
 		outdent`
+			// \`array.reduce(callback)\`
+			// \`Array.prototype.reduce.call(array, callback)\`
+		`,
+		outdent`
+			// - \`promise.then(onFulfilled, onRejected)\`
+			// - \`promise.catch(onRejected)\`
+		`,
+		outdent`
+			// https://example.com/reference
+			// Only meta characters which can't be deciphered from \`String.fromCharCode()\`
+		`,
+		outdent`
+			// {then() {}}
+			// {get then() {}}
+		`,
+		outdent`
+			// Skip over junk like the block statement inside of a function declaration
+			// or the various pieces of an arrow function.
+		`,
+		outdent`
 			// This is a long comment but
 				// I don't like long lines.
 		`,
@@ -44,6 +64,16 @@ test.snapshot({
 		outdent`
 			// This is a long comment but
 			console.log("unicorn"); // I don't like long lines.
+		`,
+		outdent`
+			// This is a local explanation but
+			// it is attached to the statement below
+			console.log("unicorn");
+		`,
+		outdent`
+			console.log("unicorn");
+			// This is a local explanation but
+			// it is attached to the statement above
 		`,
 		outdent`
 			/* This is a long comment but
@@ -123,19 +153,11 @@ test.snapshot({
 		`,
 		outdent`
 			if (unicorn) {
+
 				// This is a long comment but
 				// I don't like long lines
+
 			}
-		`,
-		outdent`
-			// This is a long comment but
-			// I don't like long lines
-			console.log("unicorn");
-		`,
-		outdent`
-			console.log("unicorn");
-			// This is a long comment but
-			// I don't like long lines
 		`,
 		outdent`
 			// First sentence.
@@ -149,11 +171,6 @@ test.snapshot({
 		outdent`
 			//This is a long comment but
 			//   spacing should be normalized
-		`,
-		outdent`
-			// This is a long comment but
-			// it ends here.
-			// This is intentionally separate.
 		`,
 		outdent`
 			// This is a long comment but
