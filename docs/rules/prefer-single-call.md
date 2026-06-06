@@ -1,6 +1,6 @@
 # prefer-single-call
 
-📝 Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.
+📝 Enforce combining multiple `Array#{push,unshift}()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accepts multiple arguments. Multiple calls should be combined into one.
+[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Array#unshift()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accepts multiple arguments. Multiple calls should be combined into one.
 
 ## Examples
 
@@ -20,6 +20,15 @@ foo.push(2, 3);
 
 // ✅
 foo.push(1, 2, 3);
+```
+
+```js
+// ❌
+foo.unshift(1);
+foo.unshift(2, 3);
+
+// ✅
+foo.unshift(2, 3, 1);
 ```
 
 ```js
@@ -53,7 +62,7 @@ Type: `string[]`
 
 Functions to ignore.
 
-`stream.push`, `this.push`, and `this.stream.push` are ignored by default.
+`stream.push`, `stream.unshift`, `this.push`, `this.unshift`, `this.stream.push`, `this.stream.unshift`, and `process.std*.{push,unshift}` are ignored by default.
 
 Example:
 

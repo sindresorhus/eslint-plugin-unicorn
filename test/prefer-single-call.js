@@ -254,6 +254,254 @@ test.snapshot({
 	],
 });
 
+// `Array#unshift()`
+test.snapshot({
+	valid: [
+		'foo.unshift(1);',
+		outdent`
+			foo.push(1);
+			foo.unshift(2);
+		`,
+		outdent`
+			foo.unshift(1);
+			foo.push(2);
+		`,
+		outdent`
+			foo.unshift(1);; // <- there is a "EmptyStatement" between
+			foo.unshift(2);
+		`,
+		// Not same array
+		outdent`
+			foo.unshift(1);
+			bar.unshift(2);
+		`,
+		// `.unshift` selector
+		'foo.unshift(1);unshift(2)',
+		'unshift(1);foo.unshift(2)',
+		'new foo.unshift(1);foo.unshift(2)',
+		'foo.unshift(1);new foo.unshift(2)',
+		'foo[unshift](1);foo.unshift(2)',
+		'foo.unshift(1);foo[unshift](2)',
+		'foo.unshift(foo.unshift(1));',
+		// Not `ExpressionStatement`
+		outdent`
+			const length = foo.unshift(1);
+			foo.unshift(2);
+		`,
+		outdent`
+			foo.unshift(1);
+			const length = foo.unshift(2);
+		`,
+		// Not considered same array
+		outdent`
+			foo().unshift(1);
+			foo().unshift(2);
+		`,
+		outdent`
+			foo().bar.unshift(1);
+			foo().bar.unshift(2);
+		`,
+		// Ignored
+		outdent`
+			const stream = new Readable();
+			stream.unshift('one string');
+			stream.unshift('another string');
+		`,
+		outdent`
+			class FooReadable extends Readable {
+				unshiftAndEnd(chunk) {
+					this.unshift(chunk);
+					this.unshift(null);
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				unshiftAndEnd(chunk) {
+					this.stream.unshift(chunk);
+					this.stream.unshift(null);
+				}
+			}
+		`,
+		outdent`
+			process.stdin.unshift(chunk);
+			process.stdin.unshift(null);
+		`,
+		{
+			code: outdent`
+				foo.unshift(1);
+				foo.unshift(2);
+				foo.bar.unshift(1);
+				foo.bar.unshift(2);
+			`,
+			options: [
+				{
+					ignore: ['foo.unshift', 'foo.bar.unshift'],
+				},
+			],
+		},
+		'for (const _ of []) foo.unshift(bar);',
+		outdent`
+			function bar() {}
+			foo.unshift(bindEvents);
+		`,
+		outdent`
+			foo.unshift?.(1);
+			foo.unshift?.(2);
+		`,
+		// Does not allow optional call
+		outdent`
+			foo.unshift(1);
+			foo.unshift?.(2);
+		`,
+		outdent`
+			foo.unshift?.(1);
+			foo.unshift(2);
+		`,
+	],
+	invalid: [
+		outdent`
+			foo.unshift(1);
+			foo.unshift(2);
+		`,
+		outdent`
+			(foo.unshift)(1);
+			(foo.unshift)(2);
+		`,
+		outdent`
+			foo.bar.unshift(1);
+			foo.bar.unshift(2);
+		`,
+		outdent`
+			foo.unshift(1);
+			(foo).unshift(2);
+		`,
+		outdent`
+			bar()
+			foo.unshift(1);
+			(foo).unshift(2);
+		`,
+		outdent`
+			foo.unshift();
+			foo.unshift();
+		`,
+		outdent`
+			foo.unshift(1);
+			foo.unshift();
+		`,
+		outdent`
+			foo.unshift();
+			foo.unshift(2);
+		`,
+		outdent`
+			foo.unshift(1, 2);
+			foo.unshift((3), (4));
+		`,
+		outdent`
+			foo.unshift(1, 2,);
+			foo.unshift(3, 4);
+		`,
+		outdent`
+			foo.unshift(1, 2);
+			foo.unshift(3, 4,);
+		`,
+		outdent`
+			foo.unshift(1, 2,);
+			foo.unshift(3, 4,);
+		`,
+		outdent`
+			foo.unshift(1, 2, ...a,);
+			foo.unshift(...b,);
+		`,
+		// `arguments` in first unshift has side effect
+		outdent`
+			foo.unshift(bar());
+			foo.unshift(1);
+		`,
+		// `arguments` in second unshift has side effect
+		outdent`
+			foo.unshift(1);
+			foo.unshift(bar());
+		`,
+		outdent`
+			foo.unshift(x);
+			foo.unshift(foo.length);
+		`,
+		outdent`
+			foo.unshift(1);
+			// Keep this comment
+			foo.unshift(2);
+		`,
+		// Multiple
+		outdent`
+			foo.unshift(1,);
+			foo.unshift(2,);
+			foo.unshift(3,);
+		`,
+		// Should be able to find the previous expression
+		outdent`
+			if (a) {
+				foo.unshift(1);
+				foo.unshift(2);
+			}
+		`,
+		outdent`
+			switch (a) {
+				default:
+					foo.unshift(1);
+					foo.unshift(2);
+			}
+		`,
+		outdent`
+			function a() {
+				foo.unshift(1);
+				foo.unshift(2);
+			}
+		`,
+		// ASI
+		outdent`
+			foo.unshift(1)
+			foo.unshift(2)
+			;[foo].forEach(bar)
+		`,
+		// Still same array
+		outdent`
+			foo.bar.unshift(1);
+			(foo)['bar'].unshift(2);
+		`,
+		outdent`
+			foo.unshift(1);
+			foo?.unshift(2);
+		`,
+		outdent`
+			foo?.unshift(1);
+			foo.unshift(2);
+		`,
+		outdent`
+			foo?.unshift(1);
+			foo?.unshift(2);
+		`,
+		outdent`
+			foo?.bar.unshift(1);
+			foo?.bar.unshift(2);
+		`,
+		{
+			code: outdent`
+				(foo as any[]).unshift(1);
+				(foo as any[]).unshift(2);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				foo!.unshift(1);
+				foo!.unshift(2);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 // `Element#classList.{add,remove}()`
 test.snapshot({
 	valid: [

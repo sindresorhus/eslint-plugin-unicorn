@@ -1,10 +1,12 @@
-import {hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
+import {getStaticValue, hasSideEffect, isSemicolonToken} from '@eslint-community/eslint-utils';
 import {
 	getCallExpressionTokens,
 	getCallExpressionArgumentsText,
 	isSameReference,
 	isNodeMatches,
 	getPreviousNode,
+	hasOptionalChainElement,
+	needsSemicolon,
 } from './utils/index.js';
 import {isMethodCall, isMemberExpression, isCallExpression} from './ast/index.js';
 
@@ -20,6 +22,58 @@ const isClassList = node => isMemberExpression(node, {
 	computed: false,
 });
 
+const hasSpreadElement = callExpression => callExpression.arguments.some(node => node.type === 'SpreadElement');
+
+const hasStaticValue = (node, sourceCode) => getStaticValue(node, sourceCode.getScope(node)) !== null;
+
+function getExpressionStatement(callExpression) {
+	let expressionStatement = callExpression.parent;
+	if (expressionStatement.type === 'ChainExpression' && callExpression === expressionStatement.expression) {
+		expressionStatement = expressionStatement.parent;
+	}
+
+	return expressionStatement.type === 'ExpressionStatement' ? expressionStatement : undefined;
+}
+
+function getCallExpressionFromExpressionStatement(expressionStatement) {
+	const {expression} = expressionStatement;
+
+	return expression.type === 'ChainExpression' ? expression.expression : expression;
+}
+
+function getMergePlan(firstCall, secondCall, keepSecondCall) {
+	const shouldKeepSecondCall = keepSecondCall
+		&& (
+			!hasOptionalChainElement(secondCall.callee)
+			|| hasOptionalChainElement(firstCall.callee)
+		);
+
+	return {
+		shouldKeepSecondCall,
+		shouldPrependSourceArguments: keepSecondCall && !shouldKeepSecondCall,
+		targetCall: shouldKeepSecondCall ? secondCall : firstCall,
+		sourceCall: shouldKeepSecondCall ? firstCall : secondCall,
+	};
+}
+
+function shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, sourceCode) {
+	const argumentsToCheckForSideEffects = keepSecondCall
+		? [...firstCall.arguments, ...secondCall.arguments]
+		: secondCall.arguments;
+
+	return (keepSecondCall && (hasSpreadElement(firstCall) || hasSpreadElement(secondCall)))
+		|| (keepSecondCall && argumentsToCheckForSideEffects.some(element => !hasStaticValue(element, sourceCode)))
+		|| argumentsToCheckForSideEffects.some(element => hasSideEffect(element, sourceCode));
+}
+
+function hasCommentsInRange(sourceCode, range) {
+	return sourceCode.getAllComments().some(comment => {
+		const [start, end] = sourceCode.getRange(comment);
+
+		return start >= range[0] && end <= range[1];
+	});
+}
+
 const cases = [
 	{
 		description: 'Array#push()',
@@ -34,6 +88,22 @@ const cases = [
 			'process.stdin.push',
 			'process.stdout.push',
 			'process.stderr.push',
+		],
+	},
+	{
+		description: 'Array#unshift()',
+		test: callExpression => isMethodCall(callExpression, {
+			method: 'unshift',
+			optionalCall: false,
+		}),
+		keepSecondCall: true,
+		ignore: [
+			'stream.unshift',
+			'this.unshift',
+			'this.stream.unshift',
+			'process.stdin.unshift',
+			'process.stdout.unshift',
+			'process.stderr.unshift',
 		],
 	},
 	{
@@ -67,7 +137,7 @@ function create(context) {
 	const {sourceCode} = context;
 
 	context.on('CallExpression', function * (secondCall) {
-		for (const {description, test, ignore = []} of cases) {
+		for (const {description, test, ignore = [], keepSecondCall = false} of cases) {
 			if (!test(secondCall)) {
 				continue;
 			}
@@ -77,12 +147,8 @@ function create(context) {
 				continue;
 			}
 
-			let secondExpressionStatement = secondCall.parent;
-			if (secondExpressionStatement.type === 'ChainExpression' && secondCall === secondExpressionStatement.expression) {
-				secondExpressionStatement = secondExpressionStatement.parent;
-			}
-
-			if (secondExpressionStatement.type !== 'ExpressionStatement') {
+			const secondExpressionStatement = getExpressionStatement(secondCall);
+			if (!secondExpressionStatement) {
 				continue;
 			}
 
@@ -91,17 +157,39 @@ function create(context) {
 				continue;
 			}
 
-			let firstCall = firstExpressionStatement.expression;
-
-			if (firstCall.type === 'ChainExpression') {
-				firstCall = firstCall.expression;
-			}
+			const firstCall = getCallExpressionFromExpressionStatement(firstExpressionStatement);
 
 			if (!test(firstCall) || !isSameReference(firstCall.callee, secondCall.callee)) {
 				continue;
 			}
 
-			const secondCallArguments = secondCall.arguments;
+			const {
+				shouldKeepSecondCall,
+				shouldPrependSourceArguments,
+				targetCall,
+				sourceCall,
+			} = getMergePlan(firstCall, secondCall, keepSecondCall);
+			const sourceCallArguments = sourceCall.arguments;
+			const firstExpressionStatementRange = sourceCode.getRange(firstExpressionStatement);
+			const secondExpressionStatementRange = sourceCode.getRange(secondExpressionStatement);
+			const removalRange = shouldKeepSecondCall
+				? [
+					firstExpressionStatementRange[0],
+					secondExpressionStatementRange[0],
+				]
+				: [
+					firstExpressionStatementRange[1],
+					secondExpressionStatementRange[1],
+				];
+			const shouldKeepSemicolon = !shouldKeepSecondCall
+				&& !isSemicolonToken(sourceCode.getLastToken(firstExpressionStatement))
+				&& isSemicolonToken(sourceCode.getLastToken(secondExpressionStatement));
+			const shouldAddSemicolon = shouldKeepSecondCall
+				&& needsSemicolon(
+					sourceCode.getTokenBefore(firstExpressionStatement),
+					context,
+					sourceCode.text.slice(secondExpressionStatementRange[0], secondExpressionStatementRange[0] + 1),
+				);
 			const problem = {
 				node: secondCall.callee.type === 'Identifier' ? secondCall.callee : secondCall.callee.property,
 				messageId: ERROR,
@@ -109,38 +197,40 @@ function create(context) {
 			};
 
 			const fix = function * (fixer) {
-				if (secondCallArguments.length > 0) {
-					const text = getCallExpressionArgumentsText(context, secondCall);
+				if (sourceCallArguments.length > 0) {
+					const text = getCallExpressionArgumentsText(context, sourceCall);
 
 					const {
+						openingParenthesisToken,
 						trailingCommaToken,
 						closingParenthesisToken,
-					} = getCallExpressionTokens(firstCall, context);
+					} = getCallExpressionTokens(targetCall, context);
 
-					yield (
-						trailingCommaToken
-							? fixer.insertTextAfter(trailingCommaToken, ` ${text}`)
-							: fixer.insertTextBefore(closingParenthesisToken, firstCall.arguments.length > 0 ? `, ${text}` : text)
-					);
+					if (shouldPrependSourceArguments) {
+						yield fixer.insertTextAfter(openingParenthesisToken, targetCall.arguments.length > 0 ? `${text}, ` : text);
+					} else {
+						yield (
+							trailingCommaToken
+								? fixer.insertTextAfter(trailingCommaToken, ` ${text}`)
+								: fixer.insertTextBefore(closingParenthesisToken, targetCall.arguments.length > 0 ? `, ${text}` : text)
+						);
+					}
 				}
 
-				const shouldKeepSemicolon = !isSemicolonToken(sourceCode.getLastToken(firstExpressionStatement))
-					&& isSemicolonToken(sourceCode.getLastToken(secondExpressionStatement));
-				const [, start] = sourceCode.getRange(firstExpressionStatement);
-				const [, end] = sourceCode.getRange(secondExpressionStatement);
-
-				yield fixer.replaceTextRange([start, end], shouldKeepSemicolon ? ';' : '');
+				yield fixer.replaceTextRange(removalRange, shouldKeepSemicolon || shouldAddSemicolon ? ';' : '');
 			};
 
-			if (secondCallArguments.some(element => hasSideEffect(element, sourceCode))) {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION,
-						fix,
-					},
-				];
-			} else {
-				problem.fix = fix;
+			if (!hasCommentsInRange(sourceCode, removalRange)) {
+				if (shouldUseSuggestionForMerge(firstCall, secondCall, keepSecondCall, sourceCode)) {
+					problem.suggest = [
+						{
+							messageId: SUGGESTION,
+							fix,
+						},
+					];
+				} else {
+					problem.fix = fix;
+				}
 			}
 
 			yield problem;
@@ -168,7 +258,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce combining multiple `Array#push()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.',
+			description: 'Enforce combining multiple `Array#{push,unshift}()`, `Element#classList.{add,remove}()`, and `importScripts()` into one call.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
