@@ -140,6 +140,7 @@ const config = {
 		type: 'layout',
 		docs: {
 			description: 'Disallow manually wrapped comments.',
+			// TODO: Enable in the recommended preset after more real-world use; currently opt-in because comment prose heuristics can be noisy.
 			recommended: false,
 		},
 		fixable: 'whitespace',
