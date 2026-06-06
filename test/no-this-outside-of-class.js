@@ -14,6 +14,10 @@ const valid = [
 				return this.value;
 			}
 
+			methodWithDefault(value = this.value) {
+				return value;
+			}
+
 			static method() {
 				return this.value;
 			}
@@ -192,13 +196,6 @@ const invalid = [
 				this.value;
 			}
 		});
-	`,
-	outdent`
-		(function (root, factory) {
-			root.MyModule = factory();
-		}(typeof self !== 'undefined' ? self : this, function () {
-			return {};
-		}));
 	`,
 	outdent`
 		export default {

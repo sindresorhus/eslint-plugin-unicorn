@@ -65,7 +65,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow `this` outside of classes.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		schema: [],
 		messages,

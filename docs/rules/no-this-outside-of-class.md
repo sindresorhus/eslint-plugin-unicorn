@@ -2,14 +2,14 @@
 
 📝 Disallow `this` outside of classes.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 `this` should only be used when JavaScript class syntax defines the receiver. Prefer classes for stateful objects instead of relying on constructor functions, manually patched prototypes, object-literal methods, top-level `this`, or callback APIs that bind `this`.
 
-This rule is intentionally strict. If a framework or runtime API requires callback-bound `this`, disable the rule for that file or block.
+This rule is intentionally strict. Vue options-style methods, object methods, and SDK callbacks that bind `this` are unsupported. Disable the rule for that file or block when those patterns are intentional.
 
 ## Examples
 
