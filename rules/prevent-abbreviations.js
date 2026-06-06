@@ -293,7 +293,7 @@ const findAttachedComment = (node, sourceCode) => {
 	return previousToken;
 };
 
-const hasAttachedJSDocParameterComment = (node, sourceCode) => {
+const hasAttachedJSDocumentParameterComment = (node, sourceCode) => {
 	const comment = findAttachedComment(node, sourceCode);
 
 	return Boolean(
@@ -326,7 +326,7 @@ const shouldFixParameter = (definition, context) => {
 		return true;
 	}
 
-	return !hasAttachedJSDocParameterComment(functionNode, context.sourceCode);
+	return !hasAttachedJSDocumentParameterComment(functionNode, context.sourceCode);
 };
 
 const shouldFix = variable => getVariableIdentifiers(variable)
