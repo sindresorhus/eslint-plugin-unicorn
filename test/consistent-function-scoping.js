@@ -417,6 +417,15 @@ test({
 			});
 		`,
 		outdent`
+			jest.mock("module", function() {
+				function createMock() {
+					return "mock";
+				}
+
+				return createMock;
+			});
+		`,
+		outdent`
 			jest.mock("module", () => ({
 				default: function MockComponent() {
 					const createMock = () => "mock";
