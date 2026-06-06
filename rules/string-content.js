@@ -8,6 +8,8 @@ const messages = {
 	[SUGGESTION_MESSAGE_ID]: 'Replace `{{match}}` with `{{suggest}}`.',
 };
 
+const targetNodeTypes = ['Literal', 'TemplateElement'];
+
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
@@ -62,15 +64,23 @@ function getReplacements(patterns) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {patterns} = context.options[0];
+	const {patterns, selectors} = context.options[0];
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
 		return;
 	}
 
-	context.on(['Literal', 'TemplateElement'], node => {
+	const checked = new WeakSet();
+
+	const checkNode = node => {
 		const {type, value, raw} = node;
+
+		if (checked.has(node) || !targetNodeTypes.includes(type)) {
+			return;
+		}
+
+		checked.add(node);
 
 		let string;
 		if (type === 'Literal') {
@@ -127,7 +137,12 @@ const create = context => {
 		}
 
 		return problem;
-	});
+	};
+
+	context.on(
+		selectors.length === 0 ? targetNodeTypes : selectors,
+		checkNode,
+	);
 };
 
 const schema = [
@@ -166,6 +181,14 @@ const schema = [
 					],
 				},
 			},
+			selectors: {
+				type: 'array',
+				uniqueItems: true,
+				items: {
+					type: 'string',
+				},
+				description: 'AST selectors for string nodes to check.',
+			},
 		},
 	},
 ];
@@ -182,7 +205,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{patterns: {}}],
+		defaultOptions: [{patterns: {}, selectors: []}],
 		messages,
 	},
 };

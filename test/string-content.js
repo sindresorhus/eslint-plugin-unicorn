@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -257,6 +257,25 @@ test({
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},
+		{
+			code: outdent`
+				const foo = html\`
+					<div>no</div>
+				\`;
+				const bar = notIgnoredTag\`no\`;
+			`,
+			output: outdent`
+				const foo = html\`
+					<div>no</div>
+				\`;
+				const bar = notIgnoredTag\`yes\`;
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['TaggedTemplateExpression TemplateElement'],
+			}],
+			errors: createError('no', 'yes'),
+		},
 
 		// Object is not `Identifier`
 		{
@@ -300,6 +319,95 @@ test({
 				' />
 			`,
 			options: [{patterns: noToYesPattern}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
+				const description = 'no';
+				const title = 'no';
+			`,
+			output: outdent`
+				const description = 'yes';
+				const title = 'no';
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['VariableDeclarator[id.name="description"] > Literal'],
+			}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
+				const description = \`no\`;
+				const title = \`no\`;
+			`,
+			output: outdent`
+				const description = \`yes\`;
+				const title = \`no\`;
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['VariableDeclarator[id.name="description"] TemplateElement'],
+			}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
+				const metadata = {
+					description: 'no',
+					title: 'no',
+				};
+			`,
+			output: outdent`
+				const metadata = {
+					description: 'yes',
+					title: 'no',
+				};
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['Property[key.name="description"] > Literal'],
+			}],
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
+				type FeatureMeta = {
+					description: 'no';
+					title: 'no';
+				};
+			`,
+			output: outdent`
+				type FeatureMeta = {
+					description: 'yes';
+					title: 'no';
+				};
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: ['TSPropertySignature[key.name="description"] TSLiteralType > Literal'],
+			}],
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+			errors: createError('no', 'yes'),
+		},
+		{
+			code: outdent`
+				const description = 'no';
+				const title = 'no';
+			`,
+			output: outdent`
+				const description = 'yes';
+				const title = 'no';
+			`,
+			options: [{
+				patterns: noToYesPattern,
+				selectors: [
+					'VariableDeclarator[id.name="description"] > Literal',
+					'VariableDeclarator[id.name=/description/] > Literal',
+				],
+			}],
 			errors: createError('no', 'yes'),
 		},
 	],
