@@ -1,5 +1,10 @@
-import {isNodeValueNotDomNode} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	isLeftHandSide,
+	isNodeValueNotDomNode,
+} from './utils/index.js';
 import {isMethodCall, isStringLiteral, isNullLiteral} from './ast/index.js';
+import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-query-selector';
 const messages = {
@@ -27,7 +32,7 @@ const disallowedIdentifierNames = new Map([
 ]);
 
 const getReplacementForId = value => `#${value}`;
-const getReplacementForClass = value => value.match(/\S+/g).map(className => `.${className}`).join('');
+const getReplacementForClass = value => value.match(/\S+/gv).map(className => `.${className}`).join('');
 const getReplacementForName = (value, originQuote) => `[name=${wrapQuoted(value, originQuote)}]`;
 
 const getQuotedReplacement = (node, value) => {
@@ -125,16 +130,72 @@ const hasValue = node => {
 	return true;
 };
 
-const fix = (node, identifierName, preferredSelector) => {
+const isZeroLiteral = node => node.type === 'Literal' && node.value === 0;
+
+const hasCommentsInAccess = (node, callExpression, sourceCode, context) => {
+	const [, start] = getParenthesizedRange(callExpression, context);
+	const [, end] = sourceCode.getRange(node);
+
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return commentStart >= start && commentEnd <= end;
+	});
+};
+
+const getFirstElementAccess = (node, sourceCode, context) => {
+	if (
+		node.parent.type === 'MemberExpression'
+		&& node.parent.object === node
+		&& node.parent.computed
+		&& !node.parent.optional
+		&& isZeroLiteral(node.parent.property)
+		&& !isLeftHandSide(node.parent)
+		&& !hasCommentsInAccess(node.parent, node, sourceCode, context)
+	) {
+		return node.parent;
+	}
+
+	if (
+		node.parent.type === 'MemberExpression'
+		&& node.parent.object === node
+		&& isMethodCall(node.parent.parent, {
+			methods: ['at', 'item'],
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isZeroLiteral(node.parent.parent.arguments[0])
+		&& !isLeftHandSide(node.parent.parent)
+		&& !hasCommentsInAccess(node.parent.parent, node, sourceCode, context)
+	) {
+		return node.parent.parent;
+	}
+};
+
+const removeFirstElementAccess = (fixer, node, context) => node.type === 'MemberExpression'
+	? removeMemberExpressionProperty(fixer, node, context)
+	: removeMethodCall(fixer, node, context);
+
+const fix = ({node, identifierName, preferredSelector, firstElementAccess, context}) => {
 	const nodeToBeFixed = node.arguments[0];
 	if (identifierName === 'getElementsByTagName' || !hasValue(nodeToBeFixed)) {
-		return fixer => fixer.replaceText(node.callee.property, preferredSelector);
+		return function * (fixer) {
+			yield fixer.replaceText(node.callee.property, preferredSelector);
+
+			if (firstElementAccess) {
+				yield removeFirstElementAccess(fixer, firstElementAccess, context);
+			}
+		};
 	}
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return function * (fixer) {
 		yield getArgumentFix(fixer, nodeToBeFixed, identifierName);
 		yield fixer.replaceText(node.callee.property, preferredSelector);
+
+		if (firstElementAccess) {
+			yield removeFirstElementAccess(fixer, firstElementAccess, context);
+		}
 	};
 };
 
@@ -165,7 +226,12 @@ const create = context => {
 			return;
 		}
 
-		const preferredSelector = disallowedIdentifierNames.get(method);
+		let preferredSelector = disallowedIdentifierNames.get(method);
+		const firstElementAccess = preferredSelector === 'querySelectorAll'
+			&& getFirstElementAccess(node, context.sourceCode, context);
+		if (firstElementAccess) {
+			preferredSelector = 'querySelector';
+		}
 
 		const problem = {
 			node: node.callee.property,
@@ -177,7 +243,13 @@ const create = context => {
 		};
 
 		if (canBeFixed(node.arguments[0])) {
-			problem.fix = fix(node, method, preferredSelector);
+			problem.fix = fix({
+				node,
+				identifierName: method,
+				preferredSelector,
+				firstElementAccess,
+				context,
+			});
 		}
 
 		return problem;
@@ -190,7 +262,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`.',
+			description: 'Prefer `.querySelector()` and `.querySelectorAll()` over older DOM query methods.',
 			recommended: true,
 		},
 		fixable: 'code',

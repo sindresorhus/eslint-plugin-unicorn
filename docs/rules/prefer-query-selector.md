@@ -1,6 +1,6 @@
 # prefer-query-selector
 
-📝 Prefer `.querySelector()` over `.getElementById()`, `.querySelectorAll()` over `.getElementsByClassName()` and `.getElementsByTagName()` and `.getElementsByName()`.
+📝 Prefer `.querySelector()` and `.querySelectorAll()` over older DOM query methods.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -48,6 +48,14 @@ document.querySelectorAll('main');
 ```js
 // ❌
 document.getElementsByClassName(fn());
+```
+
+```js
+// ❌
+document.getElementsByTagName('form')[0];
+
+// ✅
+document.querySelector('form');
 ```
 
 ## Options

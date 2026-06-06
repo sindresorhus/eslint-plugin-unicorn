@@ -94,6 +94,12 @@ test.snapshot({
 		'document.getElementsByName("");',
 		'document.getElementsByName(foo + "bar");',
 		'document.getElementsByName("multiple name should be fixable");',
+		'document.getElementsByTagName("form")[0].addEventListener("submit", submitFunction);',
+		'document.getElementsByClassName("submit-button").at(0).click();',
+		'document.getElementsByName("email").item(0).focus();',
+		'delete document.getElementsByTagName("form").at(0);',
+		'document.getElementsByTagName("form") /* keep */ [0].addEventListener("submit", submitFunction);',
+		'document.getElementsByTagName("form").item(/* keep */ 0).addEventListener("submit", submitFunction);',
 
 		// `allowWithVariables` option - literal arguments are still reported
 		{
