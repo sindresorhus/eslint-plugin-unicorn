@@ -1,3 +1,4 @@
+import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
@@ -7,12 +8,18 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	shouldAddParenthesesToCallExpressionCallee,
+	singular,
 } from './utils/index.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
 const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
 const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
+const {
+	isIdentifierName,
+	isKeyword,
+	isStrictBindReservedWord,
+} = helperValidatorIdentifier;
 const messages = {
 	[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
 	[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `.{{method}}(…)`.',
@@ -161,7 +168,43 @@ const ignoredCallee = [
 	'jQuery',
 ];
 
-function getProblem(context, node, method, options) {
+const isValidParameterName = name =>
+	isIdentifierName(name)
+	&& !isKeyword(name)
+	&& !isStrictBindReservedWord(name, true);
+
+function getSuggestionParameters(callExpression, callback, parameters) {
+	if (callback.type !== 'Identifier') {
+		return parameters;
+	}
+
+	let suggestionParameters = parameters;
+	const {object} = callExpression.callee;
+	if (object.type === 'Identifier') {
+		const elementName = singular(object.name);
+		if (elementName) {
+			suggestionParameters = parameters.map(parameter => {
+				let replacement;
+				if (parameter === 'element') {
+					replacement = elementName;
+				} else if (parameter === 'array') {
+					replacement = object.name;
+				}
+
+				return replacement
+					&& !parameters.includes(replacement)
+					&& replacement !== callback.name
+					&& isValidParameterName(replacement)
+					? replacement
+					: parameter;
+			});
+		}
+	}
+
+	return suggestionParameters.map(parameter => parameter === callback.name ? `${parameter}_` : parameter);
+}
+
+function getProblem(context, node, callExpression, options) {
 	const {type} = node;
 
 	const name = type === 'Identifier' ? node.name : '';
@@ -171,7 +214,7 @@ function getProblem(context, node, method, options) {
 		messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 		data: {
 			name,
-			method,
+			method: callExpression.callee.property.name,
 		},
 	};
 
@@ -181,7 +224,8 @@ function getProblem(context, node, method, options) {
 
 	problem.suggest = [];
 
-	const {parameters, minParameters, returnsUndefined} = options;
+	const {minParameters, returnsUndefined} = options;
+	const parameters = getSuggestionParameters(callExpression, node, options.parameters);
 	for (let parameterLength = minParameters; parameterLength <= parameters.length; parameterLength++) {
 		const suggestionParameters = parameters.slice(0, parameterLength).join(', ');
 
@@ -325,7 +369,7 @@ const create = context => {
 		const reportableCallbacks = callbacks.filter(callback => !shouldIgnoreCallback(callback, methodName, options, context));
 
 		for (const callback of reportableCallbacks) {
-			yield getProblem(context, callback, methodName, options);
+			yield getProblem(context, callback, callExpression, options);
 		}
 	});
 };
