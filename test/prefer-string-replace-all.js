@@ -2,6 +2,7 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const dollarSign = '$';
 
 test.snapshot({
 	valid: [
@@ -51,6 +52,40 @@ test.snapshot({
 		'const pattern = "not-a-regexp"; foo.replace(pattern, bar)',
 		'const pattern = new RegExp("foo", "i"); foo.replace(pattern, bar)',
 		'foo.replace(new NotRegExp("foo", "g"), bar)',
+
+		// `split().join()` unsupported cases
+		'foo.split("").join("b")',
+		'foo.split("a", 1).join("b")',
+		'foo.split("a").join()',
+		'foo.split(separator).join("b")',
+		'foo.split("a").join(replacement)',
+		'foo.split("a").join(`' + dollarSign + '{replacement}`)',
+		'foo.split(/(_)/).join("b")',
+		'foo.split(/(?<separator>_)/).join("b")',
+		'foo.split(/a?/).join("b")',
+		'foo.split(/.*/).join("b")',
+		'foo.split(/(?=a)/).join("b")',
+		'foo.split(/a/y).join("b")',
+		'foo.split?.("a").join("b")',
+		'foo.split("a").join?.("b")',
+		'foo[split]("a").join("b")',
+		'foo.split("a")[join]("b")',
+		outdent`
+			foo
+				.split(
+					/* comment */
+					"a"
+				)
+				.join("b")
+		`,
+		outdent`
+			foo
+				.split("a")
+				.join(
+					/* comment */
+					"b"
+				)
+		`,
 	],
 	invalid: [
 		'foo.replace(/a/g, bar)',
@@ -124,5 +159,19 @@ test.snapshot({
 
 		// Invalid RegExp #2010
 		'foo.replace(/(?!a)+/g, "")',
+
+		// `split().join()`
+		'foo.split("a").join("b")',
+		'foo.split("a").join(`b`)',
+		'foo.split("_").join("$&")',
+		'(foo).split("a").join("b")',
+		'foo.split(/a+/).join("b")',
+		'foo.split(/(?:a)/).join("b")',
+		'foo.split(/[ab]+/).join("b")',
+		String.raw`foo.split(/\s+/).join("b")`,
+		'foo.split(/a|b/).join("b")',
+		'foo.split(/a/i).join("b")',
+		'foo.split(/a/g).join("b")',
+		'foo.split(/a/gi).join("b")',
 	],
 });

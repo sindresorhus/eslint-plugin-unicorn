@@ -1,6 +1,6 @@
 # prefer-string-replace-all
 
-📝 Prefer `String#replaceAll()` over regex searches with the global flag.
+📝 Prefer `String#replaceAll()` over regex searches with the global flag and `String#split().join()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -54,6 +54,14 @@ string.replaceAll('foo', 'bar');
 ```
 
 ```js
+// ❌
+string.split('foo').join('bar');
+
+// ✅
+string.replaceAll('foo', 'bar');
+```
+
+```js
 // ✅
 string.replace(/Non-global regexp/iu, '');
 ```
@@ -67,3 +75,15 @@ string.replace('Not a regex expression', '')
 // ✅
 string.replaceAll(/\s/g, '');
 ```
+
+```js
+// ✅
+string.split('').join('replacement');
+```
+
+```js
+// ✅
+string.split(/(capture)/).join('replacement');
+```
+
+The rule intentionally ignores `split('')` and regex separators that can change the split output through capturing groups or empty matches.
