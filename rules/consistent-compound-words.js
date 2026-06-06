@@ -21,8 +21,18 @@ const messages = {
 };
 
 const defaultReplacements = {
+	// Ambiguous/common API spellings like `fileName`, `setUp`, and `lookUp` are intentionally excluded.
+	backGround: 'background',
 	callBack: 'callback',
+	checkBox: 'checkbox',
+	clipBoard: 'clipboard',
+	codeBase: 'codebase',
 	dataBase: 'database',
+	homePage: 'homepage',
+	keyBoard: 'keyboard',
+	keyFrame: 'keyframe',
+	metaData: 'metadata',
+	nameSpace: 'namespace',
 	offLine: 'offline',
 	onLine: 'online',
 	overRide: 'override',
@@ -30,10 +40,27 @@ const defaultReplacements = {
 	payLoad: 'payload',
 	placeHolder: 'placeholder',
 	preView: 'preview',
+	screenShot: 'screenshot',
+	sideBar: 'sidebar',
+	subClass: 'subclass',
+	subDirectory: 'subdirectory',
+	subDomain: 'subdomain',
+	subMenu: 'submenu',
+	subProcess: 'subprocess',
+	subString: 'substring',
+	subTree: 'subtree',
+	subType: 'subtype',
+	superClass: 'superclass',
+	toolBar: 'toolbar',
+	toolTip: 'tooltip',
+	touchScreen: 'touchscreen',
 	unSubscribe: 'unsubscribe',
+	underScore: 'underscore',
 	userName: 'username',
 	viewPort: 'viewport',
+	webHook: 'webhook',
 	weekEnd: 'weekend',
+	workSpace: 'workspace',
 };
 
 const isUpperCase = string => string === string.toUpperCase();
