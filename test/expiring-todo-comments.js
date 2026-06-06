@@ -210,6 +210,7 @@ ruleTest({
 		{
 			code: '// XxX [2000-01-01]: too old',
 			errors: [expiredTodoError('2000-01-01', 'too old')],
+			options: [{checkDates: true, checkDatesOnPullRequests: true}],
 		},
 		{
 			code: '// TODO [2200-12-12, 2200-12-12]: Multiple dates',

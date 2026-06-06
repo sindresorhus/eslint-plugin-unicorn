@@ -262,7 +262,6 @@ Whether to check expiration dates.
 
 This option does not disable date argument validation. For example, TODO comments with multiple dates are still reported as invalid.
 
-
 ```js
 "unicorn/expiring-todo-comments": [
 	"error",
