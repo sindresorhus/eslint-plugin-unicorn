@@ -13,6 +13,8 @@ test.snapshot({
 		'value === "a" || value !== "b";',
 		'value === "a" || value === "b" || otherValue === "c";',
 		'getValue() === "a" || getValue() === "b";',
+		'getObject().value === "a" || getObject().value === "b";',
+		'object[getKey()] === "a" || object[getKey()] === "b";',
 		'value === getValue() || value === "b";',
 		'value === "a" || value === getValue();',
 		'value === (otherValue = "a") || value === "b";',

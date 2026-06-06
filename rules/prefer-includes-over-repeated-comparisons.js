@@ -72,10 +72,7 @@ const isSame = (left, right) =>
 const isReference = node => {
 	node = unwrapExpression(node);
 
-	return (
-		referenceNodeTypes.has(node.type)
-		&& !containsOptionalChain(node)
-	);
+	return referenceNodeTypes.has(node.type);
 };
 
 function getLogicalOrOperands(node) {
