@@ -1,16 +1,28 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
-import {isRegexLiteral, isNewExpression, isMethodCall} from './ast/index.js';
+import {
+	isRegexLiteral,
+	isNewExpression,
+	isMethodCall,
+	isStringLiteral,
+} from './ast/index.js';
+import {escapeString, getParenthesizedText} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
 const MESSAGE_ID_USE_STRING = 'pattern';
+const MESSAGE_ID_USE_REPLACE_ALL_OVER_SPLIT_JOIN = 'split-join';
 const messages = {
 	[MESSAGE_ID_USE_REPLACE_ALL]: 'Prefer `String#replaceAll()` over `String#replace()`.',
 	[MESSAGE_ID_USE_STRING]: 'This pattern can be replaced with {{replacement}}.',
+	[MESSAGE_ID_USE_REPLACE_ALL_OVER_SPLIT_JOIN]: 'Prefer `String#replaceAll()` over `String#split().join()`.',
 };
 
 const QUOTE = '\'';
+const zeroLengthRegExpNodeTypes = new Set([
+	'anchor',
+	'reference',
+]);
 
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
@@ -22,16 +34,8 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	let tree;
-
-	try {
-		tree = parseRegExp(pattern, flags, {
-			unicodePropertyEscape: flags.includes('u'),
-			unicodeSet: flags.includes('v'),
-			namedGroups: true,
-			lookbehind: true,
-		});
-	} catch {
+	const tree = parseRegExpLiteral(node);
+	if (!tree) {
 		return;
 	}
 
@@ -106,9 +110,171 @@ const isRegExpWithGlobalFlag = (node, scope) => {
 	);
 };
 
+const parseRegExpLiteral = node => {
+	const {pattern, flags} = node.regex;
+
+	try {
+		return parseRegExp(pattern, flags, {
+			unicodePropertyEscape: flags.includes('u'),
+			unicodeSet: flags.includes('v'),
+			namedGroups: true,
+			lookbehind: true,
+		});
+	} catch {}
+};
+
+const getBodyMinimumLength = body => {
+	let length = 0;
+
+	for (const node of body) {
+		length += getMinimumConsumedLength(node);
+	}
+
+	return length;
+};
+
+function getMinimumConsumedLength(node) {
+	if (zeroLengthRegExpNodeTypes.has(node.type)) {
+		return 0;
+	}
+
+	if (
+		node.type === 'value'
+		|| node.type === 'dot'
+		|| node.type === 'characterClass'
+		|| node.type === 'characterClassEscape'
+		|| node.type === 'unicodePropertyEscape'
+	) {
+		return 1;
+	}
+
+	if (node.type === 'alternative') {
+		return getBodyMinimumLength(node.body);
+	}
+
+	if (node.type === 'disjunction') {
+		return Math.min(...node.body.map(node => getMinimumConsumedLength(node)));
+	}
+
+	if (node.type === 'quantifier') {
+		return node.min * getBodyMinimumLength(node.body);
+	}
+
+	if (node.type === 'group') {
+		return node.behavior === 'ignore' ? getBodyMinimumLength(node.body) : 0;
+	}
+
+	return 0;
+}
+
+const hasCapturingGroup = node => {
+	if (node.type === 'group' && node.behavior === 'normal') {
+		return true;
+	}
+
+	return Array.isArray(node.body) && node.body.some(node => hasCapturingGroup(node));
+};
+
+const getRegExpLiteralWithGlobalFlag = node => {
+	if (
+		!isRegexLiteral(node)
+		|| node.regex.flags.includes('y')
+	) {
+		return;
+	}
+
+	const tree = parseRegExpLiteral(node);
+	if (
+		!tree
+		|| hasCapturingGroup(tree)
+		|| getMinimumConsumedLength(tree) === 0
+	) {
+		return;
+	}
+
+	const {pattern, flags} = node.regex;
+	return `/${pattern}/${flags.includes('g') ? flags : `g${flags}`}`;
+};
+
+const getStaticTemplateLiteralValue = node => {
+	if (
+		node.type !== 'TemplateLiteral'
+		|| node.expressions.length > 0
+	) {
+		return;
+	}
+
+	return node.quasis[0].value.cooked;
+};
+
+const getStringNodeValue = node => {
+	if (isStringLiteral(node)) {
+		return node.value;
+	}
+
+	return getStaticTemplateLiteralValue(node);
+};
+
+const getSplitJoinReplacement = (node, context) => {
+	if (
+		!isMethodCall(node, {
+			method: 'join',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| !isMethodCall(node.callee.object, {
+			method: 'split',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| context.sourceCode.getCommentsInside(node).length > 0
+	) {
+		return;
+	}
+
+	const splitCall = node.callee.object;
+	const [separator] = splitCall.arguments;
+	const [replacement] = node.arguments;
+	const separatorValue = getStringNodeValue(separator);
+	let searchText;
+
+	if (typeof separatorValue === 'string') {
+		if (separatorValue.length === 0) {
+			return;
+		}
+
+		searchText = escapeString(separatorValue);
+	} else {
+		searchText = getRegExpLiteralWithGlobalFlag(separator);
+
+		if (!searchText) {
+			return;
+		}
+	}
+
+	const replacementValue = getStringNodeValue(replacement);
+	if (typeof replacementValue !== 'string') {
+		return;
+	}
+
+	return `${getParenthesizedText(splitCall.callee.object, context)}.replaceAll(${searchText}, ${escapeString(replacementValue.replaceAll('$', '$$$$'))})`;
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
+		const splitJoinReplacement = getSplitJoinReplacement(node, context);
+		if (splitJoinReplacement) {
+			return {
+				node: node.callee.property,
+				messageId: MESSAGE_ID_USE_REPLACE_ALL_OVER_SPLIT_JOIN,
+				/** @param {import('eslint').Rule.RuleFixer} fixer */
+				fix: fixer => fixer.replaceText(node, splitJoinReplacement),
+			};
+		}
+
 		if (!isMethodCall(node, {
 			methods: ['replace', 'replaceAll'],
 			argumentsLength: 2,
@@ -169,7 +335,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#replaceAll()` over regex searches with the global flag.',
+			description: 'Prefer `String#replaceAll()` over regex searches with the global flag and `String#split().join()`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
