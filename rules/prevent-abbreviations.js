@@ -531,12 +531,16 @@ const create = context => {
 			...getMessage(node.name, identifierReplacements, 'property'),
 			node,
 		};
-		const suggestions = getSuggestions(
-			identifierReplacements,
-			(fixer, replacement) => fixer.replaceText(node, replacement),
-		);
-		if (suggestions) {
-			problem.suggest = suggestions;
+
+		if (node.parent.type !== 'ExportSpecifier') {
+			const suggestions = getSuggestions(
+				identifierReplacements,
+				(fixer, replacement) => fixer.replaceText(node, replacement),
+			);
+
+			if (suggestions) {
+				problem.suggest = suggestions;
+			}
 		}
 
 		context.report(problem);

@@ -15,7 +15,7 @@ This rule can also be used to replace terms, disallow words, etc. See the [`repl
 
 You can find the default replacements [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/rules/shared/abbreviations.js).
 
-This rule is automatically fixable only for variable names with exactly one replacement defined. Ambiguous variable and checked property names can be manually fixed with editor suggestions. Filename reports do not provide editor suggestions.
+This rule is automatically fixable only for variable names with exactly one replacement defined. Ambiguous variable names and checked property names can be manually fixed with editor suggestions when the rename is local to source text. Filename reports and exported-name property reports do not provide editor suggestions.
 
 ## Examples
 

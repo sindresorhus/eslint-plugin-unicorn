@@ -5,8 +5,9 @@ import {getTester, avoidTestTitleConflict} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const createErrors = message => [{message}];
-const createRenameSuggestions = outputs => outputs.map(output => ({
+const createRenameSuggestions = suggestions => suggestions.map(([replacement, output]) => ({
 	messageId: 'rename',
+	data: {replacement},
 	output,
 }));
 
@@ -267,8 +268,8 @@ const tests = {
 				{
 					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
 					suggestions: createRenameSuggestions([
-						'let error',
-						'let event_',
+						['error', 'let error'],
+						['event_', 'let event_'],
 					]),
 				},
 			],
@@ -279,8 +280,8 @@ const tests = {
 				{
 					message: 'Please rename the variable `eCbOpts`. Suggested names are: `errorCallbackOptions`, `eventCallbackOptions`. A more descriptive name will do too.',
 					suggestions: createRenameSuggestions([
-						'let errorCallbackOptions',
-						'let eventCallbackOptions',
+						['errorCallbackOptions', 'let errorCallbackOptions'],
+						['eventCallbackOptions', 'let eventCallbackOptions'],
 					]),
 				},
 			],
@@ -292,8 +293,8 @@ const tests = {
 				{
 					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
 					suggestions: createRenameSuggestions([
-						'({error: 1})',
-						'({event: 1})',
+						['error', '({error: 1})'],
+						['event', '({event: 1})'],
 					]),
 				},
 			],
@@ -304,7 +305,10 @@ const tests = {
 			errors: [
 				{
 					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
-					suggestions: 2,
+					suggestions: createRenameSuggestions([
+						['error', 'this.error = 1'],
+						['event', 'this.event = 1'],
+					]),
 				},
 			],
 		},
@@ -363,21 +367,21 @@ const tests = {
 				{
 					message: 'Please rename the variable `a`. Suggested names are: `const_`, `used_`, `var__`. A more descriptive name will do too.',
 					suggestions: createRenameSuggestions([
-						outdent`
+						['const_', outdent`
 							const const_ = 1;
 							const var_ = 1;
 							const used = 1;
-						`,
-						outdent`
+						`],
+						['used_', outdent`
 							const used_ = 1;
 							const var_ = 1;
 							const used = 1;
-						`,
-						outdent`
+						`],
+						['var__', outdent`
 							const var__ = 1;
 							const var_ = 1;
 							const used = 1;
-						`,
+						`],
 					]),
 				},
 			],
@@ -574,7 +578,21 @@ const tests = {
 				let e;
 				console.log(e);
 			`,
-			errors: 1,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', outdent`
+							let error;
+							console.log(error);
+						`],
+						['event_', outdent`
+							let event_;
+							console.log(event_);
+						`],
+					]),
+				},
+			],
 		},
 
 		{
@@ -1692,6 +1710,20 @@ const importExportTests = {
 			`,
 			options: checkPropertiesOptions,
 			errors: 1,
+		},
+		{
+			code: outdent`
+				const foo = 1;
+				const bar = 2;
+				export {foo as e, bar as error};
+			`,
+			options: checkPropertiesOptions,
+			errors: [
+				{
+					message: 'Please rename the property `e`. Suggested names are: `error`, `event`. A more descriptive name will do too.',
+					suggestions: 0,
+				},
+			],
 		},
 
 	],
