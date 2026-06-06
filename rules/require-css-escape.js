@@ -69,6 +69,16 @@ const isCssEscapeCall = node =>
 		optionalMember: false,
 	});
 
+const getWrapFix = expression => fixer => expression.type === 'SequenceExpression'
+	? [
+		fixer.insertTextBefore(expression, 'CSS.escape(('),
+		fixer.insertTextAfter(expression, '))'),
+	]
+	: [
+		fixer.insertTextBefore(expression, 'CSS.escape('),
+		fixer.insertTextAfter(expression, ')'),
+	];
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {checkAllSelectors} = context.options[0];
@@ -106,10 +116,7 @@ const create = context => {
 			yield {
 				node: expression,
 				messageId: MESSAGE_ID,
-				fix: fixer => [
-					fixer.insertTextBefore(expression, 'CSS.escape('),
-					fixer.insertTextAfter(expression, ')'),
-				],
+				fix: getWrapFix(expression),
 			};
 		}
 	});

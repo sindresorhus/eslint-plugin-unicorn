@@ -49,6 +49,7 @@ test.snapshot({
 		'document.querySelector(`[data-id="${id}"][data-name="${name}"]`);', // eslint-disable-line no-template-curly-in-string
 		'document.querySelector(`[data-id="${String(id)}"]`);', // eslint-disable-line no-template-curly-in-string
 		'document.querySelector(`[data-id="${/* keep */ id}"]`);', // eslint-disable-line no-template-curly-in-string
+		'document.querySelector(`[data-id="${foo, bar}"]`);', // eslint-disable-line no-template-curly-in-string
 		'document.querySelector(`[data-id="${id}"] .${className}`);', // eslint-disable-line no-template-curly-in-string
 
 		{
