@@ -26,6 +26,7 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 
 ## Implementation note
 
+1. Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form. This keeps option naming consistent across rules.
 1. Try your best to provide an autofix if possible.
 1. Try to provide a suggestion if an autofix is not possible.
 1. Make sure the autofix doesn't change the runtime result.
