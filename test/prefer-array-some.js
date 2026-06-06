@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -28,6 +28,29 @@ test({
 		'const bar = foo.find(fn)',
 		'const bar = foo.find(fn) || baz',
 		'if (foo.find(fn) ?? bar) {}',
+		'let hasFoo = foo.find(fn); if (hasFoo) {}',
+		'const hasFoo = foo.find(fn); hasFoo.value;',
+		'const hasFoo = foo.find(fn); if (hasFoo) { const value = hasFoo; }',
+		'const hasFoo = foo.find(fn); const value = other || hasFoo;',
+		'const {hasFoo} = foo.find(fn); if (hasFoo) {}',
+		'export const hasFoo = foo.find(fn);',
+		'const hasFoo = foo.find(fn);',
+		{
+			code: 'const hasFoo: Item | undefined = foo.find(fn); if (hasFoo) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const hasFoo = foo.find<Item>(fn); if (hasFoo) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (foo.find<Item>(fn)) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.find<Item>(fn) !== undefined',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Not matched `CallExpression`
 		...[
@@ -61,6 +84,8 @@ test({
 			'while (foo.find(fn)) foo.shift();',
 			'do {foo.shift();} while (foo.find(fn));',
 			'for (; foo.find(fn); ) foo.shift();',
+			'const hasFoo = foo.find(fn); if (hasFoo) {}',
+			'const hasFoo = foo.find(fn); if (hasFoo || !hasFoo || Boolean(hasFoo)) {}',
 		].flatMap(code => [
 			invalidCase({
 				code,
