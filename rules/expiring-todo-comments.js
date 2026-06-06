@@ -263,7 +263,7 @@ function satisfiesRange(version, condition, range) {
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
-	ignoreDates: false,
+	ignoreDates: true,
 	ignoreDatesOnPullRequests: true,
 	allowWarningComments: true,
 };

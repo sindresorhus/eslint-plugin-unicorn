@@ -35,6 +35,8 @@ Quick overview of conditions:
 
 Using a date as condition, a TODO will only work as long as this date is not met. This is especially useful when you either know when the action should take place or simply want to set boundaries for yourself.
 
+Date expiry checks are disabled by default. Set [`ignoreDates`](#ignoredates) to `false` to enable them.
+
 ```js
 // TODO [2019-11-15]: Refactor this code before the sprint ends.
 // TODO (@lubien) [2019-07-18]: When John delivers his code. I can reuse it.
@@ -203,6 +205,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 
 ```js
 // ❌
+// With `ignoreDates: false`
 // TODO [2000-01-01]: I'll fix this next week.
 // TODO [2000-01-01, 2001-01-01]: Multiple dates won't work.
 
@@ -253,19 +256,17 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 ### ignoreDates
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
-Disables expired `Expiry Date` diagnostics.
+Disables expired `Expiry Date` diagnostics. Set this to `false` if you want date conditions to report.
 
 This option does not disable date argument validation. For example, TODO comments with multiple dates are still reported as invalid.
-
-This is useful when your CI system runs on pull request branches but cannot reliably expose pull request context to tooling, like some `push`-only GitHub Actions workflows.
 
 ```js
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
-		"ignoreDates": true
+		"ignoreDates": false
 	}
 ]
 ```
@@ -275,16 +276,17 @@ This is useful when your CI system runs on pull request branches but cannot reli
 Type: `boolean`\
 Default: `true`
 
-Disables `Expiry Date` checks during pull requests.
+Disables `Expiry Date` checks during pull requests when date checks are enabled with `ignoreDates: false`.
 
 Sometimes developers may send [Pull Requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) at a time when TODO expiry dates are triggered. This means that their code would fail to pass linting, causing a false-positive.
 
-By default, this rule will not trigger expiry dates while on Pull Requests so that the one responsible for the fix will be the maintainer not the contributor.
+When date checks are enabled, this rule will not trigger expiry dates while on Pull Requests by default so that the one responsible for the fix will be the maintainer not the contributor.
 
 ```js
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
+		"ignoreDates": false,
 		"ignoreDatesOnPullRequests": true
 	}
 ]
@@ -379,6 +381,7 @@ Find tech debt that has grown up and gone to college by triggering the rule only
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
+		"ignoreDates": false,
 		"date": "2000-01-01"
 	}
 ]
@@ -390,6 +393,7 @@ Prepare for the future by triggering the rule on known Y3K bugs:
 "unicorn/expiring-todo-comments": [
 	"error",
 	{
+		"ignoreDates": false,
 		"date": "3000-01-01"
 	}
 ]
