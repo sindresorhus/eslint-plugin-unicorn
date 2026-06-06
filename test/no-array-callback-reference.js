@@ -182,6 +182,16 @@ test({
 				'foo.forEach((element, index, array) => { fn(element, index, array); })',
 			],
 		}),
+		invalidTestCase({
+			code: 'const callback = value => value; array.map(callback);',
+			method: 'map',
+			name: 'callback',
+			suggestions: [
+				'const callback = value => value; array.map((element) => callback(element));',
+				'const callback = value => value; array.map((element, index) => callback(element, index));',
+				'const callback = value => value; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
 		...reduceLikeMethods.map(method => invalidTestCase({
 			code: `foo.${method}(fn)`,
 			method,
@@ -278,6 +288,62 @@ test({
 				'foo.map((element, index, array) => (a || b)(element, index, array))',
 			],
 		}),
+		{
+			code: 'array.map(condition ? toFile : toBuffer);',
+			errors: [
+				{
+					...generateError('map', 'toFile'),
+					suggestions: [
+						suggestionOutput('array.map(condition ? (element) => toFile(element) : toBuffer);', 'toFile'),
+						suggestionOutput('array.map(condition ? (element, index) => toFile(element, index) : toBuffer);', 'toFile'),
+						suggestionOutput('array.map(condition ? (element, index, array) => toFile(element, index, array) : toBuffer);', 'toFile'),
+					],
+				},
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('array.map(condition ? toFile : (element) => toBuffer(element));', 'toBuffer'),
+						suggestionOutput('array.map(condition ? toFile : (element, index) => toBuffer(element, index));', 'toBuffer'),
+						suggestionOutput('array.map(condition ? toFile : (element, index, array) => toBuffer(element, index, array));', 'toBuffer'),
+					],
+				},
+			],
+		},
+		{
+			code: 'function * foo() { array.map(condition ? (yield toFile) : toBuffer); }',
+			errors: [
+				generateError('map'),
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element) => toBuffer(element)); }', 'toBuffer'),
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element, index) => toBuffer(element, index)); }', 'toBuffer'),
+						suggestionOutput('function * foo() { array.map(condition ? (yield toFile) : (element, index, array) => toBuffer(element, index, array)); }', 'toBuffer'),
+					],
+				},
+			],
+		},
+		{
+			code: 'async function foo() { array.map((await condition) ? toFile : toBuffer); }',
+			errors: [
+				{
+					...generateError('map', 'toFile'),
+					suggestions: [
+						suggestionOutput('async function foo() { array.map((await condition) ? (element) => toFile(element) : toBuffer); }', 'toFile'),
+						suggestionOutput('async function foo() { array.map((await condition) ? (element, index) => toFile(element, index) : toBuffer); }', 'toFile'),
+						suggestionOutput('async function foo() { array.map((await condition) ? (element, index, array) => toFile(element, index, array) : toBuffer); }', 'toFile'),
+					],
+				},
+				{
+					...generateError('map', 'toBuffer'),
+					suggestions: [
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element) => toBuffer(element)); }', 'toBuffer'),
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element, index) => toBuffer(element, index)); }', 'toBuffer'),
+						suggestionOutput('async function foo() { array.map((await condition) ? toFile : (element, index, array) => toBuffer(element, index, array)); }', 'toBuffer'),
+					],
+				},
+			],
+		},
 
 		// Actual messages
 		{
@@ -596,6 +662,15 @@ test.typescript({
 			import {isString} from './guards';
 			foo.every(isString);
 		`,
+		outdent`
+			function isString(value: unknown): value is string {
+				return typeof value === 'string';
+			}
+			function isNumber(value: unknown): value is number {
+				return typeof value === 'number';
+			}
+			foo.filter(condition ? isString : isNumber);
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -655,6 +730,48 @@ test.typescript({
 						return typeof value === 'string';
 					}
 					foo.map((element, index, array) => isString(element, index, array));
+				`,
+			],
+		}),
+		invalidTestCase({
+			code: outdent`
+				function isString(value: unknown): value is string {
+					return typeof value === 'string';
+				}
+				function isObject(value: unknown): boolean {
+					return typeof value === 'object';
+				}
+				foo.filter(condition ? isString : isObject);
+			`,
+			method: 'filter',
+			name: 'isObject',
+			suggestions: [
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element) => isObject(element));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element, index) => isObject(element, index));
+				`,
+				outdent`
+					function isString(value: unknown): value is string {
+						return typeof value === 'string';
+					}
+					function isObject(value: unknown): boolean {
+						return typeof value === 'object';
+					}
+					foo.filter(condition ? isString : (element, index, array) => isObject(element, index, array));
 				`,
 			],
 		}),
