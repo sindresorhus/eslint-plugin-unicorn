@@ -679,6 +679,130 @@ const tests = {
 			output: 'error => error',
 			errors: 1,
 		},
+		{
+			code: 'ctx => ctx.body',
+			output: 'context => context.body',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			output: outdent`
+				function middleware(context) {
+					return context.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {unknown} e Value.
+				 */
+				function handle(e) {
+					return e;
+				}
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				const middleware = ctx => ctx.body;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				export function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				export default function middleware(ctx) {
+					return ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const middleware = {
+					/**
+					 * @param {object} ctx Koa context.
+					 */
+					handle(ctx) {
+						return ctx.body;
+					},
+				};
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Middleware {
+					/**
+					 * @param {object} ctx Koa context.
+					 */
+					handle(ctx) {
+						return ctx.body;
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				class Middleware {
+					/**
+					 * @param {object} ctx Koa context.
+					 */
+					handle = ctx => ctx.body;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param {object} ctx Koa context.
+				 */
+				module.exports = function middleware(ctx) {
+					return ctx.body;
+				};
+			`,
+			errors: 1,
+		},
 
 		{
 			code: outdent`
@@ -1764,6 +1888,261 @@ test.typescript({
 		{
 			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
+			errors: 1,
+		},
+		{
+			code: 'const isString = (val: unknown) => typeof val === "string"',
+			output: 'const isString = (value: unknown) => typeof value === "string"',
+			errors: 1,
+		},
+		{
+			code: 'type Callback = (val: unknown) => string',
+			output: 'type Callback = (value: unknown) => string',
+			errors: 1,
+		},
+		{
+			code: 'type Constructor = new (ctx: object) => object',
+			output: 'type Constructor = new (context: object) => object',
+			errors: 1,
+		},
+		{
+			code: 'interface Middleware { handle: (ctx: object) => void; }',
+			output: 'interface Middleware { handle: (context: object) => void; }',
+			errors: 1,
+		},
+		{
+			code: 'declare function middleware(ctx: object): void;',
+			output: 'declare function middleware(context: object): void;',
+			errors: 1,
+		},
+		{
+			code: 'abstract class Middleware { abstract handle(ctx: object): void; }',
+			output: 'abstract class Middleware { abstract handle(context: object): void; }',
+			errors: 1,
+		},
+		{
+			code: 'class Middleware { handle = ctx => ctx.body; }',
+			output: 'class Middleware { handle = context => context.body; }',
+			errors: 1,
+		},
+		{
+			code: 'abstract class Middleware { abstract handle: (ctx: object) => void; }',
+			output: 'abstract class Middleware { abstract handle: (context: object) => void; }',
+			errors: 1,
+		},
+		{
+			code: 'const isString = (val: unknown): val is string => typeof val === "string"',
+			output: 'const isString = (value: unknown): value is string => typeof value === "string"',
+			errors: 1,
+		},
+		{
+			code: 'type Predicate = (val: unknown) => val is string',
+			output: 'type Predicate = (value: unknown) => value is string',
+			errors: 1,
+		},
+		{
+			code: 'interface Predicate { (val: unknown): val is string; }',
+			output: 'interface Predicate { (value: unknown): value is string; }',
+			errors: 1,
+		},
+		{
+			code: 'interface Predicate { isString(val: unknown): val is string; }',
+			output: 'interface Predicate { isString(value: unknown): value is string; }',
+			errors: 1,
+		},
+		{
+			code: 'declare function isString(val: unknown): val is string;',
+			output: 'declare function isString(value: unknown): value is string;',
+			errors: 1,
+		},
+		{
+			code: 'abstract class Predicate { abstract isString(val: unknown): val is string; }',
+			output: 'abstract class Predicate { abstract isString(value: unknown): value is string; }',
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function assertString(val: unknown): asserts val is string {
+					if (typeof val !== "string") {
+						throw new TypeError();
+					}
+				}
+			`,
+			output: outdent`
+				function assertString(value: unknown): asserts value is string {
+					if (typeof value !== "string") {
+						throw new TypeError();
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function assertValue(val: unknown): asserts val {
+					if (!val) {
+						throw new TypeError();
+					}
+				}
+			`,
+			output: outdent`
+				function assertValue(value: unknown): asserts value {
+					if (!value) {
+						throw new TypeError();
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: 'type AssertString = (val: unknown) => asserts val is string',
+			output: 'type AssertString = (value: unknown) => asserts value is string',
+			errors: 1,
+		},
+		{
+			code: 'interface AssertString { (val: unknown): asserts val is string; }',
+			output: 'interface AssertString { (value: unknown): asserts value is string; }',
+			errors: 1,
+		},
+		{
+			code: 'interface AssertString { assertString(val: unknown): asserts val is string; }',
+			output: 'interface AssertString { assertString(value: unknown): asserts value is string; }',
+			errors: 1,
+		},
+		{
+			code: 'declare function assertString(val: unknown): asserts val is string;',
+			output: 'declare function assertString(value: unknown): asserts value is string;',
+			errors: 1,
+		},
+		{
+			code: 'abstract class AssertString { abstract assertString(val: unknown): asserts val is string; }',
+			output: 'abstract class AssertString { abstract assertString(value: unknown): asserts value is string; }',
+			errors: 1,
+		},
+		{
+			code: 'const isError = (e: unknown): e is Error => e instanceof Error',
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: createRenameSuggestions([
+						['error', 'const isError = (error: unknown): error is Error => error instanceof Error'],
+						['event_', 'const isError = (event_: unknown): event_ is Error => event_ instanceof Error'],
+					]),
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
+				 * @param val Value.
+				 */
+				function isString(val: unknown): val is string {
+					return typeof val === "string";
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param e Value.
+				 */
+				function isError(e: unknown): e is Error {
+					return e instanceof Error;
+				}
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
+				 * @param ctx Koa context.
+				 */
+				type Middleware = (ctx: object) => void;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				/**
+				 * @param e Value.
+				 */
+				type Constructor = new (e: unknown) => object;
+			`,
+			errors: [
+				{
+					message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+					suggestions: [],
+				},
+			],
+		},
+		{
+			code: outdent`
+				/**
+				 * @param ctx Koa context.
+				 */
+				declare function middleware(ctx: object): void;
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				interface Middleware {
+					/**
+					 * @param ctx Koa context.
+					 */
+					handle: (ctx: object) => void;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				interface Middleware {
+					/**
+					 * @param ctx Koa context.
+					 */
+					handle(ctx: object): void;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Middleware = {
+					/**
+					 * @param ctx Koa context.
+					 */
+					handle: (ctx: object) => void;
+				};
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				abstract class Middleware {
+					/**
+					 * @param ctx Koa context.
+					 */
+					abstract handle(ctx: object): void;
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				abstract class Middleware {
+					/**
+					 * @param ctx Koa context.
+					 */
+					abstract handle: (ctx: object) => void;
+				}
+			`,
 			errors: 1,
 		},
 
