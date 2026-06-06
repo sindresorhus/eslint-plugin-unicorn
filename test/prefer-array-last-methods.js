@@ -1,0 +1,45 @@
+import {getTester} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'array.findLast(logic);',
+		'array.findLastIndex(logic);',
+		'array.lastIndexOf(logic);',
+		'array.reduceRight(logic);',
+		'array.reverse();',
+		'array.toReversed();',
+		'array.reverse(logic).find(logic);',
+		'array.toReversed(logic).find(logic);',
+		'array.reverse?.().find(logic);',
+		'array.toReversed?.().find(logic);',
+		'array?.reverse().find(logic);',
+		'array?.toReversed().find(logic);',
+		'array[reverse]().find(logic);',
+		'array.reverse()[find](logic);',
+		'array.reverse().map(logic);',
+		'array.toReversed().map(logic);',
+		'const reversed = array.reverse(); reversed.find(logic);',
+		'array.reverse().find;',
+		'array.toReversed().find;',
+	],
+	invalid: [
+		'array.reverse().find(logic);',
+		'array.reverse().findIndex(logic);',
+		'array.reverse().indexOf(logic);',
+		'array.reverse().reduce(logic);',
+		'array.toReversed().find(logic);',
+		'array.toReversed().findIndex(logic);',
+		'array.toReversed().indexOf(logic);',
+		'array.toReversed().reduce(logic);',
+		'array.reverse().find(logic, thisArgument);',
+		'array.toReversed().findIndex(logic, thisArgument);',
+		'array.reverse().reduce(logic, initialValue);',
+		'array.toReversed().reduce(logic, initialValue);',
+		'(array.reverse()).find(logic);',
+		'(array.toReversed()).find(logic);',
+		'array.reverse(/* comment */).find(logic);',
+		'array.toReversed() /* comment */ .reduce(logic);',
+	],
+});
