@@ -63,11 +63,29 @@ test({
 			options: [{number: {minimumDigits: 0, groupLength: 3}}],
 		},
 
-		// Decimal numbers
+		// Decimal numbers (the fractional part is not grouped by default)
 		'const foo = 9807.123',
-		'const foo = 3819.123_432',
-		'const foo = 138_789.123_432_42',
-		'const foo = .000_000_1',
+		'const foo = 3819.123432',
+		'const foo = 138_789.12343242',
+		'const foo = .0000001',
+		'const foo = .00000',
+		'const foo = 0.00000',
+		'const foo = 0.55228474983',
+		// Opt in to grouping the fractional part
+		{
+			code: 'const foo = 1.234_567',
+			options: [{number: {fractionGroupLength: 3}}],
+		},
+		// `groupLength` and `fractionGroupLength` are independent
+		{
+			code: 'const foo = 149_597_870_700.31415_92653_58979',
+			options: [{number: {minimumDigits: 0, groupLength: 3, fractionGroupLength: 5}}],
+		},
+		// A fractional part shorter than `minimumDigits` is left ungrouped
+		{
+			code: 'const foo = 1.2345',
+			options: [{number: {fractionGroupLength: 2}}],
+		},
 
 		// Negative numbers
 		'const foo = -3000',
@@ -84,7 +102,7 @@ test({
 		'const foo = -1_200_000e5',
 
 		// Miscellaneous values
-		'const foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
+		'const foo = -282_932 - (1938 / 10_000) * .1 + 18.1000002',
 		'const foo = NaN',
 		'const foo = Infinity',
 		'const foo = "1234567n"',
@@ -151,7 +169,7 @@ test({
 				const binary = 0b10101010;
 				const octal = 0o7654_3210;
 				const hexadecimal = 0xfe_dc_ba_97;
-				const number = 12_345_678.123_456_78e12_345_678;
+				const number = 12_345_678.12345678e12_345_678;
 			`,
 			options: [{
 				binary: {
@@ -172,19 +190,11 @@ test({
 			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
-			code: 'const foo = 1789.123_432_42',
-			options: [{number: {onlyIfContainsSeparator: true}}],
-		},
-		{
 			code: 'const foo = -100_000e+100_000',
 			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
 			code: 'const foo = -100000e+100000',
-			options: [{number: {onlyIfContainsSeparator: true}}],
-		},
-		{
-			code: 'const foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
 			options: [{number: {onlyIfContainsSeparator: true}}],
 		},
 		{
@@ -325,26 +335,26 @@ test({
 			output: 'const foo = 1_234_567_890',
 		},
 
-		// Decimal numbers
+		// Decimal numbers (existing fractional separators are removed by default)
 		{
-			code: 'const foo = 9807.1234567',
+			code: 'const foo = 0.552_284_749_83',
 			errors: [error],
-			output: 'const foo = 9807.123_456_7',
+			output: 'const foo = 0.55228474983',
 		},
 		{
 			code: 'const foo = 3819.123_4325',
 			errors: [error],
-			output: 'const foo = 3819.123_432_5',
+			output: 'const foo = 3819.1234325',
 		},
 		{
 			code: 'const foo = 138789.12343_2_42',
 			errors: [error],
-			output: 'const foo = 138_789.123_432_42',
+			output: 'const foo = 138_789.12343242',
 		},
 		{
 			code: 'const foo = .000000_1',
 			errors: [error],
-			output: 'const foo = .000_000_1',
+			output: 'const foo = .0000001',
 		},
 		{
 			code: 'const foo = 12345678..toString()',
@@ -356,15 +366,25 @@ test({
 			errors: [error],
 			output: 'const foo = 12_345_678 .toString()',
 		},
+		// Opt in to grouping the fractional part
 		{
-			code: 'const foo = .00000',
+			code: 'const foo = 1.234567',
+			options: [{number: {fractionGroupLength: 3}}],
 			errors: [error],
-			output: 'const foo = .000_00',
+			output: 'const foo = 1.234_567',
+		},
+		// Existing fractional separators are removed even with `onlyIfContainsSeparator`
+		{
+			code: 'const foo = 1789.123_432_42',
+			options: [{number: {onlyIfContainsSeparator: true}}],
+			errors: [error],
+			output: 'const foo = 1789.12343242',
 		},
 		{
-			code: 'const foo = 0.00000',
+			code: 'const foo = -282_932 - (1938 / 10_000) * .1 + 18.100_000_2',
+			options: [{number: {onlyIfContainsSeparator: true}}],
 			errors: [error],
-			output: 'const foo = 0.000_00',
+			output: 'const foo = -282_932 - (1938 / 10_000) * .1 + 18.1000002',
 		},
 
 		// Negative numbers
@@ -418,7 +438,7 @@ test({
 		{
 			code: 'const foo = 3.65432E12000',
 			errors: [error],
-			output: 'const foo = 3.654_32E12_000',
+			output: 'const foo = 3.65432E12_000',
 		},
 
 		// Varying options
@@ -463,7 +483,7 @@ test({
 				const binary = 0b1010_1010;
 				const octal = 0o7654_3210;
 				const hexadecimal = 0xfe_dc_ba_97;
-				const number = 12_345_678.123_456_78e12_345_678;
+				const number = 12_345_678.12345678e12_345_678;
 			`,
 			options: [{
 				onlyIfContainsSeparator: true,
@@ -481,7 +501,7 @@ test({
 				const binary = 0b1010_1010;
 				const octal = 0o7654_3210;
 				const hexadecimal = 0xfe_dc_ba_97;
-				const number = 12_345_678.123_456_78e12_345_678;
+				const number = 12_345_678.12345678e12_345_678;
 			`,
 			options: [{
 				onlyIfContainsSeparator: true,
@@ -502,7 +522,7 @@ test({
 				const binary = 0b10_10_10_10;
 				const octal = 0o7654_3210;
 				const hexadecimal = 0xfe_dc_ba_97;
-				const number = 12_345_678.123_456_78e12_345_678;
+				const number = 12_345_678.12345678e12_345_678;
 			`,
 			options: [{
 				onlyIfContainsSeparator: true,
@@ -524,7 +544,7 @@ test({
 				const binary = 0b1010_1010;
 				const octal = 0o7654_3210;
 				const hexadecimal = 0xfe_dc_ba_97;
-				const number = 12_345_678.123_456_78e12_345_678;
+				const number = 12_345_678.12345678e12_345_678;
 			`,
 			options: [{
 				binary: {
