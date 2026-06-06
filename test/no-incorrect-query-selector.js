@@ -41,8 +41,11 @@ test.snapshot({
 		'delete document.querySelectorAll("form")[0];',
 		'delete document.querySelectorAll("form").at(0);',
 		'delete document.querySelectorAll("form").item(0);',
+		'for (document.querySelectorAll("form")[0] in object) {}',
+		'for (document.querySelectorAll("form")[0] of iterable) {}',
 		'document.querySelectorAll("form") /* keep */ [0];',
 		'document.querySelectorAll("form").at(/* keep */ 0);',
+		'document.querySelectorAll("form").item(/* keep */ 0);',
 		'document.querySelectorAll("#foo .bar");',
 		'document.querySelectorAll("#foo, #bar");',
 		'document.querySelectorAll("#foo:checked");',
@@ -54,6 +57,8 @@ test.snapshot({
 		'let elements = document.querySelectorAll(".item"); if (elements) {}',
 		'const elements = document.querySelectorAll(".item"); const alias = elements; if (alias) {}',
 		'function foo(elements) { if (elements) {} }',
+		'const Boolean = value => value; if (Boolean(document.querySelectorAll(".item"))) {}',
+		'const Boolean = value => value; if (!Boolean(document.querySelectorAll(".item"))) {}',
 	],
 	invalid: [
 		'document.querySelectorAll("form")[0].addEventListener("submit", submitFunction);',
@@ -69,6 +74,10 @@ test.snapshot({
 		'while (document.querySelectorAll(".item")) {}',
 		'const hasItems = document.querySelectorAll(".item") ? true : false;',
 		'if (document.querySelectorAll(".item") && ready) {}',
+		outdent`
+			const elements = document.querySelectorAll(".item");
+			if (elements && ready) {}
+		`,
 		'if (Boolean(document.querySelectorAll(".item"))) {}',
 		'if (!Boolean(document.querySelectorAll(".item"))) {}',
 		outdent`

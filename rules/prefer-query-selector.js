@@ -132,6 +132,13 @@ const hasValue = node => {
 
 const isZeroLiteral = node => node.type === 'Literal' && node.value === 0;
 
+const isWriteTarget = node =>
+	isLeftHandSide(node)
+	|| (
+		(node.parent.type === 'ForInStatement' || node.parent.type === 'ForOfStatement')
+		&& node.parent.left === node
+	);
+
 const hasCommentsInAccess = (node, callExpression, sourceCode, context) => {
 	const [, start] = getParenthesizedRange(callExpression, context);
 	const [, end] = sourceCode.getRange(node);
@@ -149,7 +156,7 @@ const getFirstElementAccess = (node, sourceCode, context) => {
 		&& node.parent.computed
 		&& !node.parent.optional
 		&& isZeroLiteral(node.parent.property)
-		&& !isLeftHandSide(node.parent)
+		&& !isWriteTarget(node.parent)
 		&& !hasCommentsInAccess(node.parent, node, sourceCode, context)
 	) {
 		return node.parent;
@@ -165,7 +172,7 @@ const getFirstElementAccess = (node, sourceCode, context) => {
 			optionalMember: false,
 		})
 		&& isZeroLiteral(node.parent.parent.arguments[0])
-		&& !isLeftHandSide(node.parent.parent)
+		&& !isWriteTarget(node.parent.parent)
 		&& !hasCommentsInAccess(node.parent.parent, node, sourceCode, context)
 	) {
 		return node.parent.parent;

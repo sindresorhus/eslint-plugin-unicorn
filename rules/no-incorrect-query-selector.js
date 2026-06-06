@@ -53,6 +53,13 @@ const isFirstItemCall = node =>
 
 const isFirstElementAccess = node => isZeroIndexAccess(node) || isFirstItemCall(node);
 
+const isWriteTarget = node =>
+	isLeftHandSide(node)
+	|| (
+		(node.parent.type === 'ForInStatement' || node.parent.type === 'ForOfStatement')
+		&& node.parent.left === node
+	);
+
 const isQuerySelectorAllCallPartOfFirstElementAccess = node =>
 	isFirstElementAccess(node.parent)
 	|| (
@@ -81,6 +88,21 @@ const hasCommentsBetween = (outerNode, innerNode, sourceCode) => {
 			&& commentEnd <= outerEnd
 			&& (commentEnd <= innerStart || commentStart >= innerEnd);
 	});
+};
+
+const isInShadowedBooleanCall = (node, booleanAncestor, sourceCode) => {
+	for (let ancestor = node.parent; ancestor && ancestor !== booleanAncestor.parent; ancestor = ancestor.parent) {
+		if (
+			ancestor.type === 'CallExpression'
+			&& ancestor.callee.type === 'Identifier'
+			&& ancestor.callee.name === 'Boolean'
+			&& !sourceCode.isGlobalReference(ancestor.callee)
+		) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 const getStaticSelector = node => {
@@ -137,7 +159,10 @@ const getLengthCheckProblem = (node, context) => {
 	}
 
 	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node);
-	if (!isControlFlowTest(booleanAncestor)) {
+	if (
+		!isControlFlowTest(booleanAncestor)
+		|| isInShadowedBooleanCall(node, booleanAncestor, sourceCode)
+	) {
 		return;
 	}
 
@@ -172,7 +197,7 @@ const create = context => {
 	context.on('MemberExpression', node => {
 		if (
 			!isZeroIndexAccess(node)
-			|| isLeftHandSide(node)
+			|| isWriteTarget(node)
 		) {
 			return;
 		}
@@ -187,7 +212,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		if (isFirstItemCall(node)) {
-			if (isLeftHandSide(node)) {
+			if (isWriteTarget(node)) {
 				return;
 			}
 
