@@ -18,8 +18,7 @@ const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
 const {
 	isIdentifierName,
 	isKeyword,
-	isStrictBindOnlyReservedWord,
-	isStrictReservedWord,
+	isStrictBindReservedWord,
 } = helperValidatorIdentifier;
 const messages = {
 	[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
@@ -120,7 +119,6 @@ const iteratorMethods = new Map([
 	returnsUndefined = false,
 	shouldIgnoreCallExpression,
 }) => [method, {
-	method,
 	minParameters,
 	parameters,
 	returnsUndefined,
@@ -173,9 +171,7 @@ const ignoredCallee = [
 const isValidParameterName = name =>
 	isIdentifierName(name)
 	&& !isKeyword(name)
-	&& !isStrictReservedWord(name, true)
-	&& !isStrictBindOnlyReservedWord(name, true)
-	&& name !== 'arguments';
+	&& !isStrictBindReservedWord(name, true);
 
 function getSuggestionParameters(callExpression, callback, parameters) {
 	if (callback.type !== 'Identifier') {
@@ -218,7 +214,7 @@ function getProblem(context, node, callExpression, options) {
 		messageId: name ? ERROR_WITH_NAME_MESSAGE_ID : ERROR_WITHOUT_NAME_MESSAGE_ID,
 		data: {
 			name,
-			method: options.method,
+			method: callExpression.callee.property.name,
 		},
 	};
 

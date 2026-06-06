@@ -302,6 +302,16 @@ test({
 			],
 		}),
 		invalidTestCase({
+			code: 'items.reduceRight(fn)',
+			method: 'reduceRight',
+			name: 'fn',
+			suggestions: [
+				'items.reduceRight((accumulator, item) => fn(accumulator, item))',
+				'items.reduceRight((accumulator, item, index) => fn(accumulator, item, index))',
+				'items.reduceRight((accumulator, item, index, items) => fn(accumulator, item, index, items))',
+			],
+		}),
+		invalidTestCase({
 			code: 'items.reduce(accumulator)',
 			method: 'reduce',
 			name: 'accumulator',
