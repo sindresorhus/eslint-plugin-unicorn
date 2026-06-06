@@ -53,9 +53,11 @@ function getReplacements(patterns) {
 				};
 			}
 
+			const flags = options.caseSensitive === false ? 'giu' : 'gu';
+
 			return {
 				match,
-				regex: new RegExp(match, 'gu'),
+				regex: new RegExp(match, flags),
 				fix: true,
 				...options,
 			};
@@ -168,6 +170,10 @@ const schema = [
 									type: 'string',
 								},
 								fix: {
+									type: 'boolean',
+									// Default: true
+								},
+								caseSensitive: {
 									type: 'boolean',
 									// Default: true
 								},
