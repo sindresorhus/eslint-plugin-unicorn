@@ -26,10 +26,10 @@ const foo = 1_234_444;
 
 ```js
 // ❌
-const foo = 1_234.56789;
+const foo = 1_234.567_89;
 
 // ✅
-const foo = 1_234.567_89;
+const foo = 1234.56789;
 ```
 
 ```js
@@ -103,12 +103,23 @@ The size a group of digits between two numeric separators should be.
 
 The size of the first group can be of any length as long as it is equal to or less than the number specified here. Prefixes and suffixes, such as `+`, `-`, `0x`, `n`, etc, don't count in the group length. Notations like `e` and `.` don't count either.
 
+**`fractionGroupLength`**
+
+Type: `number`\
+Default: `Infinity`
+
+The size a group of digits in the fractional part (after the decimal point) should be. Only applies to the `number` type.
+
+By default, the fractional part is not grouped, since separators there tend to obscure the decimal point. Set this to group it, for example `5` to match the convention used by [Wikipedia](https://en.wikipedia.org/wiki/Decimal_separator#Digit_grouping): `3.14159_26535_89793`.
+
+Example: With `5` as the fraction group length, `0.5522847498` will be reported and fixed to `0.55228_47498`.
+
 ### Details
 
 Numbers are split into 3 distinct parts:
 
 - The integer part (**123**.456). The remaining digits (that do not fit in a group) have to be placed at the beginning: `12_345`.
-- The fractional part (123.**456**). The remaining digits have to be placed at the end of the number: `1.234_56`.
+- The fractional part (123.**456**). By default it is not grouped at all; set `fractionGroupLength` to group it, in which case the remaining digits have to be placed at the end of the number: `1.234_56`.
 - The exponential part (123.456e**789**). It acts exactly as the integer part: groups have to be at the beginning.
 
 ### Examples
@@ -118,6 +129,13 @@ Numbers are split into 3 distinct parts:
 
 // ❌
 const foo = 12345;
+
+// ✅ The fractional part is not grouped by default
+const foo = 0.0000001;
+```
+
+```js
+/* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3, "fractionGroupLength": 3}}] */
 
 // ❌
 const foo = 0.000_0001;
@@ -194,7 +212,8 @@ const foo = 0o12_7777;
 	},
 	number: {
 		minimumDigits: 5,
-		groupLength: 3
+		groupLength: 3,
+		fractionGroupLength: Infinity
 	}
 };
 ```

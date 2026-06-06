@@ -35,7 +35,7 @@ function addSeparatorFromLeft(value, options) {
 
 function formatNumber(value, options) {
 	const {integer, dot, fractional} = numeric.parseFloatNumber(value);
-	return addSeparator(integer, options) + dot + addSeparatorFromLeft(fractional, options);
+	return addSeparator(integer, options) + dot + addSeparatorFromLeft(fractional, {...options, groupLength: options.fractionGroupLength});
 }
 
 function format(value, {prefix, data}, options) {
@@ -59,7 +59,7 @@ const defaultOptions = {
 	binary: {minimumDigits: 0, groupLength: 4},
 	octal: {minimumDigits: 0, groupLength: 4},
 	hexadecimal: {minimumDigits: 0, groupLength: 2},
-	number: {minimumDigits: 5, groupLength: 3},
+	number: {minimumDigits: 5, groupLength: 3, fractionGroupLength: Number.POSITIVE_INFINITY},
 };
 const create = context => {
 	const {
@@ -110,7 +110,7 @@ const create = context => {
 	});
 };
 
-const formatOptionsSchema = () => ({
+const formatOptionsSchema = ({withFraction = false} = {}) => ({
 	type: 'object',
 	additionalProperties: false,
 	properties: {
@@ -128,6 +128,15 @@ const formatOptionsSchema = () => ({
 			minimum: 1,
 			description: 'The number of digits in each group.',
 		},
+		...(withFraction
+			? {
+				fractionGroupLength: {
+					type: 'integer',
+					minimum: 1,
+					description: 'The number of digits in each group after the decimal point. Defaults to no grouping.',
+				},
+			}
+			: {}),
 	},
 });
 
@@ -135,7 +144,7 @@ const schema = [{
 	type: 'object',
 	additionalProperties: false,
 	properties: {
-		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema()])),
+		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema({withFraction: type === 'number'})])),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
 			description: 'Whether to only enforce the style if the number already contains a separator.',
