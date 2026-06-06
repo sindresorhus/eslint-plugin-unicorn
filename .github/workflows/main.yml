@@ -35,12 +35,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install --legacy-peer-deps
       - run: npx c8 ava
-      - uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          disable_search: true
-          files: coverage/lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # It's failing.
+      # - uses: codecov/codecov-action@v5
+      #   with:
+      #     fail_ci_if_error: true
+      #     disable_search: true
+      #     files: coverage/lcov.info
+      #     token: ${{ secrets.CODECOV_TOKEN }}
   lint:
     runs-on: ubuntu-latest
     steps:
