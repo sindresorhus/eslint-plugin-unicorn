@@ -2,16 +2,16 @@
 
 📝 Prefer `.includes()` over repeated equality comparisons.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Repeated equality comparisons against the same value are easier to scan as a membership check.
+Comparing the same expression against multiple values is easier to scan as a membership check.
 
 This rule only reports strict equality comparisons joined by `||`. It ignores optional chains, side-effectful compared values, and `NaN` values because an `Array#includes()` rewrite would not have the same behavior.
 
-This rule does not autofix, because the best rewrite depends on the surrounding code. An inline array is often fine, but a shared constant or `Set#has()` can be better when the list grows or is reused. Plain member expressions are still reported, so consider accessors and proxies before rewriting manually.
+This rule does not autofix because the best rewrite depends on context. Plain member expressions are still reported, so consider accessors and proxies before rewriting.
 
 ## Examples
 

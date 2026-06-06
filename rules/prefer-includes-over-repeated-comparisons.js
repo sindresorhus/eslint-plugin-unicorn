@@ -18,6 +18,13 @@ const optionalChainNodeTypes = new Set([
 	'MemberExpression',
 ]);
 
+const referenceNodeTypes = new Set([
+	'Identifier',
+	'MemberExpression',
+	'Super',
+	'ThisExpression',
+]);
+
 const unwrapExpression = node =>
 	typeScriptExpressionNodeTypes.has(node.type)
 		? unwrapExpression(node.expression)
@@ -37,7 +44,7 @@ const normalizeReference = node => {
 	return node;
 };
 
-const hasOptionalChain = node => {
+const containsOptionalChain = node => {
 	if (node.type === 'ChainExpression') {
 		return true;
 	}
@@ -52,10 +59,10 @@ const hasOptionalChain = node => {
 		}
 
 		if (Array.isArray(value)) {
-			return value.some(element => element?.type && hasOptionalChain(element));
+			return value.some(element => element?.type && containsOptionalChain(element));
 		}
 
-		return value.type && hasOptionalChain(value);
+		return value.type && containsOptionalChain(value);
 	});
 };
 
@@ -63,18 +70,11 @@ const isSame = (left, right) =>
 	isSameReference(normalizeReference(left), normalizeReference(right));
 
 const isReference = node => {
-	if (typeScriptExpressionNodeTypes.has(node.type)) {
-		return isReference(node.expression);
-	}
+	node = unwrapExpression(node);
 
 	return (
-		!hasOptionalChain(node)
-		&& (
-			node.type === 'Identifier'
-			|| node.type === 'MemberExpression'
-			|| node.type === 'Super'
-			|| node.type === 'ThisExpression'
-		)
+		referenceNodeTypes.has(node.type)
+		&& !containsOptionalChain(node)
 	);
 };
 
@@ -85,13 +85,8 @@ function getLogicalOrOperands(node) {
 			: [child]);
 }
 
-const getStrictEqualityComparison = node => {
-	if (node.type !== 'BinaryExpression' || node.operator !== '===') {
-		return;
-	}
-
-	return node;
-};
+const isStrictEqualityComparison = node =>
+	node.type === 'BinaryExpression' && node.operator === '===';
 
 function getSharedReference(comparisons) {
 	const [{left, right}] = comparisons;
@@ -137,15 +132,15 @@ const create = context => {
 			return;
 		}
 
-		const comparisons = getLogicalOrOperands(node).map(node => getStrictEqualityComparison(node));
+		const comparisons = getLogicalOrOperands(node);
 		if (
-			comparisons.includes(undefined)
+			!comparisons.every(comparison => isStrictEqualityComparison(comparison))
 			|| comparisons.length < minimumComparisons
 		) {
 			return;
 		}
 
-		if (comparisons.some(({left, right}) => hasOptionalChain(left) || hasOptionalChain(right))) {
+		if (comparisons.some(({left, right}) => containsOptionalChain(left) || containsOptionalChain(right))) {
 			return;
 		}
 
@@ -192,7 +187,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.includes()` over repeated equality comparisons.',
-			recommended: false,
+			recommended: true,
 		},
 		schema,
 		defaultOptions: [
