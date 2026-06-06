@@ -315,6 +315,12 @@ test.snapshot({
 			import {'*' as foo} from 'foo';
 			export {foo};
 		`,
+		// Used imported variable is still reported by default (`checkUsedVariables: true`)
+		outdent`
+			import {named} from 'foo';
+			use(named);
+			export {named};
+		`,
 	],
 });
 
@@ -519,7 +525,7 @@ test.snapshot({
 	],
 });
 
-// `ignoreUsedVariables`
+// `checkUsedVariables`
 test.snapshot({
 	valid: [
 		outdent`
@@ -587,7 +593,7 @@ test.snapshot({
 			use(named1);
 			export {defaultExport, named2};
 		`,
-	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
+	].map(code => ({code, options: [{checkUsedVariables: false}]})),
 	invalid: [
 		outdent`
 			import defaultExport from 'foo';
@@ -621,6 +627,6 @@ test.snapshot({
 			import {notUsedNotExported, exported} from 'foo';
 			export {exported};
 		`,
-	].map(code => ({code, options: [{ignoreUsedVariables: true}]})),
+	].map(code => ({code, options: [{checkUsedVariables: false}]})),
 });
 

@@ -68,15 +68,15 @@ export default namespace;
 
 ## Options
 
-### ignoreUsedVariables
+### checkUsedVariables
 
 Type: `boolean`\
-Default: `false`
+Default: `true`
 
-When `true`, if an import is used in other places than just a re-export, all variables in the import declaration will be ignored.
+When `false`, if an import is used in other places than just a re-export, all variables in the import declaration will be ignored.
 
 ```js
-/* eslint unicorn/prefer-export-from: ["error", {"ignoreUsedVariables": false}] */
+/* eslint unicorn/prefer-export-from: ["error", {"checkUsedVariables": true}] */
 // ❌
 import {named1, named2} from './foo.js';
 
@@ -86,7 +86,7 @@ export {named1, named2};
 ```
 
 ```js
-/* eslint unicorn/prefer-export-from: ["error", {"ignoreUsedVariables": true}] */
+/* eslint unicorn/prefer-export-from: ["error", {"checkUsedVariables": false}] */
 // ✅
 import {named1, named2} from './foo.js';
 

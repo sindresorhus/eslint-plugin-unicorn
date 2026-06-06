@@ -257,9 +257,9 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
-			ignoreUsedVariables: {
+			checkUsedVariables: {
 				type: 'boolean',
-				description: 'Whether to ignore variables that are used in the module.',
+				description: 'Whether to check variables that are used in the module.',
 			},
 		},
 	},
@@ -268,7 +268,7 @@ const schema = [
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
-	const {ignoreUsedVariables} = context.options[0];
+	const {checkUsedVariables} = context.options[0];
 	const importDeclarations = new Set();
 	const exportDeclarations = [];
 
@@ -305,13 +305,13 @@ function create(context) {
 			});
 
 			if (
-				ignoreUsedVariables
+				!checkUsedVariables
 				&& variables.some(({variable, exports}) => variable.references.length !== exports.length)
 			) {
 				continue;
 			}
 
-			const shouldUseSuggestion = ignoreUsedVariables
+			const shouldUseSuggestion = !checkUsedVariables
 				&& variables.some(({variable}) => variable.references.length === 0);
 
 			for (const {imported, exports} of variables) {
@@ -361,7 +361,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: [{ignoreUsedVariables: false}],
+		defaultOptions: [{checkUsedVariables: true}],
 		messages,
 	},
 };

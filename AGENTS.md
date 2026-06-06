@@ -53,6 +53,8 @@ export default config;
 
 Options are accessed via `context.options[0]`. Use `meta.defaultOptions` for defaults (no manual merging).
 
+Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form, so option naming stays consistent across rules. This does not apply to array/pattern options like `ignore` (a list of patterns to ignore), which follow ESLint's own conventions.
+
 ## Reusable utilities
 
 Before writing helpers, check these directories:

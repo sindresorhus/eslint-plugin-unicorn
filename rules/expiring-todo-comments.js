@@ -263,8 +263,8 @@ function satisfiesRange(version, condition, range) {
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
-	ignoreDates: true,
-	ignoreDatesOnPullRequests: true,
+	checkDates: false,
+	checkDatesOnPullRequests: false,
 	allowWarningComments: true,
 };
 
@@ -363,8 +363,8 @@ const create = context => {
 			uses++;
 			const [expirationDate] = dates;
 
-			const shouldIgnore = options.ignoreDates || (options.ignoreDatesOnPullRequests && ci.isPR);
-			if (!shouldIgnore && reachedDate(expirationDate, options.date)) {
+			const shouldCheckDate = options.checkDates && (options.checkDatesOnPullRequests || !ci.isPR);
+			if (shouldCheckDate && reachedDate(expirationDate, options.date)) {
 				report(MESSAGE_ID_EXPIRED_TODO, {expirationDate});
 			}
 		}
@@ -499,13 +499,13 @@ const schema = [
 				uniqueItems: true,
 				description: 'Patterns to ignore.',
 			},
-			ignoreDates: {
+			checkDates: {
 				type: 'boolean',
-				description: 'Whether to ignore expiration dates.',
+				description: 'Whether to check expiration dates.',
 			},
-			ignoreDatesOnPullRequests: {
+			checkDatesOnPullRequests: {
 				type: 'boolean',
-				description: 'Whether to ignore expiration dates on pull requests.',
+				description: 'Whether to check expiration dates on pull requests.',
 			},
 			allowWarningComments: {
 				type: 'boolean',
