@@ -59,6 +59,11 @@ test.snapshot({
 		'function foo(elements) { if (elements) {} }',
 		'const Boolean = value => value; if (Boolean(document.querySelectorAll(".item"))) {}',
 		'const Boolean = value => value; if (!Boolean(document.querySelectorAll(".item"))) {}',
+		outdent`
+			const Boolean = value => value;
+			const elements = document.querySelectorAll(".item");
+			if (Boolean(elements)) {}
+		`,
 	],
 	invalid: [
 		'document.querySelectorAll("form")[0].addEventListener("submit", submitFunction);',
