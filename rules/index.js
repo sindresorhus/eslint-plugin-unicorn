@@ -3,6 +3,7 @@
 export {default as 'better-dom-traversing'} from './better-dom-traversing.js';
 export {default as 'catch-error-name'} from './catch-error-name.js';
 export {default as 'consistent-assert'} from './consistent-assert.js';
+export {default as 'consistent-compound-words'} from './consistent-compound-words.js';
 export {default as 'consistent-date-clone'} from './consistent-date-clone.js';
 export {default as 'consistent-destructuring'} from './consistent-destructuring.js';
 export {default as 'consistent-empty-array-spread'} from './consistent-empty-array-spread.js';
