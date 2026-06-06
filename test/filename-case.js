@@ -1,7 +1,10 @@
 import path from 'node:path';
+import test from 'ava';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 function testCase(filename, chosenCase, errorMessage) {
 	return testCaseWithOptions(
@@ -39,7 +42,35 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 
 const outsideCwd = path.join(path.dirname(process.cwd()), 'Src', 'fooBar.js');
 
-test({
+test('checks relative directory names from ESLint cwd', t => {
+	const linter = new Linter({
+		configType: 'flat',
+		cwd: path.join(process.cwd(), 'test'),
+	});
+	const messages = linter.verify('const value = 1;', {
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/filename-case': 'error',
+		},
+	}, {
+		filename: 'src/FooBar/file.js',
+	});
+
+	t.deepEqual(
+		messages.map(({message}) => message),
+		[
+			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
+		],
+	);
+});
+
+ruleTest({
 	valid: [
 		testCase('src/foo/bar.js', 'camelCase'),
 		testCase('src/foo/fooBar.js', 'camelCase'),
@@ -296,8 +327,17 @@ test({
 		testCaseWithOptions('Test/Foo/.TestUtils.js', undefined, [{case: 'pascalCase'}]),
 		testCaseWithOptions('src/foo-bar/file.js'),
 		testCaseWithOptions('src/$userId/page.js'),
+		testCaseWithOptions('src/FooBar/file.js', undefined, [
+			{checkDirectories: false},
+		]),
+		testCaseWithOptions('src/FooBar/file.js', undefined, [
+			{case: 'kebabCase', checkDirectories: false},
+		]),
 		testCaseWithOptions('src/meta/BadName.js', undefined, [
 			{case: 'kebabCase', ignore: [/^meta$/u]},
+		]),
+		testCaseWithOptions('src/meta/BadName.js', undefined, [
+			{case: 'kebabCase', ignore: ['^meta$']},
 		]),
 		testCaseWithOptions(outsideCwd, undefined, [
 			{case: 'camelCase'},
@@ -433,6 +473,14 @@ test({
 			'Filename is not in camel case or pascal case. Rename it to `fooBar.js` or `FooBar.js`.',
 		),
 		testManyCases(
+			'src/foo-bar/file.js',
+			{
+				camelCase: true,
+				pascalCase: true,
+			},
+			'Directory name `foo-bar` is not in camel case or pascal case. Rename it to `fooBar` or `FooBar`.',
+		),
+		testManyCases(
 			'src/foo/_foo_bar.js',
 			{
 				camelCase: true,
@@ -452,6 +500,24 @@ test({
 			'src/FooBar/file.js',
 			undefined,
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
+		),
+		testCaseWithOptions(
+			'src/FooBar/foo_bar.js',
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
+			[{case: 'kebabCase', checkDirectories: false}],
+		),
+		testCaseWithOptions(
+			'src/foo-bar/foo_bar.js',
+			'Filename is not in camel case or pascal case. Rename it to `fooBar.js` or `FooBar.js`.',
+			[
+				{
+					cases: {
+						camelCase: true,
+						pascalCase: true,
+					},
+					checkDirectories: false,
+				},
+			],
 		),
 		testCase(
 			'src/FooBar/foo_bar.js',
@@ -695,7 +761,7 @@ test({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		undefined,
 		'src/foo-js/bar.js',

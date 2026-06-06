@@ -7,15 +7,17 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces all path segments of linted files to have their names in a certain case style and lowercase file extension. The default is `kebabCase`.
+Enforces filenames and directory names of linted files to use a certain case style and lowercase file extension. The default is `kebabCase`.
 
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
-Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (Only a problem with `pascalCase`). Their parent directories are still checked.
+Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (only a problem with `pascalCase`). Their parent directories are still checked.
 
-Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested filenames.
+Characters other than `a-z`, `A-Z`, `0-9`, `-`, and `_` are ignored for casing and kept as-is in suggested names.
 
 The case check ignores path segments starting with `$`, as they are commonly used for route parameters.
+
+Set the `checkDirectories` option to `false` to only check filenames.
 
 ## Cases
 
@@ -85,18 +87,18 @@ Default: `[]`
 
 Path segments to ignore. If any path segment matches, the file is ignored.
 
-When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+When a string is given, it's interpreted as a regular expression. This is needed for ESLint configs in JSON.
 
-Sometimes you may have non-standard filenames or directory names in a project. This option lets you ignore those files.
+Sometimes you may have non-standard filenames or directory names in a project. This option lets you ignore those files or directories.
 
 For example:
 
-- Vendor packages that are not published and was copy-pasted.
+- Vendor packages that are copied into the project.
 - Ignore some files when you use [eslint-plugin-markdown](https://github.com/eslint/eslint-plugin-markdown), for example `README.md`.
 - Some tools may require special names for some files.
 - Ignore a directory and everything in it.
 
-Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual filename. For example, to match `[id].js`, use `/^\[id]\.js$/` or `'^\\[id]\\.js$'`.
+Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual path segment. For example, to match `[id].js`, use `/^\[id]\.js$/` or `'^\\[id]\\.js$'`.
 
 ```js
 "unicorn/filename-case": [
@@ -114,6 +116,13 @@ Don't forget that you must escape special characters that you don't want to be i
 ]
 ```
 
+### checkDirectories
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check directory names. Filenames are always checked.
+
 ### multipleFileExtensions
 
 Type: `boolean`\
@@ -123,7 +132,7 @@ Whether to treat additional, `.`-separated parts of a filename as parts of the e
 
 Note that the parts of the filename treated as the extension will not have the filename case enforced.
 
-This only affects filenames. Directory names are always checked as full path segments.
+This only affects filenames. When `checkDirectories` is enabled, directory names are checked as full path segments.
 
 For example:
 

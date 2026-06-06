@@ -61,13 +61,13 @@ function getChosenCases(options) {
 	return ['kebabCase'];
 }
 
-function validateFilename(words, caseFunctions) {
+function validateName(words, caseFunctions) {
 	return words
 		.filter(({ignored}) => !ignored)
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
 }
 
-function fixFilename(words, caseFunctions, {leading, trailing}) {
+function fixName(words, caseFunctions, {leading, trailing}) {
 	const replacements = words
 		.map(({word, ignored}) => ignored ? [word] : caseFunctions.map(caseFunction => caseFunction(word)));
 
@@ -109,7 +109,7 @@ function isInsideCwd(relativePath) {
 }
 
 function getPathSegments(filenameWithExtension, cwd) {
-	const relativePath = path.relative(cwd, filenameWithExtension);
+	const relativePath = path.relative(cwd, path.resolve(cwd, filenameWithExtension));
 
 	if (!isInsideCwd(relativePath)) {
 		return [path.basename(filenameWithExtension)];
@@ -121,9 +121,9 @@ function getPathSegments(filenameWithExtension, cwd) {
 }
 
 const leadingUnderscoresRegex = /^(?<leading>_+)(?<tailing>.*)$/;
-function splitFilename(filename) {
-	const result = leadingUnderscoresRegex.exec(filename) || {groups: {}};
-	const {leading = '', tailing = filename} = result.groups;
+function splitName(name) {
+	const result = leadingUnderscoresRegex.exec(name) || {groups: {}};
+	const {leading = '', tailing = name} = result.groups;
 
 	const words = [];
 
@@ -161,13 +161,13 @@ function getCaseNames(chosenCases) {
 }
 
 function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
-	const {leading, words} = splitFilename(directory);
+	const {leading, words} = splitName(directory);
 
-	if (directory.startsWith('$') || validateFilename(words, chosenCasesFunctions)) {
+	if (directory.startsWith('$') || validateName(words, chosenCasesFunctions)) {
 		return;
 	}
 
-	const renamedDirectories = fixFilename(words, chosenCasesFunctions, {
+	const renamedDirectories = fixName(words, chosenCasesFunctions, {
 		leading,
 		trailing: '',
 	});
@@ -195,6 +195,7 @@ const create = context => {
 		return new RegExp(item, 'u');
 	});
 	const multipleFileExtensions = options.multipleFileExtensions !== false;
+	const checkDirectories = options.checkDirectories !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
 	const filenameWithExtension = context.physicalFilename;
 
@@ -216,11 +217,13 @@ const create = context => {
 			return;
 		}
 
-		for (const directory of pathSegments.slice(0, -1)) {
-			const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
+		if (checkDirectories) {
+			for (const directory of pathSegments.slice(0, -1)) {
+				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
 
-			if (report) {
-				return report;
+				if (report) {
+					return report;
+				}
 			}
 		}
 
@@ -228,8 +231,8 @@ const create = context => {
 			return;
 		}
 
-		const {leading, words} = splitFilename(filename);
-		const isValid = filename.startsWith('$') || validateFilename(words, chosenCasesFunctions);
+		const {leading, words} = splitName(filename);
+		const isValid = filename.startsWith('$') || validateName(words, chosenCasesFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
@@ -243,7 +246,7 @@ const create = context => {
 			return;
 		}
 
-		const renamedFilenames = fixFilename(words, chosenCasesFunctions, {
+		const renamedFilenames = fixName(words, chosenCasesFunctions, {
 			leading,
 			trailing: middle + extension.toLowerCase(),
 		});
@@ -263,7 +266,8 @@ const create = context => {
 
 const schema = [
 	{
-		oneOf: [
+		description: 'The rule options.',
+		anyOf: [
 			{
 				properties: {
 					case: {
@@ -273,16 +277,20 @@ const schema = [
 							'kebabCase',
 							'pascalCase',
 						],
-						description: 'The filename case style.',
+						description: 'The filename and directory name case style.',
 					},
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
-						description: 'Patterns to ignore.',
+						description: 'Path segment patterns to ignore.',
 					},
 					multipleFileExtensions: {
 						type: 'boolean',
 						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
+					},
+					checkDirectories: {
+						type: 'boolean',
+						description: 'Whether to check directory names.',
 					},
 				},
 				additionalProperties: false,
@@ -293,32 +301,36 @@ const schema = [
 						properties: {
 							camelCase: {
 								type: 'boolean',
-								description: 'Whether to allow camelCase filenames.',
+								description: 'Whether to allow camelCase filenames and directory names.',
 							},
 							snakeCase: {
 								type: 'boolean',
-								description: 'Whether to allow snake_case filenames.',
+								description: 'Whether to allow snake_case filenames and directory names.',
 							},
 							kebabCase: {
 								type: 'boolean',
-								description: 'Whether to allow kebab-case filenames.',
+								description: 'Whether to allow kebab-case filenames and directory names.',
 							},
 							pascalCase: {
 								type: 'boolean',
-								description: 'Whether to allow PascalCase filenames.',
+								description: 'Whether to allow PascalCase filenames and directory names.',
 							},
 						},
 						additionalProperties: false,
-						description: 'The allowed filename case styles.',
+						description: 'The allowed filename and directory name case styles.',
 					},
 					ignore: {
 						type: 'array',
 						uniqueItems: true,
-						description: 'Patterns to ignore.',
+						description: 'Path segment patterns to ignore.',
 					},
 					multipleFileExtensions: {
 						type: 'boolean',
 						description: 'Whether to treat additional, dot-separated parts of a filename as file extensions.',
+					},
+					checkDirectories: {
+						type: 'boolean',
+						description: 'Whether to check directory names.',
 					},
 				},
 				additionalProperties: false,
