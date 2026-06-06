@@ -139,3 +139,15 @@ useEffect(() => {
 	getItems();
 }, [])
 ```
+
+Functions inside `jest.mock()` factories are ignored because Jest restricts those factories from referencing out-of-scope variables:
+
+```js
+jest.mock('module', () => {
+	function createMock() {
+		return 'mock';
+	}
+
+	return createMock;
+});
+```
