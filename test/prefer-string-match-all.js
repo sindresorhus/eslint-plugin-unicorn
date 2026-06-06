@@ -25,16 +25,19 @@ test.snapshot({
 		// Non-global or unknown regexp
 		outdent`
 			const regexp = /foo/;
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp.exec(string)) !== null) {}
 		`,
 		outdent`
 			const regexp = /foo/y;
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp.exec(string)) !== null) {}
 		`,
 		outdent`
 			const regexp = new RegExp('foo', flags);
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp.exec(string)) !== null) {}
 		`,
@@ -69,6 +72,30 @@ test.snapshot({
 			while ((match = regexp.exec(string)) !== null) {}
 		`,
 		outdent`
+			const regexp = /[\\q{}]/gv;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const regexp = /[\\q{a|}]/gv;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const regexp = /[\\q{a}]/gv;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const regexp = /[[\\q{}]--[a]]/gv;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
 			const regexp = /foo/g;
 			const string = 'foofoo';
 
@@ -93,16 +120,19 @@ test.snapshot({
 		// Unsupported `exec()` shapes
 		outdent`
 			const regexp = /foo/g;
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp?.exec(string)) !== null) {}
 		`,
 		outdent`
 			const regexp = /foo/g;
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp[exec](string)) !== null) {}
 		`,
 		outdent`
 			const regexp = /foo/g;
+			const string = 'foofoo';
 			let match;
 			while ((match = regexp.exec(...[string])) !== null) {}
 		`,

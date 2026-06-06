@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
 	isFunction,
@@ -7,9 +7,6 @@ import {
 	isNewExpression,
 	isRegexLiteral,
 } from './ast/index.js';
-import {
-	isSameReference,
-} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID = 'prefer-string-match-all';
@@ -18,37 +15,6 @@ const messages = {
 };
 
 const isNull = node => isLiteral(node, null);
-
-const containsNodeMatching = (node, sourceCode, predicate) => {
-	if (isFunction(node)) {
-		return false;
-	}
-
-	if (predicate(node)) {
-		return true;
-	}
-
-	const keys = sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-
-		if (Array.isArray(child)) {
-			for (const childNode of child) {
-				if (childNode && containsNodeMatching(childNode, sourceCode, predicate)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (child && containsNodeMatching(child, sourceCode, predicate)) {
-			return true;
-		}
-	}
-
-	return false;
-};
 
 const hasCommentsInRange = (sourceCode, [start, end]) =>
 	sourceCode.getAllComments().some(comment => {
@@ -141,22 +107,23 @@ const getRegExpVariable = (node, sourceCode) => {
 	return findVariable(sourceCode.getScope(node), node);
 };
 
-const getConstVariable = (node, sourceCode) => {
+const isStaticConstStringIdentifier = (node, sourceCode) => {
 	if (node.type !== 'Identifier') {
-		return;
+		return false;
 	}
 
 	const variable = findVariable(sourceCode.getScope(node), node);
 	if (variable?.defs.length !== 1) {
-		return;
+		return false;
 	}
 
 	const [definition] = variable.defs;
 	if (definition.node.parent.kind !== 'const') {
-		return;
+		return false;
 	}
 
-	return variable;
+	const staticResult = getStaticValue(node, sourceCode.getScope(node));
+	return typeof staticResult?.value === 'string';
 };
 
 const isGlobalRegExpDefinition = variable => {
@@ -238,30 +205,20 @@ const isRegExpNodeNullable = node => {
 		}
 
 		case 'value':
-		case 'characterClass':
 		case 'characterClassEscape':
 		case 'unicodePropertyEscape':
 		case 'dot': {
 			return false;
 		}
 
+		case 'characterClass': {
+			return node.body.some(node => node.type === 'classStrings' || isRegExpNodeNullable(node));
+		}
+
 		default: {
 			return true;
 		}
 	}
-};
-
-const isKnownString = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
-
-	if (
-		!staticResult
-		|| typeof staticResult.value !== 'string'
-	) {
-		return false;
-	}
-
-	return true;
 };
 
 const nodeContains = (ancestor, descendant) => {
@@ -307,14 +264,6 @@ const isRegExpVariableOnlyUsedInCondition = (variable, whileStatement) =>
 const isRegExpVariableDeclaredInLoopScope = (variable, whileStatement) =>
 	variable.defs[0]?.node.parent.parent === whileStatement.parent;
 
-const usesRegExpLastIndex = (body, regexpNode, sourceCode) =>
-	containsNodeMatching(body, sourceCode, node =>
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'lastIndex'
-		&& isSameReference(node.object, regexpNode));
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -328,7 +277,6 @@ const create = context => {
 		const {matchIdentifier, regexpNode, stringNode} = loopData;
 		const previousLetDeclaration = getPreviousLetDeclaration(node, matchIdentifier.name);
 		const regexpVariable = getRegExpVariable(regexpNode, sourceCode);
-		const stringVariable = getConstVariable(stringNode, sourceCode);
 
 		if (!previousLetDeclaration) {
 			return;
@@ -339,10 +287,8 @@ const create = context => {
 		}
 
 		if (
-			!stringVariable
-			|| !isKnownString(stringNode, sourceCode.getScope(stringNode))
+			!isStaticConstStringIdentifier(stringNode, sourceCode)
 			|| !isRegExpVariableDeclaredInLoopScope(regexpVariable, node)
-			|| hasSideEffect(regexpNode, sourceCode)
 			|| !isRegExpVariableOnlyUsedInCondition(regexpVariable, node)
 		) {
 			return;
@@ -355,7 +301,6 @@ const create = context => {
 			|| isMatchVariableUsedOutsideLoop(variable, node)
 			|| isMatchVariableAssignedInBody(variable, node.body)
 			|| isMatchVariableCapturedInBody(variable, node.body)
-			|| usesRegExpLastIndex(node.body, regexpNode, sourceCode)
 		) {
 			return;
 		}
