@@ -237,8 +237,6 @@ const isExportedIdentifier = identifier => {
 	return false;
 };
 
-const isParameterDefinition = definition => definition.type === 'Parameter';
-
 const isComment = token => token?.type === 'Block' || token?.type === 'Line';
 
 const commentAttachmentParentTypes = new Set([
@@ -249,6 +247,11 @@ const commentAttachmentParentTypes = new Set([
 	'MethodDefinition',
 	'Property',
 	'PropertyDefinition',
+	'TSAbstractMethodDefinition',
+	'TSAbstractPropertyDefinition',
+	'TSPropertySignature',
+	'TSTypeAliasDeclaration',
+	'TSTypeAnnotation',
 	'VariableDeclaration',
 	'VariableDeclarator',
 ]);
@@ -258,6 +261,7 @@ const functionLikeTypesWithReturnType = new Set([
 	'TSCallSignatureDeclaration',
 	'TSConstructSignatureDeclaration',
 	'TSDeclareFunction',
+	'TSEmptyBodyFunctionExpression',
 	'TSFunctionType',
 	'TSMethodSignature',
 ]);
@@ -310,11 +314,8 @@ const getParentFunctionLikeNode = identifier => {
 	}
 };
 
-const hasTypePredicateReturnType = node =>
-	node.returnType?.typeAnnotation?.type === 'TSTypePredicate';
-
 const shouldFixParameter = (definition, context) => {
-	if (!isParameterDefinition(definition)) {
+	if (definition.type !== 'Parameter') {
 		return true;
 	}
 
@@ -324,10 +325,7 @@ const shouldFixParameter = (definition, context) => {
 		return true;
 	}
 
-	return Boolean(
-		!hasAttachedJSDocParameterComment(functionNode, context.sourceCode)
-		&& !hasTypePredicateReturnType(functionNode),
-	);
+	return !hasAttachedJSDocParameterComment(functionNode, context.sourceCode);
 };
 
 const shouldFix = variable => getVariableIdentifiers(variable)
@@ -582,6 +580,7 @@ const create = context => {
 		if (
 			!problem.fix
 			&& shouldFix(variable)
+			&& shouldFixParameter(variable.defs[0], context)
 			&& !variable.references.some(reference => reference.vueUsedInTemplate)
 		) {
 			const suggestions = getSuggestions(
