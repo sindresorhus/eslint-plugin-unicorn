@@ -36,11 +36,11 @@ const isTryBlock = node =>
 
 const classFieldTypes = new Set(['AccessorProperty', 'PropertyDefinition']);
 
-const isInsideInstanceClassFieldValue = node => {
+const getContainingInstanceClassFieldValue = node => {
 	let child = node;
 	for (let {parent} = node; parent; child = parent, parent = parent.parent) {
 		if (functionTypes.includes(parent.type)) {
-			return false;
+			return;
 		}
 
 		if (
@@ -48,11 +48,9 @@ const isInsideInstanceClassFieldValue = node => {
 			&& !parent.static
 			&& parent.value === child
 		) {
-			return true;
+			return parent;
 		}
 	}
-
-	return false;
 };
 
 const schema = [
@@ -71,6 +69,7 @@ const schema = [
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {sourceCode} = context;
 	const {max} = context.options[0];
 	const tryBlockStack = [];
 	let functionDepth = 0;
@@ -78,16 +77,31 @@ const create = context => {
 	const increaseComplexity = node => {
 		if (
 			tryBlockStack.length === 0
-			|| isInsideInstanceClassFieldValue(node)
 			|| !increasesComplexity(node)
 		) {
 			return;
 		}
 
+		const classField = getContainingInstanceClassFieldValue(node);
+		const classFieldRange = classField && sourceCode.getRange(classField);
+
 		for (const tryBlock of tryBlockStack) {
-			if (tryBlock.functionDepth === functionDepth) {
-				tryBlock.complexity++;
+			if (tryBlock.functionDepth !== functionDepth) {
+				continue;
 			}
+
+			if (classFieldRange) {
+				const tryBlockRange = sourceCode.getRange(tryBlock.block);
+
+				if (
+					tryBlockRange[0] <= classFieldRange[0]
+					&& classFieldRange[1] <= tryBlockRange[1]
+				) {
+					continue;
+				}
+			}
+
+			tryBlock.complexity++;
 		}
 	};
 

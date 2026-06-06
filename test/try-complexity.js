@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -65,6 +65,16 @@ test.snapshot({
 				}
 			} catch {}
 		`,
+		{
+			code: outdent`
+				try {
+					class Foo {
+						accessor value = condition ? a : b;
+					}
+				} catch {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: outdent`
 				try {
@@ -151,6 +161,36 @@ test.snapshot({
 				}
 			} catch {}
 		`,
+		outdent`
+			try {
+				class Foo {
+					[condition ? a : b] = value;
+				}
+			} catch {}
+		`,
+		outdent`
+			class Foo {
+				field = class {
+					static {
+						try {
+							if (condition) {
+								doSomething();
+							}
+						} catch {}
+					}
+				};
+			}
+		`,
+		{
+			code: outdent`
+				try {
+					class Foo {
+						static accessor value = condition ? a : b;
+					}
+				} catch {}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			try {
 				switch (value) {
