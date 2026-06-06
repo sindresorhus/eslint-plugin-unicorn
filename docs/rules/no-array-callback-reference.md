@@ -191,3 +191,36 @@ function readFile(filename) {
 
 Promise.map(filenames, readFile);
 ```
+
+## Options
+
+Type: `object`
+
+### ignore
+
+Type: `string[]`
+
+Callees to ignore. The callee is matched against the object the iterator method is called on, so `"Angular"` ignores all `Angular.<method>(…)` calls.
+
+`Promise`, `React.Children`, `Children`, `lodash`, `underscore`, `_`, `Async`, `async`, `this`, `$`, and `jQuery` are always ignored.
+
+Example:
+
+```js
+{
+	'unicorn/no-array-callback-reference': [
+		'error',
+		{
+			ignore: [
+				'Angular',
+				'P'
+			]
+		}
+	]
+}
+```
+
+```js
+/* eslint unicorn/no-array-callback-reference: ["error", {"ignore": ["Angular"]}] */
+Angular.forEach(list, fn); // Passes
+```

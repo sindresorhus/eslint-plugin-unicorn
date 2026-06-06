@@ -42,8 +42,9 @@ const suggestionOutput = (output, name) => ({
 	output,
 });
 
-const invalidTestCase = (({code, method, name, suggestions}) => ({
+const invalidTestCase = (({code, options, method, name, suggestions}) => ({
 	code,
+	...options && {options},
 	errors: [
 		{
 			...generateError(method, name),
@@ -109,6 +110,34 @@ test({
 		'jQuery(this).find(tooltip)',
 		'jQuery.map(realArray, function(value, index) {});',
 		'jQuery(this).filter(tooltip)',
+
+		// `ignore` option
+		{
+			code: 'Angular.forEach(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
+		{
+			code: 'P.map(list, fn)',
+			options: [{ignore: ['P']}],
+		},
+		{
+			code: 'myLib.utils.map(list, fn)',
+			options: [{ignore: ['myLib.utils']}],
+		},
+		// `ignore` option — chained call
+		{
+			code: 'myLib(args).map(fn)',
+			options: [{ignore: ['myLib']}],
+		},
+		// `ignore` option — default ignored callees still apply
+		{
+			code: 'Promise.map(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
+		{
+			code: 'lodash.map(list, fn)',
+			options: [{ignore: ['Angular']}],
+		},
 
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
@@ -665,6 +694,19 @@ test({
 					const fn = (x, y) => x + y;
 					[1, 2, 3].map((element, index, array) => fn(element, index, array));
 				`,
+			],
+		}),
+
+		// `ignore` option — non-matching callee is still reported
+		invalidTestCase({
+			code: 'Other.forEach(fn)',
+			options: [{ignore: ['Angular']}],
+			method: 'forEach',
+			name: 'fn',
+			suggestions: [
+				'Other.forEach((element) => { fn(element); })',
+				'Other.forEach((element, index) => { fn(element, index); })',
+				'Other.forEach((element, index, array) => { fn(element, index, array); })',
 			],
 		}),
 	],
