@@ -14,9 +14,11 @@ const messages = {
 
 function getStaticNumberValue(node) {
 	if (
-		node.type === 'TSAsExpression'
-		|| node.type === 'TSTypeAssertion'
-		|| node.type === 'TSNonNullExpression'
+		[
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+		].includes(node.type)
 	) {
 		return getStaticNumberValue(node.expression);
 	}

@@ -20,8 +20,10 @@ export default function shouldAddParenthesesToLogicalExpressionChild(node, {oper
 
 	// Not really needed, but more readable
 	if (
-		node.type === 'AwaitExpression'
-		|| node.type === 'BinaryExpression'
+		[
+			'AwaitExpression',
+			'BinaryExpression',
+		].includes(node.type)
 	) {
 		return true;
 	}
@@ -29,12 +31,14 @@ export default function shouldAddParenthesesToLogicalExpressionChild(node, {oper
 	// Lower precedence than `LogicalExpression`
 	// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 	if (
-		node.type === 'LogicalExpression'
-		|| node.type === 'ConditionalExpression'
-		|| node.type === 'AssignmentExpression'
-		|| node.type === 'ArrowFunctionExpression'
-		|| node.type === 'YieldExpression'
-		|| node.type === 'SequenceExpression'
+		[
+			'LogicalExpression',
+			'ConditionalExpression',
+			'AssignmentExpression',
+			'ArrowFunctionExpression',
+			'YieldExpression',
+			'SequenceExpression',
+		].includes(node.type)
 	) {
 		return true;
 	}

@@ -50,9 +50,11 @@ function isBigIntTypeAnnotation(typeAnnotation) {
 
 function unwrapTypeScriptExpression(node) {
 	if (
-		node.type === 'TSAsExpression'
-		|| node.type === 'TSTypeAssertion'
-		|| node.type === 'TSNonNullExpression'
+		[
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+		].includes(node.type)
 	) {
 		return unwrapTypeScriptExpression(node.expression);
 	}
@@ -261,9 +263,11 @@ function createProblem(node, context, fix) {
 function isSideEffectFreeReference(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	return node.type === 'Identifier'
-		|| node.type === 'Literal'
-		|| node.type === 'ThisExpression';
+	return [
+		'Identifier',
+		'Literal',
+		'ThisExpression',
+	].includes(node.type);
 }
 
 function getTernaryReplacement(conditionalExpression, context) {

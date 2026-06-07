@@ -15,19 +15,19 @@ const isVueBooleanAttributeValue = node =>
 	&& node.parent.value === node
 	&& node.parent.key.type === 'VDirectiveKey'
 	&& node.parent.key.name.type === 'VIdentifier'
-	&& (
-		node.parent.key.name.rawName === 'if'
-		|| node.parent.key.name.rawName === 'else-if'
-		|| node.parent.key.name.rawName === 'show'
-	);
+	&& [
+		'if',
+		'else-if',
+		'show',
+	].includes(node.parent.key.name.rawName);
 const isDirectControlFlowTest = node =>
-	(
-		node.parent.type === 'IfStatement'
-		|| node.parent.type === 'ConditionalExpression'
-		|| node.parent.type === 'WhileStatement'
-		|| node.parent.type === 'DoWhileStatement'
-		|| node.parent.type === 'ForStatement'
-	)
+	[
+		'IfStatement',
+		'ConditionalExpression',
+		'WhileStatement',
+		'DoWhileStatement',
+		'ForStatement',
+	].includes(node.parent.type)
 	&& node.parent.test === node;
 const isDirectBooleanExpression = node =>
 	isLogicNot(node)

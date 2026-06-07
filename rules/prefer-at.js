@@ -47,10 +47,12 @@ const isArguments = node => node.type === 'Identifier' && node.name === 'argumen
 
 function unwrapExpression(node) {
 	if (
-		node.type === 'TSAsExpression'
-		|| node.type === 'TSTypeAssertion'
-		|| node.type === 'TSNonNullExpression'
-		|| node.type === 'TSSatisfiesExpression'
+		[
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+			'TSSatisfiesExpression',
+		].includes(node.type)
 	) {
 		return unwrapExpression(node.expression);
 	}

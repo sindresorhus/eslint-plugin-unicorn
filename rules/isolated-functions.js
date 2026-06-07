@@ -53,7 +53,7 @@ const create = context => {
 				}
 
 				const globalsValue = allowedGlobals[identifier.name];
-				const isGlobalWritable = globalsValue === true || globalsValue === 'writable' || globalsValue === 'writeable';
+				const isGlobalWritable = [true, 'writable', 'writeable'].includes(globalsValue);
 				if (isGlobalWritable) {
 					continue;
 				}
@@ -82,10 +82,12 @@ const create = context => {
 		let commentableNode = node;
 		while (
 			!isComment(previousToken)
-			&& (commentableNode.parent.type === 'VariableDeclarator'
-				|| commentableNode.parent.type === 'VariableDeclaration'
-				|| commentableNode.parent.type === 'ExportNamedDeclaration'
-				|| commentableNode.parent.type === 'ExportDefaultDeclaration')
+			&& [
+				'VariableDeclarator',
+				'VariableDeclaration',
+				'ExportNamedDeclaration',
+				'ExportDefaultDeclaration',
+			].includes(commentableNode.parent.type)
 		) {
 			commentableNode = commentableNode.parent;
 			previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});

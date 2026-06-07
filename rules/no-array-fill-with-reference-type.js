@@ -38,9 +38,11 @@ function isReferenceExpression(node, context) {
 	}
 
 	if (
-		node.type === 'ObjectExpression'
-		|| node.type === 'ArrayExpression'
-		|| node.type === 'ClassExpression'
+		[
+			'ObjectExpression',
+			'ArrayExpression',
+			'ClassExpression',
+		].includes(node.type)
 	) {
 		return true;
 	}

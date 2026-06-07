@@ -69,11 +69,11 @@ const create = context => {
 	const isRepeatedLoopPart = (loop, child) => {
 		switch (loop.type) {
 			case 'ForStatement': {
-				return (
-					child === loop.test
-					|| child === loop.update
-					|| child === loop.body
-				);
+				return [
+					loop.test,
+					loop.update,
+					loop.body,
+				].includes(child);
 			}
 
 			case 'ForInStatement':

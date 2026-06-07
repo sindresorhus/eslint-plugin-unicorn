@@ -39,11 +39,11 @@ function isPromiseCallback(node) {
 
 		if (
 			arguments_.length === 1
-			&& (
-				property.name === 'then'
-				|| property.name === 'catch'
-				|| property.name === 'finally'
-			)
+			&& [
+				'then',
+				'catch',
+				'finally',
+			].includes(property.name)
 			&& arguments_[0] === node
 		) {
 			return true;

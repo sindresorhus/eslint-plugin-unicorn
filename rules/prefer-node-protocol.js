@@ -19,10 +19,12 @@ const create = context => {
 		if (!(
 			(
 				(
-					node.parent.type === 'ImportDeclaration'
-					|| node.parent.type === 'ExportNamedDeclaration'
-					|| node.parent.type === 'ImportExpression'
-					|| node.parent.type === 'TSImportType'
+					[
+						'ImportDeclaration',
+						'ExportNamedDeclaration',
+						'ImportExpression',
+						'TSImportType',
+					].includes(node.parent.type)
 				)
 				&& node.parent.source === node
 			)
