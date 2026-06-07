@@ -1,15 +1,19 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
 	getAvailableVariableName,
-	getVariableIdentifiers,
 	getScopes,
-	isShorthandImportLocal,
 	isShorthandPropertyValue,
 	lowerFirst,
 	upperFirst,
 } from './utils/index.js';
+import {
+	isClassVariable,
+	shouldCheckDefaultOrNamespaceImportName,
+	shouldCheckShorthandImportName,
+	shouldRenameVariable,
+	shouldReportIdentifierAsProperty,
+} from './shared/identifier-checks.js';
 import {renameVariable} from './fix/index.js';
-import {isStaticRequire} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'consistent-compound-words/error';
 const MESSAGE_ID_RENAME = 'consistent-compound-words/rename';
@@ -136,143 +140,6 @@ const getNameReplacement = (name, {replacements, allowList}) => {
 	return replacement;
 };
 
-const declarationTypes = new Set([
-	'FunctionDeclaration',
-	'ClassDeclaration',
-	'TSTypeAliasDeclaration',
-	'TSInterfaceDeclaration',
-	'TSEnumDeclaration',
-]);
-
-const isExportedIdentifier = identifier => {
-	if (
-		identifier.parent.type === 'VariableDeclarator'
-		&& identifier.parent.id === identifier
-	) {
-		return (
-			identifier.parent.parent.type === 'VariableDeclaration'
-			&& identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
-		);
-	}
-
-	if (
-		declarationTypes.has(identifier.parent.type)
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	return false;
-};
-
-const shouldRenameVariable = variable => getVariableIdentifiers(variable)
-	.every(identifier =>
-		!isExportedIdentifier(identifier)
-		&& identifier.type !== 'JSXIdentifier');
-
-const isDefaultOrNamespaceImportName = identifier => {
-	if (
-		identifier.parent.type === 'ImportDefaultSpecifier'
-		&& identifier.parent.local === identifier
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ImportNamespaceSpecifier'
-		&& identifier.parent.local === identifier
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ImportSpecifier'
-		&& identifier.parent.local === identifier
-		&& identifier.parent.imported.type === 'Identifier'
-		&& identifier.parent.imported.name === 'default'
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'VariableDeclarator'
-		&& identifier.parent.id === identifier
-		&& isStaticRequire(identifier.parent.init)
-	) {
-		return true;
-	}
-
-	return false;
-};
-
-const isClassVariable = variable => {
-	if (variable.defs.length !== 1) {
-		return false;
-	}
-
-	const [definition] = variable.defs;
-
-	return definition.type === 'ClassName';
-};
-
-const shouldReportIdentifierAsProperty = identifier => {
-	if (
-		identifier.parent.type === 'MemberExpression'
-		&& identifier.parent.property === identifier
-		&& !identifier.parent.computed
-		&& identifier.parent.parent.type === 'AssignmentExpression'
-		&& identifier.parent.parent.left === identifier.parent
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'Property'
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-		&& !identifier.parent.shorthand
-		&& identifier.parent.parent.type === 'ObjectExpression'
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ExportSpecifier'
-		&& identifier.parent.exported === identifier
-		&& identifier.parent.local !== identifier
-	) {
-		return true;
-	}
-
-	if (
-		(
-			identifier.parent.type === 'MethodDefinition'
-			|| identifier.parent.type === 'PropertyDefinition'
-		)
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-	) {
-		return true;
-	}
-
-	return false;
-};
-
-const isInternalImport = node => {
-	let source = '';
-
-	if (node.type === 'Variable') {
-		source = node.node.init.arguments[0].value;
-	} else if (node.type === 'ImportBinding') {
-		source = node.parent.source.value;
-	}
-
-	return (
-		!source.includes('node_modules')
-		&& (source.startsWith('.') || source.startsWith('/'))
-	);
-};
-
 const createProblem = (node, replacement) => ({
 	node,
 	messageId: MESSAGE_ID_ERROR,
@@ -330,30 +197,12 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		if (isDefaultOrNamespaceImportName(definition.name)) {
-			if (!options.checkDefaultAndNamespaceImports) {
-				return;
-			}
-
-			if (
-				options.checkDefaultAndNamespaceImports === 'internal'
-				&& !isInternalImport(definition)
-			) {
-				return;
-			}
+		if (!shouldCheckDefaultOrNamespaceImportName(definition, options)) {
+			return;
 		}
 
-		if (isShorthandImportLocal(definition.name, context)) {
-			if (!options.checkShorthandImports) {
-				return;
-			}
-
-			if (
-				options.checkShorthandImports === 'internal'
-				&& !isInternalImport(definition)
-			) {
-				return;
-			}
+		if (!shouldCheckShorthandImportName(definition, options, context)) {
+			return;
 		}
 
 		if (

@@ -5,15 +5,20 @@ import {
 	getAvailableVariableName,
 	cartesianProductSamples,
 	isShorthandPropertyValue,
-	isShorthandImportLocal,
-	getVariableIdentifiers,
 	getScopes,
 	upperFirst,
 	lowerFirst,
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
+import {
+	isClassVariable,
+	shouldCheckDefaultOrNamespaceImportName,
+	shouldCheckShorthandImportName,
+	shouldRenameVariable,
+	shouldReportIdentifierAsProperty,
+} from './shared/identifier-checks.js';
 import {renameVariable} from './fix/index.js';
-import {functionTypes, isStaticRequire} from './ast/index.js';
+import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -208,35 +213,6 @@ const getSuggestions = (replacements, fix) => {
 	}));
 };
 
-const declarationTypes = new Set([
-	'FunctionDeclaration',
-	'ClassDeclaration',
-	'TSTypeAliasDeclaration',
-	'TSInterfaceDeclaration',
-	'TSEnumDeclaration',
-]);
-
-const isExportedIdentifier = identifier => {
-	if (
-		identifier.parent.type === 'VariableDeclarator'
-		&& identifier.parent.id === identifier
-	) {
-		return (
-			identifier.parent.parent.type === 'VariableDeclaration'
-			&& identifier.parent.parent.parent.type === 'ExportNamedDeclaration'
-		);
-	}
-
-	if (
-		declarationTypes.has(identifier.parent.type)
-		&& identifier.parent.id === identifier
-	) {
-		return identifier.parent.parent.type === 'ExportNamedDeclaration';
-	}
-
-	return false;
-};
-
 const isComment = token => token?.type === 'Block' || token?.type === 'Line';
 
 const commentAttachmentParentTypes = new Set([
@@ -329,142 +305,8 @@ const shouldFixParameter = (definition, context) => {
 	return !hasAttachedJSDocumentParameterComment(functionNode, context.sourceCode);
 };
 
-const shouldFix = variable => getVariableIdentifiers(variable)
-	.every(identifier =>
-		!isExportedIdentifier(identifier)
-		// In typescript parser, only `JSXOpeningElement` is added to variable
-		// `<foo></foo>` -> `<bar></foo>` will cause parse error
-		&& identifier.type !== 'JSXIdentifier');
-
 const shouldAutofix = (variable, context) =>
-	shouldFix(variable) && shouldFixParameter(variable.defs[0], context);
-
-const isDefaultOrNamespaceImportName = identifier => {
-	if (
-		identifier.parent.type === 'ImportDefaultSpecifier'
-		&& identifier.parent.local === identifier
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ImportNamespaceSpecifier'
-		&& identifier.parent.local === identifier
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ImportSpecifier'
-		&& identifier.parent.local === identifier
-		&& identifier.parent.imported.type === 'Identifier'
-		&& identifier.parent.imported.name === 'default'
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'VariableDeclarator'
-		&& identifier.parent.id === identifier
-		&& isStaticRequire(identifier.parent.init)
-	) {
-		return true;
-	}
-
-	return false;
-};
-
-const isClassVariable = variable => {
-	if (variable.defs.length !== 1) {
-		return false;
-	}
-
-	const [definition] = variable.defs;
-
-	return definition.type === 'ClassName';
-};
-
-const shouldReportIdentifierAsProperty = identifier => {
-	if (
-		identifier.parent.type === 'MemberExpression'
-		&& identifier.parent.property === identifier
-		&& !identifier.parent.computed
-		&& identifier.parent.parent.type === 'AssignmentExpression'
-		&& identifier.parent.parent.left === identifier.parent
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'Property'
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-		&& !identifier.parent.shorthand // Shorthand properties are reported and fixed as variables
-		&& identifier.parent.parent.type === 'ObjectExpression'
-	) {
-		return true;
-	}
-
-	if (
-		identifier.parent.type === 'ExportSpecifier'
-		&& identifier.parent.exported === identifier
-		&& identifier.parent.local !== identifier // Same as shorthand properties above
-	) {
-		return true;
-	}
-
-	if (
-		(
-			identifier.parent.type === 'MethodDefinition'
-			|| identifier.parent.type === 'PropertyDefinition'
-		)
-		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-	) {
-		return true;
-	}
-
-	return false;
-};
-
-const isInternalImport = node => {
-	let source = '';
-
-	if (node.type === 'Variable') {
-		source = node.node.init.arguments[0].value;
-	} else if (node.type === 'ImportBinding') {
-		source = node.parent.source.value;
-	}
-
-	return (
-		!source.includes('node_modules')
-		&& (source.startsWith('.') || source.startsWith('/'))
-	);
-};
-
-const shouldCheckDefaultOrNamespaceImportName = (definition, options) => {
-	if (!isDefaultOrNamespaceImportName(definition.name)) {
-		return true;
-	}
-
-	if (!options.checkDefaultAndNamespaceImports) {
-		return false;
-	}
-
-	return options.checkDefaultAndNamespaceImports !== 'internal' || isInternalImport(definition);
-};
-
-const shouldCheckShorthandImportName = (definition, options, context) => {
-	if (!isShorthandImportLocal(definition.name, context)) {
-		return true;
-	}
-
-	if (!options.checkShorthandImports) {
-		return false;
-	}
-
-	return options.checkShorthandImports !== 'internal' || isInternalImport(definition);
-};
+	shouldRenameVariable(variable) && shouldFixParameter(variable.defs[0], context);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -580,7 +422,7 @@ const create = context => {
 
 		if (
 			!problem.fix
-			&& shouldFix(variable)
+			&& shouldRenameVariable(variable)
 			&& shouldFixParameter(variable.defs[0], context)
 			&& !variable.references.some(reference => reference.vueUsedInTemplate)
 		) {

@@ -50,14 +50,14 @@ Type: `object`
 You can extend default replacements by passing the `replacements` option.
 
 ```js
-"unicorn/consistent-compound-words": [
-	"error",
+'unicorn/consistent-compound-words': [
+	'error',
 	{
-		"replacements": {
-			"fooBar": "foobar",
-			"passWord": false
-		}
-	}
+		replacements: {
+			fooBar: 'foobar',
+			passWord: false,
+		},
+	},
 ]
 ```
 
@@ -66,7 +66,7 @@ You can extend default replacements by passing the `replacements` option.
 Type: `boolean`\
 Default: `true`
 
-Pass `"extendDefaultReplacements": false` to override the default `replacements` completely.
+Pass `extendDefaultReplacements: false` to override the default `replacements` completely.
 
 ### allowList
 
@@ -75,13 +75,13 @@ Type: `object`
 You can extend the default allow list by passing the `allowList` option. It matches full identifier names case-sensitively.
 
 ```js
-"unicorn/consistent-compound-words": [
-	"error",
+'unicorn/consistent-compound-words': [
+	'error',
 	{
-		"allowList": {
-			"legacyUserName": true
-		}
-	}
+		allowList: {
+			legacyUserName: true,
+		},
+	},
 ]
 ```
 
@@ -90,21 +90,21 @@ You can extend the default allow list by passing the `allowList` option. It matc
 Type: `boolean`\
 Default: `true`
 
-Pass `"extendDefaultAllowList": false` to override the default `allowList` completely.
+Pass `extendDefaultAllowList: false` to override the default `allowList` completely.
 
 ### checkVariables
 
 Type: `boolean`\
 Default: `true`
 
-Pass `"checkVariables": false` to disable checking variable names.
+Pass `checkVariables: false` to disable checking variable names.
 
 ### checkProperties
 
 Type: `boolean`\
 Default: `false`
 
-Pass `"checkProperties": true` to check property names.
+Pass `checkProperties: true` to check property names.
 
 ### checkDefaultAndNamespaceImports
 
@@ -129,4 +129,4 @@ Default: `'internal'`
 Type: `boolean`\
 Default: `false`
 
-Pass `"checkShorthandProperties": true` to check variables declared as shorthand properties in object destructuring.
+Pass `checkShorthandProperties: true` to check variables declared as shorthand properties in object destructuring.
