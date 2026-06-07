@@ -9,19 +9,34 @@ import {
 } from './utils/index.js';
 import {
 	isLiteral,
+	isNullLiteral,
 	isMethodCall,
 	isStringLiteral,
+	isUndefined,
 } from './ast/index.js';
 
 const MESSAGE_ID_FIRST_MATCH = 'first-match';
 const MESSAGE_ID_ID_SELECTOR = 'id-selector';
 const MESSAGE_ID_LENGTH_CHECK = 'length-check';
+const MESSAGE_ID_QUERY_SELECTOR_ALL_NULLISH = 'query-selector-all-nullish';
+const MESSAGE_ID_QUERY_SELECTOR_UNDEFINED = 'query-selector-undefined';
 
 const messages = {
 	[MESSAGE_ID_FIRST_MATCH]: 'Prefer `.querySelector()` when only the first match is used.',
 	[MESSAGE_ID_ID_SELECTOR]: 'Prefer `.querySelector()` for a simple ID selector.',
 	[MESSAGE_ID_LENGTH_CHECK]: 'Check `.length` instead of the `NodeList` object itself.',
+	[MESSAGE_ID_QUERY_SELECTOR_ALL_NULLISH]: 'Check `.length` instead of comparing the `NodeList` object with `null` or `undefined`.',
+	[MESSAGE_ID_QUERY_SELECTOR_UNDEFINED]: 'Compare the result of `.querySelector()` with `null` instead of `undefined`.',
 };
+
+const isQuerySelectorCall = node =>
+	isMethodCall(node, {
+		method: 'querySelector',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& !isNodeValueNotDomNode(node.callee.object);
 
 const isQuerySelectorAllCall = node =>
 	isMethodCall(node, {
@@ -34,24 +49,28 @@ const isQuerySelectorAllCall = node =>
 
 const isZeroLiteral = node => isLiteral(node, 0);
 
-const isZeroIndexAccess = node =>
+const isZeroIndexAccess = (node, isCall) =>
 	node.type === 'MemberExpression'
 	&& node.computed
 	&& !node.optional
-	&& isQuerySelectorAllCall(node.object)
+	&& isCall(node.object)
 	&& isZeroLiteral(node.property);
 
-const isFirstItemCall = node =>
+const isQuerySelectorAllZeroIndexAccess = node => isZeroIndexAccess(node, isQuerySelectorAllCall);
+
+const isFirstItemCall = (node, isCall) =>
 	isMethodCall(node, {
 		methods: ['at', 'item'],
 		argumentsLength: 1,
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& isQuerySelectorAllCall(node.callee.object)
+	&& isCall(node.callee.object)
 	&& isZeroLiteral(node.arguments[0]);
 
-const isFirstElementAccess = node => isZeroIndexAccess(node) || isFirstItemCall(node);
+const isFirstQuerySelectorAllItemCall = node => isFirstItemCall(node, isQuerySelectorAllCall);
+
+const isFirstQuerySelectorAllElementAccess = node => isQuerySelectorAllZeroIndexAccess(node) || isFirstQuerySelectorAllItemCall(node);
 
 const isWriteTarget = node =>
 	isLeftHandSide(node)
@@ -61,11 +80,11 @@ const isWriteTarget = node =>
 	);
 
 const isQuerySelectorAllCallPartOfFirstElementAccess = node =>
-	isFirstElementAccess(node.parent)
+	isFirstQuerySelectorAllElementAccess(node.parent)
 	|| (
 		node.parent.type === 'MemberExpression'
 		&& node.parent.object === node
-		&& isFirstItemCall(node.parent.parent)
+		&& isFirstQuerySelectorAllItemCall(node.parent.parent)
 	);
 
 const hasCommentsInAccess = (node, querySelectorAllCall, sourceCode, context) => {
@@ -120,7 +139,7 @@ const getStaticSelector = node => {
 
 const isSimpleIdSelector = selector => /^#[A-Za-z_\-][\w\-]*$/v.test(selector);
 
-const getQuerySelectorAllCallFromIdentifier = (node, sourceCode) => {
+const getCallFromIdentifier = (node, sourceCode, isCall) => {
 	if (node.type !== 'Identifier') {
 		return;
 	}
@@ -135,7 +154,7 @@ const getQuerySelectorAllCallFromIdentifier = (node, sourceCode) => {
 		definition.type !== 'Variable'
 		|| definition.parent.kind !== 'const'
 		|| definition.node.id !== definition.name
-		|| !isQuerySelectorAllCall(definition.node.init)
+		|| !isCall(definition.node.init)
 	) {
 		return;
 	}
@@ -148,7 +167,7 @@ const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) => {
 		return node;
 	}
 
-	return getQuerySelectorAllCallFromIdentifier(node, sourceCode);
+	return getCallFromIdentifier(node, sourceCode, isQuerySelectorAllCall);
 };
 
 const getLengthCheckProblem = (node, context) => {
@@ -190,13 +209,73 @@ const getFirstElementAccessProblem = (node, querySelectorAllCall, context) => ({
 	},
 });
 
+const isNullishNode = (node, sourceCode) =>
+	isNullLiteral(node)
+	|| (
+		isUndefined(node)
+		&& sourceCode.isGlobalReference(node)
+	);
+
+const getQuerySelectorComparison = (node, isCall, sourceCode) => {
+	const {left, operator, right} = node;
+
+	if (!['==', '===', '!=', '!=='].includes(operator)) {
+		return;
+	}
+
+	const leftCall = isCall(left)
+		? left
+		: getCallFromIdentifier(left, sourceCode, isCall);
+
+	if (leftCall && isNullishNode(right, sourceCode)) {
+		return {node: left, value: right};
+	}
+
+	const rightCall = isCall(right)
+		? right
+		: getCallFromIdentifier(right, sourceCode, isCall);
+
+	if (rightCall && isNullishNode(left, sourceCode)) {
+		return {node: right, value: left};
+	}
+};
+
+const getQuerySelectorAllNullishComparisonProblem = (node, context) => {
+	const {sourceCode} = context;
+	const comparison = getQuerySelectorComparison(node, isQuerySelectorAllCall, sourceCode);
+	if (!comparison) {
+		return;
+	}
+
+	return {
+		node,
+		messageId: MESSAGE_ID_QUERY_SELECTOR_ALL_NULLISH,
+	};
+};
+
+const getQuerySelectorUndefinedComparisonProblem = (node, sourceCode) => {
+	const comparison = getQuerySelectorComparison(node, isQuerySelectorCall, sourceCode);
+	if (
+		!comparison
+		|| (node.operator !== '===' && node.operator !== '!==')
+		|| !isUndefined(comparison.value)
+	) {
+		return;
+	}
+
+	return {
+		node,
+		messageId: MESSAGE_ID_QUERY_SELECTOR_UNDEFINED,
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 
 	context.on('MemberExpression', node => {
 		if (
-			!isZeroIndexAccess(node)
+			!isQuerySelectorAllZeroIndexAccess(node)
 			|| isWriteTarget(node)
 		) {
 			return;
@@ -211,7 +290,7 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		if (isFirstItemCall(node)) {
+		if (isFirstQuerySelectorAllItemCall(node)) {
 			if (isWriteTarget(node)) {
 				return;
 			}
@@ -242,6 +321,10 @@ const create = context => {
 			}
 		}
 	});
+
+	context.on('BinaryExpression', node =>
+		getQuerySelectorAllNullishComparisonProblem(node, context)
+		?? getQuerySelectorUndefinedComparisonProblem(node, sourceCode));
 
 	context.on('Identifier', node => getLengthCheckProblem(node, context));
 };

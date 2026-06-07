@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule catches common incorrect or inefficient `querySelectorAll()` usage.
+This rule catches common incorrect or inefficient `querySelector()` and `querySelectorAll()` usage.
 
 ## Examples
 
@@ -53,6 +53,24 @@ if (elements) {}
 // ✅
 const elements = document.querySelectorAll('.item');
 if (elements.length > 0) {}
+```
+
+```js
+// ❌
+document.querySelectorAll('.item') === null;
+
+// ✅
+// If you meant "no matches":
+document.querySelectorAll('.item').length === 0;
+```
+
+```js
+// ❌
+document.querySelector('.item') === undefined;
+
+// ✅
+// If you meant "no match":
+document.querySelector('.item') === null;
 ```
 
 ## Limitations
