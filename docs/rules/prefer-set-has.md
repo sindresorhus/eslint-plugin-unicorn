@@ -23,7 +23,9 @@ const set = new Set([1, 2, 3]);
 const hasValue = value => set.has(value);
 ```
 
-The array can also be converted when all extra references are from the supported allowlist, the `includes()` usage is not a single one-off lookup, and the array is a plain literal with statically known primitive values, no holes, no spreads, no `-0`, and no duplicate values. Supported extra references are `for…of`, array spread, call or constructor argument spread, `.length`, and `.forEach()` with a one-parameter arrow function.
+Arrays with supported extra references can also be converted when they have more than one `includes()` lookup. The array must be a plain literal with only unique, statically known primitive or `null` values, and no holes, spreads, or `-0`.
+
+Supported extra references are `for…of`, array spread, call or constructor argument spread, `.length`, and `.forEach()` with a one-parameter arrow function.
 
 ```js
 // ❌

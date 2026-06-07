@@ -203,6 +203,32 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const foo = [1, 1, 2];
+			const length = foo.length;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 1, 2];
+			call(...foo);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 1, 2];
+			foo.forEach(element => {
+				console.log(element);
+			});
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
 			const foo = [-0];
 			const values = [...foo];
 
@@ -410,6 +436,11 @@ test.snapshot({
 		outdent`
 			const foo = [1, 2, 3];
 			const values = [...foo];
+			const exists = foo.includes(1);
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const length = foo.length;
 			const exists = foo.includes(1);
 		`,
 		outdent`

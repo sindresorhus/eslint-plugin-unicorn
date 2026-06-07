@@ -481,7 +481,6 @@ const isArrayVariableDeclaratorIdentifier = (node, sourceCode) => {
 		&& parent.id === node
 		&& Boolean(parent.init)
 		&& parent.parent.type === 'VariableDeclaration'
-		&& parent.parent.declarations.includes(parent)
 		// Exclude `export const foo = [];`
 		&& !(
 			parent.parent.parent.type === 'ExportNamedDeclaration'
