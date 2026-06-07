@@ -32,11 +32,18 @@ const defaultReplacements = {
 	clipBoard: 'clipboard',
 	codeBase: 'codebase',
 	dataBase: 'database',
-	homePage: 'homepage',
+	downLoad: 'download',
+	feedBack: 'feedback',
+	foreGround: 'foreground',
+	frameWork: 'framework',
+	headLine: 'headline',
 	keyBoard: 'keyboard',
 	keyFrame: 'keyframe',
+	lifeCycle: 'lifecycle',
 	metaData: 'metadata',
+	midPoint: 'midpoint',
 	nameSpace: 'namespace',
+	newLine: 'newline',
 	overRide: 'override',
 	passWord: 'password',
 	payLoad: 'payload',
@@ -52,15 +59,25 @@ const defaultReplacements = {
 	subString: 'substring',
 	subTree: 'subtree',
 	subType: 'subtype',
+	subTitle: 'subtitle',
+	timeOut: 'timeout',
+	timeStamp: 'timestamp',
 	toolBar: 'toolbar',
+	toolKit: 'toolkit',
 	toolTip: 'tooltip',
 	touchScreen: 'touchscreen',
 	unSubscribe: 'unsubscribe',
 	underScore: 'underscore',
+	upLoad: 'upload',
 	userName: 'username',
 	viewPort: 'viewport',
+	webCam: 'webcam',
 	webHook: 'webhook',
+	webSite: 'website',
 	weekEnd: 'weekend',
+	whiteSpace: 'whitespace',
+	wildCard: 'wildcard',
+	workFlow: 'workflow',
 	workSpace: 'workspace',
 };
 
@@ -88,16 +105,11 @@ const prepareOptions = ({
 	extendDefaultReplacements = true,
 	replacements = {},
 
-	extendDefaultAllowList = true,
 	allowList = {},
 } = {}) => {
 	const mergedReplacements = extendDefaultReplacements
 		? {...defaultReplacements, ...replacements}
 		: replacements;
-
-	const mergedAllowList = extendDefaultAllowList
-		? {...allowList}
-		: allowList;
 
 	return {
 		checkProperties,
@@ -108,7 +120,7 @@ const prepareOptions = ({
 		checkShorthandProperties,
 
 		replacements: new Map(Object.entries(mergedReplacements).filter(([, replacement]) => replacement !== false)),
-		allowList: new Map(Object.entries(mergedAllowList)),
+		allowList: new Map(Object.entries(allowList)),
 	};
 };
 
@@ -126,9 +138,9 @@ const getNameReplacement = (name, {replacements, allowList}) => {
 		return;
 	}
 
+	const boundary = String.raw`(?=$|[\d_$]|\p{Uppercase_Letter})`;
 	let replacement = name;
 	for (const discouragedName of replacements.keys()) {
-		const boundary = String.raw`(?=$|[\d_$]|\p{Uppercase_Letter})`;
 		const pattern = new RegExp(`^${escapeRegExp(discouragedName)}${boundary}|${escapeRegExp(upperFirst(discouragedName))}${boundary}`, 'gv');
 		replacement = replacement.replaceAll(pattern, part => getReplacementForPart(part, replacements));
 	}
@@ -265,7 +277,24 @@ const create = context => {
 		}
 	};
 
-	context.on('Identifier', node => {
+	const isTSParameterPropertyName = node => {
+		if (options.checkVariables) {
+			return false;
+		}
+
+		if (node.parent.type === 'TSParameterProperty') {
+			return node.parent.parameter === node;
+		}
+
+		return (
+			node.parent.type === 'AssignmentPattern'
+			&& node.parent.left === node
+			&& node.parent.parent.type === 'TSParameterProperty'
+			&& node.parent.parent.parameter === node.parent
+		);
+	};
+
+	const checkProperty = node => {
 		if (!options.checkProperties) {
 			return;
 		}
@@ -279,14 +308,22 @@ const create = context => {
 			return;
 		}
 
-		if (!shouldReportIdentifierAsProperty(node)) {
+		if (
+			!isTSParameterPropertyName(node)
+			&& !shouldReportIdentifierAsProperty(node)
+		) {
 			return;
 		}
 
 		const problem = createProblem(node, replacement);
 
 		context.report(problem);
-	});
+	};
+
+	context.on('Identifier', checkProperty);
+	context.on('PrivateIdentifier', checkProperty);
+	// eslint-disable-next-line no-warning-comments
+	// TODO: Consider JSX attributes, JSON keys, HTML attributes, and CSS custom properties after this rule has proven itself on identifier-only usage.
 
 	context.on('Program:exit', program => {
 		if (!options.checkVariables) {
@@ -314,19 +351,29 @@ const schema = {
 					description: 'Whether to check variable names.',
 				},
 				checkDefaultAndNamespaceImports: {
-					type: [
-						'boolean',
-						'string',
+					anyOf: [
+						{
+							type: 'boolean',
+						},
+						{
+							enum: [
+								'internal',
+							],
+						},
 					],
-					pattern: 'internal',
 					description: 'Whether to check default and namespace import names.',
 				},
 				checkShorthandImports: {
-					type: [
-						'boolean',
-						'string',
+					anyOf: [
+						{
+							type: 'boolean',
+						},
+						{
+							enum: [
+								'internal',
+							],
+						},
 					],
-					pattern: 'internal',
 					description: 'Whether to check shorthand import names.',
 				},
 				checkShorthandProperties: {
@@ -341,10 +388,6 @@ const schema = {
 					$ref: '#/definitions/replacements',
 					description: 'Custom compound word replacements.',
 				},
-				extendDefaultAllowList: {
-					type: 'boolean',
-					description: 'Whether to extend the default allow list.',
-				},
 				allowList: {
 					$ref: '#/definitions/booleanObject',
 					description: 'Custom allow list of names.',
@@ -355,6 +398,9 @@ const schema = {
 	definitions: {
 		replacements: {
 			type: 'object',
+			propertyNames: {
+				minLength: 1,
+			},
 			additionalProperties: {
 				anyOf: [
 					{
@@ -364,14 +410,20 @@ const schema = {
 					},
 					{
 						type: 'string',
+						minLength: 1,
 					},
 				],
 			},
 		},
 		booleanObject: {
 			type: 'object',
+			propertyNames: {
+				minLength: 1,
+			},
 			additionalProperties: {
-				type: 'boolean',
+				enum: [
+					true,
+				],
 			},
 		},
 	},
@@ -384,7 +436,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent spelling of compound words in identifiers.',
-			recommended: false,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		schema,

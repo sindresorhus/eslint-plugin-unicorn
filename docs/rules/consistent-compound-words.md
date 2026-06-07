@@ -2,7 +2,7 @@
 
 📝 Enforce consistent spelling of compound words in identifiers.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -39,6 +39,12 @@ function unSubscribe() {}
 function unsubscribe() {}
 ```
 
+## Intentionally not checked
+
+This rule does not check string keys, computed properties, property reads, JSX attributes, or JSON keys. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
+
+It also intentionally excludes ambiguous or common API spellings such as `fileName`, `setUp`, and `lookUp`.
+
 ## Options
 
 Type: `object`
@@ -72,7 +78,7 @@ Pass `extendDefaultReplacements: false` to override the default `replacements` c
 
 Type: `object`
 
-You can extend the default allow list by passing the `allowList` option. It matches full identifier names case-sensitively.
+Use `allowList` to skip full identifier names case-sensitively. Values must be `true`.
 
 ```js
 'unicorn/consistent-compound-words': [
@@ -84,13 +90,6 @@ You can extend the default allow list by passing the `allowList` option. It matc
 	},
 ]
 ```
-
-### extendDefaultAllowList
-
-Type: `boolean`\
-Default: `true`
-
-Pass `extendDefaultAllowList: false` to override the default `allowList` completely.
 
 ### checkVariables
 
@@ -104,7 +103,7 @@ Pass `checkVariables: false` to disable checking variable names.
 Type: `boolean`\
 Default: `false`
 
-Pass `checkProperties: true` to check property names.
+Pass `checkProperties: true` to check property definitions and property writes.
 
 ### checkDefaultAndNamespaceImports
 
@@ -129,4 +128,4 @@ Default: `'internal'`
 Type: `boolean`\
 Default: `false`
 
-Pass `checkShorthandProperties: true` to check variables declared as shorthand properties in object destructuring.
+Pass `checkShorthandProperties: true` to check variables declared as shorthand properties in object patterns.

@@ -9,6 +9,17 @@ const declarationTypes = new Set([
 	'TSEnumDeclaration',
 ]);
 
+const propertyNameParentTypes = new Set([
+	'AccessorProperty',
+	'MethodDefinition',
+	'PropertyDefinition',
+	'TSAbstractAccessorProperty',
+	'TSAbstractMethodDefinition',
+	'TSAbstractPropertyDefinition',
+	'TSMethodSignature',
+	'TSPropertySignature',
+]);
+
 /**
 Check whether an identifier declares a named export.
 */
@@ -95,15 +106,23 @@ export const isClassVariable = variable => {
 };
 
 /**
-Check whether an identifier is a property definition or property write that should be reported as a property.
+Check whether a property name node is a property definition or property write that should be reported as a property.
 */
 export const shouldReportIdentifierAsProperty = identifier => {
 	if (
 		identifier.parent.type === 'MemberExpression'
 		&& identifier.parent.property === identifier
 		&& !identifier.parent.computed
-		&& identifier.parent.parent.type === 'AssignmentExpression'
-		&& identifier.parent.parent.left === identifier.parent
+		&& (
+			(
+				identifier.parent.parent.type === 'AssignmentExpression'
+				&& identifier.parent.parent.left === identifier.parent
+			)
+			|| (
+				identifier.parent.parent.type === 'UpdateExpression'
+				&& identifier.parent.parent.argument === identifier.parent
+			)
+		)
 	) {
 		return true;
 	}
@@ -127,10 +146,7 @@ export const shouldReportIdentifierAsProperty = identifier => {
 	}
 
 	if (
-		(
-			identifier.parent.type === 'MethodDefinition'
-			|| identifier.parent.type === 'PropertyDefinition'
-		)
+		propertyNameParentTypes.has(identifier.parent.type)
 		&& identifier.parent.key === identifier
 		&& !identifier.parent.computed
 	) {
