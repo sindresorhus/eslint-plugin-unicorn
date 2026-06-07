@@ -111,6 +111,18 @@ test.snapshot({
 				},
 			}],
 		},
+		{
+			code: 'const isOnline = navigator.onLine;',
+			options: checkPropertiesOptions,
+		},
+		{
+			code: 'document.styleSheet = styleSheet;',
+			options: checkPropertiesOptions,
+		},
+		{
+			code: 'const superClass = node.superClass;',
+			options: checkPropertiesOptions,
+		},
 	],
 	invalid: [
 		'const backGround = 1;',
