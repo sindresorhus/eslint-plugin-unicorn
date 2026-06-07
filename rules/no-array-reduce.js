@@ -368,7 +368,7 @@ function getLoopVariableNames(callExpression, resultName, callback, context) {
 }
 
 const getCallbackCallExpressionText = (callback, replacementNames, context) =>
-	`${context.sourceCode.getText(callback)}.call(undefined, ${replacementNames.resultName}, ${replacementNames.elementName}, ${replacementNames.indexName}, ${replacementNames.arrayText})`;
+	`${context.sourceCode.getText(callback)}(${replacementNames.resultName}, ${replacementNames.elementName}, ${replacementNames.indexName}, ${replacementNames.arrayText})`;
 
 function isSafeCallbackIdentifier(callback, replacementNames, context, options) {
 	const {sourceCode} = context;

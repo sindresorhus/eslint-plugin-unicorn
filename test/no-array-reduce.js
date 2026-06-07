@@ -279,23 +279,34 @@ test({
 				const array = []; const callback = (total, item) => transform(total, item); let result = initialValue;
 
 				for (const [index, element] of array.entries()) {
-					result = callback.call(undefined, result, element, index, array);
+					result = callback(result, element, index, array);
 				}
 			`,
 			errors: errorsReduce,
 		},
 		{
 			code: 'const array = []; const callback = (total, item) => transform(total, item); const result = array.reduce(callback);',
+			output: [
+				'const array = []; const callback = (total, item) => transform(total, item); let result;',
+				'',
+				'for (const [index, element] of array.entries()) {',
+				'\tif (index === 0) {',
+				'\t\tresult = element;',
+				'\t\tcontinue;',
+				'\t}',
+				'',
+				'\tresult = callback(result, element, index, array);',
+				'}',
+			].join('\n'),
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const callback = (total, item) => transform(total, item); callback.call = () => 0; const result = array.reduce(callback, initialValue);',
 			output: outdent`
-				const array = []; const callback = (total, item) => transform(total, item); let result;
+				const array = []; const callback = (total, item) => transform(total, item); callback.call = () => 0; let result = initialValue;
 
 				for (const [index, element] of array.entries()) {
-					if (index === 0) {
-						result = element;
-						continue;
-					}
-
-					result = callback.call(undefined, result, element, index, array);
+					result = callback(result, element, index, array);
 				}
 			`,
 			errors: errorsReduce,
