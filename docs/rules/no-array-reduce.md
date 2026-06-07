@@ -4,6 +4,8 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -13,7 +15,7 @@ It's only somewhat useful in the rare case of summing up numbers, which is allow
 
 Use `eslint-disable` comment if you really need to use it or disable the rule entirely if you prefer functional programming.
 
-This rule is not fixable.
+This rule can automatically fix common direct `Array#reduce()` calls on local `const` array bindings used as a single variable initializer. Inline reducer callbacks and local `const` callback identifiers declared before the `reduce` call with simple inline-compatible bodies are fixed. More complex cases, `Array#reduceRight()`, and `Array#reduce.call()`/`Array#reduce.apply()` are reported without a fix.
 
 ## Examples
 
