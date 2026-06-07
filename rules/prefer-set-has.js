@@ -1,5 +1,10 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {getVariableIdentifiers} from './utils/index.js';
+import {
+	getDuplicateArrayElements,
+	getVariableIdentifiers,
+	isComparableStaticValue,
+	isLeftHandSide,
+} from './utils/index.js';
 import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
@@ -155,6 +160,21 @@ const getStaticArrayLength = (node, scope) => {
 };
 
 const hasSpread = nodes => nodes.some(node => node?.type === 'SpreadElement');
+
+const isStaticComparableArrayElement = (element, context) => {
+	const result = getStaticValue(element, context.sourceCode.getScope(element));
+
+	return result
+		&& isComparableStaticValue(result.value)
+		&& !Object.is(result.value, -0);
+};
+
+const isKnownUniqueArrayExpression = (node, context) =>
+	node.type === 'ArrayExpression'
+	&& !hasSpread(node.elements)
+	&& node.elements.every(Boolean)
+	&& node.elements.every(element => isStaticComparableArrayElement(element, context))
+	&& getDuplicateArrayElements(node.elements, context).length === 0;
 
 const isLengthProperty = property => {
 	if (
@@ -326,31 +346,163 @@ const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
 	}
 };
 
+const isOneParameterArrowFunction = node =>
+	node.type === 'ArrowFunctionExpression'
+	&& node.params.length === 1
+	&& node.params[0].type !== 'RestElement';
+
+const isTypeScriptExpressionWrapper = (parent, child) =>
+	(
+		parent?.type === 'TSAsExpression'
+		|| parent?.type === 'TSTypeAssertion'
+		|| parent?.type === 'TSNonNullExpression'
+	)
+	&& parent.expression === child;
+
+const isForInOrForOfTarget = node =>
+	(
+		node.parent.type === 'ForInStatement'
+		|| node.parent.type === 'ForOfStatement'
+	)
+	&& node.parent.left === node;
+
+const isRestElementArgument = node =>
+	node.parent.type === 'RestElement'
+	&& node.parent.argument === node;
+
+const isAssignmentTarget = node => {
+	let target = node;
+
+	while (isTypeScriptExpressionWrapper(target.parent, target)) {
+		target = target.parent;
+	}
+
+	return isLeftHandSide(target)
+		|| isForInOrForOfTarget(target)
+		|| isRestElementArgument(target);
+};
+
+const isLengthRead = identifier => {
+	const {parent} = identifier;
+
+	if (!(
+		parent.type === 'MemberExpression'
+		&& parent.object === identifier
+		&& !parent.computed
+		&& !parent.optional
+		&& parent.property.type === 'Identifier'
+		&& parent.property.name === 'length'
+	)) {
+		return false;
+	}
+
+	if (isAssignmentTarget(parent)) {
+		return false;
+	}
+
+	const grandParent = parent.parent;
+
+	return !(
+		grandParent.type === 'CallExpression'
+		&& grandParent.callee === parent
+	);
+};
+
+const isIterableUse = identifier =>
+	identifier.parent.type === 'ForOfStatement'
+	&& identifier.parent.right === identifier;
+
+const isArrayOrArgumentSpread = identifier => {
+	const {parent} = identifier;
+
+	return parent.type === 'SpreadElement'
+		&& parent.argument === identifier
+		&& [
+			'ArrayExpression',
+			'CallExpression',
+			'NewExpression',
+		].includes(parent.parent.type);
+};
+
+const isAllowedForEachCall = identifier => {
+	const callExpression = identifier.parent.parent;
+
+	return isMethodCall(callExpression, {
+		method: 'forEach',
+		optionalCall: false,
+		optionalMember: false,
+		argumentsLength: 1,
+	})
+	&& identifier.parent.object === identifier
+	&& isOneParameterArrowFunction(callExpression.arguments[0]);
+};
+
+const isAllowedExtraReference = identifier =>
+	isIterableUse(identifier)
+	|| isArrayOrArgumentSpread(identifier)
+	|| isAllowedForEachCall(identifier);
+
+const getReferenceGroups = identifiers => {
+	const includes = [];
+	const lengths = [];
+	const extra = [];
+
+	for (const identifier of identifiers) {
+		if (isIncludesCall(identifier)) {
+			includes.push(identifier);
+			continue;
+		}
+
+		if (isLengthRead(identifier)) {
+			lengths.push(identifier);
+			extra.push(identifier);
+			continue;
+		}
+
+		if (isAllowedExtraReference(identifier)) {
+			extra.push(identifier);
+			continue;
+		}
+
+		return;
+	}
+
+	return {
+		includes,
+		lengths,
+		extra,
+	};
+};
+
+const isArrayVariableDeclaratorIdentifier = (node, sourceCode) => {
+	const {parent} = node;
+
+	return parent.type === 'VariableDeclarator'
+		&& parent.id === node
+		&& Boolean(parent.init)
+		&& parent.parent.type === 'VariableDeclaration'
+		// Exclude `export const foo = [];`
+		&& !(
+			parent.parent.parent.type === 'ExportNamedDeclaration'
+			&& parent.parent.parent.declaration === parent.parent
+		)
+		&& isArrayMethodCall(parent.init, sourceCode.getScope(parent.init));
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {minimumItems} = context.options[0];
+	const {sourceCode} = context;
 
 	context.on('Identifier', node => {
 		const {parent} = node;
 
-		if (!(
-			parent.type === 'VariableDeclarator'
-			&& parent.id === node
-			&& Boolean(parent.init)
-			&& parent.parent.type === 'VariableDeclaration'
-			&& parent.parent.declarations.includes(parent)
-			// Exclude `export const foo = [];`
-			&& !(
-				parent.parent.parent.type === 'ExportNamedDeclaration'
-				&& parent.parent.parent.declaration === parent.parent
-			)
-			&& isArrayMethodCall(parent.init, context.sourceCode.getScope(parent.init))
-		)) {
+		if (!isArrayVariableDeclaratorIdentifier(node, sourceCode)) {
 			return;
 		}
 
 		if (minimumItems > 0) {
-			const arraySize = getKnownArraySize(parent.init, context.sourceCode.getScope(parent.init));
+			const arraySize = getKnownArraySize(parent.init, sourceCode.getScope(parent.init));
 			if (
 				arraySize === undefined
 				|| arraySize < minimumItems
@@ -359,7 +511,7 @@ const create = context => {
 			}
 		}
 
-		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const variable = findVariable(sourceCode.getScope(node), node);
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
 		// But can't reproduce, just ignore this case
@@ -370,16 +522,22 @@ const create = context => {
 
 		const identifiers = getVariableIdentifiers(variable).filter(identifier => identifier !== node);
 
+		const referenceGroups = getReferenceGroups(identifiers);
+
+		if (!referenceGroups || referenceGroups.includes.length === 0) {
+			return;
+		}
+
 		if (
-			identifiers.length === 0
-			|| identifiers.some(identifier => !isIncludesCall(identifier))
+			referenceGroups.extra.length > 0
+			&& !isKnownUniqueArrayExpression(parent.init, context)
 		) {
 			return;
 		}
 
 		if (
-			identifiers.length === 1
-			&& identifiers.every(identifier => !isMultipleCall(identifier, node))
+			referenceGroups.includes.length === 1
+			&& !isMultipleCall(referenceGroups.includes[0], node)
 		) {
 			return;
 		}
@@ -392,7 +550,7 @@ const create = context => {
 			},
 		};
 
-		const setTypeAnnotationText = node.typeAnnotation && getSetTypeAnnotationText(node.typeAnnotation.typeAnnotation, context.sourceCode);
+		const setTypeAnnotationText = node.typeAnnotation && getSetTypeAnnotationText(node.typeAnnotation.typeAnnotation, sourceCode);
 
 		const fix = function * (fixer) {
 			if (setTypeAnnotationText) {
@@ -402,8 +560,12 @@ const create = context => {
 			yield fixer.insertTextBefore(node.parent.init, 'new Set(');
 			yield fixer.insertTextAfter(node.parent.init, ')');
 
-			for (const identifier of identifiers) {
+			for (const identifier of referenceGroups.includes) {
 				yield fixer.replaceText(identifier.parent.property, 'has');
+			}
+
+			for (const identifier of referenceGroups.lengths) {
+				yield fixer.replaceText(identifier.parent.property, 'size');
 			}
 		};
 
