@@ -2,9 +2,9 @@ import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
 	isFunction,
-	isLiteral,
 	isMethodCall,
 	isNewExpression,
+	isNullLiteral,
 	isRegexLiteral,
 } from './ast/index.js';
 
@@ -13,8 +13,6 @@ const MESSAGE_ID = 'prefer-string-match-all';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#matchAll()` over a `RegExp#exec()` loop.',
 };
-
-const isNull = node => isLiteral(node, null);
 
 const hasCommentsInRange = (sourceCode, [start, end]) =>
 	sourceCode.getAllComments().some(comment => {
@@ -31,11 +29,11 @@ const getAssignmentExpression = node => {
 		node.type === 'BinaryExpression'
 		&& (node.operator === '!==' || node.operator === '!=')
 	) {
-		if (isNull(node.right)) {
+		if (isNullLiteral(node.right)) {
 			return node.left;
 		}
 
-		if (isNull(node.left)) {
+		if (isNullLiteral(node.left)) {
 			return node.right;
 		}
 	}
