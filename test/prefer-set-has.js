@@ -163,13 +163,254 @@ test.snapshot({
 				return foo.indexOf(1) !== -1;
 			}
 		`,
-		// Not only `foo.includes()`
+		// Unsupported extra references
 		outdent`
 			const foo = [1, 2, 3];
 			function unicorn() {
 				foo.includes(1);
 				foo.length = 1;
 			}
+		`,
+		// Duplicates and `-0` can change the values produced by iteration/spread/forEach.
+		outdent`
+			const foo = [1, 1, 2];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [NaN, NaN];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [0, -0];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [-0];
+			const values = [...foo];
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const value = -0;
+			const foo = [value];
+			const values = [...foo];
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		// Unknown uniqueness
+		outdent`
+			const value = 1;
+			const foo = [value, value];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const first = getValue();
+			const second = getValue();
+			const foo = [first, second];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		// Unsupported initializer shapes
+		outdent`
+			const foo = [1, , 2];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [...bar];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = Array.of(1, 2, 3);
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		// Unsupported extra references
+		outdent`
+			const foo = [1, 2, 3];
+			console.log(foo[0]);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const object = {...foo};
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.forEach((element, index) => {
+				console.log(element, index);
+			});
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.forEach((...elements) => {
+				console.log(elements[1]);
+			});
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.forEach(function (element) {
+				console.log(arguments[1]);
+			});
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.forEach(callback);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		// `.length` writes
+		outdent`
+			const foo = [1, 2, 3];
+			delete foo.length;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.length++;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const object = {};
+
+			for (foo.length in object) {}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const values = [];
+
+			for (foo.length of values) {}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const object = {};
+
+			({length: foo.length} = object);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const object = {};
+
+			({length: foo.length = 0} = object);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const object = {};
+
+			({...foo.length} = object);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const values = [];
+
+			[...foo.length] = values;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		// One-off lookup with supported extra references
+		outdent`
+			const foo = [1, 2, 3];
+			const values = [...foo];
+			const exists = foo.includes(1);
 		`,
 		outdent`
 			const foo = [1, 2, 3];
@@ -642,6 +883,58 @@ test.snapshot({
 				return bar.includes(1);
 			}
 		`,
+		outdent`
+			const foo = [1, 2, 3];
+			for (const element of foo) {
+				console.log(element);
+			}
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const bar = [...foo];
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			call(...foo);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			new Call(...foo);
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			const length = foo.length;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			foo.forEach(element => {
+				console.log(element);
+			});
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
 		// Different scope
 		outdent`
 			const foo = [1, 2, 3];
@@ -1031,6 +1324,30 @@ test({
 			)
 			export default class A {}
 		`,
+		outdent`
+			const foo = [1, 2, 3];
+			(foo.length as number) = 1;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			(foo.length!) = 1;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			(<number>foo.length) = 1;
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
 	],
 	invalid: [
 		createTypeScriptFixCase('Array<\'foo\' | \'bar\'>', 'Set<\'foo\' | \'bar\'>'),
@@ -1041,5 +1358,24 @@ test({
 		createTypeScriptSuggestionCase('Items', 'type Items = string[]'),
 		createTypeScriptSuggestionCase('[string, string]'),
 		createTypeScriptSuggestionCase('string /* comment */ []'),
+		{
+			code: outdent`
+				const foo: string[] = ['a', 'b']
+				const length = foo.length
+
+				function has(value) {
+					return foo.includes(value)
+				}
+			`,
+			output: outdent`
+				const foo: Set<string> = new Set(['a', 'b'])
+				const length = foo.size
+
+				function has(value) {
+					return foo.has(value)
+				}
+			`,
+			errors: [createError('foo')],
+		},
 	],
 });

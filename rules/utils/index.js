@@ -28,6 +28,7 @@ export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
 export {default as getCallExpressionArgumentsText} from './get-call-expression-arguments-text.js';
 export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new-expression-tokens.js';
+export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getReferences} from './get-references.js';
 export {default as getScopes} from './get-scopes.js';

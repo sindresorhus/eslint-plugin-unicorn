@@ -23,9 +23,31 @@ const set = new Set([1, 2, 3]);
 const hasValue = value => set.has(value);
 ```
 
+The array can also be converted when all extra references are from the supported allowlist, the `includes()` usage is not a single one-off lookup, and the array is a plain literal with statically known primitive values, no holes, no spreads, no `-0`, and no duplicate values. Supported extra references are `for…of`, array spread, call or constructor argument spread, `.length`, and `.forEach()` with a one-parameter arrow function.
+
+```js
+// ❌
+const array = [1, 2, 3];
+for (const item of array) {
+	console.log(item);
+}
+
+const length = array.length;
+const hasValue = value => array.includes(value);
+
+// ✅
+const set = new Set([1, 2, 3]);
+for (const item of set) {
+	console.log(item);
+}
+
+const length = set.size;
+const hasValue = value => set.has(value);
+```
+
 ```js
 // ✅
-// This array is not only checking existence.
+// This array has a usage that does not work the same on a `Set`.
 const array = [1, 2];
 const hasValue = value => array.includes(value);
 array.push(3);
