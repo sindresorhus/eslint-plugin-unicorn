@@ -41,7 +41,7 @@ function unsubscribe() {}
 
 ## Intentionally not checked
 
-This rule does not check string keys, computed properties, property reads, JSX attributes, or JSON keys. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
+This rule does not check string keys, computed properties, property reads, JSX attributes, or export aliases. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
 
 It also intentionally excludes ambiguous or common API spellings such as `fileName`, `setUp`, and `lookUp`.
 

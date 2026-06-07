@@ -120,7 +120,7 @@ const prepareOptions = ({
 		checkShorthandProperties,
 
 		replacements: new Map(Object.entries(mergedReplacements).filter(([, replacement]) => replacement !== false)),
-		allowList: new Map(Object.entries(allowList)),
+		allowList: new Set(Object.keys(allowList)),
 	};
 };
 
@@ -134,7 +134,7 @@ const getReplacementForPart = (part, replacements) => {
 };
 
 const getNameReplacement = (name, {replacements, allowList}) => {
-	if (isUpperCase(name) || allowList.get(name)) {
+	if (isUpperCase(name) || allowList.has(name)) {
 		return;
 	}
 
@@ -308,6 +308,10 @@ const create = context => {
 			return;
 		}
 
+		if (node.parent.type === 'ExportSpecifier') {
+			return;
+		}
+
 		if (
 			!isTSParameterPropertyName(node)
 			&& !shouldReportIdentifierAsProperty(node)
@@ -323,7 +327,7 @@ const create = context => {
 	context.on('Identifier', checkProperty);
 	context.on('PrivateIdentifier', checkProperty);
 	// eslint-disable-next-line no-warning-comments
-	// TODO: Consider JSX attributes, JSON keys, HTML attributes, and CSS custom properties after this rule has proven itself on identifier-only usage.
+	// TODO: Consider expanding beyond JavaScript identifiers after this rule has proven itself.
 
 	context.on('Program:exit', program => {
 		if (!options.checkVariables) {
@@ -389,7 +393,7 @@ const schema = {
 					description: 'Custom compound word replacements.',
 				},
 				allowList: {
-					$ref: '#/definitions/booleanObject',
+					$ref: '#/definitions/trueObject',
 					description: 'Custom allow list of names.',
 				},
 			},
@@ -415,7 +419,7 @@ const schema = {
 				],
 			},
 		},
-		booleanObject: {
+		trueObject: {
 			type: 'object',
 			propertyNames: {
 				minLength: 1,

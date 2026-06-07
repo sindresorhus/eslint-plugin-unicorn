@@ -147,6 +147,17 @@ ruleTest.snapshot({
 			options: checkPropertiesOptions,
 		},
 		{
+			code: outdent`
+				const username = 1;
+				export {username as userName};
+			`,
+			options: onlyCheckPropertiesOptions,
+		},
+		{
+			code: 'export {default as userName} from "./module.js";',
+			options: onlyCheckPropertiesOptions,
+		},
+		{
 			code: 'const options = {"timeOut": 1000};',
 			options: checkPropertiesOptions,
 		},
