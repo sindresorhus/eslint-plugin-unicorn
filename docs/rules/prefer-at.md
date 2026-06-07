@@ -134,6 +134,12 @@ Example:
 const foo = utils.lastElement(bar);
 ```
 
+```js
+/* eslint unicorn/prefer-at: ["error", {"getLastElementFunctions": ["utils.lastElement"]}] */
+// ✅
+const foo = bar.at(-1);
+```
+
 ## Related rules
 
 - [unicorn/prefer-negative-index](./prefer-negative-index.md)

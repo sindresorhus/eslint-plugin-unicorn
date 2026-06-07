@@ -33,6 +33,11 @@ const foo = ((bar, baz) => ({bar, baz}))(bar, baz);
 
 ```js
 // ✅
+const foo = {bar, baz};
+```
+
+```js
+// ✅
 const foo = (bar => {
 	return bar ? bar.baz : baz;
 })(getBar());

@@ -27,11 +27,23 @@ window.removeEventListener('click', getListener());
 ```js
 // ❌
 window.removeEventListener('click', () => {});
+
+// ✅
+const listener = () => {};
+window.addEventListener('click', listener);
+// ...
+window.removeEventListener('click', listener);
 ```
 
 ```js
 // ❌
 window.removeEventListener('click', function () {});
+
+// ✅
+const listener = function () {};
+window.addEventListener('click', listener);
+// ...
+window.removeEventListener('click', listener);
 ```
 
 ```js

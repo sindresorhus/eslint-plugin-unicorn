@@ -128,49 +128,67 @@ Numbers are split into 3 distinct parts:
 /* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}] */
 
 // ❌
-const foo = 12345;
+const integer = 12345;
+
+// ✅
+const groupedInteger = 12_345;
 
 // ✅ The fractional part is not grouped by default
-const foo = 0.0000001;
+const fractional = 0.0000001;
 ```
 
 ```js
 /* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3, "fractionGroupLength": 3}}] */
 
 // ❌
-const foo = 0.000_0001;
+const fractional = 0.000_0001;
+
+// ✅
+const groupedFractional = 0.000_000_1;
 
 // ❌
-const foo = 123.1_000_001;
+const longFractional = 123.1_000_001;
+
+// ✅
+const groupedLongFractional = 123.100_000_1;
 ```
 
 ```js
 /* eslint unicorn/numeric-separators-style: ["error", {"binary": {"minimumDigits": 0, "groupLength": 4}}] */
 
 // ❌
-const foo = 0b101010;
+const binary = 0b101010;
+
+// ✅
+const groupedBinary = 0b10_1010;
 
 // ❌
-const foo = 0b1010_10001;
+const longBinary = 0b1010_10001;
+
+// ✅
+const groupedLongBinary = 0b1_0101_0001;
 ```
 
 ```js
 /* eslint unicorn/numeric-separators-style: ["error", {"hexadecimal": {"minimumDigits": 0, "groupLength": 2}}] */
 // ❌
-const foo = 0xA_B_CD_EF;
+const hexadecimal = 0xA_B_CD_EF;
+
+// ✅
+const groupedHexadecimal = 0xAB_CD_EF;
 ```
 
 ```js
 /* eslint unicorn/numeric-separators-style: ["error", {"number": {"minimumDigits": 0, "groupLength": 3}}] */
 
 // ✅
-const foo = 100;
+const smallNumber = 100;
 
 // ✅
-const foo = 1_000;
+const groupedNumber = 1_000;
 
 // ✅
-const foo = 1_000_000;
+const largeGroupedNumber = 1_000_000;
 ```
 
 ```js
@@ -184,13 +202,13 @@ const foo = 1000;
 /* eslint unicorn/numeric-separators-style: ["error", {"octal": {"minimumDigits": 0, "groupLength": 4}}] */
 
 // ✅
-const foo = 0o7777;
+const octal = 0o7777;
 
 // ✅
-const foo = 0o7777;
+const anotherOctal = 0o7777;
 
 // ✅
-const foo = 0o12_7777;
+const groupedOctal = 0o12_7777;
 ```
 
 ### Default

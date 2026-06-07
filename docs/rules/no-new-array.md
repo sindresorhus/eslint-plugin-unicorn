@@ -36,11 +36,15 @@ const array = [onlyElement];
 ```
 
 ```js
+const items = ['foo', 'bar'];
+
 // ❌
-const array = new Array(...unknownArgumentsList);
+const array = new Array(...items);
 ```
 
 ```js
+const items = ['foo', 'bar'];
+
 // ✅
 const array = [...items];
 ```

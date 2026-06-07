@@ -21,6 +21,13 @@ switch (foo) {
 		handleDefaultCase();
 		break;
 }
+
+// ✅
+switch (foo) {
+	default:
+		handleDefaultCase();
+		break;
+}
 ```
 
 ```js

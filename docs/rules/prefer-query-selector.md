@@ -46,8 +46,13 @@ document.querySelectorAll('main');
 ```
 
 ```js
+const singleClassName = 'foo';
+
 // ❌
-document.getElementsByClassName(fn());
+document.getElementsByClassName(singleClassName);
+
+// ✅
+document.querySelectorAll(`.${CSS.escape(singleClassName)}`);
 ```
 
 ```js

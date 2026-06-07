@@ -56,6 +56,9 @@ If you want to disable this rule for properties, set `checkProperties` to `false
 /* eslint unicorn/no-keyword-prefix: ["error", {"checkProperties": true}] */
 // ❌
 foo.newFoo = 2;
+
+// ✅
+foo.foo = 2;
 ```
 
 ```js
@@ -81,4 +84,7 @@ const new_foo = "foo";
 /* eslint unicorn/no-keyword-prefix: ["error", {"onlyCamelCase": false}] */
 // ❌
 const new_foo = "foo";
+
+// ✅
+const foo = "foo";
 ```

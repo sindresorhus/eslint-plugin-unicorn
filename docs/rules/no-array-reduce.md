@@ -32,11 +32,14 @@ array.reduce(reducer);
 // ❌
 array.reduce(reducer, initialValue);
 
+// ❌
+[].reduce.apply(array, [reducer, initialValue]);
+
 // ✅
 let result = initialValue;
 
-for (const element of array) {
-	result += element;
+for (const [index, element] of array.entries()) {
+	result = reducer(result, element, index, array);
 }
 ```
 
@@ -52,24 +55,22 @@ array.reduceRight(reducer, initialValue);
 // ✅
 let result = initialValue;
 
-for (const element of array.toReversed()) { // Equivalent to .reduceRight()
-	result += element;
+for (let index = array.length - 1; index >= 0; index--) {
+	const element = array[index];
+	result = reducer(result, element, index, array);
 }
 ```
 
 ```js
 // ❌
 [].reduce.call(array, reducer);
-```
 
-```js
-// ❌
-[].reduce.apply(array, [reducer, initialValue]);
-```
-
-```js
 // ❌
 Array.prototype.reduce.call(array, reducer);
+
+// ✅
+// eslint-disable-next-line unicorn/no-array-reduce
+array.reduce(reducer);
 ```
 
 ## Options
@@ -93,4 +94,11 @@ array.reduce((total, item) => total + item)
 /* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}] */
 // ❌
 array.reduce((total, item) => total + item)
+
+// ✅
+let total = 0;
+
+for (const item of array) {
+	total += item;
+}
 ```

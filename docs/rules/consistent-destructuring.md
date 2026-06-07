@@ -47,6 +47,14 @@ console.log(foo.a.c);
 ```
 
 ```js
+// ✅
+const {
+	a: {b, c},
+} = foo;
+console.log(c);
+```
+
+```js
 // ❌
 const {bar} = foo;
 const {a} = foo.bar;

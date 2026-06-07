@@ -57,3 +57,9 @@ Example:
 // ❌
 const clone = utils.clone(foo);
 ```
+
+```js
+/* eslint unicorn/prefer-structured-clone: ["error", {"functions": ["utils.clone"]}] */
+// ✅
+const clone = structuredClone(foo);
+```

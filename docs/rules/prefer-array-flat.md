@@ -93,6 +93,12 @@ Example:
 const foo = utils.flat(bar);
 ```
 
+```js
+/* eslint unicorn/prefer-array-flat: ["error", {"functions": ["utils.flat"]}] */
+// ✅
+const foo = bar.flat();
+```
+
 ## Related rules
 
 - [unicorn/prefer-array-flat-map](./prefer-array-flat-map.md)

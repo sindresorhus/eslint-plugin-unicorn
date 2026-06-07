@@ -72,6 +72,9 @@ foo.indexOf('foo') === -1
 foo.some(x => {
 	return x === 'foo';
 });
+
+// ✅
+foo.includes('foo');
 ```
 
 ```js

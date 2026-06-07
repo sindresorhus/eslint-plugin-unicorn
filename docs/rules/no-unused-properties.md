@@ -52,6 +52,17 @@ const {used} = myEnum;
 // ✅
 const myEnum = {
 	used: 1,
+};
+
+console.log(myEnum.used);
+
+const {used} = myEnum;
+```
+
+```js
+// ✅
+const myEnum = {
+	used: 1,
 	usedToo: 2,
 };
 

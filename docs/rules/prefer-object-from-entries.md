@@ -74,3 +74,9 @@ Example:
 // ❌
 const object = utils.fromPairs(pairs);
 ```
+
+```js
+/* eslint unicorn/prefer-object-from-entries: ["error", {"functions": ["utils.fromPairs"]}] */
+// ✅
+const object = Object.fromEntries(pairs);
+```
