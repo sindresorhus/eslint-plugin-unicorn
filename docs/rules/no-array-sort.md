@@ -57,7 +57,7 @@ Pass `allowExpressionStatement: false` to forbid `Array#sort()` even if it's an 
 array.sort();
 
 // ✅
-array.splice(0, array.length, ...array.toSorted());
+const sortedArray = array.toSorted();
 ```
 
 ## Related rules
