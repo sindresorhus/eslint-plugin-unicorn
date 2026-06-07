@@ -1,6 +1,6 @@
 import outdent from 'outdent';
 import notFunctionTypes from './utils/not-function-types.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -110,83 +110,271 @@ test({
 		'array.reduce((total, item) => { return total + item }, 0)',
 	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
 	invalid: [
-		'array.reduce((str, item) => str += item, "")',
-		'array?.reduce((str, item) => str += item, "")',
-		outdent`
-			array.reduce((obj, item) => {
-				obj[item] = null;
-				return obj;
-			}, {})
-		`,
-		'array.reduce((obj, item) => ({ [item]: null }), {})',
-		outdent`
-			const hyphenate = (str, char) => \`\${str}-\${char}\`;
-			["a", "b", "c"].reduce(hyphenate);
-		`,
-		'[].reduce.call(array, (s, i) => s + i)',
-		'[].reduce.call(array, sum);',
-		'[].reduce.call(sum);',
-		'Array.prototype.reduce.call(array, (s, i) => s + i)',
-		'Array.prototype.reduce.call(array, sum);',
-		'[].reduce.apply(array, [(s, i) => s + i])',
-		'[].reduce.apply(array, [sum]);',
-		'Array.prototype.reduce.apply(array, [(s, i) => s + i])',
-		'Array.prototype.reduce.apply(array, [sum]);',
-		outdent`
-			array.reduce((total, item) => {
-				return total + doComplicatedThings(item);
-				function doComplicatedThings(item) {
-					return item + 1;
-				}
-			}, 0);
-		`,
+		...[
+			'array.reduce((str, item) => str += item, "")',
+			'array?.reduce((str, item) => str += item, "")',
+			outdent`
+				array.reduce((obj, item) => {
+					obj[item] = null;
+					return obj;
+				}, {})
+			`,
+			'array.reduce((obj, item) => ({ [item]: null }), {})',
+			outdent`
+				const hyphenate = (str, char) => \`\${str}-\${char}\`;
+				["a", "b", "c"].reduce(hyphenate);
+			`,
+			'[].reduce.call(array, (s, i) => s + i)',
+			'[].reduce.call(array, sum);',
+			'[].reduce.call(sum);',
+			'Array.prototype.reduce.call(array, (s, i) => s + i)',
+			'Array.prototype.reduce.call(array, sum);',
+			'[].reduce.apply(array, [(s, i) => s + i])',
+			'[].reduce.apply(array, [sum]);',
+			'Array.prototype.reduce.apply(array, [(s, i) => s + i])',
+			'Array.prototype.reduce.apply(array, [sum]);',
+			outdent`
+				array.reduce((total, item) => {
+					return total + doComplicatedThings(item);
+					function doComplicatedThings(item) {
+						return item + 1;
+					}
+				}, 0);
+			`,
 
-		// Option: allowSimpleOperations
+			// Option: allowSimpleOperations
+			{
+				code: 'array.reduce((total, item) => total + item)',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: 'array.reduce((total, item) => { return total - item })',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: 'array.reduce(function (total, item) { return total * item })',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: 'array.reduce((total, item) => total + item, 0)',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: 'array.reduce((total, item) => { return total - item }, 0 )',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: 'array.reduce(function (total, item) { return total * item }, 0)',
+				options: [{allowSimpleOperations: false}],
+			},
+			{
+				code: outdent`
+					array.reduce((total, item) => {
+						return (total / item) * 100;
+					}, 0);
+				`,
+				options: [{allowSimpleOperations: false}],
+			},
+			'const result = [].reduce.call(array, callback, initialValue);',
+			'const result = [].reduce.apply(array, [callback, initialValue]);',
+			'const array = []; const result = array.reduce(callback, initialValue);',
+			'const array = []; const result = array.reduce(callback);',
+			'const array = []; const result = array.reduce(object.callback, initialValue);',
+			'const array = []; const result = array.reduce(callback.bind(undefined), initialValue);',
+			'const result = array.reduce(callback, initialValue), other = 1;',
+			'const callback = array.reduce(callback, initialValue);',
+			'const result = getArray().reduce(callback, initialValue);',
+			'const result = getArray().reduce((total, item, index, array) => transform(total, item, index, array), initialValue);',
+			'const result = array.reduce((total, item) => transform(total, item), initialValue); const array = [];',
+			'const {result} = array.reduce(callback, initialValue);',
+			'for (const result = array.reduce(callback, initialValue); condition; update()) {}',
+			'const result = array.reduce(total => () => total, initialValue);',
+			'const result = array.reduce(total => ({method() { return total; }}), initialValue);',
+			'const array = []; const result = array.reduce(() => ({method() { return 1; }}), initialValue);',
+			'const array = []; const result = array.reduce((total, item) => eval("total + item"), initialValue);',
+			'const result = array.reduce(function () { return new.target; }, initialValue);',
+			'const result = array.reduce((total, item) => transform(total, item = 1), initialValue);',
+			'const result = array.reduce((total, item, index) => transform(total, index = 1), initialValue);',
+			'const result = array.reduce((total, item, index, array) => (array = [], total), initialValue);',
+			'const array = []; const result = array.reduce((total, item, index, array) => array.push(item) && total, initialValue);',
+			'const array = []; const result = array.reduce((total, item) => (void item, total), initialValue);',
+			'const array = []; const result = array.reduce((total, item, index, array) => mutate({array}) || total + item, initialValue);',
+			'const result = array.reduce((total, item) => (result = 1, total + item), initialValue);',
+			'const result = array.reduce((total, item) => transform(result, item), initialValue);',
+			'const result = array.reduce(callback, initialValue); result = 1;',
+			'let array = []; const result = array.reduce(callback, array = []);',
+			'let array = []; const result = array.reduce((total, item) => (array = [], total), initialValue);',
+			'let array = []; const result = array.reduce((total, item) => transform(total, item), getInitialValue());',
+			'const result = array.reduce((total, item) => (array.push(item), total), initialValue);',
+			'const array = []; const result = array.reduce((total, item) => total.push(item) && total, array);',
+			'const array = []; const initialValue = array; const result = array.reduce((total, item) => total.push(item) && total, initialValue);',
+			'const array = []; const result = array.reduce((total, item) => append(total, item), array);',
+			'const array = []; const initialValue = array; const result = array.reduce((total, item) => append(total, item), initialValue);',
+			'const array = []; const callback = (total, item) => append(total, item); const result = array.reduce(callback, array);',
+			'const array = []; const result = array.reduce((total, item, index, array) => transform(total, item, index, array), initialValue);',
+			'const array = []; function callback(total, item, index, array) { return index === 0 ? array.push(item) && total : total + item; } const result = array.reduce(callback, 0);',
+			'const array = []; const callback = (total, item) => (array.push(item), total); const result = array.reduce(callback, 0);',
+			'const array = []; const result = array.reduce(callback, initialValue); const callback = (total, item) => transform(total, item);',
+			outdent`
+				const result = array.reduce((total, item) => {
+					const value = transform(item);
+					return total.concat(value);
+				}, []);
+			`,
+			outdent`
+				const result = array.reduce((total, item) => {
+					if (item) {
+						return transform(total, item);
+					}
+				}, initialValue);
+			`,
+			'const result = array.reduce(/* comment */ callback, initialValue);',
+			'const array = []; const result = array.reduce((total, item) => transform(total, item), initialValue); // comment',
+			outdent`
+				const array = [];
+				const result = array.reduce((total, item) => transform(total, item), initialValue) // comment
+				use(result);
+			`,
+		].flatMap(testCase => {
+			const {code, options} = testCase;
+
+			if (options) {
+				return [
+					{code, errors: errorsReduce, options},
+					{code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight, options},
+				];
+			}
+
+			return [
+				{code: testCase, errors: errorsReduce},
+				{code: testCase.replace('reduce', 'reduceRight'), errors: errorsReduceRight},
+			];
+		}),
 		{
-			code: 'array.reduce((total, item) => total + item)',
-			options: [{allowSimpleOperations: false}],
+			code: 'const result: Result = array.reduce((total, item) => transform(total, item), initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
 		},
 		{
-			code: 'array.reduce((total, item) => { return total - item })',
-			options: [{allowSimpleOperations: false}],
+			code: 'const result = array.reduce((total: Result, item: Item): Result => transform(total, item), initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
 		},
 		{
-			code: 'array.reduce(function (total, item) { return total * item })',
-			options: [{allowSimpleOperations: false}],
+			code: 'const result = array.reduce<Result>((total, item) => transform(total, item), initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
 		},
 		{
-			code: 'array.reduce((total, item) => total + item, 0)',
-			options: [{allowSimpleOperations: false}],
+			code: 'const array = []; const callback = (total, item) => transform(total, item); const result = array.reduceRight(callback, initialValue);',
+			errors: errorsReduceRight,
 		},
 		{
-			code: 'array.reduce((total, item) => { return total - item }, 0 )',
-			options: [{allowSimpleOperations: false}],
+			code: 'const array = []; const result = array.reduceRight((total, item) => transform(total, item), initialValue);',
+			errors: errorsReduceRight,
 		},
 		{
-			code: 'array.reduce(function (total, item) { return total * item }, 0)',
-			options: [{allowSimpleOperations: false}],
+			code: 'const array = []; const callback = (total, item) => transform(total, item); const result = array.reduce(callback, initialValue);',
+			output: outdent`
+				const array = []; const callback = (total, item) => transform(total, item); let result = initialValue;
+
+				for (const [index, element] of array.entries()) {
+					result = callback.call(undefined, result, element, index, array);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const callback = (total, item) => transform(total, item); const result = array.reduce(callback);',
+			output: outdent`
+				const array = []; const callback = (total, item) => transform(total, item); let result;
+
+				for (const [index, element] of array.entries()) {
+					if (index === 0) {
+						result = element;
+						continue;
+					}
+
+					result = callback.call(undefined, result, element, index, array);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const callback = (total, item) => result + item; const result = array.reduce(callback, initialValue);',
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const result = array.reduce((total, item) => transform(total, item), initialValue);',
+			output: outdent`
+				const array = []; let result = initialValue;
+
+				for (const [index, item] of array.entries()) {
+					result = transform(result, item);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const result = array.reduce((total, item) => transform(total, item));',
+			output: outdent`
+				const array = []; let result;
+
+				for (const [index, item] of array.entries()) {
+					if (index === 0) {
+						result = item;
+						continue;
+					}
+
+					result = transform(result, item);
+				}
+			`,
+			errors: errorsReduce,
 		},
 		{
 			code: outdent`
-				array.reduce((total, item) => {
-					return (total / item) * 100;
-				}, 0);
+				const array = [];
+				const result = array.reduce((total, item) => {
+					return transform(total, item);
+				}, initialValue);
 			`,
-			options: [{allowSimpleOperations: false}],
+			output: outdent`
+				const array = [];
+				let result = initialValue;
+
+				for (const [index, item] of array.entries()) {
+					result = transform(result, item);
+				}
+			`,
+			errors: errorsReduce,
 		},
-	].flatMap(testCase => {
-		const {code, options} = testCase;
+		{
+			code: outdent`
+				const array = [];
+				const result = array.reduce(function (total, item) {
+					return transform(total, item);
+				}, initialValue);
+			`,
+			output: outdent`
+				const array = [];
+				let result = initialValue;
 
-		if (options) {
-			return [
-				{code, errors: errorsReduce, options},
-				{code: code.replace('reduce', 'reduceRight'), errors: errorsReduceRight, options},
-			];
-		}
+				for (const [index, item] of array.entries()) {
+					result = transform(result, item);
+				}
+			`,
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const result = array.reduce((total, item, index, array) => array ? transform(total, item, index) : total, initialValue);',
+			output: outdent`
+				const array = []; let result = initialValue;
 
-		return [
-			{code: testCase, errors: errorsReduce},
-			{code: testCase.replace('reduce', 'reduceRight'), errors: errorsReduceRight},
-		];
-	}),
+				for (const [index, item] of array.entries()) {
+					result = array ? transform(result, item, index) : result;
+				}
+			`,
+			errors: errorsReduce,
+		},
+	],
 });
