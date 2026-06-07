@@ -25,9 +25,11 @@ const isNumberTypeAnnotation = typeAnnotation => {
 
 function unwrapNode(node) {
 	if (
-		node.type === 'TSAsExpression'
-		|| node.type === 'TSTypeAssertion'
-		|| node.type === 'TSNonNullExpression'
+		[
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+		].includes(node.type)
 	) {
 		return unwrapNode(node.expression);
 	}

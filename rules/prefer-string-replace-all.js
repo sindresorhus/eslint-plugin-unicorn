@@ -139,11 +139,13 @@ function getMinimumConsumedLength(node) {
 	}
 
 	if (
-		node.type === 'value'
-		|| node.type === 'dot'
-		|| node.type === 'characterClass'
-		|| node.type === 'characterClassEscape'
-		|| node.type === 'unicodePropertyEscape'
+		[
+			'value',
+			'dot',
+			'characterClass',
+			'characterClassEscape',
+			'unicodePropertyEscape',
+		].includes(node.type)
 	) {
 		return 1;
 	}

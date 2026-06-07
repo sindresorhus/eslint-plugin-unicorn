@@ -48,30 +48,31 @@ function isRestrictedReplacement(node) {
 	return (
 		isDirective(parent)
 		|| (
-			(
-				type === 'Property'
-				|| type === 'PropertyDefinition'
-				|| type === 'MethodDefinition'
-				|| type === 'AccessorProperty'
-			)
+			[
+				'Property',
+				'PropertyDefinition',
+				'MethodDefinition',
+				'AccessorProperty',
+			].includes(type)
 			&& !parent.computed && parent.key === node
 		)
 		|| (
-			(
-				type === 'TSAbstractPropertyDefinition'
-				|| type === 'TSAbstractMethodDefinition'
-				|| type === 'TSAbstractAccessorProperty'
-				|| type === 'TSPropertySignature'
-				|| type === 'TSMethodSignature'
-			)
+			[
+				'TSAbstractPropertyDefinition',
+				'TSAbstractMethodDefinition',
+				'TSAbstractAccessorProperty',
+				'TSPropertySignature',
+				'TSMethodSignature',
+			].includes(type)
 			&& parent.key === node
 		)
 		|| (
-			(
-				type === 'ImportDeclaration'
-				|| type === 'ExportNamedDeclaration'
-				|| type === 'ExportAllDeclaration'
-			) && parent.source === node
+			[
+				'ImportDeclaration',
+				'ExportNamedDeclaration',
+				'ExportAllDeclaration',
+			].includes(type)
+			&& parent.source === node
 		)
 		|| (type === 'ImportAttribute' && (parent.key === node || parent.value === node))
 		|| (type === 'ImportSpecifier' && parent.imported === node)

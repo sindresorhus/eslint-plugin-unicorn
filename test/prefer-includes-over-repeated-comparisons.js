@@ -35,16 +35,6 @@ test.snapshot({
 		'foo === foo || foo === foo;',
 		'foo === bar || foo === foo;',
 		'foo === 1 || bar === 1;',
-		{
-			code: 'value === "a" || value === "b";',
-			options: [{minimumComparisons: 3}],
-		},
-		{
-			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b";',
-			languageOptions: {parser: parsers.typescript},
-		},
-	],
-	invalid: [
 		'value === "a" || value === "b";',
 		'"a" === value || "b" === value;',
 		'value === "a" || "b" === value;',
@@ -56,27 +46,81 @@ test.snapshot({
 		'value === object.a || value === object.b;',
 		'(value === "a") || (value === "b");',
 		'(value === "a" || value === "b") && otherValue;',
+		{
+			code: 'value === "a" || value === "b";',
+			options: [{minimumComparisons: 4}],
+		},
+		{
+			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b";',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
 		'value === "a" || value === "b" || value === "c";',
+		{
+			code: 'value === "a" || value === "b";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: '"a" === value || "b" === value;',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'value === "a" || "b" === value;',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'value === first || value === second;',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'args[0] === "-h" || args[0] === "--help";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'object.value === "a" || object.value === "b";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'object.foo === "a" || object["foo"] === "b";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'object[key] === "a" || object[key] === "b";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'value === object.a || value === object.b;',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: '(value === "a") || (value === "b");',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: '(value === "a" || value === "b") && otherValue;',
+			options: [{minimumComparisons: 2}],
+		},
 		{
 			code: 'value === "a" || value === "b" || value === "c";',
 			options: [{minimumComparisons: 3}],
 		},
 		{
 			code: outdent`
-				value! === "a" || value! === "b";
+				value! === "a" || value! === "b" || value! === "c";
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '(value satisfies string) === "a" || (value satisfies string) === "b";',
+			code: '(value satisfies string) === "a" || (value satisfies string) === "b" || (value satisfies string) === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '(value as {foo?: string}) === "a" || (value as {foo?: string}) === "b";',
+			code: '(value as {foo?: string}) === "a" || (value as {foo?: string}) === "b" || (value as {foo?: string}) === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '(object satisfies Foo).value === "a" || (object satisfies Foo).value === "b";',
+			code: '(object satisfies Foo).value === "a" || (object satisfies Foo).value === "b" || (object satisfies Foo).value === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

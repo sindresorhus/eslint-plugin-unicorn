@@ -201,10 +201,12 @@ const isInPositiveGuardBranch = (parent, child, memberExpression, sourceCode) =>
 };
 
 const isInTypeGuardBoundary = node =>
-	node.type === 'AccessorProperty'
-	|| node.type === 'FunctionDeclaration'
-	|| node.type === 'MethodDefinition'
-	|| node.type === 'PropertyDefinition';
+	[
+		'AccessorProperty',
+		'FunctionDeclaration',
+		'MethodDefinition',
+		'PropertyDefinition',
+	].includes(node.type);
 
 const isInTypeGuardedBranch = (node, sourceCode) => {
 	let child = node;

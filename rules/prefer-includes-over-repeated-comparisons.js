@@ -189,7 +189,7 @@ const config = {
 		schema,
 		defaultOptions: [
 			{
-				minimumComparisons: 2,
+				minimumComparisons: 3,
 			},
 		],
 		messages,

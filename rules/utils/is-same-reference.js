@@ -102,10 +102,12 @@ Unwrap ChainExpression (`?.`) and TypeScript type assertion (`as`, `<Type>`, or 
 */
 function unwrapNode(node) {
 	if (
-		node.type === 'ChainExpression'
-		|| node.type === 'TSAsExpression'
-		|| node.type === 'TSTypeAssertion'
-		|| node.type === 'TSNonNullExpression'
+		[
+			'ChainExpression',
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+		].includes(node.type)
 	) {
 		return unwrapNode(node.expression);
 	}

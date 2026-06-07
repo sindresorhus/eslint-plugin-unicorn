@@ -30,10 +30,12 @@ const isCheckingUndefined = node =>
 	&& (
 		(
 			(
-				node.parent.operator === '!='
-				|| node.parent.operator === '=='
-				|| node.parent.operator === '==='
-				|| node.parent.operator === '!=='
+				[
+					'!=',
+					'==',
+					'===',
+					'!==',
+				].includes(node.parent.operator)
 			)
 			&& isUndefined(node.parent.right)
 		)

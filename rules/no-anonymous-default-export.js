@@ -23,12 +23,12 @@ const messages = {
 const isClassKeywordToken = token => token.type === 'Keyword' && token.value === 'class';
 const isAnonymousClassOrFunction = node =>
 	(
-		(
-			node.type === 'FunctionDeclaration'
-			|| node.type === 'FunctionExpression'
-			|| node.type === 'ClassDeclaration'
-			|| node.type === 'ClassExpression'
-		)
+		[
+			'FunctionDeclaration',
+			'FunctionExpression',
+			'ClassDeclaration',
+			'ClassExpression',
+		].includes(node.type)
 		&& !node.id
 	)
 	|| node.type === 'ArrowFunctionExpression';

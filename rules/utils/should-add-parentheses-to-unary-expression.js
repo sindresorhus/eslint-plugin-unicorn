@@ -11,14 +11,14 @@ export default function shouldAddParenthesesToUnaryExpressionArgument(node, oper
 		throw new Error('Unexpected operator');
 	}
 
-	return (
-		node.type === 'UpdateExpression'
-		|| node.type === 'BinaryExpression'
-		|| node.type === 'LogicalExpression'
-		|| node.type === 'ConditionalExpression'
-		|| node.type === 'AssignmentExpression'
-		|| node.type === 'ArrowFunctionExpression'
-		|| node.type === 'YieldExpression'
-		|| node.type === 'SequenceExpression'
-	);
+	return [
+		'UpdateExpression',
+		'BinaryExpression',
+		'LogicalExpression',
+		'ConditionalExpression',
+		'AssignmentExpression',
+		'ArrowFunctionExpression',
+		'YieldExpression',
+		'SequenceExpression',
+	].includes(node.type);
 }

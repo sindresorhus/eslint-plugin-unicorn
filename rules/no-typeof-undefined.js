@@ -24,10 +24,12 @@ const create = context => {
 	context.on('BinaryExpression', binaryExpression => {
 		if (!(
 			(
-				binaryExpression.operator === '==='
-				|| binaryExpression.operator === '!=='
-				|| binaryExpression.operator === '=='
-				|| binaryExpression.operator === '!='
+				[
+					'===',
+					'!==',
+					'==',
+					'!=',
+				].includes(binaryExpression.operator)
 			)
 			&& binaryExpression.left.type === 'UnaryExpression'
 			&& binaryExpression.left.operator === 'typeof'

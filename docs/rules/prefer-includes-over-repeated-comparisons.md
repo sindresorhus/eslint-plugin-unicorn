@@ -17,23 +17,23 @@ This rule does not autofix because the best rewrite depends on context. Plain me
 
 ```js
 // ❌
-value === 'a' || value === 'b';
+value === 'a' || value === 'b' || value === 'c';
 
 // ✅
-['a', 'b'].includes(value);
+['a', 'b', 'c'].includes(value);
 ```
 
 ```js
 // ❌
-args[0] === '-h' || args[0] === '--help';
+args[0] === '-h' || args[0] === '--help' || args[0] === '--version';
 
 // ✅
-['-h', '--help'].includes(args[0]);
+['-h', '--help', '--version'].includes(args[0]);
 ```
 
 ```js
 // ✅
-value === 'a';
+value === 'a' || value === 'b';
 ```
 
 ```js
@@ -49,16 +49,16 @@ Type: `object`
 
 Type: `integer`\
 Minimum: `2`\
-Default: `2`
+Default: `3`
 
 The minimum number of equality comparisons before reporting.
 
 ```js
-/* eslint unicorn/prefer-includes-over-repeated-comparisons: ["error", {"minimumComparisons": 3}] */
+/* eslint unicorn/prefer-includes-over-repeated-comparisons: ["error", {"minimumComparisons": 4}] */
 
 // ✅
-value === 'a' || value === 'b';
+value === 'a' || value === 'b' || value === 'c';
 
 // ❌
-value === 'a' || value === 'b' || value === 'c';
+value === 'a' || value === 'b' || value === 'c' || value === 'd';
 ```

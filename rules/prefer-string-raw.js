@@ -34,31 +34,32 @@ function isStringRawRestricted(node) {
 		isDirective(parent)
 		// Property, method, or accessor key (only non-computed)
 		|| (
-			(
-				type === 'Property'
-				|| type === 'PropertyDefinition'
-				|| type === 'MethodDefinition'
-				|| type === 'AccessorProperty'
-			)
+			[
+				'Property',
+				'PropertyDefinition',
+				'MethodDefinition',
+				'AccessorProperty',
+			].includes(type)
 			&& !parent.computed && parent.key === node
 		)
 		// Property, method, or accessor key (always)
 		|| (
-			(
-				type === 'TSAbstractPropertyDefinition'
-				|| type === 'TSAbstractMethodDefinition'
-				|| type === 'TSAbstractAccessorProperty'
-				|| type === 'TSPropertySignature'
-			)
+			[
+				'TSAbstractPropertyDefinition',
+				'TSAbstractMethodDefinition',
+				'TSAbstractAccessorProperty',
+				'TSPropertySignature',
+			].includes(type)
 			&& parent.key === node
 		)
 		// Module source
 		|| (
-			(
-				type === 'ImportDeclaration'
-				|| type === 'ExportNamedDeclaration'
-				|| type === 'ExportAllDeclaration'
-			) && parent.source === node
+			[
+				'ImportDeclaration',
+				'ExportNamedDeclaration',
+				'ExportAllDeclaration',
+			].includes(type)
+			&& parent.source === node
 		)
 		// Import attribute key and value
 		|| (type === 'ImportAttribute' && (parent.key === node || parent.value === node))
