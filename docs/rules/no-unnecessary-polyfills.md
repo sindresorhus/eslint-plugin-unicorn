@@ -22,9 +22,12 @@ package.json
 
 // ❌
 import assign from 'object-assign';
+const object = assign(target, source);
+```
 
+```js
 // ✅
-Object.assign(target, source);
+const object = Object.assign(target, source);
 ```
 
 ```js

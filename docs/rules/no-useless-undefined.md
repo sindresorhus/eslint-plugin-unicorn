@@ -130,7 +130,10 @@ Disallow the use of `undefined` as arrow function body. Pass `checkArrowFunction
 /* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
 // ❌
 const foo = () => undefined;
+```
 
+```js
+/* eslint unicorn/no-useless-undefined: ["error", {"checkArrowFunctionBody": true}] */
 // ✅
 const foo = () => {};
 ```

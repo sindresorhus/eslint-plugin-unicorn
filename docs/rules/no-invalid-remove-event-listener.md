@@ -30,6 +30,8 @@ window.removeEventListener('click', () => {});
 
 // ✅
 const listener = () => {};
+window.addEventListener('click', listener);
+// ...
 window.removeEventListener('click', listener);
 ```
 
@@ -39,6 +41,8 @@ window.removeEventListener('click', function () {});
 
 // ✅
 const listener = function () {};
+window.addEventListener('click', listener);
+// ...
 window.removeEventListener('click', listener);
 ```
 

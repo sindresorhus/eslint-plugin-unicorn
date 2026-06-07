@@ -40,16 +40,20 @@ console.log(a);
 
 ```js
 // ❌
-const {
-	a: {b},
-} = foo;
-console.log(foo.a.c);
+{
+	const {
+		a: {b},
+	} = foo;
+	console.log(foo.a.c);
+}
 
 // ✅
-const {
-	a: {b, c},
-} = foo;
-console.log(c);
+{
+	const {
+		a: {b, c},
+	} = foo;
+	console.log(c);
+}
 ```
 
 ```js

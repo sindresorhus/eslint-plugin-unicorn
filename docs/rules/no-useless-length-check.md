@@ -29,7 +29,7 @@ if (array.every(Boolean));
 if (array.length !== 0 && array.some(Boolean));
 
 // ✅
-if (array.every(Boolean));
+if (array.some(Boolean));
 ```
 
 ```js

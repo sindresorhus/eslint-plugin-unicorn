@@ -23,17 +23,23 @@ This rule can automatically fix common direct `Array#reduce()` calls on local `c
 // ❌
 array.reduce(reducer);
 
+// ✅
+// eslint-disable-next-line unicorn/no-array-reduce
+array.reduce(reducer);
+```
+
+```js
 // ❌
 array.reduce(reducer, initialValue);
 
 // ❌
-[].reduce.call(array, reducer);
+[].reduce.apply(array, [reducer, initialValue]);
 
 // ✅
 let result = initialValue;
 
-for (const element of array) {
-	result += element;
+for (const [index, element] of array.entries()) {
+	result = reducer(result, element, index, array);
 }
 ```
 
@@ -49,24 +55,16 @@ array.reduceRight(reducer, initialValue);
 // ✅
 let result = initialValue;
 
-for (const element of array.toReversed()) { // Equivalent to .reduceRight()
-	result += element;
+for (let index = array.length - 1; index >= 0; index--) {
+	const element = array[index];
+	result = reducer(result, element, index, array);
 }
 ```
 
 ```js
 // ❌
-[].reduce.apply(array, [reducer, initialValue]);
+[].reduce.call(array, reducer);
 
-// ✅
-let result = initialValue;
-
-for (const element of array) {
-	result = reducer(result, element);
-}
-```
-
-```js
 // ❌
 Array.prototype.reduce.call(array, reducer);
 

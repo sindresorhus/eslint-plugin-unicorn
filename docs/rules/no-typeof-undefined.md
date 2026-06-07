@@ -44,7 +44,7 @@ if (foo.bar !== undefined) {}
 Type: `boolean`\
 Default: `false`
 
-The rule ignores variables not defined in the file by default. If the variable was never defined, checking for its existance without `typeof` will cause a `ReferenceError`.
+The rule ignores variables not defined in the file by default. If the variable was never defined, checking for its existence without `typeof` will cause a `ReferenceError`.
 
 Set it to `true` to accept this risk and check all variables.
 
@@ -55,7 +55,7 @@ Set it to `true` to accept this risk and check all variables.
 if (typeof undefinedVariable === 'undefined') {}
 
 // ✅
-if (undefinedVariable === undefined) {}
+if (globalThis.undefinedVariable === undefined) {}
 
 // ❌
 if (typeof Array === 'undefined') {}

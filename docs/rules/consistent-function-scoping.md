@@ -21,7 +21,9 @@ export function doFoo(foo) {
 
 	return doBar;
 }
+```
 
+```js
 // ✅
 function doBar(bar) {
 	return bar === 'bar';
@@ -38,7 +40,9 @@ function doFoo() {
 	// Does not capture anything from the scope, can be moved to the outer scope
 	return bar => bar === 'bar';
 }
+```
 
+```js
 // ✅
 const doBar = bar => bar === 'bar';
 
@@ -53,7 +57,10 @@ function doFoo() {
 export function someAction() {
 	return dispatch => dispatch({type: 'SOME_TYPE'});
 }
+```
 
+```js
+// Arrow functions in return statements are also flagged
 // ✅
 const handleDispatch = dispatch => dispatch({type: 'SOME_TYPE'});
 
@@ -69,7 +76,9 @@ function doFoo(foo) {
 		return bar === 'bar';
 	};
 }
+```
 
+```js
 // ✅
 const doBar = bar => {
 	return bar === 'bar';

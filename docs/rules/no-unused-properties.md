@@ -38,23 +38,29 @@ const ClassName = {
 
 ```js
 // ❌
-const myEnum = {
-	used: 1,
-	unused: 2, // <- Property `unused` is defined but never used.
-};
+{
+	const myEnum = {
+		used: 1,
+		unused: 2, // <- Property `unused` is defined but never used.
+	};
 
-console.log(myEnum.used);
+	console.log(myEnum.used);
 
-const {used} = myEnum;
+	const {used} = myEnum;
+}
+```
 
+```js
 // ✅
-const myEnum = {
-	used: 1,
-};
+{
+	const myEnum = {
+		used: 1,
+	};
 
-console.log(myEnum.used);
+	console.log(myEnum.used);
 
-const {used} = myEnum;
+	const {used} = myEnum;
+}
 ```
 
 ```js

@@ -61,35 +61,62 @@ if (array.some(element => isUnicorn(element))) {
 
 ```js
 // ❌
-const foo = array.find(element => isUnicorn(element)) ? bar : baz;
+const foo = unicorns.find(unicorn => unicorn.isRainbow) ? bar : baz;
+```
 
+```js
 // ✅
-const foo = array.find(element => isUnicorn(element)) || bar;
+const foo = unicorns.some(unicorn => unicorn.isRainbow) ? bar : baz;
 ```
 
 ```js
 // ❌
 const hasUnicorn = array.findLast(element => isUnicorn(element)) !== undefined;
+```
 
-// ❌
-const hasUnicorn = array.findLast(element => isUnicorn(element)) != null;
-
-// ❌
-const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
-
-// ❌
-const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
-
+```js
 // ✅
 const hasUnicorn = array.some(element => isUnicorn(element));
 ```
 
 ```js
 // ❌
-const foo = array.findLast(element => isUnicorn(element)) ? bar : baz;
+const hasUnicorn = array.findLast(element => isUnicorn(element)) != null;
+```
 
+```js
 // ✅
-const foo = array.findLast(element => isUnicorn(element)) || bar;
+const hasUnicorn = array.some(element => isUnicorn(element));
+```
+
+```js
+// ❌
+const hasUnicorn = array.findIndex(element => isUnicorn(element)) !== -1;
+```
+
+```js
+// ✅
+const hasUnicorn = array.some(element => isUnicorn(element));
+```
+
+```js
+// ❌
+const hasUnicorn = array.findLastIndex(element => isUnicorn(element)) !== -1;
+```
+
+```js
+// ✅
+const hasUnicorn = array.some(element => isUnicorn(element));
+```
+
+```js
+// ❌
+const foo = unicorns.findLast(unicorn => unicorn.isRainbow) ? bar : baz;
+```
+
+```js
+// ✅
+const foo = unicorns.some(unicorn => unicorn.isRainbow) ? bar : baz;
 ```
 
 ```vue

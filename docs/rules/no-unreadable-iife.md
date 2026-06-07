@@ -29,7 +29,9 @@ const foo = getBaz(getBar());
 ```js
 // ❌
 const foo = ((bar, baz) => ({bar, baz}))(bar, baz);
+```
 
+```js
 // ✅
 const foo = {bar, baz};
 ```
