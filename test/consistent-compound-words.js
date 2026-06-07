@@ -112,7 +112,7 @@ test.snapshot({
 			}],
 		},
 		{
-			code: 'const isOnline = navigator.onLine;',
+			code: 'navigator.onLine = isOnline;',
 			options: checkPropertiesOptions,
 		},
 		{
@@ -120,7 +120,7 @@ test.snapshot({
 			options: checkPropertiesOptions,
 		},
 		{
-			code: 'const superClass = node.superClass;',
+			code: 'class Foo { superClass = Base; }',
 			options: checkPropertiesOptions,
 		},
 	],
