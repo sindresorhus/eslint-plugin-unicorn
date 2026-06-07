@@ -417,11 +417,11 @@ const isArrayOrArgumentSpread = identifier => {
 
 	return parent.type === 'SpreadElement'
 		&& parent.argument === identifier
-		&& (
-			parent.parent.type === 'ArrayExpression'
-			|| parent.parent.type === 'CallExpression'
-			|| parent.parent.type === 'NewExpression'
-		);
+		&& [
+			'ArrayExpression',
+			'CallExpression',
+			'NewExpression',
+		].includes(parent.parent.type);
 };
 
 const isAllowedForEachCall = identifier => {
