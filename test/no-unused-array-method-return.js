@@ -254,11 +254,44 @@ test.snapshot({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		{
+			code: outdent`
+				declare const bar: Foo;
+				bar.filter();
+			`,
+			filename: 'example.ts',
+		},
+		{code: '(bar as Foo).filter();', filename: 'example.ts'},
+		{code: '(<Foo>bar).filter();', filename: 'example.ts'},
+		{code: '(bar as any).filter();', filename: 'example.ts'},
+		{code: '(bar as unknown).filter();', filename: 'example.ts'},
+		// Non-array type shapes stay unresolved.
+		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},
+		{code: '(bar as Foo & Bar).filter();', filename: 'example.ts'},
+		{code: '(bar as [number, string]).filter();', filename: 'example.ts'},
+		{code: '(bar as readonly [number, string]).filter();', filename: 'example.ts'},
+		{code: '(bar as {filter(): void}).filter();', filename: 'example.ts'},
+		// A non-null assertion does not hide the underlying type assertion.
+		{code: '(bar as Foo)!.filter();', filename: 'example.ts'},
+		{code: 'const bar = \'x\'; (bar satisfies Foo).filter();', filename: 'example.ts'},
+	],
 	invalid: [
 		{code: 'values.map(fn) as number[];', filename: 'example.ts', errors: 1},
 		{code: '<number[]>values.map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn)!;', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn) satisfies Foo;', filename: 'example.ts', errors: 1},
+		{code: '(bar as Foo[]).filter();', filename: 'example.ts', errors: 1},
+		{code: '(<Foo[]>bar).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as Array<Foo>).filter();', filename: 'example.ts', errors: 1},
+		{code: '(<Array<Foo>>bar).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as string[]).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as ReadonlyArray<Foo>).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as readonly Foo[]).filter();', filename: 'example.ts', errors: 1},
+		// Double assertion ending in an array type.
+		{code: '(bar as unknown as Foo[]).filter();', filename: 'example.ts', errors: 1},
+		// A non-null assertion does not hide the underlying array type assertion.
+		{code: '(bar as Foo[])!.filter();', filename: 'example.ts', errors: 1},
+		{code: '(values satisfies Foo[]).filter();', filename: 'example.ts', errors: 1},
 	],
 });
