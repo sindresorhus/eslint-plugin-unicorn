@@ -54,11 +54,11 @@ Type: `string`
 You can set the `case` option like this:
 
 ```js
-"unicorn/filename-case": [
-	"error",
+'unicorn/filename-case': [
+	'error',
 	{
-		"case": "kebabCase"
-	}
+		case: 'kebabCase',
+	},
 ]
 ```
 
@@ -69,14 +69,14 @@ Type: `{[type: string]: boolean}`
 You can set the `cases` option to allow multiple cases:
 
 ```js
-"unicorn/filename-case": [
-	"error",
+'unicorn/filename-case': [
+	'error',
 	{
-		"cases": {
-			"camelCase": true,
-			"pascalCase": true
-		}
-	}
+		cases: {
+			camelCase: true,
+			pascalCase: true,
+		},
+	},
 ]
 ```
 
@@ -87,7 +87,7 @@ Default: `[]`
 
 Path segments to ignore. If any path segment matches, the file is ignored.
 
-When a string is given, it's interpreted as a regular expression. This is needed for ESLint configs in JSON.
+When a string is given, it's interpreted as a regular expression.
 
 Sometimes you may have non-standard filenames or directory names in a project. This option lets you ignore those files or directories.
 
@@ -101,18 +101,18 @@ For example:
 Don't forget that you must escape special characters that you don't want to be interpreted as part of the regex, for example, if you have `[` in the actual path segment. For example, to match `[id].js`, use `/^\[id]\.js$/` or `'^\\[id]\\.js$'`.
 
 ```js
-"unicorn/filename-case": [
-	"error",
+'unicorn/filename-case': [
+	'error',
 	{
-		"case": "kebabCase",
-		"ignore": [
-			"^FOOBAR\\.js$",
-			"^vendor$",
-			"^(B|b)az",
-			"\\.SOMETHING\\.js$",
-			/^fixtures$/i
-		]
-	}
+		case: 'kebabCase',
+		ignore: [
+			'^FOOBAR\\.js$',
+			'^vendor$',
+			'^(B|b)az',
+			'\\.SOMETHING\\.js$',
+			/^fixtures$/i,
+		],
+	},
 ]
 ```
 
@@ -137,11 +137,11 @@ This only affects filenames. When `checkDirectories` is enabled, directory names
 For example:
 
 ```js
-"unicorn/filename-case": [
-	"error",
+'unicorn/filename-case': [
+	'error',
 	{
-		"case": "pascalCase"
-	}
+		case: 'pascalCase',
+	},
 ]
 
 // Results
@@ -154,12 +154,12 @@ For example:
 ```
 
 ```js
-"unicorn/filename-case": [
-	"error",
+'unicorn/filename-case': [
+	'error',
 	{
-		"case": "pascalCase",
-		"multipleFileExtensions": false
-	}
+		case: 'pascalCase',
+		multipleFileExtensions: false,
+	},
 ]
 
 // Results

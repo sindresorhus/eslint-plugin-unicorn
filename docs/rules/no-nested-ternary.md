@@ -49,11 +49,11 @@ const foo = i > 5 ? (i < 100 ? true : false) : true
 
 We recommend disabling the ESLint `no-nested-ternary` rule in favor of this one:
 
-```json
+```js
 {
-	"rules": {
-		"no-nested-ternary": "off"
-	}
+	rules: {
+		'no-nested-ternary': 'off',
+	},
 }
 ```
 

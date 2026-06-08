@@ -85,11 +85,11 @@ Default: `'error'`
 You can set the `name` option like this:
 
 ```js
-"unicorn/catch-error-name": [
-	"error",
+'unicorn/catch-error-name': [
+	'error',
 	{
-		"name": "exception"
-	}
+		name: 'exception',
+	},
 ]
 ```
 
@@ -100,17 +100,17 @@ Default: `[]`
 
 This option lets you specify a regex pattern for matches to ignore.
 
-When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+When a string is given, it's interpreted as a regular expression inside a string.
 
 ```js
-"unicorn/catch-error-name": [
-	"error",
+'unicorn/catch-error-name': [
+	'error',
 	{
-		"ignore": [
-			"^error\\d*$",
-			/^ignore/i
-		]
-	}
+		ignore: [
+			'^error\\d*$',
+			/^ignore/i,
+		],
+	},
 ]
 ```
 

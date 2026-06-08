@@ -263,11 +263,11 @@ Whether to check expiration dates.
 This option does not disable date argument validation. For example, TODO comments with multiple dates are still reported as invalid.
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"checkDates": false
-	}
+		checkDates: false,
+	},
 ]
 ```
 
@@ -283,12 +283,12 @@ Sometimes developers may send [Pull Requests](https://docs.github.com/en/pull-re
 When date checks are enabled, this rule will not trigger expiry dates while on Pull Requests by default so that the one responsible for the fix will be the maintainer not the contributor.
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"checkDates": true,
-		"checkDatesOnPullRequests": true
-	}
+		checkDates: true,
+		checkDatesOnPullRequests: true,
+	},
 ]
 ```
 
@@ -304,15 +304,15 @@ The defaults come from the [`eslint/no-warning-comments` rule](https://eslint.or
 If you just want to add a verb, make sure to explicitly include the default ones like `['todo', 'fixme', 'xxx', 'mytodo']` or otherwise any default TODO verb will be ignored. Similarly, when you want to remove a verb, leave the others in like `['todo', 'fixme']`.
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"terms": [
-			"todo",
-			"fixme",
-			"xxx"
-		]
-	}
+		terms: [
+			'todo',
+			'fixme',
+			'xxx',
+		],
+	},
 ]
 ```
 
@@ -330,11 +330,11 @@ This is helpful if you want to use **both** this rule and the [`eslint/no-warnin
 If you want this rule to trigger on stray TODO conditions, you can enable this fallback rule with this option.
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"allowWarningComments": false
-	}
+		allowWarningComments: false,
+	},
 ]
 ```
 
@@ -345,22 +345,22 @@ Default: `[]`
 
 Ignore TODOs matching any of the given regex patterns. This option is only useful if you have `allowWarningComments` set to `false`.
 
-When a string is given, it will be interpreted as a regular expression inside of a string (as strings are required for ESLint config in JSON).
+When a string is given, it will be interpreted as a regular expression inside of a string.
 
-Don't forget that you must escape special characters in string regexes. If you want to ignore numbers with `\d` for example, to match `#\d`, you must use `/#\d/` or `"#\\d"`.
+Don't forget that you must escape special characters in string regexes. If you want to ignore numbers with `\d` for example, to match `#\d`, you must use `/#\d/` or `'#\\d'`.
 
 As an example of this option, if you want this rule to **completely ignore** comments containing references to GitHub issues, you can do so by ignoring `"#\\d+"`:
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"allowWarningComments": false,
-		"ignore": [
-			"#\\d+",
-			/issue-\d+/i
-		]
-	}
+		allowWarningComments: false,
+		ignore: [
+			'#\\d+',
+			/issue-\d+/i,
+		],
+	},
 ]
 ```
 
@@ -378,23 +378,23 @@ The format must match [json-schema's date](https://json-schema.org/understanding
 Find tech debt that has grown up and gone to college by triggering the rule only for incredibly old TODOs:
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"checkDates": true,
-		"date": "2000-01-01"
-	}
+		checkDates: true,
+		date: '2000-01-01',
+	},
 ]
 ```
 
 Prepare for the future by triggering the rule on known Y3K bugs:
 
 ```js
-"unicorn/expiring-todo-comments": [
-	"error",
+'unicorn/expiring-todo-comments': [
+	'error',
 	{
-		"checkDates": true,
-		"date": "3000-01-01"
-	}
+		checkDates: true,
+		date: '3000-01-01',
+	},
 ]
 ```

@@ -83,22 +83,22 @@ The example below:
 - adds a custom `errCb` → `handleError` replacement.
 
 ```js
-"unicorn/prevent-abbreviations": [
-	"error",
+'unicorn/prevent-abbreviations': [
+	'error',
 	{
-		"replacements": {
-			"e": {
-				"event": false
+		replacements: {
+			e: {
+				event: false,
 			},
-			"res": false,
-			"cmd": {
-				"command": true
+			res: false,
+			cmd: {
+				command: true,
 			},
-			"errCb": {
-				"handleError": true
-			}
-		}
-	}
+			errCb: {
+				handleError: true,
+			},
+		},
+	},
 ]
 ```
 
@@ -112,16 +112,16 @@ Pass `"extendDefaultReplacements": false` to override the default `replacements`
 The example below disables all the default replacements and enables a custom `cmd` → `command` one.
 
 ```js
-"unicorn/prevent-abbreviations": [
-	"error",
+'unicorn/prevent-abbreviations': [
+	'error',
 	{
-		"extendDefaultReplacements": false,
-		"replacements": {
-			"cmd": {
-				"command": true
-			}
-		}
-	}
+		extendDefaultReplacements: false,
+		replacements: {
+			cmd: {
+				command: true,
+			},
+		},
+	},
 ]
 ```
 
@@ -136,13 +136,13 @@ Unlike the `replacements` option, `allowList` matches full identifier names case
 For example, if you want to report `props` → `properties` (enabled by default), but allow `getInitialProps`, you could use the following configuration.
 
 ```js
-"unicorn/prevent-abbreviations": [
-	"error",
+'unicorn/prevent-abbreviations': [
+	'error',
 	{
-		"allowList": {
-			"getInitialProps": true
-		}
-	}
+		allowList: {
+			getInitialProps: true,
+		},
+	},
 ]
 ```
 
@@ -248,17 +248,17 @@ Default: `[]`
 
 This option lets you specify a regex pattern for matches to ignore.
 
-When a string is given, it's interpreted as a regular expressions inside a string. Needed for ESLint config in JSON.
+When a string is given, it's interpreted as a regular expression inside a string.
 
 ```js
-"unicorn/prevent-abbreviations": [
-	"error",
+'unicorn/prevent-abbreviations': [
+	'error',
 	{
-		"ignore": [
-			"\\.e2e$",
-			/^ignore/i
-		]
-	}
+		ignore: [
+			'\\.e2e$',
+			/^ignore/i,
+		],
+	},
 ]
 ```
 

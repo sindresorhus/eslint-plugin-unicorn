@@ -57,16 +57,16 @@ The example below:
 - Allows `named` import (leaving `default` allowed too) from the `path` module (by default only `default` import of `path` is allowed).
 
 ```js
-"unicorn/import-style": [
-	"error",
+'unicorn/import-style': [
+	'error',
 	{
-		"styles": {
-			"util": false,
-			"path": {
-				"named": true
-			}
-		}
-	}
+		styles: {
+			util: false,
+			path: {
+				named: true,
+			},
+		},
+	},
 ]
 ```
 

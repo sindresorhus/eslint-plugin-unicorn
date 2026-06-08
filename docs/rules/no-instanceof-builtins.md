@@ -102,11 +102,11 @@ The matching strategy:
 - `'strict'` - Matches all built-in constructors.
 
 ```js
-"unicorn/no-instanceof-builtins": [
-	"error",
+'unicorn/no-instanceof-builtins': [
+	'error',
 	{
-		"strategy": "strict"
-	}
+		strategy: 'strict',
+	},
 ]
 ```
 
@@ -118,14 +118,14 @@ Default: `[]`
 Specify the constructors that should be validated.
 
 ```js
-"unicorn/no-instanceof-builtins": [
-	"error",
+'unicorn/no-instanceof-builtins': [
+	'error',
 	{
-		"include": [
-			"WebWorker",
-			"HTMLElement"
-		]
-	}
+		include: [
+			'WebWorker',
+			'HTMLElement',
+		],
+	},
 ]
 ```
 
@@ -137,14 +137,14 @@ Default: `[]`
 Specifies the constructors that should be excluded, with this rule taking precedence over others.
 
 ```js
-"unicorn/no-instanceof-builtins": [
-	"error",
+'unicorn/no-instanceof-builtins': [
+	'error',
 	{
-		"exclude": [
-			"String",
-			"Number"
-		]
-	}
+		exclude: [
+			'String',
+			'Number',
+		],
+	},
 ]
 ```
 
@@ -156,12 +156,12 @@ Default: `false`
 Specifies using [`Error.isError()`](https://github.com/tc39/proposal-is-error) to determine whether it is an error object.
 
 ```js
-"unicorn/no-instanceof-builtins": [
-	"error",
+'unicorn/no-instanceof-builtins': [
+	'error',
 	{
-		"strategy": "strict",
-		"useErrorIsError": true
-	}
+		strategy: 'strict',
+		useErrorIsError: true,
+	},
 ]
 ```
 

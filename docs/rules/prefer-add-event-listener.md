@@ -54,13 +54,14 @@ foo.removeEventListener('click', onClick);
 ### excludedPackages
 
 ```js
-"unicorn/prefer-add-event-listener": [
-	"error", {
-		"excludedPackages": [
-			"koa",
-			"sax"
-		]
-	}
+'unicorn/prefer-add-event-listener': [
+	'error',
+	{
+		excludedPackages: [
+			'koa',
+			'sax',
+		],
+	},
 ]
 ```
 

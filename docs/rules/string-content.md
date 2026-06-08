@@ -48,54 +48,50 @@ The example below:
 - Adds a custom `awesome` → `😎` replacement and a custom message.
 - Adds a custom `cool` → `😎` replacement, but disables auto fix.
 
-```json
-{
-	"unicorn/string-content": [
-		"error",
-		{
-			"patterns": {
-				"unicorn": "🦄",
-				"awesome": {
-					"suggest": "😎",
-					"message": "Please use `😎` instead of `awesome`."
-				},
-				"cool": {
-					"suggest": "😎",
-					"fix": false
-				}
-			}
-		}
-	]
-}
+```js
+'unicorn/string-content': [
+	'error',
+	{
+		patterns: {
+			unicorn: '🦄',
+			awesome: {
+				suggest: '😎',
+				message: 'Please use `😎` instead of `awesome`.',
+			},
+			cool: {
+				suggest: '😎',
+				fix: false,
+			},
+		},
+	},
+]
 ```
 
 Set `caseSensitive` to `false` to match regardless of case:
 
-```json
-{
-	"unicorn/string-content": [
-		"error",
-		{
-			"patterns": {
-				"end of day": {
-					"suggest": "EOD",
-					"caseSensitive": false
-				}
-			}
-		}
-	]
-}
+```js
+'unicorn/string-content': [
+	'error',
+	{
+		patterns: {
+			'end of day': {
+				suggest: 'EOD',
+				caseSensitive: false,
+			},
+		},
+	},
+]
 ```
 
 The key of `patterns` is treated as a regex, so you must escape special characters.
 
 For example, if you want to enforce `...` → `…`:
 
-```json
+```js
 {
-	"patterns": {
-		"\\.\\.\\.": "…"
-	}
+	patterns: {
+		'\\.\\.\\.': '…',
+	},
 }
 ```
 
@@ -108,21 +104,19 @@ Only check string nodes matching one of these [ESLint selectors](https://eslint.
 
 The selector must match the string node itself: `Literal` for string literals and `TemplateElement` for template literal content.
 
-```json
-{
-	"unicorn/string-content": [
-		"error",
-		{
-			"patterns": {
-				"\\.\\.\\.": "…"
-			},
-			"selectors": [
-				"VariableDeclarator[id.name=\"description\"] > Literal",
-				"Property[key.name=\"description\"] > Literal"
-			]
-		}
-	]
-}
+```js
+'unicorn/string-content': [
+	'error',
+	{
+		patterns: {
+			'\\.\\.\\.': '…',
+		},
+		selectors: [
+			'VariableDeclarator[id.name="description"] > Literal',
+			'Property[key.name="description"] > Literal',
+		],
+	},
+]
 ```
 
 ## Pattern ideas

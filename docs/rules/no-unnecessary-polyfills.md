@@ -55,34 +55,34 @@ Specify the target versions, which could be a Browserslist query or a targets ob
 If the option is not specified, the target versions are defined using the [`browserslist`](https://browsersl.ist) field in package.json, or as a last resort, the `engines` field in package.json.
 
 ```js
-"unicorn/no-unnecessary-polyfills": [
-	"error",
+'unicorn/no-unnecessary-polyfills': [
+	'error',
 	{
-		"targets": "node >=12"
-	}
+		targets: 'node >=12',
+	},
 ]
 ```
 
 ```js
-"unicorn/no-unnecessary-polyfills": [
-	"error",
+'unicorn/no-unnecessary-polyfills': [
+	'error',
 	{
-		"targets": [
-			"node 14.1.0",
-			"chrome 95"
-		]
-	}
+		targets: [
+			'node 14.1.0',
+			'chrome 95',
+		],
+	},
 ]
 ```
 
 ```js
-"unicorn/no-unnecessary-polyfills": [
-	"error",
+'unicorn/no-unnecessary-polyfills': [
+	'error',
 	{
-		"targets": {
-			"node": "current",
-			"firefox": "15"
-		}
-	}
+		targets: {
+			node: 'current',
+			firefox: '15',
+		},
+	},
 ]
 ```

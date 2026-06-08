@@ -56,16 +56,16 @@ const rest = parts.slice(2);
 
 You might have to modify the built-in [`prefer-destructuring`](https://eslint.org/docs/rules/prefer-destructuring) rule to be compatible with this one:
 
-```json
+```js
 {
-	"rules": {
-		"prefer-destructuring": [
-			"error",
+	rules: {
+		'prefer-destructuring': [
+			'error',
 			{
-				"object": true,
-				"array": false
-			}
-		]
-	}
+				object: true,
+				array: false,
+			},
+		],
+	},
 }
 ```
