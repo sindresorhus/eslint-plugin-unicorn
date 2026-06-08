@@ -177,12 +177,36 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 		return value === undefined ? node : resolveReceiver(value, context, visitedNodes);
 	}
 
-	if (node.type === 'ChainExpression') {
+	// Transparent wrappers that do not change the receiver's runtime value.
+	if (
+		['ChainExpression', 'TSNonNullExpression', 'TSSatisfiesExpression'].includes(node.type)
+	) {
 		return resolveReceiver(node.expression, context, visitedNodes);
 	}
 
 	if (node.type === 'MemberExpression') {
 		return uncertainValue;
+	}
+
+	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+		let {typeAnnotation} = node;
+
+		// Unwrap `readonly Foo[]` / `readonly [A, B]` to the underlying type.
+		if (typeAnnotation.type === 'TSTypeOperator' && typeAnnotation.operator === 'readonly') {
+			typeAnnotation = typeAnnotation.typeAnnotation;
+		}
+
+		// An array-type assertion (`Foo[]`, `Array<…>`, `ReadonlyArray<…>`) guarantees
+		// an array receiver, regardless of the asserted expression, so report it.
+		// Anything else (`Foo`, `any`, `unknown`, unions, tuples, …) stays unresolved.
+		const isArrayTypeAssertion = typeAnnotation.type === 'TSArrayType'
+			|| (
+				typeAnnotation.type === 'TSTypeReference'
+				&& typeAnnotation.typeName.type === 'Identifier'
+				&& (typeAnnotation.typeName.name === 'Array' || typeAnnotation.typeName.name === 'ReadonlyArray')
+			);
+
+		return isArrayTypeAssertion ? node : uncertainValue;
 	}
 
 	// Supported receiver inference boundary:
