@@ -31,6 +31,14 @@ function shouldReport(authority) {
 	return Boolean(hostname && hasPublicTld(hostname));
 }
 
+function isXmlNamespaceValue(text, matchIndex) {
+	// 30 chars covers `xmlns:somePrefix="` with a prefix up to 22 chars long.
+	const preceding = text.slice(Math.max(0, matchIndex - 30), matchIndex);
+	// \b prevents matching words ending in "xmlns" (e.g. notxmlns).
+	// [\w.-]+ covers XML NCNames, which allow hyphens and dots (e.g. xmlns:xsl-fo).
+	return /\bxmlns(?::[\w.-]+)?\s*=\s*["']?$/i.test(preceding);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	let checked = false;
@@ -46,11 +54,16 @@ const create = context => {
 		const {text} = sourceCode;
 
 		for (const match of text.matchAll(HTTP_URL)) {
+			const start = match.index;
+
+			if (isXmlNamespaceValue(text, start)) {
+				continue;
+			}
+
 			if (!shouldReport(match.groups.authority)) {
 				continue;
 			}
 
-			const start = match.index;
 			const end = start + match[0].length;
 
 			context.report({
