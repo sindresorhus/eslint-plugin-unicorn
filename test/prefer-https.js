@@ -43,6 +43,17 @@ ruleTest.snapshot({
 		'const element = <a href="https://sindresorhus.com">https://sindresorhus.com</a>;',
 		`// eslint-disable-next-line rule-to-test/prefer-https
 		// http://sindresorhus.com`,
+		// XML namespace URIs are opaque identifiers, not network requests
+		'const element = <svg xmlns="http://www.w3.org/2000/svg"></svg>;',
+		'const element = <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d=""/></svg>;',
+		'const element = <html xmlns="http://www.w3.org/1999/xhtml"></html>;',
+		'const element = <tag xmlns:ns="http://example.com/ns"></tag>;',
+		// Hyphenated NCName prefix (XML allows hyphens in namespace prefixes)
+		'const element = <tag xmlns:xsl-fo="http://www.w3.org/1999/XSL/Format"></tag>;',
+		// Single-quoted attribute value
+		'const element = <svg xmlns=\'http://www.w3.org/2000/svg\'></svg>;',
+		// Spaces around the equals sign
+		'const element = <svg xmlns = "http://www.w3.org/2000/svg"></svg>;',
 	],
 	invalid: [
 		'const url = "http://sindresorhus.com";',
@@ -59,6 +70,8 @@ ruleTest.snapshot({
 		'const url = "http://êxample.com";',
 		'const url = "http://sindresorhus.com:8080/path";',
 		'const url = "http://sindresorhus.com.";',
+		// Non-xmlns attribute adjacent to an xmlns attribute must still be flagged
+		'const element = <svg xmlns="http://www.w3.org/2000/svg" data-url="http://sindresorhus.com"></svg>;',
 	],
 });
 
