@@ -1,4 +1,4 @@
-import {isNewExpression} from './ast/index.js';
+import {isLiteral, isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
@@ -86,6 +86,19 @@ const isErrorConstructor = node => {
 	return false;
 };
 
+const isTypeofExpression = node => node.type === 'UnaryExpression' && node.operator === 'typeof';
+const isUndefinedString = node => isLiteral(node, 'undefined');
+
+// Comparing `typeof x` against `'undefined'` is an existence/environment check (e.g. `typeof window !== 'undefined'`), not a value type check.
+const isExistenceCheck = node => {
+	const {operator, left, right} = node;
+	if (operator !== '==' && operator !== '!=' && operator !== '===' && operator !== '!==') {
+		return false;
+	}
+
+	return (isTypeofExpression(left) && isUndefinedString(right)) || (isTypeofExpression(right) && isUndefinedString(left));
+};
+
 const isTypecheckingExpression = (node, callExpression) => {
 	switch (node.type) {
 		case 'Identifier': {
@@ -112,6 +125,10 @@ const isTypecheckingExpression = (node, callExpression) => {
 
 			if (operator === 'instanceof') {
 				return !isErrorConstructor(right);
+			}
+
+			if (isExistenceCheck(node)) {
+				return false;
 			}
 
 			return isTypecheckingExpression(left, callExpression)

@@ -15,6 +15,8 @@ It's aware of the most commonly used type checking operators and identifiers lik
 
 The rule investigates every throw-statement which throws a generic `Error`. It will fail if the throw-statement is the only expression in the surrounding block and is preceded by an if-statement whose condition consists of type-checks exclusively. You have to replace the `Error` with a `TypeError`.
 
+Comparing `typeof x` against `'undefined'` is treated as an existence or environment check (for example, `typeof window !== 'undefined'`) rather than a type check, so it's not reported.
+
 ## Examples
 
 ```js
