@@ -40,3 +40,6 @@ const part = string.split('/').at(-1);
 // ✅
 const part = string.split(separator)[1];
 ```
+
+> [!NOTE]
+> Whether this is faster depends on the JavaScript engine. V8 currently does not optimize the `limit` for string separators, so it may not help (and can slightly hurt) for short strings. The main benefit is clearer intent.
