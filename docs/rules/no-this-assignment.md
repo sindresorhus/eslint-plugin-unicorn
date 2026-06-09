@@ -54,3 +54,7 @@ class Bar {
 
 new Bar(this).method();
 ```
+
+## Related rules
+
+- [`@typescript-eslint/no-this-alias`](https://typescript-eslint.io/rules/no-this-alias/) - Equivalent rule from typescript-eslint. If you already use that one, you don't need this rule. It has `allowDestructuring` (enabled by default) and `allowedNames` options.
