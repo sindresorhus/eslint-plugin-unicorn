@@ -281,6 +281,33 @@ test({
 		'if (foo instanceof CustomError) throw new Error("message")',
 		'if (foo instanceof lib.Error) throw new Error("message")',
 		'if (foo instanceof lib.CustomError) throw new Error("message")',
+		// `typeof x` compared against `'undefined'` is an existence/environment check, not a type check
+		outdent`
+			if (typeof window !== 'undefined') {
+				throw new Error('This package requires a browser environment.');
+			}
+		`,
+		outdent`
+			if (typeof process === 'undefined') {
+				throw new Error('This package requires Node.js.');
+			}
+		`,
+		outdent`
+			if ('undefined' === typeof self) {
+				throw new Error('No global available.');
+			}
+		`,
+		outdent`
+			if (typeof window !== 'undefined' && typeof foo !== 'string') {
+				throw new Error('Mixed environment and type check.');
+			}
+		`,
+		// Loose equality against `'undefined'` is also an existence check
+		outdent`
+			if (typeof window != 'undefined') {
+				throw new Error('This package requires a browser environment.');
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -382,6 +409,20 @@ test({
 			`,
 			output: outdent`
 				if (typeof foo == 'Foo' || 'Foo' === typeof foo) {
+					throw new TypeError();
+				}
+			`,
+			errors,
+		},
+		{
+			// `typeof` against a real type string (not `'undefined'`) is still a type check
+			code: outdent`
+				if (typeof foo === 'string') {
+					throw new Error();
+				}
+			`,
+			output: outdent`
+				if (typeof foo === 'string') {
 					throw new TypeError();
 				}
 			`,
