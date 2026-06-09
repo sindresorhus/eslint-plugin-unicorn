@@ -1,78 +1,14 @@
 import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isSameReference} from './utils/index.js';
+import {
+	containsOptionalChain,
+	isReference,
+	isSame,
+	unwrapExpression,
+} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-includes-over-repeated-comparisons';
 const messages = {
 	[MESSAGE_ID]: 'Use `.includes()` instead of repeated equality checks.',
-};
-
-const typeScriptExpressionNodeTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-]);
-
-const optionalChainNodeTypes = new Set([
-	'CallExpression',
-	'MemberExpression',
-]);
-
-const referenceNodeTypes = new Set([
-	'Identifier',
-	'MemberExpression',
-	'Super',
-	'ThisExpression',
-]);
-
-const unwrapExpression = node =>
-	typeScriptExpressionNodeTypes.has(node.type)
-		? unwrapExpression(node.expression)
-		: node;
-
-const normalizeReference = node => {
-	node = unwrapExpression(node);
-
-	if (node.type === 'MemberExpression') {
-		return {
-			...node,
-			object: normalizeReference(node.object),
-			property: node.computed ? normalizeReference(node.property) : node.property,
-		};
-	}
-
-	return node;
-};
-
-const containsOptionalChain = node => {
-	if (node.type === 'ChainExpression') {
-		return true;
-	}
-
-	if (optionalChainNodeTypes.has(node.type) && node.optional) {
-		return true;
-	}
-
-	return Object.entries(node).some(([key, value]) => {
-		if (key === 'parent' || !value) {
-			return false;
-		}
-
-		if (Array.isArray(value)) {
-			return value.some(element => element?.type && containsOptionalChain(element));
-		}
-
-		return value.type && containsOptionalChain(value);
-	});
-};
-
-const isSame = (left, right) =>
-	isSameReference(normalizeReference(left), normalizeReference(right));
-
-const isReference = node => {
-	node = unwrapExpression(node);
-
-	return referenceNodeTypes.has(node.type);
 };
 
 function getLogicalOrOperands(node) {
