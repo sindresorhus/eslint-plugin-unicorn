@@ -153,7 +153,7 @@ const getKey = value => {
 	}
 
 	if (
-		Number.isInteger(value)
+		Number.isSafeInteger(value)
 		&& value >= 0
 		&& value <= 0x10_FF_FF
 	) {

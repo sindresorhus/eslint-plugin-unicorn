@@ -73,6 +73,15 @@ const config = [
 			'unicorn/no-exports-in-scripts': 'off',
 		},
 	},
+	{
+		files: [
+			'rules/prefer-bigint-literals.js',
+		],
+		rules: {
+			// `Number.isInteger` is intentional here: large integers beyond the safe range are exactly what bigint literals are for.
+			'unicorn/prefer-number-is-safe-integer': 'off',
+		},
+	},
 ];
 
 // Create rule to allow inline config to disable

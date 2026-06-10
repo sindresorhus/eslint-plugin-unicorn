@@ -22,7 +22,7 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 
 	if (
 		!staticValue
-		|| !Number.isInteger(staticValue.value)
+		|| !Number.isSafeInteger(staticValue.value)
 		|| staticValue.value < 0
 	) {
 		return;

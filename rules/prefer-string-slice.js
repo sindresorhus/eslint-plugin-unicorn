@@ -34,7 +34,7 @@ const isLengthProperty = node => (
 
 const isPositiveIntegerLiteral = node => (
 	isNumericLiteral(node)
-	&& Number.isInteger(node.value)
+	&& Number.isSafeInteger(node.value)
 	&& node.value > 0
 );
 
