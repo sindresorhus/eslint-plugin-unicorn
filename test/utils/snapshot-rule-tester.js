@@ -54,21 +54,21 @@ function visualizeEslintMessage(text, result) {
 	const location = {
 		start: {
 			line,
-			column,
+			column: column - 1,
 		},
 	};
 
 	if (typeof endLine === 'number' && typeof endColumn === 'number') {
 		location.end = {
 			line: endLine,
-			column: endColumn,
+			column: endColumn - 1,
 		};
 	}
 
 	return visualizeRange(text, location, message);
 }
 
-const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
+const printCode = code => codeFrameColumns(code, {start: {line: 1, column: 0}}, codeFrameColumnsOptions);
 const getAdditionalProperties = (object, properties) =>
 	Object.keys(object).filter(property => !properties.includes(property));
 
@@ -157,7 +157,7 @@ function verify(code, verifyConfig, {filename}) {
 	const fatalError = messages.find(({fatal}) => fatal);
 	if (fatalError) {
 		const {line, column, message} = fatalError;
-		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
+		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column: column - 1}}, {message}));
 	}
 
 	return messages;
