@@ -9,6 +9,8 @@
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 
+This rule only applies to modules listed in the `styles` option. Imports of unlisted modules are not affected.
+
 This rule defines 4 import styles:
 
 - `unassigned` - `import 'foo'` or `require('foo')`
