@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue, findVariable} from '@eslint-community/eslint-utils';
 import {isNumericLiteral} from '../ast/index.js';
 
 const isStaticProperties = (node, object, properties) =>
@@ -103,6 +103,15 @@ const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt
 
 const isStaticNumber = (node, scope) =>
 	typeof getStaticValue(node, scope)?.value === 'number';
+
+// Only the bare `number` keyword, never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
+const isNumberTypeAnnotation = node => node?.type === 'TSNumberKeyword';
+
+// `function foo(bar: number) {}`, `const foo: number = …`
+const hasNumberTypeAnnotation = (node, scope) => {
+	const variable = findVariable(scope, node);
+	return Boolean(variable) && variable.defs.some(definition => isNumberTypeAnnotation(definition.name?.typeAnnotation?.typeAnnotation));
+};
 
 const isLengthProperty = node =>
 	node.type === 'MemberExpression'
@@ -212,6 +221,34 @@ export default function isNumber(node, scope) {
 
 		case 'SequenceExpression': {
 			if (isNumber(node.expressions.at(-1), scope)) {
+				return true;
+			}
+
+			break;
+		}
+
+		case 'Identifier': {
+			if (hasNumberTypeAnnotation(node, scope)) {
+				return true;
+			}
+
+			break;
+		}
+
+		// `foo as number`, `foo satisfies number`, `<number>foo`
+		case 'TSAsExpression':
+		case 'TSSatisfiesExpression':
+		case 'TSTypeAssertion': {
+			if (isNumberTypeAnnotation(node.typeAnnotation)) {
+				return true;
+			}
+
+			break;
+		}
+
+		// `foo!`
+		case 'TSNonNullExpression': {
+			if (isNumber(node.expression, scope)) {
 				return true;
 			}
 
