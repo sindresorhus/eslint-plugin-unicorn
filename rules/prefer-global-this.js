@@ -151,6 +151,30 @@ function isComputedMemberExpressionObject(identifier) {
 }
 
 /**
+Check if the identifier is the operand of a `typeof` operator, in either value position (`typeof window`) or TypeScript type position (`type T = typeof window` or `typeof window.foo`).
+
+These are portable as-is: the runtime check works in any environment and lets bundlers tree-shake guarded code, and the type query `typeof window` is not equivalent to `typeof globalThis`.
+
+@param {import('estree').Identifier} identifier
+@returns {boolean}
+*/
+function isTypeofOperand(identifier) {
+	const {parent} = identifier;
+
+	if (parent.type === 'UnaryExpression' && parent.operator === 'typeof' && parent.argument === identifier) {
+		return true;
+	}
+
+	// In a TypeScript type query the identifier is the leftmost part of an optional `a.b.c` chain (`TSQualifiedName`), e.g. `window` in `typeof window.foo`.
+	let node = identifier;
+	while (node.parent.type === 'TSQualifiedName') {
+		node = node.parent;
+	}
+
+	return node.parent.type === 'TSTypeQuery';
+}
+
+/**
 Check if the identifier is used in an existence check for a known window-specific API.
 
 @param {import('estree').Identifier} identifier
@@ -184,25 +208,22 @@ const create = context => {
 
 		for (const {identifier} of references) {
 			if (
-				identifier.name === 'window' && (
+				// `typeof window`, `typeof self`, and `typeof global` are portable as-is; leave them untouched.
+				isTypeofOperand(identifier)
+				|| (identifier.name === 'window' && (
 					isComputedMemberExpressionObject(identifier)
 					|| isKnownSpecificApiExistenceCheck(identifier)
 					|| isWindowSpecificApi(identifier.parent)
-				)
+				))
 			) {
 				continue;
 			}
 
-			// Skip the fix for `typeof window` and `typeof self`
-			const isTypeofLegacyGlobal = identifier.parent.type === 'UnaryExpression' && identifier.parent.operator === 'typeof' && identifier.parent.argument === identifier;
-
-			const replacement = isTypeofLegacyGlobal ? 'globalThis.' + identifier.name : 'globalThis';
-
 			yield {
 				node: identifier,
 				messageId: MESSAGE_ID_ERROR,
-				data: {replacement, value: identifier.name},
-				fix: fixer => fixer.replaceText(identifier, replacement),
+				data: {replacement: 'globalThis', value: identifier.name},
+				fix: fixer => fixer.replaceText(identifier, 'globalThis'),
 			};
 		}
 	});
