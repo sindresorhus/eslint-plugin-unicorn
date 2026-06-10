@@ -1,4 +1,5 @@
 import {isEmptyNode, isDirective} from './ast/index.js';
+import {getComments} from './utils/index.js';
 
 const MESSAGE_ID = 'no-empty-file';
 const messages = {
@@ -71,7 +72,7 @@ const create = context => {
 		}
 
 		const {sourceCode} = context;
-		const comments = sourceCode.getAllComments();
+		const comments = getComments(context);
 
 		if (hasTripleSlashDirectives(comments)) {
 			return;
@@ -98,7 +99,7 @@ const create = context => {
 			return;
 		}
 
-		const comments = context.sourceCode.comments ?? [];
+		const comments = getComments(context);
 
 		if (allowComments && comments.length > 0) {
 			return;
@@ -142,6 +143,13 @@ const config = {
 		schema,
 		defaultOptions: [{allowComments: false}],
 		messages,
+		languages: [
+			'js/js',
+			'css/css',
+			'html/html',
+			'markdown/commonmark',
+			'markdown/gfm',
+		],
 	},
 };
 

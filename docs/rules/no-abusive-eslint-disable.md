@@ -9,6 +9,8 @@
 
 This rule makes you specify the rules you want to disable when using `eslint-disable`, `eslint-disable-line` or `eslint-disable-next-line` comments.
 
+Because it inspects the disable directives themselves, it applies to files of any language that supports them, not just JavaScript, when linted with the matching ESLint language plugin (for example [`@eslint/css`](https://github.com/eslint/css) or [`@eslint/markdown`](https://github.com/eslint/markdown)).
+
 If you want to disable an ESLint rule in a file or on a specific line, you can add a comment.
 
 On a single line:

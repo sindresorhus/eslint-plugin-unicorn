@@ -1,5 +1,6 @@
 import {removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 import {isUndefined, isFunction, isMethodCall} from './ast/index.js';
+import {isTypeScriptFile} from './utils/index.js';
 
 const messageId = 'no-useless-undefined';
 const messages = {
@@ -87,12 +88,9 @@ const isFunctionBindCall = node =>
 	&& node.callee.property.type === 'Identifier'
 	&& node.callee.property.name === 'bind';
 
-const isTypeScriptFile = context =>
-	/\.(?:ts|mts|cts|tsx)$/i.test(context.physicalFilename);
-
 // In TypeScript, `Promise.resolve()` is `Promise<void>`, while `Promise.resolve(undefined)` can be `Promise<undefined>`.
 const isTypeScriptPromiseResolveUndefinedCall = (node, context) =>
-	isTypeScriptFile(context)
+	isTypeScriptFile(context.physicalFilename)
 	&& isMethodCall(node, {
 		object: 'Promise',
 		method: 'resolve',
@@ -205,7 +203,7 @@ const create = context => {
 
 					yield fixer.removeRange([start, end]);
 					if (
-						(left.typeAnnotation || isTypeScriptFile(context))
+						(left.typeAnnotation || isTypeScriptFile(context.physicalFilename))
 						&& !left.optional
 						&& isFunction(assignmentPattern.parent)
 						&& assignmentPattern.parent.params.includes(assignmentPattern)

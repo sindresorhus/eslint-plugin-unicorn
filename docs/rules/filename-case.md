@@ -9,6 +9,8 @@
 
 Enforces filenames and directory names of linted files to use a certain case style and lowercase file extension. The default is `kebabCase`.
 
+Because this rule only inspects the path, it applies to files of any language, not just JavaScript, as long as they are linted with the matching ESLint language plugin (for example [`@eslint/css`](https://github.com/eslint/css) or [`@eslint/markdown`](https://github.com/eslint/markdown)).
+
 Directory names are checked only when the file is inside the current working directory. Files outside the current working directory only have their filename checked.
 
 Files named `index.js`, `index.mjs`, `index.cjs`, `index.ts`, `index.tsx`, `index.vue` are ignored as they can't change case (only a problem with `pascalCase`). Their parent directories are still checked.

@@ -1,5 +1,6 @@
 import {
 	getEslintDisableDirectives,
+	onRoot,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-abusive-eslint-disable';
@@ -9,7 +10,7 @@ const messages = {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('Program', function * () {
+	onRoot(context, function * () {
 		for (const directive of getEslintDisableDirectives(context)) {
 			if (directive.value) {
 				continue;
@@ -43,6 +44,9 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		messages,
+		languages: [
+			'*',
+		],
 	},
 };
 
