@@ -118,7 +118,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 			...testerConfig,
 			languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
 			// A non-JS language (e.g. `@eslint/css`, `@eslint/markdown`) and the plugin providing it.
-			...(language ? {language: language.language} : {}),
+			...(language && {language: language.language}),
 			rules: {
 				[`${pluginName}/${ruleId}`]: ['error', ...options],
 			},

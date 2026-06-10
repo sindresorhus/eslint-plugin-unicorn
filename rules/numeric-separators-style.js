@@ -128,15 +128,13 @@ const formatOptionsSchema = ({withFraction = false} = {}) => ({
 			minimum: 1,
 			description: 'The number of digits in each group.',
 		},
-		...(withFraction
-			? {
-				fractionGroupLength: {
-					type: 'integer',
-					minimum: 1,
-					description: 'The number of digits in each group after the decimal point. Defaults to no grouping.',
-				},
-			}
-			: {}),
+		...(withFraction && {
+			fractionGroupLength: {
+				type: 'integer',
+				minimum: 1,
+				description: 'The number of digits in each group after the decimal point. Defaults to no grouping.',
+			},
+		}),
 	},
 });
 
