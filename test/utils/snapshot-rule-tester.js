@@ -68,7 +68,7 @@ function visualizeEslintMessage(text, result) {
 	return visualizeRange(text, location, message);
 }
 
-const printCode = code => codeFrameColumns(code, {start: {line: 1, column: 0}}, codeFrameColumnsOptions);
+const printCode = code => codeFrameColumns(code, {start: {line: 0, column: 0}}, codeFrameColumnsOptions);
 const getAdditionalProperties = (object, properties) =>
 	Object.keys(object).filter(property => !properties.includes(property));
 
