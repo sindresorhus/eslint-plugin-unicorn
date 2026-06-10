@@ -16,6 +16,7 @@ However, there are several exceptions that remain permitted:
 1. Certain window-specific APIs, such as `window.innerHeight`
 2. Window-specific events, such as `window.addEventListener('resize')`
 3. Computed property access on `window`, such as `window[foo]`
+4. `typeof` existence checks, such as `typeof window === 'undefined'`
 
 The complete list of permitted APIs can be found in the rule's [source code](../../rules/prefer-global-this.js).
 
@@ -83,6 +84,14 @@ window.innerWidth;
 
 // ✅
 window.innerHeight;
+```
+
+```js
+// ✅
+typeof window === 'undefined';
+
+// ✅
+typeof window === 'object';
 ```
 
 ```js

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -59,6 +59,21 @@ test.snapshot({
 		'window[foo]',
 		'window[title]',
 		'window["foo"]',
+
+		// `typeof` existence checks are portable as-is
+		'typeof window',
+		'typeof window !== "undefined"',
+		'typeof self !== "undefined"',
+		'typeof global !== "undefined"',
+		'typeof window === "undefined"',
+		'typeof window === "object"',
+
+		// TypeScript `typeof` type queries are not equivalent to `typeof globalThis`
+		{code: 'type Window = typeof window;', languageOptions: {parser: parsers.typescript}},
+		{code: 'let foo: typeof self;', languageOptions: {parser: parsers.typescript}},
+		{code: 'type Foo = typeof window.foo;', languageOptions: {parser: parsers.typescript}},
+		{code: 'type Foo = typeof window.foo.bar;', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(bar: typeof self.foo) {}', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		'global',
@@ -186,14 +201,13 @@ test.snapshot({
 		'foo[window.foo]',
 		'\'foo\' in window',
 		'\'foo\' in global',
-		'typeof window !== "undefined"',
-		'typeof self !== "undefined"',
-		'typeof global !== "undefined"',
 		'typeof window.something === "function"',
 		'typeof self.something === "function"',
 		'typeof global.something === "function"',
 		'self[foo]',
 		'global[foo]',
+		// The type query is left as-is, but the value reference is still fixed
+		{code: 'const foo: typeof window = window;', languageOptions: {parser: parsers.typescript}},
 	],
 });
 
