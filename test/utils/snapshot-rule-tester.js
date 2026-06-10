@@ -54,14 +54,14 @@ function visualizeEslintMessage(text, result) {
 	const location = {
 		start: {
 			line,
-			column,
+			column: Math.max(0, column - 1),
 		},
 	};
 
 	if (typeof endLine === 'number' && typeof endColumn === 'number') {
 		location.end = {
 			line: endLine,
-			column: endColumn,
+			column: Math.max(0, endColumn - 1),
 		};
 	}
 
@@ -157,7 +157,7 @@ function verify(code, verifyConfig, {filename}) {
 	const fatalError = messages.find(({fatal}) => fatal);
 	if (fatalError) {
 		const {line, column, message} = fatalError;
-		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column}}, {message}));
+		throw new SyntaxError('\n' + codeFrameColumns(code, {start: {line, column: Math.max(0, column - 1)}}, {message}));
 	}
 
 	return messages;
