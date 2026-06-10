@@ -1,16 +1,20 @@
+import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
 	needsSemicolon,
 	isSameReference,
 	getIndentString,
 	getParenthesizedText,
+	getParenthesizedRange,
 	shouldAddParenthesesToConditionalExpressionChild,
 	getScopes,
 	isParenthesized,
+	getPreviousNode,
 } from './utils/index.js';
 import {extendFixRange} from './fix/index.js';
 
 const messageId = 'prefer-ternary';
+const suggestionMessageId = 'prefer-ternary/suggestion';
 
 const isTernary = node => node?.type === 'ConditionalExpression';
 
@@ -168,12 +172,139 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
+	function checkLetPlusIf(node) {
+		const consequentBody = getNodeBody(node.consequent);
+		if (
+			!consequentBody
+			|| consequentBody.type !== 'AssignmentExpression'
+			|| consequentBody.operator !== '='
+		) {
+			return;
+		}
+
+		const {left, right} = consequentBody;
+
+		if (left.type !== 'Identifier') {
+			return;
+		}
+
+		if (isTernary(node.test) || isTernary(right)) {
+			return;
+		}
+
+		if (
+			onlySingleLine
+			&& [node.test, right].some(n => !isSingleLineNode(n, context))
+		) {
+			return;
+		}
+
+		const previousNode = getPreviousNode(node, context);
+		if (
+			!previousNode
+			|| previousNode.type !== 'VariableDeclaration'
+			|| previousNode.kind !== 'let'
+			|| previousNode.declarations.length !== 1
+		) {
+			return;
+		}
+
+		const [declarator] = previousNode.declarations;
+		if (
+			declarator.id.type !== 'Identifier'
+			|| declarator.id.name !== left.name
+			|| !declarator.init
+			|| isTernary(declarator.init)
+		) {
+			return;
+		}
+
+		if (
+			onlySingleLine
+			&& !isSingleLineNode(declarator.init, context)
+		) {
+			return;
+		}
+
+		if (hasSideEffect(declarator.init, sourceCode)) {
+			return;
+		}
+
+		const scope = sourceCode.getScope(node);
+		const variable = findVariable(scope, left);
+		if (!variable) {
+			return;
+		}
+
+		const isReferenceInsideNode = (reference, targetNode) => {
+			const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
+			const [nodeStart, nodeEnd] = sourceCode.getRange(targetNode);
+			return referenceStart >= nodeStart && referenceEnd <= nodeEnd;
+		};
+
+		if (
+			variable.references.some(reference =>
+				isReferenceInsideNode(reference, node.test)
+				|| isReferenceInsideNode(reference, right),
+			)
+		) {
+			return;
+		}
+
+		const problem = {node, messageId};
+
+		const hasComments = sourceCode.getCommentsInside(node).length > 0
+			|| sourceCode.getCommentsInside(previousNode).length > 0
+			|| sourceCode.getTokensBetween(previousNode, node, {includeComments: true})
+				.some(token => token.type === 'Block' || token.type === 'Line');
+
+		if (hasComments) {
+			return problem;
+		}
+
+		const hasOtherWrites = variable.references.some(reference =>
+			!reference.init
+			&& reference.isWrite()
+			&& !isReferenceInsideNode(reference, node),
+		);
+		const keyword = hasOtherWrites ? 'let' : 'const';
+
+		problem.suggest = [
+			{
+				messageId: suggestionMessageId,
+				* fix(fixer) {
+					const testText = getText(node.test);
+					const consequentText = getText(right);
+					const alternateText = getText(declarator.init);
+
+					const ternary = `${testText} ? ${consequentText} : ${alternateText}`;
+
+					const letToken = sourceCode.getFirstToken(previousNode);
+					yield fixer.replaceText(letToken, keyword);
+
+					yield fixer.replaceTextRange(getParenthesizedRange(declarator.init, context), ternary);
+
+					const [, declarationEnd] = sourceCode.getRange(previousNode);
+					const [, ifEnd] = sourceCode.getRange(node);
+					const nextToken = sourceCode.getTokenAfter(node);
+					const addSemicolon = nextToken && needsSemicolon(sourceCode.getLastToken(previousNode), context, nextToken.value);
+					yield fixer.replaceTextRange([declarationEnd, ifEnd], addSemicolon ? ';' : '');
+				},
+			},
+		];
+
+		return problem;
+	}
+
 	context.on('IfStatement', node => {
+		if (!node.alternate) {
+			return checkLetPlusIf(node);
+		}
+
 		if (
 			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
 			|| node.test.type === 'ConditionalExpression'
 			|| !node.consequent
-			|| !node.alternate
 		) {
 			return;
 		}
@@ -276,10 +407,12 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: ['always'],
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
+			[suggestionMessageId]: 'Use a ternary expression.',
 		},
 	},
 };

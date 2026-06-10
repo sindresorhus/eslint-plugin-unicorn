@@ -60,10 +60,7 @@ const wrapQuoted = (value, originalQuote) => {
 };
 
 function * getLiteralFix(fixer, node, identifierName) {
-	let replacement = node.raw;
-	if (identifierName === 'getElementById') {
-		replacement = getQuotedReplacement(node, getReplacementForId(node.value));
-	}
+	let replacement = identifierName === 'getElementById' ? getQuotedReplacement(node, getReplacementForId(node.value)) : node.raw;
 
 	if (identifierName === 'getElementsByClassName') {
 		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));

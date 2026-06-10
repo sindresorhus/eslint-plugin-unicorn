@@ -4,12 +4,14 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 This rule enforces the use of ternary expressions over 'simple' `if-else` statements, where 'simple' means the consequent and alternate are each one line and have the same basic type and form.
+
+It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single `const` declaration using a ternary.
 
 Using an `if-else` statement typically results in more lines of code than a single-line ternary expression, which leads to an unnecessarily larger codebase that is more difficult to maintain.
 
@@ -90,6 +92,17 @@ if (test) {
 // ✅
 let foo;
 foo = test ? 1 : 2;
+```
+
+```js
+// ❌
+let items = defaultData;
+if (data.length) {
+	items = data;
+}
+
+// ✅
+const items = data.length ? data : defaultData;
 ```
 
 ```js
