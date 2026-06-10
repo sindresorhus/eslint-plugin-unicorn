@@ -255,11 +255,11 @@ When a string is given, it's interpreted as a regular expression inside a string
 	'error',
 	{
 		ignore: [
-			'\\.e2e$',
+			'\\.fixtures$',
 			/^ignore/i,
 		],
 	},
 ]
 ```
 
-When checking filenames, only the basename is tested. For example, with a file named `foo.e2e.js`, `ignore: [/\.e2e$/]` would pass and `ignore: [/\.e2e\.js/]` would fail.
+When checking filenames, only the basename is tested. For example, with a file named `foo.fixtures.js`, `ignore: [/\.fixtures$/]` would pass and `ignore: [/\.fixtures\.js/]` would fail.
