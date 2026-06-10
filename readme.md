@@ -7,6 +7,8 @@
 
 You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
+Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, and Markdown](#non-javascript-files) when used with the matching ESLint language plugin.
+
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
 
 **Fully AI-generated pull requests are not accepted. You can use AI, but should be verified and cleaned up by a human. Only Opus 4.6+ (high-effort) and Codex 5.4+ (extra high) are accepted models. Preferably created with Opus and verified by Codex.**
@@ -240,6 +242,29 @@ export default [
 | [try-complexity](docs/rules/try-complexity.md)                                                       | Limit the complexity of `try` blocks.                                                                                                                                                                             |      |    |    |
 
 <!-- end auto-generated rules list -->
+
+### Non-JavaScript files
+
+While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), or [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint). Each such rule declares this with the `meta.languages` field.
+
+<!-- Do not manually modify this list. Run: `npm run fix:non-js-languages` -->
+<!-- begin auto-generated non-js languages list -->
+
+These rules work on **any** file type:
+
+- [`filename-case`](docs/rules/filename-case.md)
+- [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md)
+- [`prefer-https`](docs/rules/prefer-https.md)
+
+These rules also work on specific non-JavaScript languages:
+
+| Name | CSS | HTML | Markdown |
+| :-- | :-: | :-: | :-: |
+| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ |  |  |
+| [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ |
+| [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |
+
+<!-- end auto-generated non-js languages list -->
 
 ### Deleted and deprecated rules
 

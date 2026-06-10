@@ -1,3 +1,5 @@
+import {onRoot} from './utils/index.js';
+
 const MESSAGE_ID = 'prefer-https';
 const messages = {
 	[MESSAGE_ID]: 'Prefer HTTPS over HTTP.',
@@ -7,12 +9,6 @@ const HTTP_URL = /(?<![\w+.-])http:\/\/(?<authority>[^\s/?#"'`<>()\\,;!\]}{]+)/g
 // Like `HTTP_URL`, but captures the full URL (including the path) so it can be
 // compared against known namespace URIs. Sticky so it matches at a given index.
 const HTTP_URL_FULL = /http:\/\/[^\s"'`<>()\\,;!\]}{]+/uy;
-const ROOT_NODE_TYPES = [
-	'Program',
-	'StyleSheet',
-	'Document',
-	'root',
-];
 
 // Well-known XML namespace URIs are opaque identifiers defined to use the
 // `http:` scheme. They are not network requests and must not be rewritten.
@@ -87,7 +83,7 @@ function isWellKnownXmlNamespace(text, matchIndex) {
 const create = context => {
 	let checked = false;
 
-	context.on(ROOT_NODE_TYPES, node => {
+	onRoot(context, node => {
 		if (checked) {
 			return;
 		}
@@ -134,6 +130,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'*',
+		],
 	},
 };
 

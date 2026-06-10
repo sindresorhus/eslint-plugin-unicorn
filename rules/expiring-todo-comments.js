@@ -5,6 +5,7 @@ import * as ci from 'ci-info';
 import {
 	isEslintDisableOrEnableDirective,
 	getBuiltinRule,
+	getComments,
 } from './utils/index.js';
 import {readPackageJson} from './shared/package-json.js';
 
@@ -268,10 +269,6 @@ const DEFAULT_OPTIONS = {
 	allowWarningComments: true,
 };
 
-function getAllComments(sourceCode) {
-	return sourceCode.getAllComments?.() ?? sourceCode.comments ?? [];
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const options = {
@@ -285,7 +282,7 @@ const create = context => {
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
 
 	const {sourceCode} = context;
-	const comments = getAllComments(sourceCode);
+	const comments = getComments(context);
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
 		// Block comments come as one.
@@ -532,6 +529,10 @@ const config = {
 		schema,
 		defaultOptions: [{...DEFAULT_OPTIONS}],
 		messages,
+		languages: [
+			'js/js',
+			'css/css',
+		],
 	},
 };
 

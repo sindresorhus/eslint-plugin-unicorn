@@ -1,9 +1,14 @@
+import test from 'ava';
+import {Linter} from 'eslint';
+import css from '@eslint/css';
+import markdown from '@eslint/markdown';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
-test({
+ruleTest({
 	testerOptions: {
 		plugins: Object.fromEntries([
 			['plugin-name', 'rule-name'],
@@ -73,7 +78,7 @@ test({
 	invalid: [],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [],
 	invalid: [
 		'eval(); // eslint-disable-line',
@@ -112,4 +117,39 @@ test.snapshot({
 			eval();
 		`,
 	],
+});
+
+test('reports abusive `eslint-disable` in non-JavaScript files', t => {
+	const linter = new Linter({configType: 'flat'});
+
+	const languageCases = [
+		{
+			language: 'css/css', plugin: css, filename: 'a.css', abusive: '/* eslint-disable */\n.a { color: red; }', scoped: '/* eslint-disable css/no-empty-blocks */\n.a {}',
+		},
+		{
+			language: 'markdown/gfm', plugin: markdown, filename: 'a.md', abusive: '<!-- eslint-disable -->\n# Title', scoped: '<!-- eslint-disable markdown/no-empty-links -->\n[]()',
+		},
+	];
+
+	for (const {language, plugin, filename, abusive, scoped} of languageCases) {
+		const pluginName = language.split('/', 1)[0];
+		const config = {
+			files: ['**'],
+			language,
+			plugins: {[pluginName]: plugin, unicorn},
+			rules: {'unicorn/no-abusive-eslint-disable': 'error'},
+		};
+
+		t.deepEqual(
+			linter.verify(abusive, config, {filename}).filter(({ruleId}) => ruleId === 'unicorn/no-abusive-eslint-disable').map(({message}) => message),
+			['Specify the rules you want to disable.'],
+			`reports a bare eslint-disable in ${language}`,
+		);
+
+		t.deepEqual(
+			linter.verify(scoped, config, {filename}).filter(({ruleId}) => ruleId === 'unicorn/no-abusive-eslint-disable').map(({message}) => message),
+			[],
+			`allows a scoped eslint-disable in ${language}`,
+		);
+	}
 });

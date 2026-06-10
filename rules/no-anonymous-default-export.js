@@ -8,6 +8,7 @@ import {
 	getScopes,
 	getAvailableVariableName,
 	upperFirst,
+	isVirtualFilename,
 } from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
@@ -34,7 +35,7 @@ const isAnonymousClassOrFunction = node =>
 	|| node.type === 'ArrowFunctionExpression';
 
 function getSuggestionName(node, filename, sourceCode) {
-	if (filename === '<input>' || filename === '<text>') {
+	if (isVirtualFilename(filename)) {
 		return;
 	}
 

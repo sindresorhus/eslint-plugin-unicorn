@@ -8,6 +8,7 @@ import {
 	getScopes,
 	upperFirst,
 	lowerFirst,
+	isVirtualFilename,
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
 import {
@@ -495,10 +496,7 @@ const create = context => {
 			return;
 		}
 
-		if (
-			filenameWithExtension === '<input>'
-			|| filenameWithExtension === '<text>'
-		) {
+		if (isVirtualFilename(filenameWithExtension)) {
 			return;
 		}
 

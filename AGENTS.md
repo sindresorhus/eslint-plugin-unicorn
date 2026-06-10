@@ -55,6 +55,20 @@ Options are accessed via `context.options[0]`. Use `meta.defaultOptions` for def
 
 Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form, so option naming stays consistent across rules. This does not apply to array/pattern options like `ignore` (a list of patterns to ignore), which follow ESLint's own conventions.
 
+## Rule languages
+
+Every new rule should declare the official [`meta.languages`](https://eslint.org/docs/latest/extend/custom-rules#rule-languages) field, in `"plugin/language"` form, one per line: `['js/js']` for JavaScript/TypeScript-only rules (most), or the languages it supports (for example `['js/js', 'css/css']`, or `['*']` for any file type).
+
+Available identifiers:
+
+- `js/js` — JavaScript and TypeScript
+- `css/css` — [`@eslint/css`](https://github.com/eslint/css)
+- `json/json`, `json/jsonc`, `json/json5` — [`@eslint/json`](https://github.com/eslint/json)
+- `markdown/commonmark`, `markdown/gfm` — [`@eslint/markdown`](https://github.com/eslint/markdown)
+- `html/html` — [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint)
+
+Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But when a rule's logic is language-agnostic (filename, raw text, comments, or disable directives), support as many languages as is feasible. Root node types differ per language (`Program` for JS/TS and HTML, `StyleSheet` for CSS, `Document` for JSON, `root` for Markdown), so use `onRoot(context, listener)` to run on every root and `getComments(context)` for cross-language comments (both from `rules/utils/`). For reference, see `prefer-https` (`['*']`, raw-text scan) and `no-empty-file` (per-language root handlers).
+
 ## Reusable utilities
 
 Before writing helpers, check these directories:

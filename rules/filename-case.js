@@ -7,6 +7,7 @@ import {
 	pascalCase,
 } from 'change-case';
 import cartesianProductSamples from './utils/cartesian-product-samples.js';
+import {onRoot, isVirtualFilename} from './utils/index.js';
 
 const MESSAGE_ID = 'filename-case';
 const MESSAGE_ID_DIRECTORY = 'directory-case';
@@ -199,11 +200,11 @@ const create = context => {
 	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
 	const filenameWithExtension = context.physicalFilename;
 
-	if (filenameWithExtension === '<input>' || filenameWithExtension === '<text>') {
+	if (isVirtualFilename(filenameWithExtension)) {
 		return;
 	}
 
-	context.on('Program', () => {
+	onRoot(context, () => {
 		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
 		const basenameWithExtension = pathSegments.at(-1);
 		const {
@@ -352,6 +353,9 @@ const config = {
 		// eslint-disable-next-line eslint-plugin/require-meta-default-options
 		defaultOptions: [],
 		messages,
+		languages: [
+			'*',
+		],
 	},
 };
 

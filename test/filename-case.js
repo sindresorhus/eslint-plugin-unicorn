@@ -1,6 +1,10 @@
 import path from 'node:path';
 import test from 'ava';
 import {Linter} from 'eslint';
+import css from '@eslint/css';
+import json from '@eslint/json';
+import markdown from '@eslint/markdown';
+import html from '@html-eslint/eslint-plugin';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -68,6 +72,47 @@ test('checks relative directory names from ESLint cwd', t => {
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		],
 	);
+});
+
+test('checks filenames of non-JavaScript files', t => {
+	const linter = new Linter({configType: 'flat'});
+
+	const languageCases = [
+		{
+			language: 'css/css', plugin: css, extension: 'css', code: '.a { color: red; }',
+		},
+		{
+			language: 'json/json', plugin: json, extension: 'json', code: '{"a": 1}',
+		},
+		{
+			language: 'markdown/gfm', plugin: markdown, extension: 'md', code: '# Title',
+		},
+		{
+			language: 'html/html', plugin: html, extension: 'html', code: '<p>Hello</p>',
+		},
+	];
+
+	for (const {language, plugin, extension, code} of languageCases) {
+		const pluginName = language.split('/', 1)[0];
+		const config = {
+			files: ['**'],
+			language,
+			plugins: {[pluginName]: plugin, unicorn},
+			rules: {'unicorn/filename-case': 'error'},
+		};
+
+		t.deepEqual(
+			linter.verify(code, config, {filename: `Foo_Bar.${extension}`}).map(({message}) => message),
+			[`Filename is not in kebab case. Rename it to \`foo-bar.${extension}\`.`],
+			`reports a badly-cased ${language} filename`,
+		);
+
+		t.deepEqual(
+			linter.verify(code, config, {filename: `foo-bar.${extension}`}).map(({message}) => message),
+			[],
+			`accepts a well-cased ${language} filename`,
+		);
+	}
 });
 
 ruleTest({
