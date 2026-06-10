@@ -43,6 +43,7 @@ const config = [
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
+			'unicorn/prefer-temporal': 'off',
 		},
 	},
 	{
