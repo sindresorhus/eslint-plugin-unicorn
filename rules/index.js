@@ -146,6 +146,7 @@ export {default as 'prefer-response-static-json'} from './prefer-response-static
 export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
+export {default as 'prefer-simple-sort-comparator'} from './prefer-simple-sort-comparator.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
 export {default as 'prefer-split-limit'} from './prefer-split-limit.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
