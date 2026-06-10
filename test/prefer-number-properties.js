@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -17,11 +17,11 @@ const methods = {
 	},
 	isNaN: {
 		safe: false,
-		code: 'isNaN(10);',
+		code: 'isNaN(foo);',
 	},
 	isFinite: {
 		safe: false,
-		code: 'isFinite(10);',
+		code: 'isFinite(foo);',
 	},
 };
 
@@ -125,27 +125,27 @@ test({
 			name: 'parseFloat',
 		}),
 		invalidMethodTest({
-			code: 'isNaN(10);',
-			suggestionOutput: 'Number.isNaN(10);',
+			code: 'isNaN(foo);',
+			suggestionOutput: 'Number.isNaN(foo);',
 			name: 'isNaN',
 		}),
 		invalidMethodTest({
-			code: 'isFinite(10);',
-			suggestionOutput: 'Number.isFinite(10);',
+			code: 'isFinite(foo);',
+			suggestionOutput: 'Number.isFinite(foo);',
 			name: 'isFinite',
 		}),
 		{
 			code: outdent`
 				const a = parseInt("10", 2);
 				const b = parseFloat("10.5");
-				const c = isNaN(10);
-				const d = isFinite(10);
+				const c = isNaN(foo);
+				const d = isFinite(foo);
 			`,
 			output: outdent`
 				const a = Number.parseInt("10", 2);
 				const b = Number.parseFloat("10.5");
-				const c = isNaN(10);
-				const d = isFinite(10);
+				const c = isNaN(foo);
+				const d = isFinite(foo);
 			`,
 			errors: [
 				createError('parseInt'),
@@ -155,8 +155,8 @@ test({
 					outdent`
 						const a = parseInt("10", 2);
 						const b = parseFloat("10.5");
-						const c = Number.isNaN(10);
-						const d = isFinite(10);
+						const c = Number.isNaN(foo);
+						const d = isFinite(foo);
 					`,
 				),
 				createError(
@@ -164,8 +164,8 @@ test({
 					outdent`
 						const a = parseInt("10", 2);
 						const b = parseFloat("10.5");
-						const c = isNaN(10);
-						const d = Number.isFinite(10);
+						const c = isNaN(foo);
+						const d = Number.isFinite(foo);
 					`,
 				),
 			],
@@ -446,5 +446,56 @@ test.snapshot({
 
 			run(foo, options);
 		`,
+	],
+});
+
+// `isNaN`/`isFinite` are auto-fixed when the argument is known to be a number, otherwise a suggestion
+test.snapshot({
+	valid: [],
+	invalid: [
+		// Auto-fixed: argument is known to be a number
+		'isNaN(10);',
+		'isFinite(10);',
+		'isNaN(foo - 1);',
+		'isNaN(foo.length);',
+		'isNaN(parseFloat(foo));',
+		'isNaN(Number(foo));',
+		'isFinite(Math.floor(foo));',
+		outdent`
+			const foo = 5;
+			isNaN(foo);
+		`,
+		{code: 'function foo(bar: number) { return isNaN(bar); }', languageOptions: {parser: parsers.typescript}},
+		{code: 'isNaN(foo as number);', languageOptions: {parser: parsers.typescript}},
+		{code: 'isNaN(foo satisfies number);', languageOptions: {parser: parsers.typescript}},
+		{code: 'isNaN(<number>foo);', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(bar: number) { return isNaN(bar!); }', languageOptions: {parser: parsers.typescript}},
+		{
+			code: outdent`
+				const foo: number = bar();
+				isFinite(foo);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// Suggestion only: argument is not known to be a number
+		'isNaN(foo);',
+		'isNaN(foo());',
+		'isNaN(foo + bar);',
+		// `foo - bar` can be a `BigInt` when both sides are, so it's not a known number
+		'isNaN(foo - bar);',
+		'isNaN();',
+		'isNaN(...foo);',
+		'[1].some(isNaN);',
+		'isFinite(10n);',
+		// The boxed `Number` object isn't coerced the same way, so it stays a suggestion
+		{code: 'isNaN(foo as Number);', languageOptions: {parser: parsers.typescript}},
+		{
+			code: outdent`
+				const foo: Number = bar();
+				isFinite(foo);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -1,6 +1,7 @@
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {replaceReferenceIdentifier, fixSpaceAroundKeyword} from './fix/index.js';
 import isLeftHandSide from './utils/is-left-hand-side.js';
+import isNumber from './utils/is-number.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -24,6 +25,25 @@ const globalObjects = {
 const isNegative = node => {
 	const {parent} = node;
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
+};
+
+// `isNaN`/`isFinite` differ from `Number.isNaN`/`Number.isFinite` only because they coerce their argument to a number first; when the single argument is already a number, the rewrite is safe to auto-fix
+const isCallWithNumberArgument = (node, context) => {
+	const {parent} = node;
+	if (parent.type !== 'CallExpression' || parent.callee !== node) {
+		return false;
+	}
+
+	if (parent.arguments.length !== 1) {
+		return false;
+	}
+
+	const [firstArgument] = parent.arguments;
+	if (firstArgument.type === 'SpreadElement') {
+		return false;
+	}
+
+	return isNumber(firstArgument, context.sourceCode.getScope(node));
 };
 
 function checkProperty({node, path: [name]}, context) {
@@ -55,7 +75,7 @@ function checkProperty({node, path: [name]}, context) {
 	}
 
 	const fix = fixer => replaceReferenceIdentifier(node, `Number.${property}`, context, fixer);
-	const isSafeToFix = globalObjects[name];
+	const isSafeToFix = globalObjects[name] || isCallWithNumberArgument(node, context);
 
 	if (isSafeToFix) {
 		problem.fix = fix;
