@@ -109,6 +109,7 @@ export {default as 'prefer-classlist-toggle'} from './prefer-classlist-toggle.js
 export {default as 'prefer-code-point'} from './prefer-code-point.js';
 export {default as 'prefer-date-now'} from './prefer-date-now.js';
 export {default as 'prefer-default-parameters'} from './prefer-default-parameters.js';
+export {default as 'prefer-dispose'} from './prefer-dispose.js';
 export {default as 'prefer-dom-node-append'} from './prefer-dom-node-append.js';
 export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';

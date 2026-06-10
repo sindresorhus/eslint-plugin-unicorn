@@ -1,0 +1,7 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"lib": ["ESNext"]
+	},
+	"include": ["dummy.ts"]
+}
