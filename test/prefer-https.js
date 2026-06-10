@@ -54,6 +54,18 @@ ruleTest.snapshot({
 		'const element = <svg xmlns=\'http://www.w3.org/2000/svg\'></svg>;',
 		// Spaces around the equals sign
 		'const element = <svg xmlns = "http://www.w3.org/2000/svg"></svg>;',
+		// Well-known namespace URIs are opaque identifiers anywhere they appear,
+		// not just in `xmlns=` attributes (e.g. passed to DOM `*NS` methods).
+		'const SVG_NAMESPACE = "http://www.w3.org/2000/svg";',
+		'document.createElementNS("http://www.w3.org/2000/svg", "svg");',
+		'svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", SVG_NAMESPACE);',
+		'const ns = "http://www.w3.org/1998/Math/MathML";',
+		// Namespace URI ending in a fragment
+		'const ns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";',
+		// Non-W3C well-known namespaces
+		'const ns = "http://schemas.xmlsoap.org/soap/envelope/";',
+		'const ns = "http://purl.org/dc/elements/1.1/";',
+		'const ns = "http://www.sitemaps.org/schemas/sitemap/0.9";',
 	],
 	invalid: [
 		'const url = "http://sindresorhus.com";',
@@ -72,6 +84,10 @@ ruleTest.snapshot({
 		'const url = "http://sindresorhus.com.";',
 		// Non-xmlns attribute adjacent to an xmlns attribute must still be flagged
 		'const element = <svg xmlns="http://www.w3.org/2000/svg" data-url="http://sindresorhus.com"></svg>;',
+		// A longer URL that merely shares a namespace prefix is not a namespace
+		'const url = "http://www.w3.org/2000/svg/extra/path";',
+		// The bare registry host is not itself a namespace identifier
+		'const url = "http://www.w3.org";',
 	],
 });
 

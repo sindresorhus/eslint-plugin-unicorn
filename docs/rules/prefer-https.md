@@ -15,6 +15,8 @@ This rule checks source text, including strings, template literals, JSX, comment
 
 URLs without a public-looking top-level domain are ignored. For example, `http://localhost`, `http://example`, and `http://127.0.0.1` are allowed.
 
+Well-known XML namespace URIs are also ignored. These are opaque identifiers that happen to use the `http:` scheme (for example, SVG's `http://www.w3.org/2000/svg`); rewriting them to `https:` would break XML and DOM parsing.
+
 ## Examples
 
 ```js
