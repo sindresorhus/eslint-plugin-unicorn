@@ -159,6 +159,7 @@ export {default as 'prefer-string-starts-ends-with'} from './prefer-string-start
 export {default as 'prefer-string-trim-start-end'} from './prefer-string-trim-start-end.js';
 export {default as 'prefer-structured-clone'} from './prefer-structured-clone.js';
 export {default as 'prefer-switch'} from './prefer-switch.js';
+export {default as 'prefer-temporal'} from './prefer-temporal.js';
 export {default as 'prefer-ternary'} from './prefer-ternary.js';
 export {default as 'prefer-top-level-await'} from './prefer-top-level-await.js';
 export {default as 'prefer-type-error'} from './prefer-type-error.js';
