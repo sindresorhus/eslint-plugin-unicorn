@@ -30,6 +30,9 @@ const isEmpty = foo.length == 0;
 const isEmpty = foo.length < 1;
 
 // ❌
+const isEmpty = foo.length <= 0;
+
+// ❌
 const isEmpty = 0 === foo.length;
 
 // ❌
