@@ -135,6 +135,9 @@ const tests = {
 		'const i18n = new I18n({ locales: ["en", "fr"] })',
 		'const i18nData = {}',
 		'const l10n = new L10n()',
+		'const e2e = 1',
+		'const e2eTests = []',
+		'const a11y = {}',
 		'const iOS = true',
 		'const jQueryEvent = true',
 		outdent`
@@ -2343,6 +2346,10 @@ test({
 			code: 'foo();',
 			filename: 'Мiръ.html',
 		},
+		{
+			code: 'foo();',
+			filename: 'e2e.js',
+		},
 		// `ignore` option
 		{
 			code: outdent`
@@ -2424,7 +2431,6 @@ test({
 			`,
 			filename: 'some.spec.e2e.test.js',
 			errors: [
-				...createErrors('Please rename the filename `some.spec.e2e.test.js`. Suggested names are: `some.spec.error2error.test.js`, `some.spec.error2event.test.js`, `some.spec.event2error.test.js`, ... (1 more omitted). A more descriptive name will do too.'),
 				{
 					message: 'Please rename the variable `e_at_start`. Suggested names are: `error_at_start`, `event_at_start`. A more descriptive name will do too.',
 					suggestions: 2,
