@@ -35,9 +35,11 @@ const zeroCases = [
 	'foo.length === 0',
 	'foo.length == 0',
 	'foo.length < 1',
+	'foo.length <= 0',
 	'0 === foo.length',
 	'0 == foo.length',
 	'1 > foo.length',
+	'0 >= foo.length',
 ];
 
 test({
@@ -344,6 +346,8 @@ test.snapshot({
 		'do {} while (foo.length);',
 		'for (let i = 0; (bar && !foo.length); i ++) {}',
 		'const isEmpty = foo.length < 1;',
+		'const isEmpty = foo.length <= 0;',
+		'if (0 >= foo.length) {}',
 		'bar(foo.length >= 1)',
 		'bar(!foo.length || foo.length)',
 		'const bar = void !foo.length;',

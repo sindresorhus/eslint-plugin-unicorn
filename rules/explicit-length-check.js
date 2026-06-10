@@ -159,12 +159,16 @@ function getLengthCheckNode(node, {allowTypeScriptExpression = false} = {}) {
 		|| isCompareRight(node, '==', 0)
 		// `foo.length < 1`
 		|| isCompareRight(node, '<', 1)
+		// `foo.length <= 0`
+		|| isCompareRight(node, '<=', 0)
 		// `0 === foo.length`
 		|| isCompareLeft(node, '===', 0)
 		// `0 == foo.length`
 		|| isCompareLeft(node, '==', 0)
 		// `1 > foo.length`
 		|| isCompareLeft(node, '>', 1)
+		// `0 >= foo.length`
+		|| isCompareLeft(node, '>=', 0)
 	) {
 		return {isZeroLengthCheck: true, node};
 	}
