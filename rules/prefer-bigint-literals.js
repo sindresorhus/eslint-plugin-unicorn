@@ -74,6 +74,7 @@ function getReplacement(valueNode) {
 
 	const {value, raw} = valueNode;
 
+	// Intentionally `Number.isInteger`, not `Number.isSafeInteger`: large integers beyond the safe range are exactly what bigint literals are for.
 	if (!Number.isInteger(value)) {
 		return;
 	}

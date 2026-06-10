@@ -144,7 +144,7 @@ const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 	);
 
 const isNonNegativeInteger = value =>
-	Number.isInteger(value)
+	Number.isSafeInteger(value)
 	&& value >= 0;
 
 const isArrayLength = value =>

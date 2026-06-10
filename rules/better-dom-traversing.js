@@ -42,7 +42,7 @@ const isNumericIndexMemberExpression = node =>
 	isNonOptionalMemberExpression(node)
 	&& node.computed
 	&& isNumericLiteral(node.property)
-	&& Number.isInteger(node.property.value)
+	&& Number.isSafeInteger(node.property.value)
 	&& node.property.value >= 0;
 
 const getIndexedDomCollectionName = node => {

@@ -109,7 +109,7 @@ const isLiteralNegativeInteger = node =>
 	&& node.prefix
 	&& node.operator === '-'
 	&& node.argument.type === 'Literal'
-	&& Number.isInteger(node.argument.value)
+	&& Number.isSafeInteger(node.argument.value)
 	&& node.argument.value > 0;
 const isZeroIndexAccess = node =>
 	isMemberExpression(node.parent, {
@@ -220,7 +220,7 @@ function create(context) {
 
 			// Only if we are sure it's a positive integer
 			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
-			if (!staticValue || !Number.isInteger(staticValue.value) || staticValue.value < 0) {
+			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
 				return;
 			}
 

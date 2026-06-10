@@ -133,6 +133,7 @@ export {default as 'prefer-module'} from './prefer-module.js';
 export {default as 'prefer-native-coercion-functions'} from './prefer-native-coercion-functions.js';
 export {default as 'prefer-negative-index'} from './prefer-negative-index.js';
 export {default as 'prefer-node-protocol'} from './prefer-node-protocol.js';
+export {default as 'prefer-number-is-safe-integer'} from './prefer-number-is-safe-integer.js';
 export {default as 'prefer-number-properties'} from './prefer-number-properties.js';
 export {default as 'prefer-object-from-entries'} from './prefer-object-from-entries.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
