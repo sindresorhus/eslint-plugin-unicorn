@@ -4,7 +4,19 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const messageId = 'prefer-ternary';
+const suggestionMessageId = 'prefer-ternary/suggestion';
 const errors = [{messageId}];
+const errorsWithSuggestion = output => [
+	{
+		messageId,
+		suggestions: [
+			{
+				messageId: suggestionMessageId,
+				output,
+			},
+		],
+	},
+];
 
 const onlySingleLineOptions = ['only-single-line'];
 
@@ -1417,6 +1429,451 @@ test({
 				}
 			`,
 			errors,
+		},
+	],
+});
+
+// Variable declaration with no else clause
+test({
+	valid: [
+		// `var` instead of `let`
+		outdent`
+			var x = a;
+			if (test) {
+				x = b;
+			}
+		`,
+		// `const` declaration
+		outdent`
+			const x = a;
+			if (test) {
+				x = b;
+			}
+		`,
+		// No initializer
+		outdent`
+			let x;
+			if (test) {
+				x = b;
+			}
+		`,
+		// Init has side effects (function call)
+		outdent`
+			let x = foo();
+			if (test) {
+				x = b;
+			}
+		`,
+		// Init has side effects (new expression)
+		outdent`
+			let x = new Foo();
+			if (test) {
+				x = b;
+			}
+		`,
+		// Variable referenced in test
+		outdent`
+			let x = a;
+			if (x) {
+				x = b;
+			}
+		`,
+		// Variable referenced in assignment right side
+		outdent`
+			let x = a;
+			if (test) {
+				x = x + 1;
+			}
+		`,
+		// Non-adjacent statements
+		outdent`
+			let x = a;
+			doSomething();
+			if (test) {
+				x = b;
+			}
+		`,
+		// Multiple declarators
+		outdent`
+			let x = a, y = b;
+			if (test) {
+				x = c;
+			}
+		`,
+		// Compound operator
+		outdent`
+			let x = a;
+			if (test) {
+				x += b;
+			}
+		`,
+		// Destructuring id
+		outdent`
+			let {a} = obj;
+			if (test) {
+				a = b;
+			}
+		`,
+		// Init is ternary
+		outdent`
+			let x = condition ? a : b;
+			if (test) {
+				x = c;
+			}
+		`,
+		// Test is ternary
+		outdent`
+			let x = a;
+			if (condition ? b : c) {
+				x = d;
+			}
+		`,
+		// Assignment right is ternary
+		outdent`
+			let x = a;
+			if (test) {
+				x = b ? c : d;
+			}
+		`,
+		// Multiple statements in if body
+		outdent`
+			let x = a;
+			if (test) {
+				x = b;
+				doSomething();
+			}
+		`,
+		// Previous sibling is not a declaration
+		outdent`
+			doSomething();
+			if (test) {
+				x = b;
+			}
+		`,
+		// Left side is not an Identifier
+		outdent`
+			let x = a;
+			if (test) {
+				obj.prop = b;
+			}
+		`,
+		// Different variable name
+		outdent`
+			let x = a;
+			if (test) {
+				y = b;
+			}
+		`,
+		// `if` with `else` clause (only no-alternate is handled)
+		outdent`
+			let x = a;
+			if (test) {
+				x = b;
+			} else {
+				doSomething();
+			}
+		`,
+		// `if` with `else if`
+		outdent`
+			let x = a;
+			if (test) {
+				x = b;
+			} else if (other) {
+				x = c;
+			}
+		`,
+		// Variable referenced in nested call in test
+		outdent`
+			let x = a;
+			if (fn(x)) {
+				x = b;
+			}
+		`,
+		// `only-single-line` with multi-line init
+		{
+			code: outdent`
+				let x = {
+					multiline: true,
+				};
+				if (test) {
+					x = b;
+				}
+			`,
+			options: onlySingleLineOptions,
+		},
+		// `only-single-line` with multi-line test
+		{
+			code: outdent`
+				let x = a;
+				if (test({
+					multiline: true,
+				})) {
+					x = b;
+				}
+			`,
+			options: onlySingleLineOptions,
+		},
+		// `only-single-line` with multi-line assignment value
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = {
+						multiline: true,
+					};
+				}
+			`,
+			options: onlySingleLineOptions,
+		},
+	],
+	invalid: [
+		// Basic case
+		{
+			code: outdent`
+				let items = defaultData;
+				if (data.length) {
+					items = data;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const items = data.length ? data : defaultData;
+			`),
+		},
+		// Without braces
+		{
+			code: outdent`
+				let x = a;
+				if (test) x = b;
+			`,
+			errors: errorsWithSuggestion('const x = test ? b : a;'),
+		},
+		// Keep `let` when variable has later writes
+		{
+			code: outdent`
+				function foo() {
+					let x = a;
+					if (test) {
+						x = b;
+					}
+					x = c;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				function foo() {
+					let x = test ? b : a;
+					x = c;
+				}
+			`),
+		},
+		// Top-level (Program body)
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : a;
+			`),
+		},
+		// `only-single-line` with all single-line expressions
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : a;
+			`),
+			options: onlySingleLineOptions,
+		},
+		// Comments in if body (no suggestion)
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = /* comment */ b;
+				}
+			`,
+			errors,
+		},
+		// Comments between declaration and if (no suggestion)
+		{
+			code: outdent`
+				let x = a;
+				// comment
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Comments inside declaration (no suggestion)
+		{
+			code: outdent`
+				let x = /* comment */ a;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Trailing comment on declaration (no suggestion)
+		{
+			code: outdent`
+				let x = a; // default value
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Test has side effects
+		{
+			code: outdent`
+				let x = y;
+				if (y = 0) {
+					x = 1;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = (y = 0) ? 1 : y;
+			`),
+		},
+		// Init may be observable
+		{
+			code: outdent`
+				let x = object.value;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : object.value;
+			`),
+		},
+		// Test may be observable
+		{
+			code: outdent`
+				let x = y;
+				if (object.flag) {
+					x = 1;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = object.flag ? 1 : y;
+			`),
+		},
+		// Parenthesized init value
+		{
+			code: outdent`
+				let x = (a);
+				if (test) {
+					x = b;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : (a);
+			`),
+		},
+		// Assignment value needs parentheses (await)
+		{
+			code: outdent`
+				async function foo() {
+					let x = a;
+					if (test) {
+						x = await b;
+					}
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				async function foo() {
+					const x = test ? (await b) : a;
+				}
+			`),
+		},
+		// Empty statements in if body
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					;;;
+					x = b;
+					;;;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : a;
+			`),
+		},
+		// Assignment right side has side effects (still flags, only init is checked)
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = foo();
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? foo() : a;
+			`),
+		},
+		// Inside a block scope
+		{
+			code: outdent`
+				{
+					let x = a;
+					if (test) {
+						x = b;
+					}
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				{
+					const x = test ? b : a;
+				}
+			`),
+		},
+		// Block comment between declaration and if (no suggestion)
+		{
+			code: outdent`
+				let x = a;
+				/* block comment */
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Semicolonless suggestion adds `;` when next token is `(`
+		{
+			code: outdent`
+				let x = a
+				if (test) {
+					x = b
+				}
+				(foo)()
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x = test ? b : a;
+				(foo)()
+			`),
+		},
+		// TypeScript type annotation preserved
+		{
+			code: outdent`
+				let x: string = a;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors: errorsWithSuggestion(outdent`
+				const x: string = test ? b : a;
+			`),
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });

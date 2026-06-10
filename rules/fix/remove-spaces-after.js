@@ -11,10 +11,9 @@
 */
 
 export default function removeSpacesAfter(indexOrNodeOrToken, context, fixer) {
-	let index = indexOrNodeOrToken;
-	if (typeof indexOrNodeOrToken === 'object') {
-		index = context.sourceCode.getRange(indexOrNodeOrToken)[1];
-	}
+	const index = typeof indexOrNodeOrToken === 'object'
+		? context.sourceCode.getRange(indexOrNodeOrToken)[1]
+		: indexOrNodeOrToken;
 
 	const textAfter = context.sourceCode.text.slice(index);
 	const [leadingSpaces] = textAfter.match(/^\s*/);
