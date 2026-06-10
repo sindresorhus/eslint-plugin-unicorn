@@ -65,6 +65,7 @@ export {default as 'no-new-buffer'} from './no-new-buffer.js';
 export {default as 'no-null'} from './no-null.js';
 export {default as 'no-object-as-default-parameter'} from './no-object-as-default-parameter.js';
 export {default as 'no-process-exit'} from './no-process-exit.js';
+export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
 export {default as 'no-single-promise-in-promise-methods'} from './no-single-promise-in-promise-methods.js';
 export {default as 'no-static-only-class'} from './no-static-only-class.js';
 export {default as 'no-thenable'} from './no-thenable.js';
