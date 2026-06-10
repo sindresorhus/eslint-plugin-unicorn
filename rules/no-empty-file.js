@@ -33,13 +33,39 @@ const hasTripleSlashDirectives = comments =>
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {allowComments} = context.options[0];
-	const filename = context.physicalFilename;
 
-	if (!/\.(?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$/i.test(filename)) {
+	// Skip virtual files created by a processor (e.g. fenced code blocks in Markdown). An empty extracted block does not mean the physical file is empty.
+	if (context.filename !== context.physicalFilename) {
 		return;
 	}
 
 	context.on('Program', node => {
+		// A Vue SFC parsed by `vue-eslint-parser` with a `<template>` is not an empty file even when `<script>` is empty.
+		if (node.templateBody) {
+			return;
+		}
+
+		// An HTML file parsed by `@html-eslint/parser` is represented as a single `Document` node holding the markup.
+		if (node.body.length === 1 && node.body[0].type === 'Document') {
+			const {children} = node.body[0];
+			const hasContent = children.some(child =>
+				child.type !== 'Comment'
+				&& !(child.type === 'Text' && child.value.trim() === ''));
+
+			if (hasContent) {
+				return;
+			}
+
+			if (allowComments && children.some(child => child.type === 'Comment')) {
+				return;
+			}
+
+			return {
+				node,
+				messageId: MESSAGE_ID,
+			};
+		}
+
 		if (node.body.some(node => !isEmpty(node))) {
 			return;
 		}
@@ -57,6 +83,43 @@ const create = context => {
 			&& comments.every(comment => isRegularComment(comment))
 			&& sourceCode.ast.tokens.length === 0
 		) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	});
+
+	// CSS file parsed by `@eslint/css`. Top-level rules and at-rules are in `children`; comments are on `sourceCode.comments`.
+	context.on('StyleSheet', node => {
+		if (node.children.length > 0) {
+			return;
+		}
+
+		const comments = context.sourceCode.comments ?? [];
+
+		if (allowComments && comments.length > 0) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	});
+
+	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; HTML comments appear as `html` nodes.
+	context.on('root', node => {
+		const isHtmlComment = child =>
+			child.type === 'html' && /^<!--(?:(?!-->)[\S\s])*-->$/.test(child.value.trim());
+
+		if (node.children.some(child => !isHtmlComment(child))) {
+			return;
+		}
+
+		if (allowComments && node.children.length > 0) {
 			return;
 		}
 

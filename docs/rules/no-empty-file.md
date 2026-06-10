@@ -9,6 +9,10 @@
 
 Meaningless files clutter a codebase.
 
+This applies to files of any extension. It is tested with JavaScript, TypeScript, Vue ([`vue-eslint-parser`](https://github.com/vuejs/vue-eslint-parser)), HTML ([`@html-eslint/parser`](https://github.com/yeonjuan/html-eslint)), CSS ([`@eslint/css`](https://github.com/eslint/css)), and Markdown ([`@eslint/markdown`](https://github.com/eslint/markdown)). An empty JSON file is already a syntax error, so it does not need this rule.
+
+Code extracted by a processor (for example, fenced code blocks in Markdown) is not treated as a file, so an empty extracted block is not reported.
+
 Disallow any files only containing the following:
 
 - Whitespace

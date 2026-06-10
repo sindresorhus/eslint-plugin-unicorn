@@ -89,7 +89,7 @@ function normalizeTests(tests) {
 
 			const additionalProperties = getAdditionalProperties(
 				testCase,
-				['code', 'options', 'filename', 'languageOptions', 'only'],
+				['code', 'options', 'filename', 'languageOptions', 'language', 'only'],
 			);
 
 			if (additionalProperties.length > 0) {
@@ -105,6 +105,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 	const {
 		languageOptions = {},
 		options = [],
+		language,
 	} = testCase;
 
 	// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L501
@@ -116,6 +117,8 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 		{
 			...testerConfig,
 			languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
+			// A non-JS language (e.g. `@eslint/css`, `@eslint/markdown`) and the plugin providing it.
+			...(language ? {language: language.language} : {}),
 			rules: {
 				[`${pluginName}/${ruleId}`]: ['error', ...options],
 			},
@@ -125,6 +128,7 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 						[ruleId]: rule,
 					},
 				},
+				...language?.plugins,
 			},
 			// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/config/default-config.js#L46-L48
 			linterOptions: {

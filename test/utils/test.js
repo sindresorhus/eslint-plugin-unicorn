@@ -227,3 +227,4 @@ export {
 	avoidTestTitleConflict,
 };
 export {default as parsers} from './parsers.js';
+export {default as languages} from './languages.js';
