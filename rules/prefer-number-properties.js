@@ -128,14 +128,15 @@ const create = context => {
 		return true;
 	});
 
-	new GlobalReferenceTracker({
+	const tracker = new GlobalReferenceTracker({
 		objects,
 		context,
 		handle: checkProperty,
 		filter: ({node, path: [name]}) =>
 			!isLeftHandSide(node)
 			&& !(name === 'parseInt' && isBase10OrNoRadixParseIntCall(node, context)),
-	}).listen();
+	});
+	tracker.listen();
 };
 
 const schema = [

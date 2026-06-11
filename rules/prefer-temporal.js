@@ -175,9 +175,10 @@ const create = context => {
 	const {checkDateNow, checkReferences, checkMethods} = context.options[0];
 
 	const listen = (object, type, handle, filter) => {
-		new GlobalReferenceTracker({
+		const tracker = new GlobalReferenceTracker({
 			object, type, filter, handle,
-		}).listen({context});
+		});
+		tracker.listen({context});
 	};
 
 	listen('Date', GlobalReferenceTracker.CONSTRUCT, handleNewDate);

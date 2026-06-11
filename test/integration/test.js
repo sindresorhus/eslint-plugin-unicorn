@@ -114,7 +114,7 @@ async function printTestError(error) {
 	printEslintError(error);
 }
 
-await new Listr(
+const tasks = new Listr(
 	projects.map(project => ({
 		title: project.name,
 		async task() {
@@ -129,4 +129,5 @@ await new Listr(
 		renderer: isCI ? 'verbose' : 'default',
 		concurrent: true,
 	},
-).run();
+);
+await tasks.run();

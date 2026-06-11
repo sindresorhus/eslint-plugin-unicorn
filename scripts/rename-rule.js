@@ -103,16 +103,18 @@ async function renameRule(from, to) {
 }
 
 const run = async () => {
-	const originalRuleId = await new enquirer.AutoComplete({
+	const ruleSelector = new enquirer.AutoComplete({
 		message: 'Select the rule you want rename:',
 		limit: 10,
 		choices: rules,
-	}).run();
+	});
+	const originalRuleId = await ruleSelector.run();
 
-	const ruleId = await new enquirer.Input({
+	const ruleNamePrompt = new enquirer.Input({
 		message: 'New name:',
 		initial: originalRuleId,
-	}).run();
+	});
+	const ruleId = await ruleNamePrompt.run();
 
 	if (!ruleId || originalRuleId === ruleId) {
 		return;

@@ -7,6 +7,7 @@ const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
 	[MESSAGE_ID_BANNED]: 'All import styles are disabled for module `{{moduleName}}`. Use the `no-restricted-imports` rule to disallow a module.',
 };
+const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
 
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
@@ -191,7 +192,7 @@ const create = context => {
 		}
 
 		const data = {
-			allowedStyles: new Intl.ListFormat('en-US', {type: 'disjunction'}).format(allowedImportStyles.keys().toArray()),
+			allowedStyles: disjunctionListFormat.format(allowedImportStyles.keys().toArray()),
 			moduleName,
 		};
 
