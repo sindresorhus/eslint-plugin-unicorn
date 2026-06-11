@@ -89,11 +89,7 @@ const isIterableAcceptingParent = node => {
 		|| (
 			parent.type === 'SpreadElement'
 			&& parent.argument === node
-			&& (
-				parent.parent.type === 'ArrayExpression'
-				|| parent.parent.type === 'CallExpression'
-				|| parent.parent.type === 'NewExpression'
-			)
+			&& ['ArrayExpression', 'CallExpression', 'NewExpression'].includes(parent.parent.type)
 		)
 		|| (
 			(

@@ -338,7 +338,7 @@ const schema = [
 		additionalProperties: false,
 		properties: {
 			'non-zero': {
-				enum: [...nonZeroStyles.keys()],
+				enum: nonZeroStyles.keys().toArray(),
 				default: 'greater-than',
 			},
 		},

@@ -27,7 +27,7 @@ const create = context => {
 
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
-			methods: [...replacements.keys()],
+			methods: replacements.keys().toArray(),
 			optionalCall: false,
 			optionalMember: false,
 		})) {

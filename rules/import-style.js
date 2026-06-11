@@ -191,7 +191,7 @@ const create = context => {
 		}
 
 		const data = {
-			allowedStyles: new Intl.ListFormat('en-US', {type: 'disjunction'}).format([...allowedImportStyles.keys()]),
+			allowedStyles: new Intl.ListFormat('en-US', {type: 'disjunction'}).format(allowedImportStyles.keys().toArray()),
 			moduleName,
 		};
 
