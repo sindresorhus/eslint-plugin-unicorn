@@ -132,6 +132,7 @@ export {default as 'prefer-https'} from './prefer-https.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes-over-repeated-comparisons'} from './prefer-includes-over-repeated-comparisons.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
+export {default as 'prefer-iterable-in-constructor'} from './prefer-iterable-in-constructor.js';
 export {default as 'prefer-iterator-concat'} from './prefer-iterator-concat.js';
 export {default as 'prefer-iterator-to-array-at-end'} from './prefer-iterator-to-array-at-end.js';
 export {default as 'prefer-iterator-to-array'} from './prefer-iterator-to-array.js';
