@@ -63,6 +63,7 @@ export default [
 | :--------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--- | :- | :- |
 | [better-dom-traversing](docs/rules/better-dom-traversing.md)                                         | Prefer better DOM traversal APIs.                                                                                                                                                                                 | ✅ ☑️ |    | 💡 |
 | [catch-error-name](docs/rules/catch-error-name.md)                                                   | Enforce a specific parameter name in catch clauses.                                                                                                                                                               | ✅    | 🔧 |    |
+| [comment-content](docs/rules/comment-content.md)                                                     | Enforce better comment content.                                                                                                                                                                                   | ✅    | 🔧 |    |
 | [consistent-assert](docs/rules/consistent-assert.md)                                                 | Enforce consistent assertion style with `node:assert`.                                                                                                                                                            | ✅    | 🔧 |    |
 | [consistent-compound-words](docs/rules/consistent-compound-words.md)                                 | Enforce consistent spelling of compound words in identifiers.                                                                                                                                                     | ✅ ☑️ |    | 💡 |
 | [consistent-date-clone](docs/rules/consistent-date-clone.md)                                         | Prefer passing `Date` directly to the constructor when cloning.                                                                                                                                                   | ✅ ☑️ | 🔧 |    |
@@ -259,6 +260,7 @@ While most rules target JavaScript and TypeScript, some also lint other file typ
 
 These rules work on **any** file type:
 
+- [`comment-content`](docs/rules/comment-content.md)
 - [`filename-case`](docs/rules/filename-case.md)
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md)
 - [`prefer-https`](docs/rules/prefer-https.md)
