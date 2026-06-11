@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flatten arrays.
+ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flattens arrays.
 
 ## Examples
 
@@ -48,16 +48,7 @@ const foo = underscore.flatten(array);
 const foo = array.flat();
 ```
 
-```js
-// ❌
-const foo = [].concat(maybeArray);
-
-// ❌
-const foo = Array.prototype.concat.call([], maybeArray);
-
-// ✅
-const foo = [maybeArray].flat();
-```
+This rule intentionally does not report plain concat normalization like `[].concat(value)` or `Array.prototype.concat.call([], value)`. Those patterns do not consume an array of concat arguments, so they are better handled by [`prefer-spread`](./prefer-spread.md), which can replace ordinary `Array#concat()` usage.
 
 ## Options
 

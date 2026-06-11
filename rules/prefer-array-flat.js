@@ -96,7 +96,6 @@ const arrayReduce = {
 	description: 'Array#reduce()',
 };
 
-// `[].concat(maybeArray)`
 // `[].concat(...array)`
 const emptyArrayConcat = {
 	testFunction(node) {
@@ -107,18 +106,16 @@ const emptyArrayConcat = {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		&& isEmptyArrayExpression(node.callee.object);
+		&& isEmptyArrayExpression(node.callee.object)
+		&& node.arguments[0].type === 'SpreadElement';
 	},
 	getArrayNode(node) {
-		const argumentNode = node.arguments[0];
-		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
+		return node.arguments[0].argument;
 	},
 	description: '[].concat()',
-	shouldSwitchToArray: node => node.arguments[0].type !== 'SpreadElement',
 };
 
 // - `[].concat.apply([], array)` and `Array.prototype.concat.apply([], array)`
-// - `[].concat.call([], maybeArray)` and `Array.prototype.concat.call([], maybeArray)`
 // - `[].concat.call([], ...array)` and `Array.prototype.concat.call([], ...array)`
 const arrayPrototypeConcat = {
 	testFunction(node) {
@@ -140,8 +137,14 @@ const arrayPrototypeConcat = {
 		const [firstArgument, secondArgument] = node.arguments;
 		return isEmptyArrayExpression(firstArgument)
 			&& (
-				node.callee.property.name === 'call'
-				|| secondArgument.type !== 'SpreadElement'
+				(
+					node.callee.property.name === 'apply'
+					&& secondArgument.type !== 'SpreadElement'
+				)
+				|| (
+					node.callee.property.name === 'call'
+					&& secondArgument.type === 'SpreadElement'
+				)
 			);
 	},
 	getArrayNode(node) {
@@ -149,7 +152,6 @@ const arrayPrototypeConcat = {
 		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
 	},
 	description: 'Array.prototype.concat()',
-	shouldSwitchToArray: node => node.arguments[1].type !== 'SpreadElement' && node.callee.property.name === 'call',
 };
 
 const lodashFlattenFunctions = [
