@@ -1,5 +1,5 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isExpressionStatement} from './ast/index.js';
+import {isExpressionStatement, isLiteral, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
 	isParenthesized,
@@ -142,8 +142,7 @@ const getPromiseAllDestructuringPattern = awaitExpression => {
 const isZeroIndexAccess = node =>
 	node.type === 'MemberExpression'
 	&& node.computed
-	&& node.property.type === 'Literal'
-	&& node.property.raw === '0';
+	&& isLiteral(node.property, 0);
 
 const isSafeReplacementPosition = node =>
 	(

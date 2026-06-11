@@ -126,6 +126,7 @@ test.snapshot({
 		'const [foo] = await Promise.all([promise])',
 		'[foo] = await Promise.all([promise])',
 		'const foo = (await Promise.all([promise]))[0]',
+		'const foo = (await Promise.all([promise]))[0.0]',
 		'foo = (await Promise.all([promise]))[0]',
 		'const [foo] = await Promise.all([a ? b : c])',
 
