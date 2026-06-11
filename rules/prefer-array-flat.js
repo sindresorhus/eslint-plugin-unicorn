@@ -110,8 +110,7 @@ const emptyArrayConcat = {
 		&& node.arguments[0].type === 'SpreadElement';
 	},
 	getArrayNode(node) {
-		const argumentNode = node.arguments[0];
-		return argumentNode.type === 'SpreadElement' ? argumentNode.argument : argumentNode;
+		return node.arguments[0].argument;
 	},
 	description: '[].concat()',
 };

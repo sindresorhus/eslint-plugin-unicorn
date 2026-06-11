@@ -159,7 +159,7 @@ test.snapshot({
 	],
 });
 
-// `[].concat(array)`
+// Plain `[].concat(value)` normalization
 test.snapshot({
 	valid: [
 		'[].concat',
