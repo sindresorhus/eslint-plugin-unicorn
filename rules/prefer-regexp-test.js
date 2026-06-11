@@ -1,4 +1,4 @@
-import {isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, isParenthesized, getStaticValue} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -14,6 +14,7 @@ import {
 	isControlFlowTest,
 	getParenthesizedRange,
 	isLogicalExpression,
+	isString,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -29,9 +30,17 @@ const messages = {
 };
 
 const isLiteralZero = node => isLiteral(node, 0);
-const isStaticTemplateLiteral = node =>
-	node.type === 'TemplateLiteral'
-	&& node.expressions.length === 0;
+
+const isConstantTemplateLiteral = (node, sourceCode) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(node), node);
+	return variable?.defs[0]?.type === 'Variable'
+		&& variable.defs[0].parent.kind === 'const'
+		&& variable.defs[0].node.init?.type === 'TemplateLiteral';
+};
 
 function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
 	const {sourceCode} = context;
@@ -237,12 +246,13 @@ const canAutofix = ({searchCheck, isRegExp, staticRegExp}) =>
 		&& (!searchCheck || staticRegExp.sticky === false)
 	);
 
-const shouldSkipPattern = ({type, regexpNode, staticResult, isKnownRegExp}) =>
+const shouldSkipPattern = ({type, regexpNode, regexpScope, staticResult, isKnownRegExp, context}) =>
 	(regexpNode.type === 'Literal' && !regexpNode.regex)
 	|| (
 		type === STRING_SEARCH
 		&& (
-			isStaticTemplateLiteral(regexpNode)
+			isString(regexpNode, regexpScope)
+			|| isConstantTemplateLiteral(regexpNode, context.sourceCode)
 			|| (staticResult && !isKnownRegExp)
 		)
 	);
@@ -347,8 +357,10 @@ const create = context => {
 				shouldSkipPattern({
 					type,
 					regexpNode,
+					regexpScope,
 					staticResult,
 					isKnownRegExp,
+					context,
 				})
 			) {
 				continue;

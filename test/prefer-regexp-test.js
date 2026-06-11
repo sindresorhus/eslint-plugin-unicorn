@@ -48,8 +48,16 @@ test.snapshot({
 		'if (foo.match(true)) {}',
 		'if (foo.search("1") !== -1) {}',
 		'if (foo.search(`1`) !== -1) {}',
+		outdent`
+			if (foo.search(\`\${pattern}\`) !== -1) {}
+		`,
 		'const pattern = "1"; if (foo.search(pattern) !== -1) {}',
 		'const pattern = `1`; if (foo.search(pattern) !== -1) {}',
+		outdent`
+			const pattern = \`\${value}\`;
+			if (foo.search(pattern) !== -1) {}
+		`,
+		'const pattern = 1; if (foo.search(pattern) !== -1) {}',
 
 		// Unsupported `String#search()` comparisons
 		'if (foo.search(/re/) <= -1) {}',
@@ -120,6 +128,15 @@ test.snapshot({
 		'if (foo.search(new RegExp("re", "g")) !== -1) {}',
 		'if (foo.search(unknown) !== -1) {}',
 		'if (foo.search(/re/) /* keep */ !== -1) {}',
+		'if (foo.search(/re/) /* keep */ === -1) {}',
+		outdent`
+			const regex = /weird/g;
+			if (foo.search(regex) !== -1);
+		`,
+		outdent`
+			const regex = /weird/g;
+			if (foo.search(regex) === -1);
+		`,
 		outdent`
 			const re = /a/y;
 			if (foo.search(re) !== -1);
@@ -258,7 +275,14 @@ test.vue({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		'function foo(pattern: string) { if ("string".search(pattern) !== -1) {} }',
+		outdent`
+			function foo(pattern: string) {
+				if ("string".search((\`\${pattern}\` as string)) !== -1) {}
+			}
+		`,
+	],
 	invalid: [
 		{
 			code: 'function foo(pattern: string | RegExp) { if ("string".match(pattern)) {} }',
