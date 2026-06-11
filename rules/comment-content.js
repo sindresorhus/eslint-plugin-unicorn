@@ -278,7 +278,7 @@ function getCommentValueStart(comment, sourceCode) {
 }
 
 const urlPattern = /\b(?:[a-z][\d+\-.a-z]*:\/\/|www\.)\S+|\b[\u{2D}0-9a-z]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
-const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][+\-.\da-z]*\b/giv;
+const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][\d+\-.a-z]*\b/giv;
 
 function isInsideUrl(commentValue, match) {
 	urlPattern.lastIndex = 0;
