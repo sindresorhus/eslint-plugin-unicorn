@@ -56,6 +56,34 @@ test.snapshot({
 			else if (foo === 2 || foo !== 4) {}
 			else if (foo === 3) {}
 		`,
+		// Compare to `true`
+		outdent`
+			if (true === foo) {}
+			else if (bar.bar === true) {}
+			else if (true === baz()) {}
+		`,
+		// Compare `typeof` results
+		outdent`
+			if (typeof document.exitFullscreen === 'function') {
+				await document.exitFullscreen();
+			} else if (typeof document.webkitExitFullscreen === 'function') {
+				await document.webkitExitFullscreen();
+			} else if (typeof document.mozExitFullscreen === 'function') {
+				await document.mozExitFullscreen();
+			}
+		`,
+		// Compare to `undefined`
+		outdent`
+			if (foo === undefined) {}
+			else if (bar === undefined) {}
+			else if (baz === undefined) {}
+		`,
+		// Compare to `undefined`
+		outdent`
+			if (undefined === foo) {}
+			else if (undefined === bar) {}
+			else if (undefined === baz) {}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -105,11 +133,17 @@ test.snapshot({
 			else if (foo === 2) {}
 			else if (3 === foo) {}
 		`,
-		// Compare to constant
+		// Undefined is on left side
 		outdent`
-			if (true === foo) {}
-			else if (bar.bar === true) {}
-			else if (true === baz()) {}
+			if (undefined === foo) {}
+			else if (foo === 2) {}
+			else if (3 === foo) {}
+		`,
+		// Variable is always on right side
+		outdent`
+			if (Action.open === action) {}
+			else if (Action.save === action) {}
+			else if (Action.close === action) {}
 		`,
 		// No need to add parentheses
 		outdent`
