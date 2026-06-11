@@ -96,16 +96,16 @@ const mergeTypeSets = typeSets => {
 	return types;
 };
 
-const isDefaultLibrarySymbol = symbol =>
-	symbol?.declarations?.some(declaration => declaration.getSourceFile().hasNoDefaultLib) ?? false;
+const isDefaultLibrarySymbol = (symbol, program) =>
+	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
 
-const getTypesFromType = (type, checker) => {
+const getTypesFromType = (type, checker, program) => {
 	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
 		return;
 	}
 
 	if (type.isUnion()) {
-		return mergeTypeSets(type.types.map(type => getTypesFromType(type, checker)));
+		return mergeTypeSets(type.types.map(type => getTypesFromType(type, checker, program)));
 	}
 
 	if (checker.isArrayType(type) || checker.isTupleType(type)) {
@@ -113,7 +113,7 @@ const getTypesFromType = (type, checker) => {
 	}
 
 	const symbol = type.getSymbol() ?? type.aliasSymbol;
-	if (!isDefaultLibrarySymbol(symbol)) {
+	if (!isDefaultLibrarySymbol(symbol, program)) {
 		return;
 	}
 
@@ -129,9 +129,11 @@ const getTypesFromTypeInformation = (node, context) => {
 	}
 
 	try {
+		const {program} = parserServices;
 		return getTypesFromType(
 			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
+			program.getTypeChecker(),
+			program,
 		);
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
