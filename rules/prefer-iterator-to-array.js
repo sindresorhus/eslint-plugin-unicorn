@@ -200,7 +200,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Iterator#toArray()` over temporary arrays from iterator spreads.',
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
