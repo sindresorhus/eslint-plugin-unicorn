@@ -20,6 +20,7 @@
 		"node": ">=22"
 	},
 	"scripts": {
+		"coverage": "c8 ava",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error \"fix:*\"",
@@ -39,7 +40,7 @@
 		"run-rules-on-codebase": "eslint --config=./eslint.dogfooding.config.js",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
 		"test": "npm-run-all --continue-on-error lint \"test:*\"",
-		"test:js": "c8 ava"
+		"test:js": "ava"
 	},
 	"files": [
 		"index.js",
