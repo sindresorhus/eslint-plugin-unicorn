@@ -1,6 +1,6 @@
 # prefer-regexp-test
 
-📝 Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.
+📝 Prefer `RegExp#test()` over `String#match()`, `String#search()`, and `RegExp#exec()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When you want to know whether a pattern is found in a string, use [`RegExp#test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) instead of [`String#match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match) and [`RegExp#exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec), as it exclusively returns a boolean and therefore is more efficient.
+When you want to know whether a pattern is found in a string, use [`RegExp#test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) instead of [`String#match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match), [`String#search()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/search), and [`RegExp#exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec), as it exclusively returns a boolean and therefore is more efficient.
 
 Calls like `slice.actions.someAction.match(action)` are ignored because they are Redux Toolkit slice action matchers, not `String#match()`.
 
@@ -24,6 +24,9 @@ if (/unicorn/.exec(string)) {}
 
 // ❌
 if (string.match(/unicorn/).length > 0) {}
+
+// ❌
+if (string.search(/unicorn/) !== -1) {}
 
 // ✅
 if (/unicorn/.test(string)) {}

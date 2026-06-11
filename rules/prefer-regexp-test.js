@@ -3,6 +3,7 @@ import {checkVueTemplate} from './utils/rule.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
 	isLiteral,
+	isNegativeOne,
 	isRegexLiteral,
 	isNewExpression,
 	isMethodCall,
@@ -18,12 +19,47 @@ import {
 
 const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
+const STRING_SEARCH = 'string-search';
 const SUGGESTION = 'suggestion';
 const messages = {
 	[REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
 	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+	[STRING_SEARCH]: 'Prefer `RegExp#test(…)` over `String#search(…)` when checking for existence.',
 	[SUGGESTION]: 'Switch to `RegExp#test(…)`.',
 };
+
+const isLiteralZero = node => isLiteral(node, 0);
+const isStaticTemplateLiteral = node =>
+	node.type === 'TemplateLiteral'
+	&& node.expressions.length === 0;
+
+function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
+	const {sourceCode} = context;
+	yield fixer.replaceText(methodNode, 'test');
+
+	let stringText = sourceCode.getText(stringNode);
+	if (
+		!isParenthesized(regexpNode, sourceCode)
+		// Only `SequenceExpression` need to add parentheses
+		&& stringNode.type === 'SequenceExpression'
+	) {
+		stringText = `(${stringText})`;
+	}
+
+	yield fixer.replaceText(regexpNode, stringText);
+
+	let regexpText = sourceCode.getText(regexpNode);
+	if (
+		!isParenthesized(stringNode, sourceCode)
+		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
+	) {
+		regexpText = `(${regexpText})`;
+	}
+
+	// The nodes that pass control-flow test checks or explicit boolean expressions cannot have an ASI problem.
+
+	yield fixer.replaceText(stringNode, regexpText);
+}
 
 const cases = [
 	{
@@ -56,33 +92,22 @@ const cases = [
 			methodNode: node.callee.property,
 			regexpNode: node.arguments[0],
 		}),
-		* fix(fixer, {stringNode, methodNode, regexpNode}, context) {
-			const {sourceCode} = context;
-			yield fixer.replaceText(methodNode, 'test');
-
-			let stringText = sourceCode.getText(stringNode);
-			if (
-				!isParenthesized(regexpNode, sourceCode)
-				// Only `SequenceExpression` need to add parentheses
-				&& stringNode.type === 'SequenceExpression'
-			) {
-				stringText = `(${stringText})`;
-			}
-
-			yield fixer.replaceText(regexpNode, stringText);
-
-			let regexpText = sourceCode.getText(regexpNode);
-			if (
-				!isParenthesized(stringNode, sourceCode)
-				&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
-			) {
-				regexpText = `(${regexpText})`;
-			}
-
-			// The nodes that pass control-flow test checks or explicit boolean expressions cannot have an ASI problem.
-
-			yield fixer.replaceText(stringNode, regexpText);
-		},
+		fix: fixStringMethodCall,
+	},
+	{
+		type: STRING_SEARCH,
+		test: node => isMethodCall(node, {
+			method: 'search',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		}),
+		getNodes: node => ({
+			stringNode: node.callee.object,
+			methodNode: node.callee.property,
+			regexpNode: node.arguments[0],
+		}),
+		fix: fixStringMethodCall,
 	},
 ];
 
@@ -92,14 +117,7 @@ const isReduxToolkitSliceActionMatcher = ({stringNode}) =>
 	isMemberExpression(stringNode, {optional: false, computed: false})
 	&& isMemberExpression(stringNode.object, {property: 'actions', optional: false, computed: false});
 
-const getStaticRegExp = (node, scope) => {
-	const staticResult = getStaticValue(node, scope);
-
-	if (!staticResult) {
-		return;
-	}
-
-	const {value} = staticResult;
+const getRegExpFromStaticValue = value => {
 	if (Object.prototype.toString.call(value) === '[object RegExp]') {
 		return value;
 	}
@@ -169,6 +187,102 @@ const canSuggestLengthCheck = (lengthCheck, context) =>
 	!getLengthWrapperRemovalRanges(lengthCheck, context)
 		.some(range => hasCommentsInRange(context.sourceCode, range));
 
+const getSearchCheck = node => {
+	const {parent} = node;
+	if (
+		parent?.type !== 'BinaryExpression'
+		|| parent.left !== node
+	) {
+		return;
+	}
+
+	const {operator, right} = parent;
+	if (
+		(['!==', '!=', '>'].includes(operator) && isNegativeOne(right))
+		|| (operator === '>=' && isLiteralZero(right))
+	) {
+		return {node: parent, negate: false};
+	}
+
+	if (
+		(['===', '=='].includes(operator) && isNegativeOne(right))
+		|| (operator === '<' && isLiteralZero(right))
+	) {
+		return {node: parent, negate: true};
+	}
+};
+
+const getSearchCheckRemovalRange = (searchCheck, callExpression, context) => [
+	getParenthesizedRange(callExpression, context)[1],
+	context.sourceCode.getRange(searchCheck.node)[1],
+];
+
+const canFixSearchCheck = (searchCheck, callExpression, context) =>
+	!hasCommentsInRange(
+		context.sourceCode,
+		getSearchCheckRemovalRange(searchCheck, callExpression, context),
+	);
+
+const getSuggestion = fixFunction => [
+	{
+		messageId: SUGGESTION,
+		fix: fixFunction,
+	},
+];
+
+const canAutofix = ({searchCheck, isRegExp, staticRegExp}) =>
+	isRegExp
+	|| (
+		staticRegExp?.global === false
+		&& (!searchCheck || staticRegExp.sticky === false)
+	);
+
+const shouldSkipPattern = ({type, regexpNode, staticResult, isKnownRegExp}) =>
+	(regexpNode.type === 'Literal' && !regexpNode.regex)
+	|| (
+		type === STRING_SEARCH
+		&& (
+			isStaticTemplateLiteral(regexpNode)
+			|| (staticResult && !isKnownRegExp)
+		)
+	);
+
+const addFixOrSuggestion = (problem, fixFunction, context, {
+	lengthCheck,
+	searchCheck,
+	callExpression,
+	isRegExp,
+	staticRegExp,
+}) => {
+	if (lengthCheck) {
+		if (canSuggestLengthCheck(lengthCheck, context)) {
+			problem.suggest = getSuggestion(fixFunction);
+		}
+
+		return;
+	}
+
+	if (
+		searchCheck
+		&& !canFixSearchCheck(searchCheck, callExpression, context)
+	) {
+		return;
+	}
+
+	if (
+		canAutofix({
+			searchCheck,
+			isRegExp,
+			staticRegExp,
+		})
+	) {
+		problem.fix = fixFunction;
+		return;
+	}
+
+	problem.suggest = getSuggestion(fixFunction);
+};
+
 const getLengthCheck = node => {
 	const lengthNode = unwrapChainExpression(node.parent);
 	if (!isLengthMemberExpression(lengthNode, node)) {
@@ -204,11 +318,18 @@ const getLengthCheck = node => {
 const create = context => {
 	context.on('CallExpression', function * (node) {
 		const lengthCheck = getLengthCheck(node);
-		if (!lengthCheck && !(isBooleanExpression(node) || isControlFlowTest(node))) {
+		const searchCheck = getSearchCheck(node);
+		if (!lengthCheck && !searchCheck && !(isBooleanExpression(node) || isControlFlowTest(node))) {
 			return;
 		}
 
 		for (const {type, test, getNodes, fix} of cases) {
+			if (
+				(type === STRING_SEARCH) !== Boolean(searchCheck)
+			) {
+				continue;
+			}
+
 			if (!test(node)) {
 				continue;
 			}
@@ -216,14 +337,22 @@ const create = context => {
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
 
-			if (regexpNode.type === 'Literal' && !regexpNode.regex) {
-				continue;
-			}
-
 			const regexpScope = context.sourceCode.getScope(regexpNode);
-			const staticRegExp = getStaticRegExp(regexpNode, regexpScope);
+			const staticResult = getStaticValue(regexpNode, regexpScope);
+			const staticRegExp = staticResult ? getRegExpFromStaticValue(staticResult.value) : undefined;
 			const isRegExp = isRegExpNode(regexpNode);
 			const isKnownRegExp = isRegExp || staticRegExp !== undefined;
+
+			if (
+				shouldSkipPattern({
+					type,
+					regexpNode,
+					staticResult,
+					isKnownRegExp,
+				})
+			) {
+				continue;
+			}
 
 			if (
 				type === STRING_MATCH
@@ -248,6 +377,12 @@ const create = context => {
 							context.sourceCode.getRange(lengthCheck.node)[1],
 						]);
 					}
+				} else if (searchCheck) {
+					if (searchCheck.negate) {
+						yield fixer.insertTextBefore(searchCheck.node, '!');
+					}
+
+					yield fixer.removeRange(getSearchCheckRemovalRange(searchCheck, node, context));
 				}
 
 				for (const fixResult of fix(fixer, nodes, context)) {
@@ -255,28 +390,13 @@ const create = context => {
 				}
 			};
 
-			if (lengthCheck) {
-				if (canSuggestLengthCheck(lengthCheck, context)) {
-					problem.suggest = [
-						{
-							messageId: SUGGESTION,
-							fix: fixFunction,
-						},
-					];
-				}
-			} else if (
-				isRegExp
-				|| staticRegExp?.global === false
-			) {
-				problem.fix = fixFunction;
-			} else {
-				problem.suggest = [
-					{
-						messageId: SUGGESTION,
-						fix: fixFunction,
-					},
-				];
-			}
+			addFixOrSuggestion(problem, fixFunction, context, {
+				lengthCheck,
+				searchCheck,
+				callExpression: node,
+				isRegExp,
+				staticRegExp,
+			});
 
 			yield problem;
 		}
@@ -289,7 +409,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `RegExp#test()` over `String#match()` and `RegExp#exec()`.',
+			description: 'Prefer `RegExp#test()` over `String#match()`, `String#search()`, and `RegExp#exec()`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
