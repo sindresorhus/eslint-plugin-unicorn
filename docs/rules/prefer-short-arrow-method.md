@@ -13,7 +13,7 @@ This rule prefers concise arrow function properties for object literal methods t
 
 It intentionally only checks object literals. Class methods and class fields have different prototype and binding behavior, so they are out of scope.
 
-Methods that use `this`, `arguments`, `super`, or `new.target` are ignored because converting them to arrow functions would change behavior.
+Methods that use `this`, `arguments`, `super`, `new.target`, or direct `eval()` are ignored because converting them to arrow functions could change behavior.
 
 ## Examples
 
