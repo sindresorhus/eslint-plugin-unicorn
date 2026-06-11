@@ -11,6 +11,8 @@
 
 Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
 
+When an error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved.
+
 ## Examples
 
 ```js
@@ -63,8 +65,8 @@ class CustomError extends Error {
 
 // ✅
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'CustomError';
 	}
 }
@@ -82,9 +84,29 @@ class foo extends Error {
 
 // ✅
 class FooError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'FooError';
+	}
+}
+```
+
+```js
+// ❌
+class CustomError extends Error {
+	constructor(message, details) {
+		super(message);
+		this.details = details;
+		this.name = 'CustomError';
+	}
+}
+
+// ✅
+class CustomError extends Error {
+	constructor(message, options) {
+		super(message, options);
+		this.details = options?.details;
+		this.name = 'CustomError';
 	}
 }
 ```
@@ -135,8 +157,8 @@ class CustomError extends Error {
 class CustomError extends Error {
 	#message;
 
-	constructor(message) {
-		super();
+	constructor(message, options) {
+		super(undefined, options);
 		this.#message = message;
 		this.name = 'CustomError';
 	}
