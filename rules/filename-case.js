@@ -21,8 +21,7 @@ const messages = {
 const isIgnoredChar = char => !/^[\w-]$/.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
-const {ListFormat} = Intl;
-const disjunctionListFormat = new ListFormat('en-US', {type: 'disjunction'});
+const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
 
 const cases = {
 	camelCase: {
