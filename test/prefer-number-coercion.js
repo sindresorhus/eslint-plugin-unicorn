@@ -45,6 +45,7 @@ test.snapshot({
 		'parseFloat(value, extra);',
 		'Number /* comment */ .parseFloat(value);',
 		'parseFloat(...argumentsArray);',
+		'parseFloat(...firstArguments, ...secondArguments);',
 		outdent`
 			const {parseFloat} = Number;
 			parseFloat(value);
@@ -58,6 +59,11 @@ test.snapshot({
 		`,
 		'parseInt(value, 0xA);',
 		'parseInt(value, 2 * 5);',
+		outdent`
+			const radix = 10;
+			parseInt(value, radix);
+		`,
+		'parseInt(value, radix = 10);',
 		'parseInt((foo, bar), 10);',
 		'parseInt(value, 10, extra);',
 		'parseInt(/* comment */ value, 10);',

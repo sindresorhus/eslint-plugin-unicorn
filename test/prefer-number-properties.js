@@ -74,6 +74,10 @@ test({
 		'parseFloat("10.5");',
 		'parseInt("10");',
 		'parseInt("10", 10);',
+		outdent`
+			const radix = 10;
+			parseInt("10", radix);
+		`,
 		'Number.isNaN(10);',
 		'Number.isFinite(10);',
 

@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 
 const MESSAGE_ID_PARSE_FLOAT = 'parse-float';
@@ -19,6 +19,9 @@ const isComputedMemberCall = node =>
 const isOptionalCall = node =>
 	node.optional
 	|| (node.callee.type === 'MemberExpression' && node.callee.optional);
+
+const hasOnlySpreadArguments = node =>
+	node.arguments.every(argument => argument.type === 'SpreadElement');
 
 function getStaticNumberValue(node, context) {
 	if (!node || node.type === 'SpreadElement') {
@@ -52,7 +55,7 @@ function checkParseFloat(callExpression, method, context) {
 
 	if (
 		isOptionalCall(callExpression)
-		|| (callExpression.arguments.length === 1 && callExpression.arguments[0].type === 'SpreadElement')
+		|| hasOnlySpreadArguments(callExpression)
 		|| context.sourceCode.getCommentsInside(callExpression.callee).length > 0
 	) {
 		return problem;
@@ -80,10 +83,11 @@ function checkParseInt(callExpression, method, context) {
 		data: {method},
 	};
 
-	const [firstArgument] = callExpression.arguments;
+	const [firstArgument, radixArgument] = callExpression.arguments;
 	if (
 		callExpression.arguments.length !== 2
 		|| firstArgument?.type === 'SpreadElement'
+		|| hasSideEffect(radixArgument, context.sourceCode)
 		|| isOptionalCall(callExpression)
 		|| context.sourceCode.getCommentsInside(callExpression).length > 0
 	) {
