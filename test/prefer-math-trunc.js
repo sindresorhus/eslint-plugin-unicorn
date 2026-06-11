@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -25,8 +25,44 @@ test.snapshot({
 			let foo = 1.2; // comment 1
 			foo |= 1; // comment 2 and 1.2 | 0
 		`,
+		'parseInt(value, 10);',
+		'parseInt(String(value));',
+		'parseInt(String(value), 16);',
+		'parseInt(String(value), "10");',
+		'parseInt?.(String(value), 10);',
+		'parseInt(String(...value), 10);',
+		'parseInt(String(value, extra), 10);',
+		'parseInt(new String(value), 10);',
+		'parseInt(String(value), 10, extra);',
+		'Number.parseInt(String(value), 10, extra);',
+		'Number.parseInt?.(String(value), 10);',
+		'Number?.parseInt(String(value), 10);',
+		'Number["parseInt"](String(value), 10);',
+		'const parseInt = value => value; parseInt(String(value), 10);',
+		'const Number = {parseInt() {}}; Number.parseInt(String(value), 10);',
+		'const String = value => value; parseInt(String(value), 10);',
 	],
 	invalid: [
+		// `parseInt(String(foo), 10)`
+		'const foo = parseInt(String(number), 10);',
+		'const foo = Number.parseInt(String(number), 10);',
+		'const foo = parseInt(String((number)), 10);',
+		'const foo = parseInt(String(number + 1), 10);',
+		'const foo = parseInt(String(/* comment */ number), 10);',
+		'const foo = parseInt(String(number /* comment */), 10);',
+		'const foo = parseInt(/* comment */ String(number), 10);',
+		'const foo = parseInt(String /* comment */ (number), 10);',
+		'const foo = parseInt(String(number), /* comment */ 10);',
+		'const foo = parseInt(String((0, number)), 10);',
+		{
+			code: 'const foo = parseInt(String(number as number), 10);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = parseInt(String(number!), 10);',
+			languageOptions: {parser: parsers.typescript},
+		},
+
 		// Basic "bitwise OR with 0" case
 		'const foo = 1.1 | 0;',
 		'const foo = 111 | 0;',
