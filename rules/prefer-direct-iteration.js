@@ -34,18 +34,13 @@ const typeReferenceAliases = new Map([
 	['ReadonlySet', setType],
 ]);
 
-const defaultIteratorMethodByType = new Map([
-	[arrayType, 'values'],
-	[mapType, 'entries'],
-	[setType, 'values'],
-	[formDataType, 'entries'],
-	[urlSearchParametersType, 'entries'],
-	...typedArray.map(type => [type, 'values']),
-]);
-
 const defaultIteratorMethodsByType = new Map([
-	...defaultIteratorMethodByType,
+	[arrayType, ['values']],
+	[mapType, ['entries']],
 	[setType, ['values', 'keys']],
+	[formDataType, ['entries']],
+	[urlSearchParametersType, ['entries']],
+	...typedArray.map(type => [type, ['values']]),
 ]);
 
 const collectionConstructorNames = [
@@ -93,6 +88,48 @@ const mergeTypeSets = typeSets => {
 	}
 
 	return types;
+};
+
+const isDefaultLibrarySymbol = symbol =>
+	symbol?.declarations?.some(declaration => declaration.getSourceFile().hasNoDefaultLib) ?? false;
+
+const getTypesFromType = (type, checker) => {
+	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
+		return;
+	}
+
+	if (type.isUnion()) {
+		return mergeTypeSets(type.types.map(type => getTypesFromType(type, checker)));
+	}
+
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return getTypeSet(arrayType);
+	}
+
+	const symbol = type.getSymbol() ?? type.aliasSymbol;
+	if (!isDefaultLibrarySymbol(symbol)) {
+		return;
+	}
+
+	const typeName = symbol.getName();
+	const builtinType = typeName && getTypeFromTypeReferenceName(typeName);
+	return builtinType && getTypeSet(builtinType);
+};
+
+const getTypesFromTypeInformation = (node, context) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return;
+	}
+
+	try {
+		return getTypesFromType(
+			parserServices.getTypeAtLocation(node),
+			parserServices.program.getTypeChecker(),
+		);
+	} catch {
+		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
+	}
 };
 
 const getTypesFromTypeAnnotation = node => {
@@ -161,7 +198,7 @@ const getTypesFromVariable = (node, context, visitedVariables) => {
 	return getTypes(definition.node.init, context, visitedVariables);
 };
 
-const getTypes = (node, context, visitedVariables = new Set()) => {
+const getTypesFromSyntax = (node, context, visitedVariables) => {
 	if (node.type === 'ArrayExpression') {
 		return getTypeSet(arrayType);
 	}
@@ -220,6 +257,9 @@ const getTypes = (node, context, visitedVariables = new Set()) => {
 	}
 };
 
+const getTypes = (node, context, visitedVariables = new Set()) =>
+	getTypesFromSyntax(node, context, visitedVariables) ?? getTypesFromTypeInformation(node, context);
+
 const isDefaultIteratorMethodForTypes = (method, types) => {
 	if (!types?.size) {
 		return false;
@@ -227,15 +267,7 @@ const isDefaultIteratorMethodForTypes = (method, types) => {
 
 	for (const type of types) {
 		const defaultMethods = defaultIteratorMethodsByType.get(type);
-		if (Array.isArray(defaultMethods)) {
-			if (!defaultMethods.includes(method)) {
-				return false;
-			}
-
-			continue;
-		}
-
-		if (defaultMethods !== method) {
+		if (!defaultMethods?.includes(method)) {
 			return false;
 		}
 	}

@@ -21,6 +21,8 @@ This rule reports:
 
 It intentionally does not report unknown receivers, or methods that are not equivalent to the default iterator, such as `Array#entries()`, `Map#values()`, or `Set#entries()`.
 
+With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), this rule can also recognize supported built-ins through type aliases and inferred references. Without type information, it only uses direct syntax and simple annotations.
+
 ## Examples
 
 ```js
