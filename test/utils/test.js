@@ -97,25 +97,24 @@ class Tester {
 			const linter = new Linter();
 			const messages = linter.verify(
 				'',
-				[
-					{
-						files: ['**'],
-						languageOptions: DEFAULT_LANGUAGE_OPTIONS,
-						linterOptions: {
-							reportUnusedDisableDirectives: 'off',
-						},
-						plugins: {
-							'rule-to-test': {
-								rules: {
-									[ruleId]: rule,
-								},
+				// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every empty-file smoke test.
+				{
+					files: ['**'],
+					languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+					linterOptions: {
+						reportUnusedDisableDirectives: 'off',
+					},
+					plugins: {
+						'rule-to-test': {
+							rules: {
+								[ruleId]: rule,
 							},
 						},
-						rules: {
-							[`rule-to-test/${ruleId}`]: 'error',
-						},
 					},
-				],
+					rules: {
+						[`rule-to-test/${ruleId}`]: 'error',
+					},
+				},
 				{filename: 'index.js'},
 			);
 

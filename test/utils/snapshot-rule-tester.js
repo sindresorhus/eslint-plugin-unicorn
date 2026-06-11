@@ -111,31 +111,29 @@ function getVerifyConfig(ruleId, rule, testerConfig, testCase) {
 	// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L501
 	const pluginName = 'rule-to-test';
 
-	return [
-		// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/rule-tester/rule-tester.js#L524
-		{files: ['**']},
-		{
-			...testerConfig,
-			languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
-			// A non-JS language (e.g. `@eslint/css`, `@eslint/markdown`) and the plugin providing it.
-			...(language && {language: language.language}),
-			rules: {
-				[`${pluginName}/${ruleId}`]: ['error', ...options],
-			},
-			plugins: {
-				[pluginName]: {
-					rules: {
-						[ruleId]: rule,
-					},
-				},
-				...language?.plugins,
-			},
-			// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/config/default-config.js#L46-L48
-			linterOptions: {
-				reportUnusedDisableDirectives: 'off',
-			},
+	// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every snapshot test case. Keep `files` on the real config so non-JS filenames still match.
+	return {
+		files: ['**'],
+		...testerConfig,
+		languageOptions: mergeLanguageOptions(testerConfig.languageOptions, languageOptions),
+		// A non-JS language (e.g. `@eslint/css`, `@eslint/markdown`) and the plugin providing it.
+		...(language && {language: language.language}),
+		rules: {
+			[`${pluginName}/${ruleId}`]: ['error', ...options],
 		},
-	];
+		plugins: {
+			[pluginName]: {
+				rules: {
+					[ruleId]: rule,
+				},
+			},
+			...language?.plugins,
+		},
+		// https://github.com/eslint/eslint/blob/ee7f9e62102d3dd0b7581d1e88e41bce3385980a/lib/config/default-config.js#L46-L48
+		linterOptions: {
+			reportUnusedDisableDirectives: 'off',
+		},
+	};
 }
 
 function verify(code, verifyConfig, {filename}) {
