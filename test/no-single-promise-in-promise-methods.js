@@ -1,5 +1,6 @@
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
+import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
@@ -122,8 +123,26 @@ test.snapshot({
 		'const results = await Promise.any([promise])',
 		'const results = await Promise.race([promise])',
 
-		// Fixable, but not provide at this point
-		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2388
 		'const [foo] = await Promise.all([promise])',
+		'[foo] = await Promise.all([promise])',
+		'const foo = (await Promise.all([promise]))[0]',
+		'foo = (await Promise.all([promise]))[0]',
+		'const [foo] = await Promise.all([a ? b : c])',
+
+		// Reported, but not fixed.
+		'const [foo = bar] = await Promise.all([promise])',
+		'const [...foo] = await Promise.all([promise])',
+		'const [, foo] = await Promise.all([promise])',
+		'const result = ([foo] = await Promise.all([promise]))',
+		'const foo = (await Promise.all([promise]))[1]',
+		'const foo = (await Promise.all([promise])) /* comment */ [0]',
+		'const [/* comment */ foo] = await Promise.all([promise])',
+		'const [foo] = await Promise.all([/* comment */ promise])',
+		{
+			code: 'const [foo]: [Foo] = await Promise.all([promise])',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
