@@ -187,22 +187,22 @@ function getBaseTypes(type, checker) {
 	}
 }
 
-function isKnownArrayReceiverType(type, checker, program, options = {}) {
+function shouldReportReceiverType(type, checker, program, allowNullish) {
 	if (unknownTypeNames.has(type.intrinsicName)) {
 		return true;
 	}
 
 	if (type.isUnion()) {
-		const types = options.allowNullish
+		const types = allowNullish
 			? type.types.filter(type => !isNullishType(type))
 			: type.types;
 
-		return types.length > 0 && types.every(type => isKnownArrayReceiverType(type, checker, program, options));
+		return types.length > 0 && types.every(type => shouldReportReceiverType(type, checker, program, allowNullish));
 	}
 
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
-		return isKnownArrayReceiverType(constraint, checker, program, options);
+		return shouldReportReceiverType(constraint, checker, program, allowNullish);
 	}
 
 	if (isNullishType(type)) {
@@ -219,7 +219,7 @@ function isKnownArrayReceiverType(type, checker, program, options = {}) {
 			return true;
 		}
 
-		if (getBaseTypes(type, checker).some(baseType => isKnownArrayReceiverType(baseType, checker, program, options))) {
+		if (getBaseTypes(type, checker).some(baseType => shouldReportReceiverType(baseType, checker, program, allowNullish))) {
 			return true;
 		}
 
@@ -241,11 +241,11 @@ function shouldReportReceiver(callExpression, context) {
 
 	try {
 		const {program} = parserServices;
-		return isKnownArrayReceiverType(
+		return shouldReportReceiverType(
 			parserServices.getTypeAtLocation(callExpression.callee.object),
 			program.getTypeChecker(),
 			program,
-			{allowNullish: callExpression.callee.optional},
+			callExpression.callee.optional,
 		);
 	} catch {
 		return true;
