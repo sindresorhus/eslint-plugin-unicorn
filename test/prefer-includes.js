@@ -1,8 +1,18 @@
 import {outdent} from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 import tests from './shared/simple-array-search-rule-tests.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -55,3 +65,49 @@ const {snapshot, typescript} = tests({
 
 test.snapshot(snapshot);
 test.typescript(typescript);
+
+test({
+	valid: [
+		'const array = [true, false, true]; array.some(value => value);',
+		'const array = [true, false, true]; array.some(value => Boolean(value));',
+		typeAware('const array: number[] = [1, 2, 3]; array.some(value => value);'),
+		typeAware('const array: number[] = [1, 2, 3]; array.some(value => Boolean(value));'),
+		typeAware('const array: unknown[] = [true, false, true]; array.some(value => value);'),
+		typeAware('const array: unknown[] = [true, false, true]; array.some(value => Boolean(value));'),
+		typeAware('const array: Boolean[] = [true, false, true]; array.some(value => value);'),
+		typeAware('const array: Array<boolean | undefined> = [true, false, undefined]; array.some(value => value);'),
+		typeAware('const array: false[] = [false]; array.some(value => value);'),
+		typeAware('const array: false[] = [false]; array.some(value => Boolean(value));'),
+	],
+	invalid: [
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(value => value);'),
+			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(value => {return value;});'),
+			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(function (value) {return value;});'),
+			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(value => Boolean(value));'),
+			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(function (value) {return Boolean(value);});'),
+			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: boolean[] = [true, false, true]; array.some(value => Boolean(/* keep */ value));'),
+			errors: 1,
+		},
+	],
+});

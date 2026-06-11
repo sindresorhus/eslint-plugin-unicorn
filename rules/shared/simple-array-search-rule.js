@@ -2,6 +2,8 @@ import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
 import {isSameIdentifier, isFunctionSelfUsedInside, isParenthesized} from '../utils/index.js';
 
+const booleanLiteralTypeNames = new Set(['false', 'true']);
+
 const isSimpleCompare = (node, compareNode) =>
 	node.type === 'BinaryExpression'
 	&& node.operator === '==='
@@ -31,7 +33,64 @@ const isSimpleCompareCallbackFunction = node =>
 	);
 const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
 
-export default function simpleArraySearchRule({method, replacement}) {
+function getSingleReturnExpression(node) {
+	if (
+		node.type === 'ArrowFunctionExpression'
+		&& !node.async
+		&& node.params.length === 1
+		&& node.body.type !== 'BlockStatement'
+	) {
+		return node.body;
+	}
+
+	if (
+		(node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression')
+		&& !node.async
+		&& !node.generator
+		&& node.params.length === 1
+		&& node.body.type === 'BlockStatement'
+		&& node.body.body.length === 1
+		&& node.body.body[0].type === 'ReturnStatement'
+	) {
+		return node.body.body[0].argument;
+	}
+}
+
+function getBooleanPredicateReference(callback, parameter) {
+	const returnExpression = getSingleReturnExpression(callback);
+	if (!returnExpression) {
+		return;
+	}
+
+	if (isSameIdentifier(returnExpression, parameter)) {
+		return returnExpression;
+	}
+
+	if (
+		returnExpression.type === 'CallExpression'
+		&& !returnExpression.optional
+		&& isIdentifierNamed(returnExpression.callee, 'Boolean')
+		&& returnExpression.arguments.length === 1
+		&& isSameIdentifier(returnExpression.arguments[0], parameter)
+	) {
+		return returnExpression.arguments[0];
+	}
+}
+
+function isBooleanLikeType(type) {
+	if (type.intrinsicName === 'boolean' || type.intrinsicName === 'true') {
+		return true;
+	}
+
+	if (!(type.isUnion() || type.isIntersection())) {
+		return false;
+	}
+
+	const typeNames = type.types.map(type => type.intrinsicName);
+	return typeNames.includes('true') && typeNames.every(typeName => booleanLiteralTypeNames.has(typeName));
+}
+
+export default function simpleArraySearchRule({method, replacement, checkBooleanPredicate = false}) {
 	// Add prefix to avoid conflicts in `prefer-includes` rule
 	const MESSAGE_ID_PREFIX = `prefer-${replacement}-over-${method}/`;
 	const ERROR = `${MESSAGE_ID_PREFIX}error`;
@@ -119,6 +178,58 @@ export default function simpleArraySearchRule({method, replacement}) {
 			}
 
 			return problem;
+		});
+
+		if (!checkBooleanPredicate || !sourceCode.parserServices?.program) {
+			return;
+		}
+
+		context.on('CallExpression', callExpression => {
+			if (!isMethodCall(callExpression, {
+				method,
+				argumentsLength: 1,
+				optionalCall: false,
+			})) {
+				return;
+			}
+
+			const [callback] = callExpression.arguments;
+			if (
+				!(callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
+				|| callback.params.length !== 1
+				|| callback.params[0].type !== 'Identifier'
+			) {
+				return;
+			}
+
+			const [parameter] = callback.params;
+			const parameterReference = getBooleanPredicateReference(callback, parameter);
+			if (!parameterReference || !isBooleanLikeType(sourceCode.parserServices.getTypeAtLocation(parameter))) {
+				return;
+			}
+
+			const callbackScope = scopeManager.acquire(callback);
+			if (
+				!callbackScope
+				|| findVariable(callbackScope, parameter).references.some(({identifier}) => identifier !== parameterReference)
+				|| isFunctionSelfUsedInside(callback, callbackScope)
+			) {
+				return;
+			}
+
+			const methodNode = callExpression.callee.property;
+			return {
+				node: methodNode,
+				messageId: ERROR,
+				* fix(fixer, {abort}) {
+					if (sourceCode.getCommentsInside(callback).length > 0) {
+						abort();
+					}
+
+					yield fixer.replaceText(methodNode, replacement);
+					yield fixer.replaceText(callback, 'true');
+				},
+			};
 		});
 	}
 
