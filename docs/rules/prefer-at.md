@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` for index access and `String#charAt()`.
+Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `TypedArray#at()` for index access and `String#charAt()`.
 
 ## Examples
 
@@ -63,6 +63,12 @@ const foo = array.at(array.length - 1);
 ```js
 // ✅
 array[array.length - 1] = foo;
+```
+
+```js
+// ✅
+// Common DOM collection patterns like `.children`, `.childNodes`, and `querySelectorAll()` are ignored because they are not guaranteed to support `.at()`.
+const foo = element.children[element.children.length - 1];
 ```
 
 ```js

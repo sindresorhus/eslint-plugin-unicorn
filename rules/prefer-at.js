@@ -192,6 +192,27 @@ const lodashLastFunctions = [
 	'underscore.last',
 ];
 
+// TODO: Remove this once DOM collections like NodeList and HTMLCollection reliably support `.at()` in browsers.
+const domCollectionProperties = [
+	'childNodes',
+	'children',
+];
+
+const domCollectionMethods = [
+	'getElementsByClassName',
+	'getElementsByName',
+	'getElementsByTagName',
+	'getElementsByTagNameNS',
+	'querySelectorAll',
+];
+
+const isDomCollectionReceiver = node => {
+	node = unwrapExpression(node);
+
+	return isMemberExpression(node, {properties: domCollectionProperties})
+		|| isMethodCall(node, {methods: domCollectionMethods});
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {
@@ -207,6 +228,10 @@ function create(context) {
 			!node.computed
 			|| isLeftHandSide(node)
 		) {
+			return;
+		}
+
+		if (isDomCollectionReceiver(node.object)) {
 			return;
 		}
 
