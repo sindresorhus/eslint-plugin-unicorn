@@ -123,6 +123,7 @@ export {default as 'prefer-includes-over-repeated-comparisons'} from './prefer-i
 export {default as 'prefer-includes'} from './prefer-includes.js';
 export {default as 'prefer-iterator-concat'} from './prefer-iterator-concat.js';
 export {default as 'prefer-iterator-to-array-at-end'} from './prefer-iterator-to-array-at-end.js';
+export {default as 'prefer-iterator-to-array'} from './prefer-iterator-to-array.js';
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
 export {default as 'prefer-math-abs'} from './prefer-math-abs.js';

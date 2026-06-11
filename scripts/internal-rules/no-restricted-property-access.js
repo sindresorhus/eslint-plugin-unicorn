@@ -10,7 +10,7 @@ const properties = new Map([
 	['loc', 'sourceCode.getLoc'],
 ]);
 
-const propertyNames = [...properties.keys()];
+const propertyNames = properties.keys().toArray();
 
 const config = {
 	create(context) {

@@ -97,9 +97,10 @@ const getWordReplacements = (word, {replacements, allowList}) => {
 	let wordReplacement = [];
 	if (replacement) {
 		const transform = isUpperFirst(word) ? upperFirst : lowerFirst;
-		wordReplacement = [...replacement.keys()]
+		wordReplacement = replacement.keys()
 			.filter(name => replacement.get(name))
-			.map(name => transform(name));
+			.map(name => transform(name))
+			.toArray();
 	}
 
 	return wordReplacement.length > 0 ? wordReplacement.toSorted() : [];
