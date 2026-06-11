@@ -304,7 +304,7 @@ function methodCallToSpread(node, context) {
 		yield fixer.insertTextBefore(node, '[...');
 		yield fixer.insertTextAfter(node, ']');
 
-		// The array is already accessing `.slice` or `.toSpliced`, there should be no case where extra `()` are needed.
+		// The receiver is already accessing `.slice` or `.toSpliced`, there should be no case where extra `()` are needed.
 
 		yield removeMethodCall(fixer, node, context);
 	};
