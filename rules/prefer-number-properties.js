@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {replaceReferenceIdentifier, fixSpaceAroundKeyword} from './fix/index.js';
 import isLeftHandSide from './utils/is-left-hand-side.js';
@@ -13,7 +14,6 @@ const messages = {
 const globalObjects = {
 	// Safe to replace with `Number` properties
 	parseInt: true,
-	parseFloat: true,
 	NaN: true,
 	Infinity: true,
 
@@ -26,6 +26,24 @@ const isNegative = node => {
 	const {parent} = node;
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
+
+function isBase10OrNoRadixParseIntCall(node, context) {
+	const {parent} = node;
+	if (parent.type !== 'CallExpression' || parent.callee !== node) {
+		return false;
+	}
+
+	const radix = parent.arguments[1];
+	if (!radix) {
+		return true;
+	}
+
+	if (radix.type === 'SpreadElement') {
+		return false;
+	}
+
+	return getStaticValue(radix, context.sourceCode.getScope(radix))?.value === 10;
+}
 
 // `isNaN`/`isFinite` differ from `Number.isNaN`/`Number.isFinite` only because they coerce their argument to a number first; when the single argument is already a number, the rewrite is safe to auto-fix
 const isCallWithNumberArgument = (node, context) => {
@@ -114,7 +132,9 @@ const create = context => {
 		objects,
 		context,
 		handle: checkProperty,
-		filter: ({node}) => !isLeftHandSide(node),
+		filter: ({node, path: [name]}) =>
+			!isLeftHandSide(node)
+			&& !(name === 'parseInt' && isBase10OrNoRadixParseIntCall(node, context)),
 	}).listen();
 };
 

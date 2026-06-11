@@ -11,8 +11,7 @@
 
 ECMAScript 2015 moved globals onto the `Number` constructor for consistency and to slightly improve them. This rule enforces their usage to limit the usage of globals:
 
-- [`Number.parseInt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/parseInt) over [`parseInt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt) *(fixable)*
-- [`Number.parseFloat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/parseFloat) over [`parseFloat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseFloat) *(fixable)*
+- [`Number.parseInt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/parseInt) over non-decimal [`parseInt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt) calls *(fixable)*
 - [`Number.isNaN()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN) over [`isNaN()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isNaN) *(they have slightly [different behavior](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN#difference_between_number.isnan_and_global_isnan), so this is only auto-fixed when the argument is known to be a number, otherwise it's a suggestion)*
 - [`Number.isFinite()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isFinite) over [`isFinite()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite) *(they have slightly [different behavior](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isFinite#difference_between_number.isfinite_and_global_isfinite), so this is only auto-fixed when the argument is known to be a number, otherwise it's a suggestion)*
 - [`Number.NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/NaN) over [`NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN) *(fixable)*
@@ -27,14 +26,6 @@ const foo = parseInt('10', 2);
 
 // ✅
 const foo = Number.parseInt('10', 2);
-```
-
-```js
-// ❌
-const foo = parseFloat('10.5');
-
-// ✅
-const foo = Number.parseFloat('10.5');
 ```
 
 ```js
@@ -65,6 +56,13 @@ if (Object.is(foo, Number.NaN)) {}
 // ✅
 const foo = Number.parseInt('10', 2);
 ```
+
+```js
+// ✅
+const foo = parseInt('10', 10);
+```
+
+Base-10 `parseInt()` calls are handled by [`prefer-number-coercion`](./prefer-number-coercion.md).
 
 ```js
 // ✅

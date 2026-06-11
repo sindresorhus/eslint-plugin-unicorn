@@ -11,10 +11,6 @@ const methods = {
 		safe: true,
 		code: 'parseInt("10", 2);',
 	},
-	parseFloat: {
-		safe: true,
-		code: 'parseFloat("10.5");',
-	},
 	isNaN: {
 		safe: false,
 		code: 'isNaN(foo);',
@@ -75,6 +71,9 @@ test({
 	valid: [
 		'Number.parseInt("10", 2);',
 		'Number.parseFloat("10.5");',
+		'parseFloat("10.5");',
+		'parseInt("10");',
+		'parseInt("10", 10);',
 		'Number.isNaN(10);',
 		'Number.isFinite(10);',
 
@@ -120,11 +119,6 @@ test({
 			name: 'parseInt',
 		}),
 		invalidMethodTest({
-			code: 'parseFloat("10.5");',
-			output: 'Number.parseFloat("10.5");',
-			name: 'parseFloat',
-		}),
-		invalidMethodTest({
 			code: 'isNaN(foo);',
 			suggestionOutput: 'Number.isNaN(foo);',
 			name: 'isNaN',
@@ -137,24 +131,20 @@ test({
 		{
 			code: outdent`
 				const a = parseInt("10", 2);
-				const b = parseFloat("10.5");
 				const c = isNaN(foo);
 				const d = isFinite(foo);
 			`,
 			output: outdent`
 				const a = Number.parseInt("10", 2);
-				const b = Number.parseFloat("10.5");
 				const c = isNaN(foo);
 				const d = isFinite(foo);
 			`,
 			errors: [
 				createError('parseInt'),
-				createError('parseFloat'),
 				createError(
 					'isNaN',
 					outdent`
 						const a = parseInt("10", 2);
-						const b = parseFloat("10.5");
 						const c = Number.isNaN(foo);
 						const d = isFinite(foo);
 					`,
@@ -163,7 +153,6 @@ test({
 					'isFinite',
 					outdent`
 						const a = parseInt("10", 2);
-						const b = parseFloat("10.5");
 						const c = isNaN(foo);
 						const d = Number.isFinite(foo);
 					`,
@@ -387,6 +376,10 @@ test.snapshot({
 		'const foo = ++Infinity;',
 		'const foo = --Infinity;',
 		'const foo = -(--Infinity);',
+		'globalThis.parseFloat(foo);',
+		'global.parseFloat(foo);',
+		'window.parseFloat(foo);',
+		'self.parseFloat(foo);',
 	],
 	invalid: [
 		'const foo = {[NaN]: 1}',
@@ -430,10 +423,6 @@ test.snapshot({
 		'global.isNaN(foo);',
 		'window.isNaN(foo);',
 		'self.isNaN(foo);',
-		'globalThis.parseFloat(foo);',
-		'global.parseFloat(foo);',
-		'window.parseFloat(foo);',
-		'self.parseFloat(foo);',
 		'globalThis.NaN',
 		withCheckInfinity('-globalThis.Infinity'),
 
