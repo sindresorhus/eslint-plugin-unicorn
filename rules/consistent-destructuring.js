@@ -1,26 +1,30 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {getAvailableVariableName, isLeftHandSide} from './utils/index.js';
+import {isLeftHandSide} from './utils/index.js';
 import {isCallOrNewExpression, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
 
-const isSimpleExpression = expression => {
-	while (expression) {
-		if (expression.computed) {
-			return false;
-		}
+const thisScopeBoundaryNodeTypes = new Set([
+	'FunctionDeclaration',
+	'FunctionExpression',
+	'MethodDefinition',
+	'PropertyDefinition',
+	'AccessorProperty',
+	'StaticBlock',
+	'Program',
+]);
 
-		if (expression.type !== 'MemberExpression') {
-			break;
-		}
+const typeWrapperNodeTypes = new Set([
+	'TSAsExpression',
+	'TSSatisfiesExpression',
+	'TSNonNullExpression',
+	'TSTypeAssertion',
+]);
 
-		expression = expression.object;
-	}
-
-	return expression.type === 'Identifier'
-		|| expression.type === 'ThisExpression';
-};
+const isSimpleExpression = expression =>
+	expression.type === 'Identifier'
+	|| expression.type === 'ThisExpression';
 
 const isChildInParentScope = (child, parent) => {
 	while (child) {
@@ -34,82 +38,42 @@ const isChildInParentScope = (child, parent) => {
 	return false;
 };
 
-const getRootIdentifier = expression => {
-	while (expression?.type === 'MemberExpression') {
-		expression = expression.object;
-	}
+const getThisScopeBoundary = node => {
+	while (node.parent) {
+		node = node.parent;
 
-	return expression?.type === 'Identifier' ? expression : undefined;
+		if (thisScopeBoundaryNodeTypes.has(node.type)) {
+			return node;
+		}
+	}
 };
 
-const hasRestElement = pattern => {
-	switch (pattern?.type) {
-		case 'RestElement': {
-			return true;
-		}
-
-		case 'AssignmentPattern': {
-			return hasRestElement(pattern.left);
-		}
-
-		case 'ObjectPattern': {
-			return pattern.properties.some(property =>
-				hasRestElement(property.type === 'Property' ? property.value : property));
-		}
-
-		case 'ArrayPattern': {
-			return pattern.elements.some(element =>
-				hasRestElement(element));
-		}
-
-		default: {
-			return false;
-		}
+const getTypeUnwrappedNode = node => {
+	while (typeWrapperNodeTypes.has(node.type)) {
+		node = node.expression;
 	}
+
+	return node;
 };
 
 const isIdentifierProperty = property =>
 	property.type === 'Property'
+	&& !property.computed
 	&& property.key.type === 'Identifier';
 
-const hasNestedRestElement = pattern => {
-	switch (pattern?.type) {
-		case 'AssignmentPattern': {
-			return hasNestedRestElement(pattern.left);
+const getAvailableDestructuredMember = (properties, member, memberScope, sourceCode) => {
+	for (const property of properties) {
+		if (property.key.name !== member) {
+			continue;
 		}
 
-		case 'ObjectPattern': {
-			return pattern.properties.some(property => {
-				if (property.type === 'RestElement') {
-					return false;
-				}
+		const variable = findVariable(sourceCode.getScope(property.value), property.value);
 
-				return hasRestElement(property.value);
-			});
-		}
-
-		case 'ArrayPattern': {
-			return pattern.elements.some(element => {
-				if (!element || element.type === 'RestElement') {
-					return false;
-				}
-
-				return hasRestElement(element);
-			});
-		}
-
-		default: {
-			return false;
+		if (variable && findVariable(memberScope, property.value) === variable) {
+			return property;
 		}
 	}
 };
-
-const isMemberDestructuredInNestedPatternWithRest = (objectPattern, memberName) =>
-	objectPattern.properties.some(property =>
-		isIdentifierProperty(property)
-		&& property.key.name === memberName
-		&& property.value.type !== 'Identifier'
-		&& hasNestedRestElement(property.value));
 
 const shouldIgnoreMemberExpression = node =>
 	node.computed
@@ -144,6 +108,95 @@ const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope
 
 		return referenceStart <= memberStart;
 	});
+};
+
+const isMemberExpressionReassigned = ({
+	declaration,
+	memberExpressionNode,
+	memberScope,
+	memberExpressionWrites,
+	sourceCode,
+}) => {
+	const [, declarationEnd] = sourceCode.getRange(declaration.object);
+	const [memberStart] = sourceCode.getRange(memberExpressionNode);
+	const propertyName = memberExpressionNode.property.name;
+	const object = getTypeUnwrappedNode(memberExpressionNode.object);
+	const rootIdentifierName = object.type === 'Identifier' ? object.name : undefined;
+	const rootVariable = object.type === 'Identifier' ? findVariable(memberScope, object) : undefined;
+	const thisScopeBoundary = object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined;
+
+	return memberExpressionWrites.some(write => {
+		if (
+			write.propertyName !== propertyName
+			|| write.rootIdentifierName !== rootIdentifierName
+			|| write.rootVariable !== rootVariable
+			|| write.thisScopeBoundary !== thisScopeBoundary
+		) {
+			return false;
+		}
+
+		// Be conservative: writes from other variable scopes may run before this read via calls/closures.
+		if (write.scope.variableScope !== memberScope.variableScope) {
+			return true;
+		}
+
+		return write.start >= declarationEnd
+			&& write.start <= memberStart;
+	});
+};
+
+const isDeclarationBeforeMemberExpression = (declaration, memberExpressionNode, sourceCode) => {
+	const [, declarationEnd] = sourceCode.getRange(declaration.object);
+	const [memberStart] = sourceCode.getRange(memberExpressionNode);
+
+	return declarationEnd < memberStart;
+};
+
+const isMatchingDeclaration = ({
+	declaration,
+	memberExpressionNode,
+	memberScope,
+	memberRootIdentifier,
+	memberRootVariable,
+	memberThisScopeBoundary,
+	memberExpressionWrites,
+	sourceCode,
+}) => {
+	if (!isDeclarationBeforeMemberExpression(declaration, memberExpressionNode, sourceCode)) {
+		return false;
+	}
+
+	if (
+		declaration.rootIdentifierName
+		&& memberRootIdentifier?.name === declaration.rootIdentifierName
+		&& memberRootVariable !== declaration.rootVariable
+	) {
+		return false;
+	}
+
+	if (
+		declaration.thisScopeBoundary
+		&& memberThisScopeBoundary !== declaration.thisScopeBoundary
+	) {
+		return false;
+	}
+
+	if (isRootVariableReassigned(declaration, memberExpressionNode, memberScope, sourceCode)) {
+		return false;
+	}
+
+	if (isMemberExpressionReassigned({
+		declaration,
+		memberExpressionNode,
+		memberScope,
+		memberExpressionWrites,
+		sourceCode,
+	})) {
+		return false;
+	}
+
+	// Property is destructured outside the current scope
+	return isChildInParentScope(memberScope, declaration.scope);
 };
 
 const isMatchingInExpression = (node, memberExpression, sourceCode) => {
@@ -232,96 +285,177 @@ const isInTypeGuardedBranch = (node, sourceCode) => {
 const create = context => {
 	const {sourceCode} = context;
 	const declarations = new Map();
+	const memberExpressions = [];
+	const memberExpressionWrites = [];
+
+	const addDirectMemberExpressionWrite = node => {
+		const object = getTypeUnwrappedNode(node.object);
+
+		if (
+			node.computed
+			|| node.property.type !== 'Identifier'
+			|| !['Identifier', 'ThisExpression'].includes(object.type)
+		) {
+			return;
+		}
+
+		const scope = sourceCode.getScope(node);
+
+		memberExpressionWrites.push({
+			propertyName: node.property.name,
+			rootIdentifierName: object.type === 'Identifier' ? object.name : undefined,
+			rootVariable: object.type === 'Identifier' ? findVariable(scope, object) : undefined,
+			thisScopeBoundary: object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined,
+			start: sourceCode.getRange(node)[0],
+			scope,
+		});
+	};
+
+	const addMemberExpressionWrites = node => {
+		switch (node.type) {
+			case 'MemberExpression': {
+				addDirectMemberExpressionWrite(node);
+				break;
+			}
+
+			case 'AssignmentPattern': {
+				addMemberExpressionWrites(node.left);
+				break;
+			}
+
+			case 'RestElement': {
+				addMemberExpressionWrites(node.argument);
+				break;
+			}
+
+			case 'ObjectPattern': {
+				for (const property of node.properties) {
+					addMemberExpressionWrites(property.type === 'Property' ? property.value : property.argument);
+				}
+
+				break;
+			}
+
+			case 'ArrayPattern': {
+				for (const element of node.elements) {
+					if (element) {
+						addMemberExpressionWrites(element);
+					}
+				}
+
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	context.on('AssignmentExpression', node => {
+		addMemberExpressionWrites(node.left);
+	});
+
+	context.on(['ForInStatement', 'ForOfStatement'], node => {
+		if (node.left.type !== 'VariableDeclaration') {
+			addMemberExpressionWrites(node.left);
+		}
+	});
+
+	context.on('UpdateExpression', node => {
+		if (node.argument.type === 'MemberExpression') {
+			addDirectMemberExpressionWrite(node.argument);
+		}
+	});
+
+	context.on('UnaryExpression', node => {
+		if (
+			node.operator === 'delete'
+			&& node.argument.type === 'MemberExpression'
+		) {
+			addDirectMemberExpressionWrite(node.argument);
+		}
+	});
 
 	context.on('VariableDeclarator', node => {
 		if (!(
 			node.id.type === 'ObjectPattern'
+			&& node.parent.kind === 'const'
 			&& node.init
-			&& node.init.type !== 'Literal'
 			// Ignore any complex expressions (e.g. arrays, functions)
 			&& isSimpleExpression(node.init)
 		)) {
 			return;
 		}
 
-		const rootIdentifier = getRootIdentifier(node.init);
-		declarations.set(sourceCode.getText(node.init), {
+		const rootIdentifier = node.init.type === 'Identifier' ? node.init : undefined;
+		const declaration = {
 			scope: sourceCode.getScope(node),
 			object: node.init,
 			rootIdentifierName: rootIdentifier?.name,
 			rootVariable: rootIdentifier && findVariable(sourceCode.getScope(node), rootIdentifier),
+			thisScopeBoundary: node.init.type === 'ThisExpression' ? getThisScopeBoundary(node.init) : undefined,
 			objectPattern: node.id,
-		});
+		};
+		const key = sourceCode.getText(node.init);
+
+		declarations.set(key, [...(declarations.get(key) ?? []), declaration]);
 	});
 
-	context.on('MemberExpression', node => {
+	const getProblem = node => {
 		if (shouldIgnoreMemberExpression(node)) {
 			return;
 		}
 
-		const declaration = declarations.get(sourceCode.getText(node.object));
+		const object = getTypeUnwrappedNode(node.object);
+		const matchingDeclarations = declarations.get(sourceCode.getText(object));
 
-		if (!declaration) {
+		if (!matchingDeclarations) {
 			return;
 		}
 
 		const memberScope = sourceCode.getScope(node);
-		const memberRootIdentifier = getRootIdentifier(node.object);
+		const memberRootIdentifier = object.type === 'Identifier' ? object : undefined;
 		const memberRootVariable = memberRootIdentifier && findVariable(memberScope, memberRootIdentifier);
-		if (
-			declaration.rootIdentifierName
-			&& memberRootIdentifier?.name === declaration.rootIdentifierName
-			&& memberRootVariable !== declaration.rootVariable
-		) {
-			return;
-		}
-
-		if (isRootVariableReassigned(declaration, node, memberScope, sourceCode)) {
-			return;
-		}
-
-		const {scope, objectPattern} = declaration;
-
-		// Property is destructured outside the current scope
-		if (!isChildInParentScope(memberScope, scope)) {
-			return;
-		}
-
+		const memberThisScopeBoundary = object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined;
 		const member = sourceCode.getText(node.property);
+
+		let destructuredMember;
+
+		for (const declaration of matchingDeclarations.toReversed()) {
+			if (!isMatchingDeclaration({
+				declaration,
+				memberExpressionNode: node,
+				memberScope,
+				memberRootIdentifier,
+				memberRootVariable,
+				memberThisScopeBoundary,
+				memberExpressionWrites,
+				sourceCode,
+			})) {
+				continue;
+			}
+
+			const destructuredProperties = declaration.objectPattern.properties.filter(property =>
+				isIdentifierProperty(property)
+				&& property.value.type === 'Identifier');
+
+			destructuredMember = getAvailableDestructuredMember(destructuredProperties, member, memberScope, sourceCode);
+
+			if (destructuredMember) {
+				break;
+			}
+		}
+
+		if (!destructuredMember) {
+			return;
+		}
 
 		if (isInTypeGuardedBranch(node, sourceCode)) {
 			return;
 		}
 
-		const memberDestructuredInNestedPattern = isMemberDestructuredInNestedPatternWithRest(objectPattern, member);
-
-		const destructuredProperties = objectPattern.properties.filter(property =>
-			isIdentifierProperty(property)
-			&& property.value.type === 'Identifier');
-
-		const lastProperty = objectPattern.properties.at(-1);
-		const hasRest = lastProperty?.type === 'RestElement';
 		const expression = sourceCode.getText(node);
-
-		// Member might already be destructured
-		const destructuredMember = destructuredProperties.find(property =>
-			property.key.name === member);
-
-		if (!destructuredMember) {
-			if (memberDestructuredInNestedPattern) {
-				return;
-			}
-
-			// Don't destructure additional members when rest is used
-			if (hasRest) {
-				return;
-			}
-
-			// Destructured member collides with an existing identifier
-			if (getAvailableVariableName(member, [memberScope]) !== member) {
-				return;
-			}
-		}
 
 		// Don't try to fix nested member expressions
 		if (node.parent.type === 'MemberExpression') {
@@ -331,7 +465,7 @@ const create = context => {
 			};
 		}
 
-		const newMember = destructuredMember ? destructuredMember.value.name : member;
+		const newMember = destructuredMember.value.name;
 
 		return {
 			node,
@@ -342,20 +476,23 @@ const create = context => {
 					expression,
 					property: newMember,
 				},
-				* fix(fixer) {
-					const {properties} = objectPattern;
-					const lastProperty = properties.at(-1);
-
-					yield fixer.replaceText(node, newMember);
-
-					if (!destructuredMember) {
-						yield lastProperty
-							? fixer.insertTextAfter(lastProperty, `, ${newMember}`)
-							: fixer.replaceText(objectPattern, `{${newMember}}`);
-					}
-				},
+				fix: fixer => fixer.replaceText(node, newMember),
 			}],
 		};
+	};
+
+	context.on('MemberExpression', node => {
+		memberExpressions.push(node);
+	});
+
+	context.onExit('Program', function * () {
+		for (const node of memberExpressions) {
+			const problem = getProblem(node);
+
+			if (problem) {
+				yield problem;
+			}
+		}
 	});
 };
 

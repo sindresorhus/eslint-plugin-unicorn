@@ -42,6 +42,16 @@ test({
 			console.log(a, foo.b());
 		`,
 		outdent`
+			const {a} = foo;
+			console.log(a, foo.b);
+		`,
+		outdent`
+			const {a} = this;
+			if (a) {
+				console.log(this.expensive);
+			}
+		`,
+		outdent`
 			const {a} = foo();
 			console.log(a, foo().b);
 		`,
@@ -62,6 +72,30 @@ test({
 			console.log(foo.bar);
 		`,
 		outdent`
+			const {a} = foo.bar;
+			console.log(foo.bar.a);
+		`,
+		outdent`
+			const {a} = foo.bar;
+			foo.bar = other;
+			console.log(foo.bar.a);
+		`,
+		outdent`
+			const {a} = foo.bar;
+			foo.bar++;
+			console.log(foo.bar.a);
+		`,
+		outdent`
+			const {a} = foo.bar;
+			delete foo.bar;
+			console.log(foo.bar.a);
+		`,
+		outdent`
+			const {a} = this.foo;
+			this.foo = other;
+			console.log(this.foo.a);
+		`,
+		outdent`
 			const {a} = foo;
 			console.log(foo[a]);
 		`,
@@ -72,6 +106,26 @@ test({
 		outdent`
 			const {a} = this;
 			console.log(this);
+		`,
+		outdent`
+			const {a} = this;
+			function foo() {
+				console.log(this.a);
+			}
+		`,
+		outdent`
+			const {a} = this.foo;
+			function foo() {
+				console.log(this.foo.a);
+			}
+		`,
+		outdent`
+			const {a} = this;
+			class Foo {
+				static {
+					console.log(this.a);
+				}
+			}
 		`,
 		outdent`
 			const {a} = null;
@@ -214,6 +268,74 @@ test({
 			foo.a += 1;
 		`,
 		outdent`
+			const {a} = foo;
+			foo.a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			foo.a = 1;
+			console.log((foo).a);
+		`,
+		outdent`
+			const {a} = foo;
+			foo.a++;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			delete foo.a;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			({a: foo.a} = bar);
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			[foo.a] = bar;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			[...foo.a] = bar;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			for (foo.a of bar) {}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			for ([foo.a] of bar) {}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			for ([...foo.a] of bar) {}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			for (foo.a in bar) {}
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			mutate();
+			console.log(foo.a);
+			function mutate() {
+				foo.a = 1;
+			}
+		`,
+		outdent`
+			let {a} = foo;
+			a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
 			const {a: {b}} = foo;
 			(new foo.a).b;
 		`,
@@ -231,6 +353,100 @@ test({
 		outdent`
 			const {a: b} = foo;
 			console.log(foo.b);
+		`,
+		outdent`
+			const {'a': b} = foo;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {[a]: b} = foo;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			const bar = foo.b;
+		`,
+		outdent`
+			const {a} = foo;
+			console.log(foo.b);
+			console.log(foo.b);
+		`,
+		outdent`
+			const {
+				a: {
+					b
+				}
+			} = foo;
+			console.log(foo.a.c);
+		`,
+		outdent`
+			const {
+				a: {
+					b
+				}
+			} = foo;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {
+				a: {
+					b,
+					...other
+				} = fallback
+			} = foo;
+			console.log(foo.a, b, other);
+		`,
+		outdent`
+			const {
+				a: [
+					b,
+					...other
+				]
+			} = foo;
+			console.log(foo.a, b, other);
+		`,
+		outdent`
+			const {
+				a: {
+					b
+				}
+			} = foo;
+			console.log(foo.c);
+		`,
+		outdent`
+			const {} = foo;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a: b, c} = foo;
+			console.log(foo.d);
+		`,
+		outdent`
+			const {a} = foo;
+			console.log('foo', foo.b);
+		`,
+		outdent`
+			const {a} = foo;
+			console.log(
+				'foo', // comment
+				foo.b // comment
+			);
+		`,
+		outdent`
+			const {a} = foo;
+			const {b} = foo;
+			console.log(foo.c);
+		`,
+		outdent`
+			console.log(foo.a);
+			const {a} = foo;
+		`,
+		outdent`
+			console.log(foo.a);
+			const {a: value} = foo;
+		`,
+		outdent`
+			const value = foo.a, {a} = foo;
 		`,
 		outdent`
 			let foo = bar;
@@ -267,6 +483,20 @@ test({
 			const {a} = foo;
 			{
 				const foo = bar;
+				console.log(foo.a);
+			}
+		`,
+		outdent`
+			const {a} = foo;
+			{
+				const a = 1;
+				console.log(foo.a);
+			}
+		`,
+		outdent`
+			const {a: value} = foo;
+			{
+				const value = 1;
 				console.log(foo.a);
 			}
 		`,
@@ -337,26 +567,6 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a} = foo;
-				console.log(a, foo.b);
-			`,
-			suggestions: [outdent`
-				const {a, b} = foo;
-				console.log(a, b);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {a} = foo.bar;
-				console.log(foo.bar.a);
-			`,
-			suggestions: [outdent`
-				const {a} = foo.bar;
-				console.log(a);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
 				const {bar} = foo;
 				const {a} = foo.bar;
 			`,
@@ -367,100 +577,6 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a} = foo;
-				const bar = foo.b;
-			`,
-			suggestions: [outdent`
-				const {a, b} = foo;
-				const bar = b;
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {a} = foo;
-				console.log(foo.b);
-				console.log(foo.b);
-			`,
-			suggestions: [outdent`
-				const {a, b} = foo;
-				console.log(b);
-				console.log(foo.b);
-			`, outdent`
-				const {a, b} = foo;
-				console.log(foo.b);
-				console.log(b);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {
-					a: {
-						b
-					}
-				} = foo;
-				console.log(foo.a.c);
-			`,
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {
-					a: {
-						b
-					}
-				} = foo;
-				console.log(foo.a);
-			`,
-			suggestions: [outdent`
-				const {
-					a: {
-						b
-					}, a
-				} = foo;
-				console.log(a);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {
-					a: {
-						b,
-						...other
-					} = fallback
-				} = foo;
-				console.log(foo.a, b, other);
-			`,
-			suggestions: [outdent`
-				const {
-					a: {
-						b,
-						...other
-					} = fallback, a
-				} = foo;
-				console.log(a, b, other);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {
-					a: [
-						b,
-						...other
-					]
-				} = foo;
-				console.log(foo.a, b, other);
-			`,
-			suggestions: [outdent`
-				const {
-					a: [
-						b,
-						...other
-					], a
-				} = foo;
-				console.log(a, b, other);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
 				const {
 					a: {
 						b,
@@ -478,34 +594,6 @@ test({
 					},
 					a
 				} = foo;
-				console.log(a);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {
-					a: {
-						b
-					}
-				} = foo;
-				console.log(foo.c);
-			`,
-			suggestions: [outdent`
-				const {
-					a: {
-						b
-					}, c
-				} = foo;
-				console.log(c);
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {} = foo;
-				console.log(foo.a);
-			`,
-			suggestions: [outdent`
-				const {a} = foo;
 				console.log(a);
 			`],
 		}),
@@ -521,6 +609,34 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
+				const {a} = this;
+				const foo = () => this.a;
+			`,
+			suggestions: [outdent`
+				const {a} = this;
+				const foo = () => a;
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				class Foo {
+					static {
+						const {a} = this;
+						console.log(this.a);
+					}
+				}
+			`,
+			suggestions: [outdent`
+				class Foo {
+					static {
+						const {a} = this;
+						console.log(a);
+					}
+				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
 				const {a: b} = foo;
 				console.log(foo.a);
 			`,
@@ -531,38 +647,92 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a: b, c} = foo;
-				console.log(foo.d);
+				const {a} = foo;
+				const {b} = foo;
+				console.log(foo.a);
 			`,
 			suggestions: [outdent`
-				const {a: b, c, d} = foo;
-				console.log(d);
+				const {a} = foo;
+				const {b} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a: first} = foo;
+				console.log(foo.a);
+				const {a: second} = foo;
+			`,
+			suggestions: [outdent`
+				const {a: first} = foo;
+				console.log(first);
+				const {a: second} = foo;
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a: first} = foo;
+				const {a: second} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				const {a: first} = foo;
+				const {a: second} = foo;
+				console.log(second);
 			`],
 		}),
 		invalidTestCase({
 			code: outdent`
 				const {a} = foo;
-				console.log('foo', foo.b);
+				console.log(foo.a);
+				foo.a = 1;
 			`,
 			suggestions: [outdent`
-				const {a, b} = foo;
-				console.log('foo', b);
+				const {a} = foo;
+				console.log(a);
+				foo.a = 1;
 			`],
 		}),
 		invalidTestCase({
 			code: outdent`
 				const {a} = foo;
-				console.log(
-					'foo', // comment
-					foo.b // comment
-				);
+				bar.a = 1;
+				console.log(foo.a);
 			`,
 			suggestions: [outdent`
-				const {a, b} = foo;
-				console.log(
-					'foo', // comment
-					b // comment
-				);
+				const {a} = foo;
+				bar.a = 1;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				foo.a = 1;
+				const {a} = foo;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				foo.a = 1;
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				{
+					const foo = {};
+					foo.a = 1;
+				}
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				{
+					const foo = {};
+					foo.a = 1;
+				}
+				console.log(a);
 			`],
 		}),
 		invalidTestCase({
@@ -577,18 +747,6 @@ test({
 				function bar() {
 					console.log(a);
 				}
-			`],
-		}),
-		invalidTestCase({
-			code: outdent`
-				const {a} = foo;
-				const {b} = foo;
-				console.log(foo.c);
-			`,
-			suggestions: [outdent`
-				const {a} = foo;
-				const {b, c} = foo;
-				console.log(c);
 			`],
 		}),
 		invalidTestCase({
@@ -612,19 +770,6 @@ test({
 			`],
 		}),
 		// Actual message
-		{
-			code: outdent`
-				const {
-					a: {
-						b
-					}
-				} = foo;
-				console.log(foo.a.c); // 2
-			`,
-			errors: [{
-				message: 'Use destructured variables over properties.',
-			}],
-		},
 		{
 			code: outdent`
 				const {a} = foo;
@@ -668,29 +813,33 @@ test({
 test.typescript({
 	valid: [
 		outdent`
-			const {a}: {a: string} & ({b: number} | {c: number} | {}) = params;
+			const {a, b, c}: {a: string; b?: number; c?: number} = params;
 			const value = 'b' in params ? params.b : 'c' in params ? params.c : undefined;
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
+			const {a, b}: {a: string; b?: number} = params;
 			if ('b' in params) {
 				console.log(params.b);
 			}
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
+			const {a, b}: {a: string; b?: number} = params;
 			if ('b' in params && condition) {
 				console.log(params.b);
 			}
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
+			const {a, b}: {a: string; b?: number} = params;
+			const value = 'b' in params && params.b;
+		`,
+		outdent`
+			const {a, b}: {a: string; b?: number} = params;
 			if ('b' in params) {
 				const getValue = () => params.b;
 			}
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
+			const {a, b}: {a: string; b?: number} = params;
 			if ('b' in params) {
 				const getValue = function () {
 					return params.b;
@@ -698,7 +847,7 @@ test.typescript({
 			}
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
+			const {a, b}: {a: string; b?: number} = params;
 			if ('b' in params) {
 				const value = {
 					get() {
@@ -708,36 +857,42 @@ test.typescript({
 			}
 		`,
 		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
-			if ('b' in params) {
-				class Value {
-					static {
-						console.log(params.b);
-					}
-				}
-			}
-		`,
-		outdent`
-			const {a}: {a: string} & ({b: number} | {}) = params;
-			const value = 'b' in params && params.b;
-		`,
-		outdent`
 			const {b}: {b?: number} = params;
 			if ('b' in params) {
 				console.log(params.b);
 			}
 		`,
+		outdent`
+			const {a} = foo;
+			foo!.a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(foo as Foo).a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(<Foo>foo).a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(foo satisfies Foo).a = 1;
+			console.log(foo.a);
+		`,
 	],
 	invalid: [
 		invalidTestCase({
 			code: outdent`
-				const {a}: {a: string; b: number; c?: unknown} = params;
+				const {a, b}: {a: string; b?: number; c?: unknown} = params;
 				if ('c' in params) {
 					console.log(params.b);
 				}
 			`,
 			suggestions: [outdent`
-				const {a, b}: {a: string; b: number; c?: unknown} = params;
+				const {a, b}: {a: string; b?: number; c?: unknown} = params;
 				if ('c' in params) {
 					console.log(b);
 				}
@@ -745,7 +900,47 @@ test.typescript({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a}: {a: string; b?: number} = params;
+				const {a} = foo;
+				console.log(foo!.a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((foo as Foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((<Foo>foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((foo satisfies Foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a, b}: {a: string; b?: number} = params;
 				if ('b' in params) {
 					class Value {
 						get() {
@@ -767,7 +962,7 @@ test.typescript({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a}: {a: string; b?: number} = params;
+				const {a, b}: {a: string; b?: number} = params;
 				if ('b' in params) {
 					class Value {
 						accessor value = params.b;
@@ -785,7 +980,7 @@ test.typescript({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a}: {a: string; b?: number} = params;
+				const {a, b}: {a: string; b?: number} = params;
 				if ('b' in params) {
 					class Value {
 						value = params.b;
@@ -803,7 +998,7 @@ test.typescript({
 		}),
 		invalidTestCase({
 			code: outdent`
-				const {a}: {a: string; b?: number} = params;
+				const {a, b}: {a: string; b?: number} = params;
 				if ('b' in params) {
 					function getValue() {
 						return params.b;
