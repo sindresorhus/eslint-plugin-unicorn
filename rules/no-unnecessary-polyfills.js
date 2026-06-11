@@ -1,4 +1,5 @@
 import path from 'node:path';
+import browserslist from 'browserslist';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from 'change-case';
 import isStaticRequire from './ast/is-static-require.js';
@@ -258,14 +259,24 @@ function getTargets(options, dirname) {
 		return options.targets;
 	}
 
+	let browserslistConfig;
+	try {
+		browserslistConfig = browserslist.loadConfig({path: dirname, env: 'production'});
+	} catch {
+		return;
+	}
+
+	if (browserslistConfig) {
+		return browserslistConfig;
+	}
+
 	const packageJsonResult = readPackageJson(dirname);
 
 	if (!packageJsonResult) {
 		return;
 	}
 
-	const {browserslist, engines} = packageJsonResult.packageJson;
-	return browserslist ?? engines;
+	return packageJsonResult.packageJson.engines;
 }
 
 function create(context) {

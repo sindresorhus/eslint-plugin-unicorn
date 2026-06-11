@@ -61,6 +61,7 @@
 	"dependencies": {
 		"@babel/helper-validator-identifier": "^7.29.7",
 		"@eslint-community/eslint-utils": "^4.9.1",
+		"browserslist": "^4.28.2",
 		"change-case": "^5.4.4",
 		"ci-info": "^4.4.0",
 		"core-js-compat": "^3.49.0",

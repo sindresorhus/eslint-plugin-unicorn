@@ -1,0 +1,10 @@
+{
+	"browserslist": {
+		"production": [
+			"node 6"
+		],
+		"development": [
+			"node 0.1.0"
+		]
+	}
+}

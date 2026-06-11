@@ -1,0 +1,5 @@
+[production]
+node 0.1.0
+
+[development]
+node 6
