@@ -77,6 +77,21 @@ foo.some(x => {
 foo.includes('foo');
 ```
 
+With TypeScript type information, boolean array predicates are also simplified:
+
+```ts
+const array: boolean[] = [true, false];
+
+// ❌
+array.some(value => value);
+
+// ❌
+array.some(value => Boolean(value));
+
+// ✅
+array.includes(true);
+```
+
 ```js
 // ✅
 foo.indexOf('foo') !== -n;

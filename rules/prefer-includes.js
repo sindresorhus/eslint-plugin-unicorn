@@ -50,6 +50,7 @@ const getProblem = (context, node, target, argumentsNodes) => {
 const includesOverSomeRule = simpleArraySearchRule({
 	method: 'some',
 	replacement: 'includes',
+	checkBooleanPredicate: true,
 });
 
 /** @param {import('eslint').Rule.RuleContext} context */
