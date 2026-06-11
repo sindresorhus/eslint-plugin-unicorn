@@ -11,6 +11,8 @@
 
 [`Reflect.apply()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply) is arguably less verbose and easier to understand. In addition, when you accept arbitrary methods, it's not safe to assume `.apply()` exists or is not overridden.
 
+If you prefer `.apply()` calls to be converted to spread syntax when it preserves the `this` value, enable ESLint's built-in [`prefer-spread`](https://eslint.org/docs/latest/rules/prefer-spread) rule.
+
 ## Examples
 
 ```js
