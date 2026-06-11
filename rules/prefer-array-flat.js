@@ -158,7 +158,7 @@ const lodashFlattenFunctions = [
 	'underscore.flatten',
 ];
 
-const pascalCaseNamePattern = /^\p{Lu}/u;
+const pascalCaseNamePattern = /^\p{Uppercase_Letter}/u;
 const isPascalCaseIdentifier = node =>
 	node.type === 'Identifier'
 	&& pascalCaseNamePattern.test(node.name);

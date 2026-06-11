@@ -33,19 +33,21 @@ function isImportedBuffer(identifier, context) {
 
 // Whether the receiver of a `.toString('base64')` call is byte-like (`Buffer`/`Uint8Array`). Only consulted when type information is available; without it, callers should report anyway, since requiring type information would make the rule too narrow. With type information, a receiver whose type is known and not byte-like (for example a userland object with a custom `toString`) is skipped to avoid false positives. `any`/`unknown` types are treated as byte-like, since we cannot rule them out.
 function isByteLikeReceiver(node, parserServices) {
-	const type = parserServices.getTypeAtLocation(node);
-	const typeChecker = parserServices.program.getTypeChecker();
+	// Resolving and inspecting the receiver's type can crash deep inside TypeScript 6 while it computes
+	// module specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
+	// We cannot then confirm the receiver is byte-like, so we conservatively skip reporting rather than crash the lint run.
+	try {
+		const type = parserServices.getTypeAtLocation(node);
 
-	const parts = type.isUnion() || type.isIntersection() ? type.types : [type];
-	return parts.some(part => {
-		const name = (part.getSymbol() ?? part.aliasSymbol)?.getName();
-		if (name === 'Buffer' || name === 'Uint8Array') {
-			return true;
-		}
-
-		const text = typeChecker.typeToString(part);
-		return text === 'any' || text === 'unknown';
-	});
+		const parts = type.isUnion() || type.isIntersection() ? type.types : [type];
+		return parts.some(part => {
+			// `intrinsicName` exposes `any`/`unknown` without `typeChecker.typeToString()`, which is one of the calls that crashes.
+			const name = (part.getSymbol() ?? part.aliasSymbol)?.getName();
+			return name === 'Buffer' || name === 'Uint8Array' || part.intrinsicName === 'any' || part.intrinsicName === 'unknown';
+		});
+	} catch {
+		return false;
+	}
 }
 
 // Whether `node` (the object of a `.from()` call) refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.

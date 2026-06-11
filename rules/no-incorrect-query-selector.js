@@ -137,7 +137,7 @@ const getStaticSelector = node => {
 	return quasi.value.cooked;
 };
 
-const isSimpleIdSelector = selector => /^#[A-Za-z_\-][\w\-]*$/v.test(selector);
+const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
 
 const getCallFromIdentifier = (node, sourceCode, isCall) => {
 	if (node.type !== 'Identifier') {

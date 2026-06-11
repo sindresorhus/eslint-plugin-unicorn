@@ -114,7 +114,7 @@ const create = context => {
 	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; HTML comments appear as `html` nodes.
 	context.on('root', node => {
 		const isHtmlComment = child =>
-			child.type === 'html' && /^<!--(?:(?!-->)[\S\s])*-->$/.test(child.value.trim());
+			child.type === 'html' && /^<!--(?:(?!-->)[\s\S])*-->$/.test(child.value.trim());
 
 		if (node.children.some(child => !isHtmlComment(child))) {
 			return;

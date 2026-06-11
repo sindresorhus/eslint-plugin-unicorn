@@ -16,7 +16,7 @@ const messages = {
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
 
-const getClassName = name => upperFirst(name).replace(/(?:error|)$/i, 'Error');
+const getClassName = name => upperFirst(name).replace(/(?:error)?$/i, 'Error');
 
 const getNameProperty = className => `
 	name = '${className}';

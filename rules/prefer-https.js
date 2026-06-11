@@ -5,10 +5,10 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer HTTPS over HTTP.',
 };
 
-const HTTP_URL = /(?<![\w+.-])http:\/\/(?<authority>[^\s/?#"'`<>()\\,;!\]}{]+)/gu;
+const HTTP_URL = /(?<![\w+\-.])http:\/\/(?<authority>[^\s!"#'(),/;<>?\\\]`{}]+)/gu;
 // Like `HTTP_URL`, but captures the full URL (including the path) so it can be
 // compared against known namespace URIs. Sticky so it matches at a given index.
-const HTTP_URL_FULL = /http:\/\/[^\s"'`<>()\\,;!\]}{]+/uy;
+const HTTP_URL_FULL = /http:\/\/[^\s!"'(),;<>\\\]`{}]+/uy;
 
 // Well-known XML namespace URIs are opaque identifiers defined to use the
 // `http:` scheme. They are not network requests and must not be rewritten.
@@ -69,7 +69,7 @@ function isXmlNamespaceValue(text, matchIndex) {
 	const preceding = text.slice(Math.max(0, matchIndex - 30), matchIndex);
 	// \b prevents matching words ending in "xmlns" (e.g. notxmlns).
 	// [\w.-]+ covers XML NCNames, which allow hyphens and dots (e.g. xmlns:xsl-fo).
-	return /\bxmlns(?::[\w.-]+)?\s*=\s*["']?$/i.test(preceding);
+	return /\bxmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
 }
 
 function isWellKnownXmlNamespace(text, matchIndex) {

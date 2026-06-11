@@ -143,7 +143,7 @@ Controls how global variables are handled. When not specified, uses ESLint's lan
 }
 ```
 
-## Examples
+## Configuration examples
 
 ### Custom function names
 

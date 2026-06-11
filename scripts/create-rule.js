@@ -54,7 +54,7 @@ async function getData() {
 					return 'Rule name is required.';
 				}
 
-				if (!/^[a-z-]+$/.test(value)) {
+				if (!/^[-a-z]+$/.test(value)) {
 					return 'Invalid rule name.';
 				}
 

@@ -1,12 +1,31 @@
 import globals from 'globals';
 import xo from 'eslint-config-xo';
+import jsdocPlugin from 'eslint-plugin-jsdoc';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
-import jsdoc from 'eslint-plugin-jsdoc';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
 
+const disabledJsdocRules = Object.fromEntries(
+	Object.keys(jsdocPlugin.rules).map(name => [`jsdoc/${name}`, 'off']),
+);
+
+// `eslint-config-xo` and `eslint-plugin-ava` both define `plugin json` for
+// different file scopes; keep everything as-is except dropping the duplicate json
+// entry on the package.json block to avoid flat-config plugin redefinition.
+const xoConfig = xo().map(configBlock => {
+	if (!(configBlock.files?.includes('**/package.json') && configBlock.plugins?.json)) {
+		return configBlock;
+	}
+
+	const {json, ...plugins} = configBlock.plugins;
+	return {
+		...configBlock,
+		plugins,
+	};
+});
+
 const config = [
-	...xo(),
+	...xoConfig,
 	nodeStyleTextConfig,
 	internalRules,
 	{
@@ -22,8 +41,14 @@ const config = [
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
 			'test/integration/{fixtures,fixtures-local}/**',
+			// Snapshot fixtures are generated markdown and currently trigger
+			// markdown processor `getLoc` crashes under this ESLint setup.
+			'test/**/snapshots/**',
 			'**/*.ts',
 		],
+	},
+	{
+		rules: disabledJsdocRules,
 	},
 	{
 		files: ['**/*.js'],
@@ -53,6 +78,16 @@ const config = [
 			'@stylistic/curly-newline': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
 			'unicorn/template-indent': ['error', {indent: '\t'}],
+			// These `regexp/*` rules flag our own rule-implementation regexes, which run on source
+			// code at lint time rather than untrusted input, and rewriting them would hurt readability.
+			'regexp/optimal-quantifier-concatenation': 'off',
+			'regexp/no-super-linear-move': 'off',
+			'regexp/no-super-linear-backtracking': 'off',
+			'regexp/strict': 'off',
+			'regexp/no-control-character': 'off',
+			'regexp/prefer-named-capture-group': 'off',
+			// Our long-standing `eslint-disable` directives predate this rule and are self-explanatory.
+			'@eslint-community/eslint-comments/require-description': 'off',
 		},
 	},
 	{
@@ -80,17 +115,6 @@ const config = [
 			'eslint-plugin/require-meta-has-suggestions': 'off',
 			'eslint-plugin/require-meta-schema': 'off',
 			'eslint-plugin/require-meta-schema-description': 'error',
-		},
-	},
-	{
-		files: [
-			'**/*.js',
-		],
-		plugins: {
-			jsdoc,
-		},
-		rules: {
-			'jsdoc/require-asterisk-prefix': ['error', 'never', {}],
 		},
 	},
 ];

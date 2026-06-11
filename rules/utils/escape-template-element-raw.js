@@ -1,5 +1,5 @@
 const escapeTemplateElementRaw = string => string.replaceAll(
-	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>(?:`|\$(?={)))/g,
+	/(?<=(?:^|[^\\])(?:\\\\)*)(?<symbol>`|\$(?={))/g,
 	String.raw`\$<symbol>`,
 );
 

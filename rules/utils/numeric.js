@@ -30,7 +30,7 @@ export function parseNumber(text) {
 		mark = '',
 		sign = '',
 		power = '',
-	} = text.match(/^(?<number>[\d._]*?)(?:(?<mark>[Ee])(?<sign>[+-])?(?<power>[\d_]+))?$/).groups;
+	} = text.match(/^(?<number>[\d._]*)(?:(?<mark>e)(?<sign>[+-])?(?<power>[\d_]+))?$/i).groups;
 
 	return {
 		number,
