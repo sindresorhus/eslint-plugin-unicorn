@@ -26,6 +26,8 @@ test.snapshot({
 		'const Bar = new Foo()[Bar];',
 		'const Bar = (new Foo())[Bar];',
 		'const bar = (new Foo)?.getBar();',
+		'const baz = new Foo().bar.baz;',
+		'new Foo().bar`x`;',
 		'const Bar = new (Foo().Bar);',
 		'const foo = new Foo.Bar;',
 		'const bar = new foo.Bar();',
