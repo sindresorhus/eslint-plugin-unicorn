@@ -206,15 +206,6 @@ test({
 		outdent`
 			const foo = <JSX/>;
 		`,
-		// Functions that could be extracted are conservatively ignored due to JSX masking references
-		outdent`
-			function Foo() {
-				function Bar () {
-					return <div />
-				}
-				return <div>{ Bar() }</div>
-			}
-		`,
 		outdent`
 			function foo() {
 				function bar() {
@@ -223,10 +214,11 @@ test({
 			}
 		`,
 		outdent`
-			function foo() {
-				function bar() {
-					return <JSX/>;
+			function doFoo(Components) {
+				function Bar() {
+					return <Components.Foo />;
 				}
+				return Bar;
 			}
 		`,
 		// `this`
@@ -826,13 +818,48 @@ test({
 					function Bar () {
 						return <div />
 					}
+					return <div>{ Bar() }</div>
+				}
+			`,
+			errors: [createError('function \'Bar\'')],
+		},
+		{
+			code: outdent`
+				function foo() {
+					function bar() {
+						return <JSX/>;
+					}
+				}
+			`,
+			errors: [createError('function \'bar\'')],
+		},
+		// Lowercase JSX tags are intrinsic elements, not references.
+		{
+			code: outdent`
+				function foo(foo) {
+					function bar() {
+						return <foo />;
+					}
+				}
+			`,
+			errors: [createError('function \'bar\'')],
+		},
+		{
+			code: outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
 					function doBaz() {
 						return 42
 					}
 					return <div>{ doBaz() }</div>
 				}
 			`,
-			errors: [createError('function \'doBaz\'')],
+			errors: [
+				createError('function \'Bar\''),
+				createError('function \'doBaz\''),
+			],
 		},
 		// JSX
 		{
@@ -959,6 +986,32 @@ test({
 			errors: [createError('arrow function')],
 		},
 	],
+});
+
+test.typescript({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
+	},
+	valid: [
+		{
+			code: outdent`
+				function doFoo(FooComponent) {
+					function Bar() {
+						return <FooComponent />;
+					}
+					return Bar;
+				}
+			`,
+			filename: 'index.tsx',
+		},
+	],
+	invalid: [],
 });
 
 test.typescript({

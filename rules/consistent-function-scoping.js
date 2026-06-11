@@ -219,26 +219,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const {scopeManager} = sourceCode;
 
-	const functions = [];
-
-	context.on(functionTypes, () => {
-		functions.push(false);
-	});
-
-	context.on('JSXElement', () => {
-		// Turn off this rule if we see a JSX element because scope
-		// references does not include JSXElement nodes.
-		if (functions.length > 0) {
-			functions[functions.length - 1] = true;
-		}
-	});
-
 	context.onExit(functionTypes, node => {
-		const currentFunctionHasJsx = functions.pop();
-		if (currentFunctionHasJsx) {
-			return;
-		}
-
 		if (node.type === 'ArrowFunctionExpression' && !checkArrowFunctions) {
 			return;
 		}
