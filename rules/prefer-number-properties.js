@@ -27,6 +27,11 @@ const isNegative = node => {
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
+const isDeletedNegativeInfinity = node => {
+	const {parent} = node;
+	return isNegative(node) && parent.parent.type === 'UnaryExpression' && parent.parent.operator === 'delete' && parent.parent.argument === parent;
+};
+
 function isBase10OrNoRadixParseIntCall(node, context) {
 	const {parent} = node;
 	if (parent.type !== 'CallExpression' || parent.callee !== node) {
@@ -134,6 +139,7 @@ const create = context => {
 		handle: checkProperty,
 		filter: ({node, path: [name]}) =>
 			!isLeftHandSide(node)
+			&& !(name === 'Infinity' && isDeletedNegativeInfinity(node))
 			&& !(name === 'parseInt' && isBase10OrNoRadixParseIntCall(node, context)),
 	}).listen();
 };
@@ -161,7 +167,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Number` static properties over global ones.',
+			description: 'Prefer `Number` static methods over global functions.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
@@ -170,7 +176,7 @@ const config = {
 		defaultOptions: [
 			{
 				checkInfinity: false,
-				checkNaN: true,
+				checkNaN: false,
 			},
 		],
 		messages,

@@ -122,6 +122,7 @@ export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
+export {default as 'prefer-global-number-constants'} from './prefer-global-number-constants.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-https'} from './prefer-https.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
