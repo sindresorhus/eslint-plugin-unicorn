@@ -225,7 +225,7 @@ const keyTestsComputedIsValid = [
 	// Interface members key
 	`interface I { '${TEST_STRING}' }`,
 ];
-const toComputed = code => code.replace(`'${TEST_STRING}'`, `['${TEST_STRING}']`);
+const toComputed = code => code.replace(`'${TEST_STRING}'`, () => `['${TEST_STRING}']`);
 test.snapshot({
 	testerOptions: {
 		languageOptions: {parser: parsers.typescript},

@@ -111,7 +111,7 @@ const create = context => {
 			},
 		};
 
-		const fixed = string.replace(regex, suggest);
+		const fixed = string.replace(regex, () => suggest);
 		const fix = type === 'Literal'
 			? fixer => {
 				const [quote] = raw;
