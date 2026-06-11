@@ -48,17 +48,6 @@ const foo = underscore.flatten(array);
 const foo = array.flat();
 ```
 
-```js
-// ❌
-const foo = [].concat(maybeArray);
-
-// ❌
-const foo = Array.prototype.concat.call([], maybeArray);
-
-// ✅
-const foo = [maybeArray].flat();
-```
-
 ## Options
 
 Type: `object`

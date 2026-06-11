@@ -1,10 +1,14 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {getTester} from './utils/test.js';
+import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest, rule} = getTester(import.meta);
 
 // `Array.from`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'[...set].map(() => {});',
 		// TypedArray.from
@@ -157,7 +161,7 @@ test.snapshot({
 });
 
 // `Array#concat`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'new Array.concat(1)',
 		'concat(1)',
@@ -346,8 +350,36 @@ test.snapshot({
 	],
 });
 
+test('fixes chained empty concat calls with no-useless-spread', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix(
+		'const a = [].concat([1]).concat([2]);',
+		[
+			{
+				files: ['**'],
+				languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+				plugins: {
+					'rule-to-test': {
+						rules: {
+							'prefer-spread': rule,
+							'no-useless-spread': plugin.rules['no-useless-spread'],
+						},
+					},
+				},
+				rules: {
+					'rule-to-test/prefer-spread': 'error',
+					'rule-to-test/no-useless-spread': 'error',
+				},
+			},
+		],
+		{filename: 'index.js'},
+	);
+
+	t.is(result.output, 'const a = [1, 2];');
+});
+
 // `Array#slice`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'new Array.slice()',
 		'slice()',
@@ -426,7 +458,7 @@ test.snapshot({
 });
 
 // `Array#toSpliced`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'new Array.toSpliced()',
 		'toSpliced()',
@@ -467,7 +499,7 @@ test.snapshot({
 });
 
 // `String#slice('')`
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'new foo.split("")',
 		'split("")',

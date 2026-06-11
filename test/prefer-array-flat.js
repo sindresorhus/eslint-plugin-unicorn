@@ -172,8 +172,6 @@ test.snapshot({
 		'[].concat(array, EXTRA_ARGUMENT)',
 		'[]?.concat(array)',
 		'[].concat?.(array)',
-	],
-	invalid: [
 		'[].concat(maybeArray)',
 		'[].concat( ((0, maybeArray)) )',
 		'[].concat( ((maybeArray)) )',
@@ -181,6 +179,7 @@ test.snapshot({
 		'[].concat( [[foo]] )',
 		'function foo(){return[].concat(maybeArray)}',
 	],
+	invalid: [],
 });
 
 // `[].concat(...array)`
@@ -208,7 +207,6 @@ test.snapshot({
 });
 
 // - `[].concat.apply([], array)`
-// - `[].concat.call([], maybeArray)`
 // - `[].concat.call([], ...array)`
 test.snapshot({
 	valid: [
@@ -227,6 +225,11 @@ test.snapshot({
 		'[].concat.apply?.([], array)',
 		'[].concat?.apply([], array)',
 		'[]?.concat.apply([], array)',
+		'[].concat.call([], maybeArray)',
+		'[].concat.call([], ((0, maybeArray)))',
+		'[].concat.call([], ((maybeArray)))',
+		'[].concat.call([], [foo])',
+		'[].concat.call([], [[foo]])',
 	],
 	invalid: [
 		'[].concat.apply([], array)',
@@ -234,12 +237,6 @@ test.snapshot({
 		'[].concat.apply([], ((array)))',
 		'[].concat.apply([], [foo])',
 		'[].concat.apply([], [[foo]])',
-
-		'[].concat.call([], maybeArray)',
-		'[].concat.call([], ((0, maybeArray)))',
-		'[].concat.call([], ((maybeArray)))',
-		'[].concat.call([], [foo])',
-		'[].concat.call([], [[foo]])',
 
 		'[].concat.call([], ...array)',
 		'[].concat.call([], ...((0, array)))',
@@ -252,7 +249,6 @@ test.snapshot({
 });
 
 // - `Array.prototype.concat.apply([], array)`
-// - `Array.prototype.concat.call([], maybeArray)`
 // - `Array.prototype.concat.call([], ...array)`
 test.snapshot({
 	valid: [
@@ -275,6 +271,11 @@ test.snapshot({
 		'Array.prototype?.concat.apply([], array)',
 		'Array?.prototype.concat.apply([], array)',
 		'object.Array.prototype.concat.apply([], array)',
+		'Array.prototype.concat.call([], maybeArray)',
+		'Array.prototype.concat.call([], ((0, maybeArray)))',
+		'Array.prototype.concat.call([], ((maybeArray)))',
+		'Array.prototype.concat.call([], [foo])',
+		'Array.prototype.concat.call([], [[foo]])',
 	],
 	invalid: [
 		'Array.prototype.concat.apply([], array)',
@@ -282,12 +283,6 @@ test.snapshot({
 		'Array.prototype.concat.apply([], ((array)))',
 		'Array.prototype.concat.apply([], [foo])',
 		'Array.prototype.concat.apply([], [[foo]])',
-
-		'Array.prototype.concat.call([], maybeArray)',
-		'Array.prototype.concat.call([], ((0, maybeArray)))',
-		'Array.prototype.concat.call([], ((maybeArray)))',
-		'Array.prototype.concat.call([], [foo])',
-		'Array.prototype.concat.call([], [[foo]])',
 
 		'Array.prototype.concat.call([], ...array)',
 		'Array.prototype.concat.call([], ...((0, array)))',
@@ -413,6 +408,31 @@ test.snapshot({
 	valid: [
 		'array.flat()',
 		'array.flat(1)',
+		outdent`
+			before()
+			Array.prototype.concat.call([], +1)
+		`,
+		'Array.prototype.concat.call([], (0, array))',
+		'async function a() { return [].concat(await getArray()); }',
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], .1)
+		`,
+		outdent`
+			before()
+			Array.prototype.concat.call([], 1.0)
+		`,
+		'[].concat(some./**/array)',
+		'[/**/].concat(some./**/array)',
+		'[/**/].concat(some.array)',
 	],
 	invalid: [
 		// ASI
@@ -424,14 +444,8 @@ test.snapshot({
 			before()
 			Array.prototype.concat.apply([], +1)
 		`,
-		outdent`
-			before()
-			Array.prototype.concat.call([], +1)
-		`,
 		// Parentheses
 		'Array.prototype.concat.apply([], (0, array))',
-		'Array.prototype.concat.call([], (0, array))',
-		'async function a() { return [].concat(await getArray()); }',
 		'_.flatten((0, array))',
 		'async function a() { return _.flatten(await getArray()); }',
 		'async function a() { return _.flatten((await getArray())); }',
@@ -441,15 +455,7 @@ test.snapshot({
 		`,
 		outdent`
 			before()
-			Array.prototype.concat.call([], 1)
-		`,
-		outdent`
-			before()
 			Array.prototype.concat.apply([], 1.)
-		`,
-		outdent`
-			before()
-			Array.prototype.concat.call([], 1.)
 		`,
 		outdent`
 			before()
@@ -457,19 +463,7 @@ test.snapshot({
 		`,
 		outdent`
 			before()
-			Array.prototype.concat.call([], .1)
-		`,
-		outdent`
-			before()
 			Array.prototype.concat.apply([], 1.0)
 		`,
-		outdent`
-			before()
-			Array.prototype.concat.call([], 1.0)
-		`,
-		// Comment
-		'[].concat(some./**/array)',
-		'[/**/].concat(some./**/array)',
-		'[/**/].concat(some.array)',
 	],
 });
