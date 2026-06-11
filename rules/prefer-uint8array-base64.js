@@ -43,7 +43,15 @@ function isByteLikeReceiver(node, parserServices) {
 			return true;
 		}
 
-		const text = typeChecker.typeToString(part);
+		let text;
+		try {
+			// TypeScript 6 can crash here when computing module specifiers for certain types.
+			// Treat it as non-byte-like to avoid false positives.
+			text = typeChecker.typeToString(part);
+		} catch {
+			return false;
+		}
+
 		return text === 'any' || text === 'unknown';
 	});
 }

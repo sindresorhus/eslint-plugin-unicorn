@@ -71,9 +71,11 @@ ruleTest({
 		// `>1` means `>=2.0.0`, not `>1.0.0`; `>1000` means `>=1001.0.0`, not `>1000.0.0`
 		'// TODO [>1000]: partial version with > should use semver range semantics',
 		'// TODO [find-up-simple@>1]: find-up-simple is 1.0.1 so >1 should not trigger',
-		'// TODO [engine:node@>20]: node engine is 20.x so >20 should not trigger',
-		'// TODO [peer:eslint@>=10]: peer eslint floor is 9.x so >=10 should not trigger',
-		'// TODO [peer:eslint@>9]: `>9` means `>=10.0.0`, so the 9.x floor should not trigger',
+		// Keep these synced with this package.json: engines.node >=22 and
+		// peerDependencies.eslint >=10.
+		'// TODO [engine:node@>22]: node engine is 22.x so >22 should not trigger',
+		'// TODO [peer:eslint@>=11]: peer eslint floor is 10.x so >=11 should not trigger',
+		'// TODO [peer:eslint@>10]: `>10` means `>=11.0.0`, so the 10.x floor should not trigger',
 		'// TODO [peer:does-not-exist@>=1]: a peer dependency we don\'t declare never triggers',
 		'// TODO [peer:find-up-simple@>=1]: `find-up-simple` is a dependency but not a peer dependency, so `peer:` never triggers',
 		'// TODO [-find-up-simple]: We actually use this.',

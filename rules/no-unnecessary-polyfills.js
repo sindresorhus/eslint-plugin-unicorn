@@ -4,7 +4,10 @@ import {camelCase} from 'change-case';
 import isStaticRequire from './ast/is-static-require.js';
 import {readPackageJson} from './shared/package-json.js';
 
-const {data: compatData, entries: coreJsEntries} = coreJsCompat;
+// `core-js-compat` can be exposed as either the function itself or under `.default`.
+const coreJsCompatModule = coreJsCompat.default ?? coreJsCompat;
+const compatData = coreJsCompatModule?.data ?? {};
+const coreJsEntries = coreJsCompatModule?.entries ?? {};
 
 const MESSAGE_ID_POLYFILL = 'unnecessaryPolyfill';
 const MESSAGE_ID_CORE_JS = 'unnecessaryCoreJsModule';
@@ -31,7 +34,7 @@ const additionalPolyfillPatterns = Object.fromEntries(Object.entries(additionalP
 const prefixes = '(mdn-polyfills/|polyfill-)';
 const suffixes = '(-polyfill)';
 const delimiter = String.raw`(\.|-|\.prototype\.|/)?`;
-const moduleDelimiter = /[.\/]|-/v;
+const moduleDelimiter = /[-./]/;
 
 const getFirstSegment = value => {
 	const [firstSegment = ''] = value.split(moduleDelimiter);

@@ -83,17 +83,23 @@ function fixParse(parse) {
 	};
 }
 
-export const typescriptEslintParser = {
-	...typescriptEslintParserOriginal,
-	parseForESLint: fixParse(typescriptEslintParserOriginal.parseForESLint),
-};
+function getParser(name, parserModule) {
+	const parser = parserModule.default ?? parserModule;
 
-export const vueEslintParser = {
-	...vueEslintParserOriginal,
-	parseForESLint: fixParse(vueEslintParserOriginal.parseForESLint),
-};
+	// Some parser packages expose parseForESLint directly on the module, others only on parse.
+	const parserForESLint = parser.parseForESLint ?? parser.parse;
+	if (typeof parserForESLint !== 'function') {
+		throw new TypeError(`Expected ${name} parser to expose parseForESLint.`);
+	}
 
-export const htmlEslintParser = {
-	...htmlEslintParserOriginal,
-	parseForESLint: fixParse(htmlEslintParserOriginal.parseForESLint),
-};
+	return {
+		...parser,
+		parseForESLint: fixParse(parserForESLint),
+	};
+}
+
+export const typescriptEslintParser = getParser('TypeScript', typescriptEslintParserOriginal);
+
+export const vueEslintParser = getParser('Vue', vueEslintParserOriginal);
+
+export const htmlEslintParser = getParser('HTML', htmlEslintParserOriginal);

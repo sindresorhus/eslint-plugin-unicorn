@@ -95,7 +95,15 @@ function isInAsyncContext(node) {
 // properties, so a union member that is not disposable correctly prevents the suggestion.
 function isDisposableType(type, isAwaited, typeChecker) {
 	return type.getProperties().some(symbol => {
-		const name = typeChecker.symbolToString(symbol);
+		let name;
+		try {
+			// TypeScript 6 can crash here when computing module specifiers for certain symbols.
+			// Treat it as non-disposable to avoid false positives.
+			name = typeChecker.symbolToString(symbol);
+		} catch {
+			return false;
+		}
+
 		return name === '[Symbol.dispose]' || (isAwaited && name === '[Symbol.asyncDispose]');
 	});
 }
