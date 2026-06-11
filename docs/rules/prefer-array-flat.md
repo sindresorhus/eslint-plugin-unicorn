@@ -48,6 +48,8 @@ const foo = underscore.flatten(array);
 const foo = array.flat();
 ```
 
+This rule intentionally does not report plain concat normalization like `[].concat(value)` or `Array.prototype.concat.call([], value)`. Those patterns do not consume an array of concat arguments, so they are better handled by [`prefer-spread`](./prefer-spread.md), which can replace ordinary `Array#concat()` usage.
+
 ## Options
 
 Type: `object`
