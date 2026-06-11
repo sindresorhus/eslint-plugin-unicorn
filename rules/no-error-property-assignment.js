@@ -23,7 +23,7 @@ const aggregateErrorProperties = new Set([
 	'errors',
 ]);
 
-const getAllowedProperties = constructorName =>
+const getDisallowedProperties = constructorName =>
 	constructorName === 'AggregateError'
 		? aggregateErrorProperties
 		: errorProperties;
@@ -62,6 +62,8 @@ const getStaticPropertyNameFromProperty = property => {
 const getVariable = (node, context) =>
 	findVariable(context.sourceCode.getScope(node), node);
 
+// Keep TypeScript support syntactic: unwrap assertions and `satisfies` so `new Error() as Error` is recognized, but do not use parser services.
+// A type named `Error` can describe subclasses or values returned from elsewhere, so type-aware matching would exceed the rule's known built-in-instance boundary and make results config-dependent.
 const typeScriptWrapperTypes = new Set([
 	'TSAsExpression',
 	'TSSatisfiesExpression',
@@ -102,36 +104,73 @@ const getVariableFrameNode = variable => {
 	return scope.block;
 };
 
-const setKnownErrorVariable = (knownErrorVariableFrames, variable, constructorName) => {
-	for (const {knownErrorVariables} of knownErrorVariableFrames.toReversed()) {
-		if (knownErrorVariables.has(variable)) {
-			knownErrorVariables.set(variable, constructorName);
-			return;
-		}
+const setKnownErrorVariableFromDeclaration = (knownErrorVariableFrames, variable, constructorName) => {
+	if (updateExistingKnownErrorVariable(knownErrorVariableFrames, variable, constructorName)) {
+		return;
 	}
 
 	const frameNode = getVariableFrameNode(variable);
 	const frame = knownErrorVariableFrames.toReversed().find(frame => frame.node === frameNode);
+	const currentFrame = knownErrorVariableFrames.at(-1);
+	const targetFrame = frame ?? currentFrame;
 
-	(frame ?? knownErrorVariableFrames.at(-1)).knownErrorVariables.set(variable, constructorName);
+	if (
+		targetFrame !== currentFrame
+		&& !canPropagateToFrame(knownErrorVariableFrames, targetFrame)
+	) {
+		getLocalUpdateFrame(knownErrorVariableFrames).knownErrorVariables.set(variable, constructorName);
+		return;
+	}
+
+	targetFrame.knownErrorVariables.set(variable, constructorName);
 };
 
-const setKnownErrorVariableFromAssignment = (knownErrorVariableFrames, variable, constructorName) => {
+const transparentBlockParentTypes = new Set([
+	'BlockStatement',
+	'Program',
+	'StaticBlock',
+	'SwitchCase',
+]);
+
+const isTransparentFrame = frame =>
+	frame.node.type === 'BlockStatement'
+	&& transparentBlockParentTypes.has(frame.node.parent.type)
+	&& !frame.isFunctionBoundary;
+
+const canPropagateToFrame = (knownErrorVariableFrames, targetFrame) => {
+	for (const frame of knownErrorVariableFrames.toReversed()) {
+		if (frame === targetFrame) {
+			return true;
+		}
+
+		if (!isTransparentFrame(frame)) {
+			return false;
+		}
+	}
+
+	return false;
+};
+
+const getLocalUpdateFrame = knownErrorVariableFrames =>
+	knownErrorVariableFrames.toReversed().find(frame => !isTransparentFrame(frame))
+	?? knownErrorVariableFrames.at(-1);
+
+const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, constructorName) => {
 	let crossesFunctionBoundary = false;
 
 	for (const frame of knownErrorVariableFrames.toReversed()) {
 		if (frame.knownErrorVariables.has(variable)) {
-			if (constructorName && frame !== knownErrorVariableFrames.at(-1)) {
-				knownErrorVariableFrames.at(-1).knownErrorVariables.set(variable, constructorName);
-				return;
+			if (canPropagateToFrame(knownErrorVariableFrames, frame)) {
+				frame.knownErrorVariables.set(variable, constructorName);
+				return true;
 			}
 
-			const targetFrame = crossesFunctionBoundary
-				? knownErrorVariableFrames.at(-1)
-				: frame;
+			if (!crossesFunctionBoundary) {
+				frame.knownErrorVariables.set(variable, undefined);
+			}
 
-			targetFrame.knownErrorVariables.set(variable, constructorName);
-			return;
+			getLocalUpdateFrame(knownErrorVariableFrames).knownErrorVariables.set(variable, constructorName);
+			return true;
 		}
 
 		if (frame.isFunctionBoundary) {
@@ -139,7 +178,26 @@ const setKnownErrorVariableFromAssignment = (knownErrorVariableFrames, variable,
 		}
 	}
 
-	knownErrorVariableFrames.at(-1).knownErrorVariables.set(variable, constructorName);
+	return false;
+};
+
+const setKnownErrorVariableFromAssignment = (knownErrorVariableFrames, variable, constructorName) => {
+	if (updateExistingKnownErrorVariable(knownErrorVariableFrames, variable, constructorName)) {
+		return;
+	}
+
+	const frameNode = getVariableFrameNode(variable);
+	const frame = knownErrorVariableFrames.toReversed().find(frame => frame.node === frameNode);
+
+	if (
+		frame
+		&& canPropagateToFrame(knownErrorVariableFrames, frame)
+	) {
+		frame.knownErrorVariables.set(variable, constructorName);
+		return;
+	}
+
+	getLocalUpdateFrame(knownErrorVariableFrames).knownErrorVariables.set(variable, constructorName);
 };
 
 const isFrameNode = node =>
@@ -157,8 +215,50 @@ const isDirectChildOfCurrentFrame = node => {
 
 	return (
 		parent.type === 'VariableDeclaration'
-		&& isFrameNode(parent.parent)
+		&& (
+			isFrameNode(parent.parent)
+			|| (parent.parent.type === 'ForStatement' && parent.parent.init === parent)
+		)
 	);
+};
+
+const bracelessBodyParentTypes = new Set([
+	'DoWhileStatement',
+	'ForInStatement',
+	'ForOfStatement',
+	'ForStatement',
+	'WhileStatement',
+]);
+
+const getAssignmentTrackingMode = assignmentExpression => {
+	const {parent} = assignmentExpression;
+
+	if (parent.type === 'ForStatement' && parent.init === assignmentExpression) {
+		return 'normal';
+	}
+
+	if (parent.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	if (isDirectChildOfCurrentFrame(parent)) {
+		return 'normal';
+	}
+
+	const statement = parent.parent;
+	if (
+		statement.type === 'IfStatement'
+		&& (statement.consequent === parent || statement.alternate === parent)
+	) {
+		return 'conditional';
+	}
+
+	if (
+		bracelessBodyParentTypes.has(statement.type)
+		&& statement.body === parent
+	) {
+		return 'conditional';
+	}
 };
 
 const getErrorConstructorName = (node, context) => {
@@ -221,7 +321,7 @@ function * checkObjectAssign(callExpression, context, knownErrorVariables) {
 		return;
 	}
 
-	const allowedProperties = getAllowedProperties(constructorName);
+	const disallowedProperties = getDisallowedProperties(constructorName);
 
 	for (const source of sources) {
 		if (source.type !== 'ObjectExpression') {
@@ -234,7 +334,7 @@ function * checkObjectAssign(callExpression, context, knownErrorVariables) {
 			}
 
 			const propertyName = getStaticPropertyNameFromProperty(property);
-			if (allowedProperties.has(propertyName)) {
+			if (disallowedProperties.has(propertyName)) {
 				yield getPropertyProblem(property.key, propertyName);
 			}
 		}
@@ -253,16 +353,14 @@ const checkDirectAssignment = (assignmentExpression, context, knownErrorVariable
 	}
 
 	const propertyName = getStaticPropertyName(memberExpression);
-	if (getAllowedProperties(constructorName).has(propertyName)) {
+	if (getDisallowedProperties(constructorName).has(propertyName)) {
 		return getPropertyProblem(memberExpression.property, propertyName);
 	}
 };
 
 const updateKnownErrorVariable = (assignmentExpression, context, knownErrorVariables) => {
-	if (!(
-		assignmentExpression.parent.type === 'ExpressionStatement'
-		&& isDirectChildOfCurrentFrame(assignmentExpression.parent)
-	)) {
+	const trackingMode = getAssignmentTrackingMode(assignmentExpression);
+	if (!trackingMode) {
 		return;
 	}
 
@@ -276,15 +374,11 @@ const updateKnownErrorVariable = (assignmentExpression, context, knownErrorVaria
 		return;
 	}
 
-	const constructorName = assignmentExpression.operator === '='
+	const constructorName = trackingMode === 'normal' && assignmentExpression.operator === '='
 		? getErrorConstructorName(assignmentExpression.right, context)
 		: undefined;
 
-	if (constructorName) {
-		setKnownErrorVariableFromAssignment(knownErrorVariables, variable, constructorName);
-	} else {
-		setKnownErrorVariableFromAssignment(knownErrorVariables, variable, undefined);
-	}
+	setKnownErrorVariableFromAssignment(knownErrorVariables, variable, constructorName);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -324,7 +418,7 @@ const create = context => {
 		}
 
 		const [variable] = context.sourceCode.getDeclaredVariables(node);
-		setKnownErrorVariable(knownErrorVariables, variable, constructorName ?? undefined);
+		setKnownErrorVariableFromDeclaration(knownErrorVariables, variable, constructorName ?? undefined);
 	});
 
 	context.on('AssignmentExpression', node => {

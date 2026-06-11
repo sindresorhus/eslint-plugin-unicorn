@@ -35,6 +35,11 @@ test.snapshot({
 			Object.assign(new AggregateError(), {errors});
 		`,
 		outdent`
+			const TypeError = function () {};
+			const error = new TypeError();
+			error.name = name;
+		`,
+		outdent`
 			const {error} = object;
 			error.name = name;
 		`,
@@ -74,14 +79,54 @@ test.snapshot({
 			error.name = name;
 		`,
 		outdent`
-			let error;
-			if (condition) {
+			let error = new AggregateError([]);
+			{
 				error = new Error();
+			}
+			error.errors = errors;
+		`,
+		outdent`
+			let error = new AggregateError([]);
+			{
+				error = new Error();
+			}
+			Object.assign(error, {errors});
+		`,
+		outdent`
+			let error = new Error();
+			if (condition) {
+				error = {};
 			}
 			error.name = name;
 		`,
 		outdent`
-			let error = {};
+			let error = new Error();
+			if (condition) error = {};
+			error.name = name;
+		`,
+		outdent`
+			var error = new Error();
+			if (condition) {
+				var error = {};
+			}
+			error.name = name;
+		`,
+		outdent`
+			if (condition) {
+				var error = new Error();
+			}
+			error.name = name;
+		`,
+		outdent`
+			let error = new AggregateError([]);
+			switch (kind) {
+				case 'error':
+					error = new Error();
+			}
+			error.errors = errors;
+		`,
+		outdent`
+			let error;
 			if (condition) {
 				error = new Error();
 			}
@@ -90,6 +135,13 @@ test.snapshot({
 		outdent`
 			let error;
 			if (condition) error = new Error();
+			error.name = name;
+		`,
+		outdent`
+			let error = {};
+			if (condition) {
+				error = new Error();
+			}
 			error.name = name;
 		`,
 		outdent`
@@ -114,6 +166,7 @@ test.snapshot({
 		'Object.assign(new TypeError(), {cause})',
 		'Object.assign(new AggregateError([], "message"), {errors})',
 		'Object.assign(new AggregateError([], "message"), {name, stack, cause, errors})',
+		'Object.assign(new Error(), {code}, {name})',
 		'Object.assign(new Error(), {"stack": stack})',
 		'Object.assign(new Error(), {["cause"]: cause})',
 		'Object.assign(new Error(), {name() {}})',
@@ -146,8 +199,52 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			let error;
+			if (condition) {
+				error = new Error();
+				error.name = name;
+			}
+		`,
+		outdent`
+			let error;
+			if (condition) {
+				{
+					error = new Error();
+				}
+				error.name = name;
+			}
+		`,
+		outdent`
+			let error;
+			function setup() {
+				error = new Error();
+				error.name = name;
+			}
+		`,
+		outdent`
+			if (condition) {
+				var error = new Error();
+				error.name = name;
+			}
+		`,
+		outdent`
+			if (condition) {
+				{
+					var error = new Error();
+				}
+				error.name = name;
+			}
+		`,
+		outdent`
 			{
 				var error = new Error();
+			}
+			error.name = name;
+		`,
+		outdent`
+			let error;
+			{
+				error = new Error();
 			}
 			error.name = name;
 		`,
@@ -157,6 +254,46 @@ test.snapshot({
 					const error = new Error();
 					error.name = name;
 			}
+		`,
+		outdent`
+			let error;
+			switch (kind) {
+				case 'error':
+					{
+						error = new Error();
+					}
+					error.name = name;
+			}
+		`,
+		outdent`
+			for (const error = new Error(); condition;) {
+				error.name = name;
+			}
+		`,
+		outdent`
+			for (const error = new AggregateError([]); condition;) {
+				error.errors = errors;
+			}
+		`,
+		outdent`
+			let error;
+			for (error = new Error(); condition;) {
+				error.name = name;
+			}
+		`,
+		outdent`
+			let error = new Error();
+			{
+				error = new AggregateError([]);
+			}
+			error.errors = errors;
+		`,
+		outdent`
+			let error = new Error();
+			{
+				error = new AggregateError([]);
+			}
+			Object.assign(error, {errors});
 		`,
 		'new Error().stack = stack',
 		'Error().cause = cause',
