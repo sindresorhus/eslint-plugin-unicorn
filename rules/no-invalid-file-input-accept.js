@@ -20,8 +20,11 @@ const validWildcardMimeTypes = new Set([
 ]);
 
 const commonMimeTypeMistakes = new Map([
+	['application/x-rar-compressed', 'application/vnd.rar'],
+	['application/x-zip-compressed', 'application/zip'],
 	['image/jpg', 'image/jpeg'],
 	['image/svg', 'image/svg+xml'],
+	['image/x-icon', 'image/vnd.microsoft.icon'],
 ]);
 
 const htmlCharacterReferencePattern = /&(?:#\d+|#x[\da-f]+|[a-z][\da-z]*);/iv;
