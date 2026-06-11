@@ -110,7 +110,7 @@ const setKnownErrorVariableFromDeclaration = (knownErrorVariableFrames, variable
 	}
 
 	const frameNode = getVariableFrameNode(variable);
-	const frame = knownErrorVariableFrames.toReversed().find(frame => frame.node === frameNode);
+	const frame = knownErrorVariableFrames.findLast(frame => frame.node === frameNode);
 	const currentFrame = knownErrorVariableFrames.at(-1);
 	const targetFrame = frame ?? currentFrame;
 
@@ -152,7 +152,7 @@ const canPropagateToFrame = (knownErrorVariableFrames, targetFrame) => {
 };
 
 const getLocalUpdateFrame = knownErrorVariableFrames =>
-	knownErrorVariableFrames.toReversed().find(frame => !isTransparentFrame(frame))
+	knownErrorVariableFrames.findLast(frame => !isTransparentFrame(frame))
 	?? knownErrorVariableFrames.at(-1);
 
 const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, constructorName) => {
@@ -187,7 +187,7 @@ const setKnownErrorVariableFromAssignment = (knownErrorVariableFrames, variable,
 	}
 
 	const frameNode = getVariableFrameNode(variable);
-	const frame = knownErrorVariableFrames.toReversed().find(frame => frame.node === frameNode);
+	const frame = knownErrorVariableFrames.findLast(frame => frame.node === frameNode);
 
 	if (
 		frame
@@ -200,11 +200,14 @@ const setKnownErrorVariableFromAssignment = (knownErrorVariableFrames, variable,
 	getLocalUpdateFrame(knownErrorVariableFrames).knownErrorVariables.set(variable, constructorName);
 };
 
-const isFrameNode = node =>
-	node.type === 'Program'
-	|| node.type === 'BlockStatement'
-	|| node.type === 'StaticBlock'
-	|| node.type === 'SwitchCase';
+const frameNodeTypes = new Set([
+	'Program',
+	'BlockStatement',
+	'StaticBlock',
+	'SwitchCase',
+]);
+
+const isFrameNode = node => frameNodeTypes.has(node.type);
 
 const isDirectChildOfCurrentFrame = node => {
 	const {parent} = node;
