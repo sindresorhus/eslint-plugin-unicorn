@@ -214,7 +214,8 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 
 	const optionsParameter = parameters[1];
 	const superCallExpression = superExpression.expression;
-	const messageArgumentText = hasMessageAccessor ? 'undefined' : firstParameterIdentifier.name;
+	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
+	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (isOptionsIdentifier(firstParameter)) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
@@ -249,7 +250,7 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 	}
 
 	if (
-		!hasMessageAccessor
+		shouldPassMessageToSuper
 		&& !isSameIdentifier(superCallExpression.arguments[0], firstParameterIdentifier)
 	) {
 		return {

@@ -58,8 +58,24 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends Error {
+				constructor(filePath, options) {
+					super(\`File not found: \${filePath}\`, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
 				constructor(options) {
 					super('Fixed message', options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message, options = {}) {
+					super(message, options);
 					this.name = 'FooError';
 				}
 			}
@@ -642,6 +658,27 @@ const tests = {
 		{
 			code: outdent`
 				class FooError extends Error {
+					constructor(filePath) {
+						super(undefined);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(filePath, options) {
+						super(undefined, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor(message, options) {
 						super(message);
 						this.name = 'FooError';
@@ -735,6 +772,48 @@ const tests = {
 			errors: [
 				passOptionsToSuperError,
 			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super();
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super(undefined, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super('Fixed message');
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super('Fixed message', options);
+						this.name = 'FooError';
+					}
+				}
+			`,
 		},
 		{
 			code: outdent`
