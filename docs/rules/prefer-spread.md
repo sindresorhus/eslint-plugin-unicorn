@@ -1,6 +1,6 @@
 # prefer-spread
 
-📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split('')`.
+📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, and `Array#{slice,toSpliced}()`.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -20,7 +20,7 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 - `Array#concat(…)`
 
-	Concat an `Array` with one or more `Array`'s or `Array` elements.
+	Concat an `Array` with one or more `Array`s or `Array` elements.
 
 - `Array#slice()`
 
@@ -32,11 +32,7 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Shallow copy an `Array`.
 
-- `String#split('')`
-
-	Split a string into an array of characters.
-
-	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
+This rule intentionally does not check `String#split('')`. Spreading a string and splitting on an empty string segment text differently, and neither is generally correct for user-perceived characters. Use [`Intl.Segmenter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) when grapheme-aware segmentation is needed.
 
 To enforce the spread operator over `Object#assign()`, use the built-in [`prefer-object-spread` rule](https://eslint.org/docs/rules/prefer-object-spread).
 
@@ -70,14 +66,6 @@ const copy = array.toSpliced();
 
 // ✅
 const copy = [...array];
-```
-
-```js
-// ❌
-const characters = string.split('');
-
-// ✅
-const characters = [...string];
 ```
 
 ```js

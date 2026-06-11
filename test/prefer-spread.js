@@ -2,7 +2,7 @@ import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
@@ -498,7 +498,7 @@ ruleTest.snapshot({
 	],
 });
 
-// `String#slice('')`
+// `String#split('')`
 ruleTest.snapshot({
 	valid: [
 		'new foo.split("")',
@@ -522,24 +522,23 @@ ruleTest.snapshot({
 		'string.split()',
 		'string.notSplit("")',
 		'const notString = 0; notString.split("")',
-	],
-	invalid: [
 		'"string".split("")',
 		'"string".split(\'\')',
 		'unknown.split("")',
 		'const characters = "string".split("")',
 		'(( (( (( "string" )).split ))( (("")) ) ))',
-		// Semicolon
 		outdent`
 			bar()
 			foo.split("")
 		`,
-		'unknown.split("")',
-		// Not result the same
 		'"🦄".split("")',
 		'const {length} = "🦄".split("")',
-		// Comments inside should prevent autofix
 		'"string".split(/* comment */ "")',
 		'unknown.split(/* comment */ "")',
+		{
+			code: 'const text: string = value; text.split("")',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
+	invalid: [],
 });
