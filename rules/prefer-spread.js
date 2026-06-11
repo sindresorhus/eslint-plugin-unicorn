@@ -211,7 +211,7 @@ function fixConcat(node, context, fixableArguments) {
 		}
 
 		yield (
-			concatCallArguments.length - fixableArguments.length === 0
+			concatCallArguments.length === fixableArguments.length
 				? removeMethodCall(fixer, node, context)
 				: removeArguments(fixer)
 		);
