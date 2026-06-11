@@ -176,6 +176,7 @@ export {default as 'prefer-temporal'} from './prefer-temporal.js';
 export {default as 'prefer-ternary'} from './prefer-ternary.js';
 export {default as 'prefer-top-level-await'} from './prefer-top-level-await.js';
 export {default as 'prefer-type-error'} from './prefer-type-error.js';
+export {default as 'prefer-type-literal-last'} from './prefer-type-literal-last.js';
 export {default as 'prefer-uint8array-base64'} from './prefer-uint8array-base64.js';
 export {default as 'prevent-abbreviations'} from './prevent-abbreviations.js';
 export {default as 'relative-url-style'} from './relative-url-style.js';
