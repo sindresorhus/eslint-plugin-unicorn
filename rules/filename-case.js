@@ -22,6 +22,21 @@ const isIgnoredChar = char => !/^[\w-]$/.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
 const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
+const alphanumericRegex = /^[\da-z]+$/i;
+const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
+
+function pascalCaseWithLeadingAcronym(string) {
+	if (alphanumericRegex.test(string)) {
+		const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
+		const suffix = leadingAcronym && string.slice(leadingAcronym.length);
+
+		if (suffix && pascalCase(suffix) === suffix) {
+			return string;
+		}
+	}
+
+	return pascalCase(string);
+}
 
 const cases = {
 	camelCase: {
@@ -37,7 +52,7 @@ const cases = {
 		name: 'snake case',
 	},
 	pascalCase: {
-		fn: pascalCase,
+		fn: pascalCaseWithLeadingAcronym,
 		name: 'pascal case',
 	},
 };

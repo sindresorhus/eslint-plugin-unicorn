@@ -44,6 +44,7 @@ Set the `checkDirectories` option to `false` to only check filenames.
 ### `pascalCase`
 
 - `FooBar.js`
+- `FAQPage.js`
 - `FooBar.Test.js`
 - `FooBar.TestUtils.js`
 
