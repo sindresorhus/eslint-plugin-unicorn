@@ -1,6 +1,7 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isCallExpression, isLiteral, isMethodCall} from './ast/index.js';
+import {getCallExpressionArgumentsText, getCallExpressionTokens} from './utils/index.js';
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -56,12 +57,15 @@ const isStringCall = (node, sourceCode) =>
 	})
 	&& sourceCode.isGlobalReference(node.callee);
 
-const hasCommentsOutsideStringArgument = (node, stringCall, sourceCode) => {
-	const openingParenthesis = sourceCode.getTokenAfter(stringCall.callee, token => token.value === '(');
-	const closingParenthesis = sourceCode.getLastToken(stringCall);
+const hasCommentsOutsideStringArgument = (node, stringCall, context) => {
+	const {sourceCode} = context;
+	const {
+		openingParenthesisToken,
+		closingParenthesisToken,
+	} = getCallExpressionTokens(stringCall, context);
 	const stringArgumentRange = [
-		sourceCode.getRange(openingParenthesis)[1],
-		sourceCode.getRange(closingParenthesis)[0],
+		sourceCode.getRange(openingParenthesisToken)[1],
+		sourceCode.getRange(closingParenthesisToken)[0],
 	];
 
 	return sourceCode.getCommentsInside(node).some(comment => {
@@ -80,11 +84,9 @@ const create = context => {
 		return `Math.trunc(${parenthesized})`;
 	};
 
-	const mathTruncFunctionCallFromStringCall = node => {
-		const openingParenthesis = sourceCode.getTokenAfter(node.callee, token => token.value === '(');
-		const closingParenthesis = sourceCode.getLastToken(node);
-		const text = sourceCode.text.slice(sourceCode.getRange(openingParenthesis)[1], sourceCode.getRange(closingParenthesis)[0]);
-		return `Math.trunc(${text})`;
+	const mathTruncFunctionCallFromStringArgument = node => {
+		const argumentsText = getCallExpressionArgumentsText(context, node);
+		return `Math.trunc(${argumentsText})`;
 	};
 
 	context.on('CallExpression', node => {
@@ -107,12 +109,12 @@ const create = context => {
 			data: {name},
 		};
 
-		if (!hasCommentsOutsideStringArgument(node, stringCall, sourceCode)) {
+		if (!hasCommentsOutsideStringArgument(node, stringCall, context)) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_PARSE_INT,
 					data: {name},
-					fix: fixer => fixer.replaceText(node, mathTruncFunctionCallFromStringCall(stringCall)),
+					fix: fixer => fixer.replaceText(node, mathTruncFunctionCallFromStringArgument(stringCall)),
 				},
 			];
 		}
@@ -192,7 +194,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of `Math.trunc`.',
+			description: 'Prefer `Math.trunc()` for truncating numbers.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

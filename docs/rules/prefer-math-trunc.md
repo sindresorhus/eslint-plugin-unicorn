@@ -1,6 +1,6 @@
 # prefer-math-trunc
 
-📝 Enforce the use of `Math.trunc`.
+📝 Prefer `Math.trunc()` for truncating numbers.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -16,13 +16,13 @@ It prevents the use of the following patterns:
 - `~~x` (two [`bitwise NOT`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_NOT))
 - `x >> 0` ([`Signed Right Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Right_shift) with 0)
 - `x << 0` ([`Left Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Left_shift) with 0)
-- `x ^ 0` ([`bitwise XOR Shift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR) with 0)
+- `x ^ 0` ([`bitwise XOR`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR) with 0)
 - `parseInt(String(x), 10)`
 - `Number.parseInt(String(x), 10)`
 
 These patterns help truncate numbers but they are not clear and do not work in some cases. For example, `parseInt(String(x), 10)` can produce unexpected results for very large or very small numbers that stringify to exponential notation.
 
-This rule is automatically fixable for most bitwise patterns, unless the left-hand side in assignment has side effect. The `x | 0` and `parseInt(String(x), 10)` patterns are suggestion fixable because they are not exactly equivalent to `Math.trunc(x)`.
+This rule is automatically fixable for most bitwise patterns, unless the left-hand side in assignment has a side effect. The `x | 0` and `parseInt(String(x), 10)` patterns only offer a suggestion because they are not exactly equivalent to `Math.trunc(x)`.
 
 ## Examples
 

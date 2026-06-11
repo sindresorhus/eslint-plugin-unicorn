@@ -28,9 +28,13 @@ test.snapshot({
 		'parseInt(value, 10);',
 		'parseInt(String(value));',
 		'parseInt(String(value), 16);',
+		'Number.parseInt(String(value), 16);',
 		'parseInt(String(value), "10");',
 		'parseInt?.(String(value), 10);',
 		'parseInt(String(...value), 10);',
+		'Number.parseInt(String(...value), 10);',
+		'parseInt(String(value), ...[10]);',
+		'Number.parseInt(String(value), ...[10]);',
 		'parseInt(String(value, extra), 10);',
 		'parseInt(new String(value), 10);',
 		'parseInt(String(value), 10, extra);',
@@ -41,6 +45,7 @@ test.snapshot({
 		'const parseInt = value => value; parseInt(String(value), 10);',
 		'const Number = {parseInt() {}}; Number.parseInt(String(value), 10);',
 		'const String = value => value; parseInt(String(value), 10);',
+		'const String = value => value; Number.parseInt(String(value), 10);',
 	],
 	invalid: [
 		// `parseInt(String(foo), 10)`
@@ -48,6 +53,7 @@ test.snapshot({
 		'const foo = Number.parseInt(String(number), 10);',
 		'const foo = parseInt(String((number)), 10);',
 		'const foo = parseInt(String(number + 1), 10);',
+		'const foo = parseInt(String(number,), 10);',
 		'const foo = parseInt(String(/* comment */ number), 10);',
 		'const foo = parseInt(String(number /* comment */), 10);',
 		'const foo = parseInt(/* comment */ String(number), 10);',
@@ -56,6 +62,10 @@ test.snapshot({
 		'const foo = parseInt(String((0, number)), 10);',
 		{
 			code: 'const foo = parseInt(String(number as number), 10);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = parseInt(String<() => number>(number), 10);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
