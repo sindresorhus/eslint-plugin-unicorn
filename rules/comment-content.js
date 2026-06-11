@@ -176,7 +176,7 @@ function shouldUseRawCommentFallback(context) {
 }
 
 function isInMarkdownFencedCodeBlock(text, index) {
-	const fencePattern = /^(?: {0,3})(?<fence>`{3,}|~{3,})/gmv;
+	const fencePattern = /^ {0,3}(?<fence>`{3,}|~{3,})/gmv;
 	let activeFence;
 
 	for (const {groups} of text.slice(0, index).matchAll(fencePattern)) {
@@ -277,8 +277,8 @@ function getCommentValueStart(comment, sourceCode) {
 	return range[0] + valueOffset;
 }
 
-const urlPattern = /\b(?:[a-z][a-z\d+.\-]*:\/\/|www\.)\S+|\b[0-9a-z\u{2D}]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
-const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[a-z\d][a-z\d.+\-]*\b/giv;
+const urlPattern = /\b(?:[a-z][\d+\-.a-z]*:\/\/|www\.)\S+|\b[\u{2D}0-9a-z]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
+const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][+\-.\da-z]*\b/giv;
 
 function isInsideUrl(commentValue, match) {
 	urlPattern.lastIndex = 0;
