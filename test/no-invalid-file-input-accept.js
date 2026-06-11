@@ -181,6 +181,26 @@ jsx({
 	valid: [],
 	invalid: [
 		{
+			code: '<input type="file" accept="image/x-icon" />',
+			output: '<input type="file" accept="image/vnd.microsoft.icon" />',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="application/x-rar-compressed" />',
+			output: '<input type="file" accept="application/vnd.rar" />',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="application/x-zip-compressed" />',
+			output: '<input type="file" accept="application/zip" />',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="image/x-icon, image/vnd.microsoft.icon, application/x-zip-compressed" />',
+			output: '<input type="file" accept="image/vnd.microsoft.icon, application/zip" />',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
 			code: '<input type="file" accept="image/jpg; charset=utf-8" />',
 			output: '<input type="file" accept="image/jpeg" />',
 			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
@@ -196,6 +216,26 @@ jsx({
 html({
 	valid: [],
 	invalid: [
+		{
+			code: '<input type="file" accept="image/x-icon">',
+			output: '<input type="file" accept="image/vnd.microsoft.icon">',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="application/x-rar-compressed">',
+			output: '<input type="file" accept="application/vnd.rar">',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="application/x-zip-compressed">',
+			output: '<input type="file" accept="application/zip">',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
+		{
+			code: '<input type="file" accept="image/x-icon, image/vnd.microsoft.icon, application/x-zip-compressed">',
+			output: '<input type="file" accept="image/vnd.microsoft.icon, application/zip">',
+			errors: [{messageId: 'no-invalid-file-input-accept/normalize'}],
+		},
 		{
 			code: '<input type="file" accept="image/jpg; charset=utf-8">',
 			output: '<input type="file" accept="image/jpeg">',
