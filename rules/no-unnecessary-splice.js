@@ -28,20 +28,22 @@ const emptyArrayReplacement = {
 	messageId: MESSAGE_ID_EMPTY,
 };
 
+const typeScriptExpressionWrapperTypes = new Set([
+	'TSAsExpression',
+	'TSTypeAssertion',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+]);
+
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
 
+const isTypeScriptExpressionWrapper = node => typeScriptExpressionWrapperTypes.has(node.type);
+
 function getStaticNumberValue(node) {
-	if (
-		[
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-			'TSSatisfiesExpression',
-		].includes(node.type)
-	) {
+	if (isTypeScriptExpressionWrapper(node)) {
 		return getStaticNumberValue(node.expression);
 	}
 
@@ -81,19 +83,12 @@ function hasOptionalChain(node) {
 		return true;
 	}
 
-	if (
-		[
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-			'TSSatisfiesExpression',
-		].includes(node.type)
-	) {
+	if (isTypeScriptExpressionWrapper(node)) {
 		return hasOptionalChain(node.expression);
 	}
 
 	if (node.type === 'MemberExpression') {
-		return hasOptionalChain(node.object);
+		return hasOptionalChain(node.object) || (node.computed && hasOptionalChain(node.property));
 	}
 
 	if (node.type === 'CallExpression') {

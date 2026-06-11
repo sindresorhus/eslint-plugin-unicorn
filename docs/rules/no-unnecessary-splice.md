@@ -16,6 +16,9 @@ Prefer clearer array methods over `Array#splice()` when no elements are removed,
 ```js
 // ❌
 array.splice(index, 0);
+
+// ✅
+// Remove the no-op call.
 ```
 
 ```js

@@ -21,6 +21,7 @@ test.snapshot({
 		'array.splice?.(0, 1);',
 		'object?.array.splice(0, 1);',
 		'getObject?.().array.splice(0, 1);',
+		'object[foo?.bar].splice(index, 0);',
 		'array.toSpliced(0, 1);',
 	],
 	invalid: [
