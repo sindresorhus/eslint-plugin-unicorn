@@ -1,4 +1,5 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {isUndefined} from './ast/index.js';
 import isSameReference from './utils/is-same-reference.js';
 import getIndentString from './utils/get-indent-string.js';
 
@@ -8,9 +9,9 @@ const messages = {
 };
 
 const isSame = (nodeA, nodeB) => nodeA === nodeB || isSameReference(nodeA, nodeB);
-const isLiteral = node => node.type === 'Literal';
+const isConstant = node => node.type === 'Literal' || isUndefined(node);
 
-const getDiscriminantCandidates = ({left, right}) => [left, right].filter(node => !isLiteral(node));
+const getDiscriminantCandidates = ({left, right}) => [left, right].filter(node => !isConstant(node));
 
 function getEqualityComparisons(node) {
 	const nodes = [node];

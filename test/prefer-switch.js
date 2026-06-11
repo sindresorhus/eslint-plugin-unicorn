@@ -56,13 +56,13 @@ test.snapshot({
 			else if (foo === 2 || foo !== 4) {}
 			else if (foo === 3) {}
 		`,
-		// Compare to constant
+		// Compare to `true`
 		outdent`
 			if (true === foo) {}
 			else if (bar.bar === true) {}
 			else if (true === baz()) {}
 		`,
-		// Compare to constant
+		// Compare `typeof` results
 		outdent`
 			if (typeof document.exitFullscreen === 'function') {
 				await document.exitFullscreen();
@@ -71,6 +71,18 @@ test.snapshot({
 			} else if (typeof document.mozExitFullscreen === 'function') {
 				await document.mozExitFullscreen();
 			}
+		`,
+		// Compare to `undefined`
+		outdent`
+			if (foo === undefined) {}
+			else if (bar === undefined) {}
+			else if (baz === undefined) {}
+		`,
+		// Compare to `undefined`
+		outdent`
+			if (undefined === foo) {}
+			else if (undefined === bar) {}
+			else if (undefined === baz) {}
 		`,
 	],
 	invalid: [
@@ -118,6 +130,12 @@ test.snapshot({
 		// Variable is on right side
 		outdent`
 			if (1 === foo) {}
+			else if (foo === 2) {}
+			else if (3 === foo) {}
+		`,
+		// Undefined is on left side
+		outdent`
+			if (undefined === foo) {}
 			else if (foo === 2) {}
 			else if (3 === foo) {}
 		`,
