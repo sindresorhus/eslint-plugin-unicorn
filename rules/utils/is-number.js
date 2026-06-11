@@ -1,19 +1,6 @@
-import {getStaticValue, findVariable} from '@eslint-community/eslint-utils';
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isNumericLiteral} from '../ast/index.js';
-
-const isStaticProperties = (node, object, properties) =>
-	node.type === 'MemberExpression'
-	&& !node.computed
-	&& !node.optional
-	&& node.object.type === 'Identifier'
-	&& node.object.name === object
-	&& node.property.type === 'Identifier'
-	&& properties.has(node.property.name);
-
-const isFunctionCall = (node, functionName) => node.type === 'CallExpression'
-	&& !node.optional
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === functionName;
+import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -108,10 +95,7 @@ const isStaticNumber = (node, scope) =>
 const isNumberTypeAnnotation = node => node?.type === 'TSNumberKeyword';
 
 // `function foo(bar: number) {}`, `const foo: number = …`
-const hasNumberTypeAnnotation = (node, scope) => {
-	const variable = findVariable(scope, node);
-	return Boolean(variable) && variable.defs.some(definition => isNumberTypeAnnotation(definition.name?.typeAnnotation?.typeAnnotation));
-};
+const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
 const isLengthProperty = node =>
 	node.type === 'MemberExpression'

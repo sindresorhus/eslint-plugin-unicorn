@@ -6,17 +6,21 @@ import {
 	escapeString,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToLogicalExpressionChild,
+	isMethodNamed,
+	isString,
 } from './utils/index.js';
-import {isMethodCall, isRegexLiteral} from './ast/index.js';
+import {isMethodCall, isRegexLiteral, isLiteral} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
+const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
 const FIX_TYPE_STRING_CASTING = 'useStringCasting';
 const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
 const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
 const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
+	[MESSAGE_INDEX_OF_STARTS_WITH]: 'Prefer `String#startsWith()` over `String#indexOf() === 0`.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
 	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
@@ -84,19 +88,19 @@ const create = context => {
 		const [target] = node.arguments;
 		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
-		let isString = target.type === 'TemplateLiteral'
+		let isTargetString = target.type === 'TemplateLiteral'
 			|| (
 				target.type === 'CallExpression'
 				&& target.callee.type === 'Identifier'
 				&& target.callee.name === 'String'
 			);
 		let isNonString = false;
-		if (!isString) {
+		if (!isTargetString) {
 			const staticValue = getStaticValue(target, sourceCode.getScope(target));
 
 			if (staticValue) {
-				isString = typeof staticValue.value === 'string';
-				isNonString = !isString;
+				isTargetString = typeof staticValue.value === 'string';
+				isNonString = !isTargetString;
 			}
 		}
 
@@ -169,11 +173,11 @@ const create = context => {
 			yield fixer.replaceTextRange(getParenthesizedRange(target, context), escapeString(result.string));
 		}
 
-		if (isString || !isNonString) {
+		if (isTargetString || !isNonString) {
 			problem.fix = fix;
 		}
 
-		if (!isString) {
+		if (!isTargetString) {
 			problem.suggest = [
 				FIX_TYPE_STRING_CASTING,
 				FIX_TYPE_OPTIONAL_CHAINING,
@@ -183,6 +187,70 @@ const create = context => {
 
 		return problem;
 	});
+
+	context.on('BinaryExpression', node => {
+		const {left, right, operator} = node;
+
+		if (!['===', '!==', '==', '!='].includes(operator)) {
+			return;
+		}
+
+		let indexOfCall;
+		if (isMethodNamed(left, 'indexOf') && isLiteral(right, 0)) {
+			indexOfCall = left;
+		} else if (isMethodNamed(right, 'indexOf') && isLiteral(left, 0)) {
+			indexOfCall = right;
+		} else {
+			return;
+		}
+
+		if (
+			indexOfCall.optional
+			|| indexOfCall.callee.optional
+			|| indexOfCall.callee.computed
+			|| indexOfCall.arguments.length !== 1
+			|| indexOfCall.arguments[0].type === 'SpreadElement'
+		) {
+			return;
+		}
+
+		const target = indexOfCall.callee.object;
+		const scope = sourceCode.getScope(node);
+
+		if (!isString(target, scope)) {
+			return;
+		}
+
+		const isNegated = operator === '!==' || operator === '!=';
+		const [searchArgument] = indexOfCall.arguments;
+
+		return {
+			node,
+			messageId: MESSAGE_INDEX_OF_STARTS_WITH,
+			* fix(fixer, {abort}) {
+				if (!isString(searchArgument, scope)) {
+					return abort();
+				}
+
+				if (sourceCode.getCommentsInside(node).length > 0) {
+					return abort();
+				}
+
+				let targetText = getParenthesizedText(target, context);
+
+				if (
+					!isParenthesized(target, context)
+					&& shouldAddParenthesesToMemberExpressionObject(target, context)
+				) {
+					targetText = `(${targetText})`;
+				}
+
+				const searchText = sourceCode.getText(searchArgument);
+				const replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
+				yield fixer.replaceText(node, replacement);
+			},
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -191,7 +259,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.',
+			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()` and `String#indexOf() === 0`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

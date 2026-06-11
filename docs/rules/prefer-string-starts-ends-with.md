@@ -1,6 +1,6 @@
 # prefer-string-starts-ends-with
 
-📝 Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()`.
+📝 Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()` and `String#indexOf() === 0`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -10,6 +10,8 @@
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith) and [`String#endsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith) over using a regex with `/^foo/` or `/foo$/`.
+
+This rule also detects `String#indexOf() === 0` when the receiver is provably a string (via literals, `String()` calls, TypeScript type annotations, etc.).
 
 This rule is fixable, unless the matching object is known not a string.
 
@@ -29,6 +31,14 @@ const foo = /bar$/.test(baz);
 
 // ✅
 const foo = baz.endsWith('bar');
+```
+
+```js
+// ❌
+const foo = someString.indexOf('bar') === 0;
+
+// ✅
+const foo = someString.startsWith('bar');
 ```
 
 ```js
