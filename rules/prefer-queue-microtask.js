@@ -1,18 +1,10 @@
 import {isMemberExpression} from './ast/index.js';
-import {isNodeValueNotFunction, isUnresolvedVariable, isValueNotUsable} from './utils/index.js';
+import {isNodeValueNotFunction, isGlobalIdentifier, isValueNotUsable} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-queue-microtask';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `queueMicrotask()` over `{{name}}`.',
 };
-
-const isGlobalOrUnresolvedIdentifier = (node, context) => (
-	node.type === 'Identifier'
-	&& (
-		context.sourceCode.isGlobalReference(node)
-		|| isUnresolvedVariable(node, context)
-	)
-);
 
 const isProcessNextTick = (node, context) => (
 	isMemberExpression(node, {
@@ -21,7 +13,7 @@ const isProcessNextTick = (node, context) => (
 		computed: false,
 		optional: false,
 	})
-	&& isGlobalOrUnresolvedIdentifier(node.object, context)
+	&& isGlobalIdentifier(node.object, context)
 );
 
 const isOptionalCall = node => (
@@ -136,7 +128,7 @@ const create = context => {
 			&& node.arguments[0].type !== 'SpreadElement'
 			&& !isNodeValueNotFunction(node.arguments[0])
 			&& isValueNotUsable(node)
-			&& isGlobalOrUnresolvedIdentifier(node.callee, context)
+			&& isGlobalIdentifier(node.callee, context)
 		) {
 			return {
 				node: node.callee,
@@ -156,7 +148,7 @@ const create = context => {
 			&& node.arguments[0].type !== 'SpreadElement'
 			&& !isNodeValueNotFunction(node.arguments[0])
 			&& isValueNotUsable(node)
-			&& isGlobalOrUnresolvedIdentifier(node.callee, context)
+			&& isGlobalIdentifier(node.callee, context)
 		) {
 			return {
 				node: node.callee,

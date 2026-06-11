@@ -52,6 +52,7 @@ export {default as isOnSameLine} from './is-on-same-line.js';
 export {default as isSameIdentifier} from './is-same-identifier.js';
 export {default as isSameReference} from './is-same-reference.js';
 export {default as isUnresolvedVariable} from './is-unresolved-variable.js';
+export {default as isGlobalIdentifier} from './is-global-identifier.js';
 export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';

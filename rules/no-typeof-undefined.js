@@ -7,7 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isUnresolvedVariable,
+	isGlobalIdentifier,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -42,8 +42,7 @@ const create = context => {
 		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 		const {sourceCode} = context;
 		const valueNode = typeofNode.argument;
-		const isGlobalVariable = valueNode.type === 'Identifier'
-			&& (sourceCode.isGlobalReference(valueNode) || isUnresolvedVariable(valueNode, context));
+		const isGlobalVariable = isGlobalIdentifier(valueNode, context);
 
 		if (!checkGlobalVariables && isGlobalVariable) {
 			return;
