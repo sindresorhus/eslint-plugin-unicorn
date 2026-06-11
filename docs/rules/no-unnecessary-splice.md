@@ -15,6 +15,11 @@ Prefer clearer array methods over `Array#splice()` when no elements are removed,
 
 ```js
 // ❌
+array.splice(index, 0);
+```
+
+```js
+// ❌
 array.splice(0, 1);
 
 // ✅
@@ -27,6 +32,14 @@ array.splice(0, 0, item);
 
 // ✅
 array.unshift(item);
+```
+
+```js
+// ❌
+array.splice(array.length - 1, 1);
+
+// ✅
+array.pop();
 ```
 
 ```js

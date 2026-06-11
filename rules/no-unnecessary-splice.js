@@ -1,7 +1,12 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNumericLiteral} from './ast/index.js';
 import {removeExpressionStatement} from './fix/index.js';
-import {getParenthesizedText, isSameReference, isValueNotUsable} from './utils/index.js';
+import {
+	getParenthesizedText,
+	hasOptionalChainElement,
+	isSameReference,
+	isValueNotUsable,
+} from './utils/index.js';
 
 const MESSAGE_ID_NO_OP = 'no-op';
 const MESSAGE_ID_SHIFT = 'shift';
@@ -19,6 +24,10 @@ const messages = {
 	[MESSAGE_ID_EMPTY]: 'Prefer setting `.length = 0` over `.splice()` to empty an array.',
 };
 
+const emptyArrayReplacement = {
+	messageId: MESSAGE_ID_EMPTY,
+};
+
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -30,6 +39,7 @@ function getStaticNumberValue(node) {
 			'TSAsExpression',
 			'TSTypeAssertion',
 			'TSNonNullExpression',
+			'TSSatisfiesExpression',
 		].includes(node.type)
 	) {
 		return getStaticNumberValue(node.expression);
@@ -66,6 +76,33 @@ const isLengthMinusOneFor = (node, object) =>
 	&& isOne(node.right)
 	&& isLengthMemberExpressionFor(node.left, object);
 
+function hasOptionalChain(node) {
+	if (node.type === 'ChainExpression' || hasOptionalChainElement(node)) {
+		return true;
+	}
+
+	if (
+		[
+			'TSAsExpression',
+			'TSTypeAssertion',
+			'TSNonNullExpression',
+			'TSSatisfiesExpression',
+		].includes(node.type)
+	) {
+		return hasOptionalChain(node.expression);
+	}
+
+	if (node.type === 'MemberExpression') {
+		return hasOptionalChain(node.object);
+	}
+
+	if (node.type === 'CallExpression') {
+		return hasOptionalChain(node.callee);
+	}
+
+	return false;
+}
+
 function getReplacement(callExpression) {
 	const {arguments: arguments_, callee} = callExpression;
 	const {object} = callee;
@@ -77,8 +114,6 @@ function getNoOpOrEmptyReplacement(arguments_, object) {
 	if (arguments_.length === 0) {
 		return {
 			messageId: MESSAGE_ID_NO_OP,
-			method: undefined,
-			argumentsToKeep: [],
 		};
 	}
 
@@ -86,12 +121,7 @@ function getNoOpOrEmptyReplacement(arguments_, object) {
 		arguments_.length === 1
 		&& isZero(arguments_[0])
 	) {
-		return {
-			messageId: MESSAGE_ID_EMPTY,
-			method: 'length',
-			argumentsToKeep: [],
-			assignment: '0',
-		};
+		return emptyArrayReplacement;
 	}
 
 	if (
@@ -99,12 +129,7 @@ function getNoOpOrEmptyReplacement(arguments_, object) {
 		&& isZero(arguments_[0])
 		&& isLengthMemberExpressionFor(arguments_[1], object)
 	) {
-		return {
-			messageId: MESSAGE_ID_EMPTY,
-			method: 'length',
-			argumentsToKeep: [],
-			assignment: '0',
-		};
+		return emptyArrayReplacement;
 	}
 
 	if (
@@ -113,8 +138,6 @@ function getNoOpOrEmptyReplacement(arguments_, object) {
 	) {
 		return {
 			messageId: MESSAGE_ID_NO_OP,
-			method: undefined,
-			argumentsToKeep: [],
 		};
 	}
 }
@@ -177,6 +200,18 @@ const isRemovableStatement = node =>
 	node.parent.type === 'Program'
 	|| node.parent.type === 'BlockStatement';
 
+function hasCommentsOnSameLineAfter(node, sourceCode) {
+	const [, nodeEnd] = sourceCode.getRange(node);
+	const nodeEndLine = sourceCode.getLoc(node).end.line;
+
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart] = sourceCode.getRange(comment);
+		const commentStartLine = sourceCode.getLoc(comment).start.line;
+
+		return commentStart >= nodeEnd && commentStartLine === nodeEndLine;
+	});
+}
+
 function getFix(callExpression, replacement, context) {
 	if (!isValueNotUsable(callExpression) || hasCommentsInside(callExpression, context.sourceCode)) {
 		return;
@@ -188,6 +223,8 @@ function getFix(callExpression, replacement, context) {
 	if (replacement.messageId === MESSAGE_ID_NO_OP) {
 		if (
 			!isRemovableStatement(callExpression.parent)
+			|| hasCommentsInside(callExpression.parent, context.sourceCode)
+			|| hasCommentsOnSameLineAfter(callExpression.parent, context.sourceCode)
 			|| hasSideEffect(object, context.sourceCode)
 			|| callExpression.arguments.some(argument => hasSideEffect(argument, context.sourceCode))
 		) {
@@ -220,6 +257,10 @@ const create = context => {
 			optionalMember: false,
 			computed: false,
 		})) {
+			return;
+		}
+
+		if (hasOptionalChain(callExpression.callee.object)) {
 			return;
 		}
 
