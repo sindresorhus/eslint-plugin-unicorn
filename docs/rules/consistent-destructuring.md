@@ -9,24 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces the use of already destructured objects and their variables over accessing each property individually. Previous destructurings are easily missed which leads to an inconsistent code style.
+Enforces the use of already destructured variables over accessing the same direct, non-computed identifier property again. Previous destructurings are easily missed which leads to an inconsistent code style.
 
-This rule is partly fixable. It does not fix nested destructuring.
+This rule is partly fixable. It does not suggest adding new properties to existing destructuring patterns, as that could read properties earlier than before.
 
 ## Examples
-
-```js
-// ❌
-const {a} = foo;
-console.log(a, foo.b);
-
-// ✅
-const {a, b} = foo;
-console.log(a, b);
-
-// ✅
-console.log(foo.a, foo.b);
-```
 
 ```js
 // ❌
@@ -36,22 +23,23 @@ console.log(foo.a);
 // ✅
 const {a} = foo;
 console.log(a);
+
+// ✅
+console.log(foo.a, foo.b);
 ```
 
 ```js
-// ❌
-const {
-	a: {b},
-} = foo;
-console.log(foo.a.c);
+// ✅
+const {a} = foo;
+console.log(a, foo.b);
 ```
 
 ```js
 // ✅
 const {
-	a: {b, c},
+	a: {b},
 } = foo;
-console.log(c);
+console.log(foo.a.c);
 ```
 
 ```js
@@ -73,5 +61,5 @@ console.log(a, foo.b());
 ```js
 // ✅
 const {a} = foo.bar;
-console.log(foo.bar);
+console.log(foo.bar.a);
 ```
