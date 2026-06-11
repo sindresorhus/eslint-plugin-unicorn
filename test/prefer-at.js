@@ -131,6 +131,7 @@ test.snapshot({
 		'string.substring(index, 1 + index)',
 		'string.substring(index - 1, index)',
 		'string.substring(index + 1, index)',
+		'string.substring(1 + index, index)',
 		'string.substring(index, /* comment */ index + 1)',
 		'string.substring(index, index + /* comment */ 1)',
 		'string.substring((( index )), (( index )) + 1)',
