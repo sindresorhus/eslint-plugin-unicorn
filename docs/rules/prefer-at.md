@@ -71,6 +71,8 @@ array[array.length - 1] = foo;
 const foo = element.children[element.children.length - 1];
 ```
 
+This means non-DOM objects with those exact property or method names are also ignored.
+
 ```js
 // ✅
 // This rule intentionally ignores `arguments`, which is array-like but does not have `Array#at()`.
