@@ -69,6 +69,8 @@ Type: `object`
 
 You can extend default replacements by passing the `replacements` option.
 
+Use this to configure discouraged terms and their replacements. To allow a specific full identifier, use [`allowList`](#allowlist) instead.
+
 Lowercase replacements will match both camelcase and pascalcase identifiers. For example, `err` will match both `err` and `Err`. `errCb` will match both `errCb` and `ErrCb`.
 
 Lowercase replacements will match both complete identifiers and separate words inside identifiers. For example, `cmd` will match all of `cmd`, `createCmd` and `CmdFactory`.
@@ -145,6 +147,8 @@ For example, if you want to report `props` → `properties` (enabled by default)
 	},
 ]
 ```
+
+For example, `allowList: {elementRef: true}` allows `elementRef` while still reporting `ref`.
 
 ### extendDefaultAllowList
 
