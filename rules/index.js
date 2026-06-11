@@ -101,6 +101,7 @@ export {default as 'no-unused-array-method-return'} from './no-unused-array-meth
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
 export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
+export {default as 'no-useless-concat'} from './no-useless-concat.js';
 export {default as 'no-useless-else'} from './no-useless-else.js';
 export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
