@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -55,6 +55,28 @@ test({
 		'if (/^foo/.exec(foo)) {}',
 
 		...validRegex.map(re => `${re}.test(bar)`),
+
+		// `indexOf` — receiver not provably a string
+		'foo.indexOf("bar") === 0',
+		'foo.indexOf("bar") !== 0',
+		'0 === foo.indexOf("bar")',
+		// `indexOf` — wrong comparison
+		'foo.indexOf("bar") === 1',
+		'foo.indexOf("bar") > 0',
+		'foo.indexOf("bar") >= 0',
+		'foo.indexOf("bar") < 0',
+		'"foo".indexOf("bar") === -1',
+		// `indexOf` — extra arguments
+		'"foo".indexOf("bar", 1) === 0',
+		// `indexOf` — optional
+		'foo?.indexOf("bar") === 0',
+		'foo.indexOf?.("bar") === 0',
+		// `indexOf` — computed
+		'foo["indexOf"]("bar") === 0',
+		// `indexOf` — spread
+		'"foo".indexOf(..."bar") === 0',
+		// `indexOf` — `new String()` returns an object, not a string primitive
+		'new String("foo").indexOf("bar") === 0',
 	],
 	invalid: [
 		...invalidRegex.map(re => {
@@ -190,6 +212,169 @@ test({
 					},
 				],
 			}],
+		},
+	],
+});
+
+const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
+
+// `indexOf` — provably string receivers
+test({
+	valid: [],
+	invalid: [
+		// String literal receiver
+		{
+			code: '"foo".indexOf("f") === 0',
+			output: '"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Template literal receiver
+		{
+			code: '`foo`.indexOf("f") === 0',
+			output: '`foo`.startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// String() call receiver
+		{
+			code: 'String(x).indexOf("f") === 0',
+			output: 'String(x).startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Negated
+		{
+			code: '"foo".indexOf("f") !== 0',
+			output: '!"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Reversed comparison
+		{
+			code: '0 === "foo".indexOf("f")',
+			output: '"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Reversed negated
+		{
+			code: '0 !== "foo".indexOf("f")',
+			output: '!"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Loose equality
+		{
+			code: '"foo".indexOf("f") == 0',
+			output: '"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Loose inequality
+		{
+			code: '"foo".indexOf("f") != 0',
+			output: '!"foo".startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Static string variable
+		{
+			code: 'const foo = "hello"; foo.indexOf("h") === 0',
+			output: 'const foo = "hello"; foo.startsWith("h")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// `typeof` is always a string
+		{
+			code: '(typeof foo).indexOf("u") === 0',
+			output: '(typeof foo).startsWith("u")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// String concatenation
+		{
+			code: '("a" + b).indexOf("a") === 0',
+			output: '("a" + b).startsWith("a")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TS: type annotation
+		{
+			code: 'function foo(bar: string) { return bar.indexOf("x") === 0; }',
+			output: 'function foo(bar: string) { return bar.startsWith("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TS: as string
+		{
+			code: '(foo as string).indexOf("x") === 0',
+			output: '(foo as string).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TS: satisfies string
+		{
+			code: '(foo satisfies string).indexOf("x") === 0',
+			output: '(foo satisfies string).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TS: type assertion
+		{
+			code: '(<string>foo).indexOf("x") === 0',
+			output: '(<string>foo).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TS: non-null assertion on string variable
+		{
+			code: 'function foo(bar: string) { return bar!.indexOf("x") === 0; }',
+			output: 'function foo(bar: string) { return (bar!).startsWith("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Conditional expression receiver
+		{
+			code: '(a ? "foo" : "bar").indexOf("f") === 0',
+			output: '(a ? "foo" : "bar").startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Sequence expression receiver
+		{
+			code: '(0, "foo").indexOf("f") === 0',
+			output: '(0, "foo").startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// String.fromCharCode receiver
+		{
+			code: 'String.fromCharCode(65).indexOf("A") === 0',
+			output: 'String.fromCharCode(65).startsWith("A")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// String.fromCodePoint receiver
+		{
+			code: 'String.fromCodePoint(65).indexOf("A") === 0',
+			output: 'String.fromCodePoint(65).startsWith("A")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Parenthesized receiver
+		{
+			code: '("foo").indexOf("f") === 0',
+			output: '("foo").startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// `let` variable receiver
+		{
+			code: 'let foo = "hello"; foo.indexOf("h") === 0',
+			output: 'let foo = "hello"; foo.startsWith("h")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Non-string argument — reports but does not autofix (startsWith throws on RegExp)
+		{
+			code: '"foo".indexOf(/f/) === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		{
+			code: 'const pattern = /f/; "foo".indexOf(pattern) === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		{
+			code: '"foo".indexOf(new RegExp("f")) === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		{
+			code: '"foo".indexOf(bar) === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
 	],
 });
