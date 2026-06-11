@@ -118,6 +118,7 @@ export {default as 'prefer-default-parameters'} from './prefer-default-parameter
 export {default as 'prefer-direct-iteration'} from './prefer-direct-iteration.js';
 export {default as 'prefer-dispose'} from './prefer-dispose.js';
 export {default as 'prefer-dom-node-append'} from './prefer-dom-node-append.js';
+export {default as 'prefer-dom-node-html-methods'} from './prefer-dom-node-html-methods.js';
 export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
