@@ -57,6 +57,12 @@ const promiseMethods = [
 	'race',
 ];
 
+const iterableConsumingSpreadParents = new Set([
+	'ArrayExpression',
+	'CallExpression',
+	'NewExpression',
+]);
+
 const getTypeSet = type => new Set([type]);
 
 const isTypedArrayMethodCall = (node, methods) => isMethodCall(node, {
@@ -318,9 +324,7 @@ const isIterableConsumingCallExpression = (node, argument) => {
 const isIterableConsumingSpread = node => {
 	const {parent} = node;
 
-	return parent.type === 'ArrayExpression'
-		|| parent.type === 'CallExpression'
-		|| parent.type === 'NewExpression';
+	return iterableConsumingSpreadParents.has(parent.type);
 };
 
 const isIterableConsumingContext = node => {
