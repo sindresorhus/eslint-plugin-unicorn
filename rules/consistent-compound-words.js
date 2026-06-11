@@ -25,7 +25,7 @@ const messages = {
 };
 
 const defaultReplacements = {
-	// Ambiguous/common API spellings like `fileName`, `setUp`, `lookUp`, `onLine`, `offLine`, `styleSheet`, and `superClass` are intentionally excluded.
+	// Ambiguous/common API spellings like `fileName`, `setUp`, `lookUp`, `newLine`, `onLine`, `offLine`, `styleSheet`, and `superClass` are intentionally excluded.
 	backGround: 'background',
 	callBack: 'callback',
 	checkBox: 'checkbox',
@@ -43,7 +43,6 @@ const defaultReplacements = {
 	metaData: 'metadata',
 	midPoint: 'midpoint',
 	nameSpace: 'namespace',
-	newLine: 'newline',
 	overRide: 'override',
 	passWord: 'password',
 	payLoad: 'payload',
