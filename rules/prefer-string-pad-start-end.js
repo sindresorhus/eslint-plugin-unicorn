@@ -206,9 +206,7 @@ const getSuggestionProblem = ({node, method, replacement, context, canSuggest}) 
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {method},
-				fix(fixer) {
-					return fixer.replaceText(node, replacement);
-				},
+				fix: fixer => fixer.replaceText(node, replacement),
 			},
 		];
 	}

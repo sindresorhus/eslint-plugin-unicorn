@@ -142,24 +142,22 @@ function check(context, functionNode, listeners) {
 }
 
 const config = {
-	create(context) {
-		return {
-			ArrowFunctionExpression(functionNode) {
-				if (functionNode.body.type !== 'BlockStatement') {
-					check(context, functionNode, functionNode.body);
-				}
-			},
-			'ReturnStatement'(returnStatement) {
-				if (!returnStatement.argument) {
-					return;
-				}
+	create: context => ({
+		ArrowFunctionExpression(functionNode) {
+			if (functionNode.body.type !== 'BlockStatement') {
+				check(context, functionNode, functionNode.body);
+			}
+		},
+		'ReturnStatement'(returnStatement) {
+			if (!returnStatement.argument) {
+				return;
+			}
 
-				const scope = context.sourceCode.getScope(returnStatement).variableScope;
-				const functionNode = scope.block;
-				check(context, functionNode, returnStatement.argument);
-			},
-		};
-	},
+			const scope = context.sourceCode.getScope(returnStatement).variableScope;
+			const functionNode = scope.block;
+			check(context, functionNode, returnStatement.argument);
+		},
+	}),
 	meta: {
 		fixable: 'code',
 		messages: {

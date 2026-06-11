@@ -250,50 +250,48 @@ test('fix should not produce invalid code when another rule replaces the origina
 		meta: {
 			fixable: 'code',
 		},
-		create(context) {
-			return {
-				Program(node) {
-					context.report({
-						node,
-						message: 'format',
-						fix(fixer) {
-							const source = context.sourceCode.text;
-							const formatted = source.includes('value < 10 && value < 5')
-								? outdent`
-									function some(value) {
-									  if (value < 10 && value < 5) {
-									    console.log(
-									      'this is a long string this is a long string this is a long string this is a long string',
-									      value,
-									    );
-									  }
-									  return 0;
-									}
-								`
-								: outdent`
-									function some(value) {
-									  if (value < 10) {
-									    if (value < 5) {
-									      console.log(
-									        'this is a long string this is a long string this is a long string this is a long string',
-									        value,
-									      );
-									    }
-									  }
-									  return 0;
-									}
-								`;
+		create: context => ({
+			Program(node) {
+				context.report({
+					node,
+					message: 'format',
+					fix(fixer) {
+						const source = context.sourceCode.text;
+						const formatted = source.includes('value < 10 && value < 5')
+							? outdent`
+								function some(value) {
+								  if (value < 10 && value < 5) {
+								    console.log(
+								      'this is a long string this is a long string this is a long string this is a long string',
+								      value,
+								    );
+								  }
+								  return 0;
+								}
+							`
+							: outdent`
+								function some(value) {
+								  if (value < 10) {
+								    if (value < 5) {
+								      console.log(
+								        'this is a long string this is a long string this is a long string this is a long string',
+								        value,
+								      );
+								    }
+								  }
+								  return 0;
+								}
+							`;
 
-							if (formatted === source) {
-								return;
-							}
+						if (formatted === source) {
+							return;
+						}
 
-							return fixer.replaceTextRange([0, source.length], formatted);
-						},
-					});
-				},
-			};
-		},
+						return fixer.replaceTextRange([0, source.length], formatted);
+					},
+				});
+			},
+		}),
 	};
 
 	const eslint = createEslint({

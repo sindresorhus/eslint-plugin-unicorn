@@ -13,60 +13,58 @@ const properties = new Map([
 const propertyNames = properties.keys().toArray();
 
 const config = {
-	create(context) {
-		return {
-			MemberExpression(memberExpression) {
-				if (!isMemberExpression(memberExpression, {
-					properties: propertyNames,
-					optional: false,
-					computed: false,
-				})) {
-					return;
+	create: context => ({
+		MemberExpression(memberExpression) {
+			if (!isMemberExpression(memberExpression, {
+				properties: propertyNames,
+				optional: false,
+				computed: false,
+			})) {
+				return;
+			}
+
+			const {name} = memberExpression.property;
+			const replacementFunction = properties.get(name);
+
+			context.report({
+				node: memberExpression.property,
+				messageId,
+				data: {
+					name,
+					replacementFunction,
+				},
+				* fix(fixer) {
+					yield removeMemberExpressionProperty(fixer, memberExpression, context);
+					yield fixer.insertTextBefore(memberExpression, `${replacementFunction}(`);
+					yield fixer.insertTextAfter(memberExpression, ')');
+				},
+			});
+		},
+		ObjectPattern(objectPattern) {
+			for (const property of objectPattern.properties) {
+				if (!(
+					property.type === 'Property'
+					&& !property.computed
+					&& property.key.type === 'Identifier'
+					&& propertyNames.includes(property.key.name)
+				)) {
+					continue;
 				}
 
-				const {name} = memberExpression.property;
+				const {name} = property.key;
 				const replacementFunction = properties.get(name);
 
 				context.report({
-					node: memberExpression.property,
+					node: property.key,
 					messageId,
 					data: {
 						name,
 						replacementFunction,
 					},
-					* fix(fixer) {
-						yield removeMemberExpressionProperty(fixer, memberExpression, context);
-						yield fixer.insertTextBefore(memberExpression, `${replacementFunction}(`);
-						yield fixer.insertTextAfter(memberExpression, ')');
-					},
 				});
-			},
-			ObjectPattern(objectPattern) {
-				for (const property of objectPattern.properties) {
-					if (!(
-						property.type === 'Property'
-						&& !property.computed
-						&& property.key.type === 'Identifier'
-						&& propertyNames.includes(property.key.name)
-					)) {
-						continue;
-					}
-
-					const {name} = property.key;
-					const replacementFunction = properties.get(name);
-
-					context.report({
-						node: property.key,
-						messageId,
-						data: {
-							name,
-							replacementFunction,
-						},
-					});
-				}
-			},
-		};
-	},
+			}
+		},
+	}),
 	meta: {
 		fixable: 'code',
 		messages: {

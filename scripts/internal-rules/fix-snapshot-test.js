@@ -157,18 +157,16 @@ function checkTestCaseProperty(propertyNode, context) {
 }
 
 const config = {
-	create(context) {
-		return {
-			CallExpression(snapshotTestCall) {
-				if (!isTestSnapshot(snapshotTestCall)) {
-					return;
-				}
+	create: context => ({
+		CallExpression(snapshotTestCall) {
+			if (!isTestSnapshot(snapshotTestCall)) {
+				return;
+			}
 
-				checkFixMark(snapshotTestCall, context);
-				checkInvalidCases(snapshotTestCall, context);
-			},
-		};
-	},
+			checkFixMark(snapshotTestCall, context);
+			checkInvalidCases(snapshotTestCall, context);
+		},
+	}),
 	meta: {
 		fixable: 'code',
 		messages,

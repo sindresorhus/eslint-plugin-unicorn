@@ -175,18 +175,16 @@ function getTester(importMeta) {
 
 	for (const parser of Object.values(parsers)) {
 		Reflect.defineProperty(runTest, parser.name, {
-			value(tests) {
-				return runTest({
-					...tests,
-					testerOptions: {
-						...tests.testerOptions,
-						languageOptions: {
-							...tests.testerOptions?.languageOptions,
-							parser,
-						},
+			value: tests => runTest({
+				...tests,
+				testerOptions: {
+					...tests.testerOptions,
+					languageOptions: {
+						...tests.testerOptions?.languageOptions,
+						parser,
 					},
-				});
-			},
+				},
+			}),
 		});
 	}
 
