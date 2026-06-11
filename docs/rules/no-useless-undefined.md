@@ -11,9 +11,9 @@
 
 `undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
 
-Where passing `undefined` as argument is required is due to bad TypeScript types in functions, in which case you can use `checkArguments: false` option.
+This rule does not check function call arguments in TypeScript files because TypeScript can require an explicit `undefined` argument when the parameter type includes `undefined`.
 
-Using `undefined` as arrow function body sometimes make the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
+Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
 ## Examples
 
@@ -102,7 +102,7 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Disallow the use of `undefined` at the end of function call arguments. Pass `checkArguments: false` to disable checking them.
+Disallow the use of `undefined` at the end of function call arguments in JavaScript files. TypeScript files are not checked because the compiler determines whether an argument can be omitted. Pass `checkArguments: false` to disable checking them in JavaScript files.
 
 ```js
 // ❌

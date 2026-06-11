@@ -1,5 +1,5 @@
 import {removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
-import {isUndefined, isFunction, isMethodCall} from './ast/index.js';
+import {isUndefined, isFunction} from './ast/index.js';
 import {isTypeScriptFile} from './utils/index.js';
 
 const messageId = 'no-useless-undefined';
@@ -87,17 +87,6 @@ const isFunctionBindCall = node =>
 	&& !node.callee.computed
 	&& node.callee.property.type === 'Identifier'
 	&& node.callee.property.name === 'bind';
-
-// In TypeScript, `Promise.resolve()` is `Promise<void>`, while `Promise.resolve(undefined)` can be `Promise<undefined>`.
-const isTypeScriptPromiseResolveUndefinedCall = (node, context) =>
-	isTypeScriptFile(context.physicalFilename)
-	&& isMethodCall(node, {
-		object: 'Promise',
-		method: 'resolve',
-		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
-	});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -220,7 +209,7 @@ const create = context => {
 		}
 	});
 
-	if (!options.checkArguments) {
+	if (!options.checkArguments || isTypeScriptFile(context.physicalFilename)) {
 		return;
 	}
 
@@ -234,10 +223,6 @@ const create = context => {
 
 		// Ignore arguments in `Function#bind()`, but not `this` argument
 		if (isFunctionBindCall(node) && argumentNodes.length !== 1) {
-			return;
-		}
-
-		if (isTypeScriptPromiseResolveUndefinedCall(node, context)) {
 			return;
 		}
 
