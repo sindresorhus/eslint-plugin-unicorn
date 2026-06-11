@@ -19,7 +19,7 @@ Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON
 npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
-**Requires ESLint `>=9.20.0`, [flat config](https://eslint.org/docs/latest/use/configure/configuration-files), and [ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-make-my-typescript-project-output-esm).**
+**Requires ESLint `>=10.4`, [flat config](https://eslint.org/docs/latest/use/configure/configuration-files), and [ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-make-my-typescript-project-output-esm).**
 
 ## Usage
 

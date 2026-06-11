@@ -206,26 +206,10 @@ test({
 		outdent`
 			const foo = <JSX/>;
 		`,
-		// Functions that could be extracted are conservatively ignored due to JSX masking references
-		outdent`
-			function Foo() {
-				function Bar () {
-					return <div />
-				}
-				return <div>{ Bar() }</div>
-			}
-		`,
 		outdent`
 			function foo() {
 				function bar() {
 					return <JSX a={foo()}/>;
-				}
-			}
-		`,
-		outdent`
-			function foo() {
-				function bar() {
-					return <JSX/>;
 				}
 			}
 		`,
@@ -826,13 +810,37 @@ test({
 					function Bar () {
 						return <div />
 					}
+					return <div>{ Bar() }</div>
+				}
+			`,
+			errors: [createError('function \'Bar\'')],
+		},
+		{
+			code: outdent`
+				function foo() {
+					function bar() {
+						return <JSX/>;
+					}
+				}
+			`,
+			errors: [createError('function \'bar\'')],
+		},
+		{
+			code: outdent`
+				function Foo() {
+					function Bar () {
+						return <div />
+					}
 					function doBaz() {
 						return 42
 					}
 					return <div>{ doBaz() }</div>
 				}
 			`,
-			errors: [createError('function \'doBaz\'')],
+			errors: [
+				createError('function \'Bar\''),
+				createError('function \'doBaz\''),
+			],
 		},
 		// JSX
 		{

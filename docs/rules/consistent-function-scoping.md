@@ -129,18 +129,6 @@ function doFoo(foo) {
 }
 ```
 
-It also ignores functions that contain `JSXElement` references:
-
-```jsx
-function doFoo(FooComponent) {
-	function Bar() {
-		return <FooComponent/>;
-	}
-
-	return Bar;
-};
-```
-
 [Immediately invoked function expressions (IIFE)](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) are ignored:
 
 ```js
