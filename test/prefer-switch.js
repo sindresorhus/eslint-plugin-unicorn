@@ -56,6 +56,22 @@ test.snapshot({
 			else if (foo === 2 || foo !== 4) {}
 			else if (foo === 3) {}
 		`,
+		// Compare to constant
+		outdent`
+			if (true === foo) {}
+			else if (bar.bar === true) {}
+			else if (true === baz()) {}
+		`,
+		// Compare to constant
+		outdent`
+			if (typeof document.exitFullscreen === 'function') {
+				await document.exitFullscreen();
+			} else if (typeof document.webkitExitFullscreen === 'function') {
+				await document.webkitExitFullscreen();
+			} else if (typeof document.mozExitFullscreen === 'function') {
+				await document.mozExitFullscreen();
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -105,11 +121,11 @@ test.snapshot({
 			else if (foo === 2) {}
 			else if (3 === foo) {}
 		`,
-		// Compare to constant
+		// Variable is always on right side
 		outdent`
-			if (true === foo) {}
-			else if (bar.bar === true) {}
-			else if (true === baz()) {}
+			if (Action.open === action) {}
+			else if (Action.save === action) {}
+			else if (Action.close === action) {}
 		`,
 		// No need to add parentheses
 		outdent`

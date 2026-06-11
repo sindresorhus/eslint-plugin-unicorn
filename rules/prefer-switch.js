@@ -8,6 +8,9 @@ const messages = {
 };
 
 const isSame = (nodeA, nodeB) => nodeA === nodeB || isSameReference(nodeA, nodeB);
+const isLiteral = node => node.type === 'Literal';
+
+const getDiscriminantCandidates = ({left, right}) => [left, right].filter(node => !isLiteral(node));
 
 function getEqualityComparisons(node) {
 	const nodes = [node];
@@ -53,10 +56,7 @@ function getStatements(statement) {
 			break;
 		}
 
-		if (!discriminantCandidates) {
-			const [{left, right}] = compareExpressions;
-			discriminantCandidates = [left, right];
-		}
+		discriminantCandidates ||= getDiscriminantCandidates(compareExpressions[0]);
 
 		const candidates = getCommonReferences(
 			compareExpressions,
