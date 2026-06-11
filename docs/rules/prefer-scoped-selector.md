@@ -38,6 +38,6 @@ document.querySelectorAll('.outer .inner');
 
 ## Limitations
 
-This rule intentionally only checks static string selectors. It does not parse CSS selectors or try to resolve selector variables.
+This rule intentionally only checks static string selectors and no-expression template literal selectors. It does not parse CSS selectors or try to resolve selector variables.
 
 To avoid false positives from a heavy selector parser, any static selector containing `:scope` is accepted.

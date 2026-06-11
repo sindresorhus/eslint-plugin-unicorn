@@ -59,8 +59,10 @@ test.snapshot({
 	invalid: [
 		'document.getElementById("foo");',
 		'document.getElementsByClassName("foo");',
+		'element.getElementsByClassName("foo");',
 		'document.getElementsByClassName("foo bar");',
 		'document.getElementsByTagName("foo");',
+		'element.getElementsByTagName("foo");',
 		'document.getElementById("");',
 		'document.getElementById(\'foo\');',
 		'document.getElementsByClassName(\'foo\');',
@@ -69,8 +71,10 @@ test.snapshot({
 		'document.getElementsByClassName(\'\');',
 		'document.getElementById(`foo`);',
 		'document.getElementsByClassName(`foo`);',
+		'element.getElementsByClassName(`foo`);',
 		'document.getElementsByClassName(`foo bar`);',
 		'document.getElementsByTagName(`foo`);',
+		'element.getElementsByTagName(`foo`);',
 		'document.getElementsByTagName(``);',
 		'document.getElementsByClassName(`${fn()}`);', // eslint-disable-line no-template-curly-in-string
 		'document.getElementsByClassName(`foo ${undefined}`);', // eslint-disable-line no-template-curly-in-string
