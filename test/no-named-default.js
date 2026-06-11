@@ -58,7 +58,7 @@ test.snapshot({
 			const foo = 1, bar = 2;
 			${code}
 		`),
-		// Invalid, but typescript allow
+		// Invalid, but TypeScript allow
 		...[
 			'export{foo as default, bar as default};',
 			outdent`

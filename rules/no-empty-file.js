@@ -41,7 +41,7 @@ const create = context => {
 	}
 
 	context.on('Program', node => {
-		// A Vue SFC parsed by `vue-eslint-parser` with a `<template>` is not an empty file even when `<script>` is empty.
+		// A Vue.js SFC parsed by `vue-eslint-parser` with a `<template>` is not an empty file even when `<script>` is empty.
 		if (node.templateBody) {
 			return;
 		}

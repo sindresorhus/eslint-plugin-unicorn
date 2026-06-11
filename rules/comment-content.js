@@ -15,36 +15,126 @@ const caseInsensitive = replacement => ({
 });
 
 const defaultReplacements = {
-	'\\bapplication\\b': 'app',
+	'\\bapplication\\b(?!/)': 'app',
 	'\\bapplications\\b': 'apps',
+	'\\bapi\\b': caseInsensitive('API'),
+	// eslint-disable-next-line unicorn/text-encoding-identifier-case
+	'\\bascii\\b': caseInsensitive('ASCII'),
+	'\\bast\\b': caseInsensitive('AST'),
+	'\\bavif\\b': caseInsensitive('AVIF'),
+	'\\baws\\b': caseInsensitive('AWS'),
+	'\\bazure\\b': caseInsensitive('Azure'),
 	'\\bbitcoin\\b': caseInsensitive('Bitcoin'),
+	'\\bbom\\b': caseInsensitive('BOM'),
+	'\\bcd\\b': caseInsensitive('CD'),
+	'\\bcdn\\b': caseInsensitive('CDN'),
+	'\\bci\\b': caseInsensitive('CI'),
+	'\\bcjs\\b': caseInsensitive('CJS'),
+	'\\bcli\\b': caseInsensitive('CLI'),
+	'\\bcors\\b': caseInsensitive('CORS'),
+	'\\bcpu\\b': caseInsensitive('CPU'),
+	'\\bcrud\\b': caseInsensitive('CRUD'),
+	'\\bcsrf\\b': caseInsensitive('CSRF'),
+	'\\bcsv\\b': caseInsensitive('CSV'),
 	'\\bcss\\b': caseInsensitive('CSS'),
+	'\\bdeno\\b': caseInsensitive('Deno'),
 	'\\bdevops\\b': caseInsensitive('DevOps'),
+	'\\bdns\\b': caseInsensitive('DNS'),
+	'\\bdocker\\b': caseInsensitive('Docker'),
+	'\\bdom\\b': caseInsensitive('DOM'),
 	'\\bdiscord\\b': caseInsensitive('Discord'),
+	'\\bec2\\b': caseInsensitive('EC2'),
+	'\\beof\\b': caseInsensitive('EOF'),
+	'\\beol\\b': caseInsensitive('EOL'),
 	'\\beslint(?:\\.js)?\\b': caseInsensitive('ESLint'),
+	'\\besm\\b': caseInsensitive('ESM'),
 	'\\bfacebook\\b': caseInsensitive('Facebook'),
+	'\\bftp\\b': caseInsensitive('FTP'),
+	'\\bgcp\\b': caseInsensitive('GCP'),
+	'\\bgif\\b': caseInsensitive('GIF'),
+	'\\bgit\\b': caseInsensitive('Git'),
 	'\\bgithub\\b': caseInsensitive('GitHub'),
+	'\\bgpu\\b': caseInsensitive('GPU'),
+	'\\bgraphql\\b': caseInsensitive('GraphQL'),
 	'\\bgrunt(?:\\.js)?\\b': caseInsensitive('Grunt'),
 	'\\bgulp(?:\\.js)?\\b': caseInsensitive('Gulp'),
 	'\\bhtml\\b': caseInsensitive('HTML'),
 	'\\bhttps\\b': caseInsensitive('HTTPS'),
 	'\\bhttp\\b': caseInsensitive('HTTP'),
+	'\\bide\\b': caseInsensitive('IDE'),
+	'\\biife\\b': caseInsensitive('IIFE'),
 	'\\bios\\b': caseInsensitive('iOS'),
 	'\\bjavascript\\b': caseInsensitive('JavaScript'),
 	'\\bjpeg\\b': caseInsensitive('JPEG'),
 	'\\bjpg\\b': caseInsensitive('JPG'),
+	'\\bjson\\b': caseInsensitive('JSON'),
+	'\\bjsx\\b': caseInsensitive('JSX'),
 	'\\bjquery\\b': caseInsensitive('jQuery'),
+	'\\bjwt\\b': caseInsensitive('JWT'),
+	'\\bk8s\\b': caseInsensitive('K8s'),
+	'\\bkubernetes\\b': caseInsensitive('Kubernetes'),
+	'\\blinux\\b': caseInsensitive('Linux'),
+	'\\blsp\\b': caseInsensitive('LSP'),
+	'\\bltr\\b': caseInsensitive('LTR'),
+	'\\bmdn\\b': caseInsensitive('MDN'),
+	'\\bmime\\b': caseInsensitive('MIME'),
+	'\\bmongodb\\b': caseInsensitive('MongoDB'),
+	'\\bmysql\\b': caseInsensitive('MySQL'),
+	'\\bnfc\\b': caseInsensitive('NFC'),
+	'\\bnfd\\b': caseInsensitive('NFD'),
+	'\\bnginx\\b': caseInsensitive('NGINX'),
 	'\\bnode\\.?js\\b': caseInsensitive('Node.js'),
 	'\\bnpm\\b': caseInsensitive('npm'),
+	'\\boauth\\b': caseInsensitive('OAuth'),
+	'\\bpdf\\b': caseInsensitive('PDF'),
 	'\\bpng\\b': caseInsensitive('PNG'),
-	'\\breact(?:\\.?js)?\\b': caseInsensitive('React'),
+	'\\bposix\\b': caseInsensitive('POSIX'),
+	'\\bpostgresql\\b': caseInsensitive('PostgreSQL'),
+	'\\bram\\b': caseInsensitive('RAM'),
+	'\\breact\\.?js\\b': caseInsensitive('React'),
 	'\\breddit\\b': caseInsensitive('Reddit'),
+	'\\bredis\\b': caseInsensitive('Redis'),
+	'\\brtl\\b': caseInsensitive('RTL'),
+	'\\bs3\\b': caseInsensitive('S3'),
+	'\\bsdk\\b': caseInsensitive('SDK'),
+	'\\bsftp\\b': caseInsensitive('SFTP'),
+	'\\bsql\\b': caseInsensitive('SQL'),
+	'\\bsqlite\\b': caseInsensitive('SQLite'),
+	'\\bssh\\b': caseInsensitive('SSH'),
+	'\\bssl\\b': caseInsensitive('SSL'),
 	'\\bstack\\s?overflow\\b': caseInsensitive('Stack Overflow'),
+	'\\bstderr\\b': caseInsensitive('stderr'),
+	'\\bstdin\\b': caseInsensitive('stdin'),
+	'\\bstdout\\b': caseInsensitive('stdout'),
+	'\\bsvelte\\b': caseInsensitive('Svelte'),
 	'\\bsvg\\b': caseInsensitive('SVG'),
+	'\\btcp\\b': caseInsensitive('TCP'),
+	'\\btls\\b': caseInsensitive('TLS'),
+	'\\btsv\\b': caseInsensitive('TSV'),
 	'\\btwitch(?:tv)?\\b': caseInsensitive('Twitch'),
 	'\\btypescript\\b': caseInsensitive('TypeScript'),
+	'\\bui\\b': caseInsensitive('UI'),
+	'\\budp\\b': caseInsensitive('UDP'),
+	'\\bumd\\b': caseInsensitive('UMD'),
+	'\\bunicode\\b': caseInsensitive('Unicode'),
+	'\\bunix\\b': caseInsensitive('Unix'),
 	'\\burl\\b': caseInsensitive('URL'),
+	'\\buri\\b': caseInsensitive('URI'),
+	// eslint-disable-next-line unicorn/text-encoding-identifier-case
+	'\\butf-?8\\b': caseInsensitive('UTF-8'),
+	'\\bux\\b': caseInsensitive('UX'),
+	'\\buuid\\b': caseInsensitive('UUID'),
+	'\\bvite\\b': caseInsensitive('Vite'),
 	'\\bvue(?:\\.?js)?\\b': caseInsensitive('Vue.js'),
+	'\\bvs\\s?code\\b': caseInsensitive('VS Code'),
+	'\\b(?:webassembly|wasm)\\b': caseInsensitive('WebAssembly'),
+	'\\bwebgl\\b': caseInsensitive('WebGL'),
+	'\\bwebp\\b': caseInsensitive('WebP'),
+	'\\bwebrtc\\b': caseInsensitive('WebRTC'),
+	'\\bwebsocket\\b': caseInsensitive('WebSocket'),
+	'\\bxml\\b': caseInsensitive('XML'),
+	'\\bxss\\b': caseInsensitive('XSS'),
+	'\\byaml\\b': caseInsensitive('YAML'),
 	'\\byou\\s?tube\\b': caseInsensitive('YouTube'),
 	'\\b(?:mac\\s?os(?!\\s?x)|(mac\\s?)?os\\s?x)\\b': caseInsensitive('macOS'),
 };
@@ -57,7 +147,6 @@ function normalizeReplacement(pattern, options) {
 	}
 
 	return {
-		pattern,
 		regex: new RegExp(pattern, options.caseSensitive === false ? 'giu' : 'gu'),
 		replacement: options.replacement,
 	};
@@ -75,78 +164,61 @@ function prepareReplacements({extendDefaultReplacements = true, replacements = {
 
 function isEslintDirective(context, comment) {
 	return context.sourceCode.getDisableDirectives
-		&& isEslintDisableOrEnableDirective(context, comment);
+		&& (isEslintDisableOrEnableDirective(context, comment)
+			|| (comment.type === 'Block' && /^\s*(?:eslint(?:-env)?|global|exported)\b/v.test(comment.value)));
 }
 
 function shouldUseRawCommentFallback(context) {
 	const filename = context.physicalFilename.toLowerCase();
 
-	return filename.endsWith('.jsonc')
-		|| filename.endsWith('.json5')
-		|| filename.endsWith('.md')
+	return filename.endsWith('.md')
 		|| filename.endsWith('.markdown');
 }
 
-function getRawComments(sourceCode) {
+function isInMarkdownFencedCodeBlock(text, index) {
+	const fencePattern = /^(?: {0,3})(?<fence>`{3,}|~{3,})/gmv;
+	let activeFence;
+
+	for (const {groups} of text.slice(0, index).matchAll(fencePattern)) {
+		const {fence} = groups;
+
+		if (!activeFence) {
+			activeFence = {
+				character: fence[0],
+				size: fence.length,
+			};
+			continue;
+		}
+
+		if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
+			activeFence = undefined;
+		}
+	}
+
+	return Boolean(activeFence);
+}
+
+function getMarkdownHtmlComments(sourceCode) {
 	const comments = [];
 	const {text} = sourceCode;
-	let quote;
 
 	for (let index = 0; index < text.length; index++) {
-		const character = text[index];
-		const nextCharacter = text[index + 1];
-
-		if (quote) {
-			if (character === '\\') {
-				index++;
-				continue;
-			}
-
-			if (character === quote) {
-				quote = undefined;
-			}
-
+		if (!text.startsWith('<!--', index)) {
 			continue;
 		}
 
-		if (character === '"' || character === '\'' || character === '`') {
-			quote = character;
+		if (isInMarkdownFencedCodeBlock(text, index)) {
 			continue;
 		}
 
-		if (character === '/' && nextCharacter === '/') {
-			const end = text.indexOf('\n', index + 2);
-			const range = [index, end === -1 ? text.length : end];
-			comments.push({
-				type: 'Line',
-				value: text.slice(index + 2, range[1]),
-				range,
-			});
-			index = range[1];
-			continue;
-		}
-
-		if (character === '/' && nextCharacter === '*') {
-			const end = text.indexOf('*/', index + 2);
-			const range = [index, end === -1 ? text.length : end + 2];
-			comments.push({
-				type: 'Block',
-				value: text.slice(index + 2, range[1] - 2),
-				range,
-			});
-			index = range[1] - 1;
-		}
-
-		if (character === '<' && text.startsWith('<!--', index)) {
-			const end = text.indexOf('-->', index + 4);
-			const range = [index, end === -1 ? text.length : end + 3];
-			comments.push({
-				type: 'Block',
-				value: text.slice(index + 4, range[1] - 3),
-				range,
-			});
-			index = range[1] - 1;
-		}
+		const end = text.indexOf('-->', index + 4);
+		const range = [index, end === -1 ? text.length : end + 3];
+		comments.push({
+			type: 'Block',
+			value: text.slice(index + 4, range[1] - 3),
+			range,
+		});
+		index = range[1] - 1;
 	}
 
 	return comments;
@@ -190,7 +262,7 @@ function getRuleComments(context) {
 		return comments;
 	}
 
-	return getRawComments(context.sourceCode);
+	return getMarkdownHtmlComments(context.sourceCode);
 }
 
 function getCommentValueStart(comment, sourceCode) {
@@ -205,17 +277,101 @@ function getCommentValueStart(comment, sourceCode) {
 	return range[0] + valueOffset;
 }
 
-const urlPattern = /\bhttps?:\/\/|www\./iv;
-const codeCharacters = ['`', '{', '}', '(', ')', '[', ']'];
-const shouldSkipComment = comment =>
-	urlPattern.test(comment.value)
-	|| codeCharacters.some(character => comment.value.includes(character));
+const urlPattern = /\b(?:[a-z][a-z\d+.\-]*:\/\/|www\.)\S+|\b[0-9a-z\u{2D}]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
+const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[a-z\d][a-z\d.+\-]*\b/giv;
 
-function getReplacementProblem(comment, sourceCode, replacements) {
-	if (shouldSkipComment(comment)) {
-		return;
+function isInsideUrl(commentValue, match) {
+	urlPattern.lastIndex = 0;
+
+	for (const urlMatch of commentValue.matchAll(urlPattern)) {
+		const start = urlMatch.index;
+		const end = start + urlMatch[0].length;
+
+		if (match.index >= start && match.index < end) {
+			return true;
+		}
 	}
 
+	return false;
+}
+
+function isInsideBackticks(commentValue, match) {
+	let start = commentValue.indexOf('`');
+
+	while (start !== -1) {
+		const end = commentValue.indexOf('`', start + 1);
+		if (end === -1) {
+			return false;
+		}
+
+		if (match.index > start && match.index < end) {
+			return true;
+		}
+
+		start = commentValue.indexOf('`', end + 1);
+	}
+
+	return false;
+}
+
+function isInsideQuotedString(commentValue, match) {
+	let quote;
+
+	for (let index = 0; index < match.index; index++) {
+		const character = commentValue[index];
+
+		if (character === '\\') {
+			index++;
+			continue;
+		}
+
+		if (quote) {
+			if (character === quote) {
+				quote = undefined;
+			}
+
+			continue;
+		}
+
+		if (character === '"') {
+			quote = character;
+			continue;
+		}
+
+		if (character === '\'' && !/[\p{Letter}\p{Number}_]/v.test(commentValue[index - 1])) {
+			quote = character;
+		}
+	}
+
+	return Boolean(quote);
+}
+
+function isInsideMimeType(commentValue, match) {
+	mimeTypePattern.lastIndex = 0;
+
+	for (const mimeTypeMatch of commentValue.matchAll(mimeTypePattern)) {
+		const start = mimeTypeMatch.index;
+		const end = start + mimeTypeMatch[0].length;
+
+		if (match.index >= start && match.index < end) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function shouldSkipMatch(commentValue, match) {
+	return isInsideUrl(commentValue, match)
+		|| isInsideBackticks(commentValue, match)
+		|| isInsideQuotedString(commentValue, match)
+		|| isInsideMimeType(commentValue, match)
+		|| commentValue[match.index - 1] === '-'
+		|| commentValue[match.index + match[0].length] === '-'
+		|| commentValue[match.index + match[0].length] === '(';
+}
+
+function getReplacementProblem(comment, sourceCode, replacements) {
 	const valueStart = getCommentValueStart(comment, sourceCode);
 	if (valueStart === undefined) {
 		return;
@@ -234,6 +390,10 @@ function getReplacementProblem(comment, sourceCode, replacements) {
 			}
 
 			if (match[0] === replacement.replacement) {
+				continue;
+			}
+
+			if (shouldSkipMatch(comment.value, match)) {
 				continue;
 			}
 
