@@ -52,7 +52,7 @@ Type: `string | string[] | object`
 
 Specify the target versions, which could be a Browserslist query or a targets object. See the [core-js-compat `targets` option](https://github.com/zloirock/core-js/tree/HEAD/packages/core-js-compat#targets-option) for more info.
 
-If the option is not specified, the target versions are defined using standard [`browserslist`](https://browsersl.ist) config discovery with the `production` environment, or as a last resort, the `engines` field in package.json.
+If the option is not specified, the target versions are defined using standard [`Browserslist`](https://browsersl.ist) config discovery with the `production` environment, or as a last resort, the `engines` field in package.json.
 
 ```js
 'unicorn/no-unnecessary-polyfills': [

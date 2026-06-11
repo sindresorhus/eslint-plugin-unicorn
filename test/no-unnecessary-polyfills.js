@@ -45,7 +45,7 @@ test({
 		{
 			code: 'require("object-assign")',
 			filename: 'test/fixtures/no-unnecessary-polyfills/browserslistrc-production-available/index.js',
-			options: [{targets: {node: '0.1.0'}}],
+			options: [{targets: {node: '0.12'}}],
 		},
 		{
 			code: 'import("object-assign")',
@@ -261,6 +261,17 @@ test({
 		{
 			code: 'require("object-assign")',
 			filename: 'test/fixtures/no-unnecessary-polyfills/browserslistrc-production-available/index.js',
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("object-assign")',
+			filename: 'test/fixtures/no-unnecessary-polyfills/browserslistrc-custom-stats/index.js',
+			errors: [{message: 'Use built-in instead.'}],
+		},
+		{
+			code: 'require("object-assign")',
+			filename: 'test/fixtures/no-unnecessary-polyfills/browserslistrc-custom-stats/index.js',
+			options: [{targets: '> 0% in my stats'}],
 			errors: [{message: 'Use built-in instead.'}],
 		},
 		{

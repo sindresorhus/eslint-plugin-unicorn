@@ -255,19 +255,22 @@ export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
 };
 
 function getTargets(options, dirname) {
-	if (options?.targets) {
-		return options.targets;
-	}
-
-	let browserslistConfig;
+	const browserslistOptions = {path: dirname, env: 'production'};
 	try {
-		browserslistConfig = browserslist.loadConfig({path: dirname, env: 'production'});
+		if (options?.targets) {
+			if (typeof options.targets === 'string' || Array.isArray(options.targets)) {
+				return browserslist(options.targets, browserslistOptions);
+			}
+
+			return options.targets;
+		}
+
+		const browserslistConfig = browserslist.loadConfig(browserslistOptions);
+		if (browserslistConfig) {
+			return browserslist(browserslistConfig, browserslistOptions);
+		}
 	} catch {
 		return;
-	}
-
-	if (browserslistConfig) {
-		return browserslistConfig;
 	}
 
 	const packageJsonResult = readPackageJson(dirname);
@@ -378,7 +381,7 @@ const schema = [
 	{
 		type: 'object',
 		additionalProperties: false,
-		// `targets` is optional because the rule can fall back to `browserslist`/`engines` from package.json.
+		// `targets` is optional because the rule can fall back to Browserslist config discovery or package.json `engines`.
 		properties: {
 			targets: {
 				oneOf: [
