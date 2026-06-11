@@ -4,8 +4,6 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
-
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -25,10 +23,10 @@ template.replace('{url}', () => htmlEscape(url));
 
 ```js
 // ❌
-template.replaceAll('{url}', replacement);
+template.replaceAll('{url}', htmlEscape(url));
 
 // ✅
-template.replaceAll('{url}', () => replacement);
+template.replaceAll('{url}', () => htmlEscape(url));
 ```
 
 ```js
