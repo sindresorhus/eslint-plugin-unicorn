@@ -11,6 +11,8 @@
 
 Prefer [`Array#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at), [`String#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/at), and `{TypedArray,NodeList,CSSRuleList,…}#at()` for index access and `String#charAt()`.
 
+This rule complements [`unicorn/prefer-string-slice`](./prefer-string-slice.md). This rule handles supported one-character `substring()` patterns, while `unicorn/prefer-string-slice` handles general string slicing.
+
 ## Examples
 
 ```js
@@ -47,6 +49,14 @@ const foo = string.charAt(string.length - 5);
 
 // ✅
 const foo = string.at(-5);
+```
+
+```js
+// ❌
+const foo = string.substring(index, index + 1);
+
+// ✅
+const foo = string.at(index);
 ```
 
 ```js

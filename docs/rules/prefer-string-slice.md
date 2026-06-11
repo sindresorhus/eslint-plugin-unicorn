@@ -11,6 +11,8 @@
 
 [`String#substr()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substr) is deprecated. [`String#substring()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring) has [confusing behavior](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring#differences_between_substring_and_slice) with negative indices and swaps arguments when the first is greater than the second. [`String#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) is the better choice: it handles negative indices intuitively and behaves consistently with [`Array#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice).
 
+This rule intentionally leaves supported one-character `substring()` patterns to [`unicorn/prefer-at`](./prefer-at.md), so enable both rules to catch both general string slicing and single-character access patterns.
+
 ## Examples
 
 ```js
