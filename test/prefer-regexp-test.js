@@ -10,6 +10,9 @@ test.snapshot({
 		'const matches = foo.match(re) || []',
 		'const matches = foo.match(re)',
 		'const matches = re.exec(foo)',
+		'string.search(regex)',
+		'const index = string.search(regex)',
+		'if (string.search(regex)) {}',
 		'while (foo = re.exec(bar)) {}',
 		'while ((foo = re.exec(bar))) {}',
 
@@ -30,16 +33,38 @@ test.snapshot({
 		// More/Less arguments
 		'if (foo.match()) {}',
 		'if (re.exec()) {}',
+		'if (foo.search() !== -1) {}',
 		'if (foo.match(re, another)) {}',
 		'if (re.exec(foo, another)) {}',
+		'if (foo.search(re, another) !== -1) {}',
 		'if (foo.match(...[regexp])) {}',
 		'if (re.exec(...[string])) {}',
+		'if (foo.search(...[regexp]) !== -1) {}',
 		// Not regex
 		'if (foo.match(1)) {}',
 		'if (foo.match("1")) {}',
 		'if (foo.match(null)) {}',
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
+		'if (foo.search("1") !== -1) {}',
+		'if (foo.search(`1`) !== -1) {}',
+		outdent`
+			if (foo.search(\`\${pattern}\`) !== -1) {}
+		`,
+		'const pattern = "1"; if (foo.search(pattern) !== -1) {}',
+		'const pattern = `1`; if (foo.search(pattern) !== -1) {}',
+		outdent`
+			const pattern = \`\${value}\`;
+			if (foo.search(pattern) !== -1) {}
+		`,
+		'const pattern = 1; if (foo.search(pattern) !== -1) {}',
+
+		// Unsupported `String#search()` comparisons
+		'if (foo.search(/re/) <= -1) {}',
+		'if (-1 !== foo.search(/re/)) {}',
+		'if (-1 === foo.search(/re/)) {}',
+		'if (0 <= foo.search(/re/)) {}',
+		'if (0 > foo.search(/re/)) {}',
 
 		// Redux Toolkit action matchers
 		'liquidityFormSlice.actions.refetch.match(action) ? wait(1000) : Promise.resolve()',
@@ -86,6 +111,35 @@ test.snapshot({
 				uri.match(/unicorn/)?.length ||
 				uri.match(/unicorn/)?.length > 0
 			) {}
+		`,
+
+		// `String#search()`
+		'const re = /a/; const bar = foo.search(re) !== -1',
+		'const re = /a/; const bar = foo.search(re) != -1',
+		'const re = /a/; const bar = foo.search(re) > -1',
+		'const re = /a/; const bar = foo.search(re) >= 0',
+		'const re = /a/; const bar = foo.search(re) === -1',
+		'const re = /a/; const bar = foo.search(re) == -1',
+		'const re = /a/; const bar = foo.search(re) < 0',
+		'if (foo.search(/re/) !== -1) {}',
+		'if ((foo).search(/re/) !== -1) {}',
+		'if ((foo.search(/re/)) === -1) {}',
+		'if (foo.search(bar.baz()) !== -1) {}',
+		'if (foo.search(new RegExp("re", "g")) !== -1) {}',
+		'if (foo.search(unknown) !== -1) {}',
+		'if (foo.search(/re/) /* keep */ !== -1) {}',
+		'if (foo.search(/re/) /* keep */ === -1) {}',
+		outdent`
+			const regex = /weird/g;
+			if (foo.search(regex) !== -1);
+		`,
+		outdent`
+			const regex = /weird/g;
+			if (foo.search(regex) === -1);
+		`,
+		outdent`
+			const re = /a/y;
+			if (foo.search(re) !== -1);
 		`,
 
 		// `RegExp#exec()`
@@ -208,6 +262,11 @@ test.vue({
 			errors: 1,
 		},
 		{
+			code: '<template><div v-if="\'string\'.search(/re/) !== -1"></div></template>',
+			output: '<template><div v-if="/re/.test(\'string\')"></div></template>',
+			errors: 1,
+		},
+		{
 			code: '<script>if(/re/.exec(string));</script>',
 			output: '<script>if(/re/.test(string));</script>',
 			errors: 1,
@@ -216,7 +275,14 @@ test.vue({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		'function foo(pattern: string) { if ("string".search(pattern) !== -1) {} }',
+		outdent`
+			function foo(pattern: string) {
+				if ("string".search((\`\${pattern}\` as string)) !== -1) {}
+			}
+		`,
+	],
 	invalid: [
 		{
 			code: 'function foo(pattern: string | RegExp) { if ("string".match(pattern)) {} }',
