@@ -80,17 +80,21 @@ const getIteratorExpressionFixType = node => {
 	return getIteratorExpressionFixType(node.callee.object);
 };
 
-const isSingleIteratorSpreadArray = node =>
-	node.elements.length === 1
-	&& node.elements[0]?.type === 'SpreadElement'
-	&& getIteratorExpressionFixType(node.elements[0].argument);
-
 const isIterableAcceptingParent = node => {
 	const {parent} = node;
 
 	return (
 		(parent.type === 'ForOfStatement' && parent.right === node)
 		|| (parent.type === 'YieldExpression' && parent.delegate && parent.argument === node)
+		|| (
+			parent.type === 'SpreadElement'
+			&& parent.argument === node
+			&& (
+				parent.parent.type === 'ArrayExpression'
+				|| parent.parent.type === 'CallExpression'
+				|| parent.parent.type === 'NewExpression'
+			)
+		)
 		|| (
 			(
 				isNewExpression(parent, {names: collectionConstructors, argumentsLength: 1})
@@ -133,27 +137,31 @@ const hasCommentsOutsideArgument = (arrayExpression, spreadElement, context) => 
 	});
 };
 
-const getReplacementText = (arrayExpression, context) =>
-	`${getParenthesizedText(arrayExpression.elements[0].argument, context)}.toArray()`;
+const getReplacementText = (spreadElement, context) =>
+	`${getParenthesizedText(spreadElement.argument, context)}.toArray()`;
 
-const getFix = (arrayExpression, context) => {
-	const [spreadElement] = arrayExpression.elements;
+const getFix = (arrayExpression, spreadElement, context) => {
 	if (hasCommentsOutsideArgument(arrayExpression, spreadElement, context)) {
 		return;
 	}
 
-	return function * (fixer) {
-		yield fixer.replaceText(arrayExpression, getReplacementText(arrayExpression, context));
-	};
+	return fixer => fixer.replaceText(arrayExpression, getReplacementText(spreadElement, context));
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ArrayExpression', node => {
+		const [spreadElement] = node.elements;
 		if (
-			!isSingleIteratorSpreadArray(node)
+			node.elements.length !== 1
+			|| spreadElement?.type !== 'SpreadElement'
 			|| isIterableAcceptingParent(node)
 		) {
+			return;
+		}
+
+		const fixType = getIteratorExpressionFixType(spreadElement.argument);
+		if (!fixType) {
 			return;
 		}
 
@@ -161,12 +169,12 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 		};
-		const fix = getFix(node, context);
+		const fix = getFix(node, spreadElement, context);
 		if (!fix) {
 			return problem;
 		}
 
-		if (getIteratorExpressionFixType(node.elements[0].argument) === 'suggestion') {
+		if (fixType === 'suggestion') {
 			return {
 				...problem,
 				suggest: [

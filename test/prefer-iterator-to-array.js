@@ -43,7 +43,12 @@ test.snapshot({
 		'function * generator() { yield * [...map.values()]; }',
 		'Promise.all([...map.values()])',
 		'Array.from([...map.values()])',
+		'new Set([...Iterator.from(iterable)])',
+		'Array.from([...Iterator.from(iterable).map(fn)], mapper)',
 		'Object.fromEntries([...map.entries()])',
+		'[...[...Iterator.from(iterable)]]',
+		'fn(...[...Iterator.from(iterable)])',
+		'new Foo(...[...Iterator.from(iterable)])',
 	],
 	invalid: [
 		'[...map.values()]',
@@ -55,6 +60,7 @@ test.snapshot({
 		'[...Iterator.concat()]',
 		'[...Iterator.from(iterable).map(fn)]',
 		'[...Iterator.concat(first, second).filter(fn)]',
+		'const object = {...[...Iterator.from(iterable)]}',
 		'[...map.values().map(fn)]',
 		'[...map.values().filter(fn)]',
 		'[...map.values().flatMap(fn)]',
@@ -81,5 +87,6 @@ test.snapshot({
 		// Comments outside the iterator expression are reported without a fix.
 		'[/* comment */ ...map.values()]',
 		'[...map.values() /* comment */]',
+		'[/* comment */ ...Iterator.from(iterable)]',
 	],
 });
