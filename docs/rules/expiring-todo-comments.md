@@ -28,6 +28,7 @@ Quick overview of conditions:
 - Expire when a package.json **`engines`** property reaches a specific **version**.
 - Expire when you **install/uninstall** a specific **package**.
 - Expire when a **package** reaches a specific **version**.
+- Expire when a **peer dependency**'s minimum supported **version** reaches a specific **version**.
 
 ## Conditions
 
@@ -108,6 +109,22 @@ Argument versions should be [semver](https://semver.org/) compatible such as: `1
 
 Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
 
+### Peer Dependency Version
+
+If your package declares [`peerDependencies`](https://docs.npmjs.com/cli/configuring-npm/package-json#peerdependencies), you can make conditions based on the **minimum supported version** of a peer dependency. This is useful when you want a TODO to trigger once you bump the lowest version you support, for example to drop a fallback for a deprecated API.
+
+```js
+// TODO [peer:eslint@>=9]: Drop the `CLIEngine` fallback once we require ESLint 9.
+```
+
+The peer dependency value is a version range (such as `>=8`, `^8 || ^9`), so the comparison is made against the **floor** of that range. For example, with `"eslint": "^8 || ^9"` the minimum supported version is `8`, so `[peer:eslint@>=9]` will **not** trigger; it triggers only once the floor reaches `9`.
+
+This condition is separate from the [Dependency Version](#dependency-version) condition, which only checks `dependencies` and `devDependencies`. Use `peer:` when the same package can appear in both with independent versions.
+
+Argument versions should be [semver](https://semver.org/) compatible such as: `1.2.45`, `5.3`, `1`.
+
+Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
+
 ### Pre-releases
 
 TODO comments with rules for package.json and dependency versions support the semver pre-release format, such as `1.0.0-my.pre.release.1.2.3`. This means that if your TODO asks for version `>=1.0.0` and you're in `1.0.0-beta`, your TODO will **not** trigger as a pre-release comes first. When the version is at least `1.0.0`, it will properly trigger.
@@ -183,6 +200,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 - `[>1]` or `[>=2]` to expire at some version (from package.json). No whitespace.
 - `[+package]` or `[-package]` to expire when you add/remove a package.
 - `[package@>1]` or `[package@>=2]` to expire when a package hits some version. No whitespace.
+- `[peer:eslint@>9]` or `[peer:eslint@>=9]` to expire when a peer dependency's minimum supported version reaches some version. No whitespace.
 - `[engine:node@>8]` or `[engine:node@>=8]` to expire when the package bumps to the supported engines. No whitespace.
 
 ## Overall Information
@@ -219,6 +237,8 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 // TODO [read-pkg@>1]: When `read-pkg` version is > 1 don't forget to do this.
 // TODO [read-pkg@>=5.1.1]: When `read-pkg` version is >= 5.1.1 don't forget to do that.
 
+// TODO [peer:eslint@>=8]: Whoops, our minimum supported `eslint` is already >= 8.
+
 // TODO [engine:node@>=8]: Whoops, we are already supporting it!
 
 // TODO: Add unicorns.
@@ -241,6 +261,8 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 // TODO [lodash@>=10]: Lodash has a new way to do this; when we bump to its version let's use it.
 
 // TODO [2200-12-25, +popura, lodash@>10]: Combo.
+
+// TODO [peer:eslint@>=99]: When our minimum supported `eslint` reaches v99.
 
 // TODO [engine:node@>12]: When we bump to this Node version we can use import/export.
 

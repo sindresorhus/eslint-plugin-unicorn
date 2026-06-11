@@ -26,6 +26,10 @@ const versionMatchesError = (comparison, message) => ({
 	message: `There is a TODO match for package version: ${comparison}. ${message}`,
 });
 
+const peerVersionMatchesError = (comparison, message) => ({
+	message: `There is a TODO match for peer dependency version: ${comparison}. ${message}`,
+});
+
 const engineMatchesError = (comparison, message) => ({
 	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`,
 });
@@ -68,6 +72,10 @@ ruleTest({
 		'// TODO [>1000]: partial version with > should use semver range semantics',
 		'// TODO [find-up-simple@>1]: find-up-simple is 1.0.1 so >1 should not trigger',
 		'// TODO [engine:node@>20]: node engine is 20.x so >20 should not trigger',
+		'// TODO [peer:eslint@>=10]: peer eslint floor is 9.x so >=10 should not trigger',
+		'// TODO [peer:eslint@>9]: `>9` means `>=10.0.0`, so the 9.x floor should not trigger',
+		'// TODO [peer:does-not-exist@>=1]: a peer dependency we don\'t declare never triggers',
+		'// TODO [peer:find-up-simple@>=1]: `find-up-simple` is a dependency but not a peer dependency, so `peer:` never triggers',
 		'// TODO [-find-up-simple]: We actually use this.',
 		'// TODO [+popura]: I think we won\'t need a broken package.',
 		'// TODO [semver@>1000]: Welp hopefully we won\'t get at that.',
@@ -250,6 +258,14 @@ ruleTest({
 			errors: [engineMatchesError('node>=8', 'when support is for node >= 8')],
 		},
 		{
+			code: '// TODO [peer:eslint@>=9]: when the peer eslint floor reaches >= 9',
+			errors: [peerVersionMatchesError('eslint >= 9', 'when the peer eslint floor reaches >= 9')],
+		},
+		{
+			code: '// TODO [peer:eslint@>8]: when the peer eslint floor reaches > 8',
+			errors: [peerVersionMatchesError('eslint > 8', 'when the peer eslint floor reaches > 8')],
+		},
+		{
 			code: '// TODO [find-up-simple@>0.2.0]: when `find-up-simple` version is > 0.2.0',
 			errors: [versionMatchesError('find-up-simple > 0.2.0', 'when `find-up-simple` version is > 0.2.0')],
 		},
@@ -381,13 +397,14 @@ ruleTest({
 			],
 		},
 		{
-			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +find-up-simple, find-up-simple@>=1]: Big mix',
+			code: '// HUGETODO [semver @>=1, engine:node@>=8, 2000-01-01, -popura, >1, +find-up-simple, find-up-simple@>=1, peer:eslint@>=9]: Big mix',
 			errors: [
 				expiredTodoError('2000-01-01', 'Big mix'),
 				reachedPackageVersionError('>1', 'Big mix'),
 				dontHavePackageError('popura', 'Big mix'),
 				havePackageError('find-up-simple', 'Big mix'),
 				versionMatchesError('find-up-simple >= 1', 'Big mix'),
+				peerVersionMatchesError('eslint >= 9', 'Big mix'),
 				engineMatchesError('node>=8', 'Big mix'),
 				removeWhitespaceError('semver @>=1', 'Big mix'),
 			],
