@@ -695,6 +695,18 @@ test({
 		}),
 		invalidTestCase({
 			code: outdent`
+				const {a} = foo;
+				bar.a = 1;
+				console.log(foo.a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				bar.a = 1;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
 				foo.a = 1;
 				const {a} = foo;
 				console.log(foo.a);
@@ -850,6 +862,26 @@ test.typescript({
 				console.log(params.b);
 			}
 		`,
+		outdent`
+			const {a} = foo;
+			foo!.a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(foo as Foo).a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(<Foo>foo).a = 1;
+			console.log(foo.a);
+		`,
+		outdent`
+			const {a} = foo;
+			(foo satisfies Foo).a = 1;
+			console.log(foo.a);
+		`,
 	],
 	invalid: [
 		invalidTestCase({
@@ -864,6 +896,46 @@ test.typescript({
 				if ('c' in params) {
 					console.log(b);
 				}
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log(foo!.a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((foo as Foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((<Foo>foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
+			`],
+		}),
+		invalidTestCase({
+			code: outdent`
+				const {a} = foo;
+				console.log((foo satisfies Foo).a);
+			`,
+			suggestions: [outdent`
+				const {a} = foo;
+				console.log(a);
 			`],
 		}),
 		invalidTestCase({

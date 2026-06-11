@@ -39,6 +39,19 @@ const getThisScopeBoundary = node => {
 	}
 };
 
+const getTypeUnwrappedNode = node => {
+	while (
+		node.type === 'TSAsExpression'
+		|| node.type === 'TSSatisfiesExpression'
+		|| node.type === 'TSNonNullExpression'
+		|| node.type === 'TSTypeAssertion'
+	) {
+		node = node.expression;
+	}
+
+	return node;
+};
+
 const isIdentifierProperty = property =>
 	property.type === 'Property'
 	&& !property.computed
@@ -103,12 +116,15 @@ const isMemberExpressionReassigned = ({
 	const [, declarationEnd] = sourceCode.getRange(declaration.object);
 	const [memberStart] = sourceCode.getRange(memberExpressionNode);
 	const propertyName = memberExpressionNode.property.name;
-	const rootVariable = memberExpressionNode.object.type === 'Identifier' ? findVariable(memberScope, memberExpressionNode.object) : undefined;
-	const thisScopeBoundary = memberExpressionNode.object.type === 'ThisExpression' ? getThisScopeBoundary(memberExpressionNode.object) : undefined;
+	const object = getTypeUnwrappedNode(memberExpressionNode.object);
+	const rootIdentifierName = object.type === 'Identifier' ? object.name : undefined;
+	const rootVariable = object.type === 'Identifier' ? findVariable(memberScope, object) : undefined;
+	const thisScopeBoundary = object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined;
 
 	return memberExpressionWrites.some(write => {
 		if (
 			write.propertyName !== propertyName
+			|| write.rootIdentifierName !== rootIdentifierName
 			|| write.rootVariable !== rootVariable
 			|| write.thisScopeBoundary !== thisScopeBoundary
 		) {
@@ -269,10 +285,12 @@ const create = context => {
 	const memberExpressionWrites = [];
 
 	const addDirectMemberExpressionWrite = node => {
+		const object = getTypeUnwrappedNode(node.object);
+
 		if (
 			node.computed
 			|| node.property.type !== 'Identifier'
-			|| !['Identifier', 'ThisExpression'].includes(node.object.type)
+			|| !['Identifier', 'ThisExpression'].includes(object.type)
 		) {
 			return;
 		}
@@ -281,8 +299,9 @@ const create = context => {
 
 		memberExpressionWrites.push({
 			propertyName: node.property.name,
-			rootVariable: node.object.type === 'Identifier' ? findVariable(scope, node.object) : undefined,
-			thisScopeBoundary: node.object.type === 'ThisExpression' ? getThisScopeBoundary(node.object) : undefined,
+			rootIdentifierName: object.type === 'Identifier' ? object.name : undefined,
+			rootVariable: object.type === 'Identifier' ? findVariable(scope, object) : undefined,
+			thisScopeBoundary: object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined,
 			start: sourceCode.getRange(node)[0],
 			scope,
 		});
@@ -359,7 +378,6 @@ const create = context => {
 			node.id.type === 'ObjectPattern'
 			&& node.parent.kind === 'const'
 			&& node.init
-			&& node.init.type !== 'Literal'
 			// Ignore any complex expressions (e.g. arrays, functions)
 			&& isSimpleExpression(node.init)
 		)) {
@@ -385,16 +403,17 @@ const create = context => {
 			return;
 		}
 
-		const matchingDeclarations = declarations.get(sourceCode.getText(node.object));
+		const object = getTypeUnwrappedNode(node.object);
+		const matchingDeclarations = declarations.get(sourceCode.getText(object));
 
 		if (!matchingDeclarations) {
 			return;
 		}
 
 		const memberScope = sourceCode.getScope(node);
-		const memberRootIdentifier = node.object.type === 'Identifier' ? node.object : undefined;
+		const memberRootIdentifier = object.type === 'Identifier' ? object : undefined;
 		const memberRootVariable = memberRootIdentifier && findVariable(memberScope, memberRootIdentifier);
-		const memberThisScopeBoundary = node.object.type === 'ThisExpression' ? getThisScopeBoundary(node.object) : undefined;
+		const memberThisScopeBoundary = object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined;
 		const member = sourceCode.getText(node.property);
 
 		let destructuredMember;
