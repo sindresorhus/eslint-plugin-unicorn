@@ -11,7 +11,7 @@
 
 Compound words should be treated as one word when applying identifier casing conventions.
 
-This rule uses a conservative curated list of common compound-word mistakes. It is not a spellchecker.
+This rule uses a conservative curated list of common compound-word mistakes in code identifiers. It is not a spellchecker or a prose style rule.
 
 ## Examples
 
@@ -43,7 +43,7 @@ function unsubscribe() {}
 
 This rule does not check string keys, computed properties, property reads, JSX attributes, or export aliases. These are often external API surfaces where preserving the exact spelling is more important than normalizing identifier style.
 
-It also intentionally excludes ambiguous or common API spellings such as `fileName`, `setUp`, and `lookUp`.
+It also intentionally excludes ambiguous or common API spellings such as `fileName`, `setUp`, `lookUp`, and `newLine`. These can be natural identifiers when the words keep separate meaning, for example a newly created line instead of the newline character.
 
 ## Options
 
