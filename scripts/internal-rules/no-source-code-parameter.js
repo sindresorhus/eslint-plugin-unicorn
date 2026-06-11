@@ -51,35 +51,33 @@ const fix = (context, variable, functionNode, type) => ({
 })[type];
 
 const config = {
-	create(context) {
-		return {
-			':function'(functionNode) {
-				for (let parameter of functionNode.params) {
-					if (parameter.type === 'AssignmentPattern') {
-						parameter = parameter.left;
-					}
-
-					if (parameter.type === 'Identifier' && parameter.name === 'sourceCode') {
-						const variable = context.sourceCode.getDeclaredVariables(functionNode)
-							.find(variable => variable.defs.length === 1 && variable.defs[0].name === parameter);
-
-						context.report({
-							node: parameter,
-							messageId: messageIdError,
-							suggest: [
-								suggestionDestructuringInBody,
-								suggestionMemberAccess,
-								suggestionDestructuringInParameter,
-							].map(type => ({
-								messageId: type,
-								fix: fix(context, variable, functionNode, type),
-							})),
-						});
-					}
+	create: context => ({
+		':function'(functionNode) {
+			for (let parameter of functionNode.params) {
+				if (parameter.type === 'AssignmentPattern') {
+					parameter = parameter.left;
 				}
-			},
-		};
-	},
+
+				if (parameter.type === 'Identifier' && parameter.name === 'sourceCode') {
+					const variable = context.sourceCode.getDeclaredVariables(functionNode)
+						.find(variable => variable.defs.length === 1 && variable.defs[0].name === parameter);
+
+					context.report({
+						node: parameter,
+						messageId: messageIdError,
+						suggest: [
+							suggestionDestructuringInBody,
+							suggestionMemberAccess,
+							suggestionDestructuringInParameter,
+						].map(type => ({
+							messageId: type,
+							fix: fix(context, variable, functionNode, type),
+						})),
+					});
+				}
+			}
+		},
+	}),
 	meta: {
 		fixable: 'code',
 		hasSuggestions: true,

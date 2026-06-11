@@ -7,12 +7,10 @@ import {
 const typescriptParser = {
 	name: 'typescript',
 	implementation: typescriptEslintParser,
-	mergeParserOptions(options) {
-		return {
-			project: [],
-			...options,
-		};
-	},
+	mergeParserOptions: options => ({
+		project: [],
+		...options,
+	}),
 };
 
 const vueParser = {

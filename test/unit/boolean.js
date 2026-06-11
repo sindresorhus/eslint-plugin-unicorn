@@ -12,13 +12,11 @@ const testConfig = {
 		test: {
 			rules: {
 				capture: {
-					create() {
-						return {
-							MemberExpression(node) {
-								memberExpressionNode ||= node;
-							},
-						};
-					},
+					create: () => ({
+						MemberExpression(node) {
+							memberExpressionNode ||= node;
+						},
+					}),
 				},
 			},
 		},

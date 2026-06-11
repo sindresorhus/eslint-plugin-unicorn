@@ -14,28 +14,26 @@ const shouldReport = (string, value) => {
 };
 
 const config = {
-	create(context) {
-		return {
-			'TemplateElement, Literal'(node) {
-				const string = node.value;
-				if (typeof string !== 'string') {
-					return;
-				}
+	create: context => ({
+		'TemplateElement, Literal'(node) {
+			const string = node.value;
+			if (typeof string !== 'string') {
+				return;
+			}
 
-				for (const value of [true, false]) {
-					if (shouldReport(string, value)) {
-						context.report({
-							node,
-							messageId,
-							data: {
-								preferred: String(!value),
-							},
-						});
-					}
+			for (const value of [true, false]) {
+				if (shouldReport(string, value)) {
+					context.report({
+						node,
+						messageId,
+						data: {
+							preferred: String(!value),
+						},
+					});
 				}
-			},
-		};
-	},
+			}
+		},
+	}),
 	meta: {
 		messages: {
 			[messageId]: 'Prefer use `[…!={{preferred}}]` in esquery selector.',
