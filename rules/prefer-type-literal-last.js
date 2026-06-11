@@ -60,7 +60,6 @@ const hasBoundaryComment = (node, context, comments) => {
 };
 
 const getKind = node => node.type === 'TSUnionType' ? 'union' : 'intersection';
-const getOperator = node => node.type === 'TSUnionType' ? '|' : '&';
 
 /**
 Create the rule.
@@ -83,11 +82,14 @@ const create = context => {
 				kind: getKind(node),
 			},
 			* fix(fixer, {abort}) {
+				if (node.type === 'TSIntersectionType') {
+					return abort();
+				}
+
 				const comments = sourceCode.getCommentsInside(node);
 
 				if (
-					node.type === 'TSIntersectionType'
-					|| comments.some(comment => !isCommentInsideAnyType(comment, node.types, context))
+					comments.some(comment => !isCommentInsideAnyType(comment, node.types, context))
 					|| hasBoundaryComment(node, context, sourceCode.getAllComments())
 				) {
 					return abort();
@@ -95,10 +97,9 @@ const create = context => {
 
 				const typeLiterals = node.types.filter(type => isTypeLiteral(type));
 				const otherTypes = node.types.filter(type => !isTypeLiteral(type));
-				const operator = getOperator(node);
 				const replacement = [...otherTypes, ...typeLiterals]
 					.map(type => getParenthesizedText(type, context))
-					.join(` ${operator} `);
+					.join(' | ');
 
 				yield fixer.replaceText(node, replacement);
 			},

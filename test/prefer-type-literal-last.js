@@ -63,6 +63,14 @@ test.typescript({
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
+			code: 'type ElementUnion = {foo: string} | ({bar: string} | Other);',
+			output: 'type ElementUnion = ({bar: string} | Other) | {foo: string};',
+			errors: [
+				{messageId: 'prefer-type-literal-last'},
+				{messageId: 'prefer-type-literal-last'},
+			],
+		},
+		{
 			code: 'type ElementIntersection = {foo: string} & (A | B);',
 			output: null,
 			errors: [{messageId: 'prefer-type-literal-last'}],
@@ -98,8 +106,22 @@ test.typescript({
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
+			code: outdent`
+				type ElementUnion = {foo: string} |
+					// comment
+					Other;
+			`,
+			output: null,
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
 			code: 'type ElementUnion = /* comment */ {foo: string} | Other;',
 			output: null,
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
+			code: 'type ElementUnion = {foo: string} | (/* comment */ Other);',
+			output: 'type ElementUnion = (/* comment */ Other) | {foo: string};',
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
