@@ -83,6 +83,7 @@ export {default as 'no-unnecessary-await'} from './no-unnecessary-await.js';
 export {default as 'no-unnecessary-nested-ternary'} from './no-unnecessary-nested-ternary.js';
 export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.js';
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
+export {default as 'no-unnecessary-splice'} from './no-unnecessary-splice.js';
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-expression.js';
