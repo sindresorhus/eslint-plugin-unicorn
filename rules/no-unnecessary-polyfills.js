@@ -4,10 +4,8 @@ import {camelCase} from 'change-case';
 import isStaticRequire from './ast/is-static-require.js';
 import {readPackageJson} from './shared/package-json.js';
 
-// `core-js-compat` can be exposed as either the function itself or under `.default`.
-const coreJsCompatModule = coreJsCompat.default ?? coreJsCompat;
-const compatData = coreJsCompatModule?.data ?? {};
-const coreJsEntries = coreJsCompatModule?.entries ?? {};
+// `core-js-compat` can be exposed directly or under `.default`, depending on module interop.
+const {data: compatData, entries: coreJsEntries} = coreJsCompat.default ?? coreJsCompat;
 
 const MESSAGE_ID_POLYFILL = 'unnecessaryPolyfill';
 const MESSAGE_ID_CORE_JS = 'unnecessaryCoreJsModule';
