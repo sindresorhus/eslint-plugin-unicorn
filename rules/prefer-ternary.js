@@ -364,11 +364,11 @@ const create = context => {
 				const indentString = getIndentString(node, context);
 
 				after = after
-					.replace('{{INDENT_STRING}}', indentString)
-					.replace('{{ERROR_NAME}}', errorName);
+					.replace('{{INDENT_STRING}}', () => indentString)
+					.replace('{{ERROR_NAME}}', () => errorName);
 				before = before
-					.replace('{{INDENT_STRING}}', indentString)
-					.replace('{{ERROR_NAME}}', errorName);
+					.replace('{{INDENT_STRING}}', () => indentString)
+					.replace('{{ERROR_NAME}}', () => errorName);
 				generateNewVariables = true;
 			}
 

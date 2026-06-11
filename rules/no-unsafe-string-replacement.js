@@ -1,4 +1,9 @@
-import {isFunction, isMethodCall, isStringLiteral} from './ast/index.js';
+import {
+	isFunction,
+	isMemberExpression,
+	isMethodCall,
+	isStringLiteral,
+} from './ast/index.js';
 import {unwrapExpression} from './utils/comparison.js';
 
 const MESSAGE_ID = 'no-unsafe-string-replacement';
@@ -10,11 +15,22 @@ const isStaticTemplateLiteral = node =>
 	node.type === 'TemplateLiteral'
 	&& node.expressions.length === 0;
 
-const isAllowedReplacement = node => {
+const isStaticStringRawTaggedTemplate = (node, sourceCode) =>
+	node.type === 'TaggedTemplateExpression'
+	&& isStaticTemplateLiteral(node.quasi)
+	&& isMemberExpression(node.tag, {
+		object: 'String',
+		property: 'raw',
+		optional: false,
+	})
+	&& sourceCode.isGlobalReference(node.tag.object);
+
+const isAllowedReplacement = (node, sourceCode) => {
 	node = unwrapExpression(node);
 
 	return isStringLiteral(node)
 		|| isStaticTemplateLiteral(node)
+		|| isStaticStringRawTaggedTemplate(node, sourceCode)
 		|| isFunction(node);
 };
 
@@ -29,7 +45,7 @@ const create = context => {
 		}
 
 		const [, replacement] = node.arguments;
-		if (isAllowedReplacement(replacement)) {
+		if (isAllowedReplacement(replacement, context.sourceCode)) {
 			return;
 		}
 

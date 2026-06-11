@@ -175,7 +175,7 @@ const create = context => {
 		const rawQuasi = sourceCode.getText(quasi);
 		const suggestion = quasi.expressions.length > 0 || /\r?\n/.test(rawQuasi)
 			? rawQuasi
-			: `'${rawQuasi.slice(1, -1).replaceAll('\'', String.raw`\'`)}'`;
+			: `'${rawQuasi.slice(1, -1).replaceAll('\'', () => String.raw`\'`)}'`;
 
 		return {
 			node: tag,

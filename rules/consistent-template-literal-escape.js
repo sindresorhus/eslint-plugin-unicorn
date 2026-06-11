@@ -20,7 +20,7 @@ const create = context => {
 		// The lookbehind ensures an even number of preceding backslashes (including zero).
 		const fixedRaw = raw.replaceAll(
 			/(?<=(?:^|[^\\])(?:\\\\)*)\\?\$\\{/g,
-			String.raw`\${`,
+			'\\${',
 		);
 
 		if (raw !== fixedRaw) {

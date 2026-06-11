@@ -45,7 +45,7 @@ test({
 			'',
 			'/* comment */',
 			'\n\t// comment \n',
-		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, body))),
+		].flatMap(body => allCases.map(code => code.replace(SPACES_PLACEHOLDER, () => body))),
 		// Not empty
 		...cases.map(code => code.replace(SPACES_PLACEHOLDER, 'unicorn')),
 		...classBodyCases.map(code => code.replace(SPACES_PLACEHOLDER, 'baz() {}')),
@@ -55,7 +55,7 @@ test({
 			languageOptions: {sourceType: 'script'},
 		},
 		// We don't check these cases
-		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, ' '.repeat(3))),
+		...ignoredCases.map(code => code.replace(SPACES_PLACEHOLDER, () => ' '.repeat(3))),
 	],
 	invalid: [
 		...[
@@ -65,7 +65,7 @@ test({
 			'\n\n',
 			'\r\n',
 		].flatMap(spaces => allCases.map(code => ({
-			code: code.replace(SPACES_PLACEHOLDER, spaces),
+			code: code.replace(SPACES_PLACEHOLDER, () => spaces),
 			output: code.replace(SPACES_PLACEHOLDER, ''),
 			errors: 1,
 		}))),

@@ -67,7 +67,7 @@ function sortReadmeRuleRows(text, ruleId) {
 function replaceRuleIdInRulesIndex(text, from, to) {
 	const fromLine = `export {default as '${from}'} from './${from}.js';`;
 	const toLine = `export {default as '${to}'} from './${to}.js';`;
-	return text.replace(fromLine, toLine);
+	return text.replace(fromLine, () => toLine);
 }
 
 async function renameRule(from, to) {
@@ -94,7 +94,7 @@ async function renameRule(from, to) {
 		let text = await fsAsync.readFile(file, 'utf8');
 		text = file.pathname.endsWith('/rules/index.js')
 			? replaceRuleIdInRulesIndex(text, from, to)
-			: text.replaceAll(from, to);
+			: text.replaceAll(from, () => to);
 		// eslint-disable-next-line no-await-in-loop
 		await fsAsync.writeFile(file, text);
 	}
