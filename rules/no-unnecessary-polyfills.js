@@ -1,4 +1,5 @@
 import path from 'node:path';
+import browserslist from 'browserslist';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from 'change-case';
 import isStaticRequire from './ast/is-static-require.js';
@@ -254,8 +255,22 @@ export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
 };
 
 function getTargets(options, dirname) {
-	if (options?.targets) {
-		return options.targets;
+	const browserslistOptions = {path: dirname, env: 'production'};
+	try {
+		if (options?.targets) {
+			if (typeof options.targets === 'string' || Array.isArray(options.targets)) {
+				return browserslist(options.targets, browserslistOptions);
+			}
+
+			return options.targets;
+		}
+
+		const browserslistConfig = browserslist.loadConfig(browserslistOptions);
+		if (browserslistConfig) {
+			return browserslist(browserslistConfig, browserslistOptions);
+		}
+	} catch {
+		return;
 	}
 
 	const packageJsonResult = readPackageJson(dirname);
@@ -264,8 +279,7 @@ function getTargets(options, dirname) {
 		return;
 	}
 
-	const {browserslist, engines} = packageJsonResult.packageJson;
-	return browserslist ?? engines;
+	return packageJsonResult.packageJson.engines;
 }
 
 function create(context) {
@@ -367,7 +381,7 @@ const schema = [
 	{
 		type: 'object',
 		additionalProperties: false,
-		// `targets` is optional because the rule can fall back to `browserslist`/`engines` from package.json.
+		// `targets` is optional because the rule can fall back to Browserslist config discovery or package.json `engines`.
 		properties: {
 			targets: {
 				oneOf: [
