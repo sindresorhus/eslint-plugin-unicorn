@@ -13,7 +13,7 @@
 
 This rule does not check function call arguments in TypeScript files because TypeScript can require an explicit `undefined` argument when the parameter type includes `undefined`.
 
-Using `undefined` as arrow function body sometimes make the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
+Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
 
 ## Examples
 

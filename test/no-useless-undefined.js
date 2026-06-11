@@ -291,10 +291,10 @@ test.typescript({
 			`,
 			filename: 'file.ts',
 		},
-		{
+		...['file.ts', 'file.tsx', 'file.mts', 'file.cts'].map(filename => ({
 			code: 'foo(undefined);',
-			filename: 'file.ts',
-		},
+			filename,
+		})),
 		{
 			code: 'foo(value, undefined);',
 			filename: 'file.ts',
@@ -303,10 +303,10 @@ test.typescript({
 			code: 'foo(undefined, value, undefined);',
 			filename: 'file.ts',
 		},
-		...['file.ts', 'file.tsx', 'file.mts', 'file.cts'].map(filename => ({
+		{
 			code: 'Promise.resolve(undefined);',
-			filename,
-		})),
+			filename: 'file.ts',
+		},
 		{
 			code: 'Promise.resolve<undefined>(undefined);',
 			filename: 'file.ts',
