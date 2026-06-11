@@ -8,7 +8,19 @@ test.snapshot({
 		'const toBoolean = value => Boolean(value);',
 		'array.map(value => Boolean(value.active));',
 		'array.some(Boolean);',
+		'array.some(value => Boolean(value));',
+		'array.some((value, index) => Boolean(value));',
 		'array.some(value => value.active);',
+		outdent`
+			array.some(value => {
+				return Boolean(value);
+			});
+		`,
+		outdent`
+			array.some(function (value) {
+				return Boolean(value);
+			});
+		`,
 		'array.some?.(value => Boolean(value.active));',
 		'array?.some(value => Boolean(value.active));',
 		'array["some"](value => Boolean(value.active));',

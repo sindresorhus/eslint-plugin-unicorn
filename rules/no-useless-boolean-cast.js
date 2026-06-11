@@ -1,4 +1,5 @@
 import {isFunction, isMethodCall} from './ast/index.js';
+import {isSameIdentifier} from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-boolean-cast';
 const messages = {
@@ -50,6 +51,10 @@ function isBooleanCall(node) {
 		&& node.arguments[0].type !== 'SpreadElement';
 }
 
+const isBooleanFirstParameterCallback = (callback, argument) =>
+	callback.params[0]?.type === 'Identifier'
+	&& isSameIdentifier(callback.params[0], argument);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -79,6 +84,9 @@ const create = context => {
 		}
 
 		const [argument] = booleanCall.arguments;
+		if (isBooleanFirstParameterCallback(callback, argument)) {
+			return;
+		}
 
 		return {
 			node: booleanCall,
