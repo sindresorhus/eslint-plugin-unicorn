@@ -17,7 +17,9 @@ const TEST_URL_BASES = [
 ];
 const isSafeToAddDotSlashToUrl = (url, base) => {
 	try {
-		return new URL(url, base).href === new URL(DOT_SLASH + url, base).href;
+		const originalUrl = new URL(url, base);
+		const urlWithDotSlash = new URL(DOT_SLASH + url, base);
+		return originalUrl.href === urlWithDotSlash.href;
 	} catch {}
 
 	return false;

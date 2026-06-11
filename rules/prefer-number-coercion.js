@@ -127,12 +127,13 @@ const create = context => {
 		'parseInt',
 		'Number.parseInt',
 	]) {
-		new GlobalReferenceTracker({
+		const tracker = new GlobalReferenceTracker({
 			object,
 			type: GlobalReferenceTracker.CALL,
 			context,
 			handle: checkCall,
-		}).listen();
+		});
+		tracker.listen();
 	}
 };
 

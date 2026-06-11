@@ -46,7 +46,8 @@ const XML_NAMESPACES = new Set([
 
 function getHostname(authority) {
 	try {
-		return new URL(`http://${authority}`).hostname;
+		const url = new URL(`http://${authority}`);
+		return url.hostname;
 	} catch {}
 }
 

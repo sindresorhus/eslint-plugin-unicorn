@@ -21,6 +21,8 @@ const messages = {
 const isIgnoredChar = char => !/^[\w-]$/.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
+const {ListFormat} = Intl;
+const disjunctionListFormat = new ListFormat('en-US', {type: 'disjunction'});
 
 const cases = {
 	camelCase: {
@@ -155,7 +157,7 @@ Turns `[a, b, c]` into `a, b, or c`.
 @param {string[]} words
 @returns {string}
 */
-const englishishJoinWords = words => new Intl.ListFormat('en-US', {type: 'disjunction'}).format(words);
+const englishishJoinWords = words => disjunctionListFormat.format(words);
 
 function getCaseNames(chosenCases) {
 	return englishishJoinWords(chosenCases.map(x => cases[x].name));

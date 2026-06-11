@@ -5,6 +5,7 @@ import {pathToFileURL} from 'node:url';
 import enquirer from 'enquirer';
 import unicorn from '../index.js';
 
+const {AutoComplete, Input} = enquirer;
 const rules = Object.keys(unicorn.rules);
 const resolveFile = file => new URL(`../${file}`, import.meta.url);
 
@@ -103,16 +104,18 @@ async function renameRule(from, to) {
 }
 
 const run = async () => {
-	const originalRuleId = await new enquirer.AutoComplete({
+	const ruleSelector = new AutoComplete({
 		message: 'Select the rule you want rename:',
 		limit: 10,
 		choices: rules,
-	}).run();
+	});
+	const originalRuleId = await ruleSelector.run();
 
-	const ruleId = await new enquirer.Input({
+	const ruleNamePrompt = new Input({
 		message: 'New name:',
 		initial: originalRuleId,
-	}).run();
+	});
+	const ruleId = await ruleNamePrompt.run();
 
 	if (!ruleId || originalRuleId === ruleId) {
 		return;

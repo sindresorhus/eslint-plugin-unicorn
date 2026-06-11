@@ -304,7 +304,8 @@ test.typescript({
 const supportsUnicodeSets = (() => {
 	try {
 		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
-		return new RegExp('.', 'v').unicodeSets;
+		const regexp = new RegExp('.', 'v');
+		return regexp.unicodeSets;
 	} catch {
 		return false;
 	}
