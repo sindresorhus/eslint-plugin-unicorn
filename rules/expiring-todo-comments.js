@@ -20,6 +20,7 @@ const MESSAGE_ID_REACHED_PACKAGE_VERSION = 'unicorn/reachedPackageVersion';
 const MESSAGE_ID_HAVE_PACKAGE = 'unicorn/havePackage';
 const MESSAGE_ID_DONT_HAVE_PACKAGE = 'unicorn/dontHavePackage';
 const MESSAGE_ID_VERSION_MATCHES = 'unicorn/versionMatches';
+const MESSAGE_ID_PEER_VERSION_MATCHES = 'unicorn/peerVersionMatches';
 const MESSAGE_ID_ENGINE_MATCHES = 'unicorn/engineMatches';
 const MESSAGE_ID_REMOVE_WHITESPACE = 'unicorn/removeWhitespaces';
 const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
@@ -41,6 +42,8 @@ const messages = {
 		'There is a TODO that is deprecated since you uninstalled: {{package}}. {{message}}',
 	[MESSAGE_ID_VERSION_MATCHES]:
 		'There is a TODO match for package version: {{comparison}}. {{message}}',
+	[MESSAGE_ID_PEER_VERSION_MATCHES]:
+		'There is a TODO match for peer dependency version: {{comparison}}. {{message}}',
 	[MESSAGE_ID_ENGINE_MATCHES]:
 		'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
 	[MESSAGE_ID_REMOVE_WHITESPACE]:
@@ -118,11 +121,23 @@ function getPackageHelpers(dirname) {
 
 			const hasEngineKeyword = name.indexOf('engine:') === 0;
 			const isNodeEngine = hasEngineKeyword && name === 'engine:node';
+			const hasPeerKeyword = name.indexOf('peer:') === 0;
 
 			if (hasEngineKeyword && isNodeEngine) {
 				return {
 					type: 'engines',
 					value: {
+						condition,
+						version,
+					},
+				};
+			}
+
+			if (hasPeerKeyword) {
+				return {
+					type: 'peerDependencies',
+					value: {
+						name: name.slice('peer:'.length),
 						condition,
 						version,
 					},
@@ -261,6 +276,12 @@ function satisfiesRange(version, condition, range) {
 	return semver.satisfies(version, `${condition}${range}`, {includePrerelease: true});
 }
 
+// The minimum version supported by a semver range, for example `8.0.0` for `^8 || ^9`.
+// Returns `undefined` for non-semver ranges such as `workspace:*`.
+function getRangeFloor(range) {
+	return semver.validRange(range) ? semver.minVersion(range) : undefined;
+}
+
 const DEFAULT_OPTIONS = {
 	terms: ['todo', 'fixme', 'xxx'],
 	ignore: [],
@@ -335,6 +356,7 @@ const create = context => {
 			packageVersions = [],
 			dates = [],
 			dependencies = [],
+			peerDependencies = [],
 			engines = [],
 			unknowns = [],
 		} = parsed;
@@ -415,6 +437,24 @@ const create = context => {
 
 			if (satisfiesRange(targetPackageVersion, dependency.condition, dependency.version)) {
 				report(MESSAGE_ID_VERSION_MATCHES, {comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`});
+			}
+		}
+
+		const packagePeerDependencies = packageJson.peerDependencies || {};
+
+		for (const peerDependency of peerDependencies) {
+			uses++;
+
+			const targetPeerRawVersion = packagePeerDependencies[peerDependency.name];
+
+			if (!targetPeerRawVersion) {
+				continue;
+			}
+
+			const targetPeerVersion = getRangeFloor(targetPeerRawVersion);
+
+			if (targetPeerVersion && satisfiesRange(targetPeerVersion, peerDependency.condition, peerDependency.version)) {
+				report(MESSAGE_ID_PEER_VERSION_MATCHES, {comparison: `${peerDependency.name} ${peerDependency.condition} ${peerDependency.version}`});
 			}
 		}
 
