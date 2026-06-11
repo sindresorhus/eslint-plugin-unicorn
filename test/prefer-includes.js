@@ -76,8 +76,17 @@ test({
 		typeAware('const array: unknown[] = [true, false, true]; array.some(value => Boolean(value));'),
 		typeAware('const array: Boolean[] = [true, false, true]; array.some(value => value);'),
 		typeAware('const array: Array<boolean | undefined> = [true, false, undefined]; array.some(value => value);'),
+		typeAware('const array: Array<boolean | undefined> = [true, false, undefined]; array.some(value => Boolean(value));'),
 		typeAware('const array: false[] = [false]; array.some(value => value);'),
 		typeAware('const array: false[] = [false]; array.some(value => Boolean(value));'),
+		typeAware('declare const array: false[] | boolean[]; array.some(value => value);'),
+		typeAware('declare const array: false[] | boolean[]; array.some(value => Boolean(value));'),
+		typeAware('declare const array: true[] | false[]; array.some(value => value);'),
+		typeAware('declare const array: true[] | false[]; array.some(value => Boolean(value));'),
+		typeAware('const collection: {some(callback: (value: boolean) => boolean): boolean} = {} as never; collection.some(value => value);'),
+		typeAware('const collection: {some(callback: (value: boolean) => boolean): boolean} = {} as never; collection.some(value => Boolean(value));'),
+		typeAware('export {}; type Array<T> = {some(callback: (value: T) => boolean): boolean}; declare const collection: Array<boolean>; collection.some(value => value);'),
+		typeAware('export {}; type Array<T> = {some(callback: (value: T) => boolean): boolean}; declare const collection: Array<boolean>; collection.some(value => Boolean(value));'),
 	],
 	invalid: [
 		{
@@ -103,6 +112,26 @@ test({
 		{
 			...typeAware('const array: boolean[] = [true, false, true]; array.some(function (value) {return Boolean(value);});'),
 			output: 'const array: boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: Array<boolean> = [true, false, true]; array.some(value => value);'),
+			output: 'const array: Array<boolean> = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: readonly boolean[] = [true, false, true]; array.some(value => value);'),
+			output: 'const array: readonly boolean[] = [true, false, true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: true[] = [true]; array.some(value => value);'),
+			output: 'const array: true[] = [true]; array.includes(true);',
+			errors: 1,
+		},
+		{
+			...typeAware('const array: [true, false] = [true, false]; array.some(value => value);'),
+			output: 'const array: [true, false] = [true, false]; array.includes(true);',
 			errors: 1,
 		},
 		{

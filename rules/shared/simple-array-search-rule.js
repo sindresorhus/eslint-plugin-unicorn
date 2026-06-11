@@ -82,12 +82,21 @@ function isBooleanLikeType(type) {
 		return true;
 	}
 
-	if (!(type.isUnion() || type.isIntersection())) {
+	if (!type.isUnion()) {
 		return false;
 	}
 
 	const typeNames = type.types.map(type => type.intrinsicName);
 	return typeNames.includes('true') && typeNames.every(typeName => booleanLiteralTypeNames.has(typeName));
+}
+
+function isArrayOrTupleType(type, parserServices) {
+	if (type.isUnion()) {
+		return false;
+	}
+
+	const checker = parserServices.program.getTypeChecker();
+	return Boolean(type.getProperty('includes')) && (checker.isArrayType(type) || checker.isTupleType(type));
 }
 
 export default function simpleArraySearchRule({method, replacement, checkBooleanPredicate = false}) {
@@ -203,8 +212,13 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 			}
 
 			const [parameter] = callback.params;
+			const {parserServices} = sourceCode;
 			const parameterReference = getBooleanPredicateReference(callback, parameter);
-			if (!parameterReference || !isBooleanLikeType(sourceCode.parserServices.getTypeAtLocation(parameter))) {
+			if (
+				!parameterReference
+				|| !isBooleanLikeType(parserServices.getTypeAtLocation(parameter))
+				|| !isArrayOrTupleType(parserServices.getTypeAtLocation(callExpression.callee.object), parserServices)
+			) {
 				return;
 			}
 
