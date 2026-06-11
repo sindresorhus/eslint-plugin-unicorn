@@ -106,6 +106,42 @@ test.snapshot({
 	],
 });
 
+// `String#substring`
+test.snapshot({
+	valid: [
+		'string.substring()',
+		'string.substring(0)',
+		'string.substring(index)',
+		'string.substring(0, 2)',
+		'string.substring(-1, 0)',
+		'string.substring(1.5, 2.5)',
+		'string.substring(index, index + 2)',
+		'string.substring(index, other + 1)',
+		'string.substring(other, index + 1)',
+		'string.substring(index, index + length)',
+		'string.substring(index, length + index)',
+		'string.substring(...arguments)',
+		'string.substring(index, index + 1, extraArgument)',
+	],
+	invalid: [
+		'string.substring(0, 1)',
+		'string.substring(1, 2)',
+		'string.substring(2, 1)',
+		'string.substring(index, index + 1)',
+		'string.substring(index, 1 + index)',
+		'string.substring(index - 1, index)',
+		'string.substring(index + 1, index)',
+		'string.substring(1 + index, index)',
+		'string.substring(index, /* comment */ index + 1)',
+		'string.substring(index, index + /* comment */ 1)',
+		'string.substring((( index )), (( index )) + 1)',
+		'string.substring((( index )) - 1, (( index )))',
+		'(( string )).substring(index, index + 1)',
+		'string?.substring(index, index + 1)',
+		'string.substring?.(index, index + 1)',
+	],
+});
+
 // `.slice()` with one argument
 test.snapshot({
 	valid: [

@@ -6,6 +6,7 @@ import {
 } from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
 import {isNumericLiteral, isStringLiteral, isMethodCall} from './ast/index.js';
+import {getSubstringSingleCharacterIndex} from './shared/substring.js';
 
 const MESSAGE_ID_SUBSTR = 'substr';
 const MESSAGE_ID_SUBSTRING = 'substring';
@@ -184,6 +185,12 @@ const create = context => {
 		}
 
 		const method = node.callee.property.name;
+		if (
+			method === 'substring'
+			&& getSubstringSingleCharacterIndex(node)
+		) {
+			return;
+		}
 
 		return {
 			node,

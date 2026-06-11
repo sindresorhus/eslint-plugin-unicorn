@@ -17,6 +17,7 @@ import {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
 } from './shared/negative-index.js';
+import {getSubstringSingleCharacterIndex} from './shared/substring.js';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	isLiteral,
@@ -30,6 +31,7 @@ const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_INDEX = 'index';
 const MESSAGE_ID_STRING_CHAR_AT_NEGATIVE = 'string-char-at-negative';
 const MESSAGE_ID_STRING_CHAR_AT = 'string-char-at';
+const MESSAGE_ID_STRING_SUBSTRING = 'string-substring';
 const MESSAGE_ID_SLICE = 'slice';
 const MESSAGE_ID_GET_LAST_FUNCTION = 'get-last-function';
 const SUGGESTION_ID = 'use-at';
@@ -38,6 +40,7 @@ const messages = {
 	[MESSAGE_ID_INDEX]: 'Prefer `.at(…)` over index access.',
 	[MESSAGE_ID_STRING_CHAR_AT_NEGATIVE]: 'Prefer `String#at(…)` over `String#charAt(….length - index)`.',
 	[MESSAGE_ID_STRING_CHAR_AT]: 'Prefer `String#at(…)` over `String#charAt(…)`.',
+	[MESSAGE_ID_STRING_SUBSTRING]: 'Prefer `String#at(…)` over `String#substring(…)` when getting one character.',
 	[MESSAGE_ID_SLICE]: 'Prefer `.at(…)` over the first element from `.slice(…)`.',
 	[MESSAGE_ID_GET_LAST_FUNCTION]: 'Prefer `.at(-1)` over `{{description}}(…)` to get the last element.',
 	[SUGGESTION_ID]: 'Use `.at(…)`.',
@@ -299,6 +302,44 @@ function create(context) {
 					}
 
 					yield fixer.replaceText(node.callee.property, 'at');
+				},
+			}],
+		};
+	});
+
+	// `string.substring(index, index + 1)`
+	context.on('CallExpression', node => {
+		const indexNode = getSubstringSingleCharacterIndex(node);
+		if (!indexNode) {
+			return;
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID_STRING_SUBSTRING,
+		};
+
+		const [firstArgument, secondArgument] = node.arguments;
+		const replacementRange = [
+			getParenthesizedRange(firstArgument, context)[0],
+			getParenthesizedRange(secondArgument, context)[1],
+		];
+		const hasCommentsInsideReplacementRange = sourceCode.getAllComments().some(comment => {
+			const commentRange = sourceCode.getRange(comment);
+			return commentRange[0] >= replacementRange[0] && commentRange[1] <= replacementRange[1];
+		});
+		if (hasCommentsInsideReplacementRange) {
+			return problem;
+		}
+
+		return {
+			...problem,
+			suggest: [{
+				messageId: SUGGESTION_ID,
+				* fix(fixer) {
+					yield fixer.replaceText(node.callee.property, 'at');
+
+					yield fixer.replaceTextRange(replacementRange, getParenthesizedText(indexNode, context));
 				},
 			}],
 		};
