@@ -84,6 +84,7 @@ export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
+export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-expression.js';
 export {default as 'no-unused-array-method-return'} from './no-unused-array-method-return.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
