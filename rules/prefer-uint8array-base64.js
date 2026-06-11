@@ -34,25 +34,13 @@ function isImportedBuffer(identifier, context) {
 // Whether the receiver of a `.toString('base64')` call is byte-like (`Buffer`/`Uint8Array`). Only consulted when type information is available; without it, callers should report anyway, since requiring type information would make the rule too narrow. With type information, a receiver whose type is known and not byte-like (for example a userland object with a custom `toString`) is skipped to avoid false positives. `any`/`unknown` types are treated as byte-like, since we cannot rule them out.
 function isByteLikeReceiver(node, parserServices) {
 	const type = parserServices.getTypeAtLocation(node);
-	const typeChecker = parserServices.program.getTypeChecker();
 
 	const parts = type.isUnion() || type.isIntersection() ? type.types : [type];
 	return parts.some(part => {
 		const name = (part.getSymbol() ?? part.aliasSymbol)?.getName();
-		if (name === 'Buffer' || name === 'Uint8Array') {
-			return true;
-		}
-
-		let text;
-		try {
-			// TypeScript 6 can crash here when computing module specifiers for certain types.
-			// Treat it as non-byte-like to avoid false positives.
-			text = typeChecker.typeToString(part);
-		} catch {
-			return false;
-		}
-
-		return text === 'any' || text === 'unknown';
+		// `intrinsicName` exposes `any`/`unknown` directly. We avoid `typeChecker.typeToString()`, which
+		// crashes in TypeScript 6 while computing module specifiers for certain types.
+		return name === 'Buffer' || name === 'Uint8Array' || part.intrinsicName === 'any' || part.intrinsicName === 'unknown';
 	});
 }
 

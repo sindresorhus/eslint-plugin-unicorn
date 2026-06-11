@@ -75,7 +75,7 @@ function getPackageHelpers(dirname) {
 			return false;
 		}
 
-		const TODO_ARGUMENT_RE = /\[(?<rawArguments>[^}]+)]/i;
+		const TODO_ARGUMENT_RE = /\[(?<rawArguments>[^}]+)]/;
 		const result = TODO_ARGUMENT_RE.exec(string);
 
 		if (!result) {
@@ -205,9 +205,9 @@ function getPackageHelpers(dirname) {
 	};
 }
 
-const DEPENDENCY_INCLUSION_RE = /^[+-]\s*@?\S+\/?\S+/;
-const VERSION_COMPARISON_RE = /^(?<name>@?\S\/?\S+)@(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?)/i;
-const PKG_VERSION_RE = /^(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?)\s*$/;
+const DEPENDENCY_INCLUSION_RE = /^[+-]\s*\S{2,}/;
+const VERSION_COMPARISON_RE = /^(?<name>\S{2,})@(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d\-a-z]+(?:\.[\d\-a-z]+)*)?(?:\+[\d\-a-z]+(?:\.[\d\-a-z]+)*)?)/i;
+const PKG_VERSION_RE = /^(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d\-a-z]+(?:\.[\d\-a-z]+)*)?(?:\+[\d\-a-z]+(?:\.[\d\-a-z]+)*)?)\s*$/;
 const ISO8601_DATE = /\d{4}-\d{2}-\d{2}/;
 
 function createArgumentGroup(arguments_) {

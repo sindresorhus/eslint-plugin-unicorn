@@ -93,18 +93,14 @@ function isInAsyncContext(node) {
 // Without it, `using` would throw a `TypeError` at runtime, so this avoids suggesting broken code.
 // `getProperties()` resolves a union to its common properties and an intersection to its merged
 // properties, so a union member that is not disposable correctly prevents the suggestion.
-function isDisposableType(type, isAwaited, typeChecker) {
+function isDisposableType(type, isAwaited) {
 	return type.getProperties().some(symbol => {
-		let name;
-		try {
-			// TypeScript 6 can crash here when computing module specifiers for certain symbols.
-			// Treat it as non-disposable to avoid false positives.
-			name = typeChecker.symbolToString(symbol);
-		} catch {
-			return false;
-		}
-
-		return name === '[Symbol.dispose]' || (isAwaited && name === '[Symbol.asyncDispose]');
+		// TypeScript stores well-known symbol members under the escaped name `__@<name>@<id>`
+		// (for example `__@dispose@9`). We match that directly. We deliberately avoid
+		// `typeChecker.symbolToString()`, which crashes in TypeScript 6 while computing module
+		// specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
+		const name = String(symbol.escapedName);
+		return name.startsWith('__@dispose') || (isAwaited && name.startsWith('__@asyncDispose'));
 	});
 }
 
@@ -180,9 +176,8 @@ function areResourcesConvertible(resources, tryStatement, sourceCode, parserServ
 	}
 
 	// When type information is available, only report resources that are actually disposable.
-	const typeChecker = parserServices?.program?.getTypeChecker();
-	if (typeChecker && resources.some(({identifier, isAwaited}) =>
-		!isDisposableType(parserServices.getTypeAtLocation(identifier), isAwaited, typeChecker))) {
+	if (parserServices?.program && resources.some(({identifier, isAwaited}) =>
+		!isDisposableType(parserServices.getTypeAtLocation(identifier), isAwaited))) {
 		return false;
 	}
 

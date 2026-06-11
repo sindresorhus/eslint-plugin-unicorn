@@ -38,7 +38,7 @@ const methods = new Set([
 	'with',
 ]);
 
-const pascalCaseNamePattern = /^\p{Lu}/v;
+const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
 const uncertainValue = Symbol('uncertainValue');
 const nonArrayFactoryFunctions = new Set([
 	'BigInt',

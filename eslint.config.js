@@ -78,6 +78,16 @@ const config = [
 			'@stylistic/curly-newline': 'off',
 			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2833
 			'unicorn/template-indent': ['error', {indent: '\t'}],
+			// These `regexp/*` rules flag our own rule-implementation regexes, which run on source
+			// code at lint time rather than untrusted input, and rewriting them would hurt readability.
+			'regexp/optimal-quantifier-concatenation': 'off',
+			'regexp/no-super-linear-move': 'off',
+			'regexp/no-super-linear-backtracking': 'off',
+			'regexp/strict': 'off',
+			'regexp/no-control-character': 'off',
+			'regexp/prefer-named-capture-group': 'off',
+			// Our long-standing `eslint-disable` directives predate this rule and are self-explanatory.
+			'@eslint-community/eslint-comments/require-description': 'off',
 		},
 	},
 	{

@@ -5,10 +5,10 @@ const messages = {
 	[MESSAGE_ID]: 'Avoid manually wrapping comments.',
 };
 
-const sentenceEndPattern = /[.!?]$/v;
-const directiveCommentPattern = /^(?:[\/#@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|oxlint|prettier)-)/v;
-const listCommentPattern = /^(?:(?:-|\*|\+)\s|\d+(?:\.|\))\s)/v;
-const separatorCommentPattern = /^[\-=*_#~]{3,}$/v;
+const sentenceEndPattern = /[!.?]$/v;
+const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|oxlint|prettier)-)/v;
+const listCommentPattern = /^(?:[*+\-]\s|\d+(?:\.|\))\s)/v;
+const separatorCommentPattern = /^[#*\-=_~]{3,}$/v;
 const urlPattern = /\bhttps?:\/\/|www\./v;
 const codeCharacters = ['`', '{', '}', '(', ')', '[', ']'];
 

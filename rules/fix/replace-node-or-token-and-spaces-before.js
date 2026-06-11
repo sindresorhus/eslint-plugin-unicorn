@@ -24,7 +24,7 @@ export default function * replaceNodeOrTokenAndSpacesBefore(nodeOrToken, replace
 
 	const textBefore = sourceCode.text.slice(0, start);
 	const [trailingSpaces] = textBefore.match(/\s*$/);
-	const [lineBreak] = trailingSpaces.match(/(?:\r?\n|\r){0,1}/);
+	const [lineBreak] = trailingSpaces.match(/(?:\r?\n|\r)?/);
 	start -= trailingSpaces.length;
 
 	yield fixer.replaceTextRange([start, end], `${lineBreak}${replacement}`);

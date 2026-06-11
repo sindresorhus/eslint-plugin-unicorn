@@ -10,7 +10,10 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 import {
-	isMemberExpression, isMethodCall, isStringLiteral, isExpressionStatement,
+	isMemberExpression,
+	isMethodCall,
+	isStringLiteral,
+	isExpressionStatement,
 } from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
