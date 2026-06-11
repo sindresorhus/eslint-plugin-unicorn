@@ -11,13 +11,15 @@
 
 Enforces the only valid way of `Error` subclassing. It works with any super class that ends in `Error`.
 
+When a named error constructor accepts a message, it should also accept `options` and pass it to `super()` so native `Error#cause` is preserved.
+
 ## Examples
 
 ```js
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		// The `this.message` assignment is useless as it's already set via the `super()` call.
 		this.message = message;
 		this.name = 'CustomError';
@@ -26,8 +28,8 @@ class CustomError extends Error {
 
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super();
+	constructor(message, options) {
+		super(undefined, options);
 		// Pass the error message to `super()` instead of setting `this.message`.
 		this.message = message;
 		this.name = 'CustomError';
@@ -36,8 +38,8 @@ class CustomError extends Error {
 
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		// No `name` property set. The name property is needed so the
 		// error shows up as `[CustomError: foo]` and not `[Error: foo]`.
 	}
@@ -45,8 +47,8 @@ class CustomError extends Error {
 
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		// Use a string literal to set the `name` property as it will not change after minifying.
 		this.name = this.constructor.name;
 	}
@@ -54,8 +56,8 @@ class CustomError extends Error {
 
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		// The `name` property should be set to the class name.
 		this.name = 'MyError';
 	}
@@ -63,8 +65,8 @@ class CustomError extends Error {
 
 // ✅
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'CustomError';
 	}
 }
@@ -74,17 +76,37 @@ class CustomError extends Error {
 // ❌
 // The class name should be capitalized and end with `Error`.
 class foo extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'foo';
 	}
 }
 
 // ✅
 class FooError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'FooError';
+	}
+}
+```
+
+```js
+// ❌
+class CustomError extends Error {
+	constructor(message, details) {
+		super(message);
+		this.details = details;
+		this.name = 'CustomError';
+	}
+}
+
+// ✅
+class CustomError extends Error {
+	constructor(message, options) {
+		super(message, options);
+		this.details = options?.details;
+		this.name = 'CustomError';
 	}
 }
 ```
@@ -121,8 +143,8 @@ When defining a custom `message` accessor, don't pass the message to `super()` a
 ```js
 // ❌
 class CustomError extends Error {
-	constructor(message) {
-		super(message);
+	constructor(message, options) {
+		super(message, options);
 		this.name = 'CustomError';
 	}
 
@@ -135,8 +157,8 @@ class CustomError extends Error {
 class CustomError extends Error {
 	#message;
 
-	constructor(message) {
-		super();
+	constructor(message, options) {
+		super(undefined, options);
 		this.#message = message;
 		this.name = 'CustomError';
 	}

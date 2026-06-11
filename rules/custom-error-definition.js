@@ -8,10 +8,18 @@ import {isUndefined} from './ast/index.js';
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER = 'doNotPassMessageToSuper';
 const MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER = 'doNotAssignMessageWithoutSetter';
+const MESSAGE_ID_MISSING_OPTIONS_PARAMETER = 'missingOptionsParameter';
+const MESSAGE_ID_INVALID_OPTIONS_PARAMETER = 'invalidOptionsParameter';
+const MESSAGE_ID_PASS_MESSAGE_TO_SUPER = 'passMessageToSuper';
+const MESSAGE_ID_PASS_OPTIONS_TO_SUPER = 'passOptionsToSuper';
 const messages = {
 	[MESSAGE_ID_INVALID_EXPORT]: 'Exported error name should match error class',
 	[MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER]: 'Do not pass the error message to `super()` when the class defines a `message` accessor.',
 	[MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER]: 'Do not assign to `this.message` when the class defines a `message` getter without a setter.',
+	[MESSAGE_ID_MISSING_OPTIONS_PARAMETER]: 'Error constructors should accept `options` as the second parameter.',
+	[MESSAGE_ID_INVALID_OPTIONS_PARAMETER]: 'Error constructors should use `options` as the second parameter.',
+	[MESSAGE_ID_PASS_MESSAGE_TO_SUPER]: 'Pass the error message to `super()` as the first argument.',
+	[MESSAGE_ID_PASS_OPTIONS_TO_SUPER]: 'Pass `options` to `super()` as the second argument.',
 };
 
 const nameRegexp = /^(?:[A-Z][\da-z]*)*Error$/;
@@ -80,6 +88,22 @@ const isMissingOrUndefined = node =>
 	!node
 	|| isUndefined(node);
 
+const getParameterIdentifier = parameter => {
+	if (parameter?.type === 'Identifier') {
+		return parameter;
+	}
+
+	if (
+		parameter?.type === 'AssignmentPattern'
+		&& parameter.left.type === 'Identifier'
+	) {
+		return parameter.left;
+	}
+};
+
+const isOptionsIdentifier = node =>
+	getParameterIdentifier(node)?.name === 'options';
+
 const isSameText = (left, right, sourceCode) =>
 	sourceCode.getText(left) === sourceCode.getText(right);
 
@@ -113,6 +137,162 @@ const hasThisOrSuper = (node, visitorKeys) => {
 	return false;
 };
 
+const getOptionsParameterText = firstParameter => {
+	const parameterIdentifier = getParameterIdentifier(firstParameter);
+
+	if (!parameterIdentifier.typeAnnotation) {
+		return 'options';
+	}
+
+	return parameterIdentifier.optional ? 'options?: ErrorOptions' : 'options: ErrorOptions';
+};
+
+const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+	const superArguments = superCallExpression.arguments;
+
+	if (superArguments.length === 0) {
+		const openingParenthesis = sourceCode.getTokenAfter(superCallExpression.callee, token => token.value === '(');
+		return fixer.insertTextAfter(openingParenthesis, `${messageArgumentText}, options`);
+	}
+
+	if (superArguments.length === 1) {
+		if (
+			messageArgumentText !== 'undefined'
+			&& isMissingOrUndefined(superArguments[0])
+		) {
+			return fixer.replaceText(superArguments[0], `${messageArgumentText}, options`);
+		}
+
+		return fixer.insertTextAfter(superArguments[0], ', options');
+	}
+};
+
+const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
+	const {sourceCode} = context;
+	const firstParameter = constructor.value.params[0];
+	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
+
+	if (!superOptionsFix) {
+		return;
+	}
+
+	yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
+	yield superOptionsFix;
+};
+
+const fixSuperMessageArgument = (sourceCode, superCallExpression, messageArgumentText) => fixer => {
+	const superArguments = superCallExpression.arguments;
+
+	if (superArguments.length === 0) {
+		const openingParenthesis = sourceCode.getTokenAfter(superCallExpression.callee, token => token.value === '(');
+		return fixer.insertTextAfter(openingParenthesis, `${messageArgumentText}, options`);
+	}
+
+	if (isMissingOrUndefined(superArguments[0])) {
+		return fixer.replaceText(
+			superArguments[0],
+			superArguments.length === 1 ? `${messageArgumentText}, options` : messageArgumentText,
+		);
+	}
+};
+
+const isSameIdentifier = (node, identifier) =>
+	node?.type === 'Identifier'
+	&& node.name === identifier.name;
+
+const checkErrorOptions = (context, constructor, superExpression, hasMessageAccessor) => {
+	const parameters = constructor.value.params;
+	const firstParameter = parameters[0];
+	const firstParameterIdentifier = getParameterIdentifier(firstParameter);
+
+	if (
+		parameters.length === 0
+		|| !firstParameterIdentifier
+	) {
+		return;
+	}
+
+	const optionsParameter = parameters[1];
+	const superCallExpression = superExpression.expression;
+	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
+	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
+
+	if (isOptionsIdentifier(firstParameter)) {
+		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
+			const problem = {
+				node: superCallExpression,
+				messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
+			};
+
+			if (!isSameIdentifier(superCallExpression.arguments[0], firstParameterIdentifier)) {
+				problem.fix = fixSuperOptionsArgument(context.sourceCode, superCallExpression, 'undefined');
+			}
+
+			return problem;
+		}
+
+		return;
+	}
+
+	if (!optionsParameter) {
+		return {
+			node: firstParameter,
+			messageId: MESSAGE_ID_MISSING_OPTIONS_PARAMETER,
+			fix: fixMissingOptionsParameter(context, constructor, superCallExpression, messageArgumentText),
+		};
+	}
+
+	if (!isOptionsIdentifier(optionsParameter)) {
+		return {
+			node: optionsParameter,
+			messageId: MESSAGE_ID_INVALID_OPTIONS_PARAMETER,
+		};
+	}
+
+	if (
+		shouldPassMessageToSuper
+		&& !isSameIdentifier(superCallExpression.arguments[0], firstParameterIdentifier)
+	) {
+		return {
+			node: superCallExpression,
+			messageId: MESSAGE_ID_PASS_MESSAGE_TO_SUPER,
+			fix: fixSuperMessageArgument(context.sourceCode, superCallExpression, messageArgumentText),
+		};
+	}
+
+	if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
+		return {
+			node: superCallExpression,
+			messageId: MESSAGE_ID_PASS_OPTIONS_TO_SUPER,
+			fix: fixSuperOptionsArgument(context.sourceCode, superCallExpression, messageArgumentText),
+		};
+	}
+};
+
+function * checkErrorName(constructorBodyNode, constructorBody, errorDefinition) {
+	const {name, nameProperty} = errorDefinition;
+	const nameExpression = constructorBody.find(bodyNode => isAssignmentExpression(bodyNode, 'name'));
+
+	if (!nameExpression) {
+		if (!isValidNameProperty(nameProperty, name)) {
+			yield createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
+			return false;
+		}
+
+		return true;
+	}
+
+	if (
+		nameExpression.expression.right.type !== 'Literal'
+		|| nameExpression.expression.right.value !== name
+	) {
+		yield createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
+		return false;
+	}
+
+	return true;
+}
+
 function * checkConstructorBody(context, constructor, errorDefinition) {
 	const {sourceCode} = context;
 	const constructorBodyNode = constructor.value.body;
@@ -123,19 +303,22 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 	}
 
 	const constructorBody = constructorBodyNode.body;
-	const {name, nameProperty, hasMessageGetter, hasMessageSetter} = errorDefinition;
+	const {hasMessageGetter, hasMessageSetter, checkOptions} = errorDefinition;
 
 	const superExpression = constructorBody.find(bodyNode => isSuperExpression(bodyNode));
 	const superExpressionIndex = constructorBody.findIndex(bodyNode => isSuperExpression(bodyNode));
 	const messageExpressionIndex = constructorBody.findIndex(bodyNode => isAssignmentExpression(bodyNode, 'message'));
 	const hasMessageAccessor = hasMessageGetter || hasMessageSetter;
+	let hasConstructorBodyProblem = false;
 
 	if (!superExpression) {
+		hasConstructorBodyProblem = true;
 		yield {
 			node: constructorBodyNode,
 			message: 'Missing call to `super()` in constructor.',
 		};
 	} else if (hasMessageAccessor && !isMissingOrUndefined(superExpression.expression.arguments[0])) {
+		hasConstructorBodyProblem = true;
 		yield {
 			node: superExpression,
 			messageId: MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER,
@@ -145,18 +328,26 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 		&& !hasMessageSetter
 		&& messageExpressionIndex !== -1
 	) {
+		hasConstructorBodyProblem = true;
 		yield {
 			node: constructorBody[messageExpressionIndex],
 			messageId: MESSAGE_ID_DO_NOT_ASSIGN_MESSAGE_WITHOUT_SETTER,
 		};
 	} else if (!hasMessageSetter && messageExpressionIndex !== -1) {
 		const expression = constructorBody[messageExpressionIndex];
+		hasConstructorBodyProblem = true;
 
 		yield {
 			node: superExpression,
 			message: 'Pass the error message to `super()` instead of setting `this.message`.',
 			* fix(fixer) {
 				const rhs = expression.expression.right;
+				const [firstParameter, secondParameter] = constructor.value.params;
+				const firstParameterIdentifier = getParameterIdentifier(firstParameter);
+				const shouldAddOptionsParameter = constructor.value.params.length === 1
+					&& firstParameterIdentifier
+					&& !isOptionsIdentifier(firstParameter);
+				const shouldAddOptionsArgument = shouldAddOptionsParameter || isOptionsIdentifier(secondParameter);
 
 				if (superExpression.expression.arguments.length === 0) {
 					if (
@@ -171,10 +362,21 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 					// There can be spaces, comments after `super`
 					yield fixer.insertTextAfterRange(
 						[start, start + 6],
-						getParenthesizedText(rhs, context),
+						shouldAddOptionsArgument
+							? `${getParenthesizedText(rhs, context)}, options`
+							: getParenthesizedText(rhs, context),
 					);
 				} else if (!isSameText(superExpression.expression.arguments[0], rhs, sourceCode)) {
 					return;
+				} else if (
+					shouldAddOptionsArgument
+					&& superExpression.expression.arguments.length === 1
+				) {
+					yield fixer.insertTextAfter(superExpression.expression.arguments[0], ', options');
+				}
+
+				if (shouldAddOptionsParameter) {
+					yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 				}
 
 				const start = messageExpressionIndex === 0
@@ -186,20 +388,14 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 		};
 	}
 
-	const nameExpression = constructorBody.find(bodyNode => isAssignmentExpression(bodyNode, 'name'));
-	if (!nameExpression) {
-		if (!isValidNameProperty(nameProperty, name)) {
-			yield createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
+	const hasValidName = yield * checkErrorName(constructorBodyNode, constructorBody, errorDefinition);
+
+	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
+		const errorOptionsProblem = checkErrorOptions(context, constructor, superExpression, hasMessageAccessor);
+
+		if (errorOptionsProblem) {
+			yield errorOptionsProblem;
 		}
-
-		return;
-	}
-
-	if (
-		nameExpression.expression.right.type !== 'Literal'
-		|| nameExpression.expression.right.value !== name
-	) {
-		yield createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
 }
 
@@ -261,6 +457,7 @@ function * customErrorDefinition(context, node) {
 		nameProperty,
 		hasMessageGetter,
 		hasMessageSetter,
+		checkOptions: name === className,
 	});
 }
 

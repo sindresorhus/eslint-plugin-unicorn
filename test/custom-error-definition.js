@@ -9,6 +9,10 @@ const noSuperCallError = {message: 'Missing call to `super()` in constructor.'};
 const passMessageToSuperError = {message: 'Pass the error message to `super()` instead of setting `this.message`.'};
 const doNotPassMessageToSuperError = {messageId: 'doNotPassMessageToSuper'};
 const doNotAssignMessageWithoutSetterError = {messageId: 'doNotAssignMessageWithoutSetter'};
+const missingOptionsParameterError = {messageId: 'missingOptionsParameter'};
+const invalidOptionsParameterError = {messageId: 'invalidOptionsParameter'};
+const passMessageArgumentToSuperError = {messageId: 'passMessageToSuper'};
+const passOptionsToSuperError = {messageId: 'passOptionsToSuper'};
 const invalidExportError = {
 	messageId: 'invalidExport',
 };
@@ -29,16 +33,49 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends Http.ProtocolError {
-				constructor(message) {
-					super(message);
+				constructor(message, options) {
+					super(message, options);
 					this.name = 'FooError';
 				}
 			}
 		`,
 		outdent`
 			class FooError extends Error {
-				constructor(message) {
-					super(message);
+				constructor(message, options) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message, options) {
+					super(message, options);
+					this.details = options?.details;
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(filePath, options) {
+					super(\`File not found: \${filePath}\`, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(options) {
+					super('Fixed message', options);
+					this.name = 'FooError';
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message, options = {}) {
+					super(message, options);
 					this.name = 'FooError';
 				}
 			}
@@ -116,8 +153,8 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends Error {
-				constructor(error) {
-					super(error);
+				constructor(error, options) {
+					super(error, options);
 					this.name = 'FooError';
 				}
 			};
@@ -136,33 +173,14 @@ const tests = {
 			class FooError extends Error {
 				#message;
 
-				constructor(message) {
-					super();
+				constructor(message, options) {
+					super(undefined, options);
 					this.#message = message;
 					this.name = 'FooError';
 				}
 
 				get message() {
 					return this.#message;
-				}
-			}
-		`,
-		outdent`
-			class FooError extends Error {
-				#message;
-
-				constructor(message) {
-					super();
-					this.message = message;
-					this.name = 'FooError';
-				}
-
-				get message() {
-					return this.#message;
-				}
-
-				set message(message) {
-					this.#message = message;
 				}
 			}
 		`,
@@ -187,8 +205,8 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends Error {
-				constructor(message) {
-					super();
+				constructor(message, options) {
+					super(undefined, options);
 					this.message = message;
 					this.name = 'FooError';
 				}
@@ -200,8 +218,8 @@ const tests = {
 		`,
 		outdent`
 			class FooError extends Error {
-				constructor(message) {
-					super();
+				constructor(message, options) {
+					super(message, options);
 					this.message += message;
 					this.name = 'FooError';
 				}
@@ -379,8 +397,8 @@ const tests = {
 			],
 			output: outdent`
 				class FooError extends Error {
-					constructor(message) {
-						super(message);
+					constructor(message, options) {
+						super(message, options);
 						this.name = 'FooError';
 					}
 				}
@@ -415,8 +433,8 @@ const tests = {
 			],
 			output: outdent`
 				class FooError extends Error {
-					constructor(message) {
-						super(message);
+					constructor(message, options) {
+						super(message, options);
 						this.name = 'FooError';
 					}
 				}
@@ -437,8 +455,8 @@ const tests = {
 			],
 			output: outdent`
 				class FooError extends Error {
-					constructor(message) {
-						super(message);
+					constructor(message, options) {
+						super(message, options);
 					}
 				}
 			`,
@@ -486,8 +504,8 @@ const tests = {
 		{
 			code: outdent`
 				exports.fooError = class FooError extends Error {
-					constructor(error) {
-						super(error);
+					constructor(error, options) {
+						super(error, options);
 						this.name = 'FooError';
 					}
 				};
@@ -495,8 +513,8 @@ const tests = {
 			errors: [invalidExportError],
 			output: outdent`
 				exports.FooError = class FooError extends Error {
-					constructor(error) {
-						super(error);
+					constructor(error, options) {
+						super(error, options);
 						this.name = 'FooError';
 					}
 				};
@@ -577,6 +595,243 @@ const tests = {
 		{
 			code: outdent`
 				class FooError extends Error {
+					constructor(message) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message = 'Default message') {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message = 'Default message', options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(undefined);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(filePath) {
+						super(undefined);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(filePath, options) {
+						super(undefined, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super();
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(undefined, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(undefined);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passMessageArgumentToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super(options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super();
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super(undefined, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super('Fixed message');
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				passOptionsToSuperError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(options) {
+						super('Fixed message', options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, details) {
+						super(message);
+						this.details = details;
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
 					constructor() {
 						super();
 						this.message = foo.error;
@@ -595,6 +850,41 @@ const tests = {
 			errors: [
 				passMessageToSuperError,
 			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					#message;
+
+					constructor(message) {
+						super();
+						this.#message = message;
+						this.name = 'FooError';
+					}
+
+					get message() {
+						return this.#message;
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					#message;
+
+					constructor(message, options) {
+						super(undefined, options);
+						this.#message = message;
+						this.name = 'FooError';
+					}
+
+					get message() {
+						return this.#message;
+					}
+				}
+			`,
 		},
 		{
 			code: outdent`
@@ -683,8 +973,8 @@ test({
 		outdent`
 			export class ValidationError extends Error {
 				name = 'ValidationError';
-				constructor(message) {
-					super(message);
+				constructor(message, options) {
+					super(message, options);
 				}
 			}
 		`,
@@ -725,6 +1015,14 @@ test.typescript({
 				constructor(type: string, text: string, reply?: any);
 			}
 		`,
+		outdent`
+			class FooError extends Error {
+				constructor(message: string, options: ErrorOptions) {
+					super(message, options);
+					this.name = 'FooError';
+				}
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -748,6 +1046,48 @@ test.typescript({
 			output: outdent`
 				class FooError extends Error {
 					name = 'FooError';
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message: string) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message: string, options: ErrorOptions) {
+						super(message, options);
+						this.name = 'FooError';
+					}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message?: string) {
+						super(message);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+			output: outdent`
+				class FooError extends Error {
+					constructor(message?: string, options?: ErrorOptions) {
+						super(message, options);
+						this.name = 'FooError';
+					}
 				}
 			`,
 		},
