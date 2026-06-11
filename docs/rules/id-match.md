@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule is the same as the built-in ESLint [`id-match`](https://eslint.org/docs/latest/rules/id-match) rule, but with an additional `checkNamedImports` option.
+This rule is the same as the built-in ESLint [`id-match`](https://eslint.org/docs/latest/rules/id-match) rule, but with an additional `checkNamedSpecifiers` option.
 
 ## Examples
 
@@ -41,21 +41,24 @@ Set `onlyDeclarations` to `true` to only check declared identifiers.
 
 Set `ignoreDestructuring` to `true` to ignore identifiers in destructuring patterns.
 
-### `checkNamedImports`
+### `checkNamedSpecifiers`
 
-Set `checkNamedImports` to `false` to ignore named import declarations:
+Set `checkNamedSpecifiers` to `false` to ignore named import specifiers and external named export specifiers:
 
 ```js
-/* eslint unicorn/id-match: ["error", "^[a-z]+$", {"checkNamedImports": false}] */
+/* eslint unicorn/id-match: ["error", "^[a-z]+$", {"checkNamedSpecifiers": false}] */
 
 // ✅
 import {foo$} from 'module';
+
+// ✅
+export {foo$} from 'module';
 ```
 
-Only named import declarations are ignored. Default imports, namespace imports, and later references to the imported binding are still checked:
+Only named import specifiers and external named export specifiers are ignored. Default imports, namespace imports, namespace re-exports, local export specifiers, and later references to imported bindings are still checked:
 
 ```js
-/* eslint unicorn/id-match: ["error", "^[a-z]+$", {"checkNamedImports": false}] */
+/* eslint unicorn/id-match: ["error", "^[a-z]+$", {"checkNamedSpecifiers": false}] */
 
 // ❌
 import foo$ from 'module';
@@ -64,6 +67,15 @@ import foo$ from 'module';
 import * as foo$ from 'module';
 
 // ❌
+export * as foo$ from 'module';
+
+// ❌
+const foo = 1;
+export {foo as bar$};
+
+// ✅
 import {bar$} from 'module';
+
+// ❌
 const foo = bar$;
 ```

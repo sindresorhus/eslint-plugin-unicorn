@@ -4,7 +4,8 @@ import parsers from './utils/parsers.js';
 const {test} = getTester(import.meta);
 
 const options = ['^[a-z]+$'];
-const optionsSkipNamedImports = ['^[a-z]+$', {checkNamedImports: false}];
+const optionsCheckNamedSpecifiers = ['^[a-z]+$', {checkNamedSpecifiers: true}];
+const optionsDoNotCheckNamedSpecifiers = ['^[a-z]+$', {checkNamedSpecifiers: false}];
 const optionsCheckProperties = ['^[a-z]+$', {properties: true}];
 const optionsCheckClassFields = ['^[a-z]+$', {classFields: true}];
 const optionsOnlyDeclarations = ['^[a-z]+$', {onlyDeclarations: true}];
@@ -25,15 +26,27 @@ test({
 		},
 		{
 			code: 'import {foo$} from "module";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
 		},
 		{
 			code: 'import {foo as bar$} from "module";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
 		},
 		{
 			code: 'import {foo$ as bar$} from "module";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
+		},
+		{
+			code: 'export {foo$} from "module";',
+			options: optionsDoNotCheckNamedSpecifiers,
+		},
+		{
+			code: 'export {foo$ as foo} from "module";',
+			options: optionsDoNotCheckNamedSpecifiers,
+		},
+		{
+			code: 'export {foo as bar$} from "module";',
+			options: optionsDoNotCheckNamedSpecifiers,
 		},
 		{
 			code: 'const object = {foo$: 1};',
@@ -53,7 +66,7 @@ test({
 		},
 		{
 			code: 'import type {ContraImageFragment$key} from "@/__generated__/ContraImageFragment.graphql";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
 			languageOptions: {
 				parser: parsers.typescript,
 			},
@@ -76,19 +89,70 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'import {foo$} from "module";',
+			options: optionsCheckNamedSpecifiers,
+			errors: [error],
+		},
+		{
+			code: 'export {foo$} from "module";',
+			options,
+			errors: [error],
+		},
+		{
+			code: 'export {foo$} from "module";',
+			options: optionsCheckNamedSpecifiers,
+			errors: [error],
+		},
+		{
 			code: 'import foo$ from "module";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
 			errors: [error],
 		},
 		{
 			code: 'import * as foo$ from "module";',
-			options: optionsSkipNamedImports,
+			options: optionsDoNotCheckNamedSpecifiers,
+			errors: [error],
+		},
+		{
+			code: 'export * as foo$ from "module";',
+			options: optionsDoNotCheckNamedSpecifiers,
 			errors: [error],
 		},
 		{
 			code: 'import {foo$} from "module"; const bar = foo$;',
-			options: optionsSkipNamedImports,
-			errors: [error],
+			options: optionsDoNotCheckNamedSpecifiers,
+			errors: [
+				{
+					...error,
+					line: 1,
+					column: 42,
+					endColumn: 46,
+				},
+			],
+		},
+		{
+			code: 'import {foo as bar$} from "module"; bar$;',
+			options: optionsDoNotCheckNamedSpecifiers,
+			errors: [
+				{
+					...error,
+					line: 1,
+					column: 37,
+					endColumn: 41,
+				},
+			],
+		},
+		{
+			code: 'const foo = 1; export {foo as bar$};',
+			options: optionsDoNotCheckNamedSpecifiers,
+			errors: [
+				{
+					...error,
+					line: 1,
+					column: 31,
+					endColumn: 35,
+				},
+			],
 		},
 		{
 			code: 'const object = {foo$: 1};',
