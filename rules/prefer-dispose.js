@@ -89,19 +89,29 @@ function isInAsyncContext(node) {
 	return false;
 }
 
-// With type information, confirm the resource actually implements `Symbol.dispose`/`Symbol.asyncDispose`.
+// With type information, confirm the resources actually implement `Symbol.dispose`/`Symbol.asyncDispose`.
 // Without it, `using` would throw a `TypeError` at runtime, so this avoids suggesting broken code.
 // `getProperties()` resolves a union to its common properties and an intersection to its merged
 // properties, so a union member that is not disposable correctly prevents the suggestion.
-function isDisposableType(type, isAwaited) {
-	return type.getProperties().some(symbol => {
-		// TypeScript stores well-known symbol members under the escaped name `__@<name>@<id>`
-		// (for example `__@dispose@9`). We match that directly. We deliberately avoid
-		// `typeChecker.symbolToString()`, which crashes in TypeScript 6 while computing module
-		// specifiers for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
-		const name = String(symbol.escapedName);
-		return name.startsWith('__@dispose') || (isAwaited && name.startsWith('__@asyncDispose'));
-	});
+//
+// Resolving and inspecting types can crash deep inside TypeScript 6 while it computes module specifiers
+// for symbols declared in other modules (`Cannot read properties of undefined (reading 'includes')`).
+// We cannot then confirm disposability, so we conservatively report it as non-disposable rather than crash the lint run.
+function areAllResourcesDisposable(resources, parserServices) {
+	try {
+		return resources.every(({identifier, isAwaited}) => {
+			const type = parserServices.getTypeAtLocation(identifier);
+			return type.getProperties().some(symbol => {
+				// TypeScript stores well-known symbol members under the escaped name `__@<name>@<id>`
+				// (for example `__@dispose@9`). We match that directly instead of `typeChecker.symbolToString()`,
+				// which is one of the calls that crashes.
+				const name = String(symbol.escapedName);
+				return name.startsWith('__@dispose') || (isAwaited && name.startsWith('__@asyncDispose'));
+			});
+		});
+	} catch {
+		return false;
+	}
 }
 
 // Resolve a disposed name to the `const`/`let` declaration that can become a `using` declaration.
@@ -176,8 +186,7 @@ function areResourcesConvertible(resources, tryStatement, sourceCode, parserServ
 	}
 
 	// When type information is available, only report resources that are actually disposable.
-	if (parserServices?.program && resources.some(({identifier, isAwaited}) =>
-		!isDisposableType(parserServices.getTypeAtLocation(identifier), isAwaited))) {
+	if (parserServices?.program && !areAllResourcesDisposable(resources, parserServices)) {
 		return false;
 	}
 
