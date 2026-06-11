@@ -213,6 +213,14 @@ test({
 				}
 			}
 		`,
+		outdent`
+			function doFoo(Components) {
+				function Bar() {
+					return <Components.Foo />;
+				}
+				return Bar;
+			}
+		`,
 		// `this`
 		outdent`
 			function doFoo(Foo) {
@@ -825,6 +833,17 @@ test({
 			`,
 			errors: [createError('function \'bar\'')],
 		},
+		// Lowercase JSX tags are intrinsic elements, not references.
+		{
+			code: outdent`
+				function foo(foo) {
+					function bar() {
+						return <foo />;
+					}
+				}
+			`,
+			errors: [createError('function \'bar\'')],
+		},
 		{
 			code: outdent`
 				function Foo() {
@@ -967,6 +986,32 @@ test({
 			errors: [createError('arrow function')],
 		},
 	],
+});
+
+test.typescript({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
+	},
+	valid: [
+		{
+			code: outdent`
+				function doFoo(FooComponent) {
+					function Bar() {
+						return <FooComponent />;
+					}
+					return Bar;
+				}
+			`,
+			filename: 'index.tsx',
+		},
+	],
+	invalid: [],
 });
 
 test.typescript({
