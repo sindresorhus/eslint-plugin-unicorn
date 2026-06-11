@@ -1,5 +1,5 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isExpressionStatement} from './ast/index.js';
+import {isExpressionStatement, isLiteral, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
 	isParenthesized,
@@ -30,7 +30,7 @@ const isPromiseMethodCallWithSingleElementArray = node =>
 	&& node.arguments[0].elements[0]
 	&& node.arguments[0].elements[0].type !== 'SpreadElement';
 
-const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
+const getAwaitedPromiseText = (callExpression, context) => {
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, context);
 
@@ -41,10 +41,11 @@ const unwrapAwaitedCallExpression = (callExpression, context) => fixer => {
 		text = `(${text})`;
 	}
 
-	// The next node is already behind a `CallExpression`, there should be no ASI problem
-
-	return fixer.replaceText(callExpression, text);
+	return text;
 };
+
+// The next node is already behind a `CallExpression`, there should be no ASI problem
+const unwrapAwaitedCallExpression = (callExpression, context) => fixer => fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
 
 const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
 	const [promiseNode] = callExpression.arguments[0].elements;
@@ -109,6 +110,91 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	}
 };
 
+const hasCommentsInside = (sourceCode, node) => sourceCode.getCommentsInside(node).length > 0;
+
+const isSingleIdentifierArrayPattern = node =>
+	node.type === 'ArrayPattern'
+	&& !node.typeAnnotation
+	&& node.elements.length === 1
+	&& node.elements[0]?.type === 'Identifier';
+
+const getPromiseAllDestructuringPattern = awaitExpression => {
+	const {parent} = awaitExpression;
+
+	if (
+		parent.type === 'VariableDeclarator'
+		&& parent.init === awaitExpression
+		&& isSingleIdentifierArrayPattern(parent.id)
+	) {
+		return parent.id;
+	}
+
+	if (
+		parent.type === 'AssignmentExpression'
+		&& parent.right === awaitExpression
+		&& isSingleIdentifierArrayPattern(parent.left)
+		&& isExpressionStatement(parent.parent)
+	) {
+		return parent.left;
+	}
+};
+
+const isZeroIndexAccess = node =>
+	node.type === 'MemberExpression'
+	&& node.computed
+	&& isLiteral(node.property, 0);
+
+const isSafeReplacementPosition = node =>
+	(
+		node.parent.type === 'VariableDeclarator'
+		&& node.parent.init === node
+	)
+	|| (
+		node.parent.type === 'AssignmentExpression'
+		&& node.parent.right === node
+	);
+
+const fixPromiseAllFirstElement = (callExpression, context) => {
+	const {sourceCode} = context;
+
+	if (hasCommentsInside(sourceCode, callExpression)) {
+		return;
+	}
+
+	const awaitExpression = callExpression.parent;
+
+	if (
+		awaitExpression.type !== 'AwaitExpression'
+		|| awaitExpression.argument !== callExpression
+	) {
+		return;
+	}
+
+	const arrayPattern = getPromiseAllDestructuringPattern(awaitExpression);
+
+	if (arrayPattern) {
+		if (hasCommentsInside(sourceCode, arrayPattern)) {
+			return;
+		}
+
+		return function * (fixer) {
+			yield fixer.replaceText(arrayPattern, sourceCode.getText(arrayPattern.elements[0]));
+			yield fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
+		};
+	}
+
+	const memberExpression = awaitExpression.parent;
+
+	if (
+		isZeroIndexAccess(memberExpression)
+		&& memberExpression.object === awaitExpression
+		&& isSafeReplacementPosition(memberExpression)
+		&& !hasCommentsInside(sourceCode, memberExpression)
+	) {
+		return fixer => fixer.replaceText(memberExpression, `await ${getAwaitedPromiseText(callExpression, context)}`);
+	}
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', callExpression => {
@@ -141,6 +227,7 @@ const create = context => {
 		}
 
 		if (methodName === 'all') {
+			problem.fix = fixPromiseAllFirstElement(callExpression, context);
 			return problem;
 		}
 
