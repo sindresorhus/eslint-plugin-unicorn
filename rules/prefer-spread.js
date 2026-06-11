@@ -21,23 +21,19 @@ const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
 const ERROR_ARRAY_SLICE = 'array-slice';
 const ERROR_ARRAY_TO_SPLICED = 'array-to-spliced';
-const ERROR_STRING_SPLIT = 'string-split';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
 const SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS = 'spread-all-arguments';
-const SUGGESTION_USE_SPREAD = 'use-spread';
 const messages = {
 	[ERROR_ARRAY_FROM]: 'Prefer the spread operator over `Array.from(…)`.',
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
 	[ERROR_ARRAY_TO_SPLICED]: 'Prefer the spread operator over `Array#toSpliced()`.',
-	[ERROR_STRING_SPLIT]: 'Prefer the spread operator over `String#split(\'\')`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
 	[SUGGESTION_CONCAT_SPREAD_ALL_ARGUMENTS]: 'Spread all unknown arguments.',
-	[SUGGESTION_USE_SPREAD]: 'Use `...` operator.',
 };
 
 const ignoredSliceCallee = [
@@ -308,7 +304,7 @@ function methodCallToSpread(node, context) {
 		yield fixer.insertTextBefore(node, '[...');
 		yield fixer.insertTextAfter(node, ']');
 
-		// The array is already accessing `.slice` or `.split`, there should be no case where extra `()` are needed.
+		// The array is already accessing `.slice` or `.toSpliced`, there should be no case where extra `()` are needed.
 
 		yield removeMethodCall(fixer, node, context);
 	};
@@ -609,59 +605,6 @@ const create = context => {
 			...(!hasExtraComments(node, node.callee.object) && {fix: methodCallToSpread(node, context)}),
 		};
 	});
-
-	// `string.split()`
-	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {
-			method: 'split',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
-			return;
-		}
-
-		const [separator] = node.arguments;
-		if (!isLiteral(separator, '')) {
-			return;
-		}
-
-		const string = node.callee.object;
-		const staticValue = getStaticValue(string, sourceCode.getScope(string));
-		let hasSameResult = false;
-		if (staticValue) {
-			const {value} = staticValue;
-
-			if (typeof value !== 'string') {
-				return;
-			}
-
-			// eslint-disable-next-line unicorn/prefer-spread
-			const resultBySplit = value.split('');
-			const resultBySpread = [...value];
-
-			hasSameResult = resultBySplit.length === resultBySpread.length
-				&& resultBySplit.every((character, index) => character === resultBySpread[index]);
-		}
-
-		const problem = {
-			node: node.callee.property,
-			messageId: ERROR_STRING_SPLIT,
-		};
-
-		if (hasSameResult && !hasExtraComments(node, node.callee.object)) {
-			problem.fix = methodCallToSpread(node, context);
-		} else {
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_USE_SPREAD,
-					fix: methodCallToSpread(node, context),
-				},
-			];
-		}
-
-		return problem;
-	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -670,7 +613,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split(\'\')`.',
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, and `Array#{slice,toSpliced}()`.',
 			recommended: true,
 		},
 		fixable: 'code',

@@ -1,6 +1,6 @@
 # prefer-spread
 
-📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()` and `String#split('')`.
+📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, and `Array#{slice,toSpliced}()`.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -31,12 +31,6 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 - `Array#toSpliced()`
 
 	Shallow copy an `Array`.
-
-- `String#split('')`
-
-	Split a string into an array of characters.
-
-	Note: [The suggestion fix may get different result](https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402).
 
 To enforce the spread operator over `Object#assign()`, use the built-in [`prefer-object-spread` rule](https://eslint.org/docs/rules/prefer-object-spread).
 
@@ -70,14 +64,6 @@ const copy = array.toSpliced();
 
 // ✅
 const copy = [...array];
-```
-
-```js
-// ❌
-const characters = string.split('');
-
-// ✅
-const characters = [...string];
 ```
 
 ```js
