@@ -118,8 +118,25 @@ const getStaticSelectorValue = node => {
 const getSelectorQuote = node =>
 	node.type === 'Literal' && node.raw.startsWith('"') ? '"' : '\'';
 
+const isDocumentObject = node =>
+	(
+		node.type === 'Identifier'
+		&& node.name === 'document'
+	)
+	|| (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.object.type === 'Identifier'
+		&& ['globalThis', 'window'].includes(node.object.name)
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'document'
+	);
+
 const canMergeSelectorValues = selectors =>
-	selectors.every(selector => !selector.includes(','));
+	selectors.every(selector =>
+		!selector.includes(',')
+		&& !selector.includes(':scope'),
+	);
 
 const isQuerySelectorCall = node =>
 	isMethodCall(node, QUERY_SELECTOR_CALL);
@@ -186,7 +203,7 @@ const getMergeQuerySelectorSuggestion = (node, querySelectorChain, context) => {
 	}
 
 	const root = getParenthesizedText(querySelectorChain.root, context);
-	const selector = querySelectorChain.selectors.join(' ');
+	const selector = `${isDocumentObject(querySelectorChain.root) ? '' : ':scope '}${querySelectorChain.selectors.join(' ')}`;
 	const replacement = `${root}.querySelector(${escapeString(selector, getSelectorQuote(querySelectorChain.quoteNode))})`;
 
 	return [

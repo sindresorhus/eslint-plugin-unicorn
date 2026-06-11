@@ -34,6 +34,7 @@ const disallowedIdentifierNames = new Map([
 const getReplacementForId = value => `#${value}`;
 const getReplacementForClass = value => value.match(/\S+/gv).map(className => `.${className}`).join('');
 const getReplacementForName = (value, originQuote) => `[name=${wrapQuoted(value, originQuote)}]`;
+const getScopedSelector = value => `:scope ${value}`;
 
 const getQuotedReplacement = (node, value) => {
 	const leftQuote = node.raw.charAt(0);
@@ -59,37 +60,43 @@ const wrapQuoted = (value, originalQuote) => {
 	}
 };
 
-function * getLiteralFix(fixer, node, identifierName) {
-	let replacement = identifierName === 'getElementById' ? getQuotedReplacement(node, getReplacementForId(node.value)) : node.raw;
+function * getLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
+	let replacementValue = identifierName === 'getElementById' ? getReplacementForId(node.value) : node.value;
 
 	if (identifierName === 'getElementsByClassName') {
-		replacement = getQuotedReplacement(node, getReplacementForClass(node.value));
+		replacementValue = getReplacementForClass(node.value);
 	}
 
 	if (identifierName === 'getElementsByName') {
 		const quoted = node.raw.charAt(0);
-		replacement = getQuotedReplacement(node, getReplacementForName(node.value, quoted));
+		replacementValue = getReplacementForName(node.value, quoted);
 	}
 
-	yield fixer.replaceText(node, replacement);
+	if (shouldScopeSelector) {
+		replacementValue = getScopedSelector(replacementValue);
+	}
+
+	yield fixer.replaceText(node, getQuotedReplacement(node, replacementValue));
 }
 
-function * getTemplateLiteralFix(fixer, node, identifierName) {
+function * getTemplateLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
 	yield fixer.insertTextAfter(node, '`');
 	yield fixer.insertTextBefore(node, '`');
 
-	for (const templateElement of node.quasis) {
+	for (const [index, templateElement] of node.quasis.entries()) {
+		const prefix = shouldScopeSelector && index === 0 ? ':scope ' : '';
+
 		if (identifierName === 'getElementById') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForId(templateElement.value.cooked),
+				prefix + getReplacementForId(templateElement.value.cooked),
 			);
 		}
 
 		if (identifierName === 'getElementsByClassName') {
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForClass(templateElement.value.cooked),
+				prefix + getReplacementForClass(templateElement.value.cooked),
 			);
 		}
 
@@ -97,7 +104,14 @@ function * getTemplateLiteralFix(fixer, node, identifierName) {
 			const quoted = node.raw ? node.raw.charAt(0) : '"';
 			yield fixer.replaceText(
 				templateElement,
-				getReplacementForName(templateElement.value.cooked, quoted),
+				prefix + getReplacementForName(templateElement.value.cooked, quoted),
+			);
+		}
+
+		if (identifierName === 'getElementsByTagName') {
+			yield fixer.replaceText(
+				templateElement,
+				prefix + templateElement.value.cooked,
 			);
 		}
 	}
@@ -117,6 +131,27 @@ const canBeFixed = node =>
 		node.type === 'TemplateLiteral'
 		&& node.expressions.length === 0
 		&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
+	);
+
+const isStaticSelector = node =>
+	isStringLiteral(node)
+	|| (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+	);
+
+const isDocumentObject = node =>
+	(
+		node.type === 'Identifier'
+		&& node.name === 'document'
+	)
+	|| (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.object.type === 'Identifier'
+		&& ['globalThis', 'window'].includes(node.object.name)
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'document'
 	);
 
 const hasValue = node => {
@@ -182,7 +217,12 @@ const removeFirstElementAccess = (fixer, node, context) => node.type === 'Member
 
 const fix = ({node, identifierName, preferredSelector, firstElementAccess, context}) => {
 	const nodeToBeFixed = node.arguments[0];
-	if (identifierName === 'getElementsByTagName' || !hasValue(nodeToBeFixed)) {
+	const shouldScopeSelector = !isDocumentObject(node.callee.object) && isStaticSelector(nodeToBeFixed);
+
+	if (
+		!shouldScopeSelector
+		&& (identifierName === 'getElementsByTagName' || !hasValue(nodeToBeFixed))
+	) {
 		return function * (fixer) {
 			yield fixer.replaceText(node.callee.property, preferredSelector);
 
@@ -194,7 +234,7 @@ const fix = ({node, identifierName, preferredSelector, firstElementAccess, conte
 
 	const getArgumentFix = nodeToBeFixed.type === 'Literal' ? getLiteralFix : getTemplateLiteralFix;
 	return function * (fixer) {
-		yield getArgumentFix(fixer, nodeToBeFixed, identifierName);
+		yield getArgumentFix(fixer, nodeToBeFixed, identifierName, shouldScopeSelector);
 		yield fixer.replaceText(node.callee.property, preferredSelector);
 
 		if (firstElementAccess) {

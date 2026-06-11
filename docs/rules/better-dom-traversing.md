@@ -38,7 +38,7 @@ element.firstElementChild;
 element.children[2];
 
 // ✅
-element.querySelector('selector');
+element.querySelector(':scope selector');
 ```
 
 ```js
@@ -54,5 +54,5 @@ element.closest('selector');
 element.querySelector('a').querySelector('b');
 
 // ✅
-element.querySelector('a b');
+element.querySelector(':scope a b');
 ```

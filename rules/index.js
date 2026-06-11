@@ -147,6 +147,7 @@ export {default as 'prefer-queue-microtask'} from './prefer-queue-microtask.js';
 export {default as 'prefer-reflect-apply'} from './prefer-reflect-apply.js';
 export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
 export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
+export {default as 'prefer-scoped-selector'} from './prefer-scoped-selector.js';
 export {default as 'prefer-set-has'} from './prefer-set-has.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
