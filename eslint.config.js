@@ -10,7 +10,7 @@ const disabledJsdocRules = Object.fromEntries(
 );
 
 // `eslint-config-xo` and `eslint-plugin-ava` both define `plugin json` for
-// different file scopes; keep everything as-is except dropping the duplicate json
+// different file scopes; keep everything as-is except dropping the duplicate JSON
 // entry on the package.json block to avoid flat-config plugin redefinition.
 const xoConfig = xo().map(configBlock => {
 	if (!(configBlock.files?.includes('**/package.json') && configBlock.plugins?.json)) {

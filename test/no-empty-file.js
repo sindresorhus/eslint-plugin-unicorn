@@ -34,7 +34,7 @@ test.snapshot({
 			'd.ts',
 			'ts',
 		].map(extension => ({code: '/// <reference types="example" />', filename: `example.${extension}`})),
-		// A Vue SFC with a `<template>` is not an empty file, even when `<script>` is empty.
+		// A Vue.js SFC with a `<template>` is not an empty file, even when `<script>` is empty.
 		{code: '<template><div/></template>', filename: 'example.vue', languageOptions: {parser: parsers.vue}},
 		{code: '<template><div/></template>\n<script></script>', filename: 'example.vue', languageOptions: {parser: parsers.vue}},
 		// An HTML file with content is not reported.
@@ -125,7 +125,7 @@ test.snapshot({
 			'css',
 			'txt',
 		].map(extension => ({code: '', filename: `example.${extension}`})),
-		// A fully empty Vue SFC is reported.
+		// A fully empty Vue.js SFC is reported.
 		{code: '', filename: 'example.vue', languageOptions: {parser: parsers.vue}},
 		// Empty, whitespace-only, and comment-only HTML files are reported.
 		{code: '', filename: 'example.html', languageOptions: {parser: parsers.html}},

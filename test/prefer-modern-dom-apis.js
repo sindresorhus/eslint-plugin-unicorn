@@ -37,7 +37,7 @@ test({
 		'parentNode[insertBefore](newNode, referenceNode);',
 		'referenceNode[insertAdjacentText](\'beforebegin\', \'text\');',
 		'referenceNode[insertAdjacentElement](\'beforebegin\', newNode);',
-		// Not a legacy api
+		// Not a legacy API
 		'parent.foo(a, b);',
 		// Less arguments
 		'parentNode.replaceChild(newNode);',

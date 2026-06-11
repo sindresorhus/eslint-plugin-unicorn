@@ -66,7 +66,7 @@ function addGlobals(scopeManager, names) {
 		return true;
 	});
 
-	// Typescript-eslint's scope manager doesn't produce "implicit.left"
+	// The typescript-eslint scope manager doesn't produce "implicit.left"
 }
 
 function fixParse(parse) {

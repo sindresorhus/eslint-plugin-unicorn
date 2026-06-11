@@ -1009,7 +1009,7 @@ const tests = {
 			errors: 1,
 		},
 
-		// This test need run eslint 3 times to get the correct result
+		// This test need run ESLint 3 times to get the correct result
 		{
 			code: outdent`
 				function fn() {
@@ -1158,7 +1158,7 @@ const tests = {
 			errors: 2,
 		},
 
-		// The following test should have looked like this (commented one), but eslint's `RuleTester`
+		// The following test should have looked like this (commented one), but ESLint's `RuleTester`
 		// does not apply all fixes at once. See https://github.com/eslint/eslint/issues/11187#issuecomment-446380824
 		/*
 		{

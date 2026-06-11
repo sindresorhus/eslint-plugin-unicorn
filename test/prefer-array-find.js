@@ -894,7 +894,7 @@ test({
 					array.filter(fn).shift()
 				);
 			`,
-			// Eslint can't fix all of them,
+			// ESLint can't fix all of them,
 			// But run test on this again will fix to correct code,
 			// See next test
 			output: outdent`

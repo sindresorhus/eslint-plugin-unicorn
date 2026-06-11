@@ -77,7 +77,7 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
 	const {sourceCode} = context;
 
-	// Check if the node is in a Vue template expression
+	// Check if the node is in a Vue.js template expression
 	const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
 
 	// Get safe quote

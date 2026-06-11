@@ -153,7 +153,7 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 
 			const callbackScope = scopeManager.acquire(callback);
 			if (
-				// Can't use scopeManager in vue template
+				// Can't use scopeManager in Vue.js template
 				// https://github.com/vuejs/vue-eslint-parser/issues/263
 				!callbackScope
 				// `parameter` is used somewhere else

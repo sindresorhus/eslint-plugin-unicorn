@@ -13,7 +13,7 @@ import toEslintCreate from './to-eslint-create.js';
 */
 
 /**
-Convert Unicorn rule to Eslint rule
+Convert Unicorn rule to ESLint rule
 
 @param {string} ruleId
 @param {UnicornRule} unicornRule
