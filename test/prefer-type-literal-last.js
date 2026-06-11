@@ -2,6 +2,7 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const noAutofixOutput = /./.exec('');
 
 test.typescript({
 	valid: [
@@ -24,7 +25,7 @@ test.typescript({
 		},
 		{
 			code: 'type ElementIntersection = {foo: string} & Other;',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -72,17 +73,17 @@ test.typescript({
 		},
 		{
 			code: 'type ElementIntersection = {foo: string} & (A | B);',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementIntersection = {(value: 1): 1} & ((value: 1) => 2);',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementIntersection = {new (): Element} & (new () => Other);',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -102,7 +103,7 @@ test.typescript({
 		},
 		{
 			code: 'type ElementUnion = {foo: string} /* comment */ | Other;',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -111,12 +112,12 @@ test.typescript({
 					// comment
 					Other;
 			`,
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementUnion = /* comment */ {foo: string} | Other;',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -126,12 +127,12 @@ test.typescript({
 		},
 		{
 			code: 'type ElementUnion = {foo: string} | Other /* comment */;',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
 			code: 'type ElementUnion = {foo: string} | Other /* comment */',
-			output: null,
+			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 	],
