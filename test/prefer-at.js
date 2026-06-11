@@ -21,6 +21,9 @@ test.snapshot({
 		'([array[array.length - 1]] = [])',
 		'({foo: array[array.length - 1] = 9} = {})',
 		'function foo() {return arguments[arguments.length - 1]}',
+		'parent?.childNodes[parent.childNodes.length - 1];',
+		'element.children[element.children.length - 1];',
+		'document.querySelectorAll("li")[document.querySelectorAll("li").length - 1];',
 	],
 	invalid: [
 		'array[array.length - 1];',
@@ -319,6 +322,13 @@ test.snapshot({
 			code: 'const object = {1: 1}; object![1]',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'parent.childNodes[0]',
+		'element.children[0]',
+		'document.querySelectorAll("li")[0]',
+		'document.getElementsByClassName("item")[0]',
+		'document.getElementsByTagName("li")[0]',
+		'document.getElementsByTagNameNS(namespace, "li")[0]',
+		'document.getElementsByName("item")[0]',
 	]),
 	invalid: setCheckAllIndexAccessTrue([
 		'array[0]',
