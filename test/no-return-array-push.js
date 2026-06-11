@@ -129,6 +129,16 @@ test.snapshot({
 		`,
 		outdent`
 			function foo() {
+				return array.push(/* comment */ value);
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) return array.push(value);
+			}
+		`,
+		outdent`
+			function foo() {
 				foo()
 				return [array].push(value);
 			}
@@ -145,5 +155,21 @@ test.snapshot({
 	valid: [],
 	invalid: [
 		'const foo = (value: string) => array.push(value);',
+		outdent`
+			function foo() {
+				return array.push(value) as number;
+			}
+		`,
+		outdent`
+			function foo() {
+				return <number>array.push(value);
+			}
+		`,
+		outdent`
+			function foo() {
+				return array.push(value)!;
+			}
+		`,
+		'const foo = (value: string) => array.push(value) satisfies number;',
 	],
 });

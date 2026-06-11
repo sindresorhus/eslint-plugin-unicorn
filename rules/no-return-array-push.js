@@ -17,6 +17,14 @@ const ignoredCallees = [
 	'process.stderr.push',
 ];
 
+const transparentExpressionTypes = new Set([
+	'ChainExpression',
+	'TSAsExpression',
+	'TSSatisfiesExpression',
+	'TSNonNullExpression',
+	'TSTypeAssertion',
+]);
+
 function isStaticMemberPath(node, path) {
 	const names = path.split('.');
 
@@ -45,10 +53,18 @@ function isStaticMemberPath(node, path) {
 
 const isIgnoredCallee = callee => ignoredCallees.some(ignoredCallee => isStaticMemberPath(callee, ignoredCallee));
 
-const getCallExpressionResultNode = callExpression =>
-	callExpression.parent.type === 'ChainExpression' && callExpression.parent.expression === callExpression
-		? callExpression.parent
-		: callExpression;
+function getCallExpressionResultNode(callExpression) {
+	let node = callExpression;
+
+	while (
+		transparentExpressionTypes.has(node.parent.type)
+		&& node.parent.expression === node
+	) {
+		node = node.parent;
+	}
+
+	return node;
+}
 
 function getReturnNode(callExpression) {
 	const node = getCallExpressionResultNode(callExpression);
@@ -130,7 +146,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow returning the result of `Array#push()`.',
+			description: 'Disallow returning the result of `Array#push()` with arguments.',
 			recommended: true,
 		},
 		hasSuggestions: true,
