@@ -5,6 +5,23 @@ import {isCallOrNewExpression, isStringLiteral} from './ast/index.js';
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
 
+const thisScopeBoundaryNodeTypes = new Set([
+	'FunctionDeclaration',
+	'FunctionExpression',
+	'MethodDefinition',
+	'PropertyDefinition',
+	'AccessorProperty',
+	'StaticBlock',
+	'Program',
+]);
+
+const typeWrapperNodeTypes = new Set([
+	'TSAsExpression',
+	'TSSatisfiesExpression',
+	'TSNonNullExpression',
+	'TSTypeAssertion',
+]);
+
 const isSimpleExpression = expression =>
 	expression.type === 'Identifier'
 	|| expression.type === 'ThisExpression';
@@ -25,27 +42,14 @@ const getThisScopeBoundary = node => {
 	while (node.parent) {
 		node = node.parent;
 
-		if (
-			node.type === 'FunctionDeclaration'
-			|| node.type === 'FunctionExpression'
-			|| node.type === 'MethodDefinition'
-			|| node.type === 'PropertyDefinition'
-			|| node.type === 'AccessorProperty'
-			|| node.type === 'StaticBlock'
-			|| node.type === 'Program'
-		) {
+		if (thisScopeBoundaryNodeTypes.has(node.type)) {
 			return node;
 		}
 	}
 };
 
 const getTypeUnwrappedNode = node => {
-	while (
-		node.type === 'TSAsExpression'
-		|| node.type === 'TSSatisfiesExpression'
-		|| node.type === 'TSNonNullExpression'
-		|| node.type === 'TSTypeAssertion'
-	) {
+	while (typeWrapperNodeTypes.has(node.type)) {
 		node = node.expression;
 	}
 
