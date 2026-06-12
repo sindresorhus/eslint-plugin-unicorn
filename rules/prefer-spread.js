@@ -419,7 +419,7 @@ const create = context => {
 
 	// `Array.from()`
 	context.on('CallExpression', node => {
-		if (
+		if (!(
 			isMethodCall(node, {
 				object: 'Array',
 				method: 'from',
@@ -430,18 +430,20 @@ const create = context => {
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
 			&& !isPreferIteratorConcatArrayLiteral(node.arguments[0])
-		) {
-			const [firstArgument] = node.arguments;
-			const preservedRange = isArrayLiteral(firstArgument)
-				? sourceCode.getRange(firstArgument)
-				: getParenthesizedRange(firstArgument, context);
-
-			return {
-				node,
-				messageId: ERROR_ARRAY_FROM,
-				...(!hasExtraComments(node, preservedRange) && {fix: fixArrayFrom(node, context)}),
-			};
+		)) {
+			return;
 		}
+
+		const [firstArgument] = node.arguments;
+		const preservedRange = isArrayLiteral(firstArgument)
+			? sourceCode.getRange(firstArgument)
+			: getParenthesizedRange(firstArgument, context);
+
+		return {
+			node,
+			messageId: ERROR_ARRAY_FROM,
+			...(!hasExtraComments(node, preservedRange) && {fix: fixArrayFrom(node, context)}),
+		};
 	});
 
 	// `array.concat()`
