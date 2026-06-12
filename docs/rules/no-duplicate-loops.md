@@ -1,13 +1,15 @@
 # no-duplicate-loops
 
-📝 Disallow duplicate loops in `for…of` loop headers.
+📝 Disallow `.map()` and `.filter()` in `for…of` loop headers.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Using `.map()` or `.filter()` directly in a `for…of` loop header creates an intermediate array and then iterates over that array. Move the operation into the loop body so the original collection is only iterated once.
+Using `.map()` or `.filter()` directly in a `for…of` or `for await…of` loop header creates an intermediate array and then iterates over that array. Move the operation into the loop body when that preserves the intended behavior, so the original collection is only iterated once.
+
+Known iterator helper chains are ignored because iterator helpers are lazy and do not create an intermediate array. This includes chains rooted in `Iterator.from()`, `Iterator.concat()`, `.entries()`, `.keys()`, `.values()`, and `.matchAll()`.
 
 ## Examples
 
@@ -37,4 +39,6 @@ for (const value of values) {
 }
 ```
 
-This rule intentionally only reports direct `.map()` and `.filter()` calls in `for…of` loop headers. More complex cases like precomputed aliases, consecutive loops, `Array.from(iterable)`, and `[...iterable]` are left to other rules or future improvements.
+This rule intentionally only reports direct `.map()` and `.filter()` calls in `for…of` and `for await…of` loop headers. More complex cases like precomputed aliases, consecutive loops, `Array.from(iterable)`, and `[...iterable]` are intentionally ignored.
+
+For async mapping, keep concurrency behavior in mind. For example, `items.map(async item => fetch(item))` starts the promises before the loop, while moving the `await fetch(item)` call into the loop body runs it sequentially.

@@ -30,6 +30,16 @@ test.snapshot({
 		'for (const item of Array.from(items)) {}',
 		'for (const item of [...items]) {}',
 		'for (const item of Array.prototype.map.call(items, callback)) {}',
+		'for (const item of Iterator.from(items).map(callback)) {}',
+		'for (const item of Iterator.from(items).filter(callback)) {}',
+		'for (const item of Iterator.from(items).map(callback).filter(callback)) {}',
+		'for (const item of Iterator.concat(first, second).filter(callback)) {}',
+		'for (const item of items.values().map(callback)) {}',
+		'for (const item of items.keys().map(callback)) {}',
+		'for (const item of items.entries().filter(callback)) {}',
+		'for (const item of items.matchAll(pattern).map(callback)) {}',
+		'for (const item of Iterator.from(items).take(1).map(callback)) {}',
+		'for (const item of Iterator.from(items).flatMap(callback).drop(1).filter(callback)) {}',
 		typescript('function foo(items: string[]) { for (const item of items) {} }'),
 	],
 	invalid: [
@@ -40,7 +50,9 @@ test.snapshot({
 		'for (const item of (items).map(callback)) {}',
 		'for (const item of ((items)).filter(callback)) {}',
 		'for await (const item of items.map(callback)) {}',
+		'for await (const item of items.filter(async item => item.isEnabled)) {}',
 		'for (const item of items.map(/* comment */ callback)) {}',
+		'const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {}',
 		outdent`
 			for (const item of items
 				.map(item => item.value)
