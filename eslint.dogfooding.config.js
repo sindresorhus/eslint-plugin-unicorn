@@ -52,6 +52,7 @@ const config = [
 			'rules/consistent-assert.js',
 			'rules/no-array-for-each.js',
 			'rules/no-array-reduce.js',
+			'rules/no-declarations-before-early-exit.js',
 			'rules/no-error-property-assignment.js',
 			'rules/no-redundant-comparison.js',
 			'rules/no-unnecessary-polyfills.js',
