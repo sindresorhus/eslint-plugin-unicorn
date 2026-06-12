@@ -79,4 +79,4 @@ The last example is reported without an autofix because moving a function call c
 
 ## Limitations
 
-This rule intentionally uses a simple statement-list scan instead of full data-flow analysis. It only checks declarations and guard clauses that are direct children of the same block, top-level program, or switch case.
+This rule intentionally uses a simple statement-list scan instead of full data-flow analysis. It only checks declarations and guard clauses that are direct children of the same block or top-level program. Switch cases are only checked when the case body is wrapped in a block.

@@ -187,7 +187,6 @@ const create = context => {
 
 	context.on('Program', node => checkStatementList(sourceCode, node.body));
 	context.on('BlockStatement', node => checkStatementList(sourceCode, node.body));
-	context.on('SwitchCase', node => checkStatementList(sourceCode, node.consequent));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

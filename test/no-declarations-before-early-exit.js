@@ -65,6 +65,18 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function foo(value) {
+				switch (value) {
+					case 1:
+						const result = 1;
+						if (!bar) {
+							break;
+						}
+						console.log(result);
+				}
+			}
+		`,
+		outdent`
 			function foo(bar) {
 				using result = getResult();
 				if (!bar) {
