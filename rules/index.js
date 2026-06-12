@@ -166,6 +166,7 @@ export {default as 'prefer-number-coercion'} from './prefer-number-coercion.js';
 export {default as 'prefer-number-is-safe-integer'} from './prefer-number-is-safe-integer.js';
 export {default as 'prefer-number-properties'} from './prefer-number-properties.js';
 export {default as 'prefer-object-from-entries'} from './prefer-object-from-entries.js';
+export {default as 'prefer-object-iterable-methods'} from './prefer-object-iterable-methods.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
 export {default as 'prefer-private-class-fields'} from './prefer-private-class-fields.js';
 export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.js';

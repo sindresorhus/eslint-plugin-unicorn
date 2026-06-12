@@ -89,12 +89,11 @@ function hasSideEffectsOrThrows(node) {
 		return true;
 	}
 
-	for (const key of Object.keys(node)) {
+	for (const [key, value] of Object.entries(node)) {
 		if (key === 'parent') {
 			continue;
 		}
 
-		const value = node[key];
 		if (Array.isArray(value)) {
 			if (value.some(child => hasSideEffectsOrThrows(child))) {
 				return true;
@@ -119,12 +118,11 @@ function hasCallOrNew(node) {
 		return true;
 	}
 
-	for (const key of Object.keys(node)) {
+	for (const [key, value] of Object.entries(node)) {
 		if (key === 'parent') {
 			continue;
 		}
 
-		const value = node[key];
 		if (Array.isArray(value)) {
 			if (value.some(child => hasCallOrNew(child))) {
 				return true;

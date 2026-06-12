@@ -142,7 +142,7 @@ const schema = [{
 	type: 'object',
 	additionalProperties: false,
 	properties: {
-		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema({withFraction: type === 'number'})])),
+		...Object.fromEntries(Object.keys(defaultOptions).map(type => [type, formatOptionsSchema({withFraction: type === 'number'})])),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
 			description: 'Whether to only enforce the style if the number already contains a separator.',
