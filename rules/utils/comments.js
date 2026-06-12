@@ -7,19 +7,6 @@ const isRangeInside = ([start, end], [parentStart, parentEnd]) =>
 	start >= parentStart && end <= parentEnd;
 
 /**
-Check whether a node or source range contains comments.
-
-@param {import('eslint').Rule.RuleContext} context
-@param {object | Array<number>} nodeOrRange
-@returns {boolean}
-*/
-function hasCommentsInside(context, nodeOrRange) {
-	const {sourceCode} = context;
-	const range = getRange(context, nodeOrRange);
-	return getComments(context).some(comment => isRangeInside(sourceCode.getRange(comment), range));
-}
-
-/**
 Check whether replacing or removing a node or range would remove comments that are not preserved by child nodes or ranges.
 
 @param {import('eslint').Rule.RuleContext} context
@@ -40,6 +27,5 @@ function wouldRemoveComments(context, nodeOrRange, preservedNodeOrRanges = []) {
 }
 
 export {
-	hasCommentsInside,
 	wouldRemoveComments,
 };

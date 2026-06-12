@@ -32,7 +32,6 @@ export {default as getDuplicateArrayElements, isComparableStaticValue} from './g
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getComments} from './get-comments.js';
 export {
-	hasCommentsInside,
 	wouldRemoveComments,
 } from './comments.js';
 export {default as getReferences} from './get-references.js';
