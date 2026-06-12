@@ -300,6 +300,8 @@ test.snapshot({
 		typeAware('const data = new Map([["a", 1], ["b", 2], ["c", 3]]); const foo = [...data.values().map(value => value * 2)];'),
 		typeAware('function foo(value: string) { return [...value.slice(1)]; }'),
 		typeAware('function foo(value: {slice(start: number): string}) { return [...value.slice(1)]; }'),
+		typeAware('function foo(value: {split(separator: string): string}) { return [...value.split("|")]; }'),
+		typeAware('function foo(value: {concat(value: string): string}) { return [...value.concat("bar")]; }'),
 		typeAware('function foo(value: {map(): number[]}) { return [...value.map()]; }'),
 		typeAware('function foo(value: {slice(start: number): number[]}) { return [...value.slice(1)]; }'),
 		typeAware('function foo(value: Int32Array) { return [...value.slice(1)]; }'),

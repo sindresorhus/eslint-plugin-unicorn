@@ -41,7 +41,7 @@ const arrayCloneMethodNames = [
 	'toSpliced',
 	'with',
 ];
-const typeCheckedArrayCloneMethodNames = [
+const typeCheckedArrayReturningMethodNames = [
 	...arrayCloneMethodNames,
 	'filter',
 	'flatMap',
@@ -139,14 +139,15 @@ const isKnownNonArrayMethodReceiver = (node, context) =>
 	&& isKnownNonArray(node.callee.object, context);
 
 const isSliceCall = node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'MemberExpression'
-	&& node.callee.property.type === 'Identifier'
-	&& node.callee.property.name === 'slice';
+	isMethodCall(node, {
+		method: 'slice',
+		optionalCall: false,
+		optionalMember: false,
+	});
 
 const isKnownArrayMethodClone = (node, context) => {
 	if (!isMethodCall(node, {
-		methods: typeCheckedArrayCloneMethodNames,
+		methods: typeCheckedArrayReturningMethodNames,
 		optionalCall: false,
 		optionalMember: false,
 	})) {
@@ -456,7 +457,7 @@ const create = context => {
 		if (
 			// `[...new Array(1)]` -> `new Array(1)` is not safe to fix since there are holes
 			isNewExpression(node, {name: 'Array'})
-			// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix since `foo` can be a string
+			// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix unless `foo` is known to be an array
 			|| (isSliceCall(node) && !knownArrayClone)
 		) {
 			return problem;
