@@ -45,7 +45,7 @@ function getRules() {
 		}
 	}
 
-	anyFile.sort();
+	anyFile.sort((first, second) => first.localeCompare(second));
 	contentAware.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {anyFile, contentAware};
