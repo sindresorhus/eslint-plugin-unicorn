@@ -81,6 +81,9 @@ const config = {
 		schema,
 		defaultOptions: ['uppercase'],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -307,11 +307,11 @@ These rules work on **any** file type:
 
 These rules also work on specific non-JavaScript languages:
 
-| Name | CSS | HTML | Markdown |
-| :-- | :-: | :-: | :-: |
-| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ |  |  |
-| [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ |
-| [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |
+| Name | CSS | HTML | JSON | Markdown |
+| :-- | :-: | :-: | :-: | :-: |
+| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ |  |  |
+| [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
+| [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
 

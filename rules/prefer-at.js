@@ -499,6 +499,9 @@ const config = {
 		schema,
 		defaultOptions: [{getLastElementFunctions: [], checkAllIndexAccess: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -51,6 +51,9 @@ const config = {
 			recommended: true,
 		},
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -76,6 +76,9 @@ const config = {
 			hexadecimalValue: 'uppercase',
 		}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -126,6 +126,9 @@ const config = {
 		schema,
 		defaultOptions: [{name: 'error', ignore: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

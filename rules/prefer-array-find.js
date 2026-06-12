@@ -448,6 +448,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkFromLast: true}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

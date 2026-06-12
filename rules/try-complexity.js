@@ -178,6 +178,9 @@ const config = {
 		schema,
 		defaultOptions: [{max: DEFAULT_MAXIMUM_COMPLEXITY}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -625,6 +625,9 @@ const config = {
 		schema,
 		defaultOptions: [{allowSimpleOperations: true}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

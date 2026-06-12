@@ -226,6 +226,9 @@ const config = {
 			recommended: false,
 		},
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

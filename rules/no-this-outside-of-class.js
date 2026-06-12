@@ -69,6 +69,9 @@ const config = {
 		},
 		schema: [],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

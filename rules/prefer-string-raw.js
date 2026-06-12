@@ -218,6 +218,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

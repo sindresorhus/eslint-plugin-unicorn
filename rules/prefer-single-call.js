@@ -266,6 +266,9 @@ const config = {
 		schema,
 		defaultOptions: [{ignore: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -414,6 +414,9 @@ const config = {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 			[suggestionMessageId]: 'Use a ternary expression.',
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

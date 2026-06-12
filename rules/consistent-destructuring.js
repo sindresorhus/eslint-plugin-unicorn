@@ -509,6 +509,9 @@ const config = {
 			[MESSAGE_ID]: 'Use destructured variables over properties.',
 			[MESSAGE_ID_SUGGEST]: 'Replace `{{expression}}` with destructured property `{{property}}`.',
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

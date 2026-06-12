@@ -129,6 +129,9 @@ function noArrayMutateRule(methodName) {
 			schema,
 			defaultOptions: [{allowExpressionStatement: true}],
 			messages,
+			languages: [
+				'js/js',
+			],
 		},
 	};
 

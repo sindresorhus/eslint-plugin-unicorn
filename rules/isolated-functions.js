@@ -204,5 +204,8 @@ export default {
 		schema,
 		defaultOptions: [defaultOptions],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
