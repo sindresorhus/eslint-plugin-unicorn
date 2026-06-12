@@ -31,6 +31,7 @@ const isConstVariableReference = (sourceCode, node) => {
 	return definition.type === 'Variable'
 		&& definition.node.type === 'VariableDeclarator'
 		&& definition.parent.type === 'VariableDeclaration'
+		&& !definition.parent.declare
 		&& definition.parent.kind === 'const';
 };
 
@@ -129,7 +130,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer a single object destructuring declaration per source object.',
+			description: 'Prefer a single object destructuring declaration per local const source.',
 			recommended: true,
 		},
 		fixable: 'code',

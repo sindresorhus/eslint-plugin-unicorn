@@ -16,6 +16,17 @@ test.snapshot({
 			const {baz} = foo;
 		`,
 		outdent`
+			import foo from 'foo';
+			const {bar} = foo;
+			const {baz} = foo;
+		`,
+		outdent`
+			function unicorn(foo) {
+				const {bar} = foo;
+				const {baz} = foo;
+			}
+		`,
+		outdent`
 			const {bar} = foo;
 			let {baz} = foo;
 		`,
@@ -96,6 +107,14 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				declare const foo: Foo;
+				const {bar} = foo;
+				const {baz} = foo;
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`
@@ -112,6 +131,17 @@ test.snapshot({
 			const foo = {};
 			const {bar: renamed} = foo;
 			const {baz} = foo;
+		`,
+		outdent`
+			const foo = {};
+			const {'bar': bar} = foo;
+			const {baz} = foo;
+		`,
+		outdent`
+			for (const foo of foos) {
+				const {bar} = foo;
+				const {baz} = foo;
+			}
 		`,
 		outdent`
 			const foo = {};
