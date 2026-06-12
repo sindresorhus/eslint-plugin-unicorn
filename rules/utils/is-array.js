@@ -9,6 +9,14 @@ const array = 'array';
 const nonArray = 'non-array';
 const unknown = 'unknown';
 
+const nonArrayExpressionTypes = new Set([
+	'ObjectExpression',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'TemplateLiteral',
+]);
+
 const nonArrayTypeAnnotations = new Set([
 	'TSBigIntKeyword',
 	'TSBooleanKeyword',
@@ -247,12 +255,58 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 	return type;
 };
 
-export function getArrayType(node, context, visitedVariables = new Set()) {
+function getArrayType(node, context, visitedVariables = new Set()) {
 	if (!node) {
 		return unknown;
 	}
 
 	const scope = context.sourceCode.getScope(node);
+
+	switch (node.type) {
+		case 'Identifier': {
+			const typeFromVariable = getTypeFromVariable(node, context, visitedVariables);
+
+			if (typeFromVariable !== unknown) {
+				return typeFromVariable;
+			}
+
+			break;
+		}
+
+		case 'TSSatisfiesExpression': {
+			return getArrayType(node.expression, context, visitedVariables);
+		}
+
+		case 'TSAsExpression':
+		case 'TSTypeAssertion': {
+			const typeFromAnnotation = getTypeAnnotationType(node.typeAnnotation, scope);
+
+			return typeFromAnnotation === unknown
+				? getArrayType(node.expression, context, visitedVariables)
+				: typeFromAnnotation;
+		}
+
+		case 'TSNonNullExpression':
+		case 'ParenthesizedExpression': {
+			return getArrayType(node.expression, context, visitedVariables);
+		}
+
+		case 'SequenceExpression': {
+			return getArrayType(node.expressions.at(-1), context, visitedVariables);
+		}
+
+		case 'ConditionalExpression': {
+			return combineUnionTypes([
+				getArrayType(node.consequent, context, visitedVariables),
+				getArrayType(node.alternate, context, visitedVariables),
+			]);
+		}
+
+		default: {
+			break;
+		}
+	}
+
 	const typeFromStaticValue = getTypeFromStaticValue(node, scope);
 
 	if (typeFromStaticValue !== unknown) {
@@ -284,45 +338,11 @@ export function getArrayType(node, context, visitedVariables = new Set()) {
 		return array;
 	}
 
-	switch (node.type) {
-		case 'Identifier': {
-			const typeFromVariable = getTypeFromVariable(node, context, visitedVariables);
-
-			return typeFromVariable === unknown
-				? getTypeFromTypeInformation(node, context)
-				: typeFromVariable;
-		}
-
-		case 'TSAsExpression':
-		case 'TSSatisfiesExpression':
-		case 'TSTypeAssertion': {
-			const typeFromAnnotation = getTypeAnnotationType(node.typeAnnotation, scope);
-
-			return typeFromAnnotation === unknown
-				? getArrayType(node.expression, context, visitedVariables)
-				: typeFromAnnotation;
-		}
-
-		case 'TSNonNullExpression':
-		case 'ParenthesizedExpression': {
-			return getArrayType(node.expression, context, visitedVariables);
-		}
-
-		case 'SequenceExpression': {
-			return getArrayType(node.expressions.at(-1), context, visitedVariables);
-		}
-
-		case 'ConditionalExpression': {
-			return combineUnionTypes([
-				getArrayType(node.consequent, context, visitedVariables),
-				getArrayType(node.alternate, context, visitedVariables),
-			]);
-		}
-
-		default: {
-			return getTypeFromTypeInformation(node, context);
-		}
+	if (nonArrayExpressionTypes.has(node.type)) {
+		return nonArray;
 	}
+
+	return getTypeFromTypeInformation(node, context);
 }
 
 export const isKnownNonArray = (node, context) => getArrayType(node, context) === nonArray;

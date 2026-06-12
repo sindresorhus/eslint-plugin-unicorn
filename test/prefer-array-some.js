@@ -52,12 +52,26 @@ test({
 		'new Foo().findIndex(fn) !== -1',
 		'new Foo().findLastIndex(fn) !== -1',
 		'new Foo().filter(fn).length > 0',
+		'if ("foo".find(fn)) {}',
+		'const value = "foo"; if (value.find(fn)) {}',
+		['if ((`foo$', '{bar}`).find(fn)) {}'].join(''),
+		'if (({find() {}}).find(fn)) {}',
+		'if ((function () {}).find(fn)) {}',
+		'if ((() => {}).find(fn)) {}',
+		'if ((class {}).find(fn)) {}',
+		['(`foo$', '{bar}`).findIndex(fn) !== -1'].join(''),
+		['(`foo$', '{bar}`).filter(fn).length > 0'].join(''),
+		'({findIndex() {}}).findIndex(fn) !== -1',
+		'({filter() {}}).filter(fn).length > 0',
 		'const store = new Store(); if (store.find(fn)) {}',
 		typeAware('interface QueryCache {find(queryKey: string[]): unknown} declare const queryClient: {getQueryCache(): QueryCache}; queryClient.getQueryCache().find(["foo"]) ? "foo" : "bar";'),
 		typeAware('interface QueryCache {findIndex(predicate: Function): number} declare const queryCache: QueryCache; queryCache.findIndex(fn) !== -1;'),
 		typeAware('interface QueryCache {filter(predicate: Function): {length: number}} declare const queryCache: QueryCache; queryCache.filter(fn).length > 0;'),
+		typeAware('interface QueryCache {findIndex(predicate: Function): number} declare function getQueryCache(): QueryCache; getQueryCache().findIndex(fn) !== -1;'),
+		typeAware('interface QueryCache {filter(predicate: Function): {length: number}} declare function getQueryCache(): QueryCache; getQueryCache().filter(fn).length > 0;'),
 		typeAware('class Store {find(key: string): boolean {return key.length > 0}} const store = new Store(); if (store.find("key")) {}'),
 		typeAware('function foo(collection: {find(predicate: Function): unknown}) { if (collection.find(fn)) {} }'),
+		typeAware('function foo<T extends {find(predicate: Function): unknown}>(collection: T) { if (collection.find(fn)) {} }'),
 		{
 			code: 'function foo(collection: {find(predicate: Function): unknown}) { if (collection.find(fn)) {} }',
 			languageOptions: {parser: parsers.typescript},
@@ -68,6 +82,18 @@ test({
 		},
 		{
 			code: 'function foo(collection: {filter(predicate: Function): {length: number}}) { collection.filter(fn).length > 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Collection = {find(predicate: Function): unknown}; const collection: Collection = [] as never; if (collection.find(fn)) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Collection = {findIndex(predicate: Function): number}; ([] as Collection).findIndex(fn) !== -1',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Collection = {filter(predicate: Function): {length: number}}; ([] as Collection).filter(fn).length > 0',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -189,13 +215,16 @@ test({
 		},
 		...[
 			'if ([].find(fn)) {}',
+			'if (Array().find(fn)) {}',
 			'if (new Array().find(fn)) {}',
 			'if (Array.from(iterable).find(fn)) {}',
+			'if (Array.of(value).find(fn)) {}',
 			'const array = []; if (array.find(fn)) {}',
 			'function foo(array: string[]) { if (array.find(fn)) {} }',
 			'function foo(array: readonly string[]) { if (array.find(fn)) {} }',
 			'function foo(array: ReadonlyArray<string>) { if (array.find(fn)) {} }',
 			'function foo(array: [string, string]) { if (array.find(fn)) {} }',
+			'function foo<T extends string[]>(array: T) { if (array.find(fn)) {} }',
 			'type Items = string[]; function foo(items: Items) { if (items.find(fn)) {} }',
 			'interface Items extends Array<string> {} function foo(items: Items) { if (items.find(fn)) {} }',
 		].map(code => invalidCase({
@@ -208,6 +237,12 @@ test({
 			code: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.find(fn)) {} }',
 			languageOptions: {parser: parsers.typescript},
 			suggestionOutput: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.some(fn)) {} }',
+			method: 'find',
+		}),
+		invalidCase({
+			code: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).find(fn)) {}',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).some(fn)) {}',
 			method: 'find',
 		}),
 		invalidCase({
@@ -302,6 +337,11 @@ test.snapshot({
 			code: 'type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare function getItems(): string[]; getItems().filter(fn).length > 0;'),
 		outdent`
 			if (
 				((
@@ -357,6 +397,11 @@ test.snapshot({
 			code: 'type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare function getItems(): string[]; getItems().findIndex(fn) !== -1;'),
 	],
 });
 
