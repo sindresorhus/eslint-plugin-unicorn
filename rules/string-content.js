@@ -13,6 +13,7 @@ const targetNodeTypes = ['Literal', 'TemplateElement'];
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
+	'sql',
 	'svg',
 ]);
 
