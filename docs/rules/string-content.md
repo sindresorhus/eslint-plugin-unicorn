@@ -17,6 +17,7 @@ This rule ignores the following tagged template literals as they're known to con
 
 - ``gql`…` ``
 - ``html`…` ``
+- ``sql`…` ``
 - ``svg`…` ``
 - ``styled.*`…` ``
 
