@@ -11,7 +11,7 @@
 
 Prefer using the opposite comparison operator instead of negating the whole comparison.
 
-By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read than applying De Morgan's laws.
+By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read.
 
 ## Examples
 
