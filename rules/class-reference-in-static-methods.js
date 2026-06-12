@@ -15,6 +15,21 @@ const MESSAGE_ID_SUPER_CLASS = 'super-class';
 const MESSAGE_ID_SUPER_CLASS_UNAVAILABLE = 'super-class-unavailable';
 const SUGGESTION_MESSAGE_ID = 'suggestion';
 
+const STATIC_METHOD_BOUNDARY_TYPES = new Set([
+	'PropertyDefinition',
+	'AccessorProperty',
+	'StaticBlock',
+	'ClassBody',
+]);
+
+const TYPESCRIPT_EXPRESSION_WRAPPER_TYPES = new Set([
+	'TSAsExpression',
+	'TSInstantiationExpression',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
+]);
+
 const messages = {
 	[MESSAGE_ID_THIS]: 'Use `this` instead of `{{name}}` in static methods.',
 	[MESSAGE_ID_CLASS]: 'Use `{{name}}` instead of `this` in static methods.',
@@ -49,12 +64,7 @@ const getStaticMethod = node => {
 			return parent.static && parent.value === child ? parent : undefined;
 		}
 
-		if (
-			parent.type === 'PropertyDefinition'
-			|| parent.type === 'AccessorProperty'
-			|| parent.type === 'StaticBlock'
-			|| parent.type === 'ClassBody'
-		) {
+		if (STATIC_METHOD_BOUNDARY_TYPES.has(parent.type)) {
 			return;
 		}
 	}
@@ -105,13 +115,7 @@ const isAssignmentTargetRoot = (parent, node) =>
 	);
 
 const isTypeScriptExpressionWrapper = (parent, node) =>
-	(
-		parent.type === 'TSAsExpression'
-		|| parent.type === 'TSInstantiationExpression'
-		|| parent.type === 'TSNonNullExpression'
-		|| parent.type === 'TSSatisfiesExpression'
-		|| parent.type === 'TSTypeAssertion'
-	)
+	TYPESCRIPT_EXPRESSION_WRAPPER_TYPES.has(parent.type)
 	&& parent.expression === node;
 
 const getTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node.parent, node) ? node.parent : undefined;
