@@ -1,4 +1,4 @@
-import {getTester, normalizeTestCase} from './utils/test.js';
+import {getTester, normalizeTestCase, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -143,5 +143,53 @@ test.snapshot({
 		withDash('<not-meta notCharset="utf8" />'),
 		noDash('<not-meta charset="utf-8" />'),
 		noDash('<not-meta notCharset="utf-8" />'),
+	],
+});
+
+// CSS @charset support
+test.snapshot({
+	valid: [
+		// Already correct (dash form)
+		{code: '@charset "utf-8";', language: languages.css},
+		// Already correct ASCII (not an encoding this rule handles with dash)
+		{code: '@charset "ascii";', language: languages.css},
+		// Non-charset @rules are not affected
+		{code: '@import "utf8.css";', language: languages.css},
+	],
+	invalid: [
+		// Wrong case
+		{code: '@charset "UTF-8";', language: languages.css},
+		// No-dash form should become dash form for CSS
+		{code: '@charset "utf8";', language: languages.css},
+		{code: '@charset "Utf8";', language: languages.css},
+		// At-rule name is case-insensitive
+		{code: '@CHARSET "utf8";', language: languages.css},
+		// ASCII is normalized to lowercase through the CSS path too
+		{code: '@charset "ASCII";', language: languages.css},
+	],
+});
+
+// HTML <meta charset> and <form accept-charset> support
+test.snapshot({
+	valid: [
+		// Already correct
+		{code: '<meta charset="utf-8">', language: languages.html},
+		{code: '<form accept-charset="utf-8"></form>', language: languages.html},
+		// Other tags not affected
+		{code: '<div charset="UTF-8"></div>', language: languages.html},
+		// Other attributes not affected
+		{code: '<meta name="UTF-8">', language: languages.html},
+		// Valueless charset attribute does not crash
+		{code: '<meta charset>', language: languages.html},
+	],
+	invalid: [
+		{code: '<meta charset="UTF-8">', language: languages.html},
+		{code: '<meta charset="utf8">', language: languages.html},
+		{code: '<META CHARSET="UTF-8">', language: languages.html},
+		{code: '<form accept-charset="UTF-8"></form>', language: languages.html},
+		// No-dash form on `<form accept-charset>` becomes dash form
+		{code: '<form accept-charset="utf8"></form>', language: languages.html},
+		// The right attribute is picked when several are present
+		{code: '<meta http-equiv="content-type" charset="utf8">', language: languages.html},
 	],
 });

@@ -311,9 +311,11 @@ These rules also work on specific non-JavaScript languages:
 
 | Name | CSS | HTML | JSON | Markdown |
 | :-- | :-: | :-: | :-: | :-: |
-| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ |  |  |
+| [`expiring-todo-comments`](docs/rules/expiring-todo-comments.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
+| [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
+| [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
 

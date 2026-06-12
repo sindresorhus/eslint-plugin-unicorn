@@ -11,6 +11,8 @@
 
 This rule reports separated consecutive line comments that look like one manually wrapped unfinished sentence. End each intentionally separate comment with sentence punctuation.
 
+This rule also supports JSONC and JSON5 line comments when linting with [`@eslint/json`](https://github.com/eslint/json).
+
 ## Examples
 
 ```js

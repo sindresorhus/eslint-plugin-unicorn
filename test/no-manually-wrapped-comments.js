@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -185,5 +185,62 @@ test.snapshot({
 			// This is another long comment but
 			// I still don't like long lines
 		`,
+	],
+});
+
+// JSONC / JSON5 support
+test.snapshot({
+	valid: [
+		// A single comment is valid
+		{
+			code: outdent`
+				// Single JSONC comment.
+
+				{"key": "value"}
+			`,
+			language: languages.jsonc,
+		},
+		// Separate comments ending with sentence punctuation are valid
+		{
+			code: outdent`
+				// First JSONC comment.
+				// Second JSONC comment.
+
+				{"key": "value"}
+			`,
+			language: languages.jsonc,
+		},
+		// Block comments are never flagged, only consecutive line comments
+		{
+			code: outdent`
+				/* This is a wrapped block comment but
+				it should be on one line */
+
+				{"key": "value"}
+			`,
+			language: languages.jsonc,
+		},
+	],
+	invalid: [
+		// Wrapped comment in JSONC
+		{
+			code: outdent`
+				// This is a wrapped JSONC comment but
+				// it should be on one line
+
+				{"key": "value"}
+			`,
+			language: languages.jsonc,
+		},
+		// Wrapped comment in JSON5
+		{
+			code: outdent`
+				// This is a wrapped JSON5 comment but
+				// it should be on one line
+
+				{"key": "value"}
+			`,
+			language: languages.json5,
+		},
 	],
 });

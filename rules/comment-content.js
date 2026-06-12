@@ -1,4 +1,4 @@
-import {getComments, isEslintDisableOrEnableDirective, onRoot} from './utils/index.js';
+import {getComments, isEslintDisableOrEnableDirective, normalizeComment, onRoot} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -222,35 +222,6 @@ function getMarkdownHtmlComments(sourceCode) {
 	}
 
 	return comments;
-}
-
-function normalizeComment(comment, sourceCode) {
-	if (typeof comment.value === 'string') {
-		return comment;
-	}
-
-	const range = sourceCode.getRange(comment);
-	const text = sourceCode.text.slice(...range);
-
-	if (text.startsWith('//')) {
-		return {
-			...comment,
-			type: 'Line',
-			value: text.slice(2),
-			range,
-		};
-	}
-
-	if (text.startsWith('/*')) {
-		return {
-			...comment,
-			type: 'Block',
-			value: text.slice(2, -2),
-			range,
-		};
-	}
-
-	return comment;
 }
 
 function getRuleComments(context) {
