@@ -184,6 +184,18 @@ test.snapshot({
 				if (foo) {
 					return;
 				} else {
+					/*
+					Keep this comment.
+					*/
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					return;
+				} else {
 					bar(\`foo\`);
 				}
 			}
@@ -308,6 +320,16 @@ test.snapshot({
 				} else {
 					bar()
 				} baz()
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					return;
+				} else {
+					bar = function() {}
+				}
+				(baz)();
 			}
 		`,
 		outdent`

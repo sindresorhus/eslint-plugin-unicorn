@@ -86,7 +86,7 @@ const hasCommentInRange = (sourceCode, [start, end]) =>
 const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
 
 const hasMultilineToken = (node, sourceCode) =>
-	sourceCode.getTokens(node, {includeComments: true}).some(token =>
+	sourceCode.getTokens(node).some(token =>
 		sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
 	);
 
@@ -193,7 +193,10 @@ const isSafeToMoveAlternate = (ifStatement, context) => {
 		lastAlternateToken
 		&& lastAlternateToken.value !== ';'
 		&& nextToken
-		&& needsSemicolon(lastAlternateToken, context, nextToken.value)
+		&& (
+			needsSemicolon(lastAlternateToken, context, nextToken.value)
+			|| startsWithAsiHazard(nextToken)
+		)
 	);
 };
 
