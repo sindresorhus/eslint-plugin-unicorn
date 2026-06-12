@@ -115,6 +115,7 @@ export {default as 'no-useless-undefined'} from './no-useless-undefined.js';
 export {default as 'no-zero-fractions'} from './no-zero-fractions.js';
 export {default as 'number-literal-case'} from './number-literal-case.js';
 export {default as 'numeric-separators-style'} from './numeric-separators-style.js';
+export {default as 'prefer-add-event-listener-options'} from './prefer-add-event-listener-options.js';
 export {default as 'prefer-add-event-listener'} from './prefer-add-event-listener.js';
 export {default as 'prefer-array-find'} from './prefer-array-find.js';
 export {default as 'prefer-array-flat-map'} from './prefer-array-flat-map.js';
