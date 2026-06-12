@@ -96,11 +96,32 @@ test.snapshot({
 			filename: 'file.ts',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				switch (foo) {
+					case null:
+					case undefined:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`
 			switch (foo) {
 				case undefined:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case null:
 				default:
 					handleDefaultCase();
 					break;
