@@ -57,6 +57,7 @@ export {default as 'no-global-object-property-assignment'} from './no-global-obj
 export {default as 'no-hex-escape'} from './no-hex-escape.js';
 export {default as 'no-immediate-mutation'} from './no-immediate-mutation.js';
 export {default as 'no-incorrect-query-selector'} from './no-incorrect-query-selector.js';
+export {default as 'no-incorrect-template-string-interpolation'} from './no-incorrect-template-string-interpolation.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-file-input-accept'} from './no-invalid-file-input-accept.js';

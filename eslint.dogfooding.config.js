@@ -89,6 +89,15 @@ const config = [
 	},
 	{
 		files: [
+			'test/**/*.js',
+		],
+		rules: {
+			// Test files contain source-code fixtures in template literals.
+			'unicorn/no-incorrect-template-string-interpolation': 'off',
+		},
+	},
+	{
+		files: [
 			'scripts/rename-rule.js',
 		],
 		rules: {
