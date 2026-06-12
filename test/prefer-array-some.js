@@ -251,6 +251,12 @@ test({
 			method: 'find',
 		})),
 		invalidCase({
+			code: 'function foo<T>(items: string[] | {find(predicate: Function): unknown} | T) { if (items.find(fn)) {} }',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: 'function foo<T>(items: string[] | {find(predicate: Function): unknown} | T) { if (items.some(fn)) {} }',
+			method: 'find',
+		}),
+		invalidCase({
 			code: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).find(fn)) {}',
 			languageOptions: {parser: parsers.typescript},
 			suggestionOutput: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).some(fn)) {}',
