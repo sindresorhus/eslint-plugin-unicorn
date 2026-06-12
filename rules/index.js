@@ -133,6 +133,7 @@ export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert
 export {default as 'prefer-global-number-constants'} from './prefer-global-number-constants.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
 export {default as 'prefer-https'} from './prefer-https.js';
+export {default as 'prefer-identifier-import-export-specifiers'} from './prefer-identifier-import-export-specifiers.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
 export {default as 'prefer-includes-over-repeated-comparisons'} from './prefer-includes-over-repeated-comparisons.js';
 export {default as 'prefer-includes'} from './prefer-includes.js';
