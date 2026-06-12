@@ -151,6 +151,67 @@ test({
 			}
 		`,
 		outdent`
+			function doFoo() {
+				do {
+					const foo = 1;
+					const match = () => foo;
+				} while (condition);
+			}
+		`,
+		outdent`
+			function doFoo() {
+				for (;;) {
+					{
+						const foo = 1;
+						const match = () => foo;
+					}
+				}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				for (;;) {
+					const foo = 1;
+					{
+						const match = () => foo;
+					}
+				}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				for (;;) {
+					{
+						const foo = 1;
+						{
+							const match = () => foo;
+						}
+					}
+				}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				for (;;) {
+					const foo = 1;
+					{
+						{
+							const match = () => foo;
+						}
+					}
+				}
+			}
+		`,
+		outdent`
+			function doFoo(values) {
+				for (const value of values) {
+					{
+						const match = () => value;
+					}
+				}
+			}
+		`,
+		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
@@ -702,6 +763,28 @@ test({
 			`,
 			errors: [createError('arrow function \'match\'')],
 		},
+		{
+			code: outdent`
+				do {
+					const match = () => true;
+
+					console.log(match);
+				} while (condition);
+			`,
+			errors: [createError('arrow function \'match\'')],
+		},
+		{
+			code: outdent`
+				for (;;) {
+					{
+						const match = () => true;
+
+						console.log(match);
+					}
+				}
+			`,
+			errors: [createError('arrow function \'match\'')],
+		},
 		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
@@ -1133,7 +1216,7 @@ test.typescript({
 					};
 					const sameBlockScopedConstant = blockScopedConstant;
 
-					const buggyClosure = (): void => {
+					const sameBlockClosure = (): void => {
 						console.log(sameBlockScopedConstant);
 					};
 				}
