@@ -213,7 +213,6 @@ function getFix(callExpression, replacement, context) {
 	}
 
 	const {object} = callExpression.callee;
-	const objectText = getParenthesizedText(object, context);
 
 	if (replacement.messageId === MESSAGE_ID_NO_OP) {
 		if (
@@ -229,6 +228,7 @@ function getFix(callExpression, replacement, context) {
 		return fixer => removeExpressionStatement(callExpression.parent, context, fixer);
 	}
 
+	const objectText = getParenthesizedText(object, context);
 	if (replacement.messageId === MESSAGE_ID_EMPTY) {
 		return fixer => fixer.replaceText(callExpression, `${objectText}.length = 0`);
 	}
