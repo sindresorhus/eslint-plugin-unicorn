@@ -1,5 +1,5 @@
-import {appendArgument} from './fix/index.js';
-import {isMethodCall} from './ast/index.js';
+import {appendArgument, replaceArgument} from './fix/index.js';
+import {isMethodCall, isUndefined} from './ast/index.js';
 import {isKnownNonArray} from './utils/index.js';
 
 const MESSAGE_ID = 'require-array-sort-compare';
@@ -14,6 +14,13 @@ const messages = {
 const numericCompareFunction = '(a, b) => a - b';
 const stringCompareFunction = '(a, b) => a.localeCompare(b)';
 
+const getCompareFunctionFix = (callExpression, compareFunction, context) => fixer => {
+	const [firstArgument] = callExpression.arguments;
+	return firstArgument
+		? replaceArgument(fixer, firstArgument, compareFunction, context)
+		: appendArgument(fixer, callExpression, compareFunction, context);
+};
+
 const getSuggestions = (callExpression, context) => {
 	if (context.sourceCode.getCommentsInside(callExpression).length > 0) {
 		return;
@@ -22,11 +29,11 @@ const getSuggestions = (callExpression, context) => {
 	return [
 		{
 			messageId: SUGGESTION_ID_NUMERIC,
-			fix: fixer => appendArgument(fixer, callExpression, numericCompareFunction, context),
+			fix: getCompareFunctionFix(callExpression, numericCompareFunction, context),
 		},
 		{
 			messageId: SUGGESTION_ID_STRING,
-			fix: fixer => appendArgument(fixer, callExpression, stringCompareFunction, context),
+			fix: getCompareFunctionFix(callExpression, stringCompareFunction, context),
 		},
 	];
 };
@@ -36,9 +43,16 @@ const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: ['sort', 'toSorted'],
-			argumentsLength: 0,
+			maximumArguments: 1,
 			optionalCall: false,
 		})) {
+			return;
+		}
+
+		if (
+			callExpression.arguments.length === 1
+			&& !isUndefined(callExpression.arguments[0])
+		) {
 			return;
 		}
 

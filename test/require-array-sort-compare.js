@@ -1,13 +1,22 @@
+import {outdent} from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
 		'array.sort(compareFunction)',
 		'array.toSorted(compareFunction)',
-		'array.sort(undefined)',
-		'array.toSorted(undefined)',
 		'array.sort((a, b) => a - b)',
 		'array.sort((a, b) => a.localeCompare(b))',
 		'array.toSorted((a, b) => a - b)',
@@ -36,10 +45,16 @@ test.snapshot({
 			code: 'const array: string = ""; array.sort()',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware(outdent`
+			declare function getCollection(): {sort(): void};
+			getCollection().sort();
+		`),
 	],
 	invalid: [
 		'array.sort()',
 		'array.toSorted()',
+		'array.sort(undefined)',
+		'array.toSorted(undefined)',
 		'array?.sort()',
 		'array?.toSorted()',
 		'[].sort()',

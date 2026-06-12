@@ -103,7 +103,7 @@ const getWordReplacements = (word, {replacements, allowList}) => {
 			.toArray();
 	}
 
-	return wordReplacement.length > 0 ? wordReplacement.toSorted() : [];
+	return wordReplacement.toSorted((first, second) => first.localeCompare(second));
 };
 
 const getNameReplacements = (name, options, limit = 3) => {
