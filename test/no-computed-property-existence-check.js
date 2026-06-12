@@ -1,0 +1,73 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'const value = object[key];',
+		'const value = object?.[key];',
+		'if (object[key] === true) {}',
+		'if (object[key] !== undefined) {}',
+		'if (object[key] == null) {}',
+		'if (object["key"]) {}',
+		'if (object[0]) {}',
+		'if (object[-1]) {}',
+		'if (object[+1]) {}',
+		'if (object[-1n]) {}',
+		'if (object[`key`]) {}',
+		'if ("key" in object) {}',
+		'if (0 in object) {}',
+		'if (-1 in object) {}',
+		'if (+1 in object) {}',
+		'if (-1n in object) {}',
+		'if (`key` in object) {}',
+		'class Foo { #key; method(object) { if (#key in object) {} } }',
+		'if (Object.hasOwn(object, key)) {}',
+		'if (Object.prototype.hasOwnProperty.call(object, key)) {}',
+		'if (map.has(key)) {}',
+		'if (set.has(value)) {}',
+		{
+			code: 'if (object["key" as const]) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (("key" as const) in object) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		'if (object[key]) {}',
+		'if (!object[key]) {}',
+		'if (Boolean(object[key])) {}',
+		'const value = object[key] ? first : second;',
+		'while (object[key]) {}',
+		'for (; object[key];) {}',
+		'if (object[key] && other) {}',
+		'if (other || object[key]) {}',
+		'if ((object)[(key)]) {}',
+		'if (object?.[key]) {}',
+		'if (key in object) {}',
+		'if (!(key in object)) {}',
+		'if (key in object && other) {}',
+		'const value = key in object ? first : second;',
+		'while (key in object) {}',
+		'if ((key) in (object)) {}',
+		'if (key in object?.property) {}',
+		'if (getKey() in getObject()) {}',
+		'if (object[/* comment */ key]) {}',
+		'if (/* comment */ key in object) {}',
+		'if (key in /* comment */ object) {}',
+		{
+			code: 'if (object[key]!) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((object[key] as boolean)) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((object[key] satisfies boolean)) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
