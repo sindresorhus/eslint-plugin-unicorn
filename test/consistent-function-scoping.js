@@ -117,6 +117,40 @@ test({
 			}
 		`,
 		outdent`
+			export const myMap = new Map();
+
+			for (const value of values) {
+				const regexp = new RegExp(\`^\${value}\\\\/?$\`);
+				const match = href => regexp.test(href);
+
+				myMap.set(value, {value, regexp, match});
+			}
+		`,
+		outdent`
+			function doFoo(values) {
+				for (const value in values) {
+					const foo = 1;
+					const match = () => foo;
+				}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				for (let index = 0; index < 9; index++) {
+					const foo = 1;
+					const match = () => foo;
+				}
+			}
+		`,
+		outdent`
+			function doFoo() {
+				while (condition) {
+					const foo = 1;
+					const match = () => foo;
+				}
+			}
+		`,
+		outdent`
 			let foo = 0;
 			function doFoo() {
 				foo = 1;
@@ -638,6 +672,36 @@ test({
 			`,
 			errors: [createError('function \'doBar\'')],
 		},
+		{
+			code: outdent`
+				for (const value of values) {
+					const match = () => true;
+
+					console.log(value, match);
+				}
+			`,
+			errors: [createError('arrow function \'match\'')],
+		},
+		{
+			code: outdent`
+				while (condition) {
+					const match = () => true;
+
+					console.log(match);
+				}
+			`,
+			errors: [createError('arrow function \'match\'')],
+		},
+		{
+			code: outdent`
+				for (;;) {
+					const match = () => true;
+
+					console.log(match);
+				}
+			`,
+			errors: [createError('arrow function \'match\'')],
+		},
 		// Function kinds and names, loc
 		{
 			code: 'function foo() { function bar() {} }',
@@ -1060,6 +1124,20 @@ test.typescript({
 				const b = (y: number) => (z: number): number => x + y + z;
 				return b(1)(2);
 			}
+		`,
+		outdent`
+			export const foo = (foos: readonly string[]): void => {
+				for (const blockScopedConstant of foos) {
+					const fineClosure = (): void => {
+						console.log(blockScopedConstant);
+					};
+					const sameBlockScopedConstant = blockScopedConstant;
+
+					const buggyClosure = (): void => {
+						console.log(sameBlockScopedConstant);
+					};
+				}
+			};
 		`,
 		// #2088
 		outdent`

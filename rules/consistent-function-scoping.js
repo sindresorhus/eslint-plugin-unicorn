@@ -10,9 +10,12 @@ const messages = {
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
-function hasReferenceInParentScope(scope, parent, scopeManager) {
+const isSameScopeAsAny = (scopes, scope) =>
+	scopes.some(parentScope => isSameScope(parentScope, scope));
+
+function checkReferences(scope, parentScopes, scopeManager) {
 	const hitReference = references => references.some(reference => {
-		if (isSameScope(parent, reference.from)) {
+		if (isSameScopeAsAny(parentScopes, reference.from)) {
 			return true;
 		}
 
@@ -24,12 +27,12 @@ function hasReferenceInParentScope(scope, parent, scopeManager) {
 			return false;
 		}
 
-		return isSameScope(parent, resolved.scope);
+		return isSameScopeAsAny(parentScopes, resolved.scope);
 	});
 
 	const hitDefinitions = definitions => definitions.some(definition => {
 		const scope = scopeManager.acquire(definition.node);
-		return isSameScope(parent, scope);
+		return isSameScopeAsAny(parentScopes, scope);
 	});
 
 	// This check looks for neighboring function definitions
@@ -63,7 +66,7 @@ function hasReferenceInParentScope(scope, parent, scopeManager) {
 
 		// Look at the scope above the function definition to see if it lives
 		// next to the reference being checked
-		return isSameScope(parent, identifierParentScope.upper);
+		return isSameScopeAsAny(parentScopes, identifierParentScope.upper);
 	});
 
 	return getReferences(scope)
@@ -116,6 +119,61 @@ function isInsideJestMockFactory(node) {
 	}
 
 	return false;
+}
+
+const loopStatementTypes = new Set([
+	'DoWhileStatement',
+	'ForInStatement',
+	'ForOfStatement',
+	'ForStatement',
+	'WhileStatement',
+]);
+const isLoopBodyBlock = node =>
+	node?.type === 'BlockStatement'
+	&& loopStatementTypes.has(node.parent.type)
+	&& node.parent.body === node;
+
+function getLoopBodyBlockChain(node) {
+	const blocks = [];
+
+	while (node?.type === 'BlockStatement') {
+		blocks.push(node);
+
+		if (isLoopBodyBlock(node)) {
+			return blocks;
+		}
+
+		node = node.parent;
+	}
+
+	return [];
+}
+
+function getRelevantParentScopes(parentScope, blockNode, scopeManager) {
+	const parentScopes = [];
+	if (parentScope) {
+		parentScopes.push(parentScope);
+	}
+
+	const loopBodyBlockChain = getLoopBodyBlockChain(blockNode);
+	if (loopBodyBlockChain.length === 0) {
+		return parentScopes;
+	}
+
+	const loopBodyBlock = loopBodyBlockChain.at(-1);
+	const loopStatementScope = scopeManager.acquire(loopBodyBlock.parent);
+	if (loopStatementScope) {
+		parentScopes.push(loopStatementScope);
+	}
+
+	for (const block of loopBodyBlockChain) {
+		const blockScope = scopeManager.acquire(block);
+		if (blockScope) {
+			parentScopes.push(blockScope);
+		}
+	}
+
+	return parentScopes;
 }
 
 const iifeFunctionTypes = new Set([
@@ -176,6 +234,7 @@ function shouldSkipFunction(node, scopeManager, sourceCode) {
 	}
 
 	let parentNode = node.parent;
+	let blockNode;
 
 	// Skip over junk like the block statement inside of a function declaration
 	// or the various pieces of an arrow function.
@@ -197,20 +256,23 @@ function shouldSkipFunction(node, scopeManager, sourceCode) {
 	parentNode = getParentNodeAfterNestedArrowFunctions(parentNode, node);
 
 	if (parentNode?.type === 'BlockStatement') {
+		blockNode = parentNode;
 		parentNode = parentNode.parent;
 	}
 
 	const parentScope = scopeManager.acquire(parentNode);
+	const parentScopes = getRelevantParentScopes(parentScope, blockNode, scopeManager);
+
 	if (
-		!parentScope
-		|| parentScope.type === 'global'
-		|| isReactHook(parentScope)
-		|| isIife(parentNode)
+		parentScopes.length === 0
+		|| parentScopes.some(parentScope => parentScope.type === 'global')
+		|| (parentScope && isReactHook(parentScope))
+		|| (parentScope && isIife(parentNode))
 	) {
 		return true;
 	}
 
-	return hasReferenceInParentScope(scope, parentScope, scopeManager);
+	return checkReferences(scope, parentScopes, scopeManager);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
