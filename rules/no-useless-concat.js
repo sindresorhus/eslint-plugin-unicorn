@@ -59,13 +59,13 @@ const create = context => {
 			return;
 		}
 
-		// Whether `left` is the right operand of a preceding `+`, as in `foo + 'a' + 'b'`.
-		const isChain = left !== node.left;
-
 		// Allow concatenation spanning multiple lines, it's often used intentionally for readability.
 		if (sourceCode.getLoc(left).end.line !== sourceCode.getLoc(right).start.line) {
 			return;
 		}
+
+		// Whether `left` is the right operand of a preceding `+`, as in `foo + 'a' + 'b'`.
+		const isChain = left !== node.left;
 
 		const leftValue = getStringValue(left);
 		const rightValue = getStringValue(right);
