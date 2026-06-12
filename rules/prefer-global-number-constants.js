@@ -17,7 +17,7 @@ function isReplacementShadowed(node, replacement, context) {
 	const name = replacement === 'NaN' ? 'NaN' : 'Infinity';
 	const variable = findVariable(context.sourceCode.getScope(node), name);
 
-	return variable && variable.scope.type !== 'global';
+	return variable?.defs.length > 0;
 }
 
 function checkProperty({node, path: [, property]}, context) {

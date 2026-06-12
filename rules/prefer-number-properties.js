@@ -28,8 +28,14 @@ const isNegative = node => {
 };
 
 const isDeletedNegativeInfinity = node => {
+	if (!isNegative(node)) {
+		return false;
+	}
+
 	const {parent} = node;
-	return isNegative(node) && parent.parent.type === 'UnaryExpression' && parent.parent.operator === 'delete' && parent.parent.argument === parent;
+	const {parent: grandparent} = parent;
+
+	return grandparent.type === 'UnaryExpression' && grandparent.operator === 'delete' && grandparent.argument === parent;
 };
 
 function isBase10OrNoRadixParseIntCall(node, context) {
@@ -167,7 +173,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Number` static methods over global functions.',
+			description: 'Prefer `Number` static methods over global functions and optionally static properties over global constants.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

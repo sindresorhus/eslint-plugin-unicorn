@@ -34,6 +34,14 @@ test.snapshot({
 				const negative = Number.NEGATIVE_INFINITY;
 			}
 		`,
+		{
+			code: 'const NaN = 1; const value = Number.NaN;',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'const Infinity = 1; const positive = Number.POSITIVE_INFINITY; const negative = Number.NEGATIVE_INFINITY;',
+			languageOptions: {sourceType: 'script'},
+		},
 	],
 	invalid: [
 		'const foo = Number.NaN;',

@@ -1,6 +1,6 @@
 # prefer-number-properties
 
-📝 Prefer `Number` static methods over global functions.
+📝 Prefer `Number` static methods over global functions and optionally static properties over global constants.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
