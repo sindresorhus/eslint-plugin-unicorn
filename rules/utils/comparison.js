@@ -1,11 +1,5 @@
 import isSameReference from './is-same-reference.js';
-
-const typeScriptExpressionNodeTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-]);
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const optionalChainNodeTypes = new Set([
 	'CallExpression',
@@ -25,10 +19,7 @@ Unwrap TypeScript type-only expression wrappers (`as`, `satisfies`, `<Type>`, an
 @param {import('estree').Node} node The node to unwrap.
 @returns {import('estree').Node} The unwrapped node.
 */
-export const unwrapExpression = node =>
-	typeScriptExpressionNodeTypes.has(node.type)
-		? unwrapExpression(node.expression)
-		: node;
+export const unwrapExpression = unwrapTypeScriptExpression;
 
 const normalizeReference = node => {
 	node = unwrapExpression(node);

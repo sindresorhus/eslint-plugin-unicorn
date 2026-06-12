@@ -7,6 +7,8 @@ import {
 	isControlFlowTest,
 	getBooleanAncestor,
 	isSameReference,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isLiteral, isMemberExpression} from './ast/index.js';
@@ -58,25 +60,10 @@ function isLengthOrSizeMemberExpression(node) {
 	});
 }
 
-function isTypeScriptExpression(node) {
-	return node?.type === 'TSAsExpression'
-		|| node?.type === 'TSSatisfiesExpression'
-		|| node?.type === 'TSTypeAssertion'
-		|| node?.type === 'TSNonNullExpression';
-}
-
-function unwrapTypeScriptExpression(node) {
-	if (isTypeScriptExpression(node)) {
-		return unwrapTypeScriptExpression(node.expression);
-	}
-
-	return node;
-}
-
 function getLengthCheckParent(node, allowTypeScriptExpression) {
 	node = node.parent;
 	if (allowTypeScriptExpression) {
-		while (isTypeScriptExpression(node)) {
+		while (isTypeScriptExpressionWrapper(node)) {
 			node = node.parent;
 		}
 	}

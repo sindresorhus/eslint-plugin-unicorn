@@ -1,4 +1,5 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import {getStaticStringValue} from './ast/index.js';
 
 const {isIdentifierName} = helperValidatorIdentifier;
 
@@ -73,18 +74,10 @@ const getStaticName = (key, computed) => {
 	}
 
 	if (
-		key?.type === 'Literal'
-		&& typeof key.value === 'string'
-	) {
-		return key.value;
-	}
-
-	if (
 		computed
-		&& key?.type === 'TemplateLiteral'
-		&& key.expressions.length === 0
+		|| key?.type === 'Literal'
 	) {
-		return key.quasis[0].value.cooked;
+		return getStaticStringValue(key);
 	}
 };
 

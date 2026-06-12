@@ -42,6 +42,7 @@ export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
+export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
 export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
 export {default as isArray, isKnownNonArray} from './is-array.js';
@@ -63,6 +64,7 @@ export {default as isShorthandImportLocal} from './is-shorthand-import-local.js'
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
+export {default as unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,
 	isEslintDisableOrEnableDirective,

@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMemberExpression} from './ast/index.js';
+import {getStaticStringValue, isMemberExpression} from './ast/index.js';
 import {isValueNotUsable} from './utils/index.js';
 
 /**
@@ -21,13 +21,7 @@ const getStaticPropertyName = memberExpression => {
 		return property.name;
 	}
 
-	if (property.type === 'Literal' && typeof property.value === 'string') {
-		return property.value;
-	}
-
-	if (property.type === 'TemplateLiteral' && property.expressions.length === 0) {
-		return property.quasis[0].value.cooked;
-	}
+	return getStaticStringValue(property);
 };
 
 const isIdentifierNamed = (node, name) =>

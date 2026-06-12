@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isLeftHandSide} from './utils/index.js';
+import {isLeftHandSide, unwrapTypeScriptExpression} from './utils/index.js';
 import {isCallOrNewExpression, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
@@ -13,13 +13,6 @@ const thisScopeBoundaryNodeTypes = new Set([
 	'AccessorProperty',
 	'StaticBlock',
 	'Program',
-]);
-
-const typeWrapperNodeTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-	'TSTypeAssertion',
 ]);
 
 const isSimpleExpression = expression =>
@@ -46,14 +39,6 @@ const getThisScopeBoundary = node => {
 			return node;
 		}
 	}
-};
-
-const getTypeUnwrappedNode = node => {
-	while (typeWrapperNodeTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
 };
 
 const isIdentifierProperty = property =>
@@ -120,7 +105,7 @@ const isMemberExpressionReassigned = ({
 	const [, declarationEnd] = sourceCode.getRange(declaration.object);
 	const [memberStart] = sourceCode.getRange(memberExpressionNode);
 	const propertyName = memberExpressionNode.property.name;
-	const object = getTypeUnwrappedNode(memberExpressionNode.object);
+	const object = unwrapTypeScriptExpression(memberExpressionNode.object);
 	const rootIdentifierName = object.type === 'Identifier' ? object.name : undefined;
 	const rootVariable = object.type === 'Identifier' ? findVariable(memberScope, object) : undefined;
 	const thisScopeBoundary = object.type === 'ThisExpression' ? getThisScopeBoundary(object) : undefined;
@@ -289,7 +274,7 @@ const create = context => {
 	const memberExpressionWrites = [];
 
 	const addDirectMemberExpressionWrite = node => {
-		const object = getTypeUnwrappedNode(node.object);
+		const object = unwrapTypeScriptExpression(node.object);
 
 		if (
 			node.computed
@@ -407,7 +392,7 @@ const create = context => {
 			return;
 		}
 
-		const object = getTypeUnwrappedNode(node.object);
+		const object = unwrapTypeScriptExpression(node.object);
 		const matchingDeclarations = declarations.get(sourceCode.getText(object));
 
 		if (!matchingDeclarations) {

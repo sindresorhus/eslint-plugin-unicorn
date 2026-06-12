@@ -5,7 +5,7 @@ import {
 	isComparableStaticValue,
 	isLeftHandSide,
 } from './utils/index.js';
-import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -47,10 +47,6 @@ const methodsReturnsArrayAndString = [
 	'slice',
 	'concat',
 ];
-
-const isStringLiteral = node =>
-	(node.type === 'Literal' && typeof node.value === 'string')
-	|| (node.type === 'TemplateLiteral' && node.expressions.length === 0);
 
 const isIdentifierInitializedWithArray = (node, scope, visitedVariables = new Set()) => {
 	if (node.type !== 'Identifier') {
@@ -136,7 +132,7 @@ const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 			optionalCall: false,
 			optionalMember: false,
 		})
-		&& !isStringLiteral(node.callee.object)
+		&& getStaticStringValue(node.callee.object) === undefined
 		&& (
 			node.callee.object.type !== 'Identifier'
 			|| isIdentifierInitializedWithArray(node.callee.object, scope, visitedVariables)
@@ -218,7 +214,7 @@ const getArrayFromSize = (node, scope) => {
 		return hasSpread(source.elements) ? undefined : source.elements.length;
 	}
 
-	if (isStringLiteral(source)) {
+	if (getStaticStringValue(source) !== undefined) {
 		const result = getStaticValue(source, scope);
 		return typeof result?.value === 'string' ? [...result.value].length : undefined;
 	}
