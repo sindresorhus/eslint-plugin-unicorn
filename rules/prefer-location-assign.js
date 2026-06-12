@@ -1,7 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression} from './ast/index.js';
 import {isValueNotUsable} from './utils/index.js';
-import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -34,8 +33,11 @@ const getStaticPropertyName = memberExpression => {
 const isIdentifierNamed = (node, name) =>
 	node.type === 'Identifier' && node.name === name;
 
+const getVariable = (identifier, sourceCode) =>
+	findVariable(sourceCode.getScope(identifier), identifier);
+
 const isUnshadowedGlobalIdentifier = (identifier, sourceCode) => {
-	const variable = findVariable(sourceCode.getScope(identifier), identifier);
+	const variable = getVariable(identifier, sourceCode);
 	return !variable || (variable.scope.type === 'global' && variable.defs.length === 0);
 };
 
@@ -56,10 +58,35 @@ const isDirectLocationObject = (node, sourceCode) =>
 		&& isUnshadowedGlobalIdentifier(node.object, sourceCode)
 	);
 
-const isDirectLocationHref = (node, sourceCode) =>
+const getConstantInitializer = (node, sourceCode) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const definition = getVariable(node, sourceCode)?.defs[0];
+	if (
+		definition?.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	return definition.node.init;
+};
+
+const isConstantLocationAlias = (node, sourceCode) => {
+	const initializer = getConstantInitializer(node, sourceCode);
+	return initializer && isDirectLocationObject(initializer, sourceCode);
+};
+
+const isLocationObject = (node, sourceCode) =>
+	isDirectLocationObject(node, sourceCode)
+	|| isConstantLocationAlias(node, sourceCode);
+
+const isLocationHref = (node, sourceCode) =>
 	node.type === 'MemberExpression'
 	&& getStaticPropertyName(node) === 'href'
-	&& isDirectLocationObject(node.object, sourceCode);
+	&& isLocationObject(node.object, sourceCode);
 
 const getProblem = (node, context) => {
 	const {sourceCode} = context;
@@ -89,32 +116,18 @@ const getProblem = (node, context) => {
 	return problem;
 };
 
-const tracker = new GlobalReferenceTracker({
-	object: 'location.href',
-	filter: ({node}) => node.parent.type === 'AssignmentExpression' && node.parent.left === node,
-	handle({node}, context) {
-		if (isDirectLocationHref(node, context.sourceCode)) {
-			return;
-		}
-
-		return getProblem(node, context);
-	},
-});
-
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	context.on('AssignmentExpression', assignmentExpression => {
 		if (
 			assignmentExpression.left.type !== 'MemberExpression'
-			|| !isDirectLocationHref(assignmentExpression.left, context.sourceCode)
+			|| !isLocationHref(assignmentExpression.left, context.sourceCode)
 		) {
 			return;
 		}
 
 		return getProblem(assignmentExpression.left, context);
 	});
-
-	tracker.listen({context});
 };
 
 /** @type {ESLint.Rule.RuleModule} */

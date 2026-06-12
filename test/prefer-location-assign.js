@@ -33,6 +33,11 @@ ruleTest.snapshot({
 			const globalThis = {};
 			globalThis.location.href = url;
 		`,
+		'let target = location; target.href = url;',
+		'let target = location; target = new URL("https://example.com"); target.href = url;',
+		'let location = globalThis.location; location = new URL("https://example.com"); location.href = url;',
+		'const window = {}; const target = window.location; target.href = url;',
+		'const globalThis = {}; const target = globalThis.location; target.href = url;',
 	],
 	invalid: [
 		'location.href = url;',
@@ -43,8 +48,7 @@ ruleTest.snapshot({
 		'const target = location; target.href = url;',
 		'const target = location; target["href"] = url;',
 		'const target = window.location; target.href = url;',
-		'let target = location; target = new URL("https://example.com"); target.href = url;',
-		'let location = globalThis.location; location = new URL("https://example.com"); location.href = url;',
+		'const target = globalThis.location; target.href = url;',
 		'const result = location.href = url;',
 		'location.href += hash;',
 		outdent`
@@ -58,19 +62,33 @@ ruleTest.snapshot({
 
 test('works with the recommended config without browser globals', t => {
 	const linter = new Linter({configType: 'flat'});
-	const code = 'location.href = url;';
-	const messages = linter.verify(code, unicorn.configs.recommended);
-	const result = linter.verifyAndFix(code, unicorn.configs.recommended);
+	const cases = [
+		{
+			code: 'location.href = url;',
+			output: 'location.assign(url);',
+		},
+		{
+			code: 'const target = location; target.href = url;',
+			output: 'const target = location; target.href = url;',
+		},
+		{
+			code: 'const target = window.location; target.href = url;',
+			output: 'const target = globalThis.location; target.href = url;',
+		},
+		{
+			code: 'const target = globalThis.location; target.href = url;',
+			output: 'const target = globalThis.location; target.href = url;',
+		},
+	];
 
-	t.deepEqual(
-		messages.map(({message, ruleId}) => ({message, ruleId})),
-		[
-			{
-				message: 'Prefer `Location#assign()` over assigning to `Location#href`.',
-				ruleId: 'unicorn/prefer-location-assign',
-			},
-		],
-	);
-	t.true(result.fixed);
-	t.is(result.output, 'location.assign(url);');
+	for (const {code, output} of cases) {
+		const messages = linter.verify(code, unicorn.configs.recommended);
+		const result = linter.verifyAndFix(code, unicorn.configs.recommended);
+
+		t.true(
+			messages.some(({ruleId}) => ruleId === 'unicorn/prefer-location-assign'),
+			`Expected \`prefer-location-assign\` report for: ${code}`,
+		);
+		t.is(result.output, output);
+	}
 });
