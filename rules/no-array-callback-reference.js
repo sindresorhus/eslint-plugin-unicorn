@@ -1,5 +1,6 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
+import typedArray from './shared/typed-array.js';
 import {isMethodCall} from './ast/index.js';
 import {
 	isNodeMatches,
@@ -167,6 +168,89 @@ const defaultIgnoredCallees = [
 	'$',
 	'jQuery',
 ];
+
+const typedArrayTypes = new Set(typedArray);
+const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
+const unknownTypeNames = new Set(['any', 'error', 'unknown']);
+const nullishTypeNames = new Set(['null', 'undefined']);
+
+const isDefaultLibrarySymbol = (symbol, program) =>
+	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
+
+const isNullishType = type => nullishTypeNames.has(type.intrinsicName);
+
+function getBaseTypes(type, checker) {
+	try {
+		return checker.getBaseTypes(type) ?? type.getBaseTypes?.() ?? [];
+	} catch {
+		return [];
+	}
+}
+
+function shouldReportReceiverType(type, checker, program, allowNullish) {
+	if (unknownTypeNames.has(type.intrinsicName)) {
+		return true;
+	}
+
+	if (type.isUnion()) {
+		const types = allowNullish
+			? type.types.filter(type => !isNullishType(type))
+			: type.types;
+
+		return types.length > 0 && types.every(type => shouldReportReceiverType(type, checker, program, allowNullish));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return shouldReportReceiverType(constraint, checker, program, allowNullish);
+	}
+
+	if (isNullishType(type)) {
+		return false;
+	}
+
+	const types = type.isIntersection() ? type.types : [type];
+	return types.some(type => {
+		if (unknownTypeNames.has(type.intrinsicName)) {
+			return true;
+		}
+
+		if (checker.isArrayType(type) || checker.isTupleType(type)) {
+			return true;
+		}
+
+		if (getBaseTypes(type, checker).some(baseType => shouldReportReceiverType(baseType, checker, program, allowNullish))) {
+			return true;
+		}
+
+		const symbol = type.getSymbol() ?? type.aliasSymbol;
+		if (!isDefaultLibrarySymbol(symbol, program)) {
+			return false;
+		}
+
+		const typeName = symbol.getName();
+		return arrayTypeNames.has(typeName) || typedArrayTypes.has(typeName);
+	});
+}
+
+function shouldReportReceiver(callExpression, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return true;
+	}
+
+	try {
+		const {program} = parserServices;
+		return shouldReportReceiverType(
+			parserServices.getTypeAtLocation(callExpression.callee.object),
+			program.getTypeChecker(),
+			program,
+			callExpression.callee.optional,
+		);
+	} catch {
+		return true;
+	}
+}
 
 const isValidParameterName = name =>
 	isIdentifierName(name)
@@ -363,7 +447,10 @@ const create = context => {
 		}
 
 		const options = iteratorMethods.get(methodName);
-		if (options.shouldIgnoreCallExpression(callExpression, ignoredCallees)) {
+		if (
+			options.shouldIgnoreCallExpression(callExpression, ignoredCallees)
+			|| !shouldReportReceiver(callExpression, context)
+		) {
 			return;
 		}
 

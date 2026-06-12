@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import notFunctionTypes from './utils/not-function-types.js';
 import {getTester} from './utils/test.js';
 
@@ -50,6 +51,26 @@ const invalidTestCase = (({code, options, method, name, suggestions}) => ({
 			...generateError(method, name),
 			suggestions: suggestions.map(output => suggestionOutput(output, name)),
 		},
+	],
+}));
+
+const typeAware = testCase => ({
+	...(typeof testCase === 'string' ? {code: testCase} : testCase),
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+const invalidTypeAwareMapCallbackTestCase = code => typeAware(invalidTestCase({
+	code,
+	method: 'map',
+	name: 'callback',
+	suggestions: [
+		code.replace('map(callback)', 'map((element) => callback(element))'),
+		code.replace('map(callback)', 'map((element, index) => callback(element, index))'),
+		code.replace('map(callback)', 'map((element, index, array) => callback(element, index, array))'),
 	],
 }));
 
@@ -753,6 +774,86 @@ test.snapshot({
 				foo.map(new Function(''));
 			}
 		`,
+	],
+});
+
+test({
+	valid: [
+		typeAware(outdent`
+			interface SearchService {
+				find(callback: Function): unknown;
+			}
+			declare const callback: Function;
+			declare const service: SearchService;
+			service.find(callback);
+		`),
+		typeAware(outdent`
+			declare const callback: Function;
+			class Collection {
+				map(callback: Function) {}
+			}
+			const collection = new Collection();
+			collection.map(callback);
+		`),
+		typeAware(outdent`
+			interface Model {
+				find(query: object): unknown;
+			}
+			declare const AccountModel: Model;
+			const query = {};
+			AccountModel.find(query);
+		`),
+		typeAware(outdent`
+			interface NgMocks {
+				find(component: unknown): unknown;
+			}
+			declare const ngMocks: NgMocks;
+			declare const MyComponent: unknown;
+			ngMocks.find(MyComponent);
+		`),
+		typeAware(outdent`
+			declare const callback: Function;
+			declare const collection: string[] | {map(callback: Function): unknown};
+			collection.map(callback);
+		`),
+		typeAware(outdent`
+			export {};
+			type Array<T> = {map(callback: Function): unknown};
+			declare const callback: Function;
+			declare const collection: Array<string>;
+			collection.map(callback);
+		`),
+		typeAware(outdent`
+			export {};
+			class Uint8Array {
+				map(callback: Function) {}
+			}
+			declare const callback: Function;
+			const collection = new Uint8Array();
+			collection.map(callback);
+		`),
+	],
+	invalid: [
+		...[
+			'declare const callback: Function; declare const array: string[]; array.map(callback);',
+			'declare const callback: Function; declare const array: readonly string[]; array.map(callback);',
+			'declare const callback: Function; declare const array: [string, string]; array.map(callback);',
+			'declare const callback: Function; declare const array: Array<string>; array.map(callback);',
+			'declare const callback: Function; declare const array: ReadonlyArray<string>; array.map(callback);',
+			'declare const callback: Function; declare const array: Uint8Array; array.map(callback);',
+			'declare const callback: Function; declare const array: string[] | readonly number[]; array.map(callback);',
+			'declare const callback: Function; declare const array: string[] | Uint8Array; array.map(callback);',
+			'declare const callback: Function; declare const array: string[] & {foo: string}; array.map(callback);',
+			'declare const callback: Function; declare const array: string[] | undefined; array?.map(callback);',
+			'declare const callback: Function; function run<T extends string[]>(array: T) { array.map(callback); }',
+			'declare const callback: Function; function run<T extends readonly string[]>(array: T) { array.map(callback); }',
+			'declare const callback: Function; class Strings extends Array<string> {} const array = new Strings(); array.map(callback);',
+			'declare const callback: Function; interface S extends ReadonlyArray<string> {} declare const array: S; array.map(callback);',
+			'declare const callback: Function; function run<T extends Uint8Array>(array: T) { array.map(callback); }',
+			'declare const callback: Function; declare const array: any; array.map(callback);',
+			'declare const callback: Function; declare const array: unknown; array.map(callback);',
+			'declare const callback: Function; declare const array: MissingType; array.map(callback);',
+		].map(code => invalidTypeAwareMapCallbackTestCase(code)),
 	],
 });
 
