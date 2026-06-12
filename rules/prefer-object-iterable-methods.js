@@ -23,10 +23,21 @@ const classTypes = new Set([
 	'ClassExpression',
 ]);
 
+const argumentsScopeBarrierTypes = new Set([
+	'ClassDeclaration',
+	'ClassExpression',
+	'FunctionDeclaration',
+	'FunctionExpression',
+]);
+
 const abruptCompletionTypes = new Set([
 	'BreakStatement',
 	'ContinueStatement',
 	'ReturnStatement',
+	'ThrowStatement',
+]);
+
+const mapUnsafeCompletionTypes = new Set([
 	'ThrowStatement',
 ]);
 
@@ -99,6 +110,31 @@ function * traverse(node, visitorKeys, root = node) {
 			}
 		} else if (value?.type) {
 			yield * traverse(value, visitorKeys, root);
+		}
+	}
+}
+
+function * traverseCallbackArguments(node, visitorKeys, root = node) {
+	yield node;
+
+	if (
+		node !== root
+		&& argumentsScopeBarrierTypes.has(node.type)
+	) {
+		return;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			for (const child of value) {
+				if (child?.type) {
+					yield * traverseCallbackArguments(child, visitorKeys, root);
+				}
+			}
+		} else if (value?.type) {
+			yield * traverseCallbackArguments(value, visitorKeys, root);
 		}
 	}
 }
@@ -213,6 +249,23 @@ const getDirectValueMembers = ({targetNode, objectNode, keyVariable, context}) =
 const hasCommentsInside = (nodes, sourceCode) =>
 	nodes.some(node => sourceCode.getCommentsInside(node).length > 0);
 
+const hasCallbackArguments = (callback, context) => {
+	if (callback.type !== 'FunctionExpression') {
+		return false;
+	}
+
+	for (const node of traverseCallbackArguments(callback.body, context.sourceCode.visitorKeys)) {
+		if (
+			node.type === 'Identifier'
+			&& node.name === 'arguments'
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const hasUnsafeSideEffectAroundValueRead = ({targetNode, valueMembers, context}) => {
 	const {sourceCode} = context;
 
@@ -233,9 +286,9 @@ const hasUnsafeSideEffectAroundValueRead = ({targetNode, valueMembers, context})
 	return false;
 };
 
-const hasAbruptCompletion = (targetNode, context) => {
+const hasNodeOfType = (targetNode, context, nodeTypes) => {
 	for (const node of traverse(targetNode, context.sourceCode.visitorKeys)) {
-		if (abruptCompletionTypes.has(node.type)) {
+		if (nodeTypes.has(node.type)) {
 			return true;
 		}
 	}
@@ -265,7 +318,6 @@ const getAvailableName = (name, binding, context) =>
 
 const getFix = problem => fixer => {
 	const {
-		context,
 		methodProperty,
 		preferredMethod,
 		binding,
@@ -273,11 +325,6 @@ const getFix = problem => fixer => {
 		valueMembers,
 		valueName,
 	} = problem;
-	const {sourceCode} = context;
-
-	if (hasCommentsInside([binding, ...valueMembers], sourceCode)) {
-		return;
-	}
 
 	return [
 		fixer.replaceText(methodProperty, preferredMethod),
@@ -400,44 +447,49 @@ const getPreferredObjectEntriesMethod = (keyReferences, valueReferences) => {
 	return keyReferences.length === 0 ? 'values' : 'keys';
 };
 
-const getObjectEntriesProblem = ({methodCall, binding, targetNode, context}) => {
-	if (
-		binding.type !== 'ArrayPattern'
-		|| binding.elements.length > 2
-		|| binding.elements[0]?.type !== 'Identifier'
-		|| (binding.elements[1] && binding.elements[1].type !== 'Identifier')
-	) {
+const isSupportedObjectEntriesBinding = binding => {
+	if (binding.type !== 'ArrayPattern' || binding.elements.length > 2) {
+		return false;
+	}
+
+	const [keyBinding, valueBinding] = binding.elements;
+	return !(
+		(!keyBinding && !valueBinding)
+		|| (keyBinding && keyBinding.type !== 'Identifier')
+		|| (valueBinding && valueBinding.type !== 'Identifier')
+		|| keyBinding?.typeAnnotation
+		|| valueBinding?.typeAnnotation
+	);
+};
+
+const getReferencesForBinding = ({binding, targetNode, context}) => {
+	if (!binding) {
+		return [];
+	}
+
+	const variable = getVariable(binding, context);
+	if (!variable) {
+		return;
+	}
+
+	const references = getVariableReferencesInNode(variable, targetNode, context);
+	if (references.some(reference => isWriteReference(reference))) {
+		return;
+	}
+
+	return references;
+};
+
+const getObjectEntriesProblem = ({methodCall, binding, targetNode, context, canFix = true}) => {
+	if (!isSupportedObjectEntriesBinding(binding)) {
 		return;
 	}
 
 	const [keyBinding, valueBinding] = binding.elements;
-	if (keyBinding.typeAnnotation || valueBinding?.typeAnnotation) {
+	const keyReferences = getReferencesForBinding({binding: keyBinding, targetNode, context});
+	const valueReferences = getReferencesForBinding({binding: valueBinding, targetNode, context});
+	if (!keyReferences || !valueReferences) {
 		return;
-	}
-
-	const keyVariable = getVariable(keyBinding, context);
-	if (!keyVariable) {
-		return;
-	}
-
-	const keyReferences = getVariableReferencesInNode(keyVariable, targetNode, context);
-	if (
-		keyReferences.some(reference => isWriteReference(reference))
-	) {
-		return;
-	}
-
-	let valueReferences = [];
-	if (valueBinding) {
-		const valueVariable = getVariable(valueBinding, context);
-		if (!valueVariable) {
-			return;
-		}
-
-		valueReferences = getVariableReferencesInNode(valueVariable, targetNode, context);
-		if (valueReferences.some(reference => isWriteReference(reference))) {
-			return;
-		}
 	}
 
 	const preferredMethod = getPreferredObjectEntriesMethod(keyReferences, valueReferences);
@@ -457,6 +509,7 @@ const getObjectEntriesProblem = ({methodCall, binding, targetNode, context}) => 
 		preferredMethod,
 		binding,
 		bindingReplacement,
+		canFix,
 	});
 };
 
@@ -477,6 +530,7 @@ const getObjectMethodProblem = ({methodCall, binding, targetNode, context, canFi
 			binding,
 			targetNode,
 			context,
+			canFix,
 		});
 	}
 };
@@ -498,7 +552,7 @@ const create = context => {
 			binding,
 			targetNode: node.body,
 			context,
-			canFix: !hasAbruptCompletion(node.body, context),
+			canFix: !hasNodeOfType(node.body, context, abruptCompletionTypes),
 		});
 	});
 
@@ -517,6 +571,10 @@ const create = context => {
 			return;
 		}
 
+		if (hasCallbackArguments(callback, context)) {
+			return;
+		}
+
 		if (functionTypes.has(callback.body.type) || classTypes.has(callback.body.type)) {
 			return;
 		}
@@ -526,6 +584,7 @@ const create = context => {
 			binding: callback.params[0],
 			targetNode: callback.body,
 			context,
+			canFix: !hasNodeOfType(callback.body, context, mapUnsafeCompletionTypes),
 		});
 	});
 };
