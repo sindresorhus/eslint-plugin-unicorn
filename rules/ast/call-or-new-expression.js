@@ -35,7 +35,7 @@ function create(node, options, types) {
 		optional,
 	} = {
 		minimumArguments: 0,
-		maximumArguments: Number.POSITIVE_INFINITY,
+		maximumArguments: Infinity,
 		allowSpreadElement: false,
 		...options,
 	};

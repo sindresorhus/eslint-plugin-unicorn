@@ -3,10 +3,13 @@ Based on https://github.com/eslint/eslint/pull/20132
 Workaround for https://github.com/typescript-eslint/typescript-eslint/issues/11762
 */
 
+import {createRequire} from 'node:module';
 import {Variable} from 'eslint-scope';
-import typescriptEslintParserOriginal from '@typescript-eslint/parser';
-import vueEslintParserOriginal from 'vue-eslint-parser';
-import htmlEslintParserOriginal from '@html-eslint/parser';
+
+const loadModule = createRequire(import.meta.url);
+const typescriptEslintParserOriginal = loadModule('@typescript-eslint/parser');
+const vueEslintParserOriginal = loadModule('vue-eslint-parser');
+const htmlEslintParserOriginal = loadModule('@html-eslint/parser');
 
 function addGlobals(scopeManager, names) {
 	const globalScope = scopeManager.scopes[0];
