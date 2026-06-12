@@ -39,6 +39,8 @@ const config = [
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/try-complexity': 'off',
+			// Recursive AST/tree walkers are intentional in rule implementation code.
+			'unicorn/no-useless-recursion': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.
