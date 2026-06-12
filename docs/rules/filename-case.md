@@ -35,6 +35,14 @@ Set the `checkDirectories` option to `false` to only check filenames.
 - `fooBar.test.js`
 - `fooBar.testUtils.js`
 
+### `camelCaseWithAcronyms`
+
+- `innerHTML.js`
+- `getDOMRangeRect.js`
+- `apiURL.js`
+
+This case style is still lower camel case. Leading acronyms are lowercased, for example `HTMLParser.js` should be `htmlParser.js`.
+
 ### `snakeCase`
 
 - `foo_bar.js`
