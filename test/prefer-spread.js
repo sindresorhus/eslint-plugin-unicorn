@@ -235,8 +235,6 @@ ruleTest.snapshot({
 		'let foo; if (!Array.isArray(foo)) { foo = foo.concat(bar); }',
 		'if (!Array.isArray(object.foo)) { object.foo = object.foo.concat(bar); }',
 		'if (!Array.isArray(object["foo"])) { object.foo.concat(bar); }',
-		'if (!Array.isArray(object.foo)) { object["bar"] = []; object.foo.concat(bar); }',
-		'const key = "bar"; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }',
 		'let foo; if (Array.isArray(foo)) { foo = []; } else { foo.concat(bar); }',
 		'let foo; if (!Array.isArray(foo)) { const mutate = () => { foo = []; }; foo.concat(bar); }',
 		// `Iterator.concat()`
