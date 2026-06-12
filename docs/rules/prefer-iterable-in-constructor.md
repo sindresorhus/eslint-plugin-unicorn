@@ -13,7 +13,7 @@ Some built-in constructors accept the values they should contain. Creating an em
 
 This rule reports simple adjacent loops that fill an empty `Set`, `WeakSet`, `Map`, `WeakMap`, or `URLSearchParams`. It also reports `new URLSearchParams(Object.entries(record))`.
 
-`URLSearchParams` is only reported for `Object.entries(record)` because `new URLSearchParams(record)` can consume string-keyed records directly. The rule skips obvious non-record sources like arrays, strings, and constructor calls. Generic pair iterables are intentionally not reported for `URLSearchParams#set()` because duplicate names can make the loop behavior differ from constructor behavior.
+`URLSearchParams` is only reported for `Object.entries(record)` because `new URLSearchParams(record)` can consume string-keyed records directly. The rule skips obvious non-record sources like arrays, strings, nullish values, primitive numbers, and constructor calls. Generic pair iterables are intentionally not reported for `URLSearchParams#set()` because duplicate names can make the loop behavior differ from constructor behavior.
 
 `FormData` is intentionally unsupported because its constructor accepts a form and optional submitter, not arbitrary entries.
 
