@@ -12,7 +12,11 @@ const fix = (context, variable, functionNode, type) => ({
 			yield fixer.replaceText(identifier, 'context');
 		}
 
-		for (const reference of variable.references.filter(({identifier}) => !variable.identifiers.includes(identifier))) {
+		for (const reference of variable.references) {
+			if (variable.identifiers.includes(reference.identifier)) {
+				continue;
+			}
+
 			yield fixer.replaceText(reference.identifier, 'context.sourceCode');
 		}
 	},

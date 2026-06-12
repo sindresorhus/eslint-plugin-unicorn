@@ -44,6 +44,7 @@ export {default as 'no-confusing-array-splice'} from './no-confusing-array-splic
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
+export {default as 'no-duplicate-loops'} from './no-duplicate-loops.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
 export {default as 'no-error-property-assignment'} from './no-error-property-assignment.js';

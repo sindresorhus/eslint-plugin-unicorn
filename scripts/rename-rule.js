@@ -77,7 +77,7 @@ async function renameRule(from, to) {
 	await renameFile(`test/snapshots/${from}.js.md`, `test/snapshots/${to}.js.md`);
 	await renameFile(`test/snapshots/${from}.js.snap`, `test/snapshots/${to}.js.snap`);
 
-	for (const file of [
+	const files = [
 		'readme.md',
 		'index.js',
 		'rules/index.js',
@@ -85,7 +85,11 @@ async function renameRule(from, to) {
 		`rules/${to}.js`,
 		`test/${to}.js`,
 		`test/snapshots/${to}.js.md`,
-	].map(file => resolveFile(file))) {
+	];
+
+	for (const filePath of files) {
+		const file = resolveFile(filePath);
+
 		if (!fs.existsSync(file)) {
 			continue;
 		}
