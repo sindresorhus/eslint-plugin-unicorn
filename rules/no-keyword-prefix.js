@@ -102,17 +102,19 @@ const create = context => {
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
 	function report(node, keyword) {
-		if (!reported.includes(node)) {
-			reported.push(node);
-			context.report({
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					name: node.name,
-					keyword,
-				},
-			});
+		if (reported.includes(node)) {
+			return;
 		}
+
+		reported.push(node);
+		context.report({
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				name: node.name,
+				keyword,
+			},
+		});
 	}
 
 	context.on('Identifier', node => {
