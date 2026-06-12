@@ -116,6 +116,7 @@ test({
 				}
 			}
 		`,
+		// #792
 		outdent`
 			export const myMap = new Map();
 
