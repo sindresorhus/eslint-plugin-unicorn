@@ -46,6 +46,24 @@ test({
 			console.log(a, foo.b);
 		`,
 		outdent`
+			const {chrome, ie, safari} = module;
+			if (!module.edge && ie) {
+				module.edge = '12';
+			}
+			console.log(chrome, safari, module.edge);
+		`,
+		outdent`
+			const {getPrototypeOf} = Object;
+			if (getPrototypeOf(object) === Object.prototype) {
+				console.log(object);
+			}
+		`,
+		outdent`
+			const {request: {cache, mode, url}} = event;
+			doSomething(cache, mode, url);
+			doAnother(event.request);
+		`,
+		outdent`
 			const {a} = this;
 			if (a) {
 				console.log(this.expensive);
