@@ -98,6 +98,18 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.find(fn)) {} }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'const hasFoo: Item | undefined = foo.find(fn); if (hasFoo) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -239,9 +251,9 @@ test({
 			method: 'find',
 		})),
 		invalidCase({
-			code: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.find(fn)) {} }',
+			code: 'type Items = string[] | {find(predicate: Function): unknown} | Other; function foo(items: Items) { if (items.find(fn)) {} }',
 			languageOptions: {parser: parsers.typescript},
-			suggestionOutput: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.some(fn)) {} }',
+			suggestionOutput: 'type Items = string[] | {find(predicate: Function): unknown} | Other; function foo(items: Items) { if (items.some(fn)) {} }',
 			method: 'find',
 		}),
 		invalidCase({
@@ -339,10 +351,6 @@ test.snapshot({
 		'array.filter(fn).length !== 0',
 		'module$.filter(fn).length > 0',
 		{
-			code: 'type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -398,10 +406,6 @@ test.snapshot({
 		].flatMap(code => [code, code.replace('findIndex', 'findLastIndex')]),
 		'foo.findIndex(bar) !== (( - 1 ))',
 		'foo.findIndex(element => element.bar === 1) !== (( - 1 ))',
-		{
-			code: 'type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }',
-			languageOptions: {parser: parsers.typescript},
-		},
 		{
 			code: 'type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1',
 			languageOptions: {parser: parsers.typescript},

@@ -50,7 +50,7 @@ const combineUnionTypes = types => {
 		return array;
 	}
 
-	if (types.every(type => type === nonArray)) {
+	if (!types.includes(unknown) && types.includes(nonArray)) {
 		return nonArray;
 	}
 
