@@ -50,3 +50,8 @@ if (bar) {
 	baz();
 }
 ```
+
+## Related rules
+
+- ESLint [`no-else-return`](https://eslint.org/docs/latest/rules/no-else-return) only checks `else` after `return`. This rule is a broader alternative that also checks `throw`, `break`, and `continue`, and always reports `else if`.
+- [`unicorn/prefer-early-return`](./prefer-early-return.md) is complementary. It reports whole-function conditional wrappers without `else`; this rule reports an existing `else` after an exiting branch.
