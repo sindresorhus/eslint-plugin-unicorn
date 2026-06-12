@@ -71,8 +71,8 @@ const styleNames = new Map([
 
 const defaultOptions = {
 	default: STYLE_IGNORE,
-	namedFunctions: STYLE_DECLARATION,
-	namedExports: STYLE_DECLARATION,
+	namedFunctions: STYLE_IGNORE,
+	namedExports: STYLE_IGNORE,
 	callbacks: STYLE_IGNORE,
 	objectProperties: STYLE_IGNORE,
 	reassignedVariables: STYLE_IGNORE,
@@ -167,10 +167,14 @@ const isAccessorProperty = node =>
 	&& node.parent.value === node
 	&& node.parent.kind !== 'init';
 
+const classElementValueParentTypes = new Set([
+	'AccessorProperty',
+	'MethodDefinition',
+	'PropertyDefinition',
+]);
+
 const isClassElementValue = node =>
-	node.parent.type === 'MethodDefinition'
-	|| node.parent.type === 'PropertyDefinition'
-	|| node.parent.type === 'AccessorProperty';
+	classElementValueParentTypes.has(node.parent.type);
 
 const isIife = node =>
 	(
@@ -372,7 +376,7 @@ const config = {
 		schema: [
 			{
 				type: 'object',
-				properties: Object.fromEntries([...roleStyles.keys()].map(role => [role, createRoleSchema(role)])),
+				properties: Object.fromEntries(roleStyles.keys().map(role => [role, createRoleSchema(role)])),
 				additionalProperties: false,
 			},
 		],

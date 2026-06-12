@@ -11,6 +11,8 @@
 
 Enforce function syntax by role.
 
+By default, this rule reports nothing. Configure the roles you want to enforce.
+
 This rule does not autofix. Function declarations, function expressions, arrow functions, and object methods are not always semantic equivalents, so `--fix` would be too risky for a style rule.
 
 The rule offers editor suggestions only for simple callback conversions between anonymous function expressions and arrow functions. Suggestions are skipped when the callback contains comments, `this`, `arguments`, `super`, `new.target`, direct `eval()`, generators, named function expressions, or TypeScript type parameters.
@@ -18,6 +20,8 @@ The rule offers editor suggestions only for simple callback conversions between 
 ## Examples
 
 ```js
+// eslint unicorn/consistent-function-style: ["error", {namedFunctions: "declaration"}]
+
 // ❌
 const parse = value => value;
 
@@ -50,8 +54,8 @@ Default:
 ```js
 {
 	default: 'ignore',
-	namedFunctions: 'declaration',
-	namedExports: 'declaration',
+	namedFunctions: 'ignore',
+	namedExports: 'ignore',
 	callbacks: 'ignore',
 	objectProperties: 'ignore',
 	reassignedVariables: 'ignore',

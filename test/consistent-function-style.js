@@ -13,6 +13,8 @@ const typescript = testCase => ({
 test.snapshot({
 	valid: [
 		'function parse(value) { return value; }',
+		'const parse = value => value;',
+		'export const parse = value => value;',
 		'let transform = value => value; transform = wrap(transform);',
 		'items.map(item => item.id);',
 		'items.map(function (item) { return item.id; });',
@@ -53,10 +55,22 @@ test.snapshot({
 		}),
 	],
 	invalid: [
-		'const parse = value => value;',
-		'const parse = function (value) { return value; };',
-		'export const parse = value => value;',
-		'export const parse = function (value) { return value; };',
+		{
+			code: 'const parse = value => value;',
+			options: [{namedFunctions: 'declaration'}],
+		},
+		{
+			code: 'const parse = function (value) { return value; };',
+			options: [{namedFunctions: 'declaration'}],
+		},
+		{
+			code: 'export const parse = value => value;',
+			options: [{namedExports: 'declaration'}],
+		},
+		{
+			code: 'export const parse = function (value) { return value; };',
+			options: [{namedExports: 'declaration'}],
+		},
 		{
 			code: 'items.map(function (item) { return item.id; });',
 			options: [{callbacks: 'arrow-function'}],
