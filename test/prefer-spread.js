@@ -2,10 +2,20 @@ import test from 'ava';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // `Array.from`
 ruleTest.snapshot({
@@ -194,6 +204,12 @@ ruleTest.snapshot({
 		'new Array(1).concat("bar")',
 		// #1068
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
+		'Buffer.concat([buffer]).concat(other)',
+		'import {Buffer} from "node:buffer"; Buffer.concat([buffer]).concat(other)',
+		'import {Buffer as NodeBuffer} from "node:buffer"; NodeBuffer.concat([buffer]).concat(other)',
+		'import * as buffer from "node:buffer"; buffer.Buffer.concat([value]).concat(other)',
+		'global.Buffer.concat([buffer]).concat(other)',
+		'globalThis.Buffer.concat([buffer]).concat(other)',
 		'Foo.concat(1)',
 		'FooBar.concat(1)',
 		'global.Buffer.concat([])',
@@ -204,9 +220,90 @@ ruleTest.snapshot({
 		'foo.join(foo, bar).concat("...")',
 		'foo.join(foo, bar).concat(bar)',
 		'(a + b).concat(c)',
+		'(/./).concat(value)',
+		'({concat() {}}).concat(value)',
+		'(function () {}).concat(value)',
+		'(() => {}).concat(value)',
+		'(class {}).concat(value)',
+		'new Chainable().concat(value)',
+		'String(value).concat(other)',
+		'Number(value).concat(other)',
+		'Boolean(value).concat(other)',
+		'BigInt(value).concat(other)',
+		'RegExp(value).concat(other)',
+		'if (!Array.isArray(foo)) { foo.concat(bar); }',
+		'if (Array.isArray(foo)) {} else { foo.concat(bar); }',
+		'if (!Array.isArray(foo)) { foo = foo.concat(bar); }',
+		'let foo; if (!Array.isArray(foo)) { foo = foo.concat(bar); }',
+		'if (!Array.isArray(object.foo)) { object.foo = object.foo.concat(bar); }',
+		'if (!Array.isArray(object["foo"])) { object.foo.concat(bar); }',
+		'let foo; if (Array.isArray(foo)) { foo = []; } else { foo.concat(bar); }',
+		'let foo; if (!Array.isArray(foo)) { const mutate = () => { foo = []; }; foo.concat(bar); }',
 		// `Iterator.concat()`
 		'Iterator.concat(2)',
 		'Iterator.concat([2, 3])',
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link as ApolloLink).concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (<ApolloLink>link).concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link satisfies ApolloLink).concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link!.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } type Link = ApolloLink; function foo(link: Link) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo<Link extends ApolloLink>(link: Link) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string | number) { value.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string) { value.concat(other); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: Buffer) { value.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: {concat(next: unknown): unknown}) { value.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '({concat() {}} as any).concat(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(String(value) as any).concat(other);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(new Chainable() as any).concat(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('class Chainable { concat(next: Chainable) { return next; } } declare function getLink(): Chainable; const link = getLink(); link.concat(next);'),
+		typeAware('interface Link { concat(next: Link): Link; } declare const link: Link; link.concat(next);'),
 	],
 	invalid: [
 		'[1].concat(2)',
@@ -218,6 +315,10 @@ ruleTest.snapshot({
 		'[1,].concat([2, 3])',
 		'[1,].concat(2,)',
 		'[1,].concat([2, 3],)',
+		'Array(1).concat(2)',
+		'new Array(1).concat(2)',
+		'const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other)',
+		'const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other)',
 		'(( (( (( [1,] )).concat ))( (([2, 3])) ,) ))',
 		'(( (( (( [1,] )).concat ))( (([2, 3])) , bar ) ))',
 		'foo.concat(2)',
@@ -323,6 +424,18 @@ ruleTest.snapshot({
 		'foo.concat([/* keep */])',
 		'foo.concat([1], /* keep */ bar)',
 		'foo.concat(/* keep */ [1], bar)',
+		'if (Array.isArray(foo)) { foo.concat(bar); }',
+		'const Array = {isArray: () => false}; if (!Array.isArray(foo)) { foo.concat(bar); }',
+		'if (!Array.isArray(foo)) { const foo = []; foo.concat(bar); }',
+		'if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }',
+		'let foo; if (!Array.isArray(foo)) { foo = []; foo.concat(bar); }',
+		'function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } }',
+		'let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); }',
+		'let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object["foo"] = []; object.foo.concat(bar); }',
+		'let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); }',
+		'const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); }',
+		'if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); }',
+		'let foo; if (!Array.isArray(foo)) { callbacks.push(() => foo.concat(bar)); }',
 		outdent`
 			foo.concat(
 				// keep
@@ -339,6 +452,49 @@ ruleTest.snapshot({
 		'foo/* keep */.concat([1], bar)',
 		'foo.concat(/* keep */ [1])',
 		'foo/* keep */.concat([1])',
+		{
+			code: 'function foo(array: string[]) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'declare const Items: string[]; Items.concat(item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(array: readonly string[]) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(array: [string, string]) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(array: Array<string>) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(array: ReadonlyArray<string>) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Strings = string[]; function foo(array: Strings) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type {Strings} from "./types"; declare const array: Strings; array.concat(item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo<T>(value: T) { value.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function foo<T>(value: T) { value.concat(item); }'),
+		typeAware('type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item);'),
+		typeAware('declare function getArray(): string[]; const array = getArray(); array.concat(item);'),
 		// Comments inside should prevent autofix
 		'[1].concat(/* comment */ 2)',
 		outdent`

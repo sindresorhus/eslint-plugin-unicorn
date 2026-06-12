@@ -1,4 +1,5 @@
 import {
+	findVariable,
 	getStaticValue,
 	isCommaToken,
 	isCommentToken,
@@ -11,10 +12,16 @@ import {
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
+	isSameReference,
 	hasOptionalChainElement,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
-import {isLiteral, isMethodCall, isEmptyArrayExpression} from './ast/index.js';
+import {
+	isEmptyArrayExpression,
+	isFunction,
+	isLiteral,
+	isMethodCall,
+} from './ast/index.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -43,6 +50,30 @@ const ignoredSliceCallee = [
 	'file',
 	'this',
 ];
+const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
+const knownNonArrayTypeNames = new Set(['Buffer']);
+const nonArrayFactoryNames = new Set(['String', 'Number', 'Boolean', 'BigInt', 'RegExp']);
+const unknownTypeNames = new Set(['any', 'error', 'unknown']);
+const arrayTypeAnnotationTypes = new Set(['TSArrayType', 'TSTupleType']);
+const transparentTypeAnnotationTypes = new Set(['TSTypeAnnotation', 'TSParenthesizedType']);
+const unknownTypeAnnotationTypes = new Set(['TSAnyKeyword', 'TSUnknownKeyword']);
+const typeParameterTypeFlag = 524_288;
+const nonArrayTypeAnnotationTypes = new Set([
+	'TSNeverKeyword',
+	'TSVoidKeyword',
+	'TSNullKeyword',
+	'TSUndefinedKeyword',
+	'TSStringKeyword',
+	'TSNumberKeyword',
+	'TSBooleanKeyword',
+	'TSBigIntKeyword',
+	'TSSymbolKeyword',
+	'TSObjectKeyword',
+	'TSTypeLiteral',
+	'TSFunctionType',
+	'TSConstructorType',
+	'TSLiteralType',
+]);
 
 // TypedArray and ArrayBuffer constructors - these have .slice() but spreading them
 // either doesn't work (ArrayBuffer has no iterator) or changes the type (TypedArray.slice()
@@ -324,6 +355,542 @@ function isClassName(node) {
 	return /^[A-Z]./v.test(name) && name.toUpperCase() !== name;
 }
 
+const isGlobalIdentifier = (node, name, context) =>
+	node.type === 'Identifier'
+	&& node.name === name
+	&& context.sourceCode.isGlobalReference(node);
+
+const resolveIdentifierName = (name, scope) => {
+	while (scope) {
+		const variable = scope.set.get(name);
+
+		if (variable) {
+			return variable;
+		}
+
+		scope = scope.upper;
+	}
+};
+
+const isDefaultLibrarySymbol = (symbol, program) =>
+	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
+
+function isBufferModuleImport(definition) {
+	return (
+		definition?.type === 'ImportBinding'
+		&& (
+			definition.parent?.source?.value === 'node:buffer'
+			|| definition.parent?.source?.value === 'buffer'
+		)
+	);
+}
+
+function getIdentifierDefinition(node, context) {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const [definition] = variable?.defs ?? [];
+	return definition;
+}
+
+function isKnownBufferReference(node, context) {
+	if (node.name === 'Buffer' && context.sourceCode.isGlobalReference(node)) {
+		return true;
+	}
+
+	if (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'Buffer'
+	) {
+		if (
+			node.object.type === 'Identifier'
+			&& (
+				node.object.name === 'global'
+				|| node.object.name === 'globalThis'
+			)
+			&& context.sourceCode.isGlobalReference(node.object)
+		) {
+			return true;
+		}
+
+		const definition = getIdentifierDefinition(node.object, context);
+		return isBufferModuleImport(definition) && definition.node.type === 'ImportNamespaceSpecifier';
+	}
+
+	const definition = getIdentifierDefinition(node, context);
+
+	return (
+		isBufferModuleImport(definition)
+		&& definition.node.type === 'ImportSpecifier'
+		&& definition.node.imported.type === 'Identifier'
+		&& definition.node.imported.name === 'Buffer'
+	);
+}
+
+function getTypeReferenceDefinitionState(typeName, scope, visitedTypeNames) {
+	const variable = resolveIdentifierName(typeName, scope);
+	const [definition] = variable?.defs ?? [];
+
+	if (!definition) {
+		return;
+	}
+
+	if (definition.type === 'ClassName') {
+		return false;
+	}
+
+	if (definition.type !== 'Type') {
+		return;
+	}
+
+	if (definition.node.type === 'TSTypeAliasDeclaration') {
+		return getTypeAnnotationArrayState(definition.node.typeAnnotation, scope, visitedTypeNames);
+	}
+
+	if (definition.node.type === 'TSTypeParameter') {
+		return definition.node.constraint
+			? getTypeAnnotationArrayState(definition.node.constraint, scope, visitedTypeNames)
+			: undefined;
+	}
+
+	if (definition.node.type === 'TSInterfaceDeclaration') {
+		return false;
+	}
+}
+
+const getUnionArrayState = states => {
+	if (states.includes(undefined)) {
+		return undefined;
+	}
+
+	if (states.every(Boolean)) {
+		return true;
+	}
+
+	return states.some(Boolean) ? undefined : false;
+};
+
+const getIntersectionArrayState = states => {
+	if (states.some(Boolean)) {
+		return true;
+	}
+
+	return states.includes(undefined) ? undefined : false;
+};
+
+const isTypeParameterType = type =>
+	type.isTypeParameter?.()
+	|| (type.flags % (typeParameterTypeFlag * 2) >= typeParameterTypeFlag);
+
+function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
+	if (node.typeName.type !== 'Identifier') {
+		return;
+	}
+
+	const {name} = node.typeName;
+
+	if (arrayTypeNames.has(name)) {
+		return true;
+	}
+
+	if (visitedTypeNames.has(name)) {
+		return undefined;
+	}
+
+	visitedTypeNames.add(name);
+	const state = getTypeReferenceDefinitionState(name, scope, visitedTypeNames);
+	visitedTypeNames.delete(name);
+
+	return state ?? (knownNonArrayTypeNames.has(name) ? false : undefined);
+}
+
+function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) {
+	if (!node || unknownTypeAnnotationTypes.has(node.type)) {
+		return undefined;
+	}
+
+	if (transparentTypeAnnotationTypes.has(node.type)) {
+		return getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeNames);
+	}
+
+	if (arrayTypeAnnotationTypes.has(node.type)) {
+		return true;
+	}
+
+	if (node.type === 'TSTypeOperator') {
+		return node.operator === 'readonly'
+			? getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeNames)
+			: false;
+	}
+
+	if (node.type === 'TSTypeReference') {
+		return getTypeReferenceArrayState(node, scope, visitedTypeNames);
+	}
+
+	if (node.type === 'TSUnionType') {
+		return getUnionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeNames)));
+	}
+
+	if (node.type === 'TSIntersectionType') {
+		return getIntersectionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeNames)));
+	}
+
+	if (nonArrayTypeAnnotationTypes.has(node.type)) {
+		return false;
+	}
+
+	return undefined;
+}
+
+function getIdentifierAnnotationArrayState(node, context) {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+
+	for (const definition of variable?.defs ?? []) {
+		const state = getTypeAnnotationArrayState(definition.name?.typeAnnotation, context.sourceCode.getScope(node));
+
+		if (state !== undefined) {
+			return state;
+		}
+	}
+}
+
+function getReceiverAnnotationArrayState(node, context) {
+	switch (node.type) {
+		case 'TSAsExpression':
+		case 'TSTypeAssertion':
+		case 'TSSatisfiesExpression': {
+			const state = getTypeAnnotationArrayState(node.typeAnnotation, context.sourceCode.getScope(node));
+			return state ?? getReceiverAnnotationArrayState(node.expression, context);
+		}
+
+		case 'TSNonNullExpression':
+		case 'ChainExpression':
+		case 'ParenthesizedExpression': {
+			return getReceiverAnnotationArrayState(node.expression, context);
+		}
+
+		case 'Identifier': {
+			return getIdentifierAnnotationArrayState(node, context);
+		}
+
+		default: {
+			return undefined;
+		}
+	}
+}
+
+function getTypeArrayState(type, checker, program) {
+	if (unknownTypeNames.has(type.intrinsicName)) {
+		return;
+	}
+
+	if (type.isUnion()) {
+		const states = type.types.map(type => getTypeArrayState(type, checker, program));
+
+		if (states.includes(undefined)) {
+			return;
+		}
+
+		if (states.every(Boolean)) {
+			return true;
+		}
+
+		return states.some(Boolean) ? undefined : false;
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return getTypeArrayState(constraint, checker, program);
+	}
+
+	if (isTypeParameterType(type)) {
+		return;
+	}
+
+	if (type.isIntersection()) {
+		const states = type.types.map(type => getTypeArrayState(type, checker, program));
+
+		if (states.some(Boolean)) {
+			return true;
+		}
+
+		return states.includes(undefined) ? undefined : false;
+	}
+
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return true;
+	}
+
+	const symbol = type.getSymbol() ?? type.aliasSymbol;
+	if (
+		isDefaultLibrarySymbol(symbol, program)
+		&& arrayTypeNames.has(symbol.getName())
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+function getTypeInformationArrayState(node, context) {
+	const {parserServices} = context.sourceCode;
+
+	if (!parserServices?.program) {
+		return;
+	}
+
+	try {
+		const {program} = parserServices;
+		return getTypeArrayState(
+			parserServices.getTypeAtLocation(node),
+			program.getTypeChecker(),
+			program,
+		);
+	} catch {
+		return undefined;
+	}
+}
+
+function isKnownNonArrayCall(node, context) {
+	if (
+		isMethodCall(node, {
+			method: 'concat',
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isKnownBufferReference(node.callee.object, context)
+	) {
+		return true;
+	}
+
+	if (
+		node.type !== 'CallExpression'
+		|| node.callee.type !== 'Identifier'
+		|| !nonArrayFactoryNames.has(node.callee.name)
+	) {
+		return false;
+	}
+
+	return context.sourceCode.isGlobalReference(node.callee);
+}
+
+function isKnownNonArrayConstruction(node, context) {
+	if (
+		node.type !== 'NewExpression'
+		|| node.callee.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	return !isGlobalIdentifier(node.callee, 'Array', context);
+}
+
+function unwrapReceiverReference(node) {
+	if (
+		node.type === 'ChainExpression'
+		|| node.type === 'ParenthesizedExpression'
+		|| node.type === 'TSAsExpression'
+		|| node.type === 'TSTypeAssertion'
+		|| node.type === 'TSSatisfiesExpression'
+		|| node.type === 'TSNonNullExpression'
+	) {
+		return unwrapReceiverReference(node.expression);
+	}
+
+	return node;
+}
+
+function isSameReceiverReference(left, right, context) {
+	left = unwrapReceiverReference(left);
+	right = unwrapReceiverReference(right);
+
+	if (!isSameReference(left, right)) {
+		return false;
+	}
+
+	if (left.type === 'Identifier' && right.type === 'Identifier') {
+		return findVariable(context.sourceCode.getScope(left), left) === findVariable(context.sourceCode.getScope(right), right);
+	}
+
+	if (left.type === 'MemberExpression' && right.type === 'MemberExpression') {
+		return (
+			isSameReceiverReference(left.object, right.object, context)
+			&& (
+				!left.computed
+				|| !right.computed
+				|| isSameReceiverReference(left.property, right.property, context)
+			)
+		);
+	}
+
+	return true;
+}
+
+function isWriteTargetAffectingReference(writeTarget, referenceNode, context) {
+	writeTarget = unwrapReceiverReference(writeTarget);
+	referenceNode = unwrapReceiverReference(referenceNode);
+
+	if (isSameReceiverReference(writeTarget, referenceNode, context)) {
+		return true;
+	}
+
+	if (referenceNode.type === 'MemberExpression') {
+		return isWriteTargetAffectingReference(writeTarget, referenceNode.object, context);
+	}
+
+	if (
+		writeTarget.type === 'ArrayPattern'
+		|| writeTarget.type === 'ObjectPattern'
+	) {
+		return writeTarget.elements?.some(element => element && isWriteTargetAffectingReference(element, referenceNode, context))
+			|| writeTarget.properties?.some(property => isWriteTargetAffectingReference(property, referenceNode, context));
+	}
+
+	if (writeTarget.type === 'Property') {
+		return isWriteTargetAffectingReference(writeTarget.value, referenceNode, context);
+	}
+
+	if (
+		writeTarget.type === 'AssignmentPattern'
+		|| writeTarget.type === 'RestElement'
+	) {
+		return isWriteTargetAffectingReference(writeTarget.left ?? writeTarget.argument, referenceNode, context);
+	}
+
+	return false;
+}
+
+function hasWriteToReferenceBeforeNode(referenceNode, startNode, endNode, context) {
+	const {sourceCode} = context;
+	const [start] = sourceCode.getRange(startNode);
+	const [end] = sourceCode.getRange(endNode);
+
+	const visit = node => {
+		if (!node || typeof node.type !== 'string') {
+			return false;
+		}
+
+		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+		if (nodeEnd <= start || nodeStart >= end) {
+			return false;
+		}
+
+		if (isFunction(node)) {
+			return false;
+		}
+
+		if (
+			(
+				node.type === 'AssignmentExpression'
+				&& isWriteTargetAffectingReference(node.left, referenceNode, context)
+				&& !isDescendantOf(referenceNode, node.right)
+			)
+			|| (
+				node.type === 'VariableDeclarator'
+				&& node.init
+				&& isWriteTargetAffectingReference(node.id, referenceNode, context)
+			)
+			|| (node.type === 'UpdateExpression' && isWriteTargetAffectingReference(node.argument, referenceNode, context))
+		) {
+			return true;
+		}
+
+		for (const value of Object.values(node)) {
+			if (value === node.parent) {
+				continue;
+			}
+
+			if (Array.isArray(value)) {
+				if (value.some(child => visit(child))) {
+					return true;
+				}
+			} else if (visit(value)) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	return visit(startNode);
+}
+
+const isArrayIsArrayCallWithArgument = (node, argument, context) =>
+	isMethodCall(node, {
+		object: 'Array',
+		method: 'isArray',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isGlobalIdentifier(node.callee.object, 'Array', context)
+	&& isSameReceiverReference(node.arguments[0], argument, context);
+
+function getArrayIsArrayTestState(node, argument, context) {
+	if (isArrayIsArrayCallWithArgument(node, argument, context)) {
+		return true;
+	}
+
+	if (
+		node.type === 'UnaryExpression'
+		&& node.operator === '!'
+		&& isArrayIsArrayCallWithArgument(node.argument, argument, context)
+	) {
+		return false;
+	}
+}
+
+function isDescendantOf(node, ancestor) {
+	while (node) {
+		if (node === ancestor) {
+			return true;
+		}
+
+		node = node.parent;
+	}
+
+	return false;
+}
+
+function isNotArrayByArrayIsArrayTest(node, context) {
+	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
+		if (isFunction(ancestor)) {
+			break;
+		}
+
+		if (ancestor.type !== 'IfStatement') {
+			continue;
+		}
+
+		const arrayState = getArrayIsArrayTestState(ancestor.test, node, context);
+		const nonArrayBranch = arrayState === false
+			? ancestor.consequent
+			: ancestor.alternate;
+
+		if (!nonArrayBranch || !isDescendantOf(node, nonArrayBranch)) {
+			continue;
+		}
+
+		if (hasWriteToReferenceBeforeNode(node, nonArrayBranch, node, context)) {
+			continue;
+		}
+
+		if (arrayState !== undefined) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function isNotArray(node, scope) {
 	if (
 		node.type === 'TemplateLiteral'
@@ -338,6 +905,47 @@ function isNotArray(node, scope) {
 
 	const staticValue = getStaticValue(node, scope);
 	if (staticValue && !Array.isArray(staticValue.value)) {
+		return true;
+	}
+
+	return false;
+}
+
+function isNotArrayConcatReceiver(node, context) {
+	const unwrappedNode = unwrapReceiverReference(node);
+	const annotationState = getReceiverAnnotationArrayState(node, context);
+	const typeState = getTypeInformationArrayState(node, context);
+
+	if (typeState === false) {
+		return true;
+	}
+
+	if (typeState === true) {
+		return false;
+	}
+
+	if (annotationState === false) {
+		return true;
+	}
+
+	if (annotationState === true) {
+		return false;
+	}
+
+	const scope = context.sourceCode.getScope(unwrappedNode);
+	if (isNotArray(unwrappedNode, scope)) {
+		return true;
+	}
+
+	if (
+		unwrappedNode.type === 'ObjectExpression'
+		|| unwrappedNode.type === 'FunctionExpression'
+		|| unwrappedNode.type === 'ArrowFunctionExpression'
+		|| unwrappedNode.type === 'ClassExpression'
+		|| isKnownNonArrayCall(unwrappedNode, context)
+		|| isKnownNonArrayConstruction(unwrappedNode, context)
+		|| isNotArrayByArrayIsArrayTest(unwrappedNode, context)
+	) {
 		return true;
 	}
 
@@ -459,7 +1067,7 @@ const create = context => {
 		const {object} = node.callee;
 		const scope = sourceCode.getScope(object);
 
-		if (isNotArray(object, scope)) {
+		if (isNotArrayConcatReceiver(object, context)) {
 			return;
 		}
 

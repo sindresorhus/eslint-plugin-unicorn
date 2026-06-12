@@ -22,6 +22,8 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Concat an `Array` with one or more `Array`s or `Array` elements.
 
+	Receivers that can be proven not to be arrays are ignored using simple syntax checks, `Array.isArray()` control flow, TypeScript annotations, and TypeScript type information when available.
+
 - `Array#slice()`
 
 	Shallow copy an `Array`.
