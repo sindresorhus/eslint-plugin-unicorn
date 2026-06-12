@@ -1,7 +1,17 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test({
 	valid: [
@@ -14,6 +24,25 @@ test({
 		'referenceNode.append("text");',
 		'referenceNode.after(newNode);',
 		'referenceNode.after("text");',
+		'while (node.firstElementChild) { node.firstElementChild.remove(); }',
+		'while (node.lastElementChild) { node.lastElementChild.remove(); }',
+		'while (node.firstChild) { node.lastChild.remove(); }',
+		'while (node.lastChild) { otherNode.lastChild.remove(); }',
+		'while (node.firstChild) { child = node.firstChild; child.remove(); }',
+		'while (node.firstChild) { node.firstChild.remove(); node.normalize(); }',
+		'while (node.firstChild) { node.firstChild?.remove(); }',
+		'while (node.firstChild) { node.firstChild["remove"](); }',
+		'while (node.firstChild) { node.removeChild(node.firstChild); }',
+		'while (node.firstChild) { const child = node.firstChild; child.remove(); }',
+		'while ("x".firstChild) { "x".firstChild.remove(); }',
+		'while (undefined.firstChild) { undefined.firstChild.remove(); }',
+		typeAware('function foo(node: string) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: Element | Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: Element | {firstChild: {remove(): void} | undefined}) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: {firstChild: {remove(): void} | undefined}) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: {firstChild: {remove(): void} | undefined; replaceChildren: string}) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typeAware('function foo(node: {firstChild: {remove(): void} | undefined; replaceChildren(value: string): void}) { while (node.firstChild) { node.firstChild.remove(); } }'),
 		// Argument is `Identifier` but is `undefined`
 		'oldChildNode.replaceWith(undefined, oldNode);',
 		'oldChildNode.replaceWith(newNode, undefined);',
@@ -366,6 +395,164 @@ test({
 				{
 					message:
 					'Prefer `referenceNode.before(newNode)` over `referenceNode.insertAdjacentElement("beforebegin", newNode)`.',
+				},
+			],
+		},
+		// Tests for .replaceChildren()
+		{
+			code: 'while (node.firstChild) { node.firstChild.remove(); }',
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'node.replaceChildren();',
+		},
+		{
+			code: 'while (node.lastChild) { node.lastChild.remove(); }',
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.lastChild` in a loop.',
+				},
+			],
+			output: 'node.replaceChildren();',
+		},
+		{
+			code: 'while (node.firstChild) node.firstChild.remove();',
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'node.replaceChildren();',
+		},
+		{
+			code: 'while (node.lastChild) node.lastChild.remove();',
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.lastChild` in a loop.',
+				},
+			],
+			output: 'node.replaceChildren();',
+		},
+		{
+			code: 'while (this.firstChild) { this.firstChild.remove(); }',
+			errors: [
+				{
+					message: 'Prefer `this.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'this.replaceChildren();',
+		},
+		{
+			code: 'while (parent.node.firstChild) { parent.node.firstChild.remove(); }',
+			errors: [
+				{
+					message: 'Prefer `parent.node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'parent.node.replaceChildren();',
+		},
+		{
+			code: 'function foo(node: Element) { while (node.firstChild) { node.firstChild.remove(); } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Element) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: DocumentFragment) { while (node.lastChild) { node.lastChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.lastChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: DocumentFragment) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Document) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Document) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Element | undefined) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo<T extends Element>(node: T) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo<T extends Element>(node: T) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: any) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: any) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: {firstChild: {remove(): void} | undefined; replaceChildren(): void}) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: {firstChild: {remove(): void} | undefined; replaceChildren(): void}) { node.replaceChildren(); }',
+		},
+		{
+			code: outdent`
+				const array = []
+				while ((node).firstChild) {
+					(node).firstChild.remove();
+				}
+			`,
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: outdent`
+				const array = []
+				node.replaceChildren();
+			`,
+		},
+		{
+			code: outdent`
+				while (node.firstChild) {
+					// Keep this comment.
+					node.firstChild.remove();
+				}
+			`,
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
 				},
 			],
 		},

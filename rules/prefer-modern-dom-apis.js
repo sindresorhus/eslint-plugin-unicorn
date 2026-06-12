@@ -1,11 +1,18 @@
-import {isValueNotUsable, wouldRemoveComments} from './utils/index.js';
-import {isMethodCall} from './ast/index.js';
+import {
+	isNodeValueNotDomNode,
+	isSameReference,
+	isValueNotUsable,
+	wouldRemoveComments,
+} from './utils/index.js';
+import {isMemberExpression, isMethodCall} from './ast/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
 		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
 	insertAdjacentTextOrInsertAdjacentElement:
 		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.',
+	replaceChildren:
+		'Prefer `{{parentNode}}.replaceChildren()` over directly removing `.{{childNodeProperty}}` in a loop.',
 };
 
 const disallowedMethods = new Map([
@@ -88,6 +95,123 @@ const getInsertAdjacentTextOrInsertAdjacentElementProblem = (context, node) => {
 	};
 };
 
+const getOnlyBodyStatement = node => {
+	if (node.body.type !== 'BlockStatement') {
+		return node.body;
+	}
+
+	return node.body.body.length === 1
+		? node.body.body[0]
+		: undefined;
+};
+
+const getChildNodeMemberExpression = node => {
+	if (
+		isMemberExpression(node, {
+			properties: ['firstChild', 'lastChild'],
+			optional: false,
+		})
+	) {
+		return node;
+	}
+};
+
+const unknownTypeNames = new Set(['any', 'error', 'unknown']);
+
+const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
+	checker.getTypeOfPropertyOfType(type, 'replaceChildren')
+		?.getCallSignatures()
+		.some(signature => signature.minArgumentCount === 0) ?? false;
+
+const shouldReportReplaceChildrenReceiverType = (type, checker) => {
+	type = checker.getNonNullableType(type);
+
+	if (unknownTypeNames.has(type.intrinsicName)) {
+		return true;
+	}
+
+	if (type.isUnion()) {
+		return type.types.every(type => shouldReportReplaceChildrenReceiverType(type, checker));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return shouldReportReplaceChildrenReceiverType(constraint, checker);
+	}
+
+	if (type.isIntersection()) {
+		return hasZeroArgumentReplaceChildrenCallSignature(type, checker)
+			|| type.types.some(type => shouldReportReplaceChildrenReceiverType(type, checker));
+	}
+
+	return hasZeroArgumentReplaceChildrenCallSignature(type, checker);
+};
+
+const shouldReportReplaceChildrenReceiver = (context, node) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return true;
+	}
+
+	try {
+		const checker = parserServices.program.getTypeChecker();
+		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker);
+	} catch {
+		return true;
+	}
+};
+
+const getReplaceChildrenProblem = (context, node) => {
+	const childNode = getChildNodeMemberExpression(node.test);
+	if (!childNode) {
+		return;
+	}
+
+	const bodyStatement = getOnlyBodyStatement(node);
+	if (bodyStatement?.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const {expression} = bodyStatement;
+	if (
+		!isMethodCall(expression, {
+			method: 'remove',
+			argumentsLength: 0,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| !isSameReference(childNode, expression.callee.object)
+	) {
+		return;
+	}
+
+	const {sourceCode} = context;
+	const parentNode = childNode.object;
+	if (
+		isNodeValueNotDomNode(parentNode)
+		|| !shouldReportReplaceChildrenReceiver(context, parentNode)
+	) {
+		return;
+	}
+
+	const parentNodeText = sourceCode.getText(parentNode);
+	const replacement = `${parentNodeText}.replaceChildren();`;
+
+	const fix = wouldRemoveComments(context, node, [parentNode])
+		? undefined
+		: fixer => fixer.replaceText(node, replacement);
+
+	return {
+		node,
+		messageId: 'replaceChildren',
+		data: {
+			childNodeProperty: childNode.property.name,
+			parentNode: parentNodeText,
+		},
+		fix,
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
@@ -128,6 +252,8 @@ const create = context => {
 			return getInsertAdjacentTextOrInsertAdjacentElementProblem(context, node);
 		}
 	});
+
+	context.on('WhileStatement', node => getReplaceChildrenProblem(context, node));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -138,7 +264,7 @@ const config = {
 		docs: {
 			description:
 				// eslint-disable-next-line @stylistic/max-len
-				'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, prefer one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`.',
+				'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`, and `.replaceChildren()` over direct `.firstChild.remove()`/`.lastChild.remove()` loops.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
