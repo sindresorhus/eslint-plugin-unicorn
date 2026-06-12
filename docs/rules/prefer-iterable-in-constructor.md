@@ -11,13 +11,13 @@
 
 Some built-in constructors accept the values they should contain. Creating an empty collection and immediately filling it with a `for…of` loop is unnecessary when the constructor can consume the iterable directly.
 
-This rule reports simple adjacent loops that fill an empty `Set`, `WeakSet`, `Map`, `WeakMap`, or `URLSearchParams`.
+This rule reports simple adjacent loops that fill an empty `Set`, `WeakSet`, `Map`, `WeakMap`, or `URLSearchParams`. It also reports `new URLSearchParams(Object.entries(record))`.
 
 `URLSearchParams` is only reported for `Object.entries(record)` because `new URLSearchParams(record)` can consume string-keyed records directly. The rule skips obvious non-record sources like arrays, strings, and constructor calls. Generic pair iterables are intentionally not reported for `URLSearchParams#set()` because duplicate names can make the loop behavior differ from constructor behavior.
 
 `FormData` is intentionally unsupported because its constructor accepts a form and optional submitter, not arbitrary entries.
 
-Exotic custom iterator behavior and symbol-keyed records hidden behind variables are intentionally unsupported. The rule skips direct object literals with computed properties and direct `Map` array literals that are not array pairs, but it does not try to prove whether variables contain custom iterables or symbol keys.
+Exotic custom iterator behavior, symbol-keyed records hidden behind variables, and shadowed built-ins are intentionally unsupported. The rule skips direct object literals with computed properties and direct `Map` array literals that are not array pairs, but it does not try to prove whether variables contain custom iterables or symbol keys.
 
 ## Examples
 
@@ -63,7 +63,7 @@ const searchParameters = new URLSearchParams(record);
 ```
 
 ```js
-// ✅ — generic pair iterables can behave differently with duplicate names
+// ✅ because generic pair iterables can behave differently with duplicate names
 const searchParameters = new URLSearchParams();
 for (const [key, value] of entries) {
 	searchParameters.set(key, value);

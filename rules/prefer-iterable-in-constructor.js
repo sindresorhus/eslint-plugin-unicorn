@@ -33,6 +33,12 @@ const constructorNames = [
 	'URLSearchParams',
 ];
 
+const nonRecordIdentifierNames = new Set([
+	'Infinity',
+	'NaN',
+	'undefined',
+]);
+
 const isEmptySupportedConstructor = node => isNewExpression(node, {
 	names: constructorNames,
 	argumentsLength: 0,
@@ -98,15 +104,17 @@ const hasComputedObjectProperty = node =>
 	node.type === 'ObjectExpression'
 	&& node.properties.some(property => property.computed);
 
-const hasArrayElementWithComputedObjectProperty = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.some(element => element && hasComputedObjectProperty(element));
+const isNonRecordIdentifier = node =>
+	node.type === 'Identifier'
+	&& nonRecordIdentifierNames.has(node.name);
 
 const isDefinitelyNotRecord = node =>
 	node.type === 'ArrayExpression'
 	|| node.type === 'Literal'
+	|| node.type === 'UnaryExpression'
 	|| node.type === 'TemplateLiteral'
-	|| node.type === 'NewExpression';
+	|| node.type === 'NewExpression'
+	|| isNonRecordIdentifier(node);
 
 const hasUnsafeMapArrayEntry = node =>
 	node.type === 'ArrayExpression'
@@ -120,10 +128,7 @@ const isDirectlyUnsafeSource = (constructorName, sourceNode) =>
 	)
 	|| (
 		mapConstructorNames.includes(constructorName)
-		&& (
-			hasArrayElementWithComputedObjectProperty(sourceNode)
-			|| hasUnsafeMapArrayEntry(sourceNode)
-		)
+		&& hasUnsafeMapArrayEntry(sourceNode)
 	);
 
 const declaresVariableNamed = (node, name, context) =>
@@ -186,10 +191,12 @@ const getConstructorReplacementText = (newExpression, sourceNode, context) => {
 	return `${constructorText}(${sourceText})`;
 };
 
-const hasNoComments = ({declaration, loop, newExpression}, context) =>
-	context.sourceCode.getCommentsInside(declaration).length === 0
-	&& context.sourceCode.getCommentsInside(loop).length === 0
-	&& context.sourceCode.getCommentsInside(newExpression).length === 0;
+const hasNoCommentsInRange = (context, range) =>
+	!context.sourceCode.getAllComments().some(comment => {
+		const [start, end] = context.sourceCode.getRange(comment);
+
+		return start >= range[0] && end <= range[1];
+	});
 
 const getFix = (problem, context) => {
 	const {
@@ -237,10 +244,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	if (
-		loop.left.type === 'VariableDeclaration'
-		&& declaresVariableNamed(loop.left, id.name, context)
-	) {
+	if (declaresVariableNamed(loop.left, id.name, context)) {
 		return;
 	}
 
@@ -264,7 +268,10 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	if (!hasNoComments({declaration, loop, newExpression}, context)) {
+	if (!hasNoCommentsInRange(context, [
+		context.sourceCode.getRange(declaration)[0],
+		context.sourceCode.getRange(loop)[1],
+	])) {
 		return;
 	}
 
@@ -276,7 +283,6 @@ const getLoopProblem = (declaration, context) => {
 			source: context.sourceCode.getText(sourceNode),
 		},
 		fix: getFix({
-			declaration,
 			loop,
 			newExpression,
 			sourceNode,
