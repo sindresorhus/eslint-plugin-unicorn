@@ -11,7 +11,7 @@
 
 When an `if` branch always exits, its `else` branch is unnecessary. Moving the `else` body after the `if` makes the control flow flatter.
 
-This rule checks simple control flow only. It reports branches that exit with `return`, `throw`, `break`, or `continue`, including nested `if` statements where both branches exit.
+This rule checks simple control flow only. It reports branches that exit with `return`, `throw`, `break`, or `continue`, including nested `if` statements where both branches exit. It does not analyze `try`, loop, or `switch` control flow inside the exiting branch.
 
 The autofix is conservative and skips cases where removing the `else` could affect scoped declarations, comments, or automatic semicolon insertion.
 

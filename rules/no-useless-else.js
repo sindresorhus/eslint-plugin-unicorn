@@ -85,40 +85,21 @@ const hasCommentInRange = (sourceCode, [start, end]) =>
 
 const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
 
-const hasRawMultilineLiteralHazard = (node, sourceCode) => {
-	if (
-		node.type === 'TemplateLiteral'
-		|| (
-			node.type === 'Literal'
-			&& typeof node.value === 'string'
-			&& /\\\r?\n/u.test(sourceCode.getText(node))
-		)
-		|| (
-			node.type === 'JSXText'
-			&& node.value.includes('\n')
-		)
-	) {
-		return true;
-	}
-
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		if (Array.isArray(value)) {
-			if (value.some(childNode => childNode && hasRawMultilineLiteralHazard(childNode, sourceCode))) {
-				return true;
-			}
-		} else if (value && hasRawMultilineLiteralHazard(value, sourceCode)) {
-			return true;
-		}
-	}
-
-	return false;
-};
+const hasMultilineToken = (node, sourceCode) =>
+	sourceCode.getTokens(node, {includeComments: true}).some(token =>
+		sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
+	);
 
 const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
 	const openingBrace = sourceCode.getFirstToken(blockStatement);
 	const closingBrace = sourceCode.getLastToken(blockStatement);
 	const bodyText = sourceCode.text.slice(sourceCode.getRange(openingBrace)[1], sourceCode.getRange(closingBrace)[0]);
+
+	if (!bodyText.includes('\n')) {
+		const trimmedBodyText = bodyText.trim();
+		return trimmedBodyText ? `\n${getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0])}${trimmedBodyText}` : '';
+	}
+
 	const lines = bodyText.split('\n');
 
 	if (lines[0]?.trim() === '') {
@@ -161,7 +142,23 @@ const getReplacementText = (ifStatement, sourceCode) => {
 	return `\n${ifIndent}${sourceCode.getText(alternate)}`;
 };
 
-const isSafeFromAutomaticSemicolonInsertion = (ifStatement, context) => {
+const hasSameLineFollowingTokenOrComment = (node, sourceCode) => {
+	const nextToken = sourceCode.getTokenAfter(node);
+	if (
+		nextToken
+		&& sourceCode.getLoc(node).end.line === sourceCode.getLoc(nextToken).start.line
+	) {
+		return true;
+	}
+
+	const nextComment = sourceCode.getCommentsAfter(node)[0];
+	return Boolean(
+		nextComment
+		&& sourceCode.getLoc(node).end.line === sourceCode.getLoc(nextComment).start.line,
+	);
+};
+
+const isSafeToMoveAlternate = (ifStatement, context) => {
 	const {sourceCode} = context;
 	const {alternate, consequent} = ifStatement;
 	const firstAlternateToken = alternate.type === 'BlockStatement'
@@ -188,10 +185,7 @@ const isSafeFromAutomaticSemicolonInsertion = (ifStatement, context) => {
 		? sourceCode.getTokenBefore(sourceCode.getLastToken(alternate))
 		: sourceCode.getLastToken(alternate);
 	const nextToken = sourceCode.getTokenAfter(alternate);
-	if (
-		nextToken
-		&& sourceCode.getLoc(alternate).end.line === sourceCode.getLoc(nextToken).start.line
-	) {
+	if (hasSameLineFollowingTokenOrComment(alternate, sourceCode)) {
 		return false;
 	}
 
@@ -211,9 +205,9 @@ const fix = (ifStatement, context) => fixer => {
 		hasDirectBlockScopedDeclaration(alternate)
 		|| (
 			alternate.type === 'BlockStatement'
-			&& hasRawMultilineLiteralHazard(alternate, sourceCode)
+			&& hasMultilineToken(alternate, sourceCode)
 		)
-		|| !isSafeFromAutomaticSemicolonInsertion(ifStatement, context)
+		|| !isSafeToMoveAlternate(ifStatement, context)
 	) {
 		return null;
 	}

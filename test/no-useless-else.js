@@ -87,6 +87,13 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					return;
+				} else { bar(); }
+			}
+		`,
+		outdent`
 			if (foo) {
 				throw new Error();
 			} else {
@@ -108,6 +115,27 @@ test.snapshot({
 					continue;
 				} else {
 					baz();
+				}
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case bar:
+					if (baz) {
+						break;
+					} else {
+						qux();
+					}
+			}
+		`,
+		outdent`
+			class Foo {
+				static {
+					if (foo) {
+						throw new Error();
+					} else {
+						bar();
+					}
 				}
 			}
 		`,
@@ -148,6 +176,15 @@ test.snapshot({
 				} else {
 					// Keep this comment.
 					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					return;
+				} else {
+					bar(\`foo\`);
 				}
 			}
 		`,
@@ -239,6 +276,16 @@ test.snapshot({
 				} else /* comment */ {
 					bar();
 				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					return;
+				} else {
+					bar();
+				} // trailing
+				baz();
 			}
 		`,
 		{
