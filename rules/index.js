@@ -184,6 +184,7 @@ export {default as 'prefer-short-arrow-method'} from './prefer-short-arrow-metho
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';
 export {default as 'prefer-simple-sort-comparator'} from './prefer-simple-sort-comparator.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
+export {default as 'prefer-single-object-destructuring'} from './prefer-single-object-destructuring.js';
 export {default as 'prefer-split-limit'} from './prefer-split-limit.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
 export {default as 'prefer-string-match-all'} from './prefer-string-match-all.js';
