@@ -73,10 +73,7 @@ function getCallExpression(node) {
 }
 
 function getArrayCallbackProblem(node) {
-	if (
-		!isArrayIdentityCallback(node)
-		|| isTypeScriptTypePredicateFunction(node)
-	) {
+	if (!isArrayIdentityCallback(node)) {
 		return;
 	}
 
@@ -127,6 +124,7 @@ const create = context => {
 		if (
 			node.async
 			|| node.generator
+			|| isTypeScriptTypePredicateFunction(node)
 			|| node.params.length === 0
 			|| node.params[0].type !== 'Identifier'
 			|| (
