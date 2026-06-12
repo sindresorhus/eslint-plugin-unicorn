@@ -83,7 +83,7 @@ const create = context => {
 		return sourceCode.getText(property.key);
 	};
 
-	const checkProperty = (property, references, path) => {
+	const reportProperty = (property, references, path) => {
 		if (references.length === 0) {
 			context.report({
 				node: property,
@@ -95,10 +95,10 @@ const create = context => {
 			return;
 		}
 
-		checkObject(property, references, path);
+		reportObject(property, references, path);
 	};
 
-	const checkProperties = (objectExpression, references, path = []) => {
+	const reportProperties = (objectExpression, references, path = []) => {
 		for (const property of objectExpression.properties) {
 			const {key} = property;
 
@@ -170,21 +170,21 @@ const create = context => {
 				})
 				.filter(Boolean);
 
-			checkProperty(property, nextReferences, nextPath);
+			reportProperty(property, nextReferences, nextPath);
 		}
 	};
 
-	const checkObject = (declaratorOrProperty, references, path) => {
+	const reportObject = (declaratorOrProperty, references, path) => {
 		if (isLeafDeclaratorOrProperty(declaratorOrProperty)) {
 			return;
 		}
 
 		const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
 
-		checkProperties(value, references, path);
+		reportProperties(value, references, path);
 	};
 
-	const checkVariable = variable => {
+	const reportVariable = variable => {
 		if (variable.defs.length !== 1) {
 			return;
 		}
@@ -195,12 +195,12 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		checkObject(definition.node, variable.references);
+		reportObject(definition.node, variable.references);
 	};
 
-	const checkVariables = scope => {
+	const reportVariables = scope => {
 		for (const variable of scope.variables) {
-			checkVariable(variable);
+			reportVariable(variable);
 		}
 	};
 
@@ -211,7 +211,7 @@ const create = context => {
 				continue;
 			}
 
-			checkVariables(scope);
+			reportVariables(scope);
 		}
 	});
 };

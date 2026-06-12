@@ -148,7 +148,7 @@ function getFirstElementGetMethod(node) {
 	}
 }
 
-function checkSliceCall(node) {
+function getSliceCallResult(node) {
 	const sliceArgumentsLength = node.arguments.length;
 	const [startIndexNode, endIndexNode] = node.arguments;
 
@@ -383,7 +383,7 @@ function create(context) {
 			return;
 		}
 
-		const result = checkSliceCall(sliceCall);
+		const result = getSliceCallResult(sliceCall);
 		if (!result) {
 			return;
 		}

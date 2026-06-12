@@ -20,7 +20,7 @@ function isReplacementShadowed(node, replacement, context) {
 	return variable?.defs.length > 0;
 }
 
-function checkProperty({node, path: [, property]}, context) {
+function getPropertyProblem({node, path: [, property]}, context) {
 	const replacement = replacements[property];
 
 	if (isReplacementShadowed(node, replacement, context)) {
@@ -56,7 +56,7 @@ const create = context => {
 		const tracker = new GlobalReferenceTracker({
 			object,
 			context,
-			handle: checkProperty,
+			handle: getPropertyProblem,
 			filter: ({node}) => !isLeftHandSide(node),
 		});
 

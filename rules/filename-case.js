@@ -78,7 +78,7 @@ function getChosenCases(options) {
 	return ['kebabCase'];
 }
 
-function validateName(words, caseFunctions) {
+function isValidName(words, caseFunctions) {
 	return words
 		.filter(({ignored}) => !ignored)
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
@@ -180,7 +180,7 @@ function getCaseNames(chosenCases) {
 function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
 	const {leading, words} = splitName(directory);
 
-	if (directory.startsWith('$') || validateName(words, chosenCasesFunctions)) {
+	if (directory.startsWith('$') || isValidName(words, chosenCasesFunctions)) {
 		return;
 	}
 
@@ -250,7 +250,7 @@ const create = context => {
 		}
 
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || validateName(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || isValidName(words, chosenCasesFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {

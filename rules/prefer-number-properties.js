@@ -75,7 +75,7 @@ const isCallWithNumberArgument = (node, context) => {
 	return isNumber(firstArgument, context.sourceCode.getScope(node));
 };
 
-function checkProperty({node, path: [name]}, context) {
+function getPropertyProblem({node, path: [name]}, context) {
 	const {parent} = node;
 
 	let property = name;
@@ -142,7 +142,7 @@ const create = context => {
 	const tracker = new GlobalReferenceTracker({
 		objects,
 		context,
-		handle: checkProperty,
+		handle: getPropertyProblem,
 		filter: ({node, path: [name]}) =>
 			!isLeftHandSide(node)
 			&& !(name === 'Infinity' && isDeletedNegativeInfinity(node))

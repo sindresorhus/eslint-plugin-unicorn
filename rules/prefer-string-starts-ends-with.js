@@ -33,7 +33,7 @@ const isSimpleString = string => doesNotContain(
 );
 const addParentheses = text => `(${text})`;
 
-const checkRegex = ({pattern, flags}) => {
+const getRegexProblem = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
 		return;
 	}
@@ -80,7 +80,7 @@ const create = context => {
 
 		const regexNode = node.callee.object;
 		const {regex} = regexNode;
-		const result = checkRegex(regex);
+		const result = getRegexProblem(regex);
 		if (!result) {
 			return;
 		}

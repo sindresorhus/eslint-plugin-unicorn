@@ -13,7 +13,7 @@ const disallowedMethods = new Map([
 	['insertBefore', 'before'],
 ]);
 
-const checkForReplaceChildOrInsertBefore = (context, node) => {
+const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 	const method = node.callee.property.name;
 	const parentNode = node.callee.object.name;
 	const [newChildNode, oldChildNode] = node.arguments;
@@ -48,7 +48,7 @@ const positionReplacers = new Map([
 	['afterend', 'after'],
 ]);
 
-const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
+const getInsertAdjacentTextOrInsertAdjacentElementProblem = (context, node) => {
 	const [positionNode, contentNode] = node.arguments;
 
 	const position = positionNode.value;
@@ -103,7 +103,7 @@ const create = context => {
 			// This check makes sure that only the first method of chained methods with same identifier name e.g: parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta); gets reported
 			&& node.callee.object.type === 'Identifier'
 		) {
-			return checkForReplaceChildOrInsertBefore(context, node);
+			return getReplaceChildOrInsertBeforeProblem(context, node);
 		}
 	});
 
@@ -125,7 +125,7 @@ const create = context => {
 			// TODO: remove this limits on callee
 			&& node.callee.object.type === 'Identifier'
 		) {
-			return checkForInsertAdjacentTextOrInsertAdjacentElement(context, node);
+			return getInsertAdjacentTextOrInsertAdjacentElementProblem(context, node);
 		}
 	});
 };

@@ -33,10 +33,10 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 
 	const visited = new Set();
 
-	return checkExpression(node.callee, 'property');
+	return isBuiltinModuleFunctionExpression(node.callee, 'property');
 
 	/** @param {import('estree').Expression} node */
-	function checkExpression(node, checkKind) {
+	function isBuiltinModuleFunctionExpression(node, checkKind) {
 		if (node.type === 'MemberExpression') {
 			if (!(
 				checkKind === 'property'
@@ -45,7 +45,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 				return false;
 			}
 
-			return checkExpression(node.object, 'module');
+			return isBuiltinModuleFunctionExpression(node.object, 'module');
 		}
 
 		if (node.type === 'CallExpression') {
@@ -78,14 +78,14 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 
 		const variable = findVariable(sourceCode.getScope(node), node);
 		if (!variable || variable.defs.length !== 1) {
-			return;
+			return false;
 		}
 
-		return checkDefinition(variable.defs[0], checkKind);
+		return isBuiltinModuleFunctionDefinition(variable.defs[0], checkKind);
 	}
 
 	/** @param {import('eslint').Scope.Definition} define */
-	function checkDefinition(define, checkKind) {
+	function isBuiltinModuleFunctionDefinition(define, checkKind) {
 		if (define.type === 'ImportBinding') {
 			if (!isModuleLiteral(define.parent.source)) {
 				return false;
@@ -97,11 +97,11 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 				: (specifier?.type === 'ImportSpecifier' && specifier.imported.name === functionName);
 		}
 
-		return define.type === 'Variable' && checkPattern(define.name, checkKind);
+		return define.type === 'Variable' && isBuiltinModuleFunctionPattern(define.name, checkKind);
 	}
 
 	/** @param {import('estree').Identifier | import('estree').ObjectPattern} node */
-	function checkPattern(node, checkKind) {
+	function isBuiltinModuleFunctionPattern(node, checkKind) {
 		/** @type {{parent?: import('estree').Node}} */
 		const {parent} = node;
 		if (parent.type === 'VariableDeclarator') {
@@ -114,7 +114,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 				return false;
 			}
 
-			return checkExpression(parent.init, checkKind);
+			return isBuiltinModuleFunctionExpression(parent.init, checkKind);
 		}
 
 		if (parent.type === 'Property') {
@@ -129,7 +129,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 			}
 
 			// Check for ObjectPattern
-			return checkPattern(parent.parent, 'module');
+			return isBuiltinModuleFunctionPattern(parent.parent, 'module');
 		}
 
 		return false;

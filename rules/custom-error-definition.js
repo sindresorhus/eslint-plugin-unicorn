@@ -200,7 +200,7 @@ const isSameIdentifier = (node, identifier) =>
 	node?.type === 'Identifier'
 	&& node.name === identifier.name;
 
-const checkErrorOptions = (context, constructor, superExpression, hasMessageAccessor) => {
+const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
 	const parameters = constructor.value.params;
 	const firstParameter = parameters[0];
 	const firstParameterIdentifier = getParameterIdentifier(firstParameter);
@@ -270,31 +270,27 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 	}
 };
 
-function * checkErrorName(constructorBodyNode, constructorBody, errorDefinition) {
+function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorDefinition) {
 	const {name, nameProperty} = errorDefinition;
 	const nameExpression = constructorBody.find(bodyNode => isAssignmentExpression(bodyNode, 'name'));
 
 	if (!nameExpression) {
 		if (!isValidNameProperty(nameProperty, name)) {
-			yield createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
-			return false;
+			return createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
 		}
 
-		return true;
+		return;
 	}
 
 	if (
 		nameExpression.expression.right.type !== 'Literal'
 		|| nameExpression.expression.right.value !== name
 	) {
-		yield createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
-		return false;
+		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
-
-	return true;
 }
 
-function * checkConstructorBody(context, constructor, errorDefinition) {
+function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	const {sourceCode} = context;
 	const constructorBodyNode = constructor.value.body;
 
@@ -389,10 +385,15 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 		};
 	}
 
-	const hasValidName = yield * checkErrorName(constructorBodyNode, constructorBody, errorDefinition);
+	const invalidNameProblem = getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorDefinition);
+	const hasValidName = !invalidNameProblem;
+
+	if (invalidNameProblem) {
+		yield invalidNameProblem;
+	}
 
 	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
-		const errorOptionsProblem = checkErrorOptions(context, constructor, superExpression, hasMessageAccessor);
+		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
 
 		if (errorOptionsProblem) {
 			yield errorOptionsProblem;
@@ -454,7 +455,7 @@ function * customErrorDefinition(context, node) {
 	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
 	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
 
-	yield * checkConstructorBody(context, constructor, {
+	yield * getConstructorBodyProblems(context, constructor, {
 		name,
 		nameProperty,
 		hasMessageGetter,
