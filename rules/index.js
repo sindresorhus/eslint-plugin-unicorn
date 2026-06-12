@@ -89,6 +89,7 @@ export {default as 'no-undeclared-class-members'} from './no-undeclared-class-me
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
 export {default as 'no-unnecessary-await'} from './no-unnecessary-await.js';
+export {default as 'no-unnecessary-global-this'} from './no-unnecessary-global-this.js';
 export {default as 'no-unnecessary-nested-ternary'} from './no-unnecessary-nested-ternary.js';
 export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.js';
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
