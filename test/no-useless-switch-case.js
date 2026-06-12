@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -72,8 +72,98 @@ test.snapshot({
 							console.log('2')
 			}
 		`,
+		{
+			code: outdent`
+				switch (foo) {
+					case undefined:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				switch (foo) {
+					case null:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				switch (foo) {
+					case null:
+					case undefined:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
+		outdent`
+			switch (foo) {
+				case undefined:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		outdent`
+			switch (foo) {
+				case null:
+				default:
+					handleDefaultCase();
+					break;
+			}
+		`,
+		{
+			code: outdent`
+				switch (foo) {
+					case a:
+					case undefined:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				switch (foo) {
+					case undefined:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				switch (foo) {
+					case a:
+					default:
+						handleDefaultCase();
+						break;
+				}
+			`,
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			switch (foo) {
 				case a:
