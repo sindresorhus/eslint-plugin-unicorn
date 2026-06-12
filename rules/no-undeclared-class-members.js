@@ -288,17 +288,14 @@ const create = context => {
 
 			const declaredNames = getDeclaredClassMemberNames(classBody, context.sourceCode);
 			const suggestedNames = new Set();
+			const undeclaredMemberAccesses = memberAccesses.filter(({node, name}) => (
+				getThisOwnerClassBody(node) === classBody
+				&& !isInStaticContext(node, classBody)
+				&& !isClassElementDefinition(node, classBody)
+				&& !declaredNames.has(name)
+			));
 
-			for (const {node, name} of memberAccesses) {
-				if (
-					getThisOwnerClassBody(node) !== classBody
-					|| isInStaticContext(node, classBody)
-					|| isClassElementDefinition(node, classBody)
-					|| declaredNames.has(name)
-				) {
-					continue;
-				}
-
+			for (const {node, name} of undeclaredMemberAccesses) {
 				const problem = {
 					node,
 					messageId: MESSAGE_ID,
