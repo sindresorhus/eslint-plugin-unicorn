@@ -5,6 +5,7 @@ const MESSAGE_ID = 'no-useless-recursion';
 const messages = {
 	[MESSAGE_ID]: 'Use a loop instead of this recursive function call.',
 };
+const usingDeclarationKinds = new Set(['using', 'await using']);
 
 const getFunctionNode = node => {
 	for (; node; node = node.parent) {
@@ -19,10 +20,47 @@ const isSelfReference = (identifier, functionNode, sourceCode) => {
 	return variable?.identifiers.includes(functionNode.id);
 };
 
-const isInsideTryFinally = (node, functionNode) => {
+const isInsideTryStatement = (node, functionNode) => {
 	for (; node && node !== functionNode; node = node.parent) {
-		if (node.type === 'TryStatement' && node.finalizer) {
+		if (node.type === 'TryStatement') {
 			return true;
+		}
+	}
+
+	return false;
+};
+
+const isUsingDeclaration = node => node?.type === 'VariableDeclaration' && usingDeclarationKinds.has(node.kind);
+
+const hasUsingDeclarationInLoopHeader = node => {
+	if (node.type === 'ForStatement') {
+		return isUsingDeclaration(node.init);
+	}
+
+	return (
+		(node.type === 'ForInStatement' || node.type === 'ForOfStatement')
+		&& isUsingDeclaration(node.left)
+	);
+};
+
+const hasUsingDeclarationBefore = (node, functionNode) => {
+	for (; node && node !== functionNode; node = node.parent) {
+		if (hasUsingDeclarationInLoopHeader(node)) {
+			return true;
+		}
+
+		if (node.parent?.type !== 'BlockStatement') {
+			continue;
+		}
+
+		for (const statement of node.parent.body) {
+			if (statement === node) {
+				break;
+			}
+
+			if (isUsingDeclaration(statement)) {
+				return true;
+			}
 		}
 	}
 
@@ -43,7 +81,8 @@ const isUselessRecursion = (returnStatement, sourceCode) => {
 	return Boolean(
 		functionNode?.id
 		&& !functionNode.generator
-		&& !isInsideTryFinally(returnStatement, functionNode)
+		&& !isInsideTryStatement(returnStatement, functionNode)
+		&& !hasUsingDeclarationBefore(returnStatement, functionNode)
 		&& argument.callee.name === functionNode.id.name
 		&& isSelfReference(argument.callee, functionNode, sourceCode),
 	);

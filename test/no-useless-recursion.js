@@ -110,6 +110,66 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function foo(value) {
+				try {
+					return foo(value.next);
+				} catch (error) {
+					if (value.retry) {
+						throw error;
+					}
+
+					return value;
+				}
+			}
+		`,
+		outdent`
+			function foo(value) {
+				using resource = acquire(value);
+				return foo(value.next);
+			}
+		`,
+		outdent`
+			async function foo(value) {
+				await using resource = acquire(value);
+				return foo(value.next);
+			}
+		`,
+		outdent`
+			function foo(value) {
+				for (using resource = acquire(value); value.next;) {
+					return foo(value.next);
+				}
+			}
+		`,
+		outdent`
+			async function foo(value) {
+				for (await using resource = acquire(value); value.next;) {
+					return foo(value.next);
+				}
+			}
+		`,
+		outdent`
+			function foo(value) {
+				for (using resource in resources) {
+					return foo(value.next);
+				}
+			}
+		`,
+		outdent`
+			function foo(value) {
+				for (using resource of resources) {
+					return foo(value.next);
+				}
+			}
+		`,
+		outdent`
+			async function foo(value) {
+				for await (await using resource of resources) {
+					return foo(value.next);
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
