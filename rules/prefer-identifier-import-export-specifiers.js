@@ -14,21 +14,6 @@ const isIdentifierStringLiteral = node =>
 
 const isIdentifierToken = token => token.type === 'Identifier' || token.type === 'Keyword';
 
-const shouldCheckLiteral = node => {
-	const {parent} = node;
-
-	if (parent.type === 'ImportSpecifier') {
-		return parent.imported === node;
-	}
-
-	if (parent.type === 'ExportSpecifier') {
-		return parent.exported === node
-			|| (parent.local === node && parent.exported !== node && Boolean(parent.parent.source));
-	}
-
-	return parent.type === 'ExportAllDeclaration' && parent.exported === node;
-};
-
 const getReplacement = (node, sourceCode) => {
 	let replacement = node.value;
 
@@ -46,33 +31,46 @@ const getReplacement = (node, sourceCode) => {
 	return replacement;
 };
 
+const getProblem = (node, sourceCode) => {
+	if (!isIdentifierStringLiteral(node)) {
+		return;
+	}
+
+	const identifier = node.value;
+	return {
+		node,
+		messageId: MESSAGE_ID,
+		data: {
+			identifier,
+			literal: sourceCode.getText(node),
+		},
+		fix: fixer => fixer.replaceText(node, getReplacement(node, sourceCode)),
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const reportedNodes = new WeakSet();
 
-	context.on('Literal', node => {
-		if (!(
-			isIdentifierStringLiteral(node)
-			&& shouldCheckLiteral(node)
-			&& !reportedNodes.has(node)
-		)) {
+	context.on('ImportSpecifier', node => getProblem(node.imported, sourceCode));
+
+	context.on('ExportSpecifier', function * (node) {
+		const problem = getProblem(node.exported, sourceCode);
+		if (problem) {
+			yield problem;
+		}
+
+		if (!node.parent.source || node.local === node.exported) {
 			return;
 		}
 
-		reportedNodes.add(node);
-
-		const identifier = node.value;
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			data: {
-				identifier,
-				literal: sourceCode.getText(node),
-			},
-			fix: fixer => fixer.replaceText(node, getReplacement(node, sourceCode)),
-		};
+		const localProblem = getProblem(node.local, sourceCode);
+		if (localProblem) {
+			yield localProblem;
+		}
 	});
+
+	context.on('ExportAllDeclaration', node => getProblem(node.exported, sourceCode));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
