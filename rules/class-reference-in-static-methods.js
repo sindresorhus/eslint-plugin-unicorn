@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isReferenceIdentifier} from './ast/index.js';
+import {isParenthesized} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -81,31 +82,156 @@ const isSameVariable = (sourceCode, reference, binding) =>
 	findVariable(sourceCode.getScope(reference), reference)
 	=== findVariable(sourceCode.getScope(binding), binding);
 
-const isAssignmentTarget = node =>
+const isAssignmentTargetRoot = (parent, node) =>
 	(
-		node.parent.type === 'AssignmentExpression'
-		&& node.parent.left === node
+		parent.type === 'AssignmentExpression'
+		&& parent.left === node
 	)
 	|| (
-		node.parent.type === 'UpdateExpression'
-		&& node.parent.argument === node
+		parent.type === 'UpdateExpression'
+		&& parent.argument === node
 	)
 	|| (
-		node.parent.type === 'UnaryExpression'
-		&& node.parent.operator === 'delete'
-		&& node.parent.argument === node
+		parent.type === 'UnaryExpression'
+		&& parent.operator === 'delete'
+		&& parent.argument === node
+	)
+	|| (
+		(
+			parent.type === 'ForInStatement'
+			|| parent.type === 'ForOfStatement'
+		)
+		&& parent.left === node
 	);
 
-const isSimpleMemberAccess = node =>
+const isTypeScriptExpressionWrapper = (parent, node) =>
+	(
+		parent.type === 'TSAsExpression'
+		|| parent.type === 'TSInstantiationExpression'
+		|| parent.type === 'TSNonNullExpression'
+		|| parent.type === 'TSSatisfiesExpression'
+		|| parent.type === 'TSTypeAssertion'
+	)
+	&& parent.expression === node;
+
+const getTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node.parent, node) ? node.parent : undefined;
+
+const getAssignmentTargetAncestor = node => {
+	const {parent} = node;
+
+	if (parent.type === 'MemberExpression' && parent.object === node) {
+		return parent;
+	}
+
+	if (parent.type === 'ChainExpression' && parent.expression === node) {
+		return parent;
+	}
+
+	const typeScriptExpressionWrapper = getTypeScriptExpressionWrapper(node);
+	if (typeScriptExpressionWrapper) {
+		return typeScriptExpressionWrapper;
+	}
+
+	if (
+		parent.type === 'Property'
+		&& parent.value === node
+		&& parent.parent.type === 'ObjectPattern'
+	) {
+		return parent.parent;
+	}
+
+	if (parent.type === 'ObjectPattern' && parent.properties.includes(node)) {
+		return parent;
+	}
+
+	if (parent.type === 'ArrayPattern' && parent.elements.includes(node)) {
+		return parent;
+	}
+
+	if (parent.type === 'AssignmentPattern' && parent.left === node) {
+		return parent;
+	}
+
+	if (parent.type === 'RestElement' && parent.argument === node) {
+		return parent;
+	}
+};
+
+const isAssignmentTarget = node => {
+	let current = node;
+
+	while (current.parent) {
+		if (isAssignmentTargetRoot(current.parent, current)) {
+			return true;
+		}
+
+		const ancestor = getAssignmentTargetAncestor(current);
+		if (!ancestor) {
+			return false;
+		}
+
+		current = ancestor;
+	}
+
+	return false;
+};
+
+const isMemberExpressionObject = node =>
 	node.parent.type === 'MemberExpression'
-	&& node.parent.object === node
+	&& node.parent.object === node;
+
+const isSimpleMemberAccess = node =>
+	isMemberExpressionObject(node)
 	&& !node.parent.optional
 	&& !isAssignmentTarget(node.parent);
 
-const isInsideAssignmentTargetMember = node =>
-	node.parent.type === 'MemberExpression'
-	&& node.parent.object === node
-	&& isAssignmentTarget(node.parent);
+const getNodeWithTypeScriptExpressionWrappers = node => {
+	let current = node;
+
+	while (current.parent) {
+		const typeScriptExpressionWrapper = getTypeScriptExpressionWrapper(current);
+		if (!typeScriptExpressionWrapper) {
+			return current;
+		}
+
+		current = typeScriptExpressionWrapper;
+	}
+
+	return current;
+};
+
+const isDirectCallee = node => {
+	const current = getNodeWithTypeScriptExpressionWrappers(node);
+
+	return (
+		current.parent.type === 'CallExpression'
+		&& current.parent.callee === current
+	)
+	|| (
+		current.parent.type === 'NewExpression'
+		&& current.parent.callee === current
+	)
+	|| (
+		current.parent.type === 'TaggedTemplateExpression'
+		&& current.parent.tag === current
+	);
+};
+
+const isPrivateMemberAccess = node => {
+	const current = getNodeWithTypeScriptExpressionWrappers(node);
+
+	return isMemberExpressionObject(current)
+		&& current.parent.property.type === 'PrivateIdentifier';
+};
+
+const isPrivateBrandCheck = node => {
+	const current = getNodeWithTypeScriptExpressionWrappers(node);
+
+	return current.parent.type === 'BinaryExpression'
+		&& current.parent.operator === 'in'
+		&& current.parent.left.type === 'PrivateIdentifier'
+		&& current.parent.right === current;
+};
 
 const isTypeScriptTypeIdentifier = node => {
 	let current = node;
@@ -185,7 +311,13 @@ const create = context => {
 	const {preferThis, preferSuper} = context.options[0];
 
 	context.on('ThisExpression', node => {
-		if (preferThis || isInsideAssignmentTargetMember(node)) {
+		if (
+			preferThis
+			|| isAssignmentTarget(node)
+			|| isDirectCallee(node)
+			|| isPrivateMemberAccess(node)
+			|| isPrivateBrandCheck(node)
+		) {
 			return;
 		}
 
@@ -209,7 +341,7 @@ const create = context => {
 	});
 
 	context.on('Super', node => {
-		if (preferSuper || isInsideAssignmentTargetMember(node)) {
+		if (preferSuper || isAssignmentTarget(node)) {
 			return;
 		}
 
@@ -237,7 +369,9 @@ const create = context => {
 			!isReferenceIdentifier(node)
 			|| isTypeScriptTypeIdentifier(node)
 			|| isAssignmentTarget(node)
-			|| isInsideAssignmentTargetMember(node)
+			|| isDirectCallee(node)
+			|| isPrivateMemberAccess(node)
+			|| isPrivateBrandCheck(node)
 		) {
 			return;
 		}
@@ -266,7 +400,11 @@ const create = context => {
 			}
 		}
 
-		if (!preferSuper || !isSimpleMemberAccess(node)) {
+		if (
+			!preferSuper
+			|| !isSimpleMemberAccess(node)
+			|| isParenthesized(node, context)
+		) {
 			return;
 		}
 
