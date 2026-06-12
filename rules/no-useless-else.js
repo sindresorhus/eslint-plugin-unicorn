@@ -181,14 +181,14 @@ const isSafeToMoveAlternate = (ifStatement, context) => {
 		return false;
 	}
 
-	const lastAlternateToken = alternate.type === 'BlockStatement'
-		? sourceCode.getTokenBefore(sourceCode.getLastToken(alternate))
-		: sourceCode.getLastToken(alternate);
-	const nextToken = sourceCode.getTokenAfter(alternate);
 	if (hasSameLineFollowingTokenOrComment(alternate, sourceCode)) {
 		return false;
 	}
 
+	const lastAlternateToken = alternate.type === 'BlockStatement'
+		? sourceCode.getTokenBefore(sourceCode.getLastToken(alternate))
+		: sourceCode.getLastToken(alternate);
+	const nextToken = sourceCode.getTokenAfter(alternate);
 	return !(
 		lastAlternateToken
 		&& lastAlternateToken.value !== ';'
@@ -212,7 +212,7 @@ const fix = (ifStatement, context) => fixer => {
 		)
 		|| !isSafeToMoveAlternate(ifStatement, context)
 	) {
-		return null;
+		return;
 	}
 
 	const replacementRange = [
@@ -221,7 +221,7 @@ const fix = (ifStatement, context) => fixer => {
 	];
 
 	if (hasCommentInRange(sourceCode, [replacementRange[0], sourceCode.getRange(alternate)[0]])) {
-		return null;
+		return;
 	}
 
 	return fixer.replaceTextRange(replacementRange, getReplacementText(ifStatement, sourceCode));
