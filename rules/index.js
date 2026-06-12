@@ -40,6 +40,7 @@ export {default as 'no-await-expression-member'} from './no-await-expression-mem
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
 export {default as 'no-blob-to-file'} from './no-blob-to-file.js';
 export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
+export {default as 'no-computed-property-existence-check'} from './no-computed-property-existence-check.js';
 export {default as 'no-confusing-array-splice'} from './no-confusing-array-splice.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
