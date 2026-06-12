@@ -26,6 +26,22 @@ function wouldRemoveComments(context, nodeOrRange, preservedNodeOrRanges = []) {
 	});
 }
 
+/**
+Get the last trailing comment that starts on the same line where a node or token ends.
+
+@param {import('eslint').Rule.RuleContext} context
+@param {object} nodeOrToken
+@returns {object | undefined}
+*/
+function getLastTrailingCommentOnSameLine(context, nodeOrToken) {
+	const {sourceCode} = context;
+	const nodeOrTokenEndLine = sourceCode.getLoc(nodeOrToken).end.line;
+
+	return sourceCode.getCommentsAfter(nodeOrToken)
+		.findLast(comment => sourceCode.getLoc(comment).start.line === nodeOrTokenEndLine);
+}
+
 export {
+	getLastTrailingCommentOnSameLine,
 	wouldRemoveComments,
 };

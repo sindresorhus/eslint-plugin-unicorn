@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
-import {getVariableIdentifiers} from './utils/index.js';
+import {getLastTrailingCommentOnSameLine, getVariableIdentifiers} from './utils/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -100,8 +100,7 @@ function hasComments(node, context) {
 		|| sourceCode.getCommentsBefore(node).some(comment =>
 			sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line
 			|| sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line - 1)
-		|| sourceCode.getCommentsAfter(node).some(comment =>
-			sourceCode.getLoc(comment).start.line === sourceCode.getLoc(node).end.line);
+		|| getLastTrailingCommentOnSameLine(context, node);
 }
 
 function getBlobIdentifier(newFileExpression, context) {

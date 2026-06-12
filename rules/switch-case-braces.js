@@ -1,6 +1,7 @@
 import {isColonToken} from '@eslint-community/eslint-utils';
 import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
 import getIndentString from './utils/get-indent-string.js';
+import {getLastTrailingCommentOnSameLine} from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
 
 const MESSAGE_ID_EMPTY_CLAUSE = 'switch-case-braces/empty';
@@ -30,7 +31,8 @@ function * addBraces(fixer, node, context) {
 	);
 	yield fixer.insertTextAfter(colonToken, ' {');
 
-	const lastToken = sourceCode.getLastToken(node);
+	const lastConsequent = node.consequent.at(-1);
+	const lastToken = getLastTrailingCommentOnSameLine(context, lastConsequent) ?? sourceCode.getLastToken(lastConsequent);
 	const indent = getIndentString(node, context);
 	yield fixer.insertTextAfter(lastToken, `\n${indent}}`);
 }

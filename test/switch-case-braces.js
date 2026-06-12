@@ -120,6 +120,54 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				switch (foo) {
+					case 'bar':
+						doSomething(); // Comment about this line
+				}
+			`,
+			output: outdent`
+				switch (foo) {
+					case 'bar': {
+						doSomething(); // Comment about this line
+					}
+				}
+			`,
+			errors: [{messageId: 'switch-case-braces/missing'}],
+		},
+		{
+			code: outdent`
+				switch (foo) {
+					case 'bar':
+						doSomething();
+						// Fall through
+					case 'baz':
+						doOtherThing();
+				}
+			`,
+			output: outdent`
+				switch (foo) {
+					case 'bar': {
+						doSomething();
+					}
+						// Fall through
+					case 'baz': {
+						doOtherThing();
+					}
+				}
+			`,
+			errors: [
+				{messageId: 'switch-case-braces/missing'},
+				{messageId: 'switch-case-braces/missing'},
+			],
+		},
+	],
+});
+
 // Avoid braces
 test.snapshot({
 	valid: [

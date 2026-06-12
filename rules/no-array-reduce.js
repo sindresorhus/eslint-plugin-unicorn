@@ -2,6 +2,7 @@ import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getLastTrailingCommentOnSameLine,
 	getParenthesizedText,
 	isFunctionSelfUsedInside,
 	isNodeValueNotFunction,
@@ -528,17 +529,13 @@ const cases = [
 		},
 		getFix(callExpression, context) {
 			const variableDeclaration = callExpression.parent.parent;
-			const nextComment = context.sourceCode.getCommentsAfter(variableDeclaration)[0];
 			if (
 				callExpression.callee.property.name !== 'reduce'
 				|| callExpression.optional
 				|| callExpression.callee.optional
 				|| !isSingleDeclaratorVariableInitializer(callExpression)
 				|| context.sourceCode.getCommentsInside(variableDeclaration).length > 0
-				|| (
-					nextComment
-					&& context.sourceCode.getLoc(nextComment).start.line === context.sourceCode.getLoc(variableDeclaration).end.line
-				)
+				|| getLastTrailingCommentOnSameLine(context, variableDeclaration)
 			) {
 				return;
 			}
