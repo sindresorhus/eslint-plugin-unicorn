@@ -11,7 +11,7 @@
 
 Prefer using the opposite comparison operator instead of negating the whole comparison.
 
-The rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read than applying De Morgan's laws.
+By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read than applying De Morgan's laws.
 
 ## Examples
 
@@ -34,4 +34,44 @@ if (typeof value !== 'undefined') {}
 ```js
 // ✅
 if (!(a === b && c === d)) {}
+```
+
+## Options
+
+Type: `object`
+
+### checkLogicalExpressions
+
+Type: `boolean`\
+Default: `false`
+
+Check logical expressions that only contain comparisons.
+
+This option intentionally does not attempt broad boolean algebra simplification. It ignores logical expressions with non-comparison parts and reports without a fix or suggestion when comments are inside the negated expression.
+
+```js
+{
+	'unicorn/no-negated-comparison': [
+		'error',
+		{
+			checkLogicalExpressions: true,
+		},
+	],
+}
+```
+
+```js
+// ❌
+if (!(a === b && c === d)) {}
+
+// ✅
+if (a !== b || c !== d) {}
+```
+
+```js
+// ❌
+if (!(a === b && (c === d || e === f))) {}
+
+// ✅
+if (a !== b || (c !== d && e !== f)) {}
 ```

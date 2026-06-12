@@ -48,11 +48,13 @@ test.snapshot({
 		'function foo() { throw!(a === b); }',
 		'switch (foo) { case!(a === b): break; }',
 		'async function foo() { return await !(a === b); }',
+		'async function foo() { return await!(a === b); }',
 		'const foo = void !(a === b);',
 		'const foo = typeof !(a === b);',
 		'const foo = +!(a === b);',
 		'const foo = a + !(b === c);',
 		'function * foo() { yield !(a === b); }',
+		'function * foo() { yield!(a === b); }',
 		'foo(...!(a === b));',
 		'async function foo() { return await !(a > b); }',
 		'const foo = a + !(b > c);',
@@ -96,6 +98,117 @@ test.snapshot({
 			languageOptions: {
 				parser: parsers.typescript,
 			},
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		{
+			code: '!(a && b)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && c)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && foo())',
+			options: [{checkLogicalExpressions: true}],
+		},
+	],
+	invalid: [
+		{
+			code: '!(a === b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a !== b || c != d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a > b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b || c <= d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && (c === d || e === f))',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!((a === b && c === d) && e === f)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && c === d || e === f)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b || c === d && e === f)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a > b && (c === d || e <= f))',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!((a || b) === c && d === e)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!((a || b) > c && d === e)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!/* comment */(a === b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a /* comment */ === b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && /* comment */ c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: outdent`
+				foo
+				!(a === b && c === d)
+			`,
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: outdent`
+				function foo() {
+					return!
+						(a === b && c === d);
+				}
+			`,
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'function foo() { return!(a === b && c === d); }',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'function foo() { throw!(a === b && c === d); }',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'switch (foo) { case!(a === b && c === d): break; }',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'async function foo() { return await!(a === b && c === d); }',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'function * foo() { yield!(a === b && c === d); }',
+			options: [{checkLogicalExpressions: true}],
 		},
 	],
 });
