@@ -1,0 +1,123 @@
+import outdent from 'outdent';
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'new Uint8Array(data)',
+		'new Uint8Array(data.buffer, data.byteOffset, data.byteLength)',
+		'new Uint8Array(data.buffer, offset, length)',
+		'new Uint8Array(data.buffer, data.byteOffset, length)',
+		'new Uint8Array(data.buffer, offset, data.byteLength)',
+		'new Uint8Array(data.buffer, other.byteLength, data.byteLength)',
+		'new Uint8Array(data.buffer, data.byteOffset, other.buffer.byteLength)',
+		'new Int8Array(data.buffer, data.byteOffset, data.byteLength)',
+		'new Uint8ClampedArray(data.buffer, data.byteOffset, data.byteLength)',
+		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)',
+		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Float32Array.BYTES_PER_ELEMENT)',
+		'new Float64Array(data.buffer, data.byteOffset, data.byteLength / Float64Array.BYTES_PER_ELEMENT)',
+		'new BigUint64Array(data.buffer, data.byteOffset, data.byteLength / BigUint64Array.BYTES_PER_ELEMENT)',
+		'new BigInt64Array(data.buffer, data.byteOffset, data.byteLength / BigUint64Array.BYTES_PER_ELEMENT)',
+		'new DataView(data.buffer)',
+		'const Uint8Array = function () {}; new Uint8Array(data.buffer)',
+		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength / SOME_CONSTANT)',
+
+		'Buffer.from(data)',
+		'Buffer.from(data.buffer, data.byteOffset, data.byteLength)',
+		'Buffer.from(data.buffer, offset, length)',
+		'Buffer.from(data.buffer, data.byteOffset, length)',
+		'Buffer.from(data.buffer, offset, data.byteLength)',
+		'Buffer.from(data.buffer, other.byteLength, data.byteLength)',
+		'Buffer.from(data.buffer, data.byteOffset, other.buffer.byteLength)',
+		'Buffer.from(data.buffer, data.byteOffset, data.length)',
+		'Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint8Array.BYTES_PER_ELEMENT)',
+		'globalThis.Buffer.from(data.buffer, data.byteOffset, data.byteLength)',
+		'import {Buffer} from \'node:buffer\'; Buffer.from(data.buffer, data.byteOffset, data.byteLength)',
+		'import {Buffer as B} from \'buffer\'; B.from(data.buffer, data.byteOffset, data.byteLength)',
+		'const Buffer = {from() {}}; Buffer.from(data.buffer)',
+		'import {Buffer} from \'not-buffer\'; Buffer.from(data.buffer)',
+		'import Buffer from \'node:buffer\'; Buffer.from(data.buffer)',
+
+		'data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(data.byteOffset, end)',
+		'data.buffer.slice(offset, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(offset, data.byteLength)',
+		'data.buffer.slice(other.byteLength, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(data.byteOffset, other.buffer.byteLength)',
+		'data.buffer.notSlice()',
+
+		{code: 'new Uint8Array((data as Buffer).buffer, (data as Buffer).byteOffset, (data as Buffer).byteLength)', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		'new Uint8Array(data.buffer)',
+		'new Uint8Array(data.buffer, data.byteOffset)',
+		'new Uint8Array(data.buffer, 0)',
+		'new Uint8Array(data.buffer, 0, data.byteLength)',
+		'new Uint8Array(data.buffer, undefined, data.byteLength)',
+		'new Uint8Array(data.buffer, data.byteOffset, undefined)',
+		'new Uint8Array(data.buffer, data.byteLength, data.byteLength)',
+		'new Uint8Array(data.buffer, data.length, data.byteLength)',
+		'new Uint8Array(data.buffer, data.byteOffset, data.buffer.byteLength)',
+		'new Int8Array(data.buffer)',
+		'new Uint8ClampedArray(data.buffer, data.byteOffset)',
+		'new Uint32Array(data.buffer)',
+		'new Uint32Array(data.buffer, data.byteOffset)',
+		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength)',
+		'new Uint32Array(data.buffer, offset, data.byteLength)',
+		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT)',
+		'new Float64Array(data.buffer, data.byteOffset, data.byteLength)',
+		'new (Uint8Array)(data.buffer)',
+		'new Uint8Array((data).buffer)',
+		{code: 'new Uint8Array((data as Buffer).buffer)', languageOptions: {parser: parsers.typescript}},
+
+		'Buffer.from(data.buffer)',
+		'Buffer.from(data.buffer, data.byteOffset)',
+		'Buffer.from(data.buffer, 0)',
+		'Buffer.from(data.buffer, 0, data.byteLength)',
+		'Buffer.from(data.buffer, data.byteOffset, undefined)',
+		'Buffer.from(data.buffer, data.byteLength, data.byteLength)',
+		'Buffer.from(data.buffer, data.length, data.byteLength)',
+		'Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength)',
+		'Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)',
+		'globalThis.Buffer.from(data.buffer)',
+		'import {Buffer} from \'node:buffer\'; Buffer.from(data.buffer)',
+		'import {Buffer as B} from \'buffer\'; B.from(data.buffer, data.byteOffset)',
+		'Buffer.from((data).buffer)',
+
+		'data.buffer.slice()',
+		'data.buffer.slice(data.byteOffset)',
+		'data.buffer.slice(offset)',
+		'data.buffer.slice(data.byteOffset, data.byteLength)',
+		'data.buffer.slice(0, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(data.byteOffset, undefined)',
+		'data.buffer.slice(data.byteLength, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(data.length, data.byteOffset + data.byteLength)',
+		'data.buffer.slice(data.byteOffset, data.buffer.byteLength)',
+		'(data).buffer.slice()',
+
+		outdent`
+			new Uint8Array(
+				data.buffer,
+				data.byteOffset,
+			)
+		`,
+		outdent`
+			Buffer.from(
+				data.buffer,
+				data.byteOffset,
+			)
+		`,
+		// Suggestion withheld because of the comment.
+		'new Uint8Array(data.buffer, /* keep me */ data.byteOffset)',
+		'Buffer.from(data.buffer, /* keep me */ data.byteOffset)',
+		'data.buffer.slice(/* keep me */)',
+		// Suggestion withheld because it would duplicate the side effect.
+		'new Uint8Array(getData().buffer)',
+		'Buffer.from(getData().buffer)',
+		'getData().buffer.slice()',
+		'new Uint8Array(source.view.buffer)',
+		'Buffer.from(source.view.buffer)',
+		'source.view.buffer.slice()',
+	],
+});
