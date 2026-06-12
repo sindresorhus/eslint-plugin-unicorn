@@ -98,7 +98,6 @@ test({
 						'Prefer `oldChildNode.replaceWith(newChildNode)` over `parentNode.replaceChild(newChildNode, oldChildNode)`.',
 				},
 			],
-			output: 'oldChildNode.replaceWith(newChildNode);',
 		},
 		{
 			code: 'const foo = parentNode.replaceChild(newChildNode, oldChildNode);',
@@ -306,7 +305,6 @@ test({
 						'Prefer `referenceNode.after(newNode)` over `referenceNode.insertAdjacentElement("afterend", newNode)`.',
 				},
 			],
-			output: 'referenceNode.after(newNode); // inline comments',
 		},
 		{
 			code: 'const foo = referenceNode.insertAdjacentElement("beforebegin", newNode);',

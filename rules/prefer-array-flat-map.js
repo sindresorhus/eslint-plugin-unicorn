@@ -1,4 +1,7 @@
-import {isNodeMatches} from './utils/is-node-matches.js';
+import {
+	isNodeMatches,
+	wouldRemoveComments,
+} from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 import {removeMethodCall} from './fix/index.js';
 
@@ -42,15 +45,9 @@ const create = context => {
 
 		const {sourceCode} = context;
 		const mapProperty = mapCallExpression.callee.property;
-
-		return {
-			node: flatCallExpression,
-			loc: {
-				start: sourceCode.getLoc(mapProperty).start,
-				end: sourceCode.getLoc(flatCallExpression).end,
-			},
-			messageId: MESSAGE_ID,
-			* fix(fixer) {
+		const fix = wouldRemoveComments(context, flatCallExpression, [mapCallExpression])
+			? undefined
+			: function * (fixer) {
 				// Removes:
 				//   map(…).flat();
 				//         ^^^^^^^
@@ -64,7 +61,16 @@ const create = context => {
 				//   (map(…)).flat();
 				//    ^^^
 				yield fixer.replaceText(mapProperty, 'flatMap');
+			};
+
+		return {
+			node: flatCallExpression,
+			loc: {
+				start: sourceCode.getLoc(mapProperty).start,
+				end: sourceCode.getLoc(flatCallExpression).end,
 			},
+			messageId: MESSAGE_ID,
+			fix,
 		};
 	});
 };

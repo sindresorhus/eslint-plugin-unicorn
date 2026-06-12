@@ -1,4 +1,4 @@
-import {isValueNotUsable} from './utils/index.js';
+import {isValueNotUsable, wouldRemoveComments} from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
 const messages = {
@@ -16,13 +16,14 @@ const disallowedMethods = new Map([
 const checkForReplaceChildOrInsertBefore = (context, node) => {
 	const method = node.callee.property.name;
 	const parentNode = node.callee.object.name;
-	const [newChildNode, oldChildNode] = node.arguments.map(({name}) => name);
+	const [newChildNode, oldChildNode] = node.arguments;
+	const [newChildNodeName, oldChildNodeName] = node.arguments.map(({name}) => name);
 	const preferredMethod = disallowedMethods.get(method);
 
-	const fix = isValueNotUsable(node)
+	const fix = isValueNotUsable(node) && !wouldRemoveComments(context, node, [newChildNode, oldChildNode])
 		? fixer => fixer.replaceText(
 			node,
-			`${oldChildNode}.${preferredMethod}(${newChildNode})`,
+			`${oldChildNodeName}.${preferredMethod}(${newChildNodeName})`,
 		)
 		: undefined;
 
@@ -33,8 +34,8 @@ const checkForReplaceChildOrInsertBefore = (context, node) => {
 			parentNode,
 			method,
 			preferredMethod,
-			newChildNode,
-			oldChildNode,
+			newChildNode: newChildNodeName,
+			oldChildNode: oldChildNodeName,
 		},
 		fix,
 	};
@@ -62,7 +63,10 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 	const content = sourceCode.getText(contentNode);
 	const reference = sourceCode.getText(node.callee.object);
 
-	const fix = method === 'insertAdjacentElement' && !isValueNotUsable(node)
+	const fix = (
+		(method === 'insertAdjacentElement' && !isValueNotUsable(node))
+		|| wouldRemoveComments(context, node, [node.callee.object, contentNode])
+	)
 		? undefined
 		// TODO: make a better fix, don't touch reference
 		: fixer => fixer.replaceText(
