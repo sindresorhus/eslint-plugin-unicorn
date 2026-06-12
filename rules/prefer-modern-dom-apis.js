@@ -2,6 +2,8 @@ import {
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
@@ -116,6 +118,32 @@ const getChildNodeMemberExpression = node => {
 	}
 };
 
+const containsChainExpression = (node, sourceCode) => {
+	if (node.type === 'ChainExpression') {
+		return true;
+	}
+
+	const keys = sourceCode.visitorKeys[node.type] ?? [];
+	for (const key of keys) {
+		const child = node[key];
+		if (Array.isArray(child)) {
+			for (const childNode of child) {
+				if (childNode && containsChainExpression(childNode, sourceCode)) {
+					return true;
+				}
+			}
+
+			continue;
+		}
+
+		if (child && containsChainExpression(child, sourceCode)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const unknownTypeNames = new Set(['any', 'error', 'unknown']);
 
 const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
@@ -189,13 +217,19 @@ const getReplaceChildrenProblem = (context, node) => {
 	const parentNode = childNode.object;
 	if (
 		isNodeValueNotDomNode(parentNode)
+		|| containsChainExpression(parentNode, sourceCode)
 		|| !shouldReportReplaceChildrenReceiver(context, parentNode)
 	) {
 		return;
 	}
 
-	const parentNodeText = sourceCode.getText(parentNode);
-	const replacement = `${parentNodeText}.replaceChildren();`;
+	const parentNodeText = (
+		parentNode.type !== 'Super'
+		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context)
+	)
+		? `(${sourceCode.getText(parentNode)})`
+		: sourceCode.getText(parentNode);
+	const replacement = `${needsSemicolon(sourceCode.getTokenBefore(node), context, parentNodeText) ? ';' : ''}${parentNodeText}.replaceChildren();`;
 
 	const fix = wouldRemoveComments(context, node, [parentNode])
 		? undefined

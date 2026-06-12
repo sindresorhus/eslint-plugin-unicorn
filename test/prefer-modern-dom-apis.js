@@ -30,6 +30,9 @@ test({
 		'while (node.lastChild) { otherNode.lastChild.remove(); }',
 		'while (node.firstChild) { child = node.firstChild; child.remove(); }',
 		'while (node.firstChild) { node.firstChild.remove(); node.normalize(); }',
+		'while (getNode().firstChild) { getNode().firstChild.remove(); }',
+		'while (nodes[getIndex()].lastChild) { nodes[getIndex()].lastChild.remove(); }',
+		'while ((node?.parent).firstChild) { (node?.parent).firstChild.remove(); }',
 		'while (node.firstChild) { node.firstChild?.remove(); }',
 		'while (node.firstChild) { node.firstChild["remove"](); }',
 		'while (node.firstChild) { node.removeChild(node.firstChild); }',
@@ -445,6 +448,15 @@ test({
 			output: 'this.replaceChildren();',
 		},
 		{
+			code: 'class Foo extends Element { method() { while (super.firstChild) { super.firstChild.remove(); } } }',
+			errors: [
+				{
+					message: 'Prefer `super.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'class Foo extends Element { method() { super.replaceChildren(); } }',
+		},
+		{
 			code: 'while (parent.node.firstChild) { parent.node.firstChild.remove(); }',
 			errors: [
 				{
@@ -507,6 +519,44 @@ test({
 				},
 			],
 			output: 'function foo<T extends Element>(node: T) { node.replaceChildren(); }',
+		},
+		{
+			code: 'function foo(node: Element) { while ((node as Element).firstChild) { (node as Element).firstChild.remove(); } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					message: 'Prefer `(node as Element).replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element) { (node as Element).replaceChildren(); }',
+		},
+		{
+			code: outdent`
+				foo()
+				while ((node as Element).firstChild) {
+					(node as Element).firstChild.remove();
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					message: 'Prefer `(node as Element).replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: outdent`
+				foo()
+				;(node as Element).replaceChildren();
+			`,
+		},
+		{
+			code: 'function foo(node: Element) { while ((<Element>node).lastChild) { (<Element>node).lastChild.remove(); } }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					message: 'Prefer `(<Element>node).replaceChildren()` over directly removing `.lastChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element) { (<Element>node).replaceChildren(); }',
 		},
 		{
 			...typeAware('function foo(node: any) { while (node.firstChild) { node.firstChild.remove(); } }'),
