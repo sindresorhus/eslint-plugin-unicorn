@@ -398,12 +398,11 @@ function getReplacementProblem(comment, sourceCode, replacements) {
 			}
 
 			const start = valueStart + match.index;
-			const end = start + match[0].length;
-
 			if (bestProblem && start >= bestProblem.replacementRange[0]) {
 				break;
 			}
 
+			const end = start + match[0].length;
 			bestProblem = {
 				replacementRange: [start, end],
 				value: match[0],

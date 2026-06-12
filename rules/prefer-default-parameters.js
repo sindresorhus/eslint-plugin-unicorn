@@ -96,7 +96,6 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
-	const endsWithWhitespace = lineText[column] === ' ';
 
 	if (isOnlyNodeOnLine) {
 		return fixer.removeRange([
@@ -105,6 +104,7 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 		]);
 	}
 
+	const endsWithWhitespace = lineText[column] === ' ';
 	if (endsWithWhitespace) {
 		const [start, end] = sourceCode.getRange(node);
 		return fixer.removeRange([start, end + 1]);

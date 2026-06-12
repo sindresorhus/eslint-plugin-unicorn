@@ -134,6 +134,20 @@ const isArrayPopOrShiftCall = (node, method) =>
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
 
+function getFirstElementGetMethod(node) {
+	if (isZeroIndexAccess(node)) {
+		return isLeftHandSide(node.parent) ? undefined : 'zero-index';
+	}
+
+	if (isArrayShiftCall(node)) {
+		return 'shift';
+	}
+
+	if (isArrayPopCall(node)) {
+		return 'pop';
+	}
+}
+
 function checkSliceCall(node) {
 	const sliceArgumentsLength = node.arguments.length;
 	const [startIndexNode, endIndexNode] = node.arguments;
@@ -142,19 +156,7 @@ function checkSliceCall(node) {
 		return;
 	}
 
-	let firstElementGetMethod = '';
-	if (isZeroIndexAccess(node)) {
-		if (isLeftHandSide(node.parent)) {
-			return;
-		}
-
-		firstElementGetMethod = 'zero-index';
-	} else if (isArrayShiftCall(node)) {
-		firstElementGetMethod = 'shift';
-	} else if (isArrayPopCall(node)) {
-		firstElementGetMethod = 'pop';
-	}
-
+	const firstElementGetMethod = getFirstElementGetMethod(node);
 	if (!firstElementGetMethod) {
 		return;
 	}

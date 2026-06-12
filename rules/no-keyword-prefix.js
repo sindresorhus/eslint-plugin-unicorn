@@ -42,13 +42,13 @@ function findKeywordPrefix(name, options) {
 }
 
 function checkMemberExpression(report, node, options) {
-	const {name, parent} = node;
-	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
-
 	if (!options.checkProperties) {
 		return;
 	}
+
+	const {name, parent} = node;
+	const keyword = findKeywordPrefix(name, options);
+	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 	if (parent.object.type === 'Identifier' && parent.object.name === name && Boolean(keyword)) {
 		report(node, keyword);
@@ -71,8 +71,6 @@ function checkObjectPattern(report, node, options) {
 		report(node, keyword);
 	}
 
-	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
-
 	if (Boolean(keyword) && parent.computed) {
 		report(node, keyword);
 	}
@@ -81,6 +79,8 @@ function checkObjectPattern(report, node, options) {
 	if (parent.key === node && parent.value !== node) {
 		return true;
 	}
+
+	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
 	const valueIsInvalid = parent.value.name && Boolean(keyword);
 

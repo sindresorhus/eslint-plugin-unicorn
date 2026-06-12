@@ -169,13 +169,13 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
 	const {sourceCode} = context;
-	const firstParameter = constructor.value.params[0];
 	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
 
 	if (!superOptionsFix) {
 		return;
 	}
 
+	const firstParameter = constructor.value.params[0];
 	yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 	yield superOptionsFix;
 };
@@ -212,10 +212,7 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 		return;
 	}
 
-	const optionsParameter = parameters[1];
 	const superCallExpression = superExpression.expression;
-	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
-	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (isOptionsIdentifier(firstParameter)) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
@@ -233,6 +230,10 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 
 		return;
 	}
+
+	const optionsParameter = parameters[1];
+	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
+	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (!optionsParameter) {
 		return {
@@ -422,8 +423,6 @@ function * customErrorDefinition(context, node) {
 	const {sourceCode} = context;
 	const constructor = body.find(x => x.kind === 'constructor');
 	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
-	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
-	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
 
 	if (!constructor) {
 		if (isValidNameProperty(nameProperty, name)) {
@@ -452,6 +451,9 @@ function * customErrorDefinition(context, node) {
 		return;
 	}
 
+	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
+	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
+
 	yield * checkConstructorBody(context, constructor, {
 		name,
 		nameProperty,
@@ -462,8 +464,6 @@ function * customErrorDefinition(context, node) {
 }
 
 const customErrorExport = (context, node) => {
-	const exportsName = node.left.property.name;
-
 	const maybeError = node.right;
 
 	if (maybeError.type !== 'ClassExpression') {
@@ -480,6 +480,7 @@ const customErrorExport = (context, node) => {
 
 	// Assume rule has already fixed the error name
 	const errorName = maybeError.id.name;
+	const exportsName = node.left.property.name;
 
 	if (exportsName === errorName) {
 		return;

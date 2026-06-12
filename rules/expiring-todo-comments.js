@@ -121,7 +121,6 @@ function getPackageHelpers(dirname) {
 
 			const hasEngineKeyword = name.indexOf('engine:') === 0;
 			const isNodeEngine = hasEngineKeyword && name === 'engine:node';
-			const hasPeerKeyword = name.indexOf('peer:') === 0;
 
 			if (hasEngineKeyword && isNodeEngine) {
 				return {
@@ -133,6 +132,7 @@ function getPackageHelpers(dirname) {
 				};
 			}
 
+			const hasPeerKeyword = name.indexOf('peer:') === 0;
 			if (hasPeerKeyword) {
 				return {
 					type: 'peerDependencies',

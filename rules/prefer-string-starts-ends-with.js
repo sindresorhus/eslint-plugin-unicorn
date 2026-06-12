@@ -86,7 +86,6 @@ const create = context => {
 		}
 
 		const [target] = node.arguments;
-		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
 		let isTargetString = target.type === 'TemplateLiteral'
 			|| (
@@ -108,6 +107,7 @@ const create = context => {
 			node,
 			messageId: result.messageId,
 		};
+		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
 		function * fix(fixer, fixType) {
 			let targetText = getParenthesizedText(target, context);

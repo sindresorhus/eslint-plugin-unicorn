@@ -42,6 +42,7 @@ export {default as 'no-blob-to-file'} from './no-blob-to-file.js';
 export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
 export {default as 'no-confusing-array-splice'} from './no-confusing-array-splice.js';
 export {default as 'no-console-spaces'} from './no-console-spaces.js';
+export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
