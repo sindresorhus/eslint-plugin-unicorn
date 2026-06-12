@@ -547,6 +547,11 @@ ruleTest({
 		),
 		testCase(
 			'src/foo/FAQPage.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `faqPage.js`.',
+		),
+		testCase(
+			'src/foo/FAQPage.js',
 			undefined,
 			'Filename is not in kebab case. Rename it to `faq-page.js`.',
 		),
