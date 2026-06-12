@@ -218,7 +218,7 @@ const create = context => {
 
 				const commaTokens = getCommaTokens(spreadObject, sourceCode);
 				for (const [index, commaToken] of commaTokens.entries()) {
-					if (spreadObject.elements[index]) {
+					if (spreadObject.elements[index] !== null) {
 						continue;
 					}
 

@@ -47,7 +47,7 @@ const create = context => {
 				continue;
 			}
 
-			if (identifier.name in allowedGlobals && allowedGlobals[identifier.name] !== 'off') {
+			if (Object.hasOwn(allowedGlobals, identifier.name) && allowedGlobals[identifier.name] !== 'off') {
 				if (reference.isReadOnly()) {
 					continue;
 				}
