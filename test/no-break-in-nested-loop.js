@@ -91,6 +91,17 @@ test.snapshot({
 				processItem(item);
 			}
 		`,
+		outdent`
+			for (const item of items) {
+				function processItem() {
+					for (const child of item.children) {
+						break;
+					}
+				}
+
+				processItem();
+			}
+		`,
 	],
 	invalid: [
 		outdent`

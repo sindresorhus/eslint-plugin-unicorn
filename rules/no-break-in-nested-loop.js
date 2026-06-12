@@ -1,4 +1,4 @@
-import {functionTypes} from './ast/index.js';
+import {isFunction} from './ast/index.js';
 
 const MESSAGE_ID = 'no-break-in-nested-loop';
 const messages = {
@@ -19,7 +19,6 @@ const controlFlowNodeTypes = new Set([
 ]);
 
 const getKeyword = node => node.type === 'BreakStatement' ? 'break' : 'continue';
-const isFunction = node => functionTypes.includes(node.type);
 const isLoopNode = node => loopNodeTypes.has(node.type);
 const isControlFlowNode = node => controlFlowNodeTypes.has(node.type);
 const isTargetNode = (node, ancestor) =>
@@ -33,38 +32,34 @@ function isNestedControlFlowStatement(node, sourceCode) {
 	}
 
 	const ancestors = sourceCode.getAncestors(node).toReversed();
-	let hasCrossedControlFlowNode = false;
+	let hasInnerControlFlowNode = false;
+	let hasTargetNode = false;
 
-	for (const [index, ancestor] of ancestors.entries()) {
+	for (const ancestor of ancestors) {
 		if (isFunction(ancestor)) {
 			return false;
 		}
 
-		if (!isTargetNode(node, ancestor)) {
-			if (isControlFlowNode(ancestor)) {
-				hasCrossedControlFlowNode = true;
-			}
-
-			continue;
-		}
-
-		if (hasCrossedControlFlowNode && isLoopNode(ancestor)) {
+		if (hasTargetNode && isLoopNode(ancestor)) {
 			return true;
 		}
 
-		for (let outerIndex = index + 1; outerIndex < ancestors.length; outerIndex++) {
-			const outerAncestor = ancestors[outerIndex];
-
-			if (isFunction(outerAncestor)) {
-				return false;
-			}
-
-			if (isLoopNode(outerAncestor)) {
-				return true;
-			}
+		if (hasTargetNode) {
+			continue;
 		}
 
-		return false;
+		if (isTargetNode(node, ancestor)) {
+			if (hasInnerControlFlowNode && isLoopNode(ancestor)) {
+				return true;
+			}
+
+			hasTargetNode = true;
+			continue;
+		}
+
+		if (isControlFlowNode(ancestor)) {
+			hasInnerControlFlowNode = true;
+		}
 	}
 
 	return false;
@@ -98,7 +93,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `break` and `continue` in nested loops and switches.',
+			description: 'Disallow `break` and `continue` in nested loops and switches inside loops.',
 			recommended: true,
 		},
 		messages,
