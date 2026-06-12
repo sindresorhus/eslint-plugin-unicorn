@@ -255,6 +255,22 @@ ruleTest.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.Types.ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Link = import("apollo-link").ApolloLink; declare const link: Link; link.concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Link = import("apollo-link").Apollo.ApolloLink; declare const link: Link; link.concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -559,6 +575,14 @@ ruleTest.snapshot({
 		},
 		{
 			code: 'function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('function foo<T>(value: T) { value.concat(item); }'),

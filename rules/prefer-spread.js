@@ -510,7 +510,34 @@ const isTypeParameterType = type =>
 	type.isTypeParameter?.()
 	|| (type.flags % (typeParameterTypeFlag * 2) >= typeParameterTypeFlag);
 
+function getTypeNameIdentifierName(node) {
+	return node.type === 'TSQualifiedName'
+		? getTypeNameIdentifierName(node.right)
+		: node.name;
+}
+
+function getTypeNameNamespaceIdentifierName(node) {
+	return node.type === 'TSQualifiedName'
+		? getTypeNameNamespaceIdentifierName(node.left)
+		: node.name;
+}
+
 function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
+	if (node.typeName.type === 'TSQualifiedName') {
+		if (
+			knownNonArrayTypeNames.has(getTypeNameIdentifierName(node.typeName))
+		) {
+			const namespace = resolveIdentifierName(getTypeNameNamespaceIdentifierName(node.typeName), scope);
+			const [definition] = namespace?.defs ?? [];
+
+			return definition?.type === 'ImportBinding' && definition.node.type === 'ImportNamespaceSpecifier'
+				? false
+				: undefined;
+		}
+
+		return;
+	}
+
 	if (node.typeName.type !== 'Identifier') {
 		return;
 	}
@@ -553,6 +580,14 @@ function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) 
 
 	if (node.type === 'TSTypeReference') {
 		return getTypeReferenceArrayState(node, scope, visitedTypeNames);
+	}
+
+	if (
+		node.type === 'TSImportType'
+		&& node.qualifier
+		&& knownNonArrayTypeNames.has(getTypeNameIdentifierName(node.qualifier))
+	) {
+		return false;
 	}
 
 	if (node.type === 'TSUnionType') {
@@ -740,7 +775,14 @@ function isArrayConstructorCall(node, context) {
 function isArrayConstructorWithOneArgument(node, context) {
 	node = unwrapReceiverReference(node);
 
-	return isArrayConstructorCall(node, context) && node.arguments.length === 1;
+	return (
+		(
+			node.type === 'CallExpression'
+			|| node.type === 'NewExpression'
+		)
+		&& node.arguments.length === 1
+		&& isGlobalArrayReference(node.callee, context)
+	);
 }
 
 function unwrapReceiverReference(node) {
