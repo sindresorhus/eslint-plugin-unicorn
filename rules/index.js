@@ -205,6 +205,7 @@ export {default as 'prefer-uint8array-base64'} from './prefer-uint8array-base64.
 export {default as 'prevent-abbreviations'} from './prevent-abbreviations.js';
 export {default as 'relative-url-style'} from './relative-url-style.js';
 export {default as 'require-array-join-separator'} from './require-array-join-separator.js';
+export {default as 'require-array-sort-compare'} from './require-array-sort-compare.js';
 export {default as 'require-css-escape'} from './require-css-escape.js';
 export {default as 'require-module-attributes'} from './require-module-attributes.js';
 export {default as 'require-module-specifiers'} from './require-module-specifiers.js';
