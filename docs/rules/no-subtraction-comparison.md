@@ -49,6 +49,6 @@ if (a === b) {}
 
 ## Caveats
 
-The rewrite is only behavior-preserving for numbers, so it is auto-fixed only when both operands are known to be numbers. For example, `"10" - "5" > 0` is `true`, but `"10" > "5"` is `false`, since strings compare lexicographically. When the operands are not provably numbers, the rule offers a suggestion instead of an auto-fix.
+The rewrite is only behavior-preserving for numbers. For example, `"10" - "5" > 0` is `true`, but `"10" > "5"` is `false`, since strings compare lexicographically. The rule auto-fixes strict ordering comparisons (`>` and `<`) when both operands are known to be numbers. For non-strict ordering and equality comparisons, it auto-fixes only when both operands are statically known finite numbers. Otherwise, the rule offers a suggestion instead of an auto-fix.
 
-There is also a numeric edge case the rule does not special-case: when both operands are the same infinity, `Infinity - Infinity` is `NaN`, so `Infinity - Infinity >= 0` is `false` while `Infinity >= Infinity` is `true`.
+The extra restriction for non-strict ordering and equality comparisons avoids the infinity edge case: `Infinity - Infinity` is `NaN`, so `Infinity - Infinity >= 0` is `false` while `Infinity >= Infinity` is `true`.
