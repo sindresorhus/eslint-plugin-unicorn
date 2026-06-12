@@ -421,6 +421,11 @@ ruleTest({
 			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
 		),
 		testCase(
+			'src/fooBar',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo-bar`.',
+		),
+		testCase(
 			'src/foo/foo_bar.JS',
 			'camelCase',
 			'Filename is not in camel case. Rename it to `fooBar.js`.',
@@ -464,6 +469,13 @@ ruleTest({
 			'test/foo/fooBar.testUtils.js',
 			'kebabCase',
 			'Filename is not in kebab case. Rename it to `foo-bar.testUtils.js`.',
+		),
+		testManyCases(
+			'src/foo/Article.ts',
+			{
+				kebabCase: true,
+			},
+			'Filename is not in kebab case. Rename it to `article.ts`.',
 		),
 		testCase(
 			'Test/Foo/fooBar.js',
@@ -636,6 +648,16 @@ ruleTest({
 			'src/FooBar/file.js',
 			undefined,
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
+		),
+		testCase(
+			'src/_FOO-BAR/file.js',
+			undefined,
+			'Directory name `_FOO-BAR` is not in kebab case. Rename it to `_foo-bar`.',
+		),
+		testCase(
+			'src/$UserId/fooBar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
 		),
 		testCaseWithOptions(
 			'src/FooBar/foo_bar.js',
@@ -882,6 +904,11 @@ ruleTest({
 		testCaseWithOptions(
 			'test/foo/fooBar.testUtils.js',
 			'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.',
+			[{case: 'kebabCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/.testUtils.js',
+			'Filename is not in kebab case. Rename it to `.test-utils.js`.',
 			[{case: 'kebabCase', multipleFileExtensions: false}],
 		),
 		testCaseWithOptions(
