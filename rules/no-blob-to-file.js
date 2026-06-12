@@ -70,7 +70,6 @@ const isStringLiteral = node =>
 
 function isBlobIdentifier(node, beforeNode, context) {
 	const declaration = getConstIdentifierDeclaration(node, context);
-	const initializer = declaration?.init;
 
 	if (
 		!declaration
@@ -79,6 +78,7 @@ function isBlobIdentifier(node, beforeNode, context) {
 		return false;
 	}
 
+	const initializer = declaration.init;
 	return (
 		isNewExpression(initializer, {
 			name: 'Blob',

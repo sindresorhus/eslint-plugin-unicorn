@@ -202,6 +202,12 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const filenameWithExtension = context.physicalFilename;
+
+	if (isVirtualFilename(filenameWithExtension)) {
+		return;
+	}
+
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
@@ -214,11 +220,6 @@ const create = context => {
 	const multipleFileExtensions = options.multipleFileExtensions !== false;
 	const checkDirectories = options.checkDirectories !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
-	const filenameWithExtension = context.physicalFilename;
-
-	if (isVirtualFilename(filenameWithExtension)) {
-		return;
-	}
 
 	onRoot(context, () => {
 		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);

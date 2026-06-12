@@ -401,9 +401,6 @@ function isSafeCallbackIdentifier(callback, replacementNames, context, options) 
 function createFix(callExpression, context) {
 	const {sourceCode} = context;
 	const [callback, initialValue] = callExpression.arguments;
-	const variableDeclaration = callExpression.parent.parent;
-	const resultVariable = sourceCode.getDeclaredVariables(variableDeclaration)[0];
-	const resultName = callExpression.parent.id.name;
 	if (
 		callExpression.callee.object.type !== 'Identifier'
 		|| !isSupportedCallback(callback)
@@ -415,6 +412,9 @@ function createFix(callExpression, context) {
 	) {
 		return;
 	}
+
+	const variableDeclaration = callExpression.parent.parent;
+	const resultVariable = sourceCode.getDeclaredVariables(variableDeclaration)[0];
 
 	if (hasUnsafeResultReference(sourceCode, resultVariable, callExpression)) {
 		return;
@@ -430,6 +430,7 @@ function createFix(callExpression, context) {
 	}
 
 	const arrayText = getParenthesizedText(callExpression.callee.object, context);
+	const resultName = callExpression.parent.id.name;
 	const {elementName, indexName} = getLoopVariableNames(callExpression, resultName, callback, context);
 	const replacementNames = {
 		resultName,

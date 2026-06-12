@@ -49,7 +49,6 @@ const positionReplacers = new Map([
 ]);
 
 const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
-	const method = node.callee.property.name;
 	const [positionNode, contentNode] = node.arguments;
 
 	const position = positionNode.value;
@@ -58,6 +57,7 @@ const checkForInsertAdjacentTextOrInsertAdjacentElement = (context, node) => {
 		return;
 	}
 
+	const method = node.callee.property.name;
 	const preferredMethod = positionReplacers.get(position);
 	const {sourceCode} = context;
 	const content = sourceCode.getText(contentNode);

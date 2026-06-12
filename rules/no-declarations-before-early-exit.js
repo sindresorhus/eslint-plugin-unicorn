@@ -114,6 +114,13 @@ function getProblem({
 		return;
 	}
 
+	if (
+		guardIndex > declarationIndex + 1
+		&& !isSimpleInitializer(declarator.init)
+	) {
+		return;
+	}
+
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
 	const references = variable.references.filter(reference =>
 		!reference.init

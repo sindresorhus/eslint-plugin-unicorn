@@ -347,8 +347,6 @@ const create = context => {
 			return;
 		}
 
-		const arrayIdentifierName = arrayIdentifier.name;
-
 		const scope = sourceCode.getScope(node);
 		const staticResult = getStaticValue(arrayIdentifier, scope);
 		if (staticResult && !Array.isArray(staticResult.value)) {
@@ -364,19 +362,20 @@ const create = context => {
 			return;
 		}
 
-		const forScope = scopeManager.acquire(node);
 		const bodyScope = scopeManager.acquire(node.body);
 
 		if (!bodyScope) {
 			return;
 		}
 
+		const arrayIdentifierName = arrayIdentifier.name;
 		const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
 
 		if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
 			return;
 		}
 
+		const forScope = scopeManager.acquire(node);
 		const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
 
 		if (arrayReferences.length === 0) {
@@ -424,10 +423,8 @@ const create = context => {
 
 		if (shouldFix) {
 			problem.fix = function * (fixer) {
-				const index = indexIdentifierName;
 				const element = elementIdentifierName
 					|| getAvailableVariableName(singular(arrayIdentifierName) || defaultElementName, getScopes(bodyScope));
-				const array = arrayIdentifierName;
 
 				let declarationElement = element;
 				let declarationType = 'const';
@@ -445,6 +442,8 @@ const create = context => {
 				}
 
 				const parts = [declarationType];
+				const index = indexIdentifierName;
+				const array = arrayIdentifierName;
 				if (shouldGenerateIndex) {
 					parts.push(` [${index}, ${declarationElement}] of ${array}.entries()`);
 				} else {

@@ -235,7 +235,6 @@ const create = context => {
 				return;
 			}
 
-			const assignmentTargetNode = node.id;
 			const moduleNameNode = node.init.argument.source;
 			const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
@@ -243,6 +242,7 @@ const create = context => {
 				return;
 			}
 
+			const assignmentTargetNode = node.id;
 			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
@@ -303,7 +303,6 @@ const create = context => {
 				return;
 			}
 
-			const assignmentTargetNode = node.id;
 			const moduleNameNode = node.init.arguments[0];
 			const moduleName = getStringIfConstant(moduleNameNode, sourceCode.getScope(moduleNameNode));
 
@@ -311,6 +310,7 @@ const create = context => {
 				return;
 			}
 
+			const assignmentTargetNode = node.id;
 			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 

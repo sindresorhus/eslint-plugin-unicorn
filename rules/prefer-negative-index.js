@@ -101,14 +101,13 @@ function parse(node) {
 		return;
 	}
 
-	const isApply = method === 'apply';
-
 	method = getMemberName(callee.object);
 
 	if (!methods.has(method)) {
 		return;
 	}
 
+	const isApply = callee.property.name === 'apply';
 	const {supportObjects} = methods.get(method);
 
 	const parentCallee = callee.object.object;

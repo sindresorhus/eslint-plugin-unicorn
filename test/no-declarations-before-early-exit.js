@@ -28,6 +28,16 @@ test.snapshot({
 		`,
 		outdent`
 			function foo(bar) {
+				const result = getResult();
+				doSomething();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		outdent`
+			function foo(bar) {
 				var result = 1;
 				if (!bar) {
 					return;

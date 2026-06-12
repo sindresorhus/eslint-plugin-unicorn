@@ -41,12 +41,12 @@ async function sortReadmeRuleRow(ruleId) {
 
 function sortReadmeRuleRows(text, ruleId) {
 	const lines = text.split('\n');
-	const rowPattern = /^\| \[([^\]]+)\]\(/v;
 	const rowIndex = lines.findIndex(line => line.startsWith(`| [${ruleId}](`));
 	if (rowIndex === -1) {
 		return text;
 	}
 
+	const rowPattern = /^\| \[([^\]]+)\]\(/v;
 	const [row] = lines.splice(rowIndex, 1);
 	const ruleRowIndexes = lines
 		.map((line, index) => rowPattern.test(line) ? index : undefined)

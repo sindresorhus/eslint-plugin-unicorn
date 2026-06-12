@@ -128,16 +128,18 @@ const getNameReplacements = (name, options, limit = 3) => {
 	const words = name.split(/(?=\P{Lowercase_Letter})|(?<=\P{Letter})/u).filter(Boolean);
 
 	let hasReplacements = false;
-	const combinations = words.map(word => {
+	const combinations = [];
+	for (const word of words) {
 		const wordReplacements = getWordReplacements(word, options);
 
 		if (wordReplacements.length > 0) {
 			hasReplacements = true;
-			return wordReplacements;
+			combinations.push(wordReplacements);
+			continue;
 		}
 
-		return [word];
-	});
+		combinations.push([word]);
+	}
 
 	// No replacements for any word
 	if (!hasReplacements) {

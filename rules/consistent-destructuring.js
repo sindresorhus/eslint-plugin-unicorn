@@ -455,8 +455,6 @@ const create = context => {
 			return;
 		}
 
-		const expression = sourceCode.getText(node);
-
 		// Don't try to fix nested member expressions
 		if (node.parent.type === 'MemberExpression') {
 			return {
@@ -465,6 +463,7 @@ const create = context => {
 			};
 		}
 
+		const expression = sourceCode.getText(node);
 		const newMember = destructuredMember.value.name;
 
 		return {
