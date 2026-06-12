@@ -82,6 +82,53 @@ You can set the `cases` option to allow multiple cases:
 ]
 ```
 
+For React projects, allow both kebab-case and PascalCase:
+
+```js
+'unicorn/filename-case': [
+	'error',
+	{
+		cases: {
+			kebabCase: true,
+			pascalCase: true,
+		},
+	},
+]
+```
+
+To enforce PascalCase only for JSX/TSX files, use ESLint's `files` config:
+
+```js
+[
+	{
+		rules: {
+			'unicorn/filename-case': [
+				'error',
+				{
+					case: 'kebabCase',
+				},
+			],
+		},
+	},
+	{
+		files: ['**/*.{jsx,tsx}'],
+		rules: {
+			'unicorn/filename-case': [
+				'error',
+				{
+					case: 'pascalCase',
+					checkDirectories: false,
+				},
+			],
+		},
+	},
+]
+```
+
+The override disables directory checking because rule options apply to both filenames and directory names.
+
+The rule intentionally does not detect JSX syntax or React component exports. Non-component files can contain JSX too, like entrypoints, route files, tests, and `index.js`.
+
 ### ignore
 
 Type: `Array<string | RegExp>`\
