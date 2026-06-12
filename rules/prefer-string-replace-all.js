@@ -286,9 +286,10 @@ const create = context => {
 		}
 
 		const {
-			arguments: [pattern],
+			arguments: callArguments,
 			callee: {property},
 		} = node;
+		const [pattern] = callArguments;
 
 		if (!isRegExpWithGlobalFlag(pattern, context.sourceCode.getScope(pattern))) {
 			return;

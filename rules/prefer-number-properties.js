@@ -75,7 +75,9 @@ const isCallWithNumberArgument = (node, context) => {
 	return isNumber(firstArgument, context.sourceCode.getScope(node));
 };
 
-function getPropertyProblem({node, path: [name]}, context) {
+function getPropertyProblem(reference, context) {
+	const {node, path} = reference;
+	const [name] = path;
 	const {parent} = node;
 
 	let property = name;
@@ -143,10 +145,14 @@ const create = context => {
 		objects,
 		context,
 		handle: getPropertyProblem,
-		filter: ({node, path: [name]}) =>
-			!isLeftHandSide(node)
-			&& !(name === 'Infinity' && isDeletedNegativeInfinity(node))
-			&& !(name === 'parseInt' && isBase10OrNoRadixParseIntCall(node, context)),
+		filter(reference) {
+			const {node, path} = reference;
+			const [name] = path;
+
+			return !isLeftHandSide(node)
+				&& !(name === 'Infinity' && isDeletedNegativeInfinity(node))
+				&& !(name === 'parseInt' && isBase10OrNoRadixParseIntCall(node, context));
+		},
 	});
 	tracker.listen();
 };

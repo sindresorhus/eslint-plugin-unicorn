@@ -56,18 +56,6 @@ function getObjectPatternDepth(node) {
 	return depth;
 }
 
-function isInsideObjectPattern(node) {
-	while (node) {
-		if (node.type === 'ObjectPattern') {
-			return true;
-		}
-
-		node = getParentPattern(node);
-	}
-
-	return false;
-}
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Property', node => {
@@ -85,7 +73,7 @@ const create = context => {
 	});
 
 	context.on('ArrayPattern', node => {
-		if (!isInsideObjectPattern(node)) {
+		if (getObjectPatternDepth(node) === 0) {
 			return;
 		}
 

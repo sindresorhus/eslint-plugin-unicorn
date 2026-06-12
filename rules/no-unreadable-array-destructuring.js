@@ -57,7 +57,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		const nonNullElements = elements.filter(node => node !== null);
+		const nonNullElements = elements.filter(element => element !== null);
 		if (
 			parent.type === 'VariableDeclarator'
 			&& parent.id === node
@@ -108,6 +108,9 @@ const config = {
 		schema,
 		defaultOptions: [{maximumIgnoredElements: 1}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

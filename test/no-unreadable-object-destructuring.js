@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -20,6 +20,10 @@ test.snapshot({
 		'const {foo = ({bar: {baz}}) => baz} = object;',
 		'({foo} = object);',
 		'function function_(object, {foo}) {}',
+		{
+			code: 'function function_({foo: {bar}}: Options) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'try {} catch ({message}) {}',
 		'for (const {foo} of array) {}',
 	],
@@ -32,6 +36,8 @@ test.snapshot({
 		'const {foo: {bar: [baz]}} = object;',
 		'const {foo: {bar: {baz: qux}}} = object;',
 		'const {foo: [bar] = []} = object;',
+		'const {foo: {bar: {baz} = defaultValue}} = object;',
+		'const {[key]: {foo: [bar]} = {}} = object;',
 		'const [{foo: [bar]}] = array;',
 		'const [{foo: {bar: {baz}}}] = array;',
 		'({[key]: value} = object);',
@@ -39,6 +45,10 @@ test.snapshot({
 		'function function_({[key]: value}) {}',
 		'function function_({foo: [bar]}) {}',
 		'function function_({foo: {bar: {baz}}}) {}',
+		{
+			code: 'function function_({foo: {bar: {baz}}}: Options) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'try {} catch ({[key]: value}) {}',
 		'try {} catch ({foo: [bar]}) {}',
 		'for (const {[key]: value} of array) {}',
