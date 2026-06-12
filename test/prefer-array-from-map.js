@@ -31,6 +31,18 @@ test.snapshot({
 		'Array.from(iterable).map(function (element, ...rest) { return element; });',
 		'Array.from(iterable).map(element => [element]).flat();',
 		'Array.from(iterable).map(element => [element]).flat(1);',
+		{
+			code: 'Array.from(iterable).map<Result>(element => element);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'Array.from<string>(iterable).map(element => element.length);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		'Array.from(iterable).map(element => element.id);',

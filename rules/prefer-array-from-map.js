@@ -19,6 +19,8 @@ const isArrowFunctionWithSupportedParameters = node => (
 	&& node.params.every(parameter => parameter.type !== 'RestElement')
 );
 
+const hasTypeArguments = node => node.typeArguments || node.typeParameters;
+
 const isFlatCallWithDefaultDepth = node => (
 	isMethodCall(node, {
 		method: 'flat',
@@ -83,6 +85,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
+			&& !hasTypeArguments(mapCall)
 			&& isMethodCall(mapCall.callee.object, {
 				object: 'Array',
 				method: 'from',
@@ -90,6 +93,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
+			&& !hasTypeArguments(mapCall.callee.object)
 			&& context.sourceCode.isGlobalReference(mapCall.callee.object.callee.object)
 			&& !isFollowedByDefaultFlatCall(mapCall)
 			&& isArrowFunctionWithSupportedParameters(mapCall.arguments[0])
