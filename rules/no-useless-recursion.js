@@ -38,7 +38,7 @@ const hasUsingDeclarationInLoopHeader = node => {
 	}
 
 	return (
-		(node.type === 'ForInStatement' || node.type === 'ForOfStatement')
+		node.type === 'ForOfStatement'
 		&& isUsingDeclaration(node.left)
 	);
 };

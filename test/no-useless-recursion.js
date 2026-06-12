@@ -151,13 +151,6 @@ test.snapshot({
 		`,
 		outdent`
 			function foo(value) {
-				for (using resource in resources) {
-					return foo(value.next);
-				}
-			}
-		`,
-		outdent`
-			function foo(value) {
 				for (using resource of resources) {
 					return foo(value.next);
 				}
