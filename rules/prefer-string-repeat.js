@@ -167,6 +167,9 @@ const config = {
 			},
 		],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

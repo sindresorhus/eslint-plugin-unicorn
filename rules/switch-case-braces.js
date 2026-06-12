@@ -107,6 +107,9 @@ const config = {
 		schema: [{enum: ['always', 'avoid'], description: 'Whether to always require braces or avoid them for empty cases.'}],
 		defaultOptions: ['always'],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

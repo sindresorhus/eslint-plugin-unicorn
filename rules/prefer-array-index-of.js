@@ -28,6 +28,9 @@ const config = {
 			...indexOfOverFindIndexRule.messages,
 			...lastIndexOfOverFindLastIndexRule.messages,
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -126,6 +126,9 @@ const config = {
 		fixable: 'code',
 		schema: [],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

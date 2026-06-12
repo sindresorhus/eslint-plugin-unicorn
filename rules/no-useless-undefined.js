@@ -264,6 +264,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkArguments: true, checkArrowFunctionBody: true}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

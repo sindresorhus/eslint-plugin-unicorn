@@ -291,6 +291,9 @@ const config = {
 		fixable: 'code',
 		messages,
 		hasSuggestions: true,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

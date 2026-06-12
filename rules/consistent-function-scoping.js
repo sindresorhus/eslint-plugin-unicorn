@@ -326,6 +326,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkArrowFunctions: true}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

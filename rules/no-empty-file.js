@@ -111,6 +111,29 @@ const create = context => {
 		};
 	});
 
+	// JSON file parsed by `@eslint/json`. The `body` is null when no value is present (comment-only jsonc/json5).
+	// Skip the `Document` nested inside HTML's `Program` root — that is not a JSON document.
+	context.on('Document', node => {
+		if (node.parent?.type === 'Program') {
+			return;
+		}
+
+		if (node.body !== null && node.body !== undefined) {
+			return;
+		}
+
+		const comments = getComments(context);
+
+		if (allowComments && comments.length > 0) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID,
+		};
+	});
+
 	// Markdown file parsed by `@eslint/markdown`. Top-level content is in `children`; HTML comments appear as `html` nodes.
 	context.on('root', node => {
 		const isHtmlComment = child =>
@@ -147,6 +170,9 @@ const config = {
 			'js/js',
 			'css/css',
 			'html/html',
+			'json/json',
+			'json/jsonc',
+			'json/json5',
 			'markdown/commonmark',
 			'markdown/gfm',
 		],

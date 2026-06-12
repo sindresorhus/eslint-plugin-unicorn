@@ -245,6 +245,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkDateNow: false, checkReferences: false, checkMethods: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

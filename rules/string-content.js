@@ -214,6 +214,9 @@ const config = {
 		schema,
 		defaultOptions: [{patterns: {}, selectors: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

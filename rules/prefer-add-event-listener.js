@@ -186,6 +186,9 @@ const config = {
 		schema,
 		defaultOptions: [{excludedPackages: ['koa', 'sax']}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

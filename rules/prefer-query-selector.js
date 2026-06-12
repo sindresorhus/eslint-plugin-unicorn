@@ -313,6 +313,9 @@ const config = {
 		schema,
 		defaultOptions: [{allowWithVariables: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

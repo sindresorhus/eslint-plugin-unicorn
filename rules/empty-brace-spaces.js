@@ -56,6 +56,9 @@ const config = {
 		},
 		fixable: 'whitespace',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

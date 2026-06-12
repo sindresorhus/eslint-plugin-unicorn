@@ -72,6 +72,9 @@ const config = {
 		},
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

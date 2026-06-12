@@ -359,6 +359,9 @@ const config = {
 		defaultOptions: [{'non-zero': 'greater-than'}],
 		messages,
 		hasSuggestions: true,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -573,6 +573,7 @@ const config = {
 		languages: [
 			'js/js',
 			'css/css',
+			'html/html',
 		],
 	},
 };

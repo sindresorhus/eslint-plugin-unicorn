@@ -153,6 +153,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkArguments: true, checkStrictEquality: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

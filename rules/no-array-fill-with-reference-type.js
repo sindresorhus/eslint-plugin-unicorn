@@ -121,6 +121,9 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

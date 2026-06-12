@@ -142,6 +142,9 @@ const config = {
 			withDash: false,
 		}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

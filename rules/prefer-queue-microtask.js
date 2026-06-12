@@ -190,6 +190,9 @@ const config = {
 		schema,
 		defaultOptions: [{checkSetImmediate: false, checkSetTimeout: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 
