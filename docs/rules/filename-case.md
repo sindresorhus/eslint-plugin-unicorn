@@ -35,6 +35,12 @@ Set the `checkDirectories` option to `false` to only check filenames.
 - `fooBar.test.js`
 - `fooBar.testUtils.js`
 
+### `camelCaseWithAcronyms`
+
+- `innerHTML.js`
+- `getDOMRangeRect.js`
+- `apiURL.js`
+
 ### `snakeCase`
 
 - `foo_bar.js`

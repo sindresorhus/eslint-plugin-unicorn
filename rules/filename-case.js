@@ -23,7 +23,16 @@ const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.t
 const isLowerCase = string => string === string.toLowerCase();
 const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
 const alphanumericRegex = /^[\da-z]+$/i;
+const camelCaseWithAcronymsRegex = /^[a-z][\da-z]*(?:[A-Z]{2,}\d*(?=[A-Z][a-z]|$)|[A-Z][\da-z]*)*$/;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
+
+function camelCaseWithAcronyms(string) {
+	if (alphanumericRegex.test(string) && camelCaseWithAcronymsRegex.test(string)) {
+		return string;
+	}
+
+	return camelCase(string);
+}
 
 function pascalCaseWithLeadingAcronym(string) {
 	if (alphanumericRegex.test(string)) {
@@ -42,6 +51,10 @@ const cases = {
 	camelCase: {
 		fn: camelCase,
 		name: 'camel case',
+	},
+	camelCaseWithAcronyms: {
+		fn: camelCaseWithAcronyms,
+		name: 'camel case with acronyms',
 	},
 	kebabCase: {
 		fn: kebabCase,
@@ -291,6 +304,7 @@ const schema = [
 					case: {
 						enum: [
 							'camelCase',
+							'camelCaseWithAcronyms',
 							'snakeCase',
 							'kebabCase',
 							'pascalCase',
@@ -320,6 +334,10 @@ const schema = [
 							camelCase: {
 								type: 'boolean',
 								description: 'Whether to allow camelCase filenames and directory names.',
+							},
+							camelCaseWithAcronyms: {
+								type: 'boolean',
+								description: 'Whether to allow camelCase filenames and directory names with acronym segments.',
 							},
 							snakeCase: {
 								type: 'boolean',
