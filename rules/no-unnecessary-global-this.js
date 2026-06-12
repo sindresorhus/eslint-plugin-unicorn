@@ -4,7 +4,7 @@ import {
 	isReservedWord,
 	isStrictReservedWord,
 } from '@babel/helper-validator-identifier';
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {hasOptionalChainElement, isGlobalIdentifier, isLeftHandSide} from './utils/index.js';
 
@@ -29,7 +29,7 @@ function unwrapTypeScriptExpression(node) {
 	return node;
 }
 
-const getEffectiveAssignmentTarget = node => {
+const getOuterTypeScriptExpression = node => {
 	while (
 		typeScriptExpressionWrapperTypes.has(node.parent.type)
 		&& node.parent.expression === node
@@ -47,12 +47,6 @@ function isActiveGlobal(name, node, context) {
 		&& variable.defs.length === 0;
 }
 
-function isShadowed(name, node, context) {
-	const variable = findVariable(context.sourceCode.getScope(node), name);
-
-	return variable?.defs.length > 0;
-}
-
 function canUseBareIdentifier(name) {
 	return isIdentifierName(name)
 		&& !isKeyword(name)
@@ -60,13 +54,21 @@ function canUseBareIdentifier(name) {
 		&& !isStrictReservedWord(name, true);
 }
 
-function isStaticPropertyAccess(node) {
-	return !node.computed
-		|| isStringLiteral(node.property)
-		|| (
-			node.property.type === 'TemplateLiteral'
-			&& node.property.expressions.length === 0
-		);
+function getStaticPropertyName(node) {
+	if (!node.computed) {
+		return node.property.name;
+	}
+
+	if (isStringLiteral(node.property)) {
+		return node.property.value;
+	}
+
+	if (
+		node.property.type === 'TemplateLiteral'
+		&& node.property.expressions.length === 0
+	) {
+		return node.property.quasis[0].value.cooked;
+	}
 }
 
 const isForLoopLeftHandSide = node =>
@@ -85,23 +87,15 @@ const isWritableTarget = node =>
 	|| isForLoopLeftHandSide(node)
 	|| isRestElementArgument(node);
 
-function isOptionalCallCallee(node) {
-	node = getEffectiveAssignmentTarget(node);
-
-	return node.parent.type === 'CallExpression'
-		&& node.parent.callee === node
-		&& node.parent.optional;
-}
-
 function isCallExpressionCallee(node) {
-	node = getEffectiveAssignmentTarget(node);
+	node = getOuterTypeScriptExpression(node);
 
 	return node.parent.type === 'CallExpression'
 		&& node.parent.callee === node;
 }
 
 function isTaggedTemplateCallee(node) {
-	node = getEffectiveAssignmentTarget(node);
+	node = getOuterTypeScriptExpression(node);
 
 	return node.parent.type === 'TaggedTemplateExpression'
 		&& node.parent.tag === node;
@@ -112,7 +106,7 @@ function isOptionalChainUsage(node) {
 		return true;
 	}
 
-	node = getEffectiveAssignmentTarget(node);
+	node = getOuterTypeScriptExpression(node);
 
 	return (
 		node.parent.type === 'MemberExpression'
@@ -126,27 +120,24 @@ function isOptionalChainUsage(node) {
 const create = context => {
 	context.on('MemberExpression', node => {
 		const object = unwrapTypeScriptExpression(node.object);
-		const assignmentTarget = getEffectiveAssignmentTarget(node);
+		const writableTarget = getOuterTypeScriptExpression(node);
 
 		if (
 			object.type !== 'Identifier'
 			|| object.name !== 'globalThis'
 			|| !isGlobalIdentifier(object, context)
-			|| isWritableTarget(assignmentTarget)
+			|| isWritableTarget(writableTarget)
 			|| isOptionalChainUsage(node)
-			|| isOptionalCallCallee(node)
-			|| !isStaticPropertyAccess(node)
 		) {
 			return;
 		}
 
-		const name = getPropertyName(node, context.sourceCode.getScope(node));
+		const name = getStaticPropertyName(node);
 		if (
 			typeof name !== 'string'
 			|| !canUseBareIdentifier(name)
 			|| (name === 'eval' && isCallExpressionCallee(node))
 			|| !isActiveGlobal(name, node, context)
-			|| isShadowed(name, node, context)
 		) {
 			return;
 		}
@@ -176,7 +167,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary `globalThis` references.',
-			recommended: false,
+			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		schema: [],
