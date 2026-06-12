@@ -51,7 +51,7 @@ const ignoredSliceCallee = [
 	'this',
 ];
 const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
-const knownNonArrayTypeNames = new Set(['Buffer']);
+const knownNonArrayTypeNames = new Set(['ApolloLink', 'Buffer']);
 const nonArrayFactoryNames = new Set(['String', 'Number', 'Boolean', 'BigInt', 'RegExp']);
 const unknownTypeNames = new Set(['any', 'error', 'unknown']);
 const arrayTypeAnnotationTypes = new Set(['TSArrayType', 'TSTupleType']);
@@ -261,8 +261,12 @@ function fixConcat(node, context, fixableArguments) {
 	};
 }
 
-const getConcatArgumentSpreadable = (node, scope) => {
+const getConcatArgumentSpreadable = (node, scope, context) => {
 	if (node.type === 'SpreadElement') {
+		return;
+	}
+
+	if (isArrayConstructorWithOneArgument(node, context)) {
 		return;
 	}
 
@@ -281,11 +285,11 @@ const getConcatArgumentSpreadable = (node, scope) => {
 	return {node, isSpreadable};
 };
 
-function getConcatFixableArguments(argumentsList, scope) {
+function getConcatFixableArguments(argumentsList, scope, context) {
 	const fixableArguments = [];
 
 	for (const node of argumentsList) {
-		const result = getConcatArgumentSpreadable(node, scope);
+		const result = getConcatArgumentSpreadable(node, scope, context);
 
 		if (result) {
 			fixableArguments.push(result);
@@ -360,6 +364,22 @@ const isGlobalIdentifier = (node, name, context) =>
 	&& node.name === name
 	&& context.sourceCode.isGlobalReference(node);
 
+function isGlobalMemberExpression(node, objectName, propertyName, context) {
+	if (
+		node.type !== 'MemberExpression'
+		|| !isGlobalIdentifier(node.object, objectName, context)
+	) {
+		return false;
+	}
+
+	if (!node.computed) {
+		return node.property.type === 'Identifier' && node.property.name === propertyName;
+	}
+
+	const staticValue = getStaticValue(node.property, context.sourceCode.getScope(node.property));
+	return staticValue?.value === propertyName;
+}
+
 const resolveIdentifierName = (name, scope) => {
 	while (scope) {
 		const variable = scope.set.get(name);
@@ -407,12 +427,8 @@ function isKnownBufferReference(node, context) {
 		&& node.property.name === 'Buffer'
 	) {
 		if (
-			node.object.type === 'Identifier'
-			&& (
-				node.object.name === 'global'
-				|| node.object.name === 'globalThis'
-			)
-			&& context.sourceCode.isGlobalReference(node.object)
+			isGlobalIdentifier(node.object, 'global', context)
+			|| isGlobalIdentifier(node.object, 'globalThis', context)
 		) {
 			return true;
 		}
@@ -436,11 +452,19 @@ function getTypeReferenceDefinitionState(typeName, scope, visitedTypeNames) {
 	const [definition] = variable?.defs ?? [];
 
 	if (!definition) {
-		return;
+		return knownNonArrayTypeNames.has(typeName) ? false : undefined;
 	}
 
 	if (definition.type === 'ClassName') {
 		return false;
+	}
+
+	if (definition.type === 'ImportBinding') {
+		const importedName = definition.node.type === 'ImportSpecifier' && definition.node.imported.type === 'Identifier'
+			? definition.node.imported.name
+			: typeName;
+
+		return knownNonArrayTypeNames.has(importedName) ? false : undefined;
 	}
 
 	if (definition.type !== 'Type') {
@@ -505,7 +529,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 	const state = getTypeReferenceDefinitionState(name, scope, visitedTypeNames);
 	visitedTypeNames.delete(name);
 
-	return state ?? (knownNonArrayTypeNames.has(name) ? false : undefined);
+	return state;
 }
 
 function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) {
@@ -693,6 +717,32 @@ function isKnownNonArrayConstruction(node, context) {
 	return !isGlobalIdentifier(node.callee, 'Array', context);
 }
 
+function isGlobalArrayReference(node, context) {
+	return (
+		isGlobalIdentifier(node, 'Array', context)
+		|| isGlobalMemberExpression(node, 'global', 'Array', context)
+		|| isGlobalMemberExpression(node, 'globalThis', 'Array', context)
+	);
+}
+
+function isArrayConstructorCall(node, context) {
+	node = unwrapReceiverReference(node);
+
+	return (
+		(
+			node.type === 'CallExpression'
+			|| node.type === 'NewExpression'
+		)
+		&& isGlobalArrayReference(node.callee, context)
+	);
+}
+
+function isArrayConstructorWithOneArgument(node, context) {
+	node = unwrapReceiverReference(node);
+
+	return isArrayConstructorCall(node, context) && node.arguments.length === 1;
+}
+
 function unwrapReceiverReference(node) {
 	if (
 		node.type === 'ChainExpression'
@@ -734,12 +784,38 @@ function isSameReceiverReference(left, right, context) {
 	return true;
 }
 
+function getMemberExpressionPropertyName(node, context) {
+	if (!node.computed && node.property.type === 'Identifier') {
+		return node.property.name;
+	}
+
+	const staticValue = getStaticValue(node.property, context.sourceCode.getScope(node.property));
+	if (staticValue) {
+		return String(staticValue.value);
+	}
+}
+
 function isWriteTargetAffectingReference(writeTarget, referenceNode, context) {
 	writeTarget = unwrapReceiverReference(writeTarget);
 	referenceNode = unwrapReceiverReference(referenceNode);
 
 	if (isSameReceiverReference(writeTarget, referenceNode, context)) {
 		return true;
+	}
+
+	if (
+		writeTarget.type === 'MemberExpression'
+		&& referenceNode.type === 'MemberExpression'
+		&& isSameReceiverReference(writeTarget.object, referenceNode.object, context)
+	) {
+		const writePropertyName = getMemberExpressionPropertyName(writeTarget, context);
+		const referencePropertyName = getMemberExpressionPropertyName(referenceNode, context);
+
+		return (
+			writePropertyName === undefined
+			|| referencePropertyName === undefined
+			|| writePropertyName === referencePropertyName
+		);
 	}
 
 	if (referenceNode.type === 'MemberExpression') {
@@ -952,6 +1028,17 @@ function isNotArrayConcatReceiver(node, context) {
 	return false;
 }
 
+function isKnownArrayConcatReceiver(node, context) {
+	const unwrappedNode = unwrapReceiverReference(node);
+
+	return (
+		isArrayLiteral(unwrappedNode)
+		|| isArrayConstructorCall(unwrappedNode, context)
+		|| getTypeInformationArrayState(node, context) === true
+		|| getReceiverAnnotationArrayState(node, context) === true
+	);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -1072,7 +1159,7 @@ const create = context => {
 		}
 
 		if (
-			!isArrayLiteral(object)
+			!isKnownArrayConcatReceiver(object, context)
 			&& node.arguments.length > 0
 			&& node.arguments.every(argument => isStaticString(argument, scope))
 		) {
@@ -1084,10 +1171,14 @@ const create = context => {
 			messageId: ERROR_ARRAY_CONCAT,
 		};
 
-		const fixableArguments = getConcatFixableArguments(node.arguments, scope);
+		const fixableArguments = getConcatFixableArguments(node.arguments, scope, context);
+		const receiverSafeToSpread = !isArrayConstructorWithOneArgument(object, context);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
-			if (!hasCommentsOutsideRanges(node, getConcatPreservedRanges(node, fixableArguments.length))) {
+			if (
+				receiverSafeToSpread
+				&& !hasCommentsOutsideRanges(node, getConcatPreservedRanges(node, fixableArguments.length))
+			) {
 				problem.fix = fixConcat(node, context, fixableArguments);
 			}
 
@@ -1099,7 +1190,16 @@ const create = context => {
 			return problem;
 		}
 
-		const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope);
+		if (!receiverSafeToSpread) {
+			return problem;
+		}
+
+		if (isArrayConstructorWithOneArgument(firstArgument, context)) {
+			return problem;
+		}
+
+		const fixableArgumentsAfterFirstArgument = getConcatFixableArguments(restArguments, scope, context);
+		const hasUnsafeArrayConstructorRestArgument = restArguments.some(argument => isArrayConstructorWithOneArgument(argument, context));
 		const suggestions = [
 			{
 				messageId: SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE,
@@ -1136,7 +1236,8 @@ const create = context => {
 		}));
 
 		if (
-			fixableArgumentsAfterFirstArgument.length < restArguments.length
+			!hasUnsafeArrayConstructorRestArgument
+			&& fixableArgumentsAfterFirstArgument.length < restArguments.length
 			&& restArguments.every(({type}) => type !== 'SpreadElement')
 		) {
 			problem.suggest.push({
@@ -1144,7 +1245,7 @@ const create = context => {
 				fix: fixConcat(
 					node,
 					context,
-					node.arguments.map(node => getConcatArgumentSpreadable(node, scope) || {node, isSpreadable: true}),
+					node.arguments.map(node => getConcatArgumentSpreadable(node, scope, context) || {node, isSpreadable: true}),
 				),
 			});
 		}

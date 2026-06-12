@@ -200,8 +200,6 @@ ruleTest.snapshot({
 			const array = [,];
 			array.concat("bar");
 		`,
-		'Array(1).concat("bar")',
-		'new Array(1).concat("bar")',
 		// #1068
 		'const bufA = Buffer.concat([buf1, buf2, buf3], totalLength);',
 		'Buffer.concat([buffer]).concat(other)',
@@ -237,6 +235,8 @@ ruleTest.snapshot({
 		'let foo; if (!Array.isArray(foo)) { foo = foo.concat(bar); }',
 		'if (!Array.isArray(object.foo)) { object.foo = object.foo.concat(bar); }',
 		'if (!Array.isArray(object["foo"])) { object.foo.concat(bar); }',
+		'if (!Array.isArray(object.foo)) { object["bar"] = []; object.foo.concat(bar); }',
+		'const key = "bar"; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }',
 		'let foo; if (Array.isArray(foo)) { foo = []; } else { foo.concat(bar); }',
 		'let foo; if (!Array.isArray(foo)) { const mutate = () => { foo = []; }; foo.concat(bar); }',
 		// `Iterator.concat()`
@@ -244,6 +244,14 @@ ruleTest.snapshot({
 		'Iterator.concat([2, 3])',
 		{
 			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type {ApolloLink} from "apollo-link"; function foo(link: ApolloLink) { link.concat(next); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type {ApolloLink as Link} from "apollo-link"; function foo(link: Link) { link.concat(next); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -317,6 +325,33 @@ ruleTest.snapshot({
 		'[1,].concat([2, 3],)',
 		'Array(1).concat(2)',
 		'new Array(1).concat(2)',
+		'Array(1).concat("bar")',
+		'new Array(1).concat("bar")',
+		'Array().concat("bar")',
+		'new Array().concat("bar")',
+		'Array(1, 2).concat("bar")',
+		'globalThis.Array().concat("bar")',
+		'global["Array"]().concat("bar")',
+		'new globalThis["Array"]().concat("bar")',
+		'Array(1).concat()',
+		'new Array(1).concat()',
+		'Array(1).concat(foo)',
+		'new Array(1).concat(foo)',
+		'globalThis.Array(1).concat(2)',
+		'globalThis.Array(1).concat(foo)',
+		'global.Array(1).concat(2)',
+		'globalThis["Array"](1).concat(2)',
+		'global["Array"](1).concat(foo)',
+		'(new globalThis.Array(1)).concat(2)',
+		'(new global.Array(1)).concat(foo)',
+		'(new globalThis["Array"](1)).concat(2)',
+		'(new global["Array"](1)).concat(foo)',
+		'foo.concat(Array(1))',
+		'foo.concat(new Array(1))',
+		'foo.concat(globalThis["Array"](1))',
+		'foo.concat(bar, Array(1))',
+		'foo.concat(bar, new Array(1))',
+		'foo.concat(bar, globalThis["Array"](1))',
 		'const Buffer = {concat: () => []}; Buffer.concat([buffer]).concat(other)',
 		'const global = {Buffer: {concat: () => []}}; global.Buffer.concat([buffer]).concat(other)',
 		'(( (( (( [1,] )).concat ))( (([2, 3])) ,) ))',
@@ -432,6 +467,8 @@ ruleTest.snapshot({
 		'function f(foo) { if (!Array.isArray(foo)) { var foo = []; foo.concat(bar); } }',
 		'let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object = {foo: []}; object.foo.concat(bar); }',
 		'let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object["foo"] = []; object.foo.concat(bar); }',
+		'const key = "foo"; let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }',
+		'let object = {foo: maybe}; if (!Array.isArray(object.foo)) { object[key] = []; object.foo.concat(bar); }',
 		'let foo; if (!Array.isArray(foo)) { [foo] = [[]]; foo.concat(bar); }',
 		'const object = {foo: maybe}; if (!Array.isArray(object.foo)) { const object = {foo: []}; object.foo.concat(bar); }',
 		'if (!Array.isArray(object.foo)) { object.foo = []; object.foo.concat(bar); }',
@@ -454,6 +491,26 @@ ruleTest.snapshot({
 		'foo/* keep */.concat([1])',
 		{
 			code: 'function foo(array: string[]) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(array: string[]) { array.concat("item"); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(Array(1) as number[]).concat(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(Array(1)!).concat(foo);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<number[]>Array(1)).concat(2);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(Array(1) satisfies number[]).concat(2);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -481,6 +538,10 @@ ruleTest.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -490,6 +551,14 @@ ruleTest.snapshot({
 		},
 		{
 			code: 'function foo<T>(value: T) { value.concat(item); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('function foo<T>(value: T) { value.concat(item); }'),
