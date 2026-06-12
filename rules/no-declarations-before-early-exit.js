@@ -9,25 +9,39 @@ const isLetOrConstDeclaration = node =>
 	node.type === 'VariableDeclaration'
 	&& (node.kind === 'let' || node.kind === 'const');
 
-const getSingleStatement = node => {
+const getLastStatement = node => {
 	if (node.type !== 'BlockStatement') {
 		return node;
 	}
 
-	return node.body.length === 1 ? node.body[0] : undefined;
+	return node.body.at(-1);
 };
 
 const isEarlyExitStatement = node =>
 	node?.type === 'ReturnStatement'
-	|| node?.type === 'ThrowStatement';
+	|| node?.type === 'ThrowStatement'
+	|| node?.type === 'BreakStatement'
+	|| node?.type === 'ContinueStatement';
+
+function branchDefinitelyExits(node) {
+	const statement = getLastStatement(node);
+	if (isEarlyExitStatement(statement)) {
+		return true;
+	}
+
+	return statement?.type === 'IfStatement'
+		&& statement.alternate
+		&& branchDefinitelyExits(statement.consequent)
+		&& branchDefinitelyExits(statement.alternate);
+}
 
 function isGuardStatement(node) {
 	if (node.type !== 'IfStatement') {
 		return false;
 	}
 
-	const consequentExits = isEarlyExitStatement(getSingleStatement(node.consequent));
-	const alternateExits = node.alternate && isEarlyExitStatement(getSingleStatement(node.alternate));
+	const consequentExits = branchDefinitelyExits(node.consequent);
+	const alternateExits = node.alternate && branchDefinitelyExits(node.alternate);
 	return consequentExits !== Boolean(alternateExits);
 }
 
@@ -51,6 +65,15 @@ const hasCommentNextTo = (sourceCode, node, direction) => {
 	return token && isCommentToken(token);
 };
 
+function isTypeScriptTypeQueryReference(identifier) {
+	let node = identifier;
+	while (node.parent.type === 'TSQualifiedName') {
+		node = node.parent;
+	}
+
+	return node.parent.type === 'TSTypeQuery';
+}
+
 const shouldFix = ({
 	sourceCode,
 	declaration,
@@ -69,12 +92,12 @@ const shouldFix = ({
 function getFix(sourceCode, declaration, guardStatement) {
 	const declarationText = sourceCode.getText(declaration);
 	const guardText = sourceCode.getText(guardStatement);
-	const [, declarationEnd] = sourceCode.getRange(declaration);
+	const [declarationStart, declarationEnd] = sourceCode.getRange(declaration);
 	const [guardStart, guardEnd] = sourceCode.getRange(guardStatement);
 	const separator = sourceCode.text.slice(declarationEnd, guardStart);
 
 	return fixer => fixer.replaceTextRange(
-		[sourceCode.getRange(declaration)[0], guardEnd],
+		[declarationStart, guardEnd],
 		`${guardText}${separator}${declarationText}`,
 	);
 }
@@ -92,7 +115,10 @@ function getProblem({
 	}
 
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
-	const references = variable.references.filter(reference => !reference.init);
+	const references = variable.references.filter(reference =>
+		!reference.init
+		&& !isTypeScriptTypeQueryReference(reference.identifier),
+	);
 
 	if (references.length === 0) {
 		return;
@@ -125,8 +151,7 @@ function * checkStatementList(sourceCode, statements) {
 	for (const [declarationIndex, declaration] of statements.entries()) {
 		if (
 			!isLetOrConstDeclaration(declaration)
-			|| declaration.parent.type === 'ExportNamedDeclaration'
-			|| declaration.parent.type === 'ExportDefaultDeclaration'
+			|| declaration.declare
 		) {
 			continue;
 		}
@@ -162,6 +187,7 @@ const create = context => {
 
 	context.on('Program', node => checkStatementList(sourceCode, node.body));
 	context.on('BlockStatement', node => checkStatementList(sourceCode, node.body));
+	context.on('SwitchCase', node => checkStatementList(sourceCode, node.consequent));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

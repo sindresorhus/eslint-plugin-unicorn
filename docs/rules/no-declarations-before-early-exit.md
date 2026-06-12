@@ -11,7 +11,7 @@
 
 Declare variables as close as possible to where they are used. If a variable is declared before a guard clause but only used after it, the declaration can be moved below the guard. This avoids unnecessary initialization on the early-exit path and keeps the variable scope tighter.
 
-This rule reports declarations before `return` and `throw` guard clauses. `break` and `continue` are intentionally not checked yet.
+This rule reports declarations before `return`, `throw`, `break`, and `continue` guard clauses.
 
 ## Examples
 
@@ -79,18 +79,4 @@ The last example is reported without an autofix because moving a function call c
 
 ## Limitations
 
-This rule intentionally uses a simple statement-list scan instead of full code-path analysis. It only checks declarations and guard clauses that are direct children of the same block or top-level program.
-
-Loop exits are not checked:
-
-```js
-// This is not reported.
-for (const item of items) {
-	const result = 1;
-	if (!item) {
-		continue;
-	}
-
-	console.log(result);
-}
-```
+This rule intentionally uses a simple statement-list scan instead of full data-flow analysis. It only checks declarations and guard clauses that are direct children of the same block, top-level program, or switch case.
