@@ -17,15 +17,15 @@ const messages = {
 	[MESSAGE_ID]: 'Pass `{{source}}` directly to `new {{constructorName}}()`.',
 };
 
-const setConstructorNames = [
+const setConstructorNames = new Set([
 	'Set',
 	'WeakSet',
-];
+]);
 
-const mapConstructorNames = [
+const mapConstructorNames = new Set([
 	'Map',
 	'WeakMap',
-];
+]);
 
 const constructorNames = [
 	...setConstructorNames,
@@ -127,7 +127,7 @@ const isDirectlyUnsafeSource = (constructorName, sourceNode) =>
 		&& isDefinitelyNotRecord(sourceNode)
 	)
 	|| (
-		mapConstructorNames.includes(constructorName)
+		mapConstructorNames.has(constructorName)
 		&& hasUnsafeMapArrayEntry(sourceNode)
 	);
 
@@ -145,7 +145,7 @@ const referencesVariable = (variable, node, context) => {
 };
 
 const matchesSetLoop = (constructorName, id, loopLeft, callExpression) =>
-	setConstructorNames.includes(constructorName)
+	setConstructorNames.has(constructorName)
 	&& isMethodCall(callExpression, {
 		object: id.name,
 		method: 'add',
@@ -156,7 +156,7 @@ const matchesSetLoop = (constructorName, id, loopLeft, callExpression) =>
 	&& isIdentifierFromPattern(loopLeft, callExpression.arguments[0]);
 
 const matchesMapLoop = (constructorName, id, loopLeft, callExpression) =>
-	mapConstructorNames.includes(constructorName)
+	mapConstructorNames.has(constructorName)
 	&& isPairPattern(loopLeft)
 	&& isMethodCall(callExpression, {
 		object: id.name,
