@@ -59,7 +59,7 @@ const defaultOptions = {
 	binary: {minimumDigits: 0, groupLength: 4},
 	octal: {minimumDigits: 0, groupLength: 4},
 	hexadecimal: {minimumDigits: 0, groupLength: 2},
-	number: {minimumDigits: 5, groupLength: 3, fractionGroupLength: Number.POSITIVE_INFINITY},
+	number: {minimumDigits: 5, groupLength: 3, fractionGroupLength: Infinity},
 };
 const create = context => {
 	const {

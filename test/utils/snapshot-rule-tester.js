@@ -36,7 +36,7 @@ function serializeOptions(value) {
 // A simple version of `SourceCodeFixer.applyFixes`
 // https://github.com/eslint/eslint/issues/14936#issuecomment-906746754
 const applyFix = (code, {fix}) => `${code.slice(0, fix.range[0])}${fix.text}${code.slice(fix.range[1])}`;
-const codeFrameColumnsOptions = {linesAbove: Number.POSITIVE_INFINITY, linesBelow: Number.POSITIVE_INFINITY};
+const codeFrameColumnsOptions = {linesAbove: Infinity, linesBelow: Infinity};
 
 function visualizeRange(text, location, message) {
 	return codeFrameColumns(

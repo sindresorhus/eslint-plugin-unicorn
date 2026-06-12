@@ -1,4 +1,4 @@
-export default function cartesianProductSamples(combinations, length = Number.POSITIVE_INFINITY) {
+export default function cartesianProductSamples(combinations, length = Infinity) {
 	const total = combinations.reduce((total, {length}) => total * length, 1);
 
 	const samples = Array.from({length: Math.min(total, length)}, (_, sampleIndex) => {

@@ -53,12 +53,14 @@ const create = context => {
 		'Number.POSITIVE_INFINITY',
 		'Number.NEGATIVE_INFINITY',
 	]) {
-		new GlobalReferenceTracker({
+		const tracker = new GlobalReferenceTracker({
 			object,
 			context,
 			handle: checkProperty,
 			filter: ({node}) => !isLeftHandSide(node),
-		}).listen();
+		});
+
+		tracker.listen();
 	}
 };
 

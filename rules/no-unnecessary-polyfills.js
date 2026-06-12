@@ -235,7 +235,7 @@ const getPolyfillCandidates = importedModule => {
 
 export const getBestMatchingPolyfill = (polyfillCandidates, importedModule) => {
 	let bestMatch;
-	let bestMatchSegments = Number.POSITIVE_INFINITY;
+	let bestMatchSegments = Infinity;
 
 	for (const polyfill of polyfillCandidates) {
 		if (!polyfill.pattern.test(importedModule)) {
