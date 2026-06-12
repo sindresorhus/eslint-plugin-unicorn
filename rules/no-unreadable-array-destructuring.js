@@ -9,19 +9,46 @@ const messages = {
 	[MESSAGE_ID]: 'Array destructuring may not contain consecutive ignored values.',
 };
 
-const isCommaFollowedWithComma = (element, index, array) =>
-	element === null && array[index + 1] === null;
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			maximumIgnoredElements: {
+				type: 'integer',
+				minimum: 0,
+				description: 'Maximum number of consecutive ignored elements allowed.',
+			},
+		},
+	},
+];
+
+function getMaximumConsecutiveIgnoredElements(elements) {
+	let maximumConsecutiveIgnoredElements = 0;
+	let consecutiveIgnoredElements = 0;
+
+	for (const element of elements) {
+		if (element === null) {
+			consecutiveIgnoredElements++;
+			maximumConsecutiveIgnoredElements = Math.max(maximumConsecutiveIgnoredElements, consecutiveIgnoredElements);
+		} else {
+			consecutiveIgnoredElements = 0;
+		}
+	}
+
+	return maximumConsecutiveIgnoredElements;
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const {maximumIgnoredElements} = context.options[0];
 
 	context.on('ArrayPattern', node => {
 		const {elements, parent} = node;
+		const maximumConsecutiveIgnoredElements = getMaximumConsecutiveIgnoredElements(elements);
 
-		if (
-			elements.length < 3
-			|| !elements.some((element, index, elements) => isCommaFollowedWithComma(element, index, elements))) {
+		if (maximumConsecutiveIgnoredElements <= maximumIgnoredElements) {
 			return;
 		}
 
@@ -30,7 +57,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		const nonNullElements = elements.filter(node => node !== null);
+		const nonNullElements = elements.filter(element => element !== null);
 		if (
 			parent.type === 'VariableDeclarator'
 			&& parent.id === node
@@ -78,7 +105,12 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{maximumIgnoredElements: 1}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

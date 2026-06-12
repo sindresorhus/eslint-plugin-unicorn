@@ -1,0 +1,58 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'const {foo} = object;',
+		'const {foo: bar} = object;',
+		'const {foo = defaultValue} = object;',
+		'const {foo: bar = defaultValue} = object;',
+		'const {foo: {bar}} = object;',
+		'const {"foo-bar": fooBar} = object;',
+		'const {foo: {bar = defaultValue}} = object;',
+		'const {foo: {bar: baz = defaultValue}} = object;',
+		'const {foo: {bar}, baz} = object;',
+		'const {foo: {bar}, ...rest} = object;',
+		'const [{foo}] = array;',
+		'const [{foo: bar = defaultValue}] = array;',
+		'const {foo = ([bar]) => bar} = object;',
+		'const {foo = ({bar: {baz}}) => baz} = object;',
+		'({foo} = object);',
+		'function function_(object, {foo}) {}',
+		{
+			code: 'function function_({foo: {bar}}: Options) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'try {} catch ({message}) {}',
+		'for (const {foo} of array) {}',
+	],
+	invalid: [
+		'const {[key]: value} = object;',
+		'const {["key"]: value} = object;',
+		'const {foo: [bar]} = object;',
+		'const {foo: {bar: {baz}}} = object;',
+		'const {[key]: {foo}} = object;',
+		'const {foo: {bar: [baz]}} = object;',
+		'const {foo: {bar: {baz: qux}}} = object;',
+		'const {foo: [bar] = []} = object;',
+		'const {foo: {bar: {baz} = defaultValue}} = object;',
+		'const {[key]: {foo: [bar]} = {}} = object;',
+		'const [{foo: [bar]}] = array;',
+		'const [{foo: {bar: {baz}}}] = array;',
+		'({[key]: value} = object);',
+		'({foo: [bar]} = object);',
+		'function function_({[key]: value}) {}',
+		'function function_({foo: [bar]}) {}',
+		'function function_({foo: {bar: {baz}}}) {}',
+		{
+			code: 'function function_({foo: {bar: {baz}}}: Options) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'try {} catch ({[key]: value}) {}',
+		'try {} catch ({foo: [bar]}) {}',
+		'for (const {[key]: value} of array) {}',
+		'for (const {foo: [bar]} of array) {}',
+		'for (const {foo: {bar: {baz}}} of array) {}',
+	],
+});

@@ -16,7 +16,10 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
-function enforceNewExpression({node, path: [name]}, context) {
+function enforceNewExpression(reference, context) {
+	const {node, path} = reference;
+	const [name] = path;
+
 	if (name === 'Object') {
 		const {parent} = node;
 		if (
@@ -63,7 +66,10 @@ function enforceNewExpression({node, path: [name]}, context) {
 	};
 }
 
-function enforceCallExpression({node, path: [name]}, context) {
+function enforceCallExpression(reference, context) {
+	const {node, path} = reference;
+	const [name] = path;
+
 	const problem = {
 		node,
 		messageId: 'disallow',

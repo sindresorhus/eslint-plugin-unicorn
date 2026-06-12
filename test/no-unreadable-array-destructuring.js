@@ -21,8 +21,22 @@ test.snapshot({
 		'function foo([bar,,]) {}',
 		'function foo([bar,, baz,, qux]) {}',
 		'const [, ...rest] = parts;',
-		// This is stupid, but valid code
-		'const [,,] = parts;',
+		{
+			code: 'const [,, foo] = parts;',
+			options: [{maximumIgnoredElements: 2}],
+		},
+		{
+			code: 'const [,,, foo] = parts;',
+			options: [{maximumIgnoredElements: 3}],
+		},
+		{
+			code: 'const [foo,, bar] = parts;',
+			options: [{maximumIgnoredElements: 1}],
+		},
+		{
+			code: 'const [,,,] = parts;',
+			options: [{maximumIgnoredElements: 3}],
+		},
 	],
 	invalid: [
 		'const [,, foo] = parts;',
@@ -36,7 +50,7 @@ test.snapshot({
 		'function foo([bar,,,]) {}',
 		'function foo([bar, baz,, qux ,,, quux]) {}',
 		'const [,,...rest] = parts;',
-		// This is stupid, but valid code
+		'const [,,] = parts;',
 		'const [,,,] = parts;',
 		// Should add parentheses to array
 		'const [,,...rest] = new Array;',
@@ -59,5 +73,33 @@ test.snapshot({
 		'var[,,thirdElement] = foo;',
 		'var[,,...thirdElement] = foo;',
 		'let[]=[],[,,thirdElement] = foo;',
+		{
+			code: 'const [, foo] = parts;',
+			options: [{maximumIgnoredElements: 0}],
+		},
+		{
+			code: 'const [,] = parts;',
+			options: [{maximumIgnoredElements: 0}],
+		},
+		{
+			code: 'const [foo,, bar] = parts;',
+			options: [{maximumIgnoredElements: 0}],
+		},
+		{
+			code: 'const [,,,] = parts;',
+			options: [{maximumIgnoredElements: 2}],
+		},
+		{
+			code: 'const [,,, foo] = parts;',
+			options: [{maximumIgnoredElements: 2}],
+		},
+		{
+			code: 'const [,,,, foo] = parts;',
+			options: [{maximumIgnoredElements: 3}],
+		},
+		{
+			code: 'const [,,, ...rest] = parts;',
+			options: [{maximumIgnoredElements: 2}],
+		},
 	],
 });

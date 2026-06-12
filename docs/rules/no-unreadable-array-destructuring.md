@@ -52,6 +52,45 @@ const [,,...rest] = parts;
 const rest = parts.slice(2);
 ```
 
+## Options
+
+Type: `object`
+
+### `maximumIgnoredElements`
+
+Type: `integer`\
+Default: `1`
+
+The maximum number of consecutive ignored elements to allow.
+
+```js
+{
+	rules: {
+		'unicorn/no-unreadable-array-destructuring': [
+			'error',
+			{
+				maximumIgnoredElements: 2,
+			},
+		],
+	},
+}
+```
+
+With `{maximumIgnoredElements: 2}`:
+
+```js
+// ✅
+const [,, foo] = parts;
+```
+
+```js
+// ❌
+const [,,, foo] = parts;
+
+// ✅
+const foo = parts[3];
+```
+
 ## Note
 
 You might have to modify the built-in [`prefer-destructuring`](https://eslint.org/docs/rules/prefer-destructuring) rule to be compatible with this one:

@@ -20,7 +20,9 @@ function isReplacementShadowed(node, replacement, context) {
 	return variable?.defs.length > 0;
 }
 
-function getPropertyProblem({node, path: [, property]}, context) {
+function getPropertyProblem(reference, context) {
+	const {node, path} = reference;
+	const [, property] = path;
 	const replacement = replacements[property];
 
 	if (isReplacementShadowed(node, replacement, context)) {

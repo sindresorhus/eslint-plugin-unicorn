@@ -50,7 +50,7 @@ class UnicornEslintFatalError extends SyntaxError {
 }
 
 const sum = (collection, fieldName) =>
-	collection.reduce((total, {[fieldName]: value}) => total + value, 0);
+	collection.reduce((total, item) => total + item[fieldName], 0);
 
 const patterns = ['js', 'mjs', 'cjs', 'ts', 'mts', 'cts', 'jsx', 'tsx', 'vue'].map(extension => `**/*.${extension}`);
 const basicConfigs = [

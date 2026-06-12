@@ -98,6 +98,7 @@ export {default as 'no-unnecessary-splice'} from './no-unnecessary-splice.js';
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-expression.js';
+export {default as 'no-unreadable-object-destructuring'} from './no-unreadable-object-destructuring.js';
 export {default as 'no-unsafe-string-replacement'} from './no-unsafe-string-replacement.js';
 export {default as 'no-unused-array-method-return'} from './no-unused-array-method-return.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
