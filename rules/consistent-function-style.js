@@ -88,11 +88,6 @@ const createRoleSchema = role => ({
 	enum: roleStyles.get(role),
 });
 
-const isFunctionNode = node =>
-	node.type === 'FunctionDeclaration'
-	|| node.type === 'FunctionExpression'
-	|| node.type === 'ArrowFunctionExpression';
-
 const isNewTarget = node =>
 	node.type === 'MetaProperty'
 	&& node.meta.name === 'new'
@@ -249,6 +244,8 @@ const getSuggestion = ({
 	expectedStyle,
 	context,
 }) => {
+	const {sourceCode} = context;
+
 	if (
 		role !== 'callbacks'
 		|| node.parent.type !== 'CallExpression'
@@ -260,8 +257,9 @@ const getSuggestion = ({
 		|| node.generator
 		|| node.typeParameters
 		|| hasThisParameter(node)
-		|| context.sourceCode.getCommentsInside(node).length > 0
-		|| hasUnsupportedLexicalReference(node.body, context.sourceCode.visitorKeys)
+		|| sourceCode.getCommentsInside(node).length > 0
+		|| node.params.some(parameter => hasUnsupportedLexicalReference(parameter, sourceCode.visitorKeys))
+		|| hasUnsupportedLexicalReference(node.body, sourceCode.visitorKeys)
 	) {
 		return;
 	}
@@ -315,8 +313,7 @@ const create = context => {
 
 	context.on(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'], node => {
 		if (
-			!isFunctionNode(node)
-			|| (node.parent.type === 'ExportDefaultDeclaration' && !node.id)
+			(node.parent.type === 'ExportDefaultDeclaration' && !node.id)
 			|| isAccessorProperty(node)
 			|| isClassElementValue(node)
 			|| isIife(node)

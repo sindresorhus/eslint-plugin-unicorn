@@ -53,10 +53,12 @@ test.snapshot({
 		'Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY > 0',
 		// Non-strict comparisons with statically known finite numbers → autofix
 		'1 - 2 >= 0',
+		'1 - 1 === 0',
 		// Zero on the left with numeric operands → autofix with the operator flipped
 		'0 < foo.length - bar.length',
 		// Non-strict comparisons with non-finite numbers → suggestion
 		'Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0',
+		'Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0',
 		// Non-strict comparisons with non-static operands → suggestion
 		'foo.length - bar.length >= 0',
 		// Only one operand is provably numeric → suggestion, since both must be numbers

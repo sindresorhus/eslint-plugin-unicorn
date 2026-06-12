@@ -86,12 +86,24 @@ test.snapshot({
 			options: [{callbacks: 'arrow-function'}],
 		},
 		{
+			code: 'items.map(function (item = this.defaultItem) { return item.id; });',
+			options: [{callbacks: 'arrow-function'}],
+		},
+		{
 			code: 'items.map(item => this.parse(item));',
+			options: [{callbacks: 'function-expression'}],
+		},
+		{
+			code: 'items.map((item = arguments[0]) => item.id);',
 			options: [{callbacks: 'function-expression'}],
 		},
 		{
 			code: 'items.map(function (item) { /* comment */ return item.id; });',
 			options: [{callbacks: 'arrow-function'}],
+		},
+		{
+			code: 'condition ? function () {} : undefined;',
+			options: [{default: 'arrow-function'}],
 		},
 		{
 			code: 'const object = {parse(value) { return value; }};',
