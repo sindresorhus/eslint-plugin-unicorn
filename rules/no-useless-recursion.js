@@ -53,14 +53,9 @@ const hasUsingDeclarationBefore = (node, functionNode) => {
 			continue;
 		}
 
-		for (const statement of node.parent.body) {
-			if (statement === node) {
-				break;
-			}
-
-			if (isUsingDeclaration(statement)) {
-				return true;
-			}
+		const nodeIndex = node.parent.body.indexOf(node);
+		if (node.parent.body.slice(0, nodeIndex).some(statement => isUsingDeclaration(statement))) {
+			return true;
 		}
 	}
 
