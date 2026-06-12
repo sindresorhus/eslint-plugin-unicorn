@@ -3,6 +3,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getParenthesizedRange,
+	isKnownNonArray,
 	isNodeValueNotFunction,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
@@ -109,6 +110,10 @@ const create = context => {
 			return;
 		}
 
+		if (isKnownNonArray(callExpression.callee.object, context)) {
+			return;
+		}
+
 		const isCompare = isCheckingUndefined(callExpression);
 		if (
 			!isCompare
@@ -177,6 +182,10 @@ const create = context => {
 			return;
 		}
 
+		if (isKnownNonArray(left.callee.object, context)) {
+			return;
+		}
+
 		const methodNode = left.callee.property;
 		return {
 			node: methodNode,
@@ -223,8 +232,11 @@ const create = context => {
 		const filterCall = binaryExpression.left.object;
 		const filterCallObject = filterCall.callee.object;
 		if (
-			filterCallObject.type === 'Identifier'
-			&& filterCallObject.name.startsWith('$')
+			isKnownNonArray(filterCallObject, context)
+			|| (
+				filterCallObject.type === 'Identifier'
+				&& filterCallObject.name.startsWith('$')
+			)
 		) {
 			return;
 		}
