@@ -8,11 +8,11 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{incorrect}}` with `{{correct}}`.',
 };
 
-const identifier = String.raw`[$a-z_][\w$]*`;
+const identifier = String.raw`[$A-Z_a-z][\w$]*`;
 const memberExpression = String.raw`${identifier}(?:\.${identifier})*`;
 
-const missingDollar = new RegExp(String.raw`(?<![$\\])\{(?<expression>${memberExpression})\}`, 'gi');
-const missingOpeningBrace = new RegExp(String.raw`(?<!\\)\$(?<expression>${memberExpression})\}`, 'gi');
+const missingDollar = new RegExp(String.raw`(?<![$\\])(?<!\{)\{(?<expression>${memberExpression})\}(?!\})`, 'gv');
+const missingOpeningBrace = new RegExp(String.raw`(?<!\\)(?<!\{)\$(?<expression>${memberExpression})\}(?!\})`, 'gv');
 
 const getMissingDollarReplacements = raw => {
 	const replacements = [];
@@ -95,7 +95,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow incorrect template string interpolation syntax.',
+			description: 'Disallow incorrect template literal interpolation syntax.',
 			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,

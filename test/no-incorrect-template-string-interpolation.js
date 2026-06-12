@@ -17,6 +17,8 @@ test.snapshot({
 		'const greeting = `Hello {name + suffix}`;',
 		'const greeting = `Hello {user?.name}`;',
 		'const greeting = `Hello {user[name]}`;',
+		'const greeting = `Hello {{name}}`;',
+		'const greeting = `Hello {{$name}}`;',
 	],
 	invalid: [
 		'const greeting = `Hello {name}`;',
@@ -27,5 +29,6 @@ test.snapshot({
 		'const greeting = `Hello $firstName} $lastName}`;',
 		'const greeting = `Hello {firstName} ${middleName} {lastName}`;',
 		'const greeting = `${salutation}, {name}`;',
+		'const greeting = `${salutation}, {name} ${punctuation}`;',
 	],
 });
