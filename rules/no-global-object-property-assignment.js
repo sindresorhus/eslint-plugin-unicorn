@@ -51,6 +51,15 @@ const isForLoopLeftHandSide = node =>
 	)
 	&& node.parent.left === node;
 
+const isRestElementArgument = node =>
+	node.parent.type === 'RestElement'
+	&& node.parent.argument === node;
+
+const isWritableTarget = node =>
+	isLeftHandSide(node)
+	|| isForLoopLeftHandSide(node)
+	|| isRestElementArgument(node);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('MemberExpression', node => {
@@ -61,7 +70,7 @@ const create = context => {
 			object.type !== 'Identifier'
 			|| !globalObjectNames.has(object.name)
 			|| !isGlobalIdentifier(object, context)
-			|| (!isLeftHandSide(assignmentTarget) && !isForLoopLeftHandSide(assignmentTarget))
+			|| !isWritableTarget(assignmentTarget)
 			|| isDeleteExpressionArgument(assignmentTarget)
 			|| getPropertyName(node, context.sourceCode.getScope(node)) === null
 		) {

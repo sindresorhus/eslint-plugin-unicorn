@@ -22,6 +22,10 @@ test.snapshot({
 			global.foo = 1;
 		`,
 		outdent`
+			const globalThis = {};
+			globalThis.foo = 1;
+		`,
+		outdent`
 			const self = {};
 			self.foo++;
 		`,
@@ -42,6 +46,8 @@ test.snapshot({
 			} = object);
 		`,
 		'[globalThis.foo] = array',
+		'({...globalThis.foo} = object)',
+		'[...globalThis.foo] = array',
 		'for (globalThis.foo of iterable) {}',
 		'for (globalThis.foo in object) {}',
 		{code: 'globalThis!.foo = 1', languageOptions: {parser: parsers.typescript}},
