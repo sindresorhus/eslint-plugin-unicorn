@@ -68,7 +68,7 @@ Create the rule.
 const create = context => {
 	const {sourceCode} = context;
 
-	const check = node => {
+	const getProblem = node => {
 		const problemNode = getFirstTypeLiteralBeforeOtherType(node.types);
 
 		if (!problemNode) {
@@ -106,8 +106,8 @@ const create = context => {
 		};
 	};
 
-	context.on('TSUnionType', check);
-	context.on('TSIntersectionType', check);
+	context.on('TSUnionType', getProblem);
+	context.on('TSIntersectionType', getProblem);
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

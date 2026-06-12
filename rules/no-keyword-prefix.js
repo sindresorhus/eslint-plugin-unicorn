@@ -41,7 +41,7 @@ function findKeywordPrefix(name, options) {
 	}
 }
 
-function checkMemberExpression(report, node, options) {
+function reportMemberExpression(report, node, options) {
 	if (!options.checkProperties) {
 		return;
 	}
@@ -62,7 +62,7 @@ function checkMemberExpression(report, node, options) {
 	}
 }
 
-function checkObjectPattern(report, node, options) {
+function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
 
@@ -123,14 +123,14 @@ const create = context => {
 		const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 		if (parent.type === 'MemberExpression') {
-			checkMemberExpression(report, node, options);
+			reportMemberExpression(report, node, options);
 		} else if (
 			parent.type === 'Property'
 			|| parent.type === 'AssignmentPattern'
 		) {
 			if (parent.parent.type === 'ObjectPattern') {
-				const finished = checkObjectPattern(report, node, options);
-				if (finished) {
+				const shouldSkipPropertyCheck = reportObjectPatternAndShouldSkipPropertyCheck(report, node, options);
+				if (shouldSkipPropertyCheck) {
 					return;
 				}
 			}

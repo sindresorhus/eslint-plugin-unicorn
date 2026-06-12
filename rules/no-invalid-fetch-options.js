@@ -17,7 +17,7 @@ const isObjectPropertyWithName = (node, name) =>
 	&& node.key.type === 'Identifier'
 	&& node.key.name === name;
 
-function checkFetchOptions(context, node) {
+function getFetchOptionsProblem(context, node) {
 	if (node.type !== 'ObjectExpression') {
 		return;
 	}
@@ -81,7 +81,7 @@ const create = context => {
 			return;
 		}
 
-		return checkFetchOptions(context, callExpression.arguments[1]);
+		return getFetchOptionsProblem(context, callExpression.arguments[1]);
 	});
 
 	context.on('NewExpression', newExpression => {
@@ -92,7 +92,7 @@ const create = context => {
 			return;
 		}
 
-		return checkFetchOptions(context, newExpression.arguments[1]);
+		return getFetchOptionsProblem(context, newExpression.arguments[1]);
 	});
 };
 

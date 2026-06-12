@@ -77,7 +77,7 @@ function replacementSuggestions(node, context, replacements) {
 	}));
 }
 
-function handleNewDate({node}, context) {
+function getNewDateProblem({node}, context) {
 	const {sourceCode} = context;
 	const {arguments: argumentNodes} = node;
 
@@ -133,7 +133,7 @@ function handleNewDate({node}, context) {
 	return {node, messageId: MESSAGE_ID, data: {description: 'new Date(…)'}};
 }
 
-function handleDateNow({node}, context) {
+function getDateNowProblem({node}, context) {
 	const problem = {node, messageId: MESSAGE_ID, data: {description: 'Date.now()'}};
 
 	// `Date.now()` and `Temporal.Now.instant().epochMilliseconds` both return the epoch milliseconds as a number, so this is an exact replacement.
@@ -152,7 +152,7 @@ const isDateType = type =>
 	});
 
 // `date.getFullYear()`, `date.toISOString()`, … on a value typed as `Date`. Requires type information.
-function handleDateMethodCall(node, context, services) {
+function getDateMethodCallProblem(node, context, services) {
 	const {callee} = node;
 	if (
 		callee.type !== 'MemberExpression'
@@ -181,13 +181,13 @@ const create = context => {
 		tracker.listen({context});
 	};
 
-	listen('Date', GlobalReferenceTracker.CONSTRUCT, handleNewDate);
+	listen('Date', GlobalReferenceTracker.CONSTRUCT, getNewDateProblem);
 	listen('Date', GlobalReferenceTracker.CALL, report(MESSAGE_ID, 'Date()'));
 	listen('Date.parse', GlobalReferenceTracker.CALL, report(MESSAGE_ID_PARSE, 'Date.parse(…)'));
 	listen('Date.UTC', GlobalReferenceTracker.CALL, report(MESSAGE_ID_MONTH, 'Date.UTC(…)'));
 
 	if (checkDateNow) {
-		listen('Date.now', GlobalReferenceTracker.CALL, handleDateNow);
+		listen('Date.now', GlobalReferenceTracker.CALL, getDateNowProblem);
 	}
 
 	if (checkReferences) {
@@ -205,7 +205,7 @@ const create = context => {
 	// Detecting methods on `Date` instances requires type information, so it only works under type-aware linting.
 	const {parserServices} = context.sourceCode;
 	if (checkMethods && parserServices?.program) {
-		context.on('CallExpression', node => handleDateMethodCall(node, context, parserServices));
+		context.on('CallExpression', node => getDateMethodCallProblem(node, context, parserServices));
 	}
 };
 

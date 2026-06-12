@@ -183,7 +183,7 @@ const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
 	return false;
 };
 
-const checkUpdateExpression = (forStatement, indexIdentifierName) => {
+const isUpdateExpressionIncrementingIndex = (forStatement, indexIdentifierName) => {
 	const {update} = forStatement;
 
 	if (!update) {
@@ -354,7 +354,7 @@ const create = context => {
 			return;
 		}
 
-		if (!checkUpdateExpression(node, indexIdentifierName)) {
+		if (!isUpdateExpressionIncrementingIndex(node, indexIdentifierName)) {
 			return;
 		}
 

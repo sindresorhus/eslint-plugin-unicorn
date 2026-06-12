@@ -55,6 +55,16 @@ Options are accessed via `context.options[0]`. Use `meta.defaultOptions` for def
 
 Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form, so option naming stays consistent across rules. This does not apply to array/pattern options like `ignore` (a list of patterns to ignore), which follow ESLint's own conventions.
 
+### Helper naming
+
+Name helpers after what they return or do:
+
+- `is*`/`has*`/`should*`/`can*`/`needs*` must return booleans. Prefer explicit `false` over `undefined` in predicate helpers.
+- `get*Problem` returns one problem object or `undefined`; `get*Problems` returns/yields multiple problem objects.
+- `report*` should call `context.report()` directly.
+- Avoid `check*` for private helpers. Reserve `check*` for public boolean options, like `checkProperties`.
+- Do not combine reporting/yielding with a predicate return. Split into a problem builder and a boolean at the call site.
+
 ## Rule languages
 
 Every new rule should declare the official [`meta.languages`](https://eslint.org/docs/latest/extend/custom-rules#rule-languages) field, in `"plugin/language"` form, one per line: `['js/js']` for JavaScript/TypeScript-only rules (most), or the languages it supports (for example `['js/js', 'css/css']`, or `['*']` for any file type).

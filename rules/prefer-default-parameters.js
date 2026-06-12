@@ -118,7 +118,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
 
-	const checkExpression = (node, left, right, assignment) => {
+	const getDefaultParameterProblem = (node, left, right, assignment) => {
 		const currentFunction = functionStack.at(-1);
 
 		if (!currentFunction || !isDefaultExpression(left, right)) {
@@ -186,13 +186,13 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			return checkExpression(node.parent, node.left, node.right, true);
+			return getDefaultParameterProblem(node.parent, node.left, node.right, true);
 		}
 	});
 
 	context.on('VariableDeclarator', node => {
 		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
-			return checkExpression(node.parent, node.id, node.init, false);
+			return getDefaultParameterProblem(node.parent, node.id, node.init, false);
 		}
 	});
 };

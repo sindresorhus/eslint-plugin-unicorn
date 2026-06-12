@@ -309,7 +309,7 @@ function create(context) {
 	// When core-js graduates a feature from `esnext` to `es`, the entries list both (e.g. `['es.regexp.escape', 'esnext.regexp.escape']`),
 	// but `coreJsCompat` only includes the `es` version in its unavailable list, making the `esnext` version appear "available".
 	// To avoid false positives, treat `esnext.*` features as unavailable when their `es.*` counterpart is already in the list.
-	const checkFeatures = features => features.every(feature =>
+	const areFeaturesAvailable = features => features.every(feature =>
 		!unavailableFeatureSet.has(feature)
 		|| (feature.startsWith('esnext.') && features.includes(feature.replace('esnext.', 'es.'))));
 
@@ -332,7 +332,7 @@ function create(context) {
 
 		if (coreJsModuleFeatures) {
 			if (coreJsModuleFeatures.length > 1) {
-				if (checkFeatures(coreJsModuleFeatures)) {
+				if (areFeaturesAvailable(coreJsModuleFeatures)) {
 					return {
 						node,
 						messageId: MESSAGE_ID_CORE_JS,
@@ -371,7 +371,7 @@ function create(context) {
 
 		const [, namespace, method = ''] = polyfill.feature.split('.');
 		const matchedCoreJsModuleFeatures = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
-		if (matchedCoreJsModuleFeatures && checkFeatures(matchedCoreJsModuleFeatures)) {
+		if (matchedCoreJsModuleFeatures && areFeaturesAvailable(matchedCoreJsModuleFeatures)) {
 			return {node, messageId: MESSAGE_ID_POLYFILL};
 		}
 	});

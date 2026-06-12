@@ -154,7 +154,7 @@ function getProblem({
 	return problem;
 }
 
-function * checkStatementList(sourceCode, statements) {
+function * getStatementListProblems(sourceCode, statements) {
 	for (const [declarationIndex, declaration] of statements.entries()) {
 		if (
 			!isLetOrConstDeclaration(declaration)
@@ -192,8 +192,8 @@ function * checkStatementList(sourceCode, statements) {
 const create = context => {
 	const {sourceCode} = context;
 
-	context.on('Program', node => checkStatementList(sourceCode, node.body));
-	context.on('BlockStatement', node => checkStatementList(sourceCode, node.body));
+	context.on('Program', node => getStatementListProblems(sourceCode, node.body));
+	context.on('BlockStatement', node => getStatementListProblems(sourceCode, node.body));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

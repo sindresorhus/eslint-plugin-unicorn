@@ -304,7 +304,7 @@ const getPropertyProblem = (node, property) => ({
 	data: {property},
 });
 
-function * checkObjectAssign(callExpression, context, knownErrorVariables) {
+function * getObjectAssignProblems(callExpression, context, knownErrorVariables) {
 	if (!(
 		isMethodCall(callExpression, {
 			object: 'Object',
@@ -344,7 +344,7 @@ function * checkObjectAssign(callExpression, context, knownErrorVariables) {
 	}
 }
 
-const checkDirectAssignment = (assignmentExpression, context, knownErrorVariables) => {
+const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVariables) => {
 	if (!isMemberExpression(assignmentExpression.left, {optional: false})) {
 		return;
 	}
@@ -425,13 +425,13 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', node => {
-		const problem = checkDirectAssignment(node, context, knownErrorVariables);
+		const problem = getDirectAssignmentProblem(node, context, knownErrorVariables);
 		updateKnownErrorVariable(node, context, knownErrorVariables);
 
 		return problem;
 	});
 
-	context.on('CallExpression', node => checkObjectAssign(node, context, knownErrorVariables));
+	context.on('CallExpression', node => getObjectAssignProblems(node, context, knownErrorVariables));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

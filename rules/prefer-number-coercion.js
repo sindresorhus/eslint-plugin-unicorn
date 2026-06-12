@@ -42,7 +42,7 @@ function getMathTruncText(node, sourceCode) {
 	return `Math.trunc(Number(${text}))`;
 }
 
-function checkParseFloat(callExpression, method, context) {
+function getParseFloatProblem(callExpression, method, context) {
 	if (callExpression.arguments.length === 0) {
 		return;
 	}
@@ -72,7 +72,7 @@ function checkParseFloat(callExpression, method, context) {
 	return problem;
 }
 
-function checkParseInt(callExpression, method, context) {
+function getParseIntProblem(callExpression, method, context) {
 	if (!isDecimalRadix(callExpression.arguments[1], context)) {
 		return;
 	}
@@ -105,7 +105,7 @@ function checkParseInt(callExpression, method, context) {
 	return problem;
 }
 
-function checkCall({node, path}, context) {
+function getCallProblem({node, path}, context) {
 	if (isComputedMemberCall(node)) {
 		return;
 	}
@@ -113,10 +113,10 @@ function checkCall({node, path}, context) {
 	const method = path.join('.');
 
 	if (path.at(-1) === 'parseFloat') {
-		return checkParseFloat(node, method, context);
+		return getParseFloatProblem(node, method, context);
 	}
 
-	return checkParseInt(node, method, context);
+	return getParseIntProblem(node, method, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -131,7 +131,7 @@ const create = context => {
 			object,
 			type: GlobalReferenceTracker.CALL,
 			context,
-			handle: checkCall,
+			handle: getCallProblem,
 		});
 		tracker.listen();
 	}

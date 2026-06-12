@@ -172,7 +172,7 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	function checkLetPlusIf(node) {
+	function getLetPlusIfProblem(node) {
 		const consequentBody = getNodeBody(node.consequent);
 		if (
 			!consequentBody
@@ -298,7 +298,7 @@ const create = context => {
 
 	context.on('IfStatement', node => {
 		if (!node.alternate) {
-			return checkLetPlusIf(node);
+			return getLetPlusIfProblem(node);
 		}
 
 		if (

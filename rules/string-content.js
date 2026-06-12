@@ -76,7 +76,7 @@ const create = context => {
 
 	const checked = new WeakSet();
 
-	const checkNode = node => {
+	const getProblem = node => {
 		const {type, value, raw} = node;
 
 		if (checked.has(node) || !targetNodeTypes.includes(type)) {
@@ -144,7 +144,7 @@ const create = context => {
 
 	context.on(
 		selectors.length === 0 ? targetNodeTypes : selectors,
-		checkNode,
+		getProblem,
 	);
 };
 

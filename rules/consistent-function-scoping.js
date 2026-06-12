@@ -10,7 +10,7 @@ const messages = {
 const isSameScope = (scope1, scope2) =>
 	scope1 && scope2 && (scope1 === scope2 || scope1.block === scope2.block);
 
-function checkReferences(scope, parent, scopeManager) {
+function hasReferenceInParentScope(scope, parent, scopeManager) {
 	const hitReference = references => references.some(reference => {
 		if (isSameScope(parent, reference.from)) {
 			return true;
@@ -147,7 +147,7 @@ function skipArrowFunctionChain(node) {
 	return current;
 }
 
-function handleNestedArrowFunctions(parentNode, node) {
+function getParentNodeAfterNestedArrowFunctions(parentNode, node) {
 	// Skip over arrow function expressions when they are parents and we came from a ReturnStatement
 	// This handles nested arrow functions: return next => action => { ... }
 	// But only when we're in a return statement context
@@ -164,7 +164,7 @@ function handleNestedArrowFunctions(parentNode, node) {
 	return parentNode;
 }
 
-function checkNode(node, scopeManager, sourceCode) {
+function shouldSkipFunction(node, scopeManager, sourceCode) {
 	const scope = scopeManager.acquire(node);
 
 	if (
@@ -194,7 +194,7 @@ function checkNode(node, scopeManager, sourceCode) {
 		parentNode = parentNode.parent;
 	}
 
-	parentNode = handleNestedArrowFunctions(parentNode, node);
+	parentNode = getParentNodeAfterNestedArrowFunctions(parentNode, node);
 
 	if (parentNode?.type === 'BlockStatement') {
 		parentNode = parentNode.parent;
@@ -210,7 +210,7 @@ function checkNode(node, scopeManager, sourceCode) {
 		return true;
 	}
 
-	return checkReferences(scope, parentScope, scopeManager);
+	return hasReferenceInParentScope(scope, parentScope, scopeManager);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -224,7 +224,7 @@ const create = context => {
 			return;
 		}
 
-		if (checkNode(node, scopeManager, sourceCode)) {
+		if (shouldSkipFunction(node, scopeManager, sourceCode)) {
 			return;
 		}
 
