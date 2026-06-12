@@ -2,7 +2,7 @@
 
 📝 Require class members to be declared.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -65,3 +65,6 @@ class Foo {
 	}
 }
 ```
+
+> [!NOTE]
+> Declaring a class field like `name;` creates an own property with the value `undefined` on every instance before any method runs. This can change observable behavior, for example `Object.hasOwn(instance, 'name')`, so this rule provides editor suggestions instead of an autofix.

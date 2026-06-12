@@ -330,7 +330,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Require class members to be declared.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		schema: [],
