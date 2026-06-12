@@ -39,13 +39,30 @@ const config = [
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/try-complexity': 'off',
-			// Existing rule implementations intentionally use nested control flow in a few places.
-			'unicorn/no-break-in-nested-loop': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/comment-content.js',
+			'rules/consistent-assert.js',
+			'rules/no-array-for-each.js',
+			'rules/no-array-reduce.js',
+			'rules/no-error-property-assignment.js',
+			'rules/no-redundant-comparison.js',
+			'rules/no-unnecessary-polyfills.js',
+			'rules/prefer-math-min-max.js',
+			'rules/prefer-private-class-fields.js',
+			'scripts/internal-rules/fix-snapshot-test.js',
+			'test/utils/snapshot-rule-tester.js',
+		],
+		rules: {
+			// Existing implementations intentionally use nested control flow in a few places.
+			'unicorn/no-break-in-nested-loop': 'off',
 		},
 	},
 	{
