@@ -101,6 +101,13 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
+				static {
+					this.name = 'foo';
+				}
+			}
+		`,
+		outdent`
+			class Foo {
 				getConstructor() {
 					return this.constructor;
 				}
@@ -119,6 +126,13 @@ test.snapshot({
 			class Foo {
 				callName() {
 					this.name();
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				callName() {
+					this.name?.();
 				}
 			}
 		`,

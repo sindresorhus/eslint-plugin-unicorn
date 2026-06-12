@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,7 +13,7 @@ Class members should be declared when they are used through `this`. Declaring fi
 
 Constructor assignments like `this.name = name` are treated as declarations. Classes with `extends` are ignored because the accessed member may come from a superclass. Static `this`, private members, computed member access, and dynamic initialization patterns like `Object.assign(this, data)` are unsupported.
 
-Autofixes are only applied to simple non-constructor assignments like `this.name = name`. Reads, calls, compound assignments, updates, and constructor assignments are reported without a fix.
+Editor suggestions are offered for simple non-constructor assignments like `this.name = name` when a declaration can be inserted cleanly. Reads, calls, compound assignments, updates, and constructor assignments are reported without a suggestion.
 
 ## Examples
 

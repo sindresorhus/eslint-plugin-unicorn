@@ -1,8 +1,10 @@
 import getIndentString from './utils/get-indent-string.js';
 
 const MESSAGE_ID = 'no-undeclared-class-members';
+const MESSAGE_ID_SUGGESTION = 'no-undeclared-class-members/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Class member `{{name}}` is used but not declared.',
+	[MESSAGE_ID_SUGGESTION]: 'Declare `{{name}}` as a class field.',
 };
 
 const classMemberTypes = new Set([
@@ -230,7 +232,7 @@ const getDeclaredClassMemberNames = (classBody, sourceCode) => {
 	return names;
 };
 
-const getInsertClassFieldFix = (classBody, name, context) => fixer => {
+const getInsertClassFieldSuggestion = (classBody, name, context) => {
 	const {sourceCode} = context;
 	const firstMember = classBody.body[0];
 
@@ -240,19 +242,26 @@ const getInsertClassFieldFix = (classBody, name, context) => fixer => {
 		const openingBrace = sourceCode.getFirstToken(classBody);
 		const insertionTarget = sourceCode.getCommentsBefore(firstMember)[0] ?? firstMember;
 		const firstMemberLocation = sourceCode.getLoc(insertionTarget).start;
-		const sameLineMemberIndent = `${classIndent}\t`;
 
 		if (firstMemberLocation.line === sourceCode.getLoc(openingBrace).start.line) {
-			return fixer.replaceTextRange([sourceCode.getRange(openingBrace)[1], sourceCode.getRange(insertionTarget)[0]], `\n${sameLineMemberIndent}${name};\n${sameLineMemberIndent}`);
+			return;
 		}
 
 		const insertIndex = sourceCode.getIndexFromLoc({line: firstMemberLocation.line, column: 0});
-		return fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};\n`);
+		return {
+			messageId: MESSAGE_ID_SUGGESTION,
+			data: {name},
+			fix: fixer => fixer.insertTextBeforeRange([insertIndex, insertIndex], `${memberIndent}${name};\n`),
+		};
 	}
 
 	const closingBrace = sourceCode.getLastToken(classBody);
 	const classIndent = getIndentString(classBody.parent, context);
-	return fixer.insertTextBefore(closingBrace, `\n${classIndent}\t${name};\n${classIndent}`);
+	return {
+		messageId: MESSAGE_ID_SUGGESTION,
+		data: {name},
+		fix: fixer => fixer.insertTextBefore(closingBrace, `\n${classIndent}\t${name};\n${classIndent}`),
+	};
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -278,7 +287,7 @@ const create = context => {
 			}
 
 			const declaredNames = getDeclaredClassMemberNames(classBody, context.sourceCode);
-			const fixedNames = new Set();
+			const suggestedNames = new Set();
 
 			for (const {node, name} of memberAccesses) {
 				if (
@@ -299,10 +308,13 @@ const create = context => {
 				if (
 					isSimpleAssignmentTarget(node)
 					&& !isInConstructor(node, classBody)
-					&& !fixedNames.has(name)
+					&& !suggestedNames.has(name)
 				) {
-					fixedNames.add(name);
-					problem.fix = getInsertClassFieldFix(classBody, name, context);
+					const suggestion = getInsertClassFieldSuggestion(classBody, name, context);
+					if (suggestion) {
+						suggestedNames.add(name);
+						problem.suggest = [suggestion];
+					}
 				}
 
 				yield problem;
@@ -320,7 +332,7 @@ const config = {
 			description: 'Require class members to be declared.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [
