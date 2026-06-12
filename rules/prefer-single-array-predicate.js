@@ -18,6 +18,18 @@ const methodByOperator = new Map([
 	['&&', 'every'],
 ]);
 
+const predicateBodyTypesRequiringParentheses = new Set([
+	'AssignmentExpression',
+	'ArrowFunctionExpression',
+	'ConditionalExpression',
+	'SequenceExpression',
+	'TSAsExpression',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
+	'YieldExpression',
+]);
+
 const needsParenthesesInPredicate = (node, operator) => {
 	if (node.type === 'LogicalExpression') {
 		if (node.operator === operator) {
@@ -27,17 +39,7 @@ const needsParenthesesInPredicate = (node, operator) => {
 		return !(operator === '||' && node.operator === '&&');
 	}
 
-	return [
-		'AssignmentExpression',
-		'ArrowFunctionExpression',
-		'ConditionalExpression',
-		'SequenceExpression',
-		'TSAsExpression',
-		'TSNonNullExpression',
-		'TSSatisfiesExpression',
-		'TSTypeAssertion',
-		'YieldExpression',
-	].includes(node.type);
+	return predicateBodyTypesRequiringParentheses.has(node.type);
 };
 
 function getPredicateBodyText(node, operator, context) {
@@ -70,7 +72,6 @@ function getCallbackInformation(node) {
 	}
 
 	return {
-		node,
 		parameter: node.params[0],
 		body: node.body,
 	};

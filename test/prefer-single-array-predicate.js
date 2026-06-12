@@ -11,6 +11,8 @@ test.snapshot({
 		'array.some(element => element.foo) || otherArray.some(element => element.bar);',
 		'array.some(element => element.foo) || array.some(value => value.bar);',
 		'array.some((element, index) => element.foo || index > 0) || array.some(element => element.bar);',
+		'array.some(function (element) { return element.foo; }) || array.some(function (element) { return element.bar; });',
+		'array.some(element => { return element.foo; }) || array.some(element => { return element.bar; });',
 		'array.some(element => element.foo) || array.some(element => element.bar, thisArgument);',
 		'array?.some(element => element.foo) || array?.some(element => element.bar);',
 		'array.some?.(element => element.foo) || array.some?.(element => element.bar);',
