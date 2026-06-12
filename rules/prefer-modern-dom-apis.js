@@ -296,9 +296,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description:
-				// eslint-disable-next-line @stylistic/max-len
-				'Prefer `.before()` over `.insertBefore()`, `.replaceWith()` over `.replaceChild()`, one of `.before()`, `.after()`, `.append()` or `.prepend()` over `insertAdjacentText()` and `insertAdjacentElement()`, and `.replaceChildren()` over direct `.firstChild.remove()`/`.lastChild.remove()` loops.',
+			description: 'Prefer modern DOM APIs.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
