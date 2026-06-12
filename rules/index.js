@@ -2,6 +2,7 @@
 
 export {default as 'better-dom-traversing'} from './better-dom-traversing.js';
 export {default as 'catch-error-name'} from './catch-error-name.js';
+export {default as 'class-reference-in-static-methods'} from './class-reference-in-static-methods.js';
 export {default as 'comment-content'} from './comment-content.js';
 export {default as 'consistent-assert'} from './consistent-assert.js';
 export {default as 'consistent-compound-words'} from './consistent-compound-words.js';
