@@ -34,6 +34,10 @@ test.snapshot({
 		'for (const item of Iterator.from(items).filter(callback)) {}',
 		'for (const item of Iterator.from(items).map(callback).filter(callback)) {}',
 		'for (const item of Iterator.concat(first, second).filter(callback)) {}',
+		'for (const item of Iterator.zip(iterables).map(callback)) {}',
+		'for (const item of Iterator.zipKeyed(iterables).filter(callback)) {}',
+		'for (const item of globalThis.Iterator.from(items).map(callback)) {}',
+		'for (const item of globalThis.Iterator.zip(iterables).filter(callback)) {}',
 		'for (const item of items.values().map(callback)) {}',
 		'for (const item of items.keys().map(callback)) {}',
 		'for (const item of items.entries().filter(callback)) {}',
@@ -53,6 +57,8 @@ test.snapshot({
 		'for await (const item of items.filter(async item => item.isEnabled)) {}',
 		'for (const item of items.map(/* comment */ callback)) {}',
 		'const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {}',
+		'const Iterator = {zip: iterables => iterables}; for (const item of Iterator.zip(iterables).filter(callback)) {}',
+		'const globalThis = {Iterator: {from: items => items}}; for (const item of globalThis.Iterator.from(items).map(callback)) {}',
 		outdent`
 			for (const item of items
 				.map(item => item.value)

@@ -24,26 +24,38 @@ const iteratorHelperMethods = [
 	'take',
 ];
 
-const isGlobalIteratorMethodCall = (node, sourceCode) => (
-	(
-		isMethodCall(node, {
-			object: 'Iterator',
-			method: 'from',
-			minimumArguments: 1,
-			optionalCall: false,
-			optionalMember: false,
-			computed: false,
-		})
-		|| isMethodCall(node, {
-			object: 'Iterator',
-			method: 'concat',
-			optionalCall: false,
-			optionalMember: false,
-			computed: false,
-		})
-	)
-	&& sourceCode.isGlobalReference(node.callee.object)
-);
+const iteratorStaticMethods = [
+	'concat',
+	'from',
+	'zip',
+	'zipKeyed',
+];
+
+const isGlobalIteratorReference = (node, sourceCode) => {
+	if (node.type === 'Identifier') {
+		return node.name === 'Iterator' && sourceCode.isGlobalReference(node);
+	}
+
+	return (
+		node.type === 'MemberExpression'
+		&& !node.optional
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'Iterator'
+		&& node.object.type === 'Identifier'
+		&& node.object.name === 'globalThis'
+		&& sourceCode.isGlobalReference(node.object)
+	);
+};
+
+const isGlobalIteratorMethodCall = (node, sourceCode) =>
+	isMethodCall(node, {
+		methods: iteratorStaticMethods,
+		optionalCall: false,
+		optionalMember: false,
+		computed: false,
+	})
+	&& isGlobalIteratorReference(node.callee.object, sourceCode);
 
 const isIteratorMethodCall = node =>
 	isMethodCall(node, {
@@ -115,7 +127,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow `.map()` and `.filter()` in `for…of` loop headers.',
+			description: 'Disallow `.map()` and `.filter()` in `for…of` and `for await…of` loop headers.',
 			recommended: true,
 		},
 		messages,
