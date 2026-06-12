@@ -44,6 +44,10 @@ test({
 		'new Proxy(target, {set() { try { return true; } finally { cleanup(); } }});',
 		'new Proxy(target, {set() { return didSet = true; }});',
 		'new Proxy(target, {set(target, property, value) { return didSet = Reflect.set(target, property, value); }});',
+		'new Proxy(target, {set(target, property) { return (sideEffect(), property in target); }});',
+		'new Proxy(target, {set() { return value > 0; }});',
+		'new Proxy(target, {set() { return value === otherValue; }});',
+		'new Proxy(target, {set() { return value instanceof Constructor; }});',
 	],
 	invalid: [
 		{
@@ -88,6 +92,18 @@ test({
 			errors,
 		},
 		{
+			code: 'new Proxy(target, {isExtensible() { return (sideEffect(), typeof value); }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return (sideEffect(), `${value}`); }});', // eslint-disable-line no-template-curly-in-string
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return (sideEffect(), condition ? true : 1); }});',
+			errors,
+		},
+		{
 			code: 'new Proxy(target, {isExtensible() { return result = 1; }});',
 			errors,
 		},
@@ -105,6 +121,18 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {isExtensible() { return typeof value; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return value + 1; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return value * 2; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return value | 0; }});',
 			errors,
 		},
 		{
@@ -159,6 +187,10 @@ test({
 		},
 		{
 			code: 'new Proxy(target, {isExtensible() { return class {}; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {isExtensible() { return new Boolean(true); }});',
 			errors,
 		},
 		{

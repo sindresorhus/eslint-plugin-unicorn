@@ -116,24 +116,47 @@ const knownNonBooleanExpressionTypes = new Set([
 	'ArrowFunctionExpression',
 	'ClassExpression',
 	'FunctionExpression',
+	'NewExpression',
 	'ObjectExpression',
 	'TemplateLiteral',
 	'UpdateExpression',
 ]);
 
-const isKnownNonBooleanExpression = node => knownNonBooleanExpressionTypes.has(node.type) || (
-	node.type === 'UnaryExpression'
-	&& node.operator !== '!'
-	&& node.operator !== 'delete'
-);
+const nonBooleanBinaryOperators = new Set([
+	'%',
+	'&',
+	'*',
+	'**',
+	'+',
+	'-',
+	'/',
+	'<<',
+	'>>',
+	'>>>',
+	'^',
+	'|',
+]);
+
+const isKnownNonBooleanExpression = node => knownNonBooleanExpressionTypes.has(node.type)
+	|| (
+		node.type === 'UnaryExpression'
+		&& node.operator !== '!'
+		&& node.operator !== 'delete'
+	)
+	|| (
+		node.type === 'BinaryExpression'
+		&& nonBooleanBinaryOperators.has(node.operator)
+	);
+
+const createProblem = (node, name) => ({
+	node,
+	messageId: MESSAGE_ID,
+	data: {name},
+});
 
 const withoutFix = problem => {
 	if (problem) {
-		return {
-			node: problem.node,
-			messageId: problem.messageId,
-			data: problem.data,
-		};
+		return createProblem(problem.node, problem.data.name);
 	}
 };
 
@@ -143,11 +166,7 @@ const getProblem = (node, name, sourceCode) => {
 			return withoutFix(getProblem(node.right, name, sourceCode));
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			data: {name},
-		};
+		return createProblem(node, name);
 	}
 
 	if (node.type === 'ConditionalExpression') {
@@ -156,6 +175,10 @@ const getProblem = (node, name, sourceCode) => {
 
 	if (node.type === 'LogicalExpression') {
 		return withoutFix(getProblem(node.left, name, sourceCode) ?? getProblem(node.right, name, sourceCode));
+	}
+
+	if (node.type === 'SequenceExpression') {
+		return withoutFix(getProblem(node.expressions.at(-1), name, sourceCode));
 	}
 
 	const booleanValue = getStaticBooleanValue(node, sourceCode);
@@ -169,9 +192,7 @@ const getProblem = (node, name, sourceCode) => {
 	const replacement = getBooleanReplacement(node, booleanValue, sourceCode);
 
 	return {
-		node,
-		messageId: MESSAGE_ID,
-		data: {name},
+		...createProblem(node, name),
 		...(replacement && {
 			fix: fixer => fixer.replaceText(node, replacement),
 		}),
@@ -305,23 +326,16 @@ function doesTryStatementAlwaysExit(node) {
 }
 
 function doesBlockAlwaysExit(node) {
-	return node.body
-		.filter(statement => statement.type !== 'FunctionDeclaration')
-		.some(statement => doesStatementAlwaysExit(statement));
+	return node.body.some(statement => statement.type !== 'FunctionDeclaration' && doesStatementAlwaysExit(statement));
 }
 
 const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
 	if (functionNode.async || functionNode.generator) {
-		return {
-			node: functionNode,
-			messageId: MESSAGE_ID,
-			data: {name},
-		};
+		return createProblem(functionNode, name);
 	}
 
 	if (functionNode.body.type !== 'BlockStatement') {
-		const problem = getProblem(functionNode.body, name, sourceCode);
-		return problem;
+		return getProblem(functionNode.body, name, sourceCode);
 	}
 
 	const returnStatements = [...getReturnStatements(functionNode.body)];
@@ -331,20 +345,12 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
 			return;
 		}
 
-		return {
-			node: functionNode,
-			messageId: MESSAGE_ID,
-			data: {name},
-		};
+		return createProblem(functionNode, name);
 	}
 
 	for (const returnStatement of returnStatements) {
 		if (!returnStatement.argument) {
-			return {
-				node: returnStatement,
-				messageId: MESSAGE_ID,
-				data: {name},
-			};
+			return createProblem(returnStatement, name);
 		}
 
 		const problem = getProblem(returnStatement.argument, name, sourceCode);
@@ -354,11 +360,7 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
 	}
 
 	if (!doesAlwaysExit) {
-		return {
-			node: functionNode,
-			messageId: MESSAGE_ID,
-			data: {name},
-		};
+		return createProblem(functionNode, name);
 	}
 };
 
