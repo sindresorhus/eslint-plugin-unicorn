@@ -1,4 +1,3 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	hasOptionalChainElement,
@@ -10,7 +9,7 @@ import {
 const MESSAGE_ID = 'no-computed-property-existence-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-computed-property-existence-check/suggestion';
 const messages = {
-	[MESSAGE_ID]: 'Do not use a dynamic property access as an existence check.',
+	[MESSAGE_ID]: 'Do not use a dynamic object property existence check.',
 	[MESSAGE_ID_SUGGESTION]: 'Use `Object.hasOwn()`.',
 };
 
@@ -65,6 +64,10 @@ function isUsedAsExistenceCheck(node) {
 	return isBooleanExpression(node) || isControlFlowTest(node);
 }
 
+function isSimpleInSuggestionOperand(node) {
+	return node.type === 'Identifier' || node.type === 'ThisExpression';
+}
+
 function getExpressionText(node, context) {
 	const text = getParenthesizedText(node, context);
 	return node.type === 'SequenceExpression' ? `(${text})` : text;
@@ -79,20 +82,17 @@ function hasLeadingComments(node, context) {
 }
 
 function getSuggestion(node, object, property, context) {
-	const {sourceCode} = context;
 	if (
 		object.type === 'Super'
 		|| object.type === 'ChainExpression'
 		|| property.type === 'ChainExpression'
+		|| getTransparentExpressionAncestor(node) !== node
 		|| hasOptionalChainElement(node)
 		|| hasOptionalChainElement(object)
 		|| hasOptionalChainElement(property)
 		|| (
 			node.type === 'BinaryExpression'
-			&& (
-				hasSideEffect(object, sourceCode)
-				|| hasSideEffect(property, sourceCode)
-			)
+			&& (!isSimpleInSuggestionOperand(object) || !isSimpleInSuggestionOperand(property))
 		)
 		|| hasLeadingComments(object, context)
 		|| hasLeadingComments(property, context)
@@ -149,7 +149,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow dynamic property access in object property existence checks.',
+			description: 'Disallow dynamic object property existence checks.',
 			recommended: true,
 		},
 		hasSuggestions: true,

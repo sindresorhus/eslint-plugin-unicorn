@@ -1,6 +1,6 @@
 # no-computed-property-existence-check
 
-📝 Disallow dynamic property access in object property existence checks.
+📝 Disallow dynamic object property existence checks.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
