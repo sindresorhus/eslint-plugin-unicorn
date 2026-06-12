@@ -9,6 +9,8 @@
 
 Nested loops can be readable, but `break` and `continue` in nested control flow are easy to misread because the target is not always obvious. Move the inner loop or switch into a function instead.
 
+Labeled `break` and `continue` statements are allowed because their target is explicit.
+
 ## Examples
 
 ```js

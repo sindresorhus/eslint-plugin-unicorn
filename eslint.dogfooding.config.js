@@ -39,6 +39,8 @@ const config = [
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/try-complexity': 'off',
+			// Existing rule implementations intentionally use nested control flow in a few places.
+			'unicorn/no-break-in-nested-loop': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.

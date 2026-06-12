@@ -41,6 +41,23 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const item of items) {
+				inner: for (const child of item.children) {
+					break inner;
+				}
+			}
+		`,
+		outdent`
+			label: {
+				for (const item of items) {
+					switch (item.type) {
+						case 'child':
+							break label;
+					}
+				}
+			}
+		`,
+		outdent`
 			switch (value) {
 				case 1:
 					break;
