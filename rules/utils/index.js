@@ -43,6 +43,7 @@ export {default as getTokenStore} from './get-token-store.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
+export {default as isArray, isKnownNonArray} from './is-array.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
