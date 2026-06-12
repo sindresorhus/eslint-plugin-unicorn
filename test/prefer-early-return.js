@@ -2,7 +2,6 @@ import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
-const error = {messageId: 'prefer-early-return'};
 
 test.snapshot({
 	valid: [
@@ -27,6 +26,12 @@ test.snapshot({
 				}
 
 				finish();
+			}
+		`,
+		outdent`
+			if (condition) {
+				doSomething();
+				doSomethingElse();
 			}
 		`,
 		outdent`
@@ -68,6 +73,14 @@ test.snapshot({
 			`,
 			options: [{maximumStatements: 0}],
 		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition);
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
 	],
 	invalid: [
 		outdent`
@@ -95,6 +108,26 @@ test.snapshot({
 			};
 		`,
 		outdent`
+			const object = {
+				foo() {
+					if (condition) {
+						doSomething();
+						doSomethingElse();
+					}
+				},
+			};
+		`,
+		outdent`
+			class Foo {
+				bar() {
+					if (condition) {
+						doSomething();
+						doSomethingElse();
+					}
+				}
+			}
+		`,
+		outdent`
 			callback(function() {
 				if (condition) {
 					doSomething();
@@ -120,23 +153,6 @@ test.snapshot({
 				}
 			`,
 			options: [{maximumStatements: 0}],
-		},
-	],
-});
-
-test({
-	valid: [],
-	invalid: [
-		{
-			code: outdent`
-				function foo() {
-					if (condition) {
-						doSomething();
-						doSomethingElse();
-					}
-				}
-			`,
-			errors: [error],
 		},
 	],
 });

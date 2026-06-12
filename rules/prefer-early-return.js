@@ -17,12 +17,13 @@ const schema = [
 	},
 ];
 
-const isIfStatementWithoutAlternate = node =>
-	node.type === 'IfStatement'
-	&& !node.alternate;
+const getConsequentStatementCount = node => {
+	if (node.consequent.type === 'EmptyStatement') {
+		return 0;
+	}
 
-const getStatementCount = node =>
-	node.type === 'BlockStatement' ? node.body.length : 1;
+	return node.consequent.type === 'BlockStatement' ? node.consequent.body.length : 1;
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -40,8 +41,9 @@ const create = context => {
 
 		const [statement] = body;
 		if (
-			!isIfStatementWithoutAlternate(statement)
-			|| getStatementCount(statement.consequent) <= maximumStatements
+			statement.type !== 'IfStatement'
+			|| statement.alternate
+			|| getConsequentStatementCount(statement) <= maximumStatements
 		) {
 			return;
 		}
