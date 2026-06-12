@@ -9,6 +9,7 @@ test.snapshot({
 		'array.with(1, value)',
 		'array.with(+1, value)',
 		'array.with(-0, value)',
+		'array.with(-0.5, value)',
 		'array.with(array.length - 1, value)',
 		'array.with(otherArray.length, value)',
 		'array.with(index)',
@@ -21,6 +22,7 @@ test.snapshot({
 	invalid: [
 		'array.with(-1, value)',
 		'array.with(-2, value)',
+		'array.with(-1.5, value)',
 		'array.with(- 1, value)',
 		'array.with(array.length, value)',
 		'object.items.with(object.items.length, value)',
@@ -50,5 +52,7 @@ test.snapshot({
 		'array.with(array.length satisfies number, value)',
 		'array.with((array satisfies number[]).length, value)',
 		'(array satisfies number[]).with(array.length, value)',
+		'object.items.with((object satisfies {items: unknown[]}).items.length, value)',
+		'(object satisfies {items: unknown[]}).items.with(object.items.length, value)',
 	],
 });

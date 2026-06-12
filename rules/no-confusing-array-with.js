@@ -1,5 +1,5 @@
 import {isMethodCall, isNumericLiteral} from './ast/index.js';
-import {isSameReference} from './utils/index.js';
+import {isSame, unwrapExpression} from './utils/comparison.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_LENGTH_INDEX = 'length-index';
@@ -9,21 +9,12 @@ const messages = {
 	[MESSAGE_ID_LENGTH_INDEX]: 'Avoid using `.length` as the index in `Array#with()`.',
 };
 
-const typeScriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-]);
-
 /**
 @import * as ESLint from 'eslint';
 */
 
 function getStaticNumberValue(node) {
-	if (typeScriptExpressionWrapperTypes.has(node.type)) {
-		return getStaticNumberValue(node.expression);
-	}
+	node = unwrapExpression(node);
 
 	if (isNumericLiteral(node)) {
 		return node.value;
@@ -41,27 +32,22 @@ function getStaticNumberValue(node) {
 	}
 }
 
-const unwrapTypeScriptExpression = node =>
-	typeScriptExpressionWrapperTypes.has(node.type)
-		? unwrapTypeScriptExpression(node.expression)
-		: node;
-
-const isNegativeStaticNumber = node => getStaticNumberValue(node) < 0;
+const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
 
 function isLengthMemberExpressionFor(node, object) {
-	node = unwrapTypeScriptExpression(node);
-	object = unwrapTypeScriptExpression(object);
+	node = unwrapExpression(node);
+	object = unwrapExpression(object);
 
 	return node.type === 'MemberExpression'
 		&& !node.optional
 		&& !node.computed
 		&& node.property.type === 'Identifier'
 		&& node.property.name === 'length'
-		&& isSameReference(unwrapTypeScriptExpression(node.object), object);
+		&& isSame(node.object, object);
 }
 
 function getMessageId(indexNode, object) {
-	if (isNegativeStaticNumber(indexNode)) {
+	if (isNegativeStaticIndex(indexNode)) {
 		return MESSAGE_ID_NEGATIVE_INDEX;
 	}
 
