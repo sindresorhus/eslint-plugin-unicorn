@@ -23,6 +23,13 @@ const classTypes = new Set([
 	'ClassExpression',
 ]);
 
+const abruptCompletionTypes = new Set([
+	'BreakStatement',
+	'ContinueStatement',
+	'ReturnStatement',
+	'ThrowStatement',
+]);
+
 const isObjectMethodCall = (node, method) => isMethodCall(node, {
 	object: 'Object',
 	method,
@@ -62,6 +69,13 @@ const isBeforeNode = (node, targetNode, sourceCode) => {
 	const [targetStart] = sourceCode.getRange(targetNode);
 
 	return end <= targetStart;
+};
+
+const isAfterNode = (node, targetNode, sourceCode) => {
+	const [start] = sourceCode.getRange(node);
+	const [, targetEnd] = sourceCode.getRange(targetNode);
+
+	return start >= targetEnd;
 };
 
 function * traverse(node, visitorKeys, root = node) {
@@ -199,17 +213,30 @@ const getDirectValueMembers = ({targetNode, objectNode, keyVariable, context}) =
 const hasCommentsInside = (nodes, sourceCode) =>
 	nodes.some(node => sourceCode.getCommentsInside(node).length > 0);
 
-const hasSideEffectBeforeValueRead = ({targetNode, valueMembers, context}) => {
+const hasUnsafeSideEffectAroundValueRead = ({targetNode, valueMembers, context}) => {
 	const {sourceCode} = context;
 
 	for (const valueMember of valueMembers) {
 		for (const node of traverse(targetNode, sourceCode.visitorKeys)) {
 			if (
-				isBeforeNode(node, valueMember, sourceCode)
+				(
+					isBeforeNode(node, valueMember, sourceCode)
+					|| isAfterNode(node, valueMember, sourceCode)
+				)
 				&& hasSideEffect(node, sourceCode)
 			) {
 				return true;
 			}
+		}
+	}
+
+	return false;
+};
+
+const hasAbruptCompletion = (targetNode, context) => {
+	for (const node of traverse(targetNode, context.sourceCode.visitorKeys)) {
+		if (abruptCompletionTypes.has(node.type)) {
+			return true;
 		}
 	}
 
@@ -299,7 +326,7 @@ const createProblem = problem => {
 	return problemObject;
 };
 
-const getObjectKeysProblem = ({methodCall, binding, targetNode, context}) => {
+const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix = true}) => {
 	if (binding.type !== 'Identifier' || binding.typeAnnotation) {
 		return;
 	}
@@ -352,11 +379,12 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context}) => {
 		bindingReplacement,
 		valueMembers,
 		valueName,
-		canFix: !hasSideEffectBeforeValueRead({
-			targetNode,
-			valueMembers,
-			context,
-		}),
+		canFix: canFix
+			&& !hasUnsafeSideEffectAroundValueRead({
+				targetNode,
+				valueMembers,
+				context,
+			}),
 	});
 };
 
@@ -432,13 +460,14 @@ const getObjectEntriesProblem = ({methodCall, binding, targetNode, context}) => 
 	});
 };
 
-const getObjectMethodProblem = (methodCall, binding, targetNode, context) => {
+const getObjectMethodProblem = ({methodCall, binding, targetNode, context, canFix}) => {
 	if (isObjectMethodCall(methodCall, 'keys')) {
 		return getObjectKeysProblem({
 			methodCall,
 			binding,
 			targetNode,
 			context,
+			canFix,
 		});
 	}
 
@@ -464,7 +493,13 @@ const create = context => {
 			return;
 		}
 
-		return getObjectMethodProblem(node.right, binding, node.body, context);
+		return getObjectMethodProblem({
+			methodCall: node.right,
+			binding,
+			targetNode: node.body,
+			context,
+			canFix: !hasAbruptCompletion(node.body, context),
+		});
 	});
 
 	context.on('CallExpression', node => {
@@ -486,7 +521,12 @@ const create = context => {
 			return;
 		}
 
-		return getObjectMethodProblem(node.callee.object, callback.params[0], callback.body, context);
+		return getObjectMethodProblem({
+			methodCall: node.callee.object,
+			binding: callback.params[0],
+			targetNode: callback.body,
+			context,
+		});
 	});
 };
 
