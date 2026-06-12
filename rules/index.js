@@ -84,6 +84,7 @@ export {default as 'no-thenable'} from './no-thenable.js';
 export {default as 'no-this-assignment'} from './no-this-assignment.js';
 export {default as 'no-this-outside-of-class'} from './no-this-outside-of-class.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
+export {default as 'no-undeclared-class-members'} from './no-undeclared-class-members.js';
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
 export {default as 'no-unnecessary-await'} from './no-unnecessary-await.js';
