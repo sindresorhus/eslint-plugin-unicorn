@@ -1,7 +1,17 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // Spread in list
 test.snapshot({
@@ -282,6 +292,25 @@ test.snapshot({
 		'[...foo.filter(bar)]',
 		'[...foo.flatMap(bar)]',
 		'[...foo.map(bar)]',
+		typeAware('function foo(array: number[]) { return [...array]; }'),
+		{
+			code: 'function foo(array: number[]) { return [...array]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('const data = new Map([["a", 1], ["b", 2], ["c", 3]]); const foo = [...data.values().map(value => value * 2)];'),
+		typeAware('function foo(value: string) { return [...value.slice(1)]; }'),
+		typeAware('function foo(value: {slice(start: number): string}) { return [...value.slice(1)]; }'),
+		typeAware('function foo(value: {map(): number[]}) { return [...value.map()]; }'),
+		typeAware('function foo(value: {slice(start: number): number[]}) { return [...value.slice(1)]; }'),
+		typeAware('function foo(value: Int32Array) { return [...value.slice(1)]; }'),
+		{
+			code: 'function foo(value: string) { return [...value.slice(1)]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: Int32Array) { return [...value.slice(1)]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `Iterator.concat()`
 		'[...Iterator.concat(bar)]',
 	],
@@ -303,6 +332,9 @@ test.snapshot({
 		'[...new Array(3)]',
 		'[...await Promise.all(foo)]',
 		'[...await Promise.allSettled(foo)]',
+		typeAware('function foo(array: number[]) { return [...array.map(value => value * 2)]; }'),
+		typeAware('function foo(array: number[]) { return [...array.filter(Boolean)]; }'),
+		typeAware('function foo(array: number[]) { return [...array.flatMap(value => value)]; }'),
 		outdent`
 			function foo(bar) {
 				return[...Object.keys(bar)];

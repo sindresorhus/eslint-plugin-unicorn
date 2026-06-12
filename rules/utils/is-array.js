@@ -4,10 +4,13 @@ import {
 	isMethodCall,
 	isNewExpression,
 } from '../ast/index.js';
+import typedArray from '../shared/typed-array.js';
 
 const array = 'array';
 const nonArray = 'non-array';
 const unknown = 'unknown';
+
+const typedArrayTypes = new Set(typedArray);
 
 const nonArrayExpressionTypes = new Set([
 	'ObjectExpression',
@@ -96,6 +99,10 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 
 	if (typeReferenceName === 'Array' || typeReferenceName === 'ReadonlyArray') {
 		return array;
+	}
+
+	if (typedArrayTypes.has(typeReferenceName)) {
+		return nonArray;
 	}
 
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
