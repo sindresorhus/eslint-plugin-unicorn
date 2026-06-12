@@ -44,7 +44,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer options object over boolean in `.addEventListener()`.',
+			description: 'Prefer an options object over a boolean in `.addEventListener()`.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

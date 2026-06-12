@@ -1,6 +1,6 @@
 # prefer-add-event-listener-options
 
-📝 Prefer options object over boolean in `.addEventListener()`.
+📝 Prefer an options object over a boolean in `.addEventListener()`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
