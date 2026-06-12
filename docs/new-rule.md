@@ -92,4 +92,4 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 	for(constfooof[]);
 	```
 
-1. Try not to remove comments in the fix function.
+1. Fixes must not remove comments. If a fix replaces or removes a range, use `wouldRemoveComments()` from `rules/utils/` and report without a fix when comments would be lost.

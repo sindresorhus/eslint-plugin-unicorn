@@ -307,6 +307,12 @@ test.snapshot({
 		'const {unicorn: myVar} = element.dataset;',
 		'const {foo, bar} = element.dataset;',
 		'let {foo, bar} = element.dataset;',
+		'element.dataset /* comment */ .unicorn;',
+		'element.dataset.unicorn /* comment */ = "🦄";',
+		'delete /* comment */ element.dataset.unicorn;',
+		'"unicorn" /* comment */ in element.dataset',
+		'Object.hasOwn(element.dataset, /* comment */ "unicorn")',
+		'const {unicorn /* comment */} = element.dataset;',
 		// Not fixable
 		'const result = element.dataset.unicorn = "🦄";',
 		'if (delete element.dataset.unicorn) {}',

@@ -31,6 +31,9 @@ export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new
 export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getComments} from './get-comments.js';
+export {
+	wouldRemoveComments,
+} from './comments.js';
 export {default as getReferences} from './get-references.js';
 export {default as isTypeScriptFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';
