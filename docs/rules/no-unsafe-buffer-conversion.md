@@ -1,6 +1,6 @@
 # no-unsafe-buffer-conversion
 
-📝 Prevent unsafe conversions between `Buffer` and typed arrays.
+📝 Prevent unsafe use of ArrayBuffer view `.buffer`.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 

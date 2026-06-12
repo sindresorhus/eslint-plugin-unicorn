@@ -6,6 +6,10 @@ import {
 	isNewExpression,
 	isMethodCall,
 } from './ast/index.js';
+import {
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-direct-iteration';
 
@@ -96,9 +100,6 @@ const mergeTypeSets = typeSets => {
 	return types;
 };
 
-const isDefaultLibrarySymbol = (symbol, program) =>
-	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
-
 const getTypesFromType = (type, checker, program) => {
 	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
 		return;
@@ -112,7 +113,7 @@ const getTypesFromType = (type, checker, program) => {
 		return getTypeSet(arrayType);
 	}
 
-	const symbol = type.getSymbol() ?? type.aliasSymbol;
+	const symbol = getTypeSymbol(type);
 	if (!isDefaultLibrarySymbol(symbol, program)) {
 		return;
 	}

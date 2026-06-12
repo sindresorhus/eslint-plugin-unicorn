@@ -1,6 +1,15 @@
 import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isNewExpression, isMethodCall, isMemberExpression} from './ast/index.js';
-import {isGlobalIdentifier, isSameReference, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {
+	getBaseTypes,
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isGlobalIdentifier,
+	isNullishType,
+	isSameReference,
+	isUnknownType,
+	shouldAddParenthesesToMemberExpressionObject,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-buffer-conversion/error';
 const SUGGESTION_ID = 'no-unsafe-buffer-conversion/suggestion';
@@ -28,6 +37,151 @@ const bytesPerElementByTypedArrayConstructor = new Map([
 ]);
 
 const typedArrayConstructors = new Set(bytesPerElementByTypedArrayConstructor.keys());
+
+const arrayBufferLikeTypeNames = new Set(['ArrayBuffer', 'SharedArrayBuffer', 'ArrayBufferLike']);
+
+const getTypeProperty = (type, checker, propertyName) =>
+	checker.getPropertyOfType(type, propertyName) ?? checker.getPropertyOfType(checker.getApparentType(type), propertyName);
+
+const getTypePropertyType = (type, checker, propertyName) => {
+	const property = getTypeProperty(type, checker, propertyName);
+	return property && checker.getTypeOfSymbol(property);
+};
+
+const typeInfo = (shouldReport, canSuggest = shouldReport) => ({
+	shouldReport,
+	canSuggest,
+});
+
+function isDefaultLibraryType(type, program, typeNames) {
+	const symbol = getTypeSymbol(type);
+	return isDefaultLibrarySymbol(symbol, program) && typeNames.has(symbol.getName());
+}
+
+function isArrayBufferLikeType(type, checker, program) {
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isArrayBufferLikeType(constraint, checker, program);
+	}
+
+	if (type.isUnion()) {
+		return type.types.every(type => isArrayBufferLikeType(type, checker, program));
+	}
+
+	return isDefaultLibraryType(type, program, arrayBufferLikeTypeNames);
+}
+
+function isNumberType(type, checker) {
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isNumberType(constraint, checker);
+	}
+
+	if (type.isUnion()) {
+		return type.types.every(type => isNumberType(type, checker));
+	}
+
+	return type.intrinsicName === 'number';
+}
+
+function getBufferTypeInfo(type, checker, program, allowOpaqueBuffer) {
+	const typeName = type.aliasSymbol?.getName() ?? type.getSymbol()?.getName();
+	if (typeName !== 'Buffer') {
+		return typeInfo(false);
+	}
+
+	if (isUnknownType(type)) {
+		return typeInfo(true);
+	}
+
+	const bufferType = getTypePropertyType(type, checker, 'buffer');
+	const byteOffsetType = getTypePropertyType(type, checker, 'byteOffset');
+	const byteLengthType = getTypePropertyType(type, checker, 'byteLength');
+
+	if (!bufferType && !byteOffsetType && !byteLengthType) {
+		return typeInfo(allowOpaqueBuffer, false);
+	}
+
+	return typeInfo(Boolean(bufferType)
+		&& Boolean(byteOffsetType)
+		&& Boolean(byteLengthType)
+		&& isArrayBufferLikeType(bufferType, checker, program)
+		&& isNumberType(byteOffsetType, checker)
+		&& isNumberType(byteLengthType, checker));
+}
+
+function getArrayBufferViewTypeInfo(type, checker, program) {
+	if (isUnknownType(type)) {
+		return typeInfo(true);
+	}
+
+	if (type.isUnion()) {
+		const nonNullishTypes = type.types.filter(type => !isNullishType(type));
+		if (nonNullishTypes.length === 0) {
+			return typeInfo(false);
+		}
+
+		const typeInfos = nonNullishTypes.map(type => getArrayBufferViewTypeInfo(type, checker, program));
+		return typeInfo(
+			typeInfos.every(typeInfo => typeInfo.shouldReport),
+			typeInfos.every(typeInfo => typeInfo.canSuggest),
+		);
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return getArrayBufferViewTypeInfo(constraint, checker, program);
+	}
+
+	if (isNullishType(type)) {
+		return typeInfo(false);
+	}
+
+	const isIntersection = type.isIntersection();
+	const types = isIntersection ? type.types : [type];
+	for (const type of types) {
+		if (isUnknownType(type)) {
+			return typeInfo(true);
+		}
+
+		const baseTypeInfo = getBaseTypes(type, checker)
+			.map(type => getArrayBufferViewTypeInfo(type, checker, program))
+			.find(typeInfo => typeInfo.shouldReport);
+		if (baseTypeInfo) {
+			return baseTypeInfo;
+		}
+
+		const symbol = getTypeSymbol(type);
+		if (isDefaultLibrarySymbol(symbol, program) && typedArrayConstructors.has(symbol.getName())) {
+			return typeInfo(true);
+		}
+
+		const bufferTypeInfo = getBufferTypeInfo(type, checker, program, !isIntersection);
+		if (bufferTypeInfo.shouldReport) {
+			return bufferTypeInfo;
+		}
+	}
+
+	return typeInfo(false);
+}
+
+function getBufferViewTypeInfo(view, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return typeInfo(true);
+	}
+
+	try {
+		const {program} = parserServices;
+		return getArrayBufferViewTypeInfo(
+			parserServices.getTypeAtLocation(view),
+			program.getTypeChecker(),
+			program,
+		);
+	} catch {
+		return typeInfo(true);
+	}
+}
 
 function isImportedBuffer(identifier, context) {
 	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
@@ -89,12 +243,25 @@ const isKnownUnsafeByteLength = (node, context, view) =>
 	isGlobalUndefined(node, context)
 	|| isBufferByteLengthMemberExpression(node, view);
 
-function getBufferView(node) {
+function getBufferViewInfo(node, context) {
+	if (node?.type === 'ChainExpression') {
+		node = node.expression;
+	}
+
 	if (!isMemberExpression(node, {property: 'buffer', computed: false})) {
 		return;
 	}
 
-	return node.object;
+	const bufferViewTypeInfo = getBufferViewTypeInfo(node.object, context);
+	if (!bufferViewTypeInfo.shouldReport) {
+		return;
+	}
+
+	return {
+		view: node.object,
+		isOptional: node.optional === true,
+		canSuggest: bufferViewTypeInfo.canSuggest,
+	};
 }
 
 const getBytesPerElement = constructorName => bytesPerElementByTypedArrayConstructor.get(constructorName);
@@ -137,11 +304,12 @@ function getTypedArrayProblem(node, context) {
 	}
 
 	const [bufferNode, byteOffsetNode, lengthNode] = node.arguments;
-	const view = getBufferView(bufferNode);
-	if (!view) {
+	const bufferView = getBufferViewInfo(bufferNode, context);
+	if (!bufferView) {
 		return;
 	}
 
+	const {view} = bufferView;
 	if (byteOffsetNode && lengthNode) {
 		const hasSafeByteOffset = isByteOffsetMemberExpression(byteOffsetNode, view);
 		const hasSafeLength = isSafeTypedArrayLength(lengthNode, view, node.callee.name);
@@ -166,6 +334,7 @@ function getTypedArrayProblem(node, context) {
 		context,
 		view,
 		replacement: getTypedArrayReplacement(node, context, view),
+		canSuggest: bufferView.canSuggest && !bufferView.isOptional,
 	});
 }
 
@@ -203,11 +372,12 @@ function getBufferFromProblem(node, context) {
 	}
 
 	const [bufferNode, byteOffsetNode, lengthNode] = node.arguments;
-	const view = getBufferView(bufferNode);
-	if (!view) {
+	const bufferView = getBufferViewInfo(bufferNode, context);
+	if (!bufferView) {
 		return;
 	}
 
+	const {view} = bufferView;
 	if (byteOffsetNode && lengthNode) {
 		const hasSafeByteOffset = isByteOffsetMemberExpression(byteOffsetNode, view);
 		const hasSafeLength = isByteLengthMemberExpression(lengthNode, view);
@@ -230,6 +400,7 @@ function getBufferFromProblem(node, context) {
 		context,
 		view,
 		replacement: getBufferFromReplacement(node, context, view),
+		canSuggest: bufferView.canSuggest && !bufferView.isOptional && !node.optional,
 	});
 }
 
@@ -249,15 +420,20 @@ function getBufferFromReplacement(node, context, view) {
 }
 
 function getArrayBufferSliceProblem(node, context) {
-	if (!isMethodCall(node, {method: 'slice', maximumArguments: 2, computed: false})) {
+	if (!isMethodCall(node, {
+		method: 'slice',
+		maximumArguments: 2,
+		computed: false,
+	})) {
 		return;
 	}
 
-	const view = getBufferView(node.callee.object);
-	if (!view) {
+	const bufferView = getBufferViewInfo(node.callee.object, context);
+	if (!bufferView) {
 		return;
 	}
 
+	const {view} = bufferView;
 	const [startNode, endNode] = node.arguments;
 	if (startNode && endNode) {
 		const hasSafeStart = isByteOffsetMemberExpression(startNode, view);
@@ -283,6 +459,7 @@ function getArrayBufferSliceProblem(node, context) {
 		context,
 		view,
 		replacement: getArrayBufferSliceReplacement(node, context, view),
+		canSuggest: bufferView.canSuggest && !bufferView.isOptional && !node.optional,
 	});
 }
 
@@ -299,14 +476,15 @@ function getArrayBufferSliceReplacement(node, context, view) {
 	return `${context.sourceCode.getText(node.callee)}(${viewText}.byteOffset, ${viewText}.byteOffset + ${viewText}.byteLength)`;
 }
 
-function createProblem({node, context, view, replacement}) {
+function createProblem({node, context, view, replacement, canSuggest = true}) {
 	const problem = {
 		node,
 		messageId: MESSAGE_ID,
 	};
 
 	if (
-		context.sourceCode.getCommentsInside(node).length === 0
+		canSuggest
+		&& context.sourceCode.getCommentsInside(node).length === 0
 		&& !hasSideEffect(view, context.sourceCode, {considerGetters: true})
 	) {
 		problem.suggest = [
@@ -340,7 +518,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Prevent unsafe conversions between `Buffer` and typed arrays.',
+			description: 'Prevent unsafe use of ArrayBuffer view `.buffer`.',
 			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,

@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -48,6 +58,13 @@ test.snapshot({
 		'data.buffer.notSlice()',
 
 		{code: 'new Uint8Array((data as Buffer).buffer, (data as Buffer).byteOffset, (data as Buffer).byteLength)', languageOptions: {parser: parsers.typescript}},
+		typeAware('function foo(packet: {buffer: ArrayBuffer}) { new Uint8Array(packet.buffer); }'),
+		typeAware('function foo(packet: {buffer: ArrayBuffer}) { Buffer.from(packet.buffer); }'),
+		typeAware('class Packet { buffer = new ArrayBuffer(0); } function foo(packet: Packet) { packet.buffer.slice(); }'),
+		typeAware('function foo(packet: {buffer: ArrayBuffer} | {buffer: SharedArrayBuffer}) { Buffer.from(packet.buffer); }'),
+		typeAware('function foo(data: Uint8Array | {buffer: ArrayBuffer}) { Buffer.from(data.buffer); }'),
+		typeAware('function foo(data: {buffer: string; byteOffset: number; byteLength: number}) { Buffer.from(data.buffer); }'),
+		typeAware('interface Buffer {} function foo(data: Buffer & {buffer: ArrayBuffer}) { Buffer.from(data.buffer); }'),
 	],
 	invalid: [
 		'new Uint8Array(data.buffer)',
@@ -68,10 +85,16 @@ test.snapshot({
 		'new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT)',
 		'new Float64Array(data.buffer, data.byteOffset, data.byteLength)',
 		'new (Uint8Array)(data.buffer)',
+		'new Uint8Array(data?.buffer)',
 		'new Uint8Array((data).buffer)',
+		'new Uint8Array((data?.view).buffer)',
 		{code: 'new Uint8Array((data as Buffer).buffer)', languageOptions: {parser: parsers.typescript}},
 
 		'Buffer.from(data.buffer)',
+		'Buffer.from(data?.buffer)',
+		'Buffer?.from(data.buffer)',
+		'Buffer.from?.(data.buffer)',
+		'Buffer.from((data?.view).buffer)',
 		'Buffer.from(data.buffer, data.byteOffset)',
 		'Buffer.from(data.buffer, 0)',
 		'Buffer.from(data.buffer, 0, data.byteLength)',
@@ -86,6 +109,10 @@ test.snapshot({
 		'Buffer.from((data).buffer)',
 
 		'data.buffer.slice()',
+		'data?.buffer.slice()',
+		'(data?.view).buffer.slice()',
+		'data.buffer?.slice()',
+		'data.buffer.slice?.()',
 		'data.buffer.slice(data.byteOffset)',
 		'data.buffer.slice(offset)',
 		'data.buffer.slice(data.byteOffset, data.byteLength)',
@@ -119,5 +146,10 @@ test.snapshot({
 		'new Uint8Array(source.view.buffer)',
 		'Buffer.from(source.view.buffer)',
 		'source.view.buffer.slice()',
+		typeAware('function foo(data: Uint8Array) { new Uint8Array(data.buffer); }'),
+		typeAware('function foo<T extends Uint8Array>(data: T) { data.buffer.slice(); }'),
+		typeAware('class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); }'),
+		typeAware('interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
+		typeAware('interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
 	],
 });
