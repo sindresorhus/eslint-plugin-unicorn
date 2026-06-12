@@ -116,10 +116,18 @@ test.snapshot({
 			code: '!(a === b && foo())',
 			options: [{checkLogicalExpressions: true}],
 		},
+		{
+			code: '!(a === b && (c === d || foo()))',
+			options: [{checkLogicalExpressions: true}],
+		},
 	],
 	invalid: [
 		{
 			code: '!(a === b && c === d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: 'if (!(a === b && c === d)) {}',
 			options: [{checkLogicalExpressions: true}],
 		},
 		{

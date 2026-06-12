@@ -10,10 +10,12 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negated-comparison/error';
+const MESSAGE_ID_LOGICAL_ERROR = 'no-negated-comparison/logical-error';
 const MESSAGE_ID_SUGGESTION = 'no-negated-comparison/suggestion';
 const MESSAGE_ID_LOGICAL_SUGGESTION = 'no-negated-comparison/logical-suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer the opposite comparison instead of negating the whole comparison.',
+	[MESSAGE_ID_LOGICAL_ERROR]: 'Prefer the opposite comparisons instead of negating the whole logical expression.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}`.',
 	[MESSAGE_ID_LOGICAL_SUGGESTION]: 'Switch to opposite comparisons.',
 };
@@ -80,15 +82,6 @@ const isLogicalExpressionWithOnlyComparisons = node =>
 		&& isLogicalExpressionWithOnlyComparisons(node.left)
 		&& isLogicalExpressionWithOnlyComparisons(node.right)
 	);
-
-const isNegatedComparison = node =>
-	isNegation(node)
-	&& isComparison(node.argument);
-
-const isNegatedLogicalComparison = node =>
-	isNegation(node)
-	&& node.argument.type === 'LogicalExpression'
-	&& isLogicalExpressionWithOnlyComparisons(node.argument);
 
 const isSafelyFixableLogicalExpression = node =>
 	isComparison(node)
@@ -163,7 +156,7 @@ function * fix({
 	}
 }
 
-const fixedLogicalOperatorPrecedence = {
+const logicalOperatorPrecedence = {
 	'||': 1,
 	'&&': 2,
 };
@@ -199,14 +192,15 @@ const getFixedLogicalExpressionText = (node, context, parentOperator) => {
 		operator,
 		getFixedLogicalExpressionText(node.right, context, operator),
 	].join(' ');
-
-	return parentOperator && (
+	const needsParentheses = parentOperator && (
 		(
 			operator !== parentOperator
 			&& isParenthesized(node, context)
 		)
-		|| fixedLogicalOperatorPrecedence[operator] < fixedLogicalOperatorPrecedence[parentOperator]
-	)
+		|| logicalOperatorPrecedence[operator] < logicalOperatorPrecedence[parentOperator]
+	);
+
+	return needsParentheses
 		? `(${text})`
 		: text;
 };
@@ -251,8 +245,14 @@ const create = context => {
 	const [{checkLogicalExpressions}] = context.options;
 
 	context.on('UnaryExpression', unaryExpression => {
-		if (isNegatedComparison(unaryExpression)) {
-			const {argument: comparison} = unaryExpression;
+		if (!isNegation(unaryExpression)) {
+			return;
+		}
+
+		const {argument} = unaryExpression;
+
+		if (isComparison(argument)) {
+			const comparison = argument;
 			const replacementOperator = operatorReplacements.get(comparison.operator);
 			const problem = {
 				node: unaryExpression,
@@ -284,14 +284,18 @@ const create = context => {
 			return problem;
 		}
 
-		if (!checkLogicalExpressions || !isNegatedLogicalComparison(unaryExpression)) {
+		if (
+			!checkLogicalExpressions
+			|| argument.type !== 'LogicalExpression'
+			|| !isLogicalExpressionWithOnlyComparisons(argument)
+		) {
 			return;
 		}
 
-		const {argument: logicalExpression} = unaryExpression;
+		const logicalExpression = argument;
 		const problem = {
 			node: unaryExpression,
-			messageId: MESSAGE_ID_ERROR,
+			messageId: MESSAGE_ID_LOGICAL_ERROR,
 		};
 
 		if (context.sourceCode.getCommentsInside(unaryExpression).length > 0) {
