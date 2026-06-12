@@ -133,6 +133,7 @@ Other test modes: `test.typescript()` and `test.vue()` set the parser for all ca
 - **Never run integration tests** (`test/integration/test.js`). They are too slow for development.
 - **While developing, only run targeted tests**: `npx ava test/rule-name.js`. Do not run `npm test` or the full suite until all changes are complete.
 - **Only run the full test suite (`npm test`) once at the very end** to confirm everything passes.
+- **For new rules, run dogfooding before pushing**: `npm run run-rules-on-codebase`.
 - Update snapshots: `npx ava test/rule-name.js -u`
 - Focus a single case: wrap with `test.only('code')` or `test.only({code, options})` (remove before committing)
 - For non-snapshot tests, use `test()` with explicit `errors` and `output`
@@ -187,6 +188,7 @@ Name after the target construct, not the fix. Be specific: `no-array-for-each` n
 3. Implement the rule in `rules/<rule>.js`.
 4. Write documentation in `docs/rules/<rule>.md` (below the auto-generated header).
 5. Run `npx ava test/<rule>.js` to verify tests pass.
+6. Before pushing, run lint, dogfooding, and then `npm test`. If dogfooding finds intentional internal patterns, disable the rule in `eslint.dogfooding.config.js` instead of adding repo-specific heuristics.
 
 ## Commit message format
 

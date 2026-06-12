@@ -264,6 +264,43 @@ const getInsertClassFieldSuggestion = (classBody, name, context) => {
 	};
 };
 
+const shouldReportMemberAccess = (node, name, classBody, declaredNames) =>
+	getThisOwnerClassBody(node) === classBody
+	&& !isInStaticContext(node, classBody)
+	&& !isClassElementDefinition(node, classBody)
+	&& !declaredNames.has(name);
+
+const getProblemsForClassBody = function * (classBody, memberAccesses, context) {
+	const declaredNames = getDeclaredClassMemberNames(classBody, context.sourceCode);
+	const suggestedNames = new Set();
+
+	for (const {node, name} of memberAccesses) {
+		if (!shouldReportMemberAccess(node, name, classBody, declaredNames)) {
+			continue;
+		}
+
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+			data: {name},
+		};
+
+		if (
+			isSimpleAssignmentTarget(node)
+			&& !isInConstructor(node, classBody)
+			&& !suggestedNames.has(name)
+		) {
+			const suggestion = getInsertClassFieldSuggestion(classBody, name, context);
+			if (suggestion) {
+				suggestedNames.add(name);
+				problem.suggest = [suggestion];
+			}
+		}
+
+		yield problem;
+	}
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const memberAccesses = [];
@@ -286,36 +323,7 @@ const create = context => {
 				continue;
 			}
 
-			const declaredNames = getDeclaredClassMemberNames(classBody, context.sourceCode);
-			const suggestedNames = new Set();
-			const undeclaredMemberAccesses = memberAccesses.filter(({node, name}) => (
-				getThisOwnerClassBody(node) === classBody
-				&& !isInStaticContext(node, classBody)
-				&& !isClassElementDefinition(node, classBody)
-				&& !declaredNames.has(name)
-			));
-
-			for (const {node, name} of undeclaredMemberAccesses) {
-				const problem = {
-					node,
-					messageId: MESSAGE_ID,
-					data: {name},
-				};
-
-				if (
-					isSimpleAssignmentTarget(node)
-					&& !isInConstructor(node, classBody)
-					&& !suggestedNames.has(name)
-				) {
-					const suggestion = getInsertClassFieldSuggestion(classBody, name, context);
-					if (suggestion) {
-						suggestedNames.add(name);
-						problem.suggest = [suggestion];
-					}
-				}
-
-				yield problem;
-			}
+			yield * getProblemsForClassBody(classBody, memberAccesses, context);
 		}
 	});
 };
