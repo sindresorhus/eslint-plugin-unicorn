@@ -3,6 +3,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getParenthesizedRange,
+	isArray,
 	isKnownNonArray,
 	isNodeValueNotFunction,
 } from './utils/index.js';
@@ -52,6 +53,10 @@ const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator =
 const isLiteralZero = node => isLiteral(node, 0);
 
 function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
+	if (!isArray(callExpression.callee.object, context)) {
+		return false;
+	}
+
 	const variableDeclarator = callExpression.parent;
 
 	if (
