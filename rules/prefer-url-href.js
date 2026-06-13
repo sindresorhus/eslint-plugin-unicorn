@@ -96,7 +96,10 @@ const isUrlImport = definition => {
 
 const isTypeOnlyImport = definition =>
 	definition.type === 'ImportBinding'
-	&& isTypeImportSpecifier(definition.node);
+	&& (
+		definition.parent.importKind === 'type'
+		|| isTypeImportSpecifier(definition.node)
+	);
 
 const isTypeOnlyDefinition = definition =>
 	definition.type === 'Type'
@@ -160,6 +163,18 @@ const isUrlConstructor = (node, context) =>
 const isNewUrlExpression = (node, context) =>
 	node.type === 'NewExpression'
 	&& isUrlConstructor(node.callee, context);
+
+const isKnownNonUrlConstructor = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	return variable?.defs.some(definition =>
+		!isTypeOnlyDefinition(definition)
+		&& !isValueUrlImport(definition),
+	) ?? false;
+};
 
 const getDefinitionScope = (definition, context) =>
 	context.sourceCode.getScope(definition.name ?? definition.node);
@@ -432,6 +447,10 @@ function getUrlType(node, context, visitedVariables = new Set()) {
 	}
 
 	if (node.type === 'NewExpression') {
+		if (isKnownNonUrlConstructor(node.callee, context)) {
+			return nonUrl;
+		}
+
 		const typeFromTypeInformation = getTypeFromTypeInformation(node, context);
 		return typeFromTypeInformation === unknown ? nonUrl : typeFromTypeInformation;
 	}
