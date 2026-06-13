@@ -51,6 +51,15 @@ const config = [
 	},
 	{
 		files: [
+			'rules/utils/global-reference-tracker.js',
+		],
+		rules: {
+			// This module intentionally mutates its own exported class during setup.
+			'unicorn/no-top-level-side-effects': 'off',
+		},
+	},
+	{
+		files: [
 			'rules/comment-content.js',
 			'rules/consistent-assert.js',
 			'rules/no-array-for-each.js',
