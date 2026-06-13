@@ -458,12 +458,12 @@ const create = context => {
 		callExpressions.push({
 			node,
 			scope,
-			isArrayReceiver: isArray(node.callee.object, context),
+			isKnownArrayReceiver: isArray(node.callee.object, context),
 		});
 	});
 
 	context.onExit('Program', function * () {
-		for (const {node, scope, isArrayReceiver} of callExpressions) {
+		for (const {node, scope, isKnownArrayReceiver} of callExpressions) {
 			const iterable = node.callee;
 
 			const problem = {
@@ -472,7 +472,7 @@ const create = context => {
 			};
 
 			if (
-				!isArrayReceiver
+				!isKnownArrayReceiver
 				|| !isFixable(node, {
 					scope,
 					allIdentifiers,

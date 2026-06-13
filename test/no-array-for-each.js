@@ -233,7 +233,7 @@ test.snapshot({
 			`,
 			'a = foo?.bar.forEach((element) => bar(element));',
 
-			// Auto-fix
+			// Unknown receivers are reported without fixes.
 			outdent`
 				foo.forEach(function (element) {
 					bar(element);
@@ -273,10 +273,10 @@ test.snapshot({
 			'(a ? b : c()).forEach((element) => log(element))',
 			'(foo || bar).forEach((element) => log(element))',
 			'(foo || bar()).forEach((element) => log(element))',
-			// Array is parenthesized
+			// Receiver is parenthesized.
 			'(foo).forEach((element, index) => bar(element, index))',
 			'(0, foo).forEach((element, index) => bar(element, index))',
-			// Trailing comma
+			// Trailing comma.
 			outdent`
 				foo.forEach(function (element) {
 					bar(element);
@@ -308,7 +308,7 @@ test.snapshot({
 					}
 				}
 			`,
-			// A test to make sure function head part range correctly calculated
+			// Parenthesized callback body.
 			'foo.forEach(element => ({}))',
 			// `callback` is parenthesized
 			'foo.forEach((((((element => bar(element)))))));',
@@ -607,6 +607,7 @@ test({
 
 test.typescript({
 	valid: [
+		// `WeakMap` and `WeakSet` do not have `.forEach()`, but this still verifies parser-only type fallback.
 		'function foo(map: Map<string, string>) { map.forEach(value => console.log(value)); }',
 		'function foo(map: ReadonlyMap<string, string>) { map.forEach(value => console.log(value)); }',
 		'function foo(map: WeakMap<object, string>) { map.forEach(value => console.log(value)); }',
@@ -622,6 +623,12 @@ test.typescript({
 		outdent`
 			type ReadonlyArray<T> = ReadonlySet<T>;
 			function foo(collection: ReadonlyArray<string>) {
+				collection.forEach(value => console.log(value));
+			}
+		`,
+		outdent`
+			type Uint8Array = Set<number>;
+			function foo(collection: Uint8Array) {
 				collection.forEach(value => console.log(value));
 			}
 		`,
@@ -688,11 +695,41 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				const Array = function () {};
+				function foo(array: Array<string>) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				const Array = function () {};
+				function foo(array: Array<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
 				function foo(array: ReadonlyArray<string>) {
 					array.forEach(value => console.log(value));
 				}
 			`,
 			output: outdent`
+				function foo(array: ReadonlyArray<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const ReadonlyArray = {};
+				function foo(array: ReadonlyArray<string>) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				const ReadonlyArray = {};
 				function foo(array: ReadonlyArray<string>) {
 					for (const value of array) console.log(value);
 				}
@@ -737,6 +774,21 @@ test.typescript({
 			output: outdent`
 				type Map = string[];
 				function foo(array: Map) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Uint8Array = string[];
+				function foo(array: Uint8Array) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Uint8Array = string[];
+				function foo(array: Uint8Array) {
 					for (const value of array) console.log(value);
 				}
 			`,
@@ -761,6 +813,19 @@ test({
 			output: outdent`
 				declare function getStrings(): string[];
 				for (const value of getStrings()) console.log(value);
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
+				declare function getStrings(): string[];
+				const strings = getStrings();
+				strings.forEach(value => console.log(value));
+			`),
+			output: outdent`
+				declare function getStrings(): string[];
+				const strings = getStrings();
+				for (const value of strings) console.log(value);
 			`,
 			errors: 1,
 		},

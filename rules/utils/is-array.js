@@ -28,6 +28,10 @@ const knownNonArrayTypeNames = new Set([
 	'ReadonlySet',
 	'WeakSet',
 ]);
+const typeReferenceValueOnlyDefinitionTypes = new Set([
+	'FunctionName',
+	'Variable',
+]);
 
 const nonArrayExpressionTypes = new Set([
 	'ObjectExpression',
@@ -109,7 +113,7 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 	visitedTypeReferenceNames.add(typeReferenceName);
 
 	const typeVariable = getVariableByName(typeReferenceName, scope);
-	const [definition] = typeVariable?.defs ?? [];
+	const definition = typeVariable?.defs.find(definition => !typeReferenceValueOnlyDefinitionTypes.has(definition.type));
 
 	if (!definition) {
 		visitedTypeReferenceNames.delete(typeReferenceName);
