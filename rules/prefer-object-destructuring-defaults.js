@@ -8,6 +8,8 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use object destructuring defaults.',
 };
 
+const objectPrototypePropertyNames = new Set(Object.getOwnPropertyNames(Object.prototype));
+
 const needsParenthesesBeforeNullishCoalescing = node =>
 	[
 		'AssignmentExpression',
@@ -25,7 +27,7 @@ const isSimpleProperty = property =>
 	&& !property.method;
 
 const getSimplePatternProperties = (objectPattern, context) => {
-	if (objectPattern.typeAnnotation || context.sourceCode.getCommentsInside(objectPattern).length > 0) {
+	if (objectPattern.typeAnnotation) {
 		return;
 	}
 
@@ -40,7 +42,7 @@ const getSimplePatternProperties = (objectPattern, context) => {
 		}
 
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (!name) {
+		if (!name || objectPrototypePropertyNames.has(name)) {
 			return;
 		}
 
@@ -54,10 +56,6 @@ const getSimplePatternProperties = (objectPattern, context) => {
 };
 
 const getDefaultProperties = (objectExpression, context) => {
-	if (context.sourceCode.getCommentsInside(objectExpression).length > 0) {
-		return;
-	}
-
 	const {properties} = objectExpression;
 	const spreadElement = properties.at(-1);
 	if (spreadElement?.type !== 'SpreadElement') {

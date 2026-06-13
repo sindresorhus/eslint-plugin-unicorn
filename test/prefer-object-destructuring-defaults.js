@@ -13,6 +13,9 @@ test.snapshot({
 		'const {foo, bar} = {foo: false, ...options};',
 		'const {foo, bar} = {[foo]: false, bar: 1, ...options};',
 		'const {[foo]: localFoo, bar} = {foo: false, bar: 1, ...options};',
+		'const {toString} = {toString: "default", ...options};',
+		'const {constructor} = {constructor: "default", ...options};',
+		'const {__proto__: prototype} = {__proto__: "default", ...options};',
 		'const {foo, ...bar} = {foo: false, bar: 1, ...options};',
 		'const {foo = false, bar} = {foo: false, bar: 1, ...options};',
 		'const {foo, bar: {baz}} = {foo: false, bar: 1, ...options};',
@@ -22,6 +25,7 @@ test.snapshot({
 		'const {foo, bar} = {foo: +object, bar: 1, ...options};',
 		'const {foo, bar} = Object.assign({foo: false, bar: 1}, options);',
 		'({foo, bar} = {foo: false, bar: 1, ...options});',
+		'const {foo, /* keep */ bar} = {foo: false, bar: 1, ...options};',
 		'const {foo, bar} /* keep */ = {foo: false, bar: 1, ...options};',
 		'const {foo, bar} = /* keep */ {foo: false, bar: 1, ...options};',
 		outdent`
@@ -53,7 +57,10 @@ test.snapshot({
 			};
 		`,
 		'const {foo: localFoo, bar} = {foo: false, bar: 1, ...options};',
+		'const {"foo": localFoo} = {"foo": false, ...options};',
+		'const {0: first} = {0: "default", ...options};',
 		'const {foo, bar} = {foo: false, bar: 1, ...options.defaults};',
+		'const {foo, bar} = {foo: false, bar: 1, ...options || defaults};',
 		'const {foo, bar} = {foo: false, bar: 1, ...(options || defaults)};',
 		'const {foo, bar} = {foo: false, bar: 1, ...(condition ? options : defaults)};',
 		'const {foo, bar} = {foo: false, bar: 1, ...(options = defaults)};',
