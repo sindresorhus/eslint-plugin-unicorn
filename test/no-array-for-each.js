@@ -868,6 +868,48 @@ test({
 	invalid: [
 		{
 			...typeAware(outdent`
+				interface PageInfo {}
+				declare const staticPages: string[];
+				declare const allStaticPages: Set<string>;
+				declare const pageInfos: Map<string, PageInfo>;
+				declare const allPageInfos: Map<string, PageInfo>;
+
+				staticPages.forEach((pg) => allStaticPages.add(pg))
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`),
+			output: outdent`
+				interface PageInfo {}
+				declare const staticPages: string[];
+				declare const allStaticPages: Set<string>;
+				declare const pageInfos: Map<string, PageInfo>;
+				declare const allPageInfos: Map<string, PageInfo>;
+
+				for (const pg of staticPages) allStaticPages.add(pg)
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
+				declare const elements: string[];
+				declare function cloakElement(element: string): string;
+				const cloakVals: string[] = [];
+				elements.forEach(element => cloakVals.push(cloakElement(element)));
+			`),
+			output: outdent`
+				declare const elements: string[];
+				declare function cloakElement(element: string): string;
+				const cloakVals: string[] = [];
+				for (const element of elements) cloakVals.push(cloakElement(element));
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
 				declare function getStrings(): string[];
 				getStrings().forEach(value => console.log(value));
 			`),
