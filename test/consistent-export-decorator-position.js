@@ -78,6 +78,7 @@ test.snapshot({
 	].map(testCase => withTypescriptParser(testCase)),
 	invalid: [
 		'export default @decorator class Foo {}',
+		'export default @decorator class {}',
 		'@decorator export default class Foo {}',
 		'export @decorator class Foo {}',
 		'@decorator export class Foo {}',

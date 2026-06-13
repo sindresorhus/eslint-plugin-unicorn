@@ -57,6 +57,7 @@ export default @decorator class Foo {}
 
 ## Options
 
+Type: `string`\
 Default: `'above'`
 
 Available options:
