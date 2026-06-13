@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -17,6 +17,8 @@ test.snapshot({
 		'Reflect.defineProperty(foo, "bar", {value: 1});\nReflect.defineProperty(foo, "baz", {value: 2});',
 		'defineProperty(foo, "bar", {value: 1});\ndefineProperty(foo, "baz", {value: 2});',
 		'const result = Object.defineProperty(foo, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
+		'Object.defineProperty(foo, "bar", {value: 1});\nconst result = Object.defineProperty(foo, "baz", {value: 2});',
+		'Object.defineProperty(getObject(), "bar", {value: 1});\nObject.defineProperty(getObject(), "baz", {value: 2});',
 	],
 	invalid: [
 		'Object.defineProperty(foo, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
@@ -38,7 +40,23 @@ test.snapshot({
 	});
 }`,
 		'Object.defineProperty(foo, "bar", {value: 1});\nObject.defineProperty(foo, "bar", {value: 2});',
+		'Object.defineProperty(foo, 1, {value: "number"});\nObject.defineProperty(foo, "1", {value: "string"});',
+		'const key = "bar";\nObject.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, "bar", {value: 2});',
 		'Object.defineProperty(foo, Symbol.iterator, {value: 1});\nObject.defineProperty(foo, Symbol.iterator, {value: 2});',
+		'Object.defineProperty(foo, key, {value: 1});\nObject.defineProperty(foo, key, {value: 2});',
+		'Object.defineProperty(foo, keys.name, {value: 1});\nObject.defineProperty(foo, keys.name, {value: 2});',
+		{
+			code: 'Object.defineProperty(foo as Foo, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Object.defineProperty(foo!, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Object.defineProperty(<Foo>foo, "bar", {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'Object.defineProperty(foo, "bar", {value: 1});\n// comment\nObject.defineProperty(foo, "baz", {value: 2});',
 		'Object.defineProperty(foo, "bar", /* comment */ {value: 1});\nObject.defineProperty(foo, "baz", {value: 2});',
 	],

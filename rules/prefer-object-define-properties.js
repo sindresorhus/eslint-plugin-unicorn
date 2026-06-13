@@ -68,12 +68,19 @@ function getPropertyKeyText(node, sourceCode) {
 	return `[${nodeText}]`;
 }
 
-function hasDuplicateStaticPropertyKeys(calls, sourceCode) {
+function hasDuplicatePropertyKeys(calls, sourceCode) {
 	const staticKeys = new Set();
+	const dynamicKeys = [];
 
 	for (const call of calls) {
-		const key = getStaticPropertyKey(call.arguments[1], sourceCode);
+		const keyNode = call.arguments[1];
+		const key = getStaticPropertyKey(keyNode, sourceCode);
 		if (key === undefined) {
+			if (dynamicKeys.some(dynamicKey => isSameReference(dynamicKey, keyNode))) {
+				return true;
+			}
+
+			dynamicKeys.push(keyNode);
 			continue;
 		}
 
@@ -95,7 +102,7 @@ function hasCommentsInRange(sourceCode, range) {
 	});
 }
 
-function fixDefineProperties(expressionStatements, calls, context) {
+function getDefinePropertiesFix(expressionStatements, calls, context) {
 	const {sourceCode} = context;
 	const firstExpressionStatement = expressionStatements[0];
 	const lastExpressionStatement = expressionStatements.at(-1);
@@ -170,10 +177,10 @@ const create = context => {
 		];
 
 		if (
-			!hasDuplicateStaticPropertyKeys(calls, sourceCode)
+			!hasDuplicatePropertyKeys(calls, sourceCode)
 			&& !hasCommentsInRange(sourceCode, range)
 		) {
-			problem.fix = fixDefineProperties(expressionStatements, calls, context);
+			problem.fix = getDefinePropertiesFix(expressionStatements, calls, context);
 		}
 
 		return problem;

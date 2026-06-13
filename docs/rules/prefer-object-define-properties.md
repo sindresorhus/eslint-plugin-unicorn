@@ -13,6 +13,8 @@ Prefer [`Object.defineProperties()`](https://developer.mozilla.org/en-US/docs/We
 
 This rule only checks adjacent `Object.defineProperty()` expression statements with the same target. `Reflect.defineProperty()` is intentionally ignored because it returns a boolean instead of throwing and there is no `Reflect.defineProperties()` equivalent.
 
+The autofix is skipped when comments would be removed or when duplicate property keys can be detected.
+
 ## Examples
 
 ```js
