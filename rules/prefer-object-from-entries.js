@@ -2,8 +2,10 @@ import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community
 import {isMethodCall, isNullLiteral, isEmptyObjectExpression} from './ast/index.js';
 import {removeParentheses} from './fix/index.js';
 import {
+	getNextNode,
 	getParentheses,
 	getParenthesizedText,
+	getVariableIdentifiers,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
 } from './utils/index.js';
@@ -11,9 +13,11 @@ import {isCallExpression} from './ast/call-or-new-expression.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
+const MESSAGE_ID_LOOP = 'loop';
 const messages = {
 	[MESSAGE_ID_REDUCE]: 'Prefer `Object.fromEntries()` over `Array#reduce()`.',
 	[MESSAGE_ID_FUNCTION]: 'Prefer `Object.fromEntries()` over `{{functionName}}()`.',
+	[MESSAGE_ID_LOOP]: 'Prefer `Object.fromEntries()` over a `for-of` loop.',
 };
 
 const isEmptyObject = node =>
@@ -41,6 +45,51 @@ const isProperty = node =>
 	node.type === 'Property'
 	&& node.kind === 'init'
 	&& !node.method;
+
+const isBlockWithOneExpressionStatement = node =>
+	node.type === 'BlockStatement'
+	&& node.body.length === 1
+	&& node.body[0].type === 'ExpressionStatement';
+
+const getOnlyLoopAssignmentExpression = loop => {
+	if (!isBlockWithOneExpressionStatement(loop.body)) {
+		return;
+	}
+
+	const [{expression}] = loop.body.body;
+
+	if (expression.type === 'AssignmentExpression') {
+		return expression;
+	}
+};
+
+const getForOfLeftPattern = node => {
+	if (
+		node.type === 'VariableDeclaration'
+		&& (node.kind === 'const' || node.kind === 'let')
+		&& node.declarations.length === 1
+	) {
+		return node.declarations[0].id;
+	}
+};
+
+const isPairPattern = node =>
+	node.type === 'ArrayPattern'
+	&& node.elements.length === 2
+	&& node.elements.every(element => element?.type === 'Identifier');
+
+const declaresVariableNamed = (node, name, context) =>
+	context.sourceCode.getDeclaredVariables(node).some(variable => variable.name === name);
+
+const referencesVariable = (variable, node, context) => {
+	const range = context.sourceCode.getRange(node);
+
+	return getVariableIdentifiers(variable).some(identifier => {
+		const [start, end] = context.sourceCode.getRange(identifier);
+
+		return start >= range[0] && end <= range[1];
+	});
+};
 
 // - `pairs.reduce(…, {})`
 // - `pairs.reduce(…, Object.create(null))`
@@ -165,11 +214,80 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 	};
 }
 
+const matchesForOfLoop = (id, loopLeft, assignmentExpression) => {
+	if (
+		assignmentExpression.operator !== '='
+		|| assignmentExpression.left.type !== 'MemberExpression'
+		|| !assignmentExpression.left.computed
+		|| !isPairPattern(loopLeft)
+	) {
+		return false;
+	}
+
+	const {object, property} = assignmentExpression.left;
+	const [key, value] = loopLeft.elements;
+
+	return isSameIdentifier(id, object)
+		&& isSameIdentifier(key, property)
+		&& isSameIdentifier(value, assignmentExpression.right);
+};
+
+const getForOfLoopProblem = (declaration, context) => {
+	if (
+		declaration.declarations.length !== 1
+		|| declaration.declarations[0].id.type !== 'Identifier'
+		|| !declaration.declarations[0].init
+		|| !isEmptyObjectExpression(declaration.declarations[0].init)
+	) {
+		return;
+	}
+
+	const [declarator] = declaration.declarations;
+	const {id} = declarator;
+	const loop = getNextNode(declaration, context);
+
+	if (loop?.type !== 'ForOfStatement' || loop.await) {
+		return;
+	}
+
+	const loopLeft = getForOfLeftPattern(loop.left);
+	if (!loopLeft) {
+		return;
+	}
+
+	if (declaresVariableNamed(loop.left, id.name, context)) {
+		return;
+	}
+
+	const variable = context.sourceCode.getDeclaredVariables(declarator)[0];
+	if (
+		variable
+		&& referencesVariable(variable, loop.right, context)
+	) {
+		return;
+	}
+
+	const assignmentExpression = getOnlyLoopAssignmentExpression(loop);
+	if (
+		!assignmentExpression
+		|| !matchesForOfLoop(id, loopLeft, assignmentExpression)
+	) {
+		return;
+	}
+
+	return {
+		node: loop,
+		messageId: MESSAGE_ID_LOOP,
+	};
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	const {sourceCode} = context;
 	const {functions: configFunctions} = context.options[0];
 	const functions = [...configFunctions, ...lodashFromPairsFunctions];
+
+	context.on('VariableDeclaration', declaration => getForOfLoopProblem(declaration, context));
 
 	context.on('CallExpression', function * (callExpression) {
 		for (const {test, getProperty} of fixableArrayReduceCases) {

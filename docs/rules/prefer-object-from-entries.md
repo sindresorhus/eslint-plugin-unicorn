@@ -35,6 +35,12 @@ const object = pairs.reduce(
 );
 
 // ❌
+const object = {};
+for (const [key, value] of pairs) {
+	object[key] = value;
+}
+
+// ❌
 const object = _.fromPairs(pairs);
 
 // ✅
