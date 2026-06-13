@@ -484,8 +484,8 @@ const getLengthWrapperRemovalRanges = (lengthCheck, context) => {
 };
 
 const canSuggestLengthCheck = (lengthCheck, context) =>
-	!getLengthWrapperRemovalRanges(lengthCheck, context)
-		.some(range => hasCommentsInRange(context.sourceCode, range));
+	getLengthWrapperRemovalRanges(lengthCheck, context)
+		.every(range => !hasCommentsInRange(context.sourceCode, range));
 
 const getSearchCheck = node => {
 	const {parent} = node;

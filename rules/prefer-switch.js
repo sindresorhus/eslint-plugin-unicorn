@@ -302,7 +302,7 @@ const create = context => {
 
 			if (
 				!hasSideEffect(discriminant, sourceCode)
-				&& !ifStatements.some(({statement}) => hasBreakInside(breakStatements, statement, context))
+				&& ifStatements.every(({statement}) => !hasBreakInside(breakStatements, statement, context))
 			) {
 				problem.fix = fix({discriminant, ifStatements}, context, options);
 			}

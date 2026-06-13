@@ -130,7 +130,7 @@ function isJsonReadFileCall(node, scope) {
 			&& node.type === 'CallExpression'
 			&& !node.optional
 			&& (node.arguments.length === 1 || node.arguments.length === 2)
-			&& !node.arguments.some(node => node.type === 'SpreadElement')
+			&& node.arguments.every(node => node.type !== 'SpreadElement')
 			&& node.callee.type === 'MemberExpression'
 			&& !node.callee.optional
 		)

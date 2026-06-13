@@ -67,7 +67,7 @@ const create = context => {
 
 		const comparisons = getLogicalOrOperands(node);
 		if (
-			!comparisons.every(comparison => isStrictEqualityComparison(comparison))
+			comparisons.some(comparison => !isStrictEqualityComparison(comparison))
 			|| comparisons.length < minimumComparisons
 		) {
 			return;

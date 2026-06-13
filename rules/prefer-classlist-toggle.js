@@ -155,7 +155,7 @@ const create = context => {
 
 		// `element.classList.add('className');`
 		// `element.classList.remove('className');`
-		if (!clauses.every(node => isClassListMethodCall(node, ['add', 'remove']))) {
+		if (clauses.some(node => !isClassListMethodCall(node, ['add', 'remove']))) {
 			return;
 		}
 

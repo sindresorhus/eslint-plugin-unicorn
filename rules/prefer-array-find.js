@@ -307,7 +307,7 @@ const create = context => {
 		};
 
 		// `const [foo = bar] = baz` is not fixable
-		if (!destructuringNodes.some(node => hasDefaultValue(node))) {
+		if (destructuringNodes.every(node => !hasDefaultValue(node))) {
 			problem.fix = function * (fixer) {
 				yield fixer.replaceText(node.init.callee.property, 'find');
 
