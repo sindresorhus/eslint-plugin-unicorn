@@ -359,13 +359,9 @@ const syntaxNonTargetTypes = new Set([
 ]);
 
 function getExpressionType(node, context, visitedVariables = new Set()) {
-	const {sourceCode} = context;
-
 	if (isRegExpNode(node)) {
 		return REGEXP;
 	}
-
-	const scope = sourceCode.getScope(node);
 
 	if (isString(node, context)) {
 		return STRING;
@@ -411,6 +407,7 @@ function getExpressionType(node, context, visitedVariables = new Set()) {
 		}
 	}
 
+	const scope = context.sourceCode.getScope(node);
 	const staticType = getStaticValueType(node, scope);
 	if (staticType !== UNKNOWN) {
 		return staticType;
