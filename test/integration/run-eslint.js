@@ -111,10 +111,11 @@ async function runEslint(project) {
 	const results = await eslint.lintFiles(patterns);
 
 	const errors = results
-		.filter(file => file.fatalErrorCount > 0)
-		.flatMap(file => file.messages
-			.filter(message => message.fatal)
-			.map(message => new UnicornEslintFatalError(message, file)));
+		.flatMap(file => file.fatalErrorCount > 0
+			? file.messages
+				.filter(message => message.fatal)
+				.map(message => new UnicornEslintFatalError(message, file))
+			: []);
 
 	if (errors.length > 0) {
 		throw new UnicornIntegrationTestError(project, errors);
