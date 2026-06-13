@@ -1,6 +1,6 @@
 # prefer-ternary
 
-📝 Prefer ternary expressions over simple `if-else` statements.
+📝 Prefer ternary expressions over simple `if-else` statements that return or assign values.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,11 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over 'simple' `if-else` statements, where 'simple' means the consequent and alternate are each one line and have the same basic type and form.
+This rule enforces the use of ternary expressions over 'simple' `if-else` statements that return or assign a value. A simple statement has one mergeable branch statement on each side with the same basic type and form.
 
-It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single `const` declaration using a ternary.
+It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
-Using an `if-else` statement typically results in more lines of code than a single-line ternary expression, which leads to an unnecessarily larger codebase that is more difficult to maintain.
+It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
+
+Using an `if-else` statement typically results in more lines of code than a single ternary expression, which leads to an unnecessarily larger codebase that is more difficult to maintain.
 
 Additionally, using an `if-else` statement can result in defining variables using `let` or `var` solely to be reassigned within the blocks. This leads to variables being unnecessarily mutable and prevents `prefer-const` from flagging the variable.
 
@@ -33,51 +35,6 @@ function unicorn() {
 function unicorn() {
 	return test ? a : b;
 }
-```
-
-```js
-// ❌
-function* unicorn() {
-	if (test) {
-		yield a;
-	} else {
-		yield b;
-	}
-}
-
-// ✅
-function* unicorn() {
-	yield (test ? a : b);
-}
-```
-
-```js
-// ❌
-async function unicorn() {
-	if (test) {
-		await a();
-	} else {
-		await b();
-	}
-}
-
-// ✅
-async function unicorn() {
-	await (test ? a() : b());
-}
-```
-
-```js
-// ❌
-if (test) {
-	throw new Error('foo');
-} else {
-	throw new Error('bar');
-}
-
-// ✅
-const error = test ? new Error('foo') : new Error('bar');
-throw error;
 ```
 
 ```js
@@ -103,6 +60,40 @@ if (data.length) {
 
 // ✅
 const items = data.length ? data : defaultData;
+```
+
+```js
+// ✅
+// Standalone yields
+function* unicorn() {
+	if (test) {
+		yield a;
+	} else {
+		yield b;
+	}
+}
+```
+
+```js
+// ✅
+// Standalone awaits
+async function unicorn() {
+	if (test) {
+		await a();
+	} else {
+		await b();
+	}
+}
+```
+
+```js
+// ✅
+// Standalone throws
+if (test) {
+	throw new Error('foo');
+} else {
+	throw new Error('bar');
+}
 ```
 
 ```js
@@ -148,9 +139,9 @@ Type: `string`\
 Default: `'always'`
 
 - `'always'` (default)
-  - Always report when using an `IfStatement` where a ternary expression can be used.
+  - Always report supported `IfStatement` returns and assignments where a ternary expression can be used.
 - `'only-single-line'`
-  - Only check if the content of the `if` and/or `else` block is less than one line long.
+  - Only report when the condition and merged expressions are single-line.
 
 ```js
 /* eslint unicorn/prefer-ternary: ["error", "only-single-line"] */

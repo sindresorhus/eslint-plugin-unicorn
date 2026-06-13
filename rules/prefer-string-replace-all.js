@@ -19,18 +19,116 @@ const messages = {
 };
 
 const QUOTE = '\'';
+const unsafeStringReplacementFlags = new Set(['i', 'y']);
 const zeroLengthRegExpNodeTypes = new Set([
 	'anchor',
 	'reference',
 ]);
 
-function getPatternReplacement(node) {
-	if (!isRegexLiteral(node)) {
-		return;
+function hasSafeGlobalStringReplacementFlags(flags) {
+	if (!flags.includes('g')) {
+		return false;
 	}
 
-	const {flags} = node.regex;
-	if (flags.replace('u', '').replace('v', '') !== 'g') {
+	for (const flag of flags) {
+		if (unsafeStringReplacementFlags.has(flag)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+const getUnicodeEscape = codePoint => String.raw`\u{${codePoint.toString(16)}}`;
+
+function getValueReplacement(node) {
+	const {kind, codePoint, raw} = node;
+
+	if (kind === 'controlLetter') {
+		if (codePoint === 13) {
+			return String.raw`\r`;
+		}
+
+		if (codePoint === 10) {
+			return String.raw`\n`;
+		}
+
+		if (codePoint === 9) {
+			return String.raw`\t`;
+		}
+
+		return getUnicodeEscape(codePoint);
+	}
+
+	if (
+		kind === 'null'
+		|| kind === 'octal'
+	) {
+		return getUnicodeEscape(codePoint);
+	}
+
+	let character = raw;
+	if (
+		kind === 'identifier'
+		|| (kind === 'symbol' && raw.length > 1 && raw.startsWith('\\'))
+	) {
+		character = character.slice(1);
+	}
+
+	if (character === QUOTE || character === '\\') {
+		return `\\${character}`;
+	}
+
+	return character;
+}
+
+function getNodeReplacement(node) {
+	if (node.type === 'value') {
+		return getValueReplacement(node);
+	}
+
+	if (
+		node.type === 'characterClass'
+		&& !node.negative
+		&& node.body.length === 1
+		&& node.body[0].type === 'value'
+	) {
+		return getValueReplacement(node.body[0]);
+	}
+
+	if (
+		node.type === 'quantifier'
+		&& node.min === 1
+		&& node.max === 1
+	) {
+		return getBodyReplacement(node.body);
+	}
+
+	if (
+		node.type === 'group'
+		&& node.behavior === 'ignore'
+	) {
+		return getBodyReplacement(node.body);
+	}
+}
+
+function getBodyReplacement(body) {
+	const parts = [];
+
+	for (const node of body) {
+		const replacement = getNodeReplacement(node);
+		if (replacement === undefined) {
+			return;
+		}
+
+		parts.push(replacement);
+	}
+
+	return parts.join('');
+}
+
+function getPatternReplacement(node) {
+	if (!isRegexLiteral(node)) {
 		return;
 	}
 
@@ -39,47 +137,19 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	const parts = tree.type === 'alternative' ? tree.body : [tree];
-	if (parts.some(part => part.type !== 'value')) {
+	const {flags} = node.regex;
+	if (!hasSafeGlobalStringReplacementFlags(flags)) {
 		return;
 	}
 
-	return QUOTE
-		+ parts.map(part => {
-			const {kind, codePoint, raw} = part;
+	const replacement = tree.type === 'alternative'
+		? getBodyReplacement(tree.body)
+		: getNodeReplacement(tree);
+	if (!replacement) {
+		return;
+	}
 
-			if (kind === 'controlLetter') {
-				if (codePoint === 13) {
-					return String.raw`\r`;
-				}
-
-				if (codePoint === 10) {
-					return String.raw`\n`;
-				}
-
-				if (codePoint === 9) {
-					return String.raw`\t`;
-				}
-
-				return String.raw`\u{${codePoint.toString(16)}}`;
-			}
-
-			if (kind === 'octal') {
-				return String.raw`\u{${codePoint.toString(16)}}`;
-			}
-
-			let character = raw;
-			if (kind === 'identifier') {
-				character = character.slice(1);
-			}
-
-			if (character === QUOTE || character === '\\') {
-				return `\\${character}`;
-			}
-
-			return character;
-		}).join('')
-		+ QUOTE;
+	return QUOTE + replacement + QUOTE;
 }
 
 const isRegExpWithGlobalFlag = (node, scope) => {

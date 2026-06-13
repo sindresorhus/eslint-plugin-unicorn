@@ -100,7 +100,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-This rule only check negative indexes by default, but you can also check positive indexes by setting `checkAllIndexAccess` to `true`.
+This rule only checks negative indexes by default, but you can also check positive indexes by setting `checkAllIndexAccess` to `true`.
 
 Example:
 

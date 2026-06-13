@@ -9,47 +9,62 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule prefers concise arrow function properties for object literal methods that only return a value.
+For object literal methods that simply return a value with no other logic, arrow function syntax is more concise. This rule applies only to object literals, not classes, since class methods have different prototype and binding behavior.
 
-It intentionally only checks object literals. Class methods and class fields have different prototype and binding behavior, so they are out of scope.
-
-Methods that use `this`, `arguments`, `super`, `new.target`, or direct `eval()` are ignored because converting them to arrow functions could change behavior.
+Methods using `this`, `arguments`, `super`, `new.target`, or `eval()` are excluded because arrow functions would change their behavior.
 
 ## Examples
 
 ```js
-// ❌
-const object = {
-	foo() {
-		return bar;
+// ❌ - Verbose method syntax for simple return
+const api = {
+	getUrl() {
+		return 'https://api.example.com';
 	},
 };
 
-// ✅
-const object = {
-	foo: () => bar,
+// ✅ - Concise arrow function
+const api = {
+	getUrl: () => 'https://api.example.com',
 };
 ```
 
 ```js
-// ❌
-const object = {
-	async foo(bar) {
-		return bar;
+// ❌ - Method with parameter
+const calculator = {
+	add(a, b) {
+		return a + b;
 	},
 };
 
-// ✅
-const object = {
-	foo: async (bar) => bar,
+// ✅ - Arrow function is more concise
+const calculator = {
+	add: (a, b) => a + b,
 };
 ```
 
 ```js
-// ✅
-const object = {
-	foo() {
-		return this.foo;
+// ❌ - Async method with simple return
+const asyncApi = {
+	async fetchData(url) {
+		return fetch(url);
+	},
+};
+
+// ✅ - Arrow function is cleaner
+const asyncApi = {
+	fetchData: async (url) => fetch(url),
+};
+```
+
+```js
+// ✅ - Keep regular method when using 'this' or other context-dependent code
+const user = {
+	getName() {
+		return this.firstName + ' ' + this.lastName;
+	},
+	getRole() { // Can't convert to arrow - uses 'this'
+		return this.role;
 	},
 };
 ```

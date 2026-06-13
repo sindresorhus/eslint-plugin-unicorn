@@ -9,22 +9,44 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`Array#sort()` and `Array#toSorted()` sort elements as strings when no compare function is provided. This can produce surprising results for numbers and mixed values.
+Without an explicit compare function, [`Array#sort()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) and [`Array#toSorted()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted) sort elements by converting them to strings, which produces unexpected results for numbers and other non-string values.
 
 ## Examples
 
 ```js
-// ❌
-const sorted = values.toSorted();
+// ❌ - Sorts as strings: [1, 10, 2, 20, 3]
+const numbers = [3, 1, 10, 2, 20];
+numbers.toSorted();
 
-// ✅
-const sorted = values.toSorted((a, b) => a - b);
+// ✅ - Properly numeric sort: [1, 2, 3, 10, 20]
+const numbers = [3, 1, 10, 2, 20];
+numbers.toSorted((a, b) => a - b);
 ```
 
 ```js
-// ❌
-values.sort();
+// ❌ - String sorting on numbers is wrong
+[5, 10, 15, 2, 25].sort();
+// → [10, 15, 2, 25, 5] (unexpected!)
 
 // ✅
-values.sort((a, b) => a.localeCompare(b));
+[5, 10, 15, 2, 25].sort((a, b) => a - b);
+// → [2, 5, 10, 15, 25]
+```
+
+```js
+// ❌ - Sorting strings without explicit compare
+const names = ['Alice', 'bob', 'Charlie'];
+names.sort();
+// → ['Alice', 'Charlie', 'bob'] (case-sensitive)
+
+// ✅ - Case-insensitive sorting
+const names = ['Alice', 'bob', 'Charlie'];
+names.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+// → ['Alice', 'bob', 'Charlie']
+```
+
+```js
+// ✅ - Descending order
+const numbers = [3, 1, 4, 1, 5, 9];
+numbers.sort((a, b) => b - a); // [9, 5, 4, 3, 1, 1]
 ```

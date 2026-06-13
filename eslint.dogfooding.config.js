@@ -38,6 +38,7 @@ const config = [
 			// Annoying
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
+			'unicorn/no-invalid-argument-count': 'off',
 			'unicorn/try-complexity': 'off',
 			// Recursive AST/tree walkers are intentional in rule implementation code.
 			'unicorn/no-useless-recursion': 'off',
@@ -46,6 +47,15 @@ const config = [
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/utils/global-reference-tracker.js',
+		],
+		rules: {
+			// This module intentionally mutates its own exported class during setup.
+			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},
 	{

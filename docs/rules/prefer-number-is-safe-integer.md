@@ -26,3 +26,32 @@ if (!Number.isSafeInteger(index)) {
 	throw new Error('Expected a safe integer.');
 }
 ```
+
+```js
+// ❌
+// This is problematic because Numbers larger than 2^53 - 1 lose precision
+const largeNumber = 9007199254740992; // 2^53
+Number.isInteger(largeNumber); // true (misleading!)
+largeNumber === 9007199254740993; // true (precision lost!)
+
+// ✅
+Number.isSafeInteger(largeNumber); // false (correctly identifies the issue)
+```
+
+```js
+// ❌
+function processId(id) {
+	if (!Number.isInteger(id)) {
+		throw new Error('Invalid ID');
+	}
+	// id could still be too large to represent exactly
+}
+
+// ✅
+function processId(id) {
+	if (!Number.isSafeInteger(id)) {
+		throw new Error('Invalid ID');
+	}
+	// id is guaranteed to be safely representable
+}
+```

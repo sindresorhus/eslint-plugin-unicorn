@@ -39,8 +39,11 @@ test('Every rule is defined in index file in alphabetical order', t => {
 			);
 		}
 
-		t.truthy(fs.existsSync(path.join('docs/rules', `${name}.md`)), `There is no documentation for '${name}'`);
-		t.truthy(fs.existsSync(path.join('test', file.replace(/\.js$/, '.js'))), `There are no tests for '${name}'`);
+		const documentationPath = path.join('docs/rules', `${name}.md`);
+		const testPath = path.join('test', file.replace(/\.js$/, '.js'));
+
+		t.truthy(fs.existsSync(documentationPath), `There is no documentation for '${name}'`);
+		t.truthy(fs.existsSync(testPath), `There are no tests for '${name}'`);
 	}
 
 	t.is(

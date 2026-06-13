@@ -94,7 +94,7 @@ array.includes(true);
 
 ```js
 // ✅
-foo.indexOf('foo') !== -n;
+foo.indexOf('foo') !== -1;
 ```
 
 ```js

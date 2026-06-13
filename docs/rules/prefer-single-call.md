@@ -9,7 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push), [`Array#unshift()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift), [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList), and [`importScripts()`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) accept multiple arguments. Multiple calls should be combined into one.
+These methods accept multiple arguments and should be combined into a single call when possible:
+
+- [`Array#push()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push)
+- [`Array#unshift()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift)
+- [`Element#classList.add()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)
+- [`Element#classList.remove()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList)
+- [`importScripts()`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts)
+
+Combining calls is more efficient, cleaner, and reduces code duplication.
 
 ## Examples
 

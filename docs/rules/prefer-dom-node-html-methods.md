@@ -9,24 +9,36 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer `Element#getHTML()` and `Element#setHTML()` over direct `.innerHTML` access.
-
-`setHTML()` sanitizes inserted HTML before replacing the element's contents, while assigning to `.innerHTML` does not.
+[`Element#getHTML()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getHTML) and [`Element#setHTML()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/setHTML) are safer and more modern alternatives to `.innerHTML`. Crucially, `setHTML()` automatically sanitizes the HTML to remove dangerous scripts before inserting it, while `.innerHTML` does not.
 
 ## Examples
 
 ```js
-// ❌
+// ❌ - No sanitization, vulnerable to XSS
 const html = element.innerHTML;
 
-// ✅
+// ✅ - No sanitization needed on read, but clearer API
 const html = element.getHTML();
 ```
 
 ```js
-// ❌
-element.innerHTML = html;
+// ❌ - Dangerous! XSS vulnerability if html contains untrusted content
+element.innerHTML = userProvidedHTML;
 
-// ✅
-element.setHTML(html);
+// ✅ - Automatically sanitizes malicious scripts
+element.setHTML(userProvidedHTML);
+```
+
+```js
+// ✅ - Before setHTML(), you had to manually sanitize
+// This was error-prone:
+element.innerHTML = sanitizeHTML(userInput); // Easy to forget sanitization
+
+// Now it's built in:
+element.setHTML(userInput); // Automatic sanitization
+```
+
+```js
+// ✅ - Use trusted HTML when you know it's safe
+element.setHTML('<strong>Safe static HTML</strong>');
 ```

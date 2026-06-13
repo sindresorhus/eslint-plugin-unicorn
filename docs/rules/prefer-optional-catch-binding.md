@@ -9,17 +9,48 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-If the `catch` binding parameter is not used, it should be omitted.
+Optional catch binding (ES2019) allows you to omit the error parameter in catch blocks when you don't need it. This is cleaner and makes it clear that the error is not being used. The binding parameter is required in older JavaScript versions, but modern codebases should embrace this feature.
 
 ## Examples
 
 ```js
 // ❌
-try {} catch (notUsedError) {}
-
-// ❌
-try {} catch ({message}) {}
+try {
+	// do something
+} catch (notUsedError) {
+	// ignore error
+}
 
 // ✅
-try {} catch {}
+try {
+	// do something
+} catch {
+	// ignore error
+}
+```
+
+```js
+// ❌
+try {
+	await fetch(url);
+} catch (error) {
+	// error is not used, just continue
+}
+
+// ✅
+try {
+	await fetch(url);
+} catch {
+	// ignore fetch errors
+}
+```
+
+```js
+// ✅
+try {
+	doSomething();
+} catch (error) {
+	// error is actually used
+	console.log(error.message);
+}
 ```

@@ -17,8 +17,30 @@ Enforces the use of, for example, `document.body.append(div);` over `document.bo
 
 ```js
 // ❌
-foo.appendChild(bar);
+element.appendChild(child);
 
 // ✅
-foo.append(bar);
+element.append(child);
+```
+
+```js
+// ❌
+// Multiple nodes require chaining
+parent.appendChild(child1);
+parent.appendChild(child2);
+parent.appendChild(child3);
+
+// ✅
+// append() can handle multiple nodes in one call
+parent.append(child1, child2, child3);
+```
+
+```js
+// ❌
+// appendChild only works with Node objects
+container.appendChild(divElement);
+
+// ✅
+// append() can mix nodes and strings
+container.append(divElement, 'Some text content');
 ```

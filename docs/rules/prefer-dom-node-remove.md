@@ -9,22 +9,42 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces the use of, for example, `child.remove();` over `child.parentNode.removeChild(child);`. The DOM function [`Node#remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is preferred over the indirect removal of an object with [`Node#removeChild()`](https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild).
+[`Node#remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is a cleaner and more direct way to remove an element from the DOM. It's simpler, more readable, and doesn't require a reference to the parent node.
 
 ## Examples
 
 ```js
-// ❌
-parentNode.removeChild(foo);
+// ❌ - Requires knowing the parent and using the indirect method
+const element = document.querySelector('.banner');
+element.parentNode.removeChild(element);
 
-// ✅
-foo.remove();
+// ✅ - Direct, straightforward removal
+const element = document.querySelector('.banner');
+element.remove();
 ```
 
 ```js
 // ❌
-parentNode.removeChild(this);
+const button = document.getElementById('close-btn');
+button.parentNode.removeChild(button);
 
 // ✅
-this.remove();
+const button = document.getElementById('close-btn');
+button.remove();
+```
+
+```js
+// ❌
+class Modal {
+	close() {
+		this.parentNode.removeChild(this);
+	}
+}
+
+// ✅
+class Modal {
+	close() {
+		this.remove();
+	}
+}
 ```

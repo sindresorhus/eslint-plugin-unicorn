@@ -8,26 +8,38 @@
 
 <!-- end auto-generated rule header -->
 
-Prefer a single [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) or [`Array#every()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every) call with a combined predicate instead of repeating the same array check in a logical expression.
+Combining multiple predicates into a single [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) or [`Array#every()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every) call is more efficient and readable. Calling the same method multiple times iterates the array multiple times unnecessarily.
 
-This rule only checks simple expression-bodied arrow functions that use the same array receiver, method, logical operator, and callback parameter.
-
-This rule provides suggestions instead of an autofix because combining calls can change evaluation order when receivers or predicates have side effects.
+This rule only provides suggestions (not autofix) because combining calls can change evaluation order when receivers or predicates have side effects.
 
 ## Examples
 
 ```js
-// ❌
-array.some(element => element.foo) || array.some(element => element.bar);
+// ❌ - Iterates array twice
+const hasErrors = messages.some(m => m.type === 'error') || messages.some(m => m.severity === 'critical');
 
-// ✅
-array.some(element => element.foo || element.bar);
+// ✅ - Single iteration with combined predicate
+const hasErrors = messages.some(m => m.type === 'error' || m.severity === 'critical');
 ```
 
 ```js
-// ❌
-array.every(element => element.foo) && array.every(element => element.bar);
+// ❌ - Iterates array twice
+const allValid = items.every(item => item.valid) && items.every(item => item.complete);
 
-// ✅
-array.every(element => element.foo && element.bar);
+// ✅ - Single iteration
+const allValid = items.every(item => item.valid && item.complete);
+```
+
+```js
+// ❌ - Multiple same-method calls
+const hasAnyValue = values.some(v => v !== null) || values.some(v => v !== undefined);
+
+// ✅ - Combine into one check
+const hasAnyValue = values.some(v => v !== null && v !== undefined);
+```
+
+```js
+// ✅ - Different predicates or different methods don't trigger this rule
+array.some(x => x > 5) && array.every(x => x < 100); // OK - different methods
+array.some(x => x > 5) || someOtherCondition; // OK - different receiver
 ```

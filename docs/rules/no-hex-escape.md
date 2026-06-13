@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforces a convention of using [Unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) instead of [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal) for consistency and clarity.
+[Unicode escapes](https://mathiasbynens.be/notes/javascript-escapes#unicode) are more consistent, readable, and standardized than [hexadecimal escapes](https://mathiasbynens.be/notes/javascript-escapes#hexadecimal). Unicode escapes clearly show they represent Unicode code points, while hex escapes are ambiguous about whether they represent bytes or code units.
 
 Tagged template literals are ignored because tag functions can observe the raw escape sequences.
 

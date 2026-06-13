@@ -67,7 +67,7 @@ promise
 		}
 
 		throw new Error('odd number');
-	});
+	})
 	.catch(error => {
 		throw new FancyError(error);
 	});

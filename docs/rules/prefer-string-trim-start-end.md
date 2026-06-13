@@ -9,22 +9,34 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`String#trimLeft()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimLeft) and [`String#trimRight()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimRight) are aliases of [`String#trimStart()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimStart) and [`String#trimEnd()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimEnd). This is to ensure consistency and use [direction](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Handling_different_text_directions)-independent wording.
+[`String#trimLeft()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimLeft) and [`String#trimRight()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimRight) are deprecated aliases for [`String#trimStart()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimStart) and [`String#trimEnd()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimEnd). The newer names use direction-independent wording that works correctly with both left-to-right and right-to-left languages.
 
 ## Examples
 
 ```js
-// ❌
-const foo = bar.trimLeft();
+// ❌ - Deprecated names
+const name = '  John  '.trimLeft();
 
-// ✅
-const foo = bar.trimStart();
+// ✅ - Preferred method
+const name = '  John  '.trimStart();
 ```
 
 ```js
 // ❌
-const foo = bar.trimRight();
+const value = text.trimRight();
 
 // ✅
-const foo = bar.trimEnd();
+const value = text.trimEnd();
 ```
+
+```js
+// ✅ - All three do the same thing
+const str = '  hello world  ';
+str.trim();      // Remove from both sides
+str.trimStart(); // Remove from beginning
+str.trimEnd();   // Remove from end
+```
+
+## Why direction-independent naming?
+
+`trimStart()` and `trimEnd()` are more appropriate for international text, as "left" and "right" don't make sense in right-to-left languages like Arabic or Hebrew.
