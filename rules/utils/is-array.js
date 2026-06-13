@@ -16,6 +16,18 @@ const nonArray = 'non-array';
 const unknown = 'unknown';
 
 const typedArrayTypes = new Set(typedArray);
+const knownArrayTypeNames = new Set([
+	'Array',
+	'ReadonlyArray',
+]);
+const knownNonArrayTypeNames = new Set([
+	'Map',
+	'ReadonlyMap',
+	'WeakMap',
+	'Set',
+	'ReadonlySet',
+	'WeakSet',
+]);
 
 const nonArrayExpressionTypes = new Set([
 	'ObjectExpression',
@@ -90,14 +102,6 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 
 	const typeReferenceName = node.typeName.name;
 
-	if (typeReferenceName === 'Array' || typeReferenceName === 'ReadonlyArray') {
-		return array;
-	}
-
-	if (typedArrayTypes.has(typeReferenceName)) {
-		return nonArray;
-	}
-
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
 		return unknown;
 	}
@@ -109,6 +113,17 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 
 	if (!definition) {
 		visitedTypeReferenceNames.delete(typeReferenceName);
+		if (knownArrayTypeNames.has(typeReferenceName)) {
+			return array;
+		}
+
+		if (
+			typedArrayTypes.has(typeReferenceName)
+			|| knownNonArrayTypeNames.has(typeReferenceName)
+		) {
+			return nonArray;
+		}
+
 		return unknown;
 	}
 
