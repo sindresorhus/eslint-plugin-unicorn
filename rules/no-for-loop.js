@@ -301,7 +301,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 		return false;
 	}
 
-	const referencedArrayVariable = resolveIdentifierName(reference.identifier.name, reference.from);
+	const referencedArrayVariable = getVariableByName(reference.identifier.name, reference.from);
 
 	if (referencedArrayVariable !== arrayVariable) {
 		return false;
@@ -310,7 +310,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 	if (
 		!node.computed
 		|| node.property.type !== 'Identifier'
-		|| resolveIdentifierName(node.property.name, reference.from) !== indexVariable
+		|| getVariableByName(node.property.name, reference.from) !== indexVariable
 	) {
 		return false;
 	}
@@ -484,7 +484,7 @@ const create = context => {
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
 		const scope = sourceCode.getScope(node);
-		const arrayVariable = resolveIdentifierName(arrayIdentifier.name, scope);
+		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		const staticResult = getStaticValue(arrayIdentifier, scope);
 		if (staticResult && !Array.isArray(staticResult.value)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
@@ -532,8 +532,8 @@ const create = context => {
 
 		const forScope = scopeManager.acquire(node);
 		const cachedLengthVariable = cachedLengthIdentifier && (
-			resolveIdentifierName(cachedLengthIdentifier.name, forScope)
-			?? resolveIdentifierName(cachedLengthIdentifier.name, scope)
+			getVariableByName(cachedLengthIdentifier.name, forScope)
+			?? getVariableByName(cachedLengthIdentifier.name, scope)
 		);
 
 		if (
