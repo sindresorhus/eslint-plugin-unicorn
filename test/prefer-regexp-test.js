@@ -1,9 +1,27 @@
+import {fileURLToPath} from 'node:url';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
+const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
 
-test.snapshot({
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {
+			tsconfigRootDir: fixtureDirectory,
+			projectService: {
+				allowDefaultProject: ['*.ts'],
+				defaultProject: 'tsconfig.json',
+			},
+		},
+	},
+});
+
+ruleTest.snapshot({
 	valid: [
 		'const bar = !re.test(foo)',
 		// Not `boolean`
@@ -44,8 +62,12 @@ test.snapshot({
 		'if (foo.match(1)) {}',
 		'if (foo.match("1")) {}',
 		'if (foo.match(null)) {}',
+		'if (foo.match(undefined)) {}',
+		'if (foo.match(void 0)) {}',
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
+		'if (foo.search(undefined) !== -1) {}',
+		'if (foo.search(void 0) !== -1) {}',
 		'if (foo.search("1") !== -1) {}',
 		'if (foo.search(`1`) !== -1) {}',
 		outdent`
@@ -58,6 +80,7 @@ test.snapshot({
 			if (foo.search(pattern) !== -1) {}
 		`,
 		'const pattern = 1; if (foo.search(pattern) !== -1) {}',
+		'if (foo.search(1 + 2) !== -1) {}',
 
 		// Unsupported `String#search()` comparisons
 		'if (foo.search(/re/) <= -1) {}',
@@ -66,11 +89,38 @@ test.snapshot({
 		'if (0 <= foo.search(/re/)) {}',
 		'if (0 > foo.search(/re/)) {}',
 
-		// Redux Toolkit action matchers
-		'liquidityFormSlice.actions.refetch.match(action) ? wait(1000) : Promise.resolve()',
-		'if (slice.actions.someAction.match(action)) {}',
-		'if (slice.actions.someAction.match(receivedAction)) {}',
-		'if (slice.actions.someAction.match(event.action)) {}',
+		// Known non-string receivers
+		'if (({}).match(action)) {}',
+		'if ((() => {}).match(action)) {}',
+		'if (/string/.match(/regexp/)) {}',
+		'if (/string/.search(/regexp/) !== -1) {}',
+		'const actionCreator = {}; if (actionCreator.match(action)) {}',
+		'const actionCreator = () => {}; if (actionCreator.match(action)) {}',
+
+		// Known non-RegExp arguments
+		'const pattern = "1"; if (foo.match(pattern)) {}',
+		'const pattern = `1`; if (foo.match(pattern)) {}',
+		outdent`
+			const pattern = \`\${value}\`;
+			if (foo.match(pattern)) {}
+		`,
+		'const pattern = {}; if (foo.match(pattern)) {}',
+		'const pattern = () => {}; if (foo.match(pattern)) {}',
+		'const pattern = 1 + 2; if (foo.match(pattern)) {}',
+
+		// Known non-RegExp receivers
+		'if ("regexp".exec(foo)) {}',
+		'const regexp = "regexp"; if (regexp.exec(foo)) {}',
+		'const regexp = {}; if (regexp.exec(foo)) {}',
+		'const regexp = () => {}; if (regexp.exec(foo)) {}',
+
+		// Known non-string arguments
+		'if (regexp.exec({})) {}',
+		'if (regexp.exec(/string/)) {}',
+		'if (regexp.exec(undefined)) {}',
+		'if (regexp.exec(void 0)) {}',
+		'const value = {}; if (regexp.exec(value)) {}',
+		'const value = () => {}; if (regexp.exec(value)) {}',
 
 		// Unsupported length checks
 		'if (uri.match(/unicorn/).length >= 1) {}',
@@ -96,9 +146,9 @@ test.snapshot({
 		'const re = /a/; while (foo.match(re)) foo = foo.slice(1);',
 		'const re = /a/; do {foo = foo.slice(1)} while (foo.match(re));',
 		'const re = /a/; for (; foo.match(re); ) foo = foo.slice(1);',
-		'if (slice.actions.someAction.match(/regexp/)) {}',
-		'const action = /regexp/; if (slice.actions.someAction.match(action)) {}',
-		'const action = /regexp/g; if (slice.actions.someAction.match(action)) {}',
+		'if (object.match(/regexp/)) {}',
+		'const pattern = /regexp/; if (object.match(pattern)) {}',
+		'const pattern = /regexp/g; if (object.match(pattern)) {}',
 		'if (uri.match(/unicorn/).length) {}',
 		'if (uri.match(/unicorn/).length > 0) {}',
 		'if (uri.match(/unicorn/)?.length) {}',
@@ -199,12 +249,6 @@ test.snapshot({
 				) {}
 			}
 		`,
-		// Should not fix, #1150
-		outdent`
-			const string = '[.!?]\\s*$';
-			if (foo.match(string)) {
-			}
-		`,
 		// This will still fix to `.test()`
 		outdent`
 			const regex = new RegExp('[.!?]\\s*$');
@@ -248,7 +292,7 @@ test.snapshot({
 	],
 });
 
-test.vue({
+ruleTest.vue({
 	valid: [],
 	invalid: [
 		{
@@ -274,12 +318,79 @@ test.vue({
 	],
 });
 
-test.typescript({
+ruleTest.typescript({
 	valid: [
-		'function foo(pattern: string) { if ("string".search(pattern) !== -1) {} }',
 		outdent`
-			function foo(pattern: string) {
+			function stringSearchPattern(pattern: string) {
+				if ("string".search(pattern) !== -1) {}
+			}
+
+			function stringMatchPattern(pattern: string) {
+				if ("string".match(pattern)) {}
+			}
+
+			function stringSearchAssertionPattern(pattern: string) {
 				if ("string".search((\`\${pattern}\` as string)) !== -1) {}
+			}
+
+			function stringMatchAssertionPattern(pattern: string) {
+				if ("string".match((\`\${pattern}\` as string))) {}
+			}
+
+			function actionCreatorMatcher(actionCreator: {match(action: unknown): boolean}, action: unknown) {
+				if (actionCreator.match(action)) {}
+			}
+
+			function functionActionCreatorMatcher(actionCreator: (() => void) & {match(action: unknown): boolean}, action: unknown) {
+				if (actionCreator.match(action)) {}
+			}
+
+			function stringExecReceiver(regexp: string, value: string) {
+				if (regexp.exec(value)) {}
+			}
+
+			function stringOrObjectExecReceiver(regexp: string | object, value: string) {
+				if (regexp.exec(value)) {}
+			}
+
+			function objectExecReceiver(regexp: {exec(value: string): unknown}, value: string) {
+				if (regexp.exec(value)) {}
+			}
+
+			function objectExecArgument(regexp: RegExp, value: object) {
+				if (regexp.exec(value)) {}
+			}
+
+			function regexpOrObjectExecArgument(regexp: RegExp, value: RegExp | object) {
+				if (regexp.exec(value)) {}
+			}
+
+			function objectMatchReceiver(value: object, pattern: RegExp) {
+				if (value.match(pattern)) {}
+			}
+
+			function stringOrNumberMatchPattern(pattern: string | number) {
+				if ("string".match(pattern)) {}
+			}
+
+			function stringOrUndefinedSearchPattern(pattern: string | undefined) {
+				if ("string".search(pattern) !== -1) {}
+			}
+
+			function arrayMatchPattern(pattern: string[]) {
+				if ("string".match(pattern)) {}
+			}
+
+			function tupleSearchPattern(pattern: [string]) {
+				if ("string".search(pattern) !== -1) {}
+			}
+
+			function genericArrayMatchPattern(pattern: Array<string>) {
+				if ("string".match(pattern)) {}
+			}
+
+			function genericReadonlyArraySearchPattern(pattern: ReadonlyArray<string>) {
+				if ("string".search(pattern) !== -1) {}
 			}
 		`,
 	],
@@ -301,6 +412,28 @@ test.typescript({
 	],
 });
 
+ruleTest({
+	valid: [
+		typeAware(outdent`
+			type UnknownAction = {
+				type: string;
+			};
+
+			type ActionCreatorWithMatcher<Type extends string> = (() => {type: Type}) & {
+				match(action: UnknownAction): action is {type: Type};
+			};
+
+			declare function createAction<Type extends string>(type: Type): ActionCreatorWithMatcher<Type>;
+
+			const increment = createAction('counter/increment');
+			declare const action: UnknownAction;
+
+			if (increment.match(action)) {}
+		`),
+	],
+	invalid: [],
+});
+
 const supportsUnicodeSets = (() => {
 	try {
 		// eslint-disable-next-line prefer-regex-literals -- Can't test with regex literal
@@ -312,7 +445,7 @@ const supportsUnicodeSets = (() => {
 })();
 // These cases can be auto-fixed in environments supports `v` flag (eg, Node.js v20),
 // But will use suggestions instead in environments doesn't support `v` flag.
-test({
+ruleTest({
 	valid: [],
 	invalid: [
 		{
