@@ -19,6 +19,20 @@ const isLiteralOne = node => isLiteral(node, 1);
 
 const isIdentifierWithName = (node, name) => node?.type === 'Identifier' && node.name === name;
 
+const getArrayIdentifierFromLengthMemberExpression = node => {
+	if (
+		node?.type !== 'MemberExpression'
+		|| node.computed
+		|| node.object.type !== 'Identifier'
+		|| node.property.type !== 'Identifier'
+		|| node.property.name !== 'length'
+	) {
+		return;
+	}
+
+	return node.object;
+};
+
 const getTypeReferenceTypeAnnotation = (typeReferenceName, scope) => {
 	const typeVariable = scope && resolveIdentifierName(typeReferenceName, scope);
 	const [definition] = typeVariable?.defs ?? [];
@@ -90,7 +104,7 @@ const isArrayType = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	}
 };
 
-const getIndexIdentifierName = forStatement => {
+const getLoopInfoFromSingleDeclarator = forStatement => {
 	const {init: variableDeclaration} = forStatement;
 
 	if (
@@ -105,16 +119,25 @@ const getIndexIdentifierName = forStatement => {
 	}
 
 	const [variableDeclarator] = variableDeclaration.declarations;
+	const {id, init} = variableDeclarator;
 
-	if (!isLiteralZero(variableDeclarator.init)) {
+	if (
+		id.type !== 'Identifier'
+		|| !isLiteralZero(init)
+	) {
 		return;
 	}
 
-	if (variableDeclarator.id.type !== 'Identifier') {
+	const arrayIdentifier = getArrayIdentifierFromBinaryExpression(forStatement.test, id.name);
+
+	if (!arrayIdentifier) {
 		return;
 	}
 
-	return variableDeclarator.id.name;
+	return {
+		arrayIdentifier,
+		indexIdentifierName: id.name,
+	};
 };
 
 const getStrictComparisonOperands = binaryExpression => {
@@ -134,6 +157,10 @@ const getStrictComparisonOperands = binaryExpression => {
 };
 
 const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifierName) => {
+	if (binaryExpression?.type !== 'BinaryExpression') {
+		return;
+	}
+
 	const operands = getStrictComparisonOperands(binaryExpression);
 
 	if (!operands) {
@@ -146,33 +173,59 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 		return;
 	}
 
-	if (greater.type !== 'MemberExpression') {
-		return;
-	}
+	return getArrayIdentifierFromLengthMemberExpression(greater);
+};
+
+const getLoopInfoFromCachedLengthDeclarator = forStatement => {
+	const {init: variableDeclaration, test} = forStatement;
 
 	if (
-		greater.object.type !== 'Identifier'
-		|| greater.property.type !== 'Identifier'
+		!variableDeclaration
+		|| variableDeclaration.type !== 'VariableDeclaration'
+		|| variableDeclaration.declarations.length !== 2
+		|| test?.type !== 'BinaryExpression'
 	) {
 		return;
 	}
 
-	if (greater.property.name !== 'length') {
+	const [indexDeclarator, cachedLengthDeclarator] = variableDeclaration.declarations;
+	const {id: indexIdentifier, init: indexInitializer} = indexDeclarator;
+	const {id: cachedLengthIdentifier, init: cachedLengthInitializer} = cachedLengthDeclarator;
+
+	if (
+		indexIdentifier.type !== 'Identifier'
+		|| !isLiteralZero(indexInitializer)
+		|| cachedLengthIdentifier.type !== 'Identifier'
+	) {
 		return;
 	}
 
-	return greater.object;
-};
+	const arrayIdentifier = getArrayIdentifierFromLengthMemberExpression(cachedLengthInitializer);
 
-const getArrayIdentifier = (forStatement, indexIdentifierName) => {
-	const {test} = forStatement;
-
-	if (!test || test.type !== 'BinaryExpression') {
+	if (!arrayIdentifier) {
 		return;
 	}
 
-	return getArrayIdentifierFromBinaryExpression(test, indexIdentifierName);
+	const operands = getStrictComparisonOperands(test);
+
+	if (
+		!operands
+		|| !isIdentifierWithName(operands.lesser, indexIdentifier.name)
+		|| !isIdentifierWithName(operands.greater, cachedLengthIdentifier.name)
+	) {
+		return;
+	}
+
+	return {
+		arrayIdentifier,
+		cachedLengthIdentifier,
+		indexIdentifierName: indexIdentifier.name,
+	};
 };
+
+const getLoopInfo = forStatement =>
+	getLoopInfoFromSingleDeclarator(forStatement)
+	?? getLoopInfoFromCachedLengthDeclarator(forStatement);
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
 	if (node?.type === 'BinaryExpression' && node.operator === '+') {
@@ -210,21 +263,58 @@ const isUpdateExpressionIncrementingIndex = (forStatement, indexIdentifierName) 
 	return false;
 };
 
-const isOnlyArrayOfIndexVariableRead = (arrayReferences, indexIdentifierName) => arrayReferences.every(reference => {
+const isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength = (update, indexIdentifierName, cachedLengthIdentifierName) => {
+	if (
+		update?.type !== 'SequenceExpression'
+		|| update.expressions.length !== 2
+	) {
+		return false;
+	}
+
+	const [firstExpression, secondExpression] = update.expressions;
+
+	return (
+		isUpdateExpressionIncrementingIndex({update: firstExpression}, indexIdentifierName)
+		&& isIdentifierWithName(secondExpression, cachedLengthIdentifierName)
+	) || (
+		isUpdateExpressionIncrementingIndex({update: secondExpression}, indexIdentifierName)
+		&& isIdentifierWithName(firstExpression, cachedLengthIdentifierName)
+	);
+};
+
+const isMemberExpressionChanged = node =>
+	(
+		node.parent.type === 'AssignmentExpression'
+		&& node.parent.left === node
+	)
+	|| node.parent.type === 'UpdateExpression'
+	|| (
+		node.parent.type === 'UnaryExpression'
+		&& node.parent.operator === 'delete'
+	);
+
+const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVariable) => arrayReferences.every(reference => {
 	const node = reference.identifier.parent;
 
 	if (node.type !== 'MemberExpression') {
 		return false;
 	}
 
-	if (node.property.name !== indexIdentifierName) {
+	const referencedArrayVariable = resolveIdentifierName(reference.identifier.name, reference.from);
+
+	if (referencedArrayVariable !== arrayVariable) {
 		return false;
 	}
 
 	if (
-		node.parent.type === 'AssignmentExpression'
-		&& node.parent.left === node
+		!node.computed
+		|| node.property.type !== 'Identifier'
+		|| resolveIdentifierName(node.property.name, reference.from) !== indexVariable
 	) {
+		return false;
+	}
+
+	if (isMemberExpressionChanged(node)) {
 		return false;
 	}
 
@@ -299,6 +389,67 @@ const nodeContains = (ancestor, descendant) => {
 	return false;
 };
 
+const isCachedLengthVariableUsedOutsideTest = (forStatement, cachedLengthVariable, cachedLengthIdentifier) =>
+	cachedLengthVariable.references.some(reference =>
+		reference.identifier !== cachedLengthIdentifier
+		&& !nodeContains(forStatement.test, reference.identifier));
+
+const isCachedLengthVariableWrittenInsideLoopOutsideTest = (forStatement, cachedLengthVariable, cachedLengthIdentifier) =>
+	cachedLengthVariable.references.some(reference =>
+		reference.identifier !== cachedLengthIdentifier
+		&& nodeContains(forStatement, reference.identifier)
+		&& !nodeContains(forStatement.test, reference.identifier)
+		&& reference.isWrite());
+
+const hasCommentsInsideLoopHeader = (forStatement, sourceCode) =>
+	[
+		forStatement.init,
+		forStatement.test,
+		forStatement.update,
+	].some(node => node && sourceCode.getCommentsInside(node).length > 0);
+
+const canRemoveCachedLengthVariable = ({
+	forStatement,
+	cachedLengthVariable,
+	cachedLengthIdentifier,
+}) => {
+	if (!cachedLengthIdentifier) {
+		return true;
+	}
+
+	if (!cachedLengthVariable) {
+		return false;
+	}
+
+	return !(
+		isCachedLengthVariableUsedOutsideTest(forStatement, cachedLengthVariable, cachedLengthIdentifier)
+	);
+};
+
+const shouldFixProblem = ({
+	forStatement,
+	sourceCode,
+	forScope,
+	indexVariable,
+	elementNode,
+	elementVariable,
+	cachedLengthVariable,
+	cachedLengthIdentifier,
+	isStandardUpdateExpression,
+	hasNonArrayTypeAnnotation,
+	shouldGenerateIndex,
+}) =>
+	isStandardUpdateExpression
+	&& !hasCommentsInsideLoopHeader(forStatement, sourceCode)
+	&& !someVariablesLeakOutOfTheLoop(forStatement, [indexVariable, elementVariable, cachedLengthVariable].filter(Boolean), forScope)
+	&& canRemoveCachedLengthVariable({
+		forStatement,
+		cachedLengthVariable,
+		cachedLengthIdentifier,
+	})
+	&& !elementNode?.id.typeAnnotation
+	&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
+
 const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arrayIdentifierName) => {
 	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
 
@@ -336,25 +487,26 @@ const create = context => {
 	const {scopeManager} = sourceCode;
 
 	context.on('ForStatement', node => {
-		const indexIdentifierName = getIndexIdentifierName(node);
+		const loopInfo = getLoopInfo(node);
 
-		if (!indexIdentifierName) {
+		if (!loopInfo) {
 			return;
 		}
 
-		const arrayIdentifier = getArrayIdentifier(node, indexIdentifierName);
-		if (!arrayIdentifier) {
-			return;
-		}
-
+		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
 		const scope = sourceCode.getScope(node);
+		const arrayVariable = resolveIdentifierName(arrayIdentifier.name, scope);
 		const staticResult = getStaticValue(arrayIdentifier, scope);
 		if (staticResult && !Array.isArray(staticResult.value)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
 
-		if (!isUpdateExpressionIncrementingIndex(node, indexIdentifierName)) {
+		const isStandardUpdateExpression = isUpdateExpressionIncrementingIndex(node, indexIdentifierName);
+		const isReportOnlyCachedLengthUpdate = cachedLengthIdentifier
+			&& isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength(node.update, indexIdentifierName, cachedLengthIdentifier.name);
+
+		if (!isStandardUpdateExpression && !isReportOnlyCachedLengthUpdate) {
 			return;
 		}
 
@@ -371,18 +523,34 @@ const create = context => {
 		const arrayIdentifierName = arrayIdentifier.name;
 		const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
 
+		if (!indexVariable) {
+			return;
+		}
+
 		if (isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
 			return;
 		}
 
-		const forScope = scopeManager.acquire(node);
 		const arrayReferences = getReferencesInChildScopes(bodyScope, arrayIdentifierName);
 
 		if (arrayReferences.length === 0) {
 			return;
 		}
 
-		if (!isOnlyArrayOfIndexVariableRead(arrayReferences, indexIdentifierName)) {
+		if (!isOnlyArrayOfIndexVariableRead(arrayReferences, arrayVariable, indexVariable)) {
+			return;
+		}
+
+		const forScope = scopeManager.acquire(node);
+		const cachedLengthVariable = cachedLengthIdentifier && (
+			resolveIdentifierName(cachedLengthIdentifier.name, forScope)
+			?? resolveIdentifierName(cachedLengthIdentifier.name, scope)
+		);
+
+		if (
+			cachedLengthVariable
+			&& isCachedLengthVariableWrittenInsideLoopOutsideTest(node, cachedLengthVariable, cachedLengthIdentifier)
+		) {
 			return;
 		}
 
@@ -417,9 +585,19 @@ const create = context => {
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);
 			});
 
-		const shouldFix = !someVariablesLeakOutOfTheLoop(node, [indexVariable, elementVariable].filter(Boolean), forScope)
-			&& !elementNode?.id.typeAnnotation
-			&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
+		const shouldFix = shouldFixProblem({
+			forStatement: node,
+			sourceCode,
+			forScope,
+			indexVariable,
+			elementNode,
+			elementVariable,
+			cachedLengthVariable,
+			cachedLengthIdentifier,
+			isStandardUpdateExpression,
+			hasNonArrayTypeAnnotation,
+			shouldGenerateIndex,
+		});
 
 		if (shouldFix) {
 			problem.fix = function * (fixer) {
