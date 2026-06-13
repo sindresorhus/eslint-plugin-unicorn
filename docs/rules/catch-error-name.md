@@ -9,13 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Applies to
+Enforces a consistent name for caught errors across:
 
-- `try/catch` clauses handlers
-- `promise.catch(…)` handlers
-- `promise.then(onFulfilled, …)` handlers
+- `try/catch` clauses
+- `.catch(…)` Promise handlers
+- `.then(…, rejectionHandler)` Promise handlers
 
-The desired name is [configurable](#name), but defaults to `error`.
+The desired parameter name is [configurable](#name), but defaults to `error`.
 
 The following names are ignored:
 
@@ -56,8 +56,9 @@ try {} catch (_) {
 }
 
 // ✅
+// Underscore is allowed when the error is not used
 try {} catch (_) {
-	console.log(foo);
+	// error is not used
 }
 ```
 

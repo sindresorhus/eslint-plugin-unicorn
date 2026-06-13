@@ -18,19 +18,31 @@ Autofixes and suggestions are only offered when the target length is a numeric l
 ## Examples
 
 ```js
-// ❌
-const foo = '*'.repeat(10 - bar.length) + bar;
+// ❌ - Manual padding with repeat is error-prone
+const formatted = '*'.repeat(10 - name.length) + name;
 
-// ✅
-const foo = bar.padStart(10, '*');
+// ✅ - Clearer intent with padStart
+const formatted = name.padStart(10, '*');
 ```
 
 ```js
 // ❌
-const foo = bar + '*'.repeat(10 - bar.length);
+const padded = value + ' '.repeat(5 - value.length);
 
 // ✅
-const foo = bar.padEnd(10, '*');
+const padded = value.padEnd(5, ' ');
+```
+
+```js
+// ✅ - Practical example: formatting table data
+const col1 = 'ID'.padEnd(10);
+const col2 = 'Name'.padEnd(20);
+const col3 = 'Value'.padStart(10);
+
+// ✅ - Padding numbers for display
+const hours = String(hours).padStart(2, '0');
+const minutes = String(minutes).padStart(2, '0');
+// → Outputs like "09:45"
 ```
 
 The following patterns are reported with suggestions only, because they truncate strings that are already longer than the target length:

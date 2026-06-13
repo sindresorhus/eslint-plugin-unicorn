@@ -9,22 +9,43 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Passing `1` as the `depth` argument to [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) is unnecessary.
+The default depth for [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) is `1`, so explicitly passing `1` is redundant.
 
 ## Examples
 
 ```js
-// ❌
-foo.flat(1);
+const nested = [1, [2, 3], [4, [5]]];
 
-// ✅
-foo.flat();
+// ❌ - Explicit 1 is unnecessary
+nested.flat(1);
+// → [1, 2, 3, 4, [5]]
+
+// ✅ - Default depth is 1
+nested.flat();
+// → [1, 2, 3, 4, [5]]
 ```
 
 ```js
 // ❌
-foo?.flat(1);
+const rows = [[1, 2], [3, 4]];
+rows.flat(1);
 
 // ✅
-foo?.flat();
+const rows = [[1, 2], [3, 4]];
+rows.flat();
+```
+
+```js
+// ✅ - Use depth > 1 when you need deeper flattening
+const deeplyNested = [1, [2, [3, [4]]]];
+deeplyNested.flat(2);
+// → [1, 2, 3, [4]]
+```
+
+```js
+// ❌
+array?.flat(1);
+
+// ✅
+array?.flat();
 ```

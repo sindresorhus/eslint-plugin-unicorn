@@ -16,12 +16,39 @@ This rule intentionally leaves supported one-character `substring()` patterns to
 ## Examples
 
 ```js
-// ❌
-foo.substr(start, length);
+const str = 'hello world';
 
 // ❌
-foo.substring(indexStart, indexEnd);
+str.substr(0, 5);
 
 // ✅
-foo.slice(beginIndex, endIndex);
+str.slice(0, 5);
+// → 'hello'
+```
+
+```js
+const str = 'hello world';
+
+// ❌
+str.substring(6, 11);
+
+// ✅
+str.slice(6, 11);
+// → 'world'
+```
+
+```js
+const str = 'hello world';
+
+// ❌ substring swaps arguments when start > end
+str.substring(5, 0);
+// → 'hello' (confusing!)
+
+// ✅ slice handles it intuitively
+str.slice(5, 0);
+// → '' (empty, as expected)
+
+// ✅ slice handles negative indices
+str.slice(-5);
+// → 'world' (last 5 characters)
 ```

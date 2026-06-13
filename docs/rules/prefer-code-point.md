@@ -9,24 +9,36 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Unicode is better supported in [`String#codePointAt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt) and [`String.fromCodePoint()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint).
+[`String#codePointAt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt) and [`String.fromCodePoint()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint) are superior because they handle full Unicode support, including characters outside the Basic Multilingual Plane (BMP) that require surrogate pairs. The `charCodeAt()` method only returns the code unit, which is insufficient for emoji and other high Unicode characters.
 
-- [Difference between `String.fromCodePoint()` and `String.fromCharCode()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint#compared_to_fromcharcode)
+Learn more: [Difference between `String.fromCodePoint()` and `String.fromCharCode()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint#compared_to_fromcharcode)
 
 ## Examples
 
 ```js
-// ❌
+// ❌ - charCodeAt() returns only the first code unit of the emoji (incorrect)
 const unicorn = '🦄'.charCodeAt(0).toString(16);
+// → 'd83e' (incorrect)
 
-// ✅
+// ✅ - codePointAt() returns the full code point (correct)
 const unicorn = '🦄'.codePointAt(0).toString(16);
+// → '1f984' (correct)
 ```
 
 ```js
-// ❌
-const unicorn = String.fromCharCode(0x1f984);
+// ❌ - fromCharCode() fails with high Unicode values
+String.fromCharCode(0x1f984);
+// → '濾' (wrong character — the code point is truncated to 16 bits)
 
-// ✅
-const unicorn = String.fromCodePoint(0x1f984);
+// ✅ - fromCodePoint() correctly creates characters
+String.fromCodePoint(0x1f984);
+// → '🦄' (correct)
+```
+
+```js
+// ❌ - Doesn't work with emoji or high Unicode
+const emoji = String.fromCharCode(0x1f60a); // Smiley
+
+// ✅ - Correctly creates emoji
+const emoji = String.fromCodePoint(0x1f60a); // Smiley
 ```

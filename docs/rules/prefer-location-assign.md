@@ -9,24 +9,37 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer [`Location#assign()`](https://developer.mozilla.org/en-US/docs/Web/API/Location/assign) when intentionally navigating to a new URL while preserving the current page in session history.
-
-Use [`Location#replace()`](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace) instead when the current page should not remain in session history, for example redirects where the back button should skip the replaced page.
+[`Location#assign()`](https://developer.mozilla.org/en-US/docs/Web/API/Location/assign) is more explicit and semantic than assigning to `.href`. Use `assign()` when you want to preserve the current page in browser history (user can go back), and [`Location#replace()`](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace) when you want to replace the current history entry.
 
 ## Examples
 
 ```js
-// ❌
+// ❌ - Assigns to a property (less semantic)
 location.href = url;
 
-// ✅
+// ✅ - Method call is more explicit
 location.assign(url);
 ```
 
 ```js
-// ❌
-window.location.href = url;
+// ✅ - Normal navigation, user can go back
+const loginUrl = 'https://example.com/login';
+location.assign(loginUrl);
+```
 
-// ✅
-window.location.assign(url);
+```js
+// ✅ - Use replace() for redirects where user shouldn't go back
+if (isLoggedOut) {
+	location.replace('/login'); // Can't go back to protected page
+}
+```
+
+```js
+// ✅ - assign() for user-initiated navigation
+button.onclick = () => location.assign('/next-page');
+
+// ✅ - replace() for authentication redirects
+if (!hasValidToken) {
+	location.replace('/login');
+}
 ```

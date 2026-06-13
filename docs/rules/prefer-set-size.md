@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer using `Set#size` directly instead of first converting it to an array and then using its `.length` property.
+[`Set#size`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/size) is a direct way to get the number of elements in a `Set`. Converting a `Set` to an array just to access its `.length` is inefficient and defeats the purpose of using a Set. The `size` property is O(1) and doesn't require any conversion.
 
 ## Examples
 
@@ -23,4 +23,26 @@ function isUnique(array) {
 function isUnique(array) {
 	return new Set(array).size === array.length;
 }
+```
+
+```js
+// ❌
+const items = new Set([1, 2, 3, 4, 5]);
+if ([...items].length > 3) {
+	// do something
+}
+
+// ✅
+const items = new Set([1, 2, 3, 4, 5]);
+if (items.size > 3) {
+	// do something
+}
+```
+
+```js
+// ❌
+const uniqueCount = [...new Set(userIds)].length;
+
+// ✅
+const uniqueCount = new Set(userIds).size;
 ```

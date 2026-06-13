@@ -9,22 +9,36 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Map#getOrInsert()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsert) and [`WeakMap#getOrInsert()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap/getOrInsert) always evaluate the default value, even when the key already exists. Use [`Map#getOrInsertComputed()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsertComputed) or [`WeakMap#getOrInsertComputed()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap/getOrInsertComputed) when creating the default value has side effects.
+[`Map#getOrInsert()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsert) always evaluates the default value argument, even when the key already exists. This can cause performance issues or bugs when the default value has side effects (like function calls, database queries, or other operations). Use [`Map#getOrInsertComputed()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsertComputed) instead to lazily evaluate the default value only when needed.
 
 ## Examples
 
 ```js
-// ❌
-map.getOrInsert(key, call());
+// ❌ - expensiveComputation() is called every time, even if key exists
+const cache = new Map();
+const result = cache.getOrInsert(key, expensiveComputation());
 
-// ✅
-map.getOrInsertComputed(key, () => call());
+// ✅ - expensiveComputation() is only called if key doesn't exist
+const cache = new Map();
+const result = cache.getOrInsertComputed(key, () => expensiveComputation());
 ```
 
 ```js
-// ❌
-map.getOrInsert(key, call(key));
+// ❌ - Function is called even if the key exists
+const userCache = new Map();
+const user = userCache.getOrInsert(userId, fetchUserFromDatabase(userId));
 
-// ✅
-map.getOrInsertComputed(key, call);
+// ✅ - Only fetches from database if user isn't cached
+const userCache = new Map();
+const user = userCache.getOrInsertComputed(userId, () => fetchUserFromDatabase(userId));
+```
+
+```js
+// ❌ - generateId() is called every time, wasting IDs
+const idMap = new Map();
+const id = idMap.getOrInsert(key, generateId());
+
+// ✅ - generateId() only called when needed
+const idMap = new Map();
+const id = idMap.getOrInsertComputed(key, generateId);
 ```

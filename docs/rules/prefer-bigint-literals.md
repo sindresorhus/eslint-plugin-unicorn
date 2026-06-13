@@ -9,22 +9,40 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use `1n` instead of `BigInt(1)`.
+`BigInt` literals (with the `n` suffix) are more concise and efficient than calling the `BigInt()` constructor. Literals are evaluated at parse time, while constructor calls happen at runtime.
 
 ## Examples
 
 ```js
-// ❌
+// ❌ - Constructor call
 const bigint = BigInt(1);
 
-// ✅
+// ✅ - Literal is more concise
 const bigint = 1n;
 ```
 
 ```js
 // ❌
-const bigint = BigInt('1');
+const large = BigInt('9007199254740991');
 
 // ✅
-const bigint = 1n;
+const large = 9007199254740991n;
+```
+
+```js
+// ❌
+const hex = BigInt('0xFF');
+
+// ✅
+const hex = 0xFFn;
+```
+
+```js
+// ✅ - When you need to compute the value dynamically
+const computed = BigInt(getSomeNumber());
+```
+
+```js
+// ✅ - When working with very large numbers
+const astronomicalNumber = 999999999999999999999999n;
 ```

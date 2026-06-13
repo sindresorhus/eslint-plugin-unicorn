@@ -17,7 +17,7 @@ See the [differences](https://nodejs.org/api/events.html#eventtarget-and-event-a
 
 ```js
 // ❌
-import {EventEmitter} from 'node:event';
+import {EventEmitter} from 'node:events';
 
 class Foo extends EventEmitter {}
 
@@ -27,7 +27,7 @@ class Foo extends EventTarget {}
 
 ```js
 // ❌
-import {EventEmitter} from 'node:event';
+import {EventEmitter} from 'node:events';
 
 const emitter = new EventEmitter();
 
