@@ -45,6 +45,26 @@ ruleTest.snapshot({
 			}
 		`,
 		outdent`
+			var result = [];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			using result = [];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			async function foo() {
+				await using result = [];
+				for (const element of iterable) {
+					result.push(element);
+				}
+			}
+		`,
+		outdent`
 			const result = [];
 			if (condition) for (const element of iterable) {
 				result.push(element);
@@ -95,6 +115,20 @@ ruleTest.snapshot({
 				result.push(element);
 			}
 			console.log(element);
+		`,
+		outdent`
+			const result = [];
+			for (using element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			async function foo() {
+				const result = [];
+				for await (await using element of iterable) {
+					result.push(element);
+				}
+			}
 		`,
 		outdent`
 			const result = [];

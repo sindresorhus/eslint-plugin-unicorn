@@ -1008,6 +1008,7 @@ const getEmptyArrayDeclaration = node => {
 	if (
 		!node
 		|| node.type !== 'VariableDeclaration'
+		|| (node.kind !== 'const' && node.kind !== 'let')
 		|| node.declarations.length !== 1
 	) {
 		return;
@@ -1070,7 +1071,7 @@ const getSingleForOfBinding = node => {
 	if (
 		node.left.type !== 'VariableDeclaration'
 		|| node.left.declarations.length !== 1
-		|| node.left.kind === 'var'
+		|| (node.left.kind !== 'const' && node.left.kind !== 'let')
 	) {
 		return;
 	}
