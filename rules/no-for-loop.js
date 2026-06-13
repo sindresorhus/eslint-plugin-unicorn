@@ -6,8 +6,14 @@ import {
 	singular,
 	toLocation,
 	getReferences,
+	isArray,
+	isNullishType,
+	isUnknownType,
 } from './utils/index.js';
-import {isLiteral} from './ast/index.js';
+import {
+	isCallExpression,
+	isLiteral,
+} from './ast/index.js';
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -15,6 +21,36 @@ const messages = {
 };
 
 const defaultElementName = 'element';
+const entriesSupported = 'supported';
+const entriesUnsupported = 'unsupported';
+const entriesUnknown = 'unknown';
+const noEntriesTypeNames = new Set([
+	'HTMLAllCollection',
+	'HTMLCollection',
+	'HTMLCollectionOf',
+	'HTMLFormControlsCollection',
+	'HTMLFormElement',
+	'HTMLOptionsCollection',
+	'HTMLSelectElement',
+	'String',
+]);
+const noEntriesDomCollectionMethods = new Set([
+	'getElementsByClassName',
+	'getElementsByTagName',
+	'getElementsByTagNameNS',
+]);
+const noEntriesTypeAnnotationTypes = new Set([
+	'TSBigIntKeyword',
+	'TSBooleanKeyword',
+	'TSNeverKeyword',
+	'TSNullKeyword',
+	'TSNumberKeyword',
+	'TSStringKeyword',
+	'TSSymbolKeyword',
+	'TSUndefinedKeyword',
+	'TSVoidKeyword',
+	'TSLiteralType',
+]);
 const isLiteralZero = node => isLiteral(node, 0);
 const isLiteralOne = node => isLiteral(node, 1);
 
@@ -34,76 +70,319 @@ const getArrayIdentifierFromLengthMemberExpression = node => {
 	return node.object;
 };
 
-const getTypeReferenceTypeAnnotation = (typeReferenceName, scope) => {
-	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
-	const [definition] = typeVariable?.defs ?? [];
-
-	if (!definition || definition.type !== 'Type') {
-		return;
+const combineUnionEntriesSupport = entriesSupports => {
+	if (entriesSupports.every(entriesSupport => entriesSupport === entriesSupported)) {
+		return entriesSupported;
 	}
 
-	if (definition.node.type === 'TSTypeAliasDeclaration') {
-		return definition.node.typeAnnotation;
+	if (entriesSupports.includes(entriesUnsupported)) {
+		return entriesUnsupported;
 	}
 
-	if (definition.node.type === 'TSTypeParameter') {
-		return definition.node.constraint;
+	return entriesUnknown;
+};
+
+const combineIntersectionEntriesSupport = entriesSupports => {
+	if (entriesSupports.includes(entriesSupported)) {
+		return entriesSupported;
+	}
+
+	if (entriesSupports.every(entriesSupport => entriesSupport === entriesUnsupported)) {
+		return entriesUnsupported;
+	}
+
+	return entriesUnknown;
+};
+
+const getTypeName = typeName => {
+	if (typeName.type === 'Identifier') {
+		return typeName.name;
+	}
+
+	if (typeName.type === 'TSQualifiedName') {
+		const left = getTypeName(typeName.left);
+		return left ? `${left}.${typeName.right.name}` : undefined;
 	}
 };
 
-const isArrayTypeReference = (node, scope, visitedTypeReferenceNames) => {
-	if (node.typeName.type !== 'Identifier') {
-		return false;
+const getTypeReferenceEntriesSupport = (node, scope, visitedTypeReferenceNames) => {
+	const typeReferenceName = getTypeName(node.typeName);
+
+	if (!typeReferenceName) {
+		return entriesUnknown;
 	}
 
-	const typeReferenceName = node.typeName.name;
-
 	if (typeReferenceName === 'Array' || typeReferenceName === 'ReadonlyArray') {
-		return true;
+		return entriesSupported;
+	}
+
+	if (noEntriesTypeNames.has(typeReferenceName)) {
+		return entriesUnsupported;
 	}
 
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
-		return false;
+		return entriesUnknown;
 	}
 
 	visitedTypeReferenceNames.add(typeReferenceName);
 
-	const typeAnnotation = getTypeReferenceTypeAnnotation(typeReferenceName, scope);
-	const isArray = isArrayType(typeAnnotation, scope, visitedTypeReferenceNames);
+	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
+	const [definition] = typeVariable?.defs ?? [];
+
+	if (!definition || definition.type !== 'Type') {
+		visitedTypeReferenceNames.delete(typeReferenceName);
+		return entriesUnknown;
+	}
+
+	let entriesSupport = entriesUnknown;
+
+	if (definition.node.type === 'TSTypeAliasDeclaration') {
+		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.typeAnnotation, scope, visitedTypeReferenceNames);
+	} else if (definition.node.type === 'TSTypeParameter') {
+		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.constraint, scope, visitedTypeReferenceNames);
+	}
 
 	visitedTypeReferenceNames.delete(typeReferenceName);
 
-	return isArray;
+	return entriesSupport;
 };
 
-const isArrayType = (node, scope, visitedTypeReferenceNames = new Set()) => {
+const getTypeAnnotationEntriesSupport = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	switch (node?.type) {
-		case 'TSArrayType':
-		case 'TSTupleType': {
-			return true;
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeReferenceNames);
 		}
 
-		case 'TSTypeReference': {
-			return isArrayTypeReference(node, scope, visitedTypeReferenceNames);
+		case 'TSArrayType':
+		case 'TSTupleType': {
+			return entriesSupported;
 		}
 
 		case 'TSTypeOperator': {
-			return node.operator === 'readonly' && isArrayType(node.typeAnnotation, scope, visitedTypeReferenceNames);
+			return node.operator === 'readonly'
+				? getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				: entriesUnknown;
+		}
+
+		case 'TSTypeReference': {
+			return getTypeReferenceEntriesSupport(node, scope, visitedTypeReferenceNames);
 		}
 
 		case 'TSUnionType': {
-			return node.types.every(type => isArrayType(type, scope, visitedTypeReferenceNames));
+			return combineUnionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeReferenceNames)));
 		}
 
 		case 'TSIntersectionType': {
-			return node.types.some(type => isArrayType(type, scope, visitedTypeReferenceNames));
+			return combineIntersectionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeReferenceNames)));
 		}
 
 		default: {
-			return false;
+			return noEntriesTypeAnnotationTypes.has(node?.type) ? entriesUnsupported : entriesUnknown;
 		}
 	}
 };
+
+const getEntryTypeSupport = (type, checker) => {
+	if (!type || isUnknownType(type)) {
+		return entriesUnknown;
+	}
+
+	if (type.isUnion()) {
+		const types = type.types.filter(type => !isNullishType(type));
+		return types.length === 0
+			? entriesUnknown
+			: combineUnionEntriesSupport(types.map(type => getEntryTypeSupport(type, checker)));
+	}
+
+	return checker.isArrayType(type) || checker.isTupleType(type)
+		? entriesSupported
+		: entriesUnsupported;
+};
+
+const getIteratorResultValueType = (type, checker) => {
+	const next = checker.getTypeOfPropertyOfType(type, 'next');
+	const [nextSignature] = next?.getCallSignatures() ?? [];
+
+	if (!nextSignature) {
+		return;
+	}
+
+	return checker.getTypeOfPropertyOfType(checker.getReturnTypeOfSignature(nextSignature), 'value');
+};
+
+const getEntriesReturnSupport = (type, checker) => {
+	if (isUnknownType(type)) {
+		return entriesUnknown;
+	}
+
+	if (type.isUnion()) {
+		return combineUnionEntriesSupport(type.types.map(type => getEntriesReturnSupport(type, checker)));
+	}
+
+	const isArrayReturn = checker.isArrayType(type);
+	const next = checker.getTypeOfPropertyOfType(type, 'next');
+	const hasCallableNext = next?.getCallSignatures().length > 0;
+
+	if (!isArrayReturn && !hasCallableNext) {
+		return entriesUnsupported;
+	}
+
+	const [entryType] = checker.getTypeArguments(type);
+	return getEntryTypeSupport(entryType ?? getIteratorResultValueType(type, checker), checker);
+};
+
+const getCallableEntriesSupport = (type, checker) => {
+	const entriesSupports = (type?.getCallSignatures() ?? [])
+		.filter(signature => signature.parameters.length === 0)
+		.map(signature => getEntriesReturnSupport(checker.getReturnTypeOfSignature(signature), checker));
+
+	return entriesSupports.length === 0
+		? entriesUnsupported
+		: combineIntersectionEntriesSupport(entriesSupports);
+};
+
+const getTypeEntriesSupport = (type, checker) => {
+	if (isUnknownType(type)) {
+		return entriesUnknown;
+	}
+
+	if (type.isTypeParameter?.()) {
+		const constraint = type.getConstraint();
+		return constraint ? getTypeEntriesSupport(constraint, checker) : entriesUnknown;
+	}
+
+	if (type.isUnion()) {
+		return combineUnionEntriesSupport(type.types.map(type => getTypeEntriesSupport(type, checker)));
+	}
+
+	if (type.isIntersection()) {
+		return combineIntersectionEntriesSupport(type.types.map(type => getTypeEntriesSupport(type, checker)));
+	}
+
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return entriesSupported;
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return getTypeEntriesSupport(constraint, checker);
+	}
+
+	const entries = checker.getTypeOfPropertyOfType(type, 'entries');
+	return getCallableEntriesSupport(entries, checker);
+};
+
+const getEntriesSupportFromTypeInformation = (node, context) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return entriesUnknown;
+	}
+
+	try {
+		return getTypeEntriesSupport(
+			parserServices.getTypeAtLocation(node),
+			parserServices.program.getTypeChecker(),
+		);
+	} catch {
+		return entriesUnknown;
+	}
+};
+
+const isNoEntriesDomCollectionCall = (node, context) =>
+	isCallExpression(node, {
+		optional: false,
+	})
+	&& node.callee.type === 'MemberExpression'
+	&& !node.callee.computed
+	&& node.callee.object.type === 'Identifier'
+	&& node.callee.object.name === 'document'
+	&& context.sourceCode.isGlobalReference(node.callee.object)
+	&& node.callee.property.type === 'Identifier'
+	&& noEntriesDomCollectionMethods.has(node.callee.property.name);
+
+const getEntriesSupportFromVariable = (node, context, visitedVariables) => {
+	const variable = getVariableByName(node.name, context.sourceCode.getScope(node));
+
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| variable.defs.length !== 1
+	) {
+		return entriesUnknown;
+	}
+
+	visitedVariables.add(variable);
+
+	const [definition] = variable.defs;
+	const definitionScope = context.sourceCode.getScope(definition.name);
+	const entriesSupportFromAnnotation = getTypeAnnotationEntriesSupport(definition.name.typeAnnotation, definitionScope);
+	let entriesSupport = entriesSupportFromAnnotation;
+
+	if (
+		entriesSupport === entriesUnknown
+		&& definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.id === definition.name
+		&& definition.node.init
+	) {
+		entriesSupport = getEntriesSupport(definition.node.init, context, visitedVariables);
+	}
+
+	visitedVariables.delete(variable);
+
+	return entriesSupport;
+};
+
+function getEntriesSupportFromSyntax(node, context, visitedVariables) {
+	switch (node.type) {
+		case 'Identifier': {
+			return getEntriesSupportFromVariable(node, context, visitedVariables);
+		}
+
+		case 'TSAsExpression':
+		case 'TSTypeAssertion': {
+			const entriesSupportFromAnnotation = getTypeAnnotationEntriesSupport(node.typeAnnotation, context.sourceCode.getScope(node));
+			return entriesSupportFromAnnotation === entriesUnknown
+				? getEntriesSupport(node.expression, context, visitedVariables)
+				: entriesSupportFromAnnotation;
+		}
+
+		case 'TSSatisfiesExpression':
+		case 'TSNonNullExpression':
+		case 'ParenthesizedExpression': {
+			return getEntriesSupport(node.expression, context, visitedVariables);
+		}
+
+		case 'SequenceExpression': {
+			return getEntriesSupport(node.expressions.at(-1), context, visitedVariables);
+		}
+
+		case 'ConditionalExpression': {
+			return combineUnionEntriesSupport([
+				getEntriesSupport(node.consequent, context, visitedVariables),
+				getEntriesSupport(node.alternate, context, visitedVariables),
+			]);
+		}
+
+		default: {
+			return isNoEntriesDomCollectionCall(node, context) ? entriesUnsupported : entriesUnknown;
+		}
+	}
+}
+
+function getEntriesSupport(node, context, visitedVariables = new Set()) {
+	if (isArray(node, context)) {
+		return entriesSupported;
+	}
+
+	const entriesSupportFromTypeInformation = getEntriesSupportFromTypeInformation(node, context);
+	if (entriesSupportFromTypeInformation !== entriesUnknown) {
+		return entriesSupportFromTypeInformation;
+	}
+
+	return getEntriesSupportFromSyntax(node, context, visitedVariables);
+}
 
 const getLoopInfoFromSingleDeclarator = forStatement => {
 	const {init: variableDeclaration} = forStatement;
@@ -425,7 +704,7 @@ const shouldFixProblem = ({
 	cachedLengthVariable,
 	cachedLengthIdentifier,
 	isStandardUpdateExpression,
-	hasNonArrayTypeAnnotation,
+	entriesSupport,
 	shouldGenerateIndex,
 }) =>
 	isStandardUpdateExpression
@@ -437,7 +716,7 @@ const shouldFixProblem = ({
 		cachedLengthIdentifier,
 	})
 	&& !elementNode?.id.typeAnnotation
-	&& !(hasNonArrayTypeAnnotation && shouldGenerateIndex);
+	&& !(shouldGenerateIndex && entriesSupport === entriesUnsupported);
 
 const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arrayIdentifierName) => {
 	const inBodyReferences = indexVariable.references.filter(reference => scopeContains(bodyScope, reference.from));
@@ -470,6 +749,30 @@ const someVariablesLeakOutOfTheLoop = (forStatement, variables, forScope) =>
 const getReferencesInChildScopes = (scope, name) =>
 	getReferences(scope).filter(reference => reference.identifier.name === name);
 
+const isStaticNonArray = (node, scope) => {
+	const staticResult = getStaticValue(node, scope);
+	return Boolean(staticResult && !Array.isArray(staticResult.value));
+};
+
+const getUpdateExpressionInfo = (forStatement, indexIdentifierName, cachedLengthIdentifier) => {
+	const isStandardUpdateExpression = isUpdateExpressionIncrementingIndex(forStatement, indexIdentifierName);
+	const isReportOnlyCachedLengthUpdate = cachedLengthIdentifier
+		&& isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength(forStatement.update, indexIdentifierName, cachedLengthIdentifier.name);
+
+	return {
+		isStandardUpdateExpression,
+		isReportableUpdateExpression: isStandardUpdateExpression || isReportOnlyCachedLengthUpdate,
+	};
+};
+
+const getBlockStatementScope = (forStatement, scopeManager) => {
+	if (forStatement.body?.type !== 'BlockStatement') {
+		return;
+	}
+
+	return scopeManager.acquire(forStatement.body);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -484,26 +787,22 @@ const create = context => {
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
 		const scope = sourceCode.getScope(node);
-		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
-		const staticResult = getStaticValue(arrayIdentifier, scope);
-		if (staticResult && !Array.isArray(staticResult.value)) {
+		if (isStaticNonArray(arrayIdentifier, scope)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
 
-		const isStandardUpdateExpression = isUpdateExpressionIncrementingIndex(node, indexIdentifierName);
-		const isReportOnlyCachedLengthUpdate = cachedLengthIdentifier
-			&& isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength(node.update, indexIdentifierName, cachedLengthIdentifier.name);
+		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
+		const {
+			isStandardUpdateExpression,
+			isReportableUpdateExpression,
+		} = getUpdateExpressionInfo(node, indexIdentifierName, cachedLengthIdentifier);
 
-		if (!isStandardUpdateExpression && !isReportOnlyCachedLengthUpdate) {
+		if (!isReportableUpdateExpression) {
 			return;
 		}
 
-		if (!node.body || node.body.type !== 'BlockStatement') {
-			return;
-		}
-
-		const bodyScope = scopeManager.acquire(node.body);
+		const bodyScope = getBlockStatementScope(node, scopeManager);
 
 		if (!bodyScope) {
 			return;
@@ -566,13 +865,7 @@ const create = context => {
 		const elementVariable = elementIdentifierName && getVariableByName(elementIdentifierName, bodyScope);
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
-
-		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
-		const hasNonArrayTypeAnnotation = getVariableByName(arrayIdentifierName, scope)
-			?.defs.some(definition => {
-				const typeAnnotation = definition.name.typeAnnotation?.typeAnnotation;
-				return typeAnnotation && !isArrayType(typeAnnotation, scope);
-			});
+		const entriesSupport = shouldGenerateIndex ? getEntriesSupport(arrayIdentifier, context) : entriesUnknown;
 
 		const shouldFix = shouldFixProblem({
 			forStatement: node,
@@ -584,7 +877,7 @@ const create = context => {
 			cachedLengthVariable,
 			cachedLengthIdentifier,
 			isStandardUpdateExpression,
-			hasNonArrayTypeAnnotation,
+			entriesSupport,
 			shouldGenerateIndex,
 		});
 
@@ -603,7 +896,7 @@ const create = context => {
 					}
 
 					if (removeDeclaration) {
-						declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
+						declarationType = elementNode.parent.kind;
 						declarationElement = sourceCode.getText(elementNode.id);
 					}
 				}
@@ -651,7 +944,6 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

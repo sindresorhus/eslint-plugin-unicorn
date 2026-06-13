@@ -1,11 +1,37 @@
+import {fileURLToPath} from 'node:url';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, avoidTestTitleConflict} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const fixtureDirectory = fileURLToPath(new URL('fixtures/no-for-loop/', import.meta.url));
 
 function testCase(code, output) {
 	return output ? {code, output, errors: 1} : {code, errors: 1};
 }
+
+const typeAnnotatedIndexUsage = (type, parameterName = 'items') => [
+	`function foo(${parameterName}: ${type}) {`,
+	`\tfor (let i = 0; i < ${parameterName}.length; i++) {`,
+	`\t\tconsole.log(i, ${parameterName}[i]);`,
+	'\t}',
+	'}',
+].join('\n');
+
+const typeAware = (code, output) => ({
+	...testCase(code, output),
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {
+			tsconfigRootDir: fixtureDirectory,
+			projectService: {
+				allowDefaultProject: ['*.ts'],
+				defaultProject: 'tsconfig.json',
+			},
+		},
+	},
+});
 
 test({
 	valid: [
@@ -929,6 +955,69 @@ test({
 				console.log(element);
 			}
 		`),
+		testCase(outdent`
+			const visibleItems = document.getElementsByClassName('visible');
+			for (let index = 0; index < visibleItems.length; index++) {
+				console.log(visibleItems[index]);
+			}
+		`, outdent`
+			const visibleItems = document.getElementsByClassName('visible');
+			for (const visibleItem of visibleItems) {
+				console.log(visibleItem);
+			}
+		`),
+		testCase(outdent`
+			const visibleItems = document.getElementsByClassName('visible');
+			for (let index = 0; index < visibleItems.length; index++) {
+				console.log(index, visibleItems[index]);
+			}
+		`),
+
+		testCase(outdent`
+			const links = document.getElementsByTagName('a');
+			for (let index = 0; index < links.length; index++) {
+				console.log(index, links[index]);
+			}
+		`),
+
+		testCase(outdent`
+			const links = document.getElementsByTagNameNS('http://www.w3.org/1999/xhtml', 'a');
+			for (let index = 0; index < links.length; index++) {
+				console.log(index, links[index]);
+			}
+		`),
+
+		testCase(outdent`
+			for (let index = 0; index < unknownItems.length; index++) {
+				console.log(index, unknownItems[index]);
+			}
+		`, outdent`
+			for (const [index, unknownItem] of unknownItems.entries()) {
+				console.log(index, unknownItem);
+			}
+		`),
+
+		testCase(outdent`
+			const document = {
+				getElementsByClassName() {
+					return ['visible'];
+				},
+			};
+			const visibleItems = document.getElementsByClassName('visible');
+			for (let index = 0; index < visibleItems.length; index++) {
+				console.log(index, visibleItems[index]);
+			}
+		`, outdent`
+			const document = {
+				getElementsByClassName() {
+					return ['visible'];
+				},
+			};
+			const visibleItems = document.getElementsByClassName('visible');
+			for (const [index, visibleItem] of visibleItems.entries()) {
+				console.log(index, visibleItem);
+			}
+		`),
 	],
 });
 
@@ -1002,6 +1091,24 @@ test.typescript({
 			`,
 			errors: 1,
 		},
+		testCase(typeAnnotatedIndexUsage('HTMLAllCollection')),
+		testCase(typeAnnotatedIndexUsage('HTMLCollectionOf<Element>')),
+		testCase(typeAnnotatedIndexUsage('HTMLCollection')),
+		{
+			code: outdent`
+				type Items = HTMLCollectionOf<Element>;
+				function foo(items: Items) {
+					for (let i = 0; i < items.length; i++) {
+						console.log(i, items[i]);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		testCase(typeAnnotatedIndexUsage('HTMLFormControlsCollection')),
+		testCase(typeAnnotatedIndexUsage('HTMLFormElement', 'form')),
+		testCase(typeAnnotatedIndexUsage('HTMLOptionsCollection')),
+		testCase(typeAnnotatedIndexUsage('HTMLSelectElement')),
 		// String type annotation without index usage - autofix works
 		{
 			code: outdent`
@@ -1097,6 +1204,19 @@ test.typescript({
 			}
 		`),
 		testCase(outdent`
+			function foo(items: ReadonlyArray<string>) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: ReadonlyArray<string>) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		testCase(outdent`
 			type Items = string[];
 			function foo(items: Items) {
 				for (let i = 0; i < items.length; i++) {
@@ -1119,6 +1239,19 @@ test.typescript({
 			}
 		`, outdent`
 			function foo(items: readonly string[]) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
+		testCase(outdent`
+			function foo(items: [string, string]) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
+				}
+			}
+		`, outdent`
+			function foo(items: [string, string]) {
 				for (const [i, item] of items.entries()) {
 					console.log(i, item);
 				}
@@ -1138,17 +1271,20 @@ test.typescript({
 				}
 			}
 		`),
-		// Non-array type annotation with index usage - no autofix
-		{
-			code: outdent`
-				function foo(items: Foo) {
-					for (let i = 0; i < items.length; i++) {
-						console.log(i, items[i]);
-					}
+		// Unknown type annotation with index usage - autofix still applies
+		testCase(outdent`
+			function foo(items: Foo) {
+				for (let i = 0; i < items.length; i++) {
+					console.log(i, items[i]);
 				}
-			`,
-			errors: 1,
-		},
+			}
+		`, outdent`
+			function foo(items: Foo) {
+				for (const [i, item] of items.entries()) {
+					console.log(i, item);
+				}
+			}
+		`),
 		{
 			code: outdent`
 				function foo(text: string) {
@@ -1203,6 +1339,117 @@ test.typescript({
 			`,
 			errors: 1,
 		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		typeAware(outdent`
+			const visibleItems = document.getElementsByClassName('visible');
+			for (let index = 0; index < visibleItems.length; index++) {
+				console.log(index, visibleItems[index]);
+			}
+		`),
+		typeAware(outdent`
+			declare function getItems(): string[];
+			const items = getItems();
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`, outdent`
+			declare function getItems(): string[];
+			const items = getItems();
+			for (const [index, item] of items.entries()) {
+				console.log(index, item);
+			}
+		`),
+		typeAware(outdent`
+			declare const nodes: NodeListOf<Element>;
+			for (let index = 0; index < nodes.length; index++) {
+				console.log(index, nodes[index]);
+			}
+		`, outdent`
+			declare const nodes: NodeListOf<Element>;
+			for (const [index, node] of nodes.entries()) {
+				console.log(index, node);
+			}
+		`),
+		typeAware(outdent`
+			declare const bytes: Uint8Array;
+			for (let index = 0; index < bytes.length; index++) {
+				console.log(index, bytes[index]);
+			}
+		`, outdent`
+			declare const bytes: Uint8Array;
+			for (const [index, byte] of bytes.entries()) {
+				console.log(index, byte);
+			}
+		`),
+		typeAware(outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+			}
+			declare const items: Collection<string>;
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`),
+		typeAware(outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+				entries: number;
+			}
+			declare const items: Collection<string>;
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`),
+		typeAware(outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+				entries(): void;
+			}
+			declare const items: Collection<string>;
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`),
+		typeAware(outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+				entries(): IterableIterator<T>;
+			}
+			declare const items: Collection<string>;
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`),
+		typeAware(outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+				entries(): IterableIterator<[number, T]>;
+			}
+			declare const items: Collection<string>;
+			for (let index = 0; index < items.length; index++) {
+				console.log(index, items[index]);
+			}
+		`, outdent`
+			interface Collection<T> {
+				length: number;
+				[index: number]: T;
+				entries(): IterableIterator<[number, T]>;
+			}
+			declare const items: Collection<string>;
+			for (const [index, item] of items.entries()) {
+				console.log(index, item);
+			}
+		`),
 	],
 });
 
