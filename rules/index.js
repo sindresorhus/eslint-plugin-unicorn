@@ -184,6 +184,7 @@ export {default as 'prefer-number-coercion'} from './prefer-number-coercion.js';
 export {default as 'prefer-number-is-safe-integer'} from './prefer-number-is-safe-integer.js';
 export {default as 'prefer-number-properties'} from './prefer-number-properties.js';
 export {default as 'prefer-object-define-properties'} from './prefer-object-define-properties.js';
+export {default as 'prefer-object-destructuring-defaults'} from './prefer-object-destructuring-defaults.js';
 export {default as 'prefer-object-from-entries'} from './prefer-object-from-entries.js';
 export {default as 'prefer-object-iterable-methods'} from './prefer-object-iterable-methods.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
