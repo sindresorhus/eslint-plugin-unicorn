@@ -367,7 +367,7 @@ function getExpressionType(node, context, visitedVariables = new Set()) {
 
 	const scope = sourceCode.getScope(node);
 
-	if (isString(node, scope)) {
+	if (isString(node, context)) {
 		return STRING;
 	}
 

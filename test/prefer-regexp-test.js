@@ -81,6 +81,10 @@ ruleTest.snapshot({
 			const pattern = \`\${value}\`;
 			if (foo.search(pattern) !== -1) {}
 		`,
+		{
+			code: 'type Pattern = string; function foo(pattern: Pattern) { return text.search(pattern) !== -1; }',
+			languageOptions: {parser: typescriptEslintParser},
+		},
 		'const pattern = 1; if (foo.search(pattern) !== -1) {}',
 		'if (foo.search(1 + 2) !== -1) {}',
 

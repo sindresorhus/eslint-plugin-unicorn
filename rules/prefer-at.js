@@ -12,6 +12,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
+	isString,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
@@ -230,13 +231,13 @@ function create(context) {
 		const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
 
 		if (!lengthNode) {
-			if (!checkAllIndexAccess) {
-				return;
-			}
-
 			// Only if we are sure it's a positive integer
 			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
 			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
+				return;
+			}
+
+			if (!checkAllIndexAccess && !isString(node.object, context)) {
 				return;
 			}
 

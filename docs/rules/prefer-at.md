@@ -65,6 +65,16 @@ const foo = array[100];
 ```
 
 ```js
+// ❌
+const string = 'string';
+const foo = string[1];
+
+// ✅
+const string = 'string';
+const foo = string.at(1);
+```
+
+```js
 // ✅
 // This rule is not checking this case, but `unicorn/prefer-negative-index` rule will fix it.
 const foo = array.at(array.length - 1);
@@ -100,7 +110,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-This rule only checks negative indexes by default, but you can also check positive indexes by setting `checkAllIndexAccess` to `true`.
+This rule checks negative indexes and known string positive indexes by default. You can also check other positive index access by setting `checkAllIndexAccess` to `true`.
 
 Example:
 

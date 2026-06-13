@@ -219,9 +219,7 @@ const create = context => {
 		}
 
 		const target = indexOfCall.callee.object;
-		const scope = sourceCode.getScope(node);
-
-		if (!isString(target, scope)) {
+		if (!isString(target, context)) {
 			return;
 		}
 
@@ -232,7 +230,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_INDEX_OF_STARTS_WITH,
 			* fix(fixer, {abort}) {
-				if (!isString(searchArgument, scope)) {
+				if (!isString(searchArgument, context)) {
 					return abort();
 				}
 
