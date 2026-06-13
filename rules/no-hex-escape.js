@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Use Unicode escapes instead of hexadecimal escapes.',
 };
 
-function checkEscape(context, node, value) {
+function getEscapeProblem(context, node, value) {
 	const fixedValue = value.replaceAll(/(?<=(?:^|[^\\])(?:\\\\)*\\)x/g, 'u00');
 
 	if (value !== fixedValue) {
@@ -25,7 +25,7 @@ function checkEscape(context, node, value) {
 const create = context => {
 	context.on('Literal', node => {
 		if (isStringLiteral(node) || isRegexLiteral(node)) {
-			return checkEscape(context, node, node.raw);
+			return getEscapeProblem(context, node, node.raw);
 		}
 	});
 
@@ -34,7 +34,7 @@ const create = context => {
 			return;
 		}
 
-		return checkEscape(context, node, node.value.raw);
+		return getEscapeProblem(context, node, node.value.raw);
 	});
 };
 
@@ -49,6 +49,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

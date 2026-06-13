@@ -169,13 +169,13 @@ const fixSuperOptionsArgument = (sourceCode, superCallExpression, messageArgumen
 
 const fixMissingOptionsParameter = (context, constructor, superCallExpression, messageArgumentText) => function * (fixer) {
 	const {sourceCode} = context;
-	const firstParameter = constructor.value.params[0];
 	const superOptionsFix = fixSuperOptionsArgument(sourceCode, superCallExpression, messageArgumentText)(fixer);
 
 	if (!superOptionsFix) {
 		return;
 	}
 
+	const firstParameter = constructor.value.params[0];
 	yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 	yield superOptionsFix;
 };
@@ -200,7 +200,7 @@ const isSameIdentifier = (node, identifier) =>
 	node?.type === 'Identifier'
 	&& node.name === identifier.name;
 
-const checkErrorOptions = (context, constructor, superExpression, hasMessageAccessor) => {
+const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
 	const parameters = constructor.value.params;
 	const firstParameter = parameters[0];
 	const firstParameterIdentifier = getParameterIdentifier(firstParameter);
@@ -212,10 +212,7 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 		return;
 	}
 
-	const optionsParameter = parameters[1];
 	const superCallExpression = superExpression.expression;
-	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
-	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (isOptionsIdentifier(firstParameter)) {
 		if (!isOptionsIdentifier(superCallExpression.arguments[1])) {
@@ -233,6 +230,10 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 
 		return;
 	}
+
+	const optionsParameter = parameters[1];
+	const shouldPassMessageToSuper = !hasMessageAccessor && firstParameterIdentifier.name === 'message';
+	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (!optionsParameter) {
 		return {
@@ -269,31 +270,27 @@ const checkErrorOptions = (context, constructor, superExpression, hasMessageAcce
 	}
 };
 
-function * checkErrorName(constructorBodyNode, constructorBody, errorDefinition) {
+function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorDefinition) {
 	const {name, nameProperty} = errorDefinition;
 	const nameExpression = constructorBody.find(bodyNode => isAssignmentExpression(bodyNode, 'name'));
 
 	if (!nameExpression) {
 		if (!isValidNameProperty(nameProperty, name)) {
-			yield createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
-			return false;
+			return createInvalidNameError(nameProperty?.value ?? constructorBodyNode, name);
 		}
 
-		return true;
+		return;
 	}
 
 	if (
 		nameExpression.expression.right.type !== 'Literal'
 		|| nameExpression.expression.right.value !== name
 	) {
-		yield createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
-		return false;
+		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
-
-	return true;
 }
 
-function * checkConstructorBody(context, constructor, errorDefinition) {
+function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 	const {sourceCode} = context;
 	const constructorBodyNode = constructor.value.body;
 
@@ -388,10 +385,15 @@ function * checkConstructorBody(context, constructor, errorDefinition) {
 		};
 	}
 
-	const hasValidName = yield * checkErrorName(constructorBodyNode, constructorBody, errorDefinition);
+	const invalidNameProblem = getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorDefinition);
+	const hasValidName = !invalidNameProblem;
+
+	if (invalidNameProblem) {
+		yield invalidNameProblem;
+	}
 
 	if (hasValidName && checkOptions && !hasConstructorBodyProblem) {
-		const errorOptionsProblem = checkErrorOptions(context, constructor, superExpression, hasMessageAccessor);
+		const errorOptionsProblem = getErrorOptionsProblem(context, constructor, superExpression, hasMessageAccessor);
 
 		if (errorOptionsProblem) {
 			yield errorOptionsProblem;
@@ -422,8 +424,6 @@ function * customErrorDefinition(context, node) {
 	const {sourceCode} = context;
 	const constructor = body.find(x => x.kind === 'constructor');
 	const nameProperty = body.find(classNode => isPropertyDefinition(classNode, 'name'));
-	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
-	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
 
 	if (!constructor) {
 		if (isValidNameProperty(nameProperty, name)) {
@@ -452,7 +452,10 @@ function * customErrorDefinition(context, node) {
 		return;
 	}
 
-	yield * checkConstructorBody(context, constructor, {
+	const hasMessageGetter = body.some(classNode => isMessageAccessor(classNode, 'get'));
+	const hasMessageSetter = body.some(classNode => isMessageAccessor(classNode, 'set'));
+
+	yield * getConstructorBodyProblems(context, constructor, {
 		name,
 		nameProperty,
 		hasMessageGetter,
@@ -462,8 +465,6 @@ function * customErrorDefinition(context, node) {
 }
 
 const customErrorExport = (context, node) => {
-	const exportsName = node.left.property.name;
-
 	const maybeError = node.right;
 
 	if (maybeError.type !== 'ClassExpression') {
@@ -480,6 +481,7 @@ const customErrorExport = (context, node) => {
 
 	// Assume rule has already fixed the error name
 	const errorName = maybeError.id.name;
+	const exportsName = node.left.property.name;
 
 	if (exportsName === errorName) {
 		return;
@@ -522,6 +524,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

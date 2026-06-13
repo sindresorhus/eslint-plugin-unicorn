@@ -361,6 +361,9 @@ test.snapshot({
 		'Uint8Array.prototype.toSpliced.call(foo, foo.length - 1)',
 		// There is no `Array#subarray`
 		'Array.prototype.subarray.call(foo, foo.length - 1)',
+		// `with()` changes boundary behavior for short arrays.
+		'foo.with(foo.length - 3, foo.length - 6)',
+		'Array.prototype.with.call(foo, foo.length - 3, foo.length - 6)',
 	],
 	invalid: [
 		'/**/foo.slice(foo.length - 2, foo.length - 1)',
@@ -381,8 +384,6 @@ test.snapshot({
 		'foo.toSpliced(foo.length - 3, foo.length - 6)',
 		'Array.prototype.toSpliced.call(foo, foo.length - 3, foo.length - 6)',
 		'[].toSpliced.call(foo, foo.length - 3, foo.length - 6)',
-		'foo.with(foo.length - 3, foo.length - 6)',
-		'Array.prototype.with.call(foo, foo.length - 3, foo.length - 6)',
 		'foo.subarray(foo.length - 3, foo.length - 6)',
 		'Uint8Array.prototype.subarray.call(foo, foo.length - 3, foo.length - 6)',
 		'Uint8Array.prototype.subarray.apply(foo, [foo.length - 3, foo.length - 6])',
@@ -400,6 +401,22 @@ test.snapshot({
 		},
 		{
 			code: 'foo!.slice(foo!.length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo satisfies string[]).slice((foo satisfies string[]).length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice((foo.length satisfies number) - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice((foo.length - 1) as number)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice(foo.length - (1 as const))',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

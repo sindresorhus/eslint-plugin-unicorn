@@ -11,7 +11,7 @@ import {
 	isLiteral,
 	isNullLiteral,
 	isMethodCall,
-	isStringLiteral,
+	getStaticStringValue,
 	isUndefined,
 } from './ast/index.js';
 
@@ -122,19 +122,6 @@ const isInShadowedBooleanCall = (node, booleanAncestor, sourceCode) => {
 	}
 
 	return false;
-};
-
-const getStaticSelector = node => {
-	if (isStringLiteral(node)) {
-		return node.value;
-	}
-
-	if (node.type !== 'TemplateLiteral' || node.expressions.length > 0) {
-		return;
-	}
-
-	const [quasi] = node.quasis;
-	return quasi.value.cooked;
 };
 
 const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
@@ -312,7 +299,7 @@ const create = context => {
 			isQuerySelectorAllCall(node)
 			&& !isQuerySelectorAllCallPartOfFirstElementAccess(node)
 		) {
-			const selector = getStaticSelector(node.arguments[0]);
+			const selector = getStaticStringValue(node.arguments[0]);
 			if (isSimpleIdSelector(selector)) {
 				return {
 					node: node.callee.property,
@@ -341,6 +328,9 @@ const config = {
 		fixable: 'code',
 		schema: [],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -1,4 +1,9 @@
-import {isEslintDisableOrEnableDirective} from './utils/index.js';
+import {
+	isEslintDisableOrEnableDirective,
+	getComments,
+	normalizeComment,
+	onRoot,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-manually-wrapped-comments';
 const messages = {
@@ -24,8 +29,9 @@ const isIgnoredCommentText = text =>
 	|| codeCharacters.some(character => text.includes(character));
 
 const getLinePrefix = (sourceCode, comment) => {
-	const {line, column} = sourceCode.getLoc(comment).start;
-	return sourceCode.lines[line - 1].slice(0, column);
+	const [start] = sourceCode.getRange(comment);
+	const lineStart = sourceCode.text.lastIndexOf('\n', start - 1) + 1;
+	return sourceCode.text.slice(lineStart, start);
 };
 
 const isStandaloneLineComment = (sourceCode, comment) => (
@@ -101,8 +107,8 @@ const fixCommentGroup = (context, comments) => fixer => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('Program', function * () {
-		const comments = context.sourceCode.getAllComments();
+	onRoot(context, function * () {
+		const comments = getComments(context).map(comment => normalizeComment(comment, context));
 
 		for (let index = 0; index < comments.length; index++) {
 			const group = [comments[index]];
@@ -145,6 +151,11 @@ const config = {
 		},
 		fixable: 'whitespace',
 		messages,
+		languages: [
+			'js/js',
+			'json/jsonc',
+			'json/json5',
+		],
 	},
 };
 

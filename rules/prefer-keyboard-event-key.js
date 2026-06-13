@@ -148,7 +148,7 @@ const getEventContexts = (context, node) => {
 };
 
 const getKey = value => {
-	if (translateToKey[value]) {
+	if (Object.hasOwn(translateToKey, value)) {
 		return translateToKey[value];
 	}
 
@@ -308,6 +308,9 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

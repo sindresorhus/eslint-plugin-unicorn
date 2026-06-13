@@ -15,6 +15,8 @@ This rule intentionally reports locally declared callbacks too. Use an inline wr
 
 Type predicate callbacks are allowed for `.every()`, `.filter()`, `.find()`, and `.findLast()` because wrapping them can fail to preserve TypeScript's predicate overload narrowing.
 
+When TypeScript type information is available, this rule ignores receivers that are known not to be arrays or typed arrays. Untyped JavaScript and unknown TypeScript receivers are still checked heuristically, so use the `ignore` option or an inline disable for unsupported non-array APIs that intentionally share array method names.
+
 Suppose you have a `unicorn` module:
 
 ```js

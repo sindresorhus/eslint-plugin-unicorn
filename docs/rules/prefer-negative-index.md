@@ -19,9 +19,9 @@ Prefer negative index over calculating from `.length` for:
 - [`TypedArray#at()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/at)
 - [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
 - [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced)
-- [`Array#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with)
-- [`TypedArray#with()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/with)
 - [`TypedArray#subarray()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/subarray)
+
+This rule intentionally excludes `Array#with()` and `TypedArray#with()` because negative indexes throw on empty arrays, so `array.with(-1, value)` is not equivalent to `array.with(array.length - 1, value)`.
 
 ## Examples
 

@@ -247,6 +247,11 @@ test({
 			errors: [error({name: 'URL', reason: 'callee of function named "makeSynchronous"'})],
 		},
 		{
+			name: 'inherited object properties are not treated as globals',
+			code: 'makeSynchronous(() => constructor)',
+			errors: [error({name: 'constructor', reason: 'callee of function named "makeSynchronous"'})],
+		},
+		{
 			name: 'check globals writability',
 			code: outdent`
 				makeSynchronous(function () {

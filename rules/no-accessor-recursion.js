@@ -150,6 +150,9 @@ const config = {
 		},
 		defaultOptions: [],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

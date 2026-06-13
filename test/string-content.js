@@ -85,6 +85,11 @@ test({
 				\`;
 			`,
 			outdent`
+				const foo = sql\`
+					SELECT * FROM users WHERE email = 'no'
+				\`;
+			`,
+			outdent`
 				const foo = svg\`
 					<svg xmlns="http://www.w3.org/2000/svg"><text>no</text></svg>
 				\`;

@@ -14,6 +14,10 @@
 
 This rule only auto-fix encoding in `fs.readFile()` and `fs.readFileSync()`.
 
+When linting CSS files with [`@eslint/css`](https://github.com/eslint/css), this rule also checks `@charset` declarations and enforces the dash form (`utf-8`) as required by the CSS specification.
+
+When linting HTML files with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), this rule also checks `<meta charset>` and `<form accept-charset>` attributes.
+
 ## Examples
 
 ```js

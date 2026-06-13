@@ -1,6 +1,9 @@
 import test from 'ava';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
+import json from '@eslint/json';
+import markdown from '@eslint/markdown';
+import htmlEslintPlugin from '@html-eslint/eslint-plugin';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -445,6 +448,291 @@ ruleTest({
 			errors: [expiredTodoError('2999-12-01', 'Y3K bug')],
 		},
 	],
+});
+
+test('supports JSONC comments with @eslint/json', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		// TODO [2000-01-01]: Drop
+		// TODO: Update config
+		{"key": "value"}
+	`, {
+		files: ['**/*.jsonc'],
+		language: 'json/jsonc',
+		plugins: {
+			json,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					checkDates: true,
+					checkDatesOnPullRequests: true,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.jsonc',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update config\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('ignores JSONC eslint directive comments with @eslint/json', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		// eslint-disable-next-line unicorn/expiring-todo-comments -- TODO reason
+		// TODO: Update config
+		{"key": "value"}
+	`, {
+		files: ['**/*.jsonc'],
+		language: 'json/jsonc',
+		plugins: {
+			json,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.jsonc',
+	});
+
+	t.deepEqual(messages, []);
+});
+
+test('supports JSONC block comments with @eslint/json', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		/* TODO [2000-01-01]: Drop */
+		{"key": "value"}
+	`, {
+		files: ['**/*.jsonc'],
+		language: 'json/jsonc',
+		plugins: {
+			json,
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': [
+				'error',
+				{
+					date: '2026-05-29',
+					checkDates: true,
+					checkDatesOnPullRequests: true,
+					allowWarningComments: false,
+				},
+			],
+		},
+	}, {
+		filename: 'fixture.jsonc',
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('supports HTML comments with @html-eslint', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(
+		'<!-- TODO [2000-01-01]: Drop -->\n<!-- TODO: Update markup -->\n<div></div>',
+		{
+			files: ['**/*.html'],
+			language: 'html/html',
+			plugins: {
+				html: htmlEslintPlugin,
+				unicorn,
+			},
+			rules: {
+				'unicorn/expiring-todo-comments': [
+					'error',
+					{
+						date: '2026-05-29',
+						checkDates: true,
+						checkDatesOnPullRequests: true,
+						allowWarningComments: false,
+					},
+				],
+			},
+		},
+		{filename: 'fixture.html'},
+	);
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update markup\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('supports Markdown HTML comments with @eslint/markdown', t => {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(
+		'<!-- TODO [2000-01-01]: Drop -->\n\n<!-- TODO: Update docs -->\n\n# Hello',
+		{
+			files: ['**/*.md'],
+			language: 'markdown/commonmark',
+			plugins: {
+				markdown,
+				unicorn,
+			},
+			rules: {
+				'unicorn/expiring-todo-comments': [
+					'error',
+					{
+						date: '2026-05-29',
+						checkDates: true,
+						checkDatesOnPullRequests: true,
+						allowWarningComments: false,
+					},
+				],
+			},
+		},
+		{filename: 'fixture.md'},
+	);
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update docs\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+// Lint Markdown source and return the simplified messages for the expiring-todo-comments rule.
+function lintMarkdown(code) {
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(
+		code,
+		{
+			files: ['**/*.md'],
+			language: 'markdown/commonmark',
+			plugins: {
+				markdown,
+				unicorn,
+			},
+			rules: {
+				'unicorn/expiring-todo-comments': [
+					'error',
+					{
+						date: '2026-05-29',
+						checkDates: true,
+						checkDatesOnPullRequests: true,
+						allowWarningComments: false,
+					},
+				],
+			},
+		},
+		{filename: 'fixture.md'},
+	);
+
+	return messages.map(({message, ruleId}) => ({message, ruleId}));
+}
+
+test('ignores HTML comments inside Markdown fenced code blocks', t => {
+	t.deepEqual(
+		lintMarkdown('```html\n<!-- TODO [2000-01-01]: Inside fence -->\n```\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Outside fence',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('ignores HTML comments inside Markdown tilde fenced code blocks', t => {
+	t.deepEqual(
+		lintMarkdown('~~~\n<!-- TODO [2000-01-01]: Inside fence -->\n~~~\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Outside fence',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('ignores HTML comments inside Markdown code', t => {
+	t.deepEqual(
+		lintMarkdown('`<!-- TODO [2000-01-01]: Inline code -->`\n\n    <!-- TODO [2000-01-01]: Indented code -->\n\n<!-- TODO [2000-01-01]: Outside code -->'),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Outside code',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('reports every TODO line inside a multi-line Markdown HTML comment', t => {
+	t.deepEqual(
+		lintMarkdown('<!--\nTODO [2000-01-01]: First\nTODO [2000-01-01]: Second\n-->'),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. First',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Second',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('handles an unterminated Markdown HTML comment without truncating its text', t => {
+	t.deepEqual(
+		lintMarkdown('<!-- TODO [2000-01-01]: Unterminated'),
+		[
+			{
+				message: 'There is a TODO that is past due date: 2000-01-01. Unterminated',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
 });
 
 test('supports CSS comments with @eslint/css', t => {

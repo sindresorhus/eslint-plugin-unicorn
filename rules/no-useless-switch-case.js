@@ -1,4 +1,5 @@
-import {isEmptyNode} from './ast/index.js';
+import {isEmptyNode, isNullLiteral, isUndefined} from './ast/index.js';
+import {isTypeScriptFile} from './utils/index.js';
 import getSwitchCaseHeadLocation from './utils/get-switch-case-head-location.js';
 
 const MESSAGE_ID_ERROR = 'no-useless-switch-case/error';
@@ -9,9 +10,12 @@ const messages = {
 };
 
 const isEmptySwitchCase = node => node.consequent.every(node => isEmptyNode(node));
+const isNullishSwitchCase = node => isUndefined(node.test) || isNullLiteral(node.test);
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const isTypeScript = isTypeScriptFile(context.physicalFilename);
+
 	context.on('SwitchStatement', function * (switchStatement) {
 		const {cases} = switchStatement;
 
@@ -24,6 +28,10 @@ const create = context => {
 			const node = cases[index];
 			if (!isEmptySwitchCase(node)) {
 				break;
+			}
+
+			if (isTypeScript && isNullishSwitchCase(node)) {
+				continue;
 			}
 
 			yield {
@@ -53,6 +61,9 @@ const config = {
 		},
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

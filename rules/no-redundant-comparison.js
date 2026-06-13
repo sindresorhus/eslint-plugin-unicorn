@@ -40,9 +40,6 @@ function impliesNumeric(pOperator, pValue, qOperator, qValue) {
 		return false;
 	}
 
-	const isPInclusive = pOperator === '>=' || pOperator === '<=';
-	const isQInclusive = qOperator === '>=' || qOperator === '<=';
-
 	if (isPLowerBound) {
 		if (pValue > qValue) {
 			return true;
@@ -62,6 +59,8 @@ function impliesNumeric(pOperator, pValue, qOperator, qValue) {
 	}
 
 	// Same bound value: the stricter (exclusive) bound implies the looser (inclusive) one, but not the reverse.
+	const isPInclusive = pOperator === '>=' || pOperator === '<=';
+	const isQInclusive = qOperator === '>=' || qOperator === '<=';
 	return isPInclusive ? isQInclusive : true;
 }
 
@@ -297,6 +296,9 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

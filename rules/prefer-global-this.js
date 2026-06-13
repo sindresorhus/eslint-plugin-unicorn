@@ -1,4 +1,4 @@
-import {isStringLiteral} from './ast/index.js';
+import {getStaticStringValue} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
@@ -105,15 +105,7 @@ const windowSpecificApis = new Set([
 	'devicePixelRatio',
 ]);
 
-function getStaticPropertyName(node) {
-	if (isStringLiteral(node)) {
-		return node.value;
-	}
-
-	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis[0].value.cooked;
-	}
-}
+const getStaticPropertyName = getStaticStringValue;
 
 /**
 Check if the node is a window-specific API.
@@ -241,6 +233,9 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: false,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

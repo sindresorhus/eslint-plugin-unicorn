@@ -1,6 +1,7 @@
 export {
 	isLiteral,
 	isStringLiteral,
+	getStaticStringValue,
 	isNumericLiteral,
 	isBigIntLiteral,
 	isNullLiteral,

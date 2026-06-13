@@ -72,8 +72,9 @@ function fixRequireCall(node, context) {
 	const {
 		parent,
 		callee,
-		arguments: [source],
+		arguments: callArguments,
 	} = requireCall;
+	const [source] = callArguments;
 
 	// `require("foo")`
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
@@ -369,6 +370,9 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

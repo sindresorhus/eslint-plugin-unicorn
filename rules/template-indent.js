@@ -243,6 +243,9 @@ const config = {
 			comments: ['HTML', 'indent'],
 		}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

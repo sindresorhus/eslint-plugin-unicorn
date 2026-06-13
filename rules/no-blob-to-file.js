@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNewExpression} from './ast/index.js';
-import {getVariableIdentifiers} from './utils/index.js';
+import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.js';
+import {getLastTrailingCommentOnSameLine, getVariableIdentifiers} from './utils/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -9,7 +9,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace the `File` with the original `Blob`.',
 };
 
-const isWhitespaceOnly = text => /^\s*$/.test(text);
+const isWhitespaceOnly = text => /^\s*$/v.test(text);
 
 const isStandaloneConstDeclaration = node =>
 	node.parent.type === 'VariableDeclaration'
@@ -64,13 +64,8 @@ function getFileNameNode(newFileExpression) {
 	return fileNameNode;
 }
 
-const isStringLiteral = node =>
-	(node.type === 'Literal' && typeof node.value === 'string')
-	|| (node.type === 'TemplateLiteral' && node.expressions.length === 0);
-
 function isBlobIdentifier(node, beforeNode, context) {
 	const declaration = getConstIdentifierDeclaration(node, context);
-	const initializer = declaration?.init;
 
 	if (
 		!declaration
@@ -79,6 +74,7 @@ function isBlobIdentifier(node, beforeNode, context) {
 		return false;
 	}
 
+	const initializer = declaration.init;
 	return (
 		isNewExpression(initializer, {
 			name: 'Blob',
@@ -100,8 +96,7 @@ function hasComments(node, context) {
 		|| sourceCode.getCommentsBefore(node).some(comment =>
 			sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line
 			|| sourceCode.getLoc(comment).end.line === sourceCode.getLoc(node).start.line - 1)
-		|| sourceCode.getCommentsAfter(node).some(comment =>
-			sourceCode.getLoc(comment).start.line === sourceCode.getLoc(node).end.line);
+		|| getLastTrailingCommentOnSameLine(context, node);
 }
 
 function getBlobIdentifier(newFileExpression, context) {
@@ -123,7 +118,7 @@ function getBlobIdentifier(newFileExpression, context) {
 		fileBits.type !== 'ArrayExpression'
 		|| fileBits.elements.length !== 1
 		|| fileBits.elements[0]?.type === 'SpreadElement'
-		|| !isStringLiteral(fileName)
+		|| getStaticStringValue(fileName) === undefined
 	) {
 		return;
 	}
@@ -293,6 +288,9 @@ const config = {
 		},
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

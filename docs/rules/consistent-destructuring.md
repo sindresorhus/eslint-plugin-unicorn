@@ -13,6 +13,8 @@ Enforces the use of already destructured variables over accessing the same direc
 
 This rule is partly fixable. It does not suggest adding new properties to existing destructuring patterns, as that could read properties earlier than before.
 
+There is no option to ignore specific sources or properties. Properties without a corresponding destructured variable are ignored by design.
+
 ## Examples
 
 ```js

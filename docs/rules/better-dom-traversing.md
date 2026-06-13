@@ -15,6 +15,8 @@ Use named first-child properties instead of positional access, selectors instead
 
 This rule is syntax-based and reports common DOM traversal patterns. Suggestions are intentionally manual because the replacement can change behavior in some cases, such as `undefined` versus `null` for empty child collections, exact-depth parent traversal versus selector-based ancestor lookup, or chained `querySelector()` calls that only search inside the first matching element.
 
+`props.children` access is ignored because it is component data, not DOM traversal.
+
 ## Examples
 
 ```js

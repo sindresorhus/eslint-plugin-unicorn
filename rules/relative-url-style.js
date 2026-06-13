@@ -164,6 +164,9 @@ const config = {
 		schema,
 		defaultOptions: ['never'],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

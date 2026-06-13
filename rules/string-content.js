@@ -13,6 +13,7 @@ const targetNodeTypes = ['Literal', 'TemplateElement'];
 const ignoredIdentifier = new Set([
 	'gql',
 	'html',
+	'sql',
 	'svg',
 ]);
 
@@ -75,7 +76,7 @@ const create = context => {
 
 	const checked = new WeakSet();
 
-	const checkNode = node => {
+	const getProblem = node => {
 		const {type, value, raw} = node;
 
 		if (checked.has(node) || !targetNodeTypes.includes(type)) {
@@ -143,7 +144,7 @@ const create = context => {
 
 	context.on(
 		selectors.length === 0 ? targetNodeTypes : selectors,
-		checkNode,
+		getProblem,
 	);
 };
 
@@ -213,6 +214,9 @@ const config = {
 		schema,
 		defaultOptions: [{patterns: {}, selectors: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

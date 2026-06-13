@@ -121,7 +121,6 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	const [firstArgument, secondArgument] = node.arguments;
 
 	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
-	const firstArgumentText = getParenthesizedText(firstArgument, context);
 	const replaceFirstArgument = text => replaceArgument(fixer, firstArgument, text, context);
 
 	if (!secondArgument) {
@@ -141,7 +140,6 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	}
 
 	const secondNumber = getNumericValue(secondArgument);
-	const secondArgumentText = getParenthesizedText(secondArgument, context);
 	const replaceSecondArgument = text => replaceArgument(fixer, secondArgument, text, context);
 
 	if (firstNumber !== undefined && secondNumber !== undefined) {
@@ -162,6 +160,8 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 	}
 
 	if (firstNumber === 0 || secondNumber === 0) {
+		const firstArgumentText = getParenthesizedText(firstArgument, context);
+		const secondArgumentText = getParenthesizedText(secondArgument, context);
 		yield replaceFirstArgument('0');
 		yield replaceSecondArgument(`Math.max(0, ${firstNumber === 0 ? secondArgumentText : firstArgumentText})`);
 		return;
@@ -232,6 +232,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

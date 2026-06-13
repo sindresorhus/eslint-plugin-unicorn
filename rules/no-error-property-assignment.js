@@ -6,6 +6,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
+import {unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-error-property-assignment';
 const messages = {
@@ -64,21 +65,6 @@ const getVariable = (node, context) =>
 
 // Keep TypeScript support syntactic: unwrap assertions and `satisfies` so `new Error() as Error` is recognized, but do not use parser services.
 // A type named `Error` can describe subclasses or values returned from elsewhere, so type-aware matching would exceed the rule's known built-in-instance boundary and make results config-dependent.
-const typeScriptWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-	'TSTypeAssertion',
-]);
-
-const unwrapExpression = node => {
-	while (typeScriptWrapperTypes.has(node?.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 const getKnownErrorConstructorNameFromFrames = (variable, knownErrorVariableFrames) => {
 	for (const {knownErrorVariables} of knownErrorVariableFrames.toReversed()) {
 		if (knownErrorVariables.has(variable)) {
@@ -304,7 +290,7 @@ const getPropertyProblem = (node, property) => ({
 	data: {property},
 });
 
-function * checkObjectAssign(callExpression, context, knownErrorVariables) {
+function * getObjectAssignProblems(callExpression, context, knownErrorVariables) {
 	if (!(
 		isMethodCall(callExpression, {
 			object: 'Object',
@@ -344,7 +330,7 @@ function * checkObjectAssign(callExpression, context, knownErrorVariables) {
 	}
 }
 
-const checkDirectAssignment = (assignmentExpression, context, knownErrorVariables) => {
+const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVariables) => {
 	if (!isMemberExpression(assignmentExpression.left, {optional: false})) {
 		return;
 	}
@@ -425,13 +411,13 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', node => {
-		const problem = checkDirectAssignment(node, context, knownErrorVariables);
+		const problem = getDirectAssignmentProblem(node, context, knownErrorVariables);
 		updateKnownErrorVariable(node, context, knownErrorVariables);
 
 		return problem;
 	});
 
-	context.on('CallExpression', node => checkObjectAssign(node, context, knownErrorVariables));
+	context.on('CallExpression', node => getObjectAssignProblems(node, context, knownErrorVariables));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

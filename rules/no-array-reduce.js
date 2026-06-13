@@ -2,6 +2,7 @@ import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getLastTrailingCommentOnSameLine,
 	getParenthesizedText,
 	isFunctionSelfUsedInside,
 	isNodeValueNotFunction,
@@ -401,9 +402,6 @@ function isSafeCallbackIdentifier(callback, replacementNames, context, options) 
 function createFix(callExpression, context) {
 	const {sourceCode} = context;
 	const [callback, initialValue] = callExpression.arguments;
-	const variableDeclaration = callExpression.parent.parent;
-	const resultVariable = sourceCode.getDeclaredVariables(variableDeclaration)[0];
-	const resultName = callExpression.parent.id.name;
 	if (
 		callExpression.callee.object.type !== 'Identifier'
 		|| !isSupportedCallback(callback)
@@ -415,6 +413,9 @@ function createFix(callExpression, context) {
 	) {
 		return;
 	}
+
+	const variableDeclaration = callExpression.parent.parent;
+	const resultVariable = sourceCode.getDeclaredVariables(variableDeclaration)[0];
 
 	if (hasUnsafeResultReference(sourceCode, resultVariable, callExpression)) {
 		return;
@@ -430,6 +431,7 @@ function createFix(callExpression, context) {
 	}
 
 	const arrayText = getParenthesizedText(callExpression.callee.object, context);
+	const resultName = callExpression.parent.id.name;
 	const {elementName, indexName} = getLoopVariableNames(callExpression, resultName, callback, context);
 	const replacementNames = {
 		resultName,
@@ -527,17 +529,13 @@ const cases = [
 		},
 		getFix(callExpression, context) {
 			const variableDeclaration = callExpression.parent.parent;
-			const nextComment = context.sourceCode.getCommentsAfter(variableDeclaration)[0];
 			if (
 				callExpression.callee.property.name !== 'reduce'
 				|| callExpression.optional
 				|| callExpression.callee.optional
 				|| !isSingleDeclaratorVariableInitializer(callExpression)
 				|| context.sourceCode.getCommentsInside(variableDeclaration).length > 0
-				|| (
-					nextComment
-					&& context.sourceCode.getLoc(nextComment).start.line === context.sourceCode.getLoc(variableDeclaration).end.line
-				)
+				|| getLastTrailingCommentOnSameLine(context, variableDeclaration)
 			) {
 				return;
 			}
@@ -627,6 +625,9 @@ const config = {
 		schema,
 		defaultOptions: [{allowSimpleOperations: true}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

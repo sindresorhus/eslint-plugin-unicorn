@@ -185,10 +185,30 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'array.filter((value): value is string => Boolean(value))',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: outdent`
 				array.filter((value): value is string => {
 					return value;
 				})
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				array.filter((value): value is string => {
+					return Boolean(value);
+				})
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function isString(value): value is string {
+					return Boolean(value);
+				}
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},

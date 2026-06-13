@@ -172,7 +172,7 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
-	function checkLetPlusIf(node) {
+	function getLetPlusIfProblem(node) {
 		const consequentBody = getNodeBody(node.consequent);
 		if (
 			!consequentBody
@@ -298,7 +298,7 @@ const create = context => {
 
 	context.on('IfStatement', node => {
 		if (!node.alternate) {
-			return checkLetPlusIf(node);
+			return getLetPlusIfProblem(node);
 		}
 
 		if (
@@ -414,6 +414,9 @@ const config = {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 			[suggestionMessageId]: 'Use a ternary expression.',
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

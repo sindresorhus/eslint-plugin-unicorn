@@ -96,7 +96,6 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
-	const endsWithWhitespace = lineText[column] === ' ';
 
 	if (isOnlyNodeOnLine) {
 		return fixer.removeRange([
@@ -105,6 +104,7 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 		]);
 	}
 
+	const endsWithWhitespace = lineText[column] === ' ';
 	if (endsWithWhitespace) {
 		const [start, end] = sourceCode.getRange(node);
 		return fixer.removeRange([start, end + 1]);
@@ -118,7 +118,7 @@ const create = context => {
 	const {sourceCode} = context;
 	const functionStack = [];
 
-	const checkExpression = (node, left, right, assignment) => {
+	const getDefaultParameterProblem = (node, left, right, assignment) => {
 		const currentFunction = functionStack.at(-1);
 
 		if (!currentFunction || !isDefaultExpression(left, right)) {
@@ -186,13 +186,13 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			return checkExpression(node.parent, node.left, node.right, true);
+			return getDefaultParameterProblem(node.parent, node.left, node.right, true);
 		}
 	});
 
 	context.on('VariableDeclarator', node => {
 		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations[0] === node) {
-			return checkExpression(node.parent, node.id, node.init, false);
+			return getDefaultParameterProblem(node.parent, node.id, node.init, false);
 		}
 	});
 };
@@ -211,6 +211,9 @@ const config = {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
 			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

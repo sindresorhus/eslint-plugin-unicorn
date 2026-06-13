@@ -8,6 +8,7 @@ import {
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	isMemberExpression,
@@ -27,6 +28,11 @@ const messages = {
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
 const camelCaseToDash = string => `data-${string.replaceAll(/[A-Z]/g, char => `-${char.toLowerCase()}`)}`;
 const isDatasetAccess = node => isMemberExpression(node, {property: 'dataset'});
+const isSimpleDatasetProperty = property =>
+	property.type === 'Property'
+	&& !property.computed
+	&& property.key.type === 'Identifier'
+	&& property.value.type === 'Identifier';
 
 // Names inherited from `Object.prototype` — never a real `data-*` attribute.
 const DATASET_INHERITED_MEMBERS = new Set([
@@ -87,6 +93,15 @@ function getFix(callExpression, context) {
 	}
 
 	if (method === 'removeAttribute' && !isExpressionStatement(callExpression.parent)) {
+		return;
+	}
+
+	const preservedNodes = [callExpression.callee.object];
+	if (method === 'setAttribute') {
+		preservedNodes.push(callExpression.arguments[1]);
+	}
+
+	if (wouldRemoveComments(context, callExpression, preservedNodes)) {
 		return;
 	}
 
@@ -153,19 +168,22 @@ const create = context => {
 			const objectText = getReceiverText(datasetNode.object, context);
 			const chain = datasetNode.optional ? '?.' : '.';
 			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
-
-			return {
-				node: reportNode,
-				messageId: INVERSE_MESSAGE_ID,
-				data: {method: 'hasAttribute'},
-				fix(fixer) {
+			const fix = wouldRemoveComments(context, reportNode, [datasetNode.object])
+				? undefined
+				: fixer => {
 					let text = `${objectText}${chain}hasAttribute(${attributeName})`;
 					if (needsSemicolon(sourceCode.getTokenBefore(reportNode), context, text)) {
 						text = `;${text}`;
 					}
 
 					return fixer.replaceText(reportNode, text);
-				},
+				};
+
+			return {
+				node: reportNode,
+				messageId: INVERSE_MESSAGE_ID,
+				data: {method: 'hasAttribute'},
+				fix,
 			};
 		};
 
@@ -255,12 +273,8 @@ const create = context => {
 				&& declaration.declarations.length === 1
 				&& !declaration.parent.type.startsWith('For')
 				&& declaration.parent.type !== 'ExportNamedDeclaration'
-				&& properties.every(property =>
-					property.type === 'Property'
-					&& !property.computed
-					&& property.key.type === 'Identifier'
-					&& property.value.type === 'Identifier',
-				)
+				&& !wouldRemoveComments(context, declaration, [datasetNode.object])
+				&& properties.every(property => isSimpleDatasetProperty(property))
 				&& (properties.length === 1 || datasetNode.object.type === 'Identifier')
 			) {
 				const indent = getIndentString(declaration, context);
@@ -335,9 +349,17 @@ const create = context => {
 			const attributeName = escapeString(camelCaseToDash(keyName), quote);
 
 			let fix;
-			if (isWrite && isValueNotUsable(parent)) {
+			if (
+				isWrite
+				&& isValueNotUsable(parent)
+				&& !wouldRemoveComments(context, parent, [object.object, parent.right])
+			) {
 				fix = fixer => fixer.replaceText(parent, `${objectText}${chain}setAttribute(${attributeName}, ${getParenthesizedText(parent.right, context)})`);
-			} else if (isDelete && isExpressionStatement(parent.parent)) {
+			} else if (
+				isDelete
+				&& isExpressionStatement(parent.parent)
+				&& !wouldRemoveComments(context, parent, [object.object])
+			) {
 				fix = fixer => {
 					let text = `${objectText}${chain}removeAttribute(${attributeName})`;
 					if (needsSemicolon(sourceCode.getTokenBefore(parent), context, text)) {
@@ -346,7 +368,11 @@ const create = context => {
 
 					return fixer.replaceText(parent, text);
 				};
-			} else if (!isWrite && !isDelete) {
+			} else if (
+				!isWrite
+				&& !isDelete
+				&& !wouldRemoveComments(context, memberExpression, [object.object])
+			) {
 				fix = fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`);
 			}
 
@@ -428,6 +454,9 @@ const config = {
 		schema,
 		defaultOptions: [{preferAttributes: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isLiteral} from './ast/index.js';
 import {getParenthesizedText, isNumber} from './utils/index.js';
 
@@ -22,9 +23,14 @@ const invertedOperator = {
 };
 
 const operators = new Set(Object.keys(invertedOperator));
+const strictOrderingOperators = new Set(['>', '<']);
 
 const isZero = node => isLiteral(node, 0);
 const isSubtraction = node => node.type === 'BinaryExpression' && node.operator === '-';
+const isFiniteStaticNumber = (node, scope) => {
+	const value = getStaticValue(node, scope)?.value;
+	return typeof value === 'number' && Number.isFinite(value);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -63,10 +69,12 @@ const create = context => {
 		/** @param {import('eslint').Rule.RuleFixer} fixer */
 		const fix = fixer => fixer.replaceText(node, replacement);
 
-		// The rewrite only preserves behavior when both operands are numbers.
-		// For example, `"10" - "5" > 0` is `true`, but `"10" > "5"` is `false`.
 		const scope = sourceCode.getScope(node);
-		if (isNumber(left, scope) && isNumber(right, scope)) {
+		const canAutofix = strictOrderingOperators.has(operator)
+			? isNumber(left, scope) && isNumber(right, scope)
+			: isFiniteStaticNumber(left, scope) && isFiniteStaticNumber(right, scope);
+
+		if (canAutofix) {
 			problem.fix = fix;
 		} else {
 			problem.suggest = [

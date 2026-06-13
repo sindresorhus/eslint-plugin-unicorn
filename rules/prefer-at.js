@@ -12,6 +12,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
+	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
 	getNegativeIndexLengthNode,
@@ -47,21 +48,6 @@ const messages = {
 };
 
 const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
-
-function unwrapExpression(node) {
-	if (
-		[
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-			'TSSatisfiesExpression',
-		].includes(node.type)
-	) {
-		return unwrapExpression(node.expression);
-	}
-
-	return node;
-}
 
 const isUnsupportedAtReceiverExpression = node => {
 	node = unwrapExpression(node);
@@ -134,7 +120,21 @@ const isArrayPopOrShiftCall = (node, method) =>
 const isArrayPopCall = node => isArrayPopOrShiftCall(node, 'pop');
 const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
 
-function checkSliceCall(node) {
+function getFirstElementGetMethod(node) {
+	if (isZeroIndexAccess(node)) {
+		return isLeftHandSide(node.parent) ? undefined : 'zero-index';
+	}
+
+	if (isArrayShiftCall(node)) {
+		return 'shift';
+	}
+
+	if (isArrayPopCall(node)) {
+		return 'pop';
+	}
+}
+
+function getSliceCallResult(node) {
 	const sliceArgumentsLength = node.arguments.length;
 	const [startIndexNode, endIndexNode] = node.arguments;
 
@@ -142,19 +142,7 @@ function checkSliceCall(node) {
 		return;
 	}
 
-	let firstElementGetMethod = '';
-	if (isZeroIndexAccess(node)) {
-		if (isLeftHandSide(node.parent)) {
-			return;
-		}
-
-		firstElementGetMethod = 'zero-index';
-	} else if (isArrayShiftCall(node)) {
-		firstElementGetMethod = 'shift';
-	} else if (isArrayPopCall(node)) {
-		firstElementGetMethod = 'pop';
-	}
-
+	const firstElementGetMethod = getFirstElementGetMethod(node);
 	if (!firstElementGetMethod) {
 		return;
 	}
@@ -381,7 +369,7 @@ function create(context) {
 			return;
 		}
 
-		const result = checkSliceCall(sliceCall);
+		const result = getSliceCallResult(sliceCall);
 		if (!result) {
 			return;
 		}
@@ -497,6 +485,9 @@ const config = {
 		schema,
 		defaultOptions: [{getLastElementFunctions: [], checkAllIndexAccess: false}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

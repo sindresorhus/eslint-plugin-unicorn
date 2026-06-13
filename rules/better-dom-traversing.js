@@ -1,4 +1,9 @@
-import {isMethodCall, isMemberExpression, isNumericLiteral} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isMethodCall,
+	isMemberExpression,
+	isNumericLiteral,
+} from './ast/index.js';
 import {escapeString, getParenthesizedText, isNodeValueNotDomNode} from './utils/index.js';
 
 const MESSAGE_ID_FIRST_CHILD = 'first-child';
@@ -37,6 +42,20 @@ const isDomCollectionMemberExpression = (node, property) =>
 		optional: false,
 		computed: false,
 	});
+
+const isPropertiesChildrenMemberExpression = node =>
+	isDomCollectionMemberExpression(node, 'children')
+	&& (
+		(
+			node.object.type === 'Identifier'
+			&& node.object.name === 'props'
+		)
+		|| isMemberExpression(node.object, {
+			property: 'props',
+			optional: false,
+			computed: false,
+		})
+	);
 
 const isNumericIndexMemberExpression = node =>
 	isNonOptionalMemberExpression(node)
@@ -103,17 +122,7 @@ const isOutermostParentElementChain = node =>
 	!isParentElementMemberExpression(node.parent)
 	|| node.parent.object !== node;
 
-const isStaticSelector = node =>
-	(node.type === 'Literal' && typeof node.value === 'string')
-	|| (node.type === 'TemplateLiteral' && node.expressions.length === 0 && node.quasis[0].value.cooked !== undefined);
-
-const getStaticSelectorValue = node => {
-	if (node.type === 'Literal') {
-		return node.value;
-	}
-
-	return node.quasis[0].value.cooked;
-};
+const isStaticSelector = node => getStaticStringValue(node) !== undefined;
 
 const getSelectorQuote = node =>
 	node.type === 'Literal' && node.raw.startsWith('"') ? '"' : '\'';
@@ -133,10 +142,7 @@ const isDocumentObject = node =>
 	);
 
 const canMergeSelectorValues = selectors =>
-	selectors.every(selector =>
-		!selector.includes(',')
-		&& !selector.includes(':scope'),
-	);
+	selectors.every(selector => !selector.includes(',') && !selector.includes(':scope'));
 
 const isQuerySelectorCall = node =>
 	isMethodCall(node, QUERY_SELECTOR_CALL);
@@ -182,7 +188,7 @@ const getQuerySelectorChain = node => {
 
 	const selectors = [];
 	for (const call of calls) {
-		selectors.unshift(getStaticSelectorValue(call.arguments[0]));
+		selectors.unshift(getStaticStringValue(call.arguments[0]));
 	}
 
 	return {
@@ -223,6 +229,10 @@ const create = context => {
 		if (
 			!collectionName
 			|| isNodeValueNotDomNode(node.object.object)
+			|| (
+				collectionName === 'children'
+				&& isPropertiesChildrenMemberExpression(node.object)
+			)
 			|| isNestedIndexedDomCollection(node)
 		) {
 			return;
@@ -302,6 +312,9 @@ const config = {
 		},
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

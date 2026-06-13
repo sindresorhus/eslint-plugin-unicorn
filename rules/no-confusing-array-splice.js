@@ -1,5 +1,6 @@
 import {isMethodCall, isNumericLiteral} from './ast/index.js';
 import {getParenthesizedText} from './utils/index.js';
+import {isSame, unwrapExpression} from './utils/comparison.js';
 
 const REPLACE_ONE_ELEMENT = 'replace-one-element';
 const INSERT_AT_NEGATIVE_ONE = 'insert-at-negative-one';
@@ -13,15 +14,7 @@ const messages = {
 };
 
 function getStaticNumberValue(node) {
-	if (
-		[
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-		].includes(node.type)
-	) {
-		return getStaticNumberValue(node.expression);
-	}
+	node = unwrapExpression(node);
 
 	if (isNumericLiteral(node)) {
 		return node.value;
@@ -30,20 +23,45 @@ function getStaticNumberValue(node) {
 	if (
 		node.type === 'UnaryExpression'
 		&& (node.operator === '+' || node.operator === '-')
-		&& isNumericLiteral(node.argument)
 	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
+		const value = getStaticNumberValue(node.argument);
+
+		if (typeof value === 'number') {
+			return node.operator === '-' ? -value : value;
+		}
 	}
 }
 
+const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
+
+function getNormalizedDeleteCountValue(node) {
+	const value = getStaticNumberValue(node);
+
+	if (typeof value === 'number') {
+		return Math.max(Math.trunc(value), 0);
+	}
+}
+
+function isLengthMemberExpressionFor(node, object) {
+	node = unwrapExpression(node);
+	object = unwrapExpression(object);
+
+	return node.type === 'MemberExpression'
+		&& !node.optional
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'length'
+		&& isSame(node.object, object);
+}
+
 function getMessageId([start, deleteCount]) {
-	const deleteCountValue = getStaticNumberValue(deleteCount);
+	const deleteCountValue = getNormalizedDeleteCountValue(deleteCount);
 
 	if (deleteCountValue === 1) {
 		return REPLACE_ONE_ELEMENT;
 	}
 
-	const startValue = getStaticNumberValue(start);
+	const startValue = Math.trunc(getStaticNumberValue(start));
 
 	if (
 		startValue === -1
@@ -81,6 +99,13 @@ function getSuggestion(callExpression, messageId, context) {
 		}
 
 		if (method === 'toSpliced') {
+			if (
+				isNegativeStaticIndex(start)
+				|| isLengthMemberExpressionFor(start, object)
+			) {
+				return;
+			}
+
 			return {
 				messageId: SUGGESTION_REPLACE_ONE_ELEMENT,
 				fix: fixer => fixer.replaceText(callExpression, `${objectText}.with(${startText}, ${elementText})`),
@@ -158,6 +183,9 @@ const config = {
 		},
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -33,7 +33,7 @@ const isSimpleString = string => doesNotContain(
 );
 const addParentheses = text => `(${text})`;
 
-const checkRegex = ({pattern, flags}) => {
+const getRegexProblem = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
 		return;
 	}
@@ -80,13 +80,12 @@ const create = context => {
 
 		const regexNode = node.callee.object;
 		const {regex} = regexNode;
-		const result = checkRegex(regex);
+		const result = getRegexProblem(regex);
 		if (!result) {
 			return;
 		}
 
 		const [target] = node.arguments;
-		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
 		let isTargetString = target.type === 'TemplateLiteral'
 			|| (
@@ -108,6 +107,7 @@ const create = context => {
 			node,
 			messageId: result.messageId,
 		};
+		const method = result.messageId === MESSAGE_STARTS_WITH ? 'startsWith' : 'endsWith';
 
 		function * fix(fixer, fixType) {
 			let targetText = getParenthesizedText(target, context);
@@ -265,6 +265,9 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

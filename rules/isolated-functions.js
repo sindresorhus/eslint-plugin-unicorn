@@ -30,7 +30,7 @@ const create = context => {
 	const checked = new WeakSet();
 
 	/** @param {import('estree').Node} node */
-	const checkForExternallyScopedVariables = (node, reason) => {
+	const reportExternallyScopedVariables = (node, reason) => {
 		if (checked.has(node) || !functionTypes.includes(node.type)) {
 			return;
 		}
@@ -47,7 +47,7 @@ const create = context => {
 				continue;
 			}
 
-			if (identifier.name in allowedGlobals && allowedGlobals[identifier.name] !== 'off') {
+			if (Object.hasOwn(allowedGlobals, identifier.name) && allowedGlobals[identifier.name] !== 'off') {
 				if (reference.isReadOnly()) {
 					continue;
 				}
@@ -137,7 +137,7 @@ const create = context => {
 				return;
 			}
 
-			return checkForExternallyScopedVariables(node, reason);
+			return reportExternallyScopedVariables(node, reason);
 		},
 	);
 
@@ -146,7 +146,7 @@ const create = context => {
 			selector,
 			node => {
 				const reason = `matches selector ${JSON.stringify(selector)}`;
-				return checkForExternallyScopedVariables(node, reason);
+				return reportExternallyScopedVariables(node, reason);
 			},
 		);
 	}
@@ -204,5 +204,8 @@ export default {
 		schema,
 		defaultOptions: [defaultOptions],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };

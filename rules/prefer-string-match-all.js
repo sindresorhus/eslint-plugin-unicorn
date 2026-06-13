@@ -274,12 +274,12 @@ const create = context => {
 
 		const {matchIdentifier, regexpNode, stringNode} = loopData;
 		const previousLetDeclaration = getPreviousLetDeclaration(node, matchIdentifier.name);
-		const regexpVariable = getRegExpVariable(regexpNode, sourceCode);
 
 		if (!previousLetDeclaration) {
 			return;
 		}
 
+		const regexpVariable = getRegExpVariable(regexpNode, sourceCode);
 		if (!regexpVariable || !isGlobalRegExpDefinition(regexpVariable)) {
 			return;
 		}
@@ -346,6 +346,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

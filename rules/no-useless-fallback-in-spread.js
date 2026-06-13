@@ -114,7 +114,6 @@ const create = context => {
 			return;
 		}
 
-		const emptyObject = isAlternateEmpty ? alternate : consequent;
 		const keptBranch = isAlternateEmpty ? consequent : alternate;
 
 		// `{...(foo ? foo : {})}` and `{...(!foo ? {} : foo)}` are handled by `prefer-logical-operator-over-ternary`.
@@ -131,6 +130,7 @@ const create = context => {
 			return;
 		}
 
+		const emptyObject = isAlternateEmpty ? alternate : consequent;
 		return {
 			node: emptyObject,
 			messageId: MESSAGE_ID,
@@ -163,6 +163,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

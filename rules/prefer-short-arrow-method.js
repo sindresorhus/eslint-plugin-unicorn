@@ -1,3 +1,5 @@
+import {hasUnsafeArrowConversionReference} from './utils/index.js';
+
 const MESSAGE_ID = 'prefer-short-arrow-method';
 
 const messages = {
@@ -8,55 +10,6 @@ const returnArgumentTypesRequiringParentheses = new Set([
 	'ObjectExpression',
 	'SequenceExpression',
 ]);
-
-const isNewTarget = node =>
-	node.type === 'MetaProperty'
-	&& node.meta.name === 'new'
-	&& node.property.name === 'target';
-
-const isArgumentsIdentifier = node =>
-	node.type === 'Identifier'
-	&& node.name === 'arguments';
-
-const isDirectEvalCall = node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'eval';
-
-const isUnsupportedNode = node =>
-	node.type === 'ThisExpression'
-	|| node.type === 'Super'
-	|| isNewTarget(node)
-	|| isArgumentsIdentifier(node)
-	|| isDirectEvalCall(node);
-
-function hasUnsupportedLexicalReference(node, visitorKeys) {
-	if (!node) {
-		return false;
-	}
-
-	if (isUnsupportedNode(node)) {
-		return true;
-	}
-
-	const keys = visitorKeys[node.type] ?? [];
-
-	for (const key of keys) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (hasUnsupportedLexicalReference(element, visitorKeys)) {
-					return true;
-				}
-			}
-		} else if (hasUnsupportedLexicalReference(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 const isProtoProperty = property =>
 	!property.computed
@@ -137,7 +90,7 @@ const create = context => {
 			|| property.value.generator
 			|| isProtoProperty(property)
 			|| hasThisParameter(property.value)
-			|| hasUnsupportedLexicalReference(property.value, sourceCode.visitorKeys)
+			|| hasUnsafeArrowConversionReference(property.value, sourceCode.visitorKeys)
 		) {
 			return;
 		}

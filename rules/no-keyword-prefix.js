@@ -41,14 +41,14 @@ function findKeywordPrefix(name, options) {
 	}
 }
 
-function checkMemberExpression(report, node, options) {
-	const {name, parent} = node;
-	const keyword = findKeywordPrefix(name, options);
-	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
-
+function reportMemberExpression(report, node, options) {
 	if (!options.checkProperties) {
 		return;
 	}
+
+	const {name, parent} = node;
+	const keyword = findKeywordPrefix(name, options);
+	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 	if (parent.object.type === 'Identifier' && parent.object.name === name && Boolean(keyword)) {
 		report(node, keyword);
@@ -62,7 +62,7 @@ function checkMemberExpression(report, node, options) {
 	}
 }
 
-function checkObjectPattern(report, node, options) {
+function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options) {
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
 
@@ -70,8 +70,6 @@ function checkObjectPattern(report, node, options) {
 	if (parent.shorthand && parent.value.left && Boolean(keyword)) {
 		report(node, keyword);
 	}
-
-	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
 	if (Boolean(keyword) && parent.computed) {
 		report(node, keyword);
@@ -81,6 +79,8 @@ function checkObjectPattern(report, node, options) {
 	if (parent.key === node && parent.value !== node) {
 		return true;
 	}
+
+	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
 	const valueIsInvalid = parent.value.name && Boolean(keyword);
 
@@ -102,17 +102,19 @@ const create = context => {
 	const ALLOWED_PARENT_TYPES = new Set(['CallExpression', 'NewExpression']);
 
 	function report(node, keyword) {
-		if (!reported.includes(node)) {
-			reported.push(node);
-			context.report({
-				node,
-				messageId: MESSAGE_ID,
-				data: {
-					name: node.name,
-					keyword,
-				},
-			});
+		if (reported.includes(node)) {
+			return;
 		}
+
+		reported.push(node);
+		context.report({
+			node,
+			messageId: MESSAGE_ID,
+			data: {
+				name: node.name,
+				keyword,
+			},
+		});
 	}
 
 	context.on('Identifier', node => {
@@ -121,14 +123,14 @@ const create = context => {
 		const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
 		if (parent.type === 'MemberExpression') {
-			checkMemberExpression(report, node, options);
+			reportMemberExpression(report, node, options);
 		} else if (
 			parent.type === 'Property'
 			|| parent.type === 'AssignmentPattern'
 		) {
 			if (parent.parent.type === 'ObjectPattern') {
-				const finished = checkObjectPattern(report, node, options);
-				if (finished) {
+				const shouldSkipPropertyCheck = reportObjectPatternAndShouldSkipPropertyCheck(report, node, options);
+				if (shouldSkipPropertyCheck) {
 					return;
 				}
 			}
@@ -143,7 +145,7 @@ const create = context => {
 			if (
 				Boolean(keyword)
 				&& !ALLOWED_PARENT_TYPES.has(effectiveParent.type)
-				&& !(parent.right === node)
+				&& parent.right !== node
 				&& !isShorthandPropertyAssignmentPatternLeft(node)
 			) {
 				report(node, keyword);
@@ -212,6 +214,9 @@ const config = {
 		schema,
 		defaultOptions: [{}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

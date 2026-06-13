@@ -1,7 +1,13 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
+import typedArray from './shared/typed-array.js';
 import {isMethodCall} from './ast/index.js';
 import {
+	getBaseTypes,
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isNullishType,
+	isUnknownType,
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
@@ -167,6 +173,74 @@ const defaultIgnoredCallees = [
 	'$',
 	'jQuery',
 ];
+
+const typedArrayTypes = new Set(typedArray);
+const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
+
+function shouldReportReceiverType(type, checker, program, allowNullish) {
+	if (isUnknownType(type)) {
+		return true;
+	}
+
+	if (type.isUnion()) {
+		const types = allowNullish
+			? type.types.filter(type => !isNullishType(type))
+			: type.types;
+
+		return types.length > 0 && types.every(type => shouldReportReceiverType(type, checker, program, allowNullish));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return shouldReportReceiverType(constraint, checker, program, allowNullish);
+	}
+
+	if (isNullishType(type)) {
+		return false;
+	}
+
+	const types = type.isIntersection() ? type.types : [type];
+	return types.some(type => {
+		if (isUnknownType(type)) {
+			return true;
+		}
+
+		if (checker.isArrayType(type) || checker.isTupleType(type)) {
+			return true;
+		}
+
+		if (getBaseTypes(type, checker).some(baseType => shouldReportReceiverType(baseType, checker, program, allowNullish))) {
+			return true;
+		}
+
+		const symbol = getTypeSymbol(type);
+		if (!isDefaultLibrarySymbol(symbol, program)) {
+			return false;
+		}
+
+		const typeName = symbol.getName();
+		return arrayTypeNames.has(typeName) || typedArrayTypes.has(typeName);
+	});
+}
+
+function shouldReportReceiver(callExpression, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return true;
+	}
+
+	try {
+		const {program} = parserServices;
+		return shouldReportReceiverType(
+			parserServices.getTypeAtLocation(callExpression.callee.object),
+			program.getTypeChecker(),
+			program,
+			callExpression.callee.optional,
+		);
+	} catch {
+		return true;
+	}
+}
 
 const isValidParameterName = name =>
 	isIdentifierName(name)
@@ -363,7 +437,10 @@ const create = context => {
 		}
 
 		const options = iteratorMethods.get(methodName);
-		if (options.shouldIgnoreCallExpression(callExpression, ignoredCallees)) {
+		if (
+			options.shouldIgnoreCallExpression(callExpression, ignoredCallees)
+			|| !shouldReportReceiver(callExpression, context)
+		) {
 			return;
 		}
 
@@ -405,6 +482,9 @@ const config = {
 		schema,
 		defaultOptions: [{ignore: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

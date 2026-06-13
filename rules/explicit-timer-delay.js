@@ -147,6 +147,9 @@ const config = {
 		schema,
 		defaultOptions: [MODE_ALWAYS],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

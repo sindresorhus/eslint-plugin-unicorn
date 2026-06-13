@@ -55,6 +55,16 @@ Options are accessed via `context.options[0]`. Use `meta.defaultOptions` for def
 
 Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form, so option naming stays consistent across rules. This does not apply to array/pattern options like `ignore` (a list of patterns to ignore), which follow ESLint's own conventions.
 
+### Helper naming
+
+Name helpers after what they return or do:
+
+- `is*`/`has*`/`should*`/`can*`/`needs*` must return booleans. Prefer explicit `false` over `undefined` in predicate helpers.
+- `get*Problem` returns one problem object or `undefined`; `get*Problems` returns/yields multiple problem objects.
+- `report*` should call `context.report()` directly.
+- Avoid `check*` for private helpers. Reserve `check*` for public boolean options, like `checkProperties`.
+- Do not combine reporting/yielding with a predicate return. Split into a problem builder and a boolean at the call site.
+
 ## Rule languages
 
 Every new rule should declare the official [`meta.languages`](https://eslint.org/docs/latest/extend/custom-rules#rule-languages) field, in `"plugin/language"` form, one per line: `['js/js']` for JavaScript/TypeScript-only rules (most), or the languages it supports (for example `['js/js', 'css/css']`, or `['*']` for any file type).
@@ -80,6 +90,8 @@ Before writing helpers, check these directories:
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
 
+If a helper becomes complicated and clearly general across rules, consider moving it to a shared utility. Keep simple or rule-specific helpers local.
+
 Also use `@eslint-community/eslint-utils` for helpers like `findVariable`, `getStaticValue`, `hasSideEffect`, `getPropertyName`, and token predicates (`isCommaToken`, `isSemicolonToken`, etc.).
 
 Most commonly used utilities:
@@ -104,7 +116,7 @@ Use JavaScript syntax for configuration examples, not JSON-style quoted keys and
 
 ## Testing
 
-Tests should be comprehensive with many edge cases, but no duplicate coverage. Add tests for edge cases the rule intentionally ignores to document the behavior.
+Tests should be comprehensive with many edge cases, but no duplicate coverage. Add lots of focused edge-case tests for matching and fixes/suggestions. Add tests for edge cases the rule intentionally ignores to document the behavior.
 
 Tests use AVA. Prefer `test.snapshot()` which auto-generates snapshots for errors, fixes, and suggestions:
 
@@ -123,6 +135,7 @@ Other test modes: `test.typescript()` and `test.vue()` set the parser for all ca
 - **Never run integration tests** (`test/integration/test.js`). They are too slow for development.
 - **While developing, only run targeted tests**: `npx ava test/rule-name.js`. Do not run `npm test` or the full suite until all changes are complete.
 - **Only run the full test suite (`npm test`) once at the very end** to confirm everything passes.
+- **For new rules, run dogfooding before pushing**: `npm run run-rules-on-codebase`.
 - Update snapshots: `npx ava test/rule-name.js -u`
 - Focus a single case: wrap with `test.only('code')` or `test.only({code, options})` (remove before committing)
 - For non-snapshot tests, use `test()` with explicit `errors` and `output`
@@ -131,7 +144,7 @@ Other test modes: `test.typescript()` and `test.vue()` set the parser for all ca
 
 Include test cases for these when relevant to the rule:
 
-- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Use `{code, parser: parsers.typescript}`.
+- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Verify both matching and fixer/suggestion output, including optional chaining behavior and ASI protection when the output can start with `(` or `[`. Use `{code, parser: parsers.typescript}`.
 - **JSX** - JSX expressions and fragments, if the rule targets patterns that can appear in JSX.
 - **Comments** - Inline and block comments inside the targeted node, to verify fixes don't drop them.
 - **Parenthesized expressions** - Extra parentheses around the target: `(foo).bar()`.
@@ -177,6 +190,7 @@ Name after the target construct, not the fix. Be specific: `no-array-for-each` n
 3. Implement the rule in `rules/<rule>.js`.
 4. Write documentation in `docs/rules/<rule>.md` (below the auto-generated header).
 5. Run `npx ava test/<rule>.js` to verify tests pass.
+6. Before pushing, run lint, dogfooding, and then `npm test`. If dogfooding finds intentional internal patterns, disable the rule in `eslint.dogfooding.config.js` instead of adding repo-specific heuristics.
 
 ## Commit message format
 

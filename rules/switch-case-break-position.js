@@ -1,5 +1,6 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import getIndentString from './utils/get-indent-string.js';
+import {getLastTrailingCommentOnSameLine} from './utils/index.js';
 
 const MESSAGE_ID = 'switch-case-break-position';
 const messages = {
@@ -93,9 +94,7 @@ const create = context => {
 					}
 
 					// Skip fix if the terminator has trailing same-line comments
-					const trailingComments = sourceCode.getCommentsAfter(lastStatement);
-					const terminatorLine = sourceCode.getLoc(lastStatement).end.line;
-					if (trailingComments.some(comment => sourceCode.getLoc(comment).start.line === terminatorLine)) {
+					if (getLastTrailingCommentOnSameLine(context, lastStatement)) {
 						return;
 					}
 
@@ -132,6 +131,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

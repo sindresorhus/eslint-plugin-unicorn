@@ -107,7 +107,7 @@ const normalizeAcceptToken = token => {
 	return normalizeMimeType(token);
 };
 
-const checkAcceptValue = value => {
+const getAcceptValueResult = value => {
 	const tokens = value.split(',');
 	const seenTokens = new Set();
 	const replacementTokens = [];
@@ -384,7 +384,7 @@ const createProblem = ({valueNode, checkResult, fix}) => {
 	}
 };
 
-const checkValue = ({valueInfo, fix}) => {
+const getValueProblem = ({valueInfo, fix}) => {
 	if (valueInfo.missing) {
 		return {
 			node: valueInfo.node,
@@ -402,7 +402,7 @@ const checkValue = ({valueInfo, fix}) => {
 		};
 	}
 
-	const checkResult = checkAcceptValue(valueInfo.value);
+	const checkResult = getAcceptValueResult(valueInfo.value);
 	const isFixable = checkResult.replacement
 		&& valueInfo.fixable
 		&& (!valueInfo.isReplacementFixable || valueInfo.isReplacementFixable(checkResult.replacement));
@@ -433,7 +433,7 @@ const create = context => {
 		}
 
 		const valueInfo = getJsxAttributeValue(context, acceptAttribute);
-		return checkValue({
+		return getValueProblem({
 			valueInfo,
 			fix: replacement => fixer => replaceStringRaw(valueInfo.node, replacement, context, fixer),
 		});
@@ -454,7 +454,7 @@ const create = context => {
 			return;
 		}
 
-		return checkValue({
+		return getValueProblem({
 			valueInfo,
 			fix: replacement => fixer => fixer.replaceTextRange(valueInfo.valueRange, replacement),
 		});

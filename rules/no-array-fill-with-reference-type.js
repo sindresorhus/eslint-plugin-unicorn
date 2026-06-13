@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-array-fill-with-reference-type';
 const messages = {
@@ -15,19 +16,6 @@ function isGlobalIdentifier(node, name, context) {
 function isRegExpConstruction(node, context) {
 	return node.type === 'NewExpression'
 		&& isGlobalIdentifier(node.callee, 'RegExp', context);
-}
-
-function unwrapExpression(node) {
-	while (
-		node?.type === 'TSAsExpression'
-		|| node?.type === 'TSTypeAssertion'
-		|| node?.type === 'TSNonNullExpression'
-		|| node?.type === 'TSSatisfiesExpression'
-	) {
-		node = node.expression;
-	}
-
-	return node;
 }
 
 function isReferenceExpression(node, context) {
@@ -121,6 +109,9 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

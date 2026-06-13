@@ -1,10 +1,10 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import regjsparser from 'regjsparser';
 import {
+	getStaticStringValue,
 	isRegexLiteral,
 	isNewExpression,
 	isMethodCall,
-	isStringLiteral,
 } from './ast/index.js';
 import {escapeString, getParenthesizedText} from './utils/index.js';
 
@@ -29,7 +29,7 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	const {pattern, flags} = node.regex;
+	const {flags} = node.regex;
 	if (flags.replace('u', '').replace('v', '') !== 'g') {
 		return;
 	}
@@ -120,7 +120,9 @@ const parseRegExpLiteral = node => {
 			namedGroups: true,
 			lookbehind: true,
 		});
-	} catch {}
+	} catch {
+		// Invalid regular expression.
+	}
 };
 
 const getBodyMinimumLength = body => {
@@ -198,25 +200,6 @@ const getRegExpLiteralWithGlobalFlag = node => {
 	return `/${pattern}/${flags.includes('g') ? flags : `g${flags}`}`;
 };
 
-const getStaticTemplateLiteralValue = node => {
-	if (
-		node.type !== 'TemplateLiteral'
-		|| node.expressions.length > 0
-	) {
-		return;
-	}
-
-	return node.quasis[0].value.cooked;
-};
-
-const getStringNodeValue = node => {
-	if (isStringLiteral(node)) {
-		return node.value;
-	}
-
-	return getStaticTemplateLiteralValue(node);
-};
-
 const getSplitJoinReplacement = (node, context) => {
 	if (
 		!isMethodCall(node, {
@@ -239,7 +222,7 @@ const getSplitJoinReplacement = (node, context) => {
 	const splitCall = node.callee.object;
 	const [separator] = splitCall.arguments;
 	const [replacement] = node.arguments;
-	const separatorValue = getStringNodeValue(separator);
+	const separatorValue = getStaticStringValue(separator);
 	let searchText;
 
 	if (typeof separatorValue === 'string') {
@@ -256,7 +239,7 @@ const getSplitJoinReplacement = (node, context) => {
 		}
 	}
 
-	const replacementValue = getStringNodeValue(replacement);
+	const replacementValue = getStaticStringValue(replacement);
 	if (typeof replacementValue !== 'string') {
 		return;
 	}
@@ -286,9 +269,10 @@ const create = context => {
 		}
 
 		const {
-			arguments: [pattern],
+			arguments: callArguments,
 			callee: {property},
 		} = node;
+		const [pattern] = callArguments;
 
 		if (!isRegExpWithGlobalFlag(pattern, context.sourceCode.getScope(pattern))) {
 			return;
@@ -342,6 +326,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

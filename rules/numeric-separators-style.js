@@ -59,7 +59,7 @@ const defaultOptions = {
 	binary: {minimumDigits: 0, groupLength: 4},
 	octal: {minimumDigits: 0, groupLength: 4},
 	hexadecimal: {minimumDigits: 0, groupLength: 2},
-	number: {minimumDigits: 5, groupLength: 3, fractionGroupLength: Number.POSITIVE_INFINITY},
+	number: {minimumDigits: 5, groupLength: 3, fractionGroupLength: Infinity},
 };
 const create = context => {
 	const {
@@ -142,7 +142,7 @@ const schema = [{
 	type: 'object',
 	additionalProperties: false,
 	properties: {
-		...Object.fromEntries(Object.entries(defaultOptions).map(([type]) => [type, formatOptionsSchema({withFraction: type === 'number'})])),
+		...Object.fromEntries(Object.keys(defaultOptions).map(type => [type, formatOptionsSchema({withFraction: type === 'number'})])),
 		onlyIfContainsSeparator: {
 			type: 'boolean',
 			description: 'Whether to only enforce the style if the number already contains a separator.',
@@ -171,6 +171,9 @@ const config = {
 			},
 		],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

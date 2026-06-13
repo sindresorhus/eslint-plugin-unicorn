@@ -171,14 +171,14 @@ const create = context => {
 		return !generatedNames || !generatedNames.has(name);
 	});
 
-	const checkPossiblyWeirdClassVariable = variable => {
+	const reportVariableWithClassReferences = variable => {
 		if (isClassVariable(variable)) {
 			if (variable.scope.type === 'class') {
 				const [definition] = variable.defs;
 				const outerClassVariable = identifierToOuterClassVariable.get(definition.name);
 
 				if (!outerClassVariable) {
-					return checkVariable(variable);
+					return reportVariable(variable);
 				}
 
 				const combinedReferencesVariable = {
@@ -189,7 +189,7 @@ const create = context => {
 					references: [...variable.references, ...outerClassVariable.references],
 				};
 
-				return checkVariable(combinedReferencesVariable);
+				return reportVariable(combinedReferencesVariable);
 			}
 
 			const [definition] = variable.defs;
@@ -198,10 +198,10 @@ const create = context => {
 			return;
 		}
 
-		return checkVariable(variable);
+		return reportVariable(variable);
 	};
 
-	const checkVariable = variable => {
+	const reportVariable = variable => {
 		if (variable.defs.length === 0) {
 			return;
 		}
@@ -263,16 +263,16 @@ const create = context => {
 		context.report(problem);
 	};
 
-	const checkVariables = scope => {
+	const reportVariables = scope => {
 		for (const variable of scope.variables) {
-			checkPossiblyWeirdClassVariable(variable);
+			reportVariableWithClassReferences(variable);
 		}
 	};
 
-	const checkScope = scope => {
+	const reportScopeVariables = scope => {
 		const scopes = getScopes(scope);
 		for (const scope of scopes) {
-			checkVariables(scope);
+			reportVariables(scope);
 		}
 	};
 
@@ -293,7 +293,7 @@ const create = context => {
 		);
 	};
 
-	const checkProperty = node => {
+	const reportProperty = node => {
 		if (!options.checkProperties) {
 			return;
 		}
@@ -323,8 +323,8 @@ const create = context => {
 		context.report(problem);
 	};
 
-	context.on('Identifier', checkProperty);
-	context.on('PrivateIdentifier', checkProperty);
+	context.on('Identifier', reportProperty);
+	context.on('PrivateIdentifier', reportProperty);
 	// eslint-disable-next-line no-warning-comments
 	// TODO: Consider expanding beyond JavaScript identifiers after this rule has proven itself.
 
@@ -333,7 +333,7 @@ const create = context => {
 			return;
 		}
 
-		checkScope(context.sourceCode.getScope(program));
+		reportScopeVariables(context.sourceCode.getScope(program));
 	});
 };
 
@@ -445,6 +445,9 @@ const config = {
 		schema,
 		defaultOptions: [{}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

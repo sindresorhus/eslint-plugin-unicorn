@@ -1,7 +1,12 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {removeParentheses, fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
-import {isParenthesized, isOnSameLine} from './utils/index.js';
+import {
+	isArray,
+	isKnownNonArray,
+	isParenthesized,
+	isOnSameLine,
+} from './utils/index.js';
 import {
 	isNewExpression,
 	isMethodCall,
@@ -26,6 +31,22 @@ const messages = {
 };
 
 const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
+const arrayCloneMethodNames = [
+	'copyWithin',
+	'flat',
+	'slice',
+	'splice',
+	'toReversed',
+	'toSorted',
+	'toSpliced',
+	'with',
+];
+const typeCheckedArrayReturningMethodNames = [
+	...arrayCloneMethodNames,
+	'filter',
+	'flatMap',
+	'map',
+];
 
 const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
@@ -111,6 +132,96 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 
 	yield fixSpaceAroundKeyword(fixer, arrayExpression, context);
 }
+
+const isKnownNonArrayMethodReceiver = (node, context) =>
+	node.type === 'CallExpression'
+	&& node.callee.type === 'MemberExpression'
+	&& isKnownNonArray(node.callee.object, context);
+
+const isSliceCall = node =>
+	isMethodCall(node, {
+		method: 'slice',
+		optionalCall: false,
+		optionalMember: false,
+	});
+
+const isKnownArrayMethodClone = (node, context) => {
+	if (!isMethodCall(node, {
+		methods: typeCheckedArrayReturningMethodNames,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return false;
+	}
+
+	return isArray(node.callee.object, context) && isArray(node, context);
+};
+
+const isHeuristicArrayClone = (node, context) => {
+	if (isKnownNonArray(node, context)) {
+		return false;
+	}
+
+	if (
+		isMethodCall(node, {
+			methods: arrayCloneMethodNames,
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return !isKnownNonArrayMethodReceiver(node, context);
+	}
+
+	if (
+		isMethodCall(node, {
+			method: 'concat',
+			optionalCall: false,
+			optionalMember: false,
+		})
+	) {
+		return !(
+			(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Iterator')
+			|| isKnownNonArrayMethodReceiver(node, context)
+		);
+	}
+
+	return (
+		// `String#split()`
+		isMethodCall(node, {
+			method: 'split',
+			optionalCall: false,
+			optionalMember: false,
+		})
+		// `Object.keys()` and `Object.values()`
+		|| isMethodCall(node, {
+			object: 'Object',
+			methods: ['keys', 'values'],
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		// `await Promise.all()` and `await Promise.allSettled()`
+		|| (
+			node.type === 'AwaitExpression'
+			&& isMethodCall(node.argument, {
+				object: 'Promise',
+				methods: ['all', 'allSettled'],
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+		)
+		// `Array.from()`, `Array.of()`
+		|| isMethodCall(node, {
+			object: 'Array',
+			methods: ['from', 'of'],
+			optionalCall: false,
+			optionalMember: false,
+		})
+		// `new Array()`
+		|| isNewExpression(node, {name: 'Array'})
+	);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -218,7 +329,7 @@ const create = context => {
 
 				const commaTokens = getCommaTokens(spreadObject, sourceCode);
 				for (const [index, commaToken] of commaTokens.entries()) {
-					if (spreadObject.elements[index]) {
+					if (spreadObject.elements[index] !== null) {
 						continue;
 					}
 
@@ -333,67 +444,8 @@ const create = context => {
 		}
 
 		const node = arrayExpression.elements[0].argument;
-		if (!(
-			// Array methods returns a new array, but exclude these also exists in `Iterator`
-			// `filter`, `flatMap`, and `map`
-			isMethodCall(node, {
-				methods: [
-					'copyWithin',
-					'flat',
-					'slice',
-					'splice',
-					'toReversed',
-					'toSorted',
-					'toSpliced',
-					'with',
-				],
-				optionalCall: false,
-				optionalMember: false,
-			})
-			// `concat()` can be an array or string, but `Iterator.concat()` should be excluded
-			|| (
-				isMethodCall(node, {
-					method: 'concat',
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& !(node.callee.object.type === 'Identifier' && node.callee.object.name === 'Iterator')
-			)
-			// `String#split()`
-			|| isMethodCall(node, {
-				method: 'split',
-				optionalCall: false,
-				optionalMember: false,
-			})
-			// `Object.keys()` and `Object.values()`
-			|| isMethodCall(node, {
-				object: 'Object',
-				methods: ['keys', 'values'],
-				argumentsLength: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			// `await Promise.all()` and `await Promise.allSettled()`
-			|| (
-				node.type === 'AwaitExpression'
-				&& isMethodCall(node.argument, {
-					object: 'Promise',
-					methods: ['all', 'allSettled'],
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-				})
-			)
-			// `Array.from()`, `Array.of()`
-			|| isMethodCall(node, {
-				object: 'Array',
-				methods: ['from', 'of'],
-				optionalCall: false,
-				optionalMember: false,
-			})
-			// `new Array()`
-			|| isNewExpression(node, {name: 'Array'})
-		)) {
+		const knownArrayClone = isKnownArrayMethodClone(node, context);
+		if (!knownArrayClone && !isHeuristicArrayClone(node, context)) {
 			return;
 		}
 
@@ -405,13 +457,8 @@ const create = context => {
 		if (
 			// `[...new Array(1)]` -> `new Array(1)` is not safe to fix since there are holes
 			isNewExpression(node, {name: 'Array'})
-			// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix since `foo` can be a string
-			|| (
-				node.type === 'CallExpression'
-				&& node.callee.type === 'MemberExpression'
-				&& node.callee.property.type === 'Identifier'
-				&& node.callee.property.name === 'slice'
-			)
+			// `[...foo.slice(1)]` -> `foo.slice(1)` is not safe to fix unless `foo` is known to be an array
+			|| (isSliceCall(node) && !knownArrayClone)
 		) {
 			return problem;
 		}
@@ -433,6 +480,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

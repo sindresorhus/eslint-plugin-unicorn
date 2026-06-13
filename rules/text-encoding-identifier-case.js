@@ -111,6 +111,78 @@ const create = context => {
 
 		return problem;
 	});
+
+	// CSS @charset rule, e.g. `@charset "UTF-8";`
+	// Note: `@eslint/css` AST nodes don't have parent references, so we listen on `Atrule`.
+	context.on('Atrule', node => {
+		if (node.name?.toLowerCase() !== 'charset') {
+			return;
+		}
+
+		const stringNode = node.prelude?.children?.[0];
+		if (!stringNode || stringNode.type !== 'String') {
+			return;
+		}
+
+		const {value} = stringNode;
+		// CSS @charset always uses the dash form per the CSS spec
+		const replacement = getReplacement(value, true);
+		if (!replacement || replacement === value) {
+			return;
+		}
+
+		return {
+			node: stringNode,
+			messageId: MESSAGE_ID_ERROR,
+			data: {value, replacement},
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix: fixer => replaceStringRaw(stringNode, replacement, context, fixer),
+				},
+			],
+		};
+	});
+
+	// HTML <meta charset="..."> and <form accept-charset="...">
+	// Listens on Tag nodes from @html-eslint — AttributeValue.range excludes the surrounding quotes.
+	context.on('Tag', node => {
+		const tagName = node.name?.toLowerCase();
+
+		let attributeName;
+		if (tagName === 'meta') {
+			attributeName = 'charset';
+		} else if (tagName === 'form') {
+			attributeName = 'accept-charset';
+		} else {
+			return;
+		}
+
+		const attribute = node.attributes?.find(({type, key}) => type === 'Attribute' && key?.value?.toLowerCase() === attributeName);
+		if (!attribute?.value) {
+			return;
+		}
+
+		const {value} = attribute.value;
+		// HTML charset attributes always use the dash form
+		const replacement = getReplacement(value, true);
+		if (!replacement || replacement === value) {
+			return;
+		}
+
+		const [start, end] = context.sourceCode.getRange(attribute.value);
+		return {
+			node: attribute.value,
+			messageId: MESSAGE_ID_ERROR,
+			data: {value, replacement},
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix: fixer => fixer.replaceTextRange([start, end], replacement),
+				},
+			],
+		};
+	});
 };
 
 const schema = [
@@ -142,6 +214,11 @@ const config = {
 			withDash: false,
 		}],
 		messages,
+		languages: [
+			'js/js',
+			'css/css',
+			'html/html',
+		],
 	},
 };
 

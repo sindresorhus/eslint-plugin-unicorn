@@ -4,8 +4,10 @@ import {removeExpressionStatement} from './fix/index.js';
 import {
 	getParenthesizedText,
 	hasOptionalChainElement,
+	isTypeScriptExpressionWrapper,
 	isSameReference,
 	isValueNotUsable,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_NO_OP = 'no-op';
@@ -28,24 +30,13 @@ const emptyArrayReplacement = {
 	messageId: MESSAGE_ID_EMPTY,
 };
 
-const typeScriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-]);
-
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
 
-const isTypeScriptExpressionWrapper = node => typeScriptExpressionWrapperTypes.has(node.type);
-
 function getStaticNumberValue(node) {
-	if (isTypeScriptExpressionWrapper(node)) {
-		return getStaticNumberValue(node.expression);
-	}
+	node = unwrapTypeScriptExpression(node);
 
 	if (isNumericLiteral(node)) {
 		return node.value;
@@ -213,7 +204,6 @@ function getFix(callExpression, replacement, context) {
 	}
 
 	const {object} = callExpression.callee;
-	const objectText = getParenthesizedText(object, context);
 
 	if (replacement.messageId === MESSAGE_ID_NO_OP) {
 		if (
@@ -229,6 +219,7 @@ function getFix(callExpression, replacement, context) {
 		return fixer => removeExpressionStatement(callExpression.parent, context, fixer);
 	}
 
+	const objectText = getParenthesizedText(object, context);
 	if (replacement.messageId === MESSAGE_ID_EMPTY) {
 		return fixer => fixer.replaceText(callExpression, `${objectText}.length = 0`);
 	}

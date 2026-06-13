@@ -153,19 +153,21 @@ const isTypechecking = node => node.type === 'IfStatement' && isTypecheckingExpr
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ThrowStatement', node => {
-		if (
+		if (!(
 			isNewExpression(node.argument, {name: 'Error'})
 			&& isLone(node)
 			&& node.parent.parent
 			&& isTypechecking(node.parent.parent)
-		) {
-			const errorConstructor = node.argument.callee;
-			return {
-				node: errorConstructor,
-				messageId: MESSAGE_ID,
-				fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
-			};
+		)) {
+			return;
 		}
+
+		const errorConstructor = node.argument.callee;
+		return {
+			node: errorConstructor,
+			messageId: MESSAGE_ID,
+			fix: fixer => fixer.insertTextBefore(errorConstructor, 'Type'),
+		};
 	});
 };
 
@@ -180,6 +182,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

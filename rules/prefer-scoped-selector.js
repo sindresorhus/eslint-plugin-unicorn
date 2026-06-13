@@ -1,4 +1,4 @@
-import {isMethodCall, isStringLiteral} from './ast/index.js';
+import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {isNodeValueNotDomNode} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-scoped-selector/error';
@@ -12,19 +12,6 @@ const selectorMethods = [
 	'querySelector',
 	'querySelectorAll',
 ];
-
-const getStaticSelector = node => {
-	if (isStringLiteral(node)) {
-		return node.value;
-	}
-
-	if (
-		node.type === 'TemplateLiteral'
-		&& node.expressions.length === 0
-	) {
-		return node.quasis[0].value.cooked;
-	}
-};
 
 const isDocumentQuery = node =>
 	node.callee.object.type === 'Identifier'
@@ -65,7 +52,7 @@ const create = context => {
 		}
 
 		const [selectorNode] = node.arguments;
-		const selector = getStaticSelector(selectorNode);
+		const selector = getStaticStringValue(selectorNode);
 		if (
 			selector === undefined
 			|| selector.trim() === ''

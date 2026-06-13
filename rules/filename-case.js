@@ -25,6 +25,65 @@ const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'}
 const alphanumericRegex = /^[\da-z]+$/i;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
 
+const isAsciiDigit = char => char >= '0' && char <= '9';
+const isAsciiLowercaseLetter = char => char >= 'a' && char <= 'z';
+const isAsciiUppercaseLetter = char => char >= 'A' && char <= 'Z';
+
+function camelCaseWithAcronyms(string) {
+	if (isCamelCaseWithAcronyms(string)) {
+		return string;
+	}
+
+	return camelCase(string);
+}
+
+function isCamelCaseWithAcronyms(string) {
+	if (!isAsciiLowercaseLetter(string[0])) {
+		return false;
+	}
+
+	for (let index = 1; index < string.length; index++) {
+		const char = string[index];
+
+		if (isAsciiLowercaseLetter(char) || isAsciiDigit(char)) {
+			continue;
+		}
+
+		if (!isAsciiUppercaseLetter(char)) {
+			return false;
+		}
+
+		const uppercaseStartIndex = index;
+
+		while (isAsciiUppercaseLetter(string[index + 1])) {
+			index++;
+		}
+
+		if (index === uppercaseStartIndex) {
+			continue;
+		}
+
+		if (isAsciiLowercaseLetter(string[index + 1])) {
+			index--;
+			continue;
+		}
+
+		while (isAsciiDigit(string[index + 1])) {
+			index++;
+		}
+
+		if (index === string.length - 1) {
+			return true;
+		}
+
+		if (!isAsciiUppercaseLetter(string[index + 1])) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 function pascalCaseWithLeadingAcronym(string) {
 	if (alphanumericRegex.test(string)) {
 		const leadingAcronym = leadingAcronymRegex.exec(string)?.[0];
@@ -42,6 +101,10 @@ const cases = {
 	camelCase: {
 		fn: camelCase,
 		name: 'camel case',
+	},
+	camelCaseWithAcronyms: {
+		fn: camelCaseWithAcronyms,
+		name: 'camel case with acronyms',
 	},
 	kebabCase: {
 		fn: kebabCase,
@@ -78,7 +141,7 @@ function getChosenCases(options) {
 	return ['kebabCase'];
 }
 
-function validateName(words, caseFunctions) {
+function isValidName(words, caseFunctions) {
 	return words
 		.filter(({ignored}) => !ignored)
 		.every(({word}) => caseFunctions.some(caseFunction => caseFunction(word) === word));
@@ -180,7 +243,7 @@ function getCaseNames(chosenCases) {
 function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions) {
 	const {leading, words} = splitName(directory);
 
-	if (directory.startsWith('$') || validateName(words, chosenCasesFunctions)) {
+	if (directory.startsWith('$') || isValidName(words, chosenCasesFunctions)) {
 		return;
 	}
 
@@ -202,6 +265,12 @@ function getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions)
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const filenameWithExtension = context.physicalFilename;
+
+	if (isVirtualFilename(filenameWithExtension)) {
+		return;
+	}
+
 	const options = context.options[0] || {};
 	const chosenCases = getChosenCases(options);
 	const ignore = (options.ignore || []).map(item => {
@@ -214,11 +283,6 @@ const create = context => {
 	const multipleFileExtensions = options.multipleFileExtensions !== false;
 	const checkDirectories = options.checkDirectories !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
-	const filenameWithExtension = context.physicalFilename;
-
-	if (isVirtualFilename(filenameWithExtension)) {
-		return;
-	}
 
 	onRoot(context, () => {
 		const pathSegments = getPathSegments(filenameWithExtension, context.cwd);
@@ -249,7 +313,7 @@ const create = context => {
 		}
 
 		const {leading, words} = splitName(filename);
-		const isValid = filename.startsWith('$') || validateName(words, chosenCasesFunctions);
+		const isValid = filename.startsWith('$') || isValidName(words, chosenCasesFunctions);
 
 		if (isValid) {
 			if (!isLowerCase(extension)) {
@@ -290,6 +354,7 @@ const schema = [
 					case: {
 						enum: [
 							'camelCase',
+							'camelCaseWithAcronyms',
 							'snakeCase',
 							'kebabCase',
 							'pascalCase',
@@ -319,6 +384,10 @@ const schema = [
 							camelCase: {
 								type: 'boolean',
 								description: 'Whether to allow camelCase filenames and directory names.',
+							},
+							camelCaseWithAcronyms: {
+								type: 'boolean',
+								description: 'Whether to allow camelCase filenames and directory names with acronym segments.',
 							},
 							snakeCase: {
 								type: 'boolean',

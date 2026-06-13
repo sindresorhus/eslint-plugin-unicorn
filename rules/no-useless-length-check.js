@@ -62,13 +62,15 @@ const create = context => {
 	}
 
 	context.on('BinaryExpression', node => {
-		if (isLengthCompareZero(node)) {
-			const {operator} = node;
-			if (operator === '===') {
-				zeroLengthChecks.add(node);
-			} else if (operator === '>' || operator === '!==') {
-				nonZeroLengthChecks.add(node);
-			}
+		if (!isLengthCompareZero(node)) {
+			return;
+		}
+
+		const {operator} = node;
+		if (operator === '===') {
+			zeroLengthChecks.add(node);
+		} else if (operator === '>' || operator === '!==') {
+			nonZeroLengthChecks.add(node);
 		}
 	});
 
@@ -139,6 +141,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

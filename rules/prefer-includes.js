@@ -106,6 +106,9 @@ const config = {
 			...messages,
 			...includesOverSomeRule.messages,
 		},
+		languages: [
+			'js/js',
+		],
 	},
 };
 

@@ -82,7 +82,9 @@ function fix(callExpression, isInTryStatement, context) {
 		return;
 	}
 
-	const {callee, parent, arguments: [errorOrValue]} = callExpression;
+	const {callee, parent, arguments: callArguments} = callExpression;
+	const [errorOrValue] = callArguments;
+
 	if (errorOrValue?.type === 'SpreadElement') {
 		return;
 	}
@@ -204,6 +206,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

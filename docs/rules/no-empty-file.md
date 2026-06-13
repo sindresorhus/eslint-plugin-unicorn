@@ -9,7 +9,7 @@
 
 Meaningless files clutter a codebase.
 
-This applies to files of any extension. It is tested with JavaScript, TypeScript, Vue ([`vue-eslint-parser`](https://github.com/vuejs/vue-eslint-parser)), HTML ([`@html-eslint/parser`](https://github.com/yeonjuan/html-eslint)), CSS ([`@eslint/css`](https://github.com/eslint/css)), and Markdown ([`@eslint/markdown`](https://github.com/eslint/markdown)). An empty JSON file is already a syntax error, so it does not need this rule.
+This applies to files of any extension. It is tested with JavaScript, TypeScript, Vue ([`vue-eslint-parser`](https://github.com/vuejs/vue-eslint-parser)), HTML ([`@html-eslint/parser`](https://github.com/yeonjuan/html-eslint)), CSS ([`@eslint/css`](https://github.com/eslint/css)), Markdown ([`@eslint/markdown`](https://github.com/eslint/markdown)), and JSONC/JSON5 files ([`@eslint/json`](https://github.com/eslint/json)). Plain JSON files cannot be empty without a syntax error, but JSONC and JSON5 files can contain only comments, which counts as empty.
 
 Code extracted by a processor (for example, fenced code blocks in Markdown) is not treated as a file, so an empty extracted block is not reported.
 

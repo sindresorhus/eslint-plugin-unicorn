@@ -59,16 +59,6 @@ const methods = new Map([
 			]),
 		},
 	],
-	[
-		'with',
-		{
-			argumentsIndexes: [0],
-			supportObjects: new Set([
-				'Array',
-				...typedArray,
-			]),
-		},
-	],
 ]);
 
 const getMemberName = node => {
@@ -101,14 +91,13 @@ function parse(node) {
 		return;
 	}
 
-	const isApply = method === 'apply';
-
 	method = getMemberName(callee.object);
 
 	if (!methods.has(method)) {
 		return;
 	}
 
+	const isApply = callee.property.name === 'apply';
 	const {supportObjects} = methods.get(method);
 
 	const parentCallee = callee.object.object;
@@ -202,6 +191,9 @@ const config = {
 		},
 		fixable: 'code',
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

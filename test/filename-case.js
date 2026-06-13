@@ -124,6 +124,12 @@ ruleTest({
 		testCase('src/foo/fooBar.test-utils.js', 'camelCase'),
 		testCase('src/foo/fooBar.test_utils.js', 'camelCase'),
 		testCase('src/foo/.test_utils.js', 'camelCase'),
+		testCase('src/foo/innerHTML.js', 'camelCaseWithAcronyms'),
+		testCase('src/foo/getDOMRangeRect.js', 'camelCaseWithAcronyms'),
+		testCase('src/foo/apiURL.js', 'camelCaseWithAcronyms'),
+		testCase('src/foo/getHTML5Parser.js', 'camelCaseWithAcronyms'),
+		testCase('src/foo/domSelection.js', 'camelCaseWithAcronyms'),
+		testCase('src/getDOMRangeRect/file.js', 'camelCaseWithAcronyms'),
 		testCase('src/foo/foo.js', 'snakeCase'),
 		testCase('src/foo/foo_bar.js', 'snakeCase'),
 		testCase('src/foo/foo.test.js', 'snakeCase'),
@@ -186,6 +192,8 @@ ruleTest({
 		testManyCases('src/foo/foo-bar.js'),
 		testManyCases('src/foo/foo-bar.js', {}),
 		testManyCases('src/foo/fooBar.js', {camelCase: true}),
+		testManyCases('src/foo/innerHTML.js', {camelCaseWithAcronyms: true}),
+		testManyCases('src/foo/innerHTML.js', {camelCaseWithAcronyms: true, kebabCase: true}),
 		testManyCases('Src/Foo/FooBar.js', {kebabCase: true, pascalCase: true}),
 		testManyCases('src/foo/$idCertidao.tsx', {kebabCase: true, pascalCase: true}),
 		testManyCases('src/foo/___foo_bar.js', {snakeCase: true, pascalCase: true}),
@@ -346,7 +354,7 @@ ruleTest({
 			'index.ts',
 			'index.tsx',
 			'index.vue',
-		].flatMap(filename => ['camelCase', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))),
+		].flatMap(filename => ['camelCase', 'camelCaseWithAcronyms', 'snakeCase', 'kebabCase', 'pascalCase'].map(chosenCase => testCase(filename, chosenCase))),
 		testCaseWithOptions('index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('Src/Index/index.tsx', undefined, [{case: 'pascalCase', multipleFileExtensions: false}]),
 		testCaseWithOptions('src/foo/fooBar.test.js', undefined, [{case: 'camelCase', multipleFileExtensions: false}]),
@@ -413,6 +421,11 @@ ruleTest({
 			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
 		),
 		testCase(
+			'src/fooBar',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo-bar`.',
+		),
+		testCase(
 			'src/foo/foo_bar.JS',
 			'camelCase',
 			'Filename is not in camel case. Rename it to `fooBar.js`.',
@@ -456,6 +469,13 @@ ruleTest({
 			'test/foo/fooBar.testUtils.js',
 			'kebabCase',
 			'Filename is not in kebab case. Rename it to `foo-bar.testUtils.js`.',
+		),
+		testManyCases(
+			'src/foo/Article.ts',
+			{
+				kebabCase: true,
+			},
+			'Filename is not in kebab case. Rename it to `article.ts`.',
 		),
 		testCase(
 			'Test/Foo/fooBar.js',
@@ -521,6 +541,26 @@ ruleTest({
 			'src/foo/FAQPage.js',
 			'camelCase',
 			'Filename is not in camel case. Rename it to `faqPage.js`.',
+		),
+		testCase(
+			'src/foo/innerHTML.js',
+			'camelCase',
+			'Filename is not in camel case. Rename it to `innerHtml.js`.',
+		),
+		testCase(
+			'src/foo/HTMLParser.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `htmlParser.js`.',
+		),
+		testCase(
+			'src/foo/XMLHttpRequest.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `xmlHttpRequest.js`.',
+		),
+		testCase(
+			'src/foo/FAQPage.js',
+			'camelCaseWithAcronyms',
+			'Filename is not in camel case with acronyms. Rename it to `faqPage.js`.',
 		),
 		testCase(
 			'src/foo/FAQPage.js',
@@ -608,6 +648,16 @@ ruleTest({
 			'src/FooBar/file.js',
 			undefined,
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
+		),
+		testCase(
+			'src/_FOO-BAR/file.js',
+			undefined,
+			'Directory name `_FOO-BAR` is not in kebab case. Rename it to `_foo-bar`.',
+		),
+		testCase(
+			'src/$UserId/fooBar.js',
+			undefined,
+			'Filename is not in kebab case. Rename it to `foo-bar.js`.',
 		),
 		testCaseWithOptions(
 			'src/FooBar/foo_bar.js',
@@ -854,6 +904,11 @@ ruleTest({
 		testCaseWithOptions(
 			'test/foo/fooBar.testUtils.js',
 			'Filename is not in kebab case. Rename it to `foo-bar.test-utils.js`.',
+			[{case: 'kebabCase', multipleFileExtensions: false}],
+		),
+		testCaseWithOptions(
+			'test/foo/.testUtils.js',
+			'Filename is not in kebab case. Rename it to `.test-utils.js`.',
 			[{case: 'kebabCase', multipleFileExtensions: false}],
 		),
 		testCaseWithOptions(

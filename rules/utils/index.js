@@ -31,6 +31,10 @@ export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new
 export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
 export {default as getIndentString} from './get-indent-string.js';
 export {default as getComments} from './get-comments.js';
+export {
+	getLastTrailingCommentOnSameLine,
+	wouldRemoveComments,
+} from './comments.js';
 export {default as getReferences} from './get-references.js';
 export {default as isTypeScriptFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';
@@ -38,8 +42,10 @@ export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
+export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
 export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
+export {default as isArray, isKnownNonArray} from './is-array.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
@@ -58,10 +64,19 @@ export {default as isShorthandImportLocal} from './is-shorthand-import-local.js'
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
+export {default as normalizeComment} from './normalize-comment.js';
+export {default as unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,
 	isEslintDisableOrEnableDirective,
 } from './eslint-directive.js';
+export {
+	getBaseTypes,
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isNullishType,
+	isUnknownType,
+} from './types.js';
 export {checkVueTemplate} from './rule.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
