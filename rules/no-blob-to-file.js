@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNewExpression} from './ast/index.js';
+import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.js';
 import {getLastTrailingCommentOnSameLine, getVariableIdentifiers} from './utils/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
@@ -9,7 +9,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace the `File` with the original `Blob`.',
 };
 
-const isWhitespaceOnly = text => /^\s*$/.test(text);
+const isWhitespaceOnly = text => /^\s*$/v.test(text);
 
 const isStandaloneConstDeclaration = node =>
 	node.parent.type === 'VariableDeclaration'
@@ -63,10 +63,6 @@ function getFileNameNode(newFileExpression) {
 	const [, fileNameNode] = newFileExpression.arguments;
 	return fileNameNode;
 }
-
-const isStringLiteral = node =>
-	(node.type === 'Literal' && typeof node.value === 'string')
-	|| (node.type === 'TemplateLiteral' && node.expressions.length === 0);
 
 function isBlobIdentifier(node, beforeNode, context) {
 	const declaration = getConstIdentifierDeclaration(node, context);
@@ -122,7 +118,7 @@ function getBlobIdentifier(newFileExpression, context) {
 		fileBits.type !== 'ArrayExpression'
 		|| fileBits.elements.length !== 1
 		|| fileBits.elements[0]?.type === 'SpreadElement'
-		|| !isStringLiteral(fileName)
+		|| getStaticStringValue(fileName) === undefined
 	) {
 		return;
 	}

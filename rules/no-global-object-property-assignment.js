@@ -1,5 +1,10 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
-import {isGlobalIdentifier, isLeftHandSide} from './utils/index.js';
+import {
+	isGlobalIdentifier,
+	isLeftHandSide,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-global-object-property-assignment';
 const messages = {
@@ -13,24 +18,9 @@ const globalObjectNames = new Set([
 	'window',
 ]);
 
-const typeScriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const unwrapTypeScriptExpression = node => {
-	while (typeScriptExpressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 const getEffectiveAssignmentTarget = node => {
 	while (
-		typeScriptExpressionWrapperTypes.has(node.parent.type)
+		isTypeScriptExpressionWrapper(node.parent)
 		&& node.parent.expression === node
 	) {
 		node = node.parent;

@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {getParenthesizedText} from './utils/index.js';
+import {getParenthesizedText, hasUnsafeArrowConversionReference} from './utils/index.js';
 
 const MESSAGE_ID = 'consistent-function-style';
 const MESSAGE_ID_SUGGESTION = 'consistent-function-style/suggestion';
@@ -87,53 +87,6 @@ const messages = {
 const createRoleSchema = role => ({
 	enum: roleStyles.get(role),
 });
-
-const isNewTarget = node =>
-	node.type === 'MetaProperty'
-	&& node.meta.name === 'new'
-	&& node.property.name === 'target';
-
-const isArgumentsIdentifier = node =>
-	node.type === 'Identifier'
-	&& node.name === 'arguments';
-
-const isDirectEvalCall = node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'eval';
-
-const isUnsupportedLexicalNode = node =>
-	node.type === 'ThisExpression'
-	|| node.type === 'Super'
-	|| isNewTarget(node)
-	|| isArgumentsIdentifier(node)
-	|| isDirectEvalCall(node);
-
-function hasUnsupportedLexicalReference(node, visitorKeys) {
-	if (!node) {
-		return false;
-	}
-
-	if (isUnsupportedLexicalNode(node)) {
-		return true;
-	}
-
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (hasUnsupportedLexicalReference(element, visitorKeys)) {
-					return true;
-				}
-			}
-		} else if (hasUnsupportedLexicalReference(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 const isVariableFunction = node =>
 	node.parent.type === 'VariableDeclarator'
@@ -262,8 +215,8 @@ const getSuggestion = ({
 		|| node.typeParameters
 		|| hasThisParameter(node)
 		|| sourceCode.getCommentsInside(node).length > 0
-		|| node.params.some(parameter => hasUnsupportedLexicalReference(parameter, sourceCode.visitorKeys))
-		|| hasUnsupportedLexicalReference(node.body, sourceCode.visitorKeys)
+		|| node.params.some(parameter => hasUnsafeArrowConversionReference(parameter, sourceCode.visitorKeys))
+		|| hasUnsafeArrowConversionReference(node.body, sourceCode.visitorKeys)
 	) {
 		return;
 	}

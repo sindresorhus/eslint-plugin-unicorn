@@ -6,6 +6,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
+import {unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-error-property-assignment';
 const messages = {
@@ -64,21 +65,6 @@ const getVariable = (node, context) =>
 
 // Keep TypeScript support syntactic: unwrap assertions and `satisfies` so `new Error() as Error` is recognized, but do not use parser services.
 // A type named `Error` can describe subclasses or values returned from elsewhere, so type-aware matching would exceed the rule's known built-in-instance boundary and make results config-dependent.
-const typeScriptWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-	'TSTypeAssertion',
-]);
-
-const unwrapExpression = node => {
-	while (typeScriptWrapperTypes.has(node?.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 const getKnownErrorConstructorNameFromFrames = (variable, knownErrorVariableFrames) => {
 	for (const {knownErrorVariables} of knownErrorVariableFrames.toReversed()) {
 		if (knownErrorVariables.has(variable)) {

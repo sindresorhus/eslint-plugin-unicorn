@@ -12,6 +12,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
+	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
 	getNegativeIndexLengthNode,
@@ -47,21 +48,6 @@ const messages = {
 };
 
 const isArguments = node => node.type === 'Identifier' && node.name === 'arguments';
-
-function unwrapExpression(node) {
-	if (
-		[
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-			'TSSatisfiesExpression',
-		].includes(node.type)
-	) {
-		return unwrapExpression(node.expression);
-	}
-
-	return node;
-}
 
 const isUnsupportedAtReceiverExpression = node => {
 	node = unwrapExpression(node);
