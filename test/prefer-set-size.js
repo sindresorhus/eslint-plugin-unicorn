@@ -79,5 +79,9 @@ test.snapshot({
 			code: 'function getSize(set: Set<string>) { return Array.from(set).length; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function getSize(set: ReadonlySet<string>) { return Array.from(set).length; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
