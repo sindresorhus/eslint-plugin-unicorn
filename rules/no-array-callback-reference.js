@@ -3,6 +3,11 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {isMethodCall} from './ast/index.js';
 import {
+	getBaseTypes,
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isNullishType,
+	isUnknownType,
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
@@ -171,24 +176,9 @@ const defaultIgnoredCallees = [
 
 const typedArrayTypes = new Set(typedArray);
 const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
-const unknownTypeNames = new Set(['any', 'error', 'unknown']);
-const nullishTypeNames = new Set(['null', 'undefined']);
-
-const isDefaultLibrarySymbol = (symbol, program) =>
-	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
-
-const isNullishType = type => nullishTypeNames.has(type.intrinsicName);
-
-function getBaseTypes(type, checker) {
-	try {
-		return checker.getBaseTypes(type) ?? type.getBaseTypes?.() ?? [];
-	} catch {
-		return [];
-	}
-}
 
 function shouldReportReceiverType(type, checker, program, allowNullish) {
-	if (unknownTypeNames.has(type.intrinsicName)) {
+	if (isUnknownType(type)) {
 		return true;
 	}
 
@@ -211,7 +201,7 @@ function shouldReportReceiverType(type, checker, program, allowNullish) {
 
 	const types = type.isIntersection() ? type.types : [type];
 	return types.some(type => {
-		if (unknownTypeNames.has(type.intrinsicName)) {
+		if (isUnknownType(type)) {
 			return true;
 		}
 
@@ -223,7 +213,7 @@ function shouldReportReceiverType(type, checker, program, allowNullish) {
 			return true;
 		}
 
-		const symbol = type.getSymbol() ?? type.aliasSymbol;
+		const symbol = getTypeSymbol(type);
 		if (!isDefaultLibrarySymbol(symbol, program)) {
 			return false;
 		}
