@@ -43,6 +43,20 @@ const isDomCollectionMemberExpression = (node, property) =>
 		computed: false,
 	});
 
+const isPropertiesChildrenMemberExpression = node =>
+	isDomCollectionMemberExpression(node, 'children')
+	&& (
+		(
+			node.object.type === 'Identifier'
+			&& node.object.name === 'props'
+		)
+		|| isMemberExpression(node.object, {
+			property: 'props',
+			optional: false,
+			computed: false,
+		})
+	);
+
 const isNumericIndexMemberExpression = node =>
 	isNonOptionalMemberExpression(node)
 	&& node.computed
@@ -215,6 +229,10 @@ const create = context => {
 		if (
 			!collectionName
 			|| isNodeValueNotDomNode(node.object.object)
+			|| (
+				collectionName === 'children'
+				&& isPropertiesChildrenMemberExpression(node.object)
+			)
 			|| isNestedIndexedDomCollection(node)
 		) {
 			return;
