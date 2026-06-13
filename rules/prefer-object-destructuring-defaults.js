@@ -1,5 +1,5 @@
 import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
-import {getParenthesizedText, isParenthesized} from './utils/index.js';
+import {getParenthesizedText, getReferences} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-destructuring-defaults';
 const MESSAGE_ID_SUGGESTION = 'prefer-object-destructuring-defaults/suggestion';
@@ -9,22 +9,29 @@ const messages = {
 };
 
 const objectPrototypePropertyNames = new Set(Object.getOwnPropertyNames(Object.prototype));
-
-const needsParenthesesBeforeNullishCoalescing = node =>
-	[
-		'AssignmentExpression',
-		'ArrowFunctionExpression',
-		'ConditionalExpression',
-		'LogicalExpression',
-		'SequenceExpression',
-		'YieldExpression',
-	].includes(node.type);
+const hasSideEffectOptions = {
+	considerGetters: true,
+	considerImplicitTypeConversion: true,
+};
 
 const isSimpleProperty = property =>
 	property.type === 'Property'
 	&& property.kind === 'init'
 	&& !property.computed
 	&& !property.method;
+
+const isNodeInside = (node, parent, sourceCode) => {
+	const [start, end] = sourceCode.getRange(node);
+	const [parentStart, parentEnd] = sourceCode.getRange(parent);
+
+	return start >= parentStart && end <= parentEnd;
+};
+
+const referencesPatternBinding = (node, bindingNames, context) =>
+	getReferences(context.sourceCode.getScope(node)).some(reference =>
+		bindingNames.has(reference.identifier.name)
+		&& isNodeInside(reference.identifier, node, context.sourceCode),
+	);
 
 const getSimplePatternProperties = (objectPattern, context) => {
 	if (objectPattern.typeAnnotation) {
@@ -42,7 +49,7 @@ const getSimplePatternProperties = (objectPattern, context) => {
 		}
 
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (!name || objectPrototypePropertyNames.has(name)) {
+		if (name === null || objectPrototypePropertyNames.has(name)) {
 			return;
 		}
 
@@ -58,22 +65,22 @@ const getSimplePatternProperties = (objectPattern, context) => {
 const getDefaultProperties = (objectExpression, context) => {
 	const {properties} = objectExpression;
 	const spreadElement = properties.at(-1);
-	if (spreadElement?.type !== 'SpreadElement') {
+	if (
+		spreadElement?.type !== 'SpreadElement'
+		|| hasSideEffect(spreadElement.argument, context.sourceCode, hasSideEffectOptions)
+	) {
 		return;
 	}
 
 	const defaultProperties = new Map();
 
 	for (const property of properties.slice(0, -1)) {
-		if (!isSimpleProperty(property) || hasSideEffect(property.value, context.sourceCode, {
-			considerGetters: true,
-			considerImplicitTypeConversion: true,
-		})) {
+		if (!isSimpleProperty(property) || hasSideEffect(property.value, context.sourceCode, hasSideEffectOptions)) {
 			return;
 		}
 
 		const name = getPropertyName(property, context.sourceCode.getScope(property));
-		if (!name || defaultProperties.has(name)) {
+		if (name === null || defaultProperties.has(name)) {
 			return;
 		}
 
@@ -84,19 +91,6 @@ const getDefaultProperties = (objectExpression, context) => {
 		defaultProperties,
 		spreadElement,
 	};
-};
-
-const getSpreadSourceText = (node, context) => {
-	const text = getParenthesizedText(node, context);
-
-	if (
-		!isParenthesized(node, context)
-		&& needsParenthesesBeforeNullishCoalescing(node)
-	) {
-		return `(${text})`;
-	}
-
-	return text;
 };
 
 const getReplacementPatternPropertyText = (patternProperty, defaultProperty, context) => {
@@ -135,10 +129,11 @@ const create = context => {
 			return;
 		}
 
+		const bindingNames = new Set(patternProperties.map(patternProperty => patternProperty.node.value.name));
 		const replacementProperties = [];
 		for (const patternProperty of patternProperties) {
 			const defaultProperty = defaultProperties.get(patternProperty.name);
-			if (!defaultProperty) {
+			if (!defaultProperty || referencesPatternBinding(defaultProperty.value, bindingNames, context)) {
 				return;
 			}
 
@@ -153,7 +148,7 @@ const create = context => {
 					messageId: MESSAGE_ID_SUGGESTION,
 					fix: fixer => fixer.replaceText(
 						node,
-						`{${replacementProperties.join(', ')}} = ${getSpreadSourceText(spreadElement.argument, context)} ?? {}`,
+						`{${replacementProperties.join(', ')}} = {${context.sourceCode.getText(spreadElement)}}`,
 					),
 				},
 			],
@@ -168,7 +163,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer object destructuring defaults over default object literals with spread.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		schema: [],
