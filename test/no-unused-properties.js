@@ -7,6 +7,11 @@ const error = {
 	messageId: 'no-unused-properties',
 };
 
+const errorWithName = name => ({
+	...error,
+	data: {name},
+});
+
 test({
 	valid: [
 		outdent`
@@ -464,8 +469,102 @@ test.typescript({
 
 			console.log(userDebounce);
 		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				return args.x + args.y;
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				console.log(args);
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}, key: 'x' | 'y') {
+				return args[key];
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				args.x = 1;
+			}
+		`,
+		outdent`
+			function foo(args: {x: () => void; y: number}) {
+				args.x();
+			}
+		`,
+		outdent`
+			type Arguments = {
+				x: number;
+				y: number;
+			};
+
+			function foo(args: Arguments) {
+				return args.x;
+			}
+		`,
+		outdent`
+			interface Arguments {
+				x: number;
+				y: number;
+			}
+
+			function foo(args: Arguments) {
+				return args.x;
+			}
+		`,
+		outdent`
+			function foo({x}: {x: number; y: number}) {
+				return x;
+			}
+		`,
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: outdent`
+				function foo(args: {x: number; y: number}) {
+					return args.x * 2;
+				}
+			`,
+			errors: [errorWithName('y')],
+		},
+		{
+			code: outdent`
+				const args: {x: number; y: number} = getArgs();
+				console.log(args.x);
+			`,
+			errors: [errorWithName('y')],
+		},
+		{
+			code: outdent`
+				function foo(args: {options: {enabled: boolean; unused: boolean}; label: string}) {
+					return args.options.enabled && args.label.length > 0;
+				}
+			`,
+			errors: [errorWithName('unused')],
+		},
+		{
+			code: outdent`
+				function foo(args: {'x': number; 'y': number}) {
+					return args['x'];
+				}
+			`,
+			errors: [errorWithName('y')],
+		},
+		{
+			code: outdent`
+				type Arguments = {
+					x: number;
+					unused: number;
+				};
+
+				const args: Arguments = {x: 1, unused: 2};
+				console.log(args.x);
+			`,
+			errors: [errorWithName('unused')],
+		},
+	],
 });
 
 test.snapshot({

@@ -5,9 +5,33 @@ const messages = {
 	[MESSAGE_ID]: 'Property `{{name}}` is defined but never used.',
 };
 
-const getDeclaratorOrPropertyValue = declaratorOrProperty =>
-	declaratorOrProperty.init
-	|| declaratorOrProperty.value;
+const getTypeAnnotation = node => node?.typeAnnotation?.typeAnnotation;
+
+const getDeclaratorOrPropertyValue = declaratorOrProperty => {
+	const value = declaratorOrProperty.init || declaratorOrProperty.value;
+	if (value?.type === 'ObjectExpression') {
+		return value;
+	}
+
+	const typeAnnotation = getTypeAnnotation(declaratorOrProperty) || getTypeAnnotation(declaratorOrProperty.id);
+	if (typeAnnotation?.type === 'TSTypeLiteral') {
+		return typeAnnotation;
+	}
+
+	return value;
+};
+
+const getProperties = value => {
+	if (value.type === 'ObjectExpression') {
+		return value.properties;
+	}
+
+	if (value.type === 'TSTypeLiteral') {
+		return value.members.filter(member => member.type === 'TSPropertySignature');
+	}
+
+	return [];
+};
 
 const isMemberExpressionCall = memberExpression =>
 	memberExpression.parent.type === 'CallExpression'
@@ -40,6 +64,11 @@ const propertyKeysEqual = (keyA, keyB) => {
 	return keyNameA !== undefined && keyNameA === getPropertyKeyName(keyB);
 };
 
+const getDefinitionNode = definition =>
+	definition.type === 'Parameter' && definition.name?.typeAnnotation
+		? definition.name
+		: definition.node;
+
 const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
 	pattern.properties.some(property => {
 		if (property.type === 'RestElement') {
@@ -56,7 +85,10 @@ const isLeafDeclaratorOrProperty = declaratorOrProperty => {
 		return true;
 	}
 
-	if (value.type !== 'ObjectExpression') {
+	if (
+		value.type !== 'ObjectExpression'
+		&& value.type !== 'TSTypeLiteral'
+	) {
 		return true;
 	}
 
@@ -98,8 +130,8 @@ const create = context => {
 		reportObject(property, references, path);
 	};
 
-	const reportProperties = (objectExpression, references, path = []) => {
-		for (const property of objectExpression.properties) {
+	const reportProperties = (objectLike, references, path = []) => {
+		for (const property of getProperties(objectLike)) {
 			const {key} = property;
 
 			if (!key) {
@@ -195,7 +227,7 @@ const create = context => {
 
 		const [definition] = variable.defs;
 
-		reportObject(definition.node, variable.references);
+		reportObject(getDefinitionNode(definition), variable.references);
 	};
 
 	const reportVariables = scope => {

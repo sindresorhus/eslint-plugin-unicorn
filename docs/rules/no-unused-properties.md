@@ -48,6 +48,22 @@ console.log(myEnum.used);
 const {used} = myEnum;
 ```
 
+This rule also checks inline TypeScript object type literals attached directly to variables and parameters.
+
+```ts
+// ❌
+function foo(args: {used: number; unused: number}) {
+	return args.used;
+}
+```
+
+```ts
+// ✅
+function foo(args: {used: number}) {
+	return args.used;
+}
+```
+
 ```js
 // ✅
 const myEnum = {
@@ -94,5 +110,6 @@ This rule tries hard not to report potentially used properties as unused. Basica
 - Classes are not checked.
 - Prototypes are not checked. Only own properties are.
 - Does not follow objects across files. If you export an object, it's like if you used all of its properties.
+- TypeScript support is limited to inline object type literals attached directly to variables and parameters. Named type aliases, interfaces, and destructured typed parameters are not followed.
 
 If you want to lift some of these limitations, you should try tools like [Flow](https://flow.org) or [TypeScript](https://www.typescriptlang.org).
