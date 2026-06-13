@@ -1,3 +1,4 @@
+import {isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
 import getScopes from './utils/get-scopes.js';
 
 const MESSAGE_ID = 'no-unused-properties';
@@ -7,18 +8,27 @@ const messages = {
 
 const getTypeAnnotation = node => node?.typeAnnotation?.typeAnnotation;
 
-const getDeclaratorOrPropertyValue = declaratorOrProperty => {
-	const value = declaratorOrProperty.init || declaratorOrProperty.value;
+const getIdentifierTypeAnnotation = node => {
+	if (
+		node.type === 'VariableDeclarator'
+		&& !node.init
+	) {
+		return;
+	}
+
+	return getTypeAnnotation(node.id);
+};
+
+const getPropertyContainer = node => {
+	const value = unwrapTypeScriptExpression(node.init || node.value);
 	if (value?.type === 'ObjectExpression') {
 		return value;
 	}
 
-	const typeAnnotation = getTypeAnnotation(declaratorOrProperty) || getTypeAnnotation(declaratorOrProperty.id);
+	const typeAnnotation = getTypeAnnotation(node) || getIdentifierTypeAnnotation(node);
 	if (typeAnnotation?.type === 'TSTypeLiteral') {
 		return typeAnnotation;
 	}
-
-	return value;
 };
 
 const getProperties = value => {
@@ -43,6 +53,17 @@ const isMemberExpressionAssignment = memberExpression =>
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 	memberExpression.computed
 	&& memberExpression.property.type !== 'Literal';
+
+const getReferenceParent = referenceNode => {
+	while (
+		isTypeScriptExpressionWrapper(referenceNode.parent)
+		&& referenceNode.parent.expression === referenceNode
+	) {
+		referenceNode = referenceNode.parent;
+	}
+
+	return referenceNode.parent;
+};
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
@@ -78,23 +99,6 @@ const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
 		return propertyKeysEqual(property.key, key);
 	});
 
-const isLeafDeclaratorOrProperty = declaratorOrProperty => {
-	const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
-
-	if (!value) {
-		return true;
-	}
-
-	if (
-		value.type !== 'ObjectExpression'
-		&& value.type !== 'TSTypeLiteral'
-	) {
-		return true;
-	}
-
-	return false;
-};
-
 const isUnusedVariable = variable => {
 	const hasReadReference = variable.references.some(reference => reference.isRead());
 	return !hasReadReference;
@@ -115,7 +119,7 @@ const create = context => {
 		return sourceCode.getText(property.key);
 	};
 
-	const reportProperty = (property, references, path) => {
+	const reportProperty = (property, references) => {
 		if (references.length === 0) {
 			context.report({
 				node: property,
@@ -127,10 +131,10 @@ const create = context => {
 			return;
 		}
 
-		reportObject(property, references, path);
+		reportObject(property, references);
 	};
 
-	const reportProperties = (objectLike, references, path = []) => {
+	const reportProperties = (objectLike, references) => {
 		for (const property of getProperties(objectLike)) {
 			const {key} = property;
 
@@ -142,11 +146,9 @@ const create = context => {
 				continue;
 			}
 
-			const nextPath = [...path, key];
-
 			const nextReferences = references
 				.map(reference => {
-					const {parent} = reference.identifier;
+					const parent = getReferenceParent(reference.identifier);
 
 					if (reference.init) {
 						if (
@@ -202,18 +204,17 @@ const create = context => {
 				})
 				.filter(Boolean);
 
-			reportProperty(property, nextReferences, nextPath);
+			reportProperty(property, nextReferences);
 		}
 	};
 
-	const reportObject = (declaratorOrProperty, references, path) => {
-		if (isLeafDeclaratorOrProperty(declaratorOrProperty)) {
+	const reportObject = (node, references) => {
+		const propertyContainer = getPropertyContainer(node);
+		if (!propertyContainer) {
 			return;
 		}
 
-		const value = getDeclaratorOrPropertyValue(declaratorOrProperty);
-
-		reportProperties(value, references, path);
+		reportProperties(propertyContainer, references);
 	};
 
 	const reportVariable = variable => {
