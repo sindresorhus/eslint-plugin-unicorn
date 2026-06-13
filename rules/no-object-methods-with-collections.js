@@ -56,8 +56,21 @@ const getTypeDeclarationName = node => {
 	return node.id?.name;
 };
 
-const hasUserDefinedTypeName = (name, context) => {
-	for (const node of context.sourceCode.ast.body) {
+const getProgramNode = node => {
+	while (node.parent) {
+		node = node.parent;
+	}
+
+	return node.type === 'Program' ? node : undefined;
+};
+
+const hasUserDefinedTypeName = (name, node) => {
+	const program = getProgramNode(node);
+	if (!program) {
+		return false;
+	}
+
+	for (const node of program.body) {
 		if (node.type === 'ImportDeclaration') {
 			if (node.specifiers.some(specifier => specifier.local.name === name)) {
 				return true;
@@ -160,7 +173,7 @@ const getTypesFromTypeAnnotation = (node, context) => {
 				return;
 			}
 
-			if (hasUserDefinedTypeName(node.typeName.name, context)) {
+			if (hasUserDefinedTypeName(node.typeName.name, node)) {
 				return;
 			}
 
