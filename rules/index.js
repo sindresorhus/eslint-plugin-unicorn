@@ -72,6 +72,7 @@ export {default as 'no-late-current-target-access'} from './no-late-current-targ
 export {default as 'no-lonely-if'} from './no-lonely-if.js';
 export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-depth.js';
 export {default as 'no-manually-wrapped-comments'} from './no-manually-wrapped-comments.js';
+export {default as 'no-mismatched-map-key'} from './no-mismatched-map-key.js';
 export {default as 'no-named-default'} from './no-named-default.js';
 export {default as 'no-negated-comparison'} from './no-negated-comparison.js';
 export {default as 'no-negated-condition'} from './no-negated-condition.js';
