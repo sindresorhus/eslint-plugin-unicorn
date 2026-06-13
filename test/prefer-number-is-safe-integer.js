@@ -41,6 +41,7 @@ test.snapshot({
 		'Math["trunc"](value) === value',
 		'Math.floor(...value) === value',
 		'Math.trunc(...value) === value',
+		'Math.floor(value, extra) === value',
 		'Math.trunc(value, extra) === value',
 		'_.isInteger?.(value)',
 		'_?.isInteger(value)',
@@ -78,6 +79,8 @@ test.snapshot({
 		'_.isSafeInteger(value)',
 		'lodash.isSafeInteger(value)',
 		'underscore.isSafeInteger(value)',
+		'value /* comment */ % 1 === 0', // Reported without suggestion to avoid dropping comments
+		'0 === value /* comment */ % 1', // Reported without suggestion to avoid dropping comments
 		'_.isInteger(/* comment */ value)', // Reported without suggestion to avoid dropping comments
 		'Math.trunc(/* comment */ value) === value', // Reported without suggestion to avoid dropping comments
 	],
@@ -97,6 +100,14 @@ test.snapshot({
 		},
 		{
 			code: 'Math.trunc(value as number) === value',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Math.trunc(value!) === value',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Math.trunc(value) === value as number',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

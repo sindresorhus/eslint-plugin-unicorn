@@ -95,6 +95,21 @@ const getMathComparisonIntegerCheckArgument = (node, sourceCode) => {
 	}
 };
 
+const getLodashIntegerCheckArgument = node => {
+	if (!isMethodCall(node, {
+		objects: lodashObjects,
+		methods: ['isInteger', 'isSafeInteger'],
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+		computed: false,
+	})) {
+		return;
+	}
+
+	return node.arguments[0];
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -119,42 +134,33 @@ const create = context => {
 
 	context.on('CallExpression', callExpression => {
 		if (
-			!isMethodCall(callExpression, {
+			isMethodCall(callExpression, {
 				object: 'Number',
 				method: 'isInteger',
 				optionalCall: false,
 				optionalMember: false,
 				computed: false,
 			})
-			|| !sourceCode.isGlobalReference(callExpression.callee.object)
+			&& sourceCode.isGlobalReference(callExpression.callee.object)
 		) {
-			if (
-				!isMethodCall(callExpression, {
-					objects: lodashObjects,
-					methods: ['isInteger', 'isSafeInteger'],
-					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
-					computed: false,
-				})
-				|| !isGlobalNumberAvailable(callExpression, sourceCode)
-			) {
-				return;
-			}
-
-			return createIntegerCheckProblem(callExpression, callExpression.arguments[0]);
+			return {
+				node: callExpression.callee.property,
+				messageId: MESSAGE_ID_ERROR,
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGESTION,
+						fix: fixer => fixer.replaceText(callExpression.callee.property, 'isSafeInteger'),
+					},
+				],
+			};
 		}
 
-		return {
-			node: callExpression.callee.property,
-			messageId: MESSAGE_ID_ERROR,
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix: fixer => fixer.replaceText(callExpression.callee.property, 'isSafeInteger'),
-				},
-			],
-		};
+		const argument = getLodashIntegerCheckArgument(callExpression);
+		if (!argument || !isGlobalNumberAvailable(callExpression, sourceCode)) {
+			return;
+		}
+
+		return createIntegerCheckProblem(callExpression, argument);
 	});
 
 	context.on('BinaryExpression', node => {
