@@ -84,6 +84,7 @@ export {default as 'no-new-array'} from './no-new-array.js';
 export {default as 'no-new-buffer'} from './no-new-buffer.js';
 export {default as 'no-null'} from './no-null.js';
 export {default as 'no-object-as-default-parameter'} from './no-object-as-default-parameter.js';
+export {default as 'no-object-methods-with-collections'} from './no-object-methods-with-collections.js';
 export {default as 'no-process-exit'} from './no-process-exit.js';
 export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
 export {default as 'no-return-array-push'} from './no-return-array-push.js';
