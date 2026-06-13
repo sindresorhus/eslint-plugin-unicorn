@@ -47,6 +47,9 @@ test({
 		'const hasFoo = foo.find(fn); export {hasFoo};',
 		'const hasFoo = foo.find(fn);',
 		'const hasFoo = foo.find(fn); if (hasFoo === undefined) {}',
+		'const hasFoo = foo.find(fn); if (hasFoo) {}',
+		'const hasFoo = foo.find(fn); if (hasFoo || !hasFoo || Boolean(hasFoo)) {}',
+		'const font = this.form[$globalData].fontFinder.find(typeface); if (!font) {}',
 		'if (new Foo().find(fn)) {}',
 		'if (new Foo().findLast(fn)) {}',
 		'new Foo().findIndex(fn) !== -1',
@@ -158,8 +161,8 @@ test({
 			'while (foo.find(fn)) foo.shift();',
 			'do {foo.shift();} while (foo.find(fn));',
 			'for (; foo.find(fn); ) foo.shift();',
-			'const hasFoo = foo.find(fn); if (hasFoo) {}',
-			'const hasFoo = foo.find(fn); if (hasFoo || !hasFoo || Boolean(hasFoo)) {}',
+			'const hasFoo = [].find(fn); if (hasFoo) {}',
+			'const array = []; const hasFoo = array.find(fn); if (hasFoo) {}',
 		].flatMap(code => [
 			invalidCase({
 				code,
@@ -259,6 +262,17 @@ test({
 		invalidCase({
 			...typeAware('declare function getItems(): string[]; if (getItems().find(fn)) {}'),
 			suggestionOutput: 'declare function getItems(): string[]; if (getItems().some(fn)) {}',
+			method: 'find',
+		}),
+		invalidCase({
+			code: 'function foo(array: string[]) { const hasFoo = array.find(fn); if (hasFoo) {} }',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: 'function foo(array: string[]) { const hasFoo = array.some(fn); if (hasFoo) {} }',
+			method: 'find',
+		}),
+		invalidCase({
+			...typeAware('declare function getItems(): string[]; const hasFoo = getItems().find(fn); if (hasFoo) {}'),
+			suggestionOutput: 'declare function getItems(): string[]; const hasFoo = getItems().some(fn); if (hasFoo) {}',
 			method: 'find',
 		}),
 		invalidCase({
