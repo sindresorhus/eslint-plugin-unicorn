@@ -9,7 +9,7 @@
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 
-This rule only applies to modules listed in the `styles` option. Imports of unlisted modules are not affected.
+This rule applies to modules listed in the `styles` option and Node.js builtin modules when the `nodeBuiltinModules` option is enabled. Other imports are not affected.
 
 This rule defines 4 import styles:
 
@@ -73,6 +73,54 @@ The example below:
 ```
 
 Do not set all styles to `false` for a module. To disallow a module entirely, use the [`no-restricted-imports`](https://eslint.org/docs/latest/rules/no-restricted-imports) rule instead.
+
+### nodeBuiltinModules
+
+Type: `'default' | 'namespace'`
+Default: `undefined`
+
+Enforce a default or namespace import style for Node.js builtin modules imported with the `node:` protocol.
+
+This option only checks static `import` declarations, and only reports default and namespace imports. Named imports are ignored, except `import {default as name} from 'node:…'`, which is treated as a default import. Side-effect imports, `require()`, dynamic `import()`, and export-from statements are ignored.
+
+User-provided entries in `styles` take precedence over this option.
+
+```js
+'unicorn/import-style': [
+	'error',
+	{
+		nodeBuiltinModules: 'namespace',
+	},
+]
+```
+
+```js
+// ❌
+import fs from 'node:fs';
+
+// ✅
+import * as fs from 'node:fs';
+
+// ✅
+import {readFile} from 'node:fs';
+```
+
+```js
+'unicorn/import-style': [
+	'error',
+	{
+		nodeBuiltinModules: 'default',
+	},
+]
+```
+
+```js
+// ❌
+import * as fs from 'node:fs';
+
+// ✅
+import fs from 'node:fs';
+```
 
 ### extendDefaultStyles
 

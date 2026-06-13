@@ -56,6 +56,14 @@ const namedError = {
 	},
 };
 
+const nodeBuiltinModulesError = (moduleName, style) => ({
+	messageId: 'nodeBuiltinModules',
+	data: {
+		style,
+		moduleName,
+	},
+});
+
 const addDefaultOptions = test => {
 	if (typeof test === 'string') {
 		test = {
@@ -206,6 +214,111 @@ test({
 						default: true,
 					},
 				},
+			}],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'default',
+			}],
+		},
+		{
+			code: 'import {readFile} from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import {readFile} from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'default',
+			}],
+		},
+		{
+			code: 'import \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import(\'node:fs\')',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'async () => { const fs = await import(\'node:fs\'); }',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import * as fsPromises from \'node:fs/promises\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import unknown from \'node:unknown\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import * as util from \'node:util\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'import util from \'node:util\'',
+			options: [{
+				nodeBuiltinModules: 'default',
+			}],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'default',
+				styles: {
+					'node:fs': {
+						namespace: true,
+					},
+				},
+			}],
+		},
+		{
+			code: 'import fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+				styles: {
+					'node:fs': false,
+				},
+			}],
+		},
+		{
+			code: 'import fs from \'fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'const fs = require(\'node:fs\')',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+		},
+		{
+			code: 'export * from \'node:fs\'',
+			options: [{
+				checkExportFrom: true,
+				nodeBuiltinModules: 'default',
 			}],
 		},
 
@@ -570,6 +683,59 @@ test({
 		{
 			code: 'import util, {inspect} from \'default\'',
 			errors: [defaultError],
+		},
+		{
+			code: 'import fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+			errors: [nodeBuiltinModulesError('node:fs', 'namespace')],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'default',
+			}],
+			errors: [nodeBuiltinModulesError('node:fs', 'default')],
+		},
+		{
+			code: 'import {default as fs} from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+			errors: [nodeBuiltinModulesError('node:fs', 'namespace')],
+		},
+		{
+			code: 'import fsPromises from \'node:fs/promises\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+			errors: [nodeBuiltinModulesError('node:fs/promises', 'namespace')],
+		},
+		{
+			code: 'import util from \'node:util\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+			}],
+			errors: [nodeBuiltinModulesError('node:util', 'namespace')],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				nodeBuiltinModules: 'namespace',
+				styles: {
+					'node:fs': {
+						default: true,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'node:fs',
+				},
+			}],
 		},
 
 		{
