@@ -41,6 +41,7 @@ export {default as 'no-array-method-this-argument'} from './no-array-method-this
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
 export {default as 'no-array-reverse'} from './no-array-reverse.js';
 export {default as 'no-array-sort'} from './no-array-sort.js';
+export {default as 'no-asterisk-prefix-in-documentation-comments'} from './no-asterisk-prefix-in-documentation-comments.js';
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
 export {default as 'no-blob-to-file'} from './no-blob-to-file.js';

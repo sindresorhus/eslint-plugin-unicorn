@@ -36,6 +36,7 @@ const config = [
 			'unicorn/custom-error-definition': 'off',
 			'unicorn/consistent-function-scoping': 'off',
 			// Annoying
+			'unicorn/no-asterisk-prefix-in-documentation-comments': 'off',
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-invalid-argument-count': 'off',
