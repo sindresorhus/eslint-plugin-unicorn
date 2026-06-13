@@ -9,6 +9,15 @@ test.snapshot({
 		'foo.bar ? foo.bar1 : foo.baz',
 		'foo.bar ? foo1.bar : foo.baz',
 		'++foo ? ++foo : bar;',
+		'foo == null ? foo : bar;',
+		'foo == undefined ? foo : bar;',
+		'foo == false ? bar : foo;',
+		'foo == true ? foo : bar;',
+		'foo == null ? foo : foo.bar;',
+		'foo == undefined ? foo : foo.bar;',
+		'foo == null ? /* keep */ bar : foo;',
+		'foo == null ? /* keep */ undefined : foo.bar;',
+		'foo == null ? undefined : foo /* comment */ .bar;',
 
 		// Not checking
 		'!!bar ? foo : bar;',
@@ -19,6 +28,14 @@ test.snapshot({
 		'foo?.bar ? foo.bar : baz',
 		'!bar ? foo : bar;',
 		'!!bar ? foo : !bar;',
+		'foo == null ? bar : foo;',
+		'foo == undefined ? bar : foo;',
+		'null == foo ? bar : foo;',
+		'undefined == foo ? bar : foo;',
+		'foo == null ? undefined : foo.bar;',
+		'foo == undefined ? undefined : foo.bar;',
+		'foo == null ? undefined : foo[bar];',
+		'foo == null ? undefined : (foo).bar;',
 
 		'foo() ? foo() : bar',
 

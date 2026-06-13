@@ -1,16 +1,26 @@
 import {
+	isMemberExpression,
+	isNullLiteral,
+	isUndefined,
+} from './ast/index.js';
+import {
 	isParenthesized,
 	getParenthesizedText,
+	getParenthesizedRange,
 	isSameReference,
 	shouldAddParenthesesToLogicalExpressionChild,
 	needsSemicolon,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
+const MESSAGE_ID_OPTIONAL_CHAIN_ERROR = 'prefer-logical-operator-over-ternary/optional-chain-error';
 const MESSAGE_ID_SUGGESTION = 'prefer-logical-operator-over-ternary/suggestion';
+const MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION = 'prefer-logical-operator-over-ternary/optional-chain-suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using a logical operator over a ternary.',
+	[MESSAGE_ID_OPTIONAL_CHAIN_ERROR]: 'Prefer using optional chaining over a ternary.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}` operator.',
+	[MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION]: 'Switch to optional chaining.',
 };
 
 function isSameNode(left, right, sourceCode) {
@@ -87,16 +97,51 @@ function fix({
 	return fixer.replaceText(conditionalExpression, text);
 }
 
+function getMemberAccessOperatorRange(memberExpression, context) {
+	const {sourceCode} = context;
+	const [, start] = getParenthesizedRange(memberExpression.object, context);
+	const end = memberExpression.computed
+		? sourceCode.getRange(sourceCode.getTokenBefore(memberExpression.property, token => token.value === '['))[1]
+		: sourceCode.getRange(memberExpression.property)[0];
+
+	return [start, end];
+}
+
+function hasCommentInRange(sourceCode, [start, end]) {
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+
+		return commentStart >= start && commentEnd <= end;
+	});
+}
+
+function getOptionalChainText(memberExpression, context) {
+	const {sourceCode} = context;
+	const range = getMemberAccessOperatorRange(memberExpression, context);
+
+	if (hasCommentInRange(sourceCode, range)) {
+		return;
+	}
+
+	const [nodeStart, nodeEnd] = sourceCode.getRange(memberExpression);
+	const [operatorStart, operatorEnd] = range;
+
+	return sourceCode.text.slice(nodeStart, operatorStart)
+		+ (memberExpression.computed ? '?.[' : '?.')
+		+ sourceCode.text.slice(operatorEnd, nodeEnd);
+}
+
 function getProblem({
 	context,
 	conditionalExpression,
 	left,
 	right,
+	operators = ['??', '||'],
 }) {
 	return {
 		node: conditionalExpression,
 		messageId: MESSAGE_ID_ERROR,
-		suggest: ['??', '||'].map(operator => ({
+		suggest: operators.map(operator => ({
 			messageId: MESSAGE_ID_SUGGESTION,
 			data: {operator},
 			fix: fixer => fix({
@@ -111,12 +156,91 @@ function getProblem({
 	};
 }
 
+function getNullishCheckReference(node) {
+	if (
+		node.type !== 'BinaryExpression'
+		|| node.operator !== '=='
+	) {
+		return;
+	}
+
+	const leftNullish = isNullLiteral(node.left) || isUndefined(node.left);
+	const rightNullish = isNullLiteral(node.right) || isUndefined(node.right);
+
+	if (leftNullish === rightNullish) {
+		return;
+	}
+
+	return leftNullish ? node.right : node.left;
+}
+
+function getNullishTernaryProblem(conditionalExpression, context) {
+	const {test, consequent, alternate} = conditionalExpression;
+	const reference = getNullishCheckReference(test);
+
+	if (
+		!reference
+		|| context.sourceCode.getCommentsInside(conditionalExpression).length > 0
+	) {
+		return;
+	}
+
+	if (isSameNode(reference, alternate, context.sourceCode)) {
+		return getProblem({
+			context,
+			conditionalExpression,
+			left: alternate,
+			right: consequent,
+			operators: ['??'],
+		});
+	}
+
+	if (!(
+		isUndefined(consequent)
+		&& isMemberExpression(alternate)
+		&& !alternate.optional
+		&& isSameReference(reference, alternate.object)
+	)) {
+		return;
+	}
+
+	const optionalChainText = getOptionalChainText(alternate, context);
+
+	if (!optionalChainText) {
+		return;
+	}
+
+	return {
+		node: conditionalExpression,
+		messageId: MESSAGE_ID_OPTIONAL_CHAIN_ERROR,
+		suggest: [
+			{
+				messageId: MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION,
+				fix(fixer) {
+					let text = optionalChainText;
+
+					if (needsSemicolon(context.sourceCode.getTokenBefore(conditionalExpression), context, text)) {
+						text = `;${text}`;
+					}
+
+					return fixer.replaceText(conditionalExpression, text);
+				},
+			},
+		],
+	};
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 
 	context.on('ConditionalExpression', conditionalExpression => {
 		const {test, consequent, alternate} = conditionalExpression;
+		const nullishTernaryProblem = getNullishTernaryProblem(conditionalExpression, context);
+
+		if (nullishTernaryProblem) {
+			return nullishTernaryProblem;
+		}
 
 		// `foo ? foo : bar`
 		if (isSameNode(test, consequent, sourceCode)) {

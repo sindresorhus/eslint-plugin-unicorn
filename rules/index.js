@@ -14,6 +14,7 @@ export {default as 'consistent-export-decorator-position'} from './consistent-ex
 export {default as 'consistent-function-scoping'} from './consistent-function-scoping.js';
 export {default as 'consistent-function-style'} from './consistent-function-style.js';
 export {default as 'consistent-json-file-read'} from './consistent-json-file-read.js';
+export {default as 'consistent-optional-chaining'} from './consistent-optional-chaining.js';
 export {default as 'consistent-template-literal-escape'} from './consistent-template-literal-escape.js';
 export {default as 'custom-error-definition'} from './custom-error-definition.js';
 export {default as 'dom-node-dataset'} from './dom-node-dataset.js';
