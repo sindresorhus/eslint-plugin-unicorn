@@ -2,11 +2,8 @@ import toEslintCreate, {markFunctionWrapped} from '../rule/to-eslint-create.js';
 
 export function checkVueTemplate(unicornCreate, options) {
 	const {
-		visitScriptBlock,
-	} = {
-		visitScriptBlock: true,
-		...options,
-	};
+		visitScriptBlock = true,
+	} = options ?? {};
 
 	const create = toEslintCreate(unicornCreate);
 
@@ -24,4 +21,3 @@ export function checkVueTemplate(unicornCreate, options) {
 		return listeners;
 	});
 }
-
