@@ -210,7 +210,7 @@ When used with [`@eslint/markdown`](https://github.com/eslint/markdown), this ru
 
 This rule implements [`eslint/no-warning-comments`](https://eslint.org/docs/rules/no-warning-comments).
 
-The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments` if [`allowWarningComments`](#allowwarningcomments) is set to `false` (default `true`) and you'll see something like `Unexpected 'todo' comment without any conditions.`
+The sole difference is that first we check for **valid conditions** to apply this rule. If no valid conditions are met, we fall back to `eslint/no-warning-comments` if [`allowWarningComments`](#allowwarningcomments) is set to `false` (default `true`) and you'll see something like `Unexpected 'todo': 'TODO: …'.`
 
 The reason behind this is that now that you have a powerful rule to make sure there are no stray TODOs on your code, you should strive for best practices. Don't just add TODO comments and leave them forever. Define conditions to justify the presence of warning comments.
 

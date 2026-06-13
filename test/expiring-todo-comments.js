@@ -10,39 +10,39 @@ import {getTester} from './utils/test.js';
 const {test: ruleTest} = getTester(import.meta);
 
 const expiredTodoError = (expirationDate, message) => ({
-	message: `There is a TODO that is past due date: ${expirationDate}. ${message}`,
+	message: `Past due date: ${expirationDate}. ${message}`,
 });
 
 const avoidMultipleDatesError = (expirationDates, message) => ({
-	message: `Avoid using multiple expiration dates in TODO: ${expirationDates}. ${message}`,
+	message: `Avoid using multiple expiration dates: ${expirationDates}. ${message}`,
 });
 
 const havePackageError = (package_, message) => ({
-	message: `There is a TODO that is deprecated since you installed: ${package_}. ${message}`,
+	message: `Due since ${package_} was installed. ${message}`,
 });
 
 const dontHavePackageError = (package_, message) => ({
-	message: `There is a TODO that is deprecated since you uninstalled: ${package_}. ${message}`,
+	message: `Due since ${package_} was removed. ${message}`,
 });
 
 const versionMatchesError = (comparison, message) => ({
-	message: `There is a TODO match for package version: ${comparison}. ${message}`,
+	message: `Due since package version matched: ${comparison}. ${message}`,
 });
 
 const peerVersionMatchesError = (comparison, message) => ({
-	message: `There is a TODO match for peer dependency version: ${comparison}. ${message}`,
+	message: `Due since peer dependency version matched: ${comparison}. ${message}`,
 });
 
 const engineMatchesError = (comparison, message) => ({
-	message: `There is a TODO match for Node.js version: ${comparison}. ${message}`,
+	message: `Due since Node.js version matched: ${comparison}. ${message}`,
 });
 
 const reachedPackageVersionError = (version, message) => ({
-	message: `There is a TODO that is past due package version: ${version}. ${message}`,
+	message: `Past due package version: ${version}. ${message}`,
 });
 
 const avoidMultiplePackageVersionsError = (versions, message) => ({
-	message: `Avoid using multiple package versions in TODO: ${versions}. ${message}`,
+	message: `Avoid using multiple package versions: ${versions}. ${message}`,
 });
 
 const removeWhitespaceError = (argument, message) => ({
@@ -54,7 +54,7 @@ const missingAtSymbolError = (bad, good, message) => ({
 });
 
 const noWarningCommentError = comment => ({
-	message: `Unexpected 'todo' comment without any conditions: '${comment}'.`,
+	message: `Unexpected 'todo': '${comment}'.`,
 });
 
 ruleTest({
@@ -482,11 +482,11 @@ test('supports JSONC comments with @eslint/json', t => {
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				message: 'Past due date: 2000-01-01. Drop',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 			{
-				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update config\'.',
+				message: 'Unexpected \'todo\': \'TODO: Update config\'.',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -552,7 +552,7 @@ test('supports JSONC block comments with @eslint/json', t => {
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				message: 'Past due date: 2000-01-01. Drop',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -589,11 +589,11 @@ test('supports HTML comments with @html-eslint', t => {
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				message: 'Past due date: 2000-01-01. Drop',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 			{
-				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update markup\'.',
+				message: 'Unexpected \'todo\': \'TODO: Update markup\'.',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -630,11 +630,11 @@ test('supports Markdown HTML comments with @eslint/markdown', t => {
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				message: 'Past due date: 2000-01-01. Drop',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 			{
-				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Update docs\'.',
+				message: 'Unexpected \'todo\': \'TODO: Update docs\'.',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -676,7 +676,7 @@ test('ignores HTML comments inside Markdown fenced code blocks', t => {
 		lintMarkdown('```html\n<!-- TODO [2000-01-01]: Inside fence -->\n```\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Outside fence',
+				message: 'Past due date: 2000-01-01. Outside fence',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -688,7 +688,7 @@ test('ignores HTML comments inside Markdown tilde fenced code blocks', t => {
 		lintMarkdown('~~~\n<!-- TODO [2000-01-01]: Inside fence -->\n~~~\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Outside fence',
+				message: 'Past due date: 2000-01-01. Outside fence',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -700,7 +700,7 @@ test('ignores HTML comments inside Markdown code', t => {
 		lintMarkdown('`<!-- TODO [2000-01-01]: Inline code -->`\n\n    <!-- TODO [2000-01-01]: Indented code -->\n\n<!-- TODO [2000-01-01]: Outside code -->'),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Outside code',
+				message: 'Past due date: 2000-01-01. Outside code',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -712,11 +712,11 @@ test('reports every TODO line inside a multi-line Markdown HTML comment', t => {
 		lintMarkdown('<!--\nTODO [2000-01-01]: First\nTODO [2000-01-01]: Second\n-->'),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. First',
+				message: 'Past due date: 2000-01-01. First',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Second',
+				message: 'Past due date: 2000-01-01. Second',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -728,7 +728,7 @@ test('handles an unterminated Markdown HTML comment without truncating its text'
 		lintMarkdown('<!-- TODO [2000-01-01]: Unterminated'),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Unterminated',
+				message: 'Past due date: 2000-01-01. Unterminated',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
@@ -767,11 +767,11 @@ test('supports CSS comments with @eslint/css', t => {
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
-				message: 'There is a TODO that is past due date: 2000-01-01. Drop',
+				message: 'Past due date: 2000-01-01. Drop',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 			{
-				message: 'Unexpected \'todo\' comment without any conditions: \'TODO: Add styles\'.',
+				message: 'Unexpected \'todo\': \'TODO: Add styles\'.',
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
