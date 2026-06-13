@@ -9,7 +9,6 @@ import {
 	getTypeSymbol,
 	isUnknownType,
 } from './types.js';
-import {getVariableByName} from './scope.js';
 
 const array = 'array';
 const nonArray = 'non-array';
@@ -28,9 +27,11 @@ const knownNonArrayTypeNames = new Set([
 	'ReadonlySet',
 	'WeakSet',
 ]);
-const typeReferenceValueOnlyDefinitionTypes = new Set([
-	'FunctionName',
-	'Variable',
+const typeReferenceDefinitionTypes = new Set([
+	'ClassName',
+	'ImportBinding',
+	'TSEnumName',
+	'Type',
 ]);
 
 const nonArrayExpressionTypes = new Set([
@@ -99,6 +100,21 @@ const getInterfaceType = (node, scope, visitedTypeReferenceNames) => {
 	return combineIntersectionTypes(node.extends.map(node => getInterfaceHeritageType(node, scope, visitedTypeReferenceNames)));
 };
 
+const getTypeReferenceDefinition = (typeReferenceName, scope) => {
+	while (scope) {
+		const definition = scope.set
+			.get(typeReferenceName)
+			?.defs
+			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
+
+		if (definition) {
+			return definition;
+		}
+
+		scope = scope.upper;
+	}
+};
+
 const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 	if (node.typeName.type !== 'Identifier') {
 		return unknown;
@@ -112,8 +128,7 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 
 	visitedTypeReferenceNames.add(typeReferenceName);
 
-	const typeVariable = getVariableByName(typeReferenceName, scope);
-	const definition = typeVariable?.defs.find(definition => !typeReferenceValueOnlyDefinitionTypes.has(definition.type));
+	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
 
 	if (!definition) {
 		visitedTypeReferenceNames.delete(typeReferenceName);

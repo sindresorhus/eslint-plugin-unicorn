@@ -614,10 +614,20 @@ test.typescript({
 		'function foo(set: Set<string>) { set.forEach(value => console.log(value)); }',
 		'function foo(set: ReadonlySet<string>) { set.forEach(value => console.log(value)); }',
 		'function foo(set: WeakSet<object>) { set.forEach(value => console.log(value)); }',
+		'function outer(Map) { function foo(map: Map<string, string>) { map.forEach(value => console.log(value)); } }',
+		'function outer(Set) { function foo(set: Set<string>) { set.forEach(value => console.log(value)); } }',
 		outdent`
 			type Array<T> = Map<T, T>;
 			function foo(collection: Array<string>) {
 				collection.forEach(value => console.log(value));
+			}
+		`,
+		outdent`
+			type Array<T> = Map<T, T>;
+			function outer(Array) {
+				function foo(collection: Array<string>) {
+					collection.forEach(value => console.log(value));
+				}
 			}
 		`,
 		outdent`
@@ -710,6 +720,23 @@ test.typescript({
 		},
 		{
 			code: outdent`
+				function outer(Array) {
+					function foo(array: Array<string>) {
+						array.forEach(value => console.log(value));
+					}
+				}
+			`,
+			output: outdent`
+				function outer(Array) {
+					function foo(array: Array<string>) {
+						for (const value of array) console.log(value);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
 				function foo(array: ReadonlyArray<string>) {
 					array.forEach(value => console.log(value));
 				}
@@ -774,6 +801,40 @@ test.typescript({
 			output: outdent`
 				type Map = string[];
 				function foo(array: Map) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Map = string[];
+				function outer(Map) {
+					function foo(array: Map) {
+						array.forEach(value => console.log(value));
+					}
+				}
+			`,
+			output: outdent`
+				type Map = string[];
+				function outer(Map) {
+					function foo(array: Map) {
+						for (const value of array) console.log(value);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Set = string[];
+				function foo(array: Set) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Set = string[];
+				function foo(array: Set) {
 					for (const value of array) console.log(value);
 				}
 			`,
