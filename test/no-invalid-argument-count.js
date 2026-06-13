@@ -68,18 +68,27 @@ test.snapshot({
 			code: 'function foo(this: void, value: string) {}\nfoo("value");',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const foo = function (this: void, value: string) {};\nfoo("value");',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'function foo(a, b) {}\nfoo(1);',
+		'foo(1);\nfunction foo(a, b) {}',
 		'function foo(a, b) {}\nfoo(1, 2, 3);',
 		'function foo() {}\nfoo(1);',
 		'function foo(a, b = 1) {}\nfoo();',
 		'function foo(a, b = 1) {}\nfoo(1, 2, 3);',
+		'function foo(a = 1, b) {}\nfoo(2);',
 		'function foo(a, ...rest) {}\nfoo();',
 		'const foo = function (a, b) {};\nfoo(1);',
 		'const foo = (a, b) => {};\nfoo(1, 2, 3);',
+		'const foo = (a, b) => {};\nfoo?.(1);',
 		'(function (a, b) {})(1);',
 		'((a, b) => {})(1, 2, 3);',
+		'(function (a, b) {})?.(1);',
+		'((a, b) => {})?.(1, 2, 3);',
 		outdent`
 			function foo() {
 				console.log(arguments);

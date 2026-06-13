@@ -9,7 +9,7 @@ const messages = {
 const formatArgumentCount = count => `${count} ${count === 1 ? 'argument' : 'arguments'}`;
 
 const isThisParameter = parameter =>
-	parameter.type === 'Identifier'
+	parameter?.type === 'Identifier'
 	&& parameter.name === 'this';
 
 const isOptionalParameter = parameter =>
@@ -18,7 +18,9 @@ const isOptionalParameter = parameter =>
 	|| parameter.optional === true;
 
 const getArity = functionNode => {
-	const parameters = functionNode.params.filter((parameter, index) => index > 0 || !isThisParameter(parameter));
+	const parameters = isThisParameter(functionNode.params[0])
+		? functionNode.params.slice(1)
+		: functionNode.params;
 	let minimum = parameters.length;
 	let hasRest = false;
 

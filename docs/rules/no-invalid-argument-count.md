@@ -49,11 +49,11 @@ sum(1);
 
 ```js
 // ✅
-function sum(first, ...rest) {
-	return rest.reduce((total, value) => total + value, first);
+function join(first, ...rest) {
+	return [first, ...rest].join('');
 }
 
-sum(1, 2, 3);
+join(1, 2, 3);
 ```
 
 ## Limitations
