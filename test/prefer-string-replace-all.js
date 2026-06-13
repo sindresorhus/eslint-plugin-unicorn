@@ -52,6 +52,15 @@ test.snapshot({
 		'const pattern = "not-a-regexp"; foo.replace(pattern, bar)',
 		'const pattern = new RegExp("foo", "i"); foo.replace(pattern, bar)',
 		'foo.replace(new NotRegExp("foo", "g"), bar)',
+		// `replaceAll()` with non-string-convertible regex
+		'foo.replaceAll(/a/gi, bar)',
+		'foo.replaceAll(/a/gy, bar)',
+		'foo.replaceAll(/./gs, bar)',
+		'foo.replaceAll(/^a/gm, bar)',
+		'foo.replaceAll(/[ab]/g, bar)',
+		'foo.replaceAll(/[a-z]/g, bar)',
+		'foo.replaceAll(/[^a]/g, bar)',
+		'foo.replaceAll(/(a)/g, bar)',
 
 		// `split().join()` unsupported cases
 		'foo.split("").join("b")',
@@ -111,6 +120,8 @@ test.snapshot({
 		'foo.replace(/a/ug, bar)',
 		// Special characters
 		'foo.replace(/[a]/g, bar)',
+		'foo.replace(/[.]/g, bar)',
+		String.raw`foo.replace(/[\n]/g, bar)`,
 		'foo.replace(/a?/g, bar)',
 		'foo.replace(/.*/g, bar)',
 		'foo.replace(/a|b/g, bar)',
@@ -121,7 +132,7 @@ test.snapshot({
 		String.raw`str.replace(/\u200B/g, '')`,
 		String.raw`str.replace(/\x20/g, '')`,
 		'foo.replace(/]/g, "bar")',
-		// Extra flag
+		// Extra flags
 		'foo.replace(/a/gs, bar)',
 		String.raw`foo.replace(/\./gs, bar)`,
 		'foo.replace(/a/gm, bar)',
@@ -139,9 +150,15 @@ test.snapshot({
 		'foo.replace(new RegExp("foo", "g"), bar)',
 
 		'foo.replace(/a]/g, _)',
-		'foo.replace(/[a]/g, _)',
+		'foo.replace(/[ab]/g, _)',
+		'foo.replace(/[a-z]/g, _)',
+		'foo.replace(/[^a]/g, _)',
 		'foo.replace(/a{1/g, _)',
 		'foo.replace(/a{1}/g, _)',
+		'foo.replace(/(?:a)/g, _)',
+		'foo.replace(/(?:ab)/g, _)',
+		'foo.replace(/(?:a){1}/g, _)',
+		'foo.replace(/(a)/g, _)',
 		String.raw`foo.replace(/\u0022/g, _)`,
 		String.raw`foo.replace(/\u0027/g, _)`,
 
@@ -158,6 +175,10 @@ test.snapshot({
 		String.raw`foo.replace(/\u{20}/gu, _)`,
 		String.raw`foo.replace(/\u{20}/gv, _)`,
 		String.raw`foo.replace(/\1/g, _)`,
+		String.raw`foo.replace(/\8/g, _)`,
+		String.raw`foo.replace(/\00/g, _)`,
+		String.raw`foo.replace(/\08/g, _)`,
+		String.raw`foo.replace(/\c_/g, _)`,
 
 		'foo.replaceAll(/a]/g, _)',
 		'foo?.replaceAll(/a/g, _)',
