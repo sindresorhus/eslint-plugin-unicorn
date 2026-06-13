@@ -194,7 +194,7 @@ function areDifferentKeys(left, right, context) {
 		isReference(left)
 		&& isReference(right)
 	) {
-		return !isSame(left, right);
+		return !isSameReferenceBinding(left, right, context);
 	}
 
 	return false;
@@ -264,28 +264,25 @@ function getMapAccessProblem(node, mapHasCall, context, reportedAccessKeys) {
 }
 
 function isSameMapReceiver(mapHasObject, mapAccessObject, context) {
-	if (!isSame(mapHasObject, mapAccessObject)) {
+	return isSameReferenceBinding(mapHasObject, mapAccessObject, context);
+}
+
+function isSameReferenceBinding(left, right, context) {
+	if (!isSame(left, right)) {
 		return false;
 	}
 
-	const mapHasRoot = getRootIdentifier(mapHasObject);
-	const mapAccessRoot = getRootIdentifier(mapAccessObject);
+	const leftRoot = getRootIdentifier(left);
+	const rightRoot = getRootIdentifier(right);
 
 	if (
-		!mapHasRoot
-		|| !mapAccessRoot
+		!leftRoot
+		|| !rightRoot
 	) {
 		return true;
 	}
 
-	const mapHasVariable = findVariable(context.sourceCode.getScope(mapHasRoot), mapHasRoot);
-	const mapAccessVariable = findVariable(context.sourceCode.getScope(mapAccessRoot), mapAccessRoot);
-
-	if (mapHasVariable || mapAccessVariable) {
-		return mapHasVariable === mapAccessVariable;
-	}
-
-	return true;
+	return isSameBinding(leftRoot, rightRoot, context);
 }
 
 function isSameBinding(left, right, context) {
@@ -312,6 +309,10 @@ function isMapReceiverWrite(node, mapHasCall, context) {
 
 	if (!mapHasRoot) {
 		return false;
+	}
+
+	if (node.type === 'VariableDeclaration') {
+		return node.declarations.some(declaration => declaration.init && patternContainsSameBinding(declaration.id, mapHasRoot, context));
 	}
 
 	if (node.type === 'AssignmentExpression') {
@@ -346,10 +347,50 @@ function isNestedMapHasGuard(node, mapHasCall, context) {
 		return false;
 	}
 
-	const nestedMapHasCall = getMapHasCall(node.test);
+	return hasSameMapHasCall(node.test, mapHasCall, context);
+}
 
-	return nestedMapHasCall
-		&& isSameMapReceiver(unwrapExpression(mapHasCall).callee.object, unwrapExpression(nestedMapHasCall).callee.object, context);
+function hasSameMapHasCall(node, mapHasCall, context) {
+	const {visitorKeys} = context.sourceCode;
+	let result = false;
+
+	function visit(node) {
+		if (
+			result
+			|| !node
+			|| skippedNodeTypes.has(node.type)
+		) {
+			return;
+		}
+
+		const nestedMapHasCall = getMapHasCall(node);
+
+		if (
+			nestedMapHasCall
+			&& isSameMapReceiver(unwrapExpression(mapHasCall).callee.object, unwrapExpression(nestedMapHasCall).callee.object, context)
+		) {
+			result = true;
+			return;
+		}
+
+		for (const key of visitorKeys[node.type] ?? []) {
+			const child = node[key];
+
+			if (Array.isArray(child)) {
+				for (const childNode of child) {
+					visit(childNode);
+				}
+
+				continue;
+			}
+
+			visit(child);
+		}
+	}
+
+	visit(node);
+
+	return result;
 }
 
 function hasMapReceiverWrite(node, mapHasCall, context) {

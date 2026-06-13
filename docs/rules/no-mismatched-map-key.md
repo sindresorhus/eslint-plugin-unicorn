@@ -11,6 +11,8 @@ When you check a key with `Map#has()`, accesses to the same map in the guarded b
 
 This rule intentionally only reports simple, obvious cases.
 
+Branches that reassign the checked map receiver are ignored.
+
 ## Examples
 
 ```js
