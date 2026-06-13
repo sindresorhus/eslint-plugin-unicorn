@@ -60,6 +60,7 @@ test.snapshot({
 		typescript('export type Set<T> = {values(): T[]}; function foo(set: Set<string>) { return Object.values(set); }'),
 		typescript('function foo(collection: Map<string, number> | Set<string>) { return Object.entries(collection); }'),
 		typeAware('export {}; class Map { keys() { return []; } } const map = new Map(); Object.keys(map);'),
+		typeAware('interface Map<K, V> { keys(): K[] } declare const map: Map<string, number>; Object.keys(map);'),
 		typeAware('export {}; interface Map<K, V> { keys(): K[] } declare const map: Map<string, number>; Object.keys(map);'),
 		typeAware('export {}; type Map<K, V> = {keys(): K[]}; declare const map: Map<string, number>; Object.keys(map);'),
 		typeAware('interface Collection { keys(): string[]; } declare const collection: Collection; Object.keys(collection);'),

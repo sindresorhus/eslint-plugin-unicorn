@@ -141,6 +141,16 @@ const getTypesFromType = (type, program) => {
 	return collectionType && getTypeSet(collectionType);
 };
 
+const hasUserDefinedCollectionType = (types, node) => {
+	for (const type of types) {
+		if (hasUserDefinedTypeName(type, node)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const getTypesFromTypeInformation = (node, context) => {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
@@ -149,10 +159,14 @@ const getTypesFromTypeInformation = (node, context) => {
 
 	try {
 		const {program} = parserServices;
-		return getTypesFromType(
+		const types = getTypesFromType(
 			parserServices.getTypeAtLocation(node),
 			program,
 		);
+
+		if (types && !hasUserDefinedCollectionType(types, node)) {
+			return types;
+		}
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
 	}
