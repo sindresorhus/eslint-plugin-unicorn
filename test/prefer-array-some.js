@@ -98,18 +98,6 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.find(fn)) {} }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'const hasFoo: Item | undefined = foo.find(fn); if (hasFoo) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -257,6 +245,12 @@ test({
 			method: 'find',
 		}),
 		invalidCase({
+			code: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.find(fn)) {} }',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: 'type Items = string[] | {find(predicate: Function): unknown}; function foo(items: Items) { if (items.some(fn)) {} }',
+			method: 'find',
+		}),
+		invalidCase({
 			code: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).find(fn)) {}',
 			languageOptions: {parser: parsers.typescript},
 			suggestionOutput: 'type Collection = {find(predicate: Function): unknown}; if (([] satisfies Collection).some(fn)) {}',
@@ -354,6 +348,10 @@ test.snapshot({
 			code: 'type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware('declare function getItems(): string[]; getItems().filter(fn).length > 0;'),
 		outdent`
 			if (
@@ -408,6 +406,10 @@ test.snapshot({
 		'foo.findIndex(element => element.bar === 1) !== (( - 1 ))',
 		{
 			code: 'type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Items = string[] | {findIndex(predicate: Function): number}; function foo(items: Items) { items.findIndex(fn) !== -1; }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare function getItems(): string[]; getItems().findIndex(fn) !== -1;'),

@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -16,6 +16,22 @@ test.snapshot({
 		'({[innerText]: text} = node);',
 		'const foo = {innerText}',
 		'const foo = {innerText: text}',
+		{
+			code: 'interface Value {innerText: string} declare const value: Value; value.innerText;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface Value {innerText: string} declare const value: Value; const {innerText} = value;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface Value {innerText: string} declare const value: Value; let innerText; ({innerText} = value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface Value {innerText: string} function foo({innerText}: Value) { return innerText; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'node.innerText;',

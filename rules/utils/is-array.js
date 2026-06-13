@@ -5,6 +5,10 @@ import {
 	isNewExpression,
 } from '../ast/index.js';
 import typedArray from '../shared/typed-array.js';
+import {
+	getTypeSymbol,
+	isUnknownType,
+} from './types.js';
 
 const array = 'array';
 const nonArray = 'non-array';
@@ -53,7 +57,7 @@ const combineUnionTypes = types => {
 		return array;
 	}
 
-	if (!types.includes(unknown) && types.includes(nonArray)) {
+	if (types.every(type => type === nonArray)) {
 		return nonArray;
 	}
 
@@ -182,7 +186,7 @@ const getTypeAnnotationType = (node, scope, visitedTypeReferenceNames = new Set(
 };
 
 const getTypeScriptType = (type, checker) => {
-	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
+	if (isUnknownType(type)) {
 		return unknown;
 	}
 
@@ -200,7 +204,15 @@ const getTypeScriptType = (type, checker) => {
 		return combineIntersectionTypes(type.types.map(type => getTypeScriptType(type, checker)));
 	}
 
-	return checker.isArrayType(type) || checker.isTupleType(type) ? array : nonArray;
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return array;
+	}
+
+	if (type.intrinsicName) {
+		return nonArray;
+	}
+
+	return getTypeSymbol(type) ? nonArray : unknown;
 };
 
 const getTypeFromTypeInformation = (node, context) => {
@@ -226,7 +238,13 @@ const getTypeFromStaticValue = (node, scope) => {
 		return unknown;
 	}
 
-	return Array.isArray(result.value) ? array : nonArray;
+	if (Array.isArray(result.value)) {
+		return array;
+	}
+
+	return node.type === 'Identifier' || node.type === 'MemberExpression'
+		? unknown
+		: nonArray;
 };
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
@@ -244,7 +262,8 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 	visitedVariables.add(variable);
 
 	const [definition] = variable.defs;
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, scope);
+	const definitionScope = context.sourceCode.getScope(definition.name);
+	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope);
 	let type = unknown;
 
 	if (typeFromAnnotation !== unknown) {

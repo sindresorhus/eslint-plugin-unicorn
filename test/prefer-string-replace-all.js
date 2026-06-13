@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const dollarSign = '$';
@@ -78,6 +78,14 @@ test.snapshot({
 		'foo.split(/a/y).join("b")',
 		'foo.split?.("a").join("b")',
 		'foo.split("a").join?.("b")',
+		{
+			code: 'function foo(collection: {replace(pattern: RegExp, replacement: string): string}) { collection.replace(/a/g, "b"); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(collection: {split(separator: string): string[]}) { collection.split("a").join("b"); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo[split]("a").join("b")',
 		'foo.split("a")[join]("b")',
 		outdent`

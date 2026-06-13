@@ -77,6 +77,22 @@ test({
 		'"foo".indexOf(..."bar") === 0',
 		// `indexOf` — `new String()` returns an object, not a string primitive
 		'new String("foo").indexOf("bar") === 0',
+		{
+			code: 'function foo(value: number) { /^foo/.test(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(values: string[]) { return values.indexOf("x") === 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: [string]) { return value.indexOf("x") === 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Value = {indexOf(searchString: string): number}; const value: Value = {} as never; { type Value = string; value.indexOf("x") === 0; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		...invalidRegex.map(re => {
@@ -127,6 +143,12 @@ test({
 			code: 'const foo = "hello"; /^abc/.test(foo);',
 			output: 'const foo = "hello"; foo.startsWith(\'abc\');',
 			errors: [{messageId: MESSAGE_STARTS_WITH}],
+		},
+		{
+			code: 'const value = "hello"; /^abc/.test(value satisfies {startsWith(searchString: string): boolean});',
+			output: 'const value = "hello"; (value satisfies {startsWith(searchString: string): boolean}).startsWith(\'abc\');',
+			errors: [{messageId: MESSAGE_STARTS_WITH}],
+			languageOptions: {parser: parsers.typescript},
 		},
 		// Parenthesized
 		{

@@ -2,6 +2,7 @@ import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	getParenthesizedRange,
+	isKnownNonString,
 	isSameReference,
 } from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
@@ -182,6 +183,10 @@ function * fixSubstringArguments({node, fixer, context, abort}) {
 const create = context => {
 	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {methods: ['substr', 'substring']})) {
+			return;
+		}
+
+		if (isKnownNonString(node.callee.object, context)) {
 			return;
 		}
 

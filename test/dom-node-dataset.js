@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -29,6 +29,10 @@ test.snapshot({
 		// First Argument is not startsWith `data-`
 		'element.setAttribute(\'foo-unicorn\', \'🦄\');',
 		'element.setAttribute(\'data\', \'🦄\');',
+		{
+			code: 'interface Locator {setAttribute(name: string, value: string): void} declare const locator: Locator; locator.setAttribute("data-unicorn", "value");',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		outdent`

@@ -6,7 +6,7 @@ import {
 	isNewExpression,
 	isMethodCall,
 } from './ast/index.js';
-import {escapeString, getParenthesizedText} from './utils/index.js';
+import {escapeString, getParenthesizedText, isKnownNonString} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 const MESSAGE_ID_USE_REPLACE_ALL = 'method';
@@ -290,6 +290,10 @@ const getSplitJoinReplacement = (node, context) => {
 	}
 
 	const splitCall = node.callee.object;
+	if (isKnownNonString(splitCall.callee.object, context)) {
+		return;
+	}
+
 	const [separator] = splitCall.arguments;
 	const [replacement] = node.arguments;
 	const separatorValue = getStaticStringValue(separator);
@@ -342,6 +346,11 @@ const create = context => {
 			arguments: callArguments,
 			callee: {property},
 		} = node;
+
+		if (isKnownNonString(node.callee.object, context)) {
+			return;
+		}
+
 		const [pattern] = callArguments;
 
 		if (!isRegExpWithGlobalFlag(pattern, context.sourceCode.getScope(pattern))) {

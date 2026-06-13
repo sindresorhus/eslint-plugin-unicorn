@@ -4,6 +4,7 @@ import {
 	getIndentString,
 	getParenthesizedText,
 	hasOptionalChainElement,
+	isKnownNonDomNode,
 	isParenthesized,
 	isValueNotUsable,
 	needsSemicolon,
@@ -161,7 +162,10 @@ const create = context => {
 		const {sourceCode} = context;
 
 		const getHasAttributeReport = (reportNode, keyNode, datasetNode) => {
-			if (isUnsafeDatasetKey(keyNode.value)) {
+			if (
+				isUnsafeDatasetKey(keyNode.value)
+				|| isKnownNonDomNode(datasetNode.object, context)
+			) {
 				return;
 			}
 
@@ -237,6 +241,10 @@ const create = context => {
 				return;
 			}
 
+			if (isKnownNonDomNode(declarator.init.object, context)) {
+				return;
+			}
+
 			const {properties} = declarator.id;
 
 			// Skip the whole pattern if any destructured key can't safely map to a
@@ -300,6 +308,10 @@ const create = context => {
 		context.on('MemberExpression', memberExpression => {
 			const {object} = memberExpression;
 			if (!isDatasetAccess(object)) {
+				return;
+			}
+
+			if (isKnownNonDomNode(object.object, context)) {
 				return;
 			}
 
@@ -413,7 +425,12 @@ const create = context => {
 			return;
 		}
 
+		if (isKnownNonDomNode(callExpression.callee.object, context)) {
+			return;
+		}
+
 		const method = callExpression.callee.property.name;
+
 		// Playwright's `Locator#getAttribute()` returns a promise.
 		// https://playwright.dev/docs/api/class-locator#locator-get-attribute
 		// `ChainExpression` wraps `await locator?.getAttribute(…)`, so unwrap it

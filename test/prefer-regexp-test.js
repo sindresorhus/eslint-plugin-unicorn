@@ -419,6 +419,20 @@ ruleTest.typescript({
 				},
 			],
 		},
+		{
+			code: 'function foo(regexp: RegExp, value: string) { if (regexp.exec(value)) {} }',
+			errors: [
+				{
+					message: 'Prefer `.test(…)` over `.exec(…)`.',
+					suggestions: [
+						{
+							desc: 'Switch to `RegExp#test(…)`.',
+							output: 'function foo(regexp: RegExp, value: string) { if (regexp.test(value)) {} }',
+						},
+					],
+				},
+			],
+		},
 	],
 });
 

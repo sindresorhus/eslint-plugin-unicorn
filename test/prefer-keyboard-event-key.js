@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -21,6 +21,10 @@ const errorWithSuggestion = (key, keyboardKey, output) => ({
 
 test({
 	valid: [
+		{
+			code: 'element.addEventListener("click", (event: MouseEvent) => event.keyCode);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			window.addEventListener('click', e => {
 				console.log(e.key);

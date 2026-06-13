@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -35,6 +35,7 @@ test.snapshot({
 		// Allowed
 		'Children.map(children, fn).flat()', // `import {Children} from 'react';`
 		'React.Children.map(children, fn).flat()',
+		'const observable = new Observable(); observable.map(value => [value]).flat();',
 	],
 	invalid: [
 		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
@@ -45,6 +46,10 @@ test.snapshot({
 		'const bar = [1,2,3].map(foo).flat()',
 		'const bar = foo.map(i => [i]).flat()',
 		'const bar = foo?.map(i => [i]).flat()',
+		{
+			code: 'function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const bar = { map: () => {} }.map(i => [i]).flat()',
 		'const bar = [1,2,3].map(i => i).map(i => [i]).flat()',
 		'const bar = [1,2,3].sort().map(i => [i]).flat()',
