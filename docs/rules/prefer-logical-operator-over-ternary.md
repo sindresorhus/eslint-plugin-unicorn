@@ -51,6 +51,22 @@ bar ?? foo;
 ```
 
 ```js
+// ❌
+foo == null ? bar : foo;
+
+// ✅
+foo ?? bar;
+```
+
+```js
+// ❌
+foo == null ? undefined : foo.bar;
+
+// ✅
+foo?.bar;
+```
+
+```js
 // ✅
 foo ? bar : baz;
 ```

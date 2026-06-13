@@ -9,6 +9,30 @@ test.snapshot({
 		'foo.bar ? foo.bar1 : foo.baz',
 		'foo.bar ? foo1.bar : foo.baz',
 		'++foo ? ++foo : bar;',
+		'foo == null ? foo : bar;',
+		'foo == undefined ? foo : bar;',
+		'foo == false ? bar : foo;',
+		'foo == true ? foo : bar;',
+		'foo == null ? foo : foo.bar;',
+		'foo == undefined ? foo : foo.bar;',
+		'foo == null ? /* keep */ bar : foo;',
+		'foo == null ? /* keep */ undefined : foo.bar;',
+		'foo == null ? undefined : foo /* comment */ .bar;',
+		'delete (foo == null ? undefined : foo.bar);',
+		'(foo == null ? undefined : foo.bar)();',
+		'(foo == null ? undefined : foo.bar)`tagged`;',
+		{
+			code: 'delete ((foo == null ? undefined : foo.bar) as unknown);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '((foo == null ? undefined : foo.bar) as (() => void))();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '((foo == null ? undefined : foo.bar) as typeof tag)`tagged`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Not checking
 		'!!bar ? foo : bar;',
@@ -19,6 +43,16 @@ test.snapshot({
 		'foo?.bar ? foo.bar : baz',
 		'!bar ? foo : bar;',
 		'!!bar ? foo : !bar;',
+		'foo == null ? bar : foo;',
+		'foo == undefined ? bar : foo;',
+		'null == foo ? bar : foo;',
+		'undefined == foo ? bar : foo;',
+		'foo == null ? undefined : foo.bar;',
+		'foo == undefined ? undefined : foo.bar;',
+		'foo == null ? undefined : foo[bar];',
+		'foo == null ? undefined : (foo).bar;',
+		'null == foo ? undefined : foo.bar;',
+		'undefined == foo ? undefined : foo.bar;',
 
 		'foo() ? foo() : bar',
 
@@ -59,6 +93,22 @@ test.snapshot({
 		},
 		{
 			code: 'foo.bar! ? foo.bar! : foo.baz',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo == null ? undefined : (foo as Foo).bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo == null ? undefined : (foo satisfies Foo).bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo as Foo) == null ? undefined : foo.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo satisfies Foo) == null ? undefined : foo.bar;',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
