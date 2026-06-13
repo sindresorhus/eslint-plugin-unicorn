@@ -21,6 +21,18 @@ test.snapshot({
 		'delete (foo == null ? undefined : foo.bar);',
 		'(foo == null ? undefined : foo.bar)();',
 		'(foo == null ? undefined : foo.bar)`tagged`;',
+		{
+			code: 'delete ((foo == null ? undefined : foo.bar) as unknown);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '((foo == null ? undefined : foo.bar) as (() => void))();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '((foo == null ? undefined : foo.bar) as typeof tag)`tagged`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Not checking
 		'!!bar ? foo : bar;',

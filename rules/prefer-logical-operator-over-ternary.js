@@ -10,6 +10,7 @@ import {
 	isSameReference,
 	shouldAddParenthesesToLogicalExpressionChild,
 	needsSemicolon,
+	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -176,21 +177,30 @@ function getNullishCheckReference(node) {
 }
 
 function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
-	const {parent} = conditionalExpression;
+	let node = conditionalExpression;
+	let {parent} = node;
+
+	while (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		node = parent;
+		parent = node.parent;
+	}
 
 	return (
 		(
 			parent.type === 'UnaryExpression'
 			&& parent.operator === 'delete'
-			&& parent.argument === conditionalExpression
+			&& parent.argument === node
 		)
 		|| (
 			parent.type === 'CallExpression'
-			&& parent.callee === conditionalExpression
+			&& parent.callee === node
 		)
 		|| (
 			parent.type === 'TaggedTemplateExpression'
-			&& parent.tag === conditionalExpression
+			&& parent.tag === node
 		)
 	);
 }

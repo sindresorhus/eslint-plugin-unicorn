@@ -32,6 +32,7 @@ test.snapshot({
 		'foo.bar && foo?.baz;',
 		'foo?.[bar] || foo[bar];',
 		'foo[bar] && foo?.[baz];',
+		'foo[bar]?.baz || foo[bar].qux;',
 		'this?.bar || this.baz;',
 		'this.bar && this?.baz;',
 		'class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } }',
@@ -42,6 +43,7 @@ test.snapshot({
 		'(foo).bar || (foo)?.baz;',
 		'foo.bar && foo /* comment */ ?.baz;',
 		'foo?.bar || foo /* comment */ .baz;',
+		'foo?.[bar] || foo /* comment */ [baz];',
 		{
 			code: '(foo as Foo).bar || foo?.baz;',
 			languageOptions: {parser: parsers.typescript},
