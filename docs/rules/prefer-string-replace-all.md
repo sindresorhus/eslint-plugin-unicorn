@@ -45,6 +45,8 @@ string.replace(/Works for u flag too/gu, '');
 string.replaceAll('Works for u flag too', '');
 ```
 
+Simple literal regexes can also be converted when they use flags that do not affect literal matching, such as `d`, `m`, `s`, `u`, and `v`. Regexes with `i` or `y` are preserved as regexes.
+
 ```js
 // ❌
 string.replaceAll(/foo/g, 'bar');

@@ -19,18 +19,33 @@ const messages = {
 };
 
 const QUOTE = '\'';
+const flagsAllowedForStringReplacement = new Set(['d', 'g', 'm', 's', 'u', 'v']);
 const zeroLengthRegExpNodeTypes = new Set([
 	'anchor',
 	'reference',
 ]);
+
+function canFlagsBeIgnoredForStringReplacement(flags) {
+	if (!flags.includes('g')) {
+		return false;
+	}
+
+	for (const flag of flags) {
+		if (!flagsAllowedForStringReplacement.has(flag)) {
+			return false;
+		}
+	}
+
+	return true;
+}
 
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
 	}
 
-	const {flags} = node.regex;
-	if (flags.replace('u', '').replace('v', '') !== 'g') {
+	const {pattern, flags} = node.regex;
+	if (!canFlagsBeIgnoredForStringReplacement(flags)) {
 		return;
 	}
 
