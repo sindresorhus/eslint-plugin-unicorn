@@ -1,4 +1,9 @@
-import {isEslintDisableOrEnableDirective, getComments, normalizeComment, onRoot} from './utils/index.js';
+import {
+	isEslintDisableOrEnableDirective,
+	getComments,
+	normalizeComment,
+	onRoot,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-manually-wrapped-comments';
 const messages = {
@@ -103,7 +108,7 @@ const fixCommentGroup = (context, comments) => fixer => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	onRoot(context, function * () {
-		const comments = getComments(context).map(comment => normalizeComment(comment, context.sourceCode));
+		const comments = getComments(context).map(comment => normalizeComment(comment, context));
 
 		for (let index = 0; index < comments.length; index++) {
 			const group = [comments[index]];

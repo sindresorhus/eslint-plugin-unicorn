@@ -1,4 +1,9 @@
-import {getComments, isEslintDisableOrEnableDirective, normalizeComment, onRoot} from './utils/index.js';
+import {
+	getComments,
+	isEslintDisableOrEnableDirective,
+	normalizeComment,
+	onRoot,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -227,7 +232,7 @@ function getMarkdownHtmlComments(sourceCode) {
 function getRuleComments(context) {
 	const commentsFromHelper = getComments(context);
 	const comments = (commentsFromHelper.length > 0 ? commentsFromHelper : context.sourceCode.comments ?? [])
-		.map(comment => normalizeComment(comment, context.sourceCode));
+		.map(comment => normalizeComment(comment, context));
 
 	if (comments.length > 0 || !shouldUseRawCommentFallback(context)) {
 		return comments;

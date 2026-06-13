@@ -359,7 +359,7 @@ const create = context => {
 	const comments = [...getComments(context), ...markdownComments];
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
-		.map(comment => normalizeComment(comment, sourceCode))
+		.map(comment => normalizeComment(comment, context))
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*
