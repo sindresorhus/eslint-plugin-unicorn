@@ -1,6 +1,6 @@
 # prefer-number-is-safe-integer
 
-📝 Prefer `Number.isSafeInteger()` over `Number.isInteger()`.
+📝 Prefer `Number.isSafeInteger()` over integer checks.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -11,7 +11,11 @@
 
 [`Number.isSafeInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger) checks that a value is an integer _and_ that it can be exactly represented, that is, it is within the safe integer range `[-(2 ** 53 - 1), 2 ** 53 - 1]`. [`Number.isInteger()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger) returns `true` for larger integers that can no longer be represented precisely, which is rarely what you want.
 
-This rule only provides a suggestion, not an automatic fix, because the two methods are not equivalent: `Number.isInteger(2 ** 53)` is `true` while `Number.isSafeInteger(2 ** 53)` is `false`. Review each case before applying the suggestion, especially negated checks like `!Number.isInteger(x)`, where switching to `Number.isSafeInteger()` widens the set of values treated as “not an integer”.
+This rule also reports common integer checks like `value % 1 === 0`, `Math.trunc(value) === value`, `Math.floor(value) === value`, and Lodash/Underscore `isInteger()`/`isSafeInteger()` calls.
+
+This rule only provides a suggestion, not an automatic fix, because these checks are not all equivalent: `Number.isInteger(2 ** 53)` is `true` while `Number.isSafeInteger(2 ** 53)` is `false`, and `[['1']] % 1 === 0` is `true` while `Number.isSafeInteger([['1']])` is `false`. Review each case before applying the suggestion, especially negated checks like `!Number.isInteger(x)`, where switching to `Number.isSafeInteger()` widens the set of values treated as “not an integer”.
+
+This rule intentionally ignores less clear coercion and truncation patterns like bitwise integer checks, `parseInt(value, 10) === value`, and `Math.round(value) === value`.
 
 ## Examples
 
@@ -53,5 +57,29 @@ function processId(id) {
 		throw new Error('Invalid ID');
 	}
 	// id is guaranteed to be safely representable
+}
+```
+
+```js
+// ❌
+if (value % 1 === 0) {
+	console.log('Integer');
+}
+
+// ✅
+if (Number.isSafeInteger(value)) {
+	console.log('Safe integer');
+}
+```
+
+```js
+// ❌
+if (_.isInteger(value)) {
+	console.log('Integer');
+}
+
+// ✅
+if (Number.isSafeInteger(value)) {
+	console.log('Safe integer');
 }
 ```
