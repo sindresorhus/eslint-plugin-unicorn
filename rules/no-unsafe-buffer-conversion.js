@@ -39,6 +39,7 @@ const bytesPerElementByTypedArrayConstructor = new Map([
 const typedArrayConstructors = new Set(bytesPerElementByTypedArrayConstructor.keys());
 
 const arrayBufferLikeTypeNames = new Set(['ArrayBuffer', 'SharedArrayBuffer', 'ArrayBufferLike']);
+const arrayBufferViewTypeNames = new Set([...typedArrayConstructors, 'DataView', 'ArrayBufferView']);
 
 const getTypeProperty = (type, checker, propertyName) =>
 	checker.getPropertyOfType(type, propertyName) ?? checker.getPropertyOfType(checker.getApparentType(type), propertyName);
@@ -152,7 +153,7 @@ function getArrayBufferViewTypeInfo(type, checker, program) {
 		}
 
 		const symbol = getTypeSymbol(type);
-		if (isDefaultLibrarySymbol(symbol, program) && typedArrayConstructors.has(symbol.getName())) {
+		if (isDefaultLibrarySymbol(symbol, program) && arrayBufferViewTypeNames.has(symbol.getName())) {
 			return typeInfo(true);
 		}
 
@@ -508,8 +509,7 @@ const create = context => {
 
 	context.on('CallExpression', node =>
 		getBufferFromProblem(node, context)
-		?? getArrayBufferSliceProblem(node, context),
-	);
+		?? getArrayBufferSliceProblem(node, context));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
