@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // Index access
 test.snapshot({
@@ -70,6 +80,76 @@ test.snapshot({
 			code: 'array![array!.length - 1]',
 			languageOptions: {parser: parsers.typescript},
 		},
+	],
+});
+
+// String index access
+test.snapshot({
+	valid: [
+		'array[0]',
+		'unknown[0]',
+		'1[0]',
+		'({0: "a"})[0]',
+		'const object = {0: "a"}; object[0]',
+		'string[unknown]',
+		'string[-1]',
+		'string[1.5]',
+		'string[1n]',
+		'string[0] = value',
+		{
+			code: 'function foo(value: string | number) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: number) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		'"string"[1]',
+		'`string`[1]',
+		'String(value)[0]',
+		'String.fromCodePoint(65)[0]',
+		'(typeof value)[0]',
+		'const string = "string"; string[1]',
+		{
+			code: '(value as string)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(value satisfies string)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<string>value)[0]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string) { return value![0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const value: string | number = "string"; value[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const value: unknown = "string"; value[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type StringAlias = string; function foo(value: StringAlias) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type StringUnion = "a" | "b"; function foo(value: StringUnion) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare function getValue(): string; getValue()[0];'),
+		typeAware('type Value = ReturnType<() => string>; declare const value: Value; value[0];'),
 	],
 });
 

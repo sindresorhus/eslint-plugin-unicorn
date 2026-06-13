@@ -317,6 +317,13 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
+		// TS: type alias
+		{
+			code: 'type StringAlias = string; function foo(bar: StringAlias) { return bar.indexOf("x") === 0; }',
+			output: 'type StringAlias = string; function foo(bar: StringAlias) { return bar.startsWith("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
 		// TS: as string
 		{
 			code: '(foo as string).indexOf("x") === 0',
