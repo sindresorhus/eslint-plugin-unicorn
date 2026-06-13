@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import fs, {promises as fsAsync} from 'node:fs';
+import fs from 'node:fs';
 import process from 'node:process';
 import {pathToFileURL} from 'node:url';
 import enquirer from 'enquirer';
@@ -29,14 +29,14 @@ async function renameFile(source, target) {
 	target = resolveFile(target);
 
 	if (fs.existsSync(source)) {
-		await fsAsync.rename(source, target);
+		await fs.promises.rename(source, target);
 	}
 }
 
 async function sortReadmeRuleRow(ruleId) {
 	const readmeFile = resolveFile('readme.md');
-	const text = await fsAsync.readFile(readmeFile, 'utf8');
-	await fsAsync.writeFile(readmeFile, sortReadmeRuleRows(text, ruleId));
+	const text = await fs.promises.readFile(readmeFile, 'utf8');
+	await fs.promises.writeFile(readmeFile, sortReadmeRuleRows(text, ruleId));
 }
 
 function sortReadmeRuleRows(text, ruleId) {
@@ -95,12 +95,12 @@ async function renameRule(from, to) {
 		}
 
 		// eslint-disable-next-line no-await-in-loop
-		let text = await fsAsync.readFile(file, 'utf8');
+		let text = await fs.promises.readFile(file, 'utf8');
 		text = file.pathname.endsWith('/rules/index.js')
 			? replaceRuleIdInRulesIndex(text, from, to)
 			: text.replaceAll(from, () => to);
 		// eslint-disable-next-line no-await-in-loop
-		await fsAsync.writeFile(file, text);
+		await fs.promises.writeFile(file, text);
 	}
 
 	await sortReadmeRuleRow(to);

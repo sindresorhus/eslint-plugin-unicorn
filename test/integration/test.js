@@ -2,7 +2,7 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {parseArgs} from 'node:util';
+import * as util from 'node:util';
 import {Listr} from 'listr2';
 import spawn from 'nano-spawn';
 import styleText from 'node-style-text';
@@ -34,7 +34,7 @@ const {
 		group,
 	},
 	positionals: projectsArguments,
-} = parseArgs({
+} = util.parseArgs({
 	options: {
 		group: {
 			type: 'string',

@@ -56,13 +56,37 @@ const namedError = {
 	},
 };
 
-const nodeBuiltinModulesError = (moduleName, style) => ({
-	messageId: 'nodeBuiltinModules',
+const nodeFsDefaultError = {
+	messageId: 'importStyle',
 	data: {
-		style,
-		moduleName,
+		allowedStyles: 'default',
+		moduleName: 'node:fs',
 	},
-});
+};
+
+const nodeFsPromisesDefaultError = {
+	messageId: 'importStyle',
+	data: {
+		allowedStyles: 'default',
+		moduleName: 'node:fs/promises',
+	},
+};
+
+const nodePathDefaultError = {
+	messageId: 'importStyle',
+	data: {
+		allowedStyles: 'default',
+		moduleName: 'node:path',
+	},
+};
+
+const nodeUtilityNamespaceError = {
+	messageId: 'importStyle',
+	data: {
+		allowedStyles: 'namespace',
+		moduleName: 'node:util',
+	},
+};
 
 const addDefaultOptions = test => {
 	if (typeof test === 'string') {
@@ -135,7 +159,7 @@ test({
 			options: [],
 		},
 		{
-			code: 'import {inspect} from \'node:util\'',
+			code: 'import * as util from \'node:util\'',
 			options: [],
 		},
 		{
@@ -143,7 +167,7 @@ test({
 			options: [],
 		},
 		{
-			code: 'const {inspect} = require(\'node:util\')',
+			code: 'const util = require(\'node:util\')',
 			options: [],
 		},
 		{
@@ -217,109 +241,47 @@ test({
 			}],
 		},
 		{
-			code: 'import * as fs from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
 			code: 'import fs from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'default',
-			}],
 		},
 		{
-			code: 'import {readFile} from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
+			code: 'import fsPromises from \'node:fs/promises\'',
 		},
 		{
-			code: 'import {readFile} from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'default',
-			}],
-		},
-		{
-			code: 'import \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
-			code: 'import(\'node:fs\')',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
-			code: 'async () => { const fs = await import(\'node:fs\'); }',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
-			code: 'import * as fsPromises from \'node:fs/promises\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
-			code: 'import unknown from \'node:unknown\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
+			code: 'import path from \'node:path\'',
 		},
 		{
 			code: 'import * as util from \'node:util\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-		},
-		{
-			code: 'import util from \'node:util\'',
-			options: [{
-				nodeBuiltinModules: 'default',
-			}],
-		},
-		{
-			code: 'import * as fs from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'default',
-				styles: {
-					'node:fs': {
-						namespace: true,
-					},
-				},
-			}],
 		},
 		{
 			code: 'import fs from \'node:fs\'',
 			options: [{
-				nodeBuiltinModules: 'namespace',
 				styles: {
 					'node:fs': false,
 				},
 			}],
 		},
 		{
-			code: 'import fs from \'fs\'',
+			code: 'import * as fs from \'node:fs\'',
 			options: [{
-				nodeBuiltinModules: 'namespace',
+				styles: {
+					'node:fs': {
+						default: false,
+						namespace: true,
+					},
+				},
 			}],
+		},
+		{
+			code: 'import fs from \'fs\'',
+		},
+		{
+			code: 'import unknown from \'node:unknown\'',
 		},
 		{
 			code: 'const fs = require(\'node:fs\')',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
 		},
 		{
-			code: 'export * from \'node:fs\'',
-			options: [{
-				checkExportFrom: true,
-				nodeBuiltinModules: 'default',
-			}],
+			code: 'import(\'node:unknown\')',
 		},
 
 		'require(1, 2, 3)',
@@ -331,7 +293,7 @@ test({
 				const {red} = await import(variable);
 			}
 		`,
-		// `node:util` only allow `named`, set to `false` should allow any style
+		// `node:util` only allows `namespace`, set to `false` should allow any style
 		{
 			code: `
 				import util from "node:util";
@@ -346,7 +308,7 @@ test({
 				},
 			],
 		},
-		// Overriding a default style with `{named: false}` should allow any style, not flag as banned
+		// Overriding a default style with `{namespace: false}` should allow any style, not flag as banned
 		{
 			code: `
 				import util from "node:util";
@@ -356,7 +318,7 @@ test({
 			options: [
 				{
 					styles: {
-						'node:util': {named: false},
+						'node:util': {namespace: false},
 					},
 				},
 			],
@@ -685,44 +647,32 @@ test({
 			errors: [defaultError],
 		},
 		{
-			code: 'import fs from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-			errors: [nodeBuiltinModulesError('node:fs', 'namespace')],
-		},
-		{
 			code: 'import * as fs from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'default',
-			}],
-			errors: [nodeBuiltinModulesError('node:fs', 'default')],
+			errors: [nodeFsDefaultError],
 		},
 		{
-			code: 'import {default as fs} from \'node:fs\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-			errors: [nodeBuiltinModulesError('node:fs', 'namespace')],
+			code: 'import {readFile} from \'node:fs\'',
+			errors: [nodeFsDefaultError],
 		},
 		{
-			code: 'import fsPromises from \'node:fs/promises\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-			errors: [nodeBuiltinModulesError('node:fs/promises', 'namespace')],
+			code: 'import * as fsPromises from \'node:fs/promises\'',
+			errors: [nodeFsPromisesDefaultError],
+		},
+		{
+			code: 'import * as path from \'node:path\'',
+			errors: [nodePathDefaultError],
 		},
 		{
 			code: 'import util from \'node:util\'',
-			options: [{
-				nodeBuiltinModules: 'namespace',
-			}],
-			errors: [nodeBuiltinModulesError('node:util', 'namespace')],
+			errors: [nodeUtilityNamespaceError],
+		},
+		{
+			code: 'import {promisify} from \'node:util\'',
+			errors: [nodeUtilityNamespaceError],
 		},
 		{
 			code: 'import * as fs from \'node:fs\'',
 			options: [{
-				nodeBuiltinModules: 'namespace',
 				styles: {
 					'node:fs': {
 						default: true,
@@ -744,17 +694,12 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'import util from \'node:util\'',
-			options: [],
-			errors: 1,
-		},
-		{
 			code: 'import * as util from \'util\'',
 			options: [],
 			errors: 1,
 		},
 		{
-			code: 'import * as util from \'node:util\'',
+			code: 'import util from \'node:util\'',
 			options: [],
 			errors: 1,
 		},
@@ -764,7 +709,7 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'const util = require(\'node:util\')',
+			code: 'const {promisify} = require(\'node:util\')',
 			options: [],
 			errors: 1,
 		},
@@ -827,10 +772,10 @@ test({
 				},
 			}],
 		},
-		// `node:util` only allow `named`, add `default` should keep `named` allowed ... (see next test)
+		// `node:util` only allows `namespace`, add `default` should keep `namespace` allowed ... (see next test)
 		{
 			code: `
-				import * as util from "node:util";
+				import {promisify} from "node:util";
 			`,
 			options: [
 				{
@@ -844,12 +789,12 @@ test({
 			errors: [{
 				messageId: 'importStyle',
 				data: {
-					allowedStyles: 'named or default',
+					allowedStyles: 'namespace or default',
 					moduleName: 'node:util',
 				},
 			}],
 		},
-		// ...(see previous test), unless we disable `named` explicitly
+		// ...(see previous test), unless we disable `namespace` explicitly
 		{
 			code: `
 				import * as util from "node:util";
@@ -859,7 +804,7 @@ test({
 					styles: {
 						'node:util': {
 							default: true,
-							named: false,
+							namespace: false,
 						},
 					},
 				},
@@ -918,11 +863,10 @@ test.snapshot({
 	],
 	invalid: [
 		'import util from \'util\'',
-		'import util from \'node:util\'',
 		'import * as util from \'util\'',
-		'import * as util from \'node:util\'',
+		'import util from \'node:util\'',
 		'const util = require(\'util\')',
-		'const util = require(\'node:util\')',
+		'const {promisify} = require(\'node:util\')',
 		'require(\'util\')',
 		'require(\'node:util\')',
 		'import {red} from \'chalk\'',

@@ -1,4 +1,4 @@
-import fs, {promises as fsAsync} from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
@@ -10,7 +10,7 @@ import eslintPluginUnicorn from '../index.js';
 let ruleFiles;
 
 test.before(async () => {
-	const files = await fsAsync.readdir('rules');
+	const files = await fs.promises.readdir('rules');
 	ruleFiles = files.filter(file => path.extname(file) === '.js' && path.basename(file) !== 'index.js');
 });
 
@@ -98,7 +98,7 @@ test('Every rule has valid meta.type', t => {
 });
 
 test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', async t => {
-	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
+	const content = await fs.promises.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
 	for (const name of deprecatedRules) {
 		const rule = eslintPluginUnicorn.rules[name];
 		t.is(typeof rule.create, 'function', `${name} create is not function`);

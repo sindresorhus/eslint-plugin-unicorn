@@ -71,6 +71,20 @@ const config = [
 					'flatten',
 				],
 			}],
+			'unicorn/import-style': ['error', {
+				styles: {
+					'node:fs': {
+						default: true,
+					},
+					'node:fs/promises': {
+						default: true,
+					},
+					'node:util': {
+						named: false,
+						namespace: true,
+					},
+				},
+			}],
 			'unicorn/consistent-function-scoping': 'off',
 			'import/order': 'off',
 			'func-names': 'off',

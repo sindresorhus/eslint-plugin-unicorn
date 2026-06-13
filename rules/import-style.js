@@ -1,17 +1,13 @@
 import {getStringIfConstant} from '@eslint-community/eslint-utils';
-import isBuiltinModule from 'is-builtin-module';
 import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'importStyle';
 const MESSAGE_ID_BANNED = 'importStyleBanned';
-const MESSAGE_ID_NODE_BUILTIN_MODULES = 'nodeBuiltinModules';
 const messages = {
 	[MESSAGE_ID]: 'Use {{allowedStyles}} import for module `{{moduleName}}`.',
 	[MESSAGE_ID_BANNED]: 'All import styles are disabled for module `{{moduleName}}`. Use the `no-restricted-imports` rule to disallow a module.',
-	[MESSAGE_ID_NODE_BUILTIN_MODULES]: 'Use {{style}} import for Node.js builtin module `{{moduleName}}`.',
 };
 const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
-const NODE_PROTOCOL = 'node:';
 
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
@@ -114,64 +110,27 @@ const isAssignedDynamicImport = node =>
 	&& node.parent.parent.type === 'VariableDeclarator'
 	&& node.parent.parent.init === node.parent;
 
-const isNodeBuiltinModule = moduleName =>
-	typeof moduleName === 'string'
-	&& moduleName.startsWith(NODE_PROTOCOL)
-	&& isBuiltinModule(moduleName);
-
-const isDefaultImportSpecifier = specifier =>
-	specifier.type === 'ImportDefaultSpecifier'
-	|| (
-		specifier.type === 'ImportSpecifier'
-		&& specifier.imported.type === 'Identifier'
-		&& specifier.imported.name === 'default'
-	);
-
-const isNamespaceImportSpecifier = specifier =>
-	specifier.type === 'ImportNamespaceSpecifier';
-
-const getNodeBuiltinModulesProblem = (node, moduleName, style) => {
-	if (!(
-		style
-		&& isNodeBuiltinModule(moduleName)
-	)) {
-		return;
-	}
-
-	const isDisallowedSpecifier = style === 'namespace'
-		? isDefaultImportSpecifier
-		: isNamespaceImportSpecifier;
-	const problemSpecifier = node.specifiers.find(specifier => isDisallowedSpecifier(specifier));
-
-	if (!problemSpecifier) {
-		return;
-	}
-
-	return {
-		node: problemSpecifier,
-		messageId: MESSAGE_ID_NODE_BUILTIN_MODULES,
-		data: {
-			style,
-			moduleName,
-		},
-	};
-};
-
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
 	chalk: {
 		default: true,
 	},
-	path: {
+	'node:fs': {
+		default: true,
+	},
+	'node:fs/promises': {
 		default: true,
 	},
 	'node:path': {
 		default: true,
 	},
-	util: {
-		named: true,
-	},
 	'node:util': {
+		namespace: true,
+	},
+	path: {
+		default: true,
+	},
+	util: {
 		named: true,
 	},
 };
@@ -181,7 +140,6 @@ const create = context => {
 	let [
 		{
 			styles = {},
-			nodeBuiltinModules,
 			extendDefaultStyles = true,
 			checkImport = true,
 			checkDynamicImport = true,
@@ -189,8 +147,6 @@ const create = context => {
 			checkRequire = true,
 		} = {},
 	] = context.options;
-
-	const configuredModuleNames = new Set(Object.keys(styles));
 
 	styles = extendDefaultStyles
 		? Object.fromEntries([...Object.keys(defaultStyles), ...Object.keys(styles)]
@@ -256,22 +212,6 @@ const create = context => {
 	if (checkImport) {
 		context.on('ImportDeclaration', node => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-
-			if (!configuredModuleNames.has(moduleName)) {
-				const problem = getNodeBuiltinModulesProblem(node, moduleName, nodeBuiltinModules);
-
-				if (problem) {
-					return problem;
-				}
-
-				if (
-					nodeBuiltinModules
-					&& isNodeBuiltinModule(moduleName)
-				) {
-					return;
-				}
-			}
-
 			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualImportDeclarationStyles(node);
 
@@ -411,13 +351,6 @@ const schema = {
 				extendDefaultStyles: {
 					type: 'boolean',
 					description: 'Whether to extend the default styles.',
-				},
-				nodeBuiltinModules: {
-					enum: [
-						'default',
-						'namespace',
-					],
-					description: 'The import style for Node.js builtin modules imported with the `node:` protocol.',
 				},
 				styles: {
 					$ref: '#/definitions/moduleStyles',
