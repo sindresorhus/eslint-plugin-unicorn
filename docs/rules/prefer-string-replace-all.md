@@ -45,6 +45,10 @@ string.replace(/Works for u flag too/gu, '');
 string.replaceAll('Works for u flag too', '');
 ```
 
+Simple global literal regexes can also be converted when they use flags that do not affect literal matching, such as `d`, `m`, `s`, `u`, and `v`. Regexes with `i` or `y` are preserved as regexes.
+
+The rule can also simplify literal-only wrappers, such as single-item classes, noncapturing groups, and exact-one quantifiers.
+
 ```js
 // ❌
 string.replaceAll(/foo/g, 'bar');
