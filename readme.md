@@ -3,15 +3,13 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right" alt="Unicorn">
 
-> More than 100 powerful ESLint rules
+> More than 200 powerful ESLint rules
 
 You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
 
 Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, and Markdown](#non-javascript-files) when used with the matching ESLint language plugin.
 
 [**Propose or contribute a new rule ➡**](.github/contributing.md)
-
-**Fully AI-generated pull requests are not accepted. You can use AI, but should be verified and cleaned up by a human. Only Opus 4.6+ (high-effort) and Codex 5.4+ (extra high) are accepted models. Preferably created with Opus and verified by Codex.**
 
 ## Install
 
@@ -25,7 +23,7 @@ npm install --save-dev eslint eslint-plugin-unicorn
 
 Use a [preset config](#preset-configs) or configure each rule in `eslint.config.js`.
 
-If you don't use the preset, ensure you use the same `languageOptions` config as below.
+If you don't use a preset, set the same `languageOptions` as shown below.
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
@@ -338,31 +336,31 @@ This plugin exports a `recommended` config that enforces good practices.
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
-		// …
-		eslintPluginUnicorn.configs.recommended,
-		{
-			rules: {
-				'unicorn/prefer-module': 'warn',
-			},
+	// …
+	eslintPluginUnicorn.configs.recommended,
+	{
+		rules: {
+			'unicorn/prefer-module': 'warn',
 		},
+	},
 ];
 ```
 
 ### All config
 
-This plugin exports an `all` that makes use of all rules (except for deprecated ones).
+This plugin exports an `all` config that enables every rule, except deprecated ones.
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 
 export default [
-		// …
-		eslintPluginUnicorn.configs.all,
-		{
-			rules: {
-				'unicorn/prefer-module': 'warn',
-			},
+	// …
+	eslintPluginUnicorn.configs.all,
+	{
+		rules: {
+			'unicorn/prefer-module': 'warn',
 		},
+	},
 ];
 ```
 
@@ -370,11 +368,3 @@ export default [
 
 - [Sindre Sorhus](https://github.com/sindresorhus)
 - [Fisker Cheung](https://github.com/fisker)
-- [Bryan Mishkin](https://github.com/bmish)
-- [futpib](https://github.com/futpib)
-
-### Former
-
-- [Jeroen Engels](https://github.com/jfmengels)
-- [Sam Verschueren](https://github.com/SamVerschueren)
-- [Adam Babcock](https://github.com/MrHen)
