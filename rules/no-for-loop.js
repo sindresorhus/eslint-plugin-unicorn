@@ -7,6 +7,7 @@ import {
 	toLocation,
 	getReferences,
 	isArray,
+	isNullishType,
 	isUnknownType,
 } from './utils/index.js';
 import {
@@ -24,11 +25,13 @@ const entriesSupported = 'supported';
 const entriesUnsupported = 'unsupported';
 const entriesUnknown = 'unknown';
 const noEntriesTypeNames = new Set([
+	'HTMLAllCollection',
 	'HTMLCollection',
 	'HTMLCollectionOf',
-	'HTMLFormElement',
 	'HTMLFormControlsCollection',
+	'HTMLFormElement',
 	'HTMLOptionsCollection',
+	'HTMLSelectElement',
 	'String',
 ]);
 const noEntriesDomCollectionMethods = new Set([
@@ -180,6 +183,65 @@ const getTypeAnnotationEntriesSupport = (node, scope, visitedTypeReferenceNames 
 	}
 };
 
+const getEntryTypeSupport = (type, checker) => {
+	if (!type || isUnknownType(type)) {
+		return entriesUnknown;
+	}
+
+	if (type.isUnion()) {
+		const types = type.types.filter(type => !isNullishType(type));
+		return types.length === 0
+			? entriesUnknown
+			: combineUnionEntriesSupport(types.map(type => getEntryTypeSupport(type, checker)));
+	}
+
+	return checker.isArrayType(type) || checker.isTupleType(type)
+		? entriesSupported
+		: entriesUnsupported;
+};
+
+const getIteratorResultValueType = (type, checker) => {
+	const next = checker.getTypeOfPropertyOfType(type, 'next');
+	const [nextSignature] = next?.getCallSignatures() ?? [];
+
+	if (!nextSignature) {
+		return;
+	}
+
+	return checker.getTypeOfPropertyOfType(checker.getReturnTypeOfSignature(nextSignature), 'value');
+};
+
+const getEntriesReturnSupport = (type, checker) => {
+	if (isUnknownType(type)) {
+		return entriesUnknown;
+	}
+
+	if (type.isUnion()) {
+		return combineUnionEntriesSupport(type.types.map(type => getEntriesReturnSupport(type, checker)));
+	}
+
+	const isArrayReturn = checker.isArrayType(type);
+	const next = checker.getTypeOfPropertyOfType(type, 'next');
+	const hasCallableNext = next?.getCallSignatures().length > 0;
+
+	if (!isArrayReturn && !hasCallableNext) {
+		return entriesUnsupported;
+	}
+
+	const [entryType] = checker.getTypeArguments(type);
+	return getEntryTypeSupport(entryType ?? getIteratorResultValueType(type, checker), checker);
+};
+
+const getCallableEntriesSupport = (type, checker) => {
+	const entriesSupports = (type?.getCallSignatures() ?? [])
+		.filter(signature => signature.parameters.length === 0)
+		.map(signature => getEntriesReturnSupport(checker.getReturnTypeOfSignature(signature), checker));
+
+	return entriesSupports.length === 0
+		? entriesUnsupported
+		: combineIntersectionEntriesSupport(entriesSupports);
+};
+
 const getTypeEntriesSupport = (type, checker) => {
 	if (isUnknownType(type)) {
 		return entriesUnknown;
@@ -208,7 +270,7 @@ const getTypeEntriesSupport = (type, checker) => {
 	}
 
 	const entries = checker.getTypeOfPropertyOfType(type, 'entries');
-	return entries?.getCallSignatures().length > 0 ? entriesSupported : entriesUnsupported;
+	return getCallableEntriesSupport(entries, checker);
 };
 
 const getEntriesSupportFromTypeInformation = (node, context) => {
@@ -689,7 +751,7 @@ const getReferencesInChildScopes = (scope, name) =>
 
 const isStaticNonArray = (node, scope) => {
 	const staticResult = getStaticValue(node, scope);
-	return staticResult && !Array.isArray(staticResult.value);
+	return Boolean(staticResult && !Array.isArray(staticResult.value));
 };
 
 const getUpdateExpressionInfo = (forStatement, indexIdentifierName, cachedLengthIdentifier) => {
@@ -725,12 +787,12 @@ const create = context => {
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
 		const scope = sourceCode.getScope(node);
-		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		if (isStaticNonArray(arrayIdentifier, scope)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
 			return;
 		}
 
+		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		const {
 			isStandardUpdateExpression,
 			isReportableUpdateExpression,
@@ -834,7 +896,7 @@ const create = context => {
 					}
 
 					if (removeDeclaration) {
-						declarationType = element.type === 'VariableDeclarator' ? elementNode.kind : elementNode.parent.kind;
+						declarationType = elementNode.parent.kind;
 						declarationElement = sourceCode.getText(elementNode.id);
 					}
 				}
@@ -882,7 +944,6 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
