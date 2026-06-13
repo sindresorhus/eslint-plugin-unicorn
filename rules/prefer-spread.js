@@ -9,6 +9,7 @@ import {
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getPreviousNode,
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
@@ -39,7 +40,7 @@ const messages = {
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
 	[ERROR_ARRAY_TO_SPLICED]: 'Prefer the spread operator over `Array#toSpliced()`.',
-	[ERROR_FOR_OF]: 'Prefer the spread operator over this for-of loop.',
+	[ERROR_FOR_OF]: 'Prefer the spread operator over this `for…of` loop.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
@@ -1003,14 +1004,6 @@ function getConcatReceiverArrayState(node, context) {
 	return getSyntacticReceiverArrayState(unwrapReceiverReference(node), context);
 }
 
-const getPreviousStatement = node => {
-	const {parent} = node;
-	const statements = Array.isArray(parent.body) ? parent.body : parent.consequent;
-	const index = statements?.indexOf(node);
-
-	return index > 0 ? statements[index - 1] : undefined;
-};
-
 const getEmptyArrayDeclaration = node => {
 	if (
 		!node
@@ -1216,7 +1209,7 @@ const create = context => {
 			return;
 		}
 
-		const declaration = getPreviousStatement(node);
+		const declaration = getPreviousNode(node, context);
 		const declarator = getEmptyArrayDeclaration(declaration);
 
 		if (!declarator) {

@@ -46,6 +46,12 @@ ruleTest.snapshot({
 		`,
 		outdent`
 			const result = [];
+			if (condition) for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
 			for (const element of iterable) {
 				result.push(element);
 				foo();
@@ -142,6 +148,11 @@ ruleTest.snapshot({
 			}
 		`,
 		outdent`
+			const result = [];
+			for (const element of iterable)
+				result.push(element);
+		`,
+		outdent`
 			let result = [];
 			for (const element of object.items) {
 				result.push(element);
@@ -150,6 +161,12 @@ ruleTest.snapshot({
 		outdent`
 			const result = [];
 			for (const element of (iterable)) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of (/* Keep this comment. */ iterable)) {
 				result.push(element);
 			}
 		`,
