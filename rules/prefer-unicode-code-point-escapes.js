@@ -4,7 +4,7 @@ import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/in
 const MESSAGE_ID = 'prefer-unicode-code-point-escapes';
 const MESSAGE_ID_SUGGESTION = 'prefer-unicode-code-point-escapes/add-unicode-flag';
 const messages = {
-	[MESSAGE_ID]: 'Use Unicode code point escapes instead of legacy escape sequences.',
+	[MESSAGE_ID]: 'Prefer Unicode code point escapes.',
 	[MESSAGE_ID_SUGGESTION]: 'Use Unicode code point escapes and add the `u` flag.',
 };
 
@@ -13,6 +13,7 @@ const CODE_POINT_ESCAPE_PREFIX = String.raw`\u{`;
 const HEX_DIGIT = /^[\da-f]$/i;
 const OCTAL_DIGIT = /^[0-7]$/;
 const CONTROL_LETTER = /^[a-z]$/i;
+const MAXIMUM_CODE_POINT = 0x10_FF_FF;
 
 function isHexDigit(character) {
 	return HEX_DIGIT.test(character);
@@ -69,6 +70,31 @@ function getSurrogatePairCodePoint(highSurrogate, lowSurrogate) {
 
 function formatCodePointEscape(value) {
 	return String.raw`\u{${value.toString(16).toUpperCase()}}`;
+}
+
+function parseCodePointEscape(text, index) {
+	if (!text.startsWith(CODE_POINT_ESCAPE_PREFIX, index)) {
+		return;
+	}
+
+	let end = index + CODE_POINT_ESCAPE_PREFIX.length;
+	while (isHexDigit(text[end])) {
+		end++;
+	}
+
+	if (
+		end === index + CODE_POINT_ESCAPE_PREFIX.length
+		|| text[end] !== '}'
+	) {
+		return;
+	}
+
+	const value = Number.parseInt(text.slice(index + CODE_POINT_ESCAPE_PREFIX.length, end), 16);
+	if (value > MAXIMUM_CODE_POINT) {
+		return;
+	}
+
+	return value;
 }
 
 function getOctalEscape(text, index) {
@@ -183,21 +209,22 @@ function getEscapeReplacement(text, index, {isRegex, isInCharacterClass}) {
 		?? (isRegex ? getControlEscape(text, index) : getOctalEscape(text, index));
 }
 
-function replaceEscapeSequences(text, {isRegex = false} = {}) {
+function replaceEscapeSequences(text, {isRegex = false, supportsNestedCharacterClasses = false} = {}) {
 	let fixed = '';
-	let isInCharacterClass = false;
+	let characterClassDepth = 0;
 	let hasReplacement = false;
 
 	for (let index = 0; index < text.length; index++) {
 		const character = text[index];
+		const isInCharacterClass = characterClassDepth > 0;
 
 		if (
 			isRegex
 			&& character === '['
-			&& !isInCharacterClass
+			&& (!isInCharacterClass || supportsNestedCharacterClasses)
 			&& !isEscapedCharacter(text, index)
 		) {
-			isInCharacterClass = true;
+			characterClassDepth++;
 			fixed += character;
 			continue;
 		}
@@ -208,7 +235,7 @@ function replaceEscapeSequences(text, {isRegex = false} = {}) {
 			&& isInCharacterClass
 			&& !isEscapedCharacter(text, index)
 		) {
-			isInCharacterClass = false;
+			characterClassDepth--;
 			fixed += character;
 			continue;
 		}
@@ -241,7 +268,7 @@ function replaceEscapeSequences(text, {isRegex = false} = {}) {
 function hasUnicodeCodePointEscape(text) {
 	for (let index = 0; index < text.length; index++) {
 		if (
-			text.startsWith(CODE_POINT_ESCAPE_PREFIX, index)
+			parseCodePointEscape(text, index) !== undefined
 			&& isActiveBackslash(text, index)
 		) {
 			return true;
@@ -251,7 +278,7 @@ function hasUnicodeCodePointEscape(text) {
 	return false;
 }
 
-function getStringProblem(context, node, value, fix) {
+function getStringProblem(node, value, fix) {
 	const {fixed, hasReplacement} = replaceEscapeSequences(value);
 
 	if (!hasReplacement) {
@@ -291,7 +318,10 @@ function isValidRegex(pattern, flags) {
 function getRegexProblem(node) {
 	const {raw} = node;
 	const {pattern, flags} = getRegexLiteralParts(raw);
-	const {fixed, hasReplacement} = replaceEscapeSequences(pattern, {isRegex: true});
+	const {fixed, hasReplacement} = replaceEscapeSequences(pattern, {
+		isRegex: true,
+		supportsNestedCharacterClasses: flags.includes('v'),
+	});
 	const hasUnicodeFlag = flags.includes('u') || flags.includes('v');
 	const hasCodePointEscape = hasUnicodeCodePointEscape(pattern);
 
@@ -332,7 +362,7 @@ function getRegexProblem(node) {
 const create = context => {
 	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
-			return getStringProblem(context, node, node.raw);
+			return getStringProblem(node, node.raw);
 		}
 
 		if (isRegexLiteral(node)) {
@@ -345,7 +375,7 @@ const create = context => {
 			return;
 		}
 
-		return getStringProblem(context, node, node.value.raw, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		return getStringProblem(node, node.value.raw, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
 	});
 };
 
