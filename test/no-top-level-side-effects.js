@@ -15,9 +15,12 @@ test.snapshot({
 		'import "./polyfill.js";',
 		'export {};',
 		'export const value = 1;',
+		'export {}; value;',
 		'export {}; const response = fetch();',
 		'export {}; document.title = "gone";',
 		typescriptCode('export {}; (document.title = "gone") as string;'),
+		typescriptCode('export {}; (document.title = "gone") satisfies string;'),
+		typescriptCode('export {}; (document.title = "gone")!;'),
 		typescriptCode('export type Foo = string;'),
 		typescriptCode('export interface Foo {}'),
 		outdent`
@@ -44,6 +47,22 @@ test.snapshot({
 		outdent`
 			export {};
 
+			(class {
+				field = init();
+			});
+		`,
+		outdent`
+			export {};
+
+			(class {
+				static {
+					init();
+				}
+			});
+		`,
+		outdent`
+			export {};
+
 			if (enabled) {
 				init();
 			}
@@ -55,6 +74,28 @@ test.snapshot({
 			init();
 		`,
 		'export {}; new App();',
+		outdent`
+			export default function init() {}
+			init();
+		`,
+		outdent`
+			const value = 1;
+			export {value};
+			init();
+		`,
+		outdent`
+			export * from "./module.js";
+			init();
+		`,
+		typescriptCode(outdent`
+			export type Foo = string;
+			init();
+		`),
+		outdent`
+			export {};
+
+			(class extends init() {});
+		`,
 		'export {}; await init();',
 		'export {}; import("./setup.js");',
 		'export {}; counter++;',
@@ -62,5 +103,6 @@ test.snapshot({
 		'export {}; app?.init();',
 		'export {}; app.init?.();',
 		'export {}; tag`value`;',
+		typescriptCode('export {}; (tag`value`) as string;'),
 	],
 });

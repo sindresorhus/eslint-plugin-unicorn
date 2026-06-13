@@ -16,9 +16,16 @@ const isExportDeclaration = node => exportDeclarationTypes.has(node.type);
 
 const isAllowedAssignment = node => unwrapTypeScriptExpression(node).type === 'AssignmentExpression';
 
-const hasTopLevelSideEffect = (node, sourceCode) =>
-	node.type === 'TaggedTemplateExpression'
-	|| hasSideEffect(node, sourceCode);
+const hasTopLevelSideEffect = (node, sourceCode) => {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type === 'ClassExpression') {
+		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode) : false;
+	}
+
+	return node.type === 'TaggedTemplateExpression'
+		|| hasSideEffect(node, sourceCode);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {

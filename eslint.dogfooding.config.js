@@ -44,11 +44,18 @@ const config = [
 			'unicorn/no-useless-recursion': 'off',
 			// Suggestion-only violations remain in call-based patterns
 			'unicorn/prefer-simple-condition-first': 'off',
-			// Existing exported modules intentionally include setup-time effects.
-			'unicorn/no-top-level-side-effects': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/utils/global-reference-tracker.js',
+		],
+		rules: {
+			// This module intentionally mutates its own exported class during setup.
+			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},
 	{
