@@ -59,6 +59,10 @@ ruleTest.snapshot({
 		'// See cdn.example.com and mdn.dev.',
 		'// Download from ftp://example.com/file and sftp://example.com/file.',
 		'// Copy from s3://bucket/key.',
+		'// import api from \'../github-helpers/api.js\';',
+		'// The file is api.js.',
+		'// Run scripts/node.js.',
+		'// Use .svg files.',
 		'// React.js()',
 		'const text = "nodejs";',
 		'#!/usr/bin/env node\n// Node.js',
@@ -407,6 +411,202 @@ test('fixes slash-separated acronym pairs', t => {
 
 	t.true(result.fixed);
 	t.is(result.output, '// CI/CD pipeline and UI/UX polish.');
+});
+
+test('fixes prose comments', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const linter = new Linter({configType: 'flat'});
+	const result = linter.verifyAndFix('// the api returns json and svg files.', config, {filename: 'fixture.js'});
+
+	t.true(result.fixed);
+	t.is(result.output, '// the API returns JSON and SVG files.');
+});
+
+test('ignores code-like lines in comments', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `/*
+These will throw RefinedGitHubApiError.
+
+Usage:
+
+import api from '../github-helpers/api.js';
+api?.v3()
+api?.v3
+const user = await api.v3(\`/users/\${username}\`);
+const repositoryCommits = await api.v3('commits');
+const data = await api.v4('{user(login: "user") {name}}');
+*/`;
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores fenced code blocks in block comments', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `/*
+\`\`\`js
+const api = await nodejs();
+\`\`\`
+*/`;
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores indented fenced code blocks in block comments', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `function foo() {
+	/*
+	~~~sh
+	nodejs --version
+	~~~
+	*/
+}`;
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores fenced code blocks in JSDoc comments', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `function foo() {
+	/**
+	 * ~~~sh
+	 * nodejs --version
+	 * ~~~
+	 */
+}`;
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores JSDoc example sections', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `/**
+Do something.
+
+@example
+const json = await api.nodejs();
+
+@returns {void}
+*/`;
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('continues checking prose around skipped code in the same block comment', t => {
+	const config = {
+		files: ['**'],
+		languageOptions: {
+			sourceType: 'module',
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const code = `/*
+The api returns json.
+const data = await api.v3('commits');
+*/`;
+	const linter = new Linter({configType: 'flat'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.true(result.fixed);
+	t.is(result.output, `/*
+The API returns JSON.
+const data = await api.v3('commits');
+*/`);
 });
 
 test('reports one problem per comment', t => {

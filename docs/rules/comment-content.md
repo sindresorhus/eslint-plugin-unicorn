@@ -15,7 +15,7 @@ This rule is not a spellchecker. It only checks known replacement patterns.
 
 It only reports one replacement per comment at a time.
 
-It ignores matches inside URLs, domains, inline code spans, and call-like text such as `React.js()`.
+It ignores matches inside URLs, domains, inline code spans, quoted strings, filenames/extensions, fenced code blocks, JSDoc examples, and comment lines that look like code.
 
 ## Examples
 

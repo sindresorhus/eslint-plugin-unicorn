@@ -180,8 +180,10 @@ function shouldUseRawCommentFallback(context) {
 		|| filename.endsWith('.markdown');
 }
 
-function isInMarkdownFencedCodeBlock(text, index) {
-	const fencePattern = /^ {0,3}(?<fence>`{3,}|~{3,})/gmv;
+function isInFencedCodeBlock(text, index, {allowIndented = false} = {}) {
+	const fencePattern = allowIndented
+		? /^[\t ]*(?:\*\s?)?(?<fence>`{3,}|~{3,})/gmv
+		: /^ {0,3}(?<fence>`{3,}|~{3,})/gmv;
 	let activeFence;
 
 	for (const {groups} of text.slice(0, index).matchAll(fencePattern)) {
@@ -212,7 +214,7 @@ function getMarkdownHtmlComments(sourceCode) {
 			continue;
 		}
 
-		if (isInMarkdownFencedCodeBlock(text, index)) {
+		if (isInFencedCodeBlock(text, index)) {
 			continue;
 		}
 
@@ -337,11 +339,69 @@ function isInsideMimeType(commentValue, match) {
 	return false;
 }
 
+function getCommentLine(commentValue, index) {
+	const start = commentValue.lastIndexOf('\n', index - 1) + 1;
+	const end = commentValue.indexOf('\n', index);
+
+	return commentValue.slice(start, end === -1 ? commentValue.length : end);
+}
+
+function cleanCommentLine(line) {
+	return line.replace(/^\s*\*\s?/v, '').trim();
+}
+
+function isAdjacentToPathLikeCharacter(commentValue, match) {
+	const previousCharacter = commentValue[match.index - 1] ?? '';
+	const nextCharacter = commentValue[match.index + match[0].length] ?? '';
+	const characterAfterNext = commentValue[match.index + match[0].length + 1] ?? '';
+
+	return (match[0].includes('.') && previousCharacter === '/')
+		|| previousCharacter === '.'
+		|| previousCharacter === '_'
+		|| previousCharacter === '\\'
+		|| nextCharacter === '_'
+		|| nextCharacter === '\\'
+		|| (nextCharacter === '.' && /[\p{Letter}\p{Number}_]/v.test(characterAfterNext));
+}
+
+function isCodeLikeCommentLine(commentValue, match) {
+	const line = cleanCommentLine(getCommentLine(commentValue, match.index));
+
+	return /^(?:import|export|const|let|var|type|interface|class|function|return|await)\b/v.test(line)
+		|| /;\s*$/v.test(line)
+		|| line.includes('=>')
+		|| line.includes('?.')
+		|| /(?:^|[^\w$])[\w$]+(?:\?\.|\.)[\w$]+(?:\?\.)?\s*\(/v.test(line);
+}
+
+function isInsideJsdocExample(commentValue, match) {
+	let isExample = false;
+
+	for (const line of commentValue.slice(0, match.index + match[0].length).split('\n')) {
+		const trimmedLine = cleanCommentLine(line);
+
+		if (/^@example\b/v.test(trimmedLine)) {
+			isExample = true;
+			continue;
+		}
+
+		if (isExample && /^@\w/v.test(trimmedLine)) {
+			isExample = false;
+		}
+	}
+
+	return isExample;
+}
+
 function shouldSkipMatch(commentValue, match) {
 	return isInsideUrl(commentValue, match)
 		|| isInsideBackticks(commentValue, match)
 		|| isInsideQuotedString(commentValue, match)
 		|| isInsideMimeType(commentValue, match)
+		|| isAdjacentToPathLikeCharacter(commentValue, match)
+		|| isInFencedCodeBlock(commentValue, match.index, {allowIndented: true})
+		|| isInsideJsdocExample(commentValue, match)
+		|| isCodeLikeCommentLine(commentValue, match)
 		|| commentValue[match.index - 1] === '-'
 		|| commentValue[match.index + match[0].length] === '-'
 		|| commentValue[match.index + match[0].length] === '(';
