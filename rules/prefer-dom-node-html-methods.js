@@ -120,7 +120,8 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.getHTML()` and `.setHTML()` over `.innerHTML`.',
-			recommended: true,
+			// TODO: Enable in the `recommended` config once Safari supports `Element#setHTML()`.
+			recommended: false,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
