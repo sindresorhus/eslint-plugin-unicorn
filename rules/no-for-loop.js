@@ -2,6 +2,7 @@ import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-util
 import {
 	getAvailableVariableName,
 	getScopes,
+	getVariableByName,
 	singular,
 	toLocation,
 	getReferences,
@@ -34,7 +35,7 @@ const getArrayIdentifierFromLengthMemberExpression = node => {
 };
 
 const getTypeReferenceTypeAnnotation = (typeReferenceName, scope) => {
-	const typeVariable = scope && resolveIdentifierName(typeReferenceName, scope);
+	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition || definition.type !== 'Type') {
@@ -300,7 +301,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 		return false;
 	}
 
-	const referencedArrayVariable = resolveIdentifierName(reference.identifier.name, reference.from);
+	const referencedArrayVariable = getVariableByName(reference.identifier.name, reference.from);
 
 	if (referencedArrayVariable !== arrayVariable) {
 		return false;
@@ -309,7 +310,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 	if (
 		!node.computed
 		|| node.property.type !== 'Identifier'
-		|| resolveIdentifierName(node.property.name, reference.from) !== indexVariable
+		|| getVariableByName(node.property.name, reference.from) !== indexVariable
 	) {
 		return false;
 	}
@@ -351,18 +352,6 @@ const getRemovalRange = (node, sourceCode) => {
 		sourceCode.getRange(declarationNode.declarations[index - 1])[1],
 		sourceCode.getRange(node)[1],
 	];
-};
-
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
 };
 
 const scopeContains = (ancestor, descendant) => {
@@ -495,7 +484,7 @@ const create = context => {
 
 		const {arrayIdentifier, cachedLengthIdentifier, indexIdentifierName} = loopInfo;
 		const scope = sourceCode.getScope(node);
-		const arrayVariable = resolveIdentifierName(arrayIdentifier.name, scope);
+		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
 		const staticResult = getStaticValue(arrayIdentifier, scope);
 		if (staticResult && !Array.isArray(staticResult.value)) {
 			// Bail out if we can tell that the array variable has a non-array value (i.e. we're looping through the characters of a string constant).
@@ -521,7 +510,7 @@ const create = context => {
 		}
 
 		const arrayIdentifierName = arrayIdentifier.name;
-		const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+		const indexVariable = getVariableByName(indexIdentifierName, bodyScope);
 
 		if (!indexVariable) {
 			return;
@@ -543,8 +532,8 @@ const create = context => {
 
 		const forScope = scopeManager.acquire(node);
 		const cachedLengthVariable = cachedLengthIdentifier && (
-			resolveIdentifierName(cachedLengthIdentifier.name, forScope)
-			?? resolveIdentifierName(cachedLengthIdentifier.name, scope)
+			getVariableByName(cachedLengthIdentifier.name, forScope)
+			?? getVariableByName(cachedLengthIdentifier.name, scope)
 		);
 
 		if (
@@ -574,12 +563,12 @@ const create = context => {
 		});
 		const elementNode = elementReference?.identifier.parent.parent;
 		const elementIdentifierName = elementNode?.id.name;
-		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
+		const elementVariable = elementIdentifierName && getVariableByName(elementIdentifierName, bodyScope);
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
-		const hasNonArrayTypeAnnotation = resolveIdentifierName(arrayIdentifierName, scope)
+		const hasNonArrayTypeAnnotation = getVariableByName(arrayIdentifierName, scope)
 			?.defs.some(definition => {
 				const typeAnnotation = definition.name.typeAnnotation?.typeAnnotation;
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);

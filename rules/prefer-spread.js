@@ -10,6 +10,7 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getPreviousNode,
+	getVariableByName,
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
@@ -385,18 +386,6 @@ function isGlobalMemberExpression(node, objectName, propertyName, context) {
 	return staticValue?.value === propertyName;
 }
 
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
-
 const isDefaultLibrarySymbol = (symbol, program) =>
 	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
 
@@ -453,7 +442,7 @@ function isKnownBufferReference(node, context) {
 }
 
 function getTypeReferenceDefinitionState(typeName, scope, visitedTypeNames) {
-	const variable = resolveIdentifierName(typeName, scope);
+	const variable = getVariableByName(typeName, scope);
 	const [definition] = variable?.defs ?? [];
 
 	if (!definition) {
@@ -524,7 +513,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 		if (
 			knownNonArrayTypeNames.has(getTypeNameIdentifierName(node.typeName))
 		) {
-			const namespace = resolveIdentifierName(getTypeNameNamespaceIdentifierName(node.typeName), scope);
+			const namespace = getVariableByName(getTypeNameNamespaceIdentifierName(node.typeName), scope);
 			const [definition] = namespace?.defs ?? [];
 
 			return definition?.type === 'ImportBinding' && definition.node.type === 'ImportNamespaceSpecifier'

@@ -1,6 +1,7 @@
 import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {removeSpecifier} from './fix/index.js';
+import {isTypeImportSpecifier} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -27,8 +28,6 @@ const getSpecifierName = node => {
 };
 
 const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.parent.exportKind === 'type';
-
-const isTypeImport = specifier => specifier.importKind === 'type' || specifier.parent.importKind === 'type';
 
 function * removeImportOrExport(node, fixer, context) {
 	switch (node.type) {
@@ -193,7 +192,7 @@ function getImported(variable, sourceCode) {
 		node: specifier,
 		declaration: specifier.parent,
 		variable,
-		isTypeImport: isTypeImport(specifier),
+		isTypeImport: isTypeImportSpecifier(specifier),
 	};
 
 	switch (specifier.type) {

@@ -76,6 +76,14 @@ export {
 	isEslintDisableOrEnableDirective,
 } from './eslint-directive.js';
 export {
+	isRuntimeImportSpecifier,
+	isTypeImportSpecifier,
+} from './imports.js';
+export {
+	getVariableByName,
+	isDefinitionBeforeReference,
+} from './scope.js';
+export {
 	getBaseTypes,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
