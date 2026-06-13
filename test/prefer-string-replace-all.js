@@ -61,6 +61,7 @@ test.snapshot({
 		'foo.replaceAll(/[a-z]/g, bar)',
 		'foo.replaceAll(/[^a]/g, bar)',
 		'foo.replaceAll(/(a)/g, bar)',
+		'foo.replaceAll(/(?:a|b)/g, bar)',
 
 		// `split().join()` unsupported cases
 		'foo.split("").join("b")',
@@ -155,10 +156,14 @@ test.snapshot({
 		'foo.replace(/[^a]/g, _)',
 		'foo.replace(/a{1/g, _)',
 		'foo.replace(/a{1}/g, _)',
+		'foo.replace(/[a]{1}/g, _)',
 		'foo.replace(/(?:a)/g, _)',
+		'foo.replace(/(?:[a])/g, _)',
 		'foo.replace(/(?:ab)/g, _)',
+		'foo.replace(/(?:a)(?:b)/g, _)',
 		'foo.replace(/(?:a){1}/g, _)',
 		'foo.replace(/(a)/g, _)',
+		'foo.replace(/(?:a|b)/g, _)',
 		String.raw`foo.replace(/\u0022/g, _)`,
 		String.raw`foo.replace(/\u0027/g, _)`,
 
