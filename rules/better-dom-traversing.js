@@ -38,7 +38,7 @@ const isDomCollectionMemberExpression = (node, property) =>
 		computed: false,
 	});
 
-const isPropsChildrenMemberExpression = node =>
+const isPropertiesChildrenMemberExpression = node =>
 	isDomCollectionMemberExpression(node, 'children')
 	&& (
 		(
@@ -239,7 +239,7 @@ const create = context => {
 			|| isNodeValueNotDomNode(node.object.object)
 			|| (
 				collectionName === 'children'
-				&& isPropsChildrenMemberExpression(node.object)
+				&& isPropertiesChildrenMemberExpression(node.object)
 			)
 			|| isNestedIndexedDomCollection(node)
 		) {

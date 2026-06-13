@@ -75,7 +75,7 @@ test.snapshot({
 		...notDomNodeTypes.map(data => `(${data}).parentElement.parentElement;`),
 		...notDomNodeTypes.map(data => `(${data}).querySelector("a").querySelector("b");`),
 
-		// React props children are not DOM traversal
+		// Component `props.children` is not DOM traversal
 		{
 			code: 'class Component { render() { return <div>{this.props.children[0]}</div>; } }',
 			languageOptions: jsxLanguageOptions,
@@ -85,8 +85,10 @@ test.snapshot({
 			languageOptions: jsxLanguageOptions,
 		},
 		{
+			code: 'const child = props.children[1];',
+		},
+		{
 			code: 'const child = component.props.children[0];',
-			languageOptions: jsxLanguageOptions,
 		},
 	],
 	invalid: [
