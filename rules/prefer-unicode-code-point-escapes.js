@@ -49,7 +49,7 @@ function isEscapedCharacter(text, index) {
 
 function parseHex(text, start, length) {
 	const value = text.slice(start, start + length);
-	if (value.length !== length || ![...value].every(character => isHexDigit(character))) {
+	if (value.length !== length || [...value].some(character => !isHexDigit(character))) {
 		return;
 	}
 
