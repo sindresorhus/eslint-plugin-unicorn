@@ -8,6 +8,7 @@ const messages = {
 	[MESSAGE_ID_BANNED]: 'All import styles are disabled for module `{{moduleName}}`. Use the `no-restricted-imports` rule to disallow a module.',
 };
 const disjunctionListFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
+const NODE_PROTOCOL = 'node:';
 
 const getActualImportDeclarationStyles = importDeclaration => {
 	const {specifiers} = importDeclaration;
@@ -110,6 +111,11 @@ const isAssignedDynamicImport = node =>
 	&& node.parent.parent.type === 'VariableDeclarator'
 	&& node.parent.parent.init === node.parent;
 
+const getModuleStyleName = moduleName =>
+	typeof moduleName === 'string' && moduleName.startsWith(NODE_PROTOCOL)
+		? moduleName.slice(NODE_PROTOCOL.length)
+		: moduleName;
+
 // Keep this alphabetically sorted for easier maintenance
 const defaultStyles = {
 	chalk: {
@@ -118,13 +124,7 @@ const defaultStyles = {
 	path: {
 		default: true,
 	},
-	'node:path': {
-		default: true,
-	},
 	util: {
-		named: true,
-	},
-	'node:util': {
 		named: true,
 	},
 };
@@ -158,14 +158,16 @@ const create = context => {
 
 	const {sourceCode} = context;
 
-	// eslint-disable-next-line max-params
-	const report = (node, moduleName, actualImportStyles, allowedImportStyles, isRequire = false) => {
+	const report = (node, moduleName, actualImportStyles, isRequire = false) => {
+		const moduleStyleName = getModuleStyleName(moduleName);
+		const allowedImportStyles = styles.get(moduleStyleName);
+
 		if (!allowedImportStyles) {
 			return;
 		}
 
 		if (allowedImportStyles.size === 0) {
-			if (bannedModules.has(moduleName)) {
+			if (bannedModules.has(moduleStyleName)) {
 				context.report({
 					node,
 					messageId: MESSAGE_ID_BANNED,
@@ -206,11 +208,9 @@ const create = context => {
 	if (checkImport) {
 		context.on('ImportDeclaration', node => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualImportDeclarationStyles(node);
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
+			report(node, moduleName, actualImportStyles);
 		});
 	}
 
@@ -221,10 +221,9 @@ const create = context => {
 			}
 
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = ['unassigned'];
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
+			report(node, moduleName, actualImportStyles);
 		});
 
 		context.on('VariableDeclarator', node => {
@@ -243,10 +242,9 @@ const create = context => {
 			}
 
 			const assignmentTargetNode = node.id;
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
+			report(node, moduleName, actualImportStyles);
 		});
 	}
 
@@ -254,10 +252,9 @@ const create = context => {
 		context.on('ExportAllDeclaration', node => {
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = ['namespace'];
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
+			report(node, moduleName, actualImportStyles);
 		});
 
 		context.on('ExportNamedDeclaration', node => {
@@ -267,10 +264,9 @@ const create = context => {
 
 			const moduleName = getStringIfConstant(node.source, sourceCode.getScope(node.source));
 
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualExportDeclarationStyles(node);
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles);
+			report(node, moduleName, actualImportStyles);
 		});
 	}
 
@@ -288,10 +284,9 @@ const create = context => {
 			}
 
 			const moduleName = getStringIfConstant(node.arguments[0], sourceCode.getScope(node.arguments[0]));
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = ['unassigned'];
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+			report(node, moduleName, actualImportStyles, true);
 		});
 
 		context.on('VariableDeclarator', node => {
@@ -311,10 +306,9 @@ const create = context => {
 			}
 
 			const assignmentTargetNode = node.id;
-			const allowedImportStyles = styles.get(moduleName);
 			const actualImportStyles = getActualAssignmentTargetImportStyles(assignmentTargetNode);
 
-			report(node, moduleName, actualImportStyles, allowedImportStyles, true);
+			report(node, moduleName, actualImportStyles, true);
 		});
 	}
 };

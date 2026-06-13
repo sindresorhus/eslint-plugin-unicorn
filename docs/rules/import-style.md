@@ -9,7 +9,7 @@
 
 Sometimes a module contains unrelated functions, like `util`, thus it is a good practice to enforce destructuring or named imports here. Other times, in modules like `path`, it is good to use default import as they have similar functions, all likely to be utilized.
 
-This rule only applies to modules listed in the `styles` option. Imports of unlisted modules are not affected.
+This rule applies to modules listed in the `styles` option and the default styles below. Other imports are not affected.
 
 This rule defines 4 import styles:
 
@@ -39,6 +39,14 @@ import * as util from 'node:util';
 import {promisify} from 'node:util';
 ```
 
+```js
+// ❌
+import * as path from 'node:path';
+
+// ✅
+import path from 'node:path';
+```
+
 ## Options
 
 ### styles
@@ -49,9 +57,11 @@ You can extend default import styles per module by passing the `styles` option.
 
 Default options per module are:
 
-- `util` - `named` only
-- `path` - `default` only
 - `chalk` - `default` only
+- `path` - `default` only
+- `util` - `named` only
+
+Imports with the `node:` protocol are matched as if the protocol were omitted. For example, `node:util` uses the same style as `util`. Configure these modules by their bare name, like `util` or `path`.
 
 The example below:
 

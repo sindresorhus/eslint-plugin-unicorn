@@ -56,6 +56,22 @@ const namedError = {
 	},
 };
 
+const nodePathDefaultError = {
+	messageId: 'importStyle',
+	data: {
+		allowedStyles: 'default',
+		moduleName: 'node:path',
+	},
+};
+
+const nodeUtilityNamedError = {
+	messageId: 'importStyle',
+	data: {
+		allowedStyles: 'named',
+		moduleName: 'node:util',
+	},
+};
+
 const addDefaultOptions = test => {
 	if (typeof test === 'string') {
 		test = {
@@ -208,6 +224,53 @@ test({
 				},
 			}],
 		},
+		{
+			code: 'import fs from \'node:fs\'',
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+		},
+		{
+			code: 'import {readFile} from \'node:fs\'',
+		},
+		{
+			code: 'import fsPromises from \'node:fs/promises\'',
+		},
+		{
+			code: 'import path from \'node:path\'',
+		},
+		{
+			code: 'import {inspect} from \'node:util\'',
+		},
+		{
+			code: outdent`
+				async () => {
+					const {inspect} = await import('node:util');
+				}
+			`,
+		},
+		{
+			code: 'import fs from \'fs\'',
+		},
+		{
+			code: 'import unknown from \'node:unknown\'',
+		},
+		{
+			code: 'const fs = require(\'node:fs\')',
+		},
+		{
+			code: 'import(\'node:unknown\')',
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				styles: {
+					fs: {
+						namespace: true,
+					},
+				},
+			}],
+		},
 
 		'require(1, 2, 3)',
 		'require(variable)',
@@ -218,7 +281,7 @@ test({
 				const {red} = await import(variable);
 			}
 		`,
-		// `node:util` only allow `named`, set to `false` should allow any style
+		// `node:util` inherits `util`; set to `false` should allow any style
 		{
 			code: `
 				import util from "node:util";
@@ -228,12 +291,12 @@ test({
 			options: [
 				{
 					styles: {
-						'node:util': false,
+						util: false,
 					},
 				},
 			],
 		},
-		// Overriding a default style with `{named: false}` should allow any style, not flag as banned
+		// Overriding an inherited default style with `{named: false}` should allow any style, not flag as banned
 		{
 			code: `
 				import util from "node:util";
@@ -243,7 +306,7 @@ test({
 			options: [
 				{
 					styles: {
-						'node:util': {named: false},
+						util: {named: false},
 					},
 				},
 			],
@@ -571,14 +634,54 @@ test({
 			code: 'import util, {inspect} from \'default\'',
 			errors: [defaultError],
 		},
-
 		{
-			code: 'import util from \'util\'',
-			options: [],
-			errors: 1,
+			code: 'import * as path from \'node:path\'',
+			errors: [nodePathDefaultError],
 		},
 		{
 			code: 'import util from \'node:util\'',
+			errors: [nodeUtilityNamedError],
+		},
+		{
+			code: 'import * as util from \'node:util\'',
+			errors: [nodeUtilityNamedError],
+		},
+		{
+			code: 'import(\'node:util\')',
+			errors: [nodeUtilityNamedError],
+		},
+		{
+			code: outdent`
+				async () => {
+					const util = await import('node:util');
+				}
+			`,
+			errors: [nodeUtilityNamedError],
+		},
+		{
+			code: 'export * from \'node:util\'',
+			errors: [nodeUtilityNamedError],
+		},
+		{
+			code: 'import * as fs from \'node:fs\'',
+			options: [{
+				styles: {
+					fs: {
+						default: true,
+					},
+				},
+			}],
+			errors: [{
+				messageId: 'importStyle',
+				data: {
+					allowedStyles: 'default',
+					moduleName: 'node:fs',
+				},
+			}],
+		},
+
+		{
+			code: 'import util from \'util\'',
 			options: [],
 			errors: 1,
 		},
@@ -588,7 +691,7 @@ test({
 			errors: 1,
 		},
 		{
-			code: 'import * as util from \'node:util\'',
+			code: 'import util from \'node:util\'',
 			options: [],
 			errors: 1,
 		},
@@ -661,7 +764,7 @@ test({
 				},
 			}],
 		},
-		// `node:util` only allow `named`, add `default` should keep `named` allowed ... (see next test)
+		// `node:util` inherits `util`; add `default` should keep `named` allowed ... (see next test)
 		{
 			code: `
 				import * as util from "node:util";
@@ -669,7 +772,7 @@ test({
 			options: [
 				{
 					styles: {
-						'node:util': {
+						util: {
 							default: true,
 						},
 					},
@@ -686,12 +789,12 @@ test({
 		// ...(see previous test), unless we disable `named` explicitly
 		{
 			code: `
-				import * as util from "node:util";
+				import {promisify} from "node:util";
 			`,
 			options: [
 				{
 					styles: {
-						'node:util': {
+						util: {
 							default: true,
 							named: false,
 						},
@@ -752,9 +855,8 @@ test.snapshot({
 	],
 	invalid: [
 		'import util from \'util\'',
-		'import util from \'node:util\'',
 		'import * as util from \'util\'',
-		'import * as util from \'node:util\'',
+		'import util from \'node:util\'',
 		'const util = require(\'util\')',
 		'const util = require(\'node:util\')',
 		'require(\'util\')',
