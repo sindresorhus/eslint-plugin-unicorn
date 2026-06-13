@@ -6,11 +6,13 @@ import {
 
 const MESSAGE_ID_REMOVE_OPTIONAL = 'consistent-optional-chaining/remove-optional';
 const MESSAGE_ID_USE_OPTIONAL = 'consistent-optional-chaining/use-optional';
+const MESSAGE_ID_SUGGEST_REMOVE_OPTIONAL = 'consistent-optional-chaining/suggest-remove-optional';
 const MESSAGE_ID_SUGGEST_USE_OPTIONAL = 'consistent-optional-chaining/suggest-use-optional';
 
 const messages = {
 	[MESSAGE_ID_REMOVE_OPTIONAL]: 'Remove unnecessary optional chaining.',
 	[MESSAGE_ID_USE_OPTIONAL]: 'Use optional chaining consistently.',
+	[MESSAGE_ID_SUGGEST_REMOVE_OPTIONAL]: 'Remove optional chaining.',
 	[MESSAGE_ID_SUGGEST_USE_OPTIONAL]: 'Use optional chaining.',
 };
 const supportedBaseTypes = new Set([
@@ -113,9 +115,17 @@ function getProblem(logicalExpression, context) {
 	if (
 		!leftMemberExpression
 		|| !rightMemberExpression
-		|| !isSupportedMemberBase(getMemberBase(leftMemberExpression))
-		|| !isSupportedMemberBase(getMemberBase(rightMemberExpression))
-		|| !isSameReference(getMemberBase(leftMemberExpression), getMemberBase(rightMemberExpression))
+	) {
+		return;
+	}
+
+	const leftMemberBase = getMemberBase(leftMemberExpression);
+	const rightMemberBase = getMemberBase(rightMemberExpression);
+
+	if (
+		!isSupportedMemberBase(leftMemberBase)
+		|| !isSupportedMemberBase(rightMemberBase)
+		|| !isSameReference(leftMemberBase, rightMemberBase)
 	) {
 		return;
 	}
@@ -125,7 +135,12 @@ function getProblem(logicalExpression, context) {
 			node: rightMemberExpression,
 			messageId: MESSAGE_ID_REMOVE_OPTIONAL,
 			...(canReplaceMemberAccessOperator(rightMemberExpression, context) && {
-				fix: fixer => removeOptionalChaining(rightMemberExpression, context, fixer),
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGEST_REMOVE_OPTIONAL,
+						fix: fixer => removeOptionalChaining(rightMemberExpression, context, fixer),
+					},
+				],
 			}),
 		};
 	}
@@ -139,7 +154,12 @@ function getProblem(logicalExpression, context) {
 			node: rightMemberExpression,
 			messageId: MESSAGE_ID_REMOVE_OPTIONAL,
 			...(canReplaceMemberAccessOperator(rightMemberExpression, context) && {
-				fix: fixer => removeOptionalChaining(rightMemberExpression, context, fixer),
+				suggest: [
+					{
+						messageId: MESSAGE_ID_SUGGEST_REMOVE_OPTIONAL,
+						fix: fixer => removeOptionalChaining(rightMemberExpression, context, fixer),
+					},
+				],
 			}),
 		};
 	}
@@ -172,7 +192,6 @@ const config = {
 			description: 'Enforce consistent optional chaining for same-base member access.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [

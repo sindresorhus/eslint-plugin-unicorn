@@ -34,6 +34,7 @@ test.snapshot({
 		'foo[bar] && foo?.[baz];',
 		'this?.bar || this.baz;',
 		'this.bar && this?.baz;',
+		'class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } }',
 		'foo.bar?.baz || foo.bar.qux;',
 		'(foo?.bar) || (foo.baz);',
 		'foo?.bar || foo.baz || foo.qux;',

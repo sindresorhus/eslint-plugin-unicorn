@@ -18,6 +18,9 @@ test.snapshot({
 		'foo == null ? /* keep */ bar : foo;',
 		'foo == null ? /* keep */ undefined : foo.bar;',
 		'foo == null ? undefined : foo /* comment */ .bar;',
+		'delete (foo == null ? undefined : foo.bar);',
+		'(foo == null ? undefined : foo.bar)();',
+		'(foo == null ? undefined : foo.bar)`tagged`;',
 
 		// Not checking
 		'!!bar ? foo : bar;',
@@ -36,6 +39,8 @@ test.snapshot({
 		'foo == undefined ? undefined : foo.bar;',
 		'foo == null ? undefined : foo[bar];',
 		'foo == null ? undefined : (foo).bar;',
+		'null == foo ? undefined : foo.bar;',
+		'undefined == foo ? undefined : foo.bar;',
 
 		'foo() ? foo() : bar',
 
@@ -76,6 +81,22 @@ test.snapshot({
 		},
 		{
 			code: 'foo.bar! ? foo.bar! : foo.baz',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo == null ? undefined : (foo as Foo).bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo == null ? undefined : (foo satisfies Foo).bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo as Foo) == null ? undefined : foo.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo satisfies Foo) == null ? undefined : foo.bar;',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

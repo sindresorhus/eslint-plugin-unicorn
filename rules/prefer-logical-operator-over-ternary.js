@@ -10,6 +10,7 @@ import {
 	isSameReference,
 	shouldAddParenthesesToLogicalExpressionChild,
 	needsSemicolon,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
@@ -174,6 +175,26 @@ function getNullishCheckReference(node) {
 	return leftNullish ? node.right : node.left;
 }
 
+function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
+	const {parent} = conditionalExpression;
+
+	return (
+		(
+			parent.type === 'UnaryExpression'
+			&& parent.operator === 'delete'
+			&& parent.argument === conditionalExpression
+		)
+		|| (
+			parent.type === 'CallExpression'
+			&& parent.callee === conditionalExpression
+		)
+		|| (
+			parent.type === 'TaggedTemplateExpression'
+			&& parent.tag === conditionalExpression
+		)
+	);
+}
+
 function getNullishTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
 	const reference = getNullishCheckReference(test);
@@ -199,7 +220,8 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		isUndefined(consequent)
 		&& isMemberExpression(alternate)
 		&& !alternate.optional
-		&& isSameReference(reference, alternate.object)
+		&& isSameReference(unwrapTypeScriptExpression(reference), unwrapTypeScriptExpression(alternate.object))
+		&& !isUnsafeOptionalChainReplacementContext(conditionalExpression)
 	)) {
 		return;
 	}
