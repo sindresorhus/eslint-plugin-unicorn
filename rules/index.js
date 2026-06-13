@@ -183,6 +183,7 @@ export {default as 'prefer-object-define-properties'} from './prefer-object-defi
 export {default as 'prefer-object-from-entries'} from './prefer-object-from-entries.js';
 export {default as 'prefer-object-iterable-methods'} from './prefer-object-iterable-methods.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
+export {default as 'prefer-path2d'} from './prefer-path2d.js';
 export {default as 'prefer-private-class-fields'} from './prefer-private-class-fields.js';
 export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.js';
 export {default as 'prefer-query-selector'} from './prefer-query-selector.js';
