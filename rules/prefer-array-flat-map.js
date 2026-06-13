@@ -1,7 +1,6 @@
 import {
-	canSkipKnownNonArrayReceiver,
-	isKnownNonArray,
 	isNodeMatches,
+	shouldSkipKnownNonArrayReceiver,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
@@ -43,10 +42,7 @@ const create = context => {
 		const mapCallExpression = flatCallExpression.callee.object;
 		if (
 			isNodeMatches(mapCallExpression.callee.object, ignored)
-			|| (
-				canSkipKnownNonArrayReceiver(mapCallExpression.callee.object)
-				&& isKnownNonArray(mapCallExpression.callee.object, context)
-			)
+			|| shouldSkipKnownNonArrayReceiver(mapCallExpression.callee.object, context)
 		) {
 			return;
 		}

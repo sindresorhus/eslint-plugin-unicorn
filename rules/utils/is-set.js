@@ -1,13 +1,8 @@
 import {
-	createTypeCheckers,
+	createBuiltinTypeCheckers,
 	target,
 	unknown,
 } from './type-helpers.js';
-
-const setTypeNames = new Set(['Set']);
-const typeReferenceAliases = new Map([
-	['ReadonlySet', 'Set'],
-]);
 
 const getStaticType = value =>
 	value instanceof Set ? target : unknown;
@@ -15,10 +10,9 @@ const getStaticType = value =>
 const {
 	isTarget: isSet,
 	isKnownNonTarget: isKnownNonSet,
-} = createTypeCheckers({
-	targetTypeNames: setTypeNames,
-	typeReferenceAliases,
-	targetConstructorNames: ['Set'],
+} = createBuiltinTypeCheckers({
+	name: 'Set',
+	aliases: ['ReadonlySet'],
 	getStaticType,
 });
 

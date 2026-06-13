@@ -1,13 +1,8 @@
 import {
-	createTypeCheckers,
+	createBuiltinTypeCheckers,
 	target,
 	unknown,
 } from './type-helpers.js';
-
-const mapTypeNames = new Set(['Map']);
-const typeReferenceAliases = new Map([
-	['ReadonlyMap', 'Map'],
-]);
 
 const getStaticType = value =>
 	value instanceof Map ? target : unknown;
@@ -15,10 +10,9 @@ const getStaticType = value =>
 const {
 	isTarget: isMap,
 	isKnownNonTarget: isKnownNonMap,
-} = createTypeCheckers({
-	targetTypeNames: mapTypeNames,
-	typeReferenceAliases,
-	targetConstructorNames: ['Map'],
+} = createBuiltinTypeCheckers({
+	name: 'Map',
+	aliases: ['ReadonlyMap'],
 	getStaticType,
 });
 

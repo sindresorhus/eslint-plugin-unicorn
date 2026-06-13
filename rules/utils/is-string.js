@@ -2,7 +2,7 @@ import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {
-	createTypeCheckers,
+	createBuiltinTypeCheckers,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -33,15 +33,14 @@ const isStringTypeAnnotation = node =>
 
 const hasStringTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isStringTypeAnnotation);
 
-const stringTypeNames = new Set(['String']);
-
 const getStaticType = value =>
 	typeof value === 'string' ? target : unknown;
 
 const {
 	isKnownNonTarget: isKnownNonString,
-} = createTypeCheckers({
-	targetTypeNames: stringTypeNames,
+} = createBuiltinTypeCheckers({
+	name: 'String',
+	checkConstructor: false,
 	targetCallNames: ['String'],
 	isTargetNode(node, context) {
 		const scope = context.sourceCode.getScope(node);

@@ -1,11 +1,9 @@
 import {isRegexLiteral} from '../ast/index.js';
 import {
-	createTypeCheckers,
+	createBuiltinTypeCheckers,
 	target,
 	unknown,
 } from './type-helpers.js';
-
-const regExpTypeNames = new Set(['RegExp']);
 
 const getStaticType = value =>
 	Object.prototype.toString.call(value) === '[object RegExp]' ? target : unknown;
@@ -13,9 +11,8 @@ const getStaticType = value =>
 const {
 	isTarget: isRegExp,
 	isKnownNonTarget: isKnownNonRegExp,
-} = createTypeCheckers({
-	targetTypeNames: regExpTypeNames,
-	targetConstructorNames: ['RegExp'],
+} = createBuiltinTypeCheckers({
+	name: 'RegExp',
 	targetCallNames: ['RegExp'],
 	isTargetNode: isRegexLiteral,
 	getStaticType,

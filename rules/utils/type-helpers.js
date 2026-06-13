@@ -395,7 +395,20 @@ const createTypeCheckers = options => ({
 	isKnownNonTarget: (node, context) => getType(node, context, options) === nonTarget,
 });
 
+const createBuiltinTypeCheckers = ({
+	name,
+	aliases = [],
+	checkConstructor = true,
+	...options
+}) => createTypeCheckers({
+	...options,
+	targetTypeNames: new Set([name]),
+	typeReferenceAliases: new Map(aliases.map(alias => [alias, name])),
+	targetConstructorNames: checkConstructor ? [name] : undefined,
+});
+
 export {
+	createBuiltinTypeCheckers,
 	createTypeCheckers,
 	nonTarget,
 	target,
