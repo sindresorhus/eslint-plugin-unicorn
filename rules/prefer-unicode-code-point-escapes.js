@@ -10,9 +10,9 @@ const messages = {
 
 const BACKSLASH = '\\';
 const CODE_POINT_ESCAPE_PREFIX = String.raw`\u{`;
-const HEX_DIGIT = /^[\da-f]$/i;
-const OCTAL_DIGIT = /^[0-7]$/;
-const CONTROL_LETTER = /^[a-z]$/i;
+const HEX_DIGIT = /^[\da-f]$/iv;
+const OCTAL_DIGIT = /^[0-7]$/v;
+const CONTROL_LETTER = /^[A-Za-z]$/v;
 const MAXIMUM_CODE_POINT = 0x10_FF_FF;
 
 function isHexDigit(character) {

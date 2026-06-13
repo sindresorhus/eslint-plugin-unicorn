@@ -205,6 +205,7 @@ export {default as 'prefer-simple-sort-comparator'} from './prefer-simple-sort-c
 export {default as 'prefer-single-array-predicate'} from './prefer-single-array-predicate.js';
 export {default as 'prefer-single-call'} from './prefer-single-call.js';
 export {default as 'prefer-single-object-destructuring'} from './prefer-single-object-destructuring.js';
+export {default as 'prefer-smaller-scope'} from './prefer-smaller-scope.js';
 export {default as 'prefer-split-limit'} from './prefer-split-limit.js';
 export {default as 'prefer-spread'} from './prefer-spread.js';
 export {default as 'prefer-string-match-all'} from './prefer-string-match-all.js';
