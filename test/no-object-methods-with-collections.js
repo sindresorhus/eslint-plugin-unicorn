@@ -56,6 +56,8 @@ test.snapshot({
 		typescript('import {Map} from "immutable"; function foo(map: Map<string, number>) { return Object.keys(map); }'),
 		typescript('interface Map<K, V> { keys(): K[] } function foo(map: Map<string, number>) { return Object.keys(map); }'),
 		typescript('type Set<T> = {values(): T[]}; function foo(set: Set<string>) { return Object.values(set); }'),
+		typescript('export interface Map<K, V> { keys(): K[] } function foo(map: Map<string, number>) { return Object.keys(map); }'),
+		typescript('export type Set<T> = {values(): T[]}; function foo(set: Set<string>) { return Object.values(set); }'),
 		typescript('function foo(collection: Map<string, number> | Set<string>) { return Object.entries(collection); }'),
 		typeAware('export {}; class Map { keys() { return []; } } const map = new Map(); Object.keys(map);'),
 		typeAware('export {}; interface Map<K, V> { keys(): K[] } declare const map: Map<string, number>; Object.keys(map);'),

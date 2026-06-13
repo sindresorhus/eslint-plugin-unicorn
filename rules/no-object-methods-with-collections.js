@@ -41,6 +41,50 @@ const getTypeSet = type => new Set([type]);
 
 const getTypeFromTypeReferenceName = name => collectionTypes.has(name) ? name : undefined;
 
+const typeDeclarationNodeTypes = new Set([
+	'ClassDeclaration',
+	'TSEnumDeclaration',
+	'TSInterfaceDeclaration',
+	'TSTypeAliasDeclaration',
+]);
+
+const getTypeDeclarationName = node => {
+	if (!node || !typeDeclarationNodeTypes.has(node.type)) {
+		return;
+	}
+
+	return node.id?.name;
+};
+
+const hasUserDefinedTypeName = (name, context) => {
+	for (const node of context.sourceCode.ast.body) {
+		if (node.type === 'ImportDeclaration') {
+			if (node.specifiers.some(specifier => specifier.local.name === name)) {
+				return true;
+			}
+
+			continue;
+		}
+
+		if (
+			node.type === 'ExportNamedDeclaration'
+			|| node.type === 'ExportDefaultDeclaration'
+		) {
+			if (getTypeDeclarationName(node.declaration) === name) {
+				return true;
+			}
+
+			continue;
+		}
+
+		if (getTypeDeclarationName(node) === name) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const mergeTypeSets = typeSets => {
 	const types = new Set();
 
@@ -116,7 +160,7 @@ const getTypesFromTypeAnnotation = (node, context) => {
 				return;
 			}
 
-			if (!isUnshadowedGlobalIdentifier(node.typeName, context)) {
+			if (hasUserDefinedTypeName(node.typeName.name, context)) {
 				return;
 			}
 
