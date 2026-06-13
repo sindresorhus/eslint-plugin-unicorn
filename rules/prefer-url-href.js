@@ -102,6 +102,23 @@ const isTypeOnlyDefinition = definition =>
 	definition.type === 'Type'
 	|| isTypeOnlyImport(definition);
 
+const hasVisibleValueDefinition = (name, scope, referenceNode, context) => {
+	while (scope) {
+		const variable = scope.set.get(name);
+
+		if (variable?.defs.some(definition =>
+			!isTypeOnlyDefinition(definition)
+			&& isDefinitionBeforeReference(definition, referenceNode, context),
+		)) {
+			return true;
+		}
+
+		scope = scope.upper;
+	}
+
+	return false;
+};
+
 const isValueUrlImport = definition =>
 	isUrlImport(definition)
 	&& !isTypeOnlyImport(definition);
@@ -111,6 +128,10 @@ const isGlobalUrlConstructor = (node, context) => {
 		node.type !== 'Identifier'
 		|| node.name !== 'URL'
 	) {
+		return false;
+	}
+
+	if (hasVisibleValueDefinition('URL', context.sourceCode.getScope(node), node, context)) {
 		return false;
 	}
 
