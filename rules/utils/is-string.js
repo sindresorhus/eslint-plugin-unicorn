@@ -1,8 +1,8 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from '../ast/index.js';
-import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
+import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {
-	createBuiltinTypeCheckers,
+	createTypeCheckers,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -21,38 +21,31 @@ const isStringMethodCall = node =>
 	&& !node.optional
 	&& isStaticProperties(node.callee, 'String', stringMethods);
 
-const isStaticString = (node, scope) =>
-	typeof getStaticValue(node, scope)?.value === 'string';
+const isStringTypeAnnotation = node => {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return isStringTypeAnnotation(node.typeAnnotation);
+		}
 
-const isStringTypeAnnotation = node =>
-	node?.type === 'TSStringKeyword'
-	|| (
-		node?.type === 'TSLiteralType'
-		&& typeof node.literal.value === 'string'
-	);
+		case 'TSStringKeyword': {
+			return true;
+		}
 
-const hasStringTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isStringTypeAnnotation);
+		case 'TSLiteralType': {
+			return isStringLiteral(node.literal);
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
 
 const getStaticType = value =>
 	typeof value === 'string' ? target : unknown;
 
-const {
-	isKnownNonTarget: isKnownNonString,
-} = createBuiltinTypeCheckers({
-	name: 'String',
-	checkConstructor: false,
-	targetCallNames: ['String'],
-	isTargetNode(node, context) {
-		const scope = context.sourceCode.getScope(node);
-		return isString(node, scope);
-	},
-	isTargetTypeAnnotation: isStringTypeAnnotation,
-	isTargetType: type => type.intrinsicName === 'string' || typeof type.value === 'string',
-	getStaticType,
-});
-
-// eslint-disable-next-line complexity
-export default function isString(node, scope) {
+const isStringNode = (node, context) => {
 	if (
 		isStringLiteral(node)
 		|| isStringCall(node)
@@ -66,83 +59,59 @@ export default function isString(node, scope) {
 			return true;
 		}
 
-		// `typeof x` always returns a string
 		case 'UnaryExpression': {
-			if (node.operator === 'typeof') {
-				return true;
-			}
-
-			break;
+			return node.operator === 'typeof';
 		}
 
-		// `a + b` where at least one side is a string
 		case 'BinaryExpression': {
-			if (node.operator === '+' && (isString(node.left, scope) || isString(node.right, scope))) {
-				return true;
-			}
-
-			break;
+			return node.operator === '+'
+				&& (isString(node.left, context) || isString(node.right, context));
 		}
 
 		case 'AssignmentExpression': {
-			if (node.operator === '=' && isString(node.right, scope)) {
-				return true;
+			if (node.operator === '=') {
+				return isString(node.right, context);
 			}
 
-			if (node.operator === '+=' && (isString(node.left, scope) || isString(node.right, scope))) {
-				return true;
-			}
-
-			break;
+			return node.operator === '+='
+				&& (isString(node.left, context) || isString(node.right, context));
 		}
 
-		case 'ConditionalExpression': {
-			if (isString(node.consequent, scope) && isString(node.alternate, scope)) {
-				return true;
-			}
-
-			break;
+		default: {
+			return false;
 		}
+	}
+};
 
-		case 'SequenceExpression': {
-			if (isString(node.expressions.at(-1), scope)) {
-				return true;
-			}
+const {
+	isTarget: isStringTarget,
+	isKnownNonTarget: isKnownNonString,
+} = createTypeCheckers({
+	targetTypeNames: new Set(),
+	targetCallNames: ['String'],
+	isTargetNode: isStringNode,
+	isTargetTypeAnnotation: isStringTypeAnnotation,
+	isTargetType: type => type.isStringLiteral?.() || type.intrinsicName === 'string',
+	getStaticType,
+});
 
-			break;
-		}
-
-		case 'Identifier': {
-			if (hasStringTypeAnnotation(node, scope)) {
-				return true;
-			}
-
-			break;
-		}
-
-		// `foo as string`, `foo satisfies string`, `<string>foo`
-		case 'TSAsExpression':
-		case 'TSSatisfiesExpression':
-		case 'TSTypeAssertion': {
-			if (isStringTypeAnnotation(node.typeAnnotation)) {
-				return true;
-			}
-
-			break;
-		}
-
-		// `foo!`
-		case 'TSNonNullExpression': {
-			if (isString(node.expression, scope)) {
-				return true;
-			}
-
-			break;
-		}
-		// No default
+export default function isString(node, context) {
+	if (!node) {
+		return false;
 	}
 
-	return isStaticString(node, scope);
+	if (
+		node.type === 'TSSatisfiesExpression'
+		&& isStringTypeAnnotation(node.typeAnnotation)
+	) {
+		return true;
+	}
+
+	if (isStringTarget(node, context)) {
+		return true;
+	}
+
+	return typeof getStaticValue(node, context.sourceCode.getScope(node))?.value === 'string';
 }
 
 export {
