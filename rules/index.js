@@ -10,6 +10,7 @@ export {default as 'consistent-date-clone'} from './consistent-date-clone.js';
 export {default as 'consistent-destructuring'} from './consistent-destructuring.js';
 export {default as 'consistent-empty-array-spread'} from './consistent-empty-array-spread.js';
 export {default as 'consistent-existence-index-check'} from './consistent-existence-index-check.js';
+export {default as 'consistent-export-decorator-position'} from './consistent-export-decorator-position.js';
 export {default as 'consistent-function-scoping'} from './consistent-function-scoping.js';
 export {default as 'consistent-function-style'} from './consistent-function-style.js';
 export {default as 'consistent-json-file-read'} from './consistent-json-file-read.js';
