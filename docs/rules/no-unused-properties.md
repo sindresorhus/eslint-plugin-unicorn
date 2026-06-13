@@ -13,7 +13,7 @@ This rule is primarily useful when you use objects to group constants or model e
 
 ## Example use cases
 
-When using [React](https://reactjs.org)'s inline styles or one of [many CSS-in-JS](https://michelebertoli.github.io/css-in-js/) like [glamor](https://github.com/threepointone/glamor), one might find it helpful to group component styles into a constant object. Later you might remove one of the styles, but forget to remove its definition, especially if the component grew in complexity by that time. If these were defined as separate constants, ESLint's builtin `no-unused-vars` rule would have helped, but they are not. That's when the `no-unused-properties` rules becomes useful.
+When using [React](https://reactjs.org)'s inline styles or one of [many CSS-in-JS](https://michelebertoli.github.io/css-in-js/) libraries like [glamor](https://github.com/threepointone/glamor), one might find it helpful to group component styles into a constant object. Later you might remove one of the styles, but forget to remove its definition, especially if the component grew in complexity by that time. If these were defined as separate constants, ESLint's built-in `no-unused-vars` rule would have helped, but they are not. That's when the `no-unused-properties` rule becomes useful.
 
 ```js
 const styles = {
@@ -46,6 +46,22 @@ const myEnum = {
 console.log(myEnum.used);
 
 const {used} = myEnum;
+```
+
+This rule also checks inline TypeScript object type literals attached directly to initialized variables and parameters.
+
+```ts
+// ❌
+function foo(args: {used: number; unused: number}) {
+	return args.used;
+}
+```
+
+```ts
+// ✅
+function foo(args: {used: number}) {
+	return args.used;
+}
 ```
 
 ```js
@@ -85,7 +101,7 @@ const foo = {
 
 This rule tries hard not to report potentially used properties as unused. Basically, all supported use cases are enum-like as shown above, more complex cases are ignored. Detailed list of limitations follows.
 
-- Does not predict dynamic property access. That is, `object[keys]` says that all properties of an object are potentially used. This is as unpredictable for this rule as `eval(...)` is for the `no-unused-vars` rule.
+- Does not predict dynamic property access. That is, `object[key]` says that all properties of an object are potentially used. This is as unpredictable for this rule as `eval(...)` is for the `no-unused-vars` rule.
 - Same goes for computed property keys in object definitions, like `{[key]: value}`.
 - If a variable is unused, it is not checked. This is done to play nicely with the `no-unused-vars` rule, which everybody should have enabled at all times.
 - Does not check objects used as an argument. If you call `f(object)`, it behaves like you used all of its properties, since it's hard to predict what a function would do with the object.
@@ -94,5 +110,6 @@ This rule tries hard not to report potentially used properties as unused. Basica
 - Classes are not checked.
 - Prototypes are not checked. Only own properties are.
 - Does not follow objects across files. If you export an object, it's like if you used all of its properties.
+- TypeScript support is limited to inline object type literals attached directly to initialized variables and parameters. Named type aliases, interfaces, and destructured typed bindings are not followed.
 
 If you want to lift some of these limitations, you should try tools like [Flow](https://flow.org) or [TypeScript](https://www.typescriptlang.org).

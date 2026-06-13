@@ -7,6 +7,11 @@ const error = {
 	messageId: 'no-unused-properties',
 };
 
+const errorWithPropertyName = name => ({
+	...error,
+	data: {name},
+});
+
 test({
 	valid: [
 		outdent`
@@ -464,8 +469,165 @@ test.typescript({
 
 			console.log(userDebounce);
 		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				return args.x + args.y;
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				console.log(args);
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}, key: 'x' | 'y') {
+				return args[key];
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; y: number}) {
+				args.x = 1;
+			}
+		`,
+		outdent`
+			function foo(args: {x: () => void; y: number}) {
+				args.x();
+			}
+		`,
+		outdent`
+			type Arguments = {
+				x: number;
+				y: number;
+			};
+
+			function foo(args: Arguments) {
+				return args.x;
+			}
+		`,
+		outdent`
+			interface Arguments {
+				x: number;
+				y: number;
+			}
+
+			function foo(args: Arguments) {
+				return args.x;
+			}
+		`,
+		outdent`
+			function foo({x}: {x: number; y: number}) {
+				return x;
+			}
+		`,
+		outdent`
+			const {x}: {x: number; y: number} = args;
+			console.log(x);
+		`,
+		outdent`
+			declare const args: {x: number; y: number};
+			console.log(args.x);
+		`,
+		outdent`
+			let args: {x: number; y: number};
+			console.log(args.x);
+		`,
+		outdent`
+			function foo(args: {x: number; y(): void}) {
+				return args.x;
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; [key: string]: unknown}) {
+				return args.x;
+			}
+		`,
+		outdent`
+			function foo(args: {x: number; (value: string): void}) {
+				return args.x;
+			}
+		`,
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: outdent`
+				function foo(args: {x: number; y: number}) {
+					return args.x * 2;
+				}
+			`,
+			errors: [errorWithPropertyName('y')],
+		},
+		{
+			code: outdent`
+				const args: {x: number; y: number} = getArgs();
+				console.log(args.x);
+			`,
+			errors: [errorWithPropertyName('y')],
+		},
+		{
+			code: outdent`
+				function foo(args: {options: {enabled: boolean; unused: boolean}; label: string}) {
+					return args.options.enabled && args.label.length > 0;
+				}
+			`,
+			errors: [errorWithPropertyName('unused')],
+		},
+		{
+			code: outdent`
+				function foo(args: {'x': number; 'y': number}) {
+					return args['x'];
+				}
+			`,
+			errors: [errorWithPropertyName('y')],
+		},
+		{
+			code: outdent`
+				type Arguments = {
+					x: number;
+					unused: number;
+				};
+
+				const args: Arguments = {x: 1, unused: 2};
+				console.log(args.x);
+			`,
+			errors: [errorWithPropertyName('unused')],
+		},
+		{
+			code: outdent`
+				function foo(args: {x: {a: number; b: number}; y: number}) {
+					return args.x!.a;
+				}
+			`,
+			errors: [
+				errorWithPropertyName('b'),
+				errorWithPropertyName('y'),
+			],
+		},
+		{
+			code: outdent`
+				function foo(args: {x: {a: number; b: number}; y: number}) {
+					return (args.x as {a: number; b: number}).a;
+				}
+			`,
+			errors: [
+				errorWithPropertyName('b'),
+				errorWithPropertyName('y'),
+			],
+		},
+		{
+			code: outdent`
+				const args = {x: 1, y: 2} as const;
+				console.log(args.x);
+			`,
+			errors: [errorWithPropertyName('y')],
+		},
+		{
+			code: outdent`
+				const args = {x: 1, y: 2} satisfies {x: number; y: number};
+				console.log(args.x);
+			`,
+			errors: [errorWithPropertyName('y')],
+		},
+	],
 });
 
 test.snapshot({
