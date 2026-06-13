@@ -4,7 +4,8 @@ import {execFileSync} from 'node:child_process';
 import test from 'ava';
 
 test('No unnecessary polyfills avoids scanning every pattern for unrelated imports', t => {
-	const cwd = path.dirname(path.dirname(path.dirname(url.fileURLToPath(import.meta.url))));
+	const testFile = url.fileURLToPath(import.meta.url);
+	const cwd = path.dirname(path.dirname(path.dirname(testFile)));
 	const script = `
 		import {ESLint} from 'eslint';
 		import plugin from './index.js';

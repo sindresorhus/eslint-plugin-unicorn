@@ -45,6 +45,7 @@ function testCaseWithOptions(filename, errorMessage, options = []) {
 }
 
 const outsideCwd = path.join(path.dirname(process.cwd()), 'Src', 'fooBar.js');
+const cwd = process.cwd();
 
 test('checks relative directory names from ESLint cwd', t => {
 	const linter = new Linter({
@@ -693,7 +694,7 @@ ruleTest({
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		),
 		testCase(
-			path.join(process.cwd(), 'src/FooBar/file.js'),
+			path.join(cwd, 'src/FooBar/file.js'),
 			undefined,
 			'Directory name `FooBar` is not in kebab case. Rename it to `foo-bar`.',
 		),

@@ -99,8 +99,9 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 			return;
 		}
 
-		if (typeof getNumericValue(secondArgument) === 'number') {
-			yield replaceSecondArgument(String(Math.max(0, getNumericValue(secondArgument))));
+		const numericValue = getNumericValue(secondArgument);
+		if (typeof numericValue === 'number') {
+			yield replaceSecondArgument(String(Math.max(0, numericValue)));
 			return;
 		}
 

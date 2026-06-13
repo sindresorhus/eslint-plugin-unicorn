@@ -124,6 +124,7 @@ async function runEslint(project) {
 	const warningCount = sum(results, 'warningCount');
 	const fixableErrorCount = sum(results, 'fixableErrorCount');
 	const fixableWarningCount = sum(results, 'fixableWarningCount');
+	const duration = prettyMilliseconds((process.hrtime.bigint() - startTime) / 1_000_000n);
 	console.log();
 	console.log(outdent`
 		${styleText.green.bold.underline`[${project.name}]`} ${results.length} files linted:
@@ -131,7 +132,7 @@ async function runEslint(project) {
 		- warning: ${styleText.gray(String(warningCount))}
 		- fixable error: ${styleText.gray(String(fixableErrorCount))}
 		- fixable warning: ${styleText.gray(String(fixableWarningCount))}
-		- duration: ${styleText.gray(prettyMilliseconds((process.hrtime.bigint() - startTime) / 1_000_000n))}
+		- duration: ${styleText.gray(duration)}
 	`);
 }
 
