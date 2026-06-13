@@ -66,12 +66,10 @@ const foo = array[100];
 
 ```js
 // ❌
-const string = 'string';
-const foo = string[1];
+const foo = 'string'[1];
 
 // ✅
-const string = 'string';
-const foo = string.at(1);
+const foo = 'string'.at(1);
 ```
 
 ```js
@@ -110,7 +108,7 @@ Type: `object`
 Type: `boolean`\
 Default: `false`
 
-This rule checks negative indexes and known string positive indexes by default. You can also check other positive index access by setting `checkAllIndexAccess` to `true`.
+This rule checks negative indexes and non-negative integer indexes on known strings by default. You can also check other non-negative integer index access by setting `checkAllIndexAccess` to `true`.
 
 Example:
 
