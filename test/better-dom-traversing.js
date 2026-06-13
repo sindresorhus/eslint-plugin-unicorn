@@ -4,6 +4,14 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
 
+const jsxLanguageOptions = {
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+	},
+};
+
 test.snapshot({
 	valid: [
 		// Already preferred APIs
@@ -66,6 +74,20 @@ test.snapshot({
 		...notDomNodeTypes.map(data => `(${data}).childNodes[0];`),
 		...notDomNodeTypes.map(data => `(${data}).parentElement.parentElement;`),
 		...notDomNodeTypes.map(data => `(${data}).querySelector("a").querySelector("b");`),
+
+		// React props children are not DOM traversal
+		{
+			code: 'class Component { render() { return <div>{this.props.children[0]}</div>; } }',
+			languageOptions: jsxLanguageOptions,
+		},
+		{
+			code: 'const Component = props => <div>{props.children[0]}</div>;',
+			languageOptions: jsxLanguageOptions,
+		},
+		{
+			code: 'const child = component.props.children[0];',
+			languageOptions: jsxLanguageOptions,
+		},
 	],
 	invalid: [
 		'element.childNodes[0];',
