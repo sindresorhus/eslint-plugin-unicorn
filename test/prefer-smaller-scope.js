@@ -250,6 +250,63 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = getValue();
+					console.log(value);
+				}
+				eval('console.log(value)');
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				function bar() {
+					eval('console.log(value)');
+				}
+				if (condition) {
+					value = getValue();
+					console.log(value);
+				}
+				bar();
+			}
+		`,
+		{
+			code: outdent`
+				function foo(object) {
+					let value;
+					with (object) {
+						call();
+					}
+					if (condition) {
+						value = getValue();
+						console.log(value);
+					}
+				}
+			`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		{
+			code: outdent`
+				function foo(object) {
+					let value;
+					with (object) {
+						eval('console.log(value)');
+					}
+					if (condition) {
+						value = getValue();
+						console.log(value);
+					}
+				}
+			`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
 	],
 	invalid: [
 		outdent`

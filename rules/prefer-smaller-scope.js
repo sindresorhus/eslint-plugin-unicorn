@@ -37,12 +37,9 @@ function isDescendantWithoutScopeBoundary(node, ancestor) {
 	return current === ancestor;
 }
 
-function hasDirectEvalCall(node, visitorKeys, root = node) {
-	if (
-		node !== root
-		&& scopeBoundaryTypes.has(node.type)
-	) {
-		return false;
+function hasDynamicScope(node, visitorKeys) {
+	if (node.type === 'WithStatement') {
+		return true;
 	}
 
 	if (
@@ -56,10 +53,10 @@ function hasDirectEvalCall(node, visitorKeys, root = node) {
 	for (const key of visitorKeys[node.type] ?? []) {
 		const value = node[key];
 		if (Array.isArray(value)) {
-			if (value.some(childNode => childNode && hasDirectEvalCall(childNode, visitorKeys, root))) {
+			if (value.some(childNode => childNode && hasDynamicScope(childNode, visitorKeys))) {
 				return true;
 			}
-		} else if (value && hasDirectEvalCall(value, visitorKeys, root)) {
+		} else if (value && hasDynamicScope(value, visitorKeys)) {
 			return true;
 		}
 	}
@@ -162,7 +159,7 @@ function getProblem(node, sourceCode) {
 
 	if (
 		!isDescendantWithoutScopeBoundary(block, node.parent)
-		|| hasDirectEvalCall(block, sourceCode.visitorKeys)
+		|| hasDynamicScope(node.parent, sourceCode.visitorKeys)
 	) {
 		return;
 	}
