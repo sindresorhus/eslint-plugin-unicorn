@@ -64,6 +64,7 @@ export {default as isShorthandImportLocal} from './is-shorthand-import-local.js'
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
+export {default as normalizeComment} from './normalize-comment.js';
 export {default as unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,
