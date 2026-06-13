@@ -2,18 +2,28 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isNewExpression} from './ast/index.js';
 import {
 	getParenthesizedText,
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	isUnknownType,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
-import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 
 const MESSAGE_ID_ERROR = 'no-object-methods-with-collections/error';
 const MESSAGE_ID_SUGGESTION = 'no-object-methods-with-collections/suggestion';
 
-const collectionTypes = new Set([
+const mapTypes = new Set([
 	'Map',
 	'ReadonlyMap',
+]);
+
+const setTypes = new Set([
 	'Set',
 	'ReadonlySet',
+]);
+
+const collectionTypes = new Set([
+	...mapTypes,
+	...setTypes,
 ]);
 
 const objectMethods = new Set([
@@ -47,16 +57,13 @@ const mergeTypeSets = typeSets => {
 	return types;
 };
 
-const isDefaultLibrarySymbol = (symbol, program) =>
-	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
-
 const isUnshadowedGlobalIdentifier = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	return !variable || (variable.scope.type === 'global' && variable.defs.length === 0);
 };
 
 const getTypesFromType = (type, program) => {
-	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
+	if (isUnknownType(type)) {
 		return;
 	}
 
@@ -64,7 +71,7 @@ const getTypesFromType = (type, program) => {
 		return mergeTypeSets(type.types.map(type => getTypesFromType(type, program)));
 	}
 
-	const symbol = type.getSymbol() ?? type.aliasSymbol;
+	const symbol = getTypeSymbol(type);
 	if (!isDefaultLibrarySymbol(symbol, program)) {
 		return;
 	}
@@ -200,13 +207,28 @@ const getCollectionType = (node, context) => {
 		return;
 	}
 
+	let hasMapType = false;
+	let hasSetType = false;
+
 	for (const type of types) {
-		if (!collectionTypes.has(type)) {
-			return;
+		if (mapTypes.has(type)) {
+			hasMapType = true;
+			continue;
 		}
+
+		if (setTypes.has(type)) {
+			hasSetType = true;
+			continue;
+		}
+
+		return;
 	}
 
-	return types.has('Map') || types.has('ReadonlyMap') ? 'Map' : 'Set';
+	if (hasMapType && hasSetType) {
+		return;
+	}
+
+	return hasMapType ? 'Map' : 'Set';
 };
 
 const getMemberObjectText = (node, context) => {
@@ -214,7 +236,7 @@ const getMemberObjectText = (node, context) => {
 	return shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
 };
 
-const getProblem = ({node}, context) => {
+const getProblem = (node, context) => {
 	const {callee} = node;
 	if (
 		node.arguments.length !== 1
@@ -222,6 +244,9 @@ const getProblem = ({node}, context) => {
 		|| callee.type !== 'MemberExpression'
 		|| callee.optional
 		|| callee.computed
+		|| callee.object.type !== 'Identifier'
+		|| callee.object.name !== 'Object'
+		|| !isUnshadowedGlobalIdentifier(callee.object, context)
 		|| callee.property.type !== 'Identifier'
 		|| !objectMethods.has(callee.property.name)
 	) {
@@ -258,17 +283,9 @@ const getProblem = ({node}, context) => {
 	return problem;
 };
 
-const trackers = [...objectMethods].map(method => new GlobalReferenceTracker({
-	object: `Object.${method}`,
-	type: GlobalReferenceTracker.CALL,
-	handle: getProblem,
-}));
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	for (const tracker of trackers) {
-		tracker.listen({context});
-	}
+	context.on('CallExpression', node => getProblem(node, context));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
