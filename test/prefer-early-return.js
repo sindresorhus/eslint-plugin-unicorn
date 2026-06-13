@@ -172,6 +172,45 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		{
+			code: outdent`
+				function foo() {
+					if (foo!) {
+						doSomething();
+						doSomethingElse();
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (<boolean>foo) {
+						doSomething();
+						doSomethingElse();
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (foo satisfies boolean) {
+						doSomething();
+						doSomethingElse();
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		outdent`
 			function foo() {
 				if (condition) {
@@ -224,12 +263,31 @@ test.snapshot({
 				}
 			}
 		`,
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						doSomething(<div>
+							value
+						</div>);
+						doSomethingElse();
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 		outdent`
 			function foo() {
 				if (condition) {
 					doSomething();
 					doSomethingElse();
-				} // Keep this comment here.
+				} // Trailing comment.
 			}
 		`,
 		outdent`
@@ -238,7 +296,7 @@ test.snapshot({
 					doSomething();
 					doSomethingElse();
 				}
-				// Keep this comment here.
+				// Following comment.
 			}
 		`,
 		{

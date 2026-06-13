@@ -72,33 +72,10 @@ const hasDirectBlockScopedDeclaration = node =>
 		&& node.body.some(node => isBlockScopedDeclaration(node))
 	);
 
-const hasMultilineWhitespaceSensitiveNode = (node, sourceCode) => {
-	if (
-		(
-			node.type === 'TemplateLiteral'
-			|| node.type === 'JSXElement'
-			|| node.type === 'JSXFragment'
-			|| (node.type === 'Literal' && typeof node.value === 'string')
-		)
-		&& sourceCode.getText(node).includes('\n')
-	) {
-		return true;
-	}
-
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(childNode => childNode && hasMultilineWhitespaceSensitiveNode(childNode, sourceCode))) {
-				return true;
-			}
-		} else if (value && hasMultilineWhitespaceSensitiveNode(value, sourceCode)) {
-			return true;
-		}
-	}
-
-	return false;
-};
+const hasMultilineToken = (node, sourceCode) =>
+	sourceCode.getTokens(node).some(token =>
+		sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
+	);
 
 const shouldAddParenthesesWhenNegated = node =>
 	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
@@ -179,17 +156,21 @@ const getReplacementText = (ifStatement, context) => {
 	return `if (${conditionText}) {\n${ifIndent}\treturn;\n${ifIndent}}\n\n${consequentText}`;
 };
 
-const canRewriteConsequent = (ifStatement, sourceCode) => {
+const canSafelyMoveConsequent = (ifStatement, sourceCode) => {
 	const {consequent} = ifStatement;
 
 	return !hasDirectBlockScopedDeclaration(consequent)
-		&& !hasMultilineWhitespaceSensitiveNode(consequent, sourceCode);
+		&& !hasMultilineToken(consequent, sourceCode);
 };
 
 const hasCommentsInsideWrapperOutsideConsequent = (ifStatement, sourceCode) => {
 	const consequentRange = sourceCode.getRange(ifStatement.consequent);
 	return sourceCode.getCommentsInside(ifStatement).some(comment => !isNodeInsideRange(comment, consequentRange, sourceCode));
 };
+
+const canSuggestRewrite = (ifStatement, sourceCode) =>
+	canSafelyMoveConsequent(ifStatement, sourceCode)
+	&& !hasCommentsInsideWrapperOutsideConsequent(ifStatement, sourceCode);
 
 const getFix = (ifStatement, context) => {
 	const {sourceCode} = context;
@@ -199,11 +180,7 @@ const getFix = (ifStatement, context) => {
 		return;
 	}
 
-	if (!canRewriteConsequent(ifStatement, sourceCode)) {
-		return;
-	}
-
-	if (hasCommentsInsideWrapperOutsideConsequent(ifStatement, sourceCode)) {
+	if (!canSuggestRewrite(ifStatement, sourceCode)) {
 		return;
 	}
 
@@ -220,10 +197,7 @@ const getFix = (ifStatement, context) => {
 const getSuggestion = (ifStatement, context) => {
 	const {sourceCode} = context;
 
-	if (
-		!canRewriteConsequent(ifStatement, sourceCode)
-		|| hasCommentsInsideWrapperOutsideConsequent(ifStatement, sourceCode)
-	) {
+	if (!canSuggestRewrite(ifStatement, sourceCode)) {
 		return;
 	}
 
