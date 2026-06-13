@@ -29,6 +29,7 @@ test.snapshot({
 		String.raw`const foo = /\u{110000}/`,
 		String.raw`const foo = /\u{}/`,
 		String.raw`const foo = /\u{/`,
+		String.raw`const foo = /\cK/`,
 		String.raw`const foo = new RegExp("\\u0061")`,
 	],
 	invalid: [

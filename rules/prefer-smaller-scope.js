@@ -147,7 +147,7 @@ function getProblem(node, sourceCode) {
 	const writeReferences = references.filter(reference => reference.isWrite());
 	if (
 		writeReferences.length !== 1
-		|| !references.some(reference => reference.isRead())
+		|| references.every(reference => !reference.isRead())
 	) {
 		return;
 	}
@@ -176,7 +176,7 @@ function getProblem(node, sourceCode) {
 		return;
 	}
 
-	if (!references.every(reference => isDescendantWithoutScopeBoundary(reference.identifier, block))) {
+	if (references.some(reference => !isDescendantWithoutScopeBoundary(reference.identifier, block))) {
 		return;
 	}
 
