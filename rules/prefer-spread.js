@@ -9,6 +9,7 @@ import {
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getPreviousNode,
 	needsSemicolon,
 	isNodeMatches,
 	isMethodNamed,
@@ -29,6 +30,7 @@ const ERROR_ARRAY_FROM = 'array-from';
 const ERROR_ARRAY_CONCAT = 'array-concat';
 const ERROR_ARRAY_SLICE = 'array-slice';
 const ERROR_ARRAY_TO_SPLICED = 'array-to-spliced';
+const ERROR_FOR_OF = 'for-of';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
@@ -38,6 +40,7 @@ const messages = {
 	[ERROR_ARRAY_CONCAT]: 'Prefer the spread operator over `Array#concat(…)`.',
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
 	[ERROR_ARRAY_TO_SPLICED]: 'Prefer the spread operator over `Array#toSpliced()`.',
+	[ERROR_FOR_OF]: 'Prefer the spread operator over this `for…of` loop.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
@@ -1001,6 +1004,189 @@ function getConcatReceiverArrayState(node, context) {
 	return getSyntacticReceiverArrayState(unwrapReceiverReference(node), context);
 }
 
+const getEmptyArrayDeclaration = node => {
+	if (
+		!node
+		|| node.type !== 'VariableDeclaration'
+		|| (node.kind !== 'const' && node.kind !== 'let')
+		|| node.declarations.length !== 1
+	) {
+		return;
+	}
+
+	const [declarator] = node.declarations;
+
+	if (
+		declarator.id.type !== 'Identifier'
+		|| !declarator.init
+		|| !isEmptyArrayExpression(declarator.init)
+	) {
+		return;
+	}
+
+	return declarator;
+};
+
+const getOnlyExpression = node => {
+	if (node.type === 'ExpressionStatement') {
+		return node.expression;
+	}
+
+	if (
+		node.type === 'BlockStatement'
+		&& node.body.length === 1
+		&& node.body[0].type === 'ExpressionStatement'
+	) {
+		return node.body[0].expression;
+	}
+};
+
+const isIdentifierNamed = (node, name) => node.type === 'Identifier' && node.name === name;
+
+const hasIdentifierName = (node, name, visitorKeys) => {
+	if (!node || typeof node.type !== 'string') {
+		return false;
+	}
+
+	if (node.type === 'Identifier' && node.name === name) {
+		return true;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			if (value.some(node => hasIdentifierName(node, name, visitorKeys))) {
+				return true;
+			}
+		} else if (hasIdentifierName(value, name, visitorKeys)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const getSingleForOfBinding = node => {
+	if (
+		node.left.type !== 'VariableDeclaration'
+		|| node.left.declarations.length !== 1
+		|| (node.left.kind !== 'const' && node.left.kind !== 'let')
+	) {
+		return;
+	}
+
+	const [{id, init}] = node.left.declarations;
+
+	if (init) {
+		return;
+	}
+
+	if (id.type === 'Identifier') {
+		return {id};
+	}
+
+	if (
+		id.type === 'ArrayPattern'
+		&& id.elements.length === 2
+		&& id.elements.every(element => element?.type === 'Identifier')
+	) {
+		const [index, element] = id.elements;
+
+		return {
+			index,
+			element,
+		};
+	}
+};
+
+const isBindingShadowingArray = (binding, arrayName) =>
+	binding?.id?.name === arrayName
+	|| binding?.index?.name === arrayName
+	|| binding?.element?.name === arrayName;
+
+const getForOfIterableNode = (node, arrayName, context) => {
+	const expression = getOnlyExpression(node.body);
+
+	if (!expression) {
+		return;
+	}
+
+	const binding = getSingleForOfBinding(node);
+
+	if (isBindingShadowingArray(binding, arrayName)) {
+		return;
+	}
+
+	if (
+		binding?.id
+		&& isMethodCall(expression, {
+			method: 'push',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isIdentifierNamed(expression.callee.object, arrayName)
+		&& isIdentifierNamed(expression.arguments[0], binding.id.name)
+	) {
+		return node.right;
+	}
+
+	if (
+		!binding?.index
+		|| !isMethodCall(node.right, {
+			method: 'entries',
+			argumentsLength: 0,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| getConcatReceiverArrayState(node.right.callee.object, context) !== true
+		|| expression.type !== 'AssignmentExpression'
+		|| expression.operator !== '='
+		|| expression.left.type !== 'MemberExpression'
+		|| !expression.left.computed
+		|| !isIdentifierNamed(expression.left.object, arrayName)
+		|| !isIdentifierNamed(expression.left.property, binding.index.name)
+		|| !isIdentifierNamed(expression.right, binding.element.name)
+	) {
+		return;
+	}
+
+	return node.right.callee.object;
+};
+
+const getForOfCopyFix = ({
+	declaration,
+	node,
+	iterableNode,
+	context,
+}) => {
+	const {sourceCode} = context;
+	const iterableRange = getParenthesizedRange(iterableNode, context);
+	const hasUnpreservedLoopComment = sourceCode.getCommentsInside(node).some(comment => {
+		const [start, end] = sourceCode.getRange(comment);
+		const [iterableStart, iterableEnd] = iterableRange;
+
+		return start < iterableStart || end > iterableEnd;
+	});
+
+	if (
+		sourceCode.getCommentsInside(declaration).length > 0
+		|| sourceCode.getTokensBetween(declaration, node, {includeComments: true}).some(token => isCommentToken(token))
+		|| hasUnpreservedLoopComment
+	) {
+		return;
+	}
+
+	return fixer => fixer.replaceTextRange(
+		[
+			sourceCode.getRange(declaration)[0],
+			sourceCode.getRange(node)[1],
+		],
+		`${declaration.kind} ${sourceCode.getText(declaration.declarations[0].id)} = [...${sourceCode.text.slice(...iterableRange)}];`,
+	);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -1018,6 +1204,40 @@ const create = context => {
 
 		return hasCommentsOutsideRanges(node, [preservedRange]);
 	};
+
+	context.on('ForOfStatement', node => {
+		if (node.await) {
+			return;
+		}
+
+		const declaration = getPreviousNode(node, context);
+		const declarator = getEmptyArrayDeclaration(declaration);
+
+		if (!declarator) {
+			return;
+		}
+
+		const arrayName = declarator.id.name;
+		const iterableNode = getForOfIterableNode(node, arrayName, context);
+
+		if (
+			!iterableNode
+			|| hasIdentifierName(iterableNode, arrayName, sourceCode.visitorKeys)
+		) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: ERROR_FOR_OF,
+			fix: getForOfCopyFix({
+				declaration,
+				node,
+				iterableNode,
+				context,
+			}),
+		};
+	});
 
 	// Collect ranges whose comments are guaranteed to survive the concat-to-spread fix.
 	const getConcatPreservedRanges = (node, fixedArgumentsCount) => {
@@ -1287,7 +1507,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, and `Array#{slice,toSpliced}()`.',
+			description: 'Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()`, and trivial `for…of` copies.',
 			recommended: true,
 		},
 		fixable: 'code',
