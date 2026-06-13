@@ -4,8 +4,17 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const messageId = 'no-useless-undefined';
+const suggestionMessageId = 'no-useless-undefined/suggestion';
 
 const errors = [{messageId}];
+const errorsWithSuggestion = output => [{
+	messageId,
+	suggestions: [{messageId: suggestionMessageId, output}],
+}];
+const errorsWithoutSuggestion = [{
+	messageId,
+	suggestions: [],
+}];
 const optionsIgnoreArguments = [{checkArguments: false}];
 const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
 
@@ -24,6 +33,20 @@ test({
 		'function foo(bar) {}',
 		// I guess nobody use this, but `yield* undefined;` is valid code, and `yield*;` is not
 		'function* foo() {yield* undefined;}',
+		'const foo = index >= 0 ? array[index] : bar;',
+		'const foo = index >= 0 ? object.property : undefined;',
+		'const foo = index >= 0 ? array?.[index] : undefined;',
+		'const foo = index >= 0 ? object?.items[index] : undefined;',
+		'const foo = index >= 0 ? getArray()[index] : undefined;',
+		'const foo = index >= 0 ? object.items[index] : undefined;',
+		'const foo = index >= 0 ? array[index++] : undefined;',
+		'const foo = index >= 0 ? array[getIndex()] : undefined;',
+		'const foo = index < otherArray.length ? array[index] : undefined;',
+		'const foo = index >= 0 ? array[index + 1] : undefined;',
+		'const foo = index >= 0 ? array[otherIndex] : undefined;',
+		'const foo = index >= 5 ? array[index] : undefined;',
+		'const foo = index < array.length ? array[index - 1] : undefined;',
+		'const foo = foo?.bar >= 0 ? array[foo.bar] : undefined;',
 
 		// Ignored
 		'if (Object.is(foo, undefined)){}',
@@ -251,6 +274,78 @@ test({
 					},
 				},
 			},
+		},
+		{
+			code: 'const foo = index >= 0 ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index > -1 ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index < 0 ? undefined : array[index];',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = -1 < index ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = 0 > index ? undefined : array[index];',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index <= array.length - 1 ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index > array.length - 1 ? undefined : array[index];',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index >= 5 ? array[index - 5] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index - 5];'),
+		},
+		{
+			code: 'const foo = 0 <= index ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index >= array.length ? undefined : array[index];',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = array.length <= index ? undefined : array[index];',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = array.length > index ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = 5 <= index ? array[index - 5] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index - 5];'),
+		},
+		{
+			code: 'const foo = index < 5 ? undefined : array[index - 5];',
+			errors: errorsWithSuggestion('const foo = array[index - 5];'),
+		},
+		{
+			code: 'const foo = index >= 0 ? array[index] /* comment */ : undefined;',
+			errors: errorsWithoutSuggestion,
+		},
+		{
+			code: 'const foo = index /* comment */ >= 0 ? array[index] : undefined;',
+			errors: errorsWithoutSuggestion,
+		},
+		{
+			code: 'const foo = index >= 0 ? array[index] : /* comment */ undefined;',
+			errors: errorsWithoutSuggestion,
+		},
+		{
+			code: 'a()\nindex >= 0 ? [array][index] : undefined;',
+			errors: errorsWithSuggestion('a()\n;[array][index];'),
 		},
 	],
 });
@@ -512,6 +607,22 @@ test.typescript({
 				}
 			`,
 			errors: 1,
+		},
+		{
+			code: 'const foo = (index as number) >= 0 ? array[index as number] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index as number];'),
+		},
+		{
+			code: 'const foo = index! >= 0 ? array[index!] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index!];'),
+		},
+		{
+			code: 'const foo = (index satisfies number) >= 0 ? array[index satisfies number] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index satisfies number];'),
+		},
+		{
+			code: 'const foo = <number>index >= 0 ? array[<number>index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[<number>index];'),
 		},
 	],
 });
