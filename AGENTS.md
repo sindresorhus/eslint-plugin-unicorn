@@ -90,6 +90,8 @@ Before writing helpers, check these directories:
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
 
+If a helper becomes complicated and clearly general across rules, consider moving it to a shared utility. Keep simple or rule-specific helpers local.
+
 Also use `@eslint-community/eslint-utils` for helpers like `findVariable`, `getStaticValue`, `hasSideEffect`, `getPropertyName`, and token predicates (`isCommaToken`, `isSemicolonToken`, etc.).
 
 Most commonly used utilities:
@@ -114,7 +116,7 @@ Use JavaScript syntax for configuration examples, not JSON-style quoted keys and
 
 ## Testing
 
-Tests should be comprehensive with many edge cases, but no duplicate coverage. Add tests for edge cases the rule intentionally ignores to document the behavior.
+Tests should be comprehensive with many edge cases, but no duplicate coverage. Add lots of focused edge-case tests for matching and fixes/suggestions. Add tests for edge cases the rule intentionally ignores to document the behavior.
 
 Tests use AVA. Prefer `test.snapshot()` which auto-generates snapshots for errors, fixes, and suggestions:
 
@@ -142,7 +144,7 @@ Other test modes: `test.typescript()` and `test.vue()` set the parser for all ca
 
 Include test cases for these when relevant to the rule:
 
-- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Use `{code, parser: parsers.typescript}`.
+- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Verify both matching and fixer/suggestion output, including optional chaining behavior and ASI protection when the output can start with `(` or `[`. Use `{code, parser: parsers.typescript}`.
 - **JSX** - JSX expressions and fragments, if the rule targets patterns that can appear in JSX.
 - **Comments** - Inline and block comments inside the targeted node, to verify fixes don't drop them.
 - **Parenthesized expressions** - Extra parentheses around the target: `(foo).bar()`.
