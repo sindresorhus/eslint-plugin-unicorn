@@ -61,7 +61,7 @@ const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			method: 'with',
-			argumentsLength: 2,
+			minimumArguments: 1,
 			optionalCall: false,
 			optionalMember: false,
 		})) {

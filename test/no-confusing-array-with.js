@@ -24,7 +24,11 @@ test.snapshot({
 		'array.with(-2, value)',
 		'array.with(-1.5, value)',
 		'array.with(- 1, value)',
+		'array.with(-1)',
+		'array.with(-1, value, extra)',
 		'array.with(array.length, value)',
+		'array.with(array.length)',
+		'array.with(array.length, value, extra)',
 		'object.items.with(object.items.length, value)',
 	],
 });

@@ -404,6 +404,22 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: '(foo satisfies string[]).slice((foo satisfies string[]).length - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice((foo.length satisfies number) - 1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice((foo.length - 1) as number)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'foo.slice(foo.length - (1 as const))',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'array!.splice(array!.length - 2, 1)',
 			languageOptions: {parser: parsers.typescript},
 		},

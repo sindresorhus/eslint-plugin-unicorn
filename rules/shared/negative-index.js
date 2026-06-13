@@ -1,7 +1,7 @@
 import {
-	isSameReference,
 	getParenthesizedRange,
 } from '../utils/index.js';
+import {isSame, unwrapExpression} from '../utils/comparison.js';
 import {isNumericLiteral} from '../ast/index.js';
 
 /**
@@ -25,13 +25,23 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 		return;
 	}
 
+	node = unwrapExpression(node);
+
 	const {type, operator, left, right} = node;
 
-	if (type !== 'BinaryExpression' || operator !== '-' || !isLiteralPositiveNumber(right)) {
+	if (type !== 'BinaryExpression' || operator !== '-') {
 		return;
 	}
 
-	if (isLengthMemberExpression(left) && isSameReference(left.object, objectNode)) {
+	const rightExpression = unwrapExpression(right);
+
+	if (!isLiteralPositiveNumber(rightExpression)) {
+		return;
+	}
+
+	const leftExpression = unwrapExpression(left);
+
+	if (isLengthMemberExpression(leftExpression) && isSame(leftExpression.object, objectNode)) {
 		return left;
 	}
 
@@ -51,4 +61,3 @@ export function removeLengthNode(node, fixer, context) {
 		end + context.sourceCode.text.slice(end).match(/\S|$/).index,
 	]);
 }
-
