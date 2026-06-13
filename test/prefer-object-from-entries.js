@@ -123,8 +123,26 @@ test.snapshot({
 		`,
 		outdent`
 			const object = {};
+			for (const [key, value] of pairs) {
+				otherObject[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[value] = key;
+			}
+		`,
+		outdent`
+			const object = {};
 			for (const [key, value] of pairs)
 				object[key] = value;
+		`,
+		outdent`
+			const object = {};
+			for (var [key, value] of pairs) {
+				object[key] = value;
+			}
 		`,
 		outdent`
 			const object = {};
@@ -141,12 +159,6 @@ test.snapshot({
 		outdent`
 			const object = {};
 			for (const [key = defaultKey, value] of pairs) {
-				object[key] = value;
-			}
-		`,
-		outdent`
-			let object = Object.create(null);
-			for (const [key, value] of pairs) {
 				object[key] = value;
 			}
 		`,
@@ -271,6 +283,12 @@ test.snapshot({
 			}
 			console.log(object);
 		`,
+		outdent`
+			let object = Object.create(null);
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
 	],
 });
 
@@ -287,7 +305,7 @@ test.typescript({
 // Functions
 test.snapshot({
 	valid: [
-		// `underscore` don't have `fromPairs` method
+		// `underscore` doesn't have a `fromPairs` method
 		'underscore.fromPairs(pairs)',
 		'_.fromPairs',
 		'_.fromPairs()',

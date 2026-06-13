@@ -1,6 +1,6 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNullLiteral, isEmptyObjectExpression} from './ast/index.js';
-import {removeParentheses} from './fix/index.js';
+import {removeExpressionStatement, removeParentheses} from './fix/index.js';
 import {
 	getNextNode,
 	getParentheses,
@@ -63,23 +63,21 @@ const getOnlyLoopAssignmentExpression = loop => {
 	}
 };
 
-const getForOfLeftPattern = node => {
-	if (
-		node.type === 'VariableDeclaration'
-		&& (node.kind === 'const' || node.kind === 'let')
-		&& node.declarations.length === 1
-	) {
-		return node.declarations[0].id;
-	}
-};
-
 const isPairPattern = node =>
 	node.type === 'ArrayPattern'
 	&& node.elements.length === 2
 	&& node.elements.every(element => element?.type === 'Identifier');
 
-const declaresVariableNamed = (node, name, context) =>
-	context.sourceCode.getDeclaredVariables(node).some(variable => variable.name === name);
+const getForOfPairPattern = node => {
+	if (
+		node.type === 'VariableDeclaration'
+		&& (node.kind === 'const' || node.kind === 'let')
+		&& node.declarations.length === 1
+		&& isPairPattern(node.declarations[0].id)
+	) {
+		return node.declarations[0].id;
+	}
+};
 
 const referencesVariable = (variable, node, context) => {
 	const range = context.sourceCode.getRange(node);
@@ -88,6 +86,19 @@ const referencesVariable = (variable, node, context) => {
 		const [start, end] = context.sourceCode.getRange(identifier);
 
 		return start >= range[0] && end <= range[1];
+	});
+};
+
+const hasNoCommentsInLoopFixRange = (declaration, loop, context) => {
+	const {sourceCode} = context;
+	const [start] = sourceCode.getRange(declaration);
+	const nextToken = sourceCode.getTokenAfter(loop);
+	const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
+
+	return !sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+
+		return commentStart >= start && commentEnd <= end;
 	});
 };
 
@@ -135,7 +146,7 @@ const fixableArrayReduceCases = [
 	},
 ];
 
-// `_.flatten(array)`
+// `_.fromPairs(pairs)`
 const lodashFromPairsFunctions = [
 	'_.fromPairs',
 	'lodash.fromPairs',
@@ -219,7 +230,6 @@ const matchesForOfLoop = (id, loopLeft, assignmentExpression) => {
 		assignmentExpression.operator !== '='
 		|| assignmentExpression.left.type !== 'MemberExpression'
 		|| !assignmentExpression.left.computed
-		|| !isPairPattern(loopLeft)
 	) {
 		return false;
 	}
@@ -237,25 +247,25 @@ const getForOfLoopProblem = (declaration, context) => {
 		declaration.declarations.length !== 1
 		|| declaration.declarations[0].id.type !== 'Identifier'
 		|| !declaration.declarations[0].init
-		|| !isEmptyObjectExpression(declaration.declarations[0].init)
+		|| !isEmptyObject(declaration.declarations[0].init)
 	) {
 		return;
 	}
 
 	const [declarator] = declaration.declarations;
-	const {id} = declarator;
+	const {id, init} = declarator;
 	const loop = getNextNode(declaration, context);
 
 	if (loop?.type !== 'ForOfStatement' || loop.await) {
 		return;
 	}
 
-	const loopLeft = getForOfLeftPattern(loop.left);
+	const loopLeft = getForOfPairPattern(loop.left);
 	if (!loopLeft) {
 		return;
 	}
 
-	if (declaresVariableNamed(loop.left, id.name, context)) {
+	if (loopLeft.elements.some(element => isSameIdentifier(element, id))) {
 		return;
 	}
 
@@ -278,6 +288,14 @@ const getForOfLoopProblem = (declaration, context) => {
 	return {
 		node: loop,
 		messageId: MESSAGE_ID_LOOP,
+		* fix(fixer, {abort}) {
+			if (!hasNoCommentsInLoopFixRange(declaration, loop, context)) {
+				return abort();
+			}
+
+			yield fixer.replaceText(init, `Object.fromEntries(${getParenthesizedText(loop.right, context)})`);
+			yield removeExpressionStatement(loop, context, fixer);
+		},
 	};
 };
 
