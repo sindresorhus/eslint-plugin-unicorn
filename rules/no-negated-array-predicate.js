@@ -2,10 +2,15 @@ import {
 	checkVueTemplate,
 	getTokenStore,
 	isKnownNonArray,
+	isOnSameLine,
+	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
-import {fixSpaceAroundKeyword} from './fix/index.js';
+import {
+	addParenthesizesToReturnOrThrowExpression,
+	fixSpaceAroundKeyword,
+} from './fix/index.js';
 import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-negated-array-predicate';
@@ -90,10 +95,12 @@ const create = context => {
 		const {argument: callExpression} = unaryExpression;
 		const tokenStore = getTokenStore(context, unaryExpression);
 		const bangToken = tokenStore.getFirstToken(unaryExpression);
-		if (
-			!bangToken
-			|| tokenStore.getTokenAfter(bangToken, {includeComments: true}) !== tokenStore.getTokenAfter(bangToken)
-		) {
+		if (!bangToken) {
+			return;
+		}
+
+		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
+		if (tokenStore.getTokenAfter(bangToken, {includeComments: true}) !== tokenAfterBang) {
 			return;
 		}
 
@@ -128,6 +135,16 @@ const create = context => {
 			return;
 		}
 
+		const {parent} = unaryExpression;
+		if (
+			parent.type === 'YieldExpression'
+			&& parent.argument === unaryExpression
+			&& !isOnSameLine(bangToken, tokenAfterBang, context)
+			&& !isParenthesized(unaryExpression, context)
+		) {
+			return;
+		}
+
 		const methodNode = callExpression.callee.property;
 		const method = methodNode.name;
 		const replacement = replacementMethod.get(method);
@@ -141,19 +158,34 @@ const create = context => {
 				replacement,
 			},
 			* fix(fixer) {
-				const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
+				const needsReturnOrThrowParentheses = (
+					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+					&& parent.argument === unaryExpression
+					&& !isOnSameLine(bangToken, tokenAfterBang, context)
+					&& !isParenthesized(unaryExpression, context)
+				);
 
 				yield fixer.remove(bangToken);
 				yield fixer.replaceText(methodNode, replacement);
 				yield fixer.replaceText(replacementPredicateNode, replacementPredicateText);
 
-				if (tokenStore === sourceCode) {
+				if (
+					tokenStore === sourceCode
+					&& !needsReturnOrThrowParentheses
+				) {
 					yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 				}
 
-				const tokenBefore = tokenStore.getTokenBefore(unaryExpression);
-				if (needsSemicolon(tokenBefore, context, tokenAfterBang.value)) {
-					yield fixer.insertTextBefore(unaryExpression, ';');
+				if (needsReturnOrThrowParentheses) {
+					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					return;
+				}
+
+				if (tokenStore === sourceCode) {
+					const tokenBefore = sourceCode.getTokenBefore(unaryExpression);
+					if (needsSemicolon(tokenBefore, context, tokenAfterBang.value)) {
+						yield fixer.insertTextBefore(unaryExpression, ';');
+					}
 				}
 			},
 		};
