@@ -117,14 +117,22 @@ function getFix({
 	sourceCode,
 	declaration,
 	assignmentExpression,
+	assignmentStatement,
 	name,
 }) {
 	return function * (fixer) {
 		yield removeExpressionStatement(declaration, {sourceCode}, fixer);
 
+		const declarationText = `const ${name} = `;
+
+		if (isParenthesizedAssignmentExpression(sourceCode, assignmentExpression)) {
+			yield fixer.replaceText(assignmentStatement, `${declarationText}${sourceCode.getText(assignmentExpression.right)};`);
+			return;
+		}
+
 		const [assignmentStart] = sourceCode.getRange(assignmentExpression);
 		const [rightStart] = sourceCode.getRange(assignmentExpression.right);
-		yield fixer.replaceTextRange([assignmentStart, rightStart], `const ${name} = `);
+		yield fixer.replaceTextRange([assignmentStart, rightStart], declarationText);
 	};
 }
 
@@ -184,13 +192,17 @@ function getProblem(node, sourceCode) {
 
 	if (
 		!declarator.id.typeAnnotation
-		&& !isParenthesizedAssignmentExpression(sourceCode, assignmentExpression)
+		&& !(
+			isParenthesizedAssignmentExpression(sourceCode, assignmentExpression)
+			&& assignmentExpression.right.type === 'SequenceExpression'
+		)
 		&& !hasCommentsThatBlockFix(sourceCode, node, assignmentStatement)
 	) {
 		problem.fix = getFix({
 			sourceCode,
 			declaration: node,
 			assignmentExpression,
+			assignmentStatement,
 			name: declarator.id.name,
 		});
 	}

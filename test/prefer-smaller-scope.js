@@ -402,12 +402,51 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					(value = (foo, bar));
+					console.log(value);
+				}
+			}
+		`,
 		{
 			code: outdent`
 				function foo() {
 					let value: Value;
 					if (condition) {
 						value = getValue();
+						console.log(value);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					let value: Value;
+					if (condition) {
+						(value = getValue());
+						console.log(value);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				type Value = string;
+				function foo() {
+					let value: Value;
+					if (condition) {
+						value = getValue();
+						type Value = number;
 						console.log(value);
 					}
 				}

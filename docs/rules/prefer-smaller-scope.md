@@ -61,4 +61,4 @@ function foo() {
 
 This rule does not check initialized declarations, `const`, `var`, destructuring, multi-variable declarations, compound assignments, or assignments that are not direct expression statements. It also ignores cases that would move a declaration across a function, class, static block, or dynamic scope boundary.
 
-The rule only autofixes straightforward JavaScript cases. Cases with nearby comments, TypeScript annotations, or parenthesized assignments are reported without an autofix so comments and syntax are not removed or moved.
+The rule only autofixes cases where comments do not need to be moved or removed. Cases with nearby comments, TypeScript annotations, or syntax-sensitive parenthesized assignments are reported without an autofix.
