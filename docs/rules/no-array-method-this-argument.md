@@ -30,6 +30,8 @@ This rule checks following array methods accepts `thisArg`:
 
 This rule is fixable when the callback is an arrow function and the `thisArg` argument has no side effect.
 
+When TypeScript type information is available, known non-array receivers are ignored. Unknown receivers may still be reported.
+
 ## Examples
 
 ```js

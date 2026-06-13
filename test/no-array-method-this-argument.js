@@ -1,6 +1,17 @@
+import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // Arrow functions
 test.snapshot({
@@ -61,6 +72,41 @@ test.snapshot({
 		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
 		'const service = new SearchService(); service.find(dto, invoker);',
 		'const map = new Map(); map.forEach(callback, thisArgument);',
+		typeAware(outdent`
+			export interface ErrorMapperInterface {
+				map(key: string, error?: any, control?: any): string;
+			}
+			declare const mapperService: ErrorMapperInterface;
+			declare const firstError: string;
+			declare const errors: Record<string, unknown>;
+			mapperService.map(firstError, errors[firstError]);
+		`),
+		typeAware(outdent`
+			class SearchController {
+				constructor(private readonly service: SearchService) {
+				}
+
+				searchHomeStream(dto: SearchHomeStreamDto, invoker: UserAuthorization) {
+					return this.service.find(dto, invoker);
+				}
+			}
+			class SearchService {
+				find(dto: SearchHomeStreamDto, invoker: UserAuthorization): any[] {
+					return [];
+				}
+			}
+			interface SearchHomeStreamDto {
+			}
+			interface UserAuthorization {
+			}
+		`),
+		typeAware(outdent`
+			declare const iterables: {
+				find<T>(collection: Iterable<T>, callback: (value: T) => boolean): T | undefined;
+			};
+			declare const collection: Iterable<string>;
+			iterables.find(collection, value => value.length > 0);
+		`),
 		// Callback argument is not function
 		'array.map(new Callback, thisArgument)',
 		'array.map(1, thisArgument)',
@@ -99,6 +145,7 @@ test.snapshot({
 		'array?.map(() => {}, thisArgumentHasSideEffect())',
 		'Array.from(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgumentHasSideEffect())',
+		typeAware('const array: string[] = []; array.map(value => value, thisArgument);'),
 	],
 });
 
