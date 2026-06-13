@@ -6,8 +6,8 @@ import {
 	isMemberExpression,
 	isNumericLiteral,
 } from './ast/index.js';
-import {isTypeScriptFile, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
-import {isSame} from './utils/comparison.js';
+import {isTypeScriptFile, needsSemicolon} from './utils/index.js';
+import {containsOptionalChain, isSame, unwrapExpression} from './utils/comparison.js';
 
 const messageId = 'no-useless-undefined';
 const suggestionMessageId = 'no-useless-undefined/suggestion';
@@ -127,6 +127,13 @@ const upperBoundComparison = {
 	},
 };
 
+const comparisonOperators = new Set([
+	'<',
+	'<=',
+	'>',
+	'>=',
+]);
+
 function getStaticNumberValue(node) {
 	node = unwrapExpression(node);
 
@@ -153,7 +160,7 @@ function getIndexAccess(node) {
 	if (node.type === 'BinaryExpression' && node.operator === '-') {
 		const offset = getStaticNumberValue(node.right);
 
-		if (Number.isInteger(offset) && offset > 0) {
+		if (Number.isSafeInteger(offset) && offset > 0) {
 			return {
 				node: node.left,
 				offset,
@@ -167,10 +174,10 @@ function getIndexAccess(node) {
 	};
 }
 
-function getOffsetComparisonValidity(comparisons, operator, number, offset) {
+function getOffsetComparisonValidity(comparisons, operator, boundary, offset) {
 	const comparison = comparisons[operator];
 
-	if (comparison && number === offset + comparison.addend) {
+	if (comparison && boundary === offset + comparison.addend) {
 		return comparison.valid;
 	}
 }
@@ -181,14 +188,14 @@ function getLowerBoundTestValidity(test, indexAccess) {
 	const rightNumber = getStaticNumberValue(right);
 
 	if (
-		Number.isInteger(rightNumber)
+		Number.isSafeInteger(rightNumber)
 		&& isSame(left, indexAccess.node)
 	) {
 		return getOffsetComparisonValidity(lowerBoundComparison.left, operator, rightNumber, indexAccess.offset);
 	}
 
 	if (
-		Number.isInteger(leftNumber)
+		Number.isSafeInteger(leftNumber)
 		&& isSame(right, indexAccess.node)
 	) {
 		return getOffsetComparisonValidity(lowerBoundComparison.right, operator, leftNumber, indexAccess.offset);
@@ -258,8 +265,9 @@ function getIndexedAccess(node, sourceCode) {
 			computed: true,
 			optional: false,
 		})
-		|| hasSideEffect(node.object, sourceCode)
-		|| hasSideEffect(node.property, sourceCode)
+		|| containsOptionalChain(node)
+		|| hasSideEffect(node.object, sourceCode, {considerGetters: true})
+		|| hasSideEffect(node.property, sourceCode, {considerGetters: true})
 	) {
 		return;
 	}
@@ -275,12 +283,8 @@ function getIndexedAccessTestValidity(test, access) {
 
 	if (
 		test.type !== 'BinaryExpression'
-		|| ![
-			'<',
-			'<=',
-			'>',
-			'>=',
-		].includes(test.operator)
+		|| !comparisonOperators.has(test.operator)
+		|| containsOptionalChain(test)
 	) {
 		return;
 	}
@@ -440,7 +444,11 @@ const create = context => {
 		if (sourceCode.getCommentsInside(node).length === 0) {
 			problem.suggest = [{
 				messageId: suggestionMessageId,
-				fix: fixer => fixer.replaceText(node, sourceCode.getText(indexedAccess.node)),
+				fix(fixer) {
+					const replacement = sourceCode.getText(indexedAccess.node);
+					const semicolon = needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? ';' : '';
+					return fixer.replaceText(node, semicolon + replacement);
+				},
 			}];
 		}
 

@@ -101,6 +101,8 @@ const foo = index >= 0 ? array[index] : undefined;
 const foo = array[index];
 ```
 
+Guarded indexed access is reported with an editor suggestion instead of an autofix because removing the guard changes when the access is evaluated.
+
 ## Options
 
 Type: `object`
