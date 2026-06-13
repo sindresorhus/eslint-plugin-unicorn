@@ -543,7 +543,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 	}
 
 	if (visitedTypeNames.has(name)) {
-		return undefined;
+		return;
 	}
 
 	visitedTypeNames.add(name);
@@ -555,7 +555,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 
 function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) {
 	if (!node || unknownTypeAnnotationTypes.has(node.type)) {
-		return undefined;
+		return;
 	}
 
 	if (transparentTypeAnnotationTypes.has(node.type)) {
@@ -595,8 +595,6 @@ function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) 
 	if (nonArrayTypeAnnotationTypes.has(node.type)) {
 		return false;
 	}
-
-	return undefined;
 }
 
 function getIdentifierAnnotationArrayState(node, context) {
@@ -710,7 +708,7 @@ function getTypeInformationArrayState(node, context) {
 			program,
 		);
 	} catch {
-		return undefined;
+		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
 	}
 }
 
