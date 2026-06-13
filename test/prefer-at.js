@@ -104,6 +104,11 @@ test.snapshot({
 			code: 'function foo(value: number) { return value[0]; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const value = other; const other = value; value[0];',
+		{
+			code: 'type Value = Other; type Other = Value; function foo(value: Value) { return value[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'"string"[1]',
@@ -112,6 +117,7 @@ test.snapshot({
 		'String.fromCodePoint(65)[0]',
 		'(typeof value)[0]',
 		'const string = "string"; string[1]',
+		'String.fromCharCode(65)[0]',
 		{
 			code: '(value as string)[0]',
 			languageOptions: {parser: parsers.typescript},
@@ -150,6 +156,7 @@ test.snapshot({
 		},
 		typeAware('declare function getValue(): string; getValue()[0];'),
 		typeAware('type Value = ReturnType<() => string>; declare const value: Value; value[0];'),
+		typeAware('function foo(value: string | number) { if (typeof value === "string") { return value[0]; } }'),
 	],
 });
 
