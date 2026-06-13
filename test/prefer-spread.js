@@ -8,6 +8,11 @@ import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
 
+const typescript = code => ({
+	code,
+	languageOptions: {parser: typescriptEslintParser},
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -503,38 +508,20 @@ ruleTest.snapshot({
 		'foo/* keep */.concat([1], bar)',
 		'foo.concat(/* keep */ [1])',
 		'foo/* keep */.concat([1])',
-		{
-			code: 'function foo(array: string[]) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: string[]) { array.concat("item"); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(Array(1) as number[]).concat(2);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('function foo(array: string[]) { array.concat(item); }'),
+		typescript('function foo(array: string[]) { array.concat("item"); }'),
+		typescript('(Array(1) as number[]).concat(2);'),
 		{
 			code: '(Array(1)!).concat(foo);',
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: '(<number[]>Array(1)).concat(2);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('(<number[]>Array(1)).concat(2);'),
 		{
 			code: '(Array(1) satisfies number[]).concat(2);',
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: 'declare const Items: string[]; Items.concat(item);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: readonly string[]) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('declare const Items: string[]; Items.concat(item);'),
+		typescript('function foo(array: readonly string[]) { array.concat(item); }'),
 		{
 			code: 'function foo(array: [string, string]) { array.concat(item); }',
 			languageOptions: {parser: parsers.typescript},
@@ -547,18 +534,9 @@ ruleTest.snapshot({
 			code: 'function foo(array: ReadonlyArray<string>) { array.concat(item); }',
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: 'type Strings = string[]; function foo(array: Strings) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('type Strings = string[]; function foo(array: Strings) { array.concat(item); }'),
+		typescript('function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }'),
 		{
 			code: 'import type {Strings} from "./types"; declare const array: Strings; array.concat(item);',
 			languageOptions: {parser: parsers.typescript},
