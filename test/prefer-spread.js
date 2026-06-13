@@ -22,6 +22,182 @@ const typeAware = code => ({
 	},
 });
 
+// `for...of`
+ruleTest.snapshot({
+	valid: [
+		outdent`
+			const result = [existing];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			foo();
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [], other = [];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element);
+				foo();
+			}
+		`,
+		outdent`
+			async function foo() {
+				const result = [];
+				for await (const element of iterable) {
+					result.push(element);
+				}
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element, other);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element.value);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				other.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const result of iterable) {
+				result.push(result);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (var element of iterable) {
+				result.push(element);
+			}
+			console.log(element);
+		`,
+		outdent`
+			const result = [];
+			for (const element of getValues(result)) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [key, value] of map.entries()) {
+				result[key] = value;
+			}
+		`,
+		outdent`
+			const array = new Map([['key', 'value']]);
+			const result = [];
+			for (const [index, element] of array.entries()) {
+				result[index] = element;
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of array.entries()) {
+				result[index] = element;
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of iterable.entries()) {
+				result[otherIndex] = element;
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of iterable.entries()) {
+				result[index] = other;
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of iterable.entries()) {
+				other[index] = element;
+			}
+		`,
+	],
+	invalid: [
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			let result = [];
+			for (const element of object.items) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of (iterable)) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of [foo, bar].entries()) {
+				result[index] = element;
+			}
+		`,
+		typeAware(outdent`
+			function foo(array: string[]) {
+				const result = [];
+				for (const [index, element] of array.entries()) {
+					result[index] = element;
+				}
+			}
+		`),
+		typeAware(outdent`
+			function foo(values: string[]) {
+				const result: string[] = [];
+				for (const element of values) {
+					result.push(element);
+				}
+			}
+		`),
+		outdent`
+			const result = [/* Keep this comment. */];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			// Keep this comment.
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				// Keep this comment.
+				result.push(element);
+			}
+		`,
+	],
+});
+
 // `Array.from`
 ruleTest.snapshot({
 	valid: [

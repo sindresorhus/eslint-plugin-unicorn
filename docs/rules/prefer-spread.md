@@ -1,6 +1,6 @@
 # prefer-spread
 
-📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, and `Array#{slice,toSpliced}()`.
+📝 Prefer the spread operator over `Array.from(…)`, `Array#concat(…)`, `Array#{slice,toSpliced}()`, and trivial `for…of` copies.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -33,6 +33,8 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 - `Array#toSpliced()`
 
 	Shallow copy an `Array`.
+
+- Trivial `for…of` copies into an empty array.
 
 This rule intentionally does not check `String#split('')`. Spreading a string and splitting on an empty string segment text differently, and neither is generally correct for user-perceived characters. Use [`Intl.Segmenter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) when grapheme-aware segmentation is needed.
 
@@ -68,6 +70,17 @@ const copy = array.toSpliced();
 
 // ✅
 const copy = [...array];
+```
+
+```js
+// ❌
+const result = [];
+for (const element of array) {
+	result.push(element);
+}
+
+// ✅
+const result = [...array];
 ```
 
 ```js
