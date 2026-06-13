@@ -3,7 +3,6 @@ import {isNewExpression} from './ast/index.js';
 import {
 	getParenthesizedText,
 	getTypeSymbol,
-	isDefaultLibrarySymbol,
 	isUnknownType,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
@@ -119,6 +118,10 @@ const isUnshadowedGlobalIdentifier = (node, context) => {
 	return !variable || (variable.scope.type === 'global' && variable.defs.length === 0);
 };
 
+const isDefaultLibraryOnlySymbol = (symbol, program) =>
+	symbol?.declarations?.length > 0
+	&& symbol.declarations.every(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile()));
+
 const getTypesFromType = (type, program) => {
 	if (isUnknownType(type)) {
 		return;
@@ -129,7 +132,7 @@ const getTypesFromType = (type, program) => {
 	}
 
 	const symbol = getTypeSymbol(type);
-	if (!isDefaultLibrarySymbol(symbol, program)) {
+	if (!isDefaultLibraryOnlySymbol(symbol, program)) {
 		return;
 	}
 
@@ -254,9 +257,8 @@ const getTypesFromSyntax = (node, context, visitedVariables) => {
 };
 
 const getTypes = (node, context, visitedVariables = new Set()) =>
-	context.sourceCode.parserServices?.program
-		? getTypesFromTypeInformation(node, context)
-		: getTypesFromSyntax(node, context, visitedVariables);
+	getTypesFromTypeInformation(node, context)
+	?? getTypesFromSyntax(node, context, visitedVariables);
 
 const getCollectionType = (node, context) => {
 	const types = getTypes(node, context);
