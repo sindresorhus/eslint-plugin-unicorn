@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes, getStaticStringValue} from './ast/index.js';
 import {
+	getBaseTypes,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
 	isSameReference,
@@ -48,6 +49,10 @@ const consumerMethods = new Set([
 	'isPointInStroke',
 ]);
 
+const boundaryMethods = new Set([
+	'beginPath',
+]);
+
 const loopNodeTypes = [
 	'ForStatement',
 	'ForInStatement',
@@ -90,8 +95,7 @@ const nonCanvasTypeAnnotations = new Set([
 	'TSTupleType',
 ]);
 
-const createCodePathInfo = node => ({
-	node,
+const createCodePathInfo = () => ({
 	calls: [],
 	pathCalls: [],
 	repeated: false,
@@ -139,22 +143,12 @@ const combineIntersectionTypes = types => {
 	return unknown;
 };
 
-const getTypeReferenceName = node => {
-	if (node.type === 'Identifier') {
-		return node.name;
-	}
-};
-
 const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 	if (node.typeName.type === 'TSQualifiedName') {
 		return nonCanvasContext;
 	}
 
-	const typeReferenceName = getTypeReferenceName(node.typeName);
-
-	if (!typeReferenceName) {
-		return nonCanvasContext;
-	}
+	const typeReferenceName = node.typeName.name;
 
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
 		return unknown;
@@ -271,7 +265,7 @@ const getTypeScriptType = (type, checker, program, visitedTypes = new Set()) => 
 		return canvasContext;
 	}
 
-	const baseTypes = type.getBaseTypes?.() ?? [];
+	const baseTypes = getBaseTypes(type, checker);
 	if (baseTypes.some(type => getTypeScriptType(type, checker, program, visitedTypes) === canvasContext)) {
 		return canvasContext;
 	}
@@ -420,16 +414,12 @@ function getCanvasContextType(node, context, visitedVariables = new Set()) {
 		return unknown;
 	}
 
-	const typeFromSyntax = getCanvasContextTypeFromSyntax(node, context, visitedVariables);
-	if (typeFromSyntax === nonCanvasContext) {
-		return nonCanvasContext;
-	}
-
 	const typeFromTypeInformation = getTypeFromTypeInformation(node, context);
 	if (typeFromTypeInformation !== unknown) {
 		return typeFromTypeInformation;
 	}
 
+	const typeFromSyntax = getCanvasContextTypeFromSyntax(node, context, visitedVariables);
 	if (typeFromSyntax !== unknown) {
 		return typeFromSyntax;
 	}
@@ -503,7 +493,7 @@ const getReceiverVariable = (node, context) => {
 	return rootIdentifier ? findVariable(context.sourceCode.getScope(rootIdentifier), rootIdentifier) : undefined;
 };
 
-const getPathCall = (node, context, loopDepth) => {
+const getPathCall = (node, context, repeatedRegionId) => {
 	if (
 		node.callee.type !== 'MemberExpression'
 		|| node.optional
@@ -517,9 +507,10 @@ const getPathCall = (node, context, loopDepth) => {
 	const method = node.callee.property.name;
 	const isBuilder = builderMethods.has(method);
 	const isConsumer = consumerMethods.has(method) && isCurrentPathConsumerCall(node);
+	const isBoundary = boundaryMethods.has(method);
 
 	if (
-		(!isBuilder && !isConsumer)
+		(!isBuilder && !isConsumer && !isBoundary)
 		|| getCanvasContextType(node.callee.object, context) !== canvasContext
 	) {
 		return;
@@ -531,7 +522,9 @@ const getPathCall = (node, context, loopDepth) => {
 		receiverVariable: getReceiverVariable(node.callee.object, context),
 		isBuilder,
 		isConsumer,
-		repeated: loopDepth > 0,
+		isBoundary,
+		repeated: repeatedRegionId !== undefined,
+		repeatedRegionId,
 	};
 };
 
@@ -631,19 +624,30 @@ const isSameReceiver = (group, call) => {
 		|| call.receiverVariable
 	) {
 		return group.receiverVariable === call.receiverVariable
+			&& group.repeatedRegionId === call.repeatedRegionId
 			&& isSameReceiverReference(group.receiver, call.receiver);
 	}
 
-	return isSameReceiverReference(group.receiver, call.receiver);
+	return group.repeatedRegionId === call.repeatedRegionId
+		&& isSameReceiverReference(group.receiver, call.receiver);
 };
 
 const addGroupCall = (groups, call) => {
-	let group = groups.find(group => isSameReceiver(group, call));
+	let group = groups.findLast(group => !group.closed && isSameReceiver(group, call));
+
+	if (call.isBoundary) {
+		if (group) {
+			group.closed = true;
+		}
+
+		return;
+	}
 
 	if (!group) {
 		group = {
 			receiver: call.receiver,
 			receiverVariable: call.receiverVariable,
+			repeatedRegionId: call.repeatedRegionId,
 			builders: [],
 			consumers: [],
 		};
@@ -755,30 +759,32 @@ const create = context => {
 	const rootInfo = createCodePathInfo();
 	const functionInfos = [];
 	const infoStack = [rootInfo];
-	const loopDepthStack = [];
-	let loopDepth = 0;
+	const loopRegionStack = [];
+	const loopRegionStackStack = [];
+	let nextLoopRegionId = 0;
 
 	context.on(functionTypes, node => {
-		const info = createCodePathInfo(node);
+		const info = createCodePathInfo();
 		info.variables = getFunctionVariables(node, context);
 		info.repeated = isRepeatedCallbackFunction(node, context);
 		functionInfos.push(info);
 		infoStack.push(info);
-		loopDepthStack.push(loopDepth);
-		loopDepth = 0;
+		loopRegionStackStack.push([...loopRegionStack]);
+		loopRegionStack.length = 0;
 	});
 
 	context.onExit(functionTypes, () => {
 		infoStack.pop();
-		loopDepth = loopDepthStack.pop();
+		loopRegionStack.length = 0;
+		loopRegionStack.push(...loopRegionStackStack.pop());
 	});
 
 	context.on(loopNodeTypes, () => {
-		loopDepth++;
+		loopRegionStack.push(nextLoopRegionId++);
 	});
 
 	context.onExit(loopNodeTypes, () => {
-		loopDepth--;
+		loopRegionStack.pop();
 	});
 
 	context.on('CallExpression', node => {
@@ -788,7 +794,7 @@ const create = context => {
 		if (variable) {
 			info.calls.push({
 				variable,
-				repeated: loopDepth > 0 || isRepeatedSchedulerCall(node, context),
+				repeated: loopRegionStack.length > 0 || isRepeatedSchedulerCall(node, context),
 			});
 		}
 
@@ -805,7 +811,7 @@ const create = context => {
 			}
 		}
 
-		const pathCall = getPathCall(node, context, loopDepth);
+		const pathCall = getPathCall(node, context, loopRegionStack.at(-1));
 
 		if (pathCall) {
 			info.pathCalls.push(pathCall);

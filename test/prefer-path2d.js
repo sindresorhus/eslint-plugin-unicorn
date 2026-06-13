@@ -37,6 +37,32 @@ test.snapshot({
 		outdent`
 			for (const item of items) {
 				context.moveTo(item.x, item.y);
+				context.beginPath();
+				context.lineTo(item.x + 1, item.y + 1);
+				context.stroke();
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				context.moveTo(item.x, item.y);
+				context.lineTo(item.x + 1, item.y + 1);
+				context.beginPath();
+				context.stroke();
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				context.moveTo(item.x, item.y);
+				context.lineTo(item.x + 1, item.y + 1);
+			}
+
+			for (const item of items) {
+				context.stroke();
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				context.moveTo(item.x, item.y);
 				context.lineTo(item.x + 1, item.y + 1);
 				context.stroke(path);
 			}
@@ -132,6 +158,21 @@ test.snapshot({
 			}
 
 			requestAnimationFrame(step);
+		`,
+		outdent`
+			function startPath() {
+				context.moveTo(220, 60);
+			}
+
+			function finishPath() {
+				context.lineTo(170, 60);
+				context.stroke();
+			}
+
+			requestAnimationFrame(() => {
+				startPath();
+				finishPath();
+			});
 		`,
 		outdent`
 			let draw = () => {
@@ -381,6 +422,8 @@ test.snapshot({
 			}
 		`),
 		typeAware(outdent`
+			export {};
+
 			type CanvasRenderingContext2D = {
 				moveTo(x: number, y: number): void;
 				lineTo(x: number, y: number): void;
@@ -437,6 +480,13 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			requestAnimationFrame(function draw() {
+				context.moveTo(220, 60);
+				context.lineTo(170, 60);
+				context.stroke();
+			});
+		`,
+		outdent`
 			window.requestAnimationFrame(() => {
 				context.moveTo(220, 60);
 				context.lineTo(170, 60);
@@ -460,6 +510,15 @@ test.snapshot({
 			setInterval(draw, 1000);
 		`,
 		outdent`
+			const draw = () => {
+				context.moveTo(220, 60);
+				context.lineTo(170, 60);
+				context.stroke();
+			};
+
+			setInterval(draw, 1000);
+		`,
+		outdent`
 			function draw() {
 				context.moveTo(220, 60);
 				context.lineTo(170, 60);
@@ -467,6 +526,15 @@ test.snapshot({
 			}
 
 			globalThis.setInterval(draw, 1000);
+		`,
+		outdent`
+			function draw() {
+				context.moveTo(220, 60);
+				context.lineTo(170, 60);
+				context.stroke();
+			}
+
+			self.setInterval(draw, 1000);
 		`,
 		outdent`
 			function draw() {
@@ -518,6 +586,16 @@ test.snapshot({
 			for (const item of items) {
 				context.rect(item.x, item.y, item.width, item.height);
 				context.closePath();
+				context.stroke();
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				context.moveTo(item.x, item.y);
+				context.lineTo(item.x + 1, item.y + 1);
+				context.stroke();
+				context.beginPath();
+				context.moveTo(item.x + 2, item.y + 2);
 				context.stroke();
 			}
 		`,
@@ -579,6 +657,18 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				function draw<Context extends CanvasRenderingContext2D>(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware(outdent`
 			function draw(context: CanvasRenderingContext2D) {
 				for (const item of items) {
@@ -591,6 +681,19 @@ test.snapshot({
 		typeAware(outdent`
 			function draw(context: CanvasRenderingContext2D | undefined) {
 				if (!context) {
+					return;
+				}
+
+				for (const item of items) {
+					context.moveTo(item.x, item.y);
+					context.lineTo(item.x + 1, item.y + 1);
+					context.stroke();
+				}
+			}
+		`),
+		typeAware(outdent`
+			function draw(context: CanvasRenderingContext2D | string) {
+				if (typeof context === 'string') {
 					return;
 				}
 
