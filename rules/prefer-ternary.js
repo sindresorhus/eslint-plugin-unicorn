@@ -1,17 +1,13 @@
 import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {
-	getAvailableVariableName,
 	needsSemicolon,
 	isSameReference,
-	getIndentString,
 	getParenthesizedText,
 	getParenthesizedRange,
 	shouldAddParenthesesToConditionalExpressionChild,
-	getScopes,
 	isParenthesized,
 	getPreviousNode,
 } from './utils/index.js';
-import {extendFixRange} from './fix/index.js';
 
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
@@ -41,15 +37,26 @@ function getNodeBody(node) {
 const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
+const isMergeableReturnStatement = (consequent, alternate) =>
+	consequent.type === 'ReturnStatement'
+	&& alternate.type === 'ReturnStatement'
+	&& !isTernary(consequent.argument)
+	&& !isTernary(alternate.argument);
+
+const isMergeableAssignmentExpression = (consequent, alternate) =>
+	consequent.type === 'AssignmentExpression'
+	&& alternate.type === 'AssignmentExpression'
+	&& consequent.operator === alternate.operator
+	&& !isTernary(consequent.left)
+	&& !isTernary(alternate.left)
+	&& !isTernary(consequent.right)
+	&& !isTernary(alternate.right)
+	&& isSameReference(consequent.left, alternate.left);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const onlySingleLine = context.options[0] === 'only-single-line';
 	const {sourceCode} = context;
-	const scopeToNamesGeneratedByFixer = new WeakMap();
-	const isSafeName = (name, scopes) => scopes.every(scope => {
-		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-		return !generatedNames || !generatedNames.has(name);
-	});
 
 	const getText = node => {
 		let text = getParenthesizedText(node, context);
@@ -63,8 +70,7 @@ const create = context => {
 		return text;
 	};
 
-	// eslint-disable-next-line complexity
-	function merge(options, mergeOptions) {
+	function merge(options, {returnFalseIfNotMergeable = false} = {}) {
 		const {
 			before = '',
 			after = ';',
@@ -73,26 +79,13 @@ const create = context => {
 			node,
 		} = options;
 
-		const {
-			checkThrowStatement,
-			returnFalseIfNotMergeable,
-		} = {
-			checkThrowStatement: false,
-			returnFalseIfNotMergeable: false,
-			...mergeOptions,
-		};
-
 		if (!consequent || !alternate || consequent.type !== alternate.type) {
 			return returnFalseIfNotMergeable ? false : options;
 		}
 
-		const {type, argument, delegate, left, right, operator} = consequent;
+		if (isMergeableReturnStatement(consequent, alternate)) {
+			const {argument} = consequent;
 
-		if (
-			type === 'ReturnStatement'
-			&& !isTernary(argument)
-			&& !isTernary(alternate.argument)
-		) {
 			return merge({
 				before: `${before}return `,
 				after,
@@ -102,64 +95,9 @@ const create = context => {
 			});
 		}
 
-		if (
-			type === 'YieldExpression'
-			&& delegate === alternate.delegate
-			&& !isTernary(argument)
-			&& !isTernary(alternate.argument)
-		) {
-			return merge({
-				before: `${before}yield${delegate ? '*' : ''} (`,
-				after: `)${after}`,
-				consequent: argument === null ? 'undefined' : argument,
-				alternate: alternate.argument === null ? 'undefined' : alternate.argument,
-				node,
-			});
-		}
+		if (isMergeableAssignmentExpression(consequent, alternate)) {
+			const {left, right, operator} = consequent;
 
-		if (
-			type === 'AwaitExpression'
-			&& !isTernary(argument)
-			&& !isTernary(alternate.argument)
-		) {
-			return merge({
-				before: `${before}await (`,
-				after: `)${after}`,
-				consequent: argument,
-				alternate: alternate.argument,
-				node,
-			});
-		}
-
-		if (
-			checkThrowStatement
-			&& type === 'ThrowStatement'
-			&& !isTernary(argument)
-			&& !isTernary(alternate.argument)
-		) {
-			// `ThrowStatement` don't check nested
-
-			// If `IfStatement` is not a `BlockStatement`, need to add `{}`
-			const {parent} = node;
-			const needBraces = parent && parent.type !== 'BlockStatement';
-			return {
-				type,
-				before: `${before}${needBraces ? '{\n{{INDENT_STRING}}' : ''}const {{ERROR_NAME}} = `,
-				after: `;\n{{INDENT_STRING}}throw {{ERROR_NAME}};${needBraces ? '\n}' : ''}`,
-				consequent: argument,
-				alternate: alternate.argument,
-			};
-		}
-
-		if (
-			type === 'AssignmentExpression'
-			&& operator === alternate.operator
-			&& !isTernary(left)
-			&& !isTernary(alternate.left)
-			&& !isTernary(right)
-			&& !isTernary(alternate.right)
-			&& isSameReference(left, alternate.left)
-		) {
 			return merge({
 				before: `${before}${getParenthesizedText(left, context)} ${operator} `,
 				after,
@@ -172,6 +110,7 @@ const create = context => {
 		return returnFalseIfNotMergeable ? false : options;
 	}
 
+	// eslint-disable-next-line complexity
 	function getLetPlusIfProblem(node) {
 		const consequentBody = getNodeBody(node.consequent);
 		if (
@@ -242,12 +181,7 @@ const create = context => {
 			return referenceStart >= nodeStart && referenceEnd <= nodeEnd;
 		};
 
-		if (
-			variable.references.some(reference =>
-				isReferenceInsideNode(reference, node.test)
-				|| isReferenceInsideNode(reference, right),
-			)
-		) {
+		if (variable.references.some(reference => isReferenceInsideNode(reference, node.test) || isReferenceInsideNode(reference, right))) {
 			return;
 		}
 
@@ -262,11 +196,7 @@ const create = context => {
 			return problem;
 		}
 
-		const hasOtherWrites = variable.references.some(reference =>
-			!reference.init
-			&& reference.isWrite()
-			&& !isReferenceInsideNode(reference, node),
-		);
+		const hasOtherWrites = variable.references.some(reference => !reference.init && reference.isWrite() && !isReferenceInsideNode(reference, node));
 		const keyword = hasOtherWrites ? 'let' : 'const';
 
 		problem.suggest = [
@@ -320,7 +250,6 @@ const create = context => {
 		}
 
 		const result = merge({node, consequent, alternate}, {
-			checkThrowStatement: true,
 			returnFalseIfNotMergeable: true,
 		});
 
@@ -335,7 +264,6 @@ const create = context => {
 			return problem;
 		}
 
-		const scope = sourceCode.getScope(node);
 		problem.fix = function * (fixer) {
 			const testText = getText(node.test);
 			const consequentText = typeof result.consequent === 'string'
@@ -345,32 +273,7 @@ const create = context => {
 				? result.alternate
 				: getText(result.alternate);
 
-			let {type, before, after} = result;
-
-			let generateNewVariables = false;
-			if (type === 'ThrowStatement') {
-				const scopes = getScopes(scope);
-				const errorName = getAvailableVariableName('error', scopes, isSafeName);
-
-				for (const scope of scopes) {
-					if (!scopeToNamesGeneratedByFixer.has(scope)) {
-						scopeToNamesGeneratedByFixer.set(scope, new Set());
-					}
-
-					const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-					generatedNames.add(errorName);
-				}
-
-				const indentString = getIndentString(node, context);
-
-				after = after
-					.replace('{{INDENT_STRING}}', () => indentString)
-					.replace('{{ERROR_NAME}}', () => errorName);
-				before = before
-					.replace('{{INDENT_STRING}}', () => indentString)
-					.replace('{{ERROR_NAME}}', () => errorName);
-				generateNewVariables = true;
-			}
+			const {before, after} = result;
 
 			let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}${after}`;
 			const tokenBefore = sourceCode.getTokenBefore(node);
@@ -380,10 +283,6 @@ const create = context => {
 			}
 
 			yield fixer.replaceText(node, fixed);
-
-			if (generateNewVariables) {
-				yield extendFixRange(fixer, sourceCode.getRange(sourceCode.ast));
-			}
 		};
 
 		return problem;
@@ -403,7 +302,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if-else` statements.',
+			description: 'Prefer ternary expressions over simple `if-else` statements that return or assign values.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

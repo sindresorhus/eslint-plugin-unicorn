@@ -101,7 +101,7 @@ test({
 			`,
 			output: outdent`
 				async function unicorn() {
-					return await (test ? a : b);
+					return test ? (await a) : (await b);
 				}
 			`,
 			errors,
@@ -170,7 +170,7 @@ test({
 			`,
 			output: outdent`
 				async function* unicorn() {
-					return yield (await (foo = test ? a : b));
+					return test ? (yield await (foo = a)) : (yield await (foo = b));
 				}
 			`,
 			errors,
@@ -250,622 +250,92 @@ test({
 	],
 });
 
-// YieldExpression
+// Unsupported top-level statements
 test({
 	valid: [
-		// Different `delegate`
+		outdent`
+			function* unicorn() {
+				if(test){
+					yield a;
+				} else{
+					yield b;
+				}
+			}
+		`,
 		outdent`
 			function* unicorn() {
 				if(test){
 					yield* a;
-				} else{
-					yield b;
+				} else {
+					yield* b;
 				}
 			}
 		`,
-		// Test is Ternary
 		outdent`
-			function* unicorn() {
-				if(a ? b : c){
-					yield a;
-				} else{
-					yield b;
-				}
-			}
-		`,
-		// Consequent is Ternary
-		outdent`
-			function* unicorn() {
+			async function unicorn() {
 				if(test){
-					yield a ? b : c;
+					await doSomething1();
 				} else{
-					yield b;
+					await doSomething2();
 				}
 			}
 		`,
-		// Alternate is Ternary
 		outdent`
-			function* unicorn() {
-				if(test){
-					yield a;
-				} else{
-					yield a ? b : c;
+			async function unicorn(packageUUID, client, data) {
+				if (packageUUID) {
+					await client.put(\`api/bricks/\${packageUUID}/\`, data);
+				} else {
+					await client.post('api/bricks/', data);
 				}
 			}
 		`,
-	],
-	invalid: [
+		outdent`
+			function unicorn() {
+				if (test) {
+					throw new Error('a');
+				} else {
+					throw new TypeError('a');
+				}
+			}
+		`,
 		{
 			code: outdent`
 				function* unicorn() {
-					if(test){
+					if (test) {
 						yield a;
-					} else{
+					} else {
 						yield b;
 					}
 				}
 			`,
-			output: outdent`
-				function* unicorn() {
-					yield (test ? a : b);
-				}
-			`,
-			errors,
+			options: onlySingleLineOptions,
 		},
 		{
 			code: outdent`
-				function* unicorn() {
-					if(test){
-						yield;
-					} else{
-						yield b;
+				async function unicorn() {
+					if (test) {
+						await a();
+					} else {
+						await b();
 					}
 				}
 			`,
-			output: outdent`
-				function* unicorn() {
-					yield (test ? undefined : b);
-				}
-			`,
-			errors,
+			options: onlySingleLineOptions,
 		},
 		{
 			code: outdent`
-				function* unicorn() {
-					if(test){
-						yield;
-					} else{
-						yield;
+				function unicorn() {
+					if (test) {
+						throw a;
+					} else {
+						throw b;
 					}
 				}
 			`,
-			output: outdent`
-				function* unicorn() {
-					yield (test ? undefined : undefined);
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				async function* unicorn() {
-					if(test){
-						yield;
-					} else{
-						yield await b;
-					}
-				}
-			`,
-			output: outdent`
-				async function* unicorn() {
-					yield (test ? undefined : (await b));
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function* unicorn() {
-					if(test){
-						yield* a;
-					} else{
-						yield* b;
-					}
-				}
-			`,
-			output: outdent`
-				function* unicorn() {
-					yield* (test ? a : b);
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				async function* unicorn() {
-					if(test){
-						yield await a;
-					} else{
-						yield b;
-					}
-				}
-			`,
-			output: outdent`
-				async function* unicorn() {
-					yield (test ? (await a) : b);
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				async function* unicorn() {
-					if(test){
-						yield await a;
-					} else{
-						yield await b;
-					}
-				}
-			`,
-			output: outdent`
-				async function* unicorn() {
-					yield (await (test ? a : b));
-				}
-			`,
-			errors,
+			options: onlySingleLineOptions,
 		},
 	],
-});
-
-// AwaitExpression
-test({
-	valid: [
-		// Test is Ternary
-		outdent`
-			async function unicorn() {
-				if(a ? b : c){
-					await a;
-				} else{
-					await b;
-				}
-			}
-		`,
-		// Consequent is Ternary
-		outdent`
-			async function unicorn() {
-				if(test){
-					await a ? b : c;
-				} else{
-					await b;
-				}
-			}
-		`,
-		// Alternate is Ternary
-		outdent`
-			async function unicorn() {
-				if(test){
-					await a;
-				} else{
-					await a ? b : c;
-				}
-			}
-		`,
-	],
-	invalid: [
-		{
-			code: outdent`
-				async function unicorn() {
-					if(test){
-						await doSomething1();
-					} else{
-						await doSomething2();
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					await (test ? doSomething1() : doSomething2());
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				async function unicorn() {
-					if(test){
-						await a;
-					} else{
-						await b;
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					await (test ? a : b);
-				}
-			`,
-			errors,
-		},
-	],
-});
-
-// ThrowStatement
-test({
-	valid: [
-		// Test is Ternary
-		outdent`
-			function unicorn() {
-				if(a ? b : c){
-					throw a;
-				} else{
-					throw b;
-				}
-			}
-		`,
-		// Consequent is Ternary
-		outdent`
-			function unicorn() {
-				if (test) {
-					throw a ? b : c;
-				} else {
-					throw b;
-				}
-			}
-		`,
-		// Alternate is Ternary
-		outdent`
-			function unicorn() {
-				if (test) {
-					throw a;
-				} else {
-					throw a ? b : c;
-				}
-			}
-		`,
-	],
-	invalid: [
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						throw new Error('a');
-					} else{
-						throw new TypeError('a');
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error = test ? new Error('a') : new TypeError('a');
-					throw error;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error = test ? a : b;
-					throw error;
-				}
-			`,
-			errors,
-		},
-		// Indention
-		{
-			code: outdent`
-				function unicorn() {
-					/* comment cause wrong indention */ if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					/* comment cause wrong indention */ const error = test ? a : b;
-				 throw error;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-														if (test) {
-															throw a;
-														} else {
-															throw b;
-														}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-														const error = test ? a : b;
-														throw error;
-				}
-			`,
-			errors,
-		},
-		// Space
-		{
-			code: outdent`
-				function unicorn() {
-														if (test) {
-															throw new Error('a');
-														} else {
-															throw new TypeError('a');
-														}
-				}
-			`.replaceAll('\t', '  '),
-			output: outdent`
-				function unicorn() {
-														const error = test ? new Error('a') : new TypeError('a');
-														throw error;
-				}
-			`.replaceAll('\t', '  '),
-			errors,
-		},
-		{
-			code: outdent`
-				async function unicorn() {
-					if (test) {
-						throw await a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					const error = test ? (await a) : b;
-					throw error;
-				}
-			`,
-			errors,
-		},
-		// `ThrowStatement` don't check nested
-		{
-			code: outdent`
-				async function unicorn() {
-					if (test) {
-						throw await a;
-					} else {
-						throw await b;
-					}
-				}
-			`,
-			output: outdent`
-				async function unicorn() {
-					const error = test ? (await a) : (await b);
-					throw error;
-				}
-			`,
-			errors,
-		},
-		// `error` is used
-		{
-			code: outdent`
-				function unicorn() {
-					const error = new Error();
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error = new Error();
-					const error_ = test ? a : b;
-					throw error_;
-				}
-			`,
-			errors,
-		},
-		// Child scope
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-
-					try {} catch(error) {
-						const error_ = new TypeError(error);
-						throw error_;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error__ = test ? a : b;
-					throw error__;
-
-					try {} catch(error) {
-						const error_ = new TypeError(error);
-						throw error_;
-					}
-				}
-			`,
-			errors,
-		},
-		// Global
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-
-					function foo() {
-						throw error;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error_ = test ? a : b;
-					throw error_;
-
-					function foo() {
-						throw error;
-					}
-				}
-			`,
-			errors,
-		},
-		// Multiple
-		// This will fix one by one, see next test
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error = test ? a : b;
-					throw error;
-
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			errors: [...errors, ...errors],
-		},
-		// This `code` is `output` from previous test
-		{
-			code: outdent`
-				function unicorn() {
-					const error = test ? a : b;
-					throw error;
-
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					const error = test ? a : b;
-					throw error;
-
-					const error_ = test ? a : b;
-					throw error_;
-				}
-			`,
-			errors,
-		},
-		// Multiple nested
-		// This will fix one by one, see next test
-		{
-			code: outdent`
-				function outer() {
-					if (test) {
-						throw a;
-					} else {
-						throw b;
-					}
-
-					function inner() {
-						if (test) {
-							throw a;
-						} else {
-							throw b;
-						}
-					}
-				}
-			`,
-			output: outdent`
-				function outer() {
-					const error = test ? a : b;
-					throw error;
-
-					function inner() {
-						if (test) {
-							throw a;
-						} else {
-							throw b;
-						}
-					}
-				}
-			`,
-			errors: [...errors, ...errors],
-		},
-		// This `code` is `output` from previous test
-		{
-			code: outdent`
-				function outer() {
-					const error = test ? a : b;
-					throw error;
-
-					function inner() {
-						if (test) {
-							throw a;
-						} else {
-							throw b;
-						}
-					}
-				}
-			`,
-			output: outdent`
-				function outer() {
-					const error = test ? a : b;
-					throw error;
-
-					function inner() {
-						const error_ = test ? a : b;
-						throw error_;
-					}
-				}
-			`,
-			errors,
-		},
-		// Need `{}`
-		{
-			code: outdent`
-				while (foo) if (test) {throw a} else {throw b}
-			`,
-			output: outdent`
-				while (foo) {
-				 const error = test ? a : b;
-				 throw error;
-				}
-			`,
-			errors,
-		},
-	],
+	invalid: [],
 });
 
 // AssignmentExpression
@@ -996,7 +466,7 @@ test({
 			`,
 			output: outdent`
 				async function unicorn() {
-					foo = await (test ? a : b);
+					foo = test ? (await a) : (await b);
 				}
 			`,
 			errors,
@@ -1051,7 +521,7 @@ test({
 			`,
 			output: outdent`
 				async function* unicorn() {
-					foo = yield (await (test ? a : b));
+					foo = test ? (yield await a) : (yield await b);
 				}
 			`,
 			errors,
@@ -1237,7 +707,7 @@ test({
 		'if (a) {} else {b}',
 		'if (a) {} else {}',
 
-		// Call is not allow to merge
+		// Calls are not mergeable
 		outdent`
 			if (test) {
 				a();
@@ -1246,7 +716,7 @@ test({
 			}
 		`,
 
-		//
+		// Else-if chain
 		outdent`
 			function foo(){
 				if (a) {
@@ -1257,6 +727,22 @@ test({
 					return 3;
 				} else {
 					return 4;
+				}
+			}
+		`,
+		outdent`
+			function *foo(bool) {
+				if (!bool) {
+					yield call(
+						setOnTop,
+						false,
+					);
+				} else {
+					yield call(
+						setOnTop,
+						true,
+						'normal',
+					); // Keep this comment.
 				}
 			}
 		`,
@@ -1409,25 +895,6 @@ test({
 		},
 		{
 			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
-			errors,
-		},
-		{
-			code: outdent`
-				function *foo(bool) {
-					if (!bool) {
-						yield call(
-							setOnTop,
-							false,
-						);
-					} else {
-						yield call(
-							setOnTop,
-							true,
-							'normal',
-						); // Keep this comment.
-					}
-				}
-			`,
 			errors,
 		},
 	],
