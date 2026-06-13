@@ -9,7 +9,7 @@
 
 Deeply nested calls make code hard to read. Extract intermediate results to named variables instead.
 
-This rule counts calls and constructor calls passed into other calls or constructors. Fluent receiver chains are ignored.
+This rule counts calls and constructor calls passed into other calls or constructors. Fluent receiver chains and JSX wrappers are ignored.
 
 ## Examples
 

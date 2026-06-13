@@ -16,6 +16,8 @@ const boundaryNodeTypes = new Set([
 	...functionTypes,
 	'ClassDeclaration',
 	'ClassExpression',
+	'JSXElement',
+	'JSXFragment',
 	'StaticBlock',
 ]);
 
