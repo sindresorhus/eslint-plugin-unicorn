@@ -1,4 +1,4 @@
-import * as util from 'node:util';
+import {MIMEType} from 'node:util';
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {replaceStringRaw} from './fix/index.js';
@@ -87,7 +87,7 @@ const normalizeMimeType = token => {
 	}
 
 	try {
-		const mimeType = new util.MIMEType(token);
+		const mimeType = new MIMEType(token);
 		const {essence} = mimeType;
 		return {replacement: commonMimeTypeMistakes.get(essence) ?? essence};
 	} catch {

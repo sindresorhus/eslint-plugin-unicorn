@@ -1,5 +1,5 @@
 import path from 'node:path';
-import * as util from 'node:util';
+import {inspect} from 'node:util';
 import {codeFrameColumns} from '@babel/code-frame';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -218,7 +218,7 @@ class SnapshotRuleTester {
 
 					t.snapshot(
 						`\n${inputSnapshotParts.join('\n\n')}\n`,
-						'Input' + (filename === undefined ? '' : ` ${util.inspect(filename)}`),
+						'Input' + (filename === undefined ? '' : ` ${inspect(filename)}`),
 					);
 
 					for (const [index, message] of messages.entries()) {

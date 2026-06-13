@@ -22,10 +22,10 @@ This rule defines 4 import styles:
 
 ```js
 // ❌
-const {promisify} = require('node:util');
+const util = require('node:util');
 
 // ✅
-const util = require('node:util');
+const {promisify} = require('node:util');
 ```
 
 ```js
@@ -33,18 +33,18 @@ const util = require('node:util');
 import util from 'node:util';
 
 // ❌
-import {promisify} from 'node:util';
+import * as util from 'node:util';
 
 // ✅
-import * as util from 'node:util';
+import {promisify} from 'node:util';
 ```
 
 ```js
 // ❌
-import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 // ✅
-import fs from 'node:fs';
+import path from 'node:path';
 ```
 
 ## Options
@@ -58,12 +58,10 @@ You can extend default import styles per module by passing the `styles` option.
 Default options per module are:
 
 - `chalk` - `default` only
-- `node:fs` - `default` only
-- `node:fs/promises` - `default` only
-- `node:path` - `default` only
-- `node:util` - `namespace` only
 - `path` - `default` only
 - `util` - `named` only
+
+Imports with the `node:` protocol are matched as if the protocol were omitted. For example, `node:util` uses the same style as `util`. Configure these modules by their bare name, like `util` or `path`.
 
 The example below:
 
