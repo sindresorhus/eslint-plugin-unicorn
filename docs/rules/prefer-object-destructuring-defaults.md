@@ -11,7 +11,7 @@
 
 Prefer object destructuring defaults over creating a temporary object literal with default properties and a final object spread.
 
-Object destructuring defaults are shorter and make each default visible next to the binding that uses it. The suggested replacement destructures from a spread copy so it still works when the spread source is `null` or `undefined`.
+Object destructuring defaults are shorter and make each default visible next to the binding that uses it. The suggested replacement destructures from a spread copy so it still works when the spread source is `null` or `undefined`, and so inherited or non-enumerable source properties are ignored like they are with object spread.
 
 This rule uses suggestions because the two forms are not fully equivalent. For example, `{foo: defaultValue, ...options}` preserves an explicit `options.foo` value of `undefined`, while `{foo = defaultValue} = {...options}` applies the default in that case.
 
