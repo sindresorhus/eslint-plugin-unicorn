@@ -1,3 +1,4 @@
+import {isKnownNonDomNode} from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
 
 const ERROR = 'error';
@@ -7,6 +8,23 @@ const messages = {
 	[SUGGESTION]: 'Switch to `.textContent`.',
 };
 
+const isKnownNonDomObjectPattern = (objectPattern, context) => {
+	if (isKnownNonDomNode(objectPattern, context)) {
+		return true;
+	}
+
+	const {parent} = objectPattern;
+	if (parent.type === 'VariableDeclarator') {
+		return parent.id === objectPattern
+			&& parent.init
+			&& isKnownNonDomNode(parent.init, context);
+	}
+
+	return parent.type === 'AssignmentExpression'
+		&& parent.left === objectPattern
+		&& isKnownNonDomNode(parent.right, context);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('MemberExpression', memberExpression => {
@@ -14,6 +32,7 @@ const create = context => {
 			!isMemberExpression(memberExpression, {
 				property: 'innerText',
 			})
+			|| isKnownNonDomNode(memberExpression.object, context)
 		) {
 			return;
 		}
@@ -42,6 +61,10 @@ const create = context => {
 			&& node.parent.parent.type === 'ObjectPattern'
 			&& node.parent.parent.properties.includes(node.parent)
 		)) {
+			return;
+		}
+
+		if (isKnownNonDomObjectPattern(node.parent.parent, context)) {
 			return;
 		}
 

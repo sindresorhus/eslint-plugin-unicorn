@@ -1,40 +1,11 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isNewExpression, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {isSet} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using `Set#size` instead of `Array#length`.',
 };
-
-const isNewSet = node => isNewExpression(node, {name: 'Set'});
-
-function isSet(node, scope) {
-	if (isNewSet(node)) {
-		return true;
-	}
-
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	const variable = findVariable(scope, node);
-
-	if (!variable || variable.defs.length !== 1) {
-		return false;
-	}
-
-	const [definition] = variable.defs;
-
-	if (definition.type !== 'Variable' || definition.kind !== 'const') {
-		return false;
-	}
-
-	const declarator = definition.node;
-	return declarator.type === 'VariableDeclarator'
-		&& declarator.id.type === 'Identifier'
-		&& isNewSet(definition.node.init);
-}
 
 function getSetNode(memberExpressionObject) {
 	// `[...set].length`
@@ -84,8 +55,6 @@ function createFix(context, lengthAccessNode, set) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('MemberExpression', node => {
 		if (
 			!isMemberExpression(node, {
@@ -97,7 +66,7 @@ const create = context => {
 		}
 
 		const set = getSetNode(node.object);
-		if (!set || !isSet(set, sourceCode.getScope(set))) {
+		if (!set || !isSet(set, context)) {
 			return;
 		}
 

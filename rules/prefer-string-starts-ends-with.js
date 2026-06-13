@@ -6,6 +6,7 @@ import {
 	escapeString,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToLogicalExpressionChild,
+	isKnownNonString,
 	isMethodNamed,
 	isString,
 } from './utils/index.js';
@@ -86,6 +87,9 @@ const create = context => {
 		}
 
 		const [target] = node.arguments;
+		if (isKnownNonString(target, context)) {
+			return;
+		}
 
 		let isTargetString = target.type === 'TemplateLiteral'
 			|| (

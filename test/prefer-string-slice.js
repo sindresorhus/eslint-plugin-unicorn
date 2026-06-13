@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -45,6 +45,10 @@ test({
 		'foo.substring?.(index, index + 1)',
 		'foo.substring((( index )), (( index )) + 1)',
 		'foo.substring((( index )) - 1, (( index )))',
+		{
+			code: 'function foo(collection: {substring(start: number): string}) { collection.substring(1); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 
 	invalid: [
@@ -378,6 +382,17 @@ test.typescript({
 				function foo() {
 					return ((bar as string)).slice(3);
 				}
+			`,
+			errors: errorsSubstring,
+		},
+		{
+			code: outdent`
+				const value: 'foo' = 'foo';
+				value.substring(1);
+			`,
+			output: outdent`
+				const value: 'foo' = 'foo';
+				value.slice(1);
 			`,
 			errors: errorsSubstring,
 		},

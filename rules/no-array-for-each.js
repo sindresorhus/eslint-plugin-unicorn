@@ -20,6 +20,8 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStatementExpression,
 	shouldAddParenthesesToMemberExpressionObject,
+	canSkipKnownNonArrayReceiver,
+	isKnownNonArray,
 	isParenthesized,
 	getParentheses,
 	getParenthesizedRange,
@@ -448,6 +450,10 @@ const create = context => {
 			})
 			|| isNodeMatches(node.callee.object, ignoredObjects)
 			|| isStrictCallbagBasicsNamespace(node.callee.object, scope)
+			|| (
+				canSkipKnownNonArrayReceiver(node.callee.object)
+				&& isKnownNonArray(node.callee.object, context)
+			)
 		) {
 			return;
 		}

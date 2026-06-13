@@ -4,6 +4,8 @@ import {
 	getParentheses,
 	getParenthesizedText,
 	shouldAddParenthesesToMemberExpressionObject,
+	canSkipKnownNonArrayReceiver,
+	isKnownNonArray,
 	isNodeMatches,
 	isNodeValueNotFunction,
 } from './utils/index.js';
@@ -169,6 +171,10 @@ const create = context => {
 				optionalCall: false,
 			})
 			|| isNodeMatches(callExpression.callee, ignored)
+			|| (
+				canSkipKnownNonArrayReceiver(callExpression.callee.object)
+				&& isKnownNonArray(callExpression.callee.object, context)
+			)
 			|| isNodeValueNotFunction(callExpression.arguments[0])
 		) {
 			return;

@@ -23,6 +23,7 @@ export {
 
 export {default as assertToken} from './assert-token.js';
 export {default as cartesianProductSamples} from './cartesian-product-samples.js';
+export {default as canSkipKnownNonArrayReceiver} from './can-skip-known-non-array-receiver.js';
 export {default as escapeString} from './escape-string.js';
 export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
@@ -46,12 +47,16 @@ export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-c
 export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
 export {default as isArray, isKnownNonArray} from './is-array.js';
+export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';
+export {isSet, isKnownNonSet} from './is-set.js';
+export {isMap, isKnownNonMap} from './is-map.js';
+export {isKnownNonDomNode, isKnownNonKeyboardEvent} from './is-dom-node.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
 export {default as isNewExpressionWithParentheses} from './is-new-expression-with-parentheses.js';
 export {default as isNumber} from './is-number.js';
-export {default as isString} from './is-string.js';
+export {default as isString, isKnownNonString} from './is-string.js';
 export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
 export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
 export {default as isNodeContainsLexicalThis} from './is-node-contains-lexical-this.js';

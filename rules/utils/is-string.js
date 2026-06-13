@@ -1,6 +1,11 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
+import {
+	createTypeCheckers,
+	target,
+	unknown,
+} from './type-helpers.js';
 
 // `String(…)`
 const isStringCall = node => isFunctionCall(node, 'String');
@@ -19,9 +24,33 @@ const isStringMethodCall = node =>
 const isStaticString = (node, scope) =>
 	typeof getStaticValue(node, scope)?.value === 'string';
 
-const isStringTypeAnnotation = node => node?.type === 'TSStringKeyword';
+const isStringTypeAnnotation = node =>
+	node?.type === 'TSStringKeyword'
+	|| (
+		node?.type === 'TSLiteralType'
+		&& typeof node.literal.value === 'string'
+	);
 
 const hasStringTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isStringTypeAnnotation);
+
+const stringTypeNames = new Set(['String']);
+
+const getStaticType = value =>
+	typeof value === 'string' ? target : unknown;
+
+const {
+	isKnownNonTarget: isKnownNonString,
+} = createTypeCheckers({
+	targetTypeNames: stringTypeNames,
+	targetCallNames: ['String'],
+	isTargetNode(node, context) {
+		const scope = context.sourceCode.getScope(node);
+		return isString(node, scope);
+	},
+	isTargetTypeAnnotation: isStringTypeAnnotation,
+	isTargetType: type => type.intrinsicName === 'string' || typeof type.value === 'string',
+	getStaticType,
+});
 
 // eslint-disable-next-line complexity
 export default function isString(node, scope) {
@@ -116,3 +145,7 @@ export default function isString(node, scope) {
 
 	return isStaticString(node, scope);
 }
+
+export {
+	isKnownNonString,
+};

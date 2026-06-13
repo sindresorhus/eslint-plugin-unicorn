@@ -1,5 +1,6 @@
 import escapeString from './utils/escape-string.js';
 import translateToKey from './shared/event-keys.js';
+import {isKnownNonKeyboardEvent} from './utils/index.js';
 import {isFunction, isMethodCall, isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-keyboard-event-key';
@@ -94,7 +95,7 @@ const getParameterEventContexts = (context, functionNode) => {
 
 	const variables = context.sourceCode.getDeclaredVariables(functionNode);
 	return eventContexts
-		.filter(({parameter}) => parameter)
+		.filter(({parameter}) => parameter && !isKnownNonKeyboardEvent(parameter, context))
 		.map(eventContext => ({
 			...eventContext,
 			references: variables.find(variable => variable.identifiers.includes(eventContext.parameter))?.references,

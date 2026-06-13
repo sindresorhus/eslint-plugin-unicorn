@@ -1,4 +1,6 @@
 import {
+	canSkipKnownNonArrayReceiver,
+	isKnownNonArray,
 	isNodeMatches,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -39,7 +41,13 @@ const create = context => {
 
 		const flatCallExpression = callExpression;
 		const mapCallExpression = flatCallExpression.callee.object;
-		if (isNodeMatches(mapCallExpression.callee.object, ignored)) {
+		if (
+			isNodeMatches(mapCallExpression.callee.object, ignored)
+			|| (
+				canSkipKnownNonArrayReceiver(mapCallExpression.callee.object)
+				&& isKnownNonArray(mapCallExpression.callee.object, context)
+			)
+		) {
 			return;
 		}
 

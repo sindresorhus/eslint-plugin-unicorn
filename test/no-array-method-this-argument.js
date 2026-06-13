@@ -59,6 +59,8 @@ test.snapshot({
 		// `jQuery.find` and `jQuery.filter` don't accept second argument
 		'$( "li" ).filter( ":nth-child(2n)" ).css( "background-color", "red" );',
 		'$( "li.item-ii" ).find( "li" ).css( "background-color", "red" );',
+		'const service = new SearchService(); service.find(dto, invoker);',
+		'const map = new Map(); map.forEach(callback, thisArgument);',
 		// Callback argument is not function
 		'array.map(new Callback, thisArgument)',
 		'array.map(1, thisArgument)',
@@ -81,6 +83,10 @@ test.snapshot({
 		'array.forEach(() => {}, thisArgument)',
 		'array.map(() => {}, thisArgument)',
 		'array?.map(() => {}, thisArgument)',
+		{
+			code: 'function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) { collection.map(value => value, thisArgument); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'Array.from(iterableOrArrayLike, () => {}, thisArgument)',
 		'Array.fromAsync(iterableOrArrayLike, () => {}, thisArgument)',
 		// Comma

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -75,5 +75,9 @@ test.snapshot({
 				return Array.from(new Set(array)).length === array.length
 			}
 		`,
+		{
+			code: 'function getSize(set: Set<string>) { return Array.from(set).length; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

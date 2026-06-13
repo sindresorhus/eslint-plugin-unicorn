@@ -36,6 +36,9 @@ test.snapshot({
 		`,
 		// #2758
 		'Effect.forEach([1,2,3], (n) => Effect.succeed(n))',
+		'const map = new Map(); map.forEach(value => console.log(value));',
+		'const set = new Set(); set.forEach(value => console.log(value));',
+		'const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value));',
 	],
 	invalid: [
 		'foo.forEach?.(element => bar(element))',
@@ -646,6 +649,19 @@ test.typescript({
 			output: outdent`
 				const cloakVals: string[] = [];
 				for (const element of elements) cloakVals.push(cloakElement(element));
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function foo(collection: string[] | {forEach(callback: (value: string) => void): void}) {
+					collection.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				function foo(collection: string[] | {forEach(callback: (value: string) => void): void}) {
+					for (const value of collection) console.log(value);
+				}
 			`,
 			errors: 1,
 		},

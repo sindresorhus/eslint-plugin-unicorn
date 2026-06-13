@@ -53,7 +53,7 @@ const combineUnionTypes = types => {
 		return array;
 	}
 
-	if (!types.includes(unknown) && types.includes(nonArray)) {
+	if (types.every(type => type === nonArray)) {
 		return nonArray;
 	}
 
@@ -244,7 +244,8 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 	visitedVariables.add(variable);
 
 	const [definition] = variable.defs;
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, scope);
+	const definitionScope = context.sourceCode.getScope(definition.name);
+	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope);
 	let type = unknown;
 
 	if (typeFromAnnotation !== unknown) {
