@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -223,7 +233,7 @@ test.snapshot({
 			`,
 			'a = foo?.bar.forEach((element) => bar(element));',
 
-			// Auto-fix
+			// Unknown receivers are reported without fixes.
 			outdent`
 				foo.forEach(function (element) {
 					bar(element);
@@ -263,10 +273,10 @@ test.snapshot({
 			'(a ? b : c()).forEach((element) => log(element))',
 			'(foo || bar).forEach((element) => log(element))',
 			'(foo || bar()).forEach((element) => log(element))',
-			// Array is parenthesized
+			// Receiver is parenthesized.
 			'(foo).forEach((element, index) => bar(element, index))',
 			'(0, foo).forEach((element, index) => bar(element, index))',
-			// Trailing comma
+			// Trailing comma.
 			outdent`
 				foo.forEach(function (element) {
 					bar(element);
@@ -298,7 +308,7 @@ test.snapshot({
 					}
 				}
 			`,
-			// A test to make sure function head part range correctly calculated
+			// Parenthesized callback body.
 			'foo.forEach(element => ({}))',
 			// `callback` is parenthesized
 			'foo.forEach((((((element => bar(element)))))));',
@@ -562,12 +572,6 @@ test({
 					console.log(element)
 				});
 			`,
-			output: outdent`
-				for (const element of foo) {
-					delete element;
-					console.log(element)
-				}
-			`,
 			errors: 1,
 			languageOptions: {
 				sourceType: 'script',
@@ -602,18 +606,48 @@ test({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		// `WeakMap` and `WeakSet` do not have `.forEach()`, but this still verifies parser-only type fallback.
+		'function foo(map: Map<string, string>) { map.forEach(value => console.log(value)); }',
+		'function foo(map: ReadonlyMap<string, string>) { map.forEach(value => console.log(value)); }',
+		'function foo(map: WeakMap<object, string>) { map.forEach(value => console.log(value)); }',
+		'function foo(set: Set<string>) { set.forEach(value => console.log(value)); }',
+		'function foo(set: ReadonlySet<string>) { set.forEach(value => console.log(value)); }',
+		'function foo(set: WeakSet<object>) { set.forEach(value => console.log(value)); }',
+		'function outer(Map) { function foo(map: Map<string, string>) { map.forEach(value => console.log(value)); } }',
+		'function outer(Set) { function foo(set: Set<string>) { set.forEach(value => console.log(value)); } }',
+		outdent`
+			type Array<T> = Map<T, T>;
+			function foo(collection: Array<string>) {
+				collection.forEach(value => console.log(value));
+			}
+		`,
+		outdent`
+			type Array<T> = Map<T, T>;
+			function outer(Array) {
+				function foo(collection: Array<string>) {
+					collection.forEach(value => console.log(value));
+				}
+			}
+		`,
+		outdent`
+			type ReadonlyArray<T> = ReadonlySet<T>;
+			function foo(collection: ReadonlyArray<string>) {
+				collection.forEach(value => console.log(value));
+			}
+		`,
+		outdent`
+			type Uint8Array = Set<number>;
+			function foo(collection: Uint8Array) {
+				collection.forEach(value => console.log(value));
+			}
+		`,
+	],
 	invalid: [
 		// https://github.com/vercel/next.js/blob/699a7aeaaa48a6c3611ede7a35af2d9676421de0/packages/next/build/index.ts#L1358
 		{
 			code: outdent`
 				staticPages.forEach((pg) => allStaticPages.add(pg))
-				pageInfos.forEach((info: PageInfo, key: string) => {
-					allPageInfos.set(key, info)
-				})
-			`,
-			output: outdent`
-				for (const pg of staticPages) allStaticPages.add(pg)
 				pageInfos.forEach((info: PageInfo, key: string) => {
 					allPageInfos.set(key, info)
 				})
@@ -646,10 +680,6 @@ test.typescript({
 				const cloakVals: string[] = [];
 				elements.forEach(element => cloakVals.push(cloakElement(element)));
 			`,
-			output: outdent`
-				const cloakVals: string[] = [];
-				for (const element of elements) cloakVals.push(cloakElement(element));
-			`,
 			errors: 1,
 		},
 		{
@@ -658,10 +688,247 @@ test.typescript({
 					collection.forEach(value => console.log(value));
 				}
 			`,
-			output: outdent`
-				function foo(collection: string[] | {forEach(callback: (value: string) => void): void}) {
-					for (const value of collection) console.log(value);
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function foo(array: Array<string>) {
+					array.forEach(value => console.log(value));
 				}
+			`,
+			output: outdent`
+				function foo(array: Array<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const Array = function () {};
+				function foo(array: Array<string>) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				const Array = function () {};
+				function foo(array: Array<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function outer(Array) {
+					function foo(array: Array<string>) {
+						array.forEach(value => console.log(value));
+					}
+				}
+			`,
+			output: outdent`
+				function outer(Array) {
+					function foo(array: Array<string>) {
+						for (const value of array) console.log(value);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function foo(array: ReadonlyArray<string>) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				function foo(array: ReadonlyArray<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				const ReadonlyArray = {};
+				function foo(array: ReadonlyArray<string>) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				const ReadonlyArray = {};
+				function foo(array: ReadonlyArray<string>) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				function foo(array: [string, string]) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				function foo(array: [string, string]) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Strings = string[];
+				function foo(array: Strings) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Strings = string[];
+				function foo(array: Strings) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Map = string[];
+				function foo(array: Map) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Map = string[];
+				function foo(array: Map) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Map = string[];
+				function outer(Map) {
+					function foo(array: Map) {
+						array.forEach(value => console.log(value));
+					}
+				}
+			`,
+			output: outdent`
+				type Map = string[];
+				function outer(Map) {
+					function foo(array: Map) {
+						for (const value of array) console.log(value);
+					}
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Set = string[];
+				function foo(array: Set) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Set = string[];
+				function foo(array: Set) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+		{
+			code: outdent`
+				type Uint8Array = string[];
+				function foo(array: Uint8Array) {
+					array.forEach(value => console.log(value));
+				}
+			`,
+			output: outdent`
+				type Uint8Array = string[];
+				function foo(array: Uint8Array) {
+					for (const value of array) console.log(value);
+				}
+			`,
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		typeAware('export {}; function foo(map: Map<string, string>) { map.forEach(value => console.log(value)); }'),
+		typeAware('export {}; function foo(map: ReadonlyMap<string, string>) { map.forEach(value => console.log(value)); }'),
+		typeAware('export {}; function foo(set: Set<string>) { set.forEach(value => console.log(value)); }'),
+		typeAware('export {}; function foo(set: ReadonlySet<string>) { set.forEach(value => console.log(value)); }'),
+	],
+	invalid: [
+		{
+			...typeAware(outdent`
+				interface PageInfo {}
+				declare const staticPages: string[];
+				declare const allStaticPages: Set<string>;
+				declare const pageInfos: Map<string, PageInfo>;
+				declare const allPageInfos: Map<string, PageInfo>;
+
+				staticPages.forEach((pg) => allStaticPages.add(pg))
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`),
+			output: outdent`
+				interface PageInfo {}
+				declare const staticPages: string[];
+				declare const allStaticPages: Set<string>;
+				declare const pageInfos: Map<string, PageInfo>;
+				declare const allPageInfos: Map<string, PageInfo>;
+
+				for (const pg of staticPages) allStaticPages.add(pg)
+				pageInfos.forEach((info: PageInfo, key: string) => {
+					allPageInfos.set(key, info)
+				})
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
+				declare const elements: string[];
+				declare function cloakElement(element: string): string;
+				const cloakVals: string[] = [];
+				elements.forEach(element => cloakVals.push(cloakElement(element)));
+			`),
+			output: outdent`
+				declare const elements: string[];
+				declare function cloakElement(element: string): string;
+				const cloakVals: string[] = [];
+				for (const element of elements) cloakVals.push(cloakElement(element));
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
+				declare function getStrings(): string[];
+				getStrings().forEach(value => console.log(value));
+			`),
+			output: outdent`
+				declare function getStrings(): string[];
+				for (const value of getStrings()) console.log(value);
+			`,
+			errors: 1,
+		},
+		{
+			...typeAware(outdent`
+				declare function getStrings(): string[];
+				const strings = getStrings();
+				strings.forEach(value => console.log(value));
+			`),
+			output: outdent`
+				declare function getStrings(): string[];
+				const strings = getStrings();
+				for (const value of strings) console.log(value);
 			`,
 			errors: 1,
 		},
@@ -691,10 +958,6 @@ test({
 				while (true) return;
 				foo.forEach(element => bar(element));
 			`,
-			output: outdent`
-				while (true) return;
-				for (const element of foo) bar(element);
-			`,
 			errors: 1,
 		},
 		{
@@ -716,11 +979,6 @@ test({
 				foo.forEach(_ => {
 					with (a) return {};
 				})
-			`,
-			output: outdent`
-				for (const _ of foo) {
-					with (a)  { ({}); continue; }
-				}
 			`,
 			errors: 1,
 		},

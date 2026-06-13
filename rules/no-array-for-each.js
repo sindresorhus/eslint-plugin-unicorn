@@ -21,6 +21,7 @@ import {
 	shouldAddParenthesesToExpressionStatementExpression,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldSkipKnownNonArrayReceiver,
+	isArray,
 	isParenthesized,
 	getParentheses,
 	getParenthesizedRange,
@@ -457,11 +458,12 @@ const create = context => {
 		callExpressions.push({
 			node,
 			scope,
+			isKnownArrayReceiver: isArray(node.callee.object, context),
 		});
 	});
 
 	context.onExit('Program', function * () {
-		for (const {node, scope} of callExpressions) {
+		for (const {node, scope, isKnownArrayReceiver} of callExpressions) {
 			const iterable = node.callee;
 
 			const problem = {
@@ -469,12 +471,15 @@ const create = context => {
 				messageId: MESSAGE_ID_ERROR,
 			};
 
-			if (!isFixable(node, {
-				scope,
-				allIdentifiers,
-				functionInfo,
-				sourceCode,
-			})) {
+			if (
+				!isKnownArrayReceiver
+				|| !isFixable(node, {
+					scope,
+					allIdentifiers,
+					functionInfo,
+					sourceCode,
+				})
+			) {
 				yield problem;
 				continue;
 			}
