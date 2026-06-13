@@ -61,6 +61,8 @@ Default: `'always'`
   - Always report when clause is not a `BlockStatement`.
 - `'avoid'`
   - Only allow braces when there are variable declaration or function declaration which requires a scope.
+- `'single-statement'`
+  - Require each case clause to have a single statement. Multiple statements must be wrapped in a block. A block with one statement is only allowed when that statement needs its own scope.
 
 The following cases are considered valid:
 
@@ -92,6 +94,41 @@ switch (foo) {
 	case 1: {
 		doSomething();
 		break;
+	}
+}
+```
+
+The following cases are considered valid:
+
+```js
+/* eslint unicorn/switch-case-braces: ["error", "single-statement"] */
+function unicorn(foo) {
+	switch (foo) {
+		case 1:
+			return foo;
+		case 2: {
+			doSomething();
+			break;
+		}
+		case 3: {
+			const bar = 2;
+		}
+	}
+}
+```
+
+The following cases are considered invalid:
+
+```js
+/* eslint unicorn/switch-case-braces: ["error", "single-statement"] */
+function unicorn(foo) {
+	switch (foo) {
+		case 1:
+			doSomething();
+			break;
+		case 2: {
+			return foo;
+		}
 	}
 }
 ```
