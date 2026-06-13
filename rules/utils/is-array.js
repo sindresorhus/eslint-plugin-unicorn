@@ -226,7 +226,13 @@ const getTypeFromStaticValue = (node, scope) => {
 		return unknown;
 	}
 
-	return Array.isArray(result.value) ? array : nonArray;
+	if (Array.isArray(result.value)) {
+		return array;
+	}
+
+	return node.type === 'Identifier' || node.type === 'MemberExpression'
+		? unknown
+		: nonArray;
 };
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
