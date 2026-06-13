@@ -5,6 +5,10 @@ import {
 	isNewExpression,
 } from '../ast/index.js';
 import typedArray from '../shared/typed-array.js';
+import {
+	getTypeSymbol,
+	isUnknownType,
+} from './types.js';
 
 const array = 'array';
 const nonArray = 'non-array';
@@ -182,7 +186,7 @@ const getTypeAnnotationType = (node, scope, visitedTypeReferenceNames = new Set(
 };
 
 const getTypeScriptType = (type, checker) => {
-	if (type.intrinsicName === 'any' || type.intrinsicName === 'unknown') {
+	if (isUnknownType(type)) {
 		return unknown;
 	}
 
@@ -200,7 +204,15 @@ const getTypeScriptType = (type, checker) => {
 		return combineIntersectionTypes(type.types.map(type => getTypeScriptType(type, checker)));
 	}
 
-	return checker.isArrayType(type) || checker.isTupleType(type) ? array : nonArray;
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return array;
+	}
+
+	if (type.intrinsicName) {
+		return nonArray;
+	}
+
+	return getTypeSymbol(type) ? nonArray : unknown;
 };
 
 const getTypeFromTypeInformation = (node, context) => {
