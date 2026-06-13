@@ -155,6 +155,31 @@ test.snapshot({
 		'Promise.all(...[...iterable])',
 		'new Map(...[...iterable])',
 		'new Set(...[iterable])',
+		'Object.assign(target, {...{a}})',
+	],
+});
+
+// Object.assign() source object spread
+test.snapshot({
+	valid: [
+		'Object.assign(target, source)',
+		'Object.assign(target, {})',
+		'Object.assign(target, {foo})',
+		'Object.assign(target, {foo, ...source})',
+		'Object.assign(target, {...source, foo})',
+		'Object.assign?.(target, {...source})',
+		'Object?.assign(target, {...source})',
+		'Object[assign](target, {...source})',
+		'NotObject.assign(target, {...source})',
+		'Object.assign({...source})',
+	],
+	invalid: [
+		'Object.assign(target, {...source})',
+		'Object.assign(target, {...first, ...second}, third)',
+		'Object.assign(target, {...source,}, third)',
+		'Object.assign(target, {...(( source ))})',
+		'Object.assign(target, {...(foo, bar)})',
+		'Object.assign(target, {/* keep */ ...source})',
 	],
 });
 

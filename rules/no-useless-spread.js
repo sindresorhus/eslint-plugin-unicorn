@@ -6,6 +6,7 @@ import {
 	isKnownNonArray,
 	isParenthesized,
 	isOnSameLine,
+	getParenthesizedText,
 } from './utils/index.js';
 import {
 	isNewExpression,
@@ -20,14 +21,18 @@ const ITERABLE_TO_ARRAY = 'iterable-to-array';
 const ITERABLE_TO_ARRAY_IN_FOR_OF = 'iterable-to-array-in-for-of';
 const ITERABLE_TO_ARRAY_IN_YIELD_STAR = 'iterable-to-array-in-yield-star';
 const SPREAD_IN_COLLECTION_CONSTRUCTOR = 'spread-in-collection-constructor';
+const SPREAD_IN_OBJECT_ASSIGN = 'spread-in-object-assign';
 const CLONE_ARRAY = 'clone-array';
+const SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD = 'suggestion/remove-object-assign-spread';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
 	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
 	[SPREAD_IN_COLLECTION_CONSTRUCTOR]: '`{{constructorName}}` accepts a single iterable argument, spreading is misleading.',
+	[SPREAD_IN_OBJECT_ASSIGN]: 'Spreading an object literal in `Object.assign(…)` is unnecessary.',
 	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
+	[SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD]: 'Remove the object spread.',
 };
 
 const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
@@ -52,6 +57,18 @@ const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
 	&& node.elements.length === 1
 	&& node.elements[0]?.type === 'SpreadElement';
+
+const isObjectExpressionWithOnlySpreadProperties = node =>
+	node.type === 'ObjectExpression'
+	&& node.properties.length > 0
+	&& node.properties.every(property =>
+		property.type === 'SpreadElement'
+		&& property.argument.type !== 'ObjectExpression');
+
+const getObjectAssignReplacementText = (objectExpression, context) =>
+	objectExpression.properties
+		.map(property => getParenthesizedText(property.argument, context))
+		.join(', ');
 
 const parentDescriptions = {
 	ArrayExpression: 'array literal',
@@ -341,6 +358,46 @@ const create = context => {
 		};
 	});
 
+	// Object.assign() source object spread
+	context.on('ObjectExpression', objectExpression => {
+		if (!isObjectExpressionWithOnlySpreadProperties(objectExpression)) {
+			return;
+		}
+
+		const callExpression = objectExpression.parent;
+		if (
+			!isMethodCall(callExpression, {
+				object: 'Object',
+				method: 'assign',
+				minimumArguments: 2,
+				optionalMember: false,
+				optionalCall: false,
+			})
+			|| callExpression.arguments.indexOf(objectExpression) <= 0
+		) {
+			return;
+		}
+
+		const problem = {
+			node: sourceCode.getFirstToken(objectExpression.properties[0]),
+			messageId: SPREAD_IN_OBJECT_ASSIGN,
+		};
+
+		if (sourceCode.getCommentsInside(objectExpression).length > 0) {
+			return problem;
+		}
+
+		return {
+			...problem,
+			suggest: [
+				{
+					messageId: SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD,
+					fix: fixer => fixer.replaceText(objectExpression, getObjectAssignReplacementText(objectExpression, context)),
+				},
+			],
+		};
+	});
+
 	// Spread in collection constructor
 	context.on('NewExpression', node => {
 		if (
@@ -479,6 +536,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
