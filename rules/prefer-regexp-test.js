@@ -165,7 +165,7 @@ const combineKnownTypes = types => {
 	const hasRegExp = typeSet.has(REGEXP) || typeSet.has(REGEXP_OR_OTHER);
 
 	if (hasString && hasRegExp) {
-		return UNKNOWN;
+		return STRING_OR_OTHER;
 	}
 
 	const hasOther = typeSet.has(OTHER) || typeSet.has(STRING_OR_OTHER) || typeSet.has(REGEXP_OR_OTHER);
@@ -284,6 +284,10 @@ const getTypeFromTypeInformation = (node, context) => {
 };
 
 const getTypeFromTypeScriptType = (type, checker) => {
+	if (isUnknownType(type)) {
+		return UNKNOWN;
+	}
+
 	type = checker.getNonNullableType(type);
 
 	if (isUnknownType(type)) {

@@ -64,6 +64,8 @@ ruleTest.snapshot({
 		'if (foo.match(null)) {}',
 		'if (foo.match(undefined)) {}',
 		'if (foo.match(void 0)) {}',
+		'const pattern = undefined; if (foo.match(pattern)) {}',
+		'const pattern = void 0; if (foo.match(pattern)) {}',
 		'if (foo.match(1n)) {}',
 		'if (foo.match(true)) {}',
 		'if (foo.search(undefined) !== -1) {}',
@@ -373,6 +375,10 @@ ruleTest.typescript({
 				if ("string".match(pattern)) {}
 			}
 
+			function stringOrRegExpMatchPattern(pattern: string | RegExp) {
+				if ("string".match(pattern)) {}
+			}
+
 			function stringOrUndefinedSearchPattern(pattern: string | undefined) {
 				if ("string".search(pattern) !== -1) {}
 			}
@@ -396,16 +402,20 @@ ruleTest.typescript({
 	],
 	invalid: [
 		{
-			code: 'function foo(pattern: string | RegExp) { if ("string".match(pattern)) {} }',
+			code: 'function foo(pattern: unknown) { if ("string".match(pattern)) {} }',
 			errors: [
 				{
 					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
-					suggestions: [
-						{
-							desc: 'Switch to `RegExp#test(…)`.',
-							output: 'function foo(pattern: string | RegExp) { if (pattern.test("string")) {} }',
-						},
-					],
+					suggestions: 1,
+				},
+			],
+		},
+		{
+			code: 'function foo(pattern: Action) { if ("string".match(pattern)) {} }',
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: 1,
 				},
 			],
 		},
@@ -431,7 +441,34 @@ ruleTest({
 			if (increment.match(action)) {}
 		`),
 	],
-	invalid: [],
+	invalid: [
+		{
+			...typeAware(outdent`
+				declare const pattern: any;
+
+				if ("string".match(pattern)) {}
+			`),
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: 1,
+				},
+			],
+		},
+		{
+			...typeAware(outdent`
+				declare const pattern: unknown;
+
+				if ("string".match(pattern)) {}
+			`),
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: 1,
+				},
+			],
+		},
+	],
 });
 
 const supportsUnicodeSets = (() => {
