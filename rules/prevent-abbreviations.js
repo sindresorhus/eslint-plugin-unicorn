@@ -408,7 +408,7 @@ const create = context => {
 			variableReplacements.total === 1
 			&& shouldAutofix(variable, context)
 			&& variableReplacements.samples[0]
-			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+			&& variable.references.every(reference => !reference.vueUsedInTemplate)
 		) {
 			const [replacement] = variableReplacements.samples;
 
@@ -428,7 +428,7 @@ const create = context => {
 			!problem.fix
 			&& shouldRenameVariable(variable)
 			&& shouldFixParameter(variable.defs[0], context)
-			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+			&& variable.references.every(reference => !reference.vueUsedInTemplate)
 		) {
 			const suggestions = getSuggestions(
 				variableReplacements,

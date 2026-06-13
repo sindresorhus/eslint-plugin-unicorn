@@ -103,7 +103,7 @@ const isUnresolvedName = (name, scope) =>
 	getReferences(scope).some(({identifier, resolved}) => identifier?.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
-	!scopes.some(scope => resolveVariableName(name, scope) || isUnresolvedName(name, scope));
+	scopes.every(scope => !(resolveVariableName(name, scope) || isUnresolvedName(name, scope)));
 
 const alwaysTrue = () => true;
 

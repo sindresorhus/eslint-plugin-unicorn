@@ -116,7 +116,7 @@ const isPreferIteratorConcatArrayLiteral = node =>
 	isArrayLiteral(node)
 	&& node.elements.length >= 2
 	&& node.elements.every(element => element?.type === 'SpreadElement')
-	&& !node.elements.some(element => isToArrayCall(element.argument));
+	&& node.elements.every(element => !isToArrayCall(element.argument));
 const isArrayLiteralHasTrailingComma = (node, sourceCode) => {
 	if (isEmptyArrayExpression(node)) {
 		return false;
@@ -1183,7 +1183,7 @@ const create = context => {
 	// Any inner comment outside preserved ranges means the autofix would relocate or drop comments.
 	const hasCommentsOutsideRanges = (node, preservedRanges) => sourceCode.getCommentsInside(node).some(comment => {
 		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return !preservedRanges.some(([start, end]) => commentStart >= start && commentEnd <= end);
+		return preservedRanges.every(([start, end]) => !(commentStart >= start && commentEnd <= end));
 	});
 
 	const hasExtraComments = (node, preservedNodeOrRange) => {

@@ -15,7 +15,7 @@ const config = {
 
 				const scope = sourceCode.getScope(yieldExpression).variableScope;
 				const functionNode = scope.block;
-				if (!functionNode.params.some(node => node.type === 'Identifier' && node.name === 'fixer')) {
+				if (functionNode.params.every(node => !(node.type === 'Identifier' && node.name === 'fixer'))) {
 					return;
 				}
 

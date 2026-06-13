@@ -194,10 +194,10 @@ const create = context => {
 		const [firstParameter, secondParameter] = comparator.params;
 		const tests = collectTests(tree);
 
-		if (!tests.every(test =>
-			test.type === 'BinaryExpression'
-			&& relationalOperators.has(test.operator)
-			&& isParameterSwap(test.left, test.right, firstParameter, secondParameter))) {
+		if (tests.some(test =>
+			test.type !== 'BinaryExpression'
+			|| !relationalOperators.has(test.operator)
+			|| !isParameterSwap(test.left, test.right, firstParameter, secondParameter))) {
 			return;
 		}
 
@@ -214,7 +214,7 @@ const create = context => {
 		// value) with a determinate direction is equivalent to a subtraction.
 		const signs = collectLeaves(tree).map(node => leafSign(node));
 		const sign = trueBranchSign(tree);
-		if (!signs.some(value => value > 0) || !signs.some(value => value < 0) || sign === 0) {
+		if (signs.every(value => value <= 0) || signs.every(value => value >= 0) || sign === 0) {
 			return;
 		}
 

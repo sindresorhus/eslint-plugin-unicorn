@@ -252,7 +252,7 @@ const create = context => {
 		if (
 			safeReplacement
 			&& shouldRenameVariable(variable)
-			&& !variable.references.some(reference => reference.vueUsedInTemplate)
+			&& variable.references.every(reference => !reference.vueUsedInTemplate)
 		) {
 			for (const scope of scopes) {
 				if (!scopeToNamesGeneratedByFixer.has(scope)) {

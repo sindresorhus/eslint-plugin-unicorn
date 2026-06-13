@@ -117,7 +117,7 @@ const create = context => {
 					messageId: MESSAGE_ID_MISSING_BRACES,
 				};
 
-				if (!consequent.some(node => needsCaseBlock(node))) {
+				if (consequent.every(node => !needsCaseBlock(node))) {
 					problem.fix = fixer => addBraces(fixer, node, context);
 				}
 

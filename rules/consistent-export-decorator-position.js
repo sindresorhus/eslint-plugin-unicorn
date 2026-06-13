@@ -97,9 +97,9 @@ const canFix = ({headRange, decorators, exportToken, defaultToken, sourceCode}) 
 		return false;
 	}
 
-	return !sourceCode.getAllComments()
+	return sourceCode.getAllComments()
 		.filter(comment => isInRange(headRange, comment, sourceCode))
-		.some(comment => !isInsideDecorator(comment));
+		.every(comment => isInsideDecorator(comment));
 };
 
 const getProblem = ({exportDeclaration, expectedStyle, context}) => {

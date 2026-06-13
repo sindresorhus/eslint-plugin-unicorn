@@ -76,6 +76,7 @@ export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-dept
 export {default as 'no-manually-wrapped-comments'} from './no-manually-wrapped-comments.js';
 export {default as 'no-mismatched-map-key'} from './no-mismatched-map-key.js';
 export {default as 'no-named-default'} from './no-named-default.js';
+export {default as 'no-negated-array-predicate'} from './no-negated-array-predicate.js';
 export {default as 'no-negated-comparison'} from './no-negated-comparison.js';
 export {default as 'no-negated-condition'} from './no-negated-condition.js';
 export {default as 'no-negation-in-equality-check'} from './no-negation-in-equality-check.js';

@@ -22,7 +22,7 @@ function wouldRemoveComments(context, nodeOrRange, preservedNodeOrRanges = []) {
 	return getComments(context).some(comment => {
 		const commentRange = sourceCode.getRange(comment);
 		return isRangeInside(commentRange, replacedRange)
-			&& !preservedRanges.some(range => isRangeInside(commentRange, range));
+			&& preservedRanges.every(range => !isRangeInside(commentRange, range));
 	});
 }
 

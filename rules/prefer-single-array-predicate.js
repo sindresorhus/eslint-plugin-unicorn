@@ -166,7 +166,7 @@ const create = context => {
 		if (
 			calls.length < 2
 			|| calls.includes(undefined)
-			|| !calls.every(call => areCompatiblePredicateCalls(calls[0], call))
+			|| calls.some(call => !areCompatiblePredicateCalls(calls[0], call))
 		) {
 			return;
 		}

@@ -306,7 +306,7 @@ function hasBreakStatement(node) {
 }
 
 function doesSwitchStatementAlwaysExit(node) {
-	if (!node.cases.some(switchCase => switchCase.test === null)) {
+	if (node.cases.every(switchCase => switchCase.test !== null)) {
 		return false;
 	}
 
