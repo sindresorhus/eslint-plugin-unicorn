@@ -12,9 +12,12 @@ import {
 import {
 	isBooleanExpression,
 	isControlFlowTest,
+	getBaseTypes,
+	getTypeSymbol,
 	getParenthesizedRange,
 	isLogicalExpression,
 	isString,
+	isUnknownType,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -22,6 +25,12 @@ const REGEXP_EXEC = 'regexp-exec';
 const STRING_MATCH = 'string-match';
 const STRING_SEARCH = 'string-search';
 const SUGGESTION = 'suggestion';
+const STRING = 'string';
+const REGEXP = 'regexp';
+const OTHER = 'other';
+const STRING_OR_OTHER = 'string-or-other';
+const REGEXP_OR_OTHER = 'regexp-or-other';
+const UNKNOWN = 'unknown';
 const messages = {
 	[REGEXP_EXEC]: 'Prefer `.test(…)` over `.exec(…)`.',
 	[STRING_MATCH]: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
@@ -30,17 +39,6 @@ const messages = {
 };
 
 const isLiteralZero = node => isLiteral(node, 0);
-
-const isConstantTemplateLiteral = (node, sourceCode) => {
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return variable?.defs[0]?.type === 'Variable'
-		&& variable.defs[0].parent.kind === 'const'
-		&& variable.defs[0].node.init?.type === 'TemplateLiteral';
-};
 
 function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
 	const {sourceCode} = context;
@@ -122,15 +120,308 @@ const cases = [
 
 const isRegExpNode = node => isRegexLiteral(node) || isNewExpression(node, {name: 'RegExp'});
 
-const isReduxToolkitSliceActionMatcher = ({stringNode}) =>
-	isMemberExpression(stringNode, {optional: false, computed: false})
-	&& isMemberExpression(stringNode.object, {property: 'actions', optional: false, computed: false});
-
 const getRegExpFromStaticValue = value => {
 	if (Object.prototype.toString.call(value) === '[object RegExp]') {
 		return value;
 	}
 };
+
+const getStaticValueType = (node, scope) => {
+	const result = getStaticValue(node, scope);
+	if (!result) {
+		return UNKNOWN;
+	}
+
+	if (typeof result.value === 'string') {
+		return STRING;
+	}
+
+	if (getRegExpFromStaticValue(result.value)) {
+		return REGEXP;
+	}
+
+	if (
+		result.value === undefined
+		&& (
+			(node.type === 'Identifier' && node.name === 'undefined')
+			|| (node.type === 'UnaryExpression' && node.operator === 'void')
+		)
+	) {
+		return OTHER;
+	}
+
+	return result.value === null || ['bigint', 'boolean', 'number', 'symbol'].includes(typeof result.value)
+		? OTHER
+		: UNKNOWN;
+};
+
+const combineKnownTypes = types => {
+	if (types.includes(UNKNOWN)) {
+		return UNKNOWN;
+	}
+
+	const typeSet = new Set(types);
+	const hasString = typeSet.has(STRING) || typeSet.has(STRING_OR_OTHER);
+	const hasRegExp = typeSet.has(REGEXP) || typeSet.has(REGEXP_OR_OTHER);
+
+	if (hasString && hasRegExp) {
+		return STRING_OR_OTHER;
+	}
+
+	const hasOther = typeSet.has(OTHER) || typeSet.has(STRING_OR_OTHER) || typeSet.has(REGEXP_OR_OTHER);
+
+	if (hasString) {
+		return hasOther ? STRING_OR_OTHER : STRING;
+	}
+
+	if (hasRegExp) {
+		return hasOther ? REGEXP_OR_OTHER : REGEXP;
+	}
+
+	return OTHER;
+};
+
+const combineIntersectionTypes = types => {
+	const typeSet = new Set(types);
+	if (typeSet.has(UNKNOWN)) {
+		return UNKNOWN;
+	}
+
+	if (typeSet.has(REGEXP)) {
+		return REGEXP;
+	}
+
+	if (typeSet.has(STRING)) {
+		return STRING;
+	}
+
+	return OTHER;
+};
+
+const nonTargetTypeAnnotations = new Set([
+	'TSBigIntKeyword',
+	'TSBooleanKeyword',
+	'TSNeverKeyword',
+	'TSNullKeyword',
+	'TSNumberKeyword',
+	'TSObjectKeyword',
+	'TSSymbolKeyword',
+	'TSUndefinedKeyword',
+	'TSVoidKeyword',
+	'TSArrayType',
+	'TSTypeLiteral',
+	'TSTupleType',
+	'TSFunctionType',
+	'TSConstructorType',
+]);
+
+const getTypeFromTypeAnnotation = node => {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return getTypeFromTypeAnnotation(node.typeAnnotation);
+		}
+
+		case 'TSStringKeyword': {
+			return STRING;
+		}
+
+		case 'TSLiteralType': {
+			return node.literal.type === 'Literal' && typeof node.literal.value === 'string'
+				? STRING
+				: OTHER;
+		}
+
+		case 'TSTypeReference': {
+			if (node.typeName.type !== 'Identifier') {
+				return UNKNOWN;
+			}
+
+			if (node.typeName.name === 'String') {
+				return STRING;
+			}
+
+			if (node.typeName.name === 'RegExp') {
+				return REGEXP;
+			}
+
+			if (node.typeName.name === 'Array' || node.typeName.name === 'ReadonlyArray') {
+				return OTHER;
+			}
+
+			return UNKNOWN;
+		}
+
+		case 'TSUnionType': {
+			return combineKnownTypes(node.types.map(type => getTypeFromTypeAnnotation(type)));
+		}
+
+		case 'TSIntersectionType': {
+			return combineIntersectionTypes(node.types.map(type => getTypeFromTypeAnnotation(type)));
+		}
+
+		default: {
+			return nonTargetTypeAnnotations.has(node?.type) ? OTHER : UNKNOWN;
+		}
+	}
+};
+
+const getTypeFromTypeInformation = (node, context) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return UNKNOWN;
+	}
+
+	try {
+		const {program} = parserServices;
+		return getTypeFromTypeScriptType(
+			parserServices.getTypeAtLocation(node),
+			program.getTypeChecker(),
+		);
+	} catch {
+		return UNKNOWN;
+	}
+};
+
+const getTypeFromTypeScriptType = (type, checker) => {
+	if (isUnknownType(type)) {
+		return UNKNOWN;
+	}
+
+	type = checker.getNonNullableType(type);
+
+	if (isUnknownType(type)) {
+		return UNKNOWN;
+	}
+
+	if (type.isTypeParameter?.()) {
+		const constraint = type.getConstraint();
+		return constraint ? getTypeFromTypeScriptType(constraint, checker) : UNKNOWN;
+	}
+
+	if (type.isUnion()) {
+		return combineKnownTypes(type.types.map(type => getTypeFromTypeScriptType(type, checker)));
+	}
+
+	if (type.isIntersection()) {
+		return combineIntersectionTypes(type.types.map(type => getTypeFromTypeScriptType(type, checker)));
+	}
+
+	if (type.intrinsicName === 'string' || type.isStringLiteral?.()) {
+		return STRING;
+	}
+
+	const symbolName = getTypeSymbol(type)?.getName();
+	if (symbolName === 'RegExp' || getBaseTypes(type, checker).some(type => getTypeFromTypeScriptType(type, checker) === REGEXP)) {
+		return REGEXP;
+	}
+
+	return OTHER;
+};
+
+const getTypeFromVariable = (node, context, visitedVariables) => {
+	const {sourceCode} = context;
+	const variable = findVariable(sourceCode.getScope(node), node);
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| variable.defs.length !== 1
+	) {
+		return UNKNOWN;
+	}
+
+	visitedVariables.add(variable);
+
+	const [definition] = variable.defs;
+	const typeFromAnnotation = getTypeFromTypeAnnotation(definition.name?.typeAnnotation);
+	let type = UNKNOWN;
+
+	if (typeFromAnnotation !== UNKNOWN) {
+		type = typeFromAnnotation;
+	} else if (
+		definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.init
+	) {
+		type = getExpressionType(definition.node.init, context, visitedVariables);
+	}
+
+	visitedVariables.delete(variable);
+	return type;
+};
+
+const syntaxNonTargetTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'ObjectExpression',
+]);
+
+function getExpressionType(node, context, visitedVariables = new Set()) {
+	const {sourceCode} = context;
+
+	if (isRegExpNode(node)) {
+		return REGEXP;
+	}
+
+	const scope = sourceCode.getScope(node);
+
+	if (isString(node, scope)) {
+		return STRING;
+	}
+
+	switch (node.type) {
+		case 'Identifier': {
+			const typeFromVariable = getTypeFromVariable(node, context, visitedVariables);
+			if (typeFromVariable !== UNKNOWN) {
+				return typeFromVariable;
+			}
+
+			break;
+		}
+
+		case 'TSAsExpression':
+		case 'TSSatisfiesExpression':
+		case 'TSTypeAssertion': {
+			const typeFromAnnotation = getTypeFromTypeAnnotation(node.typeAnnotation);
+			return typeFromAnnotation === UNKNOWN
+				? getExpressionType(node.expression, context, visitedVariables)
+				: typeFromAnnotation;
+		}
+
+		case 'TSNonNullExpression':
+		case 'ParenthesizedExpression': {
+			return getExpressionType(node.expression, context, visitedVariables);
+		}
+
+		case 'SequenceExpression': {
+			return getExpressionType(node.expressions.at(-1), context, visitedVariables);
+		}
+
+		case 'ConditionalExpression': {
+			return combineKnownTypes([
+				getExpressionType(node.consequent, context, visitedVariables),
+				getExpressionType(node.alternate, context, visitedVariables),
+			]);
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	const staticType = getStaticValueType(node, scope);
+	if (staticType !== UNKNOWN) {
+		return staticType;
+	}
+
+	if (syntaxNonTargetTypes.has(node.type)) {
+		return OTHER;
+	}
+
+	return getTypeFromTypeInformation(node, context);
+}
 
 const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
 
@@ -246,16 +537,13 @@ const canAutofix = ({searchCheck, isRegExp, staticRegExp}) =>
 		&& (!searchCheck || staticRegExp.sticky === false)
 	);
 
-const shouldSkipPattern = ({type, regexpNode, regexpScope, staticResult, isKnownRegExp, context}) =>
-	(regexpNode.type === 'Literal' && !regexpNode.regex)
-	|| (
-		type === STRING_SEARCH
-		&& (
-			isString(regexpNode, regexpScope)
-			|| isConstantTemplateLiteral(regexpNode, context.sourceCode)
-			|| (staticResult && !isKnownRegExp)
-		)
-	);
+const isKnownNotString = type => [REGEXP, REGEXP_OR_OTHER, OTHER].includes(type);
+const isKnownNotRegExp = type => [STRING, STRING_OR_OTHER, OTHER].includes(type);
+
+const shouldSkipPattern = ({type, stringType, regexpType}) =>
+	type === REGEXP_EXEC
+		? isKnownNotRegExp(regexpType) || isKnownNotString(stringType)
+		: isKnownNotString(stringType) || isKnownNotRegExp(regexpType);
 
 const addFixOrSuggestion = (problem, fixFunction, context, {
 	lengthCheck,
@@ -351,25 +639,15 @@ const create = context => {
 			const staticResult = getStaticValue(regexpNode, regexpScope);
 			const staticRegExp = staticResult ? getRegExpFromStaticValue(staticResult.value) : undefined;
 			const isRegExp = isRegExpNode(regexpNode);
-			const isKnownRegExp = isRegExp || staticRegExp !== undefined;
+			const stringType = getExpressionType(nodes.stringNode, context);
+			const regexpType = getExpressionType(regexpNode, context);
 
 			if (
 				shouldSkipPattern({
 					type,
-					regexpNode,
-					regexpScope,
-					staticResult,
-					isKnownRegExp,
-					context,
+					stringType,
+					regexpType,
 				})
-			) {
-				continue;
-			}
-
-			if (
-				type === STRING_MATCH
-				&& !isKnownRegExp
-				&& isReduxToolkitSliceActionMatcher(nodes)
 			) {
 				continue;
 			}
