@@ -46,6 +46,8 @@ test.snapshot({
 		typescript('function foo<T extends URL>(url: T) { return String(url); }'),
 		typescript('type Url = string; const url: Url = "x"; { type Url = URL; String(url); }'),
 		typescript('type Url = string; function foo(url: Url) { type Url = URL; String(url); }'),
+		typescript('import type {URL} from "node:url"; const URL = class { toString() { return ""; } }; new URL(value).toString();'),
+		typescript('import {URL} from "node:url"; { const URL = class { toString() { return ""; } }; new URL(value).toString(); }'),
 	],
 	invalid: [
 		'new URL(value).toString()',

@@ -68,19 +68,7 @@ const hasTypeDefinition = (name, scope) => {
 	return false;
 };
 
-const combineUnionTypes = types => {
-	if (types.every(type => type === url)) {
-		return url;
-	}
-
-	if (!types.includes(unknown) && types.includes(nonUrl)) {
-		return nonUrl;
-	}
-
-	return unknown;
-};
-
-const combineIntersectionTypes = types => {
+const combineTypes = types => {
 	if (types.every(type => type === url)) {
 		return url;
 	}
@@ -104,13 +92,18 @@ const isUrlImport = definition => {
 		&& node.imported.name === 'URL';
 };
 
+const isValueUrlImport = definition =>
+	isUrlImport(definition)
+	&& definition.parent.importKind !== 'type'
+	&& definition.node.importKind !== 'type';
+
 const isImportedUrlConstructor = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable?.defs.some(definition => isUrlImport(definition)) ?? false;
+	return variable?.defs.some(definition => isValueUrlImport(definition)) ?? false;
 };
 
 const isUrlConstructor = (node, context) =>
@@ -180,11 +173,11 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
+			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
+			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
 		}
 
 		default: {
@@ -243,11 +236,11 @@ const getTypeScriptUrlType = (type, state) => {
 	}
 
 	if (type.isUnion()) {
-		return combineUnionTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
+		return combineTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
 	}
 
 	if (type.isIntersection()) {
-		return combineIntersectionTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
+		return combineTypes(type.types.map(type => getTypeScriptUrlType(type, state)));
 	}
 
 	const typeName = checker.typeToString(type);
@@ -376,7 +369,7 @@ function getUrlType(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'ConditionalExpression': {
-			return combineUnionTypes([
+			return combineTypes([
 				getUrlType(node.consequent, context, visitedVariables),
 				getUrlType(node.alternate, context, visitedVariables),
 			]);
