@@ -72,6 +72,22 @@ test.snapshot({
 			code: 'const foo = function (this: void, value: string) {};\nfoo("value");',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function foo(first: string, second: string) {}\n(foo as typeof foo)("first", "second");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo<T>(first: T, second: T) {}\n(foo<string>)("first", "second");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = ((first: string, second: string) => {}) as (first: string, second: string) => void;\nfoo("first", "second");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import foo from "foo";\n(foo as (first: string, second: string) => void)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'function foo(a, b) {}\nfoo(1);',
@@ -110,6 +126,50 @@ test.snapshot({
 		},
 		{
 			code: 'function foo(this: void, value: string) {}\nfoo("value", "extra");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(first: string, second: string) {}\n(foo as typeof foo)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(first: string, second: string) {}\n(<typeof foo>foo)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(first: string, second: string) {}\nfoo!("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(first: string, second: string) {}\n(foo satisfies typeof foo)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo<T>(first: T, second: T) {}\n(foo<string>)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = ((first: string, second: string) => {}) as (first: string, second: string) => void;\nfoo("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(function (first: string, second: string) {} as (first: string, second: string) => void)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(((first: string, second: string) => {}) satisfies (first: string, second: string) => void)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '((<T>(first: T, second: T) => {})<string>)("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = ((first: string, second: string) => {}) satisfies (first: string, second: string) => void;\nfoo("first");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = ((first: string, second: string) => {})!;\nfoo("first");',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

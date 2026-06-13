@@ -6,7 +6,23 @@ const messages = {
 	[MESSAGE_ID]: 'Expected {{expected}}, but got {{actual}}.',
 };
 
+const typeScriptExpressionWrapperTypes = new Set([
+	'TSAsExpression',
+	'TSTypeAssertion',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSInstantiationExpression',
+]);
+
 const formatArgumentCount = count => `${count} ${count === 1 ? 'argument' : 'arguments'}`;
+
+const unwrapExpression = node => {
+	while (typeScriptExpressionWrapperTypes.has(node.type)) {
+		node = node.expression;
+	}
+
+	return node;
+};
 
 const isThisParameter = parameter =>
 	parameter?.type === 'Identifier'
@@ -66,27 +82,30 @@ const getFunctionNodeFromVariable = variable => {
 	}
 
 	const {node} = definition;
+	const init = node.init && unwrapExpression(node.init);
 	if (
 		node.parent.kind !== 'const'
-		|| !node.init
-		|| !isFunction(node.init)
+		|| !init
+		|| !isFunction(init)
 	) {
 		return;
 	}
 
-	return node.init;
+	return init;
 };
 
 const getFunctionNode = (callExpression, sourceCode) => {
-	if (isFunction(callExpression.callee)) {
-		return callExpression.callee;
+	const callee = unwrapExpression(callExpression.callee);
+
+	if (isFunction(callee)) {
+		return callee;
 	}
 
-	if (callExpression.callee.type !== 'Identifier') {
+	if (callee.type !== 'Identifier') {
 		return;
 	}
 
-	const variable = findVariable(sourceCode.getScope(callExpression.callee), callExpression.callee);
+	const variable = findVariable(sourceCode.getScope(callee), callee);
 	return getFunctionNodeFromVariable(variable);
 };
 
