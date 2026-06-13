@@ -93,6 +93,21 @@ const escapeRegExp = string => {
 	return result;
 };
 
+// Combine every discouraged name into a single regular expression so each identifier is scanned in one pass.
+// Without this, the rule would compile and run one regular expression per replacement for every identifier in the file.
+const boundary = String.raw`(?=$|[\d_$]|\p{Uppercase_Letter})`;
+const buildReplacementRegExp = replacements => {
+	// The lowercase-first form only matches at the start of the name; the uppercase-first form matches a compound segment anywhere.
+	const lowerFirstForms = [];
+	const upperFirstForms = [];
+	for (const discouragedName of replacements.keys()) {
+		lowerFirstForms.push(escapeRegExp(discouragedName));
+		upperFirstForms.push(escapeRegExp(upperFirst(discouragedName)));
+	}
+
+	return new RegExp(`(?:^(?:${lowerFirstForms.join('|')})|(?:${upperFirstForms.join('|')}))${boundary}`, 'gv');
+};
+
 const prepareOptions = ({
 	checkProperties = false,
 	checkVariables = true,
@@ -110,6 +125,8 @@ const prepareOptions = ({
 		? {...defaultReplacements, ...replacements}
 		: replacements;
 
+	const replacementsMap = new Map(Object.entries(mergedReplacements).filter(([, replacement]) => replacement !== false));
+
 	return {
 		checkProperties,
 		checkVariables,
@@ -118,7 +135,8 @@ const prepareOptions = ({
 		checkShorthandImports,
 		checkShorthandProperties,
 
-		replacements: new Map(Object.entries(mergedReplacements).filter(([, replacement]) => replacement !== false)),
+		replacements: replacementsMap,
+		replacementRegExp: replacementsMap.size > 0 ? buildReplacementRegExp(replacementsMap) : undefined,
 		allowList: new Set(Object.keys(allowList)),
 	};
 };
@@ -132,18 +150,12 @@ const getReplacementForPart = (part, replacements) => {
 	return isUpperFirst(part) ? upperFirst(replacement) : lowerFirst(replacement);
 };
 
-const getNameReplacement = (name, {replacements, allowList}) => {
-	if (isUpperCase(name) || allowList.has(name)) {
+const getNameReplacement = (name, {replacementRegExp, replacements, allowList}) => {
+	if (!replacementRegExp || isUpperCase(name) || allowList.has(name)) {
 		return;
 	}
 
-	const boundary = String.raw`(?=$|[\d_$]|\p{Uppercase_Letter})`;
-	let replacement = name;
-	for (const discouragedName of replacements.keys()) {
-		const pattern = new RegExp(`^${escapeRegExp(discouragedName)}${boundary}|${escapeRegExp(upperFirst(discouragedName))}${boundary}`, 'gv');
-		replacement = replacement.replaceAll(pattern, part => getReplacementForPart(part, replacements));
-	}
-
+	const replacement = name.replaceAll(replacementRegExp, part => getReplacementForPart(part, replacements));
 	if (replacement === name) {
 		return;
 	}
