@@ -37,18 +37,20 @@ str.slice(6, 11);
 // → 'world'
 ```
 
+`slice()` also behaves more predictably than `substring()`. Note that the two are not interchangeable, so these are behavior differences, not autofixes:
+
 ```js
 const str = 'hello world';
 
-// ❌ substring swaps arguments when start > end
+// `substring()` silently swaps the arguments when start > end
 str.substring(5, 0);
 // → 'hello' (confusing!)
 
-// ✅ slice handles it intuitively
+// `slice()` returns empty instead of swapping
 str.slice(5, 0);
 // → '' (empty, as expected)
 
-// ✅ slice handles negative indices
+// `slice()` supports negative indices
 str.slice(-5);
 // → 'world' (last 5 characters)
 ```
