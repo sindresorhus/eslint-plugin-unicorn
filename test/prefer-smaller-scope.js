@@ -200,8 +200,65 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = getValue();
+					function bar() {
+						console.log(value);
+					}
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = getValue();
+					class Bar {
+						method() {
+							console.log(value);
+						}
+					}
+					console.log(Bar);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function foo(object) {
+					let value;
+					with (object) {
+						value = getValue();
+						console.log(value);
+					}
+				}
+			`,
+			languageOptions: {
+				sourceType: 'script',
+			},
+		},
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = getValue();
+					eval('value = getOtherValue()');
+					console.log(value);
+				}
+			}
+		`,
 	],
 	invalid: [
+		outdent`
+			let value;
+			{
+				value = getValue();
+				console.log(value);
+			}
+		`,
 		outdent`
 			function foo() {
 				let value;
@@ -256,6 +313,25 @@ test.snapshot({
 				let value;
 				if (condition) {
 					value = getValue();
+					console.log(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				// Keep this close to the assignment.
+				if (condition) {
+					value = getValue();
+					console.log(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				let value;
+				if (condition) {
+					value = getValue(); // Keep this comment.
 					console.log(value);
 				}
 			}

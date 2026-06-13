@@ -59,6 +59,6 @@ function foo() {
 
 ## Limitations
 
-This rule does not check initialized declarations, `const`, `var`, destructuring, multi-variable declarations, compound assignments, or assignments that are not direct expression statements. It also ignores cases that would move a declaration across a function, class, or static block boundary.
+This rule does not check initialized declarations, `const`, `var`, destructuring, multi-variable declarations, compound assignments, or assignments that are not direct expression statements. It also ignores cases that would move a declaration across a function, class, static block, or dynamic scope boundary.
 
-The rule reports comment-free cases with an autofix. Cases with nearby comments are reported without an autofix so comments are not removed or moved.
+The rule only autofixes straightforward JavaScript cases. Cases with nearby comments, TypeScript annotations, or parenthesized assignments are reported without an autofix so comments and syntax are not removed or moved.

@@ -13,6 +13,7 @@ const scopeBoundaryTypes = new Set([
 	'FunctionDeclaration',
 	'FunctionExpression',
 	'StaticBlock',
+	'WithStatement',
 ]);
 
 const isLetDeclarationCandidate = node =>
@@ -22,12 +23,6 @@ const isLetDeclarationCandidate = node =>
 	&& node.declarations.length === 1
 	&& node.declarations[0].id.type === 'Identifier'
 	&& !node.declarations[0].init;
-
-const isInsideNode = (sourceCode, innerNode, outerNode) => {
-	const [innerStart, innerEnd] = sourceCode.getRange(innerNode);
-	const [outerStart, outerEnd] = sourceCode.getRange(outerNode);
-	return innerStart >= outerStart && innerEnd <= outerEnd;
-};
 
 function isDescendantWithoutScopeBoundary(node, ancestor) {
 	let current = node.parent;
@@ -42,21 +37,34 @@ function isDescendantWithoutScopeBoundary(node, ancestor) {
 	return current === ancestor;
 }
 
-function isReferenceInsideBlock(reference, block, sourceCode) {
-	if (!isInsideNode(sourceCode, reference.identifier, block)) {
+function hasDirectEvalCall(node, visitorKeys, root = node) {
+	if (
+		node !== root
+		&& scopeBoundaryTypes.has(node.type)
+	) {
 		return false;
 	}
 
-	let current = reference.identifier.parent;
-	while (current && current !== block) {
-		if (scopeBoundaryTypes.has(current.type)) {
-			return false;
-		}
-
-		current = current.parent;
+	if (
+		node.type === 'CallExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'eval'
+	) {
+		return true;
 	}
 
-	return current === block;
+	for (const key of visitorKeys[node.type] ?? []) {
+		const value = node[key];
+		if (Array.isArray(value)) {
+			if (value.some(childNode => childNode && hasDirectEvalCall(childNode, visitorKeys, root))) {
+				return true;
+			}
+		} else if (value && hasDirectEvalCall(value, visitorKeys, root)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 function getAssignment(writeReference) {
@@ -152,7 +160,10 @@ function getProblem(node, sourceCode) {
 	const [, declarationEnd] = sourceCode.getRange(node);
 	const [assignmentStatementStart, assignmentStatementEnd] = sourceCode.getRange(assignmentStatement);
 
-	if (!isDescendantWithoutScopeBoundary(block, node.parent)) {
+	if (
+		!isDescendantWithoutScopeBoundary(block, node.parent)
+		|| hasDirectEvalCall(block, sourceCode.visitorKeys)
+	) {
 		return;
 	}
 
@@ -160,7 +171,7 @@ function getProblem(node, sourceCode) {
 		return;
 	}
 
-	if (!references.every(reference => isReferenceInsideBlock(reference, block, sourceCode))) {
+	if (!references.every(reference => isDescendantWithoutScopeBoundary(reference.identifier, block))) {
 		return;
 	}
 
