@@ -14,7 +14,7 @@
   - Spread an array literal as elements of an array literal
   - Spread an array literal as arguments of a call or a `new` call
   - Spread an object literal as properties of an object literal
-  - Spread only objects inside an object literal used as an `Object.assign(…)` source argument
+  - Use an object literal with only spread properties as an `Object.assign(…)` source argument
   - Spread an iterable as the only argument to a collection constructor that accepts a single iterable argument
   - Use spread syntax to clone an array created inline
 
@@ -30,7 +30,7 @@
   - `Promise.{all,allSettled,any,race}(…)`
   - `Object.fromEntries(…)`
 
-- `for…of` loop can iterate over any iterable object not just array, so it's unnecessary to convert the iterable to an array.
+- `for…of` loop can iterate over any iterable object not just arrays, so it's unnecessary to convert the iterable to an array.
 
 - `yield*` can delegate to another iterable, so it's unnecessary to convert the iterable to an array.
 

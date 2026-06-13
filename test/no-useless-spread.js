@@ -155,6 +155,8 @@ test.snapshot({
 		'Promise.all(...[...iterable])',
 		'new Map(...[...iterable])',
 		'new Set(...[iterable])',
+
+		// Handled by the generic object literal spread fix, not the `Object.assign()` source suggestion.
 		'Object.assign(target, {...{a}})',
 	],
 });
@@ -172,9 +174,13 @@ test.snapshot({
 		'Object[assign](target, {...source})',
 		'NotObject.assign(target, {...source})',
 		'Object.assign({...source})',
+		'Object.assign({...target}, source)',
+		'Object.assign(...args, {...source})',
 	],
 	invalid: [
 		'Object.assign(target, {...source})',
+		'Object.assign(target, first, {...second})',
+		'Object.assign(...args, target, {...source})',
 		'Object.assign(target, {...first, ...second}, third)',
 		'Object.assign(target, {...source,}, third)',
 		'Object.assign(target, {...(( source ))})',

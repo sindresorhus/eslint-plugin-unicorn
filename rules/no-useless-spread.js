@@ -26,13 +26,13 @@ const CLONE_ARRAY = 'clone-array';
 const SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD = 'suggestion/remove-object-assign-spread';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
-	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts iterable as argument, it\'s unnecessary to convert to an array.',
-	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over iterable, it\'s unnecessary to convert to an array.',
-	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate iterable, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts an iterable as an argument, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY_IN_FOR_OF]: '`for…of` can iterate over an iterable, it\'s unnecessary to convert to an array.',
+	[ITERABLE_TO_ARRAY_IN_YIELD_STAR]: '`yield*` can delegate to an iterable, it\'s unnecessary to convert to an array.',
 	[SPREAD_IN_COLLECTION_CONSTRUCTOR]: '`{{constructorName}}` accepts a single iterable argument, spreading is misleading.',
-	[SPREAD_IN_OBJECT_ASSIGN]: 'Spreading an object literal in `Object.assign(…)` is unnecessary.',
+	[SPREAD_IN_OBJECT_ASSIGN]: '`Object.assign(…)` source object with only spread properties is unnecessary.',
 	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
-	[SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD]: 'Remove the object spread.',
+	[SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD]: 'Remove the object literal wrapper.',
 };
 
 const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
@@ -365,15 +365,23 @@ const create = context => {
 		}
 
 		const callExpression = objectExpression.parent;
+		if (!isMethodCall(callExpression, {
+			object: 'Object',
+			method: 'assign',
+			minimumArguments: 2,
+			optionalMember: false,
+			optionalCall: false,
+		})) {
+			return;
+		}
+
+		const argumentIndex = callExpression.arguments.indexOf(objectExpression);
+		const hasGuaranteedTarget = callExpression.arguments
+			.slice(0, argumentIndex)
+			.some(argument => argument.type !== 'SpreadElement');
 		if (
-			!isMethodCall(callExpression, {
-				object: 'Object',
-				method: 'assign',
-				minimumArguments: 2,
-				optionalMember: false,
-				optionalCall: false,
-			})
-			|| callExpression.arguments.indexOf(objectExpression) <= 0
+			argumentIndex <= 0
+			|| !hasGuaranteedTarget
 		) {
 			return;
 		}
