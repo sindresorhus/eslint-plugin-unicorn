@@ -1,4 +1,4 @@
-import {functionTypes} from './ast/index.js';
+import {functionTypes, isCallOrNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'max-nested-calls';
 const messages = {
@@ -19,31 +19,11 @@ const boundaryNodeTypes = new Set([
 	'StaticBlock',
 ]);
 
-const isCallOrNewExpression = node => callNodeTypes.includes(node.type);
 const isBoundaryNode = node => boundaryNodeTypes.has(node.type);
-
-const isInsideArguments = (node, callExpression) => {
-	let child = node;
-	let {parent} = node;
-
-	while (parent) {
-		if (parent === callExpression) {
-			return callExpression.arguments.includes(child);
-		}
-
-		if (isBoundaryNode(parent)) {
-			return false;
-		}
-
-		child = parent;
-		parent = child.parent;
-	}
-
-	return false;
-};
 
 const getNestedCallDepth = (node, sourceCode) => {
 	let depth = 1;
+	let child = node;
 
 	for (const ancestor of sourceCode.getAncestors(node).toReversed()) {
 		if (isBoundaryNode(ancestor)) {
@@ -52,10 +32,12 @@ const getNestedCallDepth = (node, sourceCode) => {
 
 		if (
 			isCallOrNewExpression(ancestor)
-			&& isInsideArguments(node, ancestor)
+			&& ancestor.arguments.includes(child)
 		) {
 			depth++;
 		}
+
+		child = ancestor;
 	}
 
 	return depth;

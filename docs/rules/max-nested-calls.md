@@ -9,7 +9,7 @@
 
 Deeply nested calls make code hard to read. Extract intermediate results to named variables instead.
 
-This rule counts calls passed into other calls. Fluent receiver chains are ignored.
+This rule counts calls and constructor calls passed into other calls or constructors. Fluent receiver chains are ignored.
 
 ## Examples
 
@@ -31,7 +31,7 @@ query().filter().map().toArray();
 
 ### max
 
-Type: `number`\
+Type: `integer`\
 Default: `3`
 
 The maximum allowed nested call depth.

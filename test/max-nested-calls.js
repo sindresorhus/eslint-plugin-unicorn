@@ -17,6 +17,7 @@ test.snapshot({
 		'await foo(await bar(await baz()));',
 		'foo?.(bar?.(baz?.()));',
 		'foo(...bar(baz()));',
+		'foo(condition ? bar(baz()) : qux());',
 		{
 			code: 'foo(bar(baz(qux())));',
 			options: [{max: 4}],
@@ -32,6 +33,7 @@ test.snapshot({
 		'await foo(await bar(await baz(await qux())));',
 		'foo?.(bar?.(baz?.(qux?.())));',
 		'foo(...bar(baz(qux())));',
+		'foo(condition ? bar(baz(qux())) : zed());',
 		'foo(class {field = bar(baz(qux(zed())));});',
 		outdent`
 			mergeReports(await pMap(
