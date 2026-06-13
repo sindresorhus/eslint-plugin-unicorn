@@ -31,10 +31,10 @@ const unknownTypeNames = new Set([
 	'unknown',
 ]);
 
-const isGlobalUrlConstructor = (node, context) =>
-	node.type === 'Identifier'
-	&& node.name === 'URL'
-	&& isGlobalIdentifier(node, context);
+const urlImportSources = new Set([
+	'node:url',
+	'url',
+]);
 
 const isDefinitionBeforeReference = (definition, referenceNode, context) =>
 	context.sourceCode.getRange(definition.name ?? definition.node)[0] <= context.sourceCode.getRange(referenceNode)[0];
@@ -80,22 +80,52 @@ const combineTypes = types => {
 	return unknown;
 };
 
+const isUrlImportSource = source =>
+	urlImportSources.has(source.value);
+
 const isUrlImport = definition => {
 	if (definition.type !== 'ImportBinding') {
 		return false;
 	}
 
 	const {node, parent} = definition;
-	return (parent.source.value === 'url' || parent.source.value === 'node:url')
+	return isUrlImportSource(parent.source)
 		&& node.type === 'ImportSpecifier'
 		&& node.imported.type === 'Identifier'
 		&& node.imported.name === 'URL';
 };
 
+const isTypeOnlyImport = definition =>
+	definition.type === 'ImportBinding'
+	&& (
+		definition.parent.importKind === 'type'
+		|| definition.node.importKind === 'type'
+	);
+
+const isTypeOnlyDefinition = definition =>
+	definition.type === 'Type'
+	|| isTypeOnlyImport(definition);
+
 const isValueUrlImport = definition =>
 	isUrlImport(definition)
-	&& definition.parent.importKind !== 'type'
-	&& definition.node.importKind !== 'type';
+	&& !isTypeOnlyImport(definition);
+
+const isGlobalUrlConstructor = (node, context) => {
+	if (
+		node.type !== 'Identifier'
+		|| node.name !== 'URL'
+	) {
+		return false;
+	}
+
+	if (isGlobalIdentifier(node, context)) {
+		return true;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	return variable?.defs.length > 0
+		&& variable.defs.every(definition => isTypeOnlyDefinition(definition));
+};
 
 const isImportedUrlConstructor = (node, context) => {
 	if (node.type !== 'Identifier') {
@@ -180,19 +210,18 @@ const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames =
 			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
 		}
 
+		case 'TSImportType': {
+			return isUrlImportSource(node.source)
+				&& node.qualifier?.type === 'Identifier'
+				&& node.qualifier.name === 'URL'
+				? url
+				: nonUrl;
+		}
+
 		default: {
 			return node ? nonUrl : unknown;
 		}
 	}
-};
-
-const isUrlTypeNameFromImport = (typeName, node, context) => {
-	if (!/^[\w$]+$/.test(typeName)) {
-		return false;
-	}
-
-	const variable = resolveIdentifierName(typeName, context.sourceCode.getScope(node), node, context);
-	return variable?.defs.some(definition => isUrlImport(definition)) ?? false;
 };
 
 const getVisibleTypeNameType = (typeName, node, context) => {
@@ -254,10 +283,6 @@ const getTypeScriptUrlType = (type, state) => {
 		return url;
 	}
 
-	if (isUrlTypeNameFromImport(typeName, node, context)) {
-		return url;
-	}
-
 	return nonUrl;
 };
 
@@ -293,20 +318,25 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 		return unknown;
 	}
 
+	const [definition] = variable.defs;
+	if (!isDefinitionBeforeReference(definition, node, context)) {
+		return unknown;
+	}
+
 	visitedVariables.add(variable);
 
-	const [definition] = variable.defs;
+	const typeFromInitializer = definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.init
+		? getUrlType(definition.node.init, context, visitedVariables)
+		: unknown;
 	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, context, getDefinitionScope(definition, context));
 	let type = unknown;
 
-	if (typeFromAnnotation !== unknown) {
+	if (typeFromInitializer !== unknown) {
+		type = typeFromInitializer;
+	} else if (typeFromAnnotation !== unknown) {
 		type = typeFromAnnotation;
-	} else if (
-		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
-		&& definition.node.init
-	) {
-		type = getUrlType(definition.node.init, context, visitedVariables);
 	}
 
 	visitedVariables.delete(variable);
