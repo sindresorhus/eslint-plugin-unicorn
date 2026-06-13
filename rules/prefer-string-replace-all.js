@@ -19,7 +19,7 @@ const messages = {
 };
 
 const QUOTE = '\'';
-const safeStringReplacementFlags = new Set(['d', 'g', 'm', 's', 'u', 'v']);
+const unsafeStringReplacementFlags = new Set(['i', 'y']);
 const zeroLengthRegExpNodeTypes = new Set([
 	'anchor',
 	'reference',
@@ -31,7 +31,7 @@ function hasSafeGlobalStringReplacementFlags(flags) {
 	}
 
 	for (const flag of flags) {
-		if (!safeStringReplacementFlags.has(flag)) {
+		if (unsafeStringReplacementFlags.has(flag)) {
 			return false;
 		}
 	}
@@ -132,13 +132,13 @@ function getPatternReplacement(node) {
 		return;
 	}
 
-	const {flags} = node.regex;
-	if (!hasSafeGlobalStringReplacementFlags(flags)) {
+	const tree = parseRegExpLiteral(node);
+	if (!tree) {
 		return;
 	}
 
-	const tree = parseRegExpLiteral(node);
-	if (!tree) {
+	const {flags} = node.regex;
+	if (!hasSafeGlobalStringReplacementFlags(flags)) {
 		return;
 	}
 
