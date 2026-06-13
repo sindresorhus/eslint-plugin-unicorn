@@ -58,11 +58,11 @@ Type: `string`\
 Default: `'always'`
 
 - `'always'` (default)
-  - Always report when clause is not a `BlockStatement`.
+  - Require braces for non-empty clauses, and forbid braces for empty clauses.
 - `'avoid'`
-  - Only allow braces when there are variable declaration or function declaration which requires a scope.
+  - Only allow braces when the block contains a top-level declaration.
 - `'single-statement'`
-  - Require each case clause to have a single statement. Multiple statements must be wrapped in a block. A block with one statement is only allowed when that statement needs its own scope.
+  - Require each case clause to have a single statement. Multiple statements must be wrapped in a block. A block with one statement is allowed only when that statement needs its own scope.
 
 The following cases are considered valid:
 

@@ -16,7 +16,7 @@ const messages = {
 const OPTION_AVOID = 'avoid';
 const OPTION_SINGLE_STATEMENT = 'single-statement';
 
-const blockScopedDeclarationTypes = new Set([
+const declarationTypesRequiringBlock = new Set([
 	'ClassDeclaration',
 	'FunctionDeclaration',
 	'TSDeclareFunction',
@@ -26,12 +26,16 @@ const blockScopedDeclarationTypes = new Set([
 	'TSTypeAliasDeclaration',
 ]);
 
-const needsBlockScope = node =>
+const needsCaseBlock = node =>
 	(
 		node.type === 'VariableDeclaration'
 		&& node.kind !== 'var'
 	)
-	|| blockScopedDeclarationTypes.has(node.type);
+	|| declarationTypesRequiringBlock.has(node.type);
+
+const isDeclarationAllowedInAvoidBlock = node =>
+	node.type === 'VariableDeclaration'
+	|| declarationTypesRequiringBlock.has(node.type);
 
 function getLastBlockBodyToken(blockStatement, context) {
 	const {sourceCode} = context;
@@ -54,13 +58,13 @@ function getLastBlockBodyToken(blockStatement, context) {
 function * removeBraces(fixer, node, context, abort) {
 	const {sourceCode} = context;
 	const [blockStatement] = node.consequent;
-	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
-	yield replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
-
 	const closingBraceToken = sourceCode.getLastToken(blockStatement);
 	if (getLastTrailingCommentOnSameLine(context, closingBraceToken)) {
 		return abort();
 	}
+
+	const openingBraceToken = sourceCode.getFirstToken(blockStatement);
+	yield replaceNodeOrTokenAndSpacesBefore(openingBraceToken, '', fixer, context);
 
 	const lastBlockToken = getLastBlockBodyToken(blockStatement, context);
 	yield fixer.removeRange([sourceCode.getRange(lastBlockToken)[1], sourceCode.getRange(closingBraceToken)[1]]);
@@ -113,15 +117,15 @@ const create = context => {
 					messageId: MESSAGE_ID_MISSING_BRACES,
 				};
 
-				if (!consequent.some(node => needsBlockScope(node))) {
+				if (!consequent.some(node => needsCaseBlock(node))) {
 					problem.fix = fixer => addBraces(fixer, node, context);
 				}
 
 				return problem;
 			}
 
-			const [blockStatement] = consequent;
-			if (needsBlockScope(blockStatement)) {
+			const [statement] = consequent;
+			if (needsCaseBlock(statement)) {
 				return {
 					node,
 					loc: getSwitchCaseHeadLocation(node, context),
@@ -130,13 +134,13 @@ const create = context => {
 			}
 
 			if (
-				blockStatement.type === 'BlockStatement'
-				&& blockStatement.body.length === 1
-				&& !needsBlockScope(blockStatement.body[0])
+				statement.type === 'BlockStatement'
+				&& statement.body.length === 1
+				&& !needsCaseBlock(statement.body[0])
 			) {
 				return {
 					node,
-					loc: sourceCode.getLoc(sourceCode.getFirstToken(blockStatement)),
+					loc: sourceCode.getLoc(sourceCode.getFirstToken(statement)),
 					messageId: MESSAGE_ID_UNNECESSARY_BRACES,
 					fix: (fixer, {abort}) => removeBraces(fixer, node, context, abort),
 				};
@@ -164,9 +168,7 @@ const create = context => {
 			!isBracesRequired
 			&& consequent.length === 1
 			&& consequent[0].type === 'BlockStatement'
-			&& consequent[0].body.every(node =>
-				node.type !== 'VariableDeclaration'
-				&& node.type !== 'FunctionDeclaration')
+			&& consequent[0].body.every(node => !isDeclarationAllowedInAvoidBlock(node))
 		) {
 			return {
 				node,

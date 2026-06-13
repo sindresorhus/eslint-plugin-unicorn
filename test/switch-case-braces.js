@@ -8,7 +8,7 @@ test.snapshot({
 	valid: [
 		outdent`
 			switch(foo){
-				case 1: {
+				default: {
 					break;
 				}
 			}
@@ -188,12 +188,50 @@ test.snapshot({
 		outdent`
 			switch(foo) {
 				default: {
+					const a = 1;
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {
+					class A {}
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {
 					doSomething();
 				}
 				break;
 			}
 		`,
-	].map(code => ({code, options: ['avoid']})),
+		{
+			code: outdent`
+				switch(foo) {
+					default: {
+						type Foo = string;
+					}
+					case 1: {
+						interface Bar {}
+					}
+					case 2: {
+						enum Baz {}
+					}
+					case 3: {
+						namespace Qux {}
+					}
+					case 4: {
+						declare function quux(): void;
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	].map(testCase => typeof testCase === 'string'
+		? {code: testCase, options: ['avoid']}
+		: {...testCase, options: ['avoid']}),
 	invalid: [
 		outdent`
 			switch(foo) {
@@ -349,6 +387,9 @@ test({
 						case 3: {
 							var foo;
 						}
+						case 4: {
+							doSomething();
+						}
 					}
 				}
 			`,
@@ -361,11 +402,14 @@ test({
 							break;
 						case 3:
 							var foo;
+						case 4:
+							doSomething();
 					}
 				}
 			`,
 			options: ['single-statement'],
 			errors: [
+				{messageId: 'switch-case-braces/unnecessary'},
 				{messageId: 'switch-case-braces/unnecessary'},
 				{messageId: 'switch-case-braces/unnecessary'},
 				{messageId: 'switch-case-braces/unnecessary'},
@@ -513,6 +557,16 @@ test({
 			`,
 			options: ['single-statement'],
 			errors: [{messageId: 'switch-case-braces/unnecessary'}],
+		},
+		{
+			code: outdent`
+				switch(foo) {
+					case 1: {
+					} // Comment about the block
+				}
+			`,
+			options: ['single-statement'],
+			errors: [{messageId: 'switch-case-braces/empty'}],
 		},
 	],
 });
