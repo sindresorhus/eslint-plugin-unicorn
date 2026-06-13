@@ -9,6 +9,7 @@ import {
 	getTypeSymbol,
 	isUnknownType,
 } from './types.js';
+import {getVariableByName} from './scope.js';
 
 const array = 'array';
 const nonArray = 'non-array';
@@ -39,18 +40,6 @@ const nonArrayTypeAnnotations = new Set([
 	'TSFunctionType',
 	'TSConstructorType',
 ]);
-
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
 
 const combineUnionTypes = types => {
 	if (types.every(type => type === array)) {
@@ -115,7 +104,7 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 
 	visitedTypeReferenceNames.add(typeReferenceName);
 
-	const typeVariable = resolveIdentifierName(typeReferenceName, scope);
+	const typeVariable = getVariableByName(typeReferenceName, scope);
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition) {

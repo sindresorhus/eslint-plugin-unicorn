@@ -5,6 +5,8 @@ import {
 	getTypeSymbol,
 	isGlobalIdentifier,
 	isDefaultLibrarySymbol,
+	isDefinitionBeforeReference,
+	isTypeImportSpecifier,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -35,9 +37,6 @@ const urlImportSources = new Set([
 	'node:url',
 	'url',
 ]);
-
-const isDefinitionBeforeReference = (definition, referenceNode, context) =>
-	context.sourceCode.getRange(definition.name ?? definition.node)[0] <= context.sourceCode.getRange(referenceNode)[0];
 
 const isTypeDefinition = definition =>
 	typeDefinitionTypes.has(definition.type);
@@ -97,10 +96,7 @@ const isUrlImport = definition => {
 
 const isTypeOnlyImport = definition =>
 	definition.type === 'ImportBinding'
-	&& (
-		definition.parent.importKind === 'type'
-		|| definition.node.importKind === 'type'
-	);
+	&& isTypeImportSpecifier(definition.node);
 
 const isTypeOnlyDefinition = definition =>
 	definition.type === 'Type'

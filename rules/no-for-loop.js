@@ -2,6 +2,7 @@ import {isClosingParenToken, getStaticValue} from '@eslint-community/eslint-util
 import {
 	getAvailableVariableName,
 	getScopes,
+	getVariableByName,
 	singular,
 	toLocation,
 	getReferences,
@@ -34,7 +35,7 @@ const getArrayIdentifierFromLengthMemberExpression = node => {
 };
 
 const getTypeReferenceTypeAnnotation = (typeReferenceName, scope) => {
-	const typeVariable = scope && resolveIdentifierName(typeReferenceName, scope);
+	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition || definition.type !== 'Type') {
@@ -353,18 +354,6 @@ const getRemovalRange = (node, sourceCode) => {
 	];
 };
 
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
-
 const scopeContains = (ancestor, descendant) => {
 	while (descendant) {
 		if (descendant === ancestor) {
@@ -521,7 +510,7 @@ const create = context => {
 		}
 
 		const arrayIdentifierName = arrayIdentifier.name;
-		const indexVariable = resolveIdentifierName(indexIdentifierName, bodyScope);
+		const indexVariable = getVariableByName(indexIdentifierName, bodyScope);
 
 		if (!indexVariable) {
 			return;
@@ -574,12 +563,12 @@ const create = context => {
 		});
 		const elementNode = elementReference?.identifier.parent.parent;
 		const elementIdentifierName = elementNode?.id.name;
-		const elementVariable = elementIdentifierName && resolveIdentifierName(elementIdentifierName, bodyScope);
+		const elementVariable = elementIdentifierName && getVariableByName(elementIdentifierName, bodyScope);
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 
 		// When `.entries()` would be generated, only autofix if the type annotation confirms it's an array (or there's no type annotation).
-		const hasNonArrayTypeAnnotation = resolveIdentifierName(arrayIdentifierName, scope)
+		const hasNonArrayTypeAnnotation = getVariableByName(arrayIdentifierName, scope)
 			?.defs.some(definition => {
 				const typeAnnotation = definition.name.typeAnnotation?.typeAnnotation;
 				return typeAnnotation && !isArrayType(typeAnnotation, scope);

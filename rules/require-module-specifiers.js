@@ -1,4 +1,5 @@
 import {isClosingBraceToken} from '@eslint-community/eslint-utils';
+import {isRuntimeImportSpecifier} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION = 'suggestion/remove-declaration';
@@ -10,8 +11,6 @@ const messages = {
 };
 
 const isFromToken = token => token.type === 'Identifier' && token.value === 'from';
-
-const isRuntimeImportSpecifier = specifier => specifier.type !== 'ImportSpecifier' || specifier.importKind !== 'type';
 
 const isRuntimeImportDeclaration = importDeclaration =>
 	importDeclaration.importKind !== 'type'
