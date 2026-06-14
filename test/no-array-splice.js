@@ -19,10 +19,29 @@ test.snapshot({
 		'function array() {} array.splice(1, 1);',
 		'class array {} array.splice(1, 1);',
 		'let array = []; { const array = []; array.splice(1, 1); }',
+		'let array = []; array.splice();',
+		'let array = []; array.splice(index, 0);',
+		'let array = []; array.splice(0);',
+		'let array = []; array.splice(0, 1);',
+		'let array = []; array.splice(0, 0, item);',
+		'let array = []; array.splice(array.length - 1, 1);',
+		'let array = []; array.splice(array.length, 0, item);',
 		{
 			code: 'var array = []; array.splice(1, 1);',
 			languageOptions: {
 				sourceType: 'script',
+			},
+		},
+		{
+			code: 'function foo(set: Set<string>) { set.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo(set: Set<string>) { (set as Set<string>).splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
 			},
 		},
 		'using array = acquire(); array.splice(1, 1);',
@@ -39,6 +58,18 @@ test.snapshot({
 		'let array = []; array. /* comment */ splice(1, 1);',
 		{
 			code: 'let array: string[] = []; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array: string[] = []; (array as string[]).splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array: string[] = []; array!.splice(1, 1);',
 			languageOptions: {
 				parser: parsers.typescript,
 			},

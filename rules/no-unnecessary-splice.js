@@ -89,7 +89,7 @@ function hasOptionalChain(node) {
 	return false;
 }
 
-function getReplacement(callExpression) {
+export function getUnnecessarySpliceReplacement(callExpression) {
 	const {arguments: arguments_, callee} = callExpression;
 	const {object} = callee;
 
@@ -250,7 +250,7 @@ const create = context => {
 			return;
 		}
 
-		const replacement = getReplacement(callExpression);
+		const replacement = getUnnecessarySpliceReplacement(callExpression);
 		if (!replacement) {
 			return;
 		}

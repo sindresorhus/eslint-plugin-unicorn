@@ -2,7 +2,7 @@
 
 📝 Prefer `Array#toSpliced()` over `Array#splice()`.
 
-🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
@@ -13,7 +13,11 @@ Prefer using [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/
 
 `Array#splice()` modifies the original array and returns the removed elements, while `Array#toSpliced()` returns a changed copy and leaves the original array untouched.
 
-This rule only reports unused `splice()` calls on simple reassignable local identifiers, such as `let` variables, `var` variables, function parameters, and catch parameters.
+This rule only reports unused `splice()` calls on simple reassignable local identifiers, such as `let` variables, `var` variables, function parameters, and catch parameters. TypeScript wrappers around such identifiers, like `array!` and `array as string[]`, are also supported.
+
+This rule ignores `splice()` patterns that have simpler mutating alternatives covered by [`no-unnecessary-splice`](./no-unnecessary-splice.md), such as `array.splice(0, 1)` and `array.splice(array.length, 0, item)`.
+
+When TypeScript type annotations or type information show that the receiver is not an array, this rule does not report it.
 
 This rule is suggestion-only because assigning the `Array#toSpliced()` result changes alias behavior. Code that still references the original array object will observe different behavior after reassignment.
 
