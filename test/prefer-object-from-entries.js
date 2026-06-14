@@ -74,6 +74,112 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, async * method() {}}), {});',
 		'pairs.reduce(object => ({...object, get key() {}}), {});',
 		'pairs.reduce(object => ({...object, set key(v) {}}), {});',
+		// For-of loop
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] = doSomething(value);
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+				count++;
+			}
+		`,
+		outdent`
+			const object = {};
+			foo();
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {}, otherObject = {};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			async function foo() {
+				const object = {};
+				for await (const [key, value] of pairs) {
+					object[key] = value;
+				}
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] += value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object.key = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				otherObject[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				this.object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[value] = key;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs)
+				object[key] = value;
+		`,
+		outdent`
+			const object = {};
+			for (var [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of object) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [object, value] of pairs) {
+				object[object] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key = defaultKey, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, ...value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			let object;
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
 		// #1631
 		'const flattened = arrayOfObjects.reduce((flattened, next) => Object.assign(flattened, next), {});',
 	],
@@ -149,6 +255,72 @@ test.snapshot({
 		'pairs.reduce(object => ({...object, key: function (object) { return object; }}), {});',
 		'pairs.reduce(object => ({...object, method: async () => {}}), {});',
 		'pairs.reduce(object => ({...object, method: async function * (){}}), {});',
+		// For-of loop
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = ({});
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {
+				// Comment
+			};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			// Comment
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				// Comment
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			} // Comment
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of ((pairs))) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[(key)] = (value);
+			}
+		`,
+		outdent`
+			const object = {};
+			for (let [key, value] of pairs) {
+				object[key] = value;
+			}
+			console.log(object);
+		`,
+		outdent`
+			let object = Object.create(null);
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
 	],
 });
 
@@ -165,7 +337,7 @@ test.typescript({
 // Functions
 test.snapshot({
 	valid: [
-		// `underscore` don't have `fromPairs` method
+		// `underscore` doesn't have a `fromPairs` method
 		'underscore.fromPairs(pairs)',
 		'_.fromPairs',
 		'_.fromPairs()',
