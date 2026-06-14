@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -21,6 +21,8 @@ test.snapshot({
 		'function foo([bar,,]) {}',
 		'function foo([bar,, baz,, qux]) {}',
 		'const [, ...rest] = parts;',
+		'[value] = array;',
+		'[value = object.property] = array;',
 		{
 			code: 'const [,, foo] = parts;',
 			options: [{maximumIgnoredElements: 2}],
@@ -65,6 +67,17 @@ test.snapshot({
 		// Default value
 		'let [,,thirdElement = {}] = foo;',
 		'for (const [, , id] of shuffle(list)) {}',
+		'[this.property] = array;',
+		'[object.property] = array;',
+		'[object.property = defaultValue] = array;',
+		'[(condition ? first : second).property] = array;',
+		'[this.property.value] = array;',
+		{
+			code: '[object.property!] = array;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'for ([this.property] of arrays) {}',
+		'({parts: [this.property]} = object);',
 		// Space after keyword
 		'let[,,thirdElement] = foo;',
 		'let[,,...thirdElement] = foo;',

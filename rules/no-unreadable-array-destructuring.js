@@ -1,12 +1,15 @@
 import {
 	shouldAddParenthesesToMemberExpressionObject,
 	isParenthesized,
+	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
-const MESSAGE_ID = 'no-unreadable-array-destructuring';
+const MESSAGE_ID_IGNORED_ELEMENTS = 'ignored-elements';
+const MESSAGE_ID_PROPERTY_ASSIGNMENT = 'property-assignment';
 const messages = {
-	[MESSAGE_ID]: 'Array destructuring may not contain consecutive ignored values.',
+	[MESSAGE_ID_IGNORED_ELEMENTS]: 'Array destructuring may not contain consecutive ignored values.',
+	[MESSAGE_ID_PROPERTY_ASSIGNMENT]: 'Do not assign destructured values to object properties.',
 };
 
 const schema = [
@@ -39,6 +42,47 @@ function getMaximumConsecutiveIgnoredElements(elements) {
 	return maximumConsecutiveIgnoredElements;
 }
 
+function getParentPattern(node) {
+	const {parent} = node;
+
+	if (!parent) {
+		return;
+	}
+
+	if (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		return getParentPattern(parent);
+	}
+
+	if (
+		parent.type === 'AssignmentPattern'
+		&& parent.left === node
+	) {
+		return getParentPattern(parent);
+	}
+
+	if (
+		parent.type === 'RestElement'
+		&& parent.argument === node
+	) {
+		return getParentPattern(parent);
+	}
+
+	if (
+		parent.type === 'Property'
+		&& parent.value === node
+		&& parent.parent.type === 'ObjectPattern'
+	) {
+		return parent.parent;
+	}
+
+	if (parent.type === 'ArrayPattern') {
+		return parent;
+	}
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
@@ -54,7 +98,7 @@ const create = context => {
 
 		const problem = {
 			node,
-			messageId: MESSAGE_ID,
+			messageId: MESSAGE_ID_IGNORED_ELEMENTS,
 		};
 
 		const nonNullElements = elements.filter(element => element !== null);
@@ -92,6 +136,17 @@ const create = context => {
 		}
 
 		return problem;
+	});
+
+	context.on('MemberExpression', node => {
+		if (getParentPattern(node)?.type !== 'ArrayPattern') {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID_PROPERTY_ASSIGNMENT,
+		};
 	});
 };
 

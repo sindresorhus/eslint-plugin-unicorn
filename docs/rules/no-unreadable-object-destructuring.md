@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Destructuring is very useful, but it can also make some code harder to read. This rule prevents hard-to-read object destructuring patterns.
+Destructuring is very useful, but it can also make some code harder to read. This rule prevents hard-to-read object destructuring patterns, including assigning destructured values to object properties.
 
 ## Examples
 
@@ -48,4 +48,13 @@ const {foo: {bar: {baz}}} = object;
 
 // ✅
 const {baz} = object.foo.bar;
+```
+
+```js
+// ❌
+({foo: object.property} = object);
+
+// ✅
+({foo} = object);
+object.property = foo;
 ```

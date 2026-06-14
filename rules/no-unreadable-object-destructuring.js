@@ -1,11 +1,15 @@
+import {isTypeScriptExpressionWrapper} from './utils/index.js';
+
 const MESSAGE_ID_COMPUTED_KEY = 'computed-key';
 const MESSAGE_ID_NESTED_ARRAY = 'nested-array';
 const MESSAGE_ID_DEEP_OBJECT = 'deep-object';
+const MESSAGE_ID_PROPERTY_ASSIGNMENT = 'property-assignment';
 
 const messages = {
 	[MESSAGE_ID_COMPUTED_KEY]: 'Do not use computed keys in object destructuring.',
 	[MESSAGE_ID_NESTED_ARRAY]: 'Do not use array destructuring inside object destructuring.',
 	[MESSAGE_ID_DEEP_OBJECT]: 'Do not use object destructuring deeper than two levels.',
+	[MESSAGE_ID_PROPERTY_ASSIGNMENT]: 'Do not assign destructured values to object properties.',
 };
 
 function getParentPattern(node) {
@@ -13,6 +17,13 @@ function getParentPattern(node) {
 
 	if (!parent) {
 		return;
+	}
+
+	if (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		return getParentPattern(parent);
 	}
 
 	if (
@@ -91,6 +102,17 @@ const create = context => {
 		return {
 			node,
 			messageId: MESSAGE_ID_DEEP_OBJECT,
+		};
+	});
+
+	context.on('MemberExpression', node => {
+		if (getParentPattern(node)?.type !== 'ObjectPattern') {
+			return;
+		}
+
+		return {
+			node,
+			messageId: MESSAGE_ID_PROPERTY_ASSIGNMENT,
 		};
 	});
 };
