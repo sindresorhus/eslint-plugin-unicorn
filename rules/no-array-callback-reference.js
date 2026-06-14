@@ -1,7 +1,7 @@
 import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
-import {isMethodCall} from './ast/index.js';
+import {isMethodCall, isUndefined} from './ast/index.js';
 import {
 	getBaseTypes,
 	getTypeSymbol,
@@ -15,6 +15,7 @@ import {
 	getParenthesizedText,
 	shouldAddParenthesesToCallExpressionCallee,
 	singular,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
@@ -177,6 +178,17 @@ const defaultIgnoredCallees = [
 const typedArrayTypes = new Set(typedArray);
 const arrayTypeNames = new Set(['Array', 'ReadonlyArray']);
 
+const definitelyNotFunctionValueNodeTypes = new Set([
+	'ArrayExpression',
+	'BinaryExpression',
+	'ClassExpression',
+	'Literal',
+	'ObjectExpression',
+	'TemplateLiteral',
+	'UnaryExpression',
+	'UpdateExpression',
+]);
+
 function shouldReportReceiverType(type, checker, program, allowNullish) {
 	if (isUnknownType(type)) {
 		return true;
@@ -240,6 +252,59 @@ function shouldReportReceiver(callExpression, context) {
 	} catch {
 		return true;
 	}
+}
+
+function getConstVariableInitializer(node, context, visitedVariables) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node?.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| variable.defs.length !== 1
+	) {
+		return;
+	}
+
+	const [definition] = variable.defs;
+	if (
+		definition.type !== 'Variable'
+		|| definition.node.type !== 'VariableDeclarator'
+		|| definition.node.id.type !== 'Identifier'
+		|| definition.node.id.name !== node.name
+		|| !definition.node.init
+		|| definition.parent.type !== 'VariableDeclaration'
+		|| definition.parent.kind !== 'const'
+	) {
+		return;
+	}
+
+	visitedVariables.add(variable);
+	return unwrapTypeScriptExpression(definition.node.init);
+}
+
+function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set()) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (!node) {
+		return false;
+	}
+
+	if (
+		definitelyNotFunctionValueNodeTypes.has(node.type)
+		|| isUndefined(node)
+	) {
+		return true;
+	}
+
+	const initializer = getConstVariableInitializer(node, context, visitedVariables);
+	return initializer
+		? isDefinitelyNotFunctionValue(initializer, context, visitedVariables)
+		: false;
 }
 
 const isValidParameterName = name =>
@@ -408,6 +473,7 @@ function shouldIgnoreCallback(callback, methodName, options, context) {
 		// Ignore all `CallExpression`s, including `function.bind()`
 		|| callback.type === 'CallExpression'
 		|| options.shouldIgnoreCallback(callback)
+		|| isDefinitelyNotFunctionValue(callback, context)
 		|| isNodeValueNotFunction(callback)
 		|| (methodsWithTypePredicateOverloads.has(methodName) && isTypePredicateCallback(callback, context));
 }

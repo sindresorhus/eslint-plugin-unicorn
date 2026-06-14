@@ -162,6 +162,12 @@ test({
 
 		// First argument is not a function
 		...notFunctionTypes.map(data => `foo.map(${data})`),
+		'const query = {}; model.find(query)',
+		'const taskName = "task"; service.find(taskName)',
+		'const values = []; collection.map(values)',
+		'const NotCallable = class {}; collection.map(NotCallable)',
+		'const index = 1 + 1; collection.findIndex(index)',
+		'const query = {}; const criteria = query; model.find(criteria)',
 
 		// Ignored
 		'foo.map(() => {})',
@@ -240,6 +246,16 @@ test({
 				'const callback = value => value; array.map((element) => callback(element));',
 				'const callback = value => value; array.map((element, index) => callback(element, index));',
 				'const callback = value => value; array.map((element, index, array) => callback(element, index, array));',
+			],
+		}),
+		invalidTestCase({
+			code: 'let query = {}; model.find(query);',
+			method: 'find',
+			name: 'query',
+			suggestions: [
+				'let query = {}; model.find((element) => query(element));',
+				'let query = {}; model.find((element, index) => query(element, index));',
+				'let query = {}; model.find((element, index, array) => query(element, index, array));',
 			],
 		}),
 		invalidTestCase({
@@ -788,6 +804,16 @@ test({
 			service.find(callback);
 		`),
 		typeAware(outdent`
+			class SearchService {
+				find(taskName: string): unknown {
+					return taskName;
+				}
+			}
+			const service = new SearchService();
+			const taskName = 'task';
+			service.find(taskName);
+		`),
+		typeAware(outdent`
 			declare const callback: Function;
 			class Collection {
 				map(callback: Function) {}
@@ -815,6 +841,21 @@ test({
 			declare const callback: Function;
 			declare const collection: string[] | {map(callback: Function): unknown};
 			collection.map(callback);
+		`),
+		typeAware(outdent`
+			declare const callback: Function;
+			declare const set: Set<string>;
+			set.forEach(callback);
+		`),
+		typeAware(outdent`
+			declare const callback: Function;
+			declare const map: Map<string, string>;
+			map.forEach(callback);
+		`),
+		typeAware(outdent`
+			declare const callback: Function;
+			declare const service: {find(callback: Function): unknown} | undefined;
+			service?.find(callback);
 		`),
 		typeAware(outdent`
 			export {};
@@ -942,6 +983,14 @@ test.typescript({
 				return typeof value === 'number';
 			}
 			foo.filter(condition ? isString : isNumber);
+		`,
+		outdent`
+			const query = {} as const;
+			model.find(query);
+		`,
+		outdent`
+			const taskName = 'task' satisfies string;
+			service.find(taskName);
 		`,
 	],
 	invalid: [
