@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -37,5 +37,11 @@ test.snapshot({
 		String.raw`let \u0061rray = []; \u0061rray.splice(1, 1);`,
 		'let array = []; (array).splice(1, 1);',
 		'let array = []; array. /* comment */ splice(1, 1);',
+		{
+			code: 'let array: string[] = []; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
