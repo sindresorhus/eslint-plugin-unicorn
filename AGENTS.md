@@ -156,6 +156,12 @@ Include test cases for these when relevant to the rule:
 - **Destructuring** - The pattern inside destructuring assignments or parameters.
 - **Return value used vs unused** - `const x = foo.bar()` vs `foo.bar()` as a statement. Some fixes are only safe when the return value is unused (see `isValueNotUsable`).
 
+## Linting
+
+CI lints with **ESLint**, not `xo` — a clean `npx xo` run does not mean CI passes.
+
+Run `npm run fix` (or `npm run fix:js` for JS only) — it auto-fixes and reports whatever remains. Prefer it over hand-fixing errors one at a time.
+
 ## Autofix
 
 Always try to provide an autofix if it cannot change runtime behavior. If an autofix could change runtime behavior, try to provide a suggestion instead.
@@ -190,7 +196,7 @@ Name after the target construct, not the fix. Be specific: `no-array-method-this
 3. Implement the rule in `rules/<rule>.js`.
 4. Write documentation in `docs/rules/<rule>.md` (below the auto-generated header).
 5. Run `npx ava test/<rule>.js` to verify tests pass.
-6. Before pushing, run lint, dogfooding, and then `npm test`. If dogfooding finds intentional internal patterns, disable the rule in `eslint.dogfooding.config.js` instead of adding repo-specific heuristics.
+6. Before pushing, run lint (`npm run lint:js`, which runs `eslint` — see [Linting](#linting)), dogfooding (`npm run run-rules-on-codebase`), and then `npm test`. If dogfooding finds intentional internal patterns, disable the rule in `eslint.dogfooding.config.js` instead of adding repo-specific heuristics.
 
 ## Commit message format
 
