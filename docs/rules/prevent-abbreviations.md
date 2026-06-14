@@ -19,6 +19,34 @@ This rule is automatically fixable only for variable names with exactly one repl
 
 Parameter names do not provide autofixes or editor suggestions when the function has an attached JSDoc `@param` comment, as those name references are not normal variable references and would otherwise be left stale. TypeScript type predicate and assertion signature parameter references are updated when the parameter is renamed.
 
+## React
+
+React projects commonly use abbreviation families like `props`, `ref`, `prevState`, and route `params`. The `replacements` option disables matching those words both as complete identifiers and as parts of longer identifiers, for example `someRef`.
+
+Use an ESLint `files` override if you only want to allow those conventions in React files:
+
+```js
+{
+	files: ['**/*.{jsx,tsx}'],
+	rules: {
+		'unicorn/prevent-abbreviations': [
+			'error',
+			{
+				replacements: {
+					param: false,
+					params: false,
+					prev: false,
+					prop: false,
+					props: false,
+					ref: false,
+					refs: false,
+				},
+			},
+		],
+	},
+}
+```
+
 ## Examples
 
 ```js
