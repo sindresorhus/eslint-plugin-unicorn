@@ -96,7 +96,7 @@ function equalLiteralValue(left, right) {
 }
 
 /**
-Unwrap ChainExpression (`?.`) and TypeScript type assertion (`as`, `<Type>`, or `!`) nodes.
+Unwrap ChainExpression (`?.`) and TypeScript expression wrapper (`as`, `satisfies`, `<Type>`, or `!`) nodes.
 @param {ASTNode} node The node to unwrap.
 @returns {ASTNode} The unwrapped node.
 */
@@ -105,6 +105,7 @@ function unwrapNode(node) {
 		[
 			'ChainExpression',
 			'TSAsExpression',
+			'TSSatisfiesExpression',
 			'TSTypeAssertion',
 			'TSNonNullExpression',
 		].includes(node.type)
