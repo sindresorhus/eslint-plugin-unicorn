@@ -31,6 +31,107 @@ test.snapshot({
 		'Array.from(iterable).map(function (element, ...rest) { return element; });',
 		'Array.from(iterable).map(element => [element]).flat();',
 		'Array.from(iterable).map(element => [element]).flat(1);',
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [existing];
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			foo();
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(transform(element));
+				foo();
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(transform(element), other);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(transform(result, element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of getIterable(result)) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const result of iterable) {
+				result.push(transform(result));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				if (element) {
+					result.push(transform(element));
+				}
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of iterable.entries()) {
+				result[index] = transform(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			// Keep this comment.
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			function foo(Array) {
+				const result = [];
+				for (const element of iterable) {
+					result.push(transform(element));
+				}
+			}
+		`,
+		outdent`
+			async function foo() {
+				const result = [];
+				for (const element of iterable) {
+					result.push(await transform(element));
+				}
+			}
+		`,
+		outdent`
+			function * foo() {
+				const result = [];
+				for (const element of iterable) {
+					result.push(yield transform(element));
+				}
+			}
+		`,
 		{
 			code: 'Array.from(iterable).map<Result>(element => element);',
 			languageOptions: {
@@ -65,6 +166,70 @@ test.snapshot({
 					return element.id;
 				});
 		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable)
+				result.push(transform(element));
+		`,
+		outdent`
+			let result = [];
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of (iterable)) {
+				result.push(transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of iterable.entries()) {
+				result.push(transform(element, index));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of [foo, bar].entries()) {
+				result.push(transform(element, index));
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const [index, element] of [foo, bar].entries()) {
+				result[index] = transform(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push(element.result);
+			}
+		`,
+		outdent`
+			const result = [];
+			for (const element of iterable) {
+				result.push({value: element});
+			}
+		`,
+		{
+			code: outdent`
+				const result: string[] = [];
+				for (const element of iterable) {
+					result.push(transform(element));
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		{
 			code: 'Array.from(iterable).map((element: string) => element);',
 			languageOptions: {
