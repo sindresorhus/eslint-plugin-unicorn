@@ -9,7 +9,7 @@
 
 Assigning to top-level variables from inside functions creates hidden shared state. A function can then change the result of later calls, or break when it becomes recursive, reentrant, or async.
 
-Keep state local to the function, pass it explicitly, return it, or put intentional shared state in an object. If module-level mutable state is intentional, disable this rule locally.
+Keep state local to the function, pass it explicitly, return it, or put intentional shared state in an object. If you truly need a module-level cache or other shared state, use an ESLint disable comment.
 
 This rule only reports direct writes to top-level bindings. It ignores property mutations and variables from non-top-level outer scopes.
 

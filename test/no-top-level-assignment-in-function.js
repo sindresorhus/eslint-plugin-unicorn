@@ -77,6 +77,12 @@ test.snapshot({
 				return cache;
 			}
 		`,
+		outdent`
+			/* global cache:writable */
+			function build() {
+				cache = new Map();
+			}
+		`,
 		{
 			code: outdent`
 				let cache;
@@ -154,6 +160,34 @@ test.snapshot({
 			let cache;
 			function build(value) {
 				cache ??= value;
+			}
+		`,
+		outdent`
+			function cache() {}
+			function build() {
+				cache = undefined;
+			}
+		`,
+		outdent`
+			import cache from 'cache';
+			function build() {
+				cache = new Map();
+			}
+		`,
+		outdent`
+			if (enabled) {
+				var cache;
+			}
+			function build() {
+				cache = new Map();
+			}
+		`,
+		outdent`
+			let cache;
+			class Cache {
+				field = () => {
+					cache = new Map();
+				};
 			}
 		`,
 		outdent`
