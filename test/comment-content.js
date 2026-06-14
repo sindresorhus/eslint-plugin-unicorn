@@ -420,7 +420,11 @@ test('fixes slash-separated acronym pairs', t => {
 // ui/ux.
 // json/xml formats.
 // api/css docs.
-// http/https support.`);
+// http/https support.
+// css/html docs.
+// svg/png output.
+// json/yaml files.
+// tcp/udp sockets.`);
 
 	t.true(result.fixed);
 	t.is(result.output, `// CI/CD pipeline and UI/UX polish.
@@ -428,7 +432,11 @@ test('fixes slash-separated acronym pairs', t => {
 // UI/UX.
 // JSON/XML formats.
 // API/CSS docs.
-// HTTP/HTTPS support.`);
+// HTTP/HTTPS support.
+// CSS/HTML docs.
+// SVG/PNG output.
+// JSON/YAML files.
+// TCP/UDP sockets.`);
 });
 
 test('fixes prose comments', t => {
@@ -443,6 +451,7 @@ test('fixes prose on lines that mention code-like text', t => {
 // Use api. json output follows.
 // api: json is the response format.
 // See [api] docs.
+// Use foo.bar() and json output.
 // api [deprecated] endpoint.
 // api [deprecated] (old) uses json.
 // api [deprecated]. uses json.
@@ -458,6 +467,7 @@ test('fixes prose on lines that mention code-like text', t => {
 // Use API. JSON output follows.
 // API: JSON is the response format.
 // See [API] docs.
+// Use foo.bar() and JSON output.
 // API [deprecated] endpoint.
 // API [deprecated] (old) uses JSON.
 // API [deprecated]. uses JSON.
@@ -478,6 +488,7 @@ import api from '../github-helpers/api.js';
 api?.v3()
 api?.v3
 api?.[json]()
+api.v3?.(json)
 api['v3']()
 api ['v3']()
 api .v3()
@@ -491,12 +502,17 @@ api [json].value
 api [json][key]
 docs: api [json].value
 json['parse'](value)
+- api.v3(json)
+1. api.v3(json)
+(api.v3(json))
+value = api.v3(json)
 if (api) return json
 for (const api of values) return json
 else if (api) return json
 const user = await api.v3(\`/users/\${username}\`);
 const repositoryCommits = await api.v3('commits');
 const data = await api.v4('{user(login: "user") {name}}');
+api.v3(json) [docs](https://example.com)
 */`;
 	const messages = verifyJavaScript(code);
 	const result = verifyAndFixJavaScript(code);
@@ -510,6 +526,7 @@ test('ignores package specifiers without skipping slash-pair prose', t => {
 	const code = `// Install @scope/api and foo/json?raw.
 // Use foo/json#raw and foo/json@beta.
 // Use foo/api.
+// Use eslint/css.
 // Use api/json.
 // ci/cd pipeline and ui/ux polish.`;
 	const result = verifyAndFixJavaScript(code);
@@ -518,6 +535,7 @@ test('ignores package specifiers without skipping slash-pair prose', t => {
 	t.is(result.output, `// Install @scope/api and foo/json?raw.
 // Use foo/json#raw and foo/json@beta.
 // Use foo/api.
+// Use eslint/css.
 // Use API/JSON.
 // CI/CD pipeline and UI/UX polish.`);
 });
@@ -547,6 +565,7 @@ test('ignores compact structured data snippets', t => {
 test('ignores prompt-prefixed command-line snippets', t => {
 	const code = `// $ nodejs --version
 // $ nodejs --version.
+// > node json
 // > nodejs --version
 // > nodejs --version.
 // - $ nodejs --version
@@ -559,6 +578,7 @@ test('ignores prompt-prefixed command-line snippets', t => {
 // npm install json is easy
 // git status shows json.
 // git status shows json
+// > nodej json
 // $50 api plan returns json.
 // nodejs output uses json.`;
 	const result = verifyAndFixJavaScript(code);
@@ -566,6 +586,7 @@ test('ignores prompt-prefixed command-line snippets', t => {
 	t.true(result.fixed);
 	t.is(result.output, `// $ nodejs --version
 // $ nodejs --version.
+// > node json
 // > nodejs --version
 // > nodejs --version.
 // - $ nodejs --version
@@ -578,6 +599,7 @@ test('ignores prompt-prefixed command-line snippets', t => {
 // npm install JSON is easy
 // Git status shows JSON.
 // Git status shows JSON
+// > nodej JSON
 // $50 API plan returns JSON.
 // Node.js output uses JSON.`);
 });

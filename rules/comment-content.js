@@ -143,6 +143,13 @@ const defaultReplacements = {
 	'\\byou\\s?tube\\b': caseInsensitive('YouTube'),
 	'\\b(?:mac\\s?os(?!\\s?x)|(mac\\s?)?os\\s?x)\\b': caseInsensitive('macOS'),
 };
+const defaultReplacementTermPatterns = Object.entries(defaultReplacements)
+	.filter(([, options]) => {
+		const replacement = typeof options === 'string' ? options : options.replacement;
+
+		return replacement === replacement.toUpperCase();
+	})
+	.map(([pattern]) => new RegExp(`^(?:${pattern})$`, 'iv'));
 
 function normalizeReplacement(pattern, options) {
 	if (typeof options === 'string') {
@@ -261,10 +268,10 @@ const codeLikeLineStartPattern = /^(?:import|export|const|let|var|type|interface
 const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b.+|default\s*):)/v;
 const bracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[\w$]+(?:(?:\??\.\s*)?\[[^\]]+\](?:\s*\.[\w$]|\s*$)|\s+\[[^\]]+\]\s*\.[\w$])/v;
 const chainedBracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[$_a-z][\w$]*\s*(?:\??\.\s*)?\[[^\]]+\]\s*\[[^\]]+\]\s*$/v;
-const markdownInlineLinkPattern = /(?:^|[\s\(])\[[^\]]+\]\([^\)]+\)/v;
-const memberCallPattern = /(?:^|[^\w$])[\w$]+\s*(?:(?:(?:\?\.|\.)\s*[\w$]+|\??\.\s*\[[^\]]+\])\s*\(|\s*\[[^\]]+\]\()/v;
+const markdownInlineLinkPattern = /(?:^|[\s\(])\[[^\]]+\]\([^\)]+\)/gv;
+const memberCallLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:\(\s*)?(?:(?:[\w$]+:|[\w$]+\s*=)\s*)?[\w$]+\s*(?:(?:(?:\?\.|\.)\s*[\w$]+|\??\.\s*\[[^\]]+\])\s*(?:\?\.\s*)?\(|\s*\[[^\]]+\]\()/v;
 const shellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*\$\s+\S+/v;
-const secondaryShellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*>\s*(?:bun|curl|deno|docker|git|nodejs?|npm|npx|pnpm|yarn)\b/v;
+const secondaryShellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b/v;
 const structuredKeyValueLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:["'][^"']+["']|[\w$\-]+)\s*:\s*(?:"[^"]*"|'[^']*'|https?:\/\/\S+|[\w$\-.\/]+(?:\s+#.*)?|\{.*\}|\[.*\]),?$/v;
 const objectLiteralLinePattern = /^\{.+:\s*.+\},?$/v;
 const dotMemberAccessAfterMatchPattern = /^(?:\?\.|\.|\s+\.)\s*[\w$]+(?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
@@ -423,8 +430,7 @@ function isSlashPairProse(text) {
 		return false;
 	}
 
-	return parts.every(part => /^[a-z]{2}$/iv.test(part))
-		|| /^(?:api\/(?:css|json)|http\/https|json\/xml)$/iv.test(parts.join('/'));
+	return parts.every(part => defaultReplacementTermPatterns.some(pattern => pattern.test(part)));
 }
 
 function isPackageSpecifierMatch(commentValue, match) {
@@ -451,6 +457,10 @@ function isMarkdownLinkMatch(commentValue, match) {
 	}
 
 	return false;
+}
+
+function removeMarkdownInlineLinks(line) {
+	return line.replaceAll(markdownInlineLinkPattern, '');
 }
 
 function isInsideMarkupTag(commentValue, match) {
@@ -531,7 +541,7 @@ function shouldSkipCommentLine(commentValue, match) {
 		|| objectLiteralLinePattern.test(line)
 		|| /;\s*$/v.test(line)
 		|| line.includes('=>')
-		|| (!markdownInlineLinkPattern.test(line) && memberCallPattern.test(line));
+		|| memberCallLinePattern.test(removeMarkdownInlineLinks(line));
 }
 
 function isInsideJsdocExample(commentValue, match) {
