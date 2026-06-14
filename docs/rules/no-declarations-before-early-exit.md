@@ -79,4 +79,4 @@ The last example is reported without an autofix because moving a function call c
 
 ## Limitations
 
-This rule intentionally uses a simple statement-list scan instead of full data-flow analysis. It only checks declarations and guard clauses that are direct children of the same block or top-level program. Switch cases are only checked when the case body is wrapped in a block. Non-adjacent declarations with nontrivial initializers are ignored because moving them across intervening statements can change values or timing.
+This rule intentionally uses a simple statement-list scan instead of full data-flow analysis. It only checks declarations and guard clauses that are direct children of the same block or top-level program. Switch cases are only checked when the case body is wrapped in a block. Non-adjacent declarations with nontrivial initializers are ignored because moving them across intervening statements can change values or timing. Declarations are also ignored when the initializer and the guard share a variable that either side mutates, since reordering them would change behavior (for example, `const x = array.pop()` before `if (array.length > 0)`).

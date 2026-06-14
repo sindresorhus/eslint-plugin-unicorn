@@ -1,4 +1,5 @@
-import {isCommentToken} from '@eslint-community/eslint-utils';
+import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
+import {getReferences} from './utils/index.js';
 
 const MESSAGE_ID = 'no-declarations-before-early-exit';
 const messages = {
@@ -65,6 +66,24 @@ const hasCommentNextTo = (sourceCode, node, direction) => {
 	return token && isCommentToken(token);
 };
 
+const getReferencedVariableNames = (sourceCode, node) => {
+	const [start, end] = sourceCode.getRange(node);
+	return new Set(
+		getReferences(sourceCode.getScope(node))
+			.filter(({identifier}) => {
+				const [referenceStart, referenceEnd] = sourceCode.getRange(identifier);
+				return referenceStart >= start && referenceEnd <= end;
+			})
+			.map(({identifier}) => identifier.name),
+	);
+};
+
+const hasCommonReferencedVariable = (sourceCode, nodeA, nodeB) => {
+	const variableNames = getReferencedVariableNames(sourceCode, nodeB);
+	return [...getReferencedVariableNames(sourceCode, nodeA)]
+		.some(name => variableNames.has(name));
+};
+
 function isTypeScriptTypeQueryReference(identifier) {
 	let node = identifier;
 	while (node.parent.type === 'TSQualifiedName') {
@@ -117,6 +136,18 @@ function getProblem({
 	if (
 		guardIndex > declarationIndex + 1
 		&& !isSimpleInitializer(declarator.init)
+	) {
+		return;
+	}
+
+	// Moving the declaration below the guard reorders its initializer past the guard's condition. That is unsafe when the two interfere through a shared variable and either side has a side effect, e.g. `const x = array.pop()` before `if (array.length > 0)`, or `const first = array[0]` before `if (array.shift())`.
+	if (
+		declarator.init
+		&& hasCommonReferencedVariable(sourceCode, declarator.init, guardStatement)
+		&& (
+			hasSideEffect(declarator.init, sourceCode)
+			|| hasSideEffect(guardStatement.test, sourceCode)
+		)
 	) {
 		return;
 	}
