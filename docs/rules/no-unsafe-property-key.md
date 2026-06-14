@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-JavaScript property keys are strings or symbols. Other values used as property keys are coerced first. This can hide bugs when objects become `"[object Object]"`, arrays become joined strings, BigInts become string keys without the `n` suffix, or unsafe numbers become lossy string keys.
+JavaScript property keys are strings or symbols. Other values used as property keys are coerced first. This can hide bugs when objects become `"[object Object]"`, arrays become joined strings, BigInts become string keys without the `n` suffix, or unsafe and non-finite numbers become surprising string keys.
 
 Use an explicit string or symbol key when stringification is intended. Use `Map` or `WeakMap` when object identity is the key.
 
@@ -59,7 +59,7 @@ const object = {
 
 ```js
 // ❌
-const map = {
+const object = {
 	[{}]: value,
 };
 
