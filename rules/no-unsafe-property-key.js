@@ -8,7 +8,13 @@ import {
 import {
 	getVariableByName,
 	isArray,
+	isGlobalIdentifier,
 } from './utils/index.js';
+import {
+	disallowNew as disallowNewBuiltins,
+	enforceNew as enforceNewBuiltins,
+} from './utils/builtins.js';
+import builtinErrors from './shared/builtin-errors.js';
 import {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
@@ -29,9 +35,28 @@ const propertyDefinitionNodeTypes = [
 	'TSAbstractAccessorProperty',
 ];
 
-const unsafeNumberGlobalIdentifiers = new Set([
-	'NaN',
+const unsafeGlobalIdentifiers = new Set([
+	...disallowNewBuiltins,
+	...enforceNewBuiltins,
+	...builtinErrors,
+	'Atomics',
+	'decodeURI',
+	'decodeURIComponent',
+	'encodeURI',
+	'encodeURIComponent',
+	'eval',
+	'globalThis',
 	'Infinity',
+	'Intl',
+	'isFinite',
+	'isNaN',
+	'JSON',
+	'Math',
+	'NaN',
+	'parseFloat',
+	'parseInt',
+	'Reflect',
+	'WebAssembly',
 ]);
 
 const isBigIntLiteral = node =>
@@ -220,9 +245,9 @@ const {
 	getStaticType,
 });
 
-const isGlobalUnsafeNumberIdentifier = (node, variable) =>
-	unsafeNumberGlobalIdentifiers.has(node.name)
-	&& (!variable || variable.defs.length === 0);
+const isUnsafeGlobalIdentifier = (node, context) =>
+	unsafeGlobalIdentifiers.has(node.name)
+	&& isGlobalIdentifier(node, context);
 
 function getTypeName(typeName) {
 	if (typeName.type === 'Identifier') {
@@ -313,7 +338,9 @@ function isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, vis
 function getUnsafeDefinitionType(variable) {
 	const [definition] = variable?.defs ?? [];
 
-	return definition?.type === 'FunctionName' || definition?.type === 'ClassName'
+	return definition?.type === 'FunctionName'
+		|| definition?.type === 'ClassName'
+		|| definition?.type === 'TSEnumName'
 		? target
 		: unknown;
 }
@@ -341,13 +368,12 @@ function getConstantIdentifierValueNode(variable, visitedVariables) {
 }
 
 function getIdentifierStaticPropertyKeyType(node, context, visitedVariables) {
-	const scope = context.sourceCode.getScope(node);
-	const variable = findVariable(scope, node);
-
-	if (isGlobalUnsafeNumberIdentifier(node, variable)) {
+	if (isUnsafeGlobalIdentifier(node, context)) {
 		return target;
 	}
 
+	const scope = context.sourceCode.getScope(node);
+	const variable = findVariable(scope, node);
 	const definitionType = getUnsafeDefinitionType(variable);
 	if (definitionType !== unknown) {
 		return definitionType;
