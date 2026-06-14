@@ -16,13 +16,13 @@ Use the [`astexplorer` site](https://astexplorer.net) with the `espree` parser a
 - Open “test/{RULE_ID}.js” and [write some tests](./write-tests.md) before implementing the rule.
 - Open “rules/{RULE_ID}.js” and implement the rule logic.
 - Add the correct [`meta.type`](https://eslint.org/docs/developer-guide/working-with-rules#rule-basics) to the rule.
-- Open “docs/rules/{RULE_ID}.js” and write some documentation.
+- Open “docs/rules/{RULE_ID}.js” and write some documentation. Explain *why* the rule exists in the opening description, and make clear what is and isn't covered in the examples.
 - Double check `configs/recommended.js` and `readme.md`, make sure the new rule is correctly added.
 - Run `npm test` to ensure the tests pass.
 - Run `npm run integration` to run the rules against real projects to ensure your rule does not fail on real-world code.
 - Open a pull request with a title in exactly the format `` Add `rule-name` rule ``, for example, `` Add `no-unused-properties` rule ``.
 - The pull request description should include the issue it fixes, for example, `Fixes #123`.
-- Run `npm run run-rules-on-codebase` to run the rules against codebase to ensure code in the repository are following your rule, _you can ignore this step until your PR is reviewed_.
+- Run `npm run run-rules-on-codebase` to run the rules against codebase to ensure code in the repository are following your rule, *you can ignore this step until your PR is reviewed*.
 
 ## Implementation note
 
