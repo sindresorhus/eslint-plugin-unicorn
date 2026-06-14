@@ -257,6 +257,25 @@ function getCommentValueStart(comment, sourceCode) {
 
 const urlPattern = /\b(?:[a-z][\d+\-.a-z]*:\/\/|www\.)\S+|\b[\u{2D}0-9a-z]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
 const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][\d+\-.a-z]*\b/giv;
+const codeLikeLineStartPattern = /^(?:import|export|const|let|var|type|interface|class|function|return|await|throw)\b/v;
+const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b.+|default\s*):)/v;
+const bracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[\w$]+(?:(?:\??\.\s*)?\[[^\]]+\](?:\s*\.[\w$]|\s*$)|\s+\[[^\]]+\]\s*\.[\w$])/v;
+const chainedBracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[$_a-z][\w$]*\s*(?:\??\.\s*)?\[[^\]]+\]\s*\[[^\]]+\]\s*$/v;
+const markdownInlineLinkPattern = /(?:^|[\s\(])\[[^\]]+\]\([^\)]+\)/v;
+const memberCallPattern = /(?:^|[^\w$])[\w$]+\s*(?:(?:(?:\?\.|\.)\s*[\w$]+|\??\.\s*\[[^\]]+\])\s*\(|\s*\[[^\]]+\]\()/v;
+const shellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*\$\s+\S+/v;
+const secondaryShellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*>\s*(?:bun|curl|deno|docker|git|nodejs?|npm|npx|pnpm|yarn)\b/v;
+const structuredKeyValueLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:["'][^"']+["']|[\w$\-]+)\s*:\s*(?:"[^"]*"|'[^']*'|https?:\/\/\S+|[\w$\-.\/]+(?:\s+#.*)?|\{.*\}|\[.*\]),?$/v;
+const objectLiteralLinePattern = /^\{.+:\s*.+\},?$/v;
+const dotMemberAccessAfterMatchPattern = /^(?:\?\.|\.|\s+\.)\s*[\w$]+(?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
+const bracketMemberAccessAfterMatchPattern = /^(?:\?\.\s*)?\[[^\]]+\](?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
+const spacedBracketMemberAccessAfterMatchPattern = /^\s+\[[^\]]+\]\s*(?:\[|\.[\w$])/v;
+const pathTerminatorCharacters = '"\'`<>';
+const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
+
+function isIdentifierLikeCharacter(character) {
+	return Boolean(character) && /[\p{Letter}\p{Number}_]/v.test(character);
+}
 
 function isInsideUrl(commentValue, match) {
 	urlPattern.lastIndex = 0;
@@ -274,19 +293,29 @@ function isInsideUrl(commentValue, match) {
 }
 
 function isInsideBackticks(commentValue, match) {
-	let start = commentValue.indexOf('`');
+	let openingDelimiter;
 
-	while (start !== -1) {
-		const end = commentValue.indexOf('`', start + 1);
-		if (end === -1) {
-			return false;
+	for (const delimiter of commentValue.matchAll(/`+/gv)) {
+		const start = delimiter.index;
+		const end = start + delimiter[0].length;
+
+		if (!openingDelimiter) {
+			openingDelimiter = {
+				end,
+				size: delimiter[0].length,
+			};
+			continue;
 		}
 
-		if (match.index > start && match.index < end) {
+		if (delimiter[0].length !== openingDelimiter.size) {
+			continue;
+		}
+
+		if (match.index >= openingDelimiter.end && match.index < start) {
 			return true;
 		}
 
-		start = commentValue.indexOf('`', end + 1);
+		openingDelimiter = undefined;
 	}
 
 	return false;
@@ -316,7 +345,7 @@ function isInsideQuotedString(commentValue, match) {
 			continue;
 		}
 
-		if (character === '\'' && !/[\p{Letter}\p{Number}_]/v.test(commentValue[index - 1])) {
+		if (character === '\'' && !isIdentifierLikeCharacter(commentValue[index - 1])) {
 			quote = character;
 		}
 	}
@@ -350,28 +379,159 @@ function cleanCommentLine(line) {
 	return line.replace(/^\s*\*\s?/v, '').trim();
 }
 
-function isAdjacentToPathLikeCharacter(commentValue, match) {
+function isPathTerminator(character) {
+	return pathTerminatorCharacters.includes(character) || /\s/v.test(character);
+}
+
+function isPackageSpecifierTerminator(character) {
+	return packageSpecifierTerminatorCharacters.includes(character) || /\s/v.test(character);
+}
+
+function getPathTextAfterIndex(commentValue, index) {
+	let pathText = '';
+
+	for (const character of commentValue.slice(index)) {
+		if (isPathTerminator(character)) {
+			break;
+		}
+
+		pathText += character;
+	}
+
+	return pathText;
+}
+
+function getPackageSpecifierText(commentValue, match) {
+	let start = match.index;
+	let end = match.index + match[0].length;
+
+	while (start > 0 && !isPackageSpecifierTerminator(commentValue[start - 1])) {
+		start--;
+	}
+
+	while (end < commentValue.length && !isPackageSpecifierTerminator(commentValue[end])) {
+		end++;
+	}
+
+	return commentValue.slice(start, end);
+}
+
+function isSlashPairProse(text) {
+	const parts = text.replace(/[!.?]$/v, '').split('/');
+
+	if (parts.length !== 2) {
+		return false;
+	}
+
+	return parts.every(part => /^[a-z]{2}$/iv.test(part))
+		|| /^(?:api\/(?:css|json)|http\/https|json\/xml)$/iv.test(parts.join('/'));
+}
+
+function isPackageSpecifierMatch(commentValue, match) {
+	const text = getPackageSpecifierText(commentValue, match);
+
+	return text.includes('/')
+		&& !text.includes('://')
+		&& !isSlashPairProse(text)
+		&& /^(?:@[\w\-.]+(?:\/[\w\-.]+)+(?:[#?@][\w\-.]+)?|[\w\-.]+\/[\w\-.]+(?:[#?@][\w\-.]+|(?:\/[\w\-.]+)+)?)$/v.test(text);
+}
+
+function isMarkdownLinkMatch(commentValue, match) {
+	const line = getCommentLine(commentValue, match.index);
+	const lineStart = commentValue.lastIndexOf('\n', match.index - 1) + 1;
+	const indexInLine = match.index - lineStart;
+
+	for (const linkMatch of line.matchAll(/(?:^|[\s\(])\[[^\]]+\](?::\s*\S+(?:\s+(?:"[^"]*"|'[^']*'|\([^\)]+\)))?|(?:\[[^\]]+\])+|\([^\)]+\))/gv)) {
+		const start = linkMatch.index;
+		const end = start + linkMatch[0].length;
+
+		if (indexInLine >= start && indexInLine < end) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isInsideMarkupTag(commentValue, match) {
+	const line = getCommentLine(commentValue, match.index);
+	const lineStart = commentValue.lastIndexOf('\n', match.index - 1) + 1;
+	const indexInLine = match.index - lineStart;
+	const tagStart = line.lastIndexOf('<', indexInLine);
+
+	if (tagStart === -1) {
+		return false;
+	}
+
+	const tagEnd = line.indexOf('>', tagStart + 1);
+
+	return tagEnd !== -1
+		&& indexInLine > tagStart
+		&& indexInLine < tagEnd
+		&& /^<\/?[a-z][\w\-:]*(?:\s|\/?>)/iv.test(line.slice(tagStart, tagEnd + 1));
+}
+
+function isCommandLine(line) {
+	return shellPromptLinePattern.test(line)
+		|| secondaryShellPromptLinePattern.test(line);
+}
+
+function isPathLikeMatch(commentValue, match) {
 	const previousCharacter = commentValue[match.index - 1] ?? '';
 	const nextCharacter = commentValue[match.index + match[0].length] ?? '';
 	const characterAfterNext = commentValue[match.index + match[0].length + 1] ?? '';
+	const isBeforeFileExtension = nextCharacter === '.' && isIdentifierLikeCharacter(characterAfterNext);
+	const isBeforePathWithFileExtension = nextCharacter === '/' && /\.[\p{Letter}\p{Number}_]/v.test(getPathTextAfterIndex(commentValue, match.index + match[0].length + 1));
 
 	return (match[0].includes('.') && previousCharacter === '/')
+		|| (previousCharacter === '/' && (nextCharacter === '/' || isBeforeFileExtension))
+		|| isBeforePathWithFileExtension
 		|| previousCharacter === '.'
 		|| previousCharacter === '_'
 		|| previousCharacter === '\\'
 		|| nextCharacter === '_'
 		|| nextCharacter === '\\'
-		|| (nextCharacter === '.' && /[\p{Letter}\p{Number}_]/v.test(characterAfterNext));
+		|| isBeforeFileExtension;
 }
 
-function isCodeLikeCommentLine(commentValue, match) {
+function isPropertyAccessMatch(commentValue, match) {
+	const previousCharacter = commentValue[match.index - 1] ?? '';
+	const characterBeforePrevious = commentValue[match.index - 2] ?? '';
+	const nextCharacter = commentValue[match.index + match[0].length] ?? '';
+	const line = getCommentLine(commentValue, match.index);
+	const lineStart = commentValue.lastIndexOf('\n', match.index - 1) + 1;
+	const indexInLine = match.index - lineStart;
+	const lineBeforeMatch = line.slice(0, indexInLine);
+	const lineAfterMatch = line.slice(indexInLine + match[0].length);
+	const isMemberAccessProperty = !match[0].includes('.')
+		&& /(?:^|[^\w$])[\w$]+\s*(?:\?\.|\.|\s+\.)\s*$/v.test(lineBeforeMatch)
+		&& /^\s*(?:$|[\(.\[])/v.test(lineAfterMatch);
+	const isMemberAccessObject = !match[0].includes('.')
+		&& (dotMemberAccessAfterMatchPattern.test(lineAfterMatch)
+			|| bracketMemberAccessAfterMatchPattern.test(lineAfterMatch)
+			|| spacedBracketMemberAccessAfterMatchPattern.test(lineAfterMatch));
+
+	return commentValue.slice(match.index - 2, match.index) === '?.'
+		|| commentValue.slice(match.index + match[0].length, match.index + match[0].length + 2) === '?.'
+		|| (previousCharacter === '[' && (isIdentifierLikeCharacter(characterBeforePrevious) || commentValue.slice(match.index - 3, match.index) === '?.['))
+		|| nextCharacter === '['
+		|| isMemberAccessProperty
+		|| isMemberAccessObject;
+}
+
+function shouldSkipCommentLine(commentValue, match) {
 	const line = cleanCommentLine(getCommentLine(commentValue, match.index));
 
-	return /^(?:import|export|const|let|var|type|interface|class|function|return|await)\b/v.test(line)
+	return codeLikeLineStartPattern.test(line)
+		|| controlFlowLikeLineStartPattern.test(line)
+		|| bracketMemberAccessLinePattern.test(line)
+		|| chainedBracketMemberAccessLinePattern.test(line)
+		|| isCommandLine(line)
+		|| structuredKeyValueLinePattern.test(line)
+		|| objectLiteralLinePattern.test(line)
 		|| /;\s*$/v.test(line)
 		|| line.includes('=>')
-		|| line.includes('?.')
-		|| /(?:^|[^\w$])[\w$]+(?:\?\.|\.)[\w$]+(?:\?\.)?\s*\(/v.test(line);
+		|| (!markdownInlineLinkPattern.test(line) && memberCallPattern.test(line));
 }
 
 function isInsideJsdocExample(commentValue, match) {
@@ -398,10 +558,14 @@ function shouldSkipMatch(commentValue, match) {
 		|| isInsideBackticks(commentValue, match)
 		|| isInsideQuotedString(commentValue, match)
 		|| isInsideMimeType(commentValue, match)
-		|| isAdjacentToPathLikeCharacter(commentValue, match)
+		|| isPathLikeMatch(commentValue, match)
+		|| isPackageSpecifierMatch(commentValue, match)
+		|| isPropertyAccessMatch(commentValue, match)
+		|| isMarkdownLinkMatch(commentValue, match)
+		|| isInsideMarkupTag(commentValue, match)
 		|| isInFencedCodeBlock(commentValue, match.index, {allowIndented: true})
 		|| isInsideJsdocExample(commentValue, match)
-		|| isCodeLikeCommentLine(commentValue, match)
+		|| shouldSkipCommentLine(commentValue, match)
 		|| commentValue[match.index - 1] === '-'
 		|| commentValue[match.index + match[0].length] === '-'
 		|| commentValue[match.index + match[0].length] === '(';

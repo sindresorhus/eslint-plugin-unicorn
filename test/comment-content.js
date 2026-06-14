@@ -17,6 +17,30 @@ const LANGUAGE_PLUGINS = {
 	json,
 	markdown,
 };
+const JAVASCRIPT_CONFIG = {
+	files: ['**'],
+	languageOptions: {
+		sourceType: 'module',
+	},
+	plugins: {
+		unicorn,
+	},
+	rules: {
+		[RULE_ID]: 'error',
+	},
+};
+
+function verifyJavaScript(code) {
+	const linter = new Linter({configType: 'flat'});
+
+	return linter.verify(code, JAVASCRIPT_CONFIG, {filename: 'fixture.js'});
+}
+
+function verifyAndFixJavaScript(code) {
+	const linter = new Linter({configType: 'flat'});
+
+	return linter.verifyAndFix(code, JAVASCRIPT_CONFIG, {filename: 'fixture.js'});
+}
 
 ruleTest.snapshot({
 	valid: [
@@ -45,6 +69,7 @@ ruleTest.snapshot({
 		'// Send image/svg+xml and text/html.',
 		'// Should react to input.',
 		'// `nodejs`',
+		'// ``nodejs``',
 		'// `api cli json yaml xml dom jsx ast sql uri dns tcp udp pdf csv tsv gif webp avif ascii unicode utf8 uuid mime posix oauth graphql websocket webrtc webgl linux unix git vscode`',
 		'// `cpu gpu ui ux cors csrf xss jwt tls ssl ssh ftp sftp ram aws gcp azure docker kubernetes k8s nginx s3 ec2 ci cd mysql sqlite postgresql mongodb redis deno svelte vite`',
 		'// `cdn sdk ide lsp wasm mdn nfc nfd rtl ltr crud iife esm cjs umd bom eof eol STDIN STDOUT STDERR`',
@@ -61,6 +86,15 @@ ruleTest.snapshot({
 		'// Copy from s3://bucket/key.',
 		'// import api from \'../github-helpers/api.js\';',
 		'// The file is api.js.',
+		'// Use api/index.js.',
+		'// Use api/config.json.',
+		'// Use api/[id].json.',
+		'// Use api/(group)/config.json.',
+		'// Use api/{id}/config.json.',
+		'// Use src/api/index.js.',
+		'// Use src/json/data.json.',
+		'// Use foo_api.',
+		String.raw`// Use C:\tools\api\config.json.`,
 		'// Run scripts/node.js.',
 		'// Use .svg files.',
 		'// React.js()',
@@ -374,78 +408,67 @@ test('ignores Markdown fenced code block content', t => {
 });
 
 test('fixes multiple problems in the same comment over multiple passes', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
-	const linter = new Linter({configType: 'flat'});
-	const result = linter.verifyAndFix('// nodejs uses javascript.', config, {filename: 'fixture.js'});
+	const result = verifyAndFixJavaScript('// nodejs uses javascript.');
 
 	t.true(result.fixed);
 	t.is(result.output, '// Node.js uses JavaScript.');
 });
 
 test('fixes slash-separated acronym pairs', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
-	const linter = new Linter({configType: 'flat'});
-	const result = linter.verifyAndFix('// ci/cd pipeline and ui/ux polish.', config, {filename: 'fixture.js'});
+	const result = verifyAndFixJavaScript(`// ci/cd pipeline and ui/ux polish.
+// ci/cd.
+// ui/ux.
+// json/xml formats.
+// api/css docs.
+// http/https support.`);
 
 	t.true(result.fixed);
-	t.is(result.output, '// CI/CD pipeline and UI/UX polish.');
+	t.is(result.output, `// CI/CD pipeline and UI/UX polish.
+// CI/CD.
+// UI/UX.
+// JSON/XML formats.
+// API/CSS docs.
+// HTTP/HTTPS support.`);
 });
 
 test('fixes prose comments', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
-	const linter = new Linter({configType: 'flat'});
-	const result = linter.verifyAndFix('// the api returns json and svg files.', config, {filename: 'fixture.js'});
+	const result = verifyAndFixJavaScript('// the api returns json and svg files.');
 
 	t.true(result.fixed);
 	t.is(result.output, '// the API returns JSON and SVG files.');
 });
 
+test('fixes prose on lines that mention code-like text', t => {
+	const code = `// Use the api for optional chaining, like foo?.bar.
+// Use api. json output follows.
+// api: json is the response format.
+// See [api] docs.
+// api [deprecated] endpoint.
+// api [deprecated] (old) uses json.
+// api [deprecated]. uses json.
+// api [deprecated]
+// api [json]
+// docs: api [json]
+// for api users, json responses are common.
+// if api access fails, return json.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// Use the API for optional chaining, like foo?.bar.
+// Use API. JSON output follows.
+// API: JSON is the response format.
+// See [API] docs.
+// API [deprecated] endpoint.
+// API [deprecated] (old) uses JSON.
+// API [deprecated]. uses JSON.
+// API [deprecated]
+// API [JSON]
+// docs: API [JSON]
+// for API users, JSON responses are common.
+// if API access fails, return JSON.`);
+});
+
 test('ignores code-like lines in comments', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `/*
 These will throw RefinedGitHubApiError.
 
@@ -454,40 +477,164 @@ Usage:
 import api from '../github-helpers/api.js';
 api?.v3()
 api?.v3
+api?.[json]()
+api['v3']()
+api ['v3']()
+api .v3()
+api .v3
+api. v3
+api. json
+api . v3
+api . json
+docs: api .v3
+api [json].value
+api [json][key]
+docs: api [json].value
+json['parse'](value)
+if (api) return json
+for (const api of values) return json
+else if (api) return json
 const user = await api.v3(\`/users/\${username}\`);
 const repositoryCommits = await api.v3('commits');
 const data = await api.v4('{user(login: "user") {name}}');
 */`;
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
 
 	t.false(result.fixed);
 	t.is(result.output, code);
 	t.deepEqual(messages, []);
 });
 
+test('ignores package specifiers without skipping slash-pair prose', t => {
+	const code = `// Install @scope/api and foo/json?raw.
+// Use foo/json#raw and foo/json@beta.
+// Use foo/api.
+// Use api/json.
+// ci/cd pipeline and ui/ux polish.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// Install @scope/api and foo/json?raw.
+// Use foo/json#raw and foo/json@beta.
+// Use foo/api.
+// Use API/JSON.
+// CI/CD pipeline and UI/UX polish.`);
+});
+
+test('ignores compact structured data snippets', t => {
+	const code = `// api: json
+// - api: json
+// + api: json
+// 1. api: json
+// api: json # comment
+// api: https://example.com/json
+// {api: json}
+// api: json is prose.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// api: json
+// - api: json
+// + api: json
+// 1. api: json
+// api: json # comment
+// api: https://example.com/json
+// {api: json}
+// API: JSON is prose.`);
+});
+
+test('ignores prompt-prefixed command-line snippets', t => {
+	const code = `// $ nodejs --version
+// $ nodejs --version.
+// > nodejs --version
+// > nodejs --version.
+// - $ nodejs --version
+// + $ nodejs --version
+// 1. $ nodejs --version
+// npm install json
+// npm update json
+// git log json
+// npm install json is easy.
+// npm install json is easy
+// git status shows json.
+// git status shows json
+// $50 api plan returns json.
+// nodejs output uses json.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// $ nodejs --version
+// $ nodejs --version.
+// > nodejs --version
+// > nodejs --version.
+// - $ nodejs --version
+// + $ nodejs --version
+// 1. $ nodejs --version
+// npm install JSON
+// npm update JSON
+// Git log JSON
+// npm install JSON is easy.
+// npm install JSON is easy
+// Git status shows JSON.
+// Git status shows JSON
+// $50 API plan returns JSON.
+// Node.js output uses JSON.`);
+});
+
+test('ignores Markdown reference and chained link labels', t => {
+	const code = `// [api]: https://example.com/json
+// [json][api]
+// [api docs][json]
+// See ([api][json]) and nodejs.
+// See [api][reference] and json output.
+// See [api](https://example.com/json) and nodejs.
+// See [api](https://example.com/json "json title") and json output.
+// See [api][json][nodejs] and javascript.
+// [api]: https://example.com/json (json title)
+// [api]: https://example.com and json output.
+// See [api] docs.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// [api]: https://example.com/json
+// [json][api]
+// [api docs][json]
+// See ([api][json]) and Node.js.
+// See [api][reference] and JSON output.
+// See [api](https://example.com/json) and Node.js.
+// See [api](https://example.com/json "json title") and JSON output.
+// See [api][json][nodejs] and JavaScript.
+// [api]: https://example.com/json (json title)
+// [api]: https://example.com and JSON output.
+// See [API] docs.`);
+});
+
+test('ignores markup tag regions', t => {
+	const code = `// <api json="true">
+// Use <api> and json output.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// <api json="true">
+// Use <api> and JSON output.`);
+});
+
+test('fixes prose inside braces', t => {
+	const result = verifyAndFixJavaScript('// {api json prose}');
+
+	t.true(result.fixed);
+	t.is(result.output, '// {API JSON prose}');
+});
+
 test('ignores fenced code blocks in block comments', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `/*
 \`\`\`js
-const api = await nodejs();
+nodejs --version
 \`\`\`
 */`;
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
 
 	t.false(result.fixed);
 	t.is(result.output, code);
@@ -495,18 +642,6 @@ const api = await nodejs();
 });
 
 test('ignores indented fenced code blocks in block comments', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `function foo() {
 	/*
 	~~~sh
@@ -514,9 +649,8 @@ test('ignores indented fenced code blocks in block comments', t => {
 	~~~
 	*/
 }`;
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
 
 	t.false(result.fixed);
 	t.is(result.output, code);
@@ -524,18 +658,6 @@ test('ignores indented fenced code blocks in block comments', t => {
 });
 
 test('ignores fenced code blocks in JSDoc comments', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `function foo() {
 	/**
 	 * ~~~sh
@@ -543,9 +665,8 @@ test('ignores fenced code blocks in JSDoc comments', t => {
 	 * ~~~
 	 */
 }`;
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
 
 	t.false(result.fixed);
 	t.is(result.output, code);
@@ -553,54 +674,33 @@ test('ignores fenced code blocks in JSDoc comments', t => {
 });
 
 test('ignores JSDoc example sections', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `/**
 Do something.
 
 @example
-const json = await api.nodejs();
+nodejs --version
 
-@returns {void}
+@returns json output
 */`;
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const result = verifyAndFixJavaScript(code);
 
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(messages, []);
+	t.true(result.fixed);
+	t.is(result.output, `/**
+Do something.
+
+@example
+nodejs --version
+
+@returns JSON output
+*/`);
 });
 
 test('continues checking prose around skipped code in the same block comment', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = `/*
 The api returns json.
 const data = await api.v3('commits');
 */`;
-	const linter = new Linter({configType: 'flat'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const result = verifyAndFixJavaScript(code);
 
 	t.true(result.fixed);
 	t.is(result.output, `/*
@@ -610,23 +710,10 @@ const data = await api.v3('commits');
 });
 
 test('reports one problem per comment', t => {
-	const config = {
-		files: ['**'],
-		languageOptions: {
-			sourceType: 'module',
-		},
-		plugins: {
-			unicorn,
-		},
-		rules: {
-			[RULE_ID]: 'error',
-		},
-	};
 	const code = Array.from({length: 12}, () => '// nodejs').join('\n');
 	const output = Array.from({length: 12}, () => '// Node.js').join('\n');
-	const linter = new Linter({configType: 'flat'});
-	const messages = linter.verify(code, config, {filename: 'fixture.js'});
-	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
 
 	t.is(messages.length, 12);
 	t.true(result.fixed);

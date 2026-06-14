@@ -15,7 +15,7 @@ This rule is not a spellchecker. It only checks known replacement patterns.
 
 It only reports one replacement per comment at a time.
 
-It ignores matches inside URLs, domains, inline code spans, quoted strings, filenames/extensions, fenced code blocks, JSDoc examples, and comment lines that look like code.
+It ignores matches inside URLs, domains, inline code spans, quoted strings, Markdown link text and labels, markup tags, package specifiers, path-like filenames and extensions, fenced code blocks, JSDoc examples, compact structured data snippets, selected prompt-prefixed command-line snippets, and comment lines with common declaration, control-flow, or member-access syntax.
 
 ## Examples
 
