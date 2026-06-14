@@ -98,6 +98,7 @@ export {default as 'no-this-assignment'} from './no-this-assignment.js';
 export {default as 'no-this-outside-of-class'} from './no-this-outside-of-class.js';
 export {default as 'no-top-level-side-effects'} from './no-top-level-side-effects.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
+export {default as 'no-uncalled-method'} from './no-uncalled-method.js';
 export {default as 'no-undeclared-class-members'} from './no-undeclared-class-members.js';
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
