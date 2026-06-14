@@ -39,7 +39,7 @@ const definitelyTruthyBuiltinTypeNames = new Set([
 	'ReadonlyArray',
 ]);
 
-const collectionTypeNames = new Set([
+const constructibleCollectionTypeNames = new Set([
 	...mapConstructorTypeNames,
 	...nullSentinelTypeNames,
 ]);
@@ -190,6 +190,15 @@ const isUnshadowedGlobalIdentifier = (node, context) => {
 const isGlobalUndefined = (node, context) =>
 	isUndefined(node) && isUnshadowedGlobalIdentifier(node, context);
 
+const isVoidZero = node =>
+	node.type === 'UnaryExpression'
+	&& node.operator === 'void'
+	&& node.argument.type === 'Literal'
+	&& node.argument.value === 0;
+
+const isUndefinedSentinel = (node, context) =>
+	isGlobalUndefined(node, context) || isVoidZero(node);
+
 const getKnownTypeReferenceDefinitionTypeAnnotation = (typeReferenceName, scope, visitedTypeReferenceNames) => {
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
 		return;
@@ -201,16 +210,33 @@ const getKnownTypeReferenceDefinitionTypeAnnotation = (typeReferenceName, scope,
 	return getNonGenericTypeAliasAnnotation(definition);
 };
 
-const getMapInfoFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
+const getCollectionInfoFromTypeName = (typeName, valueType) => {
+	if (mapTypeNames.has(typeName)) {
+		return {
+			kind: 'map',
+			typeName,
+			valueType,
+		};
+	}
+
+	if (nullSentinelTypeNames.has(typeName)) {
+		return {
+			kind: 'null-sentinel',
+			typeName,
+		};
+	}
+};
+
+const getCollectionInfoFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getMapInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
+			return getCollectionInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
 		}
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				? getMapInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				? getCollectionInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames)
 				: undefined;
 		}
 
@@ -220,67 +246,30 @@ const getMapInfoFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = n
 				return;
 			}
 
-			if (mapTypeNames.has(typeReferenceName)) {
-				return getTypeReferenceDefinition(typeReferenceName, scope)
-					? undefined
-					: {
-						typeName: typeReferenceName,
-						valueType: getTypeReferenceArguments(node).at(-1),
-					};
+			if (
+				(mapTypeNames.has(typeReferenceName) || nullSentinelTypeNames.has(typeReferenceName))
+				&& !getTypeReferenceDefinition(typeReferenceName, scope)
+			) {
+				return getCollectionInfoFromTypeName(typeReferenceName, getTypeReferenceArguments(node).at(-1));
 			}
 
 			const typeAnnotation = getKnownTypeReferenceDefinitionTypeAnnotation(typeReferenceName, scope, visitedTypeReferenceNames);
-			return typeAnnotation ? getMapInfoFromTypeAnnotation(typeAnnotation, scope, visitedTypeReferenceNames) : undefined;
+			return typeAnnotation ? getCollectionInfoFromTypeAnnotation(typeAnnotation, scope, visitedTypeReferenceNames) : undefined;
 		}
 
 		default:
 	}
 };
 
-const getNullSentinelTypeNameFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
-	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return getNullSentinelTypeNameFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
-		}
-
-		case 'TSTypeOperator': {
-			return node.operator === 'readonly'
-				? getNullSentinelTypeNameFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames)
-				: undefined;
-		}
-
-		case 'TSTypeReference': {
-			const typeReferenceName = getTypeReferenceName(node.typeName);
-			if (!typeReferenceName) {
-				return;
-			}
-
-			if (nullSentinelTypeNames.has(typeReferenceName)) {
-				return getTypeReferenceDefinition(typeReferenceName, scope) ? undefined : typeReferenceName;
-			}
-
-			const typeAnnotation = getKnownTypeReferenceDefinitionTypeAnnotation(typeReferenceName, scope, visitedTypeReferenceNames);
-			return typeAnnotation ? getNullSentinelTypeNameFromTypeAnnotation(typeAnnotation, scope, visitedTypeReferenceNames) : undefined;
-		}
-
-		default:
-	}
-};
-
-const getTypeNameFromTypeAnnotation = (typeAnnotation, scope) =>
-	getMapInfoFromTypeAnnotation(typeAnnotation, scope)?.typeName
-	?? getNullSentinelTypeNameFromTypeAnnotation(typeAnnotation, scope);
-
-const getTypeNameFromExpressionAnnotation = (node, context) => {
+const getCollectionInfoFromExpressionAnnotation = (node, context) => {
 	const scope = context.sourceCode.getScope(node);
-	return getTypeNameFromTypeAnnotation(node.typeAnnotation, scope);
+	return getCollectionInfoFromTypeAnnotation(node.typeAnnotation, scope);
 };
 
-const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
-	const typeName = getTypeNameFromExpressionAnnotation(node, context);
-	if (typeName) {
-		return typeName;
+const getCollectionInfoFromSyntax = (node, context, visitedVariables = new Set()) => {
+	const collectionInfo = getCollectionInfoFromExpressionAnnotation(node, context);
+	if (collectionInfo) {
+		return collectionInfo;
 	}
 
 	node = unwrapExpression(node);
@@ -288,10 +277,10 @@ const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
 	if (
 		isNewExpression(node)
 		&& node.callee.type === 'Identifier'
-		&& collectionTypeNames.has(node.callee.name)
+		&& constructibleCollectionTypeNames.has(node.callee.name)
 		&& isUnshadowedGlobalIdentifier(node.callee, context)
 	) {
-		return node.callee.name;
+		return getCollectionInfoFromTypeName(node.callee.name);
 	}
 
 	if (node.type !== 'Identifier') {
@@ -310,9 +299,9 @@ const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
 	visitedVariables.add(variable);
 
 	const [definition] = variable.defs;
-	const typeNameFromAnnotation = getTypeNameFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
-	if (typeNameFromAnnotation) {
-		return typeNameFromAnnotation;
+	const collectionInfoFromAnnotation = getCollectionInfoFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
+	if (collectionInfoFromAnnotation) {
+		return collectionInfoFromAnnotation;
 	}
 
 	if (
@@ -324,7 +313,7 @@ const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
 		return;
 	}
 
-	return getTypeNameFromSyntax(definition.node.init, context, visitedVariables);
+	return getCollectionInfoFromSyntax(definition.node.init, context, visitedVariables);
 };
 
 const getBuiltinTypeName = (type, program) => {
@@ -340,26 +329,60 @@ const getBuiltinTypeName = (type, program) => {
 	}
 };
 
-const getTypeNameFromType = (type, checker, program) => {
+const getCollectionInfoFromType = (type, checker, program) => {
 	if (isUnknownType(type) || isNullishType(type)) {
 		return;
 	}
 
 	if (type.isUnion()) {
-		const names = new Set(type.types.map(type => getTypeNameFromType(type, checker, program)));
-		return names.size === 1 ? [...names][0] : undefined;
+		const collectionInfos = type.types.map(type => getCollectionInfoFromType(type, checker, program));
+		const typeNames = new Set(collectionInfos.map(collectionInfo => collectionInfo?.typeName));
+		if (typeNames.size === 1) {
+			const [collectionInfo] = collectionInfos;
+			if (collectionInfo?.kind !== 'map') {
+				return collectionInfo;
+			}
+
+			const valueTypes = collectionInfos.map(collectionInfo => collectionInfo?.valueType);
+			return {
+				...collectionInfo,
+				valueType: valueTypes.every(Boolean) ? checker.getUnionType(valueTypes) : undefined,
+			};
+		}
+
+		if (collectionInfos.every(collectionInfo => collectionInfo?.kind === 'map')) {
+			const valueTypes = collectionInfos.map(collectionInfo => collectionInfo.valueType);
+			return {
+				kind: 'map',
+				typeName: 'Map',
+				valueType: valueTypes.every(Boolean) ? checker.getUnionType(valueTypes) : undefined,
+			};
+		}
+
+		if (collectionInfos.every(collectionInfo => collectionInfo?.kind === 'null-sentinel')) {
+			return {
+				kind: 'null-sentinel',
+				typeName: 'null-sentinel',
+			};
+		}
+
+		return;
+	}
+
+	if (type.isIntersection()) {
+		return type.types
+			.map(type => getCollectionInfoFromType(type, checker, program))
+			.find(collectionInfo => collectionInfo?.kind === 'map');
 	}
 
 	const typeName = getBuiltinTypeName(type, program);
-	if (
-		mapTypeNames.has(typeName)
-		|| nullSentinelTypeNames.has(typeName)
-	) {
-		return typeName;
-	}
+	return getCollectionInfoFromTypeName(
+		typeName,
+		mapTypeNames.has(typeName) ? checker.getTypeArguments(type).at(-1) : undefined,
+	);
 };
 
-const getTypeNameFromTypeInformation = (node, context) => {
+const getCollectionInfoFromTypeInformation = (node, context) => {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return;
@@ -367,7 +390,7 @@ const getTypeNameFromTypeInformation = (node, context) => {
 
 	try {
 		const {program} = parserServices;
-		return getTypeNameFromType(
+		return getCollectionInfoFromType(
 			parserServices.getTypeAtLocation(node),
 			program.getTypeChecker(),
 			program,
@@ -375,47 +398,9 @@ const getTypeNameFromTypeInformation = (node, context) => {
 	} catch {}
 };
 
-const getTypeName = (node, context) =>
-	getTypeNameFromTypeInformation(node, context)
-	?? getTypeNameFromSyntax(node, context);
-
-const getMapValueType = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		const checker = program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(node);
-		return getMapValueTypeFromType(type, checker, program);
-	} catch {}
-};
-
-const getMapValueTypeFromType = (type, checker, program) => {
-	if (isUnknownType(type) || isNullishType(type)) {
-		return;
-	}
-
-	if (type.isUnion()) {
-		const valueTypes = type.types.map(type => getMapValueTypeFromType(type, checker, program));
-		return valueTypes.every(Boolean) ? checker.getUnionType(valueTypes) : undefined;
-	}
-
-	const typeName = getBuiltinTypeName(type, program);
-	if (!mapTypeNames.has(typeName)) {
-		return;
-	}
-
-	const typeArguments = checker.getTypeArguments(type);
-	return typeArguments.at(-1);
-};
-
-const getMapInfoFromExpressionAnnotation = (node, context) => {
-	const scope = context.sourceCode.getScope(node);
-	return getMapInfoFromTypeAnnotation(node.typeAnnotation, scope);
-};
+const getCollectionInfo = (node, context) =>
+	getCollectionInfoFromTypeInformation(node, context)
+	?? getCollectionInfoFromSyntax(node, context);
 
 const getLiteralTypeValue = node => {
 	if (node.type === 'Literal') {
@@ -561,6 +546,10 @@ const isDefinitelyNotType = (type, checker, typeNames) => {
 		return isDefinitelyNotType(constrainedType, checker, typeNames);
 	}
 
+	if (type.isTypeParameter?.()) {
+		return false;
+	}
+
 	if (type.isUnion()) {
 		return type.types.every(type => isDefinitelyNotType(type, checker, typeNames));
 	}
@@ -643,14 +632,14 @@ const isDefinitelySafeExpression = (node, context, kind) => {
 	return definitelySafeExpressionTypes.has(node.type);
 };
 
-const hasSafeMapConstructorValues = (node, context, kind) => {
+const getMapConstructorValueSafety = (node, context, kind) => {
 	if (
 		!isNewExpression(node)
 		|| node.callee.type !== 'Identifier'
 		|| !mapConstructorTypeNames.has(node.callee.name)
 		|| !isUnshadowedGlobalIdentifier(node.callee, context)
 	) {
-		return false;
+		return;
 	}
 
 	if (node.arguments.length === 0) {
@@ -658,12 +647,12 @@ const hasSafeMapConstructorValues = (node, context, kind) => {
 	}
 
 	if (node.arguments.length !== 1) {
-		return false;
+		return;
 	}
 
 	const [entries] = node.arguments;
 	if (entries.type !== 'ArrayExpression') {
-		return false;
+		return;
 	}
 
 	return entries.elements.every(element =>
@@ -684,15 +673,22 @@ const getMapNewExpressionValueSafety = (node, context, kind, checkConstructorVal
 		return;
 	}
 
+	if (checkConstructorValues) {
+		const constructorValueSafety = getMapConstructorValueSafety(node, context, kind);
+		if (constructorValueSafety !== undefined) {
+			return constructorValueSafety;
+		}
+	}
+
 	const valueType = getTypeReferenceArguments(node).at(-1);
 	if (valueType) {
 		return hasSafeValueTypeAnnotation(valueType, context, kind);
 	}
 
-	return checkConstructorValues && hasSafeMapConstructorValues(node, context, kind);
+	return false;
 };
 
-const getSingleVariableDefinition = (node, context, visitedVariables) => {
+const getSingleVariable = (node, context, visitedVariables) => {
 	if (node.type !== 'Identifier') {
 		return;
 	}
@@ -710,10 +706,10 @@ const getSingleVariableDefinition = (node, context, visitedVariables) => {
 };
 
 const hasSafeMapValueTypeFromDefinition = (definition, context, kind, visitedVariables) => {
-	const mapInfoFromAnnotation = getMapInfoFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
-	if (mapInfoFromAnnotation) {
-		return mapInfoFromAnnotation.valueType
-			? hasSafeValueTypeAnnotation(mapInfoFromAnnotation.valueType, context, kind)
+	const collectionInfoFromAnnotation = getCollectionInfoFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
+	if (collectionInfoFromAnnotation?.kind === 'map') {
+		return collectionInfoFromAnnotation.valueType
+			? hasSafeValueTypeAnnotation(collectionInfoFromAnnotation.valueType, context, kind)
 			: false;
 	}
 
@@ -736,10 +732,10 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
 	const visitedVariables = options.visitedVariables ?? new Set();
 	const checkConstructorValues = options.checkConstructorValues ?? true;
 
-	const mapInfo = getMapInfoFromExpressionAnnotation(node, context);
-	if (mapInfo) {
-		return mapInfo.valueType
-			? hasSafeValueTypeAnnotation(mapInfo.valueType, context, kind)
+	const collectionInfo = getCollectionInfoFromExpressionAnnotation(node, context);
+	if (collectionInfo?.kind === 'map') {
+		return collectionInfo.valueType
+			? hasSafeValueTypeAnnotation(collectionInfo.valueType, context, kind)
 			: false;
 	}
 
@@ -750,7 +746,7 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
 		return mapNewExpressionValueSafety;
 	}
 
-	const variable = getSingleVariableDefinition(node, context, visitedVariables);
+	const variable = getSingleVariable(node, context, visitedVariables);
 	if (!variable) {
 		return false;
 	}
@@ -765,47 +761,64 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
 }
 
 const hasSafeMapValueType = (node, context, kind) => {
-	const valueType = getMapValueType(node, context);
+	const constructorValueSafety = getMapConstructorValueSafety(unwrapExpression(node), context, kind);
+	if (constructorValueSafety !== undefined) {
+		return constructorValueSafety;
+	}
+
+	const valueType = getCollectionInfoFromTypeInformation(node, context)?.valueType;
 
 	if (valueType) {
 		const {program} = context.sourceCode.parserServices;
 		const checker = program.getTypeChecker();
+		let isSafe;
 
 		if (kind === 'truthy') {
-			return isDefinitelyTruthyType(valueType, checker, program);
+			isSafe = isDefinitelyTruthyType(valueType, checker, program);
+		} else if (kind === 'not-undefined') {
+			isSafe = isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void']));
+		} else {
+			isSafe = isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void', 'null']));
 		}
 
-		if (kind === 'not-undefined') {
-			return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void']));
+		if (isSafe) {
+			return true;
 		}
-
-		return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void', 'null']));
 	}
 
 	return hasSafeMapValueTypeFromSyntax(node, context, kind);
 };
 
 const getCallKind = (callExpression, comparison, context) => {
-	const typeName = getTypeName(callExpression.callee.object, context);
-	if (!typeName) {
+	const collectionInfo = getCollectionInfo(callExpression.callee.object, context);
+	if (!collectionInfo) {
 		return;
 	}
 
-	if (nullSentinelTypeNames.has(typeName)) {
+	const isLooseComparison = comparison.operator === '!=' || comparison.operator === '==';
+
+	if (collectionInfo.kind === 'null-sentinel') {
+		if (
+			isLooseComparison
+			&& isUndefinedSentinel(comparison.value, context)
+		) {
+			return {missingType: 'undefined'};
+		}
+
 		return {missingType: 'null'};
 	}
 
-	if (mapTypeNames.has(typeName)) {
+	if (collectionInfo.kind === 'map') {
 		if (
-			isGlobalUndefined(comparison.value, context)
-			&& hasSafeMapValueType(callExpression.callee.object, context, 'not-undefined')
+			isUndefinedSentinel(comparison.value, context)
+			&& hasSafeMapValueType(callExpression.callee.object, context, isLooseComparison ? 'not-nullish' : 'not-undefined')
 		) {
 			return {missingType: 'undefined'};
 		}
 
 		if (
 			isNullLiteral(comparison.value)
-			&& (comparison.operator === '!=' || comparison.operator === '==')
+			&& isLooseComparison
 			&& hasSafeMapValueType(callExpression.callee.object, context, 'not-nullish')
 		) {
 			return {missingType: 'nullish'};
@@ -845,7 +858,7 @@ const getComparison = callExpression => {
 const isPositiveComparison = ({operator}) => operator === '!==' || operator === '!=';
 
 const isMatchingMissingValue = (value, missingType, context) =>
-	missingType === 'undefined' ? isGlobalUndefined(value, context) : isNullLiteral(value);
+	missingType === 'undefined' ? isUndefinedSentinel(value, context) : isNullLiteral(value);
 
 const getComparisonFix = (callExpression, comparison, context) => {
 	if (context.sourceCode.getCommentsInside(comparison.node).length > context.sourceCode.getCommentsInside(callExpression).length) {
@@ -857,7 +870,7 @@ const getComparisonFix = (callExpression, comparison, context) => {
 };
 
 const isSafeBooleanMapCall = (callExpression, context) =>
-	mapTypeNames.has(getTypeName(callExpression.callee.object, context))
+	getCollectionInfo(callExpression.callee.object, context)?.kind === 'map'
 	&& hasSafeMapValueType(callExpression.callee.object, context, 'truthy');
 
 const getBooleanFix = callExpression => fixer => fixer.replaceText(callExpression.callee.property, 'has');
