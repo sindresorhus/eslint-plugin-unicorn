@@ -13,7 +13,7 @@
 
 If you want to add an item and exit, call `.push()` or `.unshift()` before `return`. If you intentionally want to use the length, use an explicit `.length` expression after the mutation.
 
-This rule is syntax-only. It reports used `.push(...)` and `.unshift(...)` return values with at least one argument and intentionally does not track array types. It also skips common stream-style `.push()` calls.
+This rule is syntax-only. Calls to `.push(...)` and `.unshift(...)` with at least one argument must be standalone expression statements. The rule intentionally does not track array types. It also skips common stream-style `.push()` calls.
 
 ## Examples
 

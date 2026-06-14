@@ -66,20 +66,12 @@ function getCallExpressionResultNode(callExpression) {
 	return node;
 }
 
-function getReturnNode(callExpression) {
-	const node = getCallExpressionResultNode(callExpression);
-	const {parent} = node;
+function getDirectReturnStatement(callExpression) {
+	const {parent} = callExpression;
 
 	if (
 		parent.type === 'ReturnStatement'
-		&& parent.argument === node
-	) {
-		return parent;
-	}
-
-	if (
-		parent.type === 'ArrowFunctionExpression'
-		&& parent.body === node
+		&& parent.argument === callExpression
 	) {
 		return parent;
 	}
@@ -140,9 +132,9 @@ const create = context => {
 			data: {method},
 		};
 
-		const returnNode = getReturnNode(callExpression);
-		if (returnNode?.type === 'ReturnStatement') {
-			const suggestion = getSuggestion(callExpression, returnNode, method, context);
+		const returnStatement = getDirectReturnStatement(callExpression);
+		if (returnStatement) {
+			const suggestion = getSuggestion(callExpression, returnStatement, method, context);
 			if (suggestion) {
 				problem.suggest = [suggestion];
 			}

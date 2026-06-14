@@ -121,6 +121,7 @@ test.snapshot({
 	invalid: [
 		'const length = array.push(value);',
 		'const length = array.unshift(value);',
+		'const length = stream.unshift(chunk);',
 		'console.log(array.push(value));',
 		'console.log(array.unshift(value));',
 		'void array.push(value);',
@@ -304,7 +305,16 @@ test.snapshot({
 			parser: parsers.typescript,
 		},
 	},
-	valid: [],
+	valid: [
+		'array.push(value) as number;',
+		'array.unshift(value) as number;',
+		'<number>array.push(value);',
+		'<number>array.unshift(value);',
+		'array.push(value)!;',
+		'array.unshift(value)!;',
+		'array.push(value) satisfies number;',
+		'array.unshift(value) satisfies number;',
+	],
 	invalid: [
 		'const foo = (value: string) => array.push(value);',
 		'const foo = (value: string) => array.unshift(value);',
@@ -336,6 +346,16 @@ test.snapshot({
 		outdent`
 			function foo() {
 				return array.unshift(value)!;
+			}
+		`,
+		outdent`
+			function foo() {
+				return array.push(value) satisfies number;
+			}
+		`,
+		outdent`
+			function foo() {
+				return array.unshift(value) satisfies number;
 			}
 		`,
 		'const foo = (value: string) => array.push(value) satisfies number;',
