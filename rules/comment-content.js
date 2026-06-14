@@ -187,52 +187,65 @@ function shouldUseRawCommentFallback(context) {
 		|| filename.endsWith('.markdown');
 }
 
-function isInFencedCodeBlock(text, index, {allowIndented = false} = {}) {
-	const fencePattern = allowIndented
-		? /^[\t ]*(?:\*\s?)?(?<fence>`{3,}|~{3,})/gmv
-		: /^ {0,3}(?<fence>`{3,}|~{3,})/gmv;
-	let activeFence;
-
-	for (const {groups} of text.slice(0, index).matchAll(fencePattern)) {
-		const {fence} = groups;
-
-		if (!activeFence) {
-			activeFence = {
-				character: fence[0],
-				size: fence.length,
-			};
-			continue;
-		}
-
-		if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
-			activeFence = undefined;
-		}
-	}
-
-	return Boolean(activeFence);
-}
-
 function getMarkdownHtmlComments(sourceCode) {
 	const comments = [];
 	const {text} = sourceCode;
+	let activeFence;
+	let lineStart = 0;
 
-	for (let index = 0; index < text.length; index++) {
-		if (!text.startsWith('<!--', index)) {
+	while (lineStart < text.length) {
+		const lineEnd = getLineEndIndex(text, lineStart);
+		const line = text.slice(lineStart, lineEnd);
+		const fence = /^ {0,3}(?<fence>`{3,}|~{3,})/v.exec(line)?.groups.fence;
+
+		if (fence) {
+			if (!activeFence) {
+				activeFence = {
+					character: fence[0],
+					size: fence.length,
+				};
+			} else if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
+				activeFence = undefined;
+			}
+
+			lineStart = lineEnd + 1;
 			continue;
 		}
 
-		if (isInFencedCodeBlock(text, index)) {
+		if (activeFence) {
+			lineStart = lineEnd + 1;
 			continue;
 		}
 
-		const end = text.indexOf('-->', index + 4);
-		const range = [index, end === -1 ? text.length : end + 3];
-		comments.push({
-			type: 'Block',
-			value: text.slice(index + 4, range[1] - 3),
-			range,
-		});
-		index = range[1] - 1;
+		let nextLineStart = lineEnd + 1;
+		let searchStart = lineStart;
+		while (searchStart <= lineEnd) {
+			const index = text.indexOf('<!--', searchStart);
+			if (index === -1 || index > lineEnd) {
+				break;
+			}
+
+			const end = text.indexOf('-->', index + 4);
+			const range = [index, end === -1 ? text.length : end + 3];
+			comments.push({
+				type: 'Block',
+				value: text.slice(index + 4, range[1] - 3),
+				range,
+			});
+
+			if (end === -1) {
+				return comments;
+			}
+
+			if (range[1] > lineEnd) {
+				nextLineStart = getLineEndIndex(text, range[1]) + 1;
+				break;
+			}
+
+			searchStart = range[1];
+		}
+
+		lineStart = nextLineStart;
 	}
 
 	return comments;
@@ -262,27 +275,97 @@ function getCommentValueStart(comment, sourceCode) {
 	return range[0] + valueOffset;
 }
 
-const urlPattern = /\b(?:[a-z][\d+\-.a-z]*:\/\/|www\.)\S+|\b[\u{2D}0-9a-z]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
+const urlPattern = /\b(?:[a-z][\d+\-.a-z]{0,31}:\/\/|www\.)\S+/giv;
 const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][\d+\-.a-z]*\b/giv;
 const codeLikeLineStartPattern = /^(?:import|export|const|let|var|type|interface|class|function|return|await|throw)\b/v;
 const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b[^:]+|default\s*):)/v;
-const bracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[\w$]+(?:(?:\??\.\s*)?\[[^\]]+\](?:\s*\.[\w$]|\s*$)|\s+\[[^\]]+\]\s*\.[\w$])/v;
-const chainedBracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[$_a-z][\w$]*\s*(?:\??\.\s*)?\[[^\]]+\]\s*\[[^\]]+\]\s*$/v;
-const markdownInlineLinkPattern = /(?:^|[\s\(])\[[^\]]+\]\([^\)]+\)/gv;
-const markdownLinkPattern = /(?:^|[\s\(])\[[^\]]+\](?::\s*\S+(?:\s+(?:"[^"]*"|'[^']*'|\([^\)]+\)))?|(?:\[[^\]]+\])+|\([^\)]+\))/gv;
-const memberCallLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:\(\s*)?(?:(?:[\w$]+:|[\w$]+\s*=)\s*)?[\w$]+\s*(?:(?:(?:\?\.|\.)\s*[\w$]+|\??\.\s*\[[^\]]+\])\s*(?:\?\.\s*)?\(|\s*\[[^\]]+\]\()/v;
-const shellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*\$\s+\S+/v;
-const secondaryShellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b/v;
-const listMarkerPattern = /^(?:[*+\-]|\d+\.)\s*/v;
+const identifierPatternSource = String.raw`[\w$]+`;
+const codeIdentifierPatternSource = String.raw`[$A-Z_a-z][\w$]*`;
+const listMarkerPatternSource = String.raw`(?:[*+\-]|\d+\.)`;
+const optionalListMarkerPrefixPatternSource = String.raw`${listMarkerPatternSource}?\s*`;
+const optionalLabelPrefixPatternSource = String.raw`(?:${identifierPatternSource}:\s*)?`;
+const bracketPropertyPatternSource = String.raw`\[[^\]]+\]`;
+const optionalAssignmentPrefixPatternSource = String.raw`(?:${identifierPatternSource}(?::|\s*=)\s*)?`;
+const memberCallPropertyPatternSource = String.raw`(?:(?:\?\.|\.)\s*${identifierPatternSource}|\??\.\s*${bracketPropertyPatternSource})`;
+const markdownLinkDestinationStartPatternSource = String.raw`(?:[A-Za-z][\d+\-.A-Za-z]*:\/\/|www\.|[\u{2D}0-9A-Za-z]+\.|[\w\-.]+\/|\/|#)`;
+const callArgumentsPatternSource = String.raw`\((?!\s*${markdownLinkDestinationStartPatternSource})[^\)]*\)`;
+const bracketMemberAccessLinePattern = new RegExp([
+	`^${optionalLabelPrefixPatternSource}${identifierPatternSource}(?:`,
+	String.raw`(?:\??\.\s*)?${bracketPropertyPatternSource}(?:\s*\.[\w$]|\s*$)`,
+	String.raw`|\s+${bracketPropertyPatternSource}\s*\.[\w$])`,
+].join(''), 'v');
+const chainedBracketMemberAccessLinePattern = new RegExp([
+	`^${optionalLabelPrefixPatternSource}${codeIdentifierPatternSource}`,
+	String.raw`\s*(?:\??\.\s*)?${bracketPropertyPatternSource}`,
+	String.raw`\s*${bracketPropertyPatternSource}\s*$`,
+].join(''), 'v');
+const spacedBracketCallLinePattern = new RegExp([
+	`^${optionalListMarkerPrefixPatternSource}`,
+	String.raw`(?:\(\s*)?`,
+	optionalAssignmentPrefixPatternSource,
+	`${codeIdentifierPatternSource}`,
+	String.raw`\s+${bracketPropertyPatternSource}\s*${callArgumentsPatternSource}\s*\)?\s*;?$`,
+].join(''), 'v');
+const markdownLinkLabelPattern = String.raw`\[[^\n\]]{1,200}\]`;
+const markdownLinkDestinationPattern = String.raw`[^\s\)\[]+`;
+const markdownLinkTitlePattern = String.raw`(?:"[^\n"]*"|'[^\n']*'|\([^\n\)]+\))`;
+const markdownLinkStartPattern = String.raw`(?:^|[\s\(])${markdownLinkLabelPattern}`;
+const markdownInlineLinkPattern = new RegExp(String.raw`${markdownLinkStartPattern}\(${markdownLinkDestinationPattern}(?:[^\S\n]+${markdownLinkTitlePattern})?\)`, 'gv');
+const markdownLinkPattern = new RegExp([
+	`${markdownLinkStartPattern}(?:`,
+	String.raw`:[^\S\n]*${markdownLinkDestinationPattern}(?:[^\S\n]+${markdownLinkTitlePattern})?`,
+	`|(?:${markdownLinkLabelPattern})+`,
+	String.raw`|\(${markdownLinkDestinationPattern}(?:[^\S\n]+${markdownLinkTitlePattern})?\))`,
+].join(''), 'gv');
+const memberCallLinePattern = new RegExp([
+	`^${optionalListMarkerPrefixPatternSource}`,
+	String.raw`(?:\(\s*)?`,
+	optionalAssignmentPrefixPatternSource,
+	`${identifierPatternSource}(?:`,
+	String.raw`\s*${memberCallPropertyPatternSource}\s*(?:\?\.\s*)?\(`,
+	String.raw`|${bracketPropertyPatternSource}\()`,
+].join(''), 'v');
+const shellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}\$\s+\S+`, 'v');
+const secondaryShellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b`, 'v');
+const listMarkerPattern = new RegExp(String.raw`^${listMarkerPatternSource}\s*`, 'v');
 const dotMemberAccessAfterMatchPattern = /^(?:\?\.|\.|\s+\.)\s*[\w$]+(?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
 const bracketMemberAccessAfterMatchPattern = /^(?:\?\.\s*)?\[[^\]]+\](?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
 const spacedBracketMemberAccessAfterMatchPattern = /^\s+\[[^\]]+\]\s*(?:\[|\.[\w$])/v;
 const pathTerminatorCharacters = '"\'`<>';
 const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
+const domainLeadingPunctuation = '([{<';
+const domainTrailingPunctuation = '.,;:!?)]}>';
 const maskCharacter = '\uFFFF';
 
 function isIdentifierLikeCharacter(character) {
 	return Boolean(character) && /[\p{Letter}\p{Number}_]/v.test(character);
+}
+
+function isAsciiLetter(character) {
+	return Boolean(character)
+		&& ((character >= 'a' && character <= 'z')
+			|| (character >= 'A' && character <= 'Z'));
+}
+
+function getLineEndIndex(text, index) {
+	const lineEnd = text.indexOf('\n', index);
+
+	return lineEnd === -1 ? text.length : lineEnd;
+}
+
+function getCharacterIndexBefore(text, character, start, end) {
+	for (let index = start; index < end; index++) {
+		if (text[index] === character) {
+			return index;
+		}
+	}
+
+	return -1;
+}
+
+function isMarkupTagStart(text, index) {
+	return isAsciiLetter(text[index + 1])
+		|| (text[index + 1] === '/' && isAsciiLetter(text[index + 2]));
 }
 
 function maskRange(characters, start, end) {
@@ -301,75 +384,161 @@ function maskPattern(characters, text, pattern) {
 	}
 }
 
-function maskBackticks(characters, text) {
-	let openingDelimiter;
+function getTrimmedDomainRange(text, start, end) {
+	while (start < end && domainLeadingPunctuation.includes(text[start])) {
+		start++;
+	}
 
-	for (const delimiter of text.matchAll(/`+/gv)) {
-		const start = delimiter.index;
-		const end = start + delimiter[0].length;
+	while (end > start && domainTrailingPunctuation.includes(text[end - 1])) {
+		end--;
+	}
 
-		if (!openingDelimiter) {
-			openingDelimiter = {
-				start,
-				end,
-				size: delimiter[0].length,
-			};
-			continue;
+	return [start, end];
+}
+
+function isBareDomainText(text) {
+	if (text.length > 253 || !text.includes('.')) {
+		return false;
+	}
+
+	const parts = text.toLowerCase().split('.');
+	const topLevelDomain = parts.at(-1);
+
+	return topLevelDomain !== 'js'
+		&& /^[a-z]{2,63}$/v.test(topLevelDomain)
+		&& parts.slice(0, -1).every(part => /^[\u{2D}0-9a-z]{1,63}$/v.test(part));
+}
+
+function isOversizedDottedToken(text) {
+	return text.length > 253 && text.includes('.');
+}
+
+function isOversizedSlashToken(text) {
+	return text.length > 253 && text.includes('/');
+}
+
+function maskBareDomains(characters, text) {
+	let start = 0;
+
+	while (start < text.length) {
+		while (start < text.length && /\s/v.test(text[start])) {
+			start++;
 		}
 
-		if (delimiter[0].length !== openingDelimiter.size) {
-			continue;
+		let end = start;
+		while (end < text.length && !/\s/v.test(text[end])) {
+			end++;
 		}
 
-		maskRange(characters, openingDelimiter.start, end);
-		openingDelimiter = undefined;
+		const [domainStart, domainEnd] = getTrimmedDomainRange(text, start, end);
+		const domainText = text.slice(domainStart, domainEnd);
+		if (isBareDomainText(domainText) || isOversizedDottedToken(domainText)) {
+			maskRange(characters, domainStart, domainEnd);
+		}
+
+		start = end + 1;
 	}
 }
 
-function maskQuotedStrings(characters, text) {
-	let quote;
-	let quoteStart;
+function maskMarkdownLinks(characters, text) {
+	markdownLinkPattern.lastIndex = 0;
 
-	for (let index = 0; index < text.length; index++) {
-		const character = text[index];
+	for (const match of text.matchAll(markdownLinkPattern)) {
+		const bracketIndex = text.indexOf('[', match.index);
 
-		if (character === '\\') {
+		if (characters[bracketIndex] === maskCharacter) {
+			continue;
+		}
+
+		maskRange(characters, match.index, match.index + match[0].length);
+	}
+}
+
+function getBacktickRunSize(text, index) {
+	let size = 0;
+
+	while (text[index + size] === '`') {
+		size++;
+	}
+
+	return size;
+}
+
+function getClosingBacktickIndex(characters, text, start, size) {
+	for (let index = start + size; index < text.length; index++) {
+		if (characters[index] === maskCharacter) {
+			continue;
+		}
+
+		if (text[index] !== '`') {
+			continue;
+		}
+
+		const closingSize = getBacktickRunSize(text, index);
+		if (closingSize === size) {
+			return index + closingSize;
+		}
+
+		index += closingSize - 1;
+	}
+}
+
+function getClosingQuoteIndex(characters, text, start, quote) {
+	for (let index = start + 1; index < text.length; index++) {
+		if (characters[index] === maskCharacter) {
+			continue;
+		}
+
+		if (text[index] === '\\') {
 			index++;
 			continue;
 		}
 
-		if (quote) {
-			if (character === quote) {
-				maskRange(characters, quoteStart, index + 1);
-				quote = undefined;
-				quoteStart = undefined;
-			}
+		if (text[index] === quote) {
+			return index + 1;
+		}
+	}
+}
 
+function maskInlineCodeAndQuotedStrings(characters, text) {
+	for (let index = 0; index < text.length; index++) {
+		if (characters[index] === maskCharacter) {
+			continue;
+		}
+
+		const character = text[index];
+
+		if (character === '`') {
+			const size = getBacktickRunSize(text, index);
+			const end = getClosingBacktickIndex(characters, text, index, size) ?? text.length;
+
+			maskRange(characters, index, end);
+			index = end - 1;
 			continue;
 		}
 
 		if (character === '"') {
-			quote = character;
-			quoteStart = index;
+			const end = getClosingQuoteIndex(characters, text, index, character) ?? text.length;
+
+			maskRange(characters, index, end);
+			index = end - 1;
 			continue;
 		}
 
 		if (character === '\'' && !isIdentifierLikeCharacter(text[index - 1])) {
-			quote = character;
-			quoteStart = index;
-		}
-	}
+			const end = getClosingQuoteIndex(characters, text, index, character) ?? text.length;
 
-	if (quoteStart !== undefined) {
-		maskRange(characters, quoteStart, text.length);
+			maskRange(characters, index, end);
+			index = end - 1;
+		}
 	}
 }
 
 function getCommentLine(commentValue, index) {
 	const start = commentValue.lastIndexOf('\n', index - 1) + 1;
-	const end = commentValue.indexOf('\n', index);
+	const end = getLineEndIndex(commentValue, index);
 
-	return commentValue.slice(start, end === -1 ? commentValue.length : end);
+	return commentValue.slice(start, end);
 }
 
 function cleanCommentLine(line) {
@@ -398,21 +567,6 @@ function getPathTextAfterIndex(commentValue, index) {
 	return pathText;
 }
 
-function getPackageSpecifierText(commentValue, match) {
-	let start = match.index;
-	let end = match.index + match[0].length;
-
-	while (start > 0 && !isPackageSpecifierTerminator(commentValue[start - 1])) {
-		start--;
-	}
-
-	while (end < commentValue.length && !isPackageSpecifierTerminator(commentValue[end])) {
-		end++;
-	}
-
-	return commentValue.slice(start, end);
-}
-
 function isSlashPairProse(text) {
 	const parts = text.replace(/[!.?]$/v, '').split('/');
 
@@ -423,13 +577,56 @@ function isSlashPairProse(text) {
 	return parts.every(part => defaultReplacementTermPatterns.some(pattern => pattern.test(part)));
 }
 
-function isPackageSpecifierMatch(commentValue, match) {
-	const text = getPackageSpecifierText(commentValue, match);
+function getPackageSpecifierBase(text) {
+	const suffixStart = text.startsWith('@') ? 1 : 0;
 
-	return text.includes('/')
-		&& !text.includes('://')
-		&& !isSlashPairProse(text)
-		&& /^(?:@[\w\-.]+(?:\/[\w\-.]+)+(?:[#?@][\w\-.]+)?|[\w\-.]+\/[\w\-.]+(?:[#?@][\w\-.]+|(?:\/[\w\-.]+)+)?)$/v.test(text);
+	for (let index = suffixStart; index < text.length; index++) {
+		if ('#?@'.includes(text[index])) {
+			return text.slice(0, index);
+		}
+	}
+
+	return text;
+}
+
+function isPackageSpecifierText(text) {
+	if (!text.includes('/') || text.includes('://') || isSlashPairProse(text)) {
+		return false;
+	}
+
+	const parts = getPackageSpecifierBase(text).split('/');
+	if (parts.length < 2) {
+		return false;
+	}
+
+	if (parts[0].startsWith('@')) {
+		return /^@[\w\-.]+$/v.test(parts[0])
+			&& parts.slice(1).every(part => /^[\w\-.]+$/v.test(part));
+	}
+
+	return parts.every(part => /^[\w\-.]+$/v.test(part));
+}
+
+function maskPackageSpecifiers(characters, text) {
+	let start = 0;
+
+	while (start < text.length) {
+		while (start < text.length && isPackageSpecifierTerminator(text[start])) {
+			start++;
+		}
+
+		let end = start;
+		while (end < text.length && !isPackageSpecifierTerminator(text[end])) {
+			end++;
+		}
+
+		const token = text.slice(start, end);
+		if (isPackageSpecifierText(token) || isOversizedSlashToken(token)) {
+			maskRange(characters, start, end);
+		}
+
+		start = end + 1;
+	}
 }
 
 function removeMarkdownInlineLinks(line) {
@@ -455,14 +652,6 @@ function isSimpleStructuredKey(text) {
 }
 
 function isSimpleWrappedValue(text, open, close) {
-	const inner = text.slice(1, -1);
-
-	for (const character of inner) {
-		if (character === open || character === close) {
-			return false;
-		}
-	}
-
 	return text.startsWith(open)
 		&& text.endsWith(close)
 		&& text.length >= 2;
@@ -500,17 +689,15 @@ function isStructuredKeyValueLine(line) {
 }
 
 function isObjectLiteralLine(line) {
+	line = line.replace(listMarkerPattern, '');
+
 	if (line.endsWith(',')) {
 		line = line.slice(0, -1).trimEnd();
 	}
 
-	if (!isSimpleWrappedValue(line, '{', '}')) {
-		return false;
-	}
-
-	const [key, value] = line.slice(1, -1).split(':');
-
-	return key.trim() !== '' && value !== undefined && value.trim() !== '';
+	return line.startsWith('{')
+		&& line.endsWith('}')
+		&& line.includes(':');
 }
 
 function isIgnoredCommentLine(line) {
@@ -520,6 +707,7 @@ function isIgnoredCommentLine(line) {
 		|| controlFlowLikeLineStartPattern.test(line)
 		|| bracketMemberAccessLinePattern.test(line)
 		|| chainedBracketMemberAccessLinePattern.test(line)
+		|| spacedBracketCallLinePattern.test(line)
 		|| isCommandLine(line)
 		|| isStructuredKeyValueLine(line)
 		|| isObjectLiteralLine(line)
@@ -532,8 +720,7 @@ function maskIgnoredLines(characters, text) {
 	let start = 0;
 
 	while (start < text.length) {
-		const lineEnd = text.indexOf('\n', start);
-		const end = lineEnd === -1 ? text.length : lineEnd;
+		const end = getLineEndIndex(text, start);
 
 		if (isIgnoredCommentLine(text.slice(start, end))) {
 			maskRange(characters, start, end);
@@ -560,8 +747,7 @@ function maskFencedCodeBlocks(characters, text) {
 		}
 
 		if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
-			const lineEnd = text.indexOf('\n', index);
-			const end = lineEnd === -1 ? text.length : lineEnd;
+			const end = getLineEndIndex(text, index);
 
 			maskRange(characters, activeFence.start, end);
 			activeFence = undefined;
@@ -578,8 +764,7 @@ function maskJsdocExamples(characters, text) {
 	let lineStart = 0;
 
 	while (lineStart < text.length) {
-		const lineEnd = text.indexOf('\n', lineStart);
-		const end = lineEnd === -1 ? text.length : lineEnd;
+		const end = getLineEndIndex(text, lineStart);
 		const line = text.slice(lineStart, end);
 		const trimmedLine = cleanCommentLine(line);
 
@@ -609,13 +794,27 @@ function maskMarkupTags(characters, text) {
 			break;
 		}
 
-		const tagEnd = text.indexOf('>', tagStart + 1);
-		if (tagEnd === -1) {
-			break;
+		if (characters[tagStart] === maskCharacter) {
+			start = tagStart + 1;
+			continue;
 		}
 
-		if (/^<\/?[a-z][\w\-:]*(?:\s|\/?>)/iv.test(text.slice(tagStart, tagEnd + 1))) {
+		if (!isMarkupTagStart(text, tagStart)) {
+			start = tagStart + 1;
+			continue;
+		}
+
+		const lineEnd = getLineEndIndex(text, tagStart);
+		const tagEnd = getCharacterIndexBefore(text, '>', tagStart + 1, lineEnd);
+		if (tagEnd === -1) {
+			start = lineEnd + 1;
+			continue;
+		}
+
+		if (/^<\/?[a-z][\w\-:]*(?:[^\S\n]|\/?>)/iv.test(text.slice(tagStart, tagEnd + 1))) {
 			maskRange(characters, tagStart, tagEnd + 1);
+			start = tagEnd + 1;
+			continue;
 		}
 
 		start = tagEnd + 1;
@@ -624,19 +823,20 @@ function maskMarkupTags(characters, text) {
 
 function getSearchableCommentValue(commentValue) {
 	/*
-	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, package specifiers, slash pairs, member access, and punctuation-adjacent matches remain match-local checks.
+	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, member access, and punctuation-adjacent matches remain match-local checks.
 	*/
 	const characters = Array.from({length: commentValue.length}, (_element, index) => commentValue[index]);
 
 	maskFencedCodeBlocks(characters, commentValue);
 	maskJsdocExamples(characters, commentValue);
-	maskBackticks(characters, commentValue);
-	maskQuotedStrings(characters, commentValue);
-	maskPattern(characters, commentValue, urlPattern);
-	maskPattern(characters, commentValue, mimeTypePattern);
-	maskPattern(characters, commentValue, markdownLinkPattern);
-	maskMarkupTags(characters, commentValue);
 	maskIgnoredLines(characters, commentValue);
+	maskInlineCodeAndQuotedStrings(characters, commentValue);
+	maskPattern(characters, commentValue, urlPattern);
+	maskBareDomains(characters, commentValue);
+	maskPattern(characters, commentValue, mimeTypePattern);
+	maskPackageSpecifiers(characters, commentValue);
+	maskMarkdownLinks(characters, commentValue);
+	maskMarkupTags(characters, commentValue);
 
 	return characters.join('');
 }
@@ -686,7 +886,6 @@ function isPropertyAccessMatch(commentValue, match) {
 
 function shouldSkipMatch(commentValue, match) {
 	return isPathLikeMatch(commentValue, match)
-		|| isPackageSpecifierMatch(commentValue, match)
 		|| isPropertyAccessMatch(commentValue, match)
 		|| commentValue[match.index - 1] === '-'
 		|| commentValue[match.index + match[0].length] === '-'
