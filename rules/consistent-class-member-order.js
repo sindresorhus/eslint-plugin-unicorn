@@ -137,7 +137,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce consistent class member order.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		schema,
 		defaultOptions: [{order: defaultOrder}],
