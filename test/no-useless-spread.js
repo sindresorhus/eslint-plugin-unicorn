@@ -336,6 +336,7 @@ test.snapshot({
 		typeAware('function foo(value: {map(): number[]}) { return [...value.map()]; }'),
 		typeAware('function foo(value: {slice(start: number): number[]}) { return [...value.slice(1)]; }'),
 		typeAware('function foo(value: Int32Array) { return [...value.slice(1)]; }'),
+		typeAware('class ArraySubclass extends Array<number> {} function foo(value: ArraySubclass) { return [...value.slice(1)]; }'),
 		{
 			code: 'function foo(value: string) { return [...value.slice(1)]; }',
 			languageOptions: {parser: parsers.typescript},

@@ -31,8 +31,11 @@ test.snapshot({
 		'splice(index)[0]',
 		'const object = {splice() { return []; }}; object.splice(index)[0]',
 		'({splice() { return []; }}).splice(index)[0]',
+		'const object = {splice() { return []; }, method() { return this.splice(0)[0]; }}',
 		'class Custom { splice() { return []; } method() { return this.splice(0)[0]; } }',
 		'class ArraySubclass extends Array { static method() { return this.splice(0)[0]; } }',
+		'class Custom { splice() { return []; } } const Array = Custom; class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0]',
+		'class Custom { splice() { return []; } } let BaseArray = Array; BaseArray = Custom; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0]',
 	],
 	invalid: [
 		'process.argv.splice(2)[0]',
@@ -42,6 +45,8 @@ test.snapshot({
 		'object.array.splice(index)[0]',
 		'array.splice(/* comment */ index)[0]',
 		'const array = []; array.splice(index)[0]',
+		'const BaseArray = Array; class ArraySubclass extends BaseArray {} new ArraySubclass().splice(0)[0]',
+		'const ArraySubclass = class extends Array {}; new ArraySubclass().splice(0)[0]',
 		'class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0]',
 		'class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0]',
 		'class ArraySubclass extends Array { method() { return this.splice(0)[0]; } }',
@@ -60,6 +65,10 @@ test.snapshot({
 		'declare const set: Set<string>; set.splice(index)[0]',
 		'declare const string: string; string.splice(index)[0]',
 		'interface Custom { splice(index: number): string[]; } declare const value: Custom; value.splice(index)[0]',
+		'interface Custom { splice(index: number): string[]; } declare const value: string[] | Custom; value.splice(index)[0]',
+		'interface Custom { splice(index: number): string[]; } declare const value: string[] | Custom; (value as string[] | Custom).splice(index)[0]',
+		'interface Custom { splice(index: number): string[]; } function method(this: Custom) { return this.splice(0)[0]; }',
+		'class Custom { splice(): string[] { return []; } } const Array = Custom; class ArraySubclass extends Array {} declare const array: ArraySubclass; array.splice(0)[0]',
 	],
 	invalid: [
 		'array.splice(index as number)[0]',
@@ -70,6 +79,11 @@ test.snapshot({
 		'declare const array: string[]; array.splice(index)[0]',
 		'type Strings = string[]; declare const array: Strings; array.splice(index)[0]',
 		'declare const value: unknown; value.splice(index)[0]',
+		'type Value = Value; declare const value: Value; value.splice(index)[0]',
+		'const array = array; array.splice(index)[0]',
+		'function method(this: string[]) { return this.splice(0)[0]; }',
+		'class ArraySubclass extends Array<number> {} declare const array: ArraySubclass; array.splice(0)[0]',
+		'const BaseArray = Array; class ArraySubclass extends BaseArray {} declare const array: ArraySubclass; array.splice(0)[0]',
 		'class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]',
 	],
 });
@@ -81,6 +95,7 @@ test.snapshot({
 	],
 	invalid: [
 		typeAware('function getArray(): string[] { return []; } const array = getArray(); array.splice(0)[0]'),
+		typeAware('declare const ArrayConstructor: typeof Array; new ArrayConstructor().splice(0)[0]'),
 		typeAware('class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]'),
 	],
 });

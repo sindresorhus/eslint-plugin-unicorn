@@ -14,6 +14,20 @@ const target = 'target';
 const nonTarget = 'non-target';
 const unknown = 'unknown';
 
+const classNodeTypes = new Set([
+	'ClassDeclaration',
+	'ClassExpression',
+]);
+const functionNodeTypes = new Set([
+	'FunctionDeclaration',
+	'FunctionExpression',
+]);
+const typeReferenceDefinitionTypes = new Set([
+	'ClassName',
+	'ImportBinding',
+	'TSEnumName',
+	'Type',
+]);
 const nonTargetTypeAnnotations = new Set([
 	'TSBigIntKeyword',
 	'TSBooleanKeyword',
@@ -32,12 +46,16 @@ const nonTargetTypeAnnotations = new Set([
 	'TSConstructorType',
 ]);
 
-const combineUnionTypes = types => {
+const combineUnionTypes = (types, options) => {
 	if (types.every(type => type === target)) {
 		return target;
 	}
 
-	if (types.every(type => type === nonTarget)) {
+	if (
+		options.treatMixedUnionAsNonTarget
+			? types.includes(nonTarget)
+			: types.every(type => type === nonTarget)
+	) {
 		return nonTarget;
 	}
 
@@ -68,6 +86,21 @@ const resolveIdentifierName = (name, scope) => {
 	}
 };
 
+const getTypeReferenceDefinition = (typeReferenceName, scope) => {
+	while (scope) {
+		const definition = scope.set
+			.get(typeReferenceName)
+			?.defs
+			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
+
+		if (definition) {
+			return definition;
+		}
+
+		scope = scope.upper;
+	}
+};
+
 const getTypeName = typeName => {
 	if (typeName.type === 'Identifier') {
 		return typeName.name;
@@ -77,6 +110,15 @@ const getTypeName = typeName => {
 		const left = getTypeName(typeName.left);
 		return left ? `${left}.${typeName.right.name}` : undefined;
 	}
+};
+
+const getKnownTypeReferenceType = (typeReferenceName, options) => {
+	const aliasTarget = options.typeReferenceAliases?.get(typeReferenceName);
+	if (options.targetTypeNames.has(typeReferenceName) || (aliasTarget && options.targetTypeNames.has(aliasTarget))) {
+		return target;
+	}
+
+	return options.nonTargetTypeNames?.has(typeReferenceName) ? nonTarget : unknown;
 };
 
 const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceNames) => {
@@ -92,12 +134,15 @@ const getClassHeritageType = (node, scope, options, visitedTypeReferenceNames) =
 		return nonTarget;
 	}
 
-	const name = node.superClass.type === 'Identifier' ? node.superClass.name : undefined;
-	if (!name) {
+	if (!options.checkClassHeritage) {
+		return nonTarget;
+	}
+
+	if (node.superClass.type !== 'Identifier') {
 		return unknown;
 	}
 
-	return getTypeReferenceType({typeName: node.superClass}, scope, options, visitedTypeReferenceNames);
+	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedTypeReferenceNames);
 };
 
 const getInterfaceType = (node, scope, options, visitedTypeReferenceNames) => {
@@ -115,13 +160,11 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 		return unknown;
 	}
 
-	const aliasTarget = options.typeReferenceAliases?.get(typeReferenceName);
-	if (options.targetTypeNames.has(typeReferenceName) || (aliasTarget && options.targetTypeNames.has(aliasTarget))) {
-		return target;
-	}
-
-	if (options.nonTargetTypeNames?.has(typeReferenceName)) {
-		return nonTarget;
+	if (!options.preferTypeReferenceDefinitions) {
+		const knownType = getKnownTypeReferenceType(typeReferenceName, options);
+		if (knownType !== unknown) {
+			return knownType;
+		}
 	}
 
 	if (visitedTypeReferenceNames.has(typeReferenceName)) {
@@ -130,12 +173,11 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 
 	visitedTypeReferenceNames.add(typeReferenceName);
 
-	const typeVariable = resolveIdentifierName(typeReferenceName, scope);
-	const [definition] = typeVariable?.defs ?? [];
+	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
 
 	if (!definition) {
 		visitedTypeReferenceNames.delete(typeReferenceName);
-		return unknown;
+		return getKnownTypeReferenceType(typeReferenceName, options);
 	}
 
 	let type = unknown;
@@ -182,7 +224,7 @@ function getTypeAnnotationType(node, scope, options, visitedTypeReferenceNames =
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceNames)));
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, options, visitedTypeReferenceNames)), options);
 		}
 
 		case 'TSIntersectionType': {
@@ -215,7 +257,7 @@ function getTypeScriptType(type, checker, program, options) {
 	}
 
 	if (type.isUnion()) {
-		return combineUnionTypes(type.types.map(type => getTypeScriptType(type, checker, program, options)));
+		return combineUnionTypes(type.types.map(type => getTypeScriptType(type, checker, program, options)), options);
 	}
 
 	if (type.isIntersection()) {
@@ -231,8 +273,15 @@ function getTypeScriptType(type, checker, program, options) {
 		return getTypeScriptType(constraint, checker, program, options);
 	}
 
-	if (getBaseTypes(type, checker).some(type => getTypeScriptType(type, checker, program, options) === target)) {
+	if (
+		options.checkClassHeritage
+		&& getBaseTypes(type, checker).some(type => getTypeScriptType(type, checker, program, options) === target)
+	) {
 		return target;
+	}
+
+	if (type.intrinsicName) {
+		return nonTarget;
 	}
 
 	const symbol = getTypeSymbol(type);
@@ -273,7 +322,7 @@ const getTypeFromStaticValue = (node, scope, options) => {
 		return unknown;
 	}
 
-	return options.getStaticType?.(result.value) ?? unknown;
+	return options.getStaticType?.(result.value, node) ?? unknown;
 };
 
 const getTypeFromVariable = (node, context, options, visitedVariables) => {
@@ -310,12 +359,128 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 	return type;
 };
 
+const getClassType = (node, scope, options, visitedNames) => {
+	if (!node.superClass) {
+		return nonTarget;
+	}
+
+	if (!options.checkClassHeritage) {
+		return nonTarget;
+	}
+
+	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedNames);
+};
+
+function getClassReferenceTypeFromScope(node, scope, options, visitedNames = new Set()) {
+	if (node.type === 'Identifier') {
+		const typeReferenceName = node.name;
+		if (!options.checkClassHeritage) {
+			return getKnownTypeReferenceType(typeReferenceName, options);
+		}
+
+		if (visitedNames.has(typeReferenceName)) {
+			return unknown;
+		}
+
+		visitedNames.add(typeReferenceName);
+
+		const variable = resolveIdentifierName(typeReferenceName, scope);
+		const [definition] = variable?.defs ?? [];
+		let type = unknown;
+
+		if (
+			definition?.type === 'Variable'
+			&& definition.parent.kind === 'const'
+			&& definition.node.id === definition.name
+			&& definition.node.init
+		) {
+			type = getClassReferenceTypeFromScope(definition.node.init, scope, options, visitedNames);
+		} else if (definition?.type === 'ClassName') {
+			type = getClassType(definition.node, scope, options, visitedNames);
+		}
+
+		visitedNames.delete(typeReferenceName);
+
+		return definition ? type : getKnownTypeReferenceType(typeReferenceName, options);
+	}
+
+	if (classNodeTypes.has(node.type)) {
+		return getClassType(node, scope, options, visitedNames);
+	}
+
+	return unknown;
+}
+
+const getClassReferenceType = (node, context, options, visitedNames) =>
+	getClassReferenceTypeFromScope(node, context.sourceCode.getScope(node), options, visitedNames);
+
+const getFunctionThisParameterType = (node, context, options) => {
+	const thisParameter = node.params.find(node => node.type === 'Identifier' && node.name === 'this');
+	return getTypeAnnotationType(thisParameter?.typeAnnotation, context.sourceCode.getScope(node), options);
+};
+
+const getThisExpressionType = (node, context, options) => {
+	for (let {parent} = node; parent; parent = parent.parent) {
+		if (classNodeTypes.has(parent.type)) {
+			return getClassType(parent, context.sourceCode.getScope(parent), options);
+		}
+
+		if (
+			parent.type === 'StaticBlock'
+			|| (
+				parent.type === 'PropertyDefinition'
+				&& parent.static
+			)
+		) {
+			return nonTarget;
+		}
+
+		if (functionNodeTypes.has(parent.type)) {
+			const thisParameterType = getFunctionThisParameterType(parent, context, options);
+			if (thisParameterType !== unknown) {
+				return thisParameterType;
+			}
+
+			if (
+				parent.parent?.type === 'Property'
+				&& parent.parent.parent?.type === 'ObjectExpression'
+			) {
+				return nonTarget;
+			}
+
+			if (parent.parent?.type === 'MethodDefinition') {
+				if (parent.parent.static) {
+					return nonTarget;
+				}
+
+				continue;
+			}
+
+			return unknown;
+		}
+	}
+
+	return unknown;
+};
+
 const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	const scope = context.sourceCode.getScope(node);
 
 	switch (node.type) {
 		case 'Identifier': {
 			return getTypeFromVariable(node, context, options, visitedVariables);
+		}
+
+		case 'ThisExpression': {
+			return options.checkClassSyntax
+				? getThisExpressionType(node, context, options)
+				: unknown;
+		}
+
+		case 'NewExpression': {
+			return options.checkClassSyntax
+				? getClassReferenceType(node.callee, context, options)
+				: unknown;
 		}
 
 		case 'TSAsExpression':
@@ -340,7 +505,7 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 			return combineUnionTypes([
 				getType(node.consequent, context, options, visitedVariables),
 				getType(node.alternate, context, options, visitedVariables),
-			]);
+			], options);
 		}
 
 		default: {
@@ -387,13 +552,27 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		return target;
 	}
 
-	return getTypeFromTypeInformation(node, context, options);
+	const typeFromTypeInformation = getTypeFromTypeInformation(node, context, options);
+	if (typeFromTypeInformation !== unknown) {
+		return typeFromTypeInformation;
+	}
+
+	return options.isNonTargetNode?.(node, context) ? nonTarget : unknown;
 }
 
-const createTypeCheckers = options => ({
-	isTarget: (node, context) => getType(node, context, options) === target,
-	isKnownNonTarget: (node, context) => getType(node, context, options) === nonTarget,
-});
+const createTypeCheckers = options => {
+	options = {
+		checkClassHeritage: true,
+		checkClassSyntax: false,
+		...options,
+	};
+
+	return {
+		getType: (node, context, overrides) => getType(node, context, {...options, ...overrides}),
+		isTarget: (node, context, overrides) => getType(node, context, {...options, ...overrides}) === target,
+		isKnownNonTarget: (node, context, overrides) => getType(node, context, {...options, ...overrides}) === nonTarget,
+	};
+};
 
 const createBuiltinTypeCheckers = ({
 	name,

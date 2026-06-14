@@ -74,6 +74,7 @@ test({
 		typeAware('interface QueryCache {findIndex(predicate: Function): number} declare function getQueryCache(): QueryCache; getQueryCache().findIndex(fn) !== -1;'),
 		typeAware('interface QueryCache {filter(predicate: Function): {length: number}} declare function getQueryCache(): QueryCache; getQueryCache().filter(fn).length > 0;'),
 		typeAware('class Store {find(key: string): boolean {return key.length > 0}} const store = new Store(); if (store.find("key")) {}'),
+		typeAware('class Store extends HTMLElement {find(key: string): boolean {return key.length > 0}} const store = new Store(); if (store.find("key")) {}'),
 		typeAware('function foo(collection: {find(predicate: Function): unknown}) { if (collection.find(fn)) {} }'),
 		typeAware('function foo<T extends {find(predicate: Function): unknown}>(collection: T) { if (collection.find(fn)) {} }'),
 		{
