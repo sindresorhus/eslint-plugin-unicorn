@@ -12,9 +12,10 @@ const testConfig = {
 		test: {
 			rules: {
 				capture: {
-					create: () => ({
+					create: context => ({
 						MemberExpression(node) {
 							memberExpressionNode ||= node;
+							ruleContext ||= context;
 						},
 					}),
 				},
@@ -26,63 +27,94 @@ const testConfig = {
 	},
 };
 let memberExpressionNode;
+let ruleContext;
 
 function findFirstMemberExpression(code) {
 	memberExpressionNode = undefined;
+	ruleContext = undefined;
 	linter.verify(code, testConfig);
 
 	if (!memberExpressionNode) {
 		throw new Error('Expected to find a MemberExpression node.');
 	}
 
-	return memberExpressionNode;
+	return {
+		node: memberExpressionNode,
+		context: ruleContext,
+	};
 }
 
 test('`isBooleanExpression` returns `true` for boolean-producing expressions', t => {
-	t.true(isBooleanExpression(findFirstMemberExpression('const value = !foo.length;')));
-	t.true(isBooleanExpression(findFirstMemberExpression('const value = Boolean(foo.length);')));
-	t.true(isBooleanExpression(findFirstMemberExpression('const value = Boolean(foo.length || bar);')));
-	t.true(isBooleanExpression(findFirstMemberExpression('const value = !Boolean(foo.length);')));
+	for (const code of [
+		'const value = !foo.length;',
+		'const value = Boolean(foo.length);',
+		'const value = Boolean(foo.length || bar);',
+		'const value = !Boolean(foo.length);',
+	]) {
+		const {node, context} = findFirstMemberExpression(code);
+		t.true(isBooleanExpression(node, context));
+	}
 });
 
 test('`isBooleanExpression` returns `false` for control-flow-only contexts', t => {
-	t.false(isBooleanExpression(findFirstMemberExpression('if (foo.length) {}')));
-	t.false(isBooleanExpression(findFirstMemberExpression('const value = foo.length ? 1 : 2;')));
-	t.false(isBooleanExpression(findFirstMemberExpression('while (foo.length) {}')));
-	t.false(isBooleanExpression(findFirstMemberExpression('const value = foo.length || bar;')));
-	t.false(isBooleanExpression(findFirstMemberExpression('const value = foo.length ?? bar;')));
-	t.false(isBooleanExpression(findFirstMemberExpression('const value = foo.length;')));
+	for (const code of [
+		'if (foo.length) {}',
+		'const value = foo.length ? 1 : 2;',
+		'while (foo.length) {}',
+		'const value = foo.length || bar;',
+		'const value = foo.length ?? bar;',
+		'const value = foo.length;',
+		'const Boolean = value => value; const value = Boolean(foo.length);',
+	]) {
+		const {node, context} = findFirstMemberExpression(code);
+		t.false(isBooleanExpression(node, context));
+	}
 });
 
 test('`isControlFlowTest` returns `true` for control-flow test contexts', t => {
-	t.true(isControlFlowTest(findFirstMemberExpression('if (foo.length) {}')));
-	t.true(isControlFlowTest(findFirstMemberExpression('const value = foo.length ? 1 : 2;')));
-	t.true(isControlFlowTest(findFirstMemberExpression('while (foo.length) {}')));
-	t.true(isControlFlowTest(findFirstMemberExpression('do {} while (foo.length);')));
-	t.true(isControlFlowTest(findFirstMemberExpression('for (; foo.length; ) {}')));
-	t.true(isControlFlowTest(findFirstMemberExpression('if (foo.length && bar) {}')));
+	for (const code of [
+		'if (foo.length) {}',
+		'const value = foo.length ? 1 : 2;',
+		'while (foo.length) {}',
+		'do {} while (foo.length);',
+		'for (; foo.length; ) {}',
+		'if (foo.length && bar) {}',
+	]) {
+		const {node} = findFirstMemberExpression(code);
+		t.true(isControlFlowTest(node));
+	}
 });
 
 test('`isControlFlowTest` returns `false` for non-control-flow contexts', t => {
-	t.false(isControlFlowTest(findFirstMemberExpression('const value = !foo.length;')));
-	t.false(isControlFlowTest(findFirstMemberExpression('const value = Boolean(foo.length);')));
-	t.false(isControlFlowTest(findFirstMemberExpression('const value = foo.length || bar;')));
-	t.false(isControlFlowTest(findFirstMemberExpression('const value = foo.length;')));
+	for (const code of [
+		'const value = !foo.length;',
+		'const value = Boolean(foo.length);',
+		'const value = foo.length || bar;',
+		'const value = foo.length;',
+	]) {
+		const {node} = findFirstMemberExpression(code);
+		t.false(isControlFlowTest(node));
+	}
 });
 
 test('`getBooleanAncestor` returns the boolean coercion ancestor', t => {
-	const negatedNode = findFirstMemberExpression('const value = !!!foo.length;');
-	const negatedResult = getBooleanAncestor(negatedNode);
+	const {node: negatedNode, context: negatedContext} = findFirstMemberExpression('const value = !!!foo.length;');
+	const negatedResult = getBooleanAncestor(negatedNode, negatedContext);
 	t.is(negatedResult.node.type, 'UnaryExpression');
 	t.true(negatedResult.isNegative);
 
-	const booleanCallNode = findFirstMemberExpression('const value = Boolean(Boolean(foo.length));');
-	const booleanCallResult = getBooleanAncestor(booleanCallNode);
+	const {node: booleanCallNode, context: booleanCallContext} = findFirstMemberExpression('const value = Boolean(Boolean(foo.length));');
+	const booleanCallResult = getBooleanAncestor(booleanCallNode, booleanCallContext);
 	t.is(booleanCallResult.node.type, 'CallExpression');
 	t.false(booleanCallResult.isNegative);
 
-	const mixedNode = findFirstMemberExpression('const value = !Boolean(foo.length);');
-	const mixedResult = getBooleanAncestor(mixedNode);
+	const {node: mixedNode, context: mixedContext} = findFirstMemberExpression('const value = !Boolean(foo.length);');
+	const mixedResult = getBooleanAncestor(mixedNode, mixedContext);
 	t.is(mixedResult.node.type, 'UnaryExpression');
 	t.true(mixedResult.isNegative);
+
+	const {node: shadowedNode, context: shadowedContext} = findFirstMemberExpression('const Boolean = value => value; const value = Boolean(foo.length);');
+	const shadowedResult = getBooleanAncestor(shadowedNode, shadowedContext);
+	t.is(shadowedResult.node, shadowedNode);
+	t.false(shadowedResult.isNegative);
 });
