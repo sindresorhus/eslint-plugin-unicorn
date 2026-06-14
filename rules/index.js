@@ -112,6 +112,7 @@ export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-exp
 export {default as 'no-unreadable-object-destructuring'} from './no-unreadable-object-destructuring.js';
 export {default as 'no-unsafe-buffer-conversion'} from './no-unsafe-buffer-conversion.js';
 export {default as 'no-unsafe-dom-html'} from './no-unsafe-dom-html.js';
+export {default as 'no-unsafe-property-key'} from './no-unsafe-property-key.js';
 export {default as 'no-unsafe-string-replacement'} from './no-unsafe-string-replacement.js';
 export {default as 'no-unused-array-method-return'} from './no-unused-array-method-return.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
