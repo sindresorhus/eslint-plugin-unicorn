@@ -92,7 +92,7 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 	return references.every(reference => {
 		const {identifier} = reference;
 
-		return reference.isRead() && (isBooleanExpression(identifier) || isControlFlowTest(identifier));
+		return reference.isRead() && (isBooleanExpression(identifier, context) || isControlFlowTest(identifier));
 	});
 }
 
@@ -123,7 +123,7 @@ const create = context => {
 		if (
 			!isCompare
 			&& !(
-				isBooleanExpression(callExpression)
+				isBooleanExpression(callExpression, context)
 				|| isControlFlowTest(callExpression)
 				|| isFindResultVariableUsedOnlyAsBoolean(callExpression, context)
 			)

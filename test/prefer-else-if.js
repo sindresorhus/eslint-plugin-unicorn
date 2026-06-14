@@ -195,11 +195,43 @@ test.snapshot({
 			if (foo === false) {}
 		`,
 		outdent`
+			if (Boolean(foo)) {}
+			if (foo === false) {}
+		`,
+		outdent`
 			const foo = true;
 
 			if (foo) {}
 			if (foo === true) {}
 		`,
+		typeAware(outdent`
+			declare const options: {enabled: string};
+
+			if (options.enabled) {}
+			if (options.enabled === false) {}
+		`),
+		{
+			code: outdent`
+				function unicorn(foo: boolean, Boolean) {
+					if (Boolean(foo)) {}
+					if (foo === false) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function unicorn(foo?: boolean) {
+					if (!foo) {}
+					if (foo === undefined) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		{
 			code: outdent`
 				function unicorn(foo: boolean) {

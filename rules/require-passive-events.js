@@ -1,4 +1,4 @@
-import {isMethodCall, isStringLiteral} from './ast/index.js';
+import {isBooleanLiteral, isMethodCall, isStringLiteral} from './ast/index.js';
 import {getIndentString, getScopes, isLeftHandSide} from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
@@ -46,10 +46,6 @@ const getMemberPropertyName = memberExpression => {
 		return memberExpression.property.value;
 	}
 };
-
-const isBooleanLiteral = (node, value) =>
-	node?.type === 'Literal'
-	&& node.value === value;
 
 const getPassiveProperty = optionsNode =>
 	optionsNode.properties.findLast(property =>

@@ -18,6 +18,7 @@ import {
 	isLogicalExpression,
 	isString,
 	isUnknownType,
+	isGlobalBooleanCall,
 	shouldAddParenthesesToMemberExpressionObject,
 } from './utils/index.js';
 
@@ -431,20 +432,14 @@ const isNegated = node =>
 	&& node.parent.operator === '!'
 	&& node.parent.argument === node;
 
-const isBooleanCall = node =>
-	node?.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'Boolean'
-	&& node.arguments.length === 1;
-
-const getBooleanExpressionAncestor = node => {
+const getBooleanExpressionAncestor = (node, context) => {
 	while (true) {
 		if (isLogicalExpression(node.parent)) {
 			node = node.parent;
 			continue;
 		}
 
-		if (isBooleanCall(node.parent) && node.parent.arguments[0] === node) {
+		if (isGlobalBooleanCall(node.parent, context) && node.parent.arguments[0] === node) {
 			node = node.parent;
 			continue;
 		}
@@ -455,7 +450,7 @@ const getBooleanExpressionAncestor = node => {
 	return node;
 };
 
-const isNegatedBooleanValue = node => isNegated(getBooleanExpressionAncestor(node));
+const isNegatedBooleanValue = (node, context) => isNegated(getBooleanExpressionAncestor(node, context));
 
 const hasCommentsInRange = (sourceCode, [start, end]) =>
 	sourceCode.getAllComments().some(comment => {
@@ -578,7 +573,7 @@ const addFixOrSuggestion = (problem, fixFunction, context, {
 	problem.suggest = getSuggestion(fixFunction);
 };
 
-const getLengthCheck = node => {
+const getLengthCheck = (node, context) => {
 	const lengthNode = unwrapChainExpression(node.parent);
 	if (!isLengthMemberExpression(lengthNode, node)) {
 		return;
@@ -588,11 +583,11 @@ const getLengthCheck = node => {
 		? lengthNode.parent
 		: lengthNode;
 
-	if (isNegatedBooleanValue(lengthCheckNode)) {
+	if (isNegatedBooleanValue(lengthCheckNode, context)) {
 		return;
 	}
 
-	if (isBooleanExpression(lengthCheckNode) || isControlFlowTest(lengthCheckNode)) {
+	if (isBooleanExpression(lengthCheckNode, context) || isControlFlowTest(lengthCheckNode)) {
 		return {lengthNode, node: lengthCheckNode};
 	}
 
@@ -602,8 +597,8 @@ const getLengthCheck = node => {
 		&& parent.left === lengthCheckNode
 		&& parent.operator === '>'
 		&& isLiteral(parent.right, 0)
-		&& !isNegatedBooleanValue(parent)
-		&& (isBooleanExpression(parent) || isControlFlowTest(parent))
+		&& !isNegatedBooleanValue(parent, context)
+		&& (isBooleanExpression(parent, context) || isControlFlowTest(parent))
 	) {
 		return {lengthNode, node: parent, comparisonLeftNode: lengthCheckNode};
 	}
@@ -612,9 +607,9 @@ const getLengthCheck = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', function * (node) {
-		const lengthCheck = getLengthCheck(node);
+		const lengthCheck = getLengthCheck(node, context);
 		const searchCheck = getSearchCheck(node);
-		if (!lengthCheck && !searchCheck && !(isBooleanExpression(node) || isControlFlowTest(node))) {
+		if (!lengthCheck && !searchCheck && !(isBooleanExpression(node, context) || isControlFlowTest(node))) {
 			return;
 		}
 

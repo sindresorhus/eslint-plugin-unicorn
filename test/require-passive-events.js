@@ -17,6 +17,7 @@ test.snapshot({
 		'window.addEventListener("wheel", () => {}, {...options})',
 		'window.addEventListener("wheel", () => {}, {passive: true})',
 		'window.addEventListener("wheel", () => {}, {"passive": true})',
+		'window.addEventListener("wheel", () => {}, {passive: Boolean(value)})',
 		'window.addEventListener("wheel", () => {}, {[passive]: true})',
 		'window.addEventListener("wheel", () => {}, {passive})',
 		'window.addEventListener("wheel", event => { event.preventDefault(); })',
@@ -56,11 +57,13 @@ test.snapshot({
 		`,
 		'window.addEventListener("wheel", () => {}, true)',
 		'window.addEventListener("wheel", () => {}, false)',
+		'window.addEventListener("wheel", () => {}, (true))',
 		'window.addEventListener("wheel", () => {}, {})',
 		'window.addEventListener("wheel", () => {}, {once: true})',
 		'window.addEventListener("wheel", () => {}, {capture: true})',
 		'window.addEventListener("wheel", () => {}, {passive: false})',
 		'window.addEventListener("wheel", () => {}, {"passive": false})',
+		'window.addEventListener("wheel", () => {}, {passive: (false)})',
 		outdent`
 			window.addEventListener("wheel", () => {}, {
 				once: true,

@@ -170,6 +170,7 @@ function getBooleanComparisonInfo(node, context) {
 		&& node.callee.type === 'Identifier'
 		&& node.callee.name === 'Boolean'
 		&& node.arguments.length === 1
+		&& context.sourceCode.isGlobalReference(node.callee)
 	) {
 		node = unwrapExpression(node.arguments[0]);
 	}

@@ -57,6 +57,7 @@ test.snapshot({
 		'let elements = document.querySelectorAll(".item"); if (elements) {}',
 		'const elements = document.querySelectorAll(".item"); const alias = elements; if (alias) {}',
 		'function foo(elements) { if (elements) {} }',
+		'function foo(Boolean) { if (Boolean(document.querySelectorAll(".item"))) {} }',
 		'const Boolean = value => value; if (Boolean(document.querySelectorAll(".item"))) {}',
 		'const Boolean = value => value; if (!Boolean(document.querySelectorAll(".item"))) {}',
 		outdent`
@@ -108,6 +109,7 @@ test.snapshot({
 		`,
 		'if (Boolean(document.querySelectorAll(".item"))) {}',
 		'if (!Boolean(document.querySelectorAll(".item"))) {}',
+		'if (!!Boolean(document.querySelectorAll(".item"))) {}',
 		outdent`
 			const elements = document.querySelectorAll(".item");
 			if (elements) {}
