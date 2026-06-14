@@ -35,7 +35,6 @@ export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
 export {default as 'no-anonymous-default-export'} from './no-anonymous-default-export.js';
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
 export {default as 'no-array-fill-with-reference-type'} from './no-array-fill-with-reference-type.js';
-export {default as 'no-array-for-each'} from './no-array-for-each.js';
 export {default as 'no-array-from-fill'} from './no-array-from-fill.js';
 export {default as 'no-array-method-this-argument'} from './no-array-method-this-argument.js';
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
@@ -58,6 +57,7 @@ export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js
 export {default as 'no-empty-file'} from './no-empty-file.js';
 export {default as 'no-error-property-assignment'} from './no-error-property-assignment.js';
 export {default as 'no-exports-in-scripts'} from './no-exports-in-scripts.js';
+export {default as 'no-for-each'} from './no-for-each.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-global-object-property-assignment'} from './no-global-object-property-assignment.js';
 export {default as 'no-immediate-mutation'} from './no-immediate-mutation.js';

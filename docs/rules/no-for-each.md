@@ -1,4 +1,4 @@
-# no-array-for-each
+# no-for-each
 
 📝 Prefer `for…of` over the `forEach` method.
 

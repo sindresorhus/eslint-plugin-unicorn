@@ -30,8 +30,8 @@ import {
 	assertToken,
 } from './utils/index.js';
 
-const MESSAGE_ID_ERROR = 'no-array-for-each/error';
-const MESSAGE_ID_SUGGESTION = 'no-array-for-each/suggestion';
+const MESSAGE_ID_ERROR = 'no-for-each/error';
+const MESSAGE_ID_SUGGESTION = 'no-for-each/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Use `for…of` instead of `.forEach(…)`.',
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `for…of`.',
@@ -134,7 +134,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 		const returnToken = sourceCode.getFirstToken(returnStatement);
 		assertToken(returnToken, {
 			expected: 'return',
-			ruleId: 'no-array-for-each',
+			ruleId: 'no-for-each',
 		});
 
 		if (!returnStatement.argument) {
