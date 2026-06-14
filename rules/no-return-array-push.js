@@ -4,8 +4,8 @@ import {needsSemicolon} from './utils/index.js';
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
 const MESSAGE_ID_SUGGESTION = 'no-return-array-push/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Do not return the result of `.push(…)`.',
-	[MESSAGE_ID_SUGGESTION]: 'Separate the `push()` call from `return`.',
+	[MESSAGE_ID_ERROR]: 'Do not use the return value of `.{{method}}(…)`.',
+	[MESSAGE_ID_SUGGESTION]: 'Separate the `{{method}}()` call from `return`.',
 };
 
 const ignoredCallees = [
@@ -85,7 +85,12 @@ function getReturnNode(callExpression) {
 	}
 }
 
-function getSuggestion(callExpression, returnStatement, context) {
+function isBareExpressionStatement(expression) {
+	const node = getCallExpressionResultNode(expression);
+	return node.parent.type === 'ExpressionStatement';
+}
+
+function getSuggestion(callExpression, returnStatement, method, context) {
 	const {sourceCode} = context;
 
 	if (
@@ -97,6 +102,7 @@ function getSuggestion(callExpression, returnStatement, context) {
 
 	return {
 		messageId: MESSAGE_ID_SUGGESTION,
+		data: {method},
 		fix(fixer) {
 			const callText = sourceCode.getText(callExpression);
 			const semicolon = needsSemicolon(sourceCode.getTokenBefore(returnStatement), context, callText) ? ';' : '';
@@ -111,26 +117,32 @@ const create = context => {
 	context.on('CallExpression', callExpression => {
 		if (
 			!isMethodCall(callExpression, {
-				method: 'push',
+				methods: ['push', 'unshift'],
 				minimumArguments: 1,
 			})
-			|| isIgnoredCallee(callExpression.callee)
 		) {
 			return;
 		}
 
-		const returnNode = getReturnNode(callExpression);
-		if (!returnNode) {
+		const {property} = callExpression.callee;
+		const {name: method} = property;
+
+		if (
+			(method === 'push' && isIgnoredCallee(callExpression.callee))
+			|| isBareExpressionStatement(callExpression)
+		) {
 			return;
 		}
 
 		const problem = {
-			node: callExpression.callee.property,
+			node: property,
 			messageId: MESSAGE_ID_ERROR,
+			data: {method},
 		};
 
-		if (returnNode.type === 'ReturnStatement') {
-			const suggestion = getSuggestion(callExpression, returnNode, context);
+		const returnNode = getReturnNode(callExpression);
+		if (returnNode?.type === 'ReturnStatement') {
+			const suggestion = getSuggestion(callExpression, returnNode, method, context);
 			if (suggestion) {
 				problem.suggest = [suggestion];
 			}
@@ -146,7 +158,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow returning the result of `Array#push()` with arguments.',
+			description: 'Disallow using the return value of `Array#push()` and `Array#unshift()`.',
 			recommended: true,
 		},
 		hasSuggestions: true,
