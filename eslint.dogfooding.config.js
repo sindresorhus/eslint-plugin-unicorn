@@ -63,7 +63,7 @@ const config = [
 		files: [
 			'rules/comment-content.js',
 			'rules/consistent-assert.js',
-			'rules/no-array-for-each.js',
+			'rules/no-for-each.js',
 			'rules/no-array-reduce.js',
 			'rules/no-declarations-before-early-exit.js',
 			'rules/no-error-property-assignment.js',

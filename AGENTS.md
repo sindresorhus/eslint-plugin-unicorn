@@ -181,7 +181,7 @@ Use a clear prefix that signals intent (see [ESLint built-in rules](https://esli
 - **`consistent-`** - Enforce a single consistent style: `consistent-destructuring`
 - **No prefix** - Enforce a specific pattern: `error-message`, `filename-case`, `throw-new-error`
 
-Name after the target construct, not the fix. Be specific: `no-array-for-each` not `no-foreach`.
+Name after the target construct, not the fix. Be specific: `no-array-method-this-argument` not `no-this-argument`.
 
 ## Creating a new rule
 
