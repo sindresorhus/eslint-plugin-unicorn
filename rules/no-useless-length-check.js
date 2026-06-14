@@ -1,5 +1,10 @@
 import {isMethodCall, isMemberExpression} from './ast/index.js';
-import {getParenthesizedRange, isSameReference, isLogicalExpression, isKnownNonArray} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	isSameReference,
+	isLogicalExpression,
+	isKnownNonArray,
+} from './utils/index.js';
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
