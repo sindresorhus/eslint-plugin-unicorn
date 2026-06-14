@@ -55,7 +55,7 @@ Type: `object`
 
 Type: `string[]`
 
-You can also check custom functions that transforms pairs.
+You can also check custom functions that transform pairs.
 
 `lodash.fromPairs()` and `_.fromPairs()` are always checked.
 

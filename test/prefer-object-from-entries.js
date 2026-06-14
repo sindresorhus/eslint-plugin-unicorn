@@ -263,6 +263,20 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const object = ({});
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {
+				// Comment
+			};
+			for (const [key, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
 			const object = {};
 			// Comment
 			for (const [key, value] of pairs) {
