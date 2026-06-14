@@ -72,6 +72,7 @@ test.snapshot({
 		'[object.property = defaultValue] = array;',
 		'[(condition ? first : second).property] = array;',
 		'[this.property.value] = array;',
+		'[...object.property] = array;',
 		{
 			code: '[object.property!] = array;',
 			languageOptions: {parser: parsers.typescript},

@@ -78,7 +78,10 @@ function getParentPattern(node) {
 		return parent.parent;
 	}
 
-	if (parent.type === 'ArrayPattern') {
+	if (
+		parent.type === 'ObjectPattern'
+		|| parent.type === 'ArrayPattern'
+	) {
 		return parent;
 	}
 }

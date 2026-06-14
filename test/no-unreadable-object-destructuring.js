@@ -50,8 +50,13 @@ test.snapshot({
 		'({foo: object.property = defaultValue} = object);',
 		'({foo: (condition ? first : second).property} = object);',
 		'({foo: this.bar.baz} = object);',
+		'({...object.property} = object);',
 		{
 			code: '({foo: object.property as Foo} = object);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '({...object.property!} = object);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		'function function_({[key]: value}) {}',
