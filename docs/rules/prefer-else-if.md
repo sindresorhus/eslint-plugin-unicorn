@@ -11,9 +11,9 @@
 
 Prefer `else if` when adjacent `if` statements compare the same identifier or static member expression against mutually exclusive static values. This makes the control flow explicit and avoids evaluating later conditions after an earlier match.
 
-This rule reports adjacent sibling `if` statements with strict equality checks. It also understands shorthand boolean tests like `if (foo)` and `if (!foo)` when the checked value is known to be boolean from syntax, TypeScript annotations, static values, or type information. It skips branches that exit, since [`no-useless-else`](./no-useless-else.md) intentionally prefers the flat form there.
+This rule reports adjacent sibling `if` statements with strict equality checks. It also understands shorthand boolean tests like `if (foo)`, `if (!foo)`, and `if (Boolean(foo))` when the checked value is known to be boolean from syntax, TypeScript annotations, static values, or type information. It skips branches that exit, since [`no-useless-else`](./no-useless-else.md) intentionally prefers the flat form there.
 
-This rule only autofixes plain identifier checks when the previous branch has no side effects. Other reported cases may offer a suggestion, since adding `else` can change behavior if state changes between checks or a later condition has observable effects.
+This rule only autofixes plain identifier checks when the previous branch and later condition have no side effects. Other reported cases may offer a suggestion, since adding `else` can change behavior if state changes between checks or a later condition has observable effects.
 
 ## Examples
 

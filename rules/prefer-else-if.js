@@ -412,20 +412,24 @@ const fix = ifStatement => fixer => fixer.insertTextBefore(ifStatement, 'else ')
 /**
 @param {ComparisonInfo} previous
 @param {ESTree.IfStatement} previousIfStatement
+@param {ESTree.IfStatement} ifStatement
 @param {ESLint.Rule.RuleContext} context
 @returns {boolean}
 */
-const canAutofix = (previous, previousIfStatement, context) => {
+const canAutofix = (previous, previousIfStatement, ifStatement, context) => {
 	const discriminant = unwrapExpression(previous.discriminant);
+	const hasSideEffectOptions = {
+		considerGetters: true,
+		considerImplicitTypeConversion: true,
+	};
+
 	return discriminant.type === 'Identifier'
 		&& !hasSideEffect(
 			previousIfStatement.consequent,
 			context.sourceCode,
-			{
-				considerGetters: true,
-				considerImplicitTypeConversion: true,
-			},
-		);
+			hasSideEffectOptions,
+		)
+		&& !hasSideEffect(ifStatement.test, context.sourceCode, hasSideEffectOptions);
 };
 
 /**
@@ -462,7 +466,7 @@ function getProblem(previousIfStatement, ifStatement, context) {
 	};
 	const fixFunction = fix(ifStatement);
 
-	if (canAutofix(previous, previousIfStatement, context)) {
+	if (canAutofix(previous, previousIfStatement, ifStatement, context)) {
 		problem.fix = fixFunction;
 	} else {
 		problem.suggest = [

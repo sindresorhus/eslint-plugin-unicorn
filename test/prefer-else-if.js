@@ -1,7 +1,21 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {
+			projectService: {
+				allowDefaultProject: ['*.ts'],
+			},
+		},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -180,6 +194,12 @@ test.snapshot({
 			if (foo) {}
 			if (foo === false) {}
 		`,
+		outdent`
+			const foo = true;
+
+			if (foo) {}
+			if (foo === true) {}
+		`,
 		{
 			code: outdent`
 				function unicorn(foo: boolean) {
@@ -277,6 +297,18 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			const foo = true;
+
+			if (foo) {}
+			if (foo === false) {}
+		`,
+		typeAware(outdent`
+			declare const options: {enabled: boolean};
+
+			if (options.enabled) {}
+			if (options.enabled === false) {}
+		`),
 		{
 			code: outdent`
 				function unicorn(foo: boolean) {
@@ -293,6 +325,17 @@ test.snapshot({
 				function unicorn(foo: boolean) {
 					if (Boolean(foo)) {}
 					if (foo === false) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (foo === false) {}
+					if (Boolean(foo)) {}
 				}
 			`,
 			languageOptions: {

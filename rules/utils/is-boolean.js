@@ -1,5 +1,4 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isFunctionCall} from './type-check.js';
 import {
 	createTypeCheckers,
 	target,
@@ -18,8 +17,6 @@ const comparisonOperators = new Set([
 	'in',
 	'instanceof',
 ]);
-
-const isBooleanCall = node => isFunctionCall(node, 'Boolean');
 
 const isBooleanTypeAnnotation = node => {
 	switch (node?.type) {
@@ -47,11 +44,8 @@ const getStaticType = value =>
 
 const isBooleanNode = (node, context) => {
 	if (
-		isBooleanCall(node)
-		|| (
-			node.type === 'UnaryExpression'
-			&& node.operator === '!'
-		)
+		node.type === 'UnaryExpression'
+		&& node.operator === '!'
 	) {
 		return true;
 	}
