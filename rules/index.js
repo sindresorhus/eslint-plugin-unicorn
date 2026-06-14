@@ -97,6 +97,7 @@ export {default as 'no-subtraction-comparison'} from './no-subtraction-compariso
 export {default as 'no-thenable'} from './no-thenable.js';
 export {default as 'no-this-assignment'} from './no-this-assignment.js';
 export {default as 'no-this-outside-of-class'} from './no-this-outside-of-class.js';
+export {default as 'no-top-level-assignment-in-function'} from './no-top-level-assignment-in-function.js';
 export {default as 'no-top-level-side-effects'} from './no-top-level-side-effects.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
 export {default as 'no-uncalled-method'} from './no-uncalled-method.js';
