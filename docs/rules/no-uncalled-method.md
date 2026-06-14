@@ -11,6 +11,8 @@ Forgetting to call a method returns the method function instead of the intended 
 
 This rule checks known `Array` and `String` methods when the receiver can be identified from syntax, type annotations, parser type information, conventional variable names like `array` and `string`, or `const` aliases of those.
 
+Unknown receivers are ignored to avoid false positives.
+
 ## Examples
 
 ```js

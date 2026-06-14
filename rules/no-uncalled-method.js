@@ -4,6 +4,7 @@ import {
 	isArray,
 	isLeftHandSide,
 	isString,
+	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -115,6 +116,23 @@ const isIdentifierNamed = (node, name) =>
 	node.type === 'Identifier'
 	&& node.name === name;
 
+const isTransparentExpressionWrapper = node =>
+	node.type === 'ChainExpression'
+	|| node.type === 'ParenthesizedExpression'
+	|| node.type === 'TSInstantiationExpression'
+	|| isTypeScriptExpressionWrapper(node);
+
+const getOutermostExpression = node => {
+	while (
+		isTransparentExpressionWrapper(node.parent)
+		&& node.parent.expression === node
+	) {
+		node = node.parent;
+	}
+
+	return node;
+};
+
 function isNamedOrConstAlias(node, name, context, visitedVariables = new Set()) {
 	node = unwrapTypeScriptExpression(node);
 
@@ -169,14 +187,21 @@ const isPrototypeMethod = (node, context) => {
 		);
 };
 
-const isCallee = node =>
-	(
-		node.parent.type === 'CallExpression'
-		|| node.parent.type === 'NewExpression'
-	)
-	&& node.parent.callee === node;
+const isCallee = node => {
+	node = getOutermostExpression(node);
+
+	return (
+		(
+			node.parent.type === 'CallExpression'
+			|| node.parent.type === 'NewExpression'
+		)
+		&& node.parent.callee === node
+	);
+};
 
 const isCallableReference = (node, context) => {
+	node = getOutermostExpression(node);
+
 	if (node.parent.type !== 'MemberExpression' || node.parent.object !== node) {
 		return false;
 	}
@@ -189,36 +214,32 @@ const isCallableReference = (node, context) => {
 	return isCallee(node.parent);
 };
 
-const getOptionalChainParent = node =>
-	node.parent.type === 'ChainExpression' && node.parent.expression === node
-		? node.parent
-		: node;
-
 const isReflectApplyArgument = node => {
-	const argument = getOptionalChainParent(node);
+	const argument = getOutermostExpression(node);
 	return argument.parent.type === 'CallExpression'
 		&& argument.parent.arguments[0] === argument
 		&& isMethodCall(argument.parent, {
 			object: 'Reflect',
 			method: 'apply',
-			optionalCall: false,
-			optionalMember: false,
 		});
 };
 
-const isTypeofArgument = node =>
-	node.parent.type === 'UnaryExpression'
-	&& node.parent.operator === 'typeof';
+const isTypeofArgument = node => {
+	node = getOutermostExpression(node);
 
-const shouldSkip = (node, context) => {
-	const nodeOrChain = getOptionalChainParent(node);
-	return isCallee(node)
-		|| isCallableReference(node, context)
-		|| isReflectApplyArgument(node)
-		|| isTypeofArgument(nodeOrChain)
-		|| isLeftHandSide(nodeOrChain)
-		|| isPrototypeMethod(node, context);
+	return (
+		node.parent.type === 'UnaryExpression'
+		&& node.parent.operator === 'typeof'
+	);
 };
+
+const shouldSkip = (node, context) =>
+	isCallee(node)
+	|| isCallableReference(node, context)
+	|| isReflectApplyArgument(node)
+	|| isTypeofArgument(node)
+	|| isLeftHandSide(getOutermostExpression(node))
+	|| isPrototypeMethod(node, context);
 
 function shouldReport({receiver, method, context}) {
 	if (
