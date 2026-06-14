@@ -3,8 +3,10 @@ import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
 import {ESLint} from 'eslint';
+import {builtinRules} from 'eslint/use-at-your-own-risk';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
+import coreRuleReplacements from '../configs/core-rule-replacements.js';
 import eslintPluginUnicorn from '../index.js';
 
 let ruleFiles;
@@ -14,10 +16,9 @@ test.before(async () => {
 	ruleFiles = files.filter(file => path.extname(file) === '.js' && path.basename(file) !== 'index.js');
 });
 
-const ignoredRules = [
-	'no-nested-ternary',
-	'no-negated-condition',
-];
+const countCoreRuleReplacements = config => Object.keys(config.rules)
+	.filter(ruleId => coreRuleReplacements.includes(ruleId))
+	.length;
 
 const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.filter(([, {meta: {deprecated}}]) => deprecated)
@@ -52,15 +53,44 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		'There are more exported rules than rule files.',
 	);
 	t.is(
-		Object.keys(eslintPluginUnicorn.configs.recommended.rules).length - deprecatedRules.length - ignoredRules.length,
+		Object.keys(eslintPluginUnicorn.configs.recommended.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.recommended),
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
 	t.is(
-		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - ignoredRules.length,
+		Object.keys(eslintPluginUnicorn.configs.unopinionated.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.unopinionated),
+		ruleFiles.length - deprecatedRules.length,
+		'There are more exported rules in the unopinionated config than rule files.',
+	);
+	t.is(
+		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.all),
 		ruleFiles.length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
 	);
+});
+
+test('core rule replacements are disabled only when the Unicorn replacement is enabled', t => {
+	for (const [configName, config] of Object.entries(eslintPluginUnicorn.configs)) {
+		const enabledCoreRuleReplacements = coreRuleReplacements
+			.filter(ruleName => config.rules[`unicorn/${ruleName}`] === 'error');
+		const externalRules = Object.keys(config.rules)
+			.filter(ruleId => !ruleId.startsWith('unicorn/'));
+
+		t.deepEqual(externalRules, enabledCoreRuleReplacements, `${configName} should only disable core rules with enabled Unicorn replacements.`);
+
+		for (const ruleName of coreRuleReplacements) {
+			t.true(builtinRules.has(ruleName), `'${ruleName}' should be an ESLint core rule.`);
+			t.truthy(eslintPluginUnicorn.rules[ruleName], `'unicorn/${ruleName}' should exist.`);
+
+			const unicornRuleSeverity = config.rules[`unicorn/${ruleName}`];
+
+			if (unicornRuleSeverity === 'error') {
+				t.is(config.rules[ruleName], 'off', `${configName} should disable '${ruleName}' when 'unicorn/${ruleName}' is enabled.`);
+			} else {
+				t.is(config.rules[ruleName], undefined, `${configName} should not disable '${ruleName}' when 'unicorn/${ruleName}' is disabled.`);
+			}
+		}
+	}
 });
 
 test('validate configuration', async t => {

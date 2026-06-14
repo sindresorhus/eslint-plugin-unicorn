@@ -11,6 +11,10 @@
 
 Improved version of the [`no-nested-ternary`](https://eslint.org/docs/latest/rules/no-nested-ternary) ESLint rule. This rule allows cases where the nested ternary is only one level and wrapped in parens.
 
+## Replacement for ESLint `no-nested-ternary`
+
+This rule replaces ESLint's built-in `no-nested-ternary` rule, which Unicorn presets disable when this rule is enabled.
+
 ## Examples
 
 ```js
@@ -57,4 +61,4 @@ We recommend disabling the ESLint `no-nested-ternary` rule in favor of this one:
 }
 ```
 
-The recommended preset that comes with this plugin already does this for you.
+The Unicorn presets do this for you when this rule is enabled.

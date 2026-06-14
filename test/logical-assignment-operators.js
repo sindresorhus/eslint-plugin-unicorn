@@ -32,6 +32,13 @@ test({
 			],
 		},
 		{
+			code: 'if (!foo) { foo = bar }',
+			options,
+			errors: [
+				ifErrorWithSuggestions('foo ||= bar;', 'foo ??= bar;'),
+			],
+		},
+		{
 			code: 'if (!foo) foo = bar;',
 			options,
 			errors: [

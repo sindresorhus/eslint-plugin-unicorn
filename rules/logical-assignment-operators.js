@@ -18,9 +18,11 @@ const shouldAddNullishSuggestion = problem =>
 
 function createNullishFix(fix) {
 	return fixer => fix(new Proxy(fixer, {
-		get(target, property, receiver) {
+		get(target, property) {
 			if (property !== 'insertTextBefore') {
-				return Reflect.get(target, property, receiver);
+				const value = Reflect.get(target, property, target);
+
+				return typeof value === 'function' ? value.bind(target) : value;
 			}
 
 			return (nodeOrToken, text) => target.insertTextBefore(
@@ -92,7 +94,7 @@ const config = {
 		type: baseRule.meta.type,
 		docs: {
 			description: baseRule.meta.docs.description,
-			recommended: false,
+			recommended: true,
 		},
 		fixable: baseRule.meta.fixable,
 		hasSuggestions: baseRule.meta.hasSuggestions,
