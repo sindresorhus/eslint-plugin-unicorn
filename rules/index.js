@@ -113,6 +113,7 @@ export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
 export {default as 'no-unnecessary-splice'} from './no-unnecessary-splice.js';
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
+export {default as 'no-unreadable-for-of-expression'} from './no-unreadable-for-of-expression.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
 export {default as 'no-unreadable-new-expression'} from './no-unreadable-new-expression.js';
 export {default as 'no-unreadable-object-destructuring'} from './no-unreadable-object-destructuring.js';
