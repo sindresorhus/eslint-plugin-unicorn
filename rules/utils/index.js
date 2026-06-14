@@ -45,7 +45,10 @@ export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
 export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
-export {default as isArray, isKnownNonArray} from './is-array.js';
+export {
+	default as isArray,
+	isKnownNonArray,
+} from './is-array.js';
 export {default as shouldSkipKnownNonArrayReceiver} from './should-skip-known-non-array-receiver.js';
 export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';
 export {isSet, isKnownNonSet} from './is-set.js';

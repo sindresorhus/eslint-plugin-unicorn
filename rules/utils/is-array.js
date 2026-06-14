@@ -1,38 +1,11 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {
-	isCallExpression,
-	isMethodCall,
-	isNewExpression,
-} from '../ast/index.js';
+import {isMethodCall} from '../ast/index.js';
 import typedArray from '../shared/typed-array.js';
 import {
-	getTypeSymbol,
-	isUnknownType,
-} from './types.js';
-
-const array = 'array';
-const nonArray = 'non-array';
-const unknown = 'unknown';
-
-const typedArrayTypes = new Set(typedArray);
-const knownArrayTypeNames = new Set([
-	'Array',
-	'ReadonlyArray',
-]);
-const knownNonArrayTypeNames = new Set([
-	'Map',
-	'ReadonlyMap',
-	'WeakMap',
-	'Set',
-	'ReadonlySet',
-	'WeakSet',
-]);
-const typeReferenceDefinitionTypes = new Set([
-	'ClassName',
-	'ImportBinding',
-	'TSEnumName',
-	'Type',
-]);
+	createTypeCheckers,
+	nonTarget,
+	target,
+	unknown,
+} from './type-helpers.js';
 
 const nonArrayExpressionTypes = new Set([
 	'ObjectExpression',
@@ -42,360 +15,65 @@ const nonArrayExpressionTypes = new Set([
 	'TemplateLiteral',
 ]);
 
-const nonArrayTypeAnnotations = new Set([
-	'TSBigIntKeyword',
-	'TSBooleanKeyword',
-	'TSNeverKeyword',
-	'TSNullKeyword',
-	'TSNumberKeyword',
-	'TSStringKeyword',
-	'TSSymbolKeyword',
-	'TSUndefinedKeyword',
-	'TSVoidKeyword',
-	'TSLiteralType',
-	'TSTypeLiteral',
-	'TSFunctionType',
-	'TSConstructorType',
+const knownNonArrayTypeNames = new Set([
+	...typedArray,
+	'Map',
+	'ReadonlyMap',
+	'WeakMap',
+	'Set',
+	'ReadonlySet',
+	'WeakSet',
 ]);
 
-const combineUnionTypes = types => {
-	if (types.every(type => type === array)) {
-		return array;
-	}
-
-	if (types.every(type => type === nonArray)) {
-		return nonArray;
-	}
-
-	return unknown;
-};
-
-const combineIntersectionTypes = types => {
-	if (types.includes(array)) {
-		return array;
-	}
-
-	if (types.every(type => type === nonArray)) {
-		return nonArray;
-	}
-
-	return unknown;
-};
-
-const getInterfaceHeritageType = (node, scope, visitedTypeReferenceNames) => {
-	if (node.expression.type !== 'Identifier') {
-		return unknown;
-	}
-
-	return getTypeReferenceType({
-		typeName: node.expression,
-	}, scope, visitedTypeReferenceNames);
-};
-
-const getInterfaceType = (node, scope, visitedTypeReferenceNames) => {
-	if (node.extends.length === 0) {
-		return nonArray;
-	}
-
-	return combineIntersectionTypes(node.extends.map(node => getInterfaceHeritageType(node, scope, visitedTypeReferenceNames)));
-};
-
-const getTypeReferenceDefinition = (typeReferenceName, scope) => {
-	while (scope) {
-		const definition = scope.set
-			.get(typeReferenceName)
-			?.defs
-			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
-
-		if (definition) {
-			return definition;
-		}
-
-		scope = scope.upper;
-	}
-};
-
-const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
-	if (node.typeName.type !== 'Identifier') {
-		return unknown;
-	}
-
-	const typeReferenceName = node.typeName.name;
-
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
-		return unknown;
-	}
-
-	visitedTypeReferenceNames.add(typeReferenceName);
-
-	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
-
-	if (!definition) {
-		visitedTypeReferenceNames.delete(typeReferenceName);
-		if (knownArrayTypeNames.has(typeReferenceName)) {
-			return array;
-		}
-
-		if (
-			typedArrayTypes.has(typeReferenceName)
-			|| knownNonArrayTypeNames.has(typeReferenceName)
-		) {
-			return nonArray;
-		}
-
-		return unknown;
-	}
-
-	let type = unknown;
-
-	if (
-		definition.type === 'Type'
-		&& definition.node.type === 'TSTypeAliasDeclaration'
-	) {
-		type = getTypeAnnotationType(definition.node.typeAnnotation, scope, visitedTypeReferenceNames);
-	} else if (
-		definition.type === 'Type'
-		&& definition.node.type === 'TSTypeParameter'
-	) {
-		type = getTypeAnnotationType(definition.node.constraint, scope, visitedTypeReferenceNames);
-	} else if (
-		definition.type === 'Type'
-		&& definition.node.type === 'TSInterfaceDeclaration'
-	) {
-		type = getInterfaceType(definition.node, scope, visitedTypeReferenceNames);
-	} else if (definition.type === 'ClassName') {
-		type = nonArray;
-	}
-
-	visitedTypeReferenceNames.delete(typeReferenceName);
-
-	return type;
-};
-
-const getTypeAnnotationType = (node, scope, visitedTypeReferenceNames = new Set()) => {
-	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames);
-		}
-
-		case 'TSArrayType':
-		case 'TSTupleType': {
-			return array;
-		}
-
-		case 'TSTypeOperator': {
-			return node.operator === 'readonly'
-				? getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames)
-				: unknown;
-		}
-
-		case 'TSTypeReference': {
-			return getTypeReferenceType(node, scope, visitedTypeReferenceNames);
-		}
-
-		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
-		}
-
-		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
-		}
-
-		default: {
-			return nonArrayTypeAnnotations.has(node?.type) ? nonArray : unknown;
-		}
-	}
-};
-
-const getTypeScriptType = (type, checker) => {
-	if (isUnknownType(type)) {
-		return unknown;
-	}
-
-	if (type.isTypeParameter?.()) {
-		const constraint = type.getConstraint();
-
-		return constraint ? getTypeScriptType(constraint, checker) : unknown;
-	}
-
-	if (type.isUnion()) {
-		return combineUnionTypes(type.types.map(type => getTypeScriptType(type, checker)));
-	}
-
-	if (type.isIntersection()) {
-		return combineIntersectionTypes(type.types.map(type => getTypeScriptType(type, checker)));
-	}
-
-	if (checker.isArrayType(type) || checker.isTupleType(type)) {
-		return array;
-	}
-
-	if (type.intrinsicName) {
-		return nonArray;
-	}
-
-	return getTypeSymbol(type) ? nonArray : unknown;
-};
-
-const getTypeFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		return getTypeScriptType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		);
-	} catch {
-		return unknown;
-	}
-};
-
-const getTypeFromStaticValue = (node, scope) => {
-	const result = getStaticValue(node, scope);
-
-	if (!result) {
-		return unknown;
-	}
-
-	if (Array.isArray(result.value)) {
-		return array;
-	}
-
-	return node.type === 'Identifier' || node.type === 'MemberExpression'
-		? unknown
-		: nonArray;
-};
-
-const getTypeFromVariable = (node, context, visitedVariables) => {
-	const scope = context.sourceCode.getScope(node);
-	const variable = findVariable(scope, node);
-
-	if (
-		!variable
-		|| visitedVariables.has(variable)
-		|| variable.defs.length !== 1
-	) {
-		return unknown;
-	}
-
-	visitedVariables.add(variable);
-
-	const [definition] = variable.defs;
-	const definitionScope = context.sourceCode.getScope(definition.name);
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope);
-	let type = unknown;
-
-	if (typeFromAnnotation !== unknown) {
-		type = typeFromAnnotation;
-	} else if (
-		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
-		&& definition.node.init
-	) {
-		type = getArrayType(definition.node.init, context, visitedVariables);
-	}
-
-	visitedVariables.delete(variable);
-
-	return type;
-};
-
-function getArrayType(node, context, visitedVariables = new Set()) {
-	if (!node) {
-		return unknown;
-	}
-
-	const scope = context.sourceCode.getScope(node);
-
-	switch (node.type) {
-		case 'Identifier': {
-			const typeFromVariable = getTypeFromVariable(node, context, visitedVariables);
-
-			if (typeFromVariable !== unknown) {
-				return typeFromVariable;
-			}
-
-			break;
-		}
-
-		case 'TSSatisfiesExpression': {
-			return getArrayType(node.expression, context, visitedVariables);
-		}
-
-		case 'TSAsExpression':
-		case 'TSTypeAssertion': {
-			const typeFromAnnotation = getTypeAnnotationType(node.typeAnnotation, scope);
-
-			return typeFromAnnotation === unknown
-				? getArrayType(node.expression, context, visitedVariables)
-				: typeFromAnnotation;
-		}
-
-		case 'TSNonNullExpression':
-		case 'ParenthesizedExpression': {
-			return getArrayType(node.expression, context, visitedVariables);
-		}
-
-		case 'SequenceExpression': {
-			return getArrayType(node.expressions.at(-1), context, visitedVariables);
-		}
-
-		case 'ConditionalExpression': {
-			return combineUnionTypes([
-				getArrayType(node.consequent, context, visitedVariables),
-				getArrayType(node.alternate, context, visitedVariables),
-			]);
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	const typeFromStaticValue = getTypeFromStaticValue(node, scope);
-
-	if (typeFromStaticValue !== unknown) {
-		return typeFromStaticValue;
-	}
-
-	if (node.type === 'ArrayExpression') {
-		return array;
-	}
-
-	if (isNewExpression(node, {name: 'Array'})) {
-		return array;
-	}
-
-	if (node.type === 'NewExpression') {
-		return nonArray;
-	}
-
-	if (isCallExpression(node, {name: 'Array'})) {
-		return array;
-	}
-
-	if (isMethodCall(node, {
+const isArrayTypeAnnotation = node =>
+	node?.type === 'TSArrayType'
+	|| node?.type === 'TSTupleType';
+
+const isArrayNode = node =>
+	node.type === 'ArrayExpression'
+	|| isMethodCall(node, {
 		object: 'Array',
 		methods: ['from', 'of'],
 		optionalCall: false,
 		optionalMember: false,
-	})) {
-		return array;
+	});
+
+const isNonArrayNode = node =>
+	node.type === 'NewExpression'
+	|| nonArrayExpressionTypes.has(node.type);
+
+const getStaticType = (value, node) => {
+	if (Array.isArray(value)) {
+		return target;
 	}
 
-	if (nonArrayExpressionTypes.has(node.type)) {
-		return nonArray;
-	}
+	return node.type === 'Identifier' || node.type === 'MemberExpression'
+		? unknown
+		: nonTarget;
+};
 
-	return getTypeFromTypeInformation(node, context);
-}
+const {
+	isTarget: isArray,
+	isKnownNonTarget: isKnownNonArray,
+} = createTypeCheckers({
+	checkClassHeritage: false,
+	preferTypeReferenceDefinitions: true,
+	targetTypeNames: new Set([
+		'Array',
+		'ReadonlyArray',
+	]),
+	nonTargetTypeNames: knownNonArrayTypeNames,
+	targetCallNames: ['Array'],
+	targetConstructorNames: ['Array'],
+	isTargetNode: isArrayNode,
+	isNonTargetNode: isNonArrayNode,
+	isTargetTypeAnnotation: isArrayTypeAnnotation,
+	isTargetType: (type, checker) => checker.isArrayType(type) || checker.isTupleType(type),
+	getStaticType,
+});
 
-export const isKnownNonArray = (node, context) => getArrayType(node, context) === nonArray;
+export {
+	isKnownNonArray,
+};
 
-export default function isArray(node, context) {
-	return getArrayType(node, context) === array;
-}
+export default isArray;
