@@ -40,6 +40,7 @@ const config = [
 			'unicorn/no-manually-wrapped-comments': 'off',
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-invalid-argument-count': 'off',
+			'unicorn/no-unreadable-for-of-expression': 'off',
 			'unicorn/try-complexity': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			// Recursive AST/tree walkers are intentional in rule implementation code.

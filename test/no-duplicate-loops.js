@@ -33,10 +33,12 @@ test.snapshot({
 		'for (const item of Iterator.from(items).map(callback)) {}',
 		'for (const item of Iterator.from(items).filter(callback)) {}',
 		'for (const item of Iterator.from(items).map(callback).filter(callback)) {}',
+		'for (const item of (Iterator).from(items).map(callback)) {}',
 		'for (const item of Iterator.concat(first, second).filter(callback)) {}',
 		'for (const item of Iterator.zip(iterables).map(callback)) {}',
 		'for (const item of Iterator.zipKeyed(iterables).filter(callback)) {}',
 		'for (const item of globalThis.Iterator.from(items).map(callback)) {}',
+		'for (const item of (globalThis).Iterator.from(items).map(callback)) {}',
 		'for (const item of globalThis.Iterator.zip(iterables).filter(callback)) {}',
 		'for (const item of items.values().map(callback)) {}',
 		'for (const item of items.keys().map(callback)) {}',
@@ -45,6 +47,8 @@ test.snapshot({
 		'for (const item of Iterator.from(items).take(1).map(callback)) {}',
 		'for (const item of Iterator.from(items).flatMap(callback).drop(1).filter(callback)) {}',
 		typescript('function foo(items: string[]) { for (const item of items) {} }'),
+		typescript('for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {}'),
+		typescript('for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}'),
 	],
 	invalid: [
 		'for (const item of items.map(callback)) {}',
@@ -53,6 +57,7 @@ test.snapshot({
 		'for (const item of items.filter(callback, thisArgument)) {}',
 		'for (const item of (items).map(callback)) {}',
 		'for (const item of ((items)).filter(callback)) {}',
+		'for (const item of (items.map(callback))) {}',
 		'for await (const item of items.map(callback)) {}',
 		'for await (const item of items.filter(async item => item.isEnabled)) {}',
 		'for (const item of items.map(/* comment */ callback)) {}',
@@ -70,5 +75,6 @@ test.snapshot({
 			) {}
 		`,
 		typescript('function foo(items: string[]) { for (const item of (items as string[]).map(item => item.trim())) {} }'),
+		typescript('for (const item of items.map(callback) as string[]) {}'),
 	],
 });
