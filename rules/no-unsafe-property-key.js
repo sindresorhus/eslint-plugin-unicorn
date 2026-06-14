@@ -35,6 +35,8 @@ const propertyDefinitionNodeTypes = [
 	'TSAbstractAccessorProperty',
 ];
 
+const templateLiteralTypeFlag = 4_194_304;
+
 const unsafeGlobalIdentifiers = new Set([
 	...disallowNewBuiltins,
 	...enforceNewBuiltins,
@@ -90,6 +92,9 @@ const isUnsafeNumber = value =>
 
 const isUnsafeNumberLiteral = node =>
 	isUnsafeNumber(getNumberLiteralValue(node));
+
+const isTemplateLiteralType = type =>
+	(type.flags % (templateLiteralTypeFlag * 2)) >= templateLiteralTypeFlag;
 
 const isUnsafePropertyKeyNode = node =>
 	node.type === 'ObjectExpression'
@@ -200,6 +205,10 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
 		return isPossiblyUnsafePropertyKeyType(constraint, checker, program);
+	}
+
+	if (isTemplateLiteralType(type)) {
+		return false;
 	}
 
 	if (
@@ -446,6 +455,10 @@ function getExpressionStaticPropertyKeyType(node, context) {
 
 function getStaticPropertyKeyType(node, context, visitedVariables = new Set()) {
 	switch (node.type) {
+		case 'TemplateLiteral': {
+			return nonTarget;
+		}
+
 		case 'Identifier': {
 			return getIdentifierStaticPropertyKeyType(node, context, visitedVariables);
 		}
