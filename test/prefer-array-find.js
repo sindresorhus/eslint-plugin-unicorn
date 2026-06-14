@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -19,6 +19,12 @@ const SUGGESTION_LOGICAL_OR_OPERATOR = 'suggest-logical-or-operator';
 test({
 	valid: [
 		'array.find(foo)',
+
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { return foo.filter(fn)[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Test `[0]`
 		'array.filter(foo)',

@@ -88,6 +88,12 @@ function snapshotTests({method, replacement}) {
 				code: `<template><div v-if="values.${method}(x => x === 'foo')"></div></template>`,
 				languageOptions: {parser: parsers.vue},
 			},
+
+			// Known non-array receiver (type information)
+			{
+				code: `function f(foo: Set<number>) { return foo.${method}(x => x === 1); }`,
+				languageOptions: {parser: parsers.typescript},
+			},
 		],
 
 		invalid: [
@@ -142,12 +148,12 @@ function typescriptTests({method, replacement}) {
 			{
 				code: outdent`
 					function foo() {
-						return (bar as string).${method}(x => x === "foo");
+						return (bar as string[]).${method}(x => x === "foo");
 					}
 				`,
 				output: outdent`
 					function foo() {
-						return (bar as string).${replacement}("foo");
+						return (bar as string[]).${replacement}("foo");
 					}
 				`,
 				errors: 1,

@@ -8,6 +8,7 @@ import {
 	isNodeValueNotFunction,
 	isArrayPrototypeProperty,
 	isSameReference,
+	shouldSkipKnownNonArrayReceiver,
 } from './utils/index.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
@@ -507,6 +508,7 @@ const cases = [
 			})
 			&& !isNodeValueNotFunction(callExpression.arguments[0]),
 		getMethodNode: callExpression => callExpression.callee.property,
+		getReceiver: callExpression => callExpression.callee.object,
 		isSimpleOperation(callExpression) {
 			const [callback] = callExpression.arguments;
 
@@ -593,8 +595,13 @@ const create = context => {
 	const {allowSimpleOperations} = context.options[0];
 
 	context.on('CallExpression', function * (callExpression) {
-		for (const {test, getMethodNode, isSimpleOperation, getFix} of cases) {
+		for (const {test, getMethodNode, getReceiver, isSimpleOperation, getFix} of cases) {
 			if (!test(callExpression)) {
+				continue;
+			}
+
+			// Skip receivers that are provably not arrays (e.g. a typed `Set`)
+			if (getReceiver && shouldSkipKnownNonArrayReceiver(getReceiver(callExpression), context)) {
 				continue;
 			}
 

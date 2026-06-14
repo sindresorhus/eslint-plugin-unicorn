@@ -1,6 +1,6 @@
 import {appendArgument} from './fix/index.js';
 import {isMethodCall} from './ast/index.js';
-import {isArrayPrototypeProperty} from './utils/index.js';
+import {isArrayPrototypeProperty, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
 
 const MESSAGE_ID = 'require-array-join-separator';
 const messages = {
@@ -30,6 +30,11 @@ const create = context => {
 				})
 			)
 		)) {
+			return;
+		}
+
+		// `foo.join()`, but not the `[].join.call(foo)` form (which has one argument)
+		if (node.arguments.length === 0 && shouldSkipKnownNonArrayReceiver(node.callee.object, context)) {
 			return;
 		}
 

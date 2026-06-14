@@ -1,6 +1,7 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {isReference, isSame, unwrapExpression} from './utils/comparison.js';
+import {isKnownNonMap} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -480,6 +481,11 @@ const create = context => {
 		const mapHasCall = getMapHasCall(node.test);
 
 		if (!mapHasCall) {
+			return;
+		}
+
+		// Skip receivers that are provably not a `Map` (e.g. a custom `has`/`get` cache)
+		if (isKnownNonMap(mapHasCall.callee.object, context)) {
 			return;
 		}
 

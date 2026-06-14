@@ -1,4 +1,5 @@
 import {isMethodCall} from './ast/index.js';
+import {isKnownNonString} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-string-trim-start-end';
 const messages = {
@@ -13,6 +14,11 @@ const create = context => {
 			argumentsLength: 0,
 			optionalCall: false,
 		})) {
+			return;
+		}
+
+		// Skip receivers that are provably not strings (e.g. a typed array)
+		if (isKnownNonString(callExpression.callee.object, context)) {
 			return;
 		}
 

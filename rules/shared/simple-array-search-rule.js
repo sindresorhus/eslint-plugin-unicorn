@@ -1,6 +1,11 @@
 import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from '../ast/index.js';
-import {isSameIdentifier, isFunctionSelfUsedInside, isParenthesized} from '../utils/index.js';
+import {
+	isSameIdentifier,
+	isFunctionSelfUsedInside,
+	isParenthesized,
+	shouldSkipKnownNonArrayReceiver,
+} from '../utils/index.js';
 
 const booleanLiteralTypeNames = new Set(['false', 'true']);
 
@@ -127,6 +132,8 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 					optionalCall: false,
 				})
 				|| !isSimpleCompareCallbackFunction(callExpression.arguments[0])
+				// Skip receivers that are provably not arrays
+				|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
 			) {
 				return;
 			}
