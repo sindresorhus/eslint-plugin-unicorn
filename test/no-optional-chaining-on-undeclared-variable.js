@@ -21,8 +21,9 @@ test.snapshot({
 		'(foo || bar)?.baz;',
 		'this?.foo;',
 		'foo().bar?.baz;',
-		'let foo; foo?.[bar];',
-		'let foo; foo?.(bar);',
+		'let foo = {}; let bar; foo[bar]?.baz;',
+		'let foo; let bar; foo?.[bar];',
+		'let foo; let bar; foo?.(bar);',
 		outdent`
 			class Foo extends Bar {
 				method() {
@@ -36,6 +37,31 @@ test.snapshot({
 				foo?.bar;
 			}
 		`,
+		{
+			code: 'let foo; (foo?.bar as Foo)?.baz;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'let foo; (foo<string>)?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {foo} from "foo"; foo?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type foo = {}; const foo = {}; foo?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type foo = {}; foo?.bar;',
+			languageOptions: {
+				parser: parsers.typescript,
+				globals: {
+					foo: 'readonly',
+				},
+			},
+		},
 	],
 	invalid: [
 		'foo?.bar;',
@@ -48,6 +74,7 @@ test.snapshot({
 		'foo?.bar().baz?.qux;',
 		'(foo?.bar)?.baz;',
 		'(foo?.bar)?.();',
+		'foo[bar]?.baz;',
 		'foo?.[bar];',
 		outdent`
 			function fn() {
@@ -60,6 +87,38 @@ test.snapshot({
 		},
 		{
 			code: 'foo!.bar?.();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo?.bar as Foo)?.baz;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo<string>)?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo<string>)?.();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(foo<string>).bar?.baz;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type foo = {}; foo?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'interface foo {} foo?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type {foo} from "foo"; foo?.bar;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type foo} from "foo"; foo.bar?.baz;',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

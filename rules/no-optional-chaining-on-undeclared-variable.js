@@ -1,5 +1,5 @@
 import {
-	isUnresolvedVariable,
+	isTypeImportSpecifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -8,12 +8,30 @@ const messages = {
 	[MESSAGE_ID]: 'Optional chaining on undeclared variable `{{name}}` throws a ReferenceError.',
 };
 
+const isTypeOnlyImportDefinition = definition =>
+	definition.type === 'ImportBinding'
+	&& isTypeImportSpecifier(definition.node);
+
+const isTypeOnlyDefinition = definition =>
+	definition.type === 'Type'
+	|| isTypeOnlyImportDefinition(definition);
+
 function unwrapExpression(node) {
-	while (node.type === 'ChainExpression') {
-		node = node.expression;
+	let previousNode;
+
+	while (node !== previousNode) {
+		previousNode = node;
+		node = unwrapTypeScriptExpression(node);
+
+		if (
+			node.type === 'ChainExpression'
+			|| node.type === 'TSInstantiationExpression'
+		) {
+			node = node.expression;
+		}
 	}
 
-	return unwrapTypeScriptExpression(node);
+	return node;
 }
 
 function getLeftmostMemberBase(node) {
@@ -24,6 +42,27 @@ function getLeftmostMemberBase(node) {
 	}
 
 	return node.type === 'Identifier' ? node : undefined;
+}
+
+function isUnresolvedRuntimeVariable(node, context) {
+	let scope = context.sourceCode.getScope(node);
+	while (scope) {
+		const variable = scope.set.get(node.name);
+
+		if (
+			variable
+			&& (
+				variable.defs.length === 0
+				|| variable.defs.some(definition => !isTypeOnlyDefinition(definition))
+			)
+		) {
+			return false;
+		}
+
+		scope = scope.upper;
+	}
+
+	return true;
 }
 
 function getOptionalOperationBase(node) {
@@ -47,7 +86,7 @@ function getUndeclaredOptionalChainBase(chainExpression, context) {
 	const identifier = getLeftmostMemberBase(base);
 	if (
 		identifier
-		&& isUnresolvedVariable(identifier, context)
+		&& isUnresolvedRuntimeVariable(identifier, context)
 	) {
 		return identifier;
 	}
