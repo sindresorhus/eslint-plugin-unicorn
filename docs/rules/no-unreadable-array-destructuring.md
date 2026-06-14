@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Destructuring is very useful, but it can also make some code harder to read. This rule prevents ignoring consecutive values when destructuring from an array.
+Destructuring is very useful, but it can also make some code harder to read. This rule prevents ignoring consecutive values and assigning destructured values to object properties when destructuring from an array.
 
 ## Examples
 
@@ -50,6 +50,15 @@ const [,,...rest] = parts;
 
 // ✅
 const rest = parts.slice(2);
+```
+
+```js
+// ❌
+[object.property] = parts;
+
+// ✅
+[value] = parts;
+object.property = value;
 ```
 
 ## Options

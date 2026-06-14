@@ -19,6 +19,8 @@ test.snapshot({
 		'const {foo = ([bar]) => bar} = object;',
 		'const {foo = ({bar: {baz}}) => baz} = object;',
 		'({foo} = object);',
+		'({foo = object.property} = object);',
+		'({foo: bar} = object);',
 		'function function_(object, {foo}) {}',
 		{
 			code: 'function function_({foo: {bar}}: Options) {}',
@@ -42,6 +44,21 @@ test.snapshot({
 		'const [{foo: {bar: {baz}}}] = array;',
 		'({[key]: value} = object);',
 		'({foo: [bar]} = object);',
+		'({[object.property]: value} = object);',
+		'({foo: this.bar} = object);',
+		'({foo: object.property} = object);',
+		'({foo: object.property = defaultValue} = object);',
+		'({foo: (condition ? first : second).property} = object);',
+		'({foo: this.bar.baz} = object);',
+		'({...object.property} = object);',
+		{
+			code: '({foo: object.property as Foo} = object);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '({...object.property!} = object);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'function function_({[key]: value}) {}',
 		'function function_({foo: [bar]}) {}',
 		'function function_({foo: {bar: {baz}}}) {}',
@@ -54,5 +71,6 @@ test.snapshot({
 		'for (const {[key]: value} of array) {}',
 		'for (const {foo: [bar]} of array) {}',
 		'for (const {foo: {bar: {baz}}} of array) {}',
+		'for ({foo: this.bar} of array) {}',
 	],
 });
