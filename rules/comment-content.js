@@ -303,7 +303,7 @@ const spacedBracketCallLinePattern = new RegExp([
 	`^${optionalListMarkerPrefixPatternSource}`,
 	String.raw`(?:\(\s*)?`,
 	optionalAssignmentPrefixPatternSource,
-	`${codeIdentifierPatternSource}`,
+	codeIdentifierPatternSource,
 	String.raw`\s+${bracketPropertyPatternSource}\s*${callArgumentsPatternSource}\s*\)?\s*;?$`,
 ].join(''), 'v');
 const markdownLinkLabelPattern = String.raw`\[[^\n\]]{1,200}\]`;
