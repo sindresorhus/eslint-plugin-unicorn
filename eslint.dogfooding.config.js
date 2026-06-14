@@ -43,7 +43,8 @@ const config = [
 			'unicorn/try-complexity': 'off',
 			// Recursive AST/tree walkers are intentional in rule implementation code.
 			'unicorn/no-useless-recursion': 'off',
-			// Suggestion-only violations remain in call-based patterns
+			// Disabled violations remain intentional in this codebase.
+			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
