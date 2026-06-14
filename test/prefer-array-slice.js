@@ -31,6 +31,8 @@ test.snapshot({
 		'splice(index)[0]',
 		'const object = {splice() { return []; }}; object.splice(index)[0]',
 		'({splice() { return []; }}).splice(index)[0]',
+		'class Custom { splice() { return []; } method() { return this.splice(0)[0]; } }',
+		'class ArraySubclass extends Array { static method() { return this.splice(0)[0]; } }',
 	],
 	invalid: [
 		'process.argv.splice(2)[0]',
@@ -40,6 +42,9 @@ test.snapshot({
 		'object.array.splice(index)[0]',
 		'array.splice(/* comment */ index)[0]',
 		'const array = []; array.splice(index)[0]',
+		'class ArraySubclass extends Array {} new ArraySubclass().splice(0)[0]',
+		'class ArraySubclass extends Array {} const array = new ArraySubclass(); array.splice(0)[0]',
+		'class ArraySubclass extends Array { method() { return this.splice(0)[0]; } }',
 	],
 });
 
@@ -65,6 +70,7 @@ test.snapshot({
 		'declare const array: string[]; array.splice(index)[0]',
 		'type Strings = string[]; declare const array: Strings; array.splice(index)[0]',
 		'declare const value: unknown; value.splice(index)[0]',
+		'class ArraySubclass extends Array<number> {} const array = new ArraySubclass(); array.splice(0)[0]',
 	],
 });
 
