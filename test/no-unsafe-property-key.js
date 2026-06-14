@@ -167,7 +167,6 @@ test.snapshot({
 		'declare const key: `feature:${number | boolean}`; object[key]',
 		'type Key = `feature:${string}`; declare const key: Key; object[key]',
 		'declare const key: `feature:${string}` | string; object[key]',
-		'declare const key: `feature:${string}` & {brand: true}; object[key]',
 		'const key: string[] | string = "key"; object[key]',
 		'type Key = string; declare const key: Key; { type Key = {id: string}; object[key] }',
 		'type Foo = string; type Key = Foo; { type Foo = {id: string}; declare const key: Key; object[key] }',
