@@ -62,6 +62,16 @@ const config = [
 	},
 	{
 		files: [
+			'test/package.js',
+			'test/unit/boolean.js',
+		],
+		rules: {
+			// These tests intentionally use module-scoped capture variables across setup callbacks.
+			'unicorn/no-top-level-assignment-in-function': 'off',
+		},
+	},
+	{
+		files: [
 			'rules/comment-content.js',
 			'rules/consistent-assert.js',
 			'rules/no-for-each.js',
