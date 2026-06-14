@@ -17,7 +17,9 @@ This rule only reports unused `splice()` calls on simple reassignable local iden
 
 This rule ignores `splice()` patterns that have simpler mutating alternatives covered by [`no-unnecessary-splice`](./no-unnecessary-splice.md), such as `array.splice(0, 1)` and `array.splice(array.length, 0, item)`.
 
-When TypeScript type annotations or type information show that the receiver is not an array, this rule does not report it.
+When TypeScript type annotations or type information show that the receiver is not an array, or that assigning a plain array back could be type-invalid, this rule does not report it. This includes tuples, type aliases, generic type parameters, and readonly array types. Complex inferred TypeScript types require type information to be skipped reliably.
+
+The rule also ignores destructured bindings, non-simple parameter bindings, and unannotated variables that directly alias another identifier.
 
 This rule is suggestion-only because assigning the `Array#toSpliced()` result changes alias behavior. Code that still references the original array object will observe different behavior after reassignment.
 

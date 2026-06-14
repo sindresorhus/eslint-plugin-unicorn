@@ -81,5 +81,6 @@ test.snapshot({
 		'array.splice(<number>0, <number>0, element);',
 		'array.splice(array.length - 1!, 1!);',
 		'array.splice(0!, array.length);',
+		'(array satisfies string[]).splice((array satisfies string[]).length, 0, element);',
 	],
 });

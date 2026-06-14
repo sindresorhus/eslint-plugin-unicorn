@@ -5,7 +5,7 @@ import {
 	shouldSkipKnownNonArrayReceiver,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {getUnnecessarySpliceReplacement} from './no-unnecessary-splice.js';
+import {getUnnecessarySpliceReplacement} from './shared/splice-replacements.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -14,6 +14,12 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Use `Array#toSpliced()` instead of `Array#splice()`.',
 	[MESSAGE_ID_SUGGESTION]: 'Assign the `.toSpliced()` result back to the array.',
 };
+
+const functionTypes = new Set([
+	'ArrowFunctionExpression',
+	'FunctionDeclaration',
+	'FunctionExpression',
+]);
 
 function isReassignableVariable(variable) {
 	const [definition] = variable.defs;
@@ -37,6 +43,118 @@ function getReceiverIdentifier(node) {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 
 	return unwrappedNode.type === 'Identifier' ? unwrappedNode : undefined;
+}
+
+function isTupleTypeAnnotation(node) {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return isTupleTypeAnnotation(node.typeAnnotation);
+		}
+
+		case 'TSTypeOperator': {
+			return node.operator === 'readonly' && isTupleTypeAnnotation(node.typeAnnotation);
+		}
+
+		case 'TSTupleType': {
+			return true;
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
+function isPlainArrayTypeAnnotation(node) {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return isPlainArrayTypeAnnotation(node.typeAnnotation);
+		}
+
+		case 'TSArrayType': {
+			return true;
+		}
+
+		case 'TSTypeReference': {
+			return node.typeName.type === 'Identifier' && node.typeName.name === 'Array';
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
+function isIdentifierAliasVariable(variable) {
+	const [definition] = variable.defs;
+	const init = definition?.node.init && unwrapTypeScriptExpression(definition.node.init);
+
+	return definition?.type === 'Variable'
+		&& !definition.node.id.typeAnnotation
+		&& init?.type === 'Identifier';
+}
+
+function isDestructuredVariable(variable) {
+	const [definition] = variable.defs;
+
+	return definition?.type === 'Variable' && definition.node.id !== definition.name;
+}
+
+function isNonIdentifierParameter(variable) {
+	const [definition] = variable.defs;
+
+	return definition?.type === 'Parameter' && !functionTypes.has(definition.name.parent.type);
+}
+
+function hasTypeParameterOrTuple(type, checker) {
+	if (type.isTypeParameter?.() || checker.isTupleType(type)) {
+		return true;
+	}
+
+	if (type.isUnion() || type.isIntersection()) {
+		return type.types.some(type => hasTypeParameterOrTuple(type, checker));
+	}
+
+	return false;
+}
+
+function isTypeParameterOrTuple(node, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return false;
+	}
+
+	try {
+		const type = parserServices.getTypeAtLocation(node);
+		const checker = parserServices.program.getTypeChecker();
+
+		return hasTypeParameterOrTuple(type, checker);
+	} catch {
+		return false;
+	}
+}
+
+function shouldSkipReceiver(node, variable, context) {
+	const [definition] = variable.defs;
+	const typeAnnotation = definition?.name?.typeAnnotation;
+
+	if (isTupleTypeAnnotation(typeAnnotation)) {
+		return true;
+	}
+
+	if (
+		typeAnnotation
+		&& !isPlainArrayTypeAnnotation(typeAnnotation)
+	) {
+		return true;
+	}
+
+	return isTypeParameterOrTuple(node, context)
+		|| isIdentifierAliasVariable(variable)
+		|| isDestructuredVariable(variable)
+		|| isNonIdentifierParameter(variable);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -67,7 +185,11 @@ const create = context => {
 
 		const variable = findVariable(context.sourceCode.getScope(receiver), receiver);
 
-		if (!variable || !isReassignableVariable(variable)) {
+		if (
+			!variable
+			|| !isReassignableVariable(variable)
+			|| shouldSkipReceiver(object, variable, context)
+		) {
 			return;
 		}
 

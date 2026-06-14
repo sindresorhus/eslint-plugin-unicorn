@@ -1,6 +1,16 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -19,6 +29,8 @@ test.snapshot({
 		'function array() {} array.splice(1, 1);',
 		'class array {} array.splice(1, 1);',
 		'let array = []; { const array = []; array.splice(1, 1); }',
+		'let array = otherArray; array.splice(1, 1);',
+		'let {array} = object; array.splice(1, 1);',
 		'let array = []; array.splice();',
 		'let array = []; array.splice(index, 0);',
 		'let array = []; array.splice(0);',
@@ -44,6 +56,87 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		{
+			code: 'let array: [string, string] = ["a", "b"]; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array: readonly [string, string] = ["a", "b"]; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'type Pair = [string, string]; let array: Pair = ["a", "b"]; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>(array: T) { array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>(value: T) { let array = value; array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>(source: {array: T}) { let {array}: {array: T} = source; array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>({array}: {array: T}) { array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>(array = value as T) { array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'function foo<T extends string[]>(...array: T) { array.splice(1, 1); }',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array = otherArray as string[]; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array = otherArray satisfies string[]; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array = otherArray!; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		typeAware('let array = ["a", "b"] as const as [string, string]; array.splice(1, 1);'),
+		typeAware('function foo<T extends string[]>(value: T) { let array = value; array.splice(1, 1); }'),
+		typeAware('const first = ["a", "b"] as [string, string]; const second = ["a", "b", "c"] as [string, string, string]; let array = condition ? first : second; array.splice(1, 1);'),
+		{
+			code: 'let array: string[] = []; (array satisfies string[]).splice((array satisfies string[]).length, 0, item);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		'using array = acquire(); array.splice(1, 1);',
 	],
 	invalid: [
@@ -58,6 +151,12 @@ test.snapshot({
 		'let array = []; array. /* comment */ splice(1, 1);',
 		{
 			code: 'let array: string[] = []; array.splice(1, 1);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'let array: Array<string> = []; array.splice(1, 1);',
 			languageOptions: {
 				parser: parsers.typescript,
 			},
