@@ -14,9 +14,10 @@ The rule disallows using the `thisArg` argument in array methods:
 - If the callback is an arrow function or a bound function, the `thisArg` won't affect it.
 - If you intend to use a custom `this` in the callback, it's better to use the variable directly or use `callback.bind(thisArg)`.
 
-This rule checks following array methods accepts `thisArg`:
+This rule checks the following array methods that accept `thisArg`:
 
 - [`Array.from()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/from)
+- [`Array.fromAsync()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/fromAsync)
 - [`Array#every()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/every)
 - [`Array#filter()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/filter)
 - [`Array#find()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/find)
@@ -28,7 +29,7 @@ This rule checks following array methods accepts `thisArg`:
 - [`Array#map()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/map)
 - [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Array/some)
 
-This rule is fixable when the callback is an arrow function and the `thisArg` argument has no side effect.
+This rule is fixable when the callback is an arrow function, the `thisArg` argument has no side effect, and the fix can be applied without removing comments.
 
 When TypeScript type information is available, known non-array receivers are ignored. Unknown receivers may still be reported.
 
@@ -49,12 +50,12 @@ const foo = bar.map(function (element) {
 }, baz);
 
 // ✅
-const foo = bar.map(function (element) => {
+const foo = bar.map(element => {
 	return baz.unicorn(element);
 });
 
 // ✅
-const foo = bar.map(function (element) => {
+const foo = bar.map(function (element) {
 	return this.unicorn(element);
 }.bind(baz));
 ```

@@ -1,5 +1,8 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {removeArgument} from './fix/index.js';
+import {
+	getArgumentRemovalRange,
+	removeArgument,
+} from './fix/index.js';
 import {
 	getParentheses,
 	getParenthesizedText,
@@ -7,6 +10,7 @@ import {
 	shouldSkipKnownNonArrayReceiver,
 	isNodeMatches,
 	isNodeValueNotFunction,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -76,12 +80,17 @@ const ignored = [
 ];
 
 function removeThisArgument(thisArgumentNode, context) {
+	const removalRange = getArgumentRemovalRange(thisArgumentNode, context);
+	if (wouldRemoveComments(context, removalRange)) {
+		return;
+	}
+
 	return fixer => removeArgument(fixer, thisArgumentNode, context);
 }
 
-function useBoundFunction(callbackNode, thisArgumentNode, context) {
+function useBoundFunction(callbackNode, thisArgumentNode, context, removeThisArgumentFix) {
 	return function * (fixer) {
-		yield removeThisArgument(thisArgumentNode, context)(fixer);
+		yield removeThisArgumentFix(fixer);
 
 		const callbackParentheses = getParentheses(callbackNode, context);
 		const isParenthesized = callbackParentheses.length > 0;
@@ -117,33 +126,44 @@ function getProblem({
 		},
 	};
 
+	const removeThisArgumentFix = removeThisArgument(thisArgumentNode, context);
 	const isArrowCallback = callbackNode.type === 'ArrowFunctionExpression';
 	if (isArrowCallback) {
-		const thisArgumentHasSideEffect = hasSideEffect(thisArgumentNode, context.sourceCode);
+		const thisArgumentHasSideEffect = hasSideEffect(
+			thisArgumentNode,
+			context.sourceCode,
+			{considerGetters: true},
+		);
 		if (thisArgumentHasSideEffect) {
-			problem.suggest = [
-				{
-					messageId: SUGGESTION_REMOVE,
-					fix: removeThisArgument(thisArgumentNode, context),
-				},
-			];
-		} else {
-			problem.fix = removeThisArgument(thisArgumentNode, context);
+			if (removeThisArgumentFix) {
+				problem.suggest = [
+					{
+						messageId: SUGGESTION_REMOVE,
+						fix: removeThisArgumentFix,
+					},
+				];
+			}
+		} else if (removeThisArgumentFix) {
+			problem.fix = removeThisArgumentFix;
 		}
 
 		return problem;
 	}
 
-	problem.suggest = [
-		{
+	const suggestions = [];
+	if (removeThisArgumentFix) {
+		suggestions.push({
 			messageId: SUGGESTION_REMOVE,
-			fix: removeThisArgument(thisArgumentNode, context),
-		},
-		{
+			fix: removeThisArgumentFix,
+		}, {
 			messageId: SUGGESTION_BIND,
-			fix: useBoundFunction(callbackNode, thisArgumentNode, context),
-		},
-	];
+			fix: useBoundFunction(callbackNode, thisArgumentNode, context, removeThisArgumentFix),
+		});
+	}
+
+	if (suggestions.length > 0) {
+		problem.suggest = suggestions;
+	}
 
 	return problem;
 }

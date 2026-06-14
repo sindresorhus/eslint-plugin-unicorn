@@ -7,12 +7,11 @@ import {getParentheses} from '../utils/index.js';
 */
 
 /**
-@param {ESLint.Rule.RuleFixer} fixer
-@param {ESTree.NewExpression | ESTree.CallExpression} node
+@param {ESTree.CallExpressionArgument} node
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
-@returns {ESLint.Rule.ReportFixer}
+@returns {Array<number>}
 */
-export default function removeArgument(fixer, node, context) {
+function getArgumentRemovalRange(node, context) {
 	const callOrNewExpression = node.parent;
 	const index = callOrNewExpression.arguments.indexOf(node);
 	const parentheses = getParentheses(node, context);
@@ -36,5 +35,19 @@ export default function removeArgument(fixer, node, context) {
 		}
 	}
 
-	return fixer.removeRange([start, end]);
+	return [start, end];
 }
+
+/**
+@param {ESLint.Rule.RuleFixer} fixer
+@param {ESTree.CallExpressionArgument} node
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {ESLint.Rule.Fix}
+*/
+export default function removeArgument(fixer, node, context) {
+	return fixer.removeRange(getArgumentRemovalRange(node, context));
+}
+
+export {
+	getArgumentRemovalRange,
+};
