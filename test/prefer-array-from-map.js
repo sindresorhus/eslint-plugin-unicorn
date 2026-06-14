@@ -231,6 +231,17 @@ test.snapshot({
 			},
 		},
 		{
+			code: outdent`
+				const result: Item[] = [];
+				for (const element of iterable) {
+					result.push({value: element} satisfies Item);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
 			code: 'Array.from(iterable).map((element: string) => element);',
 			languageOptions: {
 				parser: parsers.typescript,

@@ -26,6 +26,10 @@ const messages = {
 const arrowBodyParenthesizedExpressionTypes = new Set([
 	'ObjectExpression',
 	'SequenceExpression',
+	'TSAsExpression',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
 ]);
 
 const suspendingExpressionTypes = new Set([
