@@ -14,33 +14,17 @@ const memberExpression = String.raw`${identifier}(?:\.${identifier})*`;
 const missingDollar = new RegExp(String.raw`(?<![$\\])(?<!\{)\{(?<expression>${memberExpression})\}(?!\})`, 'gv');
 const missingOpeningBrace = new RegExp(String.raw`(?<!\\)(?<!\{)\$(?<expression>${memberExpression})\}(?!\})`, 'gv');
 
-const getMissingDollarReplacements = raw => {
-	const replacements = [];
+const getMissingDollarReplacements = raw => Array.from(raw.matchAll(missingDollar), match => ({
+	index: match.index,
+	incorrect: match[0],
+	correct: `$${match[0]}`,
+}));
 
-	for (const match of raw.matchAll(missingDollar)) {
-		replacements.push({
-			index: match.index,
-			incorrect: match[0],
-			correct: `$${match[0]}`,
-		});
-	}
-
-	return replacements;
-};
-
-const getMissingOpeningBraceReplacements = raw => {
-	const replacements = [];
-
-	for (const match of raw.matchAll(missingOpeningBrace)) {
-		replacements.push({
-			index: match.index,
-			incorrect: match[0],
-			correct: `\${${match.groups.expression}}`,
-		});
-	}
-
-	return replacements;
-};
+const getMissingOpeningBraceReplacements = raw => Array.from(raw.matchAll(missingOpeningBrace), match => ({
+	index: match.index,
+	incorrect: match[0],
+	correct: `\${${match.groups.expression}}`,
+}));
 
 const getReplacements = raw => {
 	const replacements = [
