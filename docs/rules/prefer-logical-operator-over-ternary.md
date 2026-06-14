@@ -11,7 +11,9 @@
 
 Disallow ternary operators when simpler logical operator alternatives exist.
 
-Ideally, most reported cases have an equivalent [`Logical OR(||)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR) expression. The rule intentionally provides suggestions instead of auto-fixes, because in many cases, the [nullish coalescing operator (`??`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator) should be preferred.
+Ideally, most reported cases have an equivalent [`Logical OR` (`||`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR) expression. The rule intentionally provides suggestions instead of auto-fixes, because in many cases, the [nullish coalescing operator (`??`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator) should be preferred.
+
+For explicit nullish-check ternaries, this rule only suggests `??` when the source code itself proves nullish intent. It does not report arbitrary `foo || bar` expressions. TypeScript users who want type-aware `||` checks should use [`@typescript-eslint/prefer-nullish-coalescing`](https://typescript-eslint.io/rules/prefer-nullish-coalescing/).
 
 ## Examples
 
@@ -53,6 +55,22 @@ bar ?? foo;
 ```js
 // ❌
 foo == null ? bar : foo;
+
+// ✅
+foo ?? bar;
+```
+
+```js
+// ❌
+foo === null || foo === undefined ? bar : foo;
+
+// ✅
+foo ?? bar;
+```
+
+```js
+// ❌
+foo !== null && foo !== undefined ? foo : bar;
 
 // ✅
 foo ?? bar;

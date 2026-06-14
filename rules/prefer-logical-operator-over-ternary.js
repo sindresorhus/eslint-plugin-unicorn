@@ -24,6 +24,8 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}` operator.',
 	[MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION]: 'Switch to optional chaining.',
 };
+const nullishOperators = new Set(['==', '===']);
+const nonNullishOperators = new Set(['!=', '!==']);
 
 function isSameNode(left, right, sourceCode) {
 	if (isSameReference(left, right)) {
@@ -89,7 +91,7 @@ function fix({
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
-	// There should be no cases need to add parentheses when switching ternary to logical expression
+	// There should be no cases that need to add parentheses when switching ternary to logical expression
 
 	// ASI
 	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {
@@ -158,22 +160,91 @@ function getProblem({
 	};
 }
 
-function getNullishCheckReference(node) {
+function getNullishKind(node) {
+	if (isNullLiteral(node)) {
+		return 'null';
+	}
+
+	if (isUndefined(node)) {
+		return 'undefined';
+	}
+}
+
+function getNullishBinaryCheck(node) {
 	if (
 		node.type !== 'BinaryExpression'
-		|| node.operator !== '=='
+		|| (!nullishOperators.has(node.operator) && !nonNullishOperators.has(node.operator))
 	) {
 		return;
 	}
 
-	const leftNullish = isNullLiteral(node.left) || isUndefined(node.left);
-	const rightNullish = isNullLiteral(node.right) || isUndefined(node.right);
+	const leftKind = getNullishKind(node.left);
+	const rightKind = getNullishKind(node.right);
 
-	if (leftNullish === rightNullish) {
+	if (Boolean(leftKind) === Boolean(rightKind)) {
 		return;
 	}
 
-	return leftNullish ? node.right : node.left;
+	const isTrueWhenNullish = nullishOperators.has(node.operator);
+	const reference = leftKind ? node.right : node.left;
+	const kind = node.operator.length === 2 ? 'nullish' : (leftKind ?? rightKind);
+
+	return {
+		reference,
+		kind,
+		isTrueWhenNullish,
+	};
+}
+
+const checksNullAndUndefined = (left, right) =>
+	(left.kind === 'null' && right.kind === 'undefined')
+	|| (left.kind === 'undefined' && right.kind === 'null');
+
+function getNullishTest(node, sourceCode) {
+	const binaryCheck = getNullishBinaryCheck(node);
+
+	if (binaryCheck?.kind === 'nullish') {
+		return binaryCheck;
+	}
+
+	if (node.type !== 'LogicalExpression') {
+		return;
+	}
+
+	const left = getNullishBinaryCheck(node.left);
+	const right = getNullishBinaryCheck(node.right);
+
+	if (
+		!left
+		|| !right
+		|| !isSameNode(left.reference, right.reference, sourceCode)
+	) {
+		return;
+	}
+
+	if (
+		node.operator === '||'
+		&& left.isTrueWhenNullish
+		&& right.isTrueWhenNullish
+		&& checksNullAndUndefined(left, right)
+	) {
+		return {
+			reference: left.reference,
+			isTrueWhenNullish: true,
+		};
+	}
+
+	if (
+		node.operator === '&&'
+		&& !left.isTrueWhenNullish
+		&& !right.isTrueWhenNullish
+		&& checksNullAndUndefined(left, right)
+	) {
+		return {
+			reference: left.reference,
+			isTrueWhenNullish: false,
+		};
+	}
 }
 
 function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
@@ -207,16 +278,21 @@ function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
 
 function getNullishTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
-	const reference = getNullishCheckReference(test);
+	const nullishTest = getNullishTest(test, context.sourceCode);
 
 	if (
-		!reference
+		!nullishTest
 		|| context.sourceCode.getCommentsInside(conditionalExpression).length > 0
 	) {
 		return;
 	}
 
-	if (isSameNode(reference, alternate, context.sourceCode)) {
+	const {reference} = nullishTest;
+
+	if (
+		nullishTest.isTrueWhenNullish
+		&& isSameNode(reference, alternate, context.sourceCode)
+	) {
 		return getProblem({
 			context,
 			conditionalExpression,
@@ -226,17 +302,33 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		});
 	}
 
-	if (!(
-		isUndefined(consequent)
-		&& isMemberExpression(alternate)
-		&& !alternate.optional
-		&& isSameReference(unwrapTypeScriptExpression(reference), unwrapTypeScriptExpression(alternate.object))
-		&& !isUnsafeOptionalChainReplacementContext(conditionalExpression)
-	)) {
+	if (
+		!nullishTest.isTrueWhenNullish
+		&& isSameNode(reference, consequent, context.sourceCode)
+	) {
+		return getProblem({
+			context,
+			conditionalExpression,
+			left: consequent,
+			right: alternate,
+			operators: ['??'],
+		});
+	}
+
+	const nullishBranch = nullishTest.isTrueWhenNullish ? consequent : alternate;
+	const nonNullishBranch = nullishTest.isTrueWhenNullish ? alternate : consequent;
+
+	if (
+		!isUndefined(nullishBranch)
+		|| !isMemberExpression(nonNullishBranch)
+		|| nonNullishBranch.optional
+		|| !isSameReference(unwrapTypeScriptExpression(reference), unwrapTypeScriptExpression(nonNullishBranch.object))
+		|| isUnsafeOptionalChainReplacementContext(conditionalExpression)
+	) {
 		return;
 	}
 
-	const optionalChainText = getOptionalChainText(alternate, context);
+	const optionalChainText = getOptionalChainText(nonNullishBranch, context);
 
 	if (!optionalChainText) {
 		return;
