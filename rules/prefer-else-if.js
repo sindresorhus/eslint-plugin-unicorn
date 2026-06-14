@@ -1,0 +1,346 @@
+import {isUndefined, isFunction} from './ast/index.js';
+import {
+	containsOptionalChain,
+	isSame,
+	unwrapExpression,
+} from './utils/comparison.js';
+
+const MESSAGE_ID = 'prefer-else-if';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `else if` over an adjacent `if` with a related condition.',
+};
+
+const statementListParentTypes = new Set([
+	'Program',
+	'BlockStatement',
+	'StaticBlock',
+	'SwitchCase',
+]);
+
+const exitingStatementTypes = new Set([
+	'ReturnStatement',
+	'ThrowStatement',
+	'BreakStatement',
+	'ContinueStatement',
+]);
+
+const staticReferenceRootTypes = new Set([
+	'Identifier',
+	'ThisExpression',
+	'Super',
+]);
+
+const isStaticEqualityValue = node => (
+	(
+		node.type === 'Literal'
+		&& !node.regex
+	)
+	|| isUndefined(node)
+);
+
+const getStaticEqualityValueKey = node => {
+	if (isUndefined(node)) {
+		return 'undefined';
+	}
+
+	if (node.bigint) {
+		return `bigint:${node.bigint}`;
+	}
+
+	return `${typeof node.value}:${node.value}`;
+};
+
+const isStaticMemberProperty = node => (
+	(
+		node.property.type === 'Identifier'
+		&& !node.computed
+	)
+	|| (
+		node.property.type === 'PrivateIdentifier'
+		&& !node.computed
+	)
+	|| (
+		node.computed
+		&& node.property.type === 'Literal'
+		&& !node.property.regex
+	)
+);
+
+function isStaticReference(node) {
+	node = unwrapExpression(node);
+
+	if (staticReferenceRootTypes.has(node.type)) {
+		return true;
+	}
+
+	return node.type === 'MemberExpression'
+		&& isStaticMemberProperty(node)
+		&& isStaticReference(node.object);
+}
+
+function getEqualityComparisons(node) {
+	const nodes = [node];
+	const comparisons = [];
+
+	while (nodes.length > 0) {
+		node = nodes.pop();
+
+		if (node.type === 'LogicalExpression' && node.operator === '||') {
+			nodes.push(node.right, node.left);
+			continue;
+		}
+
+		if (node.type !== 'BinaryExpression' || node.operator !== '===') {
+			return [];
+		}
+
+		comparisons.push(node);
+	}
+
+	return comparisons;
+}
+
+function getComparisonInfo(node) {
+	const comparisons = getEqualityComparisons(node);
+
+	if (comparisons.length === 0) {
+		return;
+	}
+
+	let discriminant;
+	const valueKeys = new Set();
+
+	for (const {left, right} of comparisons) {
+		const leftIsStaticValue = isStaticEqualityValue(left);
+		const rightIsStaticValue = isStaticEqualityValue(right);
+
+		if (leftIsStaticValue === rightIsStaticValue) {
+			return;
+		}
+
+		const candidate = leftIsStaticValue ? right : left;
+
+		if (
+			containsOptionalChain(candidate)
+			|| !isStaticReference(candidate)
+		) {
+			return;
+		}
+
+		if (
+			discriminant
+			&& !isSame(discriminant, candidate)
+		) {
+			return;
+		}
+
+		discriminant ||= candidate;
+		const value = leftIsStaticValue ? left : right;
+		valueKeys.add(getStaticEqualityValueKey(value));
+	}
+
+	return {
+		discriminant,
+		valueKeys,
+	};
+}
+
+function isAlwaysExiting(node) {
+	if (exitingStatementTypes.has(node.type)) {
+		return true;
+	}
+
+	if (node.type === 'BlockStatement') {
+		return node.body.some(node => isAlwaysExiting(node));
+	}
+
+	return Boolean(
+		node.type === 'IfStatement'
+		&& node.alternate
+		&& isAlwaysExiting(node.consequent)
+		&& isAlwaysExiting(node.alternate),
+	);
+}
+
+function getReferencePrefixes(node) {
+	node = unwrapExpression(node);
+	const prefixes = [node];
+
+	while (node.type === 'MemberExpression') {
+		node = unwrapExpression(node.object);
+		prefixes.push(node);
+	}
+
+	return prefixes;
+}
+
+function * getAssignmentTargets(node) {
+	node = unwrapExpression(node);
+
+	switch (node.type) {
+		case 'Identifier':
+		case 'MemberExpression': {
+			yield node;
+			break;
+		}
+
+		case 'AssignmentPattern':
+		case 'RestElement': {
+			yield * getAssignmentTargets(node.type === 'AssignmentPattern' ? node.left : node.argument);
+			break;
+		}
+
+		case 'ArrayPattern': {
+			for (const element of node.elements) {
+				if (element) {
+					yield * getAssignmentTargets(element);
+				}
+			}
+
+			break;
+		}
+
+		case 'ObjectPattern': {
+			for (const property of node.properties) {
+				yield * getAssignmentTargets(property.type === 'Property' ? property.value : property.argument);
+			}
+
+			break;
+		}
+
+		// No default
+	}
+}
+
+function * traverse(node, visitorKeys) {
+	if (!node || isFunction(node)) {
+		return;
+	}
+
+	yield node;
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			for (const child of value) {
+				yield * traverse(child, visitorKeys);
+			}
+		} else if (value) {
+			yield * traverse(value, visitorKeys);
+		}
+	}
+}
+
+function hasDirectDiscriminantMutation(node, discriminant, context) {
+	const discriminantReferences = getReferencePrefixes(discriminant);
+
+	for (const childNode of traverse(node, context.sourceCode.visitorKeys)) {
+		const targets = [];
+
+		if (childNode.type === 'AssignmentExpression') {
+			targets.push(childNode.left);
+		} else if (childNode.type === 'UpdateExpression') {
+			targets.push(childNode.argument);
+		} else if (childNode.type === 'UnaryExpression' && childNode.operator === 'delete') {
+			targets.push(childNode.argument);
+		} else if (childNode.type === 'VariableDeclaration' && childNode.kind === 'var') {
+			for (const declarator of childNode.declarations) {
+				targets.push(declarator.id);
+			}
+		} else if (
+			(childNode.type === 'ForInStatement' || childNode.type === 'ForOfStatement')
+			&& childNode.left.type !== 'VariableDeclaration'
+		) {
+			targets.push(childNode.left);
+		}
+
+		for (const target of targets) {
+			for (const assignmentTarget of getAssignmentTargets(target)) {
+				if (discriminantReferences.some(reference => isSame(assignmentTarget, reference))) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+const hasOverlappingValues = (left, right) => {
+	for (const valueKey of left) {
+		if (right.has(valueKey)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+function getProblem(previousIfStatement, ifStatement, context) {
+	if (
+		previousIfStatement.alternate
+		|| ifStatement.alternate
+		|| isAlwaysExiting(previousIfStatement.consequent)
+	) {
+		return;
+	}
+
+	const previous = getComparisonInfo(previousIfStatement.test);
+	const current = getComparisonInfo(ifStatement.test);
+
+	if (!(
+		previous
+		&& current
+		&& isSame(previous.discriminant, current.discriminant)
+		&& !hasOverlappingValues(previous.valueKeys, current.valueKeys)
+		&& !hasDirectDiscriminantMutation(previousIfStatement.consequent, previous.discriminant, context)
+	)) {
+		return;
+	}
+
+	return {
+		node: ifStatement,
+		messageId: MESSAGE_ID,
+	};
+}
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	context.on([...statementListParentTypes], function * (node) {
+		const body = node.type === 'SwitchCase' ? node.consequent : node.body;
+
+		for (let index = 1; index < body.length; index++) {
+			const previousStatement = body[index - 1];
+			const statement = body[index];
+
+			if (
+				previousStatement.type !== 'IfStatement'
+				|| statement.type !== 'IfStatement'
+			) {
+				continue;
+			}
+
+			yield getProblem(previousStatement, statement, context);
+		}
+	});
+};
+
+/** @type {import('eslint').Rule.RuleModule} */
+const config = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Prefer `else if` over adjacent `if` statements with related conditions.',
+			recommended: true,
+		},
+		schema: [],
+		messages,
+		languages: [
+			'js/js',
+		],
+	},
+};
+
+export default config;

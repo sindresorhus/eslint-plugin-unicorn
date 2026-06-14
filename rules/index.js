@@ -159,6 +159,7 @@ export {default as 'prefer-dom-node-html-methods'} from './prefer-dom-node-html-
 export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';
 export {default as 'prefer-early-return'} from './prefer-early-return.js';
+export {default as 'prefer-else-if'} from './prefer-else-if.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';

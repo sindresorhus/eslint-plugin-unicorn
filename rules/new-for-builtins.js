@@ -29,11 +29,9 @@ function enforceNewExpression(reference, context) {
 		) {
 			return;
 		}
-	}
-
-	// `Date()` returns a string representation of the current date and time, exactly as `new Date().toString()` does.
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#return_value
-	if (name === 'Date') {
+	} else if (name === 'Date') {
+		// `Date()` returns a string representation of the current date and time, exactly as `new Date().toString()` does.
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#return_value
 		function * fix(fixer) {
 			yield fixer.replaceText(node, 'String(new Date())');
 			yield fixSpaceAroundKeyword(fixer, node, context);
