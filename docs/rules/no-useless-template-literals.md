@@ -13,7 +13,7 @@ Template literal expressions are useful when they interpolate dynamic values int
 
 This rule intentionally does not use TypeScript type information. For expression-only templates with unknown value types, it reports the pattern and suggests `String(value)` instead of autofixing to the bare expression. This is a manual suggestion because it can differ for values like `Symbol()` or when `String` is shadowed.
 
-Unlike ESLint's [`no-implicit-coercion`](https://eslint.org/docs/latest/rules/no-implicit-coercion), this rule is only about useless template literal syntax. It does not check other coercion forms like `'' + value`, `+value`, or `!!value`.
+This rule does not replace ESLint's [`no-implicit-coercion`](https://eslint.org/docs/latest/rules/no-implicit-coercion). They can be enabled together: `no-implicit-coercion` checks shorthand coercions, while this rule checks useless template literal syntax. The only overlap is expression-only templates like `` `${value}` `` when `no-implicit-coercion` enables `disallowTemplateShorthand`.
 
 Tagged templates are ignored because tags can observe raw template parts and expression boundaries.
 
