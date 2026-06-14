@@ -1,6 +1,16 @@
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isLeftHandSide} from './utils/index.js';
+import {
+	getBaseTypes,
+	getTypeSymbol,
+	isArray,
+	isKnownNonArray,
+	isLeftHandSide,
+	isUnknownType,
+} from './utils/index.js';
 
+const array = 'array';
+const nonArray = 'non-array';
+const unknown = 'unknown';
 const MESSAGE_ID_ERROR = 'prefer-array-slice/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-array-slice/suggestion';
 const messages = {
@@ -31,6 +41,98 @@ function isAtCall(node) {
 	});
 }
 
+function shouldReportReceiver(node, context) {
+	const type = getReceiverTypeFromTypeInformation(node, context);
+	if (type === array) {
+		return true;
+	}
+
+	if (type === nonArray) {
+		return false;
+	}
+
+	return isArray(node, context) || !isKnownNonArray(node, context);
+}
+
+function combineUnionTypes(types) {
+	if (types.every(type => type === array)) {
+		return array;
+	}
+
+	if (types.includes(nonArray)) {
+		return nonArray;
+	}
+
+	return unknown;
+}
+
+function combineIntersectionTypes(types) {
+	if (types.includes(array)) {
+		return array;
+	}
+
+	if (types.every(type => type === nonArray)) {
+		return nonArray;
+	}
+
+	return unknown;
+}
+
+function getReceiverTypeFromTypeInformation(node, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return unknown;
+	}
+
+	try {
+		return getReceiverType(
+			parserServices.getTypeAtLocation(node),
+			parserServices.program.getTypeChecker(),
+		);
+	} catch {
+		return unknown;
+	}
+}
+
+function getReceiverType(type, checker) {
+	if (isUnknownType(type)) {
+		return unknown;
+	}
+
+	if (type.isTypeParameter?.()) {
+		const constraint = type.getConstraint();
+
+		return constraint ? getReceiverType(constraint, checker) : unknown;
+	}
+
+	if (type.isUnion()) {
+		return combineUnionTypes(type.types.map(type => getReceiverType(type, checker)));
+	}
+
+	if (type.isIntersection()) {
+		return combineIntersectionTypes(type.types.map(type => getReceiverType(type, checker)));
+	}
+
+	if (checker.isArrayType(type) || checker.isTupleType(type)) {
+		return array;
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return getReceiverType(constraint, checker);
+	}
+
+	if (getBaseTypes(type, checker).some(type => getReceiverType(type, checker) === array)) {
+		return array;
+	}
+
+	if (type.intrinsicName) {
+		return nonArray;
+	}
+
+	return getTypeSymbol(type) ? nonArray : unknown;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
@@ -45,6 +147,10 @@ const create = context => {
 		}
 
 		if (!isIndexedAccess(node) && !isAtCall(node)) {
+			return;
+		}
+
+		if (!shouldReportReceiver(node.callee.object, context)) {
 			return;
 		}
 
