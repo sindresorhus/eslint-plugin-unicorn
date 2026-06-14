@@ -1,4 +1,4 @@
-import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	createTypeCheckers,
 	nonTarget,
@@ -249,6 +249,20 @@ const isUnsafeGlobalIdentifier = (node, context) =>
 	unsafeGlobalIdentifiers.has(node.name)
 	&& isGlobalIdentifier(node, context);
 
+function isUnsafeGlobalThisProperty(node, context) {
+	if (
+		node.type !== 'MemberExpression'
+		|| node.object.type !== 'Identifier'
+		|| node.object.name !== 'globalThis'
+		|| !isGlobalIdentifier(node.object, context)
+	) {
+		return false;
+	}
+
+	const propertyName = getPropertyName(node, context.sourceCode.getScope(node));
+	return unsafeGlobalIdentifiers.has(propertyName);
+}
+
 function getTypeName(typeName) {
 	if (typeName.type === 'Identifier') {
 		return typeName.name;
@@ -413,6 +427,7 @@ function getConditionalStaticPropertyKeyType(node, context, visitedVariables) {
 function getExpressionStaticPropertyKeyType(node, context) {
 	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
 	const isUnsafe = isUnsafePropertyKeyNode(node)
+		|| isUnsafeGlobalThisProperty(node, context)
 		|| isArray(node, context)
 		|| (staticValue ? getStaticType(staticValue.value) === target : false);
 

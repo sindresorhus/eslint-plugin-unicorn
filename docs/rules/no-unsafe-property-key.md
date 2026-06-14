@@ -11,7 +11,7 @@ JavaScript property keys are strings or symbols. Other values used as property k
 
 Use an explicit string or symbol key when stringification is intended. Use `Map` or `WeakMap` when object identity is the key.
 
-The rule uses static values, simple TypeScript annotations, and TypeScript type information when available. It intentionally allows common safe numeric indexing like `array[0]`.
+The rule uses static values, TypeScript annotations, and TypeScript type information when available. It intentionally allows common safe numeric indexing like `array[0]`.
 
 ## Examples
 
