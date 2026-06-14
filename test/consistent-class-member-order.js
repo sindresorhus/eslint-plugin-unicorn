@@ -1,9 +1,23 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
+import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
-const {test} = getTester(import.meta);
+const {ruleId, rule, test: ruleTest} = getTester(import.meta);
 
-test.snapshot({
+const customOrder = [
+	'private-field',
+	'public-field',
+	'static-field',
+	'constructor',
+	'private-method',
+	'public-method',
+	'static-method',
+	'static-block',
+];
+
+ruleTest.snapshot({
 	valid: [
 		'class Foo {}',
 		'class Foo { #privateField = 1; }',
@@ -16,65 +30,67 @@ test.snapshot({
 		'class Foo { static {} }',
 		outdent`
 			class Unicorn {
+				static staticField = 1;
+
+				static {}
+
 				#privateField = 1;
 				publicField = 1;
-				static staticField = 1;
 
 				constructor() {}
 
+				static staticMethod() {}
 				#privateMethod() {}
 				publicMethod() {}
-				static staticMethod() {}
-
-				static {}
 			}
 		`,
 		outdent`
 			const Foo = class {
+				static a = 1;
+				static #c = 2;
+
+				static {}
+
 				#a = 1;
 				#b = 2;
 				a = 1;
 				b = 2;
-				static a = 1;
-				static #c = 2;
 
 				constructor() {}
 
+				static a() {}
+				static #f() {}
 				#d() {}
 				#e() {}
 				a() {}
 				b() {}
-				static a() {}
-				static #f() {}
-
-				static {}
 			};
 		`,
 		outdent`
 			class Foo {
+				static get staticGetter() {}
+				static set staticSetter(value) {}
 				get #privateGetter() {}
 				set #privateSetter(value) {}
 				get publicGetter() {}
 				set publicSetter(value) {}
-				static get staticGetter() {}
-				static set staticSetter(value) {}
 			}
 		`,
 		{
 			code: outdent`
 				abstract class Foo {
+					static staticField: string;
 					private privateField: string;
 					protected protectedField: string;
 					public publicField: string;
 					declare declaredField: string;
-					static staticField: string;
 
 					constructor() {}
 
+					static staticMethod(): void {}
 					private privateMethod(): void {}
 					abstract protected protectedMethod(): void;
 					abstract public publicMethod(): void;
-					static staticMethod(): void {}
 				}
 			`,
 			languageOptions: {
@@ -84,14 +100,42 @@ test.snapshot({
 		{
 			code: outdent`
 				class Foo {
+					static accessor staticAccessor = 1;
 					private accessor privateAccessor = 1;
 					accessor publicAccessor = 1;
-					static accessor staticAccessor = 1;
 				}
 			`,
 			languageOptions: {
 				parser: parsers.typescript,
 			},
+		},
+		{
+			code: outdent`
+				class Foo {
+					#privateField = 1;
+					publicField = 1;
+					static staticField = 1;
+
+					constructor() {}
+
+					#privateMethod() {}
+					publicMethod() {}
+					static staticMethod() {}
+
+					static {}
+				}
+			`,
+			options: [{order: customOrder}],
+		},
+		{
+			code: outdent`
+				class Foo {
+					static staticField = 1;
+					static {}
+					field = 1;
+				}
+			`,
+			options: [{}],
 		},
 	],
 	invalid: [
@@ -116,8 +160,8 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
-				static staticField = 1;
 				field = 1;
+				static staticField = 1;
 			}
 		`,
 		outdent`
@@ -128,24 +172,26 @@ test.snapshot({
 		`,
 		outdent`
 			class Foo {
-				static staticMethod() {}
 				method() {}
+				static staticMethod() {}
 			}
 		`,
 		outdent`
 			class Foo {
 				static {}
-				static staticMethod() {}
+				static staticField = 1;
 			}
 		`,
 		outdent`
 			class Foo {
-				static staticMethod() {}
-				constructor() {}
-				#privateField = 1;
-				publicField = 1;
-				#privateMethod() {}
 				publicMethod() {}
+				#privateMethod() {}
+				constructor() {}
+				publicField = 1;
+				#privateField = 1;
+				static {}
+				static staticField = 1;
+				static staticMethod() {}
 			}
 		`,
 		{
@@ -173,5 +219,46 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		{
+			code: outdent`
+				class Foo {
+					static staticField = 1;
+					publicField = 1;
+				}
+			`,
+			options: [{order: customOrder}],
+		},
 	],
+});
+
+const verifyWithOrder = order => {
+	const linter = new Linter();
+	linter.verify(
+		'class Foo {}',
+		{
+			languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+			plugins: {
+				'rule-to-test': {
+					rules: {
+						[ruleId]: rule,
+					},
+				},
+			},
+			rules: {
+				[`rule-to-test/${ruleId}`]: ['error', {order}],
+			},
+		},
+	);
+};
+
+test('order option must contain each group exactly once', t => {
+	t.throws(() => {
+		verifyWithOrder(customOrder.slice(1));
+	});
+	t.throws(() => {
+		verifyWithOrder([...customOrder.slice(0, -1), customOrder[0]]);
+	});
+	t.throws(() => {
+		verifyWithOrder([...customOrder.slice(0, -1), 'unknown-group']);
+	});
 });
