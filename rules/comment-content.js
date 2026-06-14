@@ -265,49 +265,52 @@ function getCommentValueStart(comment, sourceCode) {
 const urlPattern = /\b(?:[a-z][\d+\-.a-z]*:\/\/|www\.)\S+|\b[\u{2D}0-9a-z]+\.(?!js\b)[a-z]{2,}(?:\.[a-z]{2,})?\b/giv;
 const mimeTypePattern = /\b(?:application|audio|font|image|message|model|multipart|text|video)\/[\da-z][\d+\-.a-z]*\b/giv;
 const codeLikeLineStartPattern = /^(?:import|export|const|let|var|type|interface|class|function|return|await|throw)\b/v;
-const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b.+|default\s*):)/v;
+const controlFlowLikeLineStartPattern = /^(?:(?:if|for|while|switch|catch)\s*\(|else(?:\s+if\s*\(|\s*(?:\{|$))|(?:try|do|finally)\s*(?:\{|$)|(?:case\b[^:]+|default\s*):)/v;
 const bracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[\w$]+(?:(?:\??\.\s*)?\[[^\]]+\](?:\s*\.[\w$]|\s*$)|\s+\[[^\]]+\]\s*\.[\w$])/v;
 const chainedBracketMemberAccessLinePattern = /^(?:[\w$]+:\s*)?[$_a-z][\w$]*\s*(?:\??\.\s*)?\[[^\]]+\]\s*\[[^\]]+\]\s*$/v;
 const markdownInlineLinkPattern = /(?:^|[\s\(])\[[^\]]+\]\([^\)]+\)/gv;
+const markdownLinkPattern = /(?:^|[\s\(])\[[^\]]+\](?::\s*\S+(?:\s+(?:"[^"]*"|'[^']*'|\([^\)]+\)))?|(?:\[[^\]]+\])+|\([^\)]+\))/gv;
 const memberCallLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:\(\s*)?(?:(?:[\w$]+:|[\w$]+\s*=)\s*)?[\w$]+\s*(?:(?:(?:\?\.|\.)\s*[\w$]+|\??\.\s*\[[^\]]+\])\s*(?:\?\.\s*)?\(|\s*\[[^\]]+\]\()/v;
 const shellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*\$\s+\S+/v;
 const secondaryShellPromptLinePattern = /^(?:[*+\-]|\d+\.)?\s*>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b/v;
-const structuredKeyValueLinePattern = /^(?:[*+\-]|\d+\.)?\s*(?:["'][^"']+["']|[\w$\-]+)\s*:\s*(?:"[^"]*"|'[^']*'|https?:\/\/\S+|[\w$\-.\/]+(?:\s+#.*)?|\{.*\}|\[.*\]),?$/v;
-const objectLiteralLinePattern = /^\{.+:\s*.+\},?$/v;
+const listMarkerPattern = /^(?:[*+\-]|\d+\.)\s*/v;
 const dotMemberAccessAfterMatchPattern = /^(?:\?\.|\.|\s+\.)\s*[\w$]+(?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
 const bracketMemberAccessAfterMatchPattern = /^(?:\?\.\s*)?\[[^\]]+\](?:\s*(?:\[|\.[\w$]|\()|\s*$)/v;
 const spacedBracketMemberAccessAfterMatchPattern = /^\s+\[[^\]]+\]\s*(?:\[|\.[\w$])/v;
 const pathTerminatorCharacters = '"\'`<>';
 const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
+const maskCharacter = '\uFFFF';
 
 function isIdentifierLikeCharacter(character) {
 	return Boolean(character) && /[\p{Letter}\p{Number}_]/v.test(character);
 }
 
-function isInsideUrl(commentValue, match) {
-	urlPattern.lastIndex = 0;
-
-	for (const urlMatch of commentValue.matchAll(urlPattern)) {
-		const start = urlMatch.index;
-		const end = start + urlMatch[0].length;
-
-		if (match.index >= start && match.index < end) {
-			return true;
+function maskRange(characters, start, end) {
+	for (let index = start; index < end; index++) {
+		if (characters[index] !== '\n') {
+			characters[index] = maskCharacter;
 		}
 	}
-
-	return false;
 }
 
-function isInsideBackticks(commentValue, match) {
+function maskPattern(characters, text, pattern) {
+	pattern.lastIndex = 0;
+
+	for (const match of text.matchAll(pattern)) {
+		maskRange(characters, match.index, match.index + match[0].length);
+	}
+}
+
+function maskBackticks(characters, text) {
 	let openingDelimiter;
 
-	for (const delimiter of commentValue.matchAll(/`+/gv)) {
+	for (const delimiter of text.matchAll(/`+/gv)) {
 		const start = delimiter.index;
 		const end = start + delimiter[0].length;
 
 		if (!openingDelimiter) {
 			openingDelimiter = {
+				start,
 				end,
 				size: delimiter[0].length,
 			};
@@ -318,21 +321,17 @@ function isInsideBackticks(commentValue, match) {
 			continue;
 		}
 
-		if (match.index >= openingDelimiter.end && match.index < start) {
-			return true;
-		}
-
+		maskRange(characters, openingDelimiter.start, end);
 		openingDelimiter = undefined;
 	}
-
-	return false;
 }
 
-function isInsideQuotedString(commentValue, match) {
+function maskQuotedStrings(characters, text) {
 	let quote;
+	let quoteStart;
 
-	for (let index = 0; index < match.index; index++) {
-		const character = commentValue[index];
+	for (let index = 0; index < text.length; index++) {
+		const character = text[index];
 
 		if (character === '\\') {
 			index++;
@@ -341,7 +340,9 @@ function isInsideQuotedString(commentValue, match) {
 
 		if (quote) {
 			if (character === quote) {
+				maskRange(characters, quoteStart, index + 1);
 				quote = undefined;
+				quoteStart = undefined;
 			}
 
 			continue;
@@ -349,30 +350,19 @@ function isInsideQuotedString(commentValue, match) {
 
 		if (character === '"') {
 			quote = character;
+			quoteStart = index;
 			continue;
 		}
 
-		if (character === '\'' && !isIdentifierLikeCharacter(commentValue[index - 1])) {
+		if (character === '\'' && !isIdentifierLikeCharacter(text[index - 1])) {
 			quote = character;
+			quoteStart = index;
 		}
 	}
 
-	return Boolean(quote);
-}
-
-function isInsideMimeType(commentValue, match) {
-	mimeTypePattern.lastIndex = 0;
-
-	for (const mimeTypeMatch of commentValue.matchAll(mimeTypePattern)) {
-		const start = mimeTypeMatch.index;
-		const end = start + mimeTypeMatch[0].length;
-
-		if (match.index >= start && match.index < end) {
-			return true;
-		}
+	if (quoteStart !== undefined) {
+		maskRange(characters, quoteStart, text.length);
 	}
-
-	return false;
 }
 
 function getCommentLine(commentValue, index) {
@@ -442,48 +432,213 @@ function isPackageSpecifierMatch(commentValue, match) {
 		&& /^(?:@[\w\-.]+(?:\/[\w\-.]+)+(?:[#?@][\w\-.]+)?|[\w\-.]+\/[\w\-.]+(?:[#?@][\w\-.]+|(?:\/[\w\-.]+)+)?)$/v.test(text);
 }
 
-function isMarkdownLinkMatch(commentValue, match) {
-	const line = getCommentLine(commentValue, match.index);
-	const lineStart = commentValue.lastIndexOf('\n', match.index - 1) + 1;
-	const indexInLine = match.index - lineStart;
-
-	for (const linkMatch of line.matchAll(/(?:^|[\s\(])\[[^\]]+\](?::\s*\S+(?:\s+(?:"[^"]*"|'[^']*'|\([^\)]+\)))?|(?:\[[^\]]+\])+|\([^\)]+\))/gv)) {
-		const start = linkMatch.index;
-		const end = start + linkMatch[0].length;
-
-		if (indexInLine >= start && indexInLine < end) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 function removeMarkdownInlineLinks(line) {
 	return line.replaceAll(markdownInlineLinkPattern, '');
-}
-
-function isInsideMarkupTag(commentValue, match) {
-	const line = getCommentLine(commentValue, match.index);
-	const lineStart = commentValue.lastIndexOf('\n', match.index - 1) + 1;
-	const indexInLine = match.index - lineStart;
-	const tagStart = line.lastIndexOf('<', indexInLine);
-
-	if (tagStart === -1) {
-		return false;
-	}
-
-	const tagEnd = line.indexOf('>', tagStart + 1);
-
-	return tagEnd !== -1
-		&& indexInLine > tagStart
-		&& indexInLine < tagEnd
-		&& /^<\/?[a-z][\w\-:]*(?:\s|\/?>)/iv.test(line.slice(tagStart, tagEnd + 1));
 }
 
 function isCommandLine(line) {
 	return shellPromptLinePattern.test(line)
 		|| secondaryShellPromptLinePattern.test(line);
+}
+
+function isQuotedText(text) {
+	const quote = text[0];
+
+	return text.length >= 2
+		&& (quote === '"' || quote === '\'')
+		&& text.at(-1) === quote
+		&& !text.slice(1, -1).includes(quote);
+}
+
+function isSimpleStructuredKey(text) {
+	return isQuotedText(text) || /^[\w$\-]+$/v.test(text);
+}
+
+function isSimpleWrappedValue(text, open, close) {
+	const inner = text.slice(1, -1);
+
+	for (const character of inner) {
+		if (character === open || character === close) {
+			return false;
+		}
+	}
+
+	return text.startsWith(open)
+		&& text.endsWith(close)
+		&& text.length >= 2;
+}
+
+function isSimpleStructuredValue(text) {
+	if (text.endsWith(',')) {
+		text = text.slice(0, -1).trimEnd();
+	}
+
+	const commentStart = /\s+#/v.exec(text)?.index;
+	if (commentStart !== undefined) {
+		text = text.slice(0, commentStart);
+	}
+
+	return isQuotedText(text)
+		|| /^https?:\/\/\S+$/v.test(text)
+		|| /^[\w$\-.\/]+$/v.test(text)
+		|| isSimpleWrappedValue(text, '{', '}')
+		|| isSimpleWrappedValue(text, '[', ']');
+}
+
+function isStructuredKeyValueLine(line) {
+	line = line.replace(listMarkerPattern, '');
+
+	const colonIndex = line.indexOf(':');
+	if (colonIndex === -1) {
+		return false;
+	}
+
+	const key = line.slice(0, colonIndex).trim();
+	const value = line.slice(colonIndex + 1).trim();
+
+	return isSimpleStructuredKey(key) && isSimpleStructuredValue(value);
+}
+
+function isObjectLiteralLine(line) {
+	if (line.endsWith(',')) {
+		line = line.slice(0, -1).trimEnd();
+	}
+
+	if (!isSimpleWrappedValue(line, '{', '}')) {
+		return false;
+	}
+
+	const [key, value] = line.slice(1, -1).split(':');
+
+	return key.trim() !== '' && value !== undefined && value.trim() !== '';
+}
+
+function isIgnoredCommentLine(line) {
+	line = cleanCommentLine(line);
+
+	return codeLikeLineStartPattern.test(line)
+		|| controlFlowLikeLineStartPattern.test(line)
+		|| bracketMemberAccessLinePattern.test(line)
+		|| chainedBracketMemberAccessLinePattern.test(line)
+		|| isCommandLine(line)
+		|| isStructuredKeyValueLine(line)
+		|| isObjectLiteralLine(line)
+		|| /;\s*$/v.test(line)
+		|| line.includes('=>')
+		|| memberCallLinePattern.test(removeMarkdownInlineLinks(line));
+}
+
+function maskIgnoredLines(characters, text) {
+	let start = 0;
+
+	while (start < text.length) {
+		const lineEnd = text.indexOf('\n', start);
+		const end = lineEnd === -1 ? text.length : lineEnd;
+
+		if (isIgnoredCommentLine(text.slice(start, end))) {
+			maskRange(characters, start, end);
+		}
+
+		start = end + 1;
+	}
+}
+
+function maskFencedCodeBlocks(characters, text) {
+	const fencePattern = /^[\t ]*(?:\*\s?)?(?<fence>`{3,}|~{3,})/gmv;
+	let activeFence;
+
+	for (const {index, groups} of text.matchAll(fencePattern)) {
+		const {fence} = groups;
+
+		if (!activeFence) {
+			activeFence = {
+				character: fence[0],
+				size: fence.length,
+				start: index,
+			};
+			continue;
+		}
+
+		if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
+			const lineEnd = text.indexOf('\n', index);
+			const end = lineEnd === -1 ? text.length : lineEnd;
+
+			maskRange(characters, activeFence.start, end);
+			activeFence = undefined;
+		}
+	}
+
+	if (activeFence) {
+		maskRange(characters, activeFence.start, text.length);
+	}
+}
+
+function maskJsdocExamples(characters, text) {
+	let exampleStart;
+	let lineStart = 0;
+
+	while (lineStart < text.length) {
+		const lineEnd = text.indexOf('\n', lineStart);
+		const end = lineEnd === -1 ? text.length : lineEnd;
+		const line = text.slice(lineStart, end);
+		const trimmedLine = cleanCommentLine(line);
+
+		if (exampleStart !== undefined && /^@\w/v.test(trimmedLine)) {
+			maskRange(characters, exampleStart, lineStart);
+			exampleStart = undefined;
+		}
+
+		if (exampleStart === undefined && /^@example\b/v.test(trimmedLine)) {
+			exampleStart = lineStart;
+		}
+
+		lineStart = end + 1;
+	}
+
+	if (exampleStart !== undefined) {
+		maskRange(characters, exampleStart, text.length);
+	}
+}
+
+function maskMarkupTags(characters, text) {
+	let start = 0;
+
+	while (start < text.length) {
+		const tagStart = text.indexOf('<', start);
+		if (tagStart === -1) {
+			break;
+		}
+
+		const tagEnd = text.indexOf('>', tagStart + 1);
+		if (tagEnd === -1) {
+			break;
+		}
+
+		if (/^<\/?[a-z][\w\-:]*(?:\s|\/?>)/iv.test(text.slice(tagStart, tagEnd + 1))) {
+			maskRange(characters, tagStart, tagEnd + 1);
+		}
+
+		start = tagEnd + 1;
+	}
+}
+
+function getSearchableCommentValue(commentValue) {
+	/*
+	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, package specifiers, slash pairs, member access, and punctuation-adjacent matches remain match-local checks.
+	*/
+	const characters = Array.from({length: commentValue.length}, (_element, index) => commentValue[index]);
+
+	maskFencedCodeBlocks(characters, commentValue);
+	maskJsdocExamples(characters, commentValue);
+	maskBackticks(characters, commentValue);
+	maskQuotedStrings(characters, commentValue);
+	maskPattern(characters, commentValue, urlPattern);
+	maskPattern(characters, commentValue, mimeTypePattern);
+	maskPattern(characters, commentValue, markdownLinkPattern);
+	maskMarkupTags(characters, commentValue);
+	maskIgnoredLines(characters, commentValue);
+
+	return characters.join('');
 }
 
 function isPathLikeMatch(commentValue, match) {
@@ -529,53 +684,10 @@ function isPropertyAccessMatch(commentValue, match) {
 		|| isMemberAccessObject;
 }
 
-function shouldSkipCommentLine(commentValue, match) {
-	const line = cleanCommentLine(getCommentLine(commentValue, match.index));
-
-	return codeLikeLineStartPattern.test(line)
-		|| controlFlowLikeLineStartPattern.test(line)
-		|| bracketMemberAccessLinePattern.test(line)
-		|| chainedBracketMemberAccessLinePattern.test(line)
-		|| isCommandLine(line)
-		|| structuredKeyValueLinePattern.test(line)
-		|| objectLiteralLinePattern.test(line)
-		|| /;\s*$/v.test(line)
-		|| line.includes('=>')
-		|| memberCallLinePattern.test(removeMarkdownInlineLinks(line));
-}
-
-function isInsideJsdocExample(commentValue, match) {
-	let isExample = false;
-
-	for (const line of commentValue.slice(0, match.index + match[0].length).split('\n')) {
-		const trimmedLine = cleanCommentLine(line);
-
-		if (/^@example\b/v.test(trimmedLine)) {
-			isExample = true;
-			continue;
-		}
-
-		if (isExample && /^@\w/v.test(trimmedLine)) {
-			isExample = false;
-		}
-	}
-
-	return isExample;
-}
-
 function shouldSkipMatch(commentValue, match) {
-	return isInsideUrl(commentValue, match)
-		|| isInsideBackticks(commentValue, match)
-		|| isInsideQuotedString(commentValue, match)
-		|| isInsideMimeType(commentValue, match)
-		|| isPathLikeMatch(commentValue, match)
+	return isPathLikeMatch(commentValue, match)
 		|| isPackageSpecifierMatch(commentValue, match)
 		|| isPropertyAccessMatch(commentValue, match)
-		|| isMarkdownLinkMatch(commentValue, match)
-		|| isInsideMarkupTag(commentValue, match)
-		|| isInFencedCodeBlock(commentValue, match.index, {allowIndented: true})
-		|| isInsideJsdocExample(commentValue, match)
-		|| shouldSkipCommentLine(commentValue, match)
 		|| commentValue[match.index - 1] === '-'
 		|| commentValue[match.index + match[0].length] === '-'
 		|| commentValue[match.index + match[0].length] === '(';
@@ -588,18 +700,23 @@ function getReplacementProblem(comment, sourceCode, replacements) {
 	}
 
 	let bestProblem;
+	const searchableCommentValue = getSearchableCommentValue(comment.value);
 
 	for (const replacement of replacements) {
 		replacement.regex.lastIndex = 0;
 
 		let match;
-		while ((match = replacement.regex.exec(comment.value))) {
+		while ((match = replacement.regex.exec(searchableCommentValue))) {
 			if (match[0] === '') {
 				replacement.regex.lastIndex++;
 				continue;
 			}
 
 			if (match[0] === replacement.replacement) {
+				continue;
+			}
+
+			if (match[0].includes(maskCharacter)) {
 				continue;
 			}
 

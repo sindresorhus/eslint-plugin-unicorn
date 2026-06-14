@@ -414,6 +414,41 @@ test('fixes multiple problems in the same comment over multiple passes', t => {
 	t.is(result.output, '// Node.js uses JavaScript.');
 });
 
+test('ignores custom replacement matches that overlap masked regions', t => {
+	const linter = new Linter({configType: 'flat'});
+	const code = '// `json` api';
+	const config = {
+		...JAVASCRIPT_CONFIG,
+		rules: {
+			[RULE_ID]: [
+				'error',
+				{
+					extendDefaultReplacements: false,
+					replacements: {
+						'.*api\\b': 'API',
+					},
+				},
+			],
+		},
+	};
+	const messages = linter.verify(code, config, {filename: 'fixture.js'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.js'});
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores unterminated quoted strings', t => {
+	const code = '// "json';
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
 test('fixes slash-separated acronym pairs', t => {
 	const result = verifyAndFixJavaScript(`// ci/cd pipeline and ui/ux polish.
 // ci/cd.
