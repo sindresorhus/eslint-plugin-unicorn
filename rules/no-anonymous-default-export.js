@@ -89,11 +89,11 @@ function addName(fixer, node, name, context) {
 
 			textBefore = `\n${textBefore}`;
 			if (!/\s$/.test(textBefore)) {
-				textBefore = `${textBefore} `;
+				textBefore += ' ';
 			}
 
 			if (!textAfter.endsWith(';')) {
-				textAfter = `${textAfter};`;
+				textAfter += ';';
 			}
 
 			return [

@@ -9,22 +9,21 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use `+=` assignment.',
 };
 
-function hasCommentsInsideInterpolation(templateLiteral, sourceCode, index) {
-	const [, quasiEnd] = sourceCode.getRange(templateLiteral.quasis[index]);
-	const [nextQuasiStart] = sourceCode.getRange(templateLiteral.quasis[index + 1]);
-	const start = quasiEnd - 2;
-	const end = nextQuasiStart + 1;
-
-	return sourceCode.getCommentsInside(templateLiteral).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
-}
-
-function getTemplateLiteralTailText(templateLiteral, sourceCode) {
+function getTemplateLiteralTailRange(templateLiteral, sourceCode) {
 	const [nextQuasiStart] = sourceCode.getRange(templateLiteral.quasis[1]);
 	const [, templateEnd] = sourceCode.getRange(templateLiteral);
-	return `\`${sourceCode.text.slice(nextQuasiStart + 1, templateEnd)}`;
+	return [nextQuasiStart + 1, templateEnd];
+}
+
+function getTemplateLiteralTailText(sourceCode, [start, end]) {
+	return `\`${sourceCode.text.slice(start, end)}`;
+}
+
+function hasCommentsOutsideRange(node, sourceCode, [rangeStart, rangeEnd]) {
+	return sourceCode.getCommentsInside(node).some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return commentStart < rangeStart || commentEnd > rangeEnd;
+	});
 }
 
 function getTemplateLiteralProblem(node, sourceCode) {
@@ -43,13 +42,16 @@ function getTemplateLiteralProblem(node, sourceCode) {
 		right.quasis[0].value.raw !== ''
 		|| firstExpression?.type !== 'Identifier'
 		|| firstExpression.name !== left.name
-		|| sourceCode.commentsExistBetween(left, right)
-		|| hasCommentsInsideInterpolation(right, sourceCode, 0)
 	) {
 		return;
 	}
 
-	const templateLiteralTailText = getTemplateLiteralTailText(right, sourceCode);
+	const templateLiteralTailRange = getTemplateLiteralTailRange(right, sourceCode);
+	if (hasCommentsOutsideRange(node, sourceCode, templateLiteralTailRange)) {
+		return;
+	}
+
+	const templateLiteralTailText = getTemplateLiteralTailText(sourceCode, templateLiteralTailRange);
 	if (templateLiteralTailText === '``') {
 		return;
 	}

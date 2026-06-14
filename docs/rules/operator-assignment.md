@@ -13,6 +13,10 @@ This rule is the same as the built-in ESLint [`operator-assignment`](https://esl
 
 The template literal case is suggestion-only because the change can affect coercion and side-effect ordering for unusual values.
 
+## Replacement for ESLint `operator-assignment`
+
+This rule replaces ESLint's built-in `operator-assignment` rule, which Unicorn presets disable when this rule is enabled.
+
 ## Examples
 
 ```js

@@ -154,7 +154,7 @@ function getFixFunction(callExpression, functionInfo, context) {
 				&& shouldAddParenthesesToExpressionStatementExpression(returnStatement.argument);
 		if (shouldAddParentheses) {
 			textBefore = `(${textBefore}`;
-			textAfter = `${textAfter})`;
+			textAfter += ')';
 		}
 
 		const insertBraces = shouldSwitchReturnStatementToBlockStatement(returnStatement);
