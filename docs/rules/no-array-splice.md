@@ -13,6 +13,8 @@ Prefer using [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/
 
 `Array#splice()` modifies the original array and returns the removed elements, while `Array#toSpliced()` returns a changed copy and leaves the original array untouched.
 
+This rule only reports unused `splice()` calls on simple reassignable local identifiers, such as `let` variables, `var` variables, function parameters, and catch parameters.
+
 This rule is suggestion-only because assigning the `Array#toSpliced()` result changes alias behavior. Code that still references the original array object will observe different behavior after reassignment.
 
 ## Examples

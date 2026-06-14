@@ -33,5 +33,6 @@ test.snapshot({
 		'try {} catch (array) { array.splice(1, 1); }',
 		'let array = []; array.splice(1, 1, /* comment */ item, ...items);',
 		'let array = []; array /* comment */ .splice(1, 1);',
+		String.raw`let \u0061rray = []; \u0061rray.splice(1, 1);`,
 	],
 });

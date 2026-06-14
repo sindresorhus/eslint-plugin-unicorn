@@ -55,6 +55,8 @@ const create = context => {
 			return;
 		}
 
+		const objectText = context.sourceCode.getText(object);
+
 		return {
 			node: property,
 			messageId: MESSAGE_ID_ERROR,
@@ -62,7 +64,7 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					fix: fixer => [
-						fixer.insertTextBefore(callExpression, `${object.name} = `),
+						fixer.insertTextBefore(callExpression, `${objectText} = `),
 						fixer.replaceText(property, 'toSpliced'),
 					],
 				},
