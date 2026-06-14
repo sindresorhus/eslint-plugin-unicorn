@@ -7,9 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule reports ternary expressions where both branches share the same outer expression shape and only one direct subexpression changes.
-
-Moving the ternary into the varying part avoids duplicating the surrounding expression and makes the real difference easier to see.
+This rule reports ternaries where both branches share the same outer shape and only one subexpression varies. Moving the ternary into the varying part avoids duplicating the rest and makes the real difference easier to see.
 
 ## Examples
 
@@ -37,27 +35,25 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
+Ternaries where only a property name varies (`object.a : object.b`) are not reported, since minimizing them requires computed member access (`object[test ? 'a' : 'b']`), which is not an improvement.
+
+Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order — review each report.
+
+## Options
+
+### `checkComputedMemberAccess`
+
+Type: `boolean`\
+Default: `false`
+
+Also report method-call ternaries that share the object and arguments and differ only by the method name. Minimizing these requires computed member access, so it is opt-in.
+
 ```js
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkComputedMemberAccess": true}]
+
 // ❌
-await (
-	delayRejection
-		? Promise.allSettled([
-			promise,
-			delay(minimumDelay),
-		])
-		: Promise.all([
-			promise,
-			delay(minimumDelay),
-		])
-);
+await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
 
 // ✅
-await Promise[delayRejection ? 'allSettled' : 'all']([
-	promise,
-	delay(minimumDelay),
-]);
+await Promise[delayRejection ? 'allSettled' : 'all'](promises);
 ```
-
-This rule intentionally only reports shallow, obvious cases. It does not recursively minimize nested expressions.
-
-The rule is not autofixable because moving the ternary can change evaluation order in some cases. Review each report before refactoring.
