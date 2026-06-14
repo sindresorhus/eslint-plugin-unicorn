@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression, isUndefined} from './ast/index.js';
 import {
 	getParenthesizedText,
@@ -23,10 +23,32 @@ const mapTypeNames = new Set([
 	'WeakMap',
 ]);
 
+const mapConstructorTypeNames = new Set([
+	'Map',
+	'WeakMap',
+]);
+
 const nullSentinelTypeNames = new Set([
 	'FormData',
 	'Headers',
 	'URLSearchParams',
+]);
+
+const definitelyTruthyBuiltinTypeNames = new Set([
+	'Array',
+	'ReadonlyArray',
+]);
+
+const collectionTypeNames = new Set([
+	...mapConstructorTypeNames,
+	...nullSentinelTypeNames,
+]);
+
+const typeReferenceDefinitionTypes = new Set([
+	'ClassName',
+	'ImportBinding',
+	'TSEnumName',
+	'Type',
 ]);
 
 const unsupportedBooleanTypeNames = new Set([
@@ -40,6 +62,44 @@ const unsupportedBooleanTypeNames = new Set([
 	'undefined',
 	'null',
 	'void',
+]);
+
+const transparentTypeAnnotationTypes = new Set([
+	'TSTypeAnnotation',
+	'TSParenthesizedType',
+]);
+
+const unsupportedValueTypeAnnotationTypes = new Set([
+	'TSAnyKeyword',
+	'TSNeverKeyword',
+	'TSUndefinedKeyword',
+	'TSUnknownKeyword',
+	'TSVoidKeyword',
+]);
+
+const possiblyFalsyPrimitiveValueTypeAnnotationTypes = new Set([
+	'TSBigIntKeyword',
+	'TSBooleanKeyword',
+	'TSNumberKeyword',
+	'TSStringKeyword',
+]);
+
+const alwaysSafeValueTypeAnnotationTypes = new Set([
+	'TSArrayType',
+	'TSConstructorType',
+	'TSFunctionType',
+	'TSObjectKeyword',
+	'TSSymbolKeyword',
+	'TSTupleType',
+]);
+
+const definitelySafeExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'NewExpression',
+	'ObjectExpression',
 ]);
 
 const transparentExpressionTypes = new Set([
@@ -79,6 +139,45 @@ const getMemberExpressionObjectText = (node, context) => {
 	return !isParenthesized(node, context) && shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
 };
 
+const getTypeReferenceName = typeName => {
+	if (typeName.type === 'Identifier') {
+		return typeName.name;
+	}
+
+	if (typeName.type === 'TSQualifiedName') {
+		const left = getTypeReferenceName(typeName.left);
+		return left ? `${left}.${typeName.right.name}` : undefined;
+	}
+};
+
+const getTypeReferenceArguments = node =>
+	node.typeArguments?.params ?? node.typeParameters?.params ?? [];
+
+const getTypeReferenceDefinition = (typeReferenceName, scope) => {
+	while (scope) {
+		const definition = scope.set
+			.get(typeReferenceName)
+			?.defs
+			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
+
+		if (definition) {
+			return definition;
+		}
+
+		scope = scope.upper;
+	}
+};
+
+const getNonGenericTypeAliasAnnotation = definition => {
+	if (
+		definition?.type === 'Type'
+		&& definition.node.type === 'TSTypeAliasDeclaration'
+		&& getTypeReferenceArguments(definition.node).length === 0
+	) {
+		return definition.node.typeAnnotation;
+	}
+};
+
 const isUnshadowedGlobalIdentifier = (node, context) => {
 	if (context.sourceCode.isGlobalReference(node)) {
 		return true;
@@ -88,13 +187,108 @@ const isUnshadowedGlobalIdentifier = (node, context) => {
 	return !variable || variable.defs.length === 0;
 };
 
+const isGlobalUndefined = (node, context) =>
+	isUndefined(node) && isUnshadowedGlobalIdentifier(node, context);
+
+const getKnownTypeReferenceDefinitionTypeAnnotation = (typeReferenceName, scope, visitedTypeReferenceNames) => {
+	if (visitedTypeReferenceNames.has(typeReferenceName)) {
+		return;
+	}
+
+	visitedTypeReferenceNames.add(typeReferenceName);
+
+	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
+	return getNonGenericTypeAliasAnnotation(definition);
+};
+
+const getMapInfoFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return getMapInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
+		}
+
+		case 'TSTypeOperator': {
+			return node.operator === 'readonly'
+				? getMapInfoFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				: undefined;
+		}
+
+		case 'TSTypeReference': {
+			const typeReferenceName = getTypeReferenceName(node.typeName);
+			if (!typeReferenceName) {
+				return;
+			}
+
+			if (mapTypeNames.has(typeReferenceName)) {
+				return getTypeReferenceDefinition(typeReferenceName, scope)
+					? undefined
+					: {
+						typeName: typeReferenceName,
+						valueType: getTypeReferenceArguments(node).at(-1),
+					};
+			}
+
+			const typeAnnotation = getKnownTypeReferenceDefinitionTypeAnnotation(typeReferenceName, scope, visitedTypeReferenceNames);
+			return typeAnnotation ? getMapInfoFromTypeAnnotation(typeAnnotation, scope, visitedTypeReferenceNames) : undefined;
+		}
+
+		default:
+	}
+};
+
+const getNullSentinelTypeNameFromTypeAnnotation = (node, scope, visitedTypeReferenceNames = new Set()) => {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return getNullSentinelTypeNameFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames);
+		}
+
+		case 'TSTypeOperator': {
+			return node.operator === 'readonly'
+				? getNullSentinelTypeNameFromTypeAnnotation(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				: undefined;
+		}
+
+		case 'TSTypeReference': {
+			const typeReferenceName = getTypeReferenceName(node.typeName);
+			if (!typeReferenceName) {
+				return;
+			}
+
+			if (nullSentinelTypeNames.has(typeReferenceName)) {
+				return getTypeReferenceDefinition(typeReferenceName, scope) ? undefined : typeReferenceName;
+			}
+
+			const typeAnnotation = getKnownTypeReferenceDefinitionTypeAnnotation(typeReferenceName, scope, visitedTypeReferenceNames);
+			return typeAnnotation ? getNullSentinelTypeNameFromTypeAnnotation(typeAnnotation, scope, visitedTypeReferenceNames) : undefined;
+		}
+
+		default:
+	}
+};
+
+const getTypeNameFromTypeAnnotation = (typeAnnotation, scope) =>
+	getMapInfoFromTypeAnnotation(typeAnnotation, scope)?.typeName
+	?? getNullSentinelTypeNameFromTypeAnnotation(typeAnnotation, scope);
+
+const getTypeNameFromExpressionAnnotation = (node, context) => {
+	const scope = context.sourceCode.getScope(node);
+	return getTypeNameFromTypeAnnotation(node.typeAnnotation, scope);
+};
+
 const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
+	const typeName = getTypeNameFromExpressionAnnotation(node, context);
+	if (typeName) {
+		return typeName;
+	}
+
 	node = unwrapExpression(node);
 
 	if (
 		isNewExpression(node)
 		&& node.callee.type === 'Identifier'
-		&& nullSentinelTypeNames.has(node.callee.name)
+		&& collectionTypeNames.has(node.callee.name)
 		&& isUnshadowedGlobalIdentifier(node.callee, context)
 	) {
 		return node.callee.name;
@@ -116,6 +310,11 @@ const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
 	visitedVariables.add(variable);
 
 	const [definition] = variable.defs;
+	const typeNameFromAnnotation = getTypeNameFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
+	if (typeNameFromAnnotation) {
+		return typeNameFromAnnotation;
+	}
+
 	if (
 		definition.type !== 'Variable'
 		|| definition.parent.kind !== 'const'
@@ -127,9 +326,6 @@ const getTypeNameFromSyntax = (node, context, visitedVariables = new Set()) => {
 
 	return getTypeNameFromSyntax(definition.node.init, context, visitedVariables);
 };
-
-const isDefaultLibraryType = (type, program) =>
-	isDefaultLibrarySymbol(getTypeSymbol(type), program);
 
 const getBuiltinTypeName = (type, program) => {
 	for (const candidate of [type, type.target]) {
@@ -216,6 +412,137 @@ const getMapValueTypeFromType = (type, checker, program) => {
 	return typeArguments.at(-1);
 };
 
+const getMapInfoFromExpressionAnnotation = (node, context) => {
+	const scope = context.sourceCode.getScope(node);
+	return getMapInfoFromTypeAnnotation(node.typeAnnotation, scope);
+};
+
+const getLiteralTypeValue = node => {
+	if (node.type === 'Literal') {
+		return node.value;
+	}
+
+	if (
+		node.type === 'TemplateLiteral'
+		&& node.expressions.length === 0
+	) {
+		return node.quasis[0].value.cooked;
+	}
+
+	if (
+		node.type === 'UnaryExpression'
+		&& (node.operator === '-' || node.operator === '+')
+		&& node.argument.type === 'Literal'
+		&& (typeof node.argument.value === 'number' || typeof node.argument.value === 'bigint')
+	) {
+		return node.operator === '-' ? -node.argument.value : node.argument.value;
+	}
+};
+
+const getTypeAnnotationDefinition = (typeReferenceName, scope) => {
+	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
+	const typeAnnotation = getNonGenericTypeAliasAnnotation(definition);
+
+	if (typeAnnotation) {
+		return {
+			type: 'alias',
+			node: typeAnnotation,
+		};
+	}
+
+	if (definition?.type === 'ClassName') {
+		return {
+			type: 'object',
+		};
+	}
+
+	if (
+		definition?.type === 'Type'
+		&& definition.node.type === 'TSInterfaceDeclaration'
+	) {
+		return {
+			type: 'object',
+		};
+	}
+};
+
+const isDefinitelySafeLiteralValue = (value, kind) => {
+	if (kind === 'truthy') {
+		return Boolean(value);
+	}
+
+	if (kind === 'not-undefined') {
+		return value !== undefined;
+	}
+
+	return value !== undefined && value !== null;
+};
+
+const isSafeTypeReferenceAnnotation = (node, context, kind, visitedTypeReferenceNames) => {
+	const typeReferenceName = getTypeReferenceName(node.typeName);
+	if (!typeReferenceName || visitedTypeReferenceNames.has(typeReferenceName)) {
+		return false;
+	}
+
+	visitedTypeReferenceNames.add(typeReferenceName);
+
+	const definition = getTypeAnnotationDefinition(typeReferenceName, context.sourceCode.getScope(node.typeName));
+	let isSafe = false;
+
+	if (definition?.type === 'alias') {
+		isSafe = hasSafeValueTypeAnnotation(definition.node, context, kind, visitedTypeReferenceNames);
+	} else if (definition?.type === 'object') {
+		isSafe = kind !== 'truthy';
+	}
+
+	visitedTypeReferenceNames.delete(typeReferenceName);
+
+	return isSafe;
+};
+
+const hasSafeValueTypeAnnotation = (node, context, kind, visitedTypeReferenceNames = new Set()) => {
+	if (!node || unsupportedValueTypeAnnotationTypes.has(node.type)) {
+		return false;
+	}
+
+	if (transparentTypeAnnotationTypes.has(node.type)) {
+		return hasSafeValueTypeAnnotation(node.typeAnnotation, context, kind, visitedTypeReferenceNames);
+	}
+
+	if (node.type === 'TSTypeOperator') {
+		return node.operator === 'readonly'
+			&& hasSafeValueTypeAnnotation(node.typeAnnotation, context, kind, visitedTypeReferenceNames);
+	}
+
+	if (node.type === 'TSUnionType' || node.type === 'TSIntersectionType') {
+		return node.types.every(type => hasSafeValueTypeAnnotation(type, context, kind, visitedTypeReferenceNames));
+	}
+
+	if (node.type === 'TSNullKeyword') {
+		return kind === 'not-undefined';
+	}
+
+	if (possiblyFalsyPrimitiveValueTypeAnnotationTypes.has(node.type)) {
+		return kind !== 'truthy';
+	}
+
+	if (alwaysSafeValueTypeAnnotationTypes.has(node.type)) {
+		return true;
+	}
+
+	if (node.type === 'TSTypeLiteral') {
+		return kind !== 'truthy';
+	}
+
+	if (node.type === 'TSLiteralType') {
+		const value = getLiteralTypeValue(node.literal);
+		return value === undefined ? false : isDefinitelySafeLiteralValue(value, kind);
+	}
+
+	return node.type === 'TSTypeReference'
+		&& isSafeTypeReferenceAnnotation(node, context, kind, visitedTypeReferenceNames);
+};
+
 const getConstrainedType = (type, checker) => {
 	if (!type.isTypeParameter?.()) {
 		return type;
@@ -245,7 +572,11 @@ const isDefinitelyNotType = (type, checker, typeNames) => {
 	return !typeNames.has(type.intrinsicName);
 };
 
-const isEmptyObjectType = (type, checker) => checker.typeToString(type) === '{}';
+const isObjectKeywordType = (type, checker) => checker.typeToString(type) === 'object';
+
+const hasTruthyCallOrConstructSignature = type =>
+	type.getCallSignatures().length > 0
+	|| type.getConstructSignatures().length > 0;
 
 const isDefinitelyTruthyType = (type, checker, program) => {
 	if (isUnknownType(type) || isNullishType(type)) {
@@ -273,6 +604,10 @@ const isDefinitelyTruthyType = (type, checker, program) => {
 		return true;
 	}
 
+	if (type.intrinsicName === 'symbol') {
+		return true;
+	}
+
 	if (type.isStringLiteral?.()) {
 		return type.value.length > 0;
 	}
@@ -285,32 +620,169 @@ const isDefinitelyTruthyType = (type, checker, program) => {
 		return type.value.negative || type.value.base10Value !== '0';
 	}
 
-	if (/^-?0n$/u.test(checker.typeToString(type))) {
+	const typeText = checker.typeToString(type);
+	if (/^-?\d+n$/u.test(typeText)) {
+		return !/^-?0n$/u.test(typeText);
+	}
+
+	return isObjectKeywordType(type, checker)
+		|| definitelyTruthyBuiltinTypeNames.has(getBuiltinTypeName(type, program))
+		|| hasTruthyCallOrConstructSignature(type);
+};
+
+const isDefinitelySafeExpression = (node, context, kind) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	if (staticValue) {
+		return isDefinitelySafeLiteralValue(staticValue.value, kind);
+	}
+
+	if (isUndefined(node)) {
 		return false;
 	}
 
-	return !isEmptyObjectType(type, checker)
-		&& (type.getCallSignatures().length > 0 || type.getConstructSignatures().length > 0 || !isDefaultLibraryType(type, program));
+	return definitelySafeExpressionTypes.has(node.type);
 };
+
+const hasSafeMapConstructorValues = (node, context, kind) => {
+	if (
+		!isNewExpression(node)
+		|| node.callee.type !== 'Identifier'
+		|| !mapConstructorTypeNames.has(node.callee.name)
+		|| !isUnshadowedGlobalIdentifier(node.callee, context)
+	) {
+		return false;
+	}
+
+	if (node.arguments.length === 0) {
+		return true;
+	}
+
+	if (node.arguments.length !== 1) {
+		return false;
+	}
+
+	const [entries] = node.arguments;
+	if (entries.type !== 'ArrayExpression') {
+		return false;
+	}
+
+	return entries.elements.every(element =>
+		element?.type === 'ArrayExpression'
+		&& element.elements.length >= 2
+		&& element.elements[1]
+		&& element.elements[1].type !== 'SpreadElement'
+		&& isDefinitelySafeExpression(element.elements[1], context, kind));
+};
+
+const getMapNewExpressionValueSafety = (node, context, kind, checkConstructorValues) => {
+	if (
+		!isNewExpression(node)
+		|| node.callee.type !== 'Identifier'
+		|| !mapConstructorTypeNames.has(node.callee.name)
+		|| !isUnshadowedGlobalIdentifier(node.callee, context)
+	) {
+		return;
+	}
+
+	const valueType = getTypeReferenceArguments(node).at(-1);
+	if (valueType) {
+		return hasSafeValueTypeAnnotation(valueType, context, kind);
+	}
+
+	return checkConstructorValues && hasSafeMapConstructorValues(node, context, kind);
+};
+
+const getSingleVariableDefinition = (node, context, visitedVariables) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| variable.defs.length !== 1
+	) {
+		return;
+	}
+
+	return variable;
+};
+
+const hasSafeMapValueTypeFromDefinition = (definition, context, kind, visitedVariables) => {
+	const mapInfoFromAnnotation = getMapInfoFromTypeAnnotation(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
+	if (mapInfoFromAnnotation) {
+		return mapInfoFromAnnotation.valueType
+			? hasSafeValueTypeAnnotation(mapInfoFromAnnotation.valueType, context, kind)
+			: false;
+	}
+
+	if (
+		definition.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+		|| definition.node.id !== definition.name
+		|| !definition.node.init
+	) {
+		return false;
+	}
+
+	return hasSafeMapValueTypeFromSyntax(definition.node.init, context, kind, {
+		visitedVariables,
+		checkConstructorValues: false,
+	});
+};
+
+function hasSafeMapValueTypeFromSyntax(node, context, kind, options = {}) {
+	const visitedVariables = options.visitedVariables ?? new Set();
+	const checkConstructorValues = options.checkConstructorValues ?? true;
+
+	const mapInfo = getMapInfoFromExpressionAnnotation(node, context);
+	if (mapInfo) {
+		return mapInfo.valueType
+			? hasSafeValueTypeAnnotation(mapInfo.valueType, context, kind)
+			: false;
+	}
+
+	node = unwrapExpression(node);
+
+	const mapNewExpressionValueSafety = getMapNewExpressionValueSafety(node, context, kind, checkConstructorValues);
+	if (mapNewExpressionValueSafety !== undefined) {
+		return mapNewExpressionValueSafety;
+	}
+
+	const variable = getSingleVariableDefinition(node, context, visitedVariables);
+	if (!variable) {
+		return false;
+	}
+
+	visitedVariables.add(variable);
+
+	const [definition] = variable.defs;
+	const isSafe = hasSafeMapValueTypeFromDefinition(definition, context, kind, visitedVariables);
+	visitedVariables.delete(variable);
+
+	return isSafe;
+}
 
 const hasSafeMapValueType = (node, context, kind) => {
 	const valueType = getMapValueType(node, context);
-	if (!valueType) {
-		return false;
+
+	if (valueType) {
+		const {program} = context.sourceCode.parserServices;
+		const checker = program.getTypeChecker();
+
+		if (kind === 'truthy') {
+			return isDefinitelyTruthyType(valueType, checker, program);
+		}
+
+		if (kind === 'not-undefined') {
+			return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void']));
+		}
+
+		return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void', 'null']));
 	}
 
-	const {program} = context.sourceCode.parserServices;
-	const checker = program.getTypeChecker();
-
-	if (kind === 'truthy') {
-		return isDefinitelyTruthyType(valueType, checker, program);
-	}
-
-	if (kind === 'not-undefined') {
-		return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void']));
-	}
-
-	return isDefinitelyNotType(valueType, checker, new Set(['undefined', 'void', 'null']));
+	return hasSafeMapValueTypeFromSyntax(node, context, kind);
 };
 
 const getCallKind = (callExpression, comparison, context) => {
@@ -325,7 +797,7 @@ const getCallKind = (callExpression, comparison, context) => {
 
 	if (mapTypeNames.has(typeName)) {
 		if (
-			isUndefined(comparison.value)
+			isGlobalUndefined(comparison.value, context)
 			&& hasSafeMapValueType(callExpression.callee.object, context, 'not-undefined')
 		) {
 			return {missingType: 'undefined'};
@@ -372,8 +844,8 @@ const getComparison = callExpression => {
 
 const isPositiveComparison = ({operator}) => operator === '!==' || operator === '!=';
 
-const isMatchingMissingValue = (value, missingType) =>
-	missingType === 'undefined' ? isUndefined(value) : isNullLiteral(value);
+const isMatchingMissingValue = (value, missingType, context) =>
+	missingType === 'undefined' ? isGlobalUndefined(value, context) : isNullLiteral(value);
 
 const getComparisonFix = (callExpression, comparison, context) => {
 	if (context.sourceCode.getCommentsInside(comparison.node).length > context.sourceCode.getCommentsInside(callExpression).length) {
@@ -409,7 +881,7 @@ const getProblem = (callExpression, context) => {
 		}
 
 		const callKind = getCallKind(callExpression, comparison, context);
-		if (!callKind || !isMatchingMissingValue(comparison.value, callKind.missingType)) {
+		if (!callKind || !isMatchingMissingValue(comparison.value, callKind.missingType, context)) {
 			return;
 		}
 
