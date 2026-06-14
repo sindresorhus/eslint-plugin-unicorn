@@ -34,12 +34,13 @@ ruleTest.snapshot({
 
 				static {}
 
+				static staticMethod() {}
+
 				#privateField = 1;
 				publicField = 1;
 
 				constructor() {}
 
-				static staticMethod() {}
 				#privateMethod() {}
 				publicMethod() {}
 			}
@@ -51,6 +52,9 @@ ruleTest.snapshot({
 
 				static {}
 
+				static a() {}
+				static #f() {}
+
 				#a = 1;
 				#b = 2;
 				a = 1;
@@ -58,13 +62,23 @@ ruleTest.snapshot({
 
 				constructor() {}
 
-				static a() {}
-				static #f() {}
 				#d() {}
 				#e() {}
 				a() {}
 				b() {}
 			};
+		`,
+		outdent`
+			class SearchQuery {
+				static escapeValue() {}
+				static from() {}
+
+				#queryParts = [];
+
+				constructor() {}
+
+				get() {}
+			}
 		`,
 		outdent`
 			class Foo {
@@ -80,6 +94,9 @@ ruleTest.snapshot({
 			code: outdent`
 				abstract class Foo {
 					static staticField: string;
+
+					static staticMethod(): void {}
+
 					private privateField: string;
 					protected protectedField: string;
 					public publicField: string;
@@ -87,7 +104,6 @@ ruleTest.snapshot({
 
 					constructor() {}
 
-					static staticMethod(): void {}
 					private privateMethod(): void {}
 					abstract protected protectedMethod(): void;
 					abstract public publicMethod(): void;
