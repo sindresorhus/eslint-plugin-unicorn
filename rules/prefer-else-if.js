@@ -1,13 +1,22 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined, isFunction} from './ast/index.js';
+import {isBoolean} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
 	unwrapExpression,
 } from './utils/comparison.js';
 
+/**
+@import {TSESTree as ESTree} from '@typescript-eslint/types';
+@import * as ESLint from 'eslint';
+*/
+
 const MESSAGE_ID = 'prefer-else-if';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `else if` over an adjacent `if` with a related condition.',
+	[MESSAGE_ID_SUGGESTION]: 'Insert `else` before this `if`.',
 };
 
 const statementListParentTypes = new Set([
@@ -30,6 +39,38 @@ const staticReferenceRootTypes = new Set([
 	'Super',
 ]);
 
+/**
+@param {unknown} value
+@returns {string}
+*/
+const getStaticEqualityValueKey = value => {
+	if (typeof value === 'bigint') {
+		return `bigint:${value}`;
+	}
+
+	return `${typeof value}:${value}`;
+};
+
+/**
+@param {ESTree.Expression} node
+@returns {string}
+*/
+const getStaticEqualityNodeKey = node => {
+	if (isUndefined(node)) {
+		return getStaticEqualityValueKey();
+	}
+
+	if (node.type === 'Literal' && node.bigint) {
+		return `bigint:${node.bigint}`;
+	}
+
+	return getStaticEqualityValueKey(node.value);
+};
+
+/**
+@param {ESTree.Expression} node
+@returns {boolean}
+*/
 const isStaticEqualityValue = node => (
 	(
 		node.type === 'Literal'
@@ -38,18 +79,10 @@ const isStaticEqualityValue = node => (
 	|| isUndefined(node)
 );
 
-const getStaticEqualityValueKey = node => {
-	if (isUndefined(node)) {
-		return 'undefined';
-	}
-
-	if (node.bigint) {
-		return `bigint:${node.bigint}`;
-	}
-
-	return `${typeof node.value}:${node.value}`;
-};
-
+/**
+@param {ESTree.MemberExpression} node
+@returns {boolean}
+*/
 const isStaticMemberProperty = node => (
 	(
 		node.property.type === 'Identifier'
@@ -66,6 +99,10 @@ const isStaticMemberProperty = node => (
 	)
 );
 
+/**
+@param {ESTree.Expression} node
+@returns {boolean}
+*/
 function isStaticReference(node) {
 	node = unwrapExpression(node);
 
@@ -78,6 +115,10 @@ function isStaticReference(node) {
 		&& isStaticReference(node.object);
 }
 
+/**
+@param {ESTree.Expression} node
+@returns {ESTree.BinaryExpression[]}
+*/
 function getEqualityComparisons(node) {
 	const nodes = [node];
 	const comparisons = [];
@@ -100,7 +141,64 @@ function getEqualityComparisons(node) {
 	return comparisons;
 }
 
-function getComparisonInfo(node) {
+/**
+@typedef {{
+	discriminant: ESTree.Expression,
+	valueKeys: Set<string>,
+}} ComparisonInfo
+*/
+
+/**
+@param {ESTree.Expression} node
+@param {ESLint.Rule.RuleContext} context
+@returns {ComparisonInfo | undefined}
+*/
+function getBooleanComparisonInfo(node, context) {
+	node = unwrapExpression(node);
+	let value = true;
+
+	while (
+		node.type === 'UnaryExpression'
+		&& node.operator === '!'
+	) {
+		value = !value;
+		node = unwrapExpression(node.argument);
+	}
+
+	if (
+		node.type === 'CallExpression'
+		&& node.callee.type === 'Identifier'
+		&& node.callee.name === 'Boolean'
+		&& node.arguments.length === 1
+	) {
+		node = unwrapExpression(node.arguments[0]);
+	}
+
+	if (
+		containsOptionalChain(node)
+		|| !isStaticReference(node)
+		|| !isBoolean(node, context)
+	) {
+		return;
+	}
+
+	return {
+		discriminant: node,
+		valueKeys: new Set([getStaticEqualityValueKey(value)]),
+	};
+}
+
+/**
+@param {ESTree.Expression} node
+@param {ESLint.Rule.RuleContext} context
+@returns {ComparisonInfo | undefined}
+*/
+function getComparisonInfo(node, context) {
+	const booleanComparisonInfo = getBooleanComparisonInfo(node, context);
+	if (booleanComparisonInfo) {
+		return booleanComparisonInfo;
+	}
+
 	const comparisons = getEqualityComparisons(node);
 
 	if (comparisons.length === 0) {
@@ -136,7 +234,7 @@ function getComparisonInfo(node) {
 
 		discriminant ||= candidate;
 		const value = leftIsStaticValue ? left : right;
-		valueKeys.add(getStaticEqualityValueKey(value));
+		valueKeys.add(getStaticEqualityNodeKey(value));
 	}
 
 	return {
@@ -145,6 +243,10 @@ function getComparisonInfo(node) {
 	};
 }
 
+/**
+@param {ESTree.Statement} node
+@returns {boolean}
+*/
 function isAlwaysExiting(node) {
 	if (exitingStatementTypes.has(node.type)) {
 		return true;
@@ -162,6 +264,10 @@ function isAlwaysExiting(node) {
 	);
 }
 
+/**
+@param {ESTree.Expression} node
+@returns {ESTree.Expression[]}
+*/
 function getReferencePrefixes(node) {
 	node = unwrapExpression(node);
 	const prefixes = [node];
@@ -174,6 +280,10 @@ function getReferencePrefixes(node) {
 	return prefixes;
 }
 
+/**
+@param {ESTree.Node} node
+@returns {Generator<ESTree.Node>}
+*/
 function * getAssignmentTargets(node) {
 	node = unwrapExpression(node);
 
@@ -212,6 +322,11 @@ function * getAssignmentTargets(node) {
 	}
 }
 
+/**
+@param {ESTree.Node} node
+@param {ESLint.SourceCode.VisitorKeys} visitorKeys
+@returns {Generator<ESTree.Node>}
+*/
 function * traverse(node, visitorKeys) {
 	if (!node || isFunction(node)) {
 		return;
@@ -232,6 +347,12 @@ function * traverse(node, visitorKeys) {
 	}
 }
 
+/**
+@param {ESTree.Node} node
+@param {ESTree.Expression} discriminant
+@param {ESLint.Rule.RuleContext} context
+@returns {boolean}
+*/
 function hasDirectDiscriminantMutation(node, discriminant, context) {
 	const discriminantReferences = getReferencePrefixes(discriminant);
 
@@ -267,6 +388,11 @@ function hasDirectDiscriminantMutation(node, discriminant, context) {
 	return false;
 }
 
+/**
+@param {Set<string>} left
+@param {Set<string>} right
+@returns {boolean}
+*/
 const hasOverlappingValues = (left, right) => {
 	for (const valueKey of left) {
 		if (right.has(valueKey)) {
@@ -277,6 +403,37 @@ const hasOverlappingValues = (left, right) => {
 	return false;
 };
 
+/**
+@param {ESTree.IfStatement} ifStatement
+@returns {(fixer: ESLint.Rule.RuleFixer) => ESLint.Rule.Fix}
+*/
+const fix = ifStatement => fixer => fixer.insertTextBefore(ifStatement, 'else ');
+
+/**
+@param {ComparisonInfo} previous
+@param {ESTree.IfStatement} previousIfStatement
+@param {ESLint.Rule.RuleContext} context
+@returns {boolean}
+*/
+const canAutofix = (previous, previousIfStatement, context) => {
+	const discriminant = unwrapExpression(previous.discriminant);
+	return discriminant.type === 'Identifier'
+		&& !hasSideEffect(
+			previousIfStatement.consequent,
+			context.sourceCode,
+			{
+				considerGetters: true,
+				considerImplicitTypeConversion: true,
+			},
+		);
+};
+
+/**
+@param {ESTree.IfStatement} previousIfStatement
+@param {ESTree.IfStatement} ifStatement
+@param {ESLint.Rule.RuleContext} context
+@returns {ESLint.Rule.ReportDescriptor | undefined}
+*/
 function getProblem(previousIfStatement, ifStatement, context) {
 	if (
 		previousIfStatement.alternate
@@ -286,8 +443,8 @@ function getProblem(previousIfStatement, ifStatement, context) {
 		return;
 	}
 
-	const previous = getComparisonInfo(previousIfStatement.test);
-	const current = getComparisonInfo(ifStatement.test);
+	const previous = getComparisonInfo(previousIfStatement.test, context);
+	const current = getComparisonInfo(ifStatement.test, context);
 
 	if (!(
 		previous
@@ -299,10 +456,24 @@ function getProblem(previousIfStatement, ifStatement, context) {
 		return;
 	}
 
-	return {
+	const problem = {
 		node: ifStatement,
 		messageId: MESSAGE_ID,
 	};
+	const fixFunction = fix(ifStatement);
+
+	if (canAutofix(previous, previousIfStatement, context)) {
+		problem.fix = fixFunction;
+	} else {
+		problem.suggest = [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				fix: fixFunction,
+			},
+		];
+	}
+
+	return problem;
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -335,6 +506,8 @@ const config = {
 			description: 'Prefer `else if` over adjacent `if` statements with related conditions.',
 			recommended: true,
 		},
+		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [

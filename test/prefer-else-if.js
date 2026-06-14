@@ -176,10 +176,32 @@ test.snapshot({
 			if (foo === 1 || foo === 2) {}
 			if (foo === 2 || foo === 3) {}
 		`,
+		outdent`
+			if (foo) {}
+			if (foo === false) {}
+		`,
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (foo) {}
+					if (foo === true) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		outdent`
 			if (foo === 1) {}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1) {
+				bar();
+			}
+
 			if (foo === 2) {}
 		`,
 		outdent`
@@ -239,6 +261,39 @@ test.snapshot({
 			code: outdent`
 				if ((foo satisfies string) === 'one') {}
 				if (foo === 'two') {}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (foo) {}
+					if (foo === false) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (!foo) {}
+					if (foo === true) {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function unicorn(foo: boolean) {
+					if (Boolean(foo)) {}
+					if (foo === false) {}
+				}
 			`,
 			languageOptions: {
 				parser: parsers.typescript,
