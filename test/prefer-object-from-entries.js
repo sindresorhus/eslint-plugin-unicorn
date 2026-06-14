@@ -130,6 +130,12 @@ test.snapshot({
 		outdent`
 			const object = {};
 			for (const [key, value] of pairs) {
+				this.object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
 				object[value] = key;
 			}
 		`,
@@ -159,6 +165,12 @@ test.snapshot({
 		outdent`
 			const object = {};
 			for (const [key = defaultKey, value] of pairs) {
+				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, ...value] of pairs) {
 				object[key] = value;
 			}
 		`,
@@ -274,6 +286,12 @@ test.snapshot({
 			const object = {};
 			for (const [key, value] of ((pairs))) {
 				object[key] = value;
+			}
+		`,
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs) {
+				object[(key)] = (value);
 			}
 		`,
 		outdent`
