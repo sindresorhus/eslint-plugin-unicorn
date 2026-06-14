@@ -164,6 +164,14 @@ ruleTest.snapshot({
 				static staticField = 1;
 			}
 		`,
+		'class Foo { field = 1; static staticField = 1; }',
+		outdent`
+			class Foo {
+				field = 1;
+				// Keep this comment attached.
+				static staticField = 1;
+			}
+		`,
 		outdent`
 			class Foo {
 				publicMethod() {}

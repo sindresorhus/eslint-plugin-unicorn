@@ -4,6 +4,8 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+
 <!-- end auto-generated rule header -->
 
 This rule enforces the following class member order:
@@ -21,7 +23,9 @@ Static members are grouped by `static` before privacy, so `static #foo` belongs 
 
 TypeScript `protected` members follow the same order as public members.
 
-This rule does not autofix. Reordering class fields and static blocks can change runtime behavior because they run in declaration order.
+This rule does not autofix because fields and static blocks run in declaration order, and method order is observable through property reflection.
+
+It may offer a manual suggestion for simple class bodies without comments, decorators, computed keys, or unsupported members.
 
 This rule is intentionally simple. It only enforces group order and will not add options for sorting within groups, newline handling, or more detailed member categories. Use a dedicated sorting rule if you need that.
 
