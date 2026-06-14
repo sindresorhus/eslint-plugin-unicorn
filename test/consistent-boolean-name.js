@@ -1,0 +1,671 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const typescript = testCase => typeof testCase === 'string'
+	? {
+		code: testCase,
+		languageOptions: {parser: parsers.typescript},
+	}
+	: {
+		...testCase,
+		languageOptions: {
+			...testCase.languageOptions,
+			parser: parsers.typescript,
+		},
+	};
+
+// Type information needs the raw TypeScript parser because the shared `parsers.typescript`
+// helper injects `project: []`, which conflicts with `projectService`.
+const typeAware = testCase => {
+	testCase = typeof testCase === 'string' ? {code: testCase} : testCase;
+
+	return {
+		...testCase,
+		filename: 'file.ts',
+		languageOptions: {
+			...testCase.languageOptions,
+			parser: typescriptEslintParser,
+			parserOptions: {
+				...testCase.languageOptions?.parserOptions,
+				projectService: {allowDefaultProject: ['*.ts']},
+			},
+		},
+	};
+};
+
+const onlyIsPrefixOptions = {
+	prefixes: {
+		has: false,
+		can: false,
+		should: false,
+		was: false,
+		did: false,
+		will: false,
+	},
+};
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function foo() { const completed = true; return completed; }',
+			output: 'function foo() { const isCompleted = true; return isCompleted; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		typescript({
+			code: 'function foo() { let completed: boolean; completed = true; return completed; }',
+			output: 'function foo() { let isCompleted: boolean; isCompleted = true; return isCompleted; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		}),
+		typescript({
+			code: 'function foo() { const completed /* keep */: boolean = true; return completed; }',
+			output: 'function foo() { const isCompleted /* keep */: boolean = true; return isCompleted; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		}),
+		typescript({
+			code: 'function isFoo(completed /* keep */: boolean) { return completed; }',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'function isFoo(isCompleted /* keep */: boolean) { return isCompleted; }',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
+			code: 'declare const completed: boolean;',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		}),
+		{
+			code: 'const completed = true;',
+			output: 'const isCompleted = true;',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'const completed = true;',
+			languageOptions: {sourceType: 'script'},
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'export const completed = true;',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'const completed = true; export {completed};',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'const completed = true; export {completed as isCompleted};',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'const completed = true; export default completed;',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'function isDownloaded(showProgress = false) { return showProgress; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		{
+			code: 'function foo() { const completed = true; return completed; }',
+			output: 'function foo() { const isCompleted = true; return isCompleted; }',
+			errors: 1,
+		},
+		{
+			code: [
+				'const completed = true;',
+				'',
+				'function foo() {',
+				'\tconst isCompleted = false;',
+				'\treturn completed;',
+				'}',
+			].join('\n'),
+			errors: 1,
+		},
+		{
+			code: 'function foo() { const completed = () => true; return completed; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		},
+		typescript({
+			code: 'function foo() { const completed: () => boolean = getCompleted; return completed; }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		}),
+	],
+});
+
+test.snapshot({
+	valid: [
+		'const isCompleted = true;',
+		'const hasCompleted = true;',
+		'const canComplete = true;',
+		'const shouldComplete = true;',
+		'const wasCompleted = true;',
+		'const didComplete = true;',
+		'const willComplete = true;',
+		'const _isCompleted = true;',
+		'const __isCompleted = true;',
+		'const is_ready = true;',
+		'const is2FAEnabled = true;',
+		'const IS_COMPLETED = true;',
+		'const _IS_COMPLETED = true;',
+		'const completed = 1;',
+		'const completed = object && object.property;',
+		'const completed = object || object.property;',
+		'const completed = maybeBoolean;',
+		'const completed = new Boolean(value);',
+		'const completed = object.has(value);',
+		'const completed = object.includes(value);',
+		'const completed = array?.includes(value);',
+		'const completed = set?.has(value);',
+		'const completed = pattern?.test(value);',
+		'const completed = Array.isArray?.(value);',
+		'let array = [1]; array = object; const completed = array.includes(1);',
+		'const object = {includes() { return "yes"; }}; const completed = object.includes(value);',
+		'const Array = {isArray() { return "yes"; }}; const completed = Array.isArray(value);',
+		'const Number = {isFinite() { return "yes"; }}; const completed = Number.isFinite(value);',
+		'const Object = {hasOwn() { return "yes"; }}; const completed = Object.hasOwn(object, property);',
+		'const Object = {isFrozen() { return "yes"; }}; const completed = Object.isFrozen(object);',
+		'const Reflect = {has() { return "yes"; }}; const completed = Reflect.has(object, property);',
+		'const URL = {canParse() { return "yes"; }}; const completed = URL.canParse(value);',
+		'const isFinite = () => "yes"; const completed = isFinite(value);',
+		'const isNaN = () => "yes"; const completed = isNaN(value);',
+		'const Set = class { has() { return "yes"; } }; const set = new Set(); const completed = set.has(value);',
+		'const Set = class { isSubsetOf() { return "yes"; } }; const set = new Set(); const completed = set.isSubsetOf(value);',
+		'const Map = class { has() { return "yes"; } }; const map = new Map(); const completed = map.has(value);',
+		'const RegExp = class { test() { return "yes"; } }; const pattern = new RegExp("unicorn"); const completed = pattern.test(value);',
+		'const RegExp = class { constructor() { this.global = "yes"; } }; const pattern = new RegExp("unicorn"); const completed = pattern.global;',
+		'const pattern = {global: "yes"}; const completed = pattern.global;',
+		'const pattern = /unicorn/; const completed = pattern.source;',
+		'const pattern = /unicorn/; const completed = pattern.lastIndex;',
+		'const completed = pattern?.global;',
+		'const set = new Set(); const completed = set?.has(value);',
+		'const completed = new WeakSet().isSubsetOf(value);',
+		'function getCompleted() { return value; } const completed = getCompleted();',
+		'function getCompleted() { return true; return false; } const completed = getCompleted();',
+		'async function getCompleted() { return true; } const completed = getCompleted();',
+		'function* getCompleted() { return true; } const completed = getCompleted();',
+		'let isPredicate = () => true; isPredicate = () => "yes"; const completed = isPredicate();',
+		'let isPredicate = () => true; const task = {completed: isPredicate};',
+		'function isPredicate() { return true; } isPredicate = () => "yes"; const completed = isPredicate();',
+		'function isPredicate() { return true; } isPredicate = () => "yes"; const task = {completed: isPredicate};',
+		'function isCompleted() { return true; }',
+		'function download(shouldShowProgress = false) {}',
+		'const hasCompleted = () => true;',
+		'const canComplete = function () { return true; };',
+		'const task = {completed: progress === 100};',
+		'const {completed} = task;',
+		'function foo({completed = true}) {}',
+		'function foo([completed = true]) {}',
+		'import completed from "completed";',
+		'function completed() {}',
+		'class completed {}',
+		'try {} catch (completed) {}',
+		{
+			code: 'const needsUpdate = true; const didUpdate = true;',
+			options: [{prefixes: {needs: true}}],
+		},
+		{
+			code: 'const completed = true;',
+			options: [{
+				prefixes: {
+					is: false,
+					has: false,
+					can: false,
+					should: false,
+					was: false,
+					did: false,
+					will: false,
+				},
+			}],
+		},
+		typescript('const completed: boolean | undefined = true;'),
+		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
+	],
+	invalid: [
+		'const completed = true;',
+		'const completed = false;',
+		'const completed = progress === 100;',
+		'const hasProperty = key in object; const completed = hasProperty;',
+		'const completed = key in object;',
+		'const completed = value instanceof Error;',
+		'const completed = Boolean(value);',
+		'const completed = isFinite(value);',
+		'const completed = isNaN(value);',
+		'const completed = delete object.property;',
+		'const completed = !value;',
+		'const completed = Array.isArray(value);',
+		'const completed = ArrayBuffer.isView(value);',
+		'const completed = Atomics.isLockFree(4);',
+		'const completed = Number.isFinite(value);',
+		'const completed = Number.isInteger(value);',
+		'const completed = Number.isNaN(value);',
+		'const completed = Number.isSafeInteger(value);',
+		'const completed = Object.hasOwn(object, property);',
+		'const completed = Object.is(value, otherValue);',
+		'const completed = Object.isExtensible(object);',
+		'const completed = Object.isFrozen(object);',
+		'const completed = Object.isSealed(object);',
+		'const completed = Reflect.deleteProperty(object, property);',
+		'const completed = Reflect.has(object, property);',
+		'const completed = URL.canParse(value);',
+		'const completed = "hello".includes("h");',
+		'const completed = "hello".startsWith("h");',
+		'const completed = `hello`.endsWith("o");',
+		'const completed = [1, 2, 3].includes(2);',
+		'const completed = [1, 2, 3].some(Boolean);',
+		'const completed = [1, 2, 3].every(Boolean);',
+		'const array = [1, 2, 3]; const completed = array.includes(2);',
+		'const array = [1, 2, 3]; const completed = array["some"](Boolean);',
+		'const array = [1, 2, 3]; const completed = array.every(Boolean);',
+		'const set = new Set(); const completed = set.has(value);',
+		'const set = new Set(); const completed = set.isSubsetOf(other);',
+		'const set = new Set(); const completed = set["isSubsetOf"](other);',
+		'const set = new Set(); const completed = set.isSupersetOf(other);',
+		'const set = new Set(); const completed = set.isDisjointFrom(other);',
+		'const completed = new Set().isDisjointFrom(other);',
+		'const weakSet = new WeakSet(); const completed = weakSet.has(value);',
+		'const map = new Map(); const completed = map.has(key);',
+		'const weakMap = new WeakMap(); const completed = weakMap.has(key);',
+		'const completed = /unicorn/.test(value);',
+		'const completed = /unicorn/.global;',
+		'const completed = /unicorn/i.ignoreCase;',
+		'const completed = /unicorn/m.multiline;',
+		'const completed = /unicorn/s.dotAll;',
+		'const completed = /unicorn/u.unicode;',
+		'const completed = /unicorn/y.sticky;',
+		'const completed = /unicorn/d.hasIndices;',
+		'const pattern = /unicorn/; const completed = pattern.test(value);',
+		'const pattern = /unicorn/; const completed = pattern.global;',
+		'const pattern = /unicorn/; const completed = pattern?.global;',
+		'const pattern = /unicorn/; const completed = pattern["sticky"];',
+		'const pattern = new RegExp("unicorn"); const completed = pattern.test(value);',
+		'const pattern = new RegExp("unicorn"); const completed = pattern.multiline;',
+		'const completed = new RegExp("unicorn").unicodeSets;',
+		'const text = "unicorn"; const completed = text.includes("corn");',
+		'const text = `unicorn`; const completed = text.startsWith("uni");',
+		'const text = "unicorn"; const completed = text.isWellFormed();',
+		'const text = "unicorn"; const completed = text["isWellFormed"]();',
+		'const completed = "unicorn".isWellFormed();',
+		'function getCompleted() { return true; } const completed = getCompleted();',
+		'const getCompleted = function () { return progress === 100; }; const completed = getCompleted();',
+		'const getCompleted = () => progress === 100; const completed = getCompleted();',
+		'const island = true;',
+		'const candy = true;',
+		'const willow = true;',
+		'const haste = true;',
+		'const isReady = true; const hasAccess = true; const completed = isReady && hasAccess;',
+		'const isReady = true; const hasAccess = true; const completed = isReady || hasAccess;',
+		'const completed = condition ? true : false;',
+		'const completed = (doSomething(), true);',
+		'const isReady = true; function foo() { const completed = isReady; }',
+		[
+			'const completed = true;',
+			'',
+			'const task = {completed};',
+		].join('\n'),
+		'export const completed = true;',
+		'const completed = true; export {completed};',
+		'const completed = true; export {completed as isCompleted};',
+		[
+			'const completed = true;',
+			'',
+			'function foo() {',
+			'\tconst isCompleted = false;',
+			'\treturn completed;',
+			'}',
+		].join('\n'),
+		[
+			'const completed = true;',
+			'',
+			'function foo() {',
+			'\tconst isCompleted = false;',
+			'\tconst hasCompleted = false;',
+			'\tconst canCompleted = false;',
+			'\tconst shouldCompleted = false;',
+			'\tconst wasCompleted = false;',
+			'\tconst didCompleted = false;',
+			'\tconst willCompleted = false;',
+			'\treturn completed;',
+			'}',
+		].join('\n'),
+		{
+			code: 'const didUpdate = true;',
+			options: [{prefixes: {did: false}}],
+		},
+		{
+			code: 'const completed = true;',
+			options: [{prefixes: {tracks: true}}],
+		},
+		'function completed() { return true; }',
+		'const completed = () => true;',
+		'const completed = function () { return progress === 100; };',
+		'function completed(value) { return value === true; } completed(true);',
+		'export function completed() { return true; }',
+	],
+});
+
+test.snapshot({
+	valid: [
+		typescript('const isCompleted: boolean = true;'),
+		typescript('const wasCompleted: true = true;'),
+		typescript('type BooleanAlias = boolean; const isCompleted: BooleanAlias = true;'),
+		typescript('function download(shouldShowProgress: boolean) {}'),
+		typescript('class Task { constructor(readonly isCompleted = false) {} }'),
+		typescript('class Task { constructor(public isReady: boolean) {} }'),
+		typescript('function isCompleted(): boolean {}'),
+		typescript('const isCompleted = (): boolean => true;'),
+		typescript('const isCompleted: () => boolean = getCompleted;'),
+		typescript('type Predicate = () => boolean; const isCompleted: Predicate = getCompleted;'),
+		typescript('interface Predicate { (): boolean; } const isCompleted: Predicate = getCompleted;'),
+		typescript('interface Predicate { (): boolean; readonly description: string; } const isCompleted: Predicate = getCompleted;'),
+		typescript('declare function completed();'),
+		typescript('const completed = value as () => boolean;'),
+		typescript('function completed(): boolean; function completed(value: string): string; function completed(value?: string) { return value ?? true; }'),
+		typescript('function assertString(value: unknown): asserts value is string {} const completed = assertString(value);'),
+		typescript('function assertString(value: unknown): asserts value {} const completed = assertString(value);'),
+		typescript('type BooleanAlias = boolean; namespace Foo { export type BooleanAlias = string; } const completed: Foo.BooleanAlias = "x";'),
+		typescript('namespace Foo { export type BooleanAlias = boolean; } const completed: Foo.BooleanAlias = true;'),
+		typescript('type BooleanAlias = BooleanAlias; const completed: BooleanAlias = true;'),
+		typeAware('declare const options: {enabled: string}; const completed = options.enabled;'),
+		typeAware('type BooleanAlias = boolean; declare const isEnabled: BooleanAlias; const isCompleted = isEnabled;'),
+	],
+	invalid: [
+		typescript('const completed: boolean = true;'),
+		typescript('declare const completed: boolean;'),
+		typescript('declare global { const completed: boolean; }'),
+		typescript('const completed: true = true;'),
+		typescript('const completed: true | false = true;'),
+		typescript('type BooleanAlias = boolean; const completed: BooleanAlias = true;'),
+		typescript('const completed = value as boolean;'),
+		typescript('const completed = <boolean>value;'),
+		typescript('const completed = value satisfies boolean;'),
+		typescript('const isReady: boolean = true; const completed = isReady!;'),
+		typescript('function check(value: unknown): value is string { return typeof value === "string"; } const completed = check(value);'),
+		typescript('function download(showProgress: boolean) {}'),
+		typescript('function download(showProgress = false) {}'),
+		typescript('class Task { constructor(readonly completed = false) {} }'),
+		typescript('class Task { constructor(public completed = value === true) {} }'),
+		typescript('class Task { constructor(public completed: boolean) {} }'),
+		typescript('function completed(): boolean {}'),
+		typescript('declare function completed(): boolean;'),
+		typescript('function completed(): boolean; function completed() { return true; }'),
+		typescript('function completed(): boolean; function completed(value: unknown): boolean; function completed(value?: unknown) { if (value) { return true; } return false; }'),
+		typescript('function isPredicate(): boolean; function isPredicate() { return true; } const completed = isPredicate();'),
+		typescript([
+			'function isPredicate(): boolean;',
+			'function isPredicate(value: unknown): boolean;',
+			'function isPredicate(value?: unknown) {',
+			'\tif (value) {',
+			'\t\treturn true;',
+			'\t}',
+			'\treturn false;',
+			'}',
+			'const completed = isPredicate();',
+		].join('\n')),
+		typescript('const completed = (): boolean => true;'),
+		typescript('const completed: () => boolean = getCompleted;'),
+		typescript('declare const isPredicate: () => boolean; const completed = isPredicate;'),
+		typescript('type Predicate = () => boolean; const completed: Predicate = getCompleted;'),
+		typescript('interface Predicate { (): boolean; } const completed: Predicate = getCompleted;'),
+		typescript('interface Predicate { (): boolean; readonly description: string; } const completed: Predicate = getCompleted;'),
+		typeAware('declare const options: {enabled: boolean}; const completed = options.enabled;'),
+		typeAware('type BooleanAlias = boolean; declare const isEnabled: BooleanAlias; const completed = isEnabled;'),
+		typescript([
+			'function download(showProgress: boolean) {',
+			'\tconsole.log(showProgress);',
+			'}',
+		].join('\n')),
+	].map(testCase => typeof testCase === 'string' ? typescript(testCase) : testCase),
+});
+
+test.snapshot({
+	valid: [
+		'const task = {completed: true};',
+		'class Task { completed = true; }',
+		{
+			code: 'const task = {isCompleted: true}; class Task { hasCompleted = true; canComplete() { return true; }}',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'interface Task { isCompleted: boolean; canComplete(): boolean; get hasCompleted(): boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { isCompleted: boolean; canComplete(): boolean { return true; } }',
+			options: [{checkProperties: true}],
+		}),
+		{
+			code: 'const isCompleted = true; const task = {isCompleted};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {completed: value};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {[completed]: true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const key = "isCompleted"; const task = {[key]: true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {set completed(value) { return true; }};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'class Task { async completed() { return true; } *ready() { return true; } }',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const isPredicate = () => true; const task = {isCompleted: isPredicate};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'class Task { set completed(value) { return true; } }',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'class Task { #isCompleted = true; get #isReady() { return true; } }',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {needsUpdate: true};',
+			options: [{
+				checkProperties: true,
+				prefixes: {needs: true},
+			}],
+		},
+		typescript('interface Task { completed: boolean; }'),
+	],
+	invalid: [
+		{
+			code: 'const task = {completed: true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {"completed": true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {["completed"]: true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const key = "completed"; const task = {[key]: true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {completed: progress === 100};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const isReady = true; const task = {completed: isReady};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {completed() { return true; }};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {completed: () => true};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const isPredicate = () => true; const task = {completed: isPredicate};',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'const isPredicate: () => boolean = external; const task = {completed: isPredicate};',
+			options: [{checkProperties: true}],
+		}),
+		{
+			code: 'const task = {get completed() { return true; }};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {didUpdate: true};',
+			options: [{
+				checkProperties: true,
+				prefixes: {did: false},
+			}],
+		},
+		{
+			code: 'class Task { completed = true; }',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'class Task { completed: boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		{
+			code: 'class Task { completed = () => true; }',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const isPredicate = () => true; class Task { completed = isPredicate; }',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'type Predicate = () => boolean; const isPredicate: Predicate = external; class Task { completed = isPredicate; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Predicate { (): boolean; } const isPredicate: Predicate = external; class Task { completed = isPredicate; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { completed: () => boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { accessor completed: boolean = true; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'abstract class Task { abstract completed: boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'abstract class Task { abstract completed: () => boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'abstract class Task { abstract accessor completed: boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		{
+			code: 'class Task { completed() { return true; } }',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'abstract class Task { abstract completed(): boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		{
+			code: 'class Task { get completed() { return true; } }',
+			options: [{checkProperties: true}],
+		},
+		typescript({
+			code: 'class Task { #completed: boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { get #ready(): boolean { return true; } }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { #completed(): boolean { return true; } }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { accessor #completed: boolean = true; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { completed: boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { "completed": boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'type Task = { completed: boolean; };',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'type Task = { completed(): boolean; };',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { completed: () => boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Predicate { (): boolean; } interface Task { completed: Predicate; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Predicate { (): boolean; readonly description: string; } interface Task { completed: Predicate; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'type Predicate = () => boolean; interface Task { completed: Predicate; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { completed(): boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { get completed(): boolean; }',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'interface Task { "completed"(): boolean; }',
+			options: [{checkProperties: true}],
+		}),
+	],
+});

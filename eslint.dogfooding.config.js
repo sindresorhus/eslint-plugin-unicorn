@@ -41,6 +41,7 @@ const config = [
 			'unicorn/no-keyword-prefix': 'off',
 			'unicorn/no-invalid-argument-count': 'off',
 			'unicorn/try-complexity': 'off',
+			'unicorn/consistent-boolean-name': 'off',
 			// Recursive AST/tree walkers are intentional in rule implementation code.
 			'unicorn/no-useless-recursion': 'off',
 			// Disabled violations remain intentional in this codebase.
