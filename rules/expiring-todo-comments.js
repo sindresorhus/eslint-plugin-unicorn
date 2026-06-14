@@ -31,30 +31,30 @@ const MESSAGE_ID_MISSING_AT_SYMBOL = 'unicorn/missingAtSymbol';
 const MESSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT = 'unexpectedComment';
 const messages = {
 	[MESSAGE_ID_AVOID_MULTIPLE_DATES]:
-		'Avoid using multiple expiration dates in TODO: {{expirationDates}}. {{message}}',
+		'Avoid using multiple expiration dates: {{expirationDates}}. {{message}}',
 	[MESSAGE_ID_EXPIRED_TODO]:
-		'There is a TODO that is past due date: {{expirationDate}}. {{message}}',
+		'Past due date: {{expirationDate}}. {{message}}',
 	[MESSAGE_ID_REACHED_PACKAGE_VERSION]:
-		'There is a TODO that is past due package version: {{comparison}}. {{message}}',
+		'Past due package version: {{comparison}}. {{message}}',
 	[MESSAGE_ID_AVOID_MULTIPLE_PACKAGE_VERSIONS]:
-		'Avoid using multiple package versions in TODO: {{versions}}. {{message}}',
+		'Avoid using multiple package versions: {{versions}}. {{message}}',
 	[MESSAGE_ID_HAVE_PACKAGE]:
-		'There is a TODO that is deprecated since you installed: {{package}}. {{message}}',
+		'Due since {{package}} was installed. {{message}}',
 	[MESSAGE_ID_DONT_HAVE_PACKAGE]:
-		'There is a TODO that is deprecated since you uninstalled: {{package}}. {{message}}',
+		'Due since {{package}} was removed. {{message}}',
 	[MESSAGE_ID_VERSION_MATCHES]:
-		'There is a TODO match for package version: {{comparison}}. {{message}}',
+		'Due since package version matched: {{comparison}}. {{message}}',
 	[MESSAGE_ID_PEER_VERSION_MATCHES]:
-		'There is a TODO match for peer dependency version: {{comparison}}. {{message}}',
+		'Due since peer dependency version matched: {{comparison}}. {{message}}',
 	[MESSAGE_ID_ENGINE_MATCHES]:
-		'There is a TODO match for Node.js version: {{comparison}}. {{message}}',
+		'Due since Node.js version matched: {{comparison}}. {{message}}',
 	[MESSAGE_ID_REMOVE_WHITESPACE]:
 		'Avoid using whitespace on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 	[MESSAGE_ID_MISSING_AT_SYMBOL]:
 		'Missing \'@\' on TODO argument. On \'{{original}}\' use \'{{fix}}\'. {{message}}',
 	...baseRule.meta.messages,
 	[MESSAGE_ID_CORE_RULE_UNEXPECTED_COMMENT]:
-		'Unexpected \'{{matchedTerm}}\' comment without any conditions: \'{{comment}}\'.',
+		'Unexpected \'{{matchedTerm}}\': \'{{comment}}\'.',
 };
 
 /** @param {string} dirname */
