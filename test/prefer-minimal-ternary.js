@@ -1,5 +1,5 @@
 import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -54,32 +54,75 @@ test.snapshot({
 				}
 			}
 		`,
+		// Bare member swaps are never reported: minimizing them requires computed member access, which is not an improvement.
+		'test ? object.a : object.b;',
+		'test ? object["a"] : object["b"];',
+		'isMac ? event.metaKey : event.ctrlKey;',
+		{
+			code: 'test ? object.a : object.b;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'isMac ? event.metaKey : event.ctrlKey;',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		// Method-call ternaries are off by default.
+		'test ? Promise.allSettled(values) : Promise.all(values);',
+		'test ? Math.min(a, 100) : Math.max(a, 100);',
+		// Optional chaining is never reported, even when the option is on.
+		{
+			code: 'test ? Promise?.allSettled(values) : Promise?.all(values);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		// Differing arguments are never minimal, even when only the method name would otherwise qualify.
+		{
+			code: 'test ? Promise.allSettled(a) : Promise.all(b);',
+			options: [{checkComputedMemberAccess: true}],
+		},
 	],
 	invalid: [
 		'test ? call(a) : call(b);',
 		'test ? call(a, b) : call(a, c);',
 		'test ? a() : b();',
 		'test ? a(value) : b(value);',
-		'test ? Promise.allSettled(values) : Promise.all(values);',
-		'test ? Math.min(a, 100) : Math.max(a, 100);',
 		'test ? first.method(value) : second.method(value);',
 		'test ? a + 1 : b + 1;',
 		'test ? 1 + a : 1 + b;',
-		'test ? object.a : object.b;',
-		'test ? object["a"] : object["b"];',
 		'test ? a.value : b.value;',
-		outdent`
-			await (
-				delayRejection
-					? Promise.allSettled([
-						promise,
-						delay(minimumDelay),
-					])
-					: Promise.all([
-						promise,
-						delay(minimumDelay),
-					])
-			);
-		`,
+		// `checkComputedMemberAccess` enables method-call ternaries that differ only by the method name.
+		{
+			code: 'test ? Promise.allSettled(values) : Promise.all(values);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'test ? Math.min(a, 100) : Math.max(a, 100);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		// The object is already accessed with a computed string, so minimizing is a clear improvement.
+		{
+			code: 'test ? Promise["allSettled"](values) : Promise["all"](values);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: outdent`
+				await (
+					delayRejection
+						? Promise.allSettled([
+							promise,
+							delay(minimumDelay),
+						])
+						: Promise.all([
+							promise,
+							delay(minimumDelay),
+						])
+				);
+			`,
+			options: [{checkComputedMemberAccess: true}],
+		},
+		{
+			code: 'test ? Promise.allSettled<T>(values) : Promise.all<T>(values);',
+			options: [{checkComputedMemberAccess: true}],
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
