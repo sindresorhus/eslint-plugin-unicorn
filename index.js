@@ -1,5 +1,6 @@
 import createDeprecatedRules from './rules/utils/create-deprecated-rules.js';
 import flatConfigBase from './configs/flat-config-base.js';
+import coreRuleReplacements from './configs/core-rule-replacements.js';
 import * as rawRules from './rules/index.js';
 import {toEslintRules} from './rules/rule/index.js';
 import packageJson from './package.json' with {type: 'json'};
@@ -37,12 +38,11 @@ const deprecatedRules = createDeprecatedRules({
 	},
 });
 
-const externalRules = {
-	// Covered by `unicorn/no-negated-condition`
-	'no-negated-condition': 'off',
-	// Covered by `unicorn/no-nested-ternary`
-	'no-nested-ternary': 'off',
-};
+const getExternalRules = rules => Object.fromEntries(
+	coreRuleReplacements
+		.filter(ruleName => rules[`unicorn/${ruleName}`] === 'error')
+		.map(ruleName => [ruleName, 'off']),
+);
 
 const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`unicorn/${id}`,
@@ -68,7 +68,7 @@ const createConfig = (rules, flatConfigName) => ({
 		unicorn,
 	},
 	rules: {
-		...externalRules,
+		...getExternalRules(rules),
 		...rules,
 	},
 });

@@ -30,6 +30,7 @@ export {default as 'filename-case'} from './filename-case.js';
 export {default as 'id-match'} from './id-match.js';
 export {default as 'import-style'} from './import-style.js';
 export {default as 'isolated-functions'} from './isolated-functions.js';
+export {default as 'logical-assignment-operators'} from './logical-assignment-operators.js';
 export {default as 'max-nested-calls'} from './max-nested-calls.js';
 export {default as 'new-for-builtins'} from './new-for-builtins.js';
 export {default as 'no-abusive-eslint-disable'} from './no-abusive-eslint-disable.js';
