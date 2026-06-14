@@ -1,12 +1,14 @@
 name: Smoke test
 
 on:
-  schedule:
-    - cron: "0 0 * * SUN"
+  # Disabled until `AriPerkkio/eslint-remote-tester-run-action` runs on Node.js 22.
+  # schedule:
+  #   - cron: "0 0 * * SUN"
   workflow_dispatch:
 
 jobs:
   lint:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
