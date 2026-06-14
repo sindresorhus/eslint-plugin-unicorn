@@ -65,9 +65,7 @@ function * getLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
 
 	if (identifierName === 'getElementsByClassName') {
 		replacementValue = getReplacementForClass(node.value);
-	}
-
-	if (identifierName === 'getElementsByName') {
+	} else if (identifierName === 'getElementsByName') {
 		const quoted = node.raw.charAt(0);
 		replacementValue = getReplacementForName(node.value, quoted);
 	}
@@ -79,41 +77,45 @@ function * getLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
 	yield fixer.replaceText(node, getQuotedReplacement(node, replacementValue));
 }
 
+function getTemplateElementReplacement(identifierName, value, prefix, node) {
+	switch (identifierName) {
+		case 'getElementById': {
+			return prefix + getReplacementForId(value);
+		}
+
+		case 'getElementsByClassName': {
+			return prefix + getReplacementForClass(value);
+		}
+
+		case 'getElementsByName': {
+			const quoted = node.raw ? node.raw.charAt(0) : '"';
+			return prefix + getReplacementForName(value, quoted);
+		}
+
+		case 'getElementsByTagName': {
+			return prefix + value;
+		}
+
+		default: {
+			throw new Error(`Unexpected identifier name: ${identifierName}`);
+		}
+	}
+}
+
 function * getTemplateLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
 	yield fixer.insertTextAfter(node, '`');
 	yield fixer.insertTextBefore(node, '`');
 
 	for (const [index, templateElement] of node.quasis.entries()) {
 		const prefix = shouldScopeSelector && index === 0 ? ':scope ' : '';
+		const replacement = getTemplateElementReplacement(
+			identifierName,
+			templateElement.value.cooked,
+			prefix,
+			node,
+		);
 
-		if (identifierName === 'getElementById') {
-			yield fixer.replaceText(
-				templateElement,
-				prefix + getReplacementForId(templateElement.value.cooked),
-			);
-		}
-
-		if (identifierName === 'getElementsByClassName') {
-			yield fixer.replaceText(
-				templateElement,
-				prefix + getReplacementForClass(templateElement.value.cooked),
-			);
-		}
-
-		if (identifierName === 'getElementsByName') {
-			const quoted = node.raw ? node.raw.charAt(0) : '"';
-			yield fixer.replaceText(
-				templateElement,
-				prefix + getReplacementForName(templateElement.value.cooked, quoted),
-			);
-		}
-
-		if (identifierName === 'getElementsByTagName') {
-			yield fixer.replaceText(
-				templateElement,
-				prefix + templateElement.value.cooked,
-			);
-		}
+		yield fixer.replaceText(templateElement, replacement);
 	}
 }
 

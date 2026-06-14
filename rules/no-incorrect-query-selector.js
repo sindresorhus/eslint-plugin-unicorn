@@ -109,21 +109,6 @@ const hasCommentsBetween = (outerNode, innerNode, sourceCode) => {
 	});
 };
 
-const isInShadowedBooleanCall = (node, booleanAncestor, sourceCode) => {
-	for (let ancestor = node.parent; ancestor && ancestor !== booleanAncestor.parent; ancestor = ancestor.parent) {
-		if (
-			ancestor.type === 'CallExpression'
-			&& ancestor.callee.type === 'Identifier'
-			&& ancestor.callee.name === 'Boolean'
-			&& !sourceCode.isGlobalReference(ancestor.callee)
-		) {
-			return true;
-		}
-	}
-
-	return false;
-};
-
 const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
 
 const getCallFromIdentifier = (node, sourceCode, isCall) => {
@@ -164,11 +149,8 @@ const getLengthCheckProblem = (node, context) => {
 		return;
 	}
 
-	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node);
-	if (
-		!isControlFlowTest(booleanAncestor)
-		|| isInShadowedBooleanCall(node, booleanAncestor, sourceCode)
-	) {
+	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node, context);
+	if (!isControlFlowTest(booleanAncestor)) {
 		return;
 	}
 

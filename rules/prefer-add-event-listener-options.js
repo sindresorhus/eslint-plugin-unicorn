@@ -1,13 +1,9 @@
-import {isMethodCall} from './ast/index.js';
+import {isBooleanLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-add-event-listener-options';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{value}}`.',
 };
-
-const isBooleanLiteral = node =>
-	node?.type === 'Literal'
-	&& typeof node.value === 'boolean';
 
 const create = context => {
 	context.on('CallExpression', callExpression => {

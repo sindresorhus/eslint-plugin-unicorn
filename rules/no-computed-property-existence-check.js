@@ -59,9 +59,9 @@ function isStaticPropertyKey(node) {
 		);
 }
 
-function isUsedAsExistenceCheck(node) {
+function isUsedAsExistenceCheck(node, context) {
 	node = getTransparentExpressionAncestor(node);
-	return isBooleanExpression(node) || isControlFlowTest(node);
+	return isBooleanExpression(node, context) || isControlFlowTest(node);
 }
 
 function isSimpleInSuggestionOperand(node) {
@@ -115,7 +115,7 @@ const create = context => {
 		if (!(
 			node.computed
 			&& !isStaticPropertyKey(node.property)
-			&& isUsedAsExistenceCheck(node)
+			&& isUsedAsExistenceCheck(node, context)
 		)) {
 			return;
 		}

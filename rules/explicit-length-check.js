@@ -185,7 +185,7 @@ function getLengthCheckNode(node, {allowTypeScriptExpression = false} = {}) {
 	return {};
 }
 
-function isSameLengthNonZeroCheck(node, lengthNode) {
+function isSameLengthNonZeroCheck(node, lengthNode, context) {
 	const comparisonLengthNode = getLengthCheckMemberExpression(node);
 	if (!comparisonLengthNode || !isSameReference(comparisonLengthNode, lengthNode)) {
 		return false;
@@ -196,11 +196,11 @@ function isSameLengthNonZeroCheck(node, lengthNode) {
 		return false;
 	}
 
-	const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+	const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode, context);
 	return ancestor === node && isNegative === isZeroLengthCheck;
 }
 
-function isLengthGuardedByNonZeroCheck(lengthNode) {
+function isLengthGuardedByNonZeroCheck(lengthNode, context) {
 	const root = getLogicalExpressionRoot(lengthNode);
 	if (
 		root.type !== 'LogicalExpression'
@@ -211,7 +211,7 @@ function isLengthGuardedByNonZeroCheck(lengthNode) {
 
 	return getLogicalExpressionOperands(root).some(operand =>
 		operand !== lengthNode
-		&& isSameLengthNonZeroCheck(operand, lengthNode));
+		&& isSameLengthNonZeroCheck(operand, lengthNode, context));
 }
 
 function create(context) {
@@ -278,14 +278,14 @@ function create(context) {
 		let autoFix = true;
 		let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 		if (lengthCheckNode) {
-			const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode);
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode, context);
 			node = ancestor;
 			if (isNegative) {
 				isZeroLengthCheck = !isZeroLengthCheck;
 			}
 		} else {
-			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode);
-			if (isBooleanExpression(ancestor) || isControlFlowTest(ancestor)) {
+			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode, context);
+			if (isBooleanExpression(ancestor, context) || isControlFlowTest(ancestor)) {
 				isZeroLengthCheck = isNegative;
 				node = ancestor;
 			} else if (isLogicalExpression(lengthNode.parent) && lengthNode.parent.operator === '&&') {
@@ -297,7 +297,7 @@ function create(context) {
 
 		if (node) {
 			if (
-				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode))
+				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode, context))
 				|| hasSameObjectShapePropertyCheck({node, lengthNode})
 			) {
 				return;

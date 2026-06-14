@@ -60,6 +60,8 @@ test({
 		'const x = Boolean(foo.length, foo.length)',
 		'const x = new Boolean(foo.length)',
 		'const x = NotBoolean(foo.length)',
+		'const Boolean = value => value; const isNotEmpty = Boolean(foo.length)',
+		'function unicorn(Boolean) { if (Boolean(foo.length)) {} }',
 		'const length = foo.length ?? 0',
 		'if (foo.length ?? bar) {}',
 
@@ -352,6 +354,7 @@ test.snapshot({
 		'bar(!foo.length || foo.length)',
 		'const bar = void !foo.length;',
 		'const isNotEmpty = Boolean(foo.length)',
+		'if (!!Boolean(foo.length)) {}',
 		'const isNotEmpty = Boolean(foo.length || bar)',
 		'const isEmpty = Boolean(!foo.length)',
 		'const isEmpty = Boolean(foo.length === 0)',

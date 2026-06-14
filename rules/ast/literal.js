@@ -8,6 +8,11 @@ export function isLiteral(node, value) {
 
 export const isStringLiteral = node => node?.type === 'Literal' && typeof node.value === 'string';
 
+export const isBooleanLiteral = (node, value) =>
+	node?.type === 'Literal'
+	&& typeof node.value === 'boolean'
+	&& (value === undefined || node.value === value);
+
 export const getStaticStringValue = node => {
 	if (isStringLiteral(node)) {
 		return node.value;

@@ -1,5 +1,5 @@
 import {isFunction, isMethodCall} from './ast/index.js';
-import {isSameIdentifier} from './utils/index.js';
+import {isGlobalBooleanCall, isSameIdentifier} from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-boolean-cast';
 const messages = {
@@ -42,15 +42,6 @@ function getReturnedExpression(callback) {
 	}
 }
 
-function isBooleanCall(node) {
-	return node?.type === 'CallExpression'
-		&& !node.optional
-		&& node.callee.type === 'Identifier'
-		&& node.callee.name === 'Boolean'
-		&& node.arguments.length === 1
-		&& node.arguments[0].type !== 'SpreadElement';
-}
-
 const isBooleanFirstParameterCallback = (callback, argument) =>
 	callback.params[0]?.type === 'Identifier'
 	&& isSameIdentifier(callback.params[0], argument);
@@ -77,7 +68,7 @@ const create = context => {
 
 		const booleanCall = getReturnedExpression(callback);
 		if (
-			!isBooleanCall(booleanCall)
+			!isGlobalBooleanCall(booleanCall, context)
 			|| sourceCode.getCommentsInside(booleanCall).length > 0
 		) {
 			return;

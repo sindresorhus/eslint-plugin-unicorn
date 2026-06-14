@@ -49,6 +49,8 @@ test({
 		'const hasFoo = foo.find(fn); if (hasFoo === undefined) {}',
 		'const hasFoo = foo.find(fn); if (hasFoo) {}',
 		'const hasFoo = foo.find(fn); if (hasFoo || !hasFoo || Boolean(hasFoo)) {}',
+		'const Boolean = value => value; if (Boolean(foo.find(fn))) {}',
+		'function unicorn(Boolean) { if (Boolean(foo.find(fn))) {} }',
 		'const font = this.form[$globalData].fontFinder.find(typeface); if (!font) {}',
 		'if (new Foo().find(fn)) {}',
 		'if (new Foo().findLast(fn)) {}',
@@ -157,6 +159,7 @@ test({
 		...[
 			'const bar = !foo.find(fn)',
 			'const bar = Boolean(foo.find(fn))',
+			'const bar = !!Boolean(foo.find(fn))',
 			'if (foo.find(fn)) {}',
 			'const bar = foo.find(fn) ? 1 : 2',
 			'while (foo.find(fn)) foo.shift();',

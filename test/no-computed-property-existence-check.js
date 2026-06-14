@@ -26,6 +26,8 @@ test.snapshot({
 		'if (Object.prototype.hasOwnProperty.call(object, key)) {}',
 		'if (map.has(key)) {}',
 		'if (set.has(value)) {}',
+		'const Boolean = value => value; if (Boolean(object[key])) {}',
+		'function unicorn(Boolean) { if (Boolean(object[key])) {} }',
 		{
 			code: 'if (object["key" as const]) {}',
 			languageOptions: {parser: parsers.typescript},
@@ -39,6 +41,8 @@ test.snapshot({
 		'if (object[key]) {}',
 		'if (!object[key]) {}',
 		'if (Boolean(object[key])) {}',
+		'if (!!Boolean(object[key])) {}',
+		'if (Boolean(object[key]) && ready) {}',
 		'const value = object[key] ? first : second;',
 		'while (object[key]) {}',
 		'do {} while (object[key]);',

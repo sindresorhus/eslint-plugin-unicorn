@@ -15,6 +15,8 @@ test.snapshot({
 		'window.addEventListener("click", listener, capture)',
 		'window.addEventListener("click", listener, Boolean(value))',
 		'window.addEventListener("click", listener, condition ? true : false)',
+		'window.addEventListener("click", listener, undefined)',
+		'window.addEventListener("click", listener, null)',
 		'window["addEventListener"]("click", listener, true)',
 		'window?.addEventListener("click", listener, true)',
 		'window.addEventListener?.("click", listener, true)',
@@ -23,6 +25,7 @@ test.snapshot({
 	invalid: [
 		'window.addEventListener("click", listener, true)',
 		'window.addEventListener("click", listener, false)',
+		'window.addEventListener("click", listener, (true))',
 		'window.addEventListener("click", () => {}, true)',
 		'window.addEventListener("click", function () {}, false)',
 		'document.body.addEventListener("click", listener, true)',
