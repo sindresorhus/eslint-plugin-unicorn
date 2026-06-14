@@ -140,6 +140,7 @@ export {default as 'prefer-array-flat'} from './prefer-array-flat.js';
 export {default as 'prefer-array-from-map'} from './prefer-array-from-map.js';
 export {default as 'prefer-array-index-of'} from './prefer-array-index-of.js';
 export {default as 'prefer-array-last-methods'} from './prefer-array-last-methods.js';
+export {default as 'prefer-array-slice'} from './prefer-array-slice.js';
 export {default as 'prefer-array-some'} from './prefer-array-some.js';
 export {default as 'prefer-at'} from './prefer-at.js';
 export {default as 'prefer-await'} from './prefer-await.js';
