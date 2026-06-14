@@ -147,6 +147,7 @@ test.snapshot({
 		'object[("key" as object)]',
 		'object[(1 as object)]',
 		'enum Key {A} object[Key.A]',
+		'enum Key {A} object[Key["A"]]',
 	],
 	invalid: [
 		'object[({} as Foo)]',

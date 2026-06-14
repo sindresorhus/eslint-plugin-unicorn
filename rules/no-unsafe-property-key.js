@@ -263,6 +263,12 @@ function isUnsafeGlobalThisProperty(node, context) {
 	return unsafeGlobalIdentifiers.has(propertyName);
 }
 
+function isTypeScriptEnumMemberAccess(node, context) {
+	return node.type === 'MemberExpression'
+		&& node.object.type === 'Identifier'
+		&& findVariable(context.sourceCode.getScope(node.object), node.object)?.defs.some(definition => definition.type === 'TSEnumName');
+}
+
 function getTypeName(typeName) {
 	if (typeName.type === 'Identifier') {
 		return typeName.name;
@@ -442,6 +448,12 @@ function getStaticPropertyKeyType(node, context, visitedVariables = new Set()) {
 	switch (node.type) {
 		case 'Identifier': {
 			return getIdentifierStaticPropertyKeyType(node, context, visitedVariables);
+		}
+
+		case 'MemberExpression': {
+			return isTypeScriptEnumMemberAccess(node, context)
+				? nonTarget
+				: getExpressionStaticPropertyKeyType(node, context);
 		}
 
 		case 'TSAsExpression':
