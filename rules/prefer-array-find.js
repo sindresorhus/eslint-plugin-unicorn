@@ -11,6 +11,7 @@ import {
 	getScopes,
 	getAvailableVariableName,
 	getVariableIdentifiers,
+	isKnownNonArray,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -38,13 +39,14 @@ const messages = {
 	[SUGGESTION_LOGICAL_OR_OPERATOR]: 'Replace `.filter(…)` with `.find(…) || …`.',
 };
 
-const isArrayFilterCall = (node, options) => isMethodCall(node, {
+// `array.filter(…)`, ignoring receivers that are provably not arrays
+const isArrayFilterCall = (node, context, options) => isMethodCall(node, {
 	method: 'filter',
 	minimumArguments: 1,
 	maximumArguments: 2,
 	optionalCall: false,
 	...options,
-});
+}) && !isKnownNonArray(node.callee.object, context);
 
 // Need add `()` to the `AssignmentExpression`
 // - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
@@ -186,7 +188,7 @@ const create = context => {
 			node.computed
 			&& node.property.type === 'Literal'
 			&& node.property.raw === '0'
-			&& isArrayFilterCall(node.object)
+			&& isArrayFilterCall(node.object, context)
 			&& !isLeftHandSide(node)
 		)) {
 			return;
@@ -212,7 +214,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& isArrayFilterCall(node.callee.object)
+			&& isArrayFilterCall(node.callee.object, context)
 		)) {
 			return;
 		}
@@ -234,7 +236,7 @@ const create = context => {
 			&& node.id.elements.length === 1
 			&& node.id.elements[0]
 			&& node.id.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.init, {optionalMember: false})
+			&& isArrayFilterCall(node.init, context, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -253,7 +255,7 @@ const create = context => {
 			&& node.left.elements.length === 1
 			&& node.left.elements[0]
 			&& node.left.elements[0].type !== 'RestElement'
-			&& isArrayFilterCall(node.right, {optionalMember: false})
+			&& isArrayFilterCall(node.right, context, {optionalMember: false})
 		)) {
 			return;
 		}
@@ -269,7 +271,7 @@ const create = context => {
 	context.on('VariableDeclarator', node => {
 		if (!(
 			node.id.type === 'Identifier'
-			&& isArrayFilterCall(node.init, {optionalMember: false})
+			&& isArrayFilterCall(node.init, context, {optionalMember: false})
 			&& node.parent.type === 'VariableDeclaration'
 			&& node.parent.declarations.includes(node)
 			// Exclude `export const foo = [];`
@@ -346,7 +348,7 @@ const create = context => {
 			})
 			&& node.arguments[0].type === 'Literal'
 			&& node.arguments[0].raw === '0'
-			&& isArrayFilterCall(node.callee.object)
+			&& isArrayFilterCall(node.callee.object, context)
 		)) {
 			return;
 		}
@@ -375,7 +377,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& isArrayFilterCall(node.callee.object)
+			&& isArrayFilterCall(node.callee.object, context)
 		)) {
 			return;
 		}
@@ -405,7 +407,7 @@ const create = context => {
 			&& node.arguments[0].prefix
 			&& node.arguments[0].argument.type === 'Literal'
 			&& node.arguments[0].argument.raw === '1'
-			&& isArrayFilterCall(node.callee.object)
+			&& isArrayFilterCall(node.callee.object, context)
 		)) {
 			return;
 		}

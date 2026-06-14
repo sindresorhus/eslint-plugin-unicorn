@@ -5,6 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { return foo.length === 0 || foo.every(Boolean); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `.length === 0 || .every()`
 		'array.length === 0 ?? array.every(Boolean)',
 		'array.length === 0 && array.every(Boolean)',

@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -6,6 +6,11 @@ const FORBID_EXPRESSION_OPTIONS = [{allowExpressionStatement: false}];
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { foo.reverse(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'reversed =[...array].toReversed()',
 		'reversed =array.toReversed()',
 		'reversed =[...array].reverse',

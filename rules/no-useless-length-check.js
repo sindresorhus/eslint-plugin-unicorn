@@ -1,5 +1,5 @@
 import {isMethodCall, isMemberExpression} from './ast/index.js';
-import {getParenthesizedRange, isSameReference, isLogicalExpression} from './utils/index.js';
+import {getParenthesizedRange, isSameReference, isLogicalExpression, isKnownNonArray} from './utils/index.js';
 
 const messages = {
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
@@ -82,6 +82,8 @@ const create = context => {
 				computed: false,
 			})
 			&& node.callee.property.type === 'Identifier'
+			// Ignore receivers that are provably not arrays
+			&& !isKnownNonArray(node.callee.object, context)
 		) {
 			if (node.callee.property.name === 'some') {
 				arraySomeCalls.add(node);

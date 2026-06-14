@@ -108,8 +108,24 @@ test({
 			}, 0);
 		`,
 		'array.reduce((total, item) => { return total + item }, 0)',
-	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]),
+	].flatMap(testCase => [testCase, testCase.replace('reduce', 'reduceRight')]).concat([
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { return foo.reduce(fn); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(foo: Map<string, number>) { return foo.reduce(fn); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	]),
 	invalid: [
+		// Known array receiver is still flagged (type information)
+		{
+			code: 'function f(foo: number[]) { return foo.reduce(fn); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
 		...[
 			'array.reduce((str, item) => str += item, "")',
 			'array?.reduce((str, item) => str += item, "")',

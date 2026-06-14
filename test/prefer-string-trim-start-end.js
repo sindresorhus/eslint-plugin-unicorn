@@ -1,10 +1,15 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-string receiver (type information)
+		{
+			code: 'function f(foo: number[]) { foo.trimLeft(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.trimStart()',
 		'foo.trimStart?.()',
 		'foo.trimEnd()',
@@ -29,6 +34,11 @@ test.snapshot({
 		'foo.trimLeft.bar()',
 	],
 	invalid: [
+		// Known string receiver is still flagged (type information)
+		{
+			code: 'function f(foo: string) { foo.trimLeft(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.trimLeft()',
 		'foo.trimRight()',
 		'trimLeft.trimRight()',

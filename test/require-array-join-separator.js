@@ -1,10 +1,15 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { foo.join(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.join(",")',
 		'join()',
 		'foo.join(...[])',
@@ -39,6 +44,11 @@ test.snapshot({
 	],
 	invalid: [
 		'foo.join()',
+		// The `[].join.call(foo)` form is reported even for a known non-array receiver; the guard only applies to `foo.join()`
+		{
+			code: 'function f(foo: Set<number>) { [].join.call(foo); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'[].join.call(foo)',
 		'[].join.call(foo,)',
 		'[].join.call(foo , );',

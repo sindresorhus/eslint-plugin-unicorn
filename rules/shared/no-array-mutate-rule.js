@@ -1,5 +1,5 @@
 import {isMethodCall} from '../ast/index.js';
-import {getParenthesizedText, isNodeValueNotFunction} from '../utils/index.js';
+import {getParenthesizedText, isNodeValueNotFunction, shouldSkipKnownNonArrayReceiver} from '../utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_APPLY_REPLACEMENT = 'suggestion-apply-replacement';
@@ -67,6 +67,11 @@ function noArrayMutateRule(methodName) {
 			}
 
 			const array = callExpression.callee.object;
+
+			// Skip receivers that are provably not arrays (e.g. a typed `Set`)
+			if (shouldSkipKnownNonArrayReceiver(array, context)) {
+				return;
+			}
 
 			// `[...array].reverse()`
 			const isSpreadAndMutate = array.type === 'ArrayExpression'

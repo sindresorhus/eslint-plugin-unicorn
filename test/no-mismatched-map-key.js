@@ -5,6 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-Map receiver (type information)
+		{
+			code: 'function f(cache: {has(key: string): boolean; get(key: string): number}) { if (cache.has("a")) { return cache.get("b"); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'map.has(key) ? map.get(key) : value;',
 		'!map.has(key) ? map.set(key, value) : value;',
 		'if (map.has(key)) { const value = map.get(key); }',
@@ -100,6 +105,11 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// Known Map receiver is still flagged (type information)
+		{
+			code: 'function f(map: Map<string, number>) { if (map.has("a")) { return map.get("b"); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'map.has(key) ? map.get(anotherKey) : value;',
 		'map.has(key) ? map.set(anotherKey, value) : value;',
 		'if (map.has(key)) { const value = map.get(anotherKey); }',

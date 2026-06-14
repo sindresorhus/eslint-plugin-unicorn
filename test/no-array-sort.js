@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -6,6 +6,11 @@ const FORBID_EXPRESSION_OPTIONS = [{allowExpressionStatement: false}];
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { foo.sort(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'sorted =[...array].toSorted()',
 		'sorted =array.toSorted()',
 		'sorted =[...array].sort',
