@@ -12,10 +12,10 @@ This rule enforces the following class member order:
 
 1. Static fields
 2. Static blocks
-3. Private instance fields
-4. Public instance fields
-5. Constructors
-6. Static methods
+3. Static methods
+4. Private instance fields
+5. Public instance fields
+6. Constructors
 7. Private instance methods
 8. Public instance methods
 
@@ -43,10 +43,10 @@ Default:
 [
 	'static-field',
 	'static-block',
+	'static-method',
 	'private-field',
 	'public-field',
 	'constructor',
-	'static-method',
 	'private-method',
 	'public-method',
 ]
