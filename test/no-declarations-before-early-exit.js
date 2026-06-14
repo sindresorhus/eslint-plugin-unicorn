@@ -201,6 +201,121 @@ test.snapshot({
 			`,
 			languageOptions: typescriptLanguageOptions,
 		},
+		// Initializer mutates a variable the guard's condition reads.
+		outdent`
+			function foo(parts) {
+				const last = parts.pop();
+				if (parts.length > 0) {
+					throw new Error();
+				}
+				console.log(last);
+			}
+		`,
+		outdent`
+			function foo(parts) {
+				const first = parts.shift();
+				if (parts.length === 0) {
+					return;
+				}
+				console.log(first);
+			}
+		`,
+		// The guard's condition mutates a variable the initializer reads.
+		outdent`
+			function foo(array) {
+				const first = array[0];
+				if (array.shift()) {
+					return;
+				}
+				console.log(first);
+			}
+		`,
+		// The guard's body observes the initializer's side effect.
+		outdent`
+			function foo(array, bar) {
+				const last = array.pop();
+				if (bar) {
+					throw new Error(array.length);
+				}
+				console.log(last);
+			}
+		`,
+		// Initializer assigns a variable the guard reads.
+		outdent`
+			function foo() {
+				let count = 0;
+				const result = (count = getCount());
+				if (count > 0) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// Initializer increments an index the guard reads.
+		outdent`
+			function foo(items) {
+				let index = 0;
+				const current = items[index++];
+				if (index < items.length) {
+					return;
+				}
+				console.log(current);
+			}
+		`,
+		// Both sides are method calls on the same object, which are treated as side effects.
+		outdent`
+			function foo(queue) {
+				const next = queue.dequeue();
+				if (queue.isEmpty()) {
+					return;
+				}
+				console.log(next);
+			}
+		`,
+		// Optional-chaining call in the initializer mutates a variable the guard reads.
+		outdent`
+			function foo(array) {
+				const last = array?.pop();
+				if (array.length > 0) {
+					return;
+				}
+				console.log(last);
+			}
+		`,
+		// The side effect is nested inside a logical expression in the guard's condition.
+		outdent`
+			function foo(array) {
+				const first = array[0];
+				if (array.shift() && array.length > 0) {
+					return;
+				}
+				console.log(first);
+			}
+		`,
+		// Inside a loop, the initializer mutates a variable the `break` guard reads.
+		outdent`
+			function foo(queue) {
+				for (let index = 0; index < 10; index++) {
+					const item = queue.dequeue();
+					if (queue.isEmpty()) {
+						break;
+					}
+					process(item);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function foo(parts: string[]) {
+					const name = parts.pop() ?? 'default';
+					if (parts.length > 0) {
+						throw new Error();
+					}
+					return name;
+				}
+			`,
+			languageOptions: typescriptLanguageOptions,
+		},
 	],
 	invalid: [
 		outdent`
@@ -457,6 +572,56 @@ test.snapshot({
 					console.log(bar);
 				}
 				console.log(result);
+			}
+		`,
+		// Initializer has a side effect, but on a variable the guard does not touch.
+		outdent`
+			function foo(bar, parts) {
+				const last = parts.pop();
+				if (!bar) {
+					return;
+				}
+				console.log(last);
+			}
+		`,
+		// Initializer and guard share a variable, but neither side has a side effect.
+		outdent`
+			function foo(config) {
+				const name = config.name;
+				if (config.enabled) {
+					return;
+				}
+				console.log(name);
+			}
+		`,
+		// The guard's condition has a side effect, but on a variable the initializer does not read.
+		outdent`
+			function foo(items) {
+				const result = 1;
+				if (items.pop()) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// Only the conflicting declarator is skipped; the independent one is still reported.
+		outdent`
+			function foo(array) {
+				const a = array.pop(), b = 1;
+				if (array.length > 0) {
+					return;
+				}
+				console.log(a, b);
+			}
+		`,
+		// Creating a closure is not a side effect, so the declaration can be moved even though the closure captures a variable the guard reads.
+		outdent`
+			function foo(array) {
+				const pop = () => array.pop();
+				if (array.length > 0) {
+					return;
+				}
+				pop();
 			}
 		`,
 	],
