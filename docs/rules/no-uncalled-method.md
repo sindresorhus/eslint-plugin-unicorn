@@ -9,7 +9,7 @@
 
 Forgetting to call a method returns the method function instead of the intended value. This is usually a bug in conditions, returns, and assignments.
 
-This rule checks known `Array` and `String` methods when the receiver can be identified from syntax, type annotations, parser type information, or conventional variable names like `array` and `string`.
+This rule checks known `Array` and `String` methods when the receiver can be identified from syntax, type annotations, parser type information, conventional variable names like `array` and `string`, or `const` aliases of those.
 
 ## Examples
 
@@ -44,5 +44,5 @@ array.sort.call(array);
 
 ```js
 // ✅
-typeof value.toLowerCase === 'function';
+typeof string.toLowerCase === 'function';
 ```
