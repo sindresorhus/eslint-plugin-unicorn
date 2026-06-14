@@ -19,9 +19,12 @@ export default function replaceReferenceIdentifier(identifier, replacement, cont
 		return fixer.replaceText(identifier, `${replacement} as ${identifier.name}`);
 	}
 
-	// `typeAnnotation`
 	if (identifier.typeAnnotation) {
 		const {sourceCode} = context;
+		if (sourceCode.getCommentsInside(identifier).length > 0) {
+			return fixer.replaceText(sourceCode.getFirstToken(identifier), replacement);
+		}
+
 		return fixer.replaceTextRange(
 			[sourceCode.getRange(identifier)[0], sourceCode.getRange(identifier.typeAnnotation)[0]],
 			`${replacement}${identifier.optional ? '?' : ''}`,
