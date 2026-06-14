@@ -441,7 +441,7 @@ function create(context) {
 					fixed = `(${fixed})`;
 				}
 
-				fixed = `${fixed}.at(-1)`;
+				fixed += '.at(-1)';
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, context, fixed)) {

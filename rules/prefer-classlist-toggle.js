@@ -181,7 +181,7 @@ const create = context => {
 			let text = `${elementText}${isOptional ? '?' : ''}.classList.toggle(${classNameText}${conditionText ? `, ${conditionText}` : ''})`;
 
 			if (!isExpression) {
-				text = `${text};`;
+				text += ';';
 			}
 
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {

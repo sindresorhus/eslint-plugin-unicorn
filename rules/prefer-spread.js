@@ -214,7 +214,7 @@ function fixConcat(node, context, fixableArguments) {
 					arrayHasTrailingComma
 					&& (!lastArgument.isArrayLiteral || !isArrayLiteralHasTrailingComma(lastArgument.node, sourceCode))
 				) {
-					text = `${text},`;
+					text += ',';
 				}
 			}
 		} else {

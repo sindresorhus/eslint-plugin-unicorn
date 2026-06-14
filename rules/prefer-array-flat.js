@@ -245,7 +245,7 @@ function fix(node, array, context, shouldSwitchToArray, optional) {
 			fixed = `(${fixed})`;
 		}
 
-		fixed = `${fixed}${optional ? '?' : ''}.flat()`;
+		fixed += `${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
 		if (needsSemicolon(tokenBefore, context, fixed)) {
