@@ -19,6 +19,8 @@ This rule enforces the following class member order:
 
 Static members are grouped by `static` before privacy, so `static #foo` belongs with other static fields or methods.
 
+TypeScript `protected` members follow the same order as public members.
+
 This rule does not autofix. Reordering class fields and static blocks can change runtime behavior because they run in declaration order.
 
 ## Examples

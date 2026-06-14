@@ -84,6 +84,7 @@ test.snapshot({
 		{
 			code: outdent`
 				class Foo {
+					private accessor privateAccessor = 1;
 					accessor publicAccessor = 1;
 					static accessor staticAccessor = 1;
 				}
@@ -104,6 +105,12 @@ test.snapshot({
 		outdent`
 			class Foo {
 				publicField = 1;
+				#privateField = 1;
+			}
+		`,
+		outdent`
+			class Foo {
+				['computedField'] = 1;
 				#privateField = 1;
 			}
 		`,
@@ -149,6 +156,17 @@ test.snapshot({
 
 					abstract public publicMethod(): void;
 					private privateMethod(): void {}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				class Foo {
+					accessor publicAccessor = 1;
+					private accessor privateAccessor = 1;
 				}
 			`,
 			languageOptions: {

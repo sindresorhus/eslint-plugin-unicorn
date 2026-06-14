@@ -75,7 +75,7 @@ const getMemberGroup = member => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('ClassBody', function * (classBody) {
-		let lastGroup;
+		let highestGroup;
 
 		for (const member of classBody.body) {
 			const group = getMemberGroup(member);
@@ -84,22 +84,22 @@ const create = context => {
 			}
 
 			if (
-				lastGroup !== undefined
-				&& group < lastGroup
+				highestGroup !== undefined
+				&& group < highestGroup
 			) {
 				yield {
 					node: member,
 					messageId: MESSAGE_ID,
 					data: {
 						current: groupLabels[group],
-						previous: groupLabels[lastGroup],
+						previous: groupLabels[highestGroup],
 					},
 				};
 
 				continue;
 			}
 
-			lastGroup = group;
+			highestGroup = group;
 		}
 	});
 };
