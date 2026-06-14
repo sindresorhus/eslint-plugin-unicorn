@@ -118,7 +118,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable iterable expressions in `for…of` and `for await…of` loop headers.',
-			recommended: false,
+			recommended: true,
 		},
 		messages,
 		languages: [
