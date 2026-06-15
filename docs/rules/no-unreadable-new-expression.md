@@ -11,6 +11,18 @@ Disallow member access directly from `new` expressions and disallow complex cons
 
 This rule allows identifier constructors and static member constructors. Split the constructor call and member access into separate statements, or assign a complex constructor expression to a clear name before using `new`.
 
+## Why
+
+`new` is one of the most precedence-sensitive operators in JavaScript. `new` _with_ an argument list and `new` _without_ one sit at [different precedence levels](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence) (17 vs. 16), so tiny differences in parentheses flip the meaning:
+
+```js
+new Foo().Bar; // `(new Foo()).Bar`: read `Bar` from the new instance
+new Foo.Bar(); // `new (Foo.Bar)()`: construct `Foo.Bar`
+new Foo.Bar;   // `new (Foo.Bar)()`: also construct `Foo.Bar`
+```
+
+Since `new Foo` equals `new Foo()`, it is not even clear which part `new` applies to. One access is enough to hit this, so the rule makes no exception for short chains. Naming the instance removes the ambiguity and reads better anyway: you name what you built, then use it.
+
 ## Examples
 
 ```js
