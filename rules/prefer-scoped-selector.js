@@ -29,7 +29,7 @@ const isGlobalDocumentQuery = node =>
 const scopePattern = /(?<!:):scope(?![\w-])/i;
 
 /*
-Split a selector into its top-level comma-separated branches, following the CSS tokenizer: strings, comments, and backslash escapes are stripped so their contents can't be mistaken for structure, and commas nested in `()`/`[]`/`{}` blocks are not separators. The returned branches keep only the structural text, which is enough to count branches and to detect a real `:scope` token.
+Split a selector into its top-level comma-separated branches, following the CSS tokenizer: strings, comments, and backslash escapes are stripped so their contents can't be mistaken for structure, and commas nested in `()`/`[]`/`{}` blocks are not separators. The returned branches keep only the structural text, which is enough to count branches, detect a real `:scope` token, and detect a top-level combinator.
 https://www.w3.org/TR/css-syntax-3/#tokenization
 */
 const splitSelectorList = selector => {
@@ -64,10 +64,10 @@ const splitSelectorList = selector => {
 			continue;
 		}
 
-		// Escape outside a string consumes the next code point.
+		// Escape outside a string consumes the next code point. Replace it with an identifier character (not whitespace) so the escaped character is neither read as structure (a comma or combinator) nor able to form a `:scope` token, while still keeping the surrounding compound selector intact.
 		if (character === '\\') {
 			index++;
-			current += ' ';
+			current += 'a';
 			continue;
 		}
 
@@ -86,6 +86,31 @@ const splitSelectorList = selector => {
 
 	branches.push(current);
 	return branches;
+};
+
+/*
+A branch is "combined" when it contains a combinator (descendant ` `, child `>`, or sibling `+`/`~`) at the top level. `:scope` only changes matching for combined selectors; on a simple compound selector it is pure noise.
+*/
+const hasCombinator = branch => {
+	// Replace each top-level `()`/`[]`/`{}` group with a single placeholder so its inner commas, combinators, and whitespace are not seen as structure, while still acting as one compound-selector token.
+	let depth = 0;
+	let stripped = '';
+	for (const character of branch) {
+		if ('([{'.includes(character)) {
+			if (depth === 0) {
+				stripped += '*';
+			}
+
+			depth++;
+		} else if (')]}'.includes(character)) {
+			depth--;
+		} else if (depth === 0) {
+			stripped += character;
+		}
+	}
+
+	// A child/sibling combinator, or whitespace separating two compound selectors (descendant combinator).
+	return /[+>~]/.test(stripped) || /\S\s+\S/.test(stripped);
 };
 
 const getPrefixScopeFix = (node, sourceCode) => fixer => {
@@ -119,9 +144,9 @@ const create = context => {
 			return;
 		}
 
-		// Accept the selector only when every branch of the list is scoped.
+		// Report only when a branch is combined and not anchored with `:scope`. Simple (single-compound) branches don't need `:scope`.
 		const branches = splitSelectorList(selector);
-		if (branches.every(branch => scopePattern.test(branch))) {
+		if (branches.every(branch => !hasCombinator(branch) || scopePattern.test(branch))) {
 			return;
 		}
 
