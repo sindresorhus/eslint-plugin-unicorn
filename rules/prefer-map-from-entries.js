@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
+	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -15,11 +16,11 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `new Map()` over `Object.fromEntries()` when using the result as a map.',
 };
 
-const objectIterableMethods = new Set([
+const objectIterableMethods = [
 	'entries',
 	'keys',
 	'values',
-]);
+];
 
 const inheritedObjectPropertyNames = new Set([
 	'__defineGetter__',
@@ -118,6 +119,20 @@ function isStandaloneExpression(node) {
 		&& node.parent.expression === node;
 }
 
+function isFirstTokenOfExpressionStatement(node, context) {
+	let currentNode = node;
+	const {sourceCode} = context;
+	while (currentNode.parent) {
+		if (currentNode.parent.type === 'ExpressionStatement') {
+			return sourceCode.getRange(sourceCode.getFirstToken(currentNode.parent.expression))[0] === sourceCode.getRange(sourceCode.getFirstToken(node))[0];
+		}
+
+		currentNode = currentNode.parent;
+	}
+
+	return false;
+}
+
 function isCallLikeTarget(node) {
 	return (
 		(node.parent.type === 'CallExpression' || node.parent.type === 'NewExpression')
@@ -153,6 +168,31 @@ function isUpdateTarget(node) {
 		&& node.parent.argument === node;
 }
 
+function isWithinNewExpressionCallee(node) {
+	while (node.parent) {
+		const {parent} = node;
+		if (parent.type === 'NewExpression') {
+			return parent.callee === node;
+		}
+
+		if (isUnsupportedTypeScriptExpressionWrapper(parent)) {
+			node = parent;
+			continue;
+		}
+
+		if (
+			parent.type !== 'MemberExpression'
+			|| parent.object !== node
+		) {
+			return false;
+		}
+
+		node = parent;
+	}
+
+	return false;
+}
+
 function isInDestructuringPattern(node) {
 	while (node.parent) {
 		if (
@@ -182,6 +222,16 @@ function isWithinChainExpression(node) {
 	}
 
 	return false;
+}
+
+function getCallArgumentText(node, context) {
+	const text = context.sourceCode.getText(node);
+	return node.type === 'SequenceExpression' ? `(${text})` : text;
+}
+
+function isUnsupportedTypeScriptExpressionWrapper(node) {
+	return isTypeScriptExpressionWrapper(node)
+		|| node?.type === 'TSInstantiationExpression';
 }
 
 function getObjectMethodCall(identifier, context) {
@@ -236,7 +286,7 @@ function getObjectMethodCall(identifier, context) {
 		fixRange: context.sourceCode.getRange(parent),
 		getReplacement() {
 			const replacement = `[...${identifier.name}.${name}()]`;
-			const semicolon = isStandaloneExpression(parent) && needsSemicolon(context.sourceCode.getTokenBefore(parent), context, replacement) ? ';' : '';
+			const semicolon = isFirstTokenOfExpressionStatement(parent, context) && needsSemicolon(context.sourceCode.getTokenBefore(parent), context, replacement) ? ';' : '';
 			return semicolon + replacement;
 		},
 	};
@@ -255,7 +305,7 @@ function getAssignmentOperation(memberExpression, identifier, key, context) {
 	return {
 		node: assignmentExpression,
 		fixRange: context.sourceCode.getRange(assignmentExpression),
-		getReplacement: () => `${identifier.name}.set(${key}, ${context.sourceCode.getText(assignmentExpression.right)})`,
+		getReplacement: () => `${identifier.name}.set(${key}, ${getCallArgumentText(assignmentExpression.right, context)})`,
 	};
 }
 
@@ -281,7 +331,9 @@ function getMemberExpressionOperation(identifier, context) {
 	if (
 		parent.type !== 'MemberExpression'
 		|| parent.object !== identifier
+		|| isUnsupportedTypeScriptExpressionWrapper(parent.parent)
 		|| isInDestructuringPattern(parent)
+		|| isWithinNewExpressionCallee(parent)
 		|| containsOptionalChain(parent)
 		|| isWithinChainExpression(parent)
 		|| wouldRemoveComments(context, parent)

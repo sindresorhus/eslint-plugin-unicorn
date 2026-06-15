@@ -34,6 +34,9 @@ test.snapshot({
 		'const object = Object.fromEntries(Object.entries(source)); [object.foo] = source;',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo();',
 		'const object = Object.fromEntries(Object.entries(source)); new object.foo();',
+		'const object = Object.fromEntries(Object.entries(source)); new object.foo.bar();',
+		'const object = Object.fromEntries(Object.entries(source)); new (object.foo).bar();',
+		'const object = Object.fromEntries(Object.entries(source)); new object["foo"].bar();',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo`tag`;',
 		'const object = Object.fromEntries(Object.entries(source)); for (object.foo in source) {}',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo += 1;',
@@ -69,6 +72,60 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object.foo!;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object.foo!();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object.foo!++;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); new object.foo!.bar();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); (object.foo as string);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); (object.foo satisfies string);',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object.foo<string>();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); new (object.foo).bar!.baz();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); new ((object.foo).bar as Constructor).baz();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		'const object = Object.fromEntries([["foo", value]]); object.foo;',
@@ -78,7 +135,15 @@ test.snapshot({
 		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, "foo");',
 		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, `foo`);',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo = value;',
+		'const object = Object.fromEntries(Object.entries(source)); object.foo = (bar, baz);',
 		'const object = Object.fromEntries(Object.entries(source)); object["foo"] = value;',
+		'const object = Object.fromEntries(Object.entries(source)); new (foo(object.bar))();',
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object.foo;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		'const object = Object.fromEntries(Object.entries(source)); delete object.foo;',
 		'const object = Object.fromEntries(Object.entries(source)); delete object["foo"];',
 		'const object = Object.fromEntries(Object.entries(source)); Object.keys(object);',
@@ -89,6 +154,11 @@ test.snapshot({
 		outdent`
 			const object = Object.fromEntries(Object.entries(source))
 			Object.keys(object);
+		`,
+		outdent`
+			const object = Object.fromEntries(Object.entries(source))
+			foo
+			Object.keys(object).join();
 		`,
 		outdent`
 			const object = Object.fromEntries(Object.entries(source));

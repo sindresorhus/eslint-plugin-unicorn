@@ -9,9 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use a [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) when a value created from non-array-index string-keyed entry pairs is only used through map-like operations.
+Use a [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) when a value created from `Object.entries()` or known non-array-index string-keyed entry pairs is only used through map-like operations.
 
-This rule only reports variables where all references can be converted together. Unsupported references and unknown entry key types are ignored instead of partially converting the variable.
+This rule only reports variables where the initializer and all references can be converted together. Unsupported references and unknown entry shapes are ignored instead of partially converting the variable.
+
+Array-index keys are ignored because object key ordering does not always match `Map` iteration semantics.
 
 ## Examples
 
