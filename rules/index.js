@@ -8,6 +8,7 @@ export {default as 'consistent-assert'} from './consistent-assert.js';
 export {default as 'consistent-boolean-name'} from './consistent-boolean-name.js';
 export {default as 'consistent-class-member-order'} from './consistent-class-member-order.js';
 export {default as 'consistent-compound-words'} from './consistent-compound-words.js';
+export {default as 'consistent-conditional-object-spread'} from './consistent-conditional-object-spread.js';
 export {default as 'consistent-date-clone'} from './consistent-date-clone.js';
 export {default as 'consistent-destructuring'} from './consistent-destructuring.js';
 export {default as 'consistent-empty-array-spread'} from './consistent-empty-array-spread.js';
