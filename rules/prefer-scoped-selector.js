@@ -25,9 +25,68 @@ const isGlobalDocumentQuery = node =>
 	&& node.callee.object.property.type === 'Identifier'
 	&& node.callee.object.property.name === 'document';
 
-const isScopedSelector = selector => selector.includes(':scope');
+// Matches the `:scope` pseudo-class as a whole token (not `::scope`, `:scoped`, etc.).
+const scopePattern = /(?<!:):scope(?![\w-])/i;
 
-const isSelectorList = selector => selector.includes(',');
+/*
+Split a selector into its top-level comma-separated branches, following the CSS tokenizer: strings, comments, and backslash escapes are stripped so their contents can't be mistaken for structure, and commas nested in `()`/`[]`/`{}` blocks are not separators. The returned branches keep only the structural text, which is enough to count branches and to detect a real `:scope` token.
+https://www.w3.org/TR/css-syntax-3/#tokenization
+*/
+const splitSelectorList = selector => {
+	const branches = [];
+	let depth = 0;
+	let quote;
+	let current = '';
+	for (let index = 0; index < selector.length; index++) {
+		const character = selector[index];
+
+		// Inside a string, skip everything (including escapes) until the matching quote.
+		if (quote) {
+			if (character === '\\') {
+				index++;
+			} else if (character === quote) {
+				quote = undefined;
+			}
+
+			continue;
+		}
+
+		// Comment.
+		if (character === '/' && selector[index + 1] === '*') {
+			const end = selector.indexOf('*/', index + 2);
+			index = end === -1 ? selector.length : end + 1;
+			continue;
+		}
+
+		// String start.
+		if (character === '"' || character === '\'') {
+			quote = character;
+			continue;
+		}
+
+		// Escape outside a string consumes the next code point.
+		if (character === '\\') {
+			index++;
+			current += ' ';
+			continue;
+		}
+
+		if ('([{'.includes(character)) {
+			depth++;
+		} else if (')]}'.includes(character)) {
+			depth--;
+		} else if (character === ',' && depth === 0) {
+			branches.push(current);
+			current = '';
+			continue;
+		}
+
+		current += character;
+	}
+
+	branches.push(current);
+	return branches;
+};
 
 const getPrefixScopeFix = (node, sourceCode) => fixer => {
 	const [start] = sourceCode.getRange(node);
@@ -56,8 +115,13 @@ const create = context => {
 		if (
 			selector === undefined
 			|| selector.trim() === ''
-			|| isScopedSelector(selector)
 		) {
+			return;
+		}
+
+		// Accept the selector only when every branch of the list is scoped.
+		const branches = splitSelectorList(selector);
+		if (branches.every(branch => scopePattern.test(branch))) {
 			return;
 		}
 
@@ -66,7 +130,7 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		if (!isSelectorList(selector)) {
+		if (branches.length === 1) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

@@ -38,6 +38,6 @@ document.querySelectorAll('.outer .inner');
 
 ## Limitations
 
-This rule intentionally only checks static string selectors and no-expression template literal selectors. It does not parse CSS selectors or try to resolve selector variables.
+The rule only checks selectors written as a string literal or a template literal without expressions. Dynamic selectors are ignored.
 
-To avoid false positives from a heavy selector parser, any static selector containing `:scope` is accepted.
+It does not look inside functional pseudo-classes like `:is()`, `:where()`, `:not()`, and `:has()`, so a branch counts as scoped as long as it contains `:scope` somewhere. For example, `:scope div:is(.a, div b)` is accepted even though `div b` is not scoped.
