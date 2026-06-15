@@ -40,7 +40,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce …',
-			recommended: true, // or 'unopinionated'
+			recommended: true, // 'unopinionated' (safest, in both presets), true (in recommended only), or false (opt-in)
 		},
 		fixable: 'code', // or omit; add hasSuggestions: true for suggestions
 		schema: [],
@@ -52,6 +52,22 @@ export default config;
 ```
 
 Options are accessed via `context.options[0]`. Use `meta.defaultOptions` for defaults (no manual merging).
+
+### `recommended` config level
+
+`meta.docs.recommended` picks the preset that enables the rule. `'unopinionated'` does NOT mean "too opinionated" — it means the opposite:
+
+- **`'unopinionated'`** — Uncontroversial; in both `unopinionated` and `recommended` (the former is a subset). Safest bucket and the default for new rules.
+- **`true`** — A more opinionated call, still on by default. In `recommended` only.
+- **`false`** — Off by default, only in `all`. For niche or opt-in rules.
+
+| `recommended` | `unopinionated` | `recommended` config | `all` |
+|---|---|---|---|
+| `'unopinionated'` | on | on | on |
+| `true` | off | on | on |
+| `false` (or omitted) | off | off | on |
+
+So a rule too opinionated or niche for broad use is `false`, never `'unopinionated'`. If unsure which level fits, share your recommendation and ask.
 
 Name boolean options in the positive `check*` form (for example, `checkProperties`), never the negated `ignore*`/`skip*` form, so option naming stays consistent across rules. This does not apply to array/pattern options like `ignore` (a list of patterns to ignore), which follow ESLint's own conventions.
 
