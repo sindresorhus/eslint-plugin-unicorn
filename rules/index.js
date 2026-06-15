@@ -174,6 +174,7 @@ export {default as 'prefer-export-from'} from './prefer-export-from.js';
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
 export {default as 'prefer-global-number-constants'} from './prefer-global-number-constants.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
+export {default as 'prefer-has-check'} from './prefer-has-check.js';
 export {default as 'prefer-https'} from './prefer-https.js';
 export {default as 'prefer-identifier-import-export-specifiers'} from './prefer-identifier-import-export-specifiers.js';
 export {default as 'prefer-import-meta-properties'} from './prefer-import-meta-properties.js';
