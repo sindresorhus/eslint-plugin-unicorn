@@ -74,6 +74,15 @@ const create = context => {
 		const {sourceCode} = context;
 		const comments = getComments(context);
 
+		// A parser that does not understand the file (for example `eslint-parser-plain`, used for files like `.gitignore` or `.editorconfig`) produces an empty `Program` with no tokens or comments even when the file has content. Don't treat that as an empty file.
+		if (
+			sourceCode.ast.tokens.length === 0
+			&& comments.length === 0
+			&& sourceCode.text.trim() !== ''
+		) {
+			return;
+		}
+
 		if (hasTripleSlashDirectives(comments)) {
 			return;
 		}
