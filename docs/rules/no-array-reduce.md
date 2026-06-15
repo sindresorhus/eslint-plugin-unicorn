@@ -4,7 +4,7 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -102,3 +102,18 @@ for (const item of array) {
 	total += item;
 }
 ```
+
+When `allowSimpleOperations` is `false`, a simple sum like `array.reduce((total, item) => total + item)` (with no initial value or an initial value of `0`) also offers a suggestion to switch to [`Math.sumPrecise()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise):
+
+```js
+/* eslint unicorn/no-array-reduce: ["error", {"allowSimpleOperations": false}] */
+// ❌
+array.reduce((total, item) => total + item)
+
+// ✅
+Math.sumPrecise(array)
+```
+
+This is a suggestion rather than an autofix because `Math.sumPrecise()` is not exactly equivalent: it requires every element to be a number (it throws otherwise instead of coercing), returns `-0` for an empty array, and is more precise, so the result can differ.
+
+When type information is available, the suggestion is skipped for sums that are provably not numeric (for example a `string[]`, where `+` is concatenation), since `Math.sumPrecise()` would throw on those.

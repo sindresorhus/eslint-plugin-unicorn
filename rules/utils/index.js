@@ -59,7 +59,7 @@ export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
 export {default as isNewExpressionWithParentheses} from './is-new-expression-with-parentheses.js';
-export {default as isNumber} from './is-number.js';
+export {default as isNumber, isKnownNonNumber} from './is-number.js';
 export {default as isBoolean} from './is-boolean.js';
 export {default as isString, isKnownNonString} from './is-string.js';
 export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js';
