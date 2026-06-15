@@ -1,6 +1,7 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isNumericLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
+import {createTypeCheckers, target, unknown} from './type-helpers.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -91,8 +92,10 @@ const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt
 const isStaticNumber = (node, scope) =>
 	typeof getStaticValue(node, scope)?.value === 'number';
 
-// Only the bare `number` keyword, never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
-const isNumberTypeAnnotation = node => node?.type === 'TSNumberKeyword';
+// Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
+const isNumberTypeAnnotation = node =>
+	node?.type === 'TSNumberKeyword'
+	|| (node?.type === 'TSLiteralType' && isNumericLiteral(node.literal));
 
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
@@ -243,3 +246,16 @@ export default function isNumber(node, scope) {
 
 	return isStaticNumber(node, scope);
 }
+
+const getStaticType = value => (typeof value === 'number' ? target : unknown);
+
+// Complements the AST-based `isNumber` above by using type information when available: resolves type annotations (`: number`), `as`/`satisfies` casts, and inferred element types (e.g. `number[]`) via the TypeScript type checker.
+const {isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
+	targetTypeNames: new Set(),
+	targetCallNames: ['Number'],
+	isTargetTypeAnnotation: isNumberTypeAnnotation,
+	isTargetType: type => type.isNumberLiteral?.() || type.intrinsicName === 'number',
+	getStaticType,
+});
+
+export {isKnownNonNumber};

@@ -5,6 +5,7 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getParenthesizedText,
 	isFunctionSelfUsedInside,
+	isKnownNonNumber,
 	isNodeValueNotFunction,
 	isArrayPrototypeProperty,
 	isSameReference,
@@ -13,9 +14,11 @@ import {
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_REDUCE_RIGHT = 'reduceRight';
+const MESSAGE_ID_SUM_PRECISE = 'sum-precise';
 const messages = {
 	[MESSAGE_ID_REDUCE]: '`Array#reduce()` is not allowed. Prefer other types of loop for readability.',
 	[MESSAGE_ID_REDUCE_RIGHT]: '`Array#reduceRight()` is not allowed. Prefer other types of loop for readability. You may want to call `Array#toReversed()` before looping it.',
+	[MESSAGE_ID_SUM_PRECISE]: 'Switch to `Math.sumPrecise()`.',
 };
 
 const getIndent = (sourceCode, node) => sourceCode.lines[sourceCode.getLoc(node).start.line - 1].match(/^\s*/v)[0];
@@ -50,6 +53,64 @@ const getCallbackReturnExpression = callback => {
 		return callback.body.body[0].argument;
 	}
 };
+
+// Whether `callback` is `(accumulator, element) => accumulator + element` (block-bodied and reversed-operand forms included).
+const isSumReduceCallback = callback => {
+	if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
+		return false;
+	}
+
+	if (
+		callback.params.length < 2
+		|| callback.params[0].type !== 'Identifier'
+		|| callback.params[1].type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	const expression = getCallbackReturnExpression(callback);
+	if (
+		!expression
+		|| expression.type !== 'BinaryExpression'
+		|| expression.operator !== '+'
+		|| expression.left.type !== 'Identifier'
+		|| expression.right.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	// Operands must be exactly the accumulator and element parameters, in either order.
+	const operands = new Set([expression.left.name, expression.right.name]);
+	return operands.size === 2
+		&& operands.has(callback.params[0].name)
+		&& operands.has(callback.params[1].name);
+};
+
+function getSumPreciseSuggestions(callExpression, context) {
+	const {sourceCode} = context;
+	const [callback, initialValue] = callExpression.arguments;
+
+	if (
+		!isSumReduceCallback(callback)
+		|| callExpression.optional
+		|| callExpression.callee.optional
+		// Only no initial value, or a literal `0`.
+		|| (initialValue && !(initialValue.type === 'Literal' && initialValue.value === 0))
+		// Don't drop comments inside the call being replaced.
+		|| sourceCode.getCommentsInside(callExpression).length > 0
+		// `Math.sumPrecise()` throws on non-numbers, so don't suggest it for a provably non-numeric sum (e.g. string concatenation). Only the accumulator and element parameters matter.
+		|| [callback.params[0], callback.params[1]].some(parameter => isKnownNonNumber(parameter, context))
+	) {
+		return;
+	}
+
+	const arrayText = getParenthesizedText(callExpression.callee.object, context);
+	// TODO: Offer this as an autofix (and consider reporting by default) once `Math.sumPrecise()` is widely available across runtimes (currently not in any Node.js release). See https://github.com/sindresorhus/eslint-plugin-unicorn/issues/3252
+	return [{
+		messageId: MESSAGE_ID_SUM_PRECISE,
+		fix: fixer => fixer.replaceText(callExpression, `Math.sumPrecise(${arrayText})`),
+	}];
+}
 
 const getVariableReferences = (scope, node) => findVariable(scope, node)?.references ?? [];
 
@@ -544,6 +605,7 @@ const cases = [
 
 			return createFix(callExpression, context);
 		},
+		getSuggestions: getSumPreciseSuggestions,
 	},
 	// `[].{reduce,reduceRight}.call()` and `Array.{reduce,reduceRight}.call()`
 	{
@@ -595,7 +657,7 @@ const create = context => {
 	const {allowSimpleOperations} = context.options[0];
 
 	context.on('CallExpression', function * (callExpression) {
-		for (const {test, getMethodNode, getReceiver, isSimpleOperation, getFix} of cases) {
+		for (const {test, getMethodNode, getReceiver, isSimpleOperation, getFix, getSuggestions} of cases) {
 			if (!test(callExpression)) {
 				continue;
 			}
@@ -605,6 +667,7 @@ const create = context => {
 				continue;
 			}
 
+			// TODO: Once `Math.sumPrecise()` is widely available, report (and suggest) sum reduces even when `allowSimpleOperations` is enabled, so the option only exempts operations `Math.sumPrecise()` can't express.
 			if (allowSimpleOperations && isSimpleOperation?.(callExpression)) {
 				continue;
 			}
@@ -614,6 +677,7 @@ const create = context => {
 				node: methodNode,
 				messageId: methodNode.name,
 				fix: getFix?.(callExpression, context),
+				suggest: getSuggestions?.(callExpression, context),
 			};
 		}
 	});
@@ -629,6 +693,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [{allowSimpleOperations: true}],
 		messages,

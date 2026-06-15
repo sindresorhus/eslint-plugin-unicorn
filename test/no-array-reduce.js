@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import notFunctionTypes from './utils/not-function-types.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -6,6 +7,17 @@ const {test} = getTester(import.meta);
 
 const errorsReduce = [{messageId: 'reduce'}];
 const errorsReduceRight = [{messageId: 'reduceRight'}];
+
+// Resolves inferred element types (e.g. `number[]`) via the TypeScript type checker
+const typeAware = (code, options) => ({
+	code,
+	options,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test({
 	valid: [
@@ -160,20 +172,13 @@ test({
 			`,
 
 			// Option: allowSimpleOperations
-			{
-				code: 'array.reduce((total, item) => total + item)',
-				options: [{allowSimpleOperations: false}],
-			},
+			// Note: simple `+` sums are covered by the `Math.sumPrecise()` snapshot block below
 			{
 				code: 'array.reduce((total, item) => { return total - item })',
 				options: [{allowSimpleOperations: false}],
 			},
 			{
 				code: 'array.reduce(function (total, item) { return total * item })',
-				options: [{allowSimpleOperations: false}],
-			},
-			{
-				code: 'array.reduce((total, item) => total + item, 0)',
 				options: [{allowSimpleOperations: false}],
 			},
 			{
@@ -404,5 +409,78 @@ test({
 			`,
 			errors: errorsReduce,
 		},
+	],
+});
+
+// `Math.sumPrecise()` suggestion (only when `allowSimpleOperations` is `false`)
+const allowSimpleOperationsDisabled = {allowSimpleOperations: false};
+const reported = code => ({code, options: [allowSimpleOperationsDisabled]});
+const reportedTypeScript = code => ({...reported(code), languageOptions: {parser: parsers.typescript}});
+test.snapshot({
+	valid: [
+		// Default `allowSimpleOperations: true` keeps sum reduces unreported, so no suggestion
+		'array.reduce((a, b) => a + b)',
+		'array.reduce((a, b) => a + b, 0)',
+		'array.reduceRight((a, b) => a + b)',
+	],
+	invalid: [
+		// Reported with a `Math.sumPrecise()` suggestion
+		reported('array.reduce((a, b) => a + b)'),
+		reported('array.reduce((total, item) => total + item, 0)'),
+		reported('array.reduceRight((a, b) => a + b)'),
+		reported('array.reduceRight((a, b) => a + b, 0)'),
+		reported('array.reduce((a, b) => b + a)'),
+		reported('array.reduce((a, b) => { return a + b; })'),
+		reported('array.reduce(function (a, b) { return a + b; })'),
+		// Unused extra parameters are fine
+		reported('array.reduce((a, b, index) => a + b)'),
+		// Various receivers
+		reported('(0, array).reduce((a, b) => a + b)'),
+		reported('object.values.reduce((a, b) => a + b)'),
+		reported('object["values"].reduce((a, b) => a + b)'),
+		reported('getNumbers().reduce((a, b) => a + b)'),
+		// Nested inside another call
+		reported('foo(array.reduce((a, b) => a + b))'),
+		// Coexists with the existing for-loop autofix
+		reported('const array = []; const sum = array.reduce((a, b) => a + b);'),
+
+		// Reported, but no suggestion
+		// Projection (would need `Math.sumPrecise(array.map(…))`)
+		reported('array.reduce((a, b) => a + b.length)'),
+		// Non-zero initial value
+		reported('array.reduce((a, b) => a + b, 10)'),
+		// Not a `+` sum
+		reported('array.reduce((a, b) => a - b)'),
+		reported('array.reduce((a, b) => a * b)'),
+		// Operands are not the two parameters
+		reported('array.reduce((a, b) => a + a)'),
+		reported('array.reduce((a, b, c) => a + b + c)'),
+		// Optional chaining changes behavior
+		reported('array?.reduce((a, b) => a + b)'),
+		// Comment would be dropped
+		reported('array.reduce((a, b) => /* keep */ a + b)'),
+		// Non-identifier (destructured) parameter
+		reported('array.reduce(([a], b) => a + b)'),
+
+		// TypeScript: parameter type annotations
+		// Provably a number → suggestion
+		reportedTypeScript('array.reduce((a: number, b: number) => a + b)'),
+		reportedTypeScript('array.reduce((a, b: number) => a + b)'),
+		reportedTypeScript('array.reduce<number>((a, b) => a + b)'),
+		// Provably not a number → no suggestion
+		reportedTypeScript('array.reduce((a, b: string) => a + b)'),
+		reportedTypeScript('array.reduce((a: string, b) => a + b)'),
+		reportedTypeScript('array.reduce((a: bigint, b: bigint) => a + b)'),
+
+		// TypeScript: element type inferred from the array via the type checker
+		// `number[]` → suggestion
+		typeAware('function sum(values: number[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
+		typeAware('function sum(values: readonly number[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
+		// Only the accumulator and element parameters are type-checked, never the (non-number) index/array parameters
+		typeAware('function sum(values: number[]) { return values.reduce((a, b, index, all) => a + b); }', [allowSimpleOperationsDisabled]),
+		// `string[]` / `boolean[]` / `bigint[]` → no suggestion (`Math.sumPrecise()` would throw)
+		typeAware('function concat(values: string[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
+		typeAware('function sum(values: boolean[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
+		typeAware('function sum(values: bigint[]) { return values.reduce((a, b) => a + b); }', [allowSimpleOperationsDisabled]),
 	],
 });
