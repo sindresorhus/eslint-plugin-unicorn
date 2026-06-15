@@ -156,6 +156,41 @@ ruleTest.snapshot({
 	],
 	invalid: [
 		outdent`
+			class Singleton {
+				onePublicMethod() {}
+
+				static getInstance() {}
+			}
+		`,
+		// String literal key resolves to a name.
+		outdent`
+			class Foo {
+				publicMethod() {}
+				static 'create'() {}
+			}
+		`,
+		// Numeric literal key resolves to a name.
+		outdent`
+			class Foo {
+				publicMethod() {}
+				static 1_000() {}
+			}
+		`,
+		// Dynamic computed key falls back to the group label without a name.
+		outdent`
+			class Foo {
+				publicMethod() {}
+				static [getName()]() {}
+			}
+		`,
+		// Getters and setters are named like other methods.
+		outdent`
+			class Foo {
+				get publicValue() {}
+				static set sharedValue(value) {}
+			}
+		`,
+		outdent`
 			class Foo {
 				constructor() {}
 
