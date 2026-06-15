@@ -187,6 +187,7 @@ export {default as 'prefer-iterator-to-array'} from './prefer-iterator-to-array.
 export {default as 'prefer-keyboard-event-key'} from './prefer-keyboard-event-key.js';
 export {default as 'prefer-location-assign'} from './prefer-location-assign.js';
 export {default as 'prefer-logical-operator-over-ternary'} from './prefer-logical-operator-over-ternary.js';
+export {default as 'prefer-map-from-entries'} from './prefer-map-from-entries.js';
 export {default as 'prefer-math-abs'} from './prefer-math-abs.js';
 export {default as 'prefer-math-min-max'} from './prefer-math-min-max.js';
 export {default as 'prefer-math-trunc'} from './prefer-math-trunc.js';
