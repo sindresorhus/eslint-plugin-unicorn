@@ -13,6 +13,8 @@ When calling `querySelector()` or `querySelectorAll()` on an element, use `:scop
 
 Without `:scope`, browser selector matching can consider ancestors outside the element and only filter the final matched element to the element subtree.
 
+This only matters for selectors with a combinator (descendant `.outer .inner`, child `>`, or sibling `+`/`~`). A simple selector like `.a`, or a list of simple selectors like `.a, b`, is left alone because `:scope` would only add noise.
+
 ## Examples
 
 ```js
@@ -24,11 +26,8 @@ element.querySelectorAll(':scope .outer .inner');
 ```
 
 ```js
-// ❌
-document.body.querySelectorAll('option');
-
 // ✅
-document.body.querySelectorAll(':scope option');
+element.querySelector('.a, b');
 ```
 
 ```js
