@@ -1,3 +1,5 @@
+import {getPropertyName} from '@eslint-community/eslint-utils';
+
 const MESSAGE_ID = 'consistent-class-member-order';
 const MESSAGE_ID_SUGGESTION = 'consistent-class-member-order-suggestion';
 const messages = {
@@ -74,6 +76,31 @@ const getMemberGroup = member => {
 			? GROUP_PRIVATE_METHOD
 			: GROUP_PUBLIC_METHOD;
 	}
+};
+
+const getMemberName = (member, sourceCode) => {
+	if (member.type === 'StaticBlock' || member.kind === 'constructor') {
+		return;
+	}
+
+	const {key} = member;
+
+	if (key?.type === 'PrivateIdentifier') {
+		return `#${key.name}`;
+	}
+
+	if (key?.type === 'Identifier' && !member.computed) {
+		return key.name;
+	}
+
+	return getPropertyName(member, sourceCode.getScope(member)) ?? undefined;
+};
+
+const getMemberDescription = (member, sourceCode) => {
+	const label = getGroupLabel(getMemberGroup(member));
+	const name = getMemberName(member, sourceCode);
+
+	return name ? `${label} \`${name}\`` : label;
 };
 
 const getReorderedMembers = (classBody, order) => {
@@ -162,11 +189,9 @@ const create = context => {
 	const {sourceCode} = context;
 	const order = new Map(context.options[0].order.map((group, index) => [group, index]));
 
-	context.on('ClassBody', function * (classBody) {
-		const suggestion = getSuggestion(classBody, order, sourceCode);
-		let shouldSuggest = suggestion !== undefined;
+	context.on('ClassBody', classBody => {
 		let highestGroupIndex;
-		let highestGroup;
+		let highestMember;
 
 		for (const member of classBody.body) {
 			const group = getMemberGroup(member);
@@ -175,27 +200,29 @@ const create = context => {
 			}
 
 			const groupIndex = order.get(group);
+
+			// Report only the first out-of-order member. The suggestion reorders
+			// the whole class, so a single problem keeps the output actionable
+			// instead of flagging every member after it.
 			if (
 				highestGroupIndex !== undefined
 				&& groupIndex < highestGroupIndex
 			) {
-				yield {
+				const suggestion = getSuggestion(classBody, order, sourceCode);
+
+				return {
 					node: member,
 					messageId: MESSAGE_ID,
 					data: {
-						current: getGroupLabel(group),
-						previous: getGroupLabel(highestGroup),
+						current: getMemberDescription(member, sourceCode),
+						previous: getMemberDescription(highestMember, sourceCode),
 					},
-					...(shouldSuggest && {suggest: suggestion}),
+					...(suggestion && {suggest: suggestion}),
 				};
-
-				shouldSuggest = false;
-
-				continue;
 			}
 
 			highestGroupIndex = groupIndex;
-			highestGroup = group;
+			highestMember = member;
 		}
 	});
 };
