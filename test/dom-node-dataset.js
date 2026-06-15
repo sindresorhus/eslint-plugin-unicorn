@@ -229,13 +229,22 @@ test.snapshot({
 		'element.dataset[variable];',
 		'element.dataset.foo += "bar";',
 		'element.dataset.foo++;',
+		// Destructuring-assignment targets are writes with no `setAttribute`/`getAttribute` equivalent
+		'[element.dataset.fooBar] = array;',
+		'({a: element.dataset.fooBar} = object);',
+		'[element.dataset.fooBar = 1] = array;',
+		'[...element.dataset.fooBar] = array;',
+		'({...element.dataset.fooBar} = object);',
 		'element.dataset["foo-bar"];',
 		'element.dataset["foo-bar"] = "baz";',
 		'delete element.dataset["foo-bar"];',
 		'"foo-bar" in element.dataset',
 		'Object.hasOwn(element.dataset, "foo-bar")',
 		'element.dataset.hasOwnProperty("foo-bar")',
-		'const data = element.dataset;',
+		// Whole-object reads that are not bound to a variable, or whose binding is
+		// optional-chained (`element?.dataset`), are not flagged.
+		'foo(element.dataset);',
+		'const data = element?.dataset; foo(data.fooBar);',
 		'const {unicorn} = element?.dataset;',
 		'"unicorn" in element?.dataset',
 		'Object.hasOwn(element?.dataset, "unicorn")',
@@ -280,6 +289,9 @@ test.snapshot({
 		'element?.dataset.unicorn;',
 		'element.dataset.unicorn = "🦄";',
 		'element.dataset.fooBar = "baz";',
+		// A default value is a read on the right of an assignment pattern, so it is still fixable
+		'function f(x = element.dataset.fooBar) {}',
+		'const [y = element.dataset.fooBar] = array;',
 		'delete element.dataset.unicorn;',
 		'delete element.dataset.fooBar;',
 		'"unicorn" in element.dataset',
@@ -311,6 +323,49 @@ test.snapshot({
 		'const {unicorn: myVar} = element.dataset;',
 		'const {foo, bar} = element.dataset;',
 		'let {foo, bar} = element.dataset;',
+		// `.dataset` assigned to a variable then read through it
+		'const data = element.dataset; console.log(data.fooBar); console.log(data.bazQux);',
+		'const data = element.dataset; foo(data.fooBar);',
+		'const data = element.dataset; foo(data["fooBar"]);',
+		'const data = element.dataset; foo(data.foo.length);',
+		// The same key read more than once is rewritten at each occurrence
+		'const data = element.dataset; foo(data.fooBar); bar(data.fooBar);',
+		// A nested usage where the element is not shadowed is still safe to inline
+		'const data = element.dataset; function inner() { foo(data.fooBar); }',
+		// Reported, but not fixed
+		'const data = element.dataset;',
+		'let data = element.dataset; foo(data.fooBar);',
+		'var data = element.dataset; foo(data.fooBar);',
+		'const data = element.dataset; data.foo = "x";',
+		'const data = element.dataset; delete data.foo;',
+		'const data = element.dataset; data.foo++;',
+		// Destructuring-assignment targets are writes, not reads (would be invalid as `getAttribute(…)`)
+		'const data = element.dataset; [data.foo] = ["x"];',
+		'const data = element.dataset; ({a: data.foo} = object);',
+		'const data = element.dataset; [data.foo = 1] = array;',
+		'const data = element.dataset; [...data.foo] = array;',
+		'const data = element.dataset; ({...data.foo} = object);',
+		'const data = element.dataset; foo(data);',
+		'const data = element.dataset; foo(data.foo());',
+		'const data = element.dataset; foo(data.foo`tagged`);',
+		'const data = element.dataset; foo(data["foo-bar"]);',
+		'const data = element.dataset; foo(data[`fooBar`]);',
+		'const data = element.dataset; foo(data[variable]);',
+		'const data = element.dataset; foo(data.toString);',
+		'const data = element.dataset; foo(data?.foo);',
+		'const data = (a + b).dataset; foo(data.foo);',
+		'const data = element.querySelector("#selector").dataset; foo(data.foo);',
+		'const data = element.dataset, other = 1; foo(data.foo);',
+		// The element only has a non-fixable receiver, so report the declaration without inlining
+		'for (const data = element.dataset;;) foo(data.foo);',
+		'export const data = element.dataset; foo(data.foo);',
+		// A shadowing parameter means the outer declaration has no reads to inline
+		'const data = element.dataset; function inner(data) { foo(data.foo); }',
+		// Inlining would capture a different `element` binding or value, so report without fix
+		'const data = element.dataset; function inner(element) { foo(data.fooBar); }',
+		'let element = a; const data = element.dataset; element = b; foo(data.fooBar);',
+		'const data = /* comment */ element.dataset; foo(data.foo);',
+		'const data = element.dataset; foo(data./* comment */foo);',
 		'element.dataset /* comment */ .unicorn;',
 		'element.dataset.unicorn /* comment */ = "🦄";',
 		'delete /* comment */ element.dataset.unicorn;',
@@ -326,5 +381,7 @@ test.snapshot({
 		'const {foo, bar} = element.querySelector("#selector").dataset;',
 		'for (const {foo} = element.dataset;;) {}',
 		'export const {foo} = element.dataset;',
-	].map(code => ({code, options: [{preferAttributes: true}]})),
+		// A type-asserted element is not a plain identifier, so report without fix
+		{code: 'const data = (element as HTMLElement).dataset; foo(data.fooBar);', languageOptions: {parser: parsers.typescript}},
+	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 });

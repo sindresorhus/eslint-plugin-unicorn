@@ -362,10 +362,6 @@ const isForInOrForOfTarget = node =>
 	)
 	&& node.parent.left === node;
 
-const isRestElementArgument = node =>
-	node.parent.type === 'RestElement'
-	&& node.parent.argument === node;
-
 const isAssignmentTarget = node => {
 	let target = node;
 
@@ -374,8 +370,7 @@ const isAssignmentTarget = node => {
 	}
 
 	return isLeftHandSide(target)
-		|| isForInOrForOfTarget(target)
-		|| isRestElementArgument(target);
+		|| isForInOrForOfTarget(target);
 };
 
 const isLengthRead = identifier => {

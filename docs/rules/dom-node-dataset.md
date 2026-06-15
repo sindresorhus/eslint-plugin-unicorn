@@ -72,20 +72,55 @@ const hasFoo = element.hasAttribute('foo');
 Type: `boolean`\
 Default: `false`
 
-When `true`, enforces the opposite direction: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over named `.dataset` access — covering reads, writes, `delete`, simple destructuring, and existence checks (`in`, `Object.hasOwn`, `.hasOwnProperty()`). Whole-object reads (`const data = element.dataset`) and inherited members (`element.dataset.toString`) are not flagged. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
+When `true`, enforces the opposite direction: prefer `getAttribute(…)` / `setAttribute(…)` / `removeAttribute(…)` / `hasAttribute(…)` over named `.dataset` access — covering reads, writes, `delete`, simple destructuring, existence checks (`in`, `Object.hasOwn`, `.hasOwnProperty()`), and assigning `.dataset` to a variable (`const data = element.dataset`, which hides the attribute access from a search). Direct whole-object reads (`foo(element.dataset)`) and inherited members (`element.dataset.toString`) are not flagged. This can be useful for greppability when data attributes are also referenced in CSS/HTML.
 
 ```js
-// eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}]
+/* eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}] */
 
 // ❌
 const unicorn = element.dataset.unicorn;
-element.dataset.unicorn = '🦄';
-delete element.dataset.unicorn;
-'unicorn' in element.dataset;
 
 // ✅
 const unicorn = element.getAttribute('data-unicorn');
+```
+
+```js
+/* eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}] */
+
+// ❌
+element.dataset.unicorn = '🦄';
+
+// ✅
 element.setAttribute('data-unicorn', '🦄');
+```
+
+```js
+/* eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}] */
+
+// ❌
+delete element.dataset.unicorn;
+
+// ✅
 element.removeAttribute('data-unicorn');
+```
+
+```js
+/* eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}] */
+
+// ❌
+'unicorn' in element.dataset;
+
+// ✅
 element.hasAttribute('data-unicorn');
+```
+
+```js
+/* eslint unicorn/dom-node-dataset: ["error", {"preferAttributes": true}] */
+
+// ❌
+const data = element.dataset;
+console.log(data.unicorn);
+
+// ✅
+console.log(element.getAttribute('data-unicorn'));
 ```

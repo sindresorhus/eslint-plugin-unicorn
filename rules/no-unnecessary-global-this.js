@@ -78,14 +78,9 @@ const isForLoopLeftHandSide = node =>
 	)
 	&& node.parent.left === node;
 
-const isRestElementArgument = node =>
-	node.parent.type === 'RestElement'
-	&& node.parent.argument === node;
-
 const isWritableTarget = node =>
 	isLeftHandSide(node)
-	|| isForLoopLeftHandSide(node)
-	|| isRestElementArgument(node);
+	|| isForLoopLeftHandSide(node);
 
 function isCallExpressionCallee(node) {
 	node = getOuterTypeScriptExpression(node);

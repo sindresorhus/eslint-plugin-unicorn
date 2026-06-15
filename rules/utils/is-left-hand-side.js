@@ -5,6 +5,7 @@ const isLeftHandSide = node =>
 	)
 	|| (node.parent.type === 'UpdateExpression' && node.parent.argument === node)
 	|| (node.parent.type === 'ArrayPattern' && node.parent.elements.includes(node))
+	|| (node.parent.type === 'RestElement' && node.parent.argument === node)
 	|| (
 		node.parent.type === 'Property'
 		&& node.parent.value === node
