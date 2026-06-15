@@ -27,9 +27,10 @@ If you don't use a preset, set the same `languageOptions` as shown below.
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
 import globals from 'globals';
 
-export default [
+export default defineConfig([
 	{
 		languageOptions: {
 			globals: globals.builtin,
@@ -43,7 +44,7 @@ export default [
 		},
 	},
 	// …
-];
+]);
 ```
 
 ## Rules
@@ -367,16 +368,17 @@ This plugin exports a `recommended` config that enforces good practices.
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
 
-export default [
+export default defineConfig([
 	// …
-	eslintPluginUnicorn.configs.recommended,
 	{
+		extends: [eslintPluginUnicorn.configs.recommended],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
 	},
-];
+]);
 ```
 
 ### All config
@@ -385,16 +387,17 @@ This plugin exports an `all` config that enables every rule, except deprecated o
 
 ```js
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
 
-export default [
+export default defineConfig([
 	// …
-	eslintPluginUnicorn.configs.all,
 	{
+		extends: [eslintPluginUnicorn.configs.all],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
 	},
-];
+]);
 ```
 
 ## Maintainers
