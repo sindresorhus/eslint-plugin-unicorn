@@ -257,8 +257,54 @@ ruleTest.snapshot({
 	],
 });
 
+// With `checkUniformCase: false`, only tokens that already mix upper- and lower-case are re-cased.
+ruleTest.snapshot({
+	valid: [
+		// All-lowercase tokens are left alone, including the cases from #3253.
+		'// @eslint/json',
+		'// Run @svgr/webpack for .svg imports',
+		'// the url of the page',
+		'// returns json data',
+		// All-uppercase tokens are left alone.
+		'// JSON, URL, API parsing',
+		// Tokens with digits are uniform-case too, so they are left alone even though the canonical form has a digit (`EC2`).
+		'// deploy to ec2',
+		// The matched token decides, not the replacement, so an all-lowercase token stays even when its replacement is mixed-case (`iOS`).
+		'// build for ios',
+		// A mixed-case token inside code is still protected by masking.
+		'// Use src/Json/index.js.',
+	].map(code => ({code, options: [{checkUniformCase: false}]})),
+	invalid: [
+		// Tokens that already mix upper- and lower-case are still corrected.
+		'// the Url of the page',
+		'// use Json here',
+		'// install Github cli',
+		'// run on Nodejs',
+		'// see Stack overflow',
+		// Letter-changing replacements still apply to uniform-case tokens.
+		'// the application starts',
+	].map(code => ({code, options: [{checkUniformCase: false}]})),
+});
+
 ruleTest({
-	valid: [],
+	valid: [
+		{
+			// `to do` → `TODO` only changes case and whitespace (same letters), so `checkUniformCase: false` leaves the all-lowercase form alone.
+			code: '// to do',
+			options: [
+				{
+					checkUniformCase: false,
+					extendDefaultReplacements: false,
+					replacements: {
+						'to do': {
+							replacement: 'TODO',
+							caseSensitive: false,
+						},
+					},
+				},
+			],
+		},
+	],
 	invalid: [
 		{
 			code: '// teh value',
@@ -296,6 +342,29 @@ ruleTest({
 				},
 			],
 			errors: 1,
+		},
+		{
+			// A letter-changing replacement still applies to an all-lowercase token when `checkUniformCase` is `false`.
+			code: '// teh value',
+			output: '// the value',
+			options: [
+				{
+					checkUniformCase: false,
+					extendDefaultReplacements: false,
+					replacements: {
+						'\\bteh\\b': 'the',
+					},
+				},
+			],
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					data: {
+						value: 'teh',
+						replacement: 'the',
+					},
+				},
+			],
 		},
 	],
 });

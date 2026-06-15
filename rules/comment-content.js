@@ -884,6 +884,18 @@ function isPropertyAccessMatch(commentValue, match) {
 		|| isMemberAccessObject;
 }
 
+function isMixedCase(text) {
+	return text !== text.toLowerCase() && text !== text.toUpperCase();
+}
+
+function normalizeForCasingComparison(text) {
+	return text.replaceAll(/[^\p{Letter}\p{Number}]/gv, '').toLowerCase();
+}
+
+function isCasingOnlyChange(value, replacement) {
+	return normalizeForCasingComparison(value) === normalizeForCasingComparison(replacement);
+}
+
 function shouldSkipMatch(commentValue, match) {
 	return isPathLikeMatch(commentValue, match)
 		|| isPropertyAccessMatch(commentValue, match)
@@ -892,7 +904,7 @@ function shouldSkipMatch(commentValue, match) {
 		|| commentValue[match.index + match[0].length] === '(';
 }
 
-function getReplacementProblem(comment, sourceCode, replacements) {
+function getReplacementProblem(comment, sourceCode, replacements, checkUniformCase) {
 	const valueStart = getCommentValueStart(comment, sourceCode);
 	if (valueStart === undefined) {
 		return;
@@ -916,6 +928,11 @@ function getReplacementProblem(comment, sourceCode, replacements) {
 			}
 
 			if (match[0].includes(maskCharacter)) {
+				continue;
+			}
+
+			// When `checkUniformCase` is `false`, casing-style replacements (the match and replacement are the same word in a different case) only re-case tokens that already mix upper- and lower-case, for example `Json` → `JSON`; all-lowercase and all-uppercase tokens are left alone, as their casing is often intentional. Replacements that change the actual letters (such as `application` → `app` or a custom typo fix) always apply.
+			if (!checkUniformCase && isCasingOnlyChange(match[0], replacement.replacement) && !isMixedCase(match[0])) {
 				continue;
 			}
 
@@ -944,6 +961,7 @@ function getReplacementProblem(comment, sourceCode, replacements) {
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
+	const {checkUniformCase = true} = context.options[0] ?? {};
 	const replacements = prepareReplacements(context.options[0]);
 
 	if (replacements.length === 0) {
@@ -967,7 +985,7 @@ const create = context => {
 				continue;
 			}
 
-			const problem = getReplacementProblem(comment, sourceCode, replacements);
+			const problem = getReplacementProblem(comment, sourceCode, replacements, checkUniformCase);
 			if (!problem) {
 				continue;
 			}
@@ -994,6 +1012,10 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			checkUniformCase: {
+				type: 'boolean',
+				description: 'Whether to also re-case all-lowercase and all-uppercase tokens. When `false`, only tokens that already mix upper- and lower-case (for example, `Github`) are corrected.',
+			},
 			extendDefaultReplacements: {
 				type: 'boolean',
 				description: 'Whether to extend the default replacements.',
@@ -1045,11 +1067,12 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Enforce better comment content.',
-			recommended: true,
+			// TODO: Add back to `recommended` once the rule is more mature.
+			recommended: false,
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{extendDefaultReplacements: true, replacements: {}}],
+		defaultOptions: [{checkUniformCase: true, extendDefaultReplacements: true, replacements: {}}],
 		messages,
 		languages: [
 			'*',

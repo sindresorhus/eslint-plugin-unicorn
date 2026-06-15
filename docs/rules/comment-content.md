@@ -2,7 +2,7 @@
 
 📝 Enforce better comment content.
 
-💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -46,6 +46,24 @@ It focuses on prose-like comment text and skips obvious non-prose regions such a
 ## Options
 
 Type: `object`
+
+### checkUniformCase
+
+Type: `boolean`\
+Default: `true`
+
+By default, the rule re-cases matching tokens regardless of their case, including all-lowercase (`json`) and all-uppercase (`JSON`) ones.
+
+Pass `checkUniformCase: false` to only correct tokens that already mix upper- and lower-case, such as `Github` → `GitHub`. All-lowercase and all-uppercase tokens are then left alone, as their casing is often intentional. Replacements that change the actual letters (such as `application` → `app`, or your own typo fixes) still apply regardless of case.
+
+```js
+'unicorn/comment-content': [
+	'error',
+	{
+		checkUniformCase: false,
+	},
+]
+```
 
 ### replacements
 
