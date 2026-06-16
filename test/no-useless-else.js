@@ -591,6 +591,15 @@ test.snapshot({
 			function qux() {
 				if (foo) {
 					return;
+				} /* comment */ else {
+					bar();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					return;
 				} else {
 					bar();
 				} // trailing

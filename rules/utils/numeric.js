@@ -1,4 +1,5 @@
 import {isNumericLiteral, isBigIntLiteral} from '../ast/index.js';
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 // Determine whether this node is a decimal integer literal.
 // Copied from https://github.com/eslint/eslint/blob/cc4871369645c3409dc56ded7a555af8a9f63d51/lib/rules/utils/ast-utils.js#L1237
@@ -11,6 +12,25 @@ export const isDecimalIntegerNode = node => isNumericLiteral(node) && isDecimalI
 export const isNumeric = node => isNumericLiteral(node) || isBigIntLiteral(node);
 
 export const isLegacyOctal = node => isNumericLiteral(node) && /^0\d+$/.test(node.raw);
+
+export function getStaticNumberValue(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (isNumericLiteral(node)) {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression'
+		&& (node.operator === '+' || node.operator === '-')
+	) {
+		const value = getStaticNumberValue(node.argument);
+
+		if (typeof value === 'number') {
+			return node.operator === '-' ? -value : value;
+		}
+	}
+}
 
 export function getPrefix(text) {
 	let prefix = '';

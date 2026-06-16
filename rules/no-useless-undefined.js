@@ -4,9 +4,8 @@ import {
 	isUndefined,
 	isFunction,
 	isMemberExpression,
-	isNumericLiteral,
 } from './ast/index.js';
-import {isTypeScriptFile, needsSemicolon} from './utils/index.js';
+import {getStaticNumberValue, isTypeScriptFile, needsSemicolon} from './utils/index.js';
 import {containsOptionalChain, isSame, unwrapExpression} from './utils/comparison.js';
 
 const messageId = 'no-useless-undefined';
@@ -133,26 +132,6 @@ const comparisonOperators = new Set([
 	'>',
 	'>=',
 ]);
-
-function getStaticNumberValue(node) {
-	node = unwrapExpression(node);
-
-	if (isNumericLiteral(node)) {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression'
-		&& node.prefix
-		&& (node.operator === '+' || node.operator === '-')
-	) {
-		const value = getStaticNumberValue(node.argument);
-
-		if (typeof value === 'number') {
-			return node.operator === '-' ? -value : value;
-		}
-	}
-}
 
 function getIndexAccess(node) {
 	node = unwrapExpression(node);

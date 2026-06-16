@@ -12,6 +12,9 @@ test.snapshot({
 		'array.with(-0.5, value)',
 		'array.with(array.length - 1, value)',
 		'array.with(otherArray.length, value)',
+		// Nested unary expressions resolve to a positive index.
+		'array.with(- -1, value)',
+		'array.with(-(-(1)), value)',
 		'array.with(index)',
 		'array.with(index, value, extra)',
 		'array["with"](-1, value)',
@@ -24,6 +27,9 @@ test.snapshot({
 		'array.with(-2, value)',
 		'array.with(-1.5, value)',
 		'array.with(- 1, value)',
+		// Nested unary expressions resolve to a negative index.
+		'array.with(- - -1, value)',
+		'array.with(-(-(-1)), value)',
 		'array.with(-1)',
 		'array.with(-1, value, extra)',
 		'array.with(array.length, value)',

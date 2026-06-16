@@ -2,12 +2,12 @@ import {
 	isOpeningBracketToken,
 	isClosingBracketToken,
 	getStaticValue,
-	findVariable,
 } from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getConstVariableInitializer,
 	isNodeMatchesNameOrPath,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
@@ -58,29 +58,6 @@ const isUnsupportedAtReceiverExpression = node => {
 		|| node.type === 'ArrowFunctionExpression'
 		|| node.type === 'FunctionExpression'
 		|| node.type === 'ClassExpression';
-};
-
-const getConstVariableInitializer = (node, context) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.node.type !== 'VariableDeclarator'
-		|| definition.parent.type !== 'VariableDeclaration'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	return definition.node.init;
 };
 
 const isObviouslyNonArrayReceiver = (node, context) => {

@@ -1,5 +1,5 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getConstVariableInitializer,
 	getParenthesizedText,
 	isArrayPrototypeProperty,
 	isNodeMatches,
@@ -188,29 +188,6 @@ const isDefinitelyNonArrayExpression = node => (
 	|| node.type === 'ClassExpression'
 	|| isKnownNonArrayConstruction(node)
 );
-
-const getConstVariableInitializer = (node, context) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.node.type !== 'VariableDeclarator'
-		|| definition.parent.type !== 'VariableDeclaration'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	return definition.node.init;
-};
 
 const isConstNonArrayVariable = (node, context) => {
 	const initializer = getConstVariableInitializer(node, context);

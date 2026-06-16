@@ -1,5 +1,6 @@
 import {
-	getParenthesizedRange,
+	getMemberAccessOperatorRange,
+	hasCommentInRange,
 	isSameReference,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -60,28 +61,10 @@ function isSupportedMemberBase(node) {
 	return false;
 }
 
-function getMemberAccessOperatorRange(memberExpression, context) {
-	const {sourceCode} = context;
-	const [, start] = getParenthesizedRange(memberExpression.object, context);
-	const end = memberExpression.computed
-		? sourceCode.getRange(sourceCode.getTokenBefore(memberExpression.property, token => token.value === '['))[1]
-		: sourceCode.getRange(memberExpression.property)[0];
-
-	return [start, end];
-}
-
-function hasCommentInRange(sourceCode, [start, end]) {
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		return commentStart >= start && commentEnd <= end;
-	});
-}
-
 function canReplaceMemberAccessOperator(memberExpression, context) {
 	const range = getMemberAccessOperatorRange(memberExpression, context);
 
-	return !hasCommentInRange(context.sourceCode, range);
+	return !hasCommentInRange(context, range);
 }
 
 function replaceMemberAccessOperator({memberExpression, context, fixer, replacement}) {

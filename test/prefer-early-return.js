@@ -244,6 +244,67 @@ test.snapshot({
 				}
 			}
 		`,
+		// Other block-scoped declarations cannot be moved out of the block.
+		outdent`
+			function foo() {
+				if (condition) {
+					let value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) {
+					class Value {}
+					doSomething(Value);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						enum Value {}
+						doSomething(Value);
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						interface Value {}
+						doSomething();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						type Value = string;
+						doSomething();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						namespace Value {}
+						doSomething();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			function foo() {
 				if (condition) {

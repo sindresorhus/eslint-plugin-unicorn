@@ -1,4 +1,5 @@
-import {isMethodCall, isNumericLiteral} from './ast/index.js';
+import {isMethodCall} from './ast/index.js';
+import {getStaticNumberValue} from './utils/index.js';
 import {isSame, unwrapExpression} from './utils/comparison.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
@@ -12,25 +13,6 @@ const messages = {
 /**
 @import * as ESLint from 'eslint';
 */
-
-function getStaticNumberValue(node) {
-	node = unwrapExpression(node);
-
-	if (isNumericLiteral(node)) {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression'
-		&& (node.operator === '+' || node.operator === '-')
-	) {
-		const value = getStaticNumberValue(node.argument);
-
-		if (typeof value === 'number') {
-			return node.operator === '-' ? -value : value;
-		}
-	}
-}
 
 const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
 

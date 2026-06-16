@@ -113,5 +113,15 @@ test.snapshot({
 			code: 'setTimeout(callback, 0,);',
 			options: [{checkSetTimeout: true}],
 		},
+		{
+			// A comment between the trailing comma and `)` is inside the removal range.
+			code: 'setTimeout(callback, 0, /* trailing */);',
+			options: [{checkSetTimeout: true}],
+		},
+		{
+			// A comment before the comma is outside the removal range and is preserved.
+			code: 'setTimeout(callback /* keep */, 0);',
+			options: [{checkSetTimeout: true}],
+		},
 	],
 });

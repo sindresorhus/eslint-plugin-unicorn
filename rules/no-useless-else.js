@@ -1,4 +1,10 @@
-import {needsSemicolon, trackBranchExits} from './utils/index.js';
+import {
+	hasCommentInRange,
+	hasDirectBlockScopedDeclaration,
+	hasMultilineToken,
+	needsSemicolon,
+	trackBranchExits,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -25,46 +31,12 @@ const asiHazardCharacters = new Set([
 	'-',
 ]);
 
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
-]);
-
 const getLineIndent = (sourceCode, index) => {
 	const lineStart = sourceCode.text.lastIndexOf('\n', index - 1) + 1;
 	return /^[\t ]*/.exec(sourceCode.text.slice(lineStart, index))[0];
 };
 
-const isBlockScopedDeclaration = node =>
-	(
-		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
-
-const hasDirectBlockScopedDeclaration = node =>
-	isBlockScopedDeclaration(node)
-	|| (
-		node.type === 'BlockStatement'
-		&& node.body.some(node => isBlockScopedDeclaration(node))
-	);
-
-const hasCommentInRange = (sourceCode, [start, end]) =>
-	sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
-
 const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
-
-const hasMultilineToken = (node, sourceCode) =>
-	sourceCode.getTokens(node).some(token =>
-		sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
-	);
 
 const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
 	const openingBrace = sourceCode.getFirstToken(blockStatement);
@@ -184,7 +156,7 @@ const fix = (ifStatement, context) => fixer => {
 		hasDirectBlockScopedDeclaration(alternate)
 		|| (
 			alternate.type === 'BlockStatement'
-			&& hasMultilineToken(alternate, sourceCode)
+			&& hasMultilineToken(alternate, context)
 		)
 		|| !isSafeToMoveAlternate(ifStatement, context)
 	) {
@@ -196,7 +168,7 @@ const fix = (ifStatement, context) => fixer => {
 		sourceCode.getRange(alternate)[1],
 	];
 
-	if (hasCommentInRange(sourceCode, [replacementRange[0], sourceCode.getRange(alternate)[0]])) {
+	if (hasCommentInRange(context, [replacementRange[0], sourceCode.getRange(alternate)[0]])) {
 		return;
 	}
 
