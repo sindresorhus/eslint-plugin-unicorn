@@ -3,6 +3,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	getParenthesizedRange,
+	hasCommentInRange,
 	isArray,
 	isKnownNonArray,
 	isNodeValueNotFunction,
@@ -132,11 +133,19 @@ const create = context => {
 		}
 
 		const methodNode = callExpression.callee.property;
+
+		// Removing the comparison would drop comments between the call and the end of the comparison.
+		const wouldDropComments = isCompare
+			&& hasCommentInRange(context, [
+				getParenthesizedRange(callExpression, context)[1],
+				context.sourceCode.getRange(callExpression.parent)[1],
+			]);
+
 		return {
 			node: methodNode,
 			messageId: ERROR_ID_ARRAY_SOME,
 			data: {method: methodNode.name},
-			suggest: [
+			suggest: wouldDropComments ? undefined : [
 				{
 					messageId: SUGGESTION_ID_ARRAY_SOME,
 					* fix(fixer) {
@@ -196,13 +205,7 @@ const create = context => {
 			node: methodNode,
 			messageId: ERROR_ID_ARRAY_SOME,
 			data: {method: methodNode.name},
-			* fix(fixer) {
-				if (['===', '==', '<'].includes(operator)) {
-					yield fixer.insertTextBefore(binaryExpression, '!');
-				}
-
-				yield fixer.replaceText(methodNode, 'some');
-
+			* fix(fixer, {abort}) {
 				const {sourceCode} = context;
 				const operatorToken = sourceCode.getTokenAfter(
 					left,
@@ -210,6 +213,17 @@ const create = context => {
 				);
 				const [start] = sourceCode.getRange(operatorToken);
 				const [, end] = sourceCode.getRange(binaryExpression);
+
+				// Removing the comparison would drop comments in the removed range.
+				if (hasCommentInRange(context, [start, end])) {
+					return abort();
+				}
+
+				if (['===', '==', '<'].includes(operator)) {
+					yield fixer.insertTextBefore(binaryExpression, '!');
+				}
+
+				yield fixer.replaceText(methodNode, 'some');
 
 				yield fixer.removeRange([start, end]);
 			},
@@ -255,12 +269,21 @@ const create = context => {
 		return {
 			node: filterProperty,
 			messageId: ERROR_ID_ARRAY_FILTER,
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
+				const {sourceCode} = context;
+				const lengthNode = binaryExpression.left;
+
+				// Removing `.length > 0` would drop comments in the removed range.
+				if (hasCommentInRange(context, [
+					getParenthesizedRange(filterCall, context)[1],
+					sourceCode.getRange(binaryExpression)[1],
+				])) {
+					return abort();
+				}
+
 				// `.filter` to `.some`
 				yield fixer.replaceText(filterProperty, 'some');
 
-				const {sourceCode} = context;
-				const lengthNode = binaryExpression.left;
 				/*
 					Remove `.length`
 					`(( (( array.filter() )).length )) > (( 0 ))`

@@ -361,6 +361,8 @@ test.snapshot({
 	invalid: [
 		'array.filter(fn).length > 0',
 		'array.filter(fn).length !== 0',
+		// Don't drop comments in the removed part
+		'array.filter(fn).length /* keep */ > 0',
 		'module$.filter(fn).length > 0',
 		{
 			code: 'type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0',
@@ -422,6 +424,8 @@ test.snapshot({
 		].flatMap(code => [code, code.replace('findIndex', 'findLastIndex')]),
 		'foo.findIndex(bar) !== (( - 1 ))',
 		'foo.findIndex(element => element.bar === 1) !== (( - 1 ))',
+		// Don't drop comments in the removed part
+		'foo.findIndex(bar) !== /* keep */ -1',
 		{
 			code: 'type Collection = {findIndex(predicate: Function): number}; ([] satisfies Collection).findIndex(fn) !== -1',
 			languageOptions: {parser: parsers.typescript},
@@ -495,5 +499,7 @@ test.snapshot({
 		'foo.find(fn) != undefined',
 		'foo.find(fn) !== undefined',
 		'a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";',
+		// Don't drop comments in the removed comparison part
+		'foo.find(fn) === /* keep */ undefined',
 	],
 });

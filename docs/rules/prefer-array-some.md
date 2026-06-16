@@ -37,9 +37,6 @@ const hasUnicorn = array.filter(element => isUnicorn(element)).length > 0;
 const hasUnicorn = array.filter(element => isUnicorn(element)).length !== 0;
 
 // ❌
-const hasUnicorn = array.filter(element => isUnicorn(element)).length >= 1;
-
-// ❌
 const hasUnicorn = array.find(element => isUnicorn(element)) !== undefined;
 
 // ❌
