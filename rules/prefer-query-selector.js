@@ -135,6 +135,20 @@ const canBeFixed = node =>
 		&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
 	);
 
+// `getElementsByName` wraps the value in a `[name=…]` CSS selector. A quote in the value would
+// break either the selector (`[name='foo'bar']`) or the re-quoted JS string, so it can't be fixed.
+const nameValueHasQuote = node => {
+	if (node.type === 'Literal' && typeof node.value === 'string') {
+		return node.value.includes('\'') || node.value.includes('"');
+	}
+
+	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
+		return node.quasis.some(quasi => /['"]/.test(quasi.value.cooked ?? ''));
+	}
+
+	return false;
+};
+
 const isStaticSelector = node =>
 	isStringLiteral(node)
 	|| (
@@ -288,7 +302,10 @@ const create = context => {
 			},
 		};
 
-		if (canBeFixed(node.arguments[0])) {
+		if (
+			canBeFixed(node.arguments[0])
+			&& !(method === 'getElementsByName' && nameValueHasQuote(node.arguments[0]))
+		) {
 			problem.fix = fix({
 				node,
 				identifierName: method,

@@ -98,6 +98,10 @@ test.snapshot({
 		'document.getElementsByName("");',
 		'document.getElementsByName(foo + "bar");',
 		'document.getElementsByName("multiple name should be fixable");',
+		// A quote in the name would break the generated CSS selector or string — report without fixing
+		'document.getElementsByName("foo\'bar");',
+		'document.getElementsByName(\'foo"bar\');',
+		'document.getElementsByName(`foo\'bar`);',
 		'document.getElementsByTagName("form")[0].addEventListener("submit", submitFunction);',
 		'document.getElementsByTagName("form").item(0).submit();',
 		'document.getElementsByClassName("submit-button").at(0).click();',
