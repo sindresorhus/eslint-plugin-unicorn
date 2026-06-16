@@ -66,6 +66,11 @@ const shouldIgnoreMemberExpression = node =>
 		isCallOrNewExpression(node.parent)
 		&& node.parent.callee === node
 	)
+	// Replacing the tag would change the `this` binding, like a method call.
+	|| (
+		node.parent.type === 'TaggedTemplateExpression'
+		&& node.parent.tag === node
+	)
 	|| isLeftHandSide(node);
 
 const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
