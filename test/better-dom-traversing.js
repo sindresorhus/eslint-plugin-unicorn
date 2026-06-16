@@ -93,6 +93,8 @@ test.snapshot({
 	],
 	invalid: [
 		'element.childNodes[0];',
+		'(element.childNodes)[0];',
+		'(element.children)[0];',
 		'element.children[0];',
 		'element.children[1];',
 		'element.children[10];',

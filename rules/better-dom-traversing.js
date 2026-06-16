@@ -4,7 +4,7 @@ import {
 	isMemberExpression,
 	isNumericLiteral,
 } from './ast/index.js';
-import {escapeString, getParenthesizedText, isNodeValueNotDomNode} from './utils/index.js';
+import {escapeString, getParenthesizedRange, getParenthesizedText, isNodeValueNotDomNode} from './utils/index.js';
 
 const MESSAGE_ID_FIRST_CHILD = 'first-child';
 const MESSAGE_ID_FIRST_ELEMENT_CHILD = 'first-element-child';
@@ -87,18 +87,24 @@ const isNestedIndexedDomCollection = node =>
 const hasCommentsInside = (node, sourceCode) =>
 	sourceCode.getCommentsInside(node).length > 0;
 
-const getFirstChildSuggestion = (node, replacement, messageId, sourceCode) => {
+const getFirstChildSuggestion = (node, replacement, messageId, context) => {
+	const {sourceCode} = context;
 	if (hasCommentsInside(node, sourceCode)) {
 		return;
 	}
 
+	// Replace the property name (`childNodes`/`children`) and drop the `[index]` access
+	// separately, so parentheses around the collection (e.g. `(element.childNodes)[0]`) are preserved.
+	const [, objectEnd] = getParenthesizedRange(node.object, context);
 	const [, end] = sourceCode.getRange(node);
-	const [start] = sourceCode.getRange(node.object.property);
 
 	return [
 		{
 			messageId,
-			fix: fixer => fixer.replaceTextRange([start, end], replacement),
+			fix: fixer => [
+				fixer.replaceText(node.object.property, replacement),
+				fixer.removeRange([objectEnd, end]),
+			],
 		},
 	];
 };
@@ -222,8 +228,6 @@ const getMergeQuerySelectorSuggestion = (node, querySelectorChain, context) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('MemberExpression', node => {
 		const collectionName = getIndexedDomCollectionName(node);
 		if (
@@ -243,7 +247,7 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID_FIRST_CHILD,
-				suggest: getFirstChildSuggestion(node, 'firstChild', SUGGESTION_ID_FIRST_CHILD, sourceCode),
+				suggest: getFirstChildSuggestion(node, 'firstChild', SUGGESTION_ID_FIRST_CHILD, context),
 			};
 		}
 
@@ -251,7 +255,7 @@ const create = context => {
 			return {
 				node,
 				messageId: MESSAGE_ID_FIRST_ELEMENT_CHILD,
-				suggest: getFirstChildSuggestion(node, 'firstElementChild', SUGGESTION_ID_FIRST_ELEMENT_CHILD, sourceCode),
+				suggest: getFirstChildSuggestion(node, 'firstElementChild', SUGGESTION_ID_FIRST_ELEMENT_CHILD, context),
 			};
 		}
 
