@@ -162,6 +162,7 @@ function getBlockStatementLastNode(blockStatement) {
 	}
 }
 
+// Not worth using code path analysis here: a false positive just inserts a redundant `break` (still correct code).
 function shouldInsertBreakStatement(node) {
 	switch (node.type) {
 		case 'ReturnStatement':

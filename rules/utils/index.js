@@ -111,6 +111,7 @@ export {default as shouldAddParenthesesToExpressionStatementExpression} from './
 export {default as shouldAddParenthesesToLogicalExpressionChild} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
+export {default as trackBranchExits} from './track-branch-exits.js';
 export {default as getAncestor} from './get-ancestor.js';
 export {getPreviousNode, getNextNode} from './get-sibling-node.js';
 export * from './string-cases.js';

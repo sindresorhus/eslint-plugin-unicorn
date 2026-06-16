@@ -1,6 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined, isFunction} from './ast/index.js';
-import {isBoolean} from './utils/index.js';
+import {isBoolean, trackBranchExits} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
@@ -24,13 +24,6 @@ const statementListParentTypes = new Set([
 	'BlockStatement',
 	'StaticBlock',
 	'SwitchCase',
-]);
-
-const exitingStatementTypes = new Set([
-	'ReturnStatement',
-	'ThrowStatement',
-	'BreakStatement',
-	'ContinueStatement',
 ]);
 
 const staticReferenceRootTypes = new Set([
@@ -245,27 +238,6 @@ function getComparisonInfo(node, context) {
 }
 
 /**
-@param {ESTree.Statement} node
-@returns {boolean}
-*/
-function isAlwaysExiting(node) {
-	if (exitingStatementTypes.has(node.type)) {
-		return true;
-	}
-
-	if (node.type === 'BlockStatement') {
-		return node.body.some(node => isAlwaysExiting(node));
-	}
-
-	return Boolean(
-		node.type === 'IfStatement'
-		&& node.alternate
-		&& isAlwaysExiting(node.consequent)
-		&& isAlwaysExiting(node.alternate),
-	);
-}
-
-/**
 @param {ESTree.Expression} node
 @returns {ESTree.Expression[]}
 */
@@ -437,13 +409,14 @@ const canAutofix = (previous, previousIfStatement, ifStatement, context) => {
 @param {ESTree.IfStatement} previousIfStatement
 @param {ESTree.IfStatement} ifStatement
 @param {ESLint.Rule.RuleContext} context
+@param {(branch: ESTree.Node) => boolean} branchAlwaysExits
 @returns {ESLint.Rule.ReportDescriptor | undefined}
 */
-function getProblem(previousIfStatement, ifStatement, context) {
+function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits) {
 	if (
 		previousIfStatement.alternate
 		|| ifStatement.alternate
-		|| isAlwaysExiting(previousIfStatement.consequent)
+		|| branchAlwaysExits(previousIfStatement.consequent)
 	) {
 		return;
 	}
@@ -483,7 +456,11 @@ function getProblem(previousIfStatement, ifStatement, context) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on([...statementListParentTypes], function * (node) {
+	const branchAlwaysExits = trackBranchExits(context);
+
+	// Run on exit so all nested `if` statements have been visited and their branch exit
+	// information is available before scanning each statement list.
+	context.onExit([...statementListParentTypes], function * (node) {
 		const body = node.type === 'SwitchCase' ? node.consequent : node.body;
 
 		for (let index = 1; index < body.length; index++) {
@@ -497,7 +474,7 @@ const create = context => {
 				continue;
 			}
 
-			yield getProblem(previousStatement, statement, context);
+			yield getProblem(previousStatement, statement, context, branchAlwaysExits);
 		}
 	});
 };

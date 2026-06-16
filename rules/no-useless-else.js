@@ -1,4 +1,4 @@
-import {needsSemicolon} from './utils/index.js';
+import {needsSemicolon, trackBranchExits} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -14,13 +14,6 @@ const statementListParentTypes = new Set([
 	'BlockStatement',
 	'StaticBlock',
 	'SwitchCase',
-]);
-
-const exitingStatementTypes = new Set([
-	'ReturnStatement',
-	'ThrowStatement',
-	'BreakStatement',
-	'ContinueStatement',
 ]);
 
 const asiHazardCharacters = new Set([
@@ -59,23 +52,6 @@ const hasDirectBlockScopedDeclaration = node =>
 		node.type === 'BlockStatement'
 		&& node.body.some(node => isBlockScopedDeclaration(node))
 	);
-
-const isAlwaysExiting = node => {
-	if (exitingStatementTypes.has(node.type)) {
-		return true;
-	}
-
-	if (node.type === 'BlockStatement') {
-		return node.body.some(node => isAlwaysExiting(node));
-	}
-
-	return Boolean(
-		node.type === 'IfStatement'
-		&& node.alternate
-		&& isAlwaysExiting(node.consequent)
-		&& isAlwaysExiting(node.alternate),
-	);
-};
 
 const hasCommentInRange = (sourceCode, [start, end]) =>
 	sourceCode.getAllComments().some(comment => {
@@ -229,20 +205,23 @@ const fix = (ifStatement, context) => fixer => {
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
-	context.on('IfStatement', ifStatement => {
+	const {sourceCode} = context;
+	const branchAlwaysExits = trackBranchExits(context);
+
+	context.onExit('IfStatement', ifStatement => {
 		if (!(
 			ifStatement.alternate
 			&& statementListParentTypes.has(ifStatement.parent.type)
-			&& isAlwaysExiting(ifStatement.consequent)
+			&& branchAlwaysExits(ifStatement.consequent)
 		)) {
 			return;
 		}
 
-		const elseToken = context.sourceCode.getTokenBefore(ifStatement.alternate);
+		const elseToken = sourceCode.getTokenBefore(ifStatement.alternate);
 
 		return {
 			node: ifStatement.alternate,
-			loc: context.sourceCode.getLoc(elseToken),
+			loc: sourceCode.getLoc(elseToken),
 			messageId: MESSAGE_ID,
 			fix: fix(ifStatement, context),
 		};
