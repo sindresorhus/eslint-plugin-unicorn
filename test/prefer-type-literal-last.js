@@ -16,6 +16,19 @@ test.typescript({
 				foo: string;
 			};
 		`,
+		// `null`/`undefined` are kept at the end as a nullish escape hatch.
+		'type ElementUnion = {foo: string} | undefined;',
+		'type ElementUnion = {foo: string} | null;',
+		'type ElementUnion = string | {foo: string} | undefined;',
+		'type ElementUnion = {foo: string} | null | undefined;',
+		'type ElementUnion = {foo: string} | {bar: string} | undefined;',
+		// The rule does not force nullish last, so a leading nullish is left alone when the literal is already last.
+		'type ElementUnion = undefined | {foo: string};',
+		outdent`
+			type ElementUnion = {
+				foo: string;
+			} | undefined;
+		`,
 	],
 	invalid: [
 		{
@@ -41,6 +54,21 @@ test.typescript({
 		{
 			code: 'type ElementUnion = {foo: string} | string;',
 			output: 'type ElementUnion = string | {foo: string};',
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
+			code: 'type ElementUnion = {foo: string} | Other | undefined;',
+			output: 'type ElementUnion = Other | {foo: string} | undefined;',
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
+			code: 'type ElementUnion = {foo: string} | undefined | Other;',
+			output: 'type ElementUnion = Other | {foo: string} | undefined;',
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
+			code: 'type ElementUnion = undefined | {foo: string} | Other;',
+			output: 'type ElementUnion = Other | {foo: string} | undefined;',
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
