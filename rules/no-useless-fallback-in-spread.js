@@ -52,6 +52,8 @@ function getNegatedTestText(test, context) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {checkTernary} = context.options[0];
+
 	// `{...(foo || {})}`, `{...(foo ?? {})}`
 	context.on('ObjectExpression', node => {
 		if (!(
@@ -95,6 +97,10 @@ const create = context => {
 
 	// `{...(foo ? {bar: true} : {})}`, `{...(foo ? {} : {bar: true})}`
 	context.on('ConditionalExpression', conditionalExpression => {
+		if (!checkTernary) {
+			return;
+		}
+
 		const {test, consequent, alternate, parent} = conditionalExpression;
 
 		if (!(
@@ -162,6 +168,19 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		schema: [
+			{
+				type: 'object',
+				additionalProperties: false,
+				properties: {
+					checkTernary: {
+						type: 'boolean',
+						description: 'Whether to check ternary expressions where one branch is an empty object.',
+					},
+				},
+			},
+		],
+		defaultOptions: [{checkTernary: true}],
 		messages,
 		languages: [
 			'js/js',
