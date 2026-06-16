@@ -1,30 +1,21 @@
-import {isFunction} from './ast/index.js';
+import {isFunction, isLoop, loopTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'no-break-in-nested-loop';
 const messages = {
 	[MESSAGE_ID]: 'Move this nested loop or switch into a function instead of using `{{keyword}}` here.',
 };
 
-const loopNodeTypes = new Set([
-	'DoWhileStatement',
-	'ForInStatement',
-	'ForOfStatement',
-	'ForStatement',
-	'WhileStatement',
-]);
-
 const controlFlowNodeTypes = new Set([
-	...loopNodeTypes,
+	...loopTypes,
 	'SwitchStatement',
 ]);
 
 const getKeyword = node => node.type === 'BreakStatement' ? 'break' : 'continue';
-const isLoopNode = node => loopNodeTypes.has(node.type);
 const isControlFlowNode = node => controlFlowNodeTypes.has(node.type);
 const isTargetNode = (node, ancestor) =>
 	node.type === 'BreakStatement'
 		? isControlFlowNode(ancestor)
-		: isLoopNode(ancestor);
+		: isLoop(ancestor);
 
 function isNestedControlFlowStatement(node, sourceCode) {
 	if (node.label) {
@@ -40,7 +31,7 @@ function isNestedControlFlowStatement(node, sourceCode) {
 			return false;
 		}
 
-		if (hasTargetNode && isLoopNode(ancestor)) {
+		if (hasTargetNode && isLoop(ancestor)) {
 			return true;
 		}
 
@@ -49,7 +40,7 @@ function isNestedControlFlowStatement(node, sourceCode) {
 		}
 
 		if (isTargetNode(node, ancestor)) {
-			if (hasInnerControlFlowNode && isLoopNode(ancestor)) {
+			if (hasInnerControlFlowNode && isLoop(ancestor)) {
 				return true;
 			}
 

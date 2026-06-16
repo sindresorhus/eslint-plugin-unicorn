@@ -561,7 +561,6 @@ const create = context => {
 					original: unknown,
 					fix: withoutWhitespace,
 				});
-				continue;
 			}
 		}
 

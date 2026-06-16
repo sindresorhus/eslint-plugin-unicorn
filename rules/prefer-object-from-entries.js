@@ -1,6 +1,6 @@
 import {isCommaToken, isArrowToken, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNullLiteral, isEmptyObjectExpression} from './ast/index.js';
-import {removeExpressionStatement, removeParentheses} from './fix/index.js';
+import {removeStatement, removeParentheses} from './fix/index.js';
 import {
 	getNextNode,
 	getParentheses,
@@ -294,7 +294,7 @@ const getForOfLoopProblem = (declaration, context) => {
 			}
 
 			yield fixer.replaceText(init, `Object.fromEntries(${getParenthesizedText(loop.right, context)})`);
-			yield removeExpressionStatement(loop, context, fixer);
+			yield removeStatement(loop, context, fixer);
 		},
 	};
 };

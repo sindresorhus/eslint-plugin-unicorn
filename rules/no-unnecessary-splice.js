@@ -1,6 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {removeExpressionStatement} from './fix/index.js';
+import {removeStatement} from './fix/index.js';
 import {
 	MESSAGE_ID_EMPTY,
 	MESSAGE_ID_NO_OP,
@@ -89,7 +89,7 @@ function getFix(callExpression, replacement, context) {
 			return;
 		}
 
-		return fixer => removeExpressionStatement(callExpression.parent, context, fixer);
+		return fixer => removeStatement(callExpression.parent, context, fixer);
 	}
 
 	const objectText = getParenthesizedText(object, context);

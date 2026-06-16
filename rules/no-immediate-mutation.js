@@ -10,7 +10,7 @@ import {
 	isNewExpression,
 } from './ast/index.js';
 import {
-	removeExpressionStatement,
+	removeStatement,
 	removeArgument,
 } from './fix/index.js';
 import {
@@ -70,7 +70,7 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 function * removeExpressionStatementAfterAssign(expressionStatement, context, fixer) {
 	const tokenBefore = context.sourceCode.getTokenBefore(expressionStatement);
 	const shouldPreserveSemiColon = !isSemicolonToken(tokenBefore);
-	yield removeExpressionStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
+	yield removeStatement(expressionStatement, context, fixer, shouldPreserveSemiColon);
 }
 
 function appendListTextToArrayExpressionOrObjectExpression(

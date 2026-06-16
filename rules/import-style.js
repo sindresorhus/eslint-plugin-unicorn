@@ -37,7 +37,6 @@ const getActualImportDeclarationStyles = importDeclaration => {
 			}
 
 			styles.add('named');
-			continue;
 		}
 	}
 
@@ -61,7 +60,6 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 			}
 
 			styles.add('named');
-			continue;
 		}
 	}
 
