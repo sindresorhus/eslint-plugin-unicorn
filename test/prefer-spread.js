@@ -394,6 +394,10 @@ ruleTest.snapshot({
 		'Array.from((0, a))',
 		'Array.from([...iterator.toArray(), ...other])',
 		'Array.from([1])',
+		// Holey array literal: `Array.from` densifies holes, so the fix must spread
+		'Array.from([1,,3])',
+		'Array.from([,])',
+		'Array.from([1, , 3, ,])',
 		'Array.from((/* keep */ [1]))',
 		'Array.from((/* comment */ foo))',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
