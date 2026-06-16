@@ -34,6 +34,16 @@ test.snapshot({
 		'const array = [...(foo ? {a: 1} : {})]',
 		// Ternary is not the direct spread argument
 		'const object = {...(foo ? {a: 1} : {}).bar}',
+
+		// `checkTernary: false` leaves ternaries alone
+		{
+			code: 'const object = {...(foo ? {bar: true} : {})}',
+			options: [{checkTernary: false}],
+		},
+		{
+			code: 'const object = {...(foo ? {} : {bar: true})}',
+			options: [{checkTernary: false}],
+		},
 	],
 	invalid: [
 		'const object = {...(foo || {})}',
@@ -101,5 +111,20 @@ test.snapshot({
 		'const object = {...(foo ? {a: 1} : /* keep */ {})}',
 		// Comment outside the ternary is preserved by the fix
 		'const object = {...(/* keep */ foo ? {a: 1} : {})}',
+
+		// `checkTernary: false` still reports the `||`/`??` fallback (option scopes to ternaries only)
+		{
+			code: 'const object = {...(foo || {})}',
+			options: [{checkTernary: false}],
+		},
+		{
+			code: 'const object = {...(foo ?? {})}',
+			options: [{checkTernary: false}],
+		},
+		// `checkTernary: true` reports ternaries, same as the default
+		{
+			code: 'const object = {...(foo ? {bar: true} : {})}',
+			options: [{checkTernary: true}],
+		},
 	],
 });

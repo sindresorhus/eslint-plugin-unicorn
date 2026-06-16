@@ -47,3 +47,24 @@ const object = {...(foo && {})};
 // ✅
 const array = [...(foo || [])];
 ```
+
+## Options
+
+### `checkTernary`
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check ternary expressions where one branch is an empty object.
+
+Unlike the `||`/`??` fallback, which is exactly equivalent to spreading the value directly, rewriting a ternary into a `&&` expression is a stylistic change. Set this to `false` to keep ternaries as-is while still flagging the `||`/`??` fallback.
+
+```js
+/* eslint unicorn/no-useless-fallback-in-spread: ["error", {checkTernary: false}] */
+
+// ✅
+const object = {...(foo ? {bar: true} : {})};
+
+// ❌ Still flagged
+const object = {...(foo || {})};
+```
