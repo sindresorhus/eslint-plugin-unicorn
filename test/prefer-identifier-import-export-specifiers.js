@@ -26,6 +26,11 @@ test.snapshot({
 		'export * from "foo";',
 		'export * as foo from "foo";',
 		'export * as "a string" from "foo";',
+		'import foo from "foo" with {type: "json"};',
+		'import foo from "foo" with {"foo-bar": "json"};',
+		'import foo from "foo" with {"": "json"};',
+		'import foo from "foo" with {"0": "json"};',
+		'export {foo} from "foo" with {"a string": "x"};',
 	],
 	invalid: [
 		'import {"foo" as foo} from "foo";',
@@ -56,5 +61,19 @@ test.snapshot({
 		},
 		'export * as "foo" from "foo";',
 		'export * as"foo" from "foo";',
+		'import foo from "foo" with {"type": "json"};',
+		'export {foo} from "foo" with {"type": "json"};',
+		'import foo from "foo" with{"type":"json"};',
+		'import foo from "foo" with {"type": "json", "other": "x"};',
+		{
+			code: 'import foo from "foo" with {"type": "json"};',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Reserved words are valid identifiers as module export names and attribute keys, so they are converted.
+		'import {"if" as foo} from "foo";',
+		'import {"yield" as foo} from "foo";',
+		'import foo from "foo" with {"default": "json"};',
+		// Both sides are string literals with the same value: each is reported and fixed independently.
+		'export {"foo" as "foo"} from "foo";',
 	],
 });
