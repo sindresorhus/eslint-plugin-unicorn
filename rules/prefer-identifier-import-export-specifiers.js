@@ -55,22 +55,17 @@ const create = context => {
 	context.on('ImportSpecifier', node => getProblem(node.imported, sourceCode));
 
 	context.on('ExportSpecifier', function * (node) {
-		const problem = getProblem(node.exported, sourceCode);
-		if (problem) {
-			yield problem;
-		}
+		yield getProblem(node.exported, sourceCode);
 
-		if (!node.parent.source || node.local === node.exported) {
-			return;
-		}
-
-		const localProblem = getProblem(node.local, sourceCode);
-		if (localProblem) {
-			yield localProblem;
+		// In `export {local as exported} from 'foo'`, the local name is also a module export name (only re-exports can write it as a string literal). When not renaming, `local` and `exported` are the same node, so skip to avoid reporting it twice.
+		if (node.parent.source && node.local !== node.exported) {
+			yield getProblem(node.local, sourceCode);
 		}
 	});
 
 	context.on('ExportAllDeclaration', node => getProblem(node.exported, sourceCode));
+
+	context.on('ImportAttribute', node => getProblem(node.key, sourceCode));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

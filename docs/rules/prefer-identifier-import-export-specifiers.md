@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer identifier syntax over string-literal syntax in import and export specifiers when the string is a valid identifier name.
+Prefer identifier syntax over string-literal syntax in import and export specifiers and import attribute keys when the string is a valid identifier name.
 
 This rule does not require all specifiers to use the same style. Use string literals when the imported or exported name cannot be written as an identifier.
 
@@ -37,6 +37,14 @@ export {'foo' as bar} from 'foo';
 
 // ✅
 export {foo as bar} from 'foo';
+```
+
+```js
+// ❌
+import foo from 'foo' with {'type': 'json'};
+
+// ✅
+import foo from 'foo' with {type: 'json'};
 ```
 
 ```js
