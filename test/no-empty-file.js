@@ -3,6 +3,22 @@ import {getTester, parsers, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// A plain-text parser like `eslint-parser-plain` (used for files like `.gitignore` and `.editorconfig`) produces an empty `Program` regardless of the file's content.
+const parserPlain = {
+	meta: {name: 'parser-plain'},
+	parseForESLint: code => ({
+		ast: {
+			type: 'Program',
+			loc: {start: 0, end: code.length},
+			range: [0, code.length],
+			body: [],
+			comments: [],
+			tokens: [],
+		},
+		visitorKeys: {Program: []},
+	}),
+};
+
 test.snapshot({
 	valid: [
 		...[
@@ -69,6 +85,8 @@ test.snapshot({
 			`,
 		].map(code => ({code, filename: 'example.js', options: [{allowComments: true}]})),
 		{code: '// No need to write tests here.', filename: 'example.test.ts', options: [{allowComments: true}]},
+		// A non-empty file parsed by a plain-text parser (e.g. `.gitignore`, `.editorconfig`) is not empty even though its AST has no tokens or comments.
+		{code: '# Logs\nnode_modules\n', filename: '.gitignore', languageOptions: {parser: parserPlain}},
 	],
 	invalid: [
 		...[
@@ -139,6 +157,10 @@ test.snapshot({
 		{code: '', filename: 'example.md', language: languages.markdown},
 		{code: '   \n\t ', filename: 'example.md', language: languages.markdown},
 		{code: '<!-- comment -->', filename: 'example.md', language: languages.markdown},
+		// A genuinely empty file is still reported even under a plain-text parser.
+		{code: '', filename: '.gitignore', languageOptions: {parser: parserPlain}},
+		// A whitespace-only file is still reported even under a plain-text parser.
+		{code: '   \n\t ', filename: '.gitignore', languageOptions: {parser: parserPlain}},
 	],
 });
 
