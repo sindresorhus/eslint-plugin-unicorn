@@ -50,3 +50,6 @@ names.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
 const numbers = [3, 1, 4, 1, 5, 9];
 numbers.sort((a, b) => b - a); // [9, 5, 4, 3, 1, 1]
 ```
+
+> [!TIP]
+> If you use [typed linting](https://typescript-eslint.io/getting-started/typed-linting), the [`@typescript-eslint/require-array-sort-compare`](https://typescript-eslint.io/rules/require-array-sort-compare/) rule is type-aware and can be more accurate.
