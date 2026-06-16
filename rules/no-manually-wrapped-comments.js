@@ -10,8 +10,13 @@ const messages = {
 	[MESSAGE_ID]: 'Avoid manually wrapping comments.',
 };
 
-const sentenceEndPattern = /[!.?]$/v;
-const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|oxlint|prettier)-)/v;
+// Trailing `:` marks a complete line (heading, label, list intro), not a wrapped sentence.
+const sentenceEndPattern = /[!.:?]$/v;
+const directiveCommentPattern = /^(?:[#\/@]|eslint(?:$|\s|-)|globals?\b|exported\b|no default$|noinspection\b|(?:c8|istanbul|v8)\s+ignore\b|(?:biome|deno|dprint|oxlint|prettier)-|(?:cspell|spell-checker):)/v;
+const spdxCommentPattern = /^SPDX-/v;
+const copyrightCommentPattern = /^(?:©|copyright\b)/iv;
+// Editor modelines: vim (`vim:`, `vi:`) and Emacs (`-*- … -*-`).
+const modelineCommentPattern = /^(?:vim?:|-\*-)/v;
 const listCommentPattern = /^(?:[*+\-]\s|\d+(?:\.|\))\s)/v;
 const separatorCommentPattern = /^[#*\-=_~]{3,}$/v;
 const urlPattern = /\bhttps?:\/\/|www\./v;
@@ -23,6 +28,9 @@ const endsWithSentencePunctuation = comment => sentenceEndPattern.test(getCommen
 
 const isIgnoredCommentText = text =>
 	directiveCommentPattern.test(text)
+	|| spdxCommentPattern.test(text)
+	|| copyrightCommentPattern.test(text)
+	|| modelineCommentPattern.test(text)
 	|| listCommentPattern.test(text)
 	|| separatorCommentPattern.test(text)
 	|| urlPattern.test(text)
