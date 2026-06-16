@@ -14,6 +14,8 @@ test.snapshot({
 		'test ? getObject().a : getObject().b;',
 		'test ? object[method] : object[otherMethod];',
 		'test ? object?.a : object?.b;',
+		// Different objects with optional chaining are not reported, even though the property is shared.
+		'test ? a?.foo : b?.foo;',
 		'test ? object.a?.() : object.b?.();',
 		'test ? object.call(a) : object.call(b);',
 		'test ? call(...a) : call(...b);',
@@ -58,6 +60,8 @@ test.snapshot({
 		'test ? object.a : object.b;',
 		'test ? object["a"] : object["b"];',
 		'isMac ? event.metaKey : event.ctrlKey;',
+		// Same-object member swaps with a `this` receiver are not reported either.
+		'test ? this.maxWidth : this.maxHeight;',
 		{
 			code: 'test ? object.a : object.b;',
 			options: [{checkComputedMemberAccess: true}],
@@ -69,6 +73,8 @@ test.snapshot({
 		// Method-call ternaries are off by default.
 		'test ? Promise.allSettled(values) : Promise.all(values);',
 		'test ? Math.min(a, 100) : Math.max(a, 100);',
+		// Zero-argument method-call swaps are off by default.
+		'test ? c.a() : c.b();',
 		// Optional chaining is never reported, even when the option is on.
 		{
 			code: 'test ? Promise?.allSettled(values) : Promise?.all(values);',
@@ -89,6 +95,8 @@ test.snapshot({
 		'test ? a + 1 : b + 1;',
 		'test ? 1 + a : 1 + b;',
 		'test ? a.value : b.value;',
+		// Computed access with a static property minimizes when only the object differs.
+		'test ? a["x"] : b["x"];',
 		// `checkComputedMemberAccess` enables method-call ternaries that differ only by the method name.
 		{
 			code: 'test ? Promise.allSettled(values) : Promise.all(values);',
@@ -96,6 +104,11 @@ test.snapshot({
 		},
 		{
 			code: 'test ? Math.min(a, 100) : Math.max(a, 100);',
+			options: [{checkComputedMemberAccess: true}],
+		},
+		// Opt-in still reports zero-argument method-call swaps.
+		{
+			code: 'test ? c.a() : c.b();',
 			options: [{checkComputedMemberAccess: true}],
 		},
 		// The object is already accessed with a computed string, so minimizing is a clear improvement.
