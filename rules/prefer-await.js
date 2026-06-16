@@ -1,4 +1,5 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
+import {isPromiseType} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-await';
 const messages = {
@@ -6,33 +7,6 @@ const messages = {
 };
 
 const promiseMethods = new Set(['then', 'catch', 'finally']);
-
-const unknownTypeNames = new Set(['any', 'error', 'unknown']);
-
-const isUnknown = type => unknownTypeNames.has(type.intrinsicName);
-
-function isPromiseType(type, checker) {
-	type = checker.getNonNullableType(type);
-
-	if (isUnknown(type)) {
-		return;
-	}
-
-	if (type.isUnion()) {
-		const results = type.types.map(type => isPromiseType(type, checker));
-		if (results.every(Boolean)) {
-			return true;
-		}
-
-		if (results.every(result => result === false)) {
-			return false;
-		}
-
-		return;
-	}
-
-	return checker.getPromisedTypeOfPromise(type) !== undefined;
-}
 
 function isPromiseObject(node, context) {
 	const {parserServices} = context.sourceCode;
