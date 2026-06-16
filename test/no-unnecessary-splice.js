@@ -23,6 +23,8 @@ test.snapshot({
 		'getObject?.().array.splice(0, 1);',
 		'object[foo?.bar].splice(index, 0);',
 		'array.toSpliced(0, 1);',
+		// Nested unary index resolves to `1`, which is not a special case.
+		'array.splice(- -1, 1);',
 	],
 	invalid: [
 		'array.splice();',
@@ -31,6 +33,10 @@ test.snapshot({
 		'array.splice(index, +0);',
 		'array.splice(0, 1);',
 		'array.splice(+0, +1);',
+		// Nested unary expressions are resolved recursively.
+		'array.splice(0, - -1);',
+		'array.splice(- -0, 1);',
+		'array.splice(index, - -0);',
 		'array.splice(0, 0, element);',
 		'array.splice(0, 0, element, ...moreElements);',
 		'array.splice(0, 0, ...elements);',

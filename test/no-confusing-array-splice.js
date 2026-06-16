@@ -13,6 +13,9 @@ test.snapshot({
 		'array.splice(-1, 0, element, otherElement)',
 		'array.splice(index, 1, ...elements)',
 		'array.splice(index, ...argumentsArray)',
+		// Nested unary expressions resolve to a positive index.
+		'array.splice(- -1, 0, element)',
+		'array.splice(-(-(1)), 0, element)',
 		'array.toSpliced(index)',
 		'array.toSpliced(index, 1)',
 		'array.toSpliced(index, 2, element)',
@@ -47,6 +50,9 @@ test.snapshot({
 		'array.splice(-1, +0, element)',
 		'array.splice(-1, -0, element)',
 		'array.splice(-1, 0b0, element)',
+		// Nested unary expressions resolve to a negative index.
+		'array.splice(- - -1, 0, element)',
+		'array.splice(-(-(-1)), 0, element)',
 		'array.toSpliced(index, 1, element)',
 		'array.toSpliced(index, 1.0, element)',
 		'array.toSpliced(index, 1.5, element)',

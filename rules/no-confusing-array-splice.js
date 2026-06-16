@@ -1,5 +1,5 @@
-import {isMethodCall, isNumericLiteral} from './ast/index.js';
-import {getParenthesizedText} from './utils/index.js';
+import {isMethodCall} from './ast/index.js';
+import {getParenthesizedText, getStaticNumberValue} from './utils/index.js';
 import {isSame, unwrapExpression} from './utils/comparison.js';
 
 const REPLACE_ONE_ELEMENT = 'replace-one-element';
@@ -12,25 +12,6 @@ const messages = {
 	[SUGGESTION_REPLACE_ONE_ELEMENT]: 'Use direct element replacement.',
 	[SUGGESTION_INSERT_AT_NEGATIVE_ONE]: 'Resolve the insertion index explicitly.',
 };
-
-function getStaticNumberValue(node) {
-	node = unwrapExpression(node);
-
-	if (isNumericLiteral(node)) {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression'
-		&& (node.operator === '+' || node.operator === '-')
-	) {
-		const value = getStaticNumberValue(node.argument);
-
-		if (typeof value === 'number') {
-			return node.operator === '-' ? -value : value;
-		}
-	}
-}
 
 const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
 

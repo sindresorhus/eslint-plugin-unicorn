@@ -1,7 +1,6 @@
-import {isNumericLiteral} from '../ast/index.js';
 import {
+	getStaticNumberValue,
 	isSameReference,
-	unwrapTypeScriptExpression,
 } from '../utils/index.js';
 
 const MESSAGE_ID_NO_OP = 'no-op';
@@ -14,22 +13,6 @@ const MESSAGE_ID_EMPTY = 'empty';
 const emptyArrayReplacement = {
 	messageId: MESSAGE_ID_EMPTY,
 };
-
-function getStaticNumberValue(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	if (isNumericLiteral(node)) {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression'
-		&& (node.operator === '+' || node.operator === '-')
-		&& isNumericLiteral(node.argument)
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
-}
 
 const isZero = node => Object.is(getStaticNumberValue(node), 0);
 const isOne = node => getStaticNumberValue(node) === 1;

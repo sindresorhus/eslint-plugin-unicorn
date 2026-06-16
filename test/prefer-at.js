@@ -422,6 +422,8 @@ test.snapshot({
 		'array[1]',
 		'array[5 + 9]',
 		'const offset = 5;array[offset + 9]',
+		// A `let` binding is not resolved, so the object is not recognized as a non-array.
+		'let object = {1: 1, a: 2}; object[1]',
 		'"string"[1]',
 		'`string`[1]',
 		'const string = "string"; string[1]',

@@ -624,6 +624,19 @@ test.typescript({
 			code: 'const foo = <number>index >= 0 ? array[<number>index] : undefined;',
 			errors: errorsWithSuggestion('const foo = array[<number>index];'),
 		},
+		// The numeric boundary and offset are unwrapped through TypeScript wrappers.
+		{
+			code: 'const foo = index >= (0 as number) ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
+		{
+			code: 'const foo = index >= 5 ? array[index - (5 as number)] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index - (5 as number)];'),
+		},
+		{
+			code: 'const foo = index <= array.length - (1 as number) ? array[index] : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index];'),
+		},
 	],
 });
 

@@ -1,5 +1,10 @@
 import {isMemberExpression} from './ast/index.js';
-import {isNodeValueNotFunction, isGlobalIdentifier, isValueNotUsable} from './utils/index.js';
+import {
+	hasCommentInRange,
+	isNodeValueNotFunction,
+	isGlobalIdentifier,
+	isValueNotUsable,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-queue-microtask';
 const messages = {
@@ -42,13 +47,6 @@ const isZero = node => (
 	&& node.value === 0
 );
 
-const hasCommentInRange = (sourceCode, range) => (
-	sourceCode.getAllComments().some(comment => (
-		sourceCode.getRange(comment)[0] >= range[0]
-		&& sourceCode.getRange(comment)[1] <= range[1]
-	))
-);
-
 const getSecondArgumentRemovalRange = (callExpression, context) => {
 	const {sourceCode} = context;
 	const [, secondArgument] = callExpression.arguments;
@@ -64,7 +62,7 @@ const getSecondArgumentRemovalRange = (callExpression, context) => {
 		sourceCode.getRange(tokenAfterRemovalRange)[0],
 	];
 
-	if (hasCommentInRange(sourceCode, commentRange)) {
+	if (hasCommentInRange(context, commentRange)) {
 		return;
 	}
 

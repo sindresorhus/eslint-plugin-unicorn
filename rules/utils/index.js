@@ -34,8 +34,15 @@ export {default as getIndentString} from './get-indent-string.js';
 export {default as getComments} from './get-comments.js';
 export {
 	getLastTrailingCommentOnSameLine,
+	hasCommentInRange,
 	wouldRemoveComments,
 } from './comments.js';
+export {
+	hasDirectBlockScopedDeclaration,
+	hasMultilineToken,
+} from './block-scope.js';
+export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
+export {getMemberAccessOperatorRange} from './member-expression.js';
 export {default as getReferences} from './get-references.js';
 export {default as isTypeScriptFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';

@@ -44,6 +44,8 @@ test.snapshot({
 		'foo.bar && foo /* comment */ ?.baz;',
 		'foo?.bar || foo /* comment */ .baz;',
 		'foo?.[bar] || foo /* comment */ [baz];',
+		'foo?.[bar] || foo[/* comment */ baz];',
+		'(foo)?.[bar] || (foo)[baz];',
 		{
 			code: '(foo as Foo).bar || foo?.baz;',
 			languageOptions: {parser: parsers.typescript},

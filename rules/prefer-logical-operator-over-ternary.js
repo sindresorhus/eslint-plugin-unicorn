@@ -6,7 +6,8 @@ import {
 import {
 	isParenthesized,
 	getParenthesizedText,
-	getParenthesizedRange,
+	getMemberAccessOperatorRange,
+	hasCommentInRange,
 	isSameReference,
 	shouldAddParenthesesToLogicalExpressionChild,
 	needsSemicolon,
@@ -101,29 +102,11 @@ function fix({
 	return fixer.replaceText(conditionalExpression, text);
 }
 
-function getMemberAccessOperatorRange(memberExpression, context) {
-	const {sourceCode} = context;
-	const [, start] = getParenthesizedRange(memberExpression.object, context);
-	const end = memberExpression.computed
-		? sourceCode.getRange(sourceCode.getTokenBefore(memberExpression.property, token => token.value === '['))[1]
-		: sourceCode.getRange(memberExpression.property)[0];
-
-	return [start, end];
-}
-
-function hasCommentInRange(sourceCode, [start, end]) {
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		return commentStart >= start && commentEnd <= end;
-	});
-}
-
 function getOptionalChainText(memberExpression, context) {
 	const {sourceCode} = context;
 	const range = getMemberAccessOperatorRange(memberExpression, context);
 
-	if (hasCommentInRange(sourceCode, range)) {
+	if (hasCommentInRange(context, range)) {
 		return;
 	}
 

@@ -1,5 +1,7 @@
 import {
 	getParenthesizedText,
+	hasDirectBlockScopedDeclaration,
+	hasMultilineToken,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 
@@ -15,15 +17,6 @@ const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
 	'TSNonNullExpression',
 	'TSSatisfiesExpression',
 	'TSTypeAssertion',
-]);
-
-const blockScopedDeclarationTypes = new Set([
-	'ClassDeclaration',
-	'FunctionDeclaration',
-	'TSEnumDeclaration',
-	'TSInterfaceDeclaration',
-	'TSModuleDeclaration',
-	'TSTypeAliasDeclaration',
 ]);
 
 const schema = [
@@ -57,25 +50,6 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
 	return nodeStart >= start && nodeEnd <= end;
 };
-
-const isBlockScopedDeclaration = node =>
-	(
-		node.type === 'VariableDeclaration'
-		&& node.kind !== 'var'
-	)
-	|| blockScopedDeclarationTypes.has(node.type);
-
-const hasDirectBlockScopedDeclaration = node =>
-	isBlockScopedDeclaration(node)
-	|| (
-		node.type === 'BlockStatement'
-		&& node.body.some(node => isBlockScopedDeclaration(node))
-	);
-
-const hasMultilineToken = (node, sourceCode) =>
-	sourceCode.getTokens(node).some(token =>
-		sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
-	);
 
 const shouldAddParenthesesWhenNegated = node =>
 	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
@@ -156,11 +130,11 @@ const getReplacementText = (ifStatement, context) => {
 	return `if (${conditionText}) {\n${ifIndent}\treturn;\n${ifIndent}}\n\n${consequentText}`;
 };
 
-const canSafelyMoveConsequent = (ifStatement, sourceCode) => {
+const canSafelyMoveConsequent = (ifStatement, context) => {
 	const {consequent} = ifStatement;
 
 	return !hasDirectBlockScopedDeclaration(consequent)
-		&& !hasMultilineToken(consequent, sourceCode);
+		&& !hasMultilineToken(consequent, context);
 };
 
 const hasCommentsInsideWrapperOutsideConsequent = (ifStatement, sourceCode) => {
@@ -168,9 +142,9 @@ const hasCommentsInsideWrapperOutsideConsequent = (ifStatement, sourceCode) => {
 	return sourceCode.getCommentsInside(ifStatement).some(comment => !isNodeInsideRange(comment, consequentRange, sourceCode));
 };
 
-const canSuggestRewrite = (ifStatement, sourceCode) =>
-	canSafelyMoveConsequent(ifStatement, sourceCode)
-	&& !hasCommentsInsideWrapperOutsideConsequent(ifStatement, sourceCode);
+const canSuggestRewrite = (ifStatement, context) =>
+	canSafelyMoveConsequent(ifStatement, context)
+	&& !hasCommentsInsideWrapperOutsideConsequent(ifStatement, context.sourceCode);
 
 const getFix = (ifStatement, context) => {
 	const {sourceCode} = context;
@@ -180,7 +154,7 @@ const getFix = (ifStatement, context) => {
 		return;
 	}
 
-	if (!canSuggestRewrite(ifStatement, sourceCode)) {
+	if (!canSuggestRewrite(ifStatement, context)) {
 		return;
 	}
 
@@ -195,9 +169,7 @@ const getFix = (ifStatement, context) => {
 };
 
 const getSuggestion = (ifStatement, context) => {
-	const {sourceCode} = context;
-
-	if (!canSuggestRewrite(ifStatement, sourceCode)) {
+	if (!canSuggestRewrite(ifStatement, context)) {
 		return;
 	}
 

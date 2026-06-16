@@ -76,6 +76,12 @@ test({
 			errors: 1,
 		},
 		{
+			// A `let` binding is not resolved, so the `Set` is not recognized as a non-array.
+			code: 'let effects = new Set(); effects.flatMap(x => x);',
+			output: 'let effects = new Set(); effects.flat();',
+			errors: 1,
+		},
+		{
 			code: 'const Items = []; Items.flatMap(x => x);',
 			output: 'const Items = []; Items.flat();',
 			errors: 1,
