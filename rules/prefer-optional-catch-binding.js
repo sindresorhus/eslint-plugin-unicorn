@@ -25,11 +25,15 @@ const create = context => {
 
 		const {type, name, parent} = node;
 
+		// Removing the whole binding pattern would drop any comment inside it (`catch ({/* x */ a})`).
+		// Comments around the binding (between the parentheses) are preserved by the token-level removals below.
+		const hasCommentsInsideBinding = sourceCode.getCommentsInside(node).length > 0;
+
 		return {
 			node,
 			messageId: type === 'Identifier' ? MESSAGE_ID_WITH_NAME : MESSAGE_ID_WITHOUT_NAME,
 			data: {name},
-			* fix(fixer) {
+			fix: hasCommentsInsideBinding ? undefined : function * (fixer) {
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				assertToken(tokenBefore, {
 					test: isOpeningParenToken,

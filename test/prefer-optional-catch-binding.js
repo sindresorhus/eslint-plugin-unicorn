@@ -179,6 +179,8 @@ test.snapshot({
 	],
 	invalid: [
 		'try {} catch ({}) {}',
+		// Report but don't drop a comment inside the binding pattern
+		'try {} catch ({/* inner comment */ message}) {}',
 		'try {} catch ({message}) {}',
 		'try {} catch ({message: notUsedMessage}) {}',
 		'try {} catch ({cause: {message}}) {}',
