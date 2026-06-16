@@ -316,6 +316,64 @@ test.snapshot({
 			`,
 			languageOptions: typescriptLanguageOptions,
 		},
+		// React hook calls must run unconditionally, so they cannot be moved below an early exit.
+		outdent`
+			function Component(bar) {
+				const value = useMemo(() => compute(), []);
+				if (!bar) {
+					return null;
+				}
+				return value;
+			}
+		`,
+		outdent`
+			function Component(bar) {
+				const reference = useRef(null);
+				if (!bar) {
+					return null;
+				}
+				return reference;
+			}
+		`,
+		outdent`
+			function Component(bar) {
+				const value = React.useMemo(() => compute(), []);
+				if (!bar) {
+					return null;
+				}
+				return value;
+			}
+		`,
+		outdent`
+			function Component(bar) {
+				const data = useData();
+				if (!bar) {
+					return null;
+				}
+				return data;
+			}
+		`,
+		outdent`
+			function Component(bar) {
+				const value = use(promise);
+				if (!bar) {
+					return null;
+				}
+				return value;
+			}
+		`,
+		{
+			code: outdent`
+				function Component(bar: boolean) {
+					const value = useMemo<number>(() => compute(), []);
+					if (!bar) {
+						return null;
+					}
+					return value;
+				}
+			`,
+			languageOptions: typescriptLanguageOptions,
+		},
 	],
 	invalid: [
 		outdent`
@@ -622,6 +680,26 @@ test.snapshot({
 					return;
 				}
 				pop();
+			}
+		`,
+		// `useless` is not a hook name (`use` is not followed by an uppercase letter), so it is still reported.
+		outdent`
+			function foo(bar) {
+				const value = useless();
+				if (!bar) {
+					return;
+				}
+				console.log(value);
+			}
+		`,
+		// A PascalCase-namespaced call is only a hook when the property is a hook name, so `React.compute()` is still reported.
+		outdent`
+			function foo(bar) {
+				const value = React.compute();
+				if (!bar) {
+					return;
+				}
+				console.log(value);
 			}
 		`,
 	],

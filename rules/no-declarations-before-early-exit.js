@@ -46,6 +46,29 @@ function isGuardStatement(node) {
 	return consequentExits !== Boolean(alternateExits);
 }
 
+// https://github.com/facebook/react/blob/main/packages/eslint-plugin-react-hooks/src/rules/RulesOfHooks.ts
+const isReactHookName = name =>
+	name === 'use' || /^use[\dA-Z]/.test(name);
+
+// Matches `useFoo(…)` and `Namespace.useFoo(…)` (for example, `React.useMemo(…)`).
+const isReactHookCall = node => {
+	if (node?.type !== 'CallExpression') {
+		return false;
+	}
+
+	const {callee} = node;
+	if (callee.type === 'Identifier') {
+		return isReactHookName(callee.name);
+	}
+
+	return callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& callee.object.type === 'Identifier'
+		&& /^[A-Z]/.test(callee.object.name)
+		&& callee.property.type === 'Identifier'
+		&& isReactHookName(callee.property.name);
+};
+
 const isSimpleInitializer = node =>
 	!node
 	|| node.type === 'Literal'
@@ -130,6 +153,11 @@ function getProblem({
 	guardIndex,
 }) {
 	if (declarator.id.type !== 'Identifier') {
+		return;
+	}
+
+	// Moving a React hook call below an early exit would break the Rules of Hooks.
+	if (isReactHookCall(declarator.init)) {
 		return;
 	}
 
