@@ -1,5 +1,5 @@
 import {isNewExpression, isMethodCall} from './ast/index.js';
-import {removeExpressionStatement} from './fix/index.js';
+import {removeStatement} from './fix/index.js';
 import {
 	getNextNode,
 	getParenthesizedText,
@@ -207,7 +207,7 @@ const getFix = (problem, context) => {
 
 	return function * (fixer) {
 		yield fixer.replaceText(newExpression, getConstructorReplacementText(newExpression, sourceNode, context));
-		yield removeExpressionStatement(loop, context, fixer);
+		yield removeStatement(loop, context, fixer);
 	};
 };
 

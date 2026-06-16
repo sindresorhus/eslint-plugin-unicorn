@@ -1,5 +1,5 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
-import {removeExpressionStatement} from './fix/index.js';
+import {removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
@@ -121,7 +121,7 @@ function getFix({
 	name,
 }) {
 	return function * (fixer) {
-		yield removeExpressionStatement(declaration, {sourceCode}, fixer);
+		yield removeStatement(declaration, {sourceCode}, fixer);
 
 		const declarationText = `const ${name} = `;
 

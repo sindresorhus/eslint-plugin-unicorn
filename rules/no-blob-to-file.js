@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.js';
 import {getLastTrailingCommentOnSameLine, getVariableIdentifiers} from './utils/index.js';
+import {removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -8,8 +9,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use the original `Blob` instead of converting it to a `File`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace the `File` with the original `Blob`.',
 };
-
-const isWhitespaceOnly = text => /^\s*$/v.test(text);
 
 const isStandaloneConstDeclaration = node =>
 	node.parent.type === 'VariableDeclaration'
@@ -168,38 +167,6 @@ function getSupportedCall(identifier, context) {
 		call: parent,
 		kind: 'formData',
 	};
-}
-
-function removeStatement(statement, context, fixer) {
-	const {sourceCode} = context;
-	const {lines} = sourceCode;
-	const startLocation = sourceCode.getLoc(statement).start;
-	const lastToken = sourceCode.getLastToken(statement);
-	const endLocation = sourceCode.getLoc(lastToken).end;
-
-	const textBefore = lines[startLocation.line - 1].slice(0, startLocation.column);
-	const textAfter = lines[endLocation.line - 1].slice(endLocation.column);
-
-	let [start] = sourceCode.getRange(statement);
-	let [, end] = sourceCode.getRange(lastToken);
-
-	if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {
-		end += textAfter.length;
-
-		if (start === 0) {
-			const {text} = sourceCode;
-
-			if (text[end] === '\r' && text[end + 1] === '\n') {
-				end += 2;
-			} else if (text[end] === '\n' || text[end] === '\r') {
-				end++;
-			}
-		} else {
-			start = Math.max(0, start - textBefore.length - 1);
-		}
-	}
-
-	return fixer.removeRange([start, end]);
 }
 
 function getProblem(node, context) {

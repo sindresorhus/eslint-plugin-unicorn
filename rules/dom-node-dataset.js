@@ -13,7 +13,7 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {removeExpressionStatement} from './fix/index.js';
+import {removeStatement} from './fix/index.js';
 import {
 	isMemberExpression,
 	isMethodCall,
@@ -183,7 +183,7 @@ function getDatasetVariableInlineFix(declarator, context) {
 
 	const objectText = getReceiverText(datasetNode.object, context);
 	return function * (fixer) {
-		yield removeExpressionStatement(declaration, context, fixer);
+		yield removeStatement(declaration, context, fixer);
 		for (const member of usageMembers) {
 			const quote = member.computed ? member.property.raw.charAt(0) : undefined;
 			const attributeName = escapeString(camelCaseToDash(getStaticMemberKey(member)), quote);

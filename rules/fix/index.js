@@ -10,7 +10,7 @@ export {
 	removeMemberExpressionProperty,
 } from './replace-member-expression-property.js';
 export {default as removeMethodCall} from './remove-method-call.js';
-export {default as removeExpressionStatement} from './remove-expression-statement.js';
+export {default as removeStatement} from './remove-statement.js';
 export {default as removeSpacesAfter} from './remove-spaces-after.js';
 export {default as removeSpecifier} from './remove-specifier.js';
 export {default as removeObjectProperty} from './remove-object-property.js';
