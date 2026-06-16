@@ -83,5 +83,14 @@ test.snapshot({
 			code: 'function getSize(set: ReadonlySet<string>) { return Array.from(set).length; }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Type assertions need parentheses when becoming a member expression object
+		{
+			code: 'function getSize(set: unknown) { return [...(set as Set<string>)].length; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function getSize(set: unknown) { return Array.from(set as Set<string>).length; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

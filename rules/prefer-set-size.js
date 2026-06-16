@@ -1,6 +1,6 @@
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isSet} from './utils/index.js';
+import {isSet, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -45,7 +45,15 @@ function createFix(context, lengthAccessNode, set) {
 	/** @param {import('eslint').Rule.RuleFixer} fixer */
 	return function * (fixer) {
 		yield fixer.replaceText(property, 'size');
-		yield fixer.replaceText(array, sourceCode.getText(set));
+
+		// `set` becomes the object of `.size`, so wrap expressions that need parentheses there
+		// (e.g. a TypeScript `set as Set<string>` assertion).
+		let setText = sourceCode.getText(set);
+		if (shouldAddParenthesesToMemberExpressionObject(set, context)) {
+			setText = `(${setText})`;
+		}
+
+		yield fixer.replaceText(array, setText);
 
 		if (array.type === 'ArrayExpression') {
 			yield fixSpaceAroundKeyword(fixer, lengthAccessNode, context);
