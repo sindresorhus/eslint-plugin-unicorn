@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-`Array#push()` and `Array#unshift()` return the new length of the array, not the added value or the array. Using that length is usually accidental when adding items.
+`Array#push()` and `Array#unshift()` return the new length of the array, not the added value or the array. Returning or assigning that length is almost always a mistake. It reads as if the value were meaningful when it tells you nothing about what you added.
 
 If you want to add an item and exit, call `.push()` or `.unshift()` before `return`. If you intentionally want to use the length, use an explicit `.length` expression after the mutation.
 
@@ -55,4 +55,16 @@ function getNextLength(item) {
 	items.push(item);
 	return items.length;
 }
+```
+
+## Concise-body arrows in callbacks
+
+A concise-body arrow returns its expression even when the callback ignores the return value, like `Array#forEach`. The rule still flags this, since it reads as if the length mattered and usually means the loop can be written more directly.
+
+```js
+// ❌
+source.forEach(item => target.push(item));
+
+// ✅
+target.push(...source);
 ```
