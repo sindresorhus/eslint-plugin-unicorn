@@ -51,7 +51,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unreadable `new` expressions.',
-			recommended: true,
+			recommended: false,
 		},
 		messages,
 		languages: [
