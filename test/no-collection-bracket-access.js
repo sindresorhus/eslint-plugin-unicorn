@@ -90,7 +90,7 @@ test.snapshot({
 		// Key resolves to a non-member string through a variable
 		'const map = new Map(); const key = "foo"; map[key];',
 		// Dynamic template key
-		'const map = new Map(); map[`${prefix}foo`];',
+		'const map = new Map(); map[`${prefix}foo`];', // eslint-disable-line no-template-curly-in-string
 
 		// Write (with suggestion for Map/WeakMap)
 		'const map = new Map(); map["foo"] = "bar";',

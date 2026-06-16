@@ -26,10 +26,30 @@ const messages = {
 };
 
 const collectionTypes = [
-	{name: 'Map', is: isMap, prototype: Map.prototype, hasSetMethod: true},
-	{name: 'WeakMap', is: isWeakMap, prototype: WeakMap.prototype, hasSetMethod: true},
-	{name: 'Set', is: isSet, prototype: Set.prototype, hasSetMethod: false},
-	{name: 'WeakSet', is: isWeakSet, prototype: WeakSet.prototype, hasSetMethod: false},
+	{
+		name: 'Map',
+		is: isMap,
+		prototype: Map.prototype,
+		hasSetMethod: true,
+	},
+	{
+		name: 'WeakMap',
+		is: isWeakMap,
+		prototype: WeakMap.prototype,
+		hasSetMethod: true,
+	},
+	{
+		name: 'Set',
+		is: isSet,
+		prototype: Set.prototype,
+		hasSetMethod: false,
+	},
+	{
+		name: 'WeakSet',
+		is: isWeakSet,
+		prototype: WeakSet.prototype,
+		hasSetMethod: false,
+	},
 ];
 
 // Only `Identifier`/`ThisExpression`/`MemberExpression` receivers can be placed before
@@ -116,7 +136,7 @@ const create = context => {
 		if (
 			staticResult
 			&& (typeof staticResult.value === 'string' || typeof staticResult.value === 'symbol')
-			&& staticResult.value in collection.prototype
+			&& Reflect.has(collection.prototype, staticResult.value)
 		) {
 			return;
 		}
