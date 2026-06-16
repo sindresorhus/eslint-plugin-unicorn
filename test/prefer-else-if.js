@@ -76,6 +76,47 @@ test.snapshot({
 				if (foo === 2) {}
 			}
 		`,
+		// The previous branch always exits via an exhaustive `switch`, detected via code path analysis, so it is skipped.
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					switch (bar) {
+						case 1:
+							return;
+						default:
+							throw new Error();
+					}
+				}
+
+				if (foo === 2) {}
+			}
+		`,
+		// The previous branch always exits via an infinite loop, so it is skipped.
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					while (true) {
+						poll();
+					}
+				}
+
+				if (foo === 2) {}
+			}
+		`,
+		// The previous branch always exits via a `try`/`finally` that returns, so it is skipped.
+		outdent`
+			function unicorn() {
+				if (foo === 1) {
+					try {
+						doSomething();
+					} finally {
+						return cleanup();
+					}
+				}
+
+				if (foo === 2) {}
+			}
+		`,
 		outdent`
 			if (foo === 1) {}
 			else {}

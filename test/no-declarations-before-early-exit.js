@@ -374,6 +374,108 @@ test.snapshot({
 			`,
 			languageOptions: typescriptLanguageOptions,
 		},
+		// A `switch` with a `break` does not always exit, so the `if` is not a guard.
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (!bar) {
+					switch (type) {
+						case 'a':
+							doSomething();
+							break;
+						default:
+							return;
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A non-exhaustive `switch` (no `default`) can fall through, so the `if` is not a guard.
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (!bar) {
+					switch (type) {
+						case 'a':
+							return;
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// The `catch` can fall through, so the `if` is not a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					try {
+						return getValue();
+					} catch {}
+				}
+				console.log(result);
+			}
+		`,
+		// Neither branch alone always exits, so the `if` is not a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (bar) {
+					doSomething();
+				} else {
+					doSomethingElse();
+				}
+				console.log(result);
+			}
+		`,
+		// A `try/catch` where the `catch` falls through is not a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					try {
+						throw new Error();
+					} catch (error) {
+						console.error(error);
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A `while` with a `break` can fall through, so the `if` is not a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					while (condition) {
+						break;
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A `return` inside a nested function does not make the `if` a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					const inner = () => {
+						return;
+					};
+				}
+				console.log(result);
+			}
+		`,
+		// Everything after the `return` is unreachable, so the `if` is dead code and not a guard.
+		outdent`
+			function foo(bar) {
+				return;
+				const result = 1;
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -700,6 +802,104 @@ test.snapshot({
 					return;
 				}
 				console.log(value);
+			}
+		`,
+		// The guard's exiting branch ends in an exhaustive `switch`, detected via code path analysis.
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (!bar) {
+					switch (type) {
+						case 'a':
+							throw new Error('a');
+						default:
+							throw new Error('unknown');
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// The guard's exiting branch ends in a `try`/`finally` that always returns.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					try {
+						return getValue();
+					} finally {
+						cleanup();
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// The guard's exiting branch ends in an infinite loop.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					while (true) {
+						poll();
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// `else if` guard whose every branch ends in an exhaustive `switch`.
+		outdent`
+			function foo(bar, type) {
+				const result = 1;
+				if (bar) {
+					doSomething();
+				} else {
+					switch (type) {
+						case 'a':
+							return;
+						default:
+							throw new Error();
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A nested `if/else` where all branches always exit makes the `if` a guard.
+		outdent`
+			function foo(bar, baz) {
+				const result = 1;
+				if (!bar) {
+					if (baz) {
+						return;
+					} else {
+						throw new Error();
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A `try/catch` where both `try` and `catch` always throw makes the `if` a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					try {
+						throw new Error('try');
+					} catch {
+						throw new Error('catch');
+					}
+				}
+				console.log(result);
+			}
+		`,
+		// A `do/while(true)` infinite loop never falls through, so the `if` is a guard.
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					do {
+						poll();
+					} while (true);
+				}
+				console.log(result);
 			}
 		`,
 	],

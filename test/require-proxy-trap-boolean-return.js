@@ -48,6 +48,22 @@ test({
 		'new Proxy(target, {set() { return value > 0; }});',
 		'new Proxy(target, {set() { return value === otherValue; }});',
 		'new Proxy(target, {set() { return value instanceof Constructor; }});',
+		// CPA: infinite loop always exits.
+		'new Proxy(target, {set() { while (true) { doSomething(); } }});',
+		// CPA: `for (;;)` always exits.
+		'new Proxy(target, {set() { for (;;) { doSomething(); } }});',
+		// CPA: try/catch where both branches exit.
+		'new Proxy(target, {set() { try { return doSomething(); } catch { throw new Error(); } }});',
+		// CPA: nested if/else chain where every branch returns.
+		'new Proxy(target, {set() { if (a) { if (b) { return true; } else { return false; } } else { return true; } }});',
+		// CPA: exhaustive switch inside try/finally.
+		'new Proxy(target, {set() { try { switch (v) { case 1: return true; default: return false; } } finally { cleanup(); } }});',
+		// CPA: labeled break inside inner loop does not exit the function.
+		'new Proxy(target, {set() { outer: for (const x of items) { for (const y of x) { break outer; } } return true; }});',
+		// CPA: try/catch where `return true` can't throw, so catch is dead code.
+		'new Proxy(target, {set() { try { return true; } catch { handle(); } }});',
+		// CPA: a nested function that falls through does not affect the trap's own exit analysis.
+		'new Proxy(target, {set() { const noop = () => { doSomething(); }; while (true) { poll(); } }});',
 	],
 	invalid: [
 		{
@@ -232,6 +248,31 @@ test({
 		{
 			code: 'Proxy.revocable(target, {set() { return 1; }});',
 			output: 'Proxy.revocable(target, {set() { return true; }});',
+			errors,
+		},
+		// CPA: non-exhaustive switch (no default) can fall through.
+		{
+			code: 'new Proxy(target, {preventExtensions() { switch (value) { case 1: return true; } }});',
+			errors,
+		},
+		// CPA: try where return argument can throw, catch falls through.
+		{
+			code: 'new Proxy(target, {preventExtensions() { try { return getValue(); } catch { handle(); } }});',
+			errors,
+		},
+		// CPA: only one branch of `if` exits, no else.
+		{
+			code: 'new Proxy(target, {preventExtensions() { if (condition) { throw new Error(); } doSomething(); }});',
+			errors,
+		},
+		// CPA: labeled break exits only the labeled statement, function can still fall through.
+		{
+			code: 'new Proxy(target, {preventExtensions() { label: { break label; } }});',
+			errors,
+		},
+		// CPA: a `return` inside a nested function does not satisfy the trap; the trap itself falls through.
+		{
+			code: 'new Proxy(target, {preventExtensions() { const compute = () => true; if (compute()) { return true; } }});',
 			errors,
 		},
 		{

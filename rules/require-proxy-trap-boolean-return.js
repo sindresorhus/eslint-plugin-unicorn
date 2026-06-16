@@ -22,16 +22,6 @@ const functionTypes = new Set([
 	'FunctionExpression',
 ]);
 
-const breakStatementBoundaryTypes = new Set([
-	...functionTypes,
-	'DoWhileStatement',
-	'ForInStatement',
-	'ForOfStatement',
-	'ForStatement',
-	'SwitchStatement',
-	'WhileStatement',
-]);
-
 function * getReturnStatements(node) {
 	if (!node || typeof node.type !== 'string') {
 		return;
@@ -218,118 +208,7 @@ const getTrapFunction = (property, sourceCode) => {
 	};
 };
 
-function doesStatementAlwaysExit(node) {
-	switch (node.type) {
-		case 'ReturnStatement':
-		case 'ThrowStatement': {
-			return true;
-		}
-
-		case 'BlockStatement': {
-			return doesBlockAlwaysExit(node);
-		}
-
-		case 'IfStatement': {
-			return Boolean(
-				node.alternate
-				&& doesStatementAlwaysExit(node.consequent)
-				&& doesStatementAlwaysExit(node.alternate),
-			);
-		}
-
-		case 'LabeledStatement': {
-			return doesStatementAlwaysExit(node.body);
-		}
-
-		case 'SwitchStatement': {
-			return doesSwitchStatementAlwaysExit(node);
-		}
-
-		case 'TryStatement': {
-			return doesTryStatementAlwaysExit(node);
-		}
-
-		default: {
-			return false;
-		}
-	}
-}
-
-function doesSwitchCaseAlwaysExit(node, index) {
-	for (const switchCase of node.cases.slice(index)) {
-		for (const statement of switchCase.consequent) {
-			if (hasBreakStatement(statement)) {
-				return false;
-			}
-
-			if (doesStatementAlwaysExit(statement)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-function hasBreakStatement(node) {
-	if (!node || typeof node.type !== 'string') {
-		return false;
-	}
-
-	if (node.type === 'BreakStatement') {
-		return true;
-	}
-
-	if (breakStatementBoundaryTypes.has(node.type)) {
-		return false;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasBreakStatement(child))) {
-				return true;
-			}
-
-			continue;
-		}
-
-		if (hasBreakStatement(value)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-function doesSwitchStatementAlwaysExit(node) {
-	if (node.cases.every(switchCase => switchCase.test !== null)) {
-		return false;
-	}
-
-	return node.cases.every((_, index) => doesSwitchCaseAlwaysExit(node, index));
-}
-
-function doesTryStatementAlwaysExit(node) {
-	if (node.finalizer && doesBlockAlwaysExit(node.finalizer)) {
-		return true;
-	}
-
-	return doesBlockAlwaysExit(node.block)
-		&& (
-			!node.handler
-			|| doesBlockAlwaysExit(node.handler.body)
-		);
-}
-
-function doesBlockAlwaysExit(node) {
-	return node.body.some(statement => statement.type !== 'FunctionDeclaration' && doesStatementAlwaysExit(statement));
-}
-
-const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
+const getTrapFunctionProblem = ({functionNode, name}, sourceCode, functionBodyAlwaysExits) => {
 	if (functionNode.async || functionNode.generator) {
 		return createProblem(functionNode, name);
 	}
@@ -339,7 +218,7 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
 	}
 
 	const returnStatements = [...getReturnStatements(functionNode.body)];
-	const doesAlwaysExit = doesBlockAlwaysExit(functionNode.body);
+	const doesAlwaysExit = functionBodyAlwaysExits.get(functionNode) ?? false;
 	if (returnStatements.length === 0) {
 		if (doesAlwaysExit) {
 			return;
@@ -368,6 +247,40 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode) => {
 const create = context => {
 	const {sourceCode} = context;
 
+	// Track whether each function body always exits using code path analysis.
+	const functionBodyAlwaysExits = new WeakMap();
+	const segmentSetStack = [];
+	const currentSegments = () => segmentSetStack.at(-1);
+
+	context.on('onCodePathStart', () => {
+		segmentSetStack.push(new Set());
+	});
+	context.on('onCodePathEnd', () => {
+		segmentSetStack.pop();
+	});
+	context.on('onCodePathSegmentStart', segment => {
+		currentSegments().add(segment);
+	});
+	context.on('onCodePathSegmentEnd', segment => {
+		currentSegments().delete(segment);
+	});
+	context.on('onUnreachableCodePathSegmentStart', segment => {
+		currentSegments().add(segment);
+	});
+	context.on('onUnreachableCodePathSegmentEnd', segment => {
+		currentSegments().delete(segment);
+	});
+
+	// Snapshot reachability at function body exit, before code path segments end.
+	context.onExit('BlockStatement', body => {
+		if (!(functionTypes.has(body.parent?.type) && body.parent.body === body)) {
+			return;
+		}
+
+		const allUnreachable = [...currentSegments()].every(segment => !segment.reachable);
+		functionBodyAlwaysExits.set(body.parent, allUnreachable);
+	});
+
 	function * checkCallOrNewExpression(node) {
 		if (!isProxyCall(node)) {
 			return;
@@ -384,15 +297,16 @@ const create = context => {
 				continue;
 			}
 
-			const problem = getTrapFunctionProblem(trapFunction, sourceCode);
+			const problem = getTrapFunctionProblem(trapFunction, sourceCode, functionBodyAlwaysExits);
 			if (problem) {
 				yield problem;
 			}
 		}
 	}
 
-	context.on('CallExpression', checkCallOrNewExpression);
-	context.on('NewExpression', checkCallOrNewExpression);
+	// Use onExit so inner function code paths have been fully analyzed.
+	context.onExit('CallExpression', checkCallOrNewExpression);
+	context.onExit('NewExpression', checkCallOrNewExpression);
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

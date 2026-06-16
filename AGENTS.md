@@ -121,6 +121,28 @@ Most commonly used utilities:
 - **`getStaticValue`** (from `@eslint-community/eslint-utils`) - Get a node's static value at lint time.
 - **`fixSpaceAroundKeyword`**, **`removeMethodCall`**, **`removeArgument`** - Common fix helpers.
 
+## Code path analysis
+
+Use [ESLint's code path analysis API](https://eslint.org/docs/latest/extend/code-path-analysis) when a rule needs to know whether control flow always exits a branch or function body (e.g., via `return`, `throw`, `break`, `continue`, exhaustive `switch`, infinite loop). CPA is more accurate than manual AST walking because it handles complex constructs like `try`/`catch`/`finally`, labeled breaks, and unreachable code after infinite loops.
+
+When to use CPA instead of manual AST walking:
+
+- **Checking if an `if` branch always exits** — Use `trackBranchExits` from `rules/utils/`. It registers CPA event listeners and returns a predicate `(branch) => boolean`. Query it after the `IfStatement` has exited (use `context.onExit`). Used by `no-useless-else`, `no-declarations-before-early-exit`, `prefer-else-if`.
+- **Checking if a function body always exits** — Track segments per code path using `onCodePathStart`/`onCodePathEnd`/`onCodePathSegmentStart`/`onCodePathSegmentEnd`/`onUnreachableCodePathSegmentStart`/`onUnreachableCodePathSegmentEnd`. Snapshot segment reachability at `BlockStatement:exit` for function bodies (before code path segments end). See `require-proxy-trap-boolean-return` for the pattern.
+
+Key implementation notes:
+
+- Use a **per-code-path segment stack** (`segmentSetStack`) so nested functions don't pollute the enclosing path's state.
+- When checking CPA data from a parent node, use `context.onExit` (not `context.on`) so inner code paths have been fully analyzed.
+- At `onCodePathEnd`, all segments have already ended, so `currentSegments()` is empty. Snapshot reachability at the AST node exit (e.g., `BlockStatement:exit`) instead.
+- `trackBranchExits` uses a `prevSegments`-based check: a branch "falls through" if any post-if merge segment has a `prevSegment` in the branch's terminal segment set.
+
+When NOT to use CPA:
+
+- Simple last-statement checks (e.g., "does the last statement return?") — just check `node.type`.
+- Collecting return statements or associating them with functions — a simple function stack or AST walk is fine.
+- Fixer logic that only needs to know "return or throw" in the last position — no CPA needed.
+
 ## Auto-generated files
 
 - **`rules/index.js`** is auto-generated. Never edit it by hand. Run `npm run create-rules-index-file` to regenerate after adding or removing rules.

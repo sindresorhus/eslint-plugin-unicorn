@@ -1,5 +1,5 @@
 import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
-import {getReferences} from './utils/index.js';
+import {getReferences, trackBranchExits} from './utils/index.js';
 
 const MESSAGE_ID = 'no-declarations-before-early-exit';
 const messages = {
@@ -10,40 +10,17 @@ const isLetOrConstDeclaration = node =>
 	node.type === 'VariableDeclaration'
 	&& (node.kind === 'let' || node.kind === 'const');
 
-const getLastStatement = node => {
-	if (node.type !== 'BlockStatement') {
-		return node;
-	}
-
-	return node.body.at(-1);
-};
-
-const isEarlyExitStatement = node =>
-	node?.type === 'ReturnStatement'
-	|| node?.type === 'ThrowStatement'
-	|| node?.type === 'BreakStatement'
-	|| node?.type === 'ContinueStatement';
-
-function branchDefinitelyExits(node) {
-	const statement = getLastStatement(node);
-	if (isEarlyExitStatement(statement)) {
-		return true;
-	}
-
-	return statement?.type === 'IfStatement'
-		&& statement.alternate
-		&& branchDefinitelyExits(statement.consequent)
-		&& branchDefinitelyExits(statement.alternate);
-}
-
-function isGuardStatement(node) {
+// A guard is an `if` statement where exactly one branch always exits, so control after it is
+// conditional. `branchAlwaysExits` uses code path analysis, so guards whose exiting branch ends
+// in an exhaustive `switch`, `try`/`finally`, or other complex control flow are detected too.
+function isGuardStatement(node, branchAlwaysExits) {
 	if (node.type !== 'IfStatement') {
 		return false;
 	}
 
-	const consequentExits = branchDefinitelyExits(node.consequent);
-	const alternateExits = node.alternate && branchDefinitelyExits(node.alternate);
-	return consequentExits !== Boolean(alternateExits);
+	const consequentExits = branchAlwaysExits(node.consequent);
+	const alternateExits = Boolean(node.alternate) && branchAlwaysExits(node.alternate);
+	return consequentExits !== alternateExits;
 }
 
 // https://github.com/facebook/react/blob/main/packages/eslint-plugin-react-hooks/src/rules/RulesOfHooks.ts
@@ -213,7 +190,7 @@ function getProblem({
 	return problem;
 }
 
-function * getStatementListProblems(sourceCode, statements) {
+function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 	for (const [declarationIndex, declaration] of statements.entries()) {
 		if (
 			!isLetOrConstDeclaration(declaration)
@@ -223,7 +200,7 @@ function * getStatementListProblems(sourceCode, statements) {
 		}
 
 		for (const [guardIndex, guardStatement] of statements.entries()) {
-			if (guardIndex <= declarationIndex || !isGuardStatement(guardStatement)) {
+			if (guardIndex <= declarationIndex || !isGuardStatement(guardStatement, branchAlwaysExits)) {
 				continue;
 			}
 
@@ -250,9 +227,12 @@ function * getStatementListProblems(sourceCode, statements) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const branchAlwaysExits = trackBranchExits(context);
 
-	context.on('Program', node => getStatementListProblems(sourceCode, node.body));
-	context.on('BlockStatement', node => getStatementListProblems(sourceCode, node.body));
+	// Run on exit so that all nested `if` statements have been visited and their branch exit
+	// information is available before scanning each statement list.
+	context.onExit('Program', node => getStatementListProblems(sourceCode, node.body, branchAlwaysExits));
+	context.onExit('BlockStatement', node => getStatementListProblems(sourceCode, node.body, branchAlwaysExits));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
