@@ -52,6 +52,10 @@ test.snapshot({
 	],
 	invalid: [
 		'foo ? foo : bar;',
+		// Report but do not offer a suggestion that would drop comments
+		'foo ? foo /* keep me */ : bar;',
+		'foo /* keep me */ ? foo : bar;',
+		'!bar ? foo /* keep me */ : bar;',
 		'foo.bar ? foo.bar : foo.baz',
 		'foo?.bar ? foo.bar : baz',
 		'!bar ? foo : bar;',
