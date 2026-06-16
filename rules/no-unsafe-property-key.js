@@ -35,7 +35,8 @@ const propertyDefinitionNodeTypes = [
 	'TSAbstractAccessorProperty',
 ];
 
-const templateLiteralTypeFlag = 4_194_304;
+const templateLiteralTypeFlag = 4_194_304; // TypeFlags.TemplateLiteral
+const uniqueSymbolTypeFlag = 16_384; // TypeFlags.UniqueESSymbol
 
 const unsafeGlobalIdentifiers = new Set([
 	...disallowNewBuiltins,
@@ -93,8 +94,12 @@ const isUnsafeNumber = value =>
 const isUnsafeNumberLiteral = node =>
 	isUnsafeNumber(getNumberLiteralValue(node));
 
-const isTemplateLiteralType = type =>
-	(type.flags % (templateLiteralTypeFlag * 2)) >= templateLiteralTypeFlag;
+// Test a single `TypeFlags` bit. Uses modulo rather than bitwise `&`, which truncates to 32 bits, to stay correct if `type.flags` ever grows past that.
+const typeHasFlag = (type, flag) => (type.flags % (flag * 2)) >= flag;
+
+const isTemplateLiteralType = type => typeHasFlag(type, templateLiteralTypeFlag);
+
+const isUniqueSymbolType = type => typeHasFlag(type, uniqueSymbolTypeFlag);
 
 const isUnsafePropertyKeyNode = node =>
 	node.type === 'ObjectExpression'
@@ -166,6 +171,13 @@ function getStaticType(value) {
 }
 
 function isUnsafePropertyKeyType(type, checker, program) {
+	// A `unique symbol` (including well-known symbols like `Symbol.iterator`) is a
+	// safe key, but has no `intrinsicName` and resolves to a default-library symbol,
+	// so the checks below would otherwise wrongly flag it.
+	if (isUniqueSymbolType(type)) {
+		return false;
+	}
+
 	if (
 		type.isBigIntLiteral?.()
 		|| (type.isNumberLiteral?.() && isUnsafeNumber(type.value))
@@ -208,6 +220,12 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 	}
 
 	if (isTemplateLiteralType(type)) {
+		return false;
+	}
+
+	// A `unique symbol` type has no `intrinsicName` but exposes `Symbol.prototype`
+	// members, so the property-count heuristic below would wrongly flag it.
+	if (isUniqueSymbolType(type)) {
 		return false;
 	}
 
