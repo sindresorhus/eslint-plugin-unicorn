@@ -125,6 +125,7 @@ export {default as 'no-unsafe-string-replacement'} from './no-unsafe-string-repl
 export {default as 'no-unused-array-method-return'} from './no-unused-array-method-return.js';
 export {default as 'no-unused-properties'} from './no-unused-properties.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
+export {default as 'no-useless-coercion'} from './no-useless-coercion.js';
 export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
 export {default as 'no-useless-concat'} from './no-useless-concat.js';
 export {default as 'no-useless-continue'} from './no-useless-continue.js';

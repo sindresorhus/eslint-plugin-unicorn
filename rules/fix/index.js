@@ -3,6 +3,7 @@ export {default as removeParentheses} from './remove-parentheses.js';
 export {default as appendArgument} from './append-argument.js';
 export {default as removeArgument, getArgumentRemovalRange} from './remove-argument.js';
 export {default as replaceArgument} from './replace-argument.js';
+export {default as replaceNodeWithExpression} from './replace-node-with-expression.js';
 export {default as switchNewExpressionToCallExpression} from './switch-new-expression-to-call-expression.js';
 export {default as switchCallExpressionToNewExpression} from './switch-call-expression-to-new-expression.js';
 export {
