@@ -752,6 +752,10 @@ test.snapshot({
 	invalid: [
 		'function f(foo: Type = undefined) {}',
 		'function f(foo?: Type = undefined) {}',
+		// The enclosing function's return type is irrelevant to a redundant default or local initializer
+		'function f(foo = undefined): string {}',
+		'function f(): string { let bar = undefined; }',
+		'const f = (): string => { let bar = undefined; };',
 		'const f = function(foo: Type = undefined) {}',
 		'const f = (foo: Type = undefined) => {}',
 		'const f = {method(foo: Type = undefined){}}',

@@ -357,7 +357,6 @@ const create = context => {
 			return getProblem(
 				node,
 				fixer => fixer.removeRange([start, end]),
-				/* CheckFunctionReturnType */ true,
 			);
 		}
 
@@ -388,7 +387,6 @@ const create = context => {
 						);
 					}
 				},
-				/* CheckFunctionReturnType */ true,
 			);
 		}
 	});
