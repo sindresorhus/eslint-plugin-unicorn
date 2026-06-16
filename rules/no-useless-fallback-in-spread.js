@@ -73,9 +73,15 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			/** @param {import('eslint').Rule.RuleFixer} fixer */
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
+
+				// Don't drop comments around `||`/`??` or the empty object.
+				if (sourceCode.getCommentsInside(logicalExpression).length > 0) {
+					return abort();
+				}
+
 				const {left} = logicalExpression;
 				const isLeftObjectParenthesized = isParenthesized(left, context);
 				const [, start] = isLeftObjectParenthesized

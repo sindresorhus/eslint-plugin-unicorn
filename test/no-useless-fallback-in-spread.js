@@ -65,6 +65,9 @@ test.snapshot({
 		'const object = {...([] || {})}',
 		'const object = {...({} || {})}',
 		'const object = {...(foo || {}),}',
+		// Report but don't drop comments in the removed part
+		'const object = {...(foo /* keep */ || {})}',
+		'const object = {...(foo || /* keep */ {})}',
 		'const object = {...((foo ?? {}) || {})}',
 		'const object = {...((foo && {}) || {})}',
 		'const object = {...(foo && {} || {})}',
