@@ -13,12 +13,20 @@ const isDefaultExpression = (left, right) =>
 	&& right.left.type === 'Identifier'
 	&& right.right.type === 'Literal';
 
+// Call-like expressions that may run side effects before the default-assignment.
+const callLikeExpressionTypes = new Set([
+	'CallExpression',
+	'NewExpression',
+	'ImportExpression',
+	'TaggedTemplateExpression',
+]);
+
 const containsCallExpression = (sourceCode, node) => {
 	if (!node) {
 		return false;
 	}
 
-	if (node.type === 'CallExpression') {
+	if (callLikeExpressionTypes.has(node.type)) {
 		return true;
 	}
 

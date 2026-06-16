@@ -220,6 +220,25 @@ test({
 				}
 			}
 		`,
+		// `new`, dynamic `import()`, and tagged templates can also have side effects before the assignment
+		outdent`
+			function abc(foo) {
+				new SideEffects();
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				import('side-effects');
+				foo = foo || 123;
+			}
+		`,
+		outdent`
+			function abc(foo) {
+				sideEffects\`template\`;
+				foo = foo || 123;
+			}
+		`,
 		outdent`
 			function abc(foo) {
 				const bar = function() {
