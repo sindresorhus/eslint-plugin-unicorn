@@ -6,12 +6,20 @@ const messages = {
 };
 
 const isTypeLiteral = node => node.type === 'TSTypeLiteral';
+
+// `null`/`undefined` are conventionally kept at the very end as a nullish escape hatch, so they don't count as "another type".
+const isNullishType = node => node.type === 'TSUndefinedKeyword' || node.type === 'TSNullKeyword';
+
 const getFirstTypeLiteralBeforeOtherType = types => {
 	let typeLiteral;
 
 	for (const type of types) {
 		if (isTypeLiteral(type)) {
 			typeLiteral ??= type;
+			continue;
+		}
+
+		if (isNullishType(type)) {
 			continue;
 		}
 
@@ -96,8 +104,9 @@ const create = context => {
 				}
 
 				const typeLiterals = node.types.filter(type => isTypeLiteral(type));
-				const otherTypes = node.types.filter(type => !isTypeLiteral(type));
-				const replacement = [...otherTypes, ...typeLiterals]
+				const nullishTypes = node.types.filter(type => isNullishType(type));
+				const otherTypes = node.types.filter(type => !isTypeLiteral(type) && !isNullishType(type));
+				const replacement = [...otherTypes, ...typeLiterals, ...nullishTypes]
 					.map(type => getParenthesizedText(type, context))
 					.join(' | ');
 
