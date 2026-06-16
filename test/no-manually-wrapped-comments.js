@@ -141,6 +141,62 @@ test.snapshot({
 				// no default
 			}
 		`,
+		outdent`
+			// SPDX-License-Identifier: MIT
+			// Copyright 2026 Beslogic Inc.
+		`,
+		outdent`
+			// Copyright 2026 Beslogic Inc.
+			// SPDX-License-Identifier: MIT
+		`,
+		outdent`
+			// SPDX-FileCopyrightText: 2026 Beslogic Inc.
+			// I don't like long lines
+		`,
+		outdent`
+			// noinspection JSUnusedGlobalSymbols
+			// I don't like long lines
+		`,
+		outdent`
+			// deno-lint-ignore no-explicit-any
+			// I don't like long lines
+		`,
+		outdent`
+			// dprint-ignore
+			// I don't like long lines
+		`,
+		outdent`
+			// cspell:disable-next-line
+			// I don't like long lines
+		`,
+		outdent`
+			// spell-checker: disable
+			// I don't like long lines
+		`,
+		outdent`
+			// vim: set ft=javascript:
+			// I don't like long lines
+		`,
+		outdent`
+			// -*- mode: javascript -*-
+			// I don't like long lines
+		`,
+		outdent`
+			// © 2026 Beslogic Inc
+			// All rights reserved
+		`,
+		outdent`
+			// Copyright 2026 Beslogic Inc
+			// All rights reserved
+		`,
+		outdent`
+			// Options:
+			// red
+		`,
+		outdent`
+			// Supported values:
+			// I don't like long lines
+		`,
 	],
 	invalid: [
 		outdent`
