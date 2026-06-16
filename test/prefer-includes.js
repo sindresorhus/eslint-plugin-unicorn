@@ -28,6 +28,9 @@ test.snapshot({
 			'lodash.indexOf(foo, bar) !== -1',
 			'underscore.indexOf(foo, bar) !== -1',
 		].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
+		// `lastIndexOf` searches backward from `fromIndex`, so it is not equivalent to `.includes()` (forward)
+		'foo.lastIndexOf(bar, 0) !== -1',
+		'foo.lastIndexOf(bar, 1) !== -1',
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
@@ -44,9 +47,10 @@ test.snapshot({
 			'str.indexOf(\'foo\') < 0',
 			'\'\'.indexOf(\'foo\') < 0',
 			'(a || b).indexOf(\'foo\') === -1',
-			'foo.indexOf(bar, 0) !== -1',
-			'foo.indexOf(bar, 1) !== -1',
 		].flatMap(code => [code, code.replace('.indexOf', '.lastIndexOf'), {code: `<template><div v-if="${code}"></div></template>`, languageOptions: {parser: parsers.vue}}]),
+		// `indexOf` with `fromIndex` maps cleanly to `.includes()` (both search forward); `lastIndexOf` does not
+		'foo.indexOf(bar, 0) !== -1',
+		'foo.indexOf(bar, 1) !== -1',
 		{
 			code: outdent`
 				<script setup lang="ts">

@@ -77,6 +77,12 @@ const create = context => {
 			return;
 		}
 
+		// `lastIndexOf(value, fromIndex)` searches backward from `fromIndex`, while `.includes(value, fromIndex)`
+		// searches forward, so they're only equivalent when no `fromIndex` is passed.
+		if (isMethodNamed(left, 'lastIndexOf') && argumentsNodes.length > 1) {
+			return;
+		}
+
 		if (
 			(['!==', '!=', '>', '===', '=='].includes(operator) && isNegativeOne(right))
 			|| (['>=', '<'].includes(operator) && isLiteralZero(right))
