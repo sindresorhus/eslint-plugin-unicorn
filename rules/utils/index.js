@@ -54,6 +54,8 @@ export {default as shouldSkipKnownNonArrayReceiver} from './should-skip-known-no
 export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';
 export {isSet, isKnownNonSet} from './is-set.js';
 export {isMap, isKnownNonMap} from './is-map.js';
+export {isWeakMap, isKnownNonWeakMap} from './is-weak-map.js';
+export {isWeakSet, isKnownNonWeakSet} from './is-weak-set.js';
 export {isKnownNonDomNode, isKnownNonKeyboardEvent} from './is-dom-node.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
 export {default as isLogicalExpression} from './is-logical-expression.js';
