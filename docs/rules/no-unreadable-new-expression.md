@@ -2,7 +2,7 @@
 
 📝 Disallow unreadable `new` expressions.
 
-💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+🚫 This rule is _disabled_ in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,15 +13,16 @@ This rule allows identifier constructors and static member constructors. Split t
 
 ## Why
 
-`new` is one of the most precedence-sensitive operators in JavaScript. `new` _with_ an argument list and `new` _without_ one sit at [different precedence levels](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence) (17 vs. 16), so tiny differences in parentheses flip the meaning:
+`new` is unusually precedence-sensitive: `new` _with_ an argument list and `new` _without_ one parse at [different levels](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_precedence), so a pair of parentheses flips the meaning.
 
 ```js
-new Foo().Bar; // `(new Foo()).Bar`: read `Bar` from the new instance
+new Foo().Bar; // `(new Foo()).Bar`: read `Bar` off the instance
 new Foo.Bar(); // `new (Foo.Bar)()`: construct `Foo.Bar`
-new Foo.Bar;   // `new (Foo.Bar)()`: also construct `Foo.Bar`
 ```
 
-Since `new Foo` equals `new Foo()`, it is not even clear which part `new` applies to. One access is enough to hit this, so the rule makes no exception for short chains. Naming the instance removes the ambiguity and reads better anyway: you name what you built, then use it.
+These look almost identical yet do opposite things, and since `new Foo` equals `new Foo()`, the parentheses do not reliably tell you which part `new` applies to. Even in `new Date(string).getTime()` you have to confirm those parens are an argument list and not a precedence group, and `new (foo().Bar)()` is harder still. Class-name casing does not help: the language does not enforce it, so reading the code correctly should not depend on it.
+
+Splitting the expression removes the guesswork: name what you build, then use it. It reads just as well, and the name pays off the moment you reuse, log, or breakpoint the instance.
 
 ## Examples
 
