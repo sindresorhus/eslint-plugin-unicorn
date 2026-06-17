@@ -35,6 +35,7 @@ export {default as 'max-nested-calls'} from './max-nested-calls.js';
 export {default as 'new-for-builtins'} from './new-for-builtins.js';
 export {default as 'no-abusive-eslint-disable'} from './no-abusive-eslint-disable.js';
 export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
+export {default as 'no-accidental-bitwise-operator'} from './no-accidental-bitwise-operator.js';
 export {default as 'no-anonymous-default-export'} from './no-anonymous-default-export.js';
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
 export {default as 'no-array-fill-with-reference-type'} from './no-array-fill-with-reference-type.js';
