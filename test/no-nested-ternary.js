@@ -10,6 +10,9 @@ test({
 		'const foo = i > 5 ? (i < 100 ? true : false) : true;',
 		'const foo = i > 5 ? (i < 100 ? true : false) : (i < 100 ? true : false);',
 		'const foo = i > 5 ? true : (i < 100 ? FOO(i > 50 ? false : true) : false);',
+		// Parenthesized ternary in the test position
+		'const foo = (a ? b : c) ? d : e;',
+		'const foo = (a ? b : c) ? (d ? e : f) : g;',
 		'foo ? doBar() : doBaz();',
 		'var foo = bar === baz ? qux : quxx;',
 	],
