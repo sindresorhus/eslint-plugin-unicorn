@@ -48,3 +48,17 @@ for (const key of Object.keys(object)) {
 	foo(key);
 }
 ```
+
+When a value access uses a TypeScript cast on the object, the cast is moved onto the iterable method argument so the inferred element type is preserved.
+
+```ts
+// ❌
+for (const key of Object.keys(object)) {
+	foo((object as Record<string, unknown>)[key]);
+}
+
+// ✅
+for (const value of Object.values(object as Record<string, unknown>)) {
+	foo(value);
+}
+```
