@@ -32,7 +32,10 @@ test.snapshot({
 		'var firstElement = (await getArray())[0], bar',
 
 		'const property = (await getObject()).property',
+		'let property = (await getObject()).property',
 		'const renamed = (await getObject()).property',
+		// Only the member directly off `await` is flagged, not the chained `.bar`
+		'(await promise).foo.bar',
 		'const property = (await getObject())[property]',
 		'const property = (await getObject())?.property',
 		'const {propertyOfProperty} = (await getObject()).property',
@@ -48,6 +51,8 @@ test.snapshot({
 test.typescript({
 	valid: [
 		'function foo () {return (await promise) as string;}',
+		// Non-null assertion (not a member access) on the await result
+		'(await promise)!.property',
 	],
 	invalid: [
 		{
