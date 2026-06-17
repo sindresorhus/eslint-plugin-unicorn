@@ -86,4 +86,4 @@ Set `maximumStatements` to `0` to report any non-empty whole-function conditiona
 ]
 ```
 
-The autofix is conservative. It only rewrites block-bodied `if` statements when the wrapper does not contain comments outside the moved body, direct block-scoped declarations such as `let`, `const`, function, or class declarations, or multiline whitespace-sensitive syntax such as string literals, template literals, or JSX. Some report-only cases, such as unbraced consequents or trailing comments after the wrapper, are available as editor suggestions instead.
+Autofix is conservative. It skips wrappers with comments outside the condition or moved body, lexical names that collide with the containing function scope or are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Trailing wrapper comments may still get editor suggestions; multiline unbraced consequents are report-only.

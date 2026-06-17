@@ -145,6 +145,22 @@ test.snapshot({
 		`,
 		outdent`
 			function foo() {
+				if (! /* Keep this comment with the condition. */ condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (!/* Keep this comment with the condition. */ condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
 				if (foo || bar) {
 					doSomething();
 					doSomethingElse();
@@ -239,17 +255,239 @@ test.snapshot({
 		outdent`
 			function foo() {
 				if (condition) {
-					function getValue() {}
-					doSomething(getValue);
+					let value = getValue();
+					value = updateValue(value);
+					doSomething(value);
 				}
 			}
 		`,
-		// Other block-scoped declarations cannot be moved out of the block.
 		outdent`
 			function foo() {
 				if (condition) {
-					let value = getValue();
+					var value = getValue();
 					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) {
+					const {value} = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) {
+					const value = getValue();
+					const result = transform(value);
+					doSomething(result);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) {
+					const [first, second] = getValues();
+					let total = first + second;
+					doSomething(total);
+				}
+			}
+		`,
+		outdent`
+			function foo(object) {
+				if (object.value) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function value() {
+				if (condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			const foo = function value() {
+				if (condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			};
+		`,
+		outdent`
+			function foo(items) {
+				if (items.some(value => value.enabled)) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						const element = <div />;
+						doSomething(element);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		outdent`
+			function foo(event) {
+				if (
+					event.key === 'Escape'
+					&& event.isTrusted
+				) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(event) {
+				if (
+					// Keep this comment with the condition.
+					event.altKey
+					&& event.isTrusted
+				) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(event) {
+				if (event.altKey /* Keep this comment with the condition. */ && event.isTrusted) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(event) {
+				if (event.altKey /* Keep this trailing condition comment. */) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(event) {
+				if (event.altKey // Keep this trailing condition comment.
+				) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		{
+			code: outdent`
+				export default mem((selector: string | ((clickedItem: HTMLElement) => string)): EventHandler => event => {
+					if (event.altKey && event.isTrusted) {
+						const clickedItem = event.delegateTarget;
+
+						// \`parentElement\` is the anchor because \`clickedItem\` might be hidden/replaced after the click
+						const resetScroll = preserveScroll(clickedItem.parentElement!);
+						clickAllExcept(typeof selector === 'string' ? selector : selector(clickedItem), clickedItem);
+						resetScroll();
+					}
+				});
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			function foo() {
+				if (value) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (getCondition(() => value)) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (getCondition(function() {
+					return value;
+				})) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(object) {
+				if (object[value]) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo(value) {
+				if (condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo({value}) {
+				if (condition) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			const foo = function value(parameter) {
+				if (condition) {
+					const parameter = getValue();
+					doSomething(parameter);
+				}
+			};
+		`,
+		outdent`
+			function foo() {
+				if (eval('typeof value === "undefined"')) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (eval('condition')) {
+					doSomething();
+					doSomethingElse();
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if (condition) {
+					function getValue() {}
+					doSomething(getValue);
 				}
 			}
 		`,
@@ -265,46 +503,91 @@ test.snapshot({
 			code: outdent`
 				function foo() {
 					if (condition) {
-						enum Value {}
-						doSomething(Value);
-					}
-				}
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				function foo() {
-					if (condition) {
-						interface Value {}
-						doSomething();
-					}
-				}
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				function foo() {
-					if (condition) {
 						type Value = string;
-						doSomething();
+						doSomething<Value>();
 					}
 				}
 			`,
-			languageOptions: {parser: parsers.typescript},
+			languageOptions: {
+				parser: parsers.typescript,
+			},
 		},
 		{
 			code: outdent`
 				function foo() {
 					if (condition) {
-						namespace Value {}
-						doSomething();
+						interface Value {
+							key: string;
+						}
+						doSomething<Value>();
 					}
 				}
 			`,
-			languageOptions: {parser: parsers.typescript},
+			languageOptions: {
+				parser: parsers.typescript,
+			},
 		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						enum Value {
+							Key,
+						}
+						doSomething(Value.Key);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						namespace Value {
+							export const key = 'value';
+						}
+						doSomething(Value.key);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						module Value {
+							export const key = 'value';
+						}
+						doSomething(Value.key);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			function foo() {
+				if (condition) {
+					using resource = getResource();
+					doSomething(resource);
+				}
+			}
+		`,
+		outdent`
+			async function foo() {
+				if (condition) {
+					await using resource = getResource();
+					doSomething(resource);
+				}
+			}
+		`,
 		outdent`
 			function foo() {
 				if (condition) {
@@ -375,6 +658,26 @@ test.snapshot({
 				function foo() {
 					if (condition)
 						doSomething();
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition)
+						doSomething(); // Trailing comment.
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition)
+						doSomething(
+							value,
+						);
 				}
 			`,
 			options: [{maximumStatements: 0}],
