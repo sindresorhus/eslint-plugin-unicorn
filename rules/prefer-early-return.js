@@ -1,9 +1,9 @@
 import {
 	getParenthesizedText,
-	hasDirectBlockScopedDeclaration,
 	hasMultilineToken,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
+import {isCallExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
@@ -18,6 +18,17 @@ const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
 	'TSSatisfiesExpression',
 	'TSTypeAssertion',
 ]);
+
+const blockScopedDeclarationTypes = new Set([
+	'ClassDeclaration',
+	'FunctionDeclaration',
+	'TSEnumDeclaration',
+	'TSInterfaceDeclaration',
+	'TSModuleDeclaration',
+	'TSTypeAliasDeclaration',
+]);
+
+const lexicalDeclarationKinds = new Set(['const', 'let']);
 
 const schema = [
 	{
@@ -51,6 +62,21 @@ const isNodeInsideRange = (node, [start, end], sourceCode) => {
 	return nodeStart >= start && nodeEnd <= end;
 };
 
+const isUnsupportedBlockScopedDeclaration = node =>
+	(
+		node.type === 'VariableDeclaration'
+		&& node.kind !== 'var'
+		&& !lexicalDeclarationKinds.has(node.kind)
+	)
+	|| blockScopedDeclarationTypes.has(node.type);
+
+const hasDirectUnsupportedBlockScopedDeclaration = node =>
+	isUnsupportedBlockScopedDeclaration(node)
+	|| (
+		node.type === 'BlockStatement'
+		&& node.body.some(node => isUnsupportedBlockScopedDeclaration(node))
+	);
+
 const shouldAddParenthesesWhenNegated = node =>
 	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
 	|| typeScriptConditionExpressionTypesRequiringParentheses.has(node.type);
@@ -63,11 +89,53 @@ const getNegatedConditionText = (node, context) => {
 		&& node.operator === '!'
 		&& node.prefix
 	) {
+		const operatorToken = sourceCode.getFirstToken(node);
+		const operatorRange = sourceCode.getRange(operatorToken);
+		const nodeRange = sourceCode.getRange(node);
+		const argumentRange = sourceCode.getRange(node.argument);
+		const hasCommentBetweenOperatorAndArgument = sourceCode.getCommentsInside(node).some(comment =>
+			sourceCode.getRange(comment)[0] >= operatorRange[1]
+			&& sourceCode.getRange(comment)[1] <= argumentRange[0],
+		);
+
+		if (hasCommentBetweenOperatorAndArgument) {
+			return sourceCode.text.slice(operatorRange[1], nodeRange[1]).trim();
+		}
+
 		return getParenthesizedText(node.argument, context);
 	}
 
 	const conditionText = sourceCode.getText(node);
 	return shouldAddParenthesesWhenNegated(node) ? `!(${conditionText})` : `!${conditionText}`;
+};
+
+const getConditionRange = (ifStatement, sourceCode) => {
+	const openingParenthesisToken = sourceCode.getTokenAfter(sourceCode.getFirstToken(ifStatement));
+	const closingParenthesisToken = sourceCode.getTokenBefore(ifStatement.consequent);
+	return [
+		sourceCode.getRange(openingParenthesisToken)[1],
+		sourceCode.getRange(closingParenthesisToken)[0],
+	];
+};
+
+const hasConditionParenthesesComment = (ifStatement, sourceCode) => {
+	const conditionRange = getConditionRange(ifStatement, sourceCode);
+	const testRange = sourceCode.getRange(ifStatement.test);
+	return sourceCode.getCommentsInside(ifStatement).some(comment =>
+		isNodeInsideRange(comment, conditionRange, sourceCode)
+		&& !isNodeInsideRange(comment, testRange, sourceCode),
+	);
+};
+
+const getNegatedIfConditionText = (ifStatement, context) => {
+	const {sourceCode} = context;
+
+	if (hasConditionParenthesesComment(ifStatement, sourceCode)) {
+		const conditionText = sourceCode.text.slice(...getConditionRange(ifStatement, sourceCode)).trimStart();
+		return `!(${conditionText})`;
+	}
+
+	return getNegatedConditionText(ifStatement.test, context);
 };
 
 const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
@@ -124,37 +192,127 @@ const getConsequentText = (ifStatement, sourceCode) => {
 const getReplacementText = (ifStatement, context) => {
 	const {sourceCode} = context;
 	const ifIndent = getLineIndent(sourceCode, sourceCode.getRange(ifStatement)[0]);
-	const conditionText = getNegatedConditionText(ifStatement.test, context);
+	const conditionText = getNegatedIfConditionText(ifStatement, context);
 	const consequentText = getConsequentText(ifStatement, sourceCode);
 
 	return `if (${conditionText}) {\n${ifIndent}\treturn;\n${ifIndent}}\n\n${consequentText}`;
 };
 
-const canSafelyMoveConsequent = (ifStatement, context) => {
-	const {consequent} = ifStatement;
+const getDirectLexicalDeclarationVariables = (node, sourceCode) => {
+	if (node.type !== 'BlockStatement') {
+		return [];
+	}
 
-	return !hasDirectBlockScopedDeclaration(consequent)
-		&& !hasMultilineToken(consequent, context);
+	return node.body.flatMap(node => {
+		if (
+			node.type === 'VariableDeclaration'
+			&& lexicalDeclarationKinds.has(node.kind)
+		) {
+			return sourceCode.getDeclaredVariables(node);
+		}
+
+		return [];
+	});
 };
 
-const hasCommentsInsideWrapperOutsideConsequent = (ifStatement, sourceCode) => {
-	const consequentRange = sourceCode.getRange(ifStatement.consequent);
-	return sourceCode.getCommentsInside(ifStatement).some(comment => !isNodeInsideRange(comment, consequentRange, sourceCode));
+const hasReferenceToVariableName = (node, sourceCode, names) => {
+	const [start, end] = sourceCode.getRange(node);
+	const hasDefinitionInsideNode = variable => variable.identifiers.some(identifier => isNodeInsideRange(identifier, [start, end], sourceCode));
+	const hasReference = scope => scope.references.some(reference => {
+		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
+		return referenceStart >= start
+			&& referenceEnd <= end
+			&& names.has(reference.identifier.name)
+			&& !(
+				reference.resolved
+				&& hasDefinitionInsideNode(reference.resolved)
+			);
+	}) || scope.childScopes.some(scope => hasReference(scope));
+
+	return hasReference(sourceCode.getScope(node));
 };
 
-const canSuggestRewrite = (ifStatement, context) =>
-	canSafelyMoveConsequent(ifStatement, context)
-	&& !hasCommentsInsideWrapperOutsideConsequent(ifStatement, context.sourceCode);
+const hasDirectEvalCall = (node, sourceCode) => {
+	if (isCallExpression(node, {name: 'eval', optional: false})) {
+		return true;
+	}
 
-const getFix = (ifStatement, context) => {
+	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			for (const element of value) {
+				if (
+					element
+					&& hasDirectEvalCall(element, sourceCode)
+				) {
+					return true;
+				}
+			}
+
+			continue;
+		}
+
+		if (
+			value
+			&& hasDirectEvalCall(value, sourceCode)
+		) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const hasFunctionScopeVariable = (functionNode, sourceCode, names) =>
+	sourceCode.scopeManager.acquire(functionNode, true).variables.some(variable => names.has(variable.name));
+
+const canSafelyMoveLexicalDeclarations = (ifStatement, functionNode, sourceCode) => {
+	const variables = getDirectLexicalDeclarationVariables(ifStatement.consequent, sourceCode);
+	if (variables.length === 0) {
+		return true;
+	}
+
+	const names = new Set(variables.map(variable => variable.name));
+
+	return !hasDirectEvalCall(ifStatement.test, sourceCode)
+		&& !hasFunctionScopeVariable(functionNode, sourceCode, names)
+		&& !hasReferenceToVariableName(ifStatement.test, sourceCode, names);
+};
+
+const canSafelyMoveConsequent = (ifStatement, functionNode, context) => {
 	const {sourceCode} = context;
 	const {consequent} = ifStatement;
 
-	if (consequent.type !== 'BlockStatement') {
-		return;
-	}
+	return !hasDirectUnsupportedBlockScopedDeclaration(consequent)
+		&& canSafelyMoveLexicalDeclarations(ifStatement, functionNode, sourceCode)
+		&& !hasMultilineToken(consequent, context);
+};
 
-	if (!canSuggestRewrite(ifStatement, context)) {
+const hasCommentsInsideWrapperOutsideConditionOrConsequent = (ifStatement, sourceCode) => {
+	const conditionRange = getConditionRange(ifStatement, sourceCode);
+	const consequentRange = sourceCode.getRange(ifStatement.consequent);
+	return sourceCode.getCommentsInside(ifStatement).some(comment =>
+		!isNodeInsideRange(comment, conditionRange, sourceCode)
+		&& !isNodeInsideRange(comment, consequentRange, sourceCode),
+	);
+};
+
+const hasMultilineUnbracedConsequent = (ifStatement, sourceCode) =>
+	ifStatement.consequent.type !== 'BlockStatement'
+	&& sourceCode.getText(ifStatement.consequent).includes('\n');
+
+const canSuggestRewrite = (ifStatement, functionNode, context) => {
+	const {sourceCode} = context;
+	return canSafelyMoveConsequent(ifStatement, functionNode, context)
+		&& !hasCommentsInsideWrapperOutsideConditionOrConsequent(ifStatement, sourceCode)
+		&& !hasMultilineUnbracedConsequent(ifStatement, sourceCode);
+};
+
+const getFix = (ifStatement, functionNode, context) => {
+	const {sourceCode} = context;
+
+	if (!canSuggestRewrite(ifStatement, functionNode, context)) {
 		return;
 	}
 
@@ -168,8 +326,8 @@ const getFix = (ifStatement, context) => {
 	);
 };
 
-const getSuggestion = (ifStatement, context) => {
-	if (!canSuggestRewrite(ifStatement, context)) {
+const getSuggestion = (ifStatement, functionNode, context) => {
+	if (!canSuggestRewrite(ifStatement, functionNode, context)) {
 		return;
 	}
 
@@ -204,8 +362,8 @@ const create = context => {
 			return;
 		}
 
-		const fix = getFix(statement, context);
-		const suggest = fix ? undefined : getSuggestion(statement, context);
+		const fix = getFix(statement, node, context);
+		const suggest = fix ? undefined : getSuggestion(statement, node, context);
 
 		return {
 			node: statement,

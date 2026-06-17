@@ -38,6 +38,7 @@ const config = [
 	{
 		ignores: [
 			'coverage',
+			'.ai-temporary',
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',
 			'test/integration/{fixtures,fixtures-local}/**',

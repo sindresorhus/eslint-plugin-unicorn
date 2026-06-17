@@ -21,6 +21,7 @@ const config = [
 	{
 		ignores: [
 			'coverage',
+			'.ai-temporary',
 			'test/integration/fixtures',
 			'test/integration/fixtures-local',
 		],
