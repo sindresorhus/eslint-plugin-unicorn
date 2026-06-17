@@ -38,6 +38,29 @@ test.snapshot({
 		'let array = []; array.splice(0, 0, item);',
 		'let array = []; array.splice(array.length - 1, 1);',
 		'let array = []; array.splice(array.length, 0, item);',
+		// Array from an external source may be shared, so the in-place mutation must be preserved
+		'let structures = getStructures(); structures.splice(0, 1);',
+		'function foo(array) { array.splice(1, 1); }',
+		'try {} catch (array) { array.splice(1, 1); }',
+		'let array; array = []; array.splice(1, 1);',
+		// A redeclared `var` may be reinitialized with a non-fresh array later
+		'var array = []; var array = getArray(); array.splice(1, 1);',
+		// Reassigned to an external value, so it no longer holds the fresh array
+		'let array = []; array = getArray(); array.splice(1, 1);',
+		// Destructured binding may hold an external element, not a fresh array
+		'let [array] = [getArray()]; array.splice(1, 1);',
+		// The array escapes, so an outside holder may observe the in-place mutation
+		'let array = []; foo(array); array.splice(1, 1);',
+		'let array = []; new Set(array); array.splice(1, 1);',
+		'let array = []; const alias = array; array.splice(1, 1);',
+		'let array = []; let alias; alias = array; array.splice(1, 1);',
+		'let array = []; obj.property = array; array.splice(1, 1);',
+		'let array = []; function getArray() { return array; } array.splice(1, 1);',
+		'function foo() { let array = []; array.splice(1, 1); return array; }',
+		'let array = []; const wrapper = [array]; array.splice(1, 1);',
+		'let array = []; const wrapper = {array}; array.splice(1, 1);',
+		// `for…in` reads the array as a value, unlike the `for…of` case below
+		'let array = []; for (const key in array) {} array.splice(1, 1);',
 		{
 			code: 'var array = []; array.splice(1, 1);',
 			languageOptions: {
@@ -142,8 +165,26 @@ test.snapshot({
 	invalid: [
 		'let array = []; array.splice(index, deleteCount);',
 		'var array = []; array.splice(index, deleteCount, item);',
-		'function foo(array) { array.splice(1, 1); }',
-		'try {} catch (array) { array.splice(1, 1); }',
+		// Fresh arrays the scope owns
+		'let array = new Array(); array.splice(1, 1);',
+		'let array = new Array(5); array.splice(1, 1);',
+		'let array = Array.from(iterable); array.splice(1, 1);',
+		'let array = Array.of(1, 2, 3); array.splice(1, 1);',
+		'let array = items.filter(Boolean); array.splice(1, 1);',
+		'let array = items.map(String); array.splice(1, 1);',
+		'let array = items.flat(); array.splice(1, 1);',
+		'let array = items.toSorted(); array.splice(1, 1);',
+		'let array = items.with(0, item); array.splice(1, 1);',
+		'let array = original.toSpliced(0, 1); array.splice(1, 1);',
+		// A fresh array from a method call through a member chain
+		'let array = object.items.filter(Boolean); array.splice(1, 1);',
+		// Non-escaping reads keep the array local
+		'let array = []; array.forEach(foo); array.splice(1, 1);',
+		'let array = []; foo(...array); array.splice(1, 1);',
+		'let array = []; const first = array[0]; array.splice(1, 1);',
+		'let array = []; for (const element of array) {} array.splice(1, 1);',
+		// Each call on the same fresh, non-escaping array is reported
+		'let array = []; array.splice(1, 1); array.splice(2, 1);',
 		'let array = []; array.splice(1, 1, /* comment */ item, ...items);',
 		'let array = []; array /* comment */ .splice(1, 1);',
 		String.raw`let \u0061rray = []; \u0061rray.splice(1, 1);`,
