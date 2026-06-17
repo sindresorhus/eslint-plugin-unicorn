@@ -476,6 +476,78 @@ test.snapshot({
 				console.log(result);
 			}
 		`,
+		// The initializer suspends with `await`, so the guard must not be reordered before it.
+		outdent`
+			async function foo(bar) {
+				const result = await getResult();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// Same for `await` nested inside the initializer expression.
+		outdent`
+			async function foo(bar) {
+				const result = wrap(await getResult());
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		outdent`
+			async function foo(bar) {
+				const result = bar ? await a() : b();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// The initializer suspends with `yield`, so the guard must not be reordered before it.
+		outdent`
+			function * foo(bar) {
+				const result = yield getResult();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		outdent`
+			function * foo(bar) {
+				const result = yield* getResults();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// The `await` is hidden inside a TypeScript type assertion, but still suspends `foo`.
+		{
+			code: outdent`
+				async function foo(bar) {
+					const result = await getResult() as Result;
+					if (!bar) {
+						return;
+					}
+					console.log(result);
+				}
+			`,
+			languageOptions: typescriptLanguageOptions,
+		},
+		// Top-level `await` suspends module evaluation, so the guard must not be reordered before it.
+		{
+			code: outdent`
+				const result = await getResult();
+				if (!bar) {
+					throw new Error();
+				}
+				console.log(result);
+			`,
+			languageOptions: {sourceType: 'module'},
+		},
 	],
 	invalid: [
 		outdent`
@@ -643,24 +715,6 @@ test.snapshot({
 		outdent`
 			function foo(bar, object) {
 				const result = {...object};
-				if (!bar) {
-					return;
-				}
-				console.log(result);
-			}
-		`,
-		outdent`
-			async function foo(bar) {
-				const result = await getResult();
-				if (!bar) {
-					return;
-				}
-				console.log(result);
-			}
-		`,
-		outdent`
-			function * foo(bar) {
-				const result = yield getResult();
 				if (!bar) {
 					return;
 				}
@@ -900,6 +954,46 @@ test.snapshot({
 					} while (true);
 				}
 				console.log(result);
+			}
+		`,
+		// The `await` is inside a nested function, so it is not a suspension point of `foo`. The declaration is still reported.
+		outdent`
+			async function foo(bar) {
+				const result = async () => await getResult();
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// The `yield` is inside a nested generator, so it is not a suspension point of `foo`. The declaration is still reported.
+		outdent`
+			function * foo(bar) {
+				const result = function * () { yield getResult(); };
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// The `yield*` is inside a nested generator, so it is not a suspension point of `foo`. The declaration is still reported.
+		outdent`
+			function * foo(bar) {
+				const result = function * () { yield * getResults(); };
+				if (!bar) {
+					return;
+				}
+				console.log(result);
+			}
+		`,
+		// Only `b` is reported. Its sibling `a` suspends with `await`, so the suspension check skips `a` individually.
+		outdent`
+			async function foo(bar) {
+				const a = await getResult(), b = 1;
+				if (!bar) {
+					return;
+				}
+				console.log(a, b);
 			}
 		`,
 	],

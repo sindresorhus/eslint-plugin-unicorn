@@ -1,11 +1,12 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isFunction} from './ast/index.js';
+import {containsSuspensionPoint} from './utils/index.js';
 
-const MESSAGE_ID_AFTER_AWAIT = 'after-await';
+const MESSAGE_ID_AFTER_SUSPENSION = 'after-suspension';
 const MESSAGE_ID_IN_NESTED_FUNCTION = 'in-nested-function';
 const eventParameterNamePattern = /^(?:e|event|evt|[a-z][\dA-Za-z]*Event)$/u;
 const messages = {
-	[MESSAGE_ID_AFTER_AWAIT]: '`{{name}}.currentTarget` is `null` after `await`. It is only set during synchronous event dispatch; save it to a variable beforehand.',
+	[MESSAGE_ID_AFTER_SUSPENSION]: '`{{name}}.currentTarget` is `null` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.',
 	[MESSAGE_ID_IN_NESTED_FUNCTION]: '`{{name}}.currentTarget` is `null` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.',
 };
 
@@ -20,7 +21,7 @@ const getEnclosingFunction = node => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	// Functions that have passed a suspension point (`await`/`for await…of`) at the current point of the traversal.
+	// Functions that have passed a suspension point (`await`/`for await…of`/`yield`) at the current point of the traversal.
 	const suspendedFunctions = new Set();
 
 	// ESLint traverses in source order and fires `onExit` only after the whole subtree of the
@@ -30,40 +31,6 @@ const create = context => {
 		if (functionNode) {
 			suspendedFunctions.add(functionNode);
 		}
-	};
-
-	const hasSuspensionPoint = (node, functionNode) => {
-		if (node.type === 'AwaitExpression') {
-			return true;
-		}
-
-		if (node.type === 'ForOfStatement' && node.await) {
-			return true;
-		}
-
-		if (node !== functionNode && isFunction(node)) {
-			return false;
-		}
-
-		const keys = sourceCode.visitorKeys[node.type] ?? [];
-		for (const key of keys) {
-			const child = node[key];
-			if (Array.isArray(child)) {
-				for (const childNode of child) {
-					if (childNode && hasSuspensionPoint(childNode, functionNode)) {
-						return true;
-					}
-				}
-
-				continue;
-			}
-
-			if (child && hasSuspensionPoint(child, functionNode)) {
-				return true;
-			}
-		}
-
-		return false;
 	};
 
 	const isRepeatedLoopPart = (loop, child) => {
@@ -96,7 +63,7 @@ const create = context => {
 		for (let child = node, current = node.parent; current && current !== functionNode; child = current, current = current.parent) {
 			if (
 				isRepeatedLoopPart(current, child)
-				&& hasSuspensionPoint(current, functionNode)
+				&& containsSuspensionPoint(current, sourceCode.visitorKeys)
 			) {
 				return true;
 			}
@@ -106,6 +73,7 @@ const create = context => {
 	};
 
 	context.onExit('AwaitExpression', markSuspended);
+	context.onExit('YieldExpression', markSuspended);
 	context.onExit('ForOfStatement', node => {
 		if (node.await) {
 			markSuspended(node);
@@ -144,7 +112,7 @@ const create = context => {
 
 		return {
 			node,
-			messageId: isInNestedFunction ? MESSAGE_ID_IN_NESTED_FUNCTION : MESSAGE_ID_AFTER_AWAIT,
+			messageId: isInNestedFunction ? MESSAGE_ID_IN_NESTED_FUNCTION : MESSAGE_ID_AFTER_SUSPENSION,
 			data: {name: node.object.name},
 		};
 	});
