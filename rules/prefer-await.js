@@ -8,6 +8,31 @@ const messages = {
 
 const promiseMethods = new Set(['then', 'catch', 'finally']);
 
+// Climb from a chained method call to the outermost call of its `.a().b().c()` chain.
+function getOutermostChainCall(node) {
+	let current = node;
+	while (
+		current.parent.type === 'MemberExpression'
+		&& current.parent.object === current
+		&& current.parent.parent.type === 'CallExpression'
+		&& current.parent.parent.callee === current.parent
+	) {
+		current = current.parent.parent;
+	}
+
+	return current;
+}
+
+// `void promise.then(…)` is the idiomatic opt-out for intentional fire-and-forget.
+function isVoidDiscarded(callExpression) {
+	let {parent} = getOutermostChainCall(callExpression);
+	if (parent.type === 'ChainExpression') {
+		parent = parent.parent;
+	}
+
+	return parent.type === 'UnaryExpression' && parent.operator === 'void';
+}
+
 function isPromiseObject(node, context) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
@@ -34,6 +59,10 @@ const create = context => {
 
 		const method = getPropertyName(callee, context.sourceCode.getScope(callExpression));
 		if (!promiseMethods.has(method)) {
+			return;
+		}
+
+		if (isVoidDiscarded(callExpression)) {
 			return;
 		}
 

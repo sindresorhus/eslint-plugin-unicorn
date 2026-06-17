@@ -26,6 +26,13 @@ test.snapshot({
 		'catchError(callback);',
 		'finallyCallback(callback);',
 		'promise[method](callback);',
+		// `void` is the idiomatic opt-out for intentional fire-and-forget.
+		'void promise.then(callback);',
+		'void promise.catch(() => {});',
+		'void promise.finally(cleanup);',
+		'void body.cancel().catch(() => undefined);',
+		'void promise.then(onFulfilled).catch(onRejected);',
+		'void promise?.then(callback);',
 		typeAware('function foo(object: {then(): void}) { object.then(); }'),
 		typeAware('function foo(object: {catch(handler: () => void): void}) { object.catch(() => {}); }'),
 		typeAware('function foo(object: {finally(handler: () => void): void}) { object.finally(() => {}); }'),
