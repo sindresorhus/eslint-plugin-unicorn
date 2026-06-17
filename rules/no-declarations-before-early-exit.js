@@ -1,5 +1,5 @@
 import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
-import {getReferences, trackBranchExits} from './utils/index.js';
+import {containsSuspensionPoint, getReferences, trackBranchExits} from './utils/index.js';
 
 const MESSAGE_ID = 'no-declarations-before-early-exit';
 const messages = {
@@ -135,6 +135,11 @@ function getProblem({
 
 	// Moving a React hook call below an early exit would break the Rules of Hooks.
 	if (isReactHookCall(declarator.init)) {
+		return;
+	}
+
+	// Moving a declaration whose initializer suspends (`await`/`yield`) would reorder the guard's condition across the suspension point, changing observable timing.
+	if (declarator.init && containsSuspensionPoint(declarator.init, sourceCode.visitorKeys)) {
 		return;
 	}
 

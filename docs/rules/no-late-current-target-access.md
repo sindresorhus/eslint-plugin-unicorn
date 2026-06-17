@@ -50,7 +50,7 @@ element.addEventListener('click', async event => {
 ## Limitations
 
 - Any `event.currentTarget` access inside a nested function is flagged, even when the function runs synchronously (for example, `array.map(() => event.currentTarget)`). Assign it to a variable to make the synchronous reference explicit.
-- The check is not flow-sensitive. An `event.currentTarget` access is flagged whenever an `await` appears earlier in source, even when they are in mutually exclusive branches that can never both run (for example, `condition ? await foo() : event.currentTarget`).
+- The check is not flow-sensitive. An `event.currentTarget` access is flagged whenever an `await` or `yield` appears earlier in source, even when they are in mutually exclusive branches that can never both run (for example, `condition ? await foo() : event.currentTarget`).
 - Passing the whole `event` object to another function cannot be detected, so a late `event.currentTarget` access in that function is not reported:
 
 ```js

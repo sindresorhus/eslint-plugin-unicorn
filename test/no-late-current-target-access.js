@@ -30,6 +30,8 @@ test.snapshot({
 		'element.onclick = async event => { log(event.currentTarget.value, await ready()); };',
 		// The iterable expression is evaluated before the `for await…of` suspension
 		'element.onclick = async event => { for await (const chunk of event.currentTarget.stream()) { log(chunk); } };',
+		// Read synchronously before a `yield` suspends the generator handler
+		'element.onclick = function * (event) { event.currentTarget.disabled = true; yield somePromise; };',
 		// The `for…of` iterable is evaluated once before the awaiting loop body
 		outdent`
 			element.onclick = async event => {
@@ -86,6 +88,13 @@ test.snapshot({
 				await somePromise;
 				event.currentTarget.disabled = false;
 			});
+		`,
+		// After `yield` in a generator handler, the dispatch has likewise finished
+		outdent`
+			element.onclick = function * (event) {
+				yield somePromise;
+				event.currentTarget.disabled = false;
+			};
 		`,
 		// Short parameter name
 		'element.onclick = async e => { await somePromise; e.currentTarget.foo(); };',
@@ -156,6 +165,15 @@ test.snapshot({
 				}
 			};
 		`,
+		// Before a `yield` in a generator handler's loop body
+		outdent`
+			element.onclick = function * (event) {
+				while (condition) {
+					event.currentTarget.click();
+					yield promise;
+				}
+			};
+		`,
 		// In a loop condition that repeats after an `await` in the body
 		outdent`
 			element.onclick = async event => {
@@ -190,7 +208,7 @@ test.snapshot({
 				});
 			};
 		`,
-		// Nested async callback with its own `await` is reported as nested, not after-await
+		// Nested async callback with its own `await` is reported as nested, not after-suspension
 		outdent`
 			element.onclick = event => {
 				button.addEventListener("click", async () => {
