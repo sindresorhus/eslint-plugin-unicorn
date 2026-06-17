@@ -179,6 +179,8 @@ test.snapshot({
 	],
 	invalid: [
 		'Object.assign(target, {...source})',
+		// Two adjacent spread-only sources are each flagged
+		'Object.assign(target, {...a}, {...b})',
 		'Object.assign(target, first, {...second})',
 		'Object.assign(...args, target, {...source})',
 		'Object.assign(target, {...first, ...second}, third)',
