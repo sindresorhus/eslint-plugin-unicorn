@@ -45,8 +45,15 @@ const getAssignmentExpression = statement => {
 
 function getResolverExtractions(executor, context) {
 	const {sourceCode} = context;
-	const resolverParameters = executor.params.slice(0, 2);
-	if (resolverParameters.length === 0 || resolverParameters.some(parameter => parameter?.type !== 'Identifier')) {
+	const {params: resolverParameters} = executor;
+	const resolverParameterNames = resolverParameters.map(parameter => parameter.name);
+	const uniqueResolverParameterNames = new Set(resolverParameterNames);
+	if (
+		resolverParameters.length === 0
+		|| resolverParameters.length > 2
+		|| resolverParameters.some(parameter => parameter.type !== 'Identifier')
+		|| uniqueResolverParameterNames.size !== resolverParameterNames.length
+	) {
 		return;
 	}
 
@@ -159,7 +166,7 @@ function getFix(newExpression, extractions, context) {
 	}
 
 	const [executor] = newExpression.arguments;
-	if (executor.params.slice(0, 2).some(parameter => hasTypeAnnotation(parameter))) {
+	if (executor.params.some(parameter => hasTypeAnnotation(parameter))) {
 		return;
 	}
 

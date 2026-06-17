@@ -13,6 +13,8 @@
 
 This rule only reports the old boilerplate pattern where a `new Promise()` executor copies resolver functions to outer variables and does nothing else.
 
+Autofix is only applied when adjacent resolver `let` declarations can be removed without dropping comments or type annotations.
+
 ## Examples
 
 ```js

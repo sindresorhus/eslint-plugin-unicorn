@@ -45,6 +45,27 @@ test({
 		`,
 		outdent`
 			let resolve;
+			const promise = new Promise((resolve_, reject_, extra = sideEffect()) => {
+				resolve = resolve_;
+			});
+		`,
+		outdent`
+			let resolve;
+			const promise = new Promise((resolve_, reject_, {extra}) => {
+				resolve = resolve_;
+			});
+		`,
+		{
+			code: outdent`
+				let reject;
+				const promise = new Promise(function (resolve, resolve) {
+					reject = resolve;
+				});
+			`,
+			languageOptions: {sourceType: 'script'},
+		},
+		outdent`
+			let resolve;
 			const promise = new NotPromise(resolve_ => {
 				resolve = resolve_;
 			});
@@ -80,6 +101,16 @@ test({
 			code: outdent`
 				let resolve;
 				const promise = new Promise(resolve_ => {
+					resolve = resolve_;
+				});
+			`,
+			errors: [error],
+			output: 'const {promise, resolve} = Promise.withResolvers();',
+		},
+		{
+			code: outdent`
+				let resolve;
+				const promise = new Promise(function (resolve_) {
 					resolve = resolve_;
 				});
 			`,
