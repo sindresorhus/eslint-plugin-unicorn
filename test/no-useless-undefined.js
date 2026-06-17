@@ -287,6 +287,17 @@ test({
 			code: 'const foo = index < 0 ? undefined : array[index];',
 			errors: errorsWithSuggestion('const foo = array[index];'),
 		},
+		// Keep a TypeScript type assertion on the kept branch
+		{
+			code: 'const foo = index >= 0 ? (array[index] as string) : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index] as string;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = index < 0 ? undefined : (array[index] as string);',
+			errors: errorsWithSuggestion('const foo = array[index] as string;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'const foo = -1 < index ? array[index] : undefined;',
 			errors: errorsWithSuggestion('const foo = array[index];'),

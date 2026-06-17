@@ -422,7 +422,9 @@ const create = context => {
 			problem.suggest = [{
 				messageId: suggestionMessageId,
 				fix(fixer) {
-					const replacement = sourceCode.getText(indexedAccess.node);
+					// Use the original branch text so a TypeScript type assertion (`array[index] as string`)
+					// isn't dropped — `indexedAccess.node` is the unwrapped member expression.
+					const replacement = sourceCode.getText(indexedAccessNode);
 					const semicolon = needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? ';' : '';
 					return fixer.replaceText(node, semicolon + replacement);
 				},
