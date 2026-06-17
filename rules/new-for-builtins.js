@@ -20,6 +20,11 @@ function enforceNewExpression(reference, context) {
 	const {node, path} = reference;
 	const [name] = path;
 
+	// An optional call (`Array?.()`) can't be rewritten to a `new` expression, which can't be optional.
+	if (node.optional) {
+		return;
+	}
+
 	if (name === 'Object') {
 		const {parent} = node;
 		if (

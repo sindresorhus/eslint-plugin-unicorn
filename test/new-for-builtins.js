@@ -9,6 +9,9 @@ test.snapshot({
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
+		// Optional call can't become a `new` expression
+		'const foo = Array?.()',
+		'const foo = Map?.()',
 		'const foo = new ArrayBuffer()',
 		'const foo = new BigInt64Array()',
 		'const foo = new BigUint64Array()',
