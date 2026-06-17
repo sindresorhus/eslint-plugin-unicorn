@@ -12,6 +12,15 @@ test.snapshot({
 		'const object = {...(foo && {})}',
 		'const object = {...(foo ? {bar: true} : {baz: true})}',
 		'const object = {...(foo ? {} : {})}',
+		'const object = {...(foo ? foo : {})}',
+		'const object = {...(!foo ? {} : foo)}',
+		'const object = {...(foo.bar ? foo.bar : {})}',
+		'const object = {...(foo() ? foo() : {})}',
+		'async () => ({...(await foo ? await foo : {})})',
+		'const object = {...(foo == null ? {} : foo)}',
+		'const object = {...(foo != null ? foo : {})}',
+		'const object = {...(foo === null || foo === undefined ? {} : foo)}',
+		'const object = {...(foo !== null && foo !== undefined ? foo : {})}',
 		'const array = [...(foo ? {bar: true} : {})]',
 		'const object = {...(foo ? {bar: true} : {}).bar}',
 		{
@@ -22,12 +31,37 @@ test.snapshot({
 			code: 'const object = {...(foo ? {bar: true} : {})}',
 			options: ['ternary'],
 		},
+		{
+			code: 'const object = {...(foo && foo)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo.bar && foo.bar)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo() && foo())}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo != null && foo)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...((foo !== null && foo !== undefined) && foo)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo !== null && foo !== undefined && foo)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'async () => ({...(await foo && await foo)})',
+			options: ['ternary'],
+		},
 	],
 	invalid: [
 		'const object = {...(foo ? {bar: true} : {})}',
-		'const object = {...(foo ? foo : {})}',
-		'const object = {...(!foo ? {} : foo)}',
-		'const object = {...(foo.bar ? foo.bar : {})}',
 		'const object = {...(foo ? {} : {bar: true})}',
 		'const object = {...(!foo ? {} : {bar: true})}',
 		'const object = {...(foo ? bar : {})}',
@@ -66,6 +100,7 @@ test.snapshot({
 			code: 'const object = {...(foo! ? {} : bar)}',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const object = {...(foo == null ? /* keep */ {} : foo)}',
 		'const object = {...(foo ? {a: 1} : /* keep */ {})}',
 		'const object = {...(/* keep */ foo ? {a: 1} : {})}',
 		{
@@ -78,10 +113,6 @@ test.snapshot({
 		},
 		{
 			code: 'const object = {...(foo && bar)}',
-			options: ['ternary'],
-		},
-		{
-			code: 'const object = {...(foo && foo)}',
 			options: ['ternary'],
 		},
 		{
