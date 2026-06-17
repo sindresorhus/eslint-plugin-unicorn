@@ -46,6 +46,18 @@ test.snapshot({
 		'value === object.a || value === object.b;',
 		'(value === "a") || (value === "b");',
 		'(value === "a" || value === "b") && otherValue;',
+		// Distinct expressions compared against the same `undefined` value (#3304)
+		'state.a === undefined || state.b === undefined || state.c === undefined;',
+		'undefined === a || undefined === b || undefined === c;',
+		// `null` is a literal (not a reference), so it behaves the same way
+		'a === null || b === null || c === null;',
+		// A shared subject early on is dropped once a later operand compares a distinct expression
+		'a === undefined || a === "x" || b === undefined;',
+		// TypeScript-wrapped `undefined` is still excluded as a shared reference
+		{
+			code: 'a === (undefined as any) || b === (undefined as any) || c === (undefined as any);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'value === "a" || value === "b";',
 			options: [{minimumComparisons: 4}],
@@ -57,6 +69,12 @@ test.snapshot({
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',
+		// `undefined`/`null` are fine as compared values when the subject is shared (#3304)
+		'value === undefined || value === "a" || value === "b";',
+		{
+			code: 'value === null || value === undefined;',
+			options: [{minimumComparisons: 2}],
+		},
 		{
 			code: 'value === "a" || value === "b";',
 			options: [{minimumComparisons: 2}],

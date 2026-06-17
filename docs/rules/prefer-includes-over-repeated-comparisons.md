@@ -41,6 +41,13 @@ value === 'a' || value === 'b';
 value !== 'a' && value !== 'b';
 ```
 
+Comparing several distinct expressions against the same value is not reported, since there is no single subject to check for membership.
+
+```js
+// ✅
+state.a === undefined || state.b === undefined || state.c === undefined;
+```
+
 ## Options
 
 Type: `object`
