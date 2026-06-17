@@ -17,6 +17,8 @@ test.snapshot({
 		'const object = Object.fromEntries(Object.entries(source)); object[key];',
 		'const object = Object.fromEntries(Object.entries(source)); object[0];',
 		'const object = Object.fromEntries(Object.entries(source)); object["1"];',
+		// The maximum array index (2**32 - 2) is still an index, not a key
+		'const object = Object.fromEntries([["4294967294", value]]); object["4294967294"];',
 		'const object = Object.fromEntries(Object.entries(source)); object["1"] = value; Object.keys(object);',
 		'const object = Object.fromEntries(Object.entries(source)); object.constructor;',
 		'const object = Object.fromEntries(Object.entries(source)); object.toString;',
@@ -129,6 +131,12 @@ test.snapshot({
 	],
 	invalid: [
 		'const object = Object.fromEntries([["foo", value]]); object.foo;',
+		// A hex string is not a canonical array index, so it's a real key
+		'const object = Object.fromEntries([["0x1", value]]); object["0x1"];',
+		// One past the maximum array index (2**32 - 1) is a real key
+		'const object = Object.fromEntries([["4294967295", value]]); object["4294967295"];',
+		// Parenthesized `Object.entries` argument
+		'const object = Object.fromEntries((Object.entries(source))); object.foo;',
 		'const object = Object.fromEntries(Object.entries(source)); object["foo"];',
 		'const object = Object.fromEntries(Object.entries(source)); object[`foo`];',
 		'const object = Object.fromEntries(Object.entries(source)); if (object.foo) {}',
