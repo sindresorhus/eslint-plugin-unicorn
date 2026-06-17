@@ -27,6 +27,10 @@ test.snapshot({
 	invalid: [
 		'class A { static a() {}; }',
 		'class A { static a() {} }',
+		// Static accessors
+		'class A { static get a() { return 1; } }',
+		'class A { static set a(v) {} }',
+		'class A { static get a() { return 1; } static set a(v) {} }',
 		'const A = class A { static a() {}; }',
 		'const A = class { static a() {}; }',
 		'class A { static constructor() {}; }',
