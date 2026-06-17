@@ -244,6 +244,8 @@ test.snapshot({
 	invalid: [
 		'const completed = true;',
 		'const completed = false;',
+		// Underscore-prefixed SCREAMING_SNAKE: the underscore is preserved and `IS_` prepended
+		'const _COMPLETED = true;',
 		'const completed = progress === 100;',
 		'const hasProperty = key in object; const completed = hasProperty;',
 		'const completed = key in object;',
@@ -397,11 +399,15 @@ test.snapshot({
 		typescript('const completed: true | false = true;'),
 		typescript('type BooleanAlias = boolean; const completed: BooleanAlias = true;'),
 		typescript('const completed = value as boolean;'),
+		// Double assertion ending in `as boolean`
+		typescript('const completed = value as unknown as boolean;'),
 		typescript('const completed = <boolean>value;'),
 		typescript('const completed = value satisfies boolean;'),
 		typescript('const isReady: boolean = true; const completed = isReady!;'),
 		typescript('function check(value: unknown): value is string { return typeof value === "string"; } const completed = check(value);'),
 		typescript('function download(showProgress: boolean) {}'),
+		// Optional boolean parameter (`?:`)
+		typescript('function download(completed?: boolean) {}'),
 		typescript('function download(showProgress = false) {}'),
 		typescript('class Task { constructor(readonly completed = false) {} }'),
 		typescript('class Task { constructor(public completed = value === true) {} }'),
