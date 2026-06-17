@@ -71,6 +71,10 @@ test.snapshot({
 		`,
 
 		'(0,foo) > 10 ? 10 : (0,foo)',
+		// Sequence expression on the right side of the comparison
+		'foo > (0,bar) ? foo : (0,bar)',
+		// `Number()` operands
+		'Number(x) > 50 ? 50 : Number(x)',
 
 		'foo.bar() > 10 ? 10 : foo.bar()',
 		outdent`
