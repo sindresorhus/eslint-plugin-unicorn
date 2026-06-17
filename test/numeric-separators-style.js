@@ -303,6 +303,12 @@ test({
 
 		// BigInt
 		{
+			// Binary BigInt: strip `n`, group by 4, re-append `n`
+			code: 'const foo = 0b10101010n',
+			errors: [error],
+			output: 'const foo = 0b1010_1010n',
+		},
+		{
 			code: 'const foo = 1_9_223n',
 			errors: [error],
 			output: 'const foo = 19_223n',
