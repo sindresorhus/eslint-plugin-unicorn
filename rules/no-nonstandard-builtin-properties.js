@@ -81,12 +81,19 @@ const createPropertyInfo = ({
 	]),
 });
 
-const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
+const createFunctionPropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
 	inheritedProperties: functionPrototypeProperties,
 	inheritedMethods: functionPrototypeMethods,
 	properties: [
 		'length',
 		'name',
+		...properties,
+	],
+	methods,
+});
+
+const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => createFunctionPropertyInfo({
+	properties: [
 		'prototype',
 		...properties,
 	],
@@ -235,6 +242,35 @@ const functionPrototype = createPropertyInfo({
 	inheritedMethods: functionPrototypeMethods,
 });
 
+const functionInstance = createPropertyInfo({
+	inheritedProperties: functionPrototypeProperties,
+	inheritedMethods: functionPrototypeMethods,
+	properties: ['prototype'],
+});
+
+const finalizationRegistryPrototype = createPropertyInfo({
+	methods: [
+		'register',
+		'unregister',
+	],
+});
+
+const iteratorPrototype = createPropertyInfo({
+	methods: [
+		'drop',
+		'every',
+		'filter',
+		'find',
+		'flatMap',
+		'forEach',
+		'map',
+		'reduce',
+		'some',
+		'take',
+		'toArray',
+	],
+});
+
 const mapPrototype = createPropertyInfo({
 	properties: ['size'],
 	methods: [
@@ -243,8 +279,6 @@ const mapPrototype = createPropertyInfo({
 		'entries',
 		'forEach',
 		'get',
-		'getOrInsert',
-		'getOrInsertComputed',
 		'has',
 		'keys',
 		'set',
@@ -296,24 +330,36 @@ const promisePrototype = createPropertyInfo({
 	],
 });
 
+const regexpProperties = [
+	'dotAll',
+	'flags',
+	'global',
+	'hasIndices',
+	'ignoreCase',
+	'multiline',
+	'source',
+	'sticky',
+	'unicode',
+	'unicodeSets',
+];
+
+const regexpMethods = [
+	'compile',
+	'exec',
+	'test',
+];
+
 const regexpPrototype = createPropertyInfo({
+	properties: regexpProperties,
+	methods: regexpMethods,
+});
+
+const regexpInstance = createPropertyInfo({
 	properties: [
-		'dotAll',
-		'flags',
-		'global',
-		'hasIndices',
-		'ignoreCase',
-		'multiline',
-		'source',
-		'sticky',
-		'unicode',
-		'unicodeSets',
+		...regexpProperties,
+		'lastIndex',
 	],
-	methods: [
-		'compile',
-		'exec',
-		'test',
-	],
+	methods: regexpMethods,
 });
 
 const setPrototype = createPropertyInfo({
@@ -356,6 +402,7 @@ const stringPrototype = createPropertyInfo({
 		'anchor',
 		'big',
 		'blink',
+		'bold',
 		'charAt',
 		'charCodeAt',
 		'codePointAt',
@@ -488,8 +535,6 @@ const weakMapPrototype = createPropertyInfo({
 	methods: [
 		'delete',
 		'get',
-		'getOrInsert',
-		'getOrInsertComputed',
 		'has',
 		'set',
 	],
@@ -501,6 +546,10 @@ const weakSetPrototype = createPropertyInfo({
 		'delete',
 		'has',
 	],
+});
+
+const weakReferencePrototype = createPropertyInfo({
+	methods: ['deref'],
 });
 
 const typedArrayStatic = createConstructorPropertyInfo({
@@ -534,6 +583,25 @@ const typedArrayObjects = Object.fromEntries([
 ]));
 
 const nativeObjects = new Map(Object.entries({
+	Atomics: {
+		static: createPropertyInfo({
+			methods: [
+				'add',
+				'and',
+				'compareExchange',
+				'exchange',
+				'isLockFree',
+				'load',
+				'notify',
+				'or',
+				'store',
+				'sub',
+				'wait',
+				'waitAsync',
+				'xor',
+			],
+		}),
+	},
 	Array: {
 		instance: arrayPrototype,
 		prototype: arrayPrototype,
@@ -573,6 +641,11 @@ const nativeObjects = new Map(Object.entries({
 		prototype: dataViewPrototype,
 		static: createConstructorPropertyInfo(),
 	},
+	FinalizationRegistry: {
+		instance: finalizationRegistryPrototype,
+		prototype: finalizationRegistryPrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	Date: {
 		instance: datePrototype,
 		prototype: datePrototype,
@@ -585,7 +658,7 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Function: {
-		instance: functionPrototype,
+		instance: functionInstance,
 		prototype: functionPrototype,
 		static: createConstructorPropertyInfo(),
 	},
@@ -594,6 +667,13 @@ const nativeObjects = new Map(Object.entries({
 		prototype: mapPrototype,
 		static: createConstructorPropertyInfo({
 			methods: ['groupBy'],
+		}),
+	},
+	Iterator: {
+		instance: iteratorPrototype,
+		prototype: iteratorPrototype,
+		static: createConstructorPropertyInfo({
+			methods: ['from'],
 		}),
 	},
 	Number: {
@@ -641,8 +721,13 @@ const nativeObjects = new Map(Object.entries({
 			],
 		}),
 	},
+	Proxy: {
+		static: createFunctionPropertyInfo({
+			methods: ['revocable'],
+		}),
+	},
 	RegExp: {
-		instance: regexpPrototype,
+		instance: regexpInstance,
 		prototype: regexpPrototype,
 		static: createConstructorPropertyInfo({
 			methods: ['escape'],
@@ -723,6 +808,11 @@ const nativeObjects = new Map(Object.entries({
 		prototype: weakSetPrototype,
 		static: createConstructorPropertyInfo(),
 	},
+	WeakRef: {
+		instance: weakReferencePrototype,
+		prototype: weakReferencePrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	...typedArrayObjects,
 	JSON: {
 		static: createPropertyInfo({
@@ -780,7 +870,6 @@ const nativeObjects = new Map(Object.entries({
 				'sin',
 				'sinh',
 				'sqrt',
-				'sumPrecise',
 				'tan',
 				'tanh',
 				'trunc',
@@ -890,7 +979,7 @@ const getNativeTypeNameFromReference = (node, context) => {
 		: undefined;
 };
 
-const resolveIdentifierReference = (node, context) => {
+const resolveStaticReference = (node, context) => {
 	const typeName = getNativeTypeNameFromReference(node, context);
 	if (!typeName) {
 		return;
@@ -970,42 +1059,12 @@ const resolveNewExpressionReference = (node, context) => {
 	};
 };
 
-const resolveBinaryExpressionReference = (node, context) => {
-	if (node.operator !== '+') {
-		return;
-	}
-
-	const leftReference = resolveNativeObjectReference(node.left, context);
-	const rightReference = resolveNativeObjectReference(node.right, context);
-
-	if (
-		leftReference?.usage !== 'instance'
-		|| rightReference?.usage !== 'instance'
-	) {
-		return;
-	}
-
-	if (
-		leftReference.typeName === 'String'
-		|| rightReference.typeName === 'String'
-	) {
-		return {
-			typeName: 'String',
-			usage: 'instance',
-		};
-	}
-};
-
 function resolveNativeObjectReference(node, context) {
 	node = unwrapExpression(node);
 
 	if (node.type === 'MemberExpression') {
 		return resolvePrototypeReference(node, context)
-			?? resolveIdentifierReference(node, context);
-	}
-
-	if (node.type === 'BinaryExpression') {
-		return resolveBinaryExpressionReference(node, context);
+			?? resolveStaticReference(node, context);
 	}
 
 	if (node.type === 'Literal') {
@@ -1013,7 +1072,7 @@ function resolveNativeObjectReference(node, context) {
 	}
 
 	if (node.type === 'Identifier') {
-		return resolveIdentifierReference(node, context);
+		return resolveStaticReference(node, context);
 	}
 
 	if (node.type === 'NewExpression') {
@@ -1024,14 +1083,6 @@ function resolveNativeObjectReference(node, context) {
 		case 'ArrayExpression': {
 			return {
 				typeName: 'Array',
-				usage: 'instance',
-			};
-		}
-
-		case 'ArrowFunctionExpression':
-		case 'FunctionExpression': {
-			return {
-				typeName: 'Function',
 				usage: 'instance',
 			};
 		}
@@ -1057,8 +1108,10 @@ function resolveNativeObjectReference(node, context) {
 const isCallExpressionCallee = node => {
 	node = getOutermostExpression(node);
 
-	return node.parent.type === 'CallExpression'
-		&& node.parent.callee === node;
+	return (
+		(node.parent.type === 'CallExpression' && node.parent.callee === node)
+		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
+	);
 };
 
 const getReceiverName = ({typeName, usage}) => {
@@ -1077,7 +1130,7 @@ const getReceiverName = ({typeName, usage}) => {
 const create = context => {
 	context.on('MemberExpression', node => {
 		const propertyName = getStaticPropertyName(node);
-		if (!propertyName) {
+		if (propertyName === undefined) {
 			return;
 		}
 
@@ -1092,13 +1145,15 @@ const create = context => {
 		}
 
 		const isCall = isCallExpressionCallee(node);
+		const isStandardProperty = propertyInfo.all.has(propertyName);
+		const isCallableProperty = propertyInfo.callable.has(propertyName);
 		if (
-			!propertyInfo.all.has(propertyName)
-			|| (isCall && !propertyInfo.callable.has(propertyName))
+			!isStandardProperty
+			|| (isCall && !isCallableProperty)
 		) {
 			return {
 				node,
-				messageId: propertyInfo.all.has(propertyName) ? MESSAGE_ID_NONCALLABLE : MESSAGE_ID_NONSTANDARD,
+				messageId: isStandardProperty ? MESSAGE_ID_NONCALLABLE : MESSAGE_ID_NONSTANDARD,
 				data: {
 					property: propertyName,
 					receiver: getReceiverName(nativeObjectReference),

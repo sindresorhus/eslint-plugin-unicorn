@@ -9,7 +9,7 @@
 
 JavaScript lets code read or call any property name, even when the property is not part of a built-in object. This often hides typos like `Object.entires()` or relies on native objects being extended at runtime.
 
-This rule checks known built-in constructors, namespaces, prototypes, and obvious built-in instances against a static built-in property list. It reports properties that are not part of that standard property surface, and reports calls to built-in properties that exist but are not callable.
+This rule checks known built-in constructors, namespaces, prototypes, and obvious built-in instances against a static string-named built-in property list. It reports properties that are not part of that standard property surface, and reports calls to built-in properties that exist but are not callable.
 
 ## Examples
 
@@ -55,7 +55,7 @@ Array.prototype.map.call(array, callback);
 
 ## Limitations
 
-Computed access with non-static property names is ignored. Static computed keys are still checked.
+Computed access with non-static or non-string property names is ignored. Static computed string keys are still checked.
 
 ```js
 // ❌
