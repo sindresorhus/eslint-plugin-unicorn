@@ -210,7 +210,7 @@ function getPackageHelpers(dirname) {
 const DEPENDENCY_INCLUSION_RE = /^[+-]\s*\S{2,}/;
 const VERSION_COMPARISON_RE = /^(?<name>\S{2,})@(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d\-a-z]+(?:\.[\d\-a-z]+)*)?(?:\+[\d\-a-z]+(?:\.[\d\-a-z]+)*)?)/i;
 const PKG_VERSION_RE = /^(?<condition>>|>=)(?<version>\d+(?:\.\d+){0,2}(?:-[\d\-a-z]+(?:\.[\d\-a-z]+)*)?(?:\+[\d\-a-z]+(?:\.[\d\-a-z]+)*)?)\s*$/;
-const ISO8601_DATE = /\d{4}-\d{2}-\d{2}/;
+const ISO8601_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function createArgumentGroup(arguments_) {
 	const groups = {};
