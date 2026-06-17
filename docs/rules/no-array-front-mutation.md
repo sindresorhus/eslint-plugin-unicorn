@@ -52,4 +52,4 @@ queue.dequeue();
 
 This rule only checks direct `.shift()` and `.unshift()` calls. It intentionally does not track aliases, computed method names, optional method calls like `array.shift?.()`, or `Array.prototype.shift.call(array)`.
 
-The rule also skips common stream-style `.unshift()` paths by name, such as `stream.unshift(chunk)` and `process.stdin.unshift(chunk)`. If one of those names refers to an array, the call is still ignored.
+The rule also skips common stream-style `.unshift()` paths by name: `stream.unshift(chunk)`, `this.unshift(chunk)`, `this.stream.unshift(chunk)`, `process.stdin.unshift(chunk)`, `process.stdout.unshift(chunk)`, and `process.stderr.unshift(chunk)`. If one of those names refers to an array, the call is still ignored.
