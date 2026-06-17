@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -42,8 +42,12 @@ test.snapshot({
 	invalid: [
 		'new Date(date.getTime())',
 		'new Date(date.getTime(),)',
+		// Nested: both levels are flagged
+		'new Date(new Date(date.getTime()).getTime())',
 		'new Date((0, date).getTime())',
 		'new Date(date.getTime(/* comment */))',
 		'new Date(date./* comment */getTime())',
+		// TypeScript type assertion on the date object is preserved
+		{code: 'new Date((date as Date).getTime())', languageOptions: {parser: parsers.typescript}},
 	],
 });
