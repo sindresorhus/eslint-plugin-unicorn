@@ -128,6 +128,8 @@ test.snapshot({
 		'array.map(() => {}, thisArgument)',
 		'array.some(() => {}, thisArgument)',
 		'array?.map(() => {}, thisArgument)',
+		// Parenthesized receiver
+		'(array).map(() => {}, thisArgument)',
 		typeAware(outdent`
 			function foo(collection: string[] | {map(callback: (value: string) => string, thisArgument: unknown): string[]}) {
 				collection.map(value => value, thisArgument);
