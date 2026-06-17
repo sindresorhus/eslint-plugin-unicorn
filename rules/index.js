@@ -40,6 +40,7 @@ export {default as 'no-anonymous-default-export'} from './no-anonymous-default-e
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
 export {default as 'no-array-fill-with-reference-type'} from './no-array-fill-with-reference-type.js';
 export {default as 'no-array-from-fill'} from './no-array-from-fill.js';
+export {default as 'no-array-front-mutation'} from './no-array-front-mutation.js';
 export {default as 'no-array-method-this-argument'} from './no-array-method-this-argument.js';
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
 export {default as 'no-array-reverse'} from './no-array-reverse.js';
