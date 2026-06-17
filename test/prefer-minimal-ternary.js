@@ -12,8 +12,11 @@ test.snapshot({
 		'test ? a + 1 : b + 2;',
 		'test ? object.a : other.b;',
 		'test ? getObject().a : getObject().b;',
-		'test ? object[method] : object[otherMethod];',
 		'test ? object?.a : object?.b;',
+		// Dynamic computed-key swaps are only minimized when the object is the same and side-effect-free.
+		'test ? a[x] : b[x];',
+		'test ? c?.[x] : c?.[y];',
+		'test ? getObject()[x] : getObject()[y];',
 		// Different objects with optional chaining are not reported, even though the property is shared.
 		'test ? a?.foo : b?.foo;',
 		'test ? object.a?.() : object.b?.();',
@@ -56,12 +59,25 @@ test.snapshot({
 				}
 			}
 		`,
-		// Bare member swaps are never reported: minimizing them requires computed member access, which is not an improvement.
+		// Static property swaps are never reported: `object['a']` is the same logical access as `object.a`, so minimizing them forces or keeps computed access in place of clearer property access.
 		'test ? object.a : object.b;',
 		'test ? object["a"] : object["b"];',
 		'isMac ? event.metaKey : event.ctrlKey;',
+		// A statically known computed key is treated as a static property too, so it is not reported.
+		'test ? c[0] : c[1];',
 		// Same-object member swaps with a `this` receiver are not reported either.
 		'test ? this.maxWidth : this.maxHeight;',
+		// Private fields have no static name, but can't be made computed, so they are not reported.
+		outdent`
+			class Foo {
+				#a;
+				#b;
+
+				method(test, object) {
+					return test ? object.#a : object.#b;
+				}
+			}
+		`,
 		{
 			code: 'test ? object.a : object.b;',
 			options: [{checkComputedMemberAccess: true}],
@@ -97,6 +113,25 @@ test.snapshot({
 		'test ? a.value : b.value;',
 		// Computed access with a static property minimizes when only the object differs.
 		'test ? a["x"] : b["x"];',
+		// Same object with a dynamic computed key minimizes to `c[test ? x : y]` with no regression.
+		'test ? c[x] : c[y];',
+		'test ? object[method] : object[otherMethod];',
+		'test ? c[f()] : c[g()];',
+		// A `this` receiver with a dynamic key minimizes too.
+		'test ? this[x] : this[y];',
+		// A `super` receiver stays in place, so the dynamic key minimizes.
+		outdent`
+			class Foo extends Bar {
+				method() {
+					return test ? super[x] : super[y];
+				}
+			}
+		`,
+		// A TypeScript non-null assertion on the key is still a dynamic key.
+		{
+			code: 'test ? c[x!] : c[y!];',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// `checkComputedMemberAccess` enables method-call ternaries that differ only by the method name.
 		{
 			code: 'test ? Promise.allSettled(values) : Promise.all(values);',
