@@ -35,6 +35,18 @@ test({
 			errors,
 		},
 		{
+			// Empty array argument list
+			code: 'foo.apply(null, []);',
+			output: 'Reflect.apply(foo, null, []);',
+			errors,
+		},
+		{
+			// Parenthesized callee object
+			code: '(foo.bar).apply(null, [42]);',
+			output: 'Reflect.apply(foo.bar, null, [42]);',
+			errors,
+		},
+		{
 			code: 'foo.bar.apply(null, [42]);',
 			output: 'Reflect.apply(foo.bar, null, [42]);',
 			errors,
