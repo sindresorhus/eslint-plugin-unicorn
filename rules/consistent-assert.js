@@ -60,7 +60,7 @@ const create = context => {
 			const variables = context.sourceCode.getDeclaredVariables(specifier);
 
 			/* c8 ignore next 3 */
-			if (!Array.isArray(variables) && variables.length === 1) {
+			if (!Array.isArray(variables) || variables.length !== 1) {
 				continue;
 			}
 
