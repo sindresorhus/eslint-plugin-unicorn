@@ -198,6 +198,11 @@ const isBooleanVariable = (variable, context) => {
 		return false;
 	}
 
+	// A setter parameter's name is positional and dictated by the accessor, not chosen freely.
+	if (definition.type === 'Parameter' && definition.node.parent?.kind === 'set') {
+		return false;
+	}
+
 	const scope = sourceCode.getScope(name);
 
 	if (name.typeAnnotation) {

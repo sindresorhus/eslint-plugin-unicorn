@@ -374,6 +374,11 @@ test.snapshot({
 		typescript('function download(shouldShowProgress: boolean) {}'),
 		typescript('class Task { constructor(readonly isCompleted = false) {} }'),
 		typescript('class Task { constructor(public isReady: boolean) {} }'),
+		// A setter parameter's name is positional and dictated by the accessor.
+		typescript('const task = {set completed(value: boolean) {}};'),
+		typescript('class Task { set completed(value: boolean) {} }'),
+		typescript('class Task { set completed(value: boolean = false) {} }'),
+		typescript('abstract class Task { abstract set completed(value: boolean); }'),
 		typescript('function isCompleted(): boolean {}'),
 		typescript('const isCompleted = (): boolean => true;'),
 		typescript('const isCompleted: () => boolean = getCompleted;'),

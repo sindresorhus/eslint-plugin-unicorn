@@ -24,6 +24,12 @@ test.snapshot({
 		'for (const item of getItems(first, object.second, "third")) {}',
 		'for (const item of getItems(`argument`)) {}',
 		'for (const item of getItems(createArgument())) {}',
+		// Literal receivers are readable.
+		'for (const character of "abc") {}',
+		'for (const part of "a,b".split(",")) {}',
+		// Interpolated template-literal arguments are readable.
+		'for (const item of getItems(`prefix-${argument}`)) {}', // eslint-disable-line no-template-curly-in-string
+		'for (const element of root.querySelectorAll(`[data-x=${value}]`)) {}', // eslint-disable-line no-template-curly-in-string
 		'for (const item of object.getItems(argument)) {}',
 		'for (const item of object.getItems()) {}',
 		'for (const item of Object.keys(object)) {}',
@@ -53,7 +59,10 @@ test.snapshot({
 	invalid: [
 		'for (const item of getItems(createArgument(seed))) {}',
 		'for (const item of getItems(argument || fallback)) {}',
-		'for (const item of getItems(`prefix-${argument}`)) {}', // eslint-disable-line no-template-curly-in-string
+		// Object-literal arguments and logical/conditional receivers stay flagged.
+		'for (const item of Object.keys({a: 1})) {}',
+		'for (const item of (header || "").split(",")) {}',
+		'for (const item of (condition ? first : second).values()) {}',
 		'for (const item of items[method]()) {}',
 		'for (const item of items[index]) {}',
 		'for (const item of items?.values()) {}',

@@ -23,6 +23,19 @@ ruleTest.snapshot({
 		'(function (a, b) {})(1, 2);',
 		'((a, b) => {})(1, 2);',
 
+		// A parameter without a default is still optional at the call site in JavaScript,
+		// so passing too few arguments to a user-defined function is allowed.
+		'function createChalk(options) {}\ncreateChalk();',
+		'function foo(a, b) {}\nfoo();',
+		'function foo(a, b) {}\nfoo(1);',
+		'function foo(a, b = 1) {}\nfoo();',
+		'foo(1);\nfunction foo(a, b) {}',
+		'function foo(a = 1, b) {}\nfoo(1);',
+		'function foo(a, ...rest) {}\nfoo();',
+		'const foo = function (a, b) {};\nfoo(1);',
+		'const foo = (a, b) => {};\nfoo?.(1);',
+		'(function (a, b) {})(1);',
+
 		// Calls with spread arguments are ignored.
 		'function foo(a, b) {}\nfoo(1, ...rest);',
 		'function foo(a, b) {}\nfoo(...rest);',
@@ -62,9 +75,6 @@ ruleTest.snapshot({
 			foo(1);
 		`,
 
-		// Non-trailing defaults are still required by argument position.
-		'function foo(a = 1, b) {}\nfoo(undefined, 2);',
-
 		// TypeScript overloads are ignored.
 		{
 			code: outdent`
@@ -92,6 +102,15 @@ ruleTest.snapshot({
 		},
 		{
 			code: 'const foo = function (this: void, value: string) {};\nfoo("value");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Too few arguments are not reported for user-defined functions; TypeScript already checks this.
+		{
+			code: 'function foo(value: string, options: object) {}\nfoo("value");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(this: void, value: string) {}\nfoo();',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -758,20 +777,16 @@ ruleTest.snapshot({
 		'const WebAssembly = {compile: (...values) => values};\nWebAssembly.compile(bytes, options, extra);',
 	],
 	invalid: [
-		'function foo(a, b) {}\nfoo(1);',
-		'foo(1);\nfunction foo(a, b) {}',
 		'function foo(a, b) {}\nfoo(1, 2, 3);',
+		'foo(1, 2, 3);\nfunction foo(a, b) {}',
 		'function foo() {}\nfoo(1);',
-		'function foo(a, b = 1) {}\nfoo();',
 		'function foo(a, b = 1) {}\nfoo(1, 2, 3);',
-		'function foo(a = 1, b) {}\nfoo(2);',
-		'function foo(a, ...rest) {}\nfoo();',
-		'const foo = function (a, b) {};\nfoo(1);',
+		'const foo = function (a, b) {};\nfoo(1, 2, 3);',
 		'const foo = (a, b) => {};\nfoo(1, 2, 3);',
-		'const foo = (a, b) => {};\nfoo?.(1);',
-		'(function (a, b) {})(1);',
+		'const foo = (a, b) => {};\nfoo?.(1, 2, 3);',
+		'(function (a, b) {})(1, 2, 3);',
 		'((a, b) => {})(1, 2, 3);',
-		'(function (a, b) {})?.(1);',
+		'(function (a, b) {})?.(1, 2, 3);',
 		'((a, b) => {})?.(1, 2, 3);',
 		outdent`
 			function foo() {
@@ -781,15 +796,7 @@ ruleTest.snapshot({
 			foo(1);
 		`,
 		{
-			code: 'function foo(value: string, options?: object) {}\nfoo();',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'function foo(value: string, options?: object) {}\nfoo("value", {}, "extra");',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(this: void, value: string) {}\nfoo();',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -797,47 +804,47 @@ ruleTest.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo(first: string, second: string) {}\n(foo as typeof foo)("first");',
+			code: 'function foo(first: string, second: string) {}\n(foo as typeof foo)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo(first: string, second: string) {}\n(<typeof foo>foo)("first");',
+			code: 'function foo(first: string, second: string) {}\n(<typeof foo>foo)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo(first: string, second: string) {}\nfoo!("first");',
+			code: 'function foo(first: string, second: string) {}\nfoo!("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo(first: string, second: string) {}\n(foo satisfies typeof foo)("first");',
+			code: 'function foo(first: string, second: string) {}\n(foo satisfies typeof foo)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo<T>(first: T, second: T) {}\n(foo<string>)("first");',
+			code: 'function foo<T>(first: T, second: T) {}\n(foo<string>)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'const foo = ((first: string, second: string) => {}) as (first: string, second: string) => void;\nfoo("first");',
+			code: 'const foo = ((first: string, second: string) => {}) as (first: string, second: string) => void;\nfoo("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '(function (first: string, second: string) {} as (first: string, second: string) => void)("first");',
+			code: '(function (first: string, second: string) {} as (first: string, second: string) => void)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '(((first: string, second: string) => {}) satisfies (first: string, second: string) => void)("first");',
+			code: '(((first: string, second: string) => {}) satisfies (first: string, second: string) => void)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: '((<T>(first: T, second: T) => {})<string>)("first");',
+			code: '((<T>(first: T, second: T) => {})<string>)("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'const foo = ((first: string, second: string) => {}) satisfies (first: string, second: string) => void;\nfoo("first");',
+			code: 'const foo = ((first: string, second: string) => {}) satisfies (first: string, second: string) => void;\nfoo("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'const foo = ((first: string, second: string) => {})!;\nfoo("first");',
+			code: 'const foo = ((first: string, second: string) => {})!;\nfoo("first", "second", "extra");',
 			languageOptions: {parser: parsers.typescript},
 		},
 		'Object.is(value);',

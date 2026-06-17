@@ -11,6 +11,8 @@ Using `await` makes asynchronous control flow read like synchronous code and avo
 
 This rule reports promise chaining with `.then()`, `.catch()`, and `.finally()`. Type-aware receiver checks also report promise-like thenables, since `await` assimilates them. When TypeScript type information is available, receivers known not to be promises are ignored. Without type information, the rule falls back to method-name heuristics.
 
+Chains explicitly discarded with the `void` operator are ignored, since `void` is the idiomatic way to opt out of awaiting an intentional fire-and-forget promise.
+
 This rule intentionally has no options. Use an inline disable for library-specific chains that should remain callback-based.
 
 ## Examples
@@ -41,6 +43,10 @@ try {
 } finally {
 	cleanup();
 }
+
+// ✅
+// Intentional fire-and-forget, opted out with `void`.
+void promise.catch(() => {});
 ```
 
 ## Comparison with `eslint-plugin-promise/prefer-await-to-then`

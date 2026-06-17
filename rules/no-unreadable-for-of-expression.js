@@ -36,7 +36,7 @@ function isSimpleArgumentExpression(node) {
 		|| node.type === 'ThisExpression'
 		|| node.type === 'Super'
 		|| node.type === 'Literal'
-		|| (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+		|| node.type === 'TemplateLiteral'
 		|| isSimpleMemberExpression(node)
 		|| (
 			node.type === 'CallExpression'
@@ -68,6 +68,7 @@ function isSimpleIterableExpression(node) {
 		|| node.type === 'ThisExpression'
 		|| node.type === 'Super'
 		|| node.type === 'ArrayExpression'
+		|| node.type === 'Literal'
 		|| isSimpleMemberExpression(node)
 		|| isSimpleCallExpression(node)
 	);
