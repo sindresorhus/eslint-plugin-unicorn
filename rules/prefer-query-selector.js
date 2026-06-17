@@ -2,8 +2,14 @@ import {
 	getParenthesizedRange,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {isMethodCall, isStringLiteral, isNullLiteral} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isMethodCall,
+	isStringLiteral,
+	isNullLiteral,
+} from './ast/index.js';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-query-selector';
@@ -126,15 +132,6 @@ const isNonLiteralArgument = node =>
 	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
 	&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
 
-const canBeFixed = node =>
-	isNullLiteral(node)
-	|| (isStringLiteral(node) && Boolean(node.value.trim()))
-	|| (
-		node.type === 'TemplateLiteral'
-		&& node.expressions.length === 0
-		&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
-	);
-
 // `getElementsByName` wraps the value in a `[name=…]` CSS selector. A quote in the value would
 // break either the selector (`[name='foo'bar']`) or the re-quoted JS string, so it can't be fixed.
 const nameValueHasQuote = node => {
@@ -155,6 +152,29 @@ const isStaticSelector = node =>
 		node.type === 'TemplateLiteral'
 		&& node.expressions.length === 0
 	);
+
+const selectorDomNameMethods = new Set(['getElementById', 'getElementsByClassName']);
+const selectorPrefixes = new Set(['.', '#']);
+
+const isSelectorAsDomName = (node, identifierName) =>
+	selectorDomNameMethods.has(identifierName)
+	&& selectorPrefixes.has(getStaticStringValue(node)?.[0]);
+
+const canBeFixed = (node, identifierName) => {
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+
+	return !isSelectorAsDomName(unwrappedNode, identifierName)
+		&& !(identifierName === 'getElementsByName' && nameValueHasQuote(unwrappedNode))
+		&& (
+			isNullLiteral(unwrappedNode)
+			|| (isStringLiteral(unwrappedNode) && Boolean(unwrappedNode.value.trim()))
+			|| (
+				unwrappedNode.type === 'TemplateLiteral'
+				&& unwrappedNode.expressions.length === 0
+				&& unwrappedNode.quasis.some(templateElement => templateElement.value.cooked.trim())
+			)
+		);
+};
 
 const isDocumentObject = node =>
 	(
@@ -232,7 +252,7 @@ const removeFirstElementAccess = (fixer, node, context) => node.type === 'Member
 	: removeMethodCall(fixer, node, context);
 
 const fix = ({node, identifierName, preferredSelector, firstElementAccess, context}) => {
-	const nodeToBeFixed = node.arguments[0];
+	const nodeToBeFixed = unwrapTypeScriptExpression(node.arguments[0]);
 	const shouldScopeSelector = !isDocumentObject(node.callee.object) && isStaticSelector(nodeToBeFixed);
 
 	if (
@@ -302,10 +322,7 @@ const create = context => {
 			},
 		};
 
-		if (
-			canBeFixed(node.arguments[0])
-			&& !(method === 'getElementsByName' && nameValueHasQuote(node.arguments[0]))
-		) {
+		if (canBeFixed(node.arguments[0], method)) {
 			problem.fix = fix({
 				node,
 				identifierName: method,

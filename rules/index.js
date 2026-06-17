@@ -100,6 +100,7 @@ export {default as 'no-optional-chaining-on-undeclared-variable'} from './no-opt
 export {default as 'no-process-exit'} from './no-process-exit.js';
 export {default as 'no-redundant-comparison'} from './no-redundant-comparison.js';
 export {default as 'no-return-array-push'} from './no-return-array-push.js';
+export {default as 'no-selector-as-dom-name'} from './no-selector-as-dom-name.js';
 export {default as 'no-single-promise-in-promise-methods'} from './no-single-promise-in-promise-methods.js';
 export {default as 'no-static-only-class'} from './no-static-only-class.js';
 export {default as 'no-subtraction-comparison'} from './no-subtraction-comparison.js';

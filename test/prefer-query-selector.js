@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
@@ -58,8 +58,17 @@ test.snapshot({
 	],
 	invalid: [
 		'document.getElementById("foo");',
+		'document.getElementById("#foo");',
+		'document.getElementById(".foo");',
+		{code: 'document.getElementById("foo" as string);', languageOptions: {parser: parsers.typescript}},
+		{code: 'document.getElementById("#foo" as string);', languageOptions: {parser: parsers.typescript}},
 		'document.getElementsByClassName("foo");',
+		'document.getElementsByClassName(".foo");',
+		'document.getElementsByClassName("#foo");',
+		{code: 'document.getElementsByClassName("foo" as string);', languageOptions: {parser: parsers.typescript}},
+		{code: 'document.getElementsByClassName(".foo" as string);', languageOptions: {parser: parsers.typescript}},
 		'element.getElementsByClassName("foo");',
+		'element.getElementsByClassName(".foo");',
 		'document.getElementsByClassName("foo bar");',
 		'document.getElementsByTagName("foo");',
 		'element.getElementsByTagName("foo");',
@@ -70,7 +79,9 @@ test.snapshot({
 		'document.getElementsByTagName(\'foo\');',
 		'document.getElementsByClassName(\'\');',
 		'document.getElementById(`foo`);',
+		'document.getElementById(`#foo`);',
 		'document.getElementsByClassName(`foo`);',
+		'document.getElementsByClassName(`.foo`);',
 		'element.getElementsByClassName(`foo`);',
 		'document.getElementsByClassName(`foo bar`);',
 		'document.getElementsByTagName(`foo`);',
