@@ -1,4 +1,5 @@
 import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
+import {isUndefined} from './ast/index.js';
 import {
 	containsOptionalChain,
 	isReference,
@@ -23,7 +24,10 @@ const isStrictEqualityComparison = node =>
 
 function getSharedReference(comparisons) {
 	const [{left, right}] = comparisons;
-	let candidates = [left, right].filter(node => isReference(node));
+	// `undefined` is an identifier, so it qualifies as a reference. Exclude it
+	// so comparing distinct expressions against `undefined` is not treated as a
+	// shared membership check (e.g. `a === undefined || b === undefined`).
+	let candidates = [left, right].filter(node => isReference(node) && !isUndefined(unwrapExpression(node)));
 
 	for (const comparison of comparisons.slice(1)) {
 		candidates = candidates.filter(candidate =>
