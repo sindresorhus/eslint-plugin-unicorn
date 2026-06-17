@@ -94,6 +94,7 @@ export {default as 'no-nested-ternary'} from './no-nested-ternary.js';
 export {default as 'no-new-array'} from './no-new-array.js';
 export {default as 'no-new-buffer'} from './no-new-buffer.js';
 export {default as 'no-non-function-verb-prefix'} from './no-non-function-verb-prefix.js';
+export {default as 'no-nonstandard-builtin-properties'} from './no-nonstandard-builtin-properties.js';
 export {default as 'no-null'} from './no-null.js';
 export {default as 'no-object-as-default-parameter'} from './no-object-as-default-parameter.js';
 export {default as 'no-object-methods-with-collections'} from './no-object-methods-with-collections.js';
