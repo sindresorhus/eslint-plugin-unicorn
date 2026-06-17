@@ -143,7 +143,7 @@ const nameValueHasQuote = node => {
 	}
 
 	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis.some(quasi => /['"]/.test(quasi.value.cooked ?? ''));
+		return node.quasis.some(quasi => /["']/.test(quasi.value.cooked ?? ''));
 	}
 
 	return false;

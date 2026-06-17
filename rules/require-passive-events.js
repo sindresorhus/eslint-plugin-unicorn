@@ -1,5 +1,10 @@
 import {isBooleanLiteral, isMethodCall, isStringLiteral} from './ast/index.js';
-import {getIndentString, getParenthesizedRange, getScopes, isLeftHandSide} from './utils/index.js';
+import {
+	getIndentString,
+	getParenthesizedRange,
+	getScopes,
+	isLeftHandSide,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
 const messages = {

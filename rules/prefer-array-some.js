@@ -145,28 +145,30 @@ const create = context => {
 			node: methodNode,
 			messageId: ERROR_ID_ARRAY_SOME,
 			data: {method: methodNode.name},
-			suggest: wouldDropComments ? undefined : [
-				{
-					messageId: SUGGESTION_ID_ARRAY_SOME,
-					* fix(fixer) {
-						yield fixer.replaceText(methodNode, 'some');
+			suggest: wouldDropComments
+				? undefined
+				: [
+					{
+						messageId: SUGGESTION_ID_ARRAY_SOME,
+						* fix(fixer) {
+							yield fixer.replaceText(methodNode, 'some');
 
-						if (!isCompare) {
-							return;
-						}
+							if (!isCompare) {
+								return;
+							}
 
-						const {sourceCode} = context;
-						const parenthesizedRange = getParenthesizedRange(callExpression, context);
-						yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
+							const {sourceCode} = context;
+							const parenthesizedRange = getParenthesizedRange(callExpression, context);
+							yield fixer.removeRange([parenthesizedRange[1], sourceCode.getRange(callExpression.parent)[1]]);
 
-						if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
-							return;
-						}
+							if (callExpression.parent.operator === '!=' || callExpression.parent.operator === '!==') {
+								return;
+							}
 
-						yield fixer.insertTextBeforeRange(parenthesizedRange, '!');
+							yield fixer.insertTextBeforeRange(parenthesizedRange, '!');
+						},
 					},
-				},
-			],
+				],
 		};
 	});
 

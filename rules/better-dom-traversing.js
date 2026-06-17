@@ -4,7 +4,12 @@ import {
 	isMemberExpression,
 	isNumericLiteral,
 } from './ast/index.js';
-import {escapeString, getParenthesizedRange, getParenthesizedText, isNodeValueNotDomNode} from './utils/index.js';
+import {
+	escapeString,
+	getParenthesizedRange,
+	getParenthesizedText,
+	isNodeValueNotDomNode,
+} from './utils/index.js';
 
 const MESSAGE_ID_FIRST_CHILD = 'first-child';
 const MESSAGE_ID_FIRST_ELEMENT_CHILD = 'first-element-child';
