@@ -100,6 +100,18 @@ const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => 
 	methods,
 });
 
+const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
+	all: new Set([
+		...propertyInfo.all,
+		...properties,
+		...methods,
+	]),
+	callable: new Set([
+		...propertyInfo.callable,
+		...methods,
+	]),
+});
+
 const arrayPrototype = createPropertyInfo({
 	properties: ['length'],
 	methods: [
@@ -253,21 +265,24 @@ const errorPrototype = createPropertyInfo({
 		'message',
 		'name',
 	],
+	methods: ['toString'],
 });
 
 const errorInstance = createPropertyInfo({
+	inheritedProperties: errorPrototype.all,
+	inheritedMethods: errorPrototype.callable,
 	properties: [
 		'cause',
 		'message',
 	],
 });
 
-const aggregateErrorInstance = createPropertyInfo({
-	properties: [
-		'cause',
-		'errors',
-		'message',
-	],
+const aggregateErrorInstance = extendPropertyInfo(errorInstance, {
+	properties: ['errors'],
+});
+
+const errorStatic = createConstructorPropertyInfo({
+	methods: ['isError'],
 });
 
 const finalizationRegistryPrototype = createPropertyInfo({
@@ -586,18 +601,6 @@ const typedArrayStatic = createConstructorPropertyInfo({
 	],
 });
 
-const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
-	all: new Set([
-		...propertyInfo.all,
-		...properties,
-		...methods,
-	]),
-	callable: new Set([
-		...propertyInfo.callable,
-		...methods,
-	]),
-});
-
 const uint8ArrayPrototype = extendPropertyInfo(typedArrayPrototype, {
 	methods: [
 		'setFromBase64',
@@ -640,7 +643,7 @@ const nativeObjects = new Map(Object.entries({
 	AggregateError: {
 		instance: aggregateErrorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	Atomics: {
 		static: createPropertyInfo({
@@ -703,14 +706,12 @@ const nativeObjects = new Map(Object.entries({
 	Error: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo({
-			methods: ['isError'],
-		}),
+		static: errorStatic,
 	},
 	EvalError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	FinalizationRegistry: {
 		instance: finalizationRegistryPrototype,
@@ -798,12 +799,12 @@ const nativeObjects = new Map(Object.entries({
 	RangeError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	ReferenceError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	Proxy: {
 		static: createFunctionPropertyInfo({
@@ -841,7 +842,7 @@ const nativeObjects = new Map(Object.entries({
 	SyntaxError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	Symbol: {
 		instance: symbolPrototype,
@@ -890,12 +891,12 @@ const nativeObjects = new Map(Object.entries({
 	TypeError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	URIError: {
 		instance: errorInstance,
 		prototype: errorPrototype,
-		static: createConstructorPropertyInfo(),
+		static: errorStatic,
 	},
 	WeakMap: {
 		instance: weakMapPrototype,
@@ -1192,11 +1193,12 @@ function resolveNativeObjectReference(node, context) {
 	}
 }
 
-const isCallExpressionCallee = node => {
+const isCallLikeExpressionCallee = node => {
 	node = getOutermostExpression(node);
 
 	return (
 		(node.parent.type === 'CallExpression' && node.parent.callee === node)
+		|| (node.parent.type === 'NewExpression' && node.parent.callee === node)
 		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
 	);
 };
@@ -1231,7 +1233,7 @@ const create = context => {
 			return;
 		}
 
-		const isCall = isCallExpressionCallee(node);
+		const isCall = isCallLikeExpressionCallee(node);
 		const isStandardProperty = propertyInfo.all.has(propertyName);
 		const isCallableProperty = propertyInfo.callable.has(propertyName);
 		if (
