@@ -77,6 +77,10 @@ test.snapshot({
 		typeAware('declare const map: Map<string, object>; map.get(...key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; map.get(key, value) !== undefined'),
 		typeAware('declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined'),
+		// Boolean context with a comment inside the call: the comment guard skips it (distinct from the comparison path above)
+		typeAware('declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}'),
+		// A `satisfies` expression is not recognized as an `undefined` sentinel
+		typeAware('declare const map: Map<string, object>; map.get(key) !== (undefined satisfies undefined)'),
 		typeAware('declare const cache: {get(key: string): object | undefined; has(key: string): boolean}; cache.get(key) !== undefined'),
 		typeAware('import {Map} from "immutable"; declare const map: Map<string, object>; map.get(key) !== undefined'),
 		typeAware('export {}; class Map<K, V> {get(key: K): V | undefined {return undefined;} has(key: K) {return true;}} declare const map: Map<string, object>; map.get(key) !== undefined'),
@@ -156,6 +160,7 @@ test.snapshot({
 		typeAware('declare const map: Map<string, object> | ReadonlyMap<string, object>; map.get(key) !== undefined'),
 		typeAware('declare const map: Map<string, object> & {brand: true}; map.get(key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; (map as Map<string, object>).get(key) !== undefined'),
+		typeAware('declare const map: Map<string, object> | undefined; (map!).get(key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).get(key) !== undefined'),
 		typeAware('new Map<string, object>().get(key) !== undefined'),
 		typeAware('new Map<string, object | undefined>().get(key) !== undefined'),
