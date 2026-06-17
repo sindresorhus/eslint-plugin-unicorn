@@ -210,6 +210,15 @@ test.snapshot({
 				return foo.includes(value);
 			}
 		`,
+		// Computed `length` access is not recognized as a length read, so the rule bails
+		outdent`
+			const foo = [1, 2, 3];
+			foo['length'];
+
+			function unicorn(value) {
+				return foo.includes(value);
+			}
+		`,
 		outdent`
 			const foo = [1, 1, 2];
 			call(...foo);
@@ -1386,6 +1395,7 @@ test({
 		createTypeScriptFixCase('(string | number)[]', 'Set<string | number>'),
 		createTypeScriptFixCase('ReadonlyArray<string>', 'ReadonlySet<string>'),
 		createTypeScriptFixCase('readonly string[]', 'ReadonlySet<string>'),
+		createTypeScriptFixCase('readonly (string | number)[]', 'ReadonlySet<string | number>'),
 		createTypeScriptSuggestionCase('Items', 'type Items = string[]'),
 		createTypeScriptSuggestionCase('[string, string]'),
 		createTypeScriptSuggestionCase('string /* comment */ []'),
