@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {isCallOrNewExpression, isMethodCall} from './ast/index.js';
 import {
 	isValueNotUsable,
 	shouldSkipKnownNonArrayReceiver,
@@ -15,55 +15,97 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Assign the `.toSpliced()` result back to the array.',
 };
 
-const functionTypes = new Set([
-	'ArrowFunctionExpression',
-	'FunctionDeclaration',
-	'FunctionExpression',
-]);
+// Methods that always return a new array, so a variable initialized with one of
+// these provably owns a fresh array. In-place methods (`reverse`, `sort`, `fill`,
+// `copyWithin`, `splice`) and ambiguous ones (`slice`/`concat` can be `String`'s)
+// are intentionally excluded.
+const newArrayMethods = [
+	'filter',
+	'flat',
+	'flatMap',
+	'map',
+	'toReversed',
+	'toSorted',
+	'toSpliced',
+	'with',
+];
 
-function isReassignableVariable(variable) {
+// Whether the variable is a reassignable local (`let`/`var`) initialized with a
+// freshly-created array. Reassigning such a variable to `array.toSpliced(…)` is
+// observationally equivalent to an in-place `splice()` because the scope owns the
+// only reference to the array.
+function isFreshLocalArrayInit(variable) {
 	const [definition] = variable.defs;
 
 	if (
 		!definition
+		// A redeclared `var` may be reinitialized with a non-fresh array later.
+		|| variable.defs.length !== 1
 		|| variable.scope.type === 'global'
+		|| definition.type !== 'Variable'
+		|| definition.node.id.type !== 'Identifier'
+		|| (definition.parent.kind !== 'let' && definition.parent.kind !== 'var')
 	) {
 		return false;
 	}
 
-	if (definition.type === 'Parameter' || definition.type === 'CatchClause') {
+	const init = definition.node.init && unwrapTypeScriptExpression(definition.node.init);
+
+	if (!init) {
+		return false;
+	}
+
+	return init.type === 'ArrayExpression'
+		|| isCallOrNewExpression(init, {name: 'Array', optional: false})
+		|| isMethodCall(init, {
+			object: 'Array',
+			methods: ['from', 'of'],
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| isMethodCall(init, {
+			methods: newArrayMethods,
+			optionalCall: false,
+			optionalMember: false,
+		});
+}
+
+// Whether any reference to the variable lets the array object escape the current
+// scope, so an outside holder could observe the difference between an in-place
+// `splice()` and a `toSpliced()` reassignment. Reads that keep the object local
+// (member access, spread, `for…of`) are safe.
+function isEscapingArrayReference(variable, receiver) {
+	for (const reference of variable.references) {
+		if (reference.init || reference.identifier === receiver) {
+			continue;
+		}
+
+		// A later write reassigns the variable, so it no longer holds the fresh array.
+		if (reference.isWrite()) {
+			return true;
+		}
+
+		const {identifier} = reference;
+		const {parent} = identifier;
+
+		if (
+			(parent.type === 'MemberExpression' && parent.object === identifier)
+			|| (parent.type === 'SpreadElement' && parent.argument === identifier)
+			|| (parent.type === 'ForOfStatement' && parent.right === identifier)
+		) {
+			continue;
+		}
+
 		return true;
 	}
 
-	return definition.type === 'Variable'
-		&& (definition.parent.kind === 'let' || definition.parent.kind === 'var');
+	return false;
 }
 
 function getReceiverIdentifier(node) {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 
 	return unwrappedNode.type === 'Identifier' ? unwrappedNode : undefined;
-}
-
-function isTupleTypeAnnotation(node) {
-	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return isTupleTypeAnnotation(node.typeAnnotation);
-		}
-
-		case 'TSTypeOperator': {
-			return node.operator === 'readonly' && isTupleTypeAnnotation(node.typeAnnotation);
-		}
-
-		case 'TSTupleType': {
-			return true;
-		}
-
-		default: {
-			return false;
-		}
-	}
 }
 
 function isPlainArrayTypeAnnotation(node) {
@@ -85,27 +127,6 @@ function isPlainArrayTypeAnnotation(node) {
 			return false;
 		}
 	}
-}
-
-function isIdentifierAliasVariable(variable) {
-	const [definition] = variable.defs;
-	const init = definition?.node.init && unwrapTypeScriptExpression(definition.node.init);
-
-	return definition?.type === 'Variable'
-		&& !definition.node.id.typeAnnotation
-		&& init?.type === 'Identifier';
-}
-
-function isDestructuredVariable(variable) {
-	const [definition] = variable.defs;
-
-	return definition?.type === 'Variable' && definition.node.id !== definition.name;
-}
-
-function isNonIdentifierParameter(variable) {
-	const [definition] = variable.defs;
-
-	return definition?.type === 'Parameter' && !functionTypes.has(definition.name.parent.type);
 }
 
 function hasTypeParameterOrTuple(type, checker) {
@@ -140,21 +161,13 @@ function shouldSkipReceiver(node, variable, context) {
 	const [definition] = variable.defs;
 	const typeAnnotation = definition?.name?.typeAnnotation;
 
-	if (isTupleTypeAnnotation(typeAnnotation)) {
+	// A non-plain-array annotation (tuple, readonly array, alias, …) means the
+	// receiver may not be a reassignable plain array, so skip it.
+	if (typeAnnotation && !isPlainArrayTypeAnnotation(typeAnnotation)) {
 		return true;
 	}
 
-	if (
-		typeAnnotation
-		&& !isPlainArrayTypeAnnotation(typeAnnotation)
-	) {
-		return true;
-	}
-
-	return isTypeParameterOrTuple(node, context)
-		|| isIdentifierAliasVariable(variable)
-		|| isDestructuredVariable(variable)
-		|| isNonIdentifierParameter(variable);
+	return isTypeParameterOrTuple(node, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -187,8 +200,9 @@ const create = context => {
 
 		if (
 			!variable
-			|| !isReassignableVariable(variable)
+			|| !isFreshLocalArrayInit(variable)
 			|| shouldSkipReceiver(object, variable, context)
+			|| isEscapingArrayReference(variable, receiver)
 		) {
 			return;
 		}
