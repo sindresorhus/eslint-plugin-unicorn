@@ -1020,17 +1020,11 @@ const getFunctionNode = (callExpression, sourceCode) => {
 	return getFunctionNodeFromVariable(variable);
 };
 
-const getExpectedText = ({minimum, maximum}, argumentCount) => {
-	if (argumentCount < minimum) {
-		return minimum === maximum
-			? formatArgumentCount(minimum)
-			: `at least ${formatArgumentCount(minimum)}`;
-	}
-
-	return minimum === maximum
+// Only too-many-arguments is reported for user-defined functions, so this only ever describes an upper bound.
+const getExpectedText = ({minimum, maximum}) =>
+	minimum === maximum
 		? formatArgumentCount(maximum)
 		: `at most ${formatArgumentCount(maximum)}`;
-};
 
 const hasInvalidArgumentCount = ({minimum, maximum}, argumentCount) =>
 	argumentCount < minimum || argumentCount > maximum;
@@ -1277,7 +1271,7 @@ const create = context => {
 			node: callExpression.callee,
 			messageId: MESSAGE_ID,
 			data: {
-				expected: getExpectedText(arity, argumentCount),
+				expected: getExpectedText(arity),
 				actual: formatArgumentCount(argumentCount),
 			},
 		};

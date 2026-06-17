@@ -13,6 +13,19 @@ Global object mutation makes it hard to see where state is created and can accid
 
 If assigning a global property is intentional, disable this rule locally.
 
+Test-environment setup (for example, assigning `globalThis.window` from `jsdom`) and polyfills or shims are the common intentional cases. Rather than disabling the rule on each line, disable it for the whole file or directory through a config override:
+
+```js
+export default [
+	{
+		files: ['test/**', '**/*.test.js'],
+		rules: {
+			'unicorn/no-global-object-property-assignment': 'off',
+		},
+	},
+];
+```
+
 ## Examples
 
 ```js
