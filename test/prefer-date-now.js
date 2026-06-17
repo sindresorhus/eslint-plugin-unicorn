@@ -84,6 +84,9 @@ test.snapshot({
 		// `UnaryExpression`
 		'const ts = + /* 1 */ new Date;',
 		'const ts = - /* 1 */ new Date();',
+		// Parenthesized `new Date()` operand
+		'const ts = +(new Date());',
+		'const ts = -(new Date());',
 
 		// `BinaryExpression`
 		'const ts = new Date() - 0',
