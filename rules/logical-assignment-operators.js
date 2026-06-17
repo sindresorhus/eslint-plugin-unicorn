@@ -113,7 +113,7 @@ const config = {
 		hasSuggestions: baseRule.meta.hasSuggestions,
 		schema: baseRule.meta.schema,
 		defaultOptions: [
-			baseRule.meta.defaultOptions[0],
+			baseRule.meta.defaultOptions?.[0],
 		],
 		messages,
 		languages: [
