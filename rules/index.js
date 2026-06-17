@@ -61,6 +61,7 @@ export {default as 'no-console-spaces'} from './no-console-spaces.js';
 export {default as 'no-constant-zero-expression'} from './no-constant-zero-expression.js';
 export {default as 'no-declarations-before-early-exit'} from './no-declarations-before-early-exit.js';
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
+export {default as 'no-double-comparison'} from './no-double-comparison.js';
 export {default as 'no-duplicate-loops'} from './no-duplicate-loops.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';

@@ -14,6 +14,23 @@ const referenceNodeTypes = new Set([
 ]);
 
 /**
+The comparison operators (strict equality, strict inequality, and the four relational operators) that these rules reason about.
+*/
+export const comparisonOperators = new Set(['<', '<=', '>', '>=', '===', '!==']);
+
+/**
+Flip a comparison operator so it reads with its operands in the opposite order. Equality operators are symmetric, so they stay the same.
+*/
+export const flipOperator = {
+	'<': '>',
+	'<=': '>=',
+	'>': '<',
+	'>=': '<=',
+	'===': '===',
+	'!==': '!==',
+};
+
+/**
 Unwrap TypeScript type-only expression wrappers (`as`, `satisfies`, `<Type>`, and `!`), which have no runtime effect.
 
 @param {import('estree').Node} node The node to unwrap.
