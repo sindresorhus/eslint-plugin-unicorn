@@ -37,6 +37,9 @@ test({
 		'while (node.firstChild) { node.firstChild["remove"](); }',
 		'while (node.firstChild) { node.removeChild(node.firstChild); }',
 		'while (node.firstChild) { const child = node.firstChild; child.remove(); }',
+		// The `replaceChildren` pattern only matches `while`, not `do…while` or `for`
+		'do { node.firstChild.remove(); } while (node.firstChild)',
+		'for (; node.firstChild;) { node.firstChild.remove(); }',
 		'while ("x".firstChild) { "x".firstChild.remove(); }',
 		'while (undefined.firstChild) { undefined.firstChild.remove(); }',
 		typeAware('function foo(node: string) { while (node.firstChild) { node.firstChild.remove(); } }'),
@@ -54,6 +57,11 @@ test({
 		'new parentNode.insertBefore(newNode, referenceNode);',
 		'new referenceNode.insertAdjacentText(\'beforebegin\', \'text\');',
 		'new referenceNode.insertAdjacentElement(\'beforebegin\', newNode);',
+		// Position must be a string literal, not a template literal
+		'referenceNode.insertAdjacentText(`beforebegin`, \'text\');',
+		'referenceNode.insertAdjacentElement(`beforebegin`, newNode);',
+		// Text content must be a `Literal` or `Identifier`, not a template literal
+		'referenceNode.insertAdjacentText(\'beforebegin\', `text`);',
 		// Not `MemberExpression`
 		'replaceChild(newNode, oldNode);',
 		'insertBefore(newNode, referenceNode);',
