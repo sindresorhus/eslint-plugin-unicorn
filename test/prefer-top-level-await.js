@@ -121,6 +121,7 @@ test.snapshot({
 		'foo.then(bar, baz).finally(qux)',
 		'(foo.then(bar, baz)).finally(qux)',
 		'(async () => {})().catch(() => process.exit(1))',
+		'(async () => {})().then(bar)',
 		'(async function() {}()).finally(() => {})',
 		'for (const foo of bar) foo.then(bar)',
 		'foo?.then(bar).finally(qux)',
@@ -245,6 +246,10 @@ test.snapshot({
 		outdent`
 			const foo = async () => {};
 			foo?.();
+		`,
+		outdent`
+			const foo = async () => {};
+			const x = condition ? foo() : null;
 		`,
 		outdent`
 			const foo = async () => {};
