@@ -22,7 +22,7 @@ const create = context => {
 	// `JSON.parse(JSON.stringify(…))`
 	context.on('CallExpression', callExpression => {
 		if (!(
-			// `JSON.stringify()`
+			// `JSON.parse()`
 			isMethodCall(callExpression, {
 				object: 'JSON',
 				method: 'parse',
@@ -30,7 +30,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			// `JSON.parse()`
+			// `JSON.stringify()`
 			&& isMethodCall(callExpression.arguments[0], {
 				object: 'JSON',
 				method: 'stringify',
