@@ -210,6 +210,12 @@ test({
 			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
 		},
 		{
+			// Array-pattern export is still flagged (unlike the identifier-pattern export)
+			code: 'export const [foo] = array.filter(bar)',
+			output: 'export const foo = array.find(bar)',
+			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+		},
+		{
 			code: 'const [foo] = array.filter(bar, thisArgument)',
 			output: 'const foo = array.find(bar, thisArgument)',
 			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
@@ -1135,6 +1141,8 @@ test({
 		'at(array.filter(foo), 0)',
 		// `callee.property` is not a `Identifier`
 		'array.filter(foo)["at"](0)',
+		// Optional member access on `.at`
+		'array.filter(foo)?.at(0)',
 		// Computed
 		'array.filter(foo)[at](0)',
 		// Not `at`
