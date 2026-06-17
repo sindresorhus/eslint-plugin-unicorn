@@ -176,9 +176,33 @@ function isMinimalBinaryExpression(left, right, context) {
 	return rightSidesAreSame || isSafeSharedExpression(left.left);
 }
 
+function hasSameObjectWithDifferentDynamicKey(left, right, context) {
+	const {sourceCode} = context;
+
+	if (
+		left.type !== 'MemberExpression'
+		|| right.type !== 'MemberExpression'
+		// Non-computed access can't be a dynamic key, and the `computed` guard also excludes private fields (`obj.#a`), which have no static name but can't be made computed.
+		|| !left.computed
+		|| !right.computed
+		|| hasOptionalChainElement(left)
+		|| hasOptionalChainElement(right)
+		|| !isSafeSharedExpression(left.object)
+		|| !isSameSourceText(left.object, right.object, sourceCode)
+	) {
+		return false;
+	}
+
+	// A statically known key (`obj[0]`, `obj['a']`) is treated as a static property, not a dynamic key.
+	return getStaticPropertyName(left, context) === undefined
+		&& getStaticPropertyName(right, context) === undefined
+		&& !isSameSourceText(left.property, right.property, sourceCode);
+}
+
 function isMinimalMemberExpression(left, right, context) {
-	// `obj.a : obj.b` is intentionally not reported: the only way to minimize it is computed member access (`obj[test ? 'a' : 'b']`), which is not an improvement over dot access.
-	return hasSameStaticPropertyWithDifferentObject(left, right, context);
+	// Static property swaps (`obj.a : obj.b`, `obj['a'] : obj['b']`) are intentionally not reported: minimizing them forces or keeps computed access in place of clearer property access. But a dynamic computed key (`obj[a] : obj[b]`) is already computed, so `obj[test ? a : b]` removes the duplication with no regression.
+	return hasSameStaticPropertyWithDifferentObject(left, right, context)
+		|| hasSameObjectWithDifferentDynamicKey(left, right, context);
 }
 
 function isMinimalTernary(consequent, alternate, context, checkComputedMemberAccess) {

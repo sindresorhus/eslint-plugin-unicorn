@@ -35,7 +35,15 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
-Ternaries where only a property name varies (`object.a : object.b`) are not reported, since minimizing them requires computed member access (`object[test ? 'a' : 'b']`), which is not an improvement.
+Ternaries where only a static property name varies (`object.a : object.b` or `object['a'] : object['b']`) are not reported, since minimizing them needs computed member access (`object[test ? 'a' : 'b']`) in place of clearer property access. But a dynamic computed key is already computed, so it is reported:
+
+```js
+// ❌
+const value = test ? cache[a] : cache[b];
+
+// ✅
+const value = cache[test ? a : b];
+```
 
 Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order — review each report.
 
