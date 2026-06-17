@@ -37,6 +37,9 @@ test.snapshot({
 	],
 	invalid: [
 		'window.addEventListener("wheel", () => {})',
+		// Parenthesized listener: the option must go after the parentheses, not inside them
+		'window.addEventListener("wheel", (() => {}))',
+		'window.addEventListener("wheel", ((function () {})))',
 		'window.addEventListener("mousewheel", () => {})',
 		'window.addEventListener("touchstart", () => {})',
 		'window.addEventListener("touchmove", () => {})',
