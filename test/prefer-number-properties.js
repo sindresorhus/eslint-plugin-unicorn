@@ -123,6 +123,12 @@ test({
 			name: 'parseInt',
 		}),
 		invalidMethodTest({
+			// Radix `0` (treated as base-10 at runtime) is still flagged
+			code: 'parseInt("10", 0);',
+			output: 'Number.parseInt("10", 0);',
+			name: 'parseInt',
+		}),
+		invalidMethodTest({
 			code: 'isNaN(foo);',
 			suggestionOutput: 'Number.isNaN(foo);',
 			name: 'isNaN',
@@ -455,6 +461,9 @@ test.snapshot({
 		'isNaN(10);',
 		'isFinite(10);',
 		'isNaN(foo - 1);',
+		// Multiplication and unsigned-shift operands are also known numbers
+		'isNaN(foo * 1);',
+		'isNaN(foo >>> 0);',
 		'isNaN(foo.length);',
 		'isNaN(parseFloat(foo));',
 		'isNaN(Number(foo));',
