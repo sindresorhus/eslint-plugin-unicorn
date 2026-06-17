@@ -125,22 +125,25 @@ function * getTemplateLiteralFix(fixer, node, identifierName, shouldScopeSelecto
 	}
 }
 
-const isNonLiteralArgument = node =>
-	!isNullLiteral(node)
-	&& !isStringLiteral(node)
-	&& node.type !== 'BinaryExpression'
-	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
-	&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
+const isNonLiteralArgument = node => {
+	node = unwrapTypeScriptExpression(node);
 
-// `getElementsByName` wraps the value in a `[name=…]` CSS selector. A quote in the value would
-// break either the selector (`[name='foo'bar']`) or the re-quoted JS string, so it can't be fixed.
-const nameValueHasQuote = node => {
+	return !isNullLiteral(node)
+		&& !isStringLiteral(node)
+		&& node.type !== 'BinaryExpression'
+		&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
+		&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
+};
+
+// `getElementsByName` wraps the value in a `[name=…]` CSS selector. Quotes and backslashes can
+// break either the selector (`[name='foo'bar']`) or change CSS string escaping, so they can't be fixed.
+const nameValueNeedsEscaping = node => {
 	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return node.value.includes('\'') || node.value.includes('"');
+		return /["'\\]/.test(node.value);
 	}
 
 	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis.some(quasi => /["']/.test(quasi.value.cooked ?? ''));
+		return node.quasis.some(quasi => /["'\\]/.test(quasi.value.cooked ?? ''));
 	}
 
 	return false;
@@ -164,7 +167,7 @@ const canBeFixed = (node, identifierName) => {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 
 	return !isSelectorAsDomName(unwrappedNode, identifierName)
-		&& !(identifierName === 'getElementsByName' && nameValueHasQuote(unwrappedNode))
+		&& !(identifierName === 'getElementsByName' && nameValueNeedsEscaping(unwrappedNode))
 		&& (
 			isNullLiteral(unwrappedNode)
 			|| (isStringLiteral(unwrappedNode) && Boolean(unwrappedNode.value.trim()))

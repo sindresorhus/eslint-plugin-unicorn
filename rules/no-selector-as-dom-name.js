@@ -44,7 +44,11 @@ const getFix = (node, value, expectedPrefix, sourceCode) => {
 		node.type === 'TemplateLiteral'
 		&& node.expressions.length > 0
 	) {
-		if (node.quasis[0].value.cooked !== expectedPrefix) {
+		if (
+			node.expressions.length !== 1
+			|| node.quasis[0].value.cooked !== expectedPrefix
+			|| node.quasis[1].value.cooked !== ''
+		) {
 			return;
 		}
 
@@ -81,6 +85,10 @@ const getDomNameArguments = node => {
 		}
 
 		if (method === 'replace') {
+			if (node.arguments[0]?.type === 'SpreadElement') {
+				return [];
+			}
+
 			return toDomNameArguments(node.arguments.slice(0, 2), '.');
 		}
 
