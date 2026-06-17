@@ -243,6 +243,13 @@ test.snapshot({
 		outdent`
 			switch(foo) {
 				default: {
+					/* block comment */ doSomething();
+				}
+			}
+		`,
+		outdent`
+			switch(foo) {
+				default: {
 					{
 						const bar = 2;
 						doSomething();
