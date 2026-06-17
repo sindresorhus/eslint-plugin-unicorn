@@ -202,6 +202,15 @@ test.snapshot({
 			code: 'class A {static foo() {return this;}}',
 			options: [{preferThis: false, preferSuper: false}],
 		},
+		// Class/superclass name shadowed: report but don't suggest a behavior-changing replacement
+		{
+			code: 'class A {static foo() {const A = other; return this.foo();}}',
+			options: [{preferThis: false, preferSuper: false}],
+		},
+		{
+			code: 'class A extends B {static foo() {const B = other; return super.foo();}}',
+			options: [{preferThis: false, preferSuper: false}],
+		},
 		{
 			code: 'class A extends B {static foo() {return super.foo();}}',
 			options: [{preferThis: false, preferSuper: false}],

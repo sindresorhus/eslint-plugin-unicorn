@@ -92,6 +92,12 @@ const isSameVariable = (sourceCode, reference, binding) =>
 	findVariable(sourceCode.getScope(reference), reference)
 	=== findVariable(sourceCode.getScope(binding), binding);
 
+// Whether the class/superclass name resolves to the class binding at `node`'s location.
+// If it's shadowed by a local variable, the name can't be used to reference the class.
+const isReferenceNameAvailable = (sourceCode, node, referenceNode) =>
+	findVariable(sourceCode.getScope(node), referenceNode.name)
+	=== findVariable(sourceCode.getScope(referenceNode), referenceNode);
+
 const isAssignmentTargetRoot = (parent, node) =>
 	(
 		parent.type === 'AssignmentExpression'
@@ -331,7 +337,10 @@ const create = context => {
 		}
 
 		const classReferenceNode = getClassReferenceNode(getClass(staticMethod));
-		if (!classReferenceNode) {
+		if (
+			!classReferenceNode
+			|| !isReferenceNameAvailable(sourceCode, node, classReferenceNode)
+		) {
 			return problemWithoutSuggestion(node, MESSAGE_ID_CLASS_UNAVAILABLE);
 		}
 
@@ -355,7 +364,10 @@ const create = context => {
 		}
 
 		const superClassReferenceNode = getSimpleSuperClassReferenceNode(getClass(staticMethod));
-		if (!superClassReferenceNode) {
+		if (
+			!superClassReferenceNode
+			|| !isReferenceNameAvailable(sourceCode, node, superClassReferenceNode)
+		) {
 			return problemWithoutSuggestion(node, MESSAGE_ID_SUPER_CLASS_UNAVAILABLE);
 		}
 
