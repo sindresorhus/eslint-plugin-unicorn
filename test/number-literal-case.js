@@ -117,6 +117,15 @@ const tests = {
 			output: 'const foo = 1.2e3',
 		},
 		{
+			// Integer mantissa (no decimal point) with exponent
+			code: 'const foo = 5E3',
+			output: 'const foo = 5e3',
+		},
+		{
+			code: 'const foo = 5E+3',
+			output: 'const foo = 5e+3',
+		},
+		{
 			code: 'const foo = 1.2E-3',
 			output: 'const foo = 1.2e-3',
 		},
@@ -159,6 +168,11 @@ const tests = {
 		{
 			code: 'const foo = -0XaBcDeF',
 			output: 'const foo = -0xABCDEF',
+		},
+		{
+			// Negative BigInt hex with uppercase prefix
+			code: 'const foo = -0XaBcn',
+			output: 'const foo = -0xABCn',
 		},
 
 		// Lowercase hexadecimal number value
