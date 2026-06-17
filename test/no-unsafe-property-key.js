@@ -99,6 +99,9 @@ test.snapshot({
 		'object[function () {}]',
 		'object[class {}]',
 		'object?.[{}]',
+		// Sequence expression evaluating to an object key
+		'object[(0, {})]',
+		'const key = (0, {}); object[key]',
 		'object[{}] = value',
 		'delete object[{}]',
 		'object[{}]()',
