@@ -53,6 +53,9 @@ test.snapshot({
 		'parseInt(value, 10);',
 		'Number.parseInt(value, 10);',
 		'globalThis.parseInt(value, 10);',
+		// Optional call: reported but no suggestion (replacement would be unsafe)
+		'parseInt?.(value, 10);',
+		'Number.parseInt?.(value, 10);',
 		outdent`
 			const {parseInt} = Number;
 			parseInt(value, 10);
