@@ -54,6 +54,9 @@ test.snapshot({
 		'Object.keys(object).map(function (key) {\n\treturn () => [object[key], arguments[0]];\n});',
 		'Object.entries(object).map(function ([key, value]) {\n\treturn [key, arguments[0]];\n});',
 		typescript('Object.keys(object as Record<string, unknown>).map(key => otherObject[key]);'),
+		// Inconsistent casts across accesses can't be unified into a single argument
+		typescript('Object.keys(object).map(key => foo((object as A)[key], object[key]));'),
+		typescript('Object.keys(object).map(key => foo((object as A)[key], (object as B)[key]));'),
 	],
 	invalid: [
 		'for (const key of Object.keys(object)) {\n\tfoo(object[key]);\n}',
@@ -87,6 +90,17 @@ test.snapshot({
 		typescript('Object.keys(object as Record<string, unknown>).map(key => (object as Record<string, unknown>)[key]);'),
 		typescript('Object.keys(object!).map(key => object![key]);'),
 		typescript('Object.keys(object satisfies Record<string, unknown>).map(key => (object satisfies Record<string, unknown>)[key]);'),
+		// Cast only on the value access: it's moved onto the iterable-method argument
+		typescript('for (const key of Object.keys(object)) {\n\tfoo((object as Record<string, unknown>)[key]);\n}'),
+		typescript('Object.keys(object).map(key => foo((object as Record<string, unknown>)[key]));'),
+		// `entries` branch (key also used), cast moved onto the argument
+		typescript('for (const key of Object.keys(object)) {\n\tfoo(key, (object as Record<string, unknown>)[key]);\n}'),
+		// Angle-bracket assertion form
+		typescript('for (const key of Object.keys(object)) {\n\tfoo((<Record<string, unknown>>object)[key]);\n}'),
+		// Cast wrapping the whole access is preserved naturally (object has no cast)
+		typescript('for (const key of Object.keys(object)) {\n\tfoo(object[key] as Foo);\n}'),
+		// A comment inside the argument cast would be dropped when moving the value cast, so it is reported without a fix
+		typescript('Object.keys(object /* keep this */ as A).map(key => (object as A)[key]);'),
 		outdent`
 			for (const key of Object.keys(object)) {
 				foo(object[

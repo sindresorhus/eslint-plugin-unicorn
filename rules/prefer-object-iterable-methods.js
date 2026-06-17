@@ -41,6 +41,13 @@ const mapUnsafeCompletionTypes = new Set([
 	'ThrowStatement',
 ]);
 
+const typeCastTypes = new Set([
+	'TSAsExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
+	'TSNonNullExpression',
+]);
+
 const isObjectMethodCall = (node, method) => isMethodCall(node, {
 	object: 'Object',
 	method,
@@ -156,15 +163,7 @@ const isMutationTarget = node => {
 };
 
 const unwrapReference = node => {
-	if (
-		[
-			'ChainExpression',
-			'TSAsExpression',
-			'TSSatisfiesExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-		].includes(node.type)
-	) {
+	if (node.type === 'ChainExpression' || typeCastTypes.has(node.type)) {
 		return unwrapReference(node.expression);
 	}
 
@@ -324,13 +323,21 @@ const getFix = problem => fixer => {
 		bindingReplacement,
 		valueMembers,
 		valueName,
+		objectNode,
+		objectReplacement,
 	} = problem;
 
-	return [
+	const fixes = [
 		fixer.replaceText(methodProperty, preferredMethod),
 		fixer.replaceText(binding, bindingReplacement),
 		...valueMembers.map(node => fixer.replaceText(node, valueName)),
 	];
+
+	if (objectReplacement !== undefined) {
+		fixes.push(fixer.replaceText(objectNode, objectReplacement));
+	}
+
+	return fixes;
 };
 
 const createProblem = problem => {
@@ -403,6 +410,20 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix 
 		return;
 	}
 
+	// When a value access carries a TypeScript cast on the object (e.g. `(object as Record<string, unknown>)[key]`),
+	// the cast is moved onto the iterable-method argument so the inferred element type is preserved.
+	let objectReplacement;
+	if (valueMembers.some(node => typeCastTypes.has(node.object.type))) {
+		const objectTexts = new Set(valueMembers.map(node => context.sourceCode.getText(node.object)));
+
+		// Different casts across accesses can't be unified into a single argument.
+		if (objectTexts.size !== 1) {
+			return;
+		}
+
+		[objectReplacement] = objectTexts;
+	}
+
 	const valueMemberProperties = new Set(valueMembers.map(node => node.property));
 	const keyReferences = references.filter(reference => !valueMemberProperties.has(reference.identifier));
 	const valueName = getAvailableName('value', binding, context);
@@ -426,12 +447,16 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix 
 		bindingReplacement,
 		valueMembers,
 		valueName,
+		objectNode,
+		objectReplacement,
 		canFix: canFix
 			&& !hasUnsafeSideEffectAroundValueRead({
 				targetNode,
 				valueMembers,
 				context,
-			}),
+			})
+			// Moving the cast onto the argument replaces `objectNode`, so bail if that would drop a comment inside it.
+			&& (objectReplacement === undefined || !hasCommentsInside([objectNode], context.sourceCode)),
 	});
 };
 
