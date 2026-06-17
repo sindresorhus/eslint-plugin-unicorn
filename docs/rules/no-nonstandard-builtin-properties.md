@@ -77,3 +77,10 @@ const Object = {
 
 Object.entires(value);
 ```
+
+Object literals are ignored because their properties are usually user-defined.
+
+```js
+// ✅
+({entires: value}).entires;
+```

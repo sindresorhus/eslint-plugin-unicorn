@@ -248,6 +248,28 @@ const functionInstance = createPropertyInfo({
 	properties: ['prototype'],
 });
 
+const errorPrototype = createPropertyInfo({
+	properties: [
+		'message',
+		'name',
+	],
+});
+
+const errorInstance = createPropertyInfo({
+	properties: [
+		'cause',
+		'message',
+	],
+});
+
+const aggregateErrorInstance = createPropertyInfo({
+	properties: [
+		'cause',
+		'errors',
+		'message',
+	],
+});
+
 const finalizationRegistryPrototype = createPropertyInfo({
 	methods: [
 		'register',
@@ -279,6 +301,8 @@ const mapPrototype = createPropertyInfo({
 		'entries',
 		'forEach',
 		'get',
+		'getOrInsert',
+		'getOrInsertComputed',
 		'has',
 		'keys',
 		'set',
@@ -535,6 +559,8 @@ const weakMapPrototype = createPropertyInfo({
 	methods: [
 		'delete',
 		'get',
+		'getOrInsert',
+		'getOrInsertComputed',
 		'has',
 		'set',
 	],
@@ -557,6 +583,34 @@ const typedArrayStatic = createConstructorPropertyInfo({
 	methods: [
 		'from',
 		'of',
+	],
+});
+
+const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
+	all: new Set([
+		...propertyInfo.all,
+		...properties,
+		...methods,
+	]),
+	callable: new Set([
+		...propertyInfo.callable,
+		...methods,
+	]),
+});
+
+const uint8ArrayPrototype = extendPropertyInfo(typedArrayPrototype, {
+	methods: [
+		'setFromBase64',
+		'setFromHex',
+		'toBase64',
+		'toHex',
+	],
+});
+
+const uint8ArrayStatic = extendPropertyInfo(typedArrayStatic, {
+	methods: [
+		'fromBase64',
+		'fromHex',
 	],
 });
 
@@ -583,6 +637,11 @@ const typedArrayObjects = Object.fromEntries([
 ]));
 
 const nativeObjects = new Map(Object.entries({
+	AggregateError: {
+		instance: aggregateErrorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	Atomics: {
 		static: createPropertyInfo({
 			methods: [
@@ -641,6 +700,18 @@ const nativeObjects = new Map(Object.entries({
 		prototype: dataViewPrototype,
 		static: createConstructorPropertyInfo(),
 	},
+	Error: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo({
+			methods: ['isError'],
+		}),
+	},
+	EvalError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	FinalizationRegistry: {
 		instance: finalizationRegistryPrototype,
 		prototype: finalizationRegistryPrototype,
@@ -673,7 +744,10 @@ const nativeObjects = new Map(Object.entries({
 		instance: iteratorPrototype,
 		prototype: iteratorPrototype,
 		static: createConstructorPropertyInfo({
-			methods: ['from'],
+			methods: [
+				'concat',
+				'from',
+			],
 		}),
 	},
 	Number: {
@@ -721,6 +795,16 @@ const nativeObjects = new Map(Object.entries({
 			],
 		}),
 	},
+	RangeError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
+	ReferenceError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	Proxy: {
 		static: createFunctionPropertyInfo({
 			methods: ['revocable'],
@@ -753,6 +837,11 @@ const nativeObjects = new Map(Object.entries({
 				'raw',
 			],
 		}),
+	},
+	SyntaxError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
 	},
 	Symbol: {
 		instance: symbolPrototype,
@@ -798,6 +887,16 @@ const nativeObjects = new Map(Object.entries({
 		prototype: urlSearchParametersPrototype,
 		static: createConstructorPropertyInfo(),
 	},
+	TypeError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
+	URIError: {
+		instance: errorInstance,
+		prototype: errorPrototype,
+		static: createConstructorPropertyInfo(),
+	},
 	WeakMap: {
 		instance: weakMapPrototype,
 		prototype: weakMapPrototype,
@@ -814,6 +913,11 @@ const nativeObjects = new Map(Object.entries({
 		static: createConstructorPropertyInfo(),
 	},
 	...typedArrayObjects,
+	Uint8Array: {
+		instance: uint8ArrayPrototype,
+		prototype: uint8ArrayPrototype,
+		static: uint8ArrayStatic,
+	},
 	JSON: {
 		static: createPropertyInfo({
 			methods: [
@@ -870,6 +974,7 @@ const nativeObjects = new Map(Object.entries({
 				'sin',
 				'sinh',
 				'sqrt',
+				'sumPrecise',
 				'tan',
 				'tanh',
 				'trunc',
@@ -938,20 +1043,9 @@ const getStaticPropertyName = node => {
 const isGlobalObjectReference = (node, context) => {
 	node = unwrapExpression(node);
 
-	if (
-		node.type === 'Identifier'
+	return node.type === 'Identifier'
 		&& globalObjectNames.has(node.name)
-	) {
-		return isGlobalIdentifier(node, context);
-	}
-
-	if (node.type !== 'MemberExpression') {
-		return false;
-	}
-
-	const propertyName = getStaticPropertyName(node);
-	return globalObjectNames.has(propertyName)
-		&& isGlobalObjectReference(node.object, context);
+		&& isGlobalIdentifier(node, context);
 };
 
 const getNativeTypeNameFromReference = (node, context) => {
@@ -1083,13 +1177,6 @@ function resolveNativeObjectReference(node, context) {
 		case 'ArrayExpression': {
 			return {
 				typeName: 'Array',
-				usage: 'instance',
-			};
-		}
-
-		case 'ObjectExpression': {
-			return {
-				typeName: 'Object',
 				usage: 'instance',
 			};
 		}
