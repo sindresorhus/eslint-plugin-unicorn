@@ -395,6 +395,14 @@ test.snapshot({
 		typescript('type BooleanAlias = BooleanAlias; const completed: BooleanAlias = true;'),
 		typeAware('declare const options: {enabled: string}; const completed = options.enabled;'),
 		typeAware('type BooleanAlias = boolean; declare const isEnabled: BooleanAlias; const isCompleted = isEnabled;'),
+		// Destructured bindings are intentionally not checked, even with type information.
+		typeAware('declare const options: {strict: boolean}; const {strict} = options;'),
+		typeAware('declare const options: {strict: boolean}; const {strict: renamed} = options;'),
+		typeAware('declare const options: {strict?: boolean}; const {strict = true} = options;'),
+		typeAware('declare const values: [boolean]; const [enabled] = values;'),
+		typeAware('declare const o: {a: {b: boolean}}; const {a: {b}} = o;'),
+		// Destructured parameters are likewise not checked.
+		typeAware('function foo({strict}: {strict: boolean}) {}'),
 	],
 	invalid: [
 		typescript('const completed: boolean = true;'),
