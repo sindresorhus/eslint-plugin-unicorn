@@ -87,5 +87,9 @@ test.snapshot({
 		// Keyword spacing
 		'function foo() { return `a` + `b${x}` }',
 		'function foo() { return \'a\' + \'b\' }',
+		'function foo() { throw `a` + `b${x}` }',
+		'const fn = () => `a` + `b${x}`;',
+		// Empty template literal operand
+		'`a` + ``',
 	],
 });
