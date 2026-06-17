@@ -198,6 +198,11 @@ const isBooleanVariable = (variable, context) => {
 		return false;
 	}
 
+	// Destructuring patterns (`const {completed} = task`, `const [enabled] = list`) are intentionally not checked, since renaming a destructured binding is more involved than renaming a plain identifier.
+	if (definition.type === 'Variable' && definition.node.id.type !== 'Identifier') {
+		return false;
+	}
+
 	// A setter parameter's name is positional and dictated by the accessor, not chosen freely.
 	if (definition.type === 'Parameter' && definition.node.parent?.kind === 'set') {
 		return false;
