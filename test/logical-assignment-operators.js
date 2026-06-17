@@ -4,7 +4,7 @@ const {test} = getTester(import.meta);
 
 const options = ['always', {enforceForIfStatements: true}];
 const ifErrorWithSuggestions = (orOutput, nullishOutput) => ({
-	messageId: 'if',
+	messageId: 'ifNullish',
 	suggestions: [
 		{
 			messageId: 'convertIf',
@@ -86,8 +86,44 @@ test({
 			options,
 			errors: [
 				{
-					messageId: 'if',
+					messageId: 'ifNullish',
 					suggestions: [],
+				},
+			],
+		},
+		// A truthy `if` maps to `&&=` only, so it keeps the base single-operator message
+		{
+			code: 'if (foo) { foo = bar; }',
+			output: 'foo &&= bar;',
+			options,
+			errors: [
+				{
+					messageId: 'if',
+				},
+			],
+		},
+		// The falsy `if` message names both operators
+		{
+			code: 'if (!baz) { baz = qux; }',
+			options,
+			errors: [
+				{
+					message: '\'if\' statement can be replaced with a logical operator assignment with operator ||= or ??=.',
+					suggestions: [
+						{messageId: 'convertIf', output: 'baz ||= qux;'},
+						{messageId: 'convertIf', output: 'baz ??= qux;'},
+					],
+				},
+			],
+		},
+		// The nullish `if` keeps the base message, naming only `??=`
+		{
+			code: 'if (baz == null) { baz = qux; }',
+			output: 'baz ??= qux;',
+			options,
+			errors: [
+				{
+					message: '\'if\' statement can be replaced with a logical operator assignment with operator ??=.',
 				},
 			],
 		},

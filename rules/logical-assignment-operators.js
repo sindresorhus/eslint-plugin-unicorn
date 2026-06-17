@@ -3,11 +3,18 @@ import {getBuiltinRule} from './utils/index.js';
 const baseRule = getBuiltinRule('logical-assignment-operators');
 
 const MESSAGE_ID_IF = 'if';
+const MESSAGE_ID_IF_NULLISH = 'ifNullish';
 const MESSAGE_ID_CONVERT_IF = 'convertIf';
 const LOGICAL_OR_ASSIGNMENT_OPERATOR = '||=';
 const LOGICAL_OR_OPERATOR = '||';
 const NULLISH_COALESCING_ASSIGNMENT_OPERATOR = '??=';
 const NULLISH_COALESCING_OPERATOR = '??';
+
+const messages = {
+	...baseRule.meta.messages,
+	// A falsy `if` assignment is offered as both `||=` and `??=`, so name both operators. The phrasing matches the base rule's `if` message, which renders the operator without backticks.
+	[MESSAGE_ID_IF_NULLISH]: '\'if\' statement can be replaced with a logical operator assignment with operator ||= or ??=.',
+};
 
 const getFix = problem => problem.fix ?? problem.suggest?.[0]?.fix;
 
@@ -46,14 +53,20 @@ function getProblem(problem, sourceCode) {
 		return problem;
 	}
 
+	// Both `||=` and `??=` apply here, so the message names both operators.
+	const problemWithMessage = {
+		...withoutFixes(problem),
+		messageId: MESSAGE_ID_IF_NULLISH,
+	};
+
 	if (sourceCode.getCommentsInside(problem.node).length > 0) {
-		return withoutFixes(problem);
+		return problemWithMessage;
 	}
 
 	const fix = getFix(problem);
 
 	return {
-		...withoutFixes(problem),
+		...problemWithMessage,
 		suggest: [
 			{
 				messageId: MESSAGE_ID_CONVERT_IF,
@@ -102,7 +115,7 @@ const config = {
 		defaultOptions: [
 			baseRule.meta.defaultOptions[0],
 		],
-		messages: baseRule.meta.messages,
+		messages,
 		languages: [
 			'js/js',
 		],
