@@ -7,10 +7,15 @@ const noAutofixOutput = /./.exec('');
 test.typescript({
 	valid: [
 		'type ElementUnion = Other | {foo: string};',
-		'type ElementIntersection = Other & {foo: string};',
 		'type ElementUnion = A | B | {foo: string} | {bar: string};',
 		'type ElementUnion = {foo: string} | {bar: string};',
 		'type ElementUnion = Promise<{foo: string}> | Other;',
+		// A union/intersection sibling is itself a composite type, so the literal is left alone.
+		'type ElementUnion = {foo: string} | (A | B);',
+		'type ElementUnion = {foo: string} | (A & B);',
+		'type ElementUnion = {foo: string} | ({bar: string} & {baz: boolean});',
+		// An unparenthesized intersection is still a `TSIntersectionType` sibling, so it is treated as composite too.
+		'type ElementUnion = {foo: string} | A & B;',
 		outdent`
 			type ElementUnion = Other | {
 				foo: string;
@@ -34,11 +39,6 @@ test.typescript({
 		{
 			code: 'type ElementUnion = {foo: string} | Other;',
 			output: 'type ElementUnion = Other | {foo: string};',
-			errors: [{messageId: 'prefer-type-literal-last'}],
-		},
-		{
-			code: 'type ElementIntersection = {foo: string} & Other;',
-			output: noAutofixOutput,
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
@@ -92,26 +92,15 @@ test.typescript({
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{
+			// Composite siblings are skipped when detecting, but the fix still groups them up front with the other members.
+			code: 'type ElementUnion = {foo: string} | (A | B) | Other;',
+			output: 'type ElementUnion = (A | B) | Other | {foo: string};',
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
+		{
+			// The outer literal's only sibling is a parenthesized union, so only the inner union reports.
 			code: 'type ElementUnion = {foo: string} | ({bar: string} | Other);',
-			output: 'type ElementUnion = ({bar: string} | Other) | {foo: string};',
-			errors: [
-				{messageId: 'prefer-type-literal-last'},
-				{messageId: 'prefer-type-literal-last'},
-			],
-		},
-		{
-			code: 'type ElementIntersection = {foo: string} & (A | B);',
-			output: noAutofixOutput,
-			errors: [{messageId: 'prefer-type-literal-last'}],
-		},
-		{
-			code: 'type ElementIntersection = {(value: 1): 1} & ((value: 1) => 2);',
-			output: noAutofixOutput,
-			errors: [{messageId: 'prefer-type-literal-last'}],
-		},
-		{
-			code: 'type ElementIntersection = {new (): Element} & (new () => Other);',
-			output: noAutofixOutput,
+			output: 'type ElementUnion = {foo: string} | (Other | {bar: string});',
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
 		{

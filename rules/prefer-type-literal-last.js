@@ -2,13 +2,16 @@ import {getParenthesizedRange, getParenthesizedText} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-type-literal-last';
 const messages = {
-	[MESSAGE_ID]: 'Move type literals to the end of this {{kind}}.',
+	[MESSAGE_ID]: 'Move type literals to the end of this union.',
 };
 
 const isTypeLiteral = node => node.type === 'TSTypeLiteral';
 
 // `null`/`undefined` are conventionally kept at the very end as a nullish escape hatch, so they don't count as "another type".
 const isNullishType = node => node.type === 'TSUndefinedKeyword' || node.type === 'TSNullKeyword';
+
+// A union/intersection sibling is itself a composite type, not a compact named member, so moving a literal past it does nothing for readability.
+const isCompositeType = node => node.type === 'TSUnionType' || node.type === 'TSIntersectionType';
 
 const getFirstTypeLiteralBeforeOtherType = types => {
 	let typeLiteral;
@@ -19,7 +22,7 @@ const getFirstTypeLiteralBeforeOtherType = types => {
 			continue;
 		}
 
-		if (isNullishType(type)) {
+		if (isNullishType(type) || isCompositeType(type)) {
 			continue;
 		}
 
@@ -29,53 +32,31 @@ const getFirstTypeLiteralBeforeOtherType = types => {
 	}
 };
 
-const isCommentInsideAnyType = (comment, types, context) => {
-	const [commentStart, commentEnd] = context.sourceCode.getRange(comment);
-
-	return types.some(type => {
-		const [typeStart, typeEnd] = getParenthesizedRange(type, context);
-
-		return commentStart >= typeStart && commentEnd <= typeEnd;
-	});
-};
-
-const hasCommentBetween = (comments, start, end, sourceCode) =>
-	comments.some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		return commentStart >= start && commentEnd <= end;
-	});
-
-const hasBoundaryComment = (node, context, comments) => {
+// A comment only stays meaningful if it travels with the type it sits inside. A comment anywhere else in the union (between members, or just before/after it) would end up describing a different member once we reorder, so we bail out of the autofix.
+const hasUnsafeComment = (node, context) => {
 	const {sourceCode} = context;
 	const tokenBefore = sourceCode.getTokenBefore(node);
-	const [firstType] = node.types;
-	const lastType = node.types.at(-1);
-	const [firstTypeStart] = getParenthesizedRange(firstType, context);
-	const [, lastTypeEnd] = getParenthesizedRange(lastType, context);
-
-	if (
-		tokenBefore
-		&& hasCommentBetween(comments, sourceCode.getRange(tokenBefore)[1], firstTypeStart, sourceCode)
-	) {
-		return true;
-	}
-
 	const tokenAfter = sourceCode.getTokenAfter(node);
-	const end = tokenAfter ? sourceCode.getRange(tokenAfter)[0] : sourceCode.text.length;
+	const regionStart = tokenBefore ? sourceCode.getRange(tokenBefore)[1] : 0;
+	const regionEnd = tokenAfter ? sourceCode.getRange(tokenAfter)[0] : sourceCode.text.length;
+	const typeRanges = node.types.map(type => getParenthesizedRange(type, context));
 
-	return hasCommentBetween(comments, lastTypeEnd, end, sourceCode);
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+
+		if (commentStart < regionStart || commentEnd > regionEnd) {
+			return false;
+		}
+
+		return typeRanges.every(([typeStart, typeEnd]) => commentStart < typeStart || commentEnd > typeEnd);
+	});
 };
-
-const getKind = node => node.type === 'TSUnionType' ? 'union' : 'intersection';
 
 /**
 Create the rule.
 @param {import('eslint').Rule.RuleContext} context - Rule context.
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	const getProblem = node => {
 		const problemNode = getFirstTypeLiteralBeforeOtherType(node.types);
 
@@ -86,20 +67,8 @@ const create = context => {
 		return {
 			node: problemNode,
 			messageId: MESSAGE_ID,
-			data: {
-				kind: getKind(node),
-			},
 			* fix(fixer, {abort}) {
-				if (node.type === 'TSIntersectionType') {
-					return abort();
-				}
-
-				const comments = sourceCode.getCommentsInside(node);
-
-				if (
-					comments.some(comment => !isCommentInsideAnyType(comment, node.types, context))
-					|| hasBoundaryComment(node, context, sourceCode.getAllComments())
-				) {
+				if (hasUnsafeComment(node, context)) {
 					return abort();
 				}
 
@@ -116,7 +85,6 @@ const create = context => {
 	};
 
 	context.on('TSUnionType', getProblem);
-	context.on('TSIntersectionType', getProblem);
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -125,8 +93,8 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Require type literals to be last in union and intersection types.',
-			recommended: 'unopinionated',
+			description: 'Require type literals to be last in union types.',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,
