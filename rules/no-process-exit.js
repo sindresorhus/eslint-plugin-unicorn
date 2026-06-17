@@ -17,11 +17,21 @@ const create = context => {
 		return;
 	}
 
-	let processEventHandler;
+	// Track how many `process.on`/`process.once` handler calls we're currently inside.
+	// A counter (not a single node) is needed so a nested/sibling handler doesn't end the enclosing context.
+	let processEventHandlerDepth = 0;
 
 	// Only report if it's outside a worker thread context. See #328.
 	let requiredWorkerThreadsModule = false;
 	const problemNodes = [];
+
+	const isProcessEventHandler = node => isMethodCall(node, {
+		object: 'process',
+		methods: ['on', 'once'],
+		minimumArguments: 1,
+		optionalCall: false,
+		optionalMember: false,
+	});
 
 	// `require('worker_threads')`
 	context.on('CallExpression', callExpression => {
@@ -45,26 +55,20 @@ const create = context => {
 
 	// Check `process.on` / `process.once` call
 	context.on('CallExpression', node => {
-		if (isMethodCall(node, {
-			object: 'process',
-			methods: ['on', 'once'],
-			minimumArguments: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
-			processEventHandler = node;
+		if (isProcessEventHandler(node)) {
+			processEventHandlerDepth++;
 		}
 	});
 	context.onExit('CallExpression', node => {
-		if (node === processEventHandler) {
-			processEventHandler = undefined;
+		if (isProcessEventHandler(node)) {
+			processEventHandlerDepth--;
 		}
 	});
 
 	// Check `process.exit` call
 	context.on('CallExpression', node => {
 		if (
-			!processEventHandler
+			processEventHandlerDepth === 0
 			&& isMethodCall(node, {
 				object: 'process',
 				method: 'exit',

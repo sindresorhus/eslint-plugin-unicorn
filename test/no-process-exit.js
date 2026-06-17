@@ -25,6 +25,9 @@ test({
 		'process.once("SIGINT", () => { process.exit(1); })',
 		'process.once("SIGINT", () => process.exit(1))',
 		'process.once("SIGINT", () => { if (true) { process.exit(1); } })',
+		// A sibling/nested `process.on` must not end the enclosing handler context
+		'process.on("SIGINT", function() { process.on("exit", function() {}); process.exit(1); })',
+		'process.on("SIGINT", () => { process.once("exit", () => {}); process.exit(1); })',
 		outdent`
 			const {workerData, parentPort} = require('worker_threads');
 			process.exit(1);
