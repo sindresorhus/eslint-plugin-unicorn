@@ -785,6 +785,16 @@ test.snapshot({
 			}
 		`,
 
+		// \`satisfies\` wrapper on \`this\`
+		outdent`
+			class Foo {
+				_bar = 1;
+				baz() {
+					return (this satisfies Foo)._bar;
+				}
+			}
+		`,
+
 		// Report-only: decorator expression
 		outdent`
 			class Foo {
@@ -857,6 +867,16 @@ test.snapshot({
 				_bar = 1;
 				baz() {
 					return {...(this as Foo)};
+				}
+			}
+		`,
+
+		// Report-only: object spread observes public fields through a \`satisfies\` wrapper
+		outdent`
+			class Foo {
+				_bar = 1;
+				baz() {
+					return {...(this satisfies Foo)};
 				}
 			}
 		`,
