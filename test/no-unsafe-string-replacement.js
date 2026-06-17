@@ -45,8 +45,12 @@ test.snapshot({
 		'template.replaceAll("{url}", htmlEscape(url))',
 		'template.replace("{url}", replacement)',
 		'template.replace("{url}", options.replacement)',
+		// Optional member expression replacement
+		'template.replace("{url}", options?.replacement)',
 		'template.replace("{url}", String(url))',
 		'template.replace("{url}", String.raw`${url}`)', // eslint-disable-line no-template-curly-in-string
+		// A non-`String.raw` tagged template is not a known-safe literal
+		'template.replace("{url}", css`safe string`)',
 		'const String = {raw: () => replacement}; template.replace("{url}", String.raw`ignored`)',
 		{
 			code: 'template.replace("{url}", htmlEscape(url) as string)',

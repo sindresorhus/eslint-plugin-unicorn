@@ -292,6 +292,10 @@ test.snapshot({
 			export {foo as 'foo'};
 		`,
 		outdent`
+			import {foo} from 'foo';
+			export {foo as 'bar'};
+		`,
+		outdent`
 			import {'foo' as foo} from 'foo';
 			export {foo as "foo"};
 		`,

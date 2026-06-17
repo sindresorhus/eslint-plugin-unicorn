@@ -78,6 +78,8 @@ jsx.snapshot({
 		'<input type="file" accept="audio/*" />',
 		'<input type="file" accept="video/*" />',
 		'<input type="file" accept="image/*" />',
+		// Multiple wildcards in one value
+		'<input type="file" accept="audio/*, video/*" />',
 		'<input type="FILE" accept="image/png" />',
 		'<input type={"file"} accept="image/png" />',
 		'const type = "file"; <input type={type} accept="image/png" />',
@@ -96,6 +98,12 @@ jsx.snapshot({
 		'<input type="file" accept="image/jpg" />',
 		'<input type="file" accept="image/svg" />',
 		'<input type="file" accept="png" />',
+		// Uppercase extension is lowercased (in JSX, not just HTML)
+		'<input type="file" accept=".PNG" />',
+		// Case-normalization creates a duplicate extension
+		'<input type="file" accept=".png, .PNG" />',
+		// Empty accept value
+		'<input type="file" accept="" />',
 		'<input type="file" accept="IMAGE/*" />',
 		'<input type="file" accept="TEXT/*" />',
 		'<input type="file" accept="*/plain" />',

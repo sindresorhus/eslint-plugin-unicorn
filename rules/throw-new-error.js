@@ -1,4 +1,5 @@
 import {isMemberExpression} from './ast/index.js';
+import {hasOptionalChainElement} from './utils/index.js';
 import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
@@ -16,6 +17,12 @@ const create = context => {
 		}
 
 		const {callee} = node;
+
+		// `new` cannot be applied to an optional-chained call (e.g. `Error?.()`, `lib?.Error()`).
+		if (node.optional || hasOptionalChainElement(callee)) {
+			return;
+		}
+
 		if (!(
 			(callee.type === 'Identifier' && customError.test(callee.name))
 			|| (

@@ -39,6 +39,8 @@ test.snapshot({
 	invalid: [
 		'import fs from "fs";',
 		'export {promises} from "fs";',
+		'export * from "fs";',
+		'export * as ns from "fs";',
 		outdent`
 			async function foo() {
 				const fs = await import('fs');

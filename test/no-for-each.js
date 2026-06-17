@@ -67,6 +67,10 @@ test.snapshot({
 			'property.forEach(({property}) => bar(property))',
 			'() => foo.forEach()',
 			'foo.forEach((element = {}) => call(element))',
+			// Rest parameter is not fixable
+			'foo.forEach((...args) => bar(...args))',
+			// Array literal receiver gets a clean autofix
+			'[1, 2, 3].forEach(element => bar(element))',
 
 			// Can't turn `return` to `continue`
 			outdent`

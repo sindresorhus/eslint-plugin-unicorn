@@ -31,7 +31,9 @@ function getFetchOptionsProblem(context, node) {
 	}
 
 	const bodyValue = bodyProperty.value;
-	if (isUndefined(bodyValue) || isNullLiteral(bodyValue)) {
+	// `void …` always evaluates to `undefined`, so the body is effectively absent.
+	const isVoidExpression = bodyValue.type === 'UnaryExpression' && bodyValue.operator === 'void';
+	if (isUndefined(bodyValue) || isNullLiteral(bodyValue) || isVoidExpression) {
 		return;
 	}
 

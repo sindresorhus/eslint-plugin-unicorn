@@ -36,6 +36,12 @@ test.snapshot({
 		'throw lib[Error]()',
 		// `MemberExpression.property` not `Identifier`
 		'throw lib["Error"]()',
+		// Optional chaining — `new` cannot apply to an optional-chained call
+		'throw Error?.()',
+		'throw lib?.Error()',
+		'throw lib?.foo.Error()',
+		// Optional chain in callee even when the call is not the chain's outermost element
+		'throw lib?.foo.Error().message',
 		// Not `FooError` like
 		'throw lib.getError()',
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2654 (Effect library)

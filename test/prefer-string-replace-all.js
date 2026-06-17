@@ -210,6 +210,8 @@ test.snapshot({
 		'foo.split("a").join(`b`)',
 		'foo.split("_").join("$&")',
 		'foo.split("_").join("$1")',
+		// A literal `$` in the join argument must be doubled to `$$` in the replacement
+		'foo.split("_").join("$$")',
 		'(foo).split("a").join("b")',
 		'foo.split(/a+/).join("b")',
 		'foo.split(/(?:a)/).join("b")',

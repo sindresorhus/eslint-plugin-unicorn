@@ -60,5 +60,7 @@ test.snapshot({
 			options: FORBID_EXPRESSION_OPTIONS,
 		},
 		'sorted = [...(0, array)].sort()',
+		// Spread argument is a low-precedence expression and needs parentheses when unwrapped
+		'sorted = [...a + b].sort()',
 	],
 });

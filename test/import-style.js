@@ -606,6 +606,15 @@ test({
 			errors: [namedError],
 		},
 		{
+			// Non-empty array destructuring of a dynamic import is namespace-style
+			code: outdent`
+				async () => {
+					const [x] = await import('named');
+				}
+			`,
+			errors: [namedError],
+		},
+		{
 			code: 'import * as x from \'named\'',
 			errors: [namedError],
 		},

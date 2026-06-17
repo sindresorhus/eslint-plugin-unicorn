@@ -41,6 +41,12 @@ test.snapshot({
 		'Object.keys(collection[name]).map(key => {\n\tconst name = "other";\n\treturn collection[name][key];\n});',
 		'Object.keys(object).forEach(key => foo(object[key]));',
 		'Object.keys(object).reduce((result, key) => ({...result, [key]: object[key]}), {});',
+		// `.flatMap` is out of scope (only `.map` is handled)
+		'Object.keys(object).flatMap(key => [object[key]]);',
+		// Async callback is not converted
+		'Object.keys(object).map(async key => foo(object[key]));',
+		// `for await` is skipped
+		'async function f() { for await (const key of Object.keys(object)) { foo(object[key]); } }',
 		'for (const key in object) {\n\tfoo(object[key]);\n}',
 		'Object.entries(object).map(([key, value]) => {\n\tvalue = key;\n\treturn key;\n});',
 		'Object.entries(object).map(([key, value, extra]) => key);',

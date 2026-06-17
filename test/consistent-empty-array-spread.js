@@ -19,6 +19,10 @@ test.snapshot({
 		'call(...(test ? "" : [a, b]))',
 		'call(...(test ? [] : "ab"))',
 		'[...(test ? "ab" : [a, b])]',
+		// Both branches are empty arrays
+		'[...(test ? [] : [])]',
+		// Nested ternary as a branch is not recursed into
+		'[...(test ? (a ? "" : "x") : [a, b])]',
 		// Not checking
 		'const EMPTY_STRING = ""; [...(test ? EMPTY_STRING : [a, b])]',
 	],

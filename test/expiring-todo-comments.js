@@ -83,6 +83,11 @@ ruleTest({
 		'// TODO [peer:find-up-simple@>=1]: `find-up-simple` is a dependency but not a peer dependency, so `peer:` never triggers',
 		'// TODO [-find-up-simple]: We actually use this.',
 		'// TODO [+popura]: I think we won\'t need a broken package.',
+		// A dependency name that contains a date must not be misclassified as a date
+		{
+			code: '// TODO [+popura-2000-01-01]: A broken package with a date-like name.',
+			options: [{checkDates: true}],
+		},
 		'// TODO [semver@>1000]: Welp hopefully we won\'t get at that.',
 		'// TODO [semver@>=1000]: Welp hopefully we won\'t get at that.',
 		'// TODO [@lubien/fixture-beta-package@>=1.0.0]: we are using a pre-release',

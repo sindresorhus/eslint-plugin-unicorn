@@ -270,6 +270,8 @@ ruleTest.snapshot({
 
 		// Not `CallExpression`
 		'new Array.from(foo);',
+		// `Array.from` on a member expression (e.g. `globalThis.Array`) is not flagged
+		'globalThis.Array.from(set);',
 		// Not `MemberExpression`
 		'from(foo);',
 		// `callee.property` is not a `Identifier`
@@ -394,6 +396,12 @@ ruleTest.snapshot({
 		'Array.from((0, a))',
 		'Array.from([...iterator.toArray(), ...other])',
 		'Array.from([1])',
+		// `Map` is an iterable too
+		'Array.from(new Map([["a", 1]]))',
+		// Holey array literal: `Array.from` densifies holes, so the fix must spread
+		'Array.from([1,,3])',
+		'Array.from([,])',
+		'Array.from([1, , 3, ,])',
 		'Array.from((/* keep */ [1]))',
 		'Array.from((/* comment */ foo))',
 		'/* 1 */ Array /* 2 */ .from /* 3 */ ( /* 4 */ a /* 5 */,)',
@@ -881,6 +889,7 @@ ruleTest.snapshot({
 		'new Uint16Array([1, 2, 3]).slice()',
 		'new Int32Array([1, 2, 3]).slice()',
 		'new Uint32Array([1, 2, 3]).slice()',
+		'new Float16Array([1, 2, 3]).slice()',
 		'new Float32Array([1, 2, 3]).slice()',
 		'new Float64Array([1, 2, 3]).slice()',
 		'new BigInt64Array([1n, 2n, 3n]).slice()',

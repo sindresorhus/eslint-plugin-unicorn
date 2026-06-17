@@ -272,8 +272,11 @@ test.snapshot({
 			'this.bar --;',
 			'[this.bar] = array;',
 			'[this.bar = defaultValue] = array;',
+			'[...this.bar] = array;',
 			'({property: this.bar} = object);',
 			'({property: this.bar = defaultValue} = object);',
+			'for (this.bar of array) {}',
+			'for (this.bar in object) {}',
 		].map(code => outdent`
 			class Foo {
 				set bar(v) {

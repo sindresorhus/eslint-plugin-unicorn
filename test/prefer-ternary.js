@@ -212,6 +212,25 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			// `satisfies` binds tighter than `?:`, so no parentheses are needed in the test position
+			code: outdent`
+				function unicorn() {
+					if(test satisfies boolean){
+						return foo;
+					} else{
+						return b;
+					}
+				}
+			`,
+			output: outdent`
+				function unicorn() {
+					return test satisfies boolean ? foo : b;
+				}
+			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: outdent`
 				function unicorn() {
 					if(test){

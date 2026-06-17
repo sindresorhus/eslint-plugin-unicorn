@@ -101,6 +101,11 @@ test({
 			output: String.raw`const foo = "\u{1D306}";`,
 		},
 		{
+			// Single hex digit in `\u{…}`
+			code: String.raw`const foo = "\u{a}";`,
+			output: String.raw`const foo = "\u{A}";`,
+		},
+		{
 			code: String.raw`const foo = "\ud834foo";`,
 			output: String.raw`const foo = "\uD834foo";`,
 		},
@@ -209,6 +214,11 @@ test({
 		{
 			code: String.raw`const foo = /\u{1d306}/u`,
 			output: String.raw`const foo = /\u{1D306}/u`,
+		},
+		{
+			// Single hex digit in `\u{…}` (regex)
+			code: String.raw`const foo = /\u{a}/u`,
+			output: String.raw`const foo = /\u{A}/u`,
 		},
 		{
 			code: String.raw`const foo = /\ca/`,

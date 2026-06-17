@@ -22,6 +22,7 @@ const create = context => {
 					[
 						'ImportDeclaration',
 						'ExportNamedDeclaration',
+						'ExportAllDeclaration',
 						'ImportExpression',
 						'TSImportType',
 					].includes(node.parent.type)

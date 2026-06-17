@@ -224,6 +224,8 @@ test.snapshot({
 		'string.substring(1 + index, index)',
 		'string.substring(index, /* comment */ index + 1)',
 		'string.substring(index, index + /* comment */ 1)',
+		// Literal arguments with a comment between them (suppresses the suggestion)
+		'string.substring(0, /* between */ 1)',
 		'string.substring((( index )), (( index )) + 1)',
 		'string.substring((( index )) - 1, (( index )))',
 		'(( string )).substring(index, index + 1)',
@@ -280,6 +282,10 @@ test.snapshot({
 		},
 		{
 			code: '(array as Foo[]).slice(-1).pop()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<Foo[]>array).slice(-1).pop()',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -354,6 +360,8 @@ test.snapshot({
 		'_.last(array)',
 		'lodash.last(array)',
 		'underscore.last(array)',
+		// Member-expression argument needs no parentheses
+		'_.last(foo.bar)',
 		// Should add `()` to `new Array`
 		'_.last(new Array)',
 		// Semicolon

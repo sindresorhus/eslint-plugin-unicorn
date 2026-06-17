@@ -954,6 +954,8 @@ ruleTest.snapshot({
 			'foo.jS',
 			'index.JS',
 			'foo..JS',
+			// Valid stem + middle segment + uppercase primary extension: only the extension is flagged
+			'foo.SPEC.JS',
 		].map(filename => ({code: `/* Filename ${filename} */`, filename})),
 	],
 });

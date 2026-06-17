@@ -85,6 +85,8 @@ ruleTest.snapshot({
 		'// Download from ftp://example.com/file and sftp://example.com/file.',
 		'// Copy from s3://bucket/key.',
 		'// import api from \'../github-helpers/api.js\';',
+		// A term preceded by a hyphen (compound word fragment) is skipped
+		'// foo-github-bar',
 		'// The file is api.js.',
 		'// Use api/index.js.',
 		'// Use api/config.json.',
@@ -144,6 +146,8 @@ ruleTest.snapshot({
 		'// mac OS X and MacOS',
 		'// you tube video',
 		'// github issue',
+		// Same term as a dotted property (skipped) and as standalone prose (flagged)
+		'// foo.github and github docs',
 		'// ios app',
 		'// reddit discussion',
 		'// gulp.js task',

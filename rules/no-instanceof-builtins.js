@@ -2,6 +2,8 @@ import {
 	checkVueTemplate,
 	getParenthesizedRange,
 	getTokenStore,
+	isParenthesized,
+	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 import builtinErrors from './shared/builtin-errors.js';
@@ -86,7 +88,18 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 	yield fixSpaceAroundKeyword(fixer, node, context);
 
 	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
-	yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+
+	// Wrap a low-precedence left operand so `typeof` applies to the whole expression,
+	// e.g. `a + b instanceof Function` -> `typeof (a + b) === 'function'`.
+	if (
+		!isParenthesized(left, context)
+		&& shouldAddParenthesesToUnaryExpressionArgument(left, 'typeof')
+	) {
+		yield fixer.insertTextBeforeRange(leftRange, 'typeof (');
+		yield fixer.insertTextAfterRange(leftRange, ')');
+	} else {
+		yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+	}
 
 	yield fixer.replaceText(instanceofToken, '===');
 

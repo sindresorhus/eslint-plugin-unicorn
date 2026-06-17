@@ -268,6 +268,17 @@ test({
 			output: '!"foo".startsWith("f")',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
+		// Comment inside the comparison aborts the fix (no autofix)
+		{
+			code: '"foo".indexOf("f") /* comment */ === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// TypeScript non-null assertion as the search argument aborts the fix (no autofix)
+		{
+			code: 'function foo(s: string) { return s.indexOf(bar!) === 0; }',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Reversed comparison
 		{
 			code: '0 === "foo".indexOf("f")',
@@ -426,6 +437,8 @@ test.snapshot({
 		'/^a/.test(foo.bar())',
 		'/^a/.test(foo?.bar)',
 		'/^a/.test(foo?.bar())',
+		// TypeScript non-null assertion as the target gets parenthesized
+		{code: '/^a/.test(foo!)', languageOptions: {parser: parsers.typescript}},
 		'/^a/.test(`string`)',
 		'/^a/.test(tagged`string`)',
 		'(/^a/).test((0, "string"))',

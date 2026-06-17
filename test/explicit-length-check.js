@@ -80,6 +80,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			// A non-null assertion wraps `.length`, so the boolean context isn't recognized (documented limitation)
+			code: 'if (foo.length!) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'const object: {length: number | undefined} = {length: 123}; if (object.length && object.length > 0) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -348,6 +353,8 @@ test.snapshot({
 		'do {} while (foo.length);',
 		'for (let i = 0; (bar && !foo.length); i ++) {}',
 		'const isEmpty = foo.length < 1;',
+		// Non-standard zero-check inside a ternary test
+		'const isEmpty = foo.length < 1 ? true : false;',
 		'const isEmpty = foo.length <= 0;',
 		'if (0 >= foo.length) {}',
 		'bar(foo.length >= 1)',

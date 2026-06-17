@@ -1,5 +1,10 @@
 import {isBooleanLiteral, isMethodCall, isStringLiteral} from './ast/index.js';
-import {getIndentString, getScopes, isLeftHandSide} from './utils/index.js';
+import {
+	getIndentString,
+	getParenthesizedRange,
+	getScopes,
+	isLeftHandSide,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
 const messages = {
@@ -168,8 +173,10 @@ const isEventParameterSafe = (listener, context) => {
 	return true;
 };
 
-const fixMissingOptions = listener => fixer =>
-	fixer.insertTextAfter(listener, ', {passive: true}');
+const fixMissingOptions = (listener, context) => fixer =>
+	// Insert after any parentheses around the listener so the option isn't swallowed
+	// into a sequence expression, e.g. `((() => {}, {passive: true}))`.
+	fixer.insertTextAfterRange(getParenthesizedRange(listener, context), ', {passive: true}');
 
 const fixBooleanOptions = optionsNode => fixer =>
 	fixer.replaceText(
@@ -203,7 +210,7 @@ const fixPassiveFalse = passiveProperty => fixer =>
 const getOptionsProblem = (context, callExpression, optionsNode) => {
 	if (!optionsNode) {
 		return {
-			fix: fixMissingOptions(callExpression.arguments[1]),
+			fix: fixMissingOptions(callExpression.arguments[1], context),
 		};
 	}
 

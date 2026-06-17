@@ -104,6 +104,9 @@ test.snapshot({
 		// `parentNode` has side effect
 		'foo().removeChild(child)',
 		'foo[doSomething()].removeChild(child)',
+		// Simple non-optional same-reference (`parentNode` and `parentElement`)
+		'foo.parentNode.removeChild(foo)',
+		'foo.parentElement.removeChild(foo)',
 		// Optional parent
 		'parentNode?.removeChild(foo)',
 		'foo?.parentNode.removeChild(foo)',

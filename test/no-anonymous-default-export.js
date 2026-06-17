@@ -116,6 +116,16 @@ test.snapshot({
 			code: 'module.exports = class {}',
 			filename: '/path/to/module.js',
 		},
+		{
+			// Arrow function directly assigned to `module.exports`
+			code: 'module.exports = () => {}',
+			filename: '/path/to/module.js',
+		},
+		{
+			// Arrow function directly assigned to bare `exports`
+			code: 'exports = () => {}',
+			filename: '/path/to/module.js',
+		},
 
 		// `FunctionDeclaration`
 		{

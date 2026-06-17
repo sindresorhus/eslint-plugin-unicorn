@@ -101,6 +101,13 @@ const isPropertyWrite = (thisExpression, property) => {
 		|| (parent.type === 'UpdateExpression' && parent.argument === memberExpression)
 		// `[this.foo] = …`
 		|| (parent.type === 'ArrayPattern' && parent.elements.includes(memberExpression))
+		// `[...this.foo] = …`
+		|| (parent.type === 'RestElement' && parent.argument === memberExpression)
+		// `for (this.foo of …) {}` / `for (this.foo in …) {}`
+		|| (
+			(parent.type === 'ForOfStatement' || parent.type === 'ForInStatement')
+			&& parent.left === memberExpression
+		)
 		// `({property: this.foo} = …)`
 		|| (
 			parent.type === 'Property'

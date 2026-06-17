@@ -20,6 +20,7 @@ const simpleMethods = [
 	'flatMap',
 	'forEach',
 	'map',
+	'some',
 ];
 
 const simpleMethodsExceptForEach = simpleMethods.filter(name => name !== 'forEach');
@@ -89,6 +90,7 @@ test({
 
 		// `Boolean`
 		'foo.find(Boolean)',
+		'foo.some(Boolean)',
 
 		// Primitive wrappers are ignored
 		'foo.map(String)',

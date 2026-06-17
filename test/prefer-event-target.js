@@ -19,9 +19,11 @@ test.snapshot({
 		'new foo.EventEmitter()',
 		...[
 			'import {EventEmitter} from "@angular/core";',
+			'import EventEmitter from "@angular/core";',
 			'const {EventEmitter} = require("@angular/core");',
 			'const EventEmitter = require("@angular/core").EventEmitter;',
 			'import {EventEmitter} from "eventemitter3";',
+			'import EventEmitter from "eventemitter3";',
 			'const {EventEmitter} = await import("eventemitter3");',
 			'const EventEmitter = (await import("eventemitter3")).EventEmitter;',
 		].map(code => outdent`
@@ -47,6 +49,8 @@ test.snapshot({
 			}
 		`,
 		'new EventEmitter',
+		'new EventEmitter()',
+		'new EventEmitter(options)',
 		'const emitter = new EventEmitter;',
 		// For coverage
 		'for (const {EventEmitter} of []) {new EventEmitter}',

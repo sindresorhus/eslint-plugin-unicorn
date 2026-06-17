@@ -287,6 +287,17 @@ test({
 			code: 'const foo = index < 0 ? undefined : array[index];',
 			errors: errorsWithSuggestion('const foo = array[index];'),
 		},
+		// Keep a TypeScript type assertion on the kept branch
+		{
+			code: 'const foo = index >= 0 ? (array[index] as string) : undefined;',
+			errors: errorsWithSuggestion('const foo = array[index] as string;'),
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = index < 0 ? undefined : (array[index] as string);',
+			errors: errorsWithSuggestion('const foo = array[index] as string;'),
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'const foo = -1 < index ? array[index] : undefined;',
 			errors: errorsWithSuggestion('const foo = array[index];'),
@@ -752,6 +763,10 @@ test.snapshot({
 	invalid: [
 		'function f(foo: Type = undefined) {}',
 		'function f(foo?: Type = undefined) {}',
+		// The enclosing function's return type is irrelevant to a redundant default or local initializer
+		'function f(foo = undefined): string {}',
+		'function f(): string { let bar = undefined; }',
+		'const f = (): string => { let bar = undefined; };',
 		'const f = function(foo: Type = undefined) {}',
 		'const f = (foo: Type = undefined) => {}',
 		'const f = {method(foo: Type = undefined){}}',

@@ -196,6 +196,33 @@ test({
 			errors: [error('keyCode')],
 		},
 		{
+			// Loose `==` comparison is handled like `===`
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.keyCode == 27) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key == 'Escape') {}
+				});
+			`,
+			errors: [error('keyCode')],
+		},
+		{
+			code: outdent`
+				foo.addEventListener('click', event => {
+					if (event.which == 13) {}
+				});
+			`,
+			output: outdent`
+				foo.addEventListener('click', event => {
+					if (event.key == 'Enter') {}
+				});
+			`,
+			errors: [error('which')],
+		},
+		{
 			code: outdent`
 				foo.addEventListener('click', event => {
 					if (event.keyCode === 65) {}

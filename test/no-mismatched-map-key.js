@@ -112,6 +112,9 @@ test.snapshot({
 		},
 		'map.has(key) ? map.get(anotherKey) : value;',
 		'map.has(key) ? map.set(anotherKey, value) : value;',
+		// `WeakMap` has the same has/get/set shape and is flagged too
+		'if (weakMap.has(key)) { weakMap.get(anotherKey); }',
+		'weakMap.has(key) ? weakMap.get(anotherKey) : value;',
 		'if (map.has(key)) { const value = map.get(anotherKey); }',
 		'if (map.has(key)) { map.set(anotherKey, value); }',
 		'if (!map.has(key)) { const value = map.get(anotherKey); }',

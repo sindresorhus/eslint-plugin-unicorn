@@ -74,6 +74,17 @@ test.snapshot({
 	invalid: looseStrategyInvalid,
 });
 
+// Low-precedence left operand must be parenthesized so `typeof` applies to the whole expression
+test.snapshot({
+	valid: [],
+	invalid: [
+		'a + b instanceof Function',
+		'a + b instanceof String',
+		'a - b instanceof Function',
+		'(a + b) instanceof Function',
+	],
+});
+
 // Strict strategy
 test.snapshot({
 	valid: [],

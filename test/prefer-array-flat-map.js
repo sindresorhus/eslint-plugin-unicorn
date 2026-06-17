@@ -111,6 +111,15 @@ test.snapshot({
 			code: 'function foo(collection: string[] | {map(callback: (value: string) => string[]): string[][]}) { collection.map(value => [value]).flat(); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Type arguments on `.flat()`/`.map()` — report but don't drop or mangle them in the fix
+		{
+			code: 'const bar = [1,2,3].map(i => [i]).flat<number>()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const bar = [1,2,3].map<number[]>(i => [i]).flat()',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const bar = { map: () => {} }.map(i => [i]).flat()',
 		'const bar = [1,2,3].map(i => i).map(i => [i]).flat()',
 		'const bar = [1,2,3].sort().map(i => [i]).flat()',

@@ -331,6 +331,19 @@ test({
 			options: [{patterns: noToYesPattern}],
 			errors: createError('no', 'yes'),
 		},
+		// JSX attribute values can't use backslash escapes; encode the delimiter quote as an HTML entity
+		{
+			code: 'const foo = <div className=\'quote\' />',
+			output: 'const foo = <div className=\'&#39;"\' />',
+			options: [{patterns}],
+			errors: createError('quote', '\'"'),
+		},
+		{
+			code: 'const foo = <div className="quote" />',
+			output: 'const foo = <div className="\'&quot;" />',
+			options: [{patterns}],
+			errors: createError('quote', '\'"'),
+		},
 		{
 			code: outdent`
 				const description = 'no';

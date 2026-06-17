@@ -283,6 +283,8 @@ test.snapshot({
 	].map(code => ({code, options: [{preferAttributes: true}]})),
 	invalid: [
 		'element.dataset.unicorn;',
+		// Computed string-key read
+		'element.dataset["unicorn"];',
 		'element.dataset.fooBar;',
 		'element.dataset["foo:bar"];',
 		'element.dataset[\'foo:bar\'];',

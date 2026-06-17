@@ -47,6 +47,9 @@ test.snapshot({
 		'window.innerWidth',
 		'window.innerHeight',
 		'window.addEventListener("resize", () => {})',
+		// A no-interpolation template literal event name is also window-specific
+		'window.addEventListener(`resize`, () => {})',
+		'window.removeEventListener(`resize`, () => {})',
 		'window.onresize = function () {}',
 		'\'open\' in window; window.open("https://example.com")',
 		'`open` in window; window.open("https://example.com")',

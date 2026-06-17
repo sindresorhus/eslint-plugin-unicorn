@@ -79,6 +79,8 @@ test.snapshot({
 		'throw new Error({foo})',
 		'throw new Error({foo: 0}.foo)',
 		'throw new Error(lineNumber=2)',
+		// A primitive non-string literal is resolved via `getStaticValue`
+		'throw new Error(false)',
 		'const error = new RangeError;',
 		'throw Object.assign(new Error(), {foo})',
 	],

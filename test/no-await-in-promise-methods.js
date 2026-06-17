@@ -37,6 +37,9 @@ test.snapshot({
 		'Promise.all([await (( promise ))])',
 		'Promise.all([await await promise])',
 		'Promise.all([...foo, await promise1, await promise2])',
+		// Multiple awaited elements without a spread
+		'Promise.all([await promise1, await promise2])',
+		'Promise.any([await a, await b, await c])',
 		'Promise.all([await /* comment*/ promise])',
 	],
 });

@@ -11,6 +11,11 @@ test.snapshot({
 		'fileReader.readAsDataURL(blob)',
 		'fileReader.readAsBinaryString(blob)',
 		'fileReader.readAsText(blob, "ascii")',
+		// Two arguments to `readAsArrayBuffer`
+		'fileReader.readAsArrayBuffer(blob, extraArg)',
+		// Optional member / optional call
+		'fileReader?.readAsArrayBuffer(blob)',
+		'fileReader.readAsText?.(blob)',
 	],
 	invalid: [
 		'fileReader.readAsArrayBuffer(blob)',

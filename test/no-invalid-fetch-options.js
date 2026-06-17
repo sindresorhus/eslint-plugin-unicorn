@@ -17,6 +17,9 @@ test.snapshot({
 		'new Request(url, {body: undefined})',
 		'fetch(url, {body: null})',
 		'new Request(url, {body: null})',
+		// `void` always evaluates to `undefined`, so the body is effectively absent
+		'fetch(url, {body: void 0})',
+		'new Request(url, {method: "GET", body: void 0})',
 		'fetch(url, {...options, body})',
 		'new Request(url, {...options, body})',
 		'new fetch(url, {body})',

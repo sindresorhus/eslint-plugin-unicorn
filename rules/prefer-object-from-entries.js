@@ -206,7 +206,12 @@ function fixReduceAssignOrSpread({context, callExpression, property}) {
 		yield removeParentheses(functionBody, fixer, context);
 	}
 
-	return function * (fixer) {
+	return function * (fixer, {abort}) {
+		// Rebuilding the callback body would drop any comment inside the callback.
+		if (sourceCode.getCommentsInside(callExpression.arguments[0]).length > 0) {
+			return abort();
+		}
+
 		// Wrap `array.reduce()` with `Object.fromEntries()`
 		yield fixer.insertTextBefore(callExpression, 'Object.fromEntries(');
 		yield fixer.insertTextAfter(callExpression, ')');

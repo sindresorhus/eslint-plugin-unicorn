@@ -41,6 +41,11 @@ test({
 			const {a} = foo;
 			console.log(a, foo.b());
 		`,
+		// Tagged template tag would change \`this\` binding, like a method call
+		outdent`
+			const {a} = foo;
+			console.log(a, foo.a\`template\`);
+		`,
 		outdent`
 			const {a} = foo;
 			console.log(a, foo.b);

@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -33,5 +33,10 @@ test.snapshot({
 		'(( (( String )).fromCharCode( ((code)), ) ))',
 		'String.fromCharCode.bind(String)',
 		'const x = String.fromCharCode',
+		// Multiple arguments
+		'String.fromCharCode(65, 66, 67)',
+		// TypeScript wrappers on the receiver
+		{code: 'foo!.charCodeAt(0)', languageOptions: {parser: parsers.typescript}},
+		{code: '(str as string).charCodeAt(0)', languageOptions: {parser: parsers.typescript}},
 	],
 });

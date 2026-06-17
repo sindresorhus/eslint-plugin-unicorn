@@ -305,6 +305,11 @@ test.snapshot({
 			const object = {foo: 1};
 			object[(( 0, bar ))] = (( baz ));
 		`,
+		// Computed key with a side effect: suggestion only (no autofix)
+		outdent`
+			const object = {};
+			object[getKey()] = 'value';
+		`,
 		outdent`
 			const object = {};
 			object.bar = 2;
@@ -671,6 +676,11 @@ test.snapshot({
 			const weakSet = new WeakSet([a, b]);
 			weakSet.add(c);
 		`,
+		// `WeakSet` without parentheses
+		outdent`
+			const weakSet = new WeakSet;
+			weakSet.add(c);
+		`,
 		outdent`
 			const set = new Set([]);
 			set.add(3);
@@ -878,6 +888,11 @@ test.snapshot({
 		`,
 		outdent`
 			const weakMap = new WeakMap([[foo, 1]]);
+			weakMap.set(bar, 2);
+		`,
+		// `WeakMap` without parentheses
+		outdent`
+			const weakMap = new WeakMap;
 			weakMap.set(bar, 2);
 		`,
 		outdent`

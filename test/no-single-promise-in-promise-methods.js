@@ -37,6 +37,7 @@ test.snapshot({
 		'await Promise.race([promises[0],],)',
 		'await Promise.race([await promise])',
 		'await Promise.any([promise])',
+		'await Promise.any([promise,],)',
 		'await Promise.race([promise])',
 		'await Promise.race([new Promise(() => {})])',
 		'+await Promise.race([+1])',
@@ -97,6 +98,11 @@ test.snapshot({
 		'Promise.race([ new Foo ,],).then()',
 		'Promise.race([ new Foo ,],).toString',
 		'foo(Promise.race([promise]))',
+		// `Promise.any` not awaited
+		'Promise.any([promise])',
+		'foo(Promise.any([promise]))',
+		// `Promise.all` as an object property value: reported but not fixed
+		'const obj = {p: Promise.all([promise])}',
 		'Promise.race([promise]).foo = 1',
 		'Promise.race([promise])[0] ||= 1',
 		'Promise.race([undefined]).then()',

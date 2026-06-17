@@ -312,7 +312,8 @@ function fixArrayFrom(node, context) {
 	const [object] = node.arguments;
 
 	function getObjectText() {
-		if (isArrayLiteral(object)) {
+		// `Array.from` densifies holes, so a holey array literal must be spread, not used directly.
+		if (isArrayLiteral(object) && !hasArrayHoles(object)) {
 			return sourceCode.getText(object);
 		}
 

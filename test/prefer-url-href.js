@@ -62,6 +62,11 @@ test.snapshot({
 		'const url = new URL(value); String(url)',
 		'const url = new URL(value); const url2 = url; url2.toString()',
 		'const url = condition ? new URL(a) : new URL(b); String(url)',
+		// A directly-fresh URL (ternary / sequence) inside `String()`
+		'String(condition ? new URL(a) : new URL(b))',
+		'String((a, new URL(x)))',
+		// TypeScript non-null assertion on a fresh URL
+		typescript('new URL(value)!.toString()'),
 		'const url = new URL(value); url.toString = () => "custom"; url.toString()',
 		'const url = new URL(value); url.toString = () => "custom"; String(url)',
 		'import {URL} from "node:url"; new URL(value).toString()',

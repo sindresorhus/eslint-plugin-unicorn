@@ -1,7 +1,7 @@
 
 import outdent from 'outdent';
 import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -9,6 +9,9 @@ test.snapshot({
 	valid: [
 		'const foo = new Object()',
 		'const foo = new Array()',
+		// Optional call can't become a `new` expression
+		'const foo = Array?.()',
+		'const foo = Map?.()',
 		'const foo = new ArrayBuffer()',
 		'const foo = new BigInt64Array()',
 		'const foo = new BigUint64Array()',
@@ -106,9 +109,13 @@ test.snapshot({
 	],
 	invalid: [
 		'const object = (Object)();',
+		// `Object()` is only exempt for strict equality, not loose
+		'const isObject = v => Object(v) == v;',
 		'const symbol = new (Symbol)("");',
 		'const symbol = new /* comment */ Symbol("");',
 		'const symbol = new Symbol;',
+		// TypeScript non-null assertion wraps the `new` expression
+		{code: 'const s = new Symbol()!;', languageOptions: {parser: parsers.typescript}},
 		// `ReturnStatement`
 		outdent`
 			() => {

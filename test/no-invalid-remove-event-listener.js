@@ -10,12 +10,14 @@ test.snapshot({
 		'el.removeEventListener?.("click", () => {})',
 		'el.notRemoveEventListener("click", () => {})',
 		'el[removeEventListener]("click", () => {})',
+		'el["removeEventListener"]("click", () => {})',
 
 		// Arguments
 		'el.removeEventListener("click")',
 		'el.removeEventListener()',
 		'el.removeEventListener(() => {})',
 		'el.removeEventListener(...["click", () => {}], () => {})',
+		'el.removeEventListener(...args, () => {})',
 		'el.removeEventListener(() => {}, "click")',
 		'window.removeEventListener("click", bind())',
 		'window.removeEventListener("click", handler.notBind())',
@@ -44,6 +46,9 @@ test.snapshot({
 		'window.removeEventListener("scroll", this.handler.bind(abc))',
 		'window.removeEventListener("click", () => {})',
 		'window.removeEventListener("keydown", function () {})',
+		// Named function expression and async arrow are still inline functions
+		'el.removeEventListener("click", function handleClick() {})',
+		'el.removeEventListener("click", async () => {})',
 		'el.removeEventListener("click", (e) => { e.preventDefault(); })',
 		'el.removeEventListener("mouseover", fn.bind(abc))',
 		'el?.removeEventListener("mouseover", fn.bind(abc))',

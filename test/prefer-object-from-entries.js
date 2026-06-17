@@ -185,6 +185,8 @@ test.snapshot({
 	],
 	invalid: [
 		'pairs.reduce(object => ({...object, key}), {});',
+		// Report but don't drop a comment inside the callback
+		'pairs.reduce(object => ({...object, /* keep this */ key}), {});',
 		// Trailing comma
 		'pairs.reduce(object => ({...object, key}), {},);',
 		// Object has trailing comma

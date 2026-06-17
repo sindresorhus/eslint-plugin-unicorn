@@ -23,9 +23,13 @@ test.snapshot({
 		'foo(1.0 + 1)',
 		'const foo = 1.00',
 		'const foo = 1.00000',
+		// Trailing zero after a non-zero fraction digit
+		'const foo = 1.10',
 		'const foo = -1.0',
 		'const foo = 123123123.0',
 		'const foo = 123.11100000000',
+		// Leading-dot zero inside a computed member
+		'a[.0]',
 		'const foo = 1.',
 		'const foo = +1.',
 		'const foo = -1.',

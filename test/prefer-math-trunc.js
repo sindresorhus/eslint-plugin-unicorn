@@ -107,6 +107,11 @@ test.snapshot({
 
 		// Other operators
 		'const foo = bar >> 0;',
+		// Binary expression as the left operand of `>> 0`
+		'const foo = (a + b) >> 0;',
+		// `~~` of a TypeScript non-null assertion / conditional expression
+		{code: 'const foo = ~~bar!;', languageOptions: {parser: parsers.typescript}},
+		'const foo = ~~(a ? b : c);',
 		'const foo = bar << 0;',
 		'const foo = bar ^ 0;',
 		'function foo() {return.1 ^0;}',

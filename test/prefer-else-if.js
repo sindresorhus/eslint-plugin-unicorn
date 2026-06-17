@@ -290,6 +290,30 @@ test.snapshot({
 			if (foo === 1) {}
 			if (foo === 2) {}
 		`,
+		// `null` literal as a distinct static value
+		outdent`
+			if (foo === null) {}
+			if (foo === 1) {}
+		`,
+		// `this` as the discriminant
+		outdent`
+			if (this === null) {}
+			if (this === undefined) {}
+		`,
+		// Deeply nested member expression discriminant
+		outdent`
+			if (a.b.c === 1) {}
+			if (a.b.c === 2) {}
+		`,
+		// Three sequential ifs inside a switch case
+		outdent`
+			switch (x) {
+				case 'a':
+					if (foo === 1) {}
+					if (foo === 2) {}
+					if (foo === 3) {}
+			}
+		`,
 		outdent`
 			if (foo === 1) {
 				bar();

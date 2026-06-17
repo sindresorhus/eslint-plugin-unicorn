@@ -40,5 +40,10 @@ test.snapshot({
 			options: FORBID_EXPRESSION_OPTIONS,
 		},
 		'reversed = [...(0, array)].reverse()',
+		// Spread argument is a low-precedence expression and needs parentheses when unwrapped
+		'reversed = [...a + b].reverse()',
+		'reversed = [...a ? b : c].reverse()',
+		'reversed = [...(a + b)].reverse()',
+		'reversed = [...new Set(array)].reverse()',
 	],
 });

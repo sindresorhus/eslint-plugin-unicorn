@@ -139,6 +139,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: errorsReduce,
 		},
+		// Async callback is reported but not auto-fixed
+		{
+			code: 'array.reduce(async (total, item) => transform(total, item), initialValue)',
+			errors: errorsReduce,
+		},
 		...[
 			'array.reduce((str, item) => str += item, "")',
 			'array?.reduce((str, item) => str += item, "")',

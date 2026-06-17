@@ -133,7 +133,13 @@ const create = context => {
 
 		const {sourceCode} = context;
 		const mapProperty = mapCallExpression.callee.property;
-		const fix = wouldRemoveComments(context, flatCallExpression, [mapCallExpression])
+		// Renaming `.map` to `.flatMap` keeps the call's type arguments (now wrong for `flatMap`),
+		// and removing `.flat()` would drop its type arguments — skip the fix in either case.
+		const fix = (
+			wouldRemoveComments(context, flatCallExpression, [mapCallExpression])
+			|| hasTypeArguments(flatCallExpression)
+			|| hasTypeArguments(mapCallExpression)
+		)
 			? undefined
 			: function * (fixer) {
 				// Removes:
