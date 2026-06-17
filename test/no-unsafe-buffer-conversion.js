@@ -104,6 +104,10 @@ test.snapshot({
 		'Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength)',
 		'Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)',
 		'globalThis.Buffer.from(data.buffer)',
+		// Other global object names are also recognized
+		'window.Buffer.from(data.buffer)',
+		'global.Buffer.from(data.buffer)',
+		'self.Buffer.from(data.buffer)',
 		'import {Buffer} from \'node:buffer\'; Buffer.from(data.buffer)',
 		'import {Buffer as B} from \'buffer\'; B.from(data.buffer, data.byteOffset)',
 		'Buffer.from((data).buffer)',
