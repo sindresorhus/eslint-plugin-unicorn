@@ -191,6 +191,12 @@ test({
 			output: '"foo".slice(1, 3)',
 			errors: errorsSubstr,
 		},
+		{
+			// Zero-length: end equals start
+			code: 'foo.substr(1, 0)',
+			output: 'foo.slice(1, 1)',
+			errors: errorsSubstr,
+		},
 		// Extra arguments
 		{
 			code: 'foo.substr(1, 2, 3)',
