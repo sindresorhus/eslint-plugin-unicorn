@@ -18,6 +18,8 @@ const isClassList = node => isMemberExpression(node, {
 
 const isSelectorAsDomName = value => selectorPrefixes.has(value?.[0]);
 
+const isNotDomNode = node => isNodeValueNotDomNode(unwrapTypeScriptExpression(node));
+
 const getDomNameValue = node =>
 	getStaticStringValue(node)
 	?? (
@@ -76,7 +78,7 @@ const getDomNameArguments = node => {
 			methods: classListMethods,
 		})
 		&& isClassList(node.callee.object)
-		&& !isNodeValueNotDomNode(node.callee.object.object)
+		&& !isNotDomNode(node.callee.object.object)
 	) {
 		const method = node.callee.property.name;
 
@@ -100,7 +102,7 @@ const getDomNameArguments = node => {
 			methods: ['getElementById', 'getElementsByClassName'],
 			argumentsLength: 1,
 		})
-		&& !isNodeValueNotDomNode(node.callee.object)
+		&& !isNotDomNode(node.callee.object)
 	) {
 		const prefix = node.callee.property.name === 'getElementById' ? '#' : '.';
 		return toDomNameArguments(node.arguments, prefix);

@@ -135,15 +135,20 @@ const isNonLiteralArgument = node => {
 		&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
 };
 
-// `getElementsByName` wraps the value in a `[name=…]` CSS selector. Quotes and backslashes can
-// break either the selector (`[name='foo'bar']`) or change CSS string escaping, so they can't be fixed.
+const stringNeedsEscaping = (value, raw) =>
+	/[\n\r"'\\\u{2028}\u{2029}]/u.test(value)
+	|| raw.includes('\\')
+	|| /[\n\r\u{2028}\u{2029}]/u.test(raw);
+
+// `getElementsByName` wraps the value in a `[name=…]` CSS selector. Quotes, line terminators, and
+// raw escapes can break the generated code or change CSS string escaping, so they can't be fixed.
 const nameValueNeedsEscaping = node => {
 	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return /["'\\]/.test(node.value);
+		return stringNeedsEscaping(node.value, node.raw);
 	}
 
 	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis.some(quasi => /["'\\]/.test(quasi.value.cooked ?? ''));
+		return node.quasis.some(quasi => stringNeedsEscaping(quasi.value.cooked ?? '', quasi.value.raw));
 	}
 
 	return false;
@@ -157,16 +162,32 @@ const isStaticSelector = node =>
 	);
 
 const selectorDomNameMethods = new Set(['getElementById', 'getElementsByClassName']);
-const selectorPrefixes = new Set(['.', '#']);
+const simpleCssIdentifierPattern = /^-?[A-Z_a-z][\w-]*$/u;
 
-const isSelectorAsDomName = (node, identifierName) =>
-	selectorDomNameMethods.has(identifierName)
-	&& selectorPrefixes.has(getStaticStringValue(node)?.[0]);
+const isSimpleCssIdentifier = value => simpleCssIdentifierPattern.test(value);
+
+const canUseBareSelector = (node, identifierName) => {
+	if (!selectorDomNameMethods.has(identifierName)) {
+		return true;
+	}
+
+	const value = getStaticStringValue(node);
+
+	if (value === undefined) {
+		return true;
+	}
+
+	if (identifierName === 'getElementById') {
+		return isSimpleCssIdentifier(value);
+	}
+
+	return value.match(/\S+/gv)?.every(className => isSimpleCssIdentifier(className)) ?? false;
+};
 
 const canBeFixed = (node, identifierName) => {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 
-	return !isSelectorAsDomName(unwrappedNode, identifierName)
+	return canUseBareSelector(unwrappedNode, identifierName)
 		&& !(identifierName === 'getElementsByName' && nameValueNeedsEscaping(unwrappedNode))
 		&& (
 			isNullLiteral(unwrappedNode)
