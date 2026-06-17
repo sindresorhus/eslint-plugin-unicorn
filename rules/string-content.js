@@ -116,11 +116,16 @@ const create = context => {
 		const fix = type === 'Literal'
 			? fixer => {
 				const [quote] = raw;
-				// JSX attribute strings don't support backslash escapes, so encode the delimiter
-				// quote as an HTML entity (which JSX decodes) instead of escaping it.
-				const replacementText = node.parent.type === 'JSXAttribute'
-					? quote + fixed.replaceAll(quote, quote === '"' ? '&quot;' : '&#39;') + quote
-					: escapeString(fixed, quote);
+				let replacementText;
+				if (node.parent.type === 'JSXAttribute') {
+					// JSX attribute strings don't support backslash escapes, so encode the delimiter
+					// quote as an HTML entity (which JSX decodes) instead of escaping it.
+					const entity = quote === '"' ? '&quot;' : '&#39;';
+					replacementText = quote + fixed.replaceAll(quote, () => entity) + quote;
+				} else {
+					replacementText = escapeString(fixed, quote);
+				}
+
 				return fixer.replaceText(node, replacementText);
 			}
 			: fixer => replaceTemplateElement(
