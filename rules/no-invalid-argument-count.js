@@ -1267,7 +1267,9 @@ const create = context => {
 		const arity = getArity(functionNode);
 		const argumentCount = callExpression.arguments.length;
 
-		if (!hasInvalidArgumentCount(arity, argumentCount)) {
+		// In JavaScript a parameter without a default is still optional at the call site, so
+		// only report passing too many arguments to a user-defined function, never too few.
+		if (argumentCount <= arity.maximum) {
 			return;
 		}
 
