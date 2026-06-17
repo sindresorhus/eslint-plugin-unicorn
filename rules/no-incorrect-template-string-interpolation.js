@@ -14,17 +14,28 @@ const memberExpression = String.raw`${identifier}(?:\.${identifier})*`;
 const missingDollar = new RegExp(String.raw`(?<![$\\])(?<!\{)\{(?<expression>${memberExpression})\}(?!\})`, 'gv');
 const missingOpeningBrace = new RegExp(String.raw`(?<!\\)(?<!\{)\$(?<expression>${memberExpression})\}(?!\})`, 'gv');
 
-const getMissingDollarReplacements = raw => Array.from(raw.matchAll(missingDollar), match => ({
-	index: match.index,
-	incorrect: match[0],
-	correct: `$${match[0]}`,
-}));
+// `{foo}` at the start of an `import`/`export`/`const`/`let`/`var` line is a named specifier or destructuring pattern, not a missing-dollar mistake (common in code-generation templates). Requiring no `=` (or `;`/`{`/`}`) before it keeps object literals like `const x = {foo}` reported.
+const isBindingDeclaration = (raw, index) => {
+	const lineStart = raw.lastIndexOf('\n', index - 1) + 1;
+	return /^\s*(?:import|export|const|let|var)\b[^;={}]*$/.test(raw.slice(lineStart, index));
+};
 
-const getMissingOpeningBraceReplacements = raw => Array.from(raw.matchAll(missingOpeningBrace), match => ({
-	index: match.index,
-	incorrect: match[0],
-	correct: `\${${match.groups.expression}}`,
-}));
+const getMissingDollarReplacements = raw => raw.matchAll(missingDollar)
+	.filter(match => !isBindingDeclaration(raw, match.index))
+	.map(match => ({
+		index: match.index,
+		incorrect: match[0],
+		correct: `$${match[0]}`,
+	}))
+	.toArray();
+
+const getMissingOpeningBraceReplacements = raw => raw.matchAll(missingOpeningBrace)
+	.map(match => ({
+		index: match.index,
+		incorrect: match[0],
+		correct: `\${${match.groups.expression}}`,
+	}))
+	.toArray();
 
 const getReplacements = raw => {
 	const replacements = [
@@ -80,7 +91,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow incorrect template literal interpolation syntax.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		hasSuggestions: true,
 		messages,
