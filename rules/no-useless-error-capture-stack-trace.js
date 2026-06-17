@@ -114,7 +114,7 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		const maybeExpressionStatement = callExpression.parent === 'ChainExpression'
+		const maybeExpressionStatement = callExpression.parent.type === 'ChainExpression'
 			? callExpression.parent.parent
 			: callExpression.parent;
 
