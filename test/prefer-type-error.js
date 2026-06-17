@@ -308,6 +308,12 @@ test({
 				throw new Error('This package requires a browser environment.');
 			}
 		`,
+		// An `||` where one side is an existence check (not a type check) is not flagged
+		outdent`
+			if (typeof x !== 'undefined' || Array.isArray(x)) {
+				throw new Error('message');
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -318,6 +324,20 @@ test({
 			`,
 			output: outdent`
 				if (!isFinite(foo)) {
+					throw new TypeError();
+				}
+			`,
+			errors,
+		},
+		{
+			// `||` where BOTH sides are type checks is flagged
+			code: outdent`
+				if (Array.isArray(foo) || _.isString(foo)) {
+					throw new Error();
+				}
+			`,
+			output: outdent`
+				if (Array.isArray(foo) || _.isString(foo)) {
 					throw new TypeError();
 				}
 			`,
