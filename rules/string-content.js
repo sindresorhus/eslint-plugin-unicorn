@@ -116,10 +116,12 @@ const create = context => {
 		const fix = type === 'Literal'
 			? fixer => {
 				const [quote] = raw;
-				return fixer.replaceText(
-					node,
-					node.parent.type === 'JSXAttribute' ? quote + fixed + quote : escapeString(fixed, quote),
-				);
+				// JSX attribute strings don't support backslash escapes, so encode the delimiter
+				// quote as an HTML entity (which JSX decodes) instead of escaping it.
+				const replacementText = node.parent.type === 'JSXAttribute'
+					? quote + fixed.replaceAll(quote, quote === '"' ? '&quot;' : '&#39;') + quote
+					: escapeString(fixed, quote);
+				return fixer.replaceText(node, replacementText);
 			}
 			: fixer => replaceTemplateElement(
 				node,
