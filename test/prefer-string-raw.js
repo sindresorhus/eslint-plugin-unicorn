@@ -17,6 +17,9 @@ test.snapshot({
 		String.raw`a = 'a\\b\u{51}c'`,
 		'a = "a\\\\b`"',
 		'a = "a\\\\b${foo}"',
+		// Mixed `\\` and a real escape sequence: converting to String.raw would change the value
+		String.raw`a = "a\\b\tc"`,
+		String.raw`a = "a\\b\nc"`,
 		String.raw`a = '\\'`,
 		String.raw`a = 'a\\b\"'`,
 	],

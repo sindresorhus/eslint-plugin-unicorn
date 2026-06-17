@@ -268,16 +268,14 @@ test({
 			output: '!"foo".startsWith("f")',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
-		// Comment inside the comparison aborts the fix
+		// Comment inside the comparison aborts the fix (no autofix)
 		{
 			code: '"foo".indexOf("f") /* comment */ === 0',
-			output: null,
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
-		// TypeScript non-null assertion as the search argument aborts the fix
+		// TypeScript non-null assertion as the search argument aborts the fix (no autofix)
 		{
 			code: 'function foo(s: string) { return s.indexOf(bar!) === 0; }',
-			output: null,
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 			languageOptions: {parser: parsers.typescript},
 		},
