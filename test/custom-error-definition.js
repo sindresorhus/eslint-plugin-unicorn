@@ -64,6 +64,15 @@ const tests = {
 				}
 			}
 		`,
+		// Rest parameters: the `options` requirement is not enforced
+		outdent`
+			class FooError extends Error {
+				constructor(...args) {
+					super(...args);
+					this.name = 'FooError';
+				}
+			}
+		`,
 		outdent`
 			class FooError extends Error {
 				constructor(options) {
@@ -827,6 +836,34 @@ const tests = {
 			`,
 			errors: [
 				invalidOptionsParameterError,
+			],
+		},
+		{
+			// Second parameter named `opts` instead of `options`
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, opts) {
+						super(message, opts);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				invalidOptionsParameterError,
+			],
+		},
+		{
+			// `name` assigned via a template literal instead of a string literal
+			code: outdent`
+				class FooError extends Error {
+					constructor(message, options) {
+						super(message, options);
+						this.name = \`FooError\`;
+					}
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
 			],
 		},
 		{
