@@ -11,6 +11,10 @@ const methods = {
 		safe: true,
 		code: 'parseInt("10", 2);',
 	},
+	parseFloat: {
+		safe: true,
+		code: 'parseFloat("10.5");',
+	},
 	isNaN: {
 		safe: false,
 		code: 'isNaN(foo);',
@@ -71,7 +75,6 @@ test({
 	valid: [
 		'Number.parseInt("10", 2);',
 		'Number.parseFloat("10.5");',
-		'parseFloat("10.5");',
 		'parseInt("10");',
 		'parseInt("10", 10);',
 		outdent`
@@ -127,6 +130,16 @@ test({
 			code: 'parseInt("10", 0);',
 			output: 'Number.parseInt("10", 0);',
 			name: 'parseInt',
+		}),
+		invalidMethodTest({
+			code: 'parseFloat("10.5");',
+			output: 'Number.parseFloat("10.5");',
+			name: 'parseFloat',
+		}),
+		invalidMethodTest({
+			code: 'parseFloat(foo);',
+			output: 'Number.parseFloat(foo);',
+			name: 'parseFloat',
 		}),
 		invalidMethodTest({
 			code: 'isNaN(foo);',
@@ -390,10 +403,6 @@ test.snapshot({
 		'const foo = ++Infinity;',
 		'const foo = --Infinity;',
 		'const foo = -(--Infinity);',
-		'globalThis.parseFloat(foo);',
-		'global.parseFloat(foo);',
-		'window.parseFloat(foo);',
-		'self.parseFloat(foo);',
 		withCheckInfinity('delete -Infinity;'),
 	],
 	invalid: [
@@ -438,6 +447,10 @@ test.snapshot({
 		'global.isNaN(foo);',
 		'window.isNaN(foo);',
 		'self.isNaN(foo);',
+		'globalThis.parseFloat(foo);',
+		'global.parseFloat(foo);',
+		'window.parseFloat(foo);',
+		'self.parseFloat(foo);',
 		withCheckNaN('globalThis.NaN'),
 		withCheckInfinity('-globalThis.Infinity'),
 
@@ -450,6 +463,9 @@ test.snapshot({
 
 			run(foo, options);
 		`,
+
+		'(parseFloat)("10.5");',
+		{code: 'parseFloat(foo as string);', languageOptions: {parser: parsers.typescript}},
 	],
 });
 
