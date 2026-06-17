@@ -78,6 +78,9 @@ const isNegativeZero = value => value === 0 && 1 / value === -Infinity;
 
 Type: `object`
 
+> [!CAUTION]
+> `checkNaN` and `checkInfinity` enforce the opposite of [`prefer-global-number-constants`](./prefer-global-number-constants.md), which is enabled in the `recommended` and `unopinionated` configs. If you prefer the `Number.*` constant forms, disable `prefer-global-number-constants` to avoid conflicting reports.
+
 ### checkInfinity
 
 Type: `boolean`\

@@ -38,3 +38,6 @@ const foo = Number.NEGATIVE_INFINITY;
 // ✅
 const foo = -Infinity;
 ```
+
+> [!CAUTION]
+> This rule enforces the opposite of the `checkNaN` and `checkInfinity` options of [`prefer-number-properties`](./prefer-number-properties.md). If you prefer the `Number.NaN`, `Number.POSITIVE_INFINITY`, and `Number.NEGATIVE_INFINITY` forms instead, disable this rule and enable those options.
