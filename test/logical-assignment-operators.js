@@ -104,18 +104,22 @@ test({
 		},
 		// The falsy `if` message names both operators
 		{
-			code: 'if (!foo) { foo = bar; }',
+			code: 'if (!baz) { baz = qux; }',
 			options,
 			errors: [
 				{
 					message: '\'if\' statement can be replaced with a logical operator assignment with operator ||= or ??=.',
+					suggestions: [
+						{messageId: 'convertIf', output: 'baz ||= qux;'},
+						{messageId: 'convertIf', output: 'baz ??= qux;'},
+					],
 				},
 			],
 		},
 		// The nullish `if` keeps the base message, naming only `??=`
 		{
-			code: 'if (foo == null) { foo = bar; }',
-			output: 'foo ??= bar;',
+			code: 'if (baz == null) { baz = qux; }',
+			output: 'baz ??= qux;',
 			options,
 			errors: [
 				{
