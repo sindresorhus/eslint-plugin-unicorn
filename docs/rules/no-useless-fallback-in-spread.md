@@ -9,7 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Spreading [falsy values](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback. The same applies to ternaries where one branch is an empty object.
+Spreading [falsy values](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+
+For conditional object spread style, see [`consistent-conditional-object-spread`](./consistent-conditional-object-spread.md).
 
 ## Examples
 
@@ -25,20 +27,6 @@ const object = {...foo};
 ```
 
 ```js
-// ❌
-const object = {...(foo ? {bar: true} : {})};
-
-// ❌
-const object = {...(foo ? {} : {bar: true})};
-
-// ✅
-const object = {...(foo && {bar: true})};
-
-// ✅
-const object = {...(!foo && {bar: true})};
-```
-
-```js
 // ✅
 const object = {...(foo && {})};
 ```
@@ -46,25 +34,4 @@ const object = {...(foo && {})};
 ```js
 // ✅
 const array = [...(foo || [])];
-```
-
-## Options
-
-### `checkTernary`
-
-Type: `boolean`\
-Default: `true`
-
-Whether to check ternary expressions where one branch is an empty object.
-
-Unlike the `||`/`??` fallback, which is exactly equivalent to spreading the value directly, rewriting a ternary into a `&&` expression is a stylistic change. Set this to `false` to keep ternaries as-is while still flagging the `||`/`??` fallback.
-
-```js
-/* eslint unicorn/no-useless-fallback-in-spread: ["error", {checkTernary: false}] */
-
-// ✅
-const object = {...(foo ? {bar: true} : {})};
-
-// ❌ Still flagged
-const object = {...(foo || {})};
 ```

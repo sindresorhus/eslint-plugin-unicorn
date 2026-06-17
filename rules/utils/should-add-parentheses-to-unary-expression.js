@@ -22,5 +22,9 @@ export default function shouldAddParenthesesToUnaryExpressionArgument(node, oper
 		'ArrowFunctionExpression',
 		'YieldExpression',
 		'SequenceExpression',
+		'TSAsExpression',
+		'TSSatisfiesExpression',
+		'TSNonNullExpression',
+		'TSTypeAssertion',
 	].includes(node.type);
 }
