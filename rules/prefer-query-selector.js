@@ -161,13 +161,13 @@ const isStaticSelector = node =>
 		&& node.expressions.length === 0
 	);
 
-const selectorDomNameMethods = new Set(['getElementById', 'getElementsByClassName']);
+const selectorArgumentMethods = new Set(['getElementById', 'getElementsByClassName', 'getElementsByTagName']);
 const simpleCssIdentifierPattern = /^-?[A-Z_a-z][\w-]*$/u;
 
 const isSimpleCssIdentifier = value => simpleCssIdentifierPattern.test(value);
 
-const canUseBareSelector = (node, identifierName) => {
-	if (!selectorDomNameMethods.has(identifierName)) {
+const canUseSelectorArgument = (node, identifierName) => {
+	if (!selectorArgumentMethods.has(identifierName)) {
 		return true;
 	}
 
@@ -181,13 +181,17 @@ const canUseBareSelector = (node, identifierName) => {
 		return isSimpleCssIdentifier(value);
 	}
 
+	if (identifierName === 'getElementsByTagName') {
+		return value === '*' || isSimpleCssIdentifier(value);
+	}
+
 	return value.match(/\S+/gv)?.every(className => isSimpleCssIdentifier(className)) ?? false;
 };
 
 const canBeFixed = (node, identifierName) => {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 
-	return canUseBareSelector(unwrappedNode, identifierName)
+	return canUseSelectorArgument(unwrappedNode, identifierName)
 		&& !(identifierName === 'getElementsByName' && nameValueNeedsEscaping(unwrappedNode))
 		&& (
 			isNullLiteral(unwrappedNode)
