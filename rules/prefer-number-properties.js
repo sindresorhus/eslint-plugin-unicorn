@@ -14,6 +14,7 @@ const messages = {
 const globalObjects = {
 	// Safe to replace with `Number` properties
 	parseInt: true,
+	parseFloat: true,
 	NaN: true,
 	Infinity: true,
 
