@@ -103,6 +103,12 @@ test.snapshot({
 			index1 < 0;
 			index2 >= 0;
 		`,
+		// A non-fixable earlier reference must not stop later references from being checked
+		outdent`
+			const index = foo.indexOf(bar);
+			if (index === -1) {}
+			if (index < 0) {}
+		`,
 		outdent`
 			const index = foo.indexOf('1');
 			((

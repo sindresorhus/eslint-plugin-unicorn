@@ -84,7 +84,7 @@ const create = context => {
 			const replacement = getReplacement(binaryExpression);
 
 			if (!replacement) {
-				return;
+				continue;
 			}
 
 			const {left, operator, right} = binaryExpression;
