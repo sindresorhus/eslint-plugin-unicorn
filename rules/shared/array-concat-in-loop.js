@@ -30,17 +30,11 @@ function unwrapExpression(node) {
 function getIdentifier(node) {
 	node = unwrapExpression(node);
 
-	return node.type === 'Identifier' ? node : undefined;
+	return node?.type === 'Identifier' ? node : undefined;
 }
 
 function getVariable(identifier, context) {
 	return findVariable(context.sourceCode.getScope(identifier), identifier);
-}
-
-function isSameVariable(left, right, context) {
-	const leftVariable = getVariable(left, context);
-
-	return Boolean(leftVariable && leftVariable === getVariable(right, context));
 }
 
 function isReassignableEmptyArrayVariable(variable) {
@@ -102,16 +96,14 @@ export function getArrayConcatInLoop(assignmentExpression, context) {
 	}
 
 	const receiver = getIdentifier(callExpression.callee.object);
+	const variable = getVariable(left, context);
 
 	if (
 		!receiver
-		|| !isSameVariable(left, receiver, context)
+		|| !variable
+		|| variable !== getVariable(receiver, context)
+		|| !isReassignableEmptyArrayVariable(variable)
 	) {
-		return;
-	}
-
-	const variable = getVariable(left, context);
-	if (!isReassignableEmptyArrayVariable(variable)) {
 		return;
 	}
 
@@ -119,7 +111,7 @@ export function getArrayConcatInLoop(assignmentExpression, context) {
 	const [definition] = variable.defs;
 	if (
 		!loop
-		|| isNodeInside(definition.node, loop, context)
+		|| isNodeInside(definition.node, loop.body, context)
 	) {
 		return;
 	}

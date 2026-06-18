@@ -9,7 +9,7 @@
 
 `Array#concat()` creates a new array every time it is called. When an accumulator is reassigned with `.concat()` on every loop iteration, each iteration copies everything accumulated so far, which can make the loop quadratic in the total number of accumulated items.
 
-Use a mutating append such as `Array#push()` inside the loop, or collect the nested arrays and flatten them once outside the loop.
+Use `Array#push()` inside the loop when each chunk is an array, or collect the nested arrays and flatten them once outside the loop.
 
 This rule intentionally only reports local `let` and `var` variables initialized to an empty array literal. It does not try to infer arbitrary array-like values or custom `.concat()` methods.
 

@@ -34,6 +34,7 @@ const config = {
 			description: 'Disallow array accumulation with `Array#concat()` in loops.',
 			recommended: true,
 		},
+		schema: [],
 		messages,
 		languages: [
 			'js/js',

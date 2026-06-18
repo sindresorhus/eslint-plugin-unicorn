@@ -41,6 +41,12 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const result = [];
+			for (const chunk of chunks) {
+				result = result.concat(chunk);
+			}
+		`,
+		outdent`
 			const text = '';
 			for (const part of parts) {
 				text.concat(part);
@@ -181,5 +187,19 @@ test.snapshot({
 				result = result!.concat(chunk);
 			}
 		`),
+		typescript(outdent`
+			let result = <string[]>[];
+			for (const chunk of chunks) {
+				result = (<string[]>result).concat(chunk);
+			}
+		`),
+		outdent`
+			for (let result = []; condition; result = result.concat(chunk)) {}
+		`,
+		outdent`
+			for (let result = []; condition;) {
+				result = result.concat(chunk);
+			}
+		`,
 	],
 });
