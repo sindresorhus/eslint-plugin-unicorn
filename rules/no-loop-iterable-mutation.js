@@ -5,7 +5,12 @@ import {
 	isSame,
 	unwrapExpression,
 } from './utils/comparison.js';
-import {trackBranchExits} from './utils/index.js';
+import {
+	isArray,
+	isMap,
+	isSet,
+	trackBranchExits,
+} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -17,11 +22,8 @@ const messages = {
 	[MESSAGE_ID]: 'Do not mutate `{{iterable}}` while iterating over it.',
 };
 
-const mutationMethods = new Set([
-	'add',
-	'clear',
+const arrayMutationMethods = [
 	'copyWithin',
-	'delete',
 	'fill',
 	'pop',
 	'push',
@@ -29,9 +31,31 @@ const mutationMethods = new Set([
 	'shift',
 	'sort',
 	'splice',
-	'set',
 	'unshift',
-]);
+];
+
+const setMutationMethods = [
+	'add',
+	'clear',
+	'delete',
+];
+
+const mapMutationMethods = [
+	'clear',
+	'delete',
+	'set',
+];
+
+const mutationMethodsByCollectionKind = {
+	array: new Set(arrayMutationMethods),
+	set: new Set(setMutationMethods),
+	map: new Set(mapMutationMethods),
+	unknown: new Set([
+		...arrayMutationMethods,
+		...setMutationMethods,
+		...mapMutationMethods,
+	]),
+};
 
 const iteratorMethods = new Set([
 	'entries',
@@ -46,6 +70,24 @@ const skippedNodeTypes = new Set([
 	'FunctionDeclaration',
 	'FunctionExpression',
 ]);
+
+function getCollectionKind(node, context) {
+	if (isArray(node, context)) {
+		return 'array';
+	}
+
+	if (isSet(node, context)) {
+		return 'set';
+	}
+
+	if (isMap(node, context)) {
+		return 'map';
+	}
+}
+
+function isMutationMethod(method, collectionKind) {
+	return mutationMethodsByCollectionKind[collectionKind ?? 'unknown'].has(method);
+}
 
 function getLoopBinding(loop) {
 	if (loop.left.type === 'VariableDeclaration') {
@@ -84,6 +126,7 @@ function getLiveIterable(node, context) {
 
 	if (isReference(node)) {
 		return {
+			collectionKind: getCollectionKind(node, context),
 			reference: node,
 			method: 'direct',
 		};
@@ -108,57 +151,87 @@ function getLiveIterable(node, context) {
 	}
 
 	return {
+		collectionKind: getCollectionKind(node.callee.object, context),
 		reference: node.callee.object,
 		method,
 	};
 }
 
-function getLoopValueIdentifier(loop, iterableMethod) {
+function getAddArgumentIdentifier(loop, iterable) {
 	const binding = getLoopBinding(loop);
 
-	if (iterableMethod === 'entries') {
+	if (iterable.method === 'entries') {
 		return getFirstElementIdentifier(binding);
+	}
+
+	if (
+		iterable.method === 'direct'
+		&& iterable.collectionKind === 'map'
+	) {
+		return;
 	}
 
 	return getIdentifierFromPattern(binding);
 }
 
-function getLoopKeyIdentifier(loop, iterableMethod) {
+function getCurrentKeyIdentifier(loop, iterable) {
 	const binding = getLoopBinding(loop);
 
-	if (iterableMethod === 'keys') {
+	if (iterable.method === 'keys') {
 		return getIdentifierFromPattern(binding);
 	}
 
-	if (iterableMethod === 'direct' || iterableMethod === 'entries') {
+	if (iterable.method === 'entries') {
+		return getFirstElementIdentifier(binding);
+	}
+
+	if (
+		iterable.method === 'direct'
+		&& iterable.collectionKind !== 'set'
+	) {
 		return getFirstElementIdentifier(binding);
 	}
 }
 
-function getLoopDeleteIdentifier(loop, iterableMethod) {
+function getDeleteArgumentIdentifier(loop, iterable) {
 	const binding = getLoopBinding(loop);
 
-	if (iterableMethod === 'direct') {
+	if (
+		iterable.collectionKind === 'set'
+		&& (
+			iterable.method === 'direct'
+			|| iterable.method === 'values'
+		)
+	) {
+		return getIdentifierFromPattern(binding);
+	}
+
+	if (
+		iterable.method === 'direct'
+		&& iterable.collectionKind !== 'map'
+	) {
 		return getIdentifierFromPattern(binding) ?? getFirstElementIdentifier(binding);
 	}
 
-	return getLoopKeyIdentifier(loop, iterableMethod);
+	return getCurrentKeyIdentifier(loop, iterable);
 }
 
 function getLoopInformation(loop, iterable) {
 	if (!isConstantLoopBinding(loop)) {
 		return {
+			collectionKind: iterable.collectionKind,
 			iterable: iterable.reference,
 			loopBody: loop.body,
 		};
 	}
 
-	const addArgumentIdentifier = getLoopValueIdentifier(loop, iterable.method);
-	const setKeyIdentifier = getLoopKeyIdentifier(loop, iterable.method);
-	const deleteArgumentIdentifier = getLoopDeleteIdentifier(loop, iterable.method);
+	const addArgumentIdentifier = getAddArgumentIdentifier(loop, iterable);
+	const setKeyIdentifier = getCurrentKeyIdentifier(loop, iterable);
+	const deleteArgumentIdentifier = getDeleteArgumentIdentifier(loop, iterable);
 
 	return {
 		addArgumentIdentifier,
+		collectionKind: iterable.collectionKind,
 		deleteArgumentIdentifier,
 		iterable: iterable.reference,
 		loopBody: loop.body,
@@ -337,7 +410,7 @@ function getMutationProblem(callExpression, loopInformation, nestedLoopInformati
 	const {object, property} = callExpression.callee;
 	const method = getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
 
-	if (!mutationMethods.has(method)) {
+	if (!isMutationMethod(method, loopInformation.collectionKind)) {
 		return;
 	}
 

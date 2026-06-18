@@ -93,6 +93,57 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const items = [];
+			for (const item of items) {
+				items.add(item);
+			}
+		`,
+		outdent`
+			const set = new Set();
+			for (const value of set) {
+				set.push(value);
+			}
+		`,
+		outdent`
+			const map = new Map();
+			for (const [key] of map) {
+				map.add(key);
+			}
+		`,
+		{
+			code: outdent`
+				const items = [] as string[] & {add(item: string): void};
+				for (const item of items) {
+					items.add(item);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				const set = new Set<string>() as Set<string> & {push(value: string): void};
+				for (const value of set) {
+					set.push(value);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				const map = new Map<string, number>() as Map<string, number> & {add(value: string): void};
+				for (const [key] of map) {
+					map.add(key);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
 			for (const item of items.values(argument)) {
 				items.push(item);
 			}
@@ -127,6 +178,23 @@ test.snapshot({
 				set.add(value);
 			}
 		`,
+		{
+			code: outdent`
+				const set: Set<string> = new Set();
+				for (const value of set.values()) {
+					set.delete(value);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			const set = new Set();
+			for (const value of set.values()) {
+				set.delete(value);
+			}
+		`,
 		outdent`
 			for (const value of set['values']()) {
 				set.add(value);
@@ -145,6 +213,11 @@ test.snapshot({
 		outdent`
 			for (const [value] of set.entries()) {
 				set.add(value);
+			}
+		`,
+		outdent`
+			for (const [value] of set.entries()) {
+				set.delete(value);
 			}
 		`,
 		outdent`
@@ -531,6 +604,40 @@ test.snapshot({
 		outdent`
 			for (const [key, value] of map) {
 				map.set(otherKey, value);
+			}
+		`,
+		{
+			code: outdent`
+				const map: Map<string, number> = new Map();
+				for (const entry of map) {
+					map.delete(entry);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			const map = new Map();
+			for (const entry of map) {
+				map.delete(entry);
+			}
+		`,
+		{
+			code: outdent`
+				const set: Set<[string]> = new Set();
+				for (const [value] of set) {
+					set.delete(value);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			const set = new Set([['value']]);
+			for (const [value] of set) {
+				set.delete(value);
 			}
 		`,
 		outdent`

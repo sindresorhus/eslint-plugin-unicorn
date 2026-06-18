@@ -7,23 +7,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Mutating the same live iterable that a `for...of` loop is consuming can make iteration silently visit newly-added items, skip existing items, or stop earlier than expected.
+Mutating the same live iterable that a `for...of` loop is consuming can silently skip items, repeat items, or visit newly added items.
 
-This rule reports mutating method calls on the same iterable reference, including arrays, `Set`, and `Map`, while iterating over the iterable itself or over its `.keys()`, `.values()`, or `.entries()` iterator.
+This rule reports mutating `Array`, `Set`, and `Map` method calls on the iterable being consumed directly or through `.keys()`, `.values()`, or `.entries()`.
 
-It allows simple same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when the current value or key comes from a `const` loop binding and the syntax identifies that current entry, but still reports direct delete-then-reinsert sequences like `set.delete(value); set.add(value);`.
+It allows simple same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when the current entry is clear from syntax or static collection information. It still reports delete-then-reinsert sequences like `set.delete(value); set.add(value);`.
 
-It intentionally does not report every possible write to the iterable, such as assigning `array.length` or deleting an array index.
+When the iterable type is unknown, direct identifier and destructuring loops are interpreted syntactically. Ambiguous `Map` and `Set` shapes need static information to be classified precisely.
 
-It intentionally does not track aliases to iterators, such as `const iterator = items.values();`.
-
-It reports same-value `delete` calls in `.values()` loops because `.values()` has no syntactic key and this rule does not use type information.
-
-This is a syntax-only rule. It treats direct identifier iteration, such as `for (const value of set)`, as value iteration, and direct destructuring, such as `for (const [key] of map)`, as entry iteration. This matches common `Set` and `Map` loops, but does not distinguish ambiguous custom iterables, `Map` entries kept as a single variable, or `Set` values that are themselves iterable.
-
-It only checks simple same-list statement ordering for delete-then-reinsert sequences, not expression-level sequencing like `set.delete(value), set.add(value)` or deletes hidden inside a previous `switch` statement.
-
-It intentionally does not report mutations of objects used with `Object.keys()`, `Object.values()`, or `Object.entries()`, since those methods create snapshot arrays before the loop starts.
+It intentionally ignores iterator aliases, property writes like `array.length = 0`, index deletes, complex delete-then-reinsert ordering, and `Object.keys()`/`Object.values()`/`Object.entries()` snapshot loops.
 
 ## Examples
 
@@ -38,13 +30,6 @@ for (const item of items) {
 // ❌
 for (const value of values) {
 	values.shift();
-}
-```
-
-```js
-// ❌
-for (const value of set) {
-	set.add(value + 1);
 }
 ```
 
@@ -74,13 +59,6 @@ for (const key of Object.keys(object)) {
 // ✅
 for (const value of set) {
 	set.add(value);
-}
-```
-
-```js
-// ✅
-for (const value of set) {
-	set.delete(value);
 }
 ```
 
