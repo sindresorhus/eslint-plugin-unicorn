@@ -147,6 +147,7 @@ export {default as 'no-useless-collection-argument'} from './no-useless-collecti
 export {default as 'no-useless-compound-assignment'} from './no-useless-compound-assignment.js';
 export {default as 'no-useless-concat'} from './no-useless-concat.js';
 export {default as 'no-useless-continue'} from './no-useless-continue.js';
+export {default as 'no-useless-delete-check'} from './no-useless-delete-check.js';
 export {default as 'no-useless-else'} from './no-useless-else.js';
 export {default as 'no-useless-error-capture-stack-trace'} from './no-useless-error-capture-stack-trace.js';
 export {default as 'no-useless-fallback-in-spread'} from './no-useless-fallback-in-spread.js';
