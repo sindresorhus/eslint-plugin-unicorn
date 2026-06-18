@@ -147,8 +147,8 @@ const config = [
 			'rules/no-static-only-class.js',
 		],
 		rules: {
-			// These files have a few multi-condition guard clauses where `prefer-ternary` produces harder-to-read double negatives.
-			'unicorn/prefer-ternary': 'off',
+			// These files have a few multi-condition guard clauses where `prefer-boolean-return` produces harder-to-read double negatives.
+			'unicorn/prefer-boolean-return': 'off',
 		},
 	},
 ];
