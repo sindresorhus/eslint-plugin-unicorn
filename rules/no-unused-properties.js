@@ -65,7 +65,7 @@ const getReferenceParent = referenceNode => {
 	return referenceNode.parent;
 };
 
-const specialProtoPropertyKey = {
+const specialPrototypePropertyKey = {
 	type: 'Identifier',
 	name: '__proto__',
 };
@@ -90,7 +90,7 @@ const getDefinitionNode = definition =>
 		? definition.name
 		: definition.node;
 
-const objectPatternMatchesObjectExprPropertyKey = (pattern, key) =>
+const objectPatternMatchesObjectExpressionPropertyKey = (pattern, key) =>
 	pattern.properties.some(property => {
 		if (property.type === 'RestElement') {
 			return true;
@@ -142,7 +142,7 @@ const create = context => {
 				continue;
 			}
 
-			if (propertyKeysEqual(key, specialProtoPropertyKey)) {
+			if (propertyKeysEqual(key, specialPrototypePropertyKey)) {
 				continue;
 			}
 
@@ -182,7 +182,7 @@ const create = context => {
 						parent.type === 'VariableDeclarator'
 						&& parent.id.type === 'ObjectPattern'
 					) {
-						if (objectPatternMatchesObjectExprPropertyKey(parent.id, key)) {
+						if (objectPatternMatchesObjectExpressionPropertyKey(parent.id, key)) {
 							return {identifier: parent};
 						}
 
@@ -193,7 +193,7 @@ const create = context => {
 						parent.type === 'AssignmentExpression'
 						&& parent.left.type === 'ObjectPattern'
 					) {
-						if (objectPatternMatchesObjectExprPropertyKey(parent.left, key)) {
+						if (objectPatternMatchesObjectExpressionPropertyKey(parent.left, key)) {
 							return {identifier: parent};
 						}
 
