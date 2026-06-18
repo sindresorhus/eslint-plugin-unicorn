@@ -44,6 +44,11 @@ export {
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
+export {
+	hasSameObjectShapePropertyCheck,
+	isKnownNonCollectionLengthOrSize,
+	isLengthOrSizeMemberExpression,
+} from './length-or-size.js';
 export {default as getReferences} from './get-references.js';
 export {default as isTypeScriptFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';

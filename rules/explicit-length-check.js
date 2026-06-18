@@ -1,4 +1,3 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	checkVueTemplate,
@@ -9,9 +8,12 @@ import {
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
+	hasSameObjectShapePropertyCheck,
+	isKnownNonCollectionLengthOrSize,
+	isLengthOrSizeMemberExpression,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {isLiteral, isMemberExpression} from './ast/index.js';
+import {isLiteral} from './ast/index.js';
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -51,15 +53,6 @@ const zeroStyle = {
 	test: node => isCompareRight(node, '===', 0),
 };
 
-const shapeProperties = new Set(['depth', 'height', 'width']);
-
-function isLengthOrSizeMemberExpression(node) {
-	return isMemberExpression(node, {
-		properties: ['length', 'size'],
-		optional: false,
-	});
-}
-
 function getLengthCheckParent(node, allowTypeScriptExpression) {
 	node = node.parent;
 	if (allowTypeScriptExpression) {
@@ -87,23 +80,6 @@ function getLogicalExpressionOperands(node) {
 		child.type === 'LogicalExpression' && child.operator === node.operator
 			? getLogicalExpressionOperands(child)
 			: [child]);
-}
-
-function hasSameObjectShapePropertyCheck({node, lengthNode}) {
-	const root = getLogicalExpressionRoot(node);
-	if (
-		root.type !== 'LogicalExpression'
-		|| root.operator !== '&&'
-	) {
-		return false;
-	}
-
-	return getLogicalExpressionOperands(root).some(operand =>
-		operand !== node
-		&& isMemberExpression(operand, {computed: false, optional: false})
-		&& operand.property.type === 'Identifier'
-		&& shapeProperties.has(operand.property.name)
-		&& isSameReference(operand.object, lengthNode.object));
 }
 
 function getLengthCheckMemberExpression(node) {
@@ -268,9 +244,8 @@ function create(context) {
 		}
 
 		const lengthNode = memberExpression;
-		const staticValue = getStaticValue(lengthNode, sourceCode.getScope(lengthNode));
-		if (staticValue && (!Number.isSafeInteger(staticValue.value) || staticValue.value < 0)) {
-			// Ignore known, non-positive-integer length properties.
+		if (isKnownNonCollectionLengthOrSize(lengthNode, context)) {
+			// Ignore known non-cardinality length or size properties.
 			return;
 		}
 
@@ -298,7 +273,7 @@ function create(context) {
 		if (node) {
 			if (
 				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode, context))
-				|| hasSameObjectShapePropertyCheck({node, lengthNode})
+				|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: lengthNode})
 			) {
 				return;
 			}

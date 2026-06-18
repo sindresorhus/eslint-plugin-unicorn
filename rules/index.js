@@ -72,6 +72,7 @@ export {default as 'no-for-each'} from './no-for-each.js';
 export {default as 'no-for-loop'} from './no-for-loop.js';
 export {default as 'no-global-object-property-assignment'} from './no-global-object-property-assignment.js';
 export {default as 'no-immediate-mutation'} from './no-immediate-mutation.js';
+export {default as 'no-impossible-length-comparison'} from './no-impossible-length-comparison.js';
 export {default as 'no-incorrect-query-selector'} from './no-incorrect-query-selector.js';
 export {default as 'no-incorrect-template-string-interpolation'} from './no-incorrect-template-string-interpolation.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
