@@ -11,6 +11,19 @@ const createTraceMap = (object, type) => {
 	return map;
 };
 
+const mergeTraceMap = (target, source) => {
+	for (const key of Reflect.ownKeys(source)) {
+		const value = source[key];
+
+		if (typeof value === 'object') {
+			target[key] ??= {};
+			mergeTraceMap(target[key], value);
+		} else {
+			target[key] = value;
+		}
+	}
+};
+
 export class GlobalReferenceTracker {
 	#traceMap = {};
 	#context;
@@ -27,7 +40,7 @@ export class GlobalReferenceTracker {
 		handle,
 	}) {
 		for (const object of objects) {
-			Object.assign(this.#traceMap, createTraceMap(object, type));
+			mergeTraceMap(this.#traceMap, createTraceMap(object, type));
 		}
 
 		this.#context = context;

@@ -1,9 +1,98 @@
 
 import outdent from 'outdent';
-import {enforceNew, disallowNew} from '../rules/utils/builtins.js';
+import {enforceNew, disallowNew, disallowCallOrNew} from '../rules/utils/builtins.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const shadowedCallObjects = [
+	...enforceNew,
+	...disallowCallOrNew,
+];
+const shadowedNewObjects = [
+	...disallowNew,
+	...disallowCallOrNew,
+];
+
+const createShadowedCallTest = object => {
+	const [objectName, propertyName] = object.split('.');
+
+	if (!propertyName) {
+		return `
+			const ${object} = function() {};
+			const foo = ${object}();
+		`;
+	}
+
+	return `
+		const ${objectName} = {${propertyName}() {}};
+		const foo = ${object}();
+	`;
+};
+
+const createShadowedNewTest = object => {
+	const [objectName, propertyName] = object.split('.');
+
+	if (!propertyName) {
+		return `
+			const ${object} = function() {};
+			const foo = new ${object}();
+		`;
+	}
+
+	return `
+		const ${objectName} = {${propertyName}: class {}};
+		const foo = new ${object}();
+	`;
+};
+
+const createNestedShadowedCallTest = object => {
+	const [objectName, propertyName] = object.split('.');
+
+	if (!propertyName) {
+		return `
+			function outer() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = ${object}();
+				}
+			}
+		`;
+	}
+
+	return `
+		function outer() {
+			const ${objectName} = {${propertyName}() {}};
+			function inner() {
+				const foo = ${object}();
+			}
+		}
+	`;
+};
+
+const createNestedShadowedNewTest = object => {
+	const [objectName, propertyName] = object.split('.');
+
+	if (!propertyName) {
+		return `
+			function insideFunction() {
+				const ${object} = function() {};
+				function inner() {
+					const foo = new ${object}();
+				}
+			}
+		`;
+	}
+
+	return `
+		function insideFunction() {
+			const ${objectName} = {${propertyName}: class {}};
+			function inner() {
+				const foo = new ${object}();
+			}
+		}
+	`;
+};
 
 test.snapshot({
 	valid: [
@@ -12,6 +101,13 @@ test.snapshot({
 		// Optional call can't become a `new` expression
 		'const foo = Array?.()',
 		'const foo = Map?.()',
+		'const foo = Date?.()',
+		'const foo = globalThis?.Date()',
+		'const foo = Intl.DateTimeFormat?.()',
+		'const foo = Intl?.DateTimeFormat()',
+		'const foo = Temporal.PlainDate?.(2024, 1, 1)',
+		'const foo = WebAssembly.Module?.(buffer)',
+		'const foo = WebAssembly?.Module(buffer)',
 		'const foo = new ArrayBuffer()',
 		'const foo = new BigInt64Array()',
 		'const foo = new BigUint64Array()',
@@ -31,52 +127,40 @@ test.snapshot({
 		'const foo = new WeakSet()',
 		'const foo = new Promise()',
 		'const foo = new RegExp()',
-		'const foo = new UInt8Array()',
-		'const foo = new UInt16Array()',
-		'const foo = new UInt32Array()',
+		'const foo = new Uint8Array()',
+		'const foo = new Uint16Array()',
+		'const foo = new Uint32Array()',
 		'const foo = new Uint8ClampedArray()',
 		'const foo = BigInt()',
 		'const foo = Boolean()',
 		'const foo = Number()',
 		'const foo = String()',
 		'const foo = Symbol()',
+		'const foo = new AggregateError([])',
+		'const foo = new TypeError()',
+		'const foo = new SuppressedError(error, suppressed)',
+		'const foo = new DisposableStack()',
+		'const foo = new AsyncDisposableStack()',
+		'const foo = new Intl.DateTimeFormat()',
+		'const foo = new globalThis.Intl.DateTimeFormat()',
+		'const foo = new Intl.DisplayNames(\'en\', {type: \'language\'})',
+		'const foo = new Intl.Locale(\'en\')',
+		'const foo = new Intl.Segmenter()',
+		'const foo = new Temporal.PlainDate(2024, 1, 1)',
+		'const foo = new globalThis.Temporal.PlainDate(2024, 1, 1)',
+		'const foo = new Temporal.ZonedDateTime(0n, \'UTC\')',
+		'const foo = Temporal.Now.instant()',
+		'const foo = new WebAssembly.Module(buffer)',
+		'const foo = new globalThis.WebAssembly.Module(buffer)',
+		'const foo = new WebAssembly.Memory({initial: 1})',
+		'const foo = new WebAssembly.CompileError()',
+		'const foo = WebAssembly.instantiate(buffer)',
+		'const foo = WebAssembly.JSTag',
 		// Shadowed
-		...enforceNew.map(object => `
-			const ${object} = function() {};
-			const foo = ${object}();
-		`),
-		...disallowNew.map(object => `
-			const ${object} = function() {};
-			const foo = new ${object}();
-		`),
-		...enforceNew.map(object => `
-			function insideFunction() {
-				const ${object} = function() {};
-				const foo = ${object}();
-			}
-		`),
-		...disallowNew.map(object => `
-			function insideFunction() {
-				const ${object} = function() {};
-				const foo = new ${object}();
-			}
-		`),
-		...enforceNew.map(object => `
-			function outer() {
-				const ${object} = function() {};
-				function inner() {
-					const foo = ${object}();
-				}
-			}
-		`),
-		...disallowNew.map(object => `
-			function insideFunction() {
-				const ${object} = function() {};
-				function inner() {
-					const foo = new ${object}();
-				}
-			}
-		`),
+		...shadowedCallObjects.map(object => createShadowedCallTest(object)),
+		...shadowedNewObjects.map(object => createShadowedNewTest(object)),
+		...shadowedCallObjects.map(object => createNestedShadowedCallTest(object)),
+		...shadowedNewObjects.map(object => createNestedShadowedNewTest(object)),
 		// #122
 		`
 			import { Map } from 'immutable';
@@ -214,6 +298,16 @@ test.snapshot({
 		'const foo = DataView()',
 		'const foo = Error()',
 		'const foo = Error(\'Foo bar\')',
+		'const foo = AggregateError([])',
+		'const foo = EvalError()',
+		'const foo = RangeError()',
+		'const foo = ReferenceError()',
+		'const foo = SuppressedError(error, suppressed)',
+		'const foo = SyntaxError()',
+		'const foo = TypeError()',
+		'const foo = URIError()',
+		'const foo = DisposableStack()',
+		'const foo = AsyncDisposableStack()',
 		'const foo = Float16Array()',
 		'const foo = Float32Array()',
 		'const foo = Float64Array()',
@@ -232,6 +326,54 @@ test.snapshot({
 		'const foo = Uint16Array()',
 		'const foo = Uint32Array()',
 		'const foo = Uint8ClampedArray()',
+		'const foo = Intl.Collator()',
+		'const foo = Intl.DateTimeFormat()',
+		'const foo = globalThis.Intl.DateTimeFormat()',
+		'const foo = Intl.DisplayNames(\'en\', {type: \'language\'})',
+		'const foo = Intl.DurationFormat()',
+		'const foo = Intl.ListFormat()',
+		'const foo = Intl.Locale(\'en\')',
+		'const foo = Intl.NumberFormat()',
+		'const foo = Intl.PluralRules()',
+		'const foo = Intl.RelativeTimeFormat()',
+		'const foo = Intl.Segmenter()',
+		'const foo = Temporal.Duration()',
+		'const foo = Temporal.Instant(0n)',
+		'const foo = Temporal.PlainDate(2024, 1, 1)',
+		'const foo = globalThis.Temporal.PlainDate(2024, 1, 1)',
+		'const foo = Temporal.PlainDateTime(2024, 1, 1)',
+		'const foo = Temporal.PlainMonthDay(1, 1)',
+		'const foo = Temporal.PlainTime()',
+		'const foo = Temporal.PlainYearMonth(2024, 1)',
+		'const foo = Temporal.ZonedDateTime(0n, \'UTC\')',
+		'const foo = Temporal.Now()',
+		'const foo = Temporal.Now?.()',
+		'const foo = Temporal?.Now()',
+		'const foo = new Temporal.Now()',
+		'const foo = globalThis.Temporal.Now()',
+		'const foo = globalThis.Temporal?.Now()',
+		'const foo = globalThis?.Temporal.Now()',
+		'const foo = new globalThis.Temporal.Now()',
+		'const foo = WebAssembly()',
+		'const foo = new WebAssembly()',
+		'const foo = globalThis.WebAssembly()',
+		'const foo = new globalThis.WebAssembly()',
+		'const foo = WebAssembly.JSTag()',
+		'const foo = new WebAssembly.JSTag()',
+		'const foo = globalThis.WebAssembly.JSTag()',
+		'const foo = globalThis.WebAssembly?.JSTag()',
+		'const foo = new globalThis.WebAssembly.JSTag()',
+		'const foo = WebAssembly.Module(buffer)',
+		'const foo = globalThis.WebAssembly.Module(buffer)',
+		'const foo = WebAssembly.Instance(module, imports)',
+		'const foo = WebAssembly.Memory({initial: 1})',
+		'const foo = WebAssembly.Table({initial: 1, element: \'anyfunc\'})',
+		'const foo = WebAssembly.Global({value: \'i32\', mutable: true}, 0)',
+		'const foo = WebAssembly.Tag({parameters: [\'i32\']})',
+		'const foo = WebAssembly.Exception(tag, [1])',
+		'const foo = WebAssembly.CompileError()',
+		'const foo = WebAssembly.LinkError()',
+		'const foo = WebAssembly.RuntimeError()',
 		'const foo = new BigInt(123)',
 		'const foo = new Boolean()',
 		'const foo = new Number()',
