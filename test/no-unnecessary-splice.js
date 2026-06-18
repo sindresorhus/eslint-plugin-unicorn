@@ -22,6 +22,7 @@ test.snapshot({
 		'object?.array.splice(0, 1);',
 		'getObject?.().array.splice(0, 1);',
 		'object[foo?.bar].splice(index, 0);',
+		'object[foo?.bar]().splice(index, 0);',
 		'array.toSpliced(0, 1);',
 		// Nested unary index resolves to `1`, which is not a special case.
 		'array.splice(- -1, 1);',

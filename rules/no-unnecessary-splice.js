@@ -13,8 +13,8 @@ import {
 import {
 	getParenthesizedText,
 	hasOptionalChainElement,
-	isTypeScriptExpressionWrapper,
 	isValueNotUsable,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const messages = {
@@ -31,28 +31,19 @@ const messages = {
 @import * as ESLint from 'eslint';
 */
 
-function hasOptionalChain(node) {
-	if (node.type === 'ChainExpression' || hasOptionalChainElement(node)) {
-		return true;
-	}
-
-	if (isTypeScriptExpressionWrapper(node)) {
-		return hasOptionalChain(node.expression);
-	}
-
-	if (node.type === 'MemberExpression') {
-		return hasOptionalChain(node.object) || (node.computed && hasOptionalChain(node.property));
-	}
-
-	if (node.type === 'CallExpression') {
-		return hasOptionalChain(node.callee);
-	}
-
-	return false;
-}
-
 function hasCommentsInside(node, sourceCode) {
 	return sourceCode.getCommentsInside(node).length > 0;
+}
+
+function hasOptionalChainInComputedProperty(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type !== 'MemberExpression') {
+		return node.type === 'CallExpression' && hasOptionalChainInComputedProperty(node.callee);
+	}
+
+	return (node.computed && hasOptionalChainElement(node.property))
+		|| hasOptionalChainInComputedProperty(node.object);
 }
 
 const isRemovableStatement = node =>
@@ -119,7 +110,11 @@ const create = context => {
 			return;
 		}
 
-		if (hasOptionalChain(callExpression.callee.object)) {
+		const {object} = callExpression.callee;
+		if (
+			hasOptionalChainElement(object)
+			|| hasOptionalChainInComputedProperty(object)
+		) {
 			return;
 		}
 

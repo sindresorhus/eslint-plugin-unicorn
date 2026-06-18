@@ -57,7 +57,10 @@ export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
-export {default as hasOptionalChainElement} from './has-optional-chain-element.js';
+export {
+	default as hasOptionalChainElement,
+	hasUnparenthesizedOptionalChainElement,
+} from './has-optional-chain-element.js';
 export {default as isFunctionSelfUsedInside} from './is-function-self-used-inside.js';
 export {
 	default as isArray,

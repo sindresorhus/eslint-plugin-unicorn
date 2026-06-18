@@ -46,6 +46,7 @@ export {default as 'no-array-front-mutation'} from './no-array-front-mutation.js
 export {default as 'no-array-method-this-argument'} from './no-array-method-this-argument.js';
 export {default as 'no-array-reduce'} from './no-array-reduce.js';
 export {default as 'no-array-reverse'} from './no-array-reverse.js';
+export {default as 'no-array-sort-for-min-max'} from './no-array-sort-for-min-max.js';
 export {default as 'no-array-sort'} from './no-array-sort.js';
 export {default as 'no-array-splice'} from './no-array-splice.js';
 export {default as 'no-asterisk-prefix-in-documentation-comments'} from './no-asterisk-prefix-in-documentation-comments.js';

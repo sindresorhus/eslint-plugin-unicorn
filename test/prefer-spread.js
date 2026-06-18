@@ -904,6 +904,9 @@ ruleTest.snapshot({
 		'Foo.slice()',
 		'class A {foo() {this.slice()}}',
 		'scopeManager?.scopes.slice()',
+		'object?.getArray().slice()',
+		typescript('object?.array!.slice()'),
+		typescript('object?.getArray()!.slice()'),
 		'"".slice()',
 		// eslint-disable-next-line no-template-curly-in-string
 		'`${foo}`.slice()',
@@ -941,6 +944,7 @@ ruleTest.snapshot({
 		'const copy = array.slice()',
 		'(( (( (( array )).slice ))() ))',
 		'(scopeManager?.scopes).slice()',
+		typescript('(object?.array as string[]).slice()'),
 		// Semicolon
 		outdent`
 			bar()
@@ -978,12 +982,17 @@ ruleTest.snapshot({
 		'[foo].toSpliced()',
 		'array.toSpliced(100, 0)',
 		'array.toSpliced(-1, 0)',
+		'object?.array.toSpliced()',
+		typescript('object?.array!.toSpliced()'),
+		typescript('object?.getArray()!.toSpliced()'),
 	],
 	invalid: [
 		'array.toSpliced()',
 		'array.toSpliced().toSpliced()',
 		'const copy = array.toSpliced()',
 		'(( (( (( array )).toSpliced ))() ))',
+		'(object?.array).toSpliced()',
+		typescript('(object?.array as string[]).toSpliced()'),
 		// Semicolon
 		outdent`
 			bar()
