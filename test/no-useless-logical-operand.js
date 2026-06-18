@@ -46,6 +46,20 @@ test.snapshot({
 
 		// `for` initializers are not boolean contexts.
 		'for (input && true;;) {}',
+
+		// Directive prologue positions are ignored when simplifying to a string literal could change semantics.
+		'true && \'use strict\';',
+		'true && \'directive\';\n\'use strict\';',
+		'\'directive\';\ntrue && \'use strict\';',
+		outdent`
+			function foo() {
+				false || 'use strict';
+			}
+		`,
+		{code: 'true && (\'use strict\' as const);', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && (\'use strict\' satisfies string);', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && \'use strict\'!;', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && <const>\'use strict\';', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		// Leading identity operands.
@@ -124,6 +138,7 @@ test.snapshot({
 		{code: 'true && {} as Foo && input;', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && {} satisfies Foo && input;', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && {}! && input;', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && <Foo>{} && input;', languageOptions: {parser: parsers.typescript}},
 
 		// ASI-sensitive replacements.
 		outdent`
@@ -135,14 +150,7 @@ test.snapshot({
 			false || (1 + 2)
 		`,
 
-		// Directive prologue positions are reported but not fixed.
-		'true && \'use strict\';',
-		'\'directive\';\ntrue && \'use strict\';',
-		outdent`
-			function foo() {
-				false || 'use strict';
-			}
-		`,
+		// String literals outside directive prologues are still fixable.
 		'foo();\ntrue && \'use strict\';',
 
 		// Comments inside the chain are reported but not fixed.

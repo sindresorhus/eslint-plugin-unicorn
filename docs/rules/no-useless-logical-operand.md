@@ -11,7 +11,7 @@
 
 Logical `&&` and `||` expressions return one of their operands. A boolean literal can make part of the expression unnecessary, but it is not always safe to simplify. For example, `value && true` returns `true` for any truthy non-boolean `value`, while `value` would return the original value.
 
-This rule only reports boolean literal operands when the simplification preserves JavaScript value semantics, or when the expression is used only for truthiness. Autofixes are skipped when comments or directive prologue semantics could be affected.
+This rule only reports boolean literal operands when the simplification preserves the logical expression value, or when the expression is used only for truthiness. It ignores directive prologue cases where simplifying to a string literal could change strict-mode semantics, and autofixes are skipped when comments could be affected.
 
 It intentionally does not report non-leading absorbing operands like `value && false` or `value || true`. Those expressions still evaluate `value`, so replacing the whole expression with a literal could drop side effects or thrown errors. Use ESLint's [`no-constant-binary-expression`](https://eslint.org/docs/latest/rules/no-constant-binary-expression) rule if you want those suspicious expressions reported without an autofix.
 

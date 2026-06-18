@@ -91,6 +91,10 @@ function needsLeadingOperandParentheses(operand) {
 	return leadingOperandTypesNeedingParentheses.has(unwrapTypeScriptExpression(operand).type);
 }
 
+function isStringLiteralExpression(node) {
+	return isStringLiteral(unwrapTypeScriptExpression(node));
+}
+
 function getOperandText(operand, operator, index, context) {
 	const operandIsParenthesized = isParenthesized(operand, context);
 	let text = getParenthesizedText(operand, context);
@@ -190,6 +194,14 @@ const create = context => {
 		}
 
 		const {target, replacementOperands} = problem;
+		if (
+			replacementOperands.length === 1
+			&& isStringLiteralExpression(replacementOperands[0])
+			&& isDirectiveProloguePosition(node)
+		) {
+			return;
+		}
+
 		const report = {
 			node: target,
 			messageId: MESSAGE_ID,
@@ -199,14 +211,6 @@ const create = context => {
 		};
 
 		if (context.sourceCode.getCommentsInside(node).length > 0) {
-			return report;
-		}
-
-		if (
-			replacementOperands.length === 1
-			&& isStringLiteral(replacementOperands[0])
-			&& isDirectiveProloguePosition(node)
-		) {
 			return report;
 		}
 
