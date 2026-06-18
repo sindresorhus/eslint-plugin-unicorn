@@ -70,14 +70,6 @@ const objectPrototypeMethods = objectPrototypeProperties.filter(propertyName => 
 	&& propertyName !== 'constructor'
 ));
 
-const objectPrototypeConstructors = [
-	'constructor',
-];
-
-const callableConstructorProperties = [
-	'constructor',
-];
-
 const functionPrototypeProperties = [
 	...objectPrototypeProperties,
 	'apply',
@@ -91,7 +83,6 @@ const functionPrototypeProperties = [
 
 const functionPrototypeMethods = [
 	...objectPrototypeMethods,
-	...callableConstructorProperties,
 	'apply',
 	'bind',
 	'call',
@@ -102,7 +93,6 @@ const createPropertyInfo = ({
 	methods = [],
 	inheritedProperties = objectPrototypeProperties,
 	inheritedMethods = objectPrototypeMethods,
-	inheritedConstructors = objectPrototypeConstructors,
 } = {}) => ({
 	all: new Set([
 		...inheritedProperties,
@@ -113,7 +103,6 @@ const createPropertyInfo = ({
 		...inheritedMethods,
 		...methods,
 	]),
-	constructible: new Set(inheritedConstructors),
 });
 
 const createFunctionPropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
@@ -131,14 +120,6 @@ const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => 
 	methods,
 });
 
-const createNamespacePropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
-	properties,
-	methods: [
-		...callableConstructorProperties,
-		...methods,
-	],
-});
-
 const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
 	all: new Set([
 		...propertyInfo.all,
@@ -149,13 +130,11 @@ const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
 		...propertyInfo.callable,
 		...methods,
 	]),
-	constructible: new Set(propertyInfo.constructible),
 });
 
 const arrayPrototype = createPropertyInfo({
 	properties: ['length'],
 	methods: [
-		...callableConstructorProperties,
 		'at',
 		'concat',
 		'copyWithin',
@@ -210,10 +189,6 @@ const arrayBufferPrototype = createPropertyInfo({
 	],
 });
 
-const booleanPrototype = createPropertyInfo({
-	methods: callableConstructorProperties,
-});
-
 const dataViewPrototype = createPropertyInfo({
 	properties: [
 		'buffer',
@@ -248,7 +223,6 @@ const dataViewPrototype = createPropertyInfo({
 
 const datePrototype = createPropertyInfo({
 	methods: [
-		...callableConstructorProperties,
 		'getDate',
 		'getDay',
 		'getFullYear',
@@ -312,7 +286,6 @@ const errorPrototype = createPropertyInfo({
 		'name',
 	],
 	methods: [
-		...callableConstructorProperties,
 		'toString',
 	],
 });
@@ -334,10 +307,7 @@ const errorStatic = createConstructorPropertyInfo({
 	methods: ['isError'],
 });
 
-const bigIntPrototype = createPropertyInfo({
-	inheritedConstructors: [],
-	methods: callableConstructorProperties,
-});
+const objectPrototypePropertyInfo = createPropertyInfo();
 
 const finalizationRegistryPrototype = createPropertyInfo({
 	methods: [
@@ -381,15 +351,10 @@ const mapPrototype = createPropertyInfo({
 
 const numberPrototype = createPropertyInfo({
 	methods: [
-		...callableConstructorProperties,
 		'toExponential',
 		'toFixed',
 		'toPrecision',
 	],
-});
-
-const objectPrototype = createPropertyInfo({
-	methods: callableConstructorProperties,
 });
 
 const objectStatic = createConstructorPropertyInfo({
@@ -450,7 +415,6 @@ const regexpMethods = [
 const regexpPrototype = createPropertyInfo({
 	properties: regexpProperties,
 	methods: [
-		...callableConstructorProperties,
 		...regexpMethods,
 	],
 });
@@ -461,7 +425,6 @@ const regexpInstance = createPropertyInfo({
 		'lastIndex',
 	],
 	methods: [
-		...callableConstructorProperties,
 		...regexpMethods,
 	],
 });
@@ -502,7 +465,6 @@ const sharedArrayBufferPrototype = createPropertyInfo({
 const stringPrototype = createPropertyInfo({
 	properties: ['length'],
 	methods: [
-		...callableConstructorProperties,
 		'at',
 		'anchor',
 		'big',
@@ -555,8 +517,6 @@ const stringPrototype = createPropertyInfo({
 });
 
 const symbolPrototype = createPropertyInfo({
-	inheritedConstructors: [],
-	methods: callableConstructorProperties,
 	properties: ['description'],
 });
 
@@ -694,6 +654,7 @@ const typedArrayObjects = Object.fromEntries(typedArrayTypeNamesExceptUint8Array
 	},
 ]));
 
+// Boundary: Latest published ECMAScript edition plus selected web-standard built-ins only; no proposal, next-edition, or runtime-specific properties until a deliberate baseline bump.
 const nativeObjects = new Map(Object.entries({
 	AggregateError: {
 		instance: aggregateErrorInstance,
@@ -701,7 +662,7 @@ const nativeObjects = new Map(Object.entries({
 		static: errorStatic,
 	},
 	Atomics: {
-		static: createNamespacePropertyInfo({
+		static: createPropertyInfo({
 			methods: [
 				'add',
 				'and',
@@ -739,8 +700,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	BigInt: {
-		instance: bigIntPrototype,
-		prototype: bigIntPrototype,
+		instance: objectPrototypePropertyInfo,
+		prototype: objectPrototypePropertyInfo,
 		static: createConstructorPropertyInfo({
 			methods: [
 				'asIntN',
@@ -749,8 +710,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Boolean: {
-		instance: booleanPrototype,
-		prototype: booleanPrototype,
+		instance: objectPrototypePropertyInfo,
+		prototype: objectPrototypePropertyInfo,
 		static: createConstructorPropertyInfo(),
 	},
 	DataView: {
@@ -831,8 +792,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Object: {
-		instance: objectPrototype,
-		prototype: objectPrototype,
+		instance: objectPrototypePropertyInfo,
+		prototype: objectPrototypePropertyInfo,
 		static: objectStatic,
 	},
 	Promise: {
@@ -973,7 +934,7 @@ const nativeObjects = new Map(Object.entries({
 		static: uint8ArrayStatic,
 	},
 	JSON: {
-		static: createNamespacePropertyInfo({
+		static: createPropertyInfo({
 			methods: [
 				'isRawJSON',
 				'parse',
@@ -983,7 +944,7 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Math: {
-		static: createNamespacePropertyInfo({
+		static: createPropertyInfo({
 			properties: [
 				'E',
 				'LN10',
@@ -1036,7 +997,7 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Reflect: {
-		static: createNamespacePropertyInfo({
+		static: createPropertyInfo({
 			methods: [
 				'apply',
 				'construct',
@@ -1341,15 +1302,14 @@ const getReceiverName = ({typeName, usage}) => {
 	return `${typeName} instances`;
 };
 
-const getMessageId = (isStandardProperty, callKind) => {
-	if (!isStandardProperty) {
-		return MESSAGE_ID_NONSTANDARD;
-	}
-
-	return callKind === 'construct'
-		? MESSAGE_ID_NONCONSTRUCTIBLE
-		: MESSAGE_ID_NONCALLABLE;
-};
+const getProblem = (node, nativeObjectReference, propertyName, messageId) => ({
+	node,
+	messageId,
+	data: {
+		property: propertyName,
+		receiver: getReceiverName(nativeObjectReference),
+	},
+});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -1373,24 +1333,31 @@ const create = context => {
 			return;
 		}
 
-		const callKind = getCallKind(node);
-		const isStandardProperty = propertyInfo.all.has(propertyName);
-		const isValidCall = callKind === undefined
-			|| (callKind === 'call' && propertyInfo.callable.has(propertyName))
-			|| (callKind === 'construct' && propertyInfo.constructible.has(propertyName));
-		if (
-			!isStandardProperty
-			|| !isValidCall
-		) {
-			return {
-				node,
-				messageId: getMessageId(isStandardProperty, callKind),
-				data: {
-					property: propertyName,
-					receiver: getReceiverName(nativeObjectReference),
-				},
-			};
+		if (!propertyInfo.all.has(propertyName)) {
+			return getProblem(node, nativeObjectReference, propertyName, MESSAGE_ID_NONSTANDARD);
 		}
+
+		if (propertyName === 'constructor') {
+			return;
+		}
+
+		const callKind = getCallKind(node);
+		if (
+			callKind === undefined
+			|| (
+				callKind === 'call'
+				&& propertyInfo.callable.has(propertyName)
+			)
+		) {
+			return;
+		}
+
+		return getProblem(
+			node,
+			nativeObjectReference,
+			propertyName,
+			callKind === 'construct' ? MESSAGE_ID_NONCONSTRUCTIBLE : MESSAGE_ID_NONCALLABLE,
+		);
 	});
 };
 
