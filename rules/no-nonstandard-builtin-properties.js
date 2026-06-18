@@ -29,6 +29,27 @@ const globalObjectNames = new Set([
 	'window',
 ]);
 
+const typedArrayTypeNames = [
+	'Int8Array',
+	'Uint8ClampedArray',
+	'Int16Array',
+	'Uint16Array',
+	'Int32Array',
+	'Uint32Array',
+	'Float16Array',
+	'Float32Array',
+	'Float64Array',
+	'BigInt64Array',
+	'BigUint64Array',
+];
+
+const indexedInstanceTypeNames = new Set([
+	'Array',
+	'String',
+	'Uint8Array',
+	...typedArrayTypeNames,
+]);
+
 const objectPrototypeProperties = [
 	'__defineGetter__',
 	'__defineSetter__',
@@ -617,19 +638,7 @@ const uint8ArrayStatic = extendPropertyInfo(typedArrayStatic, {
 	],
 });
 
-const typedArrayObjects = Object.fromEntries([
-	'Int8Array',
-	'Uint8ClampedArray',
-	'Int16Array',
-	'Uint16Array',
-	'Int32Array',
-	'Uint32Array',
-	'Float16Array',
-	'Float32Array',
-	'Float64Array',
-	'BigInt64Array',
-	'BigUint64Array',
-].map(typeName => [
+const typedArrayObjects = Object.fromEntries(typedArrayTypeNames.map(typeName => [
 	typeName,
 	{
 		instance: typedArrayPrototype,
@@ -1041,6 +1050,8 @@ const getStaticPropertyName = node => {
 	}
 };
 
+const isArrayIndexString = string => /^(?:0|[1-9]\d*)$/.test(string);
+
 const isGlobalObjectReference = (node, context) => {
 	node = unwrapExpression(node);
 
@@ -1126,6 +1137,28 @@ const resolveLiteralReference = node => {
 	}
 };
 
+const resolveUnaryExpressionReference = node => {
+	if (
+		node.operator !== '+'
+		&& node.operator !== '-'
+	) {
+		return;
+	}
+
+	const argument = unwrapExpression(node.argument);
+	if (argument.type !== 'Literal') {
+		return;
+	}
+
+	const literalReference = resolveLiteralReference(argument);
+	if (
+		literalReference?.typeName === 'Number'
+		|| literalReference?.typeName === 'BigInt'
+	) {
+		return literalReference;
+	}
+};
+
 const resolvePrototypeReference = (node, context) => {
 	if (getStaticPropertyName(node) !== 'prototype') {
 		return;
@@ -1172,6 +1205,10 @@ function resolveNativeObjectReference(node, context) {
 
 	if (node.type === 'NewExpression') {
 		return resolveNewExpressionReference(node, context);
+	}
+
+	if (node.type === 'UnaryExpression') {
+		return resolveUnaryExpressionReference(node);
 	}
 
 	switch (node.type) {
@@ -1230,6 +1267,14 @@ const create = context => {
 
 		const propertyInfo = nativeObjects.get(nativeObjectReference.typeName)?.[nativeObjectReference.usage];
 		if (!propertyInfo) {
+			return;
+		}
+
+		if (
+			nativeObjectReference.usage === 'instance'
+			&& indexedInstanceTypeNames.has(nativeObjectReference.typeName)
+			&& isArrayIndexString(propertyName)
+		) {
 			return;
 		}
 
