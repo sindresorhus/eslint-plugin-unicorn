@@ -20,6 +20,9 @@ test.snapshot({
 		'isEnabled === true',
 		'hasValue !== false',
 
+		// Optional chaining can produce `undefined`.
+		'array?.includes(value) === true',
+
 		// No boolean literal comparison.
 		'a === b',
 		'(a > b) === (c > d)',
@@ -28,6 +31,9 @@ test.snapshot({
 
 		// A `yield` expression evaluates to the value sent back into the generator, not the yielded argument.
 		'function * foo() {\n\tconst result = (yield a > b) === true;\n}',
+		'function * foo() {\n\tconst result = (flag = yield a > b) === true;\n}',
+		'function * foo() {\n\tconst result = (a > b, yield c > d) === false;\n}',
+		'function * foo() {\n\tconst result = ((yield a > b) && c > d) === true;\n}',
 
 		// Nullable or mixed TypeScript types are not guaranteed booleans.
 		{
@@ -44,12 +50,17 @@ test.snapshot({
 		'const result = (a > b) !== false;',
 		'const result = (a > b) === false;',
 		'const result = (a > b) !== true;',
+		'const result = a > b === true;',
+		'const result = a > b === false;',
 		'const result = true === (a > b);',
 		'const result = false !== (a > b);',
+		'const result = false === (a > b);',
+		'const result = true !== (a > b);',
 		'if ((a > b) === true) {}',
 		'if ((a > b) === false) {}',
 		'const result = Boolean(value) === true;',
 		'const result = !value === false;',
+		'async function foo() {\n\tconst result = await (a > b) === false;\n}',
 		'const result = (a > b && c > d) === true;',
 		'const result = (a > b && c > d) === false;',
 		'const result = (a > b ? c > d : e > f) === false;',
@@ -57,6 +68,7 @@ test.snapshot({
 		'const result = (a > b, c > d) === false;',
 		'const result = ([value].includes(value)) === true;',
 		'const result = ((a > b) === true).toString();',
+		'const result = ((a > b) === false).toString();',
 		'const result = (a > b) /* comment */ === true;',
 		'const flag = a > b;\nconst result = flag === true;',
 		'function isEnabled() {\n\treturn a > b;\n}\n\nconst result = isEnabled() === true;',

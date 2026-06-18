@@ -1,9 +1,9 @@
+import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 import {
 	getParenthesizedText,
 	isBoolean,
 	isParenthesized,
-	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 
@@ -13,10 +13,6 @@ const messages = {
 };
 
 const strictEqualityOperators = new Set(['===', '!==']);
-
-const isBooleanLiteral = node =>
-	node.type === 'Literal'
-	&& typeof node.value === 'boolean';
 
 function getBooleanComparison(node) {
 	if (!strictEqualityOperators.has(node.operator)) {
@@ -38,12 +34,32 @@ function getBooleanComparison(node) {
 const shouldNegateExpression = (operator, literal) =>
 	operator === '===' ? literal.value === false : literal.value === true;
 
+function containsYieldExpression(node, visitorKeys) {
+	if (node.type === 'YieldExpression') {
+		return true;
+	}
+
+	if (isFunction(node)) {
+		return false;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		for (const childNode of Array.isArray(child) ? child : [child]) {
+			if (childNode?.type && containsYieldExpression(childNode, visitorKeys)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 const isSafeKnownBooleanExpression = (node, context) =>
-	node.type !== 'YieldExpression'
+	!containsYieldExpression(node, context.sourceCode.visitorKeys)
 	&& isBoolean(node, context);
 
 function getNegatedExpressionText(node, context) {
-	const {sourceCode} = context;
 	let text = getParenthesizedText(node, context);
 
 	if (
@@ -51,10 +67,6 @@ function getNegatedExpressionText(node, context) {
 		&& !isParenthesized(node, context)
 	) {
 		text = `(${text})`;
-	}
-
-	if (needsSemicolon(sourceCode.getTokenBefore(node.parent), context, `!${text}`)) {
-		return `;!${text}`;
 	}
 
 	return `!${text}`;
