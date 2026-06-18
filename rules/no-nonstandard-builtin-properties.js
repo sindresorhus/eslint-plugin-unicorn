@@ -100,7 +100,6 @@ const functionPrototypeMethods = [
 const createPropertyInfo = ({
 	properties = [],
 	methods = [],
-	constructors = [],
 	inheritedProperties = objectPrototypeProperties,
 	inheritedMethods = objectPrototypeMethods,
 	inheritedConstructors = objectPrototypeConstructors,
@@ -114,10 +113,7 @@ const createPropertyInfo = ({
 		...inheritedMethods,
 		...methods,
 	]),
-	constructible: new Set([
-		...inheritedConstructors,
-		...constructors,
-	]),
+	constructible: new Set(inheritedConstructors),
 });
 
 const createFunctionPropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
@@ -135,7 +131,15 @@ const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => 
 	methods,
 });
 
-const extendPropertyInfo = (propertyInfo, {properties = [], methods = [], constructors = []}) => ({
+const createNamespacePropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
+	properties,
+	methods: [
+		...callableConstructorProperties,
+		...methods,
+	],
+});
+
+const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
 	all: new Set([
 		...propertyInfo.all,
 		...properties,
@@ -145,10 +149,7 @@ const extendPropertyInfo = (propertyInfo, {properties = [], methods = [], constr
 		...propertyInfo.callable,
 		...methods,
 	]),
-	constructible: new Set([
-		...propertyInfo.constructible,
-		...constructors,
-	]),
+	constructible: new Set(propertyInfo.constructible),
 });
 
 const arrayPrototype = createPropertyInfo({
@@ -700,7 +701,7 @@ const nativeObjects = new Map(Object.entries({
 		static: errorStatic,
 	},
 	Atomics: {
-		static: createPropertyInfo({
+		static: createNamespacePropertyInfo({
 			methods: [
 				'add',
 				'and',
@@ -710,7 +711,6 @@ const nativeObjects = new Map(Object.entries({
 				'load',
 				'notify',
 				'or',
-				'pause',
 				'store',
 				'sub',
 				'wait',
@@ -803,8 +803,6 @@ const nativeObjects = new Map(Object.entries({
 			methods: [
 				'concat',
 				'from',
-				'zip',
-				'zipKeyed',
 			],
 		}),
 	},
@@ -975,7 +973,7 @@ const nativeObjects = new Map(Object.entries({
 		static: uint8ArrayStatic,
 	},
 	JSON: {
-		static: createPropertyInfo({
+		static: createNamespacePropertyInfo({
 			methods: [
 				'isRawJSON',
 				'parse',
@@ -985,7 +983,7 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Math: {
-		static: createPropertyInfo({
+		static: createNamespacePropertyInfo({
 			properties: [
 				'E',
 				'LN10',
@@ -1038,7 +1036,7 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Reflect: {
-		static: createPropertyInfo({
+		static: createNamespacePropertyInfo({
 			methods: [
 				'apply',
 				'construct',
@@ -1309,6 +1307,16 @@ const getCallKind = node => {
 	if (
 		node.parent.type === 'NewExpression'
 		&& node.parent.callee === node
+	) {
+		return 'construct';
+	}
+
+	if (
+		(
+			node.parent.type === 'ClassDeclaration'
+			|| node.parent.type === 'ClassExpression'
+		)
+		&& node.parent.superClass === node
 	) {
 		return 'construct';
 	}

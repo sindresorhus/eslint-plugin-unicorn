@@ -96,6 +96,13 @@ const {Object: BuiltinObject} = globalThis;
 BuiltinObject.entires(value);
 ```
 
+Return values from built-in function calls are ignored.
+
+```js
+// ✅
+Array().customProperty;
+```
+
 Object literals are ignored because their properties are usually user-defined.
 
 ```js
