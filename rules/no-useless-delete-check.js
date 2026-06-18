@@ -41,15 +41,19 @@ const typeAnnotationExpressionTypes = new Set([
 	'TSTypeAssertion',
 ]);
 
-const nonObjectTypeAnnotationTypes = new Set([
-	'TSBigIntKeyword',
-	'TSBooleanKeyword',
-	'TSNullKeyword',
-	'TSNumberKeyword',
-	'TSStringKeyword',
-	'TSSymbolKeyword',
-	'TSUndefinedKeyword',
-	'TSVoidKeyword',
+const knownObjectExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'ObjectExpression',
+]);
+
+const objectTypeAnnotationTypes = new Set([
+	'TSConstructorType',
+	'TSFunctionType',
+	'TSObjectKeyword',
+	'TSTypeLiteral',
 ]);
 
 const getTypeAnnotation = (node, context) => {
@@ -69,24 +73,17 @@ const getTypeAnnotation = (node, context) => {
 	return variable?.defs[0]?.name?.typeAnnotation?.typeAnnotation ?? node.typeAnnotation?.typeAnnotation;
 };
 
-const isNonObjectTypeAnnotation = node => {
-	if (nonObjectTypeAnnotationTypes.has(node?.type)) {
+const isObjectValue = value => value !== null && (
+	typeof value === 'object'
+	|| typeof value === 'function'
+);
+
+const isObjectTypeAnnotation = node => {
+	if (objectTypeAnnotationTypes.has(node?.type)) {
 		return true;
 	}
 
-	if (node?.type === 'TSLiteralType') {
-		const {literal} = node;
-		return literal.type === 'Literal'
-			&& (
-				literal.value === null
-				|| (
-					typeof literal.value !== 'object'
-					&& typeof literal.value !== 'function'
-				)
-			);
-	}
-
-	return node?.type === 'TSUnionType' && node.types.every(type => isNonObjectTypeAnnotation(type));
+	return node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type));
 };
 
 const isCollectionConstructor = (node, context) =>
@@ -94,7 +91,7 @@ const isCollectionConstructor = (node, context) =>
 	&& collectionConstructors.has(node.name)
 	&& context.sourceCode.isGlobalReference(node);
 
-const isKnownCollection = (node, context) => {
+const isKnownConstCollection = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type !== 'Identifier') {
@@ -128,18 +125,27 @@ const getStaticPropertyKey = (node, context) => {
 	return result && typeof result.value !== 'symbol' ? String(result.value) : undefined;
 };
 
-const isKnownNonObject = (node, context) => {
+const isKnownObject = (node, context) => {
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
 
 	if (result) {
-		return result.value === null
-			|| (
-				typeof result.value !== 'object'
-				&& typeof result.value !== 'function'
-			);
+		return isObjectValue(result.value);
 	}
 
-	return isNonObjectTypeAnnotation(getTypeAnnotation(node, context));
+	const initializer = getConstVariableInitializer(unwrapTypeScriptExpression(node), context);
+	if (initializer) {
+		const unwrappedInitializer = unwrapTypeScriptExpression(initializer);
+		const initializerResult = getStaticValue(unwrappedInitializer, context.sourceCode.getScope(unwrappedInitializer));
+		if (initializerResult) {
+			return isObjectValue(initializerResult.value);
+		}
+
+		if (knownObjectExpressionTypes.has(unwrappedInitializer.type)) {
+			return true;
+		}
+	}
+
+	return isObjectTypeAnnotation(getTypeAnnotation(node, context));
 };
 
 const isSamePropertyKey = (left, right, context) => {
@@ -175,7 +181,7 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 		&& argument.type === 'MemberExpression'
 		&& !argument.optional
 		&& isSameReference(test.right, argument.object)
-		&& !isKnownNonObject(test.right, context)
+		&& isKnownObject(test.right, context)
 		&& isSafeExpression(test.left, context)
 		&& isSafeExpression(test.right, context)
 		&& (!argument.computed || isSafeExpression(argument.property, context))
@@ -204,10 +210,9 @@ function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 	if (!(
 		isOneArgumentMethodCall(test, 'has')
 		&& isOneArgumentMethodCall(callExpression, 'delete')
-		&& isKnownCollection(test.callee.object, context)
+		&& isKnownConstCollection(test.callee.object, context)
 		&& isSameReference(test.callee.object, callExpression.callee.object)
 		&& isSameReference(test.arguments[0], callExpression.arguments[0])
-		&& isSafeExpression(test.callee.object, context)
 		&& isSafeExpression(test.arguments[0], context)
 	)) {
 		return;
@@ -245,12 +250,12 @@ function getProblem(ifStatement, context) {
 	return getCollectionDeleteProblem(ifStatement, expression, context);
 }
 
-const getFix = (ifStatement, deleteExpression, context) => fixer => {
+const getFix = (ifStatement, expression, context) => fixer => {
 	if (hasCommentInRange(context, context.sourceCode.getRange(ifStatement))) {
 		return;
 	}
 
-	let replacement = context.sourceCode.getText(deleteExpression.parent);
+	let replacement = context.sourceCode.getText(expression.parent);
 
 	if (!replacement.trimEnd().endsWith(';')) {
 		replacement += ';';

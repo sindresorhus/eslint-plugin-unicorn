@@ -9,6 +9,11 @@ test.snapshot({
 		'map.delete(key);',
 		'if (key in object) {}',
 		'if (key in object) { object[key]; }',
+		'if (key in object) { delete object[key]; }',
+		'if (key in object) delete object[key];',
+		'if ("key" in object) { delete object.key; }',
+		'if ("key" in object) { delete object["key"]; }',
+		'if (1 in object) { delete object[1]; }',
 		'if (key in object) { delete object[otherKey]; }',
 		'if (key in object) { delete otherObject[key]; }',
 		'if (key in object) { delete object.key; }',
@@ -22,7 +27,8 @@ test.snapshot({
 		'if ("key" in "value") { delete "value".key; }',
 		'if ("key" in null) { delete null["key"]; }',
 		'if (key in object) { delete object?.[key]; }',
-		'if (getKey() in object) { delete object[getKey()]; }',
+		'const object = {}; if (getKey() in object) { delete object[getKey()]; }',
+		'const object = {}; if (key in object) { delete object[getKey()]; }',
 		'if (key in getObject()) { delete getObject()[key]; }',
 		'if (object.hasOwnProperty(key)) { delete object[key]; }',
 		'if (Object.hasOwn(object, key)) { delete object[key]; }',
@@ -75,23 +81,36 @@ test.snapshot({
 		},
 	],
 	invalid: [
-		'if (key in object) { delete object[key]; }',
-		'if (key in object) delete object[key];',
-		'if ("key" in object) { delete object.key; }',
-		'if ("key" in object) { delete object["key"]; }',
-		'if (1 in object) { delete object[1]; }',
-		'if ((key) in (object)) { delete (object)[(key)]; }',
+		'const object = {}; if (key in object) { delete object[key]; }',
+		'const object = {}; if (key in object) delete object[key];',
+		'const object = {}; if ("key" in object) { delete object.key; }',
+		'const object = {}; if ("key" in object) { delete object["key"]; }',
+		'const object = {}; if (1 in object) { delete object[1]; }',
+		'const object = {}; if ((key) in (object)) { delete (object)[(key)]; }',
+		'const object = []; if (key in object) { delete object[key]; }',
+		'const object = function () {}; if ("key" in object) { delete object.key; }',
 		outdent`
+			const object = {};
 			if (key in object) {
 				delete object[key];
 			}
 		`,
 		outdent`
+			const object = {};
 			if (key in object) {
 				// Keep this comment.
 				delete object[key];
 			}
 		`,
+		'const object = {}; if (/* comment */ key in object) { delete object[key]; }',
+		{
+			code: 'function f(object: object, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(object: {[key: string]: unknown}, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const map = new Map(); if (map.has(key)) { map.delete(key); }',
 		'const map = new Map(); if (map.has(key)) map.delete(key);',
 		'const map = new Map(); if (map.has("key")) { map.delete("key"); }',
@@ -108,9 +127,19 @@ test.snapshot({
 			code: 'const map = new Map() as Map<string, number>; if (map.has(key)) { map.delete(key); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const map = new Map() satisfies Map<string, number>; if (map.has(key)) { map.delete(key); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const map = new Map();
 			if (map.has(key)) {
+				map.delete(key);
+			}
+		`,
+		outdent`
+			const map = new Map();
+			if (/* comment */ map.has(key)) {
 				map.delete(key);
 			}
 		`,
