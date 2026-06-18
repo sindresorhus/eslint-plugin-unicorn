@@ -87,6 +87,7 @@ export function getArrayConcatInLoop(assignmentExpression, context) {
 		!left
 		|| !isMethodCall(callExpression, {
 			method: 'concat',
+			minimumArguments: 1,
 			optionalCall: false,
 			optionalMember: false,
 			computed: false,

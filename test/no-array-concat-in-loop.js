@@ -77,6 +77,12 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			let result = [];
+			for (const chunk of chunks) {
+				result = result.concat();
+			}
+		`,
+		outdent`
 			for (const chunk of chunks) {
 				let result = [];
 				result = result.concat(chunk);
