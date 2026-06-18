@@ -48,7 +48,7 @@ const other = true;
 ```
 
 ```js
-// ✅
+// Not reported by this rule
 const value = input && true;
 const other = input || false;
 const alwaysFalse = input && false;

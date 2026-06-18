@@ -17,7 +17,7 @@ import {
 
 const MESSAGE_ID = 'no-useless-logical-operand';
 const messages = {
-	[MESSAGE_ID]: 'Simplify this `{{operator}}` expression with a useless `{{literal}}` operand.',
+	[MESSAGE_ID]: 'Simplify this `{{operator}}` expression.',
 };
 
 const identityByOperator = new Map([
@@ -49,7 +49,7 @@ function getLogicalOperands(node, operator) {
 	return [node];
 }
 
-function isKnownBooleanExpression(operands, context) {
+function areKnownBooleanOperands(operands, context) {
 	return operands.every(operand => isBoolean(operand, context));
 }
 
@@ -63,7 +63,7 @@ function isRemovableIdentityOperand(operands, index, context) {
 	}
 
 	const remainingOperands = operands.slice(0, -1);
-	return isBooleanContext(operands[index].parent, context) || isKnownBooleanExpression(remainingOperands, context);
+	return isBooleanContext(operands[index].parent, context) || areKnownBooleanOperands(remainingOperands, context);
 }
 
 function getLeadingAbsorbingOperand(operands, operator) {
@@ -80,7 +80,7 @@ function getRemovableIdentityOperands(operands, operator, context) {
 	);
 }
 
-function needsExpressionStatementParentheses(operand, text) {
+function needsLeadingOperandParentheses(operand, text) {
 	return operand.type === 'FunctionExpression'
 		|| operand.type === 'ClassExpression'
 		|| text.startsWith('{');
@@ -101,7 +101,7 @@ function getOperandText(operand, operator, index, context) {
 
 	if (
 		index === 0
-		&& needsExpressionStatementParentheses(operand, text)
+		&& needsLeadingOperandParentheses(operand, text)
 	) {
 		text = `(${text})`;
 	}
@@ -146,8 +146,6 @@ function getProblem(node, context) {
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('LogicalExpression', node => {
 		if (
 			!identityByOperator.has(node.operator)
@@ -166,12 +164,11 @@ const create = context => {
 			node: target,
 			messageId: MESSAGE_ID,
 			data: {
-				literal: sourceCode.getText(target),
 				operator: node.operator,
 			},
 		};
 
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (context.sourceCode.getCommentsInside(node).length > 0) {
 			return report;
 		}
 

@@ -36,6 +36,12 @@ test.snapshot({
 		'const value = input && (other || false);',
 		'const value = input || (other && true);',
 
+		// Trailing identity operands are still not safe inside parenthesized same-operator chains.
+		'const value = input && (other && true);',
+		'const value = input || (other || false);',
+		'const value = object?.enabled && true;',
+		{code: 'declare const value: unknown;\nconst result = value && true;', languageOptions: {parser: parsers.typescript}},
+
 		// `for` initializers are not boolean contexts.
 		'for (input && true;;) {}',
 	],
@@ -55,6 +61,9 @@ test.snapshot({
 		// Trailing identity operands in boolean contexts.
 		'if (input && true) {}',
 		'if (input || false) {}',
+		'if (input && (other && true)) {}',
+		'if (input || (other || false)) {}',
+		'if (object?.enabled && true) {}',
 		'while (input && true) {}',
 		'for (; input && true;) {}',
 		'do {} while (input || false);',
@@ -77,6 +86,11 @@ test.snapshot({
 		// Parenthesized expressions.
 		'const value = (true && input);',
 		'const value = ((false || input));',
+		'const value = true && input?.property;',
+		'const value = false || input.member;',
+		'const value = true && input();',
+		'new (true && Constructor)();',
+		'new (false || Constructor)();',
 		'const value = true && (input || other);',
 		'const value = false || (input && other);',
 		'const value = true && (input || other) && final;',
@@ -102,18 +116,19 @@ test.snapshot({
 			false || (1 + 2)
 		`,
 
-		// Comments attached to the chain are reported but not fixed.
+		// Comments inside the chain are reported but not fixed.
 		'const value = true /* keep */ && input;',
 		'if (input && /* keep */ true) {}',
 		'const value = true && call(/* keep */);',
-		'const value = /* keep */ true && input;',
 
-		// Trailing comments outside the chain are preserved.
+		// Comments outside the chain are preserved.
+		'const value = /* keep */ true && input;',
 		'const value = true && input /* keep */;',
 
 		// TypeScript.
 		{code: 'declare const flag: boolean;\nconst value = flag && true;', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const flag: true;\nconst value = flag || false;', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const flag: boolean;\nconst value = flag! && true;', languageOptions: {parser: parsers.typescript}},
 		{code: 'const value = (input as boolean) && true;', languageOptions: {parser: parsers.typescript}},
 		{code: 'const value = (input satisfies boolean) || false;', languageOptions: {parser: parsers.typescript}},
 	],
