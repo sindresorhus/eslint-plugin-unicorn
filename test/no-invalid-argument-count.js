@@ -158,6 +158,11 @@ ruleTest.snapshot({
 			options: [{'*.bar': 1}],
 		},
 		{
+			// `foo` is not a global, so only the custom `*.is` pattern applies.
+			code: 'foo.is(value);',
+			options: [{'*.is': 1}],
+		},
+		{
 			code: 'context.drawImage(image, dx, dy);',
 			options: [{'*.drawImage': [3, 5, 9]}],
 		},
@@ -1568,6 +1573,17 @@ ruleTest.snapshot({
 		{
 			code: 'new Foo(...values);',
 			options: [{'new Foo': {max: 1}}],
+		},
+		{
+			// Both the built-in `Object.is` (2) and the custom `*.is` (1) match, but the
+			// built-in entry comes first, so its expected count is reported.
+			code: 'Object.is(a, b, c);',
+			options: [{'*.is': 1}],
+		},
+		{
+			// `foo` is not a global, so only the custom `*.is` pattern applies.
+			code: 'foo.is(a, b, c);',
+			options: [{'*.is': 1}],
 		},
 	],
 });

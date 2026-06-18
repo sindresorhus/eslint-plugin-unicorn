@@ -218,6 +218,13 @@ const create = context => {
 			return;
 		}
 
+		// The combined-regex gate is cheap and rejects most names, so run it before the
+		// import/shorthand checks.
+		const replacement = getNameReplacement(variable.name, options);
+		if (!replacement) {
+			return;
+		}
+
 		const [definition] = variable.defs;
 
 		if (!shouldCheckDefaultOrNamespaceImportName(definition, options)) {
@@ -232,11 +239,6 @@ const create = context => {
 			!options.checkShorthandProperties
 			&& isShorthandPropertyValue(definition.name)
 		) {
-			return;
-		}
-
-		const replacement = getNameReplacement(variable.name, options);
-		if (!replacement) {
 			return;
 		}
 

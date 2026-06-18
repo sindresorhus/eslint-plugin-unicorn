@@ -394,9 +394,11 @@ const create = context => {
 	}
 
 	const checkVariable = variable => {
+		// `hasBooleanPrefix` is a cheap string check, so run it before the expensive
+		// `isBooleanVariable` analysis.
 		if (
-			!isBooleanVariable(variable, context)
-			|| hasBooleanPrefix(variable.name, prefixes)
+			hasBooleanPrefix(variable.name, prefixes)
+			|| !isBooleanVariable(variable, context)
 		) {
 			return;
 		}
@@ -433,8 +435,8 @@ const create = context => {
 
 		if (
 			!name
-			|| !isBooleanProperty(node, context)
 			|| hasBooleanPrefix(name, prefixes)
+			|| !isBooleanProperty(node, context)
 		) {
 			return;
 		}

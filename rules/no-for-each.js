@@ -443,13 +443,20 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		const scope = sourceCode.getScope(node);
+		// Check the cheap method-call shape before resolving scope, so the scope lookup
+		// runs only for actual `.forEach()` calls.
 		if (
 			!isMethodCall(node, {
 				method: 'forEach',
 			})
 			|| isNodeMatches(node.callee.object, ignoredObjects)
-			|| isStrictCallbagBasicsNamespace(node.callee.object, scope)
+		) {
+			return;
+		}
+
+		const scope = sourceCode.getScope(node);
+		if (
+			isStrictCallbagBasicsNamespace(node.callee.object, scope)
 			|| shouldSkipKnownNonArrayReceiver(node.callee.object, context)
 		) {
 			return;
