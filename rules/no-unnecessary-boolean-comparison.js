@@ -117,7 +117,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow unnecessary comparisons against boolean literals.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema: [],
