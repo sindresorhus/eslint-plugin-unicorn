@@ -44,6 +44,9 @@ test.snapshot({
 		'const value = object?.enabled && true;',
 		{code: 'declare const value: unknown;\nconst result = value && true;', languageOptions: {parser: parsers.typescript}},
 
+		// JSX.
+		{code: 'const element = <div>{input && true}</div>;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+
 		// `for` initializers are not boolean contexts.
 		'for (input && true;;) {}',
 
@@ -175,5 +178,8 @@ test.snapshot({
 		{code: 'declare const flag: boolean;\nconst value = flag! && true;', languageOptions: {parser: parsers.typescript}},
 		{code: 'const value = (input as boolean) && true;', languageOptions: {parser: parsers.typescript}},
 		{code: 'const value = (input satisfies boolean) || false;', languageOptions: {parser: parsers.typescript}},
+
+		// JSX.
+		{code: 'const element = <div>{true && child}</div>;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 	],
 });

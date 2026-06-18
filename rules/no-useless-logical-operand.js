@@ -65,7 +65,7 @@ function isBooleanContext(node, context) {
 }
 
 function isRemovableIdentityOperand(operands, index, context) {
-	if (index === 0 || index < operands.length - 1) {
+	if (index < operands.length - 1) {
 		return true;
 	}
 
