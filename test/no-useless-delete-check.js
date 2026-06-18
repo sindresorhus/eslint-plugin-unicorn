@@ -21,6 +21,7 @@ test.snapshot({
 		'if ("key" in 1) { delete (1)["key"]; }',
 		'if ("key" in "value") { delete "value".key; }',
 		'if ("key" in null) { delete null["key"]; }',
+		'if (key in object) { delete object?.[key]; }',
 		'if (getKey() in object) { delete object[getKey()]; }',
 		'if (key in getObject()) { delete getObject()[key]; }',
 		'if (object.hasOwnProperty(key)) { delete object[key]; }',
@@ -40,6 +41,7 @@ test.snapshot({
 		'if (cache.has(key)) { cache.delete(key); }',
 		'if (map.has(getKey())) { map.delete(getKey()); }',
 		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); }',
+		'const weakMap = new WeakMap(); if (weakMap.has({})) { weakMap.delete({}); }',
 		'class CustomMap extends Map { delete() { throw new Error(); } } const map = new CustomMap(); if (map.has(key)) { map.delete(key); }',
 		'class CustomSet extends Set { delete() { throw new Error(); } } const set = new CustomSet(); if (set.has(value)) { set.delete(value); }',
 		{
@@ -90,10 +92,16 @@ test.snapshot({
 			}
 		`,
 		'const map = new Map(); if (map.has(key)) { map.delete(key); }',
+		'const map = new Map(); if (map.has("key")) { map.delete("key"); }',
+		'const map = new Map(); if (map.has(1)) { map.delete(1); }',
 		'const set = new Set(); if (set.has(value)) { set.delete(value); }',
 		'const weakMap = new WeakMap(); if (weakMap.has(key)) { weakMap.delete(key); }',
 		'const weakSet = new WeakSet(); if (weakSet.has(value)) { weakSet.delete(value); }',
 		'const map = new Map(); if ((map).has((key))) { (map).delete((key)); }',
+		{
+			code: 'const map = new Map(); if (map.has(key as string)) { map.delete(key as string); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const map = new Map();
 			if (map.has(key)) {

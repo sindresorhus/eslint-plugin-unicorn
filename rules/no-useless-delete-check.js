@@ -156,10 +156,6 @@ const isSamePropertyKey = (left, right, context) => {
 const isSafeExpression = (node, context) =>
 	!hasSideEffect(node, context.sourceCode, hasSideEffectOptions);
 
-const isSafeMemberExpression = (node, context) =>
-	isSafeExpression(node.object, context)
-	&& (!node.computed || isSafeExpression(node.property, context));
-
 function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 	const {test} = ifStatement;
 	const {argument} = deleteExpression;
@@ -173,7 +169,7 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 		&& !isKnownNonObject(test.right, context)
 		&& isSafeExpression(test.left, context)
 		&& isSafeExpression(test.right, context)
-		&& isSafeMemberExpression(argument, context)
+		&& (!argument.computed || isSafeExpression(argument.property, context))
 	)) {
 		return;
 	}
@@ -181,7 +177,6 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 	if (argument.computed) {
 		return isSamePropertyKey(test.left, argument.property, context)
 			? {
-				deleteExpression,
 				suggest: [getSuggestion(ifStatement, deleteExpression, context)],
 			}
 			: undefined;
@@ -190,7 +185,6 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 	const propertyName = getPropertyName(argument, context.sourceCode.getScope(argument));
 	return propertyName !== null && getStaticPropertyKey(test.left, context) === propertyName
 		? {
-			deleteExpression,
 			suggest: [getSuggestion(ifStatement, deleteExpression, context)],
 		}
 		: undefined;
@@ -221,14 +215,11 @@ function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 		&& isSameReference(test.arguments[0], callExpression.arguments[0])
 		&& isSafeExpression(test.callee.object, context)
 		&& isSafeExpression(test.arguments[0], context)
-		&& isSafeExpression(callExpression.callee.object, context)
-		&& isSafeExpression(callExpression.arguments[0], context)
 	)) {
 		return;
 	}
 
 	return {
-		deleteExpression: callExpression,
 		fix: fix(ifStatement, callExpression, context),
 	};
 }

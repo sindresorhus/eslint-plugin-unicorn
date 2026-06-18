@@ -11,11 +11,11 @@
 
 Deletion is already safe when the property, key, or value does not exist. Guarding the deletion with an existence check often adds unnecessary code.
 
-This rule reports simple `in` checks before object property deletion, and `.has()` checks before `Map`, `Set`, `WeakMap`, and `WeakSet` deletion.
+This rule reports simple `in` checks before object property deletion, and `.has()` checks before deletion from known local `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
 
 The rule is intentionally conservative. It does not report `else` branches, compound conditions, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only collection annotations, or cases where the receiver or key may have side effects.
 
-`Map`, `Set`, `WeakMap`, and `WeakSet` cases are automatically fixed. Object property deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
+`Map`, `Set`, `WeakMap`, and `WeakSet` cases are automatically fixed when the guard can be removed without dropping comments. Object property deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
 
 ## Examples
 
@@ -31,6 +31,8 @@ delete object[key];
 
 ```js
 // ❌
+const map = new Map();
+
 if (map.has(key)) {
 	map.delete(key);
 }
