@@ -17,6 +17,8 @@ It intentionally does not report every possible write to the iterable, such as a
 
 It intentionally does not track aliases to iterators, such as `const iterator = items.values();`.
 
+It reports same-value `delete` calls in `.values()` loops because `Map#values()` does not yield keys and this rule does not use type information.
+
 This is a syntax-only rule. It treats direct identifier iteration, such as `for (const value of set)`, as value iteration, and direct destructuring, such as `for (const [key] of map)`, as entry iteration. This matches common `Set` and `Map` loops, but does not distinguish ambiguous custom iterables, `Map` entries kept as a single variable, or `Set` values that are themselves iterable.
 
 It intentionally does not report mutations of objects used with `Object.keys()`, `Object.values()`, or `Object.entries()`, since those methods create snapshot arrays before the loop starts.

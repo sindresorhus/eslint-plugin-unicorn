@@ -119,14 +119,6 @@ function getLoopValueIdentifier(loop, iterableMethod) {
 		return getFirstElementIdentifier(binding);
 	}
 
-	if (
-		iterableMethod !== 'direct'
-		&& iterableMethod !== 'keys'
-		&& iterableMethod !== 'values'
-	) {
-		return;
-	}
-
 	return getIdentifierFromPattern(binding);
 }
 
@@ -231,14 +223,26 @@ function hasSameFirstArgument(callExpression, identifier, context) {
 	);
 }
 
-function getBlockStatementParent(node) {
+function getStatementListParent(node) {
 	let statement = node;
 
-	while (statement.parent && statement.parent.type !== 'BlockStatement') {
+	while (
+		statement.parent
+		&& statement.parent.type !== 'BlockStatement'
+		&& statement.parent.type !== 'SwitchCase'
+	) {
 		statement = statement.parent;
 	}
 
-	return statement.parent && {block: statement.parent, statement};
+	if (!statement.parent) {
+		return;
+	}
+
+	return {
+		parent: statement.parent,
+		statement,
+		statements: statement.parent.type === 'SwitchCase' ? statement.parent.consequent : statement.parent.body,
+	};
 }
 
 function getSimpleCallStatement(statement) {
@@ -259,34 +263,64 @@ function isCurrentDeleteCall(callExpression, loopInformation, context) {
 	);
 }
 
-function hasCurrentDeleteStatement(statement, loopInformation, context) {
+function isCurrentAddOrSetCall(callExpression, loopInformation, method, context) {
+	return (
+		(
+			method === 'add'
+			&& hasSameFirstArgument(callExpression, loopInformation.loopValueIdentifier, context)
+		)
+		|| (
+			method === 'set'
+			&& hasSameFirstArgument(callExpression, loopInformation.loopKeyIdentifier, context)
+		)
+	);
+}
+
+function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 	const callExpression = getSimpleCallStatement(statement);
 
 	if (callExpression) {
 		return isCurrentDeleteCall(callExpression, loopInformation, context);
 	}
 
-	return statement.type === 'BlockStatement' && statement.body.some(child => hasCurrentDeleteStatement(child, loopInformation, context));
+	if (statement.type === 'BlockStatement') {
+		return statement.body.some(child => hasDirectCurrentDeleteStatement(child, loopInformation, context));
+	}
+
+	if (statement.type === 'IfStatement') {
+		return (
+			hasDirectCurrentDeleteStatement(statement.consequent, loopInformation, context)
+			|| Boolean(statement.alternate && hasDirectCurrentDeleteStatement(statement.alternate, loopInformation, context))
+		);
+	}
+
+	if (statement.type === 'SwitchStatement') {
+		return statement.cases.some(switchCase =>
+			switchCase.consequent.some(child => hasDirectCurrentDeleteStatement(child, loopInformation, context)),
+		);
+	}
+
+	return false;
 }
 
 function hasEarlierCurrentDelete(callExpression, loopInformation, context) {
-	const parent = getBlockStatementParent(callExpression);
+	const parent = getStatementListParent(callExpression);
 
 	if (!parent) {
 		return false;
 	}
 
-	const {block, statement} = parent;
-	const statementIndex = block.body.indexOf(statement);
+	const {statement, statements} = parent;
+	const statementIndex = statements.indexOf(statement);
 
-	if (block.body.slice(0, statementIndex).some(previousStatement => hasCurrentDeleteStatement(previousStatement, loopInformation, context))) {
+	if (statements.slice(0, statementIndex).some(previousStatement => hasDirectCurrentDeleteStatement(previousStatement, loopInformation, context))) {
 		return true;
 	}
 
-	return block !== loopInformation.loopBody && hasEarlierCurrentDelete(block, loopInformation, context);
+	return parent.parent !== loopInformation.loopBody && hasEarlierCurrentDelete(parent.parent, loopInformation, context);
 }
 
-function getMutationProblem(callExpression, loopInformation, context) {
+function getMutationProblem(callExpression, loopInformation, ignoredLoopInformation, context) {
 	if (callExpression.callee.type !== 'MemberExpression') {
 		return;
 	}
@@ -316,17 +350,15 @@ function getMutationProblem(callExpression, loopInformation, context) {
 	}
 
 	if (
-		method === 'add'
-		&& hasSameFirstArgument(callExpression, loopValueIdentifier, context)
+		isCurrentAddOrSetCall(callExpression, {loopKeyIdentifier, loopValueIdentifier}, method, context)
 		&& !hasEarlierCurrentDelete(callExpression, loopInformation, context)
 	) {
 		return;
 	}
 
 	if (
-		method === 'set'
-		&& hasSameFirstArgument(callExpression, loopKeyIdentifier, context)
-		&& !hasEarlierCurrentDelete(callExpression, loopInformation, context)
+		ignoredLoopInformation
+		&& isCurrentAddOrSetCall(callExpression, ignoredLoopInformation, method, context)
 	) {
 		return;
 	}
@@ -346,13 +378,23 @@ function getMutationProblem(callExpression, loopInformation, context) {
 	};
 }
 
-function * getMutationProblems(node, loopInformation, context) {
+function * getMutationProblems(node, loopInformation, ignoredLoopInformation, context) {
 	if (skippedNodeTypes.has(node.type)) {
 		return;
 	}
 
+	let childIgnoredLoopInformation = ignoredLoopInformation;
+
+	if (node.type === 'ForOfStatement' && !node.await) {
+		const iterable = getLiveIterable(node.right, context);
+
+		if (iterable && isSameReferenceBinding(iterable.reference, loopInformation.iterable, context)) {
+			childIgnoredLoopInformation = getLoopInformation(node, iterable);
+		}
+	}
+
 	if (node.type === 'CallExpression') {
-		const problem = getMutationProblem(node, loopInformation, context);
+		const problem = getMutationProblem(node, loopInformation, ignoredLoopInformation, context);
 
 		if (problem) {
 			yield problem;
@@ -367,7 +409,7 @@ function * getMutationProblems(node, loopInformation, context) {
 		if (Array.isArray(value)) {
 			for (const child of value) {
 				if (child) {
-					yield * getMutationProblems(child, loopInformation, context);
+					yield * getMutationProblems(child, loopInformation, childIgnoredLoopInformation, context);
 				}
 			}
 
@@ -375,7 +417,7 @@ function * getMutationProblems(node, loopInformation, context) {
 		}
 
 		if (value) {
-			yield * getMutationProblems(value, loopInformation, context);
+			yield * getMutationProblems(value, loopInformation, childIgnoredLoopInformation, context);
 		}
 	}
 }
@@ -398,7 +440,7 @@ const create = context => {
 		return getMutationProblems(node.body, {
 			...getLoopInformation(node, iterable),
 			reportedCallExpressions,
-		}, context);
+		}, undefined, context);
 	});
 };
 

@@ -163,6 +163,11 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const [value] of set) {
+				set.delete(value);
+			}
+		`,
+		outdent`
 			for (const value of set) {
 				if (shouldDelete) {
 					set.delete(value);
@@ -222,6 +227,11 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const entry of map) {
+				map.delete(entry);
+			}
+		`,
+		outdent`
 			for (const key of map.keys()) {
 				if (shouldDelete) {
 					map.delete(key);
@@ -234,6 +244,20 @@ test.snapshot({
 			const iterator = items.values();
 			for (const item of iterator) {
 				items.push(item);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				for (const innerValue of set) {
+					set.add(innerValue);
+				}
+			}
+		`,
+		outdent`
+			for (const [key, value] of map) {
+				for (const [innerKey, innerValue] of map) {
+					map.set(innerKey, innerValue);
+				}
 			}
 		`,
 	],
@@ -364,6 +388,16 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set.values()) {
+				set.delete(value);
+			}
+		`,
+		outdent`
+			for (const value of set['values']()) {
+				set.delete(value);
+			}
+		`,
+		outdent`
 			for (let value of set) {
 				set.add(value);
 			}
@@ -413,8 +447,29 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set['keys']()) {
+				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
 			for (const [value] of set.entries()) {
 				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const [value] of set['entries']()) {
+				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				if (shouldDelete) {
+					set.delete(value);
+				}
+
 				set.add(value);
 			}
 		`,
@@ -458,8 +513,31 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const key of map['keys']()) {
+				map.delete(key);
+				map.set(key, value);
+			}
+		`,
+		outdent`
 			for (const [key, value] of map.entries()) {
 				map.delete(key);
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (const [key, value] of map['entries']()) {
+				map.delete(key);
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (const [key, value] of map) {
+				switch (kind) {
+					case 1:
+						map.delete(key);
+						break;
+				}
+
 				map.set(key, value);
 			}
 		`,
@@ -479,6 +557,20 @@ test.snapshot({
 			for (const item of items) {
 				for (const otherItem of items) {
 					items.push(otherItem);
+				}
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				for (const innerValue of set) {
+					set.delete(innerValue);
+				}
+			}
+		`,
+		outdent`
+			for (const [key, value] of map) {
+				for (const [innerKey] of map) {
+					map.delete(innerKey);
 				}
 			}
 		`,
