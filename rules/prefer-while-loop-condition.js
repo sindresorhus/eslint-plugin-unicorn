@@ -202,9 +202,8 @@ const create = context => {
 			return;
 		}
 
-		const breakStatement = getOnlyUnlabeledBreakStatement(firstStatement.consequent);
 		if (
-			!breakStatement
+			!getOnlyUnlabeledBreakStatement(firstStatement.consequent)
 			|| hasOtherBreakForSameLoop(node, sourceCode)
 			|| hasUnsafeLiftReference(node, firstStatement, sourceCode)
 		) {
