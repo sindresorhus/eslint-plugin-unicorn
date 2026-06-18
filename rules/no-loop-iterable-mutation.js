@@ -5,6 +5,7 @@ import {
 	isSame,
 	unwrapExpression,
 } from './utils/comparison.js';
+import {trackBranchExits} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -152,16 +153,16 @@ function getLoopInformation(loop, iterable) {
 		};
 	}
 
-	const loopValueIdentifier = getLoopValueIdentifier(loop, iterable.method);
-	const loopKeyIdentifier = getLoopKeyIdentifier(loop, iterable.method);
-	const loopDeleteIdentifier = getLoopDeleteIdentifier(loop, iterable.method);
+	const addArgumentIdentifier = getLoopValueIdentifier(loop, iterable.method);
+	const setKeyIdentifier = getLoopKeyIdentifier(loop, iterable.method);
+	const deleteArgumentIdentifier = getLoopDeleteIdentifier(loop, iterable.method);
 
 	return {
+		addArgumentIdentifier,
+		deleteArgumentIdentifier,
 		iterable: iterable.reference,
 		loopBody: loop.body,
-		loopDeleteIdentifier,
-		loopKeyIdentifier,
-		loopValueIdentifier,
+		setKeyIdentifier,
 	};
 }
 
@@ -259,7 +260,7 @@ function isCurrentDeleteCall(callExpression, loopInformation, context) {
 		callExpression.callee.type === 'MemberExpression'
 		&& getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee)) === 'delete'
 		&& isSameReferenceBinding(callExpression.callee.object, loopInformation.iterable, context)
-		&& hasSameFirstArgument(callExpression, loopInformation.loopDeleteIdentifier, context)
+		&& hasSameFirstArgument(callExpression, loopInformation.deleteArgumentIdentifier, context)
 	);
 }
 
@@ -267,11 +268,11 @@ function isCurrentAddOrSetCall(callExpression, loopInformation, method, context)
 	return (
 		(
 			method === 'add'
-			&& hasSameFirstArgument(callExpression, loopInformation.loopValueIdentifier, context)
+			&& hasSameFirstArgument(callExpression, loopInformation.addArgumentIdentifier, context)
 		)
 		|| (
 			method === 'set'
-			&& hasSameFirstArgument(callExpression, loopInformation.loopKeyIdentifier, context)
+			&& hasSameFirstArgument(callExpression, loopInformation.setKeyIdentifier, context)
 		)
 	);
 }
@@ -289,14 +290,15 @@ function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 
 	if (statement.type === 'IfStatement') {
 		return (
-			hasDirectCurrentDeleteStatement(statement.consequent, loopInformation, context)
-			|| Boolean(statement.alternate && hasDirectCurrentDeleteStatement(statement.alternate, loopInformation, context))
-		);
-	}
-
-	if (statement.type === 'SwitchStatement') {
-		return statement.cases.some(switchCase =>
-			switchCase.consequent.some(child => hasDirectCurrentDeleteStatement(child, loopInformation, context)),
+			(
+				!loopInformation.branchAlwaysExits(statement.consequent)
+				&& hasDirectCurrentDeleteStatement(statement.consequent, loopInformation, context)
+			)
+			|| (
+				statement.alternate
+				&& !loopInformation.branchAlwaysExits(statement.alternate)
+				&& hasDirectCurrentDeleteStatement(statement.alternate, loopInformation, context)
+			)
 		);
 	}
 
@@ -320,17 +322,17 @@ function hasEarlierCurrentDelete(callExpression, loopInformation, context) {
 	return parent.parent !== loopInformation.loopBody && hasEarlierCurrentDelete(parent.parent, loopInformation, context);
 }
 
-function getMutationProblem(callExpression, loopInformation, ignoredLoopInformation, context) {
+function getMutationProblem(callExpression, loopInformation, nestedLoopInformation, context) {
 	if (callExpression.callee.type !== 'MemberExpression') {
 		return;
 	}
 
 	const {
+		addArgumentIdentifier,
+		deleteArgumentIdentifier,
 		iterable,
-		loopDeleteIdentifier,
-		loopKeyIdentifier,
-		loopValueIdentifier,
 		reportedCallExpressions,
+		setKeyIdentifier,
 	} = loopInformation;
 	const {object, property} = callExpression.callee;
 	const method = getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
@@ -343,22 +345,22 @@ function getMutationProblem(callExpression, loopInformation, ignoredLoopInformat
 		return;
 	}
 
-	const isCurrentDelete = method === 'delete' && hasSameFirstArgument(callExpression, loopDeleteIdentifier, context);
+	const isCurrentDelete = method === 'delete' && hasSameFirstArgument(callExpression, deleteArgumentIdentifier, context);
 
 	if (isCurrentDelete) {
 		return;
 	}
 
 	if (
-		isCurrentAddOrSetCall(callExpression, {loopKeyIdentifier, loopValueIdentifier}, method, context)
+		isCurrentAddOrSetCall(callExpression, {addArgumentIdentifier, setKeyIdentifier}, method, context)
 		&& !hasEarlierCurrentDelete(callExpression, loopInformation, context)
 	) {
 		return;
 	}
 
 	if (
-		ignoredLoopInformation
-		&& isCurrentAddOrSetCall(callExpression, ignoredLoopInformation, method, context)
+		nestedLoopInformation
+		&& isCurrentAddOrSetCall(callExpression, nestedLoopInformation, method, context)
 	) {
 		return;
 	}
@@ -378,23 +380,23 @@ function getMutationProblem(callExpression, loopInformation, ignoredLoopInformat
 	};
 }
 
-function * getMutationProblems(node, loopInformation, ignoredLoopInformation, context) {
+function * getMutationProblems(node, loopInformation, nestedLoopInformation, context) {
 	if (skippedNodeTypes.has(node.type)) {
 		return;
 	}
 
-	let childIgnoredLoopInformation = ignoredLoopInformation;
+	let childNestedLoopInformation = nestedLoopInformation;
 
 	if (node.type === 'ForOfStatement' && !node.await) {
 		const iterable = getLiveIterable(node.right, context);
 
 		if (iterable && isSameReferenceBinding(iterable.reference, loopInformation.iterable, context)) {
-			childIgnoredLoopInformation = getLoopInformation(node, iterable);
+			childNestedLoopInformation = getLoopInformation(node, iterable);
 		}
 	}
 
 	if (node.type === 'CallExpression') {
-		const problem = getMutationProblem(node, loopInformation, ignoredLoopInformation, context);
+		const problem = getMutationProblem(node, loopInformation, nestedLoopInformation, context);
 
 		if (problem) {
 			yield problem;
@@ -409,7 +411,7 @@ function * getMutationProblems(node, loopInformation, ignoredLoopInformation, co
 		if (Array.isArray(value)) {
 			for (const child of value) {
 				if (child) {
-					yield * getMutationProblems(child, loopInformation, childIgnoredLoopInformation, context);
+					yield * getMutationProblems(child, loopInformation, childNestedLoopInformation, context);
 				}
 			}
 
@@ -417,7 +419,7 @@ function * getMutationProblems(node, loopInformation, ignoredLoopInformation, co
 		}
 
 		if (value) {
-			yield * getMutationProblems(value, loopInformation, childIgnoredLoopInformation, context);
+			yield * getMutationProblems(value, loopInformation, childNestedLoopInformation, context);
 		}
 	}
 }
@@ -425,8 +427,9 @@ function * getMutationProblems(node, loopInformation, ignoredLoopInformation, co
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const reportedCallExpressions = new WeakSet();
+	const branchAlwaysExits = trackBranchExits(context);
 
-	context.on('ForOfStatement', node => {
+	context.onExit('ForOfStatement', node => {
 		if (node.await) {
 			return;
 		}
@@ -438,6 +441,7 @@ const create = context => {
 		}
 
 		return getMutationProblems(node.body, {
+			branchAlwaysExits,
 			...getLoopInformation(node, iterable),
 			reportedCallExpressions,
 		}, undefined, context);

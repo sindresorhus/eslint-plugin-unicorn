@@ -177,6 +177,21 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set) {
+				if (shouldDelete) {
+					set.delete(value);
+					continue;
+				}
+
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				set.delete(value), set.add(value);
+			}
+		`,
+		outdent`
 			for (const key of map.keys()) {
 				map.set(key, value);
 			}
@@ -238,6 +253,38 @@ test.snapshot({
 				} else {
 					map.set(key, value);
 				}
+			}
+		`,
+		outdent`
+			for (const [key, value] of map) {
+				if (shouldDelete) {
+					map.delete(key);
+					continue;
+				}
+
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				switch (kind) {
+					case 'delete':
+						set.delete(value);
+						continue;
+				}
+
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				switch (kind) {
+					case 'delete':
+						set.delete(value);
+						break;
+				}
+
+				set.add(value);
 			}
 		`,
 		outdent`
@@ -474,6 +521,14 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set) {
+				{
+					const value = otherValue;
+					set.add(value);
+				}
+			}
+		`,
+		outdent`
 			for (const [key, value] of map) {
 				map.set(otherKey, value);
 			}
@@ -535,10 +590,8 @@ test.snapshot({
 				switch (kind) {
 					case 1:
 						map.delete(key);
-						break;
+						map.set(key, value);
 				}
-
-				map.set(key, value);
 			}
 		`,
 		outdent`
