@@ -5,12 +5,29 @@ import {
 	getParenthesizedText,
 	getParenthesizedRange,
 	shouldAddParenthesesToConditionalExpressionChild,
+	shouldAddParenthesesToUnaryExpressionArgument,
 	isParenthesized,
 	getPreviousNode,
+	getNextNode,
+	getLastTrailingCommentOnSameLine,
+	isGlobalBooleanCall,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
+
+const runtimeBooleanBinaryOperators = new Set([
+	'==',
+	'!=',
+	'===',
+	'!==',
+	'<',
+	'<=',
+	'>',
+	'>=',
+	'in',
+	'instanceof',
+]);
 
 const isTernary = node => node?.type === 'ConditionalExpression';
 
@@ -52,6 +69,58 @@ const isMergeableAssignmentExpression = (consequent, alternate) =>
 	&& !isTernary(consequent.right)
 	&& !isTernary(alternate.right)
 	&& isSameReference(consequent.left, alternate.left);
+
+const getBooleanReturnValue = node => {
+	if (
+		node?.type === 'ReturnStatement'
+		&& node.argument?.type === 'Literal'
+		&& typeof node.argument.value === 'boolean'
+	) {
+		return node.argument.value;
+	}
+};
+
+function isGlobalArrayIsArrayCall(node, context) {
+	return node.type === 'CallExpression'
+		&& !node.optional
+		&& node.callee.type === 'MemberExpression'
+		&& !node.callee.optional
+		&& !node.callee.computed
+		&& node.callee.object.type === 'Identifier'
+		&& node.callee.object.name === 'Array'
+		&& context.sourceCode.isGlobalReference(node.callee.object)
+		&& node.callee.property.type === 'Identifier'
+		&& node.callee.property.name === 'isArray';
+}
+
+function isRuntimeBooleanExpression(node, context) {
+	switch (node.type) {
+		case 'Literal': {
+			return typeof node.value === 'boolean';
+		}
+
+		case 'UnaryExpression': {
+			return ['!', 'delete'].includes(node.operator);
+		}
+
+		case 'BinaryExpression': {
+			return runtimeBooleanBinaryOperators.has(node.operator);
+		}
+
+		case 'LogicalExpression': {
+			return isRuntimeBooleanExpression(node.left, context)
+				&& isRuntimeBooleanExpression(node.right, context);
+		}
+
+		case 'CallExpression': {
+			return isGlobalBooleanCall(node, context) || isGlobalArrayIsArrayCall(node, context);
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -108,6 +177,107 @@ const create = context => {
 		}
 
 		return returnFalseIfNotMergeable ? false : options;
+	}
+
+	function canUseGlobalBoolean(node) {
+		const variable = findVariable(sourceCode.getScope(node), 'Boolean');
+		return !variable || variable.defs.length === 0;
+	}
+
+	function getBooleanReturnText(node, shouldNegateTest) {
+		const text = getParenthesizedText(node, context);
+
+		if (shouldNegateTest) {
+			return shouldAddParenthesesToUnaryExpressionArgument(node, '!')
+				? `!(${text})`
+				: `!${text}`;
+		}
+
+		if (isRuntimeBooleanExpression(node, context)) {
+			return text;
+		}
+
+		const booleanArgumentText = node.type === 'SequenceExpression' ? `(${text})` : text;
+		return `Boolean(${booleanArgumentText})`;
+	}
+
+	function getBooleanReturnProblem(node, consequent, alternate, replacementRange = sourceCode.getRange(node)) {
+		if (
+			!consequent
+			|| !alternate
+			|| node.test.type === 'ConditionalExpression'
+		) {
+			return;
+		}
+
+		if (
+			onlySingleLine
+			&& [node.test, consequent, alternate].some(node => !isSingleLineNode(node, context))
+		) {
+			return;
+		}
+
+		const consequentValue = getBooleanReturnValue(consequent);
+		const alternateValue = getBooleanReturnValue(alternate);
+		if (
+			consequentValue === undefined
+			|| alternateValue === undefined
+			|| consequentValue === alternateValue
+		) {
+			return;
+		}
+
+		const problem = {node, messageId};
+		const shouldNegateTest = !consequentValue;
+		const hasComments = sourceCode.getCommentsInside(node).length > 0
+			|| sourceCode.getCommentsInside(alternate).length > 0
+			|| getLastTrailingCommentOnSameLine(context, alternate);
+		const needsGlobalBoolean = !shouldNegateTest
+			&& !isRuntimeBooleanExpression(node.test, context)
+			&& !canUseGlobalBoolean(node);
+
+		if (hasComments || needsGlobalBoolean) {
+			return problem;
+		}
+
+		return {
+			...problem,
+			fix: fixer => fixer.replaceTextRange(
+				replacementRange,
+				`return ${getBooleanReturnText(node.test, shouldNegateTest)};`,
+			),
+		};
+	}
+
+	function getFlatBooleanReturnProblem(node) {
+		const alternate = getNextNode(node, context);
+		if (
+			!alternate
+			|| alternate.type !== 'ReturnStatement'
+		) {
+			return;
+		}
+
+		const consequent = getNodeBody(node.consequent);
+		const problem = getBooleanReturnProblem(
+			node,
+			consequent,
+			alternate,
+			[
+				sourceCode.getRange(node)[0],
+				sourceCode.getRange(alternate)[1],
+			],
+		);
+
+		if (!problem?.fix) {
+			return problem;
+		}
+
+		const hasCommentsBetween = sourceCode.getTokensBetween(node, alternate, {includeComments: true})
+			.some(token => token.type === 'Block' || token.type === 'Line');
+		return hasCommentsBetween
+			? {node, messageId}
+			: problem;
 	}
 
 	// eslint-disable-next-line complexity
@@ -228,7 +398,7 @@ const create = context => {
 
 	context.on('IfStatement', node => {
 		if (!node.alternate) {
-			return getLetPlusIfProblem(node);
+			return getFlatBooleanReturnProblem(node) || getLetPlusIfProblem(node);
 		}
 
 		if (
@@ -247,6 +417,11 @@ const create = context => {
 			&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node, context))
 		) {
 			return;
+		}
+
+		const booleanReturnProblem = getBooleanReturnProblem(node, consequent, alternate);
+		if (booleanReturnProblem) {
+			return booleanReturnProblem;
 		}
 
 		const result = merge({node, consequent, alternate}, {
@@ -302,7 +477,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if-else` statements that return or assign values.',
+			description: 'Prefer ternaries and direct boolean returns over simple `if` statements.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
@@ -310,7 +485,7 @@ const config = {
 		schema,
 		defaultOptions: ['always'],
 		messages: {
-			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
+			[messageId]: 'This `if` statement can be simplified.',
 			[suggestionMessageId]: 'Use a ternary expression.',
 		},
 		languages: [

@@ -594,11 +594,7 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 		return false;
 	}
 
-	if (isMemberExpressionChanged(node)) {
-		return false;
-	}
-
-	return true;
+	return !isMemberExpressionChanged(node);
 });
 
 const getRemovalRange = (node, sourceCode) => {
@@ -728,11 +724,7 @@ const isIndexVariableUsedElsewhereInTheLoopBody = (indexVariable, bodyScope, arr
 			return true;
 		}
 
-		if (node.object.name !== arrayIdentifierName) {
-			return true;
-		}
-
-		return false;
+		return node.object.name !== arrayIdentifierName;
 	});
 
 	return referencesOtherThanArrayAccess.length > 0;
@@ -854,11 +846,7 @@ const create = context => {
 		const elementReference = arrayReferences.find(reference => {
 			const node = reference.identifier.parent;
 
-			if (node.parent.type !== 'VariableDeclarator') {
-				return false;
-			}
-
-			return true;
+			return node.parent.type === 'VariableDeclarator';
 		});
 		const elementNode = elementReference?.identifier.parent.parent;
 		const elementIdentifierName = elementNode?.id.name;

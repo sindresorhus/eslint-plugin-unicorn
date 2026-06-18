@@ -81,15 +81,9 @@ const isDefaultOrNamespaceImportName = identifier => {
 		return true;
 	}
 
-	if (
-		identifier.parent.type === 'VariableDeclarator'
+	return Boolean(identifier.parent.type === 'VariableDeclarator'
 		&& identifier.parent.id === identifier
-		&& isStaticRequire(identifier.parent.init)
-	) {
-		return true;
-	}
-
-	return false;
+		&& isStaticRequire(identifier.parent.init));
 };
 
 /**
@@ -145,15 +139,9 @@ export const shouldReportIdentifierAsProperty = identifier => {
 		return true;
 	}
 
-	if (
-		propertyNameParentTypes.has(identifier.parent.type)
+	return propertyNameParentTypes.has(identifier.parent.type)
 		&& identifier.parent.key === identifier
-		&& !identifier.parent.computed
-	) {
-		return true;
-	}
-
-	return false;
+		&& !identifier.parent.computed;
 };
 
 /**

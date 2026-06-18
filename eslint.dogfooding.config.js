@@ -140,6 +140,17 @@ const config = [
 			'unicorn/prefer-number-is-safe-integer': 'off',
 		},
 	},
+	{
+		files: [
+			'rules/ast/call-or-new-expression.js',
+			'rules/ast/is-member-expression.js',
+			'rules/no-static-only-class.js',
+		],
+		rules: {
+			// These files have a few multi-condition guard clauses where `prefer-ternary` produces harder-to-read double negatives.
+			'unicorn/prefer-ternary': 'off',
+		},
+	},
 ];
 
 // Create rule to allow inline config to disable

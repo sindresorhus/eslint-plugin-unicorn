@@ -48,17 +48,11 @@ const isCandidateMember = member => {
 	}
 
 	// TypeScript modifiers that change the member's semantics or contract
-	if (
-		member.accessibility !== undefined
+	return !(member.accessibility !== undefined
 		|| member.declare
 		|| member.readonly
 		|| member.override
-		|| (Array.isArray(member.decorators) && member.decorators.length > 0)
-	) {
-		return false;
-	}
-
-	return true;
+		|| (Array.isArray(member.decorators) && member.decorators.length > 0));
 };
 
 // `#constructor` is a syntax error; an empty or otherwise invalid name can't be a private identifier

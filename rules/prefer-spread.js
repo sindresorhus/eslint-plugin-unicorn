@@ -676,14 +676,8 @@ function getTypeArrayState(type, checker, program) {
 	}
 
 	const symbol = type.getSymbol() ?? type.aliasSymbol;
-	if (
-		isDefaultLibrarySymbol(symbol, program)
-		&& arrayTypeNames.has(symbol.getName())
-	) {
-		return true;
-	}
-
-	return false;
+	return Boolean(isDefaultLibrarySymbol(symbol, program)
+		&& arrayTypeNames.has(symbol.getName()));
 }
 
 function getTypeInformationArrayState(node, context) {
@@ -950,11 +944,7 @@ function isNotArray(node, scope) {
 	}
 
 	const staticValue = getStaticValue(node, scope);
-	if (staticValue && !Array.isArray(staticValue.value)) {
-		return true;
-	}
-
-	return false;
+	return Boolean(staticValue && !Array.isArray(staticValue.value));
 }
 
 function getSyntacticReceiverArrayState(node, context) {

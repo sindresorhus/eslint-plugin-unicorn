@@ -1,6 +1,6 @@
 # prefer-ternary
 
-📝 Prefer ternary expressions over simple `if-else` statements that return or assign values.
+📝 Prefer ternaries and direct boolean returns over simple `if` statements.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over 'simple' `if-else` statements that return or assign a value. A simple statement has one mergeable branch statement on each side with the same basic type and form.
+This rule enforces simpler return or assignment forms over 'simple' `if` statements. A simple statement has one mergeable branch statement on each side, or a return branch followed by an adjacent mergeable `return`.
+
+It also simplifies `if` statements whose branches, or adjacent following `return`, only return boolean literals.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
@@ -34,6 +36,22 @@ function unicorn() {
 // ✅
 function unicorn() {
 	return test ? a : b;
+}
+```
+
+```js
+// ❌
+function unicorn() {
+	if (test) {
+		return true;
+	}
+
+	return false;
+}
+
+// ✅
+function unicorn() {
+	return Boolean(test);
 }
 ```
 
@@ -139,7 +157,7 @@ Type: `string`\
 Default: `'always'`
 
 - `'always'` (default)
-  - Always report supported `IfStatement` returns and assignments where a ternary expression can be used.
+  - Always report supported `IfStatement` returns and assignments that can be simplified.
 - `'only-single-line'`
   - Only report when the condition and merged expressions are single-line.
 
