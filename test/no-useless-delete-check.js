@@ -46,6 +46,7 @@ test.snapshot({
 		'if (map.has(...key)) { map.delete(key); }',
 		'if (map.has(key)) { map.delete(...key); }',
 		'if (cache.has(key)) { cache.delete(key); }',
+		'const Map = CustomMap; const map = new Map(); if (map.has(key)) { map.delete(key); }',
 		'let map = new Map(); if (map.has(key)) { map.delete(key); }',
 		'if (map.has(getKey())) { map.delete(getKey()); }',
 		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); }',
@@ -66,6 +67,10 @@ test.snapshot({
 		},
 		{
 			code: 'function f(object: {}, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(object: {[key: string]: unknown}, key: string) { if (key in object) { delete object[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -123,7 +128,11 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function f(object: {[key: string]: unknown}, key: string) { if (key in object) { delete object[key]; } }',
+			code: 'function f(value: unknown, key: string) { if (key in (value as new () => object)) { delete (value as new () => object)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(object: object | (() => void), key: string) { if (key in object) { delete object[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const map = new Map(); if (map.has(key)) { map.delete(key); }',

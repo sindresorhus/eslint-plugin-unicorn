@@ -53,7 +53,6 @@ const objectTypeAnnotationTypes = new Set([
 	'TSConstructorType',
 	'TSFunctionType',
 	'TSObjectKeyword',
-	'TSTypeLiteral',
 ]);
 
 const getTypeAnnotation = (node, context) => {
@@ -80,7 +79,7 @@ const isObjectValue = value => value !== null && (
 
 const isObjectTypeAnnotation = node => {
 	if (objectTypeAnnotationTypes.has(node?.type)) {
-		return node.type !== 'TSTypeLiteral' || node.members.length > 0;
+		return true;
 	}
 
 	return node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type));
