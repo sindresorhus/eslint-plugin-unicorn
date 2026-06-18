@@ -17,7 +17,7 @@ This also applies when the selector prefix starts a template literal, like `` `.
 
 Only simple selector prefixes that match the API are autofixed, like `'.active'` for class-name APIs, `'#app'` for `getElementById()`, and simple dynamic templates like `` `.${className}` ``. More complex selector-looking values are reported without autofix.
 
-With `prefer-query-selector` enabled, this rule fixes the DOM name first. `prefer-query-selector` may then rewrite the DOM query method.
+With [`prefer-query-selector`](/.prefer-query-selector.md) enabled, this rule fixes the DOM name first. `prefer-query-selector` may then rewrite the DOM query method.
 
 ## Examples
 
