@@ -34,6 +34,10 @@ test.snapshot({
 		'function * foo() {\n\tconst result = (flag = yield a > b) === true;\n}',
 		'function * foo() {\n\tconst result = (a > b, yield c > d) === false;\n}',
 		'function * foo() {\n\tconst result = ((yield a > b) && c > d) === true;\n}',
+		{
+			code: 'function * foo() {\n\tconst result = ((yield value) as boolean) === true;\n}',
+			languageOptions: {parser: parsers.typescript},
+		},
 
 		// Nullable or mixed TypeScript types are not guaranteed booleans.
 		{
