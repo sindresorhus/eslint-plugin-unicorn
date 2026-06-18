@@ -5,11 +5,11 @@
 
 > More than 200 powerful ESLint rules
 
-You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.
-
 Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, and Markdown](#non-javascript-files) when used with the matching ESLint language plugin.
 
-[**Propose or contribute a new rule ➡**](.github/contributing.md)
+[**Propose a new rule ➡**](.github/contributing.md)
+
+*We do not accept pull requests because of too much AI slop.*
 
 ## Install
 
@@ -18,6 +18,8 @@ npm install --save-dev eslint eslint-plugin-unicorn
 ```
 
 **Requires ESLint `>=10.4`, [flat config](https://eslint.org/docs/latest/use/configure/configuration-files), and [ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c#how-can-i-make-my-typescript-project-output-esm).**
+
+*You might want to check out [XO](https://github.com/xojs/xo), which includes this plugin.*
 
 ## Usage
 
