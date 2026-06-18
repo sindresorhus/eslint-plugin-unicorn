@@ -13,9 +13,11 @@ Calling `Boolean()`, `String()`, `Number()`, or `BigInt()` on a value that is al
 
 This includes redundant double coercion, like `String(String(value))`, and coercing an expression whose type is already known, like `Boolean(a === b)` or `Number(array.length)`.
 
+It also flags the equivalent operator idioms when the value is already the target type: `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
+
 The check is syntactic, so it catches the common cases without type information, and uses TypeScript type information when it is available.
 
-This rule only flags the coercion functions. For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
+For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
 ## Examples
 
@@ -62,3 +64,18 @@ const b = String(123);
 const c = Number('5');
 const d = BigInt(5);
 ```
+
+```js
+// ❌ Operator idioms on a value that is already the target type
+const a = +someNumber;
+const b = someString + '';
+const c = someString.toString();
+
+// ✅
+const a = someNumber;
+const b = someString;
+const c = someString;
+```
+
+> [!TIP]
+> Unlike [`@typescript-eslint/no-unnecessary-type-conversion`](https://typescript-eslint.io/rules/no-unnecessary-type-conversion), this rule works without [typed linting](https://typescript-eslint.io/getting-started/typed-linting), using type information only when available.

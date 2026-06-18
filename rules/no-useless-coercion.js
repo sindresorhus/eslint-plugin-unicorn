@@ -14,7 +14,7 @@ import {replaceNodeWithExpression} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-coercion';
 const messages = {
-	[MESSAGE_ID]: '`{{name}}()` is unnecessary because the value is already a {{type}}.',
+	[MESSAGE_ID]: '{{description}} is unnecessary because the value is already a {{type}}.',
 };
 
 // `name` -> {type label, predicate checking the argument is already that type}
@@ -25,10 +25,29 @@ const coercions = new Map([
 	['Number', {type: 'number', isType: (node, context) => isNumber(node, context.sourceCode.getScope(node))}],
 ]);
 
+const isEmptyStringLiteral = node => node.type === 'Literal' && node.value === '';
+
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 
+	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
+	const getProblem = (node, expression, description, type) => ({
+		node,
+		messageId: MESSAGE_ID,
+		data: {description, type},
+		/** @param {ESLint.Rule.RuleFixer} fixer */
+		* fix(fixer, {abort}) {
+			// Removing the coercion would drop comments inside it.
+			if (sourceCode.getCommentsInside(node).length > 0) {
+				return abort();
+			}
+
+			yield replaceNodeWithExpression(fixer, node, expression, context);
+		},
+	});
+
+	// `Boolean(value)` / `String(value)` / `Number(value)` / `BigInt(value)`
 	context.on('CallExpression', (/** @type {ESTree.CallExpression} */ callExpression) => {
 		if (
 			callExpression.optional
@@ -54,20 +73,57 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node: callExpression,
-			messageId: MESSAGE_ID,
-			data: {name, type: coercion.type},
-			/** @param {ESLint.Rule.RuleFixer} fixer */
-			* fix(fixer, {abort}) {
-				// Removing the call would drop comments inside it.
-				if (sourceCode.getCommentsInside(callExpression).length > 0) {
-					return abort();
-				}
+		return getProblem(callExpression, argument, `\`${name}()\``, coercion.type);
+	});
 
-				yield replaceNodeWithExpression(fixer, callExpression, argument, context);
-			},
-		};
+	// `+value` on a value already a number. `~~` and `-` change the value, so they are excluded.
+	context.on('UnaryExpression', (/** @type {ESTree.UnaryExpression} */ node) => {
+		if (
+			node.operator !== '+'
+			|| !isNumber(node.argument, sourceCode.getScope(node.argument))
+		) {
+			return;
+		}
+
+		return getProblem(node, node.argument, '`+`', 'number');
+	});
+
+	// `value + ''` / `'' + value` on a value already a string. We intentionally do not special-case rare directive prologue creation.
+	context.on('BinaryExpression', (/** @type {ESTree.BinaryExpression} */ node) => {
+		if (node.operator !== '+') {
+			return;
+		}
+
+		const {left, right} = node;
+		let value;
+		if (isEmptyStringLiteral(right) && isString(left, context)) {
+			value = left;
+		} else if (isEmptyStringLiteral(left) && isString(right, context)) {
+			value = right;
+		} else {
+			return;
+		}
+
+		return getProblem(node, value, 'Concatenation with `\'\'`', 'string');
+	});
+
+	// `value.toString()` on a value already a string.
+	context.on('CallExpression', (/** @type {ESTree.CallExpression} */ node) => {
+		const {callee} = node;
+		if (
+			node.optional
+			|| node.arguments.length > 0
+			|| callee.type !== 'MemberExpression'
+			|| callee.optional
+			|| callee.computed
+			|| callee.property.type !== 'Identifier'
+			|| callee.property.name !== 'toString'
+			|| !isString(callee.object, context)
+		) {
+			return;
+		}
+
+		return getProblem(node, callee.object, '`.toString()`', 'string');
 	});
 };
 
