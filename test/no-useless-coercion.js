@@ -33,17 +33,37 @@ test.snapshot({
 		'String(x.repeat(3))',
 		'String(x.at(0))',
 
+		// `+` on a bigint throws at runtime, so it is never useless
+		{code: 'declare const x: bigint; +x', languageOptions: {parser: parsers.typescript}},
+
 		// Out of scope
 		'Object({a: 1})',
 		'Symbol(x)',
 		'Array(x)',
 		'new Boolean(true)',
 		'new Number(42)',
-		'~~x',
-		'!!x',
-		'x + \'\'',
-		'x.toString()',
 		'globalThis.Boolean(true)',
+
+		// Operator idioms we intentionally do not flag
+		'~~x', // `~~` truncates, so it is never a no-op
+		'~~5',
+		'!!x', // Covered by ESLint's `no-extra-boolean-cast`
+		'!!true',
+		'-5', // Negation is not a coercion
+
+		// Operator idioms on values that are not already the target type
+		'x + \'\'',
+		'5 + \'\'',
+		'\'\' + 5',
+		'x.toString()',
+		'(5).toString()',
+		'+x',
+		'+\'5\'',
+		'x + \'a\'', // Non-empty string is a real concatenation
+		'x.toLocaleString()',
+		'x[\'toString\']()',
+		'x?.toString()',
+		'x.toString(2)',
 
 		// Wrong arity / shape
 		'Boolean()',
@@ -104,9 +124,32 @@ test.snapshot({
 		'BigInt(BigInt.asIntN(64, x))',
 		'BigInt(x ? 1n : 2n)',
 
+		// Unary `+` on a value already a number
+		'+5',
+		'+x.length',
+		'+Number(x)',
+		'+(x * 2)',
+		'+ +x', // Nested: the inner `+x` is always a number, so the outer `+` is useless
+
+		// Empty-string concatenation on a value already a string
+		'\'a\' + \'\'',
+		'\'\' + \'a\'',
+		'\'\' + \'\'', // Both operands are empty strings
+		'`${x}` + \'\'', // eslint-disable-line no-template-curly-in-string
+		'(a + \'b\') + \'\'',
+		'String(x) + \'\'',
+
+		// `.toString()` on a value already a string
+		'\'a\'.toString()',
+		'`${x}`.toString()', // eslint-disable-line no-template-curly-in-string
+		'(a + \'b\').toString()',
+		'String(x).toString()',
+
 		// Resolved variables
 		'const flag = true; Boolean(flag)',
 		'const name = \'unicorn\'; String(name)',
+		'const text = \'x\'; text + \'\'',
+		'const n = 5; +n',
 
 		// Fix: parenthesization
 		'String(a + \'b\').length',
@@ -136,6 +179,9 @@ test.snapshot({
 
 		// Fix: comment inside (reported, not fixed)
 		'Number(/* keep */ x.length)',
+		'+/* keep */ x.length',
+		'\'a\' /* keep */ + \'\'',
+		'(/* keep */ \'a\').toString()',
 
 		// TypeScript
 		{code: 'Boolean(x as boolean)', languageOptions: {parser: parsers.typescript}},
@@ -149,5 +195,10 @@ test.snapshot({
 		// Cast expressions bind loosely, so they need parentheses in a tight position
 		{code: 'String(x as string).length', languageOptions: {parser: parsers.typescript}},
 		{code: 'Number(x satisfies number).toFixed(2)', languageOptions: {parser: parsers.typescript}},
+
+		// TypeScript: operator idioms on typed values
+		{code: 'declare const x: number; +x', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const x: string; x + \'\'', languageOptions: {parser: parsers.typescript}},
+		{code: 'declare const x: string; x.toString()', languageOptions: {parser: parsers.typescript}},
 	],
 });
