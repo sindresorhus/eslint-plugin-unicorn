@@ -29,7 +29,7 @@ function getComparisonSubject(node, context) {
 
 	if (isLengthOrSizeMemberExpression(left)) {
 		return {
-			lengthNode: left,
+			memberExpression: left,
 			operator: node.operator,
 			value: getStaticValue(right, context.sourceCode.getScope(right))?.value,
 		};
@@ -37,7 +37,7 @@ function getComparisonSubject(node, context) {
 
 	if (isLengthOrSizeMemberExpression(right)) {
 		return {
-			lengthNode: right,
+			memberExpression: right,
 			operator: flipOperator[node.operator],
 			value: getStaticValue(left, context.sourceCode.getScope(left))?.value,
 		};
@@ -120,12 +120,12 @@ const create = context => {
 			return;
 		}
 
-		const {lengthNode} = comparison;
+		const {memberExpression} = comparison;
 		if (
-			isThisReceiver(lengthNode)
-			|| isOptionalChainReceiver(lengthNode)
-			|| isKnownNonCollectionLengthOrSize(lengthNode, context)
-			|| hasSameObjectShapePropertyCheck({node, lengthNode})
+			isThisReceiver(memberExpression)
+			|| isOptionalChainReceiver(memberExpression)
+			|| isKnownNonCollectionLengthOrSize(memberExpression, context)
+			|| hasSameObjectShapePropertyCheck({node, lengthNode: memberExpression})
 		) {
 			return;
 		}
@@ -139,7 +139,7 @@ const create = context => {
 			node,
 			messageId: MESSAGE_ID,
 			data: {
-				property: lengthNode.property.name,
+				property: memberExpression.property.name,
 				result: String(result),
 			},
 		};

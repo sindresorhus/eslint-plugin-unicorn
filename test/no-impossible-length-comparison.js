@@ -5,6 +5,9 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'no-impossible-length-comparison';
 const error = {messageId: MESSAGE_ID};
+const lengthAlwaysFalseError = {message: 'This comparison is always false because `.length` is always a non-negative integer.'};
+const lengthAlwaysTrueError = {message: 'This comparison is always true because `.length` is always a non-negative integer.'};
+const sizeAlwaysTrueError = {message: 'This comparison is always true because `.size` is always a non-negative integer.'};
 
 test({
 	valid: [
@@ -13,6 +16,7 @@ test({
 		'if (array.length > 0) {}',
 		'if (array.length >= 1) {}',
 		'if (array.length < minimumLength) {}',
+		'if (array.length < Number.POSITIVE_INFINITY) {}',
 		'if (array?.length >= 0) {}',
 		'if ((array?.items).length >= 0) {}',
 		'if ((array?.items).metadata.length >= 0) {}',
@@ -40,7 +44,7 @@ test({
 	invalid: [
 		{
 			code: 'if (array.length < 0) {}',
-			errors: [error],
+			errors: [lengthAlwaysFalseError],
 		},
 		{
 			code: 'if (array.length <= -1) {}',
@@ -68,6 +72,14 @@ test({
 		},
 		{
 			code: 'if (array.length >= 0) {}',
+			errors: [lengthAlwaysTrueError],
+		},
+		{
+			code: 'if ((array.length) >= 0) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (array.length < -Number.EPSILON) {}',
 			errors: [error],
 		},
 		{
@@ -79,12 +91,24 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'if (-1 >= array.length) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (-1 !== array.length) {}',
+			errors: [error],
+		},
+		{
 			code: 'if (string.length === -1) {}',
 			errors: [error],
 		},
 		{
 			code: 'if (set.size <= -1) {}',
 			errors: [error],
+		},
+		{
+			code: 'if (set.size >= 0) {}',
+			errors: [sizeAlwaysTrueError],
 		},
 		{
 			code: 'if (-1 === set.size) {}',
