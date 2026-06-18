@@ -48,6 +48,8 @@ const config = [
 			// Disabled violations remain intentional in this codebase.
 			'unicorn/prefer-minimal-ternary': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
+			// Many existing internal utilities intentionally export declarations separately.
+			'unicorn/default-export-style': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
