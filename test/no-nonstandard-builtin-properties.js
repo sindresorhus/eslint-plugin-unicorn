@@ -45,6 +45,7 @@ test.snapshot({
 		'new Uint8Array().toBase64()',
 		'new Uint8Array().toHex()',
 		'Atomics.load(array, index)',
+		'Atomics.pause()',
 		'Proxy.revocable(target, handler)',
 		'Error.isError(error)',
 		'TypeError.isError(error)',

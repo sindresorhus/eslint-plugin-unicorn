@@ -619,7 +619,6 @@ const uint8ArrayStatic = extendPropertyInfo(typedArrayStatic, {
 
 const typedArrayObjects = Object.fromEntries([
 	'Int8Array',
-	'Uint8Array',
 	'Uint8ClampedArray',
 	'Int16Array',
 	'Uint16Array',
@@ -656,6 +655,7 @@ const nativeObjects = new Map(Object.entries({
 				'load',
 				'notify',
 				'or',
+				'pause',
 				'store',
 				'sub',
 				'wait',
