@@ -60,6 +60,10 @@ test.snapshot({
 		{code: 'true && (\'use strict\' satisfies string);', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && \'use strict\'!;', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && <const>\'use strict\';', languageOptions: {parser: parsers.typescript}},
+		{code: '(true && \'use strict\') as const;', languageOptions: {parser: parsers.typescript}},
+		{code: '(false || \'use strict\') satisfies string;', languageOptions: {parser: parsers.typescript}},
+		{code: '(true && \'use strict\')!;', languageOptions: {parser: parsers.typescript}},
+		{code: '<const>(true && \'use strict\');', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		// Leading identity operands.

@@ -6,6 +6,7 @@ import {
 	isBooleanExpression,
 	isControlFlowTest,
 	isParenthesized,
+	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToLogicalExpressionChild,
 	unwrapTypeScriptExpression,
@@ -95,6 +96,17 @@ function isStringLiteralExpression(node) {
 	return isStringLiteral(unwrapTypeScriptExpression(node));
 }
 
+function getOutermostTypeScriptExpression(node) {
+	while (
+		isTypeScriptExpressionWrapper(node.parent)
+		&& node.parent.expression === node
+	) {
+		node = node.parent;
+	}
+
+	return node;
+}
+
 function getOperandText(operand, operator, index, context) {
 	const operandIsParenthesized = isParenthesized(operand, context);
 	let text = getParenthesizedText(operand, context);
@@ -121,8 +133,9 @@ function getOperandText(operand, operator, index, context) {
 }
 
 function isDirectiveProloguePosition(node) {
-	const {parent} = node;
+	node = getOutermostTypeScriptExpression(node);
 
+	const {parent} = node;
 	if (parent.type !== 'ExpressionStatement' || parent.expression !== node) {
 		return false;
 	}
