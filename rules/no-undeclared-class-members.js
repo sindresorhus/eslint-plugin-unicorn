@@ -179,15 +179,17 @@ const getDeclaredClassMemberNames = (classBody, sourceCode) => {
 	const names = new Set(['constructor']);
 
 	for (const member of classBody.body) {
-		if (
+		if (!(
 			classMemberTypes.has(member.type)
 			&& member.static !== true
 			&& member.kind !== 'constructor'
-		) {
-			const name = getStaticName(member.key, member.computed);
-			if (name) {
-				names.add(name);
-			}
+		)) {
+			continue;
+		}
+
+		const name = getStaticName(member.key, member.computed);
+		if (name) {
+			names.add(name);
 		}
 	}
 

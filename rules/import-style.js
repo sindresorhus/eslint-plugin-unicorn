@@ -53,14 +53,16 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 	const styles = new Set();
 
 	for (const specifier of specifiers) {
-		if (specifier.type === 'ExportSpecifier') {
-			if (specifier.exported.type === 'Identifier' && specifier.exported.name === 'default') {
-				styles.add('default');
-				continue;
-			}
-
-			styles.add('named');
+		if (specifier.type !== 'ExportSpecifier') {
+			continue;
 		}
+
+		if (specifier.exported.type === 'Identifier' && specifier.exported.name === 'default') {
+			styles.add('default');
+			continue;
+		}
+
+		styles.add('named');
 	}
 
 	return [...styles];

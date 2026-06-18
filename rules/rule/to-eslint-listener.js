@@ -29,10 +29,12 @@ function toEslintListener(context, listener) {
 		const unicornProblems = listener(...listenerArguments);
 
 		for (const unicornProblem of iterateFixOrProblems(unicornProblems)) {
-			if (unicornProblem) {
-				const eslintProblem = toEslintProblem(unicornProblem);
-				context.report(eslintProblem);
+			if (!unicornProblem) {
+				continue;
 			}
+
+			const eslintProblem = toEslintProblem(unicornProblem);
+			context.report(eslintProblem);
 		}
 	};
 }
