@@ -117,16 +117,18 @@ const cases = [
 			}
 
 			for (const pairs of node.arguments[0].elements) {
-				if (
+				if (!(
 					pairs?.type === 'ArrayExpression'
 					&& pairs.elements[0]
 					&& pairs.elements[0].type !== 'SpreadElement'
-				) {
-					const [key] = pairs.elements;
+				)) {
+					continue;
+				}
 
-					if (isStringThen(key, context)) {
-						yield key;
-					}
+				const [key] = pairs.elements;
+
+				if (isStringThen(key, context)) {
+					yield key;
 				}
 			}
 		},
