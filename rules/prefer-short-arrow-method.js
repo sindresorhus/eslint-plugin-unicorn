@@ -124,7 +124,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer arrow function properties over methods with a single return.',
-			recommended: true,
+			recommended: false,
 		},
 		fixable: 'code',
 		schema: [],
