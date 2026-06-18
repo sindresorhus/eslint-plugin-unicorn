@@ -7,15 +7,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Mutating the same live iterable that a `for...of` loop is consuming can silently skip items, repeat items, or visit newly added items.
+Mutating an iterable while a `for...of` loop consumes it can skip, repeat, or unexpectedly visit items.
 
-This rule reports mutating `Array`, `Set`, and `Map` method calls on the iterable being consumed directly or through `.keys()`, `.values()`, or `.entries()`.
+This rule reports mutating `Array`, `Set`, and `Map` methods on the active iterable, including `.keys()`, `.values()`, and `.entries()` loops.
 
-It allows simple same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when the current entry is clear from syntax or static collection information. It still reports delete-then-reinsert sequences like `set.delete(value); set.add(value);`.
+Same-current-entry `Set` and `Map` updates are allowed. Delete-then-reinsert patterns are not.
 
-When the iterable type is unknown, direct identifier and destructuring loops are interpreted syntactically. Ambiguous `Map` and `Set` shapes need static information to be classified precisely.
-
-It intentionally ignores iterator aliases, property writes like `array.length = 0`, index deletes, complex delete-then-reinsert ordering, and `Object.keys()`/`Object.values()`/`Object.entries()` snapshot loops.
+It intentionally ignores iterator aliases, non-method writes like `array.length = 0`, and snapshot loops from `Object.keys()`, `Object.values()`, and `Object.entries()`.
 
 ## Examples
 
@@ -24,52 +22,38 @@ It intentionally ignores iterator aliases, property writes like `array.length = 
 for (const item of items) {
 	items.push(item.clone());
 }
-```
 
-```js
+// ✅
+for (const item of [...items]) {
+	items.push(item.clone());
+}
+
 // ❌
 for (const value of values) {
 	values.shift();
 }
-```
 
-```js
+// ✅
+for (const key of Object.keys(object)) {
+	delete object[key];
+}
+
 // ❌
 for (const value of set) {
 	set.delete(value);
 	set.add(value);
 }
-```
 
-```js
-// ✅
-for (const item of [...items]) {
-	items.push(item.clone());
-}
-```
-
-```js
-// ✅
-for (const key of Object.keys(object)) {
-	delete object[key];
-}
-```
-
-```js
 // ✅
 for (const value of set) {
 	set.add(value);
 }
-```
 
-```js
 // ✅
 for (const key of map.keys()) {
 	map.set(key, newValue);
 }
-```
 
-```js
 // ✅
 for (const [key] of map) {
 	map.delete(key);
