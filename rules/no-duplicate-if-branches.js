@@ -14,14 +14,14 @@ const isElseIfStatement = node =>
 
 const getBranchStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
-const getStatementTokenValues = (node, sourceCode) => {
-	const tokenValues = sourceCode.getTokens(node).map(token => token.value);
+const getStatementTokenKeys = (node, sourceCode) => {
+	const tokenKeys = sourceCode.getTokens(node).map(token => `${token.type}:${token.value}`);
 
-	if (tokenValues.at(-1) === ';') {
-		tokenValues.pop();
+	if (tokenKeys.at(-1) === 'Punctuator:;') {
+		tokenKeys.pop();
 	}
 
-	return tokenValues;
+	return tokenKeys;
 };
 
 const areSameBranchBodies = (left, right, sourceCode) => {
@@ -29,13 +29,13 @@ const areSameBranchBodies = (left, right, sourceCode) => {
 		return false;
 	}
 
-	const leftTokenValues = left.map(node => getStatementTokenValues(node, sourceCode));
-	const rightTokenValues = right.map(node => getStatementTokenValues(node, sourceCode));
+	const leftTokenKeys = left.map(node => getStatementTokenKeys(node, sourceCode));
+	const rightTokenKeys = right.map(node => getStatementTokenKeys(node, sourceCode));
 
-	return leftTokenValues.some(tokenValues => tokenValues.length > 0)
-		&& leftTokenValues.every((tokenValues, index) =>
-			tokenValues.length === rightTokenValues[index].length
-			&& tokenValues.every((tokenValue, tokenIndex) => tokenValue === rightTokenValues[index][tokenIndex]),
+	return leftTokenKeys.some(tokenKeys => tokenKeys.length > 0)
+		&& leftTokenKeys.every((tokenKeys, index) =>
+			tokenKeys.length === rightTokenKeys[index].length
+			&& tokenKeys.every((tokenKey, tokenIndex) => tokenKey === rightTokenKeys[index][tokenIndex]),
 		);
 };
 

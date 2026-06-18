@@ -69,6 +69,19 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			class Unicorn {
+				#value;
+
+				method() {
+					if (foo) {
+						this.#value;
+					} else {
+						this.value;
+					}
+				}
+			}
+		`,
+		outdent`
 			if (foo) {
 				a++;
 				b;
@@ -139,6 +152,13 @@ test.snapshot({
 					return bar();
 				else
 					return bar();
+			}
+		`,
+		outdent`
+			if (foo)
+				bar();
+			else {
+				bar();
 			}
 		`,
 		outdent`
