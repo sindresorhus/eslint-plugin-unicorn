@@ -185,6 +185,7 @@ export {default as 'prefer-early-return'} from './prefer-early-return.js';
 export {default as 'prefer-else-if'} from './prefer-else-if.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';
+export {default as 'prefer-flat-math-min-max'} from './prefer-flat-math-min-max.js';
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
 export {default as 'prefer-global-number-constants'} from './prefer-global-number-constants.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
