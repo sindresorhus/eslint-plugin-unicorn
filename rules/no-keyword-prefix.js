@@ -48,13 +48,23 @@ function reportMemberExpression(report, node, options) {
 
 	const {name, parent} = node;
 	const keyword = findKeywordPrefix(name, options);
+
+	if (!keyword) {
+		return;
+	}
+
+	if (
+		parent.object.type === 'Identifier'
+		&& parent.object.name === name
+	) {
+		report(node, keyword);
+		return;
+	}
+
 	const effectiveParent = parent.type === 'MemberExpression' ? parent.parent : parent;
 
-	if (parent.object.type === 'Identifier' && parent.object.name === name && Boolean(keyword)) {
-		report(node, keyword);
-	} else if (
+	if (
 		effectiveParent.type === 'AssignmentExpression'
-		&& Boolean(keyword)
 		&& (effectiveParent.right.type !== 'MemberExpression' || effectiveParent.left.type === 'MemberExpression')
 		&& effectiveParent.left.property.name === name
 	) {
