@@ -58,6 +58,14 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			outer: for (const item of items) {
+				switch (item.type) {
+					case 'child':
+						continue outer;
+				}
+			}
+		`,
+		outdent`
 			switch (value) {
 				case 1:
 					break;
@@ -131,6 +139,26 @@ test.snapshot({
 				switch (item.type) {
 					case 'child':
 						continue;
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				for (const child of item.children) {
+					switch (child.type) {
+						case 'child':
+							continue;
+					}
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				switch (item.type) {
+					case 'child':
+						while (item.pending) {
+							continue;
+						}
 				}
 			}
 		`,

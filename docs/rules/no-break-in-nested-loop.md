@@ -9,6 +9,8 @@
 
 Nested loops can be readable, but `break` and `continue` in nested control flow inside loops are easy to misread because the target is not always obvious. Move the inner loop or switch into a function instead.
 
+An unlabeled `continue` inside a `switch` continues the surrounding loop, not the next `case`. Use a labeled `continue` if that is intentional.
+
 Labeled `break` and `continue` statements are allowed because their target is explicit.
 
 ## Examples
