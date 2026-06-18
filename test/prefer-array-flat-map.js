@@ -166,6 +166,7 @@ test.snapshot({
 		`,
 
 		'array.filter(value => value > 0.5).flatMap(value => [value, value * 2]);',
+		'array[key?.name].filter(value => value.active).flatMap(value => [value.id]);',
 		'array.map(value => value?.id).filter(value => value).flatMap(value => [value]);',
 		'(array.filter(value => value.active)).flatMap(value => [value.id]);',
 		'(array).filter(value => (value.active)).flatMap(value => ([value.id]));',

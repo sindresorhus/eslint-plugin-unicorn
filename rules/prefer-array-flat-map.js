@@ -1,5 +1,6 @@
 import {
 	getParenthesizedText,
+	hasOptionalChainElement,
 	isKnownNonArray,
 	isNodeMatches,
 	isParenthesized,
@@ -7,7 +8,6 @@ import {
 	shouldAddParenthesesToConditionalExpressionChild,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldSkipKnownNonArrayReceiver,
-	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
@@ -51,24 +51,6 @@ const isSimpleUntypedSingleParameterArrowCallback = node =>
 	&& !node.params[0].optional
 	&& !node.params[0].typeAnnotation
 	&& node.body.type !== 'BlockStatement';
-
-function hasOptionalChainInReceiver(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node.type === 'ChainExpression') {
-		return true;
-	}
-
-	if (node.type === 'MemberExpression') {
-		return node.optional || hasOptionalChainInReceiver(node.object);
-	}
-
-	if (node.type === 'CallExpression') {
-		return node.optional || hasOptionalChainInReceiver(node.callee);
-	}
-
-	return false;
-}
 
 function getConditionalTestText(node, context) {
 	if (isParenthesized(node, context)) {
@@ -192,7 +174,7 @@ const create = context => {
 				computed: false,
 			})
 			|| hasTypeArguments(filterCallExpression)
-			|| hasOptionalChainInReceiver(filterCallExpression.callee.object)
+			|| hasOptionalChainElement(filterCallExpression.callee.object)
 			|| isKnownNonArray(filterCallExpression.callee.object, context)
 		) {
 			return;

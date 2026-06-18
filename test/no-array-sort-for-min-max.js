@@ -19,6 +19,11 @@ test.snapshot({
 		'const first = array.sort?.((a, b) => a - b)[0];',
 		'const first = array?.sort((a, b) => a - b)[0];',
 		'const first = array.sort((a, b) => a - b)?.[0];',
+		'const first = object?.array.toSorted((a, b) => a - b)[0];',
+		'const first = object?.array.toSorted((a, b) => a - b).at(0);',
+		'const first = object?.array.sort((a, b) => a - b)[0];',
+		'const first = object?.getArray().toSorted((a, b) => a - b)[0];',
+		'const first = object?.getArray().toSorted((a, b) => a - b).at(0);',
 		'const first = array["sort"]((a, b) => a - b)[0];',
 		'const first = array.sort((a, b) => { return a - b; return 0; })[0];',
 		'const first = array.sort((a, b) => {})[0];',
@@ -29,11 +34,20 @@ test.snapshot({
 		'array.sort((a, b) => a - b)[0] = value;',
 		'array.sort((a, b) => a - b)[0]++;',
 		'delete array.sort((a, b) => a - b)[0];',
+		'delete array.sort((a, b) => a - b).at(0);',
 		'for (array.sort((a, b) => a - b)[0] of values) {}',
 		'for (array.sort((a, b) => a - b)[0] in object) {}',
 		{
 			code: 'const first = array.sort(function (a, a) { return a - a; })[0];',
 			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'const first = object?.array!.toSorted((a: number, b: number) => a - b)[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const first = object?.getArray()!.toSorted((a: number, b: number) => a - b)[0];',
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'const first = array.sort((a: number, b: number) => a - b).at(1);',
@@ -43,6 +57,7 @@ test.snapshot({
 	invalid: [
 		'const minimum = array.sort((a, b) => a - b)[0];',
 		'const minimum = array.toSorted((a, b) => a - b)[0];',
+		'const minimum = arrays[key?.name].toSorted((a, b) => a - b)[0];',
 		'const minimum = array.sort((a, b) => a - b).at(0);',
 		'const minimum = array.toSorted((a, b) => a - b).at(0);',
 		'const maximum = array.sort((a, b) => a - b).at(-1);',
@@ -77,6 +92,14 @@ test.snapshot({
 		`,
 		{
 			code: 'const minimum = array.sort((a: number, b: number) => a - b)[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const minimum = array.toSorted((a, b) => (a - b) as number)[0];',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const minimum = array.toSorted((a, b) => a - b satisfies number)[0];',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

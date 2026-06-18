@@ -15,8 +15,8 @@ import {
 	isNodeMatches,
 	isMethodNamed,
 	isSameReference,
-	hasOptionalChainElement,
 	isTypeParameterType,
+	hasUnparenthesizedOptionalChainElement,
 	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
@@ -1433,7 +1433,7 @@ const create = context => {
 				optionalMember: false,
 			})
 			&& !isArrayLiteral(node.callee.object)
-			&& !hasOptionalChainElement(node.callee.object)
+			&& !hasUnparenthesizedOptionalChainElement(node.callee.object, context)
 		)) {
 			return;
 		}
@@ -1475,6 +1475,7 @@ const create = context => {
 				optionalMember: false,
 			})
 			&& node.callee.object.type !== 'ArrayExpression'
+			&& !hasUnparenthesizedOptionalChainElement(node.callee.object, context)
 		)) {
 			return;
 		}

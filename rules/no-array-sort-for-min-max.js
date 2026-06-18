@@ -5,10 +5,12 @@ import {
 	isNumericLiteral,
 } from './ast/index.js';
 import {
+	hasOptionalChainElement,
 	isKnownNonArray,
 	isLeftHandSide,
 	isSameReference,
 	isStrongPrecedenceNode,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-sort-for-min-max/error';
@@ -53,7 +55,7 @@ const getSortDirection = comparator => {
 		return;
 	}
 
-	const body = getFunctionBodyExpression(comparator);
+	const body = unwrapTypeScriptExpression(getFunctionBodyExpression(comparator));
 	if (body?.type !== 'BinaryExpression' || body.operator !== '-') {
 		return;
 	}
@@ -83,6 +85,10 @@ const getSortedSource = (callExpression, context) => {
 	}
 
 	if (isKnownNonArray(callExpression.callee.object, context)) {
+		return;
+	}
+
+	if (hasOptionalChainElement(callExpression.callee.object)) {
 		return;
 	}
 
@@ -183,6 +189,10 @@ const create = context => {
 		}
 
 		if (!endpoint) {
+			return;
+		}
+
+		if (isLeftHandSide(callExpression)) {
 			return;
 		}
 
