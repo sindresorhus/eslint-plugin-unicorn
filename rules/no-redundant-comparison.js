@@ -1,7 +1,9 @@
 import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
 import {getParenthesizedRange} from './utils/index.js';
 import {
+	comparisonOperators,
 	containsOptionalChain,
+	flipOperator,
 	isReference,
 	isSame,
 	unwrapExpression,
@@ -14,16 +16,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Remove this redundant comparison.',
 };
 
-const COMPARISON_OPERATORS = new Set(['>', '>=', '<', '<=', '===', '!==']);
 const ORDERING_OPERATORS = new Set(['>', '>=', '<', '<=']);
-const FLIP_OPERATOR = {
-	'>': '<',
-	'>=': '<=',
-	'<': '>',
-	'<=': '>=',
-	'===': '===',
-	'!==': '!==',
-};
 
 function flatAndChain(node) {
 	return [node.left, node.right].flatMap(child =>
@@ -95,7 +88,7 @@ function predicateForSubject(comparison, reference) {
 	}
 
 	if (isSame(comparison.right, reference)) {
-		return {operator: FLIP_OPERATOR[comparison.operator], value: comparison.left, node: comparison.node};
+		return {operator: flipOperator[comparison.operator], value: comparison.left, node: comparison.node};
 	}
 }
 
@@ -110,7 +103,7 @@ function predicateForClass(comparison, equalityClass) {
 
 	return isLeftInClass
 		? {operator: comparison.operator, value: comparison.right, node: comparison.node}
-		: {operator: FLIP_OPERATOR[comparison.operator], value: comparison.left, node: comparison.node};
+		: {operator: flipOperator[comparison.operator], value: comparison.left, node: comparison.node};
 }
 
 // Merge each equality's two references into shared classes (congruence closure), so transitive chains group together.
@@ -149,7 +142,7 @@ function classifyOperands(operands) {
 		const expression = unwrapExpression(operand);
 		if (
 			expression.type !== 'BinaryExpression'
-			|| !COMPARISON_OPERATORS.has(expression.operator)
+			|| !comparisonOperators.has(expression.operator)
 			|| containsOptionalChain(expression)
 		) {
 			continue;
