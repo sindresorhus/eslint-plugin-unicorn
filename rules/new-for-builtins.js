@@ -1,5 +1,6 @@
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import * as builtins from './utils/builtins.js';
+import {hasOptionalChainElement} from './utils/index.js';
 import {
 	switchCallExpressionToNewExpression,
 	switchNewExpressionToCallExpression,
@@ -18,15 +19,17 @@ const messages = {
 };
 
 const getName = reference => reference.path.join('.');
+const hasOptionalChain = node => node.optional || hasOptionalChainElement(node.callee);
 
 function enforceNewExpression(reference, context) {
 	const {node} = reference;
-	const name = getName(reference);
 
-	// An optional call (`Array?.()`) can't be rewritten to a `new` expression, which can't be optional.
-	if (node.optional) {
+	// An optional chain (`Array?.()` or `Intl?.DateTimeFormat()`) can't be rewritten to a `new` expression, which can't be optional.
+	if (hasOptionalChain(node)) {
 		return;
 	}
+
+	const name = getName(reference);
 
 	if (name === 'Object') {
 		const {parent} = node;
@@ -135,7 +138,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the correct use of `new` and calls for builtin constructors.',
+			description: 'Enforce correct use of `new` for builtin constructors.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

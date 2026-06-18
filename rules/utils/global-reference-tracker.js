@@ -12,10 +12,7 @@ const createTraceMap = (object, type) => {
 };
 
 const mergeTraceMap = (target, source) => {
-	for (const key of [
-		...Object.keys(source),
-		...Object.getOwnPropertySymbols(source),
-	]) {
+	for (const key of Reflect.ownKeys(source)) {
 		const value = source[key];
 
 		if (typeof value === 'object') {

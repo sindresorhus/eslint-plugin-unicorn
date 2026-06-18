@@ -1,6 +1,6 @@
 # new-for-builtins
 
-📝 Enforce the correct use of `new` and calls for builtin constructors.
+📝 Enforce correct use of `new` for builtin constructors.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -93,7 +93,7 @@ Disallows the use of `new` for the following builtins:
 
 > These should not use `new` as that would create object wrappers for the primitive values, which is not what you want. However, without `new` they can be useful for coercing a value to that type.
 
-This rule is fixable, except `new String()`, `new Number()`, and `new Boolean()`, [they return wrapped object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#String_primitives_and_String_objects). Reports for builtin namespace objects are not fixable.
+This rule is fixable, except `new String()`, `new Number()`, and `new Boolean()`, which [return wrapped objects](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#String_primitives_and_String_objects). Optional chains are ignored, as `new` cannot be optional. Reports for builtin namespace objects are not fixable.
 
 Disallows calling or constructing the following builtin namespace objects:
 
@@ -116,7 +116,7 @@ const list = new Array(10);
 const now = Date();
 
 // ✅
-const now = new Date();
+const now = String(new Date());
 ```
 
 ```js
