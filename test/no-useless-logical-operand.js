@@ -9,7 +9,7 @@ test.snapshot({
 		'const value = input && true;',
 		'const value = input || false;',
 
-		// Trailing absorbing operands are not value-preserving for arbitrary values.
+		// Non-leading absorbing operands are intentionally out of scope.
 		'const value = input && false;',
 		'const value = input || true;',
 		'const flag = input === other;\nconst value = flag && false;',
@@ -55,6 +55,8 @@ test.snapshot({
 		'const value = input || false || other;',
 		'const value = true && input && true && other;',
 		'const value = false || input || false || other;',
+		'const value = true && input && true;',
+		'const value = false || input || false;',
 		'const value = true && true;',
 		'const value = false || false;',
 
@@ -83,16 +85,22 @@ test.snapshot({
 		'const value = false && input;',
 		'const value = true || input;',
 
-		// Parenthesized expressions.
+		// Parenthesized chains.
 		'const value = (true && input);',
 		'const value = ((false || input));',
+
+		// Member expressions and calls.
 		'const value = true && input?.property;',
 		'const value = false || input.member;',
 		'const value = true && input();',
 		'new (true && Constructor)();',
 		'new (false || Constructor)();',
+
+		// Mixed operators and lower-precedence operands must stay parenthesized.
 		'const value = true && (input || other);',
 		'const value = false || (input && other);',
+		'const value = true && (foo = bar) && baz;',
+		'const value = true && (foo, bar) && baz;',
 		'const value = true && (input || other) && final;',
 		'const value = (input || false || other) && final;',
 		'const value = final && (input || false || other);',
@@ -120,6 +128,7 @@ test.snapshot({
 		'const value = true /* keep */ && input;',
 		'if (input && /* keep */ true) {}',
 		'const value = true && call(/* keep */);',
+		'const value = true && call(/* keep */) && other;',
 
 		// Comments outside the chain are preserved.
 		'const value = /* keep */ true && input;',

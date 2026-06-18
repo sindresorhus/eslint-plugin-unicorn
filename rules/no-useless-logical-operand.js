@@ -192,7 +192,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow useless boolean literals in logical expressions.',
+			description: 'Disallow unnecessary operands in logical expressions involving boolean literals.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
