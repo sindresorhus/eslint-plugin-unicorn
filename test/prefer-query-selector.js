@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
@@ -58,11 +58,26 @@ test.snapshot({
 	],
 	invalid: [
 		'document.getElementById("foo");',
+		'document.getElementById("#foo");',
+		'document.getElementById(".foo");',
+		'document.getElementById("foo bar");',
+		'document.getElementById("foo:bar");',
+		{code: 'document.getElementById("foo" as string);', languageOptions: {parser: parsers.typescript}},
+		{code: 'document.getElementById("#foo" as string);', languageOptions: {parser: parsers.typescript}},
 		'document.getElementsByClassName("foo");',
+		'document.getElementsByClassName(".foo");',
+		'document.getElementsByClassName("#foo");',
+		'document.getElementsByClassName("foo:bar");',
+		{code: 'document.getElementsByClassName("foo" as string);', languageOptions: {parser: parsers.typescript}},
+		{code: 'document.getElementsByClassName(".foo" as string);', languageOptions: {parser: parsers.typescript}},
 		'element.getElementsByClassName("foo");',
+		'element.getElementsByClassName(".foo");',
 		'document.getElementsByClassName("foo bar");',
 		'document.getElementsByTagName("foo");',
+		'document.getElementsByTagName("foo:bar");',
+		'document.getElementsByTagName("*");',
 		'element.getElementsByTagName("foo");',
+		'element.getElementsByTagName("foo bar");',
 		'document.getElementById("");',
 		'document.getElementById(\'foo\');',
 		'document.getElementsByClassName(\'foo\');',
@@ -70,7 +85,9 @@ test.snapshot({
 		'document.getElementsByTagName(\'foo\');',
 		'document.getElementsByClassName(\'\');',
 		'document.getElementById(`foo`);',
+		'document.getElementById(`#foo`);',
 		'document.getElementsByClassName(`foo`);',
+		'document.getElementsByClassName(`.foo`);',
 		'element.getElementsByClassName(`foo`);',
 		'document.getElementsByClassName(`foo bar`);',
 		'document.getElementsByTagName(`foo`);',
@@ -98,10 +115,13 @@ test.snapshot({
 		'document.getElementsByName("");',
 		'document.getElementsByName(foo + "bar");',
 		'document.getElementsByName("multiple name should be fixable");',
-		// A quote in the name would break the generated CSS selector or string — report without fixing
+		// Quotes and backslashes in the name would break the generated CSS selector or string, so report without fixing.
 		'document.getElementsByName("foo\'bar");',
 		'document.getElementsByName(\'foo"bar\');',
 		'document.getElementsByName(`foo\'bar`);',
+		String.raw`document.getElementsByName("foo\\bar");`,
+		String.raw`document.getElementsByName("foo\nbar");`,
+		{code: String.raw`document.getElementsByName("foo\\bar" as string);`, languageOptions: {parser: parsers.typescript}},
 		'document.getElementsByTagName("form")[0].addEventListener("submit", submitFunction);',
 		'document.getElementsByTagName("form").item(0).submit();',
 		'document.getElementsByClassName("submit-button").at(0).click();',
@@ -119,8 +139,18 @@ test.snapshot({
 			options: allowWithVariablesOptions,
 		},
 		{
+			code: 'document.getElementById("foo" as string);',
+			options: allowWithVariablesOptions,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'document.getElementsByClassName("foo");',
 			options: allowWithVariablesOptions,
+		},
+		{
+			code: 'document.getElementsByClassName("foo"!);',
+			options: allowWithVariablesOptions,
+			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'document.getElementsByTagName("foo");',

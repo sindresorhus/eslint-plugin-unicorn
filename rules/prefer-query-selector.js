@@ -2,8 +2,14 @@ import {
 	getParenthesizedRange,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {isMethodCall, isStringLiteral, isNullLiteral} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isMethodCall,
+	isStringLiteral,
+	isNullLiteral,
+} from './ast/index.js';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-query-selector';
@@ -119,31 +125,30 @@ function * getTemplateLiteralFix(fixer, node, identifierName, shouldScopeSelecto
 	}
 }
 
-const isNonLiteralArgument = node =>
-	!isNullLiteral(node)
-	&& !isStringLiteral(node)
-	&& node.type !== 'BinaryExpression'
-	&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
-	&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
+const isNonLiteralArgument = node => {
+	node = unwrapTypeScriptExpression(node);
 
-const canBeFixed = node =>
-	isNullLiteral(node)
-	|| (isStringLiteral(node) && Boolean(node.value.trim()))
-	|| (
-		node.type === 'TemplateLiteral'
-		&& node.expressions.length === 0
-		&& node.quasis.some(templateElement => templateElement.value.cooked.trim())
-	);
+	return !isNullLiteral(node)
+		&& !isStringLiteral(node)
+		&& node.type !== 'BinaryExpression'
+		&& !(node.type === 'TemplateLiteral' && node.expressions.length === 0)
+		&& !(node.type === 'TemplateLiteral' && node.quasis.some(quasi => quasi.value.cooked?.trim()));
+};
 
-// `getElementsByName` wraps the value in a `[name=…]` CSS selector. A quote in the value would
-// break either the selector (`[name='foo'bar']`) or the re-quoted JS string, so it can't be fixed.
-const nameValueHasQuote = node => {
+const stringNeedsEscaping = (value, raw) =>
+	/[\n\r"'\\\u{2028}\u{2029}]/u.test(value)
+	|| raw.includes('\\')
+	|| /[\n\r\u{2028}\u{2029}]/u.test(raw);
+
+// `getElementsByName` wraps the value in a `[name=…]` CSS selector. Quotes, line terminators, and
+// raw escapes can break the generated code or change CSS string escaping, so they can't be fixed.
+const nameValueNeedsEscaping = node => {
 	if (node.type === 'Literal' && typeof node.value === 'string') {
-		return node.value.includes('\'') || node.value.includes('"');
+		return stringNeedsEscaping(node.value, node.raw);
 	}
 
 	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis.some(quasi => /["']/.test(quasi.value.cooked ?? ''));
+		return node.quasis.some(quasi => stringNeedsEscaping(quasi.value.cooked ?? '', quasi.value.raw));
 	}
 
 	return false;
@@ -155,6 +160,49 @@ const isStaticSelector = node =>
 		node.type === 'TemplateLiteral'
 		&& node.expressions.length === 0
 	);
+
+const selectorArgumentMethods = new Set(['getElementById', 'getElementsByClassName', 'getElementsByTagName']);
+const simpleCssIdentifierPattern = /^-?[A-Z_a-z][\w-]*$/u;
+
+const isSimpleCssIdentifier = value => simpleCssIdentifierPattern.test(value);
+
+const canUseSelectorArgument = (node, identifierName) => {
+	if (!selectorArgumentMethods.has(identifierName)) {
+		return true;
+	}
+
+	const value = getStaticStringValue(node);
+
+	if (value === undefined) {
+		return true;
+	}
+
+	if (identifierName === 'getElementById') {
+		return isSimpleCssIdentifier(value);
+	}
+
+	if (identifierName === 'getElementsByTagName') {
+		return value === '*' || isSimpleCssIdentifier(value);
+	}
+
+	return value.match(/\S+/gv)?.every(className => isSimpleCssIdentifier(className)) ?? false;
+};
+
+const canBeFixed = (node, identifierName) => {
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+
+	return canUseSelectorArgument(unwrappedNode, identifierName)
+		&& !(identifierName === 'getElementsByName' && nameValueNeedsEscaping(unwrappedNode))
+		&& (
+			isNullLiteral(unwrappedNode)
+			|| (isStringLiteral(unwrappedNode) && Boolean(unwrappedNode.value.trim()))
+			|| (
+				unwrappedNode.type === 'TemplateLiteral'
+				&& unwrappedNode.expressions.length === 0
+				&& unwrappedNode.quasis.some(templateElement => templateElement.value.cooked.trim())
+			)
+		);
+};
 
 const isDocumentObject = node =>
 	(
@@ -232,7 +280,7 @@ const removeFirstElementAccess = (fixer, node, context) => node.type === 'Member
 	: removeMethodCall(fixer, node, context);
 
 const fix = ({node, identifierName, preferredSelector, firstElementAccess, context}) => {
-	const nodeToBeFixed = node.arguments[0];
+	const nodeToBeFixed = unwrapTypeScriptExpression(node.arguments[0]);
 	const shouldScopeSelector = !isDocumentObject(node.callee.object) && isStaticSelector(nodeToBeFixed);
 
 	if (
@@ -302,10 +350,7 @@ const create = context => {
 			},
 		};
 
-		if (
-			canBeFixed(node.arguments[0])
-			&& !(method === 'getElementsByName' && nameValueHasQuote(node.arguments[0]))
-		) {
+		if (canBeFixed(node.arguments[0], method)) {
 			problem.fix = fix({
 				node,
 				identifierName: method,
