@@ -5,6 +5,7 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	hasCommentInRange,
 	getLastTrailingCommentOnSameLine,
 	getReferences,
 	shouldAddParenthesesToUnaryExpressionArgument,
@@ -21,12 +22,6 @@ const messages = {
 
 const isUnlabeledBreakStatement = node => node?.type === 'BreakStatement' && !node.label;
 const isSwitchOrLoop = node => node.type === 'SwitchStatement' || isLoop(node);
-
-const hasCommentsInRange = (sourceCode, [start, end]) =>
-	sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
 
 const isNodeInsideRange = (node, [start, end], sourceCode) => {
 	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
@@ -82,8 +77,8 @@ function hasUnlabeledBreakStatement(node, sourceCode) {
 	return false;
 }
 
-const hasOtherBreakForLoop = (whileStatement, sourceCode) =>
-	whileStatement.body.body.slice(1).some(node => hasUnlabeledBreakStatement(node, sourceCode));
+const hasOtherBreakForSameLoop = (loop, sourceCode) =>
+	loop.body.body.slice(1).some(node => hasUnlabeledBreakStatement(node, sourceCode));
 
 const isLabeledStatementBody = node => node.parent.type === 'LabeledStatement' && node.parent.body === node;
 
@@ -147,6 +142,11 @@ const getDoWhileTailRange = (node, sourceCode) => [
 	sourceCode.getRange(node)[1],
 ];
 
+const getLoopBodyHeadRange = (loop, firstStatement, sourceCode) => [
+	sourceCode.getRange(loop.body)[0],
+	sourceCode.getRange(firstStatement)[0],
+];
+
 function * fixLoop(fixer, {
 	loop,
 	firstStatement,
@@ -183,7 +183,7 @@ const create = context => {
 			!isInfiniteLoop(node)
 			|| node.body.type !== 'BlockStatement'
 			|| isLabeledStatementBody(node)
-			|| hasCommentsInRange(sourceCode, rangeToCheck)
+			|| hasCommentInRange(context, rangeToCheck)
 		) {
 			return;
 		}
@@ -193,6 +193,7 @@ const create = context => {
 			!firstStatement
 			|| firstStatement.type !== 'IfStatement'
 			|| firstStatement.alternate
+			|| hasCommentInRange(context, getLoopBodyHeadRange(node, firstStatement, sourceCode))
 			|| sourceCode.getCommentsInside(firstStatement).length > 0
 			|| getLastTrailingCommentOnSameLine(context, firstStatement)
 		) {
@@ -202,7 +203,7 @@ const create = context => {
 		const breakStatement = getOnlyUnlabeledBreakStatement(firstStatement.consequent);
 		if (
 			!breakStatement
-			|| hasOtherBreakForLoop(node, sourceCode)
+			|| hasOtherBreakForSameLoop(node, sourceCode)
 			|| hasUnsafeLiftReference(node, firstStatement, sourceCode)
 		) {
 			return;

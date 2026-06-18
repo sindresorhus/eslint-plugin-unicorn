@@ -25,6 +25,13 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			while (/* keep */ true) {
+				if (!hasMore()) {
+					break;
+				}
+			}
+		`,
+		outdent`
 			for (; false;) {
 				if (!hasMore()) {
 					break;
@@ -239,6 +246,16 @@ test.snapshot({
 		`,
 		outdent`
 			while (true) {
+				// Preserve this comment.
+				if (!hasMore()) {
+					break;
+				}
+
+				processNext();
+			}
+		`,
+		outdent`
+			while (true) {
 				if (!hasMore()) break; // Preserve this comment.
 				processNext();
 			}
@@ -405,6 +422,20 @@ test.snapshot({
 			code: outdent`
 				while (true) {
 					if (!value!) {
+						break;
+					}
+
+					process(value);
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				while (true) {
+					if (value!) {
 						break;
 					}
 
