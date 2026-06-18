@@ -4,7 +4,7 @@ const MESSAGE_ID = 'no-break-in-nested-loop';
 const SWITCH_CONTINUE_MESSAGE_ID = 'switch-continue';
 const messages = {
 	[MESSAGE_ID]: 'Move this nested loop or switch into a function instead of using `{{keyword}}` here.',
-	[SWITCH_CONTINUE_MESSAGE_ID]: 'An unlabeled `continue` inside a `switch` continues the surrounding loop, not the next `case`.',
+	[SWITCH_CONTINUE_MESSAGE_ID]: 'An unlabeled `continue` inside a `switch` continues the surrounding loop, not the next `case`. Use a labeled `continue` if that is intentional.',
 };
 
 const controlFlowNodeTypes = new Set([
