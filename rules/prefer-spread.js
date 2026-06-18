@@ -16,6 +16,7 @@ import {
 	isMethodNamed,
 	isSameReference,
 	hasOptionalChainElement,
+	isTypeParameterType,
 	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
@@ -63,7 +64,6 @@ const arrayTypeAnnotationTypes = new Set(['TSArrayType', 'TSTupleType']);
 const transparentTypeAnnotationTypes = new Set(['TSTypeAnnotation', 'TSParenthesizedType']);
 const unknownTypeAnnotationTypes = new Set(['TSAnyKeyword', 'TSUnknownKeyword']);
 const typeAnnotationExpressionTypes = new Set(['TSAsExpression', 'TSTypeAssertion', 'TSSatisfiesExpression']);
-const typeParameterTypeFlag = 524_288;
 const nonArrayTypeAnnotationTypes = new Set([
 	'TSNeverKeyword',
 	'TSVoidKeyword',
@@ -492,10 +492,6 @@ const combineArrayStates = (states, isArrayState) => {
 const getUnionArrayState = states => combineArrayStates(states, states => states.every(Boolean));
 
 const getIntersectionArrayState = states => combineArrayStates(states, states => states.some(Boolean));
-
-const isTypeParameterType = type =>
-	type.isTypeParameter?.()
-	|| (type.flags % (typeParameterTypeFlag * 2) >= typeParameterTypeFlag);
 
 function getTypeNameIdentifierName(node) {
 	return node.type === 'TSQualifiedName'

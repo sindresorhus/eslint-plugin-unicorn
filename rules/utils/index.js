@@ -111,6 +111,10 @@ export {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
 	isNullishType,
+	isStringMappingType,
+	isTemplateLiteralType,
+	isTypeParameterType,
+	isUniqueSymbolType,
 	isUnknownType,
 } from './types.js';
 export {checkVueTemplate} from './rule.js';

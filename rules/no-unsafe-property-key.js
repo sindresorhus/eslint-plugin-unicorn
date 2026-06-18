@@ -18,6 +18,9 @@ import builtinErrors from './shared/builtin-errors.js';
 import {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	isStringMappingType,
+	isTemplateLiteralType,
+	isUniqueSymbolType,
 } from './utils/types.js';
 
 const MESSAGE_ID = 'no-unsafe-property-key';
@@ -34,9 +37,6 @@ const propertyDefinitionNodeTypes = [
 	'TSAbstractPropertyDefinition',
 	'TSAbstractAccessorProperty',
 ];
-
-const templateLiteralTypeFlag = 4_194_304; // TypeFlags.TemplateLiteral
-const uniqueSymbolTypeFlag = 16_384; // TypeFlags.UniqueESSymbol
 
 const unsafeGlobalIdentifiers = new Set([
 	...disallowNewBuiltins,
@@ -93,13 +93,6 @@ const isUnsafeNumber = value =>
 
 const isUnsafeNumberLiteral = node =>
 	isUnsafeNumber(getNumberLiteralValue(node));
-
-// Test a single `TypeFlags` bit. Uses modulo rather than bitwise `&`, which truncates to 32 bits, to stay correct if `type.flags` ever grows past that.
-const typeHasFlag = (type, flag) => (type.flags % (flag * 2)) >= flag;
-
-const isTemplateLiteralType = type => typeHasFlag(type, templateLiteralTypeFlag);
-
-const isUniqueSymbolType = type => typeHasFlag(type, uniqueSymbolTypeFlag);
 
 const isUnsafePropertyKeyNode = node =>
 	node.type === 'ObjectExpression'
@@ -171,10 +164,13 @@ function getStaticType(value) {
 }
 
 function isUnsafePropertyKeyType(type, checker, program) {
-	// A `unique symbol` (including well-known symbols like `Symbol.iterator`) is a
-	// safe key, but has no `intrinsicName` and resolves to a default-library symbol,
-	// so the checks below would otherwise wrongly flag it.
+	// A `unique symbol` (including well-known symbols like `Symbol.iterator`) is a safe key, but has no `intrinsicName` and resolves to a default-library symbol, so the checks below would otherwise wrongly flag it.
 	if (isUniqueSymbolType(type)) {
+		return false;
+	}
+
+	// Intrinsic string-mapping types (`Uppercase<string>`, `Lowercase<string>`, etc.) are string subtypes and safe keys, but their symbol resolves to a default-library symbol, which the check below would otherwise wrongly flag.
+	if (isStringMappingType(type)) {
 		return false;
 	}
 
@@ -223,8 +219,7 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 		return false;
 	}
 
-	// A `unique symbol` type has no `intrinsicName` but exposes `Symbol.prototype`
-	// members, so the property-count heuristic below would wrongly flag it.
+	// A `unique symbol` type has no `intrinsicName` but exposes `Symbol.prototype` members, so the property-count heuristic below would wrongly flag it.
 	if (isUniqueSymbolType(type)) {
 		return false;
 	}
