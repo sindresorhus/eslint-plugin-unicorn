@@ -246,6 +246,15 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const item of items) {
+				if (item.isActive) {
+					// Keep this comment with the moved body.
+					process(item);
+					save(item);
+				}
+			}
+		`,
+		outdent`
 			let isActive = true;
 
 			for (const item of items) {
@@ -347,10 +356,49 @@ test.snapshot({
 		outdent`
 			for (const item of items) {
 				if (item.isActive) {
+					function processItem() {}
+					processItem();
+				}
+			}
+		`,
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) {
+						type ActiveItem = typeof item;
+						process(item as ActiveItem);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			for (const item of items) {
+				if (item.isActive) {
+					using resource = getResource(item);
+					process(resource);
+				}
+			}
+		`,
+		outdent`
+			async function run() {
+				for (const item of items) {
+					if (item.isActive) {
+						await using resource = getResource(item);
+						process(resource);
+					}
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				if (item.isActive) {
 					process(item);
 					save(item);
 				}
-			} // Keep this comment with the wrapper.
+			} // Keep this comment with the loop.
 		`,
 		outdent`
 			for (const item of items) {
