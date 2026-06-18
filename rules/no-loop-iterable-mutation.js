@@ -54,6 +54,10 @@ function getLoopBinding(loop) {
 	return loop.left;
 }
 
+function isConstantLoopBinding(loop) {
+	return loop.left.type === 'VariableDeclaration' && loop.left.kind === 'const';
+}
+
 function getIdentifierFromPattern(node) {
 	node = unwrapExpression(node);
 	return node.type === 'Identifier' ? node : undefined;
@@ -108,34 +112,6 @@ function getLiveIterable(node, context) {
 	};
 }
 
-function isRangeInside(node, ancestor, sourceCode) {
-	const [start, end] = sourceCode.getRange(node);
-	const [ancestorStart, ancestorEnd] = sourceCode.getRange(ancestor);
-
-	return start >= ancestorStart && end <= ancestorEnd;
-}
-
-function isIdentifierReassignedInNode(identifier, node, context) {
-	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
-
-	return variable?.references.some(reference =>
-		reference.identifier !== identifier
-		&& reference.isWrite()
-		&& isRangeInside(reference.identifier, node, context.sourceCode),
-	) ?? false;
-}
-
-function getStableLoopIdentifier(identifier, loopBody, context) {
-	if (
-		!identifier
-		|| isIdentifierReassignedInNode(identifier, loopBody, context)
-	) {
-		return;
-	}
-
-	return identifier;
-}
-
 function getLoopValueIdentifier(loop, iterableMethod) {
 	const binding = getLoopBinding(loop);
 
@@ -176,17 +152,24 @@ function getLoopDeleteIdentifier(loop, iterableMethod) {
 	return getLoopKeyIdentifier(loop, iterableMethod);
 }
 
-function getLoopInformation(loop, iterable, context) {
+function getLoopInformation(loop, iterable) {
+	if (!isConstantLoopBinding(loop)) {
+		return {
+			iterable: iterable.reference,
+			loopBody: loop.body,
+		};
+	}
+
 	const loopValueIdentifier = getLoopValueIdentifier(loop, iterable.method);
 	const loopKeyIdentifier = getLoopKeyIdentifier(loop, iterable.method);
 	const loopDeleteIdentifier = getLoopDeleteIdentifier(loop, iterable.method);
 
 	return {
-		hasCurrentDelete: false,
 		iterable: iterable.reference,
-		loopDeleteIdentifier: getStableLoopIdentifier(loopDeleteIdentifier, loop.body, context),
-		loopKeyIdentifier: getStableLoopIdentifier(loopKeyIdentifier, loop.body, context),
-		loopValueIdentifier: getStableLoopIdentifier(loopValueIdentifier, loop.body, context),
+		loopBody: loop.body,
+		loopDeleteIdentifier,
+		loopKeyIdentifier,
+		loopValueIdentifier,
 	};
 }
 
@@ -248,6 +231,61 @@ function hasSameFirstArgument(callExpression, identifier, context) {
 	);
 }
 
+function getBlockStatementParent(node) {
+	let statement = node;
+
+	while (statement.parent && statement.parent.type !== 'BlockStatement') {
+		statement = statement.parent;
+	}
+
+	return statement.parent && {block: statement.parent, statement};
+}
+
+function getSimpleCallStatement(statement) {
+	if (statement.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const expression = unwrapExpression(statement.expression);
+	return expression.type === 'CallExpression' ? expression : undefined;
+}
+
+function isCurrentDeleteCall(callExpression, loopInformation, context) {
+	return (
+		callExpression.callee.type === 'MemberExpression'
+		&& getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee)) === 'delete'
+		&& isSameReferenceBinding(callExpression.callee.object, loopInformation.iterable, context)
+		&& hasSameFirstArgument(callExpression, loopInformation.loopDeleteIdentifier, context)
+	);
+}
+
+function hasCurrentDeleteStatement(statement, loopInformation, context) {
+	const callExpression = getSimpleCallStatement(statement);
+
+	if (callExpression) {
+		return isCurrentDeleteCall(callExpression, loopInformation, context);
+	}
+
+	return statement.type === 'BlockStatement' && statement.body.some(child => hasCurrentDeleteStatement(child, loopInformation, context));
+}
+
+function hasEarlierCurrentDelete(callExpression, loopInformation, context) {
+	const parent = getBlockStatementParent(callExpression);
+
+	if (!parent) {
+		return false;
+	}
+
+	const {block, statement} = parent;
+	const statementIndex = block.body.indexOf(statement);
+
+	if (block.body.slice(0, statementIndex).some(previousStatement => hasCurrentDeleteStatement(previousStatement, loopInformation, context))) {
+		return true;
+	}
+
+	return block !== loopInformation.loopBody && hasEarlierCurrentDelete(block, loopInformation, context);
+}
+
 function getMutationProblem(callExpression, loopInformation, context) {
 	if (callExpression.callee.type !== 'MemberExpression') {
 		return;
@@ -274,22 +312,21 @@ function getMutationProblem(callExpression, loopInformation, context) {
 	const isCurrentDelete = method === 'delete' && hasSameFirstArgument(callExpression, loopDeleteIdentifier, context);
 
 	if (isCurrentDelete) {
-		loopInformation.hasCurrentDelete = true;
 		return;
 	}
 
 	if (
 		method === 'add'
-		&& !loopInformation.hasCurrentDelete
 		&& hasSameFirstArgument(callExpression, loopValueIdentifier, context)
+		&& !hasEarlierCurrentDelete(callExpression, loopInformation, context)
 	) {
 		return;
 	}
 
 	if (
 		method === 'set'
-		&& !loopInformation.hasCurrentDelete
 		&& hasSameFirstArgument(callExpression, loopKeyIdentifier, context)
+		&& !hasEarlierCurrentDelete(callExpression, loopInformation, context)
 	) {
 		return;
 	}
@@ -359,7 +396,7 @@ const create = context => {
 		}
 
 		return getMutationProblems(node.body, {
-			...getLoopInformation(node, iterable, context),
+			...getLoopInformation(node, iterable),
 			reportedCallExpressions,
 		}, context);
 	});

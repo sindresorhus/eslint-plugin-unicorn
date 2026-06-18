@@ -11,9 +11,13 @@ Mutating the same live iterable that a `for...of` loop is consuming can make ite
 
 This rule reports mutating method calls on the same iterable reference, including arrays, `Set`, and `Map`, while iterating over the iterable itself or over its `.keys()`, `.values()`, or `.entries()` iterator.
 
-It allows same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when they do not reinsert an entry that was already deleted in the same loop body.
+It allows simple same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when the current value or key comes from a `const` loop binding and the syntax identifies that current entry, but still reports direct delete-then-reinsert sequences like `set.delete(value); set.add(value);`.
 
 It intentionally does not report every possible write to the iterable, such as assigning `array.length` or deleting an array index.
+
+It intentionally does not track aliases to iterators, such as `const iterator = items.values();`.
+
+This is a syntax-only rule. It treats direct identifier iteration, such as `for (const value of set)`, as value iteration, and direct destructuring, such as `for (const [key] of map)`, as entry iteration. This matches common `Set` and `Map` loops, but does not distinguish ambiguous custom iterables, `Map` entries kept as a single variable, or `Set` values that are themselves iterable.
 
 It intentionally does not report mutations of objects used with `Object.keys()`, `Object.values()`, or `Object.entries()`, since those methods create snapshot arrays before the loop starts.
 
@@ -37,6 +41,14 @@ for (const value of values) {
 // ❌
 for (const value of set) {
 	set.add(value + 1);
+}
+```
+
+```js
+// ❌
+for (const value of set) {
+	set.delete(value);
+	set.add(value);
 }
 ```
 

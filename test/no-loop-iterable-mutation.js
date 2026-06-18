@@ -123,12 +123,12 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			for (let value of set) {
+			for (const value of set.values()) {
 				set.add(value);
 			}
 		`,
 		outdent`
-			for (const value of set.values()) {
+			for (const value of set['values']()) {
 				set.add(value);
 			}
 		`,
@@ -138,7 +138,17 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set['keys']()) {
+				set.add(value);
+			}
+		`,
+		outdent`
 			for (const [value] of set.entries()) {
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const [value] of set['entries']()) {
 				set.add(value);
 			}
 		`,
@@ -148,12 +158,36 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const key of set['keys']()) {
+				set.delete(key);
+			}
+		`,
+		outdent`
+			for (const value of set) {
+				if (shouldDelete) {
+					set.delete(value);
+				} else {
+					set.add(value);
+				}
+			}
+		`,
+		outdent`
 			for (const key of map.keys()) {
 				map.set(key, value);
 			}
 		`,
 		outdent`
+			for (const key of map['keys']()) {
+				map.set(key, value);
+			}
+		`,
+		outdent`
 			for (const key of map.keys()) {
+				map.delete(key);
+			}
+		`,
+		outdent`
+			for (const key of map['keys']()) {
 				map.delete(key);
 			}
 		`,
@@ -173,8 +207,27 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const [key] of map['entries']()) {
+				map.set(key, value);
+			}
+		`,
+		outdent`
 			for (const [key] of map.entries()) {
 				map.delete(key);
+			}
+		`,
+		outdent`
+			for (const [key] of map['entries']()) {
+				map.delete(key);
+			}
+		`,
+		outdent`
+			for (const key of map.keys()) {
+				if (shouldDelete) {
+					map.delete(key);
+				} else {
+					map.set(key, value);
+				}
 			}
 		`,
 		outdent`
@@ -312,7 +365,23 @@ test.snapshot({
 		`,
 		outdent`
 			for (let value of set) {
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (let value of set) {
+				set.delete(value);
+			}
+		`,
+		outdent`
+			for (let value of set) {
 				value = otherValue;
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (let value of set) {
+				value++;
 				set.add(value);
 			}
 		`,
@@ -329,6 +398,27 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (const value of set) {
+				{
+					set.delete(value);
+				}
+
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const value of set.keys()) {
+				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
+			for (const [value] of set.entries()) {
+				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
 			for (const [key, value] of map) {
 				map.set(otherKey, value);
 			}
@@ -340,12 +430,35 @@ test.snapshot({
 		`,
 		outdent`
 			for (let key of map.keys()) {
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (let key of map.keys()) {
 				key = otherKey;
 				map.set(key, value);
 			}
 		`,
 		outdent`
+			for (let key of map.keys()) {
+				key++;
+				map.set(key, value);
+			}
+		`,
+		outdent`
 			for (const [key, value] of map) {
+				map.delete(key);
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (const key of map.keys()) {
+				map.delete(key);
+				map.set(key, value);
+			}
+		`,
+		outdent`
+			for (const [key, value] of map.entries()) {
 				map.delete(key);
 				map.set(key, value);
 			}
