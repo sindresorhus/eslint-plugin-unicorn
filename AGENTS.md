@@ -210,6 +210,8 @@ Always try to provide an autofix if it cannot change runtime behavior. If an aut
 
 Do not complicate autofixes to handle shadowed built-in globals like `Number`, `Math`, `parseInt`, or `parseFloat`. Treat that as unsupported unless the rule already has a simple, local scope-safety check for another reason.
 
+Do not complicate autofixes to preserve Proxy or accessor side effects. Treat that as unsupported.
+
 When writing fix functions:
 
 1. **Comments** - Fixes must not remove or relocate comments. If the node being replaced/removed contains comments, either skip the fix (use `abort()`) or use range-aware replacements that preserve them. Check with `sourceCode.getCommentsInside(node)`.
