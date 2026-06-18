@@ -43,9 +43,7 @@ const typedArrayTypeNames = [
 	'BigUint64Array',
 ];
 
-const indexedInstanceTypeNames = new Set([
-	'Array',
-	'String',
+const typedArrayInstanceTypeNames = new Set([
 	'Uint8Array',
 	...typedArrayTypeNames,
 ]);
@@ -757,6 +755,8 @@ const nativeObjects = new Map(Object.entries({
 			methods: [
 				'concat',
 				'from',
+				'zip',
+				'zipKeyed',
 			],
 		}),
 	},
@@ -1052,6 +1052,24 @@ const getStaticPropertyName = node => {
 
 const isArrayIndexString = string => /^(?:0|[1-9]\d*)$/.test(string);
 
+const isCanonicalNumericIndexString = string => string === '-0' || String(Number(string)) === string;
+
+const isIndexedAccess = ({typeName, usage}, propertyName) => {
+	if (usage !== 'instance') {
+		return false;
+	}
+
+	if (
+		typeName === 'Array'
+		|| typeName === 'String'
+	) {
+		return isArrayIndexString(propertyName);
+	}
+
+	return typedArrayInstanceTypeNames.has(typeName)
+		&& isCanonicalNumericIndexString(propertyName);
+};
+
 const isGlobalObjectReference = (node, context) => {
 	node = unwrapExpression(node);
 
@@ -1271,9 +1289,7 @@ const create = context => {
 		}
 
 		if (
-			nativeObjectReference.usage === 'instance'
-			&& indexedInstanceTypeNames.has(nativeObjectReference.typeName)
-			&& isArrayIndexString(propertyName)
+			isIndexedAccess(nativeObjectReference, propertyName)
 		) {
 			return;
 		}
