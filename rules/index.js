@@ -64,6 +64,7 @@ export {default as 'no-declarations-before-early-exit'} from './no-declarations-
 export {default as 'no-document-cookie'} from './no-document-cookie.js';
 export {default as 'no-double-comparison'} from './no-double-comparison.js';
 export {default as 'no-duplicate-if-branches'} from './no-duplicate-if-branches.js';
+export {default as 'no-duplicate-logical-operands'} from './no-duplicate-logical-operands.js';
 export {default as 'no-duplicate-loops'} from './no-duplicate-loops.js';
 export {default as 'no-duplicate-set-values'} from './no-duplicate-set-values.js';
 export {default as 'no-empty-file'} from './no-empty-file.js';
