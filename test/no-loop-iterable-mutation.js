@@ -1,7 +1,21 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {
+			projectService: {
+				allowDefaultProject: ['*.ts'],
+			},
+		},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -195,6 +209,13 @@ test.snapshot({
 				set.delete(value);
 			}
 		`,
+		typeAware(outdent`
+			declare function getSet(): Set<string>;
+			const set = getSet();
+			for (const value of set.values()) {
+				set.delete(value);
+			}
+		`),
 		outdent`
 			for (const value of set['values']()) {
 				set.add(value);
@@ -513,6 +534,13 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const set = new Set();
+			for (const value of set.values()) {
+				set.delete(value);
+				set.add(value);
+			}
+		`,
+		outdent`
 			for (const value of set['values']()) {
 				set.delete(value);
 			}
@@ -623,6 +651,12 @@ test.snapshot({
 				map.delete(entry);
 			}
 		`,
+		outdent`
+			const map = new Map();
+			for (const entry of map) {
+				map.set(entry, value);
+			}
+		`,
 		{
 			code: outdent`
 				const set: Set<[string]> = new Set();
@@ -704,6 +738,16 @@ test.snapshot({
 		outdent`
 			for (const value of map.values()) {
 				map.clear();
+			}
+		`,
+		outdent`
+			for (const value of map.values()) {
+				map.delete(value);
+			}
+		`,
+		outdent`
+			for (const value of map.values()) {
+				map.set(value, newValue);
 			}
 		`,
 		outdent`
