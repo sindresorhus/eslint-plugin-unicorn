@@ -13,7 +13,7 @@ Deletion is already safe when the property, key, or value does not exist. Guardi
 
 This rule reports simple `in` checks before object property deletion for statically known object values, including object and array literals, function, arrow function, and class expressions assigned to `const` variables, and declared TypeScript `object`, function, or constructor annotations. TypeScript type assertions and `satisfies` expressions are treated as runtime-transparent and do not make an unknown receiver known. It also reports `.has()` checks before deletion from known local `const` variables initialized with global `Map`, `Set`, `WeakMap`, or `WeakSet`.
 
-The rule is intentionally conservative. It does not report `else` branches, compound conditions, unknown object receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only TypeScript intersection types, type-only collection annotations, or cases where the receiver, syntactically side-effectful key expressions, or statically known object-valued keys may make removing the guard observable.
+The rule is intentionally conservative. It does not report `else` branches, compound conditions, unknown object receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only TypeScript intersection types, type-only collection annotations, or cases where the receiver, syntactically side-effectful key expressions, statically known object-valued keys, or keys initialized by calls with non-static return values may make removing the guard observable.
 
 The rule assumes collection methods and prototypes on locally created `Map`, `Set`, `WeakMap`, and `WeakSet` instances retain their native behavior.
 

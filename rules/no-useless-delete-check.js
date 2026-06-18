@@ -100,29 +100,6 @@ const isFunctionOrClassDeclarationReference = (node, context) => {
 	return variable?.defs.some(definition => functionOrClassDefinitionTypes.has(definition.type)) ?? false;
 };
 
-const isGlobalIdentifier = (node, name, context) =>
-	node.type === 'Identifier'
-	&& node.name === name
-	&& context.sourceCode.isGlobalReference(node);
-
-const isGlobalObjectConstructor = (node, context) => {
-	if (isGlobalIdentifier(node, 'Object', context)) {
-		return true;
-	}
-
-	return node.type === 'MemberExpression'
-		&& !node.optional
-		&& !node.computed
-		&& isGlobalIdentifier(unwrapTypeScriptExpression(node.object), 'globalThis', context)
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'Object';
-};
-
-const isKnownObjectWrapperCall = (node, context) =>
-	node.type === 'CallExpression'
-	&& !node.optional
-	&& isGlobalObjectConstructor(unwrapTypeScriptExpression(node.callee), context);
-
 const isCollectionConstructor = (node, context) =>
 	node.type === 'Identifier'
 	&& collectionConstructors.has(node.name)
@@ -166,6 +143,17 @@ const getStaticPropertyKey = (node, context) => {
 		: undefined;
 };
 
+const unwrapChainExpression = node =>
+	node.type === 'ChainExpression' ? node.expression : node;
+
+const isOpaqueCallPropertyKey = (node, context) => {
+	node = unwrapChainExpression(node);
+	return (
+		node.type === 'CallExpression'
+		&& getStaticPropertyKey(node, context) === undefined
+	);
+};
+
 const isKnownObject = (node, context) => {
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
 
@@ -193,7 +181,7 @@ const isKnownObject = (node, context) => {
 	return isObjectTypeAnnotation(getTypeAnnotation(node, context));
 };
 
-const isKnownObjectPropertyKey = (node, context) => {
+const mayNeedRepeatedPropertyKeyCoercion = (node, context) => {
 	if (isKnownObject(node, context)) {
 		return true;
 	}
@@ -209,12 +197,12 @@ const isKnownObjectPropertyKey = (node, context) => {
 
 	const unwrappedInitializer = unwrapTypeScriptExpression(initializer);
 	return unwrappedInitializer.type === 'NewExpression'
-		|| isKnownObjectWrapperCall(unwrappedInitializer, context);
+		|| isOpaqueCallPropertyKey(unwrappedInitializer, context);
 };
 
 const isSamePropertyKey = (left, right, context) => {
 	if (isSameReference(left, right)) {
-		return !isKnownObjectPropertyKey(left, context);
+		return !mayNeedRepeatedPropertyKeyCoercion(left, context);
 	}
 
 	const leftKey = getStaticPropertyKey(left, context);

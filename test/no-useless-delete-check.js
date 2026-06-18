@@ -98,6 +98,32 @@ test.snapshot({
 				delete object[key];
 			}
 		`,
+		outdent`
+			const object = {key: true};
+			const key = Object.freeze({
+				toString() {
+					sideEffect();
+					return 'key';
+				},
+			});
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {};
+			const key = getKey();
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {};
+			const key = getKey?.();
+			if (key in object) {
+				delete object[key];
+			}
+		`,
 		'if (key in getObject()) { delete getObject()[key]; }',
 		'function object() {} if ("key" in object) { delete object.key; }',
 		'class ObjectLike {} if ("key" in ObjectLike) { delete ObjectLike.key; }',
@@ -218,6 +244,7 @@ test.snapshot({
 		'const object = {}; if (1 in object) { delete object[1]; }',
 		'const object = {}; if (null in object) { delete object.null; }',
 		'const object = {}; if (null in object) { delete object["null"]; }',
+		'const object = {}; const key = String("key"); if (key in object) { delete object[key]; }',
 		'const object = {}; if ((key) in (object)) { delete (object)[(key)]; }',
 		'const object = []; if (key in object) { delete object[key]; }',
 		'const object = /regexp/; if ("source" in object) { delete object.source; }',
@@ -248,6 +275,10 @@ test.snapshot({
 		},
 		{
 			code: 'function f(object: object, key: string) { if (key in (object as object)) { delete (object as object)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(object: new () => object, key: string) { if (key in object) { delete object[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
