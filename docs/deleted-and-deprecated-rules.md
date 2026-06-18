@@ -18,6 +18,10 @@ Replaced by [`no-unnecessary-slice-end`](rules/no-unnecessary-slice-end.md) whic
 
 Replaced by [`prefer-unicode-code-point-escapes`](rules/prefer-unicode-code-point-escapes.md) which covers more cases.
 
+### prevent-abbreviations
+
+This rule was renamed to [`name-replacements`](rules/name-replacements.md).
+
 ### prefer-dom-node-dataset
 
 This rule was renamed to [`dom-node-dataset`](rules/dom-node-dataset.md).

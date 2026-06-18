@@ -10,7 +10,7 @@ import {
 	lowerFirst,
 	isVirtualFilename,
 } from './utils/index.js';
-import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/abbreviations.js';
+import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/name-replacements.js';
 import {
 	isClassVariable,
 	shouldCheckDefaultOrNamespaceImportName,
@@ -575,8 +575,8 @@ const schema = {
 					description: 'Whether to extend the default replacements.',
 				},
 				replacements: {
-					$ref: '#/definitions/abbreviations',
-					description: 'Custom abbreviation replacements.',
+					$ref: '#/definitions/nameReplacements',
+					description: 'Custom name replacements.',
 				},
 				extendDefaultAllowList: {
 					type: 'boolean',
@@ -595,7 +595,7 @@ const schema = {
 		},
 	],
 	definitions: {
-		abbreviations: {
+		nameReplacements: {
 			type: 'object',
 			additionalProperties: {
 				$ref: '#/definitions/replacements',
@@ -628,7 +628,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prevent abbreviations.',
+			description: 'Enforce replacements for variable, property, and filenames.',
 			recommended: true,
 		},
 		fixable: 'code',
