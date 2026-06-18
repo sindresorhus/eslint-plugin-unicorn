@@ -13,8 +13,22 @@ const messages = {
 const isStringThen = (node, context) =>
 	getStaticValue(node, context.sourceCode.getScope(node))?.value === 'then';
 
-const isPropertyThen = (node, context) =>
-	getPropertyName(node, context.sourceCode.getScope(node)) === 'then';
+// Resolves the property/member key name, avoiding the cost of `sourceCode.getScope()`
+// for the common non-computed and string-literal cases. Only computed keys that
+// reference variables need scope resolution.
+const isThenKey = (node, context) => {
+	const keyNode = node.type === 'MemberExpression' ? node.property : node.key;
+
+	if (keyNode.type === 'Literal') {
+		return keyNode.value === 'then';
+	}
+
+	if (!node.computed && keyNode.type === 'Identifier') {
+		return keyNode.name === 'then';
+	}
+
+	return getPropertyName(node, context.sourceCode.getScope(node)) === 'then';
+};
 
 const cases = [
 	// `{then() {}}`,
@@ -25,7 +39,7 @@ const cases = [
 		selector: 'ObjectExpression',
 		* getNodes(node, context) {
 			for (const property of node.properties) {
-				if (property.type === 'Property' && isPropertyThen(property, context)) {
+				if (property.type === 'Property' && isThenKey(property, context)) {
 					yield property.key;
 				}
 			}
@@ -39,7 +53,7 @@ const cases = [
 	{
 		selectors: ['PropertyDefinition', 'MethodDefinition'],
 		* getNodes(node, context) {
-			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
+			if (isThenKey(node, context)) {
 				yield node.key;
 			}
 		},
@@ -54,7 +68,7 @@ const cases = [
 				return;
 			}
 
-			if (getPropertyName(node, context.sourceCode.getScope(node)) === 'then') {
+			if (isThenKey(node, context)) {
 				yield node.property;
 			}
 		},

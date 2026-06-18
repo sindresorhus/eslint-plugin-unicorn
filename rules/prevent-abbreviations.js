@@ -465,13 +465,15 @@ const create = context => {
 			return;
 		}
 
-		const identifierReplacements = getNameReplacements(node.name, options);
-
-		if (identifierReplacements.total === 0) {
+		// The cheap AST check filters out non-property identifiers before the more
+		// expensive name analysis in `getNameReplacements`.
+		if (!shouldReportIdentifierAsProperty(node)) {
 			return;
 		}
 
-		if (!shouldReportIdentifierAsProperty(node)) {
+		const identifierReplacements = getNameReplacements(node.name, options);
+
+		if (identifierReplacements.total === 0) {
 			return;
 		}
 

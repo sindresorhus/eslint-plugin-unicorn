@@ -144,13 +144,17 @@ const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) => {
 
 const getLengthCheckProblem = (node, context) => {
 	const {sourceCode} = context;
-	const querySelectorAllCall = getQuerySelectorAllCallForLengthCheck(node, sourceCode);
-	if (!querySelectorAllCall) {
+
+	// Cheap structural checks first, so the expensive scope resolution in
+	// `getQuerySelectorAllCallForLengthCheck` runs only for identifiers that are
+	// actually used as a control-flow test.
+	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node, context);
+	if (!isControlFlowTest(booleanAncestor)) {
 		return;
 	}
 
-	const {node: booleanAncestor, isNegative} = getBooleanAncestor(node, context);
-	if (!isControlFlowTest(booleanAncestor)) {
+	const querySelectorAllCall = getQuerySelectorAllCallForLengthCheck(node, sourceCode);
+	if (!querySelectorAllCall) {
 		return;
 	}
 

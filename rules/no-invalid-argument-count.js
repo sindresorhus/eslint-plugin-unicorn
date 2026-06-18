@@ -1115,9 +1115,11 @@ const isConfiguredArgumentCountInvalid = (expectedArgumentCount, callArguments) 
 		: hasInvalidArgumentCount(expectedArgumentCount, callArguments.length);
 };
 
-const getMemberPathParts = (node, context, checkGlobal) => {
-	const parts = [];
+// Collects the dotted callee path and its root node without resolving any scope.
+const getCalleeRawPath = node => {
+	node = unwrapExpression(node);
 
+	const parts = [];
 	while (node.type === 'MemberExpression' && !node.computed) {
 		if (node.property.type !== 'Identifier') {
 			return;
@@ -1128,48 +1130,28 @@ const getMemberPathParts = (node, context, checkGlobal) => {
 	}
 
 	if (node.type === 'Identifier') {
-		if (checkGlobal && !isGlobalIdentifier(node, context)) {
-			return;
-		}
-
 		parts.unshift(node.name);
-
-		if (checkGlobal) {
-			while (
-				parts.length > 1
-				&& globalObjectNames.has(parts[0])
-			) {
-				parts.shift();
-			}
-		}
-
-		return parts;
+		return {parts, root: node};
 	}
 
-	if (!checkGlobal && node.type === 'ThisExpression') {
+	if (node.type === 'ThisExpression') {
 		parts.unshift('this');
-		return parts;
+		return {parts, root: node};
 	}
 };
 
-const getCalleePathParts = (node, context, checkGlobal) => {
-	node = unwrapExpression(node);
-
-	if (node.type === 'Identifier') {
-		return !checkGlobal || isGlobalIdentifier(node, context)
-			? [node.name]
-			: undefined;
+const stripGlobalObjectNames = parts => {
+	let start = 0;
+	while (start < parts.length - 1 && globalObjectNames.has(parts[start])) {
+		start++;
 	}
 
-	return getMemberPathParts(node, context, checkGlobal);
+	return start === 0 ? parts : parts.slice(start);
 };
 
-const isPathMatch = (pathParts, pattern) => {
-	const patternParts = pattern.split('.');
-
-	return pathParts.length === patternParts.length
-		&& patternParts.every((part, index) => part === '*' || pathParts[index] === part);
-};
+const isMatchingParts = (pathParts, patternParts) =>
+	pathParts.length === patternParts.length
+	&& patternParts.every((part, index) => part === '*' || pathParts[index] === part);
 
 const parsePattern = pattern => {
 	if (pattern.startsWith('new ')) {
@@ -1210,17 +1192,95 @@ const createConfiguredArgumentCountEntries = (customArgumentCounts = {}) => {
 	return entries;
 };
 
-const getConfiguredArgumentCountProblem = (expression, entries, context) => {
-	for (const entry of entries) {
-		if (expression.type !== entry.type) {
-			continue;
+const createBuckets = () => ({
+	exactGlobal: new Map(),
+	exactLocal: new Map(),
+	wildcardGlobal: [],
+	wildcardLocal: [],
+});
+
+// Indexes the entries by expression type for O(1) exact-pattern lookups, keeping each
+// entry's original position so the first matching entry still wins.
+const buildLookup = entries => {
+	const lookup = {
+		CallExpression: createBuckets(),
+		NewExpression: createBuckets(),
+	};
+
+	for (const [index, entry] of entries.entries()) {
+		const buckets = lookup[entry.type];
+		const indexedEntry = {...entry, index};
+
+		if (entry.pattern.includes('*')) {
+			indexedEntry.patternParts = entry.pattern.split('.');
+			(entry.checkGlobal ? buckets.wildcardGlobal : buckets.wildcardLocal).push(indexedEntry);
+		} else {
+			(entry.checkGlobal ? buckets.exactGlobal : buckets.exactLocal).set(entry.pattern, indexedEntry);
+		}
+	}
+
+	return lookup;
+};
+
+const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
+	const calleePath = getCalleeRawPath(expression.callee);
+	if (!calleePath) {
+		return;
+	}
+
+	const {parts, root} = calleePath;
+	const buckets = lookup[expression.type];
+	const candidates = [];
+
+	// Local patterns match the raw path, without resolving scope.
+	if (buckets.exactLocal.size > 0 || buckets.wildcardLocal.length > 0) {
+		const entry = buckets.exactLocal.get(parts.join('.'));
+		if (entry) {
+			candidates.push(entry);
 		}
 
-		const pathParts = getCalleePathParts(expression.callee, context, entry.checkGlobal);
-		if (!pathParts || !isPathMatch(pathParts, entry.pattern)) {
-			continue;
+		for (const wildcardEntry of buckets.wildcardLocal) {
+			if (isMatchingParts(parts, wildcardEntry.patternParts)) {
+				candidates.push(wildcardEntry);
+			}
+		}
+	}
+
+	// Global patterns match the path with leading global-object names stripped, and only
+	// when the root identifier truly refers to a global binding. The scope lookup is
+	// deferred until a pattern actually matches, since that is rare in real code.
+	if (
+		root.type === 'Identifier'
+		&& (buckets.exactGlobal.size > 0 || buckets.wildcardGlobal.length > 0)
+	) {
+		const globalParts = stripGlobalObjectNames(parts);
+		const globalCandidates = [];
+
+		const entry = buckets.exactGlobal.get(globalParts.join('.'));
+		if (entry) {
+			globalCandidates.push(entry);
 		}
 
+		for (const wildcardEntry of buckets.wildcardGlobal) {
+			if (isMatchingParts(globalParts, wildcardEntry.patternParts)) {
+				globalCandidates.push(wildcardEntry);
+			}
+		}
+
+		if (globalCandidates.length > 0 && isGlobalIdentifier(root, context)) {
+			candidates.push(...globalCandidates);
+		}
+	}
+
+	if (candidates.length === 0) {
+		return;
+	}
+
+	// Local candidates are collected before global ones, so restore the original entry
+	// order to keep the first configured pattern winning.
+	candidates.sort((left, right) => left.index - right.index);
+
+	for (const entry of candidates) {
 		if (!isConfiguredArgumentCountInvalid(entry.expectedArgumentCount, expression.arguments)) {
 			continue;
 		}
@@ -1241,10 +1301,10 @@ const getConfiguredArgumentCountProblem = (expression, entries, context) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const configuredArgumentCountEntries = createConfiguredArgumentCountEntries(context.options[0]);
+	const lookup = buildLookup(createConfiguredArgumentCountEntries(context.options[0]));
 
 	context.on('CallExpression', callExpression => {
-		const configuredArgumentCountProblem = getConfiguredArgumentCountProblem(callExpression, configuredArgumentCountEntries, context);
+		const configuredArgumentCountProblem = getConfiguredArgumentCountProblem(callExpression, lookup, context);
 		if (configuredArgumentCountProblem) {
 			return configuredArgumentCountProblem;
 		}
@@ -1277,7 +1337,7 @@ const create = context => {
 		};
 	});
 
-	context.on('NewExpression', newExpression => getConfiguredArgumentCountProblem(newExpression, configuredArgumentCountEntries, context));
+	context.on('NewExpression', newExpression => getConfiguredArgumentCountProblem(newExpression, lookup, context));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

@@ -196,6 +196,11 @@ function getProblem({
 }
 
 function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
+	// Resolve each statement to itself when it is a guard (or `undefined` otherwise) at most
+	// once per list, instead of re-running the code-path-analysis check for every
+	// declaration/statement pair.
+	let guards;
+
 	for (const [declarationIndex, declaration] of statements.entries()) {
 		if (
 			!isLetOrConstDeclaration(declaration)
@@ -204,8 +209,11 @@ function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 			continue;
 		}
 
-		for (const [guardIndex, guardStatement] of statements.entries()) {
-			if (guardIndex <= declarationIndex || !isGuardStatement(guardStatement, branchAlwaysExits)) {
+		guards ??= statements.map(statement => isGuardStatement(statement, branchAlwaysExits) ? statement : undefined);
+
+		for (let guardIndex = declarationIndex + 1; guardIndex < statements.length; guardIndex++) {
+			const guardStatement = guards[guardIndex];
+			if (!guardStatement) {
 				continue;
 			}
 
