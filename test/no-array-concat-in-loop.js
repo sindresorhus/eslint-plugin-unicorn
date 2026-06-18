@@ -152,6 +152,12 @@ test.snapshot({
 			for (let index = 0; index < chunks.length; result = result.concat(chunks[index++])) {}
 		`,
 		outdent`
+			let result = [];
+			for (const chunk of chunks) {
+				result = (result.concat(chunk));
+			}
+		`,
+		outdent`
 			var result = [];
 			for (const chunk of chunks) {
 				result = result.concat(chunk);

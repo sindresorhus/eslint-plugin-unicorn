@@ -491,6 +491,26 @@ ruleTest.snapshot({
 				result = (result.concat([chunk]));
 			}
 		`,
+		outdent`
+			for (let result = []; condition; result = result.concat(chunk)) {}
+		`,
+		outdent`
+			for (let result = []; condition;) {
+				result = result.concat(chunk);
+			}
+		`,
+		typescript(outdent`
+			let result = [] as string[];
+			for (const chunk of chunks) {
+				result = (result as string[]).concat(chunk);
+			}
+		`),
+		typescript(outdent`
+			let result = [] as string[];
+			for (const chunk of chunks) {
+				result = (result.concat(chunk) as string[]);
+			}
+		`),
 		'if (!Array.isArray(object.foo)) { object.foo = object.foo.concat(bar); }',
 		'if (!Array.isArray(object["foo"])) { object.foo.concat(bar); }',
 		'let foo; if (Array.isArray(foo)) { foo = []; } else { foo.concat(bar); }',
