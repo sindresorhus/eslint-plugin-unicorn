@@ -39,6 +39,7 @@ test.snapshot({
 		'if (map.has(...key)) { map.delete(key); }',
 		'if (map.has(key)) { map.delete(...key); }',
 		'if (cache.has(key)) { cache.delete(key); }',
+		'let map = new Map(); if (map.has(key)) { map.delete(key); }',
 		'if (map.has(getKey())) { map.delete(getKey()); }',
 		'const map = new Map(); if (map.has(getKey())) { map.delete(getKey()); }',
 		'const weakMap = new WeakMap(); if (weakMap.has({})) { weakMap.delete({}); }',
@@ -92,6 +93,7 @@ test.snapshot({
 			}
 		`,
 		'const map = new Map(); if (map.has(key)) { map.delete(key); }',
+		'const map = new Map(); if (map.has(key)) map.delete(key);',
 		'const map = new Map(); if (map.has("key")) { map.delete("key"); }',
 		'const map = new Map(); if (map.has(1)) { map.delete(1); }',
 		'const set = new Set(); if (set.has(value)) { set.delete(value); }',
@@ -100,6 +102,10 @@ test.snapshot({
 		'const map = new Map(); if ((map).has((key))) { (map).delete((key)); }',
 		{
 			code: 'const map = new Map(); if (map.has(key as string)) { map.delete(key as string); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const map = new Map() as Map<string, number>; if (map.has(key)) { map.delete(key); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		outdent`

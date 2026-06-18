@@ -156,6 +156,15 @@ const isSamePropertyKey = (left, right, context) => {
 const isSafeExpression = (node, context) =>
 	!hasSideEffect(node, context.sourceCode, hasSideEffectOptions);
 
+const isOneArgumentMethodCall = (node, method) => isMethodCall(node, {
+	method,
+	argumentsLength: 1,
+	computed: false,
+	optionalCall: false,
+	optionalMember: false,
+	allowSpreadElement: false,
+});
+
 function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 	const {test} = ifStatement;
 	const {argument} = deleteExpression;
@@ -174,16 +183,15 @@ function getObjectDeleteProblem(ifStatement, deleteExpression, context) {
 		return;
 	}
 
+	let propertyMatches;
 	if (argument.computed) {
-		return isSamePropertyKey(test.left, argument.property, context)
-			? {
-				suggest: [getSuggestion(ifStatement, deleteExpression, context)],
-			}
-			: undefined;
+		propertyMatches = isSamePropertyKey(test.left, argument.property, context);
+	} else {
+		const propertyName = getPropertyName(argument, context.sourceCode.getScope(argument));
+		propertyMatches = propertyName !== null && propertyName === getStaticPropertyKey(test.left, context);
 	}
 
-	const propertyName = getPropertyName(argument, context.sourceCode.getScope(argument));
-	return propertyName !== null && getStaticPropertyKey(test.left, context) === propertyName
+	return propertyMatches
 		? {
 			suggest: [getSuggestion(ifStatement, deleteExpression, context)],
 		}
@@ -194,22 +202,8 @@ function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 	const {test} = ifStatement;
 
 	if (!(
-		isMethodCall(test, {
-			method: 'has',
-			argumentsLength: 1,
-			computed: false,
-			optionalCall: false,
-			optionalMember: false,
-			allowSpreadElement: false,
-		})
-		&& isMethodCall(callExpression, {
-			method: 'delete',
-			argumentsLength: 1,
-			computed: false,
-			optionalCall: false,
-			optionalMember: false,
-			allowSpreadElement: false,
-		})
+		isOneArgumentMethodCall(test, 'has')
+		&& isOneArgumentMethodCall(callExpression, 'delete')
 		&& isKnownCollection(test.callee.object, context)
 		&& isSameReference(test.callee.object, callExpression.callee.object)
 		&& isSameReference(test.arguments[0], callExpression.arguments[0])
@@ -220,7 +214,7 @@ function getCollectionDeleteProblem(ifStatement, callExpression, context) {
 	}
 
 	return {
-		fix: fix(ifStatement, callExpression, context),
+		fix: getFix(ifStatement, callExpression, context),
 	};
 }
 
@@ -251,7 +245,7 @@ function getProblem(ifStatement, context) {
 	return getCollectionDeleteProblem(ifStatement, expression, context);
 }
 
-const fix = (ifStatement, deleteExpression, context) => fixer => {
+const getFix = (ifStatement, deleteExpression, context) => fixer => {
 	if (hasCommentInRange(context, context.sourceCode.getRange(ifStatement))) {
 		return;
 	}
@@ -271,7 +265,7 @@ const fix = (ifStatement, deleteExpression, context) => fixer => {
 
 const getSuggestion = (ifStatement, deleteExpression, context) => ({
 	messageId: SUGGESTION_MESSAGE_ID,
-	fix: fix(ifStatement, deleteExpression, context),
+	fix: getFix(ifStatement, deleteExpression, context),
 });
 
 /** @param {ESLint.Rule.RuleContext} context */

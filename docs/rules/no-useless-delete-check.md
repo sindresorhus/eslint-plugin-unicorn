@@ -11,7 +11,7 @@
 
 Deletion is already safe when the property, key, or value does not exist. Guarding the deletion with an existence check often adds unnecessary code.
 
-This rule reports simple `in` checks before object property deletion, and `.has()` checks before deletion from known local `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
+This rule reports simple `in` checks before object property deletion, and `.has()` checks before deletion from known local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
 
 The rule is intentionally conservative. It does not report `else` branches, compound conditions, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only collection annotations, or cases where the receiver or key may have side effects.
 
@@ -43,6 +43,8 @@ map.delete(key);
 
 ```js
 // ❌
+const set = new Set();
+
 if (set.has(value)) {
 	set.delete(value);
 }
