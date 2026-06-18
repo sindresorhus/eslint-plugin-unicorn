@@ -1,6 +1,6 @@
 # no-duplicate-logical-operands
 
-📝 Disallow duplicate operands in logical expressions.
+📝 Disallow adjacent duplicate operands in logical expressions.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Using the same reference on both sides of `&&` or `||` is usually a copy-paste mistake or redundant code. `foo && foo` and `foo || foo` evaluate the same reference twice and can be simplified to `foo`.
+Using the same reference on adjacent sides of `&&` or `||` is usually a copy-paste mistake or redundant code. `foo && foo` and `foo || foo` evaluate the same reference twice and can be simplified to `foo`.
 
-This rule is intentionally narrow. It only checks duplicate logical operands. It does not check self-comparisons like `foo > foo`; use ESLint's [`no-self-compare`](https://eslint.org/docs/latest/rules/no-self-compare) for that. It also does not check constant short-circuit expressions like `true && foo`; use ESLint's [`no-constant-binary-expression`](https://eslint.org/docs/latest/rules/no-constant-binary-expression) for that.
+This rule is intentionally narrow. It only checks adjacent duplicate logical operands. It does not check non-adjacent repeats like `foo && bar && foo`. It does not check self-comparisons like `foo > foo`; use ESLint's [`no-self-compare`](https://eslint.org/docs/latest/rules/no-self-compare) for that. It also does not check constant short-circuit expressions like `true && foo`; use ESLint's [`no-constant-binary-expression`](https://eslint.org/docs/latest/rules/no-constant-binary-expression) for that.
 
 Related Unicorn rules cover different comparison patterns:
 

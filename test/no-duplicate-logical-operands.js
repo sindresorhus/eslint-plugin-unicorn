@@ -7,6 +7,8 @@ test.snapshot({
 		// Different operands.
 		'foo && bar',
 		'foo || bar',
+
+		// Non-adjacent duplicates are ignored.
 		'foo && bar && foo',
 		'foo && (foo && bar)',
 
@@ -59,8 +61,10 @@ test.snapshot({
 
 		// TypeScript wrappers around references are ignored for matching.
 		{code: '(foo as boolean) && (foo as boolean)', languageOptions: {parser: parsers.typescript}},
+		{code: '(foo as Foo) && (foo as Bar)', languageOptions: {parser: parsers.typescript}},
 		{code: '(<boolean>foo) && (<boolean>foo)', languageOptions: {parser: parsers.typescript}},
 		{code: 'foo! || foo!', languageOptions: {parser: parsers.typescript}},
+		{code: 'foo! && foo', languageOptions: {parser: parsers.typescript}},
 		{code: '(foo satisfies boolean) && (foo satisfies boolean)', languageOptions: {parser: parsers.typescript}},
 
 		// Comments outside the retained left operand disable fixes and suggestions.

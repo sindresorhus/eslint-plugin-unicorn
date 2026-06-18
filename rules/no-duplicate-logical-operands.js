@@ -50,10 +50,7 @@ const isSimpleReference = node => {
 	}
 };
 
-const isSafelyAutofixableReference = node => {
-	node = unwrapExpression(node);
-	return safelyAutofixableReferenceTypes.has(node.type);
-};
+const isSafelyAutofixableReference = node => safelyAutofixableReferenceTypes.has(node.type);
 
 const isInsideWithStatement = node => {
 	for (let current = node.parent; current; current = current.parent) {
@@ -135,7 +132,7 @@ const config = {
 	meta: {
 		type: 'problem',
 		docs: {
-			description: 'Disallow duplicate operands in logical expressions.',
+			description: 'Disallow adjacent duplicate operands in logical expressions.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
