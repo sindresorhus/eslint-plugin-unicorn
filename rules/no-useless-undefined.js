@@ -86,8 +86,12 @@ const getFunction = scope => {
 	}
 };
 
-const isUndefinedReturnType = functionNode =>
-	functionNode.returnType?.typeAnnotation?.type === 'TSUndefinedKeyword';
+// Matches a "pure-nothing" return type (`undefined` or `void`), where `return undefined` is always useless.
+// Union types like `number | undefined` are intentionally excluded, so the explicit `undefined` is preserved (#880).
+const isUndefinedOrVoidReturnType = functionNode => {
+	const type = functionNode.returnType?.typeAnnotation?.type;
+	return type === 'TSUndefinedKeyword' || type === 'TSVoidKeyword';
+};
 
 const isFunctionBindCall = node =>
 	!node.optional
@@ -309,7 +313,7 @@ const create = context => {
 			&& parent.argument === node
 		) {
 			const functionNode = getFunction(sourceCode.getScope(node));
-			if (functionNode?.returnType && !isUndefinedReturnType(functionNode)) {
+			if (functionNode?.returnType && !isUndefinedOrVoidReturnType(functionNode)) {
 				return;
 			}
 
