@@ -50,8 +50,7 @@ const getKind = node => {
 			return KIND_CLASS;
 		}
 
-		case 'FunctionDeclaration':
-		case 'ArrowFunctionExpression': {
+		case 'FunctionDeclaration': {
 			return KIND_FUNCTION;
 		}
 
