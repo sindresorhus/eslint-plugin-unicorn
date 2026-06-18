@@ -160,6 +160,7 @@ export {default as 'no-useless-spread'} from './no-useless-spread.js';
 export {default as 'no-useless-switch-case'} from './no-useless-switch-case.js';
 export {default as 'no-useless-template-literals'} from './no-useless-template-literals.js';
 export {default as 'no-useless-undefined'} from './no-useless-undefined.js';
+export {default as 'no-xor-as-exponentiation'} from './no-xor-as-exponentiation.js';
 export {default as 'no-zero-fractions'} from './no-zero-fractions.js';
 export {default as 'number-literal-case'} from './number-literal-case.js';
 export {default as 'numeric-separators-style'} from './numeric-separators-style.js';
