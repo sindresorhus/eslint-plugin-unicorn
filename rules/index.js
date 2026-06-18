@@ -39,6 +39,7 @@ export {default as 'no-accessor-recursion'} from './no-accessor-recursion.js';
 export {default as 'no-accidental-bitwise-operator'} from './no-accidental-bitwise-operator.js';
 export {default as 'no-anonymous-default-export'} from './no-anonymous-default-export.js';
 export {default as 'no-array-callback-reference'} from './no-array-callback-reference.js';
+export {default as 'no-array-concat-in-loop'} from './no-array-concat-in-loop.js';
 export {default as 'no-array-fill-with-reference-type'} from './no-array-fill-with-reference-type.js';
 export {default as 'no-array-from-fill'} from './no-array-from-fill.js';
 export {default as 'no-array-front-mutation'} from './no-array-front-mutation.js';

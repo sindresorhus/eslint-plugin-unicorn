@@ -26,6 +26,7 @@ import {
 	isLiteral,
 	isMethodCall,
 } from './ast/index.js';
+import {isArrayConcatInLoopCall} from './shared/array-concat-in-loop.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -1306,6 +1307,10 @@ const create = context => {
 			optionalCall: false,
 			optionalMember: false,
 		})) {
+			return;
+		}
+
+		if (isArrayConcatInLoopCall(node, context)) {
 			return;
 		}
 
