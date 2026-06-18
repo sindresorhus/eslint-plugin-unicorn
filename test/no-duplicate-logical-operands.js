@@ -41,6 +41,8 @@ test.snapshot({
 		// Identifiers are autofixed.
 		'foo && foo',
 		'foo || foo',
+		'foo && bar && bar',
+		'foo || bar || bar',
 		'(foo) && (foo)',
 		'this && this',
 
@@ -48,19 +50,23 @@ test.snapshot({
 		'foo.bar && foo.bar',
 		'foo.bar || foo.bar',
 		'foo.bar.baz && foo.bar.baz',
+		'foo && bar.baz && bar.baz',
 		'this.foo && this.foo',
+		'class Foo {#foo; method() {return this.#foo && this.#foo;}}',
 		'class Foo extends Bar {method() {return super.foo && super.foo;}}',
 		'foo[bar] && foo[bar]',
 		'foo["bar"] || foo.bar',
 
 		// TypeScript wrappers around references are ignored for matching.
 		{code: '(foo as boolean) && (foo as boolean)', languageOptions: {parser: parsers.typescript}},
+		{code: '(<boolean>foo) && (<boolean>foo)', languageOptions: {parser: parsers.typescript}},
 		{code: 'foo! || foo!', languageOptions: {parser: parsers.typescript}},
 		{code: '(foo satisfies boolean) && (foo satisfies boolean)', languageOptions: {parser: parsers.typescript}},
 
 		// Comments outside the retained left operand disable fixes and suggestions.
 		'foo /* keep */ && foo',
 		'foo && /* keep */ foo',
+		'foo && bar /* keep */ && bar',
 		'foo && (foo /* keep */)',
 
 		// Comments inside the retained left operand are preserved.

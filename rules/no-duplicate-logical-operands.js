@@ -6,7 +6,6 @@ import {
 } from './utils/comparison.js';
 
 /**
-@import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
 
@@ -75,6 +74,12 @@ const isCommentInsideOperand = (comment, operand, context) => {
 const canReplaceWithoutDroppingComments = (node, operand, context) =>
 	context.sourceCode.getCommentsInside(node).every(comment => isCommentInsideOperand(comment, operand, context));
 
+const getAdjacentLeftOperand = node => (
+	node.left.type === 'LogicalExpression' && node.left.operator === node.operator
+		? node.left.right
+		: node.left
+);
+
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	context.on('LogicalExpression', node => {
@@ -82,11 +87,13 @@ const create = context => {
 			return;
 		}
 
+		const adjacentLeftOperand = getAdjacentLeftOperand(node);
+
 		if (
 			isInsideWithStatement(node)
-			|| !isSimpleReference(node.left)
+			|| !isSimpleReference(adjacentLeftOperand)
 			|| !isSimpleReference(node.right)
-			|| !isSame(node.left, node.right)
+			|| !isSame(adjacentLeftOperand, node.right)
 		) {
 			return;
 		}
@@ -103,7 +110,7 @@ const create = context => {
 		const replacement = getParenthesizedText(node.left, context);
 		const fix = fixer => fixer.replaceText(node, replacement);
 
-		if (isSafelyAutofixableReference(node.left)) {
+		if (isSafelyAutofixableReference(adjacentLeftOperand)) {
 			return {
 				...problem,
 				fix,
