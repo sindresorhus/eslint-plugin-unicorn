@@ -273,7 +273,7 @@ function create(context) {
 		if (node) {
 			if (
 				(node === lengthNode && isLengthGuardedByNonZeroCheck(lengthNode, context))
-				|| hasSameObjectShapePropertyCheck({node, lengthNode})
+				|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: lengthNode})
 			) {
 				return;
 			}

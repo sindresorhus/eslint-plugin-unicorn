@@ -38,6 +38,14 @@ test({
 			code: 'if ((<Foo>this).size === -1) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'if ((array?.length as number) >= 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if ((array?.items as Items).length >= 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const value = {length: -1}; if (value.length < 0) {}',
 		'const value = {size: "small"}; if (value.size < 0) {}',
 		'const value = {length: NaN}; if (value.length < 0) {}',
@@ -88,6 +96,10 @@ test({
 		{
 			code: 'if (array.length < -Number.EPSILON) {}',
 			errors: [error],
+		},
+		{
+			code: 'if (array.length > -Number.EPSILON) {}',
+			errors: [lengthAlwaysTrueError],
 		},
 		{
 			code: 'if (0 > array.length) {}',

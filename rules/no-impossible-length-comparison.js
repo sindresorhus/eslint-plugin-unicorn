@@ -126,7 +126,7 @@ const create = context => {
 			isCustomClassReceiver(memberExpression)
 			|| isOptionalChainReceiver(memberExpression)
 			|| isKnownNonCollectionLengthOrSize(memberExpression, context)
-			|| hasSameObjectShapePropertyCheck({node, lengthNode: memberExpression})
+			|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: memberExpression})
 		) {
 			return;
 		}

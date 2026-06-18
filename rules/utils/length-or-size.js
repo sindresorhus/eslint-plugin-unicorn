@@ -30,7 +30,7 @@ function getLogicalExpressionOperands(node) {
 			: [child]);
 }
 
-export function hasSameObjectShapePropertyCheck({node, lengthNode}) {
+export function hasSameObjectShapePropertyCheck({node, lengthOrSizeNode}) {
 	const root = getLogicalExpressionRoot(node);
 	if (
 		root.type !== 'LogicalExpression'
@@ -44,7 +44,7 @@ export function hasSameObjectShapePropertyCheck({node, lengthNode}) {
 		&& isMemberExpression(operand, {computed: false, optional: false})
 		&& operand.property.type === 'Identifier'
 		&& shapeProperties.has(operand.property.name)
-		&& isSameReference(operand.object, lengthNode.object));
+		&& isSameReference(operand.object, lengthOrSizeNode.object));
 }
 
 export function isKnownNonCollectionLengthOrSize(memberExpression, context) {
