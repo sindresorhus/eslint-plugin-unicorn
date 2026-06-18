@@ -49,6 +49,11 @@ const knownObjectExpressionTypes = new Set([
 	'ObjectExpression',
 ]);
 
+const knownObjectDefinitionTypes = new Set([
+	'ClassName',
+	'FunctionName',
+]);
+
 // Type literals are excluded because primitives can structurally satisfy some object-shaped type literals.
 const objectTypeAnnotationTypes = new Set([
 	'TSConstructorType',
@@ -84,6 +89,15 @@ const isObjectTypeAnnotation = node => {
 	}
 
 	return node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type));
+};
+
+const hasKnownObjectDefinition = (node, context) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	return variable?.defs.some(definition => knownObjectDefinitionTypes.has(definition.type)) ?? false;
 };
 
 const isCollectionConstructor = (node, context) =>
@@ -122,7 +136,11 @@ const getSingleExpression = node => {
 
 const getStaticPropertyKey = (node, context) => {
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
-	return result && typeof result.value !== 'symbol' ? String(result.value) : undefined;
+	return result
+		&& typeof result.value !== 'symbol'
+		&& !isObjectValue(result.value)
+		? String(result.value)
+		: undefined;
 };
 
 const isKnownObject = (node, context) => {
@@ -145,12 +163,33 @@ const isKnownObject = (node, context) => {
 		}
 	}
 
+	if (hasKnownObjectDefinition(unwrapTypeScriptExpression(node), context)) {
+		return false;
+	}
+
 	return isObjectTypeAnnotation(getTypeAnnotation(node, context));
+};
+
+const isKnownObjectPropertyKey = (node, context) => {
+	if (isKnownObject(node, context)) {
+		return true;
+	}
+
+	if (hasKnownObjectDefinition(unwrapTypeScriptExpression(node), context)) {
+		return true;
+	}
+
+	const initializer = getConstVariableInitializer(unwrapTypeScriptExpression(node), context);
+	if (!initializer) {
+		return false;
+	}
+
+	return unwrapTypeScriptExpression(initializer).type === 'NewExpression';
 };
 
 const isSamePropertyKey = (left, right, context) => {
 	if (isSameReference(left, right)) {
-		return true;
+		return !isKnownObjectPropertyKey(left, context);
 	}
 
 	const leftKey = getStaticPropertyKey(left, context);

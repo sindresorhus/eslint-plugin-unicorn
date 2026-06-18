@@ -30,6 +30,52 @@ test.snapshot({
 		'if (key in object) { delete object?.[key]; }',
 		'const object = {}; if (getKey() in object) { delete object[getKey()]; }',
 		'const object = {}; if (key in object) { delete object[getKey()]; }',
+		outdent`
+			const object = {key: true};
+			const key = {
+				toString() {
+					sideEffect();
+					return 'key';
+				},
+			};
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {key: true};
+			const key = new class {
+				toString() {
+					sideEffect();
+					return 'key';
+				}
+			}();
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {key: true};
+			function key() {}
+			key.toString = () => {
+				sideEffect();
+				return 'key';
+			};
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {key: true};
+			class Key {}
+			Key.toString = () => {
+				sideEffect();
+				return 'key';
+			};
+			if (Key in object) {
+				delete object[Key];
+			}
+		`,
 		'if (key in getObject()) { delete getObject()[key]; }',
 		'function object() {} if ("key" in object) { delete object.key; }',
 		'class ObjectLike {} if ("key" in ObjectLike) { delete ObjectLike.key; }',
@@ -68,6 +114,22 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'function object() {} if ("key" in (object as object)) { delete (object as object).key; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'class ObjectLike {} if ("key" in (ObjectLike as object)) { delete (ObjectLike as object).key; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {key: true}; function key() {} key.toString = () => { sideEffect(); return "key"; }; if ((key as unknown) in object) { delete object[key as unknown]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {key: true}; class Key {} Key.toString = () => { sideEffect(); return "key"; }; if (Key! in object) { delete object[Key!]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function f(object: {}, key: string) { if (key in object) { delete object[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -102,6 +164,8 @@ test.snapshot({
 		'const object = {}; if ("key" in object) { delete object.key; }',
 		'const object = {}; if ("key" in object) { delete object["key"]; }',
 		'const object = {}; if (1 in object) { delete object[1]; }',
+		'const object = {}; if (null in object) { delete object.null; }',
+		'const object = {}; if (null in object) { delete object["null"]; }',
 		'const object = {}; if ((key) in (object)) { delete (object)[(key)]; }',
 		'const object = []; if (key in object) { delete object[key]; }',
 		'const object = /regexp/; if ("source" in object) { delete object.source; }',
