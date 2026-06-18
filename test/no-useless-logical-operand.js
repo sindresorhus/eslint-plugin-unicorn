@@ -60,10 +60,6 @@ test.snapshot({
 		{code: 'true && (\'use strict\' satisfies string);', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && \'use strict\'!;', languageOptions: {parser: parsers.typescript}},
 		{code: 'true && <const>\'use strict\';', languageOptions: {parser: parsers.typescript}},
-		{code: '(true && \'use strict\') as const;', languageOptions: {parser: parsers.typescript}},
-		{code: '(false || \'use strict\') satisfies string;', languageOptions: {parser: parsers.typescript}},
-		{code: '(true && \'use strict\')!;', languageOptions: {parser: parsers.typescript}},
-		{code: '<const>(true && \'use strict\');', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		// Leading identity operands.
@@ -156,6 +152,12 @@ test.snapshot({
 
 		// String literals outside directive prologues are still fixable.
 		'foo();\ntrue && \'use strict\';',
+
+		// TypeScript wrappers around the logical expression keep the replacement parenthesized.
+		{code: '(true && \'use strict\') as const;', languageOptions: {parser: parsers.typescript}},
+		{code: '(false || \'use strict\') satisfies string;', languageOptions: {parser: parsers.typescript}},
+		{code: '(true && \'use strict\')!;', languageOptions: {parser: parsers.typescript}},
+		{code: '<const>(true && \'use strict\');', languageOptions: {parser: parsers.typescript}},
 
 		// Comments inside the chain are reported but not fixed.
 		'const value = true /* keep */ && input;',
