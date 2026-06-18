@@ -136,9 +136,6 @@ const hasTypeScriptSyntaxInTree = (node, visitorKeys) => {
 	return false;
 };
 
-const hasTypeScriptDeclarationSyntax = (node, visitorKeys) =>
-	hasTypeScriptSyntaxInTree(node, visitorKeys);
-
 const hasSafeParametersForArrowConversion = (functionNode, context) =>
 	functionNode.params.every(parameter => !hasUnsafeArrowConversionReference(parameter, context.sourceCode.visitorKeys));
 
@@ -166,7 +163,7 @@ const getVariableArrowFunction = (node, context) => {
 		declarator.id.type !== 'Identifier'
 		|| hasTypeScriptSyntax(declarator.id)
 		|| declarator.init?.type !== 'ArrowFunctionExpression'
-		|| hasTypeScriptDeclarationSyntax(declarator.init, context.sourceCode.visitorKeys)
+		|| hasTypeScriptSyntaxInTree(declarator.init, context.sourceCode.visitorKeys)
 	) {
 		return;
 	}
@@ -197,14 +194,14 @@ const getSeparateDeclaration = (statement, context) => {
 const canConvertFunctionToArrow = (functionNode, context) =>
 	functionNode.type === 'FunctionDeclaration'
 	&& !functionNode.generator
-	&& !hasTypeScriptDeclarationSyntax(functionNode, context.sourceCode.visitorKeys)
+	&& !hasTypeScriptSyntaxInTree(functionNode, context.sourceCode.visitorKeys)
 	&& context.sourceCode.getCommentsInside(functionNode).length === 0
 	&& hasSafeParametersForArrowConversion(functionNode, context)
 	&& !hasUnsafeArrowConversionReference(functionNode.body, context.sourceCode.visitorKeys);
 
 const canConvertArrowToFunction = (functionNode, context) =>
 	functionNode.type === 'ArrowFunctionExpression'
-	&& !hasTypeScriptDeclarationSyntax(functionNode, context.sourceCode.visitorKeys)
+	&& !hasTypeScriptSyntaxInTree(functionNode, context.sourceCode.visitorKeys)
 	&& context.sourceCode.getCommentsInside(functionNode).length === 0
 	&& hasSafeParametersForArrowConversion(functionNode, context)
 	&& !hasUnsafeArrowConversionReference(functionNode.body, context.sourceCode.visitorKeys);
@@ -337,7 +334,7 @@ const reportSeparateDeclaration = ({
 	if (
 		kind === KIND_FUNCTION
 		&& declaration.type === 'FunctionDeclaration'
-		&& hasTypeScriptDeclarationSyntax(declaration, context.sourceCode.visitorKeys)
+		&& hasTypeScriptSyntaxInTree(declaration, context.sourceCode.visitorKeys)
 	) {
 		return;
 	}
@@ -360,7 +357,7 @@ const reportSeparateDeclaration = ({
 
 		if (
 			kind === KIND_CLASS
-			&& hasTypeScriptDeclarationSyntax(declaration, context.sourceCode.visitorKeys)
+			&& hasTypeScriptSyntaxInTree(declaration, context.sourceCode.visitorKeys)
 		) {
 			return;
 		}
@@ -430,7 +427,7 @@ const reportInlineDeclaration = ({
 		kind === KIND_FUNCTION
 		&& (
 			declaration.generator
-			|| hasTypeScriptDeclarationSyntax(declaration, context.sourceCode.visitorKeys)
+			|| hasTypeScriptSyntaxInTree(declaration, context.sourceCode.visitorKeys)
 		)
 	) {
 		return;
@@ -457,7 +454,7 @@ const reportInlineDeclaration = ({
 
 	if (
 		kind === KIND_CLASS
-		&& hasTypeScriptDeclarationSyntax(declaration, context.sourceCode.visitorKeys)
+		&& hasTypeScriptSyntaxInTree(declaration, context.sourceCode.visitorKeys)
 	) {
 		return;
 	}

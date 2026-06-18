@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Enforce whether default-exported functions and classes are declared inline with `export default` or declared separately and exported by identifier.
+Enforce whether default-exported functions and classes are declared inline with `export default` or separately. For functions, separate means a `const` arrow function exported by identifier. For classes, separate means a class declaration exported by identifier.
 
 This rule only checks local default exports. Named exports are intentionally ignored. Use [`consistent-function-style`](./consistent-function-style.md) for named function export syntax.
 

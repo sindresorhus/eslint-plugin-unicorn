@@ -106,6 +106,11 @@ test.snapshot({
 			export default Foo;
 			Foo = Bar;
 		`,
+		outdent`
+			const foo = () => {};
+			export default foo;
+			foo = bar;
+		`,
 		{
 			code: outdent`
 				export default function foo(value: string): string {
@@ -123,6 +128,13 @@ test.snapshot({
 		{
 			code: outdent`
 				const foo = (value: string): string => value;
+				export default foo;
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const foo: () => void = () => {};
 				export default foo;
 			`,
 			languageOptions: {parser: parsers.typescript},
@@ -203,6 +215,7 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		// Default inline style
 		outdent`
 			function foo() {}
 			export default foo;
@@ -280,11 +293,16 @@ test.snapshot({
 			export default foo;
 		`,
 		outdent`
+			const foo = (value = this.foo) => value;
+			export default foo;
+		`,
+		outdent`
 			const foo = () => {
 				// Comment.
 			};
 			export default foo;
 		`,
+		// `functions: 'separate'`
 		{
 			code: 'export default function foo() {}',
 			options: separateFunctionOptions,
@@ -346,6 +364,10 @@ test.snapshot({
 			options: separateFunctionOptions,
 		},
 		{
+			code: 'export default function foo(value = arguments) {}',
+			options: separateFunctionOptions,
+		},
+		{
 			code: outdent`
 				export default function foo() {
 					// Comment.
@@ -365,6 +387,7 @@ test.snapshot({
 			export default Foo;
 			new Foo();
 		`,
+		// `classes: 'separate'`
 		{
 			code: 'export default class Foo {}',
 			options: separateClassOptions,
