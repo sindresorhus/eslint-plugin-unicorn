@@ -1,4 +1,4 @@
-import {isBooleanLiteral} from './ast/index.js';
+import {isBooleanLiteral, isFunction, isStringLiteral} from './ast/index.js';
 import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
 import {
 	getParenthesizedText,
@@ -8,6 +8,7 @@ import {
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToLogicalExpressionChild,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 /**
@@ -28,6 +29,12 @@ const identityByOperator = new Map([
 const absorbingByOperator = new Map([
 	['&&', false],
 	['||', true],
+]);
+
+const leadingOperandTypesNeedingParentheses = new Set([
+	'FunctionExpression',
+	'ClassExpression',
+	'ObjectExpression',
 ]);
 
 function isOutermostLogicalExpression(node) {
@@ -80,17 +87,16 @@ function getRemovableIdentityOperands(operands, operator, context) {
 	);
 }
 
-function needsLeadingOperandParentheses(operand, text) {
-	return operand.type === 'FunctionExpression'
-		|| operand.type === 'ClassExpression'
-		|| text.startsWith('{');
+function needsLeadingOperandParentheses(operand) {
+	return leadingOperandTypesNeedingParentheses.has(unwrapTypeScriptExpression(operand).type);
 }
 
 function getOperandText(operand, operator, index, context) {
+	const operandIsParenthesized = isParenthesized(operand, context);
 	let text = getParenthesizedText(operand, context);
 
 	if (
-		!isParenthesized(operand, context)
+		!operandIsParenthesized
 		&& shouldAddParenthesesToLogicalExpressionChild(operand, {
 			operator,
 			property: index === 0 ? 'left' : 'right',
@@ -101,12 +107,36 @@ function getOperandText(operand, operator, index, context) {
 
 	if (
 		index === 0
-		&& needsLeadingOperandParentheses(operand, text)
+		&& !operandIsParenthesized
+		&& needsLeadingOperandParentheses(operand)
 	) {
 		text = `(${text})`;
 	}
 
 	return text;
+}
+
+function isDirectiveProloguePosition(node) {
+	const {parent} = node;
+
+	if (parent.type !== 'ExpressionStatement' || parent.expression !== node) {
+		return false;
+	}
+
+	const bodyNode = parent.parent;
+	const grandparent = bodyNode.parent;
+	if (
+		bodyNode.type !== 'Program'
+		&& !(
+			bodyNode.type === 'BlockStatement'
+			&& isFunction(grandparent)
+		)
+	) {
+		return false;
+	}
+
+	const statementIndex = bodyNode.body.indexOf(parent);
+	return bodyNode.body.slice(0, statementIndex).every(statement => typeof statement.directive === 'string');
 }
 
 function getReplacementText(node, replacementOperands, operator, context) {
@@ -169,6 +199,14 @@ const create = context => {
 		};
 
 		if (context.sourceCode.getCommentsInside(node).length > 0) {
+			return report;
+		}
+
+		if (
+			replacementOperands.length === 1
+			&& isStringLiteral(replacementOperands[0])
+			&& isDirectiveProloguePosition(node)
+		) {
 			return report;
 		}
 

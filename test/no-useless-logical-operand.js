@@ -39,6 +39,8 @@ test.snapshot({
 		// Trailing identity operands are still not safe inside parenthesized same-operator chains.
 		'const value = input && (other && true);',
 		'const value = input || (other || false);',
+
+		// Optional chaining and unknown types are not known boolean in value contexts.
 		'const value = object?.enabled && true;',
 		{code: 'declare const value: unknown;\nconst result = value && true;', languageOptions: {parser: parsers.typescript}},
 
@@ -55,8 +57,12 @@ test.snapshot({
 		'const value = input || false || other;',
 		'const value = true && input && true && other;',
 		'const value = false || input || false || other;',
+
+		// Partial simplification can leave a trailing identity operand that is unsafe to remove.
 		'const value = true && input && true;',
 		'const value = false || input || false;',
+
+		// All-identity chains collapse to one literal.
 		'const value = true && true;',
 		'const value = false || false;',
 
@@ -96,7 +102,7 @@ test.snapshot({
 		'new (true && Constructor)();',
 		'new (false || Constructor)();',
 
-		// Mixed operators and lower-precedence operands must stay parenthesized.
+		// Mixed operators and grouped operands preserve needed parentheses.
 		'const value = true && (input || other);',
 		'const value = false || (input && other);',
 		'const value = true && (foo = bar) && baz;',
@@ -113,6 +119,11 @@ test.snapshot({
 		'true && {} && input;',
 		'true && function () {} && input;',
 		'true && class {} && input;',
+		'true && (function () {}) && input;',
+		'true && (class {}) && input;',
+		{code: 'true && {} as Foo && input;', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && {} satisfies Foo && input;', languageOptions: {parser: parsers.typescript}},
+		{code: 'true && {}! && input;', languageOptions: {parser: parsers.typescript}},
 
 		// ASI-sensitive replacements.
 		outdent`
@@ -123,6 +134,16 @@ test.snapshot({
 			const value = input
 			false || (1 + 2)
 		`,
+
+		// Directive prologue positions are reported but not fixed.
+		'true && \'use strict\';',
+		'\'directive\';\ntrue && \'use strict\';',
+		outdent`
+			function foo() {
+				false || 'use strict';
+			}
+		`,
+		'foo();\ntrue && \'use strict\';',
 
 		// Comments inside the chain are reported but not fixed.
 		'const value = true /* keep */ && input;',
