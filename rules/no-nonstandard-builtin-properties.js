@@ -6,10 +6,12 @@ import {isGlobalIdentifier} from './utils/index.js';
 
 const MESSAGE_ID_NONSTANDARD = 'no-nonstandard-builtin-properties/nonstandard';
 const MESSAGE_ID_NONCALLABLE = 'no-nonstandard-builtin-properties/noncallable';
+const MESSAGE_ID_NONCONSTRUCTIBLE = 'no-nonstandard-builtin-properties/nonconstructible';
 
 const messages = {
 	[MESSAGE_ID_NONSTANDARD]: '`{{property}}` is not a standard property of `{{receiver}}`.',
 	[MESSAGE_ID_NONCALLABLE]: '`{{property}}` is not a callable property of `{{receiver}}`.',
+	[MESSAGE_ID_NONCONSTRUCTIBLE]: '`{{property}}` is not a constructible property of `{{receiver}}`.',
 };
 
 const expressionWrapperTypes = new Set([
@@ -29,7 +31,7 @@ const globalObjectNames = new Set([
 	'window',
 ]);
 
-const typedArrayTypeNames = [
+const typedArrayTypeNamesExceptUint8Array = [
 	'Int8Array',
 	'Uint8ClampedArray',
 	'Int16Array',
@@ -45,7 +47,7 @@ const typedArrayTypeNames = [
 
 const typedArrayInstanceTypeNames = new Set([
 	'Uint8Array',
-	...typedArrayTypeNames,
+	...typedArrayTypeNamesExceptUint8Array,
 ]);
 
 const objectPrototypeProperties = [
@@ -64,6 +66,10 @@ const objectPrototypeProperties = [
 ];
 
 const objectPrototypeMethods = objectPrototypeProperties.filter(propertyName => propertyName !== '__proto__');
+
+const objectPrototypeConstructors = [
+	'constructor',
+];
 
 const functionPrototypeProperties = [
 	...objectPrototypeProperties,
@@ -86,8 +92,10 @@ const functionPrototypeMethods = [
 const createPropertyInfo = ({
 	properties = [],
 	methods = [],
+	constructors = [],
 	inheritedProperties = objectPrototypeProperties,
 	inheritedMethods = objectPrototypeMethods,
+	inheritedConstructors = objectPrototypeConstructors,
 } = {}) => ({
 	all: new Set([
 		...inheritedProperties,
@@ -98,16 +106,16 @@ const createPropertyInfo = ({
 		...inheritedMethods,
 		...methods,
 	]),
+	constructible: new Set([
+		...inheritedConstructors,
+		...constructors,
+	]),
 });
 
 const createFunctionPropertyInfo = ({properties = [], methods = []} = {}) => createPropertyInfo({
 	inheritedProperties: functionPrototypeProperties,
 	inheritedMethods: functionPrototypeMethods,
-	properties: [
-		'length',
-		'name',
-		...properties,
-	],
+	properties,
 	methods,
 });
 
@@ -119,7 +127,7 @@ const createConstructorPropertyInfo = ({properties = [], methods = []} = {}) => 
 	methods,
 });
 
-const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
+const extendPropertyInfo = (propertyInfo, {properties = [], methods = [], constructors = []}) => ({
 	all: new Set([
 		...propertyInfo.all,
 		...properties,
@@ -128,6 +136,10 @@ const extendPropertyInfo = (propertyInfo, {properties = [], methods = []}) => ({
 	callable: new Set([
 		...propertyInfo.callable,
 		...methods,
+	]),
+	constructible: new Set([
+		...propertyInfo.constructible,
+		...constructors,
 	]),
 });
 
@@ -302,6 +314,10 @@ const aggregateErrorInstance = extendPropertyInfo(errorInstance, {
 
 const errorStatic = createConstructorPropertyInfo({
 	methods: ['isError'],
+});
+
+const bigIntPrototype = createPropertyInfo({
+	inheritedConstructors: [],
 });
 
 const finalizationRegistryPrototype = createPropertyInfo({
@@ -508,6 +524,7 @@ const stringPrototype = createPropertyInfo({
 });
 
 const symbolPrototype = createPropertyInfo({
+	inheritedConstructors: [],
 	properties: ['description'],
 });
 
@@ -636,7 +653,7 @@ const uint8ArrayStatic = extendPropertyInfo(typedArrayStatic, {
 	],
 });
 
-const typedArrayObjects = Object.fromEntries(typedArrayTypeNames.map(typeName => [
+const typedArrayObjects = Object.fromEntries(typedArrayTypeNamesExceptUint8Array.map(typeName => [
 	typeName,
 	{
 		instance: typedArrayPrototype,
@@ -691,8 +708,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	BigInt: {
-		instance: createPropertyInfo(),
-		prototype: createPropertyInfo(),
+		instance: bigIntPrototype,
+		prototype: bigIntPrototype,
 		static: createConstructorPropertyInfo({
 			methods: [
 				'asIntN',
@@ -858,9 +875,7 @@ const nativeObjects = new Map(Object.entries({
 		prototype: symbolPrototype,
 		static: createConstructorPropertyInfo({
 			properties: [
-				'asyncDispose',
 				'asyncIterator',
-				'dispose',
 				'hasInstance',
 				'isConcatSpreadable',
 				'iterator',
@@ -1050,7 +1065,9 @@ const getStaticPropertyName = node => {
 	}
 };
 
-const isArrayIndexString = string => /^(?:0|[1-9]\d*)$/.test(string);
+const maximumArrayIndex = (2 ** 32) - 2;
+
+const isArrayIndexString = string => /^(?:0|[1-9]\d*)$/.test(string) && Number(string) <= maximumArrayIndex;
 
 const isCanonicalNumericIndexString = string => string === '-0' || String(Number(string)) === string;
 
@@ -1248,14 +1265,29 @@ function resolveNativeObjectReference(node, context) {
 	}
 }
 
-const isCallLikeExpressionCallee = node => {
+const getCallKind = node => {
 	node = getOutermostExpression(node);
 
-	return (
-		(node.parent.type === 'CallExpression' && node.parent.callee === node)
-		|| (node.parent.type === 'NewExpression' && node.parent.callee === node)
-		|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
-	);
+	if (
+		node.parent.type === 'CallExpression'
+		&& node.parent.callee === node
+	) {
+		return 'call';
+	}
+
+	if (
+		node.parent.type === 'NewExpression'
+		&& node.parent.callee === node
+	) {
+		return 'construct';
+	}
+
+	if (
+		node.parent.type === 'TaggedTemplateExpression'
+		&& node.parent.tag === node
+	) {
+		return 'call';
+	}
 };
 
 const getReceiverName = ({typeName, usage}) => {
@@ -1268,6 +1300,16 @@ const getReceiverName = ({typeName, usage}) => {
 	}
 
 	return `${typeName} instances`;
+};
+
+const getMessageId = (isStandardProperty, callKind) => {
+	if (!isStandardProperty) {
+		return MESSAGE_ID_NONSTANDARD;
+	}
+
+	return callKind === 'construct'
+		? MESSAGE_ID_NONCONSTRUCTIBLE
+		: MESSAGE_ID_NONCALLABLE;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -1288,22 +1330,22 @@ const create = context => {
 			return;
 		}
 
-		if (
-			isIndexedAccess(nativeObjectReference, propertyName)
-		) {
+		if (isIndexedAccess(nativeObjectReference, propertyName)) {
 			return;
 		}
 
-		const isCall = isCallLikeExpressionCallee(node);
+		const callKind = getCallKind(node);
 		const isStandardProperty = propertyInfo.all.has(propertyName);
-		const isCallableProperty = propertyInfo.callable.has(propertyName);
+		const isValidCall = callKind === undefined
+			|| (callKind === 'call' && propertyInfo.callable.has(propertyName))
+			|| (callKind === 'construct' && propertyInfo.constructible.has(propertyName));
 		if (
 			!isStandardProperty
-			|| (isCall && !isCallableProperty)
+			|| !isValidCall
 		) {
 			return {
 				node,
-				messageId: isStandardProperty ? MESSAGE_ID_NONCALLABLE : MESSAGE_ID_NONSTANDARD,
+				messageId: getMessageId(isStandardProperty, callKind),
 				data: {
 					property: propertyName,
 					receiver: getReceiverName(nativeObjectReference),
