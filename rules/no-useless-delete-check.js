@@ -35,12 +35,6 @@ const collectionConstructors = new Set([
 	'WeakSet',
 ]);
 
-const typeTransparentExpressionTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const knownObjectExpressionTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
@@ -62,13 +56,7 @@ const objectTypeAnnotationTypes = new Set([
 ]);
 
 const getTypeAnnotation = (node, context) => {
-	if (node.type === 'TSNonNullExpression') {
-		return getTypeAnnotation(node.expression, context);
-	}
-
-	if (typeTransparentExpressionTypes.has(node.type)) {
-		return getTypeAnnotation(node.expression, context);
-	}
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type !== 'Identifier') {
 		return;

@@ -241,6 +241,7 @@ test.snapshot({
 		'const object = {}; if (key in object) delete object[key];',
 		'const object = {}; if ("key" in object) { delete object.key; }',
 		'const object = {}; if ("key" in object) { delete object["key"]; }',
+		'const object = {}; if ("ab" in object) { delete object["a" + "b"]; }',
 		'const object = {}; if (1 in object) { delete object[1]; }',
 		'const object = {}; if (null in object) { delete object.null; }',
 		'const object = {}; if (null in object) { delete object["null"]; }',
