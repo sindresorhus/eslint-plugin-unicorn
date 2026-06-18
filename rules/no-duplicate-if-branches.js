@@ -14,34 +14,53 @@ const isElseIfStatement = node =>
 
 const getBranchStatements = node => node.type === 'BlockStatement' ? node.body : [node];
 
-const getStatementTokenKeys = (node, sourceCode) => {
-	const tokenKeys = sourceCode.getTokens(node).map(token => `${token.type}:${token.value}`);
+const getStatementTokens = (node, sourceCode) => {
+	const tokens = sourceCode.getTokens(node);
+	const lastToken = tokens.at(-1);
 
-	if (tokenKeys.at(-1) === 'Punctuator:;') {
-		tokenKeys.pop();
+	if (lastToken?.type === 'Punctuator' && lastToken.value === ';') {
+		return tokens.slice(0, -1);
 	}
 
-	return tokenKeys;
+	return tokens;
 };
 
-const areSameBranchBodies = (left, right, sourceCode) => {
-	if (left.length !== right.length) {
+const areSameTokens = (left, right) =>
+	left.type === right.type
+	&& left.value === right.value;
+
+const areSameBranchBodies = (leftStatements, rightStatements, sourceCode) => {
+	if (leftStatements.length !== rightStatements.length) {
 		return false;
 	}
 
-	const leftTokenKeys = left.map(node => getStatementTokenKeys(node, sourceCode));
-	const rightTokenKeys = right.map(node => getStatementTokenKeys(node, sourceCode));
+	let hasTokens = false;
 
-	return leftTokenKeys.some(tokenKeys => tokenKeys.length > 0)
-		&& leftTokenKeys.every((tokenKeys, index) =>
-			tokenKeys.length === rightTokenKeys[index].length
-			&& tokenKeys.every((tokenKey, tokenIndex) => tokenKey === rightTokenKeys[index][tokenIndex]),
-		);
+	for (const [statementIndex, leftStatement] of leftStatements.entries()) {
+		const leftTokens = getStatementTokens(leftStatement, sourceCode);
+		const rightTokens = getStatementTokens(rightStatements[statementIndex], sourceCode);
+
+		if (leftTokens.length > 0) {
+			hasTokens = true;
+		}
+
+		if (leftTokens.length !== rightTokens.length) {
+			return false;
+		}
+
+		for (const [tokenIndex, leftToken] of leftTokens.entries()) {
+			if (!areSameTokens(leftToken, rightTokens[tokenIndex])) {
+				return false;
+			}
+		}
+	}
+
+	return hasTokens;
 };
 
 /**
 @param {ESTree.IfStatement} ifStatement
-@returns {Array<{node: ESTree.Statement, statements: ESTree.Statement[]}>}
+@returns {Array<{body: ESTree.Statement, statements: ESTree.Statement[]}>}
 */
 function getBranches(ifStatement) {
 	const branches = [];
@@ -49,14 +68,14 @@ function getBranches(ifStatement) {
 
 	while (node) {
 		branches.push({
-			node: node.consequent,
+			body: node.consequent,
 			statements: getBranchStatements(node.consequent),
 		});
 
 		if (node.alternate?.type !== 'IfStatement') {
 			if (node.alternate) {
 				branches.push({
-					node: node.alternate,
+					body: node.alternate,
 					statements: getBranchStatements(node.alternate),
 				});
 			}
@@ -89,10 +108,10 @@ function * getProblems(ifStatement, context) {
 
 		if (areSameBranchBodies(branch.statements, previousBranch.statements, sourceCode)) {
 			yield {
-				node: branch.node,
+				node: branch.body,
 				messageId: MESSAGE_ID,
 				data: {
-					line: String(sourceCode.getLoc(previousBranch.node).start.line),
+					line: String(sourceCode.getLoc(previousBranch.body).start.line),
 				},
 			};
 		}

@@ -83,6 +83,13 @@ test.snapshot({
 		`,
 		outdent`
 			if (foo) {
+				const value = 'unicorn';
+			} else {
+				const value = "unicorn";
+			}
+		`,
+		outdent`
+			if (foo) {
 				a++;
 				b;
 			} else {
