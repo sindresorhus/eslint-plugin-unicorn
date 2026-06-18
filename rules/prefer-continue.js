@@ -14,13 +14,6 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer an early continue over wrapping the whole loop body in an `if` statement.',
 };
 
-const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const blockScopedDeclarationTypes = new Set([
 	'ClassDeclaration',
 	'FunctionDeclaration',
@@ -79,10 +72,6 @@ const hasDirectUnsupportedBlockScopedDeclaration = node =>
 		&& node.body.some(node => isUnsupportedBlockScopedDeclaration(node))
 	);
 
-const shouldAddParenthesesWhenNegated = node =>
-	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-	|| typeScriptConditionExpressionTypesRequiringParentheses.has(node.type);
-
 const getNegatedConditionText = (node, context) => {
 	const {sourceCode} = context;
 
@@ -108,7 +97,7 @@ const getNegatedConditionText = (node, context) => {
 	}
 
 	const conditionText = sourceCode.getText(node);
-	return shouldAddParenthesesWhenNegated(node) ? `!(${conditionText})` : `!${conditionText}`;
+	return shouldAddParenthesesToUnaryExpressionArgument(node, '!') ? `!(${conditionText})` : `!${conditionText}`;
 };
 
 const getConditionRange = (ifStatement, sourceCode) => {
@@ -266,35 +255,7 @@ const hasDirectEvalCall = (node, sourceCode) => {
 	return false;
 };
 
-const getLoopHeaderDeclaration = loop => {
-	if (loop.type === 'ForStatement') {
-		return loop.init?.type === 'VariableDeclaration' ? loop.init : undefined;
-	}
-
-	if (
-		(
-			loop.type === 'ForInStatement'
-			|| loop.type === 'ForOfStatement'
-		)
-		&& loop.left.type === 'VariableDeclaration'
-	) {
-		return loop.left;
-	}
-};
-
-const hasLoopHeaderLexicalDeclarationVariable = (loop, sourceCode, names) => {
-	const declaration = getLoopHeaderDeclaration(loop);
-	if (
-		!declaration
-		|| !lexicalDeclarationKinds.has(declaration.kind)
-	) {
-		return false;
-	}
-
-	return sourceCode.getDeclaredVariables(declaration).some(variable => names.has(variable.name));
-};
-
-const canSafelyMoveLexicalDeclarations = (ifStatement, loop, sourceCode) => {
+const canSafelyMoveLexicalDeclarations = (ifStatement, sourceCode) => {
 	const variables = getDirectLexicalDeclarationVariables(ifStatement.consequent, sourceCode);
 	if (variables.length === 0) {
 		return true;
@@ -303,16 +264,15 @@ const canSafelyMoveLexicalDeclarations = (ifStatement, loop, sourceCode) => {
 	const names = new Set(variables.map(variable => variable.name));
 
 	return !hasDirectEvalCall(ifStatement.test, sourceCode)
-		&& !hasLoopHeaderLexicalDeclarationVariable(loop, sourceCode, names)
 		&& !hasReferenceToVariableName(ifStatement.test, sourceCode, names);
 };
 
-const canSafelyMoveConsequent = (ifStatement, loop, context) => {
+const canSafelyMoveConsequent = (ifStatement, context) => {
 	const {sourceCode} = context;
 	const {consequent} = ifStatement;
 
 	return !hasDirectUnsupportedBlockScopedDeclaration(consequent)
-		&& canSafelyMoveLexicalDeclarations(ifStatement, loop, sourceCode)
+		&& canSafelyMoveLexicalDeclarations(ifStatement, sourceCode)
 		&& !hasMultilineToken(consequent, context);
 };
 
@@ -329,16 +289,16 @@ const hasMultilineUnbracedConsequent = (ifStatement, sourceCode) =>
 	ifStatement.consequent.type !== 'BlockStatement'
 	&& sourceCode.getText(ifStatement.consequent).includes('\n');
 
-const canRewrite = (ifStatement, loop, context) => {
+const canRewrite = (ifStatement, context) => {
 	const {sourceCode} = context;
-	return canSafelyMoveConsequent(ifStatement, loop, context)
+	return canSafelyMoveConsequent(ifStatement, context)
 		&& !hasCommentsInsideWrapperOutsideConditionOrConsequent(ifStatement, sourceCode)
 		&& !hasMultilineUnbracedConsequent(ifStatement, sourceCode)
 		&& sourceCode.getCommentsAfter(ifStatement).length === 0;
 };
 
-const getFix = (ifStatement, loop, context) => {
-	if (!canRewrite(ifStatement, loop, context)) {
+const getFix = (ifStatement, context) => {
+	if (!canRewrite(ifStatement, context)) {
 		return;
 	}
 
@@ -369,7 +329,7 @@ const create = context => {
 			return;
 		}
 
-		const fix = getFix(statement, loop, context);
+		const fix = getFix(statement, context);
 
 		return {
 			node: statement,

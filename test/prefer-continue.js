@@ -273,6 +273,30 @@ test.snapshot({
 		`,
 		outdent`
 			for (const item of items) {
+				if (item.isActive) {
+					const item = getItem();
+					process(item);
+				}
+			}
+		`,
+		outdent`
+			for (const {value: item} of items) {
+				if (item.isActive) {
+					const item = getItem();
+					process(item);
+				}
+			}
+		`,
+		outdent`
+			for (const [item] of items) {
+				if (item.isActive) {
+					const item = getItem();
+					process(item);
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
 				if (shouldProcess) {
 					const item = getItem();
 					process(item);

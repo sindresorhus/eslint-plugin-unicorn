@@ -86,7 +86,7 @@ Set `maximumStatements` to `0` to report any non-empty whole-loop conditional wr
 ]
 ```
 
-Autofix is conservative. It skips wrappers with comments outside the condition or moved body, trailing wrapper comments, moved lexical names that are used in the condition or already declared by the loop header, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Multiline unbraced consequents are report-only.
+Autofix is conservative. It skips wrappers with comments outside the condition or moved body, trailing wrapper comments, moved lexical names that are used in the condition, direct `eval(...)` with moved lexical declarations, direct function, class, TypeScript, `using`, or `await using` declarations, and multiline-sensitive strings, templates, or JSX. Multiline unbraced consequents are report-only.
 
 ## Related Rules
 
