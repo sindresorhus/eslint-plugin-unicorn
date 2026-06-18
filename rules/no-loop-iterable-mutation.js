@@ -1,5 +1,4 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
 import {
 	containsOptionalChain,
 	isReference,
@@ -17,8 +16,11 @@ const messages = {
 	[MESSAGE_ID]: 'Do not mutate `{{iterable}}` while iterating over it.',
 };
 
-const arrayMutationMethods = new Set([
+const mutationMethods = new Set([
+	'add',
+	'clear',
 	'copyWithin',
+	'delete',
 	'fill',
 	'pop',
 	'push',
@@ -26,21 +28,15 @@ const arrayMutationMethods = new Set([
 	'shift',
 	'sort',
 	'splice',
+	'set',
 	'unshift',
 ]);
 
-const collectionMutationMethods = new Set([
-	'add',
-	'clear',
-	'delete',
-	'set',
-]);
-
-const iteratorMethods = [
+const iteratorMethods = new Set([
 	'entries',
 	'keys',
 	'values',
-];
+]);
 
 const skippedNodeTypes = new Set([
 	'ArrowFunctionExpression',
@@ -74,7 +70,7 @@ function getFirstElementIdentifier(node) {
 	return firstElement && getIdentifierFromPattern(firstElement);
 }
 
-function getLiveIterable(node) {
+function getLiveIterable(node, context) {
 	node = unwrapExpression(node);
 
 	if (containsOptionalChain(node)) {
@@ -88,37 +84,74 @@ function getLiveIterable(node) {
 		};
 	}
 
-	if (!isMethodCall(node, {
-		methods: iteratorMethods,
-		argumentsLength: 0,
-		optionalCall: false,
-		optionalMember: false,
-		computed: false,
-	})) {
+	if (
+		node.type !== 'CallExpression'
+		|| node.callee.type !== 'MemberExpression'
+		|| node.arguments.length > 0
+	) {
 		return;
 	}
 
-	const {object, property} = node.callee;
+	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
 
 	if (
-		containsOptionalChain(object)
-		|| !isReference(object)
+		!iteratorMethods.has(method)
+		|| containsOptionalChain(node.callee.object)
+		|| !isReference(node.callee.object)
 	) {
 		return;
 	}
 
 	return {
-		reference: object,
-		method: property.name,
+		reference: node.callee.object,
+		method,
 	};
 }
 
-function getLoopValueIdentifier(loop, iterableMethod) {
-	if (iterableMethod !== 'direct' && iterableMethod !== 'values') {
+function isRangeInside(node, ancestor, sourceCode) {
+	const [start, end] = sourceCode.getRange(node);
+	const [ancestorStart, ancestorEnd] = sourceCode.getRange(ancestor);
+
+	return start >= ancestorStart && end <= ancestorEnd;
+}
+
+function isIdentifierReassignedInNode(identifier, node, context) {
+	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
+
+	return variable?.references.some(reference =>
+		reference.identifier !== identifier
+		&& reference.isWrite()
+		&& isRangeInside(reference.identifier, node, context.sourceCode),
+	) ?? false;
+}
+
+function getStableLoopIdentifier(identifier, loopBody, context) {
+	if (
+		!identifier
+		|| isIdentifierReassignedInNode(identifier, loopBody, context)
+	) {
 		return;
 	}
 
-	return getIdentifierFromPattern(getLoopBinding(loop));
+	return identifier;
+}
+
+function getLoopValueIdentifier(loop, iterableMethod) {
+	const binding = getLoopBinding(loop);
+
+	if (iterableMethod === 'entries') {
+		return getFirstElementIdentifier(binding);
+	}
+
+	if (
+		iterableMethod !== 'direct'
+		&& iterableMethod !== 'keys'
+		&& iterableMethod !== 'values'
+	) {
+		return;
+	}
+
+	return getIdentifierFromPattern(binding);
 }
 
 function getLoopKeyIdentifier(loop, iterableMethod) {
@@ -134,11 +167,27 @@ function getLoopKeyIdentifier(loop, iterableMethod) {
 }
 
 function getLoopDeleteIdentifier(loop, iterableMethod) {
+	const binding = getLoopBinding(loop);
+
 	if (iterableMethod === 'direct') {
-		return getIdentifierFromPattern(getLoopBinding(loop)) ?? getFirstElementIdentifier(getLoopBinding(loop));
+		return getIdentifierFromPattern(binding) ?? getFirstElementIdentifier(binding);
 	}
 
 	return getLoopKeyIdentifier(loop, iterableMethod);
+}
+
+function getLoopInformation(loop, iterable, context) {
+	const loopValueIdentifier = getLoopValueIdentifier(loop, iterable.method);
+	const loopKeyIdentifier = getLoopKeyIdentifier(loop, iterable.method);
+	const loopDeleteIdentifier = getLoopDeleteIdentifier(loop, iterable.method);
+
+	return {
+		hasCurrentDelete: false,
+		iterable: iterable.reference,
+		loopDeleteIdentifier: getStableLoopIdentifier(loopDeleteIdentifier, loop.body, context),
+		loopKeyIdentifier: getStableLoopIdentifier(loopKeyIdentifier, loop.body, context),
+		loopValueIdentifier: getStableLoopIdentifier(loopValueIdentifier, loop.body, context),
+	};
 }
 
 function * getReferenceIdentifiers(node) {
@@ -189,41 +238,18 @@ function isSameReferenceBinding(left, right, context) {
 	);
 }
 
-function isAllowedSameValueSetAdd(callExpression, loopValueIdentifier, context) {
+function hasSameFirstArgument(callExpression, identifier, context) {
 	const [argument] = callExpression.arguments;
 
 	return Boolean(
-		loopValueIdentifier
+		identifier
 		&& argument
-		&& isSameReferenceBinding(argument, loopValueIdentifier, context),
-	);
-}
-
-function isAllowedSameKeyMapSet(callExpression, loopKeyIdentifier, context) {
-	const [key] = callExpression.arguments;
-
-	return Boolean(
-		loopKeyIdentifier
-		&& key
-		&& isSameReferenceBinding(key, loopKeyIdentifier, context),
-	);
-}
-
-function isAllowedCurrentDelete(callExpression, loopDeleteIdentifier, context) {
-	const [key] = callExpression.arguments;
-
-	return Boolean(
-		loopDeleteIdentifier
-		&& key
-		&& isSameReferenceBinding(key, loopDeleteIdentifier, context),
+		&& isSameReferenceBinding(argument, identifier, context),
 	);
 }
 
 function getMutationProblem(callExpression, loopInformation, context) {
-	if (
-		callExpression.type !== 'CallExpression'
-		|| callExpression.callee.type !== 'MemberExpression'
-	) {
+	if (callExpression.callee.type !== 'MemberExpression') {
 		return;
 	}
 
@@ -232,14 +258,12 @@ function getMutationProblem(callExpression, loopInformation, context) {
 		loopDeleteIdentifier,
 		loopKeyIdentifier,
 		loopValueIdentifier,
+		reportedCallExpressions,
 	} = loopInformation;
 	const {object, property} = callExpression.callee;
 	const method = getPropertyName(callExpression.callee, context.sourceCode.getScope(callExpression.callee));
 
-	if (
-		!arrayMutationMethods.has(method)
-		&& !collectionMutationMethods.has(method)
-	) {
+	if (!mutationMethods.has(method)) {
 		return;
 	}
 
@@ -247,13 +271,34 @@ function getMutationProblem(callExpression, loopInformation, context) {
 		return;
 	}
 
+	const isCurrentDelete = method === 'delete' && hasSameFirstArgument(callExpression, loopDeleteIdentifier, context);
+
+	if (isCurrentDelete) {
+		loopInformation.hasCurrentDelete = true;
+		return;
+	}
+
 	if (
-		(method === 'add' && isAllowedSameValueSetAdd(callExpression, loopValueIdentifier, context))
-		|| (method === 'delete' && isAllowedCurrentDelete(callExpression, loopDeleteIdentifier, context))
-		|| (method === 'set' && isAllowedSameKeyMapSet(callExpression, loopKeyIdentifier, context))
+		method === 'add'
+		&& !loopInformation.hasCurrentDelete
+		&& hasSameFirstArgument(callExpression, loopValueIdentifier, context)
 	) {
 		return;
 	}
+
+	if (
+		method === 'set'
+		&& !loopInformation.hasCurrentDelete
+		&& hasSameFirstArgument(callExpression, loopKeyIdentifier, context)
+	) {
+		return;
+	}
+
+	if (reportedCallExpressions.has(callExpression)) {
+		return;
+	}
+
+	reportedCallExpressions.add(callExpression);
 
 	return {
 		node: property,
@@ -300,25 +345,23 @@ function * getMutationProblems(node, loopInformation, context) {
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
+	const reportedCallExpressions = new WeakSet();
+
 	context.on('ForOfStatement', node => {
 		if (node.await) {
 			return;
 		}
 
-		const iterable = getLiveIterable(node.right);
+		const iterable = getLiveIterable(node.right, context);
 
 		if (!iterable) {
 			return;
 		}
 
-		const loopInformation = {
-			iterable: iterable.reference,
-			loopDeleteIdentifier: getLoopDeleteIdentifier(node, iterable.method),
-			loopKeyIdentifier: getLoopKeyIdentifier(node, iterable.method),
-			loopValueIdentifier: getLoopValueIdentifier(node, iterable.method),
-		};
-
-		return getMutationProblems(node.body, loopInformation, context);
+		return getMutationProblems(node.body, {
+			...getLoopInformation(node, iterable, context),
+			reportedCallExpressions,
+		}, context);
 	});
 };
 

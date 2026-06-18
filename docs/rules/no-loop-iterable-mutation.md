@@ -11,6 +11,8 @@ Mutating the same live iterable that a `for...of` loop is consuming can make ite
 
 This rule reports mutating method calls on the same iterable reference, including arrays, `Set`, and `Map`, while iterating over the iterable itself or over its `.keys()`, `.values()`, or `.entries()` iterator.
 
+It allows same-current-entry `Set#add`, `Set#delete`, `Map#set`, and `Map#delete` calls when they do not reinsert an entry that was already deleted in the same loop body.
+
 It intentionally does not report every possible write to the iterable, such as assigning `array.length` or deleting an array index.
 
 It intentionally does not report mutations of objects used with `Object.keys()`, `Object.values()`, or `Object.entries()`, since those methods create snapshot arrays before the loop starts.
