@@ -144,6 +144,7 @@ export {default as 'no-unused-properties'} from './no-unused-properties.js';
 export {default as 'no-useless-boolean-cast'} from './no-useless-boolean-cast.js';
 export {default as 'no-useless-coercion'} from './no-useless-coercion.js';
 export {default as 'no-useless-collection-argument'} from './no-useless-collection-argument.js';
+export {default as 'no-useless-compound-assignment'} from './no-useless-compound-assignment.js';
 export {default as 'no-useless-concat'} from './no-useless-concat.js';
 export {default as 'no-useless-continue'} from './no-useless-continue.js';
 export {default as 'no-useless-else'} from './no-useless-else.js';
