@@ -48,6 +48,7 @@ ruleTest.snapshot({
 	],
 	invalid: [
 		'element.classList.add(".foo");',
+		'element.classList.add((".foo"));',
 		'element.classList.add(\'.foo\');',
 		'element.classList.add("#foo");',
 		'element?.classList.add(".foo");',
@@ -87,6 +88,7 @@ ruleTest.snapshot({
 		'document.getElementsByClassName(".foo.bar");',
 		'document.getElementsByClassName(".foo .bar");',
 		'document.getElementById("#foo");',
+		'document.getElementById(("#foo"));',
 		'document.getElementById(".foo");',
 		'document.getElementById(\'#foo\');',
 		'document?.getElementById("#foo");',
