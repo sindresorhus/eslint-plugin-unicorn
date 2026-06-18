@@ -151,13 +151,7 @@ const iteratorMethods = new Map([
 
 		return shouldIgnoreCallExpression?.(callExpression) ?? false;
 	},
-	shouldIgnoreCallback(callback) {
-		if (callback.type === 'Identifier' && ignore.includes(callback.name)) {
-			return true;
-		}
-
-		return false;
-	},
+	shouldIgnoreCallback: callback => Boolean(callback.type === 'Identifier' && ignore.includes(callback.name)),
 }]));
 
 const defaultIgnoredCallees = [

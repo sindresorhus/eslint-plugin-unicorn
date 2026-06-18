@@ -186,11 +186,7 @@ function areResourcesConvertible(resources, tryStatement, sourceCode, parserServ
 	}
 
 	// When type information is available, only report resources that are actually disposable.
-	if (parserServices?.program && !areAllResourcesDisposable(resources, parserServices)) {
-		return false;
-	}
-
-	return true;
+	return !(parserServices?.program && !areAllResourcesDisposable(resources, parserServices));
 }
 
 // Match a `try`/`finally` resource-disposal pattern and return the resources to convert, or `undefined`.

@@ -53,6 +53,16 @@ test({
 				}
 			}
 		`,
+		outdent`
+			function unicorn() {
+				if (test) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		`,
+		'function unicorn() { if (test) return true; else return false; }',
 	],
 	invalid: [
 		{
@@ -267,6 +277,19 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
+});
+
+// Flat ReturnStatement
+test({
+	valid: [
+		'function unicorn() { if (test) { return true; } doSomething(); return false; }',
+		'function unicorn() { if (test) { return a; } return b; }',
+		'function unicorn() { if (test) { return true; doSomething(); } return false; }',
+		'function unicorn() { if (test) { return; } return false; }',
+		'function unicorn() { if (a ? b : c) { return true; } return false; }',
+		'function unicorn() { if (test) { return true; } return false; }',
+	],
+	invalid: [],
 });
 
 // Unsupported top-level statements

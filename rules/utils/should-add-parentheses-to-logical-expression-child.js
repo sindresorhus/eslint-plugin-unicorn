@@ -30,18 +30,12 @@ export default function shouldAddParenthesesToLogicalExpressionChild(node, {oper
 
 	// Lower precedence than `LogicalExpression`
 	// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
-	if (
-		[
-			'LogicalExpression',
-			'ConditionalExpression',
-			'AssignmentExpression',
-			'ArrowFunctionExpression',
-			'YieldExpression',
-			'SequenceExpression',
-		].includes(node.type)
-	) {
-		return true;
-	}
-
-	return false;
+	return [
+		'LogicalExpression',
+		'ConditionalExpression',
+		'AssignmentExpression',
+		'ArrowFunctionExpression',
+		'YieldExpression',
+		'SequenceExpression',
+	].includes(node.type);
 }

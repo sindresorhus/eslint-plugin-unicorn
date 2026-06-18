@@ -71,11 +71,7 @@ const hasExtraReferences = (assignment, references, left) => {
 	}
 
 	// Old parameter is still referenced somewhere else
-	if (!assignment && references.length > 1) {
-		return true;
-	}
-
-	return false;
+	return !assignment && references.length > 1;
 };
 
 const isLastParameter = (parameters, parameter) => {

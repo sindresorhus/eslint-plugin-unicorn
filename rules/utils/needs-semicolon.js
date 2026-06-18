@@ -107,11 +107,7 @@ export default function needsSemicolon(tokenBefore, context, code) {
 		}
 
 		// `await`
-		if (value === 'await' && lastBlockNode.type === 'AwaitExpression') {
-			return false;
-		}
-
-		return true;
+		return !(value === 'await' && lastBlockNode.type === 'AwaitExpression');
 	}
 
 	return false;

@@ -92,14 +92,8 @@ function isUtf8Encoding(node, scope) {
 	}
 
 	const {value} = staticValue;
-	if (
-		isSingleEncodingOptionObject(value)
-		&& isUtf8EncodingString(value.encoding)
-	) {
-		return true;
-	}
-
-	return false;
+	return Boolean(isSingleEncodingOptionObject(value)
+		&& isUtf8EncodingString(value.encoding));
 }
 
 function isBufferEncoding(node, scope) {
@@ -113,14 +107,8 @@ function isBufferEncoding(node, scope) {
 		return true;
 	}
 
-	if (
-		isSingleEncodingOptionObject(value)
-		&& (value.encoding === undefined || value.encoding === null)
-	) {
-		return true;
-	}
-
-	return false;
+	return Boolean(isSingleEncodingOptionObject(value)
+		&& (value.encoding === undefined || value.encoding === null));
 }
 
 function isJsonReadFileCall(node, scope) {

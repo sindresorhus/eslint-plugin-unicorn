@@ -31,9 +31,5 @@ export default function isFunctionSelfUsedInside(functionNode, functionScope) {
 		return true;
 	}
 
-	if (id && getReferences(functionScope, id).length > 0) {
-		return true;
-	}
-
-	return false;
+	return Boolean(id && getReferences(functionScope, id).length > 0);
 }

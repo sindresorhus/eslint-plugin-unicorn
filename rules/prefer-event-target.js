@@ -31,11 +31,7 @@ function isAwaitImportOrRequireFromIgnoredPackages(node) {
 		({source} = node.argument);
 	}
 
-	if (isStringLiteral(source) && packagesShouldBeIgnored.has(source.value)) {
-		return true;
-	}
-
-	return false;
+	return Boolean(isStringLiteral(source) && packagesShouldBeIgnored.has(source.value));
 }
 
 function isFromIgnoredPackage(node) {
@@ -63,15 +59,9 @@ function isFromIgnoredPackage(node) {
 	}
 
 	// `const EventEmitter = (...).EventEmitter`
-	if (
-		isConstVariableDeclarationId(node)
+	return Boolean(isConstVariableDeclarationId(node)
 		&& isMemberExpression(node.parent.init, {property: 'EventEmitter', optional: false, computed: false})
-		&& isAwaitImportOrRequireFromIgnoredPackages(node.parent.init.object)
-	) {
-		return true;
-	}
-
-	return false;
+		&& isAwaitImportOrRequireFromIgnoredPackages(node.parent.init.object));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

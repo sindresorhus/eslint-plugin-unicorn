@@ -1,6 +1,6 @@
 # prefer-ternary
 
-📝 Prefer ternary expressions over simple `if-else` statements that return or assign values.
+📝 Prefer ternary expressions over simple `if` statements that return or assign values.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over 'simple' `if-else` statements that return or assign a value. A simple statement has one mergeable branch statement on each side with the same basic type and form.
+This rule enforces the use of ternary expressions over 'simple' `if` statements that return or assign a value. A simple `if` either has one mergeable branch statement on each side with the same basic type and form, or immediately follows a `let` declaration and reassigns that variable.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 

@@ -145,16 +145,10 @@ const create = context => {
 			return true;
 		}
 
-		if (
-			options.functions.length > 0
+		return Boolean(options.functions.length > 0
 			&& node.parent.type === 'CallExpression'
 			&& node.parent.arguments.includes(node)
-			&& isNodeMatches(node.parent.callee, options.functions)
-		) {
-			return true;
-		}
-
-		return false;
+			&& isNodeMatches(node.parent.callee, options.functions));
 	};
 
 	context.on('TemplateLiteral', /** @param {import('@babel/core').types.TemplateLiteral} node */ node => {

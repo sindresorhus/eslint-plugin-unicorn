@@ -249,14 +249,8 @@ function shouldReport({receiver, method, context}) {
 		return true;
 	}
 
-	if (
-		stringMethods.has(method)
-		&& isStringReceiver(receiver, context)
-	) {
-		return true;
-	}
-
-	return false;
+	return Boolean(stringMethods.has(method)
+		&& isStringReceiver(receiver, context));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

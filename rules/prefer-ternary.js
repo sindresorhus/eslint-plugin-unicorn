@@ -13,6 +13,7 @@ const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
 
 const isTernary = node => node?.type === 'ConditionalExpression';
+const isBooleanLiteral = node => node?.type === 'Literal' && typeof node.value === 'boolean';
 
 function getNodeBody(node) {
 	/* c8 ignore next 3 */
@@ -41,7 +42,8 @@ const isMergeableReturnStatement = (consequent, alternate) =>
 	consequent.type === 'ReturnStatement'
 	&& alternate.type === 'ReturnStatement'
 	&& !isTernary(consequent.argument)
-	&& !isTernary(alternate.argument);
+	&& !isTernary(alternate.argument)
+	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
 const isMergeableAssignmentExpression = (consequent, alternate) =>
 	consequent.type === 'AssignmentExpression'
@@ -302,7 +304,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if-else` statements that return or assign values.',
+			description: 'Prefer ternary expressions over simple `if` statements that return or assign values.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

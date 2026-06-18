@@ -16,11 +16,7 @@ const isNumberTypeAnnotation = typeAnnotation => {
 		return true;
 	}
 
-	if (typeAnnotation.type === 'TSTypeReference' && typeAnnotation.typeName.name === 'Number') {
-		return true;
-	}
-
-	return false;
+	return typeAnnotation.type === 'TSTypeReference' && typeAnnotation.typeName.name === 'Number';
 };
 
 function unwrapNode(node) {

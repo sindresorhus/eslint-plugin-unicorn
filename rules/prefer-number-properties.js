@@ -135,11 +135,7 @@ const create = context => {
 			return false;
 		}
 
-		if (!checkNaN && name === 'NaN') {
-			return false;
-		}
-
-		return true;
+		return checkNaN || name !== 'NaN';
 	});
 
 	const tracker = new GlobalReferenceTracker({

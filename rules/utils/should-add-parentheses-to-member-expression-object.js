@@ -33,11 +33,7 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 
 		case 'Literal': {
 			/* c8 ignore next */
-			if (isDecimalIntegerNode(node)) {
-				return true;
-			}
-
-			return false;
+			return Boolean(isDecimalIntegerNode(node));
 		}
 
 		default: {

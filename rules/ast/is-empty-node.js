@@ -9,9 +9,5 @@ export default function isEmptyNode(node, additionalEmpty) {
 		return true;
 	}
 
-	if (additionalEmpty?.(node)) {
-		return true;
-	}
-
-	return false;
+	return Boolean(additionalEmpty?.(node));
 }
