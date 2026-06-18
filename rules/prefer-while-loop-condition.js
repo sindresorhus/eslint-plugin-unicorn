@@ -175,15 +175,17 @@ const create = context => {
 		'ForStatement',
 		'WhileStatement',
 	], node => {
-		const rangeToCheck = node.type === 'DoWhileStatement'
-			? getDoWhileTailRange(node, sourceCode)
-			: getLoopHeadRange(node, sourceCode);
+		const loopSyntaxCommentRanges = [
+			getLoopHeadRange(node, sourceCode),
+			...(node.type === 'DoWhileStatement' ? [getDoWhileTailRange(node, sourceCode)] : []),
+		];
 
 		if (
 			!isInfiniteLoop(node)
 			|| node.body.type !== 'BlockStatement'
 			|| isLabeledStatementBody(node)
-			|| hasCommentInRange(context, rangeToCheck)
+			|| loopSyntaxCommentRanges.some(range => hasCommentInRange(context, range))
+			|| (node.type === 'DoWhileStatement' && getLastTrailingCommentOnSameLine(context, node))
 		) {
 			return;
 		}
@@ -240,6 +242,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		schema: [],
 		messages,
 		languages: [
 			'js/js',

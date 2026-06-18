@@ -139,6 +139,20 @@ test.snapshot({
 			} /* keep */ while (true);
 		`,
 		outdent`
+			do /* keep */ {
+				if (!hasMore()) {
+					break;
+				}
+			} while (true);
+		`,
+		outdent`
+			do {
+				if (!hasMore()) {
+					break;
+				}
+			} while (true); // Preserve this comment.
+		`,
+		outdent`
 			loop: for (;;) {
 				if (!hasMore()) {
 					break;
@@ -357,9 +371,35 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			for (;;) {
+				if (!hasMore()) {
+					break;
+				}
+
+				if (skip) {
+					continue;
+				}
+
+				processNext();
+			}
+		`,
+		outdent`
 			do {
 				if (!hasMore()) {
 					break;
+				}
+
+				processNext();
+			} while (true);
+		`,
+		outdent`
+			do {
+				if (!hasMore()) {
+					break;
+				}
+
+				if (skip) {
+					continue;
 				}
 
 				processNext();
