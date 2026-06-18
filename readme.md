@@ -28,17 +28,45 @@ Use a [preset config](#preset-configs) or configure each rule in `eslint.config.
 If you don't use a preset, set the same `languageOptions` as shown below.
 
 ```js
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 import globals from 'globals';
 
 export default defineConfig([
 	{
+		files: ['**/*.js'],
 		languageOptions: {
 			globals: globals.builtin,
 		},
 		plugins: {
-			unicorn: eslintPluginUnicorn,
+			unicorn,
+		},
+		rules: {
+			'unicorn/prefer-module': 'error',
+			'unicorn/…': 'error',
+		},
+	},
+	// …
+]);
+```
+
+For TypeScript, scope Unicorn to TypeScript files and configure a TypeScript parser for the same config object:
+
+```js
+import typescriptEslintParser from '@typescript-eslint/parser';
+import unicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
+import globals from 'globals';
+
+export default defineConfig([
+	{
+		files: ['**/*.ts'],
+		languageOptions: {
+			globals: globals.builtin,
+			parser: typescriptEslintParser,
+		},
+		plugins: {
+			unicorn,
 		},
 		rules: {
 			'unicorn/prefer-module': 'error',
@@ -366,6 +394,74 @@ export default defineConfig([
 
 While most rules target JavaScript and TypeScript, some also lint other file types when used with the corresponding [ESLint language plugin](https://eslint.org/docs/latest/use/configure/plugins#specifying-a-language) such as [`@eslint/css`](https://github.com/eslint/css), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), or [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint). Each such rule declares this with the `meta.languages` field.
 
+When linting JSON, CSS, Markdown, HTML, or other non-JavaScript languages in the same ESLint config, scope Unicorn's JavaScript rule config objects with `files`. Include TypeScript/JSX extensions there only if your config already provides the matching parser/language setup for those files.
+
+For example, keep Unicorn's JavaScript rules scoped separately, and enable only compatible Unicorn rules in each non-JavaScript language config:
+
+```js
+import css from '@eslint/css';
+import json from '@eslint/json';
+import markdown from '@eslint/markdown';
+import html from '@html-eslint/eslint-plugin';
+import unicorn from 'eslint-plugin-unicorn';
+import {defineConfig} from 'eslint/config';
+
+export default defineConfig([
+	{
+		files: ['**/*.js'],
+		extends: [unicorn.configs.recommended],
+	},
+	{
+		files: ['**/*.json'],
+		plugins: {
+			json,
+			unicorn,
+		},
+		language: 'json/json',
+		rules: {
+			'unicorn/no-empty-file': 'error',
+			'unicorn/prefer-https': 'error',
+		},
+	},
+	{
+		files: ['**/*.css'],
+		plugins: {
+			css,
+			unicorn,
+		},
+		language: 'css/css',
+		rules: {
+			'unicorn/prefer-https': 'error',
+			'unicorn/text-encoding-identifier-case': 'error',
+		},
+	},
+	{
+		files: ['**/*.html'],
+		plugins: {
+			html,
+			unicorn,
+		},
+		language: 'html/html',
+		rules: {
+			'unicorn/no-invalid-file-input-accept': 'error',
+			'unicorn/prefer-https': 'error',
+		},
+	},
+	{
+		files: ['**/*.md'],
+		plugins: {
+			markdown,
+			unicorn,
+		},
+		language: 'markdown/commonmark',
+		rules: {
+			'unicorn/expiring-todo-comments': 'error',
+			'unicorn/prefer-https': 'error',
+		},
+	},
+]);
+```
+
 <!-- Do not manually modify this list. Run: `npm run fix:non-js-languages` -->
 <!-- begin auto-generated non-js languages list -->
 
@@ -403,13 +499,14 @@ See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration
 This plugin exports a `recommended` config that enforces good practices.
 
 ```js
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	// …
 	{
-		extends: [eslintPluginUnicorn.configs.recommended],
+		files: ['**/*.js'],
+		extends: [unicorn.configs.recommended],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
@@ -422,13 +519,14 @@ export default defineConfig([
 This plugin exports an `all` config that enables every rule, except deprecated ones.
 
 ```js
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import unicorn from 'eslint-plugin-unicorn';
 import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	// …
 	{
-		extends: [eslintPluginUnicorn.configs.all],
+		files: ['**/*.js'],
+		extends: [unicorn.configs.all],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
