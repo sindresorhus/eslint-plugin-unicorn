@@ -76,6 +76,15 @@ const config = [
 	},
 	{
 		files: [
+			'.eslint-doc-generatorrc.js',
+		],
+		rules: {
+			// Keep the conventional eslint-doc-generator config filename.
+			'unicorn/name-replacements': 'off',
+		},
+	},
+	{
+		files: [
 			'rules/comment-content.js',
 			'rules/consistent-assert.js',
 			'rules/no-for-each.js',
