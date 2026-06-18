@@ -31,6 +31,12 @@ test.snapshot({
 		`,
 		outdent`
 			if (foo) {
+			} else {
+				;
+			}
+		`,
+		outdent`
+			if (foo) {
 				// TODO
 			} else {
 				// TODO
@@ -167,6 +173,12 @@ test.snapshot({
 			else {
 				bar();
 			}
+		`,
+		outdent`
+			if (foo)
+				bar();
+			else
+				bar()
 		`,
 		outdent`
 			if (foo) {
