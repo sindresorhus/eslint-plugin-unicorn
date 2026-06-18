@@ -62,17 +62,13 @@ const isSingleCharacterAccess = (node, context) => {
 
 	// `string[index]` — computed access with a static numeric key, on a proven string.
 	// Dynamic keys can resolve to regular string properties, such as `length`.
-	if (
+	return (
 		node.type === 'MemberExpression'
 		&& node.computed
 		&& !node.optional
 		&& isStaticStringIndex(node.property)
 		&& isString(node.object, context)
-	) {
-		return true;
-	}
-
-	return false;
+	);
 };
 
 /** @param {ESLint.Rule.RuleContext} context */
