@@ -267,6 +267,7 @@ export {default as 'prefer-top-level-await'} from './prefer-top-level-await.js';
 export {default as 'prefer-type-error'} from './prefer-type-error.js';
 export {default as 'prefer-type-literal-last'} from './prefer-type-literal-last.js';
 export {default as 'prefer-uint8array-base64'} from './prefer-uint8array-base64.js';
+export {default as 'prefer-unary-minus'} from './prefer-unary-minus.js';
 export {default as 'prefer-unicode-code-point-escapes'} from './prefer-unicode-code-point-escapes.js';
 export {default as 'prefer-url-href'} from './prefer-url-href.js';
 export {default as 'prefer-while-loop-condition'} from './prefer-while-loop-condition.js';
