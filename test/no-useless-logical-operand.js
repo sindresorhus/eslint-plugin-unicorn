@@ -35,6 +35,9 @@ test.snapshot({
 		// Mixed logical operators are not flattened together.
 		'const value = input && (other || false);',
 		'const value = input || (other && true);',
+
+		// `for` initializers are not boolean contexts.
+		'for (input && true;;) {}',
 	],
 	invalid: [
 		// Leading identity operands.
@@ -46,11 +49,15 @@ test.snapshot({
 		'const value = input || false || other;',
 		'const value = true && input && true && other;',
 		'const value = false || input || false || other;',
+		'const value = true && true;',
+		'const value = false || false;',
 
 		// Trailing identity operands in boolean contexts.
 		'if (input && true) {}',
 		'if (input || false) {}',
 		'while (input && true) {}',
+		'for (; input && true;) {}',
+		'do {} while (input || false);',
 		'const value = input && true ? yes : no;',
 		'const value = Boolean(input || false);',
 		'const value = !(input && true);',
@@ -70,13 +77,20 @@ test.snapshot({
 		// Parenthesized expressions.
 		'const value = (true && input);',
 		'const value = ((false || input));',
+		'const value = true && (input || other);',
+		'const value = false || (input && other);',
 		'const value = true && (input || other) && final;',
+		'const value = (input || false || other) && final;',
+		'const value = final && (input || false || other);',
+		'const value = (input && true && other) || final;',
 
 		// Object expressions must remain valid when they become the first operand.
 		'const value = true && {};',
 		'true && {};',
 		'const value = true && {} && input;',
 		'true && {} && input;',
+		'true && function () {} && input;',
+		'true && class {} && input;',
 
 		// ASI-sensitive replacements.
 		outdent`
@@ -88,9 +102,14 @@ test.snapshot({
 			false || (1 + 2)
 		`,
 
-		// Comments are reported but not fixed.
+		// Comments attached to the chain are reported but not fixed.
 		'const value = true /* keep */ && input;',
 		'if (input && /* keep */ true) {}',
+		'const value = true && call(/* keep */);',
+		'const value = /* keep */ true && input;',
+
+		// Trailing comments outside the chain are preserved.
+		'const value = true && input /* keep */;',
 
 		// TypeScript.
 		{code: 'declare const flag: boolean;\nconst value = flag && true;', languageOptions: {parser: parsers.typescript}},

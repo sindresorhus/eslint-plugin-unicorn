@@ -17,7 +17,7 @@ import {
 
 const MESSAGE_ID = 'no-useless-logical-operand';
 const messages = {
-	[MESSAGE_ID]: 'Remove the useless `{{literal}}` operand from this `{{operator}}` expression.',
+	[MESSAGE_ID]: 'Simplify this `{{operator}}` expression with a useless `{{literal}}` operand.',
 };
 
 const identityByOperator = new Map([
@@ -66,21 +66,9 @@ function isRemovableIdentityOperand(operands, index, context) {
 	return isBooleanContext(operands[index].parent, context) || isKnownBooleanExpression(remainingOperands, context);
 }
 
-function getAbsorbingReplacement(operands, operator) {
+function getLeadingAbsorbingOperand(operands, operator) {
 	const absorbingValue = absorbingByOperator.get(operator);
-	const absorbingIndex = operands.findIndex(operand => isBooleanLiteral(operand, absorbingValue));
-
-	if (absorbingIndex === -1) {
-		return;
-	}
-
-	if (absorbingIndex === 0) {
-		return operands[absorbingIndex];
-	}
-
-	// Non-leading absorbing operands like `value && false` and `value || true`
-	// still evaluate the preceding operands, so replacing the whole expression
-	// can drop side effects, coercion, or thrown errors.
+	return isBooleanLiteral(operands[0], absorbingValue) ? operands[0] : undefined;
 }
 
 function getRemovableIdentityOperands(operands, operator, context) {
@@ -92,8 +80,10 @@ function getRemovableIdentityOperands(operands, operator, context) {
 	);
 }
 
-function getReplacementOperands(operands, removableOperands) {
-	return operands.filter(operand => !removableOperands.includes(operand));
+function needsExpressionStatementParentheses(operand, text) {
+	return operand.type === 'FunctionExpression'
+		|| operand.type === 'ClassExpression'
+		|| text.startsWith('{');
 }
 
 function getOperandText(operand, operator, index, context) {
@@ -109,7 +99,10 @@ function getOperandText(operand, operator, index, context) {
 		text = `(${text})`;
 	}
 
-	if (index === 0 && text.startsWith('{')) {
+	if (
+		index === 0
+		&& needsExpressionStatementParentheses(operand, text)
+	) {
 		text = `(${text})`;
 	}
 
@@ -129,12 +122,12 @@ function getReplacementText(node, replacementOperands, operator, context) {
 function getProblem(node, context) {
 	const {operator} = node;
 	const operands = getLogicalOperands(node, operator);
-	const absorbingReplacement = getAbsorbingReplacement(operands, operator);
+	const leadingAbsorbingOperand = getLeadingAbsorbingOperand(operands, operator);
 
-	if (absorbingReplacement) {
+	if (leadingAbsorbingOperand) {
 		return {
-			target: absorbingReplacement,
-			replacementOperands: [absorbingReplacement],
+			target: leadingAbsorbingOperand,
+			replacementOperands: [leadingAbsorbingOperand],
 		};
 	}
 
@@ -143,9 +136,11 @@ function getProblem(node, context) {
 		return;
 	}
 
+	const replacementOperands = operands.filter(operand => !removableOperands.includes(operand));
+
 	return {
 		target: removableOperands[0],
-		replacementOperands: getReplacementOperands(operands, removableOperands),
+		replacementOperands: replacementOperands.length === 0 ? [removableOperands.at(-1)] : replacementOperands,
 	};
 }
 
