@@ -65,9 +65,16 @@ const objectPrototypeProperties = [
 	'valueOf',
 ];
 
-const objectPrototypeMethods = objectPrototypeProperties.filter(propertyName => propertyName !== '__proto__');
+const objectPrototypeMethods = objectPrototypeProperties.filter(propertyName => (
+	propertyName !== '__proto__'
+	&& propertyName !== 'constructor'
+));
 
 const objectPrototypeConstructors = [
+	'constructor',
+];
+
+const callableConstructorProperties = [
 	'constructor',
 ];
 
@@ -84,6 +91,7 @@ const functionPrototypeProperties = [
 
 const functionPrototypeMethods = [
 	...objectPrototypeMethods,
+	...callableConstructorProperties,
 	'apply',
 	'bind',
 	'call',
@@ -146,6 +154,7 @@ const extendPropertyInfo = (propertyInfo, {properties = [], methods = [], constr
 const arrayPrototype = createPropertyInfo({
 	properties: ['length'],
 	methods: [
+		...callableConstructorProperties,
 		'at',
 		'concat',
 		'copyWithin',
@@ -200,6 +209,10 @@ const arrayBufferPrototype = createPropertyInfo({
 	],
 });
 
+const booleanPrototype = createPropertyInfo({
+	methods: callableConstructorProperties,
+});
+
 const dataViewPrototype = createPropertyInfo({
 	properties: [
 		'buffer',
@@ -234,6 +247,7 @@ const dataViewPrototype = createPropertyInfo({
 
 const datePrototype = createPropertyInfo({
 	methods: [
+		...callableConstructorProperties,
 		'getDate',
 		'getDay',
 		'getFullYear',
@@ -296,7 +310,10 @@ const errorPrototype = createPropertyInfo({
 		'message',
 		'name',
 	],
-	methods: ['toString'],
+	methods: [
+		...callableConstructorProperties,
+		'toString',
+	],
 });
 
 const errorInstance = createPropertyInfo({
@@ -318,6 +335,7 @@ const errorStatic = createConstructorPropertyInfo({
 
 const bigIntPrototype = createPropertyInfo({
 	inheritedConstructors: [],
+	methods: callableConstructorProperties,
 });
 
 const finalizationRegistryPrototype = createPropertyInfo({
@@ -362,10 +380,15 @@ const mapPrototype = createPropertyInfo({
 
 const numberPrototype = createPropertyInfo({
 	methods: [
+		...callableConstructorProperties,
 		'toExponential',
 		'toFixed',
 		'toPrecision',
 	],
+});
+
+const objectPrototype = createPropertyInfo({
+	methods: callableConstructorProperties,
 });
 
 const objectStatic = createConstructorPropertyInfo({
@@ -425,7 +448,10 @@ const regexpMethods = [
 
 const regexpPrototype = createPropertyInfo({
 	properties: regexpProperties,
-	methods: regexpMethods,
+	methods: [
+		...callableConstructorProperties,
+		...regexpMethods,
+	],
 });
 
 const regexpInstance = createPropertyInfo({
@@ -433,7 +459,10 @@ const regexpInstance = createPropertyInfo({
 		...regexpProperties,
 		'lastIndex',
 	],
-	methods: regexpMethods,
+	methods: [
+		...callableConstructorProperties,
+		...regexpMethods,
+	],
 });
 
 const setPrototype = createPropertyInfo({
@@ -472,6 +501,7 @@ const sharedArrayBufferPrototype = createPropertyInfo({
 const stringPrototype = createPropertyInfo({
 	properties: ['length'],
 	methods: [
+		...callableConstructorProperties,
 		'at',
 		'anchor',
 		'big',
@@ -525,6 +555,7 @@ const stringPrototype = createPropertyInfo({
 
 const symbolPrototype = createPropertyInfo({
 	inheritedConstructors: [],
+	methods: callableConstructorProperties,
 	properties: ['description'],
 });
 
@@ -718,8 +749,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Boolean: {
-		instance: createPropertyInfo(),
-		prototype: createPropertyInfo(),
+		instance: booleanPrototype,
+		prototype: booleanPrototype,
 		static: createConstructorPropertyInfo(),
 	},
 	DataView: {
@@ -802,8 +833,8 @@ const nativeObjects = new Map(Object.entries({
 		}),
 	},
 	Object: {
-		instance: createPropertyInfo(),
-		prototype: createPropertyInfo(),
+		instance: objectPrototype,
+		prototype: objectPrototype,
 		static: objectStatic,
 	},
 	Promise: {

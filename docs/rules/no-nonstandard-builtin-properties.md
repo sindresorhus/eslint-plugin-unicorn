@@ -63,6 +63,8 @@ Math.PI;
 
 ## Limitations
 
+The static list tracks the main ECMAScript draft and selected web-standard built-ins. It does not include runtime-specific extensions or separate proposal drafts.
+
 Computed access with non-static or non-string property names is ignored. Static computed string keys are still checked.
 
 ```js
@@ -84,6 +86,14 @@ const Object = {
 };
 
 Object.entires(value);
+```
+
+Aliases are ignored.
+
+```js
+// ✅
+const {Object: BuiltinObject} = globalThis;
+BuiltinObject.entires(value);
 ```
 
 Object literals are ignored because their properties are usually user-defined.
