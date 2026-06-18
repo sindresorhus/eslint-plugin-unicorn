@@ -297,6 +297,45 @@ function * getAssignmentTargets(node) {
 
 /**
 @param {ESTree.Node} node
+@returns {Generator<ESTree.Node>}
+*/
+function * getMutationTargets(node) {
+	if (node.type === 'AssignmentExpression') {
+		yield node.left;
+		return;
+	}
+
+	if (node.type === 'UpdateExpression') {
+		yield node.argument;
+		return;
+	}
+
+	if (node.type === 'UnaryExpression' && node.operator === 'delete') {
+		yield node.argument;
+		return;
+	}
+
+	if (node.type === 'VariableDeclaration' && node.kind === 'var') {
+		for (const declarator of node.declarations) {
+			yield declarator.id;
+		}
+
+		return;
+	}
+
+	if (
+		(
+			node.type === 'ForInStatement'
+			|| node.type === 'ForOfStatement'
+		)
+		&& node.left.type !== 'VariableDeclaration'
+	) {
+		yield node.left;
+	}
+}
+
+/**
+@param {ESTree.Node} node
 @param {ESLint.SourceCode.VisitorKeys} visitorKeys
 @returns {Generator<ESTree.Node>}
 */
@@ -330,26 +369,7 @@ function hasDirectDiscriminantMutation(node, discriminant, context) {
 	const discriminantReferences = getReferencePrefixes(discriminant);
 
 	for (const childNode of traverse(node, context.sourceCode.visitorKeys)) {
-		const targets = [];
-
-		if (childNode.type === 'AssignmentExpression') {
-			targets.push(childNode.left);
-		} else if (childNode.type === 'UpdateExpression') {
-			targets.push(childNode.argument);
-		} else if (childNode.type === 'UnaryExpression' && childNode.operator === 'delete') {
-			targets.push(childNode.argument);
-		} else if (childNode.type === 'VariableDeclaration' && childNode.kind === 'var') {
-			for (const declarator of childNode.declarations) {
-				targets.push(declarator.id);
-			}
-		} else if (
-			(childNode.type === 'ForInStatement' || childNode.type === 'ForOfStatement')
-			&& childNode.left.type !== 'VariableDeclaration'
-		) {
-			targets.push(childNode.left);
-		}
-
-		for (const target of targets) {
+		for (const target of getMutationTargets(childNode)) {
 			for (const assignmentTarget of getAssignmentTargets(target)) {
 				if (discriminantReferences.some(reference => isSame(assignmentTarget, reference))) {
 					return true;
