@@ -346,7 +346,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer early continues over whole-loop conditional wrapping.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
 		schema,
