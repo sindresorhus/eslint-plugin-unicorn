@@ -11,9 +11,11 @@
 
 Deletion is already safe when the property, key, or value does not exist. Guarding the deletion with an existence check often adds unnecessary code.
 
-This rule reports simple `in` checks before object property deletion for object and array literals, functions, classes, and explicit TypeScript `object`, function, or constructor types, and `.has()` checks before deletion from known local `const` variables initialized with global `Map`, `Set`, `WeakMap`, or `WeakSet`.
+This rule reports simple `in` checks before object property deletion for statically known object values, including object and array literals, function, arrow function, and class expressions assigned to `const` variables, and explicit TypeScript `object`, function, or constructor types. It also reports `.has()` checks before deletion from known local `const` variables initialized with global `Map`, `Set`, `WeakMap`, or `WeakSet`.
 
 The rule is intentionally conservative. It does not report `else` branches, compound conditions, unknown object receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only TypeScript intersection types, type-only collection annotations, or cases where the receiver or key may have side effects.
+
+The rule assumes collection methods and prototypes on locally created `Map`, `Set`, `WeakMap`, and `WeakSet` instances retain their native behavior.
 
 `Map`, `Set`, `WeakMap`, and `WeakSet` cases are automatically fixed when the guard can be removed without dropping comments. Object property deletion is provided as a suggestion under the same comment-preserving constraint because `Proxy` traps can make unconditional `delete` observable.
 
@@ -57,6 +59,8 @@ set.delete(value);
 
 ```js
 // ✅
+const map = new Map();
+
 if (map.has(key)) {
 	map.delete(key);
 } else {
