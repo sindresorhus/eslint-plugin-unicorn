@@ -8,6 +8,7 @@ const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
 const ERROR_AT_ZERO = 'error-at-zero';
 const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
+const ERROR_SLICE_MINUS_ONE = 'error-slice-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -960,6 +961,9 @@ test({
 	valid: [
 		'array.filter(foo).pop()',
 		'array.filter(foo).at(-1)',
+		'array.filter(foo).slice(-1)[0]',
+		'array.filter(foo).slice(-1).pop()',
+		'array.filter(foo).slice(-1).shift()',
 	].map(code => ({code, options: [{checkFromLast: false}]})),
 	invalid: [],
 });
@@ -1127,6 +1131,197 @@ test({
 					;
 			`,
 			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+		},
+	],
+});
+
+// `.slice(-1)[0]`, `.slice(-1).pop()`, `.slice(-1).shift()`
+test({
+	valid: [
+		// Test `.slice()`
+		// Not `CallExpression`
+		'array.filter(foo).slice[0]',
+		// `callee.property` is not a `Identifier`
+		'array.filter(foo)["slice"](-1)[0]',
+		// Computed
+		'array.filter(foo)[slice](-1)[0]',
+		// Not `slice`
+		'array.filter(foo).notSlice(-1)[0]',
+		// More or less argument(s)
+		'array.filter(foo).slice()[0]',
+		'array.filter(foo).slice(-1, 1)[0]',
+		'array.filter(foo).slice(...[-1])[0]',
+		// Optional call/member on `.slice`
+		'array.filter(foo)?.slice(-1)[0]',
+
+		// Test `-1`
+		'array.filter(foo).slice(1)[0]',
+		'array.filter(foo).slice(+1)[0]',
+		'const ONE = 1; array.filter(foo).slice(-ONE)[0]',
+		'const MINUS_ONE = -1; array.filter(foo).slice(MINUS_ONE)[0]',
+		'array.filter(foo).slice(-2)[0]',
+		'array.filter(foo).slice(0)[0]',
+		'array.filter(foo).slice(-(-1))[0]',
+		'array.filter(foo).slice(-1.)[0]',
+		'array.filter(foo).slice(-0b1)[0]',
+		'array.filter(foo).slice(-"1")[0]',
+
+		// Test accessor
+		// Not `0`
+		'array.filter(foo).slice(-1)[1]',
+		'array.filter(foo).slice(-1)["0"]',
+		'array.filter(foo).slice(-1).at(0)',
+		'array.filter(foo).slice(-1).at(-1)',
+		// Optional access
+		'array.filter(foo).slice(-1)?.[0]',
+		// Not `pop`/`shift`
+		'array.filter(foo).slice(-1).find(foo)',
+		'array.filter(foo).slice(-1).pop(extraArgument)',
+		'array.filter(foo).slice(-1).shift(extraArgument)',
+		// Optional call on `.pop()`/`.shift()`
+		'array.filter(foo).slice(-1)?.pop()',
+		'array.filter(foo).slice(-1)?.shift()',
+		// Left-hand side
+		'array.filter(foo).slice(-1)[0] = bar',
+		'array.filter(foo).slice(-1)[0] += bar',
+		'++ array.filter(foo).slice(-1)[0]',
+		'array.filter(foo).slice(-1)[0]--',
+		'delete array.filter(foo).slice(-1)[0]',
+
+		// Test `.filter()`
+		// Not `filter`
+		'array.notFilter(foo).slice(-1)[0]',
+		'array.notFilter(foo).slice(-1).pop()',
+		// Optional call on `.filter`
+		'array.filter?.(foo).slice(-1)[0]',
+		// More or less argument(s)
+		'array.filter().slice(-1)[0]',
+		'array.filter(foo, thisArgument, extraArgument).slice(-1)[0]',
+		'array.filter(...foo).slice(-1)[0]',
+		// Known non-array
+		{
+			code: 'function f(foo: Set<number>) { return foo.filter(fn).slice(-1)[0]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'array.filter(foo).slice(-1)[0]',
+			output: 'array.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo).slice(-1).pop()',
+			output: 'array.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo).slice(-1).shift()',
+			output: 'array.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array?.filter(foo).slice(-1)[0]',
+			output: 'array?.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array?.filter(foo).slice(-1).pop()',
+			output: 'array?.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array?.filter(foo).slice(-1).shift()',
+			output: 'array?.findLast(foo)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo, thisArgument).slice(-1)[0]',
+			output: 'array.findLast(foo, thisArgument)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo, thisArgument).slice(-1).pop()',
+			output: 'array.findLast(foo, thisArgument)',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		// Result used in a declaration
+		{
+			code: 'const item = array.filter(foo).slice(-1)[0];',
+			output: 'const item = array.findLast(foo);',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		// Result used as an argument
+		{
+			code: 'foo(array.filter(bar).slice(-1)[0])',
+			output: 'foo(array.findLast(bar))',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		// Parenthesized `.filter()` call
+		{
+			code: '(array.filter(foo)).slice(-1)[0]',
+			output: '(array.findLast(foo))',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		// TypeScript non-null assertion on the result
+		{
+			code: 'array.filter(foo).slice(-1)[0]!',
+			output: 'array.findLast(foo)!',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		// Don't drop comments in the removed slice/accessor part.
+		{
+			code: 'array.filter(foo).slice(/* comment */ -1)[0]',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo).slice(-1) /* comment */ [0]',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: 'array.filter(foo).slice(-1) /* comment */ .pop()',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.slice(
+						// comment 4
+						-1
+					)
+					// comment 5
+					[0]
+					// comment 6
+					;
+			`,
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+		{
+			code: outdent`
+				const item = array
+					// comment 1
+					.filter(
+						// comment 2
+						x => x === '🦄'
+					)
+					// comment 3
+					.slice(
+						// comment 4
+						-1
+					)
+					// comment 5
+					.pop()
+					// comment 6
+					;
+			`,
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
 		},
 	],
 });

@@ -36,6 +36,9 @@ const item = array.filter(x => isUnicorn(x)).at(-1);
 // ❌
 const item = array.filter(x => isUnicorn(x)).pop();
 
+// ❌
+const item = array.filter(x => isUnicorn(x)).slice(-1)[0];
+
 // ✅
 const item = array.findLast(x => isUnicorn(x));
 ```

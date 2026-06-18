@@ -8,9 +8,11 @@ import {
 import {
 	isLeftHandSide,
 	singular,
+	getParenthesizedRange,
 	getScopes,
 	getAvailableVariableName,
 	getVariableIdentifiers,
+	hasCommentInRange,
 	isKnownNonArray,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
@@ -20,6 +22,7 @@ const ERROR_SHIFT = 'error-shift';
 const ERROR_POP = 'error-pop';
 const ERROR_AT_ZERO = 'error-at-zero';
 const ERROR_AT_MINUS_ONE = 'error-at-minus-one';
+const ERROR_SLICE_MINUS_ONE = 'error-slice-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
@@ -32,6 +35,7 @@ const messages = {
 	[ERROR_SHIFT]: 'Prefer `.find(…)` over `.filter(…).shift()`.',
 	[ERROR_POP]: 'Prefer `.findLast(…)` over `.filter(…).pop()`.',
 	[ERROR_AT_MINUS_ONE]: 'Prefer `.findLast(…)` over `.filter(…).at(-1)`.',
+	[ERROR_SLICE_MINUS_ONE]: 'Prefer `.findLast(…)` over `.filter(…).slice(-1)`.',
 	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
@@ -47,6 +51,22 @@ const isArrayFilterCall = (node, context, options) => isMethodCall(node, {
 	optionalCall: false,
 	...options,
 }) && !isKnownNonArray(node.callee.object, context);
+
+// `-1`
+const isNegativeOneLiteral = node =>
+	node.type === 'UnaryExpression'
+	&& node.operator === '-'
+	&& node.prefix
+	&& node.argument.type === 'Literal'
+	&& node.argument.raw === '1';
+
+// `array.filter(…).slice(-1)`
+const isArrayFilterSliceLastCall = (node, context) => isMethodCall(node, {
+	method: 'slice',
+	argumentsLength: 1,
+	optionalCall: false,
+	optionalMember: false,
+}) && isNegativeOneLiteral(node.arguments[0]) && isArrayFilterCall(node.callee.object, context);
 
 // Need add `()` to the `AssignmentExpression`
 // - `ObjectExpression`: `[{foo}] = array.filter(bar)` fix to `{foo} = array.find(bar)`
@@ -402,11 +422,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
-			&& node.arguments[0].type === 'UnaryExpression'
-			&& node.arguments[0].operator === '-'
-			&& node.arguments[0].prefix
-			&& node.arguments[0].argument.type === 'Literal'
-			&& node.arguments[0].argument.raw === '1'
+			&& isNegativeOneLiteral(node.arguments[0])
 			&& isArrayFilterCall(node.callee.object, context)
 		)) {
 			return;
@@ -419,6 +435,80 @@ const create = context => {
 				fixer.replaceText(node.callee.object.callee.property, 'findLast'),
 				...removeMethodCall(fixer, node, context),
 			],
+		};
+	});
+
+	// `array.filter().slice(-1)[0]`
+	// `array?.filter().slice(-1)[0]`
+	context.on('MemberExpression', node => {
+		if (!(
+			node.computed
+			&& !node.optional
+			&& node.property.type === 'Literal'
+			&& node.property.raw === '0'
+			&& !isLeftHandSide(node)
+			&& isArrayFilterSliceLastCall(node.object, context)
+		)) {
+			return;
+		}
+
+		const filterCall = node.object.callee.object;
+
+		return {
+			node: filterCall.callee.property,
+			messageId: ERROR_SLICE_MINUS_ONE,
+			* fix(fixer, {abort}) {
+				if (hasCommentInRange(context, [
+					getParenthesizedRange(filterCall, context)[1],
+					sourceCode.getRange(node)[1],
+				])) {
+					return abort();
+				}
+
+				yield fixer.replaceText(filterCall.callee.property, 'findLast');
+				// Remove `.slice(-1)`
+				yield removeMethodCall(fixer, node.object, context);
+				// Remove `[0]`
+				yield removeMemberExpressionProperty(fixer, node, context);
+			},
+		};
+	});
+
+	// `array.filter().slice(-1).pop()`
+	// `array?.filter().slice(-1).pop()`
+	// `array.filter().slice(-1).shift()`
+	context.on('CallExpression', node => {
+		if (!(
+			isMethodCall(node, {
+				methods: ['pop', 'shift'],
+				argumentsLength: 0,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isArrayFilterSliceLastCall(node.callee.object, context)
+		)) {
+			return;
+		}
+
+		const filterCall = node.callee.object.callee.object;
+
+		return {
+			node: filterCall.callee.property,
+			messageId: ERROR_SLICE_MINUS_ONE,
+			* fix(fixer, {abort}) {
+				if (hasCommentInRange(context, [
+					getParenthesizedRange(filterCall, context)[1],
+					sourceCode.getRange(node)[1],
+				])) {
+					return abort();
+				}
+
+				yield fixer.replaceText(filterCall.callee.property, 'findLast');
+				// Remove `.slice(-1)`
+				yield removeMethodCall(fixer, node.callee.object, context);
+				// Remove `.pop()` / `.shift()`
+				yield removeMethodCall(fixer, node, context);
+			},
 		};
 	});
 };
