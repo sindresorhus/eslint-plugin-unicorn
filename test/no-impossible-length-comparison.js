@@ -5,9 +5,14 @@ const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'no-impossible-length-comparison';
 const error = {messageId: MESSAGE_ID};
-const lengthAlwaysFalseError = {message: 'This comparison is always false because `.length` is always a non-negative integer.'};
-const lengthAlwaysTrueError = {message: 'This comparison is always true because `.length` is always a non-negative integer.'};
-const sizeAlwaysTrueError = {message: 'This comparison is always true because `.size` is always a non-negative integer.'};
+const createError = (property, result) => ({
+	messageId: MESSAGE_ID,
+	data: {property, result},
+});
+const lengthAlwaysFalseError = createError('length', 'false');
+const lengthAlwaysTrueError = createError('length', 'true');
+const sizeAlwaysFalseError = createError('size', 'false');
+const sizeAlwaysTrueError = createError('size', 'true');
 
 test({
 	valid: [
@@ -23,6 +28,8 @@ test({
 		'if (array["length"] < 0) {}',
 		'if (this.length < 0) {}',
 		'if (this.size < 0) {}',
+		'class Foo extends Bar { method() { if (super.length < 0) {} } }',
+		'class Foo extends Bar { method() { if (super.size < 0) {} } }',
 		{
 			code: 'if ((this as Foo).length < 0) {}',
 			languageOptions: {parser: parsers.typescript},
@@ -104,7 +111,7 @@ test({
 		},
 		{
 			code: 'if (set.size <= -1) {}',
-			errors: [error],
+			errors: [sizeAlwaysFalseError],
 		},
 		{
 			code: 'if (set.size >= 0) {}',

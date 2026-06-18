@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The `length` and `size` properties of built-in collections and strings represent a count, so they cannot be negative. Comparing them against a negative bound, or checking whether they are at least zero, is either always `false` or always `true`, which usually means the wrong value or comparison operator was used.
+The `length` property of arrays and strings, and the `size` property of built-in collections, represent a count, so they cannot be negative. Comparing them against a negative bound, or checking whether they are at least zero, is either always `false` or always `true`, which usually means the wrong value or comparison operator was used.
 
 ## Examples
 

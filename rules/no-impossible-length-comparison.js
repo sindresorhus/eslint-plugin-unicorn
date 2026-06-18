@@ -104,8 +104,9 @@ function isOptionalChainReceiver(memberExpression) {
 	return hasOptionalChain(memberExpression.object);
 }
 
-function isThisReceiver(memberExpression) {
-	return unwrapTypeScriptExpression(memberExpression.object).type === 'ThisExpression';
+function isCustomClassReceiver(memberExpression) {
+	const receiver = unwrapTypeScriptExpression(memberExpression.object);
+	return receiver.type === 'ThisExpression' || receiver.type === 'Super';
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -122,7 +123,7 @@ const create = context => {
 
 		const {memberExpression} = comparison;
 		if (
-			isThisReceiver(memberExpression)
+			isCustomClassReceiver(memberExpression)
 			|| isOptionalChainReceiver(memberExpression)
 			|| isKnownNonCollectionLengthOrSize(memberExpression, context)
 			|| hasSameObjectShapePropertyCheck({node, lengthNode: memberExpression})
