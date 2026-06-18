@@ -76,6 +76,7 @@ export {default as 'no-incorrect-query-selector'} from './no-incorrect-query-sel
 export {default as 'no-incorrect-template-string-interpolation'} from './no-incorrect-template-string-interpolation.js';
 export {default as 'no-instanceof-builtins'} from './no-instanceof-builtins.js';
 export {default as 'no-invalid-argument-count'} from './no-invalid-argument-count.js';
+export {default as 'no-invalid-character-comparison'} from './no-invalid-character-comparison.js';
 export {default as 'no-invalid-fetch-options'} from './no-invalid-fetch-options.js';
 export {default as 'no-invalid-file-input-accept'} from './no-invalid-file-input-accept.js';
 export {default as 'no-invalid-remove-event-listener'} from './no-invalid-remove-event-listener.js';
