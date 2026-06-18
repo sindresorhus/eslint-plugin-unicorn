@@ -1,6 +1,6 @@
-# prevent-abbreviations
+# name-replacements
 
-📝 Prevent abbreviations.
+📝 Enforce replacements for variable, property, and filenames.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Using complete words results in more readable code. Not everyone knows all your abbreviations. Code is written only once, but read many times.
+Using clear names results in more readable code. Code is written only once, but read many times.
 
-This rule can also be used to replace terms, disallow words, etc. See the [`replacements`](#replacements) and [`extendDefaultReplacements`](#extenddefaultreplacements) options.
+This rule enforces replacements for names, including variables, properties, imports, and filenames. The default replacements focus on common abbreviations, but the rule can also be used to replace terms, disallow words, etc. See the [`replacements`](#replacements) and [`extendDefaultReplacements`](#extenddefaultreplacements) options.
 
-You can find the default replacements [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/rules/shared/abbreviations.js).
+You can find the default replacements [here](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/rules/shared/name-replacements.js).
 
 This rule is automatically fixable only for variable names with exactly one replacement defined. Ambiguous variable names and checked property names can be manually fixed with editor suggestions when the rename is local to source text. Filename reports and exported-name property reports do not provide editor suggestions.
 
@@ -29,7 +29,7 @@ Use an ESLint `files` override if you only want to allow those conventions in Re
 {
 	files: ['**/*.{jsx,tsx}'],
 	rules: {
-		'unicorn/prevent-abbreviations': [
+		'unicorn/name-replacements': [
 			'error',
 			{
 				replacements: {
@@ -113,7 +113,7 @@ The example below:
 - adds a custom `errCb` → `handleError` replacement.
 
 ```js
-'unicorn/prevent-abbreviations': [
+'unicorn/name-replacements': [
 	'error',
 	{
 		replacements: {
@@ -142,7 +142,7 @@ Pass `"extendDefaultReplacements": false` to override the default `replacements`
 The example below disables all the default replacements and enables a custom `cmd` → `command` one.
 
 ```js
-'unicorn/prevent-abbreviations': [
+'unicorn/name-replacements': [
 	'error',
 	{
 		extendDefaultReplacements: false,
@@ -166,7 +166,7 @@ Unlike the `replacements` option, `allowList` matches full identifier names case
 For example, if you want to report `props` → `properties` (enabled by default), but allow `getInitialProps`, you could use the following configuration.
 
 ```js
-'unicorn/prevent-abbreviations': [
+'unicorn/name-replacements': [
 	'error',
 	{
 		allowList: {
@@ -271,7 +271,7 @@ Pass `"checkVariables": false` to disable checking variable names.
 Type: `boolean`\
 Default: `true`
 
-Pass `"checkFilenames": false` to disable checking file names.
+Pass `"checkFilenames": false` to disable checking filenames.
 
 ### ignore
 
@@ -283,7 +283,7 @@ This option lets you specify a regex pattern for matches to ignore.
 When a string is given, it's interpreted as a regular expression inside a string.
 
 ```js
-'unicorn/prevent-abbreviations': [
+'unicorn/name-replacements': [
 	'error',
 	{
 		ignore: [

@@ -28,6 +28,10 @@ const deprecatedRules = createDeprecatedRules({
 		message: 'Replaced by `unicorn/prefer-single-call` which covers more cases.',
 		replacedBy: ['unicorn/prefer-single-call'],
 	},
+	'prevent-abbreviations': {
+		message: 'Renamed to `unicorn/name-replacements`.',
+		replacedBy: ['unicorn/name-replacements'],
+	},
 	'prefer-json-parse-buffer': {
 		message: 'Renamed to `unicorn/consistent-json-file-read`.',
 		replacedBy: ['unicorn/consistent-json-file-read'],

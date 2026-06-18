@@ -1,5 +1,3 @@
-/* eslint unicorn/prevent-abbreviations:"off" -- https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2015 */
-
 /** @type {import('eslint-doc-generator').GenerateOptions} */
 const config = {
 	configEmoji: [
