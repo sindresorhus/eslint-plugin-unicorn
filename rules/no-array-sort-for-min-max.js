@@ -1,4 +1,9 @@
-import {isFunction, isMethodCall, isNumericLiteral} from './ast/index.js';
+import {
+	isFunction,
+	isMethodCall,
+	isNegativeOne,
+	isNumericLiteral,
+} from './ast/index.js';
 import {
 	isKnownNonArray,
 	isLeftHandSide,
@@ -15,14 +20,12 @@ const messages = {
 
 const isZero = node => isNumericLiteral(node) && node.value === 0;
 
-const isNegativeOne = node =>
-	(isNumericLiteral(node) && node.value === -1)
-	|| (
-		node.type === 'UnaryExpression'
-		&& node.operator === '-'
-		&& isNumericLiteral(node.argument)
-		&& node.argument.value === 1
-	);
+const isLoopLeftHandSide = node =>
+	(
+		node.parent.type === 'ForInStatement'
+		|| node.parent.type === 'ForOfStatement'
+	)
+	&& node.parent.left === node;
 
 const getFunctionBodyExpression = node => {
 	if (node.body.type !== 'BlockStatement') {
@@ -56,6 +59,10 @@ const getSortDirection = comparator => {
 	}
 
 	const [firstParameter, secondParameter] = comparator.params;
+	if (firstParameter.name === secondParameter.name) {
+		return;
+	}
+
 	if (isSameReference(body.left, firstParameter) && isSameReference(body.right, secondParameter)) {
 		return 'ascending';
 	}
@@ -109,7 +116,6 @@ const getReplacement = (method, sourceNode, sourceCode) => {
 
 const createProblem = (node, sortedSource, endpoint, context) => {
 	const method = getMethod(sortedSource.direction, endpoint);
-	const replacement = getReplacement(method, sortedSource.node, context.sourceCode);
 	const problem = {
 		node,
 		messageId: MESSAGE_ID_ERROR,
@@ -123,6 +129,8 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 		sortedSource.node.type !== 'Super'
 		&& context.sourceCode.getCommentsInside(node).length === 0
 	) {
+		const replacement = getReplacement(method, sortedSource.node, context.sourceCode);
+
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
@@ -140,8 +148,10 @@ const create = context => {
 	context.on('MemberExpression', memberExpression => {
 		if (
 			!memberExpression.computed
+			|| memberExpression.optional
 			|| !isZero(memberExpression.property)
 			|| isLeftHandSide(memberExpression)
+			|| isLoopLeftHandSide(memberExpression)
 		) {
 			return;
 		}

@@ -18,6 +18,7 @@ test.snapshot({
 		'const first = array.sort((a, b) => a - b).at(index);',
 		'const first = array.sort?.((a, b) => a - b)[0];',
 		'const first = array?.sort((a, b) => a - b)[0];',
+		'const first = array.sort((a, b) => a - b)?.[0];',
 		'const first = array["sort"]((a, b) => a - b)[0];',
 		'const first = array.sort((a, b) => { return a - b; return 0; })[0];',
 		'const first = array.sort((a, b) => {})[0];',
@@ -28,6 +29,12 @@ test.snapshot({
 		'array.sort((a, b) => a - b)[0] = value;',
 		'array.sort((a, b) => a - b)[0]++;',
 		'delete array.sort((a, b) => a - b)[0];',
+		'for (array.sort((a, b) => a - b)[0] of values) {}',
+		'for (array.sort((a, b) => a - b)[0] in object) {}',
+		{
+			code: 'const first = array.sort(function (a, a) { return a - a; })[0];',
+			languageOptions: {sourceType: 'script'},
+		},
 		{
 			code: 'const first = array.sort((a: number, b: number) => a - b).at(1);',
 			languageOptions: {parser: parsers.typescript},
