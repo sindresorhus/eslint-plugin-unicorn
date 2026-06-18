@@ -11,6 +11,7 @@ test.snapshot({
 		'if (key in object) { object[key]; }',
 		'if (key in object) { delete object[key]; }',
 		'if (key in object) delete object[key];',
+		'const object = new Foo(); if (key in object) { delete object[key]; }',
 		'if ("key" in object) { delete object.key; }',
 		'if ("key" in object) { delete object["key"]; }',
 		'if (1 in object) { delete object[1]; }',
@@ -64,6 +65,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'function f(object: {}, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function f(map: Map<string, number>, key: string) { if (map.has(key)) { map.delete(key); } }',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -88,7 +93,9 @@ test.snapshot({
 		'const object = {}; if (1 in object) { delete object[1]; }',
 		'const object = {}; if ((key) in (object)) { delete (object)[(key)]; }',
 		'const object = []; if (key in object) { delete object[key]; }',
+		'const object = () => {}; if ("key" in object) { delete object.key; }',
 		'const object = function () {}; if ("key" in object) { delete object.key; }',
+		'const object = class {}; if ("key" in object) { delete object.key; }',
 		outdent`
 			const object = {};
 			if (key in object) {
@@ -105,6 +112,14 @@ test.snapshot({
 		'const object = {}; if (/* comment */ key in object) { delete object[key]; }',
 		{
 			code: 'function f(object: object, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(object: object, key: string) { if (key in object!) { delete object![key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(value: unknown, key: string) { if (key in (value as object)) { delete (value as object)[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

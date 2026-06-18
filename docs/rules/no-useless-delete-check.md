@@ -11,7 +11,7 @@
 
 Deletion is already safe when the property, key, or value does not exist. Guarding the deletion with an existence check often adds unnecessary code.
 
-This rule reports simple `in` checks before object property deletion when it can statically recognize the receiver as an object, and `.has()` checks before deletion from known local `const` variables initialized with `Map`, `Set`, `WeakMap`, or `WeakSet`.
+This rule reports simple `in` checks before object property deletion for object and array literals, functions, classes, and explicit object-like TypeScript annotations, and `.has()` checks before deletion from known local `const` variables initialized with `Map`, `Set`, `WeakMap`, or `WeakSet`.
 
 The rule is intentionally conservative. It does not report `else` branches, compound conditions, unknown object receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only collection annotations, or cases where the receiver or key may have side effects.
 
