@@ -20,6 +20,7 @@ export {default as 'consistent-json-file-read'} from './consistent-json-file-rea
 export {default as 'consistent-optional-chaining'} from './consistent-optional-chaining.js';
 export {default as 'consistent-template-literal-escape'} from './consistent-template-literal-escape.js';
 export {default as 'custom-error-definition'} from './custom-error-definition.js';
+export {default as 'default-export-style'} from './default-export-style.js';
 export {default as 'dom-node-dataset'} from './dom-node-dataset.js';
 export {default as 'empty-brace-spaces'} from './empty-brace-spaces.js';
 export {default as 'error-message'} from './error-message.js';
