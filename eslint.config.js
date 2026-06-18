@@ -4,6 +4,7 @@ import jsdocPlugin from 'eslint-plugin-jsdoc';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import nodeStyleTextConfig from 'node-style-text/eslint-config';
 import internalRules from './scripts/internal-rules/index.js';
+import eslintPluginUnicorn from './index.js';
 
 const disabledJsdocRules = Object.fromEntries(
 	Object.keys(jsdocPlugin.rules).map(name => [`jsdoc/${name}`, 'off']),
@@ -23,6 +24,13 @@ const xoConfig = xo().map(configBlock => {
 		plugins,
 	};
 });
+
+for (const configBlock of xoConfig) {
+	if (configBlock.plugins?.unicorn?.rules) {
+		// XO can lag local renamed rules, but inline disable comments must still validate in this repo.
+		configBlock.plugins.unicorn.rules['name-replacements'] = eslintPluginUnicorn.rules['name-replacements'];
+	}
+}
 
 const config = [
 	...xoConfig,
@@ -89,6 +97,14 @@ const config = [
 			'regexp/prefer-named-capture-group': 'off',
 			// Our long-standing `eslint-disable` directives predate this rule and are self-explanatory.
 			'@eslint-community/eslint-comments/require-description': 'off',
+		},
+	},
+	{
+		files: [
+			'rules/no-unused-properties.js',
+		],
+		rules: {
+			'unicorn/name-replacements': 'error',
 		},
 	},
 	{

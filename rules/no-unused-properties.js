@@ -65,7 +65,8 @@ const getReferenceParent = referenceNode => {
 	return referenceNode.parent;
 };
 
-const specialPrototypePropertyKey = {
+// eslint-disable-next-line unicorn/name-replacements
+const specialProtoPropertyKey = {
 	type: 'Identifier',
 	name: '__proto__',
 };
@@ -142,7 +143,7 @@ const create = context => {
 				continue;
 			}
 
-			if (propertyKeysEqual(key, specialPrototypePropertyKey)) {
+			if (propertyKeysEqual(key, specialProtoPropertyKey)) {
 				continue;
 			}
 

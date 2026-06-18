@@ -155,7 +155,7 @@ The example below disables all the default replacements and enables a custom `us
 ]
 ```
 
-Defaults can also include terminology preferences that are not abbreviations, such as `application` → `app`, `configuration` → `config`, and `repository` → `repo`. You can use custom replacements for similar project-specific terminology preferences:
+Defaults can also include terminology preferences that are not abbreviations. Use custom replacements for project-specific preferences:
 
 ```js
 'unicorn/name-replacements': [
