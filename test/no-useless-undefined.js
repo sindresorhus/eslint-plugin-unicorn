@@ -388,6 +388,33 @@ test.typescript({
 		`,
 		'const foo = (): undefined => undefined;',
 		'const foo = (): string => undefined;',
+		// Explicit `return undefined` is allowed when the return type is a union with a real value type
+		outdent`
+			function foo(): number | undefined {
+				if (bar) {
+					return 2;
+				}
+
+				return undefined;
+			}
+		`,
+		outdent`
+			function foo(): number | void {
+				if (bar) {
+					return 2;
+				}
+
+				return undefined;
+			}
+		`,
+		'function foo(): any {return undefined;}',
+		'function foo(): unknown {return undefined;}',
+		// `never` is neither `undefined` nor `void`
+		'function foo(): never {return undefined;}',
+		// Union order does not matter
+		'function foo(): undefined | number {return undefined;}',
+		// `Promise<void>` is a type reference, not the `void` keyword
+		'async function foo(): Promise<void> {return undefined;}',
 		'createContext<T>(undefined);',
 		'React.createContext<T>(undefined);',
 		{
@@ -455,6 +482,60 @@ test.typescript({
 		{
 			code: 'const foo = function (): undefined {return undefined};',
 			output: 'const foo = function (): undefined {return};',
+			errors,
+		},
+		{
+			code: 'function shouldBeFlagged(): void {return undefined;}',
+			output: 'function shouldBeFlagged(): void {return;}',
+			errors,
+		},
+		{
+			code: 'const foo = function (): void {return undefined};',
+			output: 'const foo = function (): void {return};',
+			errors,
+		},
+		{
+			code: 'const foo = (): void => {return undefined};',
+			output: 'const foo = (): void => {return};',
+			errors,
+		},
+		{
+			code: outdent`
+				class A {
+					method(): void {
+						return undefined;
+					}
+				}
+			`,
+			output: outdent`
+				class A {
+					method(): void {
+						return;
+					}
+				}
+			`,
+			errors,
+		},
+		// The return type of the innermost function is used, not the outer one
+		{
+			code: outdent`
+				function outer(): string {
+					function inner(): void {
+						return undefined;
+					}
+
+					return 'foo';
+				}
+			`,
+			output: outdent`
+				function outer(): string {
+					function inner(): void {
+						return;
+					}
+
+					return 'foo';
+				}
+			`,
 			errors,
 		},
 		{
