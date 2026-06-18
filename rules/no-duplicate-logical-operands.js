@@ -107,7 +107,10 @@ const create = context => {
 		const replacement = getParenthesizedText(node.left, context);
 		const fix = fixer => fixer.replaceText(node, replacement);
 
-		if (isSafelyAutofixableReference(adjacentLeftOperand)) {
+		if (
+			isSafelyAutofixableReference(adjacentLeftOperand)
+			&& isSafelyAutofixableReference(node.right)
+		) {
 			return {
 				...problem,
 				fix,
