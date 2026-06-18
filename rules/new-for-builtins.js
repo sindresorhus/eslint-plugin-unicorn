@@ -12,13 +12,16 @@ const MESSAGE_ID_SUGGESTION_DATE = 'suggestion-date';
 const messages = {
 	enforce: 'Use `new {{name}}()` instead of `{{name}}()`.',
 	disallow: 'Use `{{name}}()` instead of `new {{name}}()`.',
+	disallowCallOrNew: '`{{name}}` is not a function or constructor.',
 	[MESSAGE_ID_ERROR_DATE]: 'Use `String(new Date())` instead of `Date()`.',
 	[MESSAGE_ID_SUGGESTION_DATE]: 'Switch to `String(new Date())`.',
 };
 
+const getName = reference => reference.path.join('.');
+
 function enforceNewExpression(reference, context) {
-	const {node, path} = reference;
-	const [name] = path;
+	const {node} = reference;
+	const name = getName(reference);
 
 	// An optional call (`Array?.()`) can't be rewritten to a `new` expression, which can't be optional.
 	if (node.optional) {
@@ -70,8 +73,8 @@ function enforceNewExpression(reference, context) {
 }
 
 function enforceCallExpression(reference, context) {
-	const {node, path} = reference;
-	const [name] = path;
+	const {node} = reference;
+	const name = getName(reference);
 
 	const problem = {
 		node,
@@ -86,6 +89,17 @@ function enforceCallExpression(reference, context) {
 	return problem;
 }
 
+function disallowCallOrNewExpression(reference) {
+	const {node} = reference;
+	const name = getName(reference);
+
+	return {
+		node,
+		messageId: 'disallowCallOrNew',
+		data: {name},
+	};
+}
+
 const newExpressionTracker = new GlobalReferenceTracker({
 	objects: builtins.disallowNew,
 	type: GlobalReferenceTracker.CONSTRUCT,
@@ -96,11 +110,23 @@ const callExpressionTracker = new GlobalReferenceTracker({
 	type: GlobalReferenceTracker.CALL,
 	handle: enforceNewExpression,
 });
+const callExpressionDisallowTracker = new GlobalReferenceTracker({
+	objects: builtins.disallowCallOrNew,
+	type: GlobalReferenceTracker.CALL,
+	handle: disallowCallOrNewExpression,
+});
+const newExpressionDisallowTracker = new GlobalReferenceTracker({
+	objects: builtins.disallowCallOrNew,
+	type: GlobalReferenceTracker.CONSTRUCT,
+	handle: disallowCallOrNewExpression,
+});
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	newExpressionTracker.listen({context});
 	callExpressionTracker.listen({context});
+	callExpressionDisallowTracker.listen({context});
+	newExpressionDisallowTracker.listen({context});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -109,7 +135,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Enforce the use of `new` for all builtins, except `String`, `Number`, `Boolean`, `Symbol` and `BigInt`.',
+			description: 'Enforce the correct use of `new` and calls for builtin constructors.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
