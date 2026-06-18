@@ -74,6 +74,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'function f(object: object & {foo?: unknown}, key: string) { if (key in object) { delete object[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function f(map: Map<string, number>, key: string) { if (map.has(key)) { map.delete(key); } }',
 			languageOptions: {parser: parsers.typescript},
 		},

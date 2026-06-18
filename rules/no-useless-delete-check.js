@@ -49,6 +49,7 @@ const knownObjectExpressionTypes = new Set([
 	'ObjectExpression',
 ]);
 
+// Type literals are excluded because primitives can structurally satisfy some object-shaped type literals.
 const objectTypeAnnotationTypes = new Set([
 	'TSConstructorType',
 	'TSFunctionType',
@@ -249,12 +250,12 @@ function getProblem(ifStatement, context) {
 	return getCollectionDeleteProblem(ifStatement, expression, context);
 }
 
-const getFix = (ifStatement, expression, context) => fixer => {
+const getFix = (ifStatement, consequentExpression, context) => fixer => {
 	if (hasCommentInRange(context, context.sourceCode.getRange(ifStatement))) {
 		return;
 	}
 
-	let replacement = context.sourceCode.getText(expression.parent);
+	let replacement = context.sourceCode.getText(consequentExpression.parent);
 
 	if (!replacement.trimEnd().endsWith(';')) {
 		replacement += ';';
