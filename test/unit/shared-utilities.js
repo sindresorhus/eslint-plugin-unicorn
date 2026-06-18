@@ -1,6 +1,11 @@
 import test from 'ava';
 import {getStaticStringValue} from '../../rules/ast/index.js';
-import {hasUnsafeArrowConversionReference, isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from '../../rules/utils/index.js';
+import {
+	hasUnsafeArrowConversionReference,
+	isLengthOrSizeMemberExpression,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
+} from '../../rules/utils/index.js';
 
 test('getStaticStringValue returns strings from static string nodes', t => {
 	t.is(getStaticStringValue({
@@ -61,6 +66,29 @@ test('unwrapTypeScriptExpression unwraps TypeScript expression wrappers', t => {
 	t.true(isTypeScriptExpressionWrapper(expression));
 	t.false(isTypeScriptExpressionWrapper(identifier));
 	t.is(unwrapTypeScriptExpression(expression), identifier);
+});
+
+test('isLengthOrSizeMemberExpression detects non-optional dot length and size access', t => {
+	const createMemberExpression = (property, options = {}) => ({
+		type: 'MemberExpression',
+		object: {
+			type: 'Identifier',
+			name: 'value',
+		},
+		property: {
+			type: 'Identifier',
+			name: property,
+		},
+		optional: false,
+		computed: false,
+		...options,
+	});
+
+	t.true(isLengthOrSizeMemberExpression(createMemberExpression('length')));
+	t.true(isLengthOrSizeMemberExpression(createMemberExpression('size')));
+	t.false(isLengthOrSizeMemberExpression(createMemberExpression('width')));
+	t.false(isLengthOrSizeMemberExpression(createMemberExpression('length', {optional: true})));
+	t.false(isLengthOrSizeMemberExpression(createMemberExpression('length', {computed: true})));
 });
 
 test('hasUnsafeArrowConversionReference finds lexical constructs unsafe for arrow conversion', t => {
