@@ -9,15 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Deletion is already safe when the property, key, or value does not exist. Guarding the deletion with an existence check often adds unnecessary code.
+Deletion is already safe when the property, key, or value does not exist, so an existence guard is usually unnecessary.
 
-This rule reports simple `in` checks before object property deletion for statically known object values, including object and array literals, function, arrow function, and class expressions assigned to `const` variables, and declared TypeScript `object`, function, or constructor annotations. TypeScript type assertions and `satisfies` expressions are treated as runtime-transparent and do not make an unknown receiver known. It also reports `.has()` checks before deletion from known local `const` variables initialized with global `Map`, `Set`, `WeakMap`, or `WeakSet`.
+This rule reports simple `in` checks before deleting from known objects, and `.has()` checks before deleting from local `const` `Map`, `Set`, `WeakMap`, and `WeakSet` instances.
 
-The rule is intentionally conservative. It does not report `else` branches, compound conditions, unknown object receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom `.has()`/`.delete()` objects, type-only TypeScript intersection types, type-only collection annotations, or cases where the receiver, syntactically side-effectful key expressions, statically known object-valued keys, or keys initialized by calls with non-static return values may make removing the guard observable.
+The rule is conservative. It ignores `else` branches, compound conditions, unknown receivers, `Object.hasOwn()`, `hasOwnProperty()`, custom collections, type-only collection annotations, type-only TypeScript intersection types, and cases where removing the guard may be observable.
 
-The rule assumes collection methods and prototypes on locally created `Map`, `Set`, `WeakMap`, and `WeakSet` instances retain their native behavior.
-
-`Map`, `Set`, `WeakMap`, and `WeakSet` cases are automatically fixed when the guard can be removed without dropping comments. Object property deletion is provided as a suggestion under the same comment-preserving constraint because `Proxy` traps can make unconditional `delete` observable.
+Collection cases are automatically fixed when doing so preserves comments. Object deletion is provided as a suggestion because `Proxy` traps can make unconditional `delete` observable.
 
 ## Examples
 
