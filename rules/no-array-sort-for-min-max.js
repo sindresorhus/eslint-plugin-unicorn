@@ -212,7 +212,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Disallow sorting arrays to get the minimum or maximum value.',
-			recommended: true,
+			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
 		messages,
