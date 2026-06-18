@@ -76,6 +76,28 @@ test.snapshot({
 				delete object[Key];
 			}
 		`,
+		outdent`
+			const object = {key: true};
+			const key = Object('key');
+			key.toString = () => {
+				sideEffect();
+				return 'key';
+			};
+			if (key in object) {
+				delete object[key];
+			}
+		`,
+		outdent`
+			const object = {key: true};
+			const key = globalThis.Object('key');
+			key.toString = () => {
+				sideEffect();
+				return 'key';
+			};
+			if (key in object) {
+				delete object[key];
+			}
+		`,
 		'if (key in getObject()) { delete getObject()[key]; }',
 		'function object() {} if ("key" in object) { delete object.key; }',
 		'class ObjectLike {} if ("key" in ObjectLike) { delete ObjectLike.key; }',
@@ -114,6 +136,22 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'function f(value: unknown, key: string) { if (key in (value as object)) { delete (value as object)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(value: unknown, key: string) { if (key in (value as new () => object)) { delete (value as new () => object)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(value: unknown, key: string) { if (key in (<object>value)) { delete (<object>value)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(value: unknown, key: string) { if (key in (value satisfies object)) { delete (value satisfies object)[key]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'function object() {} if ("key" in (object as object)) { delete (object as object).key; }',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -127,6 +165,20 @@ test.snapshot({
 		},
 		{
 			code: 'const object = {key: true}; class Key {} Key.toString = () => { sideEffect(); return "key"; }; if (Key! in object) { delete object[Key!]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const object = {key: true};
+				const key = (globalThis.Object as ObjectConstructor)("key");
+				key.toString = () => {
+					sideEffect();
+					return "key";
+				};
+				if (key in object) {
+					delete object[key];
+				}
+			`,
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
@@ -195,11 +247,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function f(value: unknown, key: string) { if (key in (value as object)) { delete (value as object)[key]; } }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function f(value: unknown, key: string) { if (key in (value as new () => object)) { delete (value as new () => object)[key]; } }',
+			code: 'function f(object: object, key: string) { if (key in (object as object)) { delete (object as object)[key]; } }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

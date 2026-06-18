@@ -35,7 +35,7 @@ const collectionConstructors = new Set([
 	'WeakSet',
 ]);
 
-const typeAnnotationExpressionTypes = new Set([
+const typeTransparentExpressionTypes = new Set([
 	'TSAsExpression',
 	'TSSatisfiesExpression',
 	'TSTypeAssertion',
@@ -49,7 +49,7 @@ const knownObjectExpressionTypes = new Set([
 	'ObjectExpression',
 ]);
 
-const knownObjectDefinitionTypes = new Set([
+const functionOrClassDefinitionTypes = new Set([
 	'ClassName',
 	'FunctionName',
 ]);
@@ -66,8 +66,8 @@ const getTypeAnnotation = (node, context) => {
 		return getTypeAnnotation(node.expression, context);
 	}
 
-	if (typeAnnotationExpressionTypes.has(node.type)) {
-		return node.typeAnnotation;
+	if (typeTransparentExpressionTypes.has(node.type)) {
+		return getTypeAnnotation(node.expression, context);
 	}
 
 	if (node.type !== 'Identifier') {
@@ -91,14 +91,37 @@ const isObjectTypeAnnotation = node => {
 	return node?.type === 'TSUnionType' && node.types.every(type => isObjectTypeAnnotation(type));
 };
 
-const hasKnownObjectDefinition = (node, context) => {
+const isFunctionOrClassDeclarationReference = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return false;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable?.defs.some(definition => knownObjectDefinitionTypes.has(definition.type)) ?? false;
+	return variable?.defs.some(definition => functionOrClassDefinitionTypes.has(definition.type)) ?? false;
 };
+
+const isGlobalIdentifier = (node, name, context) =>
+	node.type === 'Identifier'
+	&& node.name === name
+	&& context.sourceCode.isGlobalReference(node);
+
+const isGlobalObjectConstructor = (node, context) => {
+	if (isGlobalIdentifier(node, 'Object', context)) {
+		return true;
+	}
+
+	return node.type === 'MemberExpression'
+		&& !node.optional
+		&& !node.computed
+		&& isGlobalIdentifier(unwrapTypeScriptExpression(node.object), 'globalThis', context)
+		&& node.property.type === 'Identifier'
+		&& node.property.name === 'Object';
+};
+
+const isKnownObjectWrapperCall = (node, context) =>
+	node.type === 'CallExpression'
+	&& !node.optional
+	&& isGlobalObjectConstructor(unwrapTypeScriptExpression(node.callee), context);
 
 const isCollectionConstructor = (node, context) =>
 	node.type === 'Identifier'
@@ -163,7 +186,7 @@ const isKnownObject = (node, context) => {
 		}
 	}
 
-	if (hasKnownObjectDefinition(unwrapTypeScriptExpression(node), context)) {
+	if (isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context)) {
 		return false;
 	}
 
@@ -175,7 +198,7 @@ const isKnownObjectPropertyKey = (node, context) => {
 		return true;
 	}
 
-	if (hasKnownObjectDefinition(unwrapTypeScriptExpression(node), context)) {
+	if (isFunctionOrClassDeclarationReference(unwrapTypeScriptExpression(node), context)) {
 		return true;
 	}
 
@@ -184,7 +207,9 @@ const isKnownObjectPropertyKey = (node, context) => {
 		return false;
 	}
 
-	return unwrapTypeScriptExpression(initializer).type === 'NewExpression';
+	const unwrappedInitializer = unwrapTypeScriptExpression(initializer);
+	return unwrappedInitializer.type === 'NewExpression'
+		|| isKnownObjectWrapperCall(unwrappedInitializer, context);
 };
 
 const isSamePropertyKey = (left, right, context) => {
