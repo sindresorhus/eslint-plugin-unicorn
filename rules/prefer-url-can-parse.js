@@ -106,16 +106,8 @@ const isGlobalSymbolMemberExpression = (node, context) => {
 	return isGlobalOrErasedIdentifier(object, context, 'Symbol');
 };
 
-const isGlobalSymbolMemberCall = (node, context) => {
-	node = unwrapExpression(node);
-
-	return node.type === 'CallExpression'
-		&& isGlobalSymbolMemberExpression(node.callee, context);
-};
-
 const isObviouslyUnsafeUrlArgument = (node, context) =>
 	isGlobalSymbolCall(node, context)
-	|| isGlobalSymbolMemberCall(node, context)
 	|| isGlobalSymbolMemberExpression(node, context);
 
 const isUnsafeUrlArgumentNode = (node, context) =>

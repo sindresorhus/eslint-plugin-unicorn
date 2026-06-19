@@ -86,6 +86,7 @@ test.snapshot({
 		function_('try { new URL(value); return false; } catch { return true; }'),
 		function_('try { new URL(value, base); return true; } catch { return false; }'),
 		function_('try { new URL((value)); return true; } catch { return false; }'),
+		function_('const Symbol = {iterator: value}; try { new URL(Symbol.iterator); return true; } catch { return false; }'),
 		'try { new URL(value); valid = true; } catch { valid = false; }',
 		'try { new URL(value); valid = false; } catch { valid = true; }',
 		'let valid; try { new URL(value); valid = true; } catch { valid = false; }',
