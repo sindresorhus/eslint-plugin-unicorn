@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isStringLiteral,
@@ -51,8 +51,21 @@ const addVariable = (identifier, variables, sourceCode) => {
 	}
 };
 
+const isDefaultImportSpecifier = specifier =>
+	specifier.type === 'ImportDefaultSpecifier'
+	|| (
+		specifier.type === 'ImportSpecifier'
+		&& specifier.imported.type === 'Identifier'
+		&& specifier.imported.name === 'default'
+	);
+
 const isTrackedVariable = (identifier, variables, sourceCode) =>
 	variables.has(findVariable(sourceCode.getScope(identifier), identifier));
+
+const isStaticNonString = (node, sourceCode) => {
+	const result = getStaticValue(node, sourceCode.getScope(node));
+	return Boolean(result) && typeof result.value !== 'string';
+};
 
 const isLodashObject = (identifier, lodashObjectVariables, sourceCode) => {
 	const variable = findVariable(sourceCode.getScope(identifier), identifier);
@@ -114,10 +127,7 @@ const create = context => {
 
 		if (REGEXP_ESCAPE_FUNCTION_PACKAGES.has(packageName)) {
 			for (const specifier of node.specifiers) {
-				if (
-					specifier.type === 'ImportDefaultSpecifier'
-					|| specifier.type === 'ImportSpecifier'
-				) {
+				if (isDefaultImportSpecifier(specifier)) {
 					addVariable(specifier.local, regexpEscapeFunctionVariables, sourceCode);
 				}
 			}
@@ -215,6 +225,12 @@ const create = context => {
 		}
 
 		const [argument] = node.arguments;
+		if (
+			isKnownNonString(argument, context)
+			|| isStaticNonString(argument, sourceCode)
+		) {
+			return;
+		}
 
 		return {
 			node,
