@@ -28,6 +28,15 @@ test.snapshot({
 		// Computed
 		'foo[replace](/a/g, bar);',
 		'foo[replaceAll](/a/g, bar);',
+		// Handled by `prefer-regexp-escape`
+		'foo.replace(/[.*+?^${}()|[\\]\\\\]/g, \'\\\\$&\');',
+		'foo.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");',
+		String.raw`foo.replace(/[|\\{}()[\]^${'$'}+*?.]/g, '\\$&');`,
+		String.raw`foo.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');`,
+		String.raw`foo.replace(/[\/\-\\^$*+?.()|[\]{}]/g, '\\$&');`,
+		String.raw`foo.replace(/[\/\\^$*+?.()|[\]{}-]/g, '\\$&');`,
+		'foo.replace(/[.*+?^${}()|[\\]\\\\]/gi, \'\\\\$&\');',
+		'foo?.replace(/[.*+?^${}()|[\\]\\\\]/g, \'\\\\$&\');',
 		// Optional call
 		'foo.replace?.(/a/g, bar)',
 		// Not replace
@@ -130,6 +139,8 @@ test.snapshot({
 		// Special characters
 		'foo.replace(/[a]/g, bar)',
 		'foo.replace(/[.]/g, bar)',
+		String.raw`foo.replace(/[)-|.*+?^$]/g, '\\$&')`,
+		String.raw`foo.replace(/[.*+?^${'$'}{}()|]\[\]\\]/g, '\\$&')`,
 		String.raw`foo.replace(/[\n]/g, bar)`,
 		'foo.replace(/a?/g, bar)',
 		'foo.replace(/.*/g, bar)',

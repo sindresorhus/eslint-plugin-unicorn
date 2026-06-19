@@ -6,6 +6,7 @@ import {
 	isNewExpression,
 	isMethodCall,
 } from './ast/index.js';
+import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
 import {escapeString, getParenthesizedText, isKnownNonString} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
@@ -339,6 +340,10 @@ const create = context => {
 			argumentsLength: 2,
 			optionalCall: false,
 		})) {
+			return;
+		}
+
+		if (isRegExpEscapeReplaceCall(node, {allowOptionalMember: true})) {
 			return;
 		}
 

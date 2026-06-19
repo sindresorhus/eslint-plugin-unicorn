@@ -244,6 +244,7 @@ export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.
 export {default as 'prefer-query-selector'} from './prefer-query-selector.js';
 export {default as 'prefer-queue-microtask'} from './prefer-queue-microtask.js';
 export {default as 'prefer-reflect-apply'} from './prefer-reflect-apply.js';
+export {default as 'prefer-regexp-escape'} from './prefer-regexp-escape.js';
 export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
 export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
 export {default as 'prefer-scoped-selector'} from './prefer-scoped-selector.js';
