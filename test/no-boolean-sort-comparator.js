@@ -37,6 +37,9 @@ test.snapshot({
 	],
 	invalid: [
 		'array.sort((a, b) => a > b)',
+		'[].sort((a, b) => a > b)',
+		'Array.from(iterable).sort((a, b) => a > b)',
+		'new Array().toSorted((a, b) => a > b)',
 		'array.sort((a, b) => a >= b)',
 		'array.sort((a, b) => a < b)',
 		'array.sort((a, b) => a <= b)',
@@ -60,6 +63,10 @@ test.snapshot({
 		'array.sort?.((a, b) => a > b)',
 		'array?.sort((a, b) => a > b)',
 		'array.sort(function (a, b) { return a > b; })',
+		{
+			code: 'array.sort(function (a, a) { return a > a; })',
+			languageOptions: {sourceType: 'script'},
+		},
 		'array.sort((a, b) => {\n\treturn a > b;\n})',
 		'array.sort((a, b) => (a) > (b))',
 		'array.sort((a, b) => {\n\t// Compare\n\treturn a > b;\n})',
@@ -101,6 +108,26 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'array.sort((Boolean as (value: unknown) => boolean))',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Comparator = (a: number, b: number) => boolean;\narray.sort(((a, b) => a > b) as Comparator)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Comparator = (a: number, b: number) => boolean;\narray.sort(compare as Comparator)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.sort(((a: number, b: number) => a > b) as (a: number, b: number) => boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.sort(compare as (a: number, b: number) => boolean)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'array.sort((a: number, b: number): boolean => compare(a, b))',
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -122,6 +149,14 @@ test.snapshot({
 		},
 		{
 			code: 'array.sort((a: number, b: number) => (a > b)!)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.sort(<T extends {score: number}>(a, b) => a.score > b.score)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.sort((a?, b?) => a > b)',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

@@ -3,7 +3,8 @@ import {isCallExpression, isFunction} from './ast/index.js';
 import {
 	isBooleanFunction,
 	isBooleanFunctionReference,
-	isGlobalIdentifier,
+	isBooleanFunctionTypeAnnotation,
+	isKnownBooleanFunctionReference,
 	isKnownNonArray,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
@@ -19,16 +20,6 @@ const messages = {
 
 const sortMethodNames = new Set(['sort', 'toSorted']);
 const orderingOperators = new Set(['>', '>=', '<', '<=']);
-const booleanGlobalFunctionNames = new Set(['Boolean', 'isFinite', 'isNaN']);
-const booleanStaticMethods = new Map([
-	['Array', new Set(['isArray'])],
-	['ArrayBuffer', new Set(['isView'])],
-	['Atomics', new Set(['isLockFree'])],
-	['Number', new Set(['isFinite', 'isInteger', 'isNaN', 'isSafeInteger'])],
-	['Object', new Set(['hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed'])],
-	['Reflect', new Set(['deleteProperty', 'has'])],
-	['URL', new Set(['canParse'])],
-]);
 
 const getFunctionReturnExpression = node => {
 	if (node.body.type !== 'BlockStatement') {
@@ -79,18 +70,19 @@ const getOrderingComparison = node => {
 	return node.type === 'BinaryExpression' && orderingOperators.has(node.operator) ? node : undefined;
 };
 
-const isKnownBooleanFunctionReference = (node, context) => {
-	if (node.type === 'Identifier') {
-		return booleanGlobalFunctionNames.has(node.name) && isGlobalIdentifier(node, context);
+const hasBooleanFunctionTypeAssertion = (node, context) => {
+	while (isTypeScriptExpressionWrapper(node)) {
+		if (
+			node.typeAnnotation
+			&& isBooleanFunctionTypeAnnotation(node.typeAnnotation, context, context.sourceCode.getScope(node))
+		) {
+			return true;
+		}
+
+		node = node.expression;
 	}
 
-	return (
-		node.type === 'MemberExpression'
-		&& !node.optional
-		&& node.object.type === 'Identifier'
-		&& isGlobalIdentifier(node.object, context)
-		&& booleanStaticMethods.get(node.object.name)?.has(getPropertyName(node, context.sourceCode.getScope(node)))
-	);
+	return false;
 };
 
 const getSuggestion = (comparator, returnExpression, context) => {
@@ -98,8 +90,17 @@ const getSuggestion = (comparator, returnExpression, context) => {
 		!returnExpression
 		|| comparator.params.length !== 2
 		|| comparator.params.some(parameter => parameter.type !== 'Identifier')
+		|| comparator.params.some(parameter => parameter.typeAnnotation)
+		|| comparator.params.some(parameter => parameter.optional)
+		|| comparator.typeParameters
+		|| comparator.returnType
 		|| context.sourceCode.getCommentsInside(comparator).length > 0
 	) {
+		return;
+	}
+
+	const [firstParameter, secondParameter] = comparator.params;
+	if (firstParameter.name === secondParameter.name) {
 		return;
 	}
 
@@ -112,7 +113,6 @@ const getSuggestion = (comparator, returnExpression, context) => {
 		return;
 	}
 
-	const [firstParameter, secondParameter] = comparator.params;
 	if (!isParameterMirror(comparison.left, comparison.right, firstParameter, secondParameter)) {
 		return;
 	}
@@ -132,27 +132,37 @@ const getSuggestion = (comparator, returnExpression, context) => {
 };
 
 const getComparatorProblem = (comparator, context) => {
-	if (isFunction(comparator)) {
-		const returnExpression = getFunctionReturnExpression(comparator);
-		if (!isBooleanFunction(comparator, context)) {
+	const unwrappedComparator = unwrapTypeScriptExpression(comparator);
+
+	if (isFunction(unwrappedComparator)) {
+		const returnExpression = getFunctionReturnExpression(unwrappedComparator);
+		if (
+			!isBooleanFunction(unwrappedComparator, context)
+			&& !hasBooleanFunctionTypeAssertion(comparator, context)
+		) {
 			return;
 		}
 
 		return {
 			node: comparator,
 			messageId: MESSAGE_ID,
-			suggest: getSuggestion(comparator, returnExpression, context),
+			suggest: comparator === unwrappedComparator
+				? getSuggestion(unwrappedComparator, returnExpression, context)
+				: undefined,
 		};
 	}
 
-	if (isBooleanFunctionReference(comparator, context)) {
+	if (isBooleanFunctionReference(unwrappedComparator, context)) {
 		return {
 			node: comparator,
 			messageId: MESSAGE_ID,
 		};
 	}
 
-	if (isKnownBooleanFunctionReference(comparator, context)) {
+	if (
+		isKnownBooleanFunctionReference(unwrappedComparator, context)
+		|| hasBooleanFunctionTypeAssertion(comparator, context)
+	) {
 		return {
 			node: comparator,
 			messageId: MESSAGE_ID,

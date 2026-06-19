@@ -37,10 +37,10 @@ array.sort((a, b) => a.score - b.score);
 
 ```js
 // ❌
-array.toSorted((a, b) => a === b);
+strings.toSorted((a, b) => a === b);
 
 // ✅
-array.toSorted((a, b) => a.localeCompare(b));
+strings.toSorted((a, b) => a.localeCompare(b));
 ```
 
 ```js
