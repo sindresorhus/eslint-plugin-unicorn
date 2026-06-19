@@ -496,6 +496,19 @@ test.snapshot({
 				console.log(result);
 			}
 		`,
+		// The initializer suspends with `await`, so the guard checking `signal.aborted` must not be reordered before it.
+		{
+			code: outdent`
+				async function run(signal: AbortSignal) {
+					const result = await doSomethingAsynchronous();
+					if (signal.aborted) {
+						return;
+					}
+					await doSomethingElse(result);
+				}
+			`,
+			languageOptions: typescriptLanguageOptions,
+		},
 		outdent`
 			async function foo(bar) {
 				const result = bar ? await a() : b();
