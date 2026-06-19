@@ -64,6 +64,33 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			const result = [];
+			for await (const result of iterable) {
+				result.push(result);
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(
+					// Keep this comment.
+					element,
+				);
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(await transform(element++));
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(await transform(element = value));
+			}
+		`,
+		outdent`
 			await using result = [];
 			for await (const element of iterable) {
 				result.push(element);
@@ -157,6 +184,12 @@ test.snapshot({
 		`,
 		outdent`
 			const result = [];
+			for await (let element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
 			for await (const element of (iterable)) {
 				result.push(element);
 			}
@@ -165,6 +198,12 @@ test.snapshot({
 			const result = [];
 			for await (const element of iterable) {
 				result.push(await transform(element));
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (let element of iterable) {
+				result.push(await transform(element++));
 			}
 		`,
 		outdent`

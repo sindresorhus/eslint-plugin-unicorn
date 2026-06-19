@@ -92,6 +92,20 @@ const referencesVariable = (variable, node, context) => {
 	});
 };
 
+const isReferenceInsideNode = (reference, node, context) => {
+	const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
+	const [nodeStart, nodeEnd] = context.sourceCode.getRange(node);
+
+	return referenceStart >= nodeStart && referenceEnd <= nodeEnd;
+};
+
+const hasWriteReferenceInsideNode = (variable, node, context) =>
+	variable.references.some(reference =>
+		!reference.init
+		&& reference.isWrite()
+		&& isReferenceInsideNode(reference, node, context),
+	);
+
 const isGlobalArrayAvailable = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), 'Array');
 
@@ -171,6 +185,7 @@ const getLoopProblem = (declaration, context) => {
 	const {sourceCode} = context;
 	const arrayName = declarator.id.name;
 	const variable = sourceCode.getDeclaredVariables(declarator)[0];
+	const [bindingVariable] = sourceCode.getDeclaredVariables(loop.left);
 	if (
 		binding.name === arrayName
 		|| referencesVariable(variable, loop.right, context)
@@ -198,7 +213,13 @@ const getLoopProblem = (declaration, context) => {
 			variable,
 			context,
 		});
-		if (!body) {
+		if (
+			!body
+			|| (
+				loop.left.kind === 'const'
+				&& hasWriteReferenceInsideNode(bindingVariable, body, context)
+			)
+		) {
 			return;
 		}
 	}
