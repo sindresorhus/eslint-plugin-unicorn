@@ -247,6 +247,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `RegExp.escape()` for escaping strings to use in regular expressions.',
+			// TODO: Enable in recommended preset when targeting Node.js 24.
 			recommended: false,
 		},
 		fixable: 'code',
