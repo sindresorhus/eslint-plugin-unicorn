@@ -68,12 +68,12 @@ const isRegExpEscapeReplacement = node =>
 	isStringLiteral(node)
 	&& node.value === REGEXP_ESCAPE_REPLACEMENT;
 
-const isRegExpEscapeReplaceCall = (node, {allowOptionalMember = false} = {}) =>
+const isRegExpEscapeReplaceCall = node =>
 	isMethodCall(node, {
 		method: 'replace',
 		argumentsLength: 2,
 		optionalCall: false,
-		optionalMember: allowOptionalMember ? undefined : false,
+		optionalMember: false,
 	})
 	&& isRegExpEscapePattern(node.arguments[0])
 	&& isRegExpEscapeReplacement(node.arguments[1]);

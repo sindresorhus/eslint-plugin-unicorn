@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
 	isStringLiteral,
@@ -43,19 +44,43 @@ const getRequiredPackageName = node => {
 	return node.arguments[0].value;
 };
 
-const isLodashRegExpEscapeCall = (node, lodashObjectNames) =>
+const addVariable = (identifier, variables, sourceCode) => {
+	const variable = findVariable(sourceCode.getScope(identifier), identifier);
+	if (variable) {
+		variables.add(variable);
+	}
+};
+
+const isTrackedVariable = (identifier, variables, sourceCode) =>
+	variables.has(findVariable(sourceCode.getScope(identifier), identifier));
+
+const isLodashObject = (identifier, lodashObjectVariables, sourceCode) => {
+	const variable = findVariable(sourceCode.getScope(identifier), identifier);
+	if (variable) {
+		return lodashObjectVariables.has(variable)
+			|| (
+				variable.defs.length === 0
+				&& LODASH_OBJECT_NAMES.has(identifier.name)
+			);
+	}
+
+	return LODASH_OBJECT_NAMES.has(identifier.name);
+};
+
+const isLodashRegExpEscapeCall = (node, lodashObjectVariables, sourceCode) =>
 	isMethodCall(node, {
-		objects: [...lodashObjectNames],
 		method: 'escapeRegExp',
 		argumentsLength: 1,
 		optionalCall: false,
 		optionalMember: false,
-	});
+	})
+	&& node.callee.object.type === 'Identifier'
+	&& isLodashObject(node.callee.object, lodashObjectVariables, sourceCode);
 
-const isRegExpEscapeFunctionCall = (node, regexpEscapeFunctionNames) =>
+const isRegExpEscapeFunctionCall = (node, regexpEscapeFunctionVariables, sourceCode) =>
 	node.optional !== true
 	&& node.callee.type === 'Identifier'
-	&& regexpEscapeFunctionNames.has(node.callee.name)
+	&& isTrackedVariable(node.callee, regexpEscapeFunctionVariables, sourceCode)
 	&& node.arguments.length === 1;
 
 const getRegExpEscapeCallReplacement = (argument, context) =>
@@ -77,8 +102,8 @@ const getRegExpEscapeSuggestion = (node, argument, context, sourceCode) => {
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const regexpEscapeFunctionNames = new Set();
-	const lodashObjectNames = new Set(LODASH_OBJECT_NAMES);
+	const regexpEscapeFunctionVariables = new WeakSet();
+	const lodashObjectVariables = new WeakSet();
 
 	context.on('ImportDeclaration', node => {
 		if (!isStringLiteral(node.source)) {
@@ -93,7 +118,7 @@ const create = context => {
 					specifier.type === 'ImportDefaultSpecifier'
 					|| specifier.type === 'ImportSpecifier'
 				) {
-					regexpEscapeFunctionNames.add(specifier.local.name);
+					addVariable(specifier.local, regexpEscapeFunctionVariables, sourceCode);
 				}
 			}
 
@@ -109,7 +134,7 @@ const create = context => {
 				specifier.type === 'ImportDefaultSpecifier'
 				|| specifier.type === 'ImportNamespaceSpecifier'
 			) {
-				lodashObjectNames.add(specifier.local.name);
+				addVariable(specifier.local, lodashObjectVariables, sourceCode);
 			}
 
 			if (
@@ -117,7 +142,7 @@ const create = context => {
 				&& specifier.imported.type === 'Identifier'
 				&& specifier.imported.name === 'escapeRegExp'
 			) {
-				regexpEscapeFunctionNames.add(specifier.local.name);
+				addVariable(specifier.local, regexpEscapeFunctionVariables, sourceCode);
 			}
 		}
 	});
@@ -127,12 +152,12 @@ const create = context => {
 
 		if (node.id.type === 'Identifier') {
 			if (REGEXP_ESCAPE_FUNCTION_PACKAGES.has(packageName)) {
-				regexpEscapeFunctionNames.add(node.id.name);
+				addVariable(node.id, regexpEscapeFunctionVariables, sourceCode);
 				return;
 			}
 
 			if (LODASH_PACKAGES.has(packageName)) {
-				lodashObjectNames.add(node.id.name);
+				addVariable(node.id, lodashObjectVariables, sourceCode);
 				return;
 			}
 		}
@@ -151,7 +176,7 @@ const create = context => {
 				&& property.key.name === 'escapeRegExp'
 				&& property.value.type === 'Identifier'
 			) {
-				regexpEscapeFunctionNames.add(property.value.name);
+				addVariable(property.value, regexpEscapeFunctionVariables, sourceCode);
 			}
 		}
 	});
@@ -181,8 +206,8 @@ const create = context => {
 
 		if (
 			!(
-				isRegExpEscapeFunctionCall(node, regexpEscapeFunctionNames)
-				|| isLodashRegExpEscapeCall(node, lodashObjectNames)
+				isRegExpEscapeFunctionCall(node, regexpEscapeFunctionVariables, sourceCode)
+				|| isLodashRegExpEscapeCall(node, lodashObjectVariables, sourceCode)
 			)
 			|| node.arguments[0].type === 'SpreadElement'
 		) {

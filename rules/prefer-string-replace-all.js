@@ -343,7 +343,7 @@ const create = context => {
 			return;
 		}
 
-		if (isRegExpEscapeReplaceCall(node, {allowOptionalMember: true})) {
+		if (isRegExpEscapeReplaceCall(node)) {
 			return;
 		}
 

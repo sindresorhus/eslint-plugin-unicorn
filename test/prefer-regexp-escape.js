@@ -10,6 +10,8 @@ const regexpEscapeLiteralWithSticky = `/${regexpEscapePattern}/gy`;
 const regexpEscapeLiteralWithSlash = String.raw`/[.*+?^${'$'}{}()|[\]\\/]/g`;
 const reorderedRegexpEscapeLiteral = String.raw`/[\]\\.*+?^${'$'}{}()|[]/g`;
 const partialRegexpEscapeLiteral = '/[.*+?^$]/g';
+const sevenCharacterRegexpEscapeLiteral = '/[.*+?^$(]/g';
+const eightCharacterRegexpEscapeLiteral = '/[.*+?^$()]/g';
 const lodashRegexpEscapeLiteral = String.raw`/[\\^${'$'}.*+?()[\]{}|]/g`;
 const escapeStringRegexpLiteral = String.raw`/[|\\{}()[\]^${'$'}+*?.]/g`;
 const dashSlashRegexpEscapeLiteral = String.raw`/[-\/\\^${'$'}*+?.()|[\]{}]/g`;
@@ -28,6 +30,7 @@ test.snapshot({
 		`const escaped = string.replace(${regexpEscapeLiteralWithoutGlobal}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${regexpEscapeLiteralWithSticky}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${partialRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,
+		`const escaped = string.replace(${sevenCharacterRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${dashRangeRegexpLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${unescapedClosingBracketRegexpLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${regexpEscapeLiteral}, '$&');`,
@@ -45,8 +48,12 @@ test.snapshot({
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp();',
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp(string, extra);',
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp?.(string);',
+		'import escapeStringRegexp from \'escape-string-regexp\'; function foo(escapeStringRegexp) { return escapeStringRegexp(string); }',
 		'import lodash from \'lodash\'; const escaped = lodash.escapeRegExp?.(string);',
 		'import lodash from \'lodash\'; const escaped = lodash[escapeRegExp](string);',
+		'import lodash from \'lodash\'; function foo(lodash) { return lodash.escapeRegExp(string); }',
+		'const _ = {escapeRegExp}; const escaped = _.escapeRegExp(string);',
+		'const lodash = {escapeRegExp}; const escaped = lodash.escapeRegExp(string);',
 		{
 			code: `function foo(collection: {replace(pattern: RegExp, replacement: string): string}) { return collection.replace(${regexpEscapeLiteral}, ${regexpEscapeReplacement}); }`,
 			languageOptions: {parser: parsers.typescript},
@@ -57,6 +64,7 @@ test.snapshot({
 		`const escaped = string.replace(${regexpEscapeLiteralWithIgnoreCase}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${regexpEscapeLiteralWithSlash}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${reorderedRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,
+		`const escaped = string.replace(${eightCharacterRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${lodashRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${escapeStringRegexpLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string.replace(${dashSlashRegexpEscapeLiteral}, ${regexpEscapeReplacement});`,

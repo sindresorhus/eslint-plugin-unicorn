@@ -36,7 +36,6 @@ test.snapshot({
 		String.raw`foo.replace(/[\/\-\\^$*+?.()|[\]{}]/g, '\\$&');`,
 		String.raw`foo.replace(/[\/\\^$*+?.()|[\]{}-]/g, '\\$&');`,
 		'foo.replace(/[.*+?^${}()|[\\]\\\\]/gi, \'\\\\$&\');',
-		'foo?.replace(/[.*+?^${}()|[\\]\\\\]/g, \'\\\\$&\');',
 		// Optional call
 		'foo.replace?.(/a/g, bar)',
 		// Not replace
@@ -117,6 +116,7 @@ test.snapshot({
 	invalid: [
 		'foo.replace(/a/g, bar)',
 		'foo?.replace(/a/g, bar)',
+		'foo?.replace(/[.*+?^${}()|[\\]\\\\]/g, \'\\\\$&\');',
 		// Comments
 		outdent`
 			foo/* comment 1 */
