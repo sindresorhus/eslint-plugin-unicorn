@@ -277,6 +277,7 @@ export {default as 'prefer-type-literal-last'} from './prefer-type-literal-last.
 export {default as 'prefer-uint8array-base64'} from './prefer-uint8array-base64.js';
 export {default as 'prefer-unary-minus'} from './prefer-unary-minus.js';
 export {default as 'prefer-unicode-code-point-escapes'} from './prefer-unicode-code-point-escapes.js';
+export {default as 'prefer-url-can-parse'} from './prefer-url-can-parse.js';
 export {default as 'prefer-url-href'} from './prefer-url-href.js';
 export {default as 'prefer-while-loop-condition'} from './prefer-while-loop-condition.js';
 export {default as 'relative-url-style'} from './relative-url-style.js';
