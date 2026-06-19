@@ -309,6 +309,9 @@ export const defaultAllowList = {
 	getInitialProps: true,
 	getServerSideProps: true,
 	getStaticProps: true,
+	// Vite environment variables type
+	// https://vite.dev/guide/env-and-mode#intellisense-for-typescript
+	ImportMetaEnv: true,
 	// The name iOS is a standard name for an OS
 	iOS: true,
 	// React PropTypes
@@ -327,4 +330,7 @@ export const defaultIgnore = [
 	'a11y', // Accessibility
 	'e2e', // End-to-end
 	'jQuery',
+	// Vite type declaration file
+	// https://vite.dev/guide/env-and-mode#intellisense-for-typescript
+	'vite-env',
 ];

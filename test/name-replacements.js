@@ -1988,7 +1988,10 @@ test.typescript({
 			},
 		},
 	},
-	valid: [],
+	valid: [
+		// Vite type declaration
+		'interface ImportMetaEnv {}',
+	],
 	invalid: [
 		// Types
 		...[
@@ -2470,6 +2473,11 @@ test({
 		{
 			code: 'foo();',
 			filename: 'e2e.js',
+		},
+		// Vite type declaration
+		{
+			code: 'foo();',
+			filename: 'vite-env.d.ts',
 		},
 		// `ignore` option
 		{
