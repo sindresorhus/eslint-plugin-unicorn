@@ -11,7 +11,7 @@ const returnArgumentTypesRequiringParentheses = new Set([
 	'SequenceExpression',
 ]);
 
-const isProtoProperty = property =>
+const isPrototypeProperty = property =>
 	!property.computed
 	&& (
 		(property.key.type === 'Identifier' && property.key.name === '__proto__')
@@ -88,7 +88,7 @@ const create = context => {
 			!property.method
 			|| property.kind !== 'init'
 			|| property.value.generator
-			|| isProtoProperty(property)
+			|| isPrototypeProperty(property)
 			|| hasThisParameter(property.value)
 			|| hasUnsafeArrowConversionReference(property.value, sourceCode.visitorKeys)
 		) {

@@ -4,6 +4,12 @@ export const defaultReplacements = {
 	acc: {
 		accumulator: true,
 	},
+	application: {
+		app: true,
+	},
+	applications: {
+		apps: true,
+	},
 	arg: {
 		argument: true,
 	},
@@ -22,10 +28,22 @@ export const defaultReplacements = {
 	btn: {
 		button: true,
 	},
+	buf: {
+		buffer: true,
+	},
 	cb: {
 		callback: true,
 	},
+	cfg: {
+		config: true,
+	},
+	cmd: {
+		command: true,
+	},
 	conf: {
+		config: true,
+	},
+	configuration: {
 		config: true,
 	},
 	ctx: {
@@ -40,11 +58,23 @@ export const defaultReplacements = {
 	db: {
 		database: true,
 	},
+	decl: {
+		declaration: true,
+	},
+	decls: {
+		declarations: true,
+	},
 	def: {
 		defer: true,
 		deferred: true,
 		define: true,
 		definition: true,
+	},
+	dep: {
+		dependency: true,
+	},
+	deps: {
+		dependencies: true,
 	},
 	dest: {
 		destination: true,
@@ -102,6 +132,12 @@ export const defaultReplacements = {
 	evt: {
 		event: true,
 	},
+	expr: {
+		expression: true,
+	},
+	exprs: {
+		expressions: true,
+	},
 	ext: {
 		extension: true,
 	},
@@ -116,6 +152,12 @@ export const defaultReplacements = {
 	},
 	i: {
 		index: true,
+	},
+	ident: {
+		identifier: true,
+	},
+	idents: {
+		identifiers: true,
 	},
 	idx: {
 		index: true,
@@ -150,6 +192,9 @@ export const defaultReplacements = {
 	params: {
 		parameters: true,
 	},
+	perf: {
+		performance: true,
+	},
 	pkg: {
 		package: true,
 	},
@@ -165,6 +210,9 @@ export const defaultReplacements = {
 	props: {
 		properties: true,
 	},
+	proto: {
+		prototype: true,
+	},
 	ref: {
 		reference: true,
 	},
@@ -175,6 +223,9 @@ export const defaultReplacements = {
 		related: true,
 		relationship: true,
 		relative: true,
+	},
+	repository: {
+		repo: true,
 	},
 	req: {
 		request: true,
@@ -198,6 +249,12 @@ export const defaultReplacements = {
 	},
 	stdDev: {
 		standardDeviation: true,
+	},
+	stmt: {
+		statement: true,
+	},
+	stmts: {
+		statements: true,
 	},
 	str: {
 		string: true,

@@ -161,6 +161,12 @@ const tests = {
 		'let ESLint',
 		'let isJPEG',
 		'let NODE_ENV',
+		'let id',
+		'let url',
+		'let cwd',
+		'let regex',
+		'let min',
+		'let max',
 
 		// Property should not report by default
 		'({err: 1})',
@@ -406,9 +412,124 @@ const tests = {
 			errors: createErrors('The variable `stdDev` should be named `standardDeviation`. A more descriptive name will do too.'),
 		},
 		{
+			code: 'let application',
+			output: 'let app',
+			errors: createErrors('The variable `application` should be named `app`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let applications',
+			output: 'let apps',
+			errors: createErrors('The variable `applications` should be named `apps`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let webApplication',
+			output: 'let webApp',
+			errors: createErrors('The variable `webApplication` should be named `webApp`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let webApplications',
+			output: 'let webApps',
+			errors: createErrors('The variable `webApplications` should be named `webApps`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let cmd',
+			output: 'let command',
+			errors: createErrors('The variable `cmd` should be named `command`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let configuration',
+			output: 'let config',
+			errors: createErrors('The variable `configuration` should be named `config`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let buildConfiguration',
+			output: 'let buildConfig',
+			errors: createErrors('The variable `buildConfiguration` should be named `buildConfig`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let cfg',
+			output: 'let config',
+			errors: createErrors('The variable `cfg` should be named `config`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let dep',
+			output: 'let dependency',
+			errors: createErrors('The variable `dep` should be named `dependency`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let deps',
+			output: 'let dependencies',
+			errors: createErrors('The variable `deps` should be named `dependencies`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let exportDecls',
+			output: 'let exportDeclarations',
+			errors: createErrors('The variable `exportDecls` should be named `exportDeclarations`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let astExpr',
+			output: 'let astExpression',
+			errors: createErrors('The variable `astExpr` should be named `astExpression`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let astExprs',
+			output: 'let astExpressions',
+			errors: createErrors('The variable `astExprs` should be named `astExpressions`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let exportDecl',
+			output: 'let exportDeclaration',
+			errors: createErrors('The variable `exportDecl` should be named `exportDeclaration`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let ident',
+			output: 'let identifier',
+			errors: createErrors('The variable `ident` should be named `identifier`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let idents',
+			output: 'let identifiers',
+			errors: createErrors('The variable `idents` should be named `identifiers`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let nodeStmt',
+			output: 'let nodeStatement',
+			errors: createErrors('The variable `nodeStmt` should be named `nodeStatement`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let stmts',
+			output: 'let statements',
+			errors: createErrors('The variable `stmts` should be named `statements`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let perfBudget',
+			output: 'let performanceBudget',
+			errors: createErrors('The variable `perfBudget` should be named `performanceBudget`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let repositoryUrl',
+			output: 'let repoUrl',
+			errors: createErrors('The variable `repositoryUrl` should be named `repoUrl`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let proto',
+			output: 'let prototype',
+			errors: createErrors('The variable `proto` should be named `prototype`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'let bufferBuf',
+			output: 'let bufferBuffer',
+			errors: createErrors('The variable `bufferBuf` should be named `bufferBuffer`. A more descriptive name will do too.'),
+		},
+		{
 			code: '({err: 1})',
 			options: checkPropertiesOptions,
 			errors: createErrors('The property `err` should be named `error`. A more descriptive name will do too.'),
+		},
+		{
+			code: 'this.cmd = 1',
+			options: checkPropertiesOptions,
+			errors: createErrors('The property `cmd` should be named `command`. A more descriptive name will do too.'),
 		},
 		{
 			code: 'this.err = 1',

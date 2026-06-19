@@ -109,7 +109,7 @@ The example below:
 
 - disables the default `e` → `event` replacement (leaving `e` → `error` enabled),
 - disables `res` replacement completely (both `res` → `response` and `res` → `result` from defaults are disabled),
-- adds a custom `cmd` → `command` replacement,
+- adds a custom `usr` → `user` replacement,
 - adds a custom `errCb` → `handleError` replacement.
 
 ```js
@@ -121,8 +121,8 @@ The example below:
 				event: false,
 			},
 			res: false,
-			cmd: {
-				command: true,
+			usr: {
+				user: true,
 			},
 			errCb: {
 				handleError: true,
@@ -139,7 +139,7 @@ Default: `true`
 
 Pass `"extendDefaultReplacements": false` to override the default `replacements` completely.
 
-The example below disables all the default replacements and enables a custom `cmd` → `command` one.
+The example below disables all the default replacements and enables a custom `usr` → `user` one.
 
 ```js
 'unicorn/name-replacements': [
@@ -147,8 +147,26 @@ The example below disables all the default replacements and enables a custom `cm
 	{
 		extendDefaultReplacements: false,
 		replacements: {
-			cmd: {
-				command: true,
+			usr: {
+				user: true,
+			},
+		},
+	},
+]
+```
+
+Defaults can also include terminology preferences that are not abbreviations. Use custom replacements for project-specific preferences:
+
+```js
+'unicorn/name-replacements': [
+	'error',
+	{
+		replacements: {
+			page: {
+				screen: true,
+			},
+			pages: {
+				screens: true,
 			},
 		},
 	},
