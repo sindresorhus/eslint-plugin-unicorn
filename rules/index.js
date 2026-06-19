@@ -173,6 +173,7 @@ export {default as 'prefer-add-event-listener'} from './prefer-add-event-listene
 export {default as 'prefer-array-find'} from './prefer-array-find.js';
 export {default as 'prefer-array-flat-map'} from './prefer-array-flat-map.js';
 export {default as 'prefer-array-flat'} from './prefer-array-flat.js';
+export {default as 'prefer-array-from-async'} from './prefer-array-from-async.js';
 export {default as 'prefer-array-from-map'} from './prefer-array-from-map.js';
 export {default as 'prefer-array-index-of'} from './prefer-array-index-of.js';
 export {default as 'prefer-array-iterable-methods'} from './prefer-array-iterable-methods.js';
