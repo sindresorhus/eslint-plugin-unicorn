@@ -85,6 +85,15 @@ const hasBooleanFunctionTypeAssertion = (node, context) => {
 	return false;
 };
 
+const isKnownBooleanCallExpression = (node, context) => {
+	if (!node) {
+		return false;
+	}
+
+	node = node.type === 'ChainExpression' ? node.expression : node;
+	return node.type === 'CallExpression' && isKnownBooleanFunctionReference(node.callee, context);
+};
+
 const getSuggestion = (comparator, returnExpression, context) => {
 	if (
 		!returnExpression
@@ -138,6 +147,7 @@ const getComparatorProblem = (comparator, context) => {
 		const returnExpression = getFunctionReturnExpression(unwrappedComparator);
 		if (
 			!isBooleanFunction(unwrappedComparator, context)
+			&& !isKnownBooleanCallExpression(returnExpression, context)
 			&& !hasBooleanFunctionTypeAssertion(comparator, context)
 		) {
 			return;
