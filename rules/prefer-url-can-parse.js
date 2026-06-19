@@ -28,11 +28,16 @@ const isTypeOnlyImport = definition =>
 		|| definition.node.importKind === 'type'
 	);
 
-const isTypeOnlyDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeOnlyImport(definition);
+const isAmbientDeclaration = definition =>
+	definition.type === 'Variable'
+	&& definition.parent?.declare === true;
 
-const isGlobalOrTypeOnlyIdentifier = (node, context, name) => {
+const isErasedDefinition = definition =>
+	definition.type === 'Type'
+	|| isTypeOnlyImport(definition)
+	|| isAmbientDeclaration(definition);
+
+const isGlobalOrErasedIdentifier = (node, context, name) => {
 	if (
 		node.type !== 'Identifier'
 		|| node.name !== name
@@ -46,7 +51,7 @@ const isGlobalOrTypeOnlyIdentifier = (node, context, name) => {
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	return variable?.defs.length > 0
-		&& variable.defs.every(definition => isTypeOnlyDefinition(definition));
+		&& variable.defs.every(definition => isErasedDefinition(definition));
 };
 
 const isUrlImport = definition => {
@@ -68,7 +73,7 @@ const isUrlConstructor = (node, context) => {
 		return false;
 	}
 
-	if (isGlobalOrTypeOnlyIdentifier(node, context, 'URL')) {
+	if (isGlobalOrErasedIdentifier(node, context, 'URL')) {
 		return true;
 	}
 
@@ -87,7 +92,7 @@ const isGlobalSymbolCall = (node, context) => {
 	return isCallExpression(node, {
 		name: 'Symbol',
 	})
-	&& isGlobalOrTypeOnlyIdentifier(node.callee, context, 'Symbol');
+	&& isGlobalOrErasedIdentifier(node.callee, context, 'Symbol');
 };
 
 const isGlobalSymbolMemberExpression = (node, context) => {
@@ -98,7 +103,7 @@ const isGlobalSymbolMemberExpression = (node, context) => {
 	}
 
 	const object = unwrapExpression(node.object);
-	return isGlobalOrTypeOnlyIdentifier(object, context, 'Symbol');
+	return isGlobalOrErasedIdentifier(object, context, 'Symbol');
 };
 
 const isGlobalSymbolMemberCall = (node, context) => {

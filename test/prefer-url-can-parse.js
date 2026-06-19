@@ -58,7 +58,9 @@ test.snapshot({
 		typescript(function_('try { new URL((Symbol as any).iterator); return true; } catch { return false; }')),
 		typescript(function_('try { new URL((Symbol as any).for("url")); return true; } catch { return false; }')),
 		typescript('import type {Symbol} from "symbol"; function isValidUrl() { try { new URL(Symbol.iterator); return true; } catch { return false; } }'),
+		typescript('declare const Symbol: SymbolConstructor; function isValidUrl() { try { new URL(Symbol.iterator); return true; } catch { return false; } }'),
 		function_('const URL = class {}; try { new URL(value); return true; } catch { return false; }'),
+		moduleFunction('{ const URL = class {}; try { new URL(value); return true; } catch { return false; } }'),
 		function_('try { new NotURL(value); return true; } catch { return false; }'),
 		function_('try { /* comment */ new URL(value); return true; } catch { return false; }'),
 		function_('try { new URL(value); /* comment */ return true; } catch { return false; }'),
@@ -73,6 +75,14 @@ test.snapshot({
 	],
 	invalid: [
 		function_('try { new URL(value); return true; } catch { return false; }'),
+		`function isValidUrl() {
+	try {
+		new URL(value, base);
+		return true;
+	} catch {
+		return false;
+	}
+}`,
 		function_('try { new URL(value); return false; } catch { return true; }'),
 		function_('try { new URL(value, base); return true; } catch { return false; }'),
 		function_('try { new URL((value)); return true; } catch { return false; }'),
@@ -89,6 +99,7 @@ test.snapshot({
 		moduleAliasFunction('try { new NodeURL(value); return true; } catch { return false; }'),
 		moduleAliasFunction('try { new NodeURL(value, base); return true; } catch { return false; }'),
 		typescript('import type {URL} from "node:url"; function isValidUrl() { try { new URL(value); return true; } catch { return false; } }'),
+		typescript('declare const URL: URLConstructor; function isValidUrl() { try { new URL(value); return true; } catch { return false; } }'),
 		function_('try { new URL(value); return true; } catch (error) { return false; }'),
 		function_('const foo = 1\ntry { new URL(value); return true; } catch { return false; }'),
 		typescript(function_('try { new URL(value as string); return true; } catch { return false; }')),
