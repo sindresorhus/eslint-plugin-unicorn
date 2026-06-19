@@ -449,10 +449,6 @@ function isKnownBooleanStaticMethodCall(node, context) {
 }
 
 function isKnownBooleanFunctionReference(node, context) {
-	if (node.type === 'ChainExpression') {
-		return isKnownBooleanFunctionReference(node.expression, context);
-	}
-
 	if (node.type === 'Identifier') {
 		return (
 			(node.name === 'Boolean' || booleanGlobalFunctions.has(node.name))
@@ -462,6 +458,7 @@ function isKnownBooleanFunctionReference(node, context) {
 
 	if (
 		node.type !== 'MemberExpression'
+		|| node.optional
 		|| node.object.type !== 'Identifier'
 		|| !context.sourceCode.isGlobalReference(node.object)
 	) {
