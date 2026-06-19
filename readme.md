@@ -3,7 +3,7 @@
 <!-- markdownlint-disable-next-line no-inline-html -->
 <img src="https://cloud.githubusercontent.com/assets/170270/18659176/1cc373d0-7f33-11e6-890f-0ba35362ee7e.jpg" width="180" align="right" alt="Unicorn">
 
-> More than 200 powerful ESLint rules
+> More than 300 powerful ESLint rules
 
 Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, and Markdown](#non-javascript-files) when used with the matching ESLint language plugin.
 
