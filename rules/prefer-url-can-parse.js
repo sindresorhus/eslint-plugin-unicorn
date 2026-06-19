@@ -3,7 +3,6 @@ import {
 	isNewExpression,
 	isCallExpression,
 	isBooleanLiteral,
-	isMemberExpression,
 } from './ast/index.js';
 import {
 	hasCommentInRange,
@@ -33,6 +32,23 @@ const isTypeOnlyDefinition = definition =>
 	definition.type === 'Type'
 	|| isTypeOnlyImport(definition);
 
+const isGlobalOrTypeOnlyIdentifier = (node, context, name) => {
+	if (
+		node.type !== 'Identifier'
+		|| node.name !== name
+	) {
+		return false;
+	}
+
+	if (isGlobalIdentifier(node, context)) {
+		return true;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	return variable?.defs.length > 0
+		&& variable.defs.every(definition => isTypeOnlyDefinition(definition));
+};
+
 const isUrlImport = definition => {
 	if (definition.type !== 'ImportBinding') {
 		return false;
@@ -52,22 +68,11 @@ const isUrlConstructor = (node, context) => {
 		return false;
 	}
 
-	if (
-		node.name === 'URL'
-		&& isGlobalIdentifier(node, context)
-	) {
+	if (isGlobalOrTypeOnlyIdentifier(node, context, 'URL')) {
 		return true;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (
-		node.name === 'URL'
-		&& variable?.defs.length > 0
-		&& variable.defs.every(definition => isTypeOnlyDefinition(definition))
-	) {
-		return true;
-	}
-
 	return variable?.defs.some(definition => isUrlImport(definition)) ?? false;
 };
 
@@ -82,7 +87,7 @@ const isGlobalSymbolCall = (node, context) => {
 	return isCallExpression(node, {
 		name: 'Symbol',
 	})
-	&& isGlobalIdentifier(node.callee, context);
+	&& isGlobalOrTypeOnlyIdentifier(node.callee, context, 'Symbol');
 };
 
 const isGlobalSymbolMemberExpression = (node, context) => {
@@ -93,9 +98,7 @@ const isGlobalSymbolMemberExpression = (node, context) => {
 	}
 
 	const object = unwrapExpression(node.object);
-	return object.type === 'Identifier'
-		&& object.name === 'Symbol'
-		&& isGlobalIdentifier(object, context);
+	return isGlobalOrTypeOnlyIdentifier(object, context, 'Symbol');
 };
 
 const isGlobalSymbolMemberCall = (node, context) => {
@@ -110,10 +113,37 @@ const isObviouslyUnsafeUrlArgument = (node, context) =>
 	|| isGlobalSymbolMemberCall(node, context)
 	|| isGlobalSymbolMemberExpression(node, context);
 
-const hasObviouslyUnsafeUrlArgument = (newUrlExpression, context) =>
+const isUnsafeUrlArgumentNode = (node, context) =>
+	isObviouslyUnsafeUrlArgument(node, context)
+	|| node.type === 'ObjectExpression'
+	|| node.type === 'ClassExpression'
+	|| node.type === 'TaggedTemplateExpression'
+	|| (node.type === 'TemplateLiteral' && node.expressions.length > 0);
+
+const containsNodeMatching = (node, visitorKeys, predicate) => {
+	if (predicate(node)) {
+		return true;
+	}
+
+	for (const key of visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			if (value.some(node => node?.type && containsNodeMatching(node, visitorKeys, predicate))) {
+				return true;
+			}
+		} else if (value?.type && containsNodeMatching(value, visitorKeys, predicate)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const hasUnsafeUrlArgument = (newUrlExpression, context) =>
 	newUrlExpression.arguments.some(argument =>
-		isObviouslyUnsafeUrlArgument(argument, context)
-		|| hasSideEffect(argument, context.sourceCode),
+		containsNodeMatching(argument, context.sourceCode.visitorKeys, node => isUnsafeUrlArgumentNode(node, context))
+		|| hasSideEffect(argument, context.sourceCode, {considerImplicitTypeConversion: true}),
 	);
 
 const getNewUrlExpression = statement => {
@@ -155,61 +185,6 @@ const getBooleanAssignment = statement => {
 	return statement.expression;
 };
 
-const getPreviousStatement = node => {
-	const statements = node.parent.type === 'SwitchCase' ? node.parent.consequent : node.parent.body;
-	if (!Array.isArray(statements)) {
-		return;
-	}
-
-	const index = statements.indexOf(node);
-	if (index > 0) {
-		return statements[index - 1];
-	}
-};
-
-const containsIdentifier = (node, name, visitorKeys) => {
-	if (node.type === 'Identifier' && node.name === name) {
-		return true;
-	}
-
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(node => node?.type && containsIdentifier(node, name, visitorKeys))) {
-				return true;
-			}
-		} else if (value?.type && containsIdentifier(value, name, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
-};
-
-const getPreviousLetDeclaration = (tryStatement, assignment, newUrlExpression, context) => {
-	const previousStatement = getPreviousStatement(tryStatement);
-	if (
-		previousStatement?.type !== 'VariableDeclaration'
-		|| previousStatement.kind !== 'let'
-		|| previousStatement.declarations.length !== 1
-	) {
-		return;
-	}
-
-	const [declaration] = previousStatement.declarations;
-	if (
-		declaration.id.type !== 'Identifier'
-		|| declaration.init
-		|| !isSameIdentifier(declaration.id, assignment.left)
-		|| newUrlExpression.arguments.some(argument => containsIdentifier(argument, assignment.left.name, context.sourceCode.visitorKeys))
-	) {
-		return;
-	}
-
-	return previousStatement;
-};
-
 const isSameAssignmentTarget = (tryAssignment, catchAssignment, context) => {
 	if (!isSameIdentifier(tryAssignment.left, catchAssignment.left)) {
 		return false;
@@ -227,9 +202,6 @@ const getUrlCanParseText = (newUrlExpression, negate, context) => {
 	return negate ? `!${text}` : text;
 };
 
-const hasUnsafeComments = (context, range) =>
-	hasCommentInRange(context, range);
-
 const createReturnProblem = (tryStatement, newUrlExpression, context) => {
 	const [, returnStatement] = tryStatement.block.body;
 	const [catchStatement] = tryStatement.handler.body.body;
@@ -245,7 +217,7 @@ const createReturnProblem = (tryStatement, newUrlExpression, context) => {
 	}
 
 	const tryStatementRange = context.sourceCode.getRange(tryStatement);
-	if (hasUnsafeComments(context, tryStatementRange)) {
+	if (hasCommentInRange(context, tryStatementRange)) {
 		return;
 	}
 
@@ -273,20 +245,13 @@ const createAssignmentProblem = (tryStatement, newUrlExpression, context) => {
 	}
 
 	const canParseText = getUrlCanParseText(newUrlExpression, !tryAssignment.right.value, context);
-	const previousLetDeclaration = getPreviousLetDeclaration(tryStatement, tryAssignment, newUrlExpression, context);
-	const replacementNode = previousLetDeclaration ?? tryStatement;
-	const replacementRange = [
-		context.sourceCode.getRange(replacementNode)[0],
-		context.sourceCode.getRange(tryStatement)[1],
-	];
+	const replacementRange = context.sourceCode.getRange(tryStatement);
 
-	if (hasUnsafeComments(context, replacementRange)) {
+	if (hasCommentInRange(context, replacementRange)) {
 		return;
 	}
 
-	const replacement = previousLetDeclaration
-		? `let ${tryAssignment.left.name} = ${canParseText};`
-		: `${tryAssignment.left.name} = ${canParseText};`;
+	const replacement = `${tryAssignment.left.name} = ${canParseText};`;
 
 	return {
 		node: tryStatement,
@@ -298,6 +263,7 @@ const createAssignmentProblem = (tryStatement, newUrlExpression, context) => {
 const createProblem = (tryStatement, context) => {
 	if (
 		!tryStatement.handler
+		|| (tryStatement.handler.param && tryStatement.handler.param.type !== 'Identifier')
 		|| tryStatement.finalizer
 		|| tryStatement.block.body.length !== 2
 		|| tryStatement.handler.body.body.length !== 1
@@ -310,7 +276,7 @@ const createProblem = (tryStatement, context) => {
 	if (
 		!newUrlExpression
 		|| !isUrlConstructor(newUrlExpression.callee, context)
-		|| hasObviouslyUnsafeUrlArgument(newUrlExpression, context)
+		|| hasUnsafeUrlArgument(newUrlExpression, context)
 	) {
 		return;
 	}
