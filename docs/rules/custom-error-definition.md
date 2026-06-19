@@ -123,6 +123,17 @@ class CustomError extends Error {
 
 ```js
 // ✅
+// The message is hard-coded and `options` is passed to `super()` directly, so no `options` parameter is needed.
+class CustomError extends Error {
+	constructor(cause) {
+		super('My custom error', {cause});
+		this.name = 'CustomError';
+	}
+}
+```
+
+```js
+// ✅
 class CustomError extends TypeError {
 	constructor() {
 		super();
