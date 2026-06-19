@@ -55,6 +55,7 @@ export {default as 'no-asterisk-prefix-in-documentation-comments'} from './no-as
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
 export {default as 'no-blob-to-file'} from './no-blob-to-file.js';
+export {default as 'no-boolean-sort-comparator'} from './no-boolean-sort-comparator.js';
 export {default as 'no-break-in-nested-loop'} from './no-break-in-nested-loop.js';
 export {default as 'no-canvas-to-image'} from './no-canvas-to-image.js';
 export {default as 'no-chained-comparison'} from './no-chained-comparison.js';

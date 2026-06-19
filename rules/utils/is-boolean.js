@@ -448,6 +448,28 @@ function isKnownBooleanStaticMethodCall(node, context) {
 	return Boolean(methods?.has(method));
 }
 
+function isKnownBooleanFunctionReference(node, context) {
+	if (node.type === 'Identifier') {
+		return (
+			(node.name === 'Boolean' || booleanGlobalFunctions.has(node.name))
+			&& context.sourceCode.isGlobalReference(node)
+		);
+	}
+
+	if (
+		node.type !== 'MemberExpression'
+		|| node.optional
+		|| node.object.type !== 'Identifier'
+		|| !context.sourceCode.isGlobalReference(node.object)
+	) {
+		return false;
+	}
+
+	const methods = booleanStaticMethods.get(node.object.name);
+	const method = getPropertyName(node, context.sourceCode.getScope(node));
+	return Boolean(methods?.has(method));
+}
+
 function isKnownBooleanInstanceMethodCall(node, context) {
 	if (node.callee.type !== 'MemberExpression') {
 		return false;
@@ -558,6 +580,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
 };
 
