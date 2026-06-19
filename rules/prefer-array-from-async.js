@@ -75,26 +75,11 @@ const getSingleForOfBinding = node => {
 		return;
 	}
 
-	if (id.type === 'Identifier') {
-		return {
-			node: id,
-			element: id,
-		};
+	if (id.type !== 'Identifier') {
+		return;
 	}
 
-	if (
-		id.type === 'ArrayPattern'
-		&& id.elements.length === 2
-		&& id.elements.every(element => element?.type === 'Identifier')
-	) {
-		const [firstElement, secondElement] = id.elements;
-
-		return {
-			node: id,
-			firstElement,
-			element: secondElement,
-		};
-	}
+	return id;
 };
 
 const referencesVariable = (variable, node, context) => {
@@ -128,12 +113,6 @@ const getVariableTargetText = (declarator, context) => {
 	return sourceCode.text.slice(start, end).trimEnd();
 };
 
-const getParametersText = (binding, context) => {
-	const text = context.sourceCode.getText(binding.node);
-
-	return binding.node.type === 'Identifier' ? text : `(${text})`;
-};
-
 const getArrayFromAsyncText = ({
 	iterable,
 	binding,
@@ -143,15 +122,14 @@ const getArrayFromAsyncText = ({
 	let text = `Array.fromAsync(${getParenthesizedText(iterable, context)}`;
 
 	if (body) {
-		text += `, ${getParametersText(binding, context)} => ${getArrowBodyText(body, context)}`;
+		text += `, ${context.sourceCode.getText(binding)} => ${getArrowBodyText(body, context)}`;
 	}
 
 	return `${text})`;
 };
 
 const isDirectElementPush = (pushArgument, binding) =>
-	binding.node.type === 'Identifier'
-	&& isIdentifierNamed(pushArgument, binding.element.name);
+	isIdentifierNamed(pushArgument, binding.name);
 
 const getMapperBody = ({
 	pushArgument,
@@ -194,8 +172,7 @@ const getLoopProblem = (declaration, context) => {
 	const arrayName = declarator.id.name;
 	const variable = sourceCode.getDeclaredVariables(declarator)[0];
 	if (
-		binding.element.name === arrayName
-		|| binding.firstElement?.name === arrayName
+		binding.name === arrayName
 		|| referencesVariable(variable, loop.right, context)
 	) {
 		return;

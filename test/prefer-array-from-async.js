@@ -95,6 +95,18 @@ test.snapshot({
 		`,
 		outdent`
 			const result = [];
+			for await (var element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (const [key, value] of iterable) {
+				result.push(await transform(key, value));
+			}
+		`,
+		outdent`
+			const result = [];
 			for await (const element of iterable) {
 				result?.push(element);
 			}
@@ -159,12 +171,6 @@ test.snapshot({
 			const result = [];
 			for await (const element of iterable) {
 				result.push(await element);
-			}
-		`,
-		outdent`
-			const result = [];
-			for await (const [key, value] of iterable) {
-				result.push(await transform(key, value));
 			}
 		`,
 		{

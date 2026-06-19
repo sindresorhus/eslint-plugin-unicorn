@@ -13,7 +13,7 @@ Prefer `Array.fromAsync()` over simple `for await…of` loops that only accumula
 
 `Array.fromAsync(iterable)` directly creates an array from an async iterable, sync iterable, or array-like value. It is clearer than manually creating an empty array, iterating with `for await…of`, and pushing one value per iteration.
 
-This rule only reports adjacent `const` or `let` empty-array declarations followed by a `for await…of` loop whose body is only a single `result.push(…)` expression. Mapped values are only reported when the pushed value is explicitly awaited, because `Array.fromAsync()` awaits mapper results.
+This rule only reports adjacent `const` or `let` empty-array declarations followed by a `for await…of` loop with a single identifier binding and a body that is only a single `result.push(…)` expression. Mapped values are only reported when the pushed value is explicitly awaited, because `Array.fromAsync()` awaits mapper results.
 
 ## Examples
 
