@@ -3,7 +3,10 @@
 	"version": "67.0.0",
 	"description": "More than 300 powerful ESLint rules",
 	"license": "MIT",
-	"repository": "sindresorhus/eslint-plugin-unicorn",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sindresorhus/eslint-plugin-unicorn.git"
+	},
 	"funding": "https://github.com/sindresorhus/eslint-plugin-unicorn?sponsor=1",
 	"author": {
 		"name": "Sindre Sorhus",
