@@ -149,22 +149,21 @@ const getArrayFromAsyncText = ({
 	return `${text})`;
 };
 
-const getReplacementBody = ({
+const isDirectElementPush = (pushArgument, binding) =>
+	binding.node.type === 'Identifier'
+	&& isIdentifierNamed(pushArgument, binding.element.name);
+
+const getMapperBody = ({
 	pushArgument,
-	binding,
 	variable,
 	context,
 }) => {
-	if (binding.node.type === 'Identifier' && isIdentifierNamed(pushArgument, binding.element.name)) {
-		return;
-	}
-
 	if (
 		pushArgument.type !== 'AwaitExpression'
 		|| referencesVariable(variable, pushArgument.argument, context)
 		|| containsSuspensionPoint(pushArgument.argument, context.sourceCode.visitorKeys)
 	) {
-		return false;
+		return;
 	}
 
 	return pushArgument.argument;
@@ -213,14 +212,18 @@ const getLoopProblem = (declaration, context) => {
 	}
 
 	const [pushArgument] = expression.arguments;
-	const body = getReplacementBody({
-		pushArgument,
-		binding,
-		variable,
-		context,
-	});
-	if (body === false) {
-		return;
+	const isDirectCollection = isDirectElementPush(pushArgument, binding);
+	let body;
+
+	if (!isDirectCollection) {
+		body = getMapperBody({
+			pushArgument,
+			variable,
+			context,
+		});
+		if (!body) {
+			return;
+		}
 	}
 
 	const replaceRange = [
