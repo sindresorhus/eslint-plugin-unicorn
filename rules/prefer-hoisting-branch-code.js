@@ -125,10 +125,7 @@ const canAutofixLeadingStatement = (statement, sourceCode) =>
 function isInStatementList(ifStatement) {
 	const {parent} = ifStatement;
 
-	return parent.type === 'Program'
-		|| parent.type === 'BlockStatement'
-		|| parent.type === 'StaticBlock'
-		|| parent.type === 'SwitchCase';
+	return ['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase'].includes(parent.type);
 }
 
 // Count of consecutive identical statements shared by all branches, at the start and at the end.
