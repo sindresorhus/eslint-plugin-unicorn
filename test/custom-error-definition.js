@@ -89,6 +89,15 @@ const tests = {
 				}
 			}
 		`,
+		// `options` is forwarded to `super()` inline, so no dedicated `options` parameter is needed
+		outdent`
+			class FooError extends Error {
+				constructor(cause) {
+					super('The request timed out', {cause});
+					this.name = 'FooError';
+				}
+			}
+		`,
 		outdent`
 			class FooError extends Error {
 				constructor() {
@@ -684,6 +693,45 @@ const tests = {
 					}
 				}
 			`,
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(cause) {
+						super('Fixed message', cause);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(details) {
+						super('Fixed message', {details});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super('Fixed message', {cause: message});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
 		},
 		{
 			code: outdent`

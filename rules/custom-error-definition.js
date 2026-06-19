@@ -3,7 +3,10 @@ import {
 	getParenthesizedText,
 	isNodeMatchesNameOrPath,
 } from './utils/index.js';
-import {isUndefined} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isUndefined,
+} from './ast/index.js';
 
 const MESSAGE_ID_INVALID_EXPORT = 'invalidExport';
 const MESSAGE_ID_DO_NOT_PASS_MESSAGE_TO_SUPER = 'doNotPassMessageToSuper';
@@ -200,6 +203,33 @@ const isSameIdentifier = (node, identifier) =>
 	node?.type === 'Identifier'
 	&& node.name === identifier.name;
 
+const isCauseProperty = property =>
+	property.type === 'Property'
+	&& !property.computed
+	&& (
+		(
+			property.key.type === 'Identifier'
+			&& property.key.name === 'cause'
+		)
+		|| (
+			property.key.type === 'Literal'
+			&& property.key.value === 'cause'
+		)
+	);
+
+const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) => {
+	if (shouldPassMessageToSuper) {
+		return false;
+	}
+
+	const [messageArgument, optionsArgument] = superCallExpression.arguments;
+	return superCallExpression.arguments.length === 2
+		&& getStaticStringValue(messageArgument) !== undefined
+		&& optionsArgument.type === 'ObjectExpression'
+		&& optionsArgument.properties.length === 1
+		&& isCauseProperty(optionsArgument.properties[0]);
+};
+
 const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
 	const parameters = constructor.value.params;
 	const firstParameter = parameters[0];
@@ -236,6 +266,11 @@ const getErrorOptionsProblem = (context, constructor, superExpression, hasMessag
 	const messageArgumentText = shouldPassMessageToSuper ? firstParameterIdentifier.name : 'undefined';
 
 	if (!optionsParameter) {
+		// When `options` is already forwarded to `super()` (e.g. `super('Fixed message', {cause})`), a dedicated `options` parameter isn't needed.
+		if (hasInlineErrorOptions(superCallExpression, shouldPassMessageToSuper)) {
+			return;
+		}
+
 		return {
 			node: firstParameter,
 			messageId: MESSAGE_ID_MISSING_OPTIONS_PARAMETER,
