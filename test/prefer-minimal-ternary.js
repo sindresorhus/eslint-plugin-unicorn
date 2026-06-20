@@ -86,11 +86,20 @@ test.snapshot({
 			code: 'isMac ? event.metaKey : event.ctrlKey;',
 			options: [{checkComputedMemberAccess: true}],
 		},
+		// Callee-varying call ternaries are off by default.
+		'test ? a() : b();',
+		'test ? a(value) : b(value);',
+		'test ? first.method(value) : second.method(value);',
 		// Method-call ternaries are off by default.
 		'test ? Promise.allSettled(values) : Promise.all(values);',
 		'test ? Math.min(a, 100) : Math.max(a, 100);',
 		// Zero-argument method-call swaps are off by default.
 		'test ? c.a() : c.b();',
+		// Optional chaining is never reported, even when the option is on.
+		{
+			code: 'test ? a?.() : b?.();',
+			options: [{checkVaryingCallee: true}],
+		},
 		// Optional chaining is never reported, even when the option is on.
 		{
 			code: 'test ? Promise?.allSettled(values) : Promise?.all(values);',
@@ -105,9 +114,6 @@ test.snapshot({
 	invalid: [
 		'test ? call(a) : call(b);',
 		'test ? call(a, b) : call(a, c);',
-		'test ? a() : b();',
-		'test ? a(value) : b(value);',
-		'test ? first.method(value) : second.method(value);',
 		'test ? a + 1 : b + 1;',
 		'test ? 1 + a : 1 + b;',
 		'test ? a.value : b.value;',
@@ -131,6 +137,19 @@ test.snapshot({
 		{
 			code: 'test ? c[x!] : c[y!];',
 			languageOptions: {parser: parsers.typescript},
+		},
+		// `checkVaryingCallee` enables call ternaries that differ only by the callee.
+		{
+			code: 'test ? a() : b();',
+			options: [{checkVaryingCallee: true}],
+		},
+		{
+			code: 'test ? a(value) : b(value);',
+			options: [{checkVaryingCallee: true}],
+		},
+		{
+			code: 'test ? first.method(value) : second.method(value);',
+			options: [{checkVaryingCallee: true}],
 		},
 		// `checkComputedMemberAccess` enables method-call ternaries that differ only by the method name.
 		{

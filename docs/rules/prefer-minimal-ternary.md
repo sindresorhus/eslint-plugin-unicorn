@@ -21,14 +21,6 @@ const foo = call(test ? a : b);
 
 ```js
 // ❌
-const foo = test ? a() : b();
-
-// ✅
-const foo = (test ? a : b)();
-```
-
-```js
-// ❌
 const foo = test ? a + 1 : b + 1;
 
 // ✅
@@ -48,6 +40,33 @@ const value = cache[test ? a : b];
 Only shallow cases are reported; nested expressions are not recursively minimized. The rule is not autofixable, since moving the ternary can change evaluation order — review each report.
 
 ## Options
+
+### `checkVaryingCallee`
+
+Type: `boolean`\
+Default: `false`
+
+Also report call ternaries that share the arguments and differ only by the callee. Minimizing these moves the ternary in front of the call (`(test ? a : b)()`), which hides the call site and breaks plain-text searches for the call, so it is opt-in.
+
+```js
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingCallee": true}]
+
+// ❌
+const foo = test ? a() : b();
+
+// ✅
+const foo = (test ? a : b)();
+```
+
+```js
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingCallee": true}]
+
+// ❌
+const foo = test ? a.method(value) : b.method(value);
+
+// ✅
+const foo = (test ? a : b).method(value);
+```
 
 ### `checkComputedMemberAccess`
 
