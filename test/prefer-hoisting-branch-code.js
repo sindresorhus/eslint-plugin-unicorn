@@ -291,6 +291,10 @@ test.snapshot({
 		'if (a) { doA(); this.cleanup(); } else { doB(); this.cleanup(); }',
 		// Shared leading statement that is itself an `if` (suggestion, has side effects)
 		'if (a) { if (x) { foo(); } doA(); } else { if (x) { foo(); } doB(); }',
+		// Shared leading tagged template (suggestion — a tag call may have side effects and must not be reordered before the condition)
+		'if (a) { tag`x`; doA(); } else { tag`x`; doB(); }',
+		// Shared trailing statement that is itself an `if` (autofix — trailing code is always safe to hoist)
+		'if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } }',
 		// Shared leading `throw` (suggestion only — the condition might have side effects)
 		'function f() { if (a) { throw new Error("x"); doA(); } else { throw new Error("x"); doB(); } }',
 	],

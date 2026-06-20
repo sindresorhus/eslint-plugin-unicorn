@@ -173,5 +173,12 @@ test.snapshot({
 			code: 'array.sort((a: unknown, b: unknown) => (a as number) > (b as number))',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Non-null assertion on a known-boolean global reference
+		{
+			code: 'array.sort(Boolean!)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Destructured parameters: reported, but no suggestion since the parameters are not plain identifiers
+		'array.sort(([a], [b]) => a > b)',
 	],
 });

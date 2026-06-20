@@ -29,11 +29,9 @@ const isElseIfStatement = node =>
 	node.parent.type === 'IfStatement'
 	&& node.parent.alternate === node;
 
-function hasSideEffectOrTaggedTemplate(node, sourceCode) {
-	if (
-		node.type === 'TaggedTemplateExpression'
-		|| hasSideEffect(node, sourceCode)
-	) {
+// `hasSideEffect` does not treat a tagged template as a call, so check for one separately.
+function containsTaggedTemplate(node, sourceCode) {
+	if (node.type === 'TaggedTemplateExpression') {
 		return true;
 	}
 
@@ -42,7 +40,7 @@ function hasSideEffectOrTaggedTemplate(node, sourceCode) {
 		const child = node[key];
 		if (Array.isArray(child)) {
 			for (const childNode of child) {
-				if (childNode && hasSideEffectOrTaggedTemplate(childNode, sourceCode)) {
+				if (childNode && containsTaggedTemplate(childNode, sourceCode)) {
 					return true;
 				}
 			}
@@ -50,13 +48,17 @@ function hasSideEffectOrTaggedTemplate(node, sourceCode) {
 			continue;
 		}
 
-		if (child && hasSideEffectOrTaggedTemplate(child, sourceCode)) {
+		if (child && containsTaggedTemplate(child, sourceCode)) {
 			return true;
 		}
 	}
 
 	return false;
 }
+
+const hasSideEffectOrTaggedTemplate = (node, sourceCode) =>
+	hasSideEffect(node, sourceCode)
+	|| containsTaggedTemplate(node, sourceCode);
 
 // Tokens of a statement, ignoring a trailing semicolon so ASI differences don't matter.
 const getStatementTokens = (node, sourceCode) => {

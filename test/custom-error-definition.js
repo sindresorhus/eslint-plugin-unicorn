@@ -98,6 +98,42 @@ const tests = {
 				}
 			}
 		`,
+		// Inline options with a non-shorthand `cause` property
+		outdent`
+			class FooError extends Error {
+				constructor(error) {
+					super('The request timed out', {cause: error});
+					this.name = 'FooError';
+				}
+			}
+		`,
+		// Inline options with a string-literal `cause` key
+		outdent`
+			class FooError extends Error {
+				constructor(error) {
+					super('The request timed out', {'cause': error});
+					this.name = 'FooError';
+				}
+			}
+		`,
+		// Inline options with a hard-coded message built from a template literal
+		outdent`
+			class FooError extends Error {
+				constructor(cause) {
+					super(\`The request timed out\`, {cause});
+					this.name = 'FooError';
+				}
+			}
+		`,
+		// Inline options forwarded to a custom `*Error` super class (the reported real-world case)
+		outdent`
+			class TimeoutError extends FetchError {
+				constructor(cause) {
+					super('The request timed out', {cause});
+					this.name = 'TimeoutError';
+				}
+			}
+		`,
 		outdent`
 			class FooError extends Error {
 				constructor() {
@@ -725,6 +761,48 @@ const tests = {
 				class FooError extends Error {
 					constructor(message) {
 						super('Fixed message', {cause: message});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		// The inline options object has more than just `cause`, so `options` should be a parameter
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(cause) {
+						super('Fixed message', {cause, code: 1});
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		// Extra arguments after the inline options are not a recognized forwarding pattern
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(cause) {
+						super('Fixed message', {cause}, cause);
+						this.name = 'FooError';
+					}
+				}
+			`,
+			errors: [
+				missingOptionsParameterError,
+			],
+		},
+		// The message is computed, not hard-coded, so `options` should be a parameter
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(cause) {
+						super(getMessage(), {cause});
 						this.name = 'FooError';
 					}
 				}

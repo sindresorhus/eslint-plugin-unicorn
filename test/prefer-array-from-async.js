@@ -229,10 +229,29 @@ test.snapshot({
 				result.push(await ({value: element}));
 			}
 		`,
+		// A sequence expression mapper body must be parenthesized in the arrow function
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(await (log(element), element));
+			}
+		`,
 		outdent`
 			const result = [];
 			for await (const element of iterable)
 				result.push(element);
 		`,
+		// A TypeScript `as` mapper body must be parenthesized in the arrow function
+		{
+			code: outdent`
+				const result = [];
+				for await (const element of iterable) {
+					result.push(await (element as string));
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
