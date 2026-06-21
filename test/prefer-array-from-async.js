@@ -241,20 +241,19 @@ test.snapshot({
 			for await (const element of iterable)
 				result.push(element);
 		`,
-		// A TypeScript `as` mapper body must be parenthesized in the arrow function
+		// A TypeScript `as` mapper body must be parenthesized in the arrow function.
+		// Wrapped in an `async function` so `await` is a keyword via syntax, independent of `sourceType`, which the TypeScript parser does not honor consistently across environments.
 		{
 			code: outdent`
-				const result = [];
-				for await (const element of iterable) {
-					result.push(await (element as string));
+				async function foo() {
+					const result = [];
+					for await (const element of iterable) {
+						result.push(await (element as string));
+					}
 				}
 			`,
 			languageOptions: {
 				parser: parsers.typescript,
-				// The TypeScript parser defaults to `sourceType: 'script'`, where `await` is a plain identifier and `await (…)` parses as a call expression instead of an `await` expression. Force module mode so `await` stays a keyword regardless of the ESLint/parser version.
-				parserOptions: {
-					sourceType: 'module',
-				},
 			},
 		},
 	],
