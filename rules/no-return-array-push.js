@@ -77,9 +77,14 @@ function getDirectReturnStatement(callExpression) {
 	}
 }
 
-function isBareExpressionStatement(expression) {
-	const node = getCallExpressionResultNode(expression);
-	return node.parent.type === 'ExpressionStatement';
+function isReturnValueDiscarded(callExpression) {
+	const node = getCallExpressionResultNode(callExpression);
+	const {parent} = node;
+	return (
+		parent.type === 'ExpressionStatement'
+		// The `void` operator explicitly discards the return value.
+		|| (parent.type === 'UnaryExpression' && parent.operator === 'void')
+	);
 }
 
 function getSuggestion(callExpression, returnStatement, method, context) {
@@ -121,7 +126,7 @@ const create = context => {
 
 		if (
 			(method === 'push' && isIgnoredCallee(callExpression.callee))
-			|| isBareExpressionStatement(callExpression)
+			|| isReturnValueDiscarded(callExpression)
 		) {
 			return;
 		}
