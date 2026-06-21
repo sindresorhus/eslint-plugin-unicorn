@@ -1,3 +1,4 @@
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	upperFirst,
 	getParenthesizedText,
@@ -202,20 +203,7 @@ const isSameIdentifier = (node, identifier) =>
 	node?.type === 'Identifier'
 	&& node.name === identifier.name;
 
-const isCauseProperty = property =>
-	property.type === 'Property'
-	&& !property.computed
-	&& (
-		(
-			property.key.type === 'Identifier'
-			&& property.key.name === 'cause'
-		)
-		|| (
-			property.key.type === 'Literal'
-			&& property.key.value === 'cause'
-		)
-	);
-
+// Whether `super()` already forwards the error options inline, e.g. `super('Fixed message', {cause})`.
 const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) => {
 	if (shouldPassMessageToSuper) {
 		return false;
@@ -226,7 +214,7 @@ const hasInlineErrorOptions = (superCallExpression, shouldPassMessageToSuper) =>
 		&& getStaticStringValue(messageArgument) !== undefined
 		&& optionsArgument.type === 'ObjectExpression'
 		&& optionsArgument.properties.length === 1
-		&& isCauseProperty(optionsArgument.properties[0]);
+		&& getPropertyName(optionsArgument.properties[0]) === 'cause';
 };
 
 const getErrorOptionsProblem = (context, constructor, superExpression, hasMessageAccessor) => {
