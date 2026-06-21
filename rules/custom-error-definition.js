@@ -76,8 +76,7 @@ const isPropertyDefinition = (node, name) =>
 	&& node.key.name === name;
 
 const isValidNameProperty = (nameProperty, className) =>
-	nameProperty?.value
-	&& nameProperty.value.value === className;
+	getStaticStringValue(nameProperty?.value) === className;
 
 const isMessageAccessor = (node, kind) =>
 	node.type === 'MethodDefinition'
@@ -317,10 +316,7 @@ function getInvalidErrorNameProblem(constructorBodyNode, constructorBody, errorD
 		return;
 	}
 
-	if (
-		nameExpression.expression.right.type !== 'Literal'
-		|| nameExpression.expression.right.value !== name
-	) {
+	if (getStaticStringValue(nameExpression.expression.right) !== name) {
 		return createInvalidNameError(nameExpression.expression.right ?? constructorBodyNode, name);
 	}
 }
