@@ -89,11 +89,11 @@ function hasSameStaticPropertyWithDifferentObject(left, right, context) {
 		&& !isSameSourceText(left.object, right.object, sourceCode);
 }
 
-function hasMinimalCalleeDifference(left, right, context, checkComputedMemberAccess) {
-	// Only `hasSameObjectWithDifferentStaticProperty` is opt-in: it produces computed member access (`obj[test ? 'a' : 'b'](…)`). The other branches keep plain identifier or dot access.
-	return isDifferentIdentifier(left, right)
+function hasMinimalCalleeDifference(left, right, context, {checkVaryingCallee, checkComputedMemberAccess}) {
+	// All callee-varying call cases push the ternary in front of the call (`(test ? a : b)()`), hiding the call site, so they are opt-in. `checkVaryingCallee` covers plain identifier and dot access; `checkComputedMemberAccess` additionally produces computed member access (`obj[test ? 'a' : 'b'](…)`).
+	return (checkVaryingCallee && isDifferentIdentifier(left, right))
 		|| (checkComputedMemberAccess && hasSameObjectWithDifferentStaticProperty(left, right, context))
-		|| hasSameStaticPropertyWithDifferentObject(left, right, context);
+		|| (checkVaryingCallee && hasSameStaticPropertyWithDifferentObject(left, right, context));
 }
 
 function hasOneMinimalItemDifference(leftItems, rightItems, sourceCode) {
@@ -125,7 +125,7 @@ function hasSameItems(leftItems, rightItems, sourceCode) {
 		&& leftItems.every((leftItem, index) => isSameSourceText(leftItem, rightItems[index], sourceCode));
 }
 
-function isMinimalCallExpression(left, right, context, checkComputedMemberAccess) {
+function isMinimalCallExpression(left, right, context, options) {
 	const {sourceCode} = context;
 
 	if (
@@ -148,7 +148,7 @@ function isMinimalCallExpression(left, right, context, checkComputedMemberAccess
 	}
 
 	return hasSameItems(left.arguments, right.arguments, sourceCode)
-		&& hasMinimalCalleeDifference(left.callee, right.callee, context, checkComputedMemberAccess);
+		&& hasMinimalCalleeDifference(left.callee, right.callee, context, options);
 }
 
 function isPrivateBrandCheck(node) {
@@ -205,7 +205,7 @@ function isMinimalMemberExpression(left, right, context) {
 		|| hasSameObjectWithDifferentDynamicKey(left, right, context);
 }
 
-function isMinimalTernary(consequent, alternate, context, checkComputedMemberAccess) {
+function isMinimalTernary(consequent, alternate, context, options) {
 	if (
 		consequent.type !== alternate.type
 		|| isIgnoredExpression(consequent)
@@ -214,17 +214,17 @@ function isMinimalTernary(consequent, alternate, context, checkComputedMemberAcc
 		return false;
 	}
 
-	return isMinimalCallExpression(consequent, alternate, context, checkComputedMemberAccess)
+	return isMinimalCallExpression(consequent, alternate, context, options)
 		|| isMinimalBinaryExpression(consequent, alternate, context)
 		|| isMinimalMemberExpression(consequent, alternate, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkComputedMemberAccess} = context.options[0];
+	const options = context.options[0];
 
 	context.on('ConditionalExpression', node => {
-		if (!isMinimalTernary(node.consequent, node.alternate, context, checkComputedMemberAccess)) {
+		if (!isMinimalTernary(node.consequent, node.alternate, context, options)) {
 			return;
 		}
 
@@ -249,6 +249,10 @@ const config = {
 				type: 'object',
 				additionalProperties: false,
 				properties: {
+					checkVaryingCallee: {
+						type: 'boolean',
+						description: 'Also report call ternaries that differ only by the callee, whose minimization moves the ternary in front of the call.',
+					},
 					checkComputedMemberAccess: {
 						type: 'boolean',
 						description: 'Also report method-call ternaries that differ only by the method name, whose minimization requires computed member access.',
@@ -256,7 +260,7 @@ const config = {
 				},
 			},
 		],
-		defaultOptions: [{checkComputedMemberAccess: false}],
+		defaultOptions: [{checkVaryingCallee: false, checkComputedMemberAccess: false}],
 		messages,
 		languages: [
 			'js/js',
