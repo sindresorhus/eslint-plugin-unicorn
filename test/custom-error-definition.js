@@ -243,6 +243,28 @@ const tests = {
 				}
 			}
 		`,
+		// No-substitution template literal for `name` is equivalent to a string literal
+		outdent`
+			class FooError extends Error {
+				constructor(message, options) {
+					super(message, options);
+					this.name = \`FooError\`;
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				name = \`FooError\`;
+				constructor(message, options) {
+					super(message, options);
+				}
+			}
+		`,
+		outdent`
+			class FooError extends Error {
+				name = \`FooError\`;
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -505,6 +527,64 @@ const tests = {
 			errors: [
 				invalidNameError('FooError'),
 			],
+		},
+		// A no-substitution template literal whose value does not match the class name is still reported
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(message);
+						this.name = \`foo\`;
+					}
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					name = \`foo\`;
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+			output: outdent`
+				class FooError extends Error {
+					name = 'FooError';
+				}
+			`,
+		},
+		// A template literal with a substitution is not a static string and is still reported
+		{
+			code: outdent`
+				class FooError extends Error {
+					constructor(message) {
+						super(message);
+						this.name = \`\${'FooError'}\`;
+					}
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+		},
+		{
+			code: outdent`
+				class FooError extends Error {
+					name = \`\${'FooError'}\`;
+				}
+			`,
+			errors: [
+				invalidNameError('FooError'),
+			],
+			output: outdent`
+				class FooError extends Error {
+					name = 'FooError';
+				}
+			`,
 		},
 		{
 			code: outdent`
@@ -898,20 +978,6 @@ const tests = {
 			`,
 			errors: [
 				invalidOptionsParameterError,
-			],
-		},
-		{
-			// `name` assigned via a template literal instead of a string literal
-			code: outdent`
-				class FooError extends Error {
-					constructor(message, options) {
-						super(message, options);
-						this.name = \`FooError\`;
-					}
-				}
-			`,
-			errors: [
-				invalidNameError('FooError'),
 			],
 		},
 		{
