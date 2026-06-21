@@ -117,6 +117,17 @@ test.snapshot({
 				array?.unshift(value);
 			}
 		`,
+		'void array.push(value);',
+		'void array.unshift(value);',
+		'void array?.push(value);',
+		'void array?.unshift(value);',
+		'const length = void array.push(value);',
+		'const foo = value => void array.push(value);',
+		outdent`
+			function foo() {
+				return void array.push(value);
+			}
+		`,
 	],
 	invalid: [
 		'const length = array.push(value);',
@@ -124,8 +135,6 @@ test.snapshot({
 		'const length = stream.unshift(chunk);',
 		'console.log(array.push(value));',
 		'console.log(array.unshift(value));',
-		'void array.push(value);',
-		'void array.unshift(value);',
 		'const length = await array.push(value);',
 		'const length = await array.unshift(value);',
 		'async function foo() { await array.push(value); }',
@@ -314,6 +323,8 @@ test.snapshot({
 		'array.unshift(value)!;',
 		'array.push(value) satisfies number;',
 		'array.unshift(value) satisfies number;',
+		'void (array.push(value) as number);',
+		'void (array.unshift(value) as number);',
 	],
 	invalid: [
 		'const foo = (value: string) => array.push(value);',

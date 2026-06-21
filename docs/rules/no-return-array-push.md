@@ -57,6 +57,13 @@ function getNextLength(item) {
 }
 ```
 
+Prefixing the call with the `void` operator is an explicit opt-out, since it discards the return value. This is useful when the call returns a `Promise` you intentionally don't await:
+
+```js
+// ✅
+void items.push(item);
+```
+
 ## Concise-body arrows in callbacks
 
 A concise-body arrow returns its expression even when the callback ignores the return value, like `Array#forEach`. The rule still flags this, since it reads as if the length mattered and usually means the loop can be written more directly.
