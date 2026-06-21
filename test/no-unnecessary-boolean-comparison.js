@@ -1,6 +1,16 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -48,6 +58,25 @@ test.snapshot({
 			code: 'let flag: boolean | string;\nflag !== false;',
 			languageOptions: {parser: parsers.typescript},
 		},
+
+		// A destructured parameter's type lives on the pattern, not the default value (#3385).
+		{
+			code: 'const foo = ({bar = false}: {bar?: boolean | \'baz\' | \'\'}) => {\n\tif (bar === false) {}\n\tif (bar === true) {}\n};',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = ([first = false]: Array<boolean | \'baz\'>) => first === false;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The default value does not constrain a destructured binding's type.
+		'function foo({bar = false}) {\n\treturn bar === false;\n}',
+		// Without type information, a genuinely boolean destructured binding is conservatively skipped, since its type cannot be read off the identifier.
+		{
+			code: 'const foo = ({bar = false}: {bar?: boolean}) => bar === false;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// With type information, the wider type is respected and the comparison is not reported (#3385).
+		typeAware('const foo = ({bar = false}: {bar?: boolean | \'baz\' | \'\'}) => bar === false;'),
 	],
 	invalid: [
 		'const result = (a > b) === true;',
@@ -76,6 +105,9 @@ test.snapshot({
 		'const result = (a > b) /* comment */ === true;',
 		'const flag = a > b;\nconst result = flag === true;',
 		'function isEnabled() {\n\treturn a > b;\n}\n\nconst result = isEnabled() === true;',
+		'function foo(bar = false) {\n\treturn bar === false;\n}',
+		// With type information, a genuinely boolean destructured binding is detected via the type checker.
+		typeAware('const foo = ({bar = false}: {bar?: boolean}) => bar === false;'),
 		{
 			code: 'let flag: boolean;\nconst result = flag === true;',
 			languageOptions: {parser: parsers.typescript},
