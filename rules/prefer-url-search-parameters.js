@@ -8,6 +8,7 @@ import {
 	getParenthesizedRange,
 	isKnownNonString,
 	isSameIdentifier,
+	isTypeImportSpecifier,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
@@ -27,10 +28,7 @@ const urlImportSources = new Set([
 
 const isTypeOnlyImport = definition =>
 	definition.type === 'ImportBinding'
-	&& (
-		definition.parent.importKind === 'type'
-		|| definition.node.importKind === 'type'
-	);
+	&& isTypeImportSpecifier(definition.node);
 
 const isErasedDefinition = definition =>
 	definition.type === 'Type'
@@ -205,6 +203,16 @@ const getReplacementWithArgument = (node, argument, replacementArgument, context
 		+ sourceCode.text.slice(argumentEnd, nodeEnd);
 };
 
+const getPreservedWrapperRanges = (node, argument, context) => {
+	const [nodeStart, nodeEnd] = context.sourceCode.getRange(node);
+	const [argumentStart, argumentEnd] = getParenthesizedRange(argument, context);
+
+	return [
+		[nodeStart, argumentStart],
+		[argumentEnd, nodeEnd],
+	];
+};
+
 const getSuggestion = ({node, replacement, preservedNodes}, context) => {
 	if (
 		!isUrlSearchParametersAvailable(node, context)
@@ -257,38 +265,33 @@ const isMapConstructor = (node, context) =>
 	})
 	&& isGlobalNameAvailable('Map', node, context);
 
-const isUrlSearchParametersConstructor = (node, context) =>
+const isUrlSearchParametersConstructor = node =>
 	isNewExpression(node, {
 		name: 'URLSearchParams',
 		argumentsLength: 1,
-	})
-	&& isUrlSearchParametersAvailable(node, context);
+	});
+
+const isPropertyNamed = (node, name) =>
+	(node.type === 'Identifier' && node.name === name)
+	|| getStaticStringValue(node) === name;
+
+const isPotentialObjectFromEntriesCall = node =>
+	node.type === 'CallExpression'
+	&& node.arguments.length === 1
+	&& node.callee.type === 'MemberExpression'
+	&& node.callee.object.type === 'Identifier'
+	&& node.callee.object.name === 'Object'
+	&& isPropertyNamed(node.callee.property, 'fromEntries');
 
 const isPotentialWrapper = node =>
-	(
-		node.type === 'CallExpression'
-		&& isMethodCall(node, {
-			object: 'Object',
-			method: 'fromEntries',
-			argumentsLength: 1,
-			computed: false,
-			optionalCall: false,
-			optionalMember: false,
-		})
-	)
-	|| (
-		node.type === 'NewExpression'
-		&& (
-			isNewExpression(node, {
-				name: 'Map',
-				argumentsLength: 1,
-			})
-			|| isNewExpression(node, {
-				name: 'URLSearchParams',
-				argumentsLength: 1,
-			})
-		)
-	);
+	isPotentialObjectFromEntriesCall(node)
+	|| isNewExpression(node, {
+		names: [
+			'Map',
+			'URLSearchParams',
+		],
+		argumentsLength: 1,
+	});
 
 const getFirstArgumentParent = node => {
 	let expression = node;
@@ -326,14 +329,15 @@ const getObjectFromEntriesProblem = (node, context) => {
 		query: pipeline.query,
 		replacement,
 		preservedNodes: [
-			node.callee,
+			...getPreservedWrapperRanges(node, argument, context),
 			pipeline.query,
 		],
 	}, context);
 };
 
 const getNewExpressionProblem = (node, context) => {
-	if (!isMapConstructor(node, context) && !isUrlSearchParametersConstructor(node, context)) {
+	const isMap = isMapConstructor(node, context);
+	if (!isMap && !isUrlSearchParametersConstructor(node)) {
 		return;
 	}
 
@@ -345,7 +349,7 @@ const getNewExpressionProblem = (node, context) => {
 
 	const queryText = getArgumentText(pipeline.query, context);
 	const urlSearchParametersText = getUrlSearchParametersText(pipeline.query, context);
-	const replacementArgument = isMapConstructor(node, context) ? urlSearchParametersText : queryText;
+	const replacementArgument = isMap ? urlSearchParametersText : queryText;
 	const replacement = getReplacementWithArgument(node, argument, replacementArgument, context);
 
 	return createProblem({
@@ -353,7 +357,7 @@ const getNewExpressionProblem = (node, context) => {
 		query: pipeline.query,
 		replacement,
 		preservedNodes: [
-			node.callee,
+			...getPreservedWrapperRanges(node, argument, context),
 			pipeline.query,
 		],
 	}, context);
