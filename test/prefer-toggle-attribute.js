@@ -186,6 +186,13 @@ test.snapshot({
 		`,
 		outdent`
 			if (condition) {
+				element.setAttribute('hidden', value);
+			} else {
+				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
 				element.setAttribute('hidden', '');
 			} else {
 				element.removeAttribute('hidden');
@@ -258,6 +265,13 @@ test.snapshot({
 				element.removeAttribute('hidden');
 			} else {
 				element.setAttribute('hidden', getValue());
+			}
+		`,
+		outdent`
+			if (element.hasAttribute('hidden')) {
+				element.removeAttribute('hidden');
+			} else {
+				element.setAttribute('hidden', value);
 			}
 		`,
 		outdent`
@@ -359,6 +373,7 @@ test.snapshot({
 	valid: [
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("disabled")',
 		'condition ? element.setAttribute(`data-hidden`, "") : element.removeAttribute(`data-hidden`)',
+		'condition ? element.setAttribute("data-hidden", "hidden") : element.removeAttribute("data-hidden")',
 		'condition ? element.setAttribute("hidden") : element.removeAttribute("hidden")',
 		'condition ? element.setAttribute("hidden", "", extra) : element.removeAttribute("hidden")',
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute()',
@@ -372,6 +387,8 @@ test.snapshot({
 	],
 	invalid: [
 		'condition ? element.setAttribute("hidden", "hidden") : element.removeAttribute("hidden")',
+		'condition ? element.setAttribute("hidden", getValue()) : element.removeAttribute("hidden")',
+		'condition ? element.setAttribute("hidden", value) : element.removeAttribute("hidden")',
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'condition ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
 		'condition ? element?.setAttribute("hidden", "") : element?.removeAttribute("hidden")',

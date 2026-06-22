@@ -1,4 +1,3 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isEmptyStringLiteral,
@@ -24,11 +23,6 @@ const MESSAGE_ID_SUGGESTION = 'prefer-toggle-attribute/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using `Element#toggleAttribute()` to toggle attributes.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `Element#toggleAttribute()`.',
-};
-
-const hasSideEffectOptions = {
-	considerGetters: true,
-	considerImplicitTypeConversion: true,
 };
 
 function getReceiverText(node, context) {
@@ -153,14 +147,16 @@ const isKnownNonDomReceiver = (call, context) =>
 	|| isKnownNonDomNode(call.receiver, context);
 
 const isSupportedTogglePair = (callA, callB, context) =>
-	callA
-	&& callB
-	&& isSetAndRemoveAttributePair(callA, callB)
-	&& isSameReceiverAndAttribute(callA, callB)
-	&& hasSupportedReceiver(callA)
-	&& hasSupportedReceiver(callB)
-	&& !isKnownNonDomReceiver(callA, context)
-	&& !isKnownNonDomReceiver(callB, context);
+	Boolean(
+		callA
+		&& callB
+		&& isSetAndRemoveAttributePair(callA, callB)
+		&& isSameReceiverAndAttribute(callA, callB)
+		&& hasSupportedReceiver(callA)
+		&& hasSupportedReceiver(callB)
+		&& !isKnownNonDomReceiver(callA, context)
+		&& !isKnownNonDomReceiver(callB, context),
+	);
 
 function getHasAttributeCondition(node, expectedCall, context, isNegative = false) {
 	if (node.type === 'ChainExpression') {
@@ -235,11 +231,10 @@ const create = context => {
 			return;
 		}
 
-		const shouldToggleWithoutForce = hasAttributeCondition && setWhenTrue === hasAttributeCondition.isNegative;
+		const shouldToggleWithoutForce = Boolean(hasAttributeCondition) && setWhenTrue === hasAttributeCondition.isNegative;
 		const conditionText = shouldToggleWithoutForce ? '' : getConditionText(node.test, context, !setWhenTrue);
-		const hasUnsafeAttributeValue = !setCall.hasEmptyAttributeValue
-			&& hasSideEffect(setCall.attributeValue, sourceCode, hasSideEffectOptions);
-		const shouldReportWithoutFix = (conditionText && setCall.isOptional) || hasUnsafeAttributeValue;
+		const hasSafeAttributeValue = setCall.hasEmptyAttributeValue || getStaticStringValue(setCall.attributeValue) !== undefined;
+		const shouldReportOnly = (Boolean(conditionText) && setCall.isOptional) || !hasSafeAttributeValue;
 
 		const preservedNodes = [
 			setCall.receiver,
@@ -249,7 +244,7 @@ const create = context => {
 			preservedNodes.push(node.test);
 		}
 
-		const fix = shouldReportWithoutFix || wouldRemoveComments(context, node, preservedNodes)
+		const fix = shouldReportOnly || wouldRemoveComments(context, node, preservedNodes)
 			? undefined
 			: function * (fixer) {
 				const receiverText = getReceiverText(setCall.receiver, context);
