@@ -47,6 +47,7 @@ test.snapshot({
 		'let handler = () => element.offsetWidth; window.addEventListener("resize", handler);',
 		'var handler = () => element.offsetWidth; window.addEventListener("resize", handler);',
 		'const addEventListener = () => {}; addEventListener("resize", () => window.innerWidth);',
+		'import {addEventListener} from "./events.js"; addEventListener("resize", () => window.innerWidth);',
 		'new ResizeObserver(entries => update(entries)).observe(element)',
 		'new IntersectionObserver(entries => update(entries)).observe(element)',
 		outdent`
@@ -115,6 +116,24 @@ test.snapshot({
 			}
 		`),
 		typeAware(outdent`
+			type WindowLike = {
+				innerWidth: number;
+			};
+
+			function listen(window_: WindowLike) {
+				window.addEventListener("resize", () => window_.innerWidth);
+			}
+		`),
+		typeAware(outdent`
+			type ViewportLike = {
+				width: number;
+			};
+
+			function listen(viewport: ViewportLike) {
+				window.addEventListener("resize", () => viewport.width);
+			}
+		`),
+		typeAware(outdent`
 			window.addEventListener("resize", () => {
 				type Size = {
 					innerWidth: number;
@@ -140,6 +159,8 @@ test.snapshot({
 	],
 	invalid: [
 		'window.addEventListener("resize", () => element.offsetWidth)',
+		'window.addEventListener("resize", function () { return element.offsetWidth; })',
+		'window.addEventListener("resize", () => element.offsetWidth, {passive: true})',
 		'window.addEventListener(`resize`, () => element.offsetWidth)',
 		'window.addEventListener("resize", () => { element.offsetWidth += 1; })',
 		'window.addEventListener("resize", () => { element.offsetWidth++; })',
@@ -170,6 +191,7 @@ test.snapshot({
 		'window.addEventListener("resize", () => window.visualViewport.height)',
 		'addEventListener("resize", () => window.innerWidth)',
 		'addEventListener("scroll", () => element.getBoundingClientRect())',
+		'scroller.addEventListener("scroll", () => target.getBoundingClientRect())',
 		outdent`
 			function handler() {
 				return element.offsetHeight;
@@ -180,6 +202,13 @@ test.snapshot({
 		outdent`
 			const handler = () => {
 				return element.scrollHeight;
+			};
+
+			window.addEventListener("resize", handler);
+		`,
+		outdent`
+			const handler = function () {
+				return element.offsetWidth;
 			};
 
 			window.addEventListener("resize", handler);
@@ -226,6 +255,42 @@ test.snapshot({
 				window.addEventListener("resize", () => {
 					const {offsetWidth} = size as unknown as HTMLElement;
 					return offsetWidth;
+				});
+			}
+		`),
+		typeAware(outdent`
+			function listen(window_: Window) {
+				window_.addEventListener("resize", () => window_.innerWidth);
+			}
+		`),
+		typeAware(outdent`
+			function listen(window_: Window) {
+				window.addEventListener("resize", () => {
+					const {innerWidth} = window_;
+					return innerWidth;
+				});
+			}
+		`),
+		typeAware(outdent`
+			function listen(window_: Window | undefined) {
+				window.addEventListener("resize", () => window_?.innerWidth);
+			}
+		`),
+		typeAware(outdent`
+			function listen<T extends Window>(window_: T) {
+				window.addEventListener("resize", () => window_.innerHeight);
+			}
+		`),
+		typeAware(outdent`
+			function listen(visualViewport_: VisualViewport) {
+				window.addEventListener("resize", () => visualViewport_.width);
+			}
+		`),
+		typeAware(outdent`
+			function listen(visualViewport_: VisualViewport) {
+				window.addEventListener("resize", () => {
+					const {height} = visualViewport_;
+					return height;
 				});
 			}
 		`),

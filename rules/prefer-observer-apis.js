@@ -24,7 +24,7 @@ const messages = {
 	scroll: 'Prefer IntersectionObserver over a scroll listener with layout reads.',
 };
 
-const observerMessageIds = new Set(Object.keys(messages));
+const eventNames = new Set(Object.keys(messages));
 const globalObjectNames = new Set(['globalThis', 'self', 'window']);
 const layoutMethodNames = new Set(['getBoundingClientRect', 'getClientRects']);
 const elementLayoutPropertyNames = new Set([
@@ -42,6 +42,8 @@ const elementLayoutPropertyNames = new Set([
 ]);
 const viewportPropertyNames = new Set(['innerHeight', 'innerWidth']);
 const visualViewportPropertyNames = new Set(['height', 'width']);
+const windowTypeNames = new Set(['Window']);
+const visualViewportTypeNames = new Set(['VisualViewport']);
 const domTypeNames = new Set([
 	'Document',
 	'Element',
@@ -94,6 +96,61 @@ const isKnownNonDomType = (type, checker, program) => {
 	}
 
 	return !isDomTypeName(symbol.getName());
+};
+
+const isKnownDefaultLibraryType = (type, checker, program, typeNames) => {
+	if (
+		isUnknownType(type)
+		|| isNullishType(type)
+	) {
+		return false;
+	}
+
+	if (type.isUnion()) {
+		const nonNullishTypes = type.types.filter(type => !isNullishType(type));
+		return nonNullishTypes.length > 0
+			&& nonNullishTypes.every(type => isKnownDefaultLibraryType(type, checker, program, typeNames));
+	}
+
+	if (type.isIntersection()) {
+		return type.types.some(type => isKnownDefaultLibraryType(type, checker, program, typeNames));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isKnownDefaultLibraryType(constraint, checker, program, typeNames);
+	}
+
+	const symbol = getTypeSymbol(type);
+	if (
+		symbol
+		&& isDefaultLibrarySymbol(symbol, program)
+		&& typeNames.has(symbol.getName())
+	) {
+		return true;
+	}
+
+	return getBaseTypes(type, checker).some(type => isKnownDefaultLibraryType(type, checker, program, typeNames));
+};
+
+const isKnownDefaultLibraryNode = (node, context, typeNames) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return false;
+	}
+
+	try {
+		const {program} = parserServices;
+		const checker = program.getTypeChecker();
+		return isKnownDefaultLibraryType(
+			parserServices.getTypeAtLocation(node),
+			checker,
+			program,
+			typeNames,
+		);
+	} catch {
+		return false;
+	}
 };
 
 const isKnownNonDomNode = (node, context) => {
@@ -192,11 +249,17 @@ const isViewportPropertyRead = (memberExpression, context) => {
 
 	return (
 		viewportPropertyNames.has(propertyName)
-		&& isGlobalObject(object, context)
+		&& (
+			isGlobalObject(object, context)
+			|| isKnownDefaultLibraryNode(memberExpression.object, context, windowTypeNames)
+		)
 	)
 	|| (
 		visualViewportPropertyNames.has(propertyName)
-		&& isGlobalVisualViewport(object, context)
+		&& (
+			isGlobalVisualViewport(object, context)
+			|| isKnownDefaultLibraryNode(memberExpression.object, context, visualViewportTypeNames)
+		)
 	);
 };
 
@@ -233,11 +296,17 @@ const isLayoutDestructuringRead = (pattern, source, context) => {
 	const initializer = unwrapTypeScriptExpression(source);
 	return (
 		hasObjectPatternProperty(pattern, viewportPropertyNames)
-		&& isGlobalObject(initializer, context)
+		&& (
+			isGlobalObject(initializer, context)
+			|| isKnownDefaultLibraryNode(source, context, windowTypeNames)
+		)
 	)
 	|| (
 		hasObjectPatternProperty(pattern, visualViewportPropertyNames)
-		&& isGlobalVisualViewport(initializer, context)
+		&& (
+			isGlobalVisualViewport(initializer, context)
+			|| isKnownDefaultLibraryNode(source, context, visualViewportTypeNames)
+		)
 	)
 	|| (
 		hasObjectPatternProperty(pattern, elementLayoutPropertyNames)
@@ -375,7 +444,7 @@ const create = context => {
 		const eventName = getStaticStringValue(unwrapTypeScriptExpression(eventNameNode));
 		if (
 			!eventName
-			|| !observerMessageIds.has(eventName)
+			|| !eventNames.has(eventName)
 		) {
 			return;
 		}
