@@ -31,8 +31,25 @@ test({
 		'document.createElement("TEMPLATE", options).innerHTML = "";',
 		'document.createElementNS("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
 		'document.createElementNS("http://www.w3.org/1999/xhtml", "TEMPLATE", options).innerHTML = "";',
+		'document.createElementNS(namespace, "template").innerHTML = "";',
 		'document["createElement"]("template").innerHTML = "";',
 		'document["createElementNS"]("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
+		{
+			code: '(document.createElement("template") as Element).innerHTML = "";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(document.createElement("template") as unknown as Element).innerHTML = "";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<Element>document.createElement("template")).innerHTML = "";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(document.createElementNS("http://www.w3.org/1999/xhtml", "template") as Element).innerHTML = "";',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'while (node.firstChild) { node.firstChild.remove(); }',
 		'while (node.lastChild) { node.lastChild.remove(); }',
 		'while (node.firstElementChild) { node.removeChild(node.firstElementChild); }',
@@ -53,7 +70,14 @@ test({
 		typeAware('function foo(node: Document) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: DocumentFragment) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: Node) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+		typeAware('function foo(node: {innerHTML: string; replaceChildren(): void}) { node.innerHTML = ""; }'),
+		typeAware('function foo(node: Element | {innerHTML: string; replaceChildren(): void}) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node; replaceChildren(): void}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+		typeAware(outdent`
+			type MaybeElement = Element | {firstChild: Node | undefined; removeChild(node: Node): Node; replaceChildren(): void};
+			function foo(node: MaybeElement) { while (node.firstChild) { node.removeChild(node.firstChild); } }
+		`),
 		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node; replaceChildren: string}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 		typeAware('function foo(node: {innerHTML: string; replaceChildren(value: string): void}) { node.innerHTML = ""; }'),
 	],
@@ -82,6 +106,21 @@ test({
 			code: '(element || fallback).innerHTML = "";',
 			errors: [error],
 			output: '(element || fallback).replaceChildren();',
+		},
+		{
+			code: 'document.createElementNS("http://www.w3.org/2000/svg", "template").innerHTML = "";',
+			errors: [error],
+			output: 'document.createElementNS("http://www.w3.org/2000/svg", "template").replaceChildren();',
+		},
+		{
+			code: 'document.createElementNS(null, "template").innerHTML = "";',
+			errors: [error],
+			output: 'document.createElementNS(null, "template").replaceChildren();',
+		},
+		{
+			code: 'const namespace = null; document.createElementNS(namespace, "template").innerHTML = "";',
+			errors: [error],
+			output: 'const namespace = null; document.createElementNS(namespace, "template").replaceChildren();',
 		},
 		{
 			code: outdent`

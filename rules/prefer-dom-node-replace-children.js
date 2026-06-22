@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
@@ -5,6 +6,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {
+	isKnownNonDomNode,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
@@ -12,10 +14,12 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldReportReplaceChildrenReceiver,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
+const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over manually emptying DOM children.',
 };
@@ -47,7 +51,27 @@ const isStaticMethodCall = (node, method, options) =>
 	&& isMemberExpression(node.callee, {optional: false})
 	&& getStaticPropertyName(node.callee) === method;
 
-const isTemplateElementCreation = node => {
+const getStaticNamespaceValue = (node, context) => {
+	const string = getStaticStringValue(node);
+	if (string !== undefined) {
+		return {
+			known: true,
+			value: string,
+		};
+	}
+
+	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	return result
+		? {
+			known: true,
+			value: result.value,
+		}
+		: {known: false};
+};
+
+const isTemplateElementCreation = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
 	if (
 		isStaticMethodCall(node, 'createElement', {
 			minimumArguments: 1,
@@ -57,13 +81,18 @@ const isTemplateElementCreation = node => {
 		return getStaticStringValue(node.arguments[0])?.toLowerCase() === 'template';
 	}
 
-	return (
-		isStaticMethodCall(node, 'createElementNS', {
+	if (
+		!isStaticMethodCall(node, 'createElementNS', {
 			minimumArguments: 2,
 			maximumArguments: 3,
 		})
-		&& getStaticStringValue(node.arguments[1])?.toLowerCase() === 'template'
-	);
+		|| getStaticStringValue(node.arguments[1])?.toLowerCase() !== 'template'
+	) {
+		return false;
+	}
+
+	const namespace = getStaticNamespaceValue(node.arguments[0], context);
+	return !namespace.known || namespace.value === HTML_NAMESPACE;
 };
 
 const getOnlyBodyStatement = node => {
@@ -133,6 +162,7 @@ const shouldSkipParentNode = (parentNode, context, options) => {
 	const {sourceCode} = context;
 
 	return isNodeValueNotDomNode(parentNode)
+		|| isKnownNonDomNode(parentNode, context, {treatMixedUnionAsNonTarget: true})
 		|| containsChainExpression(parentNode, sourceCode)
 		|| !shouldReportReplaceChildrenReceiver(context, parentNode, options);
 };
@@ -152,7 +182,7 @@ const getInnerHTMLProblem = (context, node) => {
 	const parentNode = node.left.object;
 	if (
 		shouldSkipInnerHTMLParentNode(parentNode, context)
-		|| isTemplateElementCreation(parentNode)
+		|| isTemplateElementCreation(parentNode, context)
 		|| mayBeHtmlTemplateElement(context, parentNode)
 	) {
 		return;
