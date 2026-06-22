@@ -12,6 +12,7 @@ import {
 
 const target = 'target';
 const nonTarget = 'non-target';
+const nullish = 'nullish';
 const unknown = 'unknown';
 
 const classNodeTypes = new Set([
@@ -32,11 +33,9 @@ const nonTargetTypeAnnotations = new Set([
 	'TSBigIntKeyword',
 	'TSBooleanKeyword',
 	'TSNeverKeyword',
-	'TSNullKeyword',
 	'TSNumberKeyword',
 	'TSStringKeyword',
 	'TSSymbolKeyword',
-	'TSUndefinedKeyword',
 	'TSVoidKeyword',
 	'TSArrayType',
 	'TSLiteralType',
@@ -45,8 +44,22 @@ const nonTargetTypeAnnotations = new Set([
 	'TSFunctionType',
 	'TSConstructorType',
 ]);
+const nullishTypeAnnotations = new Set([
+	'TSNullKeyword',
+	'TSUndefinedKeyword',
+]);
+
+const normalizeType = type => type === nullish ? nonTarget : type;
 
 const combineUnionTypes = (types, options) => {
+	types = options.allowNullishInMixedUnion
+		? types.filter(type => type !== nullish)
+		: types.map(normalizeType);
+
+	if (types.length === 0) {
+		return nonTarget;
+	}
+
 	if (types.every(type => type === target)) {
 		return target;
 	}
@@ -63,6 +76,8 @@ const combineUnionTypes = (types, options) => {
 };
 
 const combineIntersectionTypes = types => {
+	types = types.map(normalizeType);
+
 	if (types.includes(target)) {
 		return target;
 	}
@@ -236,6 +251,10 @@ function getTypeAnnotationType(node, scope, options, visitedTypeReferenceNames =
 				return target;
 			}
 
+			if (nullishTypeAnnotations.has(node?.type)) {
+				return nullish;
+			}
+
 			return nonTargetTypeAnnotations.has(node?.type) ? nonTarget : unknown;
 		}
 	}
@@ -247,7 +266,7 @@ function getTypeScriptType(type, checker, program, options) {
 	}
 
 	if (isNullishType(type)) {
-		return nonTarget;
+		return nullish;
 	}
 
 	if (type.isTypeParameter?.()) {
@@ -568,9 +587,9 @@ const createTypeCheckers = options => {
 	};
 
 	return {
-		getType: (node, context, overrides) => getType(node, context, {...options, ...overrides}),
+		getType: (node, context, overrides) => normalizeType(getType(node, context, {...options, ...overrides})),
 		isTarget: (node, context, overrides) => getType(node, context, {...options, ...overrides}) === target,
-		isKnownNonTarget: (node, context, overrides) => getType(node, context, {...options, ...overrides}) === nonTarget,
+		isKnownNonTarget: (node, context, overrides) => normalizeType(getType(node, context, {...options, ...overrides})) === nonTarget,
 	};
 };
 

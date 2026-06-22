@@ -32,6 +32,7 @@ test({
 		'document.createElementNS("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
 		'document.createElementNS("http://www.w3.org/1999/xhtml", "TEMPLATE", options).innerHTML = "";',
 		'document.createElementNS(namespace, "template").innerHTML = "";',
+		'const namespace = "http://www.w3.org/1999/xhtml"; document.createElementNS(namespace, "template").innerHTML = "";',
 		'document["createElement"]("template").innerHTML = "";',
 		'document["createElementNS"]("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
 		{
@@ -111,6 +112,11 @@ test({
 			code: 'document.createElementNS("http://www.w3.org/2000/svg", "template").innerHTML = "";',
 			errors: [error],
 			output: 'document.createElementNS("http://www.w3.org/2000/svg", "template").replaceChildren();',
+		},
+		{
+			code: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").innerHTML = "";',
+			errors: [error],
+			output: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").replaceChildren();',
 		},
 		{
 			code: 'document.createElementNS(null, "template").innerHTML = "";',
@@ -200,9 +206,39 @@ test({
 			output: 'function foo(node: ShadowRoot) { node.replaceChildren(); }',
 		},
 		{
+			...typeAware('function foo(node: Element | undefined) { node.innerHTML = ""; }'),
+			errors: [error],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Element | null) { node.innerHTML = ""; }'),
+			errors: [error],
+			output: 'function foo(node: Element | null) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: any) { node.innerHTML = ""; }'),
+			errors: [error],
+			output: 'function foo(node: any) { node.replaceChildren(); }',
+		},
+		{
 			...typeAware('function foo(node: Element) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 			errors: [error],
 			output: 'function foo(node: Element) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Element | undefined) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+			errors: [error],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: Element | null) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+			errors: [error],
+			output: 'function foo(node: Element | null) { node.replaceChildren(); }',
+		},
+		{
+			...typeAware('function foo(node: any) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+			errors: [error],
+			output: 'function foo(node: any) { node.replaceChildren(); }',
 		},
 		{
 			...typeAware('function foo(node: Document) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),

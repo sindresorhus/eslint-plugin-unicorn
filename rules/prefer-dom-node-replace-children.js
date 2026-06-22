@@ -51,25 +51,17 @@ const isStaticMethodCall = (node, method, options) =>
 	&& isMemberExpression(node.callee, {optional: false})
 	&& getStaticPropertyName(node.callee) === method;
 
-const getStaticNamespaceValue = (node, context) => {
+const isUnknownOrHtmlNamespace = (node, context) => {
 	const string = getStaticStringValue(node);
 	if (string !== undefined) {
-		return {
-			known: true,
-			value: string,
-		};
+		return string === HTML_NAMESPACE;
 	}
 
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
-	return result
-		? {
-			known: true,
-			value: result.value,
-		}
-		: {known: false};
+	return !result || result.value === HTML_NAMESPACE;
 };
 
-const isTemplateElementCreation = (node, context) => {
+const mayCreateHtmlTemplateElement = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (
@@ -91,8 +83,7 @@ const isTemplateElementCreation = (node, context) => {
 		return false;
 	}
 
-	const namespace = getStaticNamespaceValue(node.arguments[0], context);
-	return !namespace.known || namespace.value === HTML_NAMESPACE;
+	return isUnknownOrHtmlNamespace(node.arguments[0], context);
 };
 
 const getOnlyBodyStatement = node => {
@@ -162,7 +153,10 @@ const shouldSkipParentNode = (parentNode, context, options) => {
 	const {sourceCode} = context;
 
 	return isNodeValueNotDomNode(parentNode)
-		|| isKnownNonDomNode(parentNode, context, {treatMixedUnionAsNonTarget: true})
+		|| isKnownNonDomNode(parentNode, context, {
+			allowNullishInMixedUnion: true,
+			treatMixedUnionAsNonTarget: true,
+		})
 		|| containsChainExpression(parentNode, sourceCode)
 		|| !shouldReportReplaceChildrenReceiver(context, parentNode, options);
 };
@@ -182,7 +176,7 @@ const getInnerHTMLProblem = (context, node) => {
 	const parentNode = node.left.object;
 	if (
 		shouldSkipInnerHTMLParentNode(parentNode, context)
-		|| isTemplateElementCreation(parentNode, context)
+		|| mayCreateHtmlTemplateElement(parentNode, context)
 		|| mayBeHtmlTemplateElement(context, parentNode)
 	) {
 		return;
