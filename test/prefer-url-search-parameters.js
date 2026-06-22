@@ -36,6 +36,9 @@ test.snapshot({
 		'const URLSearchParams = class {}; query.split("&").map(part => part.split("="));',
 		'const Object = {fromEntries() {}}; Object.fromEntries(query.split("&").map(part => part.split("=")));',
 		'const Map = class {}; new Map(query.split("&").map(part => part.split("=")));',
+		'const query = 1; query.split("&").map(part => part.split("="));',
+		'const query = {}; query.split("&").map(part => part.split("="));',
+		'const query = []; query.split("&").map(part => part.split("="));',
 		typescript('import {URLSearchParams} from "not-url"; query.split("&").map(part => part.split("="));'),
 		typescript('declare const URLSearchParams: {new (value: string): CustomSearchParameters}; query.split("&").map(part => part.split("="));'),
 		typescript('const Object = {fromEntries() {}}; Object.fromEntries((query.split("&").map(part => part.split("=")) as any));'),
@@ -43,6 +46,8 @@ test.snapshot({
 		typescript('const URLSearchParams = class {}; new URLSearchParams((query.split("&").map(part => part.split("=")) as any));'),
 		'query /* keep */ .split("&").map(part => part.split("="));',
 		'query.split("&").map(/* keep */ part => part.split("="));',
+		'Object.fromEntries(/* keep */ query.split("&").map(part => part.split("=")));',
+		typescript('query.split("&").map<[string, string]>(part => part.split("="));'),
 		typescript('const query: number = 1; query.split("&").map(part => part.split("="));'),
 	],
 	invalid: [
@@ -74,5 +79,6 @@ test.snapshot({
 		typescript('import type {URLSearchParams} from "node:url"; query.split("&").map(part => part.split("="));'),
 		typescript('type URLSearchParams = unknown; query.split("&").map(part => part.split("="));'),
 		'const pairs = query.split("&").map(part => part.split("="));',
+		'(foo, query).split("&").map(part => part.split("="));',
 	],
 });

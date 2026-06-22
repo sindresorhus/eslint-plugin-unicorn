@@ -5,7 +5,7 @@ import {
 	getStaticStringValue,
 } from './ast/index.js';
 import {
-	getParenthesizedText,
+	getParenthesizedRange,
 	isKnownNonString,
 	isSameIdentifier,
 	isTypeScriptExpressionWrapper,
@@ -68,6 +68,16 @@ const getStaticNumberValue = (node, context) =>
 const isStaticString = (node, value) =>
 	getStaticStringValue(unwrapTypeScriptExpression(node)) === value;
 
+const isStaticNonString = (node, context) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+	return Boolean(staticValue) && typeof staticValue.value !== 'string';
+};
+
+const getArgumentText = (node, context) => {
+	const text = context.sourceCode.getText(node);
+	return node.type === 'SequenceExpression' ? `(${text})` : text;
+};
+
 const getAmpersandSplitCall = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 	if (!isMethodCall(node, {
@@ -83,6 +93,7 @@ const getAmpersandSplitCall = (node, context) => {
 	if (
 		!isStaticString(node.arguments[0], '&')
 		|| isKnownNonString(node.callee.object, context)
+		|| isStaticNonString(node.callee.object, context)
 	) {
 		return;
 	}
@@ -182,14 +193,19 @@ const getManualSearchParametersPipeline = (node, context) => {
 };
 
 const getUrlSearchParametersText = (query, context) =>
-	`new URLSearchParams(${getParenthesizedText(query, context)})`;
+	`new URLSearchParams(${getArgumentText(query, context)})`;
 
-const getReplacementWithArgument = (node, argument, replacementArgument, context) =>
-	context.sourceCode.text.slice(context.sourceCode.getRange(node)[0], context.sourceCode.getRange(argument)[0])
-	+ replacementArgument
-	+ context.sourceCode.text.slice(context.sourceCode.getRange(argument)[1], context.sourceCode.getRange(node)[1]);
+const getReplacementWithArgument = (node, argument, replacementArgument, context) => {
+	const {sourceCode} = context;
+	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+	const [argumentStart, argumentEnd] = getParenthesizedRange(argument, context);
 
-const getSuggestion = ({node, query, replacement, preservedNodes}, context) => {
+	return sourceCode.text.slice(nodeStart, argumentStart)
+		+ replacementArgument
+		+ sourceCode.text.slice(argumentEnd, nodeEnd);
+};
+
+const getSuggestion = ({node, replacement, preservedNodes}, context) => {
 	if (
 		!isUrlSearchParametersAvailable(node, context)
 		|| wouldRemoveComments(context, node, preservedNodes)
@@ -209,7 +225,6 @@ const getSuggestion = ({node, query, replacement, preservedNodes}, context) => {
 const createProblem = ({node, query, replacement, preservedNodes = [query]}, context) => {
 	const suggest = getSuggestion({
 		node,
-		query,
 		replacement,
 		preservedNodes,
 	}, context);
@@ -248,10 +263,6 @@ const isUrlSearchParametersConstructor = (node, context) =>
 		argumentsLength: 1,
 	})
 	&& isUrlSearchParametersAvailable(node, context);
-
-const isSupportedWrapper = (node, context) =>
-	(node.type === 'CallExpression' && isObjectFromEntriesCall(node, context))
-	|| (node.type === 'NewExpression' && (isMapConstructor(node, context) || isUrlSearchParametersConstructor(node, context)));
 
 const isPotentialWrapper = node =>
 	(
@@ -293,9 +304,9 @@ const getFirstArgumentParent = node => {
 	return parent?.arguments?.[0] === expression ? parent : undefined;
 };
 
-const isWrappedPipeline = (node, context) => {
+const isWrappedPipeline = node => {
 	const parent = getFirstArgumentParent(node);
-	return parent && (isSupportedWrapper(parent, context) || isPotentialWrapper(parent));
+	return parent && isPotentialWrapper(parent);
 };
 
 const getObjectFromEntriesProblem = (node, context) => {
@@ -332,7 +343,7 @@ const getNewExpressionProblem = (node, context) => {
 		return;
 	}
 
-	const queryText = getParenthesizedText(pipeline.query, context);
+	const queryText = getArgumentText(pipeline.query, context);
 	const urlSearchParametersText = getUrlSearchParametersText(pipeline.query, context);
 	const replacementArgument = isMapConstructor(node, context) ? urlSearchParametersText : queryText;
 	const replacement = getReplacementWithArgument(node, argument, replacementArgument, context);
@@ -356,7 +367,7 @@ const create = context => {
 			return objectFromEntriesProblem;
 		}
 
-		if (isWrappedPipeline(node, context)) {
+		if (isWrappedPipeline(node)) {
 			return;
 		}
 
