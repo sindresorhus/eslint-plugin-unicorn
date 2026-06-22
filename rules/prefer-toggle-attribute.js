@@ -1,4 +1,6 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	getStaticStringValue,
 	isEmptyStringLiteral,
 	isExpressionStatement,
 	isMethodCall,
@@ -22,6 +24,11 @@ const MESSAGE_ID_SUGGESTION = 'prefer-toggle-attribute/suggestion';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using `Element#toggleAttribute()` to toggle attributes.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `Element#toggleAttribute()`.',
+};
+
+const hasSideEffectOptions = {
+	considerGetters: true,
+	considerImplicitTypeConversion: true,
 };
 
 function getReceiverText(node, context) {
@@ -78,9 +85,7 @@ const isAttributeMethodCall = (node, methods, argumentsLength) =>
 	});
 
 const isDataAttributeName = node =>
-	node.type === 'Literal'
-	&& typeof node.value === 'string'
-	&& node.value.toLowerCase().startsWith('data-');
+	getStaticStringValue(node)?.toLowerCase().startsWith('data-') ?? false;
 
 function getAttributeCall(node) {
 	if (node?.type === 'ChainExpression') {
@@ -94,19 +99,20 @@ function getAttributeCall(node) {
 		const {callee} = node;
 		const [attributeName, attributeValue] = node.arguments;
 
-		if (
-			isDataAttributeName(attributeName)
-			|| (callee.property.name === 'setAttribute' && !isEmptyStringLiteral(attributeValue))
-		) {
+		if (isDataAttributeName(attributeName)) {
 			return;
 		}
 
+		const method = callee.property.name;
+
 		return {
 			node,
-			method: callee.property.name,
+			method,
 			receiver: callee.object,
 			attributeName,
+			attributeValue,
 			isOptional: Boolean(callee.optional),
+			hasEmptyAttributeValue: method !== 'setAttribute' || isEmptyStringLiteral(attributeValue),
 		};
 	}
 }
@@ -136,11 +142,25 @@ const isSameReceiverAndAttribute = (callA, callB) =>
 	&& isSameReference(callA.receiver, callB.receiver)
 	&& isSameReference(callA.attributeName, callB.attributeName);
 
+const isSetAndRemoveAttributePair = (callA, callB) =>
+	(callA.method === 'setAttribute' && callB.method === 'removeAttribute')
+	|| (callA.method === 'removeAttribute' && callB.method === 'setAttribute');
+
 const hasSupportedReceiver = call => !hasOptionalChainElement(call.receiver);
 
 const isKnownNonDomReceiver = (call, context) =>
 	isNodeValueNotDomNode(call.receiver)
 	|| isKnownNonDomNode(call.receiver, context);
+
+const isSupportedTogglePair = (callA, callB, context) =>
+	callA
+	&& callB
+	&& isSetAndRemoveAttributePair(callA, callB)
+	&& isSameReceiverAndAttribute(callA, callB)
+	&& hasSupportedReceiver(callA)
+	&& hasSupportedReceiver(callB)
+	&& !isKnownNonDomReceiver(callA, context)
+	&& !isKnownNonDomReceiver(callB, context);
 
 function getHasAttributeCondition(node, expectedCall, context, isNegative = false) {
 	if (node.type === 'ChainExpression') {
@@ -203,17 +223,7 @@ const create = context => {
 		const consequentCall = getClauseCall(node.consequent);
 		const alternateCall = getClauseCall(node.alternate);
 
-		if (!(
-			consequentCall
-			&& alternateCall
-			&& consequentCall.method !== alternateCall.method
-			&& [consequentCall.method, alternateCall.method].every(method => method === 'setAttribute' || method === 'removeAttribute')
-			&& isSameReceiverAndAttribute(consequentCall, alternateCall)
-			&& hasSupportedReceiver(consequentCall)
-			&& hasSupportedReceiver(alternateCall)
-			&& !isKnownNonDomReceiver(consequentCall, context)
-			&& !isKnownNonDomReceiver(alternateCall, context)
-		)) {
+		if (!isSupportedTogglePair(consequentCall, alternateCall, context)) {
 			return;
 		}
 
@@ -227,10 +237,9 @@ const create = context => {
 
 		const shouldToggleWithoutForce = hasAttributeCondition && setWhenTrue === hasAttributeCondition.isNegative;
 		const conditionText = shouldToggleWithoutForce ? '' : getConditionText(node.test, context, !setWhenTrue);
-
-		if (conditionText && setCall.isOptional) {
-			return;
-		}
+		const hasUnsafeAttributeValue = !setCall.hasEmptyAttributeValue
+			&& hasSideEffect(setCall.attributeValue, sourceCode, hasSideEffectOptions);
+		const shouldReportWithoutFix = (conditionText && setCall.isOptional) || hasUnsafeAttributeValue;
 
 		const preservedNodes = [
 			setCall.receiver,
@@ -240,7 +249,7 @@ const create = context => {
 			preservedNodes.push(node.test);
 		}
 
-		const fix = wouldRemoveComments(context, node, preservedNodes)
+		const fix = shouldReportWithoutFix || wouldRemoveComments(context, node, preservedNodes)
 			? undefined
 			: function * (fixer) {
 				const receiverText = getReceiverText(setCall.receiver, context);
@@ -264,7 +273,7 @@ const create = context => {
 				}
 			};
 
-		return getProblem(node, fix, {forceSuggestion: Boolean(conditionText)});
+		return getProblem(node, fix, {forceSuggestion: Boolean(conditionText) || !setCall.hasEmptyAttributeValue});
 	});
 };
 

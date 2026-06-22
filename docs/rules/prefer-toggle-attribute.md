@@ -9,15 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer using [`Element#toggleAttribute()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/toggleAttribute) instead of conditionally calling `setAttribute()` and `removeAttribute()` for empty boolean-style attributes.
+Prefer using [`Element#toggleAttribute()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/toggleAttribute) instead of conditionally calling `setAttribute()` and `removeAttribute()` for boolean-style attributes.
 
-The rule intentionally only handles `setAttribute(name, '')`, because `toggleAttribute()` creates an empty-string attribute. Rewriting non-empty attribute values could change observable behavior.
+Only `setAttribute(name, '')` patterns are autofixed, because `toggleAttribute()` creates an empty-string attribute. Patterns with non-empty attribute values may be reported with suggestions when the replacement can preserve comments and evaluation behavior.
 
-`data-*` attributes are ignored so `dom-node-dataset` remains responsible for dataset-specific style.
+`data-*` attributes are ignored so [`dom-node-dataset`](dom-node-dataset.md) remains responsible for dataset-specific style.
 
 Only direct presence toggles based on `hasAttribute()` are autofixed. Condition-driven `toggleAttribute(name, force)` replacements are suggestions, because `toggleAttribute(name, true)` preserves an existing non-empty attribute value while `setAttribute(name, '')` clears it.
 
-Optional receivers are only handled for direct `hasAttribute()` presence toggles. Generic condition-driven optional receiver branches are ignored because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
+Optional receivers are only fixed or suggested for direct `hasAttribute()` presence toggles. Generic condition-driven optional receiver branches are reported without an autofix or suggestion because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
 
 ## Examples
 

@@ -12,13 +12,6 @@ test.snapshot({
 		'element.setAttribute("data-hidden", "")',
 		outdent`
 			if (condition) {
-				element.setAttribute('hidden', 'hidden');
-			} else {
-				element.removeAttribute('hidden');
-			}
-		`,
-		outdent`
-			if (condition) {
 				element.setAttribute('hidden');
 			} else {
 				element.removeAttribute('hidden');
@@ -68,6 +61,27 @@ test.snapshot({
 		`,
 		outdent`
 			if (condition) {
+				element.setAttribute('data-hidden', 'hidden');
+			} else {
+				element.removeAttribute('data-hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.setAttribute(\`data-hidden\`, '');
+			} else {
+				element.removeAttribute(\`data-hidden\`);
+			}
+		`,
+		outdent`
+			if (element.hasAttribute(\`data-hidden\`)) {
+				element.removeAttribute(\`data-hidden\`);
+			} else {
+				element.setAttribute(\`data-hidden\`, '');
+			}
+		`,
+		outdent`
+			if (condition) {
 				element.setAttribute('hidden', '');
 				foo();
 			} else {
@@ -86,20 +100,6 @@ test.snapshot({
 				element?.setAttribute('hidden', '');
 			} else {
 				element.removeAttribute('hidden');
-			}
-		`,
-		outdent`
-			if (condition) {
-				element?.setAttribute('hidden', '');
-			} else {
-				element?.removeAttribute('hidden');
-			}
-		`,
-		outdent`
-			if (condition) {
-				element?.removeAttribute('hidden');
-			} else {
-				element?.setAttribute('hidden', '');
 			}
 		`,
 		outdent`
@@ -172,6 +172,20 @@ test.snapshot({
 	invalid: [
 		outdent`
 			if (condition) {
+				element.setAttribute('hidden', 'hidden');
+			} else {
+				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', getValue());
+			} else {
+				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
 				element.setAttribute('hidden', '');
 			} else {
 				element.removeAttribute('hidden');
@@ -202,6 +216,48 @@ test.snapshot({
 				element.setAttribute('hidden', '');
 			} else {
 				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element?.setAttribute('hidden', '');
+			} else {
+				element?.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element?.removeAttribute('hidden');
+			} else {
+				element?.setAttribute('hidden', '');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element?.setAttribute('hidden', 'hidden');
+			} else {
+				element?.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (element.hasAttribute('hidden')) {
+				element.removeAttribute('hidden');
+			} else {
+				element.setAttribute('hidden', 'hidden');
+			}
+		`,
+		outdent`
+			if (element.hasAttribute('hidden')) {
+				element.removeAttribute('hidden');
+			} else {
+				element.setAttribute('hidden', /* comment */ 'hidden');
+			}
+		`,
+		outdent`
+			if (element.hasAttribute('hidden')) {
+				element.removeAttribute('hidden');
+			} else {
+				element.setAttribute('hidden', getValue());
 			}
 		`,
 		outdent`
@@ -289,21 +345,40 @@ test.snapshot({
 				element.removeAttribute('hidden');
 			}
 		`,
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', '');
+			} else {
+				element.removeAttribute(/* comment */ 'hidden');
+			}
+		`,
 	],
 });
 
 test.snapshot({
 	valid: [
-		'condition ? element.setAttribute("hidden", "hidden") : element.removeAttribute("hidden")',
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("disabled")',
+		'condition ? element.setAttribute(`data-hidden`, "") : element.removeAttribute(`data-hidden`)',
+		'condition ? element.setAttribute("hidden") : element.removeAttribute("hidden")',
+		'condition ? element.setAttribute("hidden", "", extra) : element.removeAttribute("hidden")',
+		'condition ? element.setAttribute("hidden", "") : element.removeAttribute()',
+		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden", extra)',
 		'condition ? element.setAttribute?.("hidden", "") : element.removeAttribute("hidden")',
 		'condition ? element?.setAttribute("hidden", "") : element.removeAttribute("hidden")',
-		'condition ? element?.setAttribute("hidden", "") : element?.removeAttribute("hidden")',
+		{
+			code: '(element as string).hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
+		'condition ? element.setAttribute("hidden", "hidden") : element.removeAttribute("hidden")',
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'condition ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
+		'condition ? element?.setAttribute("hidden", "") : element?.removeAttribute("hidden")',
+		'element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "hidden")',
+		'element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "hidden")',
 		'element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
+		'element.hasAttribute(/* comment */ "hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
 		'element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "")',
 		'!element.hasAttribute("hidden") ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'const toggle = condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
