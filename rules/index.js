@@ -285,6 +285,7 @@ export {default as 'prefer-unary-minus'} from './prefer-unary-minus.js';
 export {default as 'prefer-unicode-code-point-escapes'} from './prefer-unicode-code-point-escapes.js';
 export {default as 'prefer-url-can-parse'} from './prefer-url-can-parse.js';
 export {default as 'prefer-url-href'} from './prefer-url-href.js';
+export {default as 'prefer-url-search-parameters'} from './prefer-url-search-parameters.js';
 export {default as 'prefer-while-loop-condition'} from './prefer-while-loop-condition.js';
 export {default as 'relative-url-style'} from './relative-url-style.js';
 export {default as 'require-array-join-separator'} from './require-array-join-separator.js';
