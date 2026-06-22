@@ -241,6 +241,7 @@ export {default as 'prefer-object-define-properties'} from './prefer-object-defi
 export {default as 'prefer-object-destructuring-defaults'} from './prefer-object-destructuring-defaults.js';
 export {default as 'prefer-object-from-entries'} from './prefer-object-from-entries.js';
 export {default as 'prefer-object-iterable-methods'} from './prefer-object-iterable-methods.js';
+export {default as 'prefer-observer-apis'} from './prefer-observer-apis.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
 export {default as 'prefer-path2d'} from './prefer-path2d.js';
 export {default as 'prefer-private-class-fields'} from './prefer-private-class-fields.js';
