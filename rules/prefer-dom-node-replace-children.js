@@ -1,5 +1,6 @@
 import {
 	getStaticStringValue,
+	isCallExpression,
 	isMemberExpression,
 	isMethodCall,
 } from './ast/index.js';
@@ -37,6 +38,33 @@ const isInnerHTMLMemberExpression = node =>
 	&& getStaticPropertyName(node) === 'innerHTML';
 
 const isEmptyString = node => getStaticStringValue(node) === '';
+
+const isStaticMethodCall = (node, method, options) =>
+	isCallExpression(node, {
+		...options,
+		optional: false,
+	})
+	&& isMemberExpression(node.callee, {optional: false})
+	&& getStaticPropertyName(node.callee) === method;
+
+const isTemplateElementCreation = node => {
+	if (
+		isStaticMethodCall(node, 'createElement', {
+			minimumArguments: 1,
+			maximumArguments: 2,
+		})
+	) {
+		return getStaticStringValue(node.arguments[0])?.toLowerCase() === 'template';
+	}
+
+	return (
+		isStaticMethodCall(node, 'createElementNS', {
+			minimumArguments: 2,
+			maximumArguments: 3,
+		})
+		&& getStaticStringValue(node.arguments[1])?.toLowerCase() === 'template'
+	);
+};
 
 const getOnlyBodyStatement = node => {
 	if (node.body.type !== 'BlockStatement') {
@@ -101,13 +129,16 @@ const getReplaceChildrenStatement = (node, parentNode, context) => {
 	return `${needsSemicolon(context.sourceCode.getTokenBefore(node), context, parentNodeText) ? ';' : ''}${parentNodeText}.replaceChildren();`;
 };
 
-const shouldSkipParentNode = (parentNode, context) => {
+const shouldSkipParentNode = (parentNode, context, options) => {
 	const {sourceCode} = context;
 
 	return isNodeValueNotDomNode(parentNode)
 		|| containsChainExpression(parentNode, sourceCode)
-		|| !shouldReportReplaceChildrenReceiver(context, parentNode);
+		|| !shouldReportReplaceChildrenReceiver(context, parentNode, options);
 };
+
+const shouldSkipInnerHTMLParentNode = (parentNode, context) =>
+	shouldSkipParentNode(parentNode, context, {checkInnerHTML: true});
 
 const getInnerHTMLProblem = (context, node) => {
 	if (
@@ -120,7 +151,8 @@ const getInnerHTMLProblem = (context, node) => {
 
 	const parentNode = node.left.object;
 	if (
-		shouldSkipParentNode(parentNode, context)
+		shouldSkipInnerHTMLParentNode(parentNode, context)
+		|| isTemplateElementCreation(parentNode)
 		|| mayBeHtmlTemplateElement(context, parentNode)
 	) {
 		return;

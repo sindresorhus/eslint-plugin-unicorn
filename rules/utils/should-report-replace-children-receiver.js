@@ -2,40 +2,46 @@ import {
 	getBaseTypes,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	isUnknownType,
 } from './types.js';
-
-const unknownTypeNames = new Set(['any', 'error', 'unknown']);
 
 const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
 	checker.getTypeOfPropertyOfType(type, 'replaceChildren')
 		?.getCallSignatures()
 		.some(signature => signature.minArgumentCount === 0) ?? false;
 
-const shouldReportReplaceChildrenReceiverType = (type, checker) => {
+const hasInnerHTMLProperty = (type, checker) =>
+	Boolean(checker.getTypeOfPropertyOfType(type, 'innerHTML'));
+
+const shouldReportReplaceChildrenReceiverType = (type, checker, options = {}) => {
 	type = checker.getNonNullableType(type);
 
-	if (unknownTypeNames.has(type.intrinsicName)) {
+	if (isUnknownType(type)) {
 		return true;
 	}
 
 	if (type.isUnion()) {
-		return type.types.every(type => shouldReportReplaceChildrenReceiverType(type, checker));
+		return type.types.every(type => shouldReportReplaceChildrenReceiverType(type, checker, options));
 	}
 
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
-		return shouldReportReplaceChildrenReceiverType(constraint, checker);
+		return shouldReportReplaceChildrenReceiverType(constraint, checker, options);
 	}
 
 	if (type.isIntersection()) {
-		return hasZeroArgumentReplaceChildrenCallSignature(type, checker)
-			|| type.types.some(type => shouldReportReplaceChildrenReceiverType(type, checker));
+		const hasCompatibleReplaceChildren = hasZeroArgumentReplaceChildrenCallSignature(type, checker)
+			&& (!options.checkInnerHTML || hasInnerHTMLProperty(type, checker));
+
+		return hasCompatibleReplaceChildren
+			|| type.types.some(type => shouldReportReplaceChildrenReceiverType(type, checker, options));
 	}
 
-	return hasZeroArgumentReplaceChildrenCallSignature(type, checker);
+	return hasZeroArgumentReplaceChildrenCallSignature(type, checker)
+		&& (!options.checkInnerHTML || hasInnerHTMLProperty(type, checker));
 };
 
-const shouldReportReplaceChildrenReceiver = (context, node) => {
+const shouldReportReplaceChildrenReceiver = (context, node, options) => {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return true;
@@ -43,7 +49,7 @@ const shouldReportReplaceChildrenReceiver = (context, node) => {
 
 	try {
 		const checker = parserServices.program.getTypeChecker();
-		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker);
+		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker, options);
 	} catch {
 		return true;
 	}
@@ -52,7 +58,7 @@ const shouldReportReplaceChildrenReceiver = (context, node) => {
 const mayBeHtmlTemplateElementType = (type, checker, program) => {
 	type = checker.getNonNullableType(type);
 
-	if (unknownTypeNames.has(type.intrinsicName)) {
+	if (isUnknownType(type)) {
 		return false;
 	}
 

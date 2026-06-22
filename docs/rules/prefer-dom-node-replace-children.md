@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`.replaceChildren()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/replaceChildren) is the direct way to remove all child nodes from a DOM node.
+[`.replaceChildren()`](https://dom.spec.whatwg.org/#dom-parentnode-replacechildren) is the direct way to remove all child nodes from a DOM node.
 
 This rule reports empty `.innerHTML` assignments and simple loops that repeatedly remove `.firstChild` or `.lastChild` through `.removeChild()`.
 

@@ -27,6 +27,12 @@ test({
 		'element[innerHTML] = "";',
 		'element.textContent = "";',
 		'element["outerHTML"] = "";',
+		'document.createElement("template").innerHTML = "";',
+		'document.createElement("TEMPLATE", options).innerHTML = "";',
+		'document.createElementNS("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
+		'document.createElementNS("http://www.w3.org/1999/xhtml", "TEMPLATE", options).innerHTML = "";',
+		'document["createElement"]("template").innerHTML = "";',
+		'document["createElementNS"]("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
 		'while (node.firstChild) { node.firstChild.remove(); }',
 		'while (node.lastChild) { node.lastChild.remove(); }',
 		'while (node.firstElementChild) { node.removeChild(node.firstElementChild); }',
@@ -42,7 +48,10 @@ test({
 		typeAware('function foo(node: string) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: HTMLTemplateElement) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: Element | HTMLTemplateElement) { node.innerHTML = ""; }'),
+		typeAware('function foo<T extends HTMLTemplateElement>(node: T) { node.innerHTML = ""; }'),
 		typeAware('class TemplateElement extends HTMLTemplateElement {} function foo(node: TemplateElement) { node.innerHTML = ""; }'),
+		typeAware('function foo(node: Document) { node.innerHTML = ""; }'),
+		typeAware('function foo(node: DocumentFragment) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: Node) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node; replaceChildren: string}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
@@ -73,6 +82,18 @@ test({
 			code: '(element || fallback).innerHTML = "";',
 			errors: [error],
 			output: '(element || fallback).replaceChildren();',
+		},
+		{
+			code: outdent`
+				foo()
+				;(node as Element).innerHTML = "";
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+			output: outdent`
+				foo()
+				;(node as Element).replaceChildren();
+			`,
 		},
 		{
 			code: 'while (node.firstChild) { node.removeChild(node.firstChild); }',
@@ -135,6 +156,11 @@ test({
 			output: 'function foo(node: Element) { node.replaceChildren(); }',
 		},
 		{
+			...typeAware('function foo(node: ShadowRoot) { node.innerHTML = ""; }'),
+			errors: [error],
+			output: 'function foo(node: ShadowRoot) { node.replaceChildren(); }',
+		},
+		{
 			...typeAware('function foo(node: Element) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 			errors: [error],
 			output: 'function foo(node: Element) { node.replaceChildren(); }',
@@ -160,6 +186,18 @@ test({
 					node.removeChild(node.firstChild);
 				}
 			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				while (node.firstChild /* Keep this comment. */) {
+					node.removeChild(node.firstChild);
+				}
+			`,
+			errors: [error],
+		},
+		{
+			code: 'element /* Keep this comment. */ .innerHTML = "";',
 			errors: [error],
 		},
 		{
