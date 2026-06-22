@@ -123,22 +123,22 @@ const getPropertyName = memberExpression => {
 		return memberExpression.property.name;
 	}
 
-	return getStaticStringValue(memberExpression.property);
+	return getStaticStringValue(unwrapTypeScriptExpression(memberExpression.property));
 };
 
 const getPatternPropertyName = property => {
-	if (
-		property.type !== 'Property'
-		|| property.computed
-	) {
+	if (property.type !== 'Property') {
 		return;
 	}
 
-	if (property.key.type === 'Identifier') {
+	if (
+		!property.computed
+		&& property.key.type === 'Identifier'
+	) {
 		return property.key.name;
 	}
 
-	return getStaticStringValue(property.key);
+	return getStaticStringValue(unwrapTypeScriptExpression(property.key));
 };
 
 const hasObjectPatternProperty = (objectPattern, propertyNames) =>
@@ -210,7 +210,7 @@ const isNonElementLayoutObject = (node, context) => {
 const isElementLayoutPropertyRead = (memberExpression, context) =>
 	elementLayoutPropertyNames.has(getPropertyName(memberExpression))
 	&& !isNonElementLayoutObject(memberExpression.object, context)
-	&& !isKnownNonDomNode(unwrapTypeScriptExpression(memberExpression.object), context);
+	&& !isKnownNonDomNode(memberExpression.object, context);
 
 const isViewportIdentifierRead = (node, context) =>
 	isReferenceIdentifier(node)
@@ -242,7 +242,7 @@ const isLayoutDestructuringRead = (pattern, source, context) => {
 	|| (
 		hasObjectPatternProperty(pattern, elementLayoutPropertyNames)
 		&& !isNonElementLayoutObject(initializer, context)
-		&& !isKnownNonDomNode(initializer, context)
+		&& !isKnownNonDomNode(source, context)
 	);
 };
 
@@ -271,7 +271,8 @@ const isLayoutMethodCall = (node, context) =>
 	})
 	&& node.callee.type === 'MemberExpression'
 	&& layoutMethodNames.has(getPropertyName(node.callee))
-	&& !isKnownNonDomNode(unwrapTypeScriptExpression(node.callee.object), context);
+	&& !isNonElementLayoutObject(node.callee.object, context)
+	&& !isKnownNonDomNode(node.callee.object, context);
 
 const containsLayoutRead = (node, context, root = node) => {
 	if (!node) {
@@ -354,12 +355,12 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonDomNode(unwrapTypeScriptExpression(node.callee.object), context)) {
+		if (isKnownNonDomNode(node.callee.object, context)) {
 			return;
 		}
 
 		const [eventNameNode, listenerNode] = node.arguments;
-		const eventName = getStaticStringValue(eventNameNode);
+		const eventName = getStaticStringValue(unwrapTypeScriptExpression(eventNameNode));
 		if (
 			!eventName
 			|| !observerMessageIds.has(eventName)

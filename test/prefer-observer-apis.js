@@ -28,6 +28,9 @@ test.snapshot({
 		'window.addEventListener("resize", () => window.offsetWidth)',
 		'window.addEventListener("resize", () => document.offsetWidth)',
 		'window.addEventListener("resize", () => visualViewport.offsetWidth)',
+		'window.addEventListener("scroll", () => window.getBoundingClientRect())',
+		'window.addEventListener("scroll", () => document.getBoundingClientRect())',
+		'window.addEventListener("scroll", () => visualViewport.getBoundingClientRect())',
 		'window.addEventListener("resize", () => { const {offsetWidth} = window; })',
 		'window.addEventListener("resize", () => { const {offsetWidth} = document; })',
 		'window.addEventListener("resize", () => { const {offsetWidth} = visualViewport; })',
@@ -59,6 +62,15 @@ test.snapshot({
 
 			function listen(size: Size) {
 				window.addEventListener("resize", () => size.offsetWidth);
+			}
+		`),
+		typeAware(outdent`
+			type Size = {
+				offsetWidth: number;
+			};
+
+			function listen(value: unknown) {
+				window.addEventListener("resize", () => (value as Size).offsetWidth);
 			}
 		`),
 		typeAware(outdent`
@@ -130,6 +142,7 @@ test.snapshot({
 		'window.addEventListener("resize", () => { window.innerWidth += 1; })',
 		'window.addEventListener("resize", () => { innerWidth++; })',
 		'window.addEventListener("scroll", () => element.getBoundingClientRect())',
+		'window.addEventListener("scroll", () => document.documentElement.getBoundingClientRect())',
 		'window.addEventListener("scroll", () => element?.getBoundingClientRect())',
 		'window.addEventListener("scroll", () => element["getBoundingClientRect"]())',
 		'window.addEventListener("scroll", () => element[`getBoundingClientRect`]())',
@@ -137,6 +150,9 @@ test.snapshot({
 		'window.addEventListener("scroll", () => element?.["getClientRects"]())',
 		'window.addEventListener("resize", () => element["clientWidth"])',
 		'window.addEventListener("resize", () => element[`clientWidth`])',
+		'window.addEventListener("resize", () => { const {["clientWidth"]: width} = element; })',
+		'window.addEventListener("resize", () => { ({"offsetWidth": width} = element); })',
+		'window.addEventListener("resize", () => { const {["innerWidth"]: width} = window; })',
 		'window.addEventListener("resize", () => { const {offsetWidth} = element; })',
 		'window.addEventListener("resize", () => { ({offsetWidth} = element); })',
 		'window.addEventListener("resize", () => { const {innerWidth} = window; })',
@@ -183,6 +199,45 @@ test.snapshot({
 			function listen(element: MyElement) {
 				window.addEventListener("resize", () => element.offsetWidth);
 			}
+		`),
+		typeAware(outdent`
+			type Size = {
+				offsetWidth: number;
+			};
+
+			function listen(size: Size) {
+				window.addEventListener("resize", () => (size as unknown as HTMLElement).offsetWidth);
+			}
+		`),
+		typeAware(outdent`
+			type Size = {
+				offsetWidth: number;
+			};
+
+			function listen(size: Size) {
+				window.addEventListener("resize", () => {
+					const {offsetWidth} = size as unknown as HTMLElement;
+					return offsetWidth;
+				});
+			}
+		`),
+		typeAware(outdent`
+			window.addEventListener("resize" as const, () => element.offsetWidth);
+		`),
+		typeAware(outdent`
+			window.addEventListener(("resize" satisfies string), () => element.offsetWidth);
+		`),
+		typeAware(outdent`
+			window.addEventListener("resize", () => element[("clientWidth" as const)]);
+		`),
+		typeAware(outdent`
+			window.addEventListener("scroll", () => element[("getBoundingClientRect" as const)]());
+		`),
+		typeAware(outdent`
+			window.addEventListener("resize", () => {
+				const {[("clientWidth" as const)]: width} = element;
+				return width;
+			});
 		`),
 		typeAware(outdent`
 			window.addEventListener("resize", (() => element.offsetWidth) as EventListener);
