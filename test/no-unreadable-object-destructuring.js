@@ -14,6 +14,15 @@ test.snapshot({
 		'const {foo: {bar: baz = defaultValue}} = object;',
 		'const {foo: {bar}, baz} = object;',
 		'const {foo: {bar}, ...rest} = object;',
+		// Computed key is allowed when excluding a dynamic property from a rest element
+		'const {[key]: value, ...rest} = object;',
+		'const {[key]: _omit, ...rest} = object;',
+		'const {[a]: _a, [b]: _b, ...rest} = object;',
+		'const {foo, [key]: value, ...rest} = object;',
+		'const {[key]: {foo}, ...rest} = object;',
+		'const {[`key${suffix}`]: value, ...rest} = object;', // eslint-disable-line no-template-curly-in-string
+		'({[key]: value, ...rest} = object);',
+		'function function_({[key]: value, ...rest}) {}',
 		'const [{foo}] = array;',
 		'const [{foo: bar = defaultValue}] = array;',
 		'const {foo = ([bar]) => bar} = object;',
@@ -35,6 +44,19 @@ test.snapshot({
 		'const {foo: [bar]} = object;',
 		'const {foo: {bar: {baz}}} = object;',
 		'const {[key]: {foo}} = object;',
+		// A rest element exempts only the computed key, not other violations
+		'const {[key]: [foo], ...rest} = object;',
+		'const {[key]: {foo: {bar}}, ...rest} = object;',
+		// A rest element exempts only the computed key in its own pattern
+		'const {foo: {[key]: value}, ...rest} = object;',
+		'const {[key]: {foo, ...rest}} = object;',
+		// A static computed key is never dynamic, so a rest element does not exempt it
+		'const {["key"]: value, ...rest} = object;',
+		'const {[`key`]: value, ...rest} = object;',
+		'const {["foo" + "bar"]: value, ...rest} = object;',
+		'const {[undefined]: value, ...rest} = object;',
+		'const {[Math.PI]: value, ...rest} = object;',
+		'const {[String.raw`key`]: value, ...rest} = object;',
 		'const {foo: {bar: [baz]}} = object;',
 		'const {foo: {bar: {baz: qux}}} = object;',
 		'const {foo: [bar] = []} = object;',

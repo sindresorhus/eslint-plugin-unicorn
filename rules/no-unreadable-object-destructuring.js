@@ -1,3 +1,4 @@
+import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const MESSAGE_ID_COMPUTED_KEY = 'computed-key';
@@ -70,12 +71,26 @@ function getObjectPatternDepth(node) {
 	return depth;
 }
 
+function isStaticComputedKey(node, scope) {
+	return getStaticValue(node, scope) !== null;
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('Property', node => {
 		if (
 			node.parent.type !== 'ObjectPattern'
 			|| !node.computed
+		) {
+			return;
+		}
+
+		// A computed key is the only way to exclude a dynamic property from a rest element,
+		// so allow it when the same object pattern collects a rest. A static key is not
+		// dynamic, so it stays disallowed.
+		if (
+			!isStaticComputedKey(node.key, context.sourceCode.getScope(node.key))
+			&& node.parent.properties.some(property => property.type === 'RestElement')
 		) {
 			return;
 		}
