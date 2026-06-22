@@ -485,7 +485,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer observer APIs over resize and scroll listeners with layout reads.',
-			recommended: false,
+			recommended: true,
 		},
 		schema: [],
 		messages,
