@@ -9,13 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`.replaceChildren()`](https://dom.spec.whatwg.org/#dom-parentnode-replacechildren) is the direct way to remove all child nodes from a DOM parent node.
+Use [`.replaceChildren()`](https://dom.spec.whatwg.org/#dom-parentnode-replacechildren) to empty DOM parent nodes. It is a direct DOM operation: remove the current children and insert no replacements.
 
-This rule reports empty `.innerHTML` assignments and simple loops that repeatedly remove `.firstChild` or `.lastChild` through `.removeChild()`.
+`.innerHTML = ''` has the same visible result in many cases, but it uses an HTML string API for a tree operation. That is less clear, goes through HTML parsing semantics, and normalizes code around an injection sink when no HTML is needed.
 
-It ignores empty `.innerHTML` assignments on HTML template elements because `template.innerHTML = ''` clears template content, while `template.replaceChildren()` clears direct children.
+This rule reports empty `.innerHTML` assignments and simple `.removeChild()` loops.
 
-The rule is intentionally focused on emptying children. Non-empty `.innerHTML` assignments are handled by [`prefer-dom-node-html-methods`](./prefer-dom-node-html-methods.md) and [`no-unsafe-dom-html`](./no-unsafe-dom-html.md), depending on whether the goal is modernization or security.
+It ignores HTML template elements because `template.innerHTML = ''` clears template content, while `template.replaceChildren()` clears direct children.
+
+Non-empty `.innerHTML` assignments are handled by [`prefer-dom-node-html-methods`](./prefer-dom-node-html-methods.md) and [`no-unsafe-dom-html`](./no-unsafe-dom-html.md).
 
 ## Examples
 
