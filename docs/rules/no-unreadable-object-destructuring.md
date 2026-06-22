@@ -34,6 +34,13 @@ const {[key]: value} = object;
 const value = object[key];
 ```
 
+A computed key is allowed when the same pattern collects a rest element, since that is the only way to exclude a dynamic property from the rest.
+
+```js
+// ✅
+const {[key]: value, ...rest} = object;
+```
+
 ```js
 // ❌
 const {foo: [bar]} = object;
