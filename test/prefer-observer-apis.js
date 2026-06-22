@@ -156,6 +156,16 @@ test.snapshot({
 				emitter.addEventListener("resize", () => window.innerWidth);
 			}
 		`),
+		typeAware(outdent`
+			function listen(eventName: 'resize' | 'scroll') {
+				window.addEventListener(eventName, () => element.offsetWidth);
+			}
+		`),
+		typeAware(outdent`
+			function listen(eventName: string) {
+				window.addEventListener(eventName as 'resize', () => element.offsetWidth);
+			}
+		`),
 	],
 	invalid: [
 		'window.addEventListener("resize", () => element.offsetWidth)',
@@ -305,6 +315,15 @@ test.snapshot({
 		`),
 		typeAware(outdent`
 			window.addEventListener("resize" as const, () => element.offsetWidth);
+		`),
+		typeAware(outdent`
+			const eventName = 'resize';
+			window.addEventListener(eventName, () => element.offsetWidth);
+		`),
+		typeAware(outdent`
+			function listen(eventName: 'scroll') {
+				window.addEventListener(eventName, () => element.getBoundingClientRect());
+			}
 		`),
 		typeAware(outdent`
 			window.addEventListener(("resize" satisfies string), () => element.offsetWidth);

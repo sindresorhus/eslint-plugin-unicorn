@@ -172,6 +172,28 @@ const isKnownNonDomNode = (node, context) => {
 	}
 };
 
+const getEventNameFromType = type => {
+	if (type.isStringLiteral?.()) {
+		return type.value;
+	}
+};
+
+const getEventNameFromTypeInformation = (node, context) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return;
+	}
+
+	try {
+		return getEventNameFromType(parserServices.getTypeAtLocation(node));
+	} catch {}
+};
+
+const getEventName = (node, context) => {
+	const expression = unwrapTypeScriptExpression(node);
+	return getStaticStringValue(expression) ?? getEventNameFromTypeInformation(expression, context);
+};
+
 const getPropertyName = memberExpression => {
 	if (
 		!memberExpression.computed
@@ -439,11 +461,8 @@ const create = context => {
 		}
 
 		const [eventNameNode, listenerNode] = node.arguments;
-		const eventName = getStaticStringValue(unwrapTypeScriptExpression(eventNameNode));
-		if (
-			!eventName
-			|| !eventNames.has(eventName)
-		) {
+		const eventName = getEventName(eventNameNode, context);
+		if (!eventNames.has(eventName)) {
 			return;
 		}
 
