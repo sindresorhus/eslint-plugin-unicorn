@@ -21,6 +21,13 @@ test.snapshot({
 		'const object = {...(foo != null ? foo : {})}',
 		'const object = {...(foo === null || foo === undefined ? {} : foo)}',
 		'const object = {...(foo !== null && foo !== undefined ? foo : {})}',
+		'const object = {...(foo == null ? undefined : foo)}',
+		'const object = {...(foo == null ? null : foo)}',
+		'const object = {...(foo != null ? foo : null)}',
+		'const object = {...(foo ? undefined : undefined)}',
+		'const object = {...(foo ? null : null)}',
+		// `void 0` is not the `undefined` identifier, so it is not treated as an empty branch.
+		'const object = {...(foo ? {bar: true} : void 0)}',
 		'const array = [...(foo ? {bar: true} : {})]',
 		'const object = {...(foo ? {bar: true} : {}).bar}',
 		{
@@ -29,6 +36,14 @@ test.snapshot({
 		},
 		{
 			code: 'const object = {...(foo ? {bar: true} : {})}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo && undefined)}',
+			options: ['ternary'],
+		},
+		{
+			code: 'const object = {...(foo && null)}',
 			options: ['ternary'],
 		},
 		{
@@ -100,8 +115,20 @@ test.snapshot({
 			code: 'const object = {...(foo! ? {} : bar)}',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const object = {...(foo ? {bar: true} : undefined)}',
+		'const object = {...(foo ? {bar: true} : null)}',
+		'const object = {...(foo ? undefined : {bar: true})}',
+		'const object = {...(!foo ? undefined : {bar: true})}',
+		'const object = {...(foo ? null : {bar: true})}',
+		'const object = {...(foo ? bar : undefined)}',
+		'const object = {...(foo ? null : bar)}',
+		// The nullish guard does not apply when its reference differs from the kept branch.
+		'const object = {...(foo == null ? undefined : bar)}',
+		'const object = {...(foo != null ? bar : undefined)}',
 		'const object = {...(foo == null ? /* keep */ {} : foo)}',
 		'const object = {...(foo ? {a: 1} : /* keep */ {})}',
+		'const object = {...(foo ? {a: 1} : /* keep */ undefined)}',
+		'const object = {...(foo ? {a: 1} : /* keep */ null)}',
 		'const object = {...(/* keep */ foo ? {a: 1} : {})}',
 		{
 			code: 'const object = {...(foo && {bar: true})}',

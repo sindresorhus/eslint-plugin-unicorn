@@ -22,6 +22,12 @@ const messages = {
 const nullishOperators = new Set(['==', '===']);
 const nonNullishOperators = new Set(['!=', '!==']);
 
+// `{...{}}`, `{...undefined}`, and `{...null}` all spread nothing.
+const isEmptySpreadBranch = node =>
+	isEmptyObjectExpression(node)
+	|| isUndefined(node)
+	|| isNullLiteral(node);
+
 const isObjectSpreadArgument = node => (
 	node.parent.type === 'SpreadElement'
 	&& node.parent.argument === node
@@ -203,8 +209,8 @@ function getConditionalExpressionChildText(node, context) {
 
 function getConditionalExpressionProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
-	const isAlternateEmpty = isEmptyObjectExpression(alternate);
-	const isConsequentEmpty = isEmptyObjectExpression(consequent);
+	const isAlternateEmpty = isEmptySpreadBranch(alternate);
+	const isConsequentEmpty = isEmptySpreadBranch(consequent);
 
 	if (isAlternateEmpty === isConsequentEmpty) {
 		return;
@@ -260,7 +266,7 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 function getLogicalExpressionProblem(logicalExpression, context) {
 	if (
 		logicalExpression.operator !== '&&'
-		|| isEmptyObjectExpression(logicalExpression.right)
+		|| isEmptySpreadBranch(logicalExpression.right)
 	) {
 		return;
 	}

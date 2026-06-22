@@ -23,6 +23,16 @@ const object = {...(condition ? {property} : {})};
 const object = {...(condition && {property})};
 ```
 
+An `undefined` or `null` fallback branch spreads nothing, so it is treated the same as an empty object:
+
+```js
+// ❌
+const object = {...(condition ? {property} : undefined)};
+
+// ✅
+const object = {...(condition && {property})};
+```
+
 With the `'ternary'` option:
 
 ```js
