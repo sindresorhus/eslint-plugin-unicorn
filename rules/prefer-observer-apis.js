@@ -342,20 +342,32 @@ const getListenerFunction = (node, context) => {
 	}
 };
 
+const isAddEventListenerCall = (node, context) => {
+	if (isMethodCall(node, {
+		method: 'addEventListener',
+		minimumArguments: 2,
+		maximumArguments: 3,
+		optionalCall: false,
+		optionalMember: false,
+	})) {
+		return !isKnownNonDomNode(node.callee.object, context);
+	}
+
+	return (
+		isCallExpression(node, {
+			name: 'addEventListener',
+			minimumArguments: 2,
+			maximumArguments: 3,
+			optional: false,
+		})
+		&& isGlobalIdentifier(node.callee, context)
+	);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {
-			method: 'addEventListener',
-			minimumArguments: 2,
-			maximumArguments: 3,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
-			return;
-		}
-
-		if (isKnownNonDomNode(node.callee.object, context)) {
+		if (!isAddEventListenerCall(node, context)) {
 			return;
 		}
 

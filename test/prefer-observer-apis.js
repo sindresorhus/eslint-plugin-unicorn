@@ -39,10 +39,14 @@ test.snapshot({
 		'window.addEventListener(eventName, () => element.offsetWidth)',
 		'window?.addEventListener("resize", () => element.offsetWidth)',
 		'window.addEventListener?.("resize", () => element.offsetWidth)',
+		'addEventListener?.("resize", () => element.offsetWidth)',
 		'window.addEventListener("resize", handler)',
 		'window.addEventListener("resize", object.handler)',
-		'window.addEventListener("resize", importedHandler)',
 		'window.addEventListener("resize")',
+		'import {handler as importedHandler} from "./handler.js"; window.addEventListener("resize", importedHandler);',
+		'let handler = () => element.offsetWidth; window.addEventListener("resize", handler);',
+		'var handler = () => element.offsetWidth; window.addEventListener("resize", handler);',
+		'const addEventListener = () => {}; addEventListener("resize", () => window.innerWidth);',
 		'new ResizeObserver(entries => update(entries)).observe(element)',
 		'new IntersectionObserver(entries => update(entries)).observe(element)',
 		outdent`
@@ -160,8 +164,12 @@ test.snapshot({
 		'window.addEventListener("resize", () => { const {width} = visualViewport; })',
 		'window.addEventListener("resize", () => window.innerWidth)',
 		'window.addEventListener("resize", () => innerHeight)',
+		'window.addEventListener("resize", () => globalThis.innerWidth)',
+		'window.addEventListener("resize", () => self.innerHeight)',
 		'window.addEventListener("resize", () => visualViewport.width)',
 		'window.addEventListener("resize", () => window.visualViewport.height)',
+		'addEventListener("resize", () => window.innerWidth)',
+		'addEventListener("scroll", () => element.getBoundingClientRect())',
 		outdent`
 			function handler() {
 				return element.offsetHeight;
