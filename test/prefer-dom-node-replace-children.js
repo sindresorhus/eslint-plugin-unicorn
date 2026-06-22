@@ -38,6 +38,8 @@ test({
 		'document.createElementNS("http://www.w3.org/1999/xhtml", "TEMPLATE", options).innerHTML = "";',
 		'document.createElementNS(namespace, "template").innerHTML = "";',
 		'const namespace = "http://www.w3.org/1999/xhtml"; document.createElementNS(namespace, "template").innerHTML = "";',
+		'const tagName = "template"; document.createElement(tagName).innerHTML = "";',
+		'const tagName = "template"; document.createElementNS("http://www.w3.org/1999/xhtml", tagName).innerHTML = "";',
 		'document["createElement"]("template").innerHTML = "";',
 		'document["createElementNS"]("http://www.w3.org/1999/xhtml", "template").innerHTML = "";',
 		{
@@ -124,6 +126,16 @@ test({
 			output: 'element.replaceChildren();',
 		},
 		{
+			...typescript('element["innerHTML" as const] = "";'),
+			errors: [error],
+			output: 'element.replaceChildren();',
+		},
+		{
+			...typescript('element[`innerHTML` satisfies string] = "" as const;'),
+			errors: [error],
+			output: 'element.replaceChildren();',
+		},
+		{
 			code: '(element || fallback).innerHTML = "";',
 			errors: [error],
 			output: '(element || fallback).replaceChildren();',
@@ -137,6 +149,11 @@ test({
 			code: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").innerHTML = "";',
 			errors: [error],
 			output: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").replaceChildren();',
+		},
+		{
+			code: 'const tagName = "template"; document.createElementNS("http://www.w3.org/2000/svg", tagName).innerHTML = "";',
+			errors: [error],
+			output: 'const tagName = "template"; document.createElementNS("http://www.w3.org/2000/svg", tagName).replaceChildren();',
 		},
 		{
 			...typescript('document.createElementNS("http://www.w3.org/2000/svg" as const, "template" as const).innerHTML = "";'),

@@ -24,6 +24,20 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over manually emptying DOM children.',
 };
 
+const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(node));
+
+const getStaticStringValueFromScope = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
+	const string = getStaticStringValue(node);
+	if (string !== undefined) {
+		return string;
+	}
+
+	const result = getStaticValue(node, context.sourceCode.getScope(node));
+	return typeof result?.value === 'string' ? result.value : undefined;
+};
+
 const getStaticPropertyName = memberExpression => {
 	const {property} = memberExpression;
 
@@ -34,16 +48,14 @@ const getStaticPropertyName = memberExpression => {
 		return property.name;
 	}
 
-	return getStaticStringValue(property);
+	return getStaticString(property);
 };
 
 const isInnerHTMLMemberExpression = node =>
 	isMemberExpression(node)
 	&& getStaticPropertyName(node) === 'innerHTML';
 
-const isEmptyString = node => getStaticStringValue(node) === '';
-
-const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(node));
+const isEmptyString = node => getStaticString(node) === '';
 
 const isStaticMethodCall = (node, method, options) =>
 	isCallExpression(node, {
@@ -74,7 +86,7 @@ const mayCreateHtmlTemplateElement = (node, context) => {
 			maximumArguments: 2,
 		})
 	) {
-		return getStaticString(node.arguments[0])?.toLowerCase() === 'template';
+		return getStaticStringValueFromScope(node.arguments[0], context)?.toLowerCase() === 'template';
 	}
 
 	if (
@@ -82,7 +94,7 @@ const mayCreateHtmlTemplateElement = (node, context) => {
 			minimumArguments: 2,
 			maximumArguments: 3,
 		})
-		|| getStaticString(node.arguments[1])?.toLowerCase() !== 'template'
+		|| getStaticStringValueFromScope(node.arguments[1], context)?.toLowerCase() !== 'template'
 	) {
 		return false;
 	}
