@@ -199,6 +199,7 @@ export {default as 'prefer-dispose'} from './prefer-dispose.js';
 export {default as 'prefer-dom-node-append'} from './prefer-dom-node-append.js';
 export {default as 'prefer-dom-node-html-methods'} from './prefer-dom-node-html-methods.js';
 export {default as 'prefer-dom-node-remove'} from './prefer-dom-node-remove.js';
+export {default as 'prefer-dom-node-replace-children'} from './prefer-dom-node-replace-children.js';
 export {default as 'prefer-dom-node-text-content'} from './prefer-dom-node-text-content.js';
 export {default as 'prefer-early-return'} from './prefer-early-return.js';
 export {default as 'prefer-else-if'} from './prefer-else-if.js';

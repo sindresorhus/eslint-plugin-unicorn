@@ -1,0 +1,217 @@
+import {
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+} from './ast/index.js';
+import {
+	isNodeValueNotDomNode,
+	isSameReference,
+	isValueNotUsable,
+	mayBeHtmlTemplateElement,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
+	shouldReportReplaceChildrenReceiver,
+	wouldRemoveComments,
+} from './utils/index.js';
+
+const MESSAGE_ID = 'prefer-dom-node-replace-children';
+const messages = {
+	[MESSAGE_ID]: 'Prefer `{{replacement}}` over manually emptying DOM children.',
+};
+
+const getStaticPropertyName = memberExpression => {
+	const {property} = memberExpression;
+
+	if (
+		!memberExpression.computed
+		&& property.type === 'Identifier'
+	) {
+		return property.name;
+	}
+
+	return getStaticStringValue(property);
+};
+
+const isInnerHTMLMemberExpression = node =>
+	isMemberExpression(node)
+	&& getStaticPropertyName(node) === 'innerHTML';
+
+const isEmptyString = node => getStaticStringValue(node) === '';
+
+const getOnlyBodyStatement = node => {
+	if (node.body.type !== 'BlockStatement') {
+		return node.body;
+	}
+
+	return node.body.body.length === 1
+		? node.body.body[0]
+		: undefined;
+};
+
+const getChildNodeMemberExpression = node => {
+	if (
+		isMemberExpression(node, {
+			properties: ['firstChild', 'lastChild'],
+			optional: false,
+		})
+	) {
+		return node;
+	}
+};
+
+const containsChainExpression = (node, sourceCode) => {
+	if (node.type === 'ChainExpression') {
+		return true;
+	}
+
+	const keys = sourceCode.visitorKeys[node.type] ?? [];
+	for (const key of keys) {
+		const child = node[key];
+		if (Array.isArray(child)) {
+			for (const childNode of child) {
+				if (childNode && containsChainExpression(childNode, sourceCode)) {
+					return true;
+				}
+			}
+
+			continue;
+		}
+
+		if (child && containsChainExpression(child, sourceCode)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const getParentNodeText = (parentNode, context) => {
+	const {sourceCode} = context;
+
+	return (
+		parentNode.type !== 'Super'
+		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context)
+	)
+		? `(${sourceCode.getText(parentNode)})`
+		: sourceCode.getText(parentNode);
+};
+
+const getReplaceChildrenStatement = (node, parentNode, context) => {
+	const parentNodeText = getParentNodeText(parentNode, context);
+	return `${needsSemicolon(context.sourceCode.getTokenBefore(node), context, parentNodeText) ? ';' : ''}${parentNodeText}.replaceChildren();`;
+};
+
+const shouldSkipParentNode = (parentNode, context) => {
+	const {sourceCode} = context;
+
+	return isNodeValueNotDomNode(parentNode)
+		|| containsChainExpression(parentNode, sourceCode)
+		|| !shouldReportReplaceChildrenReceiver(context, parentNode);
+};
+
+const getInnerHTMLProblem = (context, node) => {
+	if (
+		node.operator !== '='
+		|| !isInnerHTMLMemberExpression(node.left)
+		|| !isEmptyString(node.right)
+	) {
+		return;
+	}
+
+	const parentNode = node.left.object;
+	if (
+		shouldSkipParentNode(parentNode, context)
+		|| mayBeHtmlTemplateElement(context, parentNode)
+	) {
+		return;
+	}
+
+	const replacement = getReplaceChildrenStatement(node.parent, parentNode, context);
+	const fix = (
+		node.parent.type === 'ExpressionStatement'
+		&& isValueNotUsable(node)
+		&& !wouldRemoveComments(context, node.parent, [parentNode])
+	)
+		? fixer => fixer.replaceText(node.parent, replacement)
+		: undefined;
+
+	return {
+		node: node.left.property,
+		messageId: MESSAGE_ID,
+		data: {
+			replacement: `${getParentNodeText(parentNode, context)}.replaceChildren()`,
+		},
+		fix,
+	};
+};
+
+const getRemoveChildLoopProblem = (context, node) => {
+	const childNode = getChildNodeMemberExpression(node.test);
+	if (!childNode) {
+		return;
+	}
+
+	const bodyStatement = getOnlyBodyStatement(node);
+	if (bodyStatement?.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const {expression} = bodyStatement;
+	if (
+		!isMethodCall(expression, {
+			method: 'removeChild',
+			argumentsLength: 1,
+			optionalCall: false,
+			optionalMember: false,
+		})
+		|| !isSameReference(childNode.object, expression.callee.object)
+		|| !isSameReference(childNode, expression.arguments[0])
+	) {
+		return;
+	}
+
+	const parentNode = childNode.object;
+	if (shouldSkipParentNode(parentNode, context)) {
+		return;
+	}
+
+	const replacement = getReplaceChildrenStatement(node, parentNode, context);
+	const fix = wouldRemoveComments(context, node, [parentNode])
+		? undefined
+		: fixer => fixer.replaceText(node, replacement);
+
+	return {
+		node,
+		messageId: MESSAGE_ID,
+		data: {
+			replacement: `${getParentNodeText(parentNode, context)}.replaceChildren()`,
+		},
+		fix,
+	};
+};
+
+/** @param {import('eslint').Rule.RuleContext} context */
+const create = context => {
+	context.on('AssignmentExpression', node => getInnerHTMLProblem(context, node));
+	context.on('WhileStatement', node => getRemoveChildLoopProblem(context, node));
+};
+
+/** @type {import('eslint').Rule.RuleModule} */
+const config = {
+	create,
+	meta: {
+		type: 'suggestion',
+		docs: {
+			description: 'Prefer `.replaceChildren()` when emptying DOM children.',
+			recommended: 'unopinionated',
+		},
+		fixable: 'code',
+		schema: [],
+		messages,
+		languages: [
+			'js/js',
+		],
+	},
+};
+
+export default config;
