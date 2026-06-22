@@ -1,7 +1,6 @@
 import {
 	getBaseTypes,
 	getTypeSymbol,
-	isDefaultLibrarySymbol,
 	isUnknownType,
 } from './types.js';
 import {createTypeCheckers} from './type-helpers.js';
@@ -13,6 +12,28 @@ const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
 
 const hasInnerHTMLProperty = (type, checker) =>
 	Boolean(checker.getTypeOfPropertyOfType(type, 'innerHTML'));
+
+const isKnownNonReplaceChildrenReceiverType = (type, options) => {
+	const typeName = getTypeSymbol(type)?.getName();
+	return (options.checkInnerHTML ? nonInnerHtmlParentNodeTypeNames : nonParentNodeTypeNames).has(typeName);
+};
+
+const isUnknownOrAllUnknownTypes = (type, checker) => {
+	type = checker.getNonNullableType(type);
+
+	if (isUnknownType(type)) {
+		return true;
+	}
+
+	if (type.isUnion() || type.isIntersection()) {
+		return type.types.every(type => isUnknownOrAllUnknownTypes(type, checker));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	return constraint && constraint !== type
+		? isUnknownOrAllUnknownTypes(constraint, checker)
+		: false;
+};
 
 const receiverSyntaxOptions = {
 	allowNullishInMixedUnion: true,
@@ -91,6 +112,10 @@ const shouldReportReplaceChildrenReceiverType = (type, checker, options = {}) =>
 		return shouldReportReplaceChildrenReceiverType(constraint, checker, options);
 	}
 
+	if (isKnownNonReplaceChildrenReceiverType(type, options)) {
+		return false;
+	}
+
 	if (type.isIntersection()) {
 		const hasCompatibleReplaceChildren = hasZeroArgumentReplaceChildrenCallSignature(type, checker)
 			&& (!options.checkInnerHTML || hasInnerHTMLProperty(type, checker));
@@ -112,20 +137,29 @@ const shouldReportReplaceChildrenReceiverFromSyntax = (context, node, options = 
 };
 
 const shouldReportReplaceChildrenReceiver = (context, node, options) => {
+	const shouldReportFromSyntax = shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
-		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
+		return shouldReportFromSyntax;
 	}
 
 	try {
 		const checker = parserServices.program.getTypeChecker();
-		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker, options);
+		const type = parserServices.getTypeAtLocation(node);
+		if (
+			!shouldReportFromSyntax
+			&& isUnknownOrAllUnknownTypes(type, checker)
+		) {
+			return false;
+		}
+
+		return shouldReportReplaceChildrenReceiverType(type, checker, options);
 	} catch {
 		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
 	}
 };
 
-const mayBeHtmlTemplateElementType = (type, checker, program) => {
+const mayBeHtmlTemplateElementType = (type, checker) => {
 	type = checker.getNonNullableType(type);
 
 	if (isUnknownType(type)) {
@@ -133,36 +167,36 @@ const mayBeHtmlTemplateElementType = (type, checker, program) => {
 	}
 
 	if (type.isUnion() || type.isIntersection()) {
-		return type.types.some(type => mayBeHtmlTemplateElementType(type, checker, program));
+		return type.types.some(type => mayBeHtmlTemplateElementType(type, checker));
 	}
 
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
-		return mayBeHtmlTemplateElementType(constraint, checker, program);
+		return mayBeHtmlTemplateElementType(constraint, checker);
 	}
 
 	const symbol = getTypeSymbol(type);
-	if (
-		symbol?.getName() === 'HTMLTemplateElement'
-		&& isDefaultLibrarySymbol(symbol, program)
-	) {
+	if (symbol?.getName() === 'HTMLTemplateElement') {
 		return true;
 	}
 
-	return getBaseTypes(type, checker).some(type => mayBeHtmlTemplateElementType(type, checker, program));
+	return getBaseTypes(type, checker).some(type => mayBeHtmlTemplateElementType(type, checker));
 };
 
 const mayBeHtmlTemplateElement = (context, node) => {
+	if (isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions)) {
+		return true;
+	}
+
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
-		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
+		return false;
 	}
 
 	try {
 		return mayBeHtmlTemplateElementType(
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
-			parserServices.program,
 		);
 	} catch {
 		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
