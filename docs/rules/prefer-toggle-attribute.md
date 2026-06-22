@@ -11,13 +11,13 @@
 
 Prefer using [`Element#toggleAttribute()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/toggleAttribute) instead of conditionally calling `setAttribute()` and `removeAttribute()` for boolean-style attributes.
 
-Only `setAttribute(name, '')` patterns are autofixed, because `toggleAttribute()` creates an empty-string attribute. Patterns with non-empty static string values may be reported with suggestions when the replacement can preserve comments and evaluation behavior.
+Only `setAttribute(name, '')` patterns are autofixed. Non-empty static string values may get suggestions when safe.
 
 `data-*` attributes are ignored so [`dom-node-dataset`](dom-node-dataset.md) remains responsible for dataset-specific style.
 
-Only direct presence toggles based on `hasAttribute()` are autofixed. Condition-driven `toggleAttribute(name, force)` replacements are suggestions when the rule can offer a safe replacement, because `toggleAttribute(name, true)` preserves an existing non-empty attribute value while `setAttribute(name, '')` clears it.
+Only direct `hasAttribute()` toggles are autofixed. Condition-driven `toggleAttribute(name, force)` replacements are suggestions when safe, because `toggleAttribute(name, true)` preserves existing non-empty values.
 
-Optional receivers are only fixed or suggested for direct `hasAttribute()` presence toggles. Generic condition-driven optional receiver branches are reported without an autofix or suggestion because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
+Optional receivers are fixed or suggested only for direct `hasAttribute()` toggles. Generic condition-driven optional receivers are reported without fixes because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
 
 ## Examples
 
