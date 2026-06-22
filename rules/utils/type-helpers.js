@@ -60,7 +60,11 @@ const combineUnionTypes = (types, options) => {
 		return nonTarget;
 	}
 
-	if (types.every(type => type === target)) {
+	if (
+		options.treatMixedUnionAsTarget
+			? types.includes(target)
+			: types.every(type => type === target)
+	) {
 		return target;
 	}
 
@@ -447,7 +451,10 @@ const getThisExpressionType = (node, context, options) => {
 		if (
 			parent.type === 'StaticBlock'
 			|| (
-				parent.type === 'PropertyDefinition'
+				(
+					parent.type === 'AccessorProperty'
+					|| parent.type === 'PropertyDefinition'
+				)
 				&& parent.static
 			)
 		) {
@@ -482,6 +489,35 @@ const getThisExpressionType = (node, context, options) => {
 	return unknown;
 };
 
+const getSuperExpressionType = (node, context, options) => {
+	for (let {parent} = node; parent; parent = parent.parent) {
+		if (
+			parent.type === 'StaticBlock'
+			|| (
+				(
+					parent.type === 'AccessorProperty'
+					|| parent.type === 'PropertyDefinition'
+				)
+				&& parent.static
+			)
+			|| (
+				parent.type === 'MethodDefinition'
+				&& parent.static
+			)
+		) {
+			return nonTarget;
+		}
+
+		if (classNodeTypes.has(parent.type)) {
+			return parent.superClass
+				? getClassReferenceTypeFromScope(parent.superClass, context.sourceCode.getScope(parent), options)
+				: nonTarget;
+		}
+	}
+
+	return unknown;
+};
+
 const getTypeFromExpression = (node, context, options, visitedVariables) => {
 	const scope = context.sourceCode.getScope(node);
 
@@ -493,6 +529,12 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 		case 'ThisExpression': {
 			return options.checkClassSyntax
 				? getThisExpressionType(node, context, options)
+				: unknown;
+		}
+
+		case 'Super': {
+			return options.checkClassSyntax
+				? getSuperExpressionType(node, context, options)
 				: unknown;
 		}
 

@@ -13,6 +13,11 @@ const typeAware = code => ({
 	},
 });
 
+const typescript = code => ({
+	code,
+	languageOptions: {parser: parsers.typescript},
+});
+
 const error = {
 	messageId: 'prefer-dom-node-replace-children',
 };
@@ -51,6 +56,8 @@ test({
 			code: '(document.createElementNS("http://www.w3.org/1999/xhtml", "template") as Element).innerHTML = "";',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typescript('document.createElement("template" as const).innerHTML = "";'),
+		typescript('document.createElementNS("http://www.w3.org/1999/xhtml" as const, "template" as const).innerHTML = "";'),
 		'while (node.firstChild) { node.firstChild.remove(); }',
 		'while (node.lastChild) { node.lastChild.remove(); }',
 		'while (node.firstElementChild) { node.removeChild(node.firstElementChild); }',
@@ -68,8 +75,21 @@ test({
 		typeAware('function foo(node: Element | HTMLTemplateElement) { node.innerHTML = ""; }'),
 		typeAware('function foo<T extends HTMLTemplateElement>(node: T) { node.innerHTML = ""; }'),
 		typeAware('class TemplateElement extends HTMLTemplateElement {} function foo(node: TemplateElement) { node.innerHTML = ""; }'),
+		typescript('function foo(node: HTMLTemplateElement) { node.innerHTML = ""; }'),
+		typescript('function foo(node: Element | HTMLTemplateElement) { node.innerHTML = ""; }'),
+		typescript('class TemplateElement extends HTMLTemplateElement {} function foo(node: TemplateElement) { node.innerHTML = ""; }'),
+		typescript('class TemplateElement extends HTMLTemplateElement { method() { this.innerHTML = ""; } }'),
+		typescript('function foo(node: Document) { node.innerHTML = ""; }'),
+		typescript('function foo(node: DocumentFragment) { node.innerHTML = ""; }'),
+		typescript('class ElementSubclass extends Element { static accessor property = this.innerHTML = ""; }'),
+		typescript('class ElementSubclass extends Element { static accessor property = super.innerHTML = ""; }'),
 		typeAware('function foo(node: Document) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: DocumentFragment) { node.innerHTML = ""; }'),
+		typescript('function foo(node: Node) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+		typescript('function foo(node: Element | Node) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+		typescript('class NodeSubclass extends Node { method() { while (this.firstChild) { this.removeChild(this.firstChild); } } }'),
+		typescript('class NodeSubclass extends Node { method() { while (super.firstChild) { super.removeChild(super.firstChild); } } }'),
+		typescript('class ElementSubclass extends Element { static method() { while (super.firstChild) { super.removeChild(super.firstChild); } } }'),
 		typeAware('function foo(node: Node) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 		typeAware('function foo(node: {innerHTML: string; replaceChildren(): void}) { node.innerHTML = ""; }'),
 		typeAware('function foo(node: Element | {innerHTML: string; replaceChildren(): void}) { node.innerHTML = ""; }'),
@@ -117,6 +137,11 @@ test({
 			code: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").innerHTML = "";',
 			errors: [error],
 			output: 'const namespace = "http://www.w3.org/2000/svg"; document.createElementNS(namespace, "template").replaceChildren();',
+		},
+		{
+			...typescript('document.createElementNS("http://www.w3.org/2000/svg" as const, "template" as const).innerHTML = "";'),
+			errors: [error],
+			output: 'document.createElementNS("http://www.w3.org/2000/svg" as const, "template" as const).replaceChildren();',
 		},
 		{
 			code: 'document.createElementNS(null, "template").innerHTML = "";',
@@ -211,6 +236,11 @@ test({
 			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
 		},
 		{
+			...typescript('function foo(node: Element | undefined) { node.innerHTML = ""; }'),
+			errors: [error],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
 			...typeAware('function foo(node: Element | null) { node.innerHTML = ""; }'),
 			errors: [error],
 			output: 'function foo(node: Element | null) { node.replaceChildren(); }',
@@ -227,6 +257,11 @@ test({
 		},
 		{
 			...typeAware('function foo(node: Element | undefined) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
+			errors: [error],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
+			...typescript('function foo(node: Element | undefined) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 			errors: [error],
 			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
 		},

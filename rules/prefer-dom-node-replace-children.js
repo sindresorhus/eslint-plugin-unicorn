@@ -43,6 +43,8 @@ const isInnerHTMLMemberExpression = node =>
 
 const isEmptyString = node => getStaticStringValue(node) === '';
 
+const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(node));
+
 const isStaticMethodCall = (node, method, options) =>
 	isCallExpression(node, {
 		...options,
@@ -52,6 +54,8 @@ const isStaticMethodCall = (node, method, options) =>
 	&& getStaticPropertyName(node.callee) === method;
 
 const isUnknownOrHtmlNamespace = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
 	const string = getStaticStringValue(node);
 	if (string !== undefined) {
 		return string === HTML_NAMESPACE;
@@ -70,7 +74,7 @@ const mayCreateHtmlTemplateElement = (node, context) => {
 			maximumArguments: 2,
 		})
 	) {
-		return getStaticStringValue(node.arguments[0])?.toLowerCase() === 'template';
+		return getStaticString(node.arguments[0])?.toLowerCase() === 'template';
 	}
 
 	if (
@@ -78,7 +82,7 @@ const mayCreateHtmlTemplateElement = (node, context) => {
 			minimumArguments: 2,
 			maximumArguments: 3,
 		})
-		|| getStaticStringValue(node.arguments[1])?.toLowerCase() !== 'template'
+		|| getStaticString(node.arguments[1])?.toLowerCase() !== 'template'
 	) {
 		return false;
 	}

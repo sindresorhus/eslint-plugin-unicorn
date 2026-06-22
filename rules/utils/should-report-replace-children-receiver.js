@@ -4,6 +4,7 @@ import {
 	isDefaultLibrarySymbol,
 	isUnknownType,
 } from './types.js';
+import {createTypeCheckers} from './type-helpers.js';
 
 const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
 	checker.getTypeOfPropertyOfType(type, 'replaceChildren')
@@ -12,6 +13,67 @@ const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
 
 const hasInnerHTMLProperty = (type, checker) =>
 	Boolean(checker.getTypeOfPropertyOfType(type, 'innerHTML'));
+
+const receiverSyntaxOptions = {
+	allowNullishInMixedUnion: true,
+	treatMixedUnionAsNonTarget: true,
+};
+const htmlTemplateElementSyntaxOptions = {
+	allowNullishInMixedUnion: true,
+	treatMixedUnionAsTarget: true,
+};
+const nonParentNodeTypeNames = new Set([
+	'Attr',
+	'CDATASection',
+	'CharacterData',
+	'ChildNode',
+	'Comment',
+	'DocumentType',
+	'Node',
+	'Text',
+]);
+const nonInnerHtmlParentNodeTypeNames = new Set([
+	...nonParentNodeTypeNames,
+	'Document',
+	'DocumentFragment',
+	'ParentNode',
+]);
+const {
+	isKnownNonTarget: isKnownNonReplaceChildrenReceiver,
+} = createTypeCheckers({
+	checkClassSyntax: true,
+	targetTypeNames: new Set([
+		'Document',
+		'DocumentFragment',
+		'Element',
+		'HTMLDocument',
+		'HTMLElement',
+		'ParentNode',
+		'SVGElement',
+		'ShadowRoot',
+	]),
+	nonTargetTypeNames: nonParentNodeTypeNames,
+});
+const {
+	isKnownNonTarget: isKnownNonInnerHtmlReplaceChildrenReceiver,
+} = createTypeCheckers({
+	checkClassSyntax: true,
+	targetTypeNames: new Set([
+		'Element',
+		'HTMLElement',
+		'SVGElement',
+		'ShadowRoot',
+	]),
+	nonTargetTypeNames: nonInnerHtmlParentNodeTypeNames,
+});
+const {
+	isTarget: isHtmlTemplateElementFromSyntax,
+} = createTypeCheckers({
+	checkClassSyntax: true,
+	targetTypeNames: new Set([
+		'HTMLTemplateElement',
+	]),
+});
 
 const shouldReportReplaceChildrenReceiverType = (type, checker, options = {}) => {
 	type = checker.getNonNullableType(type);
@@ -41,17 +103,25 @@ const shouldReportReplaceChildrenReceiverType = (type, checker, options = {}) =>
 		&& (!options.checkInnerHTML || hasInnerHTMLProperty(type, checker));
 };
 
+const shouldReportReplaceChildrenReceiverFromSyntax = (context, node, options = {}) => {
+	const isKnownNonReceiver = options.checkInnerHTML
+		? isKnownNonInnerHtmlReplaceChildrenReceiver
+		: isKnownNonReplaceChildrenReceiver;
+
+	return !isKnownNonReceiver(node, context, receiverSyntaxOptions);
+};
+
 const shouldReportReplaceChildrenReceiver = (context, node, options) => {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
-		return true;
+		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
 	}
 
 	try {
 		const checker = parserServices.program.getTypeChecker();
 		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker, options);
 	} catch {
-		return true;
+		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
 	}
 };
 
@@ -85,7 +155,7 @@ const mayBeHtmlTemplateElementType = (type, checker, program) => {
 const mayBeHtmlTemplateElement = (context, node) => {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
-		return false;
+		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
 	}
 
 	try {
@@ -95,7 +165,7 @@ const mayBeHtmlTemplateElement = (context, node) => {
 			parserServices.program,
 		);
 	} catch {
-		return false;
+		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
 	}
 };
 

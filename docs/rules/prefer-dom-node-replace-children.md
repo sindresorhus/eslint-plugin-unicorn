@@ -13,6 +13,8 @@
 
 This rule reports empty `.innerHTML` assignments and simple loops that repeatedly remove `.firstChild` or `.lastChild` through `.removeChild()`.
 
+It ignores empty `.innerHTML` assignments on HTML template elements because `template.innerHTML = ''` clears template content, while `template.replaceChildren()` clears direct children.
+
 The rule is intentionally focused on emptying children. Non-empty `.innerHTML` assignments are handled by [`prefer-dom-node-html-methods`](./prefer-dom-node-html-methods.md) and [`no-unsafe-dom-html`](./no-unsafe-dom-html.md), depending on whether the goal is modernization or security.
 
 ## Examples
