@@ -171,6 +171,7 @@ test.snapshot({
 		'window.addEventListener("scroll", () => element?.getBoundingClientRect())',
 		'window.addEventListener("scroll", () => element["getBoundingClientRect"]())',
 		'window.addEventListener("scroll", () => element[`getBoundingClientRect`]())',
+		'window.addEventListener("scroll", () => element.getBoundingClientRect(ignored))',
 		'window.addEventListener("scroll", () => element.getClientRects())',
 		'window.addEventListener("scroll", () => element?.["getClientRects"]())',
 		'window.addEventListener("resize", () => element["clientWidth"])',
@@ -198,6 +199,14 @@ test.snapshot({
 			}
 
 			window.addEventListener("resize", handler);
+		`,
+		outdent`
+			function handler() {
+				return element.offsetHeight;
+			}
+
+			window.addEventListener("resize", handler);
+			handler = () => {};
 		`,
 		outdent`
 			const handler = () => {

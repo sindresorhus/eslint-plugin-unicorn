@@ -335,9 +335,7 @@ const isLayoutDestructuringNode = (node, context) => {
 };
 
 const isLayoutMethodCall = (node, context) =>
-	isCallExpression(node, {
-		argumentsLength: 0,
-	})
+	isCallExpression(node)
 	&& node.callee.type === 'MemberExpression'
 	&& layoutMethodNames.has(getPropertyName(node.callee))
 	&& !isNonElementLayoutObject(node.callee.object, context)
