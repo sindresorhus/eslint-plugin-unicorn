@@ -13,6 +13,11 @@ const typeAware = code => ({
 	},
 });
 
+const typescript = code => ({
+	code,
+	languageOptions: {parser: parsers.typescript},
+});
+
 test({
 	valid: [
 		'oldChildNode.replaceWith(newChildNode);',
@@ -43,6 +48,11 @@ test({
 		'while ("x".firstChild) { "x".firstChild.remove(); }',
 		'while (undefined.firstChild) { undefined.firstChild.remove(); }',
 		typeAware('function foo(node: string) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typescript('function foo(node: Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typescript('function foo(node: Element | Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
+		typescript('class NodeSubclass extends Node { method() { while (this.firstChild) { this.firstChild.remove(); } } }'),
+		typescript('class NodeSubclass extends Node { method() { while (super.firstChild) { super.firstChild.remove(); } } }'),
+		typescript('class ElementSubclass extends Element { static method() { while (super.firstChild) { super.firstChild.remove(); } } }'),
 		typeAware('function foo(node: Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
 		typeAware('function foo(node: Element | Node) { while (node.firstChild) { node.firstChild.remove(); } }'),
 		typeAware('function foo(node: Element | {firstChild: {remove(): void} | undefined}) { while (node.firstChild) { node.firstChild.remove(); } }'),
@@ -512,6 +522,15 @@ test({
 		},
 		{
 			...typeAware('function foo(node: Element | undefined) { while (node.firstChild) { node.firstChild.remove(); } }'),
+			errors: [
+				{
+					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',
+				},
+			],
+			output: 'function foo(node: Element | undefined) { node.replaceChildren(); }',
+		},
+		{
+			...typescript('function foo(node: Element | undefined) { while (node.firstChild) { node.firstChild.remove(); } }'),
 			errors: [
 				{
 					message: 'Prefer `node.replaceChildren()` over directly removing `.firstChild` in a loop.',

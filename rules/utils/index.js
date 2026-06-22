@@ -136,6 +136,7 @@ export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
 export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild} from './should-add-parentheses-to-logical-expression-child.js';
+export {default as shouldReportReplaceChildrenReceiver, mayBeHtmlTemplateElement} from './should-report-replace-children-receiver.js';
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
 export {default as trackBranchExits} from './track-branch-exits.js';

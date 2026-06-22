@@ -4,6 +4,7 @@ import {
 	isValueNotUsable,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	shouldReportReplaceChildrenReceiver,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
@@ -142,51 +143,6 @@ const containsChainExpression = (node, sourceCode) => {
 	}
 
 	return false;
-};
-
-const unknownTypeNames = new Set(['any', 'error', 'unknown']);
-
-const hasZeroArgumentReplaceChildrenCallSignature = (type, checker) =>
-	checker.getTypeOfPropertyOfType(type, 'replaceChildren')
-		?.getCallSignatures()
-		.some(signature => signature.minArgumentCount === 0) ?? false;
-
-const shouldReportReplaceChildrenReceiverType = (type, checker) => {
-	type = checker.getNonNullableType(type);
-
-	if (unknownTypeNames.has(type.intrinsicName)) {
-		return true;
-	}
-
-	if (type.isUnion()) {
-		return type.types.every(type => shouldReportReplaceChildrenReceiverType(type, checker));
-	}
-
-	const constraint = checker.getBaseConstraintOfType(type);
-	if (constraint && constraint !== type) {
-		return shouldReportReplaceChildrenReceiverType(constraint, checker);
-	}
-
-	if (type.isIntersection()) {
-		return hasZeroArgumentReplaceChildrenCallSignature(type, checker)
-			|| type.types.some(type => shouldReportReplaceChildrenReceiverType(type, checker));
-	}
-
-	return hasZeroArgumentReplaceChildrenCallSignature(type, checker);
-};
-
-const shouldReportReplaceChildrenReceiver = (context, node) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return true;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		return shouldReportReplaceChildrenReceiverType(parserServices.getTypeAtLocation(node), checker);
-	} catch {
-		return true;
-	}
 };
 
 const getReplaceChildrenProblem = (context, node) => {
