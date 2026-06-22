@@ -22,7 +22,11 @@ import {
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const globalObjectNames = new Set([
+	'frames',
 	'globalThis',
+	'parent',
+	'self',
+	'top',
 	'window',
 ]);
 const messages = {
@@ -97,8 +101,13 @@ const isStaticMethodCall = (node, method, options) =>
 	&& isMemberExpression(node.callee, {optional: false})
 	&& getStaticPropertyName(node.callee) === method;
 
-const isGlobalDocument = (node, context) => {
+const isGlobalDocument = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
+
+	const initializer = getConstIdentifierInitializer(node, context, visitedVariables);
+	if (initializer) {
+		return isGlobalDocument(initializer, context, visitedVariables);
+	}
 
 	if (
 		node.type === 'Identifier'
