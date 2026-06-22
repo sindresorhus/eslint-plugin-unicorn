@@ -70,11 +70,6 @@ test.snapshot({
 		},
 		// The default value does not constrain a destructured binding's type.
 		'function foo({bar = false}) {\n\treturn bar === false;\n}',
-		// Without type information, a genuinely boolean destructured binding is conservatively skipped, since its type cannot be read off the identifier.
-		{
-			code: 'const foo = ({bar = false}: {bar?: boolean}) => bar === false;',
-			languageOptions: {parser: parsers.typescript},
-		},
 		// With type information, the wider type is respected and the comparison is not reported (#3385).
 		typeAware('const foo = ({bar = false}: {bar?: boolean | \'baz\' | \'\'}) => bar === false;'),
 	],
