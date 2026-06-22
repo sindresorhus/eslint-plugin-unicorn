@@ -271,9 +271,10 @@ const isUrlSearchParametersConstructor = node =>
 		argumentsLength: 1,
 	});
 
-const isPropertyNamed = (node, name) =>
-	(node.type === 'Identifier' && node.name === name)
-	|| getStaticStringValue(node) === name;
+const isPropertyNamed = (node, name, {computed}) =>
+	computed
+		? getStaticStringValue(node) === name
+		: node.type === 'Identifier' && node.name === name;
 
 const isPotentialObjectFromEntriesCall = node =>
 	node.type === 'CallExpression'
@@ -281,7 +282,7 @@ const isPotentialObjectFromEntriesCall = node =>
 	&& node.callee.type === 'MemberExpression'
 	&& node.callee.object.type === 'Identifier'
 	&& node.callee.object.name === 'Object'
-	&& isPropertyNamed(node.callee.property, 'fromEntries');
+	&& isPropertyNamed(node.callee.property, 'fromEntries', {computed: node.callee.computed});
 
 const isPotentialWrapper = node =>
 	isPotentialObjectFromEntriesCall(node)
