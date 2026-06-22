@@ -17,6 +17,8 @@ The rule intentionally only handles `setAttribute(name, '')`, because `toggleAtt
 
 Only direct presence toggles based on `hasAttribute()` are autofixed. Condition-driven `toggleAttribute(name, force)` replacements are suggestions, because `toggleAttribute(name, true)` preserves an existing non-empty attribute value while `setAttribute(name, '')` clears it.
 
+Optional receivers are only handled for direct `hasAttribute()` presence toggles. Generic condition-driven optional receiver branches are ignored because `element?.toggleAttribute(name, condition)` would skip evaluating `condition` when `element` is nullish.
+
 ## Examples
 
 ```js

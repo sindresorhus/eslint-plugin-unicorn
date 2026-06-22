@@ -41,6 +41,15 @@ const getConditionText = (node, context, isNegative) => {
 
 	if (isNegative) {
 		if (
+			node.type === 'UnaryExpression'
+			&& node.operator === '!'
+			&& node.prefix
+			&& context.sourceCode.getCommentsInside(node).length === context.sourceCode.getCommentsInside(node.argument).length
+		) {
+			return getConditionText(node.argument, context, false);
+		}
+
+		if (
 			!isParenthesized(node, context.sourceCode)
 			&& shouldAddParenthesesToUnaryExpressionArgument(node, '!')
 		) {
@@ -133,9 +142,9 @@ const isKnownNonDomReceiver = (call, context) =>
 	isNodeValueNotDomNode(call.receiver)
 	|| isKnownNonDomNode(call.receiver, context);
 
-function getHasAttributeCondition(node, expectedCall, isNegative = false) {
+function getHasAttributeCondition(node, expectedCall, context, isNegative = false) {
 	if (node.type === 'ChainExpression') {
-		return getHasAttributeCondition(node.expression, expectedCall, isNegative);
+		return getHasAttributeCondition(node.expression, expectedCall, context, isNegative);
 	}
 
 	if (
@@ -143,7 +152,7 @@ function getHasAttributeCondition(node, expectedCall, isNegative = false) {
 		&& node.operator === '!'
 		&& node.prefix
 	) {
-		return getHasAttributeCondition(node.argument, expectedCall, !isNegative);
+		return getHasAttributeCondition(node.argument, expectedCall, context, !isNegative);
 	}
 
 	const call = getAttributeCall(node);
@@ -154,6 +163,7 @@ function getHasAttributeCondition(node, expectedCall, isNegative = false) {
 	) {
 		return {
 			isNegative,
+			isKnownNonDom: isKnownNonDomReceiver(call, context),
 		};
 	}
 }
@@ -209,7 +219,12 @@ const create = context => {
 
 		const setCall = consequentCall.method === 'setAttribute' ? consequentCall : alternateCall;
 		const setWhenTrue = consequentCall === setCall;
-		const hasAttributeCondition = getHasAttributeCondition(node.test, setCall);
+		const hasAttributeCondition = getHasAttributeCondition(node.test, setCall, context);
+
+		if (hasAttributeCondition?.isKnownNonDom) {
+			return;
+		}
+
 		const shouldToggleWithoutForce = hasAttributeCondition && setWhenTrue === hasAttributeCondition.isNegative;
 		const conditionText = shouldToggleWithoutForce ? '' : getConditionText(node.test, context, !setWhenTrue);
 

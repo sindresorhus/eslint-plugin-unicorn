@@ -19,6 +19,34 @@ test.snapshot({
 		`,
 		outdent`
 			if (condition) {
+				element.setAttribute('hidden');
+			} else {
+				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', '', extra);
+			} else {
+				element.removeAttribute('hidden');
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', '');
+			} else {
+				element.removeAttribute();
+			}
+		`,
+		outdent`
+			if (condition) {
+				element.setAttribute('hidden', '');
+			} else {
+				element.removeAttribute('hidden', extra);
+			}
+		`,
+		outdent`
+			if (condition) {
 				element.setAttribute('hidden', '');
 			} else {
 				element.removeAttribute('disabled');
@@ -123,6 +151,16 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				if ((element as string).hasAttribute('hidden')) {
+					element.removeAttribute('hidden');
+				} else {
+					element.setAttribute('hidden', '');
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		...notDomNodeTypes.map(data => outdent`
 			if (condition) {
 				(${data}).setAttribute('hidden', '');
@@ -168,6 +206,13 @@ test.snapshot({
 		`,
 		outdent`
 			if (element.hasAttribute('hidden')) {
+				element.removeAttribute('hidden');
+			} else {
+				element.setAttribute('hidden', '');
+			}
+		`,
+		outdent`
+			if (element.hasAttribute(/* comment */ 'hidden')) {
 				element.removeAttribute('hidden');
 			} else {
 				element.setAttribute('hidden', '');
@@ -259,6 +304,7 @@ test.snapshot({
 		'condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'condition ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
 		'element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
+		'element?.hasAttribute("hidden") ? element?.removeAttribute("hidden") : element?.setAttribute("hidden", "")',
 		'!element.hasAttribute("hidden") ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'const toggle = condition ? element.setAttribute("hidden", "") : element.removeAttribute("hidden")',
 		'const toggle = element.hasAttribute("hidden") ? element.removeAttribute("hidden") : element.setAttribute("hidden", "")',
