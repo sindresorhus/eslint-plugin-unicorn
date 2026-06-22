@@ -293,6 +293,8 @@ function isBooleanVariableValue(variable, context, visitedVariables) {
 		const parameter = definition.name.parent;
 		isBoolean = parameter.type === 'AssignmentPattern'
 			&& parameter.left === definition.name
+			// Only a top-level parameter; a binding inside a destructuring pattern carries its type on the pattern, not the default value.
+			&& definition.node.params.includes(parameter)
 			&& isBooleanExpression(parameter.right, context, visitedVariables);
 	}
 
@@ -413,8 +415,8 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 
 function isBooleanWrappedExpression(node, context, visitedVariables) {
 	switch (node.type) {
+		// A `yield` expression evaluates to the value sent back into the generator via `.next()`, not the yielded argument, so its type is unknown.
 		case 'AwaitExpression':
-		case 'YieldExpression':
 		case 'TSNonNullExpression':
 		case 'ParenthesizedExpression': {
 			return isBooleanExpression(node.argument ?? node.expression, context, visitedVariables);

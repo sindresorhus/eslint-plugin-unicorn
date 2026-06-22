@@ -40,6 +40,10 @@ test.snapshot({
 		'const value = input && (other && true);',
 		'const value = input || (other || false);',
 
+		// A `yield` expression evaluates to its resume value, not the yielded argument, so its type is unknown.
+		'function * foo() {\n\tconst value = (yield a > b) || false;\n}',
+		'function * foo() {\n\tconst value = (yield a > b) && true;\n}',
+
 		// Optional chaining and unknown types are not known boolean in value contexts.
 		'const value = object?.enabled && true;',
 		{code: 'declare const value: unknown;\nconst result = value && true;', languageOptions: {parser: parsers.typescript}},

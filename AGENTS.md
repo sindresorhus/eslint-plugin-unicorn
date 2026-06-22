@@ -184,7 +184,7 @@ Other test modes: `test.typescript()` and `test.vue()` set the parser for all ca
 
 Include test cases for these when relevant to the rule:
 
-- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Verify both matching and fixer/suggestion output, including optional chaining behavior and ASI protection when the output can start with `(` or `[`. Use `{code, parser: parsers.typescript}`.
+- **TypeScript** - Type assertions (`foo as Bar`, `<Bar>foo`), non-null assertions (`foo!`), `satisfies`, generics. Verify both matching and fixer/suggestion output, including optional chaining behavior and ASI protection when the output can start with `(` or `[`. Use `{code, parser: parsers.typescript}`. For rules that use type information (e.g. `isBoolean`, `parserServices.getTypeAtLocation`), test three tiers where it makes sense: plain JS, TS with only type annotations (syntax-only, via `parsers.typescript`), and TS with full type info (via the `typeAware` helper with `projectService: {allowDefaultProject: ['*.ts']}`). See `test/no-unsafe-property-key.js` for the `typeAware` pattern.
 - **JSX** - JSX expressions and fragments, if the rule targets patterns that can appear in JSX.
 - **Comments** - Inline and block comments inside the targeted node, to verify fixes don't drop them.
 - **Parenthesized expressions** - Extra parentheses around the target: `(foo).bar()`.
