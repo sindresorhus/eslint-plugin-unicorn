@@ -1,4 +1,4 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
@@ -7,6 +7,7 @@ import {
 } from './ast/index.js';
 import {
 	isKnownNonDomNode,
+	isGlobalIdentifier,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
@@ -20,6 +21,10 @@ import {
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+const globalObjectNames = new Set([
+	'globalThis',
+	'window',
+]);
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over manually emptying DOM children.',
 };
@@ -36,6 +41,33 @@ const getStaticStringValueFromScope = (node, context) => {
 
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
 	return typeof result?.value === 'string' ? result.value : undefined;
+};
+
+const getConstIdentifierInitializer = (node, context, visitedVariables) => {
+	if (node.type !== 'Identifier') {
+		return;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	if (
+		!variable
+		|| visitedVariables.has(variable)
+		|| variable.defs.length !== 1
+	) {
+		return;
+	}
+
+	const [definition] = variable.defs;
+	if (
+		definition.type !== 'Variable'
+		|| definition.parent.kind !== 'const'
+		|| definition.node.id !== definition.name
+	) {
+		return;
+	}
+
+	visitedVariables.add(variable);
+	return definition.node.init;
 };
 
 const getStaticPropertyName = memberExpression => {
@@ -65,6 +97,23 @@ const isStaticMethodCall = (node, method, options) =>
 	&& isMemberExpression(node.callee, {optional: false})
 	&& getStaticPropertyName(node.callee) === method;
 
+const isGlobalDocument = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
+	if (
+		node.type === 'Identifier'
+		&& node.name === 'document'
+	) {
+		return isGlobalIdentifier(node, context);
+	}
+
+	return isMemberExpression(node, {optional: false})
+		&& getStaticPropertyName(node) === 'document'
+		&& node.object.type === 'Identifier'
+		&& globalObjectNames.has(node.object.name)
+		&& isGlobalIdentifier(node.object, context);
+};
+
 const isUnknownOrHtmlNamespace = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
@@ -77,8 +126,13 @@ const isUnknownOrHtmlNamespace = (node, context) => {
 	return !result || result.value === HTML_NAMESPACE;
 };
 
-const mayCreateHtmlTemplateElement = (node, context) => {
+const mayCreateHtmlTemplateElement = (node, context, visitedVariables = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
+
+	const initializer = getConstIdentifierInitializer(node, context, visitedVariables);
+	if (initializer) {
+		return mayCreateHtmlTemplateElement(initializer, context, visitedVariables);
+	}
 
 	if (
 		isStaticMethodCall(node, 'createElement', {
@@ -192,6 +246,7 @@ const getInnerHTMLProblem = (context, node) => {
 	const parentNode = node.left.object;
 	if (
 		shouldSkipInnerHTMLParentNode(parentNode, context)
+		|| isGlobalDocument(parentNode, context)
 		|| mayCreateHtmlTemplateElement(parentNode, context)
 		|| mayBeHtmlTemplateElement(context, parentNode)
 	) {
