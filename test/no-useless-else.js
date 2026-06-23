@@ -3,6 +3,37 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						<Widget title="first
+							second" />;
+					}
+				}
+			`,
+			output: null, // eslint-disable-line unicorn/no-null
+			errors: [
+				{
+					message: 'Unexpected `else` after a statement that exits.',
+				},
+			],
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		outdent`
@@ -518,6 +549,30 @@ test.snapshot({
 				}
 			}
 		`),
+		// A template literal inside a JSX expression container is still multiline-unsafe (not JSXText).
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						return (
+							<div>{\`
+								multiline
+								template
+							\`}</div>
+						);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 		{
 			code: outdent`
 				function qux() {
@@ -527,6 +582,74 @@ test.snapshot({
 						return <pre>
 							line
 						</pre>;
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// Multiline JSX is reindent-safe, so the fix is offered.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						render(<div>
+							text
+						</div>);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		{
+			code: outdent`
+				function init() {
+					if (tagName) {
+						addTagToFooter(tagName);
+						return;
+					} else {
+						void addReleaseBanner(
+							<>
+								No <ExplanationLink>stable version tags</ExplanationLink> for this PR.
+							</>,
+							signal,
+						);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// A reindent-unsafe multiline token (here a template literal) blocks the fix even when multiline JSX is also present.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						render(<div>
+							text
+						</div>, css\`
+							color: red;
+						\`);
 					}
 				}
 			`,
@@ -638,6 +761,27 @@ test.snapshot({
 				(baz)();
 			}
 		`,
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						<Foo>
+							text
+						</Foo>
+					}
+					<Bar />
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 		outdent`
 			function qux() {
 				if (foo)
