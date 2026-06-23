@@ -1,6 +1,16 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -36,6 +46,13 @@ test.snapshot({
 			code: 'if (("key" as const) in object) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A property whose value type is a known boolean is a value read, not an existence check (#3406).
+		typeAware('declare const object: {a: boolean; b: boolean};\ndeclare const key: \'a\' | \'b\';\nif (object[key]) {}'),
+		typeAware('declare const object: {a: boolean; b: boolean};\ndeclare const key: \'a\' | \'b\';\nif (!object[key]) {}'),
+		// The exemption is driven by the value type, not the key type (compare the `Record<string, string>` invalid case below).
+		typeAware('declare const object: Record<string, boolean>;\ndeclare const key: string;\nif (object[key]) {}'),
+		// A literal boolean value type counts too.
+		typeAware('declare const object: {a: true; b: false};\ndeclare const key: \'a\' | \'b\';\nif (object[key]) {}'),
 	],
 	invalid: [
 		'if (object[key]) {}',
@@ -89,5 +106,9 @@ test.snapshot({
 			code: 'if ((object[key] satisfies string)) {}',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A non-boolean value is still an ambiguous existence check (#3406).
+		typeAware('declare const object: Record<string, string>;\ndeclare const key: string;\nif (object[key]) {}'),
+		// A possibly-`undefined` value is still ambiguous (#3406).
+		typeAware('declare const object: {a?: boolean};\ndeclare const key: \'a\';\nif (object[key]) {}'),
 	],
 });
