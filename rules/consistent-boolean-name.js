@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {
@@ -23,10 +24,13 @@ const messages = {
 
 const defaultPrefixes = {
 	is: true,
+	are: true,
 	has: true,
+	have: true,
 	can: true,
 	should: true,
 	was: true,
+	were: true,
 	did: true,
 	will: true,
 };
@@ -83,10 +87,21 @@ function findParameter(parameters, identifier) {
 const prepareOptions = ({
 	checkProperties = false,
 	prefixes = {},
+	ignore = [],
 } = {}) => ({
 	checkProperties,
 	prefixes: getEnabledPrefixes({prefixes}),
+	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
 });
+
+function isIgnoredName(name, ignore) {
+	return ignore.some(regexp => {
+		regexp.lastIndex = 0;
+		const isIgnored = regexp.test(name);
+		regexp.lastIndex = 0;
+		return isIgnored;
+	});
+}
 
 function hasBooleanPrefix(name, prefixes) {
 	name = stripLeadingUnderscores(name);
@@ -392,17 +407,18 @@ function getAutofix(variable, prefixes, context, suggestions) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkProperties, prefixes} = prepareOptions(context.options[0]);
+	const {checkProperties, prefixes, ignore} = prepareOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;
 	}
 
 	const checkVariable = variable => {
-		// `hasBooleanPrefix` is a cheap string check, so run it before the expensive
-		// `isBooleanVariable` analysis.
+		// `hasBooleanPrefix` and `ignore` are cheap string checks, so run them before
+		// the expensive `isBooleanVariable` analysis.
 		if (
 			hasBooleanPrefix(variable.name, prefixes)
+			|| isIgnoredName(variable.name, ignore)
 			|| !isBooleanVariable(variable, context)
 		) {
 			return;
@@ -441,6 +457,7 @@ const create = context => {
 		if (
 			!name
 			|| hasBooleanPrefix(name, prefixes)
+			|| isIgnoredName(name, ignore)
 			|| !isBooleanProperty(node, context)
 		) {
 			return;
@@ -499,10 +516,15 @@ const config = {
 							pattern: '^[a-z][a-zA-Z0-9]*$',
 						},
 					},
+					ignore: {
+						type: 'array',
+						uniqueItems: true,
+						description: 'Patterns to ignore.',
+					},
 				},
 			},
 		],
-		defaultOptions: [{}],
+		defaultOptions: [{ignore: []}],
 		messages,
 	},
 };
