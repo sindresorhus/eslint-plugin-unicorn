@@ -1,7 +1,6 @@
 import {
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
-	hasMultilineToken,
 	needsSemicolon,
 	trackBranchExits,
 } from './utils/index.js';
@@ -25,6 +24,7 @@ const statementListParentTypes = new Set([
 const asiHazardCharacters = new Set([
 	'[',
 	'(',
+	'<',
 	'/',
 	'`',
 	'+',
@@ -37,6 +37,20 @@ const getLineIndent = (sourceCode, index) => {
 };
 
 const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
+
+const isJsxChildTextToken = (token, sourceCode) =>
+	token.type === 'JSXText'
+	&& sourceCode.getNodeByRangeIndex(sourceCode.getRange(token)[0]).type === 'JSXText';
+
+// A multiline token's internal whitespace can be meaningful, so it can't be safely reindented.
+// JSX child text is safe because JSX collapses line-leading and line-trailing whitespace at compile time.
+const hasReindentUnsafeMultilineToken = (node, context) => {
+	const {sourceCode} = context;
+	return sourceCode.getTokens(node).some(token =>
+		!isJsxChildTextToken(token, sourceCode)
+		&& sourceCode.getLoc(token).start.line !== sourceCode.getLoc(token).end.line,
+	);
+};
 
 const getBlockBodyText = (blockStatement, ifStatement, sourceCode) => {
 	const openingBrace = sourceCode.getFirstToken(blockStatement);
@@ -156,7 +170,7 @@ const fix = (ifStatement, context) => fixer => {
 		hasDirectBlockScopedDeclaration(alternate)
 		|| (
 			alternate.type === 'BlockStatement'
-			&& hasMultilineToken(alternate, context)
+			&& hasReindentUnsafeMultilineToken(alternate, context)
 		)
 		|| !isSafeToMoveAlternate(ifStatement, context)
 	) {

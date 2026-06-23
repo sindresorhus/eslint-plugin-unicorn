@@ -518,6 +518,30 @@ test.snapshot({
 				}
 			}
 		`),
+		// A template literal inside a JSX expression container is still multiline-unsafe (not JSXText).
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						return (
+							<div>{\`
+								multiline
+								template
+							\`}</div>
+						);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 		{
 			code: outdent`
 				function qux() {
@@ -527,6 +551,94 @@ test.snapshot({
 						return <pre>
 							line
 						</pre>;
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// A multiline string attribute is reindent-unsafe, so the fix is not offered.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						<Widget title="first
+							second" />;
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// Multiline JSX is reindent-safe, so the fix is offered.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						render(<div>
+							text
+						</div>);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		{
+			code: outdent`
+				function init() {
+					if (tagName) {
+						addTagToFooter(tagName);
+						return;
+					} else {
+						void addReleaseBanner(
+							<>
+								No <ExplanationLink>stable version tags</ExplanationLink> for this PR.
+							</>,
+							signal,
+						);
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// A reindent-unsafe multiline token (here a template literal) blocks the fix even when multiline JSX is also present.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						render(<div>
+							text
+						</div>, css\`
+							color: red;
+						\`);
 					}
 				}
 			`,
@@ -638,6 +750,27 @@ test.snapshot({
 				(baz)();
 			}
 		`,
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						<Foo>
+							text
+						</Foo>
+					}
+					<Bar />
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
 		outdent`
 			function qux() {
 				if (foo)
