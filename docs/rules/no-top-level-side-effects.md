@@ -11,7 +11,7 @@ Top-level side effects run as soon as a module is imported. This can make export
 
 This rule reports direct top-level expression statements with side effects in files that have ESM exports. It intentionally stays conservative and does not try to prove full module purity.
 
-The rule ignores files without exports and executable scripts with a shebang. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
+The rule ignores files without exports and executable scripts with a shebang. Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are treated as having no exports, since those exports are erased when TypeScript is compiled to JavaScript. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
 ## Examples
 

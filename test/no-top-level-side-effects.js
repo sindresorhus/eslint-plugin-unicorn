@@ -23,6 +23,38 @@ test.snapshot({
 		typescriptCode('export {}; (document.title = "gone")!;'),
 		typescriptCode('export type Foo = string;'),
 		typescriptCode('export interface Foo {}'),
+		typescriptCode(outdent`
+			export type Foo = string;
+			init();
+		`),
+		typescriptCode(outdent`
+			export interface Foo {}
+			init();
+		`),
+		typescriptCode(outdent`
+			export default interface Foo {}
+			init();
+		`),
+		typescriptCode(outdent`
+			export type {Foo};
+			init();
+		`),
+		typescriptCode(outdent`
+			export {type Foo};
+			init();
+		`),
+		typescriptCode(outdent`
+			export {type Foo} from "./module.js";
+			init();
+		`),
+		typescriptCode(outdent`
+			export type * from "./module.js";
+			init();
+		`),
+		typescriptCode(outdent`
+			export declare const value: number;
+			init();
+		`),
 		outdent`
 			#!/usr/bin/env node
 			export {};
@@ -89,6 +121,17 @@ test.snapshot({
 		`,
 		typescriptCode(outdent`
 			export type Foo = string;
+			export const value = 1;
+			init();
+		`),
+		typescriptCode(outdent`
+			export enum Enum {
+				A,
+			}
+			init();
+		`),
+		typescriptCode(outdent`
+			export {type Foo, bar};
 			init();
 		`),
 		outdent`

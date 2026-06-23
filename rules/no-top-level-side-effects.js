@@ -12,7 +12,14 @@ const exportDeclarationTypes = new Set([
 	'ExportNamedDeclaration',
 ]);
 
-const isExportDeclaration = node => exportDeclarationTypes.has(node.type);
+// Type-only exports (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are erased when TypeScript is compiled to JavaScript, so a file whose only exports are type-only has no runtime exports.
+const isTypeOnlyExport = node =>
+	node.exportKind === 'type'
+	|| node.declaration?.type === 'TSInterfaceDeclaration'
+	// `export {type Foo}` keeps `exportKind: 'value'` on the declaration, but every specifier is type-only, so it is fully erased. `export {}` (no specifiers) is a runtime module marker and is not type-only.
+	|| (node.specifiers?.length > 0 && node.specifiers.every(specifier => specifier.exportKind === 'type'));
+
+const isExportDeclaration = node => exportDeclarationTypes.has(node.type) && !isTypeOnlyExport(node);
 
 const isAllowedAssignment = node => unwrapTypeScriptExpression(node).type === 'AssignmentExpression';
 
