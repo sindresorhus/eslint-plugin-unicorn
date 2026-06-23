@@ -10,6 +10,7 @@ const loadModule = createRequire(import.meta.url);
 const typescriptEslintParserOriginal = loadModule('@typescript-eslint/parser');
 const vueEslintParserOriginal = loadModule('vue-eslint-parser');
 const htmlEslintParserOriginal = loadModule('@html-eslint/parser');
+const svelteEslintParserOriginal = loadModule('svelte-eslint-parser');
 
 function addGlobals(scopeManager, names) {
 	const globalScope = scopeManager.scopes[0];
@@ -106,3 +107,5 @@ export const typescriptEslintParser = getParser('TypeScript', typescriptEslintPa
 export const vueEslintParser = getParser('Vue', vueEslintParserOriginal);
 
 export const htmlEslintParser = getParser('HTML', htmlEslintParserOriginal);
+
+export const svelteEslintParser = getParser('Svelte', svelteEslintParserOriginal);
