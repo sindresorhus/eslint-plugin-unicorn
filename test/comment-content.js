@@ -104,6 +104,36 @@ ruleTest.snapshot({
 		'#!/usr/bin/env node\n// Node.js',
 		'// eslint-disable-next-line no-console -- nodejs',
 		'/* eslint no-console:"off" -- eslint directive */',
+		// Commented-out multi-line code spanning several line comments (#3387).
+		`// const value = sanitize(
+		//   html,
+		//   allowed
+		// )`,
+		// The same construct inside a single block comment.
+		`/*
+		const value = sanitize(
+			html,
+			allowed
+		)
+		*/`,
+		// Nested brackets in a commented-out block keep continuation lines masked.
+		`// const result = transform({
+		//   html: readFile(),
+		//   json: [parse(api)],
+		// })`,
+		// Commented-out multi-line code in a JSDoc block keeps its continuation lines masked.
+		`/**
+		 * const value = sanitize(
+		 *   html,
+		 *   allowed
+		 * )
+		 */`,
+		// An unbalanced open bracket in a block comment masks the rest of the construct.
+		`/*
+		const value = sanitize(
+			html,
+			allowed
+		*/`,
 		{
 			code: '// nodejs',
 			options: [
@@ -258,6 +288,32 @@ ruleTest.snapshot({
 		`/**
 		 * nodejs and javascript
 		 */`,
+		// Prose ending in a comma must still be corrected (a prose line does not open bracket depth).
+		`// We sanitize the input,
+		// then return html.`,
+		// A balanced code line does not leak depth into the following prose line.
+		`// const x = parse(html)
+		// Then read the html.`,
+		// A blank line breaks the commented-out block so trailing prose is still corrected.
+		`// const value = sanitize(
+
+		// then return html.`,
+		// An ESLint directive between commented-out code lines resets the continuation so later prose is corrected.
+		`// const value = sanitize(
+		// eslint-disable-next-line no-console
+		// then return html.`,
+		// Real code between two line comments breaks the commented-out block so trailing prose is corrected.
+		`// const value = sanitize(
+		doSomething();
+		// then return html.`,
+		// After a commented-out block closes its brackets, prose before the next block is still corrected.
+		`// const a = open(
+		//   data
+		// )
+		// then read the html.
+		// const b = close(
+		//   data
+		// )`,
 	],
 });
 
@@ -1058,6 +1114,24 @@ The JSON output.
 */`);
 });
 
+test('continues checking prose after fenced code blocks with unmatched brackets', t => {
+	const code = `/*
+~~~js
+console.log(
+~~~
+The json output.
+*/`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `/*
+~~~js
+console.log(
+~~~
+The JSON output.
+*/`);
+});
+
 test('ignores indented fenced code blocks in block comments', t => {
 	const code = `function foo() {
 	/*
@@ -1136,6 +1210,28 @@ Do something.
 */`);
 });
 
+test('continues checking prose after JSDoc examples with unmatched brackets', t => {
+	const code = `/**
+Do something.
+
+@example
+console.log(
+
+@returns json output
+*/`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `/**
+Do something.
+
+@example
+console.log(
+
+@returns JSON output
+*/`);
+});
+
 test('continues checking prose around skipped code in the same block comment', t => {
 	const code = `/*
 The api returns json.
@@ -1148,6 +1244,124 @@ const data = await api.v3('commits');
 The API returns JSON.
 const data = await api.v3('commits');
 */`);
+});
+
+test('ignores commented-out multi-line bare calls', t => {
+	const code = `// sanitize(
+//   html,
+//   allowed
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores commented-out multi-line bare calls with spaced call parentheses', t => {
+	const code = `// sanitize (
+//   html,
+//   allowed
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores commented-out multi-line member calls', t => {
+	const code = `// api.v3(
+//   html,
+//   json
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores commented-out multi-line constructor calls', t => {
+	const code = `// new Set([
+//   json,
+// ])`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores commented-out multi-line simple assignments', t => {
+	const code = `// value = sanitize(
+//   html,
+//   allowed
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('ignores commented-out multi-line member assignments', t => {
+	const code = `// module.exports = sanitize(
+//   html,
+//   allowed
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
+});
+
+test('checks prose parentheticals spanning line comments', t => {
+	const code = `// Note (api users
+// should read json docs)`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// Note (API users
+// should read JSON docs)`);
+});
+
+test('continues checking prose after skipped regex code', t => {
+	const code = `// const pattern = /(/;
+// The html output uses json.
+// const otherPattern = /(/
+// The api output uses xml.`;
+	const result = verifyAndFixJavaScript(code);
+
+	t.true(result.fixed);
+	t.is(result.output, `// const pattern = /(/;
+// The HTML output uses JSON.
+// const otherPattern = /(/
+// The API output uses XML.`);
+});
+
+test('ignores brackets inside nested comments in commented-out multi-line code', t => {
+	const code = `// const result = transform(
+//   // )
+//   json,
+// )
+// const other = transform(
+//   /* ) */
+//   api,
+// )`;
+	const messages = verifyJavaScript(code);
+	const result = verifyAndFixJavaScript(code);
+
+	t.false(result.fixed);
+	t.is(result.output, code);
+	t.deepEqual(messages, []);
 });
 
 test('reports one problem per comment', t => {

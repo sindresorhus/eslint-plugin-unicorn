@@ -285,8 +285,11 @@ const listMarkerPatternSource = String.raw`(?:[*+\-]|\d+\.)`;
 const optionalListMarkerPrefixPatternSource = String.raw`${listMarkerPatternSource}?\s*`;
 const optionalLabelPrefixPatternSource = String.raw`(?:${identifierPatternSource}:\s*)?`;
 const bracketPropertyPatternSource = String.raw`\[[^\]]+\]`;
-const optionalAssignmentPrefixPatternSource = String.raw`(?:${identifierPatternSource}(?::|\s*=)\s*)?`;
 const memberCallPropertyPatternSource = String.raw`(?:(?:\?\.|\.)\s*${identifierPatternSource}|\??\.\s*${bracketPropertyPatternSource})`;
+const memberAssignmentTargetPatternSource = String.raw`${identifierPatternSource}(?:\s*${memberCallPropertyPatternSource}|\s*${bracketPropertyPatternSource})+`;
+const optionalDeclarationPrefixPatternSource = String.raw`(?:(?:const|let|var)\s+)?`;
+const assignmentTargetPatternSource = `(?:${identifierPatternSource}|${memberAssignmentTargetPatternSource})`;
+const optionalAssignmentPrefixPatternSource = String.raw`(?:(?:${identifierPatternSource}:|${optionalDeclarationPrefixPatternSource}${assignmentTargetPatternSource}\s*=)\s*)?`;
 const markdownLinkDestinationStartPatternSource = String.raw`(?:[A-Za-z][\d+\-.A-Za-z]*:\/\/|www\.|[\u{2D}0-9A-Za-z]+\.|[\w\-.]+\/|\/|#)`;
 const callArgumentsPatternSource = String.raw`\((?!\s*${markdownLinkDestinationStartPatternSource})[^\)]*\)`;
 const bracketMemberAccessLinePattern = new RegExp([
@@ -325,6 +328,14 @@ const memberCallLinePattern = new RegExp([
 	String.raw`\s*${memberCallPropertyPatternSource}\s*(?:\?\.\s*)?\(`,
 	String.raw`|${bracketPropertyPatternSource}\()`,
 ].join(''), 'v');
+const bareCallLinePattern = new RegExp([
+	`^${optionalListMarkerPrefixPatternSource}`,
+	String.raw`(?:\(\s*)?`,
+	optionalAssignmentPrefixPatternSource,
+	String.raw`(?:new\s+)?`,
+	codeIdentifierPatternSource,
+	String.raw`(?:\(|\s+\(\s*$)`,
+].join(''), 'v');
 const shellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}\$\s+\S+`, 'v');
 const secondaryShellPromptLinePattern = new RegExp(String.raw`^${optionalListMarkerPrefixPatternSource}>\s*(?:bun|curl|deno|docker|git|node(?:js)?|npm|npx|pnpm|yarn)\b`, 'v');
 const listMarkerPattern = new RegExp(String.raw`^${listMarkerPatternSource}\s*`, 'v');
@@ -336,6 +347,55 @@ const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
 const domainLeadingPunctuation = '([{<';
 const domainTrailingPunctuation = '.,;:!?)]}>';
 const maskCharacter = '\uFFFF';
+const openBrackets = '([{';
+const closeBrackets = ')]}';
+const quoteCharacters = '"\'`';
+
+// Count the net change in unbalanced brackets across a line, ignoring brackets inside string literals so they do not miscount. Operates on raw text so it is independent of mask ordering.
+function getBracketDepthDelta(text) {
+	let delta = 0;
+	let quote;
+
+	for (let index = 0; index < text.length; index++) {
+		const character = text[index];
+
+		if (quote) {
+			if (character === '\\') {
+				index++;
+				continue;
+			}
+
+			if (character === quote) {
+				quote = undefined;
+			}
+
+			continue;
+		}
+
+		if (character === '/' && text[index + 1] === '/') {
+			break;
+		}
+
+		if (character === '/' && text[index + 1] === '*') {
+			const endIndex = text.indexOf('*/', index + 2);
+			index = endIndex === -1 ? text.length : endIndex + 1;
+			continue;
+		}
+
+		if (quoteCharacters.includes(character)) {
+			quote = character;
+			continue;
+		}
+
+		if (openBrackets.includes(character)) {
+			delta++;
+		} else if (closeBrackets.includes(character)) {
+			delta--;
+		}
+	}
+
+	return delta;
+}
 
 function isIdentifierLikeCharacter(character) {
 	return Boolean(character) && /[\p{Letter}\p{Number}_]/v.test(character);
@@ -716,14 +776,48 @@ function isIgnoredCommentLine(line) {
 		|| memberCallLinePattern.test(removeMarkdownInlineLinks(line));
 }
 
+function getBracketContinuationOpeningDepth(line) {
+	line = cleanCommentLine(line);
+	line = removeMarkdownInlineLinks(line);
+
+	if (!bareCallLinePattern.test(line) && !memberCallLinePattern.test(line)) {
+		return 0;
+	}
+
+	return Math.max(0, getBracketDepthDelta(line));
+}
+
+// Advance the running bracket depth for one line. A line counts as code if depth is already open (a continuation line) or it looks like code on its own; otherwise depth resets to zero.
+function getNextBracketDepth(depth, line) {
+	if (depth > 0) {
+		return Math.max(0, depth + getBracketDepthDelta(line));
+	}
+
+	return getBracketContinuationOpeningDepth(line);
+}
+
 function maskIgnoredLines(characters, text) {
 	let start = 0;
+	let depth = 0;
 
 	while (start < text.length) {
 		const end = getLineEndIndex(text, start);
+		const line = text.slice(start, end);
 
-		if (isIgnoredCommentLine(text.slice(start, end))) {
+		if (characters.slice(start, end).includes(maskCharacter)) {
+			depth = 0;
+			start = end + 1;
+			continue;
+		}
+
+		const openingDepth = getBracketContinuationOpeningDepth(line);
+
+		// A line is masked if it looks like code on its own, or if it is a continuation line inside brackets opened by an earlier code-like line.
+		if (depth > 0 || isIgnoredCommentLine(line) || openingDepth > 0) {
 			maskRange(characters, start, end);
+			depth = depth > 0
+				? Math.max(0, depth + getBracketDepthDelta(line))
+				: openingDepth;
 		}
 
 		start = end + 1;
@@ -980,29 +1074,53 @@ const create = context => {
 		const {sourceCode} = context;
 		const comments = getRuleComments(context);
 
+		// Carry bracket depth across adjacent line comments so that a commented-out multi-line code construct spanning several `//` comments is not rewritten on its continuation lines.
+		let continuationDepth = 0;
+		let previousLineCommentRangeEnd;
+
 		for (const comment of comments) {
 			if (comment.type === 'Shebang' || isEslintDirective(context, comment)) {
+				continuationDepth = 0;
+				previousLineCommentRangeEnd = undefined;
 				continue;
 			}
 
-			const problem = getReplacementProblem(comment, sourceCode, replacements, checkUniformCase);
-			if (!problem) {
-				continue;
+			const range = sourceCode.getRange(comment);
+			const isAdjacentLineComment = comment.type === 'Line'
+				&& previousLineCommentRangeEnd !== undefined
+				&& /^[^\S\n]*\n[^\S\n]*$/v.test(sourceCode.text.slice(previousLineCommentRangeEnd, range[0]));
+
+			if (!isAdjacentLineComment) {
+				continuationDepth = 0;
 			}
 
-			yield {
-				node,
-				loc: {
-					start: sourceCode.getLocFromIndex(problem.replacementRange[0]),
-					end: sourceCode.getLocFromIndex(problem.replacementRange[1]),
-				},
-				messageId: MESSAGE_ID,
-				data: {
-					value: problem.value,
-					replacement: problem.replacement,
-				},
-				fix: fixer => fixer.replaceTextRange(problem.replacementRange, problem.replacement),
-			};
+			if (continuationDepth <= 0) {
+				const problem = getReplacementProblem(comment, sourceCode, replacements, checkUniformCase);
+				if (problem) {
+					yield {
+						node,
+						loc: {
+							start: sourceCode.getLocFromIndex(problem.replacementRange[0]),
+							end: sourceCode.getLocFromIndex(problem.replacementRange[1]),
+						},
+						messageId: MESSAGE_ID,
+						data: {
+							value: problem.value,
+							replacement: problem.replacement,
+						},
+						fix: fixer => fixer.replaceTextRange(problem.replacementRange, problem.replacement),
+					};
+				}
+			}
+
+			// Update continuation state for the next adjacent line comment.
+			if (comment.type === 'Line') {
+				continuationDepth = getNextBracketDepth(continuationDepth, comment.value);
+				previousLineCommentRangeEnd = range[1];
+			} else {
+				continuationDepth = 0;
+				previousLineCommentRangeEnd = undefined;
+			}
 		}
 	});
 };

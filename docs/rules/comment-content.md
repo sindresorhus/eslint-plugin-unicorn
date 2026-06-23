@@ -15,7 +15,7 @@ This rule is not a spellchecker. It only checks known replacement patterns.
 
 It only reports one replacement per comment at a time.
 
-It focuses on prose-like comment text and skips obvious non-prose regions such as code snippets, links, paths, structured data, and command examples.
+It focuses on prose-like comment text and skips obvious non-prose regions such as code snippets, including commented-out multi-line code, links, paths, structured data, and command examples.
 
 ## Examples
 
