@@ -6,7 +6,13 @@ import {
 } from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
-import {hasOptionalChainElement, isGlobalIdentifier, isLeftHandSide} from './utils/index.js';
+import {
+	hasOptionalChainElement,
+	isGlobalIdentifier,
+	isLeftHandSide,
+	isControlFlowTest,
+	isBooleanExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-global-this';
 const messages = {
@@ -96,6 +102,34 @@ function isTaggedTemplateCallee(node) {
 		&& node.parent.tag === node;
 }
 
+const equalityOperators = new Set(['==', '!=', '===', '!==']);
+
+// `globalThis.foo === undefined`, `globalThis.foo != null`, … compare the global against `null`/`undefined` to detect its presence.
+function isNullishComparison(node) {
+	const {parent} = node;
+	if (
+		parent.type !== 'BinaryExpression'
+		|| !equalityOperators.has(parent.operator)
+	) {
+		return false;
+	}
+
+	const other = unwrapTypeScriptExpression(parent.left === node ? parent.right : parent.left);
+
+	return (other.type === 'Literal' && other.value === null)
+		|| (other.type === 'Identifier' && other.name === 'undefined');
+}
+
+// `globalThis.foo` in an existence check (`if (globalThis.foo)`, `globalThis.foo ?? x`, `!globalThis.foo`, `globalThis.foo === undefined`, …) safely yields `undefined` when the global is absent, whereas bare `foo` throws a `ReferenceError`. This is deliberate feature detection, so the `globalThis` receiver must be kept.
+function isExistenceCheck(node, context) {
+	node = getOuterTypeScriptExpression(node);
+
+	return node.parent.type === 'LogicalExpression'
+		|| isNullishComparison(node)
+		|| isControlFlowTest(node)
+		|| isBooleanExpression(node, context);
+}
+
 function isOptionalChainUsage(node) {
 	if (hasOptionalChainElement(node)) {
 		return true;
@@ -123,6 +157,7 @@ const create = context => {
 			|| !isGlobalIdentifier(object, context)
 			|| isWritableTarget(writableTarget)
 			|| isOptionalChainUsage(node)
+			|| isExistenceCheck(node, context)
 		) {
 			return;
 		}
