@@ -284,6 +284,8 @@ const errorPrototype = createPropertyInfo({
 	properties: [
 		'message',
 		'name',
+		// Deliberate exception to the published-spec-only boundary below: `stack` is a stage-3 proposal (https://github.com/tc39/proposal-error-stack-accessor) that is universally implemented across engines.
+		'stack',
 	],
 	methods: [
 		'toString',
