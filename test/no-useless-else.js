@@ -3,37 +3,6 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-test({
-	valid: [],
-	invalid: [
-		{
-			code: outdent`
-				function qux() {
-					if (foo) {
-						return;
-					} else {
-						<Widget title="first
-							second" />;
-					}
-				}
-			`,
-			output: null, // eslint-disable-line unicorn/no-null
-			errors: [
-				{
-					message: 'Unexpected `else` after a statement that exits.',
-				},
-			],
-			languageOptions: {
-				parserOptions: {
-					ecmaFeatures: {
-						jsx: true,
-					},
-				},
-			},
-		},
-	],
-});
-
 test.snapshot({
 	valid: [
 		outdent`
@@ -582,6 +551,26 @@ test.snapshot({
 						return <pre>
 							line
 						</pre>;
+					}
+				}
+			`,
+			languageOptions: {
+				parserOptions: {
+					ecmaFeatures: {
+						jsx: true,
+					},
+				},
+			},
+		},
+		// A multiline string attribute is reindent-unsafe, so the fix is not offered.
+		{
+			code: outdent`
+				function qux() {
+					if (foo) {
+						return;
+					} else {
+						<Widget title="first
+							second" />;
 					}
 				}
 			`,
