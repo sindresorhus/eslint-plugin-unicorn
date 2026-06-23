@@ -1,5 +1,5 @@
-const isEmptyArrayExpression = node =>
+const isEmptyObjectExpression = node =>
 	node.type === 'ObjectExpression'
 	&& node.properties.length === 0;
 
-export default isEmptyArrayExpression;
+export default isEmptyObjectExpression;
