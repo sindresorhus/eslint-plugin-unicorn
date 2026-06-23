@@ -13,6 +13,8 @@ Avoid wrapping an entire loop body in a conditional. A `continue` guard often ma
 
 This rule only reports when a block-bodied loop contains exactly one statement and that statement is an `if` statement without `else`. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
 
+It also does not report when the `if` body unconditionally exits the iteration (its last statement is `return`, `break`, `continue`, or `throw`), since an early `continue` would not flatten anything.
+
 ## Examples
 
 ```js
@@ -53,6 +55,18 @@ for (const item of items) {
 	}
 
 	finish(item);
+}
+```
+
+```js
+// ✅
+function findActive(items) {
+	for (const item of items) {
+		if (item.isActive) {
+			process(item);
+			return item;
+		}
+	}
 }
 ```
 

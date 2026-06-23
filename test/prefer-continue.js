@@ -77,8 +77,102 @@ test.snapshot({
 			`,
 			options: [{maximumStatements: 2}],
 		},
+		outdent`
+			function hide(childNodes) {
+				for (const child of childNodes) {
+					if (condition(child)) {
+						child.remove();
+						return;
+					}
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				if (item.isActive) {
+					process(item);
+					break;
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				if (item.isInvalid) {
+					process(item);
+					throw new Error('Invalid item');
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				if (item.isActive) {
+					process(item);
+					continue;
+				}
+			}
+		`,
+		{
+			code: outdent`
+				function run(items) {
+					for (const item of items) {
+						if (item.isActive) return;
+					}
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) break;
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isInvalid) throw new Error('Invalid item');
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) continue;
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
 	],
 	invalid: [
+		outdent`
+			function run(items) {
+				for (const item of items) {
+					if (item.isActive) {
+						if (item.isReady) {
+							return;
+						}
+
+						process(item);
+						save(item);
+					}
+				}
+			}
+		`,
+		outdent`
+			function run(items) {
+				for (const item of items) {
+					if (item.isActive) {
+						process(item);
+						if (item.isDone) {
+							return;
+						}
+					}
+				}
+			}
+		`,
 		outdent`
 			for (const item of items) {
 				if (item.isActive) {

@@ -39,6 +39,21 @@ const schema = [
 	},
 ];
 
+const loopExitStatementTypes = new Set([
+	'ReturnStatement',
+	'BreakStatement',
+	'ContinueStatement',
+	'ThrowStatement',
+]);
+
+// The continue-guard rewrite is pointless when the `if` body unconditionally exits the iteration, so there is no remaining loop body to flatten.
+const consequentExitsLoop = consequent => {
+	const lastStatement = consequent.type === 'BlockStatement'
+		? consequent.body.at(-1)
+		: consequent;
+	return loopExitStatementTypes.has(lastStatement?.type);
+};
+
 const getConsequentStatementCount = node => {
 	if (node.consequent.type === 'EmptyStatement') {
 		return 0;
@@ -325,6 +340,7 @@ const create = context => {
 			statement.type !== 'IfStatement'
 			|| statement.alternate
 			|| getConsequentStatementCount(statement) <= maximumStatements
+			|| consequentExitsLoop(statement.consequent)
 		) {
 			return;
 		}
