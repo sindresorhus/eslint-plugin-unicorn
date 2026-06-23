@@ -1,6 +1,7 @@
 import {
 	getParenthesizedText,
 	hasOptionalChainElement,
+	isBoolean,
 	isBooleanExpression,
 	isControlFlowTest,
 	wouldRemoveComments,
@@ -117,6 +118,11 @@ const create = context => {
 			&& !isStaticPropertyKey(node.property)
 			&& isUsedAsExistenceCheck(node, context)
 		)) {
+			return;
+		}
+
+		// A property whose value type is a known boolean is a value read, not an existence check (and `no-unnecessary-boolean-comparison` may rewrite a comparison into this form).
+		if (isBoolean(node, context)) {
 			return;
 		}
 

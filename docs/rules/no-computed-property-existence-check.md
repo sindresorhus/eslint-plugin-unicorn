@@ -39,3 +39,13 @@ if ('key' in object) {}
 // ✅
 if (object['key']) {}
 ```
+
+When type information is available and the property value is a known `boolean`, the access is a value read rather than an existence check, so it's allowed:
+
+```ts
+declare const object: {a: boolean; b: boolean};
+declare const key: 'a' | 'b';
+
+// ✅
+if (object[key]) {}
+```
