@@ -216,6 +216,11 @@ const isBooleanVariable = (variable, context) => {
 	}
 
 	if (definition.type === 'Parameter') {
+		// Some parsers (such as Svelte's `{#each}` bindings) create `Parameter` definitions whose owner is not a function and has no `params` list.
+		if (!isFunction(definition.node)) {
+			return false;
+		}
+
 		const parameter = findParameter(definition.node.params, name);
 
 		return parameter?.type === 'AssignmentPattern'

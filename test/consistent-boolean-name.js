@@ -688,3 +688,12 @@ test.snapshot({
 		}),
 	],
 });
+
+// Svelte `{#each}` bindings are `Parameter` definitions whose owner is the each-block, not a function.
+test.svelte({
+	valid: [
+		'<script>let items = [];</script>{#each items as item}{item}{/each}',
+		'<script>let entries = [];</script>{#each entries as [key, value]}{key}{value}{/each}',
+	],
+	invalid: [],
+});
