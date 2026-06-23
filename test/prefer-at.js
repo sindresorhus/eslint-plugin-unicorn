@@ -84,6 +84,7 @@ test.snapshot({
 });
 
 // String index access
+// Positive index access is not checked by default, even on known strings. It requires the `checkAllIndexAccess` option, just like arrays.
 test.snapshot({
 	valid: [
 		'array[0]',
@@ -96,6 +97,13 @@ test.snapshot({
 		'string[1.5]',
 		'string[1n]',
 		'string[0] = value',
+		'"string"[1]',
+		'`string`[1]',
+		'String(value)[0]',
+		'String.fromCodePoint(65)[0]',
+		'(typeof value)[0]',
+		'const string = "string"; string[1]',
+		'String.fromCharCode(65)[0]',
 		{
 			code: 'function foo(value: string | number) { return value[0]; }',
 			languageOptions: {parser: parsers.typescript},
@@ -109,15 +117,6 @@ test.snapshot({
 			code: 'type Value = Other; type Other = Value; function foo(value: Value) { return value[0]; }',
 			languageOptions: {parser: parsers.typescript},
 		},
-	],
-	invalid: [
-		'"string"[1]',
-		'`string`[1]',
-		'String(value)[0]',
-		'String.fromCodePoint(65)[0]',
-		'(typeof value)[0]',
-		'const string = "string"; string[1]',
-		'String.fromCharCode(65)[0]',
 		{
 			code: '(value as string)[0]',
 			languageOptions: {parser: parsers.typescript},
@@ -157,6 +156,11 @@ test.snapshot({
 		typeAware('declare function getValue(): string; getValue()[0];'),
 		typeAware('type Value = ReturnType<() => string>; declare const value: Value; value[0];'),
 		typeAware('function foo(value: string | number) { if (typeof value === "string") { return value[0]; } }'),
+	],
+	invalid: [
+		// Negative index access on strings is still checked by default.
+		'"string"["string".length - 1]',
+		'const string = "string"; string[string.length - 1]',
 	],
 });
 

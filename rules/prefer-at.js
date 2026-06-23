@@ -12,7 +12,6 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	isLeftHandSide,
-	isString,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
 import {
@@ -208,13 +207,13 @@ function create(context) {
 		const lengthNode = getNegativeIndexLengthNode(indexNode, node.object);
 
 		if (!lengthNode) {
-			// Only if we are sure it's a positive integer
-			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
-			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
+			if (!checkAllIndexAccess) {
 				return;
 			}
 
-			if (!checkAllIndexAccess && !isString(node.object, context)) {
+			// Only if we are sure it's a non-negative integer
+			const staticValue = getStaticValue(indexNode, sourceCode.getScope(indexNode));
+			if (!staticValue || !Number.isSafeInteger(staticValue.value) || staticValue.value < 0) {
 				return;
 			}
 
@@ -443,7 +442,7 @@ const schema = [
 			},
 			checkAllIndexAccess: {
 				type: 'boolean',
-				description: 'Whether to also check positive integer index access.',
+				description: 'Whether to also check non-negative integer index access.',
 			},
 		},
 	},
