@@ -143,7 +143,9 @@ function getProblem(member, context) {
 		return {
 			node: member.key,
 			messageId: MESSAGE_ID_ASYNC_DISPOSE,
-			fix: fixer => fixer.replaceText(member.key.property, 'asyncDispose'),
+			suggest: [
+				getReplacementSuggestion(member, 'asyncDispose'),
+			],
 		};
 	}
 
@@ -193,7 +195,6 @@ const config = {
 			description: 'Disallow invalid implementations of well-known symbol methods.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [
