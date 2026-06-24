@@ -232,7 +232,9 @@ test.snapshot({
 	valid: [
 		'async function updateControl(event: {preventDefault(): void}) { await load(); event.preventDefault(); }',
 		'async function updateControl(event: string) { await load(); event.preventDefault(); }',
+		'type Event = string; async function updateControl(event: Event) { await load(); event.preventDefault(); }',
 		'type SyntheticEvent = string; async function updateControl(value: SyntheticEvent) { await load(); value.preventDefault(); }',
+		'namespace React { export type SyntheticEvent = string } async function updateControl(value: React.SyntheticEvent) { await load(); value.preventDefault(); }',
 		'import type {SyntheticEvent} from "not-react"; async function updateControl(value: SyntheticEvent) { await load(); value.preventDefault(); }',
 		'import type * as React from "not-react"; async function updateControl(value: React.SyntheticEvent) { await load(); value.preventDefault(); }',
 		'import type * as React from "react"; async function updateControl(value: React.NotEvent) { await load(); value.preventDefault(); }',
@@ -240,6 +242,8 @@ test.snapshot({
 	invalid: [
 		'async function handleClick(event: Event) { await load(); event.preventDefault(); }',
 		'async function handleClick(event: MouseEvent) { await load(); event.stopPropagation(); }',
+		'import React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }',
+		'import type React from "react"; async function handleClick(value: React.SyntheticEvent) { await load(); value.preventDefault(); }',
 		'import type * as React from "react"; async function handleClick(event: React.SyntheticEvent) { await load(); event.stopImmediatePropagation(); }',
 		'import type * as React from "react"; async function handleClick(value: React.AnimationEvent) { await load(); value.preventDefault(); }',
 		'import type * as React from "react"; async function handleClick(value: React.InvalidEvent) { await load(); value.preventDefault(); }',

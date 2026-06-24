@@ -180,7 +180,10 @@ const getNamespaceImportBindingType = (node, scope, options) => {
 	const definition = getTypeReferenceDefinition(node.typeName.left.name, scope);
 	if (
 		definition?.type !== 'ImportBinding'
-		|| definition.node.type !== 'ImportNamespaceSpecifier'
+		|| (
+			definition.node.type !== 'ImportNamespaceSpecifier'
+			&& definition.node.type !== 'ImportDefaultSpecifier'
+		)
 	) {
 		return unknown;
 	}
