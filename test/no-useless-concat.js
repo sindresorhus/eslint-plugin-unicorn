@@ -30,6 +30,15 @@ test.snapshot({
 		{code: '(\'a\' as string) + \'b\'', languageOptions: {parser: parsers.typescript}},
 		{code: '(\'a\' as const) + \'b\'', languageOptions: {parser: parsers.typescript}},
 		{code: '(\'a\' satisfies string) + \'b\'', languageOptions: {parser: parsers.typescript}},
+		// Merging would form a `${…}` placeholder, conflicting with `no-template-curly-in-string`; the split is likely intentional
+		'\'a\' + \'${b}\'',
+		'\'$\' + \'{PLUGINS}\'',
+		'\'a\' + \'${b}\' + \'c\'',
+		// A placeholder already entirely in one operand still blocks the merge
+		'\'${b}\' + \'a\'',
+		// Two templates merge into a string literal, so a `${…}` they form is also flagged by `no-template-curly-in-string`
+		'`$` + `{b}`',
+		'\'$\' + `{${x}}`',
 	],
 	invalid: [
 		'\'a\' + \'b\'',
@@ -43,7 +52,8 @@ test.snapshot({
 		String.raw`'a' + 'b\'c'`,
 		// A trailing escape must not merge with the next operand into a new escape sequence
 		String.raw`'\\' + 'n'`,
-		'\'a\' + \'${b}\'',
+		// An empty `${}` is not a placeholder, so it is still merged
+		'\'a\' + \'${}\'',
 		'`a` + `${b}`',
 		'"a`b" + "c"',
 		// Templates with expressions

@@ -30,6 +30,11 @@ function getStringValue(node) {
 // Legacy octal (`\1`, `\012`) and `\8`/`\9` escapes are valid in sloppy-mode string literals but are syntax errors inside template literals.
 const hasTemplateIncompatibleEscape = raw => /(?<=(?:^|[^\\])(?:\\\\)*)\\(?:[1-9]|0\d)/v.test(raw);
 
+// Whether the string contains a `${…}` placeholder. The regex mirrors ESLint's `no-template-curly-in-string`, which we defer to, so an empty `${}` is intentionally not matched.
+const hasTemplatePlaceholder = string => /\$\{[^}]+\}/u.test(string);
+
+const formsTemplatePlaceholderBoundary = (leftRaw, rightRaw) => leftRaw.endsWith('$') && rightRaw.startsWith('{');
+
 // The raw inner content of a literal as it would appear inside a template literal.
 function toTemplateElementRaw(node, sourceCode) {
 	if (node.type === 'TemplateLiteral') {
@@ -69,9 +74,28 @@ const create = context => {
 
 		const leftValue = getStringValue(left);
 		const rightValue = getStringValue(right);
-		const replacement = leftValue === undefined || rightValue === undefined
-			? `\`${toTemplateElementRaw(left, sourceCode)}${toTemplateElementRaw(right, sourceCode)}\``
-			: escapeString(leftValue + rightValue);
+
+		// Merging into a single string that contains a `${…}` placeholder produces an ambiguous template-like literal that `no-template-curly-in-string` flags. The split is likely intentional, so leave it alone.
+		if (
+			leftValue !== undefined
+			&& rightValue !== undefined
+			&& hasTemplatePlaceholder(leftValue + rightValue)
+		) {
+			return;
+		}
+
+		let replacement;
+		if (leftValue === undefined || rightValue === undefined) {
+			const leftRaw = toTemplateElementRaw(left, sourceCode);
+			const rightRaw = toTemplateElementRaw(right, sourceCode);
+			if (formsTemplatePlaceholderBoundary(leftRaw, rightRaw)) {
+				return;
+			}
+
+			replacement = `\`${leftRaw}${rightRaw}\``;
+		} else {
+			replacement = escapeString(leftValue + rightValue);
+		}
 
 		const operatorToken = sourceCode.getTokenBefore(right, token => token.type === 'Punctuator' && token.value === '+');
 
