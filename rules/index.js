@@ -261,6 +261,7 @@ export {default as 'prefer-regexp-test'} from './prefer-regexp-test.js';
 export {default as 'prefer-response-static-json'} from './prefer-response-static-json.js';
 export {default as 'prefer-scoped-selector'} from './prefer-scoped-selector.js';
 export {default as 'prefer-set-has'} from './prefer-set-has.js';
+export {default as 'prefer-set-methods'} from './prefer-set-methods.js';
 export {default as 'prefer-set-size'} from './prefer-set-size.js';
 export {default as 'prefer-short-arrow-method'} from './prefer-short-arrow-method.js';
 export {default as 'prefer-simple-condition-first'} from './prefer-simple-condition-first.js';

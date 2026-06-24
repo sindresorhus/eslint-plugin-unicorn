@@ -128,6 +128,10 @@ export {
 	isUniqueSymbolType,
 	isUnknownType,
 } from './types.js';
+export {
+	getBuiltinCollectionType,
+	isBuiltinSet,
+} from './builtin-collection-type.js';
 export {checkVueTemplate} from './rule.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
