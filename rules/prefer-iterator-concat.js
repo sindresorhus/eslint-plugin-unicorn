@@ -1,5 +1,10 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
-import {getParenthesizedText} from './utils/index.js';
+import {
+	getParenthesizedText,
+	isBuiltinSet,
+	isGlobalIdentifier,
+} from './utils/index.js';
 import {
 	isMethodCall,
 	isNewExpression,
@@ -89,6 +94,31 @@ const isToArrayCall = node => isMethodCall(node, {
 const hasToArraySpreadElement = arrayExpression =>
 	arrayExpression.elements.some(element => isToArrayCall(element.argument));
 
+const isSafeSetMethodsUnionOperand = (node, context) =>
+	(
+		isNewExpression(node, {name: 'Set', argumentsLength: 0})
+		&& isGlobalIdentifier(node.callee, context)
+	)
+	|| !hasSideEffect(node, context.sourceCode, {considerGetters: true});
+
+const isSetMethodsUnionCase = (arrayExpression, context) => {
+	const {parent} = arrayExpression;
+
+	return (
+		isNewExpression(parent, {
+			name: 'Set',
+			argumentsLength: 1,
+		})
+		&& parent.arguments[0] === arrayExpression
+		&& isGlobalIdentifier(parent.callee, context)
+		&& context.sourceCode.getCommentsInside(parent).length === 0
+		&& arrayExpression.elements.every(element =>
+			isBuiltinSet(element.argument, context)
+			&& isSafeSetMethodsUnionOperand(element.argument, context),
+		)
+	);
+};
+
 const isSuggestionOnlyParent = parent =>
 	(parent.type === 'ForOfStatement' || (parent.type === 'YieldExpression' && parent.delegate))
 	|| (
@@ -119,6 +149,7 @@ const create = context => {
 			!isSpreadArray(node)
 			|| !isInIterableAcceptingParent(node)
 			|| hasToArraySpreadElement(node)
+			|| isSetMethodsUnionCase(node, context)
 		) {
 			return;
 		}

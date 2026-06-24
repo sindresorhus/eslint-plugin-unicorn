@@ -39,10 +39,7 @@ const definitelyTruthyBuiltinTypeNames = new Set([
 	'ReadonlyArray',
 ]);
 
-const constructibleCollectionTypeNames = new Set([
-	...mapConstructorTypeNames,
-	...nullSentinelTypeNames,
-]);
+const constructibleCollectionTypeNames = mapConstructorTypeNames.union(nullSentinelTypeNames);
 
 const typeReferenceDefinitionTypes = new Set([
 	'ClassName',

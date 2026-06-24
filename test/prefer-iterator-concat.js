@@ -20,6 +20,7 @@ test.snapshot({
 
 		// Existing rules own these cases.
 		'new Set([...iterator.toArray(), ...other])',
+		'const a = new Set(); const b = new Set(); new Set([...a, ...b])',
 		'[...[...foo, ...bar]]',
 		'call(...[...foo, ...bar])',
 		'call(value, ...[...foo, ...bar])',
@@ -94,6 +95,7 @@ test.snapshot({
 
 		// Comments are reported without a fix.
 		'new Set([/* comment */ ...foo, ...bar])',
+		'const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])',
 		'Promise.all([/* comment */ ...foo, ...bar])',
 	],
 });

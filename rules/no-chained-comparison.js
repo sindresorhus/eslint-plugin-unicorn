@@ -10,7 +10,7 @@ const messages = {
 
 const orderingOperators = new Set(['<', '>', '<=', '>=']);
 const equalityOperators = new Set(['===', '!==', '==', '!=']);
-const comparisonOperators = new Set([...orderingOperators, ...equalityOperators]);
+const comparisonOperators = orderingOperators.union(equalityOperators);
 
 const isComparison = node => node.type === 'BinaryExpression' && comparisonOperators.has(node.operator);
 const isBooleanLiteral = node => node.type === 'Literal' && typeof node.value === 'boolean';
