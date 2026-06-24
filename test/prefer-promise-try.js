@@ -45,6 +45,7 @@ test.snapshot({
 		'Promise.resolve?.().then(fn);',
 		'Promise.resolve()["then"](fn);',
 		'Promise["resolve"]().then(fn);',
+		'new Promise(resolve => resolve?.(fn()));',
 		'const Promise = CustomPromise; new Promise(resolve => resolve(fn()));',
 		'const Promise = CustomPromise; Promise.resolve().then(fn);',
 		'globalThis.Promise.resolve().then(fn);',
@@ -58,6 +59,7 @@ test.snapshot({
 		'new Promise(resolve => resolve(fn?.()));',
 		'new Promise(resolve => { resolve(fn()); });',
 		'(new Promise(resolve => resolve(fn())))',
+		'(new Promise(resolve => resolve(fn()))).then(onFulfilled);',
 		'new (new Promise(resolve => resolve(fn())))();',
 		'new (new Promise(resolve => resolve(fn()))).foo();',
 		'new (new Promise(resolve => resolve(fn()))).foo.bar();',
@@ -103,6 +105,7 @@ test.snapshot({
 		'Promise.resolve().then(fn);',
 		'Promise.resolve().then(object.method);',
 		'Promise.resolve().then(() => fn());',
+		'Promise.resolve().then(async () => fn());',
 		'Promise.resolve().then(function () { return fn(); });',
 		'const promise = Promise.resolve().then(fn);',
 		{

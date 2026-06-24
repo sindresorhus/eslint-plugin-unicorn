@@ -13,7 +13,7 @@
 
 This rule reports older promise-wrapping boilerplate.
 
-Autofix is only applied to `new Promise(resolve => resolve(fn()))` patterns where the timing stays synchronous. The fixed code keeps the call inside a callback so thrown errors still become promise rejections. `Promise.resolve().then(fn)` is reported but not fixed, since replacing it with `Promise.try(fn)` changes when `fn` runs.
+Autofix is only applied to `new Promise(resolve => resolve(fn()))` patterns where the timing stays synchronous. The fixed code keeps the call inside a callback so thrown errors still become promise rejections. `Promise.resolve().then(fn)` is reported but not fixed, since replacing it with `Promise.try(fn)` changes when `fn` runs and stops passing the resolved `undefined` value as an argument.
 
 ## Examples
 
