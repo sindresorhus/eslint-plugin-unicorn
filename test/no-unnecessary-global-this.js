@@ -42,6 +42,29 @@ test.snapshot({
 		{code: '(globalThis.eval as any)(code)', languageOptions: {parser: parsers.typescript}},
 		{code: '(globalThis.eval<string>)(code)', languageOptions: {parser: parsers.typescript}},
 		{code: '(globalThis.Array as any)?.from(items)', languageOptions: {parser: parsers.typescript}},
+		// Existence checks / feature detection: keep `globalThis` so an absent global is `undefined` instead of a `ReferenceError`
+		'if (globalThis.navigation) {}',
+		'globalThis.navigation ? a : b',
+		'while (globalThis.navigation) {}',
+		'do {} while (globalThis.navigation)',
+		'for (; globalThis.navigation; ) {}',
+		'globalThis.navigation && doThing()',
+		'globalThis.navigation || fallback',
+		'globalThis.navigation ?? fallback',
+		'const nav = globalThis.navigation ?? polyfill;',
+		'!globalThis.navigation',
+		'Boolean(globalThis.navigation)',
+		'if (foo && globalThis.navigation) {}',
+		{code: 'if ((globalThis.navigation as any)) {}', languageOptions: {parser: parsers.typescript}},
+		// Comparisons against `null`/`undefined` are existence checks too
+		'globalThis.navigation === undefined',
+		'globalThis.navigation !== undefined',
+		'globalThis.navigation == null',
+		'globalThis.navigation != null',
+		'undefined === globalThis.navigation',
+		'null != globalThis.navigation',
+		'if (globalThis.navigation === undefined) {}',
+		{code: '(globalThis.navigation as any) === undefined', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		'globalThis.Array.from(items)',
@@ -63,6 +86,12 @@ test.snapshot({
 		{code: '(globalThis.alert as any)(message)', languageOptions: {parser: parsers.typescript}},
 		{code: '(globalThis.alert<string>)(message)', languageOptions: {parser: parsers.typescript}},
 		'globalThis.alert`message`',
+		// `typeof` never throws, so dropping `globalThis` is safe
+		'typeof globalThis.navigation',
+		// Keep the existence-check carve-out focused on common `undefined`/`null` comparisons.
+		'globalThis.navigation === void 0',
+		'void 0 !== globalThis.navigation',
+		// `globalThis.Array` is the object of `.isArray`, not the tested value, so it is still reported
 		outdent`
 			if (globalThis.Array.isArray(value)) {
 				console.log(value);

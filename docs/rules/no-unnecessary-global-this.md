@@ -11,7 +11,7 @@
 
 This rule reports static `globalThis` property accesses when the property is already a known global and can be referenced directly.
 
-It intentionally ignores unknown properties, writes, optional chains, direct `eval` calls, and locally shadowed globals. Direct calls and tagged-template calls are reported but not automatically fixed because removing the `globalThis` receiver can change `this`.
+It intentionally ignores unknown properties, writes, optional chains, direct `eval` calls, and locally shadowed globals. It also ignores existence checks (e.g. `if (globalThis.navigation)` or `globalThis.navigation === undefined`), since `globalThis.foo` safely evaluates to `undefined` for an absent global while a bare `foo` reference throws a `ReferenceError`. Direct calls and tagged-template calls are reported but not automatically fixed because removing the `globalThis` receiver can change `this`.
 
 ## Examples
 
@@ -39,4 +39,18 @@ globalThis.alert?.();
 ```js
 // ✅
 globalThis.jQuery = jQuery;
+```
+
+```js
+// ✅
+if (globalThis.navigation) {
+	// …
+}
+```
+
+```js
+// ✅
+if (globalThis.navigation === undefined) {
+	// …
+}
 ```
