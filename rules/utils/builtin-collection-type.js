@@ -263,6 +263,5 @@ const isBuiltinSet = (node, context) => getBuiltinCollectionType(node, context) 
 
 export {
 	getBuiltinCollectionType,
-	getBuiltinCollectionTypes,
 	isBuiltinSet,
 };

@@ -29,11 +29,19 @@ const intersection = [...set].filter(value => otherSet.has(value));
 const intersection = set.intersection(otherSet);
 ```
 
-The `new Set([...set, ...otherSet])` case is autofixed only when every spread operand is known to be a `Set` or `ReadonlySet`.
+```js
+// ❌
+const difference = [...set].filter(value => !otherSet.has(value));
+
+// ✅
+const difference = set.difference(otherSet);
+```
+
+The `new Set([...set, ...otherSet])` case is autofixed only when every spread operand is known to be a `Set` or `ReadonlySet`, and the operands are safe to reuse in the replacement.
 
 ```js
 // ✅
 new Set([...iterable, ...otherIterable]);
 ```
 
-Intersection patterns are reported as suggestions instead of autofixes because replacing an array filter with `Set#intersection()` can change the result type, and replacing `new Set([...set].filter(value => otherSet.has(value)))` can change Set iteration order.
+Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions; `intersection()` can change Set iteration order, and both rewrites stay opt-in for consistency. The rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.

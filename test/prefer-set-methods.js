@@ -42,7 +42,6 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); [...a].filter(async value => b.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value) && value);',
-		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => { return b.has(value); });',
 		'const a = new Set(); const b = new Set(); [...a].filter(({value}) => b.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter((...value) => b.has(value));',
@@ -50,6 +49,16 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b["has"](value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => other.has(value));',
+		'const a = new Set(); const b = new Set(); Array.from(a).filter(value => !b.has(value));',
+		'const a = new Set(); const b = new Set(); foo([...a].filter(value => !b.has(value)));',
+		'const a = new Set(); const b = new Set(); new Foo([...a].filter(value => !b.has(value)));',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value)).map(fn);',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !(b.has(value)) && other);',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b?.has(value));',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b["has"](value));',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value));',
+		'const a = new Set(); const b = []; [...a].filter(value => !b.has(value));',
+		'const a = []; const b = new Set(); [...a].filter(value => !b.has(value));',
 		typescript('function foo(a: Set<string>, b: string[]) { new Set([...a, ...b]); }'),
 		typescript('function foo(values: Set<Set<string>>) { return [...values].filter((value: Set<string>) => value.has(value)); }'),
 		typescript('function foo(a: Set<string>, b: Set<string>) { return ([...a].filter(value => b.has(value)) as string[]); }'),
@@ -68,6 +77,7 @@ test.snapshot({
 		typeAware('declare function getSet(): Set<string>; declare const b: Set<string>; new Set([...getSet(), ...b]);'),
 		'const a = new Set(); new Set([...a, ...new Set((a.clear(), []))]);',
 		typeAware('declare const a: Set<string>; declare function getOtherSet(): Set<string>; [...a].filter(value => getOtherSet().has(value));'),
+		typeAware('declare const a: Set<string>; declare function getOtherSet(): Set<string>; [...a].filter(value => !getOtherSet().has(value));'),
 	],
 	invalid: [
 		'const a = new Set(); const b = new Set(); new Set([...a, ...b]);',
@@ -88,6 +98,22 @@ test.snapshot({
 		typeAware('type Items = Set<string>; declare const a: Items; declare const b: Set<string>; new Set([...a, ...b]);'),
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value));',
 		'const a = new Set(); const b = new Set(); new Set([...a].filter(value => b.has(value)));',
+		typescript('function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => b.has(value)) as string[])); }'),
+		typescript('function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => b.has(value)) as string[])!)); }'),
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(value));',
+		'const a = new Set(); const b = new Set(); new Set([...a].filter(value => !b.has(value)));',
+		typescript('function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => !b.has(value)); }'),
+		typescript('function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => !b.has(value)); }'),
+		typeAware('type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => !b.has(value));'),
+		typescript('function foo(a: Set<string>, b: Set<string>) { return new Set(([...a].filter(value => !b.has(value)) as string[])); }'),
+		typescript('function foo(a: Set<string>, b: Set<string>) { return new Set((([...a].filter(value => !b.has(value)) as string[])!)); }'),
+		outdent`
+			const a = new Set();
+			const b = new Set();
+			const c = new Set();
+			foo
+			new Set([...(condition ? a : b)].filter(value => !c.has(value)));
+		`,
 		outdent`
 			const a = new Set();
 			const b = new Set();

@@ -9,6 +9,7 @@ import {
 	isGlobalIdentifier,
 	isParenthesized,
 	isSameReference,
+	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
@@ -17,11 +18,15 @@ import {
 const MESSAGE_ID_UNION = 'prefer-set-methods/union';
 const MESSAGE_ID_INTERSECTION = 'prefer-set-methods/intersection';
 const MESSAGE_ID_INTERSECTION_SUGGESTION = 'prefer-set-methods/intersection-suggestion';
+const MESSAGE_ID_DIFFERENCE = 'prefer-set-methods/difference';
+const MESSAGE_ID_DIFFERENCE_SUGGESTION = 'prefer-set-methods/difference-suggestion';
 
 const messages = {
 	[MESSAGE_ID_UNION]: 'Use `Set#union()` instead of spreading Sets into a new Set.',
 	[MESSAGE_ID_INTERSECTION]: 'Use `Set#intersection()` instead of filtering by `Set#has()`.',
 	[MESSAGE_ID_INTERSECTION_SUGGESTION]: 'Use `Set#intersection()`.',
+	[MESSAGE_ID_DIFFERENCE]: 'Use `Set#difference()` instead of filtering by `Set#has()`.',
+	[MESSAGE_ID_DIFFERENCE_SUGGESTION]: 'Use `Set#difference()`.',
 };
 
 const isGlobalSetConstructor = (node, context) =>
@@ -54,8 +59,22 @@ const addSemicolonIfNeeded = (node, text, context) =>
 	isFirstTokenOfExpressionStatement(node, context) && needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 
 const isTransparentWrapperOf = (parent, node) =>
-	parent.type === 'ParenthesizedExpression'
-	|| unwrapTypeScriptExpression(parent) === unwrapTypeScriptExpression(node);
+	(
+		parent.type === 'ParenthesizedExpression'
+		|| isTypeScriptExpressionWrapper(parent)
+	)
+	&& parent.expression === node;
+
+const unwrapTransparentExpression = node => {
+	while (
+		node?.type === 'ParenthesizedExpression'
+		|| isTypeScriptExpressionWrapper(node)
+	) {
+		node = node.expression;
+	}
+
+	return node;
+};
 
 const getNodeAfterTransparentWrappers = node => {
 	while (node.parent) {
@@ -90,9 +109,6 @@ const isCallOrNewExpressionPartAfterTransparentWrappers = node => {
 
 	return parent.callee === node || parent.arguments.includes(node);
 };
-
-const isInsideTypeScriptExpressionWrapper = node =>
-	node.parent && unwrapTypeScriptExpression(node.parent) === node;
 
 const isSetSpreadElement = (node, context) =>
 	node?.type === 'SpreadElement'
@@ -175,7 +191,39 @@ const getSetHasCallObject = (node, parameter, context) => {
 	return node.callee.object;
 };
 
-const getIntersectionReplacement = (filterCall, context) => {
+const getSetOperation = (node, parameter, context) => {
+	const intersectionSet = getSetHasCallObject(node, parameter, context);
+	if (intersectionSet) {
+		return {
+			method: 'intersection',
+			messageId: MESSAGE_ID_INTERSECTION,
+			suggestionMessageId: MESSAGE_ID_INTERSECTION_SUGGESTION,
+			otherSet: intersectionSet,
+		};
+	}
+
+	if (
+		node.type !== 'UnaryExpression'
+		|| node.operator !== '!'
+		|| !node.prefix
+	) {
+		return;
+	}
+
+	const differenceSet = getSetHasCallObject(node.argument, parameter, context);
+	if (!differenceSet) {
+		return;
+	}
+
+	return {
+		method: 'difference',
+		messageId: MESSAGE_ID_DIFFERENCE,
+		suggestionMessageId: MESSAGE_ID_DIFFERENCE_SUGGESTION,
+		otherSet: differenceSet,
+	};
+};
+
+const getSetOperationReplacement = (filterCall, context) => {
 	if (
 		!isMethodCall(filterCall, {
 			method: 'filter',
@@ -203,38 +251,42 @@ const getIntersectionReplacement = (filterCall, context) => {
 		return;
 	}
 
-	const otherSet = getSetHasCallObject(callback.body, callback.params[0], context);
+	const operation = getSetOperation(callback.body, callback.params[0], context);
 	if (
-		!otherSet
-		|| hasSideEffect(otherSet, context.sourceCode, {considerGetters: true})
+		!operation
+		|| hasSideEffect(operation.otherSet, context.sourceCode, {considerGetters: true})
 	) {
 		return;
 	}
 
-	return `${getMemberObjectText(set, context)}.intersection(${getParenthesizedText(otherSet, context)})`;
+	return {
+		messageId: operation.messageId,
+		suggestionMessageId: operation.suggestionMessageId,
+		replacement: `${getMemberObjectText(set, context)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`,
+	};
 };
 
-const getIntersectionProblem = (node, replacementNode, context) => {
+const getSetOperationProblem = (node, replacementNode, context) => {
 	if (
 		context.sourceCode.getCommentsInside(replacementNode).length > 0
 		|| isMemberObjectAfterTransparentWrappers(node)
-		|| isInsideTypeScriptExpressionWrapper(node)
+		|| (node === replacementNode && isTypeScriptExpressionWrapper(node.parent))
 	) {
 		return;
 	}
 
-	const replacement = getIntersectionReplacement(node, context);
-	if (!replacement) {
+	const operation = getSetOperationReplacement(node, context);
+	if (!operation) {
 		return;
 	}
 
 	return {
 		node: replacementNode,
-		messageId: MESSAGE_ID_INTERSECTION,
+		messageId: operation.messageId,
 		suggest: [
 			{
-				messageId: MESSAGE_ID_INTERSECTION_SUGGESTION,
-				fix: fixer => fixer.replaceText(replacementNode, addSemicolonIfNeeded(replacementNode, replacement, context)),
+				messageId: operation.suggestionMessageId,
+				fix: fixer => fixer.replaceText(replacementNode, addSemicolonIfNeeded(replacementNode, operation.replacement, context)),
 			},
 		],
 	};
@@ -253,7 +305,7 @@ const create = context => {
 		}
 
 		const [argument] = node.arguments;
-		return getIntersectionProblem(argument, node, context);
+		return getSetOperationProblem(unwrapTransparentExpression(argument), node, context);
 	});
 
 	context.on('CallExpression', node => {
@@ -261,7 +313,7 @@ const create = context => {
 			return;
 		}
 
-		return getIntersectionProblem(node, node, context);
+		return getSetOperationProblem(node, node, context);
 	});
 };
 

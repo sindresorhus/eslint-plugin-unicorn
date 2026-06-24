@@ -129,7 +129,6 @@ export {
 } from './types.js';
 export {
 	getBuiltinCollectionType,
-	getBuiltinCollectionTypes,
 	isBuiltinSet,
 } from './builtin-collection-type.js';
 export {checkVueTemplate} from './rule.js';
