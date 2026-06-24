@@ -36,6 +36,8 @@ test.snapshot({
 		'new Foo([...a, ...b]);',
 		'const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]);',
 		'const a = new Set(); const b = new Set(); Array.from(a).filter(value => b.has(value));',
+		'const a = new Set(); const b = new Set(); foo([...a].filter(value => b.has(value)));',
+		'const a = new Set(); const b = new Set(); new Foo([...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value)).map(fn);',
 		'const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); [...a].filter(async value => b.has(value));',
@@ -69,6 +71,7 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); new Set([...a, ...b]);',
 		'const a = new Set(); const b = new Set(); const c = new Set(); new Set([...a, ...b, ...c]);',
 		'const a = new Set(); const b = new Set(); const c = new Set(); new Set([...(condition ? a : b), ...c]);',
+		'const a = new Set(); const c = new Set(); new Set([...(condition ? a : a), ...c]);',
 		outdent`
 			const a = new Set();
 			const b = new Set();
@@ -90,7 +93,9 @@ test.snapshot({
 			foo
 			new Set([...(condition ? a : b)].filter(value => c.has(value)));
 		`,
+		'const a = new Set(); const c = new Set(); new Set([...(condition ? a : a)].filter(value => c.has(value)));',
 		typescript('function foo(a: Set<string>, b: Set<string>) { return [...a].filter(value => b.has(value)); }'),
+		typescript('function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].filter(value => b.has(value)); }'),
 		typeAware('type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].filter(value => b.has(value));'),
 		outdent`
 			const a = new Set();

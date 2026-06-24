@@ -53,7 +53,7 @@ const isFirstTokenOfExpressionStatement = (node, context) => {
 const addSemicolonIfNeeded = (node, text, context) =>
 	isFirstTokenOfExpressionStatement(node, context) && needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 
-const isMemberObjectAfterTransparentWrappers = node => {
+const getNodeAfterTransparentWrappers = node => {
 	while (node.parent) {
 		const {parent} = node;
 
@@ -65,10 +65,29 @@ const isMemberObjectAfterTransparentWrappers = node => {
 			continue;
 		}
 
-		return parent.type === 'MemberExpression' && parent.object === node;
+		break;
 	}
 
-	return false;
+	return node;
+};
+
+const isMemberObjectAfterTransparentWrappers = node => {
+	node = getNodeAfterTransparentWrappers(node);
+	return node.parent?.type === 'MemberExpression' && node.parent.object === node;
+};
+
+const isCallOrNewExpressionPartAfterTransparentWrappers = node => {
+	node = getNodeAfterTransparentWrappers(node);
+	const {parent} = node;
+
+	if (
+		parent?.type !== 'CallExpression'
+		&& parent?.type !== 'NewExpression'
+	) {
+		return false;
+	}
+
+	return parent.callee === node || parent.arguments.includes(node);
 };
 
 const isInsideTypeScriptExpressionWrapper = node =>
@@ -237,11 +256,7 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		if (
-			node.parent.type === 'NewExpression'
-			&& node.parent.arguments[0] === node
-			&& isGlobalSetConstructor(node.parent, context)
-		) {
+		if (isCallOrNewExpressionPartAfterTransparentWrappers(node)) {
 			return;
 		}
 

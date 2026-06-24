@@ -168,19 +168,21 @@ const getTypesFromVariable = (node, context, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const annotationTypes = getTypesFromTypeAnnotation(definition.name?.typeAnnotation, context);
+	let types;
+
 	if (annotationTypes) {
-		return annotationTypes;
-	}
-
-	if (
-		definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-		|| !definition.node.init
+		types = annotationTypes;
+	} else if (
+		definition.type === 'Variable'
+		&& definition.parent.kind === 'const'
+		&& definition.node.init
 	) {
-		return;
+		types = getBuiltinCollectionTypes(definition.node.init, context, visitedVariables);
 	}
 
-	return getBuiltinCollectionTypes(definition.node.init, context, visitedVariables);
+	visitedVariables.delete(variable);
+
+	return types;
 };
 
 const getTypesFromConditionalExpression = (node, context, visitedVariables) =>

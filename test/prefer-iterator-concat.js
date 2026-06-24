@@ -21,6 +21,7 @@ test.snapshot({
 		// Existing rules own these cases.
 		'new Set([...iterator.toArray(), ...other])',
 		'const a = new Set(); const b = new Set(); new Set([...a, ...b])',
+		'const a = new Set(); const b = new Set(); new Set([...(condition ? a : a), ...b])',
 		'[...[...foo, ...bar]]',
 		'call(...[...foo, ...bar])',
 		'call(value, ...[...foo, ...bar])',

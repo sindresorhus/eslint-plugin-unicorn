@@ -29,7 +29,7 @@ const intersection = [...set].filter(value => otherSet.has(value));
 const intersection = set.intersection(otherSet);
 ```
 
-The `new Set([...set, ...otherSet])` case is autofixed only when every spread operand is known to be a `Set`.
+The `new Set([...set, ...otherSet])` case is autofixed only when every spread operand is known to be a `Set` or `ReadonlySet`.
 
 ```js
 // ✅
