@@ -7,9 +7,9 @@ import {
 } from './ast/index.js';
 import {
 	getParenthesizedText,
+	isKnownNonArray,
 	isSameIdentifier,
 	isSameReference,
-	shouldSkipKnownNonArrayReceiver,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-group-by';
@@ -17,12 +17,8 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{method}}()` over `Array#reduce()`.',
 };
 
-const directNonArrayReceiverTypes = new Set([
-	'FunctionExpression',
-	'Literal',
-	'ObjectExpression',
-	'TemplateLiteral',
-]);
+const isSupportedOptionalParameter = node =>
+	!node || node.type === 'Identifier';
 
 const isEmptyObject = node =>
 	isEmptyObjectExpression(node)
@@ -51,8 +47,11 @@ const isGroupingCallback = node =>
 	&& !node.async
 	&& !node.generator
 	&& node.body.type === 'BlockStatement'
+	&& node.params.length <= 4
 	&& node.params[0]?.type === 'Identifier'
-	&& node.params[1]?.type === 'Identifier';
+	&& node.params[1]?.type === 'Identifier'
+	&& isSupportedOptionalParameter(node.params[2])
+	&& isSupportedOptionalParameter(node.params[3]);
 
 function isNodeMatchedInside(node, predicate) {
 	if (predicate(node)) {
@@ -95,9 +94,10 @@ const isReturnAccumulatorStatement = (statement, accumulator) =>
 	&& statement.argument
 	&& isSameIdentifier(statement.argument, accumulator);
 
-const isSingleExpressionStatement = (statement, predicate) =>
+const getExpressionStatementResult = (statement, getResult) =>
 	statement?.type === 'ExpressionStatement'
-	&& predicate(statement.expression);
+		? getResult(statement.expression)
+		: undefined;
 
 const getSingleDeclaration = statement => {
 	if (
@@ -181,7 +181,7 @@ function getObjectInitializerKey(expression, callbackParts) {
 	return key && isSameReference(expression.left, expression.right.left) ? key : undefined;
 }
 
-function getObjectPushKey(expression, callbackParts) {
+function getObjectPushKey(expression, callbackParts, {requireInitializer = false} = {}) {
 	if (
 		!isMethodCall(expression, {
 			method: 'push',
@@ -195,9 +195,15 @@ function getObjectPushKey(expression, callbackParts) {
 	}
 
 	const {object} = expression.callee;
-	return object.type === 'AssignmentExpression'
-		? getObjectInitializerKey(object, callbackParts)
-		: getObjectGroupMember(object, callbackParts.accumulator);
+	if (object.type === 'AssignmentExpression') {
+		return getObjectInitializerKey(object, callbackParts);
+	}
+
+	if (requireInitializer) {
+		return;
+	}
+
+	return getObjectGroupMember(object, callbackParts.accumulator);
 }
 
 function getObjectGroupByKey(statements, callbackParts) {
@@ -216,7 +222,7 @@ function getObjectGroupByKey(statements, callbackParts) {
 	statements = statements.slice(0, -1);
 
 	if (statements.length === 1) {
-		const pushKey = isSingleExpressionStatement(statements[0], expression => getObjectPushKey(expression, callbackParts));
+		const pushKey = getExpressionStatementResult(statements[0], expression => getObjectPushKey(expression, callbackParts, {requireInitializer: true}));
 		if (!pushKey) {
 			return;
 		}
@@ -229,8 +235,8 @@ function getObjectGroupByKey(statements, callbackParts) {
 		return;
 	}
 
-	const initializerKey = isSingleExpressionStatement(statements[0], expression => getObjectInitializerKey(expression, callbackParts));
-	const pushKey = isSingleExpressionStatement(statements[1], expression => getObjectPushKey(expression, callbackParts));
+	const initializerKey = getExpressionStatementResult(statements[0], expression => getObjectInitializerKey(expression, callbackParts));
+	const pushKey = getExpressionStatementResult(statements[1], expression => getObjectPushKey(expression, callbackParts));
 	const key = keyExpression ?? initializerKey;
 
 	return initializerKey
@@ -371,7 +377,7 @@ function getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIde
 	if (
 		!declaration
 		|| !isExpectedKey(declaration.key, key, keyIdentifier)
-		|| !isSingleExpressionStatement(statements[1], expression =>
+		|| !getExpressionStatementResult(statements[1], expression =>
 			isMethodCall(expression, {
 				object: declaration.group.name,
 				method: 'push',
@@ -380,7 +386,7 @@ function getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIde
 				optionalMember: false,
 			})
 			&& isSameIdentifier(expression.arguments[0], callbackParts.element))
-		|| !isSingleExpressionStatement(statements[2], expression =>
+		|| !getExpressionStatementResult(statements[2], expression =>
 			isMapSetExpression(expression, {
 				callbackParts,
 				key,
@@ -412,6 +418,23 @@ function getMapGroupByKey(statements, callbackParts) {
 	return key && isValidKeyExpression(key, callbackParts) ? key : undefined;
 }
 
+const isSparseArrayExpression = node =>
+	node.type === 'ArrayExpression'
+	&& node.elements.some(element => !element);
+
+const isSingleArgumentArrayConstruction = node =>
+	(
+		node.type === 'CallExpression'
+		|| node.type === 'NewExpression'
+	)
+	&& node.callee.type === 'Identifier'
+	&& node.callee.name === 'Array'
+	&& node.arguments.length === 1;
+
+const isSparseArrayReceiver = node =>
+	isSparseArrayExpression(node)
+	|| isSingleArgumentArrayConstruction(node);
+
 const shouldSkipReduceCall = (callExpression, context) =>
 	!isMethodCall(callExpression, {
 		method: 'reduce',
@@ -421,8 +444,8 @@ const shouldSkipReduceCall = (callExpression, context) =>
 	})
 	|| callExpression.optional
 	|| callExpression.callee.optional
-	|| directNonArrayReceiverTypes.has(callExpression.callee.object.type)
-	|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context);
+	|| isSparseArrayReceiver(callExpression.callee.object)
+	|| isKnownNonArray(callExpression.callee.object, context);
 
 function getGroupByMethod(initialValue) {
 	if (isEmptyObject(initialValue)) {
@@ -432,6 +455,21 @@ function getGroupByMethod(initialValue) {
 	if (isNewMap(initialValue)) {
 		return 'Map.groupBy';
 	}
+}
+
+function getArrowParameterText(node, context) {
+	const text = context.sourceCode.getText(node);
+	return node.typeAnnotation || node.optional ? `(${text})` : text;
+}
+
+function getArrowBodyText(node, context) {
+	let text = getParenthesizedText(node, context);
+
+	if (text.trimStart().startsWith('{')) {
+		text = `(${text})`;
+	}
+
+	return text;
 }
 
 function getGroupByProblem(callExpression, context) {
@@ -484,8 +522,8 @@ function getGroupByProblem(callExpression, context) {
 
 	problem.fix = fixer => {
 		const arrayText = getParenthesizedText(callExpression.callee.object, context);
-		const elementText = context.sourceCode.getText(callbackParts.element);
-		const keyText = getParenthesizedText(key, context);
+		const elementText = getArrowParameterText(callbackParts.element, context);
+		const keyText = getArrowBodyText(key, context);
 		return fixer.replaceText(callExpression, `${method}(${arrayText}, ${elementText} => ${keyText})`);
 	};
 
