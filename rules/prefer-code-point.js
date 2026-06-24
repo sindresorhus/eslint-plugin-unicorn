@@ -7,16 +7,66 @@ const messages = {
 	'suggestion/fromCodePoint': 'Use `String.fromCodePoint()`.',
 };
 
-const getProblem = (node, replacement) => ({
+const getProblem = (node, replacement, hasSuggestion = true) => ({
 	node,
 	messageId: `error/${node.name}`,
-	suggest: [
-		{
-			messageId: `suggestion/${replacement}`,
-			fix: fixer => fixer.replaceText(node, replacement),
-		},
-	],
+	...(hasSuggestion && {
+		suggest: [
+			{
+				messageId: `suggestion/${replacement}`,
+				fix: fixer => fixer.replaceText(node, replacement),
+			},
+		],
+	}),
 });
+
+const numericBinaryOperators = new Set(['+', '-', '*', '/', '%', '**', '&', '|', '^', '<<', '>>', '>>>']);
+const numericUnaryOperators = new Set(['+', '-', '~']);
+
+const getNumericContextNode = node => {
+	let current = node;
+
+	while (true) {
+		const {parent} = current;
+		if (parent.type === 'ChainExpression' || parent.type === 'LogicalExpression') {
+			current = parent;
+			continue;
+		}
+
+		if (parent.type === 'ConditionalExpression' && (parent.consequent === current || parent.alternate === current)) {
+			current = parent;
+			continue;
+		}
+
+		return current;
+	}
+};
+
+/*
+`codePointAt` is not a safe rename when the value is used as a number, such as in a string hash. In a loop over `string.length`, `codePointAt` returns the combined code point at a high surrogate but still visits the trailing low surrogate on the next iteration, producing incorrect results. So we keep the report but don't offer the broken suggestion.
+*/
+const isResultUsedNumerically = node => {
+	const current = getNumericContextNode(node);
+	const {parent} = current;
+	switch (parent.type) {
+		case 'BinaryExpression': {
+			return numericBinaryOperators.has(parent.operator);
+		}
+
+		case 'UnaryExpression': {
+			return numericUnaryOperators.has(parent.operator);
+		}
+
+		// Compound assignment (`hash += …`). The plain `=` and logical assignments (`&&=`, `||=`, `??=`) drop their `=` to a non-numeric operator, so they're excluded.
+		case 'AssignmentExpression': {
+			return parent.right === current && numericBinaryOperators.has(parent.operator.slice(0, -1));
+		}
+
+		default: {
+			return false;
+		}
+	}
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -25,7 +75,7 @@ const create = context => {
 			method: 'charCodeAt',
 			optionalCall: false,
 		})) {
-			return getProblem(node.callee.property, 'codePointAt');
+			return getProblem(node.callee.property, 'codePointAt', !isResultUsedNumerically(node));
 		}
 	});
 

@@ -42,3 +42,13 @@ const emoji = String.fromCharCode(0x1f60a); // Smiley
 // ✅ - Correctly creates emoji
 const emoji = String.fromCodePoint(0x1f60a); // Smiley
 ```
+
+> [!NOTE]
+> When the result is used as a number (for example, a string hash, or `charCodeAt(index) - 48` to parse a digit), the rule reports but offers no suggestion, since swapping to `codePointAt()` is not a safe rename there. A correct code-point version must iterate by code point:
+>
+> ```js
+> let hash = 0;
+> for (const character of string) {
+> 	hash = (((hash * 31) | 0) + character.codePointAt(0)) | 0;
+> }
+> ```
