@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -128,6 +129,35 @@ test.snapshot({
 				return void array.push(value);
 			}
 		`,
+		// Chained result -> likely a custom API, such as a `Promise`-returning `push()`.
+		outdent`
+			function foo() {
+				return router.push(to).catch(() => {});
+			}
+		`,
+		outdent`
+			function foo() {
+				return router.push(to).then(onFulfilled);
+			}
+		`,
+		'const promise = router.push(to).finally(cleanup);',
+		outdent`
+			function foo() {
+				return array.push(value).toString();
+			}
+		`,
+		outdent`
+			function foo() {
+				return array.unshift(value).foo;
+			}
+		`,
+		outdent`
+			function foo() {
+				return router.push(to)?.catch(() => {});
+			}
+		`,
+		// Computed member access on the result is treated as the same custom API signal.
+		'array.push(value)[0];',
 	],
 	invalid: [
 		'const length = array.push(value);',
@@ -325,6 +355,32 @@ test.snapshot({
 		'array.unshift(value) satisfies number;',
 		'void (array.push(value) as number);',
 		'void (array.unshift(value) as number);',
+		outdent`
+			function foo() {
+				return (array.push(value) as Foo).bar;
+			}
+		`,
+		// Syntax-only annotation proves the receiver is not an array.
+		outdent`
+			interface Router {
+				push(to: string): Promise<void>;
+			}
+
+			function foo(router: Router) {
+				return router.push(to);
+			}
+		`,
+		outdent`
+			class Queue {
+				unshift(value: unknown) {
+					return value;
+				}
+			}
+
+			function foo(queue: Queue) {
+				return queue.unshift(value);
+			}
+		`,
 	],
 	invalid: [
 		'const foo = (value: string) => array.push(value);',
@@ -371,5 +427,25 @@ test.snapshot({
 		`,
 		'const foo = (value: string) => array.push(value) satisfies number;',
 		'const foo = (value: string) => array.unshift(value) satisfies number;',
+	],
+});
+
+// Full type information proves the receiver is not an array
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+test.snapshot({
+	valid: [
+		typeAware('declare const router: {push(to: string): Promise<void>}; function foo() { return router.push(to); }'),
+		typeAware('declare const queue: {unshift(value: unknown): number}; function foo() { return queue.unshift(value); }'),
+	],
+	invalid: [
+		typeAware('declare const array: number[]; function foo() { return array.push(value); }'),
 	],
 });

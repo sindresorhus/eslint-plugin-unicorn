@@ -1,5 +1,5 @@
 import {isMethodCall} from './ast/index.js';
-import {needsSemicolon} from './utils/index.js';
+import {isKnownNonArray, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
 const MESSAGE_ID_SUGGESTION = 'no-return-array-push/suggestion';
@@ -87,6 +87,14 @@ function isReturnValueDiscarded(callExpression) {
 	);
 }
 
+// Treat chained result member access as a pragmatic signal for custom APIs like router.push().catch(...).
+// Do not flag realistic code only to catch theoretical Number method chains from Array#push().
+function isResultMemberAccessed(callExpression) {
+	const node = getCallExpressionResultNode(callExpression);
+	const {parent} = node;
+	return parent.type === 'MemberExpression' && parent.object === node;
+}
+
 function getSuggestion(callExpression, returnStatement, method, context) {
 	const {sourceCode} = context;
 
@@ -127,6 +135,8 @@ const create = context => {
 		if (
 			(method === 'push' && isIgnoredCallee(callExpression.callee))
 			|| isReturnValueDiscarded(callExpression)
+			|| isResultMemberAccessed(callExpression)
+			|| isKnownNonArray(callExpression.callee.object, context)
 		) {
 			return;
 		}
