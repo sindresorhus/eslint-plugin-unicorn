@@ -13,7 +13,7 @@
 
 `instanceof Error` is unreliable across realms, and `Object.prototype.toString.call(error) === '[object Error]'` can be spoofed with `Symbol.toStringTag`.
 
-This rule is opt-in until `Error.isError()` is Baseline and available in the Node.js version targeted by this project.
+Unlike [`unicorn/no-instanceof-builtins`](./no-instanceof-builtins.md), this rule also catches legacy `Error` brand checks using `'[object Error]'`.
 
 ## Examples
 

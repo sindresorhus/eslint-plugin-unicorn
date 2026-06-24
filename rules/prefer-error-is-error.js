@@ -44,6 +44,13 @@ const isErrorTagLiteral = node =>
 	node.type === 'Literal'
 	&& node.value === '[object Error]';
 
+const supportedComparisonOperators = new Set([
+	'===',
+	'!==',
+	'==',
+	'!=',
+]);
+
 const isObjectPrototypeToString = (node, context) =>
 	isMemberExpression(node, {property: 'toString', optional: false})
 	&& isMemberExpression(node.object, {property: 'prototype', optional: false})
@@ -76,10 +83,7 @@ const getToStringCallArgument = (node, context) => {
 };
 
 const getErrorTagComparison = (node, context) => {
-	if (
-		node.operator !== '==='
-		&& node.operator !== '!=='
-	) {
+	if (!supportedComparisonOperators.has(node.operator)) {
 		return;
 	}
 
@@ -148,7 +152,7 @@ const create = context => {
 			fix: createFix({
 				node,
 				argument,
-				negate: node.operator === '!==',
+				negate: node.operator === '!==' || node.operator === '!=',
 			}, context),
 		};
 	});
@@ -162,7 +166,7 @@ const config = {
 		docs: {
 			description: 'Prefer `Error.isError()` when checking for errors.',
 			// eslint-disable-next-line no-warning-comments
-			// TODO: Enable in the `recommended` config when `Error.isError()` is Baseline and the project target has moved beyond Node.js >=22 to a Node.js version that ships it.
+			// TODO: Enable in the `recommended` config when `Error.isError()` is Baseline and the project targets Node.js >=24.
 			recommended: false,
 		},
 		fixable: 'code',
