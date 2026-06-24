@@ -18,12 +18,17 @@ Reports for property and method names do not provide rename suggestions.
 The default prefixes are:
 
 - `is`
+- `are`
 - `has`
+- `have`
 - `can`
 - `should`
 - `was`
+- `were`
 - `did`
 - `will`
+
+The plural prefixes (`are`, `have`, `were`) allow names for boolean collections, like `areFilesValid`.
 
 The prefix must be a distinct word part. `isReady`, `is_ready`, and `IS_READY` are allowed, but `island` is not considered to have the `is` prefix.
 
@@ -158,10 +163,13 @@ Default:
 ```js
 {
 	is: true,
+	are: true,
 	has: true,
+	have: true,
 	can: true,
 	should: true,
 	was: true,
+	were: true,
 	did: true,
 	will: true,
 }
@@ -191,4 +199,30 @@ And this would fail:
 
 ```js
 const didUpdate = true;
+```
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Names matching any of these patterns are not checked. Strings are treated as regular expressions, so they match anywhere in the name unless anchored with `^` and `$`.
+
+```js
+'unicorn/consistent-boolean-name': [
+	'error',
+	{
+		ignore: [
+			'value',
+			'^completed$',
+		],
+	},
+]
+```
+
+With the above config, these would pass:
+
+```js
+const value = true;
+const completed = true;
 ```

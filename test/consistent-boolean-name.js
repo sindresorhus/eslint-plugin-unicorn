@@ -37,10 +37,13 @@ const typeAware = testCase => {
 
 const onlyIsPrefixOptions = {
 	prefixes: {
+		are: false,
 		has: false,
+		have: false,
 		can: false,
 		should: false,
 		was: false,
+		were: false,
 		did: false,
 		will: false,
 	},
@@ -229,14 +232,52 @@ test.snapshot({
 			options: [{
 				prefixes: {
 					is: false,
+					are: false,
 					has: false,
+					have: false,
 					can: false,
 					should: false,
 					was: false,
+					were: false,
 					did: false,
 					will: false,
 				},
 			}],
+		},
+		// Plural prefixes are allowed by default.
+		'const areFilesValid = true;',
+		'const haveItemsLoaded = true;',
+		'const wereLoaded = true;',
+		'function areFilesValid() { return true; }',
+		// `ignore` exempts matching names.
+		{
+			code: 'const value = true;',
+			options: [{ignore: ['value']}],
+		},
+		{
+			code: 'const completed = true;',
+			options: [{ignore: ['^completed$']}],
+		},
+		{
+			code: 'const completed = true;',
+			options: [{ignore: [/^completed$/]}],
+		},
+		{
+			code: 'const firstCompleted = true; const secondCompleted = true;',
+			options: [{ignore: [/Completed/g]}],
+		},
+		{
+			code: 'const valueIsSet = true;',
+			options: [{ignore: ['value']}],
+		},
+		// A name is exempt if any pattern matches.
+		{
+			code: 'const completed = true;',
+			options: [{ignore: ['other', 'completed']}],
+		},
+		{
+			code: 'const o = {completed: true};',
+			options: [{checkProperties: true, ignore: ['completed']}],
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
@@ -244,6 +285,14 @@ test.snapshot({
 	invalid: [
 		'const completed = true;',
 		'const completed = false;',
+		// A plural prefix must be a distinct word part, so these are still reported.
+		'const area = true;',
+		'const haven = false;',
+		// `ignore` patterns that do not match still report.
+		{
+			code: 'const completed = true;',
+			options: [{ignore: ['other']}],
+		},
 		// Underscore-prefixed SCREAMING_SNAKE: the underscore is preserved and `IS_` prepended
 		'const _COMPLETED = true;',
 		'const completed = progress === 100;',
