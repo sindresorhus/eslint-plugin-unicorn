@@ -11,6 +11,7 @@ import {
 	isSameIdentifier,
 	isSameReference,
 } from './utils/index.js';
+import {containsOptionalChain} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-group-by';
 const messages = {
@@ -139,12 +140,15 @@ const isExpectedKey = (key, expectedKey, keyIdentifier) => {
 		return isSameIdentifier(key, keyIdentifier);
 	}
 
-	return isSameReference(key, expectedKey);
+	return !containsOptionalChain(key)
+		&& !containsOptionalChain(expectedKey)
+		&& isSameReference(key, expectedKey);
 };
 
 function isValidKeyExpression(key, callbackParts) {
 	const {accumulator, index, array} = callbackParts;
-	return !referencesIdentifier(key, accumulator)
+	return !containsOptionalChain(key)
+		&& !referencesIdentifier(key, accumulator)
 		&& !referencesIdentifier(key, index)
 		&& !referencesIdentifier(key, array);
 }
@@ -444,6 +448,7 @@ const shouldSkipReduceCall = (callExpression, context) =>
 	})
 	|| callExpression.optional
 	|| callExpression.callee.optional
+	|| containsOptionalChain(callExpression.callee.object)
 	|| isSparseArrayReceiver(callExpression.callee.object)
 	|| isKnownNonArray(callExpression.callee.object, context);
 
