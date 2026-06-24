@@ -1,6 +1,17 @@
+import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -39,6 +50,36 @@ test.snapshot({
 		'template["replace"]("{url}", replacement)',
 		'template.notReplace("{url}", replacement)',
 		'replace("{url}", replacement)',
+		'const router = useRouter(); router.replace(pathname, {locale});',
+		'const router = useRouter(); const options = {locale}; router.replace(pathname, options);',
+		'router.replace(pathname, {locale: nextLocale});',
+		{
+			code: 'router.replace(pathname, {locale: nextLocale} as RouterOptions);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const options = {locale: nextLocale}; router.replace(pathname, options as RouterOptions);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Receiver is provably not a string, so this is not `String#replace`
+		{
+			code: 'declare const router: {replace(href: string, options: object): void}; router.replace(pathname, {locale});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(object: {replaceAll(a: string, b: object): void}) { object.replaceAll("{url}", {}); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: number) { value.replace("{url}", replacement); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			declare const pathname: string;
+			declare const options: unknown;
+			declare function useRouter(): {replace(href: string, options: unknown): void};
+			useRouter().replace(pathname, options);
+		`),
 	],
 	invalid: [
 		'template.replace("{url}", htmlEscape(url))',
@@ -59,6 +100,11 @@ test.snapshot({
 		'template.replace("{url}", `${url}`)', // eslint-disable-line no-template-curly-in-string
 		'template.replace("{url}", url ? htmlEscape(url) : "")',
 		'template.replace("{url}", {toString() { return url; }})',
+		'template.replace("{url}", {toString: () => url})',
+		'template.replace("{url}", {valueOf: () => url})',
+		'template.replace("{url}", {__proto__: {toString() { return url; }}})',
+		'template.replace("{url}", [url])',
+		'template.replace("{url}", 1)',
 		'template.replace("{url}", (htmlEscape(url), url))',
 		'template.replaceAll("{url}", String(++count))',
 		'template?.replace("{url}", replacement)',
