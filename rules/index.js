@@ -173,6 +173,7 @@ export {default as 'numeric-separators-style'} from './numeric-separators-style.
 export {default as 'operator-assignment'} from './operator-assignment.js';
 export {default as 'prefer-add-event-listener-options'} from './prefer-add-event-listener-options.js';
 export {default as 'prefer-add-event-listener'} from './prefer-add-event-listener.js';
+export {default as 'prefer-aggregate-error'} from './prefer-aggregate-error.js';
 export {default as 'prefer-array-find'} from './prefer-array-find.js';
 export {default as 'prefer-array-flat-map'} from './prefer-array-flat-map.js';
 export {default as 'prefer-array-flat'} from './prefer-array-flat.js';
