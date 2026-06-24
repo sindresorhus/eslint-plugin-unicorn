@@ -34,6 +34,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install --legacy-peer-deps
       - run: npx c8 ava
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
       # - uses: codecov/codecov-action@v7
       #   with:
       #     fail_ci_if_error: true
