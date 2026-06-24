@@ -38,3 +38,10 @@ const greeting = `Hello, ${name}` + `! Welcome.`;
 // ✅
 const greeting = `Hello, ${name}! Welcome.`;
 ```
+
+Concatenation that would merge into a single string containing a `${…}` placeholder is left alone, since combining it would create an ambiguous template-like string that [`no-template-curly-in-string`](https://eslint.org/docs/latest/rules/no-template-curly-in-string) flags. The split is usually intentional.
+
+```js
+// ✅
+const pluginsVariable = '$' + '{PLUGINS}';
+```
