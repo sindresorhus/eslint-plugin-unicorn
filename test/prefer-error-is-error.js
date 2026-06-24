@@ -34,6 +34,11 @@ test.snapshot({
 		typescript('const Error: unknown = CustomError; error instanceof Error'),
 		typescript('import {Error} from "error"; error instanceof Error'),
 		typescript('import {Error} from "error"; Object.prototype.toString.call(error) === "[object Error]"'),
+		typescript('const Error = CustomError; { type Error = unknown; error instanceof Error }'),
+		typescript('const Error = CustomError; { interface Error {}; error instanceof Error }'),
+		typescript('const Error = CustomError; { type Error = unknown; Object.prototype.toString.call(error) === "[object Error]" }'),
+		typescript('const Object = CustomObject; { type Object = unknown; Object.prototype.toString.call(error) === "[object Error]" }'),
+		typescript('const Object = CustomObject; { interface Object {}; Object.prototype.toString.call(error) === "[object Error]" }'),
 	],
 	invalid: [
 		'error instanceof Error',
@@ -53,6 +58,8 @@ test.snapshot({
 		typescript('interface Error {}; error instanceof Error'),
 		typescript('import type {Error} from "error"; error instanceof Error'),
 		typescript('type Error = unknown; Object.prototype.toString.call(error) === "[object Error]"'),
+		typescript('type Object = unknown; Object.prototype.toString.call(error) === "[object Error]"'),
+		typescript('import type {Object} from "object"; Object.prototype.toString.call(error) === "[object Error]"'),
 		typescript('Object.prototype.toString.call(error as unknown) === "[object Error]"'),
 	],
 });

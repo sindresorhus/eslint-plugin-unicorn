@@ -1,6 +1,5 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
+import {isTypeImportSpecifier} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-error-is-error';
 const messages = {
@@ -9,17 +8,27 @@ const messages = {
 
 const isTypeImport = definition =>
 	definition.type === 'ImportBinding'
-	&& (
-		definition.parent.importKind === 'type'
-		|| definition.node.importKind === 'type'
-	);
+	&& isTypeImportSpecifier(definition.node);
 
 const isTypeOnlyDefinition = definition =>
 	definition.type === 'Type'
 	|| isTypeImport(definition);
 
-const isValueShadowed = (node, name, context) =>
-	findVariable(context.sourceCode.getScope(node), name)?.defs.some(definition => !isTypeOnlyDefinition(definition)) ?? false;
+function isValueShadowed(node, name, context) {
+	let scope = context.sourceCode.getScope(node);
+
+	while (scope) {
+		const variable = scope.set.get(name);
+
+		if (variable?.defs.some(definition => !isTypeOnlyDefinition(definition))) {
+			return true;
+		}
+
+		scope = scope.upper;
+	}
+
+	return false;
+}
 
 const isGlobalError = (node, context) =>
 	node.type === 'Identifier'
@@ -29,7 +38,7 @@ const isGlobalError = (node, context) =>
 const isGlobalObject = (node, context) =>
 	node.type === 'Identifier'
 	&& node.name === 'Object'
-	&& isGlobalIdentifier(node, context);
+	&& !isValueShadowed(node, 'Object', context);
 
 const isErrorTagLiteral = node =>
 	node.type === 'Literal'
@@ -77,14 +86,14 @@ const getErrorTagComparison = (node, context) => {
 	if (isErrorTagLiteral(node.right)) {
 		const argument = getToStringCallArgument(node.left, context);
 		if (argument) {
-			return {argument};
+			return argument;
 		}
 	}
 
 	if (isErrorTagLiteral(node.left)) {
 		const argument = getToStringCallArgument(node.right, context);
 		if (argument) {
-			return {argument};
+			return argument;
 		}
 	}
 };
@@ -125,9 +134,9 @@ const create = context => {
 			};
 		}
 
-		const comparison = getErrorTagComparison(node, context);
+		const argument = getErrorTagComparison(node, context);
 		if (
-			!comparison
+			!argument
 			|| isValueShadowed(node, 'Error', context)
 		) {
 			return;
@@ -138,7 +147,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 			fix: createFix({
 				node,
-				argument: comparison.argument,
+				argument,
 				negate: node.operator === '!==',
 			}, context),
 		};
