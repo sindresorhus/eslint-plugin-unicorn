@@ -209,6 +209,7 @@ export {default as 'prefer-flat-math-min-max'} from './prefer-flat-math-min-max.
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
 export {default as 'prefer-global-number-constants'} from './prefer-global-number-constants.js';
 export {default as 'prefer-global-this'} from './prefer-global-this.js';
+export {default as 'prefer-group-by'} from './prefer-group-by.js';
 export {default as 'prefer-has-check'} from './prefer-has-check.js';
 export {default as 'prefer-hoisting-branch-code'} from './prefer-hoisting-branch-code.js';
 export {default as 'prefer-https'} from './prefer-https.js';
