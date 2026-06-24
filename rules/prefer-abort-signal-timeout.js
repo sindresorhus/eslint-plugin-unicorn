@@ -14,11 +14,12 @@ import {
 	hasCommentInRange,
 	isGlobalIdentifier,
 	isLeftHandSide,
+	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-abort-signal-timeout';
 const SUGGESTION_ID = 'prefer-abort-signal-timeout/suggestion';
-const MAX_TIMEOUT_DELAY = (2 ** 32) - 1;
+const MAX_SET_TIMEOUT_DELAY = (2 ** 31) - 1;
 const reasonSensitiveProperties = new Set([
 	'reason',
 	'throwIfAborted',
@@ -142,28 +143,28 @@ const isReasonSensitiveRead = (node, context) =>
 	&& node.parent.object === node
 	&& isReasonSensitiveProperty(node.parent, context);
 
-const getDestructuringPattern = node => {
-	if (
-		node.parent.type === 'VariableDeclarator'
-		&& node.parent.init === node
-	) {
-		return node.parent.id;
+const getExpressionParentIgnoringTypeScriptWrappers = node => {
+	let expression = node;
+	let {parent} = node;
+
+	while (isTypeScriptExpressionWrapper(parent)) {
+		expression = parent;
+		parent = parent.parent;
 	}
 
-	if (
-		node.parent.type === 'AssignmentExpression'
-		&& node.parent.right === node
-	) {
-		return node.parent.left;
-	}
+	return {expression, parent};
 };
 
-const isReasonSensitiveDestructuring = (node, context) => {
-	const pattern = getDestructuringPattern(node);
-	return pattern?.type === 'ObjectPattern'
-		&& pattern.properties.some(property =>
-			property.type === 'Property'
-			&& isReasonSensitiveProperty(property, context));
+const isSignalAlias = node => {
+	const {expression, parent} = getExpressionParentIgnoringTypeScriptWrappers(node);
+
+	return (
+		parent.type === 'VariableDeclarator'
+		&& parent.init === expression
+	) || (
+		parent.type === 'AssignmentExpression'
+		&& parent.right === expression
+	);
 };
 
 const getSignalMember = (identifier, context) => {
@@ -179,7 +180,7 @@ const getSignalMember = (identifier, context) => {
 		|| isLeftHandSide(parent)
 		|| isForLoopLeftSide(parent)
 		|| isReasonSensitiveRead(parent, context)
-		|| isReasonSensitiveDestructuring(parent, context)
+		|| isSignalAlias(parent)
 		|| hasCommentInRange(context, context.sourceCode.getRange(parent))
 	) {
 		return;
@@ -243,7 +244,7 @@ const isValidAbortSignalTimeoutDelay = (node, context) => {
 	return typeof value === 'number'
 		&& Number.isSafeInteger(value)
 		&& value >= 0
-		&& value <= MAX_TIMEOUT_DELAY;
+		&& value <= MAX_SET_TIMEOUT_DELAY;
 };
 
 const shouldSkipDelay = (delay, signalMembers, timeoutStatementRange, context) =>

@@ -11,7 +11,7 @@
 
 `AbortSignal.timeout()` creates an `AbortSignal` that automatically aborts after a delay. It avoids the extra `AbortController` and manual timer setup.
 
-This rule only reports the simple adjacent-statement pattern where the controller is otherwise only used through `.signal`. Cases that inspect the abort reason are ignored, as `AbortSignal.timeout()` uses a timeout-specific reason. Dynamic delay expressions are assumed to already be valid `AbortSignal.timeout()` delays.
+This rule only reports the simple adjacent-statement pattern where the controller is otherwise only used through `.signal`. Cases that inspect the abort reason or alias the signal are ignored, as `AbortSignal.timeout()` uses a timeout-specific reason. Dynamic delay expressions are assumed to already be valid `AbortSignal.timeout()` delays within the unclamped `setTimeout()` range.
 
 ## Examples
 

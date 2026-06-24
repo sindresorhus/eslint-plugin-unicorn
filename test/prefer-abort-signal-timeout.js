@@ -252,6 +252,38 @@ test.snapshot({
 		`,
 		outdent`
 			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			const signal = abortController.signal;
+			signal.throwIfAborted();
+		`,
+		{
+			code: outdent`
+				const abortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				const signal = abortController.signal as AbortSignal;
+				signal.throwIfAborted();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const abortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				const signal = abortController.signal!;
+				signal.throwIfAborted();
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			signal = abortController.signal;
+			if (signal.reason) {
+				handleAbort();
+			}
+		`,
+		outdent`
+			const abortController = new AbortController();
 			// Keep.
 			setTimeout(() => abortController.abort(), delay);
 			fetch(url, {signal: abortController.signal});
@@ -269,6 +301,22 @@ test.snapshot({
 		outdent`
 			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), '100');
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), 2147483648);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const delay = 2147483648;
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), 4294967295);
 			fetch(url, {signal: abortController.signal});
 		`,
 		outdent`
@@ -339,6 +387,17 @@ test.snapshot({
 		outdent`
 			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), 1000);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), 2147483647);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const delay = 2147483647;
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
 			fetch(url, {signal: abortController.signal});
 		`,
 		outdent`
