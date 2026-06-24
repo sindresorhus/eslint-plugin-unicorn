@@ -150,9 +150,35 @@ const isAnyTargetImportName = (importedName, targetTypeImports) => {
 	return false;
 };
 
+const getKnownImportedType = (importedType, targetTypeImports, options) => {
+	const {
+		source,
+		importedName,
+		localName,
+	} = importedType;
+	const importedNames = targetTypeImports?.get(source);
+	if (importedNames) {
+		return importedNames.has(importedName) ? target : nonTarget;
+	}
+
+	if (
+		(targetTypeImports && isAnyTargetImportName(importedName, targetTypeImports))
+		|| getKnownTypeReferenceType(importedName, options) !== unknown
+		|| getKnownTypeReferenceType(localName, options) !== unknown
+	) {
+		return nonTarget;
+	}
+
+	return unknown;
+};
+
 const getImportBindingType = (definition, options) => {
-	if (definition.type !== 'ImportBinding' || !options.targetTypeImports) {
+	if (definition.type !== 'ImportBinding') {
 		return unknown;
+	}
+
+	if (definition.node.type === 'ImportDefaultSpecifier') {
+		return getKnownTypeReferenceType(definition.node.local.name, options) === unknown ? unknown : nonTarget;
 	}
 
 	const importedName = definition.node.imported?.name ?? definition.node.imported?.value;
@@ -160,11 +186,15 @@ const getImportBindingType = (definition, options) => {
 		return unknown;
 	}
 
-	if (options.targetTypeImports.get(definition.parent?.source?.value)?.has(importedName)) {
-		return target;
-	}
-
-	return isAnyTargetImportName(importedName, options.targetTypeImports) ? nonTarget : unknown;
+	return getKnownImportedType(
+		{
+			source: definition.parent?.source?.value,
+			importedName,
+			localName: definition.node.local.name,
+		},
+		options.targetTypeImports,
+		options,
+	);
 };
 
 const getNamespaceImportBindingType = (node, scope, options) => {
@@ -188,11 +218,15 @@ const getNamespaceImportBindingType = (node, scope, options) => {
 		return unknown;
 	}
 
-	if (options.targetTypeNamespaceImports.get(definition.parent?.source?.value)?.has(importedName)) {
-		return target;
-	}
-
-	return isAnyTargetImportName(importedName, options.targetTypeNamespaceImports) ? nonTarget : unknown;
+	return getKnownImportedType(
+		{
+			source: definition.parent?.source?.value,
+			importedName,
+			localName: importedName,
+		},
+		options.targetTypeNamespaceImports,
+		options,
+	);
 };
 
 const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceNames) => {
