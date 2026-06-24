@@ -94,8 +94,11 @@ test.snapshot({
 		'iterator.toArray().forEach(fn, thisArg)',
 		'iterator.toArray().some(fn, thisArg)',
 
-		// Array callbacks receive the 3rd `array` argument, Iterator callbacks do not
+		// Array callbacks can expose the `array` argument, Iterator callbacks cannot
 		'iterator.toArray().every((value, index, array) => array.length === 1)',
+		'iterator.toArray().find((...args) => args[2])',
+		'iterator.toArray().reduce((accumulator, value, index, array) => array.length, init)',
+		'iterator.toArray().reduce((...args) => args[3], init)',
 
 		// `reduce` without initialValue — Array uses first element, Iterator throws
 		'iterator.toArray().reduce(fn)',
@@ -127,14 +130,15 @@ test.snapshot({
 
 		// Case 2a: Extra arguments — .toArray() is still unnecessary
 		'Array.from(iterator.toArray(), mapFn)',
+		'Uint8Array.from(iterator.toArray(), mapFn)',
 		'Object.fromEntries(iterator.toArray(), extra)',
 
 		// Case 3: for-of
 		'for (const x of iterator.toArray());',
 		'for (const x of foo.bar().toArray());',
+		'for (const x of iterator.toArray()) { break; }',
 
-		// Case 3b: for-await-of — safe because `for await` falls back to
-		// `Symbol.iterator` for synchronous iterables, so behavior is preserved.
+		// Case 3b: for-await-of
 		'async () => { for await (const x of iterator.toArray()); }',
 
 		// Case 4: yield*
@@ -171,6 +175,7 @@ test.snapshot({
 
 		// Parenthesized
 		'new Set((iterator.toArray()))',
+		'new Set(iterator.toArray(/* comment */))',
 		'Promise.all((iterator.toArray()))',
 		'Array.from((iterator.toArray()))',
 		'Object.fromEntries((iterator.toArray()))',
