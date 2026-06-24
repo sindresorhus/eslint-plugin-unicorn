@@ -140,6 +140,58 @@ const getKnownTypeReferenceType = (typeReferenceName, options) => {
 	return options.nonTargetTypeNames?.has(typeReferenceName) ? nonTarget : unknown;
 };
 
+const isAnyTargetImportName = (importedName, targetTypeImports) => {
+	for (const importedNames of targetTypeImports.values()) {
+		if (importedNames.has(importedName)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const getImportBindingType = (definition, options) => {
+	if (definition.type !== 'ImportBinding' || !options.targetTypeImports) {
+		return unknown;
+	}
+
+	const importedName = definition.node.imported?.name ?? definition.node.imported?.value;
+	if (!importedName) {
+		return unknown;
+	}
+
+	if (options.targetTypeImports.get(definition.parent?.source?.value)?.has(importedName)) {
+		return target;
+	}
+
+	return isAnyTargetImportName(importedName, options.targetTypeImports) ? nonTarget : unknown;
+};
+
+const getNamespaceImportBindingType = (node, scope, options) => {
+	if (
+		node.typeName.type !== 'TSQualifiedName'
+		|| node.typeName.left.type !== 'Identifier'
+		|| !options.targetTypeNamespaceImports
+	) {
+		return unknown;
+	}
+
+	const importedName = node.typeName.right.name;
+	const definition = getTypeReferenceDefinition(node.typeName.left.name, scope);
+	if (
+		definition?.type !== 'ImportBinding'
+		|| definition.node.type !== 'ImportNamespaceSpecifier'
+	) {
+		return unknown;
+	}
+
+	if (options.targetTypeNamespaceImports.get(definition.parent?.source?.value)?.has(importedName)) {
+		return target;
+	}
+
+	return isAnyTargetImportName(importedName, options.targetTypeNamespaceImports) ? nonTarget : unknown;
+};
+
 const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceNames) => {
 	if (!getTypeName(node.expression)) {
 		return unknown;
@@ -179,6 +231,11 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 		return unknown;
 	}
 
+	const namespaceImportBindingType = getNamespaceImportBindingType(node, scope, options);
+	if (namespaceImportBindingType !== unknown) {
+		return namespaceImportBindingType;
+	}
+
 	if (!options.preferTypeReferenceDefinitions) {
 		const knownType = getKnownTypeReferenceType(typeReferenceName, options);
 		if (knownType !== unknown) {
@@ -201,7 +258,10 @@ function getTypeReferenceType(node, scope, options, visitedTypeReferenceNames) {
 
 	let type = unknown;
 
-	if (
+	const importBindingType = getImportBindingType(definition, options);
+	if (importBindingType !== unknown) {
+		type = importBindingType;
+	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
