@@ -12,7 +12,6 @@ import {
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
-	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_UNION = 'prefer-set-methods/union';

@@ -44,4 +44,4 @@ The `new Set([...set, ...otherSet])` case is autofixed only when every spread op
 new Set([...iterable, ...otherIterable]);
 ```
 
-Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions; `intersection()` can change Set iteration order, and both rewrites stay opt-in for consistency. The rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.
+Intersection and difference filter patterns are reported as suggestions instead of autofixes because bare filters produce arrays. Direct `new Set([...set].filter(…))` wrappers are also suggestions: `intersection()` can change Set iteration order, and `difference()` follows the same opt-in model for consistency. The rule only reports bare filter calls and direct `new Set([...set].filter(…))` wrappers.
