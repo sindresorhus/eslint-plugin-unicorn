@@ -3,6 +3,7 @@ import {
 	getParenthesizedRange,
 	getTokenStore,
 	isParenthesized,
+	isGlobalIdentifier,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
@@ -24,6 +25,13 @@ const primitiveWrappers = new Set([
 	'Boolean',
 	'BigInt',
 	'Symbol',
+]);
+
+const globalObjectNames = new Set([
+	'global',
+	'globalThis',
+	'self',
+	'window',
 ]);
 
 const strictStrategyConstructors = [
@@ -73,7 +81,7 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 	yield replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
 };
 
-const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
+const replaceWithTypeOfExpression = (node, context, constructorName) => function * (fixer) {
 	const {left, right} = node;
 	const tokenStore = getTokenStore(context, node);
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
@@ -105,8 +113,34 @@ const replaceWithTypeOfExpression = (node, context) => function * (fixer) {
 
 	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
-	yield fixer.replaceTextRange(rightRange, safeQuote + sourceCode.getText(right).toLowerCase() + safeQuote);
+	yield fixer.replaceTextRange(rightRange, safeQuote + constructorName.toLowerCase() + safeQuote);
 };
+
+function getConstructor(node, context) {
+	if (node.type === 'Identifier') {
+		return {
+			name: node.name,
+			referenceText: node.name,
+		};
+	}
+
+	if (
+		node.type === 'MemberExpression'
+		&& !node.computed
+		&& node.property.type === 'Identifier'
+		&& node.object.type === 'Identifier'
+		&& globalObjectNames.has(node.object.name)
+		&& isGlobalIdentifier(node.object, context)
+	) {
+		return {
+			name: node.property.name,
+			referenceText: context.sourceCode.getText(node),
+		};
+	}
+}
+
+const hasCommentsInside = (node, context) =>
+	context.sourceCode.getCommentsInside(node).length > 0;
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -124,11 +158,16 @@ const create = context => {
 	context.on('BinaryExpression', /** @param {import('estree').BinaryExpression} node */ node => {
 		const {right, operator} = node;
 
-		if ((operator !== 'instanceof') || (right.type !== 'Identifier') || exclude.includes(right.name)) {
+		if (operator !== 'instanceof') {
 			return;
 		}
 
-		const constructorName = right.name;
+		const constructor = getConstructor(right, context);
+		if (!constructor || exclude.includes(constructor.name)) {
+			return;
+		}
+
+		const {name: constructorName, referenceText} = constructor;
 
 		/** @type {import('eslint').Rule.ReportDescriptor} */
 		const problem = {
@@ -140,24 +179,31 @@ const create = context => {
 			constructorName === 'Array'
 			|| (constructorName === 'Error' && useErrorIsError)
 		) {
-			const functionName = constructorName === 'Array' ? 'Array.isArray' : 'Error.isError';
+			const methodName = constructorName === 'Array' ? 'isArray' : 'isError';
+			const functionName = `${referenceText}.${methodName}`;
 			problem.fix = replaceWithFunctionCall(node, context, functionName);
 			return problem;
 		}
 
 		if (constructorName === 'Function') {
-			problem.fix = replaceWithTypeOfExpression(node, context);
+			if (!hasCommentsInside(right, context)) {
+				problem.fix = replaceWithTypeOfExpression(node, context, constructorName);
+			}
+
 			return problem;
 		}
 
 		if (primitiveWrappers.has(constructorName)) {
-			problem.suggest = [
-				{
-					messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
-					data: {type: constructorName.toLowerCase()},
-					fix: replaceWithTypeOfExpression(node, context),
-				},
-			];
+			if (!hasCommentsInside(right, context)) {
+				problem.suggest = [
+					{
+						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,
+						data: {type: constructorName.toLowerCase()},
+						fix: replaceWithTypeOfExpression(node, context, constructorName),
+					},
+				];
+			}
+
 			return problem;
 		}
 
