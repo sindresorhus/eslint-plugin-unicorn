@@ -1,4 +1,8 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {
+	findVariable,
+	getPropertyName,
+	getStaticValue,
+} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isMemberExpression,
@@ -14,18 +18,33 @@ import {
 
 const MESSAGE_ID = 'prefer-abort-signal-timeout';
 const SUGGESTION_ID = 'prefer-abort-signal-timeout/suggestion';
+const MAX_TIMEOUT_DELAY = (2 ** 32) - 1;
+const reasonSensitiveProperties = new Set([
+	'reason',
+	'throwIfAborted',
+]);
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer `AbortSignal.timeout()` over manually aborting an `AbortController` with `setTimeout()`.',
 	[SUGGESTION_ID]: 'Replace with `AbortSignal.timeout()`.',
 };
 
+const getStatementList = statement => {
+	if (Array.isArray(statement.parent.body)) {
+		return statement.parent.body;
+	}
+
+	if (Array.isArray(statement.parent.consequent)) {
+		return statement.parent.consequent;
+	}
+};
+
 const getNextStatement = statement => {
-	if (!Array.isArray(statement.parent.body)) {
+	const statements = getStatementList(statement);
+	if (!statements) {
 		return;
 	}
 
-	const statements = statement.parent.body;
 	return statements[statements.indexOf(statement) + 1];
 };
 
@@ -115,15 +134,37 @@ const isForLoopLeftSide = node =>
 	)
 	&& node.parent.left === node;
 
-const isReasonSensitiveRead = node =>
-	isMemberExpression(node.parent, {
-		properties: [
-			'reason',
-			'throwIfAborted',
-		],
-		computed: false,
-	})
-	&& node.parent.object === node;
+const isReasonSensitiveProperty = (node, context) =>
+	reasonSensitiveProperties.has(getPropertyName(node, context.sourceCode.getScope(node)));
+
+const isReasonSensitiveRead = (node, context) =>
+	isMemberExpression(node.parent)
+	&& node.parent.object === node
+	&& isReasonSensitiveProperty(node.parent, context);
+
+const getDestructuringPattern = node => {
+	if (
+		node.parent.type === 'VariableDeclarator'
+		&& node.parent.init === node
+	) {
+		return node.parent.id;
+	}
+
+	if (
+		node.parent.type === 'AssignmentExpression'
+		&& node.parent.right === node
+	) {
+		return node.parent.left;
+	}
+};
+
+const isReasonSensitiveDestructuring = (node, context) => {
+	const pattern = getDestructuringPattern(node);
+	return pattern?.type === 'ObjectPattern'
+		&& pattern.properties.some(property =>
+			property.type === 'Property'
+			&& isReasonSensitiveProperty(property, context));
+};
 
 const getSignalMember = (identifier, context) => {
 	const {parent} = identifier;
@@ -137,7 +178,8 @@ const getSignalMember = (identifier, context) => {
 		|| parent.object !== identifier
 		|| isLeftHandSide(parent)
 		|| isForLoopLeftSide(parent)
-		|| isReasonSensitiveRead(parent)
+		|| isReasonSensitiveRead(parent, context)
+		|| isReasonSensitiveDestructuring(parent, context)
 		|| hasCommentInRange(context, context.sourceCode.getRange(parent))
 	) {
 		return;
@@ -178,6 +220,36 @@ const isInsideRange = (node, range, sourceCode) => {
 	const nodeRange = sourceCode.getRange(node);
 	return nodeRange[0] >= range[0] && nodeRange[1] <= range[1];
 };
+
+const hasCommentBetween = (context, leftNode, rightNode) => {
+	const {sourceCode} = context;
+	const [, leftEnd] = sourceCode.getRange(leftNode);
+	const [rightStart] = sourceCode.getRange(rightNode);
+
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return commentStart >= leftEnd && commentEnd <= rightStart;
+	});
+};
+
+const isValidAbortSignalTimeoutDelay = (node, context) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+
+	if (!staticValue) {
+		return true;
+	}
+
+	const {value} = staticValue;
+	return typeof value === 'number'
+		&& Number.isSafeInteger(value)
+		&& value >= 0
+		&& value <= MAX_TIMEOUT_DELAY;
+};
+
+const shouldSkipDelay = (delay, signalMembers, timeoutStatementRange, context) =>
+	delay.type === 'SequenceExpression'
+	|| !isValidAbortSignalTimeoutDelay(delay, context)
+	|| signalMembers.some(signalMember => isInsideRange(signalMember, timeoutStatementRange, context.sourceCode));
 
 const hasNameConflict = (name, variable, node, context) => {
 	const existingVariable = findVariable(context.sourceCode.getScope(node), name);
@@ -232,6 +304,7 @@ const createProblem = (declarator, context) => {
 	const timeoutCall = getTimeoutCall(timeoutStatement, context);
 	if (
 		!timeoutCall
+		|| hasCommentBetween(context, declaration, timeoutStatement)
 		|| hasCommentInRange(context, sourceCode.getRange(timeoutStatement))
 		|| getLastTrailingCommentOnSameLine(context, timeoutStatement)
 	) {
@@ -259,10 +332,7 @@ const createProblem = (declarator, context) => {
 
 	const timeoutStatementRange = sourceCode.getRange(timeoutStatement);
 	const [, delay] = timeoutCall.arguments;
-	if (
-		delay.type === 'SequenceExpression'
-		|| signalMembers.some(signalMember => isInsideRange(signalMember, timeoutStatementRange, sourceCode))
-	) {
+	if (shouldSkipDelay(delay, signalMembers, timeoutStatementRange, context)) {
 		return;
 	}
 
