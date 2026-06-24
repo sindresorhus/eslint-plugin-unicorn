@@ -53,14 +53,15 @@ const isFirstTokenOfExpressionStatement = (node, context) => {
 const addSemicolonIfNeeded = (node, text, context) =>
 	isFirstTokenOfExpressionStatement(node, context) && needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 
+const isTransparentWrapperOf = (parent, node) =>
+	parent.type === 'ParenthesizedExpression'
+	|| unwrapTypeScriptExpression(parent) === unwrapTypeScriptExpression(node);
+
 const getNodeAfterTransparentWrappers = node => {
 	while (node.parent) {
 		const {parent} = node;
 
-		if (
-			parent.type === 'ParenthesizedExpression'
-			|| unwrapTypeScriptExpression(parent) === node
-		) {
+		if (isTransparentWrapperOf(parent, node)) {
 			node = parent;
 			continue;
 		}

@@ -56,6 +56,8 @@ test.snapshot({
 		typescript('function foo(a: Set<string>, b: Set<string>) { return ([...a].filter(value => b.has(value)) satisfies string[]); }'),
 		typescript('function foo(a: Set<string>, b: Set<string>) { return ([...a].filter(value => b.has(value)) as string[]).map(fn); }'),
 		typescript('function foo(a: Set<string>, b: Set<string>) { return ([...a].filter(value => b.has(value))!).map(fn); }'),
+		typescript('function foo(a: Set<string>, b: Set<string>) { return (([...a].filter(value => b.has(value)) as string[])!).map(fn); }'),
+		typescript('function foo(a: Set<string>, b: Set<string>) { return foo(([...a].filter(value => b.has(value)) as string[])!); }'),
 		typescript('type Set<T> = T[]; function foo(a: Set<string>, b: Set<string>) { new Set([...a, ...b]); }'),
 		typescript('function foo() { type Set<T> = T[]; const a: Set<string> = []; const b: Set<string> = []; new Set([...a, ...b]); }'),
 		typeAware('import {Set} from "immutable"; declare const a: Set<string>; declare const b: Set<string>; new Set([...a, ...b]);'),

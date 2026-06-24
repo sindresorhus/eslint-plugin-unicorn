@@ -18,10 +18,11 @@ test.snapshot({
 		// Comments inside unrelated arrays are ignored.
 		'const values = [/* comment */ ...foo, ...bar]',
 
-		// Existing rules own these cases.
+		// `prefer-set-methods` handles or intentionally ignores known Set unions.
 		'new Set([...iterator.toArray(), ...other])',
 		'const a = new Set(); const b = new Set(); new Set([...a, ...b])',
 		'const a = new Set(); const b = new Set(); new Set([...(condition ? a : a), ...b])',
+		'const a = new Set(); new Set([...a, ...new Set((a.clear(), []))])',
 		'[...[...foo, ...bar]]',
 		'call(...[...foo, ...bar])',
 		'call(value, ...[...foo, ...bar])',

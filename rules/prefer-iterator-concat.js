@@ -1,4 +1,3 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {
 	getParenthesizedText,
@@ -94,14 +93,7 @@ const isToArrayCall = node => isMethodCall(node, {
 const hasToArraySpreadElement = arrayExpression =>
 	arrayExpression.elements.some(element => isToArrayCall(element.argument));
 
-const isSafeSetMethodsUnionOperand = (node, context) =>
-	(
-		isNewExpression(node, {name: 'Set', argumentsLength: 0})
-		&& isGlobalIdentifier(node.callee, context)
-	)
-	|| !hasSideEffect(node, context.sourceCode, {considerGetters: true});
-
-const isSetMethodsUnionCase = (arrayExpression, context) => {
+const isKnownSetUnionCase = (arrayExpression, context) => {
 	const {parent} = arrayExpression;
 
 	return (
@@ -112,10 +104,7 @@ const isSetMethodsUnionCase = (arrayExpression, context) => {
 		&& parent.arguments[0] === arrayExpression
 		&& isGlobalIdentifier(parent.callee, context)
 		&& context.sourceCode.getCommentsInside(parent).length === 0
-		&& arrayExpression.elements.every(element =>
-			isBuiltinSet(element.argument, context)
-			&& isSafeSetMethodsUnionOperand(element.argument, context),
-		)
+		&& arrayExpression.elements.every(element => isBuiltinSet(element.argument, context))
 	);
 };
 
@@ -149,7 +138,7 @@ const create = context => {
 			!isSpreadArray(node)
 			|| !isInIterableAcceptingParent(node)
 			|| hasToArraySpreadElement(node)
-			|| isSetMethodsUnionCase(node, context)
+			|| isKnownSetUnionCase(node, context)
 		) {
 			return;
 		}
