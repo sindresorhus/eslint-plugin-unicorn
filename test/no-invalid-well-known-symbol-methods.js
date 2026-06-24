@@ -134,7 +134,29 @@ test.snapshot({
 			class Resource {
 				async [Symbol.dispose]() {}
 			}
+
+			using resource = new Resource();
 		`,
+		{
+			code: outdent`
+				class Resource {
+					[Symbol.dispose](): PromiseLike<void> {
+						return promise;
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				class Resource {
+					[Symbol.dispose](): Promise<void> | void {
+						return Promise.resolve();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const object = {
 				async [Symbol.dispose]() {},
