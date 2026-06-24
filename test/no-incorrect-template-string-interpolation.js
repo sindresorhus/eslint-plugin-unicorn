@@ -35,6 +35,20 @@ test.snapshot({
 		'const code = `const {foo} = bar;`;',
 		'const code = `let {foo} = bar;`;',
 		'const code = `var {foo} = bar;`;',
+		// JSDoc/braces inside embedded block comments are not interpolation mistakes
+		'const code = `/**\n * @param {string} [id]\n */`;',
+		'const code = `/* {number} */`;',
+		'const code = `/* {MyType} */`;',
+		'const code = `/* {foo.Bar} */`;',
+		'const code = `/** ${description} @param {string} id */`;',
+		'const code = `/** ${/* first */ (description)} @param {string} id */`;',
+		'const code = `/** ${/* first */\r\n (description)} @param {string} id */`;',
+		'const code = `/** ${description /* note */} @param {string} id */`;',
+		'const code = `/** ${description}\r\n * @param {string} id\r\n */`;',
+		// The missing-opening-brace form is also ignored inside block comments
+		'const code = `/* $name} */`;',
+		// Multiple braces inside a single block comment are all ignored
+		'const code = `/* {a} {b} */`;',
 	],
 	invalid: [
 		'const greeting = `Hello {name}`;',
@@ -56,5 +70,15 @@ test.snapshot({
 		'const greeting = `Hello {firstName} ${middleName} {lastName}`;',
 		'const greeting = `${salutation}, {name}`;',
 		'const greeting = `${salutation}, {name} ${punctuation}`;',
+		// A closed block comment spanning an interpolation does not suppress a real mistake after it
+		'const code = `/** ${description}\r\n*/ {name}`;',
+		// A closed block comment does not suppress a real mistake after it
+		'const code = `/* doc */ Hello {name}`;',
+		// A real mistake before a block comment is reported, while the comment brace is ignored
+		'const code = `{name} /* {type} */`;',
+		// A stray `/*` (no closing `*/`) is not a comment, so the mistake is still reported
+		'const code = `const re = "/*"; {name}`;',
+		// Line comments are intentionally unsupported
+		'const code = `// {name}`;',
 	],
 });
