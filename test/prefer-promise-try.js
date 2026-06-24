@@ -10,7 +10,10 @@ test.snapshot({
 		'new Promise(resolve => resolve(...values));',
 		'new Promise(resolve => resolve(fn));',
 		'new Promise(resolve => resolve(new Foo()));',
-		'new Promise(resolve => resolve(fn?.()));',
+		{
+			code: 'new Promise(resolve => resolve(value as Result));',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'new Promise(resolve => resolve(fn(resolve)));',
 		'new Promise(resolve => resolve(resolve()));',
 		'new Promise(resolve => resolve(fn()), extra);',
@@ -31,6 +34,10 @@ test.snapshot({
 		'Promise.resolve(value).then(fn);',
 		'Promise.resolve().then(fn, onRejected);',
 		'Promise.resolve().then(undefined);',
+		{
+			code: 'Promise.resolve().then(undefined as Callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'Promise.resolve().then(null);',
 		'Promise.resolve().then(condition && fn);',
 		'Promise.resolve().then(fn());',
@@ -48,9 +55,12 @@ test.snapshot({
 		'new Promise(resolve => resolve(fn(arg)));',
 		'new Promise(resolve => resolve(object.method()));',
 		'new Promise(resolve => resolve(object["method"]()));',
+		'new Promise(resolve => resolve(fn?.()));',
 		'new Promise(resolve => { resolve(fn()); });',
 		'(new Promise(resolve => resolve(fn())))',
 		'new (new Promise(resolve => resolve(fn())))();',
+		'new (new Promise(resolve => resolve(fn()))).foo();',
+		'new (new Promise(resolve => resolve(fn()))).foo.bar();',
 		{
 			code: 'new Promise<string>(resolve => resolve(fn()));',
 			languageOptions: {parser: parsers.typescript},
@@ -71,6 +81,18 @@ test.snapshot({
 			code: 'new Promise(resolve => resolve(fn<string>()));',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'new Promise(resolve => resolve(fn() as Result));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new Promise(resolve => resolve(fn()!));',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new Promise(resolve => resolve(fn() satisfies Result));',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'new Promise(resolve => resolve(/* keep */ fn()));',
 		outdent`
 			new Promise(resolve => {
@@ -81,6 +103,23 @@ test.snapshot({
 		'Promise.resolve().then(fn);',
 		'Promise.resolve().then(object.method);',
 		'Promise.resolve().then(() => fn());',
+		'Promise.resolve().then(function () { return fn(); });',
 		'const promise = Promise.resolve().then(fn);',
+		{
+			code: 'Promise.resolve().then(fn!);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Promise.resolve().then(fn as Callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Promise.resolve().then(fn satisfies Callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Promise.resolve().then(<Callback>fn);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

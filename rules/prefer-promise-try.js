@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isCallExpression, isMethodCall, isNewExpression} from './ast/index.js';
-import {getParenthesizedRange, isGlobalIdentifier} from './utils/index.js';
+import {getParenthesizedRange, isGlobalIdentifier, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-promise-try';
 const messages = {
@@ -53,7 +53,10 @@ const isResolveCall = (node, resolveName) => (
 	&& isIdentifierReference(node.callee, resolveName)
 );
 
-const getPromiseTryArgumentText = (callExpression, sourceCode) => `() => ${sourceCode.getText(callExpression)}`;
+const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
+const unwrapCallExpression = node => unwrapChainExpression(unwrapTypeScriptExpression(node));
+
+const getPromiseTryArgumentText = (resolvedExpression, sourceCode) => `() => ${sourceCode.getText(resolvedExpression)}`;
 
 const hasExecutorTypeSyntax = executor => Boolean(
 	executor.params[0].typeAnnotation
@@ -61,15 +64,30 @@ const hasExecutorTypeSyntax = executor => Boolean(
 	|| executor.typeParameters,
 );
 
-function getFix(newExpression, resolvedCallExpression, context) {
+const isPartOfNewExpressionCallee = node => {
+	let currentNode = node;
+	let parentNode = node.parent;
+
+	while (
+		parentNode.type === 'MemberExpression'
+		&& parentNode.object === currentNode
+	) {
+		currentNode = parentNode;
+		parentNode = parentNode.parent;
+	}
+
+	return (
+		parentNode.type === 'NewExpression'
+		&& parentNode.callee === currentNode
+	);
+};
+
+function getFix(newExpression, resolvedExpression, context) {
 	const {sourceCode} = context;
 	const [executor] = newExpression.arguments;
 	if (
 		hasExecutorTypeSyntax(executor)
-		|| (
-			newExpression.parent.type === 'NewExpression'
-			&& newExpression.parent.callee === newExpression
-		)
+		|| isPartOfNewExpressionCallee(newExpression)
 	) {
 		return;
 	}
@@ -81,7 +99,7 @@ function getFix(newExpression, resolvedCallExpression, context) {
 
 	return fixer => fixer.replaceTextRange(
 		replaceRange,
-		`Promise.try${getTypeArgumentsText(newExpression, sourceCode)}(${getPromiseTryArgumentText(resolvedCallExpression, sourceCode)})`,
+		`Promise.try${getTypeArgumentsText(newExpression, sourceCode)}(${getPromiseTryArgumentText(resolvedExpression, sourceCode)})`,
 	);
 }
 
@@ -108,8 +126,8 @@ function getResolvedCallExpression(newExpression, context) {
 		return;
 	}
 
-	const [resolvedValue] = expression.arguments;
-	if (!isCallExpression(resolvedValue, {optional: false})) {
+	const resolvedValue = expression.arguments[0];
+	if (!isCallExpression(unwrapCallExpression(resolvedValue))) {
 		return;
 	}
 
@@ -121,6 +139,8 @@ function getResolvedCallExpression(newExpression, context) {
 }
 
 const isThenCallbackCandidate = node => {
+	node = unwrapTypeScriptExpression(node);
+
 	switch (node.type) {
 		case 'ArrowFunctionExpression':
 		case 'FunctionExpression':
