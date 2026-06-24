@@ -1,6 +1,6 @@
 # prefer-aggregate-error
 
-📝 Prefer `AggregateError` when throwing multiple collected errors.
+📝 Prefer `AggregateError` when throwing collected errors.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces using [`AggregateError`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError) when a collected `Error` array is checked before throwing a generic `Error`.
+This rule enforces using [`AggregateError`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError) when a collected array of `Error` instances or built-in `Error` subclasses is checked before throwing a generic `Error`.
 
 `AggregateError` keeps the collected errors available on the thrown error instead of losing them behind a summary message.
 
-The rule intentionally targets only direct guarded throws where the collection name clearly refers to errors and the error collection is evident from TypeScript annotations or type information. More indirect collection flow is ignored.
+The rule intentionally targets only direct guarded throws where the collection name clearly refers to errors and the error collection is evident from TypeScript annotations or type information. Custom error subclasses require type information. More indirect collection flow is ignored.
 
 ## Examples
 

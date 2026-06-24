@@ -14,7 +14,7 @@ import {
 
 const MESSAGE_ID = 'prefer-aggregate-error';
 const messages = {
-	[MESSAGE_ID]: 'Use `AggregateError` when throwing multiple collected errors.',
+	[MESSAGE_ID]: 'Use `AggregateError` when throwing collected errors.',
 };
 
 const errorCollectionNamePattern = /[Ee]rrors$|[Ee]rror(?:List|Array|Collection)$/u;
@@ -463,7 +463,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `AggregateError` when throwing multiple collected errors.',
+			description: 'Prefer `AggregateError` when throwing collected errors.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
