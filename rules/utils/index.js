@@ -68,6 +68,7 @@ export {
 } from './is-array.js';
 export {default as shouldSkipKnownNonArrayReceiver} from './should-skip-known-non-array-receiver.js';
 export {isRegExp, isKnownNonRegExp} from './is-reg-exp.js';
+export {default as isEvent, isKnownNonEvent} from './is-event.js';
 export {isSet, isKnownNonSet} from './is-set.js';
 export {isMap, isKnownNonMap} from './is-map.js';
 export {isWeakMap, isKnownNonWeakMap} from './is-weak-map.js';

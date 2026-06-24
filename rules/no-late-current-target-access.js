@@ -1,84 +1,22 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMemberExpression, isFunction} from './ast/index.js';
-import {containsSuspensionPoint} from './utils/index.js';
+import {isMemberExpression} from './ast/index.js';
+import {
+	createLateEventHandlerTracker,
+	eventParameterNamePattern,
+	getEnclosingFunction,
+} from './shared/late-event-handler.js';
 
 const MESSAGE_ID_AFTER_SUSPENSION = 'after-suspension';
 const MESSAGE_ID_IN_NESTED_FUNCTION = 'in-nested-function';
-const eventParameterNamePattern = /^(?:e|event|evt|[a-z][\dA-Za-z]*Event)$/u;
 const messages = {
 	[MESSAGE_ID_AFTER_SUSPENSION]: '`{{name}}.currentTarget` is `null` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.',
 	[MESSAGE_ID_IN_NESTED_FUNCTION]: '`{{name}}.currentTarget` is `null` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.',
 };
 
-const getEnclosingFunction = node => {
-	for (let current = node.parent; current; current = current.parent) {
-		if (isFunction(current)) {
-			return current;
-		}
-	}
-};
-
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	// Functions that have passed a suspension point (`await`/`for await…of`/`yield`) at the current point of the traversal.
-	const suspendedFunctions = new Set();
-
-	// ESLint traverses in source order and fires `onExit` only after the whole subtree of the
-	// suspension point is visited, so by the time a later access is reached it has “completed”.
-	const markSuspended = node => {
-		const functionNode = getEnclosingFunction(node);
-		if (functionNode) {
-			suspendedFunctions.add(functionNode);
-		}
-	};
-
-	const isRepeatedLoopPart = (loop, child) => {
-		switch (loop.type) {
-			case 'ForStatement': {
-				return [
-					loop.test,
-					loop.update,
-					loop.body,
-				].includes(child);
-			}
-
-			case 'ForInStatement':
-			case 'ForOfStatement': {
-				return child !== loop.right;
-			}
-
-			case 'DoWhileStatement':
-			case 'WhileStatement': {
-				return true;
-			}
-
-			default: {
-				return false;
-			}
-		}
-	};
-
-	const isInsideSuspendingLoop = (node, functionNode) => {
-		for (let child = node, current = node.parent; current && current !== functionNode; child = current, current = current.parent) {
-			if (
-				isRepeatedLoopPart(current, child)
-				&& containsSuspensionPoint(current, sourceCode.visitorKeys)
-			) {
-				return true;
-			}
-		}
-
-		return false;
-	};
-
-	context.onExit('AwaitExpression', markSuspended);
-	context.onExit('YieldExpression', markSuspended);
-	context.onExit('ForOfStatement', node => {
-		if (node.await) {
-			markSuspended(node);
-		}
-	});
+	const lateEventHandlerTracker = createLateEventHandlerTracker(context);
 
 	context.on('MemberExpression', node => {
 		if (
@@ -104,8 +42,8 @@ const create = context => {
 
 		if (
 			!isInNestedFunction
-			&& !suspendedFunctions.has(handlerFunction)
-			&& !isInsideSuspendingLoop(node, handlerFunction)
+			&& !lateEventHandlerTracker.isFunctionSuspended(handlerFunction)
+			&& !lateEventHandlerTracker.isInsideSuspendingLoop(node, handlerFunction)
 		) {
 			return;
 		}
