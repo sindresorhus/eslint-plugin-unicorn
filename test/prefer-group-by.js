@@ -37,6 +37,16 @@ test.snapshot({
 		'Array(3).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
 		'Array(length).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
 		'new Array(3).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
+		'Array(3).map(item => item).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
+		'[, item].map(item => item).reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
+		{
+			code: '(Array(3).map(item => item) as Item[]).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<Item[]>Array(3).map(item => item)).reduce((groups, item) => {groups[item] ??= []; groups[item].push(item); return groups;}, {});',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'items[foo?.bar].reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
 		'foo?.items.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
 		'items?.reduce((groups, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});',
@@ -107,6 +117,14 @@ test.snapshot({
 		},
 		{
 			code: 'function foo(items: Item[]) {items.reduce((groups, item: Item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(items: Item[]) {items.reduce((groups: Record<string, Item[]>, item) => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(items: Item[]) {items.reduce((groups, item): Record<string, Item[]> => {groups[item.type] ??= []; groups[item.type].push(item); return groups;}, {});}',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

@@ -10,6 +10,7 @@ import {
 	isKnownNonArray,
 	isSameIdentifier,
 	isSameReference,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
 
@@ -435,9 +436,21 @@ const isSingleArgumentArrayConstruction = node =>
 	&& node.callee.name === 'Array'
 	&& node.arguments.length === 1;
 
-const isSparseArrayReceiver = node =>
-	isSparseArrayExpression(node)
-	|| isSingleArgumentArrayConstruction(node);
+function isSparseArrayReceiver(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	return isSparseArrayExpression(node)
+		|| isSingleArgumentArrayConstruction(node)
+		|| (
+			node.type === 'MemberExpression'
+			&& isSparseArrayReceiver(node.object)
+		)
+		|| (
+			node.type === 'CallExpression'
+			&& node.callee.type === 'MemberExpression'
+			&& isSparseArrayReceiver(node.callee.object)
+		);
+}
 
 const shouldSkipReduceCall = (callExpression, context) =>
 	!isMethodCall(callExpression, {
@@ -516,6 +529,8 @@ function getGroupByProblem(callExpression, context) {
 	if (
 		callExpression.typeArguments
 		|| callExpression.typeParameters
+		|| callbackParts.accumulator.typeAnnotation
+		|| callback.returnType
 		|| (
 			callback.type === 'FunctionExpression'
 			&& hasFunctionSpecificReference(key)
