@@ -5,6 +5,10 @@ import {
 	isStringLiteral,
 } from './ast/index.js';
 import {unwrapExpression} from './utils/comparison.js';
+import {
+	getConstVariableInitializer,
+	isKnownNonString,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-string-replacement';
 const messages = {
@@ -34,6 +38,25 @@ const isAllowedReplacement = (node, sourceCode) => {
 		|| isFunction(node);
 };
 
+const objectCoercionPropertyNames = new Set([
+	'__proto__',
+	'toString',
+	'valueOf',
+]);
+
+const isPlainObjectReplacement = (node, context) => {
+	node = unwrapExpression(node);
+	const replacement = unwrapExpression(getConstVariableInitializer(node, context) ?? node);
+
+	return replacement.type === 'ObjectExpression'
+		&& replacement.properties.every(property =>
+			property.type === 'Property'
+			&& !property.computed
+			&& !property.method
+			&& property.kind === 'init'
+			&& !objectCoercionPropertyNames.has(property.key.name ?? property.key.value));
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
@@ -46,6 +69,14 @@ const create = context => {
 
 		const [, replacement] = node.arguments;
 		if (isAllowedReplacement(replacement, context.sourceCode)) {
+			return;
+		}
+
+		if (isPlainObjectReplacement(replacement, context)) {
+			return;
+		}
+
+		if (isKnownNonString(node.callee.object, context)) {
 			return;
 		}
 
