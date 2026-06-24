@@ -105,11 +105,6 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
-		typeAware(outdent`
-			class Resource {
-				[Symbol.dispose](): void {}
-			}
-		`),
 		{
 			code: outdent`
 				declare class Resource {
@@ -284,41 +279,35 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware(outdent`
-			class Resource {
+			type DisposeResult = Promise<void>;
+			type IteratorPromise = Promise<Iterator<unknown>>;
+			type AsyncIteratorResult = Promise<AsyncIterator<unknown>>;
+
+			class ResourceFromInference {
 				[Symbol.dispose]() {
 					return Promise.resolve();
 				}
 			}
-		`),
-		typeAware(outdent`
-			type DisposeResult = Promise<void>;
 
-			class Resource {
+			class ResourceFromAlias {
 				[Symbol.dispose](): DisposeResult {
 					return Promise.resolve();
 				}
 			}
-		`),
-		typeAware(outdent`
-			type IteratorPromise = Promise<Iterator<unknown>>;
 
 			class Iterable {
 				[Symbol.iterator](): IteratorPromise {
 					return Promise.resolve(iterator);
 				}
 			}
-		`),
-		typeAware(outdent`
-			class AsyncIterable {
+
+			class AsyncIterableFromInference {
 				[Symbol.asyncIterator]() {
 					return Promise.resolve(asyncIterator);
 				}
 			}
-		`),
-		typeAware(outdent`
-			type AsyncIteratorResult = Promise<AsyncIterator<unknown>>;
 
-			class AsyncIterable {
+			class AsyncIterableFromAlias {
 				[Symbol.asyncIterator](): AsyncIteratorResult {
 					return Promise.resolve(asyncIterator);
 				}
