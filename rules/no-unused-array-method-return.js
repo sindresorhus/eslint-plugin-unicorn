@@ -1,5 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isValueNotUsable} from './utils/index.js';
+import {isArray, isValueNotUsable} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unused-array-method-return';
 const messages = {
@@ -36,6 +36,10 @@ const methods = new Set([
 	'toSpliced',
 	'values',
 	'with',
+]);
+
+const methodsRequiringArrayReceiver = new Set([
+	'values',
 ]);
 
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
@@ -238,6 +242,11 @@ const isObviouslyNonArrayReceiver = (node, context) => {
 		);
 };
 
+const shouldSkipReceiver = (node, method, context) =>
+	methodsRequiringArrayReceiver.has(method)
+		? !isArray(node, context)
+		: isObviouslyNonArrayReceiver(node, context);
+
 const getTrackedMethodName = (node, context) =>
 	node.callee.type === 'MemberExpression'
 		? getStaticPropertyName(node.callee, context)
@@ -294,7 +303,7 @@ const create = context => {
 		if (
 			!methods.has(method)
 			|| !isDiscardedExpression(node)
-			|| isObviouslyNonArrayReceiver(node.callee.object, context)
+			|| shouldSkipReceiver(node.callee.object, method, context)
 		) {
 			return;
 		}

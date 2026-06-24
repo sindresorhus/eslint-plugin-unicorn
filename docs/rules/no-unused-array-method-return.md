@@ -37,6 +37,8 @@ This rule covers selected array instance methods that return a computed value:
 - `.values()`
 - `.with()`
 
+For `.values()`, this rule only reports known array receivers because common non-array APIs like `Map`, `Set`, and database query builders also use that method name.
+
 It does not report mutating methods like `.copyWithin()`, `.fill()`, `.forEach()`, `.pop()`, `.push()`, `.reverse()`, `.shift()`, `.sort()`, `.splice()`, or `.unshift()`. Those are often called for their side effects, so reporting them would be much noisier.
 
 This is a syntax-only rule with a narrow inference boundary. It skips some obvious non-arrays such as literals, direct object literals, `String(value)`, `new Foo()`, parameter defaults, and simple declaration-based destructuring, but it intentionally does not reason about object spreads, string destructuring, `for…of` bindings, or other broader value-flow patterns. Unknown values with similarly named methods may still be reported.

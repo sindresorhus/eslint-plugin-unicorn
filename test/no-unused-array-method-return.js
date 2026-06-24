@@ -70,6 +70,9 @@ test.snapshot({
 		'let set = new Set(iterable); set.values();',
 		'const set = new Set(iterable); const alias = set; alias.values();',
 		'const [set] = [new Set(iterable)]; set.values();',
+		'array.values();',
+		'await database.insert(xProspects).values({value1: \'hello\'});',
+		'await database.insert(xProspects).values({value1: \'hello\'}).where(eq(xProspects.id, 1));',
 		'const value = undefined; value.slice(1);',
 		'function log(url) { url.toString(); }',
 		'function log(url) { url.toLocaleString(); }',
@@ -205,7 +208,9 @@ test.snapshot({
 		'array.toSorted(compare);',
 		'array.toReversed();',
 		'array.toSpliced(0, 1);',
-		'array.values();',
+		'[].values();',
+		'const array = []; array.values();',
+		'Array.from(iterable).values();',
 		'array.with(0, value);',
 		outdent`
 			const values = [];
