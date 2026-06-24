@@ -246,6 +246,7 @@ export {default as 'prefer-observer-apis'} from './prefer-observer-apis.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
 export {default as 'prefer-path2d'} from './prefer-path2d.js';
 export {default as 'prefer-private-class-fields'} from './prefer-private-class-fields.js';
+export {default as 'prefer-promise-try'} from './prefer-promise-try.js';
 export {default as 'prefer-promise-with-resolvers'} from './prefer-promise-with-resolvers.js';
 export {default as 'prefer-prototype-methods'} from './prefer-prototype-methods.js';
 export {default as 'prefer-query-selector'} from './prefer-query-selector.js';
