@@ -22,9 +22,11 @@
   - `TypedArray.from(…)`
   - `Object.fromEntries(…)`
 
-- `for…of` can iterate over any iterable, so converting to an array first is unnecessary.
+  `Array.from(…)` with a mapper is reported as a **suggestion** rather than an autofix because removing `.toArray()` changes mapper timing from after eager collection to during iteration.
 
-- `yield*` can delegate to any iterable, so converting to an array first is unnecessary.
+- `for…of` and `for await…of` can iterate over any iterable, so converting to an array first is unnecessary. Removing `.toArray()` changes eager collection to lazy iteration, so these cases are reported as **suggestions** rather than autofixes.
+
+- `yield*` can delegate to any iterable, so converting to an array first is unnecessary. Removing `.toArray()` changes eager collection to lazy delegation, so these cases are reported as **suggestions** rather than autofixes.
 
 - `Promise.{all,allSettled,any,race}(…)` accept an iterable, so `.toArray()` is unnecessary. However, removing it can change a synchronous throw into an asynchronous rejection when iteration fails, so these cases are reported as **suggestions** rather than autofixes.
 
@@ -41,7 +43,7 @@
   - `.reduce()`
   - `.some()`
 
-However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
+However, `Array` callbacks receive additional arguments (e.g., the 3rd `array` argument, or 4th for `.reduce()`) that `Iterator` callbacks do not, so removing `.toArray()` can change behavior if the callback uses those arguments. These cases are reported as **suggestions** rather than autofixes.
 
 This rule does not flag `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays, so the semantics differ.
 
