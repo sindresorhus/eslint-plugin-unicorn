@@ -20,6 +20,45 @@ const isBindingDeclaration = (raw, index) => {
 	return /^\s*(?:import|export|const|let|var)\b[^;={}]*$/.test(raw.slice(lineStart, index));
 };
 
+// `{type}` and `$expr}` inside an embedded block comment (e.g. JSDoc `@param {string}`) are not template interpolation mistakes (common in code-generation templates). Only closed `/* … */` comments count, so a stray `/*` inside a string doesn't suppress a genuine match.
+const getBlockCommentRanges = raw => raw.matchAll(/\/\*[\s\S]*?\*\//g)
+	.map(match => [match.index, match.index + match[0].length])
+	.toArray();
+
+const isInsideRanges = (ranges, index) => ranges.some(([start, end]) => index >= start && index < end);
+
+const getTemplateElementRawRange = (node, sourceCode) => {
+	const [start, end] = sourceCode.getRange(node);
+
+	return [
+		start + 1,
+		end - (node.tail ? 1 : 2),
+	];
+};
+
+const getTemplateRawWithExpressionsMasked = (node, sourceCode) => {
+	const [templateStart, templateEnd] = sourceCode.getRange(node);
+	const rawStart = templateStart + 1;
+	let raw = sourceCode.text.slice(rawStart, templateEnd - 1);
+
+	for (const [index, quasi] of node.quasis.entries()) {
+		const nextQuasi = node.quasis[index + 1];
+
+		if (!nextQuasi) {
+			break;
+		}
+
+		const [, quasiRawEnd] = getTemplateElementRawRange(quasi, sourceCode);
+		const [nextQuasiRawStart] = getTemplateElementRawRange(nextQuasi, sourceCode);
+		const maskStart = quasiRawEnd - rawStart;
+		const maskEnd = nextQuasiRawStart - rawStart;
+
+		raw = raw.slice(0, maskStart) + ' '.repeat(maskEnd - maskStart) + raw.slice(maskEnd);
+	}
+
+	return raw;
+};
+
 const getMissingDollarReplacements = raw => raw.matchAll(missingDollar)
 	.filter(match => !isBindingDeclaration(raw, match.index))
 	.map(match => ({
@@ -37,49 +76,62 @@ const getMissingOpeningBraceReplacements = raw => raw.matchAll(missingOpeningBra
 	}))
 	.toArray();
 
-const getReplacements = raw => {
+const getReplacements = (raw, blockCommentRanges, rawOffset) => {
 	const replacements = [
 		...getMissingDollarReplacements(raw),
 		...getMissingOpeningBraceReplacements(raw),
 	];
 
-	return replacements.toSorted((replacement, nextReplacement) => replacement.index - nextReplacement.index);
+	if (replacements.length === 0) {
+		return replacements;
+	}
+
+	return replacements
+		.filter(replacement => !isInsideRanges(blockCommentRanges, rawOffset + replacement.index))
+		.toSorted((replacement, nextReplacement) => replacement.index - nextReplacement.index);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('TemplateElement', function * (node) {
-		if (isTaggedTemplateLiteral(node.parent)) {
+	context.on('TemplateLiteral', function * (node) {
+		if (isTaggedTemplateLiteral(node)) {
 			return;
 		}
 
-		const rawStart = context.sourceCode.getRange(node)[0] + 1;
+		const templateRawStart = context.sourceCode.getRange(node)[0] + 1;
+		const blockCommentRanges = getBlockCommentRanges(getTemplateRawWithExpressionsMasked(node, context.sourceCode));
 
-		for (const {index, incorrect, correct} of getReplacements(node.value.raw)) {
-			const start = rawStart + index;
-			const end = start + incorrect.length;
+		for (const quasi of node.quasis) {
+			const [rawStart, rawEnd] = getTemplateElementRawRange(quasi, context.sourceCode);
+			const raw = context.sourceCode.text.slice(rawStart, rawEnd);
+			const rawOffset = rawStart - templateRawStart;
 
-			yield {
-				node,
-				loc: {
-					start: context.sourceCode.getLocFromIndex(start),
-					end: context.sourceCode.getLocFromIndex(end),
-				},
-				messageId: MESSAGE_ID,
-				data: {
-					correct,
-				},
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						data: {
-							incorrect,
-							correct,
-						},
-						fix: fixer => fixer.replaceTextRange([start, end], correct),
+			for (const {index, incorrect, correct} of getReplacements(raw, blockCommentRanges, rawOffset)) {
+				const start = rawStart + index;
+				const end = start + incorrect.length;
+
+				yield {
+					node: quasi,
+					loc: {
+						start: context.sourceCode.getLocFromIndex(start),
+						end: context.sourceCode.getLocFromIndex(end),
 					},
-				],
-			};
+					messageId: MESSAGE_ID,
+					data: {
+						correct,
+					},
+					suggest: [
+						{
+							messageId: MESSAGE_ID_SUGGESTION,
+							data: {
+								incorrect,
+								correct,
+							},
+							fix: fixer => fixer.replaceTextRange([start, end], correct),
+						},
+					],
+				};
+			}
 		}
 	});
 };
