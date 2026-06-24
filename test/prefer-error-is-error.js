@@ -1,0 +1,58 @@
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const typescript = code => ({
+	code,
+	languageOptions: {
+		parser: parsers.typescript,
+	},
+});
+
+test.snapshot({
+	valid: [
+		'Error.isError(error)',
+		'error instanceof TypeError',
+		'error instanceof CustomError',
+		'Object.prototype.toString.call(error) === "[object TypeError]"',
+		'Object.prototype.toString.call(error) === tag',
+		'getTag(error) === "[object Error]"',
+		'Object.prototype.toString.apply(error) === "[object Error]"',
+		'Object.prototype.toString.call(error, extra) === "[object Error]"',
+		'Object.prototype.toString.call() === "[object Error]"',
+		'Object.prototype.toString.call(error).slice(8, -1) === "Error"',
+		'Object.prototype["toString"].call(error) === "[object Error]"',
+		'Object.toString.call(error) === "[object Error]"',
+		'const Object = {prototype: {toString: {call() {}}}}; Object.prototype.toString.call(error) === "[object Error]"',
+		'const Error = CustomError; error instanceof Error',
+		'class Error {}; error instanceof Error',
+		'import {Error} from "error"; error instanceof Error',
+		'const Error = CustomError; Object.prototype.toString.call(error) === "[object Error]"',
+		'error instanceof /* comment */ Error',
+		'Object.prototype.toString.call(/* comment */ error) === "[object Error]"',
+		'Object.prototype.toString.call(error) === /* comment */ "[object Error]"',
+		typescript('const Error: unknown = CustomError; error instanceof Error'),
+		typescript('import {Error} from "error"; error instanceof Error'),
+		typescript('import {Error} from "error"; Object.prototype.toString.call(error) === "[object Error]"'),
+	],
+	invalid: [
+		'error instanceof Error',
+		'(error) instanceof Error',
+		'getError() instanceof Error',
+		'a + b instanceof Error',
+		'(sideEffect(), error) instanceof Error',
+		'Object.prototype.toString.call(error) === "[object Error]"',
+		'"[object Error]" === Object.prototype.toString.call(error)',
+		'Object.prototype.toString.call(error) !== "[object Error]"',
+		'"[object Error]" !== Object.prototype.toString.call(error)',
+		'({}).toString.call(error) === "[object Error]"',
+		'({}).toString.call(error) !== "[object Error]"',
+		'Object.prototype.toString.call((sideEffect(), error)) === "[object Error]"',
+		'Object.prototype.toString.call(\n\terror,\n) === \'[object Error]\'',
+		typescript('type Error = unknown; error instanceof Error'),
+		typescript('interface Error {}; error instanceof Error'),
+		typescript('import type {Error} from "error"; error instanceof Error'),
+		typescript('type Error = unknown; Object.prototype.toString.call(error) === "[object Error]"'),
+		typescript('Object.prototype.toString.call(error as unknown) === "[object Error]"'),
+	],
+});

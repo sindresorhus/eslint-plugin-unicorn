@@ -145,6 +145,46 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	valid: [
+		'foo instanceof globalThis.WebWorker',
+		'foo instanceof globalThis["Array"]',
+		'const globalThis = {Array}; foo instanceof globalThis.Array',
+		'const window = {Array}; foo instanceof window.Array',
+		{
+			code: 'foo instanceof globalThis.Array',
+			options: [{exclude: ['Array']}],
+		},
+	],
+	invalid: [
+		'foo instanceof globalThis.String',
+		'foo instanceof globalThis /* keep */ .String',
+		'foo instanceof globalThis.Function',
+		'foo instanceof globalThis /* keep */ .Function',
+		'foo instanceof globalThis.Array',
+		'const Array = {isArray: () => false}; foo instanceof globalThis.Array',
+		'foo instanceof window.Array',
+		'foo instanceof self.Array',
+		'foo instanceof global.Array',
+		{
+			code: 'foo instanceof globalThis.Error',
+			options: [{useErrorIsError: true}],
+		},
+		{
+			code: 'const Error = CustomError; foo instanceof globalThis.Error',
+			options: [{useErrorIsError: true}],
+		},
+		{
+			code: 'foo instanceof globalThis.TypeError',
+			options: [{strategy: 'strict'}],
+		},
+		{
+			code: 'foo instanceof globalThis.WebWorker',
+			options: [{include: ['WebWorker']}],
+		},
+	],
+});
+
 // Port from no-instanceof-array
 test.snapshot({
 	valid: [
