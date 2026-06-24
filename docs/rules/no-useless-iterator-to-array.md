@@ -22,11 +22,9 @@
   - `TypedArray.from(…)`
   - `Object.fromEntries(…)`
 
-  `Array.from(…)` with a mapper is reported as a **suggestion** rather than an autofix because removing `.toArray()` changes mapper timing from after eager collection to during iteration.
+- `for…of` and `for await…of` can iterate over any iterable, so converting to an array first is unnecessary.
 
-- `for…of` and `for await…of` can iterate over any iterable, so converting to an array first is unnecessary. Removing `.toArray()` changes eager collection to lazy iteration, so these cases are reported as **suggestions** rather than autofixes.
-
-- `yield*` can delegate to any iterable, so converting to an array first is unnecessary. Removing `.toArray()` changes eager collection to lazy delegation, so these cases are reported as **suggestions** rather than autofixes.
+- `yield*` can delegate to any iterable, so converting to an array first is unnecessary.
 
 - `Promise.{all,allSettled,any,race}(…)` accept an iterable, so `.toArray()` is unnecessary. However, removing it can change a synchronous throw into an asynchronous rejection when iteration fails, so these cases are reported as **suggestions** rather than autofixes.
 

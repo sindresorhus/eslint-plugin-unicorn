@@ -67,49 +67,9 @@ const getRemoveToArraySuggestion = (toArrayCall, context, messageId, data) => {
 };
 
 const getArrayFromProblem = (node, context) => {
-	// Suggestion only when a mapper is present — removing `.toArray()` makes
-	// mapping interleave with iteration instead of running after eager collection.
 	if (
 		!isMethodCall(node, {
-			object: 'Array',
-			method: 'from',
-			minimumArguments: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})
-		|| !isToArrayCall(node.arguments[0])
-	) {
-		return;
-	}
-
-	const toArrayCall = node.arguments[0];
-	const problem = {
-		node: toArrayCall.callee.property,
-		messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
-		data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
-	};
-
-	if (node.arguments.length === 1) {
-		const fix = getRemoveToArrayFix(toArrayCall, context);
-
-		return {
-			...problem,
-			...(fix && {fix}),
-		};
-	}
-
-	const suggestion = getRemoveToArraySuggestion(toArrayCall, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING);
-
-	return {
-		...problem,
-		...(suggestion && {suggest: [suggestion]}),
-	};
-};
-
-const getTypedArrayFromProblem = (node, context) => {
-	if (
-		!isMethodCall(node, {
-			objects: typedArray,
+			objects: ['Array', ...typedArray],
 			method: 'from',
 			minimumArguments: 1,
 			optionalCall: false,
@@ -261,40 +221,37 @@ const create = context => {
 	// Case 2: Call expressions — static methods and iterator prototype methods.
 	context.on('CallExpression', node =>
 		getArrayFromProblem(node, context)
-		?? getTypedArrayFromProblem(node, context)
 		?? getObjectFromEntriesProblem(node, context)
 		?? getPromiseProblem(node, context)
 		?? getIteratorMethodProblem(node, context));
 
 	// Case 3: `for (const x of iterator.toArray())`
-	// Suggestion only — removing `.toArray()` changes eager collection to lazy iteration.
 	context.on('ForOfStatement', node => {
 		if (!isToArrayCall(node.right)) {
 			return;
 		}
 
-		const suggestion = getRemoveToArraySuggestion(node.right, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING);
+		const fix = getRemoveToArrayFix(node.right, context);
 
 		return {
 			node: node.right.callee.property,
 			messageId: MESSAGE_ID_FOR_OF,
-			...(suggestion && {suggest: [suggestion]}),
+			...(fix && {fix}),
 		};
 	});
 
 	// Case 4: `yield* iterator.toArray()`
-	// Suggestion only — removing `.toArray()` changes eager collection to lazy delegation.
 	context.on('YieldExpression', node => {
 		if (!node.delegate || !isToArrayCall(node.argument)) {
 			return;
 		}
 
-		const suggestion = getRemoveToArraySuggestion(node.argument, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING);
+		const fix = getRemoveToArrayFix(node.argument, context);
 
 		return {
 			node: node.argument.callee.property,
 			messageId: MESSAGE_ID_YIELD_STAR,
-			...(suggestion && {suggest: [suggestion]}),
+			...(fix && {fix}),
 		};
 	});
 
