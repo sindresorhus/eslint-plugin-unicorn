@@ -26,6 +26,7 @@ test.snapshot({
 		'(function () { const getArguments = () => arguments; getArguments(); })();',
 		'(function () { const getNewTarget = () => new.target; getNewTarget(); })();',
 		'(function () { \'use strict\'; run(); })();',
+		'(() => { \'use strict\'; run(); })();',
 		'(function () { run(); }).call(this);',
 		'(() => { run(); })?.();',
 		outdent`
@@ -104,6 +105,15 @@ test.snapshot({
 			(() => {
 				function nested() {
 					return value;
+				}
+
+				run(nested);
+			})();
+		`,
+		outdent`
+			(() => {
+				function nested() {
+					this.run();
 				}
 
 				run(nested);

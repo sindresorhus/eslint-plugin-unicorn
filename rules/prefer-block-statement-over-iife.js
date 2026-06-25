@@ -70,7 +70,7 @@ const hasFunctionOnlyBehavior = (body, visitorKeys) => containsNodeMatching(body
 const hasFunctionContextReference = (body, visitorKeys) =>
 	containsNodeMatching(body, visitorKeys, isFunctionContextReference, isNestedNonArrowFunction);
 
-const hasScriptBlockFunctionDeclaration = (body, sourceCode) =>
+const hasScriptFunctionDeclaration = (body, sourceCode) =>
 	sourceCode.ast.sourceType === 'script'
 	&& containsNodeMatching(body, sourceCode.visitorKeys, node => node.type === 'FunctionDeclaration');
 
@@ -94,6 +94,7 @@ const getFix = (expressionStatement, body, context) => fixer =>
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const {visitorKeys} = sourceCode;
 
 	context.on('ExpressionStatement', expressionStatement => {
 		const {expression} = expressionStatement;
@@ -118,12 +119,12 @@ const create = context => {
 			|| callee.params.length > 0
 			|| callee.body.type !== 'BlockStatement'
 			|| callee.body.body.some(statement => isDirective(statement))
-			|| hasFunctionOnlyBehavior(callee.body, sourceCode.visitorKeys)
-			|| hasScriptBlockFunctionDeclaration(callee.body, sourceCode)
+			|| hasFunctionOnlyBehavior(callee.body, visitorKeys)
+			|| hasScriptFunctionDeclaration(callee.body, sourceCode)
 			|| hasWrapperComment(expressionStatement, callee.body, context)
 			|| (
 				callee.type === 'FunctionExpression'
-				&& hasFunctionContextReference(callee.body, sourceCode.visitorKeys)
+				&& hasFunctionContextReference(callee.body, visitorKeys)
 			)
 		) {
 			return;
