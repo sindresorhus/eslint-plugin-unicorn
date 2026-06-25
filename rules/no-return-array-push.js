@@ -1,5 +1,5 @@
 import {isMethodCall} from './ast/index.js';
-import {isKnownNonArray, needsSemicolon} from './utils/index.js';
+import {isArray, isKnownNonArray, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
 const MESSAGE_ID_SUGGESTION = 'no-return-array-push/suggestion';
@@ -10,7 +10,10 @@ const messages = {
 
 const ignoredCallees = [
 	'stream.push',
+	'router.push',
 	'this.push',
+	'this.router.push',
+	'this.$router.push',
 	'this.stream.push',
 	'process.stdin.push',
 	'process.stdout.push',
@@ -52,6 +55,10 @@ function isStaticMemberPath(node, path) {
 }
 
 const isIgnoredCallee = callee => ignoredCallees.some(ignoredCallee => isStaticMemberPath(callee, ignoredCallee));
+
+const isIgnoredPushCallee = (callExpression, context) =>
+	isIgnoredCallee(callExpression.callee)
+	&& !isArray(callExpression.callee.object, context);
 
 function getCallExpressionResultNode(callExpression) {
 	let node = callExpression;
@@ -133,7 +140,7 @@ const create = context => {
 		const {name: method} = property;
 
 		if (
-			(method === 'push' && isIgnoredCallee(callExpression.callee))
+			(method === 'push' && isIgnoredPushCallee(callExpression, context))
 			|| isReturnValueDiscarded(callExpression)
 			|| isResultMemberAccessed(callExpression)
 			|| isKnownNonArray(callExpression.callee.object, context)

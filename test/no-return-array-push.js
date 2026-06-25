@@ -65,6 +65,21 @@ test.snapshot({
 		`,
 		outdent`
 			function foo() {
+				return router.push(to);
+			}
+		`,
+		outdent`
+			function foo() {
+				return this.router.push(to);
+			}
+		`,
+		outdent`
+			function foo() {
+				return this.$router.push(to);
+			}
+		`,
+		outdent`
+			function foo() {
 				return stream?.push(chunk);
 			}
 		`,
@@ -161,6 +176,7 @@ test.snapshot({
 	],
 	invalid: [
 		'const length = array.push(value);',
+		'const length = routerItems.push(value);',
 		'const length = array.unshift(value);',
 		'const length = stream.unshift(chunk);',
 		'console.log(array.push(value));',
@@ -355,6 +371,7 @@ test.snapshot({
 		'array.unshift(value) satisfies number;',
 		'void (array.push(value) as number);',
 		'void (array.unshift(value) as number);',
+		'const onClick = () => router.push(`/${region}/customers/${String(result.data)}` as Route);', // eslint-disable-line no-template-curly-in-string
 		outdent`
 			function foo() {
 				return (array.push(value) as Foo).bar;
@@ -443,9 +460,19 @@ const typeAware = code => ({
 test.snapshot({
 	valid: [
 		typeAware('declare const router: {push(to: string): Promise<void>}; function foo() { return router.push(to); }'),
+		typeAware('function foo(navigation: {push(to: string): Promise<void>}) { return navigation.push(to); }'),
 		typeAware('declare const queue: {unshift(value: unknown): number}; function foo() { return queue.unshift(value); }'),
 	],
 	invalid: [
 		typeAware('declare const array: number[]; function foo() { return array.push(value); }'),
+		typeAware('function foo(stream: string[]) { return stream.push(value); }'),
+		typeAware('function foo(this: string[]) { return this.push(value); }'),
+		typeAware('function foo(router: string[]) { return router.push(value); }'),
+		typeAware('function foo(this: {router: string[]}) { return this.router.push(value); }'),
+		typeAware('function foo(this: {$router: string[]}) { return this.$router.push(value); }'),
+		typeAware('function foo(this: {stream: string[]}) { return this.stream.push(value); }'),
+		typeAware('declare const process: {stdin: string[]}; function foo() { return process.stdin.push(value); }'),
+		typeAware('declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); }'),
+		typeAware('declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); }'),
 	],
 });
