@@ -23,19 +23,38 @@ test.snapshot({
 		'const values = (await Promise.allSettled(promises)).filter(result => "fulfilled" === result.status).map(result => result.value);',
 		'const values = (await Promise.allSettled(promises)).filter(result => result.status === "fulfilled").filter(() => true).map(result => result.value);',
 		'const values = (await Promise.allSettled(promises)).filter(result => result.status !== "rejected").map(result => result.value);',
+		'const values = (await Promise.allSettled(promises)).filter(result => result.status === "fulfilled" && result.value !== undefined).map(result => result.value);',
+		'const values = (await Promise.allSettled(promises)).filter(result => result.value !== undefined && result.status === "fulfilled").map(result => result.value);',
 		'const values = (await Promise.allSettled(promises)).filter(({status}) => status === "fulfilled").map(({value}) => value);',
+		'const values = (await Promise.allSettled(promises)).filter(({status: state}) => state === "fulfilled").map(({value}) => value);',
 		'const values = (await Promise.allSettled(promises)).filter(function (result) { return result.status === "fulfilled"; }).map(function (result) { return result.value; });',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" ? result.value : undefined);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" ? undefined : result.value);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && condition && result.value);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" || result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" || condition || result.value);',
 		'const values = (await Promise.allSettled(promises)).map(({status, value}) => status === "fulfilled" ? value : undefined);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && condition ? result.value : undefined);',
+		'const values = (await Promise.allSettled(promises)).map(({status: state, value}) => state === "fulfilled" ? value : undefined);',
 		'const values = (await Promise.allSettled(promises)).map(({status, value}) => status === "fulfilled" && value);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" ? transform(result.value) : undefined);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && transform(result.value));',
 		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status === "fulfilled") { return result.value; } });',
+		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status === "fulfilled" && condition) { return result.value; } });',
 		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status !== "fulfilled") { return undefined; } else { return result.value; } });',
 		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status !== "fulfilled") { return undefined; } return result.value; });',
+		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status !== "fulfilled" || condition) { return undefined; } return result.value; });',
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== "fulfilled") {
+					console.warn(result.reason);
+					return undefined;
+				}
+
+				return result.value;
+			});
+		`,
 		'const values = (await Promise.allSettled(promises)).map(result => { if (result.status === "rejected") { throw result.reason; } return result.value; });',
 		'const values = Promise.allSettled(promises).then(results => results.filter(result => result.status === "fulfilled").map(result => result.value));',
 		'const values = Promise.allSettled(promises).then(results => results.map(result => result.status === "fulfilled" ? result.value : undefined));',
@@ -110,6 +129,16 @@ test.snapshot({
 				return [];
 			});
 		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				switch (result.status) {
+					case "rejected":
+						console.log(result.reason);
+					case "fulfilled":
+						return result.value;
+				}
+			});
+		`,
 	],
 });
 
@@ -122,7 +151,13 @@ test.snapshot({
 	valid: [
 		'const values = (results as PromiseFulfilledResult<string>[]).map(result => result.value);',
 		'const values = (results as Array<PromiseFulfilledResult<string>>).map(result => result.value);',
+		'const values = (results as PromiseFulfilledResult<{name: string}>[]).map(({value: {name}}) => name);',
 		'const values = (results as PromiseSettledResult<string>[]).filter((result): result is PromiseFulfilledResult<string> => result.status === "fulfilled").map(result => result.value);',
+		outdent`
+			const values = (results as PromiseSettledResult<{name: string}>[])
+				.filter((result): result is PromiseFulfilledResult<{name: string}> => result.status === "fulfilled")
+				.map(({value: {name}}) => name);
+		`,
 		'const values = (results as PromiseSettledResult<string>[]).filter(result => result.status === "fulfilled").map(result => result.value);',
 		'const values = (results as PromiseSettledResult<string>[]).map(result => result.status === "fulfilled" ? result.value : undefined);',
 	],
@@ -143,6 +178,11 @@ test.snapshot({
 			const values = results
 				.filter((result): result is PromiseFulfilledResult<string> => result.status === "fulfilled")
 				.map(result => result.value);
+		`),
+		typeAware(outdent`
+			declare function isFulfilled<T>(result: PromiseSettledResult<T>): result is PromiseFulfilledResult<T>;
+			declare const results: PromiseSettledResult<string>[];
+			const values = results.filter(isFulfilled).map(result => result.value);
 		`),
 		typeAware('declare const results: PromiseSettledResult<string>[]; const values = results.filter(result => result.status === "fulfilled").map(result => result.value);'),
 	],

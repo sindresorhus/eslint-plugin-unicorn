@@ -7,7 +7,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not read `.value` from `Promise.allSettled()` results without checking that the result is fulfilled.',
 };
 
-const promiseSettledResultTypeNames = new Set([
+const unsafePromiseSettledResultTypeNames = new Set([
 	'PromiseSettledResult',
 	'PromiseRejectedResult',
 ]);
@@ -95,21 +95,21 @@ function getArrayElementTypeAnnotation(node) {
 	}
 }
 
-function isPromiseSettledResultTypeAnnotation(node) {
+function isUnsafePromiseSettledResultTypeAnnotation(node) {
 	if (node?.type === 'TSTypeReference') {
 		const typeName = getTypeName(node.typeName);
-		return promiseSettledResultTypeNames.has(typeName);
+		return unsafePromiseSettledResultTypeNames.has(typeName);
 	}
 
 	if (node?.type === 'TSUnionType') {
-		return node.types.some(type => isPromiseSettledResultTypeAnnotation(type));
+		return node.types.some(type => isUnsafePromiseSettledResultTypeAnnotation(type));
 	}
 
 	return false;
 }
 
-function isPromiseSettledResultArrayTypeAnnotation(node) {
-	return isPromiseSettledResultTypeAnnotation(getArrayElementTypeAnnotation(node));
+function isUnsafePromiseSettledResultArrayTypeAnnotation(node) {
+	return isUnsafePromiseSettledResultTypeAnnotation(getArrayElementTypeAnnotation(node));
 }
 
 function isPromiseFulfilledResultTypeAnnotation(node) {
@@ -129,13 +129,13 @@ function isPromiseFulfilledResultArrayTypeAnnotation(node) {
 	return isPromiseFulfilledResultTypeAnnotation(getArrayElementTypeAnnotation(node));
 }
 
-function isPromiseSettledResultType(type, checker) {
+function isUnsafePromiseSettledResultType(type) {
 	if (type.isUnion()) {
-		return type.types.some(type => isPromiseSettledResultType(type, checker));
+		return type.types.some(type => isUnsafePromiseSettledResultType(type));
 	}
 
 	const symbol = type.aliasSymbol ?? type.getSymbol();
-	return promiseSettledResultTypeNames.has(symbol?.getName());
+	return unsafePromiseSettledResultTypeNames.has(symbol?.getName());
 }
 
 function isPromiseFulfilledResultType(type) {
@@ -184,7 +184,7 @@ function isPromiseSettledResultArrayFromTypeInformation(node, context) {
 
 	const {type, checker} = typeInformation;
 	const elementType = getArrayElementType(type, checker);
-	return Boolean(elementType && isPromiseSettledResultType(elementType, checker));
+	return Boolean(elementType && isUnsafePromiseSettledResultType(elementType));
 }
 
 function isPromiseFulfilledResultFromTypeInformation(node, context) {
@@ -197,13 +197,24 @@ function isPromiseFulfilledResultFromTypeInformation(node, context) {
 	return isPromiseFulfilledResultType(type);
 }
 
+function isPromiseFulfilledResultArrayFromTypeInformation(node, context) {
+	const typeInformation = getTypeInformation(node, context);
+	if (!typeInformation) {
+		return false;
+	}
+
+	const {type, checker} = typeInformation;
+	const elementType = getArrayElementType(type, checker);
+	return Boolean(elementType && isPromiseFulfilledResultType(elementType));
+}
+
 const isTypeAssertion = node =>
 	node?.type === 'TSAsExpression'
 	|| node?.type === 'TSTypeAssertion';
 
 const isPromiseSettledResultArrayTypeAssertion = node =>
 	isTypeAssertion(node)
-	&& isPromiseSettledResultArrayTypeAnnotation(node.typeAnnotation);
+	&& isUnsafePromiseSettledResultArrayTypeAnnotation(node.typeAnnotation);
 
 function isPromiseSettledResultVariable(node, context, visitedVariables) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
@@ -219,7 +230,7 @@ function isPromiseSettledResultVariable(node, context, visitedVariables) {
 
 	const [definition] = variable.defs;
 	const isPromiseSettledResult = Boolean(
-		isPromiseSettledResultArrayTypeAnnotation(definition.name?.typeAnnotation)
+		isUnsafePromiseSettledResultArrayTypeAnnotation(definition.name?.typeAnnotation)
 		|| (
 			definition.type === 'Variable'
 			&& definition.parent.kind === 'const'
@@ -278,7 +289,7 @@ function isPromiseSettledResultArray(node, context, visitedVariables = new Set()
 		return true;
 	}
 
-	if (isPromiseSettledResultArrayTypeAnnotation(node.typeAnnotation) || isPromiseSettledResultArrayFromTypeInformation(node, context)) {
+	if (isUnsafePromiseSettledResultArrayTypeAnnotation(node.typeAnnotation) || isPromiseSettledResultArrayFromTypeInformation(node, context)) {
 		return true;
 	}
 
@@ -319,6 +330,49 @@ const getParameterStatusIdentifier = parameter => {
 	}
 };
 
+const getStatusLiteral = node => {
+	if (node?.type === 'Literal' && (node.value === 'fulfilled' || node.value === 'rejected')) {
+		return node.value;
+	}
+};
+
+function isStatusReference(node, statusContext) {
+	node = unwrapExpression(node);
+
+	if (
+		statusContext.statusVariable
+		&& isSameVariableReference(node, statusContext.statusVariable, statusContext.context)
+	) {
+		return true;
+	}
+
+	if (
+		!statusContext.statusVariable
+		&& statusContext.statusName
+		&& node?.type === 'Identifier'
+		&& node.name === statusContext.statusName
+	) {
+		return true;
+	}
+
+	if (
+		statusContext.entryVariable
+		&& node?.type === 'MemberExpression'
+		&& isSameVariableReference(node.object, statusContext.entryVariable, statusContext.context)
+		&& getPropertyName(node) === 'status'
+	) {
+		return true;
+	}
+
+	return Boolean(
+		!statusContext.entryVariable
+		&& statusContext.entryName
+		&& node?.type === 'MemberExpression'
+		&& getIdentifierName(node.object) === statusContext.entryName
+		&& getPropertyName(node) === 'status',
+	);
+}
+
 function getStatusCheckKind(node, statusContext) {
 	node = unwrapExpression(node);
 
@@ -329,52 +383,9 @@ function getStatusCheckKind(node, statusContext) {
 		return;
 	}
 
-	const getStatusLiteral = node => {
-		if (node.type === 'Literal' && (node.value === 'fulfilled' || node.value === 'rejected')) {
-			return node.value;
-		}
-	};
-
-	const isStatusReference = node => {
-		node = unwrapExpression(node);
-
-		if (
-			statusContext.statusVariable
-			&& isSameVariableReference(node, statusContext.statusVariable, statusContext.context)
-		) {
-			return true;
-		}
-
-		if (
-			!statusContext.statusVariable
-			&& statusContext.statusName
-			&& node?.type === 'Identifier'
-			&& node.name === statusContext.statusName
-		) {
-			return true;
-		}
-
-		if (
-			statusContext.entryVariable
-			&& node?.type === 'MemberExpression'
-			&& isSameVariableReference(node.object, statusContext.entryVariable, statusContext.context)
-			&& getPropertyName(node) === 'status'
-		) {
-			return true;
-		}
-
-		return Boolean(
-			!statusContext.entryVariable
-			&& statusContext.entryName
-			&& node?.type === 'MemberExpression'
-			&& getIdentifierName(node.object) === statusContext.entryName
-			&& getPropertyName(node) === 'status',
-		);
-	};
-
-	const statusLiteral = isStatusReference(node.left)
+	const statusLiteral = isStatusReference(node.left, statusContext)
 		? getStatusLiteral(node.right)
-		: (isStatusReference(node.right)
+		: (isStatusReference(node.right, statusContext)
 			? getStatusLiteral(node.left)
 			: undefined);
 
@@ -400,15 +411,45 @@ const isStatusFulfilledCheck = (node, statusContext) =>
 const isStatusUnfulfilledCheck = (node, statusContext) =>
 	getStatusCheckKind(node, statusContext) === 'unfulfilled';
 
+function hasFulfilledStatusCheckInConjunction(node, statusContext) {
+	node = unwrapExpression(node);
+
+	if (isStatusFulfilledCheck(node, statusContext)) {
+		return true;
+	}
+
+	return node?.type === 'LogicalExpression'
+		&& node.operator === '&&'
+		&& (
+			hasFulfilledStatusCheckInConjunction(node.left, statusContext)
+			|| hasFulfilledStatusCheckInConjunction(node.right, statusContext)
+		);
+}
+
+function hasUnfulfilledStatusCheckInDisjunction(node, statusContext) {
+	node = unwrapExpression(node);
+
+	if (isStatusUnfulfilledCheck(node, statusContext)) {
+		return true;
+	}
+
+	return node?.type === 'LogicalExpression'
+		&& node.operator === '||'
+		&& (
+			hasUnfulfilledStatusCheckInDisjunction(node.left, statusContext)
+			|| hasUnfulfilledStatusCheckInDisjunction(node.right, statusContext)
+		);
+}
+
 const isConditionalFulfilledGuard = (node, child, statusContext) =>
 	node.type === 'ConditionalExpression'
 	&& (
 		(
 			node.consequent === child
-			&& isStatusFulfilledCheck(node.test, statusContext)
+			&& hasFulfilledStatusCheckInConjunction(node.test, statusContext)
 		) || (
 			node.alternate === child
-			&& isStatusUnfulfilledCheck(node.test, statusContext)
+			&& hasUnfulfilledStatusCheckInDisjunction(node.test, statusContext)
 		)
 	);
 
@@ -418,11 +459,11 @@ const isLogicalFulfilledGuard = (node, child, statusContext) =>
 		(
 			node.operator === '&&'
 			&& node.right === child
-			&& isStatusFulfilledCheck(node.left, statusContext)
+			&& hasFulfilledStatusCheckInConjunction(node.left, statusContext)
 		) || (
 			node.operator === '||'
 			&& node.right === child
-			&& isStatusUnfulfilledCheck(node.left, statusContext)
+			&& hasUnfulfilledStatusCheckInDisjunction(node.left, statusContext)
 		)
 	);
 
@@ -431,10 +472,10 @@ const isIfStatementFulfilledGuard = (node, child, statusContext) =>
 	&& (
 		(
 			node.consequent === child
-			&& isStatusFulfilledCheck(node.test, statusContext)
+			&& hasFulfilledStatusCheckInConjunction(node.test, statusContext)
 		) || (
 			node.alternate === child
-			&& isStatusUnfulfilledCheck(node.test, statusContext)
+			&& hasUnfulfilledStatusCheckInDisjunction(node.test, statusContext)
 		)
 	);
 
@@ -446,8 +487,7 @@ function isAlwaysExitingStatement(node) {
 	}
 
 	if (node?.type === 'BlockStatement') {
-		const [statement] = node.body;
-		return node.body.length === 1 && isAlwaysExitingStatement(statement);
+		return node.body.length > 0 && isAlwaysExitingStatement(node.body.at(-1));
 	}
 
 	return false;
@@ -464,7 +504,7 @@ function isGuardedByPreviousUnfulfilledExit(node, statusContext) {
 
 	return previousStatement?.type === 'IfStatement'
 		&& !previousStatement.alternate
-		&& isStatusUnfulfilledCheck(previousStatement.test, statusContext)
+		&& hasUnfulfilledStatusCheckInDisjunction(previousStatement.test, statusContext)
 		&& isAlwaysExitingStatement(previousStatement.consequent);
 }
 
@@ -486,10 +526,10 @@ const isFulfilledFilterCallback = callback => {
 		return body.body.length === 1
 			&& statement.type === 'ReturnStatement'
 			&& statement.argument
-			&& isStatusFulfilledCheck(statement.argument, statusContext);
+			&& hasFulfilledStatusCheckInConjunction(statement.argument, statusContext);
 	}
 
-	return isStatusFulfilledCheck(body, statusContext);
+	return hasFulfilledStatusCheckInConjunction(body, statusContext);
 };
 
 function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()) {
@@ -499,12 +539,8 @@ function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()
 
 	node = unwrapExpression(node);
 
-	if (isPromiseSettledResultArrayFromTypeInformation(node, context)) {
-		const typeInformation = getTypeInformation(node, context);
-		const elementType = getArrayElementType(typeInformation.type, typeInformation.checker);
-		if (elementType && isPromiseFulfilledResultType(elementType)) {
-			return true;
-		}
+	if (isPromiseFulfilledResultArrayFromTypeInformation(node, context)) {
+		return true;
 	}
 
 	if (node.type === 'Identifier') {
@@ -818,6 +854,7 @@ const config = {
 			description: 'Disallow reading `.value` from `Promise.allSettled()` results without a fulfilled status guard.',
 			recommended: 'unopinionated',
 		},
+		schema: [],
 		messages,
 		languages: [
 			'js/js',

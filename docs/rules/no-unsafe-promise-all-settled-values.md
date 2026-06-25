@@ -11,6 +11,8 @@
 
 This rule reports direct `.map()` extraction from known `Promise.allSettled()` result arrays, including simple `const` aliases. It intentionally keeps a narrow inference boundary: arbitrary aliasing, mutable `let` tracking, custom guard functions without type information, and broad non-`.map()` dataflow are out of scope.
 
+With TypeScript type information, typed predicate filters that narrow entries to `PromiseFulfilledResult<T>` are treated as safe.
+
 ## Examples
 
 ```js
@@ -31,4 +33,10 @@ const values = Promise.allSettled(promises).then(results => results.map(result =
 const values = Promise.allSettled(promises).then(results =>
 	results.map(result => result.status === 'fulfilled' ? result.value : undefined)
 );
+```
+
+```ts
+// ✅
+const isFulfilled = <T>(result: PromiseSettledResult<T>): result is PromiseFulfilledResult<T> => result.status === 'fulfilled';
+const values = results.filter(isFulfilled).map(result => result.value);
 ```
