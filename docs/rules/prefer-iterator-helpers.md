@@ -45,6 +45,6 @@ This rule is intentionally narrow. It only reports known iterator expressions, s
 [...set].find(value => value.id === id);
 ```
 
-Cases are reported as suggestions instead of autofixes because `Array` callbacks receive an extra trailing `array` argument that `Iterator` callbacks do not. The rule ignores inline callbacks that can observe that argument. Suggestions also account for custom `.values()`, `.keys()`, and `.entries()` methods that may not return iterators with iterator helpers.
+Cases are reported without autofixes because `Array` callbacks receive an extra trailing `array` argument that `Iterator` callbacks do not. The rule ignores inline callbacks that can observe that argument. It offers suggestions when they can be applied safely. Suggestions also account for custom `.values()`, `.keys()`, and `.entries()` methods that may not return iterators with iterator helpers.
 
 This rule does not report `.filter()`, `.map()`, or `.flatMap()` because their `Iterator` versions return iterators, not arrays.

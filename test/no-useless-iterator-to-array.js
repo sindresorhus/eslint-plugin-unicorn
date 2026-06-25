@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -185,5 +185,21 @@ test.snapshot({
 		'[...(iterator.toArray())]',
 		'call(...(iterator.toArray()))',
 		'new Foo(...(iterator.toArray()))',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		'iterator.toArray().find(((value, index, array) => array.length > 0) as Predicate)',
+		'iterator.toArray().reduce(((accumulator, value, index, array) => array.length) satisfies Reducer)',
+	],
+	invalid: [
+		'iterator.toArray().find(((value, index) => value === index) as Predicate)',
+		'iterator.toArray().reduce(((accumulator, value, index) => accumulator + value + index) satisfies Reducer)',
 	],
 });
