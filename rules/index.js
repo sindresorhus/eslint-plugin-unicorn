@@ -192,6 +192,7 @@ export {default as 'prefer-at'} from './prefer-at.js';
 export {default as 'prefer-await'} from './prefer-await.js';
 export {default as 'prefer-bigint-literals'} from './prefer-bigint-literals.js';
 export {default as 'prefer-blob-reading-methods'} from './prefer-blob-reading-methods.js';
+export {default as 'prefer-block-statement-over-iife'} from './prefer-block-statement-over-iife.js';
 export {default as 'prefer-boolean-return'} from './prefer-boolean-return.js';
 export {default as 'prefer-class-fields'} from './prefer-class-fields.js';
 export {default as 'prefer-classlist-toggle'} from './prefer-classlist-toggle.js';
