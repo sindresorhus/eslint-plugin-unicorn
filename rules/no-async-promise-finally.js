@@ -1,4 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {isFunction} from './ast/index.js';
 import {
 	getConstVariableInitializer,
 	isPromiseType,
@@ -10,13 +11,8 @@ const messages = {
 	[MESSAGE_ID]: 'Do not pass an async function to `Promise#finally()`.',
 };
 
-const functionExpressionTypes = new Set([
-	'ArrowFunctionExpression',
-	'FunctionExpression',
-]);
-
-const isAsyncFunctionExpression = node =>
-	functionExpressionTypes.has(node.type)
+const isAsyncNonGeneratorFunction = node =>
+	isFunction(node)
 	&& node.async
 	&& !node.generator;
 
@@ -48,19 +44,18 @@ function isAsyncFunctionDeclarationReference(node, context) {
 
 	const [definition] = variable.defs;
 	return definition.type === 'FunctionName'
-		&& definition.node.async
-		&& !definition.node.generator;
+		&& isAsyncNonGeneratorFunction(definition.node);
 }
 
 function isAsyncFinallyCallback(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (isAsyncFunctionExpression(node)) {
+	if (isAsyncNonGeneratorFunction(node)) {
 		return true;
 	}
 
 	const initializer = getConstVariableInitializer(node, context);
-	if (initializer && isAsyncFunctionExpression(unwrapTypeScriptExpression(initializer))) {
+	if (initializer && isAsyncNonGeneratorFunction(unwrapTypeScriptExpression(initializer))) {
 		return true;
 	}
 

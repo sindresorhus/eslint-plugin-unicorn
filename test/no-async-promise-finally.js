@@ -30,9 +30,11 @@ test.snapshot({
 		'const cleanup = () => {}; promise.finally(cleanup);',
 		'let cleanup = async () => {}; promise.finally(cleanup);',
 		'async function * cleanup() {} promise.finally(cleanup);',
+		'const cleanup = async function * () {}; promise.finally(cleanup);',
 		'const cleanup = async () => {}; promise.finally(...[cleanup]);',
 		'import {cleanup} from "./cleanup.js"; promise.finally(cleanup);',
 		typeAware('function foo(object: {finally(handler: () => Promise<void>): void}) { object.finally(async () => {}); }'),
+		typeAware('function foo(object: {finally(handler: () => Promise<void>): void}) { const cleanup = async () => {}; object.finally(cleanup); }'),
 	],
 	invalid: [
 		'promise.finally(async () => {})',
@@ -47,8 +49,13 @@ test.snapshot({
 		'const method = "finally"; promise[method](async () => {});',
 		'async function cleanup() {} promise.finally(cleanup);',
 		'const cleanup = async () => {}; promise.finally(cleanup);',
+		'const cleanup = async function () {}; promise.finally(cleanup);',
 		{
 			code: 'type Callback = () => void; promise.finally((async () => {}) as Callback);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Callback = () => void; const cleanup = (async () => {}) as Callback; promise.finally(cleanup);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('function foo(promise: Promise<string>) { promise.finally(async () => {}); }'),

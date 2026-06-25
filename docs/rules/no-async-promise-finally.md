@@ -21,7 +21,7 @@ promise.finally(async () => {
 
 // ✅
 promise.finally(() => {
-	cleanup();
+	cleanupSynchronously();
 });
 ```
 
