@@ -284,6 +284,9 @@ ruleTest.snapshot({
 		'foo.from(foo);',
 		// `callee.object.type` is not a `Identifier`
 		'lib.Array.from(foo);',
+		// Shadowed `Array`
+		'const Array = value; Array.from(set);',
+		'function foo(Array) { return Array.from(set); }',
 		// More/Less arguments
 		'Array.from();',
 		'Array.from(foo, mapFn, thisArg, extra);',
@@ -293,6 +296,12 @@ ruleTest.snapshot({
 		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		// FirstArgument is `ObjectExpression`
 		'Array.from({length: 10});',
+		// `prefer-array-from-range` handles range arrays.
+		'Array.from(Array(length).keys());',
+		'Array.from(new Array(length).keys());',
+		typescript('Array.from((Array(length) as number[]).keys());'),
+		typescript('Array.from(Array(length).keys() as Iterable<number>);'),
+		'const Array = value; Array.from(Array(length).keys());',
 		// `prefer-iterator-concat` handles multi-spread arrays.
 		'Array.from([...a, ...b], )',
 		'Array.from([...a, ...b])',

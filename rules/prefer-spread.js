@@ -27,6 +27,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {isArrayConcatInLoopCall} from './shared/array-concat-in-loop.js';
+import {getArrayRangeLength} from './shared/array-range.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -1281,8 +1282,10 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
+			&& sourceCode.isGlobalReference(node.callee.object)
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
+			&& !getArrayRangeLength(node.arguments[0], context)
 			&& !isPreferIteratorConcatArrayLiteral(node.arguments[0])
 		)) {
 			return;
