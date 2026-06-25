@@ -496,6 +496,19 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				function compose(signals: EventTarget[]) {
+					const abortController = new AbortController();
+					for (const signal of signals) {
+						signal.addEventListener('abort', () => abortController.abort());
+					}
+
+					return abortController.signal;
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware(outdent`
 			const abortController = new AbortController();
 			for (const signal of signals) {

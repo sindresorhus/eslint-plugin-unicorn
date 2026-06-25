@@ -653,6 +653,123 @@ const isConstAssertion = typeAnnotation =>
 	typeAnnotation?.type === 'TSTypeReference'
 	&& getTypeName(typeAnnotation.typeName) === 'const';
 
+const getTupleElementTypeAnnotation = typeAnnotation => {
+	if (typeAnnotation.type === 'TSNamedTupleMember') {
+		return typeAnnotation.elementType;
+	}
+
+	return typeAnnotation;
+};
+
+const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTypeNames) => {
+	const typeName = getTypeName(typeAnnotation.typeName);
+	if (typeName === 'AbortSignal') {
+		return true;
+	}
+
+	if (
+		!typeName
+		|| typeAnnotation.typeName.type !== 'Identifier'
+		|| visitedTypeNames.has(typeAnnotation.typeName.name)
+	) {
+		return false;
+	}
+
+	visitedTypeNames.add(typeAnnotation.typeName.name);
+
+	const variable = findVariable(context.sourceCode.getScope(typeAnnotation), typeAnnotation.typeName);
+	const definition = variable?.defs[0];
+	const isAbortSignal = definition?.type === 'Type'
+		&& definition.node.type === 'TSTypeAliasDeclaration'
+		&& isAbortSignalTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeNames);
+	visitedTypeNames.delete(typeAnnotation.typeName.name);
+	return isAbortSignal;
+};
+
+const isAbortSignalTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
+	if (typeAnnotation?.type === 'TSTypeAnnotation') {
+		typeAnnotation = typeAnnotation.typeAnnotation;
+	}
+
+	if (typeAnnotation?.type === 'TSParenthesizedType') {
+		return isAbortSignalTypeAnnotation(typeAnnotation.typeAnnotation, context, visitedTypeNames);
+	}
+
+	if (typeAnnotation?.type !== 'TSTypeReference') {
+		return false;
+	}
+
+	return isAbortSignalTypeReferenceAnnotation(typeAnnotation, context, visitedTypeNames);
+};
+
+const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context, visitedTypeNames) => {
+	const typeName = getTypeName(typeAnnotation.typeName);
+	const typeArguments = typeAnnotation.typeArguments?.params ?? typeAnnotation.typeParameters?.params;
+	if (
+		(
+			typeName === 'Array'
+			|| typeName === 'ReadonlyArray'
+		)
+		&& typeArguments?.length === 1
+	) {
+		return isAbortSignalTypeAnnotation(typeArguments[0], context, visitedTypeNames);
+	}
+
+	if (
+		!typeName
+		|| typeAnnotation.typeName.type !== 'Identifier'
+		|| visitedTypeNames.has(typeAnnotation.typeName.name)
+	) {
+		return false;
+	}
+
+	visitedTypeNames.add(typeAnnotation.typeName.name);
+
+	const variable = findVariable(context.sourceCode.getScope(typeAnnotation), typeAnnotation.typeName);
+	const definition = variable?.defs[0];
+	let typeAnnotationState;
+	if (
+		definition?.type === 'Type'
+		&& definition.node.type === 'TSTypeAliasDeclaration'
+	) {
+		typeAnnotationState = getAbortSignalArrayTypeAnnotationState(definition.node.typeAnnotation, context, visitedTypeNames);
+	}
+
+	visitedTypeNames.delete(typeAnnotation.typeName.name);
+	return typeAnnotationState;
+};
+
+const getAbortSignalArrayTypeAnnotationState = (typeAnnotation, context, visitedTypeNames = new Set()) => {
+	if (typeAnnotation?.type === 'TSTypeAnnotation') {
+		typeAnnotation = typeAnnotation.typeAnnotation;
+	}
+
+	if (typeAnnotation?.type === 'TSParenthesizedType') {
+		return getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeNames);
+	}
+
+	if (typeAnnotation?.type === 'TSTypeOperator') {
+		return typeAnnotation.operator === 'readonly'
+			? getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeNames)
+			: undefined;
+	}
+
+	if (typeAnnotation?.type === 'TSArrayType') {
+		return isAbortSignalTypeAnnotation(typeAnnotation.elementType, context, visitedTypeNames);
+	}
+
+	if (typeAnnotation?.type === 'TSTupleType') {
+		return typeAnnotation.elementTypes.length > 0
+			&& typeAnnotation.elementTypes.every(elementType => isAbortSignalTypeAnnotation(getTupleElementTypeAnnotation(elementType), context, visitedTypeNames));
+	}
+
+	if (typeAnnotation?.type !== 'TSTypeReference') {
+		return;
+	}
+
+	return getAbortSignalArrayTypeReferenceAnnotationState(typeAnnotation, context, visitedTypeNames);
+};
+
 const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
 	if (typeAnnotation?.type === 'TSTypeAnnotation') {
 		typeAnnotation = typeAnnotation.typeAnnotation;
@@ -781,6 +898,42 @@ const needsArrayCopyForAbortSignalAny = (node, context) => {
 		)
 		|| isReadonlyArrayTypeFromTypeInformation(node, context),
 	);
+};
+
+const isForOfArray = (node, context, seen = new Set()) => {
+	if (seen.has(node)) {
+		return false;
+	}
+
+	seen.add(node);
+
+	if (typeScriptArrayTypeExpressionWrappers.has(node.type)) {
+		const typeAnnotationState = getAbortSignalArrayTypeAnnotationState(node.typeAnnotation, context);
+		return typeAnnotationState ?? isForOfArray(node.expression, context, seen);
+	}
+
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type === 'Identifier') {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs[0];
+		if (definition?.name?.typeAnnotation) {
+			const typeAnnotationState = getAbortSignalArrayTypeAnnotationState(definition.name.typeAnnotation, context);
+			if (typeAnnotationState !== undefined) {
+				return typeAnnotationState;
+			}
+		}
+
+		if (
+			definition?.type === 'Variable'
+			&& definition.node.init
+			&& isForOfArray(definition.node.init, context, seen)
+		) {
+			return true;
+		}
+	}
+
+	return isArray(node, context);
 };
 
 const getAbortSignalAnyArgumentText = (node, context) => {
@@ -1034,7 +1187,7 @@ const getForOfBridge = (declaration, controllerName, context) => {
 		|| isPossiblyMutatedConstantArray(statement.right, context)
 		|| hasControllerSignalSource(statement.right, controllerName, context)
 		|| hasKnownAlreadyAbortedSignal(statement.right, context)
-		|| !isArray(statement.right, context)
+		|| !isForOfArray(statement.right, context)
 		|| !isAllowedArrayCompositionSource(statement.right, context)
 	) {
 		return;
