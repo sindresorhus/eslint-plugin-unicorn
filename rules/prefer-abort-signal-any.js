@@ -535,20 +535,12 @@ const isSignalLikeExpression = (node, context) => {
 const isDirectBridgeSource = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
-	return node.type === 'Identifier'
-		? isSignalLikeExpression(node, context)
-		: isAbortSignalCall(node);
-};
-
-const isSideEffectFreeDirectBridgeSource = (node, context) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (!isDirectBridgeSource(node, context)) {
-		return false;
+	if (node.type === 'Identifier') {
+		return isSignalLikeExpression(node, context);
 	}
 
-	return node.type === 'Identifier'
-		|| node.arguments.every(argument => argument.type !== 'SpreadElement' && !hasSideEffect(argument, context.sourceCode));
+	return isAbortSignalCall(node)
+		&& node.arguments.every(argument => argument.type !== 'SpreadElement' && !hasSideEffect(argument, context.sourceCode));
 };
 
 const getKnownArrayFromSource = (node, context) => {
@@ -618,7 +610,7 @@ const getKnownArrayElements = (node, context, seen = new Set()) => {
 const areKnownArrayElementsSignalLike = (node, context) => {
 	const elements = getKnownArrayElements(node, context);
 
-	return !elements || (elements.length > 0 && elements.every(element => isSideEffectFreeDirectBridgeSource(element, context)));
+	return !elements || (elements.length > 0 && elements.every(element => isDirectBridgeSource(element, context)));
 };
 
 const isAllowedForOfArraySource = (node, context, seen = new Set()) => {
@@ -959,7 +951,7 @@ const getDirectBridge = (declaration, controllerName, context) => {
 			|| hasCommentBetween(context, previousStatement, statement)
 			|| hasControllerSignalSource(listener.sourceSignal, controllerName, context)
 			|| hasKnownAlreadyAbortedSignal(listener.sourceSignal, context)
-			|| !isSideEffectFreeDirectBridgeSource(listener.sourceSignal, context)
+			|| !isDirectBridgeSource(listener.sourceSignal, context)
 		) {
 			break;
 		}
