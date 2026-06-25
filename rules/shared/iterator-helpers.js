@@ -1,5 +1,9 @@
 import {isMethodCall} from '../ast/index.js';
-import {isTypeScriptExpressionWrapper} from '../utils/index.js';
+import {
+	isArray,
+	isTypeScriptExpressionWrapper,
+} from '../utils/index.js';
+import {createTypeCheckers} from '../utils/type-helpers.js';
 
 const iteratorMethods = [
 	'entries',
@@ -21,6 +25,25 @@ const iteratorStaticMethods = [
 	'zip',
 	'zipKeyed',
 ];
+
+const iteratorTypeNames = new Set([
+	'ArrayIterator',
+	'Generator',
+	'IterableIterator',
+	'Iterator',
+	'IteratorObject',
+	'MapIterator',
+	'RegExpStringIterator',
+	'SetIterator',
+]);
+
+const {
+	isTarget: isIteratorType,
+} = createTypeCheckers({
+	checkClassHeritage: false,
+	preferTypeReferenceDefinitions: true,
+	targetTypeNames: iteratorTypeNames,
+});
 
 export const unwrapExpression = node => {
 	while (
@@ -93,6 +116,24 @@ export const isLazyIteratorHelperCall = (node, context) =>
 	})
 	&& isIteratorExpression(node.callee.object, context);
 
+const hasLocalIteratorTypeName = (node, context) => {
+	for (let scope = context.sourceCode.getScope(node); scope; scope = scope.upper) {
+		for (const typeName of iteratorTypeNames) {
+			if (scope.set.get(typeName)?.defs.length > 0) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+const isKnownIteratorTypeExpression = (node, context) => (
+	!hasLocalIteratorTypeName(node, context)
+	&& !isArray(node, context)
+	&& isIteratorType(node, context)
+);
+
 export function isIteratorExpression(node, context) {
 	node = unwrapExpression(node);
 
@@ -100,5 +141,6 @@ export function isIteratorExpression(node, context) {
 		isGlobalIteratorMethodCall(node, context)
 		|| isIteratorMethodCall(node)
 		|| isLazyIteratorHelperCall(node, context)
+		|| isKnownIteratorTypeExpression(node, context)
 	);
 }

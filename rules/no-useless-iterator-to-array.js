@@ -1,4 +1,5 @@
 import typedArray from './shared/typed-array.js';
+import {unwrapExpression} from './shared/iterator-helpers.js';
 import {removeMethodCall} from './fix/index.js';
 import {
 	isNewExpression,
@@ -33,9 +34,7 @@ const callbackOnlyIteratorMethods = [
 	'some',
 ];
 
-// `reduce` — both Array and Iterator accept (callback, initialValue),
-// but Array.reduce without initialValue uses the first element while
-// Iterator.reduce without initialValue throws.
+// `reduce` — both Array and Iterator accept (callback, initialValue).
 const reduceMethod = 'reduce';
 
 const isToArrayCall = node => isMethodCall(node, {
@@ -81,13 +80,17 @@ const getArrayFromProblem = (node, context) => {
 	}
 
 	const toArrayCall = node.arguments[0];
-	const fix = getRemoveToArrayFix(toArrayCall, context);
+	const fix = node.arguments.length === 1 ? getRemoveToArrayFix(toArrayCall, context) : undefined;
+	const suggestion = node.arguments.length > 1
+		? getRemoveToArraySuggestion(toArrayCall, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING)
+		: undefined;
 
 	return {
 		node: toArrayCall.callee.property,
 		messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
 		data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
 		...(fix && {fix}),
+		...(suggestion && {suggest: [suggestion]}),
 	};
 };
 
@@ -106,13 +109,17 @@ const getObjectFromEntriesProblem = (node, context) => {
 	}
 
 	const toArrayCall = node.arguments[0];
-	const fix = getRemoveToArrayFix(toArrayCall, context);
+	const fix = node.arguments.length === 1 ? getRemoveToArrayFix(toArrayCall, context) : undefined;
+	const suggestion = node.arguments.length > 1
+		? getRemoveToArraySuggestion(toArrayCall, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING)
+		: undefined;
 
 	return {
 		node: toArrayCall.callee.property,
 		messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
 		data: {description: `${node.callee.object.name}.${node.callee.property.name}(…)`},
 		...(fix && {fix}),
+		...(suggestion && {suggest: [suggestion]}),
 	};
 };
 
@@ -143,6 +150,28 @@ const getPromiseProblem = (node, context) => {
 	};
 };
 
+const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
+	if (!callback) {
+		return false;
+	}
+
+	callback = unwrapExpression(callback);
+
+	if (
+		callback.type === 'ArrowFunctionExpression'
+		|| callback.type === 'FunctionExpression'
+	) {
+		return callback.params.length > arrayParameterIndex
+			|| callback.params.at(-1)?.type === 'RestElement'
+			|| (
+				callback.type === 'FunctionExpression'
+				&& context.sourceCode.getTokens(callback).some(token => token.type === 'Identifier' && token.value === 'arguments')
+			);
+	}
+
+	return false;
+};
+
 const getIteratorMethodProblem = (node, context) => {
 	if (
 		!(
@@ -154,7 +183,8 @@ const getIteratorMethodProblem = (node, context) => {
 			})
 			|| isMethodCall(node, {
 				method: reduceMethod,
-				argumentsLength: 2,
+				minimumArguments: 1,
+				maximumArguments: 2,
 				optionalCall: false,
 				optionalMember: false,
 			})
@@ -170,15 +200,7 @@ const getIteratorMethodProblem = (node, context) => {
 	const method = node.callee.property.name;
 	const isReduceCall = method === reduceMethod;
 	const arrayParameterIndex = isReduceCall ? 3 : 2;
-	if (
-		callback
-		&& (callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
-		&& (
-			callback.params.length > arrayParameterIndex
-			// A rest parameter can capture the trailing `array` argument too.
-			|| callback.params.at(-1)?.type === 'RestElement'
-		)
-	) {
+	if (canObserveArrayArgument(callback, arrayParameterIndex, context)) {
 		return;
 	}
 
@@ -208,13 +230,17 @@ const create = context => {
 		}
 
 		const toArrayCall = node.arguments[0];
-		const fix = getRemoveToArrayFix(toArrayCall, context);
+		const fix = node.arguments.length === 1 ? getRemoveToArrayFix(toArrayCall, context) : undefined;
+		const suggestion = node.arguments.length > 1
+			? getRemoveToArraySuggestion(toArrayCall, context, MESSAGE_ID_SUGGESTION_ITERABLE_ACCEPTING)
+			: undefined;
 
 		return {
 			node: toArrayCall.callee.property,
 			messageId: MESSAGE_ID_ITERABLE_ACCEPTING,
 			data: {description: `new ${node.callee.name}(…)`},
 			...(fix && {fix}),
+			...(suggestion && {suggest: [suggestion]}),
 		};
 	});
 

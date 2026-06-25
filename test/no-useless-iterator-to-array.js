@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -97,13 +97,13 @@ test.snapshot({
 		// Array callbacks can expose the `array` argument, Iterator callbacks cannot
 		'iterator.toArray().every((value, index, array) => array.length === 1)',
 		'iterator.toArray().find((...args) => args[2])',
+		'iterator.toArray().reduce((accumulator, value, index, array) => array.length)',
 		'iterator.toArray().reduce((accumulator, value, index, array) => array.length, init)',
 		'iterator.toArray().reduce((...args) => args[3], init)',
+		'iterator.toArray().find(function () { return arguments[2]?.length > 0; })',
+		'iterator.toArray().reduce(function () { return arguments[3]?.length; }, init)',
 
-		// `reduce` without initialValue — Array uses first element, Iterator throws
-		'iterator.toArray().reduce(fn)',
-
-		// `reduce` with extra arguments — not flagged (argumentsLength: 2 is exact)
+		// `reduce` with extra arguments
 		'iterator.toArray().reduce(fn, init, extra)',
 
 	],
@@ -116,6 +116,7 @@ test.snapshot({
 		'new Int8Array(iterator.toArray())',
 		'new Uint8Array(iterator.toArray())',
 		'new Float64Array(iterator.toArray())',
+		'new Uint8Array(iterator.toArray(), extra)',
 
 		// Case 2: Static methods that accept iterables
 		'Promise.all(iterator.toArray())',
@@ -152,6 +153,7 @@ test.snapshot({
 		'iterator.toArray().every(fn)',
 		'iterator.toArray().find(fn)',
 		'iterator.toArray().forEach(fn)',
+		'iterator.toArray().reduce(fn)',
 		'iterator.toArray().reduce(fn, init)',
 		'iterator.toArray().some(fn)',
 
@@ -183,5 +185,21 @@ test.snapshot({
 		'[...(iterator.toArray())]',
 		'call(...(iterator.toArray()))',
 		'new Foo(...(iterator.toArray()))',
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		'iterator.toArray().find(((value, index, array) => array.length > 0) as Predicate)',
+		'iterator.toArray().reduce(((accumulator, value, index, array) => array.length) satisfies Reducer)',
+	],
+	invalid: [
+		'iterator.toArray().find(((value, index) => value === index) as Predicate)',
+		'iterator.toArray().reduce(((accumulator, value, index) => accumulator + value + index) satisfies Reducer)',
 	],
 });
