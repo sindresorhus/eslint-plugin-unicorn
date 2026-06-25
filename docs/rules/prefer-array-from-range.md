@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer `Array.from({length}, (_, index) => index)` over spreading `Array(length).keys()`.
+Prefer `Array.from({length}, (_, index) => index)` when directly materializing a range from `Array(length).keys()`.
 
 This rule only reports direct array materialization from `Array(length).keys()`. Lazy iterator use, `values()`, `entries()`, computed members, optional calls, and shadowed `Array` bindings are ignored.
 

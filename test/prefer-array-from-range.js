@@ -34,12 +34,18 @@ test.snapshot({
 		'[...new Array(length, other).keys()];',
 		'[...new Array(...length).keys()];',
 		'[...Array("3").keys()];',
+		'[...Array(undefined).keys()];',
+		'[...Array(null).keys()];',
+		'[...Array(true).keys()];',
+		'[...Array(1n).keys()];',
 		'[...Array(3.5).keys()];',
 		'[...Array(-1).keys()];',
 		'[...Array(2 ** 32).keys()];',
 		'for (const index of Array(length).keys()) {}',
 		'const Array = value; [...Array(length).keys()];',
 		'function foo(Array) { return [...Array(length).keys()]; }',
+		'const Array = value; Array.from(Array(length).keys());',
+		'function foo(Array) { return Array.from(Array(length).keys()); }',
 		{
 			code: '[...NotArray<number>(length).keys()];',
 			languageOptions: {
@@ -103,6 +109,12 @@ test.snapshot({
 			},
 		},
 		{
+			code: '[...(new Array(length) as number[]).keys()];',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
 			code: '[...(Array(length)!).keys()];',
 			languageOptions: {
 				parser: parsers.typescript,
@@ -116,6 +128,30 @@ test.snapshot({
 		},
 		{
 			code: 'Array.from((Array(length) as number[]).keys());',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '[...(Array(length).keys() as Iterable<number>)];',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '[...(Array(length).keys()!)];',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '[...(<Iterable<number>>Array(length).keys())];',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'Array.from(Array(length).keys() as Iterable<number>);',
 			languageOptions: {
 				parser: parsers.typescript,
 			},

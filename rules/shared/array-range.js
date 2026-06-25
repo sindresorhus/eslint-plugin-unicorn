@@ -37,6 +37,8 @@ const isArrayConstructorWithOneArgument = (node, context) => (
 );
 
 const getArrayRangeLength = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
 	if (
 		!isMethodCall(node, {
 			method: 'keys',

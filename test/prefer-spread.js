@@ -297,6 +297,7 @@ ruleTest.snapshot({
 		'Array.from(Array(length).keys());',
 		'Array.from(new Array(length).keys());',
 		typescript('Array.from((Array(length) as number[]).keys());'),
+		typescript('Array.from(Array(length).keys() as Iterable<number>);'),
 		// `prefer-iterator-concat` handles multi-spread arrays.
 		'Array.from([...a, ...b], )',
 		'Array.from([...a, ...b])',
