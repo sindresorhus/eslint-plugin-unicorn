@@ -13,7 +13,7 @@
 
 If you want to add an item and exit, call `.push()` or `.unshift()` before `return`. If you intentionally want to use the length, use an explicit `.length` expression after the mutation.
 
-Calls to `.push(...)` and `.unshift(...)` with at least one argument must be standalone expression statements. It also skips common stream-style `.push()` calls.
+Calls to `.push(...)` and `.unshift(...)` with at least one argument must be standalone expression statements. It also skips common stream-style and router-style `.push()` calls, unless type information shows the receiver is an array.
 
 The rule treats member access on the call result as a signal for custom APIs, for example `router.push(to).catch(…)`, where `push` returns a `Promise`. It also uses type information when available to skip receivers known not to be arrays.
 
