@@ -53,6 +53,7 @@ export {default as 'no-array-sort-for-min-max'} from './no-array-sort-for-min-ma
 export {default as 'no-array-sort'} from './no-array-sort.js';
 export {default as 'no-array-splice'} from './no-array-splice.js';
 export {default as 'no-asterisk-prefix-in-documentation-comments'} from './no-asterisk-prefix-in-documentation-comments.js';
+export {default as 'no-async-promise-finally'} from './no-async-promise-finally.js';
 export {default as 'no-await-expression-member'} from './no-await-expression-member.js';
 export {default as 'no-await-in-promise-methods'} from './no-await-in-promise-methods.js';
 export {default as 'no-blob-to-file'} from './no-blob-to-file.js';
