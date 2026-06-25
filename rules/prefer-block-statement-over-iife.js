@@ -1,5 +1,6 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import {isDirective, isFunction} from './ast/index.js';
+import {wouldRemoveComments} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -24,115 +25,71 @@ const isFunctionContextReference = node =>
 	)
 	|| (node.type === 'Identifier' && node.name === 'arguments');
 
-function containsNodeMatching(node, visitorKeys, predicate, root = node) {
-	if (node !== root && isFunction(node)) {
+const isNestedFunction = (node, root) =>
+	node !== root && isFunction(node);
+
+const isNestedNonArrowFunction = (node, root) =>
+	isNestedFunction(node, root)
+	&& node.type !== 'ArrowFunctionExpression';
+
+function containsNodeMatching(node, visitorKeys, predicate, shouldSkip = isNestedFunction) {
+	const root = node;
+
+	function containsMatch(node) {
+		if (predicate(node)) {
+			return true;
+		}
+
+		if (shouldSkip(node, root)) {
+			return false;
+		}
+
+		for (const key of visitorKeys[node.type] ?? []) {
+			const child = node[key];
+			const children = Array.isArray(child) ? child : [child];
+
+			for (const childNode of children) {
+				if (childNode?.type && containsMatch(childNode)) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
-	if (predicate(node)) {
-		return true;
-	}
-
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		const children = Array.isArray(child) ? child : [child];
-
-		for (const childNode of children) {
-			if (childNode?.type && containsNodeMatching(childNode, visitorKeys, predicate, root)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return containsMatch(node);
 }
 
-function containsFunctionContextReference(node, visitorKeys, root = node) {
-	if (
-		node !== root
-		&& isFunction(node)
-		&& node.type !== 'ArrowFunctionExpression'
-	) {
-		return false;
-	}
-
-	if (isFunctionContextReference(node)) {
-		return true;
-	}
-
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		const children = Array.isArray(child) ? child : [child];
-
-		for (const childNode of children) {
-			if (childNode?.type && containsFunctionContextReference(childNode, visitorKeys, root)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-function containsFunctionDeclaration(node, visitorKeys, root = node) {
-	if (node.type === 'FunctionDeclaration') {
-		return true;
-	}
-
-	if (node !== root && isFunction(node)) {
-		return false;
-	}
-
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		const children = Array.isArray(child) ? child : [child];
-
-		for (const childNode of children) {
-			if (childNode?.type && containsFunctionDeclaration(childNode, visitorKeys, root)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-const hasFunctionOnlyStatement = (body, visitorKeys) => containsNodeMatching(body, visitorKeys, node =>
+const hasFunctionOnlyBehavior = (body, visitorKeys) => containsNodeMatching(body, visitorKeys, node =>
 	node.type === 'ReturnStatement'
 	|| (node.type === 'VariableDeclaration' && node.kind === 'var')
 	|| isDirectEvalCall(node),
 );
 
 const hasFunctionContextReference = (body, visitorKeys) =>
-	containsFunctionContextReference(body, visitorKeys);
+	containsNodeMatching(body, visitorKeys, isFunctionContextReference, isNestedNonArrowFunction);
 
 const hasScriptBlockFunctionDeclaration = (body, sourceCode) =>
 	sourceCode.ast.sourceType === 'script'
-	&& containsFunctionDeclaration(body, sourceCode.visitorKeys);
+	&& containsNodeMatching(body, sourceCode.visitorKeys, node => node.type === 'FunctionDeclaration');
 
-const hasWrapperComment = (expressionStatement, body, sourceCode) => {
-	const [bodyStart, bodyEnd] = sourceCode.getRange(body);
-
-	return sourceCode.getCommentsInside(expressionStatement).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart < bodyStart || commentEnd > bodyEnd;
-	});
-};
-
-const getFix = (expressionStatement, body, context) => fixer => {
-	const {sourceCode} = context;
-	const [, end] = sourceCode.getRange(expressionStatement);
+const getReplacementRange = (expressionStatement, sourceCode) => {
+	const [start, end] = sourceCode.getRange(expressionStatement);
 	const lastToken = sourceCode.getLastToken(expressionStatement);
 	const rangeEnd = isSemicolonToken(lastToken) ? sourceCode.getRange(lastToken)[1] : end;
 
-	return fixer.replaceTextRange(
-		[
-			sourceCode.getRange(expressionStatement)[0],
-			rangeEnd,
-		],
-		sourceCode.getText(body),
-	);
+	return [start, rangeEnd];
 };
+
+const hasWrapperComment = (expressionStatement, body, context) =>
+	wouldRemoveComments(context, getReplacementRange(expressionStatement, context.sourceCode), [body]);
+
+const getFix = (expressionStatement, body, context) => fixer =>
+	fixer.replaceTextRange(
+		getReplacementRange(expressionStatement, context.sourceCode),
+		context.sourceCode.getText(body),
+	);
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
@@ -161,9 +118,9 @@ const create = context => {
 			|| callee.params.length > 0
 			|| callee.body.type !== 'BlockStatement'
 			|| callee.body.body.some(statement => isDirective(statement))
-			|| hasFunctionOnlyStatement(callee.body, sourceCode.visitorKeys)
+			|| hasFunctionOnlyBehavior(callee.body, sourceCode.visitorKeys)
 			|| hasScriptBlockFunctionDeclaration(callee.body, sourceCode)
-			|| hasWrapperComment(expressionStatement, callee.body, sourceCode)
+			|| hasWrapperComment(expressionStatement, callee.body, context)
 			|| (
 				callee.type === 'FunctionExpression'
 				&& hasFunctionContextReference(callee.body, sourceCode.visitorKeys)

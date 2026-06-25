@@ -11,7 +11,7 @@
 
 IIFEs were commonly used to create a scope before JavaScript had block-scoped `let` and `const`. Use a block statement when the IIFE is only there for scoping.
 
-This rule intentionally ignores IIFEs that return a value, accept arguments, use `async` or generators, or depend on function-specific behavior.
+This rule intentionally ignores IIFEs that use `return` from the IIFE body, accept arguments, use `async` or generators, or depend on function-specific behavior.
 
 ## Examples
 

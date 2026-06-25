@@ -7,6 +7,7 @@ const {test} = getTester(import.meta);
 test.snapshot({
 	valid: [
 		'const value = (() => { return getValue(); })();',
+		'const value = (() => { getValue(); })();',
 		'(() => value)();',
 		'(async () => { await run(); })();',
 		'(function * () { yield value; })();',
@@ -17,6 +18,7 @@ test.snapshot({
 		'(() => { var value = 1; run(value); })();',
 		'(() => { if (condition) { var value = 1; } })();',
 		'(() => { eval(code); })();',
+		'(() => { if (condition) { eval(code); } })();',
 		'(function () { this.run(); })();',
 		'(function () { arguments[0](); })();',
 		'(function () { console.log(new.target); })();',
@@ -30,6 +32,11 @@ test.snapshot({
 			(/* comment */ () => {
 				run();
 			})();
+		`,
+		outdent`
+			(() => {
+				run();
+			} /* comment */)();
 		`,
 		outdent`
 			(() => {
@@ -86,6 +93,11 @@ test.snapshot({
 			(() => {
 				// Keep this comment.
 				run();
+			})();
+		`,
+		outdent`
+			(() => {
+				this.run();
 			})();
 		`,
 		outdent`
