@@ -1,8 +1,13 @@
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import {getTester, parsers} from './utils/test.js';
+import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const syntaxTypeScript = code => ({
+	code,
+	languageOptions: {parser: typescriptEslintParser},
+});
 
 const typeAware = code => ({
 	code,
@@ -250,26 +255,20 @@ test.snapshot({
 				handleAbort();
 			}
 		`,
-		{
-			code: outdent`
-				const abortController = new AbortController();
-				firstSignal.addEventListener('abort', () => abortController.abort());
-				secondSignal.addEventListener('abort', () => abortController.abort());
-				if ((abortController.signal as AbortSignal).reason) {
-					handleAbort();
-				}
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				const abortController = new AbortController();
-				firstSignal.addEventListener('abort', () => abortController.abort());
-				secondSignal.addEventListener('abort', () => abortController.abort());
-				abortController.signal!.throwIfAborted();
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			if ((abortController.signal as AbortSignal).reason) {
+				handleAbort();
+			}
+		`),
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			abortController.signal!.throwIfAborted();
+		`),
 		outdent`
 			const abortController = new AbortController();
 			for (const signal of signals) {
@@ -452,16 +451,13 @@ test.snapshot({
 			}
 			fetch(url, {signal: abortController.signal});
 		`,
-		{
-			code: outdent`
-				const abortController = new AbortController();
-				for (const signal of getSignals() as AbortSignal[]) {
-					signal.addEventListener('abort', () => abortController.abort());
-				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			for (const signal of getSignals() as AbortSignal[]) {
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
 		outdent`
 			const abortController = new AbortController();
 			for (const signal of Array.from(new Set([AbortSignal.abort(), secondSignal]))) {
@@ -486,29 +482,23 @@ test.snapshot({
 			thirdSignal.addEventListener('abort', () => abortController.abort());
 			fetch(url, {signal: abortController.signal});
 		`,
-		{
-			code: outdent`
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			for (const signal of signals) {
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
+		syntaxTypeScript(outdent`
+			function compose(signals: EventTarget[]) {
 				const abortController = new AbortController();
 				for (const signal of signals) {
 					signal.addEventListener('abort', () => abortController.abort());
 				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				function compose(signals: EventTarget[]) {
-					const abortController = new AbortController();
-					for (const signal of signals) {
-						signal.addEventListener('abort', () => abortController.abort());
-					}
 
-					return abortController.signal;
-				}
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
+				return abortController.signal;
+			}
+		`),
 		typeAware(outdent`
 			const abortController = new AbortController();
 			for (const signal of signals) {
@@ -610,70 +600,52 @@ test.snapshot({
 			}
 			fetch(url, {signal: abortController.signal});
 		`,
-		{
-			code: outdent`
-				const abortController: AbortController = new AbortController();
-				for (const signal of signals as AbortSignal[]) {
-					signal.addEventListener('abort', () => abortController.abort(signal.reason));
-				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				function compose(signals: readonly AbortSignal[]) {
-					const abortController = new AbortController();
-					for (const signal of signals) {
-						signal.addEventListener('abort', () => abortController.abort());
-					}
-					return abortController.signal;
-				}
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				const signals: [AbortSignal, AbortSignal] = [firstSignal, secondSignal];
+		syntaxTypeScript(outdent`
+			const abortController: AbortController = new AbortController();
+			for (const signal of signals as AbortSignal[]) {
+				signal.addEventListener('abort', () => abortController.abort(signal.reason));
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
+		syntaxTypeScript(outdent`
+			function compose(signals: readonly AbortSignal[]) {
 				const abortController = new AbortController();
 				for (const signal of signals) {
 					signal.addEventListener('abort', () => abortController.abort());
 				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				const signals = [firstSignal, secondSignal] as const;
-				const abortController = new AbortController();
-				for (const signal of signals) {
-					signal.addEventListener('abort', () => abortController.abort());
-				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				const abortController = new AbortController();
-				for (const signal of [firstSignal, secondSignal] as const) {
-					signal.addEventListener('abort', () => abortController.abort());
-				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: outdent`
-				const abortController = new AbortController();
-				for (const signal of signals as readonly AbortSignal[]) {
-					signal.addEventListener('abort', () => abortController.abort(signal.reason));
-				}
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
+				return abortController.signal;
+			}
+		`),
+		syntaxTypeScript(outdent`
+			const signals: [AbortSignal, AbortSignal] = [firstSignal, secondSignal];
+			const abortController = new AbortController();
+			for (const signal of signals) {
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
+		syntaxTypeScript(outdent`
+			const signals = [firstSignal, secondSignal] as const;
+			const abortController = new AbortController();
+			for (const signal of signals) {
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			for (const signal of [firstSignal, secondSignal] as const) {
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
+		syntaxTypeScript(outdent`
+			const abortController = new AbortController();
+			for (const signal of signals as readonly AbortSignal[]) {
+				signal.addEventListener('abort', () => abortController.abort(signal.reason));
+			}
+			fetch(url, {signal: abortController.signal});
+		`),
 		typeAware(outdent`
 			function compose(signals: AbortSignal[]) {
 				const abortController = new AbortController();
