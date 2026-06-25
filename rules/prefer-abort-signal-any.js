@@ -607,10 +607,10 @@ const getKnownArrayElements = (node, context, seen = new Set()) => {
 	}
 };
 
-const areKnownArrayElementsSignalLike = (node, context) => {
+const isAllowedArrayCompositionSource = (node, context) => {
 	const elements = getKnownArrayElements(node, context);
 
-	return !elements || (elements.length > 0 && elements.every(element => isDirectBridgeSource(element, context)));
+	return !elements || (elements.length > 1 && elements.every(element => isDirectBridgeSource(element, context)));
 };
 
 const isAllowedForOfArraySource = (node, context, seen = new Set()) => {
@@ -648,6 +648,10 @@ const getTypeName = typeName => {
 		return getTypeName(typeName.right);
 	}
 };
+
+const isConstAssertion = typeAnnotation =>
+	typeAnnotation?.type === 'TSTypeReference'
+	&& getTypeName(typeAnnotation.typeName) === 'const';
 
 const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
 	if (typeAnnotation?.type === 'TSTypeAnnotation') {
@@ -752,7 +756,8 @@ const isReadonlyArrayTypeFromTypeInformation = (node, context) => {
 
 const needsArrayCopyForAbortSignalAny = (node, context) => {
 	if (typeScriptArrayTypeExpressionWrappers.has(node.type)) {
-		return isReadonlyArrayTypeAnnotation(node.typeAnnotation, context)
+		return isConstAssertion(node.typeAnnotation)
+			|| isReadonlyArrayTypeAnnotation(node.typeAnnotation, context)
 			|| needsArrayCopyForAbortSignalAny(node.expression, context);
 	}
 
@@ -1025,7 +1030,7 @@ const getForOfBridge = (declaration, controllerName, context) => {
 		|| hasControllerSignalSource(statement.right, controllerName, context)
 		|| hasKnownAlreadyAbortedSignal(statement.right, context)
 		|| !isArray(statement.right, context)
-		|| !areKnownArrayElementsSignalLike(statement.right, context)
+		|| !isAllowedArrayCompositionSource(statement.right, context)
 	) {
 		return;
 	}
