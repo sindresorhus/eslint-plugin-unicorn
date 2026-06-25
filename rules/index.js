@@ -173,6 +173,7 @@ export {default as 'no-zero-fractions'} from './no-zero-fractions.js';
 export {default as 'number-literal-case'} from './number-literal-case.js';
 export {default as 'numeric-separators-style'} from './numeric-separators-style.js';
 export {default as 'operator-assignment'} from './operator-assignment.js';
+export {default as 'prefer-abort-signal-any'} from './prefer-abort-signal-any.js';
 export {default as 'prefer-abort-signal-timeout'} from './prefer-abort-signal-timeout.js';
 export {default as 'prefer-add-event-listener-options'} from './prefer-add-event-listener-options.js';
 export {default as 'prefer-add-event-listener'} from './prefer-add-event-listener.js';
