@@ -293,6 +293,10 @@ ruleTest.snapshot({
 		'Array.from(set, () => {}, thisArg).reduce(() => {});',
 		// FirstArgument is `ObjectExpression`
 		'Array.from({length: 10});',
+		// `prefer-array-from-range` handles range arrays.
+		'Array.from(Array(length).keys());',
+		'Array.from(new Array(length).keys());',
+		typescript('Array.from((Array(length) as number[]).keys());'),
 		// `prefer-iterator-concat` handles multi-spread arrays.
 		'Array.from([...a, ...b], )',
 		'Array.from([...a, ...b])',
