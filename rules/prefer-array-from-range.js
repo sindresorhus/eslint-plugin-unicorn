@@ -7,7 +7,7 @@ import {getArrayRangeLength} from './shared/array-range.js';
 
 const MESSAGE_ID = 'prefer-array-from-range';
 const messages = {
-	[MESSAGE_ID]: 'Prefer `Array.from()` when creating range arrays.',
+	[MESSAGE_ID]: 'Prefer `Array.from({length}, …)` when creating range arrays.',
 };
 
 const isArrayFromCall = (node, context) => (
@@ -83,7 +83,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `Array.from()` when creating range arrays.',
+			description: 'Prefer `Array.from({length}, …)` when creating range arrays.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',

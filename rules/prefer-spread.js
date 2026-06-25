@@ -1282,6 +1282,7 @@ const create = context => {
 				optionalCall: false,
 				optionalMember: false,
 			})
+			&& sourceCode.isGlobalReference(node.callee.object)
 			// Allow `Array.from({length})`
 			&& node.arguments[0].type !== 'ObjectExpression'
 			&& !getArrayRangeLength(node.arguments[0], context)

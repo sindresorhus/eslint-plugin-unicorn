@@ -1,6 +1,6 @@
 # prefer-array-from-range
 
-📝 Prefer `Array.from()` when creating range arrays.
+📝 Prefer `Array.from({length}, …)` when creating range arrays.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Prefer `Array.from({length}, (_, index) => index)` when directly materializing a range from `Array(length).keys()`.
+Prefer `Array.from({length}, (_, index) => index)` when directly materializing a range from `Array(length).keys()` or `new Array(length).keys()`.
 
-This rule only reports direct array materialization from `Array(length).keys()`. Lazy iterator use, `values()`, `entries()`, computed members, optional calls, and shadowed `Array` bindings are ignored.
+This rule only reports direct array materialization from `Array` constructor ranges. Lazy iterator use, `values()`, `entries()`, computed members, optional calls, and shadowed `Array` bindings are ignored.
 
 ## Examples
 
