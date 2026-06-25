@@ -44,6 +44,7 @@ test.snapshot({
 		'Promise.resolve(value).finally(async () => cleanup())',
 		'new Promise(resolve => resolve()).finally(async () => cleanup())',
 		'promise?.finally(async () => {})',
+		'promise.finally?.(async () => {})',
 		'promise["finally"](async () => {})',
 		'promise[`finally`](async () => {})',
 		'const method = "finally"; promise[method](async () => {});',
