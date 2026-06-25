@@ -38,7 +38,7 @@ string.matchAll(pattern).some(match => match[1]);
 map.values().reduce((total, value) => total + value, 0);
 ```
 
-This rule is intentionally narrow. It only reports known iterator expressions, such as `.values()`, `.keys()`, `.entries()`, `.matchAll()`, static `Iterator` methods, and lazy iterator helper chains. It does not report arbitrary iterables because not every iterable has iterator helpers.
+This rule is intentionally narrow. It only reports known iterator expressions, such as `.values()`, `.keys()`, `.entries()`, `.matchAll()`, static `Iterator` methods, lazy iterator helper chains, and values known to be iterators from TypeScript annotations or type information. It does not report arbitrary iterables because not every iterable has iterator helpers.
 
 ```js
 // ✅

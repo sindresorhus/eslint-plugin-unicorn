@@ -1,7 +1,16 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -151,14 +160,36 @@ test.snapshot({
 		'[...set].find(fn) as Value',
 		'[...map.values()].find(((value, index, array) => array.length > 0) as Predicate)',
 		'[...map.values()].reduce((function () { return arguments[3]?.length; }) as Reducer, initialValue)',
+		'function foo(array: string[]) { [...array].find(fn); }',
+		'function foo(iterable: Iterable<string>) { [...iterable].find(fn); }',
+		'type Iterator<T> = T[]; function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
+		'interface Iterator<T> extends Array<T> {} function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
+		'import type {Iterator} from "iterators"; function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
 	],
 	invalid: [
 		'[...map.values()].find(fn) as Value',
 		'[...map!.values()].some(fn)',
 		'Array.from(map.values() satisfies Iterable<Value>).every(fn)',
+		'function foo(iterator: Iterator<string>) { [...iterator].find(fn); }',
+		'function foo(iterator: IterableIterator<string>) { Array.from(iterator).some(fn); }',
 		outdent`
 			previous
 			Array.from(map.values() satisfies Iterable<Value>).every(fn);
 		`,
+	],
+});
+
+test.snapshot({
+	valid: [
+		typeAware('declare function getArray(): string[]; [...getArray()].find(fn);'),
+		typeAware('declare function getIterable(): Iterable<string>; [...getIterable()].find(fn);'),
+		typeAware('type Iterator<T> = T[]; declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
+		typeAware('interface Iterator<T> extends Array<T> {} declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
+	],
+	invalid: [
+		typeAware('declare function getIterator(): Iterator<string>; [...getIterator()].find(fn);'),
+		typeAware('declare function getIterator(): Iterator<string>; Array.from(getIterator()).some(fn);'),
+		typeAware('declare function getIteratorObject(): IteratorObject<string>; [...getIteratorObject()].reduce(fn, initialValue);'),
+		typeAware('function * getIterator() { yield ""; } [...getIterator()].find(fn);'),
 	],
 });
