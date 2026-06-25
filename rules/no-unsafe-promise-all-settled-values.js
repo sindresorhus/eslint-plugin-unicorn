@@ -193,7 +193,7 @@ function isPromiseFulfilledResultFromTypeInformation(node, context) {
 		return false;
 	}
 
-	const {type, checker} = typeInformation;
+	const {type} = typeInformation;
 	return isPromiseFulfilledResultType(type);
 }
 

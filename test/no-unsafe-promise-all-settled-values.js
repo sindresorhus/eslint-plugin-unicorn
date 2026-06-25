@@ -34,6 +34,8 @@ test.snapshot({
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && condition && result.value);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" || result.value);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" || condition || result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status === "rejected" || result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "rejected" && result.value);',
 		'const values = (await Promise.allSettled(promises)).map(({status, value}) => status === "fulfilled" ? value : undefined);',
 		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" && condition ? result.value : undefined);',
 		'const values = (await Promise.allSettled(promises)).map(({status: state, value}) => state === "fulfilled" ? value : undefined);',
@@ -94,6 +96,9 @@ test.snapshot({
 		'const values = Promise.allSettled(promises).then(results => results.filter(() => true).map(result => result.value));',
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ({value}));',
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ({[value]: fallback}));',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status === "fulfilled" || result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "rejected" || result.value);',
+		'const values = (await Promise.allSettled(promises)).map(result => result.status !== "fulfilled" && result.value);',
 		outdent`
 			const values = (await Promise.allSettled(promises)).map(result => {
 				console.log(result.status);
