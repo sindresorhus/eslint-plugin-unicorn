@@ -789,7 +789,12 @@ const getAbortSignalAnyArgumentText = (node, context) => {
 		return text;
 	}
 
-	const expressionText = unwrapTypeScriptExpression(node) === node ? text : `(${text})`;
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+	if (unwrappedNode.type === 'ArrayExpression') {
+		return context.sourceCode.getText(unwrappedNode);
+	}
+
+	const expressionText = unwrappedNode === node ? text : `(${text})`;
 	return `[...${expressionText}]`;
 };
 

@@ -644,6 +644,16 @@ test.snapshot({
 		{
 			code: outdent`
 				const abortController = new AbortController();
+				for (const signal of [firstSignal, secondSignal] as const) {
+					signal.addEventListener('abort', () => abortController.abort());
+				}
+				fetch(url, {signal: abortController.signal});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const abortController = new AbortController();
 				for (const signal of signals as readonly AbortSignal[]) {
 					signal.addEventListener('abort', () => abortController.abort(signal.reason));
 				}
