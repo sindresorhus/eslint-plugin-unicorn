@@ -19,6 +19,14 @@ const messages = {
 
 const hasTypeArguments = node => node.typeArguments || node.typeParameters;
 
+const isFilterCallExpression = node => isMethodCall(node, {
+	method: 'filter',
+	argumentsLength: 1,
+	optionalCall: false,
+	optionalMember: false,
+	computed: false,
+});
+
 const isSimpleSingleParameterArrowCallback = node =>
 	node.type === 'ArrowFunctionExpression'
 	&& !node.async
@@ -86,6 +94,10 @@ function getArrowBodyText(node, context) {
 }
 
 function getMemberExpressionObjectText(node, context) {
+	if (node.type === 'Super') {
+		return 'super';
+	}
+
 	if (isParenthesized(node, context)) {
 		return getParenthesizedText(node, context);
 	}
@@ -128,28 +140,52 @@ function getFilterMapSuggestion(flatMapCallExpression, callback, callbackResult,
 	};
 }
 
-function getProblemForFilterFlatMap(flatMapCallExpression, callback, callbackResult, context) {
+function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) {
 	const filterCallExpression = flatMapCallExpression.callee.object;
-	if (!(
-		isMethodCall(filterCallExpression, {
-			method: 'filter',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-			computed: false,
-		})
-		&& !hasTypeArguments(filterCallExpression)
-		&& !hasTypeArguments(flatMapCallExpression)
-		&& !isKnownNonArray(filterCallExpression.callee.object, context)
-		&& !wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
-	)) {
+	if (!isFilterCallExpression(filterCallExpression)) {
 		return;
 	}
 
-	return {
+	const problem = {
 		node: flatMapCallExpression.callee.property,
 		messageId: MESSAGE_ID,
 		data: {method: 'map'},
+	};
+
+	if (
+		hasTypeArguments(filterCallExpression)
+		|| hasTypeArguments(flatMapCallExpression)
+		|| isKnownNonArray(filterCallExpression.callee.object, context)
+		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
+	) {
+		return problem;
+	}
+
+	return {
+		...problem,
+		* fix(fixer) {
+			yield fixer.replaceText(flatMapCallExpression.callee.property, 'map');
+			yield fixer.replaceText(callbackResult.arrayExpression, getArrowBodyText(callbackResult.element, context));
+		},
+	};
+}
+
+function getProblemForDirectMap(flatMapCallExpression, callbackResult, context) {
+	const problem = {
+		node: flatMapCallExpression.callee.property,
+		messageId: MESSAGE_ID,
+		data: {method: 'map'},
+	};
+
+	if (
+		hasTypeArguments(flatMapCallExpression)
+		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
+	) {
+		return problem;
+	}
+
+	return {
+		...problem,
 		* fix(fixer) {
 			yield fixer.replaceText(flatMapCallExpression.callee.property, 'map');
 			yield fixer.replaceText(callbackResult.arrayExpression, getArrowBodyText(callbackResult.element, context));
@@ -215,13 +251,7 @@ function getProblem(flatMapCallExpression, context) {
 
 	const filterCallExpression = flatMapCallExpression.callee.object;
 	if (
-		isMethodCall(filterCallExpression, {
-			method: 'filter',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-			computed: false,
-		})
+		isFilterCallExpression(filterCallExpression)
 		&& isKnownNonArray(filterCallExpression.callee.object, context)
 	) {
 		return;
@@ -238,11 +268,7 @@ function getProblem(flatMapCallExpression, context) {
 	}
 
 	if (callbackResult.type === 'map') {
-		return getProblemForFilterFlatMap(flatMapCallExpression, callback, callbackResult, context) ?? {
-			node: flatMapCallExpression.callee.property,
-			messageId: MESSAGE_ID,
-			data: {method: 'map'},
-		};
+		return getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) ?? getProblemForDirectMap(flatMapCallExpression, callbackResult, context);
 	}
 
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);

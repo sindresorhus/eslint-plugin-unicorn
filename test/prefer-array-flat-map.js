@@ -37,7 +37,7 @@ test.snapshot({
 		'React.Children.map(children, fn).flat()',
 		'const observable = new Observable(); observable.map(value => [value]).flat();',
 
-		// `filter().flatMap()` unsupported cases
+		// Cases owned by `no-unnecessary-array-flat-map` or ignored by this rule
 		'array.filter(value => value.active).map(value => value.id);',
 		'array.filter(function (value) { return value.active; }).flatMap(value => [value.id]);',
 		'array.filter(value => { return value.active; }).flatMap(value => [value.id]);',
