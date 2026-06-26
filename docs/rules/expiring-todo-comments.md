@@ -109,6 +109,8 @@ Argument versions should be [semver](https://semver.org/) compatible such as: `1
 
 Supported comparisons are `>` and `>=`. Comparison must have a `@` before such as `@>` and `@>=`.
 
+[Package manager catalogs](https://pnpm.io/catalogs) (`catalog:` version references in `package.json`) are not resolved; dependency and peer dependency version checks that use them are reported as unsupported.
+
 ### Peer Dependency Version
 
 If your package declares [`peerDependencies`](https://docs.npmjs.com/cli/configuring-npm/package-json#peerdependencies), you can make conditions based on the **minimum supported version** of a peer dependency. This is useful when you want a TODO to trigger once you bump the lowest version you support, for example to drop a fallback for a deprecated API.

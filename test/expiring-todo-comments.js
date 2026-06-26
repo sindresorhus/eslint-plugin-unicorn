@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import url from 'node:url';
 import test from 'ava';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
@@ -31,6 +33,10 @@ const versionMatchesError = (comparison, message) => ({
 
 const peerVersionMatchesError = (comparison, message) => ({
 	message: `Due since peer dependency version matched: ${comparison}. ${message}`,
+});
+
+const unsupportedCatalogProtocolError = (dependencyType, package_, message) => ({
+	message: `Cannot check ${dependencyType} version because ${package_} uses the unsupported \`catalog:\` protocol. ${message}`,
 });
 
 const engineMatchesError = (comparison, message) => ({
@@ -492,6 +498,70 @@ test('supports JSONC comments with @eslint/json', t => {
 			},
 			{
 				message: 'Unexpected \'todo\': \'TODO: Update config\'.',
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+		],
+	);
+});
+
+test('reports unsupported catalog protocol for dependency version conditions', t => {
+	const temporaryDirectoryUrl = new URL('../.ai-temporary/expiring-todo-comments/', import.meta.url);
+	const fixtureDirectoryUrl = new URL('catalog-package/', temporaryDirectoryUrl);
+
+	fs.mkdirSync(fixtureDirectoryUrl, {recursive: true});
+	fs.writeFileSync(new URL('package.json', fixtureDirectoryUrl), `${JSON.stringify({
+		name: 'catalog-package',
+		dependencies: {
+			eslint: 'catalog:',
+		},
+		devDependencies: {
+			prettier: 'catalog:',
+		},
+		peerDependencies: {
+			eslint: 'catalog:peer',
+		},
+	}, undefined, '\t')}\n`);
+	t.teardown(() => {
+		fs.rmSync(temporaryDirectoryUrl, {
+			recursive: true,
+			force: true,
+		});
+	});
+
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(`
+		// TODO [eslint@>9]: Drop fallback.
+		// TODO [prettier@>3]: Drop dev fallback.
+		// TODO [peer:eslint@>9]: Drop peer fallback.
+		// TODO [+eslint]: Presence checks still work.
+	`, {
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': 'error',
+		},
+	}, {
+		filename: url.fileURLToPath(new URL('index.js', fixtureDirectoryUrl)),
+	});
+
+	t.deepEqual(
+		messages.map(({message, ruleId}) => ({message, ruleId})),
+		[
+			{
+				message: unsupportedCatalogProtocolError('dependency', 'eslint', 'Drop fallback.').message,
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: unsupportedCatalogProtocolError('dependency', 'prettier', 'Drop dev fallback.').message,
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: unsupportedCatalogProtocolError('peer dependency', 'eslint', 'Drop peer fallback.').message,
+				ruleId: 'unicorn/expiring-todo-comments',
+			},
+			{
+				message: havePackageError('eslint', 'Presence checks still work.').message,
 				ruleId: 'unicorn/expiring-todo-comments',
 			},
 		],
