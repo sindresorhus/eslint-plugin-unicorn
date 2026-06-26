@@ -129,6 +129,7 @@ export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
 export {default as 'no-uncalled-method'} from './no-uncalled-method.js';
 export {default as 'no-undeclared-class-members'} from './no-undeclared-class-members.js';
 export {default as 'no-unnecessary-array-flat-depth'} from './no-unnecessary-array-flat-depth.js';
+export {default as 'no-unnecessary-array-flat-map'} from './no-unnecessary-array-flat-map.js';
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
 export {default as 'no-unnecessary-await'} from './no-unnecessary-await.js';
 export {default as 'no-unnecessary-boolean-comparison'} from './no-unnecessary-boolean-comparison.js';
