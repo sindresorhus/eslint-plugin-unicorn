@@ -52,6 +52,8 @@ test.snapshot({
 	invalid: [
 		'array.flatMap(value => [value]);',
 		'array.flatMap(value => [value.id]);',
+		'array.flatMap(value => [{id: value.id}]);',
+		'array.flatMap(value => [(value.id, value.name)]);',
 		'array.flatMap(value => [/* comment */ value]);',
 		'array.filter(value => value.active).flatMap(value => [value.id]);',
 		'array.filter(value => value.active).flatMap(value => [value]);',
@@ -92,6 +94,18 @@ test.snapshot({
 		},
 		{
 			code: 'function foo(array: string[]) { return array.flatMap((value: string) => [value as string]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.flatMap(value => [{id: value.id} as Item]);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.flatMap(value => [{id: value.id} satisfies Item]);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.flatMap(value => [{id: value.id}!]);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{

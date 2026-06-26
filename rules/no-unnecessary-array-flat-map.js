@@ -17,6 +17,18 @@ const messages = {
 	[SUGGESTION_ID_FILTER_MAP]: 'Replace `.flatMap(…)` with `.filter(…).map(…)`.',
 };
 
+const arrowBodyNeedsParenthesesTypes = new Set([
+	'ObjectExpression',
+	'SequenceExpression',
+]);
+
+const typescriptExpressionWrapperTypes = new Set([
+	'TSAsExpression',
+	'TSNonNullExpression',
+	'TSSatisfiesExpression',
+	'TSTypeAssertion',
+]);
+
 const hasTypeArguments = node => node.typeArguments || node.typeParameters;
 
 const isFilterCallExpression = node => isMethodCall(node, {
@@ -54,6 +66,18 @@ const getSingleArrayElement = node => {
 	return node.elements[0];
 };
 
+function shouldParenthesizeArrowBody(node, context) {
+	if (isParenthesized(node, context)) {
+		return false;
+	}
+
+	if (arrowBodyNeedsParenthesesTypes.has(node.type)) {
+		return true;
+	}
+
+	return typescriptExpressionWrapperTypes.has(node.type) && shouldParenthesizeArrowBody(node.expression, context);
+}
+
 function getCallbackResult(callback) {
 	const directElement = getSingleArrayElement(callback.body);
 	if (directElement) {
@@ -88,7 +112,7 @@ function getArrowBodyText(node, context) {
 	}
 
 	const text = context.sourceCode.getText(node);
-	return node.type === 'ObjectExpression' || node.type === 'SequenceExpression'
+	return shouldParenthesizeArrowBody(node, context)
 		? `(${text})`
 		: text;
 }
@@ -156,6 +180,29 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 		hasTypeArguments(filterCallExpression)
 		|| hasTypeArguments(flatMapCallExpression)
 		|| isKnownNonArray(filterCallExpression.callee.object, context)
+		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
+	) {
+		return problem;
+	}
+
+	return {
+		...problem,
+		* fix(fixer) {
+			yield fixer.replaceText(flatMapCallExpression.callee.property, 'map');
+			yield fixer.replaceText(callbackResult.arrayExpression, getArrowBodyText(callbackResult.element, context));
+		},
+	};
+}
+
+function getProblemForDirectMap(flatMapCallExpression, callbackResult, context) {
+	const problem = {
+		node: flatMapCallExpression.callee.property,
+		messageId: MESSAGE_ID,
+		data: {method: 'map'},
+	};
+
+	if (
+		hasTypeArguments(flatMapCallExpression)
 		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
 	) {
 		return problem;
@@ -245,11 +292,7 @@ function getProblem(flatMapCallExpression, context) {
 	}
 
 	if (callbackResult.type === 'map') {
-		return getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) ?? {
-			node: flatMapCallExpression.callee.property,
-			messageId: MESSAGE_ID,
-			data: {method: 'map'},
-		};
+		return getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) ?? getProblemForDirectMap(flatMapCallExpression, callbackResult, context);
 	}
 
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);
