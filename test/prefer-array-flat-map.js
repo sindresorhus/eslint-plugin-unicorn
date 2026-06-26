@@ -64,6 +64,7 @@ test.snapshot({
 		'const index = 0; array.filter((value, index) => value.active).flatMap(() => [index]);',
 		'const index = 0; array.filter((value, index) => value.active).flatMap(value => [index]);',
 		'array.filter(value => value.active).flatMap(item => [item.id]);',
+		'array.filter(value => value.active).flatMap(value => value.children);',
 		'({filter() {}}).filter(value => value.active).flatMap(value => [value.id]);',
 		'const set = new Set(); set.filter(value => value.active).flatMap(value => [value.id]);',
 		'array.filter(value => /* comment */ value.active).flatMap(value => [value.id]);',
@@ -164,5 +165,15 @@ test.snapshot({
 				.map(foo => doFoo(foo))
 				.flat();
 		`,
+		'array.filter(value => value > 0.5).flatMap(value => [value, value * 2]);',
+		'(array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug]));',
+		'array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active).flatMap(value => [value.id, ...value.children]);',
+		{
+			code: 'function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

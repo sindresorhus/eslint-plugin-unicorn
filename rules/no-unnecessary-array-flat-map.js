@@ -228,6 +228,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 	if (method === 'filter') {
 		if (
 			hasTypeArguments(flatMapCallExpression)
+			|| hasSideEffect(callbackResult.test, context.sourceCode)
 			|| wouldRemoveComments(context, flatMapCallExpression, [
 				flatMapCallExpression.callee.object,
 				callback.params[0],

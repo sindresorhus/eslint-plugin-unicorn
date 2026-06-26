@@ -68,6 +68,7 @@ test.snapshot({
 		'array.flatMap(value => (value.active) ? ([value.id]) : []);',
 		'array.flatMap(value => value.active ? [{id: value.id}] : []);',
 		'array.flatMap(value => value.active ? [(value.id, value.name)] : []);',
+		'array.flatMap(value => (value = value.id) ? [value] : []);',
 		'array.flatMap(value => (index++, value.active) ? [index] : []);',
 		'array.flatMap(value => value.active ? [sideEffect(value)] : []);',
 		outdent`
@@ -102,6 +103,10 @@ test.snapshot({
 		},
 		{
 			code: 'array.flatMap(value => [{id: value.id} satisfies Item]);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array.flatMap(value => [<Item>{id: value.id}]);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
