@@ -11,7 +11,7 @@
 
 [`Array#flatMap`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) performs [`Array#map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) and [`Array#flat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) in one step.
 
-It can also add or remove items during mapping by returning an empty array for items that should be skipped. This avoids an intermediate array from `.filter().flatMap()`.
+It can also add or remove items during mapping by returning an empty array for items that should be skipped. This rule only reports `.filter().flatMap()` when the `.flatMap()` callback can return multiple items. Single-item callbacks are handled by [`unicorn/no-unnecessary-array-flat-map`](./no-unnecessary-array-flat-map.md).
 
 ## Examples
 
@@ -30,10 +30,10 @@ const foo = bar.flatMap(element => unicorn(element));
 // ❌
 const foo = bar
 	.filter(element => element.isUnicorn)
-	.flatMap(element => unicorn(element));
+	.flatMap(element => [element.name, element.alias]);
 
 // ✅
-const foo = bar.flatMap(element => element.isUnicorn ? unicorn(element) : []);
+const foo = bar.flatMap(element => element.isUnicorn ? [element.name, element.alias] : []);
 ```
 
 ```js
@@ -54,3 +54,4 @@ const foo = bar.flat().map(element => unicorn(element));
 ## Related rules
 
 - [unicorn/prefer-array-flat](./prefer-array-flat.md)
+- [unicorn/no-unnecessary-array-flat-map](./no-unnecessary-array-flat-map.md)

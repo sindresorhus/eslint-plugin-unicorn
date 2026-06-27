@@ -37,7 +37,7 @@ test.snapshot({
 		'React.Children.map(children, fn).flat()',
 		'const observable = new Observable(); observable.map(value => [value]).flat();',
 
-		// `filter().flatMap()` unsupported cases
+		// Cases owned by `no-unnecessary-array-flat-map` or ignored by this rule
 		'array.filter(value => value.active).map(value => value.id);',
 		'array.filter(function (value) { return value.active; }).flatMap(value => [value.id]);',
 		'array.filter(value => { return value.active; }).flatMap(value => [value.id]);',
@@ -64,6 +64,7 @@ test.snapshot({
 		'const index = 0; array.filter((value, index) => value.active).flatMap(() => [index]);',
 		'const index = 0; array.filter((value, index) => value.active).flatMap(value => [index]);',
 		'array.filter(value => value.active).flatMap(item => [item.id]);',
+		'array.filter(value => value.active).flatMap(value => value.children);',
 		'({filter() {}}).filter(value => value.active).flatMap(value => [value.id]);',
 		'const set = new Set(); set.filter(value => value.active).flatMap(value => [value.id]);',
 		'array.filter(value => /* comment */ value.active).flatMap(value => [value.id]);',
@@ -164,24 +165,14 @@ test.snapshot({
 				.map(foo => doFoo(foo))
 				.flat();
 		`,
-
 		'array.filter(value => value > 0.5).flatMap(value => [value, value * 2]);',
-		'array[key?.name].filter(value => value.active).flatMap(value => [value.id]);',
-		'array.map(value => value?.id).filter(value => value).flatMap(value => [value]);',
-		'(array.filter(value => value.active)).flatMap(value => [value.id]);',
-		'(array).filter(value => (value.active)).flatMap(value => ([value.id]));',
-		'array.filter(value => value.active && value.visible).flatMap(value => [value.id]);',
-		'array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id]);',
-		'array.filter(value => value.active = true).flatMap(value => [value.id]);',
-		'array.filter(value => value.active).flatMap(value => value.result = []);',
-		'array.filter(value => value.active).flatMap(value => ({id: value.id}));',
-		'array.filter(value => value.active).flatMap(value => (sideEffect(), [value.id]));',
+		'(array).filter(value => (value.active)).flatMap(value => ([value.id, value.slug]));',
+		'array.filter(value => value.active && value.visible).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active ? value.visible : value.enabled).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active = true).flatMap(value => [value.id, value.slug]);',
+		'array.filter(value => value.active).flatMap(value => [value.id, ...value.children]);',
 		{
-			code: 'function foo(array: unknown) { return (array as string[]).filter(value => value.length > 1).flatMap(value => [value]); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value]); }',
+			code: 'function foo(array: unknown[]) { return array.filter(value => value as boolean).flatMap(value => [value, value]); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

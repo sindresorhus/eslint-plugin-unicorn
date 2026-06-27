@@ -212,6 +212,8 @@ Do not complicate autofixes to handle shadowed built-in globals like `Number`, `
 
 Do not complicate autofixes to preserve Proxy or accessor side effects. Treat that as unsupported.
 
+Do not block reports, suggestions, or autofixes only to preserve sparse array holes. Treat array holes as unsupported.
+
 When writing fix functions:
 
 1. **Comments** - Fixes must not remove or relocate comments. If the node being replaced/removed contains comments, either skip the fix (use `abort()`) or use range-aware replacements that preserve them. Check with `sourceCode.getCommentsInside(node)`.

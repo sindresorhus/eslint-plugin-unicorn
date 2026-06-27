@@ -5,7 +5,6 @@ import {
 	isNodeMatches,
 	isParenthesized,
 	isSameIdentifier,
-	shouldAddParenthesesToConditionalExpressionChild,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldSkipKnownNonArrayReceiver,
 	wouldRemoveComments,
@@ -52,6 +51,10 @@ const isSimpleUntypedSingleParameterArrowCallback = node =>
 	&& !node.params[0].typeAnnotation
 	&& node.body.type !== 'BlockStatement';
 
+const canArrayExpressionReturnMultipleItems = node =>
+	node.type === 'ArrayExpression'
+	&& node.elements.length > 1;
+
 function getConditionalTestText(node, context) {
 	if (isParenthesized(node, context)) {
 		return getParenthesizedText(node, context);
@@ -59,15 +62,6 @@ function getConditionalTestText(node, context) {
 
 	const text = context.sourceCode.getText(node);
 	return conditionalTestExpressionTypesRequiringParentheses.has(node.type) ? `(${text})` : text;
-}
-
-function getConditionalChildText(node, context) {
-	if (isParenthesized(node, context)) {
-		return getParenthesizedText(node, context);
-	}
-
-	const text = context.sourceCode.getText(node);
-	return shouldAddParenthesesToConditionalExpressionChild(node) ? `(${text})` : text;
 }
 
 function getMemberExpressionObjectText(node, context) {
@@ -190,6 +184,7 @@ const create = context => {
 		if (
 			!isSimpleUntypedSingleParameterArrowCallback(filterCallback)
 			|| !isSimpleUntypedSingleParameterArrowCallback(flatMapCallback)
+			|| !canArrayExpressionReturnMultipleItems(flatMapCallback.body)
 		) {
 			return;
 		}
@@ -203,7 +198,7 @@ const create = context => {
 		const arrayText = getMemberExpressionObjectText(filterCallExpression.callee.object, context);
 		const parameterText = sourceCode.getText(filterElementParameter);
 		const predicateText = getConditionalTestText(filterCallback.body, context);
-		const mappedText = getConditionalChildText(flatMapCallback.body, context);
+		const mappedText = sourceCode.getText(flatMapCallback.body);
 
 		return {
 			node: flatMapCallExpression.callee.property,
