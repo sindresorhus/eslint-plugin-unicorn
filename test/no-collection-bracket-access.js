@@ -42,6 +42,7 @@ test.snapshot({
 		'const map = new Map(); map[condition ? "get" : "has"]("foo");',
 		'const set = new Set(); set["has"]("foo");',
 		'const set = new Set(); set[set.has("foo") ? "delete" : "add"]("foo");',
+		'const set = new Set(); set[condition ? "delete" : otherCondition ? "add" : "has"]("foo");',
 		'const set = new Set(); set["union"](other);',
 		'const set = new Set(); set["size"];',
 		'const weakMap = new WeakMap(); weakMap["delete"](key);',
@@ -50,6 +51,7 @@ test.snapshot({
 		// Well-known `Symbol` keys
 		'const map = new Map(); map[Symbol.iterator];',
 		'const map = new Map(); map[Symbol.toStringTag];',
+		'const map = new Map(); map[condition ? Symbol.iterator : Symbol.toStringTag];',
 
 		// Inherited `Object.prototype` members
 		'const map = new Map(); map["toString"];',
