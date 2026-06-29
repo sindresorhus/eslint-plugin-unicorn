@@ -194,29 +194,6 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 	};
 }
 
-function getProblemForDirectMap(flatMapCallExpression, callbackResult, context) {
-	const problem = {
-		node: flatMapCallExpression.callee.property,
-		messageId: MESSAGE_ID,
-		data: {method: 'map'},
-	};
-
-	if (
-		hasTypeArguments(flatMapCallExpression)
-		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
-	) {
-		return problem;
-	}
-
-	return {
-		...problem,
-		* fix(fixer) {
-			yield fixer.replaceText(flatMapCallExpression.callee.property, 'map');
-			yield fixer.replaceText(callbackResult.arrayExpression, getArrowBodyText(callbackResult.element, context));
-		},
-	};
-}
-
 function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context) {
 	const method = isSameIdentifier(callbackResult.element, callback.params[0]) ? 'filter' : 'filter().map';
 	const problem = {
@@ -293,7 +270,11 @@ function getProblem(flatMapCallExpression, context) {
 	}
 
 	if (callbackResult.type === 'map') {
-		return getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) ?? getProblemForDirectMap(flatMapCallExpression, callbackResult, context);
+		return getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, context) ?? {
+			node: flatMapCallExpression.callee.property,
+			messageId: MESSAGE_ID,
+			data: {method: 'map'},
+		};
 	}
 
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);

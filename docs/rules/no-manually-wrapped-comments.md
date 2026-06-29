@@ -9,16 +9,17 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule reports separated consecutive line comments that look like one manually wrapped unfinished sentence. End each intentionally separate comment with sentence punctuation. A trailing `:` (for a heading, label, or list intro) also marks a comment as intentionally complete.
+This rule reports separated consecutive line comments that look like one manually wrapped unfinished sentence. End intentionally separate comments with sentence punctuation, `:`, or an emoji-like symbol.
 
 This rule also supports JSONC and JSON5 line comments when linting with [`@eslint/json`](https://github.com/eslint/json).
 
 Comments that are not prose are ignored and never merged:
 
 - Tooling directives, for example `eslint-*`, `@ts-check`, `prettier-ignore`, `deno-lint-ignore`, `dprint-ignore`, `noinspection …`, `c8 ignore`, `cspell:disable`, and `spell-checker:`.
+- All-caps annotations, for example `MARK:`, `TODO:`, `TODO(owner):`, `FIXME:`, and `NOTE:`.
 - Machine-readable [SPDX](https://spdx.dev/learn/handling-license-info/) tags, for example `SPDX-License-Identifier`.
 - Copyright headers, for example `© 2026 …` and `Copyright 2026 …`.
-- Editor modelines, for example `vim: …` and `-*- … -*-`.
+- Editor hints, for example `vim: …`, `-*- … -*-`, `language=HTML`, `region`, and `<editor-fold …>`.
 - List items, separators, URLs, and comments containing code characters.
 
 ## Examples
