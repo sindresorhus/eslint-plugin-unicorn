@@ -19,6 +19,42 @@ test.snapshot({
 			// I don't like long lines.
 		`,
 		outdent`
+			// ⚠ Warning callout ⚠
+			// This is some extra information
+		`,
+		outdent`
+			// ⚠️ Warning callout ⚠️
+			// This is some extra information
+		`,
+		outdent`
+			// ⚠︎ Warning callout ⚠︎
+			// This is some extra information
+		`,
+		outdent`
+			// Finished ✅
+			// This is some extra information
+		`,
+		outdent`
+			// Launch 🚀
+			// This is some extra information
+		`,
+		outdent`
+			// Ready 👍🏽
+			// This is some extra information
+		`,
+		outdent`
+			// Deployed 🇺🇸
+			// This is some extra information
+		`,
+		outdent`
+			// Step 1️⃣
+			// This is some extra information
+		`,
+		outdent`
+			// Family 👨‍👩‍👧
+			// This is some extra information
+		`,
+		outdent`
 			// This comment is intentionally separate.
 			// This one is separate too!
 			// This one is also separate?
@@ -197,6 +233,43 @@ test.snapshot({
 			// Supported values:
 			// I don't like long lines
 		`,
+		outdent`
+			// MARK: - Networking
+			// Handles requests, retries, and caching
+		`,
+		outdent`
+			// TODO: Add retry handling
+			// FIXME: Cache invalidation is not implemented
+			// NOTE: Keep this behavior in sync with the server
+		`,
+		outdent`
+			// TODO(alice): Add retry handling
+			// FIXME(issue-123): Cache invalidation is not implemented
+		`,
+		outdent`
+			// language=HTML
+			// Template used by the fixture
+		`,
+		outdent`
+			// language=RegExp prefix=^ suffix=$
+			// Pattern used by the fixture
+		`,
+		outdent`
+			// region Networking
+			// Handles requests, retries, and caching
+		`,
+		outdent`
+			// endregion
+			// Handles requests, retries, and caching
+		`,
+		outdent`
+			//<editor-fold desc="Networking">
+			// Handles requests, retries, and caching
+		`,
+		outdent`
+			//</editor-fold>
+			// Handles requests, retries, and caching
+		`,
 	],
 	invalid: [
 		outdent`
@@ -223,6 +296,10 @@ test.snapshot({
 		`,
 		outdent`
 			// Global state is initialized but
+			// the next step runs later
+		`,
+		outdent`
+			// Region-specific behavior is initialized but
 			// the next step runs later
 		`,
 		outdent`
