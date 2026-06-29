@@ -56,6 +56,28 @@ const collectionTypes = [
 // `.method(…)` without parentheses, so suggestions are limited to them.
 const simpleObjectTypes = new Set(['Identifier', 'ThisExpression', 'MemberExpression']);
 
+function getStaticPropertyValues(node, sourceCode) {
+	const staticResult = getStaticValue(node, sourceCode.getScope(node));
+	if (staticResult) {
+		return [staticResult.value];
+	}
+
+	if (node.type !== 'ConditionalExpression') {
+		return;
+	}
+
+	const consequentValues = getStaticPropertyValues(node.consequent, sourceCode);
+	const alternateValues = getStaticPropertyValues(node.alternate, sourceCode);
+	if (!consequentValues || !alternateValues) {
+		return;
+	}
+
+	return [
+		...consequentValues,
+		...alternateValues,
+	];
+}
+
 function getProblem(node, collection, context) {
 	const {sourceCode} = context;
 	const {name: type} = collection;
@@ -132,11 +154,12 @@ const create = context => {
 		}
 
 		// Allow accessing a real member, including `Symbol` ones like `map[Symbol.iterator]`.
-		const staticResult = getStaticValue(node.property, context.sourceCode.getScope(node.property));
+		const staticPropertyValues = getStaticPropertyValues(node.property, context.sourceCode);
 		if (
-			staticResult
-			&& (typeof staticResult.value === 'string' || typeof staticResult.value === 'symbol')
-			&& Reflect.has(collection.prototype, staticResult.value)
+			staticPropertyValues?.every(value =>
+				(typeof value === 'string' || typeof value === 'symbol')
+				&& Reflect.has(collection.prototype, value),
+			)
 		) {
 			return;
 		}
