@@ -11,7 +11,7 @@
 
 Prefer simpler logical conditions when they are equivalent and easier to read.
 
-This rule applies De Morgan's laws and factors direct common terms in boolean conditions. It intentionally does not try to be a full boolean algebra optimizer.
+This rule applies De Morgan's laws and factors direct leading common terms in boolean conditions. It intentionally does not try to be a full boolean algebra optimizer.
 
 ## Examples
 
@@ -41,7 +41,7 @@ if (a && (b || c)) {}
 
 ```js
 // ❌
-if ((a || c) && (b || c)) {}
+if ((c || a) && (c || b)) {}
 
 // ✅
 if (c || (a && b)) {}

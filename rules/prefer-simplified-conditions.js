@@ -1,9 +1,14 @@
 import {isMethodCall} from './ast/index.js';
 import {
+	addParenthesizesToReturnOrThrowExpression,
+	fixSpaceAroundKeyword,
+} from './fix/index.js';
+import {
 	getParenthesizedText,
 	isBoolean,
 	isBooleanExpression,
 	isControlFlowTest,
+	isOnSameLine,
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
@@ -13,7 +18,11 @@ import {
 } from './utils/index.js';
 import {
 	containsOptionalChain,
+	getBinaryExpressionWithReplacedOperatorText,
+	hasLowerLogicalOperatorPrecedence,
 	isSame,
+	negatedEqualityOperators,
+	negatedLogicalOperators,
 } from './utils/comparison.js';
 
 /**
@@ -24,30 +33,6 @@ const MESSAGE_ID = 'prefer-simplified-conditions';
 const messages = {
 	[MESSAGE_ID]: 'Prefer a simplified condition.',
 };
-
-const equalityOperatorReplacements = new Map([
-	['===', '!=='],
-	['!==', '==='],
-	['==', '!='],
-	['!=', '=='],
-]);
-
-const logicalOperatorReplacements = new Map([
-	['&&', '||'],
-	['||', '&&'],
-]);
-
-const logicalOperatorPrecedence = {
-	'||': 1,
-	'&&': 2,
-};
-
-const typeScriptExpressionTypesRequiringParenthesesWhenNegated = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
 
 const simpleNodeTypes = new Set([
 	'Identifier',
@@ -66,44 +51,31 @@ const isInsideNegatedLogicalExpression = node =>
 
 const isEqualityComparison = node =>
 	node.type === 'BinaryExpression'
-	&& equalityOperatorReplacements.has(node.operator);
+	&& negatedEqualityOperators.has(node.operator);
 
-const getOperatorToken = (node, sourceCode) => sourceCode.getTokenAfter(
-	node.left,
-	token => token.type === 'Punctuator' && token.value === node.operator,
-);
-
-const getOppositeEqualityComparisonText = (node, sourceCode) => {
-	const operatorToken = getOperatorToken(node, sourceCode);
-	const [nodeStart] = sourceCode.getRange(node);
-	const [operatorStart, operatorEnd] = sourceCode.getRange(operatorToken);
-	const text = sourceCode.getText(node);
-
-	return [
-		text.slice(0, operatorStart - nodeStart),
-		equalityOperatorReplacements.get(node.operator),
-		text.slice(operatorEnd - nodeStart),
-	].join('');
-};
-
-const shouldAddParenthesesWhenNegated = node =>
-	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-	|| typeScriptExpressionTypesRequiringParenthesesWhenNegated.has(node.type);
-
-function getNegatedExpression(node, context) {
-	const {sourceCode} = context;
-
+function getNegatedExpression(node, context, canUseTruthiness) {
 	if (isNegation(node)) {
+		if (canUseTruthiness || isBoolean(node.argument, context)) {
+			return {
+				node: node.argument,
+				text: getParenthesizedText(node.argument, context),
+			};
+		}
+
 		return {
-			node: node.argument,
-			text: getParenthesizedText(node.argument, context),
+			node,
+			text: `!${getParenthesizedText(node, context)}`,
 		};
 	}
 
 	if (isEqualityComparison(node)) {
 		return {
 			node,
-			text: getOppositeEqualityComparisonText(node, sourceCode),
+			text: getBinaryExpressionWithReplacedOperatorText(
+				node,
+				context,
+				negatedEqualityOperators.get(node.operator),
+			),
 		};
 	}
 
@@ -115,7 +87,7 @@ function getNegatedExpression(node, context) {
 			prefix: true,
 			argument: node,
 		},
-		text: shouldAddParenthesesWhenNegated(node) && !isParenthesized(node, context)
+		text: shouldAddParenthesesToUnaryExpressionArgument(node, '!') && !isParenthesized(node, context)
 			? `!(${text})`
 			: `!${text}`,
 	};
@@ -125,7 +97,7 @@ function shouldAddParenthesesToGeneratedLogicalChild(node, operator) {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'LogicalExpression') {
-		return logicalOperatorPrecedence[node.operator] < logicalOperatorPrecedence[operator];
+		return hasLowerLogicalOperatorPrecedence(node.operator, operator);
 	}
 
 	return [
@@ -191,9 +163,10 @@ function getLogicalReplacementText(node, operator, replacement, context) {
 
 function getDeMorganReplacementText(node, context) {
 	const {argument} = node;
-	const operator = logicalOperatorReplacements.get(argument.operator);
-	const left = getNegatedExpression(argument.left, context);
-	const right = getNegatedExpression(argument.right, context);
+	const operator = negatedLogicalOperators.get(argument.operator);
+	const canUseTruthiness = isControlFlowTest(node);
+	const left = getNegatedExpression(argument.left, context, canUseTruthiness);
+	const right = getNegatedExpression(argument.right, context, canUseTruthiness);
 	const replacement = [
 		getGeneratedLogicalChildText(left.node, left.text, operator),
 		operator,
@@ -201,6 +174,36 @@ function getDeMorganReplacementText(node, context) {
 	].join(' ');
 
 	return getLogicalReplacementText(node, operator, replacement, context);
+}
+
+function needsReturnOrThrowParentheses(node, context) {
+	const {parent} = node;
+	if (
+		parent.type !== 'ReturnStatement'
+		&& parent.type !== 'ThrowStatement'
+	) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const bangToken = sourceCode.getFirstToken(node);
+	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
+	return parent.argument === node
+		&& !isOnSameLine(bangToken, tokenAfterBang, context)
+		&& !isParenthesized(node, context);
+}
+
+function * fixDeMorgan(fixer, node, context) {
+	const shouldAddReturnOrThrowParentheses = needsReturnOrThrowParentheses(node, context);
+	if (!shouldAddReturnOrThrowParentheses) {
+		yield fixSpaceAroundKeyword(fixer, node, context);
+	}
+
+	yield fixer.replaceText(node, getDeMorganReplacementText(node, context));
+
+	if (shouldAddReturnOrThrowParentheses) {
+		yield addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
+	}
 }
 
 function isSimpleStableExpression(node) {
@@ -266,21 +269,23 @@ const isSameCondition = (left, right, context) =>
 	);
 
 function getCommonTerm(left, right, context) {
-	for (const leftProperty of ['left', 'right']) {
-		for (const rightProperty of ['left', 'right']) {
-			if (isSameCondition(left[leftProperty], right[rightProperty], context)) {
-				return {
-					common: left[leftProperty],
-					leftOther: left[leftProperty === 'left' ? 'right' : 'left'],
-					rightOther: right[rightProperty === 'left' ? 'right' : 'left'],
-				};
-			}
-		}
+	if (!isSameCondition(left.left, right.left, context)) {
+		return;
 	}
+
+	if (isSameCondition(left.right, right.right, context)) {
+		return;
+	}
+
+	return {
+		common: left.left,
+		leftOther: left.right,
+		rightOther: right.right,
+	};
 }
 
-function getFactoringProblem(node, context) {
-	const innerOperator = logicalOperatorReplacements.get(node.operator);
+function getCommonFactoringTerms(node, context) {
+	const innerOperator = negatedLogicalOperators.get(node.operator);
 
 	if (
 		!innerOperator
@@ -329,7 +334,7 @@ const create = context => {
 			|| isNegation(node.parent)
 			|| isInsideNegatedLogicalExpression(node)
 			|| node.argument.type !== 'LogicalExpression'
-			|| !logicalOperatorReplacements.has(node.argument.operator)
+			|| !negatedLogicalOperators.has(node.argument.operator)
 		) {
 			return;
 		}
@@ -345,7 +350,7 @@ const create = context => {
 
 		return {
 			...problem,
-			fix: fixer => fixer.replaceText(node, getDeMorganReplacementText(node, context)),
+			fix: fixer => fixDeMorgan(fixer, node, context),
 		};
 	});
 
@@ -354,23 +359,23 @@ const create = context => {
 			return;
 		}
 
-		const problem = getFactoringProblem(node, context);
-		if (!problem) {
+		const factoringTerms = getCommonFactoringTerms(node, context);
+		if (!factoringTerms) {
 			return;
 		}
 
-		const report = {
+		const problem = {
 			node,
 			messageId: MESSAGE_ID,
 		};
 
 		if (sourceCode.getCommentsInside(node).length > 0) {
-			return report;
+			return problem;
 		}
 
 		return {
-			...report,
-			fix: fixer => fixer.replaceText(node, getFactoringReplacementText(node, problem, context)),
+			...problem,
+			fix: fixer => fixer.replaceText(node, getFactoringReplacementText(node, factoringTerms, context)),
 		};
 	});
 };

@@ -19,6 +19,43 @@ The comparison operators (strict equality, strict inequality, and the four relat
 export const comparisonOperators = new Set(['<', '<=', '>', '>=', '===', '!==']);
 
 /**
+Equality operators after applying a leading logical negation.
+*/
+export const negatedEqualityOperators = new Map([
+	['===', '!=='],
+	['!==', '==='],
+	['==', '!='],
+	['!=', '=='],
+]);
+
+/**
+Comparison operators after applying a leading logical negation, including relational operators.
+*/
+export const negatedComparisonOperators = new Map([
+	...negatedEqualityOperators,
+	['>', '<='],
+	['>=', '<'],
+	['<', '>='],
+	['<=', '>'],
+]);
+
+/**
+Logical operators after applying De Morgan's law.
+*/
+export const negatedLogicalOperators = new Map([
+	['&&', '||'],
+	['||', '&&'],
+]);
+
+const logicalOperatorPrecedence = {
+	'||': 1,
+	'&&': 2,
+};
+
+export const hasLowerLogicalOperatorPrecedence = (operator, parentOperator) =>
+	logicalOperatorPrecedence[operator] < logicalOperatorPrecedence[parentOperator];
+
+/**
 Flip a comparison operator so it reads with its operands in the opposite order. Equality operators are symmetric, so they stay the same.
 */
 export const flipOperator = {
@@ -37,6 +74,25 @@ Unwrap TypeScript type-only expression wrappers (`as`, `satisfies`, `<Type>`, an
 @returns {import('estree').Node} The unwrapped node.
 */
 export const unwrapExpression = unwrapTypeScriptExpression;
+
+export const getPunctuatorBinaryExpressionOperatorToken = (node, context) => context.sourceCode.getTokenAfter(
+	node.left,
+	token => token.type === 'Punctuator' && token.value === node.operator,
+);
+
+export const getBinaryExpressionWithReplacedOperatorText = (node, context, replacementOperator) => {
+	const {sourceCode} = context;
+	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(node, context);
+	const [nodeStart] = sourceCode.getRange(node);
+	const [operatorStart, operatorEnd] = sourceCode.getRange(operatorToken);
+	const text = sourceCode.getText(node);
+
+	return [
+		text.slice(0, operatorStart - nodeStart),
+		replacementOperator,
+		text.slice(operatorEnd - nodeStart),
+	].join('');
+};
 
 const normalizeReference = node => {
 	node = unwrapExpression(node);

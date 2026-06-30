@@ -8,6 +8,14 @@ import {
 	isOnSameLine,
 	needsSemicolon,
 } from './utils/index.js';
+import {
+	getBinaryExpressionWithReplacedOperatorText,
+	getPunctuatorBinaryExpressionOperatorToken,
+	hasLowerLogicalOperatorPrecedence,
+	negatedComparisonOperators,
+	negatedEqualityOperators,
+	negatedLogicalOperators,
+} from './utils/comparison.js';
 
 const MESSAGE_ID_ERROR = 'no-negated-comparison/error';
 const MESSAGE_ID_LOGICAL_ERROR = 'no-negated-comparison/logical-error';
@@ -19,29 +27,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}`.',
 	[MESSAGE_ID_LOGICAL_SUGGESTION]: 'Switch to opposite comparisons.',
 };
-
-const operatorReplacements = new Map([
-	['===', '!=='],
-	['!==', '==='],
-	['==', '!='],
-	['!=', '=='],
-	['>', '<='],
-	['>=', '<'],
-	['<', '>='],
-	['<=', '>'],
-]);
-
-const safelyFixableOperators = new Set([
-	'===',
-	'!==',
-	'==',
-	'!=',
-]);
-
-const logicalOperatorReplacements = new Map([
-	['&&', '||'],
-	['||', '&&'],
-]);
 
 const defaultOptions = {
 	checkLogicalExpressions: false,
@@ -72,20 +57,20 @@ const isNegation = node =>
 
 const isComparison = node =>
 	node.type === 'BinaryExpression'
-	&& operatorReplacements.has(node.operator);
+	&& negatedComparisonOperators.has(node.operator);
 
 const isLogicalExpressionWithOnlyComparisons = node =>
 	isComparison(node)
 	|| (
 		node.type === 'LogicalExpression'
-		&& logicalOperatorReplacements.has(node.operator)
+		&& negatedLogicalOperators.has(node.operator)
 		&& isLogicalExpressionWithOnlyComparisons(node.left)
 		&& isLogicalExpressionWithOnlyComparisons(node.right)
 	);
 
 const isSafelyFixableLogicalExpression = node =>
 	isComparison(node)
-		? safelyFixableOperators.has(node.operator)
+		? negatedEqualityOperators.has(node.operator)
 		: isSafelyFixableLogicalExpression(node.left) && isSafelyFixableLogicalExpression(node.right);
 
 const parentNeedsGroupedComparison = parent => [
@@ -111,10 +96,7 @@ function * fix({
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
 	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 	const tokenAfterBangIncludingComments = sourceCode.getTokenAfter(bangToken, {includeComments: true});
-	const operatorToken = sourceCode.getTokenAfter(
-		comparison.left,
-		token => token.type === 'Punctuator' && token.value === comparison.operator,
-	);
+	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(comparison, context);
 	const {parent} = unaryExpression;
 	const needsReturnOrThrowParentheses = (
 		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
@@ -156,37 +138,18 @@ function * fix({
 	}
 }
 
-const logicalOperatorPrecedence = {
-	'||': 1,
-	'&&': 2,
-};
-
-const getOperatorToken = (comparison, sourceCode) => sourceCode.getTokenAfter(
-	comparison.left,
-	token => token.type === 'Punctuator' && token.value === comparison.operator,
+const getFixedComparisonText = (comparison, context) => getBinaryExpressionWithReplacedOperatorText(
+	comparison,
+	context,
+	negatedComparisonOperators.get(comparison.operator),
 );
 
-const getFixedComparisonText = (comparison, sourceCode) => {
-	const operatorToken = getOperatorToken(comparison, sourceCode);
-	const [comparisonStart] = sourceCode.getRange(comparison);
-	const [operatorStart, operatorEnd] = sourceCode.getRange(operatorToken);
-	const comparisonText = sourceCode.getText(comparison);
-
-	return [
-		comparisonText.slice(0, operatorStart - comparisonStart),
-		operatorReplacements.get(comparison.operator),
-		comparisonText.slice(operatorEnd - comparisonStart),
-	].join('');
-};
-
 const getFixedLogicalExpressionText = (node, context, parentOperator) => {
-	const {sourceCode} = context;
-
 	if (isComparison(node)) {
-		return getFixedComparisonText(node, sourceCode);
+		return getFixedComparisonText(node, context);
 	}
 
-	const operator = logicalOperatorReplacements.get(node.operator);
+	const operator = negatedLogicalOperators.get(node.operator);
 	const text = [
 		getFixedLogicalExpressionText(node.left, context, operator),
 		operator,
@@ -197,7 +160,7 @@ const getFixedLogicalExpressionText = (node, context, parentOperator) => {
 			operator !== parentOperator
 			&& isParenthesized(node, context)
 		)
-		|| logicalOperatorPrecedence[operator] < logicalOperatorPrecedence[parentOperator]
+		|| hasLowerLogicalOperatorPrecedence(operator, parentOperator)
 	);
 
 	return needsParentheses
@@ -253,7 +216,7 @@ const create = context => {
 
 		if (isComparison(argument)) {
 			const comparison = argument;
-			const replacementOperator = operatorReplacements.get(comparison.operator);
+			const replacementOperator = negatedComparisonOperators.get(comparison.operator);
 			const problem = {
 				node: unaryExpression,
 				messageId: MESSAGE_ID_ERROR,
@@ -267,7 +230,7 @@ const create = context => {
 				replacementOperator,
 			});
 
-			if (safelyFixableOperators.has(comparison.operator)) {
+			if (negatedEqualityOperators.has(comparison.operator)) {
 				problem.fix = fixFunction;
 			} else {
 				problem.suggest = [
