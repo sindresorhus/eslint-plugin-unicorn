@@ -134,6 +134,7 @@ export {default as 'no-unnecessary-array-flat-map'} from './no-unnecessary-array
 export {default as 'no-unnecessary-array-splice-count'} from './no-unnecessary-array-splice-count.js';
 export {default as 'no-unnecessary-await'} from './no-unnecessary-await.js';
 export {default as 'no-unnecessary-boolean-comparison'} from './no-unnecessary-boolean-comparison.js';
+export {default as 'no-unnecessary-fetch-options'} from './no-unnecessary-fetch-options.js';
 export {default as 'no-unnecessary-global-this'} from './no-unnecessary-global-this.js';
 export {default as 'no-unnecessary-nested-ternary'} from './no-unnecessary-nested-ternary.js';
 export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.js';
