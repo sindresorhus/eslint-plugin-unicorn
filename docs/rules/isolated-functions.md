@@ -12,6 +12,8 @@ Some functions need to be isolated from their surrounding scope due to execution
 Common scenarios where functions must be isolated:
 
 - Functions passed to `makeSynchronous()` (executed in worker)
+- Functions passed to `workerize()` or specific browser execution APIs
+- Functions passed to `page.evaluate()` in Puppeteer or Playwright style code
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
@@ -69,9 +71,20 @@ Type: `object`
 ### functions
 
 Type: `string[]`\
-Default: `['makeSynchronous']`
+Default: `['makeSynchronous', 'workerize']`
 
 Array of function names that create isolated execution contexts. Functions passed as arguments to these functions will be considered isolated.
+
+The rule also detects these common isolated execution APIs by default:
+
+- `browser.execute(fn)`
+- `page.evaluate(fn)`
+- `chrome.scripting.executeScript({func: () => {}})`
+- `browser.scripting.executeScript({func: () => {}})`
+
+Generic names like `serialize`, `isolate`, and `memoize` are not enabled by default. Add project-specific serializer names to `functions` when they should be treated as isolated.
+
+Other `evaluate` calls are not enabled by default. Use `selectors` to opt into project-specific APIs that do not use the variable name `page`.
 
 ### selectors
 
@@ -154,6 +167,7 @@ Controls how global variables are handled. When not specified, uses ESLint's lan
 		{
 			functions: [
 				'makeSynchronous',
+				'workerize',
 				'createWorker',
 				'serializeFunction'
 			]

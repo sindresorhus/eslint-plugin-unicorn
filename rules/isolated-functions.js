@@ -1,5 +1,5 @@
 import globals from 'globals';
-import {functionTypes} from './ast/index.js';
+import {functionTypes, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const messages = {
@@ -8,10 +8,77 @@ const messages = {
 
 /** @type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}} */
 const defaultOptions = {
-	functions: ['makeSynchronous'],
+	functions: ['makeSynchronous', 'workerize'],
 	selectors: [],
 	comments: ['@isolated'],
 	overrideGlobals: {},
+};
+
+const scriptingObjects = ['browser', 'chrome'];
+
+const getObjectPropertyName = node => {
+	if (node.computed && node.key.type !== 'Literal') {
+		return;
+	}
+
+	if (node.key.type === 'Identifier') {
+		return node.key.name;
+	}
+
+	if (node.key.type === 'Literal' && typeof node.key.value === 'string') {
+		return node.key.value;
+	}
+};
+
+const getDefaultArgumentCallReason = node => {
+	if (
+		node.parent.type !== 'CallExpression'
+		|| node.parent.arguments[0] !== node
+		|| node.parent.callee.type !== 'MemberExpression'
+	) {
+		return;
+	}
+
+	if (isMethodCall(node.parent, {object: 'browser', method: 'execute'})) {
+		return 'callee of method named "browser.execute"';
+	}
+
+	if (isMethodCall(node.parent, {object: 'page', method: 'evaluate'})) {
+		return 'callee of method named "page.evaluate"';
+	}
+};
+
+const getScriptingExecuteScriptObjectName = node => {
+	if (
+		!isMethodCall(node, {method: 'executeScript'})
+		|| !isMemberExpression(node.callee.object, {
+			objects: scriptingObjects,
+			property: 'scripting',
+		})
+	) {
+		return;
+	}
+
+	return node.callee.object.object.name;
+};
+
+const getExecuteScriptPropertyReason = node => {
+	if (
+		node.parent.type !== 'Property'
+		|| getObjectPropertyName(node.parent) !== 'func'
+		|| node.parent.parent.type !== 'ObjectExpression'
+		|| node.parent.parent.parent.type !== 'CallExpression'
+		|| node.parent.parent.parent.arguments[0] !== node.parent.parent
+	) {
+		return;
+	}
+
+	const scriptingObjectName = getScriptingExecuteScriptObjectName(node.parent.parent.parent);
+	if (!scriptingObjectName) {
+		return;
+	}
+
+	return `property "func" passed to "${scriptingObjectName}.scripting.executeScript"`;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -127,6 +194,8 @@ const create = context => {
 		) {
 			return `callee of function named ${JSON.stringify(node.parent.callee.name)}`;
 		}
+
+		return getDefaultArgumentCallReason(node) ?? getExecuteScriptPropertyReason(node);
 	};
 
 	context.onExit(

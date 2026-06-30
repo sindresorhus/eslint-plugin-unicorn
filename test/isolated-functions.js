@@ -5,6 +5,11 @@ const {test} = getTester(import.meta);
 
 const error = data => ({messageId: 'externally-scoped-variable', data});
 const fooInMakeSynchronousError = error({name: 'foo', reason: 'callee of function named "makeSynchronous"'});
+const fooInWorkerizeError = error({name: 'foo', reason: 'callee of function named "workerize"'});
+const fooInBrowserExecuteError = error({name: 'foo', reason: 'callee of method named "browser.execute"'});
+const fooInPageEvaluateError = error({name: 'foo', reason: 'callee of method named "page.evaluate"'});
+const fooInChromeScriptingExecuteScriptError = error({name: 'foo', reason: 'property "func" passed to "chrome.scripting.executeScript"'});
+const fooInBrowserScriptingExecuteScriptError = error({name: 'foo', reason: 'property "func" passed to "browser.scripting.executeScript"'});
 
 test({
 	/** @type {import('eslint').RuleTester.ValidTestCase[]} */
@@ -96,6 +101,68 @@ test({
 				});
 			`,
 		},
+		{
+			name: 'generic function names are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				memoize(() => foo.slice());
+				serialize(() => foo.slice());
+				isolate(() => foo.slice());
+			`,
+		},
+		{
+			name: 'dynamic computed executeScript func property is not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				const func = 'func';
+				chrome.scripting.executeScript({
+					target: {tabId: 1},
+					[func]: () => foo.slice(),
+				});
+			`,
+		},
+		{
+			name: 'computed browser execution method names are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				browser['execute'](() => foo.slice());
+				page['evaluate'](() => foo.slice());
+				chrome.scripting['executeScript']({
+					target: {tabId: 1},
+					func: () => foo.slice(),
+				});
+			`,
+		},
+		{
+			name: 'later executeScript object arguments are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				chrome.scripting.executeScript(target, {
+					func: () => foo.slice(),
+				});
+			`,
+		},
+		{
+			name: 'non-page evaluate methods are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				frame.evaluate(() => foo.slice());
+			`,
+		},
+		{
+			name: 'later browser.execute function arguments are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				browser.execute(() => 'browser', () => foo.slice());
+			`,
+		},
+		{
+			name: 'later page.evaluate function arguments are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				page.evaluate(() => 'page', () => foo.slice());
+			`,
+		},
 	],
 	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
 	invalid: [
@@ -106,6 +173,89 @@ test({
 				makeSynchronous(() => foo.slice());
 			`,
 			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'out of scope variable under workerize',
+			code: outdent`
+				const foo = 'hi';
+				workerize(() => foo.slice());
+			`,
+			errors: [fooInWorkerizeError],
+		},
+		{
+			name: 'out of scope variable under browser.execute',
+			code: outdent`
+				const foo = 'hi';
+				browser.execute(() => foo.slice());
+			`,
+			errors: [fooInBrowserExecuteError],
+		},
+		{
+			name: 'out of scope variable under page.evaluate',
+			code: outdent`
+				const foo = 'hi';
+				page.evaluate(() => foo.slice());
+			`,
+			errors: [fooInPageEvaluateError],
+		},
+		{
+			name: 'out of scope variable under chrome.scripting.executeScript',
+			code: outdent`
+				const foo = 'hi';
+				chrome.scripting.executeScript({
+					target: {tabId: 1},
+					func: () => foo.slice(),
+				});
+			`,
+			errors: [fooInChromeScriptingExecuteScriptError],
+		},
+		{
+			name: 'out of scope variable under browser.scripting.executeScript',
+			code: outdent`
+				const foo = 'hi';
+				browser.scripting.executeScript({
+					target: {tabId: 1},
+					func: () => foo.slice(),
+				});
+			`,
+			errors: [fooInBrowserScriptingExecuteScriptError],
+		},
+		{
+			name: 'out of scope variable under executeScript static computed func property',
+			code: outdent`
+				const foo = 'hi';
+				chrome.scripting.executeScript({
+					target: {tabId: 1},
+					['func']: () => foo.slice(),
+				});
+			`,
+			errors: [fooInChromeScriptingExecuteScriptError],
+		},
+		{
+			name: 'out of scope variable under executeScript function expression',
+			code: outdent`
+				const foo = 'hi';
+				chrome.scripting.executeScript({
+					target: {tabId: 1},
+					func: function () {
+						return foo.slice();
+					},
+				});
+			`,
+			errors: [fooInChromeScriptingExecuteScriptError],
+		},
+		{
+			name: 'out of scope variable under executeScript method shorthand',
+			code: outdent`
+				const foo = 'hi';
+				browser.scripting.executeScript({
+					target: {tabId: 1},
+					func() {
+						return foo.slice();
+					},
+				});
+			`,
+			errors: [fooInBrowserScriptingExecuteScriptError],
 		},
 		{
 			name: 'out of scope variable under makeSynchronous (async arrow function)',
