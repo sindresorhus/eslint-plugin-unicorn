@@ -52,6 +52,9 @@ const logicalOperatorPrecedence = {
 	'&&': 2,
 };
 
+/**
+Check whether `operator` has lower precedence than `parentOperator`.
+*/
 export const hasLowerLogicalOperatorPrecedence = (operator, parentOperator) =>
 	logicalOperatorPrecedence[operator] < logicalOperatorPrecedence[parentOperator];
 
@@ -75,11 +78,17 @@ Unwrap TypeScript type-only expression wrappers (`as`, `satisfies`, `<Type>`, an
 */
 export const unwrapExpression = unwrapTypeScriptExpression;
 
+/**
+Get the punctuator token for a binary expression operator.
+*/
 export const getPunctuatorBinaryExpressionOperatorToken = (node, context) => context.sourceCode.getTokenAfter(
 	node.left,
 	token => token.type === 'Punctuator' && token.value === node.operator,
 );
 
+/**
+Return the source text for a binary expression with only its operator replaced.
+*/
 export const getBinaryExpressionWithReplacedOperatorText = (node, context, replacementOperator) => {
 	const {sourceCode} = context;
 	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(node, context);

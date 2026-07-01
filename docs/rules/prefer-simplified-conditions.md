@@ -11,7 +11,11 @@
 
 Prefer simpler logical conditions when they are equivalent and easier to read.
 
-This rule applies De Morgan's laws and factors direct leading common terms in boolean conditions. It intentionally does not try to be a full boolean algebra optimizer.
+This rule applies De Morgan's laws, factors direct leading common terms in boolean conditions, and removes simple absorbed conditions. It intentionally does not try to be a full boolean algebra optimizer.
+
+Factoring is intentionally limited to leading common terms to avoid changing evaluation order.
+
+Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop.
 
 ## Examples
 
@@ -45,6 +49,14 @@ if ((c || a) && (c || b)) {}
 
 // ✅
 if (c || (a && b)) {}
+```
+
+```js
+// ❌
+if (a || (a && b)) {}
+
+// ✅
+if (a) {}
 ```
 
 The rule avoids factoring expressions when the result would be used as a value instead of a boolean, unless the operands are known booleans.
