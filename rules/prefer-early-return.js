@@ -49,7 +49,9 @@ const getConsequentStatementCount = node => {
 		return 0;
 	}
 
-	return node.consequent.type === 'BlockStatement' ? node.consequent.body.length : 1;
+	return node.consequent.type === 'BlockStatement'
+		? node.consequent.body.filter(({type}) => type !== 'EmptyStatement').length
+		: 1;
 };
 
 const getLineIndent = (sourceCode, index) => {

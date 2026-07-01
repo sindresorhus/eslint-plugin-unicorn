@@ -81,6 +81,18 @@ test.snapshot({
 			`,
 			options: [{maximumStatements: 0}],
 		},
+		{
+			code: outdent`
+				function foo() {
+					if (condition) {
+						;(event.target as HTMLInputElement).blur();
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		outdent`

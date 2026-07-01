@@ -70,6 +70,18 @@ test.snapshot({
 			code: outdent`
 				for (const item of items) {
 					if (item.isActive) {
+						;(event.target as HTMLInputElement).blur();
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) {
 						process(item);
 						save(item);
 					}
