@@ -71,7 +71,7 @@ export default function trackBranchExits(context, isExitBranch) {
 				&& [...postIfSegments].every(segment =>
 					segment.prevSegments.every(previous => !terminalSegments.has(previous)),
 				);
-			const exits = isExitBranch?.(branch) || exitsByCodePath;
+			const exits = exitsByCodePath || isExitBranch?.(branch);
 			branchAlwaysExits.set(branch, reachableIfStatements.has(ifStatement) && Boolean(exits));
 		}
 	});

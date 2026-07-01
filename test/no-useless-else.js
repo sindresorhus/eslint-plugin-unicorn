@@ -318,6 +318,17 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					if (bar) {
+						process.exit();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
