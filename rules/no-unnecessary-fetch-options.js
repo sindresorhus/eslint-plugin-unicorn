@@ -350,11 +350,11 @@ function getInputTypeState(type, checker, program, seen = new Set()) {
 		return getInputTypeState(constraint, checker, program, seen);
 	}
 
-	if (checker.typeToString(type) === 'string' || type.isStringLiteral?.()) {
+	if (type.intrinsicName === 'string' || type.isStringLiteral?.()) {
 		return nonRequest;
 	}
 
-	const typeName = getTypeName(type, program) ?? checker.typeToString(type);
+	const typeName = getTypeName(type, program);
 	if (typeName === 'Request') {
 		return request;
 	}
@@ -401,11 +401,15 @@ function getInputState(node, context) {
 		return unknown;
 	}
 
-	return getInputTypeState(
-		parserServices.getTypeAtLocation(node),
-		parserServices.program.getTypeChecker(),
-		parserServices.program,
-	);
+	try {
+		return getInputTypeState(
+			parserServices.getTypeAtLocation(node),
+			parserServices.program.getTypeChecker(),
+			parserServices.program,
+		);
+	} catch {
+		return unknown;
+	}
 }
 
 const isDefaultValue = (propertyName, value, context) => {
