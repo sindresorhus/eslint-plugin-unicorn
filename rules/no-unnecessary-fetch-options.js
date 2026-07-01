@@ -445,6 +445,26 @@ const getFix = (property, optionsNode, optionsArgument, context) => function * (
 	yield removeObjectProperty(fixer, property, context);
 };
 
+function getWholeOptionsFix(unnecessaryProperties, optionsNode, optionsArgument, context) {
+	if (
+		unnecessaryProperties.length !== optionsNode.properties.length
+		|| hasCommentsInside(optionsNode, context)
+		|| unnecessaryProperties.some(({property}) => hasSideEffectProperty(property, context))
+	) {
+		return;
+	}
+
+	if (optionsArgument.parent.arguments.at(-1) !== optionsArgument) {
+		return fixer => fixer.replaceText(optionsNode, '{}');
+	}
+
+	if (!canRemoveFinalArgumentWithoutComments(optionsArgument, context)) {
+		return;
+	}
+
+	return fixer => removeFinalArgument(fixer, optionsArgument, context);
+}
+
 function * getOptionsProblems(input, optionsArgument, context) {
 	const optionsNode = unwrapTypeScriptExpression(optionsArgument);
 
@@ -475,6 +495,7 @@ function * getOptionsProblems(input, optionsArgument, context) {
 	}
 
 	const inputState = getInputState(input, context);
+	const unnecessaryProperties = [];
 
 	for (const [index, property] of properties.entries()) {
 		const propertyName = propertyNames[index];
@@ -482,11 +503,21 @@ function * getOptionsProblems(input, optionsArgument, context) {
 			continue;
 		}
 
+		unnecessaryProperties.push({property, propertyName});
+	}
+
+	const wholeOptionsFix = getWholeOptionsFix(unnecessaryProperties, optionsNode, optionsArgument, context);
+
+	for (const [index, {property, propertyName}] of unnecessaryProperties.entries()) {
+		const fix = index === 0 && wholeOptionsFix
+			? wholeOptionsFix
+			: getFix(property, optionsNode, optionsArgument, context);
+
 		yield {
 			node: property.key,
 			messageId: MESSAGE_ID_PROPERTY,
 			data: {property: propertyName},
-			fix: getFix(property, optionsNode, optionsArgument, context),
+			fix,
 		};
 	}
 }

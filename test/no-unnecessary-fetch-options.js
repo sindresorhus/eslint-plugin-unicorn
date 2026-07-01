@@ -151,7 +151,34 @@ test.snapshot({
 		'fetch(url, {body: (sideEffect(), null)})',
 		'fetch("/", {[(sideEffect(), "method")]: "GET"})',
 		typeAware('declare const url: string; fetch(url, {method: "GET"});'),
+		typeAware('declare const url: string; new Request(url, {method: "GET"});'),
 		typeAware('declare const url: URL; fetch(url, {headers: {}});'),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				fetch('/', {
+					method: 'GET',
+					credentials: 'same-origin',
+				});
+			`,
+			output: 'fetch(\'/\');',
+			errors: 2,
+		},
+		{
+			code: outdent`
+				new Request('/', {
+					method: 'GET',
+					credentials: 'same-origin',
+				});
+			`,
+			output: 'new Request(\'/\');',
+			errors: 2,
+		},
 	],
 });
 
@@ -172,6 +199,7 @@ test.snapshot({
 		'fetch("/", {method: ("GET"!)})',
 		'fetch("/", {body: (null as null)})',
 		'fetch("/", ({} as const))',
+		'new Request("/", ({} as const))',
 		'fetch("/", ({method: "GET"} as const))',
 		'fetch("/", ({method: "GET"} satisfies RequestInit))',
 	],
