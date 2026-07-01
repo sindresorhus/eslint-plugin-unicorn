@@ -13,7 +13,9 @@ Prefer the most direct `Object` iterable method for the data being used.
 
 Use `Object.values()` when only values are needed, `Object.entries()` when both keys and values are needed, and `Object.keys()` when only keys are needed.
 
-This rule intentionally only reports `for…of` loops and `.map()` callbacks.
+This rule reports `for…of` loops, `Object.keys().map()` callbacks, and `Object.entries()` callbacks for `.map()`, `.every()`, `.some()`, `.findIndex()`, `.findLastIndex()`, `.flatMap()`, `.forEach()`, `.reduce()`, and `.reduceRight()`.
+
+`Object.entries().reduce()` and `Object.entries().reduceRight()` are only reported when an initial value is provided.
 
 ## Examples
 
@@ -35,6 +37,14 @@ Object.keys(object).map(key => foo(object[key], key));
 
 // ✅
 Object.entries(object).map(([key, value]) => foo(value, key));
+```
+
+```js
+// ❌
+Object.entries(object).reduce((result, [key, value]) => result + value, 0);
+
+// ✅
+Object.values(object).reduce((result, value) => result + value, 0);
 ```
 
 ```js
