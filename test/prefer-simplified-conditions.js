@@ -22,13 +22,90 @@ ruleTester.snapshot({
 		'!a',
 		'!!a',
 		'!!(a && b)',
+		'!(a && b)',
+		'!(a || b)',
+		'!(a && b && c)',
+		'!(a || b || c)',
+		'!(a && (b || c))',
+		'!((a && b) || (a && c))',
 		'!(a > b)',
 		'!(a >= b)',
 		'!(a < b)',
 		'!(a <= b)',
+		'!(min <= x && x <= max)',
 		'!(key in object)',
 		'!(value instanceof Class)',
 		'!((a))',
+		'const result = !(!a && b);',
+		'foo(!(!function () {} && b));',
+		'!(!a && !b)',
+		'!(!a && !b && !c)',
+		'!(key === "y" && !isEditable(target))',
+		'!(a > b && c)',
+		'!(a && b > c)',
+		'!(a?.b && c)',
+		'!(a && b /* comment */)',
+		'!/* comment */(a && b)',
+		'foo(!(a && b))',
+		outdent`
+			foo
+			!(a && b)
+		`,
+		outdent`
+			foo
+			!(!(a && b) && c)
+		`,
+		outdent`
+			function foo() {
+				return!
+					(a && b);
+			}
+		`,
+		outdent`
+			function foo() {
+				throw!
+					(a || b);
+			}
+		`,
+		'function foo() { return!(a && b); }',
+		'function foo() { throw!(a || b); }',
+		'!(a && b) && c',
+		'const value = !(a && b) === c;',
+		'async function foo() { await !(a && b); }',
+		'(!(a && b)).toString();',
+		'(!(a && b))();',
+		'new (!(a && b))();',
+		'(!(a && b))`x`',
+		{
+			code: '!(foo! && bar)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '!((foo as string) && bar)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '!((foo satisfies string) && bar)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '!(<string>foo && bar)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: 'const value = (!(a && b)) as boolean;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		'(a && b) || c',
 		'a || (b && c)',
 		'(a && b) || (c && d)',
@@ -84,55 +161,15 @@ ruleTester.snapshot({
 		typeAware('declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = (a || c) && (b || c);'),
 	],
 	invalid: [
-		'!(a && b)',
-		'!(a || b)',
-		'!(a && b && c)',
-		'!(a || b || c)',
-		'!(a && (b || c))',
-		'!((a && b) || (a && c))',
-		'const result = !(!a && b);',
-		'foo(!(!function () {} && b));',
+		'if (!(!a && !b)) {}',
 		'if (!(!a && b)) {}',
 		'while (!(!a && b)) {}',
-		'!(key === "y" && !isEditable(target))',
+		'if (!(!a && !b && !c)) {}',
+		'if (!(x !== undefined && y !== undefined)) {}',
 		'if (!(key === "y" && !isEditable(target))) {}',
 		'!(key !== "y" || isEditable(target))',
 		'!(a == b && c != d)',
-		'!(a > b && c)',
-		'!(a && b > c)',
-		'!(a?.b && c)',
-		'!(a && b /* comment */)',
-		'!/* comment */(a && b)',
-		'foo(!(a && b))',
-		outdent`
-			foo
-			!(a && b)
-		`,
-		outdent`
-			foo
-			!(!(a && b) && c)
-		`,
-		outdent`
-			function foo() {
-				return!
-					(a && b);
-			}
-		`,
-		outdent`
-			function foo() {
-				throw!
-					(a || b);
-			}
-		`,
-		'function foo() { return!(a && b); }',
-		'function foo() { throw!(a || b); }',
-		'!(a && b) && c',
-		'const value = !(a && b) === c;',
-		'async function foo() { await !(a && b); }',
-		'(!(a && b)).toString();',
-		'(!(a && b))();',
-		'new (!(a && b))();',
-		'(!(a && b))`x`',
+		'if (!(!a && b /* comment */)) {}',
 		'if (a || (a && b)) {}',
 		'if (a || (a && b /* comment */)) {}',
 		'if (a && (a || b)) {}',
@@ -165,36 +202,6 @@ ruleTester.snapshot({
 		'const value = (Error.isError(value) && a === true) || (Error.isError(value) && b === true);',
 		'const value = (Number.isInteger(value) && a === true) || (Number.isInteger(value) && b === true);',
 		{
-			code: '!(foo! && bar)',
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		{
-			code: '!((foo as string) && bar)',
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		{
-			code: '!((foo satisfies string) && bar)',
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		{
-			code: '!(<string>foo && bar)',
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		{
-			code: 'const value = (!(a && b)) as boolean;',
-			languageOptions: {
-				parser: parsers.typescript,
-			},
-		},
-		{
 			code: 'declare const a: boolean; declare const b: boolean; declare const c: boolean; const value = (a && b) || (a && c);',
 			languageOptions: {
 				parser: parsers.typescript,
@@ -213,7 +220,7 @@ ruleTester.snapshot({
 test('applies repeated fixes until no nested simplifications remain', t => {
 	const linter = new Linter({configType: 'flat'});
 	const result = linter.verifyAndFix(
-		'!((a && b) || (a && c))',
+		'if (!(!a && !b && !c)) {}',
 		{
 			plugins: {
 				'rule-to-test': {
@@ -230,6 +237,6 @@ test('applies repeated fixes until no nested simplifications remain', t => {
 	);
 
 	t.true(result.fixed);
-	t.is(result.output, '!a || (!b && !c)');
+	t.is(result.output, 'if (a || b || c) {}');
 	t.deepEqual(result.messages, []);
 });

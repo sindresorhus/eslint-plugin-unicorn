@@ -64,6 +64,10 @@ const isEqualityComparison = node =>
 	node.type === 'BinaryExpression'
 	&& negatedEqualityOperators.has(node.operator);
 
+const isNegativeEqualityComparison = node =>
+	node.type === 'BinaryExpression'
+	&& (node.operator === '!==' || node.operator === '!=');
+
 function isSimpleAbsorptionReplacement(node) {
 	node = unwrapTypeScriptExpression(node);
 
@@ -111,6 +115,59 @@ function isSafeToDropAbsorptionOperand(node, context) {
 	}
 
 	return false;
+}
+
+function getNegationWeight(node) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (isNegation(node)) {
+		return 1 + getNegationWeight(node.argument);
+	}
+
+	if (isNegativeEqualityComparison(node)) {
+		return 1 + getNegationWeight(node.left) + getNegationWeight(node.right);
+	}
+
+	if (node.type === 'BinaryExpression') {
+		return getNegationWeight(node.left) + getNegationWeight(node.right);
+	}
+
+	if (node.type === 'LogicalExpression') {
+		return getNegationWeight(node.left) + getNegationWeight(node.right);
+	}
+
+	return 0;
+}
+
+function getNegatedExpressionWeight(node, context, canUseTruthiness) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (isNegation(node)) {
+		return canUseTruthiness || isBoolean(node.argument, context)
+			? getNegationWeight(node.argument)
+			: 1 + getNegationWeight(node);
+	}
+
+	if (isEqualityComparison(node)) {
+		const operatorWeight = (node.operator === '===' || node.operator === '==') ? 1 : 0;
+		return operatorWeight + getNegationWeight(node.left) + getNegationWeight(node.right);
+	}
+
+	return 1 + getNegationWeight(node);
+}
+
+function shouldApplyDeMorgan(node, context) {
+	const {argument} = node;
+	const canUseTruthiness = isControlFlowTest(node);
+
+	// Contract: De Morgan is only a simplification when it reduces explicit negation noise.
+	// Plain expansions like `!(a && b)` -> `!a || !b` are often not clearer, especially for range checks like `!(min <= value && value <= max)`.
+	// Keep this narrower than `no-negated-comparison`, which is responsible for comparison-only negation rewrites.
+	const originalWeight = 1 + getNegationWeight(argument);
+	const replacementWeight = getNegatedExpressionWeight(argument.left, context, canUseTruthiness)
+		+ getNegatedExpressionWeight(argument.right, context, canUseTruthiness);
+
+	return replacementWeight < originalWeight;
 }
 
 const canDropAbsorptionOperand = (node, replacement, removable, context) =>
@@ -468,6 +525,7 @@ const create = context => {
 			|| isInsideNegatedLogicalExpression(node)
 			|| node.argument.type !== 'LogicalExpression'
 			|| !negatedLogicalOperators.has(node.argument.operator)
+			|| !shouldApplyDeMorgan(node, context)
 		) {
 			return;
 		}

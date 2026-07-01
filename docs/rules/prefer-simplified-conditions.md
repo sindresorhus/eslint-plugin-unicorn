@@ -11,7 +11,9 @@
 
 Prefer simpler logical conditions when they are equivalent and easier to read.
 
-This rule applies De Morgan's laws, factors direct leading common terms in boolean conditions, and removes simple absorbed conditions. It intentionally does not try to be a full boolean algebra optimizer.
+This rule applies De Morgan's laws when they reduce negation noise, factors direct leading common terms in boolean conditions, and removes simple absorbed conditions. It intentionally does not try to be a full boolean algebra optimizer.
+
+It does not expand plain negated groups like `!(a && b)`, because those are not consistently easier to read.
 
 Factoring is intentionally limited to leading common terms to avoid changing evaluation order. The rule does not reorder operands to find a common term.
 
@@ -21,18 +23,18 @@ Absorbed conditions that would otherwise skip reading another operand are only f
 
 ```js
 // ❌
-if (!(a && b)) {}
-
-// ✅
-if (!a || !b) {}
-```
-
-```js
-// ❌
 if (!(key === 'y' && !isEditable(target))) {}
 
 // ✅
 if (key !== 'y' || isEditable(target)) {}
+```
+
+```js
+// ❌
+if (!(!a && !b)) {}
+
+// ✅
+if (a || b) {}
 ```
 
 ```js
@@ -64,6 +66,9 @@ Examples of code that should not be changed:
 ```js
 // The operands can produce non-boolean values.
 const value = (a && b) || (a && c);
+
+// Plain De Morgan expansion is not always clearer.
+if (!(min <= value && value <= max)) {}
 
 // Dropping `object.property` would skip a property read.
 if ((object.property && a) || a) {}
