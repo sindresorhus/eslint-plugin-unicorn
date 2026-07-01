@@ -235,6 +235,89 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			function qux() {
+				return;
+				if (foo) {
+					process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux(process) {
+				if (foo) {
+					process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			import process from 'node:process';
+
+			if (foo) {
+				process.exit();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				process.exitCode = 1;
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				process?.exit();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				process.exit?.();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				process['exit']();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				lib.process.exit();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			if (foo) {
+				new process.exit();
+			} else {
+				baz();
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit();
+					} finally {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -831,5 +914,65 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		outdent`
+			function qux() {
+				if (foo) {
+					process.exit();
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo)
+					process.exit(1);
+				else
+					baz();
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					setup();
+					process.exit(1);
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					{
+						process.exit();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					process.exit(1);
+				} else if (bar) {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					if (bar) {
+						return;
+					} else {
+						process.exit(1);
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
 	],
 });

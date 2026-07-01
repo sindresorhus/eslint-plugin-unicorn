@@ -1,6 +1,8 @@
+import {isMethodCall} from './ast/index.js';
 import {
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
+	isGlobalIdentifier,
 	needsSemicolon,
 	trackBranchExits,
 } from './utils/index.js';
@@ -41,6 +43,35 @@ const startsWithAsiHazard = token => asiHazardCharacters.has(token.value[0]);
 const isJsxChildTextToken = (token, sourceCode) =>
 	token.type === 'JSXText'
 	&& sourceCode.getNodeByRangeIndex(sourceCode.getRange(token)[0]).type === 'JSXText';
+
+const isProcessExitCall = (node, context) =>
+	isMethodCall(node, {
+		object: 'process',
+		method: 'exit',
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isGlobalIdentifier(node.callee.object, context);
+
+const isProcessExitStatement = (node, context) =>
+	node.type === 'ExpressionStatement'
+	&& isProcessExitCall(node.expression, context);
+
+function branchExits(branch, context, branchAlwaysExits) {
+	if (branchAlwaysExits(branch) || isProcessExitStatement(branch, context)) {
+		return true;
+	}
+
+	if (branch.type === 'BlockStatement') {
+		const lastStatement = branch.body.at(-1);
+		return Boolean(lastStatement && branchExits(lastStatement, context, branchAlwaysExits));
+	}
+
+	return branch.type === 'IfStatement'
+		&& branch.alternate
+		&& branchExits(branch.consequent, context, branchAlwaysExits)
+		&& branchExits(branch.alternate, context, branchAlwaysExits);
+}
 
 // A multiline token's internal whitespace can be meaningful, so it can't be safely reindented.
 // JSX child text is safe because JSX collapses line-leading and line-trailing whitespace at compile time.
@@ -192,7 +223,7 @@ const fix = (ifStatement, context) => fixer => {
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const branchAlwaysExits = trackBranchExits(context);
+	const branchAlwaysExits = trackBranchExits(context, branch => branchExits(branch, context, branchAlwaysExits));
 
 	context.onExit('IfStatement', ifStatement => {
 		if (!(

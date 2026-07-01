@@ -12,12 +12,13 @@ exhaustive `switch`, an infinite loop, and so on. This is detected by checking w
 the branch's terminal code path segments flows into the merge point after the `if` statement,
 which correctly handles control flow that a structural AST walk would miss.
 
-The returned predicate must only be queried after the branch's `IfStatement` has exited.
+The returned predicate must only be queried after the branch's `IfStatement` has exited. Use `isExitBranch` to add simple branch exits that ESLint code path analysis cannot model. The extra check is still ignored for unreachable `if` statements.
 
 @param {ESLint.Rule.RuleContext} context
+@param {(branch: ESTree.Node) => boolean} [isExitBranch]
 @returns {(branch: ESTree.Node | null | undefined) => boolean}
 */
-export default function trackBranchExits(context) {
+export default function trackBranchExits(context, isExitBranch) {
 	// One set of active segments per code path, so nested functions don't pollute the enclosing path.
 	const segmentSetStack = [];
 	const currentSegments = () => segmentSetStack.at(-1);
@@ -66,12 +67,12 @@ export default function trackBranchExits(context) {
 			}
 
 			const terminalSegments = branchTerminalSegments.get(branch);
-			const fallsThrough = !reachableIfStatements.has(ifStatement)
-				|| !terminalSegments
-				|| [...postIfSegments].some(segment =>
-					segment.prevSegments.some(previous => terminalSegments.has(previous)),
+			const exitsByCodePath = terminalSegments
+				&& [...postIfSegments].every(segment =>
+					segment.prevSegments.every(previous => !terminalSegments.has(previous)),
 				);
-			branchAlwaysExits.set(branch, !fallsThrough);
+			const exits = isExitBranch?.(branch) || exitsByCodePath;
+			branchAlwaysExits.set(branch, reachableIfStatements.has(ifStatement) && Boolean(exits));
 		}
 	});
 

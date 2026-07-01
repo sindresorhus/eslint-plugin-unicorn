@@ -11,7 +11,7 @@
 
 When an `if` branch always exits, its `else` branch is unnecessary. Moving the `else` body after the `if` makes the control flow flatter.
 
-This rule reports branches that always exit with `return`, `throw`, `break`, or `continue`. It uses code path analysis, so it also recognizes more complex control flow such as nested `if` statements where both branches exit, exhaustive `switch` statements, `try`/`catch`/`finally`, and infinite loops.
+This rule reports branches that always exit with `return`, `throw`, `break`, `continue`, or terminal direct global `process.exit()`. It uses code path analysis, so it also recognizes more complex control flow such as nested `if` statements where both branches exit, exhaustive `switch` statements, `try`/`catch`/`finally`, and infinite loops.
 
 The autofix is conservative and skips cases where removing the `else` could affect scoped declarations, comments, or automatic semicolon insertion.
 
@@ -53,5 +53,5 @@ if (bar) {
 
 ## Related rules
 
-- ESLint [`no-else-return`](https://eslint.org/docs/latest/rules/no-else-return) only checks `else` after `return`. This rule is a broader alternative that also checks `throw`, `break`, and `continue`, and always reports `else if`.
+- ESLint [`no-else-return`](https://eslint.org/docs/latest/rules/no-else-return) only checks `else` after `return`. This rule is a broader alternative that also checks `throw`, `break`, `continue`, and terminal direct global `process.exit()`, and always reports `else if`.
 - [`unicorn/prefer-early-return`](./prefer-early-return.md) is complementary. It reports whole-function conditional wrappers without `else`; this rule reports an existing `else` after an exiting branch.
