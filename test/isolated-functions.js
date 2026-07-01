@@ -212,6 +212,19 @@ test({
 				}
 			`,
 		},
+		{
+			name: '@isolated function can contain nested class method with its own this',
+			code: outdent`
+				/** @isolated */
+				function abc() {
+					return class {
+						method() {
+							return this.value;
+						}
+					};
+				}
+			`,
+		},
 	],
 	/** @type {import('eslint').RuleTester.InvalidTestCase[]} */
 	invalid: [
@@ -450,6 +463,22 @@ test({
 			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
 		},
 		{
+			name: '@isolated function reports external variable from nested regular function',
+			code: outdent`
+				const foo = 'hi';
+
+				/** @isolated */
+				function abc() {
+					function getValue() {
+						return foo.slice();
+					}
+
+					return getValue;
+				}
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
 			name: '@isolated object method cannot use this',
 			code: outdent`
 				const object = {
@@ -546,6 +575,22 @@ test({
 				}
 			`,
 			errors: [superError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated class method cannot use lexical this or super from nested arrow function',
+			code: outdent`
+				class Example extends Base {
+					/** @isolated */
+					method() {
+						const getValue = () => this.foo + super.foo;
+						return getValue;
+					}
+				}
+			`,
+			errors: [
+				thisError({reason: 'follows comment "@isolated"'}),
+				superError({reason: 'follows comment "@isolated"'}),
+			],
 		},
 		{
 			name: 'isolated makeSynchronous callback cannot use this',

@@ -4,6 +4,11 @@ import {functionTypes, isMemberExpression, isMethodCall} from './ast/index.js';
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
 const MESSAGE_ID_SUPER = 'super';
 const MESSAGE_ID_THIS_EXPRESSION = 'this-expression';
+const functionContextReferenceMessageIds = new Map([
+	['Super', MESSAGE_ID_SUPER],
+	['ThisExpression', MESSAGE_ID_THIS_EXPRESSION],
+]);
+
 const messages = {
 	[MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE]: 'Variable {{name}} not defined in scope of isolated function. Function is isolated because: {{reason}}.',
 	[MESSAGE_ID_SUPER]: 'Unexpected `super` in isolated function. Function is isolated because: {{reason}}.',
@@ -100,19 +105,13 @@ const create = context => {
 	};
 	const checked = new WeakSet();
 
-	function * getFunctionContextReferences(node, root = node) {
-		if (node.type === 'ThisExpression') {
+	function * getFunctionContextProblems(node, reason, root = node) {
+		const messageId = functionContextReferenceMessageIds.get(node.type);
+		if (messageId) {
 			yield {
 				node,
-				messageId: MESSAGE_ID_THIS_EXPRESSION,
-			};
-			return;
-		}
-
-		if (node.type === 'Super') {
-			yield {
-				node,
-				messageId: MESSAGE_ID_SUPER,
+				messageId,
+				data: {reason},
 			};
 			return;
 		}
@@ -124,12 +123,12 @@ const create = context => {
 
 			if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
 				if (node.superClass) {
-					yield * getFunctionContextReferences(node.superClass, root);
+					yield * getFunctionContextProblems(node.superClass, reason, root);
 				}
 
 				for (const classElement of node.body.body) {
 					if (classElement.computed) {
-						yield * getFunctionContextReferences(classElement.key, root);
+						yield * getFunctionContextProblems(classElement.key, reason, root);
 					}
 				}
 
@@ -143,7 +142,7 @@ const create = context => {
 			if (Array.isArray(value)) {
 				for (const childNode of value) {
 					if (childNode?.type) {
-						yield * getFunctionContextReferences(childNode, root);
+						yield * getFunctionContextProblems(childNode, reason, root);
 					}
 				}
 
@@ -151,7 +150,7 @@ const create = context => {
 			}
 
 			if (value?.type) {
-				yield * getFunctionContextReferences(value, root);
+				yield * getFunctionContextProblems(value, reason, root);
 			}
 		}
 	}
@@ -197,12 +196,8 @@ const create = context => {
 			});
 		}
 
-		for (const {node: functionContextReferenceNode, messageId} of getFunctionContextReferences(node)) {
-			context.report({
-				node: functionContextReferenceNode,
-				messageId,
-				data: {reason},
-			});
+		for (const problem of getFunctionContextProblems(node, reason)) {
+			context.report(problem);
 		}
 	};
 
