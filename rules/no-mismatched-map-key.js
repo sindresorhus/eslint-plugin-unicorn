@@ -1,7 +1,7 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {isReference, isSame, unwrapExpression} from './utils/comparison.js';
-import {isKnownNonMap} from './utils/index.js';
+import {isComparableStaticValue, isKnownNonMap} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -20,13 +20,6 @@ const skippedNodeTypes = new Set([
 	'FunctionDeclaration',
 	'FunctionExpression',
 ]);
-
-const isComparableStaticValue = value =>
-	value === null
-	|| (
-		typeof value !== 'object'
-		&& typeof value !== 'function'
-	);
 
 const isSameValueZero = (left, right) =>
 	left === right

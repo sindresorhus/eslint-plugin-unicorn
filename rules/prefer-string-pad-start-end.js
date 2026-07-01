@@ -1,5 +1,5 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {isMethodCall, isNumericLiteral} from './ast/index.js';
 import {
 	getParenthesizedText,
 	isSameReference,
@@ -77,11 +77,6 @@ const isClearlyNonStringTarget = (node, context) => {
 const hasCommentsInside = (node, context) => context.sourceCode.getCommentsInside(node).length > 0;
 
 const isSimpleTarget = node => node.type === 'Identifier';
-
-const isNumericLiteral = node => (
-	node.type === 'Literal'
-	&& typeof node.value === 'number'
-);
 
 const isZeroLiteral = node => (
 	isNumericLiteral(node)

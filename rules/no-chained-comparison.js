@@ -1,4 +1,5 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {isBooleanLiteral} from './ast/index.js';
 import {getParenthesizedText, isParenthesized, isBoolean} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-chained-comparison/error';
@@ -13,7 +14,6 @@ const equalityOperators = new Set(['===', '!==', '==', '!=']);
 const comparisonOperators = orderingOperators.union(equalityOperators);
 
 const isComparison = node => node.type === 'BinaryExpression' && comparisonOperators.has(node.operator);
-const isBooleanLiteral = node => node.type === 'Literal' && typeof node.value === 'boolean';
 
 // The `&&` rewrite is a `LogicalExpression`, which binds looser than any comparison. It can only
 // replace `node` where a surrounding operator won't recapture it: at the top of an expression or

@@ -1,4 +1,5 @@
 import {hasSideEffect, findVariable} from '@eslint-community/eslint-utils';
+import {isBooleanLiteral} from './ast/index.js';
 import {
 	needsSemicolon,
 	isSameReference,
@@ -13,7 +14,6 @@ const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
 
 const isTernary = node => node?.type === 'ConditionalExpression';
-const isBooleanLiteral = node => node?.type === 'Literal' && typeof node.value === 'boolean';
 
 function getNodeBody(node) {
 	/* c8 ignore next 3 */

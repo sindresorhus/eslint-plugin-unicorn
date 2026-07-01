@@ -18,6 +18,7 @@ import {
 	isTypeParameterType,
 	hasUnparenthesizedOptionalChainElement,
 	isTypeScriptExpressionWrapper,
+	isDefaultLibrarySymbol,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {
@@ -388,9 +389,6 @@ function isGlobalMemberExpression(node, objectName, propertyName, context) {
 	const staticValue = getStaticValue(node.property, context.sourceCode.getScope(node.property));
 	return staticValue?.value === propertyName;
 }
-
-const isDefaultLibrarySymbol = (symbol, program) =>
-	symbol?.declarations?.some(declaration => program.isSourceFileDefaultLibrary(declaration.getSourceFile())) ?? false;
 
 function isBufferModuleImport(definition) {
 	return (
