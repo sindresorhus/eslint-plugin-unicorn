@@ -1,4 +1,5 @@
 import {
+	findVariable,
 	getPropertyName,
 	getStaticValue,
 	hasSideEffect,
@@ -8,6 +9,7 @@ import {
 import {
 	isCallExpression,
 	isNewExpression,
+	isReferenceIdentifier,
 } from './ast/index.js';
 import {
 	getArgumentRemovalRange,
@@ -93,6 +95,49 @@ const hasSideEffectProperty = (property, context) =>
 	|| (
 		property.computed
 		&& hasSideEffectValue(property.key, context)
+	);
+
+function hasReferenceDeclaredAfter(node, context) {
+	node = unwrapTypeScriptExpression(node);
+
+	if (node.type.startsWith('TS')) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	if (isReferenceIdentifier(node)) {
+		const variable = findVariable(sourceCode.getScope(node), node);
+		const definition = variable?.defs[0]?.name;
+		return definition
+			? sourceCode.getRange(definition)[0] > sourceCode.getRange(node)[0]
+			: false;
+	}
+
+	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+
+		if (Array.isArray(value)) {
+			if (value.some(node => node && hasReferenceDeclaredAfter(node, context))) {
+				return true;
+			}
+
+			continue;
+		}
+
+		if (value?.type && hasReferenceDeclaredAfter(value, context)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+const isUnsafeToRemoveProperty = (property, context) =>
+	hasSideEffectProperty(property, context)
+	|| hasReferenceDeclaredAfter(property.value, context)
+	|| (
+		property.computed
+		&& hasReferenceDeclaredAfter(property.key, context)
 	);
 
 const hasCommentsInRange = (range, context) => {
@@ -292,17 +337,17 @@ function getInputTypeState(type, checker, program, seen = new Set()) {
 
 	seen.add(type);
 
-	const constraint = checker.getBaseConstraintOfType(type);
-	if (constraint) {
-		return getInputTypeState(constraint, checker, program, seen);
-	}
-
 	if (type.isUnion()) {
 		return combineTypeStates(type.types.map(type => getInputTypeState(type, checker, program, seen)));
 	}
 
 	if (type.isIntersection()) {
 		return combineTypeStates(type.types.map(type => getInputTypeState(type, checker, program, seen)));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint) {
+		return getInputTypeState(constraint, checker, program, seen);
 	}
 
 	if (checker.typeToString(type) === 'string' || type.isStringLiteral?.()) {
@@ -408,7 +453,7 @@ function isUnnecessaryProperty(property, propertyName, inputState, context) {
 const getFix = (property, optionsNode, optionsArgument, context) => function * (fixer, {abort}) {
 	if (
 		hasCommentsInside(optionsNode, context)
-		|| hasSideEffectProperty(property, context)
+		|| isUnsafeToRemoveProperty(property, context)
 	) {
 		return abort();
 	}
@@ -449,7 +494,7 @@ function getWholeOptionsFix(unnecessaryProperties, optionsNode, optionsArgument,
 	if (
 		unnecessaryProperties.length !== optionsNode.properties.length
 		|| hasCommentsInside(optionsNode, context)
-		|| unnecessaryProperties.some(({property}) => hasSideEffectProperty(property, context))
+		|| unnecessaryProperties.some(({property}) => isUnsafeToRemoveProperty(property, context))
 	) {
 		return;
 	}

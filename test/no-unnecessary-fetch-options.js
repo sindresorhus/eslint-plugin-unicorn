@@ -84,6 +84,7 @@ test.snapshot({
 		'fetch("/", {["method"]: "GET"})',
 		'fetch("/", {method: "GET", "": value})',
 		'fetch("/", {headers: {"x-custom": "value"}, method: "GET"})',
+		'fetch("/", {method}); const method = "GET";',
 		'fetch("/", {mode: "cors"})',
 		'new Request("/", {credentials: "same-origin"})',
 		'fetch("/", {credentials: "same-origin"})',
@@ -99,6 +100,7 @@ test.snapshot({
 		'fetch("/", {headers: new Headers()})',
 		'fetch(url, {method: undefined})',
 		'const signal = undefined; fetch(url, {signal})',
+		'fetch("/", {signal}); const signal = undefined;',
 		'fetch(url, {headers: undefined})',
 		'fetch(url, {signal: undefined})',
 		'fetch(url, {duplex: undefined})',
@@ -111,6 +113,7 @@ test.snapshot({
 		'fetch(request, {body: null})',
 		'fetch("/", {method: "GET"}, extraArgument)',
 		'fetch(url, /* keep */ {})',
+		'fetch(url, {/* keep */})',
 		'fetch(url, {}, /* keep */)',
 		'fetch("/", {method: "GET"} /* keep */)',
 		outdent`
@@ -153,6 +156,7 @@ test.snapshot({
 		typeAware('declare const url: string; fetch(url, {method: "GET"});'),
 		typeAware('declare const url: string; new Request(url, {method: "GET"});'),
 		typeAware('declare const url: URL; fetch(url, {headers: {}});'),
+		typeAware('declare const url: string | URL; fetch(url, {method: "GET"});'),
 	],
 });
 
@@ -177,6 +181,11 @@ test({
 				});
 			`,
 			output: 'new Request(\'/\');',
+			errors: 2,
+		},
+		{
+			code: 'fetch("/", {method, credentials: "same-origin"}); const method = "GET";',
+			output: 'fetch("/", {method}); const method = "GET";',
 			errors: 2,
 		},
 	],
