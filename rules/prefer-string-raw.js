@@ -1,6 +1,6 @@
 import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
 import {
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 	fixSpaceAroundKeyword,
 	removeParentheses,
 	replaceTemplateElement,
@@ -191,7 +191,7 @@ const create = context => {
 					&& !isOnSameLine(tokenBefore, node.quasi, context)
 					&& !isParenthesized(node, context)
 				) {
-					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 				}
 
 				if (shouldParenthesizeYieldArgument(parent, node, tokenBefore, context)) {

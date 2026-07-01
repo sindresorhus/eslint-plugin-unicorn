@@ -21,4 +21,4 @@ export {default as replaceReferenceIdentifier} from './replace-reference-identif
 export {default as replaceNodeOrTokenAndSpacesBefore} from './replace-node-or-token-and-spaces-before.js';
 export {default as fixSpaceAroundKeyword} from './fix-space-around-keywords.js';
 export {default as replaceStringRaw} from './replace-string-raw.js';
-export {default as addParenthesizesToReturnOrThrowExpression} from './add-parenthesizes-to-return-or-throw-expression.js';
+export {default as addParenthesesToReturnOrThrowExpression} from './add-parentheses-to-return-or-throw-expression.js';

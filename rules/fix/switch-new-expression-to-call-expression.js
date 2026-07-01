@@ -3,7 +3,7 @@ import {
 	isParenthesized,
 	isOnSameLine,
 } from '../utils/index.js';
-import addParenthesizesToReturnOrThrowExpression from './add-parenthesizes-to-return-or-throw-expression.js';
+import addParenthesesToReturnOrThrowExpression from './add-parentheses-to-return-or-throw-expression.js';
 import removeSpaceAfter from './remove-spaces-after.js';
 
 /**
@@ -39,6 +39,6 @@ export default function * switchNewExpressionToCallExpression(newExpression, con
 	if (!isOnSameLine(newToken, newExpression.callee, context) && !isParenthesized(newExpression, context)) {
 		// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
 		// But adding extra parentheses is harmless, no need to be too complicated
-		yield addParenthesizesToReturnOrThrowExpression(fixer, newExpression.parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, newExpression.parent, context);
 	}
 }

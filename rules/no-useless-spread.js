@@ -1,6 +1,6 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
-import {removeParentheses, fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
+import {removeParentheses, fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
 import {
 	isArray,
 	isKnownNonArray,
@@ -143,7 +143,7 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 		&& !isOnSameLine(openingBracketToken, thirdToken, context)
 		&& !isParenthesized(arrayExpression, context)
 	) {
-		yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
