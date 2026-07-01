@@ -46,10 +46,12 @@ const loopExitStatementTypes = new Set([
 	'ThrowStatement',
 ]);
 
+const getNonEmptyBlockStatements = blockStatement => blockStatement.body.filter(({type}) => type !== 'EmptyStatement');
+
 // The continue-guard rewrite is pointless when the `if` body unconditionally exits the iteration, so there is no remaining loop body to flatten.
 const consequentExitsLoop = consequent => {
 	const lastStatement = consequent.type === 'BlockStatement'
-		? consequent.body.at(-1)
+		? getNonEmptyBlockStatements(consequent).at(-1)
 		: consequent;
 	return loopExitStatementTypes.has(lastStatement?.type);
 };
@@ -59,7 +61,9 @@ const getConsequentStatementCount = node => {
 		return 0;
 	}
 
-	return node.consequent.type === 'BlockStatement' ? node.consequent.body.length : 1;
+	return node.consequent.type === 'BlockStatement'
+		? getNonEmptyBlockStatements(node.consequent).length
+		: 1;
 };
 
 const getLineIndent = (sourceCode, index) => {
