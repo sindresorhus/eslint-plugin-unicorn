@@ -618,9 +618,10 @@ const create = context => {
 
 		const methodName = node.callee.property.name;
 		const methodInfo = callbackMethodInfo.get(methodName);
+		const isObjectKeysMapCall = methodName === 'map' && isObjectMethodCall(node.callee.object, 'keys');
 		const isObjectEntriesMethodCall = isObjectMethodCall(node.callee.object, 'entries');
 		if (
-			methodName !== 'map'
+			!isObjectKeysMapCall
 			&& !isObjectEntriesMethodCall
 		) {
 			return;
