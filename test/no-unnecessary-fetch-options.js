@@ -153,6 +153,7 @@ test.snapshot({
 		'fetch(url, {method: void sideEffect()})',
 		'fetch(url, {body: (sideEffect(), null)})',
 		'fetch("/", {[(sideEffect(), "method")]: "GET"})',
+		'fetch("/", {[method]: "GET"}); const method = "method";',
 		typeAware('declare const url: string; fetch(url, {method: "GET"});'),
 		typeAware('declare const url: string; new Request(url, {method: "GET"});'),
 		typeAware('declare const url: URL; fetch(url, {headers: {}});'),
