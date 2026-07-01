@@ -2,6 +2,7 @@ import {
 	getPropertyName,
 	getStaticValue,
 	hasSideEffect,
+	isCommaToken,
 	isCommentToken,
 } from '@eslint-community/eslint-utils';
 import {
@@ -108,6 +109,98 @@ const canRemoveArgumentWithoutComments = (node, context) =>
 	!hasCommentsInRange(getArgumentRemovalRange(node, context), context)
 	&& !isCommentToken(context.sourceCode.getTokenAfter(node, {includeComments: true}));
 
+function getPropertyLineRemovalRange(property, context) {
+	const {sourceCode} = context;
+	const location = sourceCode.getLoc(property);
+	if (location.start.line !== location.end.line) {
+		return;
+	}
+
+	const line = sourceCode.lines[location.start.line - 1];
+	if (line.slice(0, location.start.column).trim() !== '') {
+		return;
+	}
+
+	const tokenAfter = sourceCode.getTokenAfter(property);
+	const tokenAfterLocation = sourceCode.getLoc(tokenAfter);
+	const commaOnSameLine = isCommaToken(tokenAfter) && tokenAfterLocation.start.line === location.end.line;
+	if (
+		property.parent.properties.at(-1) !== property
+		&& !commaOnSameLine
+	) {
+		return;
+	}
+
+	const endColumn = commaOnSameLine
+		? tokenAfterLocation.end.column
+		: location.end.column;
+	if (line.slice(endColumn).trim() !== '') {
+		return;
+	}
+
+	return [
+		sourceCode.getIndexFromLoc({line: location.start.line, column: 0}),
+		location.start.line < sourceCode.lines.length
+			? sourceCode.getIndexFromLoc({line: location.start.line + 1, column: 0})
+			: sourceCode.text.length,
+	];
+}
+
+function getPropertyInlineRemovalRange(property, context) {
+	const {sourceCode} = context;
+	const location = sourceCode.getLoc(property);
+	if (location.start.line !== location.end.line) {
+		return;
+	}
+
+	const previousToken = sourceCode.getTokenBefore(property);
+	const nextToken = sourceCode.getTokenAfter(property);
+	const isLastProperty = property.parent.properties.at(-1) === property;
+
+	if (isLastProperty) {
+		if (!isCommaToken(previousToken)) {
+			return;
+		}
+
+		const previousTokenLocation = sourceCode.getLoc(previousToken);
+		if (previousTokenLocation.end.line !== location.start.line) {
+			return;
+		}
+
+		const endToken = isCommaToken(nextToken)
+			? sourceCode.getTokenAfter(nextToken)
+			: nextToken;
+
+		const end = endToken && sourceCode.getLoc(endToken).start.line === location.end.line
+			? sourceCode.getRange(endToken)[0]
+			: sourceCode.getRange(property)[1];
+
+		return [
+			sourceCode.getRange(previousToken)[0],
+			end,
+		];
+	}
+
+	if (!isCommaToken(nextToken)) {
+		return;
+	}
+
+	const nextTokenLocation = sourceCode.getLoc(nextToken);
+	if (nextTokenLocation.start.line !== location.end.line) {
+		return;
+	}
+
+	const tokenAfterComma = sourceCode.getTokenAfter(nextToken);
+	const end = tokenAfterComma && sourceCode.getLoc(tokenAfterComma).start.line === location.end.line
+		? sourceCode.getRange(tokenAfterComma)[0]
+		: sourceCode.getRange(nextToken)[1];
+
+	return [
+		sourceCode.getRange(property)[0],
+		end,
+	];
+}
+
 const isStaticUndefined = (node, context) => {
 	const result = getStaticValueForNode(node, context);
 	return result ? result.value === undefined : false;
@@ -140,7 +233,7 @@ function getObjectPropertyNames(properties, context) {
 
 	for (const property of properties) {
 		const name = getStaticPropertyName(property, context);
-		if (!name || seen.has(name)) {
+		if (name === undefined || seen.has(name)) {
 			return;
 		}
 
@@ -290,7 +383,7 @@ function isUnnecessaryProperty(property, propertyName, inputState, context) {
 	return isDefaultValue(propertyName, property.value, context);
 }
 
-const getFix = (property, optionsNode, context) => function * (fixer, {abort}) {
+const getFix = (property, optionsNode, optionsArgument, context) => function * (fixer, {abort}) {
 	if (
 		hasCommentsInside(optionsNode, context)
 		|| hasSideEffectProperty(property, context)
@@ -300,20 +393,34 @@ const getFix = (property, optionsNode, context) => function * (fixer, {abort}) {
 
 	if (
 		optionsNode.properties.length === 1
-		&& optionsNode.parent.arguments.at(-1) === optionsNode
+		&& optionsArgument.parent.arguments.at(-1) === optionsArgument
 	) {
-		if (!canRemoveArgumentWithoutComments(optionsNode, context)) {
+		if (!canRemoveArgumentWithoutComments(optionsArgument, context)) {
 			return abort();
 		}
 
-		yield removeArgument(fixer, optionsNode, context);
+		yield removeArgument(fixer, optionsArgument, context);
+		return;
+	}
+
+	const lineRemovalRange = getPropertyLineRemovalRange(property, context);
+	if (lineRemovalRange) {
+		yield fixer.removeRange(lineRemovalRange);
+		return;
+	}
+
+	const inlineRemovalRange = getPropertyInlineRemovalRange(property, context);
+	if (inlineRemovalRange) {
+		yield fixer.removeRange(inlineRemovalRange);
 		return;
 	}
 
 	yield removeObjectProperty(fixer, property, context);
 };
 
-function * getOptionsProblems(input, optionsNode, context) {
+function * getOptionsProblems(input, optionsArgument, context) {
+	const optionsNode = unwrapTypeScriptExpression(optionsArgument);
+
 	if (optionsNode.type !== 'ObjectExpression') {
 		return;
 	}
@@ -321,15 +428,15 @@ function * getOptionsProblems(input, optionsNode, context) {
 	const {properties} = optionsNode;
 
 	if (properties.length === 0) {
-		if (optionsNode.parent.arguments.at(-1) !== optionsNode) {
+		if (optionsArgument.parent.arguments.at(-1) !== optionsArgument) {
 			return;
 		}
 
 		yield {
 			node: optionsNode,
 			messageId: MESSAGE_ID_EMPTY_OPTIONS,
-			fix: canRemoveArgumentWithoutComments(optionsNode, context)
-				? fixer => removeArgument(fixer, optionsNode, context)
+			fix: canRemoveArgumentWithoutComments(optionsArgument, context)
+				? fixer => removeArgument(fixer, optionsArgument, context)
 				: undefined,
 		};
 		return;
@@ -352,7 +459,7 @@ function * getOptionsProblems(input, optionsNode, context) {
 			node: property.key,
 			messageId: MESSAGE_ID_PROPERTY,
 			data: {property: propertyName},
-			fix: getFix(property, optionsNode, context),
+			fix: getFix(property, optionsNode, optionsArgument, context),
 		};
 	}
 }

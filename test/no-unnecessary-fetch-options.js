@@ -75,6 +75,7 @@ test.snapshot({
 		'fetch("/", {method: `GET`})',
 		'fetch("/", {"method": "GET"})',
 		'fetch("/", {["method"]: "GET"})',
+		'fetch("/", {method: "GET", "": value})',
 		'fetch("/", {mode: "cors"})',
 		'fetch("/", {credentials: "same-origin"})',
 		'fetch("/", {cache: "default"})',
@@ -158,5 +159,7 @@ test.snapshot({
 		'fetch("/", {method: ("GET" satisfies string)})',
 		'fetch("/", {method: ("GET"!)})',
 		'fetch("/", {body: (null as null)})',
+		'fetch("/", ({method: "GET"} as const))',
+		'fetch("/", ({method: "GET"} satisfies RequestInit))',
 	],
 });
