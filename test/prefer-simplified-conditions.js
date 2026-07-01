@@ -1,8 +1,10 @@
 import outdent from 'outdent';
+import test from 'ava';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {ruleId, rule, test: ruleTester} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -13,7 +15,7 @@ const typeAware = code => ({
 	},
 });
 
-test.snapshot({
+ruleTester.snapshot({
 	valid: [
 		'a && b',
 		'a || b',
@@ -51,6 +53,10 @@ test.snapshot({
 		'if (a && (b || a)) {}',
 		'const value = (a && b) || a;',
 		'function foo(a, b) { const value = (a && b) || a; }',
+		'function foo(a) { let b; if ((b && a) || a) {} }',
+		'function foo(a) { const b = true; if ((b && a) || a) {} }',
+		'class Foo extends Bar { constructor(a) { if ((this && a) || a) {} super(); } }',
+		'class Foo extends Bar { constructor(a) { if ((a && this) || a) {} super(); } }',
 		'if ((a++ && b) || (a++ && c)) {}',
 		'if (((a = value) && b) || ((a = value) && c)) {}',
 		'const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}',
@@ -129,13 +135,18 @@ test.snapshot({
 		'if (a || (a && b /* comment */)) {}',
 		'if (a && (a || b)) {}',
 		'const value = a || (a && b);',
+		'function foo(a, b) { return(a || (a && b)); }',
+		'function foo(a, b) { throw(a || (a && b)); }',
 		'if ((a && true) || a) {}',
 		'function foo(a, b) { if ((a && b) || a) {} }',
 		'function foo(a, b) { if ((b && a) || a) {} }',
 		'function foo(a, b) { if (a || (b && a)) {} }',
 		'function foo(a, b) { if ((a || b) && a) {} }',
 		'function foo(a, b) { if (a && (b || a)) {} }',
+		'function foo(a) { var b; if ((b && a) || a) {} }',
 		'if ((a && b) || (a && c)) {}',
+		'function foo() { return(a === true && b === true) || (a === true && c === true); }',
+		'function foo() { throw(a === true && b === true) || (a === true && c === true); }',
 		'if ((a && b /* comment */) || (a && c)) {}',
 		'if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}',
 		'if ((ArrayBuffer.isView(value) && a) || (ArrayBuffer.isView(value) && b)) {}',
@@ -145,6 +156,7 @@ test.snapshot({
 		'if ((Number.isNaN(value) && a) || (Number.isNaN(value) && b)) {}',
 		'if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {}',
 		'if ((c || a) && (c || b)) {}',
+		'if (((c || a) && (c || b)) && d) {}',
 		'Boolean((a && b) || (a && c))',
 		'const value = (a === true && b === true) || (a === true && c === true);',
 		'const value = (Array.isArray(value) && a === true) || (Array.isArray(value) && b === true);',
@@ -193,4 +205,28 @@ test.snapshot({
 		},
 		typeAware('declare const flags: {a: boolean; b: boolean; c: boolean}; const a = flags.a; const b = flags.b; const c = flags.c; const value = (a && b) || (a && c);'),
 	],
+});
+
+test('applies repeated fixes until no nested simplifications remain', t => {
+	const linter = new Linter({configType: 'flat'});
+	const result = linter.verifyAndFix(
+		'!((a && b) || (a && c))',
+		{
+			plugins: {
+				'rule-to-test': {
+					rules: {
+						[ruleId]: rule,
+					},
+				},
+			},
+			rules: {
+				[`rule-to-test/${ruleId}`]: 'error',
+			},
+		},
+		{filename: 'test.js'},
+	);
+
+	t.true(result.fixed);
+	t.is(result.output, '!a || (!b && !c)');
+	t.deepEqual(result.messages, []);
 });

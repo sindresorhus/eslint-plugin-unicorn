@@ -64,7 +64,7 @@ const isEqualityComparison = node =>
 	node.type === 'BinaryExpression'
 	&& negatedEqualityOperators.has(node.operator);
 
-function isSimpleAbsorptionTerm(node) {
+function canBeAbsorptionReplacement(node) {
 	node = unwrapTypeScriptExpression(node);
 
 	return simpleNodeTypes.has(node.type);
@@ -98,7 +98,7 @@ function isIdentifierSafeToDrop(node, context) {
 function isSafeToDropAbsorptionOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (node.type === 'Literal' || node.type === 'ThisExpression') {
+	if (node.type === 'Literal') {
 		return true;
 	}
 
@@ -124,20 +124,20 @@ function getNegatedExpression(node, context, canUseTruthiness) {
 	if (isNegation(node)) {
 		if (canUseTruthiness || isBoolean(node.argument, context)) {
 			return {
-				node: node.argument,
+				precedenceNode: node.argument,
 				text: getParenthesizedText(node.argument, context),
 			};
 		}
 
 		return {
-			node,
+			precedenceNode: node,
 			text: `!${getParenthesizedText(node, context)}`,
 		};
 	}
 
 	if (isEqualityComparison(node)) {
 		return {
-			node,
+			precedenceNode: node,
 			text: getBinaryExpressionWithReplacedOperatorText(
 				node,
 				context,
@@ -148,7 +148,7 @@ function getNegatedExpression(node, context, canUseTruthiness) {
 
 	const text = getParenthesizedText(node, context);
 	return {
-		node: {
+		precedenceNode: {
 			type: 'UnaryExpression',
 			operator: '!',
 			prefix: true,
@@ -235,9 +235,9 @@ function getDeMorganReplacementText(node, context) {
 	const left = getNegatedExpression(argument.left, context, canUseTruthiness);
 	const right = getNegatedExpression(argument.right, context, canUseTruthiness);
 	const replacement = [
-		getGeneratedLogicalChildText(left.node, left.text, operator),
+		getGeneratedLogicalChildText(left.precedenceNode, left.text, operator),
 		operator,
-		getGeneratedLogicalChildText(right.node, right.text, operator),
+		getGeneratedLogicalChildText(right.precedenceNode, right.text, operator),
 	].join(' ');
 
 	return getLogicalReplacementText(node, operator, replacement, context);
@@ -273,7 +273,12 @@ function * fixDeMorgan(fixer, node, context) {
 	}
 }
 
-function isSimpleStableExpression(node) {
+function * fixLogicalExpression(fixer, node, replacement, context) {
+	yield fixSpaceAroundKeyword(fixer, node, context);
+	yield fixer.replaceText(node, replacement);
+}
+
+function isSimpleRepeatableExpression(node) {
 	node = unwrapTypeScriptExpression(node);
 
 	if (simpleNodeTypes.has(node.type)) {
@@ -281,14 +286,14 @@ function isSimpleStableExpression(node) {
 	}
 
 	if (isNegation(node)) {
-		return isSimpleStableExpression(node.argument);
+		return isSimpleRepeatableExpression(node.argument);
 	}
 
 	if (
 		node.type === 'BinaryExpression'
 		&& (node.operator === '===' || node.operator === '!==')
 	) {
-		return isSimpleStableExpression(node.left) && isSimpleStableExpression(node.right);
+		return isSimpleRepeatableExpression(node.left) && isSimpleRepeatableExpression(node.right);
 	}
 
 	return false;
@@ -305,7 +310,7 @@ function isKnownSafeBooleanStaticCall(node, context) {
 				optionalMember: false,
 			})
 			&& context.sourceCode.isGlobalReference(node.callee.object)
-			&& node.arguments.every(argument => isSimpleStableExpression(argument))
+			&& node.arguments.every(argument => isSimpleRepeatableExpression(argument))
 		) {
 			return true;
 		}
@@ -314,14 +319,14 @@ function isKnownSafeBooleanStaticCall(node, context) {
 	return false;
 }
 
-function isStableConditionOperand(node, context) {
+function isSafeFactoringOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
 	if (containsOptionalChain(node)) {
 		return false;
 	}
 
-	return isSimpleStableExpression(node)
+	return isSimpleRepeatableExpression(node)
 		|| isKnownSafeBooleanStaticCall(node, context);
 }
 
@@ -329,7 +334,7 @@ const isBooleanContext = (node, context) =>
 	isBooleanExpression(node, context) || isControlFlowTest(node);
 
 function canFactor(node, operands, context) {
-	return operands.every(operand => isStableConditionOperand(operand, context))
+	return operands.every(operand => isSafeFactoringOperand(operand, context))
 		&& (
 			isBooleanContext(node, context)
 			|| operands.every(operand => isBoolean(operand, context))
@@ -339,8 +344,8 @@ function canFactor(node, operands, context) {
 const isSameCondition = (left, right, context) =>
 	isSame(left, right)
 	|| (
-		isStableConditionOperand(left, context)
-		&& isStableConditionOperand(right, context)
+		isSafeFactoringOperand(left, context)
+		&& isSafeFactoringOperand(right, context)
 		&& context.sourceCode.getText(left) === context.sourceCode.getText(right)
 	);
 
@@ -393,7 +398,7 @@ function getAbsorptionTerm(node, context) {
 	if (
 		node.right.type === 'LogicalExpression'
 		&& node.right.operator === innerOperator
-		&& isSimpleAbsorptionTerm(node.left)
+		&& canBeAbsorptionReplacement(node.left)
 	) {
 		if (isSameCondition(node.left, node.right.left, context)) {
 			return node.left;
@@ -410,7 +415,7 @@ function getAbsorptionTerm(node, context) {
 	if (
 		node.left.type === 'LogicalExpression'
 		&& node.left.operator === innerOperator
-		&& isSimpleAbsorptionTerm(node.right)
+		&& canBeAbsorptionReplacement(node.right)
 	) {
 		if (
 			isSameCondition(node.left.left, node.right, context)
@@ -479,7 +484,12 @@ const create = context => {
 		if (absorptionTerm) {
 			return getProblem(
 				node,
-				fixer => fixer.replaceText(node, getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context)),
+				fixer => fixLogicalExpression(
+					fixer,
+					node,
+					getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context),
+					context,
+				),
 			);
 		}
 
@@ -488,7 +498,10 @@ const create = context => {
 			return;
 		}
 
-		return getProblem(node, fixer => fixer.replaceText(node, getFactoringReplacementText(node, factoringTerms, context)));
+		return getProblem(
+			node,
+			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
+		);
 	});
 };
 

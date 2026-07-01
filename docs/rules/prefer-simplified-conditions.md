@@ -15,7 +15,7 @@ This rule applies De Morgan's laws, factors direct leading common terms in boole
 
 Factoring is intentionally limited to leading common terms to avoid changing evaluation order.
 
-Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop.
+Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop, such as a parameter or literal.
 
 ## Examples
 
@@ -62,8 +62,10 @@ if (a) {}
 Examples of code that should not be changed:
 
 ```js
+// The operands can produce non-boolean values.
 const value = (a && b) || (a && c);
 
+// Dropping `object.property` would skip a property read.
 if ((object.property && a) || a) {}
 ```
 
