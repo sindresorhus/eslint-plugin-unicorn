@@ -515,8 +515,18 @@ test.snapshot({
 		typeAware('declare const options: {strict?: boolean}; const {strict = true} = options;'),
 		typeAware('declare const values: [boolean]; const [enabled] = values;'),
 		typeAware('declare const o: {a: {b: boolean}}; const {a: {b}} = o;'),
+		typeAware('declare const options: {isReady?: string}; const {isReady = "yes"} = options;'),
+		typeAware('declare const values: string[]; const [isReady = "yes"] = values;'),
 		// Destructured parameters are likewise not checked.
 		typeAware('function foo({strict}: {strict: boolean}) {}'),
+		typeAware('interface Options {isX?: boolean} const test = ({isX}: Options = {}) => isX;'),
+		typeAware('function foo({strict}: {strict?: boolean} = {}) {}'),
+		typeAware('function foo({isReady = "yes"} = {}) {}'),
+		typeAware('function foo([isReady = "yes"] = []) {}'),
+		typeAware('function foo({isReady: renamed = "yes"} = {}) {}'),
+		typeAware('function foo({nested: {isReady = "yes"}} = {nested: {}}) {}'),
+		typeAware('function foo({...isReady}: Record<string, string> = {}) {}'),
+		typeAware('function foo([first, ...isReady]: string[] = []) {}'),
 	],
 	invalid: [
 		typescript('const completed: boolean = true;'),
