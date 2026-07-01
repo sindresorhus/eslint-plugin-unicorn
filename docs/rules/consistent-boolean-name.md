@@ -15,7 +15,7 @@ Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
 
-Reports for property and method names do not provide rename suggestions.
+Reports for property and method names, and reports for non-boolean values using boolean prefixes, do not provide rename suggestions.
 
 The default prefixes are:
 

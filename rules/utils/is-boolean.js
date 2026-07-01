@@ -82,6 +82,13 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
+function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferenceNames) {
+	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
+
+	return callSignatures.length > 0
+		&& callSignatures.every(member => isBooleanTypeAnnotation(member.returnType, context, scope, visitedTypeReferenceNames));
+}
+
 function isBooleanTypeReference(node, context, scope, visitedTypeReferenceNames) {
 	const name = getTypeReferenceName(node.typeName);
 	if (!name || visitedTypeReferenceNames.has(name)) {
@@ -92,9 +99,12 @@ function isBooleanTypeReference(node, context, scope, visitedTypeReferenceNames)
 
 	const variable = resolveVariableName(name, scope);
 	const [definition] = variable?.defs ?? [];
+	const definitionScope = definition?.type === 'Type'
+		? context.sourceCode.getScope(definition.node)
+		: scope;
 	const result = definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
-		&& isBooleanTypeAnnotation(definition.node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+		&& isBooleanTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, visitedTypeReferenceNames);
 
 	visitedTypeReferenceNames.delete(name);
 	return result;
@@ -110,18 +120,18 @@ function isBooleanFunctionTypeReference(node, context, scope, visitedTypeReferen
 
 	const variable = resolveVariableName(name, scope);
 	const [definition] = variable?.defs ?? [];
+	const definitionScope = definition?.type === 'Type'
+		? context.sourceCode.getScope(definition.node)
+		: scope;
 	const result = definition?.type === 'Type'
 		&& (
 			(
 				definition.node.type === 'TSTypeAliasDeclaration'
-				&& isBooleanFunctionTypeAnnotation(definition.node.typeAnnotation, context, scope, visitedTypeReferenceNames)
+				&& isBooleanFunctionTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, visitedTypeReferenceNames)
 			)
 			|| (
 				definition.node.type === 'TSInterfaceDeclaration'
-				&& definition.node.body.body
-					.filter(member => member.type === 'TSCallSignatureDeclaration')
-					.every(member => isBooleanTypeAnnotation(member.returnType, context, scope, visitedTypeReferenceNames))
-					&& definition.node.body.body.some(member => member.type === 'TSCallSignatureDeclaration')
+				&& isBooleanCallSignatureMembers(definition.node.body.body, context, definitionScope, visitedTypeReferenceNames)
 			)
 		);
 
@@ -175,6 +185,10 @@ function isBooleanFunctionTypeAnnotation(node, context, scope, visitedTypeRefere
 
 		case 'TSFunctionType': {
 			return isBooleanTypeAnnotation(node.returnType, context, scope, visitedTypeReferenceNames);
+		}
+
+		case 'TSTypeLiteral': {
+			return isBooleanCallSignatureMembers(node.members, context, scope, visitedTypeReferenceNames);
 		}
 
 		case 'TSTypeReference': {

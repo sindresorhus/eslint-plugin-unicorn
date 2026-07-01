@@ -374,6 +374,16 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
+function getTypeMembersBooleanState(members, context, scope, visitedTypeReferenceNames) {
+	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
+
+	if (callSignatures.length > 0) {
+		return combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, visitedTypeReferenceNames)));
+	}
+
+	return members.length > 0 ? nonBoolean : unknown;
+}
+
 function getTypeReferenceBooleanState(node, context, scope, visitedTypeReferenceNames) {
 	const name = getTypeReferenceName(node.typeName);
 	if (!name || visitedTypeReferenceNames.has(name)) {
@@ -386,13 +396,12 @@ function getTypeReferenceBooleanState(node, context, scope, visitedTypeReference
 	let result = unknown;
 
 	if (definition?.type === 'Type') {
+		const definitionScope = context.sourceCode.getScope(definition.node);
+
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
-			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, visitedTypeReferenceNames);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
-			const callSignatures = definition.node.body.body.filter(member => member.type === 'TSCallSignatureDeclaration');
-			result = callSignatures.length > 0
-				? combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, visitedTypeReferenceNames)))
-				: (definition.node.body.body.length > 0 ? nonBoolean : unknown);
+			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, visitedTypeReferenceNames);
 		}
 	}
 
@@ -457,6 +466,10 @@ function getTypeAnnotationBooleanState(node, context, scope, visitedTypeReferenc
 
 	if (node?.type === 'TSTypeReference') {
 		return getTypeReferenceBooleanState(node, context, scope, visitedTypeReferenceNames);
+	}
+
+	if (node?.type === 'TSTypeLiteral') {
+		return getTypeMembersBooleanState(node.members, context, scope, visitedTypeReferenceNames);
 	}
 
 	return getSimpleTypeAnnotationBooleanState(node);
@@ -956,7 +969,10 @@ const create = context => {
 			return;
 		}
 
-		if (!isBooleanVariable(variable, context)) {
+		if (
+			getVariableBooleanState(variable, context) === nonBoolean
+			|| !isBooleanVariable(variable, context)
+		) {
 			return;
 		}
 
