@@ -8,7 +8,7 @@ const MESSAGE_ID_SUGGESTION_TRUNC = 'suggestion-trunc';
 const messages = {
 	[MESSAGE_ID_PARSE_FLOAT]: 'Prefer `Number()` over `{{method}}()`.',
 	[MESSAGE_ID_PARSE_INT]: 'Prefer `Number()` with explicit integer conversion over `{{method}}()` with radix `10`.',
-	[MESSAGE_ID_SUGGESTION_NUMBER]: 'Replace `{{method}}()` with `Number()`.',
+	[MESSAGE_ID_SUGGESTION_NUMBER]: 'Use `Number()` when the whole value should be numeric.',
 	[MESSAGE_ID_SUGGESTION_TRUNC]: 'Replace `{{method}}()` with `Math.trunc(Number())`.',
 };
 
