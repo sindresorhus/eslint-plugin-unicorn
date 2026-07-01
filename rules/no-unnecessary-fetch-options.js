@@ -403,6 +403,11 @@ const getFix = (property, optionsNode, optionsArgument, context) => function * (
 		return;
 	}
 
+	if (optionsNode.properties.length === 1) {
+		yield fixer.replaceText(optionsNode, '{}');
+		return;
+	}
+
 	const lineRemovalRange = getPropertyLineRemovalRange(property, context);
 	if (lineRemovalRange) {
 		yield fixer.removeRange(lineRemovalRange);
