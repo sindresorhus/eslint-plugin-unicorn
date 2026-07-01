@@ -72,6 +72,18 @@ test.snapshot({
 			code: 'const buildName = "name";',
 			options: [{verbs: ['compile']}],
 		}),
+		typeAware({
+			code: 'const addOns = ["cheese", "pineapple"];',
+			options: [{ignore: ['^addOns$']}],
+		}),
+		typeAware({
+			code: 'const addOns = ["cheese", "pineapple"];',
+			options: [{ignore: [/^addOns$/]}],
+		}),
+		typeAware({
+			code: 'const addOns = ["cheese"]; const addOptions = ["pineapple"];',
+			options: [{ignore: [/^addO/g]}],
+		}),
 		typeAware('const getName = undefined;'),
 	],
 	invalid: [
@@ -102,6 +114,10 @@ test.snapshot({
 		typeAware({
 			code: 'const buildName = "name";',
 			options: [{verbs: ['build']}],
+		}),
+		typeAware({
+			code: 'class Pizza {} const addPizza = new Pizza();',
+			options: [{ignore: ['^addOns$']}],
 		}),
 	],
 });

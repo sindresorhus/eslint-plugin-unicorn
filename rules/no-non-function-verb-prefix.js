@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {
 	isNullishType,
 	isTypeScriptFile,
@@ -31,8 +32,12 @@ const messages = {
 
 const isUppercaseAscii = character => character >= 'A' && character <= 'Z';
 
-const prepareOptions = ({verbs}) => ({
+const prepareOptions = ({
+	verbs,
+	ignore = [],
+}) => ({
 	verbs: verbs.toSorted((first, second) => second.length - first.length),
+	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
 });
 
 function getVerbPrefix(name, verbs) {
@@ -129,6 +134,15 @@ const getIntersectionTypeCallability = (type, checker, program, visitedTypes) =>
 const isInDeclaredModule = (node, sourceCode) =>
 	sourceCode.getAncestors(node).some(ancestor => ancestor.type === 'TSModuleDeclaration' && ancestor.declare);
 
+function isIgnoredName(name, ignore) {
+	return ignore.some(regexp => {
+		regexp.lastIndex = 0;
+		const isIgnored = regexp.test(name);
+		regexp.lastIndex = 0;
+		return isIgnored;
+	});
+}
+
 function getTypeCallability(type, checker, program, visitedTypes = new Set()) {
 	if (isIgnoredType(type)) {
 		return unknown;
@@ -181,6 +195,10 @@ function getProblem(identifier, context, options, typeNode = identifier) {
 	}
 
 	if (isInDeclaredModule(identifier, context.sourceCode)) {
+		return;
+	}
+
+	if (isIgnoredName(identifier.name, options.ignore)) {
 		return;
 	}
 
@@ -298,6 +316,11 @@ const schema = [
 				uniqueItems: true,
 				description: 'Function-style verb prefixes to check.',
 			},
+			ignore: {
+				type: 'array',
+				uniqueItems: true,
+				description: 'Patterns to ignore.',
+			},
 		},
 	},
 ];
@@ -313,7 +336,7 @@ const config = {
 			requiresTypeChecking: true,
 		},
 		schema,
-		defaultOptions: [{verbs: defaultVerbs}],
+		defaultOptions: [{verbs: defaultVerbs, ignore: []}],
 		messages,
 		languages: [
 			'js/js',

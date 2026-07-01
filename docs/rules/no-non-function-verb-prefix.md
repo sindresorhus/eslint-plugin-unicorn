@@ -58,3 +58,33 @@ const buildName = 'name';
 // ✅
 const buildName = () => 'name';
 ```
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Names matching any of these patterns are not checked. Strings are treated as regular expressions, so they match anywhere in the name unless anchored with `^` and `$`.
+
+```js
+'unicorn/no-non-function-verb-prefix': [
+	'error',
+	{
+		ignore: [
+			'^addOns$',
+		],
+	},
+]
+```
+
+With the above config, this would pass:
+
+```js
+const addOns = ['cheese', 'pineapple'];
+```
+
+And this would still fail:
+
+```js
+const addPizza = new Pizza();
+```
