@@ -41,14 +41,14 @@ const simpleNodeTypes = new Set([
 	'ThisExpression',
 ]);
 
-const knownBooleanStaticCalls = [
-	['Array', 'isArray', 1],
-	['ArrayBuffer', 'isView', 1],
-	['Error', 'isError', 1],
-	['Number', 'isFinite', 1],
-	['Number', 'isInteger', 1],
-	['Number', 'isNaN', 1],
-	['Number', 'isSafeInteger', 1],
+const knownBooleanStaticMethods = [
+	['Array', 'isArray'],
+	['ArrayBuffer', 'isView'],
+	['Error', 'isError'],
+	['Number', 'isFinite'],
+	['Number', 'isInteger'],
+	['Number', 'isNaN'],
+	['Number', 'isSafeInteger'],
 ];
 
 const isNegation = node =>
@@ -295,12 +295,12 @@ function isSimpleStableExpression(node) {
 }
 
 function isKnownSafeBooleanStaticCall(node, context) {
-	for (const [object, method, argumentsLength] of knownBooleanStaticCalls) {
+	for (const [object, method] of knownBooleanStaticMethods) {
 		if (
 			isMethodCall(node, {
 				object,
 				method,
-				argumentsLength,
+				argumentsLength: 1,
 				optionalCall: false,
 				optionalMember: false,
 			})
@@ -344,22 +344,6 @@ const isSameCondition = (left, right, context) =>
 		&& context.sourceCode.getText(left) === context.sourceCode.getText(right)
 	);
 
-function getCommonTerm(left, right, context) {
-	if (!isSameCondition(left.left, right.left, context)) {
-		return;
-	}
-
-	if (isSameCondition(left.right, right.right, context)) {
-		return;
-	}
-
-	return {
-		common: left.left,
-		leftOther: left.right,
-		rightOther: right.right,
-	};
-}
-
 function getCommonFactoringTerms(node, context) {
 	const innerOperator = negatedLogicalOperators.get(node.operator);
 
@@ -373,10 +357,19 @@ function getCommonFactoringTerms(node, context) {
 		return;
 	}
 
-	const commonTerm = getCommonTerm(node.left, node.right, context);
-	if (!commonTerm) {
+	if (!isSameCondition(node.left.left, node.right.left, context)) {
 		return;
 	}
+
+	if (isSameCondition(node.left.right, node.right.right, context)) {
+		return;
+	}
+
+	const commonTerm = {
+		common: node.left.left,
+		leftOther: node.left.right,
+		rightOther: node.right.right,
+	};
 
 	const operands = [
 		commonTerm.common,
@@ -444,13 +437,24 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	return getLogicalReplacementText(node, node.left.operator, replacement, context);
 }
 
-function getAbsorptionReplacementText(node, absorptionTerm, context) {
-	return getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context);
-}
-
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const getProblem = (node, fix) => {
+		const problem = {
+			node,
+			messageId: MESSAGE_ID,
+		};
+
+		if (sourceCode.getCommentsInside(node).length > 0) {
+			return problem;
+		}
+
+		return {
+			...problem,
+			fix,
+		};
+	};
 
 	context.on('UnaryExpression', node => {
 		if (
@@ -463,19 +467,7 @@ const create = context => {
 			return;
 		}
 
-		const problem = {
-			node,
-			messageId: MESSAGE_ID,
-		};
-
-		if (sourceCode.getCommentsInside(node).length > 0) {
-			return problem;
-		}
-
-		return {
-			...problem,
-			fix: fixer => fixDeMorgan(fixer, node, context),
-		};
+		return getProblem(node, fixer => fixDeMorgan(fixer, node, context));
 	});
 
 	context.on('LogicalExpression', node => {
@@ -485,19 +477,10 @@ const create = context => {
 
 		const absorptionTerm = getAbsorptionTerm(node, context);
 		if (absorptionTerm) {
-			const problem = {
+			return getProblem(
 				node,
-				messageId: MESSAGE_ID,
-			};
-
-			if (sourceCode.getCommentsInside(node).length > 0) {
-				return problem;
-			}
-
-			return {
-				...problem,
-				fix: fixer => fixer.replaceText(node, getAbsorptionReplacementText(node, absorptionTerm, context)),
-			};
+				fixer => fixer.replaceText(node, getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context)),
+			);
 		}
 
 		const factoringTerms = getCommonFactoringTerms(node, context);
@@ -505,19 +488,7 @@ const create = context => {
 			return;
 		}
 
-		const problem = {
-			node,
-			messageId: MESSAGE_ID,
-		};
-
-		if (sourceCode.getCommentsInside(node).length > 0) {
-			return problem;
-		}
-
-		return {
-			...problem,
-			fix: fixer => fixer.replaceText(node, getFactoringReplacementText(node, factoringTerms, context)),
-		};
+		return getProblem(node, fixer => fixer.replaceText(node, getFactoringReplacementText(node, factoringTerms, context)));
 	});
 };
 

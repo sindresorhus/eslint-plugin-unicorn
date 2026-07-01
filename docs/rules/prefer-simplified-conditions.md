@@ -59,9 +59,12 @@ if (a || (a && b)) {}
 if (a) {}
 ```
 
-The rule avoids factoring expressions when the result would be used as a value instead of a boolean, unless the operands are known booleans.
+Examples of code that should not be changed:
 
 ```js
-// ✅
 const value = (a && b) || (a && c);
+
+if ((object.property && a) || a) {}
 ```
+
+The rule avoids factoring expressions when the result would be used as a value instead of a boolean, unless every operand is known to produce a boolean, such as boolean comparisons or TypeScript boolean types.
