@@ -4,6 +4,8 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 const error = data => ({messageId: 'externally-scoped-variable', data});
+const superError = data => ({messageId: 'super', data});
+const thisError = data => ({messageId: 'this-expression', data});
 const fooInMakeSynchronousError = error({name: 'foo', reason: 'callee of function named "makeSynchronous"'});
 const fooInWorkerizeError = error({name: 'foo', reason: 'callee of function named "workerize"'});
 const fooInBrowserExecuteError = error({name: 'foo', reason: 'callee of method named "browser.execute"'});
@@ -183,6 +185,44 @@ test({
 			code: outdent`
 				const foo = 'hi';
 				page.evaluate(() => 'page', () => foo.slice());
+			`,
+		},
+		{
+			name: '@isolated object method can use parameters, local variables, and globals',
+			code: outdent`
+				const object = {
+					/** @isolated */
+					method(foo) {
+						const bar = foo.slice();
+						return console.log(bar);
+					},
+				};
+			`,
+		},
+		{
+			name: '@isolated function can contain nested regular function with its own this',
+			code: outdent`
+				/** @isolated */
+				function abc() {
+					function getValue() {
+						return this.value;
+					}
+
+					return getValue;
+				}
+			`,
+		},
+		{
+			name: '@isolated function can contain nested class method with its own this',
+			code: outdent`
+				/** @isolated */
+				function abc() {
+					return class {
+						method() {
+							return this.value;
+						}
+					};
+				}
 			`,
 		},
 	],
@@ -407,6 +447,159 @@ test({
 				error({name: 'foo', reason: 'follows comment "@isolated"'}),
 				error({name: 'foo', reason: 'follows comment "@isolated"'}),
 			],
+		},
+		{
+			name: '@isolated comment on object method',
+			code: outdent`
+				const foo = 'hi';
+
+				const object = {
+					/** @isolated */
+					method() {
+						return foo.slice();
+					},
+				};
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated function reports external variable from nested regular function',
+			code: outdent`
+				const foo = 'hi';
+
+				/** @isolated */
+				function abc() {
+					function getValue() {
+						return foo.slice();
+					}
+
+					return getValue;
+				}
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated object method cannot use this',
+			code: outdent`
+				const object = {
+					/** @isolated */
+					method() {
+						return this.foo;
+					},
+				};
+			`,
+			errors: [thisError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated comment on object property arrow function',
+			code: outdent`
+				const foo = 'hi';
+
+				const object = {
+					/** @isolated */
+					method: () => foo.slice(),
+				};
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated comment on object property function expression',
+			code: outdent`
+				const foo = 'hi';
+
+				const object = {
+					/** @isolated */
+					method: function () {
+						return foo.slice();
+					},
+				};
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated object property arrow function cannot use lexical this',
+			code: outdent`
+				const object = {
+					/** @isolated */
+					method: () => this.foo,
+				};
+			`,
+			errors: [thisError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated object property function expression cannot use this',
+			code: outdent`
+				const object = {
+					/** @isolated */
+					method: function () {
+						return this.foo;
+					},
+				};
+			`,
+			errors: [thisError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated comment on class method',
+			code: outdent`
+				const foo = 'hi';
+
+				class Example {
+					/** @isolated */
+					method() {
+						return foo.slice();
+					}
+				}
+			`,
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated class method cannot use this',
+			code: outdent`
+				class Example {
+					/** @isolated */
+					method() {
+						return this.foo;
+					}
+				}
+			`,
+			errors: [thisError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated class method cannot use super',
+			code: outdent`
+				class Example extends Base {
+					/** @isolated */
+					method() {
+						return super.foo;
+					}
+				}
+			`,
+			errors: [superError({reason: 'follows comment "@isolated"'})],
+		},
+		{
+			name: '@isolated class method cannot use lexical this or super from nested arrow function',
+			code: outdent`
+				class Example extends Base {
+					/** @isolated */
+					method() {
+						const getValue = () => this.foo + super.foo;
+						return getValue;
+					}
+				}
+			`,
+			errors: [
+				thisError({reason: 'follows comment "@isolated"'}),
+				superError({reason: 'follows comment "@isolated"'}),
+			],
+		},
+		{
+			name: 'isolated makeSynchronous callback cannot use this',
+			code: outdent`
+				makeSynchronous(function () {
+					return this.foo;
+				});
+			`,
+			errors: [thisError({reason: 'callee of function named "makeSynchronous"'})],
 		},
 		{
 			name: 'individual global variables can be explicitly disallowed',

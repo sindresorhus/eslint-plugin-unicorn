@@ -56,6 +56,13 @@ function abc() {
 	return foo.slice(); // ❌ 'foo' is not defined in isolated function scope
 }
 
+const object = {
+	/** @isolated */
+	method() {
+		return this.foo; // ❌ 'this' depends on external object state
+	},
+};
+
 // ✅
 /** @isolated */
 function abc() {
@@ -115,6 +122,8 @@ Type: `string[]`\
 Default: `['@isolated']`
 
 Array of comment strings that mark functions as isolated. Functions with inline, block, or JSDoc comments tagged with these strings will be considered isolated. (Definition of "tagged": either the comment consists solely of the tag, or starts with it, and has an explanation following a hyphen, like `// @isolated - this function will be stringified`).
+
+Tagged comments also apply to object methods, object properties whose value is a function expression or arrow function, and class methods. Isolated functions cannot use `this` or `super`; pass required state as parameters instead.
 
 ```js
 {
