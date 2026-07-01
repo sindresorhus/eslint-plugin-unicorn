@@ -1,5 +1,5 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {isEmptyArrayExpression, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
 	isKnownNonArray,
@@ -48,10 +48,6 @@ const isSimpleSingleParameterArrowCallback = node =>
 	&& node.params[0].type === 'Identifier'
 	&& !node.params[0].optional
 	&& node.body.type !== 'BlockStatement';
-
-const isEmptyArrayExpression = node =>
-	node.type === 'ArrayExpression'
-	&& node.elements.length === 0;
 
 const getSingleArrayElement = node => {
 	if (

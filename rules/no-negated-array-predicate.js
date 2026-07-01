@@ -24,13 +24,6 @@ const replacementMethod = new Map([
 ]);
 const methods = replacementMethod.keys().toArray();
 
-const predicateBodyTypesRequiringParentheses = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const needsParenthesesInConciseArrowBody = (node, text) =>
 	node.parent.type === 'ArrowFunctionExpression'
 	&& node.parent.body === node
@@ -75,7 +68,7 @@ function getReplacementPredicateText(node, context) {
 	}
 
 	const text = context.sourceCode.getText(node);
-	const needsParentheses = predicateBodyTypesRequiringParentheses.has(node.type) || shouldAddParenthesesToUnaryExpressionArgument(node, '!');
+	const needsParentheses = shouldAddParenthesesToUnaryExpressionArgument(node, '!');
 
 	return {
 		node,

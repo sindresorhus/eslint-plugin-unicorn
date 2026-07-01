@@ -1,3 +1,4 @@
+import {isEmptyStringLiteral} from './ast/index.js';
 import {
 	isBoolean,
 	isString,
@@ -24,8 +25,6 @@ const coercions = new Map([
 	['BigInt', {type: 'bigint', isType: isBigInt}],
 	['Number', {type: 'number', isType: (node, context) => isNumber(node, context.sourceCode.getScope(node))}],
 ]);
-
-const isEmptyStringLiteral = node => node.type === 'Literal' && node.value === '';
 
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {

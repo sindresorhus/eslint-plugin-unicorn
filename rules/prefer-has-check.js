@@ -1,5 +1,10 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNewExpression, isUndefined} from './ast/index.js';
+import {
+	isMethodCall,
+	isNewExpression,
+	isNullLiteral,
+	isUndefined,
+} from './ast/index.js';
 import {
 	getParenthesizedText,
 	getTypeSymbol,
@@ -822,8 +827,6 @@ const getCallKind = (callExpression, comparison, context) => {
 		}
 	}
 };
-
-const isNullLiteral = node => node.type === 'Literal' && node.value === null;
 
 const getComparison = callExpression => {
 	const comparisonTarget = getTransparentExpressionAncestor(callExpression);

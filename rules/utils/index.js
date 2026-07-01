@@ -23,6 +23,7 @@ export {
 } from './boolean.js';
 
 export {default as assertToken} from './assert-token.js';
+export {default as canTokensBeAdjacent} from './can-tokens-be-adjacent.js';
 export {default as cartesianProductSamples} from './cartesian-product-samples.js';
 export {default as containsSuspensionPoint} from './contains-suspension-point.js';
 export {default as escapeString} from './escape-string.js';
@@ -133,6 +134,7 @@ export {
 	isBuiltinSet,
 } from './builtin-collection-type.js';
 export {checkVueTemplate} from './rule.js';
+export {default as getPrecedence} from './get-precedence.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
