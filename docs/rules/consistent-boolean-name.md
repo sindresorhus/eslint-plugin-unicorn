@@ -13,6 +13,8 @@ By default, this rule checks boolean variables, parameters, and functions. When 
 
 Boolean names should start with a prefix that makes the boolean meaning clear.
 
+Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
+
 Reports for property and method names do not provide rename suggestions.
 
 The default prefixes are:
@@ -27,6 +29,7 @@ The default prefixes are:
 - `were`
 - `did`
 - `will`
+- `requires`
 
 The plural prefixes (`are`, `have`, `were`) allow names for boolean collections, like `areFilesValid`.
 
@@ -46,6 +49,26 @@ const completed = true;
 
 // ✅
 const isCompleted = true;
+```
+
+```js
+// ❌
+const hasName = 'Sindre';
+
+// ✅
+const name = 'Sindre';
+```
+
+```js
+// ❌
+function hasTitle() {
+	return 'Unicorn';
+}
+
+// ✅
+function getTitle() {
+	return 'Unicorn';
+}
 ```
 
 ```js
@@ -172,10 +195,11 @@ Default:
 	were: true,
 	did: true,
 	will: true,
+	requires: true,
 }
 ```
 
-The `prefixes` option is merged with the defaults. Set a prefix to `true` to allow it, or `false` to disable it.
+The `prefixes` option is merged with the defaults. Set a prefix to `true` to allow it for boolean names and reserve it for boolean-like values. Set a prefix to `false` to disable it in both directions.
 
 ```js
 'unicorn/consistent-boolean-name': [
