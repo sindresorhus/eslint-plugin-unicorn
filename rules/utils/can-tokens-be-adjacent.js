@@ -55,12 +55,12 @@ export default function canTokensBeAdjacent(left, right) {
 	}
 
 	const leftText = getText(left);
-	const rightText = getText(right);
 
 	if (leftText === '') {
 		return true;
 	}
 
+	const rightText = getText(right);
 	const lastCharacter = leftText.at(-1);
 
 	if (lastCharacter === '/' && isComment(right)) {
