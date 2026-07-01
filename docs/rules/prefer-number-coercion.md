@@ -11,6 +11,8 @@
 
 [`parseFloat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseFloat) and [`parseInt()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt) parse the longest valid numeric prefix and ignore trailing invalid text. [`Number()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) parses the whole value, so it better matches code that expects a stringified number.
 
+Keep using `parseFloat()` when you intentionally want to extract a numeric prefix, like parsing `'50px'` as `50`.
+
 This rule does not report `parseInt(value)` without a radix. Use ESLint's [`radix`](https://eslint.org/docs/latest/rules/radix) rule if you want to require explicit radices.
 
 ## Examples
