@@ -134,6 +134,28 @@ test({
 			`,
 		},
 		{
+			name: 'executeScript func identifier value is not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				const func = () => foo.slice();
+				chrome.scripting.executeScript({func});
+			`,
+		},
+		{
+			name: 'executeScript func accessors are not isolated by default',
+			code: outdent`
+				const foo = 'hi';
+				chrome.scripting.executeScript({
+					get func() {
+						return () => foo.slice();
+					},
+					set func(value) {
+						foo.slice(value);
+					},
+				});
+			`,
+		},
+		{
 			name: 'later executeScript object arguments are not isolated by default',
 			code: outdent`
 				const foo = 'hi';

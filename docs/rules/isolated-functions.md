@@ -12,7 +12,7 @@ Some functions need to be isolated from their surrounding scope due to execution
 Common scenarios where functions must be isolated:
 
 - Functions passed to `makeSynchronous()` (executed in worker)
-- Functions passed to `workerize()` or specific browser execution APIs
+- Functions passed to `workerize()`
 - Functions passed to `page.evaluate()` in Puppeteer or Playwright style code
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts

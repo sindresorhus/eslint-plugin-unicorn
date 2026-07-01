@@ -34,7 +34,6 @@ const getDefaultArgumentCallReason = node => {
 	if (
 		node.parent.type !== 'CallExpression'
 		|| node.parent.arguments[0] !== node
-		|| node.parent.callee.type !== 'MemberExpression'
 	) {
 		return;
 	}
@@ -65,6 +64,7 @@ const getScriptingExecuteScriptObjectName = node => {
 const getExecuteScriptPropertyReason = node => {
 	if (
 		node.parent.type !== 'Property'
+		|| node.parent.kind !== 'init'
 		|| getObjectPropertyName(node.parent) !== 'func'
 		|| node.parent.parent.type !== 'ObjectExpression'
 		|| node.parent.parent.parent.type !== 'CallExpression'
