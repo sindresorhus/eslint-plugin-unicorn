@@ -37,7 +37,7 @@ const abruptCompletionTypes = new Set([
 	'ThrowStatement',
 ]);
 
-const mapUnsafeCompletionTypes = new Set([
+const callbackUnsafeCompletionTypes = new Set([
 	'ThrowStatement',
 ]);
 
@@ -48,6 +48,20 @@ const typeCastTypes = new Set([
 	'TSNonNullExpression',
 ]);
 
+const callbackMethodInfo = new Map([
+	['every', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['findIndex', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['findLastIndex', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['flatMap', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['forEach', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['map', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['some', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
+	['reduce', {bindingParameterIndex: 1, minimumArguments: 2, maximumArguments: 2}],
+	['reduceRight', {bindingParameterIndex: 1, minimumArguments: 2, maximumArguments: 2}],
+]);
+
+const callbackMethods = callbackMethodInfo.keys().toArray();
+
 const isObjectMethodCall = (node, method) => isMethodCall(node, {
 	object: 'Object',
 	method,
@@ -56,14 +70,19 @@ const isObjectMethodCall = (node, method) => isMethodCall(node, {
 	optionalMember: false,
 });
 
-const isSupportedCallback = node =>
+const isSupportedCallback = (node, bindingParameterIndex, {allowIndexParameter}) =>
 	(
 		node.type === 'ArrowFunctionExpression'
 		|| node.type === 'FunctionExpression'
 	)
 	&& !node.async
 	&& !node.generator
-	&& node.params.length === 1;
+	&& node.params.length > bindingParameterIndex
+	&& node.params.length <= bindingParameterIndex + (allowIndexParameter ? 2 : 1)
+	&& (
+		node.params.length === bindingParameterIndex + 1
+		|| node.params.at(-1).type === 'Identifier'
+	);
 
 const getForOfPattern = node => {
 	if (
@@ -253,12 +272,14 @@ const hasCallbackArguments = (callback, context) => {
 		return false;
 	}
 
-	for (const node of traverseCallbackArguments(callback.body, context.sourceCode.visitorKeys)) {
-		if (
-			node.type === 'Identifier'
-			&& node.name === 'arguments'
-		) {
-			return true;
+	for (const targetNode of [callback.body, ...callback.params]) {
+		for (const node of traverseCallbackArguments(targetNode, context.sourceCode.visitorKeys)) {
+			if (
+				node.type === 'Identifier'
+				&& node.name === 'arguments'
+			) {
+				return true;
+			}
 		}
 	}
 
@@ -583,16 +604,34 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		if (!isMethodCall(node, {
-			method: 'map',
-			argumentsLength: 1,
+			methods: callbackMethods,
+			minimumArguments: 1,
+			maximumArguments: 2,
 			optionalCall: false,
 			optionalMember: false,
 		})) {
 			return;
 		}
 
+		const methodName = node.callee.property.name;
+		const methodInfo = callbackMethodInfo.get(methodName);
+		const isObjectEntriesMethodCall = isObjectMethodCall(node.callee.object, 'entries');
+		if (
+			methodName !== 'map'
+			&& !isObjectEntriesMethodCall
+		) {
+			return;
+		}
+
+		if (
+			node.arguments.length < methodInfo.minimumArguments
+			|| node.arguments.length > methodInfo.maximumArguments
+		) {
+			return;
+		}
+
 		const [callback] = node.arguments;
-		if (!isSupportedCallback(callback)) {
+		if (!isSupportedCallback(callback, methodInfo.bindingParameterIndex, {allowIndexParameter: isObjectEntriesMethodCall})) {
 			return;
 		}
 
@@ -606,10 +645,10 @@ const create = context => {
 
 		return getObjectMethodProblem({
 			methodCall: node.callee.object,
-			binding: callback.params[0],
+			binding: callback.params[methodInfo.bindingParameterIndex],
 			targetNode: callback.body,
 			context,
-			canFix: !hasNodeOfType(callback.body, context, mapUnsafeCompletionTypes),
+			canFix: !hasNodeOfType(callback.body, context, callbackUnsafeCompletionTypes),
 		});
 	});
 };
