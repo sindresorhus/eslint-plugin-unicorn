@@ -11,7 +11,6 @@ import {
 } from './ast/index.js';
 import {
 	getArgumentRemovalRange,
-	removeArgument,
 	removeObjectProperty,
 } from './fix/index.js';
 import {
@@ -108,6 +107,18 @@ const hasCommentsInRange = (range, context) => {
 const canRemoveArgumentWithoutComments = (node, context) =>
 	!hasCommentsInRange(getArgumentRemovalRange(node, context), context)
 	&& !isCommentToken(context.sourceCode.getTokenAfter(node, {includeComments: true}));
+
+function removeFinalArgument(fixer, node, context) {
+	const {sourceCode} = context;
+	const range = getArgumentRemovalRange(node, context);
+	const tokenAfter = sourceCode.getTokenAfter(node);
+
+	if (isCommaToken(tokenAfter)) {
+		range[1] = sourceCode.getRange(tokenAfter)[1];
+	}
+
+	return fixer.removeRange(range);
+}
 
 function getPropertyLineRemovalRange(property, context) {
 	const {sourceCode} = context;
@@ -399,7 +410,7 @@ const getFix = (property, optionsNode, optionsArgument, context) => function * (
 			return abort();
 		}
 
-		yield removeArgument(fixer, optionsArgument, context);
+		yield removeFinalArgument(fixer, optionsArgument, context);
 		return;
 	}
 
@@ -441,7 +452,7 @@ function * getOptionsProblems(input, optionsArgument, context) {
 			node: optionsNode,
 			messageId: MESSAGE_ID_EMPTY_OPTIONS,
 			fix: canRemoveArgumentWithoutComments(optionsArgument, context)
-				? fixer => removeArgument(fixer, optionsArgument, context)
+				? fixer => removeFinalArgument(fixer, optionsArgument, context)
 				: undefined,
 		};
 		return;
