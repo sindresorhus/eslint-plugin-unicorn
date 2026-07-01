@@ -11,7 +11,7 @@ import {isSemicolonToken} from '@eslint-community/eslint-utils';
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {ESLint.Rule.ReportFixer}
 */
-export default function * addParenthesizesToReturnOrThrowExpression(fixer, node, context) {
+export default function * addParenthesesToReturnOrThrowExpression(fixer, node, context) {
 	if (node.type !== 'ReturnStatement' && node.type !== 'ThrowStatement') {
 		return;
 	}

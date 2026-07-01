@@ -8,7 +8,7 @@ import {
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
 import {
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {isFunction, isMethodCall} from './ast/index.js';
@@ -177,7 +177,7 @@ const create = context => {
 				}
 
 				if (needsReturnOrThrowParentheses) {
-					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 

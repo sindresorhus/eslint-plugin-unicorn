@@ -5,7 +5,7 @@ https://github.com/eslint/eslint/blob/5c39425fc55ecc0b97bbd07ac22654c0eb4f789c/l
 import {
 	removeParentheses,
 	fixSpaceAroundKeyword,
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 } from './fix/index.js';
 import {
 	getParenthesizedRange,
@@ -118,7 +118,7 @@ const create = context => {
 					&& !isParenthesized(node, context)
 					&& !isParenthesized(test, context)
 				) {
-					yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
 

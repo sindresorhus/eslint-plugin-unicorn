@@ -162,6 +162,7 @@ ruleTester.snapshot({
 		'Boolean((a && b) || (a && c))',
 		'const value = (a === true && b === true) || (a === true && c === true);',
 		'const value = (Array.isArray(value) && a === true) || (Array.isArray(value) && b === true);',
+		'const value = (Error.isError(value) && a === true) || (Error.isError(value) && b === true);',
 		'const value = (Number.isInteger(value) && a === true) || (Number.isInteger(value) && b === true);',
 		{
 			code: '!(foo! && bar)',

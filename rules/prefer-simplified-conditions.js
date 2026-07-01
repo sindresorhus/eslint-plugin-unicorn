@@ -1,7 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
@@ -269,7 +269,7 @@ function * fixDeMorgan(fixer, node, context) {
 	yield fixer.replaceText(node, getDeMorganReplacementText(node, context));
 
 	if (shouldAddReturnOrThrowParentheses) {
-		yield addParenthesizesToReturnOrThrowExpression(fixer, node.parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, node.parent, context);
 	}
 }
 

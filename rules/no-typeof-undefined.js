@@ -1,6 +1,6 @@
 import {isLiteral} from './ast/index.js';
 import {
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 	removeSpacesAfter,
 } from './fix/index.js';
 import {
@@ -74,7 +74,7 @@ const create = context => {
 				&& !isParenthesized(binaryExpression, context)
 				&& !isParenthesized(typeofNode, context)
 			) {
-				yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+				yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 				return;
 			}
 

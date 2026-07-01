@@ -1,4 +1,4 @@
-import {fixSpaceAroundKeyword, addParenthesizesToReturnOrThrowExpression} from './fix/index.js';
+import {fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
 import {needsSemicolon, isParenthesized, isOnSameLine} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
@@ -58,7 +58,7 @@ const create = context => {
 						) {
 							const returnToken = sourceCode.getFirstToken(parent);
 							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
-								yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+								yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 							}
 						}
 

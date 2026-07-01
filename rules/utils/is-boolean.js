@@ -21,6 +21,7 @@ const booleanStaticMethods = new Map([
 	['Array', new Set(['isArray'])],
 	['ArrayBuffer', new Set(['isView'])],
 	['Atomics', new Set(['isLockFree'])],
+	['Error', new Set(['isError'])],
 	['Number', new Set(['isFinite', 'isInteger', 'isNaN', 'isSafeInteger'])],
 	['Object', new Set(['hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed'])],
 	['Reflect', new Set(['deleteProperty', 'has'])],

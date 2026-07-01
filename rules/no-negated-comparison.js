@@ -1,7 +1,7 @@
 import {
 	removeParentheses,
 	fixSpaceAroundKeyword,
-	addParenthesizesToReturnOrThrowExpression,
+	addParenthesesToReturnOrThrowExpression,
 } from './fix/index.js';
 import {
 	isParenthesized,
@@ -127,7 +127,7 @@ function * fix({
 	yield fixer.replaceText(operatorToken, replacementOperator);
 
 	if (needsReturnOrThrowParentheses) {
-		yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
@@ -193,7 +193,7 @@ function * fixLogical({
 	yield fixer.replaceText(logicalExpression, getFixedLogicalExpressionText(logicalExpression, context));
 
 	if (needsReturnOrThrowParentheses) {
-		yield addParenthesizesToReturnOrThrowExpression(fixer, parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
 
