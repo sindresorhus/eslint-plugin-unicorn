@@ -13,9 +13,9 @@ Prefer simpler logical conditions when they are equivalent and easier to read.
 
 This rule applies De Morgan's laws, factors direct leading common terms in boolean conditions, and removes simple absorbed conditions. It intentionally does not try to be a full boolean algebra optimizer.
 
-Factoring is intentionally limited to leading common terms to avoid changing evaluation order.
+Factoring is intentionally limited to leading common terms to avoid changing evaluation order. The rule does not reorder operands to find a common term.
 
-Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop, such as a parameter or literal.
+Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop, such as a parameter or literal. Unresolved globals and `let`/`const` bindings are not treated as safe to drop.
 
 ## Examples
 

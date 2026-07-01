@@ -41,7 +41,7 @@ const simpleNodeTypes = new Set([
 	'ThisExpression',
 ]);
 
-const knownBooleanStaticMethods = [
+const safeRepeatableBooleanStaticMethods = [
 	['Array', 'isArray'],
 	['ArrayBuffer', 'isView'],
 	['Error', 'isError'],
@@ -64,7 +64,7 @@ const isEqualityComparison = node =>
 	node.type === 'BinaryExpression'
 	&& negatedEqualityOperators.has(node.operator);
 
-function canBeAbsorptionReplacement(node) {
+function isSimpleAbsorptionReplacement(node) {
 	node = unwrapTypeScriptExpression(node);
 
 	return simpleNodeTypes.has(node.type);
@@ -113,11 +113,11 @@ function isSafeToDropAbsorptionOperand(node, context) {
 	return false;
 }
 
-const canDropAbsorptionOperand = (node, common, removable, context) =>
+const canDropAbsorptionOperand = (node, replacement, removable, context) =>
 	isSafeToDropAbsorptionOperand(removable, context)
 	&& (
 		isBooleanContext(node, context)
-		|| (isBoolean(common, context) && isBoolean(removable, context))
+		|| (isBoolean(replacement, context) && isBoolean(removable, context))
 	);
 
 function getNegatedExpression(node, context, canUseTruthiness) {
@@ -299,8 +299,8 @@ function isSimpleRepeatableExpression(node) {
 	return false;
 }
 
-function isKnownSafeBooleanStaticCall(node, context) {
-	for (const [object, method] of knownBooleanStaticMethods) {
+function isSafeRepeatableBooleanStaticCall(node, context) {
+	for (const [object, method] of safeRepeatableBooleanStaticMethods) {
 		if (
 			isMethodCall(node, {
 				object,
@@ -327,7 +327,7 @@ function isSafeFactoringOperand(node, context) {
 	}
 
 	return isSimpleRepeatableExpression(node)
-		|| isKnownSafeBooleanStaticCall(node, context);
+		|| isSafeRepeatableBooleanStaticCall(node, context);
 }
 
 const isBooleanContext = (node, context) =>
@@ -349,7 +349,7 @@ const isSameCondition = (left, right, context) =>
 		&& context.sourceCode.getText(left) === context.sourceCode.getText(right)
 	);
 
-function getCommonFactoringTerms(node, context) {
+function getLeadingCommonFactoringTerms(node, context) {
 	const innerOperator = negatedLogicalOperators.get(node.operator);
 
 	if (
@@ -398,7 +398,7 @@ function getAbsorptionTerm(node, context) {
 	if (
 		node.right.type === 'LogicalExpression'
 		&& node.right.operator === innerOperator
-		&& canBeAbsorptionReplacement(node.left)
+		&& isSimpleAbsorptionReplacement(node.left)
 	) {
 		if (isSameCondition(node.left, node.right.left, context)) {
 			return node.left;
@@ -415,7 +415,7 @@ function getAbsorptionTerm(node, context) {
 	if (
 		node.left.type === 'LogicalExpression'
 		&& node.left.operator === innerOperator
-		&& canBeAbsorptionReplacement(node.right)
+		&& isSimpleAbsorptionReplacement(node.right)
 	) {
 		if (
 			isSameCondition(node.left.left, node.right, context)
@@ -493,7 +493,7 @@ const create = context => {
 			);
 		}
 
-		const factoringTerms = getCommonFactoringTerms(node, context);
+		const factoringTerms = getLeadingCommonFactoringTerms(node, context);
 		if (!factoringTerms) {
 			return;
 		}
