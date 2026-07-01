@@ -283,7 +283,7 @@ function combineVariableBooleanStates(states) {
 	return combineBooleanStates(states);
 }
 
-function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
+function getTypeBooleanState(type, checker, visitedTypes = new Set(), functionTypesAreBoolean = true) {
 	if (!type) {
 		return unknown;
 	}
@@ -303,14 +303,14 @@ function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
 
 	if (isTypeParameterType(type)) {
 		const constraint = type.getConstraint();
-		const result = constraint ? getTypeBooleanState(constraint, checker, visitedTypes) : unknown;
+		const result = constraint ? getTypeBooleanState(constraint, checker, visitedTypes, functionTypesAreBoolean) : unknown;
 		visitedTypes.delete(type);
 		return result;
 	}
 
 	const nonNullableType = checker.getNonNullableType(type);
 	if (nonNullableType !== type) {
-		const result = getTypeBooleanState(nonNullableType, checker, visitedTypes);
+		const result = getTypeBooleanState(nonNullableType, checker, visitedTypes, functionTypesAreBoolean);
 		visitedTypes.delete(type);
 		return result;
 	}
@@ -319,7 +319,7 @@ function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
 		const result = combineBooleanStates(
 			type.types
 				.filter(type => !isNullishType(type))
-				.map(type => getTypeBooleanState(type, checker, visitedTypes)),
+				.map(type => getTypeBooleanState(type, checker, visitedTypes, functionTypesAreBoolean)),
 		);
 		visitedTypes.delete(type);
 		return result;
@@ -327,16 +327,16 @@ function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
 
 	const signatures = type.getCallSignatures();
 	if (signatures.length > 0) {
-		const result = combineBooleanStates(
-			signatures.map(signature => getTypeBooleanState(signature.getReturnType(), checker, visitedTypes)),
-		);
+		const result = functionTypesAreBoolean
+			? combineBooleanStates(signatures.map(signature => getTypeBooleanState(signature.getReturnType(), checker, visitedTypes, false)))
+			: nonBoolean;
 		visitedTypes.delete(type);
 		return result;
 	}
 
 	const constraint = checker.getBaseConstraintOfType(type);
 	if (constraint && constraint !== type) {
-		const result = getTypeBooleanState(constraint, checker, visitedTypes);
+		const result = getTypeBooleanState(constraint, checker, visitedTypes, functionTypesAreBoolean);
 		visitedTypes.delete(type);
 		return result;
 	}
@@ -352,7 +352,7 @@ function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
 	return typeString === 'boolean' ? boolean : nonBoolean;
 }
 
-function getTypeInformationBooleanState(node, context) {
+function getTypeInformationBooleanState(node, context, functionTypesAreBoolean = true) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return unknown;
@@ -362,6 +362,8 @@ function getTypeInformationBooleanState(node, context) {
 		return getTypeBooleanState(
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
+			new Set(),
+			functionTypesAreBoolean,
 		);
 	} catch {
 		return unknown;
@@ -374,17 +376,28 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
-function getTypeMembersBooleanState(members, context, scope, visitedTypeReferenceNames) {
+const getTypeState = typeState => ({
+	visitedTypeReferenceNames: new Set(),
+	functionTypesAreBoolean: true,
+	...typeState,
+});
+
+function getTypeMembersBooleanState(members, context, scope, typeState) {
+	const normalizedTypeState = getTypeState(typeState);
 	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
 
 	if (callSignatures.length > 0) {
-		return combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, visitedTypeReferenceNames)));
+		return normalizedTypeState.functionTypesAreBoolean
+			? combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false})))
+			: nonBoolean;
 	}
 
 	return members.length > 0 ? nonBoolean : unknown;
 }
 
-function getTypeReferenceBooleanState(node, context, scope, visitedTypeReferenceNames) {
+function getTypeReferenceBooleanState(node, context, scope, typeState) {
+	const normalizedTypeState = getTypeState(typeState);
+	const {visitedTypeReferenceNames} = normalizedTypeState;
 	const name = getTypeReferenceName(node.typeName);
 	if (!name || visitedTypeReferenceNames.has(name)) {
 		return unknown;
@@ -399,9 +412,9 @@ function getTypeReferenceBooleanState(node, context, scope, visitedTypeReference
 		const definitionScope = context.sourceCode.getScope(definition.node);
 
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
-			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, visitedTypeReferenceNames);
+			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, normalizedTypeState);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
-			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, visitedTypeReferenceNames);
+			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, normalizedTypeState);
 		}
 	}
 
@@ -409,11 +422,11 @@ function getTypeReferenceBooleanState(node, context, scope, visitedTypeReference
 	return result;
 }
 
-function getUnionTypeAnnotationBooleanState(node, context, scope, visitedTypeReferenceNames) {
+function getUnionTypeAnnotationBooleanState(node, context, scope, typeState) {
 	return combineBooleanStates(
 		node.types
 			.filter(type => !nullishTypeAnnotationTypes.has(type.type))
-			.map(type => getTypeAnnotationBooleanState(type, context, scope, visitedTypeReferenceNames)),
+			.map(type => getTypeAnnotationBooleanState(type, context, scope, typeState)),
 	);
 }
 
@@ -448,46 +461,54 @@ function getSimpleTypeAnnotationBooleanState(node) {
 	return nonBoolean;
 }
 
-function getTypeAnnotationBooleanState(node, context, scope, visitedTypeReferenceNames = new Set()) {
+function getTypeAnnotationBooleanState(node, context, scope, typeState) {
+	const normalizedTypeState = getTypeState(typeState);
+
 	if (
 		node?.type === 'TSTypeAnnotation'
 		|| node?.type === 'TSParenthesizedType'
 	) {
-		return getTypeAnnotationBooleanState(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+		return getTypeAnnotationBooleanState(node.typeAnnotation, context, scope, normalizedTypeState);
 	}
 
 	if (node?.type === 'TSFunctionType') {
-		return getTypeAnnotationBooleanState(node.returnType, context, scope, visitedTypeReferenceNames);
+		return normalizedTypeState.functionTypesAreBoolean
+			? getTypeAnnotationBooleanState(node.returnType, context, scope, {...normalizedTypeState, functionTypesAreBoolean: false})
+			: nonBoolean;
 	}
 
 	if (node?.type === 'TSUnionType') {
-		return getUnionTypeAnnotationBooleanState(node, context, scope, visitedTypeReferenceNames);
+		return getUnionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
 	}
 
 	if (node?.type === 'TSTypeReference') {
-		return getTypeReferenceBooleanState(node, context, scope, visitedTypeReferenceNames);
+		return getTypeReferenceBooleanState(node, context, scope, normalizedTypeState);
 	}
 
 	if (node?.type === 'TSTypeLiteral') {
-		return getTypeMembersBooleanState(node.members, context, scope, visitedTypeReferenceNames);
+		return getTypeMembersBooleanState(node.members, context, scope, normalizedTypeState);
 	}
 
 	return getSimpleTypeAnnotationBooleanState(node);
 }
 
 function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
+	if (node.async || node.generator) {
+		return nonBoolean;
+	}
+
 	const stateFromTypeInformation = getTypeInformationBooleanState(node, context);
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope);
+	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
 	if (stateFromReturnType !== unknown) {
 		return stateFromReturnType;
 	}
 
-	if (node.async || node.generator || !node.body) {
+	if (!node.body) {
 		return unknown;
 	}
 
@@ -501,19 +522,19 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 			&& node.body.body[0].type === 'ReturnStatement'
 		) {
 			return node.body.body[0].argument
-				? getExpressionBooleanState(node.body.body[0].argument, context, visitedVariables)
+				? getExpressionBooleanState(node.body.body[0].argument, context, visitedVariables, false)
 				: nonBoolean;
 		}
 	}
 
 	return node.type === 'ArrowFunctionExpression' && node.body.type !== 'BlockStatement'
-		? getExpressionBooleanState(node.body, context, visitedVariables)
+		? getExpressionBooleanState(node.body, context, visitedVariables, false)
 		: unknown;
 }
 
-function getKnownIdentifierBooleanState(node, context, visitedVariables) {
+function getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable ? getVariableBooleanState(variable, context, visitedVariables) : unknown;
+	return variable ? getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean) : unknown;
 }
 
 function getStaticExpressionBooleanState(node, scope) {
@@ -558,50 +579,52 @@ function getWrappedExpression(node) {
 	}
 }
 
-function getDerivedExpressionBooleanState(node, context, visitedVariables) {
+function getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	if (node.type === 'Identifier') {
-		return getKnownIdentifierBooleanState(node, context, visitedVariables);
+		return getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
 	}
 
 	const wrappedExpression = getWrappedExpression(node);
 	if (wrappedExpression) {
-		return getExpressionBooleanState(wrappedExpression, context, visitedVariables);
+		return getExpressionBooleanState(wrappedExpression, context, visitedVariables, functionValuesAreBoolean);
 	}
 
 	if (node.type === 'AssignmentExpression') {
-		return node.operator === '=' ? getExpressionBooleanState(node.right, context, visitedVariables) : unknown;
+		return node.operator === '=' ? getExpressionBooleanState(node.right, context, visitedVariables, functionValuesAreBoolean) : unknown;
 	}
 
 	if (node.type === 'SequenceExpression') {
-		return getExpressionBooleanState(node.expressions.at(-1), context, visitedVariables);
+		return getExpressionBooleanState(node.expressions.at(-1), context, visitedVariables, functionValuesAreBoolean);
 	}
 
 	if (node.type === 'ConditionalExpression') {
 		return combineBooleanStates([
-			getExpressionBooleanState(node.consequent, context, visitedVariables),
-			getExpressionBooleanState(node.alternate, context, visitedVariables),
+			getExpressionBooleanState(node.consequent, context, visitedVariables, functionValuesAreBoolean),
+			getExpressionBooleanState(node.alternate, context, visitedVariables, functionValuesAreBoolean),
 		]);
 	}
 
 	return unknown;
 }
 
-function getExpressionBooleanState(node, context, visitedVariables = new Set()) {
+function getExpressionBooleanState(node, context, visitedVariables = new Set(), functionValuesAreBoolean = true) {
 	if (!node) {
 		return unknown;
 	}
 
 	if (isFunction(node)) {
-		return getFunctionBooleanState(node, context, visitedVariables);
+		return functionValuesAreBoolean
+			? getFunctionBooleanState(node, context, visitedVariables)
+			: nonBoolean;
 	}
 
-	const stateFromTypeInformation = getTypeInformationBooleanState(node, context);
+	const stateFromTypeInformation = getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(node.typeAnnotation, context, scope);
+	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(node.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
 	if (stateFromTypeAnnotation !== unknown) {
 		return stateFromTypeAnnotation;
 	}
@@ -620,7 +643,7 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set()) 
 		return stateFromSimpleExpression;
 	}
 
-	return getDerivedExpressionBooleanState(node, context, visitedVariables);
+	return getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
 }
 
 const isBooleanVariable = (variable, context) => {
@@ -668,7 +691,7 @@ const isBooleanVariable = (variable, context) => {
 	return definition.type === 'FunctionName' && isBooleanFunctionDefinition(definition, context);
 };
 
-function getParameterBooleanState(definition, context, visitedVariables) {
+function getParameterBooleanState(definition, context, visitedVariables, functionValuesAreBoolean) {
 	if (!isFunction(definition.node)) {
 		return unknown;
 	}
@@ -676,33 +699,35 @@ function getParameterBooleanState(definition, context, visitedVariables) {
 	const parameter = findParameter(definition.node.params, definition.name);
 
 	return parameter?.type === 'AssignmentPattern'
-		? getExpressionBooleanState(parameter.right, context, visitedVariables)
+		? getExpressionBooleanState(parameter.right, context, visitedVariables, functionValuesAreBoolean)
 		: unknown;
 }
 
-function getDefinitionBooleanState(definition, context, visitedVariables) {
+function getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean) {
 	const scope = context.sourceCode.getScope(definition.name);
-	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, scope);
+	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
 	if (stateFromTypeAnnotation !== unknown) {
 		return stateFromTypeAnnotation;
 	}
 
 	if (definition.type === 'Parameter') {
-		return getParameterBooleanState(definition, context, visitedVariables);
+		return getParameterBooleanState(definition, context, visitedVariables, functionValuesAreBoolean);
 	}
 
 	if (definition.type === 'Variable') {
-		return getExpressionBooleanState(definition.node.init, context, visitedVariables);
+		return getExpressionBooleanState(definition.node.init, context, visitedVariables, functionValuesAreBoolean);
 	}
 
 	if (definition.type === 'FunctionName') {
-		return getFunctionBooleanState(definition.node, context, visitedVariables);
+		return functionValuesAreBoolean
+			? getFunctionBooleanState(definition.node, context, visitedVariables)
+			: nonBoolean;
 	}
 
 	return unknown;
 }
 
-function getVariableBooleanState(variable, context, visitedVariables = new Set()) {
+function getVariableBooleanState(variable, context, visitedVariables = new Set(), functionValuesAreBoolean = true) {
 	if (!variable || visitedVariables.has(variable)) {
 		return unknown;
 	}
@@ -719,21 +744,27 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 		return unknown;
 	}
 
-	let result = functionDefinitions
-		? combineBooleanStates(functionDefinitions.map(definition => getFunctionBooleanState(definition.node, context, visitedVariables)))
-		: getDefinitionBooleanState(definition, context, visitedVariables);
+	let result;
+	if (functionDefinitions && !functionValuesAreBoolean) {
+		result = nonBoolean;
+	} else if (functionDefinitions) {
+		result = combineBooleanStates(functionDefinitions.map(definition => getFunctionBooleanState(definition.node, context, visitedVariables)));
+	} else {
+		result = getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean);
+	}
 
 	if (variable.references.some(reference => reference.writeExpr)) {
 		result = combineVariableBooleanStates([
 			result,
 			...variable.references
 				.filter(reference => reference.writeExpr)
-				.map(reference => getExpressionBooleanState(reference.writeExpr, context, visitedVariables)),
+				.map(reference => getExpressionBooleanState(reference.writeExpr, context, visitedVariables, functionValuesAreBoolean)),
 		]);
 	}
 
 	if (
 		result === unknown
+		&& functionValuesAreBoolean
 		&& isBooleanVariable(variable, context)
 	) {
 		result = boolean;
@@ -846,7 +877,7 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	if (node.type === 'TSMethodSignature') {
-		return getTypeAnnotationBooleanState(node.returnType, context, sourceCode.getScope(node));
+		return getTypeAnnotationBooleanState(node.returnType, context, sourceCode.getScope(node), {functionTypesAreBoolean: false});
 	}
 
 	return unknown;
