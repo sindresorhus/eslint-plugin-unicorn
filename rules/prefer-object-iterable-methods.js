@@ -48,16 +48,19 @@ const typeCastTypes = new Set([
 	'TSNonNullExpression',
 ]);
 
+const ordinaryCallbackMethodInfo = {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2};
+const reducerCallbackMethodInfo = {bindingParameterIndex: 1, minimumArguments: 2, maximumArguments: 2};
+
 const callbackMethodInfo = new Map([
-	['every', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['findIndex', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['findLastIndex', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['flatMap', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['forEach', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['map', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['some', {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2}],
-	['reduce', {bindingParameterIndex: 1, minimumArguments: 2, maximumArguments: 2}],
-	['reduceRight', {bindingParameterIndex: 1, minimumArguments: 2, maximumArguments: 2}],
+	['every', ordinaryCallbackMethodInfo],
+	['findIndex', ordinaryCallbackMethodInfo],
+	['findLastIndex', ordinaryCallbackMethodInfo],
+	['flatMap', ordinaryCallbackMethodInfo],
+	['forEach', ordinaryCallbackMethodInfo],
+	['map', ordinaryCallbackMethodInfo],
+	['some', ordinaryCallbackMethodInfo],
+	['reduce', reducerCallbackMethodInfo],
+	['reduceRight', reducerCallbackMethodInfo],
 ]);
 
 const callbackMethods = callbackMethodInfo.keys().toArray();
