@@ -2,8 +2,12 @@ import globals from 'globals';
 import {functionTypes, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
+const MESSAGE_ID_SUPER = 'super';
+const MESSAGE_ID_THIS_EXPRESSION = 'this-expression';
 const messages = {
 	[MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE]: 'Variable {{name}} not defined in scope of isolated function. Function is isolated because: {{reason}}.',
+	[MESSAGE_ID_SUPER]: 'Unexpected `super` in isolated function. Function is isolated because: {{reason}}.',
+	[MESSAGE_ID_THIS_EXPRESSION]: 'Unexpected `this` in isolated function. Function is isolated because: {{reason}}.',
 };
 
 /** @type {{functions: string[], selectors: string[], comments: string[], overrideGlobals?: import('eslint').Linter.Globals}} */
@@ -96,8 +100,64 @@ const create = context => {
 	};
 	const checked = new WeakSet();
 
+	function * getFunctionContextReferences(node, root = node) {
+		if (node.type === 'ThisExpression') {
+			yield {
+				node,
+				messageId: MESSAGE_ID_THIS_EXPRESSION,
+			};
+			return;
+		}
+
+		if (node.type === 'Super') {
+			yield {
+				node,
+				messageId: MESSAGE_ID_SUPER,
+			};
+			return;
+		}
+
+		if (node !== root) {
+			if (functionTypes.includes(node.type) && node.type !== 'ArrowFunctionExpression') {
+				return;
+			}
+
+			if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
+				if (node.superClass) {
+					yield * getFunctionContextReferences(node.superClass, root);
+				}
+
+				for (const classElement of node.body.body) {
+					if (classElement.computed) {
+						yield * getFunctionContextReferences(classElement.key, root);
+					}
+				}
+
+				return;
+			}
+		}
+
+		for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+			const value = node[key];
+
+			if (Array.isArray(value)) {
+				for (const childNode of value) {
+					if (childNode?.type) {
+						yield * getFunctionContextReferences(childNode, root);
+					}
+				}
+
+				continue;
+			}
+
+			if (value?.type) {
+				yield * getFunctionContextReferences(value, root);
+			}
+		}
+	}
+
 	/** @param {import('estree').Node} node */
-	const reportExternallyScopedVariables = (node, reason) => {
+	const reportIsolatedFunctionProblems = (node, reason) => {
 		if (checked.has(node) || !functionTypes.includes(node.type)) {
 			return;
 		}
@@ -136,12 +196,37 @@ const create = context => {
 				data: {name: identifier.name, reason},
 			});
 		}
+
+		for (const {node: functionContextReferenceNode, messageId} of getFunctionContextReferences(node)) {
+			context.report({
+				node: functionContextReferenceNode,
+				messageId,
+				data: {reason},
+			});
+		}
 	};
 
 	const isComment = token => token?.type === 'Block' || token?.type === 'Line';
 
+	const canCommentApplyToParent = (node, parent) =>
+		parent && (
+			[
+				'VariableDeclarator',
+				'VariableDeclaration',
+				'ExportNamedDeclaration',
+				'ExportDefaultDeclaration',
+			].includes(parent.type)
+			|| (
+				(
+					parent.type === 'Property'
+					|| parent.type === 'MethodDefinition'
+				)
+				&& parent.value === node
+			)
+		);
+
 	/**
-	 Find a comment on this node or its parent, in cases where the node passed is part of a variable or export declaration.
+	 Find a comment on this node or its parent, in cases where the node passed is part of a variable, export, property, or method declaration.
 	 @param {import('estree').Node} node
 	 */
 	const findComment = node => {
@@ -149,12 +234,7 @@ const create = context => {
 		let commentableNode = node;
 		while (
 			!isComment(previousToken)
-			&& [
-				'VariableDeclarator',
-				'VariableDeclaration',
-				'ExportNamedDeclaration',
-				'ExportDefaultDeclaration',
-			].includes(commentableNode.parent.type)
+			&& canCommentApplyToParent(commentableNode, commentableNode.parent)
 		) {
 			commentableNode = commentableNode.parent;
 			previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
@@ -206,7 +286,7 @@ const create = context => {
 				return;
 			}
 
-			return reportExternallyScopedVariables(node, reason);
+			return reportIsolatedFunctionProblems(node, reason);
 		},
 	);
 
@@ -215,7 +295,7 @@ const create = context => {
 			selector,
 			node => {
 				const reason = `matches selector ${JSON.stringify(selector)}`;
-				return reportExternallyScopedVariables(node, reason);
+				return reportIsolatedFunctionProblems(node, reason);
 			},
 		);
 	}
