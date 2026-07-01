@@ -157,6 +157,17 @@ test.snapshot({
 			`,
 			options: [{maximumStatements: 0}],
 		},
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) {
+						continue;
+						;
+					}
+				}
+			`,
+			options: [{maximumStatements: 0}],
+		},
 	],
 	invalid: [
 		outdent`
@@ -514,5 +525,18 @@ test.snapshot({
 				} // Keep this comment with the wrapper.
 			}
 		`,
+		{
+			code: outdent`
+				for (const item of items) {
+					if (item.isActive) {
+						;(event.target as HTMLInputElement).blur();
+					}
+				}
+			`,
+			options: [{maximumStatements: 0}],
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
