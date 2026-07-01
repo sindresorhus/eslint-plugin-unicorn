@@ -80,6 +80,10 @@ test.snapshot({
 			code: 'const addOns = ["cheese", "pineapple"];',
 			options: [{ignore: [/^addOns$/]}],
 		}),
+		typeAware({
+			code: 'const addOns = ["cheese"]; const addOptions = ["pineapple"];',
+			options: [{ignore: [/^addO/g]}],
+		}),
 		typeAware('const getName = undefined;'),
 	],
 	invalid: [
