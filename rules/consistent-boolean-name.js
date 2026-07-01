@@ -39,6 +39,7 @@ const defaultPrefixes = {
 	were: true,
 	did: true,
 	will: true,
+	// `requireLogin()` reads like an action or assertion, not a boolean.
 	requires: true,
 };
 
@@ -340,6 +341,11 @@ function getTypeBooleanState(type, checker, visitedTypes = new Set()) {
 		return result;
 	}
 
+	if (type.getProperties().length === 0) {
+		visitedTypes.delete(type);
+		return unknown;
+	}
+
 	const typeString = checker.typeToString(checker.getWidenedType(checker.getBaseTypeOfLiteralType(type)));
 	visitedTypes.delete(type);
 
@@ -384,7 +390,9 @@ function getTypeReferenceBooleanState(node, context, scope, visitedTypeReference
 			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, scope, visitedTypeReferenceNames);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
 			const callSignatures = definition.node.body.body.filter(member => member.type === 'TSCallSignatureDeclaration');
-			result = combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, visitedTypeReferenceNames)));
+			result = callSignatures.length > 0
+				? combineBooleanStates(callSignatures.map(member => getTypeAnnotationBooleanState(member.returnType, context, scope, visitedTypeReferenceNames)))
+				: (definition.node.body.body.length > 0 ? nonBoolean : unknown);
 		}
 	}
 
@@ -690,9 +698,17 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 
 	const functionDefinitions = getFunctionDefinitions(variable);
 	const definition = getSupportedVariableDefinition(variable);
+	if (
+		!functionDefinitions
+		&& !definition
+	) {
+		visitedVariables.delete(variable);
+		return unknown;
+	}
+
 	let result = functionDefinitions
 		? combineBooleanStates(functionDefinitions.map(definition => getFunctionBooleanState(definition.node, context, visitedVariables)))
-		: (definition ? getDefinitionBooleanState(definition, context, visitedVariables) : unknown);
+		: getDefinitionBooleanState(definition, context, visitedVariables);
 
 	if (variable.references.some(reference => reference.writeExpr)) {
 		result = combineVariableBooleanStates([
