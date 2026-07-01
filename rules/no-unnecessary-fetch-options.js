@@ -104,11 +104,7 @@ const hasCommentsInRange = (range, context) => {
 	});
 };
 
-const canRemoveArgumentWithoutComments = (node, context) =>
-	!hasCommentsInRange(getArgumentRemovalRange(node, context), context)
-	&& !isCommentToken(context.sourceCode.getTokenAfter(node, {includeComments: true}));
-
-function removeFinalArgument(fixer, node, context) {
+function getFinalArgumentRemovalRange(node, context) {
 	const {sourceCode} = context;
 	const range = getArgumentRemovalRange(node, context);
 	const tokenAfter = sourceCode.getTokenAfter(node);
@@ -117,8 +113,23 @@ function removeFinalArgument(fixer, node, context) {
 		range[1] = sourceCode.getRange(tokenAfter)[1];
 	}
 
-	return fixer.removeRange(range);
+	return range;
 }
+
+function hasCommentAfterTrailingComma(node, context) {
+	const {sourceCode} = context;
+	const tokenAfter = sourceCode.getTokenAfter(node);
+	return isCommaToken(tokenAfter)
+		&& isCommentToken(sourceCode.getTokenAfter(tokenAfter, {includeComments: true}));
+}
+
+const canRemoveFinalArgumentWithoutComments = (node, context) =>
+	!hasCommentsInRange(getFinalArgumentRemovalRange(node, context), context)
+	&& !isCommentToken(context.sourceCode.getTokenAfter(node, {includeComments: true}))
+	&& !hasCommentAfterTrailingComma(node, context);
+
+const removeFinalArgument = (fixer, node, context) =>
+	fixer.removeRange(getFinalArgumentRemovalRange(node, context));
 
 function getPropertyLineRemovalRange(property, context) {
 	const {sourceCode} = context;
@@ -406,7 +417,7 @@ const getFix = (property, optionsNode, optionsArgument, context) => function * (
 		optionsNode.properties.length === 1
 		&& optionsArgument.parent.arguments.at(-1) === optionsArgument
 	) {
-		if (!canRemoveArgumentWithoutComments(optionsArgument, context)) {
+		if (!canRemoveFinalArgumentWithoutComments(optionsArgument, context)) {
 			return abort();
 		}
 
@@ -451,7 +462,7 @@ function * getOptionsProblems(input, optionsArgument, context) {
 		yield {
 			node: optionsNode,
 			messageId: MESSAGE_ID_EMPTY_OPTIONS,
-			fix: canRemoveArgumentWithoutComments(optionsArgument, context)
+			fix: canRemoveFinalArgumentWithoutComments(optionsArgument, context)
 				? fixer => removeFinalArgument(fixer, optionsArgument, context)
 				: undefined,
 		};

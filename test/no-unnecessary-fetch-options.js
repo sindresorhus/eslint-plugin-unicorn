@@ -111,6 +111,7 @@ test.snapshot({
 		'fetch(request, {body: null})',
 		'fetch("/", {method: "GET"}, extraArgument)',
 		'fetch(url, /* keep */ {})',
+		'fetch(url, {}, /* keep */)',
 		'fetch("/", {method: "GET"} /* keep */)',
 		outdent`
 			fetch('/', {
