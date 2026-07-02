@@ -278,7 +278,65 @@ test({
 			],
 		}),
 		typescript({
+			code: 'declare const useReady: {(): boolean};',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'declare const useIsReady: {(): boolean};',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
 			code: 'declare function useIsCool(): number;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'declare const useIsCool: {(): number};',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'type Hook = () => number; declare const useIsCool: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'interface Hook {(): number;} declare const useIsCool: Hook;',
 			options: [onlyIsPrefixOptions],
 			errors: [
 				{
@@ -543,6 +601,7 @@ test.snapshot({
 		typescript('type Hook = () => boolean; declare const useIsReady: Hook;'),
 		typescript('interface Hook {(): boolean;} declare const useIsReady: Hook;'),
 		'function useIS_READY() { return true; }',
+		// Nullable function types are not treated as boolean-returning hooks.
 		typescript('declare const useIsReady: (() => boolean) | undefined;'),
 		typescript('type Hook = (() => boolean) | undefined; declare const useIsReady: Hook;'),
 		typescript('declare const useReady: (() => boolean) | undefined;'),
