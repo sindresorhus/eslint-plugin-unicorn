@@ -51,7 +51,15 @@ const onlyIsPrefixOptions = {
 };
 
 test({
-	valid: [],
+	valid: [
+		{
+			code: 'function useReady() { return true; }',
+			options: [{
+				...onlyIsPrefixOptions,
+				ignore: ['^useReady$'],
+			}],
+		},
+	],
 	invalid: [
 		{
 			code: 'function foo() { const completed = true; return completed; }',
@@ -86,6 +94,293 @@ test({
 				},
 			],
 		}),
+		typescript({
+			code: 'declare function useMyFlag(): boolean;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'declare function useIsMyFlag(): boolean;',
+						},
+					],
+				},
+			],
+		}),
+		{
+			code: 'function useReady() { return true; }',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'function useIsReady() { return true; }',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'function useREADY() { return true; }',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'READY',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'function useIS_READY() { return true; }',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'function use2FA() { return true; }',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: '2FA',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'function useIs2FA() { return true; }',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'function useReady() { return true; }',
+			options: [{
+				...onlyIsPrefixOptions,
+				ignore: ['^ready$'],
+			}],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'function useIsReady() { return true; }',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'function useIS_COOL() { return 1; }',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'IS_COOL',
+						prefix: 'is',
+					},
+				},
+			],
+		},
+		{
+			code: 'const useReady = () => true;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'const useIsReady = () => true;',
+						},
+					],
+				},
+			],
+		},
+		typescript({
+			code: 'declare const useReady: () => boolean;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'declare const useIsReady: () => boolean;',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
+			code: 'type Hook = () => boolean; declare const useReady: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'type Hook = () => boolean; declare const useIsReady: Hook;',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
+			code: 'interface Hook {(): boolean;} declare const useReady: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'interface Hook {(): boolean;} declare const useIsReady: Hook;',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
+			code: 'declare const useReady: {(): boolean};',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'ready',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'declare const useIsReady: {(): boolean};',
+						},
+					],
+				},
+			],
+		}),
+		typescript({
+			code: 'declare function useIsCool(): number;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'declare const useIsCool: {(): number};',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'type Hook = () => number; declare const useIsCool: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'interface Hook {(): number;} declare const useIsCool: Hook;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		typescript({
+			code: 'declare const useIsCool: (() => number) | undefined;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'non-boolean-prefix',
+					data: {
+						name: 'isCool',
+						prefix: 'is',
+					},
+				},
+			],
+		}),
+		{
+			code: 'const useIsReady = true;',
+			output: 'const isUseIsReady = true;',
+			options: [onlyIsPrefixOptions],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					data: {
+						name: 'useIsReady',
+						prefixes: '`is`',
+					},
+					suggestions: [
+						{
+							messageId: 'rename',
+							output: 'const isUseIsReady = true;',
+						},
+					],
+				},
+			],
+		},
 		typescript({
 			code: 'declare const completed: boolean;',
 			options: [onlyIsPrefixOptions],
@@ -302,6 +597,23 @@ test.snapshot({
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
+		'function useIsReady() { return true; }',
+		typescript('declare function useIsMyFlag(): boolean;'),
+		typescript('const useIsReady = () => true;'),
+		typescript('declare const useIsReady: () => boolean;'),
+		typescript('type Hook = () => boolean; declare const useIsReady: Hook;'),
+		typescript('interface Hook {(): boolean;} declare const useIsReady: Hook;'),
+		'function useIS_READY() { return true; }',
+		// Nullable function types are not treated as boolean-returning hooks.
+		typescript('declare const useIsReady: (() => boolean) | undefined;'),
+		typescript('type Hook = (() => boolean) | undefined; declare const useIsReady: Hook;'),
+		typescript('declare const useReady: (() => boolean) | undefined;'),
+		typescript('type Hook = (() => boolean) | undefined; declare const useReady: Hook;'),
+		'function useCool() { return 1; }',
+		typescript('declare function useCool(): number;'),
+		typescript('declare const useCool: () => number;'),
+		typescript('type Hook = () => number; declare const useCool: Hook;'),
+		typescript('declare const useCool: (() => number) | undefined;'),
 	],
 	invalid: [
 		'const completed = true;',

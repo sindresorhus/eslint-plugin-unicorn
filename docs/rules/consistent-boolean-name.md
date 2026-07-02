@@ -35,6 +35,8 @@ The plural prefixes (`are`, `have`, `were`) allow names for boolean collections,
 
 The prefix must be a distinct word part. `isReady`, `is_ready`, and `IS_READY` are allowed, but `island` is not considered to have the `is` prefix.
 
+React hook function bindings are checked after the required `use` prefix. For example, `useIsReady` is treated as a boolean hook name, while `useReady` is not. `ignore` patterns still match the original source name, like `useReady`.
+
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, but not qualified or namespaced type references.

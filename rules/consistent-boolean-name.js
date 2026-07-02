@@ -6,9 +6,11 @@ import {
 	getAvailableVariableName,
 	getScopes,
 	getVariableIdentifiers,
+	isReactHookName,
 	isNullishType,
 	isTypeParameterType,
 	isUnknownType,
+	lowerFirst,
 	upperFirst,
 } from './utils/index.js';
 import {
@@ -17,6 +19,7 @@ import {
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
 	isBooleanTypeAnnotation,
+	isFunctionTypeAnnotation,
 } from './utils/is-boolean.js';
 
 const MESSAGE_ID = 'consistent-boolean-name';
@@ -98,6 +101,7 @@ const typeScriptExpressionWrapperTypes = new Set([
 ]);
 const isUpperCase = string => string === string.toUpperCase();
 const stripLeadingUnderscores = name => name.replace(/^_+/, '');
+const isScreamingCase = name => /^[A-Z][\dA-Z_]*$/.test(stripLeadingUnderscores(name));
 
 const isFunction = node => [
 	'ArrowFunctionExpression',
@@ -178,6 +182,18 @@ function getReplacementName(name, prefix) {
 	return isUpperCase(nameWithoutLeadingUnderscores)
 		? `${leadingUnderscores}${prefix.toUpperCase()}_${nameWithoutLeadingUnderscores}`
 		: `${leadingUnderscores}${prefix}${upperFirst(nameWithoutLeadingUnderscores)}`;
+}
+
+function getReactHookReplacementName({name, nameForPrefixCheck}, prefix) {
+	if (name === nameForPrefixCheck) {
+		return getReplacementName(name, prefix);
+	}
+
+	const hookName = isScreamingCase(nameForPrefixCheck)
+		? getReplacementName(nameForPrefixCheck, prefix)
+		: `${prefix}${upperFirst(nameForPrefixCheck)}`;
+
+	return `use${upperFirst(hookName)}`;
 }
 
 const isExportedIdentifier = identifier => {
@@ -279,6 +295,41 @@ function getFunctionDefinitions(variable) {
 
 	const overloadDefinitions = variable.defs.filter(definition => definition.node.type === 'TSDeclareFunction');
 	return overloadDefinitions.length > 0 ? overloadDefinitions : variable.defs;
+}
+
+function isReactHookFunctionBinding(variable, context) {
+	if (
+		variable.name === 'use'
+		|| !isReactHookName(variable.name)
+	) {
+		return false;
+	}
+
+	if (getFunctionDefinitions(variable)) {
+		return true;
+	}
+
+	const definition = getSupportedVariableDefinition(variable);
+
+	if (definition?.type === 'FunctionName') {
+		return isFunction(definition.node);
+	}
+
+	return definition?.type === 'Variable'
+		&& (
+			isFunction(definition.node.init)
+			|| isFunctionTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+		);
+}
+
+function getNameForPrefixCheck(variable, context) {
+	if (!isReactHookFunctionBinding(variable, context)) {
+		return variable.name;
+	}
+
+	const hookName = variable.name.slice(3);
+
+	return isScreamingCase(hookName) ? hookName : lowerFirst(hookName);
 }
 
 function combineBooleanStates(states) {
@@ -905,7 +956,7 @@ function getPropertyBooleanState(node, context) {
 	return state === unknown && isBooleanProperty(node, context) ? boolean : state;
 }
 
-function getSuggestions(variable, prefixes, context) {
+function getSuggestions(variable, prefixes, context, nameForPrefixCheck) {
 	if (
 		!shouldSuggestRename(variable)
 		|| variable.references.some(reference => reference.vueUsedInTemplate)
@@ -921,7 +972,7 @@ function getSuggestions(variable, prefixes, context) {
 	const suggestions = [];
 
 	for (const prefix of prefixes) {
-		const replacement = getAvailableVariableName(getReplacementName(variable.name, prefix), scopes);
+		const replacement = getAvailableVariableName(getReactHookReplacementName({name: variable.name, nameForPrefixCheck}, prefix), scopes);
 
 		if (!replacement || usedReplacements.has(replacement)) {
 			continue;
@@ -971,7 +1022,13 @@ function isInDeclareContext(node) {
 	return false;
 }
 
-function getAutofix(variable, prefixes, context, suggestions) {
+function getAutofix({
+	variable,
+	prefixes,
+	context,
+	suggestions,
+	nameForPrefixCheck,
+}) {
 	if (
 		!suggestions
 		|| !isAutofixableVariable(variable, context)
@@ -980,7 +1037,7 @@ function getAutofix(variable, prefixes, context, suggestions) {
 	}
 
 	const [prefix] = prefixes;
-	const replacement = getReplacementName(variable.name, prefix);
+	const replacement = getReactHookReplacementName({name: variable.name, nameForPrefixCheck}, prefix);
 	const suggestion = suggestions.find(suggestion => suggestion.data.replacement === replacement);
 
 	return suggestion?.fix;
@@ -1002,7 +1059,8 @@ const create = context => {
 			return;
 		}
 
-		const booleanPrefix = getBooleanPrefix(variable.name, prefixes);
+		const nameForPrefixCheck = getNameForPrefixCheck(variable, context);
+		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
 		if (booleanPrefix) {
 			if (getVariableBooleanState(variable, context) === nonBoolean) {
 				const [definition] = variable.defs;
@@ -1011,7 +1069,7 @@ const create = context => {
 					node: definition.name,
 					messageId: MESSAGE_ID_NON_BOOLEAN_PREFIX,
 					data: {
-						name: variable.name,
+						name: nameForPrefixCheck,
 						prefix: booleanPrefix,
 					},
 				});
@@ -1028,16 +1086,22 @@ const create = context => {
 		}
 
 		const [definition] = variable.defs;
-		const suggest = getSuggestions(variable, prefixes, context);
+		const suggest = getSuggestions(variable, prefixes, context, nameForPrefixCheck);
 
 		context.report({
 			node: definition.name,
 			messageId: MESSAGE_ID,
 			data: {
-				name: variable.name,
+				name: nameForPrefixCheck,
 				prefixes: formatPrefixes(prefixes),
 			},
-			fix: getAutofix(variable, prefixes, context, suggest),
+			fix: getAutofix({
+				variable,
+				prefixes,
+				context,
+				suggestions: suggest,
+				nameForPrefixCheck,
+			}),
 			suggest,
 		});
 	};
