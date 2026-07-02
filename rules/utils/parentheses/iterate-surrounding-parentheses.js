@@ -35,7 +35,7 @@ function getSurroundingParentheses([head, tail], context) {
 
 	const tokenAfter = context.sourceCode.getTokenAfter(tail);
 
-	if (!tokenBefore || !isClosingParenthesisToken(tokenAfter)) {
+	if (!tokenAfter || !isClosingParenthesisToken(tokenAfter)) {
 		return;
 	}
 
