@@ -1,5 +1,10 @@
 import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
-import {containsSuspensionPoint, getReferences, trackBranchExits} from './utils/index.js';
+import {
+	containsSuspensionPoint,
+	getReferences,
+	isReactHookName,
+	trackBranchExits,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-declarations-before-early-exit';
 const messages = {
@@ -22,10 +27,6 @@ function isGuardStatement(node, branchAlwaysExits) {
 	const alternateExits = Boolean(node.alternate) && branchAlwaysExits(node.alternate);
 	return consequentExits !== alternateExits;
 }
-
-// https://github.com/facebook/react/blob/main/packages/eslint-plugin-react-hooks/src/rules/RulesOfHooks.ts
-const isReactHookName = name =>
-	name === 'use' || /^use[\dA-Z]/.test(name);
 
 // Matches `useFoo(…)` and `Namespace.useFoo(…)` (for example, `React.useMemo(…)`).
 const isReactHookCall = node => {
