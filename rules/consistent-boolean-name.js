@@ -223,6 +223,23 @@ const shouldSuggestRename = variable => getVariableIdentifiers(variable)
 		&& identifier.type !== 'JSXIdentifier',
 	);
 
+function isDestructuredDefinition(definition) {
+	for (let node = definition.name; node && node !== definition.node; node = node.parent) {
+		if (
+			node.type === 'ObjectPattern'
+			|| node.type === 'ArrayPattern'
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+const isDestructuredVariable = variable =>
+	variable.defs.length > 0
+	&& variable.defs.every(definition => isDestructuredDefinition(definition));
+
 const isBooleanFunctionDefinition = (definition, context) =>
 	definition.type === 'FunctionName'
 	&& isFunction(definition.node)
@@ -978,7 +995,10 @@ const create = context => {
 	}
 
 	const checkVariable = variable => {
-		if (isIgnoredName(variable.name, ignore)) {
+		if (
+			isIgnoredName(variable.name, ignore)
+			|| isDestructuredVariable(variable)
+		) {
 			return;
 		}
 
