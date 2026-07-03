@@ -205,7 +205,12 @@ const isInPromiseMethods = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
-	if (context.filename.toLowerCase().endsWith('.cjs')) {
+	// Use the real file path so processors or code blocks cannot hide file-level opt-outs.
+	const filename = context.physicalFilename.toLowerCase();
+	if (
+		filename.endsWith('.cjs')
+		|| filename.endsWith('.svelte')
+	) {
 		return;
 	}
 
