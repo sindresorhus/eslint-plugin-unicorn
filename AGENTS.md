@@ -97,6 +97,8 @@ Most rules visit JavaScript AST nodes, so `js/js` is all they can support. But w
 
 ## Reusable utilities
 
+`../eslint-node-test` adapts its infrastructure (rule adapter, snapshot test harness, doc generation) from this plugin. When changing shared patterns here (rule anatomy, testing conventions, autofix rules), consider whether the equivalent should be ported over there.
+
 Before writing helpers, check these directories:
 
 - **`rules/ast/`** - AST node type checks: `isMethodCall`, `isCallExpression`, `isMemberExpression`, `isFunction`, `isStringLiteral`, etc.
@@ -105,6 +107,8 @@ Before writing helpers, check these directories:
 - **`rules/shared/`** - Shared rule logic for rules that share patterns (e.g., `simple-array-search-rule.js`).
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
+
+Also check `../eslint-node-test/rules/ast/`, `../eslint-node-test/rules/utils/`, and `../eslint-node-test/rules/fix/` — some helpers there were adapted from here and may have picked up fixes or edge cases worth porting back.
 
 If a helper becomes complicated and clearly general across rules, consider moving it to a shared utility. Keep simple or rule-specific helpers local.
 

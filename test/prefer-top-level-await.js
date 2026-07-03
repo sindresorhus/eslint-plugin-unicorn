@@ -358,3 +358,31 @@ test({
 	],
 	invalid: [],
 });
+
+// Svelte component scripts have framework-specific top-level `await` behavior.
+test.svelte({
+	valid: [
+		{
+			code: outdent`
+				<script lang="ts">
+					async function loadCached(): Promise<string> {
+						return fetch('https://example.com');
+					}
+
+					let hotfixesPromise = $state(loadCached());
+				</script>
+
+				{#await hotfixesPromise}
+					fetching...
+				{/await}
+			`,
+			filename: 'example.svelte',
+			languageOptions: {
+				parserOptions: {
+					parser: parsers.typescript.implementation,
+				},
+			},
+		},
+	],
+	invalid: [],
+});

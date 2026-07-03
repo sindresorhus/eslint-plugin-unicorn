@@ -66,3 +66,5 @@ export async function doSomething() {
 	await preparationDone;
 }
 ```
+
+`.cjs` and `.svelte` files are ignored.
