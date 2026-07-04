@@ -38,16 +38,10 @@ function isStaticMember(node) {
 	}
 
 	// TypeScript class
-	if (
-		isDeclare
+	return !(isDeclare
 		|| isReadonly
 		|| accessibility !== undefined
-		|| (Array.isArray(decorators) && decorators.length > 0)
-	) {
-		return false;
-	}
-
-	return true;
+		|| (Array.isArray(decorators) && decorators.length > 0));
 }
 
 function * switchClassMemberToObjectProperty(node, context, fixer) {

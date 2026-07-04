@@ -151,7 +151,7 @@ const create = context => {
 				replacement,
 			},
 			* fix(fixer) {
-				const needsReturnOrThrowParentheses = (
+				const isNeedsReturnOrThrowParentheses = (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === unaryExpression
 					&& !isOnSameLine(bangToken, tokenAfterBang, context)
@@ -164,12 +164,12 @@ const create = context => {
 
 				if (
 					tokenStore === sourceCode
-					&& !needsReturnOrThrowParentheses
+					&& !isNeedsReturnOrThrowParentheses
 				) {
 					yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 				}
 
-				if (needsReturnOrThrowParentheses) {
+				if (isNeedsReturnOrThrowParentheses) {
 					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}

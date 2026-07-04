@@ -79,16 +79,13 @@ const cases = [
 	{
 		selector: 'CallExpression',
 		* getNodes(node, context) {
-			if (!(
-				isMethodCall(node, {
-					objects: ['Object', 'Reflect'],
-					method: 'defineProperty',
-					minimumArguments: 3,
-					optionalCall: false,
-					optionalMember: false,
-				})
-				&& node.arguments[0].type !== 'SpreadElement'
-			)) {
+			if (!isMethodCall(node, {
+				objects: ['Object', 'Reflect'],
+				method: 'defineProperty',
+				minimumArguments: 3,
+				optionalCall: false,
+				optionalMember: false,
+			}) || node.arguments[0].type === 'SpreadElement') {
 				return;
 			}
 
@@ -117,11 +114,8 @@ const cases = [
 			}
 
 			for (const pairs of node.arguments[0].elements) {
-				if (!(
-					pairs?.type === 'ArrayExpression'
-					&& pairs.elements[0]
-					&& pairs.elements[0].type !== 'SpreadElement'
-				)) {
+				if (!(pairs?.type === 'ArrayExpression'
+					&& pairs.elements[0]) || pairs.elements[0].type === 'SpreadElement') {
 					continue;
 				}
 

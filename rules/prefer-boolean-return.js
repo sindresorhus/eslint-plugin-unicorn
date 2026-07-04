@@ -144,11 +144,11 @@ const create = context => {
 		const hasComments = sourceCode.getCommentsInside(node).length > 0
 			|| sourceCode.getCommentsInside(alternate).length > 0
 			|| getLastTrailingCommentOnSameLine(context, alternate);
-		const needsGlobalBoolean = !shouldNegateTest
+		const isNeedsGlobalBoolean = !shouldNegateTest
 			&& !isRuntimeBooleanExpression(node.test, context)
 			&& !canUseGlobalBoolean(node);
 
-		if (hasComments || needsGlobalBoolean) {
+		if (hasComments || isNeedsGlobalBoolean) {
 			return problem;
 		}
 

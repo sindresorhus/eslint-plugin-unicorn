@@ -88,6 +88,15 @@ const config = [
 	},
 	{
 		files: [
+			'rules/no-unused-properties.js',
+		],
+		rules: {
+			// `specialProtoPropertyKey` intentionally spells out `__proto__` as `Proto`, not `Prototype`.
+			'unicorn/name-replacements': 'off',
+		},
+	},
+	{
+		files: [
 			'rules/comment-content.js',
 			'rules/consistent-assert.js',
 			'rules/no-for-each.js',

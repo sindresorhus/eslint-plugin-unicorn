@@ -90,12 +90,12 @@ function reportObjectPatternAndShouldSkipPropertyCheck(report, node, options) {
 		return true;
 	}
 
-	const assignmentKeyEqualsValue = parent.key.name === parent.value.name;
+	const isAssignmentKeyEqualsValue = parent.key.name === parent.value.name;
 
 	const valueIsInvalid = parent.value.name && Boolean(keyword);
 
 	// Ignore destructuring if the option is set, unless a new identifier is created
-	if (valueIsInvalid && !assignmentKeyEqualsValue) {
+	if (valueIsInvalid && !isAssignmentKeyEqualsValue) {
 		report(node, keyword);
 	}
 

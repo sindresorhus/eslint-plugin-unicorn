@@ -26,7 +26,7 @@ Convert Unicorn style of `create` to ESLint style
 @param {UnicornCreate} unicornCreate
 @returns {EslintCreate}
 */
-function toEslintCreate(unicornCreate) {
+export default function toEslintCreate(unicornCreate) {
 	if (wrappedFunctions.has(unicornCreate)) {
 		return unicornCreate;
 	}
@@ -45,5 +45,4 @@ function toEslintCreate(unicornCreate) {
 	};
 }
 
-export default toEslintCreate;
 export {markFunctionWrapped};

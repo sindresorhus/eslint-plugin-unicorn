@@ -1,9 +1,4 @@
-import {
-	isIdentifierName,
-	isKeyword,
-	isReservedWord,
-	isStrictReservedWord,
-} from '@babel/helper-validator-identifier';
+import reservedIdentifiers from 'reserved-identifiers';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {
@@ -12,6 +7,7 @@ import {
 	isLeftHandSide,
 	isControlFlowTest,
 	isBooleanExpression,
+	isIdentifierName,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-global-this';
@@ -53,11 +49,11 @@ function isActiveGlobal(name, node, context) {
 		&& variable.defs.length === 0;
 }
 
+const reserved = reservedIdentifiers();
+
 function canUseBareIdentifier(name) {
 	return isIdentifierName(name)
-		&& !isKeyword(name)
-		&& !isReservedWord(name, true)
-		&& !isStrictReservedWord(name, true);
+		&& (!reserved.has(name) || name === 'eval' || name === 'arguments');
 }
 
 function getStaticPropertyName(node) {

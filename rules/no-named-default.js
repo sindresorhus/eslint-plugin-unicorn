@@ -97,12 +97,9 @@ const create = context => {
 	});
 
 	context.on('ExportSpecifier', specifier => {
-		if (!(
-			isValueExport(specifier)
+		if (!(isValueExport(specifier)
 			&& specifier.exported.name === 'default'
-			&& isValueExport(specifier.parent)
-			&& !specifier.parent.source
-		)) {
+			&& isValueExport(specifier.parent)) || specifier.parent.source) {
 			return;
 		}
 

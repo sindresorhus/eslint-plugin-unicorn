@@ -23,11 +23,8 @@ const create = context => {
 	context.on('BinaryExpression', binaryExpression => {
 		const {operator, left} = binaryExpression;
 
-		if (!(
-			isEqualityCheck(binaryExpression)
-			&& isNegatedExpression(left)
-			&& !isNegatedExpression(left.argument)
-		)) {
+		if (!(isEqualityCheck(binaryExpression)
+			&& isNegatedExpression(left)) || isNegatedExpression(left.argument)) {
 			return;
 		}
 

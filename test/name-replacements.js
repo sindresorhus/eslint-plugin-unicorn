@@ -2013,7 +2013,7 @@ test.typescript({
 			errors: 1,
 		},
 		{
-			code: 'const foo = (extr\u0061Params     ?    :    string) => {}',
+			code: 'const foo = (extr\u{61}Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
 			errors: 1,
 		},

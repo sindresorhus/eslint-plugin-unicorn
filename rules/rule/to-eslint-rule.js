@@ -19,7 +19,7 @@ Convert Unicorn rule to ESLint rule
 @param {UnicornRule} unicornRule
 @returns {ESLint.Rule.RuleModule}
 */
-function toEslintRule(ruleId, unicornRule) {
+export default function toEslintRule(ruleId, unicornRule) {
 	return {
 		meta: {
 			// If there is are, options add `[]` so ESLint can validate that no data is passed to the rule.
@@ -34,5 +34,3 @@ function toEslintRule(ruleId, unicornRule) {
 		create: toEslintCreate(unicornRule.create),
 	};
 }
-
-export default toEslintRule;

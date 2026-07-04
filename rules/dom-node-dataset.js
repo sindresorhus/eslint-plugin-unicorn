@@ -1,4 +1,3 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
@@ -12,6 +11,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
+	isIdentifierName,
 } from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 import {
@@ -21,7 +21,6 @@ import {
 	isExpressionStatement,
 } from './ast/index.js';
 
-const {isIdentifierName} = helperValidatorIdentifier;
 const MESSAGE_ID = 'prefer-dataset';
 const INVERSE_MESSAGE_ID = 'prefer-attributes';
 const messages = {
@@ -106,11 +105,8 @@ function getDatasetVariableReadMembers(variable) {
 
 		const {identifier} = reference;
 		const member = identifier.parent;
-		if (!(
-			member.type === 'MemberExpression'
-			&& member.object === identifier
-			&& !member.optional
-		)) {
+		if (!(member.type === 'MemberExpression'
+			&& member.object === identifier) || member.optional) {
 			return;
 		}
 

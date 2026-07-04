@@ -1,7 +1,5 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {getStaticStringValue} from './ast/index.js';
-
-const {isIdentifierName} = helperValidatorIdentifier;
+import {isIdentifierName} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-private-class-fields';
 const messages = {

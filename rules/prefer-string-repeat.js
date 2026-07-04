@@ -1,4 +1,3 @@
-import jsesc from 'jsesc';
 import {isStringLiteral, isDirective} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
@@ -10,15 +9,23 @@ const messages = {
 
 const singleWhitespace = /^\s$/u;
 
+const namedEscapes = new Map([
+	['\t', String.raw`\t`],
+	['\n', String.raw`\n`],
+	['\r', String.raw`\r`],
+	['\f', String.raw`\f`],
+]);
+
+// Escape a single whitespace character into a readable single-quoted string literal.
 function quoteWhitespace(character) {
-	return jsesc(character, {
-		quotes: 'single',
-		wrap: true,
-		es6: true,
-		minimal: false,
-		lowercaseHex: false,
-		json: true,
-	});
+	if (character === ' ') {
+		return '\' \'';
+	}
+
+	const escape = namedEscapes.get(character)
+		?? String.raw`\u{${character.codePointAt(0).toString(16).toUpperCase()}}`;
+
+	return `'${escape}'`;
 }
 
 function getRepeatedWhitespace(value, minimumRepetitions) {

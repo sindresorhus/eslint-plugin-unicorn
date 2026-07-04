@@ -191,8 +191,8 @@ function getPackageHelpers(dirname) {
 
 		// Check if have to skip colon
 		// @example "TODO [...]: message here"
-		const dropColon = afterArguments[0] === ':';
-		if (dropColon) {
+		const isDropColon = afterArguments[0] === ':';
+		if (isDropColon) {
 			return afterArguments.slice(1).trim();
 		}
 

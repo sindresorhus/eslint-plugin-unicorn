@@ -75,6 +75,7 @@ function getReplacement(valueNode) {
 	const {value, raw} = valueNode;
 
 	// Intentionally `Number.isInteger`, not `Number.isSafeInteger`: large integers beyond the safe range are exactly what bigint literals are for.
+	// eslint-disable-next-line unicorn/prefer-number-is-safe-integer
 	if (!Number.isInteger(value)) {
 		return;
 	}

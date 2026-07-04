@@ -98,14 +98,14 @@ function * fix({
 	const tokenAfterBangIncludingComments = sourceCode.getTokenAfter(bangToken, {includeComments: true});
 	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(comparison, context);
 	const {parent} = unaryExpression;
-	const needsReturnOrThrowParentheses = (
+	const isNeedsReturnOrThrowParentheses = (
 		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 		&& parent.argument === unaryExpression
 		&& !isOnSameLine(bangToken, tokenAfterBang, context)
 		&& !isParenthesized(unaryExpression, context)
 	);
 
-	if (!needsReturnOrThrowParentheses) {
+	if (!isNeedsReturnOrThrowParentheses) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
@@ -117,16 +117,13 @@ function * fix({
 		yield fixer.insertTextAfter(tokenAfterBangIncludingComments, ' ');
 	}
 
-	if (!(
-		parentNeedsGroupedComparison(parent)
-		&& !isParenthesized(unaryExpression, context)
-	)) {
+	if (!parentNeedsGroupedComparison(parent) || isParenthesized(unaryExpression, context)) {
 		yield removeParentheses(comparison, fixer, context);
 	}
 
 	yield fixer.replaceText(operatorToken, replacementOperator);
 
-	if (needsReturnOrThrowParentheses) {
+	if (isNeedsReturnOrThrowParentheses) {
 		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}
@@ -178,21 +175,21 @@ function * fixLogical({
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
 	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 	const {parent} = unaryExpression;
-	const needsReturnOrThrowParentheses = (
+	const isNeedsReturnOrThrowParentheses = (
 		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 		&& parent.argument === unaryExpression
 		&& !isOnSameLine(bangToken, tokenAfterBang, context)
 		&& !isParenthesized(unaryExpression, context)
 	);
 
-	if (!needsReturnOrThrowParentheses) {
+	if (!isNeedsReturnOrThrowParentheses) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
 	yield fixer.remove(bangToken);
 	yield fixer.replaceText(logicalExpression, getFixedLogicalExpressionText(logicalExpression, context));
 
-	if (needsReturnOrThrowParentheses) {
+	if (isNeedsReturnOrThrowParentheses) {
 		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 		return;
 	}

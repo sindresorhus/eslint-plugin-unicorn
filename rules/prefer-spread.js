@@ -156,8 +156,8 @@ function fixConcat(node, context, fixableArguments) {
 	const array = node.callee.object;
 	const concatCallArguments = node.arguments;
 	const arrayParenthesizedRange = getParenthesizedRange(array, context);
-	const arrayIsArrayLiteral = isArrayLiteral(array);
-	const arrayHasTrailingComma = arrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
+	const isArrayIsArrayLiteral = isArrayLiteral(array);
+	const arrayHasTrailingComma = isArrayIsArrayLiteral && isArrayLiteralHasTrailingComma(array, sourceCode);
 
 	const getArrayLiteralElementsText = (node, keepTrailingComma) => {
 		if (
@@ -205,7 +205,7 @@ function fixConcat(node, context, fixableArguments) {
 			return '';
 		}
 
-		if (arrayIsArrayLiteral) {
+		if (isArrayIsArrayLiteral) {
 			if (!isEmptyArrayExpression(array)) {
 				text = ` ${text}`;
 
@@ -244,7 +244,7 @@ function fixConcat(node, context, fixableArguments) {
 	return function * (fixer) {
 		// Fixed code always starts with `[`
 		if (
-			!arrayIsArrayLiteral
+			!isArrayIsArrayLiteral
 			&& needsSemicolon(sourceCode.getTokenBefore(node), context, '[')
 		) {
 			yield fixer.insertTextBefore(node, ';');
@@ -258,7 +258,7 @@ function fixConcat(node, context, fixableArguments) {
 
 		const text = getFixedText();
 
-		if (arrayIsArrayLiteral) {
+		if (isArrayIsArrayLiteral) {
 			const closingBracketToken = sourceCode.getLastToken(array);
 			yield fixer.insertTextBefore(closingBracketToken, text);
 		} else {
@@ -1337,11 +1337,11 @@ const create = context => {
 		};
 
 		const fixableArguments = getConcatFixableArguments(node.arguments, scope, context);
-		const receiverSafeToSpread = !isArrayConstructorWithOneArgument(object, context);
+		const isReceiverSafeToSpread = !isArrayConstructorWithOneArgument(object, context);
 
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
 			if (
-				receiverSafeToSpread
+				isReceiverSafeToSpread
 				&& !hasCommentsOutsideRanges(node, getConcatPreservedRanges(node, fixableArguments.length))
 			) {
 				problem.fix = fixConcat(node, context, fixableArguments);
@@ -1355,7 +1355,7 @@ const create = context => {
 			return problem;
 		}
 
-		if (!receiverSafeToSpread) {
+		if (!isReceiverSafeToSpread) {
 			return problem;
 		}
 
@@ -1420,17 +1420,13 @@ const create = context => {
 
 	// `array.slice()`
 	context.on('CallExpression', node => {
-		if (!(
-			isMethodCall(node, {
-				method: 'slice',
-				minimumArguments: 0,
-				maximumArguments: 1,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			&& !isArrayLiteral(node.callee.object)
-			&& !hasUnparenthesizedOptionalChainElement(node.callee.object, context)
-		)) {
+		if (!isMethodCall(node, {
+			method: 'slice',
+			minimumArguments: 0,
+			maximumArguments: 1,
+			optionalCall: false,
+			optionalMember: false,
+		}) || isArrayLiteral(node.callee.object) || hasUnparenthesizedOptionalChainElement(node.callee.object, context)) {
 			return;
 		}
 
@@ -1463,16 +1459,12 @@ const create = context => {
 
 	// `array.toSpliced()`
 	context.on('CallExpression', node => {
-		if (!(
-			isMethodCall(node, {
-				method: 'toSpliced',
-				argumentsLength: 0,
-				optionalCall: false,
-				optionalMember: false,
-			})
-			&& node.callee.object.type !== 'ArrayExpression'
-			&& !hasUnparenthesizedOptionalChainElement(node.callee.object, context)
-		)) {
+		if (!isMethodCall(node, {
+			method: 'toSpliced',
+			argumentsLength: 0,
+			optionalCall: false,
+			optionalMember: false,
+		}) || node.callee.object.type === 'ArrayExpression' || hasUnparenthesizedOptionalChainElement(node.callee.object, context)) {
 			return;
 		}
 

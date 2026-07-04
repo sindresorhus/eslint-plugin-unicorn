@@ -79,18 +79,12 @@ function create(node, options, types) {
 		}
 	}
 
-	if (
-		Array.isArray(names)
+	return !(Array.isArray(names)
 		&& names.length > 0
 		&& (
 			node.callee.type !== 'Identifier'
 			|| !names.includes(node.callee.name)
-		)
-	) {
-		return false;
-	}
-
-	return true;
+		));
 }
 
 /**

@@ -224,15 +224,15 @@ const create = context => {
 		}
 
 		const setCall = consequentCall.method === 'setAttribute' ? consequentCall : alternateCall;
-		const setWhenTrue = consequentCall === setCall;
+		const isSetWhenTrue = consequentCall === setCall;
 		const hasAttributeCondition = getHasAttributeCondition(node.test, setCall, context);
 
 		if (hasAttributeCondition?.isKnownNonDom) {
 			return;
 		}
 
-		const shouldToggleWithoutForce = Boolean(hasAttributeCondition) && setWhenTrue === hasAttributeCondition.isNegative;
-		const conditionText = shouldToggleWithoutForce ? '' : getConditionText(node.test, context, !setWhenTrue);
+		const shouldToggleWithoutForce = Boolean(hasAttributeCondition) && isSetWhenTrue === hasAttributeCondition.isNegative;
+		const conditionText = shouldToggleWithoutForce ? '' : getConditionText(node.test, context, !isSetWhenTrue);
 		const hasSafeAttributeValue = setCall.hasEmptyAttributeValue || getStaticStringValue(setCall.attributeValue) !== undefined;
 		const shouldReportOnly = (Boolean(conditionText) && setCall.isOptional) || !hasSafeAttributeValue;
 

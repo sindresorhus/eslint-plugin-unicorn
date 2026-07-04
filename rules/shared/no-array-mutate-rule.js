@@ -50,7 +50,7 @@ const schema = [
 	},
 ];
 
-function noArrayMutateRule(methodName) {
+export default function noArrayMutateRule(methodName) {
 	const {
 		replacement,
 		predicate,
@@ -159,5 +159,3 @@ function noArrayMutateRule(methodName) {
 
 	return config;
 }
-
-export default noArrayMutateRule;

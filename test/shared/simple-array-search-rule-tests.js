@@ -162,11 +162,9 @@ function typescriptTests({method, replacement}) {
 	};
 }
 
-function tests(options) {
+export default function tests(options) {
 	return {
 		snapshot: snapshotTests(options),
 		typescript: typescriptTests(options),
 	};
 }
-
-export default tests;

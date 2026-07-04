@@ -250,7 +250,7 @@ function create(context) {
 		}
 
 		let node;
-		let autoFix = true;
+		let isAutoFix = true;
 		let {isZeroLengthCheck, node: lengthCheckNode} = getLengthCheckNode(lengthNode);
 		if (lengthCheckNode) {
 			const {isNegative, node: ancestor} = getBooleanAncestor(lengthCheckNode, context);
@@ -266,7 +266,7 @@ function create(context) {
 			} else if (isLogicalExpression(lengthNode.parent) && lengthNode.parent.operator === '&&') {
 				isZeroLengthCheck = isNegative;
 				node = lengthNode;
-				autoFix = false;
+				isAutoFix = false;
 			}
 		}
 
@@ -287,7 +287,7 @@ function create(context) {
 				node,
 				isZeroLengthCheck,
 				lengthNode,
-				autoFix: autoFix && !isUnsafeNegationInBinaryExpression,
+				autoFix: isAutoFix && !isUnsafeNegationInBinaryExpression,
 				shouldSuggest: !isUnsafeNegationInBinaryExpression,
 			});
 		}

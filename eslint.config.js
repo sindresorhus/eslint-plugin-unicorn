@@ -70,10 +70,21 @@ const config = [
 			'import-x/no-anonymous-default-export': 'off',
 			'ava/no-conditional-assertion': 'off',
 			'n/prefer-global/process': 'off',
+			// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2341
 			'unicorn/escape-case': 'off',
+			'unicorn/prefer-unicode-code-point-escapes': 'off',
 			'unicorn/expiring-todo-comments': 'off',
 			'unicorn/no-hex-escape': 'off',
 			'unicorn/no-null': 'off',
+			'unicorn/consistent-boolean-name': 'off',
+			// Recursive AST/tree walkers are intentional in rule implementation code.
+			'unicorn/no-useless-recursion': 'off',
+			// Disabled violations remain intentional in this codebase.
+			'unicorn/prefer-minimal-ternary': 'off',
+			'unicorn/prefer-simple-condition-first': 'off',
+			'unicorn/prefer-simplified-conditions': 'off',
+			// Many existing internal utilities intentionally export declarations separately.
+			'unicorn/default-export-style': 'off',
 			'unicorn/prefer-array-flat': ['error', {
 				functions: [
 					'flat',
@@ -105,6 +116,45 @@ const config = [
 		],
 		rules: {
 			'unicorn/name-replacements': 'error',
+		},
+	},
+	{
+		files: [
+			'rules/comment-content.js',
+			'rules/consistent-assert.js',
+			'rules/no-for-each.js',
+			'rules/no-array-reduce.js',
+			'rules/no-declarations-before-early-exit.js',
+			'rules/no-error-property-assignment.js',
+			'rules/no-redundant-comparison.js',
+			'rules/no-unnecessary-polyfills.js',
+			'rules/prefer-math-min-max.js',
+			'rules/prefer-private-class-fields.js',
+			'scripts/internal-rules/fix-snapshot-test.js',
+			'test/utils/snapshot-rule-tester.js',
+		],
+		rules: {
+			// Existing implementations intentionally use nested control flow in a few places.
+			'unicorn/no-break-in-nested-loop': 'off',
+		},
+	},
+	{
+		files: [
+			'test/**/*.js',
+		],
+		rules: {
+			// Test files contain source-code fixtures in template literals.
+			'unicorn/no-incorrect-template-string-interpolation': 'off',
+		},
+	},
+	{
+		// Intentional HTTP examples are used in tests.
+		files: [
+			'test/prefer-https.js',
+			'test/string-content.js',
+		],
+		rules: {
+			'unicorn/prefer-https': 'off',
 		},
 	},
 	{

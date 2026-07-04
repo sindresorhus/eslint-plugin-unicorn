@@ -113,15 +113,12 @@ function isBufferEncoding(node, scope) {
 
 function isJsonReadFileCall(node, scope) {
 	if (
-		!(
-			node
+		!(node
 			&& node.type === 'CallExpression'
 			&& !node.optional
 			&& (node.arguments.length === 1 || node.arguments.length === 2)
 			&& node.arguments.every(node => node.type !== 'SpreadElement')
-			&& node.callee.type === 'MemberExpression'
-			&& !node.callee.optional
-		)
+			&& node.callee.type === 'MemberExpression') || node.callee.optional
 	) {
 		return false;
 	}

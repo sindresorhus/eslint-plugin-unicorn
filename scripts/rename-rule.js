@@ -137,6 +137,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 	await run();
 }
 
+// Exported for unit tests.
+// eslint-disable-next-line unicorn/no-exports-in-scripts
 export {
 	replaceRuleIdInRulesIndex,
 	sortReadmeRuleRows,

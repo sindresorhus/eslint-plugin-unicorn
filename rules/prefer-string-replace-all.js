@@ -40,7 +40,7 @@ function hasSafeGlobalStringReplacementFlags(flags) {
 	return true;
 }
 
-const getUnicodeEscape = codePoint => String.raw`\u{${codePoint.toString(16)}}`;
+const getUnicodeEscape = codePoint => String.raw`\u{${codePoint.toString(16).toUpperCase()}}`;
 
 function getValueReplacement(node) {
 	const {kind, codePoint, raw} = node;

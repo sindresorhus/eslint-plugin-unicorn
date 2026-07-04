@@ -410,10 +410,10 @@ const create = context => {
 			return;
 		}
 
-		const accessWhenTestPasses = !isConsequentUndefined;
+		const isAccessWhenTestPasses = !isConsequentUndefined;
 		const testValidity = getIndexedAccessTestValidity(node.test, indexedAccess);
 
-		if (testValidity !== accessWhenTestPasses) {
+		if (testValidity !== isAccessWhenTestPasses) {
 			return;
 		}
 

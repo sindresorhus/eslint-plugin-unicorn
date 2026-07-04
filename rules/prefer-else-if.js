@@ -148,13 +148,13 @@ function getEqualityComparisons(node) {
 */
 function getBooleanComparisonInfo(node, context) {
 	node = unwrapExpression(node);
-	let value = true;
+	let isValue = true;
 
 	while (
 		node.type === 'UnaryExpression'
 		&& node.operator === '!'
 	) {
-		value = !value;
+		isValue = !isValue;
 		node = unwrapExpression(node.argument);
 	}
 
@@ -178,7 +178,7 @@ function getBooleanComparisonInfo(node, context) {
 
 	return {
 		discriminant: node,
-		valueKeys: new Set([getStaticEqualityValueKey(value)]),
+		valueKeys: new Set([getStaticEqualityValueKey(isValue)]),
 	};
 }
 
@@ -444,13 +444,9 @@ function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits
 	const previous = getComparisonInfo(previousIfStatement.test, context);
 	const current = getComparisonInfo(ifStatement.test, context);
 
-	if (!(
-		previous
+	if (!(previous
 		&& current
-		&& isSame(previous.discriminant, current.discriminant)
-		&& !hasOverlappingValues(previous.valueKeys, current.valueKeys)
-		&& !hasDirectDiscriminantMutation(previousIfStatement.consequent, previous.discriminant, context)
-	)) {
+		&& isSame(previous.discriminant, current.discriminant)) || hasOverlappingValues(previous.valueKeys, current.valueKeys) || hasDirectDiscriminantMutation(previousIfStatement.consequent, previous.discriminant, context)) {
 		return;
 	}
 

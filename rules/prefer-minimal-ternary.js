@@ -166,14 +166,14 @@ function isMinimalBinaryExpression(left, right, context) {
 		return false;
 	}
 
-	const leftSidesAreSame = isSameSourceText(left.left, right.left, context.sourceCode);
-	const rightSidesAreSame = isSameSourceText(left.right, right.right, context.sourceCode);
+	const isLeftSidesAreSame = isSameSourceText(left.left, right.left, context.sourceCode);
+	const isRightSidesAreSame = isSameSourceText(left.right, right.right, context.sourceCode);
 
-	if (leftSidesAreSame === rightSidesAreSame) {
+	if (isLeftSidesAreSame === isRightSidesAreSame) {
 		return false;
 	}
 
-	return rightSidesAreSame || isSafeSharedExpression(left.left);
+	return isRightSidesAreSame || isSafeSharedExpression(left.left);
 }
 
 function hasSameObjectWithDifferentDynamicKey(left, right, context) {

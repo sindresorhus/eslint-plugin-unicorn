@@ -138,14 +138,14 @@ function trueBranchSign(branch) {
 }
 
 function expectedSignForTest(test, minuend, subtrahend) {
-	const greaterThan = test.operator === '>' || test.operator === '>=';
+	const isGreaterThan = test.operator === '>' || test.operator === '>=';
 	const testLeftIsMinuend = isSameReference(test.left, minuend) && isSameReference(test.right, subtrahend);
 
 	if (testLeftIsMinuend) {
-		return greaterThan ? 1 : -1;
+		return isGreaterThan ? 1 : -1;
 	}
 
-	return greaterThan ? -1 : 1;
+	return isGreaterThan ? -1 : 1;
 }
 
 function branchSignsMatchSubtraction(branch, minuend, subtrahend) {
@@ -220,9 +220,9 @@ const create = context => {
 
 		// Orient the subtraction so it matches the comparator's sort direction.
 		const {test} = tree;
-		const greaterThan = test.operator === '>' || test.operator === '>=';
-		const leftIsMinuend = greaterThan ? sign > 0 : sign < 0;
-		const [minuend, subtrahend] = leftIsMinuend ? [test.left, test.right] : [test.right, test.left];
+		const isGreaterThan = test.operator === '>' || test.operator === '>=';
+		const isLeftIsMinuend = isGreaterThan ? sign > 0 : sign < 0;
+		const [minuend, subtrahend] = isLeftIsMinuend ? [test.left, test.right] : [test.right, test.left];
 
 		if (!branchSignsMatchSubtraction(tree, minuend, subtrahend)) {
 			return;

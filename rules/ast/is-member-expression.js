@@ -83,16 +83,10 @@ export default function isMemberExpression(node, options) {
 		return false;
 	}
 
-	if (
-		Array.isArray(objects)
+	return !(Array.isArray(objects)
 		&& objects.length > 0
 		&& (
 			node.object.type !== 'Identifier'
 			|| !objects.includes(node.object.name)
-		)
-	) {
-		return false;
-	}
-
-	return true;
+		));
 }

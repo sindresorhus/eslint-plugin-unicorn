@@ -91,7 +91,7 @@ test.snapshot({
 	invalid: [
 		...[
 			'',
-			'\uFEFF',
+			'\u{FEFF}',
 			' ',
 			'\t',
 			'\n',

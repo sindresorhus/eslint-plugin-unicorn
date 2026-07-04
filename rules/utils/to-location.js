@@ -12,7 +12,7 @@ Get location info for the given node or range.
 @param {int} [endOffset] - End position offset.
 @returns {ESTree.SourceLocation}
 */
-function toLocation(nodeOrRange, context, startOffset = 0, endOffset = 0) {
+export default function toLocation(nodeOrRange, context, startOffset = 0, endOffset = 0) {
 	const {sourceCode} = context;
 	const [start, end] = Array.isArray(nodeOrRange) ? nodeOrRange : sourceCode.getRange(nodeOrRange);
 
@@ -21,5 +21,3 @@ function toLocation(nodeOrRange, context, startOffset = 0, endOffset = 0) {
 		end: sourceCode.getLocFromIndex(end + endOffset),
 	};
 }
-
-export default toLocation;

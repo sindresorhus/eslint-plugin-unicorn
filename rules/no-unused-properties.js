@@ -65,7 +65,6 @@ const getReferenceParent = referenceNode => {
 	return referenceNode.parent;
 };
 
-// eslint-disable-next-line unicorn/name-replacements
 const specialProtoPropertyKey = {
 	type: 'Identifier',
 	name: '__proto__',

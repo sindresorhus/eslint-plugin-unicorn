@@ -24,14 +24,14 @@ const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const lowercase = context.options[0] === 'lowercase';
+	const isLowercase = context.options[0] === 'lowercase';
 
 	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
 			return getProblem({
 				node,
 				original: node.raw,
-				lowercase,
+				lowercase: isLowercase,
 			});
 		}
 	});
@@ -42,7 +42,7 @@ const create = context => {
 				node,
 				original: node.raw,
 				regex: escapePatternCase,
-				lowercase,
+				lowercase: isLowercase,
 			});
 		}
 	});
@@ -55,7 +55,7 @@ const create = context => {
 		return getProblem({
 			node,
 			original: node.value.raw,
-			lowercase,
+			lowercase: isLowercase,
 			fix: (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer),
 		});
 	});

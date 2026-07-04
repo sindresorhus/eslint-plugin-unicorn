@@ -204,13 +204,10 @@ const create = context => {
 	// `array.filter()[0]`
 	// `array?.filter()[0]`
 	context.on('MemberExpression', node => {
-		if (!(
-			node.computed
+		if (!(node.computed
 			&& node.property.type === 'Literal'
 			&& node.property.raw === '0'
-			&& isArrayFilterCall(node.object, context)
-			&& !isLeftHandSide(node)
-		)) {
+			&& isArrayFilterCall(node.object, context)) || isLeftHandSide(node)) {
 			return;
 		}
 

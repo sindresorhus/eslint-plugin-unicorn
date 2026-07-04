@@ -108,8 +108,8 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 		]);
 	}
 
-	const endsWithWhitespace = lineText[column] === ' ';
-	if (endsWithWhitespace) {
+	const isEndsWithWhitespace = lineText[column] === ' ';
+	if (isEndsWithWhitespace) {
 		const [start, end] = sourceCode.getRange(node);
 		return fixer.removeRange([start, end + 1]);
 	}
