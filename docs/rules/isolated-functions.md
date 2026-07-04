@@ -11,18 +11,19 @@ Some functions need to be isolated from their surrounding scope due to execution
 
 Common scenarios where functions must be isolated:
 
-- Functions passed to `makeSynchronous()` (executed in worker)
+- Functions passed to `makeSynchronous()` (executed in a worker)
 - Functions passed to `workerize()`
 - Functions passed to `page.evaluate()` in Puppeteer or Playwright style code
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
 
-By default, this rule uses ESLint's language options globals and allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
+By default, this rule allows ES globals like `Array` and `Map`, and ESLint-resolved global variables from configuration or `/* global */` comments like `console` and `fetch`, in isolated functions, but prevents usage of variables from the surrounding scope.
 
 ## Examples
 
 ```js
+/* global fetch, console */
 import makeSynchronous from 'make-synchronous';
 
 const url = 'https://example.com';
@@ -109,7 +110,7 @@ Selectors must match the function node that should be treated as isolated. To is
 		{
 			selectors: [
 				'FunctionDeclaration[id.name=/lambdaHandler.*/]',
-				'CallExpression[callee.property.name=/CodemodeScript/] > :function'
+				'CallExpression[callee.property.name=/CodemodScript/] > :function'
 			]
 		}
 	]
@@ -142,9 +143,9 @@ Tagged comments also apply to object methods, object properties whose value is a
 ### overrideGlobals
 
 Type: `object`\
-Default: `undefined` (uses ESLint's language options globals)
+Default: `{}`
 
-Controls how global variables are handled. When not specified, uses ESLint's language options globals. When specified as an object, each key is a global variable name and the value controls its behavior:
+Overrides how specific global variables are handled. An empty object means no overrides; ES globals and ESLint-resolved globals from configuration or `/* global */` comments still apply. When specified as an object, each key is a global variable name and the value controls its behavior:
 
 - `'readonly'`: Global variable is allowed but cannot be written to
 - `'writable'`: Global variable is allowed and can be read/written
@@ -217,18 +218,21 @@ createLambda({
 });
 ```
 
-### Default behavior (using ESLint's language options)
+### Configured globals
 
 ```js
-// Uses ESLint's language options globals by default
+/* global console, fetch */
+
 makeSynchronous(async () => {
-	console.log('Starting...'); // ✅ Allowed if console is in language options
-	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is in language options
+	console.log('Starting...'); // ✅ Allowed if console is configured as a global
+	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is configured as a global
 	return response.text();
 });
 ```
 
-### Allowing specific globals
+### Overriding specific globals
+
+`overrideGlobals` only overrides the listed names. It does not replace ES globals or ESLint-resolved globals from configuration or `/* global */` comments.
 
 ```js
 {
@@ -246,7 +250,7 @@ makeSynchronous(async () => {
 ```
 
 ```js
-// ✅ All globals used are explicitly allowed
+// ✅ All globals used are ES globals, ESLint-resolved globals, or explicitly overridden
 makeSynchronous(async () => {
 	console.log('Starting...'); // ✅ Allowed global
 	const response = await fetch('https://api.example.com'); // ✅ Allowed global
@@ -257,7 +261,7 @@ makeSynchronous(async () => {
 makeSynchronous(async () => {
 	const response = await fetch('https://api.example.com', {
 		headers: {
-			'Authorization': `Bearer ${process.env.API_TOKEN}` // ❌ 'process' is not in allowed globals
+			'Authorization': `Bearer ${process.env.API_TOKEN}` // ❌ 'process' is not configured as an ESLint global or overrideGlobals entry
 		}
 	});
 
@@ -278,22 +282,22 @@ makeSynchronous(async () => {
 To enable a predefined set of globals, use the [`globals` package](https://npmjs.com/package/globals) similarly to how you would use it in `languageOptions` (see [ESLint docs on globals](https://eslint.org/docs/latest/use/configure/language-options#predefined-global-variables)):
 
 ```js
-import globals from 'globals'
+import globals from 'globals';
 
 export default [
 	{
+		languageOptions: {
+			globals: {
+				...globals.builtin,
+				...globals.applescript,
+				...globals.greasemonkey,
+			},
+		},
 		rules: {
 			'unicorn/isolated-functions': [
 				'error',
-				{
-					globals: {
-						...globals.builtin,
-						...globals.applescript,
-						...globals.greasemonkey,
-					},
-				},
 			],
 		},
 	},
-]
+];
 ```
