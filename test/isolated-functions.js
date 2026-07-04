@@ -103,6 +103,15 @@ test({
 			`,
 		},
 		{
+			name: 'override globals can allow writable globals',
+			options: [{overrideGlobals: {foo: 'writable'}}],
+			code: outdent`
+				makeSynchronous(function () {
+					foo = 1;
+				});
+			`,
+		},
+		{
 			name: 'typescript types are allowed to be out-of-scope',
 			languageOptions: {
 				parser: parsers.typescript,
@@ -653,6 +662,32 @@ test({
 				});
 			`,
 			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'disabled global variables from language options are disallowed',
+			languageOptions: {globals: {foo: 'off'}},
+			code: outdent`
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'override globals take precedence over ESLint comments',
+			options: [{overrideGlobals: {foo: 'readonly'}}],
+			code: outdent`
+				/* global foo:writable */
+				makeSynchronous(function () {
+					foo = 1;
+				});
+			`,
+			errors: [
+				error({
+					name: 'foo',
+					reason: 'callee of function named "makeSynchronous" (global variable is not writable)',
+				}),
+			],
 		},
 		{
 			name: 'ESLint comment globals do not allow captured module variables',

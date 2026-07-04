@@ -115,13 +115,7 @@ const create = context => {
 				return 'off';
 			}
 
-			if (
-				resolved
-				&& (
-					resolved.scope.type !== 'global'
-					|| resolved.defs.length > 0
-				)
-			) {
+			if (resolved && !sourceCode.isGlobalReference(identifier)) {
 				return;
 			}
 
