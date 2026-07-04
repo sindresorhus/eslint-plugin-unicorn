@@ -13,6 +13,8 @@ This rule simplifies `if` statements whose branches, or adjacent following `retu
 
 When the positive condition is known to produce a boolean, it is returned directly. Other positive conditions are wrapped in `Boolean(...)` to preserve the original boolean return type. Negated forms use `!condition`.
 
+This rule intentionally ignores the final condition in a consecutive series of early returns with the same boolean value. Keeping guard clauses together is usually clearer than rewriting only the last one.
+
 ## Examples
 
 ```js

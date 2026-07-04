@@ -3,6 +3,7 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getNextNode,
 	getParenthesizedText,
+	getPreviousNode,
 	isGlobalBooleanCall,
 	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
@@ -160,6 +161,13 @@ const create = context => {
 		};
 	}
 
+	function isPrecededByFlatIfReturningSameBoolean(node, returnValue) {
+		const previousNode = getPreviousNode(node, context);
+		return previousNode?.type === 'IfStatement'
+			&& !previousNode.alternate
+			&& getBooleanReturnValue(getNodeBody(previousNode.consequent)) === returnValue;
+	}
+
 	function getFlatProblem(node) {
 		const alternate = getNextNode(node, context);
 		if (
@@ -169,9 +177,18 @@ const create = context => {
 			return;
 		}
 
+		const consequent = getNodeBody(node.consequent);
+		const consequentValue = getBooleanReturnValue(consequent);
+		if (
+			consequentValue !== undefined
+			&& isPrecededByFlatIfReturningSameBoolean(node, consequentValue)
+		) {
+			return;
+		}
+
 		const problem = getProblem(
 			node,
-			getNodeBody(node.consequent),
+			consequent,
 			alternate,
 			[
 				sourceCode.getRange(node)[0],
