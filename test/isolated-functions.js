@@ -85,6 +85,24 @@ test({
 			`,
 		},
 		{
+			name: 'allow global variables from ESLint comments',
+			code: outdent`
+				/* global foo */
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+		},
+		{
+			name: 'allow writable global variables from ESLint comments',
+			code: outdent`
+				/* global foo:writable */
+				makeSynchronous(function () {
+					foo = 1;
+				});
+			`,
+		},
+		{
 			name: 'typescript types are allowed to be out-of-scope',
 			languageOptions: {
 				parser: parsers.typescript,
@@ -610,6 +628,88 @@ test({
 				});
 			`,
 			errors: [error({name: 'URL', reason: 'callee of function named "makeSynchronous"'})],
+		},
+		{
+			name: 'readonly global variables from ESLint comments cannot be written',
+			code: outdent`
+				/* global foo */
+				makeSynchronous(function () {
+					foo = 1;
+				});
+			`,
+			errors: [
+				error({
+					name: 'foo',
+					reason: 'callee of function named "makeSynchronous" (global variable is not writable)',
+				}),
+			],
+		},
+		{
+			name: 'disabled global variables from ESLint comments are disallowed',
+			code: outdent`
+				/* global foo:off */
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'ESLint comment globals do not allow captured module variables',
+			code: outdent`
+				/* global foo */
+				const foo = 'hi';
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'language option globals do not allow captured module variables',
+			languageOptions: {globals: {foo: true}},
+			code: outdent`
+				const foo = 'hi';
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'override globals do not allow captured module variables',
+			options: [{overrideGlobals: {foo: true}}],
+			code: outdent`
+				const foo = 'hi';
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'override globals do not allow captured script variables',
+			languageOptions: {sourceType: 'script'},
+			options: [{overrideGlobals: {foo: true}}],
+			code: outdent`
+				var foo = 'hi';
+				makeSynchronous(function () {
+					return foo.slice();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
+		},
+		{
+			name: 'override globals do not allow captured script functions',
+			languageOptions: {sourceType: 'script'},
+			options: [{overrideGlobals: {foo: true}}],
+			code: outdent`
+				function foo() {}
+				makeSynchronous(function () {
+					return foo();
+				});
+			`,
+			errors: [fooInMakeSynchronousError],
 		},
 		{
 			name: 'inherited object properties are not treated as globals',

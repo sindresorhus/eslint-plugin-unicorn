@@ -98,12 +98,56 @@ const create = context => {
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
-	const allowedGlobals = {
+	const configuredGlobals = {
 		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtins),
 		...context.languageOptions.globals,
-		...options.overrideGlobals,
 	};
 	const checked = new WeakSet();
+
+	const getAllowedGlobalValue = reference => {
+		const {identifier, resolved} = reference;
+		const {name} = identifier;
+
+		if (Object.hasOwn(options.overrideGlobals, name)) {
+			const overrideGlobalValue = options.overrideGlobals[name];
+
+			if (overrideGlobalValue === 'off') {
+				return 'off';
+			}
+
+			if (
+				resolved
+				&& (
+					resolved.scope.type !== 'global'
+					|| resolved.defs.length > 0
+				)
+			) {
+				return;
+			}
+
+			return overrideGlobalValue;
+		}
+
+		if (
+			Object.hasOwn(configuredGlobals, name)
+			&& configuredGlobals[name] === 'off'
+		) {
+			return 'off';
+		}
+
+		if (!sourceCode.isGlobalReference(identifier)) {
+			return;
+		}
+
+		if (
+			!Object.hasOwn(configuredGlobals, name)
+			&& !resolved?.eslintExplicitGlobal
+		) {
+			return;
+		}
+
+		return resolved?.writeable ? 'writable' : 'readonly';
+	};
 
 	function * getFunctionContextProblems(node, reason, root = node) {
 		const messageId = functionContextReferenceMessageIds.get(node.type);
@@ -173,18 +217,20 @@ const create = context => {
 				continue;
 			}
 
-			if (Object.hasOwn(allowedGlobals, identifier.name) && allowedGlobals[identifier.name] !== 'off') {
+			const allowedGlobalValue = getAllowedGlobalValue(reference);
+			let problemReason = reason;
+
+			if (allowedGlobalValue !== undefined && allowedGlobalValue !== 'off') {
 				if (reference.isReadOnly()) {
 					continue;
 				}
 
-				const globalsValue = allowedGlobals[identifier.name];
-				const isGlobalWritable = [true, 'writable', 'writeable'].includes(globalsValue);
+				const isGlobalWritable = [true, 'writable', 'writeable'].includes(allowedGlobalValue);
 				if (isGlobalWritable) {
 					continue;
 				}
 
-				reason += ' (global variable is not writable)';
+				problemReason += ' (global variable is not writable)';
 			}
 
 			// Could consider checking for typeof operator here, like in no-undef?
@@ -192,7 +238,7 @@ const create = context => {
 			context.report({
 				node: identifier,
 				messageId: MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE,
-				data: {name: identifier.name, reason},
+				data: {name: identifier.name, reason: problemReason},
 			});
 		}
 

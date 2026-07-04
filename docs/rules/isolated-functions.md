@@ -18,7 +18,7 @@ Common scenarios where functions must be isolated:
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
 
-By default, this rule uses ESLint's language options globals and allows global variables (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
+By default, this rule allows ESLint-resolved global variables from configuration or `/* global */` comments (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
 
 ## Examples
 
@@ -142,9 +142,9 @@ Tagged comments also apply to object methods, object properties whose value is a
 ### overrideGlobals
 
 Type: `object`\
-Default: `undefined` (uses ESLint's language options globals)
+Default: `undefined` (uses ESLint-resolved globals from configuration or `/* global */` comments)
 
-Controls how global variables are handled. When not specified, uses ESLint's language options globals. When specified as an object, each key is a global variable name and the value controls its behavior:
+Controls how global variables are handled. When not specified, uses ESLint-resolved globals from configuration or `/* global */` comments. When specified as an object, each key is a global variable name and the value controls its behavior:
 
 - `'readonly'`: Global variable is allowed but cannot be written to
 - `'writable'`: Global variable is allowed and can be read/written
@@ -217,13 +217,13 @@ createLambda({
 });
 ```
 
-### Default behavior (using ESLint's language options)
+### Default behavior (using ESLint-resolved globals)
 
 ```js
-// Uses ESLint's language options globals by default
+// Uses ESLint-resolved globals by default
 makeSynchronous(async () => {
-	console.log('Starting...'); // ✅ Allowed if console is in language options
-	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is in language options
+	console.log('Starting...'); // ✅ Allowed if console is configured as a global
+	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is configured as a global
 	return response.text();
 });
 ```
@@ -278,22 +278,22 @@ makeSynchronous(async () => {
 To enable a predefined set of globals, use the [`globals` package](https://npmjs.com/package/globals) similarly to how you would use it in `languageOptions` (see [ESLint docs on globals](https://eslint.org/docs/latest/use/configure/language-options#predefined-global-variables)):
 
 ```js
-import globals from 'globals'
+import globals from 'globals';
 
 export default [
 	{
+		languageOptions: {
+			globals: {
+				...globals.builtin,
+				...globals.applescript,
+				...globals.greasemonkey,
+			},
+		},
 		rules: {
 			'unicorn/isolated-functions': [
 				'error',
-				{
-					globals: {
-						...globals.builtin,
-						...globals.applescript,
-						...globals.greasemonkey,
-					},
-				},
 			],
 		},
 	},
-]
+];
 ```
