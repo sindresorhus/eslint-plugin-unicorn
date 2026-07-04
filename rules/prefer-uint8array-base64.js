@@ -152,7 +152,9 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `Uint8Array#toBase64()` and `Uint8Array.fromBase64()` over `atob()`, `btoa()`, and `Buffer` base64 conversions.',
-			recommended: 'unopinionated',
+			// eslint-disable-next-line no-warning-comments
+			// TODO: Enable in the `recommended` and `unopinionated` configs when targeting Node.js 26.
+			recommended: false,
 		},
 		hasSuggestions: true,
 		messages,
