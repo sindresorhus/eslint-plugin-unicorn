@@ -53,7 +53,7 @@ test({
 			`,
 		},
 		{
-			name: 'default global variables come from language options',
+			name: 'default configured globals are allowed',
 			code: 'makeSynchronous(() => process.env.MAP ? new Map() : new URL("https://example.com"))',
 		},
 		{
@@ -97,6 +97,15 @@ test({
 			name: 'allow writable global variables from ESLint comments',
 			code: outdent`
 				/* global foo:writable */
+				makeSynchronous(function () {
+					foo = 1;
+				});
+			`,
+		},
+		{
+			name: 'allow writable global variables from language options',
+			languageOptions: {globals: {foo: 'writable'}},
+			code: outdent`
 				makeSynchronous(function () {
 					foo = 1;
 				});
@@ -656,22 +665,22 @@ test({
 		{
 			name: 'disabled global variables from ESLint comments are disallowed',
 			code: outdent`
-				/* global foo:off */
+				/* global Array:off */
 				makeSynchronous(function () {
-					return foo.slice();
+					return new Array();
 				});
 			`,
-			errors: [fooInMakeSynchronousError],
+			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
 		},
 		{
 			name: 'disabled global variables from language options are disallowed',
-			languageOptions: {globals: {foo: 'off'}},
+			languageOptions: {globals: {Array: 'off'}},
 			code: outdent`
 				makeSynchronous(function () {
-					return foo.slice();
+					return new Array();
 				});
 			`,
-			errors: [fooInMakeSynchronousError],
+			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
 		},
 		{
 			name: 'override globals take precedence over ESLint comments',

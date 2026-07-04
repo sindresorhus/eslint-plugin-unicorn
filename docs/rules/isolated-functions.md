@@ -11,18 +11,19 @@ Some functions need to be isolated from their surrounding scope due to execution
 
 Common scenarios where functions must be isolated:
 
-- Functions passed to `makeSynchronous()` (executed in worker)
+- Functions passed to `makeSynchronous()` (executed in a worker)
 - Functions passed to `workerize()`
 - Functions passed to `page.evaluate()` in Puppeteer or Playwright style code
 - Functions that will be serialized via `Function.prototype.toString()`
 - Server actions or other remote execution contexts
 - Functions with specific JSDoc annotations
 
-By default, this rule allows ES globals and ESLint-resolved global variables from configuration or `/* global */` comments (like `console`, `fetch`, etc.) in isolated functions, but prevents usage of variables from the surrounding scope.
+By default, this rule allows ES globals like `Array` and `Map`, and ESLint-resolved global variables from configuration or `/* global */` comments like `console` and `fetch`, in isolated functions, but prevents usage of variables from the surrounding scope.
 
 ## Examples
 
 ```js
+/* global fetch, console */
 import makeSynchronous from 'make-synchronous';
 
 const url = 'https://example.com';
@@ -109,7 +110,7 @@ Selectors must match the function node that should be treated as isolated. To is
 		{
 			selectors: [
 				'FunctionDeclaration[id.name=/lambdaHandler.*/]',
-				'CallExpression[callee.property.name=/CodemodeScript/] > :function'
+				'CallExpression[callee.property.name=/CodemodScript/] > :function'
 			]
 		}
 	]
@@ -146,8 +147,8 @@ Default: `{}`
 
 Overrides how specific global variables are handled. An empty object means no overrides; ES globals and ESLint-resolved globals from configuration or `/* global */` comments still apply. When specified as an object, each key is a global variable name and the value controls its behavior:
 
-- `false` or `'readonly'`: Global variable is allowed but cannot be written to
-- `true`, `'writable'`, or `'writeable'`: Global variable is allowed and can be read/written
+- `'readonly'`: Global variable is allowed but cannot be written to
+- `'writable'`: Global variable is allowed and can be read/written
 - `'off'`: Global variable is not allowed
 
 ```js
@@ -217,10 +218,11 @@ createLambda({
 });
 ```
 
-### Default behavior
+### Configured globals
 
 ```js
-// Uses ES globals and ESLint-resolved globals by default
+/* global console, fetch */
+
 makeSynchronous(async () => {
 	console.log('Starting...'); // ✅ Allowed if console is configured as a global
 	const response = await fetch('https://api.example.com'); // ✅ Allowed if fetch is configured as a global
@@ -248,7 +250,7 @@ makeSynchronous(async () => {
 ```
 
 ```js
-// ✅ All globals used are either default globals or explicitly overridden
+// ✅ All globals used are ES globals, ESLint-resolved globals, or explicitly overridden
 makeSynchronous(async () => {
 	console.log('Starting...'); // ✅ Allowed global
 	const response = await fetch('https://api.example.com'); // ✅ Allowed global
