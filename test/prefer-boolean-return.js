@@ -20,6 +20,10 @@ test({
 		'function unicorn() { if (test) { return; } return false; }',
 		'function unicorn() { if (a ? b : c) { return true; } return false; }',
 		'function unicorn() { if (test) { return true; } else { return true; } }',
+		'function unicorn() { if (a) { return false; } if (b) { return false; } return true; }',
+		'function unicorn() { if (a) { return false; } if (b) { return false; } if (c) { return false; } return true; }',
+		'function unicorn() { if (a) { return true; } if (b) { return true; } return false; }',
+		'function unicorn() { if (a) return false; if (b) return false; return true; }',
 	],
 	invalid: [
 		invalidCase('function unicorn() { if(test){ return true; } else{ return false; } }', 'function unicorn() { return Boolean(test); }'),
@@ -70,6 +74,7 @@ test({
 		invalidCase('function unicorn(Boolean) { if (test) { return true; } return false; }'),
 		invalidCase('function unicorn(Boolean) { if (test) { return false; } return true; }', 'function unicorn(Boolean) { return !test; }'),
 		invalidCase('function unicorn(Boolean) { if (value > 0) { return true; } return false; }', 'function unicorn(Boolean) { return value > 0; }'),
+		invalidCase('function unicorn() { if (a) { return false; } if (b) { return true; } return false; }', 'function unicorn() { if (a) { return false; } return Boolean(b); }'),
 		{
 			code: outdent`
 				function unicorn() {
