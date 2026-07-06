@@ -102,7 +102,7 @@ const typeScriptExpressionWrapperTypes = new Set([
 const isUpperCase = string => string === string.toUpperCase();
 const stripLeadingUnderscores = name => name.replace(/^_+/, '');
 const isScreamingCase = name => /^[A-Z][\dA-Z_]*$/.test(stripLeadingUnderscores(name));
-const hasReactRefSuffix = name => /(?:Ref|Reference)$/.test(stripLeadingUnderscores(name));
+const hasReactReferenceSuffix = name => /(?:Ref|Reference)$/.test(stripLeadingUnderscores(name));
 
 const isFunction = node => [
 	'ArrowFunctionExpression',
@@ -336,7 +336,7 @@ function getNameForPrefixCheck(variable, context) {
 	return isScreamingCase(hookName) ? hookName : lowerFirst(hookName);
 }
 
-function isReactUseRefCall(node) {
+function isReactUseReferenceCall(node) {
 	if (node?.type !== 'CallExpression') {
 		return false;
 	}
@@ -355,13 +355,13 @@ function isReactUseRefCall(node) {
 		&& callee.property.name === 'useRef';
 }
 
-function isBooleanReactRefVariable(variable, context) {
+function isBooleanReactReferenceVariable(variable, context) {
 	const definition = getSupportedVariableDefinition(variable);
 
 	return definition?.type === 'Variable'
 		&& !hasWriteAfterInitialization(variable)
-		&& hasReactRefSuffix(variable.name)
-		&& isReactUseRefCall(definition.node.init)
+		&& hasReactReferenceSuffix(variable.name)
+		&& isReactUseReferenceCall(definition.node.init)
 		&& getExpressionBooleanState(definition.node.init.arguments[0], context) === boolean;
 }
 
@@ -1097,7 +1097,7 @@ const create = context => {
 		if (booleanPrefix) {
 			if (
 				getVariableBooleanState(variable, context) === nonBoolean
-				&& !isBooleanReactRefVariable(variable, context)
+				&& !isBooleanReactReferenceVariable(variable, context)
 			) {
 				const [definition] = variable.defs;
 
