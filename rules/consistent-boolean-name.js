@@ -697,6 +697,7 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	// Only actual async function implementations and their overload signatures get `Promise<T>` unwrapped as a predicate return. Promise-valued variables and unrelated type-only callable signatures stay outside this boundary.
 	const stateFromPromisedReturnType = isAsync
 		? getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
 		: unknown;
