@@ -109,6 +109,18 @@ test({
 				},
 			],
 		}),
+		typeAware({
+			code: 'declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef("no");',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function useRef<T>(value: T): {current: T}; const hasConsent = useRef(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function useRef<T>(value: T): {current: T}; let hasConsentRef = useRef(false); hasConsentRef = "yes";',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		{
 			code: 'function useReady() { return true; }',
 			options: [onlyIsPrefixOptions],
@@ -597,6 +609,10 @@ test.snapshot({
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
+		'const consentRef = useRef(false);',
+		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef(false);'),
+		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),
+		typeAware('declare const React: {useRef<T>(value: T): {current: T}}; const isMountedRef = React.useRef(false);'),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
 		typescript('const useIsReady = () => true;'),

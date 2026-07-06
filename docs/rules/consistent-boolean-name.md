@@ -37,6 +37,8 @@ The prefix must be a distinct word part. `isReady`, `is_ready`, and `IS_READY` a
 
 React hook function bindings are checked after the required `use` prefix. For example, `useIsReady` is treated as a boolean hook name, while `useReady` is not. `ignore` patterns still match the original source name, like `useReady`.
 
+React refs initialized with a boolean value may use boolean prefixes when the binding name ends in `Ref` or `Reference`, such as `isMountedRef`, `hasConsentRef`, or `hasConsentReference`. The suffix identifies the binding as a ref object.
+
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, but not qualified or namespaced type references.
