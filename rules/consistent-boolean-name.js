@@ -81,6 +81,7 @@ const unknownTypeAnnotationTypes = new Set([
 	'TSNeverKeyword',
 	'TSUnknownKeyword',
 ]);
+const promiseTypeNames = new Set(['Promise', 'PromiseLike']);
 const nonBooleanExpressionTypes = new Set([
 	'ArrayExpression',
 	'ObjectExpression',
@@ -593,18 +594,73 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 	return getSimpleTypeAnnotationBooleanState(node);
 }
 
+function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) {
+	const normalizedTypeState = getTypeState(typeState);
+
+	if (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		return getPromisedTypeAnnotationBooleanState(node.typeAnnotation, context, scope, normalizedTypeState);
+	}
+
+	const typeArguments = node?.typeArguments?.params ?? node?.typeParameters?.params;
+	if (
+		node?.type !== 'TSTypeReference'
+		|| !promiseTypeNames.has(getTypeReferenceName(node.typeName))
+		|| typeArguments?.length !== 1
+	) {
+		return unknown;
+	}
+
+	return getTypeAnnotationBooleanState(typeArguments[0], context, scope, normalizedTypeState);
+}
+
+function getPromisedTypeBooleanState(type, checker) {
+	const promisedType = checker.getPromisedTypeOfPromise(type);
+	return promisedType ? getTypeBooleanState(promisedType, checker, new Set(), false) : unknown;
+}
+
+function getAsyncFunctionTypeInformationBooleanState(node, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return unknown;
+	}
+
+	try {
+		const checker = parserServices.program.getTypeChecker();
+		const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(node);
+		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
+		if (signature) {
+			return getPromisedTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker);
+		}
+
+		return combineBooleanStates(
+			parserServices.getTypeAtLocation(node)
+				.getCallSignatures()
+				.map(signature => getPromisedTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker)),
+		);
+	} catch {
+		return unknown;
+	}
+}
+
 function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
-	if (node.async || node.generator) {
+	if (node.generator) {
 		return nonBoolean;
 	}
 
-	const stateFromTypeInformation = getTypeInformationBooleanState(node, context);
+	const stateFromTypeInformation = node.async
+		? getAsyncFunctionTypeInformationBooleanState(node, context)
+		: getTypeInformationBooleanState(node, context);
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	const stateFromReturnType = node.async
+		? getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
+		: getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
 	if (stateFromReturnType !== unknown) {
 		return stateFromReturnType;
 	}
