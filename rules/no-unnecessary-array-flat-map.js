@@ -5,6 +5,7 @@ import {
 	isKnownNonArray,
 	isParenthesized,
 	isSameIdentifier,
+	isTypeScriptFile,
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -191,6 +192,10 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 }
 
 function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context) {
+	if (isTypeScriptFile(context.physicalFilename)) {
+		return;
+	}
+
 	const method = isSameIdentifier(callbackResult.element, callback.params[0]) ? 'filter' : 'filter().map';
 	const problem = {
 		node: flatMapCallExpression.callee.property,
