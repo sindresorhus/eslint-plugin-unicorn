@@ -4,6 +4,12 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const typescript = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {parser: parsers.typescript},
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -48,6 +54,23 @@ test.snapshot({
 			declare const collection: Collection;
 			collection.filter(value => value.length > 0).flatMap(value => [value]);
 		`),
+		typescript(outdent`
+			type RecordType = 'a' | 'b';
+			type Record = {_id: string; type?: RecordType};
+			declare const records: Record[];
+			declare const newIds: string[];
+			const types = new Set(records.flatMap(record => newIds.includes(record._id) && record.type ? [record.type] : []));
+		`),
+		typescript('function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); }'),
+		typescript('declare const array: Array<string | undefined>; array.flatMap(value => value ? [value] : []);'),
+		typescript(outdent`
+			type Record = {type?: string};
+			declare const records: Record[];
+			records.flatMap(record => record.type ? [{type: record.type}] : []);
+		`),
+		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); }'),
+		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value!] : []); }'),
+		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value satisfies string] : []); }'),
 	],
 	invalid: [
 		'array.flatMap(value => [value]);',
@@ -114,23 +137,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
 			code: 'array.flatMap<string>(value => [value]);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value!] : []); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value satisfies string] : []); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare const array: string[]; array.flatMap(value => [value]);'),

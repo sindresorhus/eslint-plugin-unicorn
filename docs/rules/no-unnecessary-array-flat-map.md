@@ -13,6 +13,8 @@
 
 This rule currently checks simple arrow callbacks that return either a one-item array or `condition ? [item] : []`. More complex callback bodies are intentionally ignored.
 
+In TypeScript files, conditional callbacks like `value ? [value] : []` are ignored because rewriting them to `.filter()` or `.filter().map()` can lose TypeScript control-flow narrowing and change the inferred type. Direct one-item callbacks like `value => [value.id]` are still reported.
+
 ## Examples
 
 ```js
