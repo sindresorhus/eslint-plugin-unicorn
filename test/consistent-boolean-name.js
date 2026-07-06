@@ -609,7 +609,7 @@ test.snapshot({
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
-		'const consentRef = useRef(false);',
+		typeAware('declare function useRef<T>(value: T): {current: T}; const consentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),
 		typeAware('declare const React: {useRef<T>(value: T): {current: T}}; const isMountedRef = React.useRef(false);'),
