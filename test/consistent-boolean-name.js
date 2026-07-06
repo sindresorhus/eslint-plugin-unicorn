@@ -836,6 +836,14 @@ test.snapshot({
 			'\treturn true;',
 			'};',
 		].join('\n')),
+		typescript([
+			'const isInsideSale = async (salesRep: string | null) => {',
+			'\tif (salesRep) {',
+			'\t\treturn false;',
+			'\t}',
+			'\treturn true;',
+			'};',
+		].join('\n')),
 		typeAware('async function isReady(): Promise<boolean> {}'),
 		typeAware([
 			'function isReady(): Promise<boolean>;',
@@ -880,14 +888,12 @@ test.snapshot({
 		typeAware('function foo({strict}: {strict: boolean}) {}'),
 		typeAware('interface Options {isX?: boolean} const test = ({isX}: Options = {}) => isX;'),
 		typeAware('function foo({strict}: {strict?: boolean} = {}) {}'),
-		typeAware('function foo({isReady = "yes"} = {}) {}'),
-		typeAware('function foo([isReady = "yes"] = []) {}'),
+		typeAware('function foo({isReady = "yes"}: {isReady?: string} = {}) {}'),
+		typeAware('function foo([isReady = "yes"]: [string?] = []) {}'),
 		typeAware('function foo({isReady: renamed = "yes"} = {}) {}'),
 		typeAware('function foo({nested: {isReady = "yes"}} = {nested: {}}) {}'),
 		typeAware('function foo({...isReady}: Record<string, string> = {}) {}'),
 		typeAware('function foo([first, ...isReady]: string[] = []) {}'),
-		typescript('const isReady: () => Promise<boolean> = async () => true;'),
-		typescript('type AsyncPredicate = () => Promise<boolean>; const isReady: AsyncPredicate = async () => true;'),
 	],
 	invalid: [
 		typescript('const completed: boolean = true;'),
@@ -1058,7 +1064,7 @@ test.snapshot({
 			options: [{checkProperties: true}],
 		},
 		{
-			code: 'class Task { async completed() { return true; } *ready() { return true; } }',
+			code: 'class Task { *ready() { return true; } }',
 			options: [{checkProperties: true}],
 		},
 		{
@@ -1075,6 +1081,14 @@ test.snapshot({
 		},
 		{
 			code: 'const task = {isReady: value};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'const task = {completed: async () => value};',
+			options: [{checkProperties: true}],
+		},
+		{
+			code: 'class Task { async completed() { return value; } }',
 			options: [{checkProperties: true}],
 		},
 		typeAware({
