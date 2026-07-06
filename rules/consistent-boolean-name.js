@@ -81,7 +81,7 @@ const unknownTypeAnnotationTypes = new Set([
 	'TSNeverKeyword',
 	'TSUnknownKeyword',
 ]);
-const promiseTypeNames = new Set(['Promise', 'PromiseLike']);
+const promiseValueTypeNames = new Set(['Promise', 'PromiseLike']);
 const nonBooleanExpressionTypes = new Set([
 	'ArrayExpression',
 	'ObjectExpression',
@@ -302,6 +302,14 @@ function getFunctionDefinitions(variable) {
 	return overloadDefinitions.length > 0 ? overloadDefinitions : variable.defs;
 }
 
+function hasAsyncFunctionImplementation(definitions) {
+	return definitions.some(definition => isFunction(definition.node) && definition.node.async);
+}
+
+function hasGeneratorFunctionImplementation(definitions) {
+	return definitions.some(definition => isFunction(definition.node) && definition.node.generator);
+}
+
 function isReactHookFunctionBinding(variable, context) {
 	if (
 		variable.name === 'use'
@@ -478,6 +486,8 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
+const getTypeArguments = node => node?.typeArguments?.params ?? node?.typeParameters?.params;
+
 const getTypeState = typeState => ({
 	visitedTypeReferenceNames: new Set(),
 	functionTypesAreBoolean: true,
@@ -514,7 +524,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 		const definitionScope = context.sourceCode.getScope(definition.node);
 
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
-			result = getTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, normalizedTypeState);
+			result = getDirectTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, normalizedTypeState);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
 			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, normalizedTypeState);
 		}
@@ -604,16 +614,47 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 		return getPromisedTypeAnnotationBooleanState(node.typeAnnotation, context, scope, normalizedTypeState);
 	}
 
-	const typeArguments = node?.typeArguments?.params ?? node?.typeParameters?.params;
+	const typeArguments = getTypeArguments(node);
 	if (
 		node?.type !== 'TSTypeReference'
-		|| !promiseTypeNames.has(getTypeReferenceName(node.typeName))
+		|| getTypeReferenceName(node.typeName) !== 'Promise'
 		|| typeArguments?.length !== 1
 	) {
 		return unknown;
 	}
 
 	return getTypeAnnotationBooleanState(typeArguments[0], context, scope, normalizedTypeState);
+}
+
+function isGlobalTypeReferenceName(name, scope) {
+	return (resolveVariableName(name, scope)?.defs ?? []).every(definition => definition.type !== 'Type');
+}
+
+function isGlobalPromiseTypeReference(node, scope) {
+	if (node?.type !== 'TSTypeReference') {
+		return false;
+	}
+
+	const typeName = getTypeReferenceName(node.typeName);
+	return promiseValueTypeNames.has(typeName)
+		&& getTypeArguments(node)?.length === 1
+		&& isGlobalTypeReferenceName(typeName, scope);
+}
+
+function isGlobalPromiseTypeAnnotation(node, scope) {
+	if (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		return isGlobalPromiseTypeAnnotation(node.typeAnnotation, scope);
+	}
+
+	if (node?.type === 'TSUnionType') {
+		const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
+		return types.length > 0 && types.every(type => isGlobalPromiseTypeAnnotation(type, scope));
+	}
+
+	return isGlobalPromiseTypeReference(node, scope);
 }
 
 function getPromisedTypeBooleanState(type, checker) {
@@ -645,12 +686,12 @@ function getAsyncFunctionTypeInformationBooleanState(node, context) {
 	}
 }
 
-function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
+function getFunctionBooleanState(node, context, visitedVariables = new Set(), isAsync = node.async) {
 	if (node.generator) {
 		return nonBoolean;
 	}
 
-	const stateFromTypeInformation = node.async
+	const stateFromTypeInformation = isAsync
 		? getAsyncFunctionTypeInformationBooleanState(node, context)
 		: getTypeInformationBooleanState(node, context);
 	if (stateFromTypeInformation !== unknown) {
@@ -658,7 +699,7 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const stateFromReturnType = node.async
+	const stateFromReturnType = isAsync
 		? getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false})
 		: getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
 	if (stateFromReturnType !== unknown) {
@@ -781,7 +822,7 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(node.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
+	const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
 	if (stateFromTypeAnnotation !== unknown) {
 		return stateFromTypeAnnotation;
 	}
@@ -860,9 +901,17 @@ function getParameterBooleanState(definition, context, visitedVariables, functio
 		: unknown;
 }
 
+function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
+	if (isGlobalPromiseTypeAnnotation(node, scope)) {
+		return nonBoolean;
+	}
+
+	return getTypeAnnotationBooleanState(node, context, scope, typeState);
+}
+
 function getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean) {
 	const scope = context.sourceCode.getScope(definition.name);
-	const stateFromTypeAnnotation = getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
+	const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(definition.name.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
 	if (stateFromTypeAnnotation !== unknown) {
 		return stateFromTypeAnnotation;
 	}
@@ -905,7 +954,14 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 	if (functionDefinitions && !functionValuesAreBoolean) {
 		result = nonBoolean;
 	} else if (functionDefinitions) {
-		result = combineBooleanStates(functionDefinitions.map(definition => getFunctionBooleanState(definition.node, context, visitedVariables)));
+		if (hasGeneratorFunctionImplementation(variable.defs)) {
+			result = nonBoolean;
+		} else {
+			const hasAsyncImplementation = hasAsyncFunctionImplementation(variable.defs);
+			result = combineBooleanStates(functionDefinitions.map(definition =>
+				getFunctionBooleanState(definition.node, context, visitedVariables, hasAsyncImplementation || definition.node.async),
+			));
+		}
 	} else {
 		result = getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean);
 	}
@@ -1022,7 +1078,7 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (propertyDefinitionTypes.has(node.type)) {
 		const scope = sourceCode.getScope(node);
-		const stateFromTypeAnnotation = getTypeAnnotationBooleanState(node.typeAnnotation, context, scope);
+		const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope);
 
 		return stateFromTypeAnnotation === unknown
 			? getExpressionBooleanState(node.value, context)
@@ -1030,7 +1086,7 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	if (node.type === 'TSPropertySignature') {
-		return getTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node));
+		return getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node));
 	}
 
 	if (node.type === 'TSMethodSignature') {
