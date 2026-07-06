@@ -102,6 +102,7 @@ const typeScriptExpressionWrapperTypes = new Set([
 const isUpperCase = string => string === string.toUpperCase();
 const stripLeadingUnderscores = name => name.replace(/^_+/, '');
 const isScreamingCase = name => /^[A-Z][\dA-Z_]*$/.test(stripLeadingUnderscores(name));
+const hasReactReferenceSuffix = name => /(?:Ref|Reference)$/.test(stripLeadingUnderscores(name));
 
 const isFunction = node => [
 	'ArrowFunctionExpression',
@@ -256,6 +257,9 @@ const isDestructuredVariable = variable =>
 	variable.defs.length > 0
 	&& variable.defs.every(definition => isDestructuredDefinition(definition));
 
+const hasWriteAfterInitialization = variable =>
+	variable.references.some(reference => !reference.init && reference.isWrite());
+
 const isBooleanFunctionDefinition = (definition, context) =>
 	definition.type === 'FunctionName'
 	&& isFunction(definition.node)
@@ -330,6 +334,35 @@ function getNameForPrefixCheck(variable, context) {
 	const hookName = variable.name.slice(3);
 
 	return isScreamingCase(hookName) ? hookName : lowerFirst(hookName);
+}
+
+function isReactUseReferenceCall(node) {
+	if (node?.type !== 'CallExpression') {
+		return false;
+	}
+
+	const {callee} = node;
+	if (callee.type === 'Identifier') {
+		return callee.name === 'useRef';
+	}
+
+	return callee.type === 'MemberExpression'
+		&& !callee.computed
+		&& !callee.optional
+		&& callee.object.type === 'Identifier'
+		&& callee.object.name === 'React'
+		&& callee.property.type === 'Identifier'
+		&& callee.property.name === 'useRef';
+}
+
+function isBooleanReactReferenceVariable(variable, context) {
+	const definition = getSupportedVariableDefinition(variable);
+
+	return definition?.type === 'Variable'
+		&& !hasWriteAfterInitialization(variable)
+		&& hasReactReferenceSuffix(variable.name)
+		&& isReactUseReferenceCall(definition.node.init)
+		&& getExpressionBooleanState(definition.node.init.arguments[0], context) === boolean;
 }
 
 function combineBooleanStates(states) {
@@ -1062,7 +1095,10 @@ const create = context => {
 		const nameForPrefixCheck = getNameForPrefixCheck(variable, context);
 		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
 		if (booleanPrefix) {
-			if (getVariableBooleanState(variable, context) === nonBoolean) {
+			if (
+				getVariableBooleanState(variable, context) === nonBoolean
+				&& !isBooleanReactReferenceVariable(variable, context)
+			) {
 				const [definition] = variable.defs;
 
 				context.report({
