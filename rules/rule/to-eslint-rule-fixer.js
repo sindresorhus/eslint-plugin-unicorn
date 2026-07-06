@@ -26,7 +26,7 @@ Convert Unicorn style fix function to ESLint style fix function
 @param {UnicornRuleFixer} fix
 @returns {ESLint.Rule.RuleFixer}
 */
-function toEslintRuleFixer(fix) {
+export default function toEslintRuleFixer(fix) {
 	/** @param {UnicornReportFixer} fixer */
 	return fixer => {
 		const unicornReport = fix(fixer, fixOptions);
@@ -45,5 +45,3 @@ function toEslintRuleFixer(fix) {
 		}
 	};
 }
-
-export default toEslintRuleFixer;

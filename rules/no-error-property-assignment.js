@@ -142,7 +142,7 @@ const getLocalUpdateFrame = knownErrorVariableFrames =>
 	?? knownErrorVariableFrames.at(-1);
 
 const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, constructorName) => {
-	let crossesFunctionBoundary = false;
+	let isCrossesFunctionBoundary = false;
 
 	for (const frame of knownErrorVariableFrames.toReversed()) {
 		if (frame.knownErrorVariables.has(variable)) {
@@ -151,7 +151,7 @@ const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, co
 				return true;
 			}
 
-			if (!crossesFunctionBoundary) {
+			if (!isCrossesFunctionBoundary) {
 				frame.knownErrorVariables.set(variable, undefined);
 			}
 
@@ -160,7 +160,7 @@ const updateExistingKnownErrorVariable = (knownErrorVariableFrames, variable, co
 		}
 
 		if (frame.isFunctionBoundary) {
-			crossesFunctionBoundary = true;
+			isCrossesFunctionBoundary = true;
 		}
 	}
 

@@ -346,7 +346,7 @@ const pathTerminatorCharacters = '"\'`<>';
 const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
 const domainLeadingPunctuation = '([{<';
 const domainTrailingPunctuation = '.,;:!?)]}>';
-const maskCharacter = '\uFFFF';
+const maskCharacter = '\u{FFFF}';
 const openBrackets = '([{';
 const closeBrackets = ')]}';
 const quoteCharacters = '"\'`';
@@ -1062,14 +1062,14 @@ const create = context => {
 		return;
 	}
 
-	let checked = false;
+	let isChecked = false;
 
 	onRoot(context, function * (node) {
-		if (checked) {
+		if (isChecked) {
 			return;
 		}
 
-		checked = true;
+		isChecked = true;
 
 		const {sourceCode} = context;
 		const comments = getRuleComments(context);

@@ -1,4 +1,4 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import isIdentifier from 'is-identifier';
 import {findVariable} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {isMethodCall, isUndefined} from './ast/index.js';
@@ -22,11 +22,6 @@ const ERROR_WITH_NAME_MESSAGE_ID = 'error-with-name';
 const ERROR_WITHOUT_NAME_MESSAGE_ID = 'error-without-name';
 const REPLACE_WITH_NAME_MESSAGE_ID = 'replace-with-name';
 const REPLACE_WITHOUT_NAME_MESSAGE_ID = 'replace-without-name';
-const {
-	isIdentifierName,
-	isKeyword,
-	isStrictBindReservedWord,
-} = helperValidatorIdentifier;
 const messages = {
 	[ERROR_WITH_NAME_MESSAGE_ID]: 'Do not pass function `{{name}}` directly to `.{{method}}(…)`.',
 	[ERROR_WITHOUT_NAME_MESSAGE_ID]: 'Do not pass function directly to `.{{method}}(…)`.',
@@ -301,10 +296,7 @@ function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set(
 		: false;
 }
 
-const isValidParameterName = name =>
-	isIdentifierName(name)
-	&& !isKeyword(name)
-	&& !isStrictBindReservedWord(name, true);
+const isValidParameterName = isIdentifier;
 
 function getSuggestionParameters(callExpression, callback, parameters) {
 	if (callback.type !== 'Identifier') {

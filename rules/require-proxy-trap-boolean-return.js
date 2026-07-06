@@ -277,8 +277,8 @@ const create = context => {
 			return;
 		}
 
-		const allUnreachable = [...currentSegments()].every(segment => !segment.reachable);
-		functionBodyAlwaysExits.set(body.parent, allUnreachable);
+		const isAllUnreachable = [...currentSegments()].every(segment => !segment.reachable);
+		functionBodyAlwaysExits.set(body.parent, isAllUnreachable);
 	});
 
 	function * checkCallOrNewExpression(node) {

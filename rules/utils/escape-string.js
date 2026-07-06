@@ -1,4 +1,4 @@
-import jsesc from 'jsesc';
+import quoteJsString from 'quote-js-string';
 
 /**
 Escape string and wrap the result in quotes.
@@ -14,11 +14,5 @@ export default function escapeString(string, quote = '\'') {
 	}
 	/* c8 ignore end */
 
-	return jsesc(string, {
-		quotes: quote === '"' ? 'double' : 'single',
-		wrap: true,
-		es6: true,
-		minimal: true,
-		lowercaseHex: false,
-	});
+	return quoteJsString(string, quote);
 }

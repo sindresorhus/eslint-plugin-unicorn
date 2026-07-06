@@ -1,7 +1,7 @@
 import {isUnknownType} from './types.js';
 
 // Best-effort check whether a TypeScript type is a promise. Returns `true`/`false` when known, `undefined` when indeterminate.
-function isPromiseType(type, checker) {
+export default function isPromiseType(type, checker) {
 	type = checker.getNonNullableType(type);
 
 	if (isUnknownType(type)) {
@@ -24,5 +24,3 @@ function isPromiseType(type, checker) {
 
 	return checker.getPromisedTypeOfPromise(type) !== undefined;
 }
-
-export default isPromiseType;

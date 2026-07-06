@@ -15,7 +15,7 @@ E.g., `if (a) {}` then the `(`.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {OpeningParenthesisToken | void} The left parenthesis of the parent node syntax
 */
-function getParentSyntaxOpeningParenthesis(node, context) {
+export default function getParentSyntaxOpeningParenthesis(node, context) {
 	const {parent} = node;
 
 	switch (parent.type) {
@@ -76,5 +76,3 @@ function getParentSyntaxOpeningParenthesis(node, context) {
 		// No default
 	}
 }
-
-export default getParentSyntaxOpeningParenthesis;

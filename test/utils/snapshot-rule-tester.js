@@ -161,7 +161,7 @@ function verify(code, verifyConfig, {filename}) {
 	return messages;
 }
 
-class SnapshotRuleTester {
+export default class SnapshotRuleTester {
 	constructor(test, testerConfig) {
 		this.test = test;
 		this.testerConfig = testerConfig;
@@ -264,6 +264,4 @@ class SnapshotRuleTester {
 		}
 	}
 }
-
-export default SnapshotRuleTester;
 export {visualizeEslintMessage};

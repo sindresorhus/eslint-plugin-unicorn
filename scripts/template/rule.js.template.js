@@ -90,7 +90,7 @@ const createConfig = data => outdent`
 	};
 `;
 
-function renderRuleTemplate(data) {
+export default function renderRuleTemplate(data) {
 	return [
 		imports,
 		typeImports,
@@ -101,5 +101,3 @@ function renderRuleTemplate(data) {
 	].map(part => typeof part === 'function' ? part(data) : part).join('\n\n')
 	+ '\n';
 }
-
-export default renderRuleTemplate;

@@ -1,14 +1,12 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {isMethodCall} from './ast/index.js';
 import {
 	getIndentString,
 	getNextNode,
 	getPreviousNode,
 	isSameReference,
+	isIdentifierName,
 } from './utils/index.js';
-
-const {isIdentifierName} = helperValidatorIdentifier;
 
 const MESSAGE_ID = 'prefer-object-define-properties';
 const messages = {

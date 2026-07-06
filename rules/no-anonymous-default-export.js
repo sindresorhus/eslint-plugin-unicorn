@@ -1,6 +1,5 @@
 import path from 'node:path';
 import {getFunctionHeadLocation, getFunctionNameWithKind, isOpeningParenToken} from '@eslint-community/eslint-utils';
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {camelCase} from 'change-case';
 import {
 	getClassHeadLocation,
@@ -9,10 +8,9 @@ import {
 	getAvailableVariableName,
 	upperFirst,
 	isVirtualFilename,
+	isIdentifierName,
 } from './utils/index.js';
 import {isMemberExpression} from './ast/index.js';
-
-const {isIdentifierName} = helperValidatorIdentifier;
 
 const MESSAGE_ID_ERROR = 'no-anonymous-default-export/error';
 const MESSAGE_ID_SUGGESTION = 'no-anonymous-default-export/suggestion';

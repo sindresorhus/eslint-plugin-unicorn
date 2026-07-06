@@ -231,11 +231,8 @@ const isGlobalObject = (node, context) =>
 const isWriteOnlyLeftHandSide = node =>
 	isLeftHandSide(node)
 	&& node.parent.type !== 'UpdateExpression'
-	&& !(
-		node.parent.type === 'AssignmentExpression'
-		&& node.parent.left === node
-		&& node.parent.operator !== '='
-	);
+	&& (!(node.parent.type === 'AssignmentExpression'
+		&& node.parent.left === node) || node.parent.operator === '=');
 
 const isGlobalDocument = (node, context) => {
 	node = unwrapTypeScriptExpression(node);

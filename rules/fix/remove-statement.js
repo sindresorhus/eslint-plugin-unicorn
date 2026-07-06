@@ -3,7 +3,7 @@ import {isSemicolonToken} from '@eslint-community/eslint-utils';
 const isWhitespaceOnly = text => /^\s*$/.test(text);
 
 // Removes a statement node along with its surrounding whitespace, while preserving comments.
-function removeStatement(statement, context, fixer, preserveSemiColon = false) {
+export default function removeStatement(statement, context, fixer, preserveSemiColon = false) {
 	const {sourceCode} = context;
 	const {lines} = sourceCode;
 	let endToken = statement;
@@ -44,5 +44,3 @@ function removeStatement(statement, context, fixer, preserveSemiColon = false) {
 
 	return fixer.removeRange([start, end]);
 }
-
-export default removeStatement;

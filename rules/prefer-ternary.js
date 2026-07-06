@@ -57,7 +57,7 @@ const isMergeableAssignmentExpression = (consequent, alternate) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const onlySingleLine = context.options[0] === 'only-single-line';
+	const isOnlySingleLine = context.options[0] === 'only-single-line';
 	const {sourceCode} = context;
 
 	const getText = node => {
@@ -134,7 +134,7 @@ const create = context => {
 		}
 
 		if (
-			onlySingleLine
+			isOnlySingleLine
 			&& [node.test, right].some(n => !isSingleLineNode(n, context))
 		) {
 			return;
@@ -161,7 +161,7 @@ const create = context => {
 		}
 
 		if (
-			onlySingleLine
+			isOnlySingleLine
 			&& !isSingleLineNode(declarator.init, context)
 		) {
 			return;
@@ -245,7 +245,7 @@ const create = context => {
 		const alternate = getNodeBody(node.alternate);
 
 		if (
-			onlySingleLine
+			isOnlySingleLine
 			&& [consequent, alternate, node.test].some(node => !isSingleLineNode(node, context))
 		) {
 			return;

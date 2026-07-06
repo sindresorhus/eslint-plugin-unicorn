@@ -1,6 +1,5 @@
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
 	getAvailableVariableName,
 	cartesianProductSamples,
@@ -9,6 +8,7 @@ import {
 	upperFirst,
 	lowerFirst,
 	isVirtualFilename,
+	isIdentifierName,
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/name-replacements.js';
 import {
@@ -24,7 +24,6 @@ import {functionTypes} from './ast/index.js';
 const MESSAGE_ID_REPLACE = 'replace';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
 const MESSAGE_ID_RENAME = 'rename';
-const {isIdentifierName} = helperValidatorIdentifier;
 const anotherNameMessage = 'A more descriptive name will do too.';
 const messages = {
 	[MESSAGE_ID_REPLACE]: `The {{nameTypeText}} \`{{discouragedName}}\` should be named \`{{replacement}}\`. ${anotherNameMessage}`,

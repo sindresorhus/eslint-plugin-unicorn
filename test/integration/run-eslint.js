@@ -85,7 +85,7 @@ const basicConfigs = [
 	},
 ];
 
-async function runEslint(project) {
+export default async function runEslint(project) {
 	const eslintIgnoreFile = path.join(project.location, '.eslintignore');
 	const ignore = fs.existsSync(eslintIgnoreFile)
 		? fs.readFileSync(eslintIgnoreFile, 'utf8').split('\n').filter(line => line && !line.startsWith('#'))
@@ -137,5 +137,4 @@ async function runEslint(project) {
 	`);
 }
 
-export default runEslint;
 export {UnicornEslintFatalError, UnicornIntegrationTestError};

@@ -82,14 +82,14 @@ function isWellKnownXmlNamespace(text, matchIndex) {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	let checked = false;
+	let isChecked = false;
 
 	onRoot(context, node => {
-		if (checked) {
+		if (isChecked) {
 			return;
 		}
 
-		checked = true;
+		isChecked = true;
 
 		const {sourceCode} = context;
 		const {text} = sourceCode;

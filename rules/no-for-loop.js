@@ -876,14 +876,14 @@ const create = context => {
 
 				let declarationElement = element;
 				let declarationType = 'const';
-				let removeDeclaration = true;
+				let isRemoveDeclaration = true;
 
 				if (elementNode) {
 					if (elementNode.id.type === 'ObjectPattern' || elementNode.id.type === 'ArrayPattern') {
-						removeDeclaration = arrayReferences.length === 1;
+						isRemoveDeclaration = arrayReferences.length === 1;
 					}
 
-					if (removeDeclaration) {
+					if (isRemoveDeclaration) {
 						declarationType = elementNode.parent.kind;
 						declarationElement = sourceCode.getText(elementNode.id);
 					}
@@ -911,7 +911,7 @@ const create = context => {
 				}
 
 				if (elementNode) {
-					yield removeDeclaration
+					yield isRemoveDeclaration
 						? fixer.removeRange(getRemovalRange(elementNode, sourceCode))
 						: fixer.replaceText(elementNode.init, element);
 				}

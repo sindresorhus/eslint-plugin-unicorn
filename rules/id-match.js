@@ -26,11 +26,11 @@ const shouldIgnoreNamedSpecifierReport = (problem, checkNamedSpecifiers) =>
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const checkNamedSpecifiers = context.options[1]?.checkNamedSpecifiers !== false;
+	const isCheckNamedSpecifiers = context.options[1]?.checkNamedSpecifiers !== false;
 	const fakeContext = Object.create(context, {
 		report: {
 			value(problem) {
-				if (shouldIgnoreNamedSpecifierReport(problem, checkNamedSpecifiers)) {
+				if (shouldIgnoreNamedSpecifierReport(problem, isCheckNamedSpecifiers)) {
 					return;
 				}
 

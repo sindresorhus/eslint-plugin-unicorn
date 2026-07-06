@@ -21,8 +21,8 @@ const characterClassEscapes = new Map([
 	['\t', String.raw`\t`],
 	['\f', String.raw`\f`],
 	['\v', String.raw`\v`],
-	['\u2028', String.raw`\u2028`],
-	['\u2029', String.raw`\u2029`],
+	['\u{2028}', String.raw`\u2028`],
+	['\u{2029}', String.raw`\u2029`],
 ]);
 
 // Escapes a single character for use inside a character class. `^` and `-` are only special depending on position, so they are escaped only when necessary (avoids tripping `no-useless-escape` on the output).

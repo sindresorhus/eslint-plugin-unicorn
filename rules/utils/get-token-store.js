@@ -6,7 +6,7 @@
 @param {import('estree').Node} node
 @returns {import('eslint').SourceCode}
 */
-function getTokenStore(context, node) {
+export default function getTokenStore(context, node) {
 	const {sourceCode} = context;
 
 	if (
@@ -20,5 +20,3 @@ function getTokenStore(context, node) {
 
 	return sourceCode;
 }
-
-export default getTokenStore;

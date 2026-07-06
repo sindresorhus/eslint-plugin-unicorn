@@ -14,7 +14,7 @@ import toEslintFixer from './to-eslint-rule-fixer.js';
 @param {UnicornProblem} unicornProblem
 @returns {EslintProblem}
 */
-function toEslintProblem(unicornProblem) {
+export default function toEslintProblem(unicornProblem) {
 	const eslintProblem = {...unicornProblem};
 
 	if (unicornProblem.fix) {
@@ -34,5 +34,3 @@ function toEslintProblem(unicornProblem) {
 
 	return eslintProblem;
 }
-
-export default toEslintProblem;

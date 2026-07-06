@@ -134,10 +134,7 @@ const create = context => {
 	});
 
 	context.on('BinaryExpression', node => {
-		if (!(
-			node.operator === 'in'
-			&& !isStaticPropertyKey(node.left)
-		)) {
+		if (node.operator !== 'in' || isStaticPropertyKey(node.left)) {
 			return;
 		}
 

@@ -4,7 +4,7 @@ import toEslintListener from './to-eslint-listener.js';
 @import {EslintListers, ListenerType, Listener} from './to-eslint-create.js'
 */
 
-class UnicornListeners {
+export default class UnicornListeners {
 	#context;
 	#listeners = new Map();
 
@@ -61,5 +61,3 @@ class UnicornListeners {
 		return eslintListeners;
 	}
 }
-
-export default UnicornListeners;

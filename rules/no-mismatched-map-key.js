@@ -125,7 +125,7 @@ function patternContainsSameBinding(node, mapHasRoot, context) {
 
 function hasCallExpression(node, context) {
 	const {visitorKeys} = context.sourceCode;
-	let result = false;
+	let isResult = false;
 
 	function visit(node) {
 		if (!node) {
@@ -135,14 +135,14 @@ function hasCallExpression(node, context) {
 		node = unwrapExpression(node);
 
 		if (
-			result
+			isResult
 			|| skippedNodeTypes.has(node.type)
 		) {
 			return;
 		}
 
 		if (node.type === 'CallExpression') {
-			result = true;
+			isResult = true;
 			return;
 		}
 
@@ -163,7 +163,7 @@ function hasCallExpression(node, context) {
 
 	visit(node);
 
-	return result;
+	return isResult;
 }
 
 function areDifferentKeys(left, right, context) {
@@ -346,11 +346,11 @@ function isNestedMapHasGuard(node, mapHasCall, context) {
 
 function hasSameMapHasCall(node, mapHasCall, context) {
 	const {visitorKeys} = context.sourceCode;
-	let result = false;
+	let isResult = false;
 
 	function visit(node) {
 		if (
-			result
+			isResult
 			|| !node
 			|| skippedNodeTypes.has(node.type)
 		) {
@@ -363,7 +363,7 @@ function hasSameMapHasCall(node, mapHasCall, context) {
 			nestedMapHasCall
 			&& isSameMapReceiver(unwrapExpression(mapHasCall).callee.object, unwrapExpression(nestedMapHasCall).callee.object, context)
 		) {
-			result = true;
+			isResult = true;
 			return;
 		}
 
@@ -384,16 +384,16 @@ function hasSameMapHasCall(node, mapHasCall, context) {
 
 	visit(node);
 
-	return result;
+	return isResult;
 }
 
 function hasMapReceiverWrite(node, mapHasCall, context) {
 	const {visitorKeys} = context.sourceCode;
-	let result = false;
+	let isResult = false;
 
 	function visit(node) {
 		if (
-			result
+			isResult
 			|| !node
 			|| skippedNodeTypes.has(node.type)
 			|| isNestedMapHasGuard(node, mapHasCall, context)
@@ -402,7 +402,7 @@ function hasMapReceiverWrite(node, mapHasCall, context) {
 		}
 
 		if (isMapReceiverWrite(node, mapHasCall, context)) {
-			result = true;
+			isResult = true;
 			return;
 		}
 
@@ -423,7 +423,7 @@ function hasMapReceiverWrite(node, mapHasCall, context) {
 
 	visit(node);
 
-	return result;
+	return isResult;
 }
 
 function getMapAccessProblems(node, mapHasCall, context, reportedAccessKeys) {

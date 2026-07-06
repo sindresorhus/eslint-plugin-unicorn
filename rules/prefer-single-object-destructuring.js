@@ -68,15 +68,12 @@ const getProblem = (sourceCode, firstNode, secondNode) => {
 	const first = getSupportedDeclaration(sourceCode, firstNode);
 	const second = getSupportedDeclaration(sourceCode, secondNode);
 
-	if (!(
-		first
+	if (!(first
 		&& second
 		&& first.node.kind === second.node.kind
 		&& first.source === second.source
 		&& sourceCode.getCommentsInside(first.node).length === 0
-		&& sourceCode.getCommentsInside(second.node).length === 0
-		&& !hasCommentsBetween(sourceCode, first.node, second.node)
-	)) {
+		&& sourceCode.getCommentsInside(second.node).length === 0) || hasCommentsBetween(sourceCode, first.node, second.node)) {
 		return;
 	}
 

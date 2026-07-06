@@ -19,12 +19,12 @@ const getCharacterClassCharacters = pattern => {
 
 	for (let index = 0; index < characterClass.length; index++) {
 		let character = characterClass[index];
-		let escaped = false;
+		let isEscaped = false;
 
 		if (character === '\\') {
 			index++;
 			character = characterClass[index];
-			escaped = true;
+			isEscaped = true;
 
 			if (!character) {
 				return;
@@ -33,7 +33,7 @@ const getCharacterClassCharacters = pattern => {
 
 		if (
 			character === '-'
-			&& !escaped
+			&& !isEscaped
 			&& index !== 0
 			&& index !== characterClass.length - 1
 		) {
@@ -42,7 +42,7 @@ const getCharacterClassCharacters = pattern => {
 
 		if (
 			character === ']'
-			&& !escaped
+			&& !isEscaped
 			&& index !== 0
 		) {
 			return;

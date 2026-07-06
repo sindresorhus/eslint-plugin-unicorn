@@ -1,12 +1,6 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
+import isIdentifier from 'is-identifier';
 import resolveVariableName from './resolve-variable-name.js';
 import getReferences from './get-references.js';
-
-const {
-	isIdentifierName,
-	isStrictReservedWord,
-	isKeyword,
-} = helperValidatorIdentifier;
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -72,14 +66,9 @@ const typescriptReservedWords = new Set([
 	'of',
 ]);
 
-// Copied from https://github.com/babel/babel/blob/fce35af69101c6b316557e28abf60bdbf77d6a36/packages/babel-types/src/validators/isValidIdentifier.ts#L7
-// Use this function instead of `require('@babel/types').isIdentifier`, since `@babel/helper-validator-identifier` package is much smaller
 const isValidIdentifier = name =>
 	typeof name === 'string'
-	&& !isKeyword(name)
-	&& !isStrictReservedWord(name, true)
-	&& isIdentifierName(name)
-	&& name !== 'arguments'
+	&& isIdentifier(name)
 	&& !typescriptReservedWords.has(name);
 
 /*

@@ -1,6 +1,4 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
-
-const {isIdentifierName} = helperValidatorIdentifier;
+import {isIdentifierName} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-identifier-import-export-specifiers';
 const messages = {

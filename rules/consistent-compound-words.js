@@ -1,10 +1,10 @@
-import helperValidatorIdentifier from '@babel/helper-validator-identifier';
 import {
 	getAvailableVariableName,
 	getScopes,
 	isShorthandPropertyValue,
 	lowerFirst,
 	upperFirst,
+	isIdentifierName,
 } from './utils/index.js';
 import {
 	isClassVariable,
@@ -17,7 +17,6 @@ import {renameVariable} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'consistent-compound-words/error';
 const MESSAGE_ID_RENAME = 'consistent-compound-words/rename';
-const {isIdentifierName} = helperValidatorIdentifier;
 
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{name}}`.',

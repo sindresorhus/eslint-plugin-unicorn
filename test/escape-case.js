@@ -31,7 +31,7 @@ test({
 		'const foo = `\\uD834foo`;',
 		'const foo = `foo\\uD834`;',
 		'const foo = `foo \\uD834`;',
-		'const foo = `${"\uD834 foo"} \\uD834`;',
+		'const foo = `${"\u{D834} foo"} \\uD834`;',
 		'const foo = `foo \\u2500`;',
 		'const foo = `foo \\x46`;',
 		'const foo = `foo\\\\xbar`;',
@@ -156,8 +156,8 @@ test({
 			output: 'const foo = `foo \\uD834`;',
 		},
 		{
-			code: 'const foo = `${"\uD834 foo"} \\ud834`;',
-			output: 'const foo = `${"\uD834 foo"} \\uD834`;',
+			code: 'const foo = `${"\u{D834} foo"} \\ud834`;',
+			output: 'const foo = `${"\u{D834} foo"} \\uD834`;',
 		},
 		{
 			code: 'const foo = `\\ud834${foo}\\ud834${foo}\\ud834`;',
@@ -292,7 +292,7 @@ test({
 		'const foo = `\\ud834FOO`;',
 		'const foo = `foo\\ud834`;',
 		'const foo = `foo \\ud834`;',
-		'const foo = `${"\uD834 foo"} \\ud834`;',
+		'const foo = `${"\u{D834} foo"} \\ud834`;',
 		'const foo = `foo\\\\xBAR`;',
 		'const foo = `foo\\\\uBARBAZ`;',
 		'const foo = `foo\\\\\\\\xBAR`;',
@@ -410,8 +410,8 @@ test({
 			output: 'const foo = `FOO \\ud834`;',
 		},
 		{
-			code: 'const foo = `${"\uD834 FOO"} \\uD834`;',
-			output: 'const foo = `${"\uD834 FOO"} \\ud834`;',
+			code: 'const foo = `${"\u{D834} FOO"} \\uD834`;',
+			output: 'const foo = `${"\u{D834} FOO"} \\ud834`;',
 		},
 		{
 			code: 'const foo = `\\uD834${FOO}\\uD834${FOO}\\uD834`;',

@@ -190,6 +190,10 @@ test.snapshot({
 
 		// `\r\n\t`
 		String.raw`foo.replace(/\cM\cj\cI/g, _)`,
+
+		// Synthesized escapes use uppercase hex: `\cZ` (26) -> `\u{1A}`, `\377` (255) -> `\u{FF}`
+		String.raw`foo.replace(/\cZ/g, _)`,
+		String.raw`foo.replace(/\377/g, _)`,
 		String.raw`foo.replace(/\x0d\x0a\x09/g, _)`,
 		String.raw`foo.replace(/\u000d\u000a\u0009/g, _)`,
 

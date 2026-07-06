@@ -19,7 +19,7 @@ import toEslintProblem from './to-eslint-problem.js';
 @param {UnicornRuleListen} listener
 @returns {Listener}
 */
-function toEslintListener(context, listener) {
+export default function toEslintListener(context, listener) {
 	// Listener arguments can be `codePath, node` or `node`
 
 	/**
@@ -38,5 +38,3 @@ function toEslintListener(context, listener) {
 		}
 	};
 }
-
-export default toEslintListener;

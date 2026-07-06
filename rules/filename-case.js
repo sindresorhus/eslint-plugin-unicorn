@@ -280,8 +280,8 @@ const create = context => {
 
 		return new RegExp(item, 'u');
 	});
-	const multipleFileExtensions = options.multipleFileExtensions !== false;
-	const checkDirectories = options.checkDirectories !== false;
+	const isMultipleFileExtensions = options.multipleFileExtensions !== false;
+	const isCheckDirectories = options.checkDirectories !== false;
 	const chosenCasesFunctions = chosenCases.map(case_ => cases[case_].fn);
 
 	onRoot(context, () => {
@@ -292,13 +292,13 @@ const create = context => {
 			filename,
 			middle,
 			extension,
-		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions});
+		} = getFilenameParts(basenameWithExtension, {multipleFileExtensions: isMultipleFileExtensions});
 
 		if (pathSegments.some(segment => ignore.some(regexp => regexp.test(segment)))) {
 			return;
 		}
 
-		if (checkDirectories) {
+		if (isCheckDirectories) {
 			for (const directory of pathSegments.slice(0, -1)) {
 				const report = getInvalidDirectoryReport(directory, chosenCases, chosenCasesFunctions);
 
