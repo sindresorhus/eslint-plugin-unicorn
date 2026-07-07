@@ -141,6 +141,32 @@ test({
 		},
 		{
 			code: outdent`
+				async function foo() {
+					return await Promise.resolve(foo());
+				}
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				async function foo() {
+					return await foo();
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function foo() {
+					return await Promise.resolve(/* keep */ foo());
+				}
+			`,
+			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => await Promise.resolve(foo + bar)',
+			errors: [returnResolveError],
+			output: 'async () => await (foo + bar)',
+		},
+		{
+			code: outdent`
 				(async function() {
 					return Promise.resolve(bar);
 				});
@@ -209,6 +235,27 @@ test({
 					throw bar;
 				}
 			`,
+		},
+		{
+			code: outdent`
+				async function foo() {
+					return await Promise.reject(error);
+				}
+			`,
+			errors: [returnRejectError],
+			output: outdent`
+				async function foo() {
+					throw error;
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function foo() {
+					return await Promise.reject(/* keep */ error);
+				}
+			`,
+			errors: [returnRejectError],
 		},
 		{
 			code: outdent`
@@ -310,6 +357,11 @@ test({
 			output: 'async () => {};',
 		},
 		{
+			code: 'async () => await Promise.resolve();',
+			errors: [returnResolveError],
+			output: 'async () => await undefined;',
+		},
+		{
 			code: outdent`
 				async function foo() {
 					return Promise.resolve();
@@ -362,6 +414,10 @@ test({
 			code: 'async () => Promise.reject(bar, baz);',
 			errors: [returnRejectError],
 		},
+		{
+			code: 'async () => await Promise.resolve(bar, baz);',
+			errors: [returnResolveError],
+		},
 		// Sequence expressions
 		{
 			code: outdent`
@@ -409,6 +465,23 @@ test({
 			code: outdent`
 				async function foo() {
 					try {
+						return await Promise.resolve(bar);
+					} catch {}
+				}
+			`,
+			errors: [returnResolveError],
+			output: outdent`
+				async function foo() {
+					try {
+						return await bar;
+					} catch {}
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function foo() {
+					try {
 						return Promise.reject(1);
 					} catch {}
 				}
@@ -418,6 +491,10 @@ test({
 		// Spread arguments
 		{
 			code: 'async () => Promise.resolve(...bar);',
+			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => await Promise.resolve(...bar);',
 			errors: [returnResolveError],
 		},
 		{
