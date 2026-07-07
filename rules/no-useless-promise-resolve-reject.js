@@ -1,4 +1,4 @@
-import {getParenthesizedRange} from './utils/index.js';
+import {getParenthesizedRange, shouldAddParenthesesToAwaitExpressionArgument, wouldRemoveComments} from './utils/index.js';
 import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_RESOLVE = 'resolve';
@@ -64,9 +64,29 @@ function isPromiseCallback(node) {
 	return false;
 }
 
+function getCallExpressionInfo(callExpression) {
+	if (
+		callExpression.parent.type === 'AwaitExpression'
+		&& callExpression.parent.argument === callExpression
+	) {
+		return {
+			expression: callExpression.parent,
+			parent: callExpression.parent.parent,
+			isAwaited: true,
+		};
+	}
+
+	return {
+		expression: callExpression,
+		parent: callExpression.parent,
+		isAwaited: false,
+	};
+}
+
 function createProblem(callExpression, fix) {
-	const {callee, parent} = callExpression;
+	const {callee} = callExpression;
 	const method = callee.property.name;
+	const {parent} = getCallExpressionInfo(callExpression);
 	const type = parent.type === 'YieldExpression' ? 'yield' : 'return';
 
 	return {
@@ -77,12 +97,55 @@ function createProblem(callExpression, fix) {
 	};
 }
 
+function getArgumentText(node, context) {
+	const text = node ? context.sourceCode.getText(node) : '';
+	return node?.type === 'SequenceExpression' ? `(${text})` : text;
+}
+
+function getAwaitedResolveArgumentText(node, context) {
+	const text = getArgumentText(node, context) || 'undefined';
+
+	if (
+		node
+		&& node.type !== 'SequenceExpression'
+		&& shouldAddParenthesesToAwaitExpressionArgument(node)
+	) {
+		return `(${text})`;
+	}
+
+	return text;
+}
+
+function getFixTarget({
+	callExpression,
+	parent,
+	expression,
+	isAwaited,
+	isReject,
+	context,
+}) {
+	if (isAwaited && !isReject) {
+		return getParenthesizedRange(callExpression, context);
+	}
+
+	if (isReject && parent.type === 'YieldExpression') {
+		return getParenthesizedRange(parent, context);
+	}
+
+	if (parent.type === 'ArrowFunctionExpression') {
+		return isReject ? getParenthesizedRange(expression, context) : callExpression;
+	}
+
+	return parent;
+}
+
 function fix(callExpression, isInTryStatement, context) {
 	if (callExpression.arguments.length > 1) {
 		return;
 	}
 
-	const {callee, parent, arguments: callArguments} = callExpression;
+	const {callee, arguments: callArguments} = callExpression;
+	const {expression, parent, isAwaited} = getCallExpressionInfo(callExpression);
 	const [errorOrValue] = callArguments;
 
 	if (errorOrValue?.type === 'SpreadElement') {
@@ -101,14 +164,22 @@ function fix(callExpression, isInTryStatement, context) {
 		return;
 	}
 
+	const fixTarget = getFixTarget({
+		callExpression,
+		parent,
+		expression,
+		isAwaited,
+		isReject,
+		context,
+	});
+	if (wouldRemoveComments(context, fixTarget, errorOrValue ? [errorOrValue] : [])) {
+		return;
+	}
+
 	return function (fixer) {
 		const isArrowFunctionBody = parent.type === 'ArrowFunctionExpression';
 
-		let text = errorOrValue ? context.sourceCode.getText(errorOrValue) : '';
-
-		if (errorOrValue?.type === 'SequenceExpression') {
-			text = `(${text})`;
-		}
+		let text = getArgumentText(errorOrValue, context);
 
 		if (isReject) {
 			// `return Promise.reject()` -> `throw undefined`
@@ -128,12 +199,18 @@ function fix(callExpression, isInTryStatement, context) {
 			if (isArrowFunctionBody) {
 				text = `{ ${text} }`;
 				return fixer.replaceTextRange(
-					getParenthesizedRange(callExpression, context),
+					getParenthesizedRange(expression, context),
 					text,
 				);
 			}
 		} else {
-			// eslint-disable-next-line no-lonely-if
+			if (isAwaited) {
+				return fixer.replaceTextRange(
+					getParenthesizedRange(callExpression, context),
+					getAwaitedResolveArgumentText(errorOrValue, context),
+				);
+			}
+
 			if (isYieldExpression) {
 				text = `yield${text ? ' ' : ''}${text}`;
 			} else if (parent.type === 'ReturnStatement') {
@@ -158,6 +235,8 @@ function fix(callExpression, isInTryStatement, context) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', callExpression => {
+		const {expression, parent} = getCallExpressionInfo(callExpression);
+
 		if (!(
 			isMethodCall(callExpression, {
 				object: 'Promise',
@@ -167,16 +246,16 @@ const create = context => {
 			})
 			&& (
 				(
-					callExpression.parent.type === 'ArrowFunctionExpression'
-					&& callExpression.parent.body === callExpression
+					parent.type === 'ArrowFunctionExpression'
+					&& parent.body === expression
 				)
 				|| (
-					callExpression.parent.type === 'ReturnStatement'
-					&& callExpression.parent.argument === callExpression
+					parent.type === 'ReturnStatement'
+					&& parent.argument === expression
 				)
 				|| (
-					callExpression.parent.type === 'YieldExpression'
-					&& !callExpression.parent.delegate && callExpression.parent.argument === callExpression
+					parent.type === 'YieldExpression'
+					&& !parent.delegate && parent.argument === expression
 				)
 			)
 		)) {
