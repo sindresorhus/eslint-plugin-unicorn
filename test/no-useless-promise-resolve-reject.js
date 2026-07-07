@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -69,6 +69,16 @@ test({
 				function bar() {
 					return Promise.resolve(baz);
 				}
+			}
+		`,
+		outdent`
+			async function foo() {
+				const value = await Promise.resolve(bar);
+			}
+		`,
+		outdent`
+			async function foo() {
+				await Promise.reject(error);
 			}
 		`,
 		// Delegate yield expressions
@@ -173,6 +183,20 @@ test({
 			code: 'async () => await Promise.resolve(foo + bar)',
 			errors: [returnResolveError],
 			output: 'async () => await (foo + bar)',
+		},
+		{
+			code: outdent`
+				async function foo(): Promise<number> {
+					return await Promise.resolve(42);
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [returnResolveError],
+			output: outdent`
+				async function foo(): Promise<number> {
+					return await 42;
+				}
+			`,
 		},
 		{
 			code: outdent`
@@ -577,6 +601,16 @@ test({
 			`,
 			errors: [returnRejectError],
 		},
+		{
+			code: outdent`
+				async function foo() {
+					try {
+						return await Promise.reject(error);
+					} catch {}
+				}
+			`,
+			errors: [returnRejectError],
+		},
 		// Spread arguments
 		{
 			code: 'async () => Promise.resolve(...bar);',
@@ -659,26 +693,26 @@ test({
 				output: `promise.${method}(() => { return bar; })`,
 			},
 			{
-				code: `promise.${method}(async () => await Promise.resolve(foo + bar))`,
-				errors: [returnResolveError],
-				output: `promise.${method}(async () => await (foo + bar))`,
+				code: `promise.${method}(() => Promise.reject(bar))`,
+				errors: [returnRejectError],
+				output: `promise.${method}(() => { throw bar; })`,
 			},
 			{
-				code: `promise.${method}(async () => Promise.reject(bar))`,
+				code: `promise.${method}(() => { return Promise.reject(bar); })`,
 				errors: [returnRejectError],
-				output: `promise.${method}(async () => { throw bar; })`,
-			},
-			{
-				code: `promise.${method}(async () => await Promise.reject(bar))`,
-				errors: [returnRejectError],
-				output: `promise.${method}(async () => { throw bar; })`,
-			},
-			{
-				code: `promise.${method}(async () => { return Promise.reject(bar); })`,
-				errors: [returnRejectError],
-				output: `promise.${method}(async () => { throw bar; })`,
+				output: `promise.${method}(() => { throw bar; })`,
 			},
 		]),
+		{
+			code: 'promise.then(async () => await Promise.resolve(foo + bar))',
+			errors: [returnResolveError],
+			output: 'promise.then(async () => await (foo + bar))',
+		},
+		{
+			code: 'promise.catch(async () => await Promise.reject(bar))',
+			errors: [returnRejectError],
+			output: 'promise.catch(async () => { throw bar; })',
+		},
 		{
 			code: 'promise.then(() => {}, () => Promise.resolve(bar))',
 			errors: [returnResolveError],
@@ -695,14 +729,14 @@ test({
 			output: 'promise.then(() => {}, () => { return bar; })',
 		},
 		{
-			code: 'promise.then(() => {}, async () => Promise.reject(bar))',
+			code: 'promise.then(() => {}, () => Promise.reject(bar))',
 			errors: [returnRejectError],
-			output: 'promise.then(() => {}, async () => { throw bar; })',
+			output: 'promise.then(() => {}, () => { throw bar; })',
 		},
 		{
-			code: 'promise.then(() => {}, async () => { return Promise.reject(bar); })',
+			code: 'promise.then(() => {}, () => { return Promise.reject(bar); })',
 			errors: [returnRejectError],
-			output: 'promise.then(() => {}, async () => { throw bar; })',
+			output: 'promise.then(() => {}, () => { throw bar; })',
 		},
 	],
 });
