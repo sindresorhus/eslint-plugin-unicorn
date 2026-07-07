@@ -71,6 +71,7 @@ test({
 				}
 			}
 		`,
+		// Awaited calls that are not returned/yielded
 		outdent`
 			async function foo() {
 				const value = await Promise.resolve(bar);
