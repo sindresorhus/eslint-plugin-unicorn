@@ -32,7 +32,7 @@ test({
 			`,
 		]),
 		// Sync function returning Promise.resolve/reject
-		...['resolve, reject'].flatMap(method => [
+		...['resolve', 'reject'].flatMap(method => [
 			`() => Promise.${method}(bar);`,
 			outdent`
 				() => {
@@ -161,6 +161,15 @@ test({
 			errors: [returnResolveError],
 		},
 		{
+			code: 'async () => await (Promise.resolve(foo) /* keep */)',
+			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => await /* keep */ Promise.resolve(foo)',
+			errors: [returnResolveError],
+			output: 'async () => await /* keep */ foo',
+		},
+		{
 			code: 'async () => await Promise.resolve(foo + bar)',
 			errors: [returnResolveError],
 			output: 'async () => await (foo + bar)',
@@ -250,9 +259,30 @@ test({
 			`,
 		},
 		{
+			code: 'async () => await Promise.reject(error)',
+			errors: [returnRejectError],
+			output: 'async () => { throw error; }',
+		},
+		{
 			code: outdent`
 				async function foo() {
 					return await Promise.reject(/* keep */ error);
+				}
+			`,
+			errors: [returnRejectError],
+		},
+		{
+			code: 'async () => await /* keep */ Promise.reject(error)',
+			errors: [returnRejectError],
+		},
+		{
+			code: 'async () => (await Promise.reject(error) /* keep */)',
+			errors: [returnRejectError],
+		},
+		{
+			code: outdent`
+				async function foo() {
+					return /* keep */ await Promise.reject(error);
 				}
 			`,
 			errors: [returnRejectError],
@@ -323,6 +353,19 @@ test({
 				});
 			`,
 		},
+		{
+			code: outdent`
+				async function * foo() {
+					yield await Promise.resolve(foo + bar);
+				}
+			`,
+			errors: [yieldResolveError],
+			output: outdent`
+				async function * foo() {
+					yield await (foo + bar);
+				}
+			`,
+		},
 		// Async generator yielding Promise.reject
 		{
 			code: outdent`
@@ -350,6 +393,43 @@ test({
 				});
 			`,
 		},
+		{
+			code: outdent`
+				async function * foo() {
+					yield await Promise.reject(error);
+				}
+			`,
+			errors: [yieldRejectError],
+			output: outdent`
+				async function * foo() {
+					throw error;
+				}
+			`,
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					yield /* keep */ Promise.reject(error);
+				}
+			`,
+			errors: [yieldRejectError],
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					(yield Promise.reject(error) /* keep */);
+				}
+			`,
+			errors: [yieldRejectError],
+		},
+		{
+			code: outdent`
+				async function * foo() {
+					(/* keep */ yield Promise.reject(error));
+				}
+			`,
+			errors: [yieldRejectError],
+		},
 		// No arguments
 		{
 			code: 'async () => Promise.resolve();',
@@ -360,6 +440,11 @@ test({
 			code: 'async () => await Promise.resolve();',
 			errors: [returnResolveError],
 			output: 'async () => await undefined;',
+		},
+		{
+			code: 'async () => await Promise.reject();',
+			errors: [returnRejectError],
+			output: 'async () => { throw undefined; };',
 		},
 		{
 			code: outdent`
@@ -417,6 +502,10 @@ test({
 		{
 			code: 'async () => await Promise.resolve(bar, baz);',
 			errors: [returnResolveError],
+		},
+		{
+			code: 'async () => await Promise.reject(bar, baz);',
+			errors: [returnRejectError],
 		},
 		// Sequence expressions
 		{
@@ -498,6 +587,10 @@ test({
 			errors: [returnResolveError],
 		},
 		{
+			code: 'async () => await Promise.reject(...bar);',
+			errors: [returnRejectError],
+		},
+		{
 			code: 'async () => Promise.reject(...bar);',
 			errors: [returnRejectError],
 		},
@@ -566,7 +659,17 @@ test({
 				output: `promise.${method}(() => { return bar; })`,
 			},
 			{
+				code: `promise.${method}(async () => await Promise.resolve(foo + bar))`,
+				errors: [returnResolveError],
+				output: `promise.${method}(async () => await (foo + bar))`,
+			},
+			{
 				code: `promise.${method}(async () => Promise.reject(bar))`,
+				errors: [returnRejectError],
+				output: `promise.${method}(async () => { throw bar; })`,
+			},
+			{
+				code: `promise.${method}(async () => await Promise.reject(bar))`,
 				errors: [returnRejectError],
 				output: `promise.${method}(async () => { throw bar; })`,
 			},

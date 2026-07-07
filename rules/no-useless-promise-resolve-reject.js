@@ -1,4 +1,4 @@
-import {getParenthesizedRange, shouldAddParenthesesToAwaitExpressionArgument} from './utils/index.js';
+import {getParenthesizedRange, shouldAddParenthesesToAwaitExpressionArgument, wouldRemoveComments} from './utils/index.js';
 import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_RESOLVE = 'resolve';
@@ -116,6 +116,29 @@ function getAwaitedResolveArgumentText(node, context) {
 	return text;
 }
 
+function getFixTarget({
+	callExpression,
+	parent,
+	expression,
+	isAwaited,
+	isReject,
+	context,
+}) {
+	if (isAwaited && !isReject) {
+		return getParenthesizedRange(callExpression, context);
+	}
+
+	if (isReject && parent.type === 'YieldExpression') {
+		return getParenthesizedRange(parent, context);
+	}
+
+	if (parent.type === 'ArrowFunctionExpression') {
+		return isReject ? getParenthesizedRange(expression, context) : callExpression;
+	}
+
+	return parent;
+}
+
 function fix(callExpression, isInTryStatement, context) {
 	if (callExpression.arguments.length > 1) {
 		return;
@@ -129,10 +152,6 @@ function fix(callExpression, isInTryStatement, context) {
 		return;
 	}
 
-	if (context.sourceCode.getCommentsInside(callExpression).length > 0) {
-		return;
-	}
-
 	const isReject = callee.property.name === 'reject';
 	const isYieldExpression = parent.type === 'YieldExpression';
 	if (
@@ -142,6 +161,18 @@ function fix(callExpression, isInTryStatement, context) {
 			|| (isYieldExpression && parent.parent.type !== 'ExpressionStatement')
 		)
 	) {
+		return;
+	}
+
+	const fixTarget = getFixTarget({
+		callExpression,
+		parent,
+		expression,
+		isAwaited,
+		isReject,
+		context,
+	});
+	if (wouldRemoveComments(context, fixTarget, errorOrValue ? [errorOrValue] : [])) {
 		return;
 	}
 
