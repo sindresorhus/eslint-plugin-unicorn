@@ -1,5 +1,5 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
-import {hasOptionalChainElement} from './utils/index.js';
+import {hasOptionalChainElement, isConstEnumReference} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-minimal-ternary';
 const messages = {
@@ -77,6 +77,9 @@ function hasSameStaticPropertyWithDifferentObject(left, right, context) {
 		|| hasOptionalChainElement(right)
 		|| left.object.type === 'Super'
 		|| right.object.type === 'Super'
+		// Wrapping either object in a ternary breaks `const enum` access (TS2475).
+		|| isConstEnumReference(left.object, context)
+		|| isConstEnumReference(right.object, context)
 	) {
 		return false;
 	}
@@ -89,11 +92,11 @@ function hasSameStaticPropertyWithDifferentObject(left, right, context) {
 		&& !isSameSourceText(left.object, right.object, sourceCode);
 }
 
-function hasMinimalCalleeDifference(left, right, context, {checkVaryingCallee, checkComputedMemberAccess}) {
-	// All callee-varying call cases push the ternary in front of the call (`(test ? a : b)()`), hiding the call site, so they are opt-in. `checkVaryingCallee` covers plain identifier and dot access; `checkComputedMemberAccess` additionally produces computed member access (`obj[test ? 'a' : 'b'](…)`).
-	return (checkVaryingCallee && isDifferentIdentifier(left, right))
+function hasMinimalCalleeDifference(left, right, context, {checkVaryingBase, checkComputedMemberAccess}) {
+	// All callee-varying call cases push the ternary in front of the call (`(test ? a : b)()`), hiding the call site, so they are opt-in. `checkVaryingBase` covers plain identifier and dot access; `checkComputedMemberAccess` additionally produces computed member access (`obj[test ? 'a' : 'b'](…)`).
+	return (checkVaryingBase && isDifferentIdentifier(left, right))
 		|| (checkComputedMemberAccess && hasSameObjectWithDifferentStaticProperty(left, right, context))
-		|| (checkVaryingCallee && hasSameStaticPropertyWithDifferentObject(left, right, context));
+		|| (checkVaryingBase && hasSameStaticPropertyWithDifferentObject(left, right, context));
 }
 
 function hasOneMinimalItemDifference(leftItems, rightItems, sourceCode) {
@@ -199,10 +202,10 @@ function hasSameObjectWithDifferentDynamicKey(left, right, context) {
 		&& !isSameSourceText(left.property, right.property, sourceCode);
 }
 
-function isMinimalMemberExpression(left, right, context) {
-	// Static property swaps (`obj.a : obj.b`, `obj['a'] : obj['b']`) are intentionally not reported: minimizing them forces or keeps computed access in place of clearer property access. But a dynamic computed key (`obj[a] : obj[b]`) is already computed, so `obj[test ? a : b]` removes the duplication with no regression.
-	return hasSameStaticPropertyWithDifferentObject(left, right, context)
-		|| hasSameObjectWithDifferentDynamicKey(left, right, context);
+function isMinimalMemberExpression(left, right, context, {checkVaryingBase}) {
+	// Dynamic computed-key swaps (`obj[a] : obj[b]`) are always reported: the access is already computed, so `obj[test ? a : b]` removes the duplication with no regression. Object swaps (`a.foo : b.foo`) are opt-in via `checkVaryingBase`: minimizing them moves the ternary into the base (`(test ? a : b).foo`), which wraps the receiver in a conditional and breaks TypeScript `const enum` access. Static property swaps (`obj.a : obj.b`) are never reported, since minimizing them forces computed access in place of clearer property access.
+	return hasSameObjectWithDifferentDynamicKey(left, right, context)
+		|| (checkVaryingBase && hasSameStaticPropertyWithDifferentObject(left, right, context));
 }
 
 function isMinimalTernary(consequent, alternate, context, options) {
@@ -216,7 +219,7 @@ function isMinimalTernary(consequent, alternate, context, options) {
 
 	return isMinimalCallExpression(consequent, alternate, context, options)
 		|| isMinimalBinaryExpression(consequent, alternate, context)
-		|| isMinimalMemberExpression(consequent, alternate, context);
+		|| isMinimalMemberExpression(consequent, alternate, context, options);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -249,9 +252,9 @@ const config = {
 				type: 'object',
 				additionalProperties: false,
 				properties: {
-					checkVaryingCallee: {
+					checkVaryingBase: {
 						type: 'boolean',
-						description: 'Also report call ternaries that differ only by the callee, whose minimization moves the ternary in front of the call.',
+						description: 'Also report ternaries that differ only by the base of a call or member access, whose minimization moves the ternary into the base (`(test ? a : b).foo`).',
 					},
 					checkComputedMemberAccess: {
 						type: 'boolean',
@@ -260,7 +263,7 @@ const config = {
 				},
 			},
 		],
-		defaultOptions: [{checkVaryingCallee: false, checkComputedMemberAccess: false}],
+		defaultOptions: [{checkVaryingBase: false, checkComputedMemberAccess: false}],
 		messages,
 		languages: [
 			'js/js',

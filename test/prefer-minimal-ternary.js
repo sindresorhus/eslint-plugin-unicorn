@@ -1,7 +1,19 @@
 import {outdent} from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+// Runs with full type information and `checkVaryingBase` enabled, so `const enum` objects can be detected.
+const typeAwareVaryingBase = code => ({
+	code,
+	options: [{checkVaryingBase: true}],
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -59,6 +71,9 @@ test.snapshot({
 				}
 			}
 		`,
+		// Object swaps are off by default: moving the ternary into the base (`(test ? a : b).value`) wraps the receiver in a conditional and breaks TypeScript `const enum` access. Opt in with `checkVaryingBase`.
+		'test ? a.value : b.value;',
+		'test ? a["x"] : b["x"];',
 		// Static property swaps are never reported: `object['a']` is the same logical access as `object.a`, so minimizing them forces or keeps computed access in place of clearer property access.
 		'test ? object.a : object.b;',
 		'test ? object["a"] : object["b"];',
@@ -86,6 +101,11 @@ test.snapshot({
 			code: 'isMac ? event.metaKey : event.ctrlKey;',
 			options: [{checkComputedMemberAccess: true}],
 		},
+		// `checkComputedMemberAccess` alone does not enable object-varying reads; that needs `checkVaryingBase`.
+		{
+			code: 'test ? a.value : b.value;',
+			options: [{checkComputedMemberAccess: true}],
+		},
 		// Callee-varying call ternaries are off by default.
 		'test ? a() : b();',
 		'test ? a(value) : b(value);',
@@ -98,7 +118,11 @@ test.snapshot({
 		// Optional chaining is never reported, even when the option is on.
 		{
 			code: 'test ? a?.() : b?.();',
-			options: [{checkVaryingCallee: true}],
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: 'test ? a?.foo : b?.foo;',
+			options: [{checkVaryingBase: true}],
 		},
 		// Optional chaining is never reported, even when the option is on.
 		{
@@ -110,15 +134,20 @@ test.snapshot({
 			code: 'test ? Promise.allSettled(a) : Promise.all(b);',
 			options: [{checkComputedMemberAccess: true}],
 		},
+		// Even with `checkVaryingBase`, a `const enum` object is not reported: `(test ? Email : Sms).MFA_CODE` is a TypeScript compile error (TS2475). Detected whether the const enum is the consequent, the alternate, or both.
+		typeAwareVaryingBase('const enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
+		typeAwareVaryingBase('enum Email { MFA_CODE } const enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
+		typeAwareVaryingBase('const enum Email { MFA_CODE } const enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
+		// Computed access on a `const enum` is exempt too: `(test ? Email : Sms)["MFA_CODE"]` is also a TS2475 compile error.
+		typeAwareVaryingBase('const enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email["MFA_CODE"] : Sms["MFA_CODE"];'),
+		// A `const enum` reached through an alias is resolved and exempted too.
+		typeAwareVaryingBase('const enum Original { MFA_CODE } import Email = Original; enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
 	],
 	invalid: [
 		'test ? call(a) : call(b);',
 		'test ? call(a, b) : call(a, c);',
 		'test ? a + 1 : b + 1;',
 		'test ? 1 + a : 1 + b;',
-		'test ? a.value : b.value;',
-		// Computed access with a static property minimizes when only the object differs.
-		'test ? a["x"] : b["x"];',
 		// Same object with a dynamic computed key minimizes to `c[test ? x : y]` with no regression.
 		'test ? c[x] : c[y];',
 		'test ? object[method] : object[otherMethod];',
@@ -138,18 +167,27 @@ test.snapshot({
 			code: 'test ? c[x!] : c[y!];',
 			languageOptions: {parser: parsers.typescript},
 		},
-		// `checkVaryingCallee` enables call ternaries that differ only by the callee.
+		// `checkVaryingBase` enables ternaries that differ only by the base of a call or member access.
 		{
 			code: 'test ? a() : b();',
-			options: [{checkVaryingCallee: true}],
+			options: [{checkVaryingBase: true}],
 		},
 		{
 			code: 'test ? a(value) : b(value);',
-			options: [{checkVaryingCallee: true}],
+			options: [{checkVaryingBase: true}],
 		},
 		{
 			code: 'test ? first.method(value) : second.method(value);',
-			options: [{checkVaryingCallee: true}],
+			options: [{checkVaryingBase: true}],
+		},
+		// A plain member read where only the object differs.
+		{
+			code: 'test ? a.value : b.value;',
+			options: [{checkVaryingBase: true}],
+		},
+		{
+			code: 'test ? a["x"] : b["x"];',
+			options: [{checkVaryingBase: true}],
 		},
 		// `checkComputedMemberAccess` enables method-call ternaries that differ only by the method name.
 		{
@@ -191,5 +229,8 @@ test.snapshot({
 			options: [{checkComputedMemberAccess: true}],
 			languageOptions: {parser: parsers.typescript},
 		},
+		// The `const enum` exemption is specific: regular enums and plain objects are still reported.
+		typeAwareVaryingBase('enum Email { MFA_CODE } enum Sms { MFA_CODE } declare const test: boolean; test ? Email.MFA_CODE : Sms.MFA_CODE;'),
+		typeAwareVaryingBase('declare const a: {value: number}, b: {value: number}, test: boolean; test ? a.value : b.value;'),
 	],
 });
