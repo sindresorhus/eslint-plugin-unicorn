@@ -9,12 +9,20 @@ import {
 	isKnownNonString,
 	isMethodNamed,
 	isString,
+	isSameReference,
 } from './utils/index.js';
-import {isMethodCall, isRegexLiteral, isLiteral} from './ast/index.js';
+import {
+	isMethodCall,
+	isRegexLiteral,
+	isLiteral,
+	isNumericLiteral,
+} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
 const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
+const MESSAGE_SLICE_STARTS_WITH = 'prefer-starts-with-slice';
+const MESSAGE_SLICE_ENDS_WITH = 'prefer-ends-with-slice';
 const FIX_TYPE_STRING_CASTING = 'useStringCasting';
 const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
 const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
@@ -22,6 +30,8 @@ const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
 	[MESSAGE_INDEX_OF_STARTS_WITH]: 'Prefer `String#startsWith()` over `String#indexOf() === 0`.',
+	[MESSAGE_SLICE_STARTS_WITH]: 'Prefer `String#startsWith()` over comparing a string slice.',
+	[MESSAGE_SLICE_ENDS_WITH]: 'Prefer `String#endsWith()` over comparing a string slice.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
 	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
@@ -33,6 +43,94 @@ const isSimpleString = string => doesNotContain(
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|'],
 );
 const addParentheses = text => `(${text})`;
+const equalityOperators = new Set(['===', '!==', '==', '!=']);
+const isNegatedEqualityOperator = operator => operator === '!==' || operator === '!=';
+
+const getNumericLiteralValue = node => {
+	if (isNumericLiteral(node)) {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression'
+		&& node.operator === '-'
+		&& isNumericLiteral(node.argument)
+	) {
+		return -node.argument.value;
+	}
+};
+
+const isLengthProperty = node => (
+	node?.type === 'MemberExpression'
+	&& !node.computed
+	&& node.property.type === 'Identifier'
+	&& node.property.name === 'length'
+);
+
+const isNegativeLengthProperty = node => (
+	node.type === 'UnaryExpression'
+	&& node.operator === '-'
+	&& isLengthProperty(node.argument)
+);
+
+const getStaticStringLength = (node, context) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+
+	if (typeof staticValue?.value === 'string') {
+		return staticValue.value.length;
+	}
+};
+
+const isMatchingLengthProperty = (lengthNode, searchArgument) =>
+	isLengthProperty(lengthNode)
+	&& isSameReference(lengthNode.object, searchArgument);
+
+const getSliceMethod = (sliceCall, searchArgument, context) => {
+	const {arguments: argumentNodes} = sliceCall;
+	const [firstArgument, secondArgument] = argumentNodes;
+	const searchLength = getStaticStringLength(searchArgument, context);
+
+	if (
+		argumentNodes.length === 2
+		&& isLiteral(firstArgument, 0)
+		&& (
+			(searchLength !== undefined && getNumericLiteralValue(secondArgument) === searchLength)
+			|| isMatchingLengthProperty(secondArgument, searchArgument)
+		)
+	) {
+		return {
+			method: 'startsWith',
+			messageId: MESSAGE_SLICE_STARTS_WITH,
+			isFixable: true,
+		};
+	}
+
+	if (
+		argumentNodes.length === 1
+		&& searchLength !== undefined
+		&& searchLength > 0
+		&& getNumericLiteralValue(firstArgument) === -searchLength
+	) {
+		return {
+			method: 'endsWith',
+			messageId: MESSAGE_SLICE_ENDS_WITH,
+			isFixable: true,
+		};
+	}
+
+	if (
+		argumentNodes.length === 1
+		&& isNegativeLengthProperty(firstArgument)
+		&& isSameReference(firstArgument.argument.object, searchArgument)
+		&& searchLength !== 0
+	) {
+		return {
+			method: 'endsWith',
+			messageId: MESSAGE_SLICE_ENDS_WITH,
+			isFixable: searchLength !== undefined,
+		};
+	}
+};
 
 const getRegexProblem = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
@@ -195,7 +293,7 @@ const create = context => {
 	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
-		if (!['===', '!==', '==', '!='].includes(operator)) {
+		if (!equalityOperators.has(operator)) {
 			return;
 		}
 
@@ -253,6 +351,76 @@ const create = context => {
 			},
 		};
 	});
+
+	context.on('BinaryExpression', node => {
+		const {left, right, operator} = node;
+
+		if (!equalityOperators.has(operator)) {
+			return;
+		}
+
+		let sliceCall;
+		let searchArgument;
+		if (isMethodNamed(left, 'slice')) {
+			sliceCall = left;
+			searchArgument = right;
+		} else if (isMethodNamed(right, 'slice')) {
+			sliceCall = right;
+			searchArgument = left;
+		} else {
+			return;
+		}
+
+		if (
+			sliceCall.optional
+			|| sliceCall.callee.optional
+			|| sliceCall.callee.computed
+			|| sliceCall.arguments.length === 0
+			|| sliceCall.arguments.length > 2
+			|| sliceCall.arguments.some(node => node.type === 'SpreadElement')
+		) {
+			return;
+		}
+
+		const target = sliceCall.callee.object;
+		if (
+			!isString(target, context)
+			|| !isString(searchArgument, context)
+		) {
+			return;
+		}
+
+		const problem = getSliceMethod(sliceCall, searchArgument, context);
+		if (!problem) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: problem.messageId,
+			* fix(fixer, {abort}) {
+				if (
+					!problem.isFixable
+					|| sourceCode.getCommentsInside(node).length > 0
+				) {
+					return abort();
+				}
+
+				let targetText = getParenthesizedText(target, context);
+
+				if (
+					!isParenthesized(target, context)
+					&& shouldAddParenthesesToMemberExpressionObject(target, context)
+				) {
+					targetText = `(${targetText})`;
+				}
+
+				const searchText = sourceCode.getText(searchArgument);
+				const replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${problem.method}(${searchText})`;
+				yield fixer.replaceText(node, replacement);
+			},
+		};
+	});
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -261,7 +429,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()` and `String#indexOf() === 0`.',
+			description: 'Prefer `String#startsWith()` & `String#endsWith()` over regexes, `String#indexOf() === 0`, and slice checks.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
