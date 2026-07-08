@@ -571,3 +571,4 @@ export default defineConfig([
 ## Related
 
 - [eslint-node-test](https://github.com/sindresorhus/eslint-node-test) — ESLint rules for the Node.js built-in test runner.
+- [eslint-package-json](https://github.com/sindresorhus/eslint-package-json) — Powerful ESLint rules for `package.json`.
