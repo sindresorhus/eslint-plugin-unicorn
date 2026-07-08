@@ -27,7 +27,7 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
-Ternaries where only a static property name varies (`object.a : object.b` or `object['a'] : object['b']`) are not reported, since minimizing them needs computed member access (`object[test ? 'a' : 'b']`) in place of clearer property access. But a dynamic computed key is already computed, so it is reported:
+Member access ternaries are not reported when only a static property name varies (`object.a : object.b`), since minimizing them needs computed member access in place of clearer property access. When only the object varies (`a.foo : b.foo`), minimizing moves the ternary into the base (`(test ? a : b).foo`), wrapping the receiver in a conditional and breaking TypeScript `const enum` access, so it is off by default (opt in with [`checkVaryingBase`](#checkvaryingbase)). But a dynamic computed key is already computed, so it is reported:
 
 ```js
 // ❌
@@ -41,15 +41,15 @@ Only shallow cases are reported; nested expressions are not recursively minimize
 
 ## Options
 
-### `checkVaryingCallee`
+### `checkVaryingBase`
 
 Type: `boolean`\
 Default: `false`
 
-Also report call ternaries that share the arguments and differ only by the callee. Minimizing these moves the ternary in front of the call (`(test ? a : b)()`), which hides the call site and breaks plain-text searches for the call, so it is opt-in.
+Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site, breaks plain-text searches, and breaks TypeScript `const enum` access, so it is opt-in.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingCallee": true}]
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
 
 // ❌
 const foo = test ? a() : b();
@@ -59,7 +59,7 @@ const foo = (test ? a : b)();
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingCallee": true}]
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
 
 // ❌
 const foo = test ? a.method(value) : b.method(value);
@@ -67,6 +67,18 @@ const foo = test ? a.method(value) : b.method(value);
 // ✅
 const foo = (test ? a : b).method(value);
 ```
+
+```js
+// eslint unicorn/prefer-minimal-ternary: ["error", {"checkVaryingBase": true}]
+
+// ❌
+const foo = test ? a.value : b.value;
+
+// ✅
+const foo = (test ? a : b).value;
+```
+
+When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, objects that are a TypeScript `const enum` are never reported, since a `const enum` may appear only in a direct property or index access, so `(test ? a : b).value` would not compile. Without type information, they are indistinguishable from normal objects and are still reported.
 
 ### `checkComputedMemberAccess`
 

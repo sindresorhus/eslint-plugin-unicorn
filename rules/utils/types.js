@@ -7,8 +7,18 @@ const uniqueSymbolTypeFlag = 16_384; // TypeFlags.UniqueESSymbol
 const stringMappingTypeFlag = 8_388_608; // TypeFlags.StringMapping
 const typeParameterTypeFlag = 524_288; // TypeFlags.TypeParameter
 
-// Test a single `TypeFlags` bit. Uses modulo rather than bitwise `&`, which truncates to 32 bits, to stay correct if `type.flags` ever grows past that.
-const typeHasFlag = (type, flag) => (type.flags % (flag * 2)) >= flag;
+// `SymbolFlags` bit values from TypeScript.
+const constEnumSymbolFlag = 128; // SymbolFlags.ConstEnum
+const aliasSymbolFlag = 2_097_152; // SymbolFlags.Alias
+
+// Test a single flag bit. Uses modulo rather than bitwise `&`, which truncates to 32 bits, to stay correct if the flags ever grow past that.
+const hasFlag = (flags, flag) => (flags % (flag * 2)) >= flag;
+
+const typeHasFlag = (type, flag) => hasFlag(type.flags, flag);
+
+const isConstEnumSymbol = symbol => hasFlag(symbol.flags, constEnumSymbolFlag);
+
+const isAliasSymbol = symbol => hasFlag(symbol.flags, aliasSymbolFlag);
 
 const isTemplateLiteralType = type => typeHasFlag(type, templateLiteralTypeFlag);
 
@@ -39,6 +49,8 @@ function getBaseTypes(type, checker) {
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	isAliasSymbol,
+	isConstEnumSymbol,
 	isDefaultLibrarySymbol,
 	isNullishType,
 	isStringMappingType,
