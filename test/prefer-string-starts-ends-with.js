@@ -377,6 +377,12 @@ test({
 			output: '(0, "foo").startsWith("f")',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
+		// Parenthesized search value
+		{
+			code: '"foo".indexOf((0, "f")) === 0',
+			output: '"foo".startsWith((0, "f"))',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
 		// String.fromCharCode receiver
 		{
 			code: 'String.fromCharCode(65).indexOf("A") === 0',

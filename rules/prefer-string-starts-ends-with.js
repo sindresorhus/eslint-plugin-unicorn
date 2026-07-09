@@ -121,6 +121,19 @@ const getSliceComparison = (sliceCall, searchArgument, context) => {
 	}
 };
 
+const getMethodReceiverText = (node, context) => {
+	let text = getParenthesizedText(node, context);
+
+	if (
+		!isParenthesized(node, context)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+	) {
+		text = `(${text})`;
+	}
+
+	return text;
+};
+
 const getRegexProblem = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
 		return;
@@ -325,16 +338,8 @@ const create = context => {
 					return abort();
 				}
 
-				let targetText = getParenthesizedText(target, context);
-
-				if (
-					!isParenthesized(target, context)
-					&& shouldAddParenthesesToMemberExpressionObject(target, context)
-				) {
-					targetText = `(${targetText})`;
-				}
-
-				const searchText = sourceCode.getText(searchArgument);
+				const targetText = getMethodReceiverText(target, context);
+				const searchText = getParenthesizedText(searchArgument, context);
 				const replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
 				yield fixer.replaceText(node, replacement);
 			},
@@ -394,15 +399,7 @@ const create = context => {
 					return abort();
 				}
 
-				let targetText = getParenthesizedText(target, context);
-
-				if (
-					!isParenthesized(target, context)
-					&& shouldAddParenthesesToMemberExpressionObject(target, context)
-				) {
-					targetText = `(${targetText})`;
-				}
-
+				const targetText = getMethodReceiverText(target, context);
 				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
