@@ -10,6 +10,7 @@ import {
 	isMethodNamed,
 	isString,
 	isSameReference,
+	needsSemicolon,
 } from './utils/index.js';
 import {
 	isMethodCall,
@@ -85,7 +86,7 @@ const isMatchingLengthProperty = (lengthNode, searchArgument) =>
 	isLengthProperty(lengthNode)
 	&& isSameReference(lengthNode.object, searchArgument);
 
-const getSliceProblem = (sliceCall, searchArgument, context) => {
+const getSliceComparison = (sliceCall, searchArgument, context) => {
 	const {arguments: argumentNodes} = sliceCall;
 	const [firstArgument, secondArgument] = argumentNodes;
 	const searchLength = getStaticStringLength(searchArgument, context);
@@ -101,7 +102,6 @@ const getSliceProblem = (sliceCall, searchArgument, context) => {
 		return {
 			method: 'startsWith',
 			messageId: MESSAGE_SLICE_STARTS_WITH,
-			isFixable: true,
 		};
 	}
 
@@ -109,25 +109,17 @@ const getSliceProblem = (sliceCall, searchArgument, context) => {
 		argumentNodes.length === 1
 		&& searchLength !== undefined
 		&& searchLength > 0
-		&& getNumericLiteralValue(firstArgument) === -searchLength
+		&& (
+			getNumericLiteralValue(firstArgument) === -searchLength
+			|| (
+				isNegativeLengthProperty(firstArgument)
+				&& isSameReference(firstArgument.argument.object, searchArgument)
+			)
+		)
 	) {
 		return {
 			method: 'endsWith',
 			messageId: MESSAGE_SLICE_ENDS_WITH,
-			isFixable: true,
-		};
-	}
-
-	if (
-		argumentNodes.length === 1
-		&& isNegativeLengthProperty(firstArgument)
-		&& isSameReference(firstArgument.argument.object, searchArgument)
-		&& searchLength !== 0
-	) {
-		return {
-			method: 'endsWith',
-			messageId: MESSAGE_SLICE_ENDS_WITH,
-			isFixable: searchLength !== undefined,
 		};
 	}
 };
@@ -390,18 +382,17 @@ const create = context => {
 			return;
 		}
 
-		const problem = getSliceProblem(sliceCall, searchArgument, context);
-		if (!problem) {
+		const comparison = getSliceComparison(sliceCall, searchArgument, context);
+		if (!comparison) {
 			return;
 		}
 
 		return {
 			node,
-			messageId: problem.messageId,
+			messageId: comparison.messageId,
 			* fix(fixer, {abort}) {
 				if (
-					!problem.isFixable
-					|| sourceCode.getCommentsInside(node).length > 0
+					sourceCode.getCommentsInside(node).length > 0
 				) {
 					return abort();
 				}
@@ -416,7 +407,11 @@ const create = context => {
 				}
 
 				const searchText = sourceCode.getText(searchArgument);
-				const replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${problem.method}(${searchText})`;
+				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
+					replacement = `;${replacement}`;
+				}
+
 				yield fixer.replaceText(node, replacement);
 			},
 		};

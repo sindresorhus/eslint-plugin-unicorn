@@ -443,6 +443,10 @@ test({
 		// Empty dynamic suffix would not be equivalent to `endsWith()`
 		'"shark".slice(-0) === ""',
 		'const suffix = ""; "shark".slice(-suffix.length) === suffix',
+		{
+			code: 'function foo(value: string, suffix: string) { return value.slice(-suffix.length) === suffix; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Non-string compared value
 		'"shark".slice(0, 5) === 123',
 		'"shark".slice(-5) === /shark/',
@@ -480,6 +484,12 @@ test({
 			output: '"shark".startsWith("shark")',
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
+		// Negated prefix
+		{
+			code: '"shark".slice(0, 5) !== "shark"',
+			output: '!"shark".startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
 		// Loose inequality
 		{
 			code: '"shark".slice(-5) != "shark"',
@@ -512,16 +522,17 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
+		// ASI protection
+		{
+			code: 'const value: string = "x"\nvalue!.slice(0, 1) === "x"',
+			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
 		// Static non-empty dynamic suffix length
 		{
 			code: 'const suffix = "ark"; "shark".slice(-suffix.length) === suffix',
 			output: 'const suffix = "ark"; "shark".endsWith(suffix)',
-			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
-		},
-		// TypeScript typed dynamic suffix length reports without autofix
-		{
-			code: 'function foo(value: string, suffix: string) { return value.slice(-suffix.length) === suffix; }',
-			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
 		},
 		// Comment inside the comparison aborts the fix
