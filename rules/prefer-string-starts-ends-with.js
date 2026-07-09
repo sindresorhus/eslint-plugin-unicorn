@@ -68,12 +68,6 @@ const isLengthProperty = node => (
 	&& node.property.name === 'length'
 );
 
-const isNegativeLengthProperty = node => (
-	node.type === 'UnaryExpression'
-	&& node.operator === '-'
-	&& isLengthProperty(node.argument)
-);
-
 const getStaticStringLength = (node, context) => {
 	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
 
@@ -85,6 +79,12 @@ const getStaticStringLength = (node, context) => {
 const isMatchingLengthProperty = (lengthNode, searchArgument) =>
 	isLengthProperty(lengthNode)
 	&& isSameReference(lengthNode.object, searchArgument);
+
+const isMatchingNegativeLengthProperty = (node, searchArgument) => (
+	node?.type === 'UnaryExpression'
+	&& node.operator === '-'
+	&& isMatchingLengthProperty(node.argument, searchArgument)
+);
 
 const getSliceComparison = (sliceCall, searchArgument, context) => {
 	const {arguments: argumentNodes} = sliceCall;
@@ -111,10 +111,7 @@ const getSliceComparison = (sliceCall, searchArgument, context) => {
 		&& searchLength > 0
 		&& (
 			getNumericLiteralValue(firstArgument) === -searchLength
-			|| (
-				isNegativeLengthProperty(firstArgument)
-				&& isSameReference(firstArgument.argument.object, searchArgument)
-			)
+			|| isMatchingNegativeLengthProperty(firstArgument, searchArgument)
 		)
 	) {
 		return {
@@ -406,7 +403,7 @@ const create = context => {
 					targetText = `(${targetText})`;
 				}
 
-				const searchText = sourceCode.getText(searchArgument);
+				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
 					replacement = `;${replacement}`;

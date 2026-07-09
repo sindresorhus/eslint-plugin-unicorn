@@ -427,7 +427,7 @@ test({
 		// Receiver not provably a string
 		'value.slice(0, 5) === "shark"',
 		// Non-string receiver
-		'const value = [1, 2, 3]; value.slice(0, 1) === 1',
+		'const value = [1, 2, 3]; value.slice(0, 1) === "1"',
 		// Optional
 		'"shark".slice?.(0, 5) === "shark"',
 		'"shark"?.slice(0, 5) === "shark"',
@@ -440,6 +440,10 @@ test({
 		'"shark".slice(0, 4) === "shark"',
 		'"shark".slice(-4) === "shark"',
 		'"shark".slice(-5, -1) === "shark"',
+		{
+			code: 'function foo(value: string, prefix: string, other: string) { return value.slice(0, other.length) === prefix; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		// Empty dynamic suffix would not be equivalent to `endsWith()`
 		'"shark".slice(-0) === ""',
 		'const suffix = ""; "shark".slice(-suffix.length) === suffix',
@@ -528,6 +532,17 @@ test({
 			output: 'const value: string = "x"\n;(value!).startsWith("x")',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Parenthesized search value
+		{
+			code: '"shark".slice(0, 1) === (0, "s")',
+			output: '"shark".startsWith((0, "s"))',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		{
+			code: '"shark".slice(-1) === (0, "k")',
+			output: '"shark".endsWith((0, "k"))',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
 		},
 		// Static non-empty dynamic suffix length
 		{

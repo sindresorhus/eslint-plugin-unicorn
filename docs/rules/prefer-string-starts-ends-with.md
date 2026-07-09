@@ -13,7 +13,7 @@ Prefer [`String#startsWith()`](https://developer.mozilla.org/en/docs/Web/JavaScr
 
 This rule also detects `String#indexOf() === 0` when the receiver is provably a string (via literals, `String()` calls, TypeScript type annotations, etc.).
 
-This rule also detects string slice comparisons like `string.slice(0, prefix.length) === prefix` and `string.slice(-5) === 'value'`. Dynamic suffix length checks are only reported when the suffix value is statically known to be non-empty, because `string.slice(-suffix.length) === suffix` is not equivalent to `string.endsWith(suffix)` when `suffix` is an empty string.
+This rule also detects string slice comparisons like `string.slice(0, prefix.length) === prefix` and `string.slice(-5) === 'value'` when the receiver and compared value are provably strings. Dynamic suffix length checks are only reported when the suffix value is statically known to be non-empty, because `string.slice(-suffix.length) === suffix` is not equivalent to `string.endsWith(suffix)` when `suffix` is an empty string.
 
 Some reports are not autofixable when the replacement could change behavior or remove comments.
 
