@@ -140,6 +140,7 @@ export {default as 'no-unnecessary-nested-ternary'} from './no-unnecessary-neste
 export {default as 'no-unnecessary-polyfills'} from './no-unnecessary-polyfills.js';
 export {default as 'no-unnecessary-slice-end'} from './no-unnecessary-slice-end.js';
 export {default as 'no-unnecessary-splice'} from './no-unnecessary-splice.js';
+export {default as 'no-unnecessary-string-trim'} from './no-unnecessary-string-trim.js';
 export {default as 'no-unreadable-array-destructuring'} from './no-unreadable-array-destructuring.js';
 export {default as 'no-unreadable-for-of-expression'} from './no-unreadable-for-of-expression.js';
 export {default as 'no-unreadable-iife'} from './no-unreadable-iife.js';
