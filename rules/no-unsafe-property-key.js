@@ -20,6 +20,7 @@ import {
 	isDefaultLibrarySymbol,
 	isStringMappingType,
 	isTemplateLiteralType,
+	isUnknownType,
 	isUniqueSymbolType,
 } from './utils/types.js';
 
@@ -244,8 +245,13 @@ function getTypeInformationPropertyKeyType(node, context) {
 
 	try {
 		const {program} = parserServices;
+		const type = parserServices.getTypeAtLocation(node);
+		if (isUnknownType(type)) {
+			return unknown;
+		}
+
 		return isPossiblyUnsafePropertyKeyType(
-			parserServices.getTypeAtLocation(node),
+			type,
 			program.getTypeChecker(),
 			program,
 		)
