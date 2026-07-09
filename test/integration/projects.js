@@ -166,10 +166,6 @@ export default [
 			],
 		},
 		{
-			repository: 'https://github.com/mozilla/pdf.js',
-			group: 5,
-		},
-		{
 			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
 			babelPlugins: ['decorators'],
 			ignore: [
