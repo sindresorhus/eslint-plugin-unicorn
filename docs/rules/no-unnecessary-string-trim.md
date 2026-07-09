@@ -13,7 +13,7 @@ Use `String#trimStart()` before `String#startsWith()` and `String#trimEnd()` bef
 
 This rule does not report `startsWith()` or `endsWith()` calls with a second argument, because the second argument can make the other side of the string observable.
 
-This rule also does not report `trim()` calls with arguments, non-static search strings, `startsWith()` search strings ending in whitespace, or `endsWith()` search strings starting with whitespace.
+This rule also does not report `trim()` calls with arguments, optional chaining, search strings that cannot be resolved statically, `startsWith()` search strings ending in whitespace, or `endsWith()` search strings starting with whitespace.
 
 ## Examples
 

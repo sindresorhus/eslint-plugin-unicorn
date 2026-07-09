@@ -1,5 +1,6 @@
-import {getStaticStringValue, isMethodCall} from './ast/index.js';
-import {isKnownNonString, unwrapTypeScriptExpression} from './utils/index.js';
+import {getStaticValue} from '@eslint-community/eslint-utils';
+import {isMethodCall} from './ast/index.js';
+import {hasOptionalChainElement, isKnownNonString, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-string-trim';
 const messages = {
@@ -13,6 +14,13 @@ const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 	? searchString === searchString.trimEnd()
 	: searchString === searchString.trimStart();
 
+const getStaticSearchString = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node))?.value;
+	return typeof staticValue === 'string' ? staticValue : undefined;
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	context.on('CallExpression', node => {
@@ -20,6 +28,7 @@ const create = context => {
 			methods,
 			maximumArguments: 1,
 			optionalCall: false,
+			optionalMember: false,
 		})) {
 			return;
 		}
@@ -29,7 +38,12 @@ const create = context => {
 			method: 'trim',
 			argumentsLength: 0,
 			optionalCall: false,
+			optionalMember: false,
 		})) {
+			return;
+		}
+
+		if (hasOptionalChainElement(node)) {
 			return;
 		}
 
@@ -43,7 +57,7 @@ const create = context => {
 		const [searchArgument] = node.arguments;
 
 		if (searchArgument) {
-			const searchString = getStaticStringValue(unwrapTypeScriptExpression(searchArgument));
+			const searchString = getStaticSearchString(searchArgument, context);
 
 			if (
 				searchString === undefined
