@@ -75,7 +75,15 @@ test.snapshot({
 			options: ['consistent-as-needed'],
 		},
 		{
+			code: 'const object = {foo() {return foo;}, bar() {return;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
 			code: 'const object = {foo() {return foo;}, bar() {return this.bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, bar() {return eval("this");}};',
 			options: ['consistent-as-needed'],
 		},
 		{

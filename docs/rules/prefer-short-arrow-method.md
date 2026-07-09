@@ -13,7 +13,7 @@ For object literal methods that simply return a value with no other logic, arrow
 
 Methods using `this`, `arguments`, `super`, `new.target`, or `eval()` are excluded because arrow functions would change their behavior.
 
-In the default `'always'` mode, this rule can mix arrow properties and method shorthand within the same object when only some methods are autofixable. Enable it only when concise arrow properties are preferred over object-level method style consistency.
+In the default `'always'` mode, this rule can mix arrow properties and method shorthand within the same object when only some methods are autofixable. Use this mode only when concise arrow properties are preferred over object-level method style consistency.
 
 ## Examples
 
@@ -74,7 +74,7 @@ const user = {
 With the `'consistent-as-needed'` option, the rule only reports methods in an object literal when every regular method shorthand (`foo() {}`) in that object can be autofixed:
 
 ```js
-// eslint unicorn/prefer-short-arrow-method: ["error", "consistent-as-needed"]
+/* eslint unicorn/prefer-short-arrow-method: ["error", "consistent-as-needed"] */
 
 // ✅ - `getRole()` uses `this`, so the object keeps method shorthand consistently.
 const user = {
