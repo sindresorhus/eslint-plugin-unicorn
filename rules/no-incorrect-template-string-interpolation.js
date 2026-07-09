@@ -11,7 +11,7 @@ const messages = {
 const identifier = String.raw`[$A-Z_a-z][\w$]*`;
 const memberExpression = String.raw`${identifier}(?:\.${identifier})*`;
 
-const missingDollar = new RegExp(String.raw`(?<![$\\])(?<!\{)\{(?<expression>${memberExpression})\}(?!\})`, 'gv');
+const missingDollar = new RegExp(String.raw`(?<![$\\])(?<!\{)(?<!\\u)\{(?<expression>${memberExpression})\}(?!\})`, 'gv');
 const missingOpeningBrace = new RegExp(String.raw`(?<!\\)(?<!\{)\$(?<expression>${memberExpression})\}(?!\})`, 'gv');
 
 // `{foo}` at the start of an `import`/`export`/`const`/`let`/`var` line is a named specifier or destructuring pattern, not a missing-dollar mistake (common in code-generation templates). Requiring no `=` (or `;`/`{`/`}`) before it keeps object literals like `const x = {foo}` reported.
