@@ -71,6 +71,8 @@ test({
 		// `indexOf` — optional
 		'foo?.indexOf("bar") === 0',
 		'foo.indexOf?.("bar") === 0',
+		'"foo"?.indexOf("bar") === 0',
+		'"foo".indexOf?.("bar") === 0',
 		// `indexOf` — computed
 		'foo["indexOf"]("bar") === 0',
 		// `indexOf` — spread
@@ -365,6 +367,13 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
+		// ASI protection
+		{
+			code: 'const value: string = "x"\nvalue!.indexOf("x") === 0',
+			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
 		// Conditional expression receiver
 		{
 			code: '(a ? "foo" : "bar").indexOf("f") === 0',
@@ -441,6 +450,7 @@ test({
 		'"shark"["slice"](0, 5) === "shark"',
 		// Spread
 		'"shark".slice(...[0, 5]) === "shark"',
+		'"shark".slice(0, ...[5]) === "shark"',
 		// Wrong bounds
 		'"shark".slice(1, 5) === "shark"',
 		'"shark".slice(0, 4) === "shark"',

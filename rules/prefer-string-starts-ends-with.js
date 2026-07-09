@@ -7,12 +7,12 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToLogicalExpressionChild,
 	isKnownNonString,
-	isMethodNamed,
 	isString,
 	isSameReference,
 	needsSemicolon,
 } from './utils/index.js';
 import {
+	isMemberExpression,
 	isMethodCall,
 	isRegexLiteral,
 	isLiteral,
@@ -61,12 +61,7 @@ const getNumericLiteralValue = node => {
 	}
 };
 
-const isLengthProperty = node => (
-	node?.type === 'MemberExpression'
-	&& !node.computed
-	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-);
+const isLengthProperty = node => isMemberExpression(node, {property: 'length'});
 
 const getStaticStringLength = (node, context) => {
 	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
@@ -300,21 +295,27 @@ const create = context => {
 		}
 
 		let indexOfCall;
-		if (isMethodNamed(left, 'indexOf') && isLiteral(right, 0)) {
+		if (
+			isMethodCall(left, {
+				method: 'indexOf',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isLiteral(right, 0)
+		) {
 			indexOfCall = left;
-		} else if (isMethodNamed(right, 'indexOf') && isLiteral(left, 0)) {
+		} else if (
+			isMethodCall(right, {
+				method: 'indexOf',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isLiteral(left, 0)
+		) {
 			indexOfCall = right;
 		} else {
-			return;
-		}
-
-		if (
-			indexOfCall.optional
-			|| indexOfCall.callee.optional
-			|| indexOfCall.callee.computed
-			|| indexOfCall.arguments.length !== 1
-			|| indexOfCall.arguments[0].type === 'SpreadElement'
-		) {
 			return;
 		}
 
@@ -340,7 +341,11 @@ const create = context => {
 
 				const targetText = getMethodReceiverText(target, context);
 				const searchText = getParenthesizedText(searchArgument, context);
-				const replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
+				let replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
+					replacement = `;${replacement}`;
+				}
+
 				yield fixer.replaceText(node, replacement);
 			},
 		};
@@ -355,24 +360,25 @@ const create = context => {
 
 		let sliceCall;
 		let searchArgument;
-		if (isMethodNamed(left, 'slice')) {
+		if (isMethodCall(left, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
 			sliceCall = left;
 			searchArgument = right;
-		} else if (isMethodNamed(right, 'slice')) {
+		} else if (isMethodCall(right, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
 			sliceCall = right;
 			searchArgument = left;
 		} else {
-			return;
-		}
-
-		if (
-			sliceCall.optional
-			|| sliceCall.callee.optional
-			|| sliceCall.callee.computed
-			|| sliceCall.arguments.length === 0
-			|| sliceCall.arguments.length > 2
-			|| sliceCall.arguments.some(node => node.type === 'SpreadElement')
-		) {
 			return;
 		}
 
@@ -393,9 +399,7 @@ const create = context => {
 			node,
 			messageId: comparison.messageId,
 			* fix(fixer, {abort}) {
-				if (
-					sourceCode.getCommentsInside(node).length > 0
-				) {
+				if (sourceCode.getCommentsInside(node).length > 0) {
 					return abort();
 				}
 
