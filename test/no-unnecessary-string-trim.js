@@ -48,6 +48,8 @@ test.snapshot({
 		'" foo ".trim().endsWith("o")',
 		'foo.trim().startsWith(" foo")',
 		'foo.trim().endsWith("foo ")',
+		'foo.trim().startsWith(`foo`)',
+		'foo.trim().endsWith(`foo`)',
 		'(foo).trim().startsWith("-")',
 		'(foo.trim()).startsWith("-")',
 		'foo?.trim().startsWith("-")',
