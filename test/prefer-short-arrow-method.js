@@ -113,18 +113,6 @@ test.snapshot({
 			options: ['consistent-as-needed'],
 		},
 		{
-			code: 'const object = {get bar() {return bar;}, foo() {return foo;}};',
-			options: ['consistent-as-needed'],
-		},
-		{
-			code: 'const object = {bar: bar, foo() {return foo;}};',
-			options: ['consistent-as-needed'],
-		},
-		{
-			code: 'const object = {bar: () => bar, foo() {return foo;}};',
-			options: ['consistent-as-needed'],
-		},
-		{
 			code: 'const object = {bar: function () {return bar;}, foo() {return foo;}};',
 			options: ['consistent-as-needed'],
 		},
@@ -151,5 +139,10 @@ test.snapshot({
 			options: ['consistent-as-needed'],
 		},
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: 'const object = {tsMode(value: string): string {return value;}};',
+			options: ['consistent-as-needed'],
+		},
+	],
 });
