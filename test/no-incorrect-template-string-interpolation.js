@@ -49,6 +49,10 @@ test.snapshot({
 		'const code = `/* $name} */`;',
 		// Multiple braces inside a single block comment are all ignored
 		'const code = `/* {a} {b} */`;',
+		// Unicode code point escapes are not missing-dollar mistakes (#3511)
+		'const blob = `\\u{FEFF}${csv}`;',
+		'const bom = `\\u{FEFF}`;',
+		'const glyph = `\\u{Face}`;',
 	],
 	invalid: [
 		'const greeting = `Hello {name}`;',
@@ -80,5 +84,7 @@ test.snapshot({
 		'const code = `const re = "/*"; {name}`;',
 		// Line comments are intentionally unsupported
 		'const code = `// {name}`;',
+		// A Unicode code point escape is ignored, but an adjacent real mistake is still reported
+		'const blob = `\\u{FEFF}{name}`;',
 	],
 });
