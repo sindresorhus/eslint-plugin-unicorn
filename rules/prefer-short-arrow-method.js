@@ -1,6 +1,8 @@
 import {hasUnsafeArrowConversionReference} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-short-arrow-method';
+const MODE_ALWAYS = 'always';
+const MODE_CONSISTENT_AS_NEEDED = 'consistent-as-needed';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer an arrow function property over a method with a single return.',
@@ -38,6 +40,11 @@ const getParametersText = (functionNode, sourceCode) =>
 
 const hasThisParameter = functionNode =>
 	functionNode.params.some(parameter => parameter.type === 'Identifier' && parameter.name === 'this');
+
+const isShorthandInitMethod = property =>
+	property.type === 'Property'
+	&& property.method
+	&& property.kind === 'init';
 
 const getReturnTypeText = (functionNode, sourceCode) =>
 	functionNode.returnType
@@ -79,24 +86,57 @@ const getFix = (property, returnStatement, context) => {
 	return fixer => fixer.replaceText(property, getReplacementText(property, returnStatement, sourceCode));
 };
 
+const getConvertibleReturnStatement = (property, sourceCode) => {
+	if (
+		!isShorthandInitMethod(property)
+		|| property.value.generator
+		|| isPrototypeProperty(property)
+		|| hasThisParameter(property.value)
+		|| hasUnsafeArrowConversionReference(property.value, sourceCode.visitorKeys)
+	) {
+		return;
+	}
+
+	return getReturnStatement(property);
+};
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const mode = context.options[0];
+	const objectCanBeAutofixedCache = new WeakMap();
+
+	const canAutofixProperty = property => {
+		const returnStatement = getConvertibleReturnStatement(property, sourceCode);
+		return Boolean(returnStatement && getFix(property, returnStatement, context));
+	};
+
+	const canAutofixAllShorthandInitMethods = objectExpression => {
+		const cachedResult = objectCanBeAutofixedCache.get(objectExpression);
+
+		if (cachedResult !== undefined) {
+			return cachedResult;
+		}
+
+		const result = objectExpression.properties.every(property =>
+			!isShorthandInitMethod(property) || canAutofixProperty(property),
+		);
+
+		objectCanBeAutofixedCache.set(objectExpression, result);
+
+		return result;
+	};
 
 	context.on('Property', property => {
-		if (
-			!property.method
-			|| property.kind !== 'init'
-			|| property.value.generator
-			|| isPrototypeProperty(property)
-			|| hasThisParameter(property.value)
-			|| hasUnsafeArrowConversionReference(property.value, sourceCode.visitorKeys)
-		) {
+		const returnStatement = getConvertibleReturnStatement(property, sourceCode);
+		if (!returnStatement) {
 			return;
 		}
 
-		const returnStatement = getReturnStatement(property);
-		if (!returnStatement) {
+		if (
+			mode === MODE_CONSISTENT_AS_NEEDED
+			&& !canAutofixAllShorthandInitMethods(property.parent)
+		) {
 			return;
 		}
 
@@ -127,7 +167,16 @@ const config = {
 			recommended: false,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [
+			{
+				description: 'Mode to use when reporting methods.',
+				enum: [
+					MODE_ALWAYS,
+					MODE_CONSISTENT_AS_NEEDED,
+				],
+			},
+		],
+		defaultOptions: [MODE_ALWAYS],
 		messages,
 		languages: [
 			'js/js',
