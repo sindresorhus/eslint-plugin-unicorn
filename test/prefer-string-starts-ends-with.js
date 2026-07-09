@@ -75,6 +75,7 @@ test({
 		'"foo".indexOf?.("bar") === 0',
 		// `indexOf` — computed
 		'foo["indexOf"]("bar") === 0',
+		'"foo"["indexOf"]("bar") === 0',
 		// `indexOf` — spread
 		'"foo".indexOf(..."bar") === 0',
 		// `indexOf` — `new String()` returns an object, not a string primitive
