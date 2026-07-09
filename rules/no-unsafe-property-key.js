@@ -237,9 +237,24 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 		|| (!type.intrinsicName && type.getProperties().length > 0);
 }
 
+const hasParserOption = value =>
+	Array.isArray(value) ? value.length > 0 : Boolean(value);
+
+function hasTypeInformationParserOptions(context) {
+	const {
+		programs,
+		project,
+		projectService,
+	} = context.languageOptions.parserOptions ?? {};
+
+	return hasParserOption(programs)
+		|| hasParserOption(project)
+		|| hasParserOption(projectService);
+}
+
 function getTypeInformationPropertyKeyType(node, context) {
 	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
+	if (!parserServices?.program || !hasTypeInformationParserOptions(context)) {
 		return unknown;
 	}
 
