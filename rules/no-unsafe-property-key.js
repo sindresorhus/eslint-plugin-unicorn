@@ -20,6 +20,7 @@ import {
 	isDefaultLibrarySymbol,
 	isStringMappingType,
 	isTemplateLiteralType,
+	isUnknownType,
 	isUniqueSymbolType,
 } from './utils/types.js';
 
@@ -60,6 +61,16 @@ const unsafeGlobalIdentifiers = new Set([
 	'parseInt',
 	'Reflect',
 	'WebAssembly',
+]);
+
+const safeIntrinsicTypeNames = new Set([
+	'boolean',
+	'null',
+	'number',
+	'string',
+	'symbol',
+	'undefined',
+	'void',
 ]);
 
 const isBigIntLiteral = node =>
@@ -236,6 +247,51 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 		|| (!type.intrinsicName && type.getProperties().length > 0);
 }
 
+function isKnownSafePropertyKeyType(type, checker, program) {
+	if (isUnknownType(type)) {
+		return false;
+	}
+
+	if (type.isTypeParameter?.()) {
+		const constraint = type.getConstraint();
+
+		return constraint ? isKnownSafePropertyKeyType(constraint, checker, program) : false;
+	}
+
+	if (type.isUnion()) {
+		return type.types.every(type => isKnownSafePropertyKeyType(type, checker, program));
+	}
+
+	if (type.isIntersection()) {
+		return type.types.some(type => isKnownSafePropertyKeyType(type, checker, program));
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return isKnownSafePropertyKeyType(constraint, checker, program);
+	}
+
+	if (
+		isTemplateLiteralType(type)
+		|| isUniqueSymbolType(type)
+		|| isStringMappingType(type)
+	) {
+		return true;
+	}
+
+	if (
+		type.isStringLiteral?.()
+		|| type.isNumberLiteral?.()
+		|| type.isBooleanLiteral?.()
+	) {
+		return !isUnsafePropertyKeyType(type, checker, program);
+	}
+
+	return type.intrinsicName
+		? safeIntrinsicTypeNames.has(type.intrinsicName)
+		: false;
+}
+
 function isPossiblyUnsafePropertyKeyTypeFromTypeInformation(node, context) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
@@ -245,6 +301,24 @@ function isPossiblyUnsafePropertyKeyTypeFromTypeInformation(node, context) {
 	try {
 		const {program} = parserServices;
 		return isPossiblyUnsafePropertyKeyType(
+			parserServices.getTypeAtLocation(node),
+			program.getTypeChecker(),
+			program,
+		);
+	} catch {
+		return false;
+	}
+}
+
+function isKnownSafePropertyKeyTypeFromTypeInformation(node, context) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return false;
+	}
+
+	try {
+		const {program} = parserServices;
+		return isKnownSafePropertyKeyType(
 			parserServices.getTypeAtLocation(node),
 			program.getTypeChecker(),
 			program,
@@ -431,6 +505,10 @@ function getIdentifierStaticPropertyKeyType(node, context, visitedVariables) {
 		if (type !== unknown) {
 			return type;
 		}
+	}
+
+	if (isKnownSafePropertyKeyTypeFromTypeInformation(node, context)) {
+		return nonTarget;
 	}
 
 	const definitionScope = definition ? context.sourceCode.getScope(definition.name) : scope;

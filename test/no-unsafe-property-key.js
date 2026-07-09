@@ -263,11 +263,32 @@ test.snapshot({
 		typeAware('class A {static readonly key: unique symbol;} object[A.key]'),
 		typeAware('function f<T extends symbol>(key: T) {object[key]}'),
 		typeAware('declare const key: PropertyKey; object[key]'),
+		typeAware(outdent`
+			type Value = object | 'test';
+			const data = {test: 123} as const;
+
+			export function example(input: Value) {
+				if (typeof input === 'string') {
+					return data[input];
+				}
+
+				return data.test;
+			}
+		`),
 	],
 	invalid: [
 		typeAware('declare const key: unique symbol | {id: string}; object[key]'),
 		typeAware('declare const key: unique symbol | object; object[key]'),
 		typeAware('function f<T extends object>(key: T) {object[key]}'),
+		typeAware(outdent`
+			type Value = object | 'test';
+
+			export function example(input: Value) {
+				if (typeof input === 'object') {
+					return object[input];
+				}
+			}
+		`),
 		typeAware('const key = new URL("https://example.com"); object[key]'),
 		typeAware('const key = new Date(); object[key]'),
 		typeAware('const key = new Map(); object[key]'),
