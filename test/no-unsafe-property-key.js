@@ -324,6 +324,15 @@ test.snapshot({
 			}
 		`),
 		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'object') {
+					return {[input]: value};
+				}
+			}
+		`),
+		typeAware(outdent`
 			type Value = object | 9007199254740992;
 
 			function example(input: Value) {
