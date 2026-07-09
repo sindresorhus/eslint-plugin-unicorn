@@ -71,8 +71,11 @@ test({
 		// `indexOf` — optional
 		'foo?.indexOf("bar") === 0',
 		'foo.indexOf?.("bar") === 0',
+		'"foo"?.indexOf("bar") === 0',
+		'"foo".indexOf?.("bar") === 0',
 		// `indexOf` — computed
 		'foo["indexOf"]("bar") === 0',
+		'"foo"["indexOf"]("bar") === 0',
 		// `indexOf` — spread
 		'"foo".indexOf(..."bar") === 0',
 		// `indexOf` — `new String()` returns an object, not a string primitive
@@ -239,6 +242,8 @@ test({
 });
 
 const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
+const MESSAGE_SLICE_STARTS_WITH = 'prefer-starts-with-slice';
+const MESSAGE_SLICE_ENDS_WITH = 'prefer-ends-with-slice';
 
 // `indexOf` — provably string receivers
 test({
@@ -363,6 +368,13 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
+		// ASI protection
+		{
+			code: 'const value: string = "x"\nvalue!.indexOf("x") === 0',
+			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
 		// Conditional expression receiver
 		{
 			code: '(a ? "foo" : "bar").indexOf("f") === 0',
@@ -373,6 +385,12 @@ test({
 		{
 			code: '(0, "foo").indexOf("f") === 0',
 			output: '(0, "foo").startsWith("f")',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// Parenthesized search value
+		{
+			code: '"foo".indexOf((0, "f")) === 0',
+			output: '"foo".startsWith((0, "f"))',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
 		// String.fromCharCode receiver
@@ -415,6 +433,144 @@ test({
 		{
 			code: '"foo".indexOf(bar) === 0',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+	],
+});
+
+// `slice` comparisons — provably string receivers and search values
+test({
+	valid: [
+		// Receiver not provably a string
+		'value.slice(0, 5) === "shark"',
+		// Non-string receiver
+		'const value = [1, 2, 3]; value.slice(0, 1) === "1"',
+		// Optional
+		'"shark".slice?.(0, 5) === "shark"',
+		'"shark"?.slice(0, 5) === "shark"',
+		// Computed
+		'"shark"["slice"](0, 5) === "shark"',
+		// Spread
+		'"shark".slice(...[0, 5]) === "shark"',
+		'"shark".slice(0, ...[5]) === "shark"',
+		// Wrong bounds
+		'"shark".slice(1, 5) === "shark"',
+		'"shark".slice(0, 4) === "shark"',
+		'"shark".slice(-4) === "shark"',
+		'"shark".slice(-5, -1) === "shark"',
+		{
+			code: 'function foo(value: string, prefix: string, other: string) { return value.slice(0, other.length) === prefix; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Empty dynamic suffix would not be equivalent to `endsWith()`
+		'"shark".slice(-0) === ""',
+		'const suffix = ""; "shark".slice(-suffix.length) === suffix',
+		{
+			code: 'function foo(value: string, suffix: string) { return value.slice(-suffix.length) === suffix; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Non-string compared value
+		'"shark".slice(0, 5) === 123',
+		'"shark".slice(-5) === /shark/',
+		// Unknown compared value
+		'"shark".slice(0, 5) === prefix',
+	],
+	invalid: [
+		// Static prefix
+		{
+			code: '"shark".slice(0, 5) === "shark"',
+			output: '"shark".startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Static suffix
+		{
+			code: '"shark".slice(-5) === "shark"',
+			output: '"shark".endsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
+		},
+		// Reversed comparison
+		{
+			code: '"shark" === "shark".slice(0, 5)',
+			output: '"shark".startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Reversed negated
+		{
+			code: '"shark" !== "shark".slice(-5)',
+			output: '!"shark".endsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
+		},
+		// Loose equality
+		{
+			code: '"shark".slice(0, 5) == "shark"',
+			output: '"shark".startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Negated prefix
+		{
+			code: '"shark".slice(0, 5) !== "shark"',
+			output: '!"shark".startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Loose inequality
+		{
+			code: '"shark".slice(-5) != "shark"',
+			output: '!"shark".endsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
+		},
+		// Parenthesized receiver
+		{
+			code: '("shark").slice(0, 5) === "shark"',
+			output: '("shark").startsWith("shark")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// TypeScript typed dynamic prefix length
+		{
+			code: 'function foo(value: string, prefix: string) { return value.slice(0, prefix.length) === prefix; }',
+			output: 'function foo(value: string, prefix: string) { return value.startsWith(prefix); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Complex receiver
+		{
+			code: '("a" + value).slice(0, 1) === "a"',
+			output: '("a" + value).startsWith("a")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// TypeScript non-null assertion on string receiver
+		{
+			code: 'function foo(value: string) { return value!.slice(0, 1) === "x"; }',
+			output: 'function foo(value: string) { return (value!).startsWith("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// ASI protection
+		{
+			code: 'const value: string = "x"\nvalue!.slice(0, 1) === "x"',
+			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// Parenthesized search value
+		{
+			code: '"shark".slice(0, 1) === (0, "s")',
+			output: '"shark".startsWith((0, "s"))',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		{
+			code: '"shark".slice(-1) === (0, "k")',
+			output: '"shark".endsWith((0, "k"))',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
+		},
+		// Static non-empty dynamic suffix length
+		{
+			code: 'const suffix = "ark"; "shark".slice(-suffix.length) === suffix',
+			output: 'const suffix = "ark"; "shark".endsWith(suffix)',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
+		},
+		// Comment inside the comparison aborts the fix
+		{
+			code: '"shark".slice(0, 5) /* comment */ === "shark"',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
 	],
 });

@@ -7,14 +7,23 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToLogicalExpressionChild,
 	isKnownNonString,
-	isMethodNamed,
 	isString,
+	isSameReference,
+	needsSemicolon,
 } from './utils/index.js';
-import {isMethodCall, isRegexLiteral, isLiteral} from './ast/index.js';
+import {
+	isMemberExpression,
+	isMethodCall,
+	isRegexLiteral,
+	isLiteral,
+	isNumericLiteral,
+} from './ast/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
 const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
+const MESSAGE_SLICE_STARTS_WITH = 'prefer-starts-with-slice';
+const MESSAGE_SLICE_ENDS_WITH = 'prefer-ends-with-slice';
 const FIX_TYPE_STRING_CASTING = 'useStringCasting';
 const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
 const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
@@ -22,6 +31,8 @@ const messages = {
 	[MESSAGE_STARTS_WITH]: 'Prefer `String#startsWith()` over a regex with `^`.',
 	[MESSAGE_ENDS_WITH]: 'Prefer `String#endsWith()` over a regex with `$`.',
 	[MESSAGE_INDEX_OF_STARTS_WITH]: 'Prefer `String#startsWith()` over `String#indexOf() === 0`.',
+	[MESSAGE_SLICE_STARTS_WITH]: 'Prefer `String#startsWith()` over comparing a string slice.',
+	[MESSAGE_SLICE_ENDS_WITH]: 'Prefer `String#endsWith()` over comparing a string slice.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
 	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
@@ -33,6 +44,90 @@ const isSimpleString = string => doesNotContain(
 	['^', '$', '+', '[', '{', '(', '\\', '.', '?', '*', '|'],
 );
 const addParentheses = text => `(${text})`;
+const equalityOperators = new Set(['===', '!==', '==', '!=']);
+const isNegatedEqualityOperator = operator => operator === '!==' || operator === '!=';
+
+const getNumericLiteralValue = node => {
+	if (isNumericLiteral(node)) {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression'
+		&& node.operator === '-'
+		&& isNumericLiteral(node.argument)
+	) {
+		return -node.argument.value;
+	}
+};
+
+const isLengthProperty = node => isMemberExpression(node, {property: 'length'});
+
+const getStaticStringLength = (node, context) => {
+	const staticValue = getStaticValue(node, context.sourceCode.getScope(node));
+
+	if (typeof staticValue?.value === 'string') {
+		return staticValue.value.length;
+	}
+};
+
+const isMatchingLengthProperty = (lengthNode, searchArgument) =>
+	isLengthProperty(lengthNode)
+	&& isSameReference(lengthNode.object, searchArgument);
+
+const isMatchingNegativeLengthProperty = (node, searchArgument) => (
+	node?.type === 'UnaryExpression'
+	&& node.operator === '-'
+	&& isMatchingLengthProperty(node.argument, searchArgument)
+);
+
+const getSliceComparison = (sliceCall, searchArgument, context) => {
+	const {arguments: argumentNodes} = sliceCall;
+	const [firstArgument, secondArgument] = argumentNodes;
+	const searchLength = getStaticStringLength(searchArgument, context);
+
+	if (
+		argumentNodes.length === 2
+		&& isLiteral(firstArgument, 0)
+		&& (
+			(searchLength !== undefined && getNumericLiteralValue(secondArgument) === searchLength)
+			|| isMatchingLengthProperty(secondArgument, searchArgument)
+		)
+	) {
+		return {
+			method: 'startsWith',
+			messageId: MESSAGE_SLICE_STARTS_WITH,
+		};
+	}
+
+	if (
+		argumentNodes.length === 1
+		&& searchLength !== undefined
+		&& searchLength > 0
+		&& (
+			getNumericLiteralValue(firstArgument) === -searchLength
+			|| isMatchingNegativeLengthProperty(firstArgument, searchArgument)
+		)
+	) {
+		return {
+			method: 'endsWith',
+			messageId: MESSAGE_SLICE_ENDS_WITH,
+		};
+	}
+};
+
+const getMethodReceiverText = (node, context) => {
+	let text = getParenthesizedText(node, context);
+
+	if (
+		!isParenthesized(node, context)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+	) {
+		text = `(${text})`;
+	}
+
+	return text;
+};
 
 const getRegexProblem = ({pattern, flags}) => {
 	if (flags.includes('i') || flags.includes('m')) {
@@ -195,26 +290,32 @@ const create = context => {
 	context.on('BinaryExpression', node => {
 		const {left, right, operator} = node;
 
-		if (!['===', '!==', '==', '!='].includes(operator)) {
+		if (!equalityOperators.has(operator)) {
 			return;
 		}
 
 		let indexOfCall;
-		if (isMethodNamed(left, 'indexOf') && isLiteral(right, 0)) {
+		if (
+			isMethodCall(left, {
+				method: 'indexOf',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isLiteral(right, 0)
+		) {
 			indexOfCall = left;
-		} else if (isMethodNamed(right, 'indexOf') && isLiteral(left, 0)) {
+		} else if (
+			isMethodCall(right, {
+				method: 'indexOf',
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			&& isLiteral(left, 0)
+		) {
 			indexOfCall = right;
 		} else {
-			return;
-		}
-
-		if (
-			indexOfCall.optional
-			|| indexOfCall.callee.optional
-			|| indexOfCall.callee.computed
-			|| indexOfCall.arguments.length !== 1
-			|| indexOfCall.arguments[0].type === 'SpreadElement'
-		) {
 			return;
 		}
 
@@ -223,7 +324,7 @@ const create = context => {
 			return;
 		}
 
-		const isNegated = operator === '!==' || operator === '!=';
+		const isNegated = isNegatedEqualityOperator(operator);
 		const [searchArgument] = indexOfCall.arguments;
 
 		return {
@@ -238,17 +339,77 @@ const create = context => {
 					return abort();
 				}
 
-				let targetText = getParenthesizedText(target, context);
-
-				if (
-					!isParenthesized(target, context)
-					&& shouldAddParenthesesToMemberExpressionObject(target, context)
-				) {
-					targetText = `(${targetText})`;
+				const targetText = getMethodReceiverText(target, context);
+				const searchText = getParenthesizedText(searchArgument, context);
+				let replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
+					replacement = `;${replacement}`;
 				}
 
-				const searchText = sourceCode.getText(searchArgument);
-				const replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
+				yield fixer.replaceText(node, replacement);
+			},
+		};
+	});
+
+	context.on('BinaryExpression', node => {
+		const {left, right, operator} = node;
+
+		if (!equalityOperators.has(operator)) {
+			return;
+		}
+
+		let sliceCall;
+		let searchArgument;
+		if (isMethodCall(left, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			sliceCall = left;
+			searchArgument = right;
+		} else if (isMethodCall(right, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			sliceCall = right;
+			searchArgument = left;
+		} else {
+			return;
+		}
+
+		const target = sliceCall.callee.object;
+		if (
+			!isString(target, context)
+			|| !isString(searchArgument, context)
+		) {
+			return;
+		}
+
+		const comparison = getSliceComparison(sliceCall, searchArgument, context);
+		if (!comparison) {
+			return;
+		}
+
+		return {
+			node,
+			messageId: comparison.messageId,
+			* fix(fixer, {abort}) {
+				if (sourceCode.getCommentsInside(node).length > 0) {
+					return abort();
+				}
+
+				const targetText = getMethodReceiverText(target, context);
+				const searchText = getParenthesizedText(searchArgument, context);
+				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
+				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
+					replacement = `;${replacement}`;
+				}
+
 				yield fixer.replaceText(node, replacement);
 			},
 		};
@@ -261,7 +422,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer `String#startsWith()` & `String#endsWith()` over `RegExp#test()` and `String#indexOf() === 0`.',
+			description: 'Prefer `String#startsWith()` & `String#endsWith()` over regexes, `String#indexOf() === 0`, and slice checks.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
