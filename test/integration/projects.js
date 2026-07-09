@@ -150,15 +150,25 @@ export default [
 				'tests/performance',
 			],
 		},
-		'https://github.com/element-plus/element-plus',
-		'https://github.com/tusen-ai/naive-ui',
+		{
+			repository: 'https://github.com/element-plus/element-plus',
+			group: 2,
+		},
+		{
+			repository: 'https://github.com/tusen-ai/naive-ui',
+			group: 3,
+		},
 		{
 			repository: 'https://github.com/chakra-ui/chakra-ui',
+			group: 4,
 			ignore: [
 				'scripts/create-package.js', // This file use `package` keyword as variable
 			],
 		},
-		'https://github.com/mozilla/pdf.js',
+		{
+			repository: 'https://github.com/mozilla/pdf.js',
+			group: 5,
+		},
 		{
 			repository: 'https://github.com/TheThingsNetwork/lorawan-stack',
 			babelPlugins: ['decorators'],
@@ -265,5 +275,8 @@ export default [
 	},
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
-		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))
+		? projectOrProjects.map(project => {
+			project = normalizeProject(project);
+			return {...project, group: project.group ?? index};
+		})
 		: [{...normalizeProject(projectOrProjects), group: index}]);
