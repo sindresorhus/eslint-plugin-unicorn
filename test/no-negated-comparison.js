@@ -16,6 +16,23 @@ test.snapshot({
 		'!foo',
 		'!!(a === b)',
 		'!foo === bar',
+		// Relational comparisons with optional chaining: the opposite operator is
+		// not equivalent when the operand is `undefined`/`NaN`.
+		'if (!(node.expressions?.length >= 2)) {}',
+		'!(a?.b > c)',
+		'!(a > b?.c)',
+		'!(a?.b >= c)',
+		'!(a?.b < c)',
+		'!(a?.b <= c)',
+		'!(a?.() > b)',
+		'!(a > b?.())',
+		// Optional chaining inside a TypeScript type-only wrapper is still detected.
+		{
+			code: '!((a?.b as number) > c)',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		'!(a === b)',
@@ -63,6 +80,11 @@ test.snapshot({
 		'!(a < b)',
 		'!(a <= b)',
 		'!(null > undefined)',
+		// Equality comparisons are exact even for `undefined`/`NaN`, so optional
+		// chaining does not affect them.
+		'!(a?.b === c)',
+		'!(a?.b !== c)',
+		'!(a?.() == b)',
 		{
 			code: '!(foo! === bar)',
 			languageOptions: {
@@ -120,6 +142,16 @@ test.snapshot({
 			code: '!(a === b && (c === d || foo()))',
 			options: [{checkLogicalExpressions: true}],
 		},
+		// A relational comparison with optional chaining anywhere in the tree is
+		// not safely negatable, so the whole expression is ignored.
+		{
+			code: '!(a?.b > c && d === e)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		{
+			code: '!(a === b && (c === d || e?.f <= g))',
+			options: [{checkLogicalExpressions: true}],
+		},
 	],
 	invalid: [
 		{
@@ -140,6 +172,11 @@ test.snapshot({
 		},
 		{
 			code: '!(a === b || c <= d)',
+			options: [{checkLogicalExpressions: true}],
+		},
+		// Equality comparisons with optional chaining stay reportable (exact under negation).
+		{
+			code: '!(a?.b === c && d === e)',
 			options: [{checkLogicalExpressions: true}],
 		},
 		{
