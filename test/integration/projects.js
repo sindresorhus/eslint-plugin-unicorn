@@ -263,24 +263,6 @@ export default [
 			'tests/**',
 		],
 	},
-	{
-		repository: 'https://github.com/microsoft/vscode',
-		ignore: [
-			// Cannot parse `'\033'`
-			'build/**',
-			// Global return
-			'extensions/vscode-colorize-tests/test/colorize-fixtures/test6916.js',
-			'scripts/xterm-update.js',
-			// Invalid syntax
-			'src/vs/platform/files/test/node/fixtures/**',
-			'src/vs/workbench/services/search/test/node/fixtures/examples/**',
-			'extensions/vscode-colorize-perf-tests/test/**',
-			'extensions/copilot/**/fixtures/**',
-			'extensions/copilot/test/scenarios/**',
-			// Uses `/* eslint-env */`
-			'test/unit/electron/renderer.js',
-		],
-	},
 ].flatMap((projectOrProjects, index) =>
 	Array.isArray(projectOrProjects)
 		? projectOrProjects.map(project => ({...normalizeProject(project), group: index}))

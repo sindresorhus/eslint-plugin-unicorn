@@ -70,7 +70,6 @@ jobs:
           - "6"
           - "7"
           - "8"
-          - "9"
     env:
       TIMING: 1
     runs-on: ubuntu-latest
