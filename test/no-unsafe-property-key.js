@@ -275,6 +275,40 @@ test.snapshot({
 				return data.test;
 			}
 		`),
+		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'string') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			function example<Type extends object | string>(input: Type) {
+				if (typeof input === 'string') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'string') {
+					return {[input]: value};
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | symbol;
+
+			function example(input: Value) {
+				if (typeof input === 'symbol') {
+					return object[input];
+				}
+			}
+		`),
 	],
 	invalid: [
 		typeAware('declare const key: unique symbol | {id: string}; object[key]'),
@@ -285,6 +319,15 @@ test.snapshot({
 
 			export function example(input: Value) {
 				if (typeof input === 'object') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | 9007199254740992;
+
+			function example(input: Value) {
+				if (typeof input === 'number') {
 					return object[input];
 				}
 			}
