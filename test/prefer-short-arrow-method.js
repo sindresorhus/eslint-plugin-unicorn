@@ -57,3 +57,91 @@ test.snapshot({
 		'const object = {foo<T>(bar: T): T {return bar;}};',
 	],
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {alwaysMode() {return foo;}};',
+			options: ['always'],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		{
+			code: 'const object = {foo() {return foo;}, bar() {const bar = 1; return bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, bar() {return this.bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, * bar() {yield bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, __proto__() {return bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};',
+			options: ['consistent-as-needed'],
+		},
+	],
+	invalid: [
+		{
+			code: 'const object = {foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, bar() {return bar;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {get baz() {return baz;}, foo() {return foo;}, bar: bar, qux: () => qux};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {get bar() {return bar;}, foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {bar: bar, foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {bar: () => bar, foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {bar: function () {return bar;}, foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {...bar, foo() {return foo;}};',
+			options: ['consistent-as-needed'],
+		},
+		{
+			code: 'const object = {foo() {return foo;}, nested: {bar() {return this.bar;}}};',
+			options: ['consistent-as-needed'],
+		},
+	],
+});
+
+test.snapshot({
+	testerOptions: {
+		languageOptions: {
+			parser: parsers.typescript,
+		},
+	},
+	valid: [
+		{
+			code: 'const object = {foo() {return foo;}, bar<T>(bar: T): T {return bar;}};',
+			options: ['consistent-as-needed'],
+		},
+	],
+	invalid: [],
+});
