@@ -263,11 +263,84 @@ test.snapshot({
 		typeAware('class A {static readonly key: unique symbol;} object[A.key]'),
 		typeAware('function f<T extends symbol>(key: T) {object[key]}'),
 		typeAware('declare const key: PropertyKey; object[key]'),
+		typeAware(outdent`
+			type Value = object | 'test';
+			const data = {test: 123} as const;
+
+			export function example(input: Value) {
+				if (typeof input === 'string') {
+					return data[input];
+				}
+
+				return data.test;
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'string') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			function example<Type extends object | string>(input: Type) {
+				if (typeof input === 'string') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'string') {
+					return {[input]: value};
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | symbol;
+
+			function example(input: Value) {
+				if (typeof input === 'symbol') {
+					return object[input];
+				}
+			}
+		`),
 	],
 	invalid: [
 		typeAware('declare const key: unique symbol | {id: string}; object[key]'),
 		typeAware('declare const key: unique symbol | object; object[key]'),
 		typeAware('function f<T extends object>(key: T) {object[key]}'),
+		typeAware(outdent`
+			type Value = object | 'test';
+
+			export function example(input: Value) {
+				if (typeof input === 'object') {
+					return object[input];
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | string;
+
+			function example(input: Value) {
+				if (typeof input === 'object') {
+					return {[input]: value};
+				}
+			}
+		`),
+		typeAware(outdent`
+			type Value = object | 9007199254740992;
+
+			function example(input: Value) {
+				if (typeof input === 'number') {
+					return object[input];
+				}
+			}
+		`),
 		typeAware('const key = new URL("https://example.com"); object[key]'),
 		typeAware('const key = new Date(); object[key]'),
 		typeAware('const key = new Map(); object[key]'),

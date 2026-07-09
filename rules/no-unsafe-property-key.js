@@ -20,6 +20,7 @@ import {
 	isDefaultLibrarySymbol,
 	isStringMappingType,
 	isTemplateLiteralType,
+	isUnknownType,
 	isUniqueSymbolType,
 } from './utils/types.js';
 
@@ -236,21 +237,43 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 		|| (!type.intrinsicName && type.getProperties().length > 0);
 }
 
-function isPossiblyUnsafePropertyKeyTypeFromTypeInformation(node, context) {
+const hasParserOption = value =>
+	Array.isArray(value) ? value.length > 0 : Boolean(value);
+
+function hasTypeInformationParserOptions(context) {
+	const {
+		programs,
+		project,
+		projectService,
+	} = context.languageOptions.parserOptions ?? {};
+
+	return hasParserOption(programs)
+		|| hasParserOption(project)
+		|| hasParserOption(projectService);
+}
+
+function getTypeInformationPropertyKeyType(node, context) {
 	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
+	if (!parserServices?.program || !hasTypeInformationParserOptions(context)) {
+		return unknown;
 	}
 
 	try {
 		const {program} = parserServices;
+		const type = parserServices.getTypeAtLocation(node);
+		if (isUnknownType(type)) {
+			return unknown;
+		}
+
 		return isPossiblyUnsafePropertyKeyType(
-			parserServices.getTypeAtLocation(node),
+			type,
 			program.getTypeChecker(),
 			program,
-		);
+		)
+			? target
+			: nonTarget;
 	} catch {
-		return false;
+		return unknown;
 	}
 }
 
@@ -433,6 +456,11 @@ function getIdentifierStaticPropertyKeyType(node, context, visitedVariables) {
 		}
 	}
 
+	const typeInformationType = getTypeInformationPropertyKeyType(node, context);
+	if (typeInformationType !== unknown) {
+		return typeInformationType;
+	}
+
 	const definitionScope = definition ? context.sourceCode.getScope(definition.name) : scope;
 	return isUnsafePropertyKeyTypeAnnotationWithScope(definition?.name?.typeAnnotation, definitionScope, context.sourceCode)
 		? target
@@ -522,7 +550,7 @@ function getPropertyKeyProblem(node, context) {
 
 	if (
 		staticType !== target
-		&& !isPossiblyUnsafePropertyKeyTypeFromTypeInformation(node, context)
+		&& getTypeInformationPropertyKeyType(node, context) !== target
 		&& !isUnsafePropertyKey(node, context)
 	) {
 		return;
