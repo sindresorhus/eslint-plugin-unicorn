@@ -17,6 +17,10 @@ test.snapshot({
 		'foo.trim().startsWith(`foo `)',
 		'foo.trim().endsWith(" foo")',
 		'foo.trim().endsWith(` foo`)',
+		{
+			code: 'foo.trim().startsWith("foo " as const)',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.trim().startsWith(...argumentsArray)',
 		'foo.trim().endsWith(...argumentsArray)',
 		'foo.trim().startsWith("-", ...positions)',
@@ -65,6 +69,14 @@ test.snapshot({
 		`,
 		{
 			code: 'function foo(value: string) { value.trim().endsWith("-"); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string) { value.trim().startsWith("-" as const); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function foo(value: string) { value.trim().endsWith("-" satisfies string); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

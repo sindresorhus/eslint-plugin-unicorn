@@ -1,5 +1,5 @@
 import {getStaticStringValue, isMethodCall} from './ast/index.js';
-import {isKnownNonString} from './utils/index.js';
+import {isKnownNonString, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-string-trim';
 const messages = {
@@ -43,7 +43,7 @@ const create = context => {
 		const [searchArgument] = node.arguments;
 
 		if (searchArgument) {
-			const searchString = getStaticStringValue(searchArgument);
+			const searchString = getStaticStringValue(unwrapTypeScriptExpression(searchArgument));
 
 			if (
 				searchString === undefined
