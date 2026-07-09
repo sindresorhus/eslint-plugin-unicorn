@@ -9,6 +9,7 @@ import {
 	needsSemicolon,
 } from './utils/index.js';
 import {
+	containsOptionalChain,
 	getBinaryExpressionWithReplacedOperatorText,
 	getPunctuatorBinaryExpressionOperatorToken,
 	hasLowerLogicalOperatorPrecedence,
@@ -58,6 +59,20 @@ const isNegation = node =>
 const isComparison = node =>
 	node.type === 'BinaryExpression'
 	&& negatedComparisonOperators.has(node.operator);
+
+// `!(a > b)` is not equivalent to `a <= b` when an operand is `NaN`.
+// Optional chaining signals a possibly-`undefined` (→ `NaN`) operand, so the
+// opposite relational operator would silently change behavior. Equality
+// operators are exact even for `NaN`, so they stay reportable.
+const isNanUnsafeComparison = comparison =>
+	isComparison(comparison)
+	&& !negatedEqualityOperators.has(comparison.operator)
+	&& (containsOptionalChain(comparison.left) || containsOptionalChain(comparison.right));
+
+const containsNanUnsafeComparison = node =>
+	isComparison(node)
+		? isNanUnsafeComparison(node)
+		: containsNanUnsafeComparison(node.left) || containsNanUnsafeComparison(node.right);
 
 const isLogicalExpressionWithOnlyComparisons = node =>
 	isComparison(node)
@@ -212,6 +227,10 @@ const create = context => {
 		const {argument} = unaryExpression;
 
 		if (isComparison(argument)) {
+			if (isNanUnsafeComparison(argument)) {
+				return;
+			}
+
 			const comparison = argument;
 			const replacementOperator = negatedComparisonOperators.get(comparison.operator);
 			const problem = {
@@ -248,6 +267,7 @@ const create = context => {
 			!checkLogicalExpressions
 			|| argument.type !== 'LogicalExpression'
 			|| !isLogicalExpressionWithOnlyComparisons(argument)
+			|| containsNanUnsafeComparison(argument)
 		) {
 			return;
 		}
