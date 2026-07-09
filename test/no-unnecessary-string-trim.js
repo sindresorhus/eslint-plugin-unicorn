@@ -72,6 +72,7 @@ test.snapshot({
 		'foo.trim().startsWith("foo" + "bar")',
 		'foo.trim().startsWith(undefined)',
 		'foo.trim().endsWith(void 0)',
+		'const search = undefined; foo.trim().startsWith(search)',
 		'foo.trim().startsWith(123)',
 		'foo.trim().endsWith(false)',
 		'foo.trim().startsWith(null)',
