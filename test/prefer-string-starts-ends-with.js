@@ -499,6 +499,19 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
+		// Complex receiver
+		{
+			code: '("a" + value).slice(0, 1) === "a"',
+			output: '("a" + value).startsWith("a")',
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// TypeScript non-null assertion on string receiver
+		{
+			code: 'function foo(value: string) { return value!.slice(0, 1) === "x"; }',
+			output: 'function foo(value: string) { return (value!).startsWith("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
 		// Static non-empty dynamic suffix length
 		{
 			code: 'const suffix = "ark"; "shark".slice(-suffix.length) === suffix',

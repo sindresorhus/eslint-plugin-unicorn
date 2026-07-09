@@ -85,7 +85,7 @@ const isMatchingLengthProperty = (lengthNode, searchArgument) =>
 	isLengthProperty(lengthNode)
 	&& isSameReference(lengthNode.object, searchArgument);
 
-const getSliceMethod = (sliceCall, searchArgument, context) => {
+const getSliceProblem = (sliceCall, searchArgument, context) => {
 	const {arguments: argumentNodes} = sliceCall;
 	const [firstArgument, secondArgument] = argumentNodes;
 	const searchLength = getStaticStringLength(searchArgument, context);
@@ -321,7 +321,7 @@ const create = context => {
 			return;
 		}
 
-		const isNegated = operator === '!==' || operator === '!=';
+		const isNegated = isNegatedEqualityOperator(operator);
 		const [searchArgument] = indexOfCall.arguments;
 
 		return {
@@ -390,7 +390,7 @@ const create = context => {
 			return;
 		}
 
-		const problem = getSliceMethod(sliceCall, searchArgument, context);
+		const problem = getSliceProblem(sliceCall, searchArgument, context);
 		if (!problem) {
 			return;
 		}
