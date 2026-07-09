@@ -1,6 +1,11 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {hasOptionalChainElement, isKnownNonString, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getConstVariableInitializer,
+	hasOptionalChainElement,
+	isKnownNonString,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-string-trim';
 const messages = {
@@ -10,15 +15,54 @@ const messages = {
 const methods = ['startsWith', 'endsWith'];
 const getReplacement = method => method === 'startsWith' ? 'trimStart' : 'trimEnd';
 
+const stringifiableSearchValueTypes = new Set([
+	'bigint',
+	'boolean',
+	'number',
+	'string',
+	'undefined',
+]);
+
+const knownNonStringExpressionTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'ObjectExpression',
+]);
+
 const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 	? searchString === searchString.trimEnd()
 	: searchString === searchString.trimStart();
 
-const getStaticSearchString = (node, context) => {
+const getStaticValueResult = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
 
-	const staticValue = getStaticValue(node, context.sourceCode.getScope(node))?.value;
-	return typeof staticValue === 'string' ? staticValue : undefined;
+	return getStaticValue(node, context.sourceCode.getScope(node));
+};
+
+const getStaticSearchString = (node, context) => {
+	const result = getStaticValueResult(node, context);
+	if (!result) {
+		return;
+	}
+
+	const {value} = result;
+	return value === null || stringifiableSearchValueTypes.has(typeof value)
+		? String(value)
+		: undefined;
+};
+
+const isStaticNonString = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+	node = unwrapTypeScriptExpression(getConstVariableInitializer(node, context) ?? node);
+
+	if (knownNonStringExpressionTypes.has(node.type)) {
+		return true;
+	}
+
+	const result = getStaticValueResult(node, context);
+	return result ? typeof result.value !== 'string' : false;
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -47,7 +91,11 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonString(trimCall.callee.object, context)) {
+		const trimReceiver = trimCall.callee.object;
+		if (
+			isStaticNonString(trimReceiver, context)
+			|| isKnownNonString(trimReceiver, context)
+		) {
 			return;
 		}
 
