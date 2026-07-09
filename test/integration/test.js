@@ -12,12 +12,14 @@ import YAML from 'yaml';
 import allProjects from './projects.js';
 import runEslint, {UnicornIntegrationTestError} from './run-eslint.js';
 
+const isRunnableProject = project => !project.requiresBabel && project.babelPlugins.length === 0;
+
 if (isCI) {
 	const CI_CONFIG_FILE = new URL('../../.github/workflows/main.yml', import.meta.url);
 	const content = fs.readFileSync(CI_CONFIG_FILE, 'utf8');
 	const config = YAML.parse(content).jobs.integration.strategy.matrix.group;
 
-	const expected = [...new Set(allProjects.map(project => String(project.group + 1)))];
+	const expected = [...new Set(allProjects.filter(project => isRunnableProject(project)).map(project => String(project.group + 1)))];
 	if (
 		config.length !== expected.length
 		|| expected.some((group, index) => config[index] !== group)
@@ -47,7 +49,7 @@ let projects = projectsArguments.length === 0
 	? allProjects
 	: allProjects.filter(({name}) => projectsArguments.includes(name));
 
-projects = projects.filter(project => !project.requiresBabel && project.babelPlugins.length === 0);
+projects = projects.filter(project => isRunnableProject(project));
 
 if (isCI && !group) {
 	throw new Error('"--group" is required');
