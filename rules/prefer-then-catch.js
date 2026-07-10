@@ -1,10 +1,12 @@
 import {isCommentToken, isCommaToken} from '@eslint-community/eslint-utils';
-import {isMethodCall, isUndefined} from './ast/index.js';
-import {getArgumentRemovalRange, removeArgument} from './fix/index.js';
+import {isFunction, isMethodCall, isUndefined} from './ast/index.js';
+import {getArgumentRemovalRange} from './fix/index.js';
 import {
 	getParentheses,
 	getParenthesizedText,
+	isGlobalIdentifier,
 	isPromiseType,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -15,10 +17,12 @@ const messages = {
 	[SUGGESTION_ID]: 'Move the rejection handler to `.catch()`.',
 };
 
-const isNullish = node =>
-	(node.type === 'Literal' && node.value === null)
-	|| (node.type === 'UnaryExpression' && node.operator === 'void')
-	|| isUndefined(node);
+function isNullish(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	return (node.type === 'Literal' && node.value === null)
+		|| (node.type === 'UnaryExpression' && node.operator === 'void')
+		|| (isUndefined(node) && isGlobalIdentifier(node, context));
+}
 
 function canThenResultCatch(callExpression, context) {
 	const {parserServices} = context.sourceCode;
@@ -30,8 +34,8 @@ function canThenResultCatch(callExpression, context) {
 		const checker = parserServices.program.getTypeChecker();
 		const receiverType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
 		const promiseReceiver = isPromiseType(receiverType, checker);
-		if (promiseReceiver !== true) {
-			return promiseReceiver !== false;
+		if (promiseReceiver === false) {
+			return false;
 		}
 
 		const resultType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression));
@@ -41,6 +45,17 @@ function canThenResultCatch(callExpression, context) {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 		return true;
 	}
+}
+
+function getRejectionHandlerRemovalRange(node, context) {
+	const range = getArgumentRemovalRange(node, context);
+	const lastToken = getParentheses(node, context).at(-1) ?? node;
+	const trailingComma = context.sourceCode.getTokenAfter(lastToken);
+	if (isCommaToken(trailingComma)) {
+		range[1] = context.sourceCode.getRange(trailingComma)[1];
+	}
+
+	return range;
 }
 
 function hasTrailingArgumentComment(node, context) {
@@ -59,10 +74,17 @@ function hasTrailingArgumentComment(node, context) {
 	return isCommentToken(tokenAfter);
 }
 
+function isRejectionHandlerSafeToMove(node) {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'Identifier'
+		|| isFunction(node);
+}
+
 function getSuggestion(callExpression, rejectionHandler, context) {
-	const removalRange = getArgumentRemovalRange(rejectionHandler, context);
+	const removalRange = getRejectionHandlerRemovalRange(rejectionHandler, context);
 	if (
-		wouldRemoveComments(context, removalRange, [rejectionHandler])
+		!isRejectionHandlerSafeToMove(rejectionHandler)
+		|| wouldRemoveComments(context, removalRange, [rejectionHandler])
 		|| hasTrailingArgumentComment(rejectionHandler, context)
 	) {
 		return;
@@ -72,7 +94,7 @@ function getSuggestion(callExpression, rejectionHandler, context) {
 	return {
 		messageId: SUGGESTION_ID,
 		* fix(fixer) {
-			yield removeArgument(fixer, rejectionHandler, context);
+			yield fixer.removeRange(removalRange);
 			yield fixer.insertTextAfter(callExpression, `.catch(${rejectionHandlerText})`);
 		},
 	};
@@ -93,8 +115,8 @@ const create = context => {
 
 		const [fulfillmentHandler, rejectionHandler] = callExpression.arguments;
 		if (
-			isNullish(fulfillmentHandler)
-			|| isNullish(rejectionHandler)
+			isNullish(fulfillmentHandler, context)
+			|| isNullish(rejectionHandler, context)
 			|| !canThenResultCatch(callExpression, context)
 		) {
 			return;
@@ -119,6 +141,7 @@ const config = {
 			recommended: true,
 		},
 		hasSuggestions: true,
+		schema: [],
 		messages,
 		languages: [
 			'js/js',

@@ -24,6 +24,8 @@ test.snapshot({
 		'promise.then(onFulfilled, undefined);',
 		'promise.then(onFulfilled, null);',
 		'promise.then(onFulfilled, void 0);',
+		'promise.then(...handlers, onRejected);',
+		'promise.then(onFulfilled, ...handlers);',
 		'promise["then"](onFulfilled, onRejected);',
 		'promise?.then(onFulfilled, onRejected);',
 		'promise.then?.(onFulfilled, onRejected);',
@@ -45,9 +47,22 @@ test.snapshot({
 			};
 			thenable.then(onFulfilled, onRejected);
 		`),
+		typeAware(outdent`
+			declare const value: any;
+			value.then(onFulfilled, onRejected);
+		`),
+		{
+			code: 'promise.then(onFulfilled, undefined as (error: unknown) => void);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'promise.then(null!, onRejected);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'promise.then(onFulfilled, onRejected);',
+		'function handlePromise(undefined) { promise.then(onFulfilled, undefined); }',
 		'Promise.resolve(value).then(onFulfilled, onRejected);',
 		'void promise.then(onFulfilled, onRejected);',
 		'promise.then(onFulfilled, onRejected,);',
@@ -65,8 +80,14 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'promise.then(onFulfilled, error => { /* Keep this comment. */ handle(error); });',
+		'promise.then(onFulfilled, createRejectionHandler());',
+		'promise.then(onFulfilled, handlers.onRejected);',
+		'promise.then(onFulfilled, tag`handler`);',
+		'promise.then(onFulfilled, [...handlers]);',
+		'promise.then(onFulfilled, {...handlers});',
 		'promise.then(onFulfilled, /* Do not move this comment. */ onRejected);',
 		'promise.then(onFulfilled, onRejected /* Do not move this comment. */);',
+		'promise.then(onFulfilled, onRejected, /* Do not move this comment. */);',
 		typeAware(outdent`
 			declare const promise: Promise<string>;
 			promise.then(onFulfilled, onRejected);
