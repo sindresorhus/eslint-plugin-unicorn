@@ -191,7 +191,7 @@ export default defineConfig([
 | [no-manually-wrapped-comments](docs/rules/no-manually-wrapped-comments.md)                                 | Disallow manually wrapped comments.                                                                                            |      | 🔧 |    |    |
 | [no-mismatched-map-key](docs/rules/no-mismatched-map-key.md)                                               | Disallow checking a Map key before accessing a different key.                                                                  | ✅    |    |    |    |
 | [no-misrefactored-assignment](docs/rules/no-misrefactored-assignment.md)                                   | Disallow misrefactored compound assignments where the target is duplicated in the right-hand side.                             | ✅ ☑️ |    | 💡 |    |
-| [no-multiple-promise-resolver-calls](docs/rules/no-multiple-promise-resolver-calls.md)                     | Disallow calling Promise executor resolver functions more than once on the same execution path.                                | ✅ ☑️ |    |    |    |
+| [no-missing-local-resource](docs/rules/no-missing-local-resource.md)                                       | Disallow references to missing local resources.                                                                                |      | 🔧 |    |    |
 | [no-named-default](docs/rules/no-named-default.md)                                                         | Disallow named usage of default import and export.                                                                             | ✅ ☑️ | 🔧 |    |    |
 | [no-negated-array-predicate](docs/rules/no-negated-array-predicate.md)                                     | Disallow negated array predicate calls.                                                                                        | ✅ ☑️ | 🔧 |    |    |
 | [no-negated-comparison](docs/rules/no-negated-comparison.md)                                               | Disallow negated comparisons.                                                                                                  | ✅ ☑️ | 🔧 | 💡 |    |
@@ -210,7 +210,6 @@ export default defineConfig([
 | [no-redundant-comparison](docs/rules/no-redundant-comparison.md)                                           | Disallow comparisons made redundant by an equality check in the same logical AND.                                              | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-return-array-push](docs/rules/no-return-array-push.md)                                                 | Disallow using the return value of `Array#push()` and `Array#unshift()`.                                                       | ✅    |    | 💡 |    |
 | [no-selector-as-dom-name](docs/rules/no-selector-as-dom-name.md)                                           | Disallow selector syntax in DOM names.                                                                                         | ✅    | 🔧 |    |    |
-| [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       | ✅ ☑️ |    |    |    |
 | [no-single-promise-in-promise-methods](docs/rules/no-single-promise-in-promise-methods.md)                 | Disallow passing single-element arrays to `Promise` methods.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-static-only-class](docs/rules/no-static-only-class.md)                                                 | Disallow classes that only have static members.                                                                                | ✅ ☑️ | 🔧 |    |    |
 | [no-subtraction-comparison](docs/rules/no-subtraction-comparison.md)                                       | Prefer comparing values directly over subtracting and comparing to `0`.                                                        | ✅ ☑️ | 🔧 | 💡 |    |
@@ -390,7 +389,6 @@ export default defineConfig([
 | [prefer-switch](docs/rules/prefer-switch.md)                                                               | Prefer `switch` over multiple `else-if`.                                                                                       | ✅ ☑️ | 🔧 |    |    |
 | [prefer-temporal](docs/rules/prefer-temporal.md)                                                           | Prefer `Temporal` over `Date`.                                                                                                 |      | 🔧 | 💡 |    |
 | [prefer-ternary](docs/rules/prefer-ternary.md)                                                             | Prefer ternary expressions over simple `if` statements that return or assign values.                                           | ✅ ☑️ | 🔧 | 💡 |    |
-| [prefer-then-catch](docs/rules/prefer-then-catch.md)                                                       | Prefer `.then().catch()` over `.then(…, …)` for error handling.                                                                | ✅    |    | 💡 |    |
 | [prefer-toggle-attribute](docs/rules/prefer-toggle-attribute.md)                                           | Prefer using `Element#toggleAttribute()` to toggle attributes.                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
 | [prefer-top-level-await](docs/rules/prefer-top-level-await.md)                                             | Prefer top-level await over top-level promises and async function calls.                                                       | ✅ ☑️ |    | 💡 |    |
 | [prefer-type-error](docs/rules/prefer-type-error.md)                                                       | Enforce throwing `TypeError` in type checking conditions.                                                                      | ✅ ☑️ | 🔧 |    |    |
@@ -406,7 +404,6 @@ export default defineConfig([
 | [require-array-join-separator](docs/rules/require-array-join-separator.md)                                 | Enforce using the separator argument with `Array#join()`.                                                                      | ✅ ☑️ | 🔧 |    |    |
 | [require-array-sort-compare](docs/rules/require-array-sort-compare.md)                                     | Require a compare function when calling `Array#sort()` or `Array#toSorted()`.                                                  | ✅ ☑️ |    | 💡 |    |
 | [require-css-escape](docs/rules/require-css-escape.md)                                                     | Require `CSS.escape()` for interpolated values in CSS selectors.                                                               | ✅ ☑️ | 🔧 |    |    |
-| [require-frontmatter-fields](docs/rules/require-frontmatter-fields.md)                                     | Require configured YAML frontmatter fields.                                                                                    |      |    |    |    |
 | [require-module-attributes](docs/rules/require-module-attributes.md)                                       | Require non-empty module attributes for imports and exports                                                                    | ✅ ☑️ | 🔧 |    |    |
 | [require-module-specifiers](docs/rules/require-module-specifiers.md)                                       | Require non-empty specifier list in import and export statements.                                                              | ✅ ☑️ | 🔧 | 💡 |    |
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md)           | Enforce using the digits argument with `Number#toFixed()`.                                                                     | ✅ ☑️ | 🔧 |    |    |
@@ -513,8 +510,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
-| [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
-| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
+| [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) |  | ✅ |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
@@ -568,6 +564,11 @@ export default defineConfig([
 	},
 ]);
 ```
+
+## Maintainers
+
+- [Sindre Sorhus](https://github.com/sindresorhus)
+- [Fisker Cheung](https://github.com/fisker)
 
 ## Related
 

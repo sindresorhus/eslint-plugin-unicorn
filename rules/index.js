@@ -100,6 +100,7 @@ export {default as 'no-magic-array-flat-depth'} from './no-magic-array-flat-dept
 export {default as 'no-manually-wrapped-comments'} from './no-manually-wrapped-comments.js';
 export {default as 'no-mismatched-map-key'} from './no-mismatched-map-key.js';
 export {default as 'no-misrefactored-assignment'} from './no-misrefactored-assignment.js';
+export {default as 'no-missing-local-resource'} from './no-missing-local-resource.js';
 export {default as 'no-multiple-promise-resolver-calls'} from './no-multiple-promise-resolver-calls.js';
 export {default as 'no-named-default'} from './no-named-default.js';
 export {default as 'no-negated-array-predicate'} from './no-negated-array-predicate.js';
