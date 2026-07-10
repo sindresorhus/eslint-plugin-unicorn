@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The second callback of `.then(onFulfilled, onRejected)` handles rejections from earlier in the chain, but not errors thrown or rejected by `onFulfilled`. Attach the rejection handler to the promise returned by `.then()` to handle both.
+The second callback of `.then(onFulfilled, onRejected)` handles rejections from earlier in the chain, but not errors thrown by, or rejected promises returned from, `onFulfilled`. Attach the rejection handler to the promise returned by `.then()` to handle both.
 
 The change intentionally broadens the error boundary, so the rule provides an editor suggestion instead of an autofix. Use an inline disable when handling only the original promise rejection is intentional.
 
@@ -44,6 +44,6 @@ promise.then(onFulfilled, undefined);
 
 ## Limitations
 
-The rule only checks direct, non-optional `.then()` calls with exactly two arguments. Computed access, optional chaining, and extra arguments are ignored. When TypeScript type information is available, it only reports native `Promise` values. Without type information, it uses the normal `.then()` method-name heuristic, so custom thenables are unsupported.
+The rule only checks direct, non-optional `.then()` calls with exactly two arguments. Computed access, optional chaining, and extra arguments are ignored. When TypeScript type information is available, it only reports native `Promise` values whose `.then()` result has a callable `.catch()` method. Without type information, it uses the normal `.then()` method-name heuristic, so custom thenables are unsupported.
 
 Suggestions are only offered for identifiers and inline functions, avoiding changes to arbitrary handler-expression evaluation order. They are also withheld when moving the handler could remove or relocate comments.

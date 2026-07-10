@@ -32,16 +32,34 @@ function isNullish(node, context) {
 		|| (isUndefined(node) && isGlobalIdentifier(node, context));
 }
 
-function isPromiseReceiver(callExpression, context) {
+function hasCallableCatch(type, checker, location) {
+	if (type.isUnion()) {
+		return type.types.every(type => hasCallableCatch(type, checker, location));
+	}
+
+	const catchMethod = checker.getPropertyOfType(type, 'catch');
+	return Boolean(catchMethod && checker.getTypeOfSymbolAtLocation(catchMethod, location).getCallSignatures().length > 0);
+}
+
+function canThenResultCatch(callExpression, context) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return true;
 	}
 
 	try {
-		const receiverType = parserServices.program.getTypeChecker().getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
-		return isAnyType(receiverType)
-			|| isNativePromiseType(receiverType, parserServices.program);
+		const checker = parserServices.program.getTypeChecker();
+		const receiverType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
+		if (isAnyType(receiverType)) {
+			return true;
+		}
+
+		if (!isNativePromiseType(receiverType, parserServices.program)) {
+			return false;
+		}
+
+		const resultType = parserServices.getTypeAtLocation(callExpression);
+		return hasCallableCatch(resultType, checker, callExpression);
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 		return true;
@@ -118,7 +136,7 @@ const create = context => {
 		if (
 			isNullish(fulfillmentHandler, context)
 			|| isNullish(rejectionHandler, context)
-			|| !isPromiseReceiver(callExpression, context)
+			|| !canThenResultCatch(callExpression, context)
 		) {
 			return;
 		}

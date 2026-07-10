@@ -52,6 +52,20 @@ test.snapshot({
 			declare const value: Promise<void> | Thenable;
 			value.then(onFulfilled, onRejected);
 		`),
+		typeAware(outdent`
+			interface Promise<T> {
+				then(onFulfilled: (value: T) => void, onRejected: (reason: unknown) => void): void;
+			}
+			declare const promise: Promise<string>;
+			promise.then(onFulfilled, onRejected);
+		`),
+		typeAware(outdent`
+			interface Promise<T> {
+				then(onFulfilled: (value: T) => void, onRejected: (reason: unknown) => void): Promise<void> | undefined;
+			}
+			declare const promise: Promise<string>;
+			promise.then(onFulfilled, onRejected);
+		`),
 		{
 			code: 'promise.then(onFulfilled, undefined as (error: unknown) => void);',
 			languageOptions: {parser: parsers.typescript},
