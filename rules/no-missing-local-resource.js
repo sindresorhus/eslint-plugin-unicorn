@@ -18,8 +18,29 @@ const resourceAttributes = new Set([
 ]);
 
 const schemePattern = /^[a-z][\d+\-.a-z]*:/iu;
+const maximumHtmlCharacterReferenceLength = 64;
+const decimalDigitPattern = /^\d$/u;
+const hexadecimalDigitPattern = /^[\da-f]$/iu;
 
 const isWhitespace = character => character.trim() === '';
+
+function getNumericCharacterReferenceEnd(value, index) {
+	let end = index + 2;
+	const isHexadecimal = value[end]?.toLowerCase() === 'x';
+	const digitPattern = isHexadecimal
+		? hexadecimalDigitPattern
+		: decimalDigitPattern;
+
+	if (isHexadecimal) {
+		end++;
+	}
+
+	while (digitPattern.test(value[end])) {
+		end++;
+	}
+
+	return value[end] === ';' ? end + 1 : undefined;
+}
 
 function getSrcsetCharacter(value, index) {
 	if (value[index] !== '&') {
@@ -29,15 +50,23 @@ function getSrcsetCharacter(value, index) {
 		};
 	}
 
-	const end = value.indexOf(';', index);
-	if (end === -1) {
+	let end;
+	if (value[index + 1] === '#') {
+		end = getNumericCharacterReferenceEnd(value, index);
+	} else {
+		const possibleCharacterReference = value.slice(index, index + maximumHtmlCharacterReferenceLength);
+		const semicolonIndex = possibleCharacterReference.indexOf(';');
+		end = semicolonIndex === -1 ? undefined : index + semicolonIndex + 1;
+	}
+
+	if (end === undefined) {
 		return {
 			value: value[index],
 			end: index + 1,
 		};
 	}
 
-	const source = value.slice(index, end + 1);
+	const source = value.slice(index, end);
 	const decodedValue = decodeHTMLAttribute(source);
 	if (decodedValue === source) {
 		return {
@@ -48,7 +77,7 @@ function getSrcsetCharacter(value, index) {
 
 	return {
 		value: decodedValue,
-		end: end + 1,
+		end,
 	};
 }
 
@@ -91,6 +120,18 @@ function getNextSrcsetCandidateStart(value, index) {
 	return value.length;
 }
 
+function isDataUrl(value, index) {
+	let prefix = '';
+
+	while (index < value.length && prefix.length < 5) {
+		const character = getSrcsetCharacter(value, index);
+		prefix += character.value;
+		index = character.end;
+	}
+
+	return prefix.toLowerCase().startsWith('data:');
+}
+
 function getSrcsetCandidates(value) {
 	const candidates = [];
 	let index = 0;
@@ -98,8 +139,7 @@ function getSrcsetCandidates(value) {
 	while (index < value.length) {
 		index = skipSrcsetSeparators(value, index);
 		const start = index;
-		const isDataUrl = value.slice(start, start + 5).toLowerCase() === 'data:';
-		index = getSrcsetCandidateEnd(value, index, isDataUrl);
+		index = getSrcsetCandidateEnd(value, index, isDataUrl(value, start));
 
 		if (index > start) {
 			candidates.push({
@@ -136,8 +176,13 @@ function getLocalResource(value) {
 	}
 
 	try {
+		const decodedParts = resourcePath.split('/').map(part => decodeURIComponent(part));
+		if (decodedParts.some(part => part.includes('/') || part.includes(path.sep))) {
+			return;
+		}
+
 		return {
-			path: decodeURI(resourcePath),
+			path: decodedParts.join('/'),
 			rawPath: resourcePath,
 			suffix: decodedValue.slice(pathEnd),
 			canFix: decodedValue === value,
@@ -151,8 +196,8 @@ function getCorrectedResourcePath(rawPath, correctedPath) {
 	return rawPath.split('/').map((part, index) => {
 		const correctedPart = correctedParts[index];
 
-		return part.includes('%') && decodeURI(part) !== part
-			? encodeURI(correctedPart)
+		return part.includes('%') && decodeURIComponent(part) !== part
+			? encodeURIComponent(correctedPart)
 			: correctedPart;
 	}).join('/');
 }

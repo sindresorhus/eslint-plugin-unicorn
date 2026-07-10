@@ -38,6 +38,8 @@ test.snapshot({
 	valid: [
 		markdownCase('[Guide](./guide.md)\n![Logo](./assets/logo.svg)'),
 		markdownCase('[Guide](guide.md)\n[Directory](./directory/)\n[Encoded](./encoded%20name.md)\n[Query](./guide.md?raw=1#heading)\n[Linked](./linked-guide.md)'),
+		markdownCase('[Encoded hash](./encoded%23name.md)'),
+		markdownCase('[Encoded separator](./Assets%2FLOGO.svg)'),
 		markdownCase('[Parent](../guide.md)', nestedMarkdownFilename),
 		{
 			code: '[Guide](./guide.md)',
@@ -51,7 +53,9 @@ test.snapshot({
 		htmlCase('<img srcset="./assets/logo-1x.png 1x, data:image/svg+xml,%3Csvg%3E 2x, ./assets/logo-2x.png 3x">'),
 		htmlCase('<img srcset="./assets/logo-1x.png,./assets/logo-2x.png">'),
 		htmlCase('<img srcset="./assets/logo.svg&#32;1x,./assets/logo-2x.png&#x20;2x">'),
+		htmlCase('<img srcset="./assets/logo.svg&#' + '0'.repeat(80) + '32;1x, ./assets/logo-2x.png 2x">'),
 		htmlCase('<img srcset="./assets/logo-1x.png&#44;./assets/logo-2x.png">'),
+		htmlCase('<img srcset="d&#97;ta:image/svg+xml,%3Csvg%3E 1x, ./assets/logo-2x.png 2x">'),
 		htmlCase('<img srcset=",./assets/logo-1x.png,, ./assets/logo-2x.png,">'),
 		htmlCase('<a href="https://example.com"></a><a href="mailto:test@example.com"></a><a href="#heading"></a><a href="/guide.md"></a><a href="//example.com/guide.md"></a><a href="github:issue/123"></a><img src="data:image/svg+xml,%3Csvg%3E">'),
 		htmlCase('<a href="./assets/logo&#46;svg"></a><a href="./assets&sol;logo.svg"></a>'),
@@ -70,6 +74,7 @@ test.snapshot({
 		markdownCase('[Logo](./Assets/logo.svg "title ]( text")'),
 		markdownCase(String.raw`[Logo](./Assets/logo\.svg)`),
 		markdownCase('[Encoded](./Encoded%20name.md)'),
+		markdownCase('[Encoded hash](./Encoded%23name.md)'),
 		markdownCase('[Invalid](./guide.md/../guide.md)'),
 		htmlCase('<a href="./missing.html"></a><img src="./assets/LOGO.svg">'),
 		htmlCase('<img srcset="./assets/logo-1x.png 1x, ./assets/missing.png 2x, ./assets/logo-2x.png 3x">'),
