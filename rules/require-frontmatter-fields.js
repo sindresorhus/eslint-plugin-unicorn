@@ -105,6 +105,13 @@ const create = context => {
 			return;
 		}
 
+		try {
+			// Detect unresolved aliases that are not included in `document.errors`.
+			document.toString();
+		} catch {
+			return;
+		}
+
 		const fieldPairs = getFieldPairs(document);
 
 		for (const field of fields) {

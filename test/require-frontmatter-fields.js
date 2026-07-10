@@ -171,6 +171,23 @@ ruleTest.snapshot({
 
 			# Hello
 		`),
+		// Unresolved aliases are YAML errors outside this rule's scope.
+		yamlTestCase(outdent`
+			---
+			title: *missing
+			---
+
+			# Hello
+		`),
+		yamlTestCase(outdent`
+			---
+			title: Hello
+			metadata:
+				value: *missing
+			---
+
+			# Hello
+		`),
 		{
 			...yamlTestCase(outdent`
 				---
