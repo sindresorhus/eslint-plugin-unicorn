@@ -1,4 +1,9 @@
-import {isMap, isScalar, parseDocument} from 'yaml';
+import {
+	isAlias,
+	isMap,
+	isScalar,
+	parseDocument,
+} from 'yaml';
 
 const MESSAGE_ID_MISSING_FIELD = 'missing-field';
 const MESSAGE_ID_INVALID_TYPE = 'invalid-type';
@@ -39,7 +44,11 @@ const schema = [
 	},
 ];
 
-function getValueType(value) {
+function getValueType(value, document) {
+	if (isAlias(value)) {
+		value = value.resolve(document);
+	}
+
 	if (value === null) {
 		return 'null';
 	}
@@ -113,7 +122,7 @@ const create = context => {
 		for (const [field, type] of Object.entries(types)) {
 			const pair = fieldPairs.get(field);
 
-			if (!pair || getValueType(pair.value) === type) {
+			if (!pair || getValueType(pair.value, document) === type) {
 				continue;
 			}
 

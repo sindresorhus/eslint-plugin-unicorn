@@ -107,6 +107,20 @@ ruleTest.snapshot({
 				},
 			}],
 		},
+		{
+			...yamlTestCase(outdent`
+				---
+				shared-title: &shared-title Hello
+				title: *shared-title
+				---
+
+				# Hello
+			`),
+			options: [{
+				fields: ['title'],
+				types: {title: 'string'},
+			}],
+		},
 		yamlTestCase(outdent`
 			---
 			title: Hello
@@ -215,6 +229,19 @@ ruleTest.snapshot({
 			...yamlTestCase(outdent`
 				---
 				title: 1
+				---
+
+				# Hello
+			`),
+			options: [{
+				types: {title: 'string'},
+			}],
+		},
+		{
+			...yamlTestCase(outdent`
+				---
+				shared-title: &shared-title 1
+				title: *shared-title
 				---
 
 				# Hello
