@@ -1,0 +1,91 @@
+# no-multiple-promise-resolver-calls
+
+📝 Disallow calling Promise executor resolver functions more than once on the same execution path.
+
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+
+<!-- end auto-generated rule header -->
+<!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
+
+The `resolve` and `reject` functions passed to a Promise executor share a single-use state. After either function is called, later calls have no effect. This is often caused by a missing `return` or by branches that should be mutually exclusive.
+
+[Resolving with a pending promise or thenable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve#description) does not immediately settle the new promise, but it still prevents later calls to either resolver function from changing the outcome.
+
+This rule uses code-path analysis to report a resolver call when an earlier `resolve` or `reject` call can reach it. It also reports resolver calls in loops that may execute more than once.
+
+## Examples
+
+```js
+// ❌
+new Promise((resolve, reject) => {
+	if (error) {
+		reject(error);
+	}
+
+	resolve(value);
+});
+```
+
+```js
+// ✅
+new Promise((resolve, reject) => {
+	if (error) {
+		reject(error);
+		return;
+	}
+
+	resolve(value);
+});
+```
+
+Mutually exclusive resolver calls are allowed.
+
+```js
+// ✅
+new Promise((resolve, reject) => {
+	if (error) {
+		reject(error);
+	} else {
+		resolve(value);
+	}
+});
+```
+
+Exceptions thrown while evaluating a value passed to `resolve` happen before the resolver is called, so this common pattern is allowed.
+
+```js
+// ✅
+new Promise((resolve, reject) => {
+	try {
+		resolve(mayThrow());
+	} catch (error) {
+		reject(error);
+	}
+});
+```
+
+Code that may throw after resolving can reach the rejection handler after the promise outcome is already fixed, so it is reported.
+
+```js
+// ❌
+new Promise((resolve, reject) => {
+	try {
+		resolve(value);
+		mayThrow();
+	} catch (error) {
+		reject(error);
+	}
+});
+```
+
+## Relationship to other rules
+
+This rule checks control flow within Promise executors. It does not overlap with [`prefer-promise-with-resolvers`](./prefer-promise-with-resolvers.md), which replaces resolver extraction boilerplate, [`prefer-promise-try`](./prefer-promise-try.md), which replaces promise-wrapping boilerplate, or [`no-useless-promise-resolve-reject`](./no-useless-promise-resolve-reject.md), which checks redundant static `Promise.resolve()` and `Promise.reject()` calls.
+
+Similar checks are available as [`promise/no-multiple-resolved`](https://github.com/eslint-community/eslint-plugin-promise/blob/main/docs/rules/no-multiple-resolved.md) and [DeepScan's `MULTIPLE_RESOLVE_IN_PROMISE_EXECUTOR`](https://deepscan.io/docs/rules/multiple-resolve-in-promise-executor/).
+
+## Limitations
+
+Only direct calls to simple identifier resolver parameters of an inline executor passed to the bare global `Promise` constructor are checked. Resolver calls are correlated within one function code path, not between an executor and a nested function or between sibling callbacks. Aliases, `.call()` and `.apply()`, passed or escaped resolver functions, and reassigned resolver parameters are ignored.
+
+The rule follows ESLint's code-path graph and does not correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive.
