@@ -676,6 +676,24 @@ test({
 		{
 			code: outdent`
 				new Promise((resolve, reject) => {
+					if (error) {
+						resolve();
+					}
+
+					if (!error) {
+						reject();
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: 'new Promise((resolve, reject) => { if (resolve()) { reject(); } });',
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
 					while (condition) {
 						try {
 							resolve(mayThrow());

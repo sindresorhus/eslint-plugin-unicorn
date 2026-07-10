@@ -90,4 +90,4 @@ Only direct calls to simple identifier resolver parameters of an inline, non-gen
 
 Exception paths are tracked for calls, construction, property access, and explicit `throw` and `yield`. Rejection from `await` is additionally modeled when its operand is directly an identifier or dynamic import. Implicit exceptions from bare unresolved identifiers, operators, coercion, destructuring, or iteration are not modeled.
 
-The rule follows ESLint's code-path graph and does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive. It also does not infer that resolver functions return `undefined` when their calls are used as conditions.
+The rule follows ESLint's code-path graph and, except for falsy literal loop tests, does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive. It also does not infer that resolver functions return `undefined` when their calls are used as conditions.
