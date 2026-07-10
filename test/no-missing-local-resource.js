@@ -40,6 +40,7 @@ test.snapshot({
 		markdownCase('[Guide](guide.md)\n[Directory](./directory/)\n[Encoded](./encoded%20name.md)\n[Query](./guide.md?raw=1#heading)\n[Linked](./linked-guide.md)'),
 		markdownCase('[Directory](./directory)'),
 		markdownCase('[Encoded hash](./encoded%23name.md)'),
+		markdownCase('[Literal percent](./percent%.md)'),
 		markdownCase('[Encoded separator](./Assets%2FLOGO.svg)'),
 		markdownCase('[Parent](../guide.md)', nestedMarkdownFilename),
 		{
