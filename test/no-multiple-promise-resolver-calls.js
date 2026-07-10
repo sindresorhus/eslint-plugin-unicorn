@@ -69,6 +69,12 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			new Promise(resolve => {
+				resolve(value);
+				resolve(otherValue);
+			}, extraArgument);
+		`,
+		outdent`
 			new Promise(function * (resolve) {
 				resolve(value);
 				resolve(otherValue);
@@ -86,6 +92,14 @@ test.snapshot({
 				const finish = resolve;
 				finish(value);
 				finish(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(({resolve}, reject) => {
+				resolve(value);
+				resolve(otherValue);
+				reject.call(undefined, error);
+				reject.apply(undefined, [otherError]);
 			});
 		`,
 		outdent`
@@ -132,6 +146,33 @@ test.snapshot({
 						resolve(value);
 					} else {
 						mayThrow();
+					}
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					try {
+						mayThrow();
+					} catch {} finally {
+						resolve();
+					}
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					try {
+						mayThrow();
+					} finally {
+						resolve();
+						return;
 					}
 				} catch (error) {
 					reject(error);
@@ -629,6 +670,10 @@ test({
 			errors: [error, error],
 		},
 		{
+			code: 'new Promise(resolve => { resolve(); resolve(); });',
+			errors: [error],
+		},
+		{
 			code: outdent`
 				new Promise((resolve, reject) => {
 					while (condition) {
@@ -728,6 +773,35 @@ test({
 							resolve();
 						}
 					} catch (error) {
+						reject(error);
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					try {
+						try {
+							mayThrow();
+						} catch (error) {
+							resolve(error);
+							throw error;
+						}
+					} catch (error) {
+						reject(error);
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					try {
+						resolve(mayThrow());
+					} finally {
 						reject(error);
 					}
 				});

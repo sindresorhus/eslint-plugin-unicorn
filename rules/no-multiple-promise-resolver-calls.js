@@ -133,41 +133,45 @@ function cloneFinallyBlocksByCatchClause(finallyBlocksByCatchClause) {
 }
 
 // These are may-states, so both booleans can be true after paths merge.
-const createResolverState = ({unresolved = false, resolved = false, catchClausesAfterResolution = [], pendingFinallyBlocksByCatchClause = new Map()} = {}) => ({
-	unresolved,
-	resolved,
-	catchClausesAfterResolution: new Set(catchClausesAfterResolution),
-	pendingFinallyBlocksByCatchClause: cloneFinallyBlocksByCatchClause(pendingFinallyBlocksByCatchClause),
+const createResolverState = ({resolverUncalled = false, resolverCalled = false, catchClausesAfterResolverCall = new Set(), pendingFinallyBlocksByCatchClause = new Map()} = {}) => ({
+	resolverUncalled,
+	resolverCalled,
+	catchClausesAfterResolverCall,
+	pendingFinallyBlocksByCatchClause,
+});
+
+const cloneResolverState = state => createResolverState({
+	resolverUncalled: state.resolverUncalled,
+	resolverCalled: state.resolverCalled,
+	catchClausesAfterResolverCall: new Set(state.catchClausesAfterResolverCall),
+	pendingFinallyBlocksByCatchClause: cloneFinallyBlocksByCatchClause(state.pendingFinallyBlocksByCatchClause),
 });
 
 const getStateAfterEvent = (state, event, executor) => {
 	if (event.executor === executor) {
-		const catchClausesAfterResolution = new Set(state.catchClausesAfterResolution);
-		for (const [catchClause, finallyBlocks] of state.pendingFinallyBlocksByCatchClause) {
+		const nextState = cloneResolverState(state);
+		for (const [catchClause, finallyBlocks] of nextState.pendingFinallyBlocksByCatchClause) {
 			if (event.finallyBlocks.some(finallyBlock => finallyBlocks.has(finallyBlock))) {
-				catchClausesAfterResolution.add(catchClause);
+				nextState.catchClausesAfterResolverCall.add(catchClause);
 			}
 		}
 
-		return createResolverState({
-			resolved: state.unresolved || state.resolved,
-			catchClausesAfterResolution,
-			pendingFinallyBlocksByCatchClause: state.pendingFinallyBlocksByCatchClause,
-		});
+		nextState.resolverCalled = state.resolverUncalled || state.resolverCalled;
+		nextState.resolverUncalled = false;
+		return nextState;
 	}
 
 	if (event.executor) {
 		return state;
 	}
 
-	const catchClausesAfterResolution = new Set(state.catchClausesAfterResolution);
-	const pendingFinallyBlocksByCatchClause = cloneFinallyBlocksByCatchClause(state.pendingFinallyBlocksByCatchClause);
+	const nextState = cloneResolverState(state);
 	if (event.catchClause) {
-		if (state.unresolved) {
-			let finallyBlocks = pendingFinallyBlocksByCatchClause.get(event.catchClause);
+		if (state.resolverUncalled) {
+			let finallyBlocks = nextState.pendingFinallyBlocksByCatchClause.get(event.catchClause);
 			if (!finallyBlocks) {
 				finallyBlocks = new Set();
-				pendingFinallyBlocksByCatchClause.set(event.catchClause, finallyBlocks);
+				nextState.pendingFinallyBlocksByCatchClause.set(event.catchClause, finallyBlocks);
 			}
 
 			for (const finallyBlock of event.finallyBlocks) {
@@ -175,17 +179,12 @@ const getStateAfterEvent = (state, event, executor) => {
 			}
 		}
 
-		if (state.resolved) {
-			catchClausesAfterResolution.add(event.catchClause);
+		if (state.resolverCalled) {
+			nextState.catchClausesAfterResolverCall.add(event.catchClause);
 		}
 	}
 
-	return createResolverState({
-		unresolved: state.unresolved,
-		resolved: state.resolved,
-		catchClausesAfterResolution,
-		pendingFinallyBlocksByCatchClause,
-	});
+	return nextState;
 };
 
 function getStateAfterEvents(state, events, executor) {
@@ -210,9 +209,23 @@ function getStateAfterEdge(state, previousSegment, segment, codePathState) {
 	}
 
 	return createResolverState({
-		unresolved: state.pendingFinallyBlocksByCatchClause.has(catchClause),
-		resolved: state.catchClausesAfterResolution.has(catchClause),
+		resolverUncalled: state.pendingFinallyBlocksByCatchClause.has(catchClause),
+		resolverCalled: state.catchClausesAfterResolverCall.has(catchClause),
 	});
+}
+
+function areSetsEqual(set, otherSet) {
+	if (set.size !== otherSet.size) {
+		return false;
+	}
+
+	for (const value of set) {
+		if (!otherSet.has(value)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFinallyBlocksByCatchClause) {
@@ -224,8 +237,7 @@ function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFin
 		const otherFinallyBlocks = otherFinallyBlocksByCatchClause.get(catchClause);
 		if (
 			!otherFinallyBlocks
-			|| finallyBlocks.size !== otherFinallyBlocks.size
-			|| [...finallyBlocks].some(finallyBlock => !otherFinallyBlocks.has(finallyBlock))
+			|| !areSetsEqual(finallyBlocks, otherFinallyBlocks)
 		) {
 			return false;
 		}
@@ -236,18 +248,17 @@ function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFin
 
 const areStatesEqual = (state, otherState) => (
 	otherState !== undefined
-	&& state.unresolved === otherState.unresolved
-	&& state.resolved === otherState.resolved
-	&& state.catchClausesAfterResolution.size === otherState.catchClausesAfterResolution.size
-	&& [...state.catchClausesAfterResolution].every(catchClause => otherState.catchClausesAfterResolution.has(catchClause))
+	&& state.resolverUncalled === otherState.resolverUncalled
+	&& state.resolverCalled === otherState.resolverCalled
+	&& areSetsEqual(state.catchClausesAfterResolverCall, otherState.catchClausesAfterResolverCall)
 	&& areFinallyBlocksByCatchClauseEqual(state.pendingFinallyBlocksByCatchClause, otherState.pendingFinallyBlocksByCatchClause)
 );
 
 function mergeResolverState(target, source) {
-	target.unresolved ||= source.unresolved;
-	target.resolved ||= source.resolved;
-	for (const catchClause of source.catchClausesAfterResolution) {
-		target.catchClausesAfterResolution.add(catchClause);
+	target.resolverUncalled ||= source.resolverUncalled;
+	target.resolverCalled ||= source.resolverCalled;
+	for (const catchClause of source.catchClausesAfterResolverCall) {
+		target.catchClausesAfterResolverCall.add(catchClause);
 	}
 
 	for (const [catchClause, finallyBlocks] of source.pendingFinallyBlocksByCatchClause) {
@@ -263,28 +274,7 @@ function mergeResolverState(target, source) {
 	}
 }
 
-function getCatchClause(node) {
-	let child = node;
-	let {parent} = node;
-	while (parent) {
-		if (isFunction(parent)) {
-			return;
-		}
-
-		if (
-			parent.type === 'TryStatement'
-			&& parent.block === child
-			&& parent.handler
-		) {
-			return parent.handler;
-		}
-
-		child = parent;
-		({parent} = parent);
-	}
-}
-
-function getFinallyBlocksBeforeCatch(node, catchClause) {
+function getExceptionPath(node) {
 	const finallyBlocks = [];
 	let child = node;
 	let {parent} = node;
@@ -294,8 +284,8 @@ function getFinallyBlocksBeforeCatch(node, catchClause) {
 		}
 
 		if (parent.type === 'TryStatement') {
-			if (parent.handler === catchClause && parent.block === child) {
-				break;
+			if (parent.block === child && parent.handler) {
+				return {catchClause: parent.handler, finallyBlocks};
 			}
 
 			if (
@@ -310,7 +300,7 @@ function getFinallyBlocksBeforeCatch(node, catchClause) {
 		({parent} = parent);
 	}
 
-	return finallyBlocks;
+	return {catchClause: undefined, finallyBlocks};
 }
 
 function getContainingFinallyBlocks(node) {
@@ -334,7 +324,7 @@ function getContainingFinallyBlocks(node) {
 }
 
 function getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState) {
-	const state = createResolverState({unresolved: segment === codePathState.codePath.initialSegment});
+	const state = createResolverState({resolverUncalled: segment === codePathState.codePath.initialSegment});
 	for (const previousSegment of segment.prevSegments) {
 		const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
 		mergeResolverState(state, stateAfterEdge);
@@ -379,7 +369,7 @@ function reportMultipleResolverCalls(codePathState, context) {
 			for (const event of codePathState.eventsBySegment.get(segment) ?? []) {
 				if (
 					event.executor === executor
-					&& state.resolved
+					&& state.resolverCalled
 					&& !reported.has(event.node)
 				) {
 					reported.add(event.node);
@@ -527,7 +517,7 @@ const create = context => {
 
 		const executor = getResolverExecutor(node, resolverReferenceExecutors);
 		// Promise resolver functions do not throw. Events from their arguments are recorded separately before the call.
-		const catchClause = executor ? undefined : getCatchClause(node);
+		const {catchClause, finallyBlocks} = executor ? {catchClause: undefined, finallyBlocks: getContainingFinallyBlocks(node)} : getExceptionPath(node);
 		if (!executor && !catchClause) {
 			return;
 		}
@@ -541,7 +531,7 @@ const create = context => {
 
 		addEvent(currentCodePathState, {
 			catchClause,
-			finallyBlocks: executor ? getContainingFinallyBlocks(node) : getFinallyBlocksBeforeCatch(node, catchClause),
+			finallyBlocks,
 			node,
 			executor,
 		});
