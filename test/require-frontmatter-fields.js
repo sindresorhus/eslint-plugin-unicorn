@@ -176,6 +176,25 @@ ruleTest.snapshot({
 		},
 	],
 	invalid: [
+		{
+			...yamlTestCase(outdent`
+				---
+				---
+
+				# Hello
+			`),
+			options: [{fields: ['title']}],
+		},
+		{
+			...yamlTestCase(outdent`
+				---
+				metadata: {title: Hello}
+				---
+
+				# Hello
+			`),
+			options: [{fields: ['title']}],
+		},
 		yamlTestCase(outdent`
 			---
 			? [complex, key]
