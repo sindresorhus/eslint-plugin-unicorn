@@ -21,8 +21,39 @@ const schemePattern = /^[a-z][\d+\-.a-z]*:/iu;
 const maximumHtmlCharacterReferenceLength = 64;
 const decimalDigitPattern = /^\d$/u;
 const hexadecimalDigitPattern = /^[\da-f]$/iu;
+const unquotedAttributeValuePattern = /^[^\t\n\f\r "'<>`]+/u;
 
 const isWhitespace = character => character.trim() === '';
+const isSrcsetWhitespace = character => /^[\t\n\f\r ]$/u.test(character);
+
+function getTrimmedUrlRange(value) {
+	let start = 0;
+	let end = value.length;
+
+	while (start < end && value.codePointAt(start) <= 32) {
+		start++;
+	}
+
+	while (end > start && value.codePointAt(end - 1) <= 32) {
+		end--;
+	}
+
+	return [start, end];
+}
+
+function decodePercentEncoded(value) {
+	try {
+		return decodeURIComponent(value);
+	} catch {
+		return value.replaceAll(/(?:%[\da-f]{2})+/giu, encoded => {
+			try {
+				return decodeURIComponent(encoded);
+			} catch {
+				return encoded;
+			}
+		});
+	}
+}
 
 function getNumericCharacterReferenceEnd(value, index) {
 	let end = index + 2;
@@ -84,7 +115,7 @@ function getSrcsetCharacter(value, index) {
 function skipSrcsetSeparators(value, index) {
 	while (index < value.length) {
 		const character = getSrcsetCharacter(value, index);
-		if (character.value !== ',' && !isWhitespace(character.value)) {
+		if (character.value !== ',' && !isSrcsetWhitespace(character.value)) {
 			return index;
 		}
 
@@ -97,7 +128,7 @@ function skipSrcsetSeparators(value, index) {
 function getSrcsetCandidateEnd(value, index, isDataUrl) {
 	while (index < value.length) {
 		const character = getSrcsetCharacter(value, index);
-		if (isWhitespace(character.value) || (!isDataUrl && character.value === ',')) {
+		if (isSrcsetWhitespace(character.value) || (!isDataUrl && character.value === ',')) {
 			return index;
 		}
 
@@ -175,19 +206,17 @@ function getLocalResource(value) {
 		return;
 	}
 
-	try {
-		const decodedParts = resourcePath.split('/').map(part => decodeURIComponent(part));
-		if (decodedParts.some(part => part.includes('/') || part.includes(path.sep))) {
-			return;
-		}
+	const decodedParts = resourcePath.split('/').map(part => decodePercentEncoded(part));
+	if (decodedParts.some(part => part.includes('/') || part.includes(path.sep))) {
+		return;
+	}
 
-		return {
-			path: decodedParts.join('/'),
-			rawPath: resourcePath,
-			suffix: decodedValue.slice(pathEnd),
-			canFix: decodedValue === value,
-		};
-	} catch {}
+	return {
+		path: decodedParts.join('/'),
+		rawPath: resourcePath,
+		suffix: decodedValue.slice(pathEnd),
+		canFix: decodedValue === value,
+	};
 }
 
 function getCorrectedResourcePath(rawPath, correctedPath) {
@@ -196,7 +225,7 @@ function getCorrectedResourcePath(rawPath, correctedPath) {
 	return rawPath.split('/').map((part, index) => {
 		const correctedPart = correctedParts[index];
 
-		return part.includes('%') && decodeURIComponent(part) !== part
+		return part.includes('%') && decodePercentEncoded(part) !== part
 			? encodeURIComponent(correctedPart)
 			: correctedPart;
 	}).join('/');
@@ -214,6 +243,23 @@ const create = context => {
 	const documentDirectory = path.dirname(context.physicalFilename);
 	const resourceCache = new Map();
 	const directoryEntriesCache = new Map();
+	const templateDelimiters = Object.keys(context.languageOptions?.templateEngineSyntax ?? {});
+	const getHtmlAttributeValue = attribute => {
+		const range = context.sourceCode.getRange(attribute.value);
+		if (attribute.startWrapper) {
+			return {value: attribute.value.value, valueRange: range};
+		}
+
+		const value = context.sourceCode.text.slice(range[0]).match(unquotedAttributeValuePattern)?.[0];
+		if (!value || templateDelimiters.some(delimiter => value.includes(delimiter))) {
+			return;
+		}
+
+		return {
+			value,
+			valueRange: [range[0], range[0] + value.length],
+		};
+	};
 
 	const getDirectoryEntries = directory => {
 		if (directoryEntriesCache.has(directory)) {
@@ -284,8 +330,8 @@ const create = context => {
 	};
 
 	const getResourceProblem = (node, value, range, canFix = true) => {
-		const leadingWhitespaceLength = value.length - value.trimStart().length;
-		const resource = value.trim();
+		const [leadingWhitespaceLength, resourceEnd] = getTrimmedUrlRange(value);
+		const resource = value.slice(leadingWhitespaceLength, resourceEnd);
 		const localResource = getLocalResource(resource);
 		if (!localResource) {
 			return;
@@ -364,13 +410,17 @@ const create = context => {
 			return;
 		}
 
-		const {value} = attribute.value;
-		const range = context.sourceCode.getRange(attribute.value);
-		if (name === 'srcset') {
-			return getSrcsetCandidates(value).map(candidate => getResourceProblem(attribute, candidate.value, [range[0] + candidate.offsets[0], range[0] + candidate.offsets[1]]));
+		const htmlAttributeValue = getHtmlAttributeValue(attribute);
+		if (!htmlAttributeValue) {
+			return;
 		}
 
-		return getResourceProblem(attribute, value, range);
+		const {value, valueRange} = htmlAttributeValue;
+		if (name === 'srcset') {
+			return getSrcsetCandidates(value).map(candidate => getResourceProblem(attribute, candidate.value, [valueRange[0] + candidate.offsets[0], valueRange[0] + candidate.offsets[1]]));
+		}
+
+		return getResourceProblem(attribute, value, valueRange);
 	});
 };
 
