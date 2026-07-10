@@ -44,6 +44,6 @@ promise.then(onFulfilled, undefined);
 
 ## Limitations
 
-The rule only checks direct, non-optional `.then()` calls with exactly two arguments. Computed access, optional chaining, and extra arguments are ignored. When TypeScript type information is available, it only reports native `Promise` values whose `.then()` result has a callable `.catch()` method. Without type information, it uses the normal `.then()` method-name heuristic, so custom thenables are unsupported.
+The rule only checks direct, non-optional `.then()` calls with exactly two arguments. Computed access, optional chaining, and extra arguments are ignored. When TypeScript type information is available, it reports `any` receivers and native `Promise` values whose `.then()` result has a callable `.catch()` method. Without type information, it uses the normal `.then()` method-name heuristic, so custom thenables are unsupported.
 
 Suggestions are only offered for identifiers and inline functions, avoiding changes to arbitrary handler-expression evaluation order. They are also withheld when moving the handler could remove or relocate comments.

@@ -99,6 +99,10 @@ test.snapshot({
 			code: 'promise.then(onFulfilled, onRejected as (error: unknown) => void);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'promise.then(onFulfilled, <(error: unknown) => void> onRejected);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'promise.then(onFulfilled, error => { /* Keep this comment. */ handle(error); });',
 		'promise.then(onFulfilled, createRejectionHandler());',
 		'promise.then(onFulfilled, handlers.onRejected);',
