@@ -1,0 +1,75 @@
+import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+test.snapshot({
+	valid: [
+		'promise.then();',
+		'promise.then(onFulfilled);',
+		'promise.then(onFulfilled, onRejected, extraArgument);',
+		'promise.then(undefined, onRejected);',
+		'promise.then(null, onRejected);',
+		'promise.then(void 0, onRejected);',
+		'promise.then(onFulfilled, undefined);',
+		'promise.then(onFulfilled, null);',
+		'promise.then(onFulfilled, void 0);',
+		'promise["then"](onFulfilled, onRejected);',
+		'promise?.then(onFulfilled, onRejected);',
+		'promise.then?.(onFulfilled, onRejected);',
+		typeAware(outdent`
+			declare const object: {then(onFulfilled: () => void, onRejected: () => void): void};
+			object.then(onFulfilled, onRejected);
+		`),
+		typeAware(outdent`
+			declare const promise: PromiseLike<string>;
+			promise.then(onFulfilled, onRejected);
+		`),
+		typeAware(outdent`
+			declare const thenable: PromiseLike<string> & {catch(onRejected: () => void): void};
+			thenable.then(onFulfilled, onRejected);
+		`),
+		typeAware(outdent`
+			declare const thenable: {
+				then(onFulfilled: (value: string) => void, onRejected: (reason: unknown) => void): {catch: string};
+			};
+			thenable.then(onFulfilled, onRejected);
+		`),
+	],
+	invalid: [
+		'promise.then(onFulfilled, onRejected);',
+		'Promise.resolve(value).then(onFulfilled, onRejected);',
+		'void promise.then(onFulfilled, onRejected);',
+		'promise.then(onFulfilled, onRejected,);',
+		'promise.then(onFulfilled, (onRejected));',
+		outdent`
+			promise
+				.then(
+					onFulfilled,
+					onRejected,
+				)
+				.then(next);
+		`,
+		{
+			code: 'promise.then(onFulfilled, onRejected as (error: unknown) => void);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'promise.then(onFulfilled, error => { /* Keep this comment. */ handle(error); });',
+		'promise.then(onFulfilled, /* Do not move this comment. */ onRejected);',
+		'promise.then(onFulfilled, onRejected /* Do not move this comment. */);',
+		typeAware(outdent`
+			declare const promise: Promise<string>;
+			promise.then(onFulfilled, onRejected);
+		`),
+	],
+});
