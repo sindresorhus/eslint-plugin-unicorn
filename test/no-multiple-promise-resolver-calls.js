@@ -169,6 +169,16 @@ test.snapshot({
 				} while (false);
 			});
 		`,
+		{
+			code: outdent`
+				new Promise(resolve => {
+					do {
+						resolve(value);
+					} while (false as boolean);
+				});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			new Promise(resolve => {
 				while (false) {
@@ -218,6 +228,60 @@ test.snapshot({
 					({value: 1});
 				} catch (error) {
 					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve();
+					const value = 1;
+					value;
+					({value});
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve();
+					import('missing');
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise(async (resolve, reject) => {
+				try {
+					await resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve();
+					missingValue;
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				switch (value) {
+					case 1: {
+						resolve();
+						break;
+					}
+					default: {
+						reject();
+					}
 				}
 			});
 		`,
@@ -444,6 +508,10 @@ test.snapshot({
 			code: 'new Promise((resolve: (value?: unknown) => void) => { resolve!(); (resolve as typeof resolve)(); });',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'new Promise(((resolve: (value?: unknown) => void) => { resolve(); resolve(); }) as Executor);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'new Promise((resolve, reject, extra = resolve()) => { resolve(); });',
 		outdent`
 			new Promise(function (resolve, reject) {
@@ -452,12 +520,34 @@ test.snapshot({
 			});
 		`,
 		outdent`
-			new Promise((resolve, reject) => {
+			new Promise(async (resolve, reject) => {
 				try {
 					resolve();
-					missingValue;
+					await import('missing');
 				} catch (error) {
 					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise(async (resolve, reject) => {
+				try {
+					resolve();
+					await value;
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				switch (value) {
+					case 1: {
+						resolve();
+					}
+					default: {
+						reject();
+					}
 				}
 			});
 		`,
@@ -467,6 +557,10 @@ test.snapshot({
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'new Promise((finish, fail) => { finish(); fail(); finish(); });',
+			errors: [error, error],
+		},
 		{
 			code: outdent`
 				new Promise((resolve, reject) => {

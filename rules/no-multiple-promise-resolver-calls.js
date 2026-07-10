@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction, isNewExpression, isReferenceIdentifier} from './ast/index.js';
-import {isGlobalIdentifier, unwrapTypeScriptExpression} from './utils/index.js';
+import {isFunction, isNewExpression} from './ast/index.js';
+import {isGlobalIdentifier, isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -16,15 +16,30 @@ const isSupportedExecutor = node => (
 	&& !node.generator
 );
 
-const isPromiseExecutor = (node, context) => (
-	isSupportedExecutor(node)
-	&& isNewExpression(node.parent, {
+function getOutermostTypeScriptExpression(node) {
+	while (
+		isTypeScriptExpressionWrapper(node.parent)
+		&& node.parent.expression === node
+	) {
+		node = node.parent;
+	}
+
+	return node;
+}
+
+const isPromiseExecutor = (node, context) => {
+	if (!isSupportedExecutor(node)) {
+		return false;
+	}
+
+	const executor = getOutermostTypeScriptExpression(node);
+	return isNewExpression(executor.parent, {
 		name: 'Promise',
 		argumentsLength: 1,
 	})
-	&& node.parent.arguments[0] === node
-	&& isGlobalIdentifier(node.parent.callee, context)
-);
+	&& executor.parent.arguments[0] === executor
+	&& isGlobalIdentifier(executor.parent.callee, context);
+};
 
 const isReassigned = variable => variable.references.some(reference => reference.isWrite());
 
@@ -94,6 +109,7 @@ function getReachableSegments(codePath) {
 	return segments;
 }
 
+// These are may-states, so both booleans can be true after paths merge.
 const createResolverState = ({unresolved = false, resolved = false, catchClausesAfterResolution = []} = {}) => ({
 	unresolved,
 	resolved,
@@ -188,8 +204,17 @@ function getCatchClause(node) {
 	}
 }
 
-function getResolverStates(codePathState, executor, segments) {
-	const statesAtSegmentStart = new Map();
+function getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState) {
+	const state = createResolverState({unresolved: segment.prevSegments.length === 0});
+	for (const previousSegment of segment.prevSegments) {
+		const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
+		mergeResolverState(state, stateAfterEdge);
+	}
+
+	return state;
+}
+
+function getStatesAtSegmentEnd(codePathState, executor, segments) {
 	const statesAtSegmentEnd = new Map();
 	let changed;
 
@@ -197,18 +222,8 @@ function getResolverStates(codePathState, executor, segments) {
 		changed = false;
 
 		for (const segment of segments) {
-			const stateAtStart = createResolverState({unresolved: segment.prevSegments.length === 0});
-			for (const previousSegment of segment.prevSegments) {
-				const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
-				mergeResolverState(stateAtStart, stateAfterEdge);
-			}
-
+			const stateAtStart = getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState);
 			const stateAtEnd = getStateAfterEvents(stateAtStart, codePathState.eventsBySegment.get(segment) ?? [], executor);
-			if (!areStatesEqual(stateAtStart, statesAtSegmentStart.get(segment))) {
-				statesAtSegmentStart.set(segment, stateAtStart);
-				changed = true;
-			}
-
 			if (!areStatesEqual(stateAtEnd, statesAtSegmentEnd.get(segment))) {
 				statesAtSegmentEnd.set(segment, stateAtEnd);
 				changed = true;
@@ -216,7 +231,7 @@ function getResolverStates(codePathState, executor, segments) {
 		}
 	} while (changed);
 
-	return statesAtSegmentStart;
+	return statesAtSegmentEnd;
 }
 
 function reportMultipleResolverCalls(codePathState, context) {
@@ -224,10 +239,10 @@ function reportMultipleResolverCalls(codePathState, context) {
 	const reported = new WeakSet();
 
 	for (const executor of codePathState.executors) {
-		const statesAtSegmentStart = getResolverStates(codePathState, executor, segments);
+		const statesAtSegmentEnd = getStatesAtSegmentEnd(codePathState, executor, segments);
 
 		for (const segment of segments) {
-			let state = statesAtSegmentStart.get(segment) ?? createResolverState();
+			let state = getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState);
 			for (const event of codePathState.eventsBySegment.get(segment) ?? []) {
 				if (
 					event.executor === executor
@@ -247,20 +262,15 @@ function reportMultipleResolverCalls(codePathState, context) {
 	}
 }
 
-function getValueReferenceIdentifiers(sourceCode) {
-	const identifiers = new WeakSet();
-	for (const scope of sourceCode.scopeManager.scopes) {
-		for (const reference of scope.references) {
-			if (reference.isValueReference !== false) {
-				identifiers.add(reference.identifier);
-			}
-		}
-	}
+const hasFalsyLiteralTest = node => {
+	const test = unwrapTypeScriptExpression(node.test);
+	return test?.type === 'Literal' && !test.value;
+};
 
-	return identifiers;
-}
-
-const hasFalsyLiteralTest = node => node.test?.type === 'Literal' && !node.test.value;
+const isDirectlyAwaited = node => {
+	const expression = getOutermostTypeScriptExpression(node);
+	return expression.parent?.type === 'AwaitExpression' && expression.parent.argument === expression;
+};
 
 function isInNeverExecutedLoopPart(node) {
 	let child = node;
@@ -307,7 +317,6 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const resolverReferenceExecutors = new WeakMap();
-	const valueReferenceIdentifiers = getValueReferenceIdentifiers(sourceCode);
 	let currentCodePathState;
 
 	const startSegment = (segment, node) => {
@@ -365,10 +374,13 @@ const create = context => {
 			node.type === 'Identifier'
 			&& (
 				resolverReferenceExecutors.has(node)
-				|| !isReferenceIdentifier(node)
-				|| !valueReferenceIdentifiers.has(node)
+				|| !isDirectlyAwaited(node)
 			)
 		) {
+			return;
+		}
+
+		if (node.type === 'ImportExpression' && !isDirectlyAwaited(node)) {
 			return;
 		}
 
@@ -380,6 +392,7 @@ const create = context => {
 			return;
 		}
 
+		// Promise resolver functions do not throw. Events from their arguments are recorded separately before the call.
 		const catchClause = executor ? undefined : getCatchClause(node);
 		if (!executor && !catchClause) {
 			return;

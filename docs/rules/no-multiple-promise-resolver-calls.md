@@ -88,4 +88,6 @@ Similar checks are available as [`promise/no-multiple-resolved`](https://github.
 
 Only direct calls to simple identifier resolver parameters of an inline executor passed to the bare global `Promise` constructor are checked. Resolver calls are correlated within one function code path, not between an executor and a nested function or between sibling callbacks. Aliases, `.call()` and `.apply()`, passed or escaped resolver functions, and reassigned resolver parameters are ignored.
 
-The rule follows ESLint's code-path graph and does not correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive.
+Exception paths are tracked for calls, construction, property access, and explicit `throw` and `yield`. Rejection from `await` is additionally modeled when its operand is directly an identifier or dynamic import. Implicit exceptions from bare unresolved identifiers, operators, coercion, destructuring, or iteration are not modeled.
+
+The rule follows ESLint's code-path graph and does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive.
