@@ -4,8 +4,9 @@ import {getArgumentRemovalRange} from './fix/index.js';
 import {
 	getParentheses,
 	getParenthesizedText,
+	getTypeSymbol,
 	isGlobalIdentifier,
-	isPromiseType,
+	isDefaultLibrarySymbol,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -17,6 +18,13 @@ const messages = {
 	[SUGGESTION_ID]: 'Move the rejection handler to `.catch()`.',
 };
 
+const isAnyType = type => type.intrinsicName === 'any';
+const isNativePromiseType = (type, program) => {
+	const symbol = getTypeSymbol(type);
+	return symbol?.getName() === 'Promise'
+		&& isDefaultLibrarySymbol(symbol, program);
+};
+
 function isNullish(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	return (node.type === 'Literal' && node.value === null)
@@ -24,23 +32,16 @@ function isNullish(node, context) {
 		|| (isUndefined(node) && isGlobalIdentifier(node, context));
 }
 
-function canThenResultCatch(callExpression, context) {
+function isPromiseReceiver(callExpression, context) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return true;
 	}
 
 	try {
-		const checker = parserServices.program.getTypeChecker();
-		const receiverType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
-		const promiseReceiver = isPromiseType(receiverType, checker);
-		if (promiseReceiver === false) {
-			return false;
-		}
-
-		const resultType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression));
-		const catchMethod = checker.getPropertyOfType(resultType, 'catch');
-		return Boolean(catchMethod && checker.getTypeOfSymbolAtLocation(catchMethod, callExpression).getCallSignatures().length > 0);
+		const receiverType = parserServices.program.getTypeChecker().getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
+		return isAnyType(receiverType)
+			|| isNativePromiseType(receiverType, parserServices.program);
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 		return true;
@@ -117,7 +118,7 @@ const create = context => {
 		if (
 			isNullish(fulfillmentHandler, context)
 			|| isNullish(rejectionHandler, context)
-			|| !canThenResultCatch(callExpression, context)
+			|| !isPromiseReceiver(callExpression, context)
 		) {
 			return;
 		}

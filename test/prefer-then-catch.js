@@ -48,7 +48,8 @@ test.snapshot({
 			thenable.then(onFulfilled, onRejected);
 		`),
 		typeAware(outdent`
-			declare const value: any;
+			type Thenable = {then(onFulfilled: () => void, onRejected: () => void): void};
+			declare const value: Promise<void> | Thenable;
 			value.then(onFulfilled, onRejected);
 		`),
 		{
@@ -62,6 +63,11 @@ test.snapshot({
 	],
 	invalid: [
 		'promise.then(onFulfilled, onRejected);',
+		'promise.then(onFulfilled, function onRejected() {});',
+		typeAware(outdent`
+			declare const value: any;
+			value.then(onFulfilled, onRejected);
+		`),
 		'function handlePromise(undefined) { promise.then(onFulfilled, undefined); }',
 		'Promise.resolve(value).then(onFulfilled, onRejected);',
 		'void promise.then(onFulfilled, onRejected);',
