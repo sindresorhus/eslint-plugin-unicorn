@@ -1,7 +1,11 @@
+import test from 'ava';
 import outdent from 'outdent';
+import {Linter} from 'eslint';
+import markdown from '@eslint/markdown';
+import unicorn from '../index.js';
 import {getTester, languages} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const options = [{
 	fields: ['title', 'description', 'date'],
@@ -20,14 +24,33 @@ const yamlTestCase = code => ({
 	options,
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		// The rule only checks files that have YAML frontmatter.
+		yamlTestCase('# Title'),
 		{
-			code: '# Title',
+			code: outdent`
+				---
+				title: 1
+				---
+
+				# Hello
+			`,
 			filename: 'example.md',
 			language: languages.markdown,
 			options,
+		},
+		{
+			code: outdent`
+				---
+				title: 1
+				---
+
+				# Hello
+			`,
+			filename: 'example.md',
+			language: languages.markdown,
+			languageOptions: {frontmatter: 'yaml'},
 		},
 		yamlTestCase(outdent`
 			---
@@ -67,6 +90,20 @@ test.snapshot({
 					views: 'number',
 					draft: 'boolean',
 					archived: 'null',
+				},
+			}],
+		},
+		{
+			...yamlTestCase(outdent`
+				---
+				title: Hello
+				---
+
+				# Hello
+			`),
+			options: [{
+				types: {
+					draft: 'boolean',
 				},
 			}],
 		},
@@ -141,11 +178,39 @@ test.snapshot({
 	invalid: [
 		yamlTestCase(outdent`
 			---
+			? [complex, key]
+			: ignored
 			title: Hello
 			---
 
 			# Hello
 		`),
+		yamlTestCase(outdent`
+			---
+			title: Hello
+			---
+
+			# Hello
+		`),
+		{
+			...yamlTestCase(outdent`
+				---
+				title: 1
+				---
+
+				# Hello
+			`),
+			options: [{
+				types: {title: 'string'},
+			}],
+		},
+		{
+			code: '---\r\ntitle: Hello\r\ndescription: A description\r\ndate: 1\r\n---\r\n',
+			filename: 'example.md',
+			language: languages.markdown,
+			languageOptions: {frontmatter: 'yaml'},
+			options,
+		},
 		yamlTestCase(outdent`
 			---
 			title: Hello
@@ -226,4 +291,31 @@ test.snapshot({
 			}],
 		},
 	],
+});
+
+test('reports a normalized NUL character at the correct location', t => {
+	const linter = new Linter({configType: 'flat'});
+	const code = `---\n# ${String.fromCodePoint(0)}\ntitle: 1\n---\n`;
+	const [message] = linter.verify(code, {
+		files: ['**'],
+		language: 'markdown/commonmark',
+		languageOptions: {frontmatter: 'yaml'},
+		plugins: {
+			markdown,
+			unicorn,
+		},
+		rules: {
+			'unicorn/require-frontmatter-fields': ['error', {
+				fields: ['title'],
+				types: {title: 'string'},
+			}],
+		},
+	}, {filename: 'example.md'});
+
+	t.like(message, {
+		line: 3,
+		column: 8,
+		endLine: 3,
+		endColumn: 9,
+	});
 });

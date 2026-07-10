@@ -7,12 +7,12 @@ const messages = {
 	[MESSAGE_ID_INVALID_TYPE]: 'Frontmatter field `{{field}}` must be a `{{type}}`.',
 };
 
-const fieldTypes = new Set([
+const primitiveTypes = [
 	'string',
 	'number',
 	'boolean',
 	'null',
-]);
+];
 
 const schema = [
 	{
@@ -31,7 +31,7 @@ const schema = [
 			types: {
 				type: 'object',
 				additionalProperties: {
-					enum: [...fieldTypes],
+					enum: primitiveTypes,
 				},
 				description: 'Expected primitive types for top-level YAML frontmatter fields.',
 			},
@@ -61,12 +61,19 @@ function getFieldPairs(document) {
 		.map(pair => [pair.key.value, pair]));
 }
 
+function getFrontmatterContentStart(node, sourceCode) {
+	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
+	const nodeText = sourceCode.text.slice(nodeStart, nodeEnd);
+	const lineEnding = /\r\n?|\n/u.exec(nodeText);
+
+	return nodeStart + lineEnding.index + lineEnding[0].length;
+}
+
 function getValueLocation(node, pair, sourceCode) {
 	const range = Reflect.get(pair.value ?? pair.key, 'range');
-	const nodeText = sourceCode.getText(node);
-	const valueStart = nodeText.indexOf(node.value);
-	const start = node.position.start.offset + valueStart + range[0];
-	const end = node.position.start.offset + valueStart + range[1];
+	const frontmatterContentStart = getFrontmatterContentStart(node, sourceCode);
+	const start = frontmatterContentStart + range[0];
+	const end = frontmatterContentStart + range[1];
 
 	return {
 		start: sourceCode.getLocFromIndex(start),
@@ -83,7 +90,7 @@ const create = context => {
 	}
 
 	context.on('yaml', function * (node) {
-		const document = parseDocument(node.value, {stringKeys: true});
+		const document = parseDocument(node.value);
 
 		if (document.errors.length > 0) {
 			return;
@@ -133,6 +140,7 @@ const config = {
 		defaultOptions: [{fields: [], types: {}}],
 		messages,
 		languages: [
+			// `configs.all` applies every rule to JavaScript files.
 			'js/js',
 			'markdown/commonmark',
 			'markdown/gfm',
