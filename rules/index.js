@@ -312,6 +312,7 @@ export {default as 'relative-url-style'} from './relative-url-style.js';
 export {default as 'require-array-join-separator'} from './require-array-join-separator.js';
 export {default as 'require-array-sort-compare'} from './require-array-sort-compare.js';
 export {default as 'require-css-escape'} from './require-css-escape.js';
+export {default as 'require-frontmatter-fields'} from './require-frontmatter-fields.js';
 export {default as 'require-module-attributes'} from './require-module-attributes.js';
 export {default as 'require-module-specifiers'} from './require-module-specifiers.js';
 export {default as 'require-number-to-fixed-digits-argument'} from './require-number-to-fixed-digits-argument.js';
