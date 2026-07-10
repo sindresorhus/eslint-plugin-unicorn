@@ -23,7 +23,6 @@ const decimalDigitPattern = /^\d$/u;
 const hexadecimalDigitPattern = /^[\da-f]$/iu;
 const unquotedAttributeValuePattern = /^[^\t\n\f\r "'<>`]+/u;
 
-const isWhitespace = character => character.trim() === '';
 const isSrcsetWhitespace = character => /^[\t\n\f\r ]$/u.test(character);
 
 function getTrimmedUrlRange(value) {
@@ -187,16 +186,18 @@ function getSrcsetCandidates(value) {
 
 function getLocalResource(value) {
 	const decodedValue = decodeHTMLAttribute(value);
-	let pathEnd = decodedValue.length;
+	const [resourceStart, resourceEnd] = getTrimmedUrlRange(decodedValue);
+	const trimmedValue = decodedValue.slice(resourceStart, resourceEnd);
+	let pathEnd = trimmedValue.length;
 
 	for (const separator of ['?', '#']) {
-		const index = decodedValue.indexOf(separator);
+		const index = trimmedValue.indexOf(separator);
 		if (index !== -1) {
 			pathEnd = Math.min(pathEnd, index);
 		}
 	}
 
-	const resourcePath = decodedValue.slice(0, pathEnd);
+	const resourcePath = trimmedValue.slice(0, pathEnd);
 
 	if (
 		resourcePath.length === 0
@@ -214,7 +215,7 @@ function getLocalResource(value) {
 	return {
 		path: decodedParts.join('/'),
 		rawPath: resourcePath,
-		suffix: decodedValue.slice(pathEnd),
+		suffix: trimmedValue.slice(pathEnd),
 		canFix: decodedValue === value,
 	};
 }
@@ -329,7 +330,7 @@ const create = context => {
 		return result;
 	};
 
-	const getResourceProblem = (node, value, range, canFix = true) => {
+	const getResourceProblem = (node, value, valueRange) => {
 		const [leadingWhitespaceLength, resourceEnd] = getTrimmedUrlRange(value);
 		const resource = value.slice(leadingWhitespaceLength, resourceEnd);
 		const localResource = getLocalResource(resource);
@@ -337,9 +338,9 @@ const create = context => {
 			return;
 		}
 
-		const resourceRange = [range[0] + leadingWhitespaceLength, range[0] + leadingWhitespaceLength + resource.length];
+		const resourceRange = valueRange && [valueRange[0] + leadingWhitespaceLength, valueRange[0] + leadingWhitespaceLength + resource.length];
 		const resourceResult = getResourceResult(localResource.path);
-		const loc = {
+		const loc = resourceRange && {
 			start: context.sourceCode.getLocFromIndex(resourceRange[0]),
 			end: context.sourceCode.getLocFromIndex(resourceRange[1]),
 		};
@@ -347,7 +348,7 @@ const create = context => {
 		if (!resourceResult.exists) {
 			return {
 				node,
-				loc,
+				...(loc && {loc}),
 				messageId: MESSAGE_ID_MISSING,
 				data: {resource},
 			};
@@ -360,45 +361,16 @@ const create = context => {
 		const correctedResource = getCorrectedResourcePath(localResource.rawPath, resourceResult.correctedPath) + localResource.suffix;
 		return {
 			node,
-			loc,
+			...(loc && {loc}),
 			messageId: MESSAGE_ID_INCORRECT_CASE,
 			data: {resource: correctedResource},
-			...(canFix && localResource.canFix && {
+			...(localResource.canFix && resourceRange && {
 				fix: fixer => fixer.replaceTextRange(resourceRange, correctedResource),
 			}),
 		};
 	};
 
-	const getMarkdownResourceRange = (node, resource) => {
-		const range = context.sourceCode.getRange(node);
-		const source = context.sourceCode.text.slice(...range);
-		let destinationStart = node.type === 'definition'
-			? source.indexOf(']:') + 2
-			: (source.startsWith('<') ? 1 : source.indexOf('](') + 2);
-
-		while (isWhitespace(source[destinationStart])) {
-			destinationStart++;
-		}
-
-		if (source[destinationStart] === '<') {
-			destinationStart++;
-		}
-
-		const resourceOffset = source.indexOf(resource, destinationStart);
-
-		if (resourceOffset === -1) {
-			return;
-		}
-
-		return [range[0] + resourceOffset, range[0] + resourceOffset + resource.length];
-	};
-
-	const checkMarkdownResource = node => {
-		const resourceRange = getMarkdownResourceRange(node, node.url);
-		return getResourceProblem(node, node.url, resourceRange ?? context.sourceCode.getRange(node), resourceRange !== undefined);
-	};
-
-	context.on(['definition', 'image', 'link'], checkMarkdownResource);
+	context.on(['definition', 'image', 'link'], node => getResourceProblem(node, node.url));
 	context.on('Attribute', attribute => {
 		const name = attribute.key?.value?.toLowerCase();
 		if (

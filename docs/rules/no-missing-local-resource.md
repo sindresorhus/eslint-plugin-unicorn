@@ -11,9 +11,9 @@
 
 This rule checks whether static local resources in Markdown and HTML resolve from the directory containing the linted file. It catches broken documentation links, missing assets, and path casing that passes on a case-insensitive filesystem but fails on a case-sensitive deployment.
 
-It checks Markdown links, images, and reference definitions, plus HTML `href`, `src`, `poster`, and `srcset` attributes. Files, directories, and symlinks are all valid targets. A casing-only mismatch is automatically fixed.
+It checks Markdown links, images, and reference definitions, plus HTML `href`, `src`, `poster`, and `srcset` attributes. Files, directories, and symlinks are all valid targets. An HTML casing-only mismatch is automatically fixed.
 
-Remote URLs, root-relative URLs, fragments, and dynamic HTML template values are ignored. The rule does not infer extensions, check fragments in other files, honor HTML `<base>` elements, or parse raw HTML embedded in Markdown. Casing fixes are not applied when HTML character references or Markdown escapes are present.
+Remote URLs, root-relative URLs, fragments, and dynamic HTML template values are ignored. The rule does not infer extensions, check fragments in other files, honor HTML `<base>` elements, or parse raw HTML embedded in Markdown. Casing fixes are not applied in Markdown or when HTML character references are present.
 
 ## Examples
 
