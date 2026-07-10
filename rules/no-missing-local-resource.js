@@ -18,7 +18,7 @@ const resourceAttributes = new Set([
 ]);
 
 const schemePattern = /^[a-z][\d+\-.a-z]*:/iu;
-const maximumHtmlCharacterReferenceLength = 64;
+const maximumNamedHtmlCharacterReferenceLength = 64;
 const decimalDigitPattern = /^\d$/u;
 const hexadecimalDigitPattern = /^[\da-f]$/iu;
 const unquotedAttributeValuePattern = /^[^\t\n\f\r "'<>`]+/u;
@@ -84,7 +84,7 @@ function getSrcsetCharacter(value, index) {
 	if (value[index + 1] === '#') {
 		end = getNumericCharacterReferenceEnd(value, index);
 	} else {
-		const possibleCharacterReference = value.slice(index, index + maximumHtmlCharacterReferenceLength);
+		const possibleCharacterReference = value.slice(index, index + maximumNamedHtmlCharacterReferenceLength);
 		const semicolonIndex = possibleCharacterReference.indexOf(';');
 		end = semicolonIndex === -1 ? undefined : index + semicolonIndex + 1;
 	}
