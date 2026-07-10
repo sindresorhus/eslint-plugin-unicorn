@@ -98,6 +98,16 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve();
+				} catch (error) {
+					reject(error);
+					reject(otherError);
+				}
+			});
+		`,
+		outdent`
 			new Promise(async (resolve, reject) => {
 				try {
 					resolve(await getValue());
@@ -254,6 +264,16 @@ test.snapshot({
 			});
 		`,
 		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					import('missing');
+				} catch (error) {
+					reject(error);
+					reject(otherError);
+				}
+			});
+		`,
+		outdent`
 			new Promise(async (resolve, reject) => {
 				try {
 					await resolve();
@@ -383,6 +403,38 @@ test.snapshot({
 		outdent`
 			new Promise((resolve, reject) => {
 				try {
+					resolve();
+					object.value;
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve();
+					new Constructor();
+				} catch (error) {
+					reject(error);
+				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				consume(function * () {
+					try {
+						resolve();
+						yield value;
+					} catch (error) {
+						reject(error);
+					}
+				});
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
 					if (condition) {
 						resolve(value);
 						mayThrow();
@@ -429,6 +481,16 @@ test.snapshot({
 				}
 
 				resolve(fallbackValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					resolve(mayThrow());
+				} catch (error) {
+					reject(error);
+					reject(otherError);
+				}
 			});
 		`,
 		outdent`
@@ -512,7 +574,12 @@ test.snapshot({
 			code: 'new Promise(((resolve: (value?: unknown) => void) => { resolve(); resolve(); }) as Executor);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'new Promise((<Type>(resolve: (value?: unknown) => void) => { resolve(); resolve(); })<unknown>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'new Promise((resolve, reject, extra = resolve()) => { resolve(); });',
+		'new Promise((resolve, reject) => { resolve = otherResolve; reject(); reject(); });',
 		outdent`
 			new Promise(function (resolve, reject) {
 				resolve(value);
@@ -559,6 +626,20 @@ test({
 	invalid: [
 		{
 			code: 'new Promise((finish, fail) => { finish(); fail(); finish(); });',
+			errors: [error, error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					while (condition) {
+						try {
+							resolve(mayThrow());
+						} catch (error) {
+							reject(error);
+						}
+					}
+				});
+			`,
 			errors: [error, error],
 		},
 		{
@@ -636,6 +717,22 @@ test({
 				});
 			`,
 			errors: [error, error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					try {
+						try {
+							mayThrow();
+						} finally {
+							resolve();
+						}
+					} catch (error) {
+						reject(error);
+					}
+				});
+			`,
+			errors: [error],
 		},
 	],
 });

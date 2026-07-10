@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isNewExpression} from './ast/index.js';
-import {isGlobalIdentifier, isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
+import {isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -16,12 +16,22 @@ const isSupportedExecutor = node => (
 	&& !node.generator
 );
 
+const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
+
 function getOutermostTypeScriptExpression(node) {
 	while (
-		isTypeScriptExpressionWrapper(node.parent)
+		isTransparentTypeScriptExpressionWrapper(node.parent)
 		&& node.parent.expression === node
 	) {
 		node = node.parent;
+	}
+
+	return node;
+}
+
+function unwrapTypeScriptExpression(node) {
+	while (isTransparentTypeScriptExpressionWrapper(node)) {
+		node = node.expression;
 	}
 
 	return node;
@@ -44,6 +54,7 @@ const isPromiseExecutor = (node, context) => {
 const isReassigned = variable => variable.references.some(reference => reference.isWrite());
 
 function registerResolverReferences(executor, resolverReferenceExecutors, sourceCode) {
+	let registered = false;
 	for (const parameter of executor.params.slice(0, 2)) {
 		if (parameter.type !== 'Identifier') {
 			continue;
@@ -56,8 +67,11 @@ function registerResolverReferences(executor, resolverReferenceExecutors, source
 
 		for (const reference of variable.references) {
 			resolverReferenceExecutors.set(reference.identifier, executor);
+			registered = true;
 		}
 	}
+
+	return registered;
 }
 
 const getResolverExecutor = (node, resolverReferenceExecutors) => {
@@ -109,18 +123,36 @@ function getReachableSegments(codePath) {
 	return segments;
 }
 
+function cloneFinallyBlocksByCatchClause(finallyBlocksByCatchClause) {
+	const clone = new Map();
+	for (const [catchClause, finallyBlocks] of finallyBlocksByCatchClause) {
+		clone.set(catchClause, new Set(finallyBlocks));
+	}
+
+	return clone;
+}
+
 // These are may-states, so both booleans can be true after paths merge.
-const createResolverState = ({unresolved = false, resolved = false, catchClausesAfterResolution = []} = {}) => ({
+const createResolverState = ({unresolved = false, resolved = false, catchClausesAfterResolution = [], pendingFinallyBlocksByCatchClause = new Map()} = {}) => ({
 	unresolved,
 	resolved,
 	catchClausesAfterResolution: new Set(catchClausesAfterResolution),
+	pendingFinallyBlocksByCatchClause: cloneFinallyBlocksByCatchClause(pendingFinallyBlocksByCatchClause),
 });
 
 const getStateAfterEvent = (state, event, executor) => {
 	if (event.executor === executor) {
+		const catchClausesAfterResolution = new Set(state.catchClausesAfterResolution);
+		for (const [catchClause, finallyBlocks] of state.pendingFinallyBlocksByCatchClause) {
+			if (event.finallyBlocks.some(finallyBlock => finallyBlocks.has(finallyBlock))) {
+				catchClausesAfterResolution.add(catchClause);
+			}
+		}
+
 		return createResolverState({
 			resolved: state.unresolved || state.resolved,
-			catchClausesAfterResolution: state.catchClausesAfterResolution,
+			catchClausesAfterResolution,
+			pendingFinallyBlocksByCatchClause: state.pendingFinallyBlocksByCatchClause,
 		});
 	}
 
@@ -129,14 +161,30 @@ const getStateAfterEvent = (state, event, executor) => {
 	}
 
 	const catchClausesAfterResolution = new Set(state.catchClausesAfterResolution);
-	if (state.resolved && event.catchClause) {
-		catchClausesAfterResolution.add(event.catchClause);
+	const pendingFinallyBlocksByCatchClause = cloneFinallyBlocksByCatchClause(state.pendingFinallyBlocksByCatchClause);
+	if (event.catchClause) {
+		if (state.unresolved) {
+			let finallyBlocks = pendingFinallyBlocksByCatchClause.get(event.catchClause);
+			if (!finallyBlocks) {
+				finallyBlocks = new Set();
+				pendingFinallyBlocksByCatchClause.set(event.catchClause, finallyBlocks);
+			}
+
+			for (const finallyBlock of event.finallyBlocks) {
+				finallyBlocks.add(finallyBlock);
+			}
+		}
+
+		if (state.resolved) {
+			catchClausesAfterResolution.add(event.catchClause);
+		}
 	}
 
 	return createResolverState({
 		unresolved: state.unresolved,
 		resolved: state.resolved,
 		catchClausesAfterResolution,
+		pendingFinallyBlocksByCatchClause,
 	});
 };
 
@@ -162,9 +210,28 @@ function getStateAfterEdge(state, previousSegment, segment, codePathState) {
 	}
 
 	return createResolverState({
-		unresolved: state.unresolved,
+		unresolved: state.pendingFinallyBlocksByCatchClause.has(catchClause),
 		resolved: state.catchClausesAfterResolution.has(catchClause),
 	});
+}
+
+function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFinallyBlocksByCatchClause) {
+	if (finallyBlocksByCatchClause.size !== otherFinallyBlocksByCatchClause.size) {
+		return false;
+	}
+
+	for (const [catchClause, finallyBlocks] of finallyBlocksByCatchClause) {
+		const otherFinallyBlocks = otherFinallyBlocksByCatchClause.get(catchClause);
+		if (
+			!otherFinallyBlocks
+			|| finallyBlocks.size !== otherFinallyBlocks.size
+			|| [...finallyBlocks].some(finallyBlock => !otherFinallyBlocks.has(finallyBlock))
+		) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 const areStatesEqual = (state, otherState) => (
@@ -173,6 +240,7 @@ const areStatesEqual = (state, otherState) => (
 	&& state.resolved === otherState.resolved
 	&& state.catchClausesAfterResolution.size === otherState.catchClausesAfterResolution.size
 	&& [...state.catchClausesAfterResolution].every(catchClause => otherState.catchClausesAfterResolution.has(catchClause))
+	&& areFinallyBlocksByCatchClauseEqual(state.pendingFinallyBlocksByCatchClause, otherState.pendingFinallyBlocksByCatchClause)
 );
 
 function mergeResolverState(target, source) {
@@ -180,6 +248,18 @@ function mergeResolverState(target, source) {
 	target.resolved ||= source.resolved;
 	for (const catchClause of source.catchClausesAfterResolution) {
 		target.catchClausesAfterResolution.add(catchClause);
+	}
+
+	for (const [catchClause, finallyBlocks] of source.pendingFinallyBlocksByCatchClause) {
+		let targetFinallyBlocks = target.pendingFinallyBlocksByCatchClause.get(catchClause);
+		if (!targetFinallyBlocks) {
+			targetFinallyBlocks = new Set();
+			target.pendingFinallyBlocksByCatchClause.set(catchClause, targetFinallyBlocks);
+		}
+
+		for (const finallyBlock of finallyBlocks) {
+			targetFinallyBlocks.add(finallyBlock);
+		}
 	}
 }
 
@@ -204,8 +284,57 @@ function getCatchClause(node) {
 	}
 }
 
+function getFinallyBlocksBeforeCatch(node, catchClause) {
+	const finallyBlocks = [];
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			break;
+		}
+
+		if (parent.type === 'TryStatement') {
+			if (parent.handler === catchClause && parent.block === child) {
+				break;
+			}
+
+			if (
+				parent.finalizer
+				&& (parent.block === child || parent.handler === child)
+			) {
+				finallyBlocks.push(parent.finalizer);
+			}
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return finallyBlocks;
+}
+
+function getContainingFinallyBlocks(node) {
+	const finallyBlocks = [];
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			break;
+		}
+
+		if (parent.type === 'TryStatement' && parent.finalizer === child) {
+			finallyBlocks.push(parent.finalizer);
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return finallyBlocks;
+}
+
 function getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState) {
-	const state = createResolverState({unresolved: segment.prevSegments.length === 0});
+	const state = createResolverState({unresolved: segment === codePathState.codePath.initialSegment});
 	for (const previousSegment of segment.prevSegments) {
 		const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
 		mergeResolverState(state, stateAfterEdge);
@@ -235,6 +364,10 @@ function getStatesAtSegmentEnd(codePathState, executor, segments) {
 }
 
 function reportMultipleResolverCalls(codePathState, context) {
+	if (codePathState.executors.size === 0) {
+		return;
+	}
+
 	const segments = getReachableSegments(codePathState.codePath);
 	const reported = new WeakSet();
 
@@ -317,6 +450,7 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const resolverReferenceExecutors = new WeakMap();
+	let hasResolverReferences = false;
 	let currentCodePathState;
 
 	const startSegment = (segment, node) => {
@@ -339,8 +473,11 @@ const create = context => {
 			ignoredLoopEdges: [],
 		};
 
-		if (isPromiseExecutor(node, context)) {
-			registerResolverReferences(node, resolverReferenceExecutors, sourceCode);
+		if (
+			isPromiseExecutor(node, context)
+			&& registerResolverReferences(node, resolverReferenceExecutors, sourceCode)
+		) {
+			hasResolverReferences = true;
 		}
 	});
 
@@ -370,6 +507,10 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
+		if (!hasResolverReferences) {
+			return;
+		}
+
 		if (
 			node.type === 'Identifier'
 			&& (
@@ -385,6 +526,12 @@ const create = context => {
 		}
 
 		const executor = getResolverExecutor(node, resolverReferenceExecutors);
+		// Promise resolver functions do not throw. Events from their arguments are recorded separately before the call.
+		const catchClause = executor ? undefined : getCatchClause(node);
+		if (!executor && !catchClause) {
+			return;
+		}
+
 		if (
 			isInNeverExecutedLoopPart(node)
 			|| (executor && isInAlwaysProvidedParameterDefault(node, context))
@@ -392,14 +539,9 @@ const create = context => {
 			return;
 		}
 
-		// Promise resolver functions do not throw. Events from their arguments are recorded separately before the call.
-		const catchClause = executor ? undefined : getCatchClause(node);
-		if (!executor && !catchClause) {
-			return;
-		}
-
 		addEvent(currentCodePathState, {
 			catchClause,
+			finallyBlocks: executor ? getContainingFinallyBlocks(node) : getFinallyBlocksBeforeCatch(node, catchClause),
 			node,
 			executor,
 		});
