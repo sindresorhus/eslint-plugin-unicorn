@@ -13,7 +13,7 @@ This rule checks whether static local resources in Markdown and HTML resolve fro
 
 It checks Markdown links, images, and reference definitions, plus HTML `href`, `src`, `poster`, and `srcset` attributes. Files, directories, and symlinks are all valid targets. An HTML casing-only mismatch is automatically fixed.
 
-URLs with a scheme, root-relative URLs, fragments, and dynamic HTML template values are ignored. The rule does not infer extensions, check fragments in other files, honor HTML `<base>` elements, or parse raw HTML embedded in Markdown. Casing fixes are not applied in Markdown or when HTML character references are present.
+URLs with a scheme, root-relative URLs, fragments, and dynamic HTML template values are ignored. The rule does not infer extensions, check fragments in other files, honor HTML `<base>` elements, parse raw HTML embedded in Markdown, or support percent-encoded path separators. Casing fixes are not applied in Markdown or when HTML character references are present.
 
 ## Examples
 
