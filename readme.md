@@ -210,6 +210,7 @@ export default defineConfig([
 | [no-redundant-comparison](docs/rules/no-redundant-comparison.md)                                           | Disallow comparisons made redundant by an equality check in the same logical AND.                                              | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-return-array-push](docs/rules/no-return-array-push.md)                                                 | Disallow using the return value of `Array#push()` and `Array#unshift()`.                                                       | ✅    |    | 💡 |    |
 | [no-selector-as-dom-name](docs/rules/no-selector-as-dom-name.md)                                           | Disallow selector syntax in DOM names.                                                                                         | ✅    | 🔧 |    |    |
+| [no-shorthand-property-overrides](docs/rules/no-shorthand-property-overrides.md)                           | Disallow shorthand properties that override related longhand properties.                                                       | ✅ ☑️ |    |    |    |
 | [no-single-promise-in-promise-methods](docs/rules/no-single-promise-in-promise-methods.md)                 | Disallow passing single-element arrays to `Promise` methods.                                                                   | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-static-only-class](docs/rules/no-static-only-class.md)                                                 | Disallow classes that only have static members.                                                                                | ✅ ☑️ | 🔧 |    |    |
 | [no-subtraction-comparison](docs/rules/no-subtraction-comparison.md)                                       | Prefer comparing values directly over subtracting and comparing to `0`.                                                        | ✅ ☑️ | 🔧 | 💡 |    |
@@ -512,6 +513,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
+| [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
