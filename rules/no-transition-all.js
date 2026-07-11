@@ -1,3 +1,5 @@
+import {ident} from '@eslint/css-tree';
+
 const MESSAGE_ID = 'no-transition-all';
 const messages = {
 	[MESSAGE_ID]: 'Do not use `all` as a transition property.',
@@ -8,23 +10,7 @@ const transitionProperties = new Set([
 	'transition-property',
 ]);
 
-const CSS_ESCAPE = /\\(?:(?<codePoint>[\da-f]{1,6})\s?|(?<character>.))/giu;
-
-const decodeCssEscape = (_, codePoint, character) => {
-	if (!codePoint) {
-		return character;
-	}
-
-	const value = Number.parseInt(codePoint, 16);
-
-	return value === 0 || value > 0x10FFFF
-		? '\uFFFD'
-		: String.fromCodePoint(value);
-};
-
-const normalizeCssIdentifier = identifier => identifier
-	.replace(CSS_ESCAPE, decodeCssEscape)
-	.toLowerCase();
+const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -32,7 +18,7 @@ const create = context => {
 		if (
 			!transitionProperties.has(normalizeCssIdentifier(declaration.property))
 			|| declaration.value.type !== 'Value'
-			|| context.sourceCode.getParent(declaration)?.type === 'SupportsDeclaration'
+			|| context.sourceCode.getParent(declaration)?.type !== 'Block'
 		) {
 			return;
 		}

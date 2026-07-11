@@ -63,6 +63,7 @@
 	],
 	"dependencies": {
 		"@eslint-community/eslint-utils": "^4.9.1",
+		"@eslint/css-tree": "^4.0.4",
 		"browserslist": "^4.28.4",
 		"change-case": "^5.4.4",
 		"ci-info": "^4.4.0",

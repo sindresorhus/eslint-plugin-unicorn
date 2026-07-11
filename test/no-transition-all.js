@@ -14,7 +14,9 @@ test.snapshot({
 		{code: 'a { animation: all 150ms; }', language: languages.css},
 		{code: '@supports (transition: all 150ms) {}', language: languages.css},
 		{code: '@supports (transition-property: all) {}', language: languages.css},
-		{code: 'a { transition: \\110000 150ms; }', language: languages.css},
+		{code: 'a { transition: \\61\u00A0ll 150ms; }', language: languages.css},
+		{code: '@container style(transition: all 150ms) {}', language: languages.css},
+		{code: '@import "x.css" supports(transition: all 150ms);', language: languages.css},
 	],
 	invalid: [
 		{code: 'a { transition: all 150ms; }', language: languages.css},
@@ -36,6 +38,14 @@ test({
 		},
 		{
 			code: 'a { tr\\61 nsition: all 150ms; }',
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			code: 'a { TRANSITION: all 150ms; }',
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			code: 'a { transition: \\61\nll 150ms; }',
 			errors: [{messageId: 'no-transition-all'}],
 		},
 	],
