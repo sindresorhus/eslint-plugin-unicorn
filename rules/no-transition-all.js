@@ -51,12 +51,7 @@ const isDomStyleDeclarationType = (type, program) => {
 	return domStyleTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program);
 };
 
-const isDomStyleDeclaration = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
+const isDomStyleDeclaration = (node, parserServices) => {
 	try {
 		return isDomStyleDeclarationType(parserServices.getTypeAtLocation(node), parserServices.program);
 	} catch {
@@ -64,16 +59,12 @@ const isDomStyleDeclaration = (node, context) => {
 	}
 };
 
-const getDomStyleProblem = (receiver, value, context) => {
-	if (!context.sourceCode.parserServices?.program) {
-		return;
-	}
-
+const getDomStyleProblem = (receiver, value, parserServices) => {
 	const staticValue = getStaticString(value);
 	if (
 		staticValue === undefined
 		|| !hasTransitionAll(staticValue)
-		|| !isDomStyleDeclaration(receiver, context)
+		|| !isDomStyleDeclaration(receiver, parserServices)
 	) {
 		return;
 	}
@@ -103,6 +94,11 @@ const create = context => {
 			}));
 	});
 
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return;
+	}
+
 	context.on('AssignmentExpression', assignment => {
 		if (
 			assignment.operator !== '='
@@ -111,7 +107,7 @@ const create = context => {
 			return;
 		}
 
-		return getDomStyleProblem(assignment.left.object, assignment.right, context);
+		return getDomStyleProblem(assignment.left.object, assignment.right, parserServices);
 	});
 
 	context.on('CallExpression', callExpression => {
@@ -127,7 +123,7 @@ const create = context => {
 
 		const [property, value] = callExpression.arguments;
 		if (transitionProperties.has(getStaticString(property)?.toLowerCase())) {
-			return getDomStyleProblem(callExpression.callee.object, value, context);
+			return getDomStyleProblem(callExpression.callee.object, value, parserServices);
 		}
 	});
 };
