@@ -33,11 +33,11 @@ test({
 	valid: [],
 	invalid: [
 		{
-			code: 'a { transition: \\61 ll 150ms; }',
+			code: String.raw`a { transition: \61 ll 150ms; }`,
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
-			code: 'a { tr\\61 nsition: all 150ms; }',
+			code: String.raw`a { tr\61 nsition: all 150ms; }`,
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
@@ -45,7 +45,8 @@ test({
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
-			code: 'a { transition: \\61\nll 150ms; }',
+			code: String.raw`a { transition: \61
+ll 150ms; }`,
 			errors: [{messageId: 'no-transition-all'}],
 		},
 	],
