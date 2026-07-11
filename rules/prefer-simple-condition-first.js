@@ -1,17 +1,16 @@
-import {isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	getParenthesizedText,
 	getParenthesizedRange,
 	shouldAddParenthesesToLogicalExpressionChild,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-simple-condition-first';
-const MESSAGE_ID_SUGGESTION = 'prefer-simple-condition-first/suggestion';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer simple condition first in `{{operator}}` expression.',
-	[MESSAGE_ID_SUGGESTION]: 'Swap conditions.',
 };
 
 /**
@@ -33,6 +32,8 @@ function isSimpleOperand(node) {
 }
 
 function isSimple(node) {
+	node = unwrapTypeScriptExpression(node);
+
 	if (node.type === 'Identifier') {
 		return true;
 	}
@@ -52,90 +53,10 @@ function isSimple(node) {
 			&& (node.left.type === 'Identifier' || node.right.type === 'Identifier');
 	}
 
-	// A chain of all-simple conditions is considered simple to prevent fix oscillation
-	if (node.type === 'LogicalExpression') {
-		return isSimple(node.left) && isSimple(node.right);
-	}
-
 	return false;
 }
 
-const sideEffectTypes = new Set([
-	'AssignmentExpression',
-	'UpdateExpression',
-	'TaggedTemplateExpression',
-	'AwaitExpression',
-	'YieldExpression',
-	'ImportExpression',
-]);
-
-/**
-Check if an AST subtree contains side effects or throwing potential
-(assignments, updates, member access, tagged templates, in/instanceof, await, yield, dynamic import).
-These patterns are not flagged, since reordering would change program behavior.
-*/
-function hasSideEffectsOrThrows(node) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	if (
-		sideEffectTypes.has(node.type)
-		// Property reads can throw or trigger getters, including with optional chaining.
-		|| node.type === 'MemberExpression'
-		// `in` and `instanceof` throw if the right operand is not an object/constructor
-		|| (node.type === 'BinaryExpression' && (node.operator === 'in' || node.operator === 'instanceof'))
-	) {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasSideEffectsOrThrows(child))) {
-				return true;
-			}
-		} else if (value && typeof value.type === 'string' && hasSideEffectsOrThrows(value)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
-Check if an AST subtree contains call or new expressions.
-*/
-function hasCallOrNew(node) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	if (node.type === 'CallExpression' || node.type === 'NewExpression') {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasCallOrNew(child))) {
-				return true;
-			}
-		} else if (value && typeof value.type === 'string' && hasCallOrNew(value)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-function getSwapText(node, context, {operator, property}) {
+function getOperandText(node, context, {operator, property}) {
 	const isNodeParenthesized = isParenthesized(node, context);
 	let text = isNodeParenthesized
 		? getParenthesizedText(node, context)
@@ -178,16 +99,80 @@ function isBooleanContext(node) {
 		return isBooleanContext(parent);
 	}
 
+	if (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		return isBooleanContext(parent);
+	}
+
 	return false;
 }
 
-function hasCommentsBetweenOperands(node, sourceCode) {
-	return sourceCode.getTokensBetween(node.left, node.right, {includeComments: true})
-		.some(token => isCommentToken(token));
+function getOperands(node, operator) {
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+	if (unwrappedNode.type !== 'LogicalExpression' || unwrappedNode.operator !== operator) {
+		return [node];
+	}
+
+	return [
+		...getOperands(unwrappedNode.left, operator),
+		...getOperands(unwrappedNode.right, operator),
+	];
 }
 
-function isReorderableLeftOperand(node) {
-	return node.type === 'ConditionalExpression';
+function isSafeToMove(node) {
+	if (isSimple(node)) {
+		return true;
+	}
+
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+	return unwrappedNode.type === 'ConditionalExpression'
+		&& isSafeToMove(unwrappedNode.test)
+		&& isSafeToMove(unwrappedNode.consequent)
+		&& isSafeToMove(unwrappedNode.alternate);
+}
+
+function hasSameOperatorLogicalParent(node) {
+	const {operator} = node;
+	let {parent} = node;
+	while (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		node = parent;
+		parent = node.parent;
+	}
+
+	return parent?.type === 'LogicalExpression' && parent.operator === operator;
+}
+
+function hasWrappedLogicalExpression(node, operator) {
+	if (isTypeScriptExpressionWrapper(node)) {
+		const unwrappedNode = unwrapTypeScriptExpression(node);
+		return unwrappedNode.type === 'LogicalExpression' && unwrappedNode.operator === operator;
+	}
+
+	return node.type === 'LogicalExpression'
+		&& node.operator === operator
+		&& (hasWrappedLogicalExpression(node.left, operator) || hasWrappedLogicalExpression(node.right, operator));
+}
+
+function hasCommentsThatPreventFix(node, operands, context) {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(node).length > 0) {
+		return true;
+	}
+
+	const [firstOperand] = operands;
+	const lastOperand = operands.at(-1);
+	const [start] = getParenthesizedRange(firstOperand, context);
+	const [, end] = getParenthesizedRange(lastOperand, context);
+	return sourceCode.getAllComments().some(comment => {
+		const [commentStart, commentEnd] = sourceCode.getRange(comment);
+		return (commentEnd <= start && sourceCode.text.slice(commentEnd, start).trim() === '')
+			|| (commentStart >= end && sourceCode.text.slice(end, commentStart).trim() === '');
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -199,62 +184,49 @@ const create = context => {
 			return;
 		}
 
-		if (!isSimple(node.right) || isSimple(node.left)) {
+		if (hasSameOperatorLogicalParent(node)) {
 			return;
 		}
 
-		if (!isReorderableLeftOperand(node.left)) {
-			return;
-		}
-
-		// Only flag in boolean contexts — reordering in value-producing contexts changes the result
 		if (!isBooleanContext(node)) {
 			return;
 		}
 
-		// Skip expressions with side effects or throwing potential entirely
-		if (hasSideEffectsOrThrows(node.left)) {
+		const operands = getOperands(node, node.operator);
+		const classifiedOperands = operands.map(operand => ({operand, isSimple: isSimple(operand)}));
+		const firstComplexOperandIndex = classifiedOperands.findIndex(({isSimple}) => !isSimple);
+		const firstMisplacedSimpleOperandIndex = classifiedOperands.findIndex(
+			({isSimple}, index) => isSimple && index > firstComplexOperandIndex,
+		);
+		if (
+			firstComplexOperandIndex === -1
+			|| firstMisplacedSimpleOperandIndex === -1
+		) {
 			return;
 		}
 
-		// Calls and `new` are lazy under short-circuiting, so swapping is not semantics-preserving.
-		if (hasCallOrNew(node.left)) {
-			return;
-		}
-
-		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
-		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
-
-		const hasCommentsBetween = hasCommentsBetweenOperands(node, sourceCode);
-		const fix = hasCommentsBetween
-			? undefined
-			: fixer => fixer.replaceTextRange(
-				[getParenthesizedRange(node.left, context)[0], getParenthesizedRange(node.right, context)[1]],
-				`${rightText} ${node.operator} ${leftText}`,
-			);
-
-		// Use suggestion (not auto-fix) for chains to avoid fix oscillation.
-		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
-		if (isChain) {
-			return {
-				node,
-				loc: sourceCode.getLoc(node.right),
-				messageId: MESSAGE_ID,
-				data: {operator: node.operator},
-				...(fix && {
-					suggest: [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							fix,
-						},
-					],
-				}),
-			};
-		}
+		const reorderedOperands = [
+			...classifiedOperands.filter(({isSimple}) => isSimple),
+			...classifiedOperands.filter(({isSimple}) => !isSimple),
+		].map(({operand}) => operand);
+		const canFix = !hasWrappedLogicalExpression(node, node.operator)
+			&& !hasCommentsThatPreventFix(node, operands, context)
+			&& reorderedOperands.every(operand => isSafeToMove(operand));
+		const fix = canFix
+			? fixer => fixer.replaceTextRange(
+				sourceCode.getRange(node),
+				reorderedOperands
+					.map((operand, index) => getOperandText(operand, context, {
+						operator: node.operator,
+						property: index === 0 ? 'left' : 'right',
+					}))
+					.join(` ${node.operator} `),
+			)
+			: undefined;
 
 		return {
 			node,
-			loc: sourceCode.getLoc(node.right),
+			loc: sourceCode.getLoc(operands[firstMisplacedSimpleOperandIndex]),
 			messageId: MESSAGE_ID,
 			data: {operator: node.operator},
 			...(fix && {fix}),
@@ -272,7 +244,6 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -14,7 +14,10 @@ When writing multiple conditions in a logical expression (`&&`, `||`), simple co
 A condition is considered "simple" if it is:
 
 - A bare identifier (`foo`)
-- A strict equality/inequality comparison between identifiers and/or literals (`foo === 1`, `a !== b`)
+- A negated simple condition (`!foo`)
+- A strict equality or inequality comparison between identifiers and/or literals, with at least one identifier (`foo === 1`, `a !== b`)
+
+The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
 ## Examples
 
@@ -22,39 +25,43 @@ A condition is considered "simple" if it is:
 
 ```js
 // ❌
-if (check(foo) && bar);
+if ((foo ? bar : baz) && ready && enabled);
 
 // ✅
-if (bar && check(foo));
+if (ready && enabled && (foo ? bar : baz));
 ```
 
 ```js
-// ❌
-if (foo.bar.baz === 1 && bar === 2);
+// ❌ Reported, but not automatically fixed
+if (check(foo) && ready);
 
 // ✅
-if (bar === 2 && foo.bar.baz === 1);
+if (ready && check(foo));
 ```
 
 ### `||`
 
 ```js
 // ❌
-const x = foo() || bar;
+if ((foo ? bar : baz) || ready || enabled);
 
 // ✅
-const x = bar || foo();
+if (ready || enabled || (foo ? bar : baz));
 ```
+
+The rule only checks logical expressions used as conditions. It does not report value-producing expressions such as `const value = foo() || fallback`, because reordering can change the resulting value.
 
 ## Fix safety
 
-Expressions with side effects or observable property reads are not flagged, since reordering would change program behavior:
+Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. Automatic fixes are limited to comment-free chains composed of simple conditions and conditional expressions that recursively contain only simple conditions.
 
-- Assignment expressions (`state.ready = true`)
-- Update expressions (`++counter`)
-- Member expressions (`object.flag`, `object?.flag`, `object[index]`)
-- Tagged template expressions (`` tag`x` ``)
+For example, expressions containing the following are reported without an automatic fix:
 
-Expressions containing function calls or `new` expressions on the complex side are not flagged, because reordering them is not semantics-preserving under short-circuit evaluation.
+- Function calls and `new` expressions
+- Assignment and update expressions
+- Property reads, including optional and computed property access
+- Operations that can invoke implicit coercion
+- `await` and `yield` expressions
+- Comments that would need to be moved
 
-When both sides are side-effect-free (identifiers, literals, and other pure expressions), the fix is applied automatically unless comments between the operands would be lost.
+This lets the rule identify the readability issue while leaving behavior-sensitive changes for manual review.

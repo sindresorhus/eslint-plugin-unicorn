@@ -3,98 +3,144 @@ import {getTester} from './utils/test.js';
 const {test} = getTester(import.meta);
 const error = {messageId: 'prefer-simple-condition-first'};
 
-test.snapshot({
+test({
 	valid: [
-		// Simple first — already correct
-		'if (bar && check(foo));',
-		'if (bar && foo.baz);',
-		'if (bar && foo.bar.baz === 1);',
+		// Simple conditions already come first
+		'if (ready && check());',
+		'if (ready || object.value);',
+		'if (ready && (foo ? bar : baz));',
+		'if (a && b && check());',
 
-		// Both simple — order doesn't matter
+		// Conditions in the same category keep their relative order
 		'if (a && b);',
-		'if (foo === 1 && bar === 2);',
-		'if (a !== "hello" && b);',
+		'if (foo === 1 && bar !== 2);',
+		'if (first() && second());',
 
-		// Neither simple — not flagged in v1
-		'if (a.b && c.d);',
-		'if (foo() && bar());',
-		'if (a.b.c && d.e.f);',
+		// A single condition has no ordering to enforce
+		'if (ready);',
 
-		// Single condition — not a LogicalExpression
-		'if (foo);',
+		// Value-producing logical expressions are ignored
+		'const value = check() || fallback;',
+		'const value = object.value && fallback;',
+		'returnValue((foo ? bar : baz) && ready);',
 
-		// Negation of identifier — still simple
-		'if (!foo && bar);',
-		'if (bar && !foo);',
-		'if (!a || !b);',
-
-		// Simple on left, complex on right — correct order
-		'if (bar || foo());',
-
-		// Negative numeric literal — both sides are simple
-		'if (x === -1 && y);',
-
-		// Potentially unsafe to reorder (side effects / throws)
-		'if ((state.ready = true) && ok);',
-		'if (++counter && ok);',
-		'if ((foo + bar) && ready);',
-		'if (check(foo) && bar);',
-		'if (new Foo() && bar);',
-		'while (foo() && bar) {}',
-		'for (; foo() && bar; ) {}',
-		'(foo() && bar) ? 1 : 0',
-		'if (a() && b() && c);',
-		'if (object.deep.value && ok);',
-		'const x = object.deep.value || ok;',
-		'if (tag`x` && ok);',
-		'async function f() { if ((await foo) && bar); }',
-		'function* f() { if ((yield foo) && bar); }',
-		'if (import("foo") && bar);',
-
-		// Nested side effects
-		'if ((a + (b = c)) && ok);',
-		'if (-(++x) && ok);',
-
-		// Deep member chain in comparison
-		'if (foo.bar.baz === 1 && bar === 2);',
-		'const x = a.b.c && d',
-
-		// Nullish coalescing — not handled by rule
-		'const x = foo.bar ?? baz',
-
-		// Shallow member access can throw if object is nullish
-		'if (a.b && c);',
-		'if (a?.b && c);',
-		'if (a[b] && c);',
-
-		// `in` and `instanceof` throw if right operand is not object/constructor
-		'if (foo in bar && baz);',
-		'if (foo instanceof bar && baz);',
-
-		// Value-producing contexts — reordering changes the result, not just evaluation order
-		'const x = foo() || bar',
-		'const x = a.b && c',
-
-		// Member + call on left — member access can throw
-		'if (foo.bar() && baz === 1);',
-
-		// Member expression in various positions — all can throw
-		'if ((a.b || c) && d);',
-		'if ((a.b) && c);',
-		'if (a.b && !c);',
-		'if (a.b && x === -1);',
+		// Nullish coalescing is outside the rule
+		'const value = object.value ?? fallback;',
 	],
 	invalid: [
-		// Pure non-simple expression on the left — auto-fix
-		'if ((foo ? bar : baz) && ready);',
+		// Stable partition of the complete homogeneous chain
+		{
+			code: 'if ((foo ? bar : baz) && a && b);',
+			output: 'if (a && b && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((first ? second : third) && a && (fourth ? fifth : sixth) && b);',
+			output: 'if (a && b && (first ? second : third) && (fourth ? fifth : sixth));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) || a || b);',
+			output: 'if (a || b || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && !ready && count === -1);',
+			output: 'if (!ready && (count === -1) && (foo ? bar : baz));',
+			errors: [error],
+		},
+
+		// Boolean contexts other than `if`
+		{
+			code: 'while ((foo ? bar : baz) && ready) {}',
+			output: 'while (ready && (foo ? bar : baz)) {}',
+			errors: [error],
+		},
+		{
+			code: 'for (; (foo ? bar : baz) && ready;) {}',
+			output: 'for (; ready && (foo ? bar : baz);) {}',
+			errors: [error],
+		},
+		{
+			code: '((foo ? bar : baz) && ready) ? first : second;',
+			output: '(ready && (foo ? bar : baz)) ? first : second;',
+			errors: [error],
+		},
+		{
+			code: '!((foo ? bar : baz) && ready);',
+			output: '!(ready && (foo ? bar : baz));',
+			errors: [error],
+		},
+
+		// Mixed operators form separate homogeneous chains
+		{
+			code: 'if (((foo ? bar : baz) && a) || ((one ? two : three) && b));',
+			output: 'if ((a && (foo ? bar : baz)) || (b && (one ? two : three)));',
+			errors: [error, error],
+		},
+
+		// Parentheses around operands are preserved when useful
+		{
+			code: 'if ((((foo ? bar : baz))) && ready);',
+			output: 'if (ready && (((foo ? bar : baz))));',
+			errors: [error],
+		},
+
+		// Comments make the chain unfixable, but do not suppress the report
+		{
+			code: 'if ((foo ? bar : baz) /* keep */ && ready);',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && /* keep */ ready);',
+			errors: [error],
+		},
+		{
+			code: 'if (/* describes complex */ (foo ? bar : baz) && ready);',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && ready /* describes ready */);',
+			errors: [error],
+		},
+
+		// Observable or potentially throwing expressions are reported without a fix
+		{code: 'if (check() && ready);', errors: [error]},
+		{code: 'if (new Example() && ready);', errors: [error]},
+		{code: 'if ((state.ready = true) && ready);', errors: [error]},
+		{code: 'if (++counter && ready);', errors: [error]},
+		{code: 'if (object.value && ready);', errors: [error]},
+		{code: 'if (object?.value && ready);', errors: [error]},
+		{code: 'if (object[property] && ready);', errors: [error]},
+		{code: 'if ((foo + bar) && ready);', errors: [error]},
+		{code: 'if ((key in object) && ready);', errors: [error]},
+		{code: 'if ((value instanceof Example) && ready);', errors: [error]},
+		{code: 'if (((key in object) ? first : second) && ready);', errors: [error]},
+		{code: 'if (((value instanceof Example) ? first : second) && ready);', errors: [error]},
+		{code: 'if (tag`value` && ready);', errors: [error]},
+		{code: 'if (import("module") && ready);', errors: [error]},
+		{code: 'async function run() { if ((await check()) && ready); }', errors: [error]},
+		{code: 'function* run() { if ((yield value) && ready); }', errors: [error]},
 	],
 });
 
-test({
-	valid: [],
+test.typescript({
+	valid: [
+		'if ((ready as boolean) && enabled!);',
+	],
 	invalid: [
 		{
-			code: 'if ((foo ? bar : baz) /* keep */ && ready);',
+			code: 'if ((foo ? bar : baz) && (ready as boolean));',
+			output: 'if ((ready as boolean) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((((foo ? bar : baz) && ready) satisfies boolean));',
+			output: 'if (((ready && (foo ? bar : baz)) satisfies boolean));',
+			errors: [error],
+		},
+		{
+			code: 'if ((((foo ? bar : baz) && ready) as boolean) && enabled);',
 			errors: [error],
 		},
 	],
