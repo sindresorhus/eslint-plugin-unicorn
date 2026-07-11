@@ -17,13 +17,23 @@ const messages = {
 	[MESSAGE_ID_UNSAFE]: 'Consider moving this simple condition first after verifying short-circuit behavior.',
 };
 
+function isIdentifierOrTypeofIdentifier(node) {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'Identifier'
+		|| (
+			node.type === 'UnaryExpression'
+			&& node.operator === 'typeof'
+			&& unwrapTypeScriptExpression(node.argument).type === 'Identifier'
+		);
+}
+
 /**
 Check if a node can be an operand in a simple strict comparison.
 */
 function isSimpleOperand(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (node.type === 'Identifier' || node.type === 'Literal') {
+	if (isIdentifierOrTypeofIdentifier(node) || node.type === 'Literal') {
 		return true;
 	}
 
@@ -34,9 +44,13 @@ function isSimpleOperand(node) {
 		return false;
 	}
 
-	// Negative/positive numeric literals: `-1`, `+0`
+	// Signed number literals and negative BigInt literals: `-1`, `+0`, `-1n`
 	const argument = unwrapTypeScriptExpression(node.argument);
-	return argument.type === 'Literal' && typeof argument.value === 'number';
+	return argument.type === 'Literal'
+		&& (
+			typeof argument.value === 'number'
+			|| (node.operator === '-' && typeof argument.value === 'bigint')
+		);
 }
 
 function isSimple(node) {
@@ -60,7 +74,7 @@ function isSimple(node) {
 		const left = unwrapTypeScriptExpression(node.left);
 		const right = unwrapTypeScriptExpression(node.right);
 		return isSimpleOperand(left) && isSimpleOperand(right)
-			&& (left.type === 'Identifier' || right.type === 'Identifier');
+			&& (isIdentifierOrTypeofIdentifier(left) || isIdentifierOrTypeofIdentifier(right));
 	}
 
 	return false;

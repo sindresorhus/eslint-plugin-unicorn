@@ -17,6 +17,10 @@ test({
 		'if (foo === 1 && bar !== 2);',
 		'if (!!ready && enabled);',
 		'if (1 === value && ready);',
+		'if (typeof value === "string" && ready);',
+		'if (expectedType !== typeof value && ready);',
+		'if (typeof first === typeof second && ready);',
+		'if (index === -1n && ready);',
 		'if (first() && second());',
 
 		// A single condition has no ordering to enforce
@@ -57,6 +61,16 @@ test({
 		{
 			code: 'if ((foo ? bar : baz) && !ready && count === -1);',
 			output: 'if (!ready && (count === -1) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && typeof value === "string");',
+			output: 'if ((typeof value === "string") && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && index === -1n);',
+			output: 'if ((index === -1n) && (foo ? bar : baz));',
 			errors: [error],
 		},
 
@@ -151,6 +165,8 @@ test({
 		{code: 'if (object[property] && ready);', errors: [unsafeError]},
 		{code: 'if (true && ready);', errors: [unsafeError]},
 		{code: 'if (-1 && ready);', errors: [unsafeError]},
+		{code: 'if (index === +1n && ready);', errors: [unsafeError]},
+		{code: 'if (typeof object.value === "string" && ready);', errors: [unsafeError]},
 		{code: 'if ((foo + bar) && ready);', errors: [unsafeError]},
 		{code: 'if ((key in object) && ready);', errors: [unsafeError]},
 		{code: 'if ((value instanceof Example) && ready);', errors: [unsafeError]},
@@ -185,6 +201,16 @@ test.typescript({
 		{
 			code: 'if ((foo ? bar : baz) && index === -(<number>1));',
 			output: 'if ((index === -(<number>1)) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && index === -(1n as bigint));',
+			output: 'if ((index === -(1n as bigint)) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && typeof (value as string) === "string");',
+			output: 'if ((typeof (value as string) === "string") && (foo ? bar : baz));',
 			errors: [error],
 		},
 		{

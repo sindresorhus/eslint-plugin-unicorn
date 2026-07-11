@@ -9,13 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When writing multiple conditions in a logical expression (`&&`, `||`), simple conditions should come first. This can improve readability and performance, since simple checks like identifiers and strict equality comparisons are cheaper to evaluate and can short-circuit before expensive operations.
+When writing multiple conditions in a logical expression (`&&`, `||`), simple conditions should come first. This can improve readability and may avoid evaluating more expensive conditions.
 
 A condition is considered "simple" if it is:
 
 - A bare identifier (`foo`)
 - A negated simple condition (`!foo`)
-- A strict equality or inequality comparison between identifiers, literals, and signed numeric literals, with at least one identifier (`foo === 1`, `a !== b`, `index === -1`)
+- A strict equality or inequality comparison between identifiers, `typeof identifier`, literals, signed number literals, and negative BigInt literals, with at least one identifier or `typeof identifier` (`foo === 1`, `a !== b`, `index === -1`, `typeof value === 'string'`)
 
 The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
@@ -35,7 +35,7 @@ if (ready && enabled && (foo ? bar : baz));
 // ❌ Reported, but not automatically fixed
 if (check(foo) && ready);
 
-// ✅
+// ✅ After verifying the short-circuit behavior
 if (ready && check(foo));
 ```
 
@@ -53,7 +53,7 @@ The rule only checks logical expressions used as conditions, including explicit 
 
 ## Fix safety
 
-Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. An automatic fix is provided only when every complex condition that would cross a simple condition is a conditional expression recursively composed of identifiers, literals, signed numeric literals, or simple conditions.
+Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. An automatic fix is provided only when every complex condition that would cross a simple condition is a conditional expression recursively composed of identifiers, `typeof identifier`, literals, signed number literals, negative BigInt literals, or simple conditions.
 
 When reordering could affect short-circuit behavior, the diagnostic explicitly asks you to verify the behavior and does not provide a fix.
 
