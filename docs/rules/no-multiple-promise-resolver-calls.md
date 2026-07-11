@@ -78,16 +78,6 @@ new Promise((resolve, reject) => {
 });
 ```
 
-## Relationship to other rules
-
-This rule checks control flow within Promise executors. It does not overlap with [`prefer-promise-with-resolvers`](./prefer-promise-with-resolvers.md), which replaces resolver extraction boilerplate, [`prefer-promise-try`](./prefer-promise-try.md), which replaces promise-wrapping boilerplate, or [`no-useless-promise-resolve-reject`](./no-useless-promise-resolve-reject.md), which checks redundant static `Promise.resolve()` and `Promise.reject()` calls.
-
-Similar checks are available as [`promise/no-multiple-resolved`](https://github.com/eslint-community/eslint-plugin-promise/blob/main/docs/rules/no-multiple-resolved.md) and [DeepScan's `MULTIPLE_RESOLVE_IN_PROMISE_EXECUTOR`](https://deepscan.io/docs/rules/multiple-resolve-in-promise-executor/).
-
 ## Limitations
 
-Only direct calls to simple identifier resolver parameters of an inline, non-generator executor passed as the sole argument to the bare global `Promise` constructor are checked. Resolver calls are correlated only within one ESLint code path. They are not correlated between an executor and a nested function, class field initializer, or static block; between sibling callbacks; or across repeated invocations of one callback. Aliases, `.call()` and `.apply()`, passed or escaped resolver functions, and reassigned resolver parameters are ignored.
-
-Exception paths are tracked for calls, construction, property access, and explicit `throw` and `yield`. Rejection from `await` is additionally modeled when its operand is directly an identifier or dynamic import. Implicit exceptions from bare unresolved identifiers, operators, coercion, destructuring, or iteration are not modeled.
-
-The rule follows ESLint's code-path graph and, except for falsy literal loop tests, does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive. It also does not infer that resolver functions return `undefined` when their calls are used as conditions. Loop backedges associated with a `continue` crossing a `finally` block are ignored to avoid false positives when `finally` replaces the `continue` with `break`. This can miss duplicates when the `continue` remains effective or when `finally` replaces `break` with `continue`.
+Only direct calls to the first two identifier parameters of an inline, non-generator executor passed as the only argument to bare global `new Promise()` are checked. Aliased, reassigned, indirect, or escaped calls, separate code paths, implicit exceptions, correlated conditions, and some `finally` loop edges are not modeled.
