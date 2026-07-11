@@ -284,6 +284,11 @@ function getCorrectedResourcePath(rawPath, correctedPath) {
 	return rawPath.split('/').map((part, index) => getCorrectedResourcePart(part, correctedParts[index])).join('/');
 }
 
+function hasLengthChangingCaseMapping(rawPath, correctedPath) {
+	const correctedParts = correctedPath.split('/');
+	return rawPath.split('/').some((part, index) => decodePercentEncoded(part).length !== correctedParts[index].length);
+}
+
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	if (
@@ -457,12 +462,13 @@ const create = context => {
 			? resourceResult.correctedPath
 			: getCorrectedResourcePath(localResource.rawPath, resourceResult.correctedPath);
 		const correctedResource = correctedPath + localResource.suffix;
+		const canFix = localResource.canFix && !hasLengthChangingCaseMapping(localResource.rawPath, resourceResult.correctedPath);
 		return {
 			node,
 			...(loc && {loc}),
 			messageId: MESSAGE_ID_INCORRECT_CASE,
 			data: {resource: correctedResource},
-			...(localResource.canFix && resourceRange && {
+			...(canFix && resourceRange && {
 				fix: fixer => fixer.replaceTextRange(resourceRange, correctedResource),
 			}),
 		};

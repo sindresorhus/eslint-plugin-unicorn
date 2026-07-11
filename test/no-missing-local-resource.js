@@ -213,7 +213,11 @@ test({
 		{
 			code: '<a href="./assets/%C4%B0file.svg"></a>',
 			filename: htmlFilename,
-			output: '<a href="./assets/i%CC%87file.svg"></a>',
+			errors: [{message: 'Resource path has incorrect casing. Use `./assets/i%CC%87file.svg`.'}],
+		},
+		{
+			code: '<a href="./assets/%C4%B0%66ILE.svg"></a>',
+			filename: htmlFilename,
 			errors: [{message: 'Resource path has incorrect casing. Use `./assets/i%CC%87file.svg`.'}],
 		},
 		{
