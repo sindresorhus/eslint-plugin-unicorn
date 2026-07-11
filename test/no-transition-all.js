@@ -1,6 +1,16 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -47,6 +57,70 @@ test({
 		{
 			code: String.raw`a { transition: \61
 ll 150ms; }`,
+			errors: [{messageId: 'no-transition-all'}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'element.style.transition = \'all\';',
+		typeAware('document.body.style.transition = \'opacity 150ms\';'),
+		typeAware('document.body.style.transition = transitionValue;'),
+		typeAware('document.body.style.transition += \'all\';'),
+		typeAware('document.body.style[\'transition\'] = \'all\';'),
+		typeAware('document.body.style.setProperty(\'animation\', \'all\');'),
+		typeAware('document.body.style.setProperty(\'transition\', transitionValue);'),
+		typeAware('const style = {transition: \'\'}; style.transition = \'all\';'),
+		typeAware('declare const style: CSSStyleDeclaration | {transition: string}; style.transition = \'all\';'),
+	],
+	invalid: [
+		{
+			...typeAware('document.body.style.transition = \'all\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.transition = \'all 150ms\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.transitionProperty = \'opacity, all\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('const style: CSSStyleDeclaration = document.body.style; style.transition = \'ALL\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('const style: CSSStyleProperties = getComputedStyle(document.body); style.transition = \'all\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('declare const style: CSSStyleDeclaration | CSSStyleProperties; style.transition = \'all\';'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.transition = \'all\' as string;'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.transition = `all 150ms`;'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition-property\', \'all\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'TRANSITION\', \'all 150ms\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', \'\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware(String.raw`document.body.style.transition = '\\61 ll 150ms';`),
 			errors: [{messageId: 'no-transition-all'}],
 		},
 	],

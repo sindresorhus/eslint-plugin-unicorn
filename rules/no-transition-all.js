@@ -1,4 +1,14 @@
-import {ident} from '@eslint/css-tree';
+import {ident, parse} from '@eslint/css-tree';
+import {
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+} from './ast/index.js';
+import {
+	getTypeSymbol,
+	isDefaultLibrarySymbol,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-transition-all';
 const messages = {
@@ -9,8 +19,66 @@ const transitionProperties = new Set([
 	'transition',
 	'transition-property',
 ]);
+const domTransitionProperties = [
+	'transition',
+	'transitionProperty',
+];
+const domStyleTypeNames = new Set([
+	'CSSStyleDeclaration',
+	'CSSStyleProperties',
+]);
 
 const normalizeCssIdentifier = identifier => ident.decode(identifier).toLowerCase();
+
+const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(node));
+
+const isAllIdentifier = node => node.type === 'Identifier' && normalizeCssIdentifier(node.name) === 'all';
+
+const hasTransitionAll = value => {
+	try {
+		return parse(value, {context: 'value'}).children.some(node => isAllIdentifier(node));
+	} catch {
+		return false;
+	}
+};
+
+const isDomStyleDeclarationType = (type, program) => {
+	if (type.isUnion()) {
+		return type.types.every(type => isDomStyleDeclarationType(type, program));
+	}
+
+	const symbol = getTypeSymbol(type);
+	return domStyleTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program);
+};
+
+const isDomStyleDeclaration = (node, context) => {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return false;
+	}
+
+	try {
+		return isDomStyleDeclarationType(parserServices.getTypeAtLocation(node), parserServices.program);
+	} catch {
+		return false;
+	}
+};
+
+const getDomStyleProblem = (receiver, value, context) => {
+	const staticValue = getStaticString(value);
+	if (
+		staticValue === undefined
+		|| !hasTransitionAll(staticValue)
+		|| !isDomStyleDeclaration(receiver, context)
+	) {
+		return;
+	}
+
+	return {
+		node: value,
+		messageId: MESSAGE_ID,
+	};
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -24,11 +92,39 @@ const create = context => {
 		}
 
 		return declaration.value.children
-			.filter(node => node.type === 'Identifier' && normalizeCssIdentifier(node.name) === 'all')
+			.filter(node => isAllIdentifier(node))
 			.map(node => ({
 				node,
 				messageId: MESSAGE_ID,
 			}));
+	});
+
+	context.on('AssignmentExpression', assignment => {
+		if (
+			assignment.operator !== '='
+			|| !isMemberExpression(assignment.left, {properties: domTransitionProperties})
+		) {
+			return;
+		}
+
+		return getDomStyleProblem(assignment.left.object, assignment.right, context);
+	});
+
+	context.on('CallExpression', callExpression => {
+		if (!isMethodCall(callExpression, {
+			method: 'setProperty',
+			minimumArguments: 2,
+			maximumArguments: 3,
+			optionalCall: false,
+			optionalMember: false,
+		})) {
+			return;
+		}
+
+		const [property, value] = callExpression.arguments;
+		if (transitionProperties.has(getStaticString(property)?.toLowerCase())) {
+			return getDomStyleProblem(callExpression.callee.object, value, context);
+		}
 	});
 };
 

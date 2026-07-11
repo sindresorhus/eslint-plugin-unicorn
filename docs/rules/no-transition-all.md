@@ -36,3 +36,5 @@ Using `all` can transition properties added or changed later, making transitions
 ```
 
 This rule only checks explicit `all` values. It does not infer transition properties from indirect values such as `var(--transition)`, and it allows a shorthand that omits the transition property.
+
+When [type-aware linting](https://typescript-eslint.io/getting-started/typed-linting/) is enabled, it also checks static strings assigned to standard DOM style declaration objects and passed to their `setProperty()` method. It does not check computed properties, dynamic values, JSX, or CSS-in-JS APIs.
