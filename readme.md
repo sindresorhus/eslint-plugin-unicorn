@@ -446,7 +446,12 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.recommended],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/recommended',
+		],
 	},
 	{
 		files: ['**/*.json'],
@@ -539,7 +544,7 @@ See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration
 
 ### Recommended config
 
-This plugin exports a `recommended` config that enforces good practices.
+This plugin exposes a `unicorn/recommended` config that enforces good practices.
 
 ```js
 import unicorn from 'eslint-plugin-unicorn';
@@ -549,7 +554,12 @@ export default defineConfig([
 	// …
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.recommended],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/recommended',
+		],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
@@ -569,7 +579,12 @@ export default defineConfig([
 	// …
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.all],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/all',
+		],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},

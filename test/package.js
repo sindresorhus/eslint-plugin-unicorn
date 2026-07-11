@@ -3,6 +3,7 @@ import path from 'node:path';
 /// import process from 'node:process';
 import test from 'ava';
 import {ESLint} from 'eslint';
+import {defineConfig} from 'eslint/config';
 import {builtinRules} from 'eslint/use-at-your-own-risk';
 /// import * as eslintrc from '@eslint/eslintrc';
 /// import globals from 'globals';
@@ -114,6 +115,24 @@ test('validate configuration', async t => {
 			`Configuration for "${name}" is invalid.`,
 		);
 	}
+});
+
+test('recommended config works with defineConfig extends', async t => {
+	const eslint = new ESLint({
+		baseConfig: defineConfig({
+			files: ['**/*.js'],
+			plugins: {
+				unicorn: eslintPluginUnicorn,
+			},
+			extends: [
+				'unicorn/recommended',
+			],
+		}),
+		overrideConfigFile: true,
+	});
+
+	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
+	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
 });
 
 test('Every rule has valid meta.type', t => {
