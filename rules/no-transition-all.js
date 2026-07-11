@@ -126,12 +126,19 @@ const create = context => {
 		if (!isMethodCall(callExpression, {
 			method: 'setProperty',
 			minimumArguments: 2,
-			maximumArguments: 3,
 		})) {
 			return;
 		}
 
 		const [property, value, priority] = callExpression.arguments;
+		if (
+			property.type === 'SpreadElement'
+			|| value.type === 'SpreadElement'
+			|| priority?.type === 'SpreadElement'
+		) {
+			return;
+		}
+
 		if (
 			transitionProperties.has(getStaticString(property)?.toLowerCase())
 			&& isValidPriority(priority)

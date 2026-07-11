@@ -70,6 +70,7 @@ test({
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 		typeAware('document.body.style.transition = \'opacity 150ms\';'),
+		typeAware('document.body.style.transition = \'all !important\';'),
 		typeAware('document.body.style.transition = transitionValue;'),
 		typeAware('document.body.style.transition += \'all\';'),
 		typeAware('document.body.style[\'transition\'] = \'all\';'),
@@ -79,6 +80,10 @@ test({
 		typeAware('document.body.style.setProperty(\'transition\', \'all\', `invalid`);'),
 		typeAware('document.body.style.setProperty(\'transition\', \'all\', false);'),
 		typeAware('document.body.style.setProperty(\'transition\', \'all\', 0);'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all !important\');'),
+		typeAware('declare const properties: [string]; document.body.style.setProperty(...properties, \'all\');'),
+		typeAware('declare const values: [string]; document.body.style.setProperty(\'transition\', ...values);'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all\', ...priorities);'),
 		typeAware('const style = {transition: \'\'}; style.transition = \'all\';'),
 		typeAware('declare const style: CSSStyleDeclaration | {transition: string}; style.transition = \'all\';'),
 	],
@@ -140,7 +145,15 @@ test({
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', undefined);'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
 			...typeAware('document.body.style.setProperty(\'transition\', \'all\', priority);'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', \'important\', \'ignored\');'),
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
