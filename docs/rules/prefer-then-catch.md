@@ -44,6 +44,6 @@ promise.then(onFulfilled, undefined);
 
 ## Limitations
 
-Only direct two-argument `.then()` calls are checked. Computed, optional, and extra-argument calls are ignored. Typed matching is limited to `any` and native `Promise` values whose result has a callable `.catch()`; otherwise it is name-based.
+Only direct two-argument `.then()` calls are checked. Computed, optional, and extra-argument calls are ignored. Typed matching is limited to indeterminate types and native `Promise` values whose result has a callable `.catch()`; otherwise it is name-based.
 
 Suggestions are limited to identifiers and inline functions, and withheld if comments could move.

@@ -7,6 +7,7 @@ import {
 	getTypeSymbol,
 	isGlobalIdentifier,
 	isDefaultLibrarySymbol,
+	isUnknownType,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -18,7 +19,6 @@ const messages = {
 	[SUGGESTION_ID]: 'Move the rejection handler to `.catch()`.',
 };
 
-const isAnyType = type => type.intrinsicName === 'any';
 const isNativePromiseType = (type, program) => {
 	const symbol = getTypeSymbol(type);
 	return symbol?.getName() === 'Promise'
@@ -50,7 +50,7 @@ function canThenResultCatch(callExpression, context) {
 	try {
 		const checker = parserServices.program.getTypeChecker();
 		const receiverType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
-		if (isAnyType(receiverType)) {
+		if (isUnknownType(receiverType)) {
 			return true;
 		}
 
