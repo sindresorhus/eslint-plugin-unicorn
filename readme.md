@@ -220,6 +220,7 @@ export default defineConfig([
 | [no-this-outside-of-class](docs/rules/no-this-outside-of-class.md)                                         | Disallow `this` outside of classes.                                                                                            | ✅    |    |    |    |
 | [no-top-level-assignment-in-function](docs/rules/no-top-level-assignment-in-function.md)                   | Disallow assigning to top-level variables from inside functions.                                                               | ✅    |    |    |    |
 | [no-top-level-side-effects](docs/rules/no-top-level-side-effects.md)                                       | Disallow top-level side effects in exported modules.                                                                           | ✅ ☑️ |    |    |    |
+| [no-transition-all](docs/rules/no-transition-all.md)                                                       | Disallow `all` as a transition property.                                                                                       | ✅ ☑️ |    |    |    |
 | [no-typeof-undefined](docs/rules/no-typeof-undefined.md)                                                   | Disallow comparing `undefined` using `typeof`.                                                                                 | ✅ ☑️ | 🔧 | 💡 |    |
 | [no-uncalled-method](docs/rules/no-uncalled-method.md)                                                     | Disallow referencing methods without calling them.                                                                             | ✅    |    |    |    |
 | [no-undeclared-class-members](docs/rules/no-undeclared-class-members.md)                                   | Require class members to be declared.                                                                                          | ✅    |    | 💡 |    |
@@ -517,6 +518,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
+| [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
