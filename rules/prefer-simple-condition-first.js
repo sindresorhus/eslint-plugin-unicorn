@@ -8,9 +8,11 @@ import {
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-simple-condition-first';
+const MESSAGE_ID_UNSAFE = 'prefer-simple-condition-first/unsafe';
 
 const messages = {
 	[MESSAGE_ID]: 'Prefer simple condition first in `{{operator}}` expression.',
+	[MESSAGE_ID_UNSAFE]: 'Consider moving this simple condition first after verifying short-circuit behavior.',
 };
 
 /**
@@ -209,9 +211,10 @@ const create = context => {
 			...classifiedOperands.filter(({isSimple}) => isSimple),
 			...classifiedOperands.filter(({isSimple}) => !isSimple),
 		].map(({operand}) => operand);
-		const canFix = !hasWrappedLogicalExpression(node, node.operator)
-			&& !hasCommentsThatPreventFix(node, operands, context)
-			&& reorderedOperands.every(operand => isSafeToMove(operand));
+		const canSafelyReorder = reorderedOperands.every(operand => isSafeToMove(operand));
+		const canFix = canSafelyReorder
+			&& !hasWrappedLogicalExpression(node, node.operator)
+			&& !hasCommentsThatPreventFix(node, operands, context);
 		const fix = canFix
 			? fixer => fixer.replaceTextRange(
 				sourceCode.getRange(node),
@@ -227,7 +230,7 @@ const create = context => {
 		return {
 			node,
 			loc: sourceCode.getLoc(operands[firstMisplacedSimpleOperandIndex]),
-			messageId: MESSAGE_ID,
+			messageId: canSafelyReorder ? MESSAGE_ID : MESSAGE_ID_UNSAFE,
 			data: {operator: node.operator},
 			...(fix && {fix}),
 		};
@@ -241,7 +244,7 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer simple conditions first in logical expressions.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
 		messages,

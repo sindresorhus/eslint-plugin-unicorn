@@ -2,7 +2,7 @@
 
 📝 Prefer simple conditions first in logical expressions.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -54,6 +54,8 @@ The rule only checks logical expressions used as conditions. It does not report 
 ## Fix safety
 
 Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. Automatic fixes are limited to comment-free chains composed of simple conditions and conditional expressions that recursively contain only simple conditions.
+
+When reordering could affect short-circuit behavior, the diagnostic explicitly asks you to verify the behavior and does not provide a fix.
 
 For example, expressions containing the following are reported without an automatic fix:
 

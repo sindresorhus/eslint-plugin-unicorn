@@ -2,6 +2,7 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const error = {messageId: 'prefer-simple-condition-first'};
+const unsafeError = {messageId: 'prefer-simple-condition-first/unsafe'};
 
 test({
 	valid: [
@@ -105,22 +106,22 @@ test({
 		},
 
 		// Observable or potentially throwing expressions are reported without a fix
-		{code: 'if (check() && ready);', errors: [error]},
-		{code: 'if (new Example() && ready);', errors: [error]},
-		{code: 'if ((state.ready = true) && ready);', errors: [error]},
-		{code: 'if (++counter && ready);', errors: [error]},
-		{code: 'if (object.value && ready);', errors: [error]},
-		{code: 'if (object?.value && ready);', errors: [error]},
-		{code: 'if (object[property] && ready);', errors: [error]},
-		{code: 'if ((foo + bar) && ready);', errors: [error]},
-		{code: 'if ((key in object) && ready);', errors: [error]},
-		{code: 'if ((value instanceof Example) && ready);', errors: [error]},
-		{code: 'if (((key in object) ? first : second) && ready);', errors: [error]},
-		{code: 'if (((value instanceof Example) ? first : second) && ready);', errors: [error]},
-		{code: 'if (tag`value` && ready);', errors: [error]},
-		{code: 'if (import("module") && ready);', errors: [error]},
-		{code: 'async function run() { if ((await check()) && ready); }', errors: [error]},
-		{code: 'function* run() { if ((yield value) && ready); }', errors: [error]},
+		{code: 'if (check() && ready);', errors: [unsafeError]},
+		{code: 'if (new Example() && ready);', errors: [unsafeError]},
+		{code: 'if ((state.ready = true) && ready);', errors: [unsafeError]},
+		{code: 'if (++counter && ready);', errors: [unsafeError]},
+		{code: 'if (object.value && ready);', errors: [unsafeError]},
+		{code: 'if (object?.value && ready);', errors: [unsafeError]},
+		{code: 'if (object[property] && ready);', errors: [unsafeError]},
+		{code: 'if ((foo + bar) && ready);', errors: [unsafeError]},
+		{code: 'if ((key in object) && ready);', errors: [unsafeError]},
+		{code: 'if ((value instanceof Example) && ready);', errors: [unsafeError]},
+		{code: 'if (((key in object) ? first : second) && ready);', errors: [unsafeError]},
+		{code: 'if (((value instanceof Example) ? first : second) && ready);', errors: [unsafeError]},
+		{code: 'if (tag`value` && ready);', errors: [unsafeError]},
+		{code: 'if (import("module") && ready);', errors: [unsafeError]},
+		{code: 'async function run() { if ((await check()) && ready); }', errors: [unsafeError]},
+		{code: 'function* run() { if ((yield value) && ready); }', errors: [unsafeError]},
 	],
 });
 
