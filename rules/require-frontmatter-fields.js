@@ -1,23 +1,9 @@
-import {
-	isAlias,
-	isMap,
-	isScalar,
-	parseDocument,
-} from 'yaml';
+import {isMap, isScalar, parseDocument} from 'yaml';
 
 const MESSAGE_ID_MISSING_FIELD = 'missing-field';
-const MESSAGE_ID_INVALID_TYPE = 'invalid-type';
 const messages = {
 	[MESSAGE_ID_MISSING_FIELD]: 'Missing required frontmatter field `{{field}}`.',
-	[MESSAGE_ID_INVALID_TYPE]: 'Frontmatter field `{{field}}` must be a `{{type}}`.',
 };
-
-const primitiveTypes = [
-	'string',
-	'number',
-	'boolean',
-	'null',
-];
 
 const schema = [
 	{
@@ -33,68 +19,25 @@ const schema = [
 				},
 				description: 'Top-level YAML frontmatter fields that are required.',
 			},
-			types: {
-				type: 'object',
-				additionalProperties: {
-					enum: primitiveTypes,
-				},
-				description: 'Expected primitive types for top-level YAML frontmatter fields.',
-			},
 		},
 	},
 ];
 
-function getValueType(value, document) {
-	if (isAlias(value)) {
-		value = value.resolve(document);
-	}
-
-	if (value === null) {
-		return 'null';
-	}
-
-	if (!isScalar(value)) {
-		return 'object';
-	}
-
-	return value.value === null ? 'null' : typeof value.value;
-}
-
-function getFieldPairs(document) {
+function getFieldNames(document) {
 	if (!isMap(document.contents)) {
-		return new Map();
+		return new Set();
 	}
 
-	return new Map(document.contents.items
+	return new Set(document.contents.items
 		.filter(pair => isScalar(pair.key) && typeof pair.key.value === 'string')
-		.map(pair => [pair.key.value, pair]));
-}
-
-function getFrontmatterContentStart(node, sourceCode) {
-	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
-	const nodeText = sourceCode.text.slice(nodeStart, nodeEnd);
-	const lineEnding = /\r\n?|\n/u.exec(nodeText);
-
-	return nodeStart + lineEnding.index + lineEnding[0].length;
-}
-
-function getValueLocation(node, pair, sourceCode) {
-	const range = Reflect.get(pair.value ?? pair.key, 'range');
-	const frontmatterContentStart = getFrontmatterContentStart(node, sourceCode);
-	const start = frontmatterContentStart + range[0];
-	const end = frontmatterContentStart + range[1];
-
-	return {
-		start: sourceCode.getLocFromIndex(start),
-		end: sourceCode.getLocFromIndex(end),
-	};
+		.map(pair => pair.key.value));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {fields, types} = context.options[0];
+	const {fields} = context.options[0];
 
-	if (fields.length === 0 && Object.keys(types).length === 0) {
+	if (fields.length === 0) {
 		return;
 	}
 
@@ -112,10 +55,10 @@ const create = context => {
 			return;
 		}
 
-		const fieldPairs = getFieldPairs(document);
+		const fieldNames = getFieldNames(document);
 
 		for (const field of fields) {
-			if (fieldPairs.has(field)) {
+			if (fieldNames.has(field)) {
 				continue;
 			}
 
@@ -123,21 +66,6 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID_MISSING_FIELD,
 				data: {field},
-			};
-		}
-
-		for (const [field, type] of Object.entries(types)) {
-			const pair = fieldPairs.get(field);
-
-			if (!pair || getValueType(pair.value, document) === type) {
-				continue;
-			}
-
-			yield {
-				node,
-				loc: getValueLocation(node, pair, context.sourceCode),
-				messageId: MESSAGE_ID_INVALID_TYPE,
-				data: {field, type},
 			};
 		}
 	});
@@ -153,7 +81,7 @@ const config = {
 			recommended: false,
 		},
 		schema,
-		defaultOptions: [{fields: [], types: {}}],
+		defaultOptions: [{fields: []}],
 		messages,
 		languages: [
 			// `configs.all` applies every rule to JavaScript files.
