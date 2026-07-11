@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-The `resolve` and `reject` functions passed to a Promise executor share a single-use state. After either function is called, later calls have no effect. This is often caused by a missing `return` or by branches that should be mutually exclusive.
+The `resolve` and `reject` functions passed to a Promise executor share a single-use state. After either function is called, later calls cannot change the promise's eventual outcome. This is often caused by a missing `return` or by branches that should be mutually exclusive.
 
 [Resolving with a pending promise or thenable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve#description) does not immediately settle the new promise, but it still prevents later calls to either resolver function from changing the outcome.
 
@@ -86,8 +86,8 @@ Similar checks are available as [`promise/no-multiple-resolved`](https://github.
 
 ## Limitations
 
-Only direct calls to simple identifier resolver parameters of an inline, non-generator executor passed as the sole argument to the bare global `Promise` constructor are checked. Resolver calls are correlated within one function code path, not between an executor and a nested function, between sibling callbacks, or across repeated invocations of one callback. Aliases, `.call()` and `.apply()`, passed or escaped resolver functions, and reassigned resolver parameters are ignored.
+Only direct calls to simple identifier resolver parameters of an inline, non-generator executor passed as the sole argument to the bare global `Promise` constructor are checked. Resolver calls are correlated only within one ESLint code path. They are not correlated between an executor and a nested function, class field initializer, or static block; between sibling callbacks; or across repeated invocations of one callback. Aliases, `.call()` and `.apply()`, passed or escaped resolver functions, and reassigned resolver parameters are ignored.
 
 Exception paths are tracked for calls, construction, property access, and explicit `throw` and `yield`. Rejection from `await` is additionally modeled when its operand is directly an identifier or dynamic import. Implicit exceptions from bare unresolved identifiers, operators, coercion, destructuring, or iteration are not modeled.
 
-The rule follows ESLint's code-path graph and, except for falsy literal loop tests, does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive. It also does not infer that resolver functions return `undefined` when their calls are used as conditions.
+The rule follows ESLint's code-path graph and, except for falsy literal loop tests, does not evaluate condition values or correlate values across separate condition tests. For example, it cannot determine that independent `if (error)` and `if (!error)` branches are mutually exclusive. It also does not infer that resolver functions return `undefined` when their calls are used as conditions. Loop backedges associated with a `continue` crossing a `finally` block are ignored to avoid false positives when `finally` replaces the `continue` with `break`. This can miss duplicates when the `continue` remains effective or when `finally` replaces `break` with `continue`.

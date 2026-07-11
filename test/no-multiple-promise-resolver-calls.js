@@ -215,6 +215,54 @@ test.snapshot({
 		`,
 		outdent`
 			new Promise(resolve => {
+				while (condition) {
+					try {
+						resolve(value);
+						continue;
+					} finally {
+						break;
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				outer: while (condition) {
+					try {
+						resolve(value);
+						continue outer;
+					} finally {
+						break outer;
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				while (condition) {
+					try {
+						resolve(value);
+						continue;
+					} finally {
+						cleanup();
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				while (condition) {
+					try {
+						resolve(value);
+						break;
+					} finally {
+						continue;
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
 				do {
 					resolve(value);
 				} while (false);
@@ -379,6 +427,17 @@ test.snapshot({
 			new Promise(resolve => {
 				resolve(value);
 				(() => resolve(otherValue))();
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				resolve(value);
+
+				class Example {
+					static {
+						resolve(otherValue);
+					}
+				}
 			});
 		`,
 	],
@@ -689,6 +748,84 @@ test({
 		},
 		{
 			code: 'new Promise((resolve, reject) => { if (resolve()) { reject(); } });',
+			errors: [error],
+		},
+		{
+			code: 'new Promise((resolve, reject) => { resolve(reject(error)); });',
+			errors: [{
+				...error,
+				column: 36,
+				endColumn: 58,
+			}],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					while (condition) {
+						try {
+							resolve(value);
+						} finally {
+							cleanup();
+						}
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					while (condition) {
+						try {
+							resolve(value);
+						} finally {
+							continue;
+						}
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					try {
+						mayThrow();
+					} catch (error) {
+						reject(error);
+					} finally {
+						resolve(fallbackValue);
+					}
+				});
+			`,
+			errors: [{
+				...error,
+				line: 7,
+				column: 3,
+				endColumn: 25,
+			}],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject) => {
+					class Example {
+						field = (resolve(value), reject(error));
+					}
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise(resolve => {
+					class Example {
+						static {
+							resolve(value);
+							resolve(otherValue);
+						}
+					}
+				});
+			`,
 			errors: [error],
 		},
 		{

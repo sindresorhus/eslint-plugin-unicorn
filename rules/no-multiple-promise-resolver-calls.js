@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction, isNewExpression} from './ast/index.js';
+import {isFunction, isLoop, isNewExpression} from './ast/index.js';
 import {isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 /**
@@ -436,11 +436,46 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 	return false;
 }
 
+function isContinueAcrossFinally(node) {
+	if (node.type !== 'ContinueStatement') {
+		return false;
+	}
+
+	const labelName = node.label?.name;
+	let crossesFinally = false;
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return false;
+		}
+
+		if (
+			parent.type === 'TryStatement'
+			&& parent.finalizer
+			&& (parent.block === child || parent.handler === child)
+		) {
+			crossesFinally = true;
+		}
+
+		if (
+			(labelName && parent.type === 'LabeledStatement' && parent.label.name === labelName)
+			|| (!labelName && isLoop(parent))
+		) {
+			return crossesFinally;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+}
+
 /** @param {ESLint.Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
 	const resolverReferenceExecutors = new WeakMap();
-	let hasResolverReferences = false;
 	let currentCodePathState;
 
 	const startSegment = (segment, node) => {
@@ -453,21 +488,23 @@ const create = context => {
 	};
 
 	context.on('onCodePathStart', (codePath, node) => {
+		const upper = currentCodePathState;
 		currentCodePathState = {
-			upper: currentCodePathState,
+			upper,
 			codePath,
 			currentSegments: new Set(),
 			eventsBySegment: new Map(),
 			executors: new Set(),
 			catchClausesBySegment: new Map(),
 			ignoredLoopEdges: [],
+			hasResolverReferences: upper?.hasResolverReferences ?? false,
 		};
 
 		if (
 			isPromiseExecutor(node, context)
 			&& registerResolverReferences(node, resolverReferenceExecutors, sourceCode)
 		) {
-			hasResolverReferences = true;
+			currentCodePathState.hasResolverReferences = true;
 		}
 	});
 
@@ -481,7 +518,10 @@ const create = context => {
 	context.on('onCodePathSegmentEnd', endSegment);
 	context.on('onUnreachableCodePathSegmentEnd', endSegment);
 	context.on('onCodePathSegmentLoop', (previousSegment, segment, node) => {
-		if (!hasFalsyLiteralTest(node)) {
+		if (
+			!hasFalsyLiteralTest(node)
+			&& !isContinueAcrossFinally(node)
+		) {
 			return;
 		}
 
@@ -497,7 +537,7 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
-		if (!hasResolverReferences) {
+		if (!currentCodePathState.hasResolverReferences) {
 			return;
 		}
 
