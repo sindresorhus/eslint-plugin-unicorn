@@ -9,17 +9,17 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Default viewport units such as `vh` and `vw` currently use the large viewport. Use an explicit small, large, or dynamic viewport unit when a full-size layout needs a particular behavior as browser controls show or hide.
+`vh` and `vw` use the large viewport. On mobile, browser controls can therefore obscure content in a `100vh` layout. This rule makes the intended behavior explicit: dynamic, small, or large viewport units.
 
-This rule only checks `100vh` and `100vw` in explicit physical and logical sizing properties. It also checks those values in math functions such as `calc()` and `clamp()`. It does not check custom properties, positioning properties, flex/grid shorthands, or viewport units in media and feature queries.
+This rule checks `100vh` and `100vw` in explicit physical and logical sizing properties, including math functions such as `calc()` and `clamp()`. It ignores custom properties, positioning properties, flex/grid shorthands, and viewport units in media and feature queries.
 
-The rule also reports legacy fallback declarations. Disable the specific report when a fallback is required for browsers that do not support the configured unit.
+It also reports legacy fallback declarations. Disable the specific report when a fallback is required for browsers that do not support the configured unit.
 
 Choose a unit based on the intended design:
 
-- `dvh` / `dvw` fills the currently visible viewport, but can resize while the user scrolls.
-- `svh` / `svw` keeps content clear of browser controls, but can leave unused space after they retract.
-- `lvh` / `lvw` fills the largest viewport, but content can be obscured while controls are visible.
+- `dvh` / `dvw` fills the visible viewport, but can resize while scrolling.
+- `svh` / `svw` keeps content clear of browser controls, but can leave unused space.
+- `lvh` / `lvw` fills the largest viewport, but content can be obscured by browser controls.
 
 ## Examples
 
