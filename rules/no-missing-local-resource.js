@@ -17,7 +17,7 @@ const resourceAttributes = new Set([
 	'srcset',
 ]);
 
-const schemePattern = /^[a-z][\d+\-.a-z]*:/iu;
+const schemePattern = /^[a-z][\d+\-.a-z]*:/i;
 const maximumNamedHtmlCharacterReferenceLength = 64;
 const decimalDigitPattern = /^\d$/u;
 const hexadecimalDigitPattern = /^[\da-f]$/iu;
@@ -198,16 +198,17 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	}
 
 	const resourcePath = trimmedValue.slice(0, pathEnd);
+	const normalizedResourcePath = resourcePath.replaceAll('\\', '/');
 
 	if (
-		resourcePath.length === 0
-		|| resourcePath.startsWith('/')
-		|| schemePattern.test(resourcePath)
+		normalizedResourcePath.length === 0
+		|| normalizedResourcePath.startsWith('/')
+		|| schemePattern.test(normalizedResourcePath)
 	) {
 		return;
 	}
 
-	const decodedParts = resourcePath.split('/').map(part => decodePercentEncoded(part));
+	const decodedParts = normalizedResourcePath.split('/').map(part => decodePercentEncoded(part));
 	if (decodedParts.some(part => part.includes('/') || part.includes(path.sep))) {
 		return;
 	}
@@ -217,7 +218,7 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	const resolvedPath = resourcePath.startsWith('./') && !normalizedPath.startsWith('.')
 		? './' + normalizedPath
 		: normalizedPath;
-	const isNormalized = resolvedPath !== decodedPath;
+	const isNormalized = normalizedResourcePath !== resourcePath || resolvedPath !== decodedPath;
 
 	return {
 		path: resolvedPath,
