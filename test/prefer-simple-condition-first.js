@@ -20,7 +20,9 @@ test({
 		'if (typeof value === "string" && ready);',
 		'if (expectedType !== typeof value && ready);',
 		'if (typeof first === typeof second && ready);',
+		'if (!(typeof value === "string") && ready);',
 		'if (index === -1n && ready);',
+		'if (-1n === index && ready);',
 		'if (first() && second());',
 
 		// A single condition has no ordering to enforce
@@ -130,6 +132,11 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'if ((foo ? (bar ? baz : qux) : quux) && ready);',
+			output: 'if (ready && (foo ? (bar ? baz : qux) : quux));',
+			errors: [error],
+		},
+		{
 			code: 'if ((foo ? bar : baz) && ready && check());',
 			output: 'if (ready && (foo ? bar : baz) && check());',
 			errors: [error],
@@ -155,6 +162,7 @@ test({
 
 		// Observable or potentially throwing expressions are reported without a fix
 		{code: 'if (check() && ready);', errors: [unsafeError]},
+		{code: 'if (check() || ready);', errors: [unsafeError]},
 		{code: 'if (check() && a && b);', errors: [unsafeError]},
 		{code: 'if ((first ? second : third) && check() && ready);', errors: [unsafeError]},
 		{code: 'if (new Example() && ready);', errors: [unsafeError]},
