@@ -209,7 +209,7 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	}
 
 	const decodedParts = normalizedResourcePath.split('/').map(part => decodePercentEncoded(part));
-	if (decodedParts.some(part => part.includes('/') || part.includes(path.sep))) {
+	if (decodedParts.some(part => part.includes('/') || part.includes('\\'))) {
 		return;
 	}
 
@@ -235,9 +235,12 @@ function getCorrectedResourcePath(rawPath, correctedPath) {
 	return rawPath.split('/').map((part, index) => {
 		const correctedPart = correctedParts[index];
 
-		return part.includes('%') && decodePercentEncoded(part) !== part
-			? encodeURIComponent(correctedPart)
-			: correctedPart;
+		const decodedPart = decodePercentEncoded(part);
+		if (decodedPart === correctedPart) {
+			return part;
+		}
+
+		return decodedPart === part ? correctedPart : encodeURIComponent(correctedPart);
 	}).join('/');
 }
 

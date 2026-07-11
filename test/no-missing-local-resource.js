@@ -55,7 +55,7 @@ test.snapshot({
 		markdownCase('[Encoded hash](./encoded%23name.md)'),
 		markdownCase('[Encoded question mark](./encoded%3Fname.md)'),
 		markdownCase('[Literal percent](./percent%.md)'),
-		markdownCase('[Encoded separator](./Assets%2FLOGO.svg)'),
+		markdownCase('[Encoded separator](./Assets%2FLOGO.svg)\n[Encoded backslash](./assets%5Clogo.svg)'),
 		markdownCase('[Parent](../guide.md)', nestedMarkdownFilename),
 		{
 			code: '[Guide](./guide.md)',
@@ -168,6 +168,12 @@ test({
 	},
 	valid: [],
 	invalid: [
+		{
+			code: '<a href="./Assets/%7Efile.svg"></a>',
+			filename: htmlFilename,
+			output: '<a href="./assets/%7Efile.svg"></a>',
+			errors: [{message: 'Resource path has incorrect casing. Use `./assets/%7Efile.svg`.'}],
+		},
 		{
 			code: String.raw`<img src="./assets\LOGO.svg?query=\value#fragment\tail">`,
 			filename: htmlFilename,
