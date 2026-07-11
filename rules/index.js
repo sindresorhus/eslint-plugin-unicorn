@@ -298,6 +298,7 @@ export {default as 'prefer-structured-clone'} from './prefer-structured-clone.js
 export {default as 'prefer-switch'} from './prefer-switch.js';
 export {default as 'prefer-temporal'} from './prefer-temporal.js';
 export {default as 'prefer-ternary'} from './prefer-ternary.js';
+export {default as 'prefer-then-catch'} from './prefer-then-catch.js';
 export {default as 'prefer-toggle-attribute'} from './prefer-toggle-attribute.js';
 export {default as 'prefer-top-level-await'} from './prefer-top-level-await.js';
 export {default as 'prefer-type-error'} from './prefer-type-error.js';
