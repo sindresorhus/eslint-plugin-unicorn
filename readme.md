@@ -404,6 +404,7 @@ export default defineConfig([
 | [require-array-join-separator](docs/rules/require-array-join-separator.md)                                 | Enforce using the separator argument with `Array#join()`.                                                                      | ✅ ☑️ | 🔧 |    |    |
 | [require-array-sort-compare](docs/rules/require-array-sort-compare.md)                                     | Require a compare function when calling `Array#sort()` or `Array#toSorted()`.                                                  | ✅ ☑️ |    | 💡 |    |
 | [require-css-escape](docs/rules/require-css-escape.md)                                                     | Require `CSS.escape()` for interpolated values in CSS selectors.                                                               | ✅ ☑️ | 🔧 |    |    |
+| [require-frontmatter-fields](docs/rules/require-frontmatter-fields.md)                                     | Require configured YAML frontmatter fields.                                                                                    |      |    |    |    |
 | [require-module-attributes](docs/rules/require-module-attributes.md)                                       | Require non-empty module attributes for imports and exports                                                                    | ✅ ☑️ | 🔧 |    |    |
 | [require-module-specifiers](docs/rules/require-module-specifiers.md)                                       | Require non-empty specifier list in import and export statements.                                                              | ✅ ☑️ | 🔧 | 💡 |    |
 | [require-number-to-fixed-digits-argument](docs/rules/require-number-to-fixed-digits-argument.md)           | Enforce using the digits argument with `Number#toFixed()`.                                                                     | ✅ ☑️ | 🔧 |    |    |
@@ -510,6 +511,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
+| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
