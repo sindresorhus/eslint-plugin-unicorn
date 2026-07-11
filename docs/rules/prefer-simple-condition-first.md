@@ -15,7 +15,7 @@ A condition is considered "simple" if it is:
 
 - A bare identifier (`foo`)
 - A negated simple condition (`!foo`)
-- A strict equality or inequality comparison between identifiers and/or literals, with at least one identifier (`foo === 1`, `a !== b`)
+- A strict equality or inequality comparison between identifiers, literals, and signed numeric literals, with at least one identifier (`foo === 1`, `a !== b`, `index === -1`)
 
 The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
@@ -49,11 +49,11 @@ if ((foo ? bar : baz) || ready || enabled);
 if (ready || enabled || (foo ? bar : baz));
 ```
 
-The rule only checks logical expressions used as conditions. It does not report value-producing expressions such as `const value = foo() || fallback`, because reordering can change the resulting value.
+The rule only checks logical expressions used as conditions, including explicit `Boolean()` conversions. It does not report value-producing expressions such as `const value = foo() || fallback`, because reordering can change the resulting value.
 
 ## Fix safety
 
-Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. Automatic fixes are limited to comment-free chains composed of simple conditions and conditional expressions that recursively contain only simple conditions.
+Reporting and fixing are intentionally separate. The rule reports misplaced simple conditions even when reordering might change evaluation behavior. An automatic fix is provided only when every complex condition that would cross a simple condition is a conditional expression recursively composed of identifiers, literals, signed numeric literals, or simple conditions.
 
 When reordering could affect short-circuit behavior, the diagnostic explicitly asks you to verify the behavior and does not provide a fix.
 
@@ -64,6 +64,7 @@ For example, expressions containing the following are reported without an automa
 - Property reads, including optional and computed property access
 - Operations that can invoke implicit coercion
 - `await` and `yield` expressions
-- Comments that would need to be moved
+
+Comments that would need to move also prevent the automatic fix, even when reordering the conditions is otherwise safe.
 
 This lets the rule identify the readability issue while leaving behavior-sensitive changes for manual review.

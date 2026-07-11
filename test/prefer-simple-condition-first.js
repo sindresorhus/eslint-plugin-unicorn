@@ -15,6 +15,8 @@ test({
 		// Conditions in the same category keep their relative order
 		'if (a && b);',
 		'if (foo === 1 && bar !== 2);',
+		'if (!!ready && enabled);',
+		'if (1 === value && ready);',
 		'if (first() && second());',
 
 		// A single condition has no ordering to enforce
@@ -24,6 +26,8 @@ test({
 		'const value = check() || fallback;',
 		'const value = object.value && fallback;',
 		'returnValue((foo ? bar : baz) && ready);',
+		'const value = ((foo ? bar : baz) && ready) || fallback;',
+		'function run(Boolean) { Boolean((foo ? bar : baz) && ready); }',
 
 		// Nullish coalescing is outside the rule
 		'const value = object.value ?? fallback;',
@@ -63,8 +67,18 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'do {} while ((foo ? bar : baz) && ready);',
+			output: 'do {} while (ready && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
 			code: '((foo ? bar : baz) && ready) ? first : second;',
 			output: '(ready && (foo ? bar : baz)) ? first : second;',
+			errors: [error],
+		},
+		{
+			code: 'Boolean((foo ? bar : baz) && ready);',
+			output: 'Boolean(ready && (foo ? bar : baz));',
 			errors: [error],
 		},
 		{
@@ -84,6 +98,21 @@ test({
 		{
 			code: 'if ((((foo ? bar : baz))) && ready);',
 			output: 'if (ready && (((foo ? bar : baz))));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? true : false) && ready);',
+			output: 'if (ready && (foo ? true : false));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? 1 : -1) && ready);',
+			output: 'if (ready && (foo ? 1 : -1));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && ready && check());',
+			output: 'if (ready && (foo ? bar : baz) && check());',
 			errors: [error],
 		},
 
@@ -107,12 +136,16 @@ test({
 
 		// Observable or potentially throwing expressions are reported without a fix
 		{code: 'if (check() && ready);', errors: [unsafeError]},
+		{code: 'if (check() && a && b);', errors: [unsafeError]},
+		{code: 'if ((first ? second : third) && check() && ready);', errors: [unsafeError]},
 		{code: 'if (new Example() && ready);', errors: [unsafeError]},
 		{code: 'if ((state.ready = true) && ready);', errors: [unsafeError]},
 		{code: 'if (++counter && ready);', errors: [unsafeError]},
 		{code: 'if (object.value && ready);', errors: [unsafeError]},
 		{code: 'if (object?.value && ready);', errors: [unsafeError]},
 		{code: 'if (object[property] && ready);', errors: [unsafeError]},
+		{code: 'if (true && ready);', errors: [unsafeError]},
+		{code: 'if (-1 && ready);', errors: [unsafeError]},
 		{code: 'if ((foo + bar) && ready);', errors: [unsafeError]},
 		{code: 'if ((key in object) && ready);', errors: [unsafeError]},
 		{code: 'if ((value instanceof Example) && ready);', errors: [unsafeError]},
@@ -128,8 +161,17 @@ test({
 test.typescript({
 	valid: [
 		'if ((ready as boolean) && enabled!);',
+		'if (((value as string) === "value") && ready);',
+		'if ((value! === "value") && ready);',
+		'if (((value satisfies string) === "value") && ready);',
+		'if ((<string>value === "value") && ready);',
 	],
 	invalid: [
+		{
+			code: 'if ((foo ? bar : baz) && ((value as string) === "value"));',
+			output: 'if (((value as string) === "value") && (foo ? bar : baz));',
+			errors: [error],
+		},
 		{
 			code: 'if ((foo ? bar : baz) && (ready as boolean));',
 			output: 'if ((ready as boolean) && (foo ? bar : baz));',
