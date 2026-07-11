@@ -564,11 +564,6 @@ export default defineConfig([
 ]);
 ```
 
-## Maintainers
-
-- [Sindre Sorhus](https://github.com/sindresorhus)
-- [Fisker Cheung](https://github.com/fisker)
-
 ## Related
 
 - [eslint-node-test](https://github.com/sindresorhus/eslint-node-test) — ESLint rules for the Node.js built-in test runner.
