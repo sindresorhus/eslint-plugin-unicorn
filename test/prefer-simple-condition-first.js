@@ -66,6 +66,11 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'if ((foo ? bar : baz) && !!ready && count !== +1);',
+			output: 'if (!!ready && (count !== +1) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
 			code: 'if ((foo ? bar : baz) && typeof value === "string");',
 			output: 'if ((typeof value === "string") && (foo ? bar : baz));',
 			errors: [error],
@@ -137,6 +142,11 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'if ((flag ? value === 1 : fallback) && ready);',
+			output: 'if (ready && (flag ? value === 1 : fallback));',
+			errors: [error],
+		},
+		{
 			code: 'if ((foo ? bar : baz) && ready && check());',
 			output: 'if (ready && (foo ? bar : baz) && check());',
 			errors: [error],
@@ -149,6 +159,10 @@ test({
 		},
 		{
 			code: 'if ((foo ? bar : baz) && /* keep */ ready);',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? /* keep */ bar : baz) && ready);',
 			errors: [error],
 		},
 		{
