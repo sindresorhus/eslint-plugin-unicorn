@@ -212,11 +212,19 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 		return;
 	}
 
+	const decodedPath = decodedParts.join('/');
+	const normalizedPath = path.posix.normalize(decodedPath);
+	const resolvedPath = resourcePath.startsWith('./') && !normalizedPath.startsWith('.')
+		? './' + normalizedPath
+		: normalizedPath;
+	const isNormalized = resolvedPath !== decodedPath;
+
 	return {
-		path: decodedParts.join('/'),
+		path: resolvedPath,
 		rawPath: resourcePath,
 		suffix: trimmedValue.slice(pathEnd),
-		canFix: decodedValue === value,
+		canFix: decodedValue === value && !isNormalized,
+		isNormalized,
 	};
 }
 
@@ -265,9 +273,33 @@ const create = context => {
 	const getCssValueRange = (node, value) => {
 		const range = context.sourceCode.getRange(node);
 		const text = context.sourceCode.text.slice(...range);
-		const valueOffset = text.indexOf(value, node.type === 'Url' ? text.indexOf('(') + 1 : 0);
+		let valueOffset = node.type === 'Url' ? text.indexOf('(') + 1 : 0;
+		valueOffset += getTrimmedUrlRange(text.slice(valueOffset))[0];
+		const quote = text[valueOffset];
+		if (quote === '"' || quote === '\'') {
+			valueOffset++;
+			if (text[valueOffset + value.length] !== quote) {
+				return;
+			}
+		}
 
-		return valueOffset === -1 ? undefined : [range[0] + valueOffset, range[0] + valueOffset + value.length];
+		if (!text.startsWith(value, valueOffset)) {
+			return;
+		}
+
+		return [range[0] + valueOffset, range[0] + valueOffset + value.length];
+	};
+
+	const isCssResourceUrl = node => {
+		const ancestors = context.sourceCode.getAncestors(node);
+		const preludeIndex = ancestors.findLastIndex(ancestor => ancestor.type === 'AtrulePrelude');
+
+		if (preludeIndex === -1) {
+			return true;
+		}
+
+		const atRule = ancestors[preludeIndex - 1];
+		return atRule?.name?.toLowerCase() === 'import' && atRule.prelude.children.at(0) === node;
 	};
 
 	const getDirectoryEntries = directory => {
@@ -370,7 +402,10 @@ const create = context => {
 			return;
 		}
 
-		const correctedResource = getCorrectedResourcePath(localResource.rawPath, resourceResult.correctedPath) + localResource.suffix;
+		const correctedPath = localResource.isNormalized
+			? resourceResult.correctedPath
+			: getCorrectedResourcePath(localResource.rawPath, resourceResult.correctedPath);
+		const correctedResource = correctedPath + localResource.suffix;
 		return {
 			node,
 			...(loc && {loc}),
@@ -388,14 +423,20 @@ const create = context => {
 			return;
 		}
 
-		const stringNode = node.prelude?.children?.[0];
+		const stringNode = node.prelude?.children?.at(0);
 		if (stringNode?.type !== 'String') {
 			return;
 		}
 
 		return getResourceProblem(stringNode, stringNode.value, getCssValueRange(stringNode, stringNode.value), false);
 	});
-	context.on('Url', node => getResourceProblem(node, node.value, getCssValueRange(node, node.value), false));
+	context.on('Url', node => {
+		if (!isCssResourceUrl(node)) {
+			return;
+		}
+
+		return getResourceProblem(node, node.value, getCssValueRange(node, node.value), false);
+	});
 	context.on('Attribute', attribute => {
 		const name = attribute.key?.value?.toLowerCase();
 		if (

@@ -63,6 +63,7 @@ test.snapshot({
 			language: gfm,
 		},
 		markdownCase('[Guide][guide]\n[Guide again][guide]\n\n[guide]: ./guide.md'),
+		markdownCase('[Normalized](./guide.md/../guide.md)\n[Normalized missing directory](./missing-directory/../guide.md)'),
 		markdownCase('[Website](https://example.com)\n[Email](mailto:test@example.com)\n[Fragment](#heading)\n[Root](/guide.md)\n[Protocol relative](//example.com/guide.md)\n[Issue](github:issue/123)\n![Inline data](data:image/svg+xml,%3Csvg%3E)'),
 		markdownCase('<img src="./missing.svg">'),
 		htmlCase('<a href="./guide.md">Guide</a><img src="./assets/logo.svg"><script src="./app.js"></script><link href="./style.css"><video poster="./poster.jpg"></video>'),
@@ -85,6 +86,9 @@ test.snapshot({
 		htmlCase('<img srcset="./assets/missing.png 1x, {{ assetPath }} 2x">', {templateEngineSyntax: {'{{': '}}'}}),
 		cssCase('@import "./style.css"; @import url("./style.css"); .icon { background: url("./assets/logo.svg"); mask: url(#mask); cursor: url(data:image/svg+xml,%3Csvg%3E); }'),
 		cssCase('.icon { background: url(./assets/logo-1x.png?raw=1#icon); }'),
+		cssCase('.icon { background: url(./guide.md/../guide.md); }'),
+		cssCase('@namespace url("./missing.css"); @supports (background: url("./missing.css")) {}'),
+		cssCase('@import url("./style.css") supports(background: url("./missing.css"));'),
 		cssCase('.icon { background: url("{{ assetPath }}"); }', {templateEngineSyntax: {'{{': '}}'}}),
 	],
 	invalid: [
@@ -104,7 +108,6 @@ test.snapshot({
 		markdownCase('[foo `]( ./Assets/logo.svg` bar](./Assets/logo.svg)'),
 		markdownCase('[Encoded](./Encoded%20name.md)'),
 		markdownCase('[Encoded hash](./Encoded%23name.md)'),
-		markdownCase('[Invalid](./guide.md/../guide.md)'),
 		htmlCase('<a href="./missing.html"></a><img src="./assets/LOGO.svg">'),
 		htmlCase('<a HREF="./missing.html"></a><img SRC="./assets/missing.png"><video POSTER="./missing.jpg"></video>'),
 		htmlCase('<a href="\u00A0./guide.md"></a>'),
@@ -120,10 +123,36 @@ test.snapshot({
 		htmlCase('<img src="./assets&sol;missing.png">'),
 		cssCase('.icon { background: url("./assets/missing.png"); }'),
 		cssCase('.icon { background: url( "./assets/LOGO.svg" ); }'),
+		cssCase('@supports (display: grid) { .icon { background: url("./assets/LOGO.svg"); } }'),
 		cssCase('@import "./Style.css";'),
 		cssCase('@import url("./Style.css");'),
 		cssCase('@import "./missing.css";'),
 		cssCase('.icon { background: url("./assets/logo&#46;svg"); }'),
 		cssCase(String.raw`.icon { background: url("./assets/LOG\4F.svg"); }`),
+	],
+});
+
+test({
+	testerOptions: {
+		language: 'css/css',
+		plugins: {css},
+	},
+	valid: [],
+	invalid: [
+		{
+			code: String.raw`.icon { background: url("./assets/LOG\4F.svg" /* ./assets/LOGO.svg */); }`,
+			filename: cssFilename,
+			errors: [{messageId: 'incorrect-case'}],
+		},
+		{
+			code: String.raw`@import "./Style\2E css";`,
+			filename: cssFilename,
+			errors: [{messageId: 'incorrect-case'}],
+		},
+		{
+			code: '.icon { background: url(./guide.md/../Guide.md); }',
+			filename: cssFilename,
+			errors: [{messageId: 'incorrect-case'}],
+		},
 	],
 });
