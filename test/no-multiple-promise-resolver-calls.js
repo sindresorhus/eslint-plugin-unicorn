@@ -678,6 +678,10 @@ test.snapshot({
 			code: 'new Promise((<Type>(resolve: (value?: unknown) => void) => { resolve(); resolve(); })<unknown>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'new Promise(((resolve: (value?: unknown) => void) => { resolve(); resolve(); }) satisfies Executor);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'new Promise((resolve, reject, extra = resolve()) => { resolve(); });',
 		'new Promise((resolve, reject) => { resolve = otherResolve; reject(); reject(); });',
 		outdent`
@@ -756,6 +760,14 @@ test({
 				...error,
 				column: 36,
 				endColumn: 58,
+			}],
+		},
+		{
+			code: 'new Promise((resolve, reject) => { try { resolve(reject(mayThrow())); } catch (error) { reject(error); } });',
+			errors: [{
+				...error,
+				column: 42,
+				endColumn: 69,
 			}],
 		},
 		{
