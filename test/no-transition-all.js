@@ -73,6 +73,7 @@ test({
 		},
 		typeAware('document.body.style.transition = \'opacity 150ms\';'),
 		typeAware('document.body.style.transition = \'all !important\';'),
+		typeAware('document.body.style.transition = \'var(--transition, all)\';'),
 		typeAware('document.body.style.transition = transitionValue;'),
 		typeAware('document.body.style.transition += \'all\';'),
 		typeAware('document.body.style[\'transition\'] = \'all\';'),
