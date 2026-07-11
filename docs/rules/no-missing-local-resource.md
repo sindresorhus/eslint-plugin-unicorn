@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule checks whether static local resources in Markdown and HTML resolve from the directory containing the linted file. It catches broken documentation links, missing assets, and path casing that passes on a case-insensitive filesystem but fails on a case-sensitive deployment.
+This rule checks static local Markdown, HTML, and CSS resources relative to the linted file. It catches broken links, missing assets, and casing that only works on a case-insensitive filesystem.
 
-It checks Markdown links, images, and reference definitions, plus HTML `href`, `src`, `poster`, and `srcset` attributes. Files, directories, and symlinks are all valid targets. An HTML casing-only mismatch is automatically fixed.
+It checks Markdown links, images, and reference definitions; HTML `href`, `src`, `poster`, and `srcset` attributes; and CSS `url()` values and `@import` targets. Files, directories, and symlinks are valid. HTML and CSS casing-only mismatches are automatically fixed.
 
-URLs with a scheme, root-relative URLs, fragments, and dynamic HTML template values are ignored. The rule does not infer extensions, check fragments in other files, honor HTML `<base>` elements, parse raw HTML embedded in Markdown, or support percent-encoded path separators. Casing fixes are not applied in Markdown or when HTML character references are present.
+URLs with a scheme, root-relative URLs, fragments, and configured template values are ignored. It does not infer extensions, check cross-file fragments, honor HTML `<base>`, parse raw Markdown HTML, or support percent-encoded path separators. Casing fixes are unavailable for Markdown, HTML character references, and CSS escapes.
 
 ## Examples
 
@@ -35,11 +35,24 @@ URLs with a scheme, root-relative URLs, fragments, and dynamic HTML template val
 <img src="./images/logo.png" srcset="./images/logo-small.png 1x, ./images/logo-large.png 2x">
 ```
 
+```css
+/* ❌ */
+.logo {
+	background: url("./images/Logo.png");
+}
+
+/* ✅ */
+.logo {
+	background: url("./images/logo.png");
+}
+```
+
 ## Using non-JavaScript files
 
-Enable the rule in the language blocks that lint your Markdown and HTML files:
+Enable the rule in Markdown, HTML, and CSS language blocks:
 
 ```js
+import css from '@eslint/css';
 import html from '@html-eslint/eslint-plugin';
 import markdown from '@eslint/markdown';
 import unicorn from 'eslint-plugin-unicorn';
@@ -63,6 +76,17 @@ export default [
 			unicorn,
 		},
 		language: 'html/html',
+		rules: {
+			'unicorn/no-missing-local-resource': 'error',
+		},
+	},
+	{
+		files: ['**/*.css'],
+		plugins: {
+			css,
+			unicorn,
+		},
+		language: 'css/css',
 		rules: {
 			'unicorn/no-missing-local-resource': 'error',
 		},

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import css from '@eslint/css';
 import html from '@html-eslint/eslint-plugin';
 import markdown from '@eslint/markdown';
 import {getTester} from './utils/test.js';
@@ -10,6 +11,7 @@ const fixtureDirectory = fileURLToPath(new URL('fixtures/no-missing-local-resour
 const markdownFilename = path.join(fixtureDirectory, 'document.md');
 const nestedMarkdownFilename = path.join(fixtureDirectory, 'nested', 'document.md');
 const htmlFilename = path.join(fixtureDirectory, 'document.html');
+const cssFilename = path.join(fixtureDirectory, 'document.css');
 
 const commonMark = {
 	language: 'markdown/commonmark',
@@ -26,11 +28,22 @@ const htmlLanguage = {
 	plugins: {html},
 };
 
+const cssLanguage = {
+	language: 'css/css',
+	plugins: {css},
+};
+
 const markdownCase = (code, filename = markdownFilename) => ({code, filename, language: commonMark});
 const htmlCase = (code, languageOptions) => ({
 	code,
 	filename: htmlFilename,
 	language: htmlLanguage,
+	languageOptions,
+});
+const cssCase = (code, languageOptions) => ({
+	code,
+	filename: cssFilename,
+	language: cssLanguage,
 	languageOptions,
 });
 
@@ -70,6 +83,9 @@ test.snapshot({
 		htmlCase('<img src="{{ assetPath }}">', {templateEngineSyntax: {'{{': '}}'}}),
 		htmlCase('<img src=./assets/{{ assetPath }}>', {templateEngineSyntax: {'{{': '}}'}}),
 		htmlCase('<img srcset="./assets/missing.png 1x, {{ assetPath }} 2x">', {templateEngineSyntax: {'{{': '}}'}}),
+		cssCase('@import "./style.css"; @import url("./style.css"); .icon { background: url("./assets/logo.svg"); mask: url(#mask); cursor: url(data:image/svg+xml,%3Csvg%3E); }'),
+		cssCase('.icon { background: url(./assets/logo-1x.png?raw=1#icon); }'),
+		cssCase('.icon { background: url("{{ assetPath }}"); }', {templateEngineSyntax: {'{{': '}}'}}),
 	],
 	invalid: [
 		markdownCase('[Missing](./missing.md)'),
@@ -102,5 +118,12 @@ test.snapshot({
 		htmlCase('<img srcset="./assets/logo-1x.png, ./assets/LOGO.svg 2x, data:image/svg+xml,%3Csvg%3E 3x">'),
 		htmlCase('<a href="./assets/Logo&#46;svg"></a><img srcset="./assets/logo&#46;svg 1x, ./assets/missing&#46;png 2x">'),
 		htmlCase('<img src="./assets&sol;missing.png">'),
+		cssCase('.icon { background: url("./assets/missing.png"); }'),
+		cssCase('.icon { background: url( "./assets/LOGO.svg" ); }'),
+		cssCase('@import "./Style.css";'),
+		cssCase('@import url("./Style.css");'),
+		cssCase('@import "./missing.css";'),
+		cssCase('.icon { background: url("./assets/logo&#46;svg"); }'),
+		cssCase(String.raw`.icon { background: url("./assets/LOG\4F.svg"); }`),
 	],
 });

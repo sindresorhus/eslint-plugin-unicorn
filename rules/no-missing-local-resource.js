@@ -184,8 +184,8 @@ function getSrcsetCandidates(value) {
 	return candidates;
 }
 
-function getLocalResource(value) {
-	const decodedValue = decodeHTMLAttribute(value);
+function getLocalResource(value, decodeHtmlCharacterReferences = true) {
+	const decodedValue = decodeHtmlCharacterReferences ? decodeHTMLAttribute(value) : value;
 	const [resourceStart, resourceEnd] = getTrimmedUrlRange(decodedValue);
 	const trimmedValue = decodedValue.slice(resourceStart, resourceEnd);
 	let pathEnd = trimmedValue.length;
@@ -252,7 +252,7 @@ const create = context => {
 		}
 
 		const value = context.sourceCode.text.slice(range[0]).match(unquotedAttributeValuePattern)?.[0];
-		if (!value || templateDelimiters.some(delimiter => value.includes(delimiter))) {
+		if (!value) {
 			return;
 		}
 
@@ -260,6 +260,14 @@ const create = context => {
 			value,
 			valueRange: [range[0], range[0] + value.length],
 		};
+	};
+
+	const getCssValueRange = (node, value) => {
+		const range = context.sourceCode.getRange(node);
+		const text = context.sourceCode.text.slice(...range);
+		const valueOffset = text.indexOf(value, node.type === 'Url' ? text.indexOf('(') + 1 : 0);
+
+		return valueOffset === -1 ? undefined : [range[0] + valueOffset, range[0] + valueOffset + value.length];
 	};
 
 	const getDirectoryEntries = directory => {
@@ -330,10 +338,14 @@ const create = context => {
 		return result;
 	};
 
-	const getResourceProblem = (node, value, valueRange) => {
+	const getResourceProblem = (node, value, valueRange, decodeHtmlCharacterReferences = true) => {
+		if (templateDelimiters.some(delimiter => value.includes(delimiter))) {
+			return;
+		}
+
 		const [leadingWhitespaceLength, resourceEnd] = getTrimmedUrlRange(value);
 		const resource = value.slice(leadingWhitespaceLength, resourceEnd);
-		const localResource = getLocalResource(resource);
+		const localResource = getLocalResource(resource, decodeHtmlCharacterReferences);
 		if (!localResource) {
 			return;
 		}
@@ -371,6 +383,19 @@ const create = context => {
 	};
 
 	context.on(['definition', 'image', 'link'], node => getResourceProblem(node, node.url));
+	context.on('Atrule', node => {
+		if (node.name?.toLowerCase() !== 'import') {
+			return;
+		}
+
+		const stringNode = node.prelude?.children?.[0];
+		if (stringNode?.type !== 'String') {
+			return;
+		}
+
+		return getResourceProblem(stringNode, stringNode.value, getCssValueRange(stringNode, stringNode.value), false);
+	});
+	context.on('Url', node => getResourceProblem(node, node.value, getCssValueRange(node, node.value), false));
 	context.on('Attribute', attribute => {
 		const name = attribute.key?.value?.toLowerCase();
 		if (
@@ -410,6 +435,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'css/css',
 			'html/html',
 			'markdown/commonmark',
 			'markdown/gfm',
