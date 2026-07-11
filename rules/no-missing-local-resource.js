@@ -21,7 +21,9 @@ const schemePattern = /^[a-z][\d+\-.a-z]*:/i;
 const maximumNamedHtmlCharacterReferenceLength = 64;
 const decimalDigitPattern = /^\d$/u;
 const hexadecimalDigitPattern = /^[\da-f]$/iu;
+const percentEncodedPartPattern = /(?:%[\da-f]{2})+/giu;
 const unquotedAttributeValuePattern = /^[^\t\n\f\r "'<>`]+/u;
+const textEncoder = new TextEncoder();
 
 const isSrcsetWhitespace = character => /^[\t\n\f\r ]$/u.test(character);
 
@@ -54,6 +56,10 @@ function decodePercentEncoded(value) {
 	}
 }
 
+function encodePercentEncoded(value) {
+	return Array.from(textEncoder.encode(value), byte => '%' + byte.toString(16).padStart(2, '0').toUpperCase()).join('');
+}
+
 function getNumericCharacterReferenceEnd(value, index) {
 	let end = index + 2;
 	const isHexadecimal = value[end]?.toLowerCase() === 'x';
@@ -65,11 +71,16 @@ function getNumericCharacterReferenceEnd(value, index) {
 		end++;
 	}
 
+	const digitStart = end;
 	while (digitPattern.test(value[end])) {
 		end++;
 	}
 
-	return value[end] === ';' ? end + 1 : undefined;
+	if (end === digitStart) {
+		return;
+	}
+
+	return value[end] === ';' ? end + 1 : end;
 }
 
 function getSrcsetCharacter(value, index) {
@@ -229,19 +240,34 @@ function getLocalResource(value, decodeHtmlCharacterReferences = true) {
 	};
 }
 
+function getCorrectedResourcePart(rawPart, correctedPart) {
+	const decodedPart = decodePercentEncoded(rawPart);
+	if (decodedPart === correctedPart) {
+		return rawPart;
+	}
+
+	if (decodedPart.length !== correctedPart.length) {
+		return correctedPart;
+	}
+
+	let result = correctedPart;
+	for (const encodedPart of rawPart.matchAll(percentEncodedPartPattern).toArray().toReversed()) {
+		const [encodedValue] = encodedPart;
+		const start = decodePercentEncoded(rawPart.slice(0, encodedPart.index)).length;
+		const decodedValue = decodePercentEncoded(encodedValue);
+		const end = start + decodedValue.length;
+		const correctedValue = correctedPart.slice(start, end);
+
+		const replacement = correctedValue === decodedValue ? encodedValue : encodePercentEncoded(correctedValue);
+		result = result.slice(0, start) + replacement + result.slice(end);
+	}
+
+	return result;
+}
+
 function getCorrectedResourcePath(rawPath, correctedPath) {
 	const correctedParts = correctedPath.split('/');
-
-	return rawPath.split('/').map((part, index) => {
-		const correctedPart = correctedParts[index];
-
-		const decodedPart = decodePercentEncoded(part);
-		if (decodedPart === correctedPart) {
-			return part;
-		}
-
-		return decodedPart === part ? correctedPart : encodeURIComponent(correctedPart);
-	}).join('/');
+	return rawPath.split('/').map((part, index) => getCorrectedResourcePart(part, correctedParts[index])).join('/');
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */

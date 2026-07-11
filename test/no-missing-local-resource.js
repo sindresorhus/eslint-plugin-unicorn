@@ -75,6 +75,8 @@ test.snapshot({
 		htmlCase('<img srcset="./assets/logo.svg&#' + '0'.repeat(80) + '32;1x, ./assets/logo-2x.png 2x">'),
 		htmlCase('<img srcset="./assets/logo-1x.png&#44;./assets/logo-2x.png">'),
 		htmlCase('<img srcset="d&#97;ta:image/svg+xml,%3Csvg%3E 1x, ./assets/logo-2x.png 2x">'),
+		htmlCase('<img srcset="d&#97ta:image/svg+xml,%3Csvg%3E 1x, ./assets/logo-2x.png 2x">'),
+		htmlCase('<img srcset="./assets/logo-1x.png&#44./assets/logo-2x.png">'),
 		htmlCase('<img srcset=",./assets/logo-1x.png,, ./assets/logo-2x.png,">'),
 		htmlCase('<a href="https://example.com"></a><a href="mailto:test@example.com"></a><a href="#heading"></a><a href="/guide.md"></a><a href="//example.com/guide.md"></a><a href="github:issue/123"></a><img src="data:image/svg+xml,%3Csvg%3E">'),
 		htmlCase('<a href="./assets/logo&#46;svg"></a><a href="./assets&sol;logo.svg"></a>'),
@@ -173,6 +175,18 @@ test({
 			filename: htmlFilename,
 			output: '<a href="./assets/%7Efile.svg"></a>',
 			errors: [{message: 'Resource path has incorrect casing. Use `./assets/%7Efile.svg`.'}],
+		},
+		{
+			code: '<a href="./assets/%7EFILE.svg"></a>',
+			filename: htmlFilename,
+			output: '<a href="./assets/%7Efile.svg"></a>',
+			errors: [{message: 'Resource path has incorrect casing. Use `./assets/%7Efile.svg`.'}],
+		},
+		{
+			code: '<a href="./assets/%7E%46ILE.svg"></a>',
+			filename: htmlFilename,
+			output: '<a href="./assets/%7E%66ile.svg"></a>',
+			errors: [{message: 'Resource path has incorrect casing. Use `./assets/%7E%66ile.svg`.'}],
 		},
 		{
 			code: String.raw`<img src="./assets\LOGO.svg?query=\value#fragment\tail">`,
