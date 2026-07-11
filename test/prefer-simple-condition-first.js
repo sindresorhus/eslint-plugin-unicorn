@@ -40,6 +40,11 @@ test({
 			errors: [{...error, column: 26, endColumn: 27}],
 		},
 		{
+			code: 'if ((foo ? bar : baz) && (a && b));',
+			output: 'if (a && b && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
 			code: 'if ((first ? second : third) && a && (fourth ? fifth : sixth) && b);',
 			output: 'if (a && b && (first ? second : third) && (fourth ? fifth : sixth));',
 			errors: [error],
@@ -170,6 +175,16 @@ test.typescript({
 		{
 			code: 'if ((foo ? bar : baz) && ((value as string) === "value"));',
 			output: 'if (((value as string) === "value") && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && index === -(1 as number));',
+			output: 'if ((index === -(1 as number)) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && index === -(<number>1));',
+			output: 'if ((index === -(<number>1)) && (foo ? bar : baz));',
 			errors: [error],
 		},
 		{

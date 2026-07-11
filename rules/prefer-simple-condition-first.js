@@ -27,11 +27,16 @@ function isSimpleOperand(node) {
 		return true;
 	}
 
+	if (
+		node.type !== 'UnaryExpression'
+		|| (node.operator !== '-' && node.operator !== '+')
+	) {
+		return false;
+	}
+
 	// Negative/positive numeric literals: `-1`, `+0`
-	return node.type === 'UnaryExpression'
-		&& (node.operator === '-' || node.operator === '+')
-		&& node.argument.type === 'Literal'
-		&& typeof node.argument.value === 'number';
+	const argument = unwrapTypeScriptExpression(node.argument);
+	return argument.type === 'Literal' && typeof argument.value === 'number';
 }
 
 function isSimple(node) {
