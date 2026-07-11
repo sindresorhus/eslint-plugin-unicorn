@@ -7,6 +7,7 @@ import {
 import {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	isNullishType,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -34,6 +35,16 @@ const getStaticString = node => getStaticStringValue(unwrapTypeScriptExpression(
 
 const isAllIdentifier = node => node.type === 'Identifier' && normalizeCssIdentifier(node.name) === 'all';
 
+const isValidPriority = priority => {
+	const staticPriority = getStaticString(priority);
+	if (staticPriority !== undefined) {
+		return staticPriority === '' || staticPriority.toLowerCase() === 'important';
+	}
+
+	priority = unwrapTypeScriptExpression(priority);
+	return priority?.type !== 'Literal' || priority.value === null;
+};
+
 const hasTransitionAll = value => {
 	try {
 		return parse(value, {context: 'value'}).children.some(node => isAllIdentifier(node));
@@ -44,7 +55,8 @@ const hasTransitionAll = value => {
 
 const isDomStyleDeclarationType = (type, program) => {
 	if (type.isUnion()) {
-		return type.types.every(type => isDomStyleDeclarationType(type, program));
+		const nonNullishTypes = type.types.filter(type => !isNullishType(type));
+		return nonNullishTypes.length > 0 && nonNullishTypes.every(type => isDomStyleDeclarationType(type, program));
 	}
 
 	const symbol = getTypeSymbol(type);
@@ -115,14 +127,15 @@ const create = context => {
 			method: 'setProperty',
 			minimumArguments: 2,
 			maximumArguments: 3,
-			optionalCall: false,
-			optionalMember: false,
 		})) {
 			return;
 		}
 
-		const [property, value] = callExpression.arguments;
-		if (transitionProperties.has(getStaticString(property)?.toLowerCase())) {
+		const [property, value, priority] = callExpression.arguments;
+		if (
+			transitionProperties.has(getStaticString(property)?.toLowerCase())
+			&& isValidPriority(priority)
+		) {
 			return getDomStyleProblem(callExpression.callee.object, value, parserServices);
 		}
 	});

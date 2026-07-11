@@ -75,6 +75,10 @@ test({
 		typeAware('document.body.style[\'transition\'] = \'all\';'),
 		typeAware('document.body.style.setProperty(\'animation\', \'all\');'),
 		typeAware('document.body.style.setProperty(\'transition\', transitionValue);'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all\', \'invalid\');'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all\', `invalid`);'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all\', false);'),
+		typeAware('document.body.style.setProperty(\'transition\', \'all\', 0);'),
 		typeAware('const style = {transition: \'\'}; style.transition = \'all\';'),
 		typeAware('declare const style: CSSStyleDeclaration | {transition: string}; style.transition = \'all\';'),
 	],
@@ -121,6 +125,34 @@ test({
 		},
 		{
 			...typeAware('document.body.style.setProperty(\'transition\', \'all\', \'\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', \'IMPORTANT\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', `IMPORTANT`);'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', null);'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty(\'transition\', \'all\', priority);'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style.setProperty?.(\'transition\', \'all\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('document.body.style?.setProperty(\'transition\', \'all\');'),
+			errors: [{messageId: 'no-transition-all'}],
+		},
+		{
+			...typeAware('declare const style: CSSStyleDeclaration | undefined; style?.setProperty(\'transition\', \'all\');'),
 			errors: [{messageId: 'no-transition-all'}],
 		},
 		{
