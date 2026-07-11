@@ -91,16 +91,16 @@ function isBooleanContext(node, context) {
 		&& isBooleanContext(parent, context);
 }
 
-function getOperands(node, operator) {
+function getLogicalOperands(node, operator, operands = []) {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 	if (unwrappedNode.type !== 'LogicalExpression' || unwrappedNode.operator !== operator) {
-		return [node];
+		operands.push(node);
+		return operands;
 	}
 
-	return [
-		...getOperands(unwrappedNode.left, operator),
-		...getOperands(unwrappedNode.right, operator),
-	];
+	getLogicalOperands(unwrappedNode.left, operator, operands);
+	getLogicalOperands(unwrappedNode.right, operator, operands);
+	return operands;
 }
 
 function isSafeConditionalExpression(node) {
@@ -174,7 +174,7 @@ const create = context => {
 			return;
 		}
 
-		const operands = getOperands(node, node.operator);
+		const operands = getLogicalOperands(node, node.operator);
 		const classifiedOperands = operands.map(operand => ({operand, isSimple: isSimple(operand)}));
 		const firstComplexOperandIndex = classifiedOperands.findIndex(({isSimple}) => !isSimple);
 		const firstMisplacedSimpleOperandIndex = classifiedOperands.findIndex(

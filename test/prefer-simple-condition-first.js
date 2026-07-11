@@ -37,7 +37,7 @@ test({
 		{
 			code: 'if ((foo ? bar : baz) && a && b);',
 			output: 'if (a && b && (foo ? bar : baz));',
-			errors: [error],
+			errors: [{...error, column: 26, endColumn: 27}],
 		},
 		{
 			code: 'if ((first ? second : third) && a && (fourth ? fifth : sixth) && b);',
