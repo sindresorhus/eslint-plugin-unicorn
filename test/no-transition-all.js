@@ -65,6 +65,10 @@ ll 150ms; }`,
 test({
 	valid: [
 		'element.style.transition = \'all\';',
+		{
+			code: '<div style={{transition: \'all\'}} />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
 		typeAware('document.body.style.transition = \'opacity 150ms\';'),
 		typeAware('document.body.style.transition = transitionValue;'),
 		typeAware('document.body.style.transition += \'all\';'),

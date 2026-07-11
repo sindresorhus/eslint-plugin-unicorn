@@ -65,6 +65,10 @@ const isDomStyleDeclaration = (node, context) => {
 };
 
 const getDomStyleProblem = (receiver, value, context) => {
+	if (!context.sourceCode.parserServices?.program) {
+		return;
+	}
+
 	const staticValue = getStaticString(value);
 	if (
 		staticValue === undefined
