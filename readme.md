@@ -467,6 +467,7 @@ export default defineConfig([
 		},
 		language: 'css/css',
 		rules: {
+			'unicorn/prefer-explicit-viewport-units': 'error',
 			'unicorn/prefer-https': 'error',
 			'unicorn/text-encoding-identifier-case': 'error',
 		},
@@ -557,7 +558,7 @@ export default defineConfig([
 
 ### All config
 
-This plugin exports an `all` config that enables every rule, except deprecated ones.
+This plugin exports an `all` config that enables every JavaScript-compatible rule, except deprecated ones.
 
 ```js
 import unicorn from 'eslint-plugin-unicorn';
