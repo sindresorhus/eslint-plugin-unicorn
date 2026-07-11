@@ -70,13 +70,10 @@ test.snapshot({
 		htmlCase(String.raw`<img src="./assets\logo.svg">`),
 		htmlCase('<img srcset="./assets/logo-1x.png 1x, data:image/svg+xml,%3Csvg%3E 2x, ./assets/logo-2x.png 3x">'),
 		htmlCase('<img srcset="./assets/logo-1x.png?raw=1#icon 1x">'),
-		htmlCase('<img srcset="./assets/logo-1x.png,./assets/logo-2x.png">'),
 		htmlCase('<img srcset="./assets/logo.svg&#32;1x,./assets/logo-2x.png&#x20;2x">'),
 		htmlCase('<img srcset="./assets/logo.svg&#' + '0'.repeat(80) + '32;1x, ./assets/logo-2x.png 2x">'),
-		htmlCase('<img srcset="./assets/logo-1x.png&#44;./assets/logo-2x.png">'),
 		htmlCase('<img srcset="d&#97;ta:image/svg+xml,%3Csvg%3E 1x, ./assets/logo-2x.png 2x">'),
 		htmlCase('<img srcset="d&#97ta:image/svg+xml,%3Csvg%3E 1x, ./assets/logo-2x.png 2x">'),
-		htmlCase('<img srcset="./assets/logo-1x.png&#44./assets/logo-2x.png">'),
 		htmlCase('<img srcset=",./assets/logo-1x.png,, ./assets/logo-2x.png,">'),
 		htmlCase('<a href="https://example.com"></a><a href="mailto:test@example.com"></a><a href="#heading"></a><a href="/guide.md"></a><a href="//example.com/guide.md"></a><a href="github:issue/123"></a><img src="data:image/svg+xml,%3Csvg%3E">'),
 		htmlCase('<a href="./assets/logo&#46;svg"></a><a href="./assets&sol;logo.svg"></a>'),
@@ -171,6 +168,31 @@ test({
 	valid: [],
 	invalid: [
 		{
+			code: '<img srcset="./assets/logo-1x.png,./assets/logo-2x.png">',
+			filename: htmlFilename,
+			errors: [{message: 'Resource `./assets/logo-1x.png,./assets/logo-2x.png` does not exist.'}],
+		},
+		{
+			code: '<img srcset="./assets/logo-1x.png&#44;./assets/logo-2x.png">',
+			filename: htmlFilename,
+			errors: [{message: 'Resource `./assets/logo-1x.png&#44;./assets/logo-2x.png` does not exist.'}],
+		},
+		{
+			code: '<img srcset="./assets/logo-1x.png&#44./assets/logo-2x.png">',
+			filename: htmlFilename,
+			errors: [{message: 'Resource `./assets/logo-1x.png&#44./assets/logo-2x.png` does not exist.'}],
+		},
+		{
+			code: '<img srcset="data:image/svg+xml,%3Csvg%3E, ./assets/missing.png">',
+			filename: htmlFilename,
+			errors: [{message: 'Resource `./assets/missing.png` does not exist.'}],
+		},
+		{
+			code: '<img srcset="./assets/logo-1x.png bogus(foo,bar), ./assets/missing.png 2x">',
+			filename: htmlFilename,
+			errors: [{message: 'Resource `./assets/missing.png` does not exist.'}],
+		},
+		{
 			code: '<a href="./Assets/%7Efile.svg"></a>',
 			filename: htmlFilename,
 			output: '<a href="./assets/%7Efile.svg"></a>',
@@ -187,6 +209,12 @@ test({
 			filename: htmlFilename,
 			output: '<a href="./assets/%7E%66ile.svg"></a>',
 			errors: [{message: 'Resource path has incorrect casing. Use `./assets/%7E%66ile.svg`.'}],
+		},
+		{
+			code: '<a href="./assets/%C4%B0file.svg"></a>',
+			filename: htmlFilename,
+			output: '<a href="./assets/i%CC%87file.svg"></a>',
+			errors: [{message: 'Resource path has incorrect casing. Use `./assets/i%CC%87file.svg`.'}],
 		},
 		{
 			code: String.raw`<img src="./assets\LOGO.svg?query=\value#fragment\tail">`,

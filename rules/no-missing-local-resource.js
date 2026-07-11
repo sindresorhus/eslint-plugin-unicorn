@@ -135,42 +135,54 @@ function skipSrcsetSeparators(value, index) {
 	return value.length;
 }
 
-function getSrcsetCandidateEnd(value, index, isDataUrl) {
+function getSrcsetCandidate(value, index) {
+	let end = index;
+	let trailingCommaStart;
+
 	while (index < value.length) {
 		const character = getSrcsetCharacter(value, index);
-		if (isSrcsetWhitespace(character.value) || (!isDataUrl && character.value === ',')) {
-			return index;
+		if (isSrcsetWhitespace(character.value)) {
+			return {
+				end: trailingCommaStart ?? end,
+				next: index,
+				hasTrailingComma: trailingCommaStart !== undefined,
+			};
 		}
 
+		if (character.value === ',') {
+			trailingCommaStart ??= index;
+		} else {
+			trailingCommaStart = undefined;
+		}
+
+		end = character.end;
 		index = character.end;
 	}
 
-	return value.length;
+	return {
+		end: trailingCommaStart ?? end,
+		next: index,
+		hasTrailingComma: trailingCommaStart !== undefined,
+	};
 }
 
 function getNextSrcsetCandidateStart(value, index) {
+	let parenthesisDepth = 0;
+
 	while (index < value.length) {
 		const character = getSrcsetCharacter(value, index);
 		index = character.end;
 
-		if (character.value === ',') {
+		if (character.value === '(') {
+			parenthesisDepth++;
+		} else if (character.value === ')' && parenthesisDepth > 0) {
+			parenthesisDepth--;
+		} else if (character.value === ',' && parenthesisDepth === 0) {
 			return index;
 		}
 	}
 
 	return value.length;
-}
-
-function isDataUrl(value, index) {
-	let prefix = '';
-
-	while (index < value.length && prefix.length < 5) {
-		const character = getSrcsetCharacter(value, index);
-		prefix += character.value;
-		index = character.end;
-	}
-
-	return prefix.toLowerCase().startsWith('data:');
 }
 
 function getSrcsetCandidates(value) {
@@ -180,16 +192,18 @@ function getSrcsetCandidates(value) {
 	while (index < value.length) {
 		index = skipSrcsetSeparators(value, index);
 		const start = index;
-		index = getSrcsetCandidateEnd(value, index, isDataUrl(value, start));
+		const candidate = getSrcsetCandidate(value, index);
 
-		if (index > start) {
+		if (candidate.end > start) {
 			candidates.push({
-				value: value.slice(start, index),
-				offsets: [start, index],
+				value: value.slice(start, candidate.end),
+				offsets: [start, candidate.end],
 			});
 		}
 
-		index = getNextSrcsetCandidateStart(value, index);
+		index = candidate.hasTrailingComma
+			? candidate.next
+			: getNextSrcsetCandidateStart(value, candidate.next);
 	}
 
 	return candidates;
@@ -247,7 +261,7 @@ function getCorrectedResourcePart(rawPart, correctedPart) {
 	}
 
 	if (decodedPart.length !== correctedPart.length) {
-		return correctedPart;
+		return encodeURIComponent(correctedPart);
 	}
 
 	let result = correctedPart;
