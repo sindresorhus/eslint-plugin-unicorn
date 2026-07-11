@@ -16,6 +16,8 @@ test.snapshot({
 			'.element { block-size: 100vb; inline-size: 100vi; }',
 			'@media (min-height: 100vh) { .element { color: red; } }',
 			'@supports (height: 100vh) { .element { color: red; } }',
+			'@supports (height: calc(100vh - 1rem)) { .element { color: red; } }',
+			'@container style(height: 100vh) { .element { color: red; } }',
 		].map(code => ({code, language: languages.css})),
 	],
 	invalid: [
@@ -24,7 +26,8 @@ test.snapshot({
 			'.element { min-height: 100vh; max-height: 100vh; min-width: 100vw; max-width: 100vw; }',
 			'.element { block-size: 100vh; min-block-size: 100vh; max-block-size: 100vh; inline-size: 100vw; min-inline-size: 100vw; max-inline-size: 100vw; }',
 			'.element { height: calc(100vh - 1rem); width: min(100vw, 80rem); block-size: clamp(20rem, 100vh /* fill */, 100vh); }',
-			'.element { min-height: 100.0VH; }',
+			'.uppercase { min-height: 100.0VH; WIDTH: 100VW; }',
+			'.scientific { height: 1e2vh; }',
 			'.fallback { height: 100vh; height: 100dvh; }',
 			'@supports (height: 100dvh) { .element { height: 100vh; } }',
 		].map(code => ({code, language: languages.css})),

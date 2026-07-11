@@ -33,24 +33,19 @@ const schema = [
 	},
 ];
 
-const getDeclaration = (node, sourceCode) => {
+const isSizeDeclaration = (node, sourceCode) => {
 	let currentNode = node;
 
 	while (currentNode) {
 		if (currentNode.type === 'Declaration') {
-			return currentNode;
+			return sourceCode.getParent(currentNode).type === 'Block'
+				&& sizeProperties.has(currentNode.property.toLowerCase());
 		}
 
 		currentNode = sourceCode.getParent(currentNode);
 	}
-};
 
-const isSizeDeclaration = (node, sourceCode) => {
-	const declaration = getDeclaration(node, sourceCode);
-
-	return declaration
-		&& sizeProperties.has(declaration.property.toLowerCase())
-		&& sourceCode.getParent(declaration).type !== 'SupportsDeclaration';
+	return false;
 };
 
 const getReplacement = (unit, preferredUnit) => `${preferredUnit.slice(0, -1)}${unit.at(-1)}`;
