@@ -335,6 +335,7 @@ const create = context => {
 			return resourceCache.get(resourcePath);
 		}
 
+		const resource = path.resolve(documentDirectory, resourcePath);
 		let directory = documentDirectory;
 		let hasIncorrectCase = false;
 		const correctedParts = [];
@@ -347,7 +348,13 @@ const create = context => {
 			}
 
 			const entries = getDirectoryEntries(directory);
-			const correctedPart = entries?.exact.has(part) ? part : entries?.insensitive.get(part.toLowerCase());
+			if (!entries) {
+				const result = {exists: fs.existsSync(resource)};
+				resourceCache.set(resourcePath, result);
+				return result;
+			}
+
+			const correctedPart = entries.exact.has(part) ? part : entries.insensitive.get(part.toLowerCase());
 			if (!correctedPart) {
 				const result = {exists: false};
 				resourceCache.set(resourcePath, result);
