@@ -38,12 +38,12 @@ URLs with a scheme, root-relative URLs, fragments, and configured template value
 ```css
 /* ❌ */
 .logo {
-	background: url("./images/Logo.png");
+	background: url('./images/Logo.png');
 }
 
 /* ✅ */
 .logo {
-	background: url("./images/logo.png");
+	background: url('./images/logo.png');
 }
 ```
 
