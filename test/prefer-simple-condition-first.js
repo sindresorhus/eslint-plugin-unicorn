@@ -120,6 +120,11 @@ test({
 			output: 'if ((a && (foo ? bar : baz)) || (b && (one ? two : three)));',
 			errors: [error, error],
 		},
+		{
+			code: 'if (((foo ? bar : baz) && ready) || enabled);',
+			output: 'if ((ready && (foo ? bar : baz)) || enabled);',
+			errors: [error, unsafeError],
+		},
 
 		// Parentheses around operands are preserved when useful
 		{
