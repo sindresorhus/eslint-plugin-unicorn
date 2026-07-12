@@ -55,9 +55,10 @@ Enable the rule in Markdown, HTML, and CSS language blocks:
 import css from '@eslint/css';
 import html from '@html-eslint/eslint-plugin';
 import markdown from '@eslint/markdown';
+import {defineConfig} from 'eslint/config';
 import unicorn from 'eslint-plugin-unicorn';
 
-export default [
+export default defineConfig([
 	{
 		files: ['**/*.md'],
 		plugins: {
@@ -91,7 +92,7 @@ export default [
 			'unicorn/no-missing-local-resource': 'error',
 		},
 	},
-];
+]);
 ```
 
 Use `markdown/gfm` instead of `markdown/commonmark` for GFM files.
