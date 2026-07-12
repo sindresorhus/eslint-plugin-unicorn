@@ -37,6 +37,7 @@ test({
 
 		// Nullish coalescing is outside the rule
 		'const value = object.value ?? fallback;',
+		'if ((((foo ? 0 : 1) && ready) ?? fallback));',
 	],
 	invalid: [
 		// Stable partition of the complete homogeneous chain

@@ -1,3 +1,4 @@
+import {isCommentToken} from '@eslint-community/eslint-utils';
 import {
 	isParenthesized,
 	getParenthesizedText,
@@ -169,11 +170,9 @@ function hasCommentsThatPreventFix(node, operands, context) {
 	const lastOperand = operands.at(-1);
 	const [start] = getParenthesizedRange(firstOperand, context);
 	const [, end] = getParenthesizedRange(lastOperand, context);
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return (commentEnd <= start && sourceCode.text.slice(commentEnd, start).trim() === '')
-			|| (commentStart >= end && sourceCode.text.slice(end, commentStart).trim() === '');
-	});
+	const range = {range: [start, end]};
+	return isCommentToken(sourceCode.getTokenBefore(range, {includeComments: true}))
+		|| isCommentToken(sourceCode.getTokenAfter(range, {includeComments: true}));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
