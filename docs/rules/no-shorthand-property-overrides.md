@@ -11,24 +11,6 @@ CSS shorthands reset every related longhand that they omit. Placing a shorthand 
 
 This rule checks declarations only within the same block. It supports matching vendor-prefixed properties and intentionally ignores CSS-escaped property names.
 
-Enable it for CSS files with [`@eslint/css`](https://github.com/eslint/css):
-
-```js
-import css from '@eslint/css';
-import unicorn from 'eslint-plugin-unicorn';
-
-export default [
-	{
-		files: ['**/*.css'],
-		plugins: {css, unicorn},
-		language: 'css/css',
-		rules: {
-			'unicorn/no-shorthand-property-overrides': 'error',
-		},
-	},
-];
-```
-
 ## Examples
 
 ```css
@@ -54,4 +36,28 @@ a {
 b {
 	padding: 20px;
 }
+```
+
+## CSS files
+
+Enable it for CSS files with [`@eslint/css`](https://github.com/eslint/css):
+
+```js
+import css from '@eslint/css';
+import {defineConfig} from 'eslint/config';
+import unicorn from 'eslint-plugin-unicorn';
+
+export default defineConfig([
+	{
+		files: ['**/*.css'],
+		plugins: {
+			css,
+			unicorn,
+		},
+		language: 'css/css',
+		rules: {
+			'unicorn/no-shorthand-property-overrides': 'error',
+		},
+	},
+]);
 ```
