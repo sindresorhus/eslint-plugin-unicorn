@@ -68,6 +68,7 @@
 		"ci-info": "^4.4.0",
 		"core-js-compat": "^3.49.0",
 		"detect-indent": "^7.0.2",
+		"entities": "^4.5.0",
 		"find-up-simple": "^1.0.1",
 		"globals": "^17.7.0",
 		"indent-string": "^5.0.0",

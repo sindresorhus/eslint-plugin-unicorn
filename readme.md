@@ -191,6 +191,7 @@ export default defineConfig([
 | [no-manually-wrapped-comments](docs/rules/no-manually-wrapped-comments.md)                                 | Disallow manually wrapped comments.                                                                                            |      | 🔧 |    |    |
 | [no-mismatched-map-key](docs/rules/no-mismatched-map-key.md)                                               | Disallow checking a Map key before accessing a different key.                                                                  | ✅    |    |    |    |
 | [no-misrefactored-assignment](docs/rules/no-misrefactored-assignment.md)                                   | Disallow misrefactored compound assignments where the target is duplicated in the right-hand side.                             | ✅ ☑️ |    | 💡 |    |
+| [no-missing-local-resource](docs/rules/no-missing-local-resource.md)                                       | Disallow references to missing local resources.                                                                                |      | 🔧 |    |    |
 | [no-multiple-promise-resolver-calls](docs/rules/no-multiple-promise-resolver-calls.md)                     | Disallow calling Promise executor resolver functions more than once on the same execution path.                                | ✅ ☑️ |    |    |    |
 | [no-named-default](docs/rules/no-named-default.md)                                                         | Disallow named usage of default import and export.                                                                             | ✅ ☑️ | 🔧 |    |    |
 | [no-negated-array-predicate](docs/rules/no-negated-array-predicate.md)                                     | Disallow negated array predicate calls.                                                                                        | ✅ ☑️ | 🔧 |    |    |
@@ -513,6 +514,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-empty-file`](docs/rules/no-empty-file.md) | ✅ | ✅ | ✅ | ✅ |
 | [`no-invalid-file-input-accept`](docs/rules/no-invalid-file-input-accept.md) |  | ✅ |  |  |
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
+| [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
