@@ -129,6 +129,7 @@ export {default as 'no-this-assignment'} from './no-this-assignment.js';
 export {default as 'no-this-outside-of-class'} from './no-this-outside-of-class.js';
 export {default as 'no-top-level-assignment-in-function'} from './no-top-level-assignment-in-function.js';
 export {default as 'no-top-level-side-effects'} from './no-top-level-side-effects.js';
+export {default as 'no-transition-all'} from './no-transition-all.js';
 export {default as 'no-typeof-undefined'} from './no-typeof-undefined.js';
 export {default as 'no-uncalled-method'} from './no-uncalled-method.js';
 export {default as 'no-undeclared-class-members'} from './no-undeclared-class-members.js';
