@@ -517,8 +517,8 @@ These rules also work on specific non-JavaScript languages:
 | [`no-manually-wrapped-comments`](docs/rules/no-manually-wrapped-comments.md) |  |  | ✅ |  |
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
-| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |
+| [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
 <!-- end auto-generated non-js languages list -->
