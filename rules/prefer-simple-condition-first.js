@@ -4,35 +4,59 @@ import {
 	getParenthesizedText,
 	getParenthesizedRange,
 	shouldAddParenthesesToLogicalExpressionChild,
+	isBooleanExpression,
+	isControlFlowTest,
+	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-simple-condition-first';
-const MESSAGE_ID_SUGGESTION = 'prefer-simple-condition-first/suggestion';
+const MESSAGE_ID_UNSAFE = 'prefer-simple-condition-first/unsafe';
 
 const messages = {
-	[MESSAGE_ID]: 'Prefer simple condition first in `{{operator}}` expression.',
-	[MESSAGE_ID_SUGGESTION]: 'Swap conditions.',
+	[MESSAGE_ID]: 'Prefer this simple condition first in the `{{operator}}` expression.',
+	[MESSAGE_ID_UNSAFE]: 'Consider moving this simple condition first after verifying short-circuit behavior.',
 };
 
+function isIdentifierOrTypeofIdentifier(node) {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'Identifier'
+		|| (
+			node.type === 'UnaryExpression'
+			&& node.operator === 'typeof'
+			&& unwrapTypeScriptExpression(node.argument).type === 'Identifier'
+		);
+}
+
 /**
-Check if a node is a "simple" condition:
-1. Bare identifier (`foo`)
-2. A binary `===`/`!==` where each operand is an identifier, a literal, or a signed
-   numeric literal (`-1`, `+0`), and at least one operand is an identifier.
+Check if a node can be an operand in a simple strict comparison.
 */
 function isSimpleOperand(node) {
-	if (node.type === 'Identifier' || node.type === 'Literal') {
+	node = unwrapTypeScriptExpression(node);
+
+	if (isIdentifierOrTypeofIdentifier(node) || node.type === 'Literal') {
 		return true;
 	}
 
-	// Negative/positive numeric literals: `-1`, `+0`
-	return node.type === 'UnaryExpression'
-		&& (node.operator === '-' || node.operator === '+')
-		&& node.argument.type === 'Literal'
-		&& typeof node.argument.value === 'number';
+	if (
+		node.type !== 'UnaryExpression'
+		|| (node.operator !== '-' && node.operator !== '+')
+	) {
+		return false;
+	}
+
+	// Signed number literals and negative BigInt literals: `-1`, `+0`, `-1n`
+	const argument = unwrapTypeScriptExpression(node.argument);
+	return argument.type === 'Literal'
+		&& (
+			typeof argument.value === 'number'
+			|| (node.operator === '-' && typeof argument.value === 'bigint')
+		);
 }
 
 function isSimple(node) {
+	node = unwrapTypeScriptExpression(node);
+
 	if (node.type === 'Identifier') {
 		return true;
 	}
@@ -48,94 +72,16 @@ function isSimple(node) {
 		node.type === 'BinaryExpression'
 		&& (node.operator === '===' || node.operator === '!==')
 	) {
-		return isSimpleOperand(node.left) && isSimpleOperand(node.right)
-			&& (node.left.type === 'Identifier' || node.right.type === 'Identifier');
-	}
-
-	// A chain of all-simple conditions is considered simple to prevent fix oscillation
-	if (node.type === 'LogicalExpression') {
-		return isSimple(node.left) && isSimple(node.right);
+		const left = unwrapTypeScriptExpression(node.left);
+		const right = unwrapTypeScriptExpression(node.right);
+		return isSimpleOperand(left) && isSimpleOperand(right)
+			&& (isIdentifierOrTypeofIdentifier(left) || isIdentifierOrTypeofIdentifier(right));
 	}
 
 	return false;
 }
 
-const sideEffectTypes = new Set([
-	'AssignmentExpression',
-	'UpdateExpression',
-	'TaggedTemplateExpression',
-	'AwaitExpression',
-	'YieldExpression',
-	'ImportExpression',
-]);
-
-/**
-Check if an AST subtree contains side effects or throwing potential
-(assignments, updates, member access, tagged templates, in/instanceof, await, yield, dynamic import).
-These patterns are not flagged, since reordering would change program behavior.
-*/
-function hasSideEffectsOrThrows(node) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	if (
-		sideEffectTypes.has(node.type)
-		// Property reads can throw or trigger getters, including with optional chaining.
-		|| node.type === 'MemberExpression'
-		// `in` and `instanceof` throw if the right operand is not an object/constructor
-		|| (node.type === 'BinaryExpression' && (node.operator === 'in' || node.operator === 'instanceof'))
-	) {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasSideEffectsOrThrows(child))) {
-				return true;
-			}
-		} else if (value && typeof value.type === 'string' && hasSideEffectsOrThrows(value)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
-Check if an AST subtree contains call or new expressions.
-*/
-function hasCallOrNew(node) {
-	if (!node || typeof node !== 'object') {
-		return false;
-	}
-
-	if (node.type === 'CallExpression' || node.type === 'NewExpression') {
-		return true;
-	}
-
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent') {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			if (value.some(child => hasCallOrNew(child))) {
-				return true;
-			}
-		} else if (value && typeof value.type === 'string' && hasCallOrNew(value)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-function getSwapText(node, context, {operator, property}) {
+function getOperandText(node, context, {operator, property}) {
 	const isNodeParenthesized = isParenthesized(node, context);
 	let text = isNodeParenthesized
 		? getParenthesizedText(node, context)
@@ -152,42 +98,81 @@ function getSwapText(node, context, {operator, property}) {
 }
 
 /**
-Check if a LogicalExpression is used in a boolean context where the
-produced value is only tested for truthiness, not consumed as a value.
+Check if a LogicalExpression is used in a boolean context where the produced value is only tested for truthiness, not consumed as a value.
 */
-function isBooleanContext(node) {
-	const {parent} = node;
-
-	if (!parent) {
-		return false;
-	}
-
-	if (
-		(parent.type === 'IfStatement' && parent.test === node)
-		|| (parent.type === 'WhileStatement' && parent.test === node)
-		|| (parent.type === 'DoWhileStatement' && parent.test === node)
-		|| (parent.type === 'ForStatement' && parent.test === node)
-		|| (parent.type === 'ConditionalExpression' && parent.test === node)
-		|| (parent.type === 'UnaryExpression' && parent.operator === '!')
-	) {
+function isBooleanContext(node, context) {
+	if (isBooleanExpression(node, context) || isControlFlowTest(node)) {
 		return true;
 	}
 
-	// A LogicalExpression nested inside another LogicalExpression inherits its context
-	if (parent.type === 'LogicalExpression') {
-		return isBooleanContext(parent);
+	const {parent} = node;
+	return isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+		&& isBooleanContext(parent, context);
+}
+
+function getLogicalOperands(node, operator, operands = []) {
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+	if (unwrappedNode.type !== 'LogicalExpression' || unwrappedNode.operator !== operator) {
+		operands.push(node);
+		return operands;
 	}
 
-	return false;
+	getLogicalOperands(unwrappedNode.left, operator, operands);
+	getLogicalOperands(unwrappedNode.right, operator, operands);
+	return operands;
 }
 
-function hasCommentsBetweenOperands(node, sourceCode) {
-	return sourceCode.getTokensBetween(node.left, node.right, {includeComments: true})
-		.some(token => isCommentToken(token));
+function isSafeConditionalExpression(node) {
+	const unwrappedNode = unwrapTypeScriptExpression(node);
+	return unwrappedNode.type === 'ConditionalExpression'
+		&& [unwrappedNode.test, unwrappedNode.consequent, unwrappedNode.alternate].every(child =>
+			isSimple(child) || isSimpleOperand(child) || isSafeConditionalExpression(child),
+		);
 }
 
-function isReorderableLeftOperand(node) {
-	return node.type === 'ConditionalExpression';
+function isSafeToMove(node) {
+	return isSimple(node) || isSafeConditionalExpression(node);
+}
+
+function hasSameOperatorLogicalParent(node) {
+	const {operator} = node;
+	let {parent} = node;
+	while (
+		isTypeScriptExpressionWrapper(parent)
+		&& parent.expression === node
+	) {
+		node = parent;
+		parent = node.parent;
+	}
+
+	return parent?.type === 'LogicalExpression' && parent.operator === operator;
+}
+
+function hasTypeScriptWrappedLogicalExpression(node, operator) {
+	if (isTypeScriptExpressionWrapper(node)) {
+		const unwrappedNode = unwrapTypeScriptExpression(node);
+		return unwrappedNode.type === 'LogicalExpression' && unwrappedNode.operator === operator;
+	}
+
+	return node.type === 'LogicalExpression'
+		&& node.operator === operator
+		&& (hasTypeScriptWrappedLogicalExpression(node.left, operator) || hasTypeScriptWrappedLogicalExpression(node.right, operator));
+}
+
+function hasCommentsThatPreventFix(node, operands, context) {
+	const {sourceCode} = context;
+	if (sourceCode.getCommentsInside(node).length > 0) {
+		return true;
+	}
+
+	const [firstOperand] = operands;
+	const lastOperand = operands.at(-1);
+	const [start] = getParenthesizedRange(firstOperand, context);
+	const [, end] = getParenthesizedRange(lastOperand, context);
+	const range = {range: [start, end]};
+	return isCommentToken(sourceCode.getTokenBefore(range, {includeComments: true}))
+		|| isCommentToken(sourceCode.getTokenAfter(range, {includeComments: true}));
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -199,63 +184,54 @@ const create = context => {
 			return;
 		}
 
-		if (!isSimple(node.right) || isSimple(node.left)) {
+		if (hasSameOperatorLogicalParent(node)) {
 			return;
 		}
 
-		if (!isReorderableLeftOperand(node.left)) {
+		if (!isBooleanContext(node, context)) {
 			return;
 		}
 
-		// Only flag in boolean contexts — reordering in value-producing contexts changes the result
-		if (!isBooleanContext(node)) {
+		const operands = getLogicalOperands(node, node.operator);
+		const classifiedOperands = operands.map(operand => ({operand, isSimple: isSimple(operand)}));
+		const firstComplexOperandIndex = classifiedOperands.findIndex(({isSimple}) => !isSimple);
+		const firstMisplacedSimpleOperandIndex = classifiedOperands.findIndex(
+			({isSimple}, index) => isSimple && index > firstComplexOperandIndex,
+		);
+		if (
+			firstComplexOperandIndex === -1
+			|| firstMisplacedSimpleOperandIndex === -1
+		) {
 			return;
 		}
 
-		// Skip expressions with side effects or throwing potential entirely
-		if (hasSideEffectsOrThrows(node.left)) {
-			return;
-		}
-
-		// Calls and `new` are lazy under short-circuiting, so swapping is not semantics-preserving.
-		if (hasCallOrNew(node.left)) {
-			return;
-		}
-
-		const rightText = getSwapText(node.right, context, {operator: node.operator, property: 'left'});
-		const leftText = getSwapText(node.left, context, {operator: node.operator, property: 'right'});
-
-		const hasCommentsBetween = hasCommentsBetweenOperands(node, sourceCode);
-		const fix = hasCommentsBetween
-			? undefined
-			: fixer => fixer.replaceTextRange(
-				[getParenthesizedRange(node.left, context)[0], getParenthesizedRange(node.right, context)[1]],
-				`${rightText} ${node.operator} ${leftText}`,
-			);
-
-		// Use suggestion (not auto-fix) for chains to avoid fix oscillation.
-		const isChain = node.left.type === 'LogicalExpression' && node.left.operator === node.operator;
-		if (isChain) {
-			return {
-				node,
-				loc: sourceCode.getLoc(node.right),
-				messageId: MESSAGE_ID,
-				data: {operator: node.operator},
-				...(fix && {
-					suggest: [
-						{
-							messageId: MESSAGE_ID_SUGGESTION,
-							fix,
-						},
-					],
-				}),
-			};
-		}
+		const reorderedOperands = [
+			...classifiedOperands.filter(({isSimple}) => isSimple),
+			...classifiedOperands.filter(({isSimple}) => !isSimple),
+		].map(({operand}) => operand);
+		const lastSimpleOperandIndex = classifiedOperands.findLastIndex(({isSimple}) => isSimple);
+		const canSafelyReorder = classifiedOperands.every(
+			({operand, isSimple}, index) => isSimple || index > lastSimpleOperandIndex || isSafeToMove(operand),
+		);
+		const canFix = canSafelyReorder
+			&& !hasTypeScriptWrappedLogicalExpression(node, node.operator)
+			&& !hasCommentsThatPreventFix(node, operands, context);
+		const fix = canFix
+			? fixer => fixer.replaceTextRange(
+				sourceCode.getRange(node),
+				reorderedOperands
+					.map((operand, index) => getOperandText(operand, context, {
+						operator: node.operator,
+						property: index === 0 ? 'left' : 'right',
+					}))
+					.join(` ${node.operator} `),
+			)
+			: undefined;
 
 		return {
 			node,
-			loc: sourceCode.getLoc(node.right),
-			messageId: MESSAGE_ID,
+			loc: sourceCode.getLoc(operands[firstMisplacedSimpleOperandIndex]),
+			messageId: canSafelyReorder ? MESSAGE_ID : MESSAGE_ID_UNSAFE,
 			data: {operator: node.operator},
 			...(fix && {fix}),
 		};
@@ -269,10 +245,9 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer simple conditions first in logical expressions.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		fixable: 'code',
-		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
