@@ -8,6 +8,11 @@ test.snapshot({
 		'innerHTML;',
 		'element.getHTML();',
 		'element.setHTML(html);',
+		'element.innerHTML = html;',
+		'element.innerHTML = "<h2>Mambo No. 2</h2>";',
+		'(element || fallback).innerHTML = html;',
+		'element.innerHTML += html;',
+		'const html = element.innerHTML = value;',
 		'element.textContent;',
 		'element.outerHTML;',
 		'element.insertAdjacentHTML("beforeend", html);',
@@ -27,23 +32,71 @@ test.snapshot({
 		'const html = element.innerHTML;',
 		'element.innerHTML.trim();',
 		'(element || fallback).innerHTML;',
-		'element.innerHTML = html;',
-		'element.innerHTML = "<h2>Mambo No. 2</h2>";',
-		'(element || fallback).innerHTML = html;',
-		'element.innerHTML += html;',
-		'const html = element.innerHTML = value;',
 		'element.innerHTML();',
 		'new element.innerHTML();',
 		'element.innerHTML`html`;',
-		outdent`
-			element
-				.innerHTML = html;
-		`,
+		{
+			code: outdent`
+				element
+					.innerHTML = html;
+			`,
+			options: [{checkSetHTML: true}],
+		},
 		outdent`
 			element.innerHTML /* comment */;
 		`,
-		outdent`
-			element.innerHTML = /* comment */ html;
-		`,
+		{
+			code: outdent`
+				element.innerHTML = /* comment */ html;
+			`,
+			options: [{checkSetHTML: true}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		{
+			code: 'element.innerHTML;',
+			options: [{checkGetHTML: false}],
+		},
+		{
+			code: 'element.innerHTML = html;',
+			options: [{checkGetHTML: false}],
+		},
+		{
+			code: 'element.innerHTML = html;',
+			options: [{checkSetHTML: false}],
+		},
+	],
+	invalid: [
+		{
+			code: 'const html = element.innerHTML;',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'element.innerHTML = html;',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'element.innerHTML = "<h2>Mambo No. 2</h2>";',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: '(element || fallback).innerHTML = html;',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'element.innerHTML += html;',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'const html = element.innerHTML = value;',
+			options: [{checkSetHTML: true}],
+		},
+		{
+			code: 'element.innerHTML = html;',
+			options: [{checkGetHTML: false, checkSetHTML: true}],
+		},
 	],
 });
