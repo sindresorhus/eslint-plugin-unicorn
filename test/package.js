@@ -24,6 +24,8 @@ const deprecatedRules = Object.entries(eslintPluginUnicorn.rules)
 	.filter(([, {meta: {deprecated}}]) => deprecated)
 	.map(([ruleId]) => ruleId);
 
+const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
+
 const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 	// Doesn't show code samples since it's just focused on filenames.
 	'filename-case',
@@ -64,7 +66,7 @@ test('Every rule is defined in index file in alphabetical order', t => {
 	);
 	t.is(
 		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.all),
-		ruleFiles.length - deprecatedRules.length,
+		ruleFiles.filter(file => isJavaScriptRule(eslintPluginUnicorn.rules[path.basename(file, '.js')])).length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
 	);
 });

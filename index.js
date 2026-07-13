@@ -48,6 +48,8 @@ const getExternalRules = rules => Object.fromEntries(
 		.map(ruleName => [ruleName, 'off']),
 );
 
+const isJavaScriptRule = rule => !rule.meta.languages || rule.meta.languages.includes('js/js') || rule.meta.languages.includes('*');
+
 const recommendedRules = Object.fromEntries(Object.entries(rules).map(([id, rule]) => [
 	`unicorn/${id}`,
 	rule.meta.docs.recommended ? 'error' : 'off',
@@ -60,10 +62,14 @@ const unopinionatedRules = Object.fromEntries(Object.entries(rules).map(([id, ru
 
 // TODO: Enable `prefer-iterator-concat` in the recommended and unopinionated configs when targeting Node.js 26.
 
-const allRules = Object.fromEntries(Object.keys(rules).map(id => [
-	`unicorn/${id}`,
-	'error',
-]));
+const allRules = Object.fromEntries(
+	Object.entries(rules)
+		.filter(([, rule]) => isJavaScriptRule(rule))
+		.map(([id]) => [
+			`unicorn/${id}`,
+			'error',
+		]),
+);
 
 const createConfig = (rules, flatConfigName) => ({
 	...flatConfigBase,

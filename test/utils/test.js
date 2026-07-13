@@ -6,6 +6,7 @@ import {Linter} from 'eslint';
 import plugin from '../../index.js';
 import SnapshotRuleTester from './snapshot-rule-tester.js';
 import parsers from './parsers.js';
+import languages from './languages.js';
 import {DEFAULT_LANGUAGE_OPTIONS, normalizeLanguageOptions, mergeLanguageOptions} from './language-options.js';
 
 const RULES_REPORTING_EMPTY_FILE = new Set([
@@ -56,6 +57,14 @@ function assertNoManualEmptyFileTestCases(ruleId, testCases) {
 	}
 }
 
+const getEmptyFileLanguage = rule => {
+	if (rule.meta.languages?.includes('js/js') || rule.meta.languages?.includes('*')) {
+		return;
+	}
+
+	return Object.values(languages).find(({language}) => rule.meta.languages?.includes(language));
+};
+
 // https://github.com/tc39/proposal-array-is-template-object
 const isTemplateObject = value => Array.isArray(value?.raw);
 // https://github.com/tc39/proposal-string-cooked
@@ -93,6 +102,8 @@ class Tester {
 			return;
 		}
 
+		const language = getEmptyFileLanguage(rule);
+
 		Reflect.apply(test, undefined, [`empty file: ${ruleId}`, t => {
 			const linter = new Linter();
 			const messages = linter.verify(
@@ -100,11 +111,13 @@ class Tester {
 				// Avoid a separate `{files}` config-array entry here. It makes ESLint merge an extra config for every empty-file smoke test.
 				{
 					files: ['**'],
+					...language,
 					languageOptions: DEFAULT_LANGUAGE_OPTIONS,
 					linterOptions: {
 						reportUnusedDisableDirectives: 'off',
 					},
 					plugins: {
+						...language?.plugins,
 						'rule-to-test': {
 							rules: {
 								[ruleId]: rule,
@@ -115,7 +128,7 @@ class Tester {
 						[`rule-to-test/${ruleId}`]: 'error',
 					},
 				},
-				{filename: 'index.js'},
+				{filename: language ? `index.${language.name}` : 'index.js'},
 			);
 
 			t.deepEqual(messages, []);

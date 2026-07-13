@@ -312,6 +312,7 @@ export default defineConfig([
 | [prefer-else-if](docs/rules/prefer-else-if.md)                                                             | Prefer `else if` over adjacent `if` statements with related conditions.                                                        | ✅    | 🔧 | 💡 |    |
 | [prefer-error-is-error](docs/rules/prefer-error-is-error.md)                                               | Prefer `Error.isError()` when checking for errors.                                                                             |      | 🔧 |    |    |
 | [prefer-event-target](docs/rules/prefer-event-target.md)                                                   | Prefer `EventTarget` over `EventEmitter`.                                                                                      | ✅ ☑️ |    |    |    |
+| [prefer-explicit-viewport-units](docs/rules/prefer-explicit-viewport-units.md)                             | Prefer explicit viewport units.                                                                                                |      |    | 💡 |    |
 | [prefer-export-from](docs/rules/prefer-export-from.md)                                                     | Prefer `export…from` when re-exporting.                                                                                        | ✅    | 🔧 | 💡 |    |
 | [prefer-flat-math-min-max](docs/rules/prefer-flat-math-min-max.md)                                         | Prefer flat `Math.min()` and `Math.max()` calls over nested calls.                                                             | ✅ ☑️ | 🔧 |    |    |
 | [prefer-get-or-insert-computed](docs/rules/prefer-get-or-insert-computed.md)                               | Prefer `.getOrInsertComputed()` when the default value has side effects.                                                       | ✅    | 🔧 |    |    |
@@ -466,6 +467,7 @@ export default defineConfig([
 		},
 		language: 'css/css',
 		rules: {
+			'unicorn/prefer-explicit-viewport-units': 'error',
 			'unicorn/prefer-https': 'error',
 			'unicorn/text-encoding-identifier-case': 'error',
 		},
@@ -518,6 +520,7 @@ These rules also work on specific non-JavaScript languages:
 | [`no-missing-local-resource`](docs/rules/no-missing-local-resource.md) | ✅ | ✅ |  | ✅ |
 | [`no-shorthand-property-overrides`](docs/rules/no-shorthand-property-overrides.md) | ✅ |  |  |  |
 | [`no-transition-all`](docs/rules/no-transition-all.md) | ✅ |  |  |  |
+| [`prefer-explicit-viewport-units`](docs/rules/prefer-explicit-viewport-units.md) | ✅ |  |  |  |
 | [`require-frontmatter-fields`](docs/rules/require-frontmatter-fields.md) |  |  |  | ✅ |
 | [`text-encoding-identifier-case`](docs/rules/text-encoding-identifier-case.md) | ✅ | ✅ |  |  |
 
@@ -555,7 +558,7 @@ export default defineConfig([
 
 ### All config
 
-This plugin exports an `all` config that enables every rule, except deprecated ones.
+This plugin exports an `all` config that enables every JavaScript-compatible rule, except deprecated ones.
 
 ```js
 import unicorn from 'eslint-plugin-unicorn';

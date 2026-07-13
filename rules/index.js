@@ -221,6 +221,7 @@ export {default as 'prefer-early-return'} from './prefer-early-return.js';
 export {default as 'prefer-else-if'} from './prefer-else-if.js';
 export {default as 'prefer-error-is-error'} from './prefer-error-is-error.js';
 export {default as 'prefer-event-target'} from './prefer-event-target.js';
+export {default as 'prefer-explicit-viewport-units'} from './prefer-explicit-viewport-units.js';
 export {default as 'prefer-export-from'} from './prefer-export-from.js';
 export {default as 'prefer-flat-math-min-max'} from './prefer-flat-math-min-max.js';
 export {default as 'prefer-get-or-insert-computed'} from './prefer-get-or-insert-computed.js';
