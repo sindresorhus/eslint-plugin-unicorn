@@ -7,21 +7,23 @@ const isIterable = object => typeof object?.[Symbol.iterator] === 'function';
 */
 
 /**
-Iterate ESLint fix or ESLint problem
+Call `callback` for each ESLint fix or ESLint problem in `value`, flattening nested iterables.
+
+This runs for every listener call of every rule, so it deliberately avoids generators and intermediate arrays.
 
 @template {UnicornReportFixer | UnicornProblems} ValueType
 
 @param {ValueType} value
-@returns {IterableIterator<ValueType extends UnicornReportFixer ? ESLint.Rule.Fix : UnicornProblem>}
+@param {(value: ValueType extends UnicornReportFixer ? ESLint.Rule.Fix : UnicornProblem) => void} callback
+@returns {void}
 */
-export function * iterateFixOrProblems(value) {
+export function forEachFixOrProblem(value, callback) {
 	if (!isIterable(value)) {
-		yield value;
+		callback(value);
 		return;
 	}
 
 	for (const element of value) {
-		yield * iterateFixOrProblems(element);
+		forEachFixOrProblem(element, callback);
 	}
 }
-

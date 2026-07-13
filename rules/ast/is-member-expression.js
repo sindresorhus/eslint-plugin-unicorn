@@ -1,4 +1,7 @@
-/* eslint-disable complexity */
+import matchesNameConstraint, {hasNameConstraint} from './matches-name-constraint.js';
+
+const noOptions = {};
+
 /**
 @param {
 	{
@@ -19,9 +22,7 @@ export default function isMemberExpression(node, options) {
 
 	if (typeof options === 'string') {
 		options = {properties: [options]};
-	}
-
-	if (Array.isArray(options)) {
+	} else if (Array.isArray(options)) {
 		options = {properties: options};
 	}
 
@@ -32,20 +33,7 @@ export default function isMemberExpression(node, options) {
 		objects,
 		optional,
 		computed,
-	} = {
-		property: '',
-		properties: [],
-		object: '',
-		...options,
-	};
-
-	if (property) {
-		properties = [property];
-	}
-
-	if (object) {
-		objects = [object];
-	}
+	} = options ?? noOptions;
 
 	if (
 		(optional === true && (node.optional !== optional))
@@ -58,14 +46,8 @@ export default function isMemberExpression(node, options) {
 		return false;
 	}
 
-	if (
-		Array.isArray(properties)
-		&& properties.length > 0
-	) {
-		if (
-			node.property.type !== 'Identifier'
-			|| !properties.includes(node.property.name)
-		) {
+	if (hasNameConstraint(property, properties)) {
+		if (!matchesNameConstraint(node.property, property, properties)) {
 			return false;
 		}
 
@@ -83,10 +65,5 @@ export default function isMemberExpression(node, options) {
 		return false;
 	}
 
-	return !(Array.isArray(objects)
-		&& objects.length > 0
-		&& (
-			node.object.type !== 'Identifier'
-			|| !objects.includes(node.object.name)
-		));
+	return matchesNameConstraint(node.object, object, objects);
 }

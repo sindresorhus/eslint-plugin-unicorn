@@ -83,6 +83,25 @@ const prepareOptions = ({
 	};
 };
 
+/*
+Preparing the options builds around a hundred maps and regexes, and `create` runs once per linted file. ESLint hands the same options object to every file, so the prepared result can be cached on it. The prepared options are only ever read, never mutated.
+*/
+const preparedOptionsCache = new WeakMap();
+
+const getPreparedOptions = options => {
+	if (!options) {
+		return prepareOptions(options);
+	}
+
+	let preparedOptions = preparedOptionsCache.get(options);
+	if (!preparedOptions) {
+		preparedOptions = prepareOptions(options);
+		preparedOptionsCache.set(options, preparedOptions);
+	}
+
+	return preparedOptions;
+};
+
 const getWordReplacements = (word, {replacements, allowList}) => {
 	// Skip constants and allowList
 	if (isUpperCase(word) || allowList.get(word)) {
@@ -313,7 +332,7 @@ const shouldAutofix = (variable, context) =>
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const options = prepareOptions(context.options[0]);
+	const options = getPreparedOptions(context.options[0]);
 	const filenameWithExtension = context.physicalFilename;
 
 	// A `class` declaration produces two variables in two scopes:

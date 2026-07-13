@@ -1,6 +1,8 @@
 import isMemberExpression from './is-member-expression.js';
 import {isCallExpression} from './call-or-new-expression.js';
 
+const noOptions = {};
+
 /**
 @param {
 	{
@@ -23,24 +25,18 @@ import {isCallExpression} from './call-or-new-expression.js';
 @returns {string}
 */
 export default function isMethodCall(node, options) {
-	if (typeof options === 'string') {
-		options = {methods: [options]};
+	// This is the most used AST check in the plugin, bail out on the node shape before touching the options.
+	if (node?.type !== 'CallExpression' || node.callee.type !== 'MemberExpression') {
+		return false;
 	}
 
-	if (Array.isArray(options)) {
+	if (typeof options === 'string') {
+		options = {methods: [options]};
+	} else if (Array.isArray(options)) {
 		options = {methods: options};
 	}
 
-	const {
-		optionalCall,
-		optionalMember,
-		method,
-		methods,
-	} = {
-		method: '',
-		methods: [],
-		...options,
-	};
+	options ??= noOptions;
 
 	return (
 		isCallExpression(node, {
@@ -48,15 +44,15 @@ export default function isMethodCall(node, options) {
 			minimumArguments: options.minimumArguments,
 			maximumArguments: options.maximumArguments,
 			allowSpreadElement: options.allowSpreadElement,
-			optional: optionalCall,
+			optional: options.optionalCall,
 		})
 		&& isMemberExpression(node.callee, {
 			object: options.object,
 			objects: options.objects,
 			computed: options.computed,
-			property: method,
-			properties: methods,
-			optional: optionalMember,
+			property: options.method,
+			properties: options.methods,
+			optional: options.optionalMember,
 		})
 	);
 }

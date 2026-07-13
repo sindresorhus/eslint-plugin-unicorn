@@ -151,6 +151,16 @@ const defaultReplacementTermPatterns = Object.entries(defaultReplacements)
 	})
 	.map(([pattern]) => new RegExp(`^(?:${pattern})$`, 'iv'));
 
+/*
+Most patterns are a single literal word, which must appear verbatim in the text for the pattern to match. Checking for it with `String#includes` is far cheaper than running the regex, and lets the vast majority of comments skip almost every replacement. Patterns of any other shape get no required text and are always run.
+*/
+const literalWordPattern = /^\\b(?<word>[\dA-Za-z]+)\\b$/v;
+
+/*
+The `i` flag folds case the way Unicode does, which `String#toLowerCase` does not always reproduce. Checking every code point against the regex engine turns up exactly one character that disagrees for an ASCII word: `ſ` matches `/\bsql\b/iu`, but lowercases to itself, so a substring check would wrongly skip the pattern. Comments containing it fall back to running every pattern.
+*/
+const unfoldableCharacter = 'ſ';
+
 function normalizeReplacement(pattern, options) {
 	if (typeof options === 'string') {
 		options = {
@@ -158,10 +168,28 @@ function normalizeReplacement(pattern, options) {
 		};
 	}
 
+	const caseSensitive = options.caseSensitive !== false;
+	const word = literalWordPattern.exec(pattern)?.groups.word;
+
 	return {
-		regex: new RegExp(pattern, options.caseSensitive === false ? 'giu' : 'gu'),
+		caseSensitive,
+		requiredText: caseSensitive ? word : word?.toLowerCase(),
+		regex: new RegExp(pattern, caseSensitive ? 'gu' : 'giu'),
 		replacement: options.replacement,
 	};
+}
+
+// A pattern that is one literal word cannot match unless that word appears in the text.
+function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseCommentValue) {
+	if (requiredText === undefined) {
+		return true;
+	}
+
+	if (caseSensitive) {
+		return commentValue.includes(requiredText);
+	}
+
+	return lowercaseCommentValue === undefined || lowercaseCommentValue.includes(requiredText);
 }
 
 function prepareReplacements({extendDefaultReplacements = true, replacements = {}} = {}) {
@@ -1006,8 +1034,15 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 
 	let bestProblem;
 	const searchableCommentValue = getSearchableCommentValue(comment.value);
+	const lowercaseSearchableCommentValue = searchableCommentValue.includes(unfoldableCharacter)
+		? undefined
+		: searchableCommentValue.toLowerCase();
 
 	for (const replacement of replacements) {
+		if (!hasRequiredText(replacement, searchableCommentValue, lowercaseSearchableCommentValue)) {
+			continue;
+		}
+
 		replacement.regex.lastIndex = 0;
 
 		let match;

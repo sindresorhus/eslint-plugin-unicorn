@@ -174,6 +174,8 @@ ruleTest.snapshot({
 		'// NodeJS uses Javascript.',
 		'// stackoverflow question',
 		'// mac OS X and MacOS',
+		// `ſ` case-folds to `s` for the `i` regex flag, but `String#toLowerCase` leaves it alone.
+		'// the ſql query',
 		'// you tube video',
 		'// github issue',
 		// Same term as a dotted property (skipped) and as standalone prose (flagged)

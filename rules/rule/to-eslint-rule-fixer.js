@@ -1,4 +1,4 @@
-import {iterateFixOrProblems} from './utilities.js';
+import {forEachFixOrProblem} from './utilities.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -31,10 +31,14 @@ export default function toEslintRuleFixer(fix) {
 	return fixer => {
 		const unicornReport = fix(fixer, fixOptions);
 
-		const eslintReport = iterateFixOrProblems(unicornReport);
+		const eslintReport = [];
 
 		try {
-			return [...eslintReport];
+			forEachFixOrProblem(unicornReport, eslintFix => {
+				eslintReport.push(eslintFix);
+			});
+
+			return eslintReport;
 		} catch (error) {
 			if (error instanceof FixAbortError) {
 				return;
