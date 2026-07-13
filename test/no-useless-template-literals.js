@@ -24,6 +24,10 @@ test.snapshot({
 			code: 'const string = <const>`${Math.random() > 0.5 ? 1 : 0}`;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const value: string = getValue(); const string = `${value}` as const;',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'const string = `${value}`;',
