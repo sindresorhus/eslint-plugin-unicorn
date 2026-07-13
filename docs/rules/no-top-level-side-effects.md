@@ -13,6 +13,20 @@ This rule reports direct top-level expression statements with side effects in fi
 
 The rule ignores files without exports and executable scripts with a shebang. Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are treated as having no exports, since those exports are erased when TypeScript is compiled to JavaScript. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
+With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
+
+```vue
+<script>
+export default {};
+runSideEffectOnce(); // ❌
+</script>
+
+<script setup>
+import {watch} from 'vue';
+watch(source, callback); // ✅
+</script>
+```
+
 ## Examples
 
 ```js
