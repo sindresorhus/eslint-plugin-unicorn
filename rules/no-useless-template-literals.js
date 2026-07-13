@@ -5,9 +5,7 @@ import {
 	isRegexLiteral,
 	isTaggedTemplateLiteral,
 } from './ast/index.js';
-import {
-	escapeString,
-} from './utils/index.js';
+import {escapeString, isTypeScriptFile} from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
 
 const MESSAGE_ID = 'no-useless-template-literals';
@@ -286,6 +284,26 @@ function getReplacement(node, sourceCode, problems) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const isTypeScript = isTypeScriptFile(context.physicalFilename);
+	const typeChecker = sourceCode.parserServices?.program?.getTypeChecker();
+
+	const shouldIgnoreTypeScriptTemplate = node => {
+		if (!isTypeScript) {
+			return false;
+		}
+
+		if (!typeChecker) {
+			return true;
+		}
+
+		const typeScriptNode = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
+		if (!typeScriptNode) {
+			return true;
+		}
+
+		const type = typeChecker.getContextualType(typeScriptNode) ?? typeChecker.getTypeAtLocation(typeScriptNode);
+		return !type || !typeChecker.isTypeAssignableTo(typeChecker.getStringType(), type);
+	};
 
 	context.on('TemplateLiteral', node => {
 		if (isTaggedTemplateLiteral(node)) {
@@ -312,7 +330,7 @@ const create = context => {
 				};
 			}
 
-			if (isWrappedInConstAssertion(node)) {
+			if (isWrappedInConstAssertion(node) || shouldIgnoreTypeScriptTemplate(node)) {
 				return;
 			}
 

@@ -1,7 +1,23 @@
 /* eslint-disable no-template-curly-in-string */
+import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typescript = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {parser: parsers.typescript},
+});
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -12,22 +28,23 @@ test.snapshot({
 		'const string = String.raw`${"value"}`;',
 		'const string = html`<p>${"value"}</p>`;',
 		'const string = `before${"head" + value + "tail"}after`;',
-		{
-			code: 'const string = `before${value as string}after`;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const string = `${Math.random() > 0.5 ? 1 : 0}` as const;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const string = <const>`${Math.random() > 0.5 ? 1 : 0}`;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const value: string = getValue(); const string = `${value}` as const;',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('const string = `before${value as string}after`;'),
+		typescript('const string = `${Math.random() > 0.5 ? 1 : 0}` as const;'),
+		typescript('const string = <const>`${Math.random() > 0.5 ? 1 : 0}`;'),
+		typescript('const value: string = getValue(); const string = `${value}` as const;'),
+		typescript('const string = `${value}`;'),
+		typescript(outdent`
+			declare function someFunctionCall(options: {someParam: '0' | '1'}): void;
+			const someCondition = Math.random() > 0.5;
+			someFunctionCall({someParam: \`\${someCondition ? 1 : 0}\`});
+		`),
+		typeAware(outdent`
+			declare function someFunctionCall(options: {someParam: '0' | '1'}): void;
+			const someCondition = Math.random() > 0.5;
+			someFunctionCall({someParam: \`\${someCondition ? 1 : 0}\`});
+		`),
+		typeAware('declare const value: string; const string = `${value}` as const;'),
+		typeAware('declare const value: string; const string = <const>`${value}`;'),
 	],
 	invalid: [
 		'const string = `${value}`;',
@@ -49,26 +66,22 @@ test.snapshot({
 		'const string = `${true}`;',
 		'const string = `${false}`;',
 		'const string = `${null}`;',
+		typescript('const string = `${"value"}` as const;'),
+		typescript('const string = <const>`${"value"}`;'),
 		{
-			code: 'const string = `${"value"}` as const;',
+			code: 'const value = getValue(); const string = `${value}`;',
+			filename: 'file.js',
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: 'const string = <const>`${"value"}`;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const string = `${value}` as string;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const string = <string>`${value}`;',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'const string = `${value}` satisfies string;',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typeAware('declare const value: string; const string = `${value}` as string;'),
+		typeAware('declare const value: string; const string = <string>`${value}`;'),
+		typeAware('declare const value: string; const string = `${value}` satisfies string;'),
+		typeAware('declare const value: string; const string = `${value}`;'),
+		typeAware(outdent`
+			declare function someFunctionCall(options: {someParam: string}): void;
+			const someCondition = Math.random() > 0.5;
+			someFunctionCall({someParam: \`\${someCondition ? 1 : 0}\`});
+		`),
 		'const string = `${"hello"}${"world"}`;',
 		'const string = `before${"middle"}after`;',
 		'const string = `before${"middle"}${value}after`;',
@@ -110,9 +123,5 @@ test.snapshot({
 		},
 		'const string = `${\n\t/* comment */\n\t"value"\n}`;',
 		'const string = `before${\n\t/* comment */\n\t"middle"\n}after`;',
-		{
-			code: 'const string = `${value as string}`;',
-			languageOptions: {parser: parsers.typescript},
-		},
 	],
 });
