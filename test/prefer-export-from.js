@@ -690,5 +690,14 @@ test.snapshot({
 			import {notUsedNotExported, exported} from 'foo';
 			export {exported};
 		`,
+		outdent`
+			import {documented, other, unused} from 'foo';
+
+			/**
+			 * Preserve this documentation.
+			 */
+			export const documentedAlias = documented;
+			export {other};
+		`,
 	].map(code => ({code, options: [{checkUsedVariables: false}]})),
 });

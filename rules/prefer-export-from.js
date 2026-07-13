@@ -176,13 +176,13 @@ function getExported(identifier, sourceCode) {
 				&& parent.parent.declarations.length === 1
 				&& parent.parent.declarations[0] === parent
 				&& exportDeclaration.type === 'ExportNamedDeclaration'
-				&& !hasAttachedJSDocumentComment(exportDeclaration, sourceCode)
 				&& isVariableUnused(parent, sourceCode)
 			) {
 				return {
 					node: exportDeclaration,
 					name: Symbol.for(parent.id.name),
 					text: sourceCode.getText(parent.id),
+					isJSDocumentComment: hasAttachedJSDocumentComment(exportDeclaration, sourceCode),
 				};
 			}
 
@@ -273,6 +273,16 @@ function getExports(imported, sourceCode) {
 	return exports;
 }
 
+function * getReportableExports(exports) {
+	for (const exported of exports) {
+		if (exported.isJSDocumentComment) {
+			continue;
+		}
+
+		yield exported;
+	}
+}
+
 const schema = [
 	{
 		type: 'object',
@@ -336,7 +346,7 @@ function create(context) {
 				&& variables.some(({variable}) => variable.references.length === 0);
 
 			for (const {imported, exports} of variables) {
-				for (const exported of exports) {
+				for (const exported of getReportableExports(exports)) {
 					const problem = {
 						node: exported.node,
 						messageId: MESSAGE_ID_ERROR,
