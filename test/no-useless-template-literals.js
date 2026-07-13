@@ -16,6 +16,14 @@ test.snapshot({
 			code: 'const string = `before${value as string}after`;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const string = `${Math.random() > 0.5 ? 1 : 0}` as const;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const string = <const>`${Math.random() > 0.5 ? 1 : 0}`;',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'const string = `${value}`;',
@@ -37,6 +45,26 @@ test.snapshot({
 		'const string = `${true}`;',
 		'const string = `${false}`;',
 		'const string = `${null}`;',
+		{
+			code: 'const string = `${"value"}` as const;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const string = <const>`${"value"}`;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const string = `${value}` as string;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const string = <string>`${value}`;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const string = `${value}` satisfies string;',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'const string = `${"hello"}${"world"}`;',
 		'const string = `before${"middle"}after`;',
 		'const string = `before${"middle"}${value}after`;',

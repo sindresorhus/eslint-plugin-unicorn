@@ -181,6 +181,21 @@ function isExpressionOnlyTemplate(node) {
 	);
 }
 
+function isWrappedInConstAssertion(node) {
+	const {parent} = node;
+
+	return (
+		(
+			parent.type === 'TSAsExpression'
+			|| parent.type === 'TSTypeAssertion'
+		)
+		&& parent.expression === node
+		&& parent.typeAnnotation.type === 'TSTypeReference'
+		&& parent.typeAnnotation.typeName.type === 'Identifier'
+		&& parent.typeAnnotation.typeName.name === 'const'
+	);
+}
+
 function isDirectiveProloguePosition(node) {
 	const {parent} = node;
 
@@ -295,6 +310,10 @@ const create = context => {
 						return fixer.replaceText(node, escapeString(problem.cooked));
 					},
 				};
+			}
+
+			if (isWrappedInConstAssertion(node)) {
+				return;
 			}
 
 			const hasComments = hasCommentsInsideInterpolation(node, sourceCode, 0);
