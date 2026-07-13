@@ -296,13 +296,17 @@ const create = context => {
 			return true;
 		}
 
-		const typeScriptNode = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
-		if (!typeScriptNode) {
+		try {
+			const typeScriptNode = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
+			if (!typeScriptNode) {
+				return true;
+			}
+
+			const type = typeChecker.getContextualType(typeScriptNode) ?? typeChecker.getTypeAtLocation(typeScriptNode);
+			return !type || !typeChecker.isTypeAssignableTo(typeChecker.getStringType(), type);
+		} catch {
 			return true;
 		}
-
-		const type = typeChecker.getContextualType(typeScriptNode) ?? typeChecker.getTypeAtLocation(typeScriptNode);
-		return !type || !typeChecker.isTypeAssignableTo(typeChecker.getStringType(), type);
 	};
 
 	context.on('TemplateLiteral', node => {
