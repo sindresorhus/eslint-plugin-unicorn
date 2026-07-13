@@ -9,8 +9,8 @@ const typescript = code => ({
 	code,
 	filename: 'file.ts',
 	languageOptions: {
-		parser: parsers.typescript,
-		parserOptions: {project: false},
+		parser: typescriptEslintParser,
+		parserOptions: {project: false, projectService: false},
 	},
 });
 const typeAware = code => ({
