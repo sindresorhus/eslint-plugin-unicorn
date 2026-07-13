@@ -8,7 +8,10 @@ const {test} = getTester(import.meta);
 const typescript = code => ({
 	code,
 	filename: 'file.ts',
-	languageOptions: {parser: parsers.typescript},
+	languageOptions: {
+		parser: parsers.typescript,
+		parserOptions: {project: false},
+	},
 });
 const typeAware = code => ({
 	code,
