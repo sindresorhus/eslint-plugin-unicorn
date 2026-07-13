@@ -24,7 +24,7 @@ const arrowBodyNeedsParenthesesTypes = new Set([
 	'SequenceExpression',
 ]);
 
-const hasTypeArguments = node => node.typeArguments || node.typeParameters;
+const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
 
 const isFilterCallExpression = node => isMethodCall(node, {
 	method: 'filter',
