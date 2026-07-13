@@ -29,6 +29,26 @@ const getSpecifierName = node => {
 
 const isTypeExport = specifier => specifier.exportKind === 'type' || specifier.parent.exportKind === 'type';
 
+function hasAttachedJSDocumentComment(node, sourceCode) {
+	const comment = sourceCode.getTokenBefore(node, {includeComments: true});
+	if (
+		comment?.type !== 'Block'
+		|| !comment.value.startsWith('*')
+		|| comment.value.startsWith('**')
+	) {
+		return false;
+	}
+
+	const previousToken = sourceCode.getTokenBefore(comment);
+	const commentStart = sourceCode.getLoc(comment).start;
+	const commentEnd = sourceCode.getLoc(comment).end;
+	const nodeStart = sourceCode.getLoc(node).start;
+	return (
+		(!previousToken || sourceCode.getLoc(previousToken).end.line < commentStart.line)
+		&& (commentEnd.line === nodeStart.line || commentEnd.line === nodeStart.line - 1)
+	);
+}
+
 function * removeImportOrExport(node, fixer, context) {
 	switch (node.type) {
 		case 'ImportSpecifier':
@@ -146,6 +166,7 @@ function getExported(identifier, sourceCode) {
 		}
 
 		case 'VariableDeclarator': {
+			const exportDeclaration = parent.parent.parent;
 			if (
 				parent.init === identifier
 				&& parent.id.type === 'Identifier'
@@ -154,13 +175,14 @@ function getExported(identifier, sourceCode) {
 				&& parent.parent.kind === 'const'
 				&& parent.parent.declarations.length === 1
 				&& parent.parent.declarations[0] === parent
-				&& parent.parent.parent.type === 'ExportNamedDeclaration'
+				&& exportDeclaration.type === 'ExportNamedDeclaration'
 				&& isVariableUnused(parent, sourceCode)
 			) {
 				return {
-					node: parent.parent.parent,
+					node: exportDeclaration,
 					name: Symbol.for(parent.id.name),
 					text: sourceCode.getText(parent.id),
+					isJSDocumentComment: hasAttachedJSDocumentComment(exportDeclaration, sourceCode),
 				};
 			}
 
@@ -251,6 +273,16 @@ function getExports(imported, sourceCode) {
 	return exports;
 }
 
+function * getReportableExports(exports) {
+	for (const exported of exports) {
+		if (exported.isJSDocumentComment) {
+			continue;
+		}
+
+		yield exported;
+	}
+}
+
 const schema = [
 	{
 		type: 'object',
@@ -314,7 +346,7 @@ function create(context) {
 				&& variables.some(({variable}) => variable.references.length === 0);
 
 			for (const {imported, exports} of variables) {
-				for (const exported of exports) {
+				for (const exported of getReportableExports(exports)) {
 					const problem = {
 						node: exported.node,
 						messageId: MESSAGE_ID_ERROR,

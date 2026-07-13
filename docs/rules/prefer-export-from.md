@@ -11,6 +11,8 @@
 
 When re-exporting from a module, it's unnecessary to import and then export. It can be done in a single `export…from` declaration.
 
+Single-const re-export assignments with an attached JSDoc comment are left unchanged to preserve the documentation.
+
 ## Examples
 
 ```js

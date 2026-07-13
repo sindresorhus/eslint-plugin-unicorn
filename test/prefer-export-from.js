@@ -21,6 +21,18 @@ test.snapshot({
 			const defaultExport = require('foo');
 			export default defaultExport;
 		`,
+		outdent`
+			import {foo} from 'foo';
+
+			/**
+			 * Add documentation to the re-export.
+			 */
+			export const baz = foo;
+		`,
+		outdent`
+			import {foo} from 'foo';
+			/** Add documentation to the re-export. */ export const baz = foo;
+		`,
 
 		// Variable is not `const`
 		outdent`
@@ -325,6 +337,44 @@ test.snapshot({
 			use(named);
 			export {named};
 		`,
+		outdent`
+			import {foo} from 'foo';
+			// This is not JSDoc.
+			export const baz = foo;
+		`,
+		outdent`
+			import {foo} from 'foo';
+
+			/**
+			 * Documentation for the direct export.
+			 */
+			export {foo};
+		`,
+		outdent`
+			import {foo} from 'foo';
+			/*
+			 * This is not JSDoc.
+			 */
+			export const baz = foo;
+		`,
+		outdent`
+			import {foo} from 'foo';
+			/*** This is not JSDoc. */
+			export const baz = foo;
+		`,
+		outdent`
+			import {foo} from 'foo'; /** This comment belongs to the import. */
+			export const baz = foo;
+		`,
+		outdent`
+			import {foo} from 'foo';
+
+			/**
+			 * This comment is detached from the declaration.
+			 */
+
+			export const baz = foo;
+		`,
 	],
 });
 
@@ -339,6 +389,15 @@ test.snapshot({
 			type MyDispatchType = Dispatch<MyActions>
 
 			export const useDispatch: () => DispatchAllActions = reduxUseDispatch
+		`,
+		outdent`
+			import {foo} from 'foo';
+			type Baz = string;
+
+			/**
+			 * Add documentation to the re-export.
+			 */
+			export const baz = foo;
 		`,
 		// #1645
 		outdent`
@@ -631,6 +690,14 @@ test.snapshot({
 			import {notUsedNotExported, exported} from 'foo';
 			export {exported};
 		`,
+		outdent`
+			import {documented, other, unused} from 'foo';
+
+			/**
+			 * Preserve this documentation.
+			 */
+			export const documentedAlias = documented;
+			export {other};
+		`,
 	].map(code => ({code, options: [{checkUsedVariables: false}]})),
 });
-
