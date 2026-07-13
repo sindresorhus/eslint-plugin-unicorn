@@ -40,6 +40,19 @@ const isFilterCallExpression = node => isMethodCall(node, {
 	computed: false,
 });
 
+const isTypeScriptVueSfc = sourceCode => {
+	const documentFragment = sourceCode.parserServices.getDocumentFragment?.();
+	return documentFragment?.children.some(node =>
+		node.type === 'VElement'
+		&& node.name === 'script'
+		&& node.startTag.attributes.some(attribute =>
+			!attribute.directive
+			&& attribute.key.name === 'lang'
+			&& (attribute.value?.value === 'ts' || attribute.value?.value === 'tsx'),
+		),
+	) ?? false;
+};
+
 const isSimpleSingleParameterArrowCallback = node =>
 	node.type === 'ArrowFunctionExpression'
 	&& !node.async
@@ -192,7 +205,10 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 }
 
 function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context) {
-	if (isTypeScriptFile(context.physicalFilename)) {
+	if (
+		isTypeScriptFile(context.physicalFilename)
+		|| isTypeScriptVueSfc(context.sourceCode)
+	) {
 		return;
 	}
 
