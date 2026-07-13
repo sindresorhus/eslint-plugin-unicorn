@@ -1,3 +1,11 @@
+import matchesNameConstraint from './matches-name-constraint.js';
+
+const noOptions = {};
+
+const callExpressionTypes = ['CallExpression'];
+const newExpressionTypes = ['NewExpression'];
+const callOrNewExpressionTypes = ['CallExpression', 'NewExpression'];
+
 /**
 @typedef {
 	{
@@ -19,30 +27,19 @@ function create(node, options, types) {
 
 	if (typeof options === 'string') {
 		options = {names: [options]};
-	}
-
-	if (Array.isArray(options)) {
+	} else if (Array.isArray(options)) {
 		options = {names: options};
 	}
 
-	let {
+	const {
 		name,
 		names,
 		argumentsLength,
-		minimumArguments,
-		maximumArguments,
-		allowSpreadElement,
+		minimumArguments = 0,
+		maximumArguments = Infinity,
+		allowSpreadElement = false,
 		optional,
-	} = {
-		minimumArguments: 0,
-		maximumArguments: Infinity,
-		allowSpreadElement: false,
-		...options,
-	};
-
-	if (name) {
-		names = [name];
-	}
+	} = options ?? noOptions;
 
 	if (
 		(optional === true && (node.optional !== optional))
@@ -79,19 +76,14 @@ function create(node, options, types) {
 		}
 	}
 
-	return !(Array.isArray(names)
-		&& names.length > 0
-		&& (
-			node.callee.type !== 'Identifier'
-			|| !names.includes(node.callee.name)
-		));
+	return matchesNameConstraint(node.callee, name, names);
 }
 
 /**
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-export const isCallExpression = (node, options) => create(node, options, ['CallExpression']);
+export const isCallExpression = (node, options) => create(node, options, callExpressionTypes);
 
 /**
 @param {CallOrNewExpressionCheckOptions} [options]
@@ -102,11 +94,11 @@ export const isNewExpression = (node, options) => {
 		throw new TypeError('Cannot check node.optional in `isNewExpression`.');
 	}
 
-	return create(node, options, ['NewExpression']);
+	return create(node, options, newExpressionTypes);
 };
 
 /**
 @param {CallOrNewExpressionCheckOptions} [options]
 @returns {boolean}
 */
-export const isCallOrNewExpression = (node, options) => create(node, options, ['CallExpression', 'NewExpression']);
+export const isCallOrNewExpression = (node, options) => create(node, options, callOrNewExpressionTypes);

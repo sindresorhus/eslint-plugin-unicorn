@@ -1,4 +1,4 @@
-import {iterateFixOrProblems} from './utilities.js';
+import {forEachFixOrProblem} from './utilities.js';
 import toEslintProblem from './to-eslint-problem.js';
 
 /**
@@ -16,25 +16,30 @@ import toEslintProblem from './to-eslint-problem.js';
 
 /**
 @param {UnicornContext} context
-@param {UnicornRuleListen} listener
-@returns {Listener}
+@param {UnicornRuleListen[]} listeners
+@returns {EslintListener}
 */
-export default function toEslintListener(context, listener) {
-	// Listener arguments can be `codePath, node` or `node`
+export default function toEslintListener(context, listeners) {
+	const reportProblem = unicornProblem => {
+		if (unicornProblem) {
+			context.report(toEslintProblem(unicornProblem));
+		}
+	};
 
-	/**
-	@type {UnicornRuleListen}
+	/*
+	Declared with fixed arity rather than rest arguments, since this runs for every node visit of every rule and a per-call rest array is measurable.
+	Three parameters cover every ESLint listener signature, the widest being `onCodePathSegmentLoop(fromSegment, toSegment, node)`.
 	*/
-	return (...listenerArguments) => {
-		const unicornProblems = listener(...listenerArguments);
+	return (first, second, third) => {
+		for (const listener of listeners) {
+			const unicornProblems = listener(first, second, third);
 
-		for (const unicornProblem of iterateFixOrProblems(unicornProblems)) {
-			if (!unicornProblem) {
+			// Listeners report nothing on the vast majority of nodes, so keep that path free of iterator allocation.
+			if (!unicornProblems) {
 				continue;
 			}
 
-			const eslintProblem = toEslintProblem(unicornProblem);
-			context.report(eslintProblem);
+			forEachFixOrProblem(unicornProblems, reportProblem);
 		}
 	};
 }

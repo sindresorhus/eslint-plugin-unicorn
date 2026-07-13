@@ -48,14 +48,7 @@ export default class UnicornListeners {
 		const eslintListeners = {};
 
 		for (const [selector, listeners] of this.#listeners) {
-			eslintListeners[selector] = toEslintListener(
-				this.#context,
-				function * (...listenerArguments) {
-					for (const listener of listeners) {
-						yield listener(...listenerArguments);
-					}
-				},
-			);
+			eslintListeners[selector] = toEslintListener(this.#context, listeners);
 		}
 
 		return eslintListeners;
