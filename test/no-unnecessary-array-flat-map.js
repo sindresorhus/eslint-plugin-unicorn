@@ -19,6 +19,15 @@ const typeAware = code => ({
 	},
 });
 
+const vueWithTypeScriptParser = code => ({
+	code,
+	filename: 'file.vue',
+	languageOptions: {
+		parser: parsers.vue,
+		parserOptions: {parser: typescriptEslintParser},
+	},
+});
+
 test.snapshot({
 	valid: [
 		'array.map(value => value);',
@@ -71,6 +80,35 @@ test.snapshot({
 		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); }'),
 		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value!] : []); }'),
 		typescript('function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value satisfies string] : []); }'),
+		vueWithTypeScriptParser(outdent`
+			<script setup lang="ts">
+			type RecordType = 'a' | 'b';
+			type Record = {_id: string; type?: RecordType};
+			declare const records: Record[];
+			declare const newIds: string[];
+			const types = new Set(records.flatMap(record => newIds.includes(record._id) && record.type ? [record.type] : []));
+			</script>
+		`),
+		vueWithTypeScriptParser(outdent`
+			<script lang="ts">
+			declare const array: Array<{active: boolean}>;
+			array.flatMap(value => value.active ? [value] : []);
+			</script>
+		`),
+		vueWithTypeScriptParser(outdent`
+			<script lang="tsx">
+			type Item = {active: boolean; id: string};
+			declare const array: Item[];
+			array.flatMap(value => value.active ? [value.id] : []);
+			</script>
+		`),
+		vueWithTypeScriptParser(outdent`
+			<script setup lang="tsx">
+			type Item = {active: boolean; id: string};
+			declare const array: Item[];
+			array.flatMap(value => value.active ? [value.id] : []);
+			</script>
+		`),
 	],
 	invalid: [
 		'array.flatMap(value => [value]);',
@@ -141,5 +179,24 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare const array: string[]; array.flatMap(value => [value]);'),
+		typescript('array.filter(value => value).flatMap(value => [value as string]);'),
+		typescript('array.filter(value => value).flatMap(value => [value satisfies string]);'),
+		typescript('array.filter(value => value).flatMap(value => [<string>value]);'),
+		typescript('array.filter(value => value).flatMap(value => [value!]);'),
+		typescript('array.filter(value => value).flatMap(value => [{id: value.id} as Item]);'),
+		typescript('array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]);'),
+		vueWithTypeScriptParser('<script setup lang="ts">array.flatMap(value => [value.id]);</script>'),
+		vueWithTypeScriptParser('<script setup lang="tsx">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script>'),
+		{
+			code: '<script>array.flatMap(value => value.active ? [value] : []);</script>',
+			filename: 'file.vue',
+			languageOptions: {parser: parsers.vue},
+		},
+		{
+			code: '<script setup lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>',
+			filename: 'file.vue',
+			languageOptions: {parser: parsers.vue},
+		},
+		vueWithTypeScriptParser('<script lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>'),
 	],
 });

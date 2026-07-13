@@ -5,6 +5,7 @@ import {
 	isKnownNonArray,
 	isParenthesized,
 	isSameIdentifier,
+	isTypeScriptExpressionWrapper,
 	isTypeScriptFile,
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
@@ -23,14 +24,7 @@ const arrowBodyNeedsParenthesesTypes = new Set([
 	'SequenceExpression',
 ]);
 
-const typescriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const hasTypeArguments = node => node.typeArguments || node.typeParameters;
+const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
 
 const isFilterCallExpression = node => isMethodCall(node, {
 	method: 'filter',
@@ -39,6 +33,19 @@ const isFilterCallExpression = node => isMethodCall(node, {
 	optionalMember: false,
 	computed: false,
 });
+
+const isTypeScriptVueSfc = sourceCode => {
+	const documentFragment = sourceCode.parserServices.getDocumentFragment?.();
+	return documentFragment?.children.some(node =>
+		node.type === 'VElement'
+		&& node.name === 'script'
+		&& node.startTag.attributes.some(attribute =>
+			!attribute.directive
+			&& attribute.key.name === 'lang'
+			&& (attribute.value?.value === 'ts' || attribute.value?.value === 'tsx'),
+		),
+	) ?? false;
+};
 
 const isSimpleSingleParameterArrowCallback = node =>
 	node.type === 'ArrowFunctionExpression'
@@ -72,7 +79,7 @@ function shouldParenthesizeArrowBody(node, context) {
 		return true;
 	}
 
-	return typescriptExpressionWrapperTypes.has(node.type) && shouldParenthesizeArrowBody(node.expression, context);
+	return isTypeScriptExpressionWrapper(node) && shouldParenthesizeArrowBody(node.expression, context);
 }
 
 function getCallbackResult(callback) {
@@ -192,10 +199,6 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 }
 
 function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context) {
-	if (isTypeScriptFile(context.physicalFilename)) {
-		return;
-	}
-
 	const method = isSameIdentifier(callbackResult.element, callback.params[0]) ? 'filter' : 'filter().map';
 	const problem = {
 		node: flatMapCallExpression.callee.property,
@@ -238,7 +241,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 		: problem;
 }
 
-function getProblem(flatMapCallExpression, context) {
+function getProblem(flatMapCallExpression, context, isTypeScript) {
 	if (
 		!isMethodCall(flatMapCallExpression, {
 			method: 'flatMap',
@@ -278,12 +281,17 @@ function getProblem(flatMapCallExpression, context) {
 		};
 	}
 
+	if (isTypeScript) {
+		return;
+	}
+
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('CallExpression', callExpression => getProblem(callExpression, context));
+	const isTypeScript = isTypeScriptFile(context.physicalFilename) || isTypeScriptVueSfc(context.sourceCode);
+	context.on('CallExpression', callExpression => getProblem(callExpression, context, isTypeScript));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
