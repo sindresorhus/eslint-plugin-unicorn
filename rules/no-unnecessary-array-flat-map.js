@@ -5,6 +5,7 @@ import {
 	isKnownNonArray,
 	isParenthesized,
 	isSameIdentifier,
+	isTypeScriptExpressionWrapper,
 	isTypeScriptFile,
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
@@ -21,13 +22,6 @@ const messages = {
 const arrowBodyNeedsParenthesesTypes = new Set([
 	'ObjectExpression',
 	'SequenceExpression',
-]);
-
-const typescriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
 ]);
 
 const hasTypeArguments = node => node.typeArguments || node.typeParameters;
@@ -85,7 +79,7 @@ function shouldParenthesizeArrowBody(node, context) {
 		return true;
 	}
 
-	return typescriptExpressionWrapperTypes.has(node.type) && shouldParenthesizeArrowBody(node.expression, context);
+	return isTypeScriptExpressionWrapper(node) && shouldParenthesizeArrowBody(node.expression, context);
 }
 
 function getCallbackResult(callback) {

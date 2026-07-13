@@ -179,6 +179,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('declare const array: string[]; array.flatMap(value => [value]);'),
+		typescript('array.filter(value => value).flatMap(value => [value as string]);'),
+		typescript('array.filter(value => value).flatMap(value => [value satisfies string]);'),
+		typescript('array.filter(value => value).flatMap(value => [<string>value]);'),
+		typescript('array.filter(value => value).flatMap(value => [value!]);'),
 		vueTypescript('<script setup lang="ts">array.flatMap(value => [value.id]);</script>'),
 		{
 			code: '<script>array.flatMap(value => value.active ? [value.id] : []);</script>',
