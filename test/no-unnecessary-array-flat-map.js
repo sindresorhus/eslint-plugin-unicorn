@@ -186,8 +186,9 @@ test.snapshot({
 		typescript('array.filter(value => value).flatMap(value => [{id: value.id} as Item]);'),
 		typescript('array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]);'),
 		vueTypescript('<script setup lang="ts">array.flatMap(value => [value.id]);</script>'),
+		vueTypescript('<script setup lang="tsx">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script>'),
 		{
-			code: '<script>array.flatMap(value => value.active ? [value.id] : []);</script>',
+			code: '<script>array.flatMap(value => value.active ? [value] : []);</script>',
 			filename: 'file.vue',
 			languageOptions: {parser: parsers.vue},
 		},
