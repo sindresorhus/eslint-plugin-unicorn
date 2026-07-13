@@ -285,7 +285,10 @@ function getReplacement(node, sourceCode, problems) {
 const create = context => {
 	const {sourceCode} = context;
 	const isTypeScript = isTypeScriptFile(context.physicalFilename);
-	const typeChecker = sourceCode.parserServices?.program?.getTypeChecker();
+	const {parserServices} = sourceCode;
+	const typeChecker = typeof parserServices?.getTypeAtLocation === 'function'
+		? parserServices.program?.getTypeChecker()
+		: undefined;
 
 	const shouldIgnoreTypeScriptTemplate = node => {
 		if (!isTypeScript) {
@@ -297,7 +300,7 @@ const create = context => {
 		}
 
 		try {
-			const typeScriptNode = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
+			const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(node);
 			if (!typeScriptNode) {
 				return true;
 			}
