@@ -172,6 +172,7 @@ export {default as 'no-useless-length-check'} from './no-useless-length-check.js
 export {default as 'no-useless-logical-operand'} from './no-useless-logical-operand.js';
 export {default as 'no-useless-override'} from './no-useless-override.js';
 export {default as 'no-useless-promise-resolve-reject'} from './no-useless-promise-resolve-reject.js';
+export {default as 'no-useless-re-export'} from './no-useless-re-export.js';
 export {default as 'no-useless-recursion'} from './no-useless-recursion.js';
 export {default as 'no-useless-spread'} from './no-useless-spread.js';
 export {default as 'no-useless-switch-case'} from './no-useless-switch-case.js';
