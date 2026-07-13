@@ -205,13 +205,6 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 }
 
 function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context) {
-	if (
-		isTypeScriptFile(context.physicalFilename)
-		|| isTypeScriptVueSfc(context.sourceCode)
-	) {
-		return;
-	}
-
 	const method = isSameIdentifier(callbackResult.element, callback.params[0]) ? 'filter' : 'filter().map';
 	const problem = {
 		node: flatMapCallExpression.callee.property,
@@ -254,7 +247,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 		: problem;
 }
 
-function getProblem(flatMapCallExpression, context) {
+function getProblem(flatMapCallExpression, context, isTypeScript) {
 	if (
 		!isMethodCall(flatMapCallExpression, {
 			method: 'flatMap',
@@ -294,12 +287,17 @@ function getProblem(flatMapCallExpression, context) {
 		};
 	}
 
+	if (isTypeScript) {
+		return;
+	}
+
 	return getProblemForConditionalFlatMap(flatMapCallExpression, callback, callbackResult, context);
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	context.on('CallExpression', callExpression => getProblem(callExpression, context));
+	const isTypeScript = isTypeScriptFile(context.physicalFilename) || isTypeScriptVueSfc(context.sourceCode);
+	context.on('CallExpression', callExpression => getProblem(callExpression, context, isTypeScript));
 };
 
 /** @type {import('eslint').Rule.RuleModule} */

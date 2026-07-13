@@ -102,6 +102,13 @@ test.snapshot({
 			array.flatMap(value => value.active ? [value.id] : []);
 			</script>
 		`),
+		vueTypescript(outdent`
+			<script setup lang="tsx">
+			type Item = {active: boolean; id: string};
+			declare const array: Item[];
+			array.flatMap(value => value.active ? [value.id] : []);
+			</script>
+		`),
 	],
 	invalid: [
 		'array.flatMap(value => [value]);',
