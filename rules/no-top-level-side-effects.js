@@ -23,6 +23,28 @@ const isExportDeclaration = node => exportDeclarationTypes.has(node.type) && !is
 
 const isAllowedAssignment = node => unwrapTypeScriptExpression(node).type === 'AssignmentExpression';
 
+const isScriptSetupElement = node =>
+	node.type === 'VElement'
+	&& node.name === 'script'
+	&& node.startTag.attributes.some(attribute =>
+		!attribute.directive
+		&& attribute.key.name === 'setup',
+	);
+
+const getScriptSetupRange = sourceCode => {
+	const documentFragment = sourceCode.parserServices?.getDocumentFragment?.();
+	return documentFragment?.children.find(node => isScriptSetupElement(node))?.range;
+};
+
+const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
+	if (!scriptSetupRange) {
+		return false;
+	}
+
+	const nodeRange = sourceCode.getRange(node);
+	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
+};
+
 const hasTopLevelSideEffect = (node, sourceCode) => {
 	node = unwrapTypeScriptExpression(node);
 
@@ -37,6 +59,7 @@ const hasTopLevelSideEffect = (node, sourceCode) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const scriptSetupRange = getScriptSetupRange(sourceCode);
 	let shouldCheck = false;
 
 	context.on('Program', program => {
@@ -48,6 +71,7 @@ const create = context => {
 		if (
 			!shouldCheck
 			|| node.parent.type !== 'Program'
+			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(node.expression)
 			|| !hasTopLevelSideEffect(node.expression, sourceCode)
 		) {

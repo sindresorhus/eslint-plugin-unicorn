@@ -8,6 +8,21 @@ const typescriptCode = code => ({
 	languageOptions: {parser: parsers.typescript},
 });
 
+const vueCode = code => ({
+	code,
+	languageOptions: {parser: parsers.vue},
+});
+
+const vueTypeScriptCode = code => ({
+	code,
+	languageOptions: {
+		parser: parsers.vue,
+		parserOptions: {
+			parser: parsers.typescript.implementation,
+		},
+	},
+});
+
 test.snapshot({
 	valid: [
 		'init();',
@@ -54,6 +69,31 @@ test.snapshot({
 		typescriptCode(outdent`
 			export declare const value: number;
 			init();
+		`),
+		vueCode(outdent`
+			<script setup>
+				import {watch, watchEffect} from 'vue';
+
+				watch(source, callback);
+				watchEffect(callback);
+				defineExpose({foo});
+				defineOptions({inheritAttrs: false});
+			</script>
+		`),
+		vueTypeScriptCode(outdent`
+			<script>
+				export default {
+					inheritAttrs: false,
+				};
+			</script>
+			<script setup lang="ts">
+				import {watch, watchEffect} from 'vue';
+
+				watch<string>(source, callback);
+				watchEffect(callback);
+				defineExpose({foo});
+				defineOptions({inheritAttrs: false});
+			</script>
 		`),
 		outdent`
 			#!/usr/bin/env node
@@ -124,6 +164,24 @@ test.snapshot({
 			export const value = 1;
 			init();
 		`),
+		vueCode(outdent`
+			<script>
+				runSideEffectOnce();
+				export default {};
+			</script>
+			<script setup>
+				watch(source, callback);
+			</script>
+		`),
+		vueCode(outdent`
+			<script setup>
+				watch(source, callback);
+			</script>
+			<script>
+				runSideEffectOnce();
+				export default {};
+			</script>
+		`),
 		typescriptCode(outdent`
 			export enum Enum {
 				A,
@@ -140,6 +198,7 @@ test.snapshot({
 			(class extends init() {});
 		`,
 		'export {}; await init();',
+		'export {}; void init();',
 		'export {}; import("./setup.js");',
 		'export {}; counter++;',
 		'export {}; delete object.property;',
