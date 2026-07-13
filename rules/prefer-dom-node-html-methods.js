@@ -53,11 +53,13 @@ const isCalleeOrTag = node => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const {checkGetHTML, checkSetHTML} = context.options[0];
 	const {sourceCode} = context;
 
 	context.on('MemberExpression', memberExpression => {
 		if (
-			!isInnerHTMLMemberExpression(memberExpression)
+			!checkGetHTML
+			|| !isInnerHTMLMemberExpression(memberExpression)
 			|| isLeftHandSide(memberExpression)
 			|| isForInOrOfLeft(memberExpression)
 		) {
@@ -83,7 +85,10 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', assignmentExpression => {
-		if (!isInnerHTMLMemberExpression(assignmentExpression.left)) {
+		if (
+			!checkSetHTML
+			|| !isInnerHTMLMemberExpression(assignmentExpression.left)
+		) {
 			return;
 		}
 
@@ -120,12 +125,31 @@ const config = {
 		type: 'suggestion',
 		docs: {
 			description: 'Prefer `.getHTML()` and `.setHTML()` over `.innerHTML`.',
-			// TODO: Enable in the `recommended` config once Safari supports `Element#setHTML()`.
-			recommended: false,
+			recommended: true,
 		},
 		fixable: 'code',
 		hasSuggestions: true,
-		schema: [],
+		schema: [
+			{
+				type: 'object',
+				additionalProperties: false,
+				properties: {
+					checkGetHTML: {
+						type: 'boolean',
+						description: 'Whether to check reads from `.innerHTML`.',
+					},
+					checkSetHTML: {
+						type: 'boolean',
+						description: 'Whether to check assignments to `.innerHTML`.',
+					},
+				},
+			},
+		],
+		defaultOptions: [{
+			checkGetHTML: true,
+			// TODO: Change to `true` once Safari supports `Element#setHTML()`.
+			checkSetHTML: false,
+		}],
 		messages,
 		languages: [
 			'js/js',
