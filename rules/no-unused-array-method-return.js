@@ -39,7 +39,7 @@ const methods = new Set([
 	'with',
 ]);
 
-const methodsRequiringArrayReceiver = new Set([
+const methodsRequiringKnownArrayReceiver = new Set([
 	'values',
 ]);
 
@@ -77,13 +77,6 @@ const isKnownNonArrayFactoryCall = (node, context) =>
 	&& node.callee.type === 'Identifier'
 	&& nonArrayFactoryFunctions.has(node.callee.name)
 	&& context.sourceCode.isGlobalReference(node.callee);
-
-const isDefinitelyArrayExpression = (node, context) =>
-	node.type === 'ArrayExpression'
-	|| (
-		(node.type === 'CallExpression' || node.type === 'NewExpression')
-		&& isGlobalIdentifier(node.callee, 'Array', context)
-	);
 
 const isDefinitelyNonArrayExpression = (node, context) =>
 	isUndefined(node, context)
@@ -141,6 +134,14 @@ function getVariableValue(node, context) {
 	}
 
 	const [definition] = variable.defs;
+	// A plain parameter has an unknown value, so keep the identifier unresolved. Parameters with defaults or destructuring remain unsupported.
+	if (
+		definition.type === 'Parameter'
+		&& definition.node.params?.includes(definition.name)
+	) {
+		return;
+	}
+
 	if (
 		definition.type === 'Variable'
 		&& definition.node.type === 'VariableDeclarator'
@@ -198,8 +199,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 			typeAnnotation = typeAnnotation.typeAnnotation;
 		}
 
-		// An array-type assertion (`Foo[]`, `Array<…>`, `ReadonlyArray<…>`) guarantees
-		// an array receiver, regardless of the asserted expression, so report it.
+		// Treat an array-type assertion (`Foo[]`, `Array<…>`, `ReadonlyArray<…>`) as an array receiver, regardless of the asserted expression, so report it.
 		// Anything else (`Foo`, `any`, `unknown`, unions, tuples, …) stays unresolved.
 		const isArrayTypeAssertion = typeAnnotation.type === 'TSArrayType'
 			|| (
@@ -218,8 +218,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	// Unsupported on purpose:
 	// - any destructuring, including defaults
 	// - any member/property receiver, including `wrapper.items`, `alias.items`, and `this.items`
-	// - any object, class-field, or `this`-based inference
-	// - any class field or constructor reasoning, even when `this.items = []` looks obvious
+	// - any object-property, class-field, constructor, or `this`-based inference
 	// - any write before the call site
 	// - any "latest value" reconstruction after assignments
 	//
@@ -232,10 +231,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 const isObviouslyNonArrayReceiver = (resolvedReceiver, context) =>
 	resolvedReceiver === uncertainValue
 	|| isDefinitelyNonArrayExpression(resolvedReceiver, context)
-	|| (
-		isPascalCaseIdentifier(resolvedReceiver)
-		&& !isDefinitelyArrayExpression(resolvedReceiver, context)
-	);
+	|| isPascalCaseIdentifier(resolvedReceiver);
 
 const isExpectCall = node =>
 	isCallExpression(node, 'expect')
@@ -248,7 +244,7 @@ const shouldSkipReceiver = (node, method, context) => {
 	const resolvedReceiver = resolveReceiver(node, context);
 
 	return isExpectCall(resolvedReceiver)
-		|| (methodsRequiringArrayReceiver.has(method)
+		|| (methodsRequiringKnownArrayReceiver.has(method)
 			? !isArray(node, context)
 			: isObviouslyNonArrayReceiver(resolvedReceiver, context));
 };

@@ -262,9 +262,11 @@ test.snapshot({
 			const values = getValues();
 			values.findIndex(value => value > 0);
 		`,
+		'function check(array) { array.includes(value); }',
 		'getValues().includes(value);',
 		'expectation(value).includes(expected);',
 		'expectation.soft(value).includes(expected);',
+		'const assertion = expectation(value); assertion.includes(expected);',
 		'expect.custom(value).includes(expected);',
 	],
 });
@@ -293,6 +295,7 @@ test.typescript({
 		{code: 'const bar = \'x\'; (bar satisfies Foo).filter();', filename: 'example.ts'},
 	],
 	invalid: [
+		{code: 'function check(array: string[]) { array.includes(value); }', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn) as number[];', filename: 'example.ts', errors: 1},
 		{code: '<number[]>values.map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn)!;', filename: 'example.ts', errors: 1},
