@@ -121,8 +121,11 @@ test('recommended config works with defineConfig', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
 			files: ['**/*.js'],
+			plugins: {
+				unicorn: eslintPluginUnicorn,
+			},
 			extends: [
-				eslintPluginUnicorn.configs.recommended,
+				'unicorn/recommended',
 			],
 		}),
 		overrideConfigFile: true,
