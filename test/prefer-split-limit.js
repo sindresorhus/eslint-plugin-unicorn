@@ -37,6 +37,7 @@ test({
 		'const [first] = string.split("")',
 		'const [first] = [...string.split("/")]',
 		'const {0: first} = string.split("/")',
+		'({0: first} = string.split("/"))',
 		'for (const [first] of string.split("/")) {}',
 		'for ([first] of string.split("/")) {}',
 		{
