@@ -49,7 +49,7 @@ const create = context => {
 			return;
 		}
 
-		const [integerPart, fractionPart] = text.split('.');
+		const [integerPart, fractionPart] = text.split('.', 2);
 		const normalizedValue = `${integerPart || '0'}.${fractionPart}`;
 		const fractionLength = fractionPart.length;
 

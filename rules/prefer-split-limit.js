@@ -9,6 +9,7 @@ import {
 } from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-split-limit';
+const MAXIMUM_SPLIT_LIMIT = (2 ** 32) - 1;
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#split()` with a limit.',
 };
@@ -24,6 +25,7 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 		!staticValue
 		|| !Number.isSafeInteger(staticValue.value)
 		|| staticValue.value < 0
+		|| staticValue.value >= MAXIMUM_SPLIT_LIMIT
 	) {
 		return;
 	}
@@ -38,11 +40,25 @@ const isSplitCallWithoutLimit = node =>
 	})
 	&& isBuiltInSeparator(node.arguments[0]);
 
-const createProblem = (node, splitCall, index, context) => ({
+const createProblem = (node, splitCall, limit, context) => ({
 	node,
 	messageId: MESSAGE_ID,
-	fix: fixer => appendArgument(fixer, splitCall, String(index + 1), context),
+	fix: fixer => appendArgument(fixer, splitCall, String(limit), context),
 });
+
+const getDestructuringProblem = (pattern, splitCall, context) => {
+	const {elements} = pattern;
+	const unwrappedSplitCall = splitCall?.type === 'ChainExpression' ? splitCall.expression : splitCall;
+	if (
+		elements.length === 0
+		|| elements.at(-1)?.type === 'RestElement'
+		|| !isSplitCallWithoutLimit(unwrappedSplitCall)
+	) {
+		return;
+	}
+
+	return createProblem(pattern, unwrappedSplitCall, elements.length, context);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -62,7 +78,7 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, node.object, index, context);
+		return createProblem(node, node.object, index + 1, context);
 	});
 
 	context.on('CallExpression', node => {
@@ -86,7 +102,23 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, splitCall, index, context);
+		return createProblem(node, splitCall, index + 1, context);
+	});
+
+	context.on('VariableDeclarator', node => {
+		if (node.id.type !== 'ArrayPattern') {
+			return;
+		}
+
+		return getDestructuringProblem(node.id, node.init, context);
+	});
+
+	context.on('AssignmentExpression', node => {
+		if (node.left.type !== 'ArrayPattern') {
+			return;
+		}
+
+		return getDestructuringProblem(node.left, node.right, context);
 	});
 };
 

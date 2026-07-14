@@ -37,7 +37,7 @@ function getSuggestionName(node, filename, sourceCode) {
 		return;
 	}
 
-	let [name] = path.basename(filename).split('.');
+	let [name] = path.basename(filename).split('.', 1);
 	name = camelCase(name);
 
 	if (!isIdentifierName(name)) {

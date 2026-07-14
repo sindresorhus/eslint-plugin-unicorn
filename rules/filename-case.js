@@ -171,7 +171,7 @@ function getFilenameParts(filenameWithExtension, {multipleFileExtensions}) {
 	};
 
 	if (multipleFileExtensions) {
-		const [firstPart] = filename.split('.');
+		const [firstPart] = filename.split('.', 1);
 		Object.assign(parts, {
 			filename: firstPart,
 			middle: filename.slice(firstPart.length),

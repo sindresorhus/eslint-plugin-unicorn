@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When you only need a specific element from a split string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and makes your intent clearer - you're only interested in that specific part.
+When you only need one or more specific elements from a split string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer. You are only interested in those specific parts.
 
-This rule only checks direct access with a statically known non-negative integer index and an obvious built-in separator.
+This rule checks two patterns with an obvious built-in separator: direct array destructuring in a variable declaration or assignment expression, and direct access using a statically known non-negative integer index.
 
 ## Examples
 
@@ -19,7 +19,7 @@ This rule only checks direct access with a statically known non-negative integer
 // ❌ - Splits entire string, then accesses index 0
 const protocol = url.split(':')[0]; // Could be long URL
 
-// ✅ - Only splits into 1 part max
+// ✅ - Splits into at most 1 part
 const protocol = url.split(':', 1)[0]; // More efficient
 ```
 
@@ -27,8 +27,8 @@ const protocol = url.split(':', 1)[0]; // More efficient
 // ❌ - Gets second part from full split
 const [, filename] = path.split('/');
 
-// ✅ - More explicit about only needing 2 parts
-const filename = path.split('/', 2)[1];
+// ✅ - Splits into at most 2 parts while preserving the destructuring
+const [, filename] = path.split('/', 2);
 ```
 
 ```js
@@ -45,6 +45,9 @@ const lastPart = string.split('/').at(-1);
 
 // ✅ - Unknown separator or index
 const parts = string.split(dynamicSeparator)[unknownIndex];
+
+// ✅ - The rest element needs all remaining parts
+const [firstPart, ...remainingParts] = string.split('/');
 ```
 
 > [!NOTE]

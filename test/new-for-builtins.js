@@ -15,7 +15,7 @@ const shadowedNewObjects = [
 ];
 
 const createShadowedCallTest = object => {
-	const [objectName, propertyName] = object.split('.');
+	const [objectName, propertyName] = object.split('.', 2);
 
 	if (!propertyName) {
 		return `
@@ -31,7 +31,7 @@ const createShadowedCallTest = object => {
 };
 
 const createShadowedNewTest = object => {
-	const [objectName, propertyName] = object.split('.');
+	const [objectName, propertyName] = object.split('.', 2);
 
 	if (!propertyName) {
 		return `
@@ -47,7 +47,7 @@ const createShadowedNewTest = object => {
 };
 
 const createNestedShadowedCallTest = object => {
-	const [objectName, propertyName] = object.split('.');
+	const [objectName, propertyName] = object.split('.', 2);
 
 	if (!propertyName) {
 		return `
@@ -71,7 +71,7 @@ const createNestedShadowedCallTest = object => {
 };
 
 const createNestedShadowedNewTest = object => {
-	const [objectName, propertyName] = object.split('.');
+	const [objectName, propertyName] = object.split('.', 2);
 
 	if (!propertyName) {
 		return `
