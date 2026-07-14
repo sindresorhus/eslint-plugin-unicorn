@@ -134,6 +134,10 @@ ruleTest.snapshot({
 			code: 'const uris = ["http://example.com/one", "http://example.com/two"];',
 			options: [{ignore: [/^http:\/\/unused\.example\//v, /^http:\/\/example\.com\//gv]}],
 		},
+		{
+			code: 'const url = "http://example.com/identifier/value?format=xml#section";',
+			options: [{ignore: [/\?format=xml#section$/v]}],
+		},
 	],
 	invalid: [
 		'const url = "http://sindresorhus.com";',
@@ -214,7 +218,7 @@ function createLanguageConfig(language, rule = 'error') {
 			unicorn,
 		},
 		rules: {
-			'unicorn/prefer-https': rule,
+			[RULE_ID]: rule,
 		},
 	};
 }

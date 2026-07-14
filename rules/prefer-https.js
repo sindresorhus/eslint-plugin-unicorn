@@ -79,7 +79,7 @@ function getFullUrl(text, matchIndex) {
 	return HTTP_URL_FULL.exec(text)?.[0];
 }
 
-function isIgnoredUrl(url, patterns) {
+function isIgnoredByPattern(url, patterns) {
 	return patterns.some(regexp => {
 		regexp.lastIndex = 0;
 		const isMatch = regexp.test(url);
@@ -123,7 +123,7 @@ const create = context => {
 			const start = match.index;
 			const url = getFullUrl(text, start);
 
-			if (IGNORED_XML_URIS.has(url) || XML_SECURITY_URI.test(url) || ignoredUrls.has(url) || isIgnoredUrl(url, ignoredUrlPatterns) || isXmlNamespaceValue(text, start)) {
+			if (IGNORED_XML_URIS.has(url) || XML_SECURITY_URI.test(url) || ignoredUrls.has(url) || isIgnoredByPattern(url, ignoredUrlPatterns) || isXmlNamespaceValue(text, start)) {
 				continue;
 			}
 
