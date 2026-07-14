@@ -1,4 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {isCallExpression, isMethodCall} from './ast/index.js';
 import {isArray, isValueNotUsable} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unused-array-method-return';
@@ -131,13 +132,10 @@ function getVariableValue(node, context) {
 	// Unsupported on purpose:
 	// - any destructuring, including defaults
 	// - any write before the call site
-	// - aliasing through another identifier
 	// - parameter defaults, `for…of`, catch bindings, and any non-declarator binding
 	// - control-flow-sensitive value tracking
 	//
-	// This is intentionally extremely small. The rule only trusts the initializer
-	// syntax of `const value = ...` or `let value = ...` when the binding has not
-	// been written again. Everything else stays unresolved on purpose.
+	// This is intentionally extremely small. The rule only trusts a variable declarator initializer when the binding has not been written before the call site. Everything else stays unresolved on purpose.
 	if (hasEarlierWrite(variable, node, context)) {
 		return uncertainValue;
 	}
@@ -231,21 +229,29 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	return node;
 }
 
-const isObviouslyNonArrayReceiver = (node, context) => {
-	node = resolveReceiver(node, context);
+const isObviouslyNonArrayReceiver = (resolvedReceiver, context) =>
+	resolvedReceiver === uncertainValue
+	|| isDefinitelyNonArrayExpression(resolvedReceiver, context)
+	|| (
+		isPascalCaseIdentifier(resolvedReceiver)
+		&& !isDefinitelyArrayExpression(resolvedReceiver, context)
+	);
 
-	return node === uncertainValue
-		|| isDefinitelyNonArrayExpression(node, context)
-		|| (
-			isPascalCaseIdentifier(node)
-			&& !isDefinitelyArrayExpression(node, context)
-		);
+const isExpectCall = node =>
+	isCallExpression(node, 'expect')
+	|| isMethodCall(node, {
+		object: 'expect',
+		methods: ['element', 'poll', 'soft'],
+	});
+
+const shouldSkipReceiver = (node, method, context) => {
+	const resolvedReceiver = resolveReceiver(node, context);
+
+	return isExpectCall(resolvedReceiver)
+		|| (methodsRequiringArrayReceiver.has(method)
+			? !isArray(node, context)
+			: isObviouslyNonArrayReceiver(resolvedReceiver, context));
 };
-
-const shouldSkipReceiver = (node, method, context) =>
-	methodsRequiringArrayReceiver.has(method)
-		? !isArray(node, context)
-		: isObviouslyNonArrayReceiver(node, context);
 
 const getTrackedMethodName = (node, context) =>
 	node.callee.type === 'MemberExpression'

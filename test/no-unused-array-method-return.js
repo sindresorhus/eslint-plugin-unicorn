@@ -73,6 +73,13 @@ test.snapshot({
 		'array.values();',
 		'await database.insert(xProspects).values({value1: \'hello\'});',
 		'await database.insert(xProspects).values({value1: \'hello\'}).where(eq(xProspects.id, 1));',
+		'expect([1, 2, 3]).to.be.an(\'array\').that.includes(2);',
+		'expect(value).includes(expected);',
+		'expect.soft(value).includes(expected);',
+		'expect.poll(callback).includes(expected);',
+		'expect.element(element).includes(expected);',
+		'const assertion = expect(value); assertion.includes(expected);',
+		'expect(value).keys(expected);',
 		'const value = undefined; value.slice(1);',
 		'function log(url) { url.toString(); }',
 		'function log(url) { url.toLocaleString(); }',
@@ -255,6 +262,10 @@ test.snapshot({
 			const values = getValues();
 			values.findIndex(value => value > 0);
 		`,
+		'getValues().includes(value);',
+		'expectation(value).includes(expected);',
+		'expectation.soft(value).includes(expected);',
+		'expect.custom(value).includes(expected);',
 	],
 });
 
