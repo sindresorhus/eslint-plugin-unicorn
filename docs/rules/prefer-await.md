@@ -33,6 +33,7 @@ return transform(value);
 	alert(value);
 })();
 ```
+
 ```js
 // ❌
 promise.catch(error => {
@@ -46,6 +47,7 @@ try {
 	handleError(error);
 }
 ```
+
 ```js
 // ✅
 // Intentional fire-and-forget, opted out with `void`.
@@ -54,6 +56,7 @@ void promise.catch(() => {});
 // ❌
 promise.finally(cleanup);
 ```
+
 ```js
 // ✅
 try {
