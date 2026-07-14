@@ -5,9 +5,7 @@ import {
 	isRegexLiteral,
 	isTaggedTemplateLiteral,
 } from './ast/index.js';
-import {
-	escapeString,
-} from './utils/index.js';
+import {escapeString, isTypeScriptFile} from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
 
 const MESSAGE_ID = 'no-useless-template-literals';
@@ -181,6 +179,21 @@ function isExpressionOnlyTemplate(node) {
 	);
 }
 
+function isWrappedInConstAssertion(node) {
+	const {parent} = node;
+
+	return (
+		(
+			parent.type === 'TSAsExpression'
+			|| parent.type === 'TSTypeAssertion'
+		)
+		&& parent.expression === node
+		&& parent.typeAnnotation.type === 'TSTypeReference'
+		&& parent.typeAnnotation.typeName.type === 'Identifier'
+		&& parent.typeAnnotation.typeName.name === 'const'
+	);
+}
+
 function isDirectiveProloguePosition(node) {
 	const {parent} = node;
 
@@ -271,6 +284,33 @@ function getReplacement(node, sourceCode, problems) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
+	const isTypeScript = isTypeScriptFile(context.physicalFilename);
+	const {parserServices} = sourceCode;
+	const typeChecker = typeof parserServices?.getTypeAtLocation === 'function'
+		? parserServices.program?.getTypeChecker()
+		: undefined;
+
+	const shouldIgnoreTypeScriptTemplate = node => {
+		if (!isTypeScript) {
+			return false;
+		}
+
+		if (!typeChecker) {
+			return true;
+		}
+
+		try {
+			const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(node);
+			if (!typeScriptNode) {
+				return true;
+			}
+
+			const type = typeChecker.getContextualType(typeScriptNode) ?? typeChecker.getTypeAtLocation(typeScriptNode);
+			return !type || !typeChecker.isTypeAssignableTo(typeChecker.getStringType(), type);
+		} catch {
+			return true;
+		}
+	};
 
 	context.on('TemplateLiteral', node => {
 		if (isTaggedTemplateLiteral(node)) {
@@ -295,6 +335,10 @@ const create = context => {
 						return fixer.replaceText(node, escapeString(problem.cooked));
 					},
 				};
+			}
+
+			if (isWrappedInConstAssertion(node) || shouldIgnoreTypeScriptTemplate(node)) {
+				return;
 			}
 
 			const hasComments = hasCommentsInsideInterpolation(node, sourceCode, 0);

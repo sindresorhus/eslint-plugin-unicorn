@@ -11,7 +11,7 @@
 
 Template literal expressions are useful when they interpolate dynamic values into surrounding text. They are unnecessary when the expression is already a static value, or when the whole template literal only coerces a single expression to a string.
 
-This rule intentionally does not use TypeScript type information. For expression-only templates with unknown value types, it reports the pattern and suggests `String(value)` instead of autofixing to the bare expression. This is a manual suggestion because it can differ for values like `Symbol()` or when `String` is shadowed.
+Expression-only templates get a manual `String(value)` suggestion instead of an autofix because `String()` can differ for values like `Symbol()` or when `String` is shadowed. In TypeScript, dynamic expression-only templates are ignored without type information and reported only when type information shows the replacement is type-compatible; `as const` and `<const>` assertions are always ignored because `String()` cannot be used in a const assertion.
 
 This rule does not replace ESLint's [`no-implicit-coercion`](https://eslint.org/docs/latest/rules/no-implicit-coercion). They can be enabled together: `no-implicit-coercion` checks shorthand coercions, while this rule checks useless template literal syntax. The only overlap is expression-only templates like `` `${value}` `` when `no-implicit-coercion` enables `disallowTemplateShorthand`.
 
