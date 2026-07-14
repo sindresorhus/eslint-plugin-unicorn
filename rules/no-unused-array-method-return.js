@@ -146,10 +146,6 @@ function getVariableValue(node, context) {
 	return uncertainValue;
 }
 
-function getStaticPropertyName(node, context) {
-	return getPropertyName(node, context.sourceCode.getScope(node));
-}
-
 function resolveReceiver(node, context, visitedNodes = new Set()) {
 	if (!node || node === uncertainValue) {
 		return node;
@@ -192,7 +188,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	// Unsupported on purpose:
 	// - any destructuring, including destructuring with defaults
 	// - any member/property receiver, including `wrapper.items`, `alias.items`, and `this.items`
-	// - any object-property, class-field, constructor, or `this`-based inference
+	// - any object-property, class-field, or `this`-based inference
 	// - any write before the call site
 	// - any "latest value" reconstruction after assignments
 	//
@@ -221,7 +217,7 @@ const shouldSkipReceiver = (node, method, context) => {
 	}
 
 	if (method === 'values') {
-		return resolvedReceiver === uncertainValue || (!isArray(node, context) && !isArray(resolvedReceiver, context));
+		return resolvedReceiver === uncertainValue || !isArray(resolvedReceiver, context);
 	}
 
 	return isObviouslyNonArrayReceiver(resolvedReceiver, context);
@@ -229,7 +225,7 @@ const shouldSkipReceiver = (node, method, context) => {
 
 const getTrackedMethodName = (node, context) =>
 	node.callee.type === 'MemberExpression'
-		? getStaticPropertyName(node.callee, context)
+		? getPropertyName(node.callee, context.sourceCode.getScope(node.callee))
 		: undefined;
 
 // Supported discarded-value boundary:
