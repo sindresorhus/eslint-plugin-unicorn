@@ -38,14 +38,14 @@ const methods = new Set([
 
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
 const uncertainValue = Symbol('uncertainValue');
-const nonArrayFactoryFunctions = new Set([
+const nonArrayFactoryFunctionNames = [
 	'BigInt',
 	'Boolean',
 	'Number',
 	'RegExp',
 	'String',
 	'Symbol',
-]);
+];
 
 const isPascalCaseIdentifier = node =>
 	node.type === 'Identifier'
@@ -65,9 +65,7 @@ const isKnownNonArrayConstruction = (node, context) =>
 	&& !isGlobalIdentifier(node.callee, 'Array', context);
 
 const isKnownNonArrayFactoryCall = (node, context) =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& nonArrayFactoryFunctions.has(node.callee.name)
+	isCallExpression(node, nonArrayFactoryFunctionNames)
 	&& context.sourceCode.isGlobalReference(node.callee);
 
 const isDefinitelyNonArrayExpression = (node, context) =>

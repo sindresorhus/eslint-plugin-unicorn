@@ -119,6 +119,7 @@ test.snapshot({
 				}
 			}
 		`,
+		'Collection.map(fn);',
 		outdent`
 			let values = [];
 
@@ -151,7 +152,6 @@ test.snapshot({
 			values = [];
 			values.slice(1);
 		`,
-		'let values = []; if (condition) values = \'x\'; values.map(fn);',
 		outdent`
 			let text = 'x';
 
@@ -161,7 +161,6 @@ test.snapshot({
 
 			text.slice(1);
 		`,
-		'let text = \'x\'; if (condition) text = []; text.slice(1);',
 		outdent`
 			condition && array.map(fn);
 		`,
