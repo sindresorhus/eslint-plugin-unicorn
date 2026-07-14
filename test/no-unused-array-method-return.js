@@ -60,8 +60,10 @@ test.snapshot({
 			value.map(fn);
 		`,
 		'let text = []; text = \'text\'; text.slice(1);',
+		'function check(array) { array = \'text\'; array.includes(value); }',
 		'let text; text = \'text\'; text.slice(1);',
 		'String(foo).slice(1);',
+		'(prefix + value).includes(expected);',
 		'const text = String(foo); text.slice(1);',
 		'const text = String(foo); const alias = text; alias.slice(1);',
 		'const {value = String(foo)} = {}; value.slice(1);',
@@ -284,11 +286,11 @@ test.typescript({
 		{code: '(<Foo>bar).filter();', filename: 'example.ts'},
 		{code: '(bar as any).filter();', filename: 'example.ts'},
 		{code: '(bar as unknown).filter();', filename: 'example.ts'},
+		{code: 'function check(collection: Collection) { collection.includes(value); }', filename: 'example.ts'},
+		{code: 'type Array<T> = {filter(): void}; (bar as Array<string>).filter();', filename: 'example.ts'},
 		// Non-array type shapes stay unresolved.
 		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},
 		{code: '(bar as Foo & Bar).filter();', filename: 'example.ts'},
-		{code: '(bar as [number, string]).filter();', filename: 'example.ts'},
-		{code: '(bar as readonly [number, string]).filter();', filename: 'example.ts'},
 		{code: '(bar as {filter(): void}).filter();', filename: 'example.ts'},
 		// A non-null assertion does not hide the underlying type assertion.
 		{code: '(bar as Foo)!.filter();', filename: 'example.ts'},
@@ -296,6 +298,11 @@ test.typescript({
 	],
 	invalid: [
 		{code: 'function check(array: string[]) { array.includes(value); }', filename: 'example.ts', errors: 1},
+		{code: 'function check(array: string[]) { array.values(); }', filename: 'example.ts', errors: 1},
+		{code: 'type Items = string[]; (bar as Items).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as [number, string]).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as readonly [number, string]).filter();', filename: 'example.ts', errors: 1},
+		{code: '([1, 2] as const).map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn) as number[];', filename: 'example.ts', errors: 1},
 		{code: '<number[]>values.map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn)!;', filename: 'example.ts', errors: 1},

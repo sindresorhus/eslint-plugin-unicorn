@@ -7,6 +7,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not ignore the return value of `.{{method}}(…)`.',
 };
 
+// This list is the implementation contract. We intentionally exclude `toString()` and `toLocaleString()` because they exist on almost every object, and tracking them in this syntax-only rule creates too many non-array false positives.
 const methods = new Set([
 	'at',
 	'concat',
@@ -25,13 +26,9 @@ const methods = new Set([
 	'keys',
 	'lastIndexOf',
 	'map',
-	// Using these as short-circuiting `forEach()` alternatives is an anti-pattern.
+	// Using `.some()` as a short-circuiting `forEach()` alternative is an anti-pattern.
 	'some',
 	'slice',
-	// This list is the implementation contract. We intentionally exclude
-	// `toString()` and `toLocaleString()` because they exist on almost every
-	// object, and tracking them in this syntax-only rule creates too many
-	// non-array false positives.
 	'toReversed',
 	'toSorted',
 	'toSpliced',
@@ -82,6 +79,7 @@ const isDefinitelyNonArrayExpression = (node, context) =>
 	isUndefined(node, context)
 	|| node.type === 'ObjectExpression'
 	|| node.type === 'Literal'
+	|| node.type === 'BinaryExpression'
 	|| node.type === 'TemplateLiteral'
 	|| node.type === 'ArrowFunctionExpression'
 	|| node.type === 'FunctionExpression'
@@ -134,12 +132,14 @@ function getVariableValue(node, context) {
 	}
 
 	const [definition] = variable.defs;
-	// A plain parameter has an unknown value, so keep the identifier unresolved. Parameters with defaults or destructuring remain unsupported.
+	// Keep unannotated plain parameters and plain parameters known to be arrays reportable. Other annotations, defaults, destructuring, and rest parameters remain unsupported.
 	if (
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
 	) {
-		return;
+		return definition.name.typeAnnotation && !isArray(node, context)
+			? uncertainValue
+			: undefined;
 	}
 
 	if (
@@ -192,23 +192,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	}
 
 	if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
-		let {typeAnnotation} = node;
-
-		// Unwrap `readonly Foo[]` / `readonly [A, B]` to the underlying type.
-		if (typeAnnotation.type === 'TSTypeOperator' && typeAnnotation.operator === 'readonly') {
-			typeAnnotation = typeAnnotation.typeAnnotation;
-		}
-
-		// Treat an array-type assertion (`Foo[]`, `Array<…>`, `ReadonlyArray<…>`) as an array receiver, regardless of the asserted expression, so report it.
-		// Anything else (`Foo`, `any`, `unknown`, unions, tuples, …) stays unresolved.
-		const isArrayTypeAssertion = typeAnnotation.type === 'TSArrayType'
-			|| (
-				typeAnnotation.type === 'TSTypeReference'
-				&& typeAnnotation.typeName.type === 'Identifier'
-				&& (typeAnnotation.typeName.name === 'Array' || typeAnnotation.typeName.name === 'ReadonlyArray')
-			);
-
-		return isArrayTypeAssertion ? node : uncertainValue;
+		return isArray(node, context) ? node : uncertainValue;
 	}
 
 	// Supported receiver inference boundary:
