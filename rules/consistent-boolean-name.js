@@ -100,6 +100,7 @@ const typeScriptExpressionWrapperTypes = new Set([
 	'TSTypeAssertion',
 	'TSSatisfiesExpression',
 ]);
+const logicalAssignmentOperators = new Set(['&&=', '||=', '??=']);
 const isUpperCase = string => string === string.toUpperCase();
 const stripLeadingUnderscores = name => name.replace(/^_+/, '');
 const isScreamingCase = name => /^[A-Z][\dA-Z_]*$/.test(stripLeadingUnderscores(name));
@@ -364,6 +365,23 @@ function isReactUseReferenceCall(node) {
 		&& callee.property.name === 'useRef';
 }
 
+function isDirectVueFunctionReference(node, context) {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+
+	return !variable
+		|| variable.defs.every(definition =>
+			(
+				definition.type === 'ImportBinding'
+				&& definition.node.type === 'ImportSpecifier'
+				&& definition.parent.type === 'ImportDeclaration'
+				&& definition.parent.source.value === 'vue'
+				&& definition.node.imported.type === 'Identifier'
+				&& definition.node.imported.name === node.name
+			)
+			|| isInDeclareContext(definition.node),
+		);
+}
+
 function isBooleanReactReferenceVariable(variable, context) {
 	const definition = getSupportedVariableDefinition(variable);
 
@@ -371,7 +389,45 @@ function isBooleanReactReferenceVariable(variable, context) {
 		&& !hasWriteAfterInitialization(variable)
 		&& hasReactReferenceSuffix(variable.name)
 		&& isReactUseReferenceCall(definition.node.init)
-		&& getExpressionBooleanState(definition.node.init.arguments[0], context) === boolean;
+		&& getExpressionBooleanState(definition.node.init.arguments[0], context, new Set(), false) === boolean;
+}
+
+function unwrapVueComputedGetter(node) {
+	while (
+		node?.type === 'ParenthesizedExpression'
+		|| node?.type === 'TSNonNullExpression'
+		|| typeScriptExpressionWrapperTypes.has(node?.type)
+	) {
+		node = node.expression;
+	}
+
+	return node;
+}
+
+function isBooleanVueReferenceVariable(variable, context) {
+	const definition = getSupportedVariableDefinition(variable);
+	const callExpression = definition?.type === 'Variable' ? definition.node.init : undefined;
+	if (
+		callExpression?.type !== 'CallExpression'
+		|| callExpression.callee.type !== 'Identifier'
+		|| !isDirectVueFunctionReference(callExpression.callee, context)
+		|| hasWriteAfterInitialization(variable)
+	) {
+		return false;
+	}
+
+	const [argument] = callExpression.arguments;
+	if (callExpression.callee.name === 'ref') {
+		return getExpressionBooleanState(argument, context, new Set(), false) === boolean;
+	}
+
+	const getter = unwrapVueComputedGetter(argument);
+	return callExpression.callee.name === 'computed'
+		&& (
+			(isFunction(getter) && !getter.async && !getter.generator)
+			|| isBooleanFunctionReference(getter, context)
+		)
+		&& getExpressionBooleanState(argument, context) === boolean;
 }
 
 function combineBooleanStates(states) {
@@ -932,6 +988,10 @@ function getDefinitionBooleanState(definition, context, visitedVariables, functi
 	}
 
 	if (definition.type === 'Variable') {
+		if (definition.node.parent.parent?.type === 'ForInStatement') {
+			return nonBoolean;
+		}
+
 		return getExpressionBooleanState(definition.node.init, context, visitedVariables, functionValuesAreBoolean);
 	}
 
@@ -942,6 +1002,27 @@ function getDefinitionBooleanState(definition, context, visitedVariables, functi
 	}
 
 	return unknown;
+}
+
+function getReferenceWriteBooleanState(reference, context, visitedVariables, functionValuesAreBoolean) {
+	const {parent} = reference.identifier;
+	if (
+		parent.type === 'ForInStatement'
+		|| parent.type === 'UpdateExpression'
+		|| (
+			parent.type === 'AssignmentExpression'
+			&& parent.operator !== '='
+			&& !logicalAssignmentOperators.has(parent.operator)
+		)
+	) {
+		return nonBoolean;
+	}
+
+	if (parent.type !== 'AssignmentExpression') {
+		return unknown;
+	}
+
+	return getExpressionBooleanState(reference.writeExpr, context, visitedVariables, functionValuesAreBoolean);
 }
 
 function getVariableBooleanState(variable, context, visitedVariables = new Set(), functionValuesAreBoolean = true) {
@@ -977,12 +1058,13 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 		result = getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean);
 	}
 
-	if (variable.references.some(reference => reference.writeExpr)) {
+	const writeStates = variable.references
+		.filter(reference => reference.writeExpr || ['ForInStatement', 'UpdateExpression'].includes(reference.identifier.parent.type))
+		.map(reference => getReferenceWriteBooleanState(reference, context, visitedVariables, functionValuesAreBoolean));
+	if (writeStates.length > 0) {
 		result = combineVariableBooleanStates([
 			result,
-			...variable.references
-				.filter(reference => reference.writeExpr)
-				.map(reference => getExpressionBooleanState(reference.writeExpr, context, visitedVariables, functionValuesAreBoolean)),
+			...writeStates,
 		]);
 	}
 
@@ -1223,6 +1305,7 @@ const create = context => {
 			if (
 				booleanState === nonBoolean
 				&& !isBooleanReactReferenceVariable(variable, context)
+				&& !isBooleanVueReferenceVariable(variable, context)
 			) {
 				const [definition] = variable.defs;
 
@@ -1306,7 +1389,10 @@ const create = context => {
 			return;
 		}
 
-		if (!isBooleanProperty(node, context)) {
+		if (
+			booleanState === nonBoolean
+			|| !isBooleanProperty(node, context)
+		) {
 			return;
 		}
 
@@ -1373,6 +1459,9 @@ const config = {
 		],
 		defaultOptions: [{ignore: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 
