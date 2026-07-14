@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When you only need one or more specific elements from a split string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer. You are only interested in those specific parts.
+When you only need a prefix of the results from splitting a string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer.
 
 This rule checks two patterns with an obvious built-in separator: direct array destructuring in a variable declaration or standalone assignment expression, and direct access using a statically known non-negative integer index.
 
@@ -19,7 +19,7 @@ This rule checks two patterns with an obvious built-in separator: direct array d
 // ❌ - Splits entire string, then accesses index 0
 const protocol = url.split(':')[0]; // Could be long URL
 
-// ✅ - Splits into at most 1 part
+// ✅ - Splits into at most one part
 const protocol = url.split(':', 1)[0]; // More efficient
 ```
 
@@ -27,7 +27,7 @@ const protocol = url.split(':', 1)[0]; // More efficient
 // ❌ - Gets second part from full split
 const [, filename] = path.split('/');
 
-// ✅ - Splits into at most 2 parts while preserving the destructuring
+// ✅ - Splits into at most two parts while preserving the destructuring
 const [, filename] = path.split('/', 2);
 ```
 

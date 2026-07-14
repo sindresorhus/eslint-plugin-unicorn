@@ -147,6 +147,11 @@ test({
 			errors,
 		},
 		{
+			code: 'const [,,] = string.split("/")',
+			output: 'const [,,] = string.split("/", 2)',
+			errors,
+		},
+		{
 			code: 'const [, second] = string.split(/-/)',
 			output: 'const [, second] = string.split(/-/, 2)',
 			errors,
