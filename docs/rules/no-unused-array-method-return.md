@@ -41,7 +41,7 @@ For `.values()`, this rule only reports known array receivers because common non
 
 It does not report mutating methods like `.copyWithin()`, `.fill()`, `.forEach()`, `.pop()`, `.push()`, `.reverse()`, `.shift()`, `.sort()`, `.splice()`, or `.unshift()`. Those are often called for their side effects, so reporting them would be much noisier.
 
-This is a syntax-only rule with a narrow inference boundary. It skips some obvious non-arrays such as literals, direct object literals, `String(value)`, `new Foo()`, parameter defaults, and simple declaration-based destructuring, but it intentionally does not reason about object spreads, string destructuring, `for…of` bindings, or other broader value-flow patterns. Unknown values with similarly named methods may still be reported.
+This is a syntax-only rule with a narrow inference boundary. It skips obvious non-arrays such as scalar literals, direct object literals, `String(value)`, and `new Foo()`. It also leaves parameter defaults, destructured bindings, properties, and variables reassigned before the method call unresolved rather than performing broader value-flow analysis. Unknown values with similarly named methods may still be reported.
 
 ## Examples
 

@@ -5,11 +5,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'new array.map(fn);',
 		'map(fn);',
 		'array.notMap(fn);',
 		'array[map](fn);',
 		'const mapped = array.map(fn);',
+		'async function run() { const mapped = await array.map(fn); }',
 		'function foo() { return array.filter(fn); }',
 		'foo(array.flat());',
 		'const joined = array.map(fn).join(",");',
@@ -60,9 +60,13 @@ test.snapshot({
 			value.map(fn);
 		`,
 		'let text = []; text = \'text\'; text.slice(1);',
+		'function check(array) { array = \'text\'; array.includes(value); }',
 		'let text; text = \'text\'; text.slice(1);',
 		'String(foo).slice(1);',
+		'Symbol(foo).slice(1);',
+		'(prefix + value).includes(expected);',
 		'const text = String(foo); text.slice(1);',
+		'const symbol = Symbol(foo); symbol.slice(1);',
 		'const text = String(foo); const alias = text; alias.slice(1);',
 		'const {value = String(foo)} = {}; value.slice(1);',
 		'function run(text = String(foo)) { text.slice(1); }',
@@ -73,6 +77,13 @@ test.snapshot({
 		'array.values();',
 		'await database.insert(xProspects).values({value1: \'hello\'});',
 		'await database.insert(xProspects).values({value1: \'hello\'}).where(eq(xProspects.id, 1));',
+		'expect([1, 2, 3]).to.be.an(\'array\').that.includes(2);',
+		'expect(value).includes(expected);',
+		'expect.soft(value).includes(expected);',
+		'expect.poll(callback).includes(expected);',
+		'expect.element(element).includes(expected);',
+		'const assertion = expect(value); assertion.includes(expected);',
+		'expect(value).keys(expected);',
 		'const value = undefined; value.slice(1);',
 		'function log(url) { url.toString(); }',
 		'function log(url) { url.toLocaleString(); }',
@@ -80,6 +91,7 @@ test.snapshot({
 			const collection = new Foo();
 			collection.slice(1);
 		`,
+		'const collection = new namespace.Foo(); collection.slice(1);',
 		outdent`
 			class Array {
 				map() {}
@@ -106,6 +118,7 @@ test.snapshot({
 				}
 			}
 		`,
+		'Collection.map(fn);',
 		outdent`
 			let values = [];
 
@@ -138,7 +151,6 @@ test.snapshot({
 			values = [];
 			values.slice(1);
 		`,
-		'let values = []; if (condition) values = \'x\'; values.map(fn);',
 		outdent`
 			let text = 'x';
 
@@ -148,7 +160,6 @@ test.snapshot({
 
 			text.slice(1);
 		`,
-		'let text = \'x\'; if (condition) text = []; text.slice(1);',
 		outdent`
 			condition && array.map(fn);
 		`,
@@ -178,6 +189,7 @@ test.snapshot({
 				foo();
 			}
 		`,
+		'for (; array.some(fn); update()) {}',
 	],
 	invalid: [
 		'array.map(fn);',
@@ -208,8 +220,12 @@ test.snapshot({
 		'array.toSorted(compare);',
 		'array.toReversed();',
 		'array.toSpliced(0, 1);',
+		'array.map(fn).join(",");',
 		'[].values();',
 		'const array = []; array.values();',
+		'let array = []; array.values();',
+		'Array(1).values();',
+		'new Array(1).values();',
 		'Array.from(iterable).values();',
 		'array.with(0, value);',
 		outdent`
@@ -255,6 +271,30 @@ test.snapshot({
 			const values = getValues();
 			values.findIndex(value => value > 0);
 		`,
+		'function check(array) { array.includes(value); }',
+		'getValues().includes(value);',
+		'expectation(value).includes(expected);',
+		'expectation.soft(value).includes(expected);',
+		'const assertion = expectation(value); assertion.includes(expected);',
+		'expect.custom(value).includes(expected);',
+		'function Symbol(value) { return value; } Symbol([]).slice(1);',
+		'const method = "map"; array[method](fn);',
+	],
+});
+
+test({
+	valid: [
+		{
+			code: 'globalArray.values();',
+			languageOptions: {globals: {globalArray: 'readonly'}},
+		},
+	],
+	invalid: [
+		{
+			code: 'globalArray.map(fn);',
+			languageOptions: {globals: {globalArray: 'readonly'}},
+			errors: 1,
+		},
 	],
 });
 
@@ -268,25 +308,43 @@ test.typescript({
 			filename: 'example.ts',
 		},
 		{code: '(bar as Foo).filter();', filename: 'example.ts'},
+		{code: '(bar as Foo).values();', filename: 'example.ts'},
 		{code: '(<Foo>bar).filter();', filename: 'example.ts'},
 		{code: '(bar as any).filter();', filename: 'example.ts'},
 		{code: '(bar as unknown).filter();', filename: 'example.ts'},
+		{code: 'function check(collection: Collection) { collection.includes(value); }', filename: 'example.ts'},
+		{code: 'const collection: Collection = getCollection(); collection.includes(value);', filename: 'example.ts'},
+		{code: 'const collection: Collection = []; collection.values();', filename: 'example.ts'},
+		{code: 'declare const collection: Collection; collection.values();', filename: 'example.ts'},
+		{code: 'const mapped = values.map(fn) as number[];', filename: 'example.ts'},
+		{code: 'type Array<T> = {filter(): void}; (bar as Array<string>).filter();', filename: 'example.ts'},
 		// Non-array type shapes stay unresolved.
 		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},
 		{code: '(bar as Foo & Bar).filter();', filename: 'example.ts'},
-		{code: '(bar as [number, string]).filter();', filename: 'example.ts'},
-		{code: '(bar as readonly [number, string]).filter();', filename: 'example.ts'},
 		{code: '(bar as {filter(): void}).filter();', filename: 'example.ts'},
 		// A non-null assertion does not hide the underlying type assertion.
 		{code: '(bar as Foo)!.filter();', filename: 'example.ts'},
 		{code: 'const bar = \'x\'; (bar satisfies Foo).filter();', filename: 'example.ts'},
 	],
 	invalid: [
+		{code: 'const array: string[] = getArray(); array.includes(value);', filename: 'example.ts', errors: 1},
+		{code: 'const array: string[] = getArray(); array.values();', filename: 'example.ts', errors: 1},
+		{code: 'declare const array: string[]; array.includes(value);', filename: 'example.ts', errors: 1},
+		{code: 'declare const array: string[]; array.values();', filename: 'example.ts', errors: 1},
+		{code: 'const array: string[] = getArray(); let alias = array; alias.values();', filename: 'example.ts', errors: 1},
+		{code: 'function check(array: string[]) { array.includes(value); }', filename: 'example.ts', errors: 1},
+		{code: 'function check(ArrayLike: string[]) { ArrayLike.includes(value); }', filename: 'example.ts', errors: 1},
+		{code: 'function check(array: string[]) { array.values(); }', filename: 'example.ts', errors: 1},
+		{code: 'type Items = string[]; (bar as Items).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as [number, string]).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as readonly [number, string]).filter();', filename: 'example.ts', errors: 1},
+		{code: '([1, 2] as const).map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn) as number[];', filename: 'example.ts', errors: 1},
 		{code: '<number[]>values.map(fn);', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn)!;', filename: 'example.ts', errors: 1},
 		{code: 'values.map(fn) satisfies Foo;', filename: 'example.ts', errors: 1},
 		{code: '(bar as Foo[]).filter();', filename: 'example.ts', errors: 1},
+		{code: '(bar as Foo[]).values();', filename: 'example.ts', errors: 1},
 		{code: '(<Foo[]>bar).filter();', filename: 'example.ts', errors: 1},
 		{code: '(bar as Array<Foo>).filter();', filename: 'example.ts', errors: 1},
 		{code: '(<Array<Foo>>bar).filter();', filename: 'example.ts', errors: 1},
