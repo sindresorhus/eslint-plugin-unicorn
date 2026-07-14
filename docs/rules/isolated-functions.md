@@ -282,10 +282,15 @@ makeSynchronous(async () => {
 To enable a predefined set of globals, use the [`globals` package](https://npmjs.com/package/globals) similarly to how you would use it in `languageOptions` (see [ESLint docs on globals](https://eslint.org/docs/latest/use/configure/language-options#predefined-global-variables)):
 
 ```js
+import {defineConfig} from 'eslint/config';
+import unicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 
-export default [
+export default defineConfig([
 	{
+		plugins: {
+			unicorn,
+		},
 		languageOptions: {
 			globals: {
 				...globals.builtin,
@@ -299,5 +304,5 @@ export default [
 			],
 		},
 	},
-];
+]);
 ```

@@ -26,25 +26,42 @@ React projects commonly use abbreviation families like `props`, `ref`, `prevStat
 Use an ESLint `files` override if you only want to allow those conventions in React files:
 
 ```js
-{
-	files: ['**/*.{jsx,tsx}'],
-	rules: {
-		'unicorn/name-replacements': [
-			'error',
-			{
-				replacements: {
-					param: false,
-					params: false,
-					prev: false,
-					prop: false,
-					props: false,
-					ref: false,
-					refs: false,
+import typescriptEslintParser from '@typescript-eslint/parser';
+import {defineConfig} from 'eslint/config';
+import unicorn from 'eslint-plugin-unicorn';
+
+export default defineConfig([
+	{
+		files: ['**/*.{jsx,tsx}'],
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
 				},
 			},
-		],
+		},
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/name-replacements': [
+				'error',
+				{
+					replacements: {
+						param: false,
+						params: false,
+						prev: false,
+						prop: false,
+						props: false,
+						ref: false,
+						refs: false,
+					},
+				},
+			],
+		},
 	},
-}
+]);
 ```
 
 ## Examples

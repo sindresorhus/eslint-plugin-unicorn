@@ -34,7 +34,9 @@ import globals from 'globals';
 
 export default defineConfig([
 	{
-		files: ['**/*.js'],
+		files: [
+			'**/*.{js,cjs,mjs}',
+		],
 		languageOptions: {
 			globals: globals.builtin,
 		},
@@ -445,12 +447,11 @@ import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	{
-		files: ['**/*.js'],
-		plugins: {
-			unicorn,
-		},
+		files: [
+			'**/*.{js,cjs,mjs}',
+		],
 		extends: [
-			'unicorn/recommended',
+			unicorn.configs.recommended,
 		],
 	},
 	{
@@ -544,7 +545,7 @@ See the [ESLint docs](https://eslint.org/docs/latest/use/configure/configuration
 
 ### Recommended config
 
-This plugin exposes a `unicorn/recommended` config that enforces good practices.
+This plugin exports a `recommended` config that enforces good practices.
 
 ```js
 import unicorn from 'eslint-plugin-unicorn';
@@ -553,12 +554,11 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	// …
 	{
-		files: ['**/*.js'],
-		plugins: {
-			unicorn,
-		},
+		files: [
+			'**/*.{js,cjs,mjs}',
+		],
 		extends: [
-			'unicorn/recommended',
+			unicorn.configs.recommended,
 		],
 		rules: {
 			'unicorn/prefer-module': 'warn',
@@ -578,12 +578,11 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	// …
 	{
-		files: ['**/*.js'],
-		plugins: {
-			unicorn,
-		},
+		files: [
+			'**/*.{js,cjs,mjs}',
+		],
 		extends: [
-			'unicorn/all',
+			unicorn.configs.all,
 		],
 		rules: {
 			'unicorn/prefer-module': 'warn',

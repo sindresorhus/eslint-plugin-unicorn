@@ -117,22 +117,27 @@ test('validate configuration', async t => {
 	}
 });
 
-test('recommended config works with defineConfig extends', async t => {
+test('recommended config works with defineConfig', async t => {
 	const eslint = new ESLint({
 		baseConfig: defineConfig({
-			files: ['**/*.js'],
-			plugins: {
-				unicorn: eslintPluginUnicorn,
-			},
+			files: [
+				'**/*.{js,cjs,mjs}',
+			],
 			extends: [
-				'unicorn/recommended',
+				eslintPluginUnicorn.configs.recommended,
 			],
 		}),
 		overrideConfigFile: true,
 	});
 
-	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
-	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
+	const results = await Promise.all(['file.js', 'file.cjs', 'file.mjs'].map(async filePath => {
+		const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath});
+		return {filePath, result};
+	}));
+
+	for (const {filePath, result} of results) {
+		t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'), `${filePath} should report unicorn/prefer-includes`);
+	}
 });
 
 test('Every rule has valid meta.type', t => {
