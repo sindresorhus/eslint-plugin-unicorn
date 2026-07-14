@@ -374,6 +374,27 @@ function isBooleanReactReferenceVariable(variable, context) {
 		&& getExpressionBooleanState(definition.node.init.arguments[0], context) === boolean;
 }
 
+function isBooleanVueReferenceVariable(variable, context) {
+	const definition = getSupportedVariableDefinition(variable);
+	const callExpression = definition?.type === 'Variable' ? definition.node.init : undefined;
+	if (
+		hasWriteAfterInitialization(variable)
+		|| callExpression?.type !== 'CallExpression'
+		|| callExpression.callee.type !== 'Identifier'
+	) {
+		return false;
+	}
+
+	const [argument] = callExpression.arguments;
+	if (callExpression.callee.name === 'ref') {
+		return getExpressionBooleanState(argument, context, new Set(), false) === boolean;
+	}
+
+	return callExpression.callee.name === 'computed'
+		&& (isFunction(argument) || isBooleanFunctionReference(argument, context))
+		&& getExpressionBooleanState(argument, context) === boolean;
+}
+
 function combineBooleanStates(states) {
 	if (
 		states.length === 0
@@ -1223,6 +1244,7 @@ const create = context => {
 			if (
 				booleanState === nonBoolean
 				&& !isBooleanReactReferenceVariable(variable, context)
+				&& !isBooleanVueReferenceVariable(variable, context)
 			) {
 				const [definition] = variable.defs;
 

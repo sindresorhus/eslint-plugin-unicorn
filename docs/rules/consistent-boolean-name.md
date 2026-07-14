@@ -39,6 +39,8 @@ React hook function bindings are checked after the required `use` prefix. For ex
 
 React refs initialized with a boolean-like value may use boolean prefixes when the binding name ends in `Ref` or `Reference`, such as `isMountedRef`, `hasConsentRef`, or `hasConsentReference`. The suffix identifies the binding as a ref object.
 
+Vue refs initialized with a boolean-like value by a direct `ref()` call, and computed refs initialized with a boolean-returning function by a direct `computed()` call, may use boolean prefixes, such as `isBranch` or `hasDepartment`. The binding must not be reassigned after initialization.
+
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, but not qualified or namespaced type references.

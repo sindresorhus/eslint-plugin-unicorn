@@ -121,6 +121,50 @@ test({
 			code: 'declare function useRef<T>(value: T): {current: T}; let hasConsentRef = useRef(false); hasConsentRef = "yes";',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isBranch = ref("main");',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isHandler = ref(() => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isPredicate = () => true; const isHandler = ref(isPredicate);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(() => "sales");',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const getDepartment:()=>string; const hasDepartment = computed(getDepartment);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isBranch = ref(false); isBranch = ref("main");',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function vueRef<T>(value: T): Ref<T>; const isBranch = vueRef(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare const Vue: {ref<T>(value: T): Ref<T>}; const isBranch = Vue.ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function shallowRef<T>(value: T): Ref<T>; const isBranch = shallowRef(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(options: {get(): T; set(value: T): void}): Ref<T>; const hasDepartment = computed({get: () => true, set() {}});',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; let hasDepartment = computed(() => true); hasDepartment = computed(() => "sales");',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		{
 			code: 'function useReady() { return true; }',
 			options: [onlyIsPrefixOptions],
@@ -613,6 +657,10 @@ test.snapshot({
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentRef = useRef(false);'),
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),
 		typeAware('declare const React: {useRef<T>(value: T): {current: T}}; const isMountedRef = React.useRef(false);'),
+		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isBranch = ref(false);'),
+		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isBranch = ref(value === true);'),
+		typeAware('interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const departments: unknown[]; const hasDepartment = computed(() => departments.length > 0);'),
+		typeAware('interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const isAvailable:()=>boolean; const hasDepartment = computed(isAvailable);'),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
 		typescript('const useIsReady = () => true;'),
