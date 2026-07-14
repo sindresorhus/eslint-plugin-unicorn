@@ -35,6 +35,11 @@ const typeAware = testCase => {
 	};
 };
 
+const invalidBooleanPrefix = (code, count = 1) => typeAware({
+	code,
+	errors: Array.from({length: count}, () => ({messageId: 'non-boolean-prefix'})),
+});
+
 const onlyIsPrefixOptions = {
 	prefixes: {
 		are: false,
@@ -703,7 +708,7 @@ test.snapshot({
 		typeAware([
 			'declare module "vue" { export function ref<T>(value: T): {value: T}; export function computed<T>(getter: () => T): {value: T}; }',
 			'import {ref, computed} from "vue";',
-			'const isReady = ref(false); const hasReady = computed(() => true);',
+			'const isReady: {value: boolean} = ref(false); const hasReady: {value: boolean} = computed(() => true);',
 		].join('\n')),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
@@ -1129,34 +1134,27 @@ test.snapshot({
 test({
 	valid: [],
 	invalid: [
-		typeAware({
-			code: 'declare const Vue: {ref<T>(value: T): {value: T}}; const {ref} = Vue; const isReady = ref(false);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typeAware({
-			code: 'declare const Vue: {ref<T>(value: T): {value: T}}; const ref = Vue.ref; const isReady = ref(false);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typeAware({
-			code: 'declare const Vue: {computed<T>(getter: () => T): {value: T}}; const computed = Vue.computed; const hasReady = computed(() => true);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typeAware({
-			code: 'declare module "other" { export function ref<T>(value: T): {value: T}; } import {ref} from "other"; const isReady: {value: string} = ref(false);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typeAware({
-			code: 'declare module "vue" { export function computed<T>(getter: () => T): {value: T}; } import {computed as ref} from "vue"; const isReady: {value: string} = ref(false);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typescript({
-			code: 'import ref = require("vue"); const isReady: {value: string} = ref(false);',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
-		typescript({
-			code: 'for (const isReady in {value: true}) {}',
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
+		invalidBooleanPrefix('declare const Vue: {ref<T>(value: T): {value: T}}; const {ref} = Vue; const isReady = ref(false);'),
+		invalidBooleanPrefix('declare const Vue: {ref<T>(value: T): {value: T}}; const ref = Vue.ref; const isReady = ref(false);'),
+		invalidBooleanPrefix('declare const Vue: {computed<T>(getter: () => T): {value: T}}; const computed = Vue.computed; const hasReady = computed(() => true);'),
+		invalidBooleanPrefix('declare module "other" { export function ref<T>(value: T): {value: T}; } import {ref} from "other"; const isReady: {value: string} = ref(false);'),
+		invalidBooleanPrefix('declare module "vue" { export function computed<T>(getter: () => T): {value: T}; } import {computed as ref} from "vue"; const isReady: {value: string} = ref(false);'),
+		invalidBooleanPrefix([
+			'declare module "vue" { function ref<T>(value: T): {value: T}; export = ref; }',
+			'import ref = require("vue");',
+			'const isReady: {value: string} = ref(false);',
+		].join('\n')),
+		invalidBooleanPrefix([
+			'declare module "vue" { export function ref<T>(value: T): {value: T}; }',
+			'import {ref} from "vue";',
+			'let isReady: {value: boolean} = ref(false); isReady = ref(true);',
+		].join('\n')),
+		invalidBooleanPrefix([
+			'declare module "vue" { export function ref<T>(value: T): {value: T}; export function computed<T>(getter: () => T): {value: T}; }',
+			'import {ref, computed} from "vue";',
+			'const isReady: {value: string} = ref("value"); const hasReady: {value: string} = computed(() => "value");',
+		].join('\n'), 2),
+		typescript({code: 'for (const isReady in {value: true}) {}', errors: [{messageId: 'non-boolean-prefix'}]}),
 	],
 });
 
