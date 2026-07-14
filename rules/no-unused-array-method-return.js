@@ -98,7 +98,8 @@ function getVariableValue(node, context) {
 
 	// Supported variable inference boundary:
 	// - exactly one binding definition
-	// - unannotated plain parameters and explicitly array-typed plain parameters or variables
+	// - unannotated or explicitly array-typed plain parameters
+	// - explicitly array-typed variables
 	// - a `VariableDeclarator` whose id is the same identifier we are resolving
 	// - the original declarator initializer for unannotated variables only
 	//

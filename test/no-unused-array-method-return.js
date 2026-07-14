@@ -5,7 +5,6 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
-		'new array.map(fn);',
 		'map(fn);',
 		'array.notMap(fn);',
 		'array[map](fn);',
@@ -279,6 +278,7 @@ test.snapshot({
 		'const assertion = expectation(value); assertion.includes(expected);',
 		'expect.custom(value).includes(expected);',
 		'function Symbol(value) { return value; } Symbol([]).slice(1);',
+		'const method = "map"; array[method](fn);',
 	],
 });
 
