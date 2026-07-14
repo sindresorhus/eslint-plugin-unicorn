@@ -23,30 +23,38 @@ promise.then(value => {
 	return transform(value);
 });
 
+// ✅
+const value = await promise;
+return transform(value);
+```
+```js
 // ❌
 promise.catch(error => {
 	handleError(error);
 });
-
-// ❌
-promise.finally(cleanup);
-
-// ✅
-const value = await promise;
-return transform(value);
 
 // ✅
 try {
 	await promise;
 } catch (error) {
 	handleError(error);
-} finally {
-	cleanup();
 }
-
+```
+```js
 // ✅
 // Intentional fire-and-forget, opted out with `void`.
 void promise.catch(() => {});
+
+// ❌
+promise.finally(cleanup);
+```
+```js
+// ✅
+try {
+	await promise;
+} finally {
+	cleanup();
+}
 ```
 
 ## Comparison with `eslint-plugin-promise/prefer-await-to-then`
