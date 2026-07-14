@@ -46,18 +46,16 @@ try {
 } catch (error) {
 	handleError(error);
 }
-```
 
-```js
 // ✅
 // Intentional fire-and-forget, opted out with `void`.
 void promise.catch(() => {});
-
-// ❌
-promise.finally(cleanup);
 ```
 
 ```js
+// ❌
+promise.finally(cleanup);
+
 // ✅
 try {
 	await promise;
