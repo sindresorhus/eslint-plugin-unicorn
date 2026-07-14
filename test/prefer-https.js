@@ -105,8 +105,7 @@ ruleTest.snapshot({
 		'const element = <svg xmlns=\'http://www.w3.org/2000/svg\'></svg>;',
 		// Spaces around the equals sign
 		'const element = <svg xmlns = "http://www.w3.org/2000/svg"></svg>;',
-		// Well-known namespace URIs are opaque identifiers anywhere they appear,
-		// not just in `xmlns=` attributes (e.g. passed to DOM `*NS` methods).
+		// Well-known namespace URIs are opaque identifiers anywhere they appear, not just in `xmlns=` attributes (e.g. passed to DOM `*NS` methods).
 		'const SVG_NAMESPACE = "http://www.w3.org/2000/svg";',
 		'document.createElementNS("http://www.w3.org/2000/svg", "svg");',
 		'svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", SVG_NAMESPACE);',

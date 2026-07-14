@@ -7,8 +7,7 @@ const messages = {
 };
 
 const HTTP_URL = /(?<![\w+\-.])http:\/\/(?<authority>[^\s!"#'(),/;<>?\\\]`{}]+)/gu;
-// Like `HTTP_URL`, but captures the full URL (including the path) so it can be
-// compared against known namespace URIs. Sticky so it matches at a given index.
+// Like `HTTP_URL`, but captures the full URL (including the path) so it can be compared against known namespace URIs. Sticky so it matches at a given index.
 const HTTP_URL_FULL = /http:\/\/[^\s!"'(),;<>\\\]`{}]+/uy;
 
 // These XML URIs are opaque identifiers defined to use the `http:` scheme. They are not network requests and must not be rewritten.
