@@ -3,6 +3,8 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const MESSAGE_ID = 'prefer-await';
+const SUGGESTION_ID = 'prefer-await/suggestion';
 
 const typeAware = code => ({
 	code,
@@ -48,6 +50,40 @@ test.snapshot({
 		'promise.then(value => transform(value));',
 		'promise.then(async value => await transform(value));',
 		'promise.then(value => ({await: value}));',
+		outdent`
+			promise.then(value =>
+			  transform(
+			    value,
+			  )
+			);
+		`,
+		outdent`
+			promise.then(value => (
+			  transform(
+			    value,
+			  )
+			));
+		`,
+		outdent`
+			promise.then(value => \`first
+			second ${'$'}{value}\`);
+		`,
+		{
+			code: outdent`
+				promise.then(value => <div>
+				  text {value}
+				</div>);
+			`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'promise.then(value => "first\\\nsecond");',
+		outdent`
+			promise.then(value => transform(
+			  /* Keep
+			     this indentation. */
+			  value,
+			));
+		`,
 		'promise.then(value => { transform(value); });',
 		outdent`
 			if (condition) {
@@ -186,5 +222,25 @@ test.snapshot({
 		typeAware('function foo(thenable: {then(handler: (value: string) => void): void}) { thenable.then(value => value); }'),
 		typeAware('function foo(value: Missing) { value.then(value => value); }'),
 		typeAware('function foo(value: any) { value.catch(() => {}); }'),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (condition) {\r\n  promise.then(value => transform(value));\r\n}\r\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'if (condition) {\r\n  void (async () => {\r\n    const value = await promise;\r\n    return transform(value);\r\n  })();\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
 	],
 });

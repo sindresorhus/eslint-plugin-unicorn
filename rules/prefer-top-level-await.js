@@ -1,6 +1,6 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isCallExpressionValueDiscardedWithVoid, isLogicalExpression} from './utils/index.js';
+import {isCallExpressionValueDiscardedWithVoid, isLogicalExpression, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -143,16 +143,11 @@ const isAwaitExpressionArgument = node => {
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
-const variableDeclaratorInitializerWrappers = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const isVariableDeclaratorInitializer = node => {
-	while (variableDeclaratorInitializerWrappers.has(node.parent.type)) {
+	while (
+		node.parent.type === 'ChainExpression'
+		|| isTypeScriptExpressionWrapper(node.parent)
+	) {
 		node = node.parent;
 	}
 

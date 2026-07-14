@@ -2,6 +2,7 @@ import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isDirective} from './ast/index.js';
 import {
 	getIndentString,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getReferences,
 	containsSuspensionPoint,
@@ -21,6 +22,8 @@ const messages = {
 };
 
 const promiseMethods = new Set(['then', 'catch', 'finally']);
+const linebreakPattern = /\r\n|[\n\r]/;
+const whitespaceSensitiveNodeTypes = new Set(['JSXText', 'Literal', 'TemplateElement']);
 
 function isPromiseObject(node, context) {
 	const {parserServices} = context.sourceCode;
@@ -95,8 +98,8 @@ function hasCallbackBindingConflict(promiseObject, callback, context) {
 }
 
 function isAtStartOfLine(node, context) {
-	const {line, column} = context.sourceCode.getLoc(node).start;
-	return context.sourceCode.lines[line - 1].slice(0, column).trim() === '';
+	const [start] = context.sourceCode.getRange(node);
+	return getLineIndentAtIndex(start, context.sourceCode) !== undefined;
 }
 
 function containsAwaitIdentifier(node, visitorKeys) {
@@ -121,6 +124,42 @@ function containsNonModuleAwaitIdentifier(node, context) {
 		&& containsAwaitIdentifier(node, context.sourceCode.visitorKeys);
 }
 
+function getLineIndentAtIndex(index, sourceCode) {
+	const {line, column} = sourceCode.getLocFromIndex(index);
+	const before = sourceCode.lines[line - 1].slice(0, column);
+	return before.trim() === '' ? before : undefined;
+}
+
+function getLinebreak(sourceCode) {
+	return sourceCode.text.match(linebreakPattern)?.[0] ?? '\n';
+}
+
+function hasMultilineWhitespaceSensitiveNode(node, sourceCode) {
+	if (
+		whitespaceSensitiveNodeTypes.has(node.type)
+		&& sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line
+	) {
+		return true;
+	}
+
+	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
+		const child = node[key];
+		for (const childNode of Array.isArray(child) ? child : [child]) {
+			if (childNode?.type && hasMultilineWhitespaceSensitiveNode(childNode, sourceCode)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+function hasMultilineWhitespaceSensitiveContent(node, context) {
+	const {sourceCode} = context;
+	return hasMultilineWhitespaceSensitiveNode(node, sourceCode)
+		|| sourceCode.getCommentsInside(node).some(comment => sourceCode.getLoc(comment).start.line !== sourceCode.getLoc(comment).end.line);
+}
+
 function getChildIndent(callExpression, callback, context) {
 	const {sourceCode} = context;
 	const indent = getIndentString(callExpression, context);
@@ -133,6 +172,16 @@ function getChildIndent(callExpression, callback, context) {
 			&& sourceCode.getLoc(firstBodyToken).start.line > sourceCode.getLoc(openingBrace).start.line
 		) {
 			return getIndentString(firstBodyToken, context);
+		}
+	} else {
+		const [start] = getParenthesizedRange(callback.body, context);
+		const rangeIndent = getLineIndentAtIndex(start, sourceCode);
+		if (rangeIndent?.startsWith(indent) && rangeIndent.length > indent.length) {
+			return rangeIndent;
+		}
+
+		if (sourceCode.getLoc(callback.body).start.line > sourceCode.getLoc(callExpression).start.line) {
+			return getIndentString(callback.body, context);
 		}
 	}
 
@@ -148,6 +197,25 @@ function getChildIndent(callExpression, callback, context) {
 	}
 
 	return `${indent}\t`;
+}
+
+function getExpressionBodyText(callbackBody, callExpression, childIndent, context) {
+	const {sourceCode} = context;
+	const [start, end] = getParenthesizedRange(callbackBody, context);
+	const sourceIndent = getLineIndentAtIndex(start, sourceCode) ?? getIndentString(callExpression, context);
+	const [firstLine, ...remainingLines] = sourceCode.text.slice(start, end).split(linebreakPattern);
+	const lines = [
+		firstLine,
+		...remainingLines.map(line => {
+			if (line.trim() === '') {
+				return line;
+			}
+
+			const relativeLine = line.startsWith(sourceIndent) ? line.slice(sourceIndent.length) : line;
+			return `${childIndent}${relativeLine}`;
+		}),
+	];
+	return `return ${lines.join(getLinebreak(sourceCode))};`;
 }
 
 function canSuggestForCall(callExpression, context) {
@@ -185,6 +253,7 @@ function canSuggestForCallback(callback, callExpression, context) {
 		)
 		&& !containsNonModuleAwaitIdentifier(callback, context)
 		&& !(callback.body.type === 'BlockStatement' && callback.body.body.some(statement => isDirective(statement)))
+		&& (callback.body.type === 'BlockStatement' || !hasMultilineWhitespaceSensitiveContent(callback.body, context))
 		&& !wouldRemoveComments(context, callExpression, [callee.object, ...callback.params, callback.body]);
 }
 
@@ -218,17 +287,18 @@ function getSuggestion(callExpression, context) {
 		initialStatement = `await ${awaitArgumentText};`;
 	}
 
-	const bodyText = callback.body.type === 'BlockStatement'
-		? context.sourceCode.getText(callback.body).slice(1, -1).trim()
-		: `return ${getParenthesizedText(callback.body, context)};`;
 	const indent = getIndentString(callExpression, context);
 	const childIndent = getChildIndent(callExpression, callback, context);
+	const linebreak = getLinebreak(context.sourceCode);
+	const bodyText = callback.body.type === 'BlockStatement'
+		? context.sourceCode.getText(callback.body).slice(1, -1).trim()
+		: getExpressionBodyText(callback.body, callExpression, childIndent, context);
 	const replacement = [
 		'void (async () => {',
 		`${childIndent}${initialStatement}`,
 		...(bodyText ? [`${childIndent}${bodyText}`] : []),
 		`${indent}})()`,
-	].join('\n');
+	].join(linebreak);
 
 	return {
 		messageId: SUGGESTION_ID,
