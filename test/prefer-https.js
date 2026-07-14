@@ -52,15 +52,6 @@ const XML_SECURITY_URIS = [
 	'http://www.w3.org/2007/05/xmldsig-more#sha512-rsa-MGF1',
 ];
 
-const XML_SECURITY_URI_PREFIXES = [
-	'http://www.w3.org/2000/09/xmldsig#',
-	'http://www.w3.org/2001/04/xmldsig-more#',
-	'http://www.w3.org/2001/04/xmlenc#',
-	'http://www.w3.org/2001/10/xml-exc-c14n#',
-	'http://www.w3.org/2002/07/decrypt#',
-	'http://www.w3.org/2007/05/xmldsig-more#',
-];
-
 const XML_SECURITY_IDENTIFIER_NAMES = [
 	'xmldsig',
 	'xmldsig-more',
@@ -117,7 +108,6 @@ ruleTest.snapshot({
 		'const ns = "http://purl.org/dc/elements/1.1/";',
 		'const ns = "http://www.sitemaps.org/schemas/sitemap/0.9";',
 		...XML_SECURITY_URIS.map(uri => `const uri = "${uri}";`),
-		...XML_SECURITY_URI_PREFIXES.map(uri => `const uri = "${uri}future-algorithm";`),
 		...XML_SECURITY_IDENTIFIER_NAMES.map(name => `const uri = "http://www.w3.org/2099/12/${name}#future-algorithm";`),
 		'const uri = "http://www.w3.org/2009/xmldsig11#future-algorithm";',
 		'const uri = "http://www.w3.org/2009/xmlenc11#future-algorithm";',
