@@ -127,6 +127,10 @@ test.snapshot({
 			code: 'await (foo.then(bar) as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'await (foo.then(bar) as Promise<void>).catch(handleError);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -254,6 +258,10 @@ test.snapshot({
 		},
 		{
 			code: 'const foo = async () => {}; await (foo() satisfies Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = async () => {}; await (foo() as Promise<void>).catch(handleError);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		outdent`

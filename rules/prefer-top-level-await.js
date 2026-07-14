@@ -14,11 +14,18 @@ const messages = {
 };
 
 const promisePrototypeMethods = ['then', 'catch', 'finally'];
-const isTopLevelCallExpression = node => {
-	if (node.type !== 'CallExpression') {
-		return false;
+const getOutermostTransparentExpression = node => {
+	while (
+		node.parent.type === 'ChainExpression'
+		|| isTypeScriptExpressionWrapper(node.parent)
+	) {
+		node = node.parent;
 	}
 
+	return node;
+};
+
+const isTopLevelCallExpression = node => {
 	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
 		if (
 			isFunction(ancestor)
@@ -32,14 +39,16 @@ const isTopLevelCallExpression = node => {
 	return true;
 };
 
-const isPromiseMethodCalleeObject = node =>
-	node.parent.type === 'MemberExpression'
-	&& node.parent.object === node
-	&& !node.parent.computed
-	&& node.parent.property.type === 'Identifier'
-	&& promisePrototypeMethods.includes(node.parent.property.name)
-	&& node.parent.parent.type === 'CallExpression'
-	&& node.parent.parent.callee === node.parent;
+const isPromiseMethodCalleeObject = node => {
+	node = getOutermostTransparentExpression(node);
+	return node.parent.type === 'MemberExpression'
+		&& node.parent.object === node
+		&& !node.parent.computed
+		&& node.parent.property.type === 'Identifier'
+		&& promisePrototypeMethods.includes(node.parent.property.name)
+		&& node.parent.parent.type === 'CallExpression'
+		&& node.parent.parent.callee === node.parent;
+};
 
 const isSchemaIdentifier = node =>
 	node.type === 'Identifier'
@@ -59,7 +68,6 @@ const allowedSchemaIdentifierMethods = new Set([
 const terminalSchemaMethods = new Set(['parse', 'safeParse', 'spa']);
 const promiseLikeSchemaMethods = new Set(['then', 'finally']);
 const zodNamespaceProperties = new Set(['coerce']);
-const isTransparentExpressionWrapper = node => node.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node);
 
 const isUnsupportedSchemaProperty = (propertyName, isCalled) =>
 	promiseLikeSchemaMethods.has(propertyName)
@@ -137,18 +145,12 @@ const isSchemaCatchObject = node => {
 };
 
 const isAwaitExpressionArgument = node => {
-	while (isTransparentExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
+	node = getOutermostTransparentExpression(node);
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
 const isVariableDeclaratorInitializer = node => {
-	while (isTransparentExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
+	node = getOutermostTransparentExpression(node);
 	return node.parent.type === 'VariableDeclarator' && node.parent.init === node;
 };
 
@@ -267,9 +269,7 @@ function create(context) {
 		// `definition.kind` is populated by espree but is undefined under
 		// `@typescript-eslint/parser`, so fall back to `definition.parent.kind`
 		// (the enclosing VariableDeclaration) to stay cross-parser. See #2946.
-		// Note: non-`const` kinds — `let`, `var`, `using`, `await using` — all
-		// take the else branch and harmlessly bail at the `isFunction` guard
-		// below, preserving the rule's intentional const-only behavior.
+		// All non-`const` kinds (`let`, `var`, `using`, and `await using`) take the else branch and harmlessly bail at the `isFunction` guard below, preserving the rule's intentional const-only behavior.
 		const variableKind = definition.type === 'Variable'
 			? (definition.kind ?? definition.parent?.kind)
 			: undefined;
