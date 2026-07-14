@@ -105,7 +105,7 @@ For React projects, allow both kebab-case and PascalCase:
 ]
 ```
 
-To enforce PascalCase only for JSX/TSX files, use ESLint's `files` config:
+To enforce PascalCase only for TypeScript and TSX files, use ESLint's `files` config:
 
 ```js
 import typescriptEslintParser from '@typescript-eslint/parser';
@@ -127,7 +127,7 @@ export default defineConfig([
 		},
 	},
 	{
-		files: ['**/*.{jsx,tsx}'],
+		files: ['**/*.{ts,tsx}'],
 		languageOptions: {
 			parser: typescriptEslintParser,
 			parserOptions: {
