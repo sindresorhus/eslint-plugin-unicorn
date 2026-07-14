@@ -118,6 +118,14 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
+			code: 'declare function useRef<T>(value: T): {current: T}; const isHandlerRef = useRef(() => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function useRef<T>(value: T): {current: T}; const isPredicate = () => true; const isHandlerRef = useRef(isPredicate);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
 			code: 'declare function useRef<T>(value: T): {current: T}; let hasConsentRef = useRef(false); hasConsentRef = "yes";',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
@@ -146,7 +154,19 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed((function* () { yield true; }) as () => boolean);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
 			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const getDepartment = async () => true; const hasDepartment = computed(getDepartment);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(() => () => true);',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
@@ -679,7 +699,7 @@ test.snapshot({
 		typeAware('declare function computed<T>(getter: () => T): {value: T}; declare const departments: unknown[]; const hasDepartment = computed(() => departments.length > 0);'),
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; let hasDepartment = computed(() => true);'),
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const isAvailable: () => boolean; const hasDepartment = computed(isAvailable);'),
-		typeAware('declare const isSet: boolean; declare const computed: (isGetter: () => boolean) => object; const hasDepartment = computed(() => { const isValue = isSet; return isValue; });'),
+		typeAware('declare const isSet: boolean; declare function computed<T>(getter: () => T): {value: T}; const hasDepartment = computed(() => { const isValue = isSet; return isValue; });'),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
 		typescript('const useIsReady = () => true;'),
@@ -699,6 +719,13 @@ test.snapshot({
 		typescript('declare const useCool: (() => number) | undefined;'),
 		'async function isReady() { return true; }',
 		'const isReady = async () => true;',
+		'let isReady = true; isReady &&= false;',
+		'let isReady = true; isReady ||= false; isReady ??= true;',
+		'let completed = true; completed++;',
+		'let completed = true; completed += false;',
+		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; const isReady = computed((() => true) as () => boolean);'),
+		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; const isReady = computed((() => true) satisfies () => boolean);'),
+		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const isGetter: () => boolean; const isReady = computed(isGetter!);'),
 	],
 	invalid: [
 		'const completed = true;',
@@ -1083,6 +1110,10 @@ test.snapshot({
 			'\tconsole.log(showProgress);',
 			'}',
 		].join('\n')),
+		'let completed = true; completed &&= false;',
+		'let isReady = true; isReady++;',
+		'let isReady = true; isReady += false;',
+		'let isReady = true; isReady &&= "yes";',
 	].map(testCase => typeof testCase === 'string' ? typescript(testCase) : testCase),
 });
 
@@ -1170,6 +1201,14 @@ test.snapshot({
 			}],
 		},
 		typescript('interface Task { completed: boolean; }'),
+		typescript({
+			code: 'const task = {completed: true as string};',
+			options: [{checkProperties: true}],
+		}),
+		typescript({
+			code: 'class Task { completed: string = true as string; }',
+			options: [{checkProperties: true}],
+		}),
 	],
 	invalid: [
 		{
