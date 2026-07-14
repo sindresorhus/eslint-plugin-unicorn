@@ -32,12 +32,21 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 	return staticValue.value;
 };
 
-const isSplitCallWithoutLimit = node =>
-	isMethodCall(node, {
-		method: 'split',
-		argumentsLength: 1,
-	})
-	&& isSupportedSeparator(node.arguments[0]);
+const getSplitCallWithoutLimit = node => {
+	const splitCall = node?.type === 'ChainExpression' ? node.expression : node;
+
+	if (
+		!isMethodCall(splitCall, {
+			method: 'split',
+			argumentsLength: 1,
+		})
+		|| !isSupportedSeparator(splitCall.arguments[0])
+	) {
+		return;
+	}
+
+	return splitCall;
+};
 
 const createProblem = (node, splitCall, limit, context) => ({
 	node,
@@ -47,16 +56,16 @@ const createProblem = (node, splitCall, limit, context) => ({
 
 const getDestructuringProblem = (pattern, splitCall, context) => {
 	const {elements} = pattern;
-	const unwrappedSplitCall = splitCall?.type === 'ChainExpression' ? splitCall.expression : splitCall;
+	const directSplitCall = getSplitCallWithoutLimit(splitCall);
 	if (
 		elements.length === 0
 		|| elements.at(-1)?.type === 'RestElement'
-		|| !isSplitCallWithoutLimit(unwrappedSplitCall)
+		|| !directSplitCall
 	) {
 		return;
 	}
 
-	return createProblem(pattern, unwrappedSplitCall, elements.length, context);
+	return createProblem(pattern, directSplitCall, elements.length, context);
 };
 
 /** @param {import('eslint').Rule.RuleContext} context */
@@ -66,9 +75,13 @@ const create = context => {
 	context.on('MemberExpression', node => {
 		if (
 			!node.computed
-			|| !isSplitCallWithoutLimit(node.object)
 			|| isLeftHandSide(node)
 		) {
+			return;
+		}
+
+		const splitCall = getSplitCallWithoutLimit(node.object);
+		if (!splitCall) {
 			return;
 		}
 
@@ -77,7 +90,7 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, node.object, index + 1, context);
+		return createProblem(node, splitCall, index + 1, context);
 	});
 
 	context.on('CallExpression', node => {
@@ -88,8 +101,8 @@ const create = context => {
 			return;
 		}
 
-		const {object: splitCall} = node.callee;
-		if (!isSplitCallWithoutLimit(splitCall)) {
+		const splitCall = getSplitCallWithoutLimit(node.callee.object);
+		if (!splitCall) {
 			return;
 		}
 

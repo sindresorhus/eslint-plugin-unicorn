@@ -16,6 +16,7 @@ test({
 		'string.split("/").at(-1)',
 		'string.split("/").at(numberVariable)',
 		'string.split("/")[numberVariable]',
+		'const index = 0;\nstring.split("/").index',
 		'string.split(separator)[0]',
 		'string.split(customSplitter)[0]',
 		'string.split("")[0]',
@@ -117,6 +118,11 @@ test({
 		{
 			code: 'string?.split?.("/")[1]',
 			output: 'string?.split?.("/", 2)[1]',
+			errors,
+		},
+		{
+			code: '(string?.split("/"))[0]',
+			output: '(string?.split("/", 1))[0]',
 			errors,
 		},
 		{

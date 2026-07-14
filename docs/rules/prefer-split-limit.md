@@ -51,4 +51,4 @@ const [firstPart, ...remainingParts] = string.split('/');
 ```
 
 > [!NOTE]
-> Performance benefits depend on the JavaScript engine. V8 doesn't optimize `limit` for string separators, so it may not help with short strings. The main benefit is clearer intent showing you only need specific parts.
+> Performance benefits depend on the JavaScript engine. The main benefit is clearer intent showing you only need specific parts.
