@@ -48,6 +48,7 @@ test.snapshot({
 		'promise.then(() => {});',
 		'promise.then(() => doSomething());',
 		'promise.then(value => transform(value));',
+		'fetch(url).then(response => response.json());',
 		'promise.then(async value => await transform(value));',
 		'promise.then(value => ({await: value}));',
 		outdent`
