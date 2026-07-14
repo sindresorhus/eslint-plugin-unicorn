@@ -154,6 +154,7 @@ ruleTest.snapshot({
 		'const element = <svg xmlns="http://www.w3.org/2000/svg" data-url="http://sindresorhus.com"></svg>;',
 		// Attribute names ending in "xmlns" are not namespace declarations
 		'const element = <div data-xmlns="http://sindresorhus.com"></div>;',
+		'const $xmlns = "http://sindresorhus.com";',
 		// A longer URL that merely shares a namespace prefix is not a namespace
 		'const url = "http://www.w3.org/2000/svg/extra/path";',
 		// The bare registry host is not itself a namespace identifier

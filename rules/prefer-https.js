@@ -66,9 +66,9 @@ function shouldReport(authority) {
 function isXmlNamespaceValue(text, matchIndex) {
 	// 30 chars covers `xmlns:somePrefix="` with a prefix up to 22 chars long.
 	const preceding = text.slice(Math.max(0, matchIndex - 30), matchIndex);
-	// The negative lookbehind prevents matching attribute names ending in "xmlns" (e.g. notxmlns or data-xmlns).
+	// The negative lookbehind prevents matching names ending in "xmlns" (e.g. notxmlns, $xmlns, or data-xmlns).
 	// [\w.-]+ covers XML NCNames, which allow hyphens and dots (e.g. xmlns:xsl-fo).
-	return /(?<![\w\-.:])xmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
+	return /(?<![\w#$\-.:])xmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
 }
 
 function isIgnoredByPattern(url, patterns) {
@@ -112,6 +112,7 @@ const create = context => {
 		const {text} = sourceCode;
 
 		for (const match of text.matchAll(URL_PATTERN)) {
+			// The scanner is case-insensitive to consume complete URLs, but only lowercase `http://` is reported.
 			if (match.groups.protocol !== 'http') {
 				continue;
 			}
