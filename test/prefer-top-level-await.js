@@ -176,6 +176,10 @@ test.snapshot({
 			code: '(foo.then(bar) as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: '(foo.then(bar) as Promise<void>).catch(handleError);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
