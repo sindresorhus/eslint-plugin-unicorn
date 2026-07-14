@@ -68,7 +68,7 @@ function hasPromiseMethodCallInChain(node, context) {
 	}
 }
 
-function getAwaitedText(node, context) {
+function getAwaitArgumentText(node, context) {
 	let text = getParenthesizedText(node, context);
 	if (
 		!isParenthesized(node, context)
@@ -80,10 +80,10 @@ function getAwaitedText(node, context) {
 	return text;
 }
 
-function hasCallbackBindingConflict(node, callback, context) {
-	const [start, end] = context.sourceCode.getRange(node);
+function hasCallbackBindingConflict(promiseObject, callback, context) {
+	const [start, end] = context.sourceCode.getRange(promiseObject);
 	const referencedNames = new Set(
-		getReferences(context.sourceCode.getScope(node))
+		getReferences(context.sourceCode.getScope(promiseObject))
 			.filter(reference => {
 				const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
 				return referenceStart >= start && referenceEnd <= end;
@@ -94,8 +94,8 @@ function hasCallbackBindingConflict(node, callback, context) {
 	return context.sourceCode.getScope(callback).variables.some(variable => referencedNames.has(variable.name));
 }
 
-function isAtStartOfLine(callExpression, context) {
-	const {line, column} = context.sourceCode.getLoc(callExpression).start;
+function isAtStartOfLine(node, context) {
+	const {line, column} = context.sourceCode.getLoc(node).start;
 	return context.sourceCode.lines[line - 1].slice(0, column).trim() === '';
 }
 
@@ -116,6 +116,40 @@ function containsAwaitIdentifier(node, visitorKeys) {
 	return false;
 }
 
+function containsNonModuleAwaitIdentifier(node, context) {
+	return context.sourceCode.ast.sourceType !== 'module'
+		&& containsAwaitIdentifier(node, context.sourceCode.visitorKeys);
+}
+
+function getChildIndent(callExpression, callback, context) {
+	const {sourceCode} = context;
+	const indent = getIndentString(callExpression, context);
+	if (callback.body.type === 'BlockStatement') {
+		const openingBrace = sourceCode.getFirstToken(callback.body);
+		const closingBrace = sourceCode.getLastToken(callback.body);
+		const firstBodyToken = sourceCode.getTokenAfter(openingBrace, {includeComments: true});
+		if (
+			firstBodyToken !== closingBrace
+			&& sourceCode.getLoc(firstBodyToken).start.line > sourceCode.getLoc(openingBrace).start.line
+		) {
+			return getIndentString(firstBodyToken, context);
+		}
+	}
+
+	for (let ancestor = callExpression.parent.parent; ancestor; ancestor = ancestor.parent) {
+		if (!isAtStartOfLine(ancestor, context)) {
+			continue;
+		}
+
+		const ancestorIndent = getIndentString(ancestor, context);
+		if (ancestorIndent.length < indent.length && indent.startsWith(ancestorIndent)) {
+			return `${indent}${indent.slice(ancestorIndent.length)}`;
+		}
+	}
+
+	return `${indent}\t`;
+}
+
 function canSuggestForCall(callExpression, context) {
 	const {callee} = callExpression;
 	return !callExpression.optional
@@ -126,19 +160,30 @@ function canSuggestForCall(callExpression, context) {
 		&& callExpression.arguments.length === 1
 		&& callExpression.parent.type === 'ExpressionStatement'
 		&& isAtStartOfLine(callExpression, context)
-		&& !containsAwaitIdentifier(callee.object, context.sourceCode.visitorKeys)
+		&& !containsNonModuleAwaitIdentifier(callee.object, context)
 		&& !containsSuspensionPoint(callee.object, context.sourceCode.visitorKeys)
 		&& !hasPromiseMethodCallInChain(callee.object, context);
 }
 
 function canSuggestForCallback(callback, callExpression, context) {
+	if (callback.type !== 'ArrowFunctionExpression') {
+		return false;
+	}
+
 	const {callee} = callExpression;
-	return callback.type === 'ArrowFunctionExpression'
-		&& callback.params.length <= 1
+	const [parameter] = callback.params;
+	return callback.params.length <= 1
 		&& !callback.typeParameters
 		&& !callback.returnType
-		&& (!callback.params[0] || (callback.params[0].type === 'Identifier' && callback.params[0].name !== 'let' && !callback.params[0].optional))
-		&& !containsAwaitIdentifier(callback, context.sourceCode.visitorKeys)
+		&& (
+			!parameter
+			|| (
+				parameter.type === 'Identifier'
+				&& parameter.name !== 'let'
+				&& !parameter.optional
+			)
+		)
+		&& !containsNonModuleAwaitIdentifier(callback, context)
 		&& !(callback.body.type === 'BlockStatement' && callback.body.body.some(statement => isDirective(statement)))
 		&& !wouldRemoveComments(context, callExpression, [callee.object, ...callback.params, callback.body]);
 }
@@ -158,7 +203,8 @@ function getSuggestion(callExpression, context) {
 	}
 
 	const [parameter] = callback.params;
-	let declaration;
+	const awaitArgumentText = getAwaitArgumentText(callee.object, context);
+	let initialStatement;
 	if (parameter) {
 		const parameterVariable = context.sourceCode.getDeclaredVariables(callback)
 			.find(variable => variable.identifiers.includes(parameter));
@@ -167,19 +213,20 @@ function getSuggestion(callExpression, context) {
 		}
 
 		const kind = parameterVariable.references.some(reference => !reference.init && reference.isWrite()) ? 'let' : 'const';
-		declaration = `${kind} ${context.sourceCode.getText(parameter)} = await ${getAwaitedText(callee.object, context)};`;
+		initialStatement = `${kind} ${context.sourceCode.getText(parameter)} = await ${awaitArgumentText};`;
 	} else {
-		declaration = `await ${getAwaitedText(callee.object, context)};`;
+		initialStatement = `await ${awaitArgumentText};`;
 	}
 
 	const bodyText = callback.body.type === 'BlockStatement'
 		? context.sourceCode.getText(callback.body).slice(1, -1).trim()
 		: `return ${getParenthesizedText(callback.body, context)};`;
 	const indent = getIndentString(callExpression, context);
+	const childIndent = getChildIndent(callExpression, callback, context);
 	const replacement = [
 		'void (async () => {',
-		`${indent}\t${declaration}`,
-		...(bodyText ? [`${indent}\t${bodyText}`] : []),
+		`${childIndent}${initialStatement}`,
+		...(bodyText ? [`${childIndent}${bodyText}`] : []),
 		`${indent}})()`,
 	].join('\n');
 

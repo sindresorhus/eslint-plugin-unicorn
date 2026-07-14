@@ -1,3 +1,5 @@
+import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+
 /**
 Check whether the value of a call expression or its outer call chain is explicitly discarded with `void`.
 
@@ -6,18 +8,26 @@ Check whether the value of a call expression or its outer call chain is explicit
 */
 export default function isCallExpressionValueDiscardedWithVoid(callExpression) {
 	let expression = callExpression;
-	while (
-		expression.parent.type === 'MemberExpression'
-		&& expression.parent.object === expression
-		&& expression.parent.parent.type === 'CallExpression'
-		&& expression.parent.parent.callee === expression.parent
-	) {
-		expression = expression.parent.parent;
-	}
+	while (true) {
+		const {parent} = expression;
+		if (
+			parent.type === 'MemberExpression'
+			&& parent.object === expression
+			&& parent.parent.type === 'CallExpression'
+			&& parent.parent.callee === parent
+		) {
+			expression = parent.parent;
+			continue;
+		}
 
-	if (expression.parent.type === 'ChainExpression') {
-		expression = expression.parent;
-	}
+		if (
+			(parent.type === 'ChainExpression' || isTypeScriptExpressionWrapper(parent))
+			&& parent.expression === expression
+		) {
+			expression = parent;
+			continue;
+		}
 
-	return expression.parent.type === 'UnaryExpression' && expression.parent.operator === 'void';
+		return parent.type === 'UnaryExpression' && parent.operator === 'void';
+	}
 }

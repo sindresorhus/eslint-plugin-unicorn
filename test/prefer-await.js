@@ -33,6 +33,10 @@ test.snapshot({
 		'void body.cancel().catch(() => undefined);',
 		'void promise.then(onFulfilled).catch(onRejected);',
 		'void promise?.then(callback);',
+		{
+			code: 'void (promise.then(callback) as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware('function foo(object: {then(): void}) { object.then(); }'),
 		typeAware('function foo(object: {catch(handler: () => void): void}) { object.catch(() => {}); }'),
 		typeAware('function foo(object: {finally(handler: () => void): void}) { object.finally(() => {}); }'),
@@ -42,6 +46,8 @@ test.snapshot({
 		'promise.then(() => {});',
 		'promise.then(() => doSomething());',
 		'promise.then(value => transform(value));',
+		'promise.then(async value => await transform(value));',
+		'promise.then(value => ({await: value}));',
 		'promise.then(value => { transform(value); });',
 		outdent`
 			if (condition) {
@@ -49,6 +55,19 @@ test.snapshot({
 					// Keep this comment.
 					transform(value);
 				});
+			}
+		`,
+		outdent`
+			if (condition) {
+			  promise.then(value => {
+			    // Keep this space-indented comment.
+			    transform(value);
+			  });
+			}
+		`,
+		outdent`
+			if (condition) {
+			  promise.then(value => transform(value));
 			}
 		`,
 		outdent`
@@ -84,6 +103,7 @@ test.snapshot({
 		'promise.then((value, index) => transform(value, index));',
 		'promise.then(value => { var value; return value; });',
 		'promise.then(value => { function value() {} return value; });',
+		'getPromise(value).then(value => transform(value));',
 		'promise.then(() => { const promise = otherPromise; return promise; });',
 		'promise.then(() => { var promise; return promise; });',
 		'promise.then(() => { function promise() {} return promise; });',
@@ -126,6 +146,10 @@ test.snapshot({
 		{
 			code: 'promise.then(await => await);',
 			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(await => await);',
+			languageOptions: {sourceType: 'commonjs'},
 		},
 		{
 			code: 'promise.then(() => await);',

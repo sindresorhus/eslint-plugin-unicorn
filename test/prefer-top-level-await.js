@@ -113,6 +113,10 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'void (foo.then(bar) as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -230,6 +234,10 @@ test.snapshot({
 			const foo = async () => {};
 			void foo();
 		`,
+		{
+			code: 'const foo = async () => {}; void (foo() as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			async function run() {}
 			const resultOfRun = run();
