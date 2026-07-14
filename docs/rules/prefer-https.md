@@ -24,7 +24,7 @@ Some well-known XML URIs are also ignored because rewriting them to `https:` wou
 Type: `Array<string | RegExp>`\
 Default: `[]`
 
-This option lets you specify exact URLs or regular expression patterns to ignore. String values must start with `http://` and are matched exactly against the complete URL text recognized by this rule. Regular expressions are matched against the same text.
+This option lets you specify exact URLs or regular expressions to ignore. String values must start with `http://` and are matched exactly against the complete URL text recognized by this rule. Regular expressions are matched against the same text using standard JavaScript semantics, so use `^` and `$` to match the entire URL.
 
 ```js
 'unicorn/prefer-https': [

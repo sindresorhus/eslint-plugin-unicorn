@@ -72,7 +72,9 @@ ruleTest.snapshot({
 	},
 	valid: [
 		'const url = "https://sindresorhus.com";',
+		'const url = "https://example.com/http://sindresorhus.com";',
 		'const url = "HTTP://sindresorhus.com";',
+		'const url = "HTTP://example.com/http://sindresorhus.com";',
 		'const url = "http://localhost";',
 		'const url = "http://example";',
 		'const url = "http://127.0.0.1";',
@@ -116,6 +118,10 @@ ruleTest.snapshot({
 			options: [{ignore: ['http://example.com/identifier/value']}],
 		},
 		{
+			code: 'const url = "http://example.com/http://sindresorhus.com";',
+			options: [{ignore: ['http://example.com/http://sindresorhus.com']}],
+		},
+		{
 			code: 'const uri = "http://schemas.example.com/value";',
 			options: [{ignore: [/^http:\/\/schemas\.example\.com\//v]}],
 		},
@@ -142,9 +148,12 @@ ruleTest.snapshot({
 		'const url = "http://user:password@sindresorhus.com";',
 		'const url = "http://êxample.com";',
 		'const url = "http://sindresorhus.com:8080/path";',
+		'const url = "http://example.com/http://sindresorhus.com";',
 		'const url = "http://sindresorhus.com.";',
 		// Non-xmlns attribute adjacent to an xmlns attribute must still be flagged
 		'const element = <svg xmlns="http://www.w3.org/2000/svg" data-url="http://sindresorhus.com"></svg>;',
+		// Attribute names ending in "xmlns" are not namespace declarations
+		'const element = <div data-xmlns="http://sindresorhus.com"></div>;',
 		// A longer URL that merely shares a namespace prefix is not a namespace
 		'const url = "http://www.w3.org/2000/svg/extra/path";',
 		// The bare registry host is not itself a namespace identifier

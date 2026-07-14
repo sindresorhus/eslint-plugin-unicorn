@@ -6,9 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer HTTPS over HTTP.',
 };
 
-const HTTP_URL = /(?<![\w+\-.])http:\/\/(?<authority>[^\s!"#'(),/;<>?\\\]`{}]+)/gu;
-// Like `HTTP_URL`, but captures the full URL (including the path) so it can be compared against known namespace URIs. Sticky so it matches at a given index.
-const HTTP_URL_FULL = /http:\/\/[^\s!"'(),;<>\\\]`{}]+/uy;
+const URL_PATTERN = /(?<![\w+\-.])(?<protocol>https?):\/\/(?<authority>[^\s!"#'(),/;<>?\\\]`{}]+)[^\s!"'(),;<>\\\]`{}]*/giu;
 
 // These XML URIs are opaque identifiers defined to use the `http:` scheme. They are not network requests and must not be rewritten.
 const IGNORED_XML_URIS = new Set([
@@ -68,14 +66,9 @@ function shouldReport(authority) {
 function isXmlNamespaceValue(text, matchIndex) {
 	// 30 chars covers `xmlns:somePrefix="` with a prefix up to 22 chars long.
 	const preceding = text.slice(Math.max(0, matchIndex - 30), matchIndex);
-	// \b prevents matching words ending in "xmlns" (e.g. notxmlns).
+	// The negative lookbehind prevents matching attribute names ending in "xmlns" (e.g. notxmlns or data-xmlns).
 	// [\w.-]+ covers XML NCNames, which allow hyphens and dots (e.g. xmlns:xsl-fo).
-	return /\bxmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
-}
-
-function getFullUrl(text, matchIndex) {
-	HTTP_URL_FULL.lastIndex = matchIndex;
-	return HTTP_URL_FULL.exec(text)?.[0];
+	return /(?<![\w\-.:])xmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
 }
 
 function isIgnoredByPattern(url, patterns) {
@@ -118,9 +111,13 @@ const create = context => {
 		const {sourceCode} = context;
 		const {text} = sourceCode;
 
-		for (const match of text.matchAll(HTTP_URL)) {
+		for (const match of text.matchAll(URL_PATTERN)) {
+			if (match.groups.protocol !== 'http') {
+				continue;
+			}
+
 			const start = match.index;
-			const url = getFullUrl(text, start);
+			const url = match[0];
 
 			if (IGNORED_XML_URIS.has(url) || XML_SECURITY_URI.test(url) || ignoredUrls.has(url) || isIgnoredByPattern(url, ignoredUrlPatterns) || isXmlNamespaceValue(text, start)) {
 				continue;
@@ -130,7 +127,7 @@ const create = context => {
 				continue;
 			}
 
-			const end = start + match[0].length;
+			const end = start + 'http://'.length + match.groups.authority.length;
 
 			context.report({
 				node,
@@ -153,7 +150,7 @@ const schema = [
 			ignore: {
 				type: 'array',
 				uniqueItems: true,
-				description: 'Exact URLs and URL patterns to ignore.',
+				description: 'Exact URLs and regular expressions to ignore.',
 			},
 		},
 	},
