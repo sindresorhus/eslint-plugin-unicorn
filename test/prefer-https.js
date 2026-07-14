@@ -185,6 +185,24 @@ test('rejects non-HTTP string ignores', t => {
 	t.regex(error.message, /ignore.*start with.*http:\/\//iv);
 });
 
+test('does not ignore URLs that do not match a regular expression', t => {
+	const code = 'const url = "http://example.com/identifier/value";';
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: ['error', {ignore: [/^http:\/\/other\.example\//v]}],
+		},
+	};
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config);
+	const result = linter.verifyAndFix(code, config);
+
+	t.is(messages.length, 1);
+	t.is(messages[0].message, MESSAGE);
+	t.true(result.fixed);
+	t.is(result.output, 'const url = "https://example.com/identifier/value";');
+});
+
 function createLanguageConfig(language, rule = 'error') {
 	const pluginName = language.split('/', 1)[0];
 
