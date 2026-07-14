@@ -1,6 +1,6 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isLogicalExpression} from './utils/index.js';
+import {isCallExpressionValueDiscardedWithVoid, isLogicalExpression, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -14,11 +14,18 @@ const messages = {
 };
 
 const promisePrototypeMethods = ['then', 'catch', 'finally'];
-const isTopLevelCallExpression = node => {
-	if (node.type !== 'CallExpression') {
-		return false;
+const getOutermostTransparentExpression = node => {
+	while (
+		node.parent.type === 'ChainExpression'
+		|| isTypeScriptExpressionWrapper(node.parent)
+	) {
+		node = node.parent;
 	}
 
+	return node;
+};
+
+const isTopLevelCallExpression = node => {
 	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
 		if (
 			isFunction(ancestor)
@@ -32,14 +39,16 @@ const isTopLevelCallExpression = node => {
 	return true;
 };
 
-const isPromiseMethodCalleeObject = node =>
-	node.parent.type === 'MemberExpression'
-	&& node.parent.object === node
-	&& !node.parent.computed
-	&& node.parent.property.type === 'Identifier'
-	&& promisePrototypeMethods.includes(node.parent.property.name)
-	&& node.parent.parent.type === 'CallExpression'
-	&& node.parent.parent.callee === node.parent;
+const isPromiseMethodCalleeObject = node => {
+	node = getOutermostTransparentExpression(node);
+	return node.parent.type === 'MemberExpression'
+		&& node.parent.object === node
+		&& !node.parent.computed
+		&& node.parent.property.type === 'Identifier'
+		&& promisePrototypeMethods.includes(node.parent.property.name)
+		&& node.parent.parent.type === 'CallExpression'
+		&& node.parent.parent.callee === node.parent;
+};
 
 const isSchemaIdentifier = node =>
 	node.type === 'Identifier'
@@ -136,26 +145,12 @@ const isSchemaCatchObject = node => {
 };
 
 const isAwaitExpressionArgument = node => {
-	if (node.parent.type === 'ChainExpression') {
-		node = node.parent;
-	}
-
+	node = getOutermostTransparentExpression(node);
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
-const variableDeclaratorInitializerWrappers = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const isVariableDeclaratorInitializer = node => {
-	while (variableDeclaratorInitializerWrappers.has(node.parent.type)) {
-		node = node.parent;
-	}
-
+	node = getOutermostTransparentExpression(node);
 	return node.parent.type === 'VariableDeclarator' && node.parent.init === node;
 };
 
@@ -203,6 +198,14 @@ const isInPromiseMethods = node => {
 	&& arrayExpression.parent.arguments[0] === arrayExpression;
 };
 
+const shouldIgnoreCallExpression = node =>
+	!isTopLevelCallExpression(node)
+	|| isCallExpressionValueDiscardedWithVoid(node)
+	|| isPromiseMethodCalleeObject(node)
+	|| isAwaitExpressionArgument(node)
+	|| isVariableDeclaratorInitializer(node)
+	|| isInPromiseMethods(node);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	// Use the real file path so processors or code blocks cannot hide file-level opt-outs.
@@ -215,13 +218,7 @@ function create(context) {
 	}
 
 	context.on('CallExpression', node => {
-		if (
-			!isTopLevelCallExpression(node)
-			|| isPromiseMethodCalleeObject(node)
-			|| isAwaitExpressionArgument(node)
-			|| isVariableDeclaratorInitializer(node)
-			|| isInPromiseMethods(node)
-		) {
+		if (shouldIgnoreCallExpression(node)) {
 			return;
 		}
 
@@ -272,9 +269,7 @@ function create(context) {
 		// `definition.kind` is populated by espree but is undefined under
 		// `@typescript-eslint/parser`, so fall back to `definition.parent.kind`
 		// (the enclosing VariableDeclaration) to stay cross-parser. See #2946.
-		// Note: non-`const` kinds — `let`, `var`, `using`, `await using` — all
-		// take the else branch and harmlessly bail at the `isFunction` guard
-		// below, preserving the rule's intentional const-only behavior.
+		// All non-`const` kinds (`let`, `var`, `using`, and `await using`) take the else branch and harmlessly bail at the `isFunction` guard below, preserving the rule's intentional const-only behavior.
 		const variableKind = definition.type === 'Variable'
 			? (definition.kind ?? definition.parent?.kind)
 			: undefined;

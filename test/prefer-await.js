@@ -3,6 +3,8 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const MESSAGE_ID = 'prefer-await';
+const SUGGESTION_ID = 'prefer-await/suggestion';
 
 const typeAware = code => ({
 	code,
@@ -33,12 +35,85 @@ test.snapshot({
 		'void body.cancel().catch(() => undefined);',
 		'void promise.then(onFulfilled).catch(onRejected);',
 		'void promise?.then(callback);',
+		{
+			code: 'void (promise.then(callback) as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware('function foo(object: {then(): void}) { object.then(); }'),
 		typeAware('function foo(object: {catch(handler: () => void): void}) { object.catch(() => {}); }'),
 		typeAware('function foo(object: {finally(handler: () => void): void}) { object.finally(() => {}); }'),
 	],
 	invalid: [
 		'promise.then(callback);',
+		'promise.then(() => {});',
+		'promise.then(() => doSomething());',
+		'promise.then(value => transform(value));',
+		'fetch(url).then(response => response.json());',
+		'promise.then(async value => await transform(value));',
+		'promise.then(value => ({await: value}));',
+		outdent`
+			promise.then(value =>
+			  transform(
+			    value,
+			  )
+			);
+		`,
+		outdent`
+			promise.then(value => (
+			  transform(
+			    value,
+			  )
+			));
+		`,
+		outdent`
+			promise.then(value => \`first
+			second ${'$'}{value}\`);
+		`,
+		{
+			code: outdent`
+				promise.then(value => <div>
+				  text {value}
+				</div>);
+			`,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'promise.then(value => "first\\\nsecond");',
+		outdent`
+			promise.then(value => transform(
+			  /* Keep
+			     this indentation. */
+			  value,
+			));
+		`,
+		'promise.then(value => { transform(value); });',
+		outdent`
+			if (condition) {
+				promise.then(value => {
+					// Keep this comment.
+					transform(value);
+				});
+			}
+		`,
+		outdent`
+			if (condition) {
+			  promise.then(value => {
+			    // Keep this space-indented comment.
+			    transform(value);
+			  });
+			}
+		`,
+		outdent`
+			if (condition) {
+			  promise.then(value => transform(value));
+			}
+		`,
+		outdent`
+			promise.then(value => {
+				value = transform(value);
+				return value;
+			});
+		`,
+		'(condition ? promise : otherPromise).then(value => transform(value));',
 		'promise.catch(callback);',
 		'promise.finally(callback);',
 		'promise["then"](callback);',
@@ -53,7 +128,24 @@ test.snapshot({
 		'Promise.reject(error).catch(callback);',
 		'new Promise(resolve => resolve()).finally(callback);',
 		'promise.then(onFulfilled, onRejected);',
+		'promise.then(onFulfilled).then(value => transform(value));',
 		'promise.then(onFulfilled).catch(onRejected).finally(onFinally);',
+		'value.then(value => transform(value));',
+		'if (condition) promise.then(value => transform(value));',
+		'const result = promise.then(value => transform(value));',
+		'promise.then(function (value) { return transform(value); });',
+		'promise.then(({value}) => transform(value));',
+		'promise.then((value = fallback) => transform(value));',
+		'promise.then((...values) => transform(values));',
+		'promise.then((value, index) => transform(value, index));',
+		'promise.then(value => { var value; return value; });',
+		'promise.then(value => { function value() {} return value; });',
+		'getPromise(value).then(value => transform(value));',
+		'promise.then(() => { const promise = otherPromise; return promise; });',
+		'promise.then(() => { var promise; return promise; });',
+		'promise.then(() => { function promise() {} return promise; });',
+		'promise.then(value => { "use strict"; return transform(value); });',
+		'promise /* keep */.then(value => transform(value));',
 		'function * run() { yield promise.then(callback); }',
 		'class Runner { constructor() { promise.then(callback); } }',
 		'cy.get("button").then(callback);',
@@ -66,11 +158,62 @@ test.snapshot({
 					});
 			}
 		`,
+		outdent`
+			async function run() {
+				getPromise(await dependency).then(value => transform(value));
+			}
+		`,
+		outdent`
+			function * run() {
+				getPromise(yield dependency).then(value => transform(value));
+			}
+		`,
 		{
 			code: 'function foo(value: any) { value.catch(() => {}); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'promise.then(<Type>(value: Type) => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'promise.then((value): string => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'promise.then(await => await);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(await => await);',
+			languageOptions: {sourceType: 'commonjs'},
+		},
+		{
+			code: 'promise.then(() => await);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(() => { var await; return await; });',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'getPromise(await).then(value => transform(value));',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(() => { await: doSomething(); });',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(let => let);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
 		typeAware('function foo(promise: Promise<string>) { promise.then(value => value); }'),
+		typeAware(outdent`
+			function foo(promise: Promise<string>) {
+				promise.then((value: string) => value);
+			}
+		`),
 		typeAware('function foo(promise: Promise<string>) { promise.catch(error => error); }'),
 		typeAware('function foo(promise: Promise<string>) { promise.finally(() => {}); }'),
 		typeAware('function foo(promise: Promise<string> | undefined) { promise?.then(value => value); }'),
@@ -80,5 +223,52 @@ test.snapshot({
 		typeAware('function foo(thenable: {then(handler: (value: string) => void): void}) { thenable.then(value => value); }'),
 		typeAware('function foo(value: Missing) { value.then(value => value); }'),
 		typeAware('function foo(value: any) { value.catch(() => {}); }'),
+		'(promise).then(value => transform(value));',
+		{
+			code: '(promise as Promise<string>).then((value: string) => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '(promise?.value).then(value => transform(value));',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		},
+		{
+			code: 'promise.then(value => { transform(\n\tvalue,\n); });',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		},
+		{
+			code: 'if (condition) {\r\n  promise.then(value => transform(value));\r\n}\r\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'if (condition) {\r\n  void (async () => {\r\n    const value = await promise;\r\n    return transform(value);\r\n  })();\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'if (condition) {\r\n  promise.then(value => {\r\n    // Keep this comment.\r\n    return transform(value);\r\n  });\r\n}\r\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'if (condition) {\r\n  void (async () => {\r\n    const value = await promise;\r\n    // Keep this comment.\r\n    return transform(value);\r\n  })();\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
 	],
 });

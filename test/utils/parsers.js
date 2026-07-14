@@ -9,6 +9,8 @@ const typescriptParser = {
 	name: 'typescript',
 	implementation: typescriptEslintParser,
 	mergeParserOptions: options => ({
+		// Tests lint multiple snippets with the same virtual filename, so the parser's CI single-run cache is unsafe.
+		disallowAutomaticSingleRunInference: true,
 		project: [],
 		...options,
 	}),
