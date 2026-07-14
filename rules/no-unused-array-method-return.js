@@ -44,6 +44,7 @@ const nonArrayFactoryFunctions = new Set([
 	'Number',
 	'RegExp',
 	'String',
+	'Symbol',
 ]);
 
 const isPascalCaseIdentifier = node =>
@@ -58,8 +59,8 @@ const isGlobalIdentifier = (node, name, context) =>
 const isUndefined = (node, context) =>
 	isGlobalIdentifier(node, 'undefined', context);
 
-// Treat `new Foo()` as non-array unless it is the global `Array`.
-// Local `Array` subclasses are intentionally out of scope for this best-effort inference.
+// Treat construction through an identifier callee as non-array unless it is the global `Array`.
+// Local `Array` constructors are intentionally out of scope for this best-effort inference.
 const isKnownNonArrayConstruction = (node, context) =>
 	node.type === 'NewExpression'
 	&& node.callee.type === 'Identifier'
@@ -101,12 +102,13 @@ function getVariableValue(node, context) {
 
 	// Supported variable inference boundary:
 	// - exactly one binding definition
-	// - unannotated plain parameters and plain parameters known to be arrays
+	// - unannotated plain parameters and explicitly array-typed plain parameters or variables
 	// - a `VariableDeclarator` whose id is the same identifier we are resolving
-	// - the original declarator initializer only
+	// - the original declarator initializer for unannotated variables only
 	//
 	// Unsupported on purpose:
-	// - any destructuring, including defaults
+	// - any destructuring, including destructuring with defaults
+	// - any explicit non-array or unresolved type annotation
 	// - any write before the call site
 	// - parameter defaults, rest parameters, `for…of`, catch bindings, and other non-declarator bindings
 	// - control-flow-sensitive value tracking
@@ -123,7 +125,7 @@ function getVariableValue(node, context) {
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
 	) {
-		return definition.name.typeAnnotation && !isArray(node, context)
+		return definition.name.typeAnnotation && !isArray(definition.name.typeAnnotation, context)
 			? uncertainValue
 			: undefined;
 	}
@@ -133,14 +135,14 @@ function getVariableValue(node, context) {
 		&& definition.node.type === 'VariableDeclarator'
 		&& definition.node.id.type === 'Identifier'
 		&& definition.node.id.name === node.name
-		&& definition.node.init
 		&& definition.parent.type === 'VariableDeclaration'
 	) {
-		if (definition.node.id.typeAnnotation && !isArray(node, context)) {
-			return uncertainValue;
+		const {typeAnnotation} = definition.node.id;
+		if (typeAnnotation) {
+			return isArray(typeAnnotation, context) ? undefined : uncertainValue;
 		}
 
-		return definition.node.init;
+		return definition.node.init ?? uncertainValue;
 	}
 
 	return uncertainValue;
@@ -190,7 +192,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	// - trivial identifier aliases to that same initializer, like `const alias = values`
 	//
 	// Unsupported on purpose:
-	// - any destructuring, including defaults
+	// - any destructuring, including destructuring with defaults
 	// - any member/property receiver, including `wrapper.items`, `alias.items`, and `this.items`
 	// - any object-property, class-field, constructor, or `this`-based inference
 	// - any write before the call site
@@ -205,7 +207,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 const isObviouslyNonArrayReceiver = (resolvedReceiver, context) =>
 	resolvedReceiver === uncertainValue
 	|| isDefinitelyNonArrayExpression(resolvedReceiver, context)
-	|| isPascalCaseIdentifier(resolvedReceiver);
+	|| (isPascalCaseIdentifier(resolvedReceiver) && !isArray(resolvedReceiver, context));
 
 const isExpectCall = node =>
 	isCallExpression(node, 'expect')
@@ -220,9 +222,11 @@ const shouldSkipReceiver = (node, method, context) => {
 		return true;
 	}
 
-	return method === 'values'
-		? resolvedReceiver === uncertainValue || (!isArray(node, context) && !isArray(resolvedReceiver, context))
-		: isObviouslyNonArrayReceiver(resolvedReceiver, context);
+	if (method === 'values') {
+		return resolvedReceiver === uncertainValue || (!isArray(node, context) && !isArray(resolvedReceiver, context));
+	}
+
+	return isObviouslyNonArrayReceiver(resolvedReceiver, context);
 };
 
 const getTrackedMethodName = (node, context) =>

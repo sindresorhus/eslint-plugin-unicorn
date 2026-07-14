@@ -64,8 +64,10 @@ test.snapshot({
 		'function check(array) { array = \'text\'; array.includes(value); }',
 		'let text; text = \'text\'; text.slice(1);',
 		'String(foo).slice(1);',
+		'Symbol(foo).slice(1);',
 		'(prefix + value).includes(expected);',
 		'const text = String(foo); text.slice(1);',
+		'const symbol = Symbol(foo); symbol.slice(1);',
 		'const text = String(foo); const alias = text; alias.slice(1);',
 		'const {value = String(foo)} = {}; value.slice(1);',
 		'function run(text = String(foo)) { text.slice(1); }',
@@ -223,6 +225,8 @@ test.snapshot({
 		'[].values();',
 		'const array = []; array.values();',
 		'let array = []; array.values();',
+		'Array(1).values();',
+		'new Array(1).values();',
 		'Array.from(iterable).values();',
 		'array.with(0, value);',
 		outdent`
@@ -274,6 +278,7 @@ test.snapshot({
 		'expectation.soft(value).includes(expected);',
 		'const assertion = expectation(value); assertion.includes(expected);',
 		'expect.custom(value).includes(expected);',
+		'function Symbol(value) { return value; } Symbol([]).slice(1);',
 	],
 });
 
@@ -292,6 +297,8 @@ test.typescript({
 		{code: '(bar as unknown).filter();', filename: 'example.ts'},
 		{code: 'function check(collection: Collection) { collection.includes(value); }', filename: 'example.ts'},
 		{code: 'const collection: Collection = getCollection(); collection.includes(value);', filename: 'example.ts'},
+		{code: 'const collection: Collection = []; collection.values();', filename: 'example.ts'},
+		{code: 'declare const collection: Collection; collection.values();', filename: 'example.ts'},
 		{code: 'type Array<T> = {filter(): void}; (bar as Array<string>).filter();', filename: 'example.ts'},
 		// Non-array type shapes stay unresolved.
 		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},
@@ -304,7 +311,11 @@ test.typescript({
 	invalid: [
 		{code: 'const array: string[] = getArray(); array.includes(value);', filename: 'example.ts', errors: 1},
 		{code: 'const array: string[] = getArray(); array.values();', filename: 'example.ts', errors: 1},
+		{code: 'declare const array: string[]; array.includes(value);', filename: 'example.ts', errors: 1},
+		{code: 'declare const array: string[]; array.values();', filename: 'example.ts', errors: 1},
+		{code: 'const array: string[] = getArray(); let alias = array; alias.values();', filename: 'example.ts', errors: 1},
 		{code: 'function check(array: string[]) { array.includes(value); }', filename: 'example.ts', errors: 1},
+		{code: 'function check(ArrayLike: string[]) { ArrayLike.includes(value); }', filename: 'example.ts', errors: 1},
 		{code: 'function check(array: string[]) { array.values(); }', filename: 'example.ts', errors: 1},
 		{code: 'type Items = string[]; (bar as Items).filter();', filename: 'example.ts', errors: 1},
 		{code: '(bar as [number, string]).filter();', filename: 'example.ts', errors: 1},
