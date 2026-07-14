@@ -20,6 +20,8 @@ test({
 		'string.split(customSplitter)[0]',
 		'string.split("")[0]',
 		'string.split("/")[1.5]',
+		'string.split("/")[4_294_967_294]',
+		'string.split("/").at(4_294_967_294)',
 		'string.split("/")[4_294_967_295]',
 		'string.split("/")[Number.MAX_SAFE_INTEGER]',
 		'string.split("/")[0] = value',
@@ -72,8 +74,8 @@ test({
 			errors,
 		},
 		{
-			code: 'string.split("/")[4_294_967_294]',
-			output: 'string.split("/", 4294967295)[4_294_967_294]',
+			code: 'string.split("/")[4_294_967_293]',
+			output: 'string.split("/", 4294967294)[4_294_967_293]',
 			errors,
 		},
 		{
@@ -152,8 +154,8 @@ test({
 			errors,
 		},
 		{
-			code: 'const [, second] = string.split(/-/)',
-			output: 'const [, second] = string.split(/-/, 2)',
+			code: 'const [before, separator, after] = value.split(/(-)/)',
+			output: 'const [before, separator, after] = value.split(/(-)/, 3)',
 			errors,
 		},
 		{

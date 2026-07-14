@@ -13,7 +13,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `String#split()` with a limit.',
 };
 
-const isBuiltInSeparator = node =>
+const isSupportedSeparator = node =>
 	(isStringLiteral(node) && node.value !== '')
 	|| isRegexLiteral(node);
 
@@ -24,7 +24,7 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 		!staticValue
 		|| !Number.isSafeInteger(staticValue.value)
 		|| staticValue.value < 0
-		|| staticValue.value >= MAXIMUM_SPLIT_LIMIT
+		|| staticValue.value >= MAXIMUM_SPLIT_LIMIT - 1
 	) {
 		return;
 	}
@@ -37,7 +37,7 @@ const isSplitCallWithoutLimit = node =>
 		method: 'split',
 		argumentsLength: 1,
 	})
-	&& isBuiltInSeparator(node.arguments[0]);
+	&& isSupportedSeparator(node.arguments[0]);
 
 const createProblem = (node, splitCall, limit, context) => ({
 	node,

@@ -11,7 +11,7 @@
 
 When you only need a prefix of the results from splitting a string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer.
 
-This rule checks two patterns with an obvious built-in separator: direct array destructuring in a variable declaration or standalone assignment expression, and direct access using a statically known non-negative integer index.
+This rule checks two patterns with a non-empty string literal or regular expression literal separator: direct array destructuring in a variable declaration or standalone assignment expression, and direct access using a statically known non-negative integer index.
 
 ## Examples
 
@@ -35,7 +35,7 @@ const [, filename] = path.split('/', 2);
 // ❌
 const part = csvLine.split(',')[3];
 
-// ✅ - Limit is higher than index to ensure element exists
+// ✅ - Limit is the index plus one so the element can be produced
 const part = csvLine.split(',', 4)[3];
 ```
 
