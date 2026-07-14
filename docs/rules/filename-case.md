@@ -105,11 +105,18 @@ For React projects, allow both kebab-case and PascalCase:
 ]
 ```
 
-To enforce PascalCase only for JSX/TSX files, use ESLint's `files` config:
+To enforce PascalCase only for TypeScript and TSX files, use ESLint's `files` config:
 
 ```js
-[
+import typescriptEslintParser from '@typescript-eslint/parser';
+import {defineConfig} from 'eslint/config';
+import unicorn from 'eslint-plugin-unicorn';
+
+export default defineConfig([
 	{
+		plugins: {
+			unicorn,
+		},
 		rules: {
 			'unicorn/filename-case': [
 				'error',
@@ -120,7 +127,15 @@ To enforce PascalCase only for JSX/TSX files, use ESLint's `files` config:
 		},
 	},
 	{
-		files: ['**/*.{jsx,tsx}'],
+		files: ['**/*.{ts,tsx}'],
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
 		rules: {
 			'unicorn/filename-case': [
 				'error',
@@ -131,7 +146,7 @@ To enforce PascalCase only for JSX/TSX files, use ESLint's `files` config:
 			],
 		},
 	},
-]
+]);
 ```
 
 The override disables directory checking because rule options apply to both filenames and directory names.

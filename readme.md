@@ -446,7 +446,12 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.recommended],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/recommended',
+		],
 	},
 	{
 		files: ['**/*.json'],
@@ -549,7 +554,12 @@ export default defineConfig([
 	// …
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.recommended],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/recommended',
+		],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
@@ -569,7 +579,12 @@ export default defineConfig([
 	// …
 	{
 		files: ['**/*.js'],
-		extends: [unicorn.configs.all],
+		plugins: {
+			unicorn,
+		},
+		extends: [
+			'unicorn/all',
+		],
 		rules: {
 			'unicorn/prefer-module': 'warn',
 		},
