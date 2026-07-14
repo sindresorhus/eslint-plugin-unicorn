@@ -6,6 +6,7 @@ import {
 	getParenthesizedText,
 	getReferences,
 	containsSuspensionPoint,
+	hasOptionalChainElement,
 	isCallExpressionValueDiscardedWithVoid,
 	isParenthesized,
 	isPromiseType,
@@ -25,19 +26,20 @@ const promiseMethods = new Set(['then', 'catch', 'finally']);
 const linebreakPattern = /\r\n|[\n\r]/;
 const whitespaceSensitiveNodeTypes = new Set(['JSXText', 'Literal', 'TemplateElement']);
 
-function isPromiseObject(node, context) {
+function isKnownNonPromiseObject(node, context) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
-		return;
+		return false;
 	}
 
 	try {
 		return isPromiseType(
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
-		);
+		) === false;
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
+		return false;
 	}
 }
 
@@ -102,15 +104,15 @@ function isAtStartOfLine(node, context) {
 	return getLineIndentAtIndex(start, context.sourceCode) !== undefined;
 }
 
-function containsAwaitIdentifier(node, visitorKeys) {
-	if (node.type === 'Identifier' && node.name === 'await') {
+function containsNodeMatching(node, visitorKeys, predicate) {
+	if (predicate(node)) {
 		return true;
 	}
 
 	for (const key of visitorKeys[node.type] ?? []) {
 		const child = node[key];
 		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsAwaitIdentifier(childNode, visitorKeys)) {
+			if (childNode?.type && containsNodeMatching(childNode, visitorKeys, predicate)) {
 				return true;
 			}
 		}
@@ -121,7 +123,7 @@ function containsAwaitIdentifier(node, visitorKeys) {
 
 function containsNonModuleAwaitIdentifier(node, context) {
 	return context.sourceCode.ast.sourceType !== 'module'
-		&& containsAwaitIdentifier(node, context.sourceCode.visitorKeys);
+		&& containsNodeMatching(node, context.sourceCode.visitorKeys, node => node.type === 'Identifier' && node.name === 'await');
 }
 
 function getLineIndentAtIndex(index, sourceCode) {
@@ -134,30 +136,14 @@ function getLinebreak(sourceCode) {
 	return sourceCode.text.match(linebreakPattern)?.[0] ?? '\n';
 }
 
-function hasMultilineWhitespaceSensitiveNode(node, sourceCode) {
-	if (
-		whitespaceSensitiveNodeTypes.has(node.type)
-		&& sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line
-	) {
-		return true;
-	}
-
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && hasMultilineWhitespaceSensitiveNode(childNode, sourceCode)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 function hasMultilineWhitespaceSensitiveContent(node, context) {
 	const {sourceCode} = context;
-	return hasMultilineWhitespaceSensitiveNode(node, sourceCode)
-		|| sourceCode.getCommentsInside(node).some(comment => sourceCode.getLoc(comment).start.line !== sourceCode.getLoc(comment).end.line);
+	return containsNodeMatching(
+		node,
+		sourceCode.visitorKeys,
+		node => whitespaceSensitiveNodeTypes.has(node.type) && sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line,
+	)
+	|| sourceCode.getCommentsInside(node).some(comment => sourceCode.getLoc(comment).start.line !== sourceCode.getLoc(comment).end.line);
 }
 
 function getChildIndent(callExpression, callback, context) {
@@ -167,11 +153,16 @@ function getChildIndent(callExpression, callback, context) {
 		const openingBrace = sourceCode.getFirstToken(callback.body);
 		const closingBrace = sourceCode.getLastToken(callback.body);
 		const firstBodyToken = sourceCode.getTokenAfter(openingBrace, {includeComments: true});
-		if (
-			firstBodyToken !== closingBrace
-			&& sourceCode.getLoc(firstBodyToken).start.line > sourceCode.getLoc(openingBrace).start.line
-		) {
-			return getIndentString(firstBodyToken, context);
+		if (firstBodyToken !== closingBrace) {
+			const openingBraceLine = sourceCode.getLoc(openingBrace).start.line;
+			const firstBodyTokenLine = sourceCode.getLoc(firstBodyToken).start.line;
+			if (firstBodyTokenLine > openingBraceLine) {
+				return getIndentString(firstBodyToken, context);
+			}
+
+			if (sourceCode.getLoc(closingBrace).start.line > openingBraceLine) {
+				return;
+			}
 		}
 	} else {
 		const [start] = getParenthesizedRange(callback.body, context);
@@ -228,6 +219,7 @@ function canSuggestForCall(callExpression, context) {
 		&& callExpression.arguments.length === 1
 		&& callExpression.parent.type === 'ExpressionStatement'
 		&& isAtStartOfLine(callExpression, context)
+		&& !hasOptionalChainElement(callee.object)
 		&& !containsNonModuleAwaitIdentifier(callee.object, context)
 		&& !containsSuspensionPoint(callee.object, context.sourceCode.visitorKeys)
 		&& !hasPromiseMethodCallInChain(callee.object, context);
@@ -289,6 +281,10 @@ function getSuggestion(callExpression, context) {
 
 	const indent = getIndentString(callExpression, context);
 	const childIndent = getChildIndent(callExpression, callback, context);
+	if (childIndent === undefined) {
+		return;
+	}
+
 	const linebreak = getLinebreak(context.sourceCode);
 	const bodyText = callback.body.type === 'BlockStatement'
 		? context.sourceCode.getText(callback.body).slice(1, -1).trim()
@@ -323,8 +319,7 @@ const create = context => {
 			return;
 		}
 
-		const promiseObject = isPromiseObject(callee.object, context);
-		if (promiseObject === false) {
+		if (isKnownNonPromiseObject(callee.object, context)) {
 			return;
 		}
 

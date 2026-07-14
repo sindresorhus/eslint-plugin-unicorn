@@ -20,6 +20,7 @@ test.snapshot({
 		'await (async () => {})()',
 		'void (async () => {})()',
 		'void async function() {}()',
+		'void (async () => {})().catch(handleError)',
 	],
 	invalid: [
 		'(async () => {})()',
@@ -37,6 +38,10 @@ test.snapshot({
 		'a = (async () => {})()',
 		'!async function() {}()',
 		'(async () => {})().catch(foo)',
+		{
+			code: '((async () => {})() satisfies Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -49,6 +54,7 @@ test.snapshot({
 		'void foo.then(bar)',
 		'void foo.catch(bar)',
 		'void foo.finally(bar)',
+		'void foo.then(onFulfilled).catch(onRejected)',
 		'await foo.then?.(bar)',
 		'await foo.then(bar)?.catch(bar)',
 		'await foo.then(bar)?.catch?.(bar)',
@@ -117,6 +123,10 @@ test.snapshot({
 			code: 'void (foo.then(bar) as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'await (foo.then(bar) as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'foo.then(bar)',
@@ -158,6 +168,10 @@ test.snapshot({
 		'someSchema.optional.catch(handle)',
 		'someSchema.parseAsync(value).catch(handle)',
 		'someSchema.then(foo).catch(bar)',
+		{
+			code: '(foo.then(bar) as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
@@ -238,6 +252,10 @@ test.snapshot({
 			code: 'const foo = async () => {}; void (foo() as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'const foo = async () => {}; await (foo() satisfies Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			async function run() {}
 			const resultOfRun = run();
@@ -301,6 +319,10 @@ test.snapshot({
 			async function run() {}
 			resultOfRun = run();
 		`,
+		{
+			code: 'const foo = async () => {}; (foo() as Promise<void>);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

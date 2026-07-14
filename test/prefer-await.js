@@ -222,12 +222,25 @@ test.snapshot({
 		typeAware('function foo(thenable: {then(handler: (value: string) => void): void}) { thenable.then(value => value); }'),
 		typeAware('function foo(value: Missing) { value.then(value => value); }'),
 		typeAware('function foo(value: any) { value.catch(() => {}); }'),
+		'(promise).then(value => transform(value));',
+		{
+			code: '(promise as Promise<string>).then((value: string) => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
 test({
 	valid: [],
 	invalid: [
+		{
+			code: '(promise?.value).then(value => transform(value));',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		},
+		{
+			code: 'promise.then(value => { transform(\n\tvalue,\n); });',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		},
 		{
 			code: 'if (condition) {\r\n  promise.then(value => transform(value));\r\n}\r\n',
 			errors: [
@@ -237,6 +250,20 @@ test({
 						{
 							messageId: SUGGESTION_ID,
 							output: 'if (condition) {\r\n  void (async () => {\r\n    const value = await promise;\r\n    return transform(value);\r\n  })();\r\n}\r\n',
+						},
+					],
+				},
+			],
+		},
+		{
+			code: 'if (condition) {\r\n  promise.then(value => {\r\n    // Keep this comment.\r\n    return transform(value);\r\n  });\r\n}\r\n',
+			errors: [
+				{
+					messageId: MESSAGE_ID,
+					suggestions: [
+						{
+							messageId: SUGGESTION_ID,
+							output: 'if (condition) {\r\n  void (async () => {\r\n    const value = await promise;\r\n    // Keep this comment.\r\n    return transform(value);\r\n  })();\r\n}\r\n',
 						},
 					],
 				},

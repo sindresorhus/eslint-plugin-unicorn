@@ -59,6 +59,7 @@ const allowedSchemaIdentifierMethods = new Set([
 const terminalSchemaMethods = new Set(['parse', 'safeParse', 'spa']);
 const promiseLikeSchemaMethods = new Set(['then', 'finally']);
 const zodNamespaceProperties = new Set(['coerce']);
+const isTransparentExpressionWrapper = node => node.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node);
 
 const isUnsupportedSchemaProperty = (propertyName, isCalled) =>
 	promiseLikeSchemaMethods.has(propertyName)
@@ -136,7 +137,7 @@ const isSchemaCatchObject = node => {
 };
 
 const isAwaitExpressionArgument = node => {
-	if (node.parent.type === 'ChainExpression') {
+	while (isTransparentExpressionWrapper(node.parent)) {
 		node = node.parent;
 	}
 
@@ -144,10 +145,7 @@ const isAwaitExpressionArgument = node => {
 };
 
 const isVariableDeclaratorInitializer = node => {
-	while (
-		node.parent.type === 'ChainExpression'
-		|| isTypeScriptExpressionWrapper(node.parent)
-	) {
+	while (isTransparentExpressionWrapper(node.parent)) {
 		node = node.parent;
 	}
 
