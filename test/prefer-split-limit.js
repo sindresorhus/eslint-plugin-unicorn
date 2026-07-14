@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -16,13 +16,43 @@ test({
 		'string.split("/").at(-1)',
 		'string.split("/").at(numberVariable)',
 		'string.split("/")[numberVariable]',
+		'const index = 0;\nstring.split("/").index',
 		'string.split(separator)[0]',
 		'string.split(customSplitter)[0]',
 		'string.split("")[0]',
 		'string.split("/")[1.5]',
+		'string.split("/")[4_294_967_294]',
+		'string.split("/").at(4_294_967_294)',
+		'string.split("/")[4_294_967_295]',
+		'string.split("/")[Number.MAX_SAFE_INTEGER]',
 		'string.split("/")[0] = value',
 		'string.split("/")[0]++',
 		'delete string.split("/")[0]',
+		'const [first] = string.split("/", 1)',
+		'[first] = string.split("/", 1)',
+		'const [] = string.split("/")',
+		'const [first, ...remaining] = string.split("/")',
+		'[first, ...remaining] = string.split("/")',
+		'const parts = ([first] = string.split("/"))',
+		'const [first] = string.split(separator)',
+		'const [first] = string.split("")',
+		'const [first] = [...string.split("/")]',
+		'const {0: first} = string.split("/")',
+		'({0: first} = string.split("/"))',
+		'for (const [first] of string.split("/")) {}',
+		'for ([first] of string.split("/")) {}',
+		{
+			code: 'const [first] = string.split("/") as string[]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const [first] = string.split("/")!',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const [first] = string.split("/") satisfies string[]',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'string.split("/", limit)[0]',
 		'string.split(...separator)[0]',
 		'string.split("/", ...limit)[0]',
@@ -43,6 +73,11 @@ test({
 		{
 			code: 'string.split("/")[2]',
 			output: 'string.split("/", 3)[2]',
+			errors,
+		},
+		{
+			code: 'string.split("/")[4_294_967_293]',
+			output: 'string.split("/", 4294967294)[4_294_967_293]',
 			errors,
 		},
 		{
@@ -86,6 +121,11 @@ test({
 			errors,
 		},
 		{
+			code: '(string?.split("/"))[0]',
+			output: '(string?.split("/", 1))[0]',
+			errors,
+		},
+		{
 			code: 'string.split("/")?.[1]',
 			output: 'string.split("/", 2)?.[1]',
 			errors,
@@ -96,8 +136,69 @@ test({
 			errors,
 		},
 		{
+			code: '(string?.split("/")).at(0)',
+			output: '(string?.split("/", 1)).at(0)',
+			errors,
+		},
+		{
 			code: 'string.split("/")?.at(1)',
 			output: 'string.split("/", 2)?.at(1)',
+			errors,
+		},
+		{
+			code: 'const [first] = string.split("/")',
+			output: 'const [first] = string.split("/", 1)',
+			errors,
+		},
+		{
+			code: 'const [first,] = string.split("/")',
+			output: 'const [first,] = string.split("/", 1)',
+			errors,
+		},
+		{
+			code: 'const [first,,] = string.split("/")',
+			output: 'const [first,,] = string.split("/", 2)',
+			errors,
+		},
+		{
+			code: 'const [,,] = string.split("/")',
+			output: 'const [,,] = string.split("/", 2)',
+			errors,
+		},
+		{
+			code: 'const [before, separator, after] = value.split(/(-)/)',
+			output: 'const [before, separator, after] = value.split(/(-)/, 3)',
+			errors,
+		},
+		{
+			code: 'const [first, , third] = string.split("/")',
+			output: 'const [first, , third] = string.split("/", 3)',
+			errors,
+		},
+		{
+			code: 'const [first = defaultValue, [nested]] = string.split("/")',
+			output: 'const [first = defaultValue, [nested]] = string.split("/", 2)',
+			errors,
+		},
+		{
+			code: '[first, second] = string.split("/")',
+			output: '[first, second] = string.split("/", 2)',
+			errors,
+		},
+		{
+			code: 'const [first] = string.split(/* separator */ "/",)',
+			output: 'const [first] = string.split(/* separator */ "/", 1,)',
+			errors,
+		},
+		{
+			code: 'const [first] = string?.split?.("/")',
+			output: 'const [first] = string?.split?.("/", 1)',
+			errors,
+		},
+		{
+			code: 'const [first]: string[] = string.split("/")',
+			output: 'const [first]: string[] = string.split("/", 1)',
+			languageOptions: {parser: parsers.typescript},
 			errors,
 		},
 	],

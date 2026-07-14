@@ -67,7 +67,7 @@ function addPolyfillToken(tokens, value) {
 }
 
 const polyfills = Object.keys(compatData).map(feature => {
-	const [rawEcmaVersion, rawConstructorName, rawMethodName = ''] = feature.split('.');
+	const [rawEcmaVersion, rawConstructorName, rawMethodName = ''] = feature.split('.', 3);
 	let ecmaVersion = rawEcmaVersion;
 	let constructorName = rawConstructorName;
 	let methodName = rawMethodName;
@@ -119,7 +119,7 @@ const polyfillTokensByFirstCharacter = new Map();
 const esConstructorTokens = new Set();
 
 for (const polyfill of polyfills) {
-	const [ecmaVersion, constructorName] = polyfill.feature.split('.');
+	const [ecmaVersion, constructorName] = polyfill.feature.split('.', 2);
 	if (ecmaVersion === 'es') {
 		esConstructorTokens.add(constructorName.toLowerCase());
 		esConstructorTokens.add(camelCase(constructorName).toLowerCase());
@@ -369,7 +369,7 @@ function create(context) {
 			return;
 		}
 
-		const [, namespace, method = ''] = polyfill.feature.split('.');
+		const [, namespace, method = ''] = polyfill.feature.split('.', 3);
 		const matchedCoreJsModuleFeatures = coreJsEntries[`core-js/full/${namespace}${method && '/'}${method}`];
 		if (matchedCoreJsModuleFeatures && areFeaturesAvailable(matchedCoreJsModuleFeatures)) {
 			return {node, messageId: MESSAGE_ID_POLYFILL};

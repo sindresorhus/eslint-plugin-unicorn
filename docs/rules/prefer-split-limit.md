@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-When you only need a specific element from a split string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and makes your intent clearer - you're only interested in that specific part.
+When you only need a prefix of the results from splitting a string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer.
 
-This rule only checks direct access with a statically known non-negative integer index and an obvious built-in separator.
+This rule checks two patterns with a non-empty string literal or regular expression literal separator: direct array destructuring in a variable declaration or standalone assignment expression, and direct access using a statically known non-negative integer index.
 
 ## Examples
 
@@ -19,7 +19,7 @@ This rule only checks direct access with a statically known non-negative integer
 // ❌ - Splits entire string, then accesses index 0
 const protocol = url.split(':')[0]; // Could be long URL
 
-// ✅ - Only splits into 1 part max
+// ✅ - Splits into at most one part
 const protocol = url.split(':', 1)[0]; // More efficient
 ```
 
@@ -27,15 +27,15 @@ const protocol = url.split(':', 1)[0]; // More efficient
 // ❌ - Gets second part from full split
 const [, filename] = path.split('/');
 
-// ✅ - More explicit about only needing 2 parts
-const filename = path.split('/', 2)[1];
+// ✅ - Splits into at most two parts while preserving the destructuring
+const [, filename] = path.split('/', 2);
 ```
 
 ```js
 // ❌
 const part = csvLine.split(',')[3];
 
-// ✅ - Limit is higher than index to ensure element exists
+// ✅ - Limit is the index plus one so the element can be produced
 const part = csvLine.split(',', 4)[3];
 ```
 
@@ -45,7 +45,10 @@ const lastPart = string.split('/').at(-1);
 
 // ✅ - Unknown separator or index
 const parts = string.split(dynamicSeparator)[unknownIndex];
+
+// ✅ - The rest element needs all remaining parts
+const [firstPart, ...remainingParts] = string.split('/');
 ```
 
 > [!NOTE]
-> Performance benefits depend on the JavaScript engine. V8 doesn't optimize `limit` for string separators, so it may not help with short strings. The main benefit is clearer intent showing you only need specific parts.
+> Performance benefits depend on the JavaScript engine. The main benefit is clearer intent showing you only need specific parts.

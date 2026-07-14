@@ -1,19 +1,19 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isLeftHandSide} from './utils/index.js';
+import {isLeftHandSide, isValueNotUsable} from './utils/index.js';
 import {appendArgument} from './fix/index.js';
 import {
 	isStringLiteral,
 	isRegexLiteral,
 	isMethodCall,
-	isMemberExpression,
 } from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-split-limit';
+const MAXIMUM_SPLIT_LIMIT = (2 ** 32) - 1;
 const messages = {
 	[MESSAGE_ID]: 'Prefer `String#split()` with a limit.',
 };
 
-const isBuiltInSeparator = node =>
+const isSupportedSeparator = node =>
 	(isStringLiteral(node) && node.value !== '')
 	|| isRegexLiteral(node);
 
@@ -24,6 +24,7 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 		!staticValue
 		|| !Number.isSafeInteger(staticValue.value)
 		|| staticValue.value < 0
+		|| staticValue.value >= MAXIMUM_SPLIT_LIMIT - 1
 	) {
 		return;
 	}
@@ -31,18 +32,41 @@ const getNonNegativeIntegerValue = (node, sourceCode) => {
 	return staticValue.value;
 };
 
-const isSplitCallWithoutLimit = node =>
-	isMethodCall(node, {
-		method: 'split',
-		argumentsLength: 1,
-	})
-	&& isBuiltInSeparator(node.arguments[0]);
+const getSplitCallWithoutLimit = node => {
+	const splitCall = node?.type === 'ChainExpression' ? node.expression : node;
 
-const createProblem = (node, splitCall, index, context) => ({
+	if (
+		!isMethodCall(splitCall, {
+			method: 'split',
+			argumentsLength: 1,
+		})
+		|| !isSupportedSeparator(splitCall.arguments[0])
+	) {
+		return;
+	}
+
+	return splitCall;
+};
+
+const createProblem = (node, splitCall, limit, context) => ({
 	node,
 	messageId: MESSAGE_ID,
-	fix: fixer => appendArgument(fixer, splitCall, String(index + 1), context),
+	fix: fixer => appendArgument(fixer, splitCall, String(limit), context),
 });
+
+const getDestructuringProblem = (pattern, splitCall, context) => {
+	const {elements} = pattern;
+	const directSplitCall = getSplitCallWithoutLimit(splitCall);
+	if (
+		elements.length === 0
+		|| elements.at(-1)?.type === 'RestElement'
+		|| !directSplitCall
+	) {
+		return;
+	}
+
+	return createProblem(pattern, directSplitCall, elements.length, context);
+};
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
@@ -51,9 +75,13 @@ const create = context => {
 	context.on('MemberExpression', node => {
 		if (
 			!node.computed
-			|| !isSplitCallWithoutLimit(node.object)
 			|| isLeftHandSide(node)
 		) {
+			return;
+		}
+
+		const splitCall = getSplitCallWithoutLimit(node.object);
+		if (!splitCall) {
 			return;
 		}
 
@@ -62,7 +90,7 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, node.object, index, context);
+		return createProblem(node, splitCall, index + 1, context);
 	});
 
 	context.on('CallExpression', node => {
@@ -73,11 +101,8 @@ const create = context => {
 			return;
 		}
 
-		const {object: splitCall} = node.callee;
-		if (
-			!isMemberExpression(node.callee)
-			|| !isSplitCallWithoutLimit(splitCall)
-		) {
+		const splitCall = getSplitCallWithoutLimit(node.callee.object);
+		if (!splitCall) {
 			return;
 		}
 
@@ -86,7 +111,26 @@ const create = context => {
 			return;
 		}
 
-		return createProblem(node, splitCall, index, context);
+		return createProblem(node, splitCall, index + 1, context);
+	});
+
+	context.on('VariableDeclarator', node => {
+		if (node.id.type !== 'ArrayPattern') {
+			return;
+		}
+
+		return getDestructuringProblem(node.id, node.init, context);
+	});
+
+	context.on('AssignmentExpression', node => {
+		if (
+			node.left.type !== 'ArrayPattern'
+			|| !isValueNotUsable(node)
+		) {
+			return;
+		}
+
+		return getDestructuringProblem(node.left, node.right, context);
 	});
 };
 
