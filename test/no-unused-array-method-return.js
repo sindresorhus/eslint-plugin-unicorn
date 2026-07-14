@@ -92,6 +92,7 @@ test.snapshot({
 			const collection = new Foo();
 			collection.slice(1);
 		`,
+		'const collection = new namespace.Foo(); collection.slice(1);',
 		outdent`
 			class Array {
 				map() {}
@@ -282,6 +283,22 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [
+		{
+			code: 'globalArray.values();',
+			languageOptions: {globals: {globalArray: 'readonly'}},
+		},
+	],
+	invalid: [
+		{
+			code: 'globalArray.map(fn);',
+			languageOptions: {globals: {globalArray: 'readonly'}},
+			errors: 1,
+		},
+	],
+});
+
 test.typescript({
 	valid: [
 		{
@@ -299,6 +316,7 @@ test.typescript({
 		{code: 'const collection: Collection = getCollection(); collection.includes(value);', filename: 'example.ts'},
 		{code: 'const collection: Collection = []; collection.values();', filename: 'example.ts'},
 		{code: 'declare const collection: Collection; collection.values();', filename: 'example.ts'},
+		{code: 'const mapped = values.map(fn) as number[];', filename: 'example.ts'},
 		{code: 'type Array<T> = {filter(): void}; (bar as Array<string>).filter();', filename: 'example.ts'},
 		// Non-array type shapes stay unresolved.
 		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},

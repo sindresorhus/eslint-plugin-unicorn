@@ -59,11 +59,9 @@ const isGlobalIdentifier = (node, name, context) =>
 const isUndefined = (node, context) =>
 	isGlobalIdentifier(node, 'undefined', context);
 
-// Treat construction through an identifier callee as non-array unless it is the global `Array`.
-// Local `Array` constructors are intentionally out of scope for this best-effort inference.
+// Treat every construction as non-array unless it uses the global `Array` identifier.
 const isKnownNonArrayConstruction = (node, context) =>
 	node.type === 'NewExpression'
-	&& node.callee.type === 'Identifier'
 	&& !isGlobalIdentifier(node.callee, 'Array', context);
 
 const isKnownNonArrayFactoryCall = (node, context) =>
@@ -92,7 +90,7 @@ function hasEarlierWrite(variable, node, context) {
 
 function getVariableValue(node, context) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable) {
+	if (!variable || variable.defs.length === 0) {
 		return;
 	}
 
