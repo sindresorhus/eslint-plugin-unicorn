@@ -378,9 +378,9 @@ function isBooleanVueReferenceVariable(variable, context) {
 	const definition = getSupportedVariableDefinition(variable);
 	const callExpression = definition?.type === 'Variable' ? definition.node.init : undefined;
 	if (
-		hasWriteAfterInitialization(variable)
-		|| callExpression?.type !== 'CallExpression'
+		callExpression?.type !== 'CallExpression'
 		|| callExpression.callee.type !== 'Identifier'
+		|| hasWriteAfterInitialization(variable)
 	) {
 		return false;
 	}
@@ -1398,6 +1398,9 @@ const config = {
 		],
 		defaultOptions: [{ignore: []}],
 		messages,
+		languages: [
+			'js/js',
+		],
 	},
 };
 

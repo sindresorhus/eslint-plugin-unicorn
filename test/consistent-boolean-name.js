@@ -138,7 +138,7 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
-			code: 'interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const getDepartment:()=>string; const hasDepartment = computed(getDepartment);',
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const getDepartment: () => string; const hasDepartment = computed(getDepartment);',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
@@ -146,7 +146,11 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
-			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isBranch = ref(false); isBranch = ref("main");',
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const getDepartment = async () => true; const hasDepartment = computed(getDepartment);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isBranch = ref(false); isBranch = ref(true);',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
@@ -158,6 +162,14 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
+			code: 'interface Ref<T> {value: T} declare function vueComputed<T>(getter: () => T): Ref<T>; const hasDepartment = vueComputed(() => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'interface Ref<T> {value: T} declare const Vue: {computed<T>(getter: () => T): Ref<T>}; const hasDepartment = Vue.computed(() => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
 			code: 'interface Ref<T> {value: T} declare function shallowRef<T>(value: T): Ref<T>; const isBranch = shallowRef(false);',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
@@ -166,7 +178,7 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
-			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; let hasDepartment = computed(() => true); hasDepartment = computed(() => "sales");',
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; let hasDepartment = computed(() => true); hasDepartment = computed(() => false);',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		{
@@ -662,9 +674,12 @@ test.snapshot({
 		typeAware('declare function useRef<T>(value: T): {current: T}; const hasConsentReference = useRef(false);'),
 		typeAware('declare const React: {useRef<T>(value: T): {current: T}}; const isMountedRef = React.useRef(false);'),
 		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isBranch = ref(false);'),
+		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isBranch = ref(false);'),
 		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; const isBranch = ref(value === true);'),
-		typeAware('interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const departments: unknown[]; const hasDepartment = computed(() => departments.length > 0);'),
-		typeAware('interface Ref<T>{value:T} declare function computed<T>(getter:()=>T):Ref<T>; declare const isAvailable:()=>boolean; const hasDepartment = computed(isAvailable);'),
+		typeAware('declare function computed<T>(getter: () => T): {value: T}; declare const departments: unknown[]; const hasDepartment = computed(() => departments.length > 0);'),
+		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; let hasDepartment = computed(() => true);'),
+		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const isAvailable: () => boolean; const hasDepartment = computed(isAvailable);'),
+		typeAware('declare const isSet: boolean; declare const computed: (isGetter: () => boolean) => object; const hasDepartment = computed(() => { const isValue = isSet; return isValue; });'),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
 		typescript('const useIsReady = () => true;'),
