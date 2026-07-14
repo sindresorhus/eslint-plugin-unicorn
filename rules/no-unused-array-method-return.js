@@ -36,10 +36,6 @@ const methods = new Set([
 	'with',
 ]);
 
-const methodsRequiringKnownArrayReceiver = new Set([
-	'values',
-]);
-
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
 const uncertainValue = Symbol('uncertainValue');
 const nonArrayFactoryFunctions = new Set([
@@ -62,8 +58,8 @@ const isGlobalIdentifier = (node, name, context) =>
 const isUndefined = (node, context) =>
 	isGlobalIdentifier(node, 'undefined', context);
 
-// Treat `new Foo()` as non-array unless it is the global `Array`. Local `Array`
-// subclasses are intentionally out of scope for this best-effort inference.
+// Treat `new Foo()` as non-array unless it is the global `Array`.
+// Local `Array` subclasses are intentionally out of scope for this best-effort inference.
 const isKnownNonArrayConstruction = (node, context) =>
 	node.type === 'NewExpression'
 	&& node.callee.type === 'Identifier'
@@ -87,26 +83,14 @@ const isDefinitelyNonArrayExpression = (node, context) =>
 	|| isKnownNonArrayConstruction(node, context)
 	|| isKnownNonArrayFactoryCall(node, context);
 
-function getVariable(node, context) {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	return findVariable(context.sourceCode.getScope(node), node);
-}
-
 function hasEarlierWrite(variable, node, context) {
-	if (!variable) {
-		return false;
-	}
-
 	const [nodeStart] = context.sourceCode.getRange(node);
 
 	return variable.references.some(reference => !reference.init && reference.isWrite() && context.sourceCode.getRange(reference.identifier)[0] < nodeStart);
 }
 
 function getVariableValue(node, context) {
-	const variable = getVariable(node, context);
+	const variable = findVariable(context.sourceCode.getScope(node), node);
 	if (!variable) {
 		return;
 	}
@@ -117,22 +101,24 @@ function getVariableValue(node, context) {
 
 	// Supported variable inference boundary:
 	// - exactly one binding definition
+	// - unannotated plain parameters and plain parameters known to be arrays
 	// - a `VariableDeclarator` whose id is the same identifier we are resolving
 	// - the original declarator initializer only
 	//
 	// Unsupported on purpose:
 	// - any destructuring, including defaults
 	// - any write before the call site
-	// - parameter defaults, `for…of`, catch bindings, and any non-declarator binding
+	// - parameter defaults, rest parameters, `for…of`, catch bindings, and other non-declarator bindings
 	// - control-flow-sensitive value tracking
 	//
-	// This is intentionally extremely small. The rule only trusts a variable declarator initializer when the binding has not been written before the call site. Everything else stays unresolved on purpose.
+	// This is intentionally extremely small.
+	// The rule only trusts a variable declarator initializer when the binding has not been written before the call site.
+	// Everything else stays unresolved on purpose.
 	if (hasEarlierWrite(variable, node, context)) {
 		return uncertainValue;
 	}
 
 	const [definition] = variable.defs;
-	// Keep unannotated plain parameters and plain parameters known to be arrays reportable. Other annotations, defaults, destructuring, and rest parameters remain unsupported.
 	if (
 		definition.type === 'Parameter'
 		&& definition.node.params?.includes(definition.name)
@@ -150,6 +136,10 @@ function getVariableValue(node, context) {
 		&& definition.node.init
 		&& definition.parent.type === 'VariableDeclaration'
 	) {
+		if (definition.node.id.typeAnnotation && !isArray(node, context)) {
+			return uncertainValue;
+		}
+
 		return definition.node.init;
 	}
 
@@ -196,7 +186,7 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	}
 
 	// Supported receiver inference boundary:
-	// - the receiver expression itself, if it is direct array syntax like `[]`
+	// - direct receiver expressions that need no value-flow inference, such as `[]` or `getValues()`
 	// - trivial identifier aliases to that same initializer, like `const alias = values`
 	//
 	// Unsupported on purpose:
@@ -206,9 +196,9 @@ function resolveReceiver(node, context, visitedNodes = new Set()) {
 	// - any write before the call site
 	// - any "latest value" reconstruction after assignments
 	//
-	// This comment is intentionally blunt because this boundary is the feature:
-	// the rule is not a general value tracker anymore. If a case requires
-	// following properties, destructuring, or writes, we leave it unresolved.
+	// This comment is intentionally blunt because this boundary is the feature.
+	// The rule is not a general value tracker anymore.
+	// If a case requires following properties, destructuring, or writes, we leave it unresolved.
 	return node;
 }
 
@@ -226,11 +216,13 @@ const isExpectCall = node =>
 
 const shouldSkipReceiver = (node, method, context) => {
 	const resolvedReceiver = resolveReceiver(node, context);
+	if (isExpectCall(resolvedReceiver)) {
+		return true;
+	}
 
-	return isExpectCall(resolvedReceiver)
-		|| (methodsRequiringKnownArrayReceiver.has(method)
-			? !isArray(node, context)
-			: isObviouslyNonArrayReceiver(resolvedReceiver, context));
+	return method === 'values'
+		? resolvedReceiver === uncertainValue || (!isArray(node, context) && !isArray(resolvedReceiver, context))
+		: isObviouslyNonArrayReceiver(resolvedReceiver, context);
 };
 
 const getTrackedMethodName = (node, context) =>
@@ -250,9 +242,8 @@ const getTrackedMethodName = (node, context) =>
 // - conditional wrappers like `condition ? foo.map() : other()`
 // - any other parent-expression pattern not listed above
 //
-// The rule stops after this short fixed wrapper list. We intentionally do not
-// keep climbing through arbitrary parent expressions just to catch one more
-// nested discard shape.
+// The rule stops after this short fixed wrapper list.
+// We intentionally do not keep climbing through arbitrary parent expressions just to catch one more nested discard shape.
 const isDiscardedExpression = node => {
 	while (true) {
 		if (isValueNotUsable(node)) {

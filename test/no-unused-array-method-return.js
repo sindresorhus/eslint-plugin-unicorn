@@ -10,6 +10,7 @@ test.snapshot({
 		'array.notMap(fn);',
 		'array[map](fn);',
 		'const mapped = array.map(fn);',
+		'async function run() { const mapped = await array.map(fn); }',
 		'function foo() { return array.filter(fn); }',
 		'foo(array.flat());',
 		'const joined = array.map(fn).join(",");',
@@ -187,6 +188,7 @@ test.snapshot({
 				foo();
 			}
 		`,
+		'for (; array.some(fn); update()) {}',
 	],
 	invalid: [
 		'array.map(fn);',
@@ -217,8 +219,10 @@ test.snapshot({
 		'array.toSorted(compare);',
 		'array.toReversed();',
 		'array.toSpliced(0, 1);',
+		'array.map(fn).join(",");',
 		'[].values();',
 		'const array = []; array.values();',
+		'let array = []; array.values();',
 		'Array.from(iterable).values();',
 		'array.with(0, value);',
 		outdent`
@@ -287,6 +291,7 @@ test.typescript({
 		{code: '(bar as any).filter();', filename: 'example.ts'},
 		{code: '(bar as unknown).filter();', filename: 'example.ts'},
 		{code: 'function check(collection: Collection) { collection.includes(value); }', filename: 'example.ts'},
+		{code: 'const collection: Collection = getCollection(); collection.includes(value);', filename: 'example.ts'},
 		{code: 'type Array<T> = {filter(): void}; (bar as Array<string>).filter();', filename: 'example.ts'},
 		// Non-array type shapes stay unresolved.
 		{code: '(bar as Foo | Bar).filter();', filename: 'example.ts'},
@@ -297,6 +302,8 @@ test.typescript({
 		{code: 'const bar = \'x\'; (bar satisfies Foo).filter();', filename: 'example.ts'},
 	],
 	invalid: [
+		{code: 'const array: string[] = getArray(); array.includes(value);', filename: 'example.ts', errors: 1},
+		{code: 'const array: string[] = getArray(); array.values();', filename: 'example.ts', errors: 1},
 		{code: 'function check(array: string[]) { array.includes(value); }', filename: 'example.ts', errors: 1},
 		{code: 'function check(array: string[]) { array.values(); }', filename: 'example.ts', errors: 1},
 		{code: 'type Items = string[]; (bar as Items).filter();', filename: 'example.ts', errors: 1},
