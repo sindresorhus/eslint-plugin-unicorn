@@ -1,6 +1,6 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
-import {isLogicalExpression} from './utils/index.js';
+import {isCallExpressionValueDiscardedWithVoid, isLogicalExpression} from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
 const ERROR_IIFE = 'iife';
@@ -203,6 +203,14 @@ const isInPromiseMethods = node => {
 	&& arrayExpression.parent.arguments[0] === arrayExpression;
 };
 
+const shouldIgnoreCallExpression = node =>
+	!isTopLevelCallExpression(node)
+	|| isCallExpressionValueDiscardedWithVoid(node)
+	|| isPromiseMethodCalleeObject(node)
+	|| isAwaitExpressionArgument(node)
+	|| isVariableDeclaratorInitializer(node)
+	|| isInPromiseMethods(node);
+
 /** @param {import('eslint').Rule.RuleContext} context */
 function create(context) {
 	// Use the real file path so processors or code blocks cannot hide file-level opt-outs.
@@ -215,13 +223,7 @@ function create(context) {
 	}
 
 	context.on('CallExpression', node => {
-		if (
-			!isTopLevelCallExpression(node)
-			|| isPromiseMethodCalleeObject(node)
-			|| isAwaitExpressionArgument(node)
-			|| isVariableDeclaratorInitializer(node)
-			|| isInPromiseMethods(node)
-		) {
+		if (shouldIgnoreCallExpression(node)) {
 			return;
 		}
 

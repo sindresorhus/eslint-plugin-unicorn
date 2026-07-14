@@ -39,6 +39,25 @@ test.snapshot({
 	],
 	invalid: [
 		'promise.then(callback);',
+		'promise.then(() => {});',
+		'promise.then(() => doSomething());',
+		'promise.then(value => transform(value));',
+		'promise.then(value => { transform(value); });',
+		outdent`
+			if (condition) {
+				promise.then(value => {
+					// Keep this comment.
+					transform(value);
+				});
+			}
+		`,
+		outdent`
+			promise.then(value => {
+				value = transform(value);
+				return value;
+			});
+		`,
+		'(condition ? promise : otherPromise).then(value => transform(value));',
 		'promise.catch(callback);',
 		'promise.finally(callback);',
 		'promise["then"](callback);',
@@ -53,7 +72,23 @@ test.snapshot({
 		'Promise.reject(error).catch(callback);',
 		'new Promise(resolve => resolve()).finally(callback);',
 		'promise.then(onFulfilled, onRejected);',
+		'promise.then(onFulfilled).then(value => transform(value));',
 		'promise.then(onFulfilled).catch(onRejected).finally(onFinally);',
+		'value.then(value => transform(value));',
+		'if (condition) promise.then(value => transform(value));',
+		'const result = promise.then(value => transform(value));',
+		'promise.then(function (value) { return transform(value); });',
+		'promise.then(({value}) => transform(value));',
+		'promise.then((value = fallback) => transform(value));',
+		'promise.then((...values) => transform(values));',
+		'promise.then((value, index) => transform(value, index));',
+		'promise.then(value => { var value; return value; });',
+		'promise.then(value => { function value() {} return value; });',
+		'promise.then(() => { const promise = otherPromise; return promise; });',
+		'promise.then(() => { var promise; return promise; });',
+		'promise.then(() => { function promise() {} return promise; });',
+		'promise.then(value => { "use strict"; return transform(value); });',
+		'promise /* keep */.then(value => transform(value));',
 		'function * run() { yield promise.then(callback); }',
 		'class Runner { constructor() { promise.then(callback); } }',
 		'cy.get("button").then(callback);',
@@ -66,11 +101,58 @@ test.snapshot({
 					});
 			}
 		`,
+		outdent`
+			async function run() {
+				getPromise(await dependency).then(value => transform(value));
+			}
+		`,
+		outdent`
+			function * run() {
+				getPromise(yield dependency).then(value => transform(value));
+			}
+		`,
 		{
 			code: 'function foo(value: any) { value.catch(() => {}); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'promise.then(<Type>(value: Type) => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'promise.then((value): string => value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'promise.then(await => await);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(() => await);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(() => { var await; return await; });',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'getPromise(await).then(value => transform(value));',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(() => { await: doSomething(); });',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
+		{
+			code: 'promise.then(let => let);',
+			languageOptions: {parserOptions: {sourceType: 'script'}},
+		},
 		typeAware('function foo(promise: Promise<string>) { promise.then(value => value); }'),
+		typeAware(outdent`
+			function foo(promise: Promise<string>) {
+				promise.then((value: string) => value);
+			}
+		`),
 		typeAware('function foo(promise: Promise<string>) { promise.catch(error => error); }'),
 		typeAware('function foo(promise: Promise<string>) { promise.finally(() => {}); }'),
 		typeAware('function foo(promise: Promise<string> | undefined) { promise?.then(value => value); }'),

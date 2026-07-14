@@ -4,6 +4,8 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
+💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
@@ -12,6 +14,8 @@ Using `await` makes asynchronous control flow read like synchronous code and avo
 This rule reports promise chaining with `.then()`, `.catch()`, and `.finally()`. Type-aware receiver checks also report promise-like thenables, since `await` assimilates them. When TypeScript type information is available, receivers known not to be promises are ignored. Without type information, the rule falls back to method-name heuristics.
 
 Chains explicitly discarded with the `void` operator are ignored, since `void` is the idiomatic way to opt out of awaiting an intentional fire-and-forget promise.
+
+For a standalone `.then()` with an inline arrow callback, the rule can suggest rewriting it as a `void` async IIFE. Other promise chains are still reported without a suggestion.
 
 This rule intentionally has no options. Use an inline disable for library-specific chains that should remain callback-based.
 
@@ -39,6 +43,13 @@ return transform(value);
 promise.catch(error => {
 	handleError(error);
 });
+
+// ✅
+// Use an async IIFE when the surrounding scope cannot use `await` and the work should remain fire-and-forget.
+void (async () => {
+	const value = await promise;
+	alert(value);
+})();
 
 // ✅
 try {
