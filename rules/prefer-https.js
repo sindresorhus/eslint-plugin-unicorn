@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {onRoot} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-https';
@@ -10,9 +11,8 @@ const HTTP_URL = /(?<![\w+\-.])http:\/\/(?<authority>[^\s!"#'(),/;<>?\\\]`{}]+)/
 // compared against known namespace URIs. Sticky so it matches at a given index.
 const HTTP_URL_FULL = /http:\/\/[^\s!"'(),;<>\\\]`{}]+/uy;
 
-// Well-known XML namespace URIs are opaque identifiers defined to use the
-// `http:` scheme. They are not network requests and must not be rewritten.
-const XML_NAMESPACES = new Set([
+// These XML URIs are opaque identifiers defined to use the `http:` scheme. They are not network requests and must not be rewritten.
+const IGNORED_XML_URIS = new Set([
 	// W3C markup / DOM
 	'http://www.w3.org/2000/svg',
 	'http://www.w3.org/1999/xhtml',
@@ -43,6 +43,7 @@ const XML_NAMESPACES = new Set([
 	// Sitemap
 	'http://www.sitemaps.org/schemas/sitemap/0.9',
 ]);
+const XML_SECURITY_URI = /^http:\/\/www\.w3\.org\/\d{4}\/(?:\d{2}\/)?(?:xmldsig(?:-more|\d+)?|xmlenc\d*|xml-exc-c14n|decrypt)#/v;
 
 function getHostname(authority) {
 	try {
@@ -73,15 +74,39 @@ function isXmlNamespaceValue(text, matchIndex) {
 	return /\bxmlns(?::[\w\-.]+)?\s*=\s*["']?$/i.test(preceding);
 }
 
-function isWellKnownXmlNamespace(text, matchIndex) {
+function getFullUrl(text, matchIndex) {
 	HTTP_URL_FULL.lastIndex = matchIndex;
-	const match = HTTP_URL_FULL.exec(text);
+	return HTTP_URL_FULL.exec(text)?.[0];
+}
 
-	return match !== null && XML_NAMESPACES.has(match[0]);
+function isIgnoredUrl(url, patterns) {
+	return patterns.some(regexp => {
+		regexp.lastIndex = 0;
+		const isMatch = regexp.test(url);
+		regexp.lastIndex = 0;
+
+		return isMatch;
+	});
 }
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
+	const ignoredUrls = new Set();
+	const ignoredUrlPatterns = [];
+
+	for (const value of context.options[0].ignore) {
+		if (isRegExp(value)) {
+			ignoredUrlPatterns.push(value);
+			continue;
+		}
+
+		if (!value.startsWith('http://')) {
+			throw new TypeError('String values in the `ignore` option must start with `http://`.');
+		}
+
+		ignoredUrls.add(value);
+	}
+
 	let isChecked = false;
 
 	onRoot(context, node => {
@@ -96,8 +121,9 @@ const create = context => {
 
 		for (const match of text.matchAll(HTTP_URL)) {
 			const start = match.index;
+			const url = getFullUrl(text, start);
 
-			if (isWellKnownXmlNamespace(text, start) || isXmlNamespaceValue(text, start)) {
+			if (IGNORED_XML_URIS.has(url) || XML_SECURITY_URI.test(url) || ignoredUrls.has(url) || isIgnoredUrl(url, ignoredUrlPatterns) || isXmlNamespaceValue(text, start)) {
 				continue;
 			}
 
@@ -120,6 +146,20 @@ const create = context => {
 	});
 };
 
+const schema = [
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			ignore: {
+				type: 'array',
+				uniqueItems: true,
+				description: 'Exact URLs and URL patterns to ignore.',
+			},
+		},
+	},
+];
+
 /** @type {import('eslint').Rule.RuleModule} */
 const config = {
 	create,
@@ -130,6 +170,8 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		schema,
+		defaultOptions: [{ignore: []}],
 		messages,
 		languages: [
 			'*',

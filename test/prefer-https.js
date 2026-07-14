@@ -18,6 +18,57 @@ const LANGUAGE_PLUGINS = {
 	html,
 };
 
+const XML_SECURITY_URIS = [
+	'http://www.w3.org/2000/09/xmldsig#',
+	'http://www.w3.org/2000/09/xmldsig#base64',
+	'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
+	'http://www.w3.org/2000/09/xmldsig#hmac-sha1',
+	'http://www.w3.org/2000/09/xmldsig#Manifest',
+	'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
+	'http://www.w3.org/2000/09/xmldsig#sha1',
+	'http://www.w3.org/2001/04/xmldsig-more#',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#sha384',
+	'http://www.w3.org/2001/04/xmlenc#sha256',
+	'http://www.w3.org/2001/04/xmlenc#sha512',
+	'http://www.w3.org/2001/10/xml-exc-c14n#',
+	'http://www.w3.org/2001/10/xml-exc-c14n#WithComments',
+	'http://www.w3.org/2002/07/decrypt#XML',
+	'http://www.w3.org/2007/05/xmldsig-more#',
+	'http://www.w3.org/2007/05/xmldsig-more#MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#rsa-pss',
+	'http://www.w3.org/2007/05/xmldsig-more#sha1-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha256-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha384-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha512-rsa-MGF1',
+];
+
+const XML_SECURITY_URI_PREFIXES = [
+	'http://www.w3.org/2000/09/xmldsig#',
+	'http://www.w3.org/2001/04/xmldsig-more#',
+	'http://www.w3.org/2001/04/xmlenc#',
+	'http://www.w3.org/2001/10/xml-exc-c14n#',
+	'http://www.w3.org/2002/07/decrypt#',
+	'http://www.w3.org/2007/05/xmldsig-more#',
+];
+
+const XML_SECURITY_IDENTIFIER_NAMES = [
+	'xmldsig',
+	'xmldsig-more',
+	'xmlenc',
+	'xml-exc-c14n',
+	'decrypt',
+];
+
 ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
@@ -66,6 +117,23 @@ ruleTest.snapshot({
 		'const ns = "http://schemas.xmlsoap.org/soap/envelope/";',
 		'const ns = "http://purl.org/dc/elements/1.1/";',
 		'const ns = "http://www.sitemaps.org/schemas/sitemap/0.9";',
+		...XML_SECURITY_URIS.map(uri => `const uri = "${uri}";`),
+		...XML_SECURITY_URI_PREFIXES.map(uri => `const uri = "${uri}future-algorithm";`),
+		...XML_SECURITY_IDENTIFIER_NAMES.map(name => `const uri = "http://www.w3.org/2099/12/${name}#future-algorithm";`),
+		'const uri = "http://www.w3.org/2009/xmldsig11#future-algorithm";',
+		'const uri = "http://www.w3.org/2009/xmlenc11#future-algorithm";',
+		{
+			code: 'const uri = "http://example.com/identifier/value";',
+			options: [{ignore: ['http://example.com/identifier/value']}],
+		},
+		{
+			code: 'const uri = "http://schemas.example.com/value";',
+			options: [{ignore: [/^http:\/\/schemas\.example\.com\//v]}],
+		},
+		{
+			code: 'const uris = ["http://example.com/one", "http://example.com/two"];',
+			options: [{ignore: [/^http:\/\/unused\.example\//v, /^http:\/\/example\.com\//gv]}],
+		},
 	],
 	invalid: [
 		'const url = "http://sindresorhus.com";',
@@ -88,10 +156,36 @@ ruleTest.snapshot({
 		'const url = "http://www.w3.org/2000/svg/extra/path";',
 		// The bare registry host is not itself a namespace identifier
 		'const url = "http://www.w3.org";',
+		{
+			code: 'const uri = "http://example.com/identifier/value";',
+			options: [{ignore: ['http://other.example/identifier/value']}],
+		},
+		{
+			code: 'const uri = "http://example.com/identifier/value/extra";',
+			options: [{ignore: ['http://example.com/identifier/value']}],
+		},
+		{
+			code: 'const uri = "http://www.w3.org/2000/09/xmldsig-other#sha1";',
+			options: [{ignore: ['http://example.com/identifier/value']}],
+		},
 	],
 });
 
-function createLanguageConfig(language) {
+test('rejects non-HTTP string ignores', t => {
+	const linter = new Linter({configType: 'flat'});
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: ['error', {ignore: ['example.com']}],
+		},
+	};
+
+	const error = t.throws(() => linter.verify('const url = "http://example.com";', config));
+
+	t.regex(error.message, /ignore.*start with.*http:\/\//iv);
+});
+
+function createLanguageConfig(language, rule = 'error') {
 	const pluginName = language.split('/', 1)[0];
 
 	return {
@@ -102,7 +196,7 @@ function createLanguageConfig(language) {
 			unicorn,
 		},
 		rules: {
-			'unicorn/prefer-https': 'error',
+			'unicorn/prefer-https': rule,
 		},
 	};
 }
@@ -170,16 +264,26 @@ const languageCases = [
 		output: '| URL |\n| --- |\n| https://sindresorhus.com |',
 		errors: 1,
 	},
+	{
+		name: 'JSON with ignored URL',
+		filename: 'fixture.json',
+		language: 'json/json',
+		code: '{"url": "http://example.com/identifier/value"}',
+		output: '{"url": "http://example.com/identifier/value"}',
+		errors: 0,
+		fixed: false,
+		rule: ['error', {ignore: ['http://example.com/identifier/value']}],
+	},
 ];
 
-for (const {name, code, output, language, filename, errors} of languageCases) {
+for (const {name, code, output, language, filename, errors, fixed = true, rule} of languageCases) {
 	test(`supports ${name}`, t => {
-		const config = createLanguageConfig(language);
+		const config = createLanguageConfig(language, rule);
 		const linter = new Linter({configType: 'flat'});
 		const messages = linter.verify(code, config, {filename});
 		const result = linter.verifyAndFix(code, config, {filename});
 
-		t.true(result.fixed);
+		t.is(result.fixed, fixed);
 		t.is(result.output, output);
 		t.deepEqual(
 			messages.map(({message, ruleId}) => ({message, ruleId})),
