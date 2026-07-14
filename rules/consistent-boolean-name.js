@@ -365,6 +365,23 @@ function isReactUseReferenceCall(node) {
 		&& callee.property.name === 'useRef';
 }
 
+function isDirectVueFunctionReference(node, context) {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+
+	return !variable
+		|| variable.defs.every(definition =>
+			(
+				definition.type === 'ImportBinding'
+				&& definition.node.type === 'ImportSpecifier'
+				&& definition.parent.type === 'ImportDeclaration'
+				&& definition.parent.source.value === 'vue'
+				&& definition.node.imported.type === 'Identifier'
+				&& definition.node.imported.name === node.name
+			)
+			|| isInDeclareContext(definition.node),
+		);
+}
+
 function isBooleanReactReferenceVariable(variable, context) {
 	const definition = getSupportedVariableDefinition(variable);
 
@@ -393,6 +410,7 @@ function isBooleanVueReferenceVariable(variable, context) {
 	if (
 		callExpression?.type !== 'CallExpression'
 		|| callExpression.callee.type !== 'Identifier'
+		|| !isDirectVueFunctionReference(callExpression.callee, context)
 		|| hasWriteAfterInitialization(variable)
 	) {
 		return false;
@@ -970,6 +988,10 @@ function getDefinitionBooleanState(definition, context, visitedVariables, functi
 	}
 
 	if (definition.type === 'Variable') {
+		if (definition.node.parent.parent?.type === 'ForInStatement') {
+			return nonBoolean;
+		}
+
 		return getExpressionBooleanState(definition.node.init, context, visitedVariables, functionValuesAreBoolean);
 	}
 
@@ -985,7 +1007,8 @@ function getDefinitionBooleanState(definition, context, visitedVariables, functi
 function getReferenceWriteBooleanState(reference, context, visitedVariables, functionValuesAreBoolean) {
 	const {parent} = reference.identifier;
 	if (
-		parent.type === 'UpdateExpression'
+		parent.type === 'ForInStatement'
+		|| parent.type === 'UpdateExpression'
 		|| (
 			parent.type === 'AssignmentExpression'
 			&& parent.operator !== '='
@@ -993,6 +1016,10 @@ function getReferenceWriteBooleanState(reference, context, visitedVariables, fun
 		)
 	) {
 		return nonBoolean;
+	}
+
+	if (parent.type !== 'AssignmentExpression') {
+		return unknown;
 	}
 
 	return getExpressionBooleanState(reference.writeExpr, context, visitedVariables, functionValuesAreBoolean);
@@ -1032,7 +1059,7 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 	}
 
 	const writeStates = variable.references
-		.filter(reference => reference.writeExpr || reference.identifier.parent.type === 'UpdateExpression')
+		.filter(reference => reference.writeExpr || ['ForInStatement', 'UpdateExpression'].includes(reference.identifier.parent.type))
 		.map(reference => getReferenceWriteBooleanState(reference, context, visitedVariables, functionValuesAreBoolean));
 	if (writeStates.length > 0) {
 		result = combineVariableBooleanStates([

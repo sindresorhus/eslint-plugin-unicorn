@@ -700,6 +700,11 @@ test.snapshot({
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; let hasDepartment = computed(() => true);'),
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const isAvailable: () => boolean; const hasDepartment = computed(isAvailable);'),
 		typeAware('declare const isSet: boolean; declare function computed<T>(getter: () => T): {value: T}; const hasDepartment = computed(() => { const isValue = isSet; return isValue; });'),
+		typeAware([
+			'declare module "vue" { export function ref<T>(value: T): {value: T}; export function computed<T>(getter: () => T): {value: T}; }',
+			'import {ref, computed} from "vue";',
+			'const isReady = ref(false); const hasReady = computed(() => true);',
+		].join('\n')),
 		'function useIsReady() { return true; }',
 		typescript('declare function useIsMyFlag(): boolean;'),
 		typescript('const useIsReady = () => true;'),
@@ -721,11 +726,14 @@ test.snapshot({
 		'const isReady = async () => true;',
 		'let isReady = true; isReady &&= false;',
 		'let isReady = true; isReady ||= false; isReady ??= true;',
+		'let isReady = true; [isReady] = [false];',
+		'let isReady = true; for (isReady of [false]) {}',
 		'let completed = true; completed++;',
 		'let completed = true; completed += false;',
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; const isReady = computed((() => true) as () => boolean);'),
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; const isReady = computed((() => true) satisfies () => boolean);'),
 		typeAware('interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Ref<T>; declare const isGetter: () => boolean; const isReady = computed(isGetter!);'),
+		typeAware('interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isReady = ref(false); isReady.value = true;'),
 	],
 	invalid: [
 		'const completed = true;',
@@ -1114,7 +1122,42 @@ test.snapshot({
 		'let isReady = true; isReady++;',
 		'let isReady = true; isReady += false;',
 		'let isReady = true; isReady &&= "yes";',
+		'let isReady = true; for (isReady in {value: true}) {}',
 	].map(testCase => typeof testCase === 'string' ? typescript(testCase) : testCase),
+});
+
+test({
+	valid: [],
+	invalid: [
+		typeAware({
+			code: 'declare const Vue: {ref<T>(value: T): {value: T}}; const {ref} = Vue; const isReady = ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare const Vue: {ref<T>(value: T): {value: T}}; const ref = Vue.ref; const isReady = ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare const Vue: {computed<T>(getter: () => T): {value: T}}; const computed = Vue.computed; const hasReady = computed(() => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare module "other" { export function ref<T>(value: T): {value: T}; } import {ref} from "other"; const isReady: {value: string} = ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare module "vue" { export function computed<T>(getter: () => T): {value: T}; } import {computed as ref} from "vue"; const isReady: {value: string} = ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'import ref = require("vue"); const isReady: {value: string} = ref(false);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'for (const isReady in {value: true}) {}',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
 });
 
 test.snapshot({
