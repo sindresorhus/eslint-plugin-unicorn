@@ -11,7 +11,7 @@
 
 When you only need one or more specific elements from a split string, pass a [`limit`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split#limit) to `String#split()`. This can improve performance by allowing the method to stop once enough parts have been produced, and it makes your intent clearer. You are only interested in those specific parts.
 
-This rule checks two patterns with an obvious built-in separator: direct array destructuring in a variable declaration or assignment expression, and direct access using a statically known non-negative integer index.
+This rule checks two patterns with an obvious built-in separator: direct array destructuring in a variable declaration or standalone assignment expression, and direct access using a statically known non-negative integer index.
 
 ## Examples
 

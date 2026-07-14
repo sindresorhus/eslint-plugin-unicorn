@@ -1,11 +1,10 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
-import {isLeftHandSide} from './utils/index.js';
+import {isLeftHandSide, isValueNotUsable} from './utils/index.js';
 import {appendArgument} from './fix/index.js';
 import {
 	isStringLiteral,
 	isRegexLiteral,
 	isMethodCall,
-	isMemberExpression,
 } from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-split-limit';
@@ -90,10 +89,7 @@ const create = context => {
 		}
 
 		const {object: splitCall} = node.callee;
-		if (
-			!isMemberExpression(node.callee)
-			|| !isSplitCallWithoutLimit(splitCall)
-		) {
+		if (!isSplitCallWithoutLimit(splitCall)) {
 			return;
 		}
 
@@ -114,7 +110,10 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', node => {
-		if (node.left.type !== 'ArrayPattern') {
+		if (
+			node.left.type !== 'ArrayPattern'
+			|| !isValueNotUsable(node)
+		) {
 			return;
 		}
 

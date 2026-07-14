@@ -30,6 +30,7 @@ test({
 		'const [] = string.split("/")',
 		'const [first, ...remaining] = string.split("/")',
 		'[first, ...remaining] = string.split("/")',
+		'const parts = ([first] = string.split("/"))',
 		'const [first] = string.split(separator)',
 		'const [first] = string.split("")',
 		'const [first] = [...string.split("/")]',
