@@ -157,10 +157,8 @@ ruleTest.snapshot({
 			code: 'const uri = "http://example.com/identifier/value/extra";',
 			options: [{ignore: ['http://example.com/identifier/value']}],
 		},
-		{
-			code: 'const uri = "http://www.w3.org/2000/09/xmldsig-other#sha1";',
-			options: [{ignore: ['http://example.com/identifier/value']}],
-		},
+		'const uri = "http://www.w3.org/2000/09/xmldsig-other#sha1";',
+		'const uri = "http://www.w3.org/2000/09/xmldsig/path";',
 	],
 });
 
