@@ -26,6 +26,12 @@ promise.then(value => {
 // ✅
 const value = await promise;
 return transform(value);
+
+// ✅ Wrap in an async block if you don't want to await it
+(async () => {
+	const value = await promise;
+	alert(value);
+})();
 ```
 ```js
 // ❌
