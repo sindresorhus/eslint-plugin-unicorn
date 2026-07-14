@@ -136,6 +136,11 @@ test({
 			errors,
 		},
 		{
+			code: '(string?.split("/")).at(0)',
+			output: '(string?.split("/", 1)).at(0)',
+			errors,
+		},
+		{
 			code: 'string.split("/")?.at(1)',
 			output: 'string.split("/", 2)?.at(1)',
 			errors,
