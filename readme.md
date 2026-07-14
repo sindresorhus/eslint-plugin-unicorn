@@ -34,9 +34,7 @@ import globals from 'globals';
 
 export default defineConfig([
 	{
-		files: [
-			'**/*.{js,cjs,mjs}',
-		],
+		files: ['**/*.js'],
 		languageOptions: {
 			globals: globals.builtin,
 		},
@@ -447,9 +445,7 @@ import {defineConfig} from 'eslint/config';
 
 export default defineConfig([
 	{
-		files: [
-			'**/*.{js,cjs,mjs}',
-		],
+		files: ['**/*.js'],
 		extends: [
 			unicorn.configs.recommended,
 		],
@@ -554,9 +550,7 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	// …
 	{
-		files: [
-			'**/*.{js,cjs,mjs}',
-		],
+		files: ['**/*.js'],
 		extends: [
 			unicorn.configs.recommended,
 		],
@@ -578,9 +572,7 @@ import {defineConfig} from 'eslint/config';
 export default defineConfig([
 	// …
 	{
-		files: [
-			'**/*.{js,cjs,mjs}',
-		],
+		files: ['**/*.js'],
 		extends: [
 			unicorn.configs.all,
 		],
