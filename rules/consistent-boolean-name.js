@@ -391,7 +391,10 @@ function isBooleanVueReferenceVariable(variable, context) {
 	}
 
 	return callExpression.callee.name === 'computed'
-		&& (isFunction(argument) || isBooleanFunctionReference(argument, context))
+		&& (
+			(isFunction(argument) && !argument.async)
+			|| isBooleanFunctionReference(argument, context)
+		)
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
 

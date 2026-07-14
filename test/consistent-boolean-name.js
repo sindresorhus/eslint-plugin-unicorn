@@ -142,6 +142,10 @@ test({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
+			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(async () => true);',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
 			code: 'interface Ref<T> {value: T} declare function ref<T>(value: T): Ref<T>; let isBranch = ref(false); isBranch = ref("main");',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
