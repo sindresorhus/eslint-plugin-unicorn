@@ -15,7 +15,28 @@ This rule checks source text, including strings, template literals, JSX, comment
 
 URLs without a public-looking top-level domain are ignored. For example, `http://localhost`, `http://example`, and `http://127.0.0.1` are allowed.
 
-Well-known XML namespace URIs are also ignored. These are opaque identifiers that happen to use the `http:` scheme (for example, SVG's `http://www.w3.org/2000/svg`); rewriting them to `https:` would break XML and DOM parsing.
+Some well-known XML identifiers are also ignored because rewriting them to `https:` would change their meaning.
+
+## Options
+
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Specify URLs or regular expressions to ignore. Strings must start with `http://` and match the complete recognized URL exactly. Regular expressions match the same text, so use `^` and `$` for a full match. They are tested from `lastIndex = 0`, without carrying state between URLs.
+
+```js
+'unicorn/prefer-https': [
+	'error',
+	{
+		ignore: [
+			'http://example.com/identifier/value',
+			/^http:\/\/schemas\.example\.com\//v,
+		],
+	},
+]
+```
 
 ## Examples
 

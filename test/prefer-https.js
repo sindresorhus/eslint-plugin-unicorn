@@ -18,6 +18,93 @@ const LANGUAGE_PLUGINS = {
 	html,
 };
 
+const XML_SECURITY_URIS = [
+	'http://www.w3.org/TR/1999/REC-xpath-19991116',
+	'http://www.w3.org/TR/1999/REC-xslt-19991116',
+	'http://www.w3.org/TR/2001/REC-xml-c14n-20010315',
+	'http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments',
+	'http://www.w3.org/2000/09/xmldsig#',
+	'http://www.w3.org/2000/09/xmldsig#base64',
+	'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
+	'http://www.w3.org/2000/09/xmldsig#hmac-sha1',
+	'http://www.w3.org/2000/09/xmldsig#Manifest',
+	'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
+	'http://www.w3.org/2000/09/xmldsig#sha1',
+	'http://www.w3.org/2001/04/xmldsig-more#',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#hmac-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384',
+	'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512',
+	'http://www.w3.org/2001/04/xmldsig-more#sha384',
+	'http://www.w3.org/2001/04/xmlenc#sha256',
+	'http://www.w3.org/2001/04/xmlenc#sha512',
+	'http://www.w3.org/2001/10/xml-exc-c14n#',
+	'http://www.w3.org/2001/10/xml-exc-c14n#WithComments',
+	'http://www.w3.org/2002/06/xmldsig-filter2',
+	'http://www.w3.org/2002/07/decrypt#XML',
+	'http://www.w3.org/2006/12/xml-c14n11',
+	'http://www.w3.org/2006/12/xml-c14n11#WithComments',
+	'http://www.w3.org/2007/05/xmldsig-more#',
+	'http://www.w3.org/2007/05/xmldsig-more#MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#rsa-pss',
+	'http://www.w3.org/2007/05/xmldsig-more#sha1-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha256-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha384-rsa-MGF1',
+	'http://www.w3.org/2007/05/xmldsig-more#sha512-rsa-MGF1',
+];
+
+const XML_SECURITY_IDENTIFIER_NAMES = [
+	'xmldsig',
+	'xmldsig-more',
+	'xmlenc',
+	'xml-exc-c14n',
+	'decrypt',
+];
+
+const OPAQUE_IDENTIFIER_URIS = [
+	'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+	'http://www.w3.org/2000/01/rdf-schema#label',
+	'http://www.w3.org/2002/07/owl#Class',
+	'http://www.w3.org/2001/XMLSchema#string',
+	'http://purl.org/rss/1.0/title',
+	'http://purl.org/dc/elements/1.1/title',
+	'http://purl.org/dc/terms/title',
+	'http://www.w3.org/2001/XInclude',
+	'http://www.w3.org/2005/xpath-functions',
+	'http://www.w3.org/2005/xpath-functions#max',
+	'http://www.w3.org/2005/xpath-functions/map',
+	'http://www.w3.org/2005/xpath-functions/map#size',
+	'http://www.w3.org/2005/xpath-functions/array',
+	'http://www.w3.org/2005/xpath-functions/math#pi',
+	'http://www.w3.org/2005/xqt-errors',
+	'http://www.w3.org/2005/xqt-errors#XPST0017',
+	'http://www.w3.org/2005/07/scxml',
+	'http://www.w3.org/2004/02/skos/core#Concept',
+	'http://www.w3.org/ns/prov#Entity',
+	'http://www.w3.org/ns/shacl#NodeShape',
+	'http://www.w3.org/ns/dcat#Dataset',
+	'http://schemas.android.com/apk/res/android',
+	'http://schemas.android.com/apk/res/com.example',
+	'http://schemas.android.com/apk/res-auto',
+	'http://schemas.android.com/aapt',
+	'http://schemas.android.com/tools',
+	'http://maven.apache.org/POM/4.0.0',
+	'http://maven.apache.org/SETTINGS/1.0.0',
+	'http://maven.apache.org/TOOLCHAINS/1.1.0',
+	'http://maven.apache.org/METADATA/1.1.0',
+	'http://maven.apache.org/EXTENSIONS/1.0.0',
+	'http://schemas.microsoft.com/developer/msbuild/2003',
+	'http://www.springframework.org/schema/beans',
+	'http://www.springframework.org/schema/integration',
+	'http://www.springframework.org/schema/integration/security',
+];
+
 ruleTest.snapshot({
 	testerOptions: {
 		languageOptions: {
@@ -30,7 +117,9 @@ ruleTest.snapshot({
 	},
 	valid: [
 		'const url = "https://sindresorhus.com";',
+		'const url = "https://example.com/http://sindresorhus.com";',
 		'const url = "HTTP://sindresorhus.com";',
+		'const url = "HTTP://example.com/http://sindresorhus.com";',
 		'const url = "http://localhost";',
 		'const url = "http://example";',
 		'const url = "http://127.0.0.1";',
@@ -54,8 +143,7 @@ ruleTest.snapshot({
 		'const element = <svg xmlns=\'http://www.w3.org/2000/svg\'></svg>;',
 		// Spaces around the equals sign
 		'const element = <svg xmlns = "http://www.w3.org/2000/svg"></svg>;',
-		// Well-known namespace URIs are opaque identifiers anywhere they appear,
-		// not just in `xmlns=` attributes (e.g. passed to DOM `*NS` methods).
+		// Well-known namespace URIs are opaque identifiers anywhere they appear, not just in `xmlns=` attributes (e.g. passed to DOM `*NS` methods).
 		'const SVG_NAMESPACE = "http://www.w3.org/2000/svg";',
 		'document.createElementNS("http://www.w3.org/2000/svg", "svg");',
 		'svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", SVG_NAMESPACE);',
@@ -66,6 +154,33 @@ ruleTest.snapshot({
 		'const ns = "http://schemas.xmlsoap.org/soap/envelope/";',
 		'const ns = "http://purl.org/dc/elements/1.1/";',
 		'const ns = "http://www.sitemaps.org/schemas/sitemap/0.9";',
+		...XML_SECURITY_URIS.map(uri => `const uri = "${uri}";`),
+		...XML_SECURITY_IDENTIFIER_NAMES.map(name => `const uri = "http://www.w3.org/2099/12/${name}#future-algorithm";`),
+		'const uri = "http://www.w3.org/2009/xmldsig11#future-algorithm";',
+		'const uri = "http://www.w3.org/2009/xmlenc11#future-algorithm";',
+		'const uri = "http://www.w3.org/2099/12/xmldsig-filter3";',
+		'const uri = "http://www.w3.org/2099/12/xml-c14n12#WithComments";',
+		...OPAQUE_IDENTIFIER_URIS.map(uri => `const uri = "${uri}";`),
+		{
+			code: 'const uri = "http://example.com/identifier/value";',
+			options: [{ignore: ['http://example.com/identifier/value']}],
+		},
+		{
+			code: 'const url = "http://example.com/http://sindresorhus.com";',
+			options: [{ignore: ['http://example.com/http://sindresorhus.com']}],
+		},
+		{
+			code: 'const uri = "http://schemas.example.com/value";',
+			options: [{ignore: [/^http:\/\/schemas\.example\.com\//v]}],
+		},
+		{
+			code: 'const uris = ["http://example.com/one", "http://example.com/two"];',
+			options: [{ignore: [/^http:\/\/unused\.example\//v, /^http:\/\/example\.com\//gv]}],
+		},
+		{
+			code: 'const url = "http://example.com/identifier/value?format=xml#section";',
+			options: [{ignore: [/\?format=xml#section$/v]}],
+		},
 	],
 	invalid: [
 		'const url = "http://sindresorhus.com";',
@@ -81,17 +196,95 @@ ruleTest.snapshot({
 		'const url = "http://user:password@sindresorhus.com";',
 		'const url = "http://êxample.com";',
 		'const url = "http://sindresorhus.com:8080/path";',
+		'const url = "http://example.com/http://sindresorhus.com";',
 		'const url = "http://sindresorhus.com.";',
 		// Non-xmlns attribute adjacent to an xmlns attribute must still be flagged
 		'const element = <svg xmlns="http://www.w3.org/2000/svg" data-url="http://sindresorhus.com"></svg>;',
+		// Attribute names ending in "xmlns" are not namespace declarations
+		'const element = <div data-xmlns="http://sindresorhus.com"></div>;',
+		'const $xmlns = "http://sindresorhus.com";',
 		// A longer URL that merely shares a namespace prefix is not a namespace
 		'const url = "http://www.w3.org/2000/svg/extra/path";',
 		// The bare registry host is not itself a namespace identifier
 		'const url = "http://www.w3.org";',
+		{
+			code: 'const uri = "http://example.com/identifier/value";',
+			options: [{ignore: ['http://other.example/identifier/value']}],
+		},
+		{
+			code: 'const uri = "http://example.com/identifier/value/extra";',
+			options: [{ignore: ['http://example.com/identifier/value']}],
+		},
+		'const uri = "http://www.w3.org/2000/09/xmldsig-other#sha1";',
+		'const uri = "http://www.w3.org/2000/09/xmldsig/path";',
+		'const uri = "http://www.w3.org/2002/06/xmldsig-filter2/extra";',
+		'const uri = "http://www.w3.org/2006/12/xml-c14n11?format=xml";',
+		'const uri = "http://www.w3.org/2005/xpath-functions/map/extra";',
+		'const uri = "http://www.w3.org/2001/XInclude/extra";',
+		'const uri = "http://schemas.android.com/apk/res/android/extra";',
+		'const uri = "http://schemas.android.com/apk/res/android?theme=dark";',
+		'const uri = "http://schemas.android.com/apk/res/123-invalid";',
+		'const uri = "http://maven.apache.org/xsd/maven-4.0.0.xsd";',
+		'const uri = "http://maven.apache.org/DOWNLOAD/1.0";',
+		'const uri = "http://www.springframework.org/schema/beans/spring-beans.xsd";',
+		'const uri = "http://www.springframework.org/schema/beans?version=1";',
+		'const uri = "http://purl.org/dc/terms/title/document";',
+		'const uri = "http://purl.org/dc/terms/title?format=xml";',
+		'const uri = "http://purl.org/dc/terms/title.";',
+		'const uri = "http://schemas.android.com/apk/res/android.";',
 	],
 });
 
-function createLanguageConfig(language) {
+test('rejects non-HTTP string ignores', t => {
+	const linter = new Linter({configType: 'flat'});
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: ['error', {ignore: ['example.com']}],
+		},
+	};
+
+	const error = t.throws(() => linter.verify('const url = "http://example.com";', config));
+
+	t.regex(error.message, /ignore.*start with.*http:\/\//iv);
+});
+
+test('does not ignore URLs that do not match a regular expression', t => {
+	const code = 'const url = "http://example.com/identifier/value";';
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: ['error', {ignore: [/^http:\/\/other\.example\//v]}],
+		},
+	};
+	const linter = new Linter({configType: 'flat'});
+	const messages = linter.verify(code, config);
+	const result = linter.verifyAndFix(code, config);
+
+	t.is(messages.length, 1);
+	t.is(messages[0].message, MESSAGE);
+	t.true(result.fixed);
+	t.is(result.output, 'const url = "https://example.com/identifier/value";');
+});
+
+test('handles long hostname dot sequences efficiently', t => {
+	const code = `// http://a${'.'.repeat(100_000)}b.com`;
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const linter = new Linter({configType: 'flat'});
+	const startTime = performance.now();
+	const messages = linter.verify(code, config);
+	const duration = performance.now() - startTime;
+
+	t.is(messages.length, 1);
+	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
+});
+
+function createLanguageConfig(language, rule = 'error') {
 	const pluginName = language.split('/', 1)[0];
 
 	return {
@@ -102,7 +295,7 @@ function createLanguageConfig(language) {
 			unicorn,
 		},
 		rules: {
-			'unicorn/prefer-https': 'error',
+			[RULE_ID]: rule,
 		},
 	};
 }
@@ -170,16 +363,26 @@ const languageCases = [
 		output: '| URL |\n| --- |\n| https://sindresorhus.com |',
 		errors: 1,
 	},
+	{
+		name: 'JSON with ignored URL',
+		filename: 'fixture.json',
+		language: 'json/json',
+		code: '{"url": "http://example.com/identifier/value"}',
+		output: '{"url": "http://example.com/identifier/value"}',
+		errors: 0,
+		fixed: false,
+		rule: ['error', {ignore: ['http://example.com/identifier/value']}],
+	},
 ];
 
-for (const {name, code, output, language, filename, errors} of languageCases) {
+for (const {name, code, output, language, filename, errors, fixed = true, rule} of languageCases) {
 	test(`supports ${name}`, t => {
-		const config = createLanguageConfig(language);
+		const config = createLanguageConfig(language, rule);
 		const linter = new Linter({configType: 'flat'});
 		const messages = linter.verify(code, config, {filename});
 		const result = linter.verifyAndFix(code, config, {filename});
 
-		t.true(result.fixed);
+		t.is(result.fixed, fixed);
 		t.is(result.output, output);
 		t.deepEqual(
 			messages.map(({message, ruleId}) => ({message, ruleId})),
