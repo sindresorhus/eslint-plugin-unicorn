@@ -148,13 +148,21 @@ const config = [
 		},
 	},
 	{
-		// Intentional HTTP examples are used in tests.
+		// Intentional HTTP identifiers and examples.
 		files: [
+			'rules/prefer-https.js',
 			'test/prefer-https.js',
 			'test/string-content.js',
 		],
 		rules: {
 			'unicorn/prefer-https': 'off',
+		},
+	},
+	{
+		files: ['rules/prefer-https.js'],
+		rules: {
+			'regexp/no-super-linear-backtracking': 'error',
+			'regexp/no-super-linear-move': 'error',
 		},
 	},
 	{

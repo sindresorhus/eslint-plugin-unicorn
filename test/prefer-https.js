@@ -19,6 +19,10 @@ const LANGUAGE_PLUGINS = {
 };
 
 const XML_SECURITY_URIS = [
+	'http://www.w3.org/TR/1999/REC-xpath-19991116',
+	'http://www.w3.org/TR/1999/REC-xslt-19991116',
+	'http://www.w3.org/TR/2001/REC-xml-c14n-20010315',
+	'http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments',
 	'http://www.w3.org/2000/09/xmldsig#',
 	'http://www.w3.org/2000/09/xmldsig#base64',
 	'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
@@ -42,7 +46,10 @@ const XML_SECURITY_URIS = [
 	'http://www.w3.org/2001/04/xmlenc#sha512',
 	'http://www.w3.org/2001/10/xml-exc-c14n#',
 	'http://www.w3.org/2001/10/xml-exc-c14n#WithComments',
+	'http://www.w3.org/2002/06/xmldsig-filter2',
 	'http://www.w3.org/2002/07/decrypt#XML',
+	'http://www.w3.org/2006/12/xml-c14n11',
+	'http://www.w3.org/2006/12/xml-c14n11#WithComments',
 	'http://www.w3.org/2007/05/xmldsig-more#',
 	'http://www.w3.org/2007/05/xmldsig-more#MGF1',
 	'http://www.w3.org/2007/05/xmldsig-more#rsa-pss',
@@ -58,6 +65,44 @@ const XML_SECURITY_IDENTIFIER_NAMES = [
 	'xmlenc',
 	'xml-exc-c14n',
 	'decrypt',
+];
+
+const OPAQUE_IDENTIFIER_URIS = [
+	'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+	'http://www.w3.org/2000/01/rdf-schema#label',
+	'http://www.w3.org/2002/07/owl#Class',
+	'http://www.w3.org/2001/XMLSchema#string',
+	'http://purl.org/rss/1.0/title',
+	'http://purl.org/dc/elements/1.1/title',
+	'http://purl.org/dc/terms/title',
+	'http://www.w3.org/2001/XInclude',
+	'http://www.w3.org/2005/xpath-functions',
+	'http://www.w3.org/2005/xpath-functions#max',
+	'http://www.w3.org/2005/xpath-functions/map',
+	'http://www.w3.org/2005/xpath-functions/map#size',
+	'http://www.w3.org/2005/xpath-functions/array',
+	'http://www.w3.org/2005/xpath-functions/math#pi',
+	'http://www.w3.org/2005/xqt-errors',
+	'http://www.w3.org/2005/xqt-errors#XPST0017',
+	'http://www.w3.org/2005/07/scxml',
+	'http://www.w3.org/2004/02/skos/core#Concept',
+	'http://www.w3.org/ns/prov#Entity',
+	'http://www.w3.org/ns/shacl#NodeShape',
+	'http://www.w3.org/ns/dcat#Dataset',
+	'http://schemas.android.com/apk/res/android',
+	'http://schemas.android.com/apk/res/com.example',
+	'http://schemas.android.com/apk/res-auto',
+	'http://schemas.android.com/aapt',
+	'http://schemas.android.com/tools',
+	'http://maven.apache.org/POM/4.0.0',
+	'http://maven.apache.org/SETTINGS/1.0.0',
+	'http://maven.apache.org/TOOLCHAINS/1.1.0',
+	'http://maven.apache.org/METADATA/1.1.0',
+	'http://maven.apache.org/EXTENSIONS/1.0.0',
+	'http://schemas.microsoft.com/developer/msbuild/2003',
+	'http://www.springframework.org/schema/beans',
+	'http://www.springframework.org/schema/integration',
+	'http://www.springframework.org/schema/integration/security',
 ];
 
 ruleTest.snapshot({
@@ -113,6 +158,9 @@ ruleTest.snapshot({
 		...XML_SECURITY_IDENTIFIER_NAMES.map(name => `const uri = "http://www.w3.org/2099/12/${name}#future-algorithm";`),
 		'const uri = "http://www.w3.org/2009/xmldsig11#future-algorithm";',
 		'const uri = "http://www.w3.org/2009/xmlenc11#future-algorithm";',
+		'const uri = "http://www.w3.org/2099/12/xmldsig-filter3";',
+		'const uri = "http://www.w3.org/2099/12/xml-c14n12#WithComments";',
+		...OPAQUE_IDENTIFIER_URIS.map(uri => `const uri = "${uri}";`),
 		{
 			code: 'const uri = "http://example.com/identifier/value";',
 			options: [{ignore: ['http://example.com/identifier/value']}],
@@ -169,6 +217,21 @@ ruleTest.snapshot({
 		},
 		'const uri = "http://www.w3.org/2000/09/xmldsig-other#sha1";',
 		'const uri = "http://www.w3.org/2000/09/xmldsig/path";',
+		'const uri = "http://www.w3.org/2002/06/xmldsig-filter2/extra";',
+		'const uri = "http://www.w3.org/2006/12/xml-c14n11?format=xml";',
+		'const uri = "http://www.w3.org/2005/xpath-functions/map/extra";',
+		'const uri = "http://www.w3.org/2001/XInclude/extra";',
+		'const uri = "http://schemas.android.com/apk/res/android/extra";',
+		'const uri = "http://schemas.android.com/apk/res/android?theme=dark";',
+		'const uri = "http://schemas.android.com/apk/res/123-invalid";',
+		'const uri = "http://maven.apache.org/xsd/maven-4.0.0.xsd";',
+		'const uri = "http://maven.apache.org/DOWNLOAD/1.0";',
+		'const uri = "http://www.springframework.org/schema/beans/spring-beans.xsd";',
+		'const uri = "http://www.springframework.org/schema/beans?version=1";',
+		'const uri = "http://purl.org/dc/terms/title/document";',
+		'const uri = "http://purl.org/dc/terms/title?format=xml";',
+		'const uri = "http://purl.org/dc/terms/title.";',
+		'const uri = "http://schemas.android.com/apk/res/android.";',
 	],
 });
 
@@ -202,6 +265,23 @@ test('does not ignore URLs that do not match a regular expression', t => {
 	t.is(messages[0].message, MESSAGE);
 	t.true(result.fixed);
 	t.is(result.output, 'const url = "https://example.com/identifier/value";');
+});
+
+test('handles long hostname dot sequences efficiently', t => {
+	const code = `// http://a${'.'.repeat(100_000)}b.com`;
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const linter = new Linter({configType: 'flat'});
+	const startTime = performance.now();
+	const messages = linter.verify(code, config);
+	const duration = performance.now() - startTime;
+
+	t.is(messages.length, 1);
+	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });
 
 function createLanguageConfig(language, rule = 'error') {
