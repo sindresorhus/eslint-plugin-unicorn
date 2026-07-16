@@ -1,4 +1,5 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
+import {isNullLiteral} from './ast/index.js';
 import {
 	isParenthesized,
 	getParenthesizedText,
@@ -68,13 +69,21 @@ function isSimple(node) {
 		return isSimple(node.argument);
 	}
 
-	if (
-		node.type === 'BinaryExpression'
-		&& (node.operator === '===' || node.operator === '!==')
-	) {
+	if (node.type === 'BinaryExpression') {
 		const left = unwrapTypeScriptExpression(node.left);
 		const right = unwrapTypeScriptExpression(node.right);
+		if (
+			(node.operator === '==' || node.operator === '!=')
+			&& (
+				(left.type === 'Identifier' && isNullLiteral(right))
+				|| (isNullLiteral(left) && right.type === 'Identifier')
+			)
+		) {
+			return true;
+		}
+
 		return isSimpleOperand(left) && isSimpleOperand(right)
+			&& (node.operator === '===' || node.operator === '!==')
 			&& (isIdentifierOrTypeofIdentifier(left) || isIdentifierOrTypeofIdentifier(right));
 	}
 

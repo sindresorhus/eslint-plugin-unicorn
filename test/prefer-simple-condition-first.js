@@ -23,6 +23,10 @@ test({
 		'if (!(typeof value === "string") && ready);',
 		'if (index === -1n && ready);',
 		'if (-1n === index && ready);',
+		'if (value == null && ready);',
+		'if (value != null && ready);',
+		'if (null == value && ready);',
+		'if (null != value && ready);',
 		'if (first() && second());',
 
 		// A single condition has no ordering to enforce
@@ -79,6 +83,21 @@ test({
 		{
 			code: 'if ((foo ? bar : baz) && index === -1n);',
 			output: 'if ((index === -1n) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && value == null);',
+			output: 'if ((value == null) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && null != value);',
+			output: 'if ((null != value) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) || value == null);',
+			output: 'if ((value == null) || (foo ? bar : baz));',
 			errors: [error],
 		},
 
@@ -194,6 +213,14 @@ test({
 		{code: 'if (true && ready);', errors: [unsafeError]},
 		{code: 'if (-1 && ready);', errors: [unsafeError]},
 		{code: 'if (index === +1n && ready);', errors: [unsafeError]},
+		{code: 'if (value == 1 && ready);', errors: [unsafeError]},
+		{code: 'if (value != 1 && ready);', errors: [unsafeError]},
+		{code: 'if (value == undefined && ready);', errors: [unsafeError]},
+		{code: 'if (value != undefined && ready);', errors: [unsafeError]},
+		{code: 'if (typeof value == null && ready);', errors: [unsafeError]},
+		{code: 'if (typeof value != null && ready);', errors: [unsafeError]},
+		{code: 'if (object.value == null && ready);', errors: [unsafeError]},
+		{code: 'if (getValue() != null && ready);', errors: [unsafeError]},
 		{code: 'if (typeof object.value === "string" && ready);', errors: [unsafeError]},
 		{code: 'if ((foo + bar) && ready);', errors: [unsafeError]},
 		{code: 'if ((key in object) && ready);', errors: [unsafeError]},
@@ -244,6 +271,16 @@ test.typescript({
 		{
 			code: 'if ((foo ? bar : baz) && (ready as boolean));',
 			output: 'if ((ready as boolean) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && (value as string) != null);',
+			output: 'if (((value as string) != null) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && null != (value as string));',
+			output: 'if ((null != (value as string)) && (foo ? bar : baz));',
 			errors: [error],
 		},
 		{
