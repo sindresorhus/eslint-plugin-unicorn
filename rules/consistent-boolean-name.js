@@ -926,9 +926,8 @@ const isBooleanVariable = (variable, context) => {
 
 	const {name} = definition;
 
-	const scope = sourceCode.getScope(name);
-
 	if (name.typeAnnotation) {
+		const scope = sourceCode.getScope(name);
 		return isBooleanTypeAnnotation(name.typeAnnotation, context, scope)
 			|| isBooleanFunctionTypeAnnotation(name.typeAnnotation, context, scope);
 	}
@@ -1300,10 +1299,9 @@ const create = context => {
 
 		const nameForPrefixCheck = getNameForPrefixCheck(variable, context);
 		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
-		const booleanState = getVariableBooleanState(variable, context);
 		if (booleanPrefix) {
 			if (
-				booleanState === nonBoolean
+				getVariableBooleanState(variable, context) === nonBoolean
 				&& !isBooleanReactReferenceVariable(variable, context)
 				&& !isBooleanVueReferenceVariable(variable, context)
 			) {
@@ -1322,9 +1320,12 @@ const create = context => {
 			return;
 		}
 
+		// For names without a boolean prefix, only structurally-boolean values are flagged.
+		// `isBooleanVariable` is a cheaper check than the full `getVariableBooleanState` analysis,
+		// so bail out on the common non-boolean case before running the expensive check.
 		if (
-			booleanState === nonBoolean
-			|| !isBooleanVariable(variable, context)
+			!isBooleanVariable(variable, context)
+			|| getVariableBooleanState(variable, context) === nonBoolean
 		) {
 			return;
 		}
@@ -1373,9 +1374,8 @@ const create = context => {
 		}
 
 		const booleanPrefix = getBooleanPrefix(name, prefixes);
-		const booleanState = getPropertyBooleanState(node, context);
 		if (booleanPrefix) {
-			if (booleanState === nonBoolean) {
+			if (getPropertyBooleanState(node, context) === nonBoolean) {
 				context.report({
 					node: node.key,
 					messageId: MESSAGE_ID_NON_BOOLEAN_PREFIX,
@@ -1389,9 +1389,12 @@ const create = context => {
 			return;
 		}
 
+		// For names without a boolean prefix, only structurally-boolean values are flagged.
+		// `isBooleanProperty` is a cheaper check than the full `getPropertyBooleanState` analysis,
+		// so bail out on the common non-boolean case before running the expensive check.
 		if (
-			booleanState === nonBoolean
-			|| !isBooleanProperty(node, context)
+			!isBooleanProperty(node, context)
+			|| getPropertyBooleanState(node, context) === nonBoolean
 		) {
 			return;
 		}
