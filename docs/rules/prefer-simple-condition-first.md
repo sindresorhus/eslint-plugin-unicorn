@@ -16,6 +16,7 @@ A condition is considered "simple" if it is:
 - A bare identifier (`foo`)
 - A negated simple condition (`!foo`)
 - A strict equality or inequality comparison between identifiers, `typeof identifier`, literals, signed number literals, and negative BigInt literals, with at least one identifier or `typeof identifier` (`foo === 1`, `a !== b`, `index === -1`, `typeof value === 'string'`)
+- A loose equality or inequality comparison between an identifier and `null`, in either operand order (`foo == null`, `null != foo`)
 
 The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
