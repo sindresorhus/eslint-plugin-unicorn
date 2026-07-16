@@ -142,6 +142,13 @@ const getNameReplacements = (name, options, limit = 3) => {
 		};
 	}
 
+	// An all-lowercase ASCII name has no case or symbol boundaries, so the split below yields a
+	// single word identical to `name`. The exact-match check above already covered that word, so
+	// no word-level replacement is possible and the expensive Unicode split can be skipped.
+	if (/^[a-z]+$/.test(name)) {
+		return {total: 0};
+	}
+
 	// Split words
 	const words = name.split(/(?=\P{Lowercase_Letter})|(?<=\P{Letter})/u).filter(Boolean);
 
