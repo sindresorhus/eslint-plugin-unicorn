@@ -318,6 +318,26 @@ test.snapshot({
 				return foo.includes(value);
 			}
 		`,
+		{
+			code: outdent`
+				function f(a, b, c) {
+					const foo = [a];
+					return c.map(i => b.includes(foo[i]));
+				}
+			`,
+		},
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn(index) {
+				return bar.includes(foo[index]) || bar.includes(foo[index + 1]);
+			}
+		`,
+		outdent`
+			const foo = [1, 2, 3];
+			function unicorn(value) {
+				return foo[value].includes(value);
+			}
+		`,
 		outdent`
 			const foo = [1, 2, 3];
 			const object = {...foo};
