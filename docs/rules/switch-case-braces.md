@@ -12,6 +12,8 @@
 1. Forbid braces for empty clauses.
 1. Enforce braces for non-empty clauses.
 
+Braces give each non-empty case its own explicit scope and keep case-body structure consistent.
+
 ## Examples
 
 ```js

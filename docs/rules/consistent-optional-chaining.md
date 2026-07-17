@@ -10,6 +10,8 @@
 
 Enforce consistent optional chaining for same-base member access in logical expressions.
 
+Using optional chaining consistently for the same base makes nullish behavior easier to see and avoids visually similar expressions that handle missing values differently.
+
 This rule intentionally handles only direct member access on both sides of `&&` or `||`. It does not rewrite broad truthiness checks like `foo && foo.bar` to `foo?.bar`, because that can change runtime values.
 
 ## Examples

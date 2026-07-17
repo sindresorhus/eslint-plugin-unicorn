@@ -9,6 +9,8 @@
 
 When calling [`Array#flat(depth)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat), the depth argument should normally be `1` or `Infinity`, otherwise it should be a meaningful variable name or explained with a comment.
 
+A bare depth number does not explain why that particular nesting depth is required, so naming or commenting it preserves intent for readers.
+
 ## Examples
 
 ```js

@@ -9,6 +9,8 @@
 
 This rule reports named exports that are already covered by an `export *` from the same module.
 
+Removing redundant re-exports keeps module API declarations smaller and avoids implying a special export when the wildcard already exposes it.
+
 The rule only compares module specifiers as written. It does not resolve paths or inspect the module graph. Named exports are ignored when the file re-exports multiple distinct wildcard module requests, as those exports can resolve conflicting names.
 
 Importing a binding and exporting it locally is the concern of [`prefer-export-from`](./prefer-export-from.md). This rule checks only direct `export … from` declarations.

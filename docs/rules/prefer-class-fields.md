@@ -11,6 +11,8 @@
 
 Enforces declaring property defaults with class fields instead of setting them inside the constructor.
 
+Class fields keep property initialization next to the declaration and avoid boilerplate in constructors.
+
 > To avoid leaving empty constructors after autofixing, use the [`no-useless-constructor` rule](https://eslint.org/docs/latest/rules/no-useless-constructor).
 
 ## Examples

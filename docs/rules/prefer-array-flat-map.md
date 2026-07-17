@@ -11,6 +11,8 @@
 
 [`Array#flatMap`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap) performs [`Array#map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) and [`Array#flat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) in one step.
 
+It expresses mapping and flattening directly and avoids intermediate arrays created by separate `map()` or `filter()` calls.
+
 It can also add or remove items during mapping by returning an empty array for items that should be skipped. This rule only reports `.filter().flatMap()` when the `.flatMap()` callback can return multiple items. Single-item callbacks are handled by [`unicorn/no-unnecessary-array-flat-map`](./no-unnecessary-array-flat-map.md).
 
 ## Examples

@@ -9,6 +9,8 @@
 
 Scripts are meant to be executed directly, not imported as modules.
 
+Exports in a script mix module and script boundaries and can mislead readers about how the file is intended to run.
+
 ## Examples
 
 This script fails:

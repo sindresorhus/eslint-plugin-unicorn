@@ -10,6 +10,8 @@
 
 Require passive event listeners for high-frequency events.
 
+Passive listeners let the browser handle scrolling without waiting to see whether the handler calls `preventDefault()`, improving responsiveness.
+
 ## Examples
 
 ```js

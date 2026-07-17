@@ -11,6 +11,8 @@
 
 This rule catches common incorrect or inefficient `querySelector()` and `querySelectorAll()` usage.
 
+Using the appropriate query method avoids retrieving a collection when only one element is needed and makes empty and no-match checks explicit.
+
 ## Examples
 
 ```js

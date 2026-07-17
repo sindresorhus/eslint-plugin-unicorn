@@ -6,7 +6,7 @@
 
 <!-- end auto-generated rule header -->
 
-This rule helps to use existing methods instead of using extra polyfills.
+Unneeded polyfills add dependencies and code paths while providing no benefit on targets that already support the method.
 
 ## Examples
 

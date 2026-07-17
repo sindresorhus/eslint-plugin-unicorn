@@ -11,6 +11,8 @@
 
 Prefer `.has()` over `.get()` when checking whether an item exists.
 
+`.has()` directly checks membership without conflating absence with a stored value.
+
 This rule is conservative. It reports `Map`, `ReadonlyMap`, and `WeakMap` only when TypeScript type information, simple TypeScript annotations, or inline `new Map(...)` or `new WeakMap(...)` constructors prove stored values cannot be confused with a missing value. It also reports explicit `null` comparisons and loose `undefined` comparisons for `URLSearchParams`, `Headers`, and `FormData`.
 
 ## Examples

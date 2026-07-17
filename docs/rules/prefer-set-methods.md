@@ -11,6 +11,8 @@
 
 Prefer modern `Set` methods over manually composing Sets with spread arrays and filters.
 
+The built-in methods express set operations directly and avoid spelling out temporary arrays and membership-check loops.
+
 ## Examples
 
 ```js

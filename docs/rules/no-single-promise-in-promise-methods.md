@@ -11,6 +11,8 @@
 
 Passing a single-element array to `Promise.all()`, `Promise.any()`, or `Promise.race()` is likely a mistake.
 
+Promise combinators are intended for coordinating multiple inputs; wrapping one value adds unnecessary array handling and can hide a missing promise.
+
 ## Examples
 
 ```js

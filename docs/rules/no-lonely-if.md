@@ -11,6 +11,8 @@
 
 This rule adds onto the built-in [`no-lonely-if`](https://eslint.org/docs/rules/no-lonely-if) rule, which only disallows `if` statements in `else`, not in `if`. It is recommended to use `unicorn/no-lonely-if` together with the core ESLint `no-lonely-if` rule.
 
+Nested `if` statements add indentation without adding an alternative branch, making control flow harder to scan.
+
 ## Examples
 
 ```js

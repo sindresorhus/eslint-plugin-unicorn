@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule is only meant to enforce a specific style and make comparisons more clear.
+Explicit comparisons make empty and non-empty intent clear instead of relying on the truthiness of a numeric property.
 
 This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 

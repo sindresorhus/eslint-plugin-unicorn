@@ -11,6 +11,8 @@
 
 Prefer `String#matchAll()` over `RegExp#exec()` loops when collecting every match from a string.
 
+`matchAll()` expresses collecting every match directly and avoids manual loop control around repeated `exec()` calls.
+
 ## Examples
 
 ```js

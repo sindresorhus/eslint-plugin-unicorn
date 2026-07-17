@@ -11,6 +11,8 @@
 
 Prefer last-oriented array methods over reversing an array and then calling the forward method.
 
+Last-oriented methods express the traversal direction directly and avoid reversing the array before the operation.
+
 This rule reports `.reverse()` and `.toReversed()` followed by `.find()`, `.findIndex()`, `.indexOf()`, or `.reduce()`.
 
 This rule only provides editor suggestions. The replacement can change observable behavior for mutation, sparse arrays, callback index or array arguments, and index-returning methods.

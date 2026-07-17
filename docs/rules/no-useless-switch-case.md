@@ -11,6 +11,8 @@
 
 An empty case before the last default case is useless.
 
+Removing it avoids suggesting that the case has distinct behavior when execution would immediately enter the default case.
+
 In TypeScript files, empty `case null:` and `case undefined:` before `default:` are allowed so type-aware exhaustiveness checks can require explicit nullish union members while `default:` still handles unexpected values.
 
 ## Examples

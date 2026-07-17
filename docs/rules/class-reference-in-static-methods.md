@@ -11,6 +11,8 @@
 
 This rule enforces either dynamic static dispatch with `this` and `super`, or direct references with class names.
 
+Choosing one style makes it clear whether a static method is intended to follow subclass dispatch or stay tied to a specific class.
+
 By default, it prefers `this` and `super`.
 
 ## Examples

@@ -11,6 +11,8 @@
 
 This rule will enforce the use of `globalThis` over `window`, `self`, and `global`.
 
+`globalThis` is the standard cross-environment reference, so it keeps code portable between browsers, Node.js, and other JavaScript runtimes.
+
 However, there are several exceptions that remain permitted:
 
 1. Certain window-specific APIs, such as `window.innerHeight`

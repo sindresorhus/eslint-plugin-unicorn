@@ -11,6 +11,8 @@
 
 Enforce function syntax by role.
 
+Choosing syntax by function role keeps declarations consistent and makes callbacks, methods, and standalone functions easier to distinguish.
+
 By default, this rule reports nothing. Configure the roles you want to enforce.
 
 This rule does not autofix. Function declarations, function expressions, arrow functions, and object methods are not always semantic equivalents, so `--fix` would be too risky for a style rule.

@@ -11,6 +11,8 @@
 
 Prefer using [`Element#classList.toggle()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/classList) instead of conditionally calling `classList.add()` and `classList.remove()`.
 
+`toggle()` expresses the boolean intent in one operation and avoids keeping separate add and remove branches in sync.
+
 ## Examples
 
 ```js

@@ -11,6 +11,8 @@
 
 [IIFE](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression) with parenthesized arrow function body is considered unreadable.
 
+Parenthesized arrow bodies make an IIFE look like a grouped expression and obscure where the function body begins.
+
 ## Examples
 
 ```js

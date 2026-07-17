@@ -11,6 +11,8 @@
 
 ES2019 introduced a new method [`Array#flat()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) that flattens arrays.
 
+The native method expresses flattening directly and avoids verbose or indirect flattening patterns.
+
 ## Examples
 
 ```js

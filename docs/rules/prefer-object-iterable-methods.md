@@ -11,6 +11,8 @@
 
 Prefer the most direct `Object` iterable method for the data being used.
 
+Choosing the method that matches the values consumed avoids creating keys or entries that the loop or callback never uses.
+
 Use `Object.values()` when only values are needed, `Object.entries()` when both keys and values are needed, and `Object.keys()` when only keys are needed.
 
 This rule reports `for…of` loops, `Object.keys().map()` callbacks, and `Object.entries()` callbacks for `.map()`, `.every()`, `.some()`, `.findIndex()`, `.findLastIndex()`, `.flatMap()`, `.forEach()`, `.reduce()`, and `.reduceRight()`.

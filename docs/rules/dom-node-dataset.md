@@ -11,6 +11,8 @@
 
 Use [`.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset) on DOM elements over `getAttribute(…)`, `.setAttribute(…)`, `.removeAttribute(…)` and `.hasAttribute(…)`.
 
+The `dataset` API maps `data-*` attributes to properties, avoiding repeated attribute-name strings and keeping reads and writes consistent.
+
 ## Examples
 
 ```js
