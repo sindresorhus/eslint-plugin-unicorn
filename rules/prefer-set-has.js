@@ -75,7 +75,7 @@ const isIncludesCall = node =>
 		optionalMember: false,
 		argumentsLength: 1,
 	})
-	&& node.parent.object === node;
+	&& node.parent.parent.callee.object === node;
 
 const multipleCallNodeTypes = new Set([
 	'ForOfStatement',
