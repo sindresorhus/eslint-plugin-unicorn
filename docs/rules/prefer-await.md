@@ -15,6 +15,8 @@ This rule reports promise chaining with `.then()`, `.catch()`, and `.finally()`.
 
 Chains explicitly discarded with the `void` operator are ignored, since `void` is the idiomatic way to opt out of awaiting an intentional fire-and-forget promise.
 
+Constructors cannot be `async`, so use an async IIFE to initialize promise-valued properties.
+
 For a standalone `.then()` with an inline arrow callback, the rule can suggest rewriting it as a `void` async IIFE. Other promise chains are still reported without a suggestion.
 
 This rule intentionally has no options. Use an inline disable for library-specific chains that should remain callback-based.
@@ -61,6 +63,19 @@ try {
 // ✅
 // Intentional fire-and-forget, opted out with `void`.
 void promise.catch(() => {});
+```
+
+```js
+// ✅ Use an async IIFE in a constructor.
+class Loader {
+	constructor(source) {
+		this.asset = (async () => {
+			const raw = await source;
+			raw.prepare();
+			return raw;
+		})();
+	}
+}
 ```
 
 ```js
