@@ -11,6 +11,8 @@
 
 A class with only static members could just be an object instead.
 
+Using an object avoids implying that instances or a prototype are meaningful when the class has no instance behavior.
+
 ## Examples
 
 ```js

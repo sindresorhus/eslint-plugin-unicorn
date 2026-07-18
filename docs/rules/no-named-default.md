@@ -11,6 +11,8 @@
 
 Enforces the use of the [`default import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`default export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#using_the_default_export) syntax instead of named syntax.
 
+The named form is easy to mistake for a named specifier during refactors; dedicated default syntax makes the binding's intent explicit.
+
 ## Examples
 
 ```js

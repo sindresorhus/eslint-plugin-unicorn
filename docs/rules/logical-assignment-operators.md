@@ -11,6 +11,8 @@
 
 This rule is the same as the built-in ESLint [`logical-assignment-operators`](https://eslint.org/docs/latest/rules/logical-assignment-operators) rule, but when `enforceForIfStatements` is enabled, falsy `if` assignments are reported with suggestions for both `||=` and `??=` instead of being autofixed.
 
+Consistently choosing logical-assignment shorthand or an explicit assignment or conditional makes updates easier to scan and avoids mixing the same pattern in different forms.
+
 ## Replacement for ESLint `logical-assignment-operators`
 
 This rule replaces ESLint's built-in `logical-assignment-operators` rule, which Unicorn presets disable when this rule is enabled.

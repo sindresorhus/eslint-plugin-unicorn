@@ -9,6 +9,8 @@
 
 This rule is the same as the built-in ESLint [`id-match`](https://eslint.org/docs/latest/rules/id-match) rule, but with an additional `checkNamedSpecifiers` option.
 
+Enforcing an identifier pattern prevents names from drifting from a project's naming convention while keeping that convention configurable.
+
 ## Replacement for ESLint `id-match`
 
 This rule replaces ESLint's built-in `id-match` rule, which Unicorn presets disable when this rule is enabled.

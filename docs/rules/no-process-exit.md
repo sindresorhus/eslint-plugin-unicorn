@@ -7,7 +7,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule is an extension to ESLint's [`no-process-exit` rule](https://eslint.org/docs/rules/no-process-exit), that allows `process.exit()` to be called in files that start with a [hashbang](https://en.wikipedia.org/wiki/Shebang_(Unix)) → `#!/usr/bin/env node`. It also allows `process.exit()` to be called in `process.on('<event>', func)` event handlers and in files that imports `worker_threads`.
+This rule is an extension to ESLint's [`no-process-exit` rule](https://eslint.org/docs/rules/no-process-exit). Calling `process.exit()` abruptly terminates the process and can bypass normal error propagation and cleanup, so exits are restricted in ordinary application code while permitted in files that start with a [hashbang](https://en.wikipedia.org/wiki/Shebang_(Unix)) → `#!/usr/bin/env node`, `process.on('<event>', func)` event handlers, and files that statically import or require `worker_threads`.
 
 ## Replacement for ESLint `no-process-exit`
 

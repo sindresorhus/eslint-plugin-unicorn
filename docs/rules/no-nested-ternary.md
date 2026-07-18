@@ -11,6 +11,8 @@
 
 Improved version of the [`no-nested-ternary`](https://eslint.org/docs/latest/rules/no-nested-ternary) ESLint rule. This rule allows cases where the nested ternary is only one level and wrapped in parens.
 
+Nested ternaries require readers to track multiple conditions and branches at once, making them harder to read and maintain.
+
 ## Replacement for ESLint `no-nested-ternary`
 
 This rule replaces ESLint's built-in `no-nested-ternary` rule, which Unicorn presets disable when this rule is enabled.

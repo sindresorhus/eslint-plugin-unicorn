@@ -11,6 +11,8 @@
 
 Prefer using the opposite comparison operator instead of negating the whole comparison.
 
+Writing the opposite operator directly makes the comparison easier to read and reduces mental negation.
+
 By default, the rule intentionally does not rewrite compound logical expressions like `!(a === b && c === d)`. Keeping the grouped negation can be easier to read.
 
 Relational comparisons (`<`, `>`, `<=`, `>=`) with optional chaining are ignored, since the operand can be `undefined` and `!(a?.b >= 2)` is not equivalent to `a?.b < 2`. Equality comparisons are unaffected.

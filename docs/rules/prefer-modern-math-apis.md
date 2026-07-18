@@ -9,6 +9,8 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
+Standard `Math` methods express mathematical intent directly and are less error-prone than reimplementing them.
+
 Math additions in ES2015:
 
 - [Math.sign()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign)

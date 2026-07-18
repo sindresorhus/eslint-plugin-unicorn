@@ -15,6 +15,8 @@ Enforces a consistent name for caught errors across:
 - `.catch(…)` Promise handlers
 - `.then(…, rejectionHandler)` Promise handlers
 
+Using one recognizable name makes error handlers easier to scan and avoids renaming the same concept across callback styles.
+
 The desired parameter name is [configurable](#name), but defaults to `error`.
 
 The following names are ignored:

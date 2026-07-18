@@ -11,6 +11,8 @@
 
 Enforce non-empty attribute list in `import`/`export` statements and `import()` expressions.
 
+Empty import or export attributes and empty dynamic-import options carry no metadata and can make a module reference look configured when it is not.
+
 ## Examples
 
 ```js

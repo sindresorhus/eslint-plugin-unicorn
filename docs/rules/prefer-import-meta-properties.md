@@ -11,6 +11,8 @@
 
 Starting with Node.js 20.11, [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) and [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename) have been introduced in ES modules.
 
+These built-in properties avoid converting `import.meta.url` and calling path helpers, so file-path code is shorter and clearer.
+
 > `import.meta.filename` is the same as the `url.fileURLToPath()` of the `import.meta.url`.\
 > `import.meta.dirname` is the same as the `path.dirname()` of the `import.meta.filename`.
 

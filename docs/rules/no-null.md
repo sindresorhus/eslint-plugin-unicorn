@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Disallow the use of the `null` literal, to encourage using `undefined` instead. You can learn why in <https://github.com/sindresorhus/meta/discussions/7>
+Disallow the use of the `null` literal, to encourage using `undefined` instead. Using one absence value within a codebase reduces ambiguity when APIs exchange missing values. You can learn more in <https://github.com/sindresorhus/meta/discussions/7>
 
 ## Examples
 

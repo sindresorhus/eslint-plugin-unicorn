@@ -9,6 +9,8 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
+Removing unnecessary spread avoids redundant copying and conversion, and makes it clear when an array, object, or iterable can be used directly.
+
 - Using spread syntax in the following cases is unnecessary:
 
   - Spread an array literal as elements of an array literal

@@ -11,6 +11,8 @@
 
 Enforce whether default-exported functions and classes are declared inline with `export default` or separately. For functions, separate means a `const` arrow function exported by identifier. For classes, separate means a class declaration exported by identifier.
 
+A consistent declaration style makes default exports easier to scan and avoids mixing multiple declaration forms across a codebase.
+
 This rule only checks local default exports. Named exports are intentionally ignored. Use [`consistent-function-style`](./consistent-function-style.md) for named function export syntax.
 
 Anonymous default exports remain the responsibility of [`no-anonymous-default-export`](./no-anonymous-default-export.md).

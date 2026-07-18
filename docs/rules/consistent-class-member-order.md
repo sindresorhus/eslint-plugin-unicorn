@@ -8,6 +8,8 @@
 
 <!-- end auto-generated rule header -->
 
+A predictable member order makes classes faster to scan and keeps related static, instance, field, and method members together.
+
 This rule enforces the following class member order:
 
 1. Static fields

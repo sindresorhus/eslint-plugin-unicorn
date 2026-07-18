@@ -9,6 +9,8 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
+Negative indexes express positions from the end directly, avoiding length arithmetic and making the intent easier to read.
+
 Prefer negative index over calculating from `.length` for:
 
 - [`String#slice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice)

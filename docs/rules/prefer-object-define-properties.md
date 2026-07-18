@@ -11,6 +11,8 @@
 
 Prefer [`Object.defineProperties()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties) when defining multiple properties on the same object.
 
+A single call keeps related property definitions together and avoids repeating the target object.
+
 This rule only checks adjacent `Object.defineProperty()` expression statements with the same target. `Reflect.defineProperty()` is intentionally ignored because it returns a boolean instead of throwing and there is no `Reflect.defineProperties()` equivalent.
 
 The autofix is skipped when comments would be removed or when duplicate property keys can be detected.

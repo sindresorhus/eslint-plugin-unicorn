@@ -11,6 +11,8 @@
 
 Compound words should be treated as one word when applying identifier casing conventions.
 
+Treating the same compound word consistently prevents equivalent concepts from being cased differently across identifiers.
+
 This rule uses a conservative curated list of common compound-word mistakes in code identifiers. It is not a spellchecker or a prose style rule.
 
 ## Examples
