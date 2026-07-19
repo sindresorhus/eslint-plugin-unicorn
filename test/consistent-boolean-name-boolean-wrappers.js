@@ -53,6 +53,11 @@ const invalidBooleanWrapper = (code, options = booleanWrapperOptions) => typeAwa
 test({
 	valid: [
 		validBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<boolean>;`),
+		validBooleanWrapper([
+			'namespace Storage { export interface StorageItem<Return> {get(): Promise<Return>} }',
+			'import StorageItem = Storage.StorageItem;',
+			'declare const isUnicorn: StorageItem<boolean>;',
+		].join('\n')),
 		validBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`),
 		validBooleanWrapper(`${storageItemType} function useStorage(isUnicorn: StorageItem<unknown, boolean>) {}`),
 		validBooleanWrapper(`${storageItemType} type BooleanStorageItem = StorageItem<unknown, boolean>; declare const isUnicorn: BooleanStorageItem;`),
@@ -80,6 +85,11 @@ test({
 	],
 	invalid: [
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, string>;`),
+		invalidBooleanWrapper([
+			'namespace Storage { export interface StorageItem<Return> {get(): Promise<Return>} }',
+			'import StorageItem = Storage.StorageItem;',
+			'declare const isUnicorn: StorageItem<string>;',
+		].join('\n')),
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, () => boolean>;`),
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean> | {get(): Promise<string>};`),
 		invalidBooleanWrapper(`${storageItemType} type InvalidIntersection = StorageItem<unknown, boolean> & {get(): Promise<string>}; declare const isUnicorn: InvalidIntersection;`),
