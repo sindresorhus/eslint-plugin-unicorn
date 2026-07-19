@@ -11,7 +11,7 @@
 
 This rule enforces the use of `Math.abs()` instead of hand-written absolute value expressions and symmetric range checks.
 
-`Math.abs()` states the intent directly and avoids duplicating the two sides of an absolute-value calculation.
+`Math.abs()` states the intent directly and avoids duplicating the positive and negative cases in absolute-value calculations and symmetric range checks.
 
 ## Examples
 

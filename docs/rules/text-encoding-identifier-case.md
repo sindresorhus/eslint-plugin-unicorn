@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Consistent identifiers avoid visually different spellings for the same encoding and make encoding intent easier to scan.
+Consistent encoding spellings avoid visually different forms of the same encoding and make encoding intent easier to scan.
 
 - Enforce `'utf8'` for [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
 - Enforce `'ascii'` for [ASCII](https://en.wikipedia.org/wiki/ASCII) encoding.
