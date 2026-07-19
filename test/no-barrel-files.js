@@ -35,6 +35,7 @@ test.snapshot({
 		'import foo from "foo"; export default foo;',
 		'export default foo; import foo from "foo";',
 		'import * as namespace from "foo"; export {namespace as default};',
+		'export {foo}; import {foo} from "foo";',
 		outdent`
 			import {foo} from './foo.js';
 			export {foo};
