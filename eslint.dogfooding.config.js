@@ -53,6 +53,8 @@ const config = [
 			'unicorn/prefer-simplified-conditions': 'off',
 			// Many existing internal utilities intentionally export declarations separately.
 			'unicorn/default-export-style': 'off',
+			// The plugin intentionally keeps a few internal barrel files for shared utilities and rule exports.
+			'unicorn/no-barrel-files': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
