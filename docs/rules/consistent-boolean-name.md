@@ -15,6 +15,8 @@ Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
 
+Configured wrapper bindings may use boolean prefixes when their configured value member provides a boolean value. The wrapper itself is not treated as a boolean for other checks. Only variable and parameter bindings are supported; object and class properties are not affected. The binding must not be reassigned after initialization.
+
 Reports for property and method names, and reports for non-boolean values using boolean prefixes, do not provide rename suggestions.
 
 The default prefixes are:
@@ -229,6 +231,44 @@ And this would fail:
 
 ```js
 const didUpdate = true;
+```
+
+### booleanWrappers
+
+Type: `Record<string, string>`\
+Default: `{}`
+
+Allow configured wrapper bindings to use boolean prefixes when a property or method provides a boolean value. The object key is the unqualified TypeScript wrapper type name, and the value is the property or method name. Derived types, intersections, and type parameters constrained by a configured wrapper type are supported. The member may provide `boolean`, `Promise<boolean>`, or `PromiseLike<boolean>`; nullable boolean results are also accepted. This option requires TypeScript type information.
+
+```js
+'unicorn/consistent-boolean-name': [
+	'error',
+	{
+		booleanWrappers: {
+			StorageItem: 'get',
+		},
+	},
+]
+```
+
+With the above configuration, this would pass:
+
+```ts
+interface StorageItem<Base, Return = Base | undefined> {
+	get(): Promise<Return>;
+}
+
+declare const isUnicorn: StorageItem<unknown, boolean>;
+```
+
+But this would still fail because `get()` returns a string:
+
+```ts
+interface StorageItem<Base, Return = Base | undefined> {
+	get(): Promise<Return>;
+}
+
+declare const isUnicorn: StorageItem<unknown, string>;
 ```
 
 ### ignore
