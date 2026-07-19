@@ -23,7 +23,7 @@ const getImportedBindings = program => {
 
 const isBarrelFile = program => {
 	const importedBindings = getImportedBindings(program);
-	let hasExport = false;
+	let hasReExport = false;
 
 	for (const node of program.body) {
 		if (node.type === 'ImportDeclaration') {
@@ -35,7 +35,7 @@ const isBarrelFile = program => {
 		}
 
 		if (node.type === 'ExportAllDeclaration') {
-			hasExport = true;
+			hasReExport = true;
 			continue;
 		}
 
@@ -47,7 +47,7 @@ const isBarrelFile = program => {
 				return false;
 			}
 
-			hasExport ||= node.specifiers.length > 0;
+			hasReExport ||= node.specifiers.length > 0;
 			continue;
 		}
 
@@ -56,14 +56,14 @@ const isBarrelFile = program => {
 			&& node.declaration.type === 'Identifier'
 			&& importedBindings.has(node.declaration.name)
 		) {
-			hasExport = true;
+			hasReExport = true;
 			continue;
 		}
 
 		return false;
 	}
 
-	return hasExport;
+	return hasReExport;
 };
 
 /** @param {ESLint.Rule.RuleContext} context */

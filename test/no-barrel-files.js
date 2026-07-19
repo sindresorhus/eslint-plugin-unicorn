@@ -7,6 +7,7 @@ test.snapshot({
 	valid: [
 		'import "foo";',
 		'import {} from "foo";',
+		'import {} from "foo"; export {bar} from "bar";',
 		'import {foo} from "foo"; export const bar = foo;',
 		'export {};',
 		'export {} from "foo";',
@@ -29,6 +30,8 @@ test.snapshot({
 		'export {}; export {foo} from "foo";',
 		'import {foo} from "foo"; export {foo};',
 		'import foo from "foo"; export default foo;',
+		'export default foo; import foo from "foo";',
+		'import * as namespace from "foo"; export {namespace as default};',
 		outdent`
 			import {foo} from './foo.js';
 			export {foo};
