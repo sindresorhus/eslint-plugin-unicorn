@@ -29,6 +29,7 @@ test.snapshot({
 		'export * as namespace from "foo";',
 		'export {}; export {foo} from "foo";',
 		'import {foo} from "foo"; export {foo};',
+		'import {foo as bar} from "foo"; export {bar};',
 		'import foo from "foo"; export default foo;',
 		'export default foo; import foo from "foo";',
 		'import * as namespace from "foo"; export {namespace as default};',
@@ -45,6 +46,10 @@ test.snapshot({
 		`,
 		{
 			code: 'export type {Foo} from "foo";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export type * from "foo";',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
