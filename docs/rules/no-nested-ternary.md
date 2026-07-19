@@ -11,7 +11,7 @@
 
 Improved version of the [`no-nested-ternary`](https://eslint.org/docs/latest/rules/no-nested-ternary) ESLint rule. This rule allows cases where the nested ternary is only one level and wrapped in parens.
 
-Nested ternaries require readers to track multiple conditions and branches at once, making them harder to read and maintain.
+Unparenthesized or deeply nested ternaries make readers track multiple conditions and branches at once, so this rule permits only clearly parenthesized single-level nesting.
 
 ## Replacement for ESLint `no-nested-ternary`
 

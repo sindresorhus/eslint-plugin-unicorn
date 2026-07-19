@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Keeping empty braces together makes empty blocks and object literals easier to scan and avoids whitespace that has no meaning.
+Empty blocks and object literals do not need internal whitespace, so this rule enforces a compact, consistent style.
 
 ## Examples
 
