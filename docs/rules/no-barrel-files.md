@@ -15,6 +15,8 @@ At least one binding must be re-exported; files containing only empty exports ar
 
 Side-effect-only imports, including `import 'foo'` and `import {} from 'foo'`, are not part of a barrel file, so a file that combines one with re-exports is ignored.
 
+Fix violations by removing the barrel file and importing directly from its source modules, for example, replace `import {foo} from './index.js'` with `import {foo} from './foo.js'`. Disable this rule for intentional package entry points.
+
 ## Examples
 
 Examples of **incorrect** code for this rule:
