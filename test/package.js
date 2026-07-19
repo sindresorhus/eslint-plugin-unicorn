@@ -167,6 +167,11 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 	}
 });
 
+test('Removed rules are listed in docs/deleted-and-deprecated-rules.md', async t => {
+	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
+	t.true(content.includes('\n### ~no-array-for-each~\n'));
+});
+
 test('Every rule file has the appropriate contents', t => {
 	for (const ruleFile of ruleFiles) {
 		const ruleName = path.basename(ruleFile, '.js');

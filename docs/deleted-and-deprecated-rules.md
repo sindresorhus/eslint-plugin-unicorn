@@ -40,6 +40,10 @@ Removed due to bugs and lack of support of the underlying library.
 
 This rule is outdated. JavaScript modules (ESM) do not support importing a directory.
 
+### ~no-array-for-each~
+
+This rule was renamed to [`no-for-each`](rules/no-for-each.md).
+
 ### ~no-array-instanceof~
 
 Replaced by [`no-instanceof-builtins`](rules/no-instanceof-builtins.md) which covers more cases.
