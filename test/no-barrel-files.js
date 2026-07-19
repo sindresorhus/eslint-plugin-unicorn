@@ -71,6 +71,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'import foo from "foo"; export default foo<string>;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'import foo from "foo"; export default <Foo>foo;',
 			languageOptions: {parser: parsers.typescript},
 		},

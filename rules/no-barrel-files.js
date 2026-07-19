@@ -54,7 +54,11 @@ const isBarrelFile = program => {
 		}
 
 		if (node.type === 'ExportDefaultDeclaration') {
-			const declaration = unwrapTypeScriptExpression(node.declaration);
+			let declaration = unwrapTypeScriptExpression(node.declaration);
+			while (declaration.type === 'TSInstantiationExpression') {
+				declaration = unwrapTypeScriptExpression(declaration.expression);
+			}
+
 			if (declaration.type === 'Identifier' && importedBindingNames.has(declaration.name)) {
 				hasReExport = true;
 				continue;
