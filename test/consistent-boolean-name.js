@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -55,21 +54,6 @@ const onlyIsPrefixOptions = {
 		requires: false,
 	},
 };
-
-const booleanWrapperOptions = {
-	booleanWrappers: {
-		StorageItem: 'get',
-	},
-};
-
-const storageItemType = 'interface StorageItem<Base, Return = Base | undefined> {get(): Promise<Return>; has(): Promise<boolean>}';
-const storageItemClass = 'declare class StorageItem<Base, Return = Base | undefined> {constructor(key: string); get(): Promise<Return>; has(): Promise<boolean>}';
-const validBooleanWrapper = (code, options = booleanWrapperOptions) => typeAware({code, options: [options]});
-const invalidBooleanWrapper = (code, options = booleanWrapperOptions) => typeAware({
-	code,
-	options: [options],
-	errors: [{messageId: 'non-boolean-prefix'}],
-});
 
 test({
 	valid: [
@@ -1171,71 +1155,6 @@ test({
 			'const isReady: {value: string} = ref("value"); const hasReady: {value: string} = computed(() => "value");',
 		].join('\n'), 2),
 		typescript({code: 'for (const isReady in {value: true}) {}', errors: [{messageId: 'non-boolean-prefix'}]}),
-	],
-});
-
-test({
-	valid: [
-		validBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<boolean>;`),
-		validBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`),
-		validBooleanWrapper(`${storageItemType} function useStorage(isUnicorn: StorageItem<unknown, boolean>) {}`),
-		validBooleanWrapper(`${storageItemType} type BooleanStorageItem = StorageItem<unknown, boolean>; declare const isUnicorn: BooleanStorageItem;`),
-		validBooleanWrapper(`${storageItemType} interface ExtendedStorageItem extends StorageItem<unknown, boolean> {} declare const isUnicorn: ExtendedStorageItem;`),
-		validBooleanWrapper([
-			'interface StorageItem<Return = unknown> {get(): Promise<Return>}',
-			'interface ExtendedStorageItem extends StorageItem {get(): Promise<boolean>}',
-			'declare const isUnicorn: ExtendedStorageItem;',
-		].join('\n')),
-		validBooleanWrapper([
-			'interface StorageItem<Return = unknown> {get(): Promise<Return>}',
-			'interface ExtendedStorageItem<Return> extends StorageItem<Return> {}',
-			'declare const isUnicorn: ExtendedStorageItem<boolean>;',
-		].join('\n')),
-		validBooleanWrapper(`${storageItemType} type IntersectedStorageItem = StorageItem<unknown, boolean> & {key: string}; declare const isUnicorn: IntersectedStorageItem;`),
-		validBooleanWrapper(`${storageItemType} type ReadonlyStorageItem = Readonly<StorageItem<unknown, boolean>>; declare const isUnicorn: ReadonlyStorageItem;`),
-		validBooleanWrapper(`${storageItemType} declare function createStorageItem(): StorageItem<boolean>; const isUnicorn = createStorageItem();`),
-		validBooleanWrapper(`${storageItemType} function useStorage<T extends StorageItem<boolean>>(isUnicorn: T) {}`),
-		validBooleanWrapper('interface BooleanWrapper {value: boolean} declare const isReady: BooleanWrapper;', {booleanWrappers: {BooleanWrapper: 'value'}}),
-		validBooleanWrapper('interface DirectBooleanMethodWrapper {get(): boolean} declare const isReady: DirectBooleanMethodWrapper;', {booleanWrappers: {DirectBooleanMethodWrapper: 'get'}}),
-		validBooleanWrapper('interface BooleanWrapper {get(): boolean} declare const ready: BooleanWrapper;', {booleanWrappers: {BooleanWrapper: 'get'}}),
-		validBooleanWrapper('interface StringMemberWrapper {\'value-state\': boolean} declare const isReady: StringMemberWrapper;', {booleanWrappers: {StringMemberWrapper: 'value-state'}}),
-		validBooleanWrapper('interface PromiseWrapper {get: Promise<boolean>} declare const isReady: PromiseWrapper;', {booleanWrappers: {PromiseWrapper: 'get'}}),
-		validBooleanWrapper('interface PromiseLikeWrapper {get(): PromiseLike<boolean>} declare const isReady: PromiseLikeWrapper;', {booleanWrappers: {PromiseLikeWrapper: 'get'}}),
-	],
-	invalid: [
-		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, string>;`),
-		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, () => boolean>;`),
-		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean> | {get(): Promise<string>};`),
-		invalidBooleanWrapper(`${storageItemType} type InvalidIntersection = StorageItem<unknown, boolean> & {get(): Promise<string>}; declare const isUnicorn: InvalidIntersection;`),
-		invalidBooleanWrapper(`${storageItemClass} declare class InvalidStorageItem extends StorageItem<unknown, string> {} declare const isUnicorn: InvalidStorageItem;`),
-		invalidBooleanWrapper([
-			'interface StorageItem {get(): Promise<boolean>}',
-			'type Box<T> = {get(): Promise<boolean>};',
-			'declare const isUnicorn: Box<StorageItem>;',
-		].join('\n')),
-		invalidBooleanWrapper([
-			'interface StorageItem<Return = unknown> {get(): Promise<Return>}',
-			'interface ExtendedStorageItem<Return> extends StorageItem<Return> {}',
-			'declare const isUnicorn: ExtendedStorageItem<string>;',
-		].join('\n')),
-		invalidBooleanWrapper('interface MissingMember {value: boolean} declare const isReady: MissingMember;', {booleanWrappers: {MissingMember: 'get'}}),
-		invalidBooleanWrapper('interface StringPropertyWrapper {get: string} declare const isReady: StringPropertyWrapper;', {booleanWrappers: {StringPropertyWrapper: 'get'}}),
-		invalidBooleanWrapper([
-			'interface OverloadedWrapper {',
-			'\tget(): Promise<boolean>;',
-			'\tget(value: string): Promise<string>;',
-			'}',
-			'declare const isReady: OverloadedWrapper;',
-		].join('\n'), {booleanWrappers: {OverloadedWrapper: 'get'}}),
-		// Boolean wrappers intentionally apply only to variable and parameter bindings.
-		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkProperties: true, booleanWrappers: {BooleanWrapper: 'get'}}),
-		invalidBooleanWrapper(`${storageItemType} let isUnicorn: StorageItem<unknown, boolean> = value; isUnicorn = value;`),
-		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`, {}),
-		typescript({
-			code: `${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`,
-			options: [booleanWrapperOptions],
-			errors: [{messageId: 'non-boolean-prefix'}],
-		}),
 	],
 });
 

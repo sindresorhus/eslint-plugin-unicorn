@@ -176,9 +176,7 @@ class Tester {
 	}
 }
 
-function getTester(importMeta) {
-	const filename = url.fileURLToPath(importMeta.url);
-	const ruleId = path.basename(filename, '.js');
+function getTester(importMeta, ruleId = path.basename(url.fileURLToPath(importMeta.url), '.js')) {
 	const tester = new Tester(ruleId);
 	tester.runEmptyFileTest();
 

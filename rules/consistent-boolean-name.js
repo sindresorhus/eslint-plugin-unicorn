@@ -3,7 +3,7 @@ import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/e
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import resolveVariableName from './utils/resolve-variable-name.js';
-import {getBooleanWrapperVariableState} from './utils/is-boolean-wrapper-variable.js';
+import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
 	getAvailableVariableName,
 	getScopes,
@@ -1378,19 +1378,19 @@ const config = {
 							pattern: '^[a-z][a-zA-Z0-9]*$',
 						},
 					},
-					ignore: {
-						type: 'array',
-						uniqueItems: true,
-						description: 'Patterns to ignore.',
-					},
 					booleanWrappers: {
 						type: 'object',
-						description: 'Wrapper type names and their boolean value members.',
+						description: 'Wrapper type names and their boolean-like value members.',
 						additionalProperties: {
 							type: 'string',
 							description: 'The property or method that provides the wrapped value.',
 							minLength: 1,
 						},
+					},
+					ignore: {
+						type: 'array',
+						uniqueItems: true,
+						description: 'Patterns to ignore.',
 					},
 				},
 			},

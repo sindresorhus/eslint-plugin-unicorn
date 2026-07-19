@@ -4,6 +4,7 @@ import {getBaseTypes, isTypeParameterType} from './types.js';
 const boolean = 'boolean';
 const nonBoolean = 'non-boolean';
 const unknown = 'unknown';
+
 // ObjectFlags.Mapped from TypeScript.
 const mappedTypeFlag = 32;
 
