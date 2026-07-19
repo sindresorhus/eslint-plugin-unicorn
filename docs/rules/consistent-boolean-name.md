@@ -238,7 +238,7 @@ const didUpdate = true;
 Type: `Record<string, string>`\
 Default: `{}`
 
-Allow configured wrapper bindings to use boolean prefixes when a property or method provides a boolean-like value. The object key is the unqualified TypeScript wrapper type name, and the value is the property or method name. Derived types, intersections, and type parameters constrained by a configured wrapper type are supported. The member may provide `boolean`, `Promise<boolean>`, or `PromiseLike<boolean>`; nullable boolean results are also accepted. This option requires TypeScript type information.
+Allow configured wrapper bindings to use boolean prefixes when a property or method provides a boolean-like value. The object key is the unqualified TypeScript wrapper type name, and the value is the property or method name. Types with the same name in different modules or namespaces share the same configuration. Derived types, intersections, and type parameters constrained by a configured wrapper type are supported. The member may provide `boolean`, `Promise<boolean>`, or `PromiseLike<boolean>`; nullable boolean results are also accepted. This option requires TypeScript type information.
 
 ```js
 'unicorn/consistent-boolean-name': [
