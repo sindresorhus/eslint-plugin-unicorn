@@ -1,12 +1,14 @@
 /** @import * as ESLint from 'eslint'; */
 
+import {unwrapTypeScriptExpression} from './utils/index.js';
+
 const MESSAGE_ID = 'no-barrel-files';
 const messages = {
 	[MESSAGE_ID]: 'Barrel files are not allowed.',
 };
 
-const getImportedBindings = program => {
-	const importedBindings = new Set();
+const getImportedBindingNames = program => {
+	const importedBindingNames = new Set();
 
 	for (const node of program.body) {
 		if (node.type !== 'ImportDeclaration') {
@@ -14,15 +16,15 @@ const getImportedBindings = program => {
 		}
 
 		for (const specifier of node.specifiers) {
-			importedBindings.add(specifier.local.name);
+			importedBindingNames.add(specifier.local.name);
 		}
 	}
 
-	return importedBindings;
+	return importedBindingNames;
 };
 
 const isBarrelFile = program => {
-	const importedBindings = getImportedBindings(program);
+	const importedBindingNames = getImportedBindingNames(program);
 	let hasReExport = false;
 
 	for (const node of program.body) {
@@ -42,7 +44,7 @@ const isBarrelFile = program => {
 		if (node.type === 'ExportNamedDeclaration') {
 			if (
 				node.declaration
-				|| (!node.source && node.specifiers.some(specifier => !importedBindings.has(specifier.local.name)))
+				|| (!node.source && node.specifiers.some(specifier => !importedBindingNames.has(specifier.local.name)))
 			) {
 				return false;
 			}
@@ -51,13 +53,12 @@ const isBarrelFile = program => {
 			continue;
 		}
 
-		if (
-			node.type === 'ExportDefaultDeclaration'
-			&& node.declaration.type === 'Identifier'
-			&& importedBindings.has(node.declaration.name)
-		) {
-			hasReExport = true;
-			continue;
+		if (node.type === 'ExportDefaultDeclaration') {
+			const declaration = unwrapTypeScriptExpression(node.declaration);
+			if (declaration.type === 'Identifier' && importedBindingNames.has(declaration.name)) {
+				hasReExport = true;
+				continue;
+			}
 		}
 
 		return false;

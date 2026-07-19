@@ -25,6 +25,8 @@ test.snapshot({
 	],
 	invalid: [
 		'export {foo} from "foo";',
+		'export {foo as bar} from "foo";',
+		'export {default} from "foo";',
 		'export * from "foo";',
 		'export * as namespace from "foo";',
 		'export {}; export {foo} from "foo";',
@@ -50,6 +52,26 @@ test.snapshot({
 		},
 		{
 			code: 'export type * from "foo";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'export type * as Namespace from "foo";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import foo from "foo"; export default foo as Foo;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import foo from "foo"; export default foo satisfies Foo;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import foo from "foo"; export default foo!;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import foo from "foo"; export default <Foo>foo;',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
