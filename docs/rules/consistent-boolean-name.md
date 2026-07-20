@@ -201,7 +201,7 @@ How to check function names.
 Type: `'always' | 'prohibit' | 'never'`\
 Default: `'never'`
 
-How to check object and class methods, getters, and setters, and TypeScript method signatures.
+How to check object and class methods, getters, setters, and TypeScript method signatures.
 
 ### checkFields
 

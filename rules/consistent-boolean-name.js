@@ -282,13 +282,19 @@ const isDestructuredVariable = variable =>
 const hasWriteAfterInitialization = variable =>
 	variable.references.some(reference => !reference.init && reference.isWrite());
 
+const isBooleanAsyncFunction = (node, context) =>
+	getPromisedTypeAnnotationBooleanState(node.returnType, context, context.sourceCode.getScope(node)) === boolean;
+
 const isBooleanFunctionDefinition = (definition, context) =>
 	definition.type === 'FunctionName'
 	&& isFunction(definition.node)
-	&& isBooleanFunction(definition.node, context);
+	&& (
+		isBooleanFunction(definition.node, context)
+		|| (definition.node.async && isBooleanAsyncFunction(definition.node, context))
+	);
 
 const isBooleanValue = (node, context) => isFunction(node)
-	? isBooleanFunction(node, context)
+	? (node.async ? isBooleanAsyncFunction(node, context) : isBooleanFunction(node, context))
 	: isBooleanFunctionReference(node, context) || isBooleanExpression(node, context);
 
 function getSupportedVariableDefinition(variable) {
@@ -641,7 +647,19 @@ function getPromisedTypeAnnotationBooleanState(node, context, scope, typeState) 
 		return getTypeAnnotationBooleanState(typeArguments[0], context, scope, normalizedTypeState);
 	}
 
-	return unknown;
+	const {visitedTypeReferenceNames} = normalizedTypeState;
+	if (!name || visitedTypeReferenceNames.has(name)) {
+		return unknown;
+	}
+
+	visitedTypeReferenceNames.add(name);
+	const [definition] = resolveVariableName(name, scope)?.defs ?? [];
+	const result = definition?.type === 'Type' && definition.node.type === 'TSTypeAliasDeclaration'
+		? getPromisedTypeAnnotationBooleanState(definition.node.typeAnnotation, context, context.sourceCode.getScope(definition.node), normalizedTypeState)
+		: unknown;
+	visitedTypeReferenceNames.delete(name);
+
+	return result;
 }
 
 function isGlobalTypeReferenceName(name, scope) {
@@ -1085,10 +1103,6 @@ function isBooleanProperty(node, context) {
 			return false;
 		}
 
-		if (node.shorthand) {
-			return getVariableBooleanState(getShorthandVariable(node, sourceCode), context) === boolean;
-		}
-
 		return isBooleanValue(node.value, context);
 	}
 
@@ -1480,11 +1494,11 @@ const config = {
 					},
 					checkMethods: {
 						enum: [ALWAYS, PROHIBIT, NEVER],
-						description: 'How to check method names.',
+						description: 'How to check object and class methods, getters, setters, and TypeScript method signatures.',
 					},
 					checkFields: {
 						enum: [ALWAYS, PROHIBIT, NEVER],
-						description: 'How to check field names.',
+						description: 'How to check object properties, class fields, TypeScript property signatures, and constructor parameter properties.',
 					},
 					prefixes: {
 						type: 'object',
