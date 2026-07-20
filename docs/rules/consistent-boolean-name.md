@@ -140,7 +140,7 @@ function download(shouldShowProgress: boolean) {}
 ```js
 // ✅
 // Object fields are ignored unless `checkFields` is set to a mode other than `never`.
-// Methods and getters use `checkMethods`.
+// Methods, getters, and setters use `checkMethods`.
 const task = {
 	completed: progress === 100,
 };
@@ -201,7 +201,7 @@ How to check function names.
 Type: `'always' | 'prohibit' | 'never'`\
 Default: `'never'`
 
-How to check object methods and getters, class methods and getters, and TypeScript method signatures.
+How to check object and class methods, getters, and setters, and TypeScript method signatures.
 
 ### checkFields
 
