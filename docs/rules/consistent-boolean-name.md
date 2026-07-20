@@ -233,7 +233,7 @@ And this would fail:
 const didUpdate = true;
 ```
 
-### booleanWrappers
+### wrappers
 
 Type: `Record<string, string>`\
 Default: `{}`
@@ -244,7 +244,7 @@ Map unqualified TypeScript wrapper type names to the property or method that pro
 'unicorn/consistent-boolean-name': [
 	'error',
 	{
-		booleanWrappers: {
+		wrappers: {
 			StorageItem: 'get',
 		},
 	},

@@ -144,12 +144,12 @@ const prepareOptions = ({
 	checkProperties = false,
 	prefixes = {},
 	ignore = [],
-	booleanWrappers = {},
+	wrappers = {},
 } = {}) => ({
 	checkProperties,
 	prefixes: getEnabledPrefixes({prefixes}),
 	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
-	booleanWrappers: new Map(Object.entries(booleanWrappers)),
+	wrappers: new Map(Object.entries(wrappers)),
 });
 
 function isIgnoredName(name, ignore) {
@@ -1199,7 +1199,7 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkProperties, prefixes, ignore, booleanWrappers} = prepareOptions(context.options[0]);
+	const {checkProperties, prefixes, ignore, wrappers} = prepareOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;
@@ -1217,13 +1217,13 @@ const create = context => {
 		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
 		if (booleanPrefix) {
 			const booleanState = getVariableBooleanState(variable, context);
-			const booleanWrapperState = booleanWrappers.size === 0 || booleanState === boolean
+			const booleanWrapperState = wrappers.size === 0 || booleanState === boolean
 				? unknown
 				: getBooleanWrapperVariableState({
 					variable,
 					definition: getSupportedVariableDefinition(variable),
 					context,
-					booleanWrappers,
+					wrappers,
 				});
 			const effectiveBooleanState = booleanWrapperState === unknown ? booleanState : booleanWrapperState;
 			if (
@@ -1378,7 +1378,7 @@ const config = {
 							pattern: '^[a-z][a-zA-Z0-9]*$',
 						},
 					},
-					booleanWrappers: {
+					wrappers: {
 						type: 'object',
 						description: 'Wrapper type names and their boolean-like value members.',
 						additionalProperties: {
@@ -1395,7 +1395,7 @@ const config = {
 				},
 			},
 		],
-		defaultOptions: [{ignore: [], booleanWrappers: {}}],
+		defaultOptions: [{ignore: [], wrappers: {}}],
 		messages,
 		languages: [
 			'js/js',

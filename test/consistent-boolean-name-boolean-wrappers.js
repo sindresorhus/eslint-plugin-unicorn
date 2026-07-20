@@ -36,7 +36,7 @@ const typeAware = testCase => {
 };
 
 const booleanWrapperOptions = {
-	booleanWrappers: {
+	wrappers: {
 		StorageItem: 'get',
 	},
 };
@@ -76,12 +76,12 @@ test({
 		validBooleanWrapper(`${storageItemType} type ReadonlyStorageItem = Readonly<StorageItem<unknown, boolean>>; declare const isUnicorn: ReadonlyStorageItem;`),
 		validBooleanWrapper(`${storageItemType} declare function createStorageItem(): StorageItem<boolean>; const isUnicorn = createStorageItem();`),
 		validBooleanWrapper(`${storageItemType} function useStorage<T extends StorageItem<boolean>>(isUnicorn: T) {}`),
-		validBooleanWrapper('interface BooleanWrapper {value: boolean} declare const isReady: BooleanWrapper;', {booleanWrappers: {BooleanWrapper: 'value'}}),
-		validBooleanWrapper('interface DirectBooleanMethodWrapper {get(): boolean} declare const isReady: DirectBooleanMethodWrapper;', {booleanWrappers: {DirectBooleanMethodWrapper: 'get'}}),
-		validBooleanWrapper('interface BooleanWrapper {get(): boolean} declare const ready: BooleanWrapper;', {booleanWrappers: {BooleanWrapper: 'get'}}),
-		validBooleanWrapper('interface StringMemberWrapper {\'value-state\': boolean} declare const isReady: StringMemberWrapper;', {booleanWrappers: {StringMemberWrapper: 'value-state'}}),
-		validBooleanWrapper('interface PromiseWrapper {get: Promise<boolean>} declare const isReady: PromiseWrapper;', {booleanWrappers: {PromiseWrapper: 'get'}}),
-		validBooleanWrapper('interface PromiseLikeWrapper {get(): PromiseLike<boolean>} declare const isReady: PromiseLikeWrapper;', {booleanWrappers: {PromiseLikeWrapper: 'get'}}),
+		validBooleanWrapper('interface BooleanWrapper {value: boolean} declare const isReady: BooleanWrapper;', {wrappers: {BooleanWrapper: 'value'}}),
+		validBooleanWrapper('interface DirectBooleanMethodWrapper {get(): boolean} declare const isReady: DirectBooleanMethodWrapper;', {wrappers: {DirectBooleanMethodWrapper: 'get'}}),
+		validBooleanWrapper('interface BooleanWrapper {get(): boolean} declare const ready: BooleanWrapper;', {wrappers: {BooleanWrapper: 'get'}}),
+		validBooleanWrapper('interface StringMemberWrapper {\'value-state\': boolean} declare const isReady: StringMemberWrapper;', {wrappers: {StringMemberWrapper: 'value-state'}}),
+		validBooleanWrapper('interface PromiseWrapper {get: Promise<boolean>} declare const isReady: PromiseWrapper;', {wrappers: {PromiseWrapper: 'get'}}),
+		validBooleanWrapper('interface PromiseLikeWrapper {get(): PromiseLike<boolean>} declare const isReady: PromiseLikeWrapper;', {wrappers: {PromiseLikeWrapper: 'get'}}),
 	],
 	invalid: [
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, string>;`),
@@ -104,17 +104,17 @@ test({
 			'interface ExtendedStorageItem<Return> extends StorageItem<Return> {}',
 			'declare const isUnicorn: ExtendedStorageItem<string>;',
 		].join('\n')),
-		invalidBooleanWrapper('interface MissingMember {value: boolean} declare const isReady: MissingMember;', {booleanWrappers: {MissingMember: 'get'}}),
-		invalidBooleanWrapper('interface StringPropertyWrapper {get: string} declare const isReady: StringPropertyWrapper;', {booleanWrappers: {StringPropertyWrapper: 'get'}}),
+		invalidBooleanWrapper('interface MissingMember {value: boolean} declare const isReady: MissingMember;', {wrappers: {MissingMember: 'get'}}),
+		invalidBooleanWrapper('interface StringPropertyWrapper {get: string} declare const isReady: StringPropertyWrapper;', {wrappers: {StringPropertyWrapper: 'get'}}),
 		invalidBooleanWrapper([
 			'interface OverloadedWrapper {',
 			'\tget(): Promise<boolean>;',
 			'\tget(value: string): Promise<string>;',
 			'}',
 			'declare const isReady: OverloadedWrapper;',
-		].join('\n'), {booleanWrappers: {OverloadedWrapper: 'get'}}),
+		].join('\n'), {wrappers: {OverloadedWrapper: 'get'}}),
 		// Boolean wrappers intentionally apply only to variable and parameter bindings.
-		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkProperties: true, booleanWrappers: {BooleanWrapper: 'get'}}),
+		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkProperties: true, wrappers: {BooleanWrapper: 'get'}}),
 		invalidBooleanWrapper(`${storageItemType} let isUnicorn: StorageItem<unknown, boolean> = value; isUnicorn = value;`),
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`, {}),
 		typescript({

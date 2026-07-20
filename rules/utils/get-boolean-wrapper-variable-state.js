@@ -10,14 +10,14 @@ const mappedTypeFlag = 32;
 
 const isMappedType = type => (type.objectFlags % (mappedTypeFlag * 2)) >= mappedTypeFlag;
 
-function getConfiguredMemberName(type, checker, booleanWrappers, visitedTypes = new Set()) {
+function getConfiguredMemberName(type, checker, wrappers, visitedTypes = new Set()) {
 	if (!type) {
 		return;
 	}
 
 	const nonNullableType = checker.getNonNullableType(type);
 	if (nonNullableType !== type) {
-		return getConfiguredMemberName(nonNullableType, checker, booleanWrappers, visitedTypes);
+		return getConfiguredMemberName(nonNullableType, checker, wrappers, visitedTypes);
 	}
 
 	if (visitedTypes.has(type)) {
@@ -32,19 +32,19 @@ function getConfiguredMemberName(type, checker, booleanWrappers, visitedTypes = 
 		type.target?.symbol?.name,
 	];
 	const memberName = typeNames
-		.map(typeName => booleanWrappers.get(typeName))
+		.map(typeName => wrappers.get(typeName))
 		.find(Boolean);
 	if (memberName) {
 		return memberName;
 	}
 
 	if (isTypeParameterType(type)) {
-		return getConfiguredMemberName(type.getConstraint(), checker, booleanWrappers, visitedTypes);
+		return getConfiguredMemberName(type.getConstraint(), checker, wrappers, visitedTypes);
 	}
 
 	if (type.isIntersection()) {
 		for (const constituentType of type.types) {
-			const memberName = getConfiguredMemberName(constituentType, checker, booleanWrappers, visitedTypes);
+			const memberName = getConfiguredMemberName(constituentType, checker, wrappers, visitedTypes);
 			if (memberName) {
 				return memberName;
 			}
@@ -53,7 +53,7 @@ function getConfiguredMemberName(type, checker, booleanWrappers, visitedTypes = 
 
 	if (isMappedType(type)) {
 		for (const typeArgument of type.aliasTypeArguments ?? []) {
-			const memberName = getConfiguredMemberName(typeArgument, checker, booleanWrappers, visitedTypes);
+			const memberName = getConfiguredMemberName(typeArgument, checker, wrappers, visitedTypes);
 			if (memberName) {
 				return memberName;
 			}
@@ -61,7 +61,7 @@ function getConfiguredMemberName(type, checker, booleanWrappers, visitedTypes = 
 	}
 
 	for (const baseType of getBaseTypes(type, checker)) {
-		const memberName = getConfiguredMemberName(baseType, checker, booleanWrappers, visitedTypes);
+		const memberName = getConfiguredMemberName(baseType, checker, wrappers, visitedTypes);
 		if (memberName) {
 			return memberName;
 		}
@@ -96,21 +96,21 @@ function getBooleanWrapperMemberState(type, memberName, checker) {
 		: getBooleanValueState(memberType, checker);
 }
 
-function getBooleanWrapperTypeState(type, checker, booleanWrappers) {
+function getBooleanWrapperTypeState(type, checker, wrappers) {
 	if (!type) {
 		return unknown;
 	}
 
 	const nonNullableType = checker.getNonNullableType(type);
 	if (nonNullableType !== type) {
-		return getBooleanWrapperTypeState(nonNullableType, checker, booleanWrappers);
+		return getBooleanWrapperTypeState(nonNullableType, checker, wrappers);
 	}
 
 	if (type.isUnion()) {
-		return combineBooleanStates(type.types.map(type => getBooleanWrapperTypeState(type, checker, booleanWrappers)));
+		return combineBooleanStates(type.types.map(type => getBooleanWrapperTypeState(type, checker, wrappers)));
 	}
 
-	const memberName = getConfiguredMemberName(type, checker, booleanWrappers);
+	const memberName = getConfiguredMemberName(type, checker, wrappers);
 	if (!memberName) {
 		return unknown;
 	}
@@ -118,9 +118,9 @@ function getBooleanWrapperTypeState(type, checker, booleanWrappers) {
 	return getBooleanWrapperMemberState(type, memberName, checker);
 }
 
-function getBooleanWrapperVariableState({variable, definition, context, booleanWrappers}) {
+function getBooleanWrapperVariableState({variable, definition, context, wrappers}) {
 	if (
-		booleanWrappers.size === 0
+		wrappers.size === 0
 		|| !definition
 		|| !['Variable', 'Parameter'].includes(definition.type)
 		|| variable.references.some(reference => !reference.init && reference.isWrite())
@@ -137,7 +137,7 @@ function getBooleanWrapperVariableState({variable, definition, context, booleanW
 		return getBooleanWrapperTypeState(
 			parserServices.getTypeAtLocation(definition.name),
 			parserServices.program.getTypeChecker(),
-			booleanWrappers,
+			wrappers,
 		);
 	} catch {
 		return unknown;
