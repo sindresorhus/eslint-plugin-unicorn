@@ -1215,8 +1215,8 @@ const create = context => {
 
 		const nameForPrefixCheck = getNameForPrefixCheck(variable, context);
 		const booleanPrefix = getBooleanPrefix(nameForPrefixCheck, prefixes);
-		const booleanState = getVariableBooleanState(variable, context);
 		if (booleanPrefix) {
+			const booleanState = getVariableBooleanState(variable, context);
 			const booleanWrapperState = booleanWrappers.size === 0 || booleanState === boolean
 				? unknown
 				: getBooleanWrapperVariableState({
@@ -1251,7 +1251,7 @@ const create = context => {
 		// so bail out on the common non-boolean case before running the expensive check.
 		if (
 			!isBooleanVariable(variable, context)
-			|| booleanState === nonBoolean
+			|| getVariableBooleanState(variable, context) === nonBoolean
 		) {
 			return;
 		}
