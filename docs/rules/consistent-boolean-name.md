@@ -139,7 +139,8 @@ function download(shouldShowProgress: boolean) {}
 
 ```js
 // ✅
-// Properties are ignored unless `checkFields` is set to a mode other than `never`.
+// Object fields are ignored unless `checkFields` is set to a mode other than `never`.
+// Methods and getters use `checkMethods`.
 const task = {
 	completed: progress === 100,
 };

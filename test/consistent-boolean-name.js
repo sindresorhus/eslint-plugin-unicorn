@@ -1541,11 +1541,6 @@ ruleTest({
 			code: 'class Task { completed = true; title() { return "Unicorn"; } }',
 			options: [{checkFields: 'prohibit', checkMethods: 'prohibit'}],
 		},
-		{
-			name: 'methods always and fields never',
-			code: 'class Task { completed = true; title() { return "Unicorn"; } }',
-			options: [{checkFields: 'never', checkMethods: 'always'}],
-		},
 	],
 	invalid: [
 		{
@@ -1584,6 +1579,18 @@ ruleTest({
 			code: 'class Task { completed = true; completedMethod() { return true; } }',
 			options: [{checkFields: 'always', checkMethods: 'always'}],
 			errors: 2,
+		},
+		{
+			name: 'methods are checked when fields are disabled',
+			code: 'class Task { completed = true; completedMethod() { return true; } }',
+			options: [{checkFields: 'never', checkMethods: 'always'}],
+			errors: 1,
+		},
+		{
+			name: 'fields are checked when methods are disabled',
+			code: 'class Task { completed = true; completedMethod() { return true; } }',
+			options: [{checkFields: 'always', checkMethods: 'never'}],
+			errors: 1,
 		},
 		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'never', checkFields: 'always'}], errors: 1}),
 		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'always', checkFields: 'always'}], errors: 2}),

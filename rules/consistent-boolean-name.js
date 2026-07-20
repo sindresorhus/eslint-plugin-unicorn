@@ -1284,7 +1284,7 @@ const create = context => {
 
 		const option = getVariableOption(variable);
 		const mode = variableModes[option];
-		if (mode === NEVER) {
+		if (!option || mode === NEVER) {
 			return;
 		}
 
