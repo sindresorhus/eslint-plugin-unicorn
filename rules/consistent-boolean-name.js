@@ -24,6 +24,8 @@ import {
 const MESSAGE_ID = 'consistent-boolean-name';
 const MESSAGE_ID_NON_BOOLEAN_PREFIX = 'non-boolean-prefix';
 const MESSAGE_ID_SUGGESTION = 'rename';
+const REMOVED_CHECK_PROPERTIES_MESSAGE = '`checkProperties` was removed. Use `checkMethods` and `checkFields` instead.';
+const [ALWAYS, PROHIBIT, NEVER] = ['always', 'prohibit', 'never'];
 const messages = {
 	[MESSAGE_ID]: 'Boolean name `{{name}}` should start with {{prefixes}}.',
 	[MESSAGE_ID_NON_BOOLEAN_PREFIX]: '`{{name}}` starts with `{{prefix}}`, so it should be boolean.',
@@ -118,6 +120,7 @@ const propertyDefinitionTypes = new Set([
 	'TSAbstractPropertyDefinition',
 	'TSAbstractAccessorProperty',
 ]);
+const methodDefinitionTypes = new Set(['MethodDefinition', 'TSAbstractMethodDefinition']);
 
 const unwrapParameter = node => node.type === 'TSParameterProperty'
 	? node.parameter
@@ -140,17 +143,33 @@ function findParameter(parameters, identifier) {
 	}
 }
 
-const prepareOptions = ({
-	checkProperties = false,
-	prefixes = {},
-	ignore = [],
-	wrappers = {},
-} = {}) => ({
-	checkProperties,
-	prefixes: getEnabledPrefixes({prefixes}),
-	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
-	wrappers: new Map(Object.entries(wrappers)),
-});
+const prepareOptions = options => {
+	if (Object.hasOwn(options ?? {}, 'checkProperties')) {
+		throw new Error(REMOVED_CHECK_PROPERTIES_MESSAGE);
+	}
+
+	const {
+		checkVariables,
+		checkArguments,
+		checkFunctions,
+		checkMethods,
+		checkFields,
+		prefixes,
+		ignore,
+		wrappers,
+	} = options ?? {};
+
+	return {
+		checkVariables,
+		checkArguments,
+		checkFunctions,
+		checkMethods,
+		checkFields,
+		prefixes: getEnabledPrefixes({prefixes}),
+		ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
+		wrappers: new Map(Object.entries(wrappers)),
+	};
+};
 
 function isIgnoredName(name, ignore) {
 	return ignore.some(regexp => {
@@ -290,6 +309,23 @@ function getSupportedVariableDefinition(variable) {
 	}
 
 	return definition;
+}
+
+function getVariableOption(variable) {
+	if (getFunctionDefinitions(variable)) {
+		return 'checkFunctions';
+	}
+
+	const definition = getSupportedVariableDefinition(variable);
+	if (!definition) {
+		return;
+	}
+
+	return {
+		Variable: 'checkVariables',
+		Parameter: 'checkArguments',
+		FunctionName: 'checkFunctions',
+	}[definition.type];
 }
 
 function getFunctionDefinitions(variable) {
@@ -996,26 +1032,46 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 }
 
 function getBooleanPropertyName(node, sourceCode) {
+	const propertyNameNode = node.type === 'TSParameterProperty' ? getParameterPropertyNameNode(node) : node.key;
+
 	if (
 		!node.computed
 		&& [
 			'Identifier',
 			'PrivateIdentifier',
-		].includes(node.key?.type)
+		].includes(propertyNameNode?.type)
 	) {
-		return node.key.name;
+		return propertyNameNode.name;
 	}
 
 	if (
-		node.key?.type === 'Literal'
-		&& typeof node.key.value === 'string'
+		propertyNameNode?.type === 'Literal'
+		&& typeof propertyNameNode.value === 'string'
 	) {
-		return node.key.value;
+		return propertyNameNode.value;
 	}
 
 	const name = getPropertyName(node, sourceCode.getScope(node));
 
 	return typeof name === 'string' ? name : undefined;
+}
+
+function getParameterPropertyNameNode(node) {
+	const parameter = unwrapParameter(node.parameter);
+	return parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
+}
+
+function getShorthandVariable(node, sourceCode) {
+	if (
+		node.type !== 'Property'
+		|| !node.shorthand
+		|| node.parent.type !== 'ObjectExpression'
+		|| node.key.type !== 'Identifier'
+	) {
+		return;
+	}
+
+	return findVariable(sourceCode.getScope(node), node.key);
 }
 
 function isBooleanProperty(node, context) {
@@ -1024,19 +1080,19 @@ function isBooleanProperty(node, context) {
 	if (node.type === 'Property') {
 		if (
 			node.parent.type !== 'ObjectExpression'
-			|| node.shorthand
 			|| node.kind === 'set'
 		) {
 			return false;
 		}
 
+		if (node.shorthand) {
+			return getVariableBooleanState(getShorthandVariable(node, sourceCode), context) === boolean;
+		}
+
 		return isBooleanValue(node.value, context);
 	}
 
-	if (
-		node.type === 'MethodDefinition'
-		|| node.type === 'TSAbstractMethodDefinition'
-	) {
+	if (methodDefinitionTypes.has(node.type)) {
 		return !['constructor', 'set'].includes(node.kind) && isBooleanFunction(node.value, context);
 	}
 
@@ -1065,22 +1121,26 @@ function isBooleanProperty(node, context) {
 function getExplicitPropertyBooleanState(node, context) {
 	const {sourceCode} = context;
 
+	if (node.type === 'TSParameterProperty') {
+		return getVariableBooleanState(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
+	}
+
 	if (node.type === 'Property') {
 		if (
 			node.parent.type !== 'ObjectExpression'
-			|| node.shorthand
 			|| node.kind === 'set'
 		) {
 			return unknown;
 		}
 
+		if (node.shorthand) {
+			return getVariableBooleanState(getShorthandVariable(node, sourceCode), context);
+		}
+
 		return getExpressionBooleanState(node.value, context);
 	}
 
-	if (
-		node.type === 'MethodDefinition'
-		|| node.type === 'TSAbstractMethodDefinition'
-	) {
+	if (methodDefinitionTypes.has(node.type)) {
 		return ['constructor', 'set'].includes(node.kind) ? unknown : getFunctionBooleanState(node.value, context);
 	}
 
@@ -1199,7 +1259,16 @@ function getAutofix({
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const {checkProperties, prefixes, ignore, wrappers} = prepareOptions(context.options[0]);
+	const {
+		checkVariables,
+		checkArguments,
+		checkFunctions,
+		checkMethods,
+		checkFields,
+		prefixes,
+		ignore,
+		wrappers,
+	} = prepareOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;
@@ -1210,6 +1279,12 @@ const create = context => {
 			isIgnoredName(variable.name, ignore)
 			|| isDestructuredVariable(variable)
 		) {
+			return;
+		}
+
+		const option = getVariableOption(variable);
+		const mode = variableModes[option];
+		if (mode === NEVER) {
 			return;
 		}
 
@@ -1249,6 +1324,9 @@ const create = context => {
 		// For names without a boolean prefix, only structurally-boolean values are flagged.
 		// `isBooleanVariable` is a cheaper check than the full `getVariableBooleanState` analysis,
 		// so bail out on the common non-boolean case before running the expensive check.
+		if (mode !== ALWAYS) {
+			return;
+		}
 		if (
 			!isBooleanVariable(variable, context)
 			|| getVariableBooleanState(variable, context) === nonBoolean
@@ -1277,6 +1355,8 @@ const create = context => {
 		});
 	};
 
+	const variableModes = {checkVariables, checkArguments, checkFunctions};
+
 	context.on('Program', node => {
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
 			for (const variable of scope.variables) {
@@ -1285,11 +1365,11 @@ const create = context => {
 		}
 	});
 
-	if (!checkProperties) {
-		return;
-	}
+	const checkProperty = (node, mode) => {
+		if (mode === NEVER) {
+			return;
+		}
 
-	const checkProperty = node => {
 		const name = getBooleanPropertyName(node, context.sourceCode);
 
 		if (
@@ -1300,10 +1380,12 @@ const create = context => {
 		}
 
 		const booleanPrefix = getBooleanPrefix(name, prefixes);
+		const booleanState = getPropertyBooleanState(node, context);
+		const reportNode = node.key ?? getParameterPropertyNameNode(node);
 		if (booleanPrefix) {
 			if (getPropertyBooleanState(node, context) === nonBoolean) {
 				context.report({
-					node: node.key,
+					node: reportNode,
 					messageId: MESSAGE_ID_NON_BOOLEAN_PREFIX,
 					data: {
 						name,
@@ -1325,8 +1407,12 @@ const create = context => {
 			return;
 		}
 
+		if (mode !== ALWAYS) {
+			return;
+		}
+
 		context.report({
-			node: node.key,
+			node: reportNode,
 			messageId: MESSAGE_ID,
 			data: {
 				name,
@@ -1335,14 +1421,29 @@ const create = context => {
 		});
 	};
 
-	context.on('Property', checkProperty);
-	context.on('ClassBody', node => {
+	const checkClassBody = node => {
 		for (const element of node.body) {
-			checkProperty(element);
+			const mode = methodDefinitionTypes.has(element.type) ? checkMethods : checkFields;
+			checkProperty(element, mode);
 		}
-	});
-	context.on('TSPropertySignature', checkProperty);
-	context.on('TSMethodSignature', checkProperty);
+	};
+
+	if (checkMethods !== NEVER || checkFields !== NEVER) {
+		context.on('Property', node => {
+			const mode = node.method || ['get', 'set'].includes(node.kind) ? checkMethods : checkFields;
+			checkProperty(node, mode);
+		});
+		context.on('ClassBody', checkClassBody);
+	}
+
+	if (checkFields !== NEVER) {
+		context.on('TSParameterProperty', node => checkProperty(node, checkFields));
+		context.on('TSPropertySignature', node => checkProperty(node, checkFields));
+	}
+
+	if (checkMethods !== NEVER) {
+		context.on('TSMethodSignature', node => checkProperty(node, checkMethods));
+	}
 };
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -1361,10 +1462,29 @@ const config = {
 				type: 'object',
 				description: 'Rule options.',
 				additionalProperties: false,
+				patternProperties: {
+					'^checkProperties$': {},
+				},
 				properties: {
-					checkProperties: {
-						type: 'boolean',
-						description: 'Whether to check object, class, and TypeScript property and method names.',
+					checkVariables: {
+						enum: [ALWAYS, PROHIBIT, NEVER],
+						description: 'How to check variable names.',
+					},
+					checkArguments: {
+						enum: [ALWAYS, PROHIBIT, NEVER],
+						description: 'How to check parameter names.',
+					},
+					checkFunctions: {
+						enum: [ALWAYS, PROHIBIT, NEVER],
+						description: 'How to check function names.',
+					},
+					checkMethods: {
+						enum: [ALWAYS, PROHIBIT, NEVER],
+						description: 'How to check method names.',
+					},
+					checkFields: {
+						enum: [ALWAYS, PROHIBIT, NEVER],
+						description: 'How to check field names.',
 					},
 					prefixes: {
 						type: 'object',
@@ -1395,7 +1515,15 @@ const config = {
 				},
 			},
 		],
-		defaultOptions: [{ignore: [], wrappers: {}}],
+		defaultOptions: [{
+			checkVariables: ALWAYS,
+			checkArguments: ALWAYS,
+			checkFunctions: ALWAYS,
+			checkMethods: NEVER,
+			checkFields: NEVER,
+			ignore: [],
+			wrappers: {},
+		}],
 		messages,
 		languages: [
 			'js/js',

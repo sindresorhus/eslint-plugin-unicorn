@@ -1,7 +1,10 @@
+import test from 'ava';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test: ruleTest} = getTester(import.meta);
 
 const typescript = testCase => typeof testCase === 'string'
 	? {
@@ -55,7 +58,7 @@ const onlyIsPrefixOptions = {
 	},
 };
 
-test({
+ruleTest({
 	valid: [
 		{
 			code: 'function useReady() { return true; }',
@@ -549,7 +552,7 @@ test({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'const isCompleted = true;',
 		'const hasCompleted = true;',
@@ -690,7 +693,7 @@ test.snapshot({
 		},
 		{
 			code: 'const o = {completed: true};',
-			options: [{checkProperties: true, ignore: ['completed']}],
+			options: [{checkMethods: 'always', checkFields: 'always', ignore: ['completed']}],
 		},
 		typescript('const completed: boolean | undefined = true;'),
 		typescript('type MaybeBoolean = boolean | undefined; const completed: MaybeBoolean = true;'),
@@ -901,7 +904,7 @@ test.snapshot({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		typescript('const isCompleted: boolean = true;'),
 		typescript('const wasCompleted: true = true;'),
@@ -1158,86 +1161,86 @@ test({
 	],
 });
 
-test.snapshot({
+ruleTest.snapshot({
 	valid: [
 		'const task = {completed: true};',
 		'class Task { completed = true; }',
 		{
 			code: 'const task = {isCompleted: true}; class Task { hasCompleted = true; canComplete() { return true; }}',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'interface Task { isCompleted: boolean; canComplete(): boolean; get hasCompleted(): boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isComplete: string; }',
-			options: [{checkProperties: false}],
+			options: [{checkMethods: 'never', checkFields: 'never'}],
 		}),
 		typescript({
 			code: 'interface Task { completed(): () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { isCompleted: boolean; canComplete(): boolean { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'const isCompleted = true; const task = {isCompleted};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {completed: value};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {[completed]: true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const key = "isCompleted"; const task = {[key]: true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {set completed(value) { return true; }};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'class Task { *ready() { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const isPredicate = () => true; const task = {isCompleted: isPredicate};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'class Task { set completed(value) { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'class Task { #isCompleted = true; get #isReady() { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {isReady: value};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {completed: async () => value};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'class Task { async completed() { return value; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typeAware({
 			code: 'declare const value: unknown; const task = {isReady: value};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'const task = {needsUpdate: true};',
 			options: [{
-				checkProperties: true,
+				checkMethods: 'always', checkFields: 'always',
 				prefixes: {needs: true},
 			}],
 		},
@@ -1254,256 +1257,392 @@ test.snapshot({
 	invalid: [
 		{
 			code: 'const task = {completed: true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {isReady: "yes"};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'const task = {isReady: true as string};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { isReady: string = "yes"; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { isReady: Promise<boolean>; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { isReady: PromiseLike<boolean>; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { isReady: Promise<boolean> | undefined; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'abstract class Task { abstract isReady: Promise<boolean>; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'class Task { isReady() {} }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'class Task { isReady() { return () => true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const isPredicate = () => true; class Task { isReady() { return isPredicate; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'interface Task { isReady(): () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'type Predicate = () => boolean; interface Task { isReady(): Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Predicate { (): boolean; } interface Task { isReady(): Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isReady: () => () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isReady: Promise<boolean>; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isReady: PromiseLike<boolean>; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isReady: Promise<boolean> | null; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { isComplete: string; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Predicate { (): string; } interface Task { isReady: Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'const task = {"completed": true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {["completed"]: true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const key = "completed"; const task = {[key]: true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {completed: progress === 100};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const isReady = true; const task = {completed: isReady};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {completed() { return true; }};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {completed: () => true};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const isPredicate = () => true; const task = {completed: isPredicate};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'const isPredicate: () => boolean = external; const task = {completed: isPredicate};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'const task = {get completed() { return true; }};',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const task = {didUpdate: true};',
 			options: [{
-				checkProperties: true,
+				checkMethods: 'always', checkFields: 'always',
 				prefixes: {did: false},
 			}],
 		},
 		{
 			code: 'class Task { completed = true; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'class Task { completed: boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'class Task { completed = () => true; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		{
 			code: 'const isPredicate = () => true; class Task { completed = isPredicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'type Predicate = () => boolean; const isPredicate: Predicate = external; class Task { completed = isPredicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Predicate { (): boolean; } const isPredicate: Predicate = external; class Task { completed = isPredicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { completed: () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { accessor completed: boolean = true; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'abstract class Task { abstract completed: boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'abstract class Task { abstract completed: () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'abstract class Task { abstract accessor completed: boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'class Task { completed() { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'abstract class Task { abstract completed(): boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		{
 			code: 'class Task { get completed() { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		},
 		typescript({
 			code: 'class Task { #completed: boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { get #ready(): boolean { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { #completed(): boolean { return true; } }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'class Task { accessor #completed: boolean = true; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { completed: boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { "completed": boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'type Task = { completed: boolean; };',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'type Task = { completed(): boolean; };',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { completed: () => boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Predicate { (): boolean; } interface Task { completed: Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Predicate { (): boolean; readonly description: string; } interface Task { completed: Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'type Predicate = () => boolean; interface Task { completed: Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'type Predicate = {(): boolean}; interface Task { completed: Predicate; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { completed(): boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { get completed(): boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 		typescript({
 			code: 'interface Task { "completed"(): boolean; }',
-			options: [{checkProperties: true}],
+			options: [{checkMethods: 'always', checkFields: 'always'}],
 		}),
 	],
 });
 
+ruleTest({
+	valid: [
+		{
+			name: 'variables never',
+			code: 'const completed = true;',
+			options: [{checkVariables: 'never'}],
+		},
+		typescript({code: 'const isReady = "yes";', options: [{checkVariables: 'never'}]}),
+		{
+			name: 'variables prohibit boolean',
+			code: 'const completed = true;',
+			options: [{checkVariables: 'prohibit'}],
+		},
+		{
+			name: 'arguments never',
+			code: 'function download(showProgress = false) {}',
+			options: [{checkArguments: 'never'}],
+		},
+		typescript({code: 'function download(isReady = "yes") {}', options: [{checkArguments: 'never'}]}),
+		typescript({code: 'function isReady() { return "yes"; }', options: [{checkFunctions: 'never'}]}),
+		{
+			name: 'functions prohibit boolean',
+			code: 'function completed() { return true; }',
+			options: [{checkFunctions: 'prohibit'}],
+		},
+		{
+			name: 'fields and methods never',
+			code: 'class Task { completed = true; hasTitle() { return "Unicorn"; } }',
+			options: [{checkFields: 'never', checkMethods: 'never'}],
+		},
+		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'never', checkFields: 'never'}]}),
+		{
+			name: 'fields and methods prohibit boolean',
+			code: 'class Task { completed = true; title() { return "Unicorn"; } }',
+			options: [{checkFields: 'prohibit', checkMethods: 'prohibit'}],
+		},
+		{
+			name: 'methods always and fields never',
+			code: 'class Task { completed = true; title() { return "Unicorn"; } }',
+			options: [{checkFields: 'never', checkMethods: 'always'}],
+		},
+	],
+	invalid: [
+		{
+			name: 'variables always',
+			code: 'const completed = true;',
+			output: 'const isCompleted = true;',
+			options: [{checkVariables: 'always'}],
+			errors: 1,
+		},
+		{
+			name: 'variables prohibit non-boolean',
+			code: 'const hasName = "Sindre";',
+			options: [{checkVariables: 'prohibit'}],
+			errors: 1,
+		},
+		{
+			name: 'arguments always',
+			code: 'function download(showProgress = false) {}',
+			options: [{checkArguments: 'always'}],
+			errors: 1,
+		},
+		{
+			name: 'functions prohibit non-boolean',
+			code: 'function hasTitle() { return "Unicorn"; }',
+			options: [{checkFunctions: 'prohibit'}],
+			errors: 1,
+		},
+		{
+			name: 'fields and methods prohibit non-boolean',
+			code: 'class Task { isReady = "yes"; hasTitle() { return "Unicorn"; } }',
+			options: [{checkFields: 'prohibit', checkMethods: 'prohibit'}],
+			errors: 2,
+		},
+		{
+			name: 'fields and methods always',
+			code: 'class Task { completed = true; completedMethod() { return true; } }',
+			options: [{checkFields: 'always', checkMethods: 'always'}],
+			errors: 2,
+		},
+		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'never', checkFields: 'always'}], errors: 1}),
+		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'always', checkFields: 'always'}], errors: 2}),
+		typescript({code: 'class Task { constructor(public isReady: string) {} }', options: [{checkArguments: 'prohibit', checkFields: 'never'}], errors: 1}),
+		typescript({code: 'class Task { constructor(public isReady: string) {} }', options: [{checkArguments: 'never', checkFields: 'prohibit'}], errors: 1}),
+		{
+			name: 'shorthand fields prohibit non-boolean prefixes',
+			code: 'const isReady = "yes"; const task = {isReady};',
+			options: [{checkVariables: 'never', checkFields: 'prohibit'}],
+			errors: 1,
+		},
+		{
+			name: 'shorthand fields are checked when variables are disabled',
+			code: 'const completed = true; const task = {completed};',
+			options: [{checkVariables: 'never', checkFields: 'always'}],
+			errors: 1,
+		},
+		{
+			name: 'shorthand variables and fields are checked independently',
+			code: 'const completed = true; const task = {completed};',
+			output: 'const isCompleted = true; const task = {completed: isCompleted};',
+			options: [{checkVariables: 'always', checkFields: 'always'}],
+			errors: 2,
+		},
+		{
+			name: 'shorthand fields report their own non-boolean prefixes',
+			code: 'const isReady = "yes"; const task = {isReady};',
+			options: [{checkVariables: 'prohibit', checkFields: 'prohibit'}],
+			errors: 2,
+		},
+	],
+});
+
+test('rejects the removed checkProperties option', t => {
+	const linter = new Linter({configType: 'flat'});
+	const verify = options => linter.verify('const completed = true;', {
+		languageOptions: {
+			ecmaVersion: 'latest',
+			sourceType: 'module',
+		},
+		plugins: {unicorn},
+		rules: {
+			'unicorn/consistent-boolean-name': ['error', options],
+		},
+	});
+
+	for (const checkProperties of [false, true, 'always']) {
+		t.throws(
+			() => verify({checkProperties}),
+			{message: /`checkProperties` was removed\. Use `checkMethods` and `checkFields` instead\./u},
+		);
+	}
+
+	t.throws(() => verify({checkVariables: true}));
+	t.throws(() => verify({checkMethods: 'invalid'}));
+});
+
 // Svelte `{#each}` bindings are `Parameter` definitions whose owner is the each-block, not a function.
-test.svelte({
+ruleTest.svelte({
 	valid: [
 		'<script>let items = [];</script>{#each items as item}{item}{/each}',
 		'<script>let entries = [];</script>{#each entries as [key, value]}{key}{value}{/each}',

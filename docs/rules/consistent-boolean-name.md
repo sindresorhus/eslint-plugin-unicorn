@@ -9,7 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-By default, this rule checks boolean variables, parameters, and functions. When `checkProperties` is enabled, it also checks object, class, and TypeScript property and method names.
+By default, this rule checks boolean variables, parameters, and functions. Object, class, and TypeScript property and method names are ignored unless enabled with their respective options.
+
+Each `check*` option accepts one of these modes:
+
+- `always`: require prefixes for booleans and reject misleading prefixes on non-booleans.
+- `prohibit`: only reject misleading prefixes on non-booleans.
+- `never`: skip the occurrence entirely.
 
 Boolean names should start with a prefix that makes the boolean meaning clear.
 
@@ -133,7 +139,7 @@ function download(shouldShowProgress: boolean) {}
 
 ```js
 // ✅
-// Properties are ignored unless `checkProperties` is enabled.
+// Properties are ignored unless `checkFields` is set to a mode other than `never`.
 const task = {
 	completed: progress === 100,
 };
@@ -141,48 +147,96 @@ const task = {
 
 ## Options
 
-### checkProperties
+### checkVariables
 
-Type: `boolean`\
-Default: `false`
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
 
-Check object, class, and TypeScript property and method names.
+How to check variable names.
 
 ```js
 'unicorn/consistent-boolean-name': [
 	'error',
 	{
-		checkProperties: true,
+		checkVariables: 'prohibit',
 	},
 ]
 ```
 
-With `checkProperties: true`, this would fail:
+With `checkVariables: 'prohibit'`, this would fail:
 
 ```js
-const task = {
-	completed: true,
-};
+const hasName = 'Sindre';
 ```
 
-```ts
-interface Task {
-	completed: boolean;
+And these would pass:
+
+```js
+const completed = true;
+const isCompleted = true;
+```
+
+### checkArguments
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
+
+How to check parameter names, including TypeScript constructor parameter properties. For example, `checkArguments: 'never'` allows both forms:
+
+```js
+function download(showProgress = false) {}
+function download(shouldShowProgress = false) {}
+```
+
+### checkFunctions
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'always'`
+
+How to check function names.
+
+### checkMethods
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'never'`
+
+How to check object methods and getters, class methods and getters, and TypeScript method signatures.
+
+### checkFields
+
+Type: `'always' | 'prohibit' | 'never'`\
+Default: `'never'`
+
+How to check object properties, class fields, TypeScript property signatures, and TypeScript constructor parameter properties. Constructor parameter properties are checked as both arguments and fields.
+
+```js
+'unicorn/consistent-boolean-name': [
+	'error',
+	{
+		checkMethods: 'always',
+		checkFields: 'never',
+	},
+]
+```
+
+With the above config, this would fail:
+
+```js
+class Task {
+	hasTitle() {
+		return 'Unicorn';
+	}
 }
 ```
 
 And this would pass:
 
 ```js
-const task = {
-	isCompleted: true,
-};
-```
-
-```ts
-interface Task {
-	isCompleted: boolean;
-	canComplete(): boolean;
+class Task {
+	completed = true;
+	isCompleted() {
+		return true;
+	}
 }
 ```
 
