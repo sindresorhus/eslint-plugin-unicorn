@@ -2043,6 +2043,34 @@ test.typescript({
 			}],
 		},
 		{
+			code: outdent`
+				class ValidationException {
+					constructor(private readonly e: Error) {}
+
+					getError(): Error {
+						return this.e;
+					}
+				}
+			`,
+			errors: [{
+				message: 'Please rename the variable `e`. Suggested names are: `error`, `event_`. A more descriptive name will do too.',
+				suggestions: [],
+			}],
+		},
+		{
+			code: outdent`
+				function getError(err = 123) {
+					return err;
+				}
+			`,
+			output: outdent`
+				function getError(error = 123) {
+					return error;
+				}
+			`,
+			errors: 1,
+		},
+		{
 			code: 'const foo = (extr\u{61}Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
 			errors: 1,
