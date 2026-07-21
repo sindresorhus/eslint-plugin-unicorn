@@ -5,6 +5,9 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'import {z} from "zod"; z.string().trim().startsWith("asdf")',
+		'import {z as schema} from "zod"; schema.string().trim().startsWith("asdf")',
+		'import * as z from "zod"; z.string().trim().endsWith("asdf")',
 		'foo.trimStart().startsWith("-")',
 		'foo.trimEnd().endsWith("-")',
 		'foo.trim().includes("-")',
@@ -70,6 +73,9 @@ test.snapshot({
 		'const prefix = "foo"; foo.trim().startsWith(prefix)',
 		'const suffix = "foo"; foo.trim().endsWith(suffix)',
 		'foo.trim().startsWith("foo" + "bar")',
+		'import {z} from "other-package"; z.string().trim().startsWith("-")',
+		'import {z} from "zod"; z.number().trim().startsWith("-")',
+		'import {z} from "zod"; function foo(z) { z.string().trim().startsWith("-"); }',
 		'foo.trim().startsWith(undefined)',
 		'foo.trim().endsWith(void 0)',
 		'const search = undefined; foo.trim().startsWith(search)',
