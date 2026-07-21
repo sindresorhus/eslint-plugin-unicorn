@@ -7,7 +7,24 @@ test.snapshot({
 	valid: [
 		'import {z} from "zod"; z.string().trim().startsWith("asdf")',
 		'import {z as schema} from "zod"; schema.string().trim().startsWith("asdf")',
+		'import {"z" as schema} from "zod"; schema.string().trim().startsWith("asdf")',
 		'import * as z from "zod"; z.string().trim().endsWith("asdf")',
+		{
+			code: 'import {z} from "zod"; (z.string() as unknown).trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {z} from "zod"; (z.string() satisfies unknown).trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {z} from "zod"; z.string()!.trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {z} from "zod"; (<unknown>z.string()).trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.trimStart().startsWith("-")',
 		'foo.trimEnd().endsWith("-")',
 		'foo.trim().includes("-")',
@@ -74,8 +91,25 @@ test.snapshot({
 		'const suffix = "foo"; foo.trim().endsWith(suffix)',
 		'foo.trim().startsWith("foo" + "bar")',
 		'import {z} from "other-package"; z.string().trim().startsWith("-")',
+		'import * as z from "other-package"; z.string().trim().startsWith("-")',
+		'import {z} from "zod/mini"; z.string().trim().startsWith("-")',
+		'import z from "zod"; z.string().trim().startsWith("-")',
+		'import {z} from "zod"; z["string"]().trim().startsWith("-")',
+		'import {z} from "zod"; z.string("argument").trim().startsWith("-")',
 		'import {z} from "zod"; z.number().trim().startsWith("-")',
 		'import {z} from "zod"; function foo(z) { z.string().trim().startsWith("-"); }',
+		{
+			code: 'import type {z} from "zod"; z.string().trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import type * as z from "zod"; z.string().trim().endsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import z = require("zod"); z.string().trim().startsWith("-");',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'foo.trim().startsWith(undefined)',
 		'foo.trim().endsWith(void 0)',
 		'const search = undefined; foo.trim().startsWith(search)',

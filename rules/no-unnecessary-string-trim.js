@@ -4,6 +4,7 @@ import {
 	getConstVariableInitializer,
 	hasOptionalChainElement,
 	isKnownNonString,
+	isRuntimeImportSpecifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -31,24 +32,29 @@ const knownNonStringExpressionTypes = new Set([
 	'ObjectExpression',
 ]);
 
-const isImportedZodNamespace = (node, context) => {
+const isImportedZodIdentifier = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 
 	return variable?.defs.some(definition => {
-		if (definition.type !== 'ImportBinding' || definition.parent.source.value !== 'zod') {
+		if (definition.type !== 'ImportBinding') {
 			return false;
 		}
 
-		return definition.node.type === 'ImportNamespaceSpecifier'
-			|| (
-				definition.node.type === 'ImportSpecifier'
-				&& definition.node.imported.name === 'z'
-			);
+		const {node: importNode, parent} = definition;
+		return isRuntimeImportSpecifier(importNode)
+			&& parent.source?.value === 'zod'
+			&& (importNode.type === 'ImportNamespaceSpecifier'
+				|| (
+					importNode.type === 'ImportSpecifier'
+					&& (importNode.imported.name === 'z' || importNode.imported.value === 'z')
+				));
 	}) ?? false;
 };
 
-const isZodStringCall = (node, context) =>
-	isMethodCall(node, {
+const isZodStringCall = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
+	return isMethodCall(node, {
 		method: 'string',
 		argumentsLength: 0,
 		optionalCall: false,
@@ -56,7 +62,8 @@ const isZodStringCall = (node, context) =>
 		computed: false,
 	})
 	&& node.callee.object.type === 'Identifier'
-	&& isImportedZodNamespace(node.callee.object, context);
+	&& isImportedZodIdentifier(node.callee.object, context);
+};
 
 const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 	? searchString === searchString.trimEnd()
