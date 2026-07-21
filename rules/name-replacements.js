@@ -320,9 +320,26 @@ const getParentFunctionLikeNode = identifier => {
 	}
 };
 
+const isTSParameterPropertyName = node => {
+	if (node.parent.type === 'TSParameterProperty') {
+		return node.parent.parameter === node;
+	}
+
+	return (
+		node.parent.type === 'AssignmentPattern'
+		&& node.parent.left === node
+		&& node.parent.parent.type === 'TSParameterProperty'
+		&& node.parent.parent.parameter === node.parent
+	);
+};
+
 const shouldFixParameter = (definition, context) => {
 	if (definition.type !== 'Parameter') {
 		return true;
+	}
+
+	if (isTSParameterPropertyName(definition.name)) {
+		return false;
 	}
 
 	const functionNode = getParentFunctionLikeNode(definition.name);

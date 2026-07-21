@@ -2013,6 +2013,36 @@ test.typescript({
 			errors: 1,
 		},
 		{
+			code: outdent`
+				class ValidationException {
+					constructor(private readonly err: JsonRpcErrorLocal) {}
+
+					getError(): JsonRpcErrorLocal {
+						return this.err;
+					}
+				}
+			`,
+			errors: [{
+				message: 'The variable `err` should be named `error`. A more descriptive name will do too.',
+				suggestions: [],
+			}],
+		},
+		{
+			code: outdent`
+				class ValidationException {
+					constructor(private err = 123) {}
+
+					getError() {
+						return this.err;
+					}
+				}
+			`,
+			errors: [{
+				message: 'The variable `err` should be named `error`. A more descriptive name will do too.',
+				suggestions: [],
+			}],
+		},
+		{
 			code: 'const foo = (extr\u{61}Params     ?    :    string) => {}',
 			output: 'const foo = (extraParameters?:    string) => {}',
 			errors: 1,
