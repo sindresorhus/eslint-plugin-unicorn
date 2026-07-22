@@ -18,6 +18,7 @@ const transparentExpressionTypes = new Set([
 	'TSSatisfiesExpression',
 	'TSNonNullExpression',
 	'TSTypeAssertion',
+	'TSInstantiationExpression',
 ]);
 
 const databaseSyncEsmTraceMap = {
@@ -84,6 +85,8 @@ const getVariableInitializer = (node, context) => {
 	};
 };
 
+const getImportSpecifierName = node => node.imported.type === 'Identifier' ? node.imported.name : node.imported.value;
+
 const isDatabaseSyncImport = (node, context) => {
 	const definition = getVariableDefinition(node, context);
 	if (
@@ -96,8 +99,7 @@ const isDatabaseSyncImport = (node, context) => {
 	}
 
 	return definition.node.type === 'ImportSpecifier'
-		&& definition.node.imported.type === 'Identifier'
-		&& definition.node.imported.name === 'DatabaseSync';
+		&& getImportSpecifierName(definition.node) === 'DatabaseSync';
 };
 
 const isSqliteNamespaceImport = (node, context) => {
@@ -115,8 +117,7 @@ const isSqliteNamespaceImport = (node, context) => {
 		|| definition.node.type === 'ImportDefaultSpecifier'
 		|| (
 			definition.node.type === 'ImportSpecifier'
-			&& definition.node.imported.type === 'Identifier'
-			&& definition.node.imported.name === 'default'
+			&& getImportSpecifierName(definition.node) === 'default'
 		);
 };
 
@@ -157,11 +158,20 @@ const isSqliteNamespaceRequireBinding = (node, context) => {
 	return getVariableDefinition(node, context).node.id.type === 'Identifier';
 };
 
-const isDirectDatabaseSyncConstructor = (node, context) => {
-	const callee = unwrapExpression(node.callee);
+const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => {
+	const callee = unwrapExpression(node);
 	if (callee.type === 'Identifier') {
-		return isDatabaseSyncImport(callee, context)
-			|| isDatabaseSyncRequireBinding(callee, context);
+		if (isDatabaseSyncImport(callee, context) || isDatabaseSyncRequireBinding(callee, context)) {
+			return true;
+		}
+
+		const variableInfo = getVariableInitializer(callee, context);
+		if (!variableInfo || seenVariables.has(variableInfo.variable)) {
+			return false;
+		}
+
+		seenVariables.add(variableInfo.variable);
+		return isDatabaseSyncConstructor(variableInfo.initializer, context, seenVariables);
 	}
 
 	if (callee.type !== 'MemberExpression' || getPropertyName(callee, context.sourceCode.getScope(callee)) !== 'DatabaseSync') {
@@ -181,7 +191,7 @@ const getDatabaseConstructors = (program, context) => {
 	for (const reference of tracker.iterateEsmReferences(databaseSyncEsmTraceMap)) {
 		if (
 			reference.type === ReferenceTracker.CONSTRUCT
-			&& isDirectDatabaseSyncConstructor(reference.node, context)
+			&& isDatabaseSyncConstructor(reference.node.callee, context)
 		) {
 			databaseConstructors.add(reference.node);
 		}
@@ -190,7 +200,7 @@ const getDatabaseConstructors = (program, context) => {
 	for (const reference of tracker.iterateCjsReferences(databaseSyncCjsTraceMap)) {
 		if (
 			reference.type === ReferenceTracker.CONSTRUCT
-			&& isDirectDatabaseSyncConstructor(reference.node, context)
+			&& isDatabaseSyncConstructor(reference.node.callee, context)
 		) {
 			databaseConstructors.add(reference.node);
 		}

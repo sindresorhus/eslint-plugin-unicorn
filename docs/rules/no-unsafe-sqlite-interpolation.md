@@ -25,6 +25,8 @@ const sql = database.createTagStore();
 sql.get`SELECT * FROM users WHERE id = ${id}`;
 ```
 
+This rule only recognizes runtime `DatabaseSync` instances imported or required from exactly `node:sqlite`, including simple immutable `const` aliases, and only checks `exec()` and `prepare()`. It intentionally ignores string concatenation, generic query methods, dynamic imports, factory-created databases, and mutable assignment flows.
+
 ## Examples
 
 ```js

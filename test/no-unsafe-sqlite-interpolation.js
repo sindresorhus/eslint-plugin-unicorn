@@ -7,8 +7,13 @@ test.snapshot({
 	valid: [
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec("SELECT 1");',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT 1`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = `SELECT 1`; database.prepare(sql);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare("SELECT ?").get(value);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.run(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.query(`SELECT ${value}`);',
+		'const sqlite = require("other-sqlite"); const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'const {DatabaseSync} = require("other-sqlite"); const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'const database = new (require("other-sqlite").DatabaseSync)(":memory:"); database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; const sql = new DatabaseSync(":memory:").createTagStore(); sql.get`SELECT * FROM users WHERE id = ${value}`;',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec("SELECT " + value);',
 		'import {DatabaseSync} from "node:sqlite"; const database = createDatabase(); database.exec(`SELECT ${value}`);',
@@ -56,8 +61,29 @@ test.snapshot({
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const alias = database; alias.exec(`SELECT ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["exec"](`SELECT ${id}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const method = "exec"; database[method](`SELECT ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${id}`);',
+		'import {"DatabaseSync" as Database} from "node:sqlite"; const database = new Database(":memory:"); database.exec(`SELECT ${id}`);',
+		'import {"default" as sqlite} from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}`); database.prepare(`SELECT ${id}`);',
+		'const {DatabaseSync} = require("node:sqlite"); const Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${id}`);',
 		{
 			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}` as string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(<string>`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new (DatabaseSync<string>)(":memory:"); database.exec(`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec<string>(`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}`!);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
