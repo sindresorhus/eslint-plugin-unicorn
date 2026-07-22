@@ -1,0 +1,72 @@
+/* eslint-disable no-template-curly-in-string */
+import {getTester, parsers} from './utils/test.js';
+
+const {test} = getTester(import.meta);
+
+test.snapshot({
+	valid: [
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec("SELECT 1");',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT 1`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare("SELECT ?").get(value);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.run(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const sql = new DatabaseSync(":memory:").createTagStore(); sql.get`SELECT * FROM users WHERE id = ${value}`;',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec("SELECT " + value);',
+		'import {DatabaseSync} from "node:sqlite"; const database = createDatabase(); database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const {exec} = database; exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const {database} = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'const sqlite = await import("node:sqlite"); const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		{
+			code: 'import type {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {type DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'import {DatabaseSync} from "node:sqlite"; let Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; let Database; Database = DatabaseSync; const database = new Database(":memory:"); database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; let database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "other-sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'class DatabaseSync { exec() {} } const database = new DatabaseSync(); database.exec(`SELECT ${value}`);',
+		'database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec();',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(...queries);',
+	],
+	invalid: [
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync as Database} from "node:sqlite"; const database = new Database(":memory:"); database.prepare(`SELECT * FROM users WHERE id = ${id}`);',
+		'import * as sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'import sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.prepare(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; new DatabaseSync(":memory:").exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'const {DatabaseSync} = require("node:sqlite"); const database = new DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'const {DatabaseSync: Database} = require("node:sqlite"); const database = new Database(":memory:"); database.prepare(`SELECT * FROM users WHERE id = ${id}`);',
+		'const sqlite = require("node:sqlite"); const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'const database = new (require("node:sqlite").DatabaseSync)(":memory:"); database.prepare(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const query = `SELECT * FROM users WHERE id = ${id}`; database.exec(query);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const query = `SELECT * FROM users WHERE id = ${id}`; const alias = query; database.prepare(alias);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.exec(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec?.(`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"](`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${first} FROM users WHERE id = ${second}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(/* keep */ `SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(String.raw`SELECT * FROM users WHERE id = ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(String.raw`SELECT 1`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = `SELECT ${id}`; database.exec(sql);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = `SELECT ${id}`; const alias = sql; database.prepare(alias);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const alias = database; alias.exec(`SELECT ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["exec"](`SELECT ${id}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const method = "exec"; database[method](`SELECT ${id}`);',
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}` as string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}` as string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database!.exec(`SELECT ${id}` satisfies string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
