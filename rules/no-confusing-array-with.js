@@ -1,6 +1,6 @@
 import {isMethodCall} from './ast/index.js';
-import {getStaticNumberValue} from './utils/index.js';
-import {isSame, unwrapExpression} from './utils/comparison.js';
+import {getStaticNumberValue, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
+import {isLengthOf} from './utils/comparison.js';
 
 const MESSAGE_ID_NEGATIVE_INDEX = 'negative-index';
 const MESSAGE_ID_LENGTH_INDEX = 'length-index';
@@ -16,24 +16,12 @@ const messages = {
 
 const isNegativeStaticIndex = node => Math.trunc(getStaticNumberValue(node)) < 0;
 
-function isLengthMemberExpressionFor(node, object) {
-	node = unwrapExpression(node);
-	object = unwrapExpression(object);
-
-	return node.type === 'MemberExpression'
-		&& !node.optional
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'length'
-		&& isSame(node.object, object);
-}
-
 function getMessageId(indexNode, object) {
 	if (isNegativeStaticIndex(indexNode)) {
 		return MESSAGE_ID_NEGATIVE_INDEX;
 	}
 
-	if (isLengthMemberExpressionFor(indexNode, object)) {
+	if (isLengthOf(indexNode, object)) {
 		return MESSAGE_ID_LENGTH_INDEX;
 	}
 }
@@ -54,7 +42,7 @@ const create = context => {
 		const [indexNode] = callExpression.arguments;
 		const messageId = getMessageId(indexNode, object);
 
-		if (!messageId) {
+		if (!messageId || shouldSkipKnownNonArrayReceiver(object, context)) {
 			return;
 		}
 

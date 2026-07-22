@@ -31,7 +31,7 @@ This rule checks the following array methods that accept `thisArg`:
 
 This rule is fixable when the callback is an arrow function, the `thisArg` argument has no side effect, and the fix can be applied without removing comments.
 
-When TypeScript type information is available, known non-array receivers are ignored. Unknown receivers may still be reported.
+A receiver known not to be an array, such as a `Set` or a custom type that declares a same-named method, is ignored. Unknown receivers are still reported. A typed array is reported, since it takes the same `thisArg` parameter.
 
 ## Examples
 

@@ -62,6 +62,11 @@ test.snapshot({
 		'array.fill((() => {}) as Function)',
 		'array.fill(object.value as Foo)',
 		'const value = {}; const alias = value as Foo; array.fill(alias)',
+		// `TypedArray#fill()` coerces the value to a number, so no slot can share the reference
+		'function f(foo: Uint8Array) { foo.fill({}); }',
+		'const foo = new Uint8Array(3); foo.fill({});',
+		// Other known non-array receivers have no `Array#fill()` semantics either
+		'function f(foo: Set<object>) { foo.fill({}); }',
 	],
 	invalid: [
 		'array.fill({} as Foo)',
@@ -70,5 +75,9 @@ test.snapshot({
 		'array.fill({}!)',
 		'const value = {} as Foo; array.fill(value)',
 		'const value = {}; array.fill(value!)',
+		// A receiver known to be an array must still be reported
+		'function f(foo: object[]) { foo.fill({}); }',
+		// An unknown receiver is still reported
+		'function f(foo) { foo.fill({}); }',
 	],
 });

@@ -83,5 +83,12 @@ test.snapshot({
 			)
 		`,
 		'foo?.join()',
+		// A typed array shares `Array#join()` and its comma default
+		{
+			code: 'function f(foo: Int8Array) { foo.join(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The same receiver spelled as a constructor call must agree with the annotation above
+		'const foo = new Int8Array(); foo.join();',
 	],
 });

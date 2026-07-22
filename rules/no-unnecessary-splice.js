@@ -14,6 +14,7 @@ import {
 	getParenthesizedText,
 	hasOptionalChainElement,
 	isValueNotUsable,
+	shouldSkipKnownNonArrayReceiver,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -119,7 +120,7 @@ const create = context => {
 		}
 
 		const replacement = getUnnecessarySpliceReplacement(callExpression);
-		if (!replacement) {
+		if (!replacement || shouldSkipKnownNonArrayReceiver(object, context)) {
 			return;
 		}
 

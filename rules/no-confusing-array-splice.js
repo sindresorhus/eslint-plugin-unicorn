@@ -1,6 +1,6 @@
 import {isMethodCall} from './ast/index.js';
-import {getParenthesizedText, getStaticNumberValue} from './utils/index.js';
-import {isSame, unwrapExpression} from './utils/comparison.js';
+import {getParenthesizedText, getStaticNumberValue, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
+import {isLengthOf} from './utils/comparison.js';
 
 const REPLACE_ONE_ELEMENT = 'replace-one-element';
 const INSERT_AT_NEGATIVE_ONE = 'insert-at-negative-one';
@@ -21,18 +21,6 @@ function getNormalizedDeleteCountValue(node) {
 	if (typeof value === 'number') {
 		return Math.max(Math.trunc(value), 0);
 	}
-}
-
-function isLengthMemberExpressionFor(node, object) {
-	node = unwrapExpression(node);
-	object = unwrapExpression(object);
-
-	return node.type === 'MemberExpression'
-		&& !node.optional
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'length'
-		&& isSame(node.object, object);
 }
 
 function getMessageId([start, deleteCount]) {
@@ -82,7 +70,7 @@ function getSuggestion(callExpression, messageId, context) {
 		if (method === 'toSpliced') {
 			if (
 				isNegativeStaticIndex(start)
-				|| isLengthMemberExpressionFor(start, object)
+				|| isLengthOf(start, object)
 			) {
 				return;
 			}
@@ -132,7 +120,7 @@ const create = context => {
 		}
 
 		const messageId = getMessageId(callExpression.arguments);
-		if (!messageId) {
+		if (!messageId || shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)) {
 			return;
 		}
 

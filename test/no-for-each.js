@@ -48,7 +48,6 @@ test.snapshot({
 		'Effect.forEach([1,2,3], (n) => Effect.succeed(n))',
 		'const map = new Map(); map.forEach(value => console.log(value));',
 		'const set = new Set(); set.forEach(value => console.log(value));',
-		'const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value));',
 	],
 	invalid: [
 		'foo.forEach?.(element => bar(element))',
@@ -563,6 +562,19 @@ test.snapshot({
 		'array.forEach(({foo}, index = foo) => {})',
 		'array.forEach((element, {bar = element}) => {})',
 		'array.forEach(({foo}, {bar = foo}) => {})',
+		// A typed array shares `Array#forEach()`, so `for…of` applies to it too
+		'const typedArray = new Uint8Array(); typedArray.forEach(value => console.log(value));',
+		// The same receiver spelled as a type annotation must agree with the constructor above
+		{
+			code: 'function foo(typedArray: Uint8Array) { typedArray.forEach(value => console.log(value)); }',
+			languageOptions: {parser: typescriptEslintParser},
+		},
+		// An outer variable sharing the callback parameter's name is safe when it is not used inside the call, so the fix is not blocked
+		outdent`
+			const element = 5;
+			console.log(element);
+			[1, 2, 3].forEach(element => bar(element));
+		`,
 	],
 });
 

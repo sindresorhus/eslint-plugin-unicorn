@@ -1,7 +1,7 @@
 import {
 	checkVueTemplate,
 	getTokenStore,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isOnSameLine,
 	isParenthesized,
 	needsSemicolon,
@@ -107,11 +107,7 @@ const create = context => {
 			return;
 		}
 
-		if (
-			callExpression.typeArguments
-			|| callExpression.typeParameters
-			|| isKnownNonArray(callExpression.callee.object, context)
-		) {
+		if (callExpression.typeArguments || callExpression.typeParameters) {
 			return;
 		}
 
@@ -124,6 +120,8 @@ const create = context => {
 		if (
 			!returnedExpression
 			|| sourceCode.getCommentsInside(returnedExpression).length > 0
+			// Resolving the receiver type is expensive, so it runs last
+			|| isKnownNonIndexedCollection(callExpression.callee.object, context)
 		) {
 			return;
 		}

@@ -1,5 +1,5 @@
 import {isMethodCall, isNumericLiteral} from './ast/index.js';
-import {getCallExpressionTokens} from './utils/index.js';
+import {getCallExpressionTokens, shouldSkipKnownNonArrayReceiver} from './utils/index.js';
 
 const MESSAGE_ID = 'no-magic-array-flat-depth';
 const messages = {
@@ -28,7 +28,10 @@ const create = context => {
 			openingParenthesisToken,
 			closingParenthesisToken,
 		} = getCallExpressionTokens(callExpression, context);
-		if (sourceCode.commentsExistBetween(openingParenthesisToken, closingParenthesisToken)) {
+		if (
+			sourceCode.commentsExistBetween(openingParenthesisToken, closingParenthesisToken)
+			|| shouldSkipKnownNonArrayReceiver(callExpression.callee.object, context)
+		) {
 			return;
 		}
 

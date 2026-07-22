@@ -152,6 +152,13 @@ test.snapshot({
 		'array.map(callback, /* comment */ thisArgument)',
 		typeAware('const array: string[] = []; array.map(value => value, thisArgument);'),
 		typeAware('const array: [string] = [""]; array.map(value => value, thisArgument);'),
+		// A typed array shares these methods, including the `thisArg` parameter
+		{
+			code: 'function f(foo: Int8Array) { foo.map(() => {}, thisArgument); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The same, resolved through type information instead of the annotation
+		typeAware('declare function getBytes(): Int8Array; getBytes().map(value => value, thisArgument);'),
 	],
 });
 

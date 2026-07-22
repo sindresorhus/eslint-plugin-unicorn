@@ -4,6 +4,11 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(set: Set<number>) { set.sort((a, b) => a > b); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'array.sort()',
 		'array.toSorted()',
 		'array.sort(compareFunction)',
@@ -180,5 +185,10 @@ test.snapshot({
 		},
 		// Destructured parameters: reported, but no suggestion since the parameters are not plain identifiers
 		'array.sort(([a], [b]) => a > b)',
+		// A typed array shares `Array#sort()`, and a boolean comparator is just as broken there
+		{
+			code: 'function f(array: Int8Array) { array.sort((a, b) => a > b); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

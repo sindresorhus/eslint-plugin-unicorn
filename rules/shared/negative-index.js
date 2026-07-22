@@ -1,20 +1,13 @@
 import {
 	getParenthesizedRange,
 } from '../utils/index.js';
-import {isSame, unwrapExpression} from '../utils/comparison.js';
+import {isLengthOf, unwrapExpression} from '../utils/comparison.js';
 import {isNumericLiteral} from '../ast/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
 */
-
-const isLengthMemberExpression = node =>
-	node.type === 'MemberExpression'
-	&& !node.computed
-	&& !node.optional
-	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length';
 
 const isLiteralPositiveNumber = node =>
 	isNumericLiteral(node)
@@ -39,9 +32,7 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 		return;
 	}
 
-	const leftExpression = unwrapExpression(left);
-
-	if (isLengthMemberExpression(leftExpression) && isSame(leftExpression.object, objectNode)) {
+	if (isLengthOf(left, objectNode)) {
 		return left;
 	}
 

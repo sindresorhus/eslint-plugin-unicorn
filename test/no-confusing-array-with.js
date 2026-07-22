@@ -4,6 +4,17 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		// Known non-array receiver (type information)
+		{
+			code: 'function f(foo: Set<number>) { foo.with(-1, value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function f(foo: {with(index: number, value: unknown): void}) { foo.with(-1, value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Any other constructed receiver is a known non-array, no type information needed
+		'const foo = new Foo(); foo.with(-1, value);',
 		'array.with(index, value)',
 		'array.with(0, value)',
 		'array.with(1, value)',
@@ -64,5 +75,13 @@ test.snapshot({
 		'(array satisfies number[]).with(array.length, value)',
 		'object.items.with((object satisfies {items: unknown[]}).items.length, value)',
 		'(object satisfies {items: unknown[]}).items.with(object.items.length, value)',
+		// A receiver that is known to be an array must still be reported
+		'function f(foo: number[]) { foo.with(-1, value); }',
+		// A typed array shares `Array#with()` and its negative-index handling, however it is spelled
+		'function f(foo: Uint8Array) { foo.with(-1, value); }',
+		'const foo = new Uint8Array(); foo.with(-1, value);',
+		// A union is only skipped when every member is a known non-array, so one array member is enough to report
+		'function f(foo: Uint8Array | number[]) { foo.with(-1, value); }',
+		'function f(foo: number[] | Set<number>) { foo.with(-1, value); }',
 	],
 });

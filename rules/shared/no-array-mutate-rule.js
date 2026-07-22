@@ -74,11 +74,6 @@ export default function noArrayMutateRule(methodName) {
 
 			const array = callExpression.callee.object;
 
-			// Skip receivers that are provably not arrays (e.g. a typed `Set`)
-			if (shouldSkipKnownNonArrayReceiver(array, context)) {
-				return;
-			}
-
 			// `[...array].reverse()`
 			const isSpreadAndMutate = array.type === 'ArrayExpression'
 				&& array.elements.length === 1
@@ -91,6 +86,11 @@ export default function noArrayMutateRule(methodName) {
 				if (maybeExpressionStatement.type === 'ExpressionStatement') {
 					return;
 				}
+			}
+
+			// Skip receivers known to be neither an array nor a typed array (e.g. a typed `Set`). Resolving the receiver type is expensive, so it runs after the cheap checks.
+			if (shouldSkipKnownNonArrayReceiver(array, context)) {
+				return;
 			}
 
 			const methodProperty = callExpression.callee.property;

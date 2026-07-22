@@ -64,7 +64,7 @@ const typeAware = testCase => ({
 	},
 });
 
-const invalidTypeAwareMapCallbackTestCase = code => typeAware(invalidTestCase({
+const invalidMapCallbackTestCase = code => invalidTestCase({
 	code,
 	method: 'map',
 	name: 'callback',
@@ -73,7 +73,9 @@ const invalidTypeAwareMapCallbackTestCase = code => typeAware(invalidTestCase({
 		code.replace('map(callback)', 'map((element, index) => callback(element, index))'),
 		code.replace('map(callback)', 'map((element, index, array) => callback(element, index, array))'),
 	],
-}));
+});
+
+const invalidTypeAwareMapCallbackTestCase = code => typeAware(invalidMapCallbackTestCase(code));
 
 test({
 	valid: [
@@ -207,6 +209,11 @@ test({
 				events: types.optional(types.map(Event), {}),
 			})
 		`,
+
+		// A receiver known to be a non-array from syntax alone is skipped, even without type information
+		'const collection = new Set(); collection.forEach(callback);',
+		'const collection = new Map(); collection.forEach(callback);',
+		'class Foo {} const collection = new Foo(); collection.map(callback);',
 	],
 	invalid: [
 		// Suggestions
@@ -994,8 +1001,34 @@ test.typescript({
 			const taskName = 'task' satisfies string;
 			service.find(taskName);
 		`,
+		// A non-array receiver is resolved from its annotation alone, without type information
+		'declare const collection: Set<string>; collection.forEach(callback);',
+		'declare const collection: Map<string, string>; collection.forEach(callback);',
+		'function run(collection: ReadonlySet<string>) { collection.forEach(callback); }',
+		// A locally declared class shadowing a built-in name is not an array either
+		outdent`
+			class Uint8Array {
+				map(callback: Function) {}
+			}
+			const collection = new Uint8Array();
+			collection.map(callback);
+		`,
+		// A union is skipped as soon as one member is a non-array, since the call may land on that member
+		'declare const collection: string[] | Set<string>; collection.forEach(callback);',
 	],
 	invalid: [
+		// An array or typed array receiver is reported from its annotation alone, without type information
+		...[
+			'declare const array: string[]; array.map(callback);',
+			'declare const array: readonly string[]; array.map(callback);',
+			'declare const array: Array<string>; array.map(callback);',
+			'declare const array: Uint8Array; array.map(callback);',
+			'const array = new Uint8Array(); array.map(callback);',
+			// Every member of the union is an indexed collection, so the callback contract is the same either way
+			'declare const array: string[] | Uint8Array; array.map(callback);',
+			// A nullish member is dropped first, because a nullish receiver throws before the callback matters
+			'declare const array: string[] | undefined; array.map(callback);',
+		].map(code => invalidMapCallbackTestCase(code)),
 		invalidTestCase({
 			code: outdent`
 				function isString(value: unknown): boolean {

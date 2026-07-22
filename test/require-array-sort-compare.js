@@ -15,6 +15,20 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		/*
+		A typed array must stay unreported: `TypedArray#sort()` already sorts numerically, unlike `Array#sort()`.
+		This rule deliberately calls `isKnownNonArray` directly rather than `shouldSkipKnownNonArrayReceiver`, which counts a typed array as array-like.
+		*/
+		{
+			code: 'function f(foo: Int8Array) { foo.sort(); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const foo = new Int8Array(); foo.sort();',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// The same, resolved through type information instead of the annotation
+		typeAware('declare function getBytes(): Int8Array; getBytes().sort();'),
 		'array.sort(compareFunction)',
 		'array.toSorted(compareFunction)',
 		'array.sort((a, b) => a - b)',

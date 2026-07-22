@@ -1,7 +1,8 @@
 import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNumericLiteral} from './ast/index.js';
+import {isMemberExpression, isMethodCall, isNumericLiteral} from './ast/index.js';
 import {
 	getParenthesizedText,
+	isKnownNonString,
 	isSameReference,
 	needsSemicolon,
 } from './utils/index.js';
@@ -13,12 +14,10 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `String#{{method}}()`.',
 };
 
-const isLengthMemberExpression = node => (
-	node?.type === 'MemberExpression'
-	&& node.computed === false
-	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-);
+const isLengthMemberExpression = node => isMemberExpression(node, {
+	property: 'length',
+	computed: false,
+});
 
 const getStaticString = (node, context) => {
 	const result = getStaticValue(node, context.sourceCode.getScope(node));
@@ -34,10 +33,13 @@ const isStaticNonString = (node, context) => {
 	return result && typeof result.value !== 'string';
 };
 
+// `ClassDeclaration` and `FunctionDeclaration` cannot appear in expression position, so they only ever match a value resolved by `getIdentifierValueNode`, never the target itself.
 const clearlyNonStringTargetTypes = new Set([
 	'ArrayExpression',
 	'ArrowFunctionExpression',
+	'ClassDeclaration',
 	'ClassExpression',
+	'FunctionDeclaration',
 	'FunctionExpression',
 	'ObjectExpression',
 ]);
@@ -48,31 +50,25 @@ const getIdentifierValueNode = (node, context) => {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definitionNode = variable?.defs[0]?.node;
+	const definition = variable?.defs[0];
 
-	if (
-		definitionNode?.type === 'FunctionDeclaration'
-		|| definitionNode?.type === 'ClassDeclaration'
-	) {
-		return definitionNode;
+	// Only the binding itself counts. A parameter's definition node is the enclosing function, which says nothing about the parameter.
+	if (definition?.type === 'FunctionName' || definition?.type === 'ClassName') {
+		return definition.node;
 	}
 
-	if (definitionNode?.type === 'VariableDeclarator') {
-		return definitionNode.init;
+	// The initializer only describes the variable when it is bound directly. In `const [bar] = ["x"]` the initializer is an array but `bar` is a string.
+	if (definition?.type === 'Variable' && definition.node.id === definition.name) {
+		return definition.node.init;
 	}
 };
 
-const isClearlyNonStringTarget = (node, context) => {
-	const valueNode = getIdentifierValueNode(node, context);
-
-	return (
-		isStaticNonString(node, context)
-		|| clearlyNonStringTargetTypes.has(node.type)
-		|| clearlyNonStringTargetTypes.has(valueNode?.type)
-		|| valueNode?.type === 'FunctionDeclaration'
-		|| valueNode?.type === 'ClassDeclaration'
-	);
-};
+const isClearlyNonStringTarget = (node, context) => (
+	clearlyNonStringTargetTypes.has(node.type)
+	|| isStaticNonString(node, context)
+	|| clearlyNonStringTargetTypes.has(getIdentifierValueNode(node, context)?.type)
+	|| isKnownNonString(node, context)
+);
 
 const hasCommentsInside = (node, context) => context.sourceCode.getCommentsInside(node).length > 0;
 

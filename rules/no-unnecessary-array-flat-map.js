@@ -2,7 +2,7 @@ import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isEmptyArrayExpression, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isParenthesized,
 	isSameIdentifier,
 	isTypeScriptExpressionWrapper,
@@ -183,7 +183,7 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 	if (
 		hasTypeArguments(filterCallExpression)
 		|| hasTypeArguments(flatMapCallExpression)
-		|| isKnownNonArray(filterCallExpression.callee.object, context)
+		|| isKnownNonIndexedCollection(filterCallExpression.callee.object, context)
 		|| wouldRemoveComments(context, callbackResult.arrayExpression, [callbackResult.element])
 	) {
 		return problem;
@@ -250,7 +250,7 @@ function getProblem(flatMapCallExpression, context, isTypeScript) {
 			optionalMember: false,
 			computed: false,
 		})
-		|| isKnownNonArray(flatMapCallExpression.callee.object, context)
+		|| isKnownNonIndexedCollection(flatMapCallExpression.callee.object, context)
 	) {
 		return;
 	}
@@ -258,7 +258,7 @@ function getProblem(flatMapCallExpression, context, isTypeScript) {
 	const filterCallExpression = flatMapCallExpression.callee.object;
 	if (
 		isFilterCallExpression(filterCallExpression)
-		&& isKnownNonArray(filterCallExpression.callee.object, context)
+		&& isKnownNonIndexedCollection(filterCallExpression.callee.object, context)
 	) {
 		return;
 	}

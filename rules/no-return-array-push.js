@@ -1,5 +1,5 @@
 import {isMethodCall} from './ast/index.js';
-import {isArray, isKnownNonArray, needsSemicolon} from './utils/index.js';
+import {isArray, isKnownNonIndexedCollection, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
 const MESSAGE_ID_SUGGESTION = 'no-return-array-push/suggestion';
@@ -143,7 +143,7 @@ const create = context => {
 			(method === 'push' && isIgnoredPushCallee(callExpression, context))
 			|| isReturnValueDiscarded(callExpression)
 			|| isResultMemberAccessed(callExpression)
-			|| isKnownNonArray(callExpression.callee.object, context)
+			|| isKnownNonIndexedCollection(callExpression.callee.object, context)
 		) {
 			return;
 		}

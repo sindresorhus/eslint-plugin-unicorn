@@ -1,6 +1,6 @@
 import {
 	getParenthesizedText,
-	isKnownNonArray,
+	isKnownNonIndexedCollection,
 	isParenthesized,
 	isSameReference,
 } from './utils/index.js';
@@ -91,13 +91,14 @@ function getPredicateCall(node, method, context) {
 		return;
 	}
 
-	const {object} = node.callee;
-	if (isKnownNonArray(object, context)) {
+	const callback = getCallbackInformation(node.arguments[0]);
+	if (!callback) {
 		return;
 	}
 
-	const callback = getCallbackInformation(node.arguments[0]);
-	if (!callback) {
+	// Resolving the receiver type is expensive, so it runs last
+	const {object} = node.callee;
+	if (isKnownNonIndexedCollection(object, context)) {
 		return;
 	}
 
