@@ -1,9 +1,10 @@
-import {getStaticValue} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getConstVariableInitializer,
 	hasOptionalChainElement,
 	isKnownNonString,
+	isRuntimeImportSpecifier,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -30,6 +31,39 @@ const knownNonStringExpressionTypes = new Set([
 	'FunctionExpression',
 	'ObjectExpression',
 ]);
+
+const isImportedZodIdentifier = (node, context) => {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+
+	return variable?.defs.some(definition => {
+		if (definition.type !== 'ImportBinding') {
+			return false;
+		}
+
+		const {node: importNode, parent} = definition;
+		return isRuntimeImportSpecifier(importNode)
+			&& parent.source?.value === 'zod'
+			&& (importNode.type === 'ImportNamespaceSpecifier'
+				|| (
+					importNode.type === 'ImportSpecifier'
+					&& (importNode.imported.name === 'z' || importNode.imported.value === 'z')
+				));
+	}) ?? false;
+};
+
+const isZodStringCall = (node, context) => {
+	node = unwrapTypeScriptExpression(node);
+
+	return isMethodCall(node, {
+		method: 'string',
+		argumentsLength: 0,
+		optionalCall: false,
+		optionalMember: false,
+		computed: false,
+	})
+	&& node.callee.object.type === 'Identifier'
+	&& isImportedZodIdentifier(node.callee.object, context);
+};
 
 const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 	? searchString === searchString.trimEnd()
@@ -95,6 +129,7 @@ const create = context => {
 		if (
 			isStaticNonString(trimReceiver, context)
 			|| isKnownNonString(trimReceiver, context)
+			|| isZodStringCall(trimReceiver, context)
 		) {
 			return;
 		}
