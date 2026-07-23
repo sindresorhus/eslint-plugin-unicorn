@@ -11,7 +11,7 @@
 
 This rule enforces a consistent layout for standalone block comments whose content occupies one line. It supports both ordinary block comments and documentation comments.
 
-Comments with multiple content lines, block comments placed beside code, and directive comments are ignored.
+Comments with multiple content lines, block comments placed beside code, and directive comments are ignored. License comments beginning with `/*!` are also ignored.
 
 ## Examples
 

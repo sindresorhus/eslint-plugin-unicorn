@@ -73,6 +73,8 @@ ruleTest.snapshot({
 		{
 			code: '/**\r\nGet the value.\r\n*/',
 		},
+		'/* Get the value. */ const value = 1;',
+		'const value = 1; /* Get the value. */',
 	],
 	invalid: [
 		'/** Get the value. */',
@@ -374,6 +376,22 @@ ruleTest({
 			code: 'const value = 1;\nconst otherValue = 2;\r\n/** Value. */',
 			output: 'const value = 1;\nconst otherValue = 2;\r\n/**\r\nValue.\r\n*/',
 			errors: [error],
+		},
+		{
+			code: '/**\n *\n * Value.\n */',
+			output: '/**\n* Value.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n *\n * Value.\n */',
+			options: ['single-line'],
+			output: '/** * Value. */',
+			errors: [error],
+		},
+		{
+			code: '/* First. */\n/** Second. */',
+			output: '/*\nFirst.\n*/\n/**\nSecond.\n*/',
+			errors: [error, error],
 		},
 	],
 });

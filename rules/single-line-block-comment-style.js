@@ -88,12 +88,11 @@ const isDirective = (context, comment, opening) => {
 const getContentLines = content => content.split(LINE_ENDING_PATTERN);
 
 const getSingleContentLine = (content, opening) => {
-	const contentLines = getContentLines(content).filter(line => line.trim() !== '');
+	const contentLines = getContentLines(content)
+		.filter(line => line.trim() !== '')
+		.filter(line => opening !== '/**' || line.trim() !== '*');
 
-	if (
-		contentLines.length !== 1
-		|| (opening === '/**' && contentLines[0].trim() === '*')
-	) {
+	if (contentLines.length !== 1) {
 		return;
 	}
 
