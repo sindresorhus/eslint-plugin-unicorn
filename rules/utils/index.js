@@ -105,6 +105,12 @@ export {default as isSameIdentifier} from './is-same-identifier.js';
 export {default as isSameReference} from './is-same-reference.js';
 export {default as isUnresolvedVariable} from './is-unresolved-variable.js';
 export {default as isGlobalIdentifier} from './is-global-identifier.js';
+export {
+	default as isBranchExit,
+	isProcessExitBranch,
+	isProcessExitBranchAtStart,
+	isProcessExitCall,
+} from './is-branch-exit.js';
 export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
 export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js';
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';

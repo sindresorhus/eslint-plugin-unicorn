@@ -1,6 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined, isFunction} from './ast/index.js';
-import {isBoolean, trackBranchExits} from './utils/index.js';
+import {isBoolean, isBranchExit, trackBranchExits} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
@@ -535,7 +535,7 @@ function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const branchAlwaysExits = trackBranchExits(context);
+	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
 
 	// Run on exit so all nested `if` statements have been visited and their branch exit
 	// information is available before scanning each statement list.

@@ -1,0 +1,200 @@
+import {isMethodCall} from '../ast/index.js';
+import isGlobalIdentifier from './is-global-identifier.js';
+import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+
+/**
+@import * as ESLint from 'eslint';
+@import * as ESTree from 'estree';
+*/
+
+export const isProcessExitCall = (node, context) =>
+	isMethodCall(node, {
+		object: 'process',
+		method: 'exit',
+		optionalCall: false,
+		optionalMember: false,
+	})
+	&& isGlobalIdentifier(node.callee.object, context);
+
+const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
+const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
+const isThrowStatement = node => node.type === 'ThrowStatement';
+
+const isProcessExitStatement = (node, context) =>
+	node.type === 'ExpressionStatement'
+	&& isProcessExitExpression(node.expression, context);
+
+function isProcessExitExpression(node, context) {
+	if (isProcessExitCall(node, context)) {
+		return true;
+	}
+
+	if (node?.type === 'UnaryExpression' || node?.type === 'AwaitExpression') {
+		return isProcessExitExpression(node.argument, context);
+	}
+
+	if (isTransparentTypeScriptExpressionWrapper(node)) {
+		return isProcessExitExpression(node.expression, context);
+	}
+
+	if (node?.type === 'SequenceExpression') {
+		return node.expressions.some(expression => isProcessExitExpression(expression, context));
+	}
+
+	if (node?.type === 'ConditionalExpression') {
+		return isProcessExitExpression(node.test, context)
+			|| (
+				isProcessExitExpression(node.consequent, context)
+				&& isProcessExitExpression(node.alternate, context)
+			);
+	}
+
+	return node?.type === 'LogicalExpression'
+		&& isProcessExitExpression(node.left, context);
+}
+
+function isProcessExitExpressionAtStart(node, context) {
+	if (isProcessExitCall(node, context)) {
+		return true;
+	}
+
+	if (node?.type === 'UnaryExpression' || node?.type === 'AwaitExpression') {
+		return isProcessExitExpressionAtStart(node.argument, context);
+	}
+
+	if (isTransparentTypeScriptExpressionWrapper(node)) {
+		return isProcessExitExpressionAtStart(node.expression, context);
+	}
+
+	if (node?.type === 'SequenceExpression') {
+		return isProcessExitExpressionAtStart(node.expressions[0], context);
+	}
+
+	if (node?.type === 'LogicalExpression') {
+		return isProcessExitExpressionAtStart(node.left, context);
+	}
+
+	return node?.type === 'ConditionalExpression'
+		&& isProcessExitExpressionAtStart(node.test, context);
+}
+
+function isProcessExitTryStatement(branch, context, checkTryStatements) {
+	if (branch.finalizer && isProcessExitBranch(branch.finalizer, context)) {
+		return true;
+	}
+
+	const firstTryStatement = branch.block.body[0];
+	const tryBlockAlwaysExits = branch.handler
+		? Boolean(firstTryStatement && isProcessExitBranchAtStart(firstTryStatement, context, checkTryStatements))
+		: isProcessExitBranch(branch.block, context, checkTryStatements);
+
+	if (!checkTryStatements) {
+		return (
+			!branch.finalizer
+			|| branch.block.body.length > 1
+		)
+		&& tryBlockAlwaysExits;
+	}
+
+	if (tryBlockAlwaysExits) {
+		return true;
+	}
+
+	return Boolean(
+		branch.handler
+		&& isBranchExit(branch.block, context, isThrowStatement)
+		&& isProcessExitBranch(branch.handler, context),
+	);
+}
+
+export function isProcessExitBranchAtStart(branch, context, checkTryStatements = true) {
+	if (branch.type === 'ExpressionStatement') {
+		return isProcessExitExpressionAtStart(branch.expression, context);
+	}
+
+	return isProcessExitBranch(branch, context, checkTryStatements);
+}
+
+export function isProcessExitBranch(branch, context, checkTryStatements = true) {
+	if (isProcessExitStatement(branch, context) || isProcessExitExpression(branch, context)) {
+		return true;
+	}
+
+	if (branch.type === 'BlockStatement') {
+		for (const statement of branch.body) {
+			if (isProcessExitBranch(statement, context, checkTryStatements)) {
+				return true;
+			}
+
+			if (
+				isReturnOrThrowStatement(statement)
+				|| isBranchExit(statement, context, isReturnOrThrowStatement)
+			) {
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	if (branch.type === 'CatchClause') {
+		return isProcessExitBranch(branch.body, context, checkTryStatements);
+	}
+
+	if (branch.type === 'TryStatement') {
+		return isProcessExitTryStatement(branch, context, checkTryStatements);
+	}
+
+	if (branch.type === 'IfStatement' && isProcessExitExpression(branch.test, context)) {
+		return true;
+	}
+
+	return (
+		(branch.type === 'IfStatement' || branch.type === 'ConditionalExpression')
+		&& branch.alternate
+		&& isProcessExitBranch(branch.consequent, context, checkTryStatements)
+		&& isProcessExitBranch(branch.alternate, context, checkTryStatements)
+	);
+}
+
+/**
+@param {ESTree.Node} branch
+@param {ESLint.Rule.RuleContext} context
+@param {(branch: ESTree.Node) => boolean} branchAlwaysExits
+@returns {boolean}
+*/
+export default function isBranchExit(branch, context, branchAlwaysExits) {
+	if (
+		branchAlwaysExits(branch)
+		|| isProcessExitBranch(branch, context, false)
+	) {
+		return true;
+	}
+
+	if (branch.type === 'BlockStatement') {
+		const lastStatement = branch.body.at(-1);
+		return Boolean(lastStatement && isBranchExit(lastStatement, context, branchAlwaysExits));
+	}
+
+	if (branch.type === 'CatchClause') {
+		return isBranchExit(branch.body, context, branchAlwaysExits);
+	}
+
+	if (branch.type === 'TryStatement') {
+		return Boolean(
+			(branch.finalizer && isBranchExit(branch.finalizer, context, branchAlwaysExits))
+			|| (
+				branch.handler
+				&& isBranchExit(branch.block, context, branchAlwaysExits)
+				&& isBranchExit(branch.handler, context, branchAlwaysExits)
+			),
+		);
+	}
+
+	return (
+		(branch.type === 'IfStatement' || branch.type === 'ConditionalExpression')
+		&& branch.alternate
+		&& isBranchExit(branch.consequent, context, branchAlwaysExits)
+		&& isBranchExit(branch.alternate, context, branchAlwaysExits)
+	);
+}

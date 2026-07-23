@@ -6,6 +6,195 @@ const error = {messageId: 'no-multiple-promise-resolver-calls'};
 
 test.snapshot({
 	valid: [
+		outdent`
+			new Promise((resolve, reject) => {
+				resolve(value);
+				process.exit(1);
+				reject(error);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = process.exit(1)) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = void process.exit(1)) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = (process.exit(1), value)) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = condition ? process.exit(1) : process.exit(2)) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		{
+			code: outdent`
+				new Promise((resolve, reject, extra = process.exit(1) as never) => {
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			new Promise(resolve => {
+				try {
+					process.exit(1);
+				} finally {
+					resolve(value);
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					throw error;
+				} catch {
+					if (condition) {
+						process.exit(1);
+					} else {
+						throw error;
+					}
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					cleanup();
+				} finally {
+					process.exit(1);
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					process.exit(1);
+				} finally {
+					resolve(value);
+					resolve(otherValue);
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					void process.exit(1);
+				} finally {
+					resolve(value);
+					resolve(otherValue);
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				try {
+					throw error;
+				} catch {
+					process.exit(1);
+				} finally {
+					resolve(value);
+					resolve(otherValue);
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static {
+						process.exit(1);
+					}
+
+					static {
+						resolve(value);
+						resolve(otherValue);
+					}
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static field = condition ? process.exit(1) : process.exit(1);
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static field = process.exit(1);
+					static otherField = (resolve(value), resolve(otherValue));
+				}
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static {
+						try {
+							process.exit(1);
+						} finally {
+							cleanup();
+						}
+					}
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static {
+						try {
+							cleanup();
+						} finally {
+							process.exit(1);
+						}
+					}
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static {
+						if (condition) {
+							process.exit(1);
+						} else {
+							process.exit(1);
+						}
+					}
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
 		'new Promise(resolve => resolve(value));',
 		outdent`
 			new Promise((resolve, reject) => {
@@ -109,6 +298,18 @@ test.snapshot({
 				} catch (error) {
 					reject(error);
 				}
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					process.exit(1);
+					cleanup();
+				} catch {
+					reject(error);
+				}
+
+				resolve(value);
 			});
 		`,
 		outdent`
@@ -444,6 +645,93 @@ test.snapshot({
 	invalid: [
 		outdent`
 			new Promise((resolve, reject) => {
+				try {
+					try {
+						throw error;
+					} catch {
+						throw error;
+					}
+
+					process.exit(1);
+				} catch {
+					resolve(value);
+				}
+
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					maybeThrow();
+					process.exit(1);
+				} catch {
+					resolve(value);
+				}
+
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				try {
+					(maybeThrow(), process.exit(1));
+				} catch {
+					resolve(value);
+				}
+
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				if (condition) {
+					process.exit(1);
+				} else {
+					resolve(value);
+				}
+
+				reject(error);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
+				resolve(value);
+				const process = customProcess;
+				process.exit(1);
+				reject(error);
+			});
+		`,
+		{
+			code: outdent`
+				import process from 'node:process';
+
+				new Promise((resolve, reject) => {
+					resolve(value);
+					process.exit(1);
+					reject(error);
+				});
+			`,
+			languageOptions: {sourceType: 'module'},
+		},
+		outdent`
+			new Promise(resolve => {
+				class Example {
+					static field = () => process.exit(1);
+				}
+
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject, extra = condition ? process.exit(1) : value) => {
+				resolve(value);
+				resolve(otherValue);
+			});
+		`,
+		outdent`
+			new Promise((resolve, reject) => {
 				resolve(value);
 				reject(error);
 			});
@@ -734,6 +1022,15 @@ test({
 		},
 		{
 			code: 'new Promise(resolve => { resolve(); resolve(); });',
+			errors: [error],
+		},
+		{
+			code: outdent`
+				new Promise((resolve, reject = process.exit(1)) => {
+					resolve(value);
+					resolve(otherValue);
+				});
+			`,
 			errors: [error],
 		},
 		{

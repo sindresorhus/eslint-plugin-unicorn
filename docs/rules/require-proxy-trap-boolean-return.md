@@ -11,6 +11,8 @@
 
 Some Proxy traps are specified to return a boolean result. Returning `undefined` by forgetting to return can throw in common operations, and returning another truthy or falsy value relies on implicit coercion.
 
+A trap that always throws, loops forever, or calls terminal direct global `process.exit()` does not need to return a boolean.
+
 This rule checks inline object-literal handlers passed to `new Proxy()` and `Proxy.revocable()`.
 
 ## Examples

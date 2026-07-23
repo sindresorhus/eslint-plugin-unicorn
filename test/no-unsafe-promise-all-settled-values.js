@@ -15,6 +15,77 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					process.exit(1);
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					(cleanup(), process.exit(1));
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						throw error;
+					} catch {
+						if (condition) {
+							process.exit(1);
+						} else {
+							throw error;
+						}
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					process.exit(1);
+					cleanup();
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						process.exit(1);
+					} finally {
+						cleanup();
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						cleanup();
+					} finally {
+						process.exit(1);
+					}
+				}
+
+				return result.value;
+			});
+		`,
 		'const values = (await Promise.all(promises)).map(result => result.value);',
 		'const values = results.map(result => result.value);',
 		'const values = await Promise.allSettled(promises);',
@@ -75,6 +146,70 @@ test.snapshot({
 		'const values = (await Promise.allSettled(promises)).map(({value}) => ({value: fallback}));',
 	],
 	invalid: [
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					const process = customProcess;
+					process.exit(1);
+				}
+
+				return result.value;
+			});
+		`,
+		{
+			code: outdent`
+				import process from 'node:process';
+
+				const values = (await Promise.allSettled(promises)).map(result => {
+					if (result.status !== 'fulfilled') {
+						process.exit(1);
+					}
+
+					return result.value;
+				});
+			`,
+			languageOptions: {sourceType: 'module'},
+		},
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						(maybeThrow(), process.exit(1));
+					} catch {
+						cleanup();
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						((maybeThrow(), process.exit(1)));
+					} catch {
+						cleanup();
+					}
+				}
+
+				return result.value;
+			});
+		`,
+		outdent`
+			const values = (await Promise.allSettled(promises)).map(result => {
+				if (result.status !== 'fulfilled') {
+					try {
+						throw error;
+						process.exit(1);
+					} catch {
+						cleanup();
+					}
+				}
+
+				return result.value;
+			});
+		`,
 		'const values = (await Promise.allSettled(promises)).map(result => result.value);',
 		'const values = (await Promise.allSettled(promises)).map(result => (result.value));',
 		'const values = (await Promise.allSettled(promises)).map(result => result["value"]);',

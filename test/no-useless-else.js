@@ -13,6 +13,30 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				process.exit();
+				if (foo) {
+					return;
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						throw error;
+						process.exit(1);
+					} catch {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			if (foo) {
 				bar();
 			} else {
@@ -968,6 +992,20 @@ test.snapshot({
 				if (foo) {
 					process.exit(1);
 				} else if (bar) {
+					baz();
+				}
+			}
+		`,
+		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						process.exit(1);
+						cleanup();
+					} finally {
+						cleanup();
+					}
+				} else {
 					baz();
 				}
 			}

@@ -2,6 +2,7 @@ import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	containsSuspensionPoint,
 	getReferences,
+	isBranchExit,
 	isReactHookName,
 	trackBranchExits,
 } from './utils/index.js';
@@ -241,7 +242,7 @@ function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const {sourceCode} = context;
-	const branchAlwaysExits = trackBranchExits(context);
+	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
 
 	// Run on exit so that all nested `if` statements have been visited and their branch exit
 	// information is available before scanning each statement list.

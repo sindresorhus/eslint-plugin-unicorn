@@ -1,5 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {isBranchExit, isProcessExitBranch} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-promise-all-settled-values';
 
@@ -479,21 +480,17 @@ const isIfStatementFulfilledGuard = (node, child, statusContext) =>
 		)
 	);
 
-function isAlwaysExitingStatement(node) {
+const isReturnOrThrowStatement = node => {
 	node = unwrapExpression(node);
+	return node?.type === 'ReturnStatement' || node?.type === 'ThrowStatement';
+};
 
-	if (node?.type === 'ReturnStatement' || node?.type === 'ThrowStatement') {
-		return true;
-	}
+const isAlwaysExitingStatement = (node, context) => (
+	isBranchExit(node, context, isReturnOrThrowStatement)
+	|| isProcessExitBranch(node, context)
+);
 
-	if (node?.type === 'BlockStatement') {
-		return node.body.length > 0 && isAlwaysExitingStatement(node.body.at(-1));
-	}
-
-	return false;
-}
-
-function isGuardedByPreviousUnfulfilledExit(node, statusContext) {
+function isGuardedByPreviousUnfulfilledExit(node, statusContext, context) {
 	const statements = node.parent?.body;
 	if (!Array.isArray(statements)) {
 		return false;
@@ -505,7 +502,7 @@ function isGuardedByPreviousUnfulfilledExit(node, statusContext) {
 	return previousStatement?.type === 'IfStatement'
 		&& !previousStatement.alternate
 		&& hasUnfulfilledStatusCheckInDisjunction(previousStatement.test, statusContext)
-		&& isAlwaysExitingStatement(previousStatement.consequent);
+		&& isAlwaysExitingStatement(previousStatement.consequent, context);
 }
 
 const isFulfilledFilterCallback = callback => {
@@ -552,7 +549,7 @@ function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()
 		&& isPromiseSettledResultArray(node, context);
 }
 
-function isGuardedByFulfilledCheck(node, readContext) {
+function isGuardedByFulfilledCheck(node, readContext, context) {
 	for (
 		let child = node, current = node.parent;
 		current;
@@ -570,7 +567,7 @@ function isGuardedByFulfilledCheck(node, readContext) {
 			return true;
 		}
 
-		if (isGuardedByPreviousUnfulfilledExit(current, readContext)) {
+		if (isGuardedByPreviousUnfulfilledExit(current, readContext, context)) {
 			return true;
 		}
 
@@ -662,7 +659,7 @@ function getUnsafeValueRead(node, readContext) {
 
 	if (
 		isUnsafeValueRead(node, readContext)
-		&& !isGuardedByFulfilledCheck(node, readContext)
+		&& !isGuardedByFulfilledCheck(node, readContext, readContext.context)
 	) {
 		return node;
 	}

@@ -1,5 +1,6 @@
 import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
+import {isBranchExit, isProcessExitBranch} from './utils/index.js';
 
 const MESSAGE_ID = 'require-proxy-trap-boolean-return';
 const messages = {
@@ -21,6 +22,9 @@ const functionTypes = new Set([
 	'FunctionDeclaration',
 	'FunctionExpression',
 ]);
+
+const isReturnOrThrowStatement = node =>
+	node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 
 function * getReturnStatements(node) {
 	if (!node || typeof node.type !== 'string') {
@@ -278,7 +282,9 @@ const create = context => {
 		}
 
 		const isAllUnreachable = [...currentSegments()].every(segment => !segment.reachable);
-		functionBodyAlwaysExits.set(body.parent, isAllUnreachable);
+		const hasSimpleExit = isBranchExit(body, context, isReturnOrThrowStatement)
+			|| isProcessExitBranch(body, context);
+		functionBodyAlwaysExits.set(body.parent, isAllUnreachable || hasSimpleExit);
 	});
 
 	function * checkCallOrNewExpression(node) {

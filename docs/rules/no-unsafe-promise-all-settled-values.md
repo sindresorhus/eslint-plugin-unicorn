@@ -11,6 +11,8 @@
 
 This rule reports direct `.map()` extraction from known `Promise.allSettled()` result arrays, including simple `const` aliases. It intentionally keeps a narrow inference boundary: arbitrary aliasing, mutable `let` tracking, custom guard functions without type information, and broad non-`.map()` dataflow are out of scope.
 
+Terminal direct global `process.exit()` calls are treated as exiting before a rejected result can reach an unsafe `.value` read.
+
 With TypeScript type information, typed predicate filters that narrow entries to `PromiseFulfilledResult<T>` are treated as safe.
 
 ## Examples

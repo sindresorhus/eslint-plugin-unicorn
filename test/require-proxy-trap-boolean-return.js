@@ -10,6 +10,13 @@ const errors = [
 
 test({
 	valid: [
+		'new Proxy(target, {set() { process.exit(1); }});',
+		'new Proxy(target, {set() { process.exit(1); cleanup(); }});',
+		'new Proxy(target, {set() { (cleanup(), process.exit(1)); }});',
+		'new Proxy(target, {set() { ((cleanup(), process.exit(1))); }});',
+		'new Proxy(target, {set() { try { process.exit(1); } finally { cleanup(); } }});',
+		'new Proxy(target, {set() { try { cleanup(); } finally { process.exit(1); } }});',
+		'new Proxy(target, {set() { if (condition ? process.exit(1) : process.exit(2)) {} }});',
 		'new Proxy(target, handler);',
 		'new Proxy(target, {get() {}});',
 		'new Proxy(target, {apply() {}});',
@@ -54,6 +61,7 @@ test({
 		'new Proxy(target, {set() { for (;;) { doSomething(); } }});',
 		// CPA: try/catch where both branches exit.
 		'new Proxy(target, {set() { try { return doSomething(); } catch { throw new Error(); } }});',
+		'new Proxy(target, {set() { try { throw error; } catch { if (condition) { process.exit(1); } else { throw error; } } }});',
 		// CPA: nested if/else chain where every branch returns.
 		'new Proxy(target, {set() { if (a) { if (b) { return true; } else { return false; } } else { return true; } }});',
 		// CPA: exhaustive switch inside try/finally.
@@ -68,6 +76,27 @@ test({
 	invalid: [
 		{
 			code: 'new Proxy(target, {set(target, property, value) { target[property] = value; }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set(process) { process.exit(1); }});',
+			errors,
+		},
+		{
+			code: 'import process from \'node:process\'; new Proxy(target, {set() { process.exit(1); }});',
+			languageOptions: {sourceType: 'module'},
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { throw error; process.exit(1); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { (maybeThrow(), process.exit(1)); } catch { cleanup(); } }});',
+			errors,
+		},
+		{
+			code: 'new Proxy(target, {set() { try { ((maybeThrow(), process.exit(1))); } catch { cleanup(); } }});',
 			errors,
 		},
 		{

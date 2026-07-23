@@ -1,6 +1,13 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isLoop, isNewExpression} from './ast/index.js';
-import {isGlobalIdentifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {
+	isBranchExit,
+	isGlobalIdentifier,
+	isProcessExitBranch,
+	isProcessExitBranchAtStart,
+	isProcessExitCall,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -17,6 +24,7 @@ const isSupportedExecutor = node => (
 );
 
 const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
+const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 
 function getOutermostTypeScriptExpression(node) {
 	while (
@@ -85,7 +93,7 @@ const getResolverExecutor = (node, resolverReferenceExecutors) => {
 
 function addEvent(state, event) {
 	for (const segment of state.currentSegments) {
-		if (!segment.reachable) {
+		if (!segment.reachable || state.terminatedSegments.has(segment)) {
 			continue;
 		}
 
@@ -133,7 +141,14 @@ function cloneFinallyBlocksByCatchClause(finallyBlocksByCatchClause) {
 }
 
 // These are may-states, so both booleans can be true after paths merge.
-const createResolverState = ({resolverUncalled = false, resolverCalled = false, catchClausesAfterResolverCall = new Set(), pendingFinallyBlocksByCatchClause = new Map()} = {}) => ({
+const createResolverState = ({
+	isTerminated = false,
+	resolverUncalled = false,
+	resolverCalled = false,
+	catchClausesAfterResolverCall = new Set(),
+	pendingFinallyBlocksByCatchClause = new Map(),
+} = {}) => ({
+	isTerminated,
 	resolverUncalled,
 	resolverCalled,
 	catchClausesAfterResolverCall,
@@ -141,6 +156,7 @@ const createResolverState = ({resolverUncalled = false, resolverCalled = false, 
 });
 
 const cloneResolverState = state => createResolverState({
+	isTerminated: state.isTerminated,
 	resolverUncalled: state.resolverUncalled,
 	resolverCalled: state.resolverCalled,
 	catchClausesAfterResolverCall: new Set(state.catchClausesAfterResolverCall),
@@ -148,6 +164,10 @@ const cloneResolverState = state => createResolverState({
 });
 
 const getStateAfterEvent = (state, event, executor) => {
+	if (state.isTerminated) {
+		return state;
+	}
+
 	if (event.executor === executor) {
 		const nextState = cloneResolverState(state);
 		for (const [catchClause, finallyBlocks] of nextState.pendingFinallyBlocksByCatchClause) {
@@ -198,9 +218,11 @@ function getStateAfterEvents(state, events, executor) {
 function getStateAfterEdge(state, previousSegment, segment, codePathState) {
 	if (
 		!previousSegment.reachable
+		|| codePathState.terminatedSegments.has(previousSegment)
+		|| state.isTerminated
 		|| isIgnoredLoopEdge(codePathState, previousSegment, segment)
 	) {
-		return createResolverState();
+		return createResolverState({isTerminated: true});
 	}
 
 	const catchClause = codePathState.catchClausesBySegment.get(segment);
@@ -248,6 +270,7 @@ function areFinallyBlocksByCatchClauseEqual(finallyBlocksByCatchClause, otherFin
 
 const areStatesEqual = (state, otherState) => (
 	otherState !== undefined
+	&& state.isTerminated === otherState.isTerminated
 	&& state.resolverUncalled === otherState.resolverUncalled
 	&& state.resolverCalled === otherState.resolverCalled
 	&& areSetsEqual(state.catchClausesAfterResolverCall, otherState.catchClausesAfterResolverCall)
@@ -255,6 +278,11 @@ const areStatesEqual = (state, otherState) => (
 );
 
 function mergeResolverState(target, source) {
+	if (source.isTerminated) {
+		return;
+	}
+
+	target.isTerminated = false;
 	target.resolverUncalled ||= source.resolverUncalled;
 	target.resolverCalled ||= source.resolverCalled;
 	for (const catchClause of source.catchClausesAfterResolverCall) {
@@ -324,7 +352,10 @@ function getContainingFinallyBlocks(node) {
 }
 
 function getStateAtSegmentStart(segment, statesAtSegmentEnd, codePathState) {
-	const state = createResolverState({resolverUncalled: segment === codePathState.codePath.initialSegment});
+	const state = createResolverState({
+		isTerminated: segment !== codePathState.codePath.initialSegment,
+		resolverUncalled: segment === codePathState.codePath.initialSegment,
+	});
 	for (const previousSegment of segment.prevSegments) {
 		const stateAfterEdge = getStateAfterEdge(statesAtSegmentEnd.get(previousSegment) ?? createResolverState(), previousSegment, segment, codePathState);
 		mergeResolverState(state, stateAfterEdge);
@@ -436,6 +467,107 @@ function isInAlwaysProvidedParameterDefault(node, context) {
 	return false;
 }
 
+function isInAlwaysExecutedParameterDefault(node, context) {
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (parent.type === 'AssignmentPattern') {
+			return parent.right === child
+				&& isPromiseExecutor(parent.parent, context)
+				&& !parent.parent.params.slice(0, 2).includes(parent);
+		}
+
+		const isAlwaysEvaluated = (
+			(parent.type === 'SequenceExpression' && parent.expressions.includes(child))
+			|| (parent.type === 'UnaryExpression' && parent.argument === child)
+			|| (parent.type === 'AwaitExpression' && parent.argument === child)
+			|| (parent.type === 'ConditionalExpression' && isBranchExit(parent, context, isReturnOrThrowStatement))
+			|| (isTransparentTypeScriptExpressionWrapper(parent) && parent.expression === child)
+		);
+		if (!isAlwaysEvaluated) {
+			return false;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+}
+
+const isTerminalTryStatement = (node, context) => isProcessExitBranch(node, context);
+
+function getTerminalTryStatement(node, context) {
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return;
+		}
+
+		if (
+			parent.type === 'TryStatement'
+			&& parent.finalizer
+			&& (parent.block === child || parent.handler === child)
+			&& isTerminalTryStatement(parent, context)
+		) {
+			return parent;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+}
+
+function isInCatchableTryAfterPotentiallyThrowingCode(node, context) {
+	let child = node;
+	let {parent} = node;
+	let hasPotentiallyThrowingCode = false;
+	let tryBlockStatement;
+	while (parent) {
+		if (isFunction(parent)) {
+			return false;
+		}
+
+		if (
+			(parent.type === 'SequenceExpression' && parent.expressions[0] !== child)
+			|| (parent.type === 'LogicalExpression' && parent.right === child)
+			|| (parent.type === 'ConditionalExpression' && parent.test !== child)
+		) {
+			hasPotentiallyThrowingCode = true;
+		}
+
+		if (
+			parent.type === 'BlockStatement'
+			&& parent.parent?.type === 'TryStatement'
+			&& parent.parent.block === parent
+		) {
+			tryBlockStatement = child;
+		}
+
+		if (parent.type === 'TryStatement' && parent.handler && parent.block === child) {
+			return hasPotentiallyThrowingCode
+				|| parent.block.body[0] !== tryBlockStatement
+				|| !isProcessExitBranchAtStart(tryBlockStatement, context);
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+}
+
+const isSynchronousCodePath = (codePath, node) => (
+	codePath.origin === 'class-static-block'
+	|| (
+		codePath.origin === 'class-field-initializer'
+		&& node.parent?.type === 'PropertyDefinition'
+		&& node.parent.value === node
+		&& node.parent.static
+	)
+);
+
 function isContinueAcrossFinally(node) {
 	if (node.type !== 'ContinueStatement') {
 		return false;
@@ -480,6 +612,18 @@ const create = context => {
 
 	const startSegment = (segment, node) => {
 		currentCodePathState.currentSegments.add(segment);
+		if (
+			currentCodePathState.terminatedFinallyBlocks.has(node)
+			|| (
+				segment.prevSegments.length > 0
+				&& segment.prevSegments.every(previousSegment =>
+					!previousSegment.reachable || currentCodePathState.terminatedSegments.has(previousSegment),
+				)
+			)
+		) {
+			currentCodePathState.terminatedSegments.add(segment);
+		}
+
 		addCatchClause(currentCodePathState, segment, node);
 	};
 
@@ -489,16 +633,27 @@ const create = context => {
 
 	context.on('onCodePathStart', (codePath, node) => {
 		const upper = currentCodePathState;
+		const isTerminatedSynchronousChild = upper
+			&& isSynchronousCodePath(codePath, node)
+			&& upper.currentSegments.size > 0
+			&& [...upper.currentSegments].every(segment => upper.terminatedSegments.has(segment));
 		currentCodePathState = {
 			upper,
 			codePath,
+			node,
 			currentSegments: new Set(),
 			eventsBySegment: new Map(),
 			executors: new Set(),
 			catchClausesBySegment: new Map(),
 			ignoredLoopEdges: [],
+			terminatedSegments: new WeakSet(),
+			terminatedFinallyBlocks: new WeakSet(),
 			hasResolverReferences: upper?.hasResolverReferences ?? false,
 		};
+
+		if (isTerminatedSynchronousChild) {
+			currentCodePathState.terminatedSegments.add(codePath.initialSegment);
+		}
 
 		if (
 			isPromiseExecutor(node, context)
@@ -509,8 +664,30 @@ const create = context => {
 	});
 
 	context.on('onCodePathEnd', () => {
-		reportMultipleResolverCalls(currentCodePathState, context);
-		currentCodePathState = currentCodePathState.upper;
+		const codePathState = currentCodePathState;
+		const lastStatement = codePathState.node.type === 'StaticBlock'
+			? codePathState.node.body.at(-1)
+			: codePathState.node;
+		const isAlwaysExitingSynchronousCodePath = lastStatement && (
+			isBranchExit(lastStatement, context, isReturnOrThrowStatement)
+			|| (lastStatement.type === 'TryStatement' && isTerminalTryStatement(lastStatement, context))
+		);
+		reportMultipleResolverCalls(codePathState, context);
+
+		if (
+			codePathState.upper
+			&& isSynchronousCodePath(codePathState.codePath, codePathState.node)
+			&& (
+				getReachableSegments(codePathState.codePath).every(segment => codePathState.terminatedSegments.has(segment))
+				|| isAlwaysExitingSynchronousCodePath
+			)
+		) {
+			for (const segment of codePathState.upper.currentSegments) {
+				codePathState.upper.terminatedSegments.add(segment);
+			}
+		}
+
+		currentCodePathState = codePathState.upper;
 	});
 
 	context.on('onCodePathSegmentStart', startSegment);
@@ -537,6 +714,28 @@ const create = context => {
 		'ThrowStatement',
 		'YieldExpression',
 	], node => {
+		if (isProcessExitCall(node, context)) {
+			if (
+				!isInAlwaysProvidedParameterDefault(node, context)
+				&& !isInCatchableTryAfterPotentiallyThrowingCode(node, context)
+			) {
+				const terminalTryStatement = getTerminalTryStatement(node, context);
+				if (terminalTryStatement) {
+					currentCodePathState.terminatedFinallyBlocks.add(terminalTryStatement.finalizer);
+				}
+
+				if (isInAlwaysExecutedParameterDefault(node, context)) {
+					currentCodePathState.terminatedSegments.add(currentCodePathState.codePath.initialSegment);
+				}
+
+				for (const segment of currentCodePathState.currentSegments) {
+					currentCodePathState.terminatedSegments.add(segment);
+				}
+			}
+
+			return;
+		}
+
 		if (!currentCodePathState.hasResolverReferences) {
 			return;
 		}

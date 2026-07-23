@@ -10,6 +10,29 @@ const typescriptLanguageOptions = {
 test.snapshot({
 	valid: [
 		outdent`
+			function foo(process, bar) {
+				const result = 1;
+				if (!bar) {
+					process.exit(1);
+				}
+				console.log(result);
+			}
+		`,
+		{
+			code: outdent`
+				import process from 'node:process';
+
+				function foo(bar) {
+					const result = 1;
+					if (!bar) {
+						process.exit(1);
+					}
+					console.log(result);
+				}
+			`,
+			languageOptions: {sourceType: 'module'},
+		},
+		outdent`
 			function foo(bar) {
 				const result = 1;
 				console.log(result);
@@ -563,6 +586,15 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		outdent`
+			function foo(bar) {
+				const result = 1;
+				if (!bar) {
+					process.exit(1);
+				}
+				console.log(result);
+			}
+		`,
 		outdent`
 			function foo(bar) {
 				const result = getResult();

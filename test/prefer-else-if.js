@@ -58,6 +58,18 @@ test.snapshot({
 				if (foo === 2) {}
 			}
 		`,
+		// `process.exit()` always exits, so `no-useless-else` prefers the flat form.
+		outdent`
+			function handleSignal(signal) {
+				if (signal === 'SIGINT') {
+					process.exit(130);
+				}
+
+				if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+					process.exit(1);
+				}
+			}
+		`,
 		outdent`
 			while (unicorn) {
 				if (foo === 1) {
@@ -596,5 +608,27 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			function handleSignal(process, signal) {
+				if (signal === 'SIGINT') {
+					process.exit(130);
+				}
+
+				if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+					process.exit(1);
+				}
+			}
+		`,
+		outdent`
+			import process from 'node:process';
+
+			if (signal === 'SIGINT') {
+				process.exit(130);
+			}
+
+			if (signal === 'SIGTERM' || signal === 'SIGHUP') {
+				process.exit(1);
+			}
+		`,
 	],
 });

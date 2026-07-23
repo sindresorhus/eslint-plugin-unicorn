@@ -1,7 +1,32 @@
+import {isFunction} from '../ast/index.js';
+import {isProcessExitCall} from './is-branch-exit.js';
+
 /**
 @import * as ESLint from 'eslint';
 @import * as ESTree from 'estree';
 */
+
+const isInTryBlockWithFinallyAsLastStatement = node => {
+	let child = node;
+	let {parent} = node;
+	while (parent) {
+		if (isFunction(parent)) {
+			return false;
+		}
+
+		if (parent.type === 'TryStatement' && parent.finalizer && parent.block === child) {
+			const lastStatement = parent.block.body.at(-1);
+			return parent.block.body.length === 1
+				&& lastStatement?.type === 'ExpressionStatement'
+				&& lastStatement.expression === node;
+		}
+
+		child = parent;
+		({parent} = parent);
+	}
+
+	return false;
+};
 
 /**
 Track whether each `if` branch always exits, using ESLint's code path analysis.
@@ -21,35 +46,57 @@ The returned predicate must only be queried after the branch's `IfStatement` has
 export default function trackBranchExits(context, isExitBranch) {
 	// One set of active segments per code path, so nested functions don't pollute the enclosing path.
 	const segmentSetStack = [];
+	const terminatedSegmentSetStack = [];
 	const currentSegments = () => segmentSetStack.at(-1);
+	const currentTerminatedSegments = () => terminatedSegmentSetStack.at(-1);
 	const branchTerminalSegments = new WeakMap();
 	const branchAlwaysExits = new WeakMap();
 	const reachableIfStatements = new WeakSet();
 
 	context.on('onCodePathStart', () => {
 		segmentSetStack.push(new Set());
+		terminatedSegmentSetStack.push(new WeakSet());
 	});
 	context.on('onCodePathEnd', () => {
 		segmentSetStack.pop();
+		terminatedSegmentSetStack.pop();
 	});
-	context.on('onCodePathSegmentStart', segment => {
+	const startSegment = segment => {
 		currentSegments().add(segment);
-	});
+		if (
+			segment.prevSegments.length > 0
+			&& segment.prevSegments.every(previous => !previous.reachable || currentTerminatedSegments().has(previous))
+		) {
+			currentTerminatedSegments().add(segment);
+		}
+	};
+
+	context.on('onCodePathSegmentStart', startSegment);
 	context.on('onCodePathSegmentEnd', segment => {
 		currentSegments().delete(segment);
 	});
-	context.on('onUnreachableCodePathSegmentStart', segment => {
-		currentSegments().add(segment);
-	});
+	context.on('onUnreachableCodePathSegmentStart', startSegment);
 	context.on('onUnreachableCodePathSegmentEnd', segment => {
 		currentSegments().delete(segment);
+	});
+
+	context.onExit('CallExpression', node => {
+		if (isInTryBlockWithFinallyAsLastStatement(node) || !isProcessExitCall(node, context)) {
+			return;
+		}
+
+		for (const segment of currentSegments()) {
+			if (segment.reachable) {
+				currentTerminatedSegments().add(segment);
+			}
+		}
 	});
 
 	// Remember whether the `if` itself is reachable. In unreachable (dead) code every segment is
 	// unreachable and the post-`if` merge point has no predecessors, which would otherwise make
 	// every branch look like it always exits. We don't analyze dead code, so skip those.
 	context.on('IfStatement', ifStatement => {
-		if ([...currentSegments()].some(segment => segment.reachable)) {
+		if ([...currentSegments()].some(segment => segment.reachable && !currentTerminatedSegments().has(segment))) {
 			reachableIfStatements.add(ifStatement);
 		}
 	});
