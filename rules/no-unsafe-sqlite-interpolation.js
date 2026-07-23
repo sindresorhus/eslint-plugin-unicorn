@@ -1,6 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isStaticRequire} from './ast/index.js';
-import {isGlobalIdentifier, isRuntimeImportSpecifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {isRuntimeImportSpecifier, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-sqlite-interpolation';
 const messages = {
@@ -62,6 +61,7 @@ const getSimpleConstVariableInfo = (node, context) => {
 
 const getImportSpecifierName = node => node.imported.type === 'Identifier' ? node.imported.name : node.imported.value;
 
+// Only ESM imports are supported. CommonJS `require()` and TypeScript import-equals declarations are intentionally ignored.
 const getNodeSqliteImportSpecifier = (node, context) => {
 	const definition = getVariableInfo(node, context)?.definition;
 	if (
@@ -94,41 +94,6 @@ const isSqliteNamespaceImport = (node, context) => {
 		);
 };
 
-const isNodeSqliteRequire = (node, context) => {
-	const requireCall = unwrapExpression(node);
-	return isStaticRequire(requireCall)
-		&& isGlobalIdentifier(requireCall.callee, context)
-		&& requireCall.arguments[0].value === 'node:sqlite';
-};
-
-const getNodeSqliteRequireBinding = (node, context) => {
-	const variableInfo = getConstVariableInfo(node, context);
-	if (!variableInfo || !isNodeSqliteRequire(variableInfo.initializer, context)) {
-		return;
-	}
-
-	return variableInfo;
-};
-
-const isDatabaseSyncRequireBinding = (node, context) => {
-	const variableInfo = getNodeSqliteRequireBinding(node, context);
-	if (!variableInfo) {
-		return false;
-	}
-
-	const {definition, variable} = variableInfo;
-	const {id} = definition.node;
-	return id.type === 'ObjectPattern'
-		&& id.properties.some(property =>
-			property.type === 'Property'
-			&& getPropertyName(property) === 'DatabaseSync'
-			&& property.value.type === 'Identifier'
-			&& findVariable(context.sourceCode.getScope(property.value), property.value) === variable,
-		);
-};
-
-const isSqliteNamespaceRequireBinding = (node, context) => getNodeSqliteRequireBinding(node, context)?.definition.node.id.type === 'Identifier';
-
 const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => {
 	const callee = unwrapExpression(node);
 	if (!callee) {
@@ -136,7 +101,7 @@ const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => 
 	}
 
 	if (callee.type === 'Identifier') {
-		if (isDatabaseSyncImport(callee, context) || isDatabaseSyncRequireBinding(callee, context)) {
+		if (isDatabaseSyncImport(callee, context)) {
 			return true;
 		}
 
@@ -158,15 +123,11 @@ const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => 
 
 const isSqliteNamespace = (node, context, seenVariables = new Set()) => {
 	node = unwrapExpression(node);
-	if (isNodeSqliteRequire(node, context)) {
-		return true;
-	}
-
 	if (node?.type !== 'Identifier') {
 		return false;
 	}
 
-	if (isSqliteNamespaceImport(node, context) || isSqliteNamespaceRequireBinding(node, context)) {
+	if (isSqliteNamespaceImport(node, context)) {
 		return true;
 	}
 
