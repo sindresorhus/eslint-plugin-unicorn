@@ -37,6 +37,19 @@ test.snapshot({
 			}
 		`,
 		outdent`
+			function qux() {
+				if (foo) {
+					try {
+						void process.exit(1);
+					} finally {
+						cleanup();
+					}
+				} else {
+					baz();
+				}
+			}
+		`,
+		outdent`
 			if (foo) {
 				bar();
 			} else {

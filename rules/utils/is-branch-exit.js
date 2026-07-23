@@ -1,4 +1,4 @@
-import {isMethodCall} from '../ast/index.js';
+import {isFunction, isLoop, isMethodCall} from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 
@@ -157,6 +157,64 @@ export function isProcessExitBranch(branch, context, checkTryStatements = true) 
 	);
 }
 
+function hasSwitchControlFlowExit(node, context) {
+	if (!node || isFunction(node)) {
+		return false;
+	}
+
+	if (node.type === 'BreakStatement' || node.type === 'ContinueStatement') {
+		return true;
+	}
+
+	if (isLoop(node) || node.type === 'SwitchStatement') {
+		return false;
+	}
+
+	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
+		const value = node[key];
+		const children = Array.isArray(value) ? value : [value];
+		if (children.some(child => hasSwitchControlFlowExit(child, context))) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isSwitchBranchExit(branch, context, branchAlwaysExits) {
+	if (branch.cases.every(switchCase => switchCase.test !== null)) {
+		return false;
+	}
+
+	let exits = false;
+	for (let index = branch.cases.length - 1; index >= 0; index--) {
+		const switchCase = branch.cases[index];
+		if (switchCase.consequent.some(statement => hasSwitchControlFlowExit(statement, context))) {
+			return false;
+		}
+
+		const lastStatement = switchCase.consequent.at(-1);
+		if (!lastStatement) {
+			if (!exits) {
+				return false;
+			}
+
+			continue;
+		}
+
+		if (
+			!isBranchExit(lastStatement, context, branchAlwaysExits)
+			&& !isProcessExitBranch(lastStatement, context)
+		) {
+			return false;
+		}
+
+		exits = true;
+	}
+
+	return exits;
+}
+
 /**
 @param {ESTree.Node} branch
 @param {ESLint.Rule.RuleContext} context
@@ -189,6 +247,10 @@ export default function isBranchExit(branch, context, branchAlwaysExits) {
 				&& isBranchExit(branch.handler, context, branchAlwaysExits)
 			),
 		);
+	}
+
+	if (branch.type === 'SwitchStatement') {
+		return isSwitchBranchExit(branch, context, branchAlwaysExits);
 	}
 
 	return (
