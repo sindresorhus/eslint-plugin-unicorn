@@ -44,23 +44,30 @@ const getExportText = (exportDeclaration, sourceCode) => {
 	return sourceCode.text.slice(exportStart, defaultEnd);
 };
 
-const getActualStyle = ({decorators, exportToken, context}) => {
-	const {sourceCode} = context;
-	const isAfterExport = decorator => sourceCode.getRange(decorator)[0] > sourceCode.getRange(exportToken)[0];
-
-	if (decorators.some(decorator => isAfterExport(decorator))) {
-		return decorators.every(decorator => isAfterExport(decorator))
-			? STYLE_AFTER
-			: STYLE_MIXED;
+const getDecoratorStyle = ({decorator, exportToken, sourceCode}) => {
+	if (sourceCode.getRange(decorator)[0] > sourceCode.getRange(exportToken)[0]) {
+		return STYLE_AFTER;
 	}
 
-	const exportStartLine = sourceCode.getLoc(exportToken).start.line;
-	if (sourceCode.getLoc(decorators.at(-1)).end.line !== exportStartLine) {
-		return STYLE_ABOVE;
-	}
-
-	return decorators.every(decorator => sourceCode.getLoc(decorator).end.line === exportStartLine)
+	const exportLine = sourceCode.getLoc(exportToken).start.line;
+	return sourceCode.getLoc(decorator).end.line === exportLine
 		? STYLE_BEFORE
+		: STYLE_ABOVE;
+};
+
+const getActualStyle = ({decorators, exportToken, sourceCode}) => {
+	const firstDecoratorStyle = getDecoratorStyle({
+		decorator: decorators[0],
+		exportToken,
+		sourceCode,
+	});
+
+	return decorators.every(decorator => getDecoratorStyle({
+		decorator,
+		exportToken,
+		sourceCode,
+	}) === firstDecoratorStyle)
+		? firstDecoratorStyle
 		: STYLE_MIXED;
 };
 
@@ -110,15 +117,21 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 	const actualStyle = getActualStyle({
 		decorators,
 		exportToken,
-		context,
+		sourceCode,
 	});
 
 	if (actualStyle === expectedStyle) {
 		return;
 	}
 
+	const reportNode = decorators.find(decorator => getDecoratorStyle({
+		decorator,
+		exportToken,
+		sourceCode,
+	}) !== expectedStyle) ?? decorators[0];
+
 	const problem = {
-		node: decorators[0],
+		node: reportNode,
 		messageId: MESSAGE_ID,
 		data: {
 			expected: expectedStyle,
