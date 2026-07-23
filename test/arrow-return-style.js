@@ -62,6 +62,12 @@ ruleTest({
 		code: 'const value = () => {\n\t\treturn foo;\n\t}\n(foo);',
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
+		code: 'const value = () => {\n\t\treturn foo;\n\t}\n+bar;',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = () => {\n\t\treturn foo;\n\t}\n-bar;',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) as Foo;\n\t};',
 		output: 'const value = (): Foo => ((foo, bar) as Foo);',
 		languageOptions: {parser: parsers.typescript},
@@ -126,6 +132,10 @@ ruleTest({
 		code: 'const value = () => foo(\u2029\t\tbar,\u2029\t);',
 		output: 'const value = () => {\u2029\treturn foo(\u2029\t\t\tbar,\u2029\t\t);\u2029};',
 		errors: [{messageId: 'useExplicitReturn'}],
+	}, {
+		code: 'const value = () => foo(\r\t\tbar,\r\t);',
+		output: 'const value = () => {\r\treturn foo(\r\t\t\tbar,\r\t\t);\r};',
+		errors: [{messageId: 'useExplicitReturn'}],
 	}],
 });
 
@@ -169,6 +179,24 @@ ruleTest.snapshot({
 		'const Div = () => (\n\t<div>\n\t\ttext\n\t</div>\n);',
 		'const value = () => {\n\t\treturn foo;\n\t}\n<div />;',
 	],
+});
+
+ruleTest({
+	testerOptions: {
+		languageOptions: {
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+		},
+	},
+	valid: [],
+	invalid: [{
+		code: 'const Div = () =>\n\t<div>\n\t\ttext\n\t</div>;',
+		output: 'const Div = () => {\n\treturn <div>\n\t\ttext\n\t</div>;\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
+	}],
 });
 
 ruleTest.snapshot({

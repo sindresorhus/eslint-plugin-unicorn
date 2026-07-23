@@ -13,9 +13,13 @@ For concise arrow function bodies, keeping a simple expression on one line is re
 
 This rule only considers the arrow function body. A line break between `=>` and a single-line expression does not trigger it.
 
+For block bodies, this rule only converts blocks containing exactly one `return` statement with a single-line argument. Blocks with other statements, a bare `return`, or a multiline return expression are left unchanged.
+
 This rule ignores arrow functions containing comments to avoid moving comments during autofixes.
 
 Autofixes are omitted when reindenting could change the contents of a string, template literal, or JSX text.
+
+Autofixes are also omitted when removing a block could change how the following token is parsed.
 
 This rule is an alternative to [`arrow-body-style`](https://eslint.org/docs/latest/rules/arrow-body-style). Do not enable both rules together.
 
