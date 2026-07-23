@@ -214,6 +214,19 @@ test({
 			],
 		},
 		{
+			code: '@foo(class {})\nexport class Foo {}',
+			output: 'export @foo(class {}) class Foo {}',
+			options: ['after'],
+			errors: [
+				{
+					messageId: 'consistent-export-decorator-position',
+					line: 1,
+					column: 1,
+					endColumn: 15,
+				},
+			],
+		},
+		{
 			code: '@foo\nexport @bar class Foo {}',
 			output: '@foo\n@bar\nexport class Foo {}',
 			errors: [

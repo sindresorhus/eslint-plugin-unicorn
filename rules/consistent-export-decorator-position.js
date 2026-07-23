@@ -2,11 +2,11 @@ const STYLE_ABOVE = 'above';
 const STYLE_BEFORE = 'before';
 const STYLE_AFTER = 'after';
 const STYLE_MIXED = 'mixed';
-const styles = new Set([
+const styles = [
 	STYLE_ABOVE,
 	STYLE_BEFORE,
 	STYLE_AFTER,
-]);
+];
 
 const MESSAGE_ID = 'consistent-export-decorator-position';
 const messages = {
@@ -140,10 +140,7 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 		},
 	};
 
-	const classToken = sourceCode.getFirstToken(declaration, {
-		filter: token => isClassKeywordToken(token)
-			&& decorators.every(decorator => !isInRange(sourceCode.getRange(decorator), token, sourceCode)),
-	});
+	const classToken = sourceCode.getTokenAfter(decorators.at(-1), isClassKeywordToken);
 	const defaultToken = exportDeclaration.type === 'ExportDefaultDeclaration'
 		? sourceCode.getTokenAfter(exportToken, isKeywordToken('default'))
 		: undefined;
@@ -196,7 +193,7 @@ const create = context => {
 
 const schema = [
 	{
-		enum: [...styles],
+		enum: styles,
 		description: 'Decorator position relative to the export declaration.',
 	},
 ];
