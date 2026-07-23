@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {
 	getComments,
 	isEslintDisableOrEnableDirective,
@@ -11,7 +12,7 @@ const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
 	/^\s*(?:eslint(?:-env)?|jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
-	/^\s*\*?\s*flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
+	/^\s*(?:\*\s*)?flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
 	/^\s*::?/v,
 	/^\s*flow-include(?:\s|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
@@ -80,16 +81,31 @@ const getCommentText = (comment, opening) => comment.value
 	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
 	.join('\n');
 
-const isDirective = (context, comment, opening) => {
+const isDirectiveText = commentText =>
+	DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
+	|| LANGUAGE_DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
+	|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
+
+const isIgnoredByPattern = (commentText, patterns) => patterns.some(pattern => {
+	pattern.lastIndex = 0;
+	const isMatch = pattern.test(commentText);
+	pattern.lastIndex = 0;
+
+	return isMatch;
+});
+
+const isIgnoredComment = (context, comment, opening, ignorePatterns) => {
 	if (isEslintDisableOrEnableDirective(context, comment)) {
 		return true;
 	}
 
 	const commentText = getCommentText(comment, opening);
-	return DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
-		|| LANGUAGE_DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
-		|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
+	return isIgnoredByPattern(commentText, ignorePatterns) || isDirectiveText(commentText);
 };
+
+const getIgnorePatterns = ignore => ignore.map(pattern => isRegExp(pattern)
+	? new RegExp(pattern.source, pattern.flags)
+	: new RegExp(pattern, 'u'));
 
 const getContentLines = content => content.split(LINE_ENDING_PATTERN);
 
@@ -111,7 +127,7 @@ const isCanonicalMultiline = content => {
 	return lines.length === 3 && lines[0].trim() === '' && lines[2].trim() === '';
 };
 
-const getProblem = (context, comment, style) => {
+const getProblem = (context, comment, style, ignorePatterns) => {
 	if (comment.type !== 'Block') {
 		return;
 	}
@@ -125,7 +141,7 @@ const getProblem = (context, comment, style) => {
 
 	const text = sourceCode.text.slice(...range);
 	const opening = getOpeningDelimiter(text);
-	if (text.startsWith('/*!') || isDirective(context, comment, opening)) {
+	if (text.startsWith('/*!') || isIgnoredComment(context, comment, opening, ignorePatterns)) {
 		return;
 	}
 
@@ -168,10 +184,11 @@ const getProblem = (context, comment, style) => {
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const style = context.options[0];
+	const ignorePatterns = getIgnorePatterns(context.options[1]?.ignore ?? []);
 
 	onRoot(context, function * () {
 		for (const comment of getComments(context)) {
-			const problem = getProblem(context, comment, style);
+			const problem = getProblem(context, comment, style, ignorePatterns);
 
 			if (problem) {
 				yield problem;
@@ -184,6 +201,17 @@ const schema = [
 	{
 		enum: [MULTILINE, SINGLE_LINE],
 		description: 'The style for block comments with one line of content.',
+	},
+	{
+		type: 'object',
+		additionalProperties: false,
+		properties: {
+			ignore: {
+				type: 'array',
+				uniqueItems: true,
+				description: 'Regular expressions to ignore.',
+			},
+		},
 	},
 ];
 
@@ -198,7 +226,7 @@ const config = {
 		},
 		fixable: 'whitespace',
 		schema,
-		defaultOptions: [MULTILINE],
+		defaultOptions: [MULTILINE, {ignore: []}],
 		messages,
 		languages: [
 			'js/js',

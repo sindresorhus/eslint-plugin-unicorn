@@ -11,35 +11,78 @@
 
 This rule enforces a consistent layout for standalone block comments whose content occupies one line. It supports both ordinary block comments and documentation comments.
 
-Comments with multiple content lines, block comments placed beside code, recognized directive comments, Flow type comments, and documentation comments with asterisk prefixes are ignored. License comments beginning with `/*!` are also ignored.
+Comments with multiple content lines, block comments placed beside code, and common tooling directive comments are ignored by default. This includes ESLint, TypeScript, formatter, coverage, and minifier directives. Documentation comments with asterisk prefixes are also ignored. License comments beginning with `/*!` are ignored as well.
 
 ## Examples
 
+The default option is `'multiline'`:
+
 ```js
+// ❌
 /** Get the value. */
 /* Get the value. */
-```
 
-## Options
-
-### `multiline`
-
-The default option requires the comment delimiters to be on separate lines:
-
-```js
+// ✅
 /**
+Get the value.
+*/
+/*
 Get the value.
 */
 ```
 
-### `single-line`
+## Options
 
-Requires the comment to fit on one line:
+Type: `'multiline' | 'single-line'`\
+Default: `'multiline'`
+
+Available options:
+
+- `'multiline'` - Require the comment delimiters to be on separate lines.
+- `'single-line'` - Require the comment to fit on one line.
+
+With the `'single-line'` option:
 
 ```js
+/* eslint unicorn/single-line-block-comment-style: ['error', 'single-line'] */
+
+// ❌
+/**
+Get the value.
+*/
+
+// ✅
 /** Get the value. */
 ```
 
-The opening delimiter is preserved, so `/*` comments remain `/*` comments and `/**` comments remain `/**` comments.
+### `ignore`
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Regular expressions to ignore. Strings are interpreted as regular expressions. Patterns are matched anywhere in the comment text after removing its delimiters and any documentation comment asterisk prefixes, unless anchored with `^` or `$`.
+
+```js
+'unicorn/single-line-block-comment-style': [
+	'error',
+	'multiline',
+	{
+		ignore: [
+			'^Generated',
+			/^License:/u,
+		],
+	},
+]
+```
+
+With `ignore: ['^Generated']`:
+
+```js
+// ✅
+/* Generated comment. */
+
+// ❌
+/* This comment is not ignored. */
+```
 
 Documentation comment asterisk prefixes are left unchanged to avoid changing their meaning.

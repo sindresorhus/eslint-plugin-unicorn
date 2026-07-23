@@ -286,6 +286,21 @@ ruleTest({
 			code: '/*** Value */',
 			options: ['single-line'],
 		},
+		{
+			code: '/* eslint rule-to-test/single-line-block-comment-style: [\'error\', \'multiline\'] */',
+		},
+		{
+			code: '/* Generated comment. */',
+			options: ['multiline', {ignore: ['^Generated']}],
+		},
+		{
+			code: '/** Generated documentation comment. */',
+			options: ['multiline', {ignore: [/^Generated/u]}],
+		},
+		{
+			code: '/* Generated first. */\n/* Generated second. */',
+			options: ['multiline', {ignore: [/^Generated/g]}],
+		},
 	],
 	invalid: [
 		{
