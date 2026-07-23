@@ -59,6 +59,9 @@ ruleTest({
 		output: 'const value = () => ({foo: bar}[key]);',
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
+		code: 'const value = () => {\n\t\treturn foo;\n\t}\n(foo);',
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) as Foo;\n\t};',
 		output: 'const value = (): Foo => ((foo, bar) as Foo);',
 		languageOptions: {parser: parsers.typescript},
@@ -71,6 +74,11 @@ ruleTest({
 	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar)!;\n\t};',
 		output: 'const value = (): Foo => ((foo, bar)!);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'useImplicitReturn'}],
+	}, {
+		code: 'const value = (): Foo => {\n\t\treturn ((foo, bar) as Foo)!;\n\t};',
+		output: 'const value = (): Foo => (((foo, bar) as Foo)!);',
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
@@ -90,6 +98,10 @@ ruleTest({
 			{messageId: 'useExplicitReturn'},
 			{messageId: 'useImplicitReturn'},
 		],
+	}, {
+		code: 'const value = () =>\n\t`foo\nbar`;',
+		output: 'const value = () => {\n\treturn `foo\nbar`;\n};',
+		errors: [{messageId: 'useExplicitReturn'}],
 	}, {
 		code: 'const value = () => foo(\r\n\t\tbar,\r\n\t);',
 		output: 'const value = () => {\r\n\treturn foo(\r\n\t\t\tbar,\r\n\t\t);\r\n};',
