@@ -566,19 +566,46 @@ function combineVariableBooleanStates(states) {
 	return combineBooleanStates(states);
 }
 
-function getTypeInformationBooleanState(node, context, functionTypesAreBoolean = true) {
+function getTypeInformationBooleanState(node, context, functionTypesAreBoolean = true, allowNullish = true) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return unknown;
 	}
 
 	try {
+		const checker = parserServices.program.getTypeChecker();
+		const type = parserServices.getTypeAtLocation(node);
+		const nonNullableType = checker.getNonNullableType(type);
+		if (!allowNullish && nonNullableType !== type) {
+			return unknown;
+		}
+
 		return getTypeBooleanState(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
+			type,
+			checker,
 			new Set(),
 			functionTypesAreBoolean,
 		);
+	} catch {
+		return unknown;
+	}
+}
+
+function getPromisedTypeInformationBooleanState(node, context, allowNullish = true) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return unknown;
+	}
+
+	try {
+		const checker = parserServices.program.getTypeChecker();
+		const type = parserServices.getTypeAtLocation(node);
+		const nonNullableType = checker.getNonNullableType(type);
+		if (!allowNullish && nonNullableType !== type) {
+			return unknown;
+		}
+
+		return getPromisedTypeBooleanState(nonNullableType, checker);
 	} catch {
 		return unknown;
 	}
@@ -899,6 +926,16 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	}
 
 	visitedTypeReferenceNodes.delete(node);
+	if (
+		result === unknown
+		&& definitions.some(definition =>
+			definition.node.type === 'TSTypeAliasDeclaration'
+			&& definition.node.typeAnnotation.type === 'TSConditionalType',
+		)
+	) {
+		result = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean, normalizedTypeState.allowNullish);
+	}
+
 	return result;
 }
 
@@ -1045,6 +1082,15 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	}
 
 	visitedTypeReferenceNodes.delete(node);
+	if (
+		result === unknown
+		&& definitions.some(definition =>
+			definition.node.type === 'TSTypeAliasDeclaration'
+			&& definition.node.typeAnnotation.type === 'TSConditionalType',
+		)
+	) {
+		result = getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
+	}
 
 	return result;
 }
@@ -1375,13 +1421,6 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	const normalizedTypeState = getTypeState(typeState);
-	if (normalizedTypeState.allowNullish) {
-		const stateFromTypeInformation = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean);
-		if (stateFromTypeInformation !== unknown) {
-			return stateFromTypeInformation;
-		}
-	}
-
 	const stateFromAsyncFunctionType = getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
 	if (stateFromAsyncFunctionType !== unknown) {
 		return stateFromAsyncFunctionType;
@@ -2033,7 +2072,10 @@ const create = context => {
 
 		if (shouldDeduplicate) {
 			const memberReport = getMemberReport(node, name);
-			memberReport.states.push(getPropertyBooleanState(node, context));
+			memberReport.states.push({
+				node,
+				state: getPropertyBooleanState(node, context),
+			});
 			memberReport.problem ??= {
 				node: reportNode,
 				messageId: MESSAGE_ID,
@@ -2071,7 +2113,19 @@ const create = context => {
 	context.onExit('Program', () => {
 		for (const reports of memberReports.values()) {
 			for (const {problem, states} of reports.values()) {
-				if (problem && combineBooleanStates(states) === boolean) {
+				const hasOverloadSignature = states.some(({node}) =>
+					methodDefinitionTypes.has(node.type)
+					&& !node.value?.body,
+				);
+				const statesToCombine = states
+					.filter(({node}) =>
+						!hasOverloadSignature
+						|| !methodDefinitionTypes.has(node.type)
+						|| !node.value?.body,
+					)
+					.map(({state}) => state);
+
+				if (problem && combineBooleanStates(statesToCombine) === boolean) {
 					context.report(problem);
 				}
 			}

@@ -1547,6 +1547,14 @@ ruleTest({
 			name: 'conditional generic aliases remain unknown without type information',
 			code: 'type Result<T> = T extends string ? string : boolean; declare const isReady: Result<boolean>;',
 		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases preserve boolean prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; declare const isReady: Result<boolean>;',
+		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases with nullable results remain unknown',
+			code: 'type Result<T> = T extends string ? boolean | undefined : boolean | undefined; declare const completed: Result<boolean>;',
+		}),
 		typeAware('type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;'),
 		typescript({
 			name: 'recursive generic aliases do not crash',
@@ -1786,12 +1794,44 @@ ruleTest({
 			name: 'type-aware conditional generic aliases require prefixes',
 			code: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const completed = value;',
 			output: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const isCompleted = value;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [
+				{messageId: 'consistent-boolean-name', suggestions: 11},
+				{messageId: 'consistent-boolean-name', suggestions: 11},
+			],
 		}),
 		typeAware({
 			name: 'type-aware conditional generic aliases reject misleading prefixes',
 			code: 'type Result<T> = T extends string ? string : boolean; declare const isReady: Result<string>;',
 			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases require direct variable prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; declare const completed: Result<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases require field prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; interface Task { completed: Result<boolean>; }',
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases require method prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; interface Task { completed(): Result<boolean>; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic Promise aliases require method prefixes',
+			code: 'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; interface Task { completed(): Result<boolean>; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic PromiseLike aliases require method prefixes',
+			code: 'type Result<T> = T extends string ? PromiseLike<string> : PromiseLike<boolean>; interface Task { completed(): Result<boolean>; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
 		}),
 		typescript({
 			name: 'generic callable aliases reject misleading prefixes',
@@ -2106,6 +2146,12 @@ ruleTest({
 			code: 'class Task { completed(): boolean; completed(value: string): boolean; completed(value?: string) { return true; } }',
 			options: [{checkMethods: 'always'}],
 			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded class methods use declared return types',
+			code: 'class Task { completed(): boolean; completed(value: string): boolean; completed(value?: string) { if (value) { return true; } return false; } }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
 		}),
 		typeAware({
 			name: 'type-aware unannotated async function declarations require prefixes',
