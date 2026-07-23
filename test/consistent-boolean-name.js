@@ -1543,6 +1543,10 @@ ruleTest({
 			name: 'nullable generic aliases remain unknown',
 			code: 'type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;',
 		}),
+		typescript({
+			name: 'conditional generic aliases remain unknown without type information',
+			code: 'type Result<T> = T extends string ? string : boolean; declare const isReady: Result<boolean>;',
+		}),
 		typeAware('type Maybe<T> = T | undefined; const completed: Maybe<boolean> = true;'),
 		typescript({
 			name: 'recursive generic aliases do not crash',
@@ -1778,6 +1782,17 @@ ruleTest({
 			code: 'type Value<T> = T; declare const isReady: Value<string>;',
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases require prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const completed = value;',
+			output: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const isCompleted = value;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typeAware({
+			name: 'type-aware conditional generic aliases reject misleading prefixes',
+			code: 'type Result<T> = T extends string ? string : boolean; declare const isReady: Result<string>;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		typescript({
 			name: 'generic callable aliases reject misleading prefixes',
 			code: 'type Predicate<T> = () => T; declare const isReady: Predicate<string>;',
@@ -1937,6 +1952,18 @@ ruleTest({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
+			name: 'mixed Promise and non-boolean method returns are prohibited',
+			code: 'interface Task { isReady(): Promise<boolean> | string; }',
+			options: [{checkMethods: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'mixed Promise and non-boolean fields are prohibited',
+			code: 'interface Task { isReady: Promise<boolean> | string; }',
+			options: [{checkFields: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'constructor fields are checked independently of arguments',
 			code: 'class Task { constructor(public completed: boolean) {} }',
 			options: [{checkArguments: 'never', checkFields: 'always'}],
@@ -2018,13 +2045,25 @@ test('rejects the removed checkProperties option', t => {
 });
 
 ruleTest({
-	valid: [],
+	valid: [
+		typescript({
+			name: 'mixed overload return types do not require a boolean prefix',
+			code: 'interface Task { completed(): boolean; completed(value: string): string; }',
+			options: [{checkMethods: 'always'}],
+		}),
+	],
 	invalid: [
 		{
 			name: 'static and instance methods with the same name are checked independently',
 			code: 'class Task { static completed() { return true; } completed() { return true; } }',
 			options: [{checkMethods: 'always'}],
 			errors: 2,
+		},
+		{
+			name: 'getter and setter pairs report the boolean getter once',
+			code: 'const task = {get completed() { return true; }, set completed(value) {}};',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
 		},
 		{
 			name: 'private and public methods with the same name are checked independently',
@@ -2043,6 +2082,12 @@ ruleTest({
 			code: 'interface Task { completed(): boolean; completed(value: string): boolean; }',
 			options: [{checkMethods: 'always'}],
 			errors: 1,
+		}),
+		typescript({
+			name: 'mixed overload return types prohibit misleading prefixes',
+			code: 'interface Task { isReady(): boolean; isReady(value: string): string; }',
+			options: [{checkMethods: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'different method names report independently',
@@ -2096,6 +2141,12 @@ ruleTest({
 			errors: 2,
 		}),
 		typescript({
+			name: 'different interfaces in one namespace report fields independently',
+			code: 'namespace First { interface Task { completed: boolean; } interface Job { completed: boolean; } }',
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}, {messageId: 'consistent-boolean-name'}],
+		}),
+		typescript({
 			name: 'merged interface fields report once',
 			code: 'interface Task { completed: boolean; } interface Task { completed: boolean; }',
 			options: [{checkFields: 'always'}],
@@ -2106,6 +2157,12 @@ ruleTest({
 			code: 'namespace First { type Task = { completed(): boolean; }; type Task = { completed(value: string): boolean; } }',
 			options: [{checkMethods: 'always'}],
 			errors: 2,
+		}),
+		typescript({
+			name: 'same-name type aliases report fields independently',
+			code: 'namespace First { type Task = { completed: boolean; }; type Task = { completed: boolean; }; }',
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}, {messageId: 'consistent-boolean-name'}],
 		}),
 		typescript({
 			name: 'overloaded method signatures in namespace-merged interfaces report once',

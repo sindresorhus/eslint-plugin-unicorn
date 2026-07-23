@@ -81,6 +81,7 @@ const unknownTypeAnnotationTypes = new Set([
 	'TSAnyKeyword',
 	'TSNeverKeyword',
 	'TSUnknownKeyword',
+	'TSConditionalType',
 ]);
 const promiseValueTypeNames = new Set(['Promise', 'PromiseLike']);
 const nonBooleanExpressionTypes = new Set([
@@ -846,6 +847,10 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 }
 
 function getTypeReferenceBooleanState(node, context, scope, typeState) {
+	if (isGlobalPromiseTypeReference(node, scope)) {
+		return nonBoolean;
+	}
+
 	const normalizedTypeState = getTypeState(typeState);
 	const {visitedTypeReferenceNodes} = normalizedTypeState;
 	const name = getTypeReferenceName(node.typeName ?? node.expression);
@@ -1370,6 +1375,13 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	const normalizedTypeState = getTypeState(typeState);
+	if (normalizedTypeState.allowNullish) {
+		const stateFromTypeInformation = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean);
+		if (stateFromTypeInformation !== unknown) {
+			return stateFromTypeInformation;
+		}
+	}
+
 	const stateFromAsyncFunctionType = getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
 	if (stateFromAsyncFunctionType !== unknown) {
 		return stateFromAsyncFunctionType;
@@ -1930,7 +1942,27 @@ const create = context => {
 	};
 
 	const variableModes = {checkVariables, checkArguments, checkFunctions};
-	const reportedMemberKeys = new Map();
+	const memberReports = new Map();
+	const getMemberReport = (node, name) => {
+		const {owner, name: qualifiedName} = getMemberReportIdentity(node, context.sourceCode);
+		let reports = memberReports.get(owner);
+		if (!reports) {
+			reports = new Map();
+			memberReports.set(owner, reports);
+		}
+
+		const key = `${qualifiedName ?? ''}:${name}:${getMemberReportKey(node)}`;
+		let memberReport = reports.get(key);
+		if (!memberReport) {
+			memberReport = {
+				reported: false,
+				states: [],
+			};
+			reports.set(key, memberReport);
+		}
+
+		return memberReport;
+	};
 
 	context.on('Program', node => {
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
@@ -1954,31 +1986,27 @@ const create = context => {
 			return;
 		}
 
+		if (isSetter(node)) {
+			return;
+		}
+
 		const booleanPrefix = getBooleanPrefix(name, prefixes);
 		const reportNode = node.key ?? getParameterPropertyNameNode(node);
+		const shouldDeduplicate = methodDefinitionTypes.has(node.type)
+			|| typeScriptMemberTypes.has(node.type)
+			|| (node.type === 'Property' && (node.method || node.kind === 'get'));
 		const report = problem => {
-			const shouldDeduplicate = methodDefinitionTypes.has(node.type)
-				|| typeScriptMemberTypes.has(node.type)
-				|| (node.type === 'Property' && (node.method || ['get', 'set'].includes(node.kind)));
-
 			if (!shouldDeduplicate) {
 				context.report(problem);
 				return;
 			}
 
-			const {owner, name: qualifiedName} = getMemberReportIdentity(node, context.sourceCode);
-			let keys = reportedMemberKeys.get(owner);
-			if (!keys) {
-				keys = new Set();
-				reportedMemberKeys.set(owner, keys);
-			}
-
-			const key = `${qualifiedName ?? ''}:${name}:${getMemberReportKey(node)}`;
-			if (keys.has(key)) {
+			const memberReport = getMemberReport(node, name);
+			if (memberReport.reported) {
 				return;
 			}
 
-			keys.add(key);
+			memberReport.reported = true;
 			context.report(problem);
 		};
 
@@ -2000,6 +2028,20 @@ const create = context => {
 		}
 
 		if (mode !== ALWAYS) {
+			return;
+		}
+
+		if (shouldDeduplicate) {
+			const memberReport = getMemberReport(node, name);
+			memberReport.states.push(getPropertyBooleanState(node, context));
+			memberReport.problem ??= {
+				node: reportNode,
+				messageId: MESSAGE_ID,
+				data: {
+					name,
+					prefixes: formatPrefixes(prefixes),
+				},
+			};
 			return;
 		}
 
@@ -2025,6 +2067,16 @@ const create = context => {
 			},
 		});
 	};
+
+	context.onExit('Program', () => {
+		for (const reports of memberReports.values()) {
+			for (const {problem, states} of reports.values()) {
+				if (problem && combineBooleanStates(states) === boolean) {
+					context.report(problem);
+				}
+			}
+		}
+	});
 
 	const checkClassBody = node => {
 		for (const element of node.body) {
