@@ -8,14 +8,15 @@ const MESSAGE_ID = 'single-line-block-comment-style';
 const MULTILINE = 'multiline';
 const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
-const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/gv;
+const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
 	/^\s*(?:eslint(?:-env)?|globals?|exported|no default|noinspection)(?:\s|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
 	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:next-line|start|end))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
 ];
-const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)(?:\s|$)/v;
+const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)(?:\s|:|$)/v;
+const MINIFIER_DIRECTIVE_PATTERN = /^\s*[#@]__(?:INLINE|NOINLINE|PURE|KEY|MANGLE_PROP|NO_SIDE_EFFECTS)__\s*$/v;
 
 const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
@@ -28,6 +29,28 @@ const getLineEnd = (text, index) => Math.min(
 	text.length,
 );
 
+const getLineEndingAt = (text, index) => {
+	if (text.startsWith('\r\n', index)) {
+		return '\r\n';
+	}
+
+	return LINE_ENDINGS.includes(text[index]) ? text[index] : undefined;
+};
+
+const getLineEndingBefore = (text, index) => {
+	const lineEndingIndex = Math.max(...LINE_ENDINGS.map(lineEnding => text.lastIndexOf(lineEnding, index - 1)));
+
+	if (lineEndingIndex === -1) {
+		return;
+	}
+
+	const start = text[lineEndingIndex] === '\n' && text[lineEndingIndex - 1] === '\r'
+		? lineEndingIndex - 1
+		: lineEndingIndex;
+
+	return getLineEndingAt(text, start);
+};
+
 const getLinePrefix = (sourceCode, start) => sourceCode.text.slice(getLineStart(sourceCode.text, start), start);
 
 const getLineSuffix = (sourceCode, end) => sourceCode.text.slice(end, getLineEnd(sourceCode.text, end));
@@ -39,9 +62,9 @@ const isStandalone = (sourceCode, [start, end]) => (
 
 const getLineEnding = (sourceCode, [start, end], content) =>
 	content.match(LINE_ENDING_PATTERN)?.[0]
-	?? sourceCode.text.slice(end).match(LINE_ENDING_PATTERN)?.[0]
-	?? sourceCode.text.slice(0, start).match(LINE_ENDING_PATTERN)?.at(-1)
-	?? sourceCode.text.match(LINE_ENDING_PATTERN)?.[0]
+	?? getLineEndingAt(sourceCode.text, getLineEnd(sourceCode.text, end))
+	?? getLineEndingBefore(sourceCode.text, start)
+	?? getLineEndingAt(sourceCode.text, getLineEnd(sourceCode.text, 0))
 	?? '\n';
 
 const getOpeningDelimiter = text => text.startsWith('/**') && text[3] !== '*' ? '/**' : '/*';
@@ -51,13 +74,15 @@ const getCommentText = (comment, opening) => comment.value
 	.map(line => line.replace(opening === '/**' ? /^\s*\*?\s*/v : /^\s*/v, ''))
 	.join('\n');
 
-const isDirective = (context, comment, text) => {
+const isDirective = (context, comment, opening) => {
 	if (isEslintDisableOrEnableDirective(context, comment)) {
 		return true;
 	}
 
-	const commentText = getCommentText(comment, getOpeningDelimiter(text));
-	return DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText)) || TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText);
+	const commentText = getCommentText(comment, opening);
+	return DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
+		|| TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText)
+		|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
 };
 
 const getContentLines = content => content.split(LINE_ENDING_PATTERN);
@@ -93,11 +118,11 @@ const getProblem = (context, comment, style) => {
 	}
 
 	const text = sourceCode.text.slice(...range);
-	if (text.startsWith('/*!') || isDirective(context, comment, text)) {
+	const opening = getOpeningDelimiter(text);
+	if (text.startsWith('/*!') || isDirective(context, comment, opening)) {
 		return;
 	}
 
-	const opening = getOpeningDelimiter(text);
 	const content = text.slice(opening.length, -2);
 	const singleContentLine = getSingleContentLine(content, opening);
 
@@ -132,7 +157,7 @@ const getProblem = (context, comment, style) => {
 
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
-	const style = context.options[0] ?? MULTILINE;
+	const style = context.options[0];
 
 	onRoot(context, function * () {
 		for (const comment of getComments(context)) {

@@ -26,9 +26,12 @@ ruleTest.snapshot({
 		`,
 		'const value = /* Get the value. */ 1;',
 		'/* eslint-disable rule-to-test/single-line-block-comment-style */',
+		'/* eslint-enable rule-to-test/single-line-block-comment-style */',
 		'/* global value */',
 		'/* prettier-ignore */',
 		'/* @ts-ignore */',
+		'/* @ts-ignore: explanation */',
+		'/* @ts-expect-error: explanation */',
 		'/* c8 ignore next */',
 		'/* v8 ignore next */',
 		'/* biome-ignore lint/suspicious/noExplicitAny */',
@@ -48,16 +51,14 @@ ruleTest.snapshot({
 		'\u2028/**\u2028Value.\u2028*/\u2028',
 		'// Get the value.',
 		'/*! License. */',
+		'/*@__PURE__*/\nfoo();',
+		'/*#__NO_SIDE_EFFECTS__*/\nfunction foo() {}',
 		{
 			code: '/** Another value. */',
 			options: ['single-line'],
 		},
 		{
 			code: '/* Another value. */',
-			options: ['single-line'],
-		},
-		{
-			code: '/*** Value */',
 			options: ['single-line'],
 		},
 		{
@@ -144,6 +145,10 @@ ruleTest({
 			options: ['single-line'],
 		},
 		{
+			code: '/* eslint-enable rule-to-test/single-line-block-comment-style */',
+			options: ['single-line'],
+		},
+		{
 			code: '/* */',
 			options: ['single-line'],
 		},
@@ -151,16 +156,53 @@ ruleTest({
 			code: '/*! License. */',
 			options: ['single-line'],
 		},
+		{
+			code: '/*!\r\nLicense.\r\n*/',
+			options: ['single-line'],
+		},
+		{
+			code: '/**/',
+			options: ['single-line'],
+		},
+		{
+			code: '/**\n *\n */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*\nFirst line.\nSecond line.\n*/',
+			options: ['single-line'],
+		},
+		{
+			code: '/* @ts-ignore: explanation */',
+			options: ['single-line'],
+		},
+		{
+			code: '/* @ts-expect-error: explanation */',
+			options: ['single-line'],
+		},
+		{
+			code: '/*@__PURE__*/\nfoo();',
+			options: ['single-line'],
+		},
+		{
+			code: '/*#__NO_SIDE_EFFECTS__*/\nfunction foo() {}',
+			options: ['single-line'],
+		},
 	],
 	invalid: [
 		{
 			code: '/* Value. */',
 			output: '/*\nValue.\n*/',
-			errors: [error],
+			errors: [{...error, line: 1, column: 1}],
 		},
 		{
 			code: '/** Value. */',
 			output: '/**\nValue.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/*** Value */',
+			output: '/*\n** Value\n*/',
 			errors: [error],
 		},
 		{
@@ -178,6 +220,11 @@ ruleTest({
 		{
 			code: '\t/** Value. */',
 			output: '\t/**\n\tValue.\n\t*/',
+			errors: [{...error, line: 1, column: 2}],
+		},
+		{
+			code: '\t/* Value. */',
+			output: '\t/*\n\tValue.\n\t*/',
 			errors: [error],
 		},
 		{
@@ -186,9 +233,42 @@ ruleTest({
 			errors: [error],
 		},
 		{
+			code: '/* Value. */\u2028const value = 1;',
+			output: '/*\u2028Value.\u2028*/\u2028const value = 1;',
+			errors: [error],
+		},
+		{
+			code: '/** Value. */\u2029const value = 1;',
+			output: '/**\u2029Value.\u2029*/\u2029const value = 1;',
+			errors: [error],
+		},
+		{
 			code: '\t/**\r\nValue.\r\n\t*/',
 			options: ['single-line'],
 			output: '\t/** Value. */',
+			errors: [error],
+		},
+		{
+			code: '/** Value. */\r\n',
+			output: '/**\r\nValue.\r\n*/\r\n',
+			errors: [error],
+		},
+		{
+			code: '/*\r\nValue.\r\n*/',
+			options: ['single-line'],
+			output: '/* Value. */',
+			errors: [error],
+		},
+		{
+			code: '/*\u2028Value.\u2028*/\u2028const value = 1;',
+			options: ['single-line'],
+			output: '/* Value. */\u2028const value = 1;',
+			errors: [error],
+		},
+		{
+			code: '/**\u2029Value.\u2029*/\u2029const value = 1;',
+			options: ['single-line'],
+			output: '/** Value. */\u2029const value = 1;',
 			errors: [error],
 		},
 		{
@@ -239,6 +319,11 @@ ruleTest({
 			errors: [error],
 		},
 		{
+			code: '/* @__PURE__ extra */',
+			output: '/*\n@__PURE__ extra\n*/',
+			errors: [error],
+		},
+		{
 			code: '/* @ts-ignore-foo */',
 			output: '/*\n@ts-ignore-foo\n*/',
 			errors: [error],
@@ -246,6 +331,12 @@ ruleTest({
 		{
 			code: '/* * global value */',
 			output: '/*\n* global value\n*/',
+			errors: [error],
+		},
+		{
+			code: '/*\n * Value.\n */',
+			options: ['single-line'],
+			output: '/* * Value. */',
 			errors: [error],
 		},
 		{
@@ -279,11 +370,6 @@ test('autofixes are idempotent', t => {
 			options: ['single-line'],
 		},
 		{
-			code: '/**\nValue\n*/',
-			output: '/** Value */',
-			options: ['single-line'],
-		},
-		{
 			code: '/* * */',
 			output: '/*\n*\n*/',
 			options: [],
@@ -297,6 +383,16 @@ test('autofixes are idempotent', t => {
 			code: '\t/**\r\nValue.\r\n\t*/',
 			output: '\t/** Value. */',
 			options: ['single-line'],
+		},
+		{
+			code: '/**\n * Value.\n */',
+			output: '/** * Value. */',
+			options: ['single-line'],
+		},
+		{
+			code: '/** * Value. */',
+			output: '/**\n* Value.\n*/',
+			options: [],
 		},
 	];
 
