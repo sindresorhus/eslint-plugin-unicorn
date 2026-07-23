@@ -597,18 +597,18 @@ function getTypeArguments(node) {
 	return node?.typeArguments?.params ?? node?.typeParameters?.params;
 }
 
-function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceNames = new Set()) {
+function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceNodes = new Set()) {
 	if (isFunctionTypeAnnotation(node, context, scope)) {
 		return true;
 	}
 
 	if (node?.type === 'TSTypeAnnotation' || node?.type === 'TSParenthesizedType') {
-		return isCallableTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+		return isCallableTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNodes);
 	}
 
 	if (node?.type === 'TSUnionType') {
 		const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
-		return types.length > 0 && types.every(type => isCallableTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
+		return types.length > 0 && types.every(type => isCallableTypeAnnotation(type, context, scope, visitedTypeReferenceNodes));
 	}
 
 	if (node?.type !== 'TSTypeReference') {
@@ -616,7 +616,7 @@ function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceName
 	}
 
 	const name = getTypeReferenceName(node.typeName);
-	if (!name || visitedTypeReferenceNames.has(name)) {
+	if (!name || visitedTypeReferenceNodes.has(node)) {
 		return false;
 	}
 
@@ -625,8 +625,8 @@ function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceName
 		return false;
 	}
 
-	const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
-	nextVisitedTypeReferenceNames.add(name);
+	const nextVisitedTypeReferenceNodes = new Set(visitedTypeReferenceNodes);
+	nextVisitedTypeReferenceNodes.add(node);
 	const definitionScope = context.sourceCode.getScope(definition.node);
 	if (definition.node.type === 'TSInterfaceDeclaration') {
 		return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
@@ -636,7 +636,7 @@ function isCallableTypeAnnotation(node, context, scope, visitedTypeReferenceName
 	}
 
 	return definition.node.type === 'TSTypeAliasDeclaration'
-		&& isCallableTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, nextVisitedTypeReferenceNames);
+		&& isCallableTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, nextVisitedTypeReferenceNodes);
 }
 
 function isBooleanTypeAnnotatedValue(node, context) {
@@ -655,7 +655,7 @@ function isBooleanTypeAnnotatedValue(node, context) {
 }
 
 const getTypeState = typeState => ({
-	visitedTypeReferenceNames: new Set(),
+	visitedTypeReferenceNodes: new Set(),
 	visitedTypeParameterNames: new Set(),
 	functionTypesAreBoolean: true,
 	allowNullish: true,
@@ -834,13 +834,13 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 
 function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
-	const {visitedTypeReferenceNames} = normalizedTypeState;
+	const {visitedTypeReferenceNodes} = normalizedTypeState;
 	const name = getTypeReferenceName(node.typeName ?? node.expression);
-	if (!name || visitedTypeReferenceNames.has(name)) {
+	if (!name || visitedTypeReferenceNodes.has(node)) {
 		return unknown;
 	}
 
-	visitedTypeReferenceNames.add(name);
+	visitedTypeReferenceNodes.add(node);
 
 	const [definition] = resolveVariableName(name, scope)?.defs ?? [];
 	let result = unknown;
@@ -867,7 +867,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 		}
 	}
 
-	visitedTypeReferenceNames.delete(name);
+	visitedTypeReferenceNodes.delete(node);
 	return result;
 }
 
@@ -970,12 +970,12 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		});
 	}
 
-	const {visitedTypeReferenceNames} = normalizedTypeState;
-	if (!name || visitedTypeReferenceNames.has(name)) {
+	const {visitedTypeReferenceNodes} = normalizedTypeState;
+	if (!name || visitedTypeReferenceNodes.has(node)) {
 		return unknown;
 	}
 
-	visitedTypeReferenceNames.add(name);
+	visitedTypeReferenceNodes.add(node);
 	const [definition] = resolveVariableName(name, scope)?.defs ?? [];
 	let result = unknown;
 	if (definition?.type === 'Type') {
@@ -999,7 +999,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		}
 	}
 
-	visitedTypeReferenceNames.delete(name);
+	visitedTypeReferenceNodes.delete(node);
 
 	return result;
 }

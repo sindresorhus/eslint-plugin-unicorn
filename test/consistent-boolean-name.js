@@ -1727,6 +1727,21 @@ ruleTest({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
+			name: 'deeply nested generic aliases require prefixes',
+			code: 'type Identity<T> = T; type Compose<T> = Identity<T>; type Outer<T> = Compose<Identity<T>>; declare const completed: Outer<boolean>; declare const isReady: Outer<string>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'deeply nested generic async aliases require prefixes',
+			code: [
+				'type Identity<T> = T;',
+				'type Result<T> = Promise<Identity<T>>;',
+				'async function completed(): Result<boolean> {}',
+				'async function isReady(): Result<string> {}',
+			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
 			name: 'generic value aliases require prefixes',
 			code: 'type Value<T> = T; declare const completed: Value<boolean>;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
