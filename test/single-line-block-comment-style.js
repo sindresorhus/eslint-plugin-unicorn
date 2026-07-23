@@ -24,12 +24,20 @@ ruleTest.snapshot({
 			Second line.
 			*/
 		`,
+		'/*\nFirst line.\nSecond line.\n*/',
 		'const value = /* Get the value. */ 1;',
+		'const value = /** Get the value. */ 1;',
+		'/** Get the value. */ const value = 1;',
+		'const value = 1; /** Get the value. */',
 		'/* eslint-disable no-console */',
 		'/* eslint-enable no-console */',
+		'/* eslint-disable-next-line no-console */',
+		'/* eslint-disable-line no-console */',
 		'/* jshint esversion: 6 */',
 		'/* jslint browser */',
 		'/* jscs:disable */',
+		'/** jshint esversion: 6 */',
+		'/** prettier-ignore */',
 		'/* global value */',
 		'/* prettier-ignore */',
 		'/* @ts-ignore */',
@@ -53,6 +61,8 @@ ruleTest.snapshot({
 		'/* */',
 		'/*\n*\n*/',
 		'/**\n *\n */',
+		'/**\n*\n*/',
+		'/**\n* Value.\n*/',
 		'/*\n\n*/',
 		'/**\n\n*/',
 		'/**\n * Value.\n */',
@@ -82,6 +92,10 @@ ruleTest.snapshot({
 		},
 		{
 			code: '/**\n * First.\n * Second.\n */',
+			options: ['single-line'],
+		},
+		{
+			code: '/**\nFirst line.\nSecond line.\n*/',
 			options: ['single-line'],
 		},
 		{
