@@ -310,18 +310,28 @@ const isBooleanAsyncFunctionTypeAnnotation = (node, context, scope) =>
 
 const isBooleanFunctionLikeTypeAnnotation = (node, context, scope) =>
 	isBooleanFunctionTypeAnnotation(node, context, scope)
-	|| isBooleanAsyncFunctionTypeAnnotation(node, context, scope);
+	|| isBooleanAsyncFunctionTypeAnnotation(node, context, scope)
+	|| (
+		isFunctionTypeAnnotation(node, context, scope)
+		&& getDirectTypeAnnotationBooleanState(node, context, scope, {allowNullish: false}) === boolean
+	);
 
-const isBooleanFunctionValue = (node, context) => node.async
-	? isBooleanAsyncFunction(node, context)
-	: isBooleanFunction(node, context);
+const isBooleanFunctionValue = (node, context) => {
+	if (node.async) {
+		return isBooleanAsyncFunction(node, context);
+	}
+
+	const scope = context.sourceCode.getScope(node);
+	return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
+		|| isBooleanFunction(node, context);
+};
 
 const isBooleanFunctionDefinition = (definition, context, isAsync = definition.node.async) =>
 	definition.type === 'FunctionName'
 	&& isFunction(definition.node)
 	&& (isAsync
 		? isBooleanAsyncFunction(definition.node, context)
-		: isBooleanFunction(definition.node, context));
+		: isBooleanFunctionValue(definition.node, context));
 
 const isBooleanAsyncFunctionReference = (node, context) => {
 	if (node?.type !== 'Identifier') {
@@ -576,15 +586,76 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
-const getTypeArguments = node => node?.typeArguments?.params ?? node?.typeParameters?.params;
+function getTypeArguments(node) {
+	while (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		node = node.typeAnnotation;
+	}
+
+	return node?.typeArguments?.params ?? node?.typeParameters?.params;
+}
+
+function isBooleanTypeAnnotatedValue(node, context) {
+	const {typeAnnotation} = node;
+	if (!typeAnnotation) {
+		return false;
+	}
+
+	const scope = context.sourceCode.getScope(node);
+	return isBooleanTypeAnnotation(typeAnnotation, context, scope)
+		|| isBooleanFunctionLikeTypeAnnotation(typeAnnotation, context, scope)
+		|| (
+			!isFunctionTypeAnnotation(typeAnnotation, context, scope)
+			&& getDirectTypeAnnotationBooleanState(typeAnnotation, context, scope, {allowNullish: false}) === boolean
+		);
+}
 
 const getTypeState = typeState => ({
 	visitedTypeReferenceNames: new Set(),
+	visitedTypeParameterNames: new Set(),
 	functionTypesAreBoolean: true,
 	allowNullish: true,
 	typeParameterTypes: new Map(),
 	...typeState,
 });
+
+function getTypeParameterResolution(node, typeState) {
+	const name = getTypeReferenceName(node?.typeName);
+	if (!name || typeState.visitedTypeParameterNames.has(name)) {
+		return;
+	}
+
+	const typeParameterType = typeState.typeParameterTypes.get(name);
+	if (!typeParameterType) {
+		return;
+	}
+
+	const visitedTypeParameterNames = new Set(typeState.visitedTypeParameterNames);
+	visitedTypeParameterNames.add(name);
+	const nextTypeState = {
+		...typeState,
+		visitedTypeParameterNames,
+	};
+
+	return getTypeParameterResolution(typeParameterType, nextTypeState) ?? {
+		type: typeParameterType,
+		typeState: nextTypeState,
+	};
+}
+
+function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
+	const typeParameterTypes = new Map(typeState.typeParameterTypes);
+	for (const [index, parameter] of (definitionNode.typeParameters?.params ?? []).entries()) {
+		const typeArgument = typeArguments?.[index] ?? parameter.default;
+		if (typeArgument) {
+			typeParameterTypes.set(parameter.name.name, getTypeParameterResolution(typeArgument, typeState)?.type ?? typeArgument);
+		}
+	}
+
+	return typeParameterTypes;
+}
 
 function getTypeMembersBooleanState(members, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
@@ -614,11 +685,15 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 
 	if (definition?.type === 'Type') {
 		const definitionScope = context.sourceCode.getScope(definition.node);
+		const definitionTypeState = {
+			...normalizedTypeState,
+			typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), normalizedTypeState),
+		};
 
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
-			result = getDirectTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, normalizedTypeState);
+			result = getDirectTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
 		} else if (definition.node.type === 'TSInterfaceDeclaration') {
-			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, normalizedTypeState);
+			result = getTypeMembersBooleanState(definition.node.body.body, context, definitionScope, definitionTypeState);
 		}
 	}
 
@@ -627,10 +702,12 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 }
 
 function getUnionTypeAnnotationBooleanState(node, context, scope, typeState) {
+	const normalizedTypeState = getTypeState(typeState);
+
 	return combineBooleanStates(
 		node.types
-			.filter(type => !nullishTypeAnnotationTypes.has(type.type))
-			.map(type => getTypeAnnotationBooleanState(type, context, scope, typeState)),
+			.filter(type => !nullishTypeAnnotationTypes.has(type.type) || !normalizedTypeState.allowNullish)
+			.map(type => getTypeAnnotationBooleanState(type, context, scope, normalizedTypeState)),
 	);
 }
 
@@ -676,9 +753,9 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	if (node?.type === 'TSTypeReference') {
-		const typeParameterType = normalizedTypeState.typeParameterTypes.get(getTypeReferenceName(node.typeName));
-		if (typeParameterType) {
-			return getTypeAnnotationBooleanState(typeParameterType, context, scope, normalizedTypeState);
+		const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
+		if (typeParameter) {
+			return getTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
 		}
 	}
 
@@ -706,9 +783,9 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	const name = getTypeReferenceName(node.typeName);
-	const typeParameterType = normalizedTypeState.typeParameterTypes.get(name);
-	if (typeParameterType) {
-		return getPromisedTypeAnnotationBooleanState(typeParameterType, context, scope, normalizedTypeState);
+	const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
+	if (typeParameter) {
+		return getPromisedTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
 	}
 
 	const typeArguments = getTypeArguments(node);
@@ -733,17 +810,9 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	let result = unknown;
 	if (definition?.type === 'Type') {
 		const definitionScope = context.sourceCode.getScope(definition.node);
-		const typeParameterTypes = new Map(normalizedTypeState.typeParameterTypes);
-		for (const [index, parameter] of (definition.node.typeParameters?.params ?? []).entries()) {
-			const typeArgument = typeArguments?.[index] ?? parameter.default;
-			if (typeArgument) {
-				typeParameterTypes.set(parameter.name.name, typeArgument);
-			}
-		}
-
 		const definitionTypeState = {
 			...normalizedTypeState,
-			typeParameterTypes,
+			typeParameterTypes: getTypeParameterTypes(definition.node, typeArguments, normalizedTypeState),
 		};
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
 			result = getPromisedTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
@@ -1039,9 +1108,7 @@ const isBooleanVariable = (variable, context) => {
 	const {name} = definition;
 
 	if (name.typeAnnotation) {
-		const scope = sourceCode.getScope(name);
-		return isBooleanTypeAnnotation(name.typeAnnotation, context, scope)
-			|| isBooleanFunctionLikeTypeAnnotation(name.typeAnnotation, context, scope);
+		return isBooleanTypeAnnotatedValue(name, context);
 	}
 
 	if (definition.type === 'Parameter') {
@@ -1263,24 +1330,18 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (propertyDefinitionTypes.has(node.type)) {
-		const scope = sourceCode.getScope(node);
-
-		return isBooleanTypeAnnotation(node.typeAnnotation, context, scope)
-			|| isBooleanFunctionLikeTypeAnnotation(node.typeAnnotation, context, scope)
+		return isBooleanTypeAnnotatedValue(node, context)
 			|| isBooleanValue(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {
-		const scope = sourceCode.getScope(node);
-
-		return isBooleanTypeAnnotation(node.typeAnnotation, context, scope)
-			|| isBooleanFunctionLikeTypeAnnotation(node.typeAnnotation, context, scope);
+		return isBooleanTypeAnnotatedValue(node, context);
 	}
 
 	if (node.type === 'TSMethodSignature') {
 		const scope = sourceCode.getScope(node);
 
-		return isBooleanTypeAnnotation(node.returnType, context, scope)
+		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
 			|| getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) === boolean;
 	}
 
