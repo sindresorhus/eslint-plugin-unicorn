@@ -21,6 +21,7 @@ const unwrapExpression = node => {
 
 const getNonTypeDefinitions = variable => variable.defs.filter(definition => definition.type !== 'Type');
 
+/** Get the unique value binding and definition for an identifier, skipping type-only bindings. */
 const getVariableInfo = (node, context) => {
 	if (node.type !== 'Identifier') {
 		return;
