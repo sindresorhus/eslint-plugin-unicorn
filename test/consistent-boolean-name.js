@@ -964,6 +964,9 @@ ruleTest.snapshot({
 		typescript('type Predicate = () => boolean; const isCompleted: Predicate = getCompleted;'),
 		typescript('interface Predicate { (): boolean; } const isCompleted: Predicate = getCompleted;'),
 		typescript('interface Predicate { (): boolean; readonly description: string; } const isCompleted: Predicate = getCompleted;'),
+		typescript('declare const getReady: () => Promise<() => boolean>; const completed = getReady;'),
+		typescript('type Predicate = () => Promise<() => boolean>; declare const getReady: Predicate; const completed = getReady;'),
+		typescript('interface Predicate { (): Promise<() => boolean>; } declare const getReady: Predicate; const completed = getReady;'),
 		typescript('interface Empty {} const isReady: Empty = value;'),
 		typeAware('interface Empty {} declare const value: Empty; const isReady: Empty = value;'),
 		typescript('type Empty = {}; const isReady: Empty = value;'),
@@ -1134,7 +1137,7 @@ ruleTest.snapshot({
 	].map(testCase => typeof testCase === 'string' ? typescript(testCase) : testCase),
 });
 
-test({
+ruleTest({
 	valid: [],
 	invalid: [
 		invalidBooleanPrefix('declare const Vue: {ref<T>(value: T): {value: T}}; const {ref} = Vue; const isReady = ref(false);'),
@@ -1245,14 +1248,6 @@ ruleTest.snapshot({
 			}],
 		},
 		typescript('interface Task { completed: boolean; }'),
-		typescript({
-			code: 'const task = {completed: true as string};',
-			options: [{checkProperties: true}],
-		}),
-		typescript({
-			code: 'class Task { completed: string = true as string; }',
-			options: [{checkProperties: true}],
-		}),
 	],
 	invalid: [
 		{
@@ -1563,6 +1558,12 @@ ruleTest({
 			errors: 1,
 		},
 		{
+			name: 'arguments prohibit non-boolean',
+			code: 'function download(isReady = "yes") {}',
+			options: [{checkArguments: 'prohibit'}],
+			errors: 1,
+		},
+		{
 			name: 'functions prohibit non-boolean',
 			code: 'function hasTitle() { return "Unicorn"; }',
 			options: [{checkFunctions: 'prohibit'}],
@@ -1606,6 +1607,52 @@ ruleTest({
 			].join('\n'),
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
+		typescript({
+			name: 'async function references returning booleans require prefixes',
+			code: 'async function isReady(): Promise<boolean> {} const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async function variable references returning booleans require prefixes',
+			code: 'const isReady = async (): Promise<boolean> => true; const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async function type references returning booleans require prefixes',
+			code: 'declare const isReady: () => Promise<boolean>; const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async aliased function type references returning booleans require prefixes',
+			code: 'type Predicate = () => Promise<boolean>; declare const isReady: Predicate; const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async callable interface references returning booleans require prefixes',
+			code: 'interface Predicate { (): Promise<boolean>; } declare const isReady: Predicate; const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async function type annotations returning booleans require prefixes',
+			code: 'const completed: () => Promise<boolean> = getReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async field function type annotations returning booleans require prefixes',
+			code: 'interface Task { completed: () => Promise<boolean>; }',
+			options: [{checkFields: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'PromiseLike function type references returning booleans require prefixes',
+			code: 'declare const isReady: () => PromiseLike<boolean>; const completed = isReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'async overloads returning booleans require prefixes',
+			code: 'function completed(): Promise<boolean>; async function completed() {}',
+			errors: 1,
+		}),
 		{
 			name: 'unspecified options keep their defaults',
 			code: 'function download(showProgress = false) {}',
@@ -1648,6 +1695,30 @@ ruleTest({
 			options: [{checkFields: 'always', checkMethods: 'never'}],
 			errors: 1,
 		},
+		typescript({
+			name: 'async methods returning booleans require prefixes',
+			code: 'class Task { async completed(): Promise<boolean> {} }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'async object fields returning booleans require prefixes',
+			code: 'const task = {completed: async (): Promise<boolean> => true};',
+			options: [{checkFields: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'async object methods returning booleans require prefixes',
+			code: 'const task = {async completed(): Promise<boolean> {}};',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'async method signatures returning booleans require prefixes',
+			code: 'interface Task { completed(): Promise<boolean>; }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
 		typescript({
 			name: 'constructor fields are checked independently of arguments',
 			code: 'class Task { constructor(public completed: boolean) {} }',

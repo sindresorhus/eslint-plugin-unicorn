@@ -122,7 +122,7 @@ test({
 			'declare const isReady: OverloadedWrapper;',
 		].join('\n'), {wrappers: {OverloadedWrapper: 'get'}}),
 		// Boolean wrappers intentionally apply only to variable and parameter bindings.
-		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkProperties: true, wrappers: {BooleanWrapper: 'get'}}),
+		invalidBooleanWrapper('interface BooleanWrapper {get(): Promise<boolean>} interface Settings {isReady: BooleanWrapper}', {checkFields: 'prohibit', wrappers: {BooleanWrapper: 'get'}}),
 		invalidBooleanWrapper(`${storageItemType} let isUnicorn: StorageItem<unknown, boolean> = value; isUnicorn = value;`),
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, boolean>;`, {}),
 		typescript({
