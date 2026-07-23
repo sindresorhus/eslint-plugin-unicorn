@@ -167,7 +167,7 @@ ruleTest({
 		}),
 		typeAware({
 			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const getDepartment = async () => true; const hasDepartment = computed(getDepartment);',
-			errors: [{messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(true);',
@@ -2005,6 +2005,39 @@ test('rejects the removed checkProperties option', t => {
 
 	t.throws(() => verify({checkVariables: true}));
 	t.throws(() => verify({checkMethods: 'invalid'}));
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		typescript({
+			name: 'overloaded method signatures report once',
+			code: 'interface Task { completed(): boolean; completed(value: string): boolean; }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'overloaded class methods report once',
+			code: 'class Task { completed(): boolean; completed(value: string): boolean; completed(value?: string) { return true; } }',
+			options: [{checkMethods: 'always'}],
+			errors: 1,
+		}),
+		typeAware({
+			name: 'type-aware unannotated async function declarations require prefixes',
+			code: 'async function completed() { return true; }',
+			errors: 1,
+		}),
+		typeAware({
+			name: 'type-aware unannotated async arrow functions require prefixes',
+			code: 'const completed = async () => true;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'merged callable interfaces are resolved together',
+			code: 'interface Predicate<T> { value: string; } interface Predicate<T> { (): T; } declare const completed: Predicate<boolean>;',
+			errors: 1,
+		}),
+	],
 });
 
 // Svelte `{#each}` bindings are `Parameter` definitions whose owner is the each-block, not a function.
