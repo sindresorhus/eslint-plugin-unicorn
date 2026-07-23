@@ -21,6 +21,8 @@ Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
 
+When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
+
 Configured wrapper bindings may use boolean prefixes when a configured property or method provides a boolean-like value. This applies only to variables and parameters that are not reassigned.
 
 Reports for property and method names, and reports for non-boolean values using boolean prefixes, do not provide rename suggestions.
@@ -51,7 +53,7 @@ Direct Vue `ref()` calls with boolean-like values and `computed()` calls with bo
 
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 
-TypeScript type annotation checks resolve local type aliases and callable interfaces, but not qualified or namespaced type references.
+TypeScript type annotation checks resolve local type aliases and callable interfaces, including generic type parameters, but not qualified or namespaced type references.
 
 This rule is only automatically fixable when a non-global, non-exported, non-ambient variable binding can be safely renamed to the first enabled prefix without adding a collision suffix. Other safe rename candidates are still provided as editor suggestions.
 
@@ -140,7 +142,7 @@ function download(shouldShowProgress: boolean) {}
 ```js
 // ✅
 // Object fields are ignored unless `checkFields` is set to a mode other than `never`.
-// Methods, getters, and setters use `checkMethods`.
+// Methods and getters use `checkMethods`. Setter names are ignored because setters do not return values.
 const task = {
 	completed: progress === 100,
 };
@@ -201,7 +203,7 @@ How to check function names.
 Type: `'always' | 'prohibit' | 'never'`\
 Default: `'never'`
 
-How to check object and class methods, getters, setters, and TypeScript method signatures.
+How to check object and class methods, getters, and TypeScript method signatures. Setter names are ignored because setters do not return values.
 
 ### checkFields
 

@@ -87,6 +87,7 @@ test({
 	],
 	invalid: [
 		invalidBooleanWrapper(`${storageItemType} declare const isUnicorn: StorageItem<unknown, string>;`),
+		invalidBooleanWrapper('interface PromiseLikeWrapper {get(): PromiseLike<string>} declare const isReady: PromiseLikeWrapper;', {wrappers: {PromiseLikeWrapper: 'get'}}),
 		invalidBooleanWrapper([
 			'namespace Storage { export interface StorageItem<Return> {get(): Promise<Return>} }',
 			'import StorageItem = Storage.StorageItem;',

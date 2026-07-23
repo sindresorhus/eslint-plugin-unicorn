@@ -1530,6 +1530,7 @@ ruleTest({
 			code: 'class Task { completed = true; hasTitle() { return "Unicorn"; } }',
 			options: [{checkFields: 'never', checkMethods: 'never'}],
 		},
+		typescript({code: 'function download(completed: (() => Promise<boolean>) | undefined) {}', options: [{checkArguments: 'always'}]}),
 		typescript({code: 'class Task { constructor(public completed: boolean) {} }', options: [{checkArguments: 'never', checkFields: 'never'}]}),
 		{
 			name: 'fields and methods prohibit boolean',
@@ -1610,11 +1611,36 @@ ruleTest({
 		typescript({
 			name: 'async function references returning booleans require prefixes',
 			code: 'async function isReady(): Promise<boolean> {} const completed = isReady;',
-			errors: 1,
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
 		}),
 		typescript({
 			name: 'async function variable references returning booleans require prefixes',
 			code: 'const isReady = async (): Promise<boolean> => true; const completed = isReady;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'async function type annotations reject non-booleans',
+			code: 'declare const isReady: () => Promise<string>;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'generic async Promise aliases require prefixes',
+			code: 'type Result<T> = Promise<T>; async function completed(): Result<boolean> {}',
+			errors: 1,
+		}),
+		typescript({
+			name: 'generic async PromiseLike aliases require prefixes',
+			code: 'type Result<T> = PromiseLike<T>; async function completed(): Result<boolean> {}',
+			errors: 1,
+		}),
+		typescript({
+			name: 'generic async function aliases require prefixes',
+			code: 'type Predicate<T> = () => Promise<T>; const completed: Predicate<boolean> = getReady;',
+			errors: 1,
+		}),
+		typescript({
+			name: 'generic async callable interfaces require prefixes',
+			code: 'interface Predicate<T> { (): Promise<T>; } const completed: Predicate<boolean> = getReady;',
 			errors: 1,
 		}),
 		typescript({
@@ -1641,6 +1667,12 @@ ruleTest({
 			name: 'async field function type annotations returning booleans require prefixes',
 			code: 'interface Task { completed: () => Promise<boolean>; }',
 			options: [{checkFields: 'always'}],
+			errors: 1,
+		}),
+		typescript({
+			name: 'async field function type annotations reject non-booleans',
+			code: 'interface Task { isReady: () => Promise<string>; }',
+			options: [{checkFields: 'prohibit'}],
 			errors: 1,
 		}),
 		typescript({
@@ -1730,6 +1762,11 @@ ruleTest({
 			code: 'class Task { constructor(public completed: boolean) {} }',
 			options: [{checkArguments: 'always', checkFields: 'always'}],
 			errors: 2,
+		}),
+		typescript({
+			name: 'constructor parameter properties do not get unsafe suggestions',
+			code: 'class Task { constructor(public completed: boolean = false) { this.completed = completed; } }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
 		}),
 		typescript({
 			name: 'constructor argument prohibition',
