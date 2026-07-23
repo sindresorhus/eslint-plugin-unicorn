@@ -36,8 +36,17 @@ ruleTest.snapshot({
 		'/* jshint esversion: 6 */',
 		'/* jslint browser */',
 		'/* jscs:disable */',
+		'/* tslint:disable */',
+		'/* flowlint sketchy-null:off */',
+		'/* flowlint-next-line sketchy-null:off */',
+		outdent`
+			/*
+			 * flowlint-line sketchy-null:off
+			 */
+		`,
 		'/** jshint esversion: 6 */',
 		'/** prettier-ignore */',
+		'/** @noformat */',
 		'/* global value */',
 		'/* prettier-ignore */',
 		'/* @ts-ignore */',
@@ -46,15 +55,23 @@ ruleTest.snapshot({
 		'/* @jsxImportSource preact */',
 		'/* @flow strict */',
 		'/* @jest-environment node */',
+		'/* @noformat */',
+		'/* @noprettier */',
+		'/* $FlowFixMe[prop-missing] */',
+		'/* $FlowExpectedError[incompatible-type] */',
 		'/* c8 ignore next */',
 		'/* istanbul ignore next */',
 		'/* nyc ignore next */',
 		'/* v8 ignore next */',
 		'/* biome-ignore lint/suspicious/noExplicitAny */',
 		'/* deno-lint-ignore no-explicit-any */',
+		'/* deno-lint-ignore-file */',
 		'/* dprint-ignore */',
+		'/* dprint-ignore-file */',
+		'/* oxlint-disable-line no-console */',
 		'/* oxlint-disable no-console */',
 		'/* oxlint-enable no-console */',
+		'/* biome-ignore-all lint/suspicious/noExplicitAny */',
 		'/* cspell:ignore foo */',
 		'/* spell-checker:ignore foo */',
 		'/**/',
@@ -81,6 +98,14 @@ ruleTest.snapshot({
 		{
 			code: '/** Another value. */',
 			options: ['single-line'],
+		},
+		{
+			code: '/**\n * Value.\n */',
+			options: ['single-line'],
+		},
+		{
+			code: '/** * Value. */',
+			options: ['multiline'],
 		},
 		{
 			code: '\t/** Value. */',
@@ -349,17 +374,6 @@ ruleTest({
 			errors: [error],
 		},
 		{
-			code: '/**\n * Value.\n */',
-			options: ['single-line'],
-			output: '/** * Value. */',
-			errors: [error],
-		},
-		{
-			code: '/** * Value. */',
-			output: '/**\n* Value.\n*/',
-			errors: [error],
-		},
-		{
 			code: '/* * */',
 			output: '/*\n*\n*/',
 			errors: [error],
@@ -422,17 +436,6 @@ ruleTest({
 			errors: [error],
 		},
 		{
-			code: '/**\n *\n * Value.\n */',
-			output: '/**\n* Value.\n*/',
-			errors: [error],
-		},
-		{
-			code: '/**\n *\n * Value.\n */',
-			options: ['single-line'],
-			output: '/** * Value. */',
-			errors: [error],
-		},
-		{
 			code: '/* First. */\n/** Second. */',
 			output: '/*\nFirst.\n*/\n/**\nSecond.\n*/',
 			errors: [error, error],
@@ -483,6 +486,21 @@ ruleTest({
 			output: '/** Mixed position. */',
 			errors: [error],
 		},
+		{
+			code: '/* $FlowFixMe */',
+			output: '/*\n$FlowFixMe\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* $FlowFixMe: explanation */',
+			output: '/*\n$FlowFixMe: explanation\n*/',
+			errors: [error],
+		},
+		{
+			code: '/* $FlowFixMe [prop-missing] */',
+			output: '/*\n$FlowFixMe [prop-missing]\n*/',
+			errors: [error],
+		},
 	],
 });
 
@@ -524,23 +542,18 @@ test('autofixes are idempotent', t => {
 			options: ['single-line'],
 		},
 		{
+			code: '/** * */',
+			output: '/** * */',
+			options: [],
+		},
+		{
 			code: '/**\n * Value.\n */',
-			output: '/** * Value. */',
+			output: '/**\n * Value.\n */',
 			options: ['single-line'],
 		},
 		{
 			code: '/** * Value. */',
-			output: '/**\n* Value.\n*/',
-			options: [],
-		},
-		{
-			code: '/**\n *\n * Value.\n */',
-			output: '/**\n* Value.\n*/',
-			options: [],
-		},
-		{
-			code: '/** * */',
-			output: '/** * */',
+			output: '/** * Value. */',
 			options: [],
 		},
 	];

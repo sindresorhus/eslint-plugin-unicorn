@@ -11,7 +11,7 @@
 
 This rule enforces a consistent layout for standalone block comments whose content occupies one line. It supports both ordinary block comments and documentation comments.
 
-Comments with multiple content lines, block comments placed beside code, and directive comments are ignored. License comments beginning with `/*!` are also ignored.
+Comments with multiple content lines, block comments placed beside code, recognized directive comments, and documentation comments with asterisk prefixes are ignored. License comments beginning with `/*!` are also ignored.
 
 ## Examples
 
@@ -41,3 +41,5 @@ Requires the comment to fit on one line:
 ```
 
 The opening delimiter is preserved, so `/*` comments remain `/*` comments and `/**` comments remain `/**` comments.
+
+Documentation comment asterisk prefixes are left unchanged to avoid changing their meaning.

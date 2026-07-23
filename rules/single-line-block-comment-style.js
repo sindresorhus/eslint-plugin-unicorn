@@ -10,12 +10,16 @@ const SINGLE_LINE = 'single-line';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
-	/^\s*(?:eslint(?:-env)?|jshint|jslint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
+	/^\s*(?:eslint(?:-env)?|jshint|[jt]slint|jscs|globals?|exported|no default|noinspection)(?:\s|:|$)/v,
+	/^\s*\*?\s*flowlint(?:-(?:line|next-line))?(?:\s|:|$)/v,
 	/^\s*(?:c8|istanbul|nyc|v8)\s+ignore(?:\s|$)/v,
-	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:next-line|start|end))?(?:\s|$)/v,
+	/^\s*(?:biome|deno|dprint|oxlint|prettier)-(?:ignore|lint-ignore|disable|enable)(?:-(?:line|next-line|start|end|file|all))?(?:\s|$)/v,
 	/^\s*(?:cspell|spell-checker):/v,
 ];
-const TYPESCRIPT_DIRECTIVE_PATTERN = /^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment)(?:\s|:|$)/v;
+const LANGUAGE_DIRECTIVE_PATTERNS = [
+	/^\s*@(?:ts-(?:check|nocheck|ignore|expect-error)|jsx(?:Frag|ImportSource|Runtime|Factory)?|(?:no)?flow|(?:jest|vitest)-environment|noformat|noprettier)(?:\s|:|$)/v,
+	/^\s*\$Flow(?:FixMe|ExpectedError)\[[^\]]+\](?:\s|:|$)/v,
+];
 const MINIFIER_DIRECTIVE_PATTERN = /^\s*[#@]__(?:INLINE|NOINLINE|PURE|KEY|MANGLE_PROP|NO_SIDE_EFFECTS)__\s*$/v;
 
 const messages = {
@@ -81,7 +85,7 @@ const isDirective = (context, comment, opening) => {
 
 	const commentText = getCommentText(comment, opening);
 	return DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
-		|| TYPESCRIPT_DIRECTIVE_PATTERN.test(commentText)
+		|| LANGUAGE_DIRECTIVE_PATTERNS.some(pattern => pattern.test(commentText))
 		|| MINIFIER_DIRECTIVE_PATTERN.test(commentText);
 };
 
@@ -98,6 +102,9 @@ const getSingleContentLine = (content, opening) => {
 
 	return contentLines[0].trim();
 };
+
+const hasAsteriskPrefix = (content, opening) =>
+	opening === '/**' && getContentLines(content).some(line => /^\s*\*/v.test(line));
 
 const isCanonicalMultiline = content => {
 	const lines = getContentLines(content);
@@ -123,6 +130,10 @@ const getProblem = (context, comment, style) => {
 	}
 
 	const content = text.slice(opening.length, -2);
+	if (hasAsteriskPrefix(content, opening)) {
+		return;
+	}
+
 	const singleContentLine = getSingleContentLine(content, opening);
 
 	if (style === MULTILINE) {
