@@ -22,6 +22,7 @@ test.snapshot({
 		'import {DatabaseSync} from "node:sqlite"; const database = createDatabase(); database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const {exec} = database; exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; const {database} = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const method = getMethod(); database[method](`SELECT ${value}`);',
 		'const sqlite = await import("node:sqlite"); const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
 		{
 			code: 'import type {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${value}`);',
@@ -96,6 +97,14 @@ test.snapshot({
 		},
 		{
 			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}` satisfies string);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); (database as DatabaseSync).exec(`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import * as sqlite from "node:sqlite"; const database = new (sqlite as typeof import("node:sqlite")).DatabaseSync(":memory:"); database.exec(`SELECT ${id}`);',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

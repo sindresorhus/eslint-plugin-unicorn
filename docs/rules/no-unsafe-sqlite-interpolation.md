@@ -9,7 +9,7 @@
 
 Interpolating values into SQL strings makes them part of the SQL source instead of bound parameters. This can lead to SQL injection and data corruption.
 
-Tagged templates passed directly to `exec()` or `prepare()` are also reported because they are not `SQLTagStore` calls, including static tags such as `String.raw`.
+Tagged templates passed directly to `exec()` or `prepare()` are also reported because those methods do not bind tagged-template interpolations, including static tags such as `String.raw`.
 
 Use placeholders with `DatabaseSync#prepare()` and bind values when executing the prepared statement:
 
