@@ -154,19 +154,7 @@ const isSqliteNamespace = (node, context, seenVariables = new Set()) => {
 	return isSqliteNamespace(variableInfo.initializer, context, seenVariables);
 };
 
-const getDatabaseConstructors = (newExpressions, context) => {
-	const databaseConstructors = new WeakSet();
-
-	for (const newExpression of newExpressions) {
-		if (isDatabaseSyncConstructor(newExpression.callee, context)) {
-			databaseConstructors.add(newExpression);
-		}
-	}
-
-	return databaseConstructors;
-};
-
-const createDatabaseInstanceChecker = (databaseConstructors, context) => {
+const createDatabaseInstanceChecker = context => {
 	const cache = new WeakMap();
 
 	const isDatabaseInstance = (node, seenVariables = new Set()) => {
@@ -176,7 +164,7 @@ const createDatabaseInstanceChecker = (databaseConstructors, context) => {
 		}
 
 		if (node.type === 'NewExpression') {
-			return databaseConstructors.has(node);
+			return isDatabaseSyncConstructor(node.callee, context);
 		}
 
 		if (node.type !== 'Identifier') {
@@ -277,19 +265,13 @@ const getProblem = (callExpression, context, isDatabaseInstance, isUnsafeSqlArgu
 /** @param {import('eslint').Rule.RuleContext} context */
 const create = context => {
 	const callExpressions = [];
-	const newExpressions = [];
 
 	context.on('CallExpression', node => {
 		callExpressions.push(node);
 	});
 
-	context.on('NewExpression', node => {
-		newExpressions.push(node);
-	});
-
 	context.onExit('Program', function * () {
-		const databaseConstructors = getDatabaseConstructors(newExpressions, context);
-		const isDatabaseInstance = createDatabaseInstanceChecker(databaseConstructors, context);
+		const isDatabaseInstance = createDatabaseInstanceChecker(context);
 		const isUnsafeSqlArgument = createUnsafeSqlArgumentChecker(context);
 
 		for (const callExpression of callExpressions) {

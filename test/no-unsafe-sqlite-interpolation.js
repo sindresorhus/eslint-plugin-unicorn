@@ -80,7 +80,15 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
+			code: 'import {DatabaseSync} from "node:sqlite"; type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: 'import * as sqlite from "node:sqlite"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${id}`); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'import * as sqlite from "node:sqlite"; type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(`SELECT ${id}`);',
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
