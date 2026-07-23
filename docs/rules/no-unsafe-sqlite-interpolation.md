@@ -25,7 +25,7 @@ const sql = database.createTagStore();
 sql.get`SELECT * FROM users WHERE id = ${id}`;
 ```
 
-This rule only recognizes runtime `DatabaseSync` instances imported from exactly `node:sqlite`, including simple immutable `const` aliases of constructors, namespaces, and instances, and only checks `exec()` and `prepare()`. It intentionally ignores CommonJS `require()`, TypeScript import-equals declarations, string concatenation, generic query methods, dynamic imports, factory-created databases, and mutable assignment flows.
+This rule only recognizes runtime `DatabaseSync` instances imported from exactly `node:sqlite`, including simple `const` aliases of constructors, namespaces, and instances, and only checks `exec()` and `prepare()`. It intentionally ignores CommonJS `require()`, TypeScript import-equals declarations, string concatenation, generic query methods, dynamic imports, factory-created databases, and mutable assignment flows.
 
 ## Examples
 
