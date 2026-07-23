@@ -69,8 +69,9 @@ function getConfiguredMemberName(type, checker, wrappers, visitedTypes = new Set
 }
 
 function getBooleanValueState(type, checker) {
-	const typeState = getTypeBooleanState(type, checker, new Set(), false);
-	const promisedTypeState = getPromisedTypeBooleanState(type, checker);
+	const nonNullableType = checker.getNonNullableType(type);
+	const typeState = getTypeBooleanState(nonNullableType, checker, new Set(), false);
+	const promisedTypeState = getPromisedTypeBooleanState(nonNullableType, checker);
 
 	if (typeState === boolean || promisedTypeState === boolean) {
 		return boolean;
