@@ -683,7 +683,81 @@ function getTypeParameterResolution(node, typeState) {
 
 	return getTypeParameterResolution(typeParameterType, nextTypeState) ?? {
 		type: typeParameterType,
-		typeState: nextTypeState,
+		typeState: hasTypeParameterReference(typeParameterType, name)
+			? nextTypeState
+			: {...nextTypeState, visitedTypeParameterNames: new Set()},
+	};
+}
+
+function hasTypeParameterReference(node, name) {
+	if (!node || typeof node !== 'object') {
+		return false;
+	}
+
+	if (node.type === 'TSTypeReference' && getTypeReferenceName(node.typeName) === name) {
+		return true;
+	}
+
+	for (const [key, value] of Object.entries(node)) {
+		if (key === 'parent') {
+			continue;
+		}
+
+		if (Array.isArray(value)) {
+			if (value.some(child => hasTypeParameterReference(child, name))) {
+				return true;
+			}
+		} else if (hasTypeParameterReference(value, name)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function resolveTypeParameterType(node, typeState) {
+	const typeParameter = getTypeParameterResolution(node, typeState);
+	if (typeParameter) {
+		return resolveTypeParameterType(typeParameter.type, typeParameter.typeState);
+	}
+
+	if (
+		node?.type === 'TSTypeAnnotation'
+		|| node?.type === 'TSParenthesizedType'
+	) {
+		const typeAnnotation = resolveTypeParameterType(node.typeAnnotation, typeState);
+		return typeAnnotation === node.typeAnnotation ? node : {...node, typeAnnotation};
+	}
+
+	if (
+		node?.type === 'TSUnionType'
+		|| node?.type === 'TSIntersectionType'
+	) {
+		const types = node.types.map(type => resolveTypeParameterType(type, typeState));
+		return types.every((type, index) => type === node.types[index]) ? node : {...node, types};
+	}
+
+	if (node?.type !== 'TSTypeReference') {
+		return node;
+	}
+
+	const typeArguments = getTypeArguments(node);
+	if (!typeArguments) {
+		return node;
+	}
+
+	const resolvedTypeArguments = typeArguments.map(type => resolveTypeParameterType(type, typeState));
+	if (resolvedTypeArguments.every((type, index) => type === typeArguments[index])) {
+		return node;
+	}
+
+	const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
+	return {
+		...node,
+		[typeArgumentsProperty]: {
+			...node[typeArgumentsProperty],
+			params: resolvedTypeArguments,
+		},
 	};
 }
 
@@ -692,7 +766,8 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	for (const [index, parameter] of (definitionNode.typeParameters?.params ?? []).entries()) {
 		const typeArgument = typeArguments?.[index] ?? parameter.default;
 		if (typeArgument) {
-			typeParameterTypes.set(parameter.name.name, getTypeParameterResolution(typeArgument, typeState)?.type ?? typeArgument);
+			const resolvedTypeArgument = resolveTypeParameterType(typeArgument, typeState);
+			typeParameterTypes.set(parameter.name.name, resolvedTypeArgument);
 		}
 	}
 

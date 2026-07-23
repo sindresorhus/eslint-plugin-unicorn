@@ -1693,6 +1693,21 @@ ruleTest({
 			errors: [{messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
+			name: 'nested generic inherited callable interfaces require prefixes',
+			code: 'type Box<T> = T; interface Base<T> { (): T; } interface Predicate<T> extends Base<Box<T>> {} declare const completed: Predicate<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			name: 'nested generic inherited callable interfaces reject misleading prefixes',
+			code: 'type Box<T> = T; interface Base<T> { (): T; } interface Predicate<T> extends Base<Box<T>> {} declare const isReady: Predicate<string>;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'nested generic inherited async callable interfaces require prefixes',
+			code: 'type Box<T> = T; interface Base<T> { (): Promise<T>; } interface Predicate<T> extends Base<Box<T>> {} declare const completed: Predicate<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
 			name: 'generic value aliases require prefixes',
 			code: 'type Value<T> = T; declare const completed: Value<boolean>;',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
