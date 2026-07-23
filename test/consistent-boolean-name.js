@@ -2035,6 +2035,12 @@ ruleTest({
 			errors: 1,
 		}),
 		typescript({
+			name: 'different method names report independently',
+			code: 'interface Task { completed(): boolean; finished(): boolean; }',
+			options: [{checkMethods: 'always'}],
+			errors: 2,
+		}),
+		typescript({
 			name: 'overloaded method signatures with equivalent public names report once',
 			code: 'interface Task { completed(): boolean; [\'completed\'](value: string): boolean; }',
 			options: [{checkMethods: 'always'}],

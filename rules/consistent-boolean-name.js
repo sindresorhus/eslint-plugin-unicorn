@@ -1918,7 +1918,7 @@ const create = context => {
 	};
 
 	const variableModes = {checkVariables, checkArguments, checkFunctions};
-	const reportedMethodNames = new Map();
+	const reportedMethodKeys = new Map();
 
 	context.on('Program', node => {
 		for (const scope of getScopes(context.sourceCode.getScope(node))) {
@@ -1954,19 +1954,19 @@ const create = context => {
 				return;
 			}
 
-			const {owner, name: ownerName} = getMethodReportIdentity(node, context.sourceCode);
-			let names = reportedMethodNames.get(owner);
-			if (!names) {
-				names = new Set();
-				reportedMethodNames.set(owner, names);
+			const {owner, name: qualifiedName} = getMethodReportIdentity(node, context.sourceCode);
+			let keys = reportedMethodKeys.get(owner);
+			if (!keys) {
+				keys = new Set();
+				reportedMethodKeys.set(owner, keys);
 			}
 
-			const key = `${ownerName ?? name}:${getMethodReportKey(node)}`;
-			if (names.has(key)) {
+			const key = `${qualifiedName ?? ''}:${name}:${getMethodReportKey(node)}`;
+			if (keys.has(key)) {
 				return;
 			}
 
-			names.add(key);
+			keys.add(key);
 			context.report(problem);
 		};
 
